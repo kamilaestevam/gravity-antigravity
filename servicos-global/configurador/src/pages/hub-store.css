@@ -20,11 +20,29 @@
   color: var(--sw-text-1);
 }
 
-/* Wrapper geral do conteúdo — topbar agora é .hb-topbar sticky, toma seu próprio espaço */
+/* ── Shell layout SSOT (HUB unificado + Gravity Store) ── */
+.gs-root,
+.sw-hub-root,
+.sw-page--full:has(.sw-content--hub-unificado) {
+  --gravity-shell-layout-base: 1140px;
+  --gravity-shell-layout-max: min(100%, calc((100vw + var(--gravity-shell-layout-base)) / 2));
+  --gravity-shell-layout-gutter: clamp(0.75rem, 2vw, 1.375rem);
+  --gravity-shell-pad-inline: calc(
+    (100% - min(100%, var(--gravity-shell-layout-max))) / 2 + var(--gravity-shell-layout-gutter)
+  );
+}
+
 .gs-store {
-  padding: 1.5rem 2rem 4rem;
-  max-width: 1280px;
-  margin: 0 auto;
+  padding: 1.5rem var(--gravity-shell-layout-gutter) 4rem;
+  max-width: var(--gravity-shell-layout-max);
+  width: 100%;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+/* Puzzle stack — escala hub (HUB unificado + Store) */
+.gs-stack.gs-stack--puzzle {
+  --gs-piece-scale: 0.8;
 }
 
 /* Loading centralizado — posição fixa cobrindo viewport inteira,
@@ -1342,6 +1360,9 @@ body.light-theme .gs-puzzle-carousel__btn {
 
 /* Container da peça: 138px wide para incluir a aba (tab) que estende 18px */
 .gs-piece {
+  --gs-piece-scale: 0.8;
+  transform: scale(var(--gs-piece-scale));
+  transform-origin: left center;
   position: relative;
   width: 138px;
   height: 90px;
@@ -1365,7 +1386,7 @@ body.light-theme .gs-puzzle-carousel__btn {
 }
 
 .gs-piece:hover {
-  transform: translateY(-5px);
+  transform: scale(var(--gs-piece-scale)) translateY(-5px);
 }
 
 /* SVG de fundo — fornece o shape da peça */
@@ -2932,6 +2953,31 @@ body.light-theme .gs-search {
 /* ── Store: Toolbar count ────────────────────────────────────────────────── */
 body.light-theme .gs-toolbar__count {
   color: #475569;
+}
+
+.sw-shell.sw-hub-root {
+  height: 100vh;
+  overflow: hidden;
+  background: var(--sw-bg, #0f172a);
+  font-family: var(--sw-f-body, var(--font));
+  color: var(--sw-text-1);
+  position: relative;
+}
+
+.sw-shell.sw-hub-root .sw-content.sw-content--hub-unificado {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding: 1.5rem var(--gravity-shell-pad-inline, 2rem) 4rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .sw-shell.sw-hub-root .sw-content.sw-content--hub-unificado,
+  .gs-root > .gs-store {
+    padding-top: 1.25rem;
+    padding-bottom: 2.5rem;
+  }
 }
 
 /* ── Store carrossel: caixa idêntica (Assinar = Ativo = Em breve = Todos) ── */

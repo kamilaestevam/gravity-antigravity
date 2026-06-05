@@ -107,9 +107,10 @@ async function configInicialDePreferenciaLegada(
   })
 
   const colunasVisiveis = pref?.colunas_visiveis_preferencia_usuario_coluna_pedido ?? []
-  const colunasLargura = colunasLarguraParaCliente(
+  const colunasLarguraCliente = colunasLarguraParaCliente(
     pref?.colunas_largura_preferencia_usuario_coluna_pedido ?? null,
   )
+  const colunasLargura = colunasLarguraCliente ?? {}
 
   return configListaPainelPadraoV1({
     colunas_visiveis: colunasVisiveis.length > 0 ? colunasVisiveis : [],

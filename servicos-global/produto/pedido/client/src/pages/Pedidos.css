@@ -162,6 +162,56 @@
   color: #a78bfa;
 }
 
+.lp-painel-tab-cluster {
+  display: inline-flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.lp-painel-tab-cluster--ativo {
+  background: rgba(139, 92, 246, 0.32);
+  border-color: rgba(167, 139, 250, 0.65);
+}
+
+.lp-painel-tab-cluster:hover:not(.lp-painel-tab-cluster--ativo) {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.lp-painel-tab--rotulo {
+  border: none;
+  border-radius: 4px 0 0 4px;
+  background: transparent;
+}
+
+.lp-painel-tab-cluster--ativo .lp-painel-tab--rotulo {
+  color: #ede9fe;
+  font-weight: 600;
+}
+
+.lp-painel-tab-cluster:not(.lp-painel-tab-cluster--ativo) .lp-painel-tab--rotulo {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.lp-painel-tab-cluster:not(.lp-painel-tab-cluster--ativo) .lp-painel-tab--rotulo:hover {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.lp-painel-tab-cluster--nome-generico:not(.lp-painel-tab-cluster--ativo) .lp-painel-tab__nome {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.lp-painel-tab-cluster--ativo.lp-painel-tab-cluster--nome-generico .lp-painel-tab__nome {
+  font-style: normal;
+  font-weight: 600;
+  color: inherit;
+}
+
 .lp-faixa-navegacao__secao-label {
   color: #a5b4fc;
   border-right-color: rgba(129, 140, 248, 0.28);
@@ -367,42 +417,49 @@
 .lp-painel-tab {
   display: inline-flex;
   align-items: center;
-  max-width: 7.5rem;
+  flex-shrink: 0;
+  max-width: none;
   padding: 0.15rem 0.45rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
   font-family: inherit;
   font-size: 0.6875rem;
   font-weight: 500;
   line-height: 1.2;
-  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
 }
 
-.lp-painel-tab--ativo {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.45);
-  color: #c4b5fd;
-  font-weight: 600;
-}
-
 .lp-painel-tab__nome {
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .lp-painel-tab__menu {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  margin-left: 0.15rem;
+  margin: 0;
+  padding: 0.15rem 0.35rem;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0 4px 4px 0;
+  background: transparent;
+  font-family: inherit;
+  color: inherit;
   opacity: 0.55;
   cursor: pointer;
 }
 
+.lp-painel-tab-cluster--ativo .lp-painel-tab__menu {
+  border-left-color: rgba(167, 139, 250, 0.35);
+  color: #ede9fe;
+}
+
 .lp-painel-tab__menu:hover {
   opacity: 1;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lp-painel-tab-cluster--ativo .lp-painel-tab__menu:hover {
+  background: rgba(139, 92, 246, 0.22);
 }
 
 .lp-painel-tab-add {

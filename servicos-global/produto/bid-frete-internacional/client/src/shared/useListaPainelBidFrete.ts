@@ -31,12 +31,13 @@ export interface AplicarConfigListaPainelCallbacks {
   setSortDir: (d: 'asc' | 'desc') => void
   setBusca: (b: string) => void
   setFiltrosAtivos: (f: FiltrosAtivosMap) => void
-  onConfigAplicada?: (
-    aba: string,
-    campo: string,
-    dir: 'asc' | 'desc',
-    busca: string,
-  ) => void
+  onConfigAplicada?: (snapshot: {
+    aba: string
+    sortCampo: string
+    sortDir: 'asc' | 'desc'
+    busca: string
+    filtrosColuna: FiltrosAtivosMap
+  }) => void
   onPainelHidratado?: (idPainel: string) => void
 }
 
@@ -82,7 +83,7 @@ export function useListaPainelBidFrete() {
     try {
       const { data } = await paineisListaBidFreteApi.listar()
       setPaineis(data)
-      const visivel = data.find(p => p.is_visivel) ?? data[0]
+      const visivel = data.find(p => p.is_visivel !== false) ?? data[0]
       if (visivel) setPainelAtualId(visivel.id)
     } catch (err) {
       console.warn('[useListaPainelBidFrete] falha ao carregar painéis', err)
@@ -127,12 +128,13 @@ export function useListaPainelBidFrete() {
     callbacks.setBusca(config.busca ?? '')
     callbacks.setFiltrosAtivos(deserializarFiltrosLista(config.filtros_coluna))
 
-    callbacks.onConfigAplicada?.(
-      config.aba_status_ativa,
-      config.ordenacao.campo,
-      config.ordenacao.direcao,
-      config.busca ?? '',
-    )
+    callbacks.onConfigAplicada?.({
+      aba: config.aba_status_ativa,
+      sortCampo: config.ordenacao.campo,
+      sortDir: config.ordenacao.direcao,
+      busca: config.busca ?? '',
+      filtrosColuna: deserializarFiltrosLista(config.filtros_coluna),
+    })
 
     queueMicrotask(() => {
       aplicandoConfigRef.current = false

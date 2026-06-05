@@ -7,9 +7,8 @@
  *
  * Regras:
  *  - Nunca expõe dados de outro tenant (cache-key inclui id_organizacao)
- *  - Sempre retorna no mínimo 2 insights (fallback seguro)
+ *  - Carrossel: ~90% insights operacionais (KPIs/alertas) · ~10% dicas de plataforma
  *  - Cada fetcher tem timeout de 3s (AbortSignal.timeout)
- *  - Se nenhum produto responde, retorna fallback estático
  *  - Erros individuais de produto não bloqueiam os demais
  */
 
@@ -31,6 +30,8 @@ export type HubUserRole = 'operador' | 'gerente' | 'diretor' | 'admin' | 'defaul
 
 interface ProductFetcherContext {
   id_organizacao: string
+  id_usuario: string
+  role: HubUserRole
   token: string
   internalKey: string
 }
@@ -51,6 +52,62 @@ function getChaveInterna(): string {
 }
 
 const FETCH_TIMEOUT_MS = 3_000
+
+/** Mínimo de cards no carrossel GABI do HUB. */
+const MIN_INSIGHTS_HUB = 4
+/** Alvo quando há dados operacionais suficientes. */
+const TARGET_INSIGHTS_HUB = 10
+/** Teto do carrossel (evita lista infinita). */
+const MAX_INSIGHTS_HUB = 12
+/** Fração máxima de dicas de plataforma no carrossel. */
+const FRACAO_DICAS_PLATAFORMA = 0.1
+/** Insere 1 dica de plataforma a cada N insights operacionais. */
+const INTERVALO_INSIGHT_OPERACIONAL = 9
+
+/** Aliases de chave de produto → chave usada pelos fetchers (paridade Store/HUB). */
+export function normalizarChavesProdutosAtivosHub(keys: Iterable<string>): Set<string> {
+  const out = new Set<string>()
+  for (const key of keys) {
+    out.add(key)
+    if (key === 'bid-frete-internacional') out.add('bid-frete')
+    if (key === 'nf-import') out.add('nf-importacao')
+  }
+  return out
+}
+
+function montarHeadersChamadaInterServicoHub(ctx: ProductFetcherContext): Record<string, string> {
+  return {
+    'x-chave-interna-servico': ctx.internalKey,
+    'x-internal-key': ctx.internalKey,
+    'x-id-organizacao': ctx.id_organizacao,
+    'x-id-usuario': ctx.id_usuario,
+    'x-user-role': ctx.role,
+    'Content-Type': 'application/json',
+  }
+}
+
+function urlBidFreteInternacionalDashboard(path: string): string {
+  return `${getBidFreteUrl()}/api/v1/bid-frete-internacional/dashboard${path}`
+}
+
+function insightOperacionalSemPendencia(
+  id: string,
+  produto: string,
+  tag: string,
+  rota: string,
+  score: number,
+): HubInsight {
+  return {
+    id,
+    variante: 'default',
+    tag,
+    texto: `Nenhuma pendência crítica em ${produto} no período analisado.`,
+    textoLink: `Abrir ${produto}`,
+    rota,
+    score,
+    produto,
+  }
+}
 
 // ── Role weights — pesos de relevância por role cross-produto ───────────────
 
@@ -150,7 +207,7 @@ const CACHE_MAX_ENTRIES = 200
 const insightsCache = new Map<string, CacheEntry>()
 
 function getCacheKey(id_organizacao: string, id_usuario: string): string {
-  return `${id_organizacao}:${id_usuario}`
+  return `v2:${id_organizacao}:${id_usuario}`
 }
 
 function getCached(id_organizacao: string, id_usuario: string): HubInsight[] | null {
@@ -182,11 +239,7 @@ async function fetchProduct(
   ctx: ProductFetcherContext,
 ): Promise<unknown> {
   const response = await fetch(url, {
-    headers: {
-      'x-internal-key': ctx.internalKey,
-      'x-id-organizacao': ctx.id_organizacao,
-      'Content-Type': 'application/json',
-    },
+    headers: montarHeadersChamadaInterServicoHub(ctx),
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   })
   if (!response.ok) {
@@ -202,12 +255,45 @@ async function fetchPedidoInsights(
   role: HubUserRole,
 ): Promise<HubInsight[]> {
   const weights = HUB_ROLE_WEIGHTS[role] ?? HUB_ROLE_WEIGHTS.default
+
+  try {
+    const gabi = await fetchProduct(
+      `${getPedidoUrl()}/api/v1/pedidos/dashboard/insights?period=30d`,
+      ctx,
+    ) as { insights?: Array<Omit<HubInsight, 'produto'>> }
+
+    const doMotorGabi = (gabi.insights ?? []).map(ins => ({
+      ...ins,
+      variante: ins.variante ?? 'default',
+      score: ins.score ?? 0,
+      produto: 'Pedido',
+    }))
+
+    if (doMotorGabi.length > 0) return doMotorGabi
+  } catch {
+    // Fallback: agrega KPIs manualmente abaixo
+  }
+
   const insights: HubInsight[] = []
 
-  const data = await fetchProduct(
-    `${getPedidoUrl()}/api/v1/pedidos/dashboard/kpis`,
-    ctx,
-  ) as Record<string, number>
+  let data: Record<string, number>
+  try {
+    data = await fetchProduct(
+      `${getPedidoUrl()}/api/v1/pedidos/dashboard/kpis`,
+      ctx,
+    ) as Record<string, number>
+  } catch {
+    insights.push(
+      insightOperacionalSemPendencia(
+        'pedidos_indisponivel',
+        'Pedido',
+        'Operação · Pedido',
+        '/pedido/dashboard',
+        weights.pedidos_abertos ?? 40,
+      ),
+    )
+    return insights
+  }
 
   const atrasados = data.pedidos_atrasados ?? 0
   const abertos = data.pedidos_abertos ?? 0
@@ -303,6 +389,18 @@ async function fetchPedidoInsights(
     })
   }
 
+  if (insights.length === 0) {
+    insights.push(
+      insightOperacionalSemPendencia(
+        'pedidos_sem_pendencia',
+        'Pedido',
+        'Operação · Pedido',
+        '/pedido/dashboard',
+        weights.pedidos_abertos ?? 40,
+      ),
+    )
+  }
+
   return insights
 }
 
@@ -360,6 +458,18 @@ async function fetchBidCambioInsights(
     // Silently skip
   }
 
+  if (insights.length === 0) {
+    insights.push(
+      insightOperacionalSemPendencia(
+        'cambio_sem_pendencia',
+        'BID Câmbio',
+        'Operação · BID Câmbio',
+        '/bid-cambio',
+        weights.cambio_vencimentos ?? 50,
+      ),
+    )
+  }
+
   return insights
 }
 
@@ -370,29 +480,63 @@ async function fetchBidFreteInsights(
   const weights = HUB_ROLE_WEIGHTS[role] ?? HUB_ROLE_WEIGHTS.default
   const insights: HubInsight[] = []
 
-  const data = await fetchProduct(
-    `${getBidFreteUrl()}/api/v1/bid-frete/dashboard/calendario`,
-    ctx,
-  ) as { alertas?: Array<{ tipo: string; count: number }> }
+  type AlertaFrete = { tipo: string; label?: string; count: number; cor?: string }
 
-  const alertas = data.alertas ?? []
-  const fora = alertas.find(a => a.tipo === 'fora_prazo')?.count ?? 0
-  const hoje = alertas.find(a => a.tipo === 'vence_hoje')?.count ?? 0
+  const [calendario, alertasInsights] = await Promise.allSettled([
+    fetchProduct(urlBidFreteInternacionalDashboard('/calendario'), ctx) as Promise<{
+      alertas?: AlertaFrete[]
+    }>,
+    fetchProduct(urlBidFreteInternacionalDashboard('/insights-alertas'), ctx) as Promise<{
+      alertas?: AlertaFrete[]
+    }>,
+  ])
 
-  if (fora > 0 || hoje > 0) {
-    const parts: string[] = []
-    if (fora > 0) parts.push(`${fora} cotação${fora > 1 ? 'ões' : ''} fora do prazo`)
-    if (hoje > 0) parts.push(`${hoje} vence${hoje === 1 ? '' : 'm'} hoje`)
+  const alertas: AlertaFrete[] = []
+  if (calendario.status === 'fulfilled') alertas.push(...(calendario.value.alertas ?? []))
+  if (alertasInsights.status === 'fulfilled') alertas.push(...(alertasInsights.value.alertas ?? []))
+
+  const porTipo = new Map<string, AlertaFrete>()
+  for (const a of alertas) {
+    const prev = porTipo.get(a.tipo)
+    if (!prev || a.count > prev.count) porTipo.set(a.tipo, a)
+  }
+
+  const scorePorTipo: Record<string, number> = {
+    fora_prazo: weights.frete_alertas ?? 85,
+    vence_hoje: (weights.frete_alertas ?? 85) - 5,
+    vencimento: (weights.frete_alertas ?? 85) - 10,
+    resposta: 75,
+    aprovacao: 70,
+    respostas: 65,
+    nova: 55,
+  }
+
+  for (const [tipo, alerta] of porTipo) {
+    if (alerta.count <= 0) continue
+    const warn = tipo === 'fora_prazo' || tipo === 'vence_hoje' || alerta.cor === 'red'
+    const label = alerta.label ?? tipo.replace(/_/g, ' ')
     insights.push({
-      id: 'frete_alertas',
-      variante: 'warn',
-      tag: 'Alerta · BID Frete Internacional',
-      texto: `${parts.join('. ')}.`,
+      id: `frete_${tipo}`,
+      variante: warn ? 'warn' : 'default',
+      tag: `Alerta · BID Frete · ${label}`,
+      texto: `${alerta.count} ocorrência${alerta.count > 1 ? 's' : ''}: ${label}.`,
       textoLink: 'Ver cotações',
       rota: '/bid-frete',
-      score: weights.frete_alertas ?? 0,
+      score: scorePorTipo[tipo] ?? weights.frete_alertas ?? 60,
       produto: 'BID Frete Internacional',
     })
+  }
+
+  if (insights.length === 0) {
+    insights.push(
+      insightOperacionalSemPendencia(
+        'frete_sem_pendencia',
+        'BID Frete Internacional',
+        'Operação · BID Frete',
+        '/bid-frete',
+        weights.frete_alertas ?? 50,
+      ),
+    )
   }
 
   return insights
@@ -658,6 +802,112 @@ function buildContextInsights(
   return insights
 }
 
+// ── Composição do carrossel (90% operacional · 10% plataforma) ──────────────
+
+export type CategoriaInsightHub = 'operacional' | 'plataforma'
+
+export function classificarInsightHub(insight: HubInsight): CategoriaInsightHub {
+  if (insight.id.startsWith('feat_')) return 'plataforma'
+  if (insight.id.startsWith('hub_dica_')) return 'plataforma'
+  if (insight.id === 'hub_produtos_ativos' || insight.id.startsWith('hub_cross_')) return 'plataforma'
+  return 'operacional'
+}
+
+function deduplicarInsightsPorId(insights: HubInsight[]): HubInsight[] {
+  const vistos = new Set<string>()
+  const out: HubInsight[] = []
+  for (const ins of insights) {
+    if (vistos.has(ins.id)) continue
+    vistos.add(ins.id)
+    out.push(ins)
+  }
+  return out
+}
+
+/** Dicas de uso da plataforma (Store, integrações, produtos não contratados). */
+export function listarDicasPlataformaHub(chavesProdutos: Set<string>): HubInsight[] {
+  return deduplicarInsightsPorId([
+    ...buildHubFeatureDiscovery(chavesProdutos),
+    ...buildContextInsights(chavesProdutos),
+    ...FALLBACK_INSIGHTS.filter(f => f.id.startsWith('hub_dica_')),
+  ]).sort((a, b) => b.score - a.score)
+}
+
+function calcularQuotaDicasPlataforma(tamanhoAlvo: number, dicasDisponiveis: number): number {
+  if (dicasDisponiveis <= 0 || tamanhoAlvo <= 0) return 0
+  if (tamanhoAlvo < 10) {
+    return Math.min(dicasDisponiveis, Math.floor(tamanhoAlvo * FRACAO_DICAS_PLATAFORMA))
+  }
+  return Math.min(dicasDisponiveis, Math.max(1, Math.round(tamanhoAlvo * FRACAO_DICAS_PLATAFORMA)))
+}
+
+/** Intercala 1 dica a cada 9 operacionais (≈90/10). Dicas restantes vão ao final. */
+export function intercalarInsightsHubOperacionaisDicas(
+  operacionais: HubInsight[],
+  dicas: HubInsight[],
+): HubInsight[] {
+  const result: HubInsight[] = []
+  let dicaIdx = 0
+
+  for (let i = 0; i < operacionais.length; i++) {
+    result.push(operacionais[i]!)
+    if ((i + 1) % INTERVALO_INSIGHT_OPERACIONAL === 0 && dicaIdx < dicas.length) {
+      result.push(dicas[dicaIdx++]!)
+    }
+  }
+
+  while (dicaIdx < dicas.length) {
+    result.push(dicas[dicaIdx++]!)
+  }
+
+  return result
+}
+
+export function comporCarrosselInsightsHub(
+  operacionaisBrutos: HubInsight[],
+  chavesProdutos: Set<string>,
+  opts: { algumProdutoRespondeu: boolean },
+): HubInsight[] {
+  const operacionais = deduplicarInsightsPorId(
+    [...operacionaisBrutos].sort((a, b) => b.score - a.score),
+  )
+
+  if (operacionais.length === 0 && opts.algumProdutoRespondeu) {
+    const statusOk = FALLBACK_INSIGHTS.find(f => f.id === 'hub_status_ok')
+    if (statusOk) operacionais.push(statusOk)
+  }
+
+  const dicasPool = listarDicasPlataformaHub(chavesProdutos).filter(
+    d => !operacionais.some(o => o.id === d.id),
+  )
+
+  const tamanhoAlvo = Math.min(
+    MAX_INSIGHTS_HUB,
+    Math.max(
+      MIN_INSIGHTS_HUB,
+      operacionais.length >= TARGET_INSIGHTS_HUB ? operacionais.length : TARGET_INSIGHTS_HUB,
+    ),
+  )
+
+  const maxDicas = calcularQuotaDicasPlataforma(tamanhoAlvo, dicasPool.length)
+  const qtdOperacional = Math.min(operacionais.length, Math.max(1, tamanhoAlvo - maxDicas))
+  const reais = operacionais.slice(0, qtdOperacional)
+  const dicas = dicasPool.slice(0, maxDicas)
+
+  let result = intercalarInsightsHubOperacionaisDicas(reais, dicas)
+
+  if (result.length < MIN_INSIGHTS_HUB) {
+    const ids = new Set(result.map(r => r.id))
+    const extrasOperacionais = operacionais
+      .filter(o => !ids.has(o.id))
+      .slice(0, MIN_INSIGHTS_HUB - result.length)
+    result = [...result, ...extrasOperacionais]
+
+  }
+
+  return result.slice(0, MAX_INSIGHTS_HUB)
+}
+
 // ── Normalizar role ─────────────────────────────────────────────────────────
 
 export function normalizeHubRole(raw: string | undefined): HubUserRole {
@@ -687,6 +937,8 @@ export async function generateHubInsights(
   role: HubUserRole,
   activeProductKeys: Set<string>,
 ): Promise<HubInsight[]> {
+  const chavesProdutos = normalizarChavesProdutosAtivosHub(activeProductKeys)
+
   // 1. Check cache
   const cached = getCached(id_organizacao, id_usuario)
   if (cached) return cached
@@ -694,92 +946,52 @@ export async function generateHubInsights(
   // 2. Build fetch context
   const ctx: ProductFetcherContext = {
     id_organizacao,
-    token: '', // Inter-service: usamos x-internal-key, não JWT
+    id_usuario,
+    role,
+    token: '', // Inter-service: chave interna S2S (não JWT)
     internalKey: getChaveInterna(),
   }
 
   // 3. Build fetcher array based on active products
   const fetchers: Array<Promise<HubInsight[]>> = []
 
-  if (activeProductKeys.has('pedido')) {
+  if (chavesProdutos.has('pedido')) {
     fetchers.push(fetchPedidoInsights(ctx, role))
   }
-  if (activeProductKeys.has('bid-cambio')) {
+  if (chavesProdutos.has('bid-cambio')) {
     fetchers.push(fetchBidCambioInsights(ctx, role))
   }
-  if (activeProductKeys.has('bid-frete')) {
+  if (chavesProdutos.has('bid-frete')) {
     fetchers.push(fetchBidFreteInsights(ctx, role))
   }
-  if (activeProductKeys.has('simula-custo')) {
+  if (chavesProdutos.has('simula-custo')) {
     fetchers.push(fetchSimulaCustoInsights(ctx, role))
   }
-  if (activeProductKeys.has('lpco')) {
+  if (chavesProdutos.has('lpco')) {
     fetchers.push(fetchLpcoInsights(ctx, role))
   }
-  if (activeProductKeys.has('nf-importacao') || activeProductKeys.has('nf-import')) {
+  if (chavesProdutos.has('nf-importacao') || chavesProdutos.has('nf-import')) {
     fetchers.push(fetchNfImportInsights(ctx, role))
   }
 
   // 4. Execute in parallel with resilience (Promise.allSettled)
   const results = await Promise.allSettled(fetchers)
+  const algumProdutoRespondeu = results.some(r => r.status === 'fulfilled')
 
-  const allInsights: HubInsight[] = []
+  const insightsOperacionais: HubInsight[] = []
   for (const result of results) {
     if (result.status === 'fulfilled') {
-      allInsights.push(...result.value)
+      insightsOperacionais.push(...result.value)
     }
     // rejected → silently skip (resilience pattern)
   }
 
-  // 4b. Add context insights (sempre disponíveis, não dependem de backend)
-  allInsights.push(...buildContextInsights(activeProductKeys))
+  // 5. Compor carrossel: ~90% operacional (KPIs/alertas) · ~10% dicas de plataforma
+  let result = comporCarrosselInsightsHub(insightsOperacionais, chavesProdutos, {
+    algumProdutoRespondeu,
+  })
 
-  // 5. Sort by score (descending)
-  allInsights.sort((a, b) => b.score - a.score)
-
-  // 6. Interleave feature discovery cards (max 3, 1 every 4 data insights)
-  const featureCards = buildHubFeatureDiscovery(activeProductKeys)
-    .sort((a, b) => b.score - a.score)
-
-  const result: HubInsight[] = []
-  const MAX_FEATURE_CARDS = 3
-  const FEATURE_INTERVAL = 4
-  let featIdx = 0
-
-  if (allInsights.length > 0) {
-    // Caso normal: dados disponíveis — intercala features entre dados
-    for (let i = 0; i < allInsights.length; i++) {
-      result.push(allInsights[i]!)
-      if (
-        (i + 1) % FEATURE_INTERVAL === 0 &&
-        featIdx < featureCards.length &&
-        featIdx < MAX_FEATURE_CARDS
-      ) {
-        result.push(featureCards[featIdx++]!)
-      }
-    }
-    // Append one more feature at end if room
-    if (featIdx < featureCards.length && featIdx < MAX_FEATURE_CARDS && allInsights.length >= 2) {
-      result.push(featureCards[featIdx++]!)
-    }
-  } else {
-    // Sem dados de produtos — adiciona features diretamente antes dos fallbacks
-    for (let i = 0; i < featureCards.length && i < MAX_FEATURE_CARDS; i++) {
-      result.push(featureCards[i]!)
-    }
-  }
-
-  // 7. Guarantee minimum of 4 insights (mesmo padrão do Dashboard Pedido)
-  const MIN = 4
-  if (result.length < MIN) {
-    const needed = MIN - result.length
-    const extras = FALLBACK_INSIGHTS
-      .filter(f => !result.find(r => r.id === f.id))
-      .slice(0, needed)
-    result.push(...extras)
-  }
-
-  // 8. Cache with tenant isolation
+  // 6. Cache with tenant isolation
   setCache(id_organizacao, id_usuario, result)
 
   return result
@@ -794,6 +1006,11 @@ export const _testExports = {
   CACHE_TTL_MS,
   HUB_ROLE_WEIGHTS,
   FALLBACK_INSIGHTS,
+  normalizarChavesProdutosAtivosHub,
+  classificarInsightHub,
+  listarDicasPlataformaHub,
+  intercalarInsightsHubOperacionaisDicas,
+  comporCarrosselInsightsHub,
   buildHubFeatureDiscovery,
   buildContextInsights,
   fetchPedidoInsights,

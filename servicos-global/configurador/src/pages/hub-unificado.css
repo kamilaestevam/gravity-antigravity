@@ -1,0 +1,1216 @@
+/* hub-unificado.css — layout HUB único (protótipo hub-unificado-preview) */
+
+/*
+ * Paleta HUB — tokens --sw-* (ver opções A/B/C/D na conversa).
+ * "Voltar para original" = Opção A (surface-3 / surface / sw-border).
+ * Protótipo legado: surface #151d2e · surface-2 #1a2438 · border rgba(99,102,241,0.14)
+ *
+ * Ativo: Opção B — cards elevados (--sw-surface), itens internos (--sw-surface-3).
+ */
+.sw-content.sw-content--hub-unificado {
+  --hub-proto-surface: var(--sw-surface);
+  --hub-proto-surface-2: var(--sw-surface-3);
+  --hub-proto-border: var(--sw-border-mid);
+  --hub-proto-muted: #94a3b8;
+  --hub-proto-text: #f1f5f9;
+  --hub-proto-accent: #6366f1;
+  --hub-ops-kpi-bg: var(--sw-surface-3);
+  --hub-ops-proc-bg: var(--sw-surface-3);
+  --hub-ops-orange: #f59e0b;
+  --hub-ops-orange-soft: rgba(245, 158, 11, 0.14);
+  --hub-ops-green: #10b981;
+  --hub-ops-green-soft: rgba(16, 185, 129, 0.14);
+  --hub-ops-blue: #60a5fa;
+  --hub-ops-blue-soft: rgba(96, 165, 250, 0.12);
+  --hub-ops-link: #a5b4fc;
+  /* padding / max-width — ver shell layout SSOT em hub-store.css */
+  /* fundo da página: herda --sw-bg do .sw-shell.sw-hub-root (hub-store.css) */
+  color: var(--sw-text-1, var(--hub-proto-text));
+}
+
+/* ── Hero ── */
+.sw-hub-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.sw-hub-hero h1 {
+  font-family: var(--sw-f-display);
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--sw-text-1);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sw-hub-hero h1 em {
+  font-style: normal;
+  color: #a5b4fc;
+}
+
+.sw-hub-hero-sub {
+  margin-top: 0.35rem;
+  color: var(--sw-text-2);
+  font-size: 0.88rem;
+  max-width: 52rem;
+}
+
+.sw-hub-hero-meta {
+  text-align: right;
+  font-size: 0.78rem;
+  color: var(--sw-text-2);
+}
+
+.sw-hub-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.sw-hub-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  animation: sw-hub-pulse 2s infinite;
+}
+
+@keyframes sw-hub-pulse {
+  50% { opacity: 0.5; }
+}
+
+/* ── Painéis ── */
+.sw-content.sw-content--hub-unificado .sw-hub-panel {
+  background: var(--hub-proto-surface);
+  border: 1px solid var(--hub-proto-border);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  min-height: 0;
+}
+
+.sw-content.sw-content--hub-unificado .sw-hub-panel-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hub-proto-muted);
+  /* SSOT — distância título → subtítulo */
+  margin-bottom: 6px;
+}
+
+/*
+ * SSOT — paridade de altura faixa superior HUB (Líder/Coordenador, 2026-06)
+ * Seus Produtos Gravity | Workspaces: mesma altura fixa (--sw-hub-faixa-paridade-h).
+ * Operações em andamento (sw-hub-row-ops) logo abaixo da faixa superior; Store + Gabi (sw-hub-row-gabi) na faixa inferior.
+ */
+.sw-hub-row-top {
+  /* ~cabeçalho + puzzle 72px (scale 0.8) / 3 linhas workspace — paridade protótipo Store */
+  --sw-hub-faixa-paridade-h: 228px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: stretch;
+}
+
+.sw-hub-row-top > .sw-hub-panel--produtos,
+.sw-hub-row-top > .sw-hub-panel--ws {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: var(--sw-hub-faixa-paridade-h);
+  height: var(--sw-hub-faixa-paridade-h);
+  max-height: var(--sw-hub-faixa-paridade-h);
+  overflow: hidden;
+}
+
+.sw-hub-row-top > .sw-hub-panel--produtos {
+  min-width: 0;
+}
+
+.sw-hub-row-top > .sw-hub-panel--ws {
+  min-width: 0;
+}
+
+@media (max-width: 1200px) {
+  .sw-hub-row-top {
+    grid-template-columns: 1fr;
+  }
+
+  .sw-hub-row-top > .sw-hub-panel--produtos,
+  .sw-hub-row-top > .sw-hub-panel--ws {
+    height: auto;
+    max-height: none;
+    min-height: var(--sw-hub-faixa-paridade-h);
+    overflow: visible;
+  }
+}
+
+.sw-hub-panel--produtos > :last-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sw-hub-panel--produtos .sw-hub-prod-vazio {
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
+}
+
+.sw-hub-panel--ws {
+  min-width: 0;
+  background: var(--hub-proto-surface);
+  border-color: var(--hub-proto-border);
+}
+
+.sw-hub-panel--ws .sw-ws-por-produto-intro {
+  flex-shrink: 0;
+  margin: 0 0 12px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--hub-proto-muted);
+}
+
+.sw-hub-panel--ws .sw-ws-por-produto {
+  flex: 1;
+  min-height: 0;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.sw-hub-panel--ws .sw-ws-carousel-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sw-hub-panel--ws .sw-ws-grid {
+  max-height: none;
+  flex: 1;
+  align-items: stretch;
+  min-height: 168px;
+}
+
+.sw-hub-panel--ws .sw-ws-grid > * {
+  align-self: stretch;
+  flex: 0 0 280px;
+  min-width: 260px;
+  max-width: 300px;
+}
+
+/* Card workspace — layout protótipo hub-unificado-preview */
+.sw-hub-panel--ws .sw-ws-card--hub {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 1rem;
+  gap: 0;
+  border-radius: 12px;
+  background: var(--hub-proto-surface-2);
+  border: 1px solid var(--hub-proto-border);
+  min-height: 100%;
+  justify-content: flex-start;
+  box-shadow: none;
+}
+
+.sw-hub-panel--ws .sw-ws-card--hub::before,
+.sw-hub-panel--ws .sw-ws-card--hub::after {
+  display: none;
+}
+
+.sw-hub-panel--ws .sw-ws-card--hub:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: var(--hub-proto-surface-2);
+  box-shadow: none;
+  transform: none;
+}
+
+.sw-hub-panel--ws .sw-ws-card--hub.selected {
+  border-color: var(--hub-proto-accent);
+  background: var(--hub-proto-surface-2);
+  box-shadow: 0 0 0 1px var(--hub-proto-accent), 0 8px 32px rgba(99, 102, 241, 0.35);
+}
+
+.sw-hub-panel--ws .sw-ws-card--hub.favorited:not(.selected) {
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.sw-hub-panel--ws .sw-ws-card-actions {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  z-index: 2;
+}
+
+.sw-hub-panel--ws .sw-ws-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+  justify-content: flex-start;
+  padding-right: 3.5rem;
+}
+
+.sw-hub-panel--ws .sw-ws-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  margin-top: 0;
+  font-size: 0.8rem;
+}
+
+.sw-hub-panel--ws .sw-ws-card-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.sw-hub-panel--ws .sw-ws-card-info .sw-ws-name {
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+  line-height: 1.25;
+  color: var(--hub-proto-text);
+}
+
+.sw-hub-panel--ws .sw-ws-card-info .sw-ws-role {
+  text-align: left;
+  font-size: 0.72rem;
+  color: var(--hub-proto-muted);
+}
+
+.sw-hub-panel--ws .sw-ws-stats-line {
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  color: var(--hub-proto-muted);
+  line-height: 1.4;
+}
+
+.sw-hub-panel--ws .sw-ws-card--hub .sw-ws-enter-btn {
+  width: 100%;
+  margin-top: auto;
+  opacity: 1;
+  transform: none;
+  padding: 0.55rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+}
+
+.sw-hub-panel--ws .sw-ws-card--hub .sw-ws-enter-btn:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.sw-hub-panel--ws .sw-ws-card--hub .sw-ws-check {
+  opacity: 0;
+}
+
+.sw-hub-panel--ws .sw-ws-card--hub.selected .sw-ws-check {
+  opacity: 1;
+  background: var(--hub-proto-accent);
+}
+
+body.light-theme .sw-hub-panel--ws .sw-ws-card--hub:hover,
+body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
+  background: var(--sw-surface);
+}
+
+.sw-hub-panel--ws .sw-ws-add-card {
+  flex: 0 0 280px;
+  min-width: 260px;
+  max-width: 300px;
+  min-height: 100%;
+  border-radius: 12px;
+  align-self: stretch;
+  background: transparent;
+  border-color: rgba(99, 102, 241, 0.22);
+  color: var(--hub-proto-muted);
+}
+
+/* Gravity Store + Gabi Insights — faixa inferior do HUB */
+.sw-hub-row-gabi {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+  /* Painéis Store e GABI com a mesma altura */
+  align-items: stretch;
+}
+
+.sw-hub-row-gabi > .sw-hub-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+}
+
+.sw-hub-row-gabi .sw-hub-panel--store .sw-hub-store-btn {
+  margin-top: auto;
+}
+
+.sw-hub-row-gabi .sw-hub-panel--store .sw-hub-panel-label {
+  margin-bottom: 6px;
+}
+
+.sw-hub-row-gabi .sw-hub-panel--store .sw-hub-store-desc {
+  font-size: 0.72rem;
+  margin: 0 0 0.5rem;
+}
+
+.sw-hub-row-gabi .sw-hub-panel--store .sw-hub-store-btn {
+  font-size: 0.72rem;
+  padding: 0.5rem;
+}
+
+@media (max-width: 1200px) {
+  .sw-hub-row-gabi {
+    grid-template-columns: 1fr;
+  }
+
+  .sw-hub-row-gabi > .sw-hub-panel {
+    min-height: 0;
+  }
+}
+
+.sw-hub-panel--ws .sw-ws-title-block,
+.sw-hub-panel--ws .sw-ws-title-row,
+.sw-hub-panel--ws .sw-ws-title,
+.sw-hub-panel--ws .sw-ws-sub {
+  display: none;
+}
+
+.sw-hub-panel--ws .sw-ws-section {
+  margin-bottom: 0;
+}
+
+.sw-hub-panel--gabi {
+  min-height: 0;
+}
+
+/*
+ * GABI — layout original (baseline, sem sw-hub-gabi-layout--N):
+ *   .sw-gabi-card        → --hub-proto-surface-2 + borda
+ *   .sw-hub-gabi-insight-card → mesmo surface-2
+ * "Voltar para original" nesta conversa → HUB_GABI_LAYOUT_EXPERIMENTO = 0
+ */
+
+/* Caixa interna estica até a base do painel (paridade Store); cards NÃO esticam */
+.sw-hub-panel--gabi .sw-gabi-card {
+  flex: 1;
+  margin-top: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--hub-proto-surface-2);
+  border: 1px solid var(--hub-proto-border);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem 0.4rem;
+  color: var(--hub-proto-text);
+  box-shadow: none;
+}
+
+.sw-hub-panel--gabi .sw-gabi-card-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sw-hub-panel--gabi .sw-gabi-card-watermark {
+  display: none;
+}
+
+.sw-hub-panel--gabi .sw-gabi-nav-btn {
+  color: var(--sw-text-2);
+}
+
+.sw-hub-panel--gabi .sw-gabi-nav-btn:hover:not(:disabled) {
+  color: var(--sw-text-1);
+}
+
+.sw-hub-panel--gabi .sw-gabi-live-badge {
+  color: #f472b6;
+}
+
+.sw-hub-panel--gabi .sw-gabi-live-dot {
+  background: #f472b6;
+  box-shadow: 0 0 6px rgba(244, 114, 182, 0.6);
+}
+
+/* Cards GABI — altura fixa 200px; link ancorado no rodapé interno */
+.sw-hub-gabi-insight-card {
+  background: var(--hub-proto-surface-2);
+  border: 1px solid var(--hub-proto-border);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: none;
+  box-sizing: border-box;
+  height: 200px;
+  min-height: 200px;
+  max-height: 200px;
+  align-self: start;
+}
+
+.sw-hub-gabi-insight-card--warn {
+  border-color: rgba(251, 191, 36, 0.28);
+}
+
+.sw-hub-gabi-insight-card--skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  pointer-events: none;
+}
+
+.sw-hub-gabi-insight-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #67e8f9;
+  margin-top: 8px;
+  margin-bottom: 0.3rem;
+  flex-shrink: 0;
+}
+
+.sw-hub-gabi-insight-tag--warn {
+  color: #fcd34d;
+}
+
+.sw-hub-gabi-insight-text {
+  margin: 0;
+  color: var(--sw-text-2);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Rodapé com altura fixa: stat e atalho sempre nas mesmas linhas em todos os cards */
+.sw-hub-gabi-insight-foot {
+  display: grid;
+  grid-template-rows: 28px 18px;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 0;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.sw-hub-gabi-insight-stat-slot {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  max-height: 28px;
+  overflow: hidden;
+}
+
+.sw-hub-gabi-insight-link-slot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 18px;
+  max-height: 18px;
+}
+
+.sw-hub-gabi-insight-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  border-radius: 7px;
+  padding: 0.35rem 0.6rem;
+  margin-top: -4px;
+}
+
+.sw-hub-gabi-insight-stat-label {
+  font-size: 0.68rem;
+  color: var(--hub-proto-muted);
+}
+
+.sw-hub-gabi-insight-stat-value {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--hub-proto-text);
+}
+
+.sw-hub-gabi-insight-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font, inherit);
+}
+
+.sw-hub-gabi-insight-link:hover {
+  opacity: 0.8;
+}
+
+.sw-hub-panel--gabi .sw-gabi-skeleton-line {
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.sw-hub-gabi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: max-content;
+  gap: 0.5rem;
+  align-items: start;
+  height: fit-content;
+}
+
+.sw-hub-gabi-slide-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  height: fit-content;
+}
+
+@media (max-width: 1100px) {
+  .sw-hub-gabi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── GABI layout 01 — sem caixa visual (paridade Store) ── */
+.sw-hub-panel--gabi.sw-hub-gabi-layout--1 .sw-gabi-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.25rem 0 0;
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--1 .sw-hub-gabi-insight-card {
+  background: var(--hub-proto-surface-2);
+  border-color: var(--sw-border-mid);
+}
+
+/* ── GABI layout 02 — bandeja sutil + cards elevados ── */
+.sw-hub-panel--gabi.sw-hub-gabi-layout--2 .sw-gabi-card {
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid var(--hub-proto-border);
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--2 .sw-hub-gabi-insight-card {
+  background: var(--hub-proto-surface);
+  border-color: var(--sw-border-mid);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* ── GABI layout 03 — identidade GABI na bandeja ── */
+.sw-hub-panel--gabi.sw-hub-gabi-layout--3 .sw-gabi-card {
+  background: transparent;
+  border: 1px solid rgba(103, 232, 249, 0.16);
+  box-shadow: inset 0 1px 0 rgba(244, 114, 182, 0.08);
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--3 .sw-hub-gabi-insight-card {
+  background: var(--hub-proto-surface-2);
+  border-color: var(--sw-border);
+}
+
+/* ── GABI layout 04 — variantes descoberta vs operação ── */
+.sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--descoberta {
+  border-color: rgba(103, 232, 249, 0.28);
+  background: linear-gradient(160deg, rgba(6, 78, 59, 0.14) 0%, var(--hub-proto-surface-2) 58%);
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--descoberta .sw-hub-gabi-insight-tag {
+  color: #67e8f9;
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--operacao {
+  border-color: var(--hub-proto-border);
+  background: var(--hub-proto-surface-2);
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--operacao .sw-hub-gabi-insight-tag {
+  color: var(--sw-text-2);
+}
+
+body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--2 .sw-gabi-card {
+  background: rgba(241, 245, 249, 0.65);
+}
+
+body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--descoberta {
+  background: linear-gradient(160deg, rgba(224, 242, 254, 0.9) 0%, var(--hub-proto-surface-2) 58%);
+  border-color: rgba(6, 182, 212, 0.25);
+}
+
+.sw-hub-gabi-dots {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 0.35rem;
+}
+
+.sw-hub-gabi-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: var(--sw-text-2);
+  opacity: 0.35;
+  cursor: pointer;
+}
+
+.sw-hub-gabi-dot--active {
+  opacity: 1;
+  background: var(--sw-accent);
+}
+
+.sw-hub-gabi-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+  flex-shrink: 0;
+}
+
+.sw-hub-gabi-head .sw-hub-panel-label {
+  margin-bottom: 0;
+}
+
+/* Puzzle stack (Store) no painel de produtos contratados do HUB */
+.sw-hub-panel--produtos {
+  container-type: inline-size;
+  container-name: hub-produtos;
+}
+
+.sw-hub-panel--produtos .gs-stack--hub-contratados {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 0;
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
+}
+
+.sw-hub-prod-head-meter.gs-stack__meter {
+  gap: 0.375rem;
+  align-self: stretch;
+  align-items: flex-start;
+  margin-top: 3px;
+}
+
+.sw-hub-prod-head-meter .gs-stack__meter-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--hub-proto-muted, var(--sw-text-3));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Scroll horizontal — peças centralizadas verticalmente no card */
+.sw-hub-panel--produtos .gs-stack--hub-contratados .gs-stack__pieces-scroll {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 0;
+  margin-top: 0;
+  padding: 0 4px;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.sw-hub-panel--produtos .gs-stack--hub-contratados .gs-stack__pieces {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: min-content;
+}
+
+/* Grudados: compensa folga do scale(0.8) + aba puzzle (18px × scale) */
+.sw-hub-panel--produtos .gs-stack--hub-contratados .gs-piece--has-blank {
+  margin-left: calc(
+    -1 * (138px * (1 - var(--gs-piece-scale, 0.8)) + 18px * var(--gs-piece-scale, 0.8))
+  );
+}
+
+.sw-hub-panel--produtos .gs-piece {
+  cursor: pointer;
+}
+
+.sw-hub-panel--produtos .gs-stack--hub-contratados .gs-piece--soon {
+  cursor: default;
+}
+
+.sw-hub-prod-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 0;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--sw-text-2);
+  font-size: 0.82rem;
+  border: 1px dashed rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  background: var(--sw-surface-2);
+}
+
+.sw-hub-prod-vazio-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sw-hub-prod-vazio-link:hover {
+  text-decoration: underline;
+}
+
+/* Chip/pill — atalhos de seção (Store, Processos, …) */
+.sw-hub-link-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.08);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #a5b4fc;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* Paridade: Gravity Store = Ver todos os processos */
+.sw-content.sw-content--hub-unificado .sw-hub-ops-head > .sw-hub-link-pill,
+.sw-content.sw-content--hub-unificado .sw-hub-prod-head-right > .sw-hub-link-pill {
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0.28rem 0.65rem;
+}
+
+.sw-hub-link-pill:hover {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: rgba(129, 140, 248, 0.55);
+  color: #c7d2fe;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.12);
+}
+
+.sw-hub-link-pill__arrow {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.sw-hub-link-pill:hover .sw-hub-link-pill__arrow {
+  transform: translateX(3px);
+}
+
+body.light-theme .sw-hub-link-pill {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.28);
+  color: #6366f1;
+}
+
+body.light-theme .sw-hub-link-pill:hover {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+}
+
+.sw-hub-prod-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  flex-shrink: 0;
+}
+
+.sw-hub-prod-head-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  min-width: 0;
+}
+
+.sw-hub-prod-head-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* Título → subtítulo: 6px (herda .sw-hub-panel-label; sem override de margem no JSX) */
+.sw-hub-prod-head-left .sw-hub-panel-label {
+  margin-bottom: 6px;
+}
+
+.sw-hub-prod-head-left .sw-hub-store-desc {
+  margin-bottom: 0;
+}
+
+.sw-hub-prod-stack-label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--hub-proto-muted, var(--sw-text-2));
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+/* Store */
+.sw-hub-panel--store {
+  background: linear-gradient(160deg, #1e1b4b 0%, var(--sw-surface) 60%);
+  border-color: rgba(139, 92, 246, 0.25);
+}
+
+body.light-theme .sw-hub-panel--store {
+  background: linear-gradient(160deg, #ede9fe 0%, var(--sw-surface) 60%);
+}
+
+.sw-hub-store-desc {
+  font-size: 0.78rem;
+  color: var(--sw-text-2);
+  line-height: 1.45;
+  margin: 0 0 0.5rem;
+}
+
+/* Vitrine — gs-card igual à Store (rotação disponível / em breve) */
+.sw-hub-store-vitrine {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin: 0.25rem 0 0.35rem;
+}
+
+.sw-hub-store-vitrine-card {
+  flex: 1;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  opacity: 1 !important;
+  animation: sw-hub-store-vitrine-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sw-hub-panel--store .sw-hub-store-vitrine-card .gs-card__top {
+  padding: 0.85rem 0.9rem 0;
+}
+
+.sw-hub-panel--store .sw-hub-store-vitrine-card .gs-card__icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 12px;
+}
+
+.sw-hub-panel--store .sw-hub-store-vitrine-card .gs-card__body {
+  padding: 0.65rem 0.9rem 0.75rem;
+  gap: 0.35rem;
+}
+
+.sw-hub-panel--store .sw-hub-store-vitrine-card .gs-card__name {
+  font-size: 0.92rem;
+}
+
+.sw-hub-panel--store .sw-hub-store-vitrine-card .gs-card__category {
+  font-size: 0.62rem;
+}
+
+.sw-hub-panel--store .sw-hub-store-vitrine-card .gs-card__desc {
+  font-size: 0.68rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.sw-hub-panel--store .sw-hub-store-vitrine-card .gs-card__tags {
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.sw-hub-panel--store .sw-hub-store-vitrine-card .gs-tag {
+  font-size: 0.58rem;
+  padding: 0.15rem 0.4rem;
+}
+
+.sw-hub-store-vitrine-dots {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: center;
+  margin-top: 0.45rem;
+  flex-shrink: 0;
+}
+
+.sw-hub-store-vitrine-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: var(--sw-text-2);
+  opacity: 0.35;
+  cursor: pointer;
+}
+
+.sw-hub-store-vitrine-dot--active {
+  opacity: 1;
+  background: #a78bfa;
+}
+
+@keyframes sw-hub-store-vitrine-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sw-hub-store-btn {
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed, #6366f1);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+  margin-top: 0;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.sw-hub-store-btn:hover {
+  filter: brightness(1.06);
+}
+
+/* ── Operações / KPIs (cores protótipo hub-unificado-preview) ── */
+.sw-content.sw-content--hub-unificado .sw-hub-row-ops {
+  background: var(--hub-proto-surface);
+  border: 1px solid var(--hub-proto-border);
+  border-radius: 14px;
+  padding: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.sw-hub-ops-head {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Especificidade ≥ .sw-content--hub-unificado .sw-hub-panel-label (margin-bottom 8px) */
+.sw-content.sw-content--hub-unificado .sw-hub-ops-head .sw-hub-panel-label {
+  margin: 0;
+  line-height: 1;
+  color: var(--hub-proto-muted);
+}
+
+.sw-hub-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .sw-hub-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sw-hub-kpi {
+  background: var(--hub-ops-kpi-bg);
+  border-radius: 12px;
+  padding: 0.8rem 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.sw-hub-kpi-val {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.sw-hub-kpi-lbl {
+  font-size: 0.68rem;
+  color: var(--hub-proto-muted);
+  margin-top: 0.2rem;
+  line-height: 1.35;
+}
+
+.sw-hub-kpi-tag {
+  font-size: 0.62rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
+  display: inline-block;
+  padding: 0.12rem 0.42rem;
+  border-radius: 4px;
+}
+
+.sw-hub-kpi-tag--up {
+  background: var(--hub-ops-green-soft);
+  color: var(--hub-ops-green);
+}
+
+.sw-hub-kpi-tag--warn {
+  background: var(--hub-ops-orange-soft);
+  color: var(--hub-ops-orange);
+}
+
+/* ── Lista de processos (mockup) ── */
+.sw-hub-proc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sw-hub-proc {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  background: var(--hub-ops-proc-bg);
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+.sw-hub-proc:hover {
+  border-color: rgba(99, 102, 241, 0.28);
+  background: #1e2a42;
+}
+
+.sw-hub-proc-name {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.sw-hub-proc-sub {
+  color: var(--hub-proto-muted);
+  font-size: 0.7rem;
+  margin-top: 0.18rem;
+  line-height: 1.35;
+}
+
+.sw-hub-proc-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.28rem 0.65rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.sw-hub-proc-badge--embarque {
+  border-color: rgba(96, 165, 250, 0.55);
+  color: var(--hub-ops-blue);
+  background: var(--hub-ops-blue-soft);
+}
+
+.sw-hub-proc-badge--desembaraco {
+  border-color: rgba(16, 185, 129, 0.5);
+  color: var(--hub-ops-green);
+  background: var(--hub-ops-green-soft);
+}
+
+body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-kpi {
+  background: var(--sw-surface-3);
+  border-color: var(--sw-border-mid);
+}
+
+body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-kpi-val,
+body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-proc-name {
+  color: #0f172a;
+}
+
+body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-proc {
+  background: var(--sw-surface-3);
+  border-color: var(--sw-border-mid);
+}
+
+.sw-hub-proc-empty {
+  font-size: 0.78rem;
+  color: var(--hub-proto-muted);
+  padding: 0.75rem 0;
+}
+

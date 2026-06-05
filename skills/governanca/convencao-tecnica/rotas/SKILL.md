@@ -29,7 +29,7 @@ A área vem **direto** após o domínio.
 | Área | URL | Guard |
 |---|---|---|
 | `hub` | `/hub` | autenticado |
-| `core` | `/core` | autenticado |
+| `hub` (unificado) | `/hub` | autenticado — ex-`/core` redireciona aqui |
 | `configurador` | `/configurador` | SUPER_ADMIN, ADMIN, MASTER |
 | `admin` | `/admin` | `gravity_admin = true` |
 | `store` | `/store` | autenticado |

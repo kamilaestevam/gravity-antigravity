@@ -207,7 +207,7 @@ export function BidFreteListaPainelBar({
         const atualizados = paineis.filter(p => p.id !== id)
         setPaineis(atualizados)
         if (painelAtualId === id) {
-          const proximo = atualizados.find(p => p.is_visivel) ?? atualizados[0]
+          const proximo = atualizados.find(p => p.is_visivel !== false) ?? atualizados[0]
           if (proximo) {
             setPainelAtualId(proximo.id)
             onTrocarPainel(proximo.id)
@@ -230,16 +230,51 @@ export function BidFreteListaPainelBar({
     paineisListaBidFreteApi.reordenar(reordered.map(p => p.id)).catch(() => {})
   }, [paineis, setPaineis])
 
-  if (carregando || paineis.length === 0) return null
+  const painelAtual = paineis.find(p => p.id === painelAtualId) ?? null
+  const paineisVisiveis = paineis.filter(p => p.is_visivel !== false)
+  let paineisNaBarra = paineisVisiveis
+  if (
+    painelAtualId &&
+    painelAtual &&
+    !paineisVisiveis.some(p => p.id === painelAtualId)
+  ) {
+    paineisNaBarra = [painelAtual, ...paineisVisiveis]
+  }
 
   return (
-    <div style={sty.painelBar} className="pedido-dashboard-painel-bar" data-testid="lista-painel-bar">
+    <div style={sty.painelBar} className="bf-paineis-lista-strip pedido-dashboard-painel-bar" data-testid="lista-painel-bar">
+      <span className="bf-paineis-lista-strip__label">
+        {t('bid_frete_internacional.lista.paineis_secao_curto', { defaultValue: 'Painéis' })}
+      </span>
+      {painelAtual && !criandoPainel && (
+        <span className="bf-paineis-lista-strip__atual" data-testid="lista-painel-atual">
+          <span className="bf-paineis-lista-strip__atual-label">
+            {t('bid_frete_internacional.lista.painel_atual_rotulo', { defaultValue: 'Planilha' })}
+          </span>
+          <strong className="bf-paineis-lista-strip__atual-nome">{painelAtual.nome}</strong>
+        </span>
+      )}
+      {criandoPainel && (
+        <span className="bf-paineis-lista-strip__criando" role="status">
+          {t('bid_frete_internacional.lista.painel_criando_rotulo', { defaultValue: 'Novo painel' })}
+        </span>
+      )}
+      <div className="bf-paineis-lista-strip__tabs">
+      {carregando && paineisNaBarra.length === 0 ? (
+        <span className="bf-paineis-lista-strip__vazio" role="status">
+          {t('bid_frete_internacional.lista.paineis_carregando', { defaultValue: 'Carregando…' })}
+        </span>
+      ) : paineisNaBarra.length === 0 ? (
+        <span className="bf-paineis-lista-strip__vazio">
+          {t('bid_frete_internacional.lista.paineis_vazio_curto', { defaultValue: '+ Novo painel ou botão +' })}
+        </span>
+      ) : (
       <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
         <SortableContext
-          items={paineis.filter(p => p.is_visivel).map(p => p.id)}
+          items={paineisNaBarra.map(p => p.id)}
           strategy={horizontalListSortingStrategy}
         >
-          {paineis.filter(p => p.is_visivel).map(p => (
+          {paineisNaBarra.map(p => (
             <SortableTabWrapper key={p.id} id={p.id}>
               {renamingId === p.id ? (
                 <form
@@ -265,6 +300,15 @@ export function BidFreteListaPainelBar({
                   onClick={() => onTrocarPainel(p.id)}
                   onDoubleClick={() => { setRenamingId(p.id); setRenameValue(p.nome) }}
                   onPointerDown={e => e.stopPropagation()}
+                  aria-current={p.id === painelAtualId ? 'true' : undefined}
+                  title={
+                    p.id === painelAtualId
+                      ? t('bid_frete_internacional.lista.painel_atual_aba', {
+                          defaultValue: 'Planilha atual: {{nome}}',
+                          nome: p.nome,
+                        })
+                      : p.nome
+                  }
                 >
                   <span style={sty.painelTabInner}>
                     {p.nome}
@@ -338,6 +382,7 @@ export function BidFreteListaPainelBar({
           ))}
         </SortableContext>
       </DndContext>
+      )}
 
       {criandoPainel ? (
         <form
@@ -380,6 +425,7 @@ export function BidFreteListaPainelBar({
           +
         </button>
       )}
+      </div>
     </div>
   )
 }

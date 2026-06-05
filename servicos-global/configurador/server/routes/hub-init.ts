@@ -8,8 +8,13 @@ import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { organizacaoService } from '../services/organizacao-service.js'
 import { prisma } from '../lib/prisma.js'
-import { generateHubInsights, normalizeHubRole } from '../services/hub-insights-service.js'
+import {
+  generateHubInsights,
+  normalizarChavesProdutosAtivosHub,
+  normalizeHubRole,
+} from '../services/hub-insights-service.js'
 import { listarSlugsProdutosAcessiveis } from '../services/produtos-acessiveis-service.js'
+import { listarCatalogoVitrineProdutoGravity } from '../services/catalogo-vitrine-produto-gravity.js'
 
 export const hubRouter = Router()
 
@@ -74,7 +79,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       .then((res) => res.workspaces)
 
     // Tudo em paralelo — 1 único requireAuth
-    const [organizacao, workspaces, configs, slugsAcessiveis, mergedCatalog, userPref] = await Promise.all([
+    const [organizacao, workspaces, configs, slugsAcessiveis, catalog, userPref] = await Promise.all([
       organizacaoService.getOrganizacaoById(id_organizacao),
       workspacesPromise,
       prisma.produtoGravityConfiguracao.findMany({
@@ -85,22 +90,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       // Para Master/SAdmin/Admin: retorna todos os produtos contratados (bypass Mand. 04)
       // Para Standard/Fornecedor: cruza com workspaces ativos + chave acesso_usuario_produtos_gravity
       listarSlugsProdutosAcessiveis(id_organizacao, id_usuario).catch(() => new Set<string>()),
-      prisma.produtoGravity.findMany({
-        select: {
-          id_produto_gravity: true,
-          nome_produto_gravity: true,
-          slug_produto_gravity: true,
-          descricao_produto_gravity: true,
-          status_produto_gravity: true,
-        },
-        orderBy: { data_criacao_produto_gravity: 'desc' },
-      }).then(rows => rows.map(p => ({
-        id: p.id_produto_gravity,
-        name: p.nome_produto_gravity,
-        slug: p.slug_produto_gravity,
-        description: p.descricao_produto_gravity,
-        status: p.status_produto_gravity,
-      }))).catch(() => [] as Array<{ id: string; name: string; slug: string; description: string; status: string }>),
+      listarCatalogoVitrineProdutoGravity().catch(() => []),
       // Fornecedor nunca tem preferido — evita round-trip desnecessário
       role === 'FORNECEDOR'
         ? Promise.resolve(null)
@@ -111,7 +101,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     ])
 
     // Enriquece produtos contratados com dados do catálogo
-    const catalogMap = new Map(mergedCatalog.map((p: { slug: string }) => [p.slug, p]))
+    const catalogMap = new Map(catalog.map((p: { slug: string }) => [p.slug, p]))
 
     // DTO: ConfiguracaoProduto Prisma rename → contrato legado do hub.
     // Filtro Portão 3: só lista produtos que o usuário pode acessar (SSOT).
@@ -155,7 +145,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       organizacao,
       workspaces,
       products,
-      catalog: mergedCatalog,
+      catalog,
       idWorkspacePreferido,
     })
   } catch (err) {
@@ -176,23 +166,37 @@ hubRouter.get('/insights', requireAuth, async (req, res) => {
     const id_usuario = req.auth.id_usuario
     const role = normalizeHubRole(req.auth.tipo_usuario)
 
-    // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
-    const configs = await prisma.produtoGravityConfiguracao.findMany({
-      where: {
-        id_organizacao_configuracao_produto_gravity: id_organizacao,
-        ativo_configuracao_produto_gravity: true,
-      },
-      select: { chave_produto_configuracao_produto_gravity: true },
-    })
+    // Paridade com /hub/init: produtos contratados + ativos + Portão 3 (acesso do usuário)
+    const [configs, slugsAcessiveis] = await Promise.all([
+      prisma.produtoGravityConfiguracao.findMany({
+        where: { id_organizacao_configuracao_produto_gravity: id_organizacao },
+        select: {
+          chave_produto_configuracao_produto_gravity: true,
+          ativo_configuracao_produto_gravity: true,
+        },
+      }),
+      listarSlugsProdutosAcessiveis(id_organizacao, id_usuario).catch(() => new Set<string>()),
+    ])
 
-    const activeProductKeys = new Set(configs.map(c => c.chave_produto_configuracao_produto_gravity))
-
-    const insights = await generateHubInsights(
-      id_organizacao,
-      id_usuario,
-      role,
-      activeProductKeys,
+    const activeProductKeys = normalizarChavesProdutosAtivosHub(
+      new Set(
+        configs
+          .filter(
+            c =>
+              c.ativo_configuracao_produto_gravity &&
+              slugsAcessiveis.has(c.chave_produto_configuracao_produto_gravity),
+          )
+          .map(c => c.chave_produto_configuracao_produto_gravity),
+      ),
     )
+
+    const INSIGHTS_ROUTE_TIMEOUT_MS = 12_000
+    const insights = await Promise.race([
+      generateHubInsights(id_organizacao, id_usuario, role, activeProductKeys),
+      new Promise<Awaited<ReturnType<typeof generateHubInsights>>>((_, reject) => {
+        setTimeout(() => reject(new Error('hub_insights_timeout')), INSIGHTS_ROUTE_TIMEOUT_MS)
+      }),
+    ])
 
     res.json({ insights, count: insights.length, cached: false })
   } catch {

@@ -6,12 +6,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Package,
   CheckCircle,
-  Info,
   MagnifyingGlass,
   Lightning,
   ArrowDown,
-  Bell,
-  Gear,
 } from '@phosphor-icons/react'
 import { PRODUCT_META, metaProdutoStore } from '../data/product-meta'
 import {
@@ -37,22 +34,14 @@ import './hub-store.css'
 import './hub.css'
 import '../pages/configurador/workspace.css'
 import './selecionar-workspace.css'
-import { UsuarioGlobal } from '@nucleo/usuario-global'
-import { LogoGlobal } from '@nucleo/logo-global'
 import { LogoHub } from '@nucleo/logo-produtos'
-import {
-  LocalizadorGlobal,
-  useLocalizadorHistory,
-  buildEcosystemNodes,
-  type EcosystemNode,
-} from '@nucleo/localizador-global'
-import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
-import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync, useShellBodyClasses } from '@gravity/shell'
+import { useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
+import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync, useShellBodyClasses, useLoadAllowedProducts } from '@gravity/shell'
+import { TopbarPaginaGravity } from '../components/topbar-pagina-gravity'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { podeComprarNoStore } from '../routing/route-policy'
 import { mapRole } from '../types/niveis-acesso'
-import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
 
 const API_URL = '/api/v1'
 
@@ -83,14 +72,14 @@ export function Store() {
   const [searchParams] = useSearchParams()
   const { user } = useUser()
   const { signOut } = useClerk()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification, currentUser } = useShellStore()
+  const { addNotification, currentUser } = useShellStore()
   const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
-  const isLight = currentTheme === 'light'
   const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
   // Popula currentUser.tipoUsuario no ShellStore (Pendência #4 — sem
   // isso o item "Trocar Organização" não aparece nesta tela).
   useMeSync()
+  useLoadAllowedProducts()
   const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
   const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
 
@@ -353,114 +342,55 @@ export function Store() {
   return (
     <div className="gs-root">
 
-      {/* Topbar fixada — sempre visível independente do scroll */}
-      <header className="hb-topbar">
-        <div className="hb-topbar-left">
-          <div className="hb-logo">
-            <LogoGlobal iconSize={22} iconColor="#818cf8" />
-          </div>
-          <div className="hb-topbar-div" />
-          <span className="hb-topbar-label">Store</span>
-        </div>
-
-        <div className="hb-topbar-right">
-          {/* Atalho para Hub */}
-          <button
-            className="hb-topbar-navlink"
-            type="button"
-            title={t('store.voltar_hub')}
-            onClick={() => navigate('/hub?select=1')}
-          >
-            <LogoHub size={13} color="#818cf8" />
-            Hub
-          </button>
-
-          <div className="hb-topbar-sep" />
-
-          {/* Busca — foca o campo de busca de módulos no corpo */}
-          <button
-            className="hb-topbar-btn"
-            type="button"
-            title={t('comum.buscar')}
-            onClick={() => {
-              const el = document.querySelector<HTMLInputElement>('.gs-search__input')
-              if (el) {
-                el.focus()
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-              }
-            }}
-          >
-            <MagnifyingGlass weight="bold" size={16} />
-          </button>
-
-          {/* Notificações — componente tenant self-contained */}
-          <Notificacoes />
-
-          {/* Toggle tooltips */}
-          <button
-            className="hb-topbar-btn"
-            type="button"
-            title={tooltipsDisabled ? t('shell.label_habilitar_dicas') : t('shell.label_desabilitar_dicas')}
-            onClick={toggleTooltips}
-            style={{ color: tooltipsDisabled ? 'var(--hb-muted)' : 'var(--hb-accent)' }}
-          >
-            <Info weight={tooltipsDisabled ? 'regular' : 'fill'} size={16} />
-          </button>
-
-          {/* Localizador — ecosistema */}
-          <LocalizadorGlobal
-            workspaceName={companyName}
-            iconOnly
-            currentProductId="store"
-            currentProductLabel="Store"
-            currentProductColor="#818cf8"
-            currentPageLabel="Store"
-            history={history}
-            nodes={ecosystemNodes}
-            onNavigate={(node) => {
-              if (node.type === 'hub')               navigate('/hub?select=1')
-              else if (node.type === 'core')         navigate('/core')
-              else if (node.type === 'configurador') navigate('/configurador')
-              else if (node.type === 'admin')        navigate('/admin/visao-geral')
-              else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
-            }}
-          />
-
-          {/* Seletor de idioma */}
-          <SeletorIdiomaGlobal iconOnly />
-
-          <div className="hb-topbar-sep" />
-
-          {/* Engrenagem — workspace */}
-          <button
-            className="hb-topbar-btn"
-            type="button"
-            title={t('workspace.layout.modulo_nome')}
-            onClick={() => navigate('/configurador')}
-          >
-            <Gear weight="duotone" size={16} />
-          </button>
-
-          <UsuarioGlobal
-            userName={userName}
-            userEmail={userEmail}
-            userInitials={userInitials}
-            userRole={userRoleLabel}
-            isLight={isLight}
-            onToggleTheme={toggleTheme}
-            onNavigateWorkspace={() => navigate('/configurador/organizacao')}
-            onNavigateMarketPlace={() => navigate('/store')}
-            onSignOut={() => signOut()}
-            isAdmin={isGravityAdmin}
-            onNavigateAdmin={() => navigate('/admin/visao-geral')}
-            temAcessoTrocarOrganizacao={podeAtivarOverride}
-            organizacaoOverrideAtiva={overrideAtivo}
-            aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}
-            aoVoltarParaGravity={() => { limparOverride(); navigate('/hub') }}
-            compact
-          />
-        </div>
-      </header>
+      <TopbarPaginaGravity
+        rotuloTela="Store"
+        atalho={{
+          label: 'Hub',
+          title: t('store.voltar_hub'),
+          icon: <LogoHub size={13} color="#818cf8" />,
+          onClick: () => navigate('/hub?select=1'),
+        }}
+        onBuscar={() => {
+          const el = document.querySelector<HTMLInputElement>('.gs-search__input')
+          if (el) {
+            el.focus()
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }}
+        workspaceName={companyName}
+        localizador={{
+          currentProductId: 'store',
+          currentProductLabel: 'Store',
+          currentProductColor: '#818cf8',
+          currentPageLabel: 'Store',
+          history,
+          nodes: ecosystemNodes,
+          onNavigate: (node) => {
+            if (node.type === 'hub')               navigate('/hub?select=1')
+            else if (node.type === 'core')         navigate('/hub?select=1')
+            else if (node.type === 'hub-store')    navigate('/store')
+            else if (node.type === 'configurador') navigate('/configurador')
+            else if (node.type === 'admin')        navigate('/admin/visao-geral')
+            else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
+          },
+        }}
+        onAbrirConfigurador={() => navigate('/configurador')}
+        usuario={{
+          userName,
+          userEmail,
+          userInitials,
+          userRole: userRoleLabel,
+          onNavigateWorkspace: () => navigate('/configurador/organizacao'),
+          onNavigateMarketPlace: () => navigate('/store'),
+          onSignOut: () => signOut(),
+          isAdmin: isGravityAdmin,
+          onNavigateAdmin: () => navigate('/admin/visao-geral'),
+          temAcessoTrocarOrganizacao: podeAtivarOverride,
+          organizacaoOverrideAtiva: overrideAtivo,
+          aoTrocarOrganizacao: () => setModalTrocarOrgAberto(true),
+          aoVoltarParaGravity: () => { limparOverride(); navigate('/hub') },
+        }}
+      />
       <ModalTrocarOrganizacao
         aberto={modalTrocarOrgAberto}
         aoFechar={() => setModalTrocarOrgAberto(false)}

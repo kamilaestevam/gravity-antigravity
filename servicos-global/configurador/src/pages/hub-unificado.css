@@ -205,6 +205,8 @@
 
 /* Card workspace — layout protótipo hub-unificado-preview */
 .sw-hub-panel--ws .sw-ws-card--hub {
+  display: flex;
+  flex-direction: column;
   position: relative;
   padding: 1rem;
   gap: 0;

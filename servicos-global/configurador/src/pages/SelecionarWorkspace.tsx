@@ -1073,68 +1073,99 @@ export function SelecionarWorkspace() {
                   </div>
 
                   <div className="sw-ws-carousel-wrap">
-                      <button className="sw-carousel-btn sw-carousel-btn--left" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'left')} aria-label="Anterior">
-                        <CaretLeft size={16} weight="bold" />
-                      </button>
-                      <div className="sw-ws-grid" ref={wsCarouselRef}>
-                        {wsFiltrados.map((ws) => {
-                          const isPreferred = ws.id === preferredId
-                          return (
-                            <div
-                              key={ws.id}
-                              className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}${isPreferred ? ' favorited' : ''}`}
-                              onClick={() => handleSelectWs(ws.id)}
-                              role="button"
-                              tabIndex={0}
-                            >
-                              <div className="sw-ws-card-top">
-                                <div className="sw-ws-logo" style={{ background: `linear-gradient(135deg, ${ws.gradientFrom} 0%, ${ws.gradientTo} 100%)` }}>{ws.iniciais}</div>
-                                <div className="sw-ws-card-top-actions">
-                                  <TooltipGlobal
-                                    titulo={isPreferred ? 'Remover workspace principal' : 'Definir como workspace principal'}
-                                    descricao={isPreferred
-                                      ? 'Você não entrará mais direto neste workspace ao fazer login'
-                                      : 'Ao fazer login, você entrará direto neste workspace, pulando esta tela'}
-                                  >
-                                    <button
-                                      className={`sw-ws-fav-btn${isPreferred ? ' active' : ''}`}
-                                      type="button"
-                                      onClick={(e) => togglePreferred(e, ws.id)}
-                                      disabled={preferredSaving}
-                                      aria-label={isPreferred ? 'Remover workspace principal' : 'Definir como workspace principal'}
-                                    >
-                                      <Star size={14} weight={isPreferred ? 'fill' : 'regular'} />
-                                    </button>
-                                  </TooltipGlobal>
-                                </div>
-                              </div>
-                              <div className="sw-ws-name">{ws.nome}</div>
-                              <button
-                                className="sw-ws-enter-btn"
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  void tentarEntrarNoWorkspace(ws)
-                                }}
-                                disabled={entrando}
+                    <button
+                      className="sw-carousel-btn sw-carousel-btn--left"
+                      type="button"
+                      onClick={() => scrollCarousel(wsCarouselRef, 'left')}
+                      aria-label="Anterior"
+                    >
+                      <CaretLeft size={16} weight="bold" />
+                    </button>
+                    <div className="sw-ws-grid" ref={wsCarouselRef}>
+                      {wsFiltrados.map((ws) => {
+                        const isPreferred = ws.id === preferredId
+                        return (
+                          <div
+                            key={ws.id}
+                            className={`sw-ws-card sw-ws-card--hub${ws.id === selectedId ? ' selected' : ''}${isPreferred ? ' favorited' : ''}`}
+                            onClick={() => handleSelectWs(ws.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault()
+                                handleSelectWs(ws.id)
+                              }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                          >
+                            <div className="sw-ws-card-actions">
+                              <TooltipGlobal
+                                titulo={isPreferred ? t('sw.fav_remover_titulo') : t('sw.fav_adicionar_titulo')}
+                                descricao={isPreferred ? t('sw.fav_remover_desc') : t('sw.fav_adicionar_desc')}
                               >
-                                {entrando ? t('sw.entrando') : t('sw.entrar_btn')}
-                                <ArrowRight size={14} />
-                              </button>
+                                <button
+                                  className={`sw-ws-fav-btn${isPreferred ? ' active' : ''}`}
+                                  type="button"
+                                  onClick={(e) => togglePreferred(e, ws.id)}
+                                  disabled={preferredSaving}
+                                  aria-label={isPreferred ? t('sw.fav_remover_aria') : t('sw.fav_adicionar_aria')}
+                                >
+                                  <Star size={14} weight={isPreferred ? 'fill' : 'regular'} />
+                                </button>
+                              </TooltipGlobal>
+                              <div className="sw-ws-check" aria-hidden={ws.id !== selectedId}>
+                                <Check size={12} weight="bold" color="#fff" />
+                              </div>
                             </div>
-                          )
-                        })}
-                        {podeMutarConfigurador(dbRole) && (
-                          <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
-                            <Plus size={18} />
-                            <span className="sw-ws-add-label">{t('sw.criar_workspace')}</span>
-                          </button>
-                        )}
-                      </div>
-                      <button className="sw-carousel-btn sw-carousel-btn--right" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'right')} aria-label="Próximo">
-                        <CaretRight size={16} weight="bold" />
-                      </button>
+                            <div className="sw-ws-card-head">
+                              <div
+                                className="sw-ws-logo"
+                                style={{
+                                  background: `linear-gradient(135deg, ${ws.gradientFrom} 0%, ${ws.gradientTo} 100%)`,
+                                }}
+                              >
+                                {ws.iniciais}
+                              </div>
+                              <div className="sw-ws-card-info">
+                                <div className="sw-ws-name">{ws.nome}</div>
+                                {ws.role ? <div className="sw-ws-role">{ws.role}</div> : null}
+                              </div>
+                            </div>
+                            <p className="sw-ws-stats-line">
+                              {ws.modulos} {t('sw.stat_produtos').toLowerCase()} · {ws.membros}{' '}
+                              {t('sw.stat_usuarios').toLowerCase()}
+                            </p>
+                            <button
+                              className="sw-ws-enter-btn"
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                void tentarEntrarNoWorkspace(ws)
+                              }}
+                              disabled={entrando}
+                            >
+                              {entrando ? t('sw.entrando') : t('sw.entrar_btn')}
+                              <ArrowRight size={14} />
+                            </button>
+                          </div>
+                        )
+                      })}
+                      {podeMutarConfigurador(dbRole) && (
+                        <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
+                          <Plus size={18} />
+                          <span className="sw-ws-add-label">{t('sw.criar_workspace')}</span>
+                        </button>
+                      )}
                     </div>
+                    <button
+                      className="sw-carousel-btn sw-carousel-btn--right"
+                      type="button"
+                      onClick={() => scrollCarousel(wsCarouselRef, 'right')}
+                      aria-label="Próximo"
+                    >
+                      <CaretRight size={16} weight="bold" />
+                    </button>
+                  </div>
                 </section>
               </div>
 

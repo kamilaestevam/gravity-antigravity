@@ -681,7 +681,7 @@ if (process.env.NODE_ENV !== 'test') {
       console.error('[configurador] Sidecar BID (background) erro não tratado:', msg)
     })
 
-    // Sincronizar catálogo de produtos com a lista canônica a cada startup
+    // Garantir produtos canônicos no catálogo (cria/atualiza nomes — nunca apaga cadastros do Admin)
     try {
       const { produtoGravityCatalogoServico } = await import('./services/produto-gravity-catalogo-service.js')
       await produtoGravityCatalogoServico.ensureMissingProducts()

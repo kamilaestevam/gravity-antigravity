@@ -936,6 +936,9 @@ export interface TesteApi {
   result: string
   duration: string
   error_log: string | null
+  success_log?: string | null
+  emt_pasta?: string | null
+  emt_prints?: string[]
   ai_analysis: Record<string, unknown> | null
 }
 
@@ -965,7 +968,7 @@ export const adminTestesApi = {
     return request<{ logs: TesteApi[] }>('/v1/admin/testes')
   },
   /** POST /api/v1/admin/testes/disparar */
-  async disparar(opts?: { planos?: string[]; modulos?: string[] }) {
+  async disparar(opts?: { planos?: string[]; modulos?: string[]; ambiente?: 'Local' | 'Staging' | 'Producao' }) {
     return request<{ started: boolean }>('/v1/admin/testes/disparar', {
       method: 'POST',
       body: JSON.stringify(opts ?? {}),

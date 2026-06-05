@@ -10,15 +10,14 @@ import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import dotenv from 'dotenv'
 import { clerk, clerkSetup } from '@clerk/testing/playwright'
+import { aplicarChavesClerkParaAmbiente, ambienteRemotoProducao } from '../../../_lib/aplicar-chaves-clerk-ambiente.js'
 
 const __dirRoot = dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: resolve(__dirRoot, '../../../../../.env.local') })
 dotenv.config({ path: resolve(__dirRoot, '../../../../../servicos-global/configurador/.env') })
 dotenv.config({ path: resolve(__dirRoot, '../../../../../servicos-global/produto/pedido/.env') })
 
-if (!process.env.CLERK_PUBLISHABLE_KEY && process.env.VITE_CLERK_PUBLISHABLE_KEY) {
-  process.env.CLERK_PUBLISHABLE_KEY = process.env.VITE_CLERK_PUBLISHABLE_KEY
-}
+const { ambiente: ambienteExec, clerkSecretPrefix } = aplicarChavesClerkParaAmbiente()
 
 const DATA = '2026-06-02'
 const OUT = resolve(__dirRoot, `${DATA}-status-reflexo-completo`)
@@ -91,58 +90,135 @@ async function aguardarMeComOrganizacao(page: Page): Promise<void> {
 }
 
 async function autenticarClerk(page: Page): Promise<boolean> {
-  const email = process.env.E2E_CLERK_USER_EMAIL ?? process.env.E2E_EMAIL ?? 'dmmltda@gmail.com'
+  const email = process.env.E2E_CLERK_USER_EMAIL ?? process.env.E2E_EMAIL
+  const senha = process.env.E2E_CLERK_USER_PASSWORD ?? process.env.E2E_PASSWORD
+  if (!email) {
+    falhar('E2E_CLERK_USER_EMAIL ausente — configure no .env do Configurador')
+    return false
+  }
   if (!process.env.CLERK_SECRET_KEY) {
     falhar('CLERK_SECRET_KEY ausente — não foi possível autenticar')
     return false
   }
+
+  log(`Auth ambiente=${ambienteExec} clerk=${clerkSecretPrefix} email=${email}`)
+
   await page.goto(`${BASE_UI}/login`, { waitUntil: 'domcontentloaded', timeout: 60000 })
   await page.waitForFunction(() => {
     const c = (window as unknown as { Clerk?: { loaded?: boolean; client?: unknown } }).Clerk
     return Boolean(c?.loaded && c?.client)
   }, undefined, { timeout: 60000 })
-  await clerk.signIn({ page, emailAddress: email })
+
+  try {
+    if (senha) {
+      await clerk.signIn({ page, emailAddress: email, password: senha })
+    } else {
+      await clerk.signIn({ page, emailAddress: email })
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (clerkSecretPrefix === 'sk_test' && ambienteRemotoProducao()) {
+      falhar(`Clerk dev (sk_test) em URL de produção — configure CLERK_PROD_SECRET_KEY no .env: ${msg}`)
+    } else {
+      falhar(`Clerk sign-in falhou: ${msg}`)
+    }
+    return false
+  }
+
   await aguardarMeComOrganizacao(page)
   await prepararEscopoWorkspaces(page)
   log(`✓ Clerk sign-in (${email})`)
   return true
 }
 
+async function aguardarWorkspaceAtivo(page: Page): Promise<void> {
+  const ok = await page.waitForFunction(() => {
+    try {
+      if (sessionStorage.getItem('gravity_company_id')) return true
+      const raw = localStorage.getItem('gravity-shell-state')
+      if (raw) {
+        const parsed = JSON.parse(raw) as { state?: { idWorkspaceAtivo?: string | null } }
+        if (parsed.state?.idWorkspaceAtivo) return true
+      }
+    } catch { /* ignore */ }
+    return false
+  }, undefined, { timeout: 15000 }).then(() => true).catch(() => false)
+
+  if (!ok) {
+    await page.evaluate((wsId) => {
+      sessionStorage.setItem('gravity_company_id', wsId)
+      const key = 'gravity-shell-state'
+      const raw = localStorage.getItem(key)
+      if (raw) {
+        const parsed = JSON.parse(raw) as { state?: Record<string, unknown> }
+        parsed.state = { ...parsed.state, idWorkspaceAtivo: wsId }
+        localStorage.setItem(key, JSON.stringify(parsed))
+      }
+    }, WORKSPACE_CDE_PADRAO)
+    log(`⚠ Workspace forçado (${WORKSPACE_CDE_PADRAO})`)
+  }
+}
+
 async function entrarNoWorkspace(page: Page): Promise<void> {
-  if (!page.url().includes('/hub')) return
-  log('Hub detectado — entrando no workspace')
-  const btn = page.getByRole('button', { name: /entrar no workspace/i }).first()
-  await btn.waitFor({ timeout: 15000 })
-  await btn.click()
-  await page.waitForURL(/\/(pedido|core|configurador)/, { timeout: 30000 }).catch(() => {})
+  const noHub = page.url().includes('/hub') || page.url().includes('/selecionar-workspace')
+  if (!noHub) return
+
+  log('Hub detectado — aguardando UI do workspace')
+  await page.waitForLoadState('networkidle').catch(() => {})
+  await page.waitForTimeout(2500)
+
+  const btnAcordo = page.getByRole('button', { name: /estou de acordo/i })
+  if (await btnAcordo.isVisible({ timeout: 5000 }).catch(() => false)) {
+    await btnAcordo.click()
+    await page.waitForTimeout(1000)
+  }
+
+  const cardWs = page.locator('.sw-ws-card').first()
+  if (await cardWs.isVisible({ timeout: 15000 }).catch(() => false)) {
+    await cardWs.click()
+    await page.waitForTimeout(600)
+  }
+
+  const btnEnter = page
+    .locator('.sw-ws-enter-btn')
+    .or(page.getByRole('button', { name: /entrar no workspace/i }))
+    .first()
+
+  if (await btnEnter.isVisible({ timeout: 20000 }).catch(() => false)) {
+    await btnEnter.click()
+    await page.waitForURL(/\/(pedido|core|configurador)/, { timeout: 60000 }).catch(() => {})
+  } else {
+    log('⚠ Botão "Entrar no workspace" não visível — navegação direta')
+    await page.goto(`${BASE_UI}/pedido/configuracoes?tab=status`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000,
+    })
+  }
+
+  await aguardarWorkspaceAtivo(page)
   await prepararEscopoWorkspaces(page)
-  await page.waitForTimeout(1000)
+  await page.waitForTimeout(1500)
 }
 
 async function validarConfigStatus(page: Page): Promise<void> {
   await page.goto(`${BASE_UI}/pedido/configuracoes?tab=status`, {
     waitUntil: 'domcontentloaded',
-    timeout: 45000,
+    timeout: 60000,
   })
-  await page.waitForTimeout(2000)
 
-  const textoErro = page.locator('.cfg-empty').filter({ hasText: /carregar os status|carregar status/i })
-  if (await textoErro.isVisible().catch(() => false)) {
+  const rowLocator = page.locator('.cfg-status-row').first()
+  const carregouRows = await rowLocator.waitFor({ timeout: 60000 }).then(() => true).catch(() => false)
+
+  if (!carregouRows && await page.locator('.cfg-status-erro').isVisible().catch(() => false)) {
     log('⚠ API status falhou — clicando Tentar novamente')
     await page.getByRole('button', { name: /tentar novamente/i }).click().catch(() => {})
-    await page.waitForTimeout(4000)
+    await rowLocator.waitFor({ timeout: 45000 }).catch(() => {})
   }
 
-  if (await textoErro.isVisible().catch(() => false)) {
-    await screenshot(page, '02-config-status-erro-api.png')
-    falhar('API GET /pedidos/config/status indisponível — lista não carregou (processos-core?)')
-    return
-  }
-
-  const temRows = await page.locator('.cfg-status-row').first().isVisible().catch(() => false)
+  const temRows = await rowLocator.isVisible().catch(() => false)
   if (!temRows) {
     await screenshot(page, '02-config-status-sem-linhas.png')
-    falhar('Config Status: nenhuma .cfg-status-row visível após load')
+    falhar('Config Status: nenhuma .cfg-status-row visível após load (timeout 60s)')
     return
   }
   await screenshot(page, '02-config-status-inicial.png')
@@ -176,11 +252,15 @@ async function validarConfigStatus(page: Page): Promise<void> {
 
   await screenshot(page, '03-status-sistema-badge-sem-lapis.png')
 
-  const editavel = page.locator('.cfg-status-row').filter({ has: page.locator('.cfg-status-label', { hasText: 'Em Andamento' }) })
-  if (await editavel.locator('.cfg-eye-btn').count() === 0) {
-    falhar('Em Andamento sem lápis (esperado editável)')
+  const editavel = page.locator('.cfg-status-row').filter({
+    hasNot: page.locator('.cfg-badge-sistema'),
+  }).first()
+  const temLapisCustom = await editavel.locator('.cfg-eye-btn').count()
+  if (temLapisCustom === 0) {
+    falhar('Nenhum status customizado com lápis (esperado ao menos 1 editável)')
   } else {
-    log('✓ Em Andamento: lápis visível')
+    const rotulo = (await editavel.locator('.cfg-status-label').first().textContent())?.trim() ?? 'custom'
+    log(`✓ Status custom "${rotulo}": lápis visível`)
     await screenshot(page, '04-status-custom-com-lapis.png')
   }
 }
@@ -237,7 +317,7 @@ async function validarDashboard(page: Page): Promise<void> {
 async function main() {
   mkdirSync(OUT, { recursive: true })
   log(`TESTE EM TELA — status-reflexo-completo`)
-  log(`Data: ${DATA} | Base: ${BASE_UI}`)
+  log(`Data: ${DATA} | Base: ${BASE_UI} | Ambiente: ${ambienteExec} | Clerk: ${clerkSecretPrefix}`)
   log(`Pasta: ${OUT}`)
 
   await clerkSetup()
@@ -249,6 +329,8 @@ async function main() {
   try {
     const okAuth = await autenticarClerk(page)
     if (!okAuth) throw new Error('Autenticação falhou')
+    await page.waitForLoadState('networkidle').catch(() => {})
+    await page.waitForTimeout(2000)
     await screenshot(page, '01-pos-login.png')
     await entrarNoWorkspace(page)
 

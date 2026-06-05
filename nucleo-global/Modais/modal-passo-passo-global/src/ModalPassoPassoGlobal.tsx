@@ -594,7 +594,7 @@ const s = {
   headerTexto: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: 0,
+    gap: '0.375rem',
   },
   headerTituloRow: {
     display: 'flex',

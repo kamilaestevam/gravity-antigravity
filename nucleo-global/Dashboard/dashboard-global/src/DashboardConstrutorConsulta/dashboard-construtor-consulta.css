@@ -1,0 +1,603 @@
+/**
+ * DashboardConstrutorConsulta — wizard Novo Widget
+ * Referências: ModalPedidoTransferir (cards) + ModalPedidosConsolidar (.cons-secao)
+ *
+ * Espaçamentos (px):
+ * - Passo 1: um campo (radio); intro→seção 16px; itens 4px; borda visível na lista com scroll
+ * - Passo 2: intro→bloco 8px; label→campo 4px; campo→próximo label 8px
+ * - Passo 3: intro→grid 8px; gap entre cards 4px
+ */
+
+.dq-construtor {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+  flex: 1;
+}
+
+.dq-construtor__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.dq-construtor--campos .dq-construtor__hint {
+  margin-bottom: 16px;
+}
+
+.dq-construtor--operacao .dq-construtor__hint,
+.dq-construtor--visualizar .dq-construtor__hint {
+  margin-bottom: 8px;
+}
+
+.dq-construtor--editar .dq-construtor__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dq-editar-widget__footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.dq-secao--indicador {
+  gap: 8px;
+}
+
+.dq-op__linha--somente-leitura {
+  cursor: default;
+}
+
+.dq-chart__grid--editar {
+  margin-top: 0;
+}
+
+.dq-construtor__alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--warning);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: var(--radius-md);
+}
+
+.dq-construtor__corpo {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ── Seção (paridade ModalPedidosConsolidar .cons-secao) ─────────────────── */
+
+.dq-secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--bg-elevated) 60%, transparent);
+  border-radius: var(--radius-lg);
+  background: transparent;
+}
+
+.dq-secao--visualizar {
+  gap: 0;
+  padding: 1rem 1.25rem;
+}
+
+.dq-secao-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.dq-secao-titulo::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* ── Campos vazios (paridade ModalPedidosConsolidar .cons-secao input) ───── */
+
+.dq-secao input[type='text'] {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  padding: 0.625rem 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dq-secao input[type='text']::placeholder {
+  color: var(--text-muted, #64748b);
+  opacity: 0.6;
+}
+
+.dq-secao input[type='text']:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12), 0 0 12px rgba(99, 102, 241, 0.08);
+}
+
+.dq-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.dq-input-wrap--icone input[type='text'] {
+  padding-left: 2.25rem;
+  padding-right: 2rem;
+}
+
+.dq-input-wrap__icone {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.dq-input-wrap__clear {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+.dq-input-wrap__clear:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ── Passo 1 — Lista (paridade ModalPedidoTransferir cards) ──────────────── */
+
+.dq-campos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2px 6px 2px 2px;
+  margin: 0 -2px;
+}
+
+.dq-campos-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dq-campos-grupo + .dq-campos-grupo {
+  margin-top: 4px;
+}
+
+.dq-grupo-titulo {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0;
+  padding: 0 2px;
+}
+
+.dq-campo-linha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-default);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.dq-campo-linha:hover:not(.dq-campo-linha--bloqueado) {
+  border-color: var(--text-muted);
+  background: var(--bg-elevated);
+}
+
+.dq-campo-linha--selecionado {
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.dq-campo-linha--bloqueado {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.dq-campo-linha__radio {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  margin: 0;
+  pointer-events: none;
+}
+
+.dq-campo-linha__nome {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dq-campos-vazio {
+  margin: 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.dq-campos__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.dq-campos__badge-unidade {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  min-width: 22px;
+  text-align: center;
+}
+
+.dq-campos__badge-tipo {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: lowercase;
+}
+
+/* ── Passo 2 — Formulário ─────────────────────────────────────────────────── */
+
+.dq-form__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dq-form__stack > .cg-wrapper + .cg-wrapper,
+.dq-form__stack > .cg-wrapper + .dq-form__grupo,
+.dq-form__stack > .dq-form__grupo + .cg-wrapper {
+  margin-top: 0;
+}
+
+.dq-form__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dq-form__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dq-secao .dq-form__periodo-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  padding: 0.625rem 0.875rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: left;
+}
+
+.dq-secao .dq-form__periodo-trigger:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.dq-secao .dq-form__periodo-trigger:focus-visible,
+.dq-secao .dq-form__periodo-trigger[aria-expanded='true'] {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12), 0 0 12px rgba(99, 102, 241, 0.08);
+}
+
+.dq-form__periodo-trigger__texto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  color: var(--text-primary);
+}
+
+.dq-form__periodo-trigger__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dq-form__periodo-trigger__caret {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.dq-periodo-campo {
+  width: 100%;
+}
+
+.dq-periodo-painel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  min-width: 168px;
+  overflow: hidden;
+}
+
+.dq-periodo-painel button[role='option'] {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dq-periodo-painel button[role='option']:hover,
+.dq-periodo-painel button[role='option'][aria-selected='true'] {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.dq-periodo-painel [role='separator'] {
+  height: 1px;
+  background: var(--border-default);
+  margin: 4px 0;
+}
+
+.dq-op__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dq-op__linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-default);
+  border-radius: 8px;
+}
+
+.dq-op__campo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.dq-op__pill-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.dq-op__pill {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.dq-op__pill:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.dq-op__pill--ativa {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.dq-op__fixa {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+}
+
+.dq-op__colapsado {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-default);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+.dq-op__colapsado-nota {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+/* ── Passo 3 — Cards de gráfico (grid compacto + estilo Transferir) ──────── */
+
+.dq-chart__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .dq-chart__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.dq-chart__card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 88px;
+  padding: 8px 6px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-default);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dq-chart__card-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 72px;
+  text-align: center;
+}
+
+.dq-chart__card:hover:not(:disabled) {
+  border-color: var(--text-muted);
+  background: var(--bg-elevated);
+}
+
+.dq-chart__card--selecionado {
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.08);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.dq-chart__card:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.dq-chart__icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  flex-shrink: 0;
+}
+
+.dq-chart__rotulo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.3;
+  max-width: 100%;
+}
+
+.dq-chart__card--selecionado .dq-chart__rotulo {
+  color: var(--accent);
+}
+
+.dq-chart__motivo {
+  font-size: 0.5625rem;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 0 4px;
+  max-width: 100%;
+}

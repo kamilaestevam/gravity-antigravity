@@ -31,9 +31,7 @@ import {
   DashboardPainelEditarModal,
   DashboardPainelSugestoes,
   DashboardValorKPI,
-  PeriodDropdown,
 } from '@nucleo/dashboard'
-import type { PeriodOption } from '@nucleo/dashboard'
 import { DashboardConstrutorConsulta } from '@nucleo/query-builder-global'
 import type {
   DashboardWidgetConfig,
@@ -60,7 +58,7 @@ import {
 import './PedidosDashboard.css'
 import '../components/PedidosVisualizacaoTabs.css'
 
-import { useDashboardStore, translateWidgetTitle } from '../stores/dashboardStore'
+import { useDashboardStore, translateWidgetTitle, widgetTituloFoiCustomizado } from '../stores/dashboardStore'
 import { widgetEstaVisivel, ordenarWidgetsLista } from '../shared/dashboardWidgetVisibilidade'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import { buildDashboardCatalog, buildCatalogByKey } from '../shared/dashboardCatalog'
@@ -469,6 +467,7 @@ const WIDGET_VISUAL: Record<string, { accentColor?: string; icone?: ReactNode }>
   kpi_qtd_inicial:       {                      icone: <ListNumbers       size={15} weight="duotone" /> },
   kpi_qtd_transferida:   {                      icone: <ArrowsLeftRight   size={15} weight="duotone" /> },
   kpi_valor_itens:       {                      icone: <Tag               size={15} weight="duotone" /> },
+  gabi_insights:         { accentColor: '#7c3aed', icone: <RocketLaunch     size={15} weight="duotone" /> },
 }
 
 // Rota de drill-down por widget de alerta
@@ -554,10 +553,10 @@ interface WidgetEmptyGabiProps {
   onExpandPeriod: (p: string) => void
   onEdit: () => void
   onRemove: () => void
-  editMode?: boolean
+  mostrarAcoes?: boolean
 }
 
-function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, onEdit, onRemove, editMode = false }: WidgetEmptyGabiProps) {
+function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, onEdit, onRemove, mostrarAcoes = false }: WidgetEmptyGabiProps) {
   const { t } = useTranslation()
   const nextPeriods = getNextPeriods(currentPeriod)
   const emptyText   = buildEmptyText(widget.chart_type, fieldNames, t)
@@ -579,7 +578,7 @@ function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, on
 
         <p style={gabiEmptyStyles.text}>{emptyText}</p>
 
-        {editMode && (
+        {mostrarAcoes && (
           <div style={gabiEmptyStyles.actions}>
             {nextPeriods.length > 0 ? (
               <div style={gabiEmptyStyles.periodGroup}>
@@ -923,7 +922,7 @@ export default function PedidosDashboard() {
     selecionarTodosWidgetsVisiveis, restaurarVisibilidadePadraoWidgets,
     slicers, setPeriod, setStatusFilter,
     activeFilters, clearFilters,
-    editMode, setEditMode: _setEditModeRaw,
+    widgetLayoutInteracao, setWidgetLayoutInteracao, clearWidgetLayoutInteracao,
     queryBuilderOpen, setQueryBuilderOpen,
     userDerivedMetrics,
     paineis, painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
@@ -935,11 +934,6 @@ export default function PedidosDashboard() {
   // Backend POST/PUT/DELETE widgets retornam 403 em caso real.
   const { podeEditar } = usePermissoesPedido()
   const podeEditarDashboard = podeEditar('dashboard')
-  // Wrapper que bloqueia o setEditMode quando sem permissao.
-  const setEditMode = (v: boolean) => {
-    if (v && !podeEditarDashboard) return // ignora pedido de entrar em edicao
-    _setEditModeRaw(v)
-  }
 
   const navigate = useNavigate()
   const { trackWidget, trackInsight } = useTrackBehavior()
@@ -1321,138 +1315,177 @@ export default function PedidosDashboard() {
     return chips
   }, [activeWidgets, slicers.period, periodOptions, t, handlePeriodChange, handleClearWidgetPeriod])
 
-  const renderPeriodoControleWidget = useCallback((widget: DashboardWidgetConfig) => (
-    <PeriodDropdown
-      value={widget.query_spec.filters.period}
-      options={periodOptions as PeriodOption[]}
-      onChange={(p) => handleWidgetPeriodChange(widget.id, p)}
-    />
-  ), [periodOptions, handleWidgetPeriodChange])
-
-  const renderWidget = useCallback((widget: DashboardWidgetConfig) => {
+  const buildPainelWidgetProps = useCallback((widget: DashboardWidgetConfig) => {
     const chartType = widget.chart_type
     const widgetPeriod = widget.query_spec.filters.period
-    const kpisWidget = (kpisPorPeriodo[widgetPeriod] ?? kpisData) as DashboardKpis | null
     const locked = widget.config?.periodLocked === true
     const periodoProprio = widgetUsaPeriodoProprio(widgetPeriod, slicers.period, locked)
     const periodoRotuloWidget = periodoProprio
       ? rotuloPeriodoDashboard(widgetPeriod, periodOptions, t('nucleo.dashboard.periodo.personalizado'))
       : undefined
-    const painelPeriodoProps = chartType === 'SECTION_LABEL' || chartType === 'GABI_INSIGHTS'
+
+    const layoutModo = widgetLayoutInteracao?.widgetId === widget.id
+      ? widgetLayoutInteracao.modo
+      : null
+
+    const periodoProps = chartType === 'SECTION_LABEL' || chartType === 'GABI_INSIGHTS'
       ? {}
-      : editMode
+      : periodoProprio
         ? {
             periodoFiltroRotulo: periodoRotuloWidget,
-            periodoControle: renderPeriodoControleWidget(widget),
-            onLimparPeriodoWidget: periodoProprio ? () => handleClearWidgetPeriod(widget.id) : undefined,
+            onLimparPeriodoWidget: podeEditarDashboard
+              ? () => handleClearWidgetPeriod(widget.id)
+              : undefined,
           }
         : {}
 
-    const painelEditProps = editMode && podeEditarDashboard
+    const menuProps = podeEditarDashboard
       ? {
-          onEdit: (w: DashboardWidgetConfig) => { setEditingWidget(w); setEditModalOpen(true) },
+          habilitarMenuOpcoes: true,
+          layoutModo,
+          onEdit: (w: DashboardWidgetConfig) => {
+            const stored = widgets.find(x => x.id === w.id) ?? w
+            setEditingWidget(stored)
+            setEditModalOpen(true)
+          },
           onRemove: removeWidget,
+          onMover: () => setWidgetLayoutInteracao({ widgetId: widget.id, modo: 'moving' }),
+          onRedimensionar: () => setWidgetLayoutInteracao({ widgetId: widget.id, modo: 'resizing' }),
+          onConcluirLayout: clearWidgetLayoutInteracao,
         }
       : {}
 
-    // ── GABI_INSIGHTS — grid responsivo de insights da Gabi AI ─────────────
+    return { ...periodoProps, ...menuProps }
+  }, [
+    widgets,
+    slicers.period,
+    periodOptions,
+    t,
+    widgetLayoutInteracao,
+    podeEditarDashboard,
+    handleClearWidgetPeriod,
+    removeWidget,
+    setWidgetLayoutInteracao,
+    clearWidgetLayoutInteracao,
+  ])
+
+  const renderWidget = useCallback((widget: DashboardWidgetConfig) => {
+    const chartType = widget.chart_type
+    const widgetPeriod = widget.query_spec.filters.period
+    const kpisWidget = (kpisPorPeriodo[widgetPeriod] ?? kpisData) as DashboardKpis | null
+    const painelProps = buildPainelWidgetProps(widget)
+    const emInteracaoLayout = widgetLayoutInteracao?.widgetId === widget.id
+
+    // ── GABI_INSIGHTS — mesmo contrato de painel nativo (⋮ mover / tamanho / excluir) ──
     if (chartType === 'GABI_INSIGHTS') {
       const insights = insightsData.length > 0
         ? insightsData
         : kpisData
           ? buildClientInsights(kpisData, prevKpisData, t)
-          : [] // kpisData ainda não carregou — skeleton cobre esse estado
+          : []
+      const gabiVisual = WIDGET_VISUAL.gabi_insights ?? {}
+      const gabiResult: WidgetResult = {
+        data: {},
+        chartType: 'GABI_INSIGHTS',
+        partial: false,
+        cached: false,
+        computed_at: new Date().toISOString(),
+      }
+      const controlesCarrossel = (
+        <div className="dp-gabi-header-right db-no-drag">
+          <button
+            className="dp-gabi-nav-btn"
+            type="button"
+            onClick={() => scrollGabi('left')}
+            aria-label={t('pedido.dashboard.gabi_insight_anterior')}
+          >
+            <CaretLeft size={12} weight="bold" />
+          </button>
+          <button
+            className="dp-gabi-nav-btn"
+            type="button"
+            onClick={() => scrollGabi('right')}
+            aria-label={t('pedido.dashboard.gabi_proximo_insight')}
+          >
+            <CaretRight size={12} weight="bold" />
+          </button>
+          <span className="dp-gabi-live-badge">
+            <span className="dp-gabi-live-dot" />
+            {t('pedido.dashboard.gabi_ao_vivo')}
+          </span>
+        </div>
+      )
 
       return (
-        <div
-          key={widget.id}
-          className="dp-gabi-card"
-          onMouseEnter={() => setGabiPaused(true)}
-          onMouseLeave={() => setGabiPaused(false)}
-        >
-          <div className="dp-gabi-watermark" aria-hidden="true">
-            <RocketLaunch size={120} weight="fill" />
-          </div>
-          <div className="dp-gabi-main">
-            <div className="dp-gabi-top-row">
-              <div className="dp-gabi-header">
-                <div className="dp-gabi-avatar">
-                  <RocketLaunch weight="fill" size={13} color="#fff" />
-                </div>
-                <span className="dp-gabi-label">{t('pedido.dashboard.gabi_label')}</span>
+        <div key={widget.id} className="dp-gabi-painel-host">
+          <DashboardPainelContainer
+            widget={widget}
+            result={gabiResult}
+            loading={loadingData}
+            error={null}
+            accentColor={gabiVisual.accentColor}
+            icone={gabiVisual.icone}
+            periodoControle={controlesCarrossel}
+            {...painelProps}
+          >
+            <div
+              className="dp-gabi-card dp-gabi-card--embedded"
+              onMouseEnter={() => setGabiPaused(true)}
+              onMouseLeave={() => setGabiPaused(false)}
+            >
+              <div className="dp-gabi-watermark" aria-hidden="true">
+                <RocketLaunch size={120} weight="fill" />
               </div>
-              <div className="dp-gabi-header-right">
-                <button
-                  className="dp-gabi-nav-btn"
-                  type="button"
-                  onClick={() => scrollGabi('left')}
-                  aria-label={t('pedido.dashboard.gabi_insight_anterior')}
-                >
-                  <CaretLeft size={12} weight="bold" />
-                </button>
-                <button
-                  className="dp-gabi-nav-btn"
-                  type="button"
-                  onClick={() => scrollGabi('right')}
-                  aria-label={t('pedido.dashboard.gabi_proximo_insight')}
-                >
-                  <CaretRight size={12} weight="bold" />
-                </button>
-                <span className="dp-gabi-live-badge">
-                  <span className="dp-gabi-live-dot" />
-                  {t('pedido.dashboard.gabi_ao_vivo')}
-                </span>
-              </div>
-            </div>
-
-            <div className="dp-gabi-track" ref={gabiCarouselRef}>
-              {loadingData
-                ? [0, 1, 2, 3].map(i => (
-                    <div key={i} className="dp-gabi-insight-card dp-gabi-insight-card--skeleton">
-                      <div className="dp-gabi-skeleton-line dp-gabi-skeleton-line--short" />
-                      <div className="dp-gabi-skeleton-line" />
-                      <div className="dp-gabi-skeleton-line" />
-                    </div>
-                  ))
-                : insights.map(ins => (
-                    <div
-                      key={ins.id}
-                      className={`dp-gabi-insight-card${ins.variante === 'warn' ? ' dp-gabi-insight-card--warn' : ''}`}
-                    >
-                      <div className={`dp-gabi-insight-tag${ins.variante === 'warn' ? ' dp-gabi-insight-tag--warn' : ''}`}>
-                        {ins.variante === 'warn'
-                          ? <Warning size={10} weight="fill" />
-                          : <RocketLaunch size={10} weight="fill" />}
-                        {ins.tag}
-                      </div>
-                      <p className="dp-gabi-insight-text">{ins.texto}</p>
-                      {(ins.stat || ins.textoLink) && (
-                        <div className="dp-gabi-insight-bottom">
-                          {ins.stat && (
-                            <div className="dp-gabi-insight-stat">
-                              <span className="dp-gabi-insight-stat-label">{ins.stat.label}</span>
-                              <span className="dp-gabi-insight-stat-value">{ins.stat.valor}</span>
+              <div className="dp-gabi-main">
+                <div className="dp-gabi-track" ref={gabiCarouselRef}>
+                  {loadingData
+                    ? [0, 1, 2, 3].map(i => (
+                        <div key={i} className="dp-gabi-insight-card dp-gabi-insight-card--skeleton">
+                          <div className="dp-gabi-skeleton-line dp-gabi-skeleton-line--short" />
+                          <div className="dp-gabi-skeleton-line" />
+                          <div className="dp-gabi-skeleton-line" />
+                        </div>
+                      ))
+                    : insights.map(ins => (
+                        <div
+                          key={ins.id}
+                          className={`dp-gabi-insight-card${ins.variante === 'warn' ? ' dp-gabi-insight-card--warn' : ''}`}
+                        >
+                          <div className={`dp-gabi-insight-tag${ins.variante === 'warn' ? ' dp-gabi-insight-tag--warn' : ''}`}>
+                            {ins.variante === 'warn'
+                              ? <Warning size={10} weight="fill" />
+                              : <RocketLaunch size={10} weight="fill" />}
+                            {ins.tag}
+                          </div>
+                          <p className="dp-gabi-insight-text">{ins.texto}</p>
+                          {(ins.stat || ins.textoLink) && (
+                            <div className="dp-gabi-insight-bottom">
+                              {ins.stat && (
+                                <div className="dp-gabi-insight-stat">
+                                  <span className="dp-gabi-insight-stat-label">{ins.stat.label}</span>
+                                  <span className="dp-gabi-insight-stat-value">{ins.stat.valor}</span>
+                                </div>
+                              )}
+                              {ins.textoLink && (
+                                <button
+                                  className="dp-gabi-insight-link"
+                                  type="button"
+                                  onClick={() => {
+                                    trackInsight(ins.id)
+                                    if (ins.rota) window.location.href = ins.rota
+                                  }}
+                                >
+                                  {ins.textoLink} <CaretRight size={10} />
+                                </button>
+                              )}
                             </div>
                           )}
-                          {ins.textoLink && (
-                            <button
-                              className="dp-gabi-insight-link"
-                              type="button"
-                              onClick={() => {
-                                trackInsight(ins.id)
-                                if (ins.rota) window.location.href = ins.rota
-                              }}
-                            >
-                              {ins.textoLink} <CaretRight size={10} />
-                            </button>
-                          )}
                         </div>
-                      )}
-                    </div>
-                  ))
-              }
+                      ))}
+                </div>
+              </div>
             </div>
-          </div>
+          </DashboardPainelContainer>
         </div>
       )
     }
@@ -1482,18 +1515,20 @@ export default function PedidosDashboard() {
           result={result}
           loading={false}
           error={null}
-          editMode={editMode}
-          {...painelEditProps}
-          {...painelPeriodoProps}
+          {...painelProps}
         >
           <WidgetEmptyGabi
             widget={widget}
             fieldNames={fields.map((f: { key: string }) => fieldLabels[f.key] ?? f.key)}
             currentPeriod={slicers.period}
             onExpandPeriod={handlePeriodChange}
-            onEdit={() => { setEditingWidget(widget); setEditModalOpen(true) }}
+            onEdit={() => {
+              const stored = widgets.find(x => x.id === widget.id) ?? widget
+              setEditingWidget(stored)
+              setEditModalOpen(true)
+            }}
             onRemove={() => removeWidget(widget.id)}
-            editMode={editMode}
+            mostrarAcoes={podeEditarDashboard}
           />
         </DashboardPainelContainer>
       )
@@ -1503,9 +1538,7 @@ export default function PedidosDashboard() {
     if (chartType === 'DISTRIBUTION') {
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
-          editMode={editMode}
-          {...painelEditProps}
-          {...painelPeriodoProps}
+          {...painelProps}
         >
           <DashboardWidgetDistribuicao slices={result.slices ?? []} />
         </DashboardPainelContainer>
@@ -1533,9 +1566,7 @@ export default function PedidosDashboard() {
 
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
-          editMode={editMode}
-          {...painelEditProps}
-          {...painelPeriodoProps}
+          {...painelProps}
         >
           <DashboardWidgetLinha
             series={series}
@@ -1569,9 +1600,7 @@ export default function PedidosDashboard() {
 
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
-          editMode={editMode}
-          {...painelEditProps}
-          {...painelPeriodoProps}
+          {...painelProps}
         >
           <DashboardWidgetBarras
             series={series}
@@ -1607,7 +1636,10 @@ export default function PedidosDashboard() {
         const statusSlug = topKpiStatusMapa[widget.id as DashboardTopKpiWidgetId]
         const count = contagemPorStatusSlug(statusSlug, kpisWidget, distribuicaoGlobal)
         const tituloStatus = rotuloStatusSlug(statusSlug, statusConfig, t)
-        widgetRender = { ...widget, title: tituloStatus }
+        const tituloExibicao = widgetTituloFoiCustomizado(widget)
+          ? translateWidgetTitle(widget, t)
+          : tituloStatus
+        widgetRender = { ...widget, title: tituloExibicao }
         kpiData = { [fieldKey]: count }
         kpiFieldKey = fieldKey
         kpiFieldType = 'number'
@@ -1618,16 +1650,14 @@ export default function PedidosDashboard() {
       const deltaInfo  = computeDelta(currentVal, prevVal)
       return (
         <DashboardPainelContainer key={widget.id} widget={widgetRender} result={result} loading={loadingData} error={null}
-          editMode={editMode}
-          {...painelEditProps}
+          {...painelProps}
           accentColor={visual.accentColor}
           icone={visual.icone}
           clickable={!!navRoute}
           onClick={() => {
             trackWidget(widget.id)
-            if (navRoute && !editMode) navigate(navRoute)
+            if (navRoute && !emInteracaoLayout) navigate(navRoute)
           }}
-          {...painelPeriodoProps}
         >
           <DashboardValorKPI
             data={kpiData}
@@ -1645,14 +1675,34 @@ export default function PedidosDashboard() {
     const fieldKey = fields[0]?.key ?? 'value'
     return (
       <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
-        editMode={editMode}
-        {...painelEditProps}
-        {...painelPeriodoProps}
+        {...painelProps}
       >
         <DashboardValorKPI data={result.data} fieldKey={fieldKey} fieldType="number" />
       </DashboardPainelContainer>
     )
-  }, [editMode, podeEditarDashboard, removeWidget, allDerived, kpisData, kpisPorPeriodo, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels, catalogByKey, t, topKpiStatusMapa, statusConfig, distribuicaoGlobal, periodOptions, handleClearWidgetPeriod, renderPeriodoControleWidget, navigate, trackWidget, handlePeriodChange, insightsData])
+  }, [
+    buildPainelWidgetProps,
+    widgetLayoutInteracao,
+    podeEditarDashboard,
+    removeWidget,
+    allDerived,
+    kpisData,
+    kpisPorPeriodo,
+    prevKpisData,
+    trendData,
+    loadingData,
+    slicers,
+    fieldLabels,
+    catalogByKey,
+    t,
+    topKpiStatusMapa,
+    statusConfig,
+    distribuicaoGlobal,
+    navigate,
+    trackWidget,
+    handlePeriodChange,
+    insightsData,
+  ])
 
   function handleQueryBuilderSave(spec: WidgetQuerySpec, title: string, chartType: ChartType) {
     const id = `custom_${Date.now()}`
@@ -1726,7 +1776,7 @@ export default function PedidosDashboard() {
   const chipsFiltrosAtivos = filtrosAtivosChips.length > 0 ? (
     <div className="fc-chips-container" role="status" aria-label={t('pedido.dashboard.filtros_ativos_aria', { defaultValue: 'Filtros ativos' })}>
       {filtrosAtivosChips.map(f => {
-        const podeRemover = f.id.startsWith('status-') || f.id === 'periodo-global' || editMode
+        const podeRemover = f.id.startsWith('status-') || f.id === 'periodo-global' || (f.id.startsWith('periodo-') && podeEditarDashboard)
         return (
         <span key={f.id} className="fc-chip">
           <span className="fc-chip-body">
@@ -1744,8 +1794,8 @@ export default function PedidosDashboard() {
   ) : null
 
   const onboardingBarra = !temWidgets ? {
-    onExplorarSugestoes: () => setSuggestionsOpen(true),
-    onCriarDoZero: () => { setEditMode(true); setQueryBuilderOpen(true) },
+    onExplorarSugestoes: () => { setSuggestionsOpen(true) },
+    onCriarDoZero: () => setQueryBuilderOpen(true),
   } : undefined
 
   const paineisVisiveis = useMemo(
@@ -1917,8 +1967,6 @@ export default function PedidosDashboard() {
         onStatusChange={setStatusFilter}
         activeFilters={activeFilters}
         onClearFilters={handleClearFiltersComPeriodo}
-        editMode={editMode}
-        onEditModeChange={setEditMode}
         statusOptions={STATUS_OPTIONS}
         statusLabels={STATUS_LABELS}
         statusActiveColors={STATUS_ACTIVE_COLORS}
@@ -1931,12 +1979,12 @@ export default function PedidosDashboard() {
         } : undefined}
         onAbrirSugestoes={
           podeEditarDashboard
-            ? () => { setEditMode(true); setSuggestionsOpen(true) }
+            ? () => setSuggestionsOpen(true)
             : undefined
         }
         onCriarWidgetZero={
           podeEditarDashboard
-            ? () => { setEditMode(true); setQueryBuilderOpen(true) }
+            ? () => setQueryBuilderOpen(true)
             : undefined
         }
         widgetsSeletor={temWidgets ? {
@@ -1954,9 +2002,9 @@ export default function PedidosDashboard() {
       <DashboardGrid
         widgets={activeWidgets}
         renderWidget={renderWidget}
-        editMode={editMode}
+        layoutInteracao={widgetLayoutInteracao}
         onLayoutChange={(layouts) => {
-          if (!editMode) return
+          if (!useDashboardStore.getState().widgetLayoutInteracao) return
           const lg = layouts.lg ?? []
           updateLayout(lg.map((item) => ({
             id: item.i,
@@ -1968,6 +2016,8 @@ export default function PedidosDashboard() {
       <DashboardConstrutorConsulta
         aberto={queryBuilderOpen}
         availableFields={dashboardCatalog}
+        periodOptions={periodOptions}
+        periodoInicial={slicers.period}
         onSave={handleQueryBuilderSave}
         onCancel={() => setQueryBuilderOpen(false)}
       />
@@ -1978,6 +2028,7 @@ export default function PedidosDashboard() {
         onFechar={() => { setEditModalOpen(false); setEditingWidget(null) }}
         onSalvar={(patch) => { if (editingWidget) updateWidget(editingWidget.id, patch) }}
         fieldLabels={fieldLabels}
+        periodOptions={periodOptions}
       />
 
       {suggestionsOpen && (
@@ -1986,7 +2037,7 @@ export default function PedidosDashboard() {
           derivedMetrics={allDerived}
           onAdd={handleAddWidgetFromSuggestions}
           onClose={() => setSuggestionsOpen(false)}
-          onCreateCustom={() => { setEditMode(true); setQueryBuilderOpen(true) }}
+          onCreateCustom={() => setQueryBuilderOpen(true)}
         />
       )}
     </div>

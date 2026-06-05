@@ -492,11 +492,11 @@ export const produtoGravityCatalogoServico = {
   },
 
   /**
-   * Garante que produtos canônicos existam no banco. Usado pelo CLI de seed.
+   * Garante que produtos canônicos existam no banco (idempotente, só upsert).
+   * Nunca remove entradas cadastradas no Admin — produtos "Em breve" ou roadmap
+   * fora da lista seed permanecem intactos (evita perda ao reiniciar cfg-back / dev:up).
    */
   async ensureMissingProducts() {
-    const expectedSlugs = seedProducts.map(p => p.slug_produto_gravity)
-
     let created = 0
     let updated = 0
     for (const product of seedProducts) {
@@ -515,15 +515,7 @@ export const produtoGravityCatalogoServico = {
       }
     }
 
-    const toRemove = await prisma.produtoGravity.findMany({
-      where: { slug_produto_gravity: { notIn: expectedSlugs } },
-      select: { id_produto_gravity: true },
-    })
-    for (const p of toRemove) {
-      await prisma.produtoGravity.delete({ where: { id_produto_gravity: p.id_produto_gravity } })
-    }
-
-    return { created, updated, removed: toRemove.length }
+    return { created, updated, removed: 0 }
   },
 
   /**

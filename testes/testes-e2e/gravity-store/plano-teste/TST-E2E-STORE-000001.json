@@ -1,0 +1,31 @@
+{
+  "id": "TST-E2E-STORE-000001",
+  "titulo": "Gravity Store — catálogo, puzzle, carrosséis e contratação",
+  "rota": "/store",
+  "status": "aguardando_aprovacao_dono",
+  "fontePrimaria": "documentos-tecnicos/produtos-gravity/configurador/GRAVITY-STORE.md",
+  "preCondicoes": [
+    "Usuário MASTER autenticado com organização ativa",
+    "Catálogo Admin com ≥13 produtos ATIVO+EM_BREVE",
+    "cfg-front em PLAYWRIGHT_BASE_URL (default http://localhost:8000)"
+  ],
+  "categorias": {
+    "crud": "nao_aplicavel",
+    "filtros_busca": ["busca por nome", "filtro categoria", "toolbar Todos/Ativo/Assinar/Em breve"],
+    "navegacao_layout": ["/store protegida", "scroll seção ao clicar segmento", "voltar ao hub"],
+    "estados_interface": ["loading", "catálogo vazio", "erro API"],
+    "validacao_visual": ["puzzle", "4 faixas carrossel", "cards gs-card--store"],
+    "especifico_store": [
+      "puzzle sem peças EM_BREVE",
+      "contadores alinhados ao Admin",
+      "STANDARD vê botão Ativar desabilitado",
+      "MASTER contrata produto ATIVO"
+    ]
+  },
+  "casos": [
+    { "id": "E2E-STORE-001", "descricao": "Abrir /store e validar 4 faixas visíveis" },
+    { "id": "E2E-STORE-002", "descricao": "Clicar Assinar e scroll para store-linha-assinar" },
+    { "id": "E2E-STORE-003", "descricao": "Buscar produto por nome reduz cards na faixa Todos" },
+    { "id": "E2E-STORE-004", "descricao": "MASTER contrata produto disponível e badge muda para contratado" }
+  ]
+}

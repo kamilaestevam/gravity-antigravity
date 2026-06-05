@@ -1,16 +1,16 @@
 {
   "$schema": "./test-plans-registry.schema.json",
   "versao": "1.0.0",
-  "atualizadoEm": "2026-06-03T01:07:25.238Z",
-  "totalPlanos": 63,
+  "atualizadoEm": "2026-06-05T12:00:00.000Z",
+  "totalPlanos": 73,
   "totalPorTipo": {
-    "UNI": 19,
+    "UNI": 23,
     "CON": 0,
-    "FUN": 15,
-    "CRO": 1,
-    "E2E": 26,
+    "FUN": 17,
+    "CRO": 2,
+    "E2E": 27,
     "PEN": 0,
-    "EMT": 2
+    "EMT": 3
   },
   "totalPorEscopo": {
     "LOGIN": 4,
@@ -29,7 +29,8 @@
     "SIMCUS": 0,
     "FINCOM": 0,
     "PROCSO": 0,
-    "MBOTO": 15
+    "MBOTO": 15,
+    "STORE": 10
   },
   "deletados": [
     {
@@ -37,6 +38,24 @@
       "substituidoPor": "testes/testes-funcionais/login/porteiro-pos-autenticacao.test.ts",
       "data": "2026-05-26",
       "motivo": "FONTE PRIMARIA pipeline multi-agente ? escopo LOGIN porteiro SSOT"
+    },
+    {
+      "arquivo": "testes/testes-unitarios/configurador/status-produto-store.test.ts",
+      "substituidoPor": "testes/testes-unitarios/gravity-store/TST-UNI-STORE-000001.test.ts",
+      "data": "2026-06-05",
+      "motivo": "FONTE PRIMARIA escopo STORE — pasta gravity-store"
+    },
+    {
+      "arquivo": "testes/testes-unitarios/configurador/store-catalogo-alinhamento.test.ts",
+      "substituidoPor": "testes/testes-unitarios/gravity-store/TST-UNI-STORE-000002.test.ts",
+      "data": "2026-06-05",
+      "motivo": "FONTE PRIMARIA escopo STORE — pasta gravity-store"
+    },
+    {
+      "arquivo": "testes/testes-funcionais/configurador/assinaturas/subscribe.test.ts",
+      "substituidoPor": "testes/testes-funcionais/gravity-store/TST-FUN-STORE-000001.test.ts",
+      "data": "2026-06-05",
+      "motivo": "Reescrita DDD assinar-produto — escopo STORE"
     }
   ],
   "planos": [
@@ -1282,6 +1301,146 @@
       "coberturaPercentual": 0,
       "status": "rascunho",
       "criadoEm": "2026-06-02T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-UNI-STORE-000001",
+      "tipo": "UNI",
+      "escopo": "STORE",
+      "sublocal": "status",
+      "tela": "Gravity Store",
+      "rota": "/store",
+      "criticidade": "alta",
+      "planoFile": "testes/testes-unitarios/gravity-store/PLANO-MESTRE-GRAVITY-STORE.md",
+      "specFile": "testes/testes-unitarios/gravity-store/TST-UNI-STORE-000001.test.ts",
+      "componenteFile": "servicos-global/configurador/src/data/status-produto-store.ts",
+      "status": "aprovado_qa",
+      "criadoEm": "2026-06-05T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-UNI-STORE-000002",
+      "tipo": "UNI",
+      "escopo": "STORE",
+      "sublocal": "catalogo-alinhamento",
+      "tela": "Gravity Store",
+      "rota": "/store",
+      "criticidade": "alta",
+      "planoFile": "testes/testes-unitarios/gravity-store/PLANO-MESTRE-GRAVITY-STORE.md",
+      "specFile": "testes/testes-unitarios/gravity-store/TST-UNI-STORE-000002.test.ts",
+      "componenteFile": "servicos-global/configurador/src/data/store-puzzle-order.ts",
+      "status": "aprovado_qa",
+      "criadoEm": "2026-06-05T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-UNI-STORE-000003",
+      "tipo": "UNI",
+      "escopo": "STORE",
+      "sublocal": "zod-api",
+      "tela": "Gravity Store",
+      "rota": "/store",
+      "criticidade": "alta",
+      "planoFile": "testes/testes-unitarios/gravity-store/PLANO-MESTRE-GRAVITY-STORE.md",
+      "specFile": "testes/testes-unitarios/gravity-store/TST-UNI-STORE-000003.test.ts",
+      "componenteFile": "servicos-global/configurador/src/schemas/store-catalogo-api.ts",
+      "status": "aprovado_qa",
+      "criadoEm": "2026-06-05T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-UNI-STORE-000004",
+      "tipo": "UNI",
+      "escopo": "STORE",
+      "sublocal": "carrossel-faixas",
+      "tela": "Gravity Store",
+      "rota": "/store",
+      "criticidade": "media",
+      "planoFile": "testes/testes-unitarios/gravity-store/PLANO-MESTRE-GRAVITY-STORE.md",
+      "specFile": "testes/testes-unitarios/gravity-store/TST-UNI-STORE-000004.test.ts",
+      "componenteFile": "servicos-global/configurador/src/components/store-cards-rows.tsx",
+      "status": "aprovado_qa",
+      "criadoEm": "2026-06-05T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-FUN-STORE-000001",
+      "tipo": "FUN",
+      "escopo": "STORE",
+      "sublocal": "assinar-produto",
+      "tela": "Gravity Store",
+      "rota": "/api/v1/organizacoes/me/assinaturas-produto-gravity/assinar-produto",
+      "criticidade": "alta",
+      "specFile": "testes/testes-funcionais/gravity-store/TST-FUN-STORE-000001.test.ts",
+      "componenteFile": "servicos-global/configurador/server/routes/assinatura-produto-gravity.ts",
+      "status": "rascunho",
+      "criadoEm": "2026-06-05T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-FUN-STORE-000002",
+      "tipo": "FUN",
+      "escopo": "STORE",
+      "sublocal": "catalogo-api",
+      "tela": "Gravity Store",
+      "rota": "/api/v1/produtos-gravity",
+      "criticidade": "alta",
+      "specFile": "testes/testes-funcionais/gravity-store/TST-FUN-STORE-000002.test.ts",
+      "componenteFile": "servicos-global/configurador/server/routes/produto-gravity.ts",
+      "status": "rascunho",
+      "criadoEm": "2026-06-05T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-E2E-STORE-000001",
+      "tipo": "E2E",
+      "escopo": "STORE",
+      "sublocal": "catalogo-puzzle-carrosseis",
+      "tela": "Store.tsx",
+      "rota": "/store",
+      "criticidade": "alta",
+      "planoFile": "testes/testes-e2e/gravity-store/plano-teste/TST-E2E-STORE-000001.json",
+      "specFile": "testes/testes-e2e/gravity-store/TST-E2E-STORE-000001.spec.ts",
+      "componenteFile": "servicos-global/configurador/src/pages/Store.tsx",
+      "status": "aguardando_aprovacao_dono",
+      "criadoEm": "2026-06-05T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-CRO-STORE-000001",
+      "tipo": "CRO",
+      "escopo": "STORE",
+      "sublocal": "isolamento-organizacao",
+      "tela": "Gravity Store API",
+      "criticidade": "alta",
+      "specFile": "testes/testes-cross-organizacao/gravity-store/TST-CRO-STORE-000001.test.ts",
+      "componenteFile": "servicos-global/configurador/server/routes/produto-gravity.ts",
+      "status": "rascunho",
+      "criadoEm": "2026-06-05T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-EMT-STORE-000001",
+      "tipo": "EMT",
+      "escopo": "STORE",
+      "sublocal": "validacao-visual",
+      "tela": "Gravity Store",
+      "rota": "/store",
+      "criticidade": "media",
+      "planoFile": "testes/testes-em-tela/gravity-store/PLANO-EM-TELA.md",
+      "specFile": "testes/testes-em-tela/gravity-store/run-gravity-store.ts",
+      "componenteFile": "servicos-global/configurador/src/pages/Store.tsx",
+      "status": "rascunho",
+      "criadoEm": "2026-06-05T12:00:00Z",
       "ultimaExecucao": null,
       "ultimoResultado": null
     }

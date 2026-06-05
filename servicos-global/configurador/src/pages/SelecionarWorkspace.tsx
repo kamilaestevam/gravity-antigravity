@@ -37,9 +37,8 @@ import {
   Info,
 } from '@phosphor-icons/react'
 import { type NavItem } from '@nucleo/menu-lateral-global'
-import { corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
-import { iconeOficialBidFreteInternacional } from '../data/product-meta'
 import { LogoGlobal } from '@nucleo/logo-global'
+import { corOficialProdutoDim, corOficialProdutoGravity, iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes } from '@nucleo/localizador-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
@@ -255,26 +254,29 @@ const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
   'processo': { nome: 'Processo', rota: '/processo' },
 }
 
-function produtoIconEntry(slug: string, icon: React.ReactElement): { icon: React.ReactElement; color: string; bg: string } {
+const PRODUCT_ICON_SLUGS = [
+  'nf-importacao',
+  'nf-import',
+  'pedido',
+  'processo',
+  'bid-cambio',
+  'bid-frete',
+  'bid-frete-internacional',
+  'simula-custo',
+  'smart-read',
+] as const
+
+function buildProdutoIconVisual(slug: string): { icon: React.ReactElement; color: string; bg: string } {
   return {
-    icon,
+    icon: iconeOficialProdutoGravity(slug, 18) as React.ReactElement,
     color: corOficialProdutoGravity(slug),
     bg: corOficialProdutoDim(slug),
   }
 }
 
-/* ── Mapa de slug → ícone, cor e bg (cores SSOT: PRODUTO_META / design system) ── */
-const PRODUCT_ICON_MAP: Record<string, { icon: React.ReactElement; color: string; bg: string }> = {
-  'nf-importacao':  produtoIconEntry('nf-importacao', <FileText size={18} weight="duotone" />),
-  'nf-import':      produtoIconEntry('nf-importacao', <FileText size={18} weight="duotone" />),
-  'pedido':         produtoIconEntry('pedido', <ClipboardText size={18} weight="duotone" />),
-  'processo':       produtoIconEntry('processo', <ClipboardText size={18} weight="duotone" />),
-  'bid-cambio':     produtoIconEntry('bid-cambio', <CurrencyDollar size={18} weight="duotone" />),
-  'bid-frete':      produtoIconEntry('bid-frete', iconeOficialBidFreteInternacional(18) as React.ReactElement),
-  'bid-frete-internacional': produtoIconEntry('bid-frete-internacional', iconeOficialBidFreteInternacional(18) as React.ReactElement),
-  'simula-custo':   produtoIconEntry('simula-custo', <Calculator size={18} weight="duotone" />),
-  'smart-read':     produtoIconEntry('smart-read', <Folders size={18} weight="duotone" />),
-}
+/* ── Slugs conhecidos → ícone/cor SSOT (mesmo padrão do Hub) ── */
+const PRODUCT_ICON_MAP: Record<string, { icon: React.ReactElement; color: string; bg: string }> =
+  Object.fromEntries(PRODUCT_ICON_SLUGS.map((slug) => [slug, buildProdutoIconVisual(slug)]))
 
 /* ── Mapa de slug/product_key → chave de tradução do nome ── */
 const PRODUCT_NAME_KEYS: Record<string, string> = {

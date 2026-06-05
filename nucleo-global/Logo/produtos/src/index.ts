@@ -6,6 +6,18 @@ export {
   corOficialProdutoGravity,
   corOficialProdutoDim,
 } from './cores-produto-gravity'
+export {
+  iconeOficialProdutoGravity,
+  iconeOficialBidFreteInternacional,
+  DIM_PRODUTO_HUB_CARD,
+} from './icone-produto-gravity'
+export type { IconeProdutoGravityOptions } from './icone-produto-gravity'
+export {
+  TAMANHO_ICONE_PRODUTO_HUB,
+  visualProdutoGravityHub,
+  visualProdutoGravityFallback,
+} from './visual-produto-gravity'
+export type { VisualProdutoGravity } from './visual-produto-gravity'
 
 // Logos das zonas do sistema
 export { LogoGravity }        from './logos/LogoGravity'

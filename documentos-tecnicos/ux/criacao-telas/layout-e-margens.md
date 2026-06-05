@@ -56,6 +56,10 @@ Usado em telas **operacionais**, onde o usuário precisa de máxima densidade de
 
 > **Nota:** Topbars e sidebars sempre ocupam 100% da largura disponível, independente do layout da página. O `max-width` se aplica apenas à área de conteúdo rolável.
 
+### Store — carrosséis e alinhamento
+
+Na Gravity Store (`hub-store.css`), as faixas de cards usam `StorePuzzleCarousel`: títulos e cards ficam **alinhados à esquerda** do container `.gs-store`. As setas do carrossel ficam fora da grade de conteúdo — não adicionam recuo interno nos cards. Altura uniforme dos cards: classe `gs-card--store` (~204px). Doc: [`GRAVITY-STORE.md`](../../produtos-gravity/configurador/GRAVITY-STORE.md).
+
 ---
 
 ## 3. Por Que 1280px?

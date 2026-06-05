@@ -28,6 +28,7 @@ import {
 import { useShellStore } from './store'
 import { MenuLateralGlobal, NavItem } from '@nucleo/menu-lateral-global'
 import { useProductMenu, ProductMenuItem } from './hooks/useProductMenu'
+import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
 
 interface SidebarProps {
   navItems?: NavItem[]
@@ -35,17 +36,6 @@ interface SidebarProps {
   moduleColor?: string
   tenantName: string
   tenantPlan: string
-}
-
-/** Icones por slug de produto */
-const PRODUCT_ICONS: Record<string, React.ReactNode> = {
-  'simula-custo':            <Calculator weight="duotone" size={18} />,
-  'pedidos-de-compra':       <Package weight="duotone" size={18} />,
-  'exportador-duimp':        <FileArchive weight="duotone" size={18} />,
-  'tracking-de-carga':       <Anchor weight="duotone" size={18} />,
-  'smart-read':              <FileText weight="duotone" size={18} />,
-  'bid-frete-internacional': <Anchor weight="duotone" size={18} />,
-  'bid-cambio':              <CurrencyDollar weight="duotone" size={18} />,
 }
 
 /**
@@ -70,7 +60,7 @@ export function Sidebar({
   /** Monta children do grupo "Produtos Gravity" dinamicamente */
   function buildProductChildren(): NavItem[] {
     return products.map((p) => {
-      const icon = PRODUCT_ICONS[p.slug] || <Package weight="duotone" size={18} />
+      const icon = iconeOficialProdutoGravity(p.slug, 18) ?? <Package weight="duotone" size={18} />
 
       switch (p.status) {
         case 'active':

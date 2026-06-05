@@ -5,7 +5,7 @@
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, PencilSimple, X, RocketLaunch, CalendarBlank } from '@phosphor-icons/react'
+import { X, RocketLaunch, CalendarBlank } from '@phosphor-icons/react'
 import { PeriodDropdown } from '@nucleo/dashboard'
 import type { PeriodOption } from '@nucleo/dashboard'
 import type { ActiveFilter, GlobalSlicers, DashboardWidgetConfig } from '@nucleo/dashboard'
@@ -37,8 +37,6 @@ export interface BarraFerramentasDashboardPedidoProps {
   statusCounts?: Record<string, number>
   activeFilters: ActiveFilter[]
   onClearFilters: () => void
-  editMode: boolean
-  onEditModeChange: (v: boolean) => void
   onAbrirSugestoes?: () => void
   onCriarWidgetZero?: () => void
   widgetsSeletor?: {
@@ -65,8 +63,6 @@ export function BarraFerramentasDashboardPedido({
   statusCounts,
   activeFilters,
   onClearFilters,
-  editMode,
-  onEditModeChange,
   onAbrirSugestoes,
   onCriarWidgetZero,
   widgetsSeletor,
@@ -83,33 +79,13 @@ export function BarraFerramentasDashboardPedido({
     />
   ) : null
 
-  const botaoReorganizar = (
-    <DashboardToolbarBotaoIcon
-      titulo={editMode
-        ? t('nucleo.dashboard.barra.concluir')
-        : t('nucleo.dashboard.barra.reorganizar')}
-      descricao={editMode
-        ? `${t('nucleo.dashboard.barra.hint_reorganizar_pre')} ${t('nucleo.dashboard.barra.concluir')} ${t('nucleo.dashboard.barra.hint_reorganizar_pos')}`
-        : t('nucleo.dashboard.barra.arraste_widgets_tooltip')}
-      icone={editMode
-        ? <Check {...ic} weight="bold" />
-        : <PencilSimple {...ic} />}
-      ariaLabel={editMode
-        ? t('nucleo.dashboard.barra.concluir')
-        : t('nucleo.dashboard.barra.reorganizar')}
-      data-testid="btn-reorganizar"
-      destacado={editMode}
-      onClick={() => onEditModeChange(!editMode)}
-    />
-  )
-
   const mostrarIconesToolbar = true
 
   return (
     <div
       className="pedido-dashboard-menu"
       data-testid="dashboard-barra-menu"
-      data-pedido-toolbar-version="gtv-v10"
+      data-pedido-toolbar-version="gtv-v11-menu-widget"
     >
       <div className="gtv-container pedido-dashboard-toolbar-card">
         <div className="gtv-toolbar pedido-dashboard-toolbar">
@@ -173,7 +149,6 @@ export function BarraFerramentasDashboardPedido({
                   )}
 
                   {botaoAdicionar}
-                  {botaoReorganizar}
                 </div>
 
                 {temWidgets && widgetsSeletor != null && (

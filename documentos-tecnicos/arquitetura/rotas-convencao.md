@@ -72,7 +72,7 @@ A `{área}` vem **direto** após o domínio.
 | `core` | `/core` | Serviços transversais (notificações, e-mail, WhatsApp, conector-erp, atividades) |
 | `configurador` | `/configurador` | Gestão da organização do cliente (workspaces, usuários, empresas, assinaturas, financeiro, api-cockpit, taxas, certificados) |
 | `admin` | `/admin` | Painel interno Gravity (`gravity_admin` only). Visão cross-organização. |
-| `store` | `/store` | Catálogo de produtos Gravity contratáveis |
+| `store` | `/store` | Gravity Store — catálogo autenticado (puzzle + carrosséis). Ver [`GRAVITY-STORE.md`](../produtos-gravity/configurador/GRAVITY-STORE.md) |
 
 ### Áreas por produto
 

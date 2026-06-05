@@ -33,7 +33,7 @@ import {
   Handshake,
 } from '@phosphor-icons/react'
 import { ehSlugProdutoBidFrete } from '../../shared/index.js'
-import { iconeOficialBidFreteInternacional } from '../data/product-meta'
+import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { HubBotao } from '../components/HubBotao'
@@ -201,9 +201,7 @@ export function Core() {
           items.push({
             to: prod.rota,
             label: prod.nome,
-            icon: ehSlugProdutoBidFrete(prod.slug)
-              ? iconeOficialBidFreteInternacional(18)
-              : <Package weight="duotone" size={18} />,
+            icon: iconeOficialProdutoGravity(prod.slug, 18),
           })
         }
       }
@@ -218,7 +216,7 @@ export function Core() {
           items.push({
             to: prod.rota,
             label: prod.nome,
-            icon: iconeOficialBidFreteInternacional(18),
+            icon: iconeOficialProdutoGravity(prod.slug, 18),
           })
         }
       }

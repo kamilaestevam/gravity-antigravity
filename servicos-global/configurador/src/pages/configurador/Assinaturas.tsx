@@ -30,7 +30,11 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalExclusao } from './ModalConfirmarExclusao'
 import { ModalEditarAssinatura } from './ModalEditarAssinatura'
 import { catalogService } from '../../services/catalog-service'
-import { PRODUCT_META, RELACAO_ENTRE_PRODUTOS_GRAVITY } from '../../data/product-meta'
+import {
+  PRODUCT_META,
+  nomeExibicaoProdutoGravity,
+  descricaoExibicaoProdutoGravity,
+} from '../../data/product-meta'
 import type { FaixaPreco } from '../../types/entidades'
 import { getSimboloMoeda } from '../../utils/formatters'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
@@ -1063,11 +1067,10 @@ export function Assinaturas() {
           const isSoon = status === 'EM_BREVE'
           const slug = String(p.slug_produto_gravity ?? '')
           const meta = PRODUCT_META[slug]
-          const relacionados = RELACAO_ENTRE_PRODUTOS_GRAVITY[slug] ?? []
           return (
             <div
               key={String(p.id_produto_gravity)}
-              className={`gs-card gs-card--compact${isSoon ? ' gs-card--soon' : ' gs-card--available'}`}
+              className={`gs-card gs-card--store${isSoon ? ' gs-card--soon' : ' gs-card--available'}`}
             >
               <div className="gs-card__top">
                 <div className="gs-card__icon" style={{ background: meta?.iconBg ?? 'rgba(99,102,241,0.15)' }}>
@@ -1086,20 +1089,17 @@ export function Assinaturas() {
                 </div>
               </div>
               <div className="gs-card__body">
-                <h3 className="gs-card__name">{meta?.nameKey ? t(meta.nameKey) : String(p.nome_produto_gravity)}</h3>
+                <h3 className="gs-card__name">
+                  {nomeExibicaoProdutoGravity(slug, String(p.nome_produto_gravity ?? ''), t)}
+                </h3>
                 {meta?.categoryKey && (
                   <span className="gs-card__category" style={{ color: meta.iconColor }}>
                     {t(meta.categoryKey)}
                   </span>
                 )}
-                <p className="gs-card__desc">{meta?.descKey ? t(meta.descKey) : String(p.descricao_produto_gravity ?? '')}</p>
-                {meta?.tagKeys && (
-                  <div className="gs-card__tags">
-                    {meta.tagKeys.map(tk => (
-                      <span key={tk} className={`gs-tag${isSoon ? ' gs-tag--muted' : ''}`}>{t(tk)}</span>
-                    ))}
-                  </div>
-                )}
+                <p className="gs-card__desc">
+                  {descricaoExibicaoProdutoGravity(slug, p.descricao_produto_gravity, t)}
+                </p>
                 {(() => {
                   if (isSoon) return null
                   const faixas = (Array.isArray(p.faixas_preco_produto_gravity) ? p.faixas_preco_produto_gravity : []) as FaixaPreco[]
@@ -1159,30 +1159,14 @@ export function Assinaturas() {
                     </div>
                   )
                 })()}
-                {relacionados.length > 0 && (
-                  <div className="gs-card__combina">
-                    <span className="gs-card__combina-label">Combina com</span>
-                    <div className="gs-card__combina-chips">
-                      {relacionados.map(relSlug => {
-                        const relMeta = PRODUCT_META[relSlug]
-                        const relProduct = catalogoProdutoGravity.find(cp => cp.slug_produto_gravity === relSlug)
-                        const nomeRelacionado = relMeta?.nameKey
-                          ? t(relMeta.nameKey)
-                          : String(relProduct?.nome_produto_gravity ?? relSlug)
-                        if (!relMeta) return null
-                        return (
-                          <span
-                            key={relSlug}
-                            className="gs-combina-chip"
-                            style={{ color: relMeta.iconColor }}
-                          >
-                            {nomeRelacionado}
-                          </span>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
+                <div
+                  className={`gs-card__tags gs-card__tags--rodape${!meta?.tagKeys?.length ? ' gs-card__tags--rodape-vazio' : ''}`}
+                  aria-hidden={!meta?.tagKeys?.length}
+                >
+                  {meta?.tagKeys?.map(tk => (
+                    <span key={tk} className={`gs-tag${isSoon ? ' gs-tag--muted' : ''}`}>{t(tk)}</span>
+                  ))}
+                </div>
               </div>
               <div className="gs-card__footer">
                 <span className="gs-card__users">

@@ -82,7 +82,7 @@ export function calcularRankingsMapaBidFreteInternacional(
 
     const fromPin = pinPorId.get(rota.fromId)
     const toPin = pinPorId.get(rota.toId)
-    const modal = rota.mode === 'AEREO' ? 'AEREO' : 'MARITIMO'
+    const modal = rota.modal_cotacao_bid_frete_internacional ?? (rota.mode === 'AEREO' ? 'AEREO' : 'MARITIMO')
     modaisMap.set(modal, (modaisMap.get(modal) ?? 0) + qtd)
 
     if (fromPin) {

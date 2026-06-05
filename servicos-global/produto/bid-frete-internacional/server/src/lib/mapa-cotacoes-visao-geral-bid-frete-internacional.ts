@@ -22,6 +22,7 @@ type CotacaoParaMapa = {
   destino_nome_cotacao_bid_frete_internacional: string
   destino_pais_cotacao_bid_frete_internacional: string
   modal_cotacao_bid_frete_internacional: string
+  tipo_operacao_cotacao_bid_frete_internacional: string
   propostas: Array<{
     valor_total_proposta_bid_frete_internacional: number | null
     dias_transito_proposta_bid_frete_internacional: number | null
@@ -50,6 +51,8 @@ export async function montarMapaCotacoesVisaoGeralBidFreteInternacional(
         destino_nome_cotacao_bid_frete_internacional: cotacao.destino_nome_cotacao_bid_frete_internacional,
         destino_pais_cotacao_bid_frete_internacional: cotacao.destino_pais_cotacao_bid_frete_internacional,
         modal_cotacao_bid_frete_internacional: cotacao.modal_cotacao_bid_frete_internacional,
+        tipo_operacao_cotacao_bid_frete_internacional:
+          cotacao.tipo_operacao_cotacao_bid_frete_internacional,
       },
       proposta: melhorProposta
         ? {

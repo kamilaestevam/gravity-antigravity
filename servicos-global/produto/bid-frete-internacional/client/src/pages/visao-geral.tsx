@@ -653,8 +653,12 @@ export default function VisaoGeral() {
           gap: 1.25rem;
           margin-bottom: 1.25rem;
         }
+        .bfd-globe-row--tres-colunas {
+          grid-template-columns: 1.6fr 0.9fr 1fr;
+        }
         @media (max-width: 1200px) {
-          .bfd-globe-row {
+          .bfd-globe-row,
+          .bfd-globe-row--tres-colunas {
             grid-template-columns: 1fr;
           }
         }
@@ -917,13 +921,13 @@ export default function VisaoGeral() {
       </div>
 
       {/* Row 2: Globe Map + Right Column (Alertas on top, Funil de Cotações on bottom) */}
-      <div className="bfd-globe-row">
+      <div className="bfd-globe-row bfd-globe-row--tres-colunas">
         {/* Global World Map Overview Section */}
         <VisaoGeralMapa
           vistaInicialMapa="mapa"
           fonteDados="api"
           dadosMapa={dadosMapa}
-          painelRankingsSeparado
+          painelRankingsExterno
           exibirPainelLateralMapa
           onOpenCompleto={(route) => {
             setSelectedAlertContextCompleto({
@@ -936,7 +940,7 @@ export default function VisaoGeral() {
         />
 
         {/* Right Column Stacking Alertas + Funil */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
+        <div className="bfd-globe-row__coluna-direita">
           {/* Alertas */}
           <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>

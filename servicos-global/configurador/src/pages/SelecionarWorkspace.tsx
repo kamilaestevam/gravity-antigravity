@@ -1420,15 +1420,17 @@ export function SelecionarWorkspace() {
                                   {insight.tag}
                                 </div>
                                 <p className="sw-hub-gabi-insight-text">{insight.texto}</p>
-                                {(insight.stat || (insight.textoLink && insight.rota)) && (
-                                  <div className="sw-hub-gabi-insight-foot">
-                                    {insight.stat && (
+                                <div className="sw-hub-gabi-insight-foot">
+                                  <div className="sw-hub-gabi-insight-stat-slot">
+                                    {insight.stat ? (
                                       <div className="sw-hub-gabi-insight-stat">
                                         <span className="sw-hub-gabi-insight-stat-label">{insight.stat.label}</span>
                                         <span className="sw-hub-gabi-insight-stat-value">{insight.stat.valor}</span>
                                       </div>
-                                    )}
-                                    {insight.textoLink && insight.rota && (
+                                    ) : null}
+                                  </div>
+                                  <div className="sw-hub-gabi-insight-link-slot">
+                                    {insight.textoLink && insight.rota ? (
                                       <button
                                         className="sw-hub-gabi-insight-link"
                                         type="button"
@@ -1436,9 +1438,9 @@ export function SelecionarWorkspace() {
                                       >
                                         {insight.textoLink} <CaretRight size={11} />
                                       </button>
-                                    )}
+                                    ) : null}
                                   </div>
-                                )}
+                                </div>
                               </div>
                             ))}
                           </div>

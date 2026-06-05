@@ -1,16 +1,21 @@
 /* hub-unificado.css — layout HUB único (protótipo hub-unificado-preview) */
 
-/* Cores exatas do protótipo (documentos-tecnicos/prototipos/hub-unificado-preview/index.html :root) */
+/*
+ * Paleta HUB — tokens --sw-* (ver opções A/B/C/D na conversa).
+ * "Voltar para original" = Opção A (surface-3 / surface / sw-border).
+ * Protótipo legado: surface #151d2e · surface-2 #1a2438 · border rgba(99,102,241,0.14)
+ *
+ * Ativo: Opção B — cards elevados (--sw-surface), itens internos (--sw-surface-3).
+ */
 .sw-content.sw-content--hub-unificado {
-  --hub-proto-bg: #0b1220;
-  --hub-proto-surface: #151d2e;
-  --hub-proto-surface-2: #1a2438;
-  --hub-proto-border: rgba(99, 102, 241, 0.14);
+  --hub-proto-surface: var(--sw-surface);
+  --hub-proto-surface-2: var(--sw-surface-3);
+  --hub-proto-border: var(--sw-border-mid);
   --hub-proto-muted: #94a3b8;
   --hub-proto-text: #f1f5f9;
   --hub-proto-accent: #6366f1;
-  --hub-ops-kpi-bg: #1a2438;
-  --hub-ops-proc-bg: #1a2438;
+  --hub-ops-kpi-bg: var(--sw-surface-3);
+  --hub-ops-proc-bg: var(--sw-surface-3);
   --hub-ops-orange: #f59e0b;
   --hub-ops-orange-soft: rgba(245, 158, 11, 0.14);
   --hub-ops-green: #10b981;
@@ -19,12 +24,8 @@
   --hub-ops-blue-soft: rgba(96, 165, 250, 0.12);
   --hub-ops-link: #a5b4fc;
   /* padding / max-width — ver shell layout SSOT em hub-store.css */
-  background: var(--hub-proto-bg);
-  color: var(--hub-proto-text);
-}
-
-.sw-page--full:has(.sw-content--hub-unificado) {
-  background: #0b1220;
+  /* fundo da página: herda --sw-bg do .sw-shell.sw-hub-root (hub-store.css) */
+  color: var(--sw-text-1, var(--hub-proto-text));
 }
 
 /* ── Hero ── */
@@ -331,19 +332,9 @@
   background: var(--hub-proto-accent);
 }
 
-body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-panel--ws {
-  background: #f8fafc;
-  border-color: rgba(99, 102, 241, 0.2);
-}
-
-body.light-theme .sw-hub-panel--ws .sw-ws-card--hub {
-  background: #ffffff;
-  border-color: rgba(99, 102, 241, 0.2);
-}
-
 body.light-theme .sw-hub-panel--ws .sw-ws-card--hub:hover,
 body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
-  background: #ffffff;
+  background: var(--sw-surface);
 }
 
 .sw-hub-panel--ws .sw-ws-add-card {
@@ -462,15 +453,19 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   box-shadow: 0 0 6px rgba(244, 114, 182, 0.6);
 }
 
-/* Cards GABI — altura estritamente pelo conteúdo (sem stretch / margin-top:auto) */
+/* Cards GABI — altura fixa 200px; link ancorado no rodapé interno */
 .sw-hub-gabi-insight-card {
-  background: var(--hub-proto-bg);
+  background: var(--hub-proto-surface-2);
   border: 1px solid var(--hub-proto-border);
   border-radius: 10px;
   padding: 0.5rem 0.6rem 0.4rem;
-  display: block;
+  display: flex;
+  flex-direction: column;
   box-shadow: none;
-  height: fit-content;
+  box-sizing: border-box;
+  height: 200px;
+  min-height: 200px;
+  max-height: 200px;
   align-self: start;
 }
 
@@ -494,7 +489,9 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #67e8f9;
+  margin-top: 8px;
   margin-bottom: 0.3rem;
+  flex-shrink: 0;
 }
 
 .sw-hub-gabi-insight-tag--warn {
@@ -506,24 +503,48 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   color: var(--sw-text-2);
   font-size: 0.78rem;
   line-height: 1.4;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
+/* Rodapé com altura fixa: stat e atalho sempre nas mesmas linhas em todos os cards */
 .sw-hub-gabi-insight-foot {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 0.3rem;
+  display: grid;
+  grid-template-rows: 28px 18px;
+  gap: 4px;
+  margin-top: auto;
   padding-top: 0;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.sw-hub-gabi-insight-stat-slot {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  max-height: 28px;
+  overflow: hidden;
+}
+
+.sw-hub-gabi-insight-link-slot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 18px;
+  max-height: 18px;
 }
 
 .sw-hub-gabi-insight-stat {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   background: rgba(99, 102, 241, 0.08);
   border: 1px solid rgba(99, 102, 241, 0.16);
   border-radius: 7px;
   padding: 0.35rem 0.6rem;
+  margin-top: -4px;
 }
 
 .sw-hub-gabi-insight-stat-label {
@@ -548,7 +569,6 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   display: flex;
   align-items: center;
   gap: 3px;
-  align-self: flex-end;
   font-family: var(--font, inherit);
 }
 
@@ -640,7 +660,9 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
 
 .sw-hub-prod-head-meter.gs-stack__meter {
   gap: 0.375rem;
-  align-items: flex-end;
+  align-self: stretch;
+  align-items: flex-start;
+  margin-top: 3px;
 }
 
 .sw-hub-prod-head-meter .gs-stack__meter-label {
@@ -720,7 +742,7 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.32rem 0.7rem;
+  padding: 0.28rem 0.65rem;
   border-radius: 9999px;
   border: 1px solid rgba(99, 102, 241, 0.35);
   background: rgba(99, 102, 241, 0.08);
@@ -730,11 +752,21 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   color: #a5b4fc;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
   transition:
     background 0.15s ease,
     border-color 0.15s ease,
     color 0.15s ease,
     box-shadow 0.15s ease;
+}
+
+/* Paridade: Gravity Store = Ver todos os processos */
+.sw-content.sw-content--hub-unificado .sw-hub-ops-head > .sw-hub-link-pill,
+.sw-content.sw-content--hub-unificado .sw-hub-prod-head-right > .sw-hub-link-pill {
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0.28rem 0.65rem;
 }
 
 .sw-hub-link-pill:hover {
@@ -1090,8 +1122,8 @@ body.light-theme .sw-hub-panel--store {
 }
 
 body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-kpi {
-  background: #f8fafc;
-  border-color: rgba(99, 102, 241, 0.12);
+  background: var(--sw-surface-3);
+  border-color: var(--sw-border-mid);
 }
 
 body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-kpi-val,
@@ -1100,8 +1132,8 @@ body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-proc-name {
 }
 
 body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-proc {
-  background: #f8fafc;
-  border-color: rgba(99, 102, 241, 0.12);
+  background: var(--sw-surface-3);
+  border-color: var(--sw-border-mid);
 }
 
 .sw-hub-proc-empty {

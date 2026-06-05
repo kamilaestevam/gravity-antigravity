@@ -47,10 +47,13 @@ describe('hub-insights-service', () => {
     expect(keys.has('nf-import')).toBe(true)
   })
 
-  it('envia x-chave-interna-servico e x-internal-key nas chamadas S2S', () => {
+  it('envia headers S2S canônicos nas chamadas inter-serviço', () => {
     const content = readFileSync(HUB_INSIGHTS_PATH, 'utf8')
     expect(content).toContain("'x-chave-interna-servico': ctx.internalKey")
     expect(content).toContain("'x-internal-key': ctx.internalKey")
+    expect(content).toContain("'x-id-usuario': ctx.id_usuario")
+    expect(content).toContain('bid-frete-internacional/dashboard')
+    expect(content).toContain('/api/v1/pedidos/dashboard/insights')
   })
 
   it('classifica insights de KPI como operacionais e dicas como plataforma', () => {

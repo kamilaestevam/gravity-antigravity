@@ -30,6 +30,8 @@ export type HubUserRole = 'operador' | 'gerente' | 'diretor' | 'admin' | 'defaul
 
 interface ProductFetcherContext {
   id_organizacao: string
+  id_usuario: string
+  role: HubUserRole
   token: string
   internalKey: string
 }
@@ -78,7 +80,32 @@ function montarHeadersChamadaInterServicoHub(ctx: ProductFetcherContext): Record
     'x-chave-interna-servico': ctx.internalKey,
     'x-internal-key': ctx.internalKey,
     'x-id-organizacao': ctx.id_organizacao,
+    'x-id-usuario': ctx.id_usuario,
+    'x-user-role': ctx.role,
     'Content-Type': 'application/json',
+  }
+}
+
+function urlBidFreteInternacionalDashboard(path: string): string {
+  return `${getBidFreteUrl()}/api/v1/bid-frete-internacional/dashboard${path}`
+}
+
+function insightOperacionalSemPendencia(
+  id: string,
+  produto: string,
+  tag: string,
+  rota: string,
+  score: number,
+): HubInsight {
+  return {
+    id,
+    variante: 'default',
+    tag,
+    texto: `Nenhuma pendência crítica em ${produto} no período analisado.`,
+    textoLink: `Abrir ${produto}`,
+    rota,
+    score,
+    produto,
   }
 }
 
@@ -180,7 +207,7 @@ const CACHE_MAX_ENTRIES = 200
 const insightsCache = new Map<string, CacheEntry>()
 
 function getCacheKey(id_organizacao: string, id_usuario: string): string {
-  return `${id_organizacao}:${id_usuario}`
+  return `v2:${id_organizacao}:${id_usuario}`
 }
 
 function getCached(id_organizacao: string, id_usuario: string): HubInsight[] | null {
@@ -228,12 +255,45 @@ async function fetchPedidoInsights(
   role: HubUserRole,
 ): Promise<HubInsight[]> {
   const weights = HUB_ROLE_WEIGHTS[role] ?? HUB_ROLE_WEIGHTS.default
+
+  try {
+    const gabi = await fetchProduct(
+      `${getPedidoUrl()}/api/v1/pedidos/dashboard/insights?period=30d`,
+      ctx,
+    ) as { insights?: Array<Omit<HubInsight, 'produto'>> }
+
+    const doMotorGabi = (gabi.insights ?? []).map(ins => ({
+      ...ins,
+      variante: ins.variante ?? 'default',
+      score: ins.score ?? 0,
+      produto: 'Pedido',
+    }))
+
+    if (doMotorGabi.length > 0) return doMotorGabi
+  } catch {
+    // Fallback: agrega KPIs manualmente abaixo
+  }
+
   const insights: HubInsight[] = []
 
-  const data = await fetchProduct(
-    `${getPedidoUrl()}/api/v1/pedidos/dashboard/kpis`,
-    ctx,
-  ) as Record<string, number>
+  let data: Record<string, number>
+  try {
+    data = await fetchProduct(
+      `${getPedidoUrl()}/api/v1/pedidos/dashboard/kpis`,
+      ctx,
+    ) as Record<string, number>
+  } catch {
+    insights.push(
+      insightOperacionalSemPendencia(
+        'pedidos_indisponivel',
+        'Pedido',
+        'Operação · Pedido',
+        '/pedido/dashboard',
+        weights.pedidos_abertos ?? 40,
+      ),
+    )
+    return insights
+  }
 
   const atrasados = data.pedidos_atrasados ?? 0
   const abertos = data.pedidos_abertos ?? 0
@@ -329,6 +389,18 @@ async function fetchPedidoInsights(
     })
   }
 
+  if (insights.length === 0) {
+    insights.push(
+      insightOperacionalSemPendencia(
+        'pedidos_sem_pendencia',
+        'Pedido',
+        'Operação · Pedido',
+        '/pedido/dashboard',
+        weights.pedidos_abertos ?? 40,
+      ),
+    )
+  }
+
   return insights
 }
 
@@ -386,6 +458,18 @@ async function fetchBidCambioInsights(
     // Silently skip
   }
 
+  if (insights.length === 0) {
+    insights.push(
+      insightOperacionalSemPendencia(
+        'cambio_sem_pendencia',
+        'BID Câmbio',
+        'Operação · BID Câmbio',
+        '/bid-cambio',
+        weights.cambio_vencimentos ?? 50,
+      ),
+    )
+  }
+
   return insights
 }
 
@@ -396,29 +480,63 @@ async function fetchBidFreteInsights(
   const weights = HUB_ROLE_WEIGHTS[role] ?? HUB_ROLE_WEIGHTS.default
   const insights: HubInsight[] = []
 
-  const data = await fetchProduct(
-    `${getBidFreteUrl()}/api/v1/bid-frete/dashboard/calendario`,
-    ctx,
-  ) as { alertas?: Array<{ tipo: string; count: number }> }
+  type AlertaFrete = { tipo: string; label?: string; count: number; cor?: string }
 
-  const alertas = data.alertas ?? []
-  const fora = alertas.find(a => a.tipo === 'fora_prazo')?.count ?? 0
-  const hoje = alertas.find(a => a.tipo === 'vence_hoje')?.count ?? 0
+  const [calendario, alertasInsights] = await Promise.allSettled([
+    fetchProduct(urlBidFreteInternacionalDashboard('/calendario'), ctx) as Promise<{
+      alertas?: AlertaFrete[]
+    }>,
+    fetchProduct(urlBidFreteInternacionalDashboard('/insights-alertas'), ctx) as Promise<{
+      alertas?: AlertaFrete[]
+    }>,
+  ])
 
-  if (fora > 0 || hoje > 0) {
-    const parts: string[] = []
-    if (fora > 0) parts.push(`${fora} cotação${fora > 1 ? 'ões' : ''} fora do prazo`)
-    if (hoje > 0) parts.push(`${hoje} vence${hoje === 1 ? '' : 'm'} hoje`)
+  const alertas: AlertaFrete[] = []
+  if (calendario.status === 'fulfilled') alertas.push(...(calendario.value.alertas ?? []))
+  if (alertasInsights.status === 'fulfilled') alertas.push(...(alertasInsights.value.alertas ?? []))
+
+  const porTipo = new Map<string, AlertaFrete>()
+  for (const a of alertas) {
+    const prev = porTipo.get(a.tipo)
+    if (!prev || a.count > prev.count) porTipo.set(a.tipo, a)
+  }
+
+  const scorePorTipo: Record<string, number> = {
+    fora_prazo: weights.frete_alertas ?? 85,
+    vence_hoje: (weights.frete_alertas ?? 85) - 5,
+    vencimento: (weights.frete_alertas ?? 85) - 10,
+    resposta: 75,
+    aprovacao: 70,
+    respostas: 65,
+    nova: 55,
+  }
+
+  for (const [tipo, alerta] of porTipo) {
+    if (alerta.count <= 0) continue
+    const warn = tipo === 'fora_prazo' || tipo === 'vence_hoje' || alerta.cor === 'red'
+    const label = alerta.label ?? tipo.replace(/_/g, ' ')
     insights.push({
-      id: 'frete_alertas',
-      variante: 'warn',
-      tag: 'Alerta · BID Frete Internacional',
-      texto: `${parts.join('. ')}.`,
+      id: `frete_${tipo}`,
+      variante: warn ? 'warn' : 'default',
+      tag: `Alerta · BID Frete · ${label}`,
+      texto: `${alerta.count} ocorrência${alerta.count > 1 ? 's' : ''}: ${label}.`,
       textoLink: 'Ver cotações',
       rota: '/bid-frete',
-      score: weights.frete_alertas ?? 0,
+      score: scorePorTipo[tipo] ?? weights.frete_alertas ?? 60,
       produto: 'BID Frete Internacional',
     })
+  }
+
+  if (insights.length === 0) {
+    insights.push(
+      insightOperacionalSemPendencia(
+        'frete_sem_pendencia',
+        'BID Frete Internacional',
+        'Operação · BID Frete',
+        '/bid-frete',
+        weights.frete_alertas ?? 50,
+      ),
+    )
   }
 
   return insights
@@ -785,14 +903,6 @@ export function comporCarrosselInsightsHub(
       .slice(0, MIN_INSIGHTS_HUB - result.length)
     result = [...result, ...extrasOperacionais]
 
-    if (result.length < MIN_INSIGHTS_HUB) {
-      const faltam = MIN_INSIGHTS_HUB - result.length
-      const idsAtualizados = new Set(result.map(r => r.id))
-      const extrasDicas = dicasPool
-        .filter(d => !idsAtualizados.has(d.id))
-        .slice(0, Math.min(faltam, 1))
-      result = [...result, ...extrasDicas]
-    }
   }
 
   return result.slice(0, MAX_INSIGHTS_HUB)
@@ -836,6 +946,8 @@ export async function generateHubInsights(
   // 2. Build fetch context
   const ctx: ProductFetcherContext = {
     id_organizacao,
+    id_usuario,
+    role,
     token: '', // Inter-service: chave interna S2S (não JWT)
     internalKey: getChaveInterna(),
   }
@@ -879,19 +991,7 @@ export async function generateHubInsights(
     algumProdutoRespondeu,
   })
 
-  // 6. Sem insight operacional — fallback (prioriza dicas só quando não há KPIs)
-  const qtdOperacionais = result.filter(i => classificarInsightHub(i) === 'operacional').length
-  if (qtdOperacionais === 0) {
-    const dicas = listarDicasPlataformaHub(chavesProdutos)
-    result = comporCarrosselInsightsHub([], chavesProdutos, {
-      algumProdutoRespondeu: false,
-    })
-    if (result.length === 0) {
-      result = dicas.slice(0, MIN_INSIGHTS_HUB)
-    }
-  }
-
-  // 7. Cache with tenant isolation
+  // 6. Cache with tenant isolation
   setCache(id_organizacao, id_usuario, result)
 
   return result

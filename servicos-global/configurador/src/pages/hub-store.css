@@ -2464,26 +2464,25 @@ body.light-theme .gs-toolbar__count {
   color: #475569;
 }
 
-.sw-hub-root {
+.sw-shell.sw-hub-root {
   height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   background: var(--sw-bg, #0f172a);
   font-family: var(--sw-f-body, var(--font));
   color: var(--sw-text-1);
   position: relative;
 }
 
-.sw-hub-root > .sw-content.sw-content--hub-unificado {
+.sw-shell.sw-hub-root .sw-content.sw-content--hub-unificado {
   width: 100%;
   max-width: none;
   margin-inline: 0;
-  padding: 1.5rem var(--gravity-shell-pad-inline) 4rem;
+  padding: 1.5rem var(--gravity-shell-pad-inline, 2rem) 4rem;
   box-sizing: border-box;
 }
 
 @media (max-width: 640px) {
-  .sw-hub-root > .sw-content.sw-content--hub-unificado,
+  .sw-shell.sw-hub-root .sw-content.sw-content--hub-unificado,
   .gs-root > .gs-store {
     padding-top: 1.25rem;
     padding-bottom: 2.5rem;

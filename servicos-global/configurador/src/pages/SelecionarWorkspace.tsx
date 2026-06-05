@@ -39,8 +39,12 @@ import {
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { corOficialProdutoDim, corOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { iconeOficialBidFreteInternacional } from '../data/product-meta'
-import { useLocalizadorHistory, buildEcosystemNodes } from '@nucleo/localizador-global'
-import { TopbarPaginaGravity } from '../components/topbar-pagina-gravity'
+import { LogoGlobal } from '@nucleo/logo-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes } from '@nucleo/localizador-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
+import { UsuarioGlobal } from '@nucleo/usuario-global'
+import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { mapRole } from '../types/niveis-acesso'
 import { podeMutarConfigurador } from '../routing/route-policy'
@@ -75,6 +79,7 @@ import {
   resolverNomesWorkspacesEscopo,
   salvarSuprimirAvisoEscopoHubPedido,
 } from '../utils/pedido-escopo-hub'
+import './configurador/workspace.css'
 import './selecionar-workspace.css'
 import './hub-unificado.css'
 import './hub-store.css'
@@ -162,6 +167,8 @@ const GABI_INSIGHT_FALLBACK: GabiInsight = {
   textoLink: 'Explorar produtos',
   rota: '/store',
 }
+
+const GABI_INSIGHTS_POR_PAGINA = 3
 
 interface WorkspaceFromHub {
   id_workspace: string
@@ -337,7 +344,15 @@ export function SelecionarWorkspace() {
   const { user } = useUser()
   const { getToken } = useAuth()
   const navigate = useNavigate()
-  const { addNotification, currentUser } = useShellStore()
+  const {
+    addNotification,
+    currentUser,
+    toggleTooltips,
+    tooltipsDisabled,
+    currentTheme,
+    toggleTheme,
+  } = useShellStore()
+  const isLight = currentTheme === 'light'
   const [searchParams] = useSearchParams()
   useShellBodyClasses()
   const [modalSemProdutos, setModalSemProdutos] = useState(false)
@@ -367,6 +382,17 @@ export function SelecionarWorkspace() {
 
   const [gabiPaused, setGabiPaused] = useState(false)
   const [gabiIndice, setGabiIndice] = useState(0)
+
+  /* ── Mensageria (sino) — paridade sw-topbar ── */
+  const [avisos, setAvisos] = useState<AvisoInterno[]>([])
+  const handleMarcarLido = useCallback(
+    (id: string) => setAvisos(prev => prev.map(a => (a.id === id ? { ...a, lido: true } : a))),
+    [],
+  )
+  const handleMarcarTodosLidos = useCallback(
+    () => setAvisos(prev => prev.map(a => ({ ...a, lido: true }))),
+    [],
+  )
 
   const selectedWs = workspaces.find(w => w.id === selectedId)
 
@@ -426,7 +452,12 @@ export function SelecionarWorkspace() {
     return `${nomeWs} · ${detalhe}`
   }, [selectedWs, contratadosAtivos.length, t])
 
-  const insightGabiAtual = gabiInsights[gabiIndice] ?? gabiInsights[0] ?? null
+  const gabiTotalPaginas = Math.max(1, Math.ceil(gabiInsights.length / GABI_INSIGHTS_POR_PAGINA))
+
+  const insightsGabiVisiveis = useMemo(() => {
+    const inicio = gabiIndice * GABI_INSIGHTS_POR_PAGINA
+    return gabiInsights.slice(inicio, inicio + GABI_INSIGHTS_POR_PAGINA)
+  }, [gabiIndice, gabiInsights])
 
   const processosOperacaoHub = useMemo(
     () =>
@@ -789,6 +820,30 @@ export function SelecionarWorkspace() {
     return items
   }, [produtosAtivos])
 
+  const buscarNoHub = useCallback((termo: string) => {
+    const termLower = termo.toLowerCase()
+    const ws = workspaces.find(w => w.nome.toLowerCase().includes(termLower))
+    if (ws) {
+      setSelectedId(ws.id)
+      return
+    }
+    const prod = produtosContratados.find(
+      p => p.nome.toLowerCase().includes(termLower) || p.product_key.toLowerCase().includes(termLower),
+    )
+    if (prod) {
+      navigate(`/produto/${prod.product_key}`)
+      return
+    }
+    const cat = catalogoProdutos.find(p => p.name.toLowerCase().includes(termLower))
+    if (cat) {
+      navigate('/store')
+      return
+    }
+    const flat = navItems.flatMap(i => (i.children ? i.children : [i]))
+    const target = flat.find(item => item.label?.toLowerCase().includes(termLower))
+    if (target?.to) navigate(target.to)
+  }, [workspaces, produtosContratados, catalogoProdutos, navItems, navigate])
+
   /* ── Handlers ── */
   const handleSelectWs = useCallback((id: string) => {
     setSelectedId(id)
@@ -797,6 +852,18 @@ export function SelecionarWorkspace() {
   const handleSair = useCallback(() => {
     signOut(() => navigate('/'))
   }, [signOut, navigate])
+
+  const handleCriarAviso = useCallback((texto: string) => {
+    const novo: AvisoInterno = {
+      id: `aviso-${Date.now()}`,
+      conteudo: texto,
+      autor: { nome: userName },
+      dataHora: new Date().toLocaleString(i18n.language),
+      lido: false,
+      tipo: 'aviso',
+    }
+    setAvisos(prev => [novo, ...prev])
+  }, [userName, i18n.language])
 
   const handleCriarWorkspace = useCallback(() => {
     navigate('/configurador/workspaces')
@@ -894,14 +961,18 @@ export function SelecionarWorkspace() {
     setGabiIndice(0)
   }, [gabiInsights.length])
 
-  /* ── GABI: auto-avanço a cada 5s (um insight por vez) ── */
   React.useEffect(() => {
-    if (gabiPaused || gabiInsights.length <= 1) return
+    setGabiIndice(prev => Math.min(prev, gabiTotalPaginas - 1))
+  }, [gabiTotalPaginas])
+
+  /* ── GABI: auto-avanço a cada 5s (página de 3 insights) ── */
+  React.useEffect(() => {
+    if (gabiPaused || gabiTotalPaginas <= 1) return
     const timer = setInterval(() => {
-      setGabiIndice(prev => (prev + 1) % gabiInsights.length)
+      setGabiIndice(prev => (prev + 1) % gabiTotalPaginas)
     }, 5000)
     return () => clearInterval(timer)
-  }, [gabiPaused, gabiInsights.length])
+  }, [gabiPaused, gabiTotalPaginas])
 
   /* ── GABI: busca insights cross-produto do backend (hub/insights) ── */
   React.useEffect(() => {
@@ -984,56 +1055,96 @@ export function SelecionarWorkspace() {
      RENDER
   ══════════════════════════════════ */
   return (
-    <div className="sw-hub-root">
-      <TopbarPaginaGravity
-        rotuloTela="Hub"
-        atalho={{
-          label: 'Store',
-          title: t('store.titulo', 'Gravity Store'),
-          icon: <ShoppingBagOpen size={13} weight="bold" color="#818cf8" />,
-          onClick: () => navigate('/store'),
-        }}
-        workspaceName={companyName}
-        localizador={{
-          currentProductId: 'hub',
-          currentProductLabel: 'Hub',
-          currentProductColor: '#818cf8',
-          currentPageLabel: 'Hub',
-          history: locHistory,
-          nodes: hubEcosystemNodes,
-          onNavigate: (node) => {
-            if (node.type === 'hub')               navigate('/hub?select=1')
-            else if (node.type === 'core')         navigate('/hub?select=1')
-            else if (node.type === 'hub-store')    navigate('/store')
-            else if (node.type === 'configurador') navigate('/configurador')
-            else if (node.type === 'admin')        navigate('/admin/visao-geral')
-            else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
-          },
-        }}
-        onAbrirConfigurador={() => navigate('/configurador')}
-        usuario={{
-          userName,
-          userEmail,
-          userInitials,
-          userRole: userRoleLabel,
-          onNavigateWorkspace: () => navigate('/configurador/organizacao'),
-          onNavigateMarketPlace: () => navigate('/store'),
-          onSignOut: () => signOut(),
-          isAdmin: isGravityAdmin,
-          onNavigateAdmin: () => navigate('/admin/visao-geral'),
-          temAcessoTrocarOrganizacao: podeAtivarOverride,
-          organizacaoOverrideAtiva: overrideAtivo,
-          aoTrocarOrganizacao: () => setModalTrocarOrgAberto(true),
-          aoVoltarParaGravity: () => { limparOverride(); navigate('/hub') },
-        }}
-      />
+    <div className="sw-shell sw-shell--no-sidebar sw-hub-root">
+      <div className="sw-page sw-page--full">
+        <header className="sw-topbar">
+          <div className="sw-t-brand">
+            <LogoGlobal iconSize={22} iconColor="#818cf8" />
+            <div className="sw-t-div" />
+            <span className="sw-t-module-label">HUB</span>
+          </div>
+          <div className="sw-t-right">
+            <CampoLocalizarExpandidoGlobal onBuscarNavigate={buscarNoHub} />
 
-      <ModalTrocarOrganizacao
-        aberto={modalTrocarOrgAberto}
-        aoFechar={() => setModalTrocarOrgAberto(false)}
-      />
+            <div className="sw-notif-wrap">
+              <AvisoInternoGlobal
+                avisos={avisos}
+                onMarcarLido={handleMarcarLido}
+                onMarcarTodosLidos={handleMarcarTodosLidos}
+                onCriarAviso={handleCriarAviso}
+              />
+            </div>
 
-      <div className="sw-content sw-content--hub-unificado">
+            <button
+              className="sw-t-icon"
+              type="button"
+              aria-label={tooltipsDisabled ? t('shell.habilitar_dicas') : t('shell.desabilitar_dicas')}
+              title={tooltipsDisabled ? t('shell.label_habilitar_dicas') : t('shell.label_desabilitar_dicas')}
+              onClick={toggleTooltips}
+              style={{ color: tooltipsDisabled ? 'var(--sw-muted, #64748b)' : 'var(--sw-accent-2, #818cf8)' }}
+            >
+              <Info size={16} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+            </button>
+
+            <LocalizadorGlobal
+              workspaceName={companyName}
+              iconOnly
+              currentProductId="hub"
+              currentProductLabel="Hub"
+              currentProductColor="#818cf8"
+              currentPageLabel="Hub"
+              history={locHistory}
+              nodes={hubEcosystemNodes}
+              onNavigate={(node) => {
+                if (node.type === 'hub')               navigate('/hub?select=1')
+                else if (node.type === 'core')         navigate('/hub?select=1')
+                else if (node.type === 'hub-store')    navigate('/store')
+                else if (node.type === 'configurador') navigate('/configurador')
+                else if (node.type === 'admin')        navigate('/admin/visao-geral')
+                else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
+              }}
+            />
+
+            <SeletorIdiomaGlobal iconOnly />
+
+            <div className="sw-t-sep" />
+
+            <button
+              className="sw-t-icon"
+              type="button"
+              title={t('workspace.layout.modulo_nome')}
+              onClick={() => navigate('/configurador/organizacao')}
+            >
+              <GearSix size={16} weight="duotone" />
+            </button>
+
+            <UsuarioGlobal
+              userName={userName}
+              userEmail={userEmail}
+              userInitials={userInitials}
+              userRole={userRoleLabel}
+              isLight={isLight}
+              onToggleTheme={toggleTheme}
+              onNavigateWorkspace={() => navigate('/configurador/organizacao')}
+              onNavigateMarketPlace={() => navigate('/store')}
+              onSignOut={handleSair}
+              isAdmin={isGravityAdmin}
+              onNavigateAdmin={() => navigate('/admin/visao-geral')}
+              temAcessoTrocarOrganizacao={podeAtivarOverride}
+              organizacaoOverrideAtiva={overrideAtivo}
+              aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}
+              aoVoltarParaGravity={() => { limparOverride(); navigate('/hub') }}
+              compact
+            />
+          </div>
+        </header>
+
+        <ModalTrocarOrganizacao
+          aberto={modalTrocarOrgAberto}
+          aoFechar={() => setModalTrocarOrgAberto(false)}
+        />
+
+        <div className="sw-content sw-content--hub-unificado">
           {carregando ? (
             <div className="sw-loading">
               <GravityLoader texto="Carregando" tamanho="lg" />
@@ -1079,6 +1190,7 @@ export function SelecionarWorkspace() {
                         {t('sw.ver_catalogo', 'Gravity Store')} →
                       </button>
                       <BarrasMeterProdutosContratadosHub
+                        t={t}
                         catalogo={catalogoProdutos}
                         produtosContratados={produtosContratados.map(p => ({
                           product_key: p.product_key,
@@ -1245,11 +1357,9 @@ export function SelecionarWorkspace() {
                             className="sw-gabi-nav-btn"
                             type="button"
                             onClick={() =>
-                              setGabiIndice(prev =>
-                                (prev - 1 + gabiInsights.length) % Math.max(gabiInsights.length, 1),
-                              )}
-                            disabled={gabiInsights.length <= 1}
-                            aria-label="Insight anterior"
+                              setGabiIndice(prev => (prev - 1 + gabiTotalPaginas) % gabiTotalPaginas)}
+                            disabled={gabiTotalPaginas <= 1}
+                            aria-label="Página anterior de insights"
                           >
                             <CaretLeft size={12} weight="bold" />
                           </button>
@@ -1257,9 +1367,9 @@ export function SelecionarWorkspace() {
                             className="sw-gabi-nav-btn"
                             type="button"
                             onClick={() =>
-                              setGabiIndice(prev => (prev + 1) % Math.max(gabiInsights.length, 1))}
-                            disabled={gabiInsights.length <= 1}
-                            aria-label="Próximo insight"
+                              setGabiIndice(prev => (prev + 1) % gabiTotalPaginas)}
+                            disabled={gabiTotalPaginas <= 1}
+                            aria-label="Próxima página de insights"
                           >
                             <CaretRight size={12} weight="bold" />
                           </button>
@@ -1268,52 +1378,64 @@ export function SelecionarWorkspace() {
 
                       <div className="sw-hub-gabi-slide-wrap">
                         {gabiLoading ? (
-                          <div className="sw-gabi-insight-card sw-gabi-insight-card--skeleton">
-                            <div className="sw-gabi-skeleton-line sw-gabi-skeleton-line--short" />
-                            <div className="sw-gabi-skeleton-line" />
-                            <div className="sw-gabi-skeleton-line" />
+                          <div className="sw-hub-gabi-grid">
+                            {Array.from({ length: GABI_INSIGHTS_POR_PAGINA }, (_, idx) => (
+                              <div
+                                key={`gabi-skeleton-${idx}`}
+                                className="sw-gabi-insight-card sw-gabi-insight-card--skeleton"
+                              >
+                                <div className="sw-gabi-skeleton-line sw-gabi-skeleton-line--short" />
+                                <div className="sw-gabi-skeleton-line" />
+                                <div className="sw-gabi-skeleton-line" />
+                              </div>
+                            ))}
                           </div>
-                        ) : insightGabiAtual ? (
-                          <div
-                            className={`sw-gabi-insight-card${insightGabiAtual.variante === 'warn' ? ' sw-gabi-insight-card--warn' : ''}`}
-                          >
-                            <div
-                              className={`sw-gabi-insight-tag${insightGabiAtual.variante === 'warn' ? ' sw-gabi-insight-tag--warn' : ''}`}
-                            >
-                              {insightGabiAtual.variante === 'warn'
-                                ? <Warning size={11} weight="fill" />
-                                : <RocketLaunch size={11} weight="fill" />}
-                              {insightGabiAtual.tag}
-                            </div>
-                            <p className="sw-gabi-insight-text">{insightGabiAtual.texto}</p>
-                            <div className="sw-gabi-insight-bottom">
-                              {insightGabiAtual.stat && (
-                                <div className="sw-gabi-insight-stat">
-                                  <span className="sw-gabi-insight-stat-label">{insightGabiAtual.stat.label}</span>
-                                  <span className="sw-gabi-insight-stat-value">{insightGabiAtual.stat.valor}</span>
-                                </div>
-                              )}
-                              {insightGabiAtual.textoLink && insightGabiAtual.rota && (
-                                <button
-                                  className="sw-gabi-insight-link"
-                                  type="button"
-                                  onClick={() => navigate(insightGabiAtual.rota!)}
+                        ) : insightsGabiVisiveis.length > 0 ? (
+                          <div className="sw-hub-gabi-grid">
+                            {insightsGabiVisiveis.map(insight => (
+                              <div
+                                key={insight.id}
+                                className={`sw-gabi-insight-card${insight.variante === 'warn' ? ' sw-gabi-insight-card--warn' : ''}`}
+                              >
+                                <div
+                                  className={`sw-gabi-insight-tag${insight.variante === 'warn' ? ' sw-gabi-insight-tag--warn' : ''}`}
                                 >
-                                  {insightGabiAtual.textoLink} <CaretRight size={11} />
-                                </button>
-                              )}
-                            </div>
+                                  {insight.variante === 'warn'
+                                    ? <Warning size={11} weight="fill" />
+                                    : <RocketLaunch size={11} weight="fill" />}
+                                  {insight.tag}
+                                </div>
+                                <p className="sw-gabi-insight-text">{insight.texto}</p>
+                                <div className="sw-gabi-insight-bottom">
+                                  {insight.stat && (
+                                    <div className="sw-gabi-insight-stat">
+                                      <span className="sw-gabi-insight-stat-label">{insight.stat.label}</span>
+                                      <span className="sw-gabi-insight-stat-value">{insight.stat.valor}</span>
+                                    </div>
+                                  )}
+                                  {insight.textoLink && insight.rota && (
+                                    <button
+                                      className="sw-gabi-insight-link"
+                                      type="button"
+                                      onClick={() => navigate(insight.rota!)}
+                                    >
+                                      {insight.textoLink} <CaretRight size={11} />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         ) : (
                           <p className="sw-gabi-insight-text">{t('sw.gabi_sem_insights', 'Nenhum insight no momento.')}</p>
                         )}
                       </div>
 
-                      {gabiInsights.length > 1 && (
+                      {gabiTotalPaginas > 1 && (
                         <div className="sw-hub-gabi-dots" role="tablist" aria-label={t('sw.gabi_label')}>
-                          {gabiInsights.map((ins, idx) => (
+                          {Array.from({ length: gabiTotalPaginas }, (_, idx) => (
                             <button
-                              key={ins.id}
+                              key={`gabi-pagina-${idx}`}
                               type="button"
                               role="tab"
                               aria-selected={idx === gabiIndice}
@@ -1532,7 +1654,8 @@ export function SelecionarWorkspace() {
         <div style={{ display: 'none' }} />
       </ModalOverlay>
 
-      <ToastContainer />
+        <ToastContainer />
+      </div>
     </div>
   )
 }

@@ -8,7 +8,9 @@
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Gear, Hexagon, Info, MagnifyingGlass } from '@phosphor-icons/react'
+import { GearSix, Info, MagnifyingGlass } from '@phosphor-icons/react'
+import { LogoGlobal } from '@nucleo/logo-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { UsuarioGlobal, type UsuarioGlobalProps } from '@nucleo/usuario-global'
 import {
@@ -31,6 +33,9 @@ export interface AtalhoTopbarPaginaGravity {
 export interface TopbarPaginaGravityProps {
   rotuloTela: string
   atalho?: AtalhoTopbarPaginaGravity
+  /** Busca expandida (padrão HUB / Workspace / Core) — ícone → campo. */
+  onBuscarNavigate?: (termo: string) => void
+  /** Atalho simples (ex.: Store foca o campo de busca da vitrine). */
   onBuscar?: () => void
   workspaceName: string
   localizador: {
@@ -64,6 +69,7 @@ export interface TopbarPaginaGravityProps {
 export function TopbarPaginaGravity({
   rotuloTela,
   atalho,
+  onBuscarNavigate,
   onBuscar,
   workspaceName,
   localizador,
@@ -79,7 +85,7 @@ export function TopbarPaginaGravity({
       <div className="gravity-topbar-pagina__inner">
         <div className="gravity-topbar-pagina__esq">
           <div className="gravity-topbar-pagina__marca">
-            <Hexagon weight="duotone" size={22} color="#818cf8" aria-hidden />
+            <LogoGlobal iconOnly iconSize={22} iconColor="#818cf8" />
             <span className="gravity-topbar-pagina__marca-nome">Gravity</span>
           </div>
           <div className="gravity-topbar-pagina__div" aria-hidden />
@@ -102,7 +108,9 @@ export function TopbarPaginaGravity({
             </>
           ) : null}
 
-          {onBuscar ? (
+          {onBuscarNavigate ? (
+            <CampoLocalizarExpandidoGlobal onBuscarNavigate={onBuscarNavigate} />
+          ) : onBuscar ? (
             <button
               className="hb-topbar-btn"
               type="button"
@@ -149,7 +157,7 @@ export function TopbarPaginaGravity({
             title={t('workspace.layout.modulo_nome')}
             onClick={onAbrirConfigurador}
           >
-            <Gear weight="duotone" size={16} />
+            <GearSix weight="duotone" size={16} />
           </button>
 
           <UsuarioGlobal

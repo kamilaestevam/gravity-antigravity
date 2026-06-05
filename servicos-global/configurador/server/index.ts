@@ -307,8 +307,24 @@ function reescreverUrlApiBidFreteLegado(originalUrl: string): string {
   return destino
 }
 
+/** Sidecar BID Frete Internacional — mesmo processo que o Configurador (porta 8023). */
+const BID_FRETE_SIDECAR_LOCAL_URL = 'http://127.0.0.1:8023'
+
+/**
+ * URL usada pelo proxy browser → sidecar.
+ * Em site-usegravity (Railway) o BID roda como sidecar local; BID_FRETE_SERVICE_URL
+ * externo (serviço Railway morto ou URL pública do próprio site) causa 502
+ * "Application failed to respond" na UI de Insights.
+ */
+function resolverUrlProxyBidFreteInternacional(): string {
+  if (process.env.RAILWAY_ENVIRONMENT) {
+    return BID_FRETE_SIDECAR_LOCAL_URL
+  }
+  return process.env.BID_FRETE_SERVICE_URL || BID_FRETE_SIDECAR_LOCAL_URL
+}
+
 function proxyBidFreteInternacional(req: import('express').Request, res: import('express').Response, originalUrl: string) {
-  const serviceUrl = process.env.BID_FRETE_SERVICE_URL || 'http://127.0.0.1:8023'
+  const serviceUrl = resolverUrlProxyBidFreteInternacional()
   const targetUrl = `${serviceUrl}${originalUrl}`
   const host = serviceUrl.replace(/^https?:\/\//, '')
   const headers = { ...req.headers, host } as Record<string, any>
@@ -494,7 +510,21 @@ app.use('/api/v1/cadastros', _proxyCadastros)
 
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
 const clientDistDir = resolve(__dir, '../dist')
-app.use(express.static(clientDistDir))
+
+/** Assets com hash no nome — cache longo; index.html sempre revalidado (evita chunk/CSS stale pós-deploy). */
+app.use(
+  express.static(clientDistDir, {
+    index: false,
+    setHeaders(res, filePath) {
+      const normalizado = filePath.replace(/\\/g, '/')
+      if (normalizado.endsWith('/index.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+      } else if (normalizado.includes('/assets/')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+      }
+    },
+  }),
+)
 
 /**
  * Middleware de normalização de URL canônica
@@ -545,6 +575,12 @@ app.get('*', (req, res, next) => {
     }
   }
 
+  // Chunk/CSS ausente — não devolver index.html (Vite interpreta como "Unable to preload CSS")
+  if (path.startsWith('/assets/')) {
+    return res.status(404).end()
+  }
+
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.sendFile(resolve(clientDistDir, 'index.html'))
 })
 

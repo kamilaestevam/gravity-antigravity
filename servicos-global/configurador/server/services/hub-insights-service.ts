@@ -41,7 +41,12 @@ interface ProductFetcherContext {
 // Lazy getters — evita ESM top-level read antes de dotenv/--env-file (Mand. 08)
 function getPedidoUrl(): string { return process.env.PEDIDO_SERVICE_URL ?? 'http://localhost:8030' }
 function getBidCambioUrl(): string { return process.env.BID_CAMBIO_URL ?? 'http://localhost:8025' }
-function getBidFreteUrl(): string { return process.env.BID_FRETE_SERVICE_URL ?? 'http://localhost:8023' }
+function getBidFreteUrl(): string {
+  if (process.env.RAILWAY_ENVIRONMENT) {
+    return 'http://127.0.0.1:8023'
+  }
+  return process.env.BID_FRETE_SERVICE_URL ?? 'http://127.0.0.1:8023'
+}
 function getSimulaCustoUrl(): string { return process.env.SIMULA_CUSTO_SERVICE_URL ?? 'http://localhost:8020' }
 function getLpcoUrl(): string { return process.env.LPCO_SERVICE_URL ?? 'http://localhost:8027' }
 function getNfImportUrl(): string { return process.env.NF_IMPORTACAO_SERVICE_URL ?? 'http://localhost:8028' }

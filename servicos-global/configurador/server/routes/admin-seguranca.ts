@@ -68,7 +68,12 @@ const SERVICES = [
   // Produtos
   { name: 'simula-custo',  url: process.env.SIMULA_CUSTO_SERVICE_URL || 'http://localhost:8020' },
   { name: 'processo',      url: process.env.PROCESSO_SERVICE_URL      || 'http://localhost:8026' },
-  { name: 'bid-frete',     url: process.env.BID_FRETE_SERVICE_URL    || 'http://localhost:8023' },
+  {
+    name: 'bid-frete',
+    url: process.env.RAILWAY_ENVIRONMENT
+      ? 'http://127.0.0.1:8023'
+      : (process.env.BID_FRETE_SERVICE_URL || 'http://127.0.0.1:8023'),
+  },
 ]
 
 async function checkHealth(service: { name: string; url: string }): Promise<ServiceHealthResult> {

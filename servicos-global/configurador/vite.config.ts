@@ -15,6 +15,28 @@ const devUiPort = isAgenteDev ? Number(process.env.VITE_DEV_UI_PORT) || 8000 : 8
 const devApiPort = isAgenteDev ? Number(process.env.VITE_DEV_CFG_API_PORT) || 8005 : 8005
 const devApiTarget = `http://127.0.0.1:${devApiPort}`
 
+/** Compat: bundles antigos chamavam /api/v1/bid-frete/* sem prefixo -internacional. */
+function reescreverProxyApiBidFreteLegado(path: string): string {
+  if (path.startsWith('/api/v1/bid-frete-internacional')) return path
+  let destino = path.replace(/^\/api\/v1\/bid-frete/, '/api/v1/bid-frete-internacional')
+  destino = destino.replace(
+    '/bid-frete-internacional/insights-alertas',
+    '/bid-frete-internacional/dashboard/insights-alertas',
+  )
+  destino = destino.replace(
+    '/bid-frete-internacional/mapa-cotacoes',
+    '/bid-frete-internacional/dashboard/mapa-cotacoes',
+  )
+  return destino
+}
+
+const proxyHeadersBidFrete = (proxy: { on: (event: string, handler: (proxyReq: import('http').ClientRequest) => void) => void }) => {
+  proxy.on('proxyReq', (proxyReq) => {
+    proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+    proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
+  })
+}
+
 /** Resolve pelo mesmo node_modules que o npm usa (worktree pode hoistar para o repo pai). */
 const requireFromCfg = createRequire(path.join(__dirname, 'package.json'))
 
@@ -177,14 +199,16 @@ export default defineConfig(({ command }) => {
       '/api/v1/bid-frete-internacional': {
         target: 'http://localhost:8023',
         changeOrigin: true,
-        configure(proxy) {
-          proxy.on('proxyReq', (proxyReq) => {
-            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
-            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
-            // Não injetar org_dev_default — quebra visão fornecedor (404 silencioso).
-            // Headers vêm do shell (/me) via api.ts; ausentes → backend retorna 401/404 explícito.
-          })
+        configure: proxyHeadersBidFrete,
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
         },
+      },
+      '/api/v1/bid-frete': {
+        target: 'http://localhost:8023',
+        changeOrigin: true,
+        rewrite: reescreverProxyApiBidFreteLegado,
+        configure: proxyHeadersBidFrete,
         onError(err, _req, res) {
           if (!res.headersSent) res.writeHead(502).end()
         },

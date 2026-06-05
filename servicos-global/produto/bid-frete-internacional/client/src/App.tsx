@@ -262,7 +262,13 @@ export default function App() {
         onNavigate: (node: EcosystemNode) => {
           if (node.type === 'hub')               window.location.href = '/hub'
           else if (node.type === 'configurador') window.location.href = '/configurador'
-          else if (node.type === 'produto')      window.location.href = `/produto/${node.id}`
+          else if (node.type === 'produto') {
+            const destino =
+              node.id === 'bid-frete' || node.id === 'bid-frete-internacional'
+                ? '/bid-frete/insights'
+                : `/produto/${node.id}`
+            window.location.href = destino
+          }
         },
       }}
       usuario={{
@@ -282,9 +288,10 @@ export default function App() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"              element={<Navigate to="visao-geral" replace />} />
+          <Route path="/"              element={<Navigate to="insights" replace />} />
+          <Route path="visao-geral"    element={<Navigate to="insights" replace />} />
           <Route element={<BidFreteVisualizacaoLayout modo="cliente" />}>
-            <Route path="visao-geral" element={bidFreteVisualizacoesClienteElement} />
+            <Route path="insights"     element={bidFreteVisualizacoesClienteElement} />
             <Route path="dashboard"   element={bidFreteVisualizacoesClienteElement} />
             <Route path="lista"       element={bidFreteVisualizacoesClienteElement} />
             <Route path="kanban"      element={bidFreteVisualizacoesClienteElement} />
@@ -315,7 +322,7 @@ export default function App() {
           {/* Redirects legado portal → visão fornecedor */}
           <Route path="portal/*" element={<Navigate to={ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.dashboard} replace />} />
 
-          <Route path="*" element={<Navigate to="visao-geral" replace />} />
+          <Route path="*" element={<Navigate to="insights" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoComOrganizacaoOverride>

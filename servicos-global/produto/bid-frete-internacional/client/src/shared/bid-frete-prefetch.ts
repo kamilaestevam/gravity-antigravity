@@ -6,14 +6,14 @@ import type { BidFreteVisualizacaoId } from '../components/bid-frete-visualizaca
 import type { ModoVisualizacaoBidFrete } from '../components/BidFreteVisualizacaoTabs'
 
 const prefetchCliente = {
-  'visao-geral': () => import('../pages/visao-geral'),
+  insights: () => import('../pages/visao-geral'),
   lista:         () => import('../pages/lista-bid-frete-internacional'),
   dashboard:     () => import('../pages/dashboard'),
   kanban:        () => import('../pages/lista-bid-frete-internacional'),
 } as const satisfies Record<BidFreteVisualizacaoId, () => Promise<unknown>>
 
 const prefetchFornecedor = {
-  'visao-geral': () =>
+  insights: () =>
     import('../pages/visao-fornecedor-bid-frete-internacional/visao-fornecedor-bid-frete-internacional-dashboard'),
   lista: () =>
     import('../pages/visao-fornecedor-bid-frete-internacional/lista-visao-fornecedor-bid-frete-internacional'),

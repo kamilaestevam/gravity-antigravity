@@ -293,12 +293,23 @@ app.get('/api/v1/internal/sidecar-status', requireAuth, requireGravityAdmin, (_r
   res.json(_sidecarStatus)
 })
 
-// ─── Proxy reverso: BID Frete Internacional sidecar (porta 8023) ─────────────
-// Em produção o BID roda como sidecar no mesmo processo (porta 8023).
-// O frontend chama `/api/v1/bid-frete-internacional/*` — proxy encaminha via localhost.
-app.use('/api/v1/bid-frete-internacional', (req, res) => {
+function reescreverUrlApiBidFreteLegado(originalUrl: string): string {
+  if (originalUrl.startsWith('/api/v1/bid-frete-internacional')) return originalUrl
+  let destino = originalUrl.replace(/^\/api\/v1\/bid-frete/, '/api/v1/bid-frete-internacional')
+  destino = destino.replace(
+    '/bid-frete-internacional/insights-alertas',
+    '/bid-frete-internacional/dashboard/insights-alertas',
+  )
+  destino = destino.replace(
+    '/bid-frete-internacional/mapa-cotacoes',
+    '/bid-frete-internacional/dashboard/mapa-cotacoes',
+  )
+  return destino
+}
+
+function proxyBidFreteInternacional(req: import('express').Request, res: import('express').Response, originalUrl: string) {
   const serviceUrl = process.env.BID_FRETE_SERVICE_URL || 'http://127.0.0.1:8023'
-  const targetUrl = `${serviceUrl}${req.originalUrl}`
+  const targetUrl = `${serviceUrl}${originalUrl}`
   const host = serviceUrl.replace(/^https?:\/\//, '')
   const headers = { ...req.headers, host } as Record<string, any>
   const chaveInterna = process.env.CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
@@ -337,6 +348,18 @@ app.use('/api/v1/bid-frete-internacional', (req, res) => {
   } else {
     proxyReq.end()
   }
+}
+
+// ─── Proxy reverso: BID Frete Internacional sidecar (porta 8023) ─────────────
+// Em produção o BID roda como sidecar no mesmo processo (porta 8023).
+// O frontend chama `/api/v1/bid-frete-internacional/*` — proxy encaminha via localhost.
+app.use('/api/v1/bid-frete-internacional', (req, res) => {
+  proxyBidFreteInternacional(req, res, req.originalUrl)
+})
+
+// Compat: bundles antigos usavam /api/v1/bid-frete/* sem sufixo -internacional.
+app.use('/api/v1/bid-frete', (req, res) => {
+  proxyBidFreteInternacional(req, res, reescreverUrlApiBidFreteLegado(req.originalUrl))
 })
 
 app.use('/api/v1/pedidos', (req, res) => {
@@ -492,6 +515,9 @@ const REDIRECTS_PREFIXO_LEGACY: Array<{ de: string; para: string }> = [
   { de: '/produto/simula-custo', para: '/simula-custo' },
   { de: '/produto/processo', para: '/processo' },
   { de: '/produto/bid-frete', para: '/bid-frete' },
+  { de: '/produto/bid-frete-internacional', para: '/bid-frete' },
+  { de: '/bid-frete/visao-geral', para: '/bid-frete/insights' },
+  { de: '/bid-frete-internacional/visao-geral', para: '/bid-frete/insights' },
   { de: '/produto/bid-cambio', para: '/bid-cambio' },
 ]
 

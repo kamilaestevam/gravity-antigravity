@@ -369,9 +369,11 @@ export default function VisaoGeral() {
   const [alertas, setAlertas] = useState<CalendarioAlerta[]>([])
   const [dadosMapa, setDadosMapa] = useState<DadosMapaBidFrete>({ pins: [], routes: [] })
   const [carregando, setCarregando] = useState(true)
+  const [erroCarregamento, setErroCarregamento] = useState<string | null>(null)
 
   const carregarInsights = useCallback(async () => {
     setCarregando(true)
+    setErroCarregamento(null)
     try {
       const [kpisData, alertasData, mapaData] = await Promise.all([
         getDashboardKpis(),
@@ -381,10 +383,14 @@ export default function VisaoGeral() {
       setKpis(kpisData)
       setAlertas(alertasData)
       setDadosMapa(mapaData)
-    } catch {
+    } catch (err) {
+      console.error('[BidFrete Insights] falha ao carregar', err)
       setKpis(null)
       setAlertas([])
       setDadosMapa({ pins: [], routes: [] })
+      setErroCarregamento(
+        err instanceof Error ? err.message : 'Falha ao carregar insights do BID Frete Internacional',
+      )
     } finally {
       setCarregando(false)
     }
@@ -450,8 +456,43 @@ export default function VisaoGeral() {
   const andamentoSpark = [12, 14, 18, 15, 20, 22, 25]
   const savingSpark = [15, 18, 16, 21, 19, 23, 24]
 
-  if (carregando || !kpis) {
+  if (carregando) {
     return <ConteudoCarregandoBidFreteInternacional />
+  }
+
+  if (erroCarregamento || !kpis) {
+    return (
+      <div
+        style={{
+          padding: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1rem',
+          color: '#f87171',
+          textAlign: 'center',
+        }}
+      >
+        <p style={{ margin: 0, maxWidth: 520 }}>
+          {erroCarregamento ?? 'Não foi possível carregar os insights.'}
+        </p>
+        <button
+          type="button"
+          onClick={() => { void carregarInsights() }}
+          style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
+            borderRadius: 8,
+            color: '#fecaca',
+            padding: '0.5rem 1rem',
+            cursor: 'pointer',
+            fontWeight: 600,
+          }}
+        >
+          Tentar novamente
+        </button>
+      </div>
+    )
   }
 
   const tempoRespostaLabel =

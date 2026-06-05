@@ -68,7 +68,7 @@ function Painel({
 function PaineisCliente({ visitados }: { visitados: Set<BidFreteVisualizacaoId> }) {
   return (
     <>
-      <Painel id="visao-geral" montado={visitados.has('visao-geral')}><VisaoGeralCliente /></Painel>
+      <Painel id="insights" montado={visitados.has('insights')}><VisaoGeralCliente /></Painel>
       <Painel id="lista" montado={visitados.has('lista')}><CotacoesCliente /></Painel>
       <Painel id="dashboard" montado={visitados.has('dashboard')}><DashboardCliente /></Painel>
       <Painel id="kanban" montado={visitados.has('kanban')}><CotacoesCliente /></Painel>
@@ -79,7 +79,7 @@ function PaineisCliente({ visitados }: { visitados: Set<BidFreteVisualizacaoId> 
 function PaineisFornecedor({ visitados }: { visitados: Set<BidFreteVisualizacaoId> }) {
   return (
     <>
-      <Painel id="visao-geral" montado={visitados.has('visao-geral')}><VisaoFornecedorDashboard /></Painel>
+      <Painel id="insights" montado={visitados.has('insights')}><VisaoFornecedorDashboard /></Painel>
       <Painel id="lista" montado={visitados.has('lista')}><VisaoFornecedorLista /></Painel>
       <Painel id="dashboard" montado={visitados.has('dashboard')}><VisaoFornecedorPaineis /></Painel>
       <Painel id="kanban" montado={visitados.has('kanban')}><VisaoFornecedorKanban /></Painel>

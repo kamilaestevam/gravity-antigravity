@@ -29,8 +29,8 @@ interface TabDef {
 
 const TABS_CLIENTE: TabDef[] = [
   {
-    id: 'visao-geral',
-    to: rotaBidFreteInternacional('visao-geral'),
+    id: 'insights',
+    to: rotaBidFreteInternacional('insights'),
     labelKey: 'bidfrete.nav.insights',
     icone: <ChartPieSlice weight="duotone" size={16} />,
   },
@@ -56,7 +56,7 @@ const TABS_CLIENTE: TabDef[] = [
 
 const TABS_FORNECEDOR: TabDef[] = [
   {
-    id: 'visao-geral',
+    id: 'insights',
     to: ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.dashboard,
     labelKey: 'bidfrete.visao_fornecedor_bid_frete_internacional.nav.insights',
     icone: <ChartPieSlice weight="duotone" size={16} />,

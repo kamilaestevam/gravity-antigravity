@@ -249,6 +249,7 @@ function ShortcutIcon({ icon, color }: { icon: string; color: string }) {
 const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
   'simula-custo': { nome: 'SimulaCusto', rota: '/simula-custo' },
   'bid-frete': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
+  'bid-frete-internacional': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
   'bid-cambio': { nome: 'BID Câmbio', rota: '/bid-cambio' },
   'smart-read': { nome: 'Smart Read', rota: '/produto/smart-read' },
   'processo': { nome: 'Processo', rota: '/processo' },

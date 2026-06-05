@@ -2,9 +2,10 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle, Lightning, Package } from '@phosphor-icons/react'
-import { PRODUCT_META, nomeExibicaoProdutoGravity } from '../data/product-meta'
+import { metaProdutoStore, nomeExibicaoProdutoGravity } from '../data/product-meta'
 import {
   classePecaPuzzleStore,
+  encontrarProdutoNoCatalogoStore,
   type StatusExibicaoProdutoStore,
 } from '../data/status-produto-store'
 
@@ -39,8 +40,8 @@ export function StorePuzzleRow({ slugs, catalog, statusDe, variante, embutido = 
   const pecas = (
       <div className={`gs-stack__pieces${variante === 'em_breve' ? ' gs-stack__pieces--soon' : ''}`}>
         {slugs.map((slug, pieceIdx) => {
-          const cp = catalog.find((p) => p.slug === slug)
-          const meta = PRODUCT_META[slug]
+          const cp = encontrarProdutoNoCatalogoStore(slug, catalog)
+          const meta = metaProdutoStore(slug)
           const exibicao = statusDe(slug)
           const isContratado = exibicao === 'contratado'
           const isDisponivel = exibicao === 'disponivel'

@@ -18,16 +18,23 @@ import {
 import {
   PRODUCT_META,
   RELACAO_ENTRE_PRODUTOS_GRAVITY,
-  STACK_ORDER,
   nomeExibicaoProdutoGravity,
+  metaProdutoStore,
 } from '../data/product-meta'
+import {
+  filtrarProdutosPublicadosStore,
+  storeAssinaturasRespostaSchema,
+  storeCatalogoRespostaApiSchema,
+} from '../schemas/store-catalogo-api'
 import {
   classeSegmentoPuzzleStore,
   contarStatusCatalogoStore,
+  encontrarProdutoNoCatalogoStore,
   resolverStatusProdutoStore,
   statusExibicaoParaLegado,
   type StatusExibicaoProdutoStore,
 } from '../data/status-produto-store'
+import { ordenarSlugsPuzzleStore } from '../data/store-puzzle-order'
 import { StorePuzzleRow } from '../components/store-puzzle-row'
 import './hub-store.css'
 import './hub.css'
@@ -113,48 +120,63 @@ export function Store() {
   const [emBreveOnly, setEmBreveOnly] = useState(false)
   const [category, setCategory] = useState<string>('todas')
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [catRes, subRes] = await Promise.all([
-          fetch(`${API_URL}/produtos-gravity`),
-          fetch(`${API_URL}/organizacoes/me/assinaturas-produto-gravity`, {
-            headers: { Authorization: `Bearer ${await getToken()}` },
-          }).catch(() => null),
-        ])
-        if (catRes.ok) {
-          const catData = await catRes.json()
-          setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'ATIVO' || p.status === 'Ativo' || p.status === 'EM_BREVE'))
-        } else {
-          console.warn('[Store] GET /produtos-gravity falhou', catRes.status, catRes.statusText)
-          addNotification({ type: 'error', message: t('store.notif_erro_catalogo') })
+  const carregarCatalogo = React.useCallback(async () => {
+    try {
+      const [catRes, subRes] = await Promise.all([
+        fetch(`${API_URL}/produtos-gravity`, { cache: 'no-store' }),
+        fetch(`${API_URL}/organizacoes/me/assinaturas-produto-gravity`, {
+          cache: 'no-store',
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        }).catch(() => null),
+      ])
+      if (catRes.ok) {
+        const raw = await catRes.json()
+        const parsed = storeCatalogoRespostaApiSchema.parse(raw)
+        const publicados = filtrarProdutosPublicadosStore(parsed.products)
+        setCatalog(publicados as CatalogProduct[])
+        if (publicados.length === 0) {
+          console.warn('[Store] catálogo vazio após filtro ATIVO/EM_BREVE', raw)
         }
-        if (subRes?.ok) {
-          const subData = await subRes.json()
+      } else {
+        console.warn('[Store] GET /produtos-gravity falhou', catRes.status, catRes.statusText)
+        addNotification({ type: 'error', message: t('store.notif_erro_catalogo') })
+      }
+      if (subRes?.ok) {
+        try {
+          const subData = storeAssinaturasRespostaSchema.parse(await subRes.json())
           const map = new Map<string, SubscribedProduct>()
-          // Novo contrato: { assinaturas: [{ produto: { slug_produto_gravity }, configuracao: { ativo_configuracao_produto_gravity } }] }
-          const assinaturas = (subData.assinaturas ?? []) as Array<{
-            produto?: { slug_produto_gravity?: string }
-            configuracao?: { ativo_configuracao_produto_gravity?: boolean } | null
-          }>
-          for (const a of assinaturas) {
-            const slug = a.produto?.slug_produto_gravity
-            if (!slug) continue
+          for (const a of subData.assinaturas) {
+            const slug = a.produto.slug_produto_gravity
             map.set(slug, {
               product_key: slug,
               is_active: !!a.configuracao?.ativo_configuracao_produto_gravity,
             })
           }
           setSubscribed(map)
+        } catch (parseErr) {
+          console.warn('[Store] assinaturas com formato inesperado — contadores sem vínculo', parseErr)
         }
-      } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('store.notif_erro_catalogo') })
-      } finally {
-        setLoading(false)
       }
+    } catch (err) {
+      console.error('[Store] falha ao carregar catálogo/assinaturas', err)
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('store.notif_erro_catalogo') })
+    } finally {
+      setLoading(false)
     }
-    load()
-  }, [])
+  }, [getToken, addNotification, t])
+
+  useEffect(() => {
+    setLoading(true)
+    void carregarCatalogo()
+  }, [carregarCatalogo])
+
+  useEffect(() => {
+    const onVisivel = () => {
+      if (document.visibilityState === 'visible') void carregarCatalogo()
+    }
+    document.addEventListener('visibilitychange', onVisivel)
+    return () => document.removeEventListener('visibilitychange', onVisivel)
+  }, [carregarCatalogo])
 
   useEffect(() => {
     const slug = searchParams.get('produto')
@@ -215,21 +237,26 @@ export function Store() {
     return legado ?? 'available'
   }
 
+  const puzzleSlugsOrdenados = useMemo(
+    () => ordenarSlugsPuzzleStore(catalog),
+    [catalog],
+  )
+
   const puzzleLinhaAtivos = useMemo(
     () =>
-      STACK_ORDER.filter((slug) => {
+      puzzleSlugsOrdenados.filter((slug) => {
         const s = resolverStatusProdutoStore(slug, catalog, subscribed)
-        return s === 'contratado' || s === 'disponivel' || s === 'fora_catalogo'
+        return s === 'contratado' || s === 'disponivel'
       }),
-    [catalog, subscribed],
+    [puzzleSlugsOrdenados, catalog, subscribed],
   )
 
   const puzzleLinhaEmBreve = useMemo(
     () =>
-      STACK_ORDER.filter(
+      puzzleSlugsOrdenados.filter(
         (slug) => resolverStatusProdutoStore(slug, catalog, subscribed) === 'em_breve',
       ),
-    [catalog, subscribed],
+    [puzzleSlugsOrdenados, catalog, subscribed],
   )
 
   const contratadosNoPuzzle = useMemo(
@@ -259,7 +286,7 @@ export function Store() {
   }
 
   const categoryFilters = useMemo(() => {
-    const cats = new Set(catalog.map(p => PRODUCT_META[p.slug]?.categoryFilter).filter(Boolean))
+    const cats = new Set(catalog.map(p => metaProdutoStore(p.slug)?.categoryFilter).filter(Boolean))
     return ['todas', ...Array.from(cats)]
   }, [catalog])
 
@@ -281,7 +308,7 @@ export function Store() {
 
   const filteredCatalog = useMemo(() => {
     return catalog.filter(p => {
-      const meta = PRODUCT_META[p.slug]
+      const meta = metaProdutoStore(p.slug)
       const status = getStatus(p.slug)
       const matchesSearch = !search ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -300,7 +327,7 @@ export function Store() {
   const { history } = useLocalizadorHistory('store')
 
   const produtoNodes: EcosystemNode[] = catalog.map(p => {
-    const meta = PRODUCT_META[p.slug]
+    const meta = metaProdutoStore(p.slug)
     return {
       id:       p.slug,
       label:    p.name,
@@ -646,7 +673,7 @@ export function Store() {
               <div className="gs-grid">
 
                 {filteredCatalog.map((p, idx) => {
-                  const meta = PRODUCT_META[p.slug]
+                  const meta = metaProdutoStore(p.slug)
                   const status = getStatus(p.slug)
                   const isOwned = status === 'owned'
                   const isSoon = status === 'soon'
@@ -707,9 +734,9 @@ export function Store() {
                             <span className="gs-card__combina-label">{t('store.combina_com')}</span>
                             <div className="gs-card__combina-chips">
                               {RELACAO_ENTRE_PRODUTOS_GRAVITY[p.slug].map(relSlug => {
-                                const relMeta = PRODUCT_META[relSlug]
+                                const relMeta = metaProdutoStore(relSlug)
                                 const relOwned = getStatus(relSlug) === 'owned'
-                                const relProduct = catalog.find(cp => cp.slug === relSlug)
+                                const relProduct = encontrarProdutoNoCatalogoStore(relSlug, catalog)
                                 if (!relMeta || !relProduct) return null
                                 return (
                                   <span

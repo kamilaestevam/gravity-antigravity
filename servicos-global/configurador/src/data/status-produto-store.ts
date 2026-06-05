@@ -24,8 +24,36 @@ export type AssinaturaProdutoStore = {
   is_active: boolean
 }
 
+/** Slug do puzzle (STACK_ORDER) → slug gravado no Admin quando divergem. */
+const SLUG_PUZZLE_PARA_CATALOGO: Record<string, string> = {
+  'smart-transito': 'smart-trnsito',
+  'catalogo-produto': 'catlogo-de-produtos',
+}
+
+const SLUG_CATALOGO_PARA_PUZZLE: Record<string, string> = Object.fromEntries(
+  Object.entries(SLUG_PUZZLE_PARA_CATALOGO).map(([puzzle, catalogo]) => [catalogo, puzzle]),
+)
+
 function normalizarStatusAdmin(status: string | undefined): string {
   return (status ?? '').toUpperCase()
+}
+
+/** Slug do catálogo API → slug usado em PRODUCT_META / puzzle. */
+export function slugCatalogoParaPuzzle(slugCatalogo: string): string {
+  return SLUG_CATALOGO_PARA_PUZZLE[slugCatalogo] ?? slugCatalogo
+}
+
+/** Slug do puzzle → slug no banco (assinaturas e API). */
+export function slugPuzzleParaCatalogo(slugPuzzle: string): string {
+  return SLUG_PUZZLE_PARA_CATALOGO[slugPuzzle] ?? slugPuzzle
+}
+
+export function encontrarProdutoNoCatalogoStore(
+  slugReferencia: string,
+  catalogo: readonly CatalogoProdutoStore[],
+): CatalogoProdutoStore | undefined {
+  const slugDb = slugPuzzleParaCatalogo(slugReferencia)
+  return catalogo.find((p) => p.slug === slugDb || p.slug === slugReferencia)
 }
 
 export function resolverStatusProdutoStore(
@@ -33,12 +61,13 @@ export function resolverStatusProdutoStore(
   catalogo: readonly CatalogoProdutoStore[],
   assinaturas: ReadonlyMap<string, AssinaturaProdutoStore>,
 ): StatusExibicaoProdutoStore {
-  const produto = catalogo.find((p) => p.slug === slug)
+  const produto = encontrarProdutoNoCatalogoStore(slug, catalogo)
   if (!produto) return 'fora_catalogo'
 
+  const slugAssinatura = produto.slug
   const statusAdmin = normalizarStatusAdmin(produto.status)
   if (statusAdmin === 'EM_BREVE') return 'em_breve'
-  if (assinaturas.get(slug)?.is_active) return 'contratado'
+  if (assinaturas.get(slugAssinatura)?.is_active) return 'contratado'
   if (statusAdmin === 'ATIVO') return 'disponivel'
   return 'fora_catalogo'
 }

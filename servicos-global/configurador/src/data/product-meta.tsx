@@ -25,6 +25,7 @@ import {
   resolverSlugProdutoGravity,
 
 } from '@nucleo/logo-produtos'
+import { slugCatalogoParaPuzzle } from './status-produto-store'
 
 
 
@@ -340,6 +341,12 @@ export const PRODUCT_META: Record<string, ProductMeta> = {
 
 
 
+/** Meta visual para slug vindo do catálogo API (aceita alias admin ↔ puzzle). */
+export function metaProdutoStore(slugCatalogo: string): ProductMeta | undefined {
+  const puzzle = slugCatalogoParaPuzzle(slugCatalogo)
+  return PRODUCT_META[puzzle] ?? PRODUCT_META[slugCatalogo] ?? PRODUCT_META[resolverSlugProdutoGravity(slugCatalogo)]
+}
+
 export function nomeExibicaoProdutoGravity(
 
   slug: string,
@@ -350,9 +357,9 @@ export function nomeExibicaoProdutoGravity(
 
 ): string {
 
-  const chave = slug === 'bid-frete-internacional' ? 'bid-frete' : slug
+  const chave = slugCatalogoParaPuzzle(slug === 'bid-frete-internacional' ? 'bid-frete' : slug)
 
-  const meta = PRODUCT_META[chave] ?? PRODUCT_META[slug]
+  const meta = metaProdutoStore(chave) ?? metaProdutoStore(slug)
 
   if (meta?.nameKey) return t(meta.nameKey)
 

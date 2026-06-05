@@ -34,6 +34,11 @@ describe('resolverStatusProdutoStore — SSOT admin + assinatura', () => {
     expect(statusExibicaoParaLegado('fora_catalogo')).toBeNull()
   })
 
+  it('alias puzzle smart-transito → slug smart-trnsito no catálogo', () => {
+    const cat = [{ slug: 'smart-trnsito', status: 'EM_BREVE' }] as const
+    expect(resolverStatusProdutoStore('smart-transito', cat, new Map())).toBe('em_breve')
+  })
+
   it('contarStatusCatalogoStore alinha cards superiores', () => {
     const assinaturas = new Map([
       ['pedido', { is_active: true }],

@@ -25,6 +25,7 @@ export interface PageMetaTopo {
 }
 
 const ROUTE_LABELS: Record<string, string> = {
+  insights:               'Insights',
   'visao-geral':          'Insights',
   'dashboard':            'Dashboard',
   'lista':                'Lista',
@@ -46,6 +47,7 @@ const ROUTE_LABELS: Record<string, string> = {
 }
 
 const ROUTE_HEADERS: Record<string, Omit<PageMetaTopo, 'label'>> = {
+  insights:               { icone: <Compass         weight="duotone" size={22} />, subtitulo: 'Resumo das cotações de frete internacional' },
   'visao-geral':          { icone: <Compass         weight="duotone" size={22} />, subtitulo: 'Resumo das cotações de frete internacional' },
   'dashboard':            { icone: <ChartBar        weight="duotone" size={22} />, subtitulo: 'KPIs e widgets configuráveis' },
   'lista':                { icone: <ListBullets     weight="duotone" size={22} />, subtitulo: 'Todas as cotações de frete em tabela' },

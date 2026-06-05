@@ -108,6 +108,7 @@ export const ROTAS = {
     produtoSimulaCusto: '/produto/simula-custo',
     produtoProcesso: '/produto/processo',
     produtoBidFrete: '/produto/bid-frete',
+    produtoBidFreteInternacional: '/produto/bid-frete-internacional',
     produtoBidCambio: '/produto/bid-cambio',
   },
 } as const
@@ -124,5 +125,8 @@ export const REDIRECTS_LEGACY: ReadonlyArray<{ de: string; para: string }> = [
   { de: '/produto/simula-custo', para: '/simula-custo' },
   { de: '/produto/processo', para: '/processo' },
   { de: '/produto/bid-frete', para: '/bid-frete' },
+  { de: '/produto/bid-frete-internacional', para: '/bid-frete' },
+  { de: '/bid-frete/visao-geral', para: '/bid-frete/insights' },
+  { de: '/bid-frete-internacional/visao-geral', para: '/bid-frete/insights' },
   { de: '/produto/bid-cambio', para: '/bid-cambio' },
 ]

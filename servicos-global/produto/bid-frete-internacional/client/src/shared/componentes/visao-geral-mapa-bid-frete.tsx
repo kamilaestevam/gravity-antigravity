@@ -4,11 +4,20 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { calcularRankingsMapaBidFreteInternacional } from '../calcular-rankings-mapa-bid-frete-internacional'
+import type { ItemRankingMapaBidFrete } from '../calcular-rankings-mapa-bid-frete-internacional'
+import {
+  FILTROS_RANKINGS_INSIGHTS_BID_FRETE,
+  filtrarDadosMapaInsightsBidFreteInternacional,
+  type FiltroRankingsInsightsBidFrete,
+} from '../filtrar-dados-mapa-insights-bid-frete-internacional'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   Anchor,
   AirplaneTilt,
   ArrowRight,
   ArrowCounterClockwise,
+  DownloadSimple,
+  Export,
   Eye,
   Globe,
   MapTrifold,
@@ -19,6 +28,7 @@ import {
   Plus,
   Clock,
   List,
+  Truck,
 } from '@phosphor-icons/react'
 // ─── Map Pin Data ──────────────────────────────────────────────────────────
 
@@ -143,7 +153,7 @@ const fmtMoeda = (v: number) =>
 const MODAL_ICONS_MAPA: Record<string, React.ReactNode> = {
   MARITIMO: <Anchor weight="duotone" size={16} />,
   AEREO: <AirplaneTilt weight="duotone" size={16} />,
-  RODOVIARIO: <Anchor weight="duotone" size={16} />,
+  RODOVIARIO: <Truck weight="duotone" size={16} />,
 }
 
 const MODAL_LABELS_MAPA: Record<string, string> = {
@@ -721,6 +731,8 @@ export interface ArcRouteBidFrete {
   color: string
   heightFactor?: number // Custom height factor to avoid overlapping curves
   mode: 'MARITIMO' | 'AEREO'
+  modal_cotacao_bid_frete_internacional?: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
+  tipo_operacao_cotacao_bid_frete_internacional?: 'IMPORTACAO' | 'EXPORTACAO'
   transitTime?: number
   marketTransitTime?: number
   quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional?: number
@@ -729,17 +741,42 @@ export interface ArcRouteBidFrete {
 
 const GLOBE_ROUTES: ArcRouteBidFrete[] = [
   // 70% China (Shanghai) -> Guarulhos (São Paulo)
-  { fromId: 1, toId: 2, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.14, mode: 'MARITIMO', transitTime: 28, marketTransitTime: 31 }, // Maritime route (emerald green, slow)
-  { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22, mode: 'AEREO', transitTime: 3, marketTransitTime: 5 }, // Air route (purple, fast)
+  { fromId: 1, toId: 2, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.14, mode: 'MARITIMO', modal_cotacao_bid_frete_internacional: 'MARITIMO', tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO', transitTime: 28, marketTransitTime: 31 },
+  { fromId: 1, toId: 2, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.22, mode: 'AEREO', modal_cotacao_bid_frete_internacional: 'AEREO', tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO', transitTime: 3, marketTransitTime: 5 },
 
   // 20% USA (Miami) -> Itajaí
-  { fromId: 4, toId: 3, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.20, mode: 'AEREO', transitTime: 2, marketTransitTime: 4 }, // Air route (purple, fast)
-  { fromId: 4, toId: 3, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.13, mode: 'MARITIMO', transitTime: 18, marketTransitTime: 21 }, // Maritime route (emerald green, slow)
+  { fromId: 4, toId: 3, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.20, mode: 'AEREO', modal_cotacao_bid_frete_internacional: 'AEREO', tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO', transitTime: 2, marketTransitTime: 4 },
+  { fromId: 4, toId: 3, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.13, mode: 'MARITIMO', modal_cotacao_bid_frete_internacional: 'MARITIMO', tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO', transitTime: 18, marketTransitTime: 21 },
 
   // 10% Argentina (Buenos Aires) -> Recife
-  { fromId: 5, toId: 6, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.15, mode: 'MARITIMO', transitTime: 8, marketTransitTime: 11 }, // Maritime route (emerald green, slow)
-  { fromId: 5, toId: 6, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.24, mode: 'AEREO', transitTime: 3, marketTransitTime: 4 }, // Air route (purple, fast)
+  { fromId: 5, toId: 6, color: 'rgba(52, 211, 153, 0.8)', heightFactor: 0.15, mode: 'MARITIMO', modal_cotacao_bid_frete_internacional: 'MARITIMO', tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO', transitTime: 8, marketTransitTime: 11 },
+  { fromId: 5, toId: 6, color: 'rgba(167, 139, 250, 0.8)', heightFactor: 0.24, mode: 'AEREO', modal_cotacao_bid_frete_internacional: 'AEREO', tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO', transitTime: 3, marketTransitTime: 4 },
 ]
+
+const ICONE_FILTRO_RANKINGS_INSIGHTS: Record<FiltroRankingsInsightsBidFrete, React.ReactNode> = {
+  IMPORTACAO: <DownloadSimple size={15} weight="duotone" />,
+  EXPORTACAO: <Export size={15} weight="duotone" />,
+  AEREO: <AirplaneTilt size={15} weight="duotone" />,
+  MARITIMO: <Anchor size={15} weight="duotone" />,
+  RODOVIARIO: <Truck size={15} weight="duotone" />,
+}
+
+function unificarRankingsLocalidades(
+  origens: ItemRankingMapaBidFrete[],
+  destinos: ItemRankingMapaBidFrete[],
+): ItemRankingMapaBidFrete[] {
+  const porCodigo = new Map<string, ItemRankingMapaBidFrete>()
+  for (const item of [...origens, ...destinos]) {
+    const atual = porCodigo.get(item.code)
+    if (!atual || item.count > atual.count) {
+      porCodigo.set(item.code, item)
+    }
+  }
+  return [...porCodigo.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10)
+    .map((item, index) => ({ ...item, rank: index + 1 }))
+}
 
 export interface RouteDetailBidFrete {
   fromPort: string
@@ -836,8 +873,10 @@ export interface VisaoGeralMapaBidFreteProps {
   /** `demonstracao` = dados fixos de preview; `api` = pinos/rotas vindos do backend. */
   fonteDados?: 'demonstracao' | 'api'
   dadosMapa?: DadosMapaBidFrete
-  /** Insights cliente: mapa e Rankings Globais em dois cards lado a lado. */
+  /** Insights cliente: mapa e Rankings Globais em dois cards lado a lado (dentro do mesmo card). */
   painelRankingsSeparado?: boolean
+  /** Insights cliente: Rankings Globais em coluna própria entre mapa e alertas/funil. */
+  painelRankingsExterno?: boolean
 }
 
 export function VisaoGeralMapaBidFrete({
@@ -851,26 +890,60 @@ export function VisaoGeralMapaBidFrete({
   fonteDados = 'demonstracao',
   dadosMapa,
   painelRankingsSeparado = false,
+  painelRankingsExterno = false,
 }: VisaoGeralMapaBidFreteProps) {
-  const pinsAtivos = fonteDados === 'api' ? (dadosMapa?.pins ?? []) : MAP_PINS
-  const rotasAtivas = fonteDados === 'api' ? (dadosMapa?.routes ?? []) : GLOBE_ROUTES
+  const pinsBase = fonteDados === 'api' ? (dadosMapa?.pins ?? []) : MAP_PINS
+  const rotasBase = fonteDados === 'api' ? (dadosMapa?.routes ?? []) : GLOBE_ROUTES
+  const [filtrosRankingsInsights, setFiltrosRankingsInsights] = useState<
+    Set<FiltroRankingsInsightsBidFrete>
+  >(new Set())
+
+  const alternarFiltroRankingsInsights = (filtro: FiltroRankingsInsightsBidFrete) => {
+    setFiltrosRankingsInsights((prev) => {
+      const next = new Set(prev)
+      if (next.has(filtro)) next.delete(filtro)
+      else next.add(filtro)
+      return next
+    })
+  }
+
+  const { pins: pinsAtivos, routes: rotasAtivas } = useMemo(() => {
+    if (!painelRankingsExterno) {
+      return { pins: pinsBase, routes: rotasBase }
+    }
+    return filtrarDadosMapaInsightsBidFreteInternacional(
+      pinsBase,
+      rotasBase,
+      filtrosRankingsInsights,
+    )
+  }, [painelRankingsExterno, pinsBase, rotasBase, filtrosRankingsInsights])
+
   const mapaVazioApi = fonteDados === 'api' && pinsAtivos.length === 0
 
   const rankingsCalculados = useMemo(() => {
-    if (fonteDados !== 'api') return null
     return calcularRankingsMapaBidFreteInternacional(pinsAtivos, rotasAtivas)
-  }, [fonteDados, pinsAtivos, rotasAtivas])
+  }, [pinsAtivos, rotasAtivas])
 
-  const listaOrigens = rankingsCalculados?.origens ?? TOP_ORIGENS
-  const listaDestinos = rankingsCalculados?.destinos ?? TOP_DESTINOS
-  const listaModais = rankingsCalculados?.modais ?? MODAIS_INFO
+  const listaOrigens = fonteDados === 'api' ? rankingsCalculados.origens : TOP_ORIGENS
+  const listaDestinos = fonteDados === 'api' ? rankingsCalculados.destinos : TOP_DESTINOS
+  const listaModais = fonteDados === 'api' ? rankingsCalculados.modais : MODAIS_INFO
+  const listaRankingsInsights = useMemo(
+    () => unificarRankingsLocalidades(listaOrigens, listaDestinos),
+    [listaOrigens, listaDestinos],
+  )
   const subtituloRankings =
-    fonteDados === 'api' && rankingsCalculados
-      ? `Rankings em tempo real • ${rankingsCalculados.totalBids} bids`
+    fonteDados === 'api'
+      ? filtrosRankingsInsights.size > 0
+        ? `Filtro ativo • ${rankingsCalculados.totalBids} bids`
+        : `Rankings em tempo real • ${rankingsCalculados.totalBids} bids`
       : painelRankingsSubtitulo
 
-  const rankingsEmGridSeparado = exibirPainelLateralMapa && painelRankingsSeparado
-  const rankingsInlineFlex = exibirPainelLateralMapa && !painelRankingsSeparado
+  const rankingsEmColunaExterna = exibirPainelLateralMapa && painelRankingsExterno
+  const rankingsEmGridSeparado =
+    exibirPainelLateralMapa && painelRankingsSeparado && !painelRankingsExterno
+  const rankingsInlineFlex =
+    exibirPainelLateralMapa && !painelRankingsSeparado && !painelRankingsExterno
+  const painelLateralNoMapa = exibirPainelLateralMapa && !painelRankingsExterno
 
   const rotasDetalhePorPino = useMemo(() => {
     if (fonteDados !== 'api') return PORT_CONNECTIONS
@@ -1842,11 +1915,360 @@ export function VisaoGeralMapaBidFrete({
     
     dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
-  
+
+  const renderPainelLateralHud = () => {
+    if (!exibirPainelLateralMapa) return null
+
+    const hudClassName = [
+      'bfd-hud-container',
+      rankingsEmGridSeparado ? 'bfd-hud-container--card-separado' : '',
+      rankingsEmColunaExterna ? 'bfd-hud-container--coluna-externa' : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+    return (
+      <div className={hudClassName}>
+        {mapaModo === 'transit' ? (
+          <div className="bfd-map-right-panel bfd-map-right-panel--transit" style={{ background: 'rgba(11, 14, 20, 0.45)', border: '1px solid rgba(52, 211, 153, 0.15)', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.5), 0 0 16px rgba(52, 211, 153, 0.08)' }}>
+            <div className="bfd-map-panel__header">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span className="bfd-map-panel__title" style={{ color: '#34d399', textShadow: '0 0 10px rgba(52, 211, 153, 0.2)' }}>Transit Benchmark</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span className="bfd-map-panel__live-dot" style={{ backgroundColor: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ATIVO</span>
+                </div>
+              </div>
+              <span className="bfd-map-panel__subtitle">Sua Empresa vs. Média de Mercado</span>
+            </div>
+
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+              borderRadius: '8px',
+              padding: '0.65rem',
+              margin: '0 0.75rem 0.75rem',
+              fontSize: '0.78rem',
+              color: '#cbd5e1'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontWeight: 700 }}>
+                <span>Eficiência Média Geral</span>
+                <span style={{ color: '#34d399' }}>+14.2% mais rápido</span>
+              </div>
+              <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                Suas rotas ativas estão em média <strong>3.1 dias</strong> à frente do benchmark logístico internacional.
+              </span>
+            </div>
+
+            <div className="bfd-map-panel__list" style={{ padding: '0 0.75rem 0.75rem', height: 'calc(100% - 100px)', overflowY: 'auto' }}>
+              {rotasAtivas.map((route, idx) => {
+                const fromPin = pinsAtivos.find(p => p.id === route.fromId) ?? {
+                  label: '—',
+                  flag: '',
+                  portCode: '',
+                }
+                const toPin = pinsAtivos.find(p => p.id === route.toId) ?? {
+                  label: '—',
+                  flag: '',
+                  portCode: '',
+                }
+
+                const isAir = route.mode === 'AEREO'
+                const tClient = route.transitTime || 20
+                const tMarket = route.marketTransitTime || 23
+                const delta = tMarket - tClient
+
+                let statusColor = '#34d399'
+                let statusBg = 'rgba(52, 211, 153, 0.1)'
+                let statusText = `+${delta}d mais rápido`
+
+                if (delta === 0) {
+                  statusColor = '#fbbf24'
+                  statusBg = 'rgba(251, 191, 36, 0.1)'
+                  statusText = 'Dentro da média'
+                } else if (delta < 0) {
+                  statusColor = '#f87171'
+                  statusBg = 'rgba(248, 113, 113, 0.1)'
+                  statusText = `${Math.abs(delta)}d atrasado`
+                }
+
+                const isHighlighted = hoveredPin === route.fromId || hoveredPin === route.toId
+
+                return (
+                  <div
+                    key={idx}
+                    className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
+                    style={{
+                      flexDirection: 'column',
+                      alignItems: 'stretch',
+                      gap: '0.4rem',
+                      padding: '0.6rem 0.5rem',
+                      marginBottom: '0.5rem',
+                      background: isHighlighted ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.01)',
+                      border: isHighlighted ? '1px solid rgba(52, 211, 153, 0.2)' : '1px solid rgba(255,255,255,0.04)',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      height: 'auto'
+                    }}
+                    onMouseEnter={() => {
+                      setHoveredPin(route.fromId)
+                      isRotationPausedRef.current = true
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredPin(null)
+                      isRotationPausedRef.current = false
+                    }}
+                    onClick={() => {
+                      setSelectedPinForDialogoResumido(route.fromId)
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ fontSize: '0.85rem' }}>{fromPin.flag}</span>
+                        <strong style={{ fontSize: '0.78rem', color: '#ffffff' }}>{fromPin.portCode}</strong>
+                        <span style={{ fontSize: '0.65rem', color: '#64748b' }}>➔</span>
+                        <span style={{ fontSize: '0.85rem' }}>{toPin.flag}</span>
+                        <strong style={{ fontSize: '0.78rem', color: '#ffffff' }}>{toPin.portCode}</strong>
+                      </div>
+
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        fontSize: '0.62rem',
+                        fontWeight: 800,
+                        padding: '2px 6px',
+                        borderRadius: '12px',
+                        background: isAir ? 'rgba(167, 139, 250, 0.12)' : 'rgba(52, 211, 153, 0.12)',
+                        color: isAir ? '#c084fc' : '#34d399',
+                        border: `1px solid ${isAir ? 'rgba(167, 139, 250, 0.15)' : 'rgba(52, 211, 153, 0.15)'}`,
+                        textTransform: 'uppercase',
+                      }}>
+                        {isAir ? <AirplaneTilt size={9} weight="bold" /> : <Anchor size={9} weight="bold" />}
+                        {isAir ? 'Aéreo' : 'Marítimo'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
+                      <span style={{ color: '#94a3b8' }}>
+                        Sua Empresa: <strong style={{ color: '#ffffff' }}>{tClient}d</strong> vs Mercado: <span style={{ color: '#cbd5e1' }}>{tMarket}d</span>
+                      </span>
+                      <span style={{
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        color: statusColor,
+                        padding: '1px 5px',
+                        borderRadius: '4px',
+                        background: statusBg,
+                        boxShadow: `0 0 6px ${statusColor}15`
+                      }}>
+                        {statusText}
+                      </span>
+                    </div>
+
+                    <div style={{ height: '4px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '2px', overflow: 'hidden', position: 'relative', marginTop: '0.1rem' }}>
+                      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.06)' }} />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: 0,
+                          height: '100%',
+                          width: `${Math.min(100, (tClient / Math.max(tClient, tMarket)) * 100)}%`,
+                          background: `linear-gradient(90deg, ${statusColor}dd, ${statusColor})`,
+                          boxShadow: `0 0 4px ${statusColor}60`,
+                          borderRadius: '2px',
+                        }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className={`bfd-map-right-panel bfd-map-right-panel--${painelRankingsExterno ? 'filtros' : activeTab}`}>
+            <div className="bfd-map-panel__header">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span className="bfd-map-panel__title">Rankings Globais</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span className="bfd-map-panel__live-dot" />
+                  <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
+                </div>
+              </div>
+              <span className="bfd-map-panel__subtitle">{subtituloRankings}</span>
+            </div>
+
+            {painelRankingsExterno ? (
+            <div className="bfd-map-panel__filtros">
+              {FILTROS_RANKINGS_INSIGHTS_BID_FRETE.map((filtro) => (
+                <TooltipGlobal
+                  key={filtro.id}
+                  titulo={filtro.label}
+                  descricao={
+                    filtrosRankingsInsights.has(filtro.id)
+                      ? 'Clique para remover este filtro'
+                      : filtro.tooltipDescricao
+                  }
+                >
+                  <button
+                    type="button"
+                    className={`bfd-map-panel__filtro tab-${filtro.id.toLowerCase()} ${filtrosRankingsInsights.has(filtro.id) ? 'is-active' : ''}`}
+                    aria-label={filtro.label}
+                    aria-pressed={filtrosRankingsInsights.has(filtro.id)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      alternarFiltroRankingsInsights(filtro.id)
+                    }}
+                  >
+                    {ICONE_FILTRO_RANKINGS_INSIGHTS[filtro.id]}
+                  </button>
+                </TooltipGlobal>
+              ))}
+            </div>
+            ) : (
+            <div className="bfd-map-panel__tabs">
+              <button
+                className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
+              >
+                <Globe size={13} weight="bold" /> Origens
+              </button>
+              <button
+                className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
+              >
+                <MapPin size={13} weight="bold" /> Destinos
+              </button>
+              <button
+                className={`bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
+              >
+                <List size={13} weight="bold" /> Modais
+              </button>
+            </div>
+            )}
+
+            <div className="bfd-map-panel__list">
+              {(painelRankingsExterno ? listaRankingsInsights : activeTab === 'origens' ? listaOrigens : []).map(item => {
+                const hasLink = item.pinId !== null
+                const isHighlighted = hoveredPin === item.pinId && hasLink
+
+                return (
+                  <div
+                    key={item.rank}
+                    className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
+                    onMouseEnter={() => {
+                      if (item.pinId) {
+                        setHoveredPin(item.pinId)
+                        isRotationPausedRef.current = true
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (item.pinId) {
+                        setHoveredPin(null)
+                        isRotationPausedRef.current = false
+                      }
+                    }}
+                    onClick={(e) => {
+                      if (item.pinId) {
+                        e.stopPropagation()
+                        setSelectedPinForDialogoResumido(item.pinId)
+                      }
+                    }}
+                  >
+                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                    <div className="bfd-map-panel__row-info">
+                      <span className="bfd-map-panel__row-city">{item.name}</span>
+                      <span className="bfd-map-panel__row-code">{item.code}</span>
+                    </div>
+                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                  </div>
+                )
+              })}
+
+              {!painelRankingsExterno && activeTab === 'destinos' && listaDestinos.map(item => {
+                const hasLink = item.pinId !== null
+                const isHighlighted = hoveredPin === item.pinId && hasLink
+
+                return (
+                  <div
+                    key={item.rank}
+                    className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
+                    onMouseEnter={() => {
+                      if (item.pinId) {
+                        setHoveredPin(item.pinId)
+                        isRotationPausedRef.current = true
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (item.pinId) {
+                        setHoveredPin(null)
+                        isRotationPausedRef.current = false
+                      }
+                    }}
+                    onClick={(e) => {
+                      if (item.pinId) {
+                        e.stopPropagation()
+                        setSelectedPinForDialogoResumido(item.pinId)
+                      }
+                    }}
+                  >
+                    <span className="bfd-map-panel__row-rank">{item.rank}</span>
+                    <span className="bfd-map-panel__row-flag">{item.flag}</span>
+                    <div className="bfd-map-panel__row-info">
+                      <span className="bfd-map-panel__row-city">{item.name}</span>
+                      <span className="bfd-map-panel__row-code">{item.code}</span>
+                    </div>
+                    <span className="bfd-map-panel__row-bids">{item.count} bids</span>
+                  </div>
+                )
+              })}
+
+              {!painelRankingsExterno && activeTab === 'modal_cotacao_bid_frete_internacional' && listaModais.map((item, idx) => {
+                return (
+                  <div key={idx} className="bfd-map-panel__row">
+                    <span className="bfd-map-panel__row-rank">{idx + 1}</span>
+                    <span className="bfd-map-panel__modal-icon-wrap" style={{ color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }}>
+                      {MODAL_ICONS_MAPA[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />}
+                    </span>
+                    <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
+                      <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
+                        {item.label}
+                      </span>
+                      <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
+                        {item.count} bids
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                      <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
+                        {item.pct}%
+                      </span>
+                      <span className="bfd-map-panel__modal-stat-num" style={{ color: '#60a5fa' }}>
+                        {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%'}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+
+              {painelRankingsExterno && listaRankingsInsights.length === 0 ? (
+                <div className="bfd-map-panel__empty">
+                  Nenhum bid para os filtros selecionados.
+                </div>
+              ) : null}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const cardMapa = (
     <div
       className={`bfd-card bfd-map-card bfd-card--accent-amber${
-        painelRankingsSeparado ? ' bfd-map-card--rankings-separado' : ''
+        painelRankingsSeparado && !painelRankingsExterno ? ' bfd-map-card--rankings-separado' : ''
       }`}
     >
       <div className="bfd-map-card__header" style={{ marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -1867,7 +2289,7 @@ export function VisaoGeralMapaBidFrete({
           </span>
         </div>
 
-        {exibirPainelLateralMapa ? (
+        {exibirPainelLateralMapa && !painelRankingsExterno ? (
         <div style={{
           display: 'inline-flex',
           background: 'rgba(255, 255, 255, 0.04)',
@@ -1924,11 +2346,13 @@ export function VisaoGeralMapaBidFrete({
 
       <div
         className={
-          rankingsEmGridSeparado
-            ? 'bfd-map-container bfd-map-container--rankings-split'
-            : rankingsInlineFlex
-              ? 'bfd-map-container'
-              : 'bfd-map-container bfd-map-container--sem-painel-lateral'
+          rankingsEmColunaExterna
+            ? 'bfd-map-container bfd-map-container--sem-painel-lateral'
+            : rankingsEmGridSeparado
+              ? 'bfd-map-container bfd-map-container--rankings-split'
+              : rankingsInlineFlex
+                ? 'bfd-map-container'
+                : 'bfd-map-container bfd-map-container--sem-painel-lateral'
         }
       >
         {/* Left Side: Canvas and Zoom Controls */}
@@ -2117,313 +2541,7 @@ export function VisaoGeralMapaBidFrete({
           })}
         </div>
 
-        {exibirPainelLateralMapa ? (
-        <div className={`bfd-hud-container${rankingsEmGridSeparado ? ' bfd-hud-container--card-separado' : ''}`}>
-          {mapaModo === 'transit' ? (
-            <div className="bfd-map-right-panel bfd-map-right-panel--transit" style={{ background: 'rgba(11, 14, 20, 0.45)', border: '1px solid rgba(52, 211, 153, 0.15)', boxShadow: '0 8px 32px 0 rgba(0,0,0,0.5), 0 0 16px rgba(52, 211, 153, 0.08)' }}>
-              <div className="bfd-map-panel__header">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span className="bfd-map-panel__title" style={{ color: '#34d399', textShadow: '0 0 10px rgba(52, 211, 153, 0.2)' }}>Transit Benchmark</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span className="bfd-map-panel__live-dot" style={{ backgroundColor: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ATIVO</span>
-                  </div>
-                </div>
-                <span className="bfd-map-panel__subtitle">Sua Empresa vs. Média de Mercado</span>
-              </div>
-
-              {/* Transit Performance Overview Card */}
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
-                borderRadius: '8px',
-                padding: '0.65rem',
-                margin: '0 0.75rem 0.75rem',
-                fontSize: '0.78rem',
-                color: '#cbd5e1'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontWeight: 700 }}>
-                  <span>Eficiência Média Geral</span>
-                  <span style={{ color: '#34d399' }}>+14.2% mais rápido</span>
-                </div>
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
-                  Suas rotas ativas estão em média <strong>3.1 dias</strong> à frente do benchmark logístico internacional.
-                </span>
-              </div>
-
-              <div className="bfd-map-panel__list" style={{ padding: '0 0.75rem 0.75rem', height: 'calc(100% - 100px)', overflowY: 'auto' }}>
-                {rotasAtivas.map((route, idx) => {
-                  const fromPin = pinsAtivos.find(p => p.id === route.fromId) ?? {
-                    label: '—',
-                    flag: '',
-                    portCode: '',
-                  }
-                  const toPin = pinsAtivos.find(p => p.id === route.toId) ?? {
-                    label: '—',
-                    flag: '',
-                    portCode: '',
-                  }
-                  
-                  const isAir = route.mode === 'AEREO'
-                  const tClient = route.transitTime || 20
-                  const tMarket = route.marketTransitTime || 23
-                  const delta = tMarket - tClient
-                  
-                  let statusColor = '#34d399'
-                  let statusBg = 'rgba(52, 211, 153, 0.1)'
-                  let statusText = `+${delta}d mais rápido`
-                  
-                  if (delta === 0) {
-                    statusColor = '#fbbf24'
-                    statusBg = 'rgba(251, 191, 36, 0.1)'
-                    statusText = 'Dentro da média'
-                  } else if (delta < 0) {
-                    statusColor = '#f87171'
-                    statusBg = 'rgba(248, 113, 113, 0.1)'
-                    statusText = `${Math.abs(delta)}d atrasado`
-                  }
-
-                  const isHighlighted = hoveredPin === route.fromId || hoveredPin === route.toId
-                  
-                  return (
-                    <div 
-                      key={idx}
-                      className={`bfd-map-panel__row has-link ${isHighlighted ? 'is-highlighted' : ''}`}
-                      style={{
-                        flexDirection: 'column',
-                        alignItems: 'stretch',
-                        gap: '0.4rem',
-                        padding: '0.6rem 0.5rem',
-                        marginBottom: '0.5rem',
-                        background: isHighlighted ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.01)',
-                        border: isHighlighted ? '1px solid rgba(52, 211, 153, 0.2)' : '1px solid rgba(255,255,255,0.04)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        height: 'auto'
-                      }}
-                      onMouseEnter={() => {
-                        setHoveredPin(route.fromId)
-                        isRotationPausedRef.current = true
-                      }}
-                      onMouseLeave={() => {
-                        setHoveredPin(null)
-                        isRotationPausedRef.current = false
-                      }}
-                      onClick={() => {
-                        setSelectedPinForDialogoResumido(route.fromId)
-                      }}
-                    >
-                      {/* Top Row: Ports and Mode */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ fontSize: '0.85rem' }}>{fromPin.flag}</span>
-                          <strong style={{ fontSize: '0.78rem', color: '#ffffff' }}>{fromPin.portCode}</strong>
-                          <span style={{ fontSize: '0.65rem', color: '#64748b' }}>➔</span>
-                          <span style={{ fontSize: '0.85rem' }}>{toPin.flag}</span>
-                          <strong style={{ fontSize: '0.78rem', color: '#ffffff' }}>{toPin.portCode}</strong>
-                        </div>
-                        
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '3px',
-                          fontSize: '0.62rem',
-                          fontWeight: 800,
-                          padding: '2px 6px',
-                          borderRadius: '12px',
-                          background: isAir ? 'rgba(167, 139, 250, 0.12)' : 'rgba(52, 211, 153, 0.12)',
-                          color: isAir ? '#c084fc' : '#34d399',
-                          border: `1px solid ${isAir ? 'rgba(167, 139, 250, 0.15)' : 'rgba(52, 211, 153, 0.15)'}`,
-                          textTransform: 'uppercase',
-                        }}>
-                          {isAir ? <AirplaneTilt size={9} weight="bold" /> : <Anchor size={9} weight="bold" />}
-                          {isAir ? 'Aéreo' : 'Marítimo'}
-                        </span>
-                      </div>
-
-                      {/* Info Row: Client vs Market */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem' }}>
-                        <span style={{ color: '#94a3b8' }}>
-                          Sua Empresa: <strong style={{ color: '#ffffff' }}>{tClient}d</strong> vs Mercado: <span style={{ color: '#cbd5e1' }}>{tMarket}d</span>
-                        </span>
-                        <span style={{
-                          fontSize: '0.68rem',
-                          fontWeight: 700,
-                          color: statusColor,
-                          padding: '1px 5px',
-                          borderRadius: '4px',
-                          background: statusBg,
-                          boxShadow: `0 0 6px ${statusColor}15`
-                        }}>
-                          {statusText}
-                        </span>
-                      </div>
-
-                      {/* Performance Bar */}
-                      <div style={{ height: '4px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '2px', overflow: 'hidden', position: 'relative', marginTop: '0.1rem' }}>
-                        <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.06)' }} />
-                        <div
-                          style={{
-                            position: 'absolute',
-                            left: 0,
-                            top: 0,
-                            height: '100%',
-                            width: `${Math.min(100, (tClient / Math.max(tClient, tMarket)) * 100)}%`,
-                            background: `linear-gradient(90deg, ${statusColor}dd, ${statusColor})`,
-                            boxShadow: `0 0 4px ${statusColor}60`,
-                            borderRadius: '2px',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className={`bfd-map-right-panel bfd-map-right-panel--${activeTab}`}>
-              <div className="bfd-map-panel__header">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span className="bfd-map-panel__title">Rankings Globais</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span className="bfd-map-panel__live-dot" />
-                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '0.06em' }}>LIVE FEED</span>
-                  </div>
-                </div>
-                <span className="bfd-map-panel__subtitle">{subtituloRankings}</span>
-              </div>
-              
-              {/* Tabs */}
-              <div className="bfd-map-panel__tabs">
-                <button 
-                  className={`bfd-map-panel__tab tab-origens ${activeTab === 'origens' ? 'is-active' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); setActiveTab('origens'); }}
-                >
-                  <Globe size={13} weight="bold" /> Origens
-                </button>
-                <button 
-                  className={`bfd-map-panel__tab tab-destinos ${activeTab === 'destinos' ? 'is-active' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); setActiveTab('destinos'); }}
-                >
-                  <MapPin size={13} weight="bold" /> Destinos
-                </button>
-                <button 
-                  className={`bfd-map-panel__tab tab-modal_cotacao_bid_frete_internacional ${activeTab === 'modal_cotacao_bid_frete_internacional' ? 'is-active' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); setActiveTab('modal_cotacao_bid_frete_internacional'); }}
-                >
-                  <List size={13} weight="bold" /> Modais
-                </button>
-              </div>
-              
-              {/* List Content */}
-              <div className="bfd-map-panel__list">
-                {activeTab === 'origens' && listaOrigens.map(item => {
-                  const hasLink = item.pinId !== null
-                  const isHighlighted = hoveredPin === item.pinId && hasLink
-                  
-                  return (
-                    <div 
-                      key={item.rank}
-                      className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
-                      onMouseEnter={() => {
-                        if (item.pinId) {
-                          setHoveredPin(item.pinId)
-                          isRotationPausedRef.current = true
-                        }
-                      }}
-                      onMouseLeave={() => {
-                        if (item.pinId) {
-                          setHoveredPin(null)
-                          isRotationPausedRef.current = false
-                        }
-                      }}
-                      onClick={(e) => {
-                        if (item.pinId) {
-                          e.stopPropagation()
-                          setSelectedPinForDialogoResumido(item.pinId)
-                        }
-                      }}
-                    >
-                      <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                      <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                      <div className="bfd-map-panel__row-info">
-                        <span className="bfd-map-panel__row-city">{item.name}</span>
-                        <span className="bfd-map-panel__row-code">{item.code}</span>
-                      </div>
-                      <span className="bfd-map-panel__row-bids">{item.count} bids</span>
-                    </div>
-                  )
-                })}
-                
-                {activeTab === 'destinos' && listaDestinos.map(item => {
-                  const hasLink = item.pinId !== null
-                  const isHighlighted = hoveredPin === item.pinId && hasLink
-                  
-                  return (
-                    <div 
-                      key={item.rank}
-                      className={`bfd-map-panel__row ${hasLink ? 'has-link' : ''} ${isHighlighted ? 'is-highlighted' : ''}`}
-                      onMouseEnter={() => {
-                        if (item.pinId) {
-                          setHoveredPin(item.pinId)
-                          isRotationPausedRef.current = true
-                        }
-                      }}
-                      onMouseLeave={() => {
-                        if (item.pinId) {
-                          setHoveredPin(null)
-                          isRotationPausedRef.current = false
-                        }
-                      }}
-                      onClick={(e) => {
-                        if (item.pinId) {
-                          e.stopPropagation()
-                          setSelectedPinForDialogoResumido(item.pinId)
-                        }
-                      }}
-                    >
-                      <span className="bfd-map-panel__row-rank">{item.rank}</span>
-                      <span className="bfd-map-panel__row-flag">{item.flag}</span>
-                      <div className="bfd-map-panel__row-info">
-                        <span className="bfd-map-panel__row-city">{item.name}</span>
-                        <span className="bfd-map-panel__row-code">{item.code}</span>
-                      </div>
-                      <span className="bfd-map-panel__row-bids">{item.count} bids</span>
-                    </div>
-                  )
-                })}
-                
-                {activeTab === 'modal_cotacao_bid_frete_internacional' && listaModais.map((item, idx) => {
-                  return (
-                    <div key={idx} className="bfd-map-panel__row">
-                      <span className="bfd-map-panel__row-rank">{idx + 1}</span>
-                      <span className="bfd-map-panel__modal-icon-wrap" style={{ color: item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '#a78bfa' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '#34d399' : '#fbbf24' }}>
-                        {MODAL_ICONS_MAPA[item.modal_cotacao_bid_frete_internacional] || <Anchor size={14} />}
-                      </span>
-                      <div className="bfd-map-panel__row-info" style={{ gap: '1px' }}>
-                        <span className="bfd-map-panel__row-city" style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', letterSpacing: '0.02em' }}>
-                          {item.label}
-                        </span>
-                        <span className="bfd-map-panel__row-code" style={{ fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 500 }}>
-                          {item.count} bids
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                        <span className="bfd-map-panel__row-bids" style={{ fontWeight: 800, color: '#ffffff' }}>
-                          {item.pct}%
-                        </span>
-                        <span className="bfd-map-panel__modal-stat-num" style={{ color: '#60a5fa' }}>
-                          {item.modal_cotacao_bid_frete_internacional === 'AEREO' ? '+23.4%' : item.modal_cotacao_bid_frete_internacional === 'MARITIMO' ? '+19.1%' : '+12.5%'}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-        ) : null}
+        {painelLateralNoMapa ? renderPainelLateralHud() : null}
 
         {/* Premium Detail Modal Overlay */}
         {selectedPinForDialogoResumido !== null && (() => {
@@ -2636,6 +2754,21 @@ export function VisaoGeralMapaBidFrete({
       </div>
     </div>
   )
+
+  const cardRankingsExterno = rankingsEmColunaExterna ? (
+    <div className="bfd-card bfd-rankings-externo-card bfd-card--accent-blue">
+      {renderPainelLateralHud()}
+    </div>
+  ) : null
+
+  if (painelRankingsExterno) {
+    return (
+      <>
+        {cardMapa}
+        {cardRankingsExterno}
+      </>
+    )
+  }
 
   if (painelRankingsSeparado) {
     return <div className="bfd-mapa-rankings-row">{cardMapa}</div>

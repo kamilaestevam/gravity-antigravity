@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   montarLinhasPaiLista,
+  montarLinhasPaiListaComFallback,
   isLinhaBidGrupo,
   propostasFilhasDaCotacaoAvulsa,
   cotacaoPrestesAExpirar,
@@ -72,6 +73,20 @@ describe('montarLinhasPaiLista', () => {
     ])
     expect(linhas).toHaveLength(1)
     expect(isLinhaBidGrupo(linhas[0])).toBe(false)
+  })
+
+  it('fallback inclui cotações vinculadas a BID quando a API de BIDs não carrega', () => {
+    const vinculada = cotacaoBase({
+      id_cotacao_bid_frete_internacional: 'c-bid',
+      numero_cotacao_bid_frete_internacional: 'COT-BID',
+      id_bid_bid_frete_internacional: 'bid-1',
+    })
+    const linhas = montarLinhasPaiListaComFallback([], [], [vinculada])
+    expect(linhas).toHaveLength(1)
+    expect(isLinhaBidGrupo(linhas[0])).toBe(false)
+    if (!isLinhaBidGrupo(linhas[0])) {
+      expect(linhas[0].id_cotacao_bid_frete_internacional).toBe('c-bid')
+    }
   })
 
   it('monta linha BID a partir da entidade bid_frete_internacional', () => {

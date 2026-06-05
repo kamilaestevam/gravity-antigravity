@@ -6,6 +6,7 @@ import { z } from 'zod'
 import type { DadosMapaBidFrete } from './componentes/visao-geral-mapa-bid-frete'
 
 const modalMapaSchema = z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO'])
+const tipoOperacaoMapaSchema = z.enum(['IMPORTACAO', 'EXPORTACAO']).nullable()
 
 export const visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema = z.object({
   visao_fornecedor_bid_frete_internacional: z.object({
@@ -26,6 +27,7 @@ export const visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema = z.
           codigo_origem_mapa_visao_fornecedor_bid_frete_internacional: z.string(),
           codigo_destino_mapa_visao_fornecedor_bid_frete_internacional: z.string(),
           modal_mapa_visao_fornecedor_bid_frete_internacional: modalMapaSchema,
+          tipo_operacao_cotacao_bid_frete_internacional: tipoOperacaoMapaSchema.optional(),
           quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
           melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
           dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
@@ -104,6 +106,9 @@ export function mapMapaCotacoesVisaoFornecedorFromServer(
         color: corRotaModal(modal),
         heightFactor: 0.12 + (index % 5) * 0.03,
         mode: routeMode as 'MARITIMO' | 'AEREO',
+        modal_cotacao_bid_frete_internacional: modal,
+        tipo_operacao_cotacao_bid_frete_internacional:
+          rota.tipo_operacao_cotacao_bid_frete_internacional ?? undefined,
         transitTime: rota.dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional ?? undefined,
         quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional:
           rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional,

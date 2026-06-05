@@ -52,8 +52,12 @@ import {
   getDashboardKpis,
   getDashboardMapaCotacoesVisaoGeral,
 } from '../shared/api'
-import { STATUS_LABELS, MODAL_LABELS, CalendarioAlerta } from '../shared/types'
-import type { DashboardKPIs, StatusCotacao } from '../shared/types'
+import { MODAL_LABELS, CalendarioAlerta } from '../shared/types'
+import type { DashboardKPIs } from '../shared/types'
+import {
+  montarEtapasFunilInsightsBidFreteInternacional,
+  useStatusCotacaoConfigBidFreteInternacional,
+} from '../shared/status-config-bid-frete-internacional'
 import {
   VisaoGeralMapaBidFrete as VisaoGeralMapa,
   type DadosMapaBidFrete,
@@ -74,17 +78,6 @@ const MODAL_ICONS: Record<string, React.ReactNode> = {
   AEREO: <AirplaneTilt weight="duotone" size={16} />,
   RODOVIARIO: <Truck weight="duotone" size={16} />,
 }
-
-const FUNIL_CORES: Partial<Record<StatusCotacao, string>> = {
-  RASCUNHO: '#94a3b8',
-  ENVIADA_FORNECEDORES: '#8b5cf6',
-  EM_COTACAO: '#818cf8',
-  AGUARDANDO_APROVACAO: '#fbbf24',
-  REPROVADA: '#f87171',
-  APROVADA: '#34d399',
-  EXPIRADA: '#64748b',
-}
-
 
 function GraficoBarrasMensal() {
   const W = 520
@@ -369,9 +362,12 @@ export default function VisaoGeral() {
   const [alertas, setAlertas] = useState<CalendarioAlerta[]>([])
   const [dadosMapa, setDadosMapa] = useState<DadosMapaBidFrete>({ pins: [], routes: [] })
   const [carregando, setCarregando] = useState(true)
+  const [erroCarregamento, setErroCarregamento] = useState<string | null>(null)
+  const statusCotacaoConfig = useStatusCotacaoConfigBidFreteInternacional()
 
   const carregarInsights = useCallback(async () => {
     setCarregando(true)
+    setErroCarregamento(null)
     try {
       const [kpisData, alertasData, mapaData] = await Promise.all([
         getDashboardKpis(),
@@ -381,10 +377,14 @@ export default function VisaoGeral() {
       setKpis(kpisData)
       setAlertas(alertasData)
       setDadosMapa(mapaData)
-    } catch {
+    } catch (err) {
+      console.error('[BidFrete Insights] falha ao carregar', err)
       setKpis(null)
       setAlertas([])
       setDadosMapa({ pins: [], routes: [] })
+      setErroCarregamento(
+        err instanceof Error ? err.message : 'Falha ao carregar insights do BID Frete Internacional',
+      )
     } finally {
       setCarregando(false)
     }
@@ -401,12 +401,11 @@ export default function VisaoGeral() {
 
   const etapasFunil = useMemo(
     () =>
-      (kpis?.funil ?? []).map((item) => ({
-        rotulo: STATUS_LABELS[item.status],
-        quantidade: item.count,
-        cor: FUNIL_CORES[item.status] ?? '#94a3b8',
-      })),
-    [kpis?.funil],
+      montarEtapasFunilInsightsBidFreteInternacional(
+        statusCotacaoConfig,
+        kpis?.funil ?? [],
+      ),
+    [statusCotacaoConfig, kpis?.funil],
   )
 
   // PTAX currency simulation
@@ -450,8 +449,43 @@ export default function VisaoGeral() {
   const andamentoSpark = [12, 14, 18, 15, 20, 22, 25]
   const savingSpark = [15, 18, 16, 21, 19, 23, 24]
 
-  if (carregando || !kpis) {
+  if (carregando) {
     return <ConteudoCarregandoBidFreteInternacional />
+  }
+
+  if (erroCarregamento || !kpis) {
+    return (
+      <div
+        style={{
+          padding: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1rem',
+          color: '#f87171',
+          textAlign: 'center',
+        }}
+      >
+        <p style={{ margin: 0, maxWidth: 520 }}>
+          {erroCarregamento ?? 'Não foi possível carregar os insights.'}
+        </p>
+        <button
+          type="button"
+          onClick={() => { void carregarInsights() }}
+          style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
+            borderRadius: 8,
+            color: '#fecaca',
+            padding: '0.5rem 1rem',
+            cursor: 'pointer',
+            fontWeight: 600,
+          }}
+        >
+          Tentar novamente
+        </button>
+      </div>
+    )
   }
 
   const tempoRespostaLabel =
@@ -612,8 +646,12 @@ export default function VisaoGeral() {
           gap: 1.25rem;
           margin-bottom: 1.25rem;
         }
+        .bfd-globe-row--tres-colunas {
+          grid-template-columns: 1.6fr 0.9fr 1fr;
+        }
         @media (max-width: 1200px) {
-          .bfd-globe-row {
+          .bfd-globe-row,
+          .bfd-globe-row--tres-colunas {
             grid-template-columns: 1fr;
           }
         }
@@ -876,13 +914,13 @@ export default function VisaoGeral() {
       </div>
 
       {/* Row 2: Globe Map + Right Column (Alertas on top, Funil de Cotações on bottom) */}
-      <div className="bfd-globe-row">
+      <div className="bfd-globe-row bfd-globe-row--tres-colunas">
         {/* Global World Map Overview Section */}
         <VisaoGeralMapa
           vistaInicialMapa="mapa"
           fonteDados="api"
           dadosMapa={dadosMapa}
-          painelRankingsSeparado
+          painelRankingsExterno
           exibirPainelLateralMapa
           onOpenCompleto={(route) => {
             setSelectedAlertContextCompleto({
@@ -895,7 +933,7 @@ export default function VisaoGeral() {
         />
 
         {/* Right Column Stacking Alertas + Funil */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', height: '100%', minHeight: 0 }}>
+        <div className="bfd-globe-row__coluna-direita">
           {/* Alertas */}
           <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>

@@ -262,7 +262,13 @@ export default function App() {
         onNavigate: (node: EcosystemNode) => {
           if (node.type === 'hub')               window.location.href = '/hub'
           else if (node.type === 'configurador') window.location.href = '/configurador'
-          else if (node.type === 'produto')      window.location.href = `/produto/${node.id}`
+          else if (node.type === 'produto') {
+            const destino =
+              node.id === 'bid-frete' || node.id === 'bid-frete-internacional'
+                ? '/bid-frete/insights'
+                : `/produto/${node.id}`
+            window.location.href = destino
+          }
         },
       }}
       usuario={{
@@ -282,12 +288,14 @@ export default function App() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"              element={<Navigate to="visao-geral" replace />} />
+          <Route path="/"              element={<Navigate to="insights" replace />} />
+          <Route path="visao-geral"    element={<Navigate to="insights" replace />} />
           <Route element={<BidFreteVisualizacaoLayout modo="cliente" />}>
-            <Route path="visao-geral" element={bidFreteVisualizacoesClienteElement} />
+            <Route path="insights"     element={bidFreteVisualizacoesClienteElement} />
             <Route path="dashboard"   element={bidFreteVisualizacoesClienteElement} />
             <Route path="lista"       element={bidFreteVisualizacoesClienteElement} />
             <Route path="kanban"      element={bidFreteVisualizacoesClienteElement} />
+            <Route path="configuracoes" element={<Configuracoes />} />
           </Route>
           <Route path="cotacoes"       element={<RedirectCotacoesVisaoLegado />} />
           <Route path="cotacoes/nova" element={<ModalNovaCotacaoBidFreteInternacional />} />
@@ -296,7 +304,6 @@ export default function App() {
           <Route path="cotacoes/:id_cotacao/comparativo" element={<Comparativo />} />
           <Route path="fornecedores"   element={<Fornecedores />} />
           <Route path="fornecedores/:id_fornecedor" element={<DetalheFornecedor />} />
-          <Route path="configuracoes" element={<Configuracoes />} />
 
           <Route path="visao-fornecedor-bid-frete-internacional" element={<Navigate to="visao-fornecedor-bid-frete-internacional/dashboard" replace />} />
           <Route element={<BidFreteVisualizacaoLayout modo="fornecedor" />}>
@@ -304,18 +311,18 @@ export default function App() {
             <Route path="visao-fornecedor-bid-frete-internacional/paineis-dashboard" element={bidFreteVisualizacoesFornecedorElement} />
             <Route path="visao-fornecedor-bid-frete-internacional/lista" element={bidFreteVisualizacoesFornecedorElement} />
             <Route path="visao-fornecedor-bid-frete-internacional/kanban" element={bidFreteVisualizacoesFornecedorElement} />
+            <Route path="visao-fornecedor-bid-frete-internacional/configuracoes" element={<VisaoFornecedorConfiguracoes />} />
           </Route>
           <Route path="visao-fornecedor-bid-frete-internacional/cotacoes-pendentes" element={<VisaoFornecedorCotacoesPendentes />} />
           <Route path="visao-fornecedor-bid-frete-internacional/propostas" element={<VisaoFornecedorPropostas />} />
           <Route path="visao-fornecedor-bid-frete-internacional/tabelas-valor" element={<VisaoFornecedorTabelasValor />} />
           <Route path="visao-fornecedor-bid-frete-internacional/desempenho" element={<VisaoFornecedorDesempenho />} />
-          <Route path="visao-fornecedor-bid-frete-internacional/configuracoes" element={<VisaoFornecedorConfiguracoes />} />
           <Route path="visao-fornecedor-bid-frete-internacional/responder/:id_disparo_cotacao_bid_frete_internacional" element={<VisaoFornecedorResponderCotacao />} />
 
           {/* Redirects legado portal → visão fornecedor */}
           <Route path="portal/*" element={<Navigate to={ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.dashboard} replace />} />
 
-          <Route path="*" element={<Navigate to="visao-geral" replace />} />
+          <Route path="*" element={<Navigate to="insights" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoComOrganizacaoOverride>

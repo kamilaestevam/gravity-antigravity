@@ -36,6 +36,7 @@ export type RotaMapaVisaoFornecedorBidFreteInternacional = {
   codigo_origem_mapa_visao_fornecedor_bid_frete_internacional: string
   codigo_destino_mapa_visao_fornecedor_bid_frete_internacional: string
   modal_mapa_visao_fornecedor_bid_frete_internacional: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
+  tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO' | 'EXPORTACAO' | null
   quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: number
   melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: number | null
   dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: number | null
@@ -50,6 +51,7 @@ type DisparoComCotacao = {
     destino_nome_cotacao_bid_frete_internacional: string
     destino_pais_cotacao_bid_frete_internacional: string
     modal_cotacao_bid_frete_internacional: string
+    tipo_operacao_cotacao_bid_frete_internacional?: string
   }
   proposta?: {
     valor_total_proposta_bid_frete_internacional?: number | null
@@ -69,9 +71,15 @@ type RotaAcumulada = {
   origem: string
   destino: string
   modal: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
+  tipo_operacao: 'IMPORTACAO' | 'EXPORTACAO' | null
   quantidade: number
   valoresProposta: number[]
   diasTransito: number[]
+}
+
+function normalizarTipoOperacao(tipo: string | undefined): 'IMPORTACAO' | 'EXPORTACAO' | null {
+  if (tipo === 'IMPORTACAO' || tipo === 'EXPORTACAO') return tipo
+  return null
 }
 
 function normalizarModal(modal: string): 'MARITIMO' | 'AEREO' | 'RODOVIARIO' {
@@ -199,11 +207,15 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
     const destino = cotacao.destino_codigo_cotacao_bid_frete_internacional.trim().toUpperCase()
     if (!origem || !destino) continue
 
-    const rotaKey = `${origem}|${destino}|${modal}`
+    const tipoOperacao = normalizarTipoOperacao(
+      cotacao.tipo_operacao_cotacao_bid_frete_internacional,
+    )
+    const rotaKey = `${origem}|${destino}|${modal}|${tipoOperacao ?? 'NA'}`
     const rotaAtual = rotas.get(rotaKey) ?? {
       origem,
       destino,
       modal,
+      tipo_operacao: tipoOperacao,
       quantidade: 0,
       valoresProposta: [],
       diasTransito: [],
@@ -262,6 +274,7 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
       codigo_origem_mapa_visao_fornecedor_bid_frete_internacional: rota.origem,
       codigo_destino_mapa_visao_fornecedor_bid_frete_internacional: rota.destino,
       modal_mapa_visao_fornecedor_bid_frete_internacional: rota.modal,
+      tipo_operacao_cotacao_bid_frete_internacional: rota.tipo_operacao,
       quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: rota.quantidade,
       melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: melhorValor,
       dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: diasMedio,

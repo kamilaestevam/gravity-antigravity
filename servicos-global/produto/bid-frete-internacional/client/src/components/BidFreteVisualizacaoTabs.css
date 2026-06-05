@@ -67,8 +67,7 @@
 .bid-frete-visualizacao-layout .pg-container.bid-frete-page-shell,
 .bid-frete-visualizacao-layout .bf-lista-page,
 .bid-frete-visualizacao-layout .bf-cotacoes,
-.bid-frete-visualizacao-layout .bfd-dashboard,
-.bid-frete-visualizacao-layout .cfg-page {
+.bid-frete-visualizacao-layout .bfd-dashboard {
   padding-top: 0;
   padding-left: var(--bid-frete-page-px);
   padding-right: var(--bid-frete-page-px);
@@ -79,7 +78,20 @@
   box-sizing: border-box;
 }
 
+/* Paridade Pedido: padding lateral vem de configuracoes.css; só zera o topo (tabs já têm pt). */
+.bid-frete-visualizacao-layout .cfg-page {
+  padding-top: 0;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
 .bid-frete-visualizacao-layout .pg-container.bid-frete-page-shell .pg-contexto-row.pg-no-header {
   margin-top: 0;
   padding-top: 0;
+}
+
+.bid-frete-visualizacao-layout .lp-tabela-wrapper .gtv-toolbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }

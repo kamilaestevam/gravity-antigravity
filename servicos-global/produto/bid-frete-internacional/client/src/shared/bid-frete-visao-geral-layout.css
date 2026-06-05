@@ -36,6 +36,10 @@
   margin-bottom: 0;
 }
 
+.bfd-globe-row--tres-colunas {
+  grid-template-columns: 1.6fr 0.9fr 1fr;
+}
+
 .bfd-globe-row .bfd-mapa-rankings-row {
   grid-column: 1;
   min-width: 0;
@@ -396,6 +400,7 @@
   }
 
   .bfd-globe-row,
+  .bfd-globe-row--tres-colunas,
   .bfd-insights-grid,
   .bfd-charts-grid--fornecedor,
   .bfd-acoes-grid {

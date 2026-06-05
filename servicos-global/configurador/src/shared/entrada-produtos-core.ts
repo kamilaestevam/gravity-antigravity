@@ -89,7 +89,7 @@ export function expandirCardsProdutosCore(
           produto: p,
           slug,
           nome: nomeExibicaoProdutoGravity(slug, p.catalog?.name ?? p.product_key, t),
-          rota: `/produto/${slug}`,
+          rota: '/bid-frete',
           variant: 'bid_operacional',
         })
       }

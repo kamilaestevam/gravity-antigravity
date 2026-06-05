@@ -21,7 +21,7 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
-import type { GTPreferencias, GTColuna } from '@nucleo/tabela-virtual-global'
+import type { GTPreferencias, GTColuna, GTAbaTipo } from '@nucleo/tabela-virtual-global'
 import {
   FileText,
   Truck,
@@ -43,7 +43,7 @@ import {
   Target,
 } from '@phosphor-icons/react'
 
-import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao } from '../shared/api'
+import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao, paineisListaBidFreteApi } from '../shared/api'
 import {
   publicarCotacaoAtualizadaBidFrete,
   inscreverCotacaoAtualizadaBidFrete,
@@ -69,14 +69,14 @@ import {
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
 import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
-import { BidFreteListaPainelBar } from '../components/BidFreteListaPainelBar'
+import { BidFreteListaFaixaNavegacao } from '../components/BidFreteListaFaixaNavegacao'
+import '../shared/lista-bid-frete-internacional-layout.css'
 import { useListaPainelBidFrete } from '../shared/useListaPainelBidFrete'
 import {
   configListaPainelPadraoV1,
   parsearConfigListaPainelSeguro,
   serializarConfigListaPainel,
 } from '../../../shared/listaPainelConfigSchema'
-import { paineisListaBidFreteApi } from '../shared/api'
 import { useCadastrosListaBidFrete } from '../shared/useCadastrosListaBidFrete'
 import {
   buildColunasPaiLista,
@@ -93,7 +93,7 @@ import {
   RenderModalIcon,
 } from './colunas-lista-bid-frete-internacional'
 import {
-  montarLinhasPaiLista,
+  montarLinhasPaiListaComFallback,
   idLinhaPaiLista,
   idLinhaFilhaLista,
   isLinhaBidGrupo,
@@ -105,54 +105,21 @@ import {
   type LinhaPaiLista,
   type LinhaFilhaLista,
 } from './lista-bid-frete-internacional-utils'
-
-// ─── Status Config (localStorage) ───
-
-interface StatusConfig {
-  id: string
-  nome: string
-  rotulo: string
-  cor: string
-  ordem: number
-  is_sistema: boolean
-}
-
-const STATUS_CONFIG_KEY = 'bid-frete:config:status'
-
-/** 9 status canônicos como fallback quando localStorage está vazio */
-const STATUS_CANONICOS: StatusConfig[] = [
-  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
-  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
-  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
-  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
-  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: false },
-  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: false },
-]
-
-/** Lê status do localStorage (sincronizado pelo Configurações) */
-function lerStatusConfig(): StatusConfig[] {
-  try {
-    const raw = localStorage.getItem(STATUS_CONFIG_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
-    }
-  } catch { /* storage indisponível */ }
-  return STATUS_CANONICOS
-}
+import {
+  EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
+  lerStatusCotacaoConfigBidFreteInternacional,
+  type StatusCotacaoConfigBidFreteInternacional,
+} from '../shared/status-config-bid-frete-internacional'
 
 /** Gera abas dinâmicas a partir da lista de status config */
-function gerarAbasDinamicas(statusList: StatusConfig[]): Array<{ valor: string; label: string }> {
-  const abas: Array<{ valor: string; label: string }> = [
+function gerarAbasDinamicas(
+  statusList: StatusCotacaoConfigBidFreteInternacional[],
+): GTAbaTipo[] {
+  const ordenados = [...statusList].sort((a, b) => a.ordem - b.ordem)
+  return [
     { valor: 'TODAS', label: 'Todas as cotações' },
+    ...ordenados.map(s => ({ valor: s.nome, label: s.rotulo, cor: s.cor })),
   ]
-  for (const s of statusList) {
-    abas.push({ valor: s.nome, label: s.rotulo })
-  }
-  return abas
 }
 
 // ─── Colunas padrão = todas as colunas escalares do banco ───
@@ -276,15 +243,17 @@ export default function Cotacoes() {
     return workspacesMap.get(idWorkspaceAtivo)?.nome
   }, [idWorkspaceAtivo, workspacesMap])
 
-  const [statusConfig, setStatusConfig] = useState<StatusConfig[]>(lerStatusConfig)
+  const [statusConfig, setStatusConfig] = useState(lerStatusCotacaoConfigBidFreteInternacional)
 
   useEffect(() => {
-    const handleStorage = () => setStatusConfig(lerStatusConfig())
-    window.addEventListener('storage', handleStorage)
-    window.addEventListener('focus', handleStorage)
+    const atualizar = () => setStatusConfig(lerStatusCotacaoConfigBidFreteInternacional())
+    window.addEventListener('storage', atualizar)
+    window.addEventListener('focus', atualizar)
+    window.addEventListener(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL, atualizar)
     return () => {
-      window.removeEventListener('storage', handleStorage)
-      window.removeEventListener('focus', handleStorage)
+      window.removeEventListener('storage', atualizar)
+      window.removeEventListener('focus', atualizar)
+      window.removeEventListener(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL, atualizar)
     }
   }, [])
 
@@ -538,8 +507,37 @@ export default function Cotacoes() {
     )
   }, [
     trocarPainelLista, preferencias, filtroTab, busca, filtrosAtivosLista,
-    cardsVisiveis, periodoCards, listaPainelCallbacks,
+    cardsVisiveis, periodoCards, listaPainelCallbacks, sortCampoLista, sortDirLista,
   ])
+
+  const handleCriarPainelLista = useCallback(async (nome: string): Promise<boolean> => {
+    painelListaAplicadoRef.current = null
+    try {
+      const { data: criado } = await paineisListaBidFreteApi.criar(nome)
+      setPaineisLista(prev => [...prev, criado])
+      setPainelListaAtualId(criado.id)
+      void handleTrocarPainelLista(criado.id)
+      addNotification({
+        type: 'success',
+        message: t('bid_frete_internacional.lista.painel_criado_sucesso', {
+          defaultValue: 'Painel "{{nome}}" criado.',
+          nome: criado.nome,
+        }),
+      })
+      return true
+    } catch (err) {
+      const detalhe = err instanceof Error ? err.message : ''
+      addNotification({
+        type: 'error',
+        message: detalhe
+          ? `${t('bid_frete_internacional.lista.painel_criado_erro', { defaultValue: 'Não foi possível salvar o painel.' })} ${detalhe}`
+          : t('bid_frete_internacional.lista.painel_criado_erro', {
+              defaultValue: 'Não foi possível salvar o painel.',
+            }),
+      })
+      return false
+    }
+  }, [handleTrocarPainelLista, setPaineisLista, setPainelListaAtualId, addNotification, t])
 
   useEffect(() => {
     if (!painelListaAtualId || carregandoPaineisLista) return
@@ -712,8 +710,12 @@ export default function Cotacoes() {
   }, [bidsFreteInternacional, filtrarCotacaoItem, busca])
 
   const linhasPaiFiltradas = useMemo(
-    () => montarLinhasPaiLista(bidsFiltrados, cotacoesAvulsasFiltradas),
-    [bidsFiltrados, cotacoesAvulsasFiltradas],
+    () => montarLinhasPaiListaComFallback(
+      bidsFiltrados,
+      cotacoesAvulsasFiltradas,
+      cotacoesFiltradas,
+    ),
+    [bidsFiltrados, cotacoesAvulsasFiltradas, cotacoesFiltradas],
   )
 
   const totalCotacoesFiltradas = cotacoesFiltradas.length
@@ -1305,19 +1307,6 @@ export default function Cotacoes() {
         <>
       {/* ── KPI cards (Configuração dinâmica com sincronização do local storage) ── */}
       {visao === 'lista' && (
-        <div className="bf-paineis-lista">
-          <BidFreteListaPainelBar
-            paineis={paineisLista}
-            painelAtualId={painelListaAtualId}
-            setPaineis={setPaineisLista}
-            setPainelAtualId={setPainelListaAtualId}
-            onTrocarPainel={handleTrocarPainelLista}
-            carregando={carregandoPaineisLista}
-          />
-        </div>
-      )}
-
-      {visao === 'lista' && (
         <div className="lp-stats-row">
           <div className="lp-cards">
             {cardsVisiveis.map(pref => renderCard(pref.id))}
@@ -1327,7 +1316,20 @@ export default function Cotacoes() {
 
       {/* Conteúdo da Visão */}
       {visao === 'lista' ? (
-        <div className="bf-table-section">
+        <div className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada">
+        <div className="lp-tabela-chrome">
+          <BidFreteListaFaixaNavegacao
+            paineis={paineisLista}
+            painelAtualId={painelListaAtualId}
+            setPaineis={setPaineisLista}
+            setPainelAtualId={setPainelListaAtualId}
+            onTrocarPainel={handleTrocarPainelLista}
+            onCriarPainel={handleCriarPainelLista}
+            carregando={carregandoPaineisLista}
+            abas={abas}
+            abaAtiva={filtroTab}
+            onMudarAba={setFiltroTab}
+          />
           {erroCarregar && (
             <div
               role="alert"
@@ -1368,10 +1370,6 @@ export default function Cotacoes() {
             classNameLinhaFilho={classNameLinhaFilho}
             labelPai={['registro', 'registros']}
             
-            abas={abas}
-            abaAtiva={filtroTab}
-            onMudarAba={setFiltroTab}
-            
             acoes={acoes}
             acoesFilho={acoesFilho}
             acoesExportacao={acoesExportacao}
@@ -1401,6 +1399,7 @@ export default function Cotacoes() {
             
             ariaLabel="Lista de Cotações"
           />
+        </div>
         </div>
       ) : (
         <CotacoesKanban

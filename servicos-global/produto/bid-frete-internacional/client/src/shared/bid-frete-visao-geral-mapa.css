@@ -173,6 +173,89 @@
   color: #cbd5e1;
   letter-spacing: 0.015em;
 }
+.bfd-map-panel__filtros {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bfd-map-panel__filtros::-webkit-scrollbar {
+  display: none;
+}
+
+.bfd-map-panel__filtros .tg-trigger {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.bfd-map-panel__filtro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.bfd-map-panel__filtro:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.bfd-map-panel__filtro.is-active {
+  color: #ffffff;
+  border-color: rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.12);
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.12);
+}
+
+.bfd-map-panel__filtro.is-active.tab-importacao {
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.12);
+}
+
+.bfd-map-panel__filtro.is-active.tab-exportacao {
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(167, 139, 250, 0.12);
+}
+
+.bfd-map-panel__filtro.is-active.tab-aereo {
+  color: #c084fc;
+  border-color: rgba(192, 132, 252, 0.35);
+  background: rgba(192, 132, 252, 0.12);
+}
+
+.bfd-map-panel__filtro.is-active.tab-maritimo {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.bfd-map-panel__filtro.is-active.tab-rodoviario {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.12);
+}
+
+.bfd-map-panel__empty {
+  padding: 1rem 0.5rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
 .bfd-map-panel__tabs {
   display: flex;
   background: rgba(255, 255, 255, 0.04);
@@ -521,6 +604,28 @@
 .bfd-hud-container--card-separado .bfd-map-right-panel {
   height: 100%;
   min-height: 0;
+}
+
+/* Insights cliente: Rankings Globais em coluna central */
+.bfd-rankings-externo-card {
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  align-self: stretch;
+}
+
+.bfd-hud-container--coluna-externa {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  height: 100%;
+}
+
+.bfd-rankings-externo-card .bfd-map-right-panel {
+  flex: 1;
+  min-height: 420px;
 }
 .bfd-map-control-btn {
   width: 32px;

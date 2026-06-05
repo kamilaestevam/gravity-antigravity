@@ -90,6 +90,10 @@ import {
   type KanbanModalConfigBidFrete,
 } from '../shared/kanban-bid-frete-modal'
 import { notificarKanbanConfigBidFreteAtualizado } from '../shared/use-kanban-preferences-bid-frete'
+import {
+  CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL,
+  EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
+} from '../shared/status-config-bid-frete-internacional'
 import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
@@ -246,15 +250,7 @@ const SIDEBAR_ITEMS = [
   { tipo: 'item',   id: 'status',                label: 'Status Cotação',    labelKey: 'bidfrete.config.sidebar.status',            icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'status-bid-frete-internacional', label: 'Status BID', labelKey: 'bidfrete.config.sidebar.status_bid', icone: <Tag size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'numeracao',             label: 'Numeração',         labelKey: 'bidfrete.config.sidebar.numeracao',         icone: <Hash size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'templates-pdf',         label: 'Templates PDF',     labelKey: 'bidfrete.config.sidebar.templates_pdf',     icone: <FloppyDisk size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'regras',                label: 'Regras',            labelKey: 'bidfrete.config.sidebar.regras',            icone: <Sliders size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'categorias-anexos',     label: 'Categ. Anexos',     labelKey: 'bidfrete.config.sidebar.categ_anexos',      icone: <Folder size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'taxa-cambio',           label: 'Taxa de Câmbio',    labelKey: 'bidfrete.config.sidebar.taxa_cambio',       icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'snapshot-cadastros',    label: 'Cadastros',         labelKey: 'bidfrete.config.sidebar.snapshot_cadastros',icone: <ArrowsClockwise size={15} weight="duotone" />, ativo: true },
-  
-  { tipo: 'grupo',  label: 'SISTEMA',            labelKey: 'bidfrete.config.sidebar.grupo_sistema' },
-  { tipo: 'item',   id: 'notificacoes',          label: 'Notificações',      labelKey: 'bidfrete.config.sidebar.notificacoes',      icone: <Bell size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'exportacao',            label: 'Exportação',        labelKey: 'bidfrete.config.sidebar.exportacao',        icone: <DownloadSimple size={15} weight="duotone" />, ativo: true },
 ]
 
 const COLUNAS_FILHOS = [
@@ -796,6 +792,11 @@ export default function Configuracoes() {
     const save = () => {
       localStorage.setItem(storageKey, JSON.stringify(currentState))
       setSavedState(currentState)
+      if (storageKey === CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL) {
+        window.dispatchEvent(
+          new CustomEvent(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL),
+        )
+      }
       addNotification({ type: 'success', message: 'Configurações salvas com sucesso!' })
     }
 

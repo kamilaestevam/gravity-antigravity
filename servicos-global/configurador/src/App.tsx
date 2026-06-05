@@ -396,6 +396,7 @@ export default function App() {
         <Route path="/produto/simula-custo/*" element={<NavigateComPrefixo de="/produto/simula-custo" para="/simula-custo" />} />
         <Route path="/produto/processo/*" element={<NavigateComPrefixo de="/produto/processo" para="/processo" />} />
         <Route path="/produto/bid-frete/*" element={<NavigateComPrefixo de="/produto/bid-frete" para="/bid-frete" />} />
+        <Route path="/produto/bid-frete-internacional/*" element={<NavigateComPrefixo de="/produto/bid-frete-internacional" para="/bid-frete" />} />
         <Route path="/produto/bid-cambio/*" element={<NavigateComPrefixo de="/produto/bid-cambio" para="/bid-cambio" />} />
         <Route path="/produto/pedido/*" element={<NavigateComPrefixo de="/produto/pedido" para="/pedido" />} />
 

@@ -31,7 +31,7 @@ export function BidFreteFunilBarras({
         const pct = total ? Math.round((etapa.quantidade / total) * 100) : 0
         const barW = maxCount ? (etapa.quantidade / maxCount) * 100 : 0
         return (
-          <div key={etapa.rotulo} className="bfd-funil__row">
+          <div key={etapa.codigo_status ?? etapa.rotulo} className="bfd-funil__row">
             <span className="bfd-funil__label">{rotuloEtapa(etapa.rotulo)}</span>
             <div className="bfd-funil__bar-wrap">
               <div

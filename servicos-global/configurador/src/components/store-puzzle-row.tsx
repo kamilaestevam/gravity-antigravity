@@ -72,7 +72,11 @@ export function StorePuzzleRow({ slugs, catalog, statusDe, variante, embutido = 
               style={{ zIndex: zIdx, '--piece-color': corProduto } as React.CSSProperties}
               onClick={() => {
                 if (isContratado) {
-                  navigate(`/produto/${slug}`)
+                  navigate(
+                    slug === 'bid-frete' || slug === 'bid-frete-internacional'
+                      ? '/bid-frete'
+                      : `/produto/${slug}`,
+                  )
                   return
                 }
                 if (exibicao === 'fora_catalogo') return

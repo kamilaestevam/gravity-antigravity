@@ -18,9 +18,16 @@ import {
 import {
   PRODUCT_META,
   RELACAO_ENTRE_PRODUTOS_GRAVITY,
-  STACK_ORDER,
   nomeExibicaoProdutoGravity,
 } from '../data/product-meta'
+import { PuzzleStackProdutosGravity } from '../components/puzzle-stack-produtos-gravity'
+import {
+  contarOwnedNoStack,
+  filtrarCatalogoProdutosGravityStore,
+  mapaAssinaturaAtivaPorSlug,
+  mapaCatalogoPorSlugCanonico,
+  statusProdutoGravityStore,
+} from '../lib/produtos-gravity-store-status'
 import './hub-store.css'
 import './hub.css'
 import '../pages/configurador/workspace.css'
@@ -104,7 +111,6 @@ export function Store() {
   const [viewMode, setViewMode] = useState<'todos' | 'catalogo' | 'meus'>('todos')
   const [emBreveOnly, setEmBreveOnly] = useState(false)
   const [category, setCategory] = useState<string>('todas')
-
   useEffect(() => {
     async function load() {
       try {
@@ -199,20 +205,41 @@ export function Store() {
     }
   }
 
-  const getStatus = (slug: string): 'owned' | 'available' | 'soon' => {
-    // Status do catálogo (admin) é fonte da verdade. EM_BREVE prevalece sobre
-    // qualquer assinatura legada/interna — produto não-lançado nunca aparece
-    // como "ativo" na Store, mesmo que a org tenha uma linha em ProdutoGravityAssinatura.
-    const produto = catalog.find(p => p.slug === slug)
-    if (produto?.status === 'EM_BREVE') return 'soon'
-    if (subscribed.get(slug)?.is_active) return 'owned'
-    return 'available'
-  }
+  const catalogoStore = useMemo(() => filtrarCatalogoProdutosGravityStore(catalog), [catalog])
 
-  const ownedCount = useMemo(() => catalog.filter(p => getStatus(p.slug) === 'owned').length, [catalog, subscribed])
-  const totalCount = catalog.length
-  const emBreveCount = useMemo(() => catalog.filter(p => p.status === 'EM_BREVE').length, [catalog])
-  const catalogoCount = useMemo(() => catalog.filter(p => getStatus(p.slug) !== 'owned').length, [catalog, subscribed])
+  const catalogoMin = useMemo(
+    () => catalogoStore.map(p => ({ slug: p.slug, name: p.name, status: p.status })),
+    [catalogoStore],
+  )
+
+  const assinaturasStore = useMemo(
+    () =>
+      Array.from(subscribed.entries()).map(([product_key, item]) => ({
+        product_key,
+        is_active: item.is_active,
+      })),
+    [subscribed],
+  )
+
+  const catalogoPorSlug = useMemo(() => mapaCatalogoPorSlugCanonico(catalogoMin), [catalogoMin])
+  const assinaturaAtivaPorSlug = useMemo(
+    () => mapaAssinaturaAtivaPorSlug(assinaturasStore),
+    [assinaturasStore],
+  )
+
+  const getStatus = (slug: string): 'owned' | 'available' | 'soon' =>
+    statusProdutoGravityStore(slug, catalogoPorSlug, assinaturaAtivaPorSlug)
+
+  const ownedCount = useMemo(
+    () => contarOwnedNoStack(catalogoMin, assinaturasStore),
+    [catalogoMin, assinaturasStore],
+  )
+  const totalCount = catalogoStore.length
+  const emBreveCount = useMemo(() => catalogoStore.filter(p => p.status === 'EM_BREVE').length, [catalogoStore])
+  const catalogoCount = useMemo(
+    () => catalogoStore.filter(p => getStatus(p.slug) !== 'owned').length,
+    [catalogoStore, catalogoPorSlug, assinaturaAtivaPorSlug],
+  )
 
   // Delay determinístico por slug — cada card "owned" pulsa fora de sync (efeito aleatório estável)
   const pulseDelayFor = (slug: string): string => {
@@ -350,7 +377,7 @@ export function Store() {
             nodes={ecosystemNodes}
             onNavigate={(node) => {
               if (node.type === 'hub')               navigate('/hub?select=1')
-              else if (node.type === 'core')         navigate('/core')
+              else if (node.type === 'core')         navigate('/hub?select=1')
               else if (node.type === 'configurador') navigate('/configurador')
               else if (node.type === 'admin')        navigate('/admin/visao-geral')
               else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
@@ -449,97 +476,26 @@ export function Store() {
                 </div>
               </div>
 
-              {/* ── MONTE O SEU GRAVITY — Puzzle Stack ───────────────────── */}
-              {catalog.length > 0 && (
-                <div className="gs-stack">
-                  <div className="gs-stack__head">
+              {/* ── MONTE O SEU GRAVITY — Puzzle Stack (SSOT puzzle-stack-produtos-gravity) ── */}
+              {catalogoStore.length > 0 && (
+                <>
+                  <div className="gs-stack__head gs-stack__head--store">
                     <div>
                       <h2 className="gs-stack__title">{t('store.stack_titulo')}</h2>
                       <p className="gs-stack__sub">{t('store.stack_sub')}</p>
                     </div>
-                    <div className="gs-stack__meter">
-                      <div className="gs-stack__meter-bar">
-                        {Array.from({ length: catalog.length }).map((_, i) => (
-                          <div key={i} className={`gs-stack__seg${i < ownedCount ? ' gs-stack__seg--on' : ''}`} />
-                        ))}
-                      </div>
-                      <span className="gs-stack__meter-label">
-                        {ownedCount === 0
-                          ? t('store.stack_nenhum')
-                          : ownedCount === catalog.length
-                            ? t('store.stack_completo')
-                            : t('store.stack_parcial', { n: ownedCount, total: catalog.length })}
-                      </span>
-                    </div>
                   </div>
-
-                  {/* Peças de quebra-cabeça com SVG real */}
-                  <div className="gs-stack__pieces-scroll">
-                  <div className="gs-stack__pieces">
-                    {(() => {
-                      const validSlugs = STACK_ORDER.filter(s => catalog.find(p => p.slug === s))
-                      return validSlugs.map((slug, pieceIdx) => {
-                        const cp = catalog.find(p => p.slug === slug)!
-                        const meta = PRODUCT_META[slug]
-                        const isOwned = getStatus(slug) === 'owned'
-                        const isFirst = pieceIdx === 0
-                        const isLast = pieceIdx === validSlugs.length - 1
-                        // Primeira peça fica na frente para a aba cobrir a cavidade da próxima
-                        const zIdx = validSlugs.length - pieceIdx + 1
-
-                        // Dimensões: corpo W=120 H=90, aba estende 18px direita, cavidade indenta 18px esquerda
-                        // Mesma geometria garante que aba e cavidade tracem o MESMO arco — strokes coincidem em uma linha só
-                        const path = isFirst && isLast
-                          ? 'M 0,0 L 120,0 L 120,90 L 0,90 Z'
-                          : isFirst
-                          ? 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 Z'
-                          : isLast
-                          ? 'M 0,0 L 120,0 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
-                          : 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
-
-                        const fill = isOwned ? (meta?.iconBg ?? 'rgba(99,102,241,0.18)') : 'rgba(255,255,255,0.025)'
-                        const stroke = isOwned ? (meta?.iconColor ?? '#818cf8') : 'rgba(255,255,255,0.09)'
-
-                        return (
-                          <div
-                            key={slug}
-                            className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isFirst ? '' : ' gs-piece--has-blank'}`}
-                            style={{ zIndex: zIdx, '--piece-color': meta?.iconColor ?? '#818cf8' } as React.CSSProperties}
-                            onClick={() => isOwned
-                              ? navigate(`/produto/${slug}`)
-                              : document.getElementById(`produto-${slug}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                            }
-                            title={nomeExibicaoProdutoGravity(slug, cp.name, t)}
-                          >
-                            {/* Shape SVG da peça */}
-                            <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg">
-                              <path d={path} fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinejoin="round" />
-                            </svg>
-                            {/* Conteúdo */}
-                            <div className={`gs-piece__body${isFirst ? '' : ' gs-piece__body--indent'}`}>
-                              <div className="gs-piece__icon">
-                                {meta?.icon ?? <Package weight="duotone" size={20} color="#818cf8" />}
-                              </div>
-                              <span className="gs-piece__name">
-                                {nomeExibicaoProdutoGravity(slug, cp.name, t)}
-                              </span>
-                              {isOwned && (
-                                <span className="gs-piece__check">
-                                  <CheckCircle weight="fill" size={11} color="#10b981" />
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })
-                    })()}
-                  </div>
-                  </div>
-
+                  <PuzzleStackProdutosGravity
+                    catalogo={catalogoMin}
+                    assinaturas={assinaturasStore}
+                    t={t}
+                    escala="full"
+                    className="gs-stack--store-full"
+                  />
                   {ownedCount === 0 && (
                     <p className="gs-stack__hint">{t('store.stack_hint')}</p>
                   )}
-                </div>
+                </>
               )}
 
               {/* Toolbar */}

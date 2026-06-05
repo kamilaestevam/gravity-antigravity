@@ -51,6 +51,13 @@ import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { GradeProdutosContratadosHub } from '../components/grade-produtos-contratados-hub'
+import {
+  contarOwnedNoStack,
+  filtrarCatalogoProdutosGravityStore,
+  rotuloMeterStackProdutos,
+  slugsPuzzleStackProdutosGravity,
+} from '../lib/produtos-gravity-store-status'
 import '../../../../nucleo-global/Campos/campo-geral-global/src/campo-geral.css'
 import {
   buscarMapaNomesWorkspacesOrg,
@@ -61,6 +68,8 @@ import {
   salvarSuprimirAvisoEscopoHubPedido,
 } from '../utils/pedido-escopo-hub'
 import './selecionar-workspace.css'
+import './hub-unificado.css'
+import './hub-store.css'
 
 /* ── Tipos ── */
 interface Workspace {
@@ -218,6 +227,22 @@ function getProdutoIcon(slug: string): { icon: React.ReactElement; color: string
   return PRODUCT_ICON_MAP[slug] ?? { icon: <Star size={18} weight="regular" />, color: 'var(--sw-accent-2)', bg: 'var(--sw-accent-dim)' }
 }
 
+function getHubGreeting(t: (key: string, fallback?: string | Record<string, unknown>) => string): string {
+  const h = new Date().getHours()
+  if (h < 12) return t('hub.bom_dia', 'Bom dia')
+  if (h < 18) return t('hub.boa_tarde', 'Boa tarde')
+  return t('hub.boa_noite', 'Boa noite')
+}
+
+function formatHubDate(locale: string): string {
+  return new Date().toLocaleDateString(locale, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 function LegendaEscopoWorkspacesHub({ nomes }: { nomes: readonly string[] }) {
   const { t } = useTranslation()
 
@@ -249,7 +274,7 @@ export function SelecionarWorkspace() {
   const { user } = useUser()
   const { getToken } = useAuth()
   const navigate = useNavigate()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification, currentUser } = useShellStore()
   const [searchParams] = useSearchParams()
   const isLight = currentTheme === 'light'
 
@@ -274,8 +299,6 @@ export function SelecionarWorkspace() {
   const [preferredId, setPreferredId] = useState<string | null>(null)
   const [preferredSaving, setPreferredSaving] = useState(false)
   const wsCarouselRef = useRef<HTMLDivElement>(null)
-  const prodCarouselRef = useRef<HTMLDivElement>(null)
-  const gabiCarouselRef = useRef<HTMLDivElement>(null)
 
   /* ── GABI insights ── */
   const [gabiInsights, setGabiInsights] = useState<GabiInsight[]>([])
@@ -297,6 +320,7 @@ export function SelecionarWorkspace() {
     setAvisos(prev => [novo, ...prev])
   }
   const [gabiPaused, setGabiPaused] = useState(false)
+  const [gabiIndice, setGabiIndice] = useState(0)
 
   const userName = user?.fullName ?? user?.firstName ?? 'Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -397,6 +421,55 @@ export function SelecionarWorkspace() {
   const produtosSugeridos = catalogoProdutos.filter(
     p => !HIDDEN_STATUSES.has(p.status) && !slugsContratados.has(p.slug)
   )
+  const catalogoStore = useMemo(
+    () => filtrarCatalogoProdutosGravityStore(catalogoProdutos),
+    [catalogoProdutos],
+  )
+
+  const saudacaoHub = getHubGreeting(
+    (key, fallback) =>
+      typeof fallback === 'string' ? t(key, fallback) : t(key, fallback as Record<string, unknown>),
+  )
+  const linhaHeroResumo = useMemo(() => {
+    const nomeWs = selectedWs?.nome ?? t('sw.hero_escolha_workspace', 'Selecione um workspace')
+    const detalhe = t(
+      'hub.hero_processos',
+      '{{ativos}} processos em andamento · {{pendentes}} aguardando ação · {{plugins}} produtos no workspace',
+      { ativos: 7, pendentes: 3, plugins: contratadosAtivos.length },
+    )
+    return `${nomeWs} · ${detalhe}`
+  }, [selectedWs, contratadosAtivos.length, t])
+
+  const rotuloStackHub = useMemo(() => {
+    const catalogoMin = catalogoStore.map(p => ({
+      slug: p.slug,
+      name: p.name,
+      status: p.status,
+    }))
+    const assinaturas = produtosContratados.map(p => ({
+      product_key: p.product_key,
+      is_active: p.is_active,
+    }))
+    const totalStack = slugsPuzzleStackProdutosGravity(catalogoMin).length
+    const ownedNoStack = contarOwnedNoStack(catalogoMin, assinaturas)
+    return rotuloMeterStackProdutos(ownedNoStack, totalStack, t)
+  }, [catalogoStore, produtosContratados, t])
+
+  const puzzlePreenchido = contratadosAtivos.slice(0, 4)
+  const puzzleVazios = Math.max(0, 6 - puzzlePreenchido.length)
+
+  const insightGabiAtual = gabiInsights[gabiIndice] ?? gabiInsights[0] ?? null
+
+  const abrirProdutoContratadoHub = useCallback((slug: string, rota?: string) => {
+    const wsId = preferredId ?? selectedId ?? workspaces[0]?.id
+    const ws = wsId ? workspaces.find(w => w.id === wsId) : undefined
+    if (ws) {
+      sessionStorage.setItem('gravity_company_id', ws.id)
+      sessionStorage.setItem('gravity_company_name', ws.nome)
+      setSelectedId(ws.id)
+    }
+    navigate(rota ?? PRODUCT_ROUTE_MAP[slug]?.rota ?? `/produto/${slug}`)
+  }, [preferredId, selectedId, workspaces, navigate])
 
   /* ── Carrega TUDO via endpoint agregado (1 chamada = 1 requireAuth) ── */
   useEffect(() => {
@@ -529,7 +602,7 @@ export function SelecionarWorkspace() {
             if (targetWs) {
               sessionStorage.setItem('gravity_company_id', targetWs.id)
               sessionStorage.setItem('gravity_company_name', targetWs.nome)
-              navigate('/core', { replace: true })
+              navigate('/hub', { replace: true })
               return
             }
           }
@@ -651,7 +724,7 @@ export function SelecionarWorkspace() {
     sessionStorage.setItem('gravity_company_id', ws.id)
     sessionStorage.setItem('gravity_company_name', ws.nome)
     if (contratadosAtivos.length > 0) {
-      navigate('/core')
+      navigate('/hub#hub-secao-produtos')
     } else {
       setModalSemProdutos(true)
     }
@@ -735,12 +808,18 @@ export function SelecionarWorkspace() {
     ref.current.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' })
   }, [])
 
-  /* ── GABI: auto-avanço a cada 6s ── */
+  React.useEffect(() => {
+    setGabiIndice(0)
+  }, [gabiInsights.length])
+
+  /* ── GABI: auto-avanço a cada 5s (um insight por vez) ── */
   React.useEffect(() => {
     if (gabiPaused || gabiInsights.length <= 1) return
-    const timer = setInterval(() => scrollCarousel(gabiCarouselRef, 'right'), 5000)
+    const timer = setInterval(() => {
+      setGabiIndice(prev => (prev + 1) % gabiInsights.length)
+    }, 5000)
     return () => clearInterval(timer)
-  }, [gabiPaused, gabiInsights.length, scrollCarousel])
+  }, [gabiPaused, gabiInsights.length])
 
   /* ── GABI: busca insights cross-produto do backend (hub/insights) ── */
   React.useEffect(() => {
@@ -865,7 +944,7 @@ export function SelecionarWorkspace() {
               nodes={hubEcosystemNodes}
               onNavigate={(node) => {
                 if (node.type === 'hub')               navigate('/hub?select=1')
-                else if (node.type === 'core')         navigate('/core')
+                else if (node.type === 'core')         navigate('/hub?select=1')
                 else if (node.type === 'configurador') navigate('/configurador')
                 else if (node.type === 'admin')        navigate('/admin/visao-geral')
               }}
@@ -912,332 +991,356 @@ export function SelecionarWorkspace() {
         />
 
         {/* CONTENT */}
-        <div className="sw-content">
+        <div className="sw-content sw-content--hub-unificado">
           {carregando ? (
             <div className="sw-loading">
               <GravityLoader texto="Carregando" tamanho="lg" />
             </div>
           ) : (
-            <>
-              {/* ════ BLOCO 1: WORKSPACES ════ */}
-              <section className="sw-ws-section sw-a0">
-                <div className="sw-ws-title-block">
-                  <div className="sw-ws-title-row">
-                    <span className="sw-ws-icon" aria-hidden="true">
-                      <SquaresFour weight="duotone" size={24} />
-                    </span>
-                    <h1 className="sw-ws-title">{t('sw.titulo')}</h1>
+            <div className="sw-hub-unificado">
+              <section className="sw-hub-hero sw-a0" aria-label={t('sw.titulo')}>
+                <div>
+                  <h1>
+                    {saudacaoHub}, <em>{userName}</em> 👋
+                  </h1>
+                  <p className="sw-hub-hero-sub">{linhaHeroResumo}</p>
+                </div>
+                <div className="sw-hub-hero-meta">
+                  <div className="sw-hub-status-pill">
+                    <span className="sw-hub-status-dot" aria-hidden="true" />
+                    {t('hub.sistema_operacional', 'Sistema operacional')}
                   </div>
-                  <p className="sw-ws-sub">{t('sw.subtitulo')}</p>
+                  <span>{formatHubDate(i18n.language)}</span>
                 </div>
+              </section>
 
-                <div className="sw-ws-search-wrap">
-                  <span className="sw-ws-search-icon" aria-hidden="true">
-                    <MagnifyingGlass size={15} weight="bold" />
-                  </span>
-                  <input
-                    className="sw-ws-search"
-                    type="text"
-                    placeholder={t('sw.buscar_placeholder')}
-                    value={wsSearch}
-                    onChange={e => setWsSearch(e.target.value)}
-                    aria-label={t('sw.buscar_aria')}
-                  />
-                  {wsSearch && (
-                    <button
-                      className="sw-ws-search-clear"
-                      type="button"
-                      onClick={() => setWsSearch('')}
-                      aria-label={t('sw.limpar_busca')}
-                    >×</button>
-                  )}
-                </div>
-
-                <div className="sw-ws-carousel-wrap">
-                  <button className="sw-carousel-btn sw-carousel-btn--left" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'left')} aria-label="Anterior">
-                    <CaretLeft size={16} weight="bold" />
-                  </button>
-                  <div className="sw-ws-grid" ref={wsCarouselRef}>
-                    {wsFiltrados.length === 0 && (
-                      <div className="sw-ws-empty-search">
-                        <MagnifyingGlass size={22} weight="light" />
-                        <span>{t('sw.nenhum_ws_encontrado')}"<strong>{wsSearch}</strong>"</span>
-                      </div>
-                    )}
-                    {wsFiltrados.map(ws => {
-                      const isPreferred = ws.id === preferredId
-                      return (
-                      <div
-                        key={ws.id}
-                        className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}${isPreferred ? ' favorited' : ''}`}
-                        data-searchable="true"
-                        onClick={() => handleSelectWs(ws.id)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleSelectWs(ws.id) }}
-                      >
-                        <div className="sw-ws-card-top">
-                          <div
-                            className="sw-ws-logo"
-                            style={{ background: `linear-gradient(135deg, ${ws.gradientFrom} 0%, ${ws.gradientTo} 100%)` }}
-                          >
-                            {ws.iniciais}
-                          </div>
-                          <div className="sw-ws-card-top-actions">
-                            <TooltipGlobal
-                              titulo={isPreferred ? 'Remover workspace principal' : 'Definir como workspace principal'}
-                              descricao={isPreferred
-                                ? 'Você não entrará mais direto neste workspace ao fazer login'
-                                : 'Ao fazer login, você entrará direto neste workspace, pulando esta tela'}
-                            >
-                              <button
-                                className={`sw-ws-fav-btn${isPreferred ? ' active' : ''}`}
-                                type="button"
-                                onClick={e => togglePreferred(e, ws.id)}
-                                disabled={preferredSaving}
-                                aria-pressed={isPreferred}
-                                aria-label={isPreferred ? 'Remover workspace principal' : 'Definir como workspace principal'}
-                              >
-                                <Star size={14} weight={isPreferred ? 'fill' : 'regular'} />
-                              </button>
-                            </TooltipGlobal>
-                            <div className="sw-ws-check">
-                              <Check size={12} color="white" weight="bold" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div style={{ textAlign: 'center', marginTop: '-12px' }}>
-                          <div className="sw-ws-name">{ws.nome}</div>
-                          <div className="sw-ws-meta">
-                            <span className="sw-ws-role">{ws.role}</span>
-                          </div>
-                        </div>
-
-                        <div className="sw-ws-stats">
-                          <div>
-                            <div className="sw-ws-stat-n">{ws.modulos}</div>
-                            <div className="sw-ws-stat-l">{t('sw.stat_produtos')}</div>
-                          </div>
-                          <div>
-                            <div className="sw-ws-stat-n">{ws.membros}</div>
-                            <div className="sw-ws-stat-l">{t('sw.stat_usuarios')}</div>
-                          </div>
-                        </div>
-
-                        <button
-                          className="sw-ws-enter-btn"
-                          type="button"
-                          onClick={e => {
-                            e.stopPropagation()
-                            void tentarEntrarNoWorkspace(ws)
-                          }}
-                          disabled={entrando}
-                        >
-                          {entrando ? t('sw.entrando') : t('sw.entrar_btn')}
-                          <ArrowRight size={14} />
-                        </button>
-                      </div>
-                    )})}
-
-                    {/* Criar novo workspace — apenas para quem pode mutar Configurador
-                        (Master/SuperAdmin). PADRAO/FORNECEDOR/ADMIN(read-only) não veem
-                        — bloqueio espelha matriz Cadeia 1 + backend requireConfiguradorMutation. */}
-                    {podeMutarConfigurador(dbRole) && (
-                      <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
-                        <Plus size={20} />
-                        <span className="sw-ws-add-label">{t('sw.criar_workspace')}</span>
-                      </button>
-                    )}
-                  </div>
-                  <button className="sw-carousel-btn sw-carousel-btn--right" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'right')} aria-label="Próximo">
-                    <CaretRight size={16} weight="bold" />
-                  </button>
-                </div>
-
-                {/* GABI AI — carrossel dinâmico */}
-                <div
-                  className="sw-gabi-card sw-a1"
-                  onMouseEnter={() => setGabiPaused(true)}
-                  onMouseLeave={() => setGabiPaused(false)}
+              <div id="hub-secao-produtos" className="sw-hub-row-top sw-a0">
+                <section
+                  className="sw-hub-panel sw-hub-panel--produtos"
+                  aria-label={t('sw.produtos_contratados', 'Produtos contratados')}
                 >
-                  <div className="sw-gabi-card-watermark" aria-hidden="true">
-                    <Sparkle weight="fill" size={200} />
-                  </div>
-                  <div className="sw-gabi-card-main">
-                    {/* Header */}
-                    <div className="sw-gabi-card-top-row">
-                      <div className="sw-gabi-card-header">
-                        <div className="sw-gabi-card-avatar">
-                          <Sparkle weight="fill" size={14} color="#fff" />
-                        </div>
-                        <span className="sw-gabi-card-label">{t('sw.gabi_label')}</span>
+                  <div className="sw-hub-prod-head">
+                    <div className="sw-hub-prod-head-left">
+                      <div className="sw-hub-panel-label" style={{ margin: 0 }}>
+                        {t('sw.produtos_contratados', 'Produtos contratados')}
                       </div>
-                      <div className="sw-gabi-header-right">
-                        <button
-                          className="sw-gabi-nav-btn"
-                          type="button"
-                          onClick={() => scrollCarousel(gabiCarouselRef, 'left')}
-                          disabled={gabiInsights.length <= 1}
-                          aria-label="Insight anterior"
-                        >
-                          <CaretLeft size={12} weight="bold" />
-                        </button>
-                        <button
-                          className="sw-gabi-nav-btn"
-                          type="button"
-                          onClick={() => scrollCarousel(gabiCarouselRef, 'right')}
-                          disabled={gabiInsights.length <= 1}
-                          aria-label="Próximo insight"
-                        >
-                          <CaretRight size={12} weight="bold" />
-                        </button>
-                        <span className="sw-gabi-live-badge">
-                          <span className="sw-gabi-live-dot" />
-                          {t('sw.ao_vivo')}
-                        </span>
-                      </div>
+                      <p className="sw-hub-store-desc" style={{ marginBottom: 0 }}>
+                        {t('sw.produtos_contratados_desc')}
+                      </p>
                     </div>
+                    <div className="sw-hub-prod-head-right">
+                      {rotuloStackHub ? (
+                        <span className="sw-hub-prod-stack-label">{rotuloStackHub}</span>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="sw-hub-prod-head-link"
+                        onClick={() => navigate('/store')}
+                      >
+                        {t('sw.ver_catalogo', 'Gravity Store')} →
+                      </button>
+                    </div>
+                  </div>
+                  <GradeProdutosContratadosHub
+                    rotuloNoCabecalho
+                    catalogo={catalogoProdutos}
+                    produtosContratados={produtosContratados.map(p => ({
+                      product_key: p.product_key,
+                      is_active: p.is_active,
+                      nome: PRODUCT_NAME_KEYS[p.product_key]
+                        ? t(PRODUCT_NAME_KEYS[p.product_key])
+                        : p.nome,
+                    }))}
+                    t={t}
+                    onIrStore={() => navigate('/store')}
+                    onAbrirProdutoContratado={abrirProdutoContratadoHub}
+                  />
+                </section>
 
-                      {/* Track horizontal */}
-                      {gabiLoading ? (
-                        <div className="sw-gabi-insights-track">
-                          {[0, 1, 2].map(i => (
-                            <div key={i} className="sw-gabi-insight-card sw-gabi-insight-card--skeleton">
-                              <div className="sw-gabi-skeleton-line sw-gabi-skeleton-line--short" />
-                              <div className="sw-gabi-skeleton-line" />
-                              <div className="sw-gabi-skeleton-line" />
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="sw-gabi-insights-track" ref={gabiCarouselRef}>
-                          {gabiInsights.map(ins => (
+                <section className="sw-hub-panel sw-hub-panel--ws" aria-label={t('sw.secao_workspaces', 'Workspaces')}>
+                  <div className="sw-hub-panel-label">{t('sw.secao_workspaces', 'Workspaces')}</div>
+
+                  <div className="sw-ws-search-wrap">
+                    <MagnifyingGlass size={16} weight="bold" className="sw-ws-search-icon" aria-hidden="true" />
+                    <input
+                      type="search"
+                      className="sw-ws-search"
+                      value={wsSearch}
+                      onChange={e => setWsSearch(e.target.value)}
+                      placeholder={t('sw.buscar_workspace', 'Buscar workspace…')}
+                      aria-label={t('sw.buscar_workspace', 'Buscar workspace')}
+                    />
+                  </div>
+
+                  <div className="sw-ws-carousel-wrap">
+                      <button className="sw-carousel-btn sw-carousel-btn--left" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'left')} aria-label="Anterior">
+                        <CaretLeft size={16} weight="bold" />
+                      </button>
+                      <div className="sw-ws-grid" ref={wsCarouselRef}>
+                        {wsFiltrados.map((ws) => {
+                          const isPreferred = ws.id === preferredId
+                          return (
                             <div
-                              key={ins.id}
-                              className={`sw-gabi-insight-card${ins.variante === 'warn' ? ' sw-gabi-insight-card--warn' : ''}`}
+                              key={ws.id}
+                              className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}${isPreferred ? ' favorited' : ''}`}
+                              onClick={() => handleSelectWs(ws.id)}
+                              role="button"
+                              tabIndex={0}
                             >
-                              <div className={`sw-gabi-insight-tag${ins.variante === 'warn' ? ' sw-gabi-insight-tag--warn' : ''}`}>
-                                {ins.variante === 'warn'
-                                  ? <Warning size={11} weight="fill" />
-                                  : <RocketLaunch size={11} weight="fill" />}
-                                {ins.tag}
-                              </div>
-                              <p className="sw-gabi-insight-text">{ins.texto}</p>
-                              <div className="sw-gabi-insight-bottom">
-                                {ins.stat && (
-                                  <div className="sw-gabi-insight-stat">
-                                    <span className="sw-gabi-insight-stat-label">{ins.stat.label}</span>
-                                    <span className="sw-gabi-insight-stat-value">{ins.stat.valor}</span>
-                                  </div>
-                                )}
-                                {ins.textoLink && ins.rota && (
-                                  <button
-                                    className="sw-gabi-insight-link"
-                                    type="button"
-                                    onClick={() => navigate(ins.rota!)}
+                              <div className="sw-ws-card-top">
+                                <div className="sw-ws-logo" style={{ background: `linear-gradient(135deg, ${ws.gradientFrom} 0%, ${ws.gradientTo} 100%)` }}>{ws.iniciais}</div>
+                                <div className="sw-ws-card-top-actions">
+                                  <TooltipGlobal
+                                    titulo={isPreferred ? 'Remover workspace principal' : 'Definir como workspace principal'}
+                                    descricao={isPreferred
+                                      ? 'Você não entrará mais direto neste workspace ao fazer login'
+                                      : 'Ao fazer login, você entrará direto neste workspace, pulando esta tela'}
                                   >
-                                    {ins.textoLink} <CaretRight size={11} />
-                                  </button>
-                                )}
+                                    <button
+                                      className={`sw-ws-fav-btn${isPreferred ? ' active' : ''}`}
+                                      type="button"
+                                      onClick={(e) => togglePreferred(e, ws.id)}
+                                      disabled={preferredSaving}
+                                      aria-label={isPreferred ? 'Remover workspace principal' : 'Definir como workspace principal'}
+                                    >
+                                      <Star size={14} weight={isPreferred ? 'fill' : 'regular'} />
+                                    </button>
+                                  </TooltipGlobal>
+                                </div>
                               </div>
+                              <div className="sw-ws-name">{ws.nome}</div>
+                              <button
+                                className="sw-ws-enter-btn"
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  void tentarEntrarNoWorkspace(ws)
+                                }}
+                                disabled={entrando}
+                              >
+                                {entrando ? t('sw.entrando') : t('sw.entrar_btn')}
+                                <ArrowRight size={14} />
+                              </button>
                             </div>
+                          )
+                        })}
+                        {podeMutarConfigurador(dbRole) && (
+                          <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
+                            <Plus size={18} />
+                            <span className="sw-ws-add-label">{t('sw.criar_workspace')}</span>
+                          </button>
+                        )}
+                      </div>
+                      <button className="sw-carousel-btn sw-carousel-btn--right" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'right')} aria-label="Próximo">
+                        <CaretRight size={16} weight="bold" />
+                      </button>
+                    </div>
+                </section>
+              </div>
+
+              <div
+                className="sw-hub-row-gabi sw-a1"
+                onMouseEnter={() => setGabiPaused(true)}
+                onMouseLeave={() => setGabiPaused(false)}
+              >
+                <section className="sw-hub-panel sw-hub-panel--store" aria-label={t('sw.gravity_store', 'Gravity Store')}>
+                  <div className="sw-hub-panel-label">{t('sw.gravity_store', 'Gravity Store')}</div>
+                  <p className="sw-hub-store-desc">
+                    {t('sw.store_desc', 'Descubra novas ferramentas e ative produtos no workspace.')}
+                  </p>
+                  <div className="sw-hub-store-puzzle" aria-hidden="true">
+                    {puzzlePreenchido.map(prod => {
+                      const iconData = getProdutoIcon(prod.product_key)
+                      return (
+                        <div
+                          key={prod.product_key}
+                          className="sw-hub-puzzle sw-hub-puzzle--filled"
+                          style={{ color: iconData.color }}
+                        >
+                          {iconData.icon}
+                        </div>
+                      )
+                    })}
+                    {Array.from({ length: puzzleVazios }).map((_, i) => (
+                      <div key={`empty-${i}`} className="sw-hub-puzzle" />
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="sw-hub-store-btn"
+                    onClick={() => navigate('/store')}
+                  >
+                    {t('sw.visitar_store', 'Visitar Gravity Store')}
+                    <ArrowRight size={12} weight="bold" />
+                  </button>
+                  {produtosSugeridos.length > 0 && (
+                    <>
+                      <div className="sw-hub-store-list-title">
+                        {t('sw.disponivel_store', 'Disponível na store')}
+                      </div>
+                      {produtosSugeridos.slice(0, 3).map(prod => {
+                        const iconData = getProdutoIcon(prod.slug)
+                        return (
+                          <div key={prod.id} className="sw-hub-store-item">
+                            <span
+                              className="sw-hub-store-item-icon"
+                              style={{ background: iconData.bg, color: iconData.color }}
+                            >
+                              {iconData.icon}
+                            </span>
+                            {PRODUCT_NAME_KEYS[prod.slug] ? t(PRODUCT_NAME_KEYS[prod.slug]) : prod.name}
+                          </div>
+                        )
+                      })}
+                    </>
+                  )}
+                </section>
+
+                <section className="sw-hub-panel sw-hub-panel--gabi" aria-label={t('sw.gabi_label')}>
+                  <div className="sw-hub-gabi-head">
+                    <div className="sw-hub-panel-label" style={{ margin: 0 }}>
+                      {t('sw.gabi_label')}
+                    </div>
+                    <span className="sw-gabi-live-badge">
+                      <span className="sw-gabi-live-dot" />
+                      {t('sw.ao_vivo')}
+                    </span>
+                  </div>
+                  <div className="sw-gabi-card">
+                    <div className="sw-gabi-card-main">
+                      <div className="sw-gabi-card-top-row">
+                        <div className="sw-gabi-header-right" style={{ marginLeft: 'auto' }}>
+                          <button
+                            className="sw-gabi-nav-btn"
+                            type="button"
+                            onClick={() =>
+                              setGabiIndice(prev =>
+                                (prev - 1 + gabiInsights.length) % Math.max(gabiInsights.length, 1),
+                              )}
+                            disabled={gabiInsights.length <= 1}
+                            aria-label="Insight anterior"
+                          >
+                            <CaretLeft size={12} weight="bold" />
+                          </button>
+                          <button
+                            className="sw-gabi-nav-btn"
+                            type="button"
+                            onClick={() =>
+                              setGabiIndice(prev => (prev + 1) % Math.max(gabiInsights.length, 1))}
+                            disabled={gabiInsights.length <= 1}
+                            aria-label="Próximo insight"
+                          >
+                            <CaretRight size={12} weight="bold" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="sw-hub-gabi-slide-wrap">
+                        {gabiLoading ? (
+                          <div className="sw-gabi-insight-card sw-gabi-insight-card--skeleton">
+                            <div className="sw-gabi-skeleton-line sw-gabi-skeleton-line--short" />
+                            <div className="sw-gabi-skeleton-line" />
+                            <div className="sw-gabi-skeleton-line" />
+                          </div>
+                        ) : insightGabiAtual ? (
+                          <div
+                            className={`sw-gabi-insight-card${insightGabiAtual.variante === 'warn' ? ' sw-gabi-insight-card--warn' : ''}`}
+                          >
+                            <div
+                              className={`sw-gabi-insight-tag${insightGabiAtual.variante === 'warn' ? ' sw-gabi-insight-tag--warn' : ''}`}
+                            >
+                              {insightGabiAtual.variante === 'warn'
+                                ? <Warning size={11} weight="fill" />
+                                : <RocketLaunch size={11} weight="fill" />}
+                              {insightGabiAtual.tag}
+                            </div>
+                            <p className="sw-gabi-insight-text">{insightGabiAtual.texto}</p>
+                            <div className="sw-gabi-insight-bottom">
+                              {insightGabiAtual.stat && (
+                                <div className="sw-gabi-insight-stat">
+                                  <span className="sw-gabi-insight-stat-label">{insightGabiAtual.stat.label}</span>
+                                  <span className="sw-gabi-insight-stat-value">{insightGabiAtual.stat.valor}</span>
+                                </div>
+                              )}
+                              {insightGabiAtual.textoLink && insightGabiAtual.rota && (
+                                <button
+                                  className="sw-gabi-insight-link"
+                                  type="button"
+                                  onClick={() => navigate(insightGabiAtual.rota!)}
+                                >
+                                  {insightGabiAtual.textoLink} <CaretRight size={11} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="sw-gabi-insight-text">{t('sw.gabi_sem_insights', 'Nenhum insight no momento.')}</p>
+                        )}
+                      </div>
+
+                      {gabiInsights.length > 1 && (
+                        <div className="sw-hub-gabi-dots" role="tablist" aria-label={t('sw.gabi_label')}>
+                          {gabiInsights.map((ins, idx) => (
+                            <button
+                              key={ins.id}
+                              type="button"
+                              role="tab"
+                              aria-selected={idx === gabiIndice}
+                              className={`sw-hub-gabi-dot${idx === gabiIndice ? ' sw-hub-gabi-dot--active' : ''}`}
+                              onClick={() => setGabiIndice(idx)}
+                            />
                           ))}
                         </div>
                       )}
                     </div>
                   </div>
-              </section>
+                </section>
+              </div>
 
-              {/* ════ BLOCO 2: PRODUTOS ════ */}
-              <section className="sw-products-section sw-a1">
-                <div className="sw-prod-panel sw-prod-panel--unified">
-                  <div className="sw-prod-panel-head">
-                    <span className="sw-prod-panel-title contracted">
-                      <Package weight="duotone" size={15} />
-                      {t('sw.produtos_gravity')}
-                    </span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className="sw-sec-count">
-                        {contratadosAtivos.length}/{contratadosAtivos.length + produtosSugeridos.length} {t('sw.ativos')}
-                      </span>
-                      <button className="sw-btn-ver-catalogo" type="button" onClick={() => navigate('/store')}>
-                        {t('sw.ver_catalogo')} <ArrowRight size={10} />
-                      </button>
-                    </div>
+              <section className="sw-hub-row-ops sw-a1" aria-label={t('hub.operacoes_andamento', 'Operações em andamento')}>
+                <div className="sw-hub-ops-head">
+                  <div className="sw-hub-panel-label" style={{ margin: 0 }}>
+                    {t('hub.operacoes_andamento', 'Operações em andamento')}
                   </div>
-
-                  <div className="sw-prod-list">
-                    {/* Contratados e habilitados */}
-                    {contratadosAtivos.map(prod => {
-                      const iconData = getProdutoIcon(prod.product_key)
-                      const rota = PRODUCT_ROUTE_MAP[prod.product_key]?.rota ?? `/produto/${prod.product_key}`
-                      return (
-                        <div
-                          key={prod.product_key}
-                          className="sw-prod-item sw-prod-item--active"
-                          data-searchable="true"
-                          onClick={() => navigate(rota)}
-                        >
-                          <div className="sw-prod-icon" style={{ background: iconData.bg, color: iconData.color }}>
-                            {iconData.icon}
-                          </div>
-                          <div className="sw-prod-body">
-                            <div className="sw-prod-name">{PRODUCT_NAME_KEYS[prod.product_key] ? t(PRODUCT_NAME_KEYS[prod.product_key]) : prod.nome}</div>
-                            <div className="sw-prod-desc">{PRODUCT_DESC_KEYS[prod.product_key] ? t(PRODUCT_DESC_KEYS[prod.product_key]) : prod.descricao}</div>
-                          </div>
-                          <div className="sw-prod-right">
-                            <span className="sw-badge sw-b-active">{t('sw.ativo')}</span>
-                            <button
-                              className="sw-btn-acessar"
-                              type="button"
-                              onClick={e => { e.stopPropagation(); navigate(rota) }}
-                            >
-                              {t('sw.acessar')} <ArrowRight size={10} weight="bold" />
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    })}
-
-                    {/* Não contratados — bloqueados com "Assine agora" */}
-                    {produtosSugeridos.map(prod => {
-                      const iconData = getProdutoIcon(prod.slug)
-                      const isActive = prod.status === 'ATIVO' || prod.status === 'Ativo'
-                      return (
-                        <div
-                          key={prod.id}
-                          className="sw-prod-item sw-prod-item--locked"
-                          data-searchable="true"
-                        >
-                          <div className="sw-prod-icon" style={{ background: iconData.bg, color: iconData.color, opacity: 0.5 }}>
-                            {iconData.icon}
-                          </div>
-                          <div className="sw-prod-body">
-                            <div className="sw-prod-name">{PRODUCT_NAME_KEYS[prod.slug] ? t(PRODUCT_NAME_KEYS[prod.slug]) : prod.name}</div>
-                            <div className="sw-prod-desc">{PRODUCT_DESC_KEYS[prod.slug] ? t(PRODUCT_DESC_KEYS[prod.slug]) : (prod.description ?? '')}</div>
-                          </div>
-                          <div className="sw-prod-right">
-                            {isActive ? (
-                              <button
-                                className="sw-btn-contratar"
-                                type="button"
-                                onClick={() => navigate(`/store?produto=${prod.slug}`)}
-                              >
-                                Assine agora <ArrowRight size={11} weight="bold" />
-                              </button>
-                            ) : (
-                              <span className="sw-badge sw-b-trial">{t('sw.em_breve')}</span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
+                  <button
+                    type="button"
+                    className="sw-hub-ops-link"
+                    onClick={() => {
+                      const orgId = idOrganizacao ?? sessionStorage.getItem('gravity_tenant_id')
+                      if (orgId) {
+                        navigate(`/processo?idOrganizacao=${encodeURIComponent(orgId)}`)
+                      } else {
+                        navigate('/processo')
+                      }
+                    }}
+                  >
+                    {t('hub.ver_todos_processos', 'Ver todos os processos')} →
+                  </button>
+                </div>
+                <div className="sw-hub-kpi-row">
+                  <div className="sw-hub-kpi">
+                    <div className="sw-hub-kpi-val">7</div>
+                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_processos', 'Processos em andamento')}</div>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">▲ {t('hub.kpi_delta_2_hoje', '2 hoje')}</span>
+                  </div>
+                  <div className="sw-hub-kpi">
+                    <div className="sw-hub-kpi-val">3</div>
+                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_aguardando_acao', 'Aguardando ação')}</div>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_3_pendentes', '3 pendentes')}</span>
+                  </div>
+                  <div className="sw-hub-kpi">
+                    <div className="sw-hub-kpi-val">12</div>
+                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_3_pendentes', '3 pendentes')}</span>
+                  </div>
+                  <div className="sw-hub-kpi">
+                    <div className="sw-hub-kpi-val">91%</div>
+                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_gabi', 'Assertividade da Gabi IA')}</div>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">{t('hub.kpi_delta_ativo', 'ativo')}</span>
                   </div>
                 </div>
               </section>
-
-            </>
+            </div>
           )}
         </div>
       </div>

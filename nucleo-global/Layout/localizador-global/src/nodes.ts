@@ -15,9 +15,10 @@ export const HUB_NODE: EcosystemNode = {
   color: '#818cf8', type: 'hub', status: 'accessible',
 }
 
+/** @deprecated 2026-06 — Core fundido no HUB; mantido só para redirects em código legado */
 export const CORE_NODE: EcosystemNode = {
-  id: 'core', label: 'Core', sublabel: 'workspace',
-  color: '#a78bfa', type: 'core', status: 'accessible',
+  id: 'core', label: 'Hub', sublabel: 'home',
+  color: '#818cf8', type: 'hub', status: 'accessible',
 }
 
 export const CONFIGURADOR_NODE: EcosystemNode = {
@@ -52,7 +53,7 @@ export interface BuildEcosystemNodesOptions {
  * Fonte única de verdade para montar o array de nós do ecossistema.
  * Todas as telas que renderizam o LocalizadorGlobal DEVEM usar este builder.
  *
- * Retorna: [HUB, CORE, CONFIGURADOR, (ADMIN?), (STORE?), ...produtos]
+ * Retorna: [HUB, CONFIGURADOR, (ADMIN?), (STORE?), ...produtos]
  * com status 'current' aplicado ao nó cujo id bate com currentProductId.
  */
 export function buildEcosystemNodes(opts: BuildEcosystemNodesOptions): EcosystemNode[] {
@@ -63,7 +64,6 @@ export function buildEcosystemNodes(opts: BuildEcosystemNodesOptions): Ecosystem
 
   const nodes: EcosystemNode[] = [
     apply(HUB_NODE),
-    apply(CORE_NODE),
     apply(CONFIGURADOR_NODE),
   ]
 

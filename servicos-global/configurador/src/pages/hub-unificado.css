@@ -410,6 +410,13 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   min-height: 0;
 }
 
+/*
+ * GABI — layout original (baseline, sem sw-hub-gabi-layout--N):
+ *   .sw-gabi-card        → --hub-proto-surface-2 + borda
+ *   .sw-hub-gabi-insight-card → mesmo surface-2
+ * "Voltar para original" nesta conversa → HUB_GABI_LAYOUT_EXPERIMENTO = 0
+ */
+
 /* Caixa interna estica até a base do painel (paridade Store); cards NÃO esticam */
 .sw-hub-panel--gabi .sw-gabi-card {
   flex: 1;
@@ -599,6 +606,71 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   .sw-hub-gabi-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── GABI layout 01 — sem caixa visual (paridade Store) ── */
+.sw-hub-panel--gabi.sw-hub-gabi-layout--1 .sw-gabi-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.25rem 0 0;
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--1 .sw-hub-gabi-insight-card {
+  background: var(--hub-proto-surface-2);
+  border-color: var(--sw-border-mid);
+}
+
+/* ── GABI layout 02 — bandeja sutil + cards elevados ── */
+.sw-hub-panel--gabi.sw-hub-gabi-layout--2 .sw-gabi-card {
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid var(--hub-proto-border);
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--2 .sw-hub-gabi-insight-card {
+  background: var(--hub-proto-surface);
+  border-color: var(--sw-border-mid);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* ── GABI layout 03 — identidade GABI na bandeja ── */
+.sw-hub-panel--gabi.sw-hub-gabi-layout--3 .sw-gabi-card {
+  background: transparent;
+  border: 1px solid rgba(103, 232, 249, 0.16);
+  box-shadow: inset 0 1px 0 rgba(244, 114, 182, 0.08);
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--3 .sw-hub-gabi-insight-card {
+  background: var(--hub-proto-surface-2);
+  border-color: var(--sw-border);
+}
+
+/* ── GABI layout 04 — variantes descoberta vs operação ── */
+.sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--descoberta {
+  border-color: rgba(103, 232, 249, 0.28);
+  background: linear-gradient(160deg, rgba(6, 78, 59, 0.14) 0%, var(--hub-proto-surface-2) 58%);
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--descoberta .sw-hub-gabi-insight-tag {
+  color: #67e8f9;
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--operacao {
+  border-color: var(--hub-proto-border);
+  background: var(--hub-proto-surface-2);
+}
+
+.sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--operacao .sw-hub-gabi-insight-tag {
+  color: var(--sw-text-2);
+}
+
+body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--2 .sw-gabi-card {
+  background: rgba(241, 245, 249, 0.65);
+}
+
+body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--descoberta {
+  background: linear-gradient(160deg, rgba(224, 242, 254, 0.9) 0%, var(--hub-proto-surface-2) 58%);
+  border-color: rgba(6, 182, 212, 0.25);
 }
 
 .sw-hub-gabi-dots {

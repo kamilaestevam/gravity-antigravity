@@ -170,6 +170,31 @@ const GABI_INSIGHT_FALLBACK: GabiInsight = {
 
 const GABI_INSIGHTS_POR_PAGINA = 3
 
+/**
+ * Layout GABI no HUB — experimentos 0–4.
+ * 0 = original (caixa + cards mesmo tom). "Voltar para original" → 0.
+ * 1 = sem caixa · 2 = bandeja + cards elevados · 3 = bandeja GABI · 4 = variantes conteúdo
+ */
+const HUB_GABI_LAYOUT_EXPERIMENTO: 0 | 1 | 2 | 3 | 4 = 1
+
+function classePainelGabiLayout(): string {
+  return HUB_GABI_LAYOUT_EXPERIMENTO === 0
+    ? ''
+    : ` sw-hub-gabi-layout--${HUB_GABI_LAYOUT_EXPERIMENTO}`
+}
+
+function classeInsightGabiCard(insight: GabiInsight): string {
+  const classes = ['sw-hub-gabi-insight-card']
+  if (insight.variante === 'warn') classes.push('sw-hub-gabi-insight-card--warn')
+  if (HUB_GABI_LAYOUT_EXPERIMENTO === 4) {
+    const tagLc = insight.tag.toLowerCase()
+    const descoberta =
+      tagLc.includes('sabia que você pode') || tagLc.startsWith('dica ·')
+    classes.push(descoberta ? 'sw-hub-gabi-insight-card--descoberta' : 'sw-hub-gabi-insight-card--operacao')
+  }
+  return classes.join(' ')
+}
+
 /** Sempre 3 slots — última página preenche com wrap (evita 1 card + 2 colunas vazias). */
 function montarJanelaInsightsGabi(insights: GabiInsight[], indicePagina: number): GabiInsight[] {
   const total = insights.length
@@ -1353,7 +1378,10 @@ export function SelecionarWorkspace() {
                   </button>
                 </section>
 
-                <section className="sw-hub-panel sw-hub-panel--gabi" aria-label={t('sw.gabi_label')}>
+                <section
+                  className={`sw-hub-panel sw-hub-panel--gabi${classePainelGabiLayout()}`}
+                  aria-label={t('sw.gabi_label')}
+                >
                   <div className="sw-hub-gabi-head">
                     <div className="sw-hub-panel-label" style={{ margin: 0 }}>
                       {t('sw.gabi_label')}
@@ -1409,7 +1437,7 @@ export function SelecionarWorkspace() {
                             {insightsGabiVisiveis.map((insight, slot) => (
                               <div
                                 key={`${insight.id}-${gabiIndice}-${slot}`}
-                                className={`sw-hub-gabi-insight-card${insight.variante === 'warn' ? ' sw-hub-gabi-insight-card--warn' : ''}`}
+                                className={classeInsightGabiCard(insight)}
                               >
                                 <div
                                   className={`sw-hub-gabi-insight-tag${insight.variante === 'warn' ? ' sw-hub-gabi-insight-tag--warn' : ''}`}

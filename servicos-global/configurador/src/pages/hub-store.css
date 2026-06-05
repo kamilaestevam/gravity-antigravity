@@ -20,12 +20,19 @@
   color: var(--sw-text-1);
 }
 
-/* Wrapper geral do conteúdo — topbar agora é .hb-topbar sticky, toma seu próprio espaço */
-.gs-store,
-.sw-content.sw-content--hub-unificado {
-  padding: 1.5rem 2rem 4rem;
-  max-width: 1280px;
-  margin: 0 auto;
+/* ── Shell layout SSOT (HUB unificado + Gravity Store) ── */
+.gs-root,
+.sw-page--full:has(.sw-content--hub-unificado) {
+  --gravity-shell-layout-base: 1140px;
+  --gravity-shell-layout-max: min(100%, calc((100vw + var(--gravity-shell-layout-base)) / 2));
+  --gravity-shell-layout-gutter: clamp(0.75rem, 2vw, 1.375rem);
+}
+
+.gs-store {
+  padding: 1.5rem var(--gravity-shell-layout-gutter) 4rem;
+  max-width: var(--gravity-shell-layout-max);
+  width: 100%;
+  margin-inline: auto;
   box-sizing: border-box;
 }
 
@@ -2451,4 +2458,37 @@ body.light-theme .gs-search {
 /* ── Store: Toolbar count ────────────────────────────────────────────────── */
 body.light-theme .gs-toolbar__count {
   color: #475569;
+}
+
+/* ── Shell layout — Store topbar (após hub.css) + HUB SelecionarWorkspace ── */
+.gs-root > .hb-topbar {
+  max-width: var(--gravity-shell-layout-max);
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--gravity-shell-layout-gutter);
+  box-sizing: border-box;
+}
+
+.sw-page--full:has(.sw-content--hub-unificado) > .sw-topbar {
+  max-width: var(--gravity-shell-layout-max);
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--gravity-shell-layout-gutter);
+  box-sizing: border-box;
+}
+
+.sw-page--full:has(.sw-content--hub-unificado) > .sw-content.sw-content--hub-unificado {
+  max-width: var(--gravity-shell-layout-max);
+  width: 100%;
+  margin-inline: auto;
+  padding: 1.5rem var(--gravity-shell-layout-gutter) 4rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .sw-page--full:has(.sw-content--hub-unificado) > .sw-content.sw-content--hub-unificado,
+  .gs-root > .gs-store {
+    padding-top: 1.25rem;
+    padding-bottom: 2.5rem;
+  }
 }

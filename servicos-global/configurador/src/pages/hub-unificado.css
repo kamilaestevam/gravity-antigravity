@@ -18,7 +18,7 @@
   --hub-ops-blue: #60a5fa;
   --hub-ops-blue-soft: rgba(96, 165, 250, 0.12);
   --hub-ops-link: #a5b4fc;
-  /* padding / max-width — override final em hub-unificado (layout centrado protótipo) */
+  /* padding / max-width — ver shell layout SSOT em hub-store.css */
   background: var(--hub-proto-bg);
   color: var(--hub-proto-text);
 }
@@ -1051,33 +1051,3 @@ body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-proc {
   padding: 0.75rem 0;
 }
 
-/* ── Layout centrado — ~50% menos vazio lateral que max 1140px fixo, responsivo ── */
-.sw-page--full:has(.sw-content--hub-unificado) {
-  /* Referência do protótipo; (100vw + base) / 2 reduz pela metade a margem auto em qualquer viewport */
-  --hub-layout-base: 1140px;
-  --hub-layout-max: min(100%, calc((100vw + var(--hub-layout-base)) / 2));
-  --hub-layout-gutter: clamp(0.75rem, 2vw, 1.375rem);
-}
-
-.sw-page--full:has(.sw-content--hub-unificado) > .sw-topbar {
-  max-width: var(--hub-layout-max);
-  width: 100%;
-  margin-inline: auto;
-  padding-inline: var(--hub-layout-gutter);
-  box-sizing: border-box;
-}
-
-.sw-page--full:has(.sw-content--hub-unificado) > .sw-content.sw-content--hub-unificado {
-  max-width: var(--hub-layout-max);
-  width: 100%;
-  margin-inline: auto;
-  padding: 1.5rem var(--hub-layout-gutter) 4rem;
-  box-sizing: border-box;
-}
-
-@media (max-width: 640px) {
-  .sw-page--full:has(.sw-content--hub-unificado) > .sw-content.sw-content--hub-unificado {
-    padding-top: 1.25rem;
-    padding-bottom: 2.5rem;
-  }
-}

@@ -126,8 +126,17 @@ export function PuzzleStackProdutosGravity({
         const isLast = pieceIdx === pecas.length - 1
         const zIdx = pecas.length - pieceIdx + 1
         const path = pathPecaPuzzle(isFirst, isLast)
-        const fill = isOwned ? (meta?.iconBg ?? 'rgba(99,102,241,0.18)') : 'rgba(255,255,255,0.025)'
-        const stroke = isOwned ? (meta?.iconColor ?? '#818cf8') : 'rgba(255,255,255,0.09)'
+        const isHubNaoContratado = escala === 'hub' && !isOwned
+        const fill = isHubNaoContratado
+          ? 'var(--hub-ops-kpi-bg, #1a2438)'
+          : isOwned
+            ? (meta?.iconBg ?? 'rgba(99,102,241,0.18)')
+            : 'rgba(255,255,255,0.025)'
+        const stroke = isOwned
+          ? (meta?.iconColor ?? '#818cf8')
+          : isHubNaoContratado
+            ? 'rgba(148, 163, 184, 0.08)'
+            : 'rgba(255,255,255,0.09)'
         const nomeExibicao = nomeExibicaoProdutoGravity(
           peca.slug,
           peca.nome,
@@ -140,7 +149,7 @@ export function PuzzleStackProdutosGravity({
         return (
           <div
             key={peca.slug}
-            className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isFirst ? '' : ' gs-piece--has-blank'}${isSoon ? ' gs-piece--soon' : ''}${isOwned && escala === 'hub' ? ' gs-piece--acesso-direto' : ''}`}
+            className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isHubNaoContratado ? ' gs-piece--nao-contratado-hub' : ''}${isFirst ? '' : ' gs-piece--has-blank'}${isSoon ? ' gs-piece--soon' : ''}${isOwned && escala === 'hub' ? ' gs-piece--acesso-direto' : ''}`}
             style={{ zIndex: zIdx, '--piece-color': meta?.iconColor ?? '#818cf8' } as React.CSSProperties}
             role="button"
             tabIndex={0}

@@ -243,6 +243,35 @@ function formatHubDate(locale: string): string {
   })
 }
 
+interface HubProcessoOperacaoResumo {
+  id: string
+  nome: string
+  detalhe: string
+  badge: string
+  badgeVariant: 'embarque' | 'desembaraco'
+}
+
+function getHubProcessosOperacaoMock(
+  t: (key: string, fallback?: string) => string,
+): HubProcessoOperacaoResumo[] {
+  return [
+    {
+      id: 'hub-op-1',
+      nome: 'Acme Importações · Shanghai Electronics',
+      detalhe: 'IMP-2026/0150 · US$ 108.050 · Marítima',
+      badge: t('hub.mock_badge_embarque', 'Embarque').toUpperCase(),
+      badgeVariant: 'embarque',
+    },
+    {
+      id: 'hub-op-2',
+      nome: 'Acme Importações · Korea Tech Ltd.',
+      detalhe: 'IMP-2026/0149 · US$ 54.200 · Aérea',
+      badge: t('hub.mock_badge_desembaraco', 'Desembaraço').toUpperCase(),
+      badgeVariant: 'desembaraco',
+    },
+  ]
+}
+
 function LegendaEscopoWorkspacesHub({ nomes }: { nomes: readonly string[] }) {
   const { t } = useTranslation()
 
@@ -459,6 +488,23 @@ export function SelecionarWorkspace() {
   const puzzleVazios = Math.max(0, 6 - puzzlePreenchido.length)
 
   const insightGabiAtual = gabiInsights[gabiIndice] ?? gabiInsights[0] ?? null
+
+  const processosOperacaoHub = useMemo(
+    () =>
+      getHubProcessosOperacaoMock((key, fallback) =>
+        typeof fallback === 'string' ? t(key, fallback) : t(key),
+      ),
+    [t],
+  )
+
+  const abrirProcessoHub = useCallback(() => {
+    const orgId = idOrganizacao ?? sessionStorage.getItem('gravity_tenant_id')
+    if (orgId) {
+      navigate(`/processo?idOrganizacao=${encodeURIComponent(orgId)}`)
+    } else {
+      navigate('/processo')
+    }
+  }, [idOrganizacao, navigate])
 
   const abrirProdutoContratadoHub = useCallback((slug: string, rota?: string) => {
     const wsId = preferredId ?? selectedId ?? workspaces[0]?.id
@@ -1352,7 +1398,7 @@ export function SelecionarWorkspace() {
                   <div className="sw-hub-kpi">
                     <div className="sw-hub-kpi-val">7</div>
                     <div className="sw-hub-kpi-lbl">{t('hub.kpi_processos', 'Processos em andamento')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">▲ {t('hub.kpi_delta_2_hoje', '2 hoje')}</span>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">▲ {t('hub.kpi_delta_1_hoje', '1 hoje')}</span>
                   </div>
                   <div className="sw-hub-kpi">
                     <div className="sw-hub-kpi-val">3</div>
@@ -1362,13 +1408,31 @@ export function SelecionarWorkspace() {
                   <div className="sw-hub-kpi">
                     <div className="sw-hub-kpi-val">12</div>
                     <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_3_pendentes', '3 pendentes')}</span>
+                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_7_pendentes', '7 pendentes')}</span>
                   </div>
                   <div className="sw-hub-kpi">
                     <div className="sw-hub-kpi-val">91%</div>
-                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_gabi', 'Assertividade da Gabi IA')}</div>
+                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_gabi_curto', 'Assertividade Gabi IA')}</div>
                     <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">{t('hub.kpi_delta_ativo', 'ativo')}</span>
                   </div>
+                </div>
+                <div className="sw-hub-proc-list">
+                  {processosOperacaoHub.map((proc) => (
+                    <button
+                      key={proc.id}
+                      type="button"
+                      className="sw-hub-proc"
+                      onClick={abrirProcessoHub}
+                    >
+                      <div>
+                        <div className="sw-hub-proc-name">{proc.nome}</div>
+                        <div className="sw-hub-proc-sub">{proc.detalhe}</div>
+                      </div>
+                      <span className={`sw-hub-proc-badge sw-hub-proc-badge--${proc.badgeVariant}`}>
+                        {proc.badge}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </section>
             </div>

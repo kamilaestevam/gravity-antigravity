@@ -195,7 +195,6 @@ export default function App() {
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
-      onNavigateCore={() => { window.location.href = '/hub' }}
       onNavigateSettings={() => { navigate('/bid-frete/configuracoes') }}
       localizador={{
         workspaceName:       nomeWorkspaceAtivo,

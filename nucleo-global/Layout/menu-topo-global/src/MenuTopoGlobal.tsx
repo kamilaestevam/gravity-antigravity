@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MagnifyingGlass, Info, X, Gear } from '@phosphor-icons/react'
-import { LogoHub, LogoCore } from '@nucleo/logo-produtos'
+import { LogoHub } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { UsuarioGlobal, type UsuarioGlobalProps } from '@nucleo/usuario-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
@@ -52,7 +52,7 @@ export interface MenuTopoGlobalProps {
   sidebarCollapsed?: boolean
   /** Navegar para o Hub — omitir ou passar false oculta o botão (ex: na tela Hub) */
   onNavigateHub?: () => void
-  /** Navegar para o Core — omitir ou passar false oculta o botão (ex: na tela Core) */
+  /** @deprecated Core descontinuado — Hub é o ponto único pós-login; prop ignorada */
   onNavigateCore?: () => void
   /** Slot para ações extras no header (ex: sininho de notificações). Renderizado entre
    *  o toggle de dicas e o seletor de idioma — mesma posição que no shell Header. */
@@ -74,7 +74,7 @@ export function MenuTopoGlobal({
   localizador,
   usuario,
   onNavigateHub,
-  onNavigateCore,
+  onNavigateCore: _onNavigateCoreIgnorado,
   headerActions,
   onNavigateSettings,
 }: MenuTopoGlobalProps) {
@@ -163,28 +163,6 @@ export function MenuTopoGlobal({
             >
               <LogoHub size={13} color="#818cf8" />
               Hub
-            </button>
-          </TooltipGlobal>
-        )}
-
-        {/* Atalho Core */}
-        {onNavigateCore && (
-          <TooltipGlobal descricao={t('shell.ir_core', 'Ir para o Core')}>
-            <button
-              className="mtg-nav-btn"
-              type="button"
-              aria-label={t('shell.ir_core', 'Ir para o Core')}
-              onClick={onNavigateCore}
-              style={{
-                '--mtg-btn-color':        '#818cf8',
-                '--mtg-btn-bg':           'rgba(129,140,248,0.08)',
-                '--mtg-btn-border':       'rgba(129,140,248,0.22)',
-                '--mtg-btn-bg-hover':     'rgba(129,140,248,0.16)',
-                '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
-              } as React.CSSProperties}
-            >
-              <LogoCore size={13} color="#818cf8" />
-              Core
             </button>
           </TooltipGlobal>
         )}

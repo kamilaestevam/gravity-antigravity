@@ -93,6 +93,17 @@ export interface MenuLateralGlobalProps {
   onToggleCollapse?: () => void
 }
 
+function resolverRotuloTenantSidebar(tenantName: string, tenantPlan: string) {
+  const plano = tenantPlan.trim()
+  const nome = tenantName.trim()
+  const planoRedundante =
+    !plano || plano.localeCompare(nome, undefined, { sensitivity: 'accent' }) === 0
+  return {
+    planoRedundante,
+    descricaoTooltip: planoRedundante ? nome : `${nome} · ${plano}`,
+  }
+}
+
 export function MenuLateralGlobal({
   tenantName,
   tenantPlan,
@@ -145,6 +156,7 @@ export function MenuLateralGlobal({
     : 'mlg-logo-name'
   const modoAria = moduleModoAriaLabel ?? moduleModoBadgeLabel
   const logoTooltip = moduleModoVariant && modoAria ? `${moduleName} — ${modoAria}` : moduleName
+  const tenantRotulo = resolverRotuloTenantSidebar(tenantName, tenantPlan)
 
   const logoModoBadge = moduleModoVariant === 'visao_fornecedor' ? (
     <LogoModoBadgeVisaoFornecedor
@@ -452,7 +464,7 @@ export function MenuLateralGlobal({
       {/* ── Workspace switcher ── */}
       <div className="mlg-tenant-wrapper" ref={wsRef}>
         {isCollapsed ? (
-          <TooltipGlobal descricao={`${tenantName} · ${tenantPlan}`}>
+          <TooltipGlobal descricao={tenantRotulo.descricaoTooltip}>
             <div className="mlg-tenant">
               <div className="mlg-tenant-avatar" style={{ color: moduleColor, borderColor: `${moduleColor}40`, backgroundColor: `${moduleColor}2e` }}>
                 {tenantName.charAt(0)}
@@ -474,11 +486,13 @@ export function MenuLateralGlobal({
             <div className="mlg-tenant-info">
               <TooltipGlobal
                 titulo={dropdownWorkspaceTooltipTitulo}
-                descricao={tenantPlan ? `${tenantName} · ${tenantPlan}` : tenantName}
+                descricao={tenantRotulo.descricaoTooltip}
               >
                 <span className="mlg-tenant-name">{tenantName}</span>
               </TooltipGlobal>
-              <span className="mlg-tenant-plan">{tenantPlan}</span>
+              {!tenantRotulo.planoRedundante && (
+                <span className="mlg-tenant-plan">{tenantPlan}</span>
+              )}
             </div>
             <CaretDown className={`mlg-tenant-chevron ${wsOpen ? 'open' : ''}`} size={13} weight="bold" />
           </button>

@@ -316,7 +316,6 @@ function AppInner() {
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
-      onNavigateCore={() => { window.location.href = '/hub' }}
       onNavigateSettings={() => { navigate('/pedido/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{

@@ -2,6 +2,7 @@
 
 > Documentação técnica do skip automático `/hub → /core` e do escape hatch `?select=1`.
 > Skill associada: [`antigravity-configurador`](../../../skills/produtos-gravity/configurador/SKILL.md).
+> Gravity Store (catálogo `/store`): [`GRAVITY-STORE.md`](./GRAVITY-STORE.md).
 
 ---
 

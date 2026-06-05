@@ -1,9 +1,9 @@
+// TST-UNI-STORE-000002 — alinhamento catálogo Admin (13 produtos) + puzzle
 import { describe, expect, it } from 'vitest'
 import { contarStatusCatalogoStore } from '../../../servicos-global/configurador/src/data/status-produto-store'
 import { ordenarSlugsPuzzleStore } from '../../../servicos-global/configurador/src/data/store-puzzle-order'
 import { filtrarProdutosPublicadosStore } from '../../../servicos-global/configurador/src/schemas/store-catalogo-api'
 
-/** Espelho do catálogo Admin (13 publicados, 10 EM_BREVE, 3 ATIVO). */
 const CATALOGO_ADMIN_13 = [
   { slug: 'bid-cambio', status: 'EM_BREVE' },
   { slug: 'bid-frete', status: 'ATIVO' },
@@ -20,7 +20,7 @@ const CATALOGO_ADMIN_13 = [
   { slug: 'smart-trnsito', status: 'EM_BREVE' },
 ] as const
 
-describe('Store — alinhamento Admin SSOT (13 produtos)', () => {
+describe('TST-UNI-STORE-000002 — alinhamento Admin SSOT', () => {
   it('filtro publicado mantém 13 itens ATIVO+EM_BREVE', () => {
     const api = CATALOGO_ADMIN_13.map((p, i) => ({
       id: String(i),

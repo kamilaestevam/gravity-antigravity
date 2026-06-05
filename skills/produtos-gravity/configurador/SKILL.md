@@ -285,6 +285,26 @@ Doc: [`FILTRO-MULTI-WORKSPACE-TECNICO.md`](../../../documentos-tecnicos/produtos
 
 ---
 
+## Gravity Store — `/store` (PR #187)
+
+Catálogo autenticado para exploração e contratação de produtos Gravity adicionais.
+
+| Tópico | SSOT |
+|--------|------|
+| Doc canônico | [`GRAVITY-STORE.md`](../../../documentos-tecnicos/produtos-gravity/configurador/GRAVITY-STORE.md) |
+| Página | `src/pages/Store.tsx` + `hub-store.css` |
+| Catálogo API | `GET /api/v1/produtos-gravity` → `listarPublico()` (Admin `ProdutoGravity`) |
+| Status exibição | `src/data/status-produto-store.ts` |
+| Puzzle | Só `contratado` + `disponivel`; `em_breve` só nas faixas de carrossel |
+| UI | Toolbar Todos/Ativo/Assinar/Em breve + 4 faixas carrossel; cards `gs-card--store` |
+| Assinaturas | `Assinaturas.tsx` reutiliza mesma pele de card |
+| Contratação | `podeComprarNoStore()` — MASTER, SUPER_ADMIN, ADMIN |
+| Zod | `store-catalogo-api.ts` (Mandamento 06+09) |
+
+**Não confundir** com `GET /api/v1/catalogo/produtos` (Marketplace público, sem auth).
+
+---
+
 ## Identidade — Endpoint Canônico (pós-DDD 2026-04-19)
 
 > O Clerk é apenas o **porteiro JWT**. Toda identidade real vem do Prisma via este endpoint.
@@ -537,3 +557,4 @@ import { UpdateWorkspacesSchema } from '../../../../servicos-global/configurador
 - [ ] Fornecedor com múltiplas organizações vê a tela de seleção ao logar?
 - [ ] **Mandamento 01:** nenhuma rota de autorização lê `publicMetadata.role` do Clerk — sempre via Prisma/`/me`?
 - [ ] **Mandamento 06+09:** toda resposta validada com `meResponseSchema.parse()` no front (sem `z.any()`)?
+- [ ] **Gravity Store:** contadores e faixas batem com Admin (`GET /api/v1/produtos-gravity` + `status-produto-store.ts`)? Puzzle sem peças Em breve?

@@ -1,3 +1,4 @@
+// TST-UNI-STORE-000001 — status-produto-store (SSOT Admin + assinatura)
 import { describe, expect, it } from 'vitest'
 import {
   contarStatusCatalogoStore,
@@ -12,7 +13,7 @@ const catalogo = [
   { slug: 'smart-read', status: 'ATIVO' },
 ] as const
 
-describe('resolverStatusProdutoStore — SSOT admin + assinatura', () => {
+describe('TST-UNI-STORE-000001 — resolverStatusProdutoStore', () => {
   it('EM_BREVE prevalece sobre assinatura ativa', () => {
     const assinaturas = new Map([['bid-cambio', { is_active: true }]])
     expect(resolverStatusProdutoStore('bid-cambio', catalogo, assinaturas)).toBe('em_breve')

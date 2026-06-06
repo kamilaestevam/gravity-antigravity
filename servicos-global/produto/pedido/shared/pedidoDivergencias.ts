@@ -46,13 +46,61 @@ export function calcularStatusDivergente(
   const statusItens = itens
     .map(lerStatusEfetivoItem)
     .filter((v): v is string => v != null && v !== '')
-  if (statusItens.length === 0) return false
+  if (statusItens.length === 0) {
+    return inferirStatusDivergenteSemItensCarregados(pedidoPai)
+  }
   const distintos = new Set(statusItens).size
   if (distintos > 1) return true
   if (statusPai != null) {
     return statusItens.some(s => s !== statusPai)
   }
   return false
+}
+
+/** Indica se o pedido provavelmente tem itens (list view — itens ainda não expandidos). */
+export function pedidoPossuiItensNaLista(pedido?: Record<string, unknown> | null): boolean {
+  if (!pedido) return false
+  if ((pedido.itens as unknown[] | undefined)?.length) return true
+  const qtd = Number(pedido.quantidade_total_pedido)
+  if (!Number.isNaN(qtd) && qtd > 0) return true
+  const saldo = Number(pedido.saldo_itens_do_pedido)
+  if (!Number.isNaN(saldo) && saldo > 0) return true
+  const ncms = Number(pedido.ncms_distintos_count)
+  if (!Number.isNaN(ncms) && ncms > 0) return true
+  return false
+}
+
+/**
+ * Alerta na linha pai quando o status mudou sem replicar e os itens ainda não
+ * foram carregados no state (cache vazio).
+ */
+export function inferirStatusDivergenteSemItensCarregados(
+  pedidoPai?: Record<string, unknown> | null,
+): boolean {
+  if (!pedidoPai) return false
+  if (pedidoPai.status_divergente === true) return true
+  const snapshot = pedidoPai.status_itens_snapshot
+  if (snapshot == null || String(snapshot) === '') return false
+  const statusPai = pedidoPai.status != null && String(pedidoPai.status) !== ''
+    ? String(pedidoPai.status)
+    : null
+  if (statusPai == null) return false
+  return String(snapshot) !== statusPai && pedidoPossuiItensNaLista(pedidoPai)
+}
+
+/** Status efetivo do item ao expandir — preserva snapshot quando há divergência pendente. */
+export function resolverStatusEfetivoItemAoCarregar(
+  pedidoPai?: Record<string, unknown> | null,
+): string | null {
+  if (!pedidoPai) return null
+  const statusPai = pedidoPai.status != null && String(pedidoPai.status) !== ''
+    ? String(pedidoPai.status)
+    : null
+  if (inferirStatusDivergenteSemItensCarregados(pedidoPai)) {
+    const snapshot = pedidoPai.status_itens_snapshot
+    if (snapshot != null && String(snapshot) !== '') return String(snapshot)
+  }
+  return statusPai
 }
 
 /** Recalcula flags `{campo}_divergente` a partir dos itens carregados. */

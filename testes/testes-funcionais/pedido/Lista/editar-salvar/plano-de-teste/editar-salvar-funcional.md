@@ -156,15 +156,22 @@ function buildTestApp() {
 | F-ITM-33 | Item com valor IGUAL ao pedido → campo_divergente=false | Sem divergencia |
 | F-ITM-34 | Propagacao replicar_em_itens → todos flags voltam a false | Divergencia resolvida |
 
-### 4. POST /alteracoes-status-lote/confirmar — Status cascade
+### 4. STATUS — API e regras de UI (Lista)
 
-**Arquivo:** `status-cascade.test.ts`
+**Regras de produto:** `documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` (regras 00–04)
+
+**Arquivo API:** `status-cascade.test.ts`
 
 | ID | Caso | Resultado |
 |----|------|-----------|
-| F-STS-01 | Mudar status para 'consolidado' | Pedido + todos itens = 'consolidado' |
+| F-STS-01 | Mudar status para 'consolidado' (com replicar na UI) | Pedido + itens homogêneos na sessão |
 | F-STS-02 | Status invalido | `400` |
 | F-STS-03 | Permissao negada | `403` |
+| F-STS-04 | Mudar status no pedido **sem** replicar | Pedido atualizado; `status_divergente=true` no pai (com itens) |
+| F-STS-05 | Status custom (Configurações) no select | Opção aceita no pedido e no item |
+| F-STS-06 | PUT status no item isolado | **P0 pendente** — hoje só `_p.status` em memória; após F5 volta ao pedido |
+
+> **Nota:** testes legados que assumem «status de item não espelha pedido» podem estar desatualizados — alinhar com regras 00–04 antes de executar suite.
 
 ### 5. Validacao Zod — Payloads invalidos
 

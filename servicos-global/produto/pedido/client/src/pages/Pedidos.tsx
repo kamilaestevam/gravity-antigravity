@@ -124,6 +124,8 @@ import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../..
 import {
   calcularDivergenciasPedido,
   mesclarDivergenciasPreservandoDescricaoPedido,
+  pedidoPossuiItensNaLista,
+  resolverStatusEfetivoItemAoCarregar,
 } from '../../../shared/pedidoDivergencias'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { renderRotuloCadastro } from '../shared/useLogisticaCadastrosPedido'
@@ -2576,6 +2578,7 @@ type PedidoItemEnriquecido = PedidoItem & {
 }
 
 function montarContextoPaiItem(pedido: Pedido, item: PedidoItem): PedidoItemEnriquecido['_p'] {
+  const statusItem = resolverStatusEfetivoItemAoCarregar(pedido as Record<string, unknown>) ?? pedido.status
   return {
     id: pedido.id,
     id_workspace: pedido.id_workspace ?? null,
@@ -2591,7 +2594,7 @@ function montarContextoPaiItem(pedido: Pedido, item: PedidoItem): PedidoItemEnri
     incoterm: pedido.incoterm ?? null,
     condicao_pagamento: pedido.condicao_pagamento ?? null,
     data_emissao_pedido: pedido.data_emissao_pedido ?? null,
-    status: pedido.status,
+    status: statusItem as Pedido['status'],
     moeda_pedido: pedido.moeda_pedido ?? 'USD',
     importacao_exportador_id: pedido.importacao_exportador_id ?? null,
     exportacao_importador_id: pedido.exportacao_importador_id ?? null,
@@ -4127,6 +4130,26 @@ export default function Pedidos() {
     () => buildColunasPai(t, opcoesUnidadesColunas),
     [t, i18n.language, opcoesUnidadesColunas],
   )
+
+  // Status customizados — declarado antes de mapaColunasFilho/colunasComUsuario (ambos usam statusOpts).
+  const [statusOpts, setStatusOpts] = useState<{ valor: string; label: string }[]>(() => {
+    const abas = lerAbasDoLocalStorage(t)
+    return abas
+      ? abas.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label }))
+      : [
+          { valor: 'rascunho',      label: t('pedido.status.rascunho')      },
+          { valor: 'aberto',        label: t('pedido.status.aberto')        },
+          { valor: 'em_andamento',  label: t('pedido.status.em_andamento')  },
+          { valor: 'aprovado',      label: t('pedido.status.aprovado')      },
+          { valor: 'transferencia', label: t('pedido.status.transferencia') },
+          { valor: 'consolidado',   label: t('pedido.status.consolidado')   },
+          { valor: 'cancelado',     label: t('pedido.status.cancelado')     },
+        ]
+  })
+
+  // Declarado antes de mapaColunasFilho/colunasComUsuario (render de status do item lê pedidos).
+  const [pedidos, setPedidos] = useState<Pedido[]>([])
+
   const mapaColunasFilho = useMemo(() => {
     const base = buildMapaColunasFilho(t, opcoesUnidadesColunas)
     const custom: Record<string, GTMapaColunasFilho<PedidoItem>> = {}
@@ -4294,7 +4317,6 @@ export default function Pedidos() {
   const { trackFilter } = useTrackBehavior()
 
   // ── Estado de dados ──────────────────────────────────────────────────────────
-  const [pedidos, setPedidos]               = useState<Pedido[]>([])
   const [carregando, setCarregando]         = useState(true)
   // Erro do ultimo carregamento — usado pelo empty state para diferenciar
   // "lista vazia" de "falhou ao carregar" (Mand. 08, sem fallback silencioso).
@@ -4439,22 +4461,6 @@ export default function Pedidos() {
     // Evita concorrência com refresh de token do Clerk após idle timeout.
     return () => { cancelado = true }
   }, [])
-
-  // ── Status customizados (sincroniza com localStorage ao ganhar foco) ─────────
-  const [statusOpts, setStatusOpts] = useState<{ valor: string; label: string }[]>(() => {
-    const abas = lerAbasDoLocalStorage(t)
-    return abas
-      ? abas.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label }))
-      : [
-          { valor: 'rascunho',      label: t('pedido.status.rascunho')      },
-          { valor: 'aberto',        label: t('pedido.status.aberto')        },
-          { valor: 'em_andamento',  label: t('pedido.status.em_andamento')  },
-          { valor: 'aprovado',      label: t('pedido.status.aprovado')      },
-          { valor: 'transferencia', label: t('pedido.status.transferencia') },
-          { valor: 'consolidado',   label: t('pedido.status.consolidado')   },
-          { valor: 'cancelado',     label: t('pedido.status.cancelado')     },
-        ]
-  })
 
   useEffect(() => {
     const sync = () => {
@@ -5813,9 +5819,17 @@ export default function Pedidos() {
       if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
       const novoStatus = String(valor)
       const replicar = opts?.replicar_em_itens ?? false
+      const statusAnterior = pedidoAtual.status
+      const pedidoTemItens = pedidoPossuiItensNaLista(pedidoAtual as Record<string, unknown>)
+      const snapshotPersistente = pedidoAtual.status_itens_snapshot ?? statusAnterior
       const atualizado = {
         ...pedidoAtual,
         status: novoStatus as Pedido['status'],
+        status_itens_snapshot: replicar
+          ? null
+          : pedidoTemItens
+            ? snapshotPersistente
+            : pedidoAtual.status_itens_snapshot ?? null,
       } as Pedido
       await pedidoLoteApi.mudarStatusConfirmar([id], novoStatus).catch(err => {
         if (!import.meta.env.DEV) throw err
@@ -5832,7 +5846,13 @@ export default function Pedidos() {
       }
       const sinc = itensCache.length > 0
         ? sincronizarItensPedido(itensCache, atualizado)
-        : { itens: itensCache, divergencias: calcularDivergencias(itensCache, atualizado) as Partial<Pedido> }
+        : {
+          itens: itensCache,
+          divergencias: {
+            ...calcularDivergencias(itensCache, atualizado),
+            status_divergente: !replicar && pedidoTemItens && statusAnterior !== novoStatus,
+          } as Partial<Pedido>,
+        }
       setPedidos(prev => prev.map(p => p.id === id
         ? { ...atualizado, itens: sinc.itens, ...sinc.divergencias }
         : p

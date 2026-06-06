@@ -95,6 +95,18 @@ export const cadastrosApi = {
     return parseJsonComSchema(raw, listaFornecedoresSchema)
   },
 
+  /** Parceiros com papel Importador (exportação — contraparte estrangeira). */
+  listarImportadores: async (busca?: string, por_pagina = 200): Promise<ListaFornecedores> => {
+    const params = new URLSearchParams({
+      por_pagina: String(por_pagina),
+      escopo: 'parceiros',
+      pode_ser_importador_fornecedor: 'true',
+    })
+    if (busca?.trim()) params.set('busca', busca.trim())
+    const raw = await request<unknown>(`/api/v1/fornecedores?${params.toString()}`)
+    return parseJsonComSchema(raw, listaFornecedoresSchema)
+  },
+
   /** Empresa 1:1 da organização — `GET /empresas/da-organizacao`. */
   obterEmpresaDaOrganizacao: async (): Promise<Empresa> => {
     const raw = await request<unknown>('/api/v1/empresas/da-organizacao')

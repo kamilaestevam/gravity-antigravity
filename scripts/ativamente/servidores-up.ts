@@ -23,8 +23,22 @@ const REPO_ROOT = join(__dirname, '..', '..')
 const SOMENTE_STATUS = process.argv.includes('--status')
 const HEALTH_TIMEOUT_MS = 4_000
 const BOOT_WAIT_MS = 12_000
+const CFG_BACK_BOOT_WAIT_MS = 20_000
 const POLL_INTERVAL_MS = 2_000
 const POLL_MAX_MS = 30_000
+
+/**
+ * Portas disputadas quando cfg-back sobe sidecars embutidos (modo Railway).
+ * Com GRAVITY_DEV_PM2=1 no ecosystem, cfg-back não as usa — parar antes do restart
+ * evita EADDRINUSE e boot lento durante a transição.
+ */
+const PM2_CONFLITO_CFG_BACK = [
+  'pedido',
+  'cadastros',
+  'bid-frete',
+  'cockpit',
+  'proc-back',
+] as const
 
 type StatusHttp = 'ok' | 'down' | 'degraded'
 type StatusPm2 = 'online' | 'stopped' | 'errored' | 'missing' | 'launching' | 'unknown'
@@ -107,6 +121,20 @@ function pm2StartEcosystem(): void {
 
 function pm2Restart(nome: string): void {
   execIgnorarErro(`npx pm2 restart ${nome}`)
+}
+
+function pm2Stop(nomes: readonly string[]): void {
+  if (nomes.length === 0) return
+  execIgnorarErro(`npx pm2 stop ${nomes.join(' ')}`)
+}
+
+/** Reinicia cfg-back com GRAVITY_DEV_PM2 e sem disputa de porta com sidecars PM2. */
+function pm2RestartCfgBackSeguro(): void {
+  pm2Stop([...PM2_CONFLITO_CFG_BACK])
+  execIgnorarErro('npx pm2 restart cfg-back --update-env')
+  for (const nome of PM2_CONFLITO_CFG_BACK) {
+    pm2StartOnly(nome)
+  }
 }
 
 function pm2StartOnly(nome: string): void {
@@ -204,16 +232,23 @@ async function main(): Promise<void> {
           || pm2 === 'unknown'
           || r.http !== 'ok'
         ) {
-          console.log(`[servidores] Reiniciando ${r.pm2Name} …`)
-          pm2Restart(r.pm2Name)
+          if (r.pm2Name === 'cfg-back') {
+            console.log('[servidores] Reiniciando cfg-back (sequência segura PM2) …')
+            pm2RestartCfgBackSeguro()
+          } else {
+            console.log(`[servidores] Reiniciando ${r.pm2Name} …`)
+            pm2Restart(r.pm2Name)
+          }
           r.acao = 'reiniciado'
           acoes.reiniciados++
         }
       }
     }
 
-    console.log(`\n[servidores] Aguardando ${BOOT_WAIT_MS / 1000}s para boot …`)
-    await sleep(BOOT_WAIT_MS)
+    const cfgBackReiniciado = foraAntes.some((r) => r.pm2Name === 'cfg-back' && r.acao === 'reiniciado')
+    const esperaMs = cfgBackReiniciado ? CFG_BACK_BOOT_WAIT_MS : BOOT_WAIT_MS
+    console.log(`\n[servidores] Aguardando ${esperaMs / 1000}s para boot …`)
+    await sleep(esperaMs)
 
     const deadline = Date.now() + POLL_MAX_MS
     let depois = await diagnosticar(lerPm2())

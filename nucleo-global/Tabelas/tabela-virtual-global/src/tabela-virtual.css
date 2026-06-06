@@ -914,6 +914,12 @@
   cursor: not-allowed;
 }
 
+/* Célula bloqueada por regra de negócio (ex.: workspace/tipo operação só no pedido) */
+.gtv-celula--bloqueada,
+.gtv-celula--bloqueada * {
+  cursor: not-allowed !important;
+}
+
 /* Modo visual: somente leitura — texto muted, sem fundo na célula */
 .gtv-celula--somente-leitura {
   cursor: default;

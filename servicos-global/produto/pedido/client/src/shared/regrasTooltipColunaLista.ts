@@ -167,7 +167,7 @@ export function classificarRegraTooltipColuna(
 
   if (nivel === 'item') {
     if (key === 'numero_pedido') return 'item_part_number'
-    if (key === 'tipo_operacao') return 'item_nao_editavel_padrao'
+    if (key === 'tipo_operacao' || key === 'id_workspace') return 'item_nao_editavel_padrao'
     if (key === 'saldo_itens_do_pedido') return 'item_nao_editavel_saldo'
     if (ITEM_NAO_EDITAVEL.has(key) || key.includes('transferida')) return 'item_nao_editavel_transferencia'
     if (key.includes('cancelada')) return 'item_nao_editavel_cancelamento'

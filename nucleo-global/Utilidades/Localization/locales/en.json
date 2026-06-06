@@ -4502,6 +4502,8 @@
       "parte_importador_titulo": "Importer",
       "parte_exportador_titulo": "Exporter",
       "importador_workspace_desc": "Importer defined by workspace {{nome}}",
+      "importador_espelhado_workspace_tooltip": "Mirrored from workspace {{nome}} — change the order workspace to switch the importer",
+      "clique_abrir_seletor_importador": "Click to change the linked importer",
       "exportador_workspace_desc": "Exporter defined by workspace {{nome}}",
       "exportador_e_workspace": "Exporter is the Workspace itself. Click to edit data in the Configurator",
       "workspace_sem_nome": "Workspace name not registered. Click to register in the Configurator",
@@ -6734,6 +6736,18 @@
         "importacao": "Import",
         "exportacao": "Export"
       },
+      "modal_importador": {
+        "titulo": "Change importer",
+        "subtitulo_workspace": "Order from workspace {{nome}}",
+        "carregando": "Loading importers…",
+        "vazio": "No suppliers registered with importer role.",
+        "atalho_config": "Manage suppliers in Configurator",
+        "confirmar": "Confirm",
+        "cancelar": "Cancel",
+        "fechar": "Close",
+        "erro_carregar": "Failed to load importers.",
+        "erro_salvar": "Failed to save importer."
+      },
       "coluna_dinamica": {
         "valor_total": "Total Order/Item Value",
         "qtd_inicial": "Initial Order/Item Qty.",
@@ -7780,6 +7794,14 @@
   },
   "processo": {
     "titulo": "Process",
+    "lista": {
+      "tag_pedido_titulo": "Order {{n}}",
+      "tag_pedido_titulo_fallback": "Order",
+      "tag_pedido_desc": "Layer 2 — purchase order linked to the process",
+      "tag_item_titulo": "Item {{n}}",
+      "tag_item_titulo_fallback": "Item",
+      "tag_item_desc": "Layer 3 — product line within the order"
+    },
     "status": {
       "rascunho": "Draft",
       "em_andamento": "In Progress",

@@ -133,17 +133,8 @@ export function calcularDivergenciasPedido(
   }
 
   {
-    // Workspace: compara id do pai (id_workspace) com company_id do item (ACL JSON).
-    const wsPai = (pedidoPai?.id_workspace ?? pedidoPai?.company_id ?? null) as string | null
-    const wsItens = itens
-      .map(i => (i.company_id ?? i.id_workspace) as string | null | undefined)
-      .filter((v): v is string => v != null && v !== '')
-    const wsUnicos = new Set(wsItens)
-    let wsDivergente = wsUnicos.size > 1
-    if (!wsDivergente && wsPai && wsItens.length > 0) {
-      wsDivergente = wsItens.some(u => u !== wsPai)
-    }
-    result.id_workspace_divergente = wsDivergente
+    // Workspace: edição no pedido replica sempre — sem alerta de divergência na UI (decisão 2026-06).
+    result.id_workspace_divergente = false
   }
 
   {

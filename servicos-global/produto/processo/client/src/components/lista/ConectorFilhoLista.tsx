@@ -2,6 +2,8 @@
  * ConectorFilhoLista — tag + chevron pedido / tag item na coluna expand das linhas filhas.
  */
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { FilhoLinhaLista } from '../../shared/lista/mockListaHierarquica'
 import { itensDoPedido } from '../../shared/lista/mockListaHierarquica'
 import { rotuloItemLista } from '../../shared/lista/rotuloItemLista'
@@ -32,13 +34,21 @@ export function ConectorFilhoLista({
   pedidosExpandidos,
   onTogglePedido,
 }: ConectorFilhoListaProps) {
+  const { t } = useTranslation()
+
   if (filho.camada === 'item') {
-    const rotulo = rotuloItemLista(filho.item.sequencia_item)
+    const seq = filho.item.sequencia_item
+    const rotulo = rotuloItemLista(seq)
+    const titulo = seq != null && seq > 0
+      ? t('processo.lista.tag_item_titulo', { n: seq })
+      : t('processo.lista.tag_item_titulo_fallback')
     return (
       <div className="pl-conector-item-slot">
-        <span className="pl-camada pl-camada--item pl-conector-item-tag" aria-label={rotulo}>
-          {rotulo}
-        </span>
+        <TooltipGlobal titulo={titulo} descricao={t('processo.lista.tag_item_desc')}>
+          <span className="pl-camada pl-camada--item pl-conector-item-tag" aria-label={titulo}>
+            {rotulo}
+          </span>
+        </TooltipGlobal>
       </div>
     )
   }
@@ -59,12 +69,25 @@ export function ConectorFilhoLista({
       onMouseDown={pararPropagacao}
       onPointerDown={pararPropagacao}
     >
-      <span
-        className="pl-camada pl-camada--pedido pl-conector-pedido-tag"
-        aria-label={rotuloPedido}
+      <TooltipGlobal
+        titulo={
+          filho.sequencia_pedido != null && filho.sequencia_pedido > 0
+            ? t('processo.lista.tag_pedido_titulo', { n: filho.sequencia_pedido })
+            : t('processo.lista.tag_pedido_titulo_fallback')
+        }
+        descricao={t('processo.lista.tag_pedido_desc')}
       >
-        {rotuloPedido}
-      </span>
+        <span
+          className="pl-camada pl-camada--pedido pl-conector-pedido-tag"
+          aria-label={
+            filho.sequencia_pedido != null && filho.sequencia_pedido > 0
+              ? t('processo.lista.tag_pedido_titulo', { n: filho.sequencia_pedido })
+              : t('processo.lista.tag_pedido_titulo_fallback')
+          }
+        >
+          {rotuloPedido}
+        </span>
+      </TooltipGlobal>
       {qtd_itens > 0 ? (
         <button
           type="button"

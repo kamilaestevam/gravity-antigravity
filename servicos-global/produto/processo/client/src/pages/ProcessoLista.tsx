@@ -484,6 +484,7 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
             resetCacheFilhos={resetCacheFilhos}
             renderConectorFilho={renderConectorFilho}
             renderConectorPai={renderConectorPai}
+            larguraColunaExpand="6.25rem"
             classNameLinhaPai={classNameLinhaPai}
             classNameLinhaFilho={classNameLinhaFilho}
             acoes={acoesProcesso}

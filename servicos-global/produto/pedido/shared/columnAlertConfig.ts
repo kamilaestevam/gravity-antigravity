@@ -23,9 +23,7 @@
  */
 
 const CAMPOS_ALERTAVEIS = new Set([
-  // Workspace — divergência calculada em pedidoDivergencias.ts (item.company_id vs pai.id_workspace)
-  'id_workspace',
-
+  // id_workspace — exclusão intencional: pedido replica SEMPRE; item não edita; sem alerta.
   // tipo_operacao — exclusão intencional: pedido replica para todos os itens; sem alerta de divergência.
   // status — divergência calculada em pedidoDivergencias.ts via `_p.status` (sem campo no PedidoItem).
 

@@ -58,7 +58,19 @@ module.exports = {
   apps: [
 
     // ── Configurador ─────────────────────────────────────────────────────────
-    svc('cfg-back', 'servicos-global/configurador', 8005, ENV_SERVICO, 'server/index.ts'),
+    // GRAVITY_DEV_PM2=1: cfg-back não embute sidecars (Pedido/Cadastros/BID…);
+    // processos PM2 abaixo já escutam nas portas 8030/8031/8023/8026/8016.
+    // Produção (Railway/start-site.sh) não define esta variável — sidecars embutidos.
+    {
+      ...svc('cfg-back', 'servicos-global/configurador', 8005, ENV_SERVICO, 'server/index.ts'),
+      env: {
+        PORT: '8005',
+        NODE_ENV: 'development',
+        PM2_DEV_ENTRY: 'server/index.ts',
+        PM2_DEV_ENV_FILES: ENV_SERVICO.join('|'),
+        GRAVITY_DEV_PM2: '1',
+      },
+    },
 
     {
       // Vite direto — PM2 controla o processo real (sem cmd→npm→vite no Windows)

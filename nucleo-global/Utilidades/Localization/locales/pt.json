@@ -6204,6 +6204,8 @@
       "parte_importador_titulo": "Importador",
       "parte_exportador_titulo": "Exportador",
       "importador_workspace_desc": "Importador definido pelo workspace {{nome}}",
+      "importador_espelhado_workspace_tooltip": "Espelhado com o workspace {{nome}} — altere o workspace do pedido para trocar o importador",
+      "clique_abrir_seletor_importador": "Clique para trocar o importador vinculado",
       "exportador_workspace_desc": "Exportador definido pelo workspace {{nome}}",
       "exportador_e_workspace": "Exportador é o próprio Workspace. Clique para editar dados no Configurador",
       "workspace_sem_nome": "Nome do Workspace não cadastrado. Clique para cadastrar no Configurador",
@@ -7029,6 +7031,18 @@
       "tipo_operacao": {
         "importacao": "Importação",
         "exportacao": "Exportação"
+      },
+      "modal_importador": {
+        "titulo": "Trocar importador",
+        "subtitulo_workspace": "Pedido do workspace {{nome}}",
+        "carregando": "Carregando importadores…",
+        "vazio": "Nenhum importador cadastrado com papel de importador.",
+        "atalho_config": "Gerenciar fornecedores no Configurador",
+        "confirmar": "Confirmar",
+        "cancelar": "Cancelar",
+        "fechar": "Fechar",
+        "erro_carregar": "Erro ao carregar importadores.",
+        "erro_salvar": "Erro ao salvar importador."
       },
       "coluna_dinamica": {
         "valor_total": "Valor Total do Pedido/Item",
@@ -8076,6 +8090,14 @@
   },
   "processo": {
     "titulo": "Processo",
+    "lista": {
+      "tag_pedido_titulo": "Pedido {{n}}",
+      "tag_pedido_titulo_fallback": "Pedido",
+      "tag_pedido_desc": "Camada 2 — pedido de compra vinculado ao processo",
+      "tag_item_titulo": "Item {{n}}",
+      "tag_item_titulo_fallback": "Item",
+      "tag_item_desc": "Camada 3 — linha de produto dentro do pedido"
+    },
     "status": {
       "rascunho": "Rascunho",
       "em_andamento": "Em Andamento",

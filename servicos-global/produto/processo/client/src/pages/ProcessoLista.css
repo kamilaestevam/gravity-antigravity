@@ -240,6 +240,8 @@
   --pl-linha-processo: #a78bfa;
   --pl-linha-pedido: #60a5fa;
   --pl-linha-pedido-suave: #93c5fd;
+  /* Texto da linha pedido — entre branco do processo (#f1f5f9) e cinza do item (#9aa8b8) */
+  --pl-linha-pedido-texto: #d1d9e3;
   --pl-linha-pedido-borda: rgba(96, 165, 250, 0.38);
   --pl-linha-pedido-conector: rgba(96, 165, 250, 0.62);
   --pl-linha-item-texto: #9aa8b8;
@@ -302,7 +304,7 @@
 }
 
 .pl-page .pl-linha--pedido.gtv-linha--filho .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
-  color: var(--pl-linha-pedido-suave);
+  color: var(--pl-linha-pedido-texto);
   font-weight: 600;
 }
 
@@ -336,58 +338,69 @@
   color: var(--pl-linha-pedido-suave);
 }
 
-/* Slots tag Pedido N / Item N — mesma âncora na coluna expand */
+/* Slots tag Pedido N / Item N — na coluna expand (6.25rem) */
 .pl-page .pl-conector-pedido-slot,
 .pl-page .pl-conector-item-slot {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
   overflow: visible;
   box-sizing: border-box;
+}
+
+.pl-page .pl-conector-item-slot {
+  justify-content: flex-start;
+  width: 100%;
+  padding-left: 0.25rem;
+}
+
+/* TVG força .tg-trigger com flex:1 + overflow:hidden — colapsa P-1/I-N na expand */
+.pl-page .gtv-celula--expand .pl-conector-pedido-slot > .tg-trigger,
+.pl-page .gtv-celula--expand .pl-conector-item-slot > .tg-trigger {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: max-content;
+  overflow: visible;
 }
 
 .pl-page .pl-conector-pedido-tag,
 .pl-page .pl-conector-item-tag {
   display: inline-block;
   flex-shrink: 0;
-  max-width: 100%;
-  margin-left: -14px;
+  margin-left: 0;
   text-transform: none;
   letter-spacing: 0.02em;
   font-size: 8.5px;
   padding: 0.0625rem 0.375rem;
-  min-width: 0;
+  min-width: max-content;
   text-align: center;
   white-space: nowrap;
   line-height: 1.1;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
 
-/* Coluna expand — mesma largura; chevron processo + pedido no mesmo eixo (centro) */
+/* Coluna expand — largura alinhada ao grid (larguraColunaExpand na TVG) */
 .pl-page .gtv-th--expand,
 .pl-page .gtv-celula--expand {
-  flex: 0 0 4.75rem;
-  min-width: 4.75rem;
-  max-width: 4.75rem;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
   padding-left: 0;
   padding-right: 0;
+  overflow: hidden;
 }
 
 .pl-page .gtv-linha:not(.pl-linha--processo):not(.pl-linha--pedido):not(.pl-linha--item) .gtv-celula--expand {
   overflow: hidden;
 }
 
-/* Processo (L1): chevron à direita da expand — mesma distância até Gravity que pedido → PO */
+/* Processo (L1): chevron à direita da expand — colado ao Gravity */
 .pl-page .pl-linha--processo.gtv-linha--pai .gtv-celula--expand {
   justify-content: flex-end;
-  padding-right: calc(0.5rem + 0.75rem);
+  padding-left: 0;
+  padding-right: 0;
   overflow: visible;
 }
 
@@ -396,11 +409,12 @@
   align-items: center;
   justify-content: flex-end;
   width: 100%;
+  padding-right: 0;
   overflow: visible;
 }
 
 .pl-page .pl-linha--processo.gtv-linha--pai .gtv-celula--expand + .gtv-celula {
-  margin-left: 0.625rem;
+  padding-left: 0;
 }
 
 .pl-page .pl-processo-chevron {
@@ -409,28 +423,29 @@
   flex-shrink: 0;
 }
 
-/* Item: tag na coluna expand */
+/* Item: tag à esquerda da expand */
 .pl-page .pl-linha--item.gtv-linha--filho .gtv-celula--expand {
   justify-content: flex-start;
-  padding-right: 0.5rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
   overflow: visible;
   border-right: none;
 }
 
-/* Pedido: badge + chevron agrupados à esquerda — isolados da célula editável */
+/* Pedido: tag + chevron agrupados à direita da expand — colado ao PO */
 .pl-page .pl-linha--pedido.gtv-linha--filho .gtv-celula--expand {
-  flex: 0 0 6.25rem;
-  min-width: 6.25rem;
-  max-width: 6.25rem;
-  justify-content: flex-start;
-  padding-right: 0.75rem;
+  justify-content: flex-end;
+  padding-left: 0;
+  padding-right: 0;
   overflow: visible;
-  border-right: 1px solid transparent;
 }
 
 .pl-page .pl-conector-pedido-slot {
   gap: 0.375rem;
-  padding-right: 0.5rem;
+  justify-content: flex-end;
+  padding-right: 0;
+  min-width: max-content;
+  flex-shrink: 0;
 }
 
 .pl-page .pl-pedido-chevron {
@@ -440,12 +455,11 @@
   flex-shrink: 0;
 }
 
-/* Respiro entre zona expand (badge+chevron) e PO-2026/001 */
 .pl-page .pl-linha--pedido.gtv-linha--filho .gtv-celula--expand + .gtv-celula {
-  margin-left: 0.625rem;
+  padding-left: 0;
 }
 
-/* PROCESSO dos itens — respiro obrigatório após a faixa da tag */
+/* Identidade item — alinhada à coluna Processo após a tag na expand */
 .pl-page .pl-linha--item.gtv-linha--filho .gtv-celula:has(.pl-item-identidade) {
   padding-left: 1rem;
   overflow: hidden;
@@ -479,7 +493,7 @@
   font-size: var(--pl-font-pedido);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--pl-linha-pedido-suave);
+  color: var(--pl-linha-pedido-texto);
   line-height: 1.3;
 }
 

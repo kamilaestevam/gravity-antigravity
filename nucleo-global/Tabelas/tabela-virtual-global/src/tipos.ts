@@ -357,6 +357,8 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   renderConectorFilho?: (item: C) => ReactNode
   /** Conteúdo da expand cell do pai (padrão: chevron TVG) */
   renderConectorPai?: (item: T, ctx: GTConectorPaiContext) => ReactNode
+  /** Largura da coluna expand no grid (padrão: 40px) */
+  larguraColunaExpand?: string
 
   // ── Busca, filtros e ordenação ─────────────────────────────────────────────
   onBuscar?: (termo: string) => void

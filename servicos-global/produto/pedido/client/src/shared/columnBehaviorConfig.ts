@@ -158,6 +158,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
 // Exceções condicionais (nome_exportador, nome_importador) permanecem no mapa filho.
 
 const ALERTA_OVERRIDE: Record<string, boolean> = {
+  id_workspace: false, // replica automática do pedido — sem alerta de divergência
   tipo_operacao: false, // replica do pedido — sem alerta de divergência
   status: true, // pedido ≠ item ou item ≠ item → alerta na coluna Status
 }
@@ -171,6 +172,7 @@ const TIPO_DEFAULTS_ITEM: Record<TipoCampo, boolean> = {
 
 // Colunas que fogem ao padrão do tipo no nível item
 const ITEM_EDITAVEL_OVERRIDE: Record<string, boolean> = {
+  id_workspace:                 false, // exclusivo do pedido — replica para itens
   tipo_operacao:                false, // exclusivo do pedido — replica para itens
   status:                       true,  // item herda status mas pode ser editado
   quantidade_transferida_total: false, // só muda via operação de transferência

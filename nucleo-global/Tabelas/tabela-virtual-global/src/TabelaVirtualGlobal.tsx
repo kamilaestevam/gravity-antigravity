@@ -1589,6 +1589,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   acoesFilho,
   renderConectorFilho,
   renderConectorPai,
+  larguraColunaExpand = '40px',
   onBuscar,
   modoLocalizar = false,
   onFindProximaPagina,
@@ -1808,11 +1809,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     if (temIndicador) cols.push('36px')
     if (arrastavelPai) cols.push('28px')
     if (temSelecao) cols.push('40px')
-    if (onCarregarFilhos) cols.push('40px')
+    if (onCarregarFilhos) cols.push(larguraColunaExpand)
     cols.push(...colunasFiltradas.map(() => 'max-content'))
     if (acoes && acoes.length > 0) cols.push('max-content')
     return cols.join(' ')
-  }, [temIndicador, arrastavelPai, temSelecao, onCarregarFilhos, colunasFiltradas, acoes])
+  }, [temIndicador, arrastavelPai, temSelecao, onCarregarFilhos, larguraColunaExpand, colunasFiltradas, acoes])
 
 
   // ── Seleção ───────────────────────────────────────────────────────────────────
@@ -2827,7 +2828,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
 
     const classeIndent      = ''
-    const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
+    const colEditavelBoolFalse = col.editavel === false
+    const celulaBloqueadaPorRegra = isFilho && !!onEditarFilho && !semPermissaoEditar
+      && (colEditavelBoolFalse || editavelColFn === false)
+    const classeEditavel    = podeEditar
+      ? ' gtv-celula--editavel'
+      : (semPermissaoEditar
+        ? ' gtv-celula--sem-permissao'
+        : (celulaBloqueadaPorRegra ? ' gtv-celula--bloqueada' : ''))
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
     const isCelulaFeedback  = celulaResultado?.id === id && celulaResultado?.campo === col.key
@@ -3195,7 +3203,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
             const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
-            const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : '')
+            const celulaBloqueadaFilho = editavelMapaDef && editavelMapaVal === false
+              && !!onEditarFilho && !semPermissaoFilho
+            const classeEditavel    = podeEditar
+              ? ' gtv-celula--editavel'
+              : (semPermissaoFilho
+                ? ' gtv-celula--sem-permissao'
+                : (celulaBloqueadaFilho ? ' gtv-celula--bloqueada' : ''))
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 

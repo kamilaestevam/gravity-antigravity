@@ -212,6 +212,7 @@ Alguns campos **não** seguem o padrão «checkbox opcional + alerta se divergir
 | Campo | Checkbox no popover (linha pai) | Sem checkbox | Alerta âmbar | Edição no item |
 |-------|--------------------------------|--------------|--------------|----------------|
 | **Campos propagáveis** (Incoterm, datas, …) | ✅ Sim | Só atualiza pai; itens intactos | ✅ Se diverge | ✅ Conforme `columnBehaviorConfig` |
+| **`id_workspace`** | ❌ Oculto | **Sempre** replica para todos os itens | ❌ Nunca | ❌ Célula travada |
 | **`tipo_operacao`** | ❌ Oculto | **Sempre** replica para todos os itens | ❌ Nunca | ❌ Célula travada |
 | **`status`** | ✅ Sim | Só atualiza pai (API lote); itens mantêm status anterior na UI | ✅ Se pedido≠item ou item≠item | ✅ UI (`_p.status`; persistência item = dívida P0) |
 

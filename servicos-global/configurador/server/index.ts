@@ -629,12 +629,24 @@ app.use(errorHandler)
 // ─── Start (apenas quando executado diretamente, não em testes) ──────────────
 
 if (process.env.NODE_ENV !== 'test') {
-  // Sidecars — cada um roda em porta fixa interna.
-  // Sequenciados para evitar race condition em process.env.PORT.
+  // Dev local com PM2 (ecosystem.config.cjs): processos separados nas portas dos sidecars.
+  // Produção/Railway: sidecars embutidos no mesmo processo (GRAVITY_DEV_PM2 ausente).
+  const devPm2 = process.env.GRAVITY_DEV_PM2 === '1'
+
   const portaOriginal = process.env.PORT
   const dbOriginal = process.env.DATABASE_URL
   const listenPort = Number(portaOriginal ?? process.env.PORT ?? 8005)
   const configuradorLoopbackUrl = `http://127.0.0.1:${listenPort}`
+
+  if (devPm2) {
+    console.log(
+      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8023/8026/8016)',
+    )
+  }
+
+  if (!devPm2) {
+  // Sidecars — cada um roda em porta fixa interna.
+  // Sequenciados para evitar race condition em process.env.PORT.
 
   // Sidecar 1: Cadastros (porta 8031)
   process.env.PORT = '8031'
@@ -729,6 +741,7 @@ if (process.env.NODE_ENV !== 'test') {
   // Restaurar env vars originais
   process.env.PORT = portaOriginal
   process.env.DATABASE_URL = dbOriginal
+  } // fim !devPm2 — sidecars embutidos
 
   async function aplicarMigrationsBidFreteDev(): Promise<void> {
     if (process.env.NODE_ENV === 'production' || process.env.BID_SKIP_MIGRATIONS === '1') return
@@ -794,11 +807,13 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`[configurador] Servidor rodando na porta ${listenPort}`)
     process.env.CONFIGURADOR_BASE_URL = configuradorLoopbackUrl
 
-    void iniciarSidecarBidFreteInternacional().catch((err: unknown) => {
-      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
-      _sidecarStatus['bid-frete'] = { ok: false, error: msg }
-      console.error('[configurador] Sidecar BID (background) erro não tratado:', msg)
-    })
+    if (!devPm2) {
+      void iniciarSidecarBidFreteInternacional().catch((err: unknown) => {
+        const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+        _sidecarStatus['bid-frete'] = { ok: false, error: msg }
+        console.error('[configurador] Sidecar BID (background) erro não tratado:', msg)
+      })
+    }
 
     // Garantir produtos canônicos no catálogo (cria/atualiza nomes — nunca apaga cadastros do Admin)
     try {

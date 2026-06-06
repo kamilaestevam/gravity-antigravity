@@ -132,13 +132,17 @@ export function App() {
               especifico). O <Layout> do @shell ja cuida do posicionamento. */}
           <Route path="/" element={<Navigate to="lista" replace />} />
           <Route element={<ProcessoVisualizacaoLayout />}>
+            <Route path="insights" element={processoVisualizacoesElement} />
             <Route path="lista" element={processoVisualizacoesElement} />
+            <Route path="dashboard" element={processoVisualizacoesElement} />
             <Route path="kanban" element={processoVisualizacoesElement} />
           </Route>
           {/* Alias /todos/* durante migracao */}
           <Route path="todos">
             <Route index element={<Navigate to="../lista" replace />} />
-            <Route path="lista"  element={<Navigate to="../../lista" replace />} />
+            <Route path="insights" element={<Navigate to="../../insights" replace />} />
+            <Route path="lista" element={<Navigate to="../../lista" replace />} />
+            <Route path="dashboard" element={<Navigate to="../../dashboard" replace />} />
             <Route path="kanban" element={<Navigate to="../../kanban" replace />} />
           </Route>
 

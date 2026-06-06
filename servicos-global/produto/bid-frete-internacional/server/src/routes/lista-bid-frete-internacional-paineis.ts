@@ -38,6 +38,8 @@ const CriarPainelSchema = z.object({
 
   nome: z.string().min(1).max(60),
 
+  config_json: z.string().optional(),
+
 })
 
 
@@ -334,6 +336,14 @@ listaPaineisBidFreteRouter.post('/paineis', async (req: Request, res: Response, 
 
     })
 
+    let configInicial = configListaPainelPadraoV1()
+
+    if (parsed.data.config_json) {
+
+      configInicial = listaPainelConfigV1Schema.parse(JSON.parse(parsed.data.config_json))
+
+    }
+
     const painel = await db.listaPainelUsuarioGlobal.create({
 
       data: {
@@ -344,7 +354,7 @@ listaPaineisBidFreteRouter.post('/paineis', async (req: Request, res: Response, 
 
         ordem_lista_painel_usuario_global: (ultimo?.ordem_lista_painel_usuario_global ?? -1) + 1,
 
-        config_json_lista_painel_usuario_global: serializarConfigListaPainel(configListaPainelPadraoV1()),
+        config_json_lista_painel_usuario_global: serializarConfigListaPainel(configInicial),
 
       },
 

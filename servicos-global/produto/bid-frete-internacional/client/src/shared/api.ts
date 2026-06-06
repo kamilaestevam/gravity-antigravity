@@ -1149,11 +1149,14 @@ export const paineisListaBidFreteApi = {
         return parsed.data
       }),
 
-  criar: (nome: string): Promise<{ data: ListaPainel }> =>
+  criar: (nome: string, configJson?: string): Promise<{ data: ListaPainel }> =>
     fetch(`${API_BASE}/bid-frete-internacional/lista/paineis`, {
       method: 'POST',
       headers: headers(),
-      body: JSON.stringify({ nome }),
+      body: JSON.stringify({
+        nome,
+        ...(configJson ? { config_json: configJson } : {}),
+      }),
     })
       .then(res => handleResponse<unknown>(res))
       .then(raw => listaPainelItemResponseSchema.parse(raw)),

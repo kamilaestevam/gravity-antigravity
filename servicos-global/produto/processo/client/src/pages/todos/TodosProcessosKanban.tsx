@@ -9,7 +9,7 @@
 
 import React, { useState, useMemo } from 'react'
 import {
-  Briefcase, Plus, MagnifyingGlass, X, CurrencyDollar,
+  Briefcase, Kanban, Plus, MagnifyingGlass, X, CurrencyDollar,
   Package, User, CalendarBlank, Globe, ArrowRight,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -60,18 +60,19 @@ export default function TodosProcessosKanban({ embedTabs = true }: { embedTabs?:
 
   return (
     <PaginaGlobal
-      className="ws-fade-up"
+      className="ws-fade-up processo-kanban-page"
       layout="lista"
       cabecalho={
-        <CabecalhoGlobal
-          icone={<Briefcase weight="duotone" size={22} />}
-          titulo="Kanban"
-          subtitulo="Processos do workspace agrupados por etapa"
-        />
+        embedTabs ? (
+          <CabecalhoGlobal
+            icone={<Kanban weight="duotone" size={22} />}
+            titulo="Kanban"
+            subtitulo="Processos do workspace agrupados por etapa"
+          />
+        ) : undefined
       }
+      toolbar={embedTabs ? <TodosProcessosTabs /> : undefined}
     >
-      {embedTabs && <TodosProcessosTabs />}
-
       {/* Toolbar */}
       <div className="tp-kb-toolbar">
         <div className="tp-kb-busca">

@@ -1,10 +1,10 @@
 /**
- * Contexto do seletor Lista | Kanban (Processo).
+ * Contexto do seletor Insights | Lista | Dashboard | Kanban (Processo).
  */
 
 import React, { createContext, useContext, useMemo } from 'react'
 
-export type ProcessoVisualizacaoId = 'lista' | 'kanban'
+export type ProcessoVisualizacaoId = 'insights' | 'lista' | 'dashboard' | 'kanban'
 
 export function testidTabSeletorProcesso(id: ProcessoVisualizacaoId): string {
   return `seletor-visao-tab-${id}`
@@ -16,6 +16,8 @@ export function testidPainelSeletorProcesso(id: ProcessoVisualizacaoId): string 
 
 export function resolverProcessoVisualizacaoPorPathname(pathname: string): ProcessoVisualizacaoId | null {
   if (pathname.includes('/kanban')) return 'kanban'
+  if (pathname.includes('/dashboard')) return 'dashboard'
+  if (pathname.includes('/insights')) return 'insights'
   if (pathname.includes('/lista')) return 'lista'
   return null
 }

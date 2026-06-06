@@ -74,7 +74,12 @@ import {
 } from '../shared/tabela-config-bid-frete'
 import { SYNC_EVENT_CASAS_BID_FRETE } from '../shared/casas-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../shared/formato-data-bid-frete'
-import { listarCardsCatalogo, useCardPreferencesBidFrete } from '../shared/use-card-preferences'
+import {
+  CARD_PERIODOS,
+  listarCardsCatalogo,
+  type CardPeriodoCodigo,
+  useCardPreferencesBidFrete,
+} from '../shared/use-card-preferences'
 import { BidFreteListaFaixaNavegacao } from '../components/BidFreteListaFaixaNavegacao'
 import '../shared/lista-bid-frete-internacional-layout.css'
 import { useListaPainelBidFrete } from '../shared/useListaPainelBidFrete'
@@ -323,7 +328,13 @@ export default function Cotacoes() {
   const [filtroTab, setFiltroTab] = useState('TODAS')
 
   const abas = useMemo(() => gerarAbasDinamicas(statusConfig), [statusConfig])
-  const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferencesBidFrete()
+  const {
+    prefs: cardPrefs,
+    visiveis: cardsVisiveis,
+    periodo: periodoCards,
+    persistir: persistirCardPrefs,
+    setPeriodo: setPeriodoCards,
+  } = useCardPreferencesBidFrete()
 
   const [tabelaConfig, setTabelaConfig] = useState(carregarTabelaConfigBidFrete)
   const [paginaLista, setPaginaLista] = useState(1)
@@ -435,7 +446,7 @@ export default function Cotacoes() {
 
   // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 
-  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => lerPreferenciasTabela())
+  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(undefined)
   const sortCampoLista = 'numero_cotacao_bid_frete_internacional'
   const sortDirLista = 'desc' as const
   const filtrosAtivosLista = useMemo(() => ({}), [])
@@ -449,10 +460,29 @@ export default function Cotacoes() {
     carregando: carregandoPaineisLista,
     aplicarConfigDoPainel,
     persistirPainelAtual,
+    persistirPainelAtualImediato,
     trocarPainel: trocarPainelLista,
+    criarPainel: criarPainelLista,
   } = useListaPainelBidFrete()
   const painelListaAplicadoRef = useRef<string | null>(null)
   const migrouLocalStoragePainelRef = useRef(false)
+
+  const aplicarCardsTopoDoPainel = useCallback((
+    cardsTopo: { ids_visiveis: string[]; periodo?: string } | undefined,
+  ) => {
+    if (!cardsTopo) return
+    const periodosValidos = CARD_PERIODOS.map(p => p.id)
+    if (cardsTopo.periodo && periodosValidos.includes(cardsTopo.periodo as CardPeriodoCodigo)) {
+      setPeriodoCards(cardsTopo.periodo as CardPeriodoCodigo)
+    }
+    if (cardsTopo.ids_visiveis.length > 0) {
+      const visiveisSet = new Set(cardsTopo.ids_visiveis)
+      const algumIdValido = cardPrefs.some(p => visiveisSet.has(p.id))
+      if (algumIdValido) {
+        persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
+      }
+    }
+  }, [cardPrefs, persistirCardPrefs, setPeriodoCards])
 
   const listaPainelCallbacks = useMemo(() => ({
     setPreferencias,
@@ -461,11 +491,11 @@ export default function Cotacoes() {
     setSortDir: () => {},
     setBusca,
     setFiltrosAtivos: () => {},
-    onConfigAplicada: (_aba: string) => { /* filtro client-side */ },
+    setCardsTopoDoPainel: aplicarCardsTopoDoPainel,
     onPainelHidratado: (id: string) => {
       painelListaAplicadoRef.current = id
     },
-  }), [])
+  }), [aplicarCardsTopoDoPainel])
 
   useEffect(() => {
     if (!painelListaAtual || carregandoPaineisLista) return
@@ -524,13 +554,33 @@ export default function Cotacoes() {
     cardsVisiveis, periodoCards, listaPainelCallbacks, sortCampoLista, sortDirLista,
   ])
 
+  const estadoListaParaPainel = useCallback(() => ({
+    preferencias,
+    abaAtiva: filtroTab,
+    sortCampo: sortCampoLista,
+    sortDir: sortDirLista,
+    busca,
+    filtrosAtivos: filtrosAtivosLista,
+    cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+    periodoCards,
+  }), [
+    preferencias, filtroTab, busca, filtrosAtivosLista,
+    cardsVisiveis, periodoCards, sortCampoLista, sortDirLista,
+  ])
+
   const handleCriarPainelLista = useCallback(async (nome: string): Promise<boolean> => {
     painelListaAplicadoRef.current = null
     try {
-      const { data: criado } = await paineisListaBidFreteApi.criar(nome)
-      setPaineisLista(prev => [...prev, criado])
-      setPainelListaAtualId(criado.id)
-      void handleTrocarPainelLista(criado.id)
+      const criado = await criarPainelLista(nome, estadoListaParaPainel(), listaPainelCallbacks)
+      if (!criado) {
+        addNotification({
+          type: 'error',
+          message: t('bid_frete_internacional.lista.painel_criado_erro', {
+            defaultValue: 'Não foi possível salvar o painel.',
+          }),
+        })
+        return false
+      }
       addNotification({
         type: 'success',
         message: t('bid_frete_internacional.lista.painel_criado_sucesso', {
@@ -551,7 +601,7 @@ export default function Cotacoes() {
       })
       return false
     }
-  }, [handleTrocarPainelLista, setPaineisLista, setPainelListaAtualId, addNotification, t])
+  }, [criarPainelLista, estadoListaParaPainel, listaPainelCallbacks, addNotification, t])
 
   useEffect(() => {
     if (!painelListaAtualId || carregandoPaineisLista) return
@@ -574,7 +624,7 @@ export default function Cotacoes() {
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
     if (painelListaAtualId) {
-      persistirPainelAtual({
+      persistirPainelAtualImediato({
         preferencias: prefs,
         abaAtiva: filtroTab,
         sortCampo: sortCampoLista,
@@ -586,8 +636,8 @@ export default function Cotacoes() {
       })
     }
   }, [
-    painelListaAtualId, persistirPainelAtual, filtroTab, busca,
-    cardsVisiveis, periodoCards, filtrosAtivosLista,
+    painelListaAtualId, persistirPainelAtualImediato, filtroTab, busca,
+    cardsVisiveis, periodoCards, filtrosAtivosLista, sortCampoLista, sortDirLista,
   ])
 
   const abrirDetalheCotacao = useCallback((item: Cotacao) => {

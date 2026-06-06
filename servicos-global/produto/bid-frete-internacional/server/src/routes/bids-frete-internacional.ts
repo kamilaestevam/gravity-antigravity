@@ -9,6 +9,8 @@ import {
   sincronizarResumoBid,
 } from '../services/agregar-resumo-bid-frete-internacional.js'
 import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
+import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
+import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -66,10 +68,19 @@ function resolverIdWorkspace(req: Request): string | undefined {
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    await assertWorkspacesAutorizadosNoRequest(req)
+    const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
+    const includeComFiltro = {
+      ...includeCotacoesLista,
+      cotacoes: {
+        ...includeCotacoesLista.cotacoes,
+        ...(Object.keys(filtroWorkspace).length > 0 ? { where: filtroWorkspace } : {}),
+      },
+    }
     const bids = await (req.prisma as any).bidFreteInternacional.findMany({
       where: { id_produto_gravity: 'bid-frete-internacional' },
       orderBy: { data_criacao_bid_bid_frete_internacional: 'desc' },
-      include: includeCotacoesLista,
+      include: includeComFiltro,
     })
     res.json({ bids_frete_internacional: bids })
   } catch (err) {

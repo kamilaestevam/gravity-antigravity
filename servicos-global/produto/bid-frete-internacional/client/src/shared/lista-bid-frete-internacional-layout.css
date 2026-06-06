@@ -1,4 +1,16 @@
 /** Lista BID Frete Internacional — layout paridade Pedido (lp-tabela-chrome + faixa navegacao). */
+.lp-paineis-lista-strip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 1.5rem;
+  padding: 0.1rem 0.35rem;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  border-radius: 0.375rem;
+}
+
 /* Embutido na faixa unificada (painéis + status) */
 .lp-paineis-lista-strip--unificado {
   width: 100%;

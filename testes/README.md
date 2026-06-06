@@ -19,7 +19,8 @@
 2. Ler `skills/testes/SKILL.md` (coordenacao dos 3 niveis)
 3. Ler `documentos-tecnicos/testes/regras/01-convencao-ids.md`
 4. Ler `documentos-tecnicos/testes/regras/02-cobertura-obrigatoria.md`
-5. Verificar se existem testes legados do mesmo escopo (regra FONTE PRIMARIA)
+5. Ler `documentos-tecnicos/testes/regras/07-organizacao-plano-resultado-por-escopo.md` **(plano-teste + resultado-teste)**
+6. Verificar se existem testes legados do mesmo escopo (regra FONTE PRIMARIA)
 
 **Pular leitura -> CI rejeita o PR.**
 

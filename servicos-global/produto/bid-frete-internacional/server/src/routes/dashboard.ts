@@ -11,6 +11,8 @@ import {
   montarMapaCotacoesVisaoGeralBidFreteInternacional,
   STATUS_MAPA_VISAO_GERAL,
 } from '../lib/mapa-cotacoes-visao-geral-bid-frete-internacional.js'
+import { clausulaFiltroWorkspaceBidFrete, parseIdsWorkspacesQuery } from '../shared/workspace-filtro-bid-frete-internacional.js'
+import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -30,14 +32,16 @@ const STATUS_ANDAMENTO = [
 // GET / e GET /kpis — KPIs gerais
 async function handleKpis(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id_workspace, data_inicio, data_fim } = req.query as { id_workspace?: string; data_inicio?: string; data_fim?: string }
+    await assertWorkspacesAutorizadosNoRequest(req)
+    const { data_inicio, data_fim } = req.query as { data_inicio?: string; data_fim?: string }
+    const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
 
     // Cotacoes em andamento
     const cotacoesAndamento = await (req.prisma as any).cotacaoBidFreteInternacional.count({
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO', 'FALTA_INFORMACAO'] },
-        ...(id_workspace ? { id_workspace } : {}),
+        ...(filtroWorkspace),
       },
     })
 
@@ -46,7 +50,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: { in: ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA'] },
-        ...(id_workspace ? { id_workspace } : {}),
+        ...(filtroWorkspace),
       },
     })
 
@@ -56,7 +60,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
         id_produto_gravity: 'bid-frete-internacional',
         cotacao: {
           status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO'] },
-          ...(id_workspace ? { id_workspace } : {}),
+          ...(filtroWorkspace),
         },
       },
       _sum: { valor_total_proposta_bid_frete_internacional: true },
@@ -67,7 +71,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_proposta_bid_frete_internacional: 'APROVADA',
-        ...(id_workspace ? { cotacao: { id_workspace } } : {}),
+        ...(Object.keys(filtroWorkspace).length > 0 ? { cotacao: filtroWorkspace } : {}),
       },
       _sum: { valor_total_proposta_bid_frete_internacional: true },
     })
@@ -77,7 +81,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: 'APROVADA',
-        ...(id_workspace ? { id_workspace } : {}),
+        ...(filtroWorkspace),
       },
       select: { data_aprovacao_cotacao_bid_frete_internacional: true, data_limite_resposta_cotacao_bid_frete_internacional: true },
     })
@@ -88,9 +92,16 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     ).length
     const fora = cotacoesAprovadas.length - emTempo
 
+    const idsWorkspaces = parseIdsWorkspacesQuery(req)
+    const idWorkspaceUnico =
+      !idsWorkspaces?.length && typeof filtroWorkspace.id_workspace === 'string'
+        ? filtroWorkspace.id_workspace
+        : undefined
+
     // Savings
     const savings = await motorGanho.calcularMetricas(req.prisma!, {
-      id_workspace,
+      ...(idsWorkspaces?.length ? { ids_workspaces: idsWorkspaces } : {}),
+      ...(idWorkspaceUnico ? { id_workspace: idWorkspaceUnico } : {}),
       data_inicio: data_inicio ? new Date(data_inicio) : undefined,
       data_fim: data_fim ? new Date(data_fim) : undefined,
     })
@@ -98,7 +109,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
     // Funil de status
     const funil = await (req.prisma as any).cotacaoBidFreteInternacional.groupBy({
       by: ['status_cotacao_bid_frete_internacional'],
-      where: { id_produto_gravity: 'bid-frete-internacional', ...(id_workspace ? { id_workspace } : {}) },
+      where: { id_produto_gravity: 'bid-frete-internacional', ...filtroWorkspace },
       _count: true,
     })
 
@@ -116,7 +127,7 @@ async function handleKpis(req: Request, res: Response, next: NextFunction) {
         id_produto_gravity: 'bid-frete-internacional',
         data_envio_disparo_cotacao_bid_frete_internacional: { not: null },
         data_resposta_disparo_cotacao_bid_frete_internacional: { not: null },
-        ...(id_workspace ? { cotacao: { id_workspace } } : {}),
+        ...(Object.keys(filtroWorkspace).length > 0 ? { cotacao: filtroWorkspace } : {}),
       },
       select: {
         data_envio_disparo_cotacao_bid_frete_internacional: true,
@@ -232,8 +243,8 @@ router.get('/calendario', async (req: Request, res: Response, next: NextFunction
 // GET /insights-alertas — cards da coluna Alertas (Insights cliente)
 router.get('/insights-alertas', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id_workspace } = req.query as { id_workspace?: string }
-    const filtroWorkspace = id_workspace ? { id_workspace } : {}
+    await assertWorkspacesAutorizadosNoRequest(req)
+    const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
 
     const inicioHoje = new Date()
     inicioHoje.setHours(0, 0, 0, 0)
@@ -290,7 +301,8 @@ router.get('/insights-alertas', async (req: Request, res: Response, next: NextFu
 // GET /mapa-cotacoes — globo/mapa da visão operacional (Insights cliente)
 router.get('/mapa-cotacoes', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id_workspace } = req.query as { id_workspace?: string }
+    await assertWorkspacesAutorizadosNoRequest(req)
+    const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
     const idOrganizacao =
       typeof req.headers['x-id-organizacao'] === 'string' ? req.headers['x-id-organizacao'] : undefined
 
@@ -298,7 +310,7 @@ router.get('/mapa-cotacoes', async (req: Request, res: Response, next: NextFunct
       where: {
         id_produto_gravity: 'bid-frete-internacional',
         status_cotacao_bid_frete_internacional: { in: [...STATUS_MAPA_VISAO_GERAL] },
-        ...(id_workspace ? { id_workspace } : {}),
+        ...(filtroWorkspace),
       },
       select: {
         origem_codigo_cotacao_bid_frete_internacional: true,

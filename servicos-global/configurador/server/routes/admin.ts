@@ -39,7 +39,14 @@ import {
   buscarLogTestePorId,
 } from '../lib/emt-artifacts.js'
 import { join, resolve, dirname } from 'path'
-import { GRAVITY_PROD_UI_URL_PADRAO } from '../lib/ambiente-teste-execucao.js'
+import {
+  adaptarTextoCasoParaAmbiente,
+  GRAVITY_PROD_UI_URL_PADRAO,
+  resolverAmbienteExecucao,
+  type AmbienteTesteUi,
+} from '../lib/ambiente-teste-execucao.js'
+import { extrairCasosDoPlano } from '../lib/extrair-casos-plano.js'
+import { appendTestLogEntries, testLogsDir } from '../lib/test-log-persist.js'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { analyzeTestFailure, getMetrics as getGeminiMetrics } from '../lib/gemini-test-analyzer.js'
 import { generateTestPlan, expandTestPlan } from '../lib/agente-plano-teste.js'
@@ -1042,6 +1049,123 @@ adminRouter.get('/planos-teste', (req, res, next) => {
 })
 
 /**
+ * GET /api/v1/admin/planos-teste/:id_plano_teste/casos
+ * Lista casos/passos/prints do plano a partir do arquivo planoFile (md ou json).
+ * Query opcional: ?ambiente=Local|Staging|Producao — adapta textos de localhost para o ambiente.
+ */
+adminRouter.get('/planos-teste/:id_plano_teste/casos', (req, res, next) => {
+  try {
+    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'test-plans-registry.json')
+    if (!existsSync(registryPath)) {
+      throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
+      planos: Array<Record<string, unknown> & { id: string; planoFile?: string }>
+    }
+    const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
+    if (!entry?.planoFile) {
+      throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
+    }
+
+    const candidatos = [
+      resolve(process.cwd(), '..', '..', entry.planoFile),
+      resolve(process.cwd(), '..', '..', 'testes', entry.planoFile.replace(/^testes\//, '')),
+    ]
+    const resolvedPath = candidatos.find(p => existsSync(p))
+    if (!resolvedPath) {
+      throw new AppError('Arquivo do plano não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const conteudo = readFileSync(resolvedPath, 'utf-8')
+    const casosBrutos = extrairCasosDoPlano(conteudo, entry.planoFile)
+
+    const ambienteQuery = req.query.ambiente as string | undefined
+    const ambienteUi: AmbienteTesteUi | undefined =
+      ambienteQuery === 'Local' || ambienteQuery === 'Staging' || ambienteQuery === 'Producao'
+        ? ambienteQuery
+        : undefined
+    const ambienteExecucao = resolverAmbienteExecucao(ambienteUi)
+    const casos = casosBrutos.map(c => ({
+      ...c,
+      titulo: adaptarTextoCasoParaAmbiente(c.titulo, ambienteExecucao),
+      detalhe: adaptarTextoCasoParaAmbiente(c.detalhe, ambienteExecucao),
+    }))
+
+    res.json({
+      plano: entry,
+      casos,
+      total: casos.length,
+      planoFile: entry.planoFile,
+      ambienteExecucao,
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+const PatchPlanoTesteSchema = z.object({
+  id: z.string().min(8).max(120).regex(/^TST-[A-Z0-9][A-Z0-9-]*$/).optional(),
+  titulo: z.string().min(3).max(240).trim().optional(),
+}).refine(
+  data => data.id !== undefined || data.titulo !== undefined,
+  { message: 'Informe id e/ou titulo para atualizar' },
+)
+
+/**
+ * PATCH /api/v1/admin/planos-teste/:id_plano_teste
+ * Atualiza id (nome do plano) e/ou titulo exibido no registry JSON.
+ */
+adminRouter.patch('/planos-teste/:id_plano_teste', (req, res, next) => {
+  try {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
+      throw new AppError('Somente Super Admin pode editar planos de teste', 403, 'FORBIDDEN')
+    }
+
+    const parsed = PatchPlanoTesteSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const registryPath = resolve(monorepoRoot, 'testes', 'test-plans-registry.json')
+    if (!existsSync(registryPath)) {
+      throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
+      planos: Array<Record<string, unknown> & { id: string; modulo?: string; tela?: string }>
+    }
+    const idx = registry.planos.findIndex(p => p.id === req.params.id_plano_teste)
+    if (idx < 0) {
+      throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
+    }
+
+    const entry = registry.planos[idx]
+    const idAnterior = entry.id
+
+    if (parsed.data.id && parsed.data.id !== idAnterior) {
+      if (registry.planos.some(p => p.id === parsed.data.id)) {
+        throw new AppError(`ID ${parsed.data.id} já existe no registry`, 409, 'CONFLICT')
+      }
+      entry.id = parsed.data.id
+    }
+
+    if (parsed.data.titulo) {
+      entry.modulo = parsed.data.titulo
+      if ('tela' in entry) {
+        entry.tela = parsed.data.titulo
+      }
+    }
+
+    writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`, 'utf-8')
+
+    res.json({ plano: entry, id_anterior: idAnterior })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/v1/admin/testes
  * Lista testes (model Teste) — lê da tabela `teste` se existir;
  * fallback: lê todos os arquivos JSON em data/test-logs/
@@ -1120,8 +1244,9 @@ adminRouter.get('/testes', async (_req, res, next) => {
 
 // ── Constantes para run-tests ─────────────────────────────────────────────────
 const monorepoRoot = resolve(process.cwd(), '..', '..')
-const testLogsDir = join(process.cwd(), 'data', 'test-logs')
 const RUN_MARKER_PATH = join(testLogsDir, '_current-run.json')
+const TSX_CLI = resolve(monorepoRoot, 'node_modules/tsx/dist/cli.mjs')
+const EMT_RUNNER_ENTRY = join(process.cwd(), 'server/lib/emt-background-runner.ts')
 
 /** Timeout máximo de um run completo (30 min). Suite completo com browser leva ~20 min. */
 const RUN_TESTS_TIMEOUT_MS = 30 * 60 * 1000
@@ -1132,6 +1257,8 @@ interface RunMarker {
   pid: number
   started_at: string
   runId: string
+  /** EMT usa processo filho detached; E2E usa spawn Playwright no cfg-back. */
+  runner?: 'EMT' | 'E2E'
 }
 
 function readRunMarker(): RunMarker | null {
@@ -1163,10 +1290,76 @@ function isRunActive(): boolean {
   return isProcessAlive(marker.pid)
 }
 
+function finalizeEmtRun(marker: RunMarker, debugLog?: (msg: string) => void): void {
+  const log = debugLog ?? (() => {})
+  const resultPath = join(testLogsDir, `emt-result-${marker.runId}.json`)
+
+  if (existsSync(resultPath)) {
+    try {
+      const raw = JSON.parse(readFileSync(resultPath, 'utf-8')) as { entries: TestLogEntry[] }
+      if (Array.isArray(raw.entries) && raw.entries.length > 0) {
+        appendTestLogEntries(raw.entries, log, marker.started_at)
+      }
+      unlinkSync(resultPath)
+      log(`EMT finalize ${marker.runId} — ${raw.entries?.length ?? 0} entries`)
+    } catch (err) {
+      log(`EMT finalize ${marker.runId} READ FAILED: ${err instanceof Error ? err.message : String(err)}`)
+    }
+    clearRunMarker()
+    return
+  }
+
+  appendTestLogEntries([{
+    type: 'EMT',
+    module: 'EMT/run-interrompido',
+    test_name: marker.runId,
+    result: 'ERRO',
+    duration: '0ms',
+    error_log:
+      'Run EMT interrompido antes de gravar resultado (cfg-back reiniciou via tsx watch, ou processo filho morreu). '
+      + 'Aguarde ~2 min na próxima execução sem reiniciar o cfg-back.',
+    ai_analysis: null,
+  }], log, marker.started_at)
+  log(`EMT finalize ${marker.runId} — orphan sem emt-result (gravado ERRO)`)
+  clearRunMarker()
+}
+
+function spawnEmtRunnerDetached(
+  runId: string,
+  planos: RegistryPlanoRun[],
+  env: Record<string, string>,
+  started_at: string,
+  debugLog: (msg: string) => void,
+): number {
+  const manifestPath = join(testLogsDir, `emt-manifest-${runId}.json`)
+  writeFileSync(manifestPath, JSON.stringify({
+    planos,
+    env: { ...env, EMT_RUN_ID: runId },
+    started_at,
+  }, null, 2))
+
+  const proc = spawn(process.execPath, [TSX_CLI, EMT_RUNNER_ENTRY, runId], {
+    cwd: process.cwd(),
+    env: process.env,
+    detached: true,
+    stdio: 'ignore',
+    windowsHide: true,
+  })
+  proc.unref()
+  const pid = proc.pid ?? 0
+  debugLog(`EMT detached spawn pid=${pid} runId=${runId}`)
+  return pid
+}
+
 function processOrphanedRun(): void {
   const marker = readRunMarker()
   if (!marker) return
   if (marker.status === 'running' && isProcessAlive(marker.pid)) return
+
+  if (marker.runner === 'EMT') {
+    finalizeEmtRun(marker)
+    return
+  }
 
   const stdoutPath = join(testLogsDir, `playwright-run-${marker.runId}.json`)
   if (!existsSync(stdoutPath)) {
@@ -1289,119 +1482,6 @@ function buildSafeTestEnv(ambienteUi?: 'Local' | 'Staging' | 'Producao'): Record
 }
 
 type RegistryPlanoRun = { id: string; specFile?: string; tipo?: string }
-
-function appendTestLogEntries(entries: TestLogEntry[], debugLog: (msg: string) => void): void {
-  const created_at = new Date().toISOString()
-  const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)
-  let existing: unknown[] = []
-  try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
-  const novosLogs = entries.map((e, i) => ({
-    id: `${Date.now()}-${i}`,
-    created_at,
-    ...e,
-  }))
-  try {
-    writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
-    debugLog(`WROTE ${novosLogs.length} entries to ${filePath}`)
-  } catch (writeErr) {
-    debugLog(`WRITE FAILED: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`)
-  }
-}
-
-function lerResultadoTxtEmtRecente(scriptRel: string, startedAtMs: number): string | null {
-  try {
-    const scriptDir = dirname(resolve(monorepoRoot, scriptRel))
-    const subpastas = readdirSync(scriptDir, { withFileTypes: true }).filter(d => d.isDirectory())
-    let melhor: { path: string; mtime: number } | null = null
-    for (const sub of subpastas) {
-      const resultPath = join(scriptDir, sub.name, 'RESULTADO.txt')
-      if (!existsSync(resultPath)) continue
-      const mtime = statSync(resultPath).mtimeMs
-      if (mtime < startedAtMs - 5000) continue
-      if (!melhor || mtime > melhor.mtime) melhor = { path: resultPath, mtime }
-    }
-    if (melhor) return readFileSync(melhor.path, 'utf-8')
-  } catch { /* pasta indisponível */ }
-  return null
-}
-
-function montarErrorLogEmt(
-  code: number,
-  stdout: string,
-  stderr: string,
-  scriptRel: string,
-  startedAtMs: number,
-): string | null {
-  if (code === 0) return null
-  const terminal = [stderr, stdout].map(s => s.trim()).filter(Boolean).join('\n').trim()
-  if (terminal) return terminal.slice(0, 4000)
-  const resultadoTxt = lerResultadoTxtEmtRecente(scriptRel, startedAtMs)
-  if (resultadoTxt) return resultadoTxt.slice(0, 4000)
-  return 'Script EMT encerrou com erro (exit ≠ 0) sem saída no terminal. Verifique RESULTADO.txt na pasta do script.'
-}
-
-function runTsxScript(
-  scriptRel: string,
-  env: Record<string, string>,
-): Promise<{ code: number; stdout: string; stderr: string; durationMs: number; startedAtMs: number }> {
-  const startedAtMs = Date.now()
-  return new Promise(resolve => {
-    let stderr = ''
-    let stdout = ''
-    const proc = spawn('npx', ['tsx', scriptRel], {
-      cwd: monorepoRoot,
-      env,
-      shell: true,
-      windowsHide: true,
-      timeout: RUN_TESTS_TIMEOUT_MS,
-    })
-    proc.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString() })
-    proc.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString() })
-    proc.on('close', code => {
-      resolve({
-        code: code ?? 1,
-        stdout,
-        stderr,
-        durationMs: Date.now() - startedAtMs,
-        startedAtMs,
-      })
-    })
-  })
-}
-
-async function runEmtPlansInBackground(
-  planosEmt: RegistryPlanoRun[],
-  env: Record<string, string>,
-  runId: string,
-  debugLog: (msg: string) => void,
-): Promise<void> {
-  const entries: TestLogEntry[] = []
-  try {
-    for (const plano of planosEmt) {
-      if (!plano.specFile) continue
-      debugLog(`EMT ${plano.id} → npx tsx ${plano.specFile}`)
-      const { code, stdout, stderr, durationMs, startedAtMs } = await runTsxScript(plano.specFile, env)
-      const artefatos = coletarArtefatosEmt(plano.specFile, startedAtMs, code, stdout)
-      entries.push({
-        type: 'EMT',
-        module: plano.id,
-        test_name: plano.id,
-        result: code === 0 ? 'APROVADO' : 'REPROVADO',
-        duration: `${durationMs}ms`,
-        error_log: montarErrorLogEmt(code, stdout, stderr, plano.specFile, startedAtMs),
-        success_log: code === 0 ? artefatos.success_log : null,
-        emt_pasta: artefatos.emt_pasta,
-        emt_prints: artefatos.emt_prints,
-        ai_analysis: null,
-      } as TestLogEntry)
-    }
-    appendTestLogEntries(entries, debugLog)
-    const reprovados = entries.filter(e => e.result === 'REPROVADO').length
-    console.log(`[admin/testes/disparar] EMT run ${runId} — ${entries.length} plano(s), ${reprovados} reprovado(s)`)
-  } finally {
-    clearRunMarker()
-  }
-}
 
 /**
  * POST /api/v1/admin/testes/disparar
@@ -1542,10 +1622,11 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     debugLog(`runId=${runId} ambiente=${ambiente ?? 'Local'}`)
 
     if (planosEmtResolvidos.length > 0) {
-      debugLog(`cmd=EMT npx tsx (${planosEmtResolvidos.length} scripts)`)
-      writeRunMarker({ status: 'running', pid: process.pid, started_at: new Date().toISOString(), runId })
+      debugLog(`cmd=EMT detached (${planosEmtResolvidos.length} scripts)`)
+      const started_at = new Date().toISOString()
+      const childPid = spawnEmtRunnerDetached(runId, planosEmtResolvidos, testEnv, started_at, debugLog)
+      writeRunMarker({ status: 'running', pid: childPid, started_at, runId, runner: 'EMT' })
       res.json({ started: true })
-      void runEmtPlansInBackground(planosEmtResolvidos, testEnv, runId, debugLog)
       return
     }
 
@@ -1575,7 +1656,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     const pid = proc.pid ?? 0
     debugLog(`spawn pid=${pid}`)
 
-    writeRunMarker({ status: 'running', pid, started_at: new Date().toISOString(), runId })
+    writeRunMarker({ status: 'running', pid, started_at: new Date().toISOString(), runId, runner: 'E2E' })
     res.json({ started: true })
 
     // Stdout/stderr → arquivo em disco (sobrevive a restart do servidor)
@@ -1730,8 +1811,8 @@ adminRouter.get('/testes/status', (_req, res) => {
  */
 adminRouter.get('/testes/emt-print/:id_log/:nome_arquivo', async (req, res, next) => {
   try {
-    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
-      throw new AppError('Somente Super Admin pode ver prints EMT', 403, 'FORBIDDEN')
+    if (!['SUPER_ADMIN', 'ADMIN'].includes(req.auth.tipo_usuario)) {
+      throw new AppError('Acesso restrito a administradores Gravity', 403, 'FORBIDDEN')
     }
     const idLog = req.params.id_log
     const nomeArquivo = decodeURIComponent(req.params.nome_arquivo)

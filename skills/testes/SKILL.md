@@ -37,6 +37,7 @@ As skills `agente-plano-teste*` abaixo sao **subordinadas** ao pipeline multi-ag
 | **Unitário** | Vitest | `testes/testes-unitarios/` | Funções e componentes isolados funcionam |
 | **Funcional** | Vitest + Supertest | `testes/testes-funcionais/` | Rotas/integração intra-serviço funcionam |
 | **E2E** | Playwright | `testes/testes-e2e/` | Fluxos completos no navegador funcionam |
+| **EMT** | Playwright + prints | `testes/testes-em-tela/` | Fluxo visual documentado (PNG + RESULTADO.txt) |
 
 > **Pasta `testes/` é centralizada na raiz** — nenhum produto/serviço tem `__tests__` interno. Mantém specs separadas do código de produção e facilita CI.
 
@@ -95,7 +96,7 @@ CI bloqueia merge abaixo do limite. Ver `padroes-vitest-playwright` para configu
 | **`multi-agente-plano-teste`** | **SEMPRE — processo primario de criacao de planos (8 agentes, 6 fases)** |
 | `padroes-vitest-playwright` | Configurar Vitest/Playwright, estrutura de spec, mocks, fixtures |
 | `contract-testing` | Schema Zod usado por front e back — CI bloqueia breaking changes (Mandamento 09) |
-| `teste-em-tela` | Validacao visual — Playwright com screenshots numerados em `testes/testes-em-tela/` |
+| `teste-em-tela` | EMT — ID `TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNN}`; prints em `resultado-teste/<runId>/` |
 | `agente-plano-teste` | Formato de plano geral (20 categorias) — subordinado ao multi-agente |
 | `agente-plano-teste-unitario` | Formato de plano unitario (12 tipos de modulo) — subordinado ao multi-agente |
 | `agente-plano-teste-funcional` | Formato de plano funcional (8 tipos de modulo) — subordinado ao multi-agente |
@@ -119,40 +120,42 @@ Mudança em SDK resolver-organizacao         → Unitário + anti-cross-org + po
 
 ## Decisão: ONDE colocar?
 
+> **SSOT:** `documentos-tecnicos/testes/regras/07-organizacao-plano-resultado-por-escopo.md`
+
+Cada **feature** (escopo testável) tem duas pastas no mesmo nível:
+
+| Pasta | Conteúdo |
+|-------|----------|
+| `plano-teste/` (ou `plano-de-teste/` em funcionais) | Plano `.md`, specs, runner |
+| `resultado-teste/<runId>/` | Prints, `RESULTADO.txt`, evidências **daquela** execução |
+
 ```
 testes/
-├── testes-unitarios/
-│   ├── plano-de-testes/           ← planos .md (padrão ULTIMATE Auditor)
-│   ├── login/                     ← escopo LOGIN (ex.: porteiro pós-auth)
-│   ├── nucleo-global/             ← espelha estrutura do código
-│   ├── servicos-global/
-│   ├── produtos/
-│   └── packages/
-├── testes-funcionais/
-│   ├── plano-de-testes/
-│   ├── login/                     ← wiring App/guards Clerk (escopo LOGIN)
-│   ├── configurador/
-│   ├── organizacao/
-│   └── produtos/
-├── testes-e2e/
-│   ├── plano-de-testes/
-│   ├── login/                     ← fluxos signup/login Playwright
-│   ├── configurador/
-│   └── produtos/
-├── testes-em-tela/                ← screenshots numerados (skill teste-em-tela)
-│   ├── login/
-│   ├── produto/
-│   └── servico/
-├── testes-cross-organizacao/      ← isolamento tenant (NÃO substitui login/)
-│   └── {servico}/
+├── testes-unitarios/<produto>/<area>/<feature>/
+│   ├── plano-teste/
+│   └── resultado-teste/
+├── testes-funcionais/<produto>/<area>/<feature>/
+│   ├── plano-de-teste/
+│   └── resultado-teste/
+├── testes-e2e/<produto>/<area>/<feature>/
+│   ├── plano-teste/
+│   └── resultado-teste/
+├── testes-em-tela/<produto>/<area>/<feature>/
+│   ├── plano-teste/               ← plano + run-*.ts
+│   └── resultado-teste/<runId>/   ← prints isolados por run (EMT)
+├── testes-cross-organizacao/<produto>/<area>/<feature>/
+│   ├── plano-teste/
+│   └── resultado-teste/
 └── security/
-    ├── cross-tenant-isolation.test.ts
-    └── pool-leak.test.ts
 ```
+
+**Exemplo EMT (Pedido › Lista › Editar-salvar):**
+`testes/testes-em-tela/pedido/lista/editar-salvar/plano-teste/` + `.../resultado-teste/`
 
 **Regras:**
 - O caminho do spec espelha o caminho do código de produção
-- Plano de teste (`.md`) precede o spec (`.test.ts`/`.spec.ts`) sempre que a feature é nova
+- Plano precede o spec sempre que a feature é nova
+- **Proibido** prints na raiz do escopo ou pasta `YYYY-MM-DD-*` compartilhada (legado EMT)
 - Nenhum spec dentro de `produtos/`, `servicos-global/` ou `nucleo-global/`
 
 ---

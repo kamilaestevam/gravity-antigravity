@@ -15,6 +15,8 @@ import { atividadesIntegration, historicoIntegration } from '../services/integra
 import { motorBid } from '../services/motor-bid-frete-internacional.js'
 import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
 import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
+import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
+import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -200,6 +202,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 // --- GET / — Listar cotacoes ---
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    await assertWorkspacesAutorizadosNoRequest(req)
     const parsed = FiltrosCotacaoSchema.safeParse(req.query)
     if (!parsed.success) {
       throw new AppError(
@@ -225,6 +228,8 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     if (filtros.apenas_avulsas) {
       where.id_bid_bid_frete_internacional = null
     }
+
+    Object.assign(where, clausulaFiltroWorkspaceBidFrete(req))
 
     const skip = (filtros.page - 1) * filtros.limit
 

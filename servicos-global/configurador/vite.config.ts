@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module'
-import { defineConfig } from 'vite'
+import { createReadStream, existsSync } from 'node:fs'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -58,6 +59,52 @@ const tanstackAliases = {
   '@tanstack/query-core': pkgDir('@tanstack/query-core'),
 } as const
 
+/** Dev: serve PNGs de resultado-teste sem depender do cfg-back (fallback da UI EMT). */
+function pluginEmtArtifactsDev(): Plugin {
+  return {
+    name: 'gravity-emt-artifacts-dev',
+    configureServer(server) {
+      server.middlewares.use('/dev-emt-artifacts', (req, res, next) => {
+        if (req.method !== 'GET' && req.method !== 'HEAD') {
+          next()
+          return
+        }
+        const raw = decodeURIComponent((req.url ?? '').split('?')[0].replace(/^\//, ''))
+        const rel = raw.replace(/\\/g, '/')
+        if (
+          !rel.startsWith('testes/testes-em-tela/')
+          || !rel.includes('/resultado-teste/')
+          || !rel.endsWith('.png')
+          || rel.includes('..')
+        ) {
+          res.statusCode = 403
+          res.end('Forbidden')
+          return
+        }
+        const abs = path.resolve(monorepoRoot, rel)
+        if (!abs.startsWith(path.resolve(monorepoRoot))) {
+          res.statusCode = 403
+          res.end('Forbidden')
+          return
+        }
+        if (!existsSync(abs)) {
+          res.statusCode = 404
+          res.end('Not found')
+          return
+        }
+        res.setHeader('Content-Type', 'image/png')
+        res.setHeader('Cache-Control', 'private, max-age=300')
+        if (req.method === 'HEAD') {
+          res.statusCode = 200
+          res.end()
+          return
+        }
+        createReadStream(abs).pipe(res)
+      })
+    },
+  }
+}
+
 export default defineConfig(({ command }) => {
   const isBuild = command === 'build'
 
@@ -67,7 +114,7 @@ export default defineConfig(({ command }) => {
   // Em dev: root = configurador (index.html local, proxy, HMR funcionam normalmente)
   root: isBuild ? monorepoRoot : __dirname,
   publicDir: path.resolve(__dirname, 'public'),
-  plugins: [react()],
+  plugins: [react(), ...(isBuild ? [] : [pluginEmtArtifactsDev()])],
   define: {
     'process.env': '{}',
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV ?? 'development'),

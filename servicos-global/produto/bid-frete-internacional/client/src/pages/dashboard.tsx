@@ -14,6 +14,10 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useNavigate } from 'react-router-dom'
+import {
+  resolverIdsWorkspacesParaApi,
+  useEscopoWorkspacesBidFreteInternacional,
+} from '../shared/useEscopoWorkspacesBidFreteInternacional'
 import { useShellStore } from '@shell'
 import {
   DashboardGrid,
@@ -636,6 +640,14 @@ function SortableTabWrapper({ id, children }: { id: string; children: ReactNode 
 
 // ── Componente Principal ──────────────────────────────────────────────────────
 export default function Dashboard() {
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+  const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
+    [idsWorkspacesEscopo, idWorkspaceAtivo],
+  )
+
   const visao = useBidFreteDashboardVisao()
   const {
     catalog,
@@ -831,6 +843,7 @@ export default function Dashboard() {
   }, [gabiPaused, loadingData, scrollGabi])
 
   useEffect(() => {
+    if (!escopoHidratado) return
     setLoadingData(true)
     const prevRange = getPrevDateRange(slicers.period)
 
@@ -842,9 +855,9 @@ export default function Dashboard() {
       : undefined
 
     Promise.all([
-      dashboardApi.kpis(slicers.period, customRange),
-      dashboardApi.kpis(slicers.period, prevRange),
-      dashboardApi.trend('12m', 'month'),
+      dashboardApi.kpis(slicers.period, customRange, idsWorkspacesFiltro),
+      dashboardApi.kpis(slicers.period, prevRange, idsWorkspacesFiltro),
+      dashboardApi.trend('12m', 'month', idsWorkspacesFiltro),
       dashboardApi.insights(slicers.period, customRange).catch(() => ({ period: '', role: '', insights: [] as GabiInsightItem[] })),
     ])
       .then(([kpis, prevKpis, trend, insightsRes]) => {
@@ -855,7 +868,7 @@ export default function Dashboard() {
       })
       .catch(err => console.error('[Dashboard] Erro ao carregar dados:', err))
       .finally(() => setLoadingData(false))
-  }, [slicers.period])
+  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, idsWorkspacesEscopo, dashboardApi])
 
   const activeWidgets = useMemo(() =>
     widgets.map(w => ({

@@ -34,6 +34,8 @@ import {
   Package,
   Plus,
   CaretDown,
+  CaretRight,
+  SquaresFour,
   Clock,
   Coins,
   DownloadSimple,
@@ -44,6 +46,10 @@ import {
 } from '@phosphor-icons/react'
 
 import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao, paineisListaBidFreteApi } from '../shared/api'
+import {
+  resolverIdsWorkspacesParaApi,
+  useEscopoWorkspacesBidFreteInternacional,
+} from '../shared/useEscopoWorkspacesBidFreteInternacional'
 import {
   publicarCotacaoAtualizadaBidFrete,
   inscreverCotacaoAtualizadaBidFrete,
@@ -188,6 +194,13 @@ export default function Cotacoes() {
   const workspacesStore = useShellStore(s => s.workspaces)
   const organizacoesStore = useShellStore(s => s.organizacoes)
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+  const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
+
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
+    [idsWorkspacesEscopo, idWorkspaceAtivo],
+  )
 
   useEffect(() => {
     if (currentUser.id) {
@@ -374,10 +387,11 @@ export default function Cotacoes() {
     setCarregando(true)
     setErroCarregar(null)
     try {
+      const filtro = idsWorkspacesFiltro
       const [resTodas, resAvulsas, resBids] = await Promise.allSettled([
-        getCotacoes({ limit: COTACOES_LIMIT_LISTA }),
-        getCotacoes({ limit: COTACOES_LIMIT_LISTA, apenas_avulsas: true }),
-        getBidsFreteInternacional(),
+        getCotacoes({ limit: COTACOES_LIMIT_LISTA, idsWorkspacesFiltro: filtro }),
+        getCotacoes({ limit: COTACOES_LIMIT_LISTA, apenas_avulsas: true, idsWorkspacesFiltro: filtro }),
+        getBidsFreteInternacional(filtro),
       ])
 
       const erros: string[] = []
@@ -412,12 +426,12 @@ export default function Cotacoes() {
     } finally {
       setCarregando(false)
     }
-  }, [])
+  }, [idsWorkspacesFiltro])
 
   useEffect(() => {
-    if (meStatus !== 'success' || !currentUser.id || !currentUser.idOrganizacao) return
+    if (meStatus !== 'success' || !currentUser.id || !currentUser.idOrganizacao || !escopoHidratado) return
     void carregar()
-  }, [carregar, meStatus, currentUser.id, currentUser.idOrganizacao])
+  }, [carregar, meStatus, currentUser.id, currentUser.idOrganizacao, escopoHidratado, idsWorkspacesEscopo])
 
   // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 
@@ -778,11 +792,14 @@ export default function Cotacoes() {
 
   const novoDropdownRef = useRef<HTMLDivElement>(null)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
+  const [novoSubmenu, setNovoSubmenu] = useState<'painel' | null>(null)
+  const [novoNomePainelLista, setNovoNomePainelLista] = useState('')
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (novoDropdownRef.current && !novoDropdownRef.current.contains(event.target as Node)) {
         setNovoDropdownAberto(false)
+        setNovoSubmenu(null)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -840,10 +857,96 @@ export default function Cotacoes() {
               <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Subir planilha de dados</span>
             </span>
           </button>
+
+          <div style={{ height: 1, margin: '0.25rem 0.375rem', background: 'var(--border-subtle)' }} />
+
+          <div
+            style={{ position: 'relative' }}
+            onMouseEnter={() => setNovoSubmenu('painel')}
+            onMouseLeave={() => setNovoSubmenu(null)}
+          >
+            <button type="button" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+              background: novoSubmenu === 'painel' ? 'var(--bg-hover)' : 'transparent',
+              color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
+              cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+            }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(139,92,246,0.12)', flexShrink: 0 }}>
+                  <SquaresFour size={13} weight="duotone" style={{ color: '#a78bfa' }} />
+                </span>
+                {t('bid_frete_internacional.lista.painel_novo', { defaultValue: 'Novo painel' })}
+              </span>
+              <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+            </button>
+
+            {novoSubmenu === 'painel' && (
+              <form
+                style={{
+                  position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
+                  background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                  borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                  minWidth: '220px', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.375rem',
+                }}
+                onSubmit={e => {
+                  e.preventDefault()
+                  const nome = novoNomePainelLista.trim()
+                  if (!nome) return
+                  void (async () => {
+                    const ok = await handleCriarPainelLista(nome)
+                    if (!ok) return
+                    setNovoNomePainelLista('')
+                    setNovoDropdownAberto(false)
+                    setNovoSubmenu(null)
+                  })()
+                }}
+                onClick={e => e.stopPropagation()}
+              >
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder={t('bid_frete_internacional.lista.painel_novo_placeholder', {
+                    defaultValue: 'Ex.: Exportação Q2',
+                  })}
+                  value={novoNomePainelLista}
+                  onChange={e => setNovoNomePainelLista(e.target.value)}
+                  maxLength={60}
+                  style={{
+                    background: 'var(--bg-hover)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '0.375rem',
+                    padding: '0.375rem 0.5rem',
+                    fontSize: '0.8125rem',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
+                    width: '100%',
+                    fontFamily: 'inherit',
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    padding: '0.375rem 0.625rem',
+                    borderRadius: '0.375rem',
+                    border: 'none',
+                    background: 'rgba(139,92,246,0.25)',
+                    color: '#c4b5fd',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {t('bid_frete_internacional.lista.painel_criar', { defaultValue: 'Criar' })}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       )}
     </div>
-  ), [novoDropdownAberto, navigate])
+  ), [novoDropdownAberto, novoSubmenu, novoNomePainelLista, handleCriarPainelLista, navigate, t])
 
   const exportarCSVCotacoes = useCallback((formato: 'excel' | 'csv') => {
     const sep = formato === 'excel' ? ';' : ','

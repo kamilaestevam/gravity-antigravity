@@ -94,6 +94,12 @@ function clerkSessaoAtiva(): boolean {
 
 let getDynamicTenantId: () => string | undefined = () => undefined
 let getDynamicUserId: () => string | undefined = () => undefined
+let getDynamicWorkspaceId: () => string | undefined = () => undefined
+
+/** Fonte canônica: shell store (`idWorkspaceAtivo`); sessionStorage só fallback. Paridade Pedido. */
+export function injectWorkspaceGetter(fn: () => string | undefined): void {
+  getDynamicWorkspaceId = fn
+}
 
 /** Lê Zustand no momento exato do request — evita race com useMeSync (padrão Pedido). */
 export function injectTenantGetter(fn: () => string | undefined): void {
@@ -171,6 +177,19 @@ export function identidadeTenantApiPronta(): boolean {
   return Boolean(resolverIdOrganizacao() && resolverIdUsuario())
 }
 
+export function getApiContext(): { idOrganizacao: string; userId: string; userName: string } {
+  return {
+    idOrganizacao: resolverIdOrganizacao(),
+    userId: resolverIdUsuario(),
+    userName: useShellStore.getState().currentUser.name ?? '',
+  }
+}
+
+export function setApiContext(ctx: { idOrganizacao: string; userId: string; userName?: string }): void {
+  injectTenantGetter(() => ctx.idOrganizacao)
+  injectUserGetter(() => ctx.userId)
+}
+
 const headers = () => {
   const customHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -181,6 +200,7 @@ const headers = () => {
   const orgId = resolverIdOrganizacao()
 
   const idWorkspace =
+    getDynamicWorkspaceId() ||
     sessionStorage.getItem('gravity_id_workspace') ||
     sessionStorage.getItem('gravity_company_id') ||
     ''
@@ -520,26 +540,74 @@ export function mapCotacaoToServer(input: Partial<Cotacao>): Record<string, unkn
 
 // ─── Dashboard ──────────────────────────────────────────────────────────────
 
-export async function getDashboardKpis(): Promise<
+export interface BidFreteEscopoWorkspacesPreferencia {
+  ids_workspaces_escopo?: string[]
+}
+
+const escopoWorkspacesPreferenciaResponseSchema = z.object({
+  data: z
+    .object({
+      ids_workspaces_escopo: z.array(z.string()).optional(),
+    })
+    .nullable(),
+})
+
+const escopoWorkspacesPreferenciaPutResponseSchema = z.object({
+  data: z.object({
+    ids_workspaces_escopo: z.array(z.string()),
+  }),
+})
+
+export const bidFreteConfigApi = {
+  obterEscopoWorkspaces: (): Promise<{ data: BidFreteEscopoWorkspacesPreferencia | null }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/config/escopo-workspaces`, { headers: headers() })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => escopoWorkspacesPreferenciaResponseSchema.parse(raw)),
+
+  salvarEscopoWorkspaces: (payload: BidFreteEscopoWorkspacesPreferencia): Promise<{ data: BidFreteEscopoWorkspacesPreferencia }> =>
+    fetch(`${API_BASE}/bid-frete-internacional/config/escopo-workspaces`, {
+      method: 'PUT',
+      headers: headers(),
+      body: JSON.stringify(payload),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => escopoWorkspacesPreferenciaPutResponseSchema.parse(raw)),
+}
+
+function urlComEscopoWorkspaces(basePath: string, idsWorkspacesFiltro?: string[]): string {
+  const params = new URLSearchParams()
+  if (idsWorkspacesFiltro?.length) {
+    params.set('ids_workspaces', idsWorkspacesFiltro.join(','))
+  }
+  const qs = params.toString()
+  return qs ? `${basePath}?${qs}` : basePath
+}
+
+export async function getDashboardKpis(idsWorkspacesFiltro?: string[]): Promise<
   DashboardKPIs & { tempo_medio_resposta_dias: number | null; cotacoes_aprovadas: number }
 > {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/kpis`, { headers: headers() })
+  const res = await fetch(
+    urlComEscopoWorkspaces(`${API_BASE}/bid-frete-internacional/dashboard/kpis`, idsWorkspacesFiltro),
+    { headers: headers() },
+  )
   const raw = await handleResponse<unknown>(res)
   return mapDashboardKpisFromServer(dashboardKpisResponseSchema.parse(raw))
 }
 
-export async function getDashboardInsightsAlertas(): Promise<CalendarioAlerta[]> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/insights-alertas`, {
-    headers: headers(),
-  })
+export async function getDashboardInsightsAlertas(idsWorkspacesFiltro?: string[]): Promise<CalendarioAlerta[]> {
+  const res = await fetch(
+    urlComEscopoWorkspaces(`${API_BASE}/bid-frete-internacional/dashboard/insights-alertas`, idsWorkspacesFiltro),
+    { headers: headers() },
+  )
   const raw = await handleResponse<unknown>(res)
   return mapInsightsAlertasFromServer(insightsAlertasResponseSchema.parse(raw))
 }
 
-export async function getDashboardMapaCotacoesVisaoGeral(): Promise<DadosMapaBidFrete> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/mapa-cotacoes`, {
-    headers: headers(),
-  })
+export async function getDashboardMapaCotacoesVisaoGeral(idsWorkspacesFiltro?: string[]): Promise<DadosMapaBidFrete> {
+  const res = await fetch(
+    urlComEscopoWorkspaces(`${API_BASE}/bid-frete-internacional/dashboard/mapa-cotacoes`, idsWorkspacesFiltro),
+    { headers: headers() },
+  )
   const raw = await handleResponse<unknown>(res)
   return mapMapaCotacoesVisaoGeralFromServer(
     visaoGeralBidFreteInternacionalMapaCotacoesResponseSchema.parse(raw),
@@ -563,6 +631,7 @@ export interface CotacoesListParams {
   limit?: number
   busca?: string
   apenas_avulsas?: boolean
+  idsWorkspacesFiltro?: string[]
 }
 
 export async function getCotacoes(params: CotacoesListParams = {}): Promise<CotacoesListResponse> {
@@ -572,6 +641,9 @@ export async function getCotacoes(params: CotacoesListParams = {}): Promise<Cota
   if (params.limit) query.set('limit', String(params.limit))
   if (params.busca) query.set('busca', params.busca)
   if (params.apenas_avulsas) query.set('apenas_avulsas', 'true')
+  if (params.idsWorkspacesFiltro?.length) {
+    query.set('ids_workspaces', params.idsWorkspacesFiltro.join(','))
+  }
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes?${query}`, { headers: headers() })
   const data = await handleResponse<CotacoesListResponse>(res)
   return {
@@ -596,8 +668,11 @@ function mapBidFreteInternacionalFromServer(rawUnknown: unknown): BidFreteIntern
   }
 }
 
-export async function getBidsFreteInternacional(): Promise<BidFreteInternacional[]> {
-  const res = await fetch(`${API_BASE}/bid-frete-internacional/bids-frete-internacional`, { headers: headers() })
+export async function getBidsFreteInternacional(idsWorkspacesFiltro?: string[]): Promise<BidFreteInternacional[]> {
+  const res = await fetch(
+    urlComEscopoWorkspaces(`${API_BASE}/bid-frete-internacional/bids-frete-internacional`, idsWorkspacesFiltro),
+    { headers: headers() },
+  )
   const data = await handleResponse<{ bids_frete_internacional?: unknown[]; bids?: unknown[] }>(res)
   const lista = data.bids_frete_internacional ?? data.bids ?? []
   return lista.map(mapBidFreteInternacionalFromServer)
@@ -1061,7 +1136,18 @@ export const paineisListaBidFreteApi = {
   listar: (): Promise<{ data: ListaPainel[] }> =>
     fetch(`${API_BASE}/bid-frete-internacional/lista/paineis`, { headers: headers() })
       .then(res => handleResponse<unknown>(res))
-      .then(raw => listaPainelListResponseSchema.parse(raw)),
+      .then(raw => {
+        const parsed = listaPainelListResponseSchema.safeParse(raw)
+        if (!parsed.success) {
+          console.warn(
+            '[paineisListaBidFreteApi.listar] resposta fora do contrato Zod',
+            parsed.error.flatten(),
+            raw,
+          )
+          throw new Error('Resposta inválida ao listar painéis da lista')
+        }
+        return parsed.data
+      }),
 
   criar: (nome: string): Promise<{ data: ListaPainel }> =>
     fetch(`${API_BASE}/bid-frete-internacional/lista/paineis`, {
@@ -1173,13 +1259,24 @@ export interface GabiInsightItem {
 }
 
 export const dashboardApi = {
-  kpis: async (period: string, range?: { from: string; to: string }): Promise<DashboardKpis> => {
+  kpis: async (
+    period: string,
+    range?: { from: string; to: string },
+    idsWorkspacesFiltro?: string[],
+  ): Promise<DashboardKpis> => {
     const params = new URLSearchParams()
     if (range) {
       params.set('data_inicio', range.from)
       params.set('data_fim', range.to)
     }
-    const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard?${params}`, { headers: headers() })
+    if (idsWorkspacesFiltro?.length) {
+      params.set('ids_workspaces', idsWorkspacesFiltro.join(','))
+    }
+    const qs = params.toString()
+    const url = qs
+      ? `${API_BASE}/bid-frete-internacional/dashboard/kpis?${qs}`
+      : `${API_BASE}/bid-frete-internacional/dashboard/kpis`
+    const res = await fetch(url, { headers: headers() })
     const raw = await handleResponse<any>(res)
     
     const mapped: Record<string, any> = {
@@ -1202,8 +1299,16 @@ export const dashboardApi = {
     return mapped as unknown as DashboardKpis
   },
 
-  trend: async (period: string, granularity = 'month'): Promise<{ period: string; granularity: string; value: DashboardTrendBucket[] }> => {
-    const res = await fetch(`${API_BASE}/bid-frete-internacional/dashboard/widgets`, {
+  trend: async (
+    period: string,
+    granularity = 'month',
+    idsWorkspacesFiltro?: string[],
+  ): Promise<{ period: string; granularity: string; value: DashboardTrendBucket[] }> => {
+    const url = urlComEscopoWorkspaces(
+      `${API_BASE}/bid-frete-internacional/dashboard/widgets`,
+      idsWorkspacesFiltro,
+    )
+    const res = await fetch(url, {
       method: 'POST',
       headers: headers(),
       body: JSON.stringify({

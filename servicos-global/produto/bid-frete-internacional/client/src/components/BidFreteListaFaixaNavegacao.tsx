@@ -11,13 +11,15 @@ import {
   resolverEstiloPillAbaStatusBidFrete,
 } from '../shared/lista-status-aba-estilo-bid-frete-internacional'
 
-export interface BidFreteListaFaixaNavegacaoProps extends Partial<BidFreteListaPainelBarProps> {
+type BaseFaixaNavegacaoProps = {
   abas: GTAbaTipo[]
   abaAtiva: string
   onMudarAba: (aba: string) => void
-  /** false na visão fornecedor (só status na faixa). Default: true */
-  exibirLinhaPaineis?: boolean
 }
+
+export type BidFreteListaFaixaNavegacaoProps =
+  | (BaseFaixaNavegacaoProps & BidFreteListaPainelBarProps & { exibirLinhaPaineis?: true })
+  | (BaseFaixaNavegacaoProps & { exibirLinhaPaineis: false })
 
 function StatusPill({
   aba,
@@ -88,15 +90,9 @@ const ListaStatusTabs = memo(function ListaStatusTabs({
   )
 })
 
-export function BidFreteListaFaixaNavegacao({
-  abas,
-  abaAtiva,
-  onMudarAba,
-  exibirLinhaPaineis = true,
-  paineis = [],
-  carregando,
-  ...painelProps
-}: BidFreteListaFaixaNavegacaoProps) {
+export function BidFreteListaFaixaNavegacao(props: BidFreteListaFaixaNavegacaoProps) {
+  const { abas, abaAtiva, onMudarAba } = props
+  const exibirLinhaPaineis = props.exibirLinhaPaineis !== false
   const { t } = useTranslation()
 
   return (
@@ -113,14 +109,13 @@ export function BidFreteListaFaixaNavegacao({
           aria-label={t('bid_frete_internacional.lista.paineis_secao', { defaultValue: 'Painéis da lista' })}
         >
           <BidFreteListaPainelBar
-            {...painelProps}
-            paineis={paineis}
-            painelAtualId={painelProps.painelAtualId ?? null}
-            setPaineis={painelProps.setPaineis ?? (() => undefined)}
-            setPainelAtualId={painelProps.setPainelAtualId ?? (() => undefined)}
-            onTrocarPainel={painelProps.onTrocarPainel ?? (() => undefined)}
-            onCriarPainel={painelProps.onCriarPainel ?? (async () => false)}
-            carregando={carregando}
+            paineis={props.paineis}
+            painelAtualId={props.painelAtualId}
+            setPaineis={props.setPaineis}
+            setPainelAtualId={props.setPainelAtualId}
+            onTrocarPainel={props.onTrocarPainel}
+            onCriarPainel={props.onCriarPainel}
+            carregando={props.carregando}
             variant="unificado"
           />
         </section>

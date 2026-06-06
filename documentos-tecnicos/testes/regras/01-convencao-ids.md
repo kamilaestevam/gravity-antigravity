@@ -4,25 +4,58 @@
 
 ---
 
-## Formato Obrigatório
+## Formato Obrigatório — legado (UNI, CON, FUN, CRO, E2E, PEN)
 
 ```
 TST-{TIPO}-{ESCOPO}-{NNNNNN}
 ```
 
-### Componentes
+| Parte | Valores |
+|---|---|
+| `TST` | fixo — **Teste** |
+| `{TIPO}` | `UNI`, `CON`, `FUN`, `CRO`, `E2E`, `PEN` |
+| `{ESCOPO}` | sigla do produto/serviço (`PEDIDO`, `CONFIG`, `ADMIN`, …) |
+| `{NNNNNN}` | 6 dígitos sequenciais |
 
-| Parte | Tamanho | Valores válidos |
-|---|---|---|
-| `TST` | fixo | sempre `TST` |
-| `{TIPO}` | 3 letras | `UNI`, `CON`, `FUN`, `CRO`, `E2E`, `PEN` |
-| `{ESCOPO}` | 5-6 letras | `LOGIN`, `CONFIG`, `ADMIN`, `HUB`, `CORE`, `MARKET`, `TENANT`, `DBASE`, `PEDIDO`, `NFIMP`, `LPCO`, `BIDFRT`, `BIDCAM`, `SIMCUS`, `FINCOM`, `PROCSO`, **`MBOTO`** |
-| `{NNNNNN}` | 6 dígitos | sequencial com zero-padding |
-
-### Regex de validação
 ```
 ^TST-(UNI|CON|FUN|CRO|E2E|PEN)-(LOGIN|CONFIG|ADMIN|HUB|CORE|MARKET|TENANT|DBASE|PEDIDO|NFIMP|LPCO|BIDFRT|BIDCAM|SIMCUS|FINCOM|PROCSO|MBOTO)-\d{6}$
 ```
+
+---
+
+## Formato Obrigatório — EMT (Em Tela) — **a partir de 2026-06-06**
+
+IDs de teste em tela são **legíveis** e espelham produto → área → o que o teste faz:
+
+```
+TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNN}
+```
+
+| Parte | Significado | Exemplos |
+|---|---|---|
+| `TST` | Teste (fixo) | `TST` |
+| `EMT` | Tipo **Em Tela** | `EMT` |
+| `{LOCAL}` | Produto ou módulo raiz | `PEDIDO`, `BID-FRETE`, `CONFIGURADOR`, `ADMIN`, `LOGIN` |
+| `{AREA}` | Sub-local da UI | `LISTA`, `KANBAN`, `DASHBOARD`, `INSIGHTS`, `CONFIGURACOES` |
+| `{RESUMO}` | Resumo kebab do escopo do teste | `EDITAR-SALVAR`, `CONFIG-STATUS`, `STATUS-REFLEXO` |
+| `{NNN}` | Sequencial (3 dígitos) | `001`, `002` |
+
+**Exemplo canônico:**
+```
+TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001
+```
+
+**Onde cada parte também aparece:**
+- `{LOCAL}` + `{AREA}` → pasta `testes/testes-em-tela/<local>/<area>/` e campo `sublocal` no registry (`lista/editar-salvar`)
+- `{RESUMO}` → título humano no campo `modulo` do registry (ex.: "Edição e Salvar pedidos e itens")
+- ID completo → campo `id` em `test-plans-registry.json`
+
+**Regex EMT (sugestão CI):**
+```
+^TST-EMT-[A-Z0-9]+(-[A-Z0-9]+){2,}-\d{3}$
+```
+
+> Planos EMT antigos no formato `TST-EMT-PEDIDO-CONFIG-STATUS-001` permanecem válidos até renomeação explícita no registry (Regra 2).
 
 ---
 
@@ -78,24 +111,15 @@ TST-E2E-CONFIG-00001     ❌ (5 dígitos)
 
 ---
 
-## Regra 4 — Sublocal NÃO entra no ID
+## Regra 4 — Sublocal no ID
 
-Sublocais (Organização, Workspaces, Dashboard, etc.) ficam **no metadata do registry**, não no ID. Razões:
+**EMT (2026-06-06+):** `{LOCAL}` e `{AREA}` **fazem parte do ID** (`TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001`). O caminho de pasta e `sublocal` no registry devem **alinhar** com esses segmentos.
 
-- IDs precisam caber em colunas, logs, URLs
-- Sublocais podem ser renomeados sem invalidar IDs
-- Filtros por sublocal acontecem no backend lendo o registry
+**Demais tipos (UNI, FUN, E2E, …):** sublocal continua **só no metadata** do registry, não no ID.
 
-**Errado:**
 ```
-TST-E2E-CONFIG-ORGANIZACAO-000001   ❌ (sublocal no ID)
-TST-E2E-CONFIG-ORG-000001           ❌
-```
-
-**Certo:**
-```
-TST-E2E-CONFIG-000001               ✅
-  + metadata.sublocal: "Organização"
+TST-E2E-CONFIG-000001               ✅  + metadata.sublocal: "organizacao"
+TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001  ✅  + sublocal: "lista/editar-salvar"
 ```
 
 ---
@@ -143,6 +167,7 @@ O registry mantém um campo `deletados: ["TST-E2E-CONFIG-000001"]` pra rastreabi
 | `CRO` | Cross-tenant | Vitest + 2 tenants |
 | `E2E` | End-to-end | Playwright |
 | `PEN` | Pentest | OWASP ZAP |
+| `EMT` | Em Tela (visual + prints) | Playwright + `testes-em-tela/` |
 
 **Não inventar siglas novas.** Se um novo tipo for criado, atualizar este documento + agent-policy + CI primeiro.
 

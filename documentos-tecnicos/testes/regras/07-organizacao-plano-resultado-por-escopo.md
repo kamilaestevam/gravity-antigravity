@@ -39,7 +39,7 @@ testes/<tipo>/<produto>/<area>/<feature>/
 testes/testes-em-tela/pedido/lista/editar-salvar/
 ├── plano-de-teste/
 │   ├── plano-teste-em-tela.md
-│   └── run-status-config-reflexo.ts
+│   └── run-lista-editar-salvar.ts
 └── resultado-teste/
     └── <runId>/
         ├── 01-lista-carregada.png
@@ -54,7 +54,7 @@ testes/testes-em-tela/pedido/lista/editar-salvar/
 testes/testes-em-tela/pedido/configuracoes/status/
 ├── plano-teste/
 │   ├── plano-teste-em-tela.md
-│   └── run-status-config-reflexo.ts
+│   └── run-lista-editar-salvar.ts
 └── resultado-teste/
     └── <runId>/
 ```

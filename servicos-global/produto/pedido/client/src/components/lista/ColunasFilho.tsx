@@ -1611,8 +1611,9 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   },
   // ── Colunas herdadas do pedido pai ────────────────────────────────────────
   tipo_operacao: {
+    editavel: false,
+    tooltipBloqueado: 'Tipo de operação é do pedido — altere na linha do pedido',
     render: (row: PedidoItem) => {
-      // Usar tipo_operacao_item do próprio item; fallback para pai se null
       const tipoItem = (row as Record<string, unknown>).tipo_operacao_item as string | null
       const p = (row as PedidoItemEnriquecido)._p
       const tipo = tipoItem ?? p?.tipo_operacao ?? null

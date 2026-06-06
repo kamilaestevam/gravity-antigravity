@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { join } from 'path'
 import type { TestLogEntry } from '../utils/playwright-parser.js'
+import { enrichNewFailuresWithGemini } from './enrich-test-failures.js'
 
 export const testLogsDir = join(process.cwd(), 'data', 'test-logs')
 
@@ -22,6 +23,7 @@ export function appendTestLogEntries(
   try {
     writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
     debugLog?.(`WROTE ${novosLogs.length} entries to ${filePath}`)
+    enrichNewFailuresWithGemini(novosLogs, filePath)
   } catch (writeErr) {
     debugLog?.(`WRITE FAILED: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`)
   }

@@ -737,7 +737,13 @@ function renderPartNumberItemLista(t: TFunction, row: PedidoItem): React.ReactEl
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
         {texto}
-        <Warning size={14} weight="fill" style={{ color: '#F59E0B', flexShrink: 0 }} />
+        <Warning
+          data-testid="lista-alerta-part-number-duplicado-item"
+          size={14}
+          weight="fill"
+          style={{ color: '#F59E0B', flexShrink: 0 }}
+          aria-hidden="true"
+        />
       </span>
     </TooltipGlobal>
   )
@@ -2673,8 +2679,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   },
   // ── Colunas herdadas do pedido pai ────────────────────────────────────────
   tipo_operacao: {
+    editavel: false,
+    tooltipBloqueado: t(
+      'pedido.coluna_filho.mapa_tipo_operacao.tooltip_bloqueado',
+      'Tipo de operação é do pedido — altere na linha do pedido',
+    ),
     render: (row: PedidoItem) => {
-      // Bug 2 fix: usar tipo_operacao_item do próprio item; fallback para pai se null
       const tipoItem = (row as Record<string, unknown>).tipo_operacao_item as string | null
       const p = (row as PedidoItemEnriquecido)._p
       const tipo = tipoItem ?? p?.tipo_operacao ?? null
@@ -4550,7 +4560,7 @@ export default function Pedidos() {
                  && ((c.escopo || 'ambos') === 'item' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
     // id_workspace e logística são exclusivos do pedido — itens herdam/exibem, sem PATCH em item.
-    const exclusivosPedido = new Set<string>(['id_workspace', ...CAMPOS_LOGISTICA_PEDIDO])
+    const exclusivosPedido = new Set<string>(['id_workspace', 'tipo_operacao', ...CAMPOS_LOGISTICA_PEDIDO])
     return [...CAMPOS_EDITAVEIS_PAI, ...customKeys].filter(k => !exclusivosPedido.has(k))
   }, [colunasUsuario])
 
@@ -5881,8 +5891,8 @@ export default function Pedidos() {
       : valorEnviarPaiBrutoNorm
     // replicar_em_itens vem do checkbox "Aplicar a todos os itens" no popover
     // do pai (Decisão UX 2026-05-13). Default false — comportamento divergente.
-    // Exceção: id_workspace SEMPRE replica — item não pode ter workspace distinto.
-    const replicar = campo === 'id_workspace'
+    // Exceção: id_workspace e tipo_operacao SEMPRE replicam — sem checkbox no popover.
+    const replicar = campo === 'id_workspace' || campo === 'tipo_operacao'
       ? true
       : (opts?.replicar_em_itens ?? false)
     const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai, replicar)
@@ -6975,6 +6985,7 @@ export default function Pedidos() {
           permiteReplicacaoPaiEmItens={podeEditarLista ? (campo) => {
             const COLUNAS_SEM_REPLICACAO = new Set([
               'id_workspace', // replicação automática — sem checkbox
+              'tipo_operacao', // sempre replica — sem checkbox
               'numero_pedido',
               'valor_total_pedido',
               'valor_por_unidade_item',

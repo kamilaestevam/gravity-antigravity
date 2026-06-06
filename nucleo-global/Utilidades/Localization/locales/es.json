@@ -5335,7 +5335,7 @@
         "pai_status": "Editable en el pedido. Con «Aplicar a todos los artículos» actualiza el estado de todos los artículos (excepto estados que bloquean el espejo).",
         "pai_numero_pedido": "Identificador del pedido — solo lectura en la lista.",
         "pai_numero_pedido_item": "En la fila del pedido: número del pedido (editable — único en la organización). En la fila del artículo: Part Number (editable). Alerta si hay Part Numbers duplicados en el pedido.",
-        "pai_tipo_operacao": "Importación o exportación del pedido. Editable en la fila del pedido. Con «Aplicar a todos los artículos» replica en todos los artículos. Alerta si algún artículo tiene tipo distinto al pedido.",
+        "pai_tipo_operacao": "Importación o exportación del pedido. Editable solo en la fila del pedido. Los cambios replican automáticamente en todos los artículos.",
         "item_editavel_padrao": "Editable en este artículo. El total del pedido y las alertas de divergencia se recalculan al guardar.",
         "item_editavel_quantidade_inicial": "Editable en este artículo. Recalcula saldo y valor total del artículo. Actualiza la cantidad inicial total del pedido.",
         "item_editavel_valor_total": "Editable en este artículo (valor y moneda). Actualiza el valor total del pedido cuando todos los artículos usan la misma moneda.",
@@ -6348,7 +6348,8 @@
       },
       "mapa_tipo_operacao": {
         "valor_importacao": "Importación",
-        "valor_exportacao": "Exportación"
+        "valor_exportacao": "Exportación",
+        "tooltip_bloqueado": "El tipo de operación es del pedido — edite en la fila del pedido"
       }
     }
   },

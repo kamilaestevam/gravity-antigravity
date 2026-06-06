@@ -131,10 +131,17 @@ function wrapEntradaMapaColunaAvo(
     render: (filho) => {
       if (filho.camada === 'pedido') {
         const colPedido = colunasPedidoPorChave.get(chavePedido)
-        if (colPedido) return renderCelulaPedido(colPedido, filho.pedido)
-        const val = (filho.pedido as Record<string, unknown>)[chavePedido]
-        if (val == null || val === '') return celulaVaziaFilho()
-        return String(val)
+        const conteudo = colPedido
+          ? renderCelulaPedido(colPedido, filho.pedido)
+          : (() => {
+              const val = (filho.pedido as Record<string, unknown>)[chavePedido]
+              if (val == null || val === '') return celulaVaziaFilho()
+              return String(val)
+            })()
+        if (chaveAvo === CHAVE_AVO_IDENTIDADE_ITEM) {
+          return <span className="pl-pedido-identidade">{conteudo}</span>
+        }
+        return conteudo
       }
       if (chaveAvo === CHAVE_AVO_IDENTIDADE_ITEM) {
         return <CelulaIdentidadeItemLista item={filho.item} />

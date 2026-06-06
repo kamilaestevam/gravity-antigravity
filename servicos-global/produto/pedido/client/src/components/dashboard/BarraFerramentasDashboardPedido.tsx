@@ -24,7 +24,6 @@ export interface OnboardingDashboardBarra {
 }
 
 export interface BarraFerramentasDashboardPedidoProps {
-  seletorPaineis: React.ReactNode
   temWidgets: boolean
   onboarding?: OnboardingDashboardBarra
   slicers: GlobalSlicers
@@ -50,7 +49,6 @@ export interface BarraFerramentasDashboardPedidoProps {
 }
 
 export function BarraFerramentasDashboardPedido({
-  seletorPaineis,
   temWidgets,
   onboarding,
   slicers,
@@ -90,27 +88,22 @@ export function BarraFerramentasDashboardPedido({
       <div className="gtv-container pedido-dashboard-toolbar-card">
         <div className="gtv-toolbar pedido-dashboard-toolbar">
           <div className="gtv-toolbar-esquerda pedido-dashboard-toolbar__esquerda">
-            <div className="pedido-dashboard-paineis-toolbar-slot">
-              {seletorPaineis}
-            </div>
-
             {mostrarOnboarding && (
-              <>
-                <span className="pedido-dashboard-menu__divisor" aria-hidden="true" />
-                <div className="pedido-dashboard-menu__onboarding-hint">
-                  <span className="pedido-dashboard-menu__onboarding-titulo">
-                    {t('pedido.dashboard.onboarding_titulo')}
-                  </span>
-                  <span className="pedido-dashboard-menu__onboarding-texto">
-                    {t('pedido.dashboard.onboarding_texto')}
-                  </span>
-                </div>
-              </>
+              <div className="pedido-dashboard-menu__onboarding-hint">
+                <span className="pedido-dashboard-menu__onboarding-titulo">
+                  {t('pedido.dashboard.onboarding_titulo')}
+                </span>
+                <span className="pedido-dashboard-menu__onboarding-texto">
+                  {t('pedido.dashboard.onboarding_texto')}
+                </span>
+              </div>
             )}
 
             {mostrarIconesToolbar && (
               <>
-                <span className="pedido-dashboard-menu__divisor" aria-hidden="true" />
+                {mostrarOnboarding && (
+                  <span className="pedido-dashboard-menu__divisor" aria-hidden="true" />
+                )}
 
                 <div className="pedido-dashboard-toolbar__icones" data-testid="dashboard-toolbar-icones">
                   {temWidgets && (

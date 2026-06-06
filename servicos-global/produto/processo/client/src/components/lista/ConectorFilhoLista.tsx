@@ -1,10 +1,11 @@
 /**
- * ConectorFilhoLista — chevron pedido→item na coluna expand das linhas filhas.
+ * ConectorFilhoLista — tag + chevron pedido / tag item na coluna expand das linhas filhas.
  */
 import React from 'react'
 import type { FilhoLinhaLista } from '../../shared/lista/mockListaHierarquica'
 import { itensDoPedido } from '../../shared/lista/mockListaHierarquica'
 import { rotuloItemLista } from '../../shared/lista/rotuloItemLista'
+import { rotuloPedidoLista } from '../../shared/lista/rotuloPedidoLista'
 
 function IconeChevron() {
   return (
@@ -44,25 +45,45 @@ export function ConectorFilhoLista({
 
   const id_pedido = filho.pedido.id
   const qtd_itens = itensDoPedido(id_pedido).length
-  if (qtd_itens === 0) {
-    return <span className="gtv-conector pl-conector-vazio" aria-hidden="true">•</span>
+  const rotuloPedido = rotuloPedidoLista(filho.sequencia_pedido)
+  const expandido = pedidosExpandidos.has(id_pedido)
+
+  const pararPropagacao = (e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation()
   }
 
-  const expandido = pedidosExpandidos.has(id_pedido)
   return (
-    <button
-      type="button"
-      className="gtv-chevron-btn pl-pedido-chevron pl-conector-pedido"
-      aria-expanded={expandido}
-      aria-label={expandido ? 'Retrair itens do pedido' : 'Expandir itens do pedido'}
-      onClick={(e) => {
-        e.stopPropagation()
-        onTogglePedido(id_pedido)
-      }}
+    <div
+      className="pl-conector-pedido-slot"
+      onClick={pararPropagacao}
+      onMouseDown={pararPropagacao}
+      onPointerDown={pararPropagacao}
     >
-      <span className={`gtv-chevron-icon${expandido ? ' gtv-chevron-icon--aberto' : ''}`}>
-        <IconeChevron />
+      <span
+        className="pl-camada pl-camada--pedido pl-conector-pedido-tag"
+        aria-label={rotuloPedido}
+      >
+        {rotuloPedido}
       </span>
-    </button>
+      {qtd_itens > 0 ? (
+        <button
+          type="button"
+          className="gtv-chevron-btn pl-pedido-chevron pl-conector-pedido"
+          aria-expanded={expandido}
+          aria-label={expandido ? 'Retrair itens do pedido' : 'Expandir itens do pedido'}
+          onClick={(e) => {
+            e.stopPropagation()
+            onTogglePedido(id_pedido)
+          }}
+          onMouseDown={pararPropagacao}
+        >
+          <span className={`gtv-chevron-icon${expandido ? ' gtv-chevron-icon--aberto' : ''}`}>
+            <IconeChevron />
+          </span>
+        </button>
+      ) : (
+        <span className="gtv-conector pl-conector-vazio" aria-hidden="true">•</span>
+      )}
+    </div>
   )
 }

@@ -101,6 +101,14 @@
 
 
 
+.proc-visualizacao-layout .processo-dashboard-toolbar-wrapper {
+
+  flex: 0 0 auto;
+
+}
+
+
+
 /* Título da view — paridade MenuTopoGlobal (.mtg-left__page-header) */
 
 .proc-pagina-topo {

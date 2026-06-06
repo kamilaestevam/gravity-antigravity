@@ -242,11 +242,29 @@
   --pl-linha-pedido-suave: #93c5fd;
   --pl-linha-pedido-borda: rgba(96, 165, 250, 0.38);
   --pl-linha-pedido-conector: rgba(96, 165, 250, 0.62);
-  --pl-linha-item: #34d399;
-  --pl-linha-item-suave: #6ee7b7;
-  --pl-linha-item-borda: rgba(52, 211, 153, 0.32);
-  --pl-linha-item-conector: rgba(52, 211, 153, 0.58);
+  --pl-linha-item-texto: #9aa8b8;
+  --pl-linha-item-desc: #64748b;
+  --pl-linha-item-borda: rgba(148, 163, 184, 0.32);
+  --pl-linha-item-fundo: rgba(15, 23, 42, 0.5);
+  --pl-linha-pedido-fundo: rgba(96, 165, 250, 0.09);
   --pl-linha-separador: rgba(129, 140, 248, 0.2);
+  --pl-font-processo: 14px;
+  --pl-font-pedido: 13px;
+  --pl-font-item: 12px;
+  --pl-font-item-desc: 11px;
+}
+
+/* Tipografia por camada — L1 14px · L2 13px · L3 12px */
+.pl-page .lp-tabela-wrapper .gtv-linha:not(.gtv-linha--filho) .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
+  font-size: var(--pl-font-processo);
+}
+
+.pl-page .lp-tabela-wrapper .pl-linha--pedido.gtv-linha--filho .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
+  font-size: var(--pl-font-pedido);
+}
+
+.pl-page .lp-tabela-wrapper .pl-linha--item.gtv-linha--filho .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
+  font-size: var(--pl-font-item);
 }
 
 /* Separadores horizontais entre linhas (TVG padrão 6% → 20%) */
@@ -270,26 +288,32 @@
   border: 1px solid rgba(96, 165, 250, 0.22);
 }
 .pl-page .pl-camada--item {
-  /* Paridade sidebar "Meu Espaço" — var(--text-secondary) / #94a3b8 */
-  background: rgba(148, 163, 184, 0.12);
+  background: rgba(100, 116, 139, 0.14);
   color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  font-weight: 500;
 }
 
-/* ── Bordas laterais das linhas filhas (L2 azul · L3 verde) ──────────────── */
+/* ── Bordas laterais das linhas filhas (L2 azul · L3 cinza) ──────────────── */
 .pl-page .pl-linha--pedido.gtv-linha--filho {
   border-left: 2px solid var(--pl-linha-pedido-borda);
   border-right: none;
+  background: var(--pl-linha-pedido-fundo);
+}
+
+.pl-page .pl-linha--pedido.gtv-linha--filho .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
+  color: var(--pl-linha-pedido-suave);
+  font-weight: 600;
 }
 
 .pl-page .pl-linha--item.gtv-linha--filho {
   border-left: 2px solid var(--pl-linha-item-borda);
   border-right: none;
-  background: rgba(8, 16, 32, 0.42);
+  background: var(--pl-linha-item-fundo);
 }
 
-.pl-page .pl-linha--item.gtv-linha--filho .gtv-celula {
-  color: #cbd5e1;
+.pl-page .pl-linha--item.gtv-linha--filho .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
+  color: var(--pl-linha-item-texto);
   font-weight: 400;
 }
 
@@ -312,7 +336,8 @@
   color: var(--pl-linha-pedido-suave);
 }
 
-/* Slot da tag Item N — contido na coluna expand, sem invadir PROCESSO */
+/* Slots tag Pedido N / Item N — mesma âncora na coluna expand */
+.pl-page .pl-conector-pedido-slot,
 .pl-page .pl-conector-item-slot {
   display: flex;
   align-items: center;
@@ -320,10 +345,11 @@
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
 }
 
+.pl-page .pl-conector-pedido-tag,
 .pl-page .pl-conector-item-tag {
   display: inline-block;
   flex-shrink: 0;
@@ -354,11 +380,11 @@
   padding-right: 0;
 }
 
-.pl-page .gtv-linha:not(.pl-linha--item) .gtv-celula--expand {
+.pl-page .gtv-linha:not(.gtv-linha--filho) .gtv-celula--expand {
   overflow: hidden;
 }
 
-/* Itens: tag à esquerda (pedido/processo permanecem centralizados acima) */
+/* Item: tag na coluna expand */
 .pl-page .pl-linha--item.gtv-linha--filho .gtv-celula--expand {
   justify-content: flex-start;
   padding-right: 0.5rem;
@@ -366,9 +392,32 @@
   border-right: none;
 }
 
-/* margin-left negativo na tag precisa de overflow visible no slot, senão corta o pill */
-.pl-page .pl-linha--item .pl-conector-item-slot {
+/* Pedido: badge + chevron agrupados à esquerda — isolados da célula editável */
+.pl-page .pl-linha--pedido.gtv-linha--filho .gtv-celula--expand {
+  flex: 0 0 6.25rem;
+  min-width: 6.25rem;
+  max-width: 6.25rem;
+  justify-content: flex-start;
+  padding-right: 0.75rem;
   overflow: visible;
+  border-right: 1px solid transparent;
+}
+
+.pl-page .pl-conector-pedido-slot {
+  gap: 0.375rem;
+  padding-right: 0.5rem;
+}
+
+.pl-page .pl-pedido-chevron {
+  margin-left: 0;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Respiro entre zona expand (badge+chevron) e PO-2026/001 */
+.pl-page .pl-linha--pedido.gtv-linha--filho .gtv-celula--expand + .gtv-celula {
+  margin-left: 0.625rem;
 }
 
 /* PROCESSO dos itens — respiro obrigatório após a faixa da tag */
@@ -381,10 +430,6 @@
 .pl-page .pl-conector-vazio {
   color: rgba(148, 163, 184, 0.35);
   opacity: 1;
-}
-
-.pl-page .pl-pedido-chevron {
-  margin-left: 0;
 }
 
 .pl-page .pl-celula-vazia {
@@ -405,19 +450,27 @@
   width: 100%;
 }
 
-.pl-page .pl-item-identidade__pn {
-  font-family: var(--font-mono, ui-monospace, monospace);
+.pl-page .pl-pedido-identidade {
+  font-size: var(--pl-font-pedido);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: #e2e8f0;
+  color: var(--pl-linha-pedido-suave);
+  line-height: 1.3;
+}
+
+.pl-page .pl-item-identidade__pn {
+  font-size: var(--pl-font-item);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--pl-linha-item-texto);
   line-height: 1.3;
   min-width: 0;
 }
 
 .pl-page .pl-item-identidade__desc {
-  font-size: 0.8125rem;
+  font-size: var(--pl-font-item-desc);
   line-height: 1.25;
-  color: var(--text-muted, #94a3b8);
+  color: var(--pl-linha-item-desc);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -23,7 +23,7 @@ export interface ProcessoAvoLinha {
 }
 
 export type FilhoLinhaLista =
-  | { camada: 'pedido'; pedido: Pedido }
+  | { camada: 'pedido'; pedido: Pedido; sequencia_pedido: number }
   | { camada: 'item'; item: PedidoItem }
 
 export const fmtMoedaLista = (v: number, moeda: string) =>
@@ -185,21 +185,22 @@ export function filhosVisiveisDoProcesso(
   itens: ReadonlyArray<PedidoItem> = ITENS_MOCK_INICIAL,
 ): FilhoLinhaLista[] {
   const linhas: FilhoLinhaLista[] = []
-  for (const pedido of pedidosDoProcesso(id_processo, pedidos)) {
-    linhas.push({ camada: 'pedido', pedido })
+  const pedidosProcesso = pedidosDoProcesso(id_processo, pedidos)
+  pedidosProcesso.forEach((pedido, indice) => {
+    linhas.push({ camada: 'pedido', pedido, sequencia_pedido: indice + 1 })
     if (pedidosExpandidos.has(pedido.id)) {
       const itensPedido = itensDoPedido(pedido.id, itens)
-      itensPedido.forEach((item, indice) => {
+      itensPedido.forEach((item, indiceItem) => {
         linhas.push({
           camada: 'item',
           item: {
             ...item,
-            sequencia_item: item.sequencia_item ?? indice + 1,
+            sequencia_item: item.sequencia_item ?? indiceItem + 1,
           },
         })
       })
     }
-  }
+  })
   return linhas
 }
 
@@ -210,4 +211,16 @@ export function filhosDoProcesso(id_processo: string): FilhoLinhaLista[] {
 
 export function idFilhoLinha(l: FilhoLinhaLista): string {
   return l.camada === 'pedido' ? `ped-${l.pedido.id}` : `item-${l.item.id}`
+}
+
+/** Sequência do pedido entre os irmãos do mesmo processo (1-based). */
+export function sequenciaPedidoNoProcesso(
+  id_pedido: string,
+  pedidos: ReadonlyArray<Pedido & { id_processo: string }>,
+): number {
+  const pedido = pedidos.find(p => p.id === id_pedido)
+  if (!pedido) return 1
+  const lista = pedidosDoProcesso(pedido.id_processo, pedidos)
+  const indice = lista.findIndex(p => p.id === id_pedido)
+  return indice >= 0 ? indice + 1 : 1
 }

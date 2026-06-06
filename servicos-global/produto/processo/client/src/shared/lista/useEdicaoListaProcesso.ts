@@ -3,7 +3,7 @@
  */
 import { useCallback, useMemo, type Dispatch, type SetStateAction } from 'react'
 import type { Pedido, PedidoItem } from './pedidoTypes'
-import type { FilhoLinhaLista } from './mockListaHierarquica'
+import { sequenciaPedidoNoProcesso, type FilhoLinhaLista } from './mockListaHierarquica'
 import { isCampoLogisticaPedido, normalizarCodigoLogisticaPedido } from './camposLogisticaPedido'
 import { isCampoGhostItemNoPedido } from './camposGhostPedidoItem'
 import { isPropagavel } from './mapaPropagacaoPedidoItem'
@@ -160,6 +160,17 @@ export function mesclarPedidoComDivergencias(
 type SetPedidos = Dispatch<SetStateAction<PedidoComProcesso[]>>
 type SetItens = Dispatch<SetStateAction<PedidoItem[]>>
 
+function montarFilhoPedidoLista(
+  pedido: PedidoComProcesso,
+  pedidos: ReadonlyArray<PedidoComProcesso>,
+): Extract<FilhoLinhaLista, { camada: 'pedido' }> {
+  return {
+    camada: 'pedido',
+    pedido,
+    sequencia_pedido: sequenciaPedidoNoProcesso(pedido.id, pedidos),
+  }
+}
+
 export function useEdicaoListaProcesso(
   pedidos: PedidoComProcesso[],
   setPedidos: SetPedidos,
@@ -216,7 +227,7 @@ export function useEdicaoListaProcesso(
       )
       pedidoAtualizado = { ...pedidoAtualizado, ...divergencias } as PedidoComProcesso
       setPedidos(prev => prev.map(p => (p.id === id_pedido ? pedidoAtualizado : p)))
-      return { camada: 'pedido', pedido: pedidoAtualizado }
+      return montarFilhoPedidoLista(pedidoAtualizado, pedidos)
     }
 
     if (isCampoGhostItemNoPedido(campo)) {
@@ -237,7 +248,7 @@ export function useEdicaoListaProcesso(
         )
         const pedidoAtualizado = { ...pedidoComValor, ...divergencias } as PedidoComProcesso
         setPedidos(prev => prev.map(p => (p.id === id_pedido ? pedidoAtualizado : p)))
-        return { camada: 'pedido', pedido: pedidoAtualizado }
+        return montarFilhoPedidoLista(pedidoAtualizado, pedidos)
       }
 
       if (itensPedido.length === 0) {
@@ -258,7 +269,7 @@ export function useEdicaoListaProcesso(
       const pedidoAtualizado = { ...pedidoComValor, ...divergencias } as PedidoComProcesso
       setPedidos(prev => prev.map(p => (p.id === id_pedido ? pedidoAtualizado : p)))
       setResetCacheFilhos(n => n + 1)
-      return { camada: 'pedido', pedido: pedidoAtualizado }
+      return montarFilhoPedidoLista(pedidoAtualizado, pedidos)
     }
 
     const valorEnviar = normalizarValorPedidoPai(campo, valor)
@@ -286,7 +297,7 @@ export function useEdicaoListaProcesso(
       ...recalcularAgregadosPedido(itensAtualizados),
     } as PedidoComProcesso
     setPedidos(prev => prev.map(p => (p.id === id_pedido ? pedidoAtualizado : p)))
-    return { camada: 'pedido', pedido: pedidoAtualizado }
+    return montarFilhoPedidoLista(pedidoAtualizado, pedidos)
   }, [getItensDoPedido, pedidos, setItens, setPedidos, setResetCacheFilhos])
 
   const editarLinhaItem = useCallback(async (

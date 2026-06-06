@@ -28,6 +28,46 @@ const BASE_UI = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8000'
 const LISTA_URL = `${BASE_UI}/pedido/pedidos/lista`
 const WORKSPACE_CDE_PADRAO = process.env.ID_WORKSPACE_TESTE ?? 'cmorx5iwh000aclwynp7y1ofm'
 
+/**
+ * Rótulos exatos como renderizados na lista (i18n + `text-transform: uppercase` no `.gtv-cabecalho`).
+ * @see nucleo-global/Utilidades/Localization/locales/pt.json → pedido.coluna_pai.numero_pedido
+ */
+const COLUNA_ALVO = 'Nº PEDIDO / Nº ITEM'
+const CAMPO_PEDIDO_COLUNA = 'Nº PEDIDO'
+const CAMPO_ITEM_COLUNA = 'Nº ITEM'
+const ALERTA_DUPLICADO_TOOLTIP = 'Existem itens com o mesmo Part Number neste pedido'
+const PRODUTO_EMT = 'Pedido'
+const LOCAL_LISTA = 'Lista'
+
+function resolverLabelAmbiente(): string {
+  if (ambienteRemotoProducao() || BASE_UI.includes('usegravity.com.br')) return 'Produção'
+  if (ambienteExec === 'Producao' || ambienteExec === 'producao') return 'Produção'
+  return 'Local'
+}
+
+const AMBIENTE_LABEL = resolverLabelAmbiente()
+
+type ResultadoEmtLinha = 'Aprovado' | 'Reprovado'
+
+/** Contrato Admin: linha tabular `EMT_ROW|Ambiente|Produto|Local|Sublocal|O que foi feito|Resultado` */
+function emtRow(
+  local: string,
+  sublocal: string,
+  acao: string,
+  resultado: ResultadoEmtLinha,
+  produto = PRODUTO_EMT,
+): string {
+  return `EMT_ROW|${AMBIENTE_LABEL}|${produto}|${local}|${sublocal}|${acao}|${resultado}`
+}
+
+function logAprovado(local: string, sublocal: string, acao: string, produto = PRODUTO_EMT): void {
+  log(`✓ ${emtRow(local, sublocal, acao, 'Aprovado', produto)}`)
+}
+
+function falharTabela(local: string, sublocal: string, acao: string, produto = PRODUTO_EMT): void {
+  falhar(emtRow(local, sublocal, acao, 'Reprovado', produto))
+}
+
 const linhas: string[] = []
 const falhas: string[] = []
 
@@ -135,7 +175,7 @@ async function autenticarClerk(page: Page): Promise<boolean> {
 
   await aguardarMeComOrganizacao(page)
   await prepararEscopoWorkspaces(page)
-  log(`✓ Clerk sign-in (${email})`)
+  logAprovado('Login', '—', `Clerk sign-in (${email})`, 'Plataforma')
   return true
 }
 
@@ -324,14 +364,14 @@ async function pedidoTemAlertaPartNumberDuplicado(page: Page, pedidoRowId: strin
   const filhos = filhosDoPedidoLocator(page, pedidoRowId)
 
   await pai.waitFor({ state: 'visible', timeout: 8000 }).catch(() => {})
-  log('ℹ Regra: PN duplicado no pedido → alerta visível = APROVADO (testid ou ícone na coluna)')
+  log(`ℹ Regra: ${CAMPO_ITEM_COLUNA} duplicado → alerta visível na coluna ${COLUNA_ALVO} = APROVADO`)
 
   for (let tentativa = 0; tentativa < 20; tentativa++) {
     const alertaPedidoTestid = await pai.getByTestId('lista-alerta-part-number-duplicado-pedido').isVisible().catch(() => false)
     const alertasItemTestid = await filhos.getByTestId('lista-alerta-part-number-duplicado-item').count()
 
     if (alertaPedidoTestid || alertasItemTestid >= 1) {
-      log(`✓ Lista: alerta PN duplicado (testid) — pedido=${alertaPedidoTestid}, itens=${alertasItemTestid}`)
+      logAprovado(LOCAL_LISTA, COLUNA_ALVO, `Validar alerta ${CAMPO_ITEM_COLUNA} duplicado (testid pedido=${alertaPedidoTestid}, itens=${alertasItemTestid})`)
       return true
     }
 
@@ -339,39 +379,38 @@ async function pedidoTemAlertaPartNumberDuplicado(page: Page, pedidoRowId: strin
     const svgItens = await filhos.locator('[data-gtv-campo="numero_pedido"] svg').count()
 
     if (svgPedido > 0 || svgItens >= 1) {
-      log(`✓ Lista: alerta PN duplicado (ícone coluna) — svg pedido=${svgPedido}, svg itens=${svgItens}`)
+      logAprovado(LOCAL_LISTA, COLUNA_ALVO, `Validar alerta ${CAMPO_ITEM_COLUNA} duplicado (ícone coluna svg pedido=${svgPedido}, itens=${svgItens})`)
       return true
     }
 
     await page.waitForTimeout(500)
   }
 
-  log('✗ Lista: alerta PN duplicado não detectado — verifique print 05 e deploy dos testids')
   return false
 }
 
 async function validarListaEditarSalvar(page: Page): Promise<void> {
   await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
   await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 }).catch(() => {})
-  log(`✓ Lista: ${LISTA_URL}`)
+  logAprovado(LOCAL_LISTA, '—', `Carregar a lista (${LISTA_URL})`)
 
   const rowId = await obterPrimeiroPedidoRowId(page)
   if (!rowId) {
-    falhar('Lista: nenhum pedido editável na coluna Nº PEDIDO / Nº ITEM')
+    falharTabela(LOCAL_LISTA, COLUNA_ALVO, 'Localizar campo editável na coluna')
     await screenshot(page, '02-lista-carregada.png')
     return
   }
 
   const qtdItens = await expandirPrimeiroPedido(page, rowId)
   if (qtdItens === 0) {
-    falhar('Lista: pedido sem itens visíveis — necessário ≥2 para testar duplicata')
+    falharTabela(LOCAL_LISTA, '—', 'Expandir pedido com itens visíveis (necessário ≥2)')
     await screenshot(page, '02-lista-carregada.png')
     return
   }
   if (qtdItens < 2) {
-    log(`⚠ Lista: apenas ${qtdItens} item — duplicata pode falhar (ideal ≥2)`)
+    log(`⚠ ${emtRow(LOCAL_LISTA, '—', `Expandir pedido — apenas ${qtdItens} item (ideal ≥2)`, 'Aprovado')}`)
   } else {
-    log(`✓ Lista: pedido expandido com ${qtdItens} itens`)
+    logAprovado(LOCAL_LISTA, '—', `Expandir pedido (${qtdItens} itens)`)
   }
   await screenshot(page, '02-lista-carregada.png')
 
@@ -382,32 +421,34 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   const notifPedido = await editarCampoTextoPai(page, rowId, 'numero_pedido', numeroPedido)
   await page.waitForTimeout(600)
   await screenshot(page, '03-editar-pedido-numero-sucesso.png')
-  if (notifPedido === 'erro') falhar('Lista: edição do número do pedido retornou erro')
-  else if (notifPedido === 'sucesso') log(`✓ Lista: número do pedido salvo (${numeroPedido})`)
-  else falhar('Lista: edição do número do pedido — toast de sucesso não detectado')
+  if (notifPedido === 'erro') falharTabela(LOCAL_LISTA, CAMPO_PEDIDO_COLUNA, 'Salvar o pedido — toast de erro')
+  else if (notifPedido === 'sucesso') logAprovado(LOCAL_LISTA, CAMPO_PEDIDO_COLUNA, `Salvar o pedido (${numeroPedido})`)
+  else falharTabela(LOCAL_LISTA, CAMPO_PEDIDO_COLUNA, 'Salvar o pedido — toast de sucesso não detectado')
 
   const notifItem1 = await editarCampoTextoItemPorIndice(page, rowId, 0, 'part_number', partNumber)
   await page.waitForTimeout(600)
   await screenshot(page, '04-editar-item-part-number-sucesso.png')
-  if (notifItem1 === 'erro') falhar('Lista: edição do Part Number (1º item) retornou erro')
-  else if (notifItem1 === 'sucesso') log(`✓ Lista: Part Number do 1º item salvo (${partNumber})`)
-  else falhar('Lista: edição do Part Number (1º item) — toast não detectado')
+  if (notifItem1 === 'erro') falharTabela(LOCAL_LISTA, CAMPO_ITEM_COLUNA, 'Salvar o item 1 — toast de erro')
+  else if (notifItem1 === 'sucesso') logAprovado(LOCAL_LISTA, CAMPO_ITEM_COLUNA, `Salvar o item 1 (${partNumber})`)
+  else falharTabela(LOCAL_LISTA, CAMPO_ITEM_COLUNA, 'Salvar o item 1 — toast de sucesso não detectado')
 
   if (qtdItens >= 2) {
     const notifItem2 = await editarCampoTextoItemPorIndice(page, rowId, 1, 'part_number', partNumber)
     await page.waitForTimeout(1000)
     const temAlerta = await pedidoTemAlertaPartNumberDuplicado(page, rowId)
     await screenshot(page, '05-alerta-part-number-duplicado-pedido.png')
-    if (notifItem2 === 'erro') falhar('Lista: edição do Part Number (2º item) retornou erro')
+    if (notifItem2 === 'erro') falharTabela(LOCAL_LISTA, CAMPO_ITEM_COLUNA, 'Salvar o item 2 com mesmo Nº ITEM — toast de erro')
     else if (!temAlerta) {
-      falhar(
-        'Lista: regra PN duplicado não validada — esperado ≥2 itens com mesmo PN e ícone âmbar (produto OK se print 05 mostra alerta)',
+      falharTabela(
+        LOCAL_LISTA,
+        COLUNA_ALVO,
+        `Validar alerta ${CAMPO_ITEM_COLUNA} duplicado — não detectado (print 05)`,
       )
     }
   } else {
-    log('⚠ Lista: pulando duplicata — menos de 2 itens')
+    log(`⚠ ${emtRow(LOCAL_LISTA, COLUNA_ALVO, 'Validar alerta Nº ITEM duplicado — pulado (menos de 2 itens)', 'Reprovado')}`)
     await screenshot(page, '05-alerta-part-number-duplicado-pedido.png')
-    falhar('Lista: não foi possível validar alerta — pedido com menos de 2 itens')
+    falharTabela(LOCAL_LISTA, COLUNA_ALVO, `Validar alerta ${CAMPO_ITEM_COLUNA} duplicado — pedido com menos de 2 itens`)
   }
 }
 

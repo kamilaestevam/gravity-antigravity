@@ -28,6 +28,19 @@ Coluna alvo: Nº PEDIDO / Nº ITEM (pedido → numero_pedido | item → part_num
 Critério de sucesso: toasts de sucesso nas edições + alerta âmbar após duplicata de Part Number (APROVADO = alerta visível; reprovado = alerta ausente)
 
 Contrato EMT (SSOT): `data-testid="lista-alerta-part-number-duplicado-pedido"` (linha pai) e `lista-alerta-part-number-duplicado-item` (itens). Fallback do runner: ícone `svg` na célula `data-gtv-campo="numero_pedido"`.
+
+Checklist no Admin — **tabela em camadas** (6 colunas):
+
+| Ambiente | Produto | Local | Sublocal | O que foi feito | Resultado |
+|----------|---------|-------|----------|-----------------|-----------|
+| Produção | Pedido | Lista | Nº PEDIDO | Salvar o pedido (QA-NUM-…) | Aprovado |
+| Produção | Pedido | Lista | Nº ITEM | Salvar o item 1 (QA-PN-…) | Aprovado |
+| Produção | Pedido | Lista | Nº PEDIDO / Nº ITEM | Validar alerta Nº ITEM duplicado | Aprovado |
+
+Contrato no log (`RESULTADO.txt`): `✓ EMT_ROW|Ambiente|Produto|Local|Sublocal|O que foi feito|Resultado`
+
+- **Sublocal (exato em tela):** `Nº PEDIDO` (linha pedido) | `Nº ITEM` (linha item) | `Nº PEDIDO / Nº ITEM` (alerta na coluna)
+- **Local:** `Lista` | **Produto:** `Pedido` | **Ambiente:** `Produção` ou `Local`
 ```
 
 ---

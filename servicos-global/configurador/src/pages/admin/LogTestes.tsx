@@ -71,17 +71,58 @@ function filtrarLinhasLogEmt(texto: string): string[] {
     .filter(l => l.length > 0 && !l.startsWith('◇') && !l.startsWith('[dotenv'))
 }
 
-function classificarLinhasLogEmt(linhas: string[]): { aprovadas: string[]; reprovadas: string[] } {
+type LinhaEmtTabela = {
+  ambiente: string
+  produto: string
+  local: string
+  sublocal: string
+  acao: string
+  resultado: string
+}
+
+const EMT_ROW_PREFIX = 'EMT_ROW|'
+
+const COLUNAS_EMT_TABELA = [
+  'Ambiente',
+  'Produto',
+  'Local',
+  'Sublocal',
+  'O que foi feito',
+  'Resultado',
+] as const
+
+function parseLinhaEmtTabela(texto: string): LinhaEmtTabela | null {
+  const limpo = texto.trim()
+  if (!limpo.includes(EMT_ROW_PREFIX)) return null
+  const idx = limpo.indexOf(EMT_ROW_PREFIX)
+  const payload = limpo.slice(idx + EMT_ROW_PREFIX.length)
+  const partes = payload.split('|')
+  if (partes.length < 6) return null
+  const [ambiente, produto, local, sublocal, acao, resultado] = partes
+  if (!ambiente || !produto || !local || !acao || !resultado) return null
+  return { ambiente, produto, local, sublocal: sublocal || '—', acao, resultado }
+}
+
+function classificarLinhasLogEmt(linhas: string[]): {
+  aprovadas: string[]
+  reprovadas: string[]
+  tabelaAprovadas: LinhaEmtTabela[]
+  tabelaReprovadas: LinhaEmtTabela[]
+} {
   const aprovadas: string[] = []
+  const tabelaAprovadas: LinhaEmtTabela[] = []
   const reprovadasVistas = new Set<string>()
   const reprovadas: string[] = []
+  const tabelaReprovadas: LinhaEmtTabela[] = []
   let emSecaoFalhas = false
 
   const addReprovada = (texto: string) => {
     const limpo = texto.trim()
     if (!limpo || reprovadasVistas.has(limpo)) return
     reprovadasVistas.add(limpo)
-    reprovadas.push(limpo)
+    const tabela = parseLinhaEmtTabela(limpo)
+    if (tabela) tabelaReprovadas.push(tabela)
+    else reprovadas.push(limpo)
   }
 
   for (const linha of linhas) {
@@ -92,7 +133,10 @@ function classificarLinhasLogEmt(linhas: string[]): { aprovadas: string[]; repro
     if (/^Falhas:\s*\d+$/.test(linha)) continue
 
     if (linha.startsWith('✓') || (linha.includes('Resultado: PASSOU') && !linha.includes('FALHOU'))) {
-      aprovadas.push(linha.replace(/^✓\s*/, ''))
+      const conteudo = linha.replace(/^✓\s*/, '')
+      const tabela = parseLinhaEmtTabela(conteudo)
+      if (tabela) tabelaAprovadas.push(tabela)
+      else if (!conteudo.startsWith('EMT_ROW|')) aprovadas.push(conteudo)
       emSecaoFalhas = false
     } else if (linha.startsWith('✗')) {
       addReprovada(linha.replace(/^✗\s*/, ''))
@@ -104,7 +148,130 @@ function classificarLinhasLogEmt(linhas: string[]): { aprovadas: string[]; repro
     }
   }
 
-  return { aprovadas, reprovadas }
+  return { aprovadas, reprovadas, tabelaAprovadas, tabelaReprovadas }
+}
+
+/** Larguras fixas compartilhadas — aprovado e reprovado na mesma grade. */
+const EMT_COL_LARGURAS = ['9%', '9%', '8%', '15%', '51%', '8%'] as const
+
+const EMT_CELULA_PAD = '0.55rem 0.65rem'
+
+function EmtLinhaChecklist({
+  row,
+  variante,
+  indice,
+  total,
+}: {
+  row: LinhaEmtTabela
+  variante: 'aprovado' | 'reprovado'
+  indice: number
+  total: number
+}) {
+  const corBorda = variante === 'aprovado' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'
+  const corTexto = variante === 'aprovado' ? '#d1fae5' : '#fecaca'
+  const corResultado = variante === 'aprovado' ? '#10b981' : '#ef4444'
+
+  return (
+    <tr
+      style={{
+        borderBottom: indice < total - 1 ? `1px solid ${corBorda}` : undefined,
+        background: indice % 2 === 0 ? 'rgba(15,23,42,0.35)' : 'transparent',
+      }}
+    >
+      <td style={{ padding: EMT_CELULA_PAD, color: '#94a3b8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.ambiente}</td>
+      <td style={{ padding: EMT_CELULA_PAD, color: '#cbd5e1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.produto}</td>
+      <td style={{ padding: EMT_CELULA_PAD, color: '#cbd5e1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.local}</td>
+      <td style={{ padding: EMT_CELULA_PAD, color: '#e2e8f0', whiteSpace: 'nowrap', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.sublocal}</td>
+      <td style={{ padding: EMT_CELULA_PAD, color: corTexto, wordBreak: 'break-word', verticalAlign: 'top' }}>{row.acao}</td>
+      <td style={{ padding: EMT_CELULA_PAD, color: corResultado, fontWeight: 700, whiteSpace: 'nowrap' }}>{row.resultado}</td>
+    </tr>
+  )
+}
+
+function EmtTabelaChecklistBloco({
+  titulo,
+  linhas,
+  variante,
+}: {
+  titulo: string
+  linhas: LinhaEmtTabela[]
+  variante: 'aprovado' | 'reprovado'
+}) {
+  if (linhas.length === 0) return null
+
+  const corBordaCard = variante === 'aprovado' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'
+  const corBordaCabecalho = variante === 'aprovado' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'
+  const corTitulo = variante === 'aprovado' ? '#34d399' : '#f87171'
+  const corCabecalhoCol = variante === 'aprovado' ? '#34d399' : '#f87171'
+
+  return (
+    <div style={{
+      background: 'var(--ws-bg-body, #0f172a)',
+      borderRadius: '8px',
+      border: `1px solid ${corBordaCard}`,
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        padding: '0.6rem 1rem',
+        borderBottom: `1px solid ${corBordaCabecalho}`,
+        fontSize: '0.7rem',
+        fontWeight: 800,
+        letterSpacing: '0.06em',
+        color: corTitulo,
+        textTransform: 'uppercase',
+      }}>
+        {titulo}
+      </div>
+      <div style={{ overflowX: 'auto', padding: '0.75rem 1rem' }}>
+        <table style={{
+          width: '100%',
+          minWidth: 920,
+          tableLayout: 'fixed',
+          borderCollapse: 'collapse',
+          fontSize: '0.78rem',
+          fontFamily: 'var(--font-mono, monospace)',
+        }}>
+          <colgroup>
+            {EMT_COL_LARGURAS.map((largura, i) => (
+              <col key={i} style={{ width: largura }} />
+            ))}
+          </colgroup>
+          <thead>
+            <tr style={{ borderBottom: `1px solid ${corBordaCabecalho}` }}>
+              {COLUNAS_EMT_TABELA.map(col => (
+                <th
+                  key={col}
+                  style={{
+                    padding: EMT_CELULA_PAD,
+                    textAlign: 'left',
+                    fontSize: '0.65rem',
+                    fontWeight: 800,
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    color: corCabecalhoCol,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {linhas.map((row, i) => (
+              <EmtLinhaChecklist
+                key={i}
+                row={row}
+                variante={variante}
+                indice={i}
+                total={linhas.length}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
 }
 
 type HandlersAnaliseIaTeste = {
@@ -535,7 +702,7 @@ function PainelEmtExpandido({
   handlersAnaliseIa: HandlersAnaliseIaTeste
 }) {
   const linhas = filtrarLinhasLogEmt(item.successLog ?? item.erroLog ?? '')
-  const { aprovadas, reprovadas } = classificarLinhasLogEmt(linhas)
+  const { aprovadas, reprovadas, tabelaAprovadas, tabelaReprovadas } = classificarLinhasLogEmt(linhas)
   const printsLog = linhas.filter(l => l.startsWith('📸')).map(l => l.replace('📸', '').trim())
   const arquivosPrint = item.emtPrints?.length ? item.emtPrints : printsLog
   const logCompleto = item.erroLog ?? item.successLog
@@ -558,10 +725,22 @@ function PainelEmtExpandido({
         </span>
       </div>
 
+      <EmtTabelaChecklistBloco
+        titulo="O que foi aprovado"
+        linhas={tabelaAprovadas}
+        variante="aprovado"
+      />
+
+      <EmtTabelaChecklistBloco
+        titulo="O que foi reprovado"
+        linhas={tabelaReprovadas}
+        variante="reprovado"
+      />
+
       {aprovadas.length > 0 && (
         <div style={{ background: 'var(--ws-bg-body, #0f172a)', borderRadius: '8px', border: '1px solid rgba(16,185,129,0.2)', overflow: 'hidden' }}>
           <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid rgba(16,185,129,0.15)', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.06em', color: '#34d399', textTransform: 'uppercase' }}>
-            O que foi aprovado
+            O que foi aprovado (legado)
           </div>
           <ul style={{ margin: 0, padding: '0.75rem 1rem', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
             {aprovadas.map((texto, i) => (
@@ -577,7 +756,7 @@ function PainelEmtExpandido({
       {reprovadas.length > 0 && (
         <div style={{ background: 'var(--ws-bg-body, #0f172a)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', overflow: 'hidden' }}>
           <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid rgba(239,68,68,0.15)', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.06em', color: '#f87171', textTransform: 'uppercase' }}>
-            O que foi reprovado
+            O que foi reprovado (legado)
           </div>
           <ul style={{ margin: 0, padding: '0.75rem 1rem', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
             {reprovadas.map((texto, i) => (

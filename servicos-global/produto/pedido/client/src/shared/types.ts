@@ -369,6 +369,8 @@ export interface Pedido {
   // Elimina a necessidade de carregar itens no state apenas para exibir badges
   tipo_operacao_divergente?: boolean | null
   status_divergente?: boolean | null
+  /** Ghost — status dos itens antes da última alteração só no pedido (sem replicar). */
+  status_itens_snapshot?: PedidoStatus | null
   ncm_divergente?: boolean | null
   ncm_valor_unico?: string | null
   /** Quando todos os itens têm a mesma descrição — exibido na linha pai (sem alerta). */

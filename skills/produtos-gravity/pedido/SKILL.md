@@ -148,13 +148,29 @@ Doc completo: [`EDICAO-EM-MASSA-TECNICO.md` §Auto-fill](../../../documentos-tec
 
 ## Parte 2 — Lista de Pedidos
 
-> A consolidar — atualizar quando este produto receber atenção dedicada.
+> Regras de negócio: [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md)  
+> Técnico: [`LISTA-EDITAR-SALVAR-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-TECNICO.md)  
+> Checkbox genérico: [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/REPLICAR-PAI-EM-ITENS-TECNICO.md)
 
-Pontos-chave conhecidos:
-- `Pedidos.tsx` usa `TabelaVirtualGlobal` com 99 colunas pai (Pedido) e 165 colunas filho (PedidoItem)
-- `ColunasPai.tsx`/`ColunasFilho.tsx` definem o catálogo de colunas
-- `renderAgregado()` em `ColunasPai.tsx` é o padrão para valor + alerta de divergência (mostra valor do pedido + ícone laranja quando itens divergem — Issue resolvida 2026-05-12)
-- Coluna NCM usa `renderAgregado` para padronizar (era bug de ícone duplicado, corrigido 2026-05-12)
+### Infraestrutura
+
+- `Pedidos.tsx` + `TabelaVirtualGlobal` — 99 colunas pai, 165 colunas filho
+- `ColunasPai.tsx` / `ColunasFilho.tsx` — catálogo; `renderAgregado()` = valor + `⚠` divergência
+- SSOT comportamento: `columnBehaviorConfig.ts`, `columnAlertConfig.ts`, `pedidoDivergencias.ts`
+
+### Colunas com regra especial (editar-salvar inline)
+
+| Coluna | Pedido | Item | Checkbox replicar | Alerta divergência |
+|--------|--------|------|-------------------|-------------------|
+| **TIPO DE OPERAÇÃO** | Editável | Travado | ❌ (replica sempre) | ❌ |
+| **STATUS** | Editável | Editável (UI) | ✅ | ✅ (`status_divergente`) |
+| **Nº pedido / Part Number** | `numero_pedido` | `part_number` | N/A | PN duplicado no pedido |
+
+**TIPO DE OPERAÇÃO:** `replicar_em_itens` forçado `true` em `handleEditar`; item sem popover (`ITEM_EDITAVEL_OVERRIDE.tipo_operacao = false`).
+
+**STATUS:** regras 00–04 do dono; ghost `status_itens_snapshot` para alerta sem expandir; edição no item só em `_p.status` (persistência API = dívida P0).
+
+**Hooks:** `statusOpts` e `pedidos` declarados **antes** de `mapaColunasFilho` / `colunasComUsuario` (TDZ).
 
 ---
 
@@ -429,7 +445,7 @@ Hardcoded strings que ficaram fora do escopo i18n porque a função/módulo onde
 | Parte | Status |
 |-------|--------|
 | 1 — Edição em Massa | ✅ Consolidada |
-| 2 — Lista de Pedidos | 🟡 Em evolução |
+| 2 — Lista de Pedidos | 🟡 Em evolução — editar-salvar STATUS/TOP documentado 2026-06-03 |
 | 2.2 — Painéis da Lista | ✅ `ListaPainelUsuarioGlobal`, `/lista/paineis`, `PedidosListaPainelBar` — ver `documentos-tecnicos/produtos-gravity/pedido/PAINEL-LISTA-GLOSSARIO.md` |
 | 2.1 — Filtro Multi-Workspace | ✅ Consolidada (2026-05-13) |
 | 3 — Consolidar / Transferir | 🟡 Placeholder — regras de negócio em docs; transferir implementado |
@@ -444,6 +460,7 @@ Hardcoded strings que ficaram fora do escopo i18n porque a função/módulo onde
 
 | Para | Consultar |
 |------|-----------|
+| Lista editar-salvar (STATUS, TOP, Nº) | [LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md) |
 | Schema composition | [arquitetura/schema-composition](../../arquitetura/schema-composition/SKILL.md) |
 | Isolamento de org | [governanca/lei/isolamento-organizacao](../../governanca/lei/isolamento-organizacao/SKILL.md) |
 | DDD nomenclatura | [governanca/lei/ddd-nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md) |

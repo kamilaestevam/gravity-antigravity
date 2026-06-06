@@ -153,6 +153,45 @@ async function precisaBaseline(client: Client): Promise<boolean> {
   return legado
 }
 
+async function schemaPrincipalBidAusente(client: Client): Promise<boolean> {
+  const temCanonico = await tabelaExiste(client, 'cotacao_bid_frete_internacional')
+  const temLegado = await tabelaExiste(client, 'bid_cotacoes')
+  return !temCanonico && !temLegado
+}
+
+/**
+ * Banco vazio ou migrations registradas sem materializar tabelas (ex.: produção nova).
+ * Migrations incrementais só renomeiam bid_* — não criam schema do zero.
+ */
+async function bootstrapSchemaVazio(databaseUrl: string, client: Client): Promise<void> {
+  console.log('[migrations-bid] Bootstrap — prisma db push (schema completo a partir do fragment)')
+  execSync(`npx prisma db push --schema=${BID_SCHEMA} --skip-generate`, {
+    cwd: REPO_ROOT,
+    stdio: 'inherit',
+    env: { ...process.env, DATABASE_URL: databaseUrl },
+  })
+
+  await client.query(CREATE_MIGRATIONS_TABLE)
+  for (const nome of listarMigrations()) {
+    if (await migrationJaRegistrada(client, nome)) {
+      console.log(`[migrations-bid]   ${nome} já registrada — skip`)
+      continue
+    }
+    const sqlPath = join(MIGRATIONS_DIR, nome, 'migration.sql')
+    const sql = readFileSync(sqlPath, 'utf-8')
+    console.log(`[migrations-bid]   registrar baseline: ${nome}`)
+    await registrarMigration(client, nome, sql)
+  }
+}
+
+async function verificarSchemaAposDeploy(client: Client): Promise<void> {
+  if (await tabelaExiste(client, 'cotacao_bid_frete_internacional')) return
+  throw new Error(
+    'Tabela public.cotacao_bid_frete_internacional ausente após migrations. ' +
+      'Verifique BID_FRETE_INTERNATIONAL_DATABASE_URL (gravity-bid-frete-internacional-producao) e logs acima.',
+  )
+}
+
 async function main(): Promise<void> {
   const databaseUrl = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL ?? process.env.DATABASE_URL
   if (!databaseUrl) {
@@ -168,19 +207,29 @@ async function main(): Promise<void> {
   await client.connect()
 
   try {
-    if (await precisaBaseline(client)) {
+    if (await schemaPrincipalBidAusente(client)) {
+      const aplicadas = await contarMigrationsAplicadas(client)
+      if (aplicadas > 0) {
+        console.warn(
+          `[migrations-bid] AVISO: ${aplicadas} migration(s) registrada(s) mas cotacao_bid_frete_internacional ausente — rebootstrap`,
+        )
+      }
+      await bootstrapSchemaVazio(databaseUrl, client)
+    } else if (await precisaBaseline(client)) {
       await aplicarBaseline(client)
     }
+
+    console.log('[migrations-bid] prisma migrate deploy...')
+    execSync(`npx prisma migrate deploy --schema=${BID_SCHEMA}`, {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+      env: { ...process.env, DATABASE_URL: databaseUrl },
+    })
+
+    await verificarSchemaAposDeploy(client)
   } finally {
     await client.end()
   }
-
-  console.log('[migrations-bid] prisma migrate deploy...')
-  execSync(`npx prisma migrate deploy --schema=${BID_SCHEMA}`, {
-    cwd: REPO_ROOT,
-    stdio: 'inherit',
-    env: { ...process.env, DATABASE_URL: databaseUrl },
-  })
 
   console.log('[migrations-bid] Concluído.')
 }

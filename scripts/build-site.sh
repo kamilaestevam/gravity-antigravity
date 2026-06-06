@@ -34,11 +34,13 @@ npx prisma generate --schema=servicos-global/produto/bid-frete-internacional/pri
 node servicos-global/produto/processo/server/scripts/compose-schema.js
 npx prisma generate --schema=servicos-global/produto/processo/prisma/schema.prisma
 
-# 2a. BID Frete Internacional — migrations (bid_* → cotacao_bid_frete_internacional SSOT)
+# 2a. BID Frete Internacional — migrations (baseline legado + bootstrap banco vazio)
 if [ -n "$BID_FRETE_INTERNATIONAL_DATABASE_URL" ]; then
   echo "[build-site] Applying BID Frete Internacional migrations..."
-  DATABASE_URL="$BID_FRETE_INTERNATIONAL_DATABASE_URL" \
-    npx prisma migrate deploy --schema=servicos-global/produto/bid-frete-internacional/prisma/schema.prisma
+  if ! npx tsx scripts/ativamente/aplicar-migrations-bid-frete-internacional.ts; then
+    echo "[build-site] ERRO: migrations BID Frete Internacional falharam — build abortado."
+    exit 1
+  fi
 else
   echo "[build-site] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — skip BID migrations"
 fi

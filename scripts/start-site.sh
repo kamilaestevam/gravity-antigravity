@@ -10,7 +10,9 @@ if [ -n "${BID_FRETE_INTERNATIONAL_DATABASE_URL:-}" ]; then
   if npx tsx scripts/ativamente/aplicar-migrations-bid-frete-internacional.ts; then
     echo "[start-site] Migrations BID Frete Internacional concluídas."
   else
-    echo "[start-site] ERRO: migrations BID Frete Internacional falharam — ver logs acima."
+    echo "[start-site] ERRO FATAL: migrations BID Frete Internacional falharam — abortando startup."
+    echo "[start-site] /bid-frete ficará quebrado até corrigir o banco ou BID_FRETE_INTERNATIONAL_DATABASE_URL."
+    exit 1
   fi
 else
   echo "[start-site] AVISO: BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — migrations BID ignoradas."

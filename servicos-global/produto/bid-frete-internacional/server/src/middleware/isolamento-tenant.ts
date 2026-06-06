@@ -8,7 +8,25 @@
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '../generated/client/index.js'
 
-const basePrisma = new PrismaClient()
+/**
+ * Sidecar do Configurador restaura DATABASE_URL após import; Prisma precisa da URL
+ * fixa do banco BID (BID_FRETE_INTERNATIONAL_DATABASE_URL ou DATABASE_URL do produto).
+ */
+function resolverUrlBancoBidFreteInternacional(): string {
+  const url = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL ?? process.env.DATABASE_URL
+  if (!url) {
+    throw new Error(
+      '[BidFrete] BID_FRETE_INTERNATIONAL_DATABASE_URL ou DATABASE_URL ausente — sidecar/query impossível',
+    )
+  }
+  return url
+}
+
+const basePrisma = new PrismaClient({
+  datasources: {
+    db: { url: resolverUrlBancoBidFreteInternacional() },
+  },
+})
 
 type QueryArgs = {
   where?: Record<string, unknown>

@@ -304,6 +304,8 @@ export interface OpcoesUnidadesColunas {
   workspaceOpcoesLista?: Array<{ valor: string; label: string }>
   /** Fornecedores importadores (EXP) — sem nomes de workspace. */
   opcoesImportadoresExpLista?: Array<{ valor: string; label: string }>
+  /** Fornecedores exportadores (IMP) — sem nomes de workspace. */
+  opcoesExportadoresImpLista?: Array<{ valor: string; label: string }>
   paisesOpcoes?: GTOpcaoCadastro[]
   portosOpcoes?: GTOpcaoCadastro[]
   aeroportosOpcoes?: GTOpcaoCadastro[]

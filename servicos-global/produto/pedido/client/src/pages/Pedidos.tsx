@@ -68,7 +68,9 @@ import {
 } from '../components/lista/urlsDeepLinkConfigurador'
 import {
   cadastrosApi,
+  filtrarOpcoesExportadorImpSemWorkspaces,
   filtrarOpcoesImportadorExpSemWorkspaces,
+  mapearOpcoesExportadorImportacao,
   mapearOpcoesImportadorExportacao,
 } from '../shared/cadastrosApi'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -2740,6 +2742,59 @@ function nomeExibicaoImportadorPedido(
   return nome ?? ''
 }
 
+/** Comportamento da coluna Exportador — espelho invertido do Importador. */
+function comportamentoExportadorLista(row: Pedido): 'importacao' | 'exportacao' | null {
+  const tipo = tipoOperacaoLista(row)
+  if (tipo) return tipo
+  const idWs = extrairIdWorkspaceDePedido(row)
+  const snap = row.nome_exportador?.trim()
+  if (!idWs || !snap) return null
+  if (snap === idWs || pareceIdInternoGravity(snap)) return 'exportacao'
+  return null
+}
+
+function snapshotNomeExportadorLegivel(valor?: string | null): string | null {
+  return snapshotNomeImportadorLegivel(valor)
+}
+
+function nomeExportadorPareceWorkspace(
+  nome: string,
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+): boolean {
+  return nomeImportadorPareceWorkspace(nome, row, workspacesMap, workspaceOpcoes)
+}
+
+/** Nome exibido na coluna Exportador — EXP espelha workspace; IMP usa fornecedor. */
+function nomeExibicaoExportadorPedido(
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+  opcoesExportadoresImp: { valor: string; label: string }[],
+): string {
+  const tipo = comportamentoExportadorLista(row)
+  if (tipo === 'exportacao') {
+    const nome = nomeLegivelWorkspace(
+      extrairIdWorkspaceDePedido(row),
+      workspacesMap,
+      workspaceOpcoes,
+      snapshotNomeExportadorLegivel(row.nome_exportador),
+    )
+    return pareceIdInternoGravity(nome) ? '—' : nome
+  }
+  const idForn = row.importacao_exportador_id?.trim()
+  if (idForn) {
+    const doOpcao = opcoesExportadoresImp.find((o) => o.valor === idForn)?.label?.trim()
+    if (doOpcao && !pareceIdInternoGravity(doOpcao)) return doOpcao
+  }
+  const nome = snapshotNomeExportadorLegivel(row.nome_exportador)
+  if (nome && nomeExportadorPareceWorkspace(nome, row, workspacesMap, workspaceOpcoes)) {
+    return ''
+  }
+  return nome ?? ''
+}
+
 function montarMapaWorkspacesRapido(
   workspacesDisponiveis: { id_workspace: string; nome_workspace: string; cnpj_workspace?: string | null }[],
   workspacesShell: { id: string; nome_workspace: string }[],
@@ -2763,12 +2818,13 @@ function montarMapaWorkspacesRapido(
   return m
 }
 
-/** Corrige nome_importador corrompido ao carregar a lista (IMP: CUID; EXP: nome de workspace). */
-function sanitizarNomeImportadorPedidosCarregados(
+/** Corrige nome_importador e nome_exportador corrompidos ao carregar a lista. */
+function sanitizarNomesPartesListaPedidos(
   lista: Pedido[],
   workspacesDisponiveis: { id_workspace: string; nome_workspace: string; cnpj_workspace?: string | null }[],
   workspacesShell: { id: string; nome_workspace: string }[],
   opcoesImportadoresExp: { valor: string; label: string }[],
+  opcoesExportadoresImp: { valor: string; label: string }[],
 ): Pedido[] {
   const mapa = montarMapaWorkspacesRapido(workspacesDisponiveis, workspacesShell)
   const workspaceOpcoes = [
@@ -2781,39 +2837,64 @@ function sanitizarNomeImportadorPedidosCarregados(
       label: w.nome_workspace.trim() || w.id,
     })),
   ]
-  const opcoesExp = filtrarOpcoesImportadorExpSemWorkspaces(opcoesImportadoresExp, workspaceOpcoes)
+  const opcoesImpExp = filtrarOpcoesImportadorExpSemWorkspaces(opcoesImportadoresExp, workspaceOpcoes)
+  const opcoesExpImp = filtrarOpcoesExportadorImpSemWorkspaces(opcoesExportadoresImp, workspaceOpcoes)
   return lista.map((p) => {
     const tipo = tipoOperacaoLista(p)
     const idWs = extrairIdWorkspaceDePedido(p)
-    const snap = p.nome_importador?.trim()
-    const snapEhCuidWorkspace = Boolean(snap && idWs && (snap === idWs || pareceIdInternoGravity(snap)))
+    let next = p
 
-    if (tipo === 'importacao' || (snapEhCuidWorkspace && tipo !== 'exportacao')) {
+    const snapImp = p.nome_importador?.trim()
+    const snapImpCuid = Boolean(snapImp && idWs && (snapImp === idWs || pareceIdInternoGravity(snapImp)))
+    if (tipo === 'importacao' || (snapImpCuid && tipo !== 'exportacao')) {
       const nomeCorreto = nomeLegivelWorkspace(idWs, mapa, workspaceOpcoes, null)
-      if (tipo === 'importacao' && nomeCorreto !== '—' && p.nome_importador !== nomeCorreto) {
-        return { ...p, nome_importador: nomeCorreto }
+      if (tipo === 'importacao' && nomeCorreto !== '—' && next.nome_importador !== nomeCorreto) {
+        next = { ...next, nome_importador: nomeCorreto }
+      } else if (snapImpCuid && nomeCorreto !== '—') {
+        next = { ...next, nome_importador: nomeCorreto }
       }
-      if (snapEhCuidWorkspace && nomeCorreto !== '—') {
-        return { ...p, nome_importador: nomeCorreto }
-      }
-      return p
-    }
-    if (tipo === 'exportacao') {
-      const nomeExib = nomeExibicaoImportadorPedido(p, mapa, workspaceOpcoes, opcoesExp)
-      const snapExp = p.nome_importador?.trim()
-      const precisaCorrigir = Boolean(
-        snapExp && (
-          pareceIdInternoGravity(snapExp)
-          || snapExp === idWs
-          || nomeImportadorPareceWorkspace(snapExp, p, mapa, workspaceOpcoes)
-          || (nomeExib && snapExp !== nomeExib)
+    } else if (tipo === 'exportacao') {
+      const nomeExibImp = nomeExibicaoImportadorPedido(next, mapa, workspaceOpcoes, opcoesImpExp)
+      const snapExpImp = next.nome_importador?.trim()
+      const precisaImp = Boolean(
+        snapExpImp && (
+          pareceIdInternoGravity(snapExpImp)
+          || snapExpImp === idWs
+          || nomeImportadorPareceWorkspace(snapExpImp, next, mapa, workspaceOpcoes)
+          || (nomeExibImp && snapExpImp !== nomeExibImp)
         ),
       )
-      if (precisaCorrigir) {
-        return { ...p, nome_importador: nomeExib || null }
+      if (precisaImp) {
+        next = { ...next, nome_importador: nomeExibImp || null }
       }
     }
-    return p
+
+    const snapExp = next.nome_exportador?.trim()
+    const snapExpCuid = Boolean(snapExp && idWs && (snapExp === idWs || pareceIdInternoGravity(snapExp)))
+    if (tipo === 'exportacao' || (snapExpCuid && tipo !== 'importacao')) {
+      const nomeCorreto = nomeLegivelWorkspace(idWs, mapa, workspaceOpcoes, null)
+      if (tipo === 'exportacao' && nomeCorreto !== '—' && next.nome_exportador !== nomeCorreto) {
+        next = { ...next, nome_exportador: nomeCorreto }
+      } else if (snapExpCuid && nomeCorreto !== '—') {
+        next = { ...next, nome_exportador: nomeCorreto }
+      }
+    } else if (tipo === 'importacao') {
+      const nomeExibExp = nomeExibicaoExportadorPedido(next, mapa, workspaceOpcoes, opcoesExpImp)
+      const snapExpImp = next.nome_exportador?.trim()
+      const precisaExp = Boolean(
+        snapExpImp && (
+          pareceIdInternoGravity(snapExpImp)
+          || snapExpImp === idWs
+          || nomeExportadorPareceWorkspace(snapExpImp, next, mapa, workspaceOpcoes)
+          || (nomeExibExp && snapExpImp !== nomeExibExp)
+        ),
+      )
+      if (precisaExp) {
+        next = { ...next, nome_exportador: nomeExibExp || null }
+      }
+    }
+
+    return next
   })
 }
 
@@ -2886,6 +2967,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     workspacesMap,
     workspaceOpcoesLista = [],
     opcoesImportadoresExpLista = [],
+    opcoesExportadoresImpLista = [],
     paisesOpcoes = [],
     portosOpcoes = [],
     aeroportosOpcoes = [],
@@ -2961,57 +3043,52 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     },
   },
   nome_exportador: {
-    editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao',
-    tooltipBloqueado: (row: PedidoItem) =>
-      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao'
-        ? t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond')
-        : undefined,
+    editavel: false,
+    tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'),
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const enr = row as PedidoItemEnriquecido
-      const tipoOp = enr._p?.tipo_operacao
-      const pedidoId = enr._p?.id
+      const titulo = t('pedido.coluna_pai.nome_exportador')
+      const pedidoEspelho = {
+        tipo_operacao: enr._p?.tipo_operacao,
+        id_workspace: enr._p?.id_workspace,
+        company_id: enr._p?.id_workspace ?? row.company_id,
+        importacao_exportador_id: enr._p?.importacao_exportador_id,
+        nome_exportador: enr._p?.nome_exportador,
+      } as Pedido
+      const tipoOp = comportamentoExportadorLista(pedidoEspelho)
 
       if (tipoOp === 'exportacao') {
-        const nomeWs = resolverNomeWorkspacePedidoPai(row, workspacesMap)
-        if (nomeWs) {
-          return renderBadgeParteWorkspace({
-            nomeWorkspace: nomeWs,
-            titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
-            descricao: t('pedido.coluna_pai.exportador_workspace_desc', { nome: nomeWs }),
-            somenteLeitura: true,
-          })
-        }
+        const nomeWs = nomeExibicaoExportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, [])
+        const conteudo = nomeWs.length <= 50
+          ? <span>{nomeWs}</span>
+          : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              {nomeWs.slice(0, 50) + '…'}
+              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+            </span>
+          )
+        return wrapCelulaItemSomenteLeituraLista(conteudo, t, titulo)
       }
 
-      if (tipoOp === 'importacao') {
-        const nome = row.nome_exportador ?? enr._p?.nome_exportador ?? null
-        const idExportador = enr._p?.importacao_exportador_id ?? null
-        if (nome?.trim()) {
-          return renderBadgeParteVinculada({
-            nome,
-            titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
-            descricao: t('pedido.coluna_pai.clique_editar_exportador'),
-            href: urlVincularExportador(idExportador, pedidoId),
-          })
-        }
-        return renderLinkVincularParte({
-          label: t('pedido.coluna_pai.vincular_exportador'),
-          descricao: t('pedido.coluna_pai.nenhum_exportador_vinculado'),
-          href: urlVincularExportador(null, pedidoId),
-        })
+      const nome = nomeExibicaoExportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, opcoesExportadoresImpLista)
+      if (!nome) {
+        return wrapCelulaItemSomenteLeituraLista(
+          <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+            {t('pedido.coluna_pai.vincular_exportador')}
+          </span>,
+          t,
+          titulo,
+        )
       }
-
-      const v = row.nome_exportador ?? enr._p?.nome_exportador ?? null
-      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      if (v.length <= 50) return <span>{v}</span>
-      return (
-        <TooltipGlobal titulo={t('pedido.coluna_filho.mapa_nome_exportador.tooltip_titulo')} descricao={v}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            {v.slice(0, 50) + '…'}
-            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-          </span>
-        </TooltipGlobal>
+      return wrapCelulaItemSomenteLeituraLista(
+        renderBadgeParteVinculada({
+          nome,
+          titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
+          descricao: t('pedido.coluna_pai.clique_editar_exportador'),
+        }),
+        t,
+        titulo,
       )
     },
   },
@@ -4414,6 +4491,7 @@ export default function Pedidos() {
   const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
 
   const [opcoesImportadoresExp, setOpcoesImportadoresExp] = useState<{ valor: string; label: string }[]>([])
+  const [opcoesExportadoresImp, setOpcoesExportadoresImp] = useState<{ valor: string; label: string }[]>([])
 
   useEffect(() => {
     if (!idOrganizacao) return
@@ -4426,6 +4504,14 @@ export default function Pedidos() {
       .catch(() => {
         if (!cancelado) setOpcoesImportadoresExp([])
       })
+    cadastrosApi.listarExportadores()
+      .then((res) => {
+        if (cancelado) return
+        setOpcoesExportadoresImp(mapearOpcoesExportadorImportacao(res.itens))
+      })
+      .catch(() => {
+        if (!cancelado) setOpcoesExportadoresImp([])
+      })
     return () => { cancelado = true }
   }, [idOrganizacao])
 
@@ -4435,20 +4521,30 @@ export default function Pedidos() {
     [opcoesImportadoresExp, workspaceOpcoesLista],
   )
 
-  // Re-sanitiza quando workspaces ou importadores terminam de carregar (corrige CUID residual).
+  /** IMP: só fornecedores exportadores — nunca workspaces (mesmo nome). */
+  const opcoesExportadoresImpLista = useMemo(
+    () => filtrarOpcoesExportadorImpSemWorkspaces(opcoesExportadoresImp, workspaceOpcoesLista),
+    [opcoesExportadoresImp, workspaceOpcoesLista],
+  )
+
+  // Re-sanitiza quando workspaces ou fornecedores terminam de carregar (corrige CUID residual).
   useEffect(() => {
     setPedidos((prev) => {
       if (prev.length === 0) return prev
-      const next = sanitizarNomeImportadorPedidosCarregados(
+      const next = sanitizarNomesPartesListaPedidos(
         prev,
         workspacesDisponiveis,
         workspacesShell,
         opcoesImportadoresExp,
+        opcoesExportadoresImp,
       )
-      const mudou = next.some((p, i) => p.nome_importador !== prev[i]?.nome_importador)
+      const mudou = next.some((p, i) =>
+        p.nome_importador !== prev[i]?.nome_importador
+        || p.nome_exportador !== prev[i]?.nome_exportador,
+      )
       return mudou ? next : prev
     })
-  }, [opcoesImportadoresExp, workspacesDisponiveis, workspacesShell, workspaceOpcoesLista])
+  }, [opcoesImportadoresExp, opcoesExportadoresImp, workspacesDisponiveis, workspacesShell, workspaceOpcoesLista])
 
   const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
     () => ({
@@ -4459,6 +4555,7 @@ export default function Pedidos() {
       workspacesMap,
       workspaceOpcoesLista,
       opcoesImportadoresExpLista,
+      opcoesExportadoresImpLista,
       paisesOpcoes: paisesLogisticaOpcoes,
       portosOpcoes,
       aeroportosOpcoes,
@@ -4567,15 +4664,21 @@ export default function Pedidos() {
       }
     }
     if (base.nome_importador) {
-      // Itens travados — espelham o pedido; edição só na linha pai.
       base.nome_importador = {
         ...base.nome_importador,
         editavel: false,
         tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado'),
       }
     }
+    if (base.nome_exportador) {
+      base.nome_exportador = {
+        ...base.nome_exportador,
+        editavel: false,
+        tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'),
+      }
+    }
     return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
-  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, workspacesMap])
+  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, opcoesExportadoresImp, workspacesMap])
   const {
     prefs: cardPrefs,
     visiveis: cardsVisiveis,
@@ -4868,6 +4971,77 @@ export default function Pedidos() {
         }
       }
 
+      if (col.key === 'nome_exportador') {
+        // EXP: lista workspaces (igual id_workspace). IMP: lista fornecedores exportadores.
+        const WORKSPACE_OPTS_EXP = workspaceOpcoesLista
+        return enriquecerColunaComRegraTooltip({
+          ...col,
+          tipo: 'enum',
+          opcoes: WORKSPACE_OPTS_EXP,
+          editavel: (row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            return tipo === 'importacao' || tipo === 'exportacao'
+          },
+          getOpcoes: (row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            if (tipo === 'exportacao') {
+              return garantirOpcoesWorkspaceImportador(row, WORKSPACE_OPTS_EXP, workspacesMap)
+            }
+            if (tipo === 'importacao') return opcoesExportadoresImpLista
+            return []
+          },
+          getValorEditar: (row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            if (tipo === 'exportacao') return extrairIdWorkspaceDePedido(row)
+            const idForn = row.importacao_exportador_id?.trim()
+            if (idForn && !pareceIdInternoGravity(idForn)) return idForn
+            return ''
+          },
+          linkPopoverEdicao: (row: Pedido) => {
+            if (comportamentoExportadorLista(row) !== 'importacao') return undefined
+            const idExp = row.importacao_exportador_id
+            return {
+              label: idExp
+                ? t('pedido.coluna_pai.clique_editar_exportador')
+                : t('pedido.coluna_pai.vincular_exportador'),
+              href: urlVincularExportador(idExp, row.id),
+            }
+          },
+          render: (val: unknown, row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            const resolverTexto = () => {
+              const exibir = nomeExibicaoExportadorPedido(row, workspacesMap, WORKSPACE_OPTS_EXP, opcoesExportadoresImpLista)
+              if (exibir && exibir !== '—' && !pareceIdInternoGravity(exibir)) return exibir
+              if (tipoOperacaoLista(row) === 'exportacao') {
+                const doWs = nomeLegivelWorkspace(extrairIdWorkspaceDePedido(row), workspacesMap, WORKSPACE_OPTS_EXP, null)
+                if (doWs !== '—') return doWs
+              }
+              if (typeof val === 'string' && val.trim() && !pareceIdInternoGravity(val)) return val.trim()
+              return '—'
+            }
+            if (tipo === 'exportacao') {
+              return <span style={{ display: 'block', textAlign: 'left' }}>{resolverTexto()}</span>
+            }
+            if (!tipo && typeof val === 'string' && pareceIdInternoGravity(val)) {
+              return <span style={{ display: 'block', textAlign: 'left' }}>—</span>
+            }
+            const nome = resolverTexto()
+            if (!nome || nome === '—') {
+              return (
+                <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+                  {t('pedido.coluna_pai.vincular_exportador')}
+                </span>
+              )
+            }
+            return renderBadgeParteVinculada({
+              nome,
+              titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
+              descricao: t('pedido.coluna_pai.clique_editar_exportador'),
+            })
+          },
+        }, t, 'pai')
+      }
+
       if (col.key === 'nome_importador') {
         // IMP: lista todos workspaces (igual id_workspace). EXP: lista fornecedores importadores.
         const WORKSPACE_OPTS_IMP = workspaceOpcoesLista
@@ -5009,7 +5183,7 @@ export default function Pedidos() {
     })
 
     return [...colunasBase, ...customEnriquecidas]
-  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspaceOpcoesLista, pedidos, workspacesMap, opcoesImportadoresExpLista])
+  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspaceOpcoesLista, pedidos, workspacesMap, opcoesImportadoresExpLista, opcoesExportadoresImpLista])
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
@@ -5018,7 +5192,7 @@ export default function Pedidos() {
                  && ((c.escopo || 'ambos') === 'item' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
     // id_workspace e logística são exclusivos do pedido — itens herdam/exibem, sem PATCH em item.
-    const exclusivosPedido = new Set<string>(['id_workspace', 'tipo_operacao', 'nome_importador', ...CAMPOS_LOGISTICA_PEDIDO])
+    const exclusivosPedido = new Set<string>(['id_workspace', 'tipo_operacao', 'nome_importador', 'nome_exportador', ...CAMPOS_LOGISTICA_PEDIDO])
     return [...CAMPOS_EDITAVEIS_PAI, ...customKeys].filter(k => !exclusivosPedido.has(k))
   }, [colunasUsuario])
 
@@ -5333,11 +5507,12 @@ export default function Pedidos() {
       if (seq !== cargaListaSeqRef.current) return
       // Pré-computa flags de divergência no carregamento inicial — pedidos vem
       // com itens populados do backend (include itens_pedido na rota /listar).
-      const pedidosSanitizados = sanitizarNomeImportadorPedidosCarregados(
+      const pedidosSanitizados = sanitizarNomesPartesListaPedidos(
         res.data,
         workspacesDisponiveis,
         workspacesShell,
         opcoesImportadoresExp,
+        opcoesExportadoresImp,
       )
       const pedidosComDivergencias = pedidosSanitizados.map(p => {
         if (!p.itens || p.itens.length === 0) return p
@@ -5363,7 +5538,7 @@ export default function Pedidos() {
         carregandoRef.current = false
       }
     }
-  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, workspacesDisponiveis, workspacesShell, opcoesImportadoresExp, t])
+  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, workspacesDisponiveis, workspacesShell, opcoesImportadoresExp, opcoesExportadoresImp, t])
 
   const aplicarCardsTopoDoPainel = useCallback((
     cardsTopo: { ids_visiveis: string[]; periodo?: string } | undefined,
@@ -6185,6 +6360,31 @@ export default function Pedidos() {
     valor: unknown,
     opts?: { replicar_em_itens?: boolean },
   ): Promise<Pedido> => {
+    if (campo === 'nome_exportador') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (comportamentoExportadorLista(pedidoAtual ?? {} as Pedido) === 'exportacao') {
+        return handleEditar(id, 'id_workspace', valor, { replicar_em_itens: true })
+      }
+      if (comportamentoExportadorLista(pedidoAtual ?? {} as Pedido) === 'importacao') {
+        const idFornecedor = String(valor ?? '').trim()
+        if (!idFornecedor) throw new Error(t('pedido.lista.erro.exportador_obrigatorio', 'Selecione um exportador'))
+        const nomeFornecedor = opcoesExportadoresImpLista.find((o) => o.valor === idFornecedor)?.label
+          ?? pedidoAtual?.nome_exportador
+          ?? ''
+        const resultados = await Promise.all([
+          pedidoVirtualApi.editarCampo(id, 'importacao_exportador_id', idFornecedor),
+          pedidoVirtualApi.editarCampo(id, 'nome_exportador', nomeFornecedor),
+        ])
+        const pedidoAtualizado = {
+          ...pedidoAtual,
+          ...resultados[resultados.length - 1],
+          importacao_exportador_id: idFornecedor,
+          nome_exportador: nomeFornecedor,
+        } as Pedido
+        setPedidos((prev) => prev.map((p) => (p.id === id ? pedidoAtualizado : p)))
+        return pedidoAtualizado
+      }
+    }
     if (campo === 'nome_importador') {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (comportamentoImportadorLista(pedidoAtual ?? {} as Pedido) === 'importacao') {
@@ -6403,15 +6603,17 @@ export default function Pedidos() {
       ...updatedPedidoRaw,
       [campo]: valorEnviarPai,
     } as Pedido
-    // IMP: trocar workspace atualiza importador exibido (não toca exportacao_importador_id).
+    // Trocar workspace atualiza parte espelhada (IMP→importador, EXP→exportador).
     if (campo === 'id_workspace') {
       const pai = pedidos.find(p => p.id === id)
-      if (tipoOperacaoLista(pai ?? {}) === 'importacao') {
-        const idWs = String(valorEnviarPai ?? '').trim()
-        const nomeWs = nomeLegivelWorkspace(idWs, workspacesMap, workspaceOpcoesLista)
-        if (nomeWs !== '—') {
-          // Backend sincroniza detalhes_operacionais.nome_importador no PATCH id_workspace (IMP).
+      const tipo = tipoOperacaoLista(pai ?? {})
+      const idWs = String(valorEnviarPai ?? '').trim()
+      const nomeWs = nomeLegivelWorkspace(idWs, workspacesMap, workspaceOpcoesLista)
+      if (nomeWs !== '—') {
+        if (tipo === 'importacao') {
           updatedPedido = { ...updatedPedido, nome_importador: nomeWs }
+        } else if (tipo === 'exportacao') {
+          updatedPedido = { ...updatedPedido, nome_exportador: nomeWs }
         }
       }
     }
@@ -6448,7 +6650,7 @@ export default function Pedidos() {
       return { ...updatedPedido, itens: sinc.itens.length > 0 ? sinc.itens : p.itens, ...sinc.divergencias }
     }))
     return updatedPedido
-  }, [pedidos, colunasUsuario, opcoesImportadoresExpLista, workspacesMap, workspaceOpcoesLista, t])
+  }, [pedidos, colunasUsuario, opcoesImportadoresExpLista, opcoesExportadoresImpLista, workspacesMap, workspaceOpcoesLista, t])
 
   // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
   // SSOT: pedidoDivergencias.ts (shared) + getAlertavelKeys() em columnAlertConfig.ts
@@ -6516,6 +6718,10 @@ export default function Pedidos() {
 
     if (campo === 'nome_importador') {
       throw new Error(t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado'))
+    }
+
+    if (campo === 'nome_exportador') {
+      throw new Error(t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'))
     }
 
     if (campo === 'status') {
@@ -7511,7 +7717,8 @@ export default function Pedidos() {
             const COLUNAS_SEM_REPLICACAO = new Set([
               'id_workspace', // replicação automática — sem checkbox
               'tipo_operacao', // sempre replica — sem checkbox
-              'nome_importador', // IMP: select workspace (replica auto); EXP: modal — sem checkbox
+              'nome_importador', // IMP: workspace; EXP: fornecedor — sem checkbox
+              'nome_exportador', // EXP: workspace; IMP: fornecedor — sem checkbox
               'numero_pedido',
               'valor_total_pedido',
               'valor_por_unidade_item',

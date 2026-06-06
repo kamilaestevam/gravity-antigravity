@@ -27,6 +27,7 @@ const CAMPOS_ALERTAVEIS = new Set([
   'id_workspace',
 
   // tipo_operacao — exclusão intencional: pedido replica para todos os itens; sem alerta de divergência.
+  // status — divergência calculada em pedidoDivergencias.ts via `_p.status` (sem campo no PedidoItem).
 
   // Identificadores de documentos (3)
   'numero_proforma',

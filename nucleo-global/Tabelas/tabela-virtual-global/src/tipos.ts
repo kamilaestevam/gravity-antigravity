@@ -260,6 +260,13 @@ export interface GTVirtualHandle {
   rolarParaCelula: (id: string, campo: string) => void
 }
 
+/** Contexto do conector customizado na expand cell do pai */
+export interface GTConectorPaiContext {
+  expandido: boolean
+  carregando: boolean
+  onToggle: () => void
+}
+
 // ─── Props principais ──────────────────────────────────────────────────────────
 
 export interface GTVirtualTableProps<T = unknown, C = never> {
@@ -348,6 +355,8 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   acoesFilho?: (item: C) => GTAcaoLinha[]
   /** Conteúdo do conector hierárquico na expand cell do filho (padrão: └) */
   renderConectorFilho?: (item: C) => ReactNode
+  /** Conteúdo da expand cell do pai (padrão: chevron TVG) */
+  renderConectorPai?: (item: T, ctx: GTConectorPaiContext) => ReactNode
 
   // ── Busca, filtros e ordenação ─────────────────────────────────────────────
   onBuscar?: (termo: string) => void

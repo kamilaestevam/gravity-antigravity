@@ -55,6 +55,7 @@
     "dev:reset": "npx tsx scripts/ativamente/dev-reset.ts",
     "servidores": "npx tsx scripts/ativamente/servidores-up.ts",
     "dev:up": "npx tsx scripts/ativamente/servidores-up.ts",
+    "pedido:ok": "npx tsx scripts/ativamente/pedido-cadeia-up.ts",
     "db:compose": "npx ts-node scripts/ativamente/compose-plataforma-schema.ts",
     "db:migrate:dev": "npm run db:compose && npx prisma migrate dev --schema=configurador/prisma/schema.prisma && npx prisma migrate dev --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",
     "db:migrate:deploy": "npx tsx scripts/ativamente/compose-cadastros-schema.ts && npx prisma migrate deploy --schema=servicos-global/cadastros/prisma/schema.prisma && npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",

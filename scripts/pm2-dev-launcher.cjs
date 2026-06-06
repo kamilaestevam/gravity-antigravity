@@ -9,6 +9,7 @@
  * Variáveis (definidas no ecosystem.config.cjs):
  *   PM2_DEV_ENTRY       — entrypoint relativo ao cwd (ex: server/src/index.ts)
  *   PM2_DEV_ENV_FILES   — paths --env-file separados por |
+ *   PM2_DEV_NO_WATCH    — se '1', roda tsx sem watch (evita restart ao editar client)
  */
 
 const { spawn } = require('child_process')
@@ -28,7 +29,8 @@ if (!entry) {
   process.exit(1)
 }
 
-const args = ['watch']
+const semWatch = process.env.PM2_DEV_NO_WATCH === '1'
+const args = semWatch ? [] : ['watch']
 for (const envFile of envFiles) {
   args.push('--env-file', envFile)
 }

@@ -25,7 +25,9 @@ const HEALTH_TIMEOUT_MS = 4_000
 const BOOT_WAIT_MS = 12_000
 const CFG_BACK_BOOT_WAIT_MS = 20_000
 const POLL_INTERVAL_MS = 2_000
-const POLL_MAX_MS = 30_000
+const POLL_MAX_MS = 45_000
+const PEDIDO_CADEIA_RETRY = 3
+const PEDIDO_CADEIA_WAIT_MS = 15_000
 
 /**
  * Portas disputadas quando cfg-back sobe sidecars embutidos (modo Railway).
@@ -145,6 +147,26 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/** cfg-back + pedido são a cadeia crítica para testar o produto Pedido no shell. */
+async function garantirCadeiaPedido(): Promise<void> {
+  let cfg = await checarHttp(8005, '/health')
+  if (cfg.http !== 'ok') {
+    console.log('[servidores] Cadeia Pedido: cfg-back fora — sequência segura …')
+    pm2RestartCfgBackSeguro()
+    await sleep(CFG_BACK_BOOT_WAIT_MS)
+    cfg = await checarHttp(8005, '/health')
+  }
+
+  for (let i = 1; i <= PEDIDO_CADEIA_RETRY; i++) {
+    const ped = await checarHttp(8030, '/health')
+    if (ped.http === 'ok' && cfg.http === 'ok') return
+    console.log(`[servidores] Cadeia Pedido: pedido fora — restart ${i}/${PEDIDO_CADEIA_RETRY} …`)
+    execIgnorarErro('npx pm2 restart pedido --update-env')
+    await sleep(PEDIDO_CADEIA_WAIT_MS)
+    cfg = await checarHttp(8005, '/health')
+  }
+}
+
 async function diagnosticar(pm2Map: Map<string, StatusPm2>): Promise<ResultadoServidor[]> {
   const resultados: ResultadoServidor[] = []
   for (const srv of SERVIDORES_PM2) {
@@ -256,6 +278,8 @@ async function main(): Promise<void> {
       await sleep(POLL_INTERVAL_MS)
       depois = await diagnosticar(lerPm2())
     }
+
+    await garantirCadeiaPedido()
 
     pm2Map = lerPm2()
     const final = await diagnosticar(pm2Map)

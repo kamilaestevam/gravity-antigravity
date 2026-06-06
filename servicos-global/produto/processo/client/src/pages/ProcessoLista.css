@@ -286,7 +286,7 @@
 }
 .pl-page .pl-camada--pedido {
   background: rgba(96, 165, 250, 0.15);
-  color: var(--pl-linha-pedido-suave);
+  color: rgba(147, 197, 253, 0.65);
   border: 1px solid rgba(96, 165, 250, 0.22);
 }
 .pl-page .pl-camada--item {

@@ -155,7 +155,11 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
 //
 // Regra: campos "calculado" no PEDIDO são editáveis no ITEM (cada item tem seu valor).
 // Campos "saldo" e "somente_leitura" nunca são editáveis em nenhum nível.
-// Exceções de tipo_operacao permanecem em colunasFilho por usar PedidoItemEnriquecido.
+// Exceções condicionais (nome_exportador, nome_importador) permanecem no mapa filho.
+
+const ALERTA_OVERRIDE: Record<string, boolean> = {
+  tipo_operacao: false, // replica do pedido — sem alerta de divergência
+}
 
 const TIPO_DEFAULTS_ITEM: Record<TipoCampo, boolean> = {
   alfanumerico:    true,
@@ -166,6 +170,7 @@ const TIPO_DEFAULTS_ITEM: Record<TipoCampo, boolean> = {
 
 // Colunas que fogem ao padrão do tipo no nível item
 const ITEM_EDITAVEL_OVERRIDE: Record<string, boolean> = {
+  tipo_operacao:                false, // exclusivo do pedido — replica para itens
   status:                       true,  // item herda status mas pode ser editado
   quantidade_transferida_total: false, // só muda via operação de transferência
   quantidade_cancelada_total_pedido: false, // só muda via cancelamento
@@ -197,6 +202,7 @@ export function isSomavel(key: string): boolean {
 
 /** True se a coluna pode ter alerta de divergência entre itens */
 export function hasAlerta(key: string): boolean {
+  if (key in ALERTA_OVERRIDE) return ALERTA_OVERRIDE[key]
   const cfg = COLUMN_CONFIG[key]
   if (!cfg) return false
   return TIPO_DEFAULTS[cfg.tipo].alerta

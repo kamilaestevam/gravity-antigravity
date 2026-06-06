@@ -156,6 +156,11 @@ const EMT_COL_LARGURAS = ['9%', '9%', '8%', '15%', '51%', '8%'] as const
 
 const EMT_CELULA_PAD = '0.55rem 0.65rem'
 
+/** Tipografia padrão Solid Slate (Plus Jakarta Sans via --font). */
+const FONTE_UI = "var(--font, 'Plus Jakarta Sans', system-ui, sans-serif)"
+/** Mono reservado a trechos de código (paths, diff). */
+const FONTE_MONO = 'var(--font-mono, ui-monospace, monospace)'
+
 function EmtLinhaChecklist({
   row,
   variante,
@@ -229,7 +234,7 @@ function EmtTabelaChecklistBloco({
           tableLayout: 'fixed',
           borderCollapse: 'collapse',
           fontSize: '0.78rem',
-          fontFamily: 'var(--font-mono, monospace)',
+          fontFamily: FONTE_UI,
         }}>
           <colgroup>
             {EMT_COL_LARGURAS.map((largura, i) => (
@@ -275,7 +280,7 @@ function EmtTabelaChecklistBloco({
 }
 
 type HandlersAnaliseIaTeste = {
-  onReanalyze: (id: string) => void
+  onReanalyze: (id: string, opts?: { silent?: boolean }) => void | Promise<void>
   onApplyFix: (id: string) => void
   onReject: (id: string) => void
 }
@@ -290,10 +295,47 @@ function PainelAnaliseIaTeste({
   mostrarSemAnalise?: boolean
 }) {
   const { t } = useTranslation()
+  const [analisando, setAnalisando] = useState(false)
+  const autoDisparadoRef = useRef(false)
+  const handlersRef = useRef(handlers)
+  handlersRef.current = handlers
+
+  useEffect(() => {
+    if (!mostrarSemAnalise || item.aiAnalise || item.aiRejected) return
+    if (autoDisparadoRef.current) return
+    autoDisparadoRef.current = true
+    setAnalisando(true)
+    void Promise.resolve(handlersRef.current.onReanalyze(item.id, { silent: true }))
+      .finally(() => setAnalisando(false))
+  }, [item.id, item.aiAnalise, item.aiRejected, mostrarSemAnalise])
 
   if (!item.aiAnalise && !mostrarSemAnalise) return null
 
   if (!item.aiAnalise) {
+    if (analisando) {
+      return (
+        <div style={{
+          background: 'linear-gradient(145deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)',
+          borderRadius: '12px',
+          border: '1px solid rgba(139, 92, 246, 0.4)',
+          padding: '1.25rem',
+          fontFamily: FONTE_UI,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#c4b5fd' }}>
+            <SpinnerGap size={22} weight="bold" style={{ animation: 'ws-running-spin 0.9s linear infinite', flexShrink: 0 }} />
+            <div>
+              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#f1f5f9' }}>
+                {t('admin.testes-gerais.expandido_ia_titulo')}
+              </p>
+              <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
+                Analisando falha automaticamente…
+              </p>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div style={{
         background: 'linear-gradient(145deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)',
@@ -301,6 +343,7 @@ function PainelAnaliseIaTeste({
         border: '1px solid rgba(139, 92, 246, 0.4)',
         boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)',
         overflow: 'hidden',
+        fontFamily: FONTE_UI,
       }}>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -349,6 +392,7 @@ function PainelAnaliseIaTeste({
       border: '1px solid rgba(139, 92, 246, 0.4)',
       boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)',
       position: 'relative', overflow: 'hidden',
+      fontFamily: FONTE_UI,
     }}>
       <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '150%', height: '100%', background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
@@ -432,14 +476,14 @@ function PainelAnaliseIaTeste({
           </div>
           <div>
             <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_onde')}</span>
-            <code style={{ display: 'inline-block', padding: '0.3rem 0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '6px', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'var(--font-mono, monospace)' }}>
+            <code style={{ display: 'inline-block', padding: '0.3rem 0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '6px', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: FONTE_MONO }}>
               {item.aiAnalise.arquivo}
             </code>
           </div>
           {item.aiAnalise.commitSuspeito && (
             <div style={{ padding: '0.75rem', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: '8px' }}>
               <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', color: '#a855f7', marginBottom: '0.4rem' }}>COMMIT SUSPEITO</span>
-              <code style={{ fontSize: '0.75rem', color: '#e2e8f0', fontFamily: 'var(--font-mono, monospace)' }}>
+              <code style={{ fontSize: '0.75rem', color: '#e2e8f0', fontFamily: FONTE_MONO }}>
                 {item.aiAnalise.commitSuspeito.hash.slice(0, 7)}
               </code>
               <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}> por {item.aiAnalise.commitSuspeito.autor} em {item.aiAnalise.commitSuspeito.data}</span>
@@ -455,7 +499,7 @@ function PainelAnaliseIaTeste({
           </div>
 
           {item.aiAnalise.codigoDiff && (
-            <div style={{ marginTop: '0.5rem', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.75rem', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(139,92,246,0.3)' }}>
+            <div style={{ marginTop: '0.5rem', fontFamily: FONTE_MONO, fontSize: '0.75rem', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(139,92,246,0.3)' }}>
               {item.aiAnalise.codigoDiff.explicacao && (
                 <div style={{ background: 'rgba(139,92,246,0.08)', color: '#a78bfa', padding: '0.35rem 0.75rem', fontSize: '0.7rem', borderBottom: '1px solid rgba(139,92,246,0.15)' }}>
                   {item.aiAnalise.codigoDiff.arquivo && <span style={{ color: '#64748b' }}>{item.aiAnalise.codigoDiff.arquivo}{item.aiAnalise.codigoDiff.linha ? `:${item.aiAnalise.codigoDiff.linha}` : ''} — </span>}
@@ -547,7 +591,7 @@ function LightboxPrintEmt({
           fontSize: '0.8rem',
           fontWeight: 700,
           color: '#e2e8f0',
-          fontFamily: 'var(--font-mono, monospace)',
+          fontFamily: FONTE_UI,
         }}>
           {arquivo}
         </span>
@@ -744,7 +788,7 @@ function PainelEmtExpandido({
           </div>
           <ul style={{ margin: 0, padding: '0.75rem 1rem', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
             {aprovadas.map((texto, i) => (
-              <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', fontFamily: 'var(--font-mono, monospace)' }}>
+              <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', fontFamily: FONTE_UI }}>
                 <CheckCircle size={16} weight="fill" color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
                 <span style={{ color: '#d1fae5' }}>{texto}</span>
               </li>
@@ -760,7 +804,7 @@ function PainelEmtExpandido({
           </div>
           <ul style={{ margin: 0, padding: '0.75rem 1rem', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
             {reprovadas.map((texto, i) => (
-              <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', fontFamily: 'var(--font-mono, monospace)' }}>
+              <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', fontFamily: FONTE_UI }}>
                 <XCircle size={16} weight="fill" color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
                 <span style={{ color: '#fecaca' }}>{texto}</span>
               </li>
@@ -810,7 +854,7 @@ function PainelEmtExpandido({
             display: 'block', padding: '1rem',
             color: aprovado ? '#cbd5e1' : '#fca5a5',
             fontSize: '0.8rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-            fontFamily: 'var(--font-mono, monospace)',
+            fontFamily: FONTE_UI,
           }}>
             {logCompleto}
           </code>
@@ -989,13 +1033,17 @@ export function LogTestes() {
   const erroCount = dados.filter(d => d.resultado === 'ERRO_CATASTROFICO').length
 
   // Handlers para os botões de ação Gemini
-  const handleReanalyze = async (id: string) => {
+  const handleReanalyze = async (id: string, opts?: { silent?: boolean }) => {
     try {
-      const res = await adminTestesApi.reanalisar(id)
-      addNotification({ type: 'success', message: 'Re-análise concluída' })
+      await adminTestesApi.reanalisar(id)
+      if (!opts?.silent) {
+        addNotification({ type: 'success', message: 'Re-análise concluída' })
+      }
       await loadLogs()
     } catch (err) {
-      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao reanalisar' })
+      if (!opts?.silent) {
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao reanalisar' })
+      }
     }
   }
 
@@ -1119,14 +1167,18 @@ export function LogTestes() {
                <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#f87171' }}>{t('admin.testes-gerais.expandido_erro_titulo')}</span>
             </div>
             <div style={{ padding: '1rem' }}>
-               <code style={{ color: '#fca5a5', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.85rem', wordBreak: 'break-all', whiteSpace: 'pre-wrap' }}>
+               <code style={{ color: '#fca5a5', fontFamily: FONTE_UI, fontSize: '0.85rem', wordBreak: 'break-all', whiteSpace: 'pre-wrap' }}>
                  {item.erroLog}
                </code>
             </div>
           </div>
         )}
 
-        <PainelAnaliseIaTeste item={item} handlers={handlersAnaliseIa} />
+        <PainelAnaliseIaTeste
+          item={item}
+          handlers={handlersAnaliseIa}
+          mostrarSemAnalise={item.resultado !== 'APROVADO'}
+        />
       </div>
     )
   }

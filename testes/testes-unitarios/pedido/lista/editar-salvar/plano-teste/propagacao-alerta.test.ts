@@ -47,8 +47,8 @@ describe('isPropagavel — campos com par no MAPA_PROPAGACAO_PEDIDO_ITEM', () =>
 // ── 14b. isAlertavel ─────────────────────────────────────────────────────────
 
 describe('isAlertavel — campos em CAMPOS_ALERTAVEIS', () => {
-  it('U-ALRT-01: tipo_operacao → true', () => {
-    expect(isAlertavel('tipo_operacao')).toBe(true)
+  it('U-ALRT-01: tipo_operacao → false (replica do pedido, sem alerta)', () => {
+    expect(isAlertavel('tipo_operacao')).toBe(false)
   })
 
   it('U-ALRT-02: incoterm → true', () => {

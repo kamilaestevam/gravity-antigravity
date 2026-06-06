@@ -371,35 +371,16 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.tipo_operacao_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.tipo_operacao_desc'),
     grupo: 'Identificação',
-    tooltipDescricaoCelula: (row: Pedido) => {
-      if (!row.tipo_operacao_divergente) return undefined
-      return montarTooltipCelulaComAviso(
-        t,
-        'tipo_operacao',
-        t('pedido.coluna_pai.tipo_operacao_divergente'),
-      )
-    },
-    render: (_val: unknown, row: Pedido) => {
-      const badge = (
-        <StatusBadgeGlobal
-          valor={row.tipo_operacao === 'importacao' ? t('pedido.coluna_pai.tipo_operacao_importacao') : t('pedido.coluna_pai.tipo_operacao_exportacao')}
-          genero="feminino"
-          style={row.tipo_operacao === 'importacao'
-            ? { color: '#60a5fa', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)' }
-            : { color: '#34d399', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)' }
-          }
-        />
-      )
-      if (row.tipo_operacao_divergente) {
-        return (
-          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-            {badge}
-            <span style={{ color: '#F59E0B' }}><WarnIcon /></span>
-          </span>
-        )
-      }
-      return badge
-    },
+    render: (_val: unknown, row: Pedido) => (
+      <StatusBadgeGlobal
+        valor={row.tipo_operacao === 'importacao' ? t('pedido.coluna_pai.tipo_operacao_importacao') : t('pedido.coluna_pai.tipo_operacao_exportacao')}
+        genero="feminino"
+        style={row.tipo_operacao === 'importacao'
+          ? { color: '#60a5fa', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)' }
+          : { color: '#34d399', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)' }
+        }
+      />
+    ),
     findDisplay: (row: Pedido) => row.tipo_operacao === 'importacao' ? t('pedido.coluna_pai.tipo_operacao_importacao') : t('pedido.coluna_pai.tipo_operacao_exportacao'),
   },
   // ── Coluna "Workspace" — filtro multi-workspace (entrega 2026-05-13) ────────

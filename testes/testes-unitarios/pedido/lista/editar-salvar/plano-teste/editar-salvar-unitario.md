@@ -211,7 +211,7 @@ Plano de teste unitario para edicao inline e salvamento na Lista de Pedidos. Cob
 | U-PROP-04 | isPropagavel | `data_prevista_pedido_pronto` | `true` |
 | U-PROP-05 | isPropagavel | `numero_pedido` | `false` |
 | U-PROP-06 | isPropagavel | `valor_total_pedido` | `false` |
-| U-ALRT-01 | isAlertavel | `tipo_operacao` | `true` |
+| U-ALRT-01 | isAlertavel | `tipo_operacao` | `false` |
 | U-ALRT-02 | isAlertavel | `incoterm` | `true` |
 | U-ALRT-03 | isAlertavel | `moeda_item` | `true` |
 | U-ALRT-04 | isAlertavel | `valor_total_pedido` | `false` |

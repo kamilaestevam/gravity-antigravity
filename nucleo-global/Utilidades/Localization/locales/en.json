@@ -6761,7 +6761,7 @@
         "pai_status": "Editable on the order. With «Apply to all items» updates every item status (except statuses that block mirroring).",
         "pai_numero_pedido": "Order identifier — read-only in the list.",
         "pai_numero_pedido_item": "On the order row: order number (editable — unique per organization). On the item row: Part Number (editable). Alert if duplicate Part Numbers exist on the order.",
-        "pai_tipo_operacao": "Import or export for the order. Editable on the order row. With «Apply to all items» replicates to every item. Alert if any item has a different type than the order.",
+        "pai_tipo_operacao": "Import or export for the order. Editable only on the order row. Changes automatically replicate to all items.",
         "item_editavel_padrao": "Editable on this item. Order totals and divergence alerts recalculate after save.",
         "item_editavel_quantidade_inicial": "Editable on this item. Recalculates balance and item total value. Updates order initial quantity total.",
         "item_editavel_valor_total": "Editable on this item (value and currency). Updates order total when all items share the same currency.",
@@ -7772,7 +7772,8 @@
       },
       "mapa_tipo_operacao": {
         "valor_importacao": "Import",
-        "valor_exportacao": "Export"
+        "valor_exportacao": "Export",
+        "tooltip_bloqueado": "Operation type belongs to the order — edit on the order row"
       }
     }
   },

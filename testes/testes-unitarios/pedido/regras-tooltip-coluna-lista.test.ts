@@ -19,6 +19,7 @@ describe('classificarRegraTooltipColuna', () => {
   })
 
   it('classifica colunas item conhecidas', () => {
+    expect(classificarRegraTooltipColuna('tipo_operacao', 'item')).toBe('item_nao_editavel_padrao')
     expect(classificarRegraTooltipColuna('saldo_itens_do_pedido', 'item')).toBe('item_nao_editavel_saldo')
     expect(classificarRegraTooltipColuna('quantidade_transferida_total', 'item')).toBe(
       'item_nao_editavel_transferencia',

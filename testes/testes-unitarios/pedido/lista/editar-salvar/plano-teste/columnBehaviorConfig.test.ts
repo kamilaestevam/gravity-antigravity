@@ -200,6 +200,9 @@ describe('hasAlerta', () => {
   it('somente_leitura retorna false', () => {
     expect(hasAlerta('status')).toBe(false)
   })
+  it('tipo_operacao retorna false (sem alerta de divergência)', () => {
+    expect(hasAlerta('tipo_operacao')).toBe(false)
+  })
 })
 
 // ── 9. getEditavelItem — nivel ITEM ──────────────────────────────────────────
@@ -228,6 +231,9 @@ describe('getEditavelItem — nivel item', () => {
   })
   it('override quantidade_cancelada_total_pedido: false', () => {
     expect(getEditavelItem('quantidade_cancelada_total_pedido')).toBe(false)
+  })
+  it('override tipo_operacao: false (exclusivo do pedido)', () => {
+    expect(getEditavelItem('tipo_operacao')).toBe(false)
   })
 })
 

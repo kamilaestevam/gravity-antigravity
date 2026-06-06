@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { obterPillsTooltipColuna, pillsParaNivelColuna } from '../../../servicos-global/produto/pedido/client/src/shared/pillsTooltipColunaLista'
 
 describe('obterPillsTooltipColuna', () => {
-  it('tipo_operacao tem pílulas editável e replicação (não somente leitura)', () => {
+  it('tipo_operacao — pedido editável com replicação; item somente leitura', () => {
     const res = obterPillsTooltipColuna('tipo_operacao')
     expect(res.pedido).toContain('editavel_pedido')
-    expect(res.pedido).toContain('replica_itens')
-    expect(res.pedido).not.toContain('somente_leitura')
+    expect(res.pedido).toContain('replica_itens_auto')
+    expect(res.pedido).not.toContain('alerta_divergencia')
+    expect(res.item).toContain('somente_leitura')
+    expect(res.item).not.toContain('editavel_item')
   })
 
   it('numero_pedido é dual com editável pedido e item', () => {

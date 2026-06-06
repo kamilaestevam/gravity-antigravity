@@ -26,8 +26,7 @@ const CAMPOS_ALERTAVEIS = new Set([
   // Workspace — divergência calculada em pedidoDivergencias.ts (item.company_id vs pai.id_workspace)
   'id_workspace',
 
-  // Tipo de operação — alerta quando itens divergem do pedido (importação vs exportação)
-  'tipo_operacao',
+  // tipo_operacao — exclusão intencional: pedido replica para todos os itens; sem alerta de divergência.
 
   // Identificadores de documentos (3)
   'numero_proforma',

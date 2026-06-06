@@ -106,8 +106,8 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_item', 'alerta_divergencia'],
   },
   pai_tipo_operacao: {
-    pedido: ['editavel_pedido', 'replica_itens', 'alerta_divergencia'],
-    item: ['editavel_item', 'alerta_divergencia'],
+    pedido: ['editavel_pedido', 'replica_itens_auto'],
+    item: ['somente_leitura'],
   },
   dinamico_valor_total: {
     pedido: ['calculado_pedido', 'alerta_divergencia'],

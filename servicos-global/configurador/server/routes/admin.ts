@@ -49,6 +49,7 @@ import { extrairCasosDoPlano } from '../lib/extrair-casos-plano.js'
 import { appendTestLogEntries, testLogsDir } from '../lib/test-log-persist.js'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { analyzeTestFailure, getMetrics as getGeminiMetrics } from '../lib/gemini-test-analyzer.js'
+import { readSpecFileContent } from '../lib/test-spec-content.js'
 import { generateTestPlan, expandTestPlan } from '../lib/agente-plano-teste.js'
 import { generateAndSaveSpec } from '../lib/gerador-specs.js'
 import { generateTestidMapping } from '../lib/extrator-testids.js'
@@ -2595,24 +2596,6 @@ function updateLogEntryField(id: string, field: string, value: unknown): void {
       }
     } catch { /* skip */ }
   }
-}
-
-function readSpecFileContent(logEntry: Record<string, unknown>): string {
-  const module = String(logEntry.module ?? '')
-  const testName = String(logEntry.test_name ?? '')
-
-  // Tenta localizar o spec no diretório de testes
-  const possiblePaths = [
-    resolve(monorepoRoot, 'testes', 'testes-e2e', module, `${testName}.spec.ts`),
-    resolve(monorepoRoot, 'testes', 'testes-e2e', module.toLowerCase(), `${testName}.spec.ts`),
-  ]
-
-  for (const p of possiblePaths) {
-    if (existsSync(p)) {
-      return readFileSync(p, 'utf-8')
-    }
-  }
-  return ''
 }
 
 // ─── Agendamentos de Teste (CRUD) — model TesteAgendamento ──────────────────

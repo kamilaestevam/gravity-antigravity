@@ -9,7 +9,8 @@
 }
 
 /* shell-main já tem padding 24px 2rem — repassamos flex para a TVG preencher a viewport */
-.layout--oculta-marca-header .shell-main {
+.layout--oculta-marca-header .shell-main,
+.layout--processo .shell-main {
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -17,11 +18,37 @@
   box-sizing: border-box;
 }
 
-.layout--oculta-marca-header .shell-main > * {
+.layout--oculta-marca-header .shell-main > *,
+.layout--processo .shell-main > * {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.proc-visualizacao-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.proc-visualizacao-layout__tabs {
+  padding: var(--pedido-page-pt) var(--pedido-page-px) 0;
+  flex-shrink: 0;
+}
+
+.proc-visualizacao-layout .lp-page {
+  padding-top: 0;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.proc-visualizacao-layout .lp-tabela-wrapper .gtv-toolbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 /* PaginaGlobal — lista hierárquica preenche altura restante (sem scroll duplo) */

@@ -1,0 +1,27 @@
+/* Paridade PedidosMultiView.css — keep-alive Lista | Kanban */
+.proc-multi-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.proc-view-panel {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.proc-view-panel--ativo {
+  display: flex;
+}
+
+.proc-view-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 2rem;
+}

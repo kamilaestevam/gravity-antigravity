@@ -21,7 +21,7 @@ export function TodosProcessosTabs() {
   return (
     <nav className="tpt-tabs" aria-label="Modo de visualização de processos">
       <NavLink
-        to="/acesso-processos/lista"
+        to="../lista"
         data-testid={testidTabSeletorProcesso('lista')}
         className={({ isActive }) => `tpt-tab ${isActive ? 'tpt-tab--active' : ''}`}
         onMouseEnter={() => onPrefetch('lista')}
@@ -31,7 +31,7 @@ export function TodosProcessosTabs() {
         <span>Lista</span>
       </NavLink>
       <NavLink
-        to="/acesso-processos/kanban"
+        to="../kanban"
         data-testid={testidTabSeletorProcesso('kanban')}
         className={({ isActive }) => `tpt-tab ${isActive ? 'tpt-tab--active' : ''}`}
         onMouseEnter={() => onPrefetch('kanban')}

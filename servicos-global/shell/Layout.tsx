@@ -46,12 +46,16 @@ export function Layout({
   const location = useLocation()
   
   // Detecção de contexto de navegação
-  const isProcessoRoute = location.pathname.startsWith('/processo/')
   const isProdutoRoute  = location.pathname.startsWith('/produto/')
   // Rotas workspace-level de Processo (/acesso-processos/lista, /kanban) usam
   // o shell padrao — sidebar global normal, SEM ContextualSidebar — mas
   // precisam esconder a marca Gravity do header (que sobrepoe o CabecalhoGlobal).
   const isAcessoProcessosRoute = location.pathname.startsWith('/acesso-processos')
+  const isProcessoLegacyRoute = location.pathname.startsWith('/processo/')
+  const isProcessoWorkspaceLista =
+    /^\/(?:acesso-processos|processo)\/(?:lista|kanban)\/?$/.test(location.pathname)
+  const usaContextualSidebarProcesso =
+    isProcessoLegacyRoute && !isProcessoWorkspaceLista
 
   // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
   useMeSync()
@@ -123,15 +127,15 @@ export function Layout({
 
   // Processo: trilho global + menu do processo viram uma superficie continua
   // (sem gap do .shell-main, sem costura entre trilho e p2-sidebar).
-  const classeProcesso = isProcessoRoute ? ' layout--processo' : ''
-  // Esconde apenas a marca Gravity (shell-header__left) no /acesso-processos,
-  // sem aplicar o resto do layout--processo (que muda sidebar e bordas).
-  const classeOcultaMarca = isAcessoProcessosRoute ? ' layout--oculta-marca-header' : ''
+  const classeProcesso = usaContextualSidebarProcesso ? ' layout--processo' : ''
+  // Esconde marca Gravity no header para lista/kanban workspace (+ legado /processo/lista).
+  const classeOcultaMarca =
+    isAcessoProcessosRoute || isProcessoWorkspaceLista ? ' layout--oculta-marca-header' : ''
 
   return (
     <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}${classeOverride}${classeProcesso}${classeOcultaMarca}`}>
       {overrideAtivo && <BannerOrganizacaoOverride />}
-      {isProcessoRoute ? (
+      {usaContextualSidebarProcesso ? (
         <ContextualSidebar
           tenantName={tenantName ?? nomeWsAtivo}
           tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}

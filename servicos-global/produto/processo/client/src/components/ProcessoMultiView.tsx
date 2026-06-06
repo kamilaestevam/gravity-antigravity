@@ -8,6 +8,7 @@ import {
   type ProcessoVisualizacaoId,
   testidPainelSeletorProcesso,
 } from './processo-visualizacao-context'
+import './ProcessoMultiView.css'
 
 const ProcessoLista = lazy(() => import('../pages/ProcessoLista'))
 const TodosProcessosKanban = lazy(() => import('../pages/todos/TodosProcessosKanban'))

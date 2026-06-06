@@ -1,8 +1,8 @@
 /**
- * Teste em tela — Config Status + reflexo Lista / Kanban / Insights / Dashboard
+ * Teste em tela — Lista Pedido: editar e salvar pedido + itens (coluna Nº PEDIDO / Nº ITEM)
  * Plano: TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001
  *
- * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-status-config-reflexo.ts
+ * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts
  */
 import { chromium, type Page } from 'playwright'
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -22,13 +22,11 @@ dotenv.config({ path: resolve(REPO_ROOT, 'servicos-global/produto/pedido/.env') 
 
 const { ambiente: ambienteExec, clerkSecretPrefix } = aplicarChavesClerkParaAmbiente()
 
-const DATA = '2026-06-02'
-/** Uma subpasta por run — resultado-teste/<EMT_RUN_ID>/ (ver regras/07-organizacao-plano-resultado). */
+const DATA = '2026-06-06'
 const OUT = resolverPastaResultadoEmt(FEATURE_ROOT, process.env.EMT_RUN_ID)
 const BASE_UI = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8000'
+const LISTA_URL = `${BASE_UI}/pedido/pedidos/lista`
 const WORKSPACE_CDE_PADRAO = process.env.ID_WORKSPACE_TESTE ?? 'cmorx5iwh000aclwynp7y1ofm'
-
-const SLUGS_SISTEMA = ['rascunho', 'aberto', 'transferencia', 'consolidado', 'cancelado'] as const
 
 const linhas: string[] = []
 const falhas: string[] = []
@@ -123,6 +121,12 @@ async function autenticarClerk(page: Page): Promise<boolean> {
     const msg = err instanceof Error ? err.message : String(err)
     if (clerkSecretPrefix === 'sk_test' && ambienteRemotoProducao()) {
       falhar(`Clerk dev (sk_test) em URL de produção — configure CLERK_PROD_SECRET_KEY no .env: ${msg}`)
+    } else if (clerkSecretPrefix === 'sk_test' && /no user found/i.test(msg)) {
+      falhar(
+        `Clerk sign-in falhou: ${msg}. `
+        + `Conta "${email}" não existe no Clerk DEV (sk_test). `
+        + `No Admin → Executar testes, selecione ambiente **Producao** (usegravity.com.br + sk_live), conforme o plano.`,
+      )
     } else {
       falhar(`Clerk sign-in falhou: ${msg}`)
     }
@@ -192,81 +196,13 @@ async function entrarNoWorkspace(page: Page): Promise<void> {
     await btnEnter.click()
     await page.waitForURL(/\/(pedido|core|configurador)/, { timeout: 60000 }).catch(() => {})
   } else {
-    log('⚠ Botão "Entrar no workspace" não visível — navegação direta')
-    await page.goto(`${BASE_UI}/pedido/configuracoes?tab=status`, {
-      waitUntil: 'domcontentloaded',
-      timeout: 60000,
-    })
+    log('⚠ Botão "Entrar no workspace" não visível — navegação direta para lista')
+    await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
   }
 
   await aguardarWorkspaceAtivo(page)
   await prepararEscopoWorkspaces(page)
   await page.waitForTimeout(1500)
-}
-
-async function validarConfigStatus(page: Page): Promise<void> {
-  await page.goto(`${BASE_UI}/pedido/configuracoes?tab=status`, {
-    waitUntil: 'domcontentloaded',
-    timeout: 60000,
-  })
-
-  const rowLocator = page.locator('.cfg-status-row').first()
-  const carregouRows = await rowLocator.waitFor({ timeout: 60000 }).then(() => true).catch(() => false)
-
-  if (!carregouRows && await page.locator('.cfg-status-erro').isVisible().catch(() => false)) {
-    log('⚠ API status falhou — clicando Tentar novamente')
-    await page.getByRole('button', { name: /tentar novamente/i }).click().catch(() => {})
-    await rowLocator.waitFor({ timeout: 45000 }).catch(() => {})
-  }
-
-  const temRows = await rowLocator.isVisible().catch(() => false)
-  if (!temRows) {
-    await screenshot(page, '02-config-status-sem-linhas.png')
-    falhar('Config Status: nenhuma .cfg-status-row visível após load (timeout 60s)')
-    return
-  }
-  await screenshot(page, '02-config-status-inicial.png')
-
-  const rows = page.locator('.cfg-status-row')
-  const count = await rows.count()
-  if (count < 5) falhar(`Config status: esperado ≥5 linhas, encontrado ${count}`)
-  else log(`✓ Config status: ${count} linhas`)
-
-  for (const slug of SLUGS_SISTEMA) {
-    const row = page.locator('.cfg-status-row').filter({ hasText: new RegExp(slug.replace('_', '.?'), 'i') })
-    const badge = row.locator('.cfg-badge-sistema')
-    const lapiz = row.locator('button[aria-label*="editar" i], button[aria-label*="Edit" i]')
-    const lixeira = row.locator('button[aria-label*="excluir" i], button[aria-label*="Delete" i], button[aria-label*="Remov" i]')
-
-    const rotulos = ['Rascunho', 'Aberto', 'Transferido', 'Consolidado', 'Cancelado']
-    const idx = SLUGS_SISTEMA.indexOf(slug)
-    const rowByLabel = page.locator('.cfg-status-row').filter({ has: page.locator('.cfg-status-label', { hasText: rotulos[idx] ?? slug }) })
-    const alvo = (await rowByLabel.count()) > 0 ? rowByLabel.first() : row.first()
-
-    const temBadge = await alvo.locator('.cfg-badge-sistema').count() > 0
-    const temLapis = await alvo.locator('.cfg-eye-btn').count() > 0
-    const temLixeira = await alvo.locator('.cfg-remove-btn').count() > 0
-
-    if (!temBadge) falhar(`Status sistema "${rotulos[idx]}" sem badge`)
-    else log(`✓ ${rotulos[idx]}: badge sistema`)
-
-    if (temLapis) falhar(`Status sistema "${rotulos[idx]}" ainda tem lápis`)
-    if (temLixeira) falhar(`Status sistema "${rotulos[idx]}" ainda tem lixeira`)
-  }
-
-  await screenshot(page, '03-status-sistema-badge-sem-lapis.png')
-
-  const editavel = page.locator('.cfg-status-row').filter({
-    hasNot: page.locator('.cfg-badge-sistema'),
-  }).first()
-  const temLapisCustom = await editavel.locator('.cfg-eye-btn').count()
-  if (temLapisCustom === 0) {
-    falhar('Nenhum status customizado com lápis (esperado ao menos 1 editável)')
-  } else {
-    const rotulo = (await editavel.locator('.cfg-status-label').first().textContent())?.trim() ?? 'custom'
-    log(`✓ Status custom "${rotulo}": lápis visível`)
-    await screenshot(page, '04-status-custom-com-lapis.png')
-  }
 }
 
 async function aguardarNotificacaoSalvar(
@@ -276,34 +212,34 @@ async function aguardarNotificacaoSalvar(
   const sucesso = page.getByText(/campo atualizado com sucesso/i)
   const erro = page.getByText(/erro ao editar campo/i)
   try {
-    const resultado = await Promise.race([
+    return await Promise.race([
       sucesso.waitFor({ state: 'visible', timeout: timeoutMs }).then(() => 'sucesso' as const),
       erro.waitFor({ state: 'visible', timeout: timeoutMs }).then(() => 'erro' as const),
     ])
-    return resultado
   } catch {
     return 'nenhuma'
   }
 }
 
 async function obterPrimeiroPedidoRowId(page: Page): Promise<string | null> {
-  const cel = page.locator('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').first()
+  const cel = page.locator('.gtv-linha--pai .gtv-celula--editavel[data-gtv-campo="numero_pedido"]').first()
+    .or(page.locator('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').first())
   const visivel = await cel.waitFor({ timeout: 45000 }).then(() => true).catch(() => false)
   if (!visivel) return null
   return cel.getAttribute('data-gtv-rowid')
 }
 
-async function expandirPrimeiroPedido(page: Page, rowId: string): Promise<boolean> {
+async function expandirPrimeiroPedido(page: Page, rowId: string): Promise<number> {
   const pai = page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first()
   const chevron = pai.locator('.gtv-chevron-btn')
-  if (await chevron.count() === 0) return false
+  if (await chevron.count() === 0) return 0
   const jaExpandido = await pai.evaluate(el => el.classList.contains('gtv-linha--expandida'))
   if (!jaExpandido) {
     await chevron.click()
     await page.waitForTimeout(800)
   }
   await page.locator('.gtv-linha--filho').first().waitFor({ timeout: 30000 }).catch(() => {})
-  return await page.locator('.gtv-linha--filho').first().isVisible().catch(() => false)
+  return page.locator('.gtv-linha--filho').count()
 }
 
 async function editarCampoTextoPai(
@@ -313,8 +249,7 @@ async function editarCampoTextoPai(
   novoValor: string,
 ): Promise<'sucesso' | 'erro' | 'nenhuma'> {
   const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
-  const existe = await cel.count()
-  if (existe === 0) return 'nenhuma'
+  if (await cel.count() === 0) return 'nenhuma'
   await cel.click()
   const input = page.locator('.gtv-edit-popover .gtv-edit-popover-input').first()
   await input.waitFor({ timeout: 10000 })
@@ -324,24 +259,52 @@ async function editarCampoTextoPai(
   return aguardarNotificacaoSalvar(page)
 }
 
-async function editarCampoTextoItem(
+/** Na grade mapeada, coluna pai `numero_pedido` usa data-gtv-campo=numero_pedido nos filhos. */
+function campoColunaFilho(campo: string): string {
+  return campo === 'part_number' ? 'numero_pedido' : campo
+}
+
+function filhosDoPedidoLocator(page: Page, pedidoRowId: string) {
+  return page
+    .locator(`.gtv-linha--filho[data-gtv-pai-id="${pedidoRowId}"]`)
+    .or(page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${pedidoRowId}"]) ~ .gtv-linha--filho`))
+}
+
+async function editarCampoTextoItemPorIndice(
   page: Page,
+  pedidoRowId: string,
+  indice: number,
   campo: string,
   novoValor: string,
 ): Promise<'sucesso' | 'erro' | 'nenhuma'> {
-  const clicou = await page.evaluate((colKey) => {
-    const filho = document.querySelector('.gtv-linha--filho')
+  const colKey = campoColunaFilho(campo)
+  const clicou = await page.evaluate(({ paiId, idx, colKey }) => {
+    let filhos = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+    if (filhos.length === 0) {
+      const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+      if (paiEl) {
+        filhos = []
+        let prox = paiEl.nextElementSibling
+        while (prox?.classList.contains('gtv-linha--filho')) {
+          filhos.push(prox)
+          prox = prox.nextElementSibling
+        }
+      }
+    }
+    const filho = filhos[idx]
     if (!filho) return false
     const porAttr = filho.querySelector(
       `[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`,
     ) as HTMLElement | null
     const alvo = porAttr?.classList.contains('gtv-celula--editavel')
       ? porAttr
-      : (filho.querySelector('.gtv-celula--editavel') as HTMLElement | null)
+      : (filho.querySelector(`[data-gtv-campo="${colKey}"]`) as HTMLElement | null)
+        ?? (filho.querySelector('.gtv-celula--editavel') as HTMLElement | null)
     if (!alvo) return false
     alvo.click()
     return true
-  }, campo)
+  }, { paiId: pedidoRowId, idx: indice, colKey })
+
   if (!clicou) return 'nenhuma'
   const input = page.locator('.gtv-edit-popover .gtv-edit-popover-input').first()
   const abriu = await input.waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
@@ -352,92 +315,105 @@ async function editarCampoTextoItem(
   return aguardarNotificacaoSalvar(page)
 }
 
-async function validarLista(page: Page): Promise<void> {
-  await page.goto(`${BASE_UI}/pedido/pedidos/lista`, { waitUntil: 'domcontentloaded', timeout: 45000 })
+/**
+ * Regra de negócio (APROVADO): Part Numbers iguais no pedido → alerta visível.
+ * SSOT: data-testid no produto; fallback svg na coluna numero_pedido (produção sem deploy).
+ */
+async function pedidoTemAlertaPartNumberDuplicado(page: Page, pedidoRowId: string): Promise<boolean> {
+  const pai = page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${pedidoRowId}"])`).first()
+  const filhos = filhosDoPedidoLocator(page, pedidoRowId)
+
+  await pai.waitFor({ state: 'visible', timeout: 8000 }).catch(() => {})
+  log('ℹ Regra: PN duplicado no pedido → alerta visível = APROVADO (testid ou ícone na coluna)')
+
+  for (let tentativa = 0; tentativa < 20; tentativa++) {
+    const alertaPedidoTestid = await pai.getByTestId('lista-alerta-part-number-duplicado-pedido').isVisible().catch(() => false)
+    const alertasItemTestid = await filhos.getByTestId('lista-alerta-part-number-duplicado-item').count()
+
+    if (alertaPedidoTestid || alertasItemTestid >= 1) {
+      log(`✓ Lista: alerta PN duplicado (testid) — pedido=${alertaPedidoTestid}, itens=${alertasItemTestid}`)
+      return true
+    }
+
+    const svgPedido = await pai.locator('[data-gtv-campo="numero_pedido"] svg').count()
+    const svgItens = await filhos.locator('[data-gtv-campo="numero_pedido"] svg').count()
+
+    if (svgPedido > 0 || svgItens >= 1) {
+      log(`✓ Lista: alerta PN duplicado (ícone coluna) — svg pedido=${svgPedido}, svg itens=${svgItens}`)
+      return true
+    }
+
+    await page.waitForTimeout(500)
+  }
+
+  log('✗ Lista: alerta PN duplicado não detectado — verifique print 05 e deploy dos testids')
+  return false
+}
+
+async function validarListaEditarSalvar(page: Page): Promise<void> {
+  await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
   await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 }).catch(() => {})
+  log(`✓ Lista: ${LISTA_URL}`)
 
   const rowId = await obterPrimeiroPedidoRowId(page)
   if (!rowId) {
-    falhar('Lista: nenhum pedido editável na grade')
-    await screenshot(page, '09a-lista-pedido-itens-carregando.png')
+    falhar('Lista: nenhum pedido editável na coluna Nº PEDIDO / Nº ITEM')
+    await screenshot(page, '02-lista-carregada.png')
     return
   }
 
-  const temItens = await expandirPrimeiroPedido(page, rowId)
-  if (temItens) log('✓ Lista: pedido expandido — itens visíveis na grade')
-  else log('⚠ Lista: pedido sem linha filho visível (pode não ter itens)')
-  await screenshot(page, '09a-lista-pedido-itens-carregando.png')
+  const qtdItens = await expandirPrimeiroPedido(page, rowId)
+  if (qtdItens === 0) {
+    falhar('Lista: pedido sem itens visíveis — necessário ≥2 para testar duplicata')
+    await screenshot(page, '02-lista-carregada.png')
+    return
+  }
+  if (qtdItens < 2) {
+    log(`⚠ Lista: apenas ${qtdItens} item — duplicata pode falhar (ideal ≥2)`)
+  } else {
+    log(`✓ Lista: pedido expandido com ${qtdItens} itens`)
+  }
+  await screenshot(page, '02-lista-carregada.png')
 
   const sufixo = `EMT-${Date.now().toString(36).slice(-5)}`
-  const notifPedido = await editarCampoTextoPai(page, rowId, 'referencia_importador', `QA-REF-${sufixo}`)
+  const numeroPedido = `QA-NUM-${sufixo}`
+  const partNumber = `QA-PN-${sufixo}`
+
+  const notifPedido = await editarCampoTextoPai(page, rowId, 'numero_pedido', numeroPedido)
   await page.waitForTimeout(600)
-  await screenshot(page, '09b-lista-editar-pedido-sucesso.png')
-  if (notifPedido === 'erro') falhar('Lista: edição do pedido retornou erro')
-  else if (notifPedido === 'sucesso') log('✓ Lista: edição do pedido salva com sucesso')
-  else log('⚠ Lista: edição do pedido — toast de sucesso não detectado')
+  await screenshot(page, '03-editar-pedido-numero-sucesso.png')
+  if (notifPedido === 'erro') falhar('Lista: edição do número do pedido retornou erro')
+  else if (notifPedido === 'sucesso') log(`✓ Lista: número do pedido salvo (${numeroPedido})`)
+  else falhar('Lista: edição do número do pedido — toast de sucesso não detectado')
 
-  if (temItens) {
-    const notifItem = await editarCampoTextoItem(page, 'part_number', `QA-PN-${sufixo}`)
-    await page.waitForTimeout(600)
-    await screenshot(page, '09c-lista-editar-item-sucesso.png')
-    if (notifItem === 'erro') falhar('Lista: edição do item retornou erro')
-    else if (notifItem === 'sucesso') log('✓ Lista: edição do item salva com sucesso')
-    else log('⚠ Lista: edição do item — toast de sucesso não detectado')
+  const notifItem1 = await editarCampoTextoItemPorIndice(page, rowId, 0, 'part_number', partNumber)
+  await page.waitForTimeout(600)
+  await screenshot(page, '04-editar-item-part-number-sucesso.png')
+  if (notifItem1 === 'erro') falhar('Lista: edição do Part Number (1º item) retornou erro')
+  else if (notifItem1 === 'sucesso') log(`✓ Lista: Part Number do 1º item salvo (${partNumber})`)
+  else falhar('Lista: edição do Part Number (1º item) — toast não detectado')
+
+  if (qtdItens >= 2) {
+    const notifItem2 = await editarCampoTextoItemPorIndice(page, rowId, 1, 'part_number', partNumber)
+    await page.waitForTimeout(1000)
+    const temAlerta = await pedidoTemAlertaPartNumberDuplicado(page, rowId)
+    await screenshot(page, '05-alerta-part-number-duplicado-pedido.png')
+    if (notifItem2 === 'erro') falhar('Lista: edição do Part Number (2º item) retornou erro')
+    else if (!temAlerta) {
+      falhar(
+        'Lista: regra PN duplicado não validada — esperado ≥2 itens com mesmo PN e ícone âmbar (produto OK se print 05 mostra alerta)',
+      )
+    }
   } else {
-    log('⚠ Lista: pulando edição de item — sem linha filho')
+    log('⚠ Lista: pulando duplicata — menos de 2 itens')
+    await screenshot(page, '05-alerta-part-number-duplicado-pedido.png')
+    falhar('Lista: não foi possível validar alerta — pedido com menos de 2 itens')
   }
-
-  await page.waitForTimeout(800)
-  await screenshot(page, '09-lista-com-novo-status-aba.png')
-
-  const statusConfig = await page.evaluate(() => {
-    try {
-      const raw = localStorage.getItem('pedido:status_config')
-      return raw ? Object.keys(JSON.parse(raw) as Record<string, unknown>).length : 0
-    } catch { return 0 }
-  })
-  if (statusConfig < 5) falhar(`Lista: pedido:status_config com ${statusConfig} entradas (esperado ≥5)`)
-  else log(`✓ Lista: localStorage status_config com ${statusConfig} status`)
-
-  await screenshot(page, '10-lista-coluna-status-badge.png')
-}
-
-async function validarKanban(page: Page): Promise<void> {
-  await page.goto(`${BASE_UI}/pedido/pedidos/kanban`, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForTimeout(2000)
-  const colunas = page.locator('[class*="kanban"] [class*="coluna"], .pk-col, .pedido-kanban-col')
-  const count = await colunas.count()
-  if (count === 0) {
-    const headers = page.locator('h2, h3, [class*="column-header"], [class*="col-header"]')
-    log(`⚠ Kanban: seletor genérico — ${await headers.count()} headers visíveis`)
-  } else {
-    log(`✓ Kanban: ${count} colunas detectadas`)
-  }
-  await screenshot(page, '11-kanban-colunas.png')
-}
-
-async function validarInsights(page: Page): Promise<void> {
-  await page.goto(`${BASE_UI}/pedido/pedidos/visao-geral`, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForTimeout(2500)
-  await screenshot(page, '13-insights-kpi-topo.png')
-
-  const funil = page.locator('.bfd-funil__row')
-  const funilCount = await funil.count()
-  if (funilCount === 0) log('⚠ Insights: funil vazio (sem pedidos no escopo?)')
-  else log(`✓ Insights: funil com ${funilCount} linhas`)
-  await screenshot(page, '14-insights-funil-status.png')
-}
-
-async function validarDashboard(page: Page): Promise<void> {
-  await page.goto(`${BASE_UI}/pedido/pedidos/dashboard`, { waitUntil: 'domcontentloaded', timeout: 45000 })
-  await page.waitForTimeout(2000)
-  await screenshot(page, '15-dashboard-filtros-status.png')
-  log('✓ Dashboard carregado')
 }
 
 async function main() {
   mkdirSync(OUT, { recursive: true })
-  log(`TESTE EM TELA — status-reflexo-completo`)
+  log('TESTE EM TELA — lista-editar-salvar')
   log(`Data: ${DATA} | Base: ${BASE_UI} | Ambiente: ${ambienteExec} | Clerk: ${clerkSecretPrefix}`)
   log(`Pasta: ${OUT}`)
 
@@ -455,15 +431,7 @@ async function main() {
     await screenshot(page, '01-pos-login.png')
     await entrarNoWorkspace(page)
 
-    await validarConfigStatus(page)
-    if (falhas.some(f => f.includes('API GET'))) {
-      log('⚠ Pulando superfícies dependentes — status config não carregou')
-    } else {
-      await validarLista(page)
-      await validarKanban(page)
-      await validarInsights(page)
-      await validarDashboard(page)
-    }
+    await validarListaEditarSalvar(page)
 
     const resultado = falhas.length === 0 ? 'PASSOU' : 'FALHOU'
     log('')
@@ -474,7 +442,7 @@ async function main() {
     }
 
     writeFileSync(`${OUT}/RESULTADO.txt`, [
-      `TESTE EM TELA — status-reflexo-completo`,
+      'TESTE EM TELA — lista-editar-salvar',
       `Data: ${DATA}`,
       `Base: ${BASE_UI}`,
       `Pasta: ${OUT}`,

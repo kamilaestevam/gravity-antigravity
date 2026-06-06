@@ -3119,6 +3119,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             dragOverRowId === id && dragRowPaiId === paiIdFilho ? `gtv-linha--drag-over-${dragRowSide}` : '',
             classNameLinhaFilho?.(item) ?? '',
           ].filter(Boolean).join(' ')}
+          data-gtv-pai-id={paiIdFilho}
           draggable={arrastavelFilho ? true : undefined}
           onDragStart={arrastavelFilho ? (e) => handleRowDragStart(e, id, paiIdFilho) : undefined}
           onDragOver={arrastavelFilho ? (e) => handleRowDragOver(e, id, paiIdFilho) : undefined}

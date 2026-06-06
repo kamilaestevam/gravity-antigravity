@@ -345,7 +345,13 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       return (
         <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
           {numero ? <span>{numero}</span> : <span>—</span>}
-          <span style={{ display: 'inline-flex', color: '#F59E0B', flexShrink: 0 }}><WarnIcon /></span>
+          <span
+            data-testid="lista-alerta-part-number-duplicado-pedido"
+            style={{ display: 'inline-flex', color: '#F59E0B', flexShrink: 0 }}
+            aria-hidden="true"
+          >
+            <WarnIcon />
+          </span>
         </span>
       )
     },

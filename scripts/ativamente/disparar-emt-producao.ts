@@ -16,7 +16,7 @@ const ROOT = resolve(import.meta.dirname, '../..')
 const CFG_DIR = join(ROOT, 'servicos-global', 'configurador')
 const TEST_LOGS = join(CFG_DIR, 'data', 'test-logs')
 const PLANO_ID = 'TST-EMT-PEDIDO-CONFIG-STATUS-001'
-const SPEC = 'testes/testes-em-tela/pedido/configuracoes/status/run-status-config-reflexo.ts'
+const SPEC = 'testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts'
 const TIMEOUT_MS = 30 * 60 * 1000
 
 dotenv.config({ path: join(ROOT, '.env.local') })

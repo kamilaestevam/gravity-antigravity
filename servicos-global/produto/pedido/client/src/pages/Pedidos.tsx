@@ -737,7 +737,13 @@ function renderPartNumberItemLista(t: TFunction, row: PedidoItem): React.ReactEl
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
         {texto}
-        <Warning size={14} weight="fill" style={{ color: '#F59E0B', flexShrink: 0 }} />
+        <Warning
+          data-testid="lista-alerta-part-number-duplicado-item"
+          size={14}
+          weight="fill"
+          style={{ color: '#F59E0B', flexShrink: 0 }}
+          aria-hidden="true"
+        />
       </span>
     </TooltipGlobal>
   )

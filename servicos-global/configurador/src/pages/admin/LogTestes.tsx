@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap } from '@phosphor-icons/react'
+import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -63,19 +64,395 @@ function resolverEmtPastaItem(item: Pick<LogTeste, 'emtPasta' | 'successLog' | '
     ?? extrairEmtPastaRelativa(item.erroLog)
 }
 
+function filtrarLinhasLogEmt(texto: string): string[] {
+  return texto
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0 && !l.startsWith('◇') && !l.startsWith('[dotenv'))
+}
+
+function classificarLinhasLogEmt(linhas: string[]): { aprovadas: string[]; reprovadas: string[] } {
+  const aprovadas: string[] = []
+  const reprovadasVistas = new Set<string>()
+  const reprovadas: string[] = []
+  let emSecaoFalhas = false
+
+  const addReprovada = (texto: string) => {
+    const limpo = texto.trim()
+    if (!limpo || reprovadasVistas.has(limpo)) return
+    reprovadasVistas.add(limpo)
+    reprovadas.push(limpo)
+  }
+
+  for (const linha of linhas) {
+    if (linha === 'Falhas:') {
+      emSecaoFalhas = true
+      continue
+    }
+    if (/^Falhas:\s*\d+$/.test(linha)) continue
+
+    if (linha.startsWith('✓') || (linha.includes('Resultado: PASSOU') && !linha.includes('FALHOU'))) {
+      aprovadas.push(linha.replace(/^✓\s*/, ''))
+      emSecaoFalhas = false
+    } else if (linha.startsWith('✗')) {
+      addReprovada(linha.replace(/^✗\s*/, ''))
+      emSecaoFalhas = false
+    } else if (emSecaoFalhas && (linha.startsWith('- ') || linha.startsWith('•'))) {
+      addReprovada(linha.replace(/^[-•]\s*/, ''))
+    } else if (linha.includes('Resultado: FALHOU') || linha.includes('Resultado final: FALHOU')) {
+      emSecaoFalhas = false
+    }
+  }
+
+  return { aprovadas, reprovadas }
+}
+
+type HandlersAnaliseIaTeste = {
+  onReanalyze: (id: string) => void
+  onApplyFix: (id: string) => void
+  onReject: (id: string) => void
+}
+
+function PainelAnaliseIaTeste({
+  item,
+  handlers,
+  mostrarSemAnalise = false,
+}: {
+  item: LogTeste
+  handlers: HandlersAnaliseIaTeste
+  mostrarSemAnalise?: boolean
+}) {
+  const { t } = useTranslation()
+
+  if (!item.aiAnalise && !mostrarSemAnalise) return null
+
+  if (!item.aiAnalise) {
+    return (
+      <div style={{
+        background: 'linear-gradient(145deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)',
+        borderRadius: '12px',
+        border: '1px solid rgba(139, 92, 246, 0.4)',
+        boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '1rem 1.25rem', borderBottom: '1px solid rgba(139, 92, 246, 0.2)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 32, height: 32, borderRadius: '8px',
+              background: 'rgba(139,92,246,0.2)', color: '#c084fc',
+            }}>
+              <Sparkle size={18} weight="fill" />
+            </div>
+            <div>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9', margin: 0 }}>
+                {t('admin.testes-gerais.expandido_ia_titulo')}
+              </h4>
+              <p style={{ fontSize: '0.75rem', color: '#a78bfa', margin: 0 }}>
+                {t('admin.testes-gerais.expandido_ia_subtitulo')}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => handlers.onReanalyze(item.id)}
+            style={{
+              padding: '0.3rem 0.7rem', borderRadius: '6px',
+              background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)',
+              color: '#38bdf8', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer',
+            }}
+          >
+            Reanalisar
+          </button>
+        </div>
+        <p style={{ margin: 0, padding: '1rem 1.25rem', fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.5 }}>
+          Nenhuma análise disponível ainda. Use Reanalisar para a IA investigar esta falha e sugerir correção em um clique.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{
+      background: 'linear-gradient(145deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)',
+      borderRadius: '12px',
+      border: '1px solid rgba(139, 92, 246, 0.4)',
+      boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)',
+      position: 'relative', overflow: 'hidden',
+    }}>
+      <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '150%', height: '100%', background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', borderBottom: '1px solid rgba(139, 92, 246, 0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: '8px', background: 'rgba(139,92,246,0.2)', color: '#c084fc', boxShadow: '0 0 12px rgba(139,92,246,0.3)' }}>
+            <Sparkle size={18} weight="fill" />
+          </div>
+          <div>
+            <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9', margin: 0 }}>{t('admin.testes-gerais.expandido_ia_titulo')}</h4>
+            <p style={{ fontSize: '0.75rem', color: '#a78bfa', margin: 0 }}>
+              {item.aiAnalise.modeloUsado ? `via ${item.aiAnalise.modeloUsado}` : t('admin.testes-gerais.expandido_ia_subtitulo')}
+            </p>
+          </div>
+          {item.aiAnalise.categoria && (() => {
+            const catColors: Record<string, { bg: string; border: string; text: string }> = {
+              BUG_REAL:             { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.4)', text: '#ef4444' },
+              TESTE_DESATUALIZADO:  { bg: 'rgba(234,179,8,0.15)', border: 'rgba(234,179,8,0.4)', text: '#eab308' },
+              FLAKY_TIMING:         { bg: 'rgba(251,146,60,0.15)', border: 'rgba(251,146,60,0.4)', text: '#fb923c' },
+              REGRESSAO_RECENTE:    { bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.4)', text: '#a855f7' },
+              INFRA:                { bg: 'rgba(100,116,139,0.15)', border: 'rgba(100,116,139,0.4)', text: '#94a3b8' },
+              NAO_CLASSIFICAVEL:    { bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)', text: '#64748b' },
+            }
+            const c = catColors[item.aiAnalise!.categoria!] ?? catColors.NAO_CLASSIFICAVEL
+            return (
+              <span style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: c.bg, border: `1px solid ${c.border}`, color: c.text, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.04em' }}>
+                {item.aiAnalise!.categoria!.replace(/_/g, ' ')}
+              </span>
+            )
+          })()}
+          {item.aiAnalise.confianca && (() => {
+            const confColors: Record<string, { bg: string; border: string; text: string }> = {
+              alta:  { bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.4)', text: '#10b981' },
+              media: { bg: 'rgba(234,179,8,0.15)', border: 'rgba(234,179,8,0.4)', text: '#eab308' },
+              baixa: { bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)', text: '#64748b' },
+            }
+            const c = confColors[item.aiAnalise!.confianca!] ?? confColors.baixa
+            return (
+              <span style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: c.bg, border: `1px solid ${c.border}`, color: c.text, fontSize: '0.65rem', fontWeight: 800 }}>
+                {item.aiAnalise!.confianca}
+              </span>
+            )
+          })()}
+        </div>
+        <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+          {item.aiAnalise.confianca === 'alta' && item.aiAnalise.codigoDiff && (
+            <button
+              type="button"
+              onClick={() => handlers.onApplyFix(item.id)}
+              style={{ padding: '0.3rem 0.7rem', borderRadius: '6px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', color: '#10b981', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
+            >
+              {t('admin.testes-gerais.expandido_ia_corrigir')}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => handlers.onReanalyze(item.id)}
+            style={{ padding: '0.3rem 0.7rem', borderRadius: '6px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Reanalisar
+          </button>
+          <button
+            type="button"
+            onClick={() => handlers.onReject(item.id)}
+            style={{ padding: '0.3rem 0.7rem', borderRadius: '6px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
+          >
+            Rejeitar
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) minmax(350px, 1.5fr)', gap: '1rem', padding: '1.25rem', position: 'relative' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div>
+            <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_o_que_e')}</span>
+            <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>{item.aiAnalise.erroResumo}</strong>
+          </div>
+          <div>
+            <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_motivo')}</span>
+            <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>{item.aiAnalise.motivo}</p>
+          </div>
+          <div>
+            <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_onde')}</span>
+            <code style={{ display: 'inline-block', padding: '0.3rem 0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '6px', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'var(--font-mono, monospace)' }}>
+              {item.aiAnalise.arquivo}
+            </code>
+          </div>
+          {item.aiAnalise.commitSuspeito && (
+            <div style={{ padding: '0.75rem', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: '8px' }}>
+              <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', color: '#a855f7', marginBottom: '0.4rem' }}>COMMIT SUSPEITO</span>
+              <code style={{ fontSize: '0.75rem', color: '#e2e8f0', fontFamily: 'var(--font-mono, monospace)' }}>
+                {item.aiAnalise.commitSuspeito.hash.slice(0, 7)}
+              </code>
+              <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}> por {item.aiAnalise.commitSuspeito.autor} em {item.aiAnalise.commitSuspeito.data}</span>
+              <p style={{ fontSize: '0.8rem', color: '#cbd5e1', margin: '0.25rem 0 0' }}>{item.aiAnalise.commitSuspeito.mensagem}</p>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div>
+            <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_correcao')}</span>
+            <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>{item.aiAnalise.sugestaoCorrecao}</p>
+          </div>
+
+          {item.aiAnalise.codigoDiff && (
+            <div style={{ marginTop: '0.5rem', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.75rem', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(139,92,246,0.3)' }}>
+              {item.aiAnalise.codigoDiff.explicacao && (
+                <div style={{ background: 'rgba(139,92,246,0.08)', color: '#a78bfa', padding: '0.35rem 0.75rem', fontSize: '0.7rem', borderBottom: '1px solid rgba(139,92,246,0.15)' }}>
+                  {item.aiAnalise.codigoDiff.arquivo && <span style={{ color: '#64748b' }}>{item.aiAnalise.codigoDiff.arquivo}{item.aiAnalise.codigoDiff.linha ? `:${item.aiAnalise.codigoDiff.linha}` : ''} — </span>}
+                  {item.aiAnalise.codigoDiff.explicacao}
+                </div>
+              )}
+              <div style={{ background: 'rgba(239,68,68,0.1)', color: '#fca5a5', padding: '0.5rem 0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                <span style={{ opacity: 0.5, userSelect: 'none' }}>-</span>
+                <span style={{ whiteSpace: 'pre-wrap' }}>{item.aiAnalise.codigoDiff.old}</span>
+              </div>
+              <div style={{ background: 'rgba(16,185,129,0.1)', color: '#6ee7b7', padding: '0.5rem 0.75rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                <span style={{ opacity: 0.5, userSelect: 'none' }}>+</span>
+                <span style={{ whiteSpace: 'pre-wrap' }}>{item.aiAnalise.codigoDiff.new}</span>
+              </div>
+            </div>
+          )}
+
+          {item.aiAnalise.provaVisual && (
+            <div style={{ marginTop: '1rem' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#f87171', marginBottom: '0.5rem' }}>
+                {t('admin.testes-gerais.expandido_ia_prova_visual')}
+              </span>
+              <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(239, 68, 68, 0.4)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                <img src={item.aiAnalise.provaVisual} alt={t('admin.testes-gerais.expandido_ia_evidencia_alt')} style={{ width: '100%', display: 'block' }} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function urlDevPrintEmt(emtPasta: string, arquivo: string): string {
   return `/dev-emt-artifacts/${emtPasta}/${encodeURIComponent(arquivo)}`
 }
 
 type ModoPrintEmt = 'dev' | 'api' | 'erro'
 
+function LightboxPrintEmt({
+  src,
+  arquivo,
+  onFechar,
+}: {
+  src: string
+  arquivo: string
+  onFechar: () => void
+}) {
+  useEffect(() => {
+    const anterior = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onFechar()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = anterior
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [onFechar])
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Print ampliado: ${arquivo}`}
+      onClick={onFechar}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 10000,
+        background: 'rgba(2, 6, 23, 0.94)',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '1rem 1.25rem',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          marginBottom: '0.75rem',
+          flexShrink: 0,
+        }}
+      >
+        <span style={{
+          fontSize: '0.8rem',
+          fontWeight: 700,
+          color: '#e2e8f0',
+          fontFamily: 'var(--font-mono, monospace)',
+        }}>
+          {arquivo}
+        </span>
+        <button
+          type="button"
+          onClick={onFechar}
+          aria-label="Fechar print ampliado"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            padding: '0.4rem 0.75rem',
+            borderRadius: '8px',
+            border: '1px solid rgba(255,255,255,0.12)',
+            background: 'rgba(15,23,42,0.8)',
+            color: '#cbd5e1',
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          <X size={14} weight="bold" />
+          Fechar
+        </button>
+      </div>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          flex: 1,
+          overflow: 'auto',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          paddingBottom: '1rem',
+        }}
+      >
+        <img
+          src={src}
+          alt={arquivo}
+          style={{
+            display: 'block',
+            width: 'auto',
+            height: 'auto',
+            maxWidth: 'none',
+            borderRadius: '8px',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.45)',
+          }}
+        />
+      </div>
+      <p style={{
+        margin: 0,
+        flexShrink: 0,
+        fontSize: '0.68rem',
+        color: '#64748b',
+        textAlign: 'center',
+      }}>
+        Clique fora ou pressione Esc para fechar · role para ver detalhes
+      </p>
+    </div>,
+    document.body,
+  )
+}
+
 function EmtPrintImagem({ logId, arquivo, emtPasta }: { logId: string; arquivo: string; emtPasta?: string }) {
   const [modo, setModo] = useState<ModoPrintEmt>(emtPasta ? 'dev' : 'api')
   const [apiSrc, setApiSrc] = useState<string | null>(null)
+  const [ampliado, setAmpliado] = useState(false)
 
   useEffect(() => {
     setModo(emtPasta ? 'dev' : 'api')
     setApiSrc(null)
+    setAmpliado(false)
   }, [logId, arquivo, emtPasta])
 
   useEffect(() => {
@@ -112,24 +489,34 @@ function EmtPrintImagem({ logId, arquivo, emtPasta }: { logId: string; arquivo: 
     )
   }
 
-  if (modo === 'dev' && emtPasta) {
-    return (
-      <img
-        src={urlDevPrintEmt(emtPasta, arquivo)}
-        alt={arquivo}
-        style={{ width: '100%', display: 'block', borderRadius: '6px' }}
-        onError={() => setModo('api')}
-      />
-    )
-  }
+  const srcAtual = modo === 'dev' && emtPasta
+    ? urlDevPrintEmt(emtPasta, arquivo)
+    : apiSrc
 
-  if (apiSrc) {
+  if (srcAtual) {
     return (
-      <img
-        src={apiSrc}
-        alt={arquivo}
-        style={{ width: '100%', display: 'block', borderRadius: '6px' }}
-      />
+      <>
+        <img
+          src={srcAtual}
+          alt={arquivo}
+          title="Clique para ampliar"
+          onClick={() => setAmpliado(true)}
+          onError={() => { if (modo === 'dev') setModo('api') }}
+          style={{
+            width: '100%',
+            display: 'block',
+            borderRadius: '6px',
+            cursor: 'zoom-in',
+          }}
+        />
+        {ampliado && (
+          <LightboxPrintEmt
+            src={srcAtual}
+            arquivo={arquivo}
+            onFechar={() => setAmpliado(false)}
+          />
+        )}
+      </>
     )
   }
 
@@ -140,17 +527,18 @@ function EmtPrintImagem({ logId, arquivo, emtPasta }: { logId: string; arquivo: 
   )
 }
 
-function PainelEmtExpandido({ item }: { item: LogTeste }) {
-  const linhas = (item.successLog ?? item.erroLog ?? '')
-    .split('\n')
-    .map(l => l.trim())
-    .filter(l => l.length > 0 && !l.startsWith('◇') && !l.startsWith('[dotenv'))
-
-  const aprovadas = linhas.filter(l => l.startsWith('✓') || l.includes('Resultado: PASSOU'))
+function PainelEmtExpandido({
+  item,
+  handlersAnaliseIa,
+}: {
+  item: LogTeste
+  handlersAnaliseIa: HandlersAnaliseIaTeste
+}) {
+  const linhas = filtrarLinhasLogEmt(item.successLog ?? item.erroLog ?? '')
+  const { aprovadas, reprovadas } = classificarLinhasLogEmt(linhas)
   const printsLog = linhas.filter(l => l.startsWith('📸')).map(l => l.replace('📸', '').trim())
-  const arquivosPrint = item.emtPrints?.length
-    ? item.emtPrints
-    : printsLog
+  const arquivosPrint = item.emtPrints?.length ? item.emtPrints : printsLog
+  const logCompleto = item.erroLog ?? item.successLog
 
   const aprovado = item.resultado === 'APROVADO'
   const emtPastaResolvida = resolverEmtPastaItem(item)
@@ -166,7 +554,7 @@ function PainelEmtExpandido({ item }: { item: LogTeste }) {
       }}>
         {aprovado ? <CheckCircle size={20} weight="fill" /> : <Warning size={20} weight="bold" />}
         <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
-          {aprovado ? 'EMT aprovado — checklist e evidências abaixo' : 'EMT reprovado — log e prints'}
+          {aprovado ? 'EMT aprovado — checklist e evidências abaixo' : 'EMT reprovado — falhas, IA e log abaixo'}
         </span>
       </div>
 
@@ -175,26 +563,38 @@ function PainelEmtExpandido({ item }: { item: LogTeste }) {
           <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid rgba(16,185,129,0.15)', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.06em', color: '#34d399', textTransform: 'uppercase' }}>
             O que foi aprovado
           </div>
-          <ul style={{ margin: 0, padding: '0.75rem 1rem 0.75rem 1.5rem', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-            {aprovadas.map((linha, i) => (
-              <li key={i} style={{ fontSize: '0.82rem', color: '#d1fae5', fontFamily: 'var(--font-mono, monospace)' }}>
-                {linha}
+          <ul style={{ margin: 0, padding: '0.75rem 1rem', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+            {aprovadas.map((texto, i) => (
+              <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', fontFamily: 'var(--font-mono, monospace)' }}>
+                <CheckCircle size={16} weight="fill" color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                <span style={{ color: '#d1fae5' }}>{texto}</span>
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      {!aprovado && item.erroLog && (
+      {reprovadas.length > 0 && (
         <div style={{ background: 'var(--ws-bg-body, #0f172a)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', overflow: 'hidden' }}>
-          <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid rgba(239,68,68,0.15)', fontSize: '0.7rem', fontWeight: 800, color: '#f87171', textTransform: 'uppercase' }}>
-            Log de execução
+          <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid rgba(239,68,68,0.15)', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.06em', color: '#f87171', textTransform: 'uppercase' }}>
+            O que foi reprovado
           </div>
-          <code style={{ display: 'block', padding: '1rem', color: '#fca5a5', fontSize: '0.8rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-            {item.erroLog}
-          </code>
+          <ul style={{ margin: 0, padding: '0.75rem 1rem', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+            {reprovadas.map((texto, i) => (
+              <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', fontFamily: 'var(--font-mono, monospace)' }}>
+                <XCircle size={16} weight="fill" color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
+                <span style={{ color: '#fecaca' }}>{texto}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
+
+      <PainelAnaliseIaTeste
+        item={item}
+        handlers={handlersAnaliseIa}
+        mostrarSemAnalise={!aprovado}
+      />
 
       {arquivosPrint.length > 0 && (
         <div>
@@ -219,6 +619,22 @@ function PainelEmtExpandido({ item }: { item: LogTeste }) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {logCompleto && (
+        <div style={{ background: 'var(--ws-bg-body, #0f172a)', borderRadius: '8px', border: '1px solid rgba(100,116,139,0.25)', overflow: 'hidden' }}>
+          <div style={{ padding: '0.6rem 1rem', borderBottom: '1px solid rgba(100,116,139,0.2)', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.06em', color: '#94a3b8', textTransform: 'uppercase' }}>
+            Log de execução
+          </div>
+          <code style={{
+            display: 'block', padding: '1rem',
+            color: aprovado ? '#cbd5e1' : '#fca5a5',
+            fontSize: '0.8rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+            fontFamily: 'var(--font-mono, monospace)',
+          }}>
+            {logCompleto}
+          </code>
         </div>
       )}
     </div>
@@ -496,9 +912,15 @@ export function LogTestes() {
     },
   ]
 
+  const handlersAnaliseIa: HandlersAnaliseIaTeste = {
+    onReanalyze: handleReanalyze,
+    onApplyFix: handleApplyFix,
+    onReject: handleReject,
+  }
+
   const renderExpandido = (item: LogTeste) => {
     if (item.tipo === 'EMT' && (item.successLog || item.emtPrints?.length || item.erroLog)) {
-      return <PainelEmtExpandido item={item} />
+      return <PainelEmtExpandido item={item} handlersAnaliseIa={handlersAnaliseIa} />
     }
 
     if (item.resultado === 'APROVADO') return (
@@ -525,154 +947,7 @@ export function LogTestes() {
           </div>
         )}
 
-        {/* Análise Gemini — badges, diff, ações */}
-        {item.aiAnalise && (
-           <div style={{
-               background: 'linear-gradient(145deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)',
-               borderRadius: '12px',
-               border: '1px solid rgba(139, 92, 246, 0.4)',
-               boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)',
-               position: 'relative', overflow: 'hidden'
-            }}>
-             <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '150%', height: '100%', background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-             {/* Header com badges e botões de ação */}
-             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', borderBottom: '1px solid rgba(139, 92, 246, 0.2)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: '8px', background: 'rgba(139,92,246,0.2)', color: '#c084fc', boxShadow: '0 0 12px rgba(139,92,246,0.3)' }}>
-                      <Sparkle size={18} weight="fill" />
-                   </div>
-                   <div>
-                     <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9', margin: 0 }}>{t('admin.testes-gerais.expandido_ia_titulo')}</h4>
-                     <p style={{ fontSize: '0.75rem', color: '#a78bfa', margin: 0 }}>
-                       {item.aiAnalise.modeloUsado ? `via ${item.aiAnalise.modeloUsado}` : t('admin.testes-gerais.expandido_ia_subtitulo')}
-                     </p>
-                   </div>
-                   {/* Badge de categoria */}
-                   {item.aiAnalise.categoria && (() => {
-                     const catColors: Record<string, { bg: string; border: string; text: string }> = {
-                       BUG_REAL:             { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.4)', text: '#ef4444' },
-                       TESTE_DESATUALIZADO:  { bg: 'rgba(234,179,8,0.15)', border: 'rgba(234,179,8,0.4)', text: '#eab308' },
-                       FLAKY_TIMING:         { bg: 'rgba(251,146,60,0.15)', border: 'rgba(251,146,60,0.4)', text: '#fb923c' },
-                       REGRESSAO_RECENTE:    { bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.4)', text: '#a855f7' },
-                       INFRA:                { bg: 'rgba(100,116,139,0.15)', border: 'rgba(100,116,139,0.4)', text: '#94a3b8' },
-                       NAO_CLASSIFICAVEL:    { bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)', text: '#64748b' },
-                     }
-                     const c = catColors[item.aiAnalise!.categoria!] ?? catColors.NAO_CLASSIFICAVEL
-                     return (
-                       <span style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: c.bg, border: `1px solid ${c.border}`, color: c.text, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.04em' }}>
-                         {item.aiAnalise!.categoria!.replace(/_/g, ' ')}
-                       </span>
-                     )
-                   })()}
-                   {/* Badge de confiança */}
-                   {item.aiAnalise.confianca && (() => {
-                     const confColors: Record<string, { bg: string; border: string; text: string }> = {
-                       alta:  { bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.4)', text: '#10b981' },
-                       media: { bg: 'rgba(234,179,8,0.15)', border: 'rgba(234,179,8,0.4)', text: '#eab308' },
-                       baixa: { bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)', text: '#64748b' },
-                     }
-                     const c = confColors[item.aiAnalise!.confianca!] ?? confColors.baixa
-                     return (
-                       <span style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: c.bg, border: `1px solid ${c.border}`, color: c.text, fontSize: '0.65rem', fontWeight: 800 }}>
-                         {item.aiAnalise!.confianca}
-                       </span>
-                     )
-                   })()}
-                </div>
-                {/* Botões de ação */}
-                <div style={{ display: 'flex', gap: '0.4rem' }}>
-                  {item.aiAnalise.confianca === 'alta' && item.aiAnalise.codigoDiff && (
-                    <button
-                      onClick={() => handleApplyFix(item.id)}
-                      style={{ padding: '0.3rem 0.7rem', borderRadius: '6px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', color: '#10b981', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
-                    >
-                      Aplicar correção
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleReanalyze(item.id)}
-                    style={{ padding: '0.3rem 0.7rem', borderRadius: '6px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
-                  >
-                    Reanalisar
-                  </button>
-                  <button
-                    onClick={() => handleReject(item.id)}
-                    style={{ padding: '0.3rem 0.7rem', borderRadius: '6px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
-                  >
-                    Rejeitar
-                  </button>
-                </div>
-             </div>
-
-             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) minmax(350px, 1.5fr)', gap: '1rem', padding: '1.25rem', position: 'relative' }}>
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_o_que_e')}</span>
-                    <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>{item.aiAnalise.erroResumo}</strong>
-                  </div>
-                  <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_motivo')}</span>
-                    <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>{item.aiAnalise.motivo}</p>
-                  </div>
-                  <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_onde')}</span>
-                    <code style={{ display: 'inline-block', padding: '0.3rem 0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '6px', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'var(--font-mono, monospace)' }}>
-                       {item.aiAnalise.arquivo}
-                    </code>
-                  </div>
-                  {/* Commit suspeito */}
-                  {item.aiAnalise.commitSuspeito && (
-                    <div style={{ padding: '0.75rem', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: '8px' }}>
-                      <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', color: '#a855f7', marginBottom: '0.4rem' }}>COMMIT SUSPEITO</span>
-                      <code style={{ fontSize: '0.75rem', color: '#e2e8f0', fontFamily: 'var(--font-mono, monospace)' }}>
-                        {item.aiAnalise.commitSuspeito.hash.slice(0, 7)}
-                      </code>
-                      <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}> por {item.aiAnalise.commitSuspeito.autor} em {item.aiAnalise.commitSuspeito.data}</span>
-                      <p style={{ fontSize: '0.8rem', color: '#cbd5e1', margin: '0.25rem 0 0' }}>{item.aiAnalise.commitSuspeito.mensagem}</p>
-                    </div>
-                  )}
-               </div>
-
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_correcao')}</span>
-                    <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>{item.aiAnalise.sugestaoCorrecao}</p>
-                  </div>
-
-                  {item.aiAnalise.codigoDiff && (
-                    <div style={{ marginTop: '0.5rem', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.75rem', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(139,92,246,0.3)' }}>
-                       {item.aiAnalise.codigoDiff.explicacao && (
-                         <div style={{ background: 'rgba(139,92,246,0.08)', color: '#a78bfa', padding: '0.35rem 0.75rem', fontSize: '0.7rem', borderBottom: '1px solid rgba(139,92,246,0.15)' }}>
-                           {item.aiAnalise.codigoDiff.arquivo && <span style={{ color: '#64748b' }}>{item.aiAnalise.codigoDiff.arquivo}{item.aiAnalise.codigoDiff.linha ? `:${item.aiAnalise.codigoDiff.linha}` : ''} — </span>}
-                           {item.aiAnalise.codigoDiff.explicacao}
-                         </div>
-                       )}
-                       <div style={{ background: 'rgba(239,68,68,0.1)', color: '#fca5a5', padding: '0.5rem 0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
-                          <span style={{ opacity: 0.5, userSelect: 'none' }}>-</span>
-                          <span style={{ whiteSpace: 'pre-wrap' }}>{item.aiAnalise.codigoDiff.old}</span>
-                       </div>
-                       <div style={{ background: 'rgba(16,185,129,0.1)', color: '#6ee7b7', padding: '0.5rem 0.75rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
-                          <span style={{ opacity: 0.5, userSelect: 'none' }}>+</span>
-                          <span style={{ whiteSpace: 'pre-wrap' }}>{item.aiAnalise.codigoDiff.new}</span>
-                       </div>
-                    </div>
-                  )}
-
-                  {item.aiAnalise.provaVisual && (
-                    <div style={{ marginTop: '1rem' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#f87171', marginBottom: '0.5rem' }}>
-                        {t('admin.testes-gerais.expandido_ia_prova_visual')}
-                      </span>
-                      <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(239, 68, 68, 0.4)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
-                        <img src={item.aiAnalise.provaVisual} alt={t('admin.testes-gerais.expandido_ia_evidencia_alt')} style={{ width: '100%', display: 'block' }} />
-                      </div>
-                    </div>
-                  )}
-               </div>
-             </div>
-           </div>
-        )}
+        <PainelAnaliseIaTeste item={item} handlers={handlersAnaliseIa} />
       </div>
     )
   }

@@ -1,22 +1,21 @@
-# Plano de Teste em Tela — Pedido / Configurações / Status
+# Plano de Teste em Tela — Pedido / Lista / Editar e Salvar
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001  
-**Data:** 2026-06-02  
-**Versão:** 1.0  
+**Data:** 2026-06-06  
+**Versão:** 2.0  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
-**SSOT índice:** `testes/testes-unitarios/pedido/_planos/PLANO-PEDIDO-CONFIG-STATUS-SSOT.md`  
 **Status:** Aguardando aprovação do dono
 
 **Escopo pasta:** `testes/testes-em-tela/pedido/lista/editar-salvar/`  
-**Plano + runner:** `plano-de-teste/` (este arquivo + `run-status-config-reflexo.ts`)  
+**Plano + runner:** `plano-de-teste/` (este arquivo + `run-lista-editar-salvar.ts`)  
 **Prints:** `../resultado-teste/<runId>/` — uma pasta por execução
 
 ---
 
 ## Resumo executivo
 
-Validação visual com Playwright: fluxo único partindo de Config Status, passando por Lista, Kanban, Insights e Dashboard, documentando cada estado com PNG numerado. Complementa E2E (assertivas) com evidência para QA/homologação.
+Validação visual com Playwright na **Lista de Pedidos**: edição inline e salvar do **número do pedido** e do **Part Number do item** na coluna **Nº PEDIDO / Nº ITEM**, incluindo alerta no pedido quando dois itens compartilham o mesmo Part Number.
 
 ---
 
@@ -24,9 +23,11 @@ Validação visual com Playwright: fluxo único partindo de Config Status, passa
 
 ```
 Produto: Pedido
-Porta: 8000 (shell) / 5179 (vite direto)
-Fluxo: Config status → reflexo em Lista, Kanban, Insights, Dashboard
-Critério de sucesso: 5 canônicos com badge sistema; custom editado visível em todas as superfícies
+URL: https://usegravity.com.br/pedido/pedidos/lista
+Coluna alvo: Nº PEDIDO / Nº ITEM (pedido → numero_pedido | item → part_number)
+Critério de sucesso: toasts de sucesso nas edições + alerta âmbar após duplicata de Part Number (APROVADO = alerta visível; reprovado = alerta ausente)
+
+Contrato EMT (SSOT): `data-testid="lista-alerta-part-number-duplicado-pedido"` (linha pai) e `lista-alerta-part-number-duplicado-item` (itens). Fallback do runner: ícone `svg` na célula `data-gtv-campo="numero_pedido"`.
 ```
 
 ---
@@ -35,27 +36,11 @@ Critério de sucesso: 5 canônicos com badge sistema; custom editado visível em
 
 | # | Arquivo | Estado capturado |
 |---|---------|------------------|
-| 01 | `01-login-hub.png` | Hub pós-login |
-| 02 | `02-config-status-inicial.png` | Config Status carregada |
-| 03 | `03-status-sistema-badge-sem-lapis.png` | Zoom nos 5 status sistema |
-| 04 | `04-status-custom-com-lapis.png` | Em Andamento + Aprovado com ações |
-| 05 | `05-editar-em-andamento-painel.png` | Painel edição aberto |
-| 06 | `06-apos-editar-label-cor.png` | Pending dirty antes de salvar |
-| 07 | `07-pos-salvar-config-toast.png` | Toast sucesso |
-| 08 | `08-novo-status-form.png` | Form criar `QA Kanban 2026` |
-| 09a | `09a-lista-pedido-itens-carregando.png` | Pedido expandido — grade pai + itens carregando |
-| 09b | `09b-lista-editar-pedido-sucesso.png` | Edição inline do pedido salva com sucesso |
-| 09c | `09c-lista-editar-item-sucesso.png` | Edição inline do item salva com sucesso |
-| 09 | `09-lista-com-novo-status-aba.png` | Lista — abas refletindo config |
-| 10 | `10-lista-coluna-status-badge.png` | Célula status cor custom |
-| 11 | `11-kanban-colunas-ordem.png` | Kanban — todas colunas visíveis |
-| 12 | `12-kanban-coluna-nova.png` | Coluna status custom |
-| 13 | `13-insights-kpi-topo.png` | Visão Geral — 4 KPI cards |
-| 14 | `14-insights-funil-status.png` | Funil por status |
-| 15 | `15-dashboard-filtros-status.png` | Dashboard pills |
-| 16 | `16-config-kanban-ocultar-coluna.png` | Config ocultar Aprovado |
-| 17 | `17-kanban-sem-coluna-oculta.png` | Kanban após ocultar |
-| 18 | `18-estado-final-config.png` | Config final consistente |
+| 01 | `01-pos-login.png` | Hub/pós-login |
+| 02 | `02-lista-carregada.png` | Lista aberta — pedido expandido com itens visíveis |
+| 03 | `03-editar-pedido-numero-sucesso.png` | Edição do **número do pedido** (coluna Nº PEDIDO / Nº ITEM, linha pai) salva |
+| 04 | `04-editar-item-part-number-sucesso.png` | Edição do **Part Number** do 1º item (mesma coluna, linha filho) salva |
+| 05 | `05-alerta-part-number-duplicado-pedido.png` | 2º item com mesmo Part Number → **alerta no pedido** (ícone âmbar) |
 | 99 | `99-erro.png` | Só se falhar |
 
 Viewport: **1440×900** (fixo)
@@ -65,50 +50,27 @@ Viewport: **1440×900** (fixo)
 ## Roteiro de execução
 
 ### ETAPA 0 — Preparação
-1. Confirmar servidor em `localhost:8000`
+1. Confirmar ambiente (Produção: `https://usegravity.com.br` ou dev `localhost:8000`)
 2. Runner cria `resultado-teste/<EMT_RUN_ID>/` automaticamente
-3. Login com credenciais org de teste
+3. Login com credenciais org de teste → print `01-pos-login.png`
 
-### ETAPA 1 — Config Status
-1. Navegar `/pedido/configuracoes?categoria=status`
-2. Prints 02–04
-3. Editar `Em Andamento` → label `Em Execução QA`, cor `#ff00ff` → prints 05–06
-4. Salvar → print 07
-5. Criar status `QA Kanban 2026` cor `#22c55e` → salvar → print 08
+### ETAPA 1 — Lista (editar e salvar)
+1. Navegar `https://usegravity.com.br/pedido/pedidos/lista`
+2. Expandir um pedido com **≥2 itens**; confirmar grade pai + filhos → print `02-lista-carregada.png`
+3. Editar **número do pedido** na coluna **Nº PEDIDO / Nº ITEM** (linha pai, campo `numero_pedido`) e salvar — toast de sucesso → print `03-editar-pedido-numero-sucesso.png`
+4. Editar **Part Number** do **primeiro item** na mesma coluna (linha filho, campo `part_number`) e salvar — toast de sucesso → print `04-editar-item-part-number-sucesso.png`
+5. Editar **segundo item** com o **mesmo Part Number** do primeiro item e salvar — **APROVADO** quando existirem ≥2 itens com o mesmo PN **e** ícone âmbar visível no pedido pai e/ou nos itens (tooltip: “Existem itens com o mesmo Part Number neste pedido”) → print `05-alerta-part-number-duplicado-pedido.png`
 
-### ETAPA 2 — Lista
-1. Abrir `/pedido/pedidos/lista` — expandir um pedido; se houver itens, confirmar que a grade carrega (linhas pai + filhos visíveis) → print `09a-lista-pedido-itens-carregando.png`
-2. Editar um campo do pedido (linha pai, ex.: `referencia_importador`) e salvar — deve exibir toast de sucesso → print `09b-lista-editar-pedido-sucesso.png`
-3. Editar um campo do item (linha filho, ex.: `part_number`) e salvar — deve exibir toast de sucesso → print `09c-lista-editar-item-sucesso.png`
-4. Validar abas de status refletindo config → print `09-lista-com-novo-status-aba.png`
-5. Validar aba custom e label editado na coluna status → print `10-lista-coluna-status-badge.png`
-
-### ETAPA 3 — Kanban
-1. `/pedido/pedidos/kanban` → prints 11–12
-2. Validar ordem e coluna nova
-
-### ETAPA 4 — Insights
-1. `/pedido/pedidos/insights` → prints 13–14
-2. **Anotar no RESULTADO.txt** se funil não reflete label custom (gap conhecido)
-
-### ETAPA 5 — Dashboard
-1. `/pedido/pedidos/dashboard` → print 15
-
-### ETAPA 6 — Kanban ocultar coluna
-1. Config → Kanban → Colunas → ocultar `Aprovado` → salvar → print 16
-2. Kanban → print 17
-
-### ETAPA 7 — Relatório
-Gerar `RESULTADO.txt`:
+### ETAPA 2 — Relatório
+1. Gerar `RESULTADO.txt`:
 
 ```
-TESTE EM TELA — status-reflexo-completo
-Data: 2026-06-02
-Produto: Pedido | Porta: 8000
+TESTE EM TELA — lista-editar-salvar
+Data: 2026-06-06
+Produto: Pedido | URL: /pedido/pedidos/lista
 Pasta: testes/testes-em-tela/pedido/lista/editar-salvar/resultado-teste/<runId>/
 
-Resultado: PASSOU / FALHOU / PASSOU COM RESSALVAS
-Observações: [funil hardcoded, etc.]
+Resultado: PASSOU / FALHOU
 ```
 
 ---
@@ -126,7 +88,5 @@ Observações: [funil hardcoded, etc.]
 ## Execução
 
 ```bash
-npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-status-config-reflexo.ts
+npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts
 ```
-
-**Estado atual:** script e prints pendentes (plano aprovado → implementar)

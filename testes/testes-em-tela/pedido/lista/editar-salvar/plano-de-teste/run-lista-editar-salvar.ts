@@ -36,6 +36,7 @@ const COLUNA_ALVO = 'Nº PEDIDO / Nº ITEM'
 const CAMPO_PEDIDO_COLUNA = 'Nº PEDIDO'
 const CAMPO_ITEM_COLUNA = 'Nº ITEM'
 const COLUNA_TIPO_OPERACAO = 'TIPO DE OPERAÇÃO'
+const COL_KEY_TIPO_OPERACAO = 'tipo_operacao'
 const LABEL_TIPO_IMPORTACAO = 'Importação'
 const LABEL_TIPO_EXPORTACAO = 'Exportação'
 const CHECKBOX_REPLICAR_REGEX = /aplicar a todos os itens deste pedido/i
@@ -361,13 +362,21 @@ async function editarCampoTextoItemPorIndice(
 
 /**
  * Regra de negócio (APROVADO): Part Numbers iguais no pedido → alerta visível.
- * SSOT: data-testid no produto; fallback svg na coluna numero_pedido (produção sem deploy).
+ * SSOT: `data-find-col-key` no cabeçalho GTV (`.gtv-th`, não `.gtv-celula`).
+ * Itens travados não expõem `data-gtv-campo` — índice via colunas de dados (sem fixas).
+ * @see testes/testes-em-tela/pedido/run-logistica-colunas-inline.ts
  */
-async function indiceColunaTipoOperacao(page: Page): Promise<number> {
-  return page.evaluate(() => {
-    const headers = Array.from(document.querySelectorAll('.gtv-cabecalho .gtv-celula'))
-    return headers.findIndex(h => /tipo de operação/i.test(h.textContent ?? ''))
-  })
+async function scrollColunaParaVisivel(page: Page, colKey: string): Promise<void> {
+  await page.evaluate((key) => {
+    const th = document.querySelector(`[data-find-col-key="${key}"]`) as HTMLElement | null
+    th?.scrollIntoView({ inline: 'center', block: 'nearest' })
+    const scroll = document.querySelector('.gtv-tabela-scroll') as HTMLElement | null
+    if (scroll && th) {
+      const left = th.offsetLeft - scroll.clientWidth / 2
+      scroll.scrollLeft = Math.max(0, left)
+    }
+  }, colKey)
+  await page.waitForTimeout(400)
 }
 
 async function clicarCelulaTipoOperacaoItem(
@@ -375,9 +384,8 @@ async function clicarCelulaTipoOperacaoItem(
   pedidoRowId: string,
   indiceItem: number,
 ): Promise<boolean> {
-  const colIdx = await indiceColunaTipoOperacao(page)
-  if (colIdx < 0) return false
-  return page.evaluate(({ paiId, idx, colIdx: cIdx }) => {
+  await scrollColunaParaVisivel(page, COL_KEY_TIPO_OPERACAO)
+  return page.evaluate(({ paiId, idx, colKey }) => {
     const filhos = (() => {
       let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
       if (f.length === 0) {
@@ -395,12 +403,20 @@ async function clicarCelulaTipoOperacaoItem(
     })()
     const filho = filhos[idx]
     if (!filho) return false
-    const celulas = filho.querySelectorAll('.gtv-celula')
-    const cel = celulas[cIdx] as HTMLElement | undefined
+    const porAttr = filho.querySelector(`[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`) as HTMLElement | null
+    const cel = porAttr ?? (() => {
+      const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+      const colIdx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
+      if (colIdx < 0) return null
+      const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+        c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+      )
+      return (cells[colIdx] as HTMLElement) ?? null
+    })()
     if (!cel) return false
     cel.click()
     return true
-  }, { paiId: pedidoRowId, idx: indiceItem, colIdx })
+  }, { paiId: pedidoRowId, idx: indiceItem, colKey: COL_KEY_TIPO_OPERACAO })
 }
 
 async function abrirPopoverTipoOperacaoPai(page: Page, rowId: string): Promise<boolean> {
@@ -433,14 +449,25 @@ async function lerBadgeTipoOperacaoPai(page: Page, rowId: string): Promise<strin
   return cel.textContent()
 }
 
+/** Badge na grade usa uppercase (CSS); popover usa título misto — comparar sem case/acento. */
+function normalizarTipoOperacaoTexto(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .trim()
+}
+
 function pedidoExibeTipo(badge: string | null, label: string): boolean {
-  return badge?.includes(label) ?? false
+  if (!badge) return false
+  const normBadge = normalizarTipoOperacaoTexto(badge)
+  const normLabel = normalizarTipoOperacaoTexto(label)
+  return normBadge.includes(normLabel)
 }
 
 async function lerTextosTipoOperacaoItens(page: Page, pedidoRowId: string): Promise<string[]> {
-  const colIdx = await indiceColunaTipoOperacao(page)
-  if (colIdx < 0) return []
-  return page.evaluate(({ paiId, cIdx }) => {
+  await scrollColunaParaVisivel(page, COL_KEY_TIPO_OPERACAO)
+  return page.evaluate(({ paiId, colKey }) => {
     const filhos = (() => {
       let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
       if (f.length === 0) {
@@ -456,11 +483,20 @@ async function lerTextosTipoOperacaoItens(page: Page, pedidoRowId: string): Prom
       }
       return f
     })()
+    const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+    const colIdx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
     return filhos.map(filho => {
-      const cel = filho.querySelectorAll('.gtv-celula')[cIdx]
+      const porAttr = filho.querySelector(`[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`)
+      const cel = porAttr ?? (() => {
+        if (colIdx < 0) return null
+        const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+          c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+        )
+        return cells[colIdx] ?? null
+      })()
       return cel?.textContent?.trim() ?? ''
     })
-  }, { paiId: pedidoRowId, cIdx: colIdx })
+  }, { paiId: pedidoRowId, colKey: COL_KEY_TIPO_OPERACAO })
 }
 
 async function pedidoEItensExibemTipo(
@@ -471,14 +507,13 @@ async function pedidoEItensExibemTipo(
   const badgePai = await lerBadgeTipoOperacaoPai(page, rowId)
   const textosItens = await lerTextosTipoOperacaoItens(page, rowId)
   const pedidoOk = pedidoExibeTipo(badgePai, label)
-  const itensOk = textosItens.length > 0 && textosItens.every(t => t.includes(label))
+  const itensOk = textosItens.length > 0 && textosItens.every(t => pedidoExibeTipo(t, label))
   return { pedidoOk, itensOk, qtdItens: textosItens.length }
 }
 
 async function itensTipoOperacaoTravados(page: Page, pedidoRowId: string): Promise<boolean> {
-  const colIdx = await indiceColunaTipoOperacao(page)
-  if (colIdx < 0) return false
-  const travados = await page.evaluate(({ paiId, cIdx }) => {
+  await scrollColunaParaVisivel(page, COL_KEY_TIPO_OPERACAO)
+  const travados = await page.evaluate(({ paiId, colKey }) => {
     const filhos = (() => {
       let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
       if (f.length === 0) {
@@ -495,11 +530,20 @@ async function itensTipoOperacaoTravados(page: Page, pedidoRowId: string): Promi
       return f
     })()
     if (filhos.length === 0) return false
+    const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+    const colIdx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
     return filhos.every(filho => {
-      const cel = filho.querySelectorAll('.gtv-celula')[cIdx] as HTMLElement | undefined
+      const porAttr = filho.querySelector(`[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`) as HTMLElement | null
+      const cel = porAttr ?? (() => {
+        if (colIdx < 0) return null
+        const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+          c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+        )
+        return (cells[colIdx] as HTMLElement) ?? null
+      })()
       return cel != null && !cel.classList.contains('gtv-celula--editavel')
     })
-  }, { paiId: pedidoRowId, cIdx: colIdx })
+  }, { paiId: pedidoRowId, colKey: COL_KEY_TIPO_OPERACAO })
   if (!travados) return false
   const textosItens = await lerTextosTipoOperacaoItens(page, pedidoRowId)
   for (let i = 0; i < textosItens.length; i++) {
@@ -528,17 +572,38 @@ async function garantirTipoOperacaoPedido(
   await page.waitForTimeout(500)
 }
 
+async function aguardarPedidoEItensExibemTipo(
+  page: Page,
+  rowId: string,
+  label: typeof LABEL_TIPO_IMPORTACAO | typeof LABEL_TIPO_EXPORTACAO,
+  timeoutMs = 15000,
+): Promise<{ pedidoOk: boolean; itensOk: boolean; qtdItens: number; badgePai: string | null; textosItens: string[] }> {
+  const deadline = Date.now() + timeoutMs
+  let last = { pedidoOk: false, itensOk: false, qtdItens: 0, badgePai: null as string | null, textosItens: [] as string[] }
+  while (Date.now() < deadline) {
+    const badgePai = await lerBadgeTipoOperacaoPai(page, rowId)
+    const textosItens = await lerTextosTipoOperacaoItens(page, rowId)
+    const pedidoOk = pedidoExibeTipo(badgePai, label)
+    const itensOk = textosItens.length > 0 && textosItens.every(t => pedidoExibeTipo(t, label))
+    last = { pedidoOk, itensOk, qtdItens: textosItens.length, badgePai, textosItens }
+    if (pedidoOk && itensOk) return last
+    await page.waitForTimeout(400)
+  }
+  return last
+}
+
 async function validarAlteracaoTipoPedidoEItens(
   page: Page,
   rowId: string,
   label: typeof LABEL_TIPO_IMPORTACAO | typeof LABEL_TIPO_EXPORTACAO,
   acaoLog: string,
 ): Promise<boolean> {
-  const { pedidoOk, itensOk, qtdItens } = await pedidoEItensExibemTipo(page, rowId, label)
+  const { pedidoOk, itensOk, qtdItens, badgePai, textosItens } = await aguardarPedidoEItensExibemTipo(page, rowId, label)
   if (pedidoOk && itensOk) {
     logAprovado(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, `${acaoLog} (${qtdItens} itens)`)
     return true
   }
+  log(`ℹ Diagnóstico TOP: badgePai=${JSON.stringify(badgePai)}, itens=${JSON.stringify(textosItens)}`)
   if (!pedidoOk) falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, `${acaoLog} — pedido não exibe ${label}`)
   if (!itensOk) falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, `${acaoLog} — itens não replicaram ${label}`)
   return false
@@ -572,7 +637,7 @@ async function validarTipoOperacaoLista(page: Page, rowId: string): Promise<void
   // 08 — Importação → Exportação (pedido + itens)
   await selecionarTipoOperacaoPopover(page, LABEL_TIPO_EXPORTACAO)
   await aguardarNotificacaoSalvar(page, 8000)
-  await page.waitForTimeout(600)
+  await scrollColunaParaVisivel(page, COL_KEY_TIPO_OPERACAO)
   await validarAlteracaoTipoPedidoEItens(
     page,
     rowId,
@@ -611,7 +676,7 @@ async function validarTipoOperacaoLista(page: Page, rowId: string): Promise<void
   // 11 — Exportação → Importação (pedido + itens)
   await selecionarTipoOperacaoPopover(page, LABEL_TIPO_IMPORTACAO)
   await aguardarNotificacaoSalvar(page, 8000)
-  await page.waitForTimeout(600)
+  await scrollColunaParaVisivel(page, COL_KEY_TIPO_OPERACAO)
   await validarAlteracaoTipoPedidoEItens(
     page,
     rowId,

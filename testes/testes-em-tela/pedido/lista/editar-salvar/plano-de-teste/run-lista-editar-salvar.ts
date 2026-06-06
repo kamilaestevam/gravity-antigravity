@@ -269,12 +269,90 @@ async function aguardarNotificacaoSalvar(
   }
 }
 
-async function obterPrimeiroPedidoRowId(page: Page): Promise<string | null> {
-  const cel = page.locator('.gtv-linha--pai .gtv-celula--editavel[data-gtv-campo="numero_pedido"]').first()
-    .or(page.locator('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').first())
-  const visivel = await cel.waitFor({ timeout: 45000 }).then(() => true).catch(() => false)
-  if (!visivel) return null
-  return cel.getAttribute('data-gtv-rowid')
+async function aguardarListaComPedidosEditaveis(page: Page): Promise<void> {
+  await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 })
+  await page.locator('.gtv-linha--pai .gtv-chevron-btn').first().waitFor({ timeout: 45000 })
+  await page.waitForFunction(
+    () => document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length > 0,
+    undefined,
+    { timeout: 60000 },
+  )
+  await page.waitForTimeout(800)
+}
+
+async function garantirColunasListaVisiveis(page: Page): Promise<void> {
+  const btnColunas = page.getByRole('button', { name: 'Colunas' })
+  const visivel = await btnColunas.isVisible({ timeout: 10000 }).catch(() => false)
+  if (!visivel) return
+  await btnColunas.click()
+  await page.getByRole('button', { name: /Selecionar tudo/i }).click()
+  await page.waitForTimeout(600)
+  await page.keyboard.press('Escape')
+  await page.locator('.scg-popover').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {})
+  await page.waitForTimeout(1200)
+  log('✓ Colunas: "Selecionar tudo" aplicado (Nº PEDIDO, TIPO OP., REF. IMPORTADOR visíveis)')
+}
+
+async function garantirListaPedidos(page: Page): Promise<void> {
+  await aguardarWorkspaceAtivo(page)
+  await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+
+  if (page.url().includes('/hub') || page.url().includes('/login') || page.url().includes('/selecionar-workspace')) {
+    log(`⚠ Redirecionado (${page.url()}) — tentando lista novamente`)
+    await aguardarWorkspaceAtivo(page)
+    await prepararEscopoWorkspaces(page)
+    await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  }
+
+  await aguardarListaComPedidosEditaveis(page)
+
+  // Recarrega após escopo de workspace para garantir pedidos do CDE correto (padrão logística EMT)
+  await page.reload({ waitUntil: 'domcontentloaded' })
+  await aguardarListaComPedidosEditaveis(page)
+  await garantirColunasListaVisiveis(page)
+}
+
+async function diagnosticarLista(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const linhasPai = document.querySelectorAll('.gtv-linha--pai').length
+    const chevrons = document.querySelectorAll('.gtv-linha--pai .gtv-chevron-btn').length
+    const editaveis = document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length
+    const numeroPedidoEditavel = document.querySelectorAll(
+      '.gtv-linha--pai .gtv-celula--editavel[data-gtv-campo="numero_pedido"]',
+    ).length
+    return `linhasPai=${linhasPai}, chevrons=${chevrons}, editaveis=${editaveis}, numero_pedido_editavel=${numeroPedidoEditavel}`
+  })
+}
+
+async function listarRowIdsPedidosEditaveis(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const ids = new Set<string>()
+    document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').forEach(el => {
+      const id = el.getAttribute('data-gtv-rowid')
+      if (id) ids.add(id)
+    })
+    return Array.from(ids)
+  })
+}
+
+/** Prefere pedido com ≥2 itens (alerta PN duplicado / divergência REF); senão o primeiro com ≥1. */
+async function obterPedidoComItens(page: Page): Promise<{ rowId: string; qtdItens: number } | null> {
+  const rowIds = await listarRowIdsPedidosEditaveis(page)
+  if (rowIds.length === 0) {
+    log(`ℹ Diagnóstico lista: ${await diagnosticarLista(page)}`)
+    return null
+  }
+
+  const limite = Math.min(rowIds.length, 8)
+  for (let i = 0; i < limite; i++) {
+    const qtd = await expandirPrimeiroPedido(page, rowIds[i])
+    if (qtd >= 2) return { rowId: rowIds[i], qtdItens: qtd }
+  }
+  for (let i = 0; i < limite; i++) {
+    const qtd = await expandirPrimeiroPedido(page, rowIds[i])
+    if (qtd >= 1) return { rowId: rowIds[i], qtdItens: qtd }
+  }
+  return null
 }
 
 async function expandirPrimeiroPedido(page: Page, rowId: string): Promise<number> {
@@ -745,20 +823,19 @@ async function pedidoTemAlertaPartNumberDuplicado(page: Page, pedidoRowId: strin
 }
 
 async function validarListaEditarSalvar(page: Page): Promise<void> {
-  await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
-  await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 }).catch(() => {})
+  await garantirListaPedidos(page)
   logAprovado(LOCAL_LISTA, '—', `Carregar a lista (${LISTA_URL})`)
 
-  const rowId = await obterPrimeiroPedidoRowId(page)
-  if (!rowId) {
-    falharTabela(LOCAL_LISTA, COLUNA_ALVO, 'Localizar campo editável na coluna')
+  const pedido = await obterPedidoComItens(page)
+  if (!pedido) {
+    falharTabela(LOCAL_LISTA, COLUNA_ALVO, `Localizar campo editável na coluna (${await diagnosticarLista(page)})`)
     await screenshot(page, '02-lista-carregada.png')
     return
   }
 
-  const qtdItens = await expandirPrimeiroPedido(page, rowId)
+  const { rowId, qtdItens } = pedido
   if (qtdItens === 0) {
-    falharTabela(LOCAL_LISTA, '—', 'Expandir pedido com itens visíveis (necessário ≥2)')
+    falharTabela(LOCAL_LISTA, '—', 'Expandir pedido com itens visíveis (necessário ≥1)')
     await screenshot(page, '02-lista-carregada.png')
     return
   }

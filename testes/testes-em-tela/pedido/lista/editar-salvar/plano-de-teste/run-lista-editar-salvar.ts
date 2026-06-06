@@ -1,5 +1,5 @@
 /**
- * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO DE OPERAÇÃO (editar/salvar e bloqueios)
+ * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO DE OPERAÇÃO + REFERÊNCIA IMPORTADOR
  * Plano: TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001
  *
  * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts
@@ -37,6 +37,9 @@ const CAMPO_PEDIDO_COLUNA = 'Nº PEDIDO'
 const CAMPO_ITEM_COLUNA = 'Nº ITEM'
 const COLUNA_TIPO_OPERACAO = 'TIPO DE OPERAÇÃO'
 const COL_KEY_TIPO_OPERACAO = 'tipo_operacao'
+const COLUNA_REF_IMPORTADOR = 'REFERÊNCIA IMPORTADOR'
+const COL_KEY_REF_IMPORTADOR = 'referencia_importador'
+const ALERTA_REF_DIVERGENTE = /referências divergentes entre itens/i
 const LABEL_TIPO_IMPORTACAO = 'Importação'
 const LABEL_TIPO_EXPORTACAO = 'Exportação'
 const CHECKBOX_REPLICAR_REGEX = /aplicar a todos os itens deste pedido/i
@@ -292,12 +295,24 @@ async function editarCampoTextoPai(
   rowId: string,
   campo: string,
   novoValor: string,
+  opts?: { replicarEmItens?: boolean; scrollColuna?: boolean },
 ): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  if (opts?.scrollColuna !== false) {
+    await scrollColunaParaVisivel(page, campo)
+  }
   const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
   if (await cel.count() === 0) return 'nenhuma'
   await cel.click()
   const input = page.locator('.gtv-edit-popover .gtv-edit-popover-input').first()
-  await input.waitFor({ timeout: 10000 })
+  const abriu = await input.waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  if (!abriu) return 'nenhuma'
+  if (opts?.replicarEmItens) {
+    const cb = page.locator('.gtv-edit-popover input[type="checkbox"]').first()
+    if (await cb.isVisible().catch(() => false)) {
+      const marcado = await cb.isChecked().catch(() => false)
+      if (!marcado) await cb.check()
+    }
+  }
   await input.fill(novoValor)
   await input.press('Enter')
   await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
@@ -322,6 +337,7 @@ async function editarCampoTextoItemPorIndice(
   campo: string,
   novoValor: string,
 ): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  await scrollColunaParaVisivel(page, campo)
   const colKey = campoColunaFilho(campo)
   const clicou = await page.evaluate(({ paiId, idx, colKey }) => {
     let filhos = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
@@ -791,6 +807,179 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   }
 
   await validarTipoOperacaoLista(page, rowId)
+  await validarReferenciaImportadorLista(page, rowId, sufixo, qtdItens)
+}
+
+function normalizarTextoCelula(texto: string): string {
+  return texto.replace(/\s+/g, ' ').trim()
+}
+
+function celulaContemValor(texto: string | null | undefined, valor: string): boolean {
+  if (!texto) return false
+  return normalizarTextoCelula(texto).includes(valor)
+}
+
+async function lerTextoCampoPai(page: Page, rowId: string, campo: string): Promise<string> {
+  await scrollColunaParaVisivel(page, campo)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
+  return normalizarTextoCelula(await cel.textContent() ?? '')
+}
+
+async function lerTextosCampoItens(page: Page, pedidoRowId: string, campo: string): Promise<string[]> {
+  await scrollColunaParaVisivel(page, campo)
+  return page.evaluate(({ paiId, colKey }) => {
+    const filhos = (() => {
+      let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+      if (f.length === 0) {
+        const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+        if (paiEl) {
+          f = []
+          let prox = paiEl.nextElementSibling
+          while (prox?.classList.contains('gtv-linha--filho')) {
+            f.push(prox)
+            prox = prox.nextElementSibling
+          }
+        }
+      }
+      return f
+    })()
+    const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+    const colIdx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
+    return filhos.map(filho => {
+      const porAttr = filho.querySelector(`[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`)
+      const cel = porAttr ?? (() => {
+        if (colIdx < 0) return null
+        const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+          c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+        )
+        return cells[colIdx] ?? null
+      })()
+      return cel?.textContent?.replace(/\s+/g, ' ').trim() ?? ''
+    })
+  }, { paiId: pedidoRowId, colKey: campo })
+}
+
+async function pedidoTemAlertaReferenciaImportadorDivergente(page: Page, pedidoRowId: string): Promise<boolean> {
+  await scrollColunaParaVisivel(page, COL_KEY_REF_IMPORTADOR)
+  const cel = page.locator(`[data-gtv-rowid="${pedidoRowId}"][data-gtv-campo="${COL_KEY_REF_IMPORTADOR}"]`)
+  const svg = await cel.locator('svg').count()
+  if (svg > 0) return true
+  const title = await cel.getAttribute('title').catch(() => null)
+  if (title && ALERTA_REF_DIVERGENTE.test(title)) return true
+  const texto = await cel.textContent()
+  return Boolean(texto && ALERTA_REF_DIVERGENTE.test(texto))
+}
+
+/** Passos 13–16 — REFERÊNCIA IMPORTADOR (salvar pedido, replicar, item isolado, alerta). */
+async function validarReferenciaImportadorLista(
+  page: Page,
+  rowId: string,
+  sufixo: string,
+  qtdItens: number,
+): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_REF_IMPORTADOR}: passos 13–16 (pedido sem replicar, com checkbox, item isolado, alerta)`)
+
+  if (qtdItens < 1) {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, 'Pré-condição — pedido sem itens visíveis')
+    return
+  }
+
+  const refSolo = `REF-EMT-SOLO-${sufixo}`
+  const refTodos = `REF-EMT-TODOS-${sufixo}`
+  const refItem = `REF-EMT-ITEM-${sufixo}`
+
+  const textosItensAntes = await lerTextosCampoItens(page, rowId, COL_KEY_REF_IMPORTADOR)
+
+  // 13 — pedido sem replicar
+  await fecharPopoverSeAberto(page)
+  const notif13 = await editarCampoTextoPai(page, rowId, COL_KEY_REF_IMPORTADOR, refSolo, { replicarEmItens: false })
+  await page.waitForTimeout(600)
+  const textoPai13 = await lerTextoCampoPai(page, rowId, COL_KEY_REF_IMPORTADOR)
+  const textosItens13 = await lerTextosCampoItens(page, rowId, COL_KEY_REF_IMPORTADOR)
+  await screenshot(page, '13-ref-importador-pedido-sem-replicar.png')
+
+  const pedidoOk13 = celulaContemValor(textoPai13, refSolo)
+  const itensNaoReplicaram = textosItens13.every((t, i) => t === (textosItensAntes[i] ?? ''))
+
+  if (notif13 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, '13 — Salvar pedido sem replicar — toast de erro')
+  } else if (!pedidoOk13) {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, `13 — Pedido deve exibir ${refSolo}`)
+  } else if (!itensNaoReplicaram) {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, '13 — Itens não devem replicar ao salvar pedido sem checkbox')
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, `13 — Salvar pedido sem replicar (${refSolo})`)
+  }
+
+  // 14 — pedido com checkbox replicar
+  await fecharPopoverSeAberto(page)
+  const temCb14 = await (async () => {
+    await scrollColunaParaVisivel(page, COL_KEY_REF_IMPORTADOR)
+    const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_REF_IMPORTADOR}"]`)
+    if (await cel.count() === 0) return false
+    await cel.click()
+    const abriu = await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+    if (!abriu) return false
+    const visivel = await popoverExibeCheckboxReplicar(page)
+    await fecharPopoverSeAberto(page)
+    return visivel
+  })()
+  if (!temCb14) {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, '14 — Popover do pedido deve exibir checkbox «Aplicar a todos os itens»')
+  }
+
+  const notif14 = await editarCampoTextoPai(page, rowId, COL_KEY_REF_IMPORTADOR, refTodos, { replicarEmItens: true })
+  await page.waitForTimeout(800)
+  const textoPai14 = await lerTextoCampoPai(page, rowId, COL_KEY_REF_IMPORTADOR)
+  const textosItens14 = await lerTextosCampoItens(page, rowId, COL_KEY_REF_IMPORTADOR)
+  await screenshot(page, '14-ref-importador-pedido-replicar-todos.png')
+
+  const pedidoOk14 = celulaContemValor(textoPai14, refTodos)
+  const itensOk14 = textosItens14.length > 0 && textosItens14.every(t => celulaContemValor(t, refTodos))
+
+  if (notif14 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, '14 — Salvar pedido com replicar — toast de erro')
+  } else if (!pedidoOk14 || !itensOk14) {
+    log(`ℹ Diagnóstico REF: pai=${JSON.stringify(textoPai14)}, itens=${JSON.stringify(textosItens14)}`)
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, `14 — Pedido e todos os itens devem exibir ${refTodos}`)
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, `14 — Replicar para todos os itens (${refTodos}, ${textosItens14.length} itens)`)
+  }
+
+  // 15 — editar só o 1º item
+  await fecharPopoverSeAberto(page)
+  const notif15 = await editarCampoTextoItemPorIndice(page, rowId, 0, COL_KEY_REF_IMPORTADOR, refItem)
+  await page.waitForTimeout(800)
+  const textoPai15 = await lerTextoCampoPai(page, rowId, COL_KEY_REF_IMPORTADOR)
+  const textosItens15 = await lerTextosCampoItens(page, rowId, COL_KEY_REF_IMPORTADOR)
+  await screenshot(page, '15-ref-importador-editar-item-isolado.png')
+
+  const item0Ok15 = celulaContemValor(textosItens15[0], refItem)
+  const pedidoManteve15 = celulaContemValor(textoPai15, refTodos)
+  const demaisItensOk15 = textosItens15.length <= 1
+    || textosItens15.slice(1).every(t => celulaContemValor(t, refTodos))
+
+  if (notif15 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, '15 — Salvar item isolado — toast de erro')
+  } else if (!item0Ok15) {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, `15 — Item 1 deve exibir ${refItem}`)
+  } else if (!pedidoManteve15) {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, `15 — Pedido deve manter ${refTodos}`)
+  } else if (!demaisItensOk15) {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, `15 — Demais itens devem manter ${refTodos}`)
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, `15 — Editar apenas o item 1 (${refItem})`)
+  }
+
+  // 16 — alerta de divergência
+  await page.waitForTimeout(600)
+  const temAlerta16 = await pedidoTemAlertaReferenciaImportadorDivergente(page, rowId)
+  await screenshot(page, '16-ref-importador-alerta-divergencia.png')
+  if (temAlerta16) {
+    logAprovado(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, '16 — Alerta de divergência visível na coluna do pedido')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_REF_IMPORTADOR, '16 — Alerta «Referências divergentes entre itens» não detectado')
+  }
 }
 
 async function main() {

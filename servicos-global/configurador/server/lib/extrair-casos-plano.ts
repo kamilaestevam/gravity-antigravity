@@ -12,6 +12,36 @@ interface PassoJson {
   preCondicao?: string
 }
 
+/** Linha numerada `1. …` ou linha de tabela `| **06** | Ação | Critério |`. */
+function extrairLinhasPassoEtapa(bloco: string): Array<{ ordem: string; detalhe: string }> {
+  const itens: Array<{ ordem: string; detalhe: string }> = []
+
+  for (const raw of bloco.split('\n')) {
+    const line = raw.trim()
+    if (!line) continue
+
+    const lista = line.match(/^(\d+)\.\s+(.+)$/)
+    if (lista) {
+      itens.push({ ordem: lista[1], detalhe: lista[2].trim() })
+      continue
+    }
+
+    const tabela = line.match(/^\|\s*([^|]+?)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|$/)
+    if (!tabela) continue
+
+    const colPasso = tabela[1].replace(/\*/g, '').trim()
+    if (colPasso === 'Passo' || colPasso === '#' || colPasso.includes('---')) continue
+
+    const passo = colPasso === '—' ? '—' : colPasso
+    itens.push({
+      ordem: passo,
+      detalhe: `${tabela[2].trim()} — ${tabela[3].trim()}`,
+    })
+  }
+
+  return itens
+}
+
 export function extrairCasosDoPlano(conteudo: string, planoFile: string): CasoPlanoTeste[] {
   if (planoFile.endsWith('.json')) {
     try {
@@ -31,7 +61,25 @@ export function extrairCasosDoPlano(conteudo: string, planoFile: string): CasoPl
 
   const casos: CasoPlanoTeste[] = []
 
-  const secaoPrints = conteudo.match(/## Prints planejados([\s\S]*?)(?=\n---|\n## [A-Za-z]|\Z)/)
+  // Roteiro primeiro — passo a passo é o foco do modal «O que será testado».
+  const etapasRe = /### (ETAPA \d+[^\n]*)\n([\s\S]*?)(?=### ETAPA|\n## [A-Za-z]|\Z)/g
+  let etapaMatch: RegExpExecArray | null
+  while ((etapaMatch = etapasRe.exec(conteudo)) !== null) {
+    const secao = etapaMatch[1].trim()
+    for (const linha of extrairLinhasPassoEtapa(etapaMatch[2])) {
+      casos.push({
+        ordem: linha.ordem,
+        titulo: secao,
+        detalhe: linha.detalhe,
+        secao: 'Roteiro',
+      })
+    }
+  }
+
+  // Termina em HR (`---` sozinho), não em separador de tabela `|---|`.
+  const secaoPrints = conteudo.match(
+    /## Prints planejados([\s\S]*?)(?=\n---\s*(?:\n|\r)|\n## [A-Za-z]|\Z)/i,
+  )
   if (secaoPrints) {
     for (const line of secaoPrints[1].split('\n')) {
       const m = line.match(/^\|\s*(\d+)\s*\|\s*`?([^`|]+)`?\s*\|\s*(.+?)\s*\|/)
@@ -76,23 +124,6 @@ export function extrairCasosDoPlano(conteudo: string, planoFile: string): CasoPl
           secao: 'Fluxos',
         })
       }
-    }
-  }
-
-  const etapasRe = /### (ETAPA \d+[^\n]*)\n([\s\S]*?)(?=### ETAPA|\n## [A-Za-z]|\Z)/g
-  let etapaMatch: RegExpExecArray | null
-  let ordemRoteiro = 0
-  while ((etapaMatch = etapasRe.exec(conteudo)) !== null) {
-    const secao = etapaMatch[1].trim()
-    const linhas = etapaMatch[2].split('\n').filter(l => /^\d+\.\s/.test(l.trim()))
-    for (const line of linhas) {
-      ordemRoteiro += 1
-      casos.push({
-        ordem: String(ordemRoteiro),
-        titulo: secao,
-        detalhe: line.replace(/^\d+\.\s*/, '').trim(),
-        secao: 'Roteiro',
-      })
     }
   }
 

@@ -4179,14 +4179,36 @@ export default function Pedidos() {
     for (const w of workspacesDisponiveis) {
       push(w.id_workspace, w.nome_workspace.trim() || w.id_workspace)
     }
-    if (opcoes.length === 0) {
-      for (const p of pedidos) {
-        const id = extrairIdWorkspaceDePedido(p)
-        push(id, workspacesMap.get(id)?.nome ?? id)
-      }
+    // Sempre mesclar workspaces dos pedidos carregados — hub/init pode falhar ou atrasar.
+    for (const p of pedidos) {
+      const id = extrairIdWorkspaceDePedido(p)
+      push(id, workspacesMap.get(id)?.nome ?? id)
     }
     return opcoes.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
   }, [workspacesDisponiveis, pedidos, workspacesMap])
+
+  const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
+
+  const [opcoesImportadoresExp, setOpcoesImportadoresExp] = useState<{ valor: string; label: string }[]>([])
+
+  useEffect(() => {
+    if (!idOrganizacao) return
+    let cancelado = false
+    cadastrosApi.listarImportadores()
+      .then((res) => {
+        if (cancelado) return
+        setOpcoesImportadoresExp(
+          res.itens.map((item) => ({
+            valor: item.id_fornecedor,
+            label: item.nome_fornecedor,
+          })),
+        )
+      })
+      .catch(() => {
+        if (!cancelado) setOpcoesImportadoresExp([])
+      })
+    return () => { cancelado = true }
+  }, [idOrganizacao])
 
   const mapaColunasFilho = useMemo(() => {
     const base = buildMapaColunasFilho(t, opcoesUnidadesColunas)
@@ -4272,8 +4294,75 @@ export default function Pedidos() {
         },
       }
     }
+    if (base.nome_importador) {
+      // IMP item: congelado (somente leitura). EXP item: popover com lista de importadores (edita o pedido).
+      base.nome_importador = {
+        ...base.nome_importador,
+        editavel: (row: PedidoItem) => (
+          (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao'
+        ),
+        opcoes: opcoesImportadoresExp,
+        getOpcoes: () => opcoesImportadoresExp,
+        getValorEditar: (row: PedidoItem) => {
+          const enr = row as PedidoItemEnriquecido
+          return enr._p?.exportacao_importador_id ?? ''
+        },
+        linkPopoverEdicao: (row: PedidoItem) => {
+          const enr = row as PedidoItemEnriquecido
+          if (enr._p?.tipo_operacao !== 'exportacao') return undefined
+          const idImp = enr._p?.exportacao_importador_id ?? null
+          const pedidoId = enr._p?.id
+          return {
+            label: idImp
+              ? t('pedido.lista.popover.editar_importador')
+              : t('pedido.coluna_pai.vincular_importador'),
+            href: urlVincularImportador(idImp, pedidoId),
+          }
+        },
+        render: (row: PedidoItem) => {
+          const enr = row as PedidoItemEnriquecido
+          const tipoOp = enr._p?.tipo_operacao
+          const titulo = t('pedido.coluna_pai.nome_importador')
+
+          if (tipoOp === 'importacao') {
+            const idWs = enr._p?.id_workspace ?? row.company_id ?? ''
+            if (!idWs) {
+              return wrapCelulaItemSomenteLeituraLista(
+                <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>,
+                t,
+                titulo,
+              )
+            }
+            const nomeWs = workspacesMap?.get(idWs)?.nome ?? idWs
+            const conteudo = nomeWs.length <= 50
+              ? <span>{nomeWs}</span>
+              : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  {nomeWs.slice(0, 50) + '…'}
+                  <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+                </span>
+              )
+            return wrapCelulaItemSomenteLeituraLista(conteudo, t, titulo)
+          }
+
+          const nome = row.nome_importador ?? enr._p?.nome_importador ?? null
+          if (!nome?.trim()) {
+            return (
+              <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+                {t('pedido.coluna_pai.vincular_importador')}
+              </span>
+            )
+          }
+          return renderBadgeParteVinculada({
+            nome,
+            titulo: t('pedido.coluna_pai.parte_importador_titulo'),
+            descricao: t('pedido.coluna_pai.clique_editar_importador_lista'),
+          })
+        },
+      }
+    }
     return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
-  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos])
+  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, workspacesMap])
   const {
     prefs: cardPrefs,
     visiveis: cardsVisiveis,
@@ -4288,28 +4377,6 @@ export default function Pedidos() {
   const navigate = useNavigate()
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
-  const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
-
-  const [opcoesImportadoresExp, setOpcoesImportadoresExp] = useState<{ valor: string; label: string }[]>([])
-
-  useEffect(() => {
-    if (!idOrganizacao) return
-    let cancelado = false
-    cadastrosApi.listarImportadores()
-      .then((res) => {
-        if (cancelado) return
-        setOpcoesImportadoresExp(
-          res.itens.map((item) => ({
-            valor: item.id_fornecedor,
-            label: item.nome_fornecedor,
-          })),
-        )
-      })
-      .catch(() => {
-        if (!cancelado) setOpcoesImportadoresExp([])
-      })
-    return () => { cancelado = true }
-  }, [idOrganizacao])
 
   // ── Escopo multi-workspace (menu lateral — SSOT do produto) ─────────────────
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
@@ -4579,12 +4646,14 @@ export default function Pedidos() {
       }
 
       if (col.key === 'nome_importador') {
+        // IMP (congelado): select de workspaces — espelha coluna id_workspace. Não alterar.
+        const WORKSPACE_OPTS_IMP = workspaceOpcoesLista
         return enriquecerColunaComRegraTooltip({
           ...col,
           editavel: (row: Pedido) => row.tipo_operacao === 'importacao' || row.tipo_operacao === 'exportacao',
-          opcoes: workspaceOpcoesLista,
+          opcoes: WORKSPACE_OPTS_IMP,
           getOpcoes: (row: Pedido) => (
-            row.tipo_operacao === 'importacao' ? workspaceOpcoesLista : opcoesImportadoresExp
+            row.tipo_operacao === 'importacao' ? WORKSPACE_OPTS_IMP : opcoesImportadoresExp
           ),
           getValorEditar: (row: Pedido) => (
             row.tipo_operacao === 'importacao'
@@ -4604,7 +4673,9 @@ export default function Pedidos() {
           render: (_val: unknown, row: Pedido) => {
             if (row.tipo_operacao === 'importacao') {
               const idWs = extrairIdWorkspaceDePedido(row)
-              const nome = workspacesMap.get(idWs)?.nome ?? '—'
+              const nome = workspacesMap.get(idWs)?.nome
+                ?? WORKSPACE_OPTS_IMP.find(o => o.valor === idWs)?.label
+                ?? '—'
               return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
             }
             const nome = row.nome_importador?.trim()
@@ -6181,6 +6252,28 @@ export default function Pedidos() {
       return itemAtual
     }
 
+    if (campo === 'nome_importador') {
+      if (pedido.tipo_operacao === 'importacao') {
+        throw new Error(t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado'))
+      }
+      if (pedido.tipo_operacao === 'exportacao') {
+        const pedidoAtualizado = await handleEditar(pedido.id, 'nome_importador', valor)
+        const itensAtualizados = getItensCache().map((i) => ({
+          ...i,
+          nome_importador: pedidoAtualizado.nome_importador,
+          _p: montarContextoPaiItem(pedidoAtualizado, i),
+        })) as PedidoItemEnriquecido[]
+        itensCarregadosRef.current.set(pedido.id, itensAtualizados)
+        setPedidos((prev) => prev.map((p) => (
+          p.id !== pedido.id ? p : { ...pedidoAtualizado, itens: itensAtualizados }
+        )))
+        setResetFilhos((prev) => prev + 1)
+        const itemRet = itensAtualizados.find((i) => i.id === id)
+        if (!itemRet) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
+        return itemRet
+      }
+    }
+
     if (campo === 'status') {
       const novoStatus = String(valor)
       const item = getItensCache().find(i => i.id === id)
@@ -6798,7 +6891,7 @@ export default function Pedidos() {
       }
     }))
     return itensAposEdicao.find(i => i.id === id) ?? enriquecido
-  }, [pedidos])
+  }, [pedidos, handleEditar, t])
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   function montarPedidoComItensCarregados(

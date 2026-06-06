@@ -2,10 +2,12 @@
  * ColunasAvo.tsx — Colunas da camada 1 (Processo) na lista hierárquica.
  */
 import type { TFunction } from 'i18next'
+import { Link } from 'react-router-dom'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import type { ProcessoAvoLinha } from '../../shared/lista/mockListaHierarquica'
 import { fmtDataLista, fmtMoedaLista, fmtPesoLista } from '../../shared/lista/mockListaHierarquica'
+import { rotaDetalheProcessoLista } from '../../shared/lista/rotaProcessoLista'
 
 export function buildColunasAvo(_t: TFunction): GTColuna<ProcessoAvoLinha>[] {
   return [
@@ -18,7 +20,13 @@ export function buildColunasAvo(_t: TFunction): GTColuna<ProcessoAvoLinha>[] {
       naoOcultavel: true,
       editavel: true,
       render: (_v, p) => (
-        <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{p.numero_processo}</span>
+        <Link
+          to={rotaDetalheProcessoLista(p)}
+          className="pl-processo-link"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {p.numero_processo}
+        </Link>
       ),
     },
     {

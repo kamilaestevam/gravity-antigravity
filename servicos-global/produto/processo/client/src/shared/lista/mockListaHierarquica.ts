@@ -4,8 +4,11 @@
  */
 import type { Pedido, PedidoItem } from './pedidoTypes'
 
+export const ID_ORGANIZACAO_MOCK_LISTA = 'org_mock'
+
 export interface ProcessoAvoLinha {
   id_processo: string
+  id_organizacao: string
   numero_processo: string
   tipo_operacao_processo: 'importacao' | 'exportacao'
   /** ID do status em Configurações (processo:status_config) */
@@ -35,7 +38,7 @@ export const fmtPesoLista = (kg: number) =>
 export const fmtDataLista = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString('pt-BR') : '—'
 
-const ORG = 'org_mock'
+const ORG = ID_ORGANIZACAO_MOCK_LISTA
 const WS = 'ws_mock'
 
 function criarPedidoMock(
@@ -102,6 +105,7 @@ export const ITENS_MOCK_INICIAL: PedidoItem[] = [
 export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = [
   {
     id_processo: 'proc-1',
+    id_organizacao: ORG,
     numero_processo: 'Gravity-00001/26',
     tipo_operacao_processo: 'importacao',
     codigo_status_processo: 's3',
@@ -118,6 +122,7 @@ export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = [
   },
   {
     id_processo: 'proc-2',
+    id_organizacao: ORG,
     numero_processo: 'Gravity-00002/26',
     tipo_operacao_processo: 'importacao',
     codigo_status_processo: 's4',
@@ -134,6 +139,7 @@ export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = [
   },
   {
     id_processo: 'proc-3',
+    id_organizacao: ORG,
     numero_processo: 'Gravity-00003/26',
     tipo_operacao_processo: 'importacao',
     codigo_status_processo: 's5',

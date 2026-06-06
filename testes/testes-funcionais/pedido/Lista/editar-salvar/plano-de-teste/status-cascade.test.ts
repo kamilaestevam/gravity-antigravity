@@ -29,7 +29,7 @@ vi.mock('@gravity/resolver-organizacao', () => ({
 
 // ── Import da rota real ─────────────────────────────────────────────────────
 
-import { loteRouter } from '../../../../../servicos-global/produto/pedido/server/src/routes/alteracoes-status-lote-pedido.js'
+import { loteRouter } from '../../../../../../servicos-global/produto/pedido/server/src/routes/alteracoes-status-lote-pedido.js'
 
 // ── App de teste ─────────────────────────────────────────────────────────────
 

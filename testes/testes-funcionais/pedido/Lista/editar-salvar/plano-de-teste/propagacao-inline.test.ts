@@ -194,6 +194,30 @@ describe('F-PROP: PATCH /api/v1/pedidos/:id/campo — replicar_em_itens=true', (
       }),
     )
   })
+
+  it('F-PROP-11: referencia_importador com replicar_em_itens=true → pedido + itens', async () => {
+    mockObterCampoItemPropagado.mockReturnValue('referencia_importador_item')
+
+    const res = await request(app)
+      .patch('/api/v1/pedidos/ped-prop-001/campo')
+      .send({ campo: 'referencia_importador', valor: 'REF-IMP-PROP', replicar_em_itens: true })
+
+    expect(res.status).toBe(200)
+    expect(mockPrisma.pedido.update).toHaveBeenCalled()
+    expect(mockPrisma.pedidoItem.updateMany).toHaveBeenCalled()
+  })
+
+  it('F-PROP-12: referencia_exportador com replicar_em_itens=true → pedido + itens', async () => {
+    mockObterCampoItemPropagado.mockReturnValue('referencia_exportador_item')
+
+    const res = await request(app)
+      .patch('/api/v1/pedidos/ped-prop-001/campo')
+      .send({ campo: 'referencia_exportador', valor: 'REF-EXP-PROP', replicar_em_itens: true })
+
+    expect(res.status).toBe(200)
+    expect(mockPrisma.pedido.update).toHaveBeenCalled()
+    expect(mockPrisma.pedidoItem.updateMany).toHaveBeenCalled()
+  })
 })
 
 // ── Testes — replicar_em_itens=false ────────────────────────────────────────

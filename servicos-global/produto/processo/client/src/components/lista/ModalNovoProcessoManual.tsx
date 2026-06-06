@@ -7,6 +7,7 @@ import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { ProcessoAvoLinha } from '../../shared/lista/mockListaHierarquica'
+import { ID_ORGANIZACAO_MOCK_LISTA } from '../../shared/lista/mockListaHierarquica'
 import { lerStatusConfigProcesso } from '../../shared/lista/processoStatusConfig'
 
 interface Props {
@@ -33,6 +34,7 @@ export function ModalNovoProcessoManual({ aberto, onFechar, onCriar }: Props) {
       const cor = primeiroStatus?.[1].cor ?? '#60a5fa'
       onCriar({
         id_processo: `proc-${Date.now()}`,
+        id_organizacao: ID_ORGANIZACAO_MOCK_LISTA,
         numero_processo: numero.trim(),
         codigo_status_processo: codigo,
         tipo_operacao_processo: tipo,

@@ -140,6 +140,7 @@ Plano de teste unitario para edicao inline e salvamento na Lista de Pedidos. Cob
 | U-EDT-84 | `valor_total_pedido` (calculado) | `false` |
 | U-EDT-85 | `saldo_itens_do_pedido` (saldo) | `false` |
 | U-EDT-86 | `status` (somente_leitura) | `false` |
+| U-EDT-87 | `descricao_item` (ghost) | `false` — sem alerta de divergência |
 
 ### 9. getEditavelItem — Nivel ITEM
 
@@ -216,6 +217,18 @@ Plano de teste unitario para edicao inline e salvamento na Lista de Pedidos. Cob
 | U-ALRT-02 | isAlertavel | `incoterm` | `true` |
 | U-ALRT-03 | isAlertavel | `moeda_item` | `true` |
 | U-ALRT-04 | isAlertavel | `valor_total_pedido` | `false` |
+
+### 14b. Pills tooltip — DESCRIÇÃO DO ITEM (ghost)
+
+**Arquivos:** `pills-tooltip-coluna-lista.test.ts` · `regras-tooltip-coluna-lista.test.ts`
+
+| ID | Caso | Resultado |
+|----|------|-----------|
+| U-PILL-01 | `obterPillsTooltipColuna('descricao_item')` | `pedido` e `item`: `editavel_pedido`, `editavel_item`, `replica_itens`; sem `alerta_divergencia` |
+| U-PILL-02 | `classificarRegraTooltipColuna('descricao_item', 'pai')` | `'pai_ghost_descricao'` |
+| U-PILL-03 | `classificarRegraTooltipColuna('descricao_item', 'item')` | `'item_ghost_descricao'` |
+
+**Validação EMT:** passos 25–28 em `plano-teste-em-tela.md`.
 
 ### 15. renderTextoTruncado e formatacao
 

@@ -60,6 +60,7 @@ import {
   exportarXML,
 } from '../shared/lista/exportUtils'
 import { useEdicaoListaProcesso } from '../shared/lista/useEdicaoListaProcesso'
+import { rotaDetalheProcessoLista } from '../shared/lista/rotaProcessoLista'
 import {
   lerAbasStatusProcesso,
   resolverRotuloStatusProcesso,
@@ -410,7 +411,7 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
       id: 'ver',
       tooltip: 'Abrir processo',
       icone: <Eye size={16} weight="duotone" />,
-      onClick: (p) => { void navigate(`${p.id_processo}/workflow`) },
+      onClick: (p) => { void navigate(rotaDetalheProcessoLista(p)) },
     },
   ], [navigate])
 

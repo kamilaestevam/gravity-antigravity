@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Briefcase, Eye, PencilSimple, Plus, Globe, Anchor,
   Copy, Archive, Trash, ArrowsLeftRight, Cube, CurrencyDollar, Scales,
@@ -25,9 +26,11 @@ import {
   fmtMoeda, fmtPeso, fmtData,
   type ProcessoLinha, type EtapaProcesso,
 } from './_mocks'
+import { rotaWorkflowProcessoWorkspace } from '../../shared/rotaDetalheProcessoWorkspace'
 import './TodosProcessos.css'
 
 export default function TodosProcessosLista() {
+  const navigate = useNavigate()
   const [busca, setBusca] = useState('')
   const [abaAtiva, setAbaAtiva] = useState<'todos' | EtapaProcesso>('todos')
   const [sortCampo, setSortCampo] = useState<string>('numero')
@@ -99,7 +102,11 @@ export default function TodosProcessosLista() {
   // ── Colunas ────────────────────────────────────────────────────────────
   const colunas: GTColuna<ProcessoLinha>[] = [
     { key: 'numero', label: 'Nº Processo', sortavel: true, naoOcultavel: true,
-      render: (_v, p) => <strong style={{ color: 'var(--ws-text)', fontWeight: 600 }}>{p.numero}</strong> },
+      render: (_v, p) => (
+        <Link to={rotaWorkflowProcessoWorkspace(p)} className="tp-numero-processo">
+          {p.numero}
+        </Link>
+      ) },
     { key: 'importador', label: 'Importador', sortavel: true, filtravel: true },
     { key: 'exportador', label: 'Exportador', sortavel: true, filtravel: true },
     { key: 'pais_origem', label: 'Origem', tipo: 'badge', align: 'center', sortavel: true, filtravel: true,
@@ -143,7 +150,7 @@ export default function TodosProcessosLista() {
   // ── Acoes de linha ─────────────────────────────────────────────────────
   const acoes: GTAcao<ProcessoLinha>[] = [
     { id: 'ver', tooltip: 'Abrir processo', icone: <Eye size={16} weight="duotone" />,
-      onClick: (p) => { window.location.href = `/acesso-processos/${p.id}/workflow` } },
+      onClick: (p) => { void navigate(rotaWorkflowProcessoWorkspace(p)) } },
     { id: 'editar', tooltip: 'Editar', icone: <PencilSimple size={16} weight="duotone" />,
       onClick: () => { /* TODO */ } },
     { id: 'duplicar', tooltip: 'Duplicar', icone: <Copy size={16} weight="duotone" />,

@@ -12,6 +12,15 @@ interface PassoJson {
   preCondicao?: string
 }
 
+function linhaEhSeparadorTabela(line: string): boolean {
+  const cells = line.split('|').slice(1, -1).map(c => c.trim())
+  return cells.length > 0 && cells.every(c => /^:?-{2,}:?$/.test(c.replace(/\*/g, '')))
+}
+
+function normalizarOrdemCelula(raw: string): string {
+  return raw.replace(/\*\*/g, '').trim()
+}
+
 /** Linha numerada `1. …` ou linha de tabela `| **06** | Ação | Critério |`. */
 function extrairLinhasPassoEtapa(bloco: string): Array<{ ordem: string; detalhe: string }> {
   const itens: Array<{ ordem: string; detalhe: string }> = []
@@ -26,17 +35,61 @@ function extrairLinhasPassoEtapa(bloco: string): Array<{ ordem: string; detalhe:
       continue
     }
 
-    const tabela = line.match(/^\|\s*([^|]+?)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|$/)
-    if (!tabela) continue
+    if (!line.startsWith('|') || linhaEhSeparadorTabela(line)) continue
 
-    const colPasso = tabela[1].replace(/\*/g, '').trim()
-    if (colPasso === 'Passo' || colPasso === '#' || colPasso.includes('---')) continue
+    const cols = line.split('|').map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1)
+    if (cols.length < 2) continue
+
+    const colPasso = normalizarOrdemCelula(cols[0])
+    if (!colPasso || colPasso === 'Passo' || colPasso === '#' || colPasso === 'Sub-etapa') continue
+    if (colPasso.toLowerCase() === 'ação' || colPasso.toLowerCase() === 'acao') continue
 
     const passo = colPasso === '—' ? '—' : colPasso
-    itens.push({
-      ordem: passo,
-      detalhe: `${tabela[2].trim()} — ${tabela[3].trim()}`,
-    })
+    const detalhe = cols.length >= 3
+      ? `${cols[1]} — ${cols[2]}`
+      : cols[1]
+    itens.push({ ordem: passo, detalhe })
+  }
+
+  return itens
+}
+
+/** Tabela em `## Prints planejados` — faixas (`03–05`), negrito (`**25**`) e linhas de continuação. */
+function extrairLinhasPrintsPlanejados(bloco: string): Array<{ ordem: string; titulo: string; detalhe: string }> {
+  const itens: Array<{ ordem: string; titulo: string; detalhe: string }> = []
+  let ultimaOrdem = ''
+  let subIdx = 0
+
+  for (const raw of bloco.split('\n')) {
+    const line = raw.trim()
+    if (!line.startsWith('|') || linhaEhSeparadorTabela(line)) continue
+
+    const cols = line.split('|').map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1)
+    if (cols.length < 2) continue
+
+    const colNum = normalizarOrdemCelula(cols[0])
+    const colArquivo = (cols[1] ?? '').replace(/`/g, '').trim()
+    const colDesc = (cols[2] ?? cols[1] ?? '').trim()
+
+    if (colNum === '#' || colArquivo === 'Arquivo' || colDesc === 'Estado capturado') continue
+    if (!colNum && !colArquivo && !colDesc) continue
+
+    let ordem: string
+    if (colNum) {
+      ultimaOrdem = colNum
+      subIdx = 0
+      ordem = colNum
+    } else if (ultimaOrdem) {
+      subIdx += 1
+      ordem = `${ultimaOrdem}.${String(subIdx).padStart(2, '0')}`
+    } else {
+      continue
+    }
+
+    const titulo = colArquivo || colDesc
+    const detalhe = colArquivo && colDesc && colArquivo !== colDesc ? colDesc : titulo
+
+    itens.push({ ordem, titulo, detalhe })
   }
 
   return itens
@@ -62,7 +115,7 @@ export function extrairCasosDoPlano(conteudo: string, planoFile: string): CasoPl
   const casos: CasoPlanoTeste[] = []
 
   // Roteiro primeiro — passo a passo é o foco do modal «O que será testado».
-  const etapasRe = /### (ETAPA \d+[^\n]*)\n([\s\S]*?)(?=### ETAPA|\n## [A-Za-z]|\Z)/g
+  const etapasRe = /### (ETAPA \d+[^\n]*)\n([\s\S]*?)(?=### ETAPA|\n## [A-Za-z]|$)/g
   let etapaMatch: RegExpExecArray | null
   while ((etapaMatch = etapasRe.exec(conteudo)) !== null) {
     const secao = etapaMatch[1].trim()
@@ -76,25 +129,38 @@ export function extrairCasosDoPlano(conteudo: string, planoFile: string): CasoPl
     }
   }
 
-  // Termina em HR (`---` sozinho), não em separador de tabela `|---|`.
-  const secaoPrints = conteudo.match(
-    /## Prints planejados([\s\S]*?)(?=\n---\s*(?:\n|\r)|\n## [A-Za-z]|\Z)/i,
-  )
-  if (secaoPrints) {
-    for (const line of secaoPrints[1].split('\n')) {
-      const m = line.match(/^\|\s*(\d+)\s*\|\s*`?([^`|]+)`?\s*\|\s*(.+?)\s*\|/)
-      if (m && m[1] !== '#') {
-        casos.push({
-          ordem: m[1].padStart(2, '0'),
-          titulo: m[2].trim(),
-          detalhe: m[3].trim(),
-          secao: 'Prints planejados',
-        })
-      }
+  // Blocos `## Roteiro — …` legados (sem `### ETAPA` no mesmo bloco).
+  const roteiroRe = /## Roteiro[^\n]*\n([\s\S]*?)(?=\n---\s*(?:\n|\r)|\n## [A-Za-z]|$)/gi
+  let roteiroMatch: RegExpExecArray | null
+  while ((roteiroMatch = roteiroRe.exec(conteudo)) !== null) {
+    if (/### ETAPA \d+/i.test(roteiroMatch[1])) continue
+    const tituloBloco = roteiroMatch[0].split('\n')[0].replace(/^##\s*/, '').trim()
+    for (const linha of extrairLinhasPassoEtapa(roteiroMatch[1])) {
+      casos.push({
+        ordem: linha.ordem,
+        titulo: tituloBloco,
+        detalhe: linha.detalhe,
+        secao: 'Roteiro',
+      })
     }
   }
 
-  const fluxoRe = /### (FLUXO \d+[^\n]*)\n([\s\S]*?)(?=### FLUXO|\n## [A-Za-z]|\Z)/g
+  // Termina em HR (`---` sozinho), não em separador de tabela `|---|`.
+  const secaoPrints = conteudo.match(
+    /## Prints planejados([\s\S]*?)(?=\n---\s*(?:\n|\r)|\n## [A-Za-z]|$)/i,
+  )
+  if (secaoPrints) {
+    for (const linha of extrairLinhasPrintsPlanejados(secaoPrints[1])) {
+      casos.push({
+        ordem: linha.ordem,
+        titulo: linha.titulo,
+        detalhe: linha.detalhe,
+        secao: 'Prints planejados',
+      })
+    }
+  }
+
+  const fluxoRe = /### (FLUXO \d+[^\n]*)\n([\s\S]*?)(?=### FLUXO|\n## [A-Za-z]|$)/g
   let fluxoMatch: RegExpExecArray | null
   while ((fluxoMatch = fluxoRe.exec(conteudo)) !== null) {
     const secao = fluxoMatch[1].trim()

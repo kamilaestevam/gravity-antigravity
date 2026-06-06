@@ -203,6 +203,9 @@ describe('hasAlerta', () => {
   it('tipo_operacao retorna false (sem alerta de divergência)', () => {
     expect(hasAlerta('tipo_operacao')).toBe(false)
   })
+  it('descricao_item retorna false (ghost sem alerta de divergência)', () => {
+    expect(hasAlerta('descricao_item')).toBe(false)
+  })
 })
 
 // ── 9. getEditavelItem — nivel ITEM ──────────────────────────────────────────

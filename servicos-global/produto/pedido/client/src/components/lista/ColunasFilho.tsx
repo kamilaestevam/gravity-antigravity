@@ -1644,11 +1644,8 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     },
   },
   nome_importador: {
-    editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
-    tooltipBloqueado: (row: PedidoItem) =>
-      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao'
-        ? 'Importador definido automaticamente pelo workspace — não editável em Importação'
-        : undefined,
+    editavel: false,
+    tooltipBloqueado: 'Importador é do pedido — altere na linha do pedido',
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao

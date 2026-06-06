@@ -27,7 +27,7 @@ import { Router } from 'express'
 import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import type { PrismaClient } from '@prisma/client'
-import { withOrganizacao, type ContextoOrganizacao, obterWorkspacesHabilitadosDoUsuario } from '@gravity/resolver-organizacao'
+import { withOrganizacao, type ContextoOrganizacao, obterWorkspacesHabilitadosDoUsuario, obterWorkspaces } from '@gravity/resolver-organizacao'
 import { saldoPedido, AppError } from '../services/saldo-pedido.js'
 import {
   parsearFormula,
@@ -43,6 +43,11 @@ import {
   derivarNomesEmpresaParaItem,
 } from '../../../pedido/shared/mapaPropagacaoPedidoItem.js'
 import { superficiarCamposJsonPedido } from '../../../pedido/shared/camposJsonPedidoLista.js'
+import {
+  resolverNomeImportadorLista,
+  resolverNomeExportadorLista,
+  pareceIdInternoGravity,
+} from '../../../pedido/shared/resolverNomeImportadorLista.js'
 import {
   buscarIdentidadesComexPorSuids,
   buscarMoedaPorCodigo,
@@ -506,8 +511,22 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     itens,
     ...jsonSuperficie,
     // Nomes das contrapartes: snapshot → detalhes → extras import → item único.
-    nome_exportador: resolveNomeParte('exportador', 'nome_exportador', 'nome_exportador'),
-    nome_importador: resolveNomeParte('importador', 'nome_importador', 'nome_importador'),
+    nome_exportador: resolverNomeExportadorLista({
+      tipo_operacao_pedido: pedido.tipo_operacao_pedido ?? pedido.tipo_operacao,
+      id_workspace: pedido.id_workspace ?? pedido.company_id,
+      nomeSnapshotImportador: findNome('exportador'),
+      nomeDetalhes: det.nome_exportador as string | null | undefined,
+      nomeExtras: jsonSuperficie.nome_exportador,
+      nomeItemUnico: agregarValorUnicoItens(itens, 'nome_exportador'),
+    }),
+    nome_importador: resolverNomeImportadorLista({
+      tipo_operacao_pedido: pedido.tipo_operacao_pedido ?? pedido.tipo_operacao,
+      id_workspace: pedido.id_workspace ?? pedido.company_id,
+      nomeSnapshotImportador: findNome('importador'),
+      nomeDetalhes: det.nome_importador as string | null | undefined,
+      nomeExtras: jsonSuperficie.nome_importador,
+      nomeItemUnico: agregarValorUnicoItens(itens, 'nome_importador'),
+    }),
     nome_fabricante: resolveNomeParte('fabricante', 'nome_fabricante', 'nome_fabricante'),
     // CNPJ exportador: detalhes legado ou extras do Smart Import
     cnpj_exportador: (det.cnpj_exportador as string | null | undefined)
@@ -563,6 +582,105 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
       }
     })(),
   }
+}
+
+/** Lista: resolve nome legível do workspace para pedidos IMP com nome_importador corrompido (CUID). */
+async function enriquecerNomeImportadorImpLista(pedidos: PedidoRaw[]): Promise<PedidoRaw[]> {
+  const idsWs = [
+    ...new Set(
+      pedidos
+        .filter((p) => (p.tipo_operacao_pedido ?? p.tipo_operacao) === 'importacao')
+        .map((p) => String(p.id_workspace ?? p.company_id ?? '').trim())
+        .filter(Boolean),
+    ),
+  ]
+  if (idsWs.length === 0) return pedidos
+
+  let nomePorId = new Map<string, string>()
+  try {
+    const wsList = await obterWorkspaces({
+      configuradorBaseUrl: process.env.CONFIGURATOR_URL ?? '',
+      chaveInterna:        process.env.CHAVE_INTERNA_SERVICO ?? '',
+      ids:                 idsWs,
+    })
+    nomePorId = new Map(
+      wsList
+        .filter((w) => w.nomeWorkspace?.trim())
+        .map((w) => [w.idWorkspace, w.nomeWorkspace.trim()]),
+    )
+  } catch (err) {
+    console.warn(JSON.stringify({
+      event: 'PEDIDO_LISTA_ENRIQUECER_IMPORTADOR_FAIL',
+      workspaces: idsWs.length,
+      erro: err instanceof Error ? err.message : String(err),
+    }))
+    return pedidos
+  }
+
+  return pedidos.map((p) => {
+    const tipo = p.tipo_operacao_pedido ?? p.tipo_operacao
+    if (tipo !== 'importacao') return p
+    const idWs = String(p.id_workspace ?? p.company_id ?? '').trim()
+    if (!idWs) return p
+    const nomeWs = nomePorId.get(idWs)
+    if (!nomeWs) return p
+    const atual = p.nome_importador as string | null | undefined
+    const corrupto = !atual || pareceIdInternoGravity(atual) || atual.trim() === idWs
+    if (!corrupto) return p
+    return { ...p, nome_importador: nomeWs }
+  })
+}
+
+/** Lista: resolve nome legível do workspace para pedidos EXP com nome_exportador corrompido (CUID). */
+async function enriquecerNomeExportadorExpLista(pedidos: PedidoRaw[]): Promise<PedidoRaw[]> {
+  const idsWs = [
+    ...new Set(
+      pedidos
+        .filter((p) => (p.tipo_operacao_pedido ?? p.tipo_operacao) === 'exportacao')
+        .map((p) => String(p.id_workspace ?? p.company_id ?? '').trim())
+        .filter(Boolean),
+    ),
+  ]
+  if (idsWs.length === 0) return pedidos
+
+  let nomePorId = new Map<string, string>()
+  try {
+    const wsList = await obterWorkspaces({
+      configuradorBaseUrl: process.env.CONFIGURATOR_URL ?? '',
+      chaveInterna:        process.env.CHAVE_INTERNA_SERVICO ?? '',
+      ids:                 idsWs,
+    })
+    nomePorId = new Map(
+      wsList
+        .filter((w) => w.nomeWorkspace?.trim())
+        .map((w) => [w.idWorkspace, w.nomeWorkspace.trim()]),
+    )
+  } catch (err) {
+    console.warn(JSON.stringify({
+      event: 'PEDIDO_LISTA_ENRIQUECER_EXPORTADOR_FAIL',
+      workspaces: idsWs.length,
+      erro: err instanceof Error ? err.message : String(err),
+    }))
+    return pedidos
+  }
+
+  return pedidos.map((p) => {
+    const tipo = p.tipo_operacao_pedido ?? p.tipo_operacao
+    if (tipo !== 'exportacao') return p
+    const idWs = String(p.id_workspace ?? p.company_id ?? '').trim()
+    if (!idWs) return p
+    const nomeWs = nomePorId.get(idWs)
+    if (!nomeWs) return p
+    const atual = p.nome_exportador as string | null | undefined
+    const corrupto = !atual || pareceIdInternoGravity(atual) || atual.trim() === idWs
+    if (!corrupto) return p
+    return { ...p, nome_exportador: nomeWs }
+  })
+}
+
+async function enriquecerNomesPartesListaPedidos(pedidos: PedidoRaw[]): Promise<PedidoRaw[]> {
+  const comImportador = await enriquecerNomeImportadorImpLista(pedidos)
+  return enriquecerNomeExportadorExpLista(comImportador)
 }
 
 // ── Helper: injeta _colunas_usuario nos registros retornados ─────────────────
@@ -941,7 +1059,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         // embarcados também. Fix 2026-05-13.
         const registrosComColunas = await injetarColunasPedidoEItens(db, registros, idOrganizacao)
         const mapped = registrosComColunas.map(mapPedido).filter(Boolean) as PedidoRaw[]
-        const comTransferencias = await tagTransferencias(db, mapped, idOrganizacao)
+        const mappedEnriquecido = await enriquecerNomesPartesListaPedidos(mapped)
+        const comTransferencias = await tagTransferencias(db, mappedEnriquecido, idOrganizacao)
         return res.json({ data: comTransferencias, nextCursor: cursor_proximo, hasMore: tem_mais })
       }
 
@@ -1019,7 +1138,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       // Mesma injeção 2-níveis do branch cursor — fecha o gap da Kanban (fix 2026-05-13).
       const dataComColunas = await injetarColunasPedidoEItens(db, data, idOrganizacao)
       const mapped = dataComColunas.map(mapPedido).filter(Boolean) as PedidoRaw[]
-      const comTransferencias = await tagTransferencias(db, mapped, idOrganizacao)
+      const mappedEnriquecido = await enriquecerNomesPartesListaPedidos(mapped)
+      const comTransferencias = await tagTransferencias(db, mappedEnriquecido, idOrganizacao)
       res.json({ data: comTransferencias, total, totalItens, page: pageNum, limit: limitNum })
     })
   } catch (err) {
@@ -2130,10 +2250,60 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         dadosUpdate = { [colunaPrisma]: valorFinal }
       }
 
+      // Trocar workspace sincroniza parte espelhada em detalhes_operacionais:
+      // IMP → nome_importador | EXP → nome_exportador (Smart Import pode ter gravado CUID).
+      if (campo === 'id_workspace' || campo === 'company_id') {
+        const tipoOp = pedido.tipo_operacao_pedido
+        const campoParte = tipoOp === 'importacao'
+          ? 'nome_importador'
+          : tipoOp === 'exportacao'
+            ? 'nome_exportador'
+            : null
+        if (campoParte) {
+          const idWsNovo = String(
+            (dadosUpdate.id_workspace as string | undefined)
+            ?? valor
+            ?? '',
+          ).trim()
+          if (idWsNovo) {
+            const detAtual = (typeof pedido.detalhes_operacionais_pedido === 'object' && pedido.detalhes_operacionais_pedido !== null)
+              ? pedido.detalhes_operacionais_pedido as Record<string, unknown>
+              : {}
+            let nomeWs: string | null = null
+            try {
+              const wsList = await obterWorkspaces({
+                configuradorBaseUrl: process.env.CONFIGURATOR_URL ?? '',
+                chaveInterna:        process.env.CHAVE_INTERNA_SERVICO ?? '',
+                ids:                 [idWsNovo],
+              })
+              nomeWs = wsList.find((w) => w.idWorkspace === idWsNovo)?.nomeWorkspace?.trim() ?? null
+            } catch (err) {
+              console.warn(JSON.stringify({
+                event: 'PEDIDO_SYNC_NOME_PARTE_WS_LOOKUP_FAIL',
+                id_pedido: req.params.id_pedido,
+                id_workspace: idWsNovo,
+                campo_parte: campoParte,
+                erro: err instanceof Error ? err.message : String(err),
+              }))
+            }
+            dadosUpdate = {
+              ...dadosUpdate,
+              detalhes_operacionais_pedido: {
+                ...detAtual,
+                [campoParte]: nomeWs,
+              },
+            }
+          }
+        }
+      }
+
       const updated = await db.pedido.update({
         where: { id_pedido: req.params.id_pedido },
         data: dadosUpdate,
-        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: {
+          itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+          snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
+        },
       })
 
       // Replicação pai → todos os itens (decisão UX 2026-05-13).
@@ -2206,7 +2376,10 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       const pedidoResposta = deveReplicarItens
         ? await db.pedido.findUnique({
             where: { id_pedido: req.params.id_pedido },
-            include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+            include: {
+              itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+              snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
+            },
           })
         : updated
 

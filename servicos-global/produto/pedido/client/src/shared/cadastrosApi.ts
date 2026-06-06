@@ -86,6 +86,80 @@ async function parseJsonComSchema<T>(raw: unknown, schema: z.ZodType<T>): Promis
   return schema.parse(raw)
 }
 
+/** Parceiros elegíveis como importador na exportação (papel COMEX Importador + ativo). */
+export function filtrarFornecedoresPapelImportador(itens: Fornecedor[]): Fornecedor[] {
+  return itens.filter((f) => f.pode_ser_importador_fornecedor && f.ativo_fornecedor)
+}
+
+/** Parceiros elegíveis como exportador na importação (papel COMEX Exportador + ativo). */
+export function filtrarFornecedoresPapelExportador(itens: Fornecedor[]): Fornecedor[] {
+  return itens.filter((f) => f.pode_ser_exportador_fornecedor && f.ativo_fornecedor)
+}
+
+/** Opções do popover GTV — exportação (valor = id_fornecedor). */
+export function mapearOpcoesImportadorExportacao(itens: Fornecedor[]): Array<{ valor: string; label: string }> {
+  return filtrarFornecedoresPapelImportador(itens)
+    .map((f) => ({
+      valor: f.id_fornecedor ?? '',
+      label: f.nome_fornecedor,
+    }))
+    .filter((o) => o.valor.length > 0)
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+}
+
+/**
+ * EXP: remove opções que coincidem com workspaces (id ou nome).
+ * Evita listar "CDE EXPORTADOR" etc. no popover de importador da exportação.
+ */
+/** Opções do popover GTV — importação (valor = id_fornecedor). */
+export function mapearOpcoesExportadorImportacao(itens: Fornecedor[]): Array<{ valor: string; label: string }> {
+  return filtrarFornecedoresPapelExportador(itens)
+    .map((f) => ({
+      valor: f.id_fornecedor ?? '',
+      label: f.nome_fornecedor,
+    }))
+    .filter((o) => o.valor.length > 0)
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+}
+
+/**
+ * IMP: remove opções que coincidem com workspaces (id ou nome).
+ * Evita listar nomes de workspace no popover de exportador da importação.
+ */
+export function filtrarOpcoesExportadorImpSemWorkspaces(
+  opcoesExportadores: Array<{ valor: string; label: string }>,
+  workspaceOpcoes: Array<{ valor: string; label: string }>,
+): Array<{ valor: string; label: string }> {
+  const idsWs = new Set(workspaceOpcoes.map((o) => o.valor.trim()).filter(Boolean))
+  const labelsWs = new Set(
+    workspaceOpcoes.map((o) => o.label.trim().toLowerCase()).filter(Boolean),
+  )
+  return opcoesExportadores.filter((o) => {
+    const id = o.valor.trim()
+    const label = o.label.trim().toLowerCase()
+    if (idsWs.has(id)) return false
+    if (labelsWs.has(label)) return false
+    return true
+  })
+}
+
+export function filtrarOpcoesImportadorExpSemWorkspaces(
+  opcoesImportadores: Array<{ valor: string; label: string }>,
+  workspaceOpcoes: Array<{ valor: string; label: string }>,
+): Array<{ valor: string; label: string }> {
+  const idsWs = new Set(workspaceOpcoes.map((o) => o.valor.trim()).filter(Boolean))
+  const labelsWs = new Set(
+    workspaceOpcoes.map((o) => o.label.trim().toLowerCase()).filter(Boolean),
+  )
+  return opcoesImportadores.filter((o) => {
+    const id = o.valor.trim()
+    const label = o.label.trim().toLowerCase()
+    if (idsWs.has(id)) return false
+    if (labelsWs.has(label)) return false
+    return true
+  })
+}
+
 export const cadastrosApi = {
   /** Parceiros COMEX — lista paginada (exclui empresa-da-org no backend). */
   listarFornecedores: async (busca?: string, por_pagina = 200): Promise<ListaFornecedores> => {
@@ -95,8 +169,22 @@ export const cadastrosApi = {
     return parseJsonComSchema(raw, listaFornecedoresSchema)
   },
 
+  /** Parceiros com papel Exportador (importação — contraparte estrangeira). */
+  listarExportadores: async (busca?: string, por_pagina = 500): Promise<ListaFornecedores> => {
+    const params = new URLSearchParams({
+      por_pagina: String(por_pagina),
+      escopo: 'parceiros',
+      pode_ser_exportador_fornecedor: 'true',
+    })
+    if (busca?.trim()) params.set('busca', busca.trim())
+    const raw = await request<unknown>(`/api/v1/fornecedores?${params.toString()}`)
+    const parsed = await parseJsonComSchema(raw, listaFornecedoresSchema)
+    const itens = filtrarFornecedoresPapelExportador(parsed.itens)
+    return { ...parsed, itens, total: itens.length }
+  },
+
   /** Parceiros com papel Importador (exportação — contraparte estrangeira). */
-  listarImportadores: async (busca?: string, por_pagina = 200): Promise<ListaFornecedores> => {
+  listarImportadores: async (busca?: string, por_pagina = 500): Promise<ListaFornecedores> => {
     const params = new URLSearchParams({
       por_pagina: String(por_pagina),
       escopo: 'parceiros',
@@ -104,7 +192,9 @@ export const cadastrosApi = {
     })
     if (busca?.trim()) params.set('busca', busca.trim())
     const raw = await request<unknown>(`/api/v1/fornecedores?${params.toString()}`)
-    return parseJsonComSchema(raw, listaFornecedoresSchema)
+    const parsed = await parseJsonComSchema(raw, listaFornecedoresSchema)
+    const itens = filtrarFornecedoresPapelImportador(parsed.itens)
+    return { ...parsed, itens, total: itens.length }
   },
 
   /** Empresa 1:1 da organização — `GET /empresas/da-organizacao`. */

@@ -300,6 +300,10 @@ export interface OpcoesUnidadesColunas {
    * a coluna mostra o próprio id_workspace como fallback.
    */
   workspacesMap?: Map<string, { nome: string; cnpj?: string | null }>
+  /** Workspaces para resolver Importador (IMP) e filtrar lista EXP. */
+  workspaceOpcoesLista?: Array<{ valor: string; label: string }>
+  /** Fornecedores importadores (EXP) — sem nomes de workspace. */
+  opcoesImportadoresExpLista?: Array<{ valor: string; label: string }>
   paisesOpcoes?: GTOpcaoCadastro[]
   portosOpcoes?: GTOpcaoCadastro[]
   aeroportosOpcoes?: GTOpcaoCadastro[]
@@ -430,7 +434,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    editavel: false,
+    editavel: getEditavel('nome_exportador'),
     tooltipBloqueado: t('pedido.coluna_pai.nome_exportador_bloqueado'),
     tooltipTitulo: t('pedido.coluna_pai.nome_exportador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.nome_exportador_desc'),
@@ -440,9 +444,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
 
       // ─── EXPORTAÇÃO: workspace = exportador → badge auto-preenchido ───
       if (isExportacao) {
-        const nomeWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.nome
+        const idWsExp = String(row.id_workspace ?? (row as { company_id?: string }).company_id ?? '')
+        const nomeWorkspace = workspacesMap?.get(idWsExp)?.nome
         if (nomeWorkspace) {
-          const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
+          const href = urlEditarCnpjWorkspace(idWsExp, row.id)
           return renderBadgeParteWorkspace({
             nomeWorkspace,
             titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
@@ -451,7 +456,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
           })
         }
         // Workspace sem nome cadastrado → link para cadastrar
-        const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
+        const href = urlEditarCnpjWorkspace(idWsExp, row.id)
         return (
           <TooltipGlobal descricao={t('pedido.coluna_pai.workspace_sem_nome')}>
             <span
@@ -514,7 +519,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    editavel: false,
+    editavel: getEditavel('nome_importador'),
     tooltipBloqueado: t('pedido.coluna_pai.nome_importador_bloqueado'),
     tooltipTitulo: t('pedido.coluna_pai.nome_importador_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.nome_importador_desc'),
@@ -524,9 +529,10 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
 
       // ─── IMPORTAÇÃO: workspace = importador → badge auto-preenchido ───
       if (isImportacao) {
-        const nomeWorkspace = workspacesMap?.get(row.id_workspace ?? '')?.nome
+        const idWsImp = String(row.id_workspace ?? (row as { company_id?: string }).company_id ?? '')
+        const nomeWorkspace = workspacesMap?.get(idWsImp)?.nome
         if (nomeWorkspace) {
-          const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
+          const href = urlEditarCnpjWorkspace(idWsImp, row.id)
           return renderBadgeParteWorkspace({
             nomeWorkspace,
             titulo: t('pedido.coluna_pai.parte_importador_titulo'),
@@ -535,7 +541,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
           })
         }
         // Workspace sem nome cadastrado → link para cadastrar
-        const href = urlEditarCnpjWorkspace(row.id_workspace ?? '', row.id)
+        const href = urlEditarCnpjWorkspace(idWsImp, row.id)
         return (
           <TooltipGlobal descricao={t('pedido.coluna_pai.workspace_sem_nome')}>
             <span

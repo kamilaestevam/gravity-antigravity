@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X, Package, ArrowSquareOut } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { cadastrosApi, type Fornecedor } from '../../shared/cadastrosApi'
+import { cadastrosApi, filtrarFornecedoresPapelImportador, type Fornecedor } from '../../shared/cadastrosApi'
 import { urlGerenciarFornecedores } from './urlsDeepLinkConfigurador'
 
 export interface ModalSeletorImportadorListaProps {
@@ -39,7 +39,7 @@ export function ModalSeletorImportadorLista({
     setErro(null)
     setCarregando(true)
     cadastrosApi.listarImportadores()
-      .then((res) => setItens(res.itens))
+      .then((res) => setItens(filtrarFornecedoresPapelImportador(res.itens)))
       .catch((err: unknown) => {
         setErro(err instanceof Error ? err.message : t('pedido.lista.modal_importador.erro_carregar'))
       })

@@ -26,7 +26,7 @@ import {
   CalendarBlank,
   MapPin,
 } from '@phosphor-icons/react'
-import { useProcesso } from '../ProcessoLayout'
+import { useProcesso } from '../processo-context'
 import type { Pedido, StatusPedido } from '../../shared/types'
 import { PedidosTabs } from './PedidosTabs'
 import './PedidosResumo.css'
@@ -158,7 +158,7 @@ export default function PedidosResumo() {
 
   return (
     <PaginaGlobal
-      className="ws-fade-up"
+      className="processo-detalhe-page"
       layout="lista"
       cabecalho={
         <CabecalhoGlobal

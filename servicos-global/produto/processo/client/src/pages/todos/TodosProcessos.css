@@ -1,5 +1,17 @@
 /* TodosProcessos — estilos compartilhados entre Lista e Kanban */
 
+.tp-numero-processo {
+  font-weight: 600;
+  color: #60a5fa;
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-numero-processo:hover {
+  text-decoration: underline;
+  color: #93c5fd;
+}
+
 /* ── Stats cards finos — padrao Pedido (7 cards em linha) ─────────────── */
 
 .tp-stats {

@@ -2956,7 +2956,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const colU = col as GTColuna<unknown>
             setOverlayInfo({
               rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo,
-              opcoes: colU.getOpcoes ? colU.getOpcoes(item) : colU.opcoes,
+              // getOpcoes dinâmico tem prioridade; se vier vazio em coluna enum, usa col.opcoes estático (ex.: workspaces ainda carregando).
+              opcoes: (() => {
+                const din = colU.getOpcoes ? colU.getOpcoes(item) : undefined
+                if (din && din.length > 0) return din
+                if (col.tipo === 'enum' && colU.opcoes && colU.opcoes.length > 0) return colU.opcoes
+                return din ?? colU.opcoes
+              })(),
               moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais,
               gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto,
               apenasUnidade: colU.apenasUnidade,
@@ -3010,7 +3016,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         {estaEditando && overlayAtivo ? (
           // Overlay ativo: mostra indicador visual, o input real está no popover flutuante
           <span className="gtv-celula--editando-overlay">
-            {(col as GTColuna<unknown>).opcoes?.find(op => op.valor === String(valorEditando))?.label
+            {(overlayInfo?.opcoes ?? (col as GTColuna<unknown>).opcoes)?.find(op => op.valor === String(valorEditando))?.label
               ?? formatarOverlayValor(valorEditando, col.tipo, (col as GTColuna<unknown>).casasDecimais)}
           </span>
         ) : estaEditando ? (

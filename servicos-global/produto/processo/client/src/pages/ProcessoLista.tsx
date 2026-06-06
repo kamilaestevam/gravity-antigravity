@@ -453,11 +453,13 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
       className="ws-fade-up processo-lista-page"
       layout="lista"
       cabecalho={
-        <CabecalhoGlobal
-          icone={<Briefcase weight="duotone" size={22} />}
-          titulo="Processos"
-          subtitulo="Lista hierárquica — Processo, Pedido e Item"
-        />
+        embedTabs ? (
+          <CabecalhoGlobal
+            icone={<Briefcase weight="duotone" size={22} />}
+            titulo="Lista"
+            subtitulo="Lista hierárquica — Processo, Pedido e Item"
+          />
+        ) : undefined
       }
       toolbar={embedTabs ? <TodosProcessosTabs /> : undefined}
     >

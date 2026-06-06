@@ -1,12 +1,13 @@
 /* BidFreteVisualizacaoTabs — pills compactas; distâncias via bid-frete-page-shell.css */
 
+/* Paridade PedidosVisualizacaoTabs (.pvt-tabs) — altura compacta */
 .bft-tabs {
   display: inline-flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 0.125rem;
   padding: 0.125rem;
-  margin-top: 0;
-  margin-bottom: var(--bid-frete-visualizacao-tabs-mb);
+  margin: 0;
   background: var(--ws-surface, #1e293b);
   border: 1px solid rgba(167, 139, 250, 0.18);
   border-radius: 9999px;
@@ -42,17 +43,31 @@
   color: #a78bfa;
 }
 
+.bft-tab--active:hover {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+/* Toolbar abaixo do título (MenuTopoGlobal) — paridade pg-toolbar-wrapper / Processo */
+.bid-frete-vis-toolbar {
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  background: var(--ws-bg-body, #0f172a);
+  padding: var(--bid-frete-page-pt) var(--bid-frete-page-px) var(--bid-frete-visualizacao-tabs-mb);
+  box-sizing: border-box;
+}
+
+body.light-theme .bid-frete-vis-toolbar {
+  background: var(--ws-bg-body, #f8fafc);
+}
+
 .bid-frete-visualizacao-layout {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   width: 100%;
-}
-
-.bid-frete-visualizacao-layout__tabs {
-  padding: var(--bid-frete-page-pt) var(--bid-frete-page-px) 0;
-  flex-shrink: 0;
 }
 
 /* Paridade Pedido: padding só no conteúdo da aba, não no wrapper multi-view (evita 4rem lateral). */

@@ -22,7 +22,12 @@
   display: none !important;
 }
 
+.bid-frete-view-panel--ativo > .bid-frete-vis-toolbar {
+  flex-shrink: 0;
+}
+
 .bid-frete-view-panel--ativo > .bf-lista-page,
+.bid-frete-view-panel--ativo > .bid-frete-page-shell,
 .bid-frete-view-panel--ativo > .pg-container.bf-cotacoes {
   flex: 1;
   min-height: 0;

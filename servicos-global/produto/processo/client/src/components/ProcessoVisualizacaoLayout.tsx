@@ -1,10 +1,10 @@
 /**
- * ProcessoVisualizacaoLayout — pills Lista | Kanban + Outlet.
+ * ProcessoVisualizacaoLayout — contexto do seletor + Outlet.
+ * Pills Insights | Lista | Dashboard | Kanban ficam no toolbar (abaixo do título).
  */
 
 import React from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { TodosProcessosTabs } from '../pages/todos/TodosProcessosTabs'
 import {
   ProcessoVisualizacaoProvider,
   resolverProcessoVisualizacaoPorPathname,
@@ -17,9 +17,6 @@ export function ProcessoVisualizacaoLayout() {
   return (
     <ProcessoVisualizacaoProvider visualizacaoAtiva={visualizacaoAtiva}>
       <div className="proc-visualizacao-layout">
-        <div className="proc-visualizacao-layout__tabs">
-          <TodosProcessosTabs />
-        </div>
         <Outlet />
       </div>
     </ProcessoVisualizacaoProvider>

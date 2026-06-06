@@ -8,7 +8,7 @@ import {
   type BidFreteVisualizacaoId,
   testidPainelSeletorBid,
 } from './bid-frete-visualizacao-context'
-import type { ModoVisualizacaoBidFrete } from './BidFreteVisualizacaoTabs'
+import { BidFreteVisualizacaoTabs, type ModoVisualizacaoBidFrete } from './BidFreteVisualizacaoTabs'
 import './BidFreteVisualizacaoTabs.css'
 
 const VisaoGeralCliente = lazy(() => import('../pages/visao-geral'))
@@ -38,10 +38,14 @@ function PainelFallback() {
 function Painel({
   id,
   montado,
+  modo,
+  embedTabs,
   children,
 }: {
   id: BidFreteVisualizacaoId
   montado: boolean
+  modo: ModoVisualizacaoBidFrete
+  embedTabs: boolean
   children: React.ReactNode
 }) {
   const { painelAtivo } = useBidFreteVisualizacao()
@@ -60,34 +64,57 @@ function Painel({
       {ativo && (
         <span data-testid="seletor-visao-painel-pronto" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden' }} aria-hidden />
       )}
+      {embedTabs && (
+        <div className="bid-frete-vis-toolbar">
+          <BidFreteVisualizacaoTabs modo={modo} />
+        </div>
+      )}
       <Suspense fallback={<PainelFallback />}>{children}</Suspense>
     </div>
   )
 }
 
-function PaineisCliente({ visitados }: { visitados: Set<BidFreteVisualizacaoId> }) {
+function PaineisCliente({
+  visitados,
+  embedTabs,
+}: {
+  visitados: Set<BidFreteVisualizacaoId>
+  embedTabs: boolean
+}) {
   return (
     <>
-      <Painel id="insights" montado={visitados.has('insights')}><VisaoGeralCliente /></Painel>
-      <Painel id="lista" montado={visitados.has('lista')}><CotacoesCliente /></Painel>
-      <Painel id="dashboard" montado={visitados.has('dashboard')}><DashboardCliente /></Painel>
-      <Painel id="kanban" montado={visitados.has('kanban')}><CotacoesCliente /></Painel>
+      <Painel id="insights" montado={visitados.has('insights')} modo="cliente" embedTabs={embedTabs}><VisaoGeralCliente /></Painel>
+      <Painel id="lista" montado={visitados.has('lista')} modo="cliente" embedTabs={embedTabs}><CotacoesCliente /></Painel>
+      <Painel id="dashboard" montado={visitados.has('dashboard')} modo="cliente" embedTabs={embedTabs}><DashboardCliente /></Painel>
+      <Painel id="kanban" montado={visitados.has('kanban')} modo="cliente" embedTabs={embedTabs}><CotacoesCliente /></Painel>
     </>
   )
 }
 
-function PaineisFornecedor({ visitados }: { visitados: Set<BidFreteVisualizacaoId> }) {
+function PaineisFornecedor({
+  visitados,
+  embedTabs,
+}: {
+  visitados: Set<BidFreteVisualizacaoId>
+  embedTabs: boolean
+}) {
   return (
     <>
-      <Painel id="insights" montado={visitados.has('insights')}><VisaoFornecedorDashboard /></Painel>
-      <Painel id="lista" montado={visitados.has('lista')}><VisaoFornecedorLista /></Painel>
-      <Painel id="dashboard" montado={visitados.has('dashboard')}><VisaoFornecedorPaineis /></Painel>
-      <Painel id="kanban" montado={visitados.has('kanban')}><VisaoFornecedorKanban /></Painel>
+      <Painel id="insights" montado={visitados.has('insights')} modo="fornecedor" embedTabs={embedTabs}><VisaoFornecedorDashboard /></Painel>
+      <Painel id="lista" montado={visitados.has('lista')} modo="fornecedor" embedTabs={embedTabs}><VisaoFornecedorLista /></Painel>
+      <Painel id="dashboard" montado={visitados.has('dashboard')} modo="fornecedor" embedTabs={embedTabs}><VisaoFornecedorPaineis /></Painel>
+      <Painel id="kanban" montado={visitados.has('kanban')} modo="fornecedor" embedTabs={embedTabs}><VisaoFornecedorKanban /></Painel>
     </>
   )
 }
 
-export function BidFreteMultiView({ modo }: { modo: ModoVisualizacaoBidFrete }) {
+export function BidFreteMultiView({
+  modo,
+  embedTabs = true,
+}: {
+  modo: ModoVisualizacaoBidFrete
+  embedTabs?: boolean
+}) {
   const { visualizacaoAtiva } = useBidFreteVisualizacao()
   const [visitados, setVisitados] = useState<Set<BidFreteVisualizacaoId>>(() =>
     visualizacaoAtiva ? new Set([visualizacaoAtiva]) : new Set(),
@@ -106,8 +133,8 @@ export function BidFreteMultiView({ modo }: { modo: ModoVisualizacaoBidFrete }) 
   return (
     <div className="bid-frete-multi-view">
       {modo === 'fornecedor'
-        ? <PaineisFornecedor visitados={visitados} />
-        : <PaineisCliente visitados={visitados} />}
+        ? <PaineisFornecedor visitados={visitados} embedTabs={embedTabs} />
+        : <PaineisCliente visitados={visitados} embedTabs={embedTabs} />}
     </div>
   )
 }

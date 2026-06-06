@@ -32,6 +32,7 @@ export interface AplicarConfigListaPainelCallbacks {
   setSortDir: (d: 'asc' | 'desc') => void
   setBusca: (b: string) => void
   setFiltrosAtivos: (f: FiltrosAtivosMap) => void
+  setCardsTopoDoPainel?: (cardsTopo: ListaPainelConfigV1['cards_topo']) => void
   onConfigAplicada?: (snapshot: {
     aba: string
     sortCampo: string
@@ -115,6 +116,23 @@ export function useListaPainelBidFrete() {
     void carregarPaineis()
   }, [podeCarregar, carregarPaineis])
 
+  const salvarConfigPainelNoServidor = useCallback(async (id: string, estado: EstadoListaParaPainel) => {
+    const configJson = JSON.stringify(estadoParaConfig(estado))
+    try {
+      await paineisListaBidFreteApi.atualizar(id, { config_json: configJson })
+      setPaineis(prev => prev.map(p => (p.id === id ? { ...p, config_json: configJson } : p)))
+    } catch (err) {
+      console.warn('[useListaPainelBidFrete] falha ao persistir painel', id, err)
+    }
+  }, [])
+
+  const cancelarPersistenciaAgendada = useCallback(() => {
+    if (persistTimerRef.current) {
+      clearTimeout(persistTimerRef.current)
+      persistTimerRef.current = null
+    }
+  }, [])
+
   const aplicarConfigDoPainel = useCallback((
     painel: ListaPainel,
     callbacks: AplicarConfigListaPainelCallbacks,
@@ -144,6 +162,7 @@ export function useListaPainelBidFrete() {
     callbacks.setSortDir(config.ordenacao.direcao)
     callbacks.setBusca(config.busca ?? '')
     callbacks.setFiltrosAtivos(deserializarFiltrosLista(config.filtros_coluna))
+    callbacks.setCardsTopoDoPainel?.(config.cards_topo)
 
     callbacks.onConfigAplicada?.({
       aba: config.aba_status_ativa,
@@ -166,14 +185,24 @@ export function useListaPainelBidFrete() {
     if (!id || aplicandoConfigRef.current) return
     if (painelHidratadoIdRef.current !== id) return
 
-    if (persistTimerRef.current) clearTimeout(persistTimerRef.current)
+    cancelarPersistenciaAgendada()
+    const idSnapshot = id
+    const estadoSnapshot = estado
     persistTimerRef.current = setTimeout(() => {
-      const configJson = JSON.stringify(estadoParaConfig(estado))
-      paineisListaBidFreteApi.atualizar(id, { config_json: configJson }).catch(err => {
-        console.warn('[useListaPainelBidFrete] falha ao persistir painel', id, err)
-      })
+      persistTimerRef.current = null
+      void salvarConfigPainelNoServidor(idSnapshot, estadoSnapshot)
     }, 400)
-  }, [])
+  }, [cancelarPersistenciaAgendada, salvarConfigPainelNoServidor])
+
+  const persistirPainelAtualImediato = useCallback((estado: EstadoListaParaPainel) => {
+    estadoRef.current = estado
+    const id = painelAtualIdRef.current
+    if (!id || aplicandoConfigRef.current) return
+    if (painelHidratadoIdRef.current !== id) return
+
+    cancelarPersistenciaAgendada()
+    void salvarConfigPainelNoServidor(id, estado)
+  }, [cancelarPersistenciaAgendada, salvarConfigPainelNoServidor])
 
   const criarPainel = useCallback(async (
     nome: string,
@@ -184,14 +213,12 @@ export function useListaPainelBidFrete() {
     if (!trimmed) return null
     try {
       const configJson = JSON.stringify(estadoParaConfig(estadoAtual))
-      const { data } = await paineisListaBidFreteApi.criar(trimmed)
-      await paineisListaBidFreteApi.atualizar(data.id, { config_json: configJson }).catch(() => {})
-      const painelComConfig = { ...data, config_json: configJson }
-      setPaineis(prev => [...prev, painelComConfig])
+      const { data } = await paineisListaBidFreteApi.criar(trimmed, configJson)
+      setPaineis(prev => [...prev, data])
       painelHidratadoIdRef.current = null
-      setPainelAtualId(painelComConfig.id)
-      aplicarConfigDoPainel(painelComConfig, callbacks)
-      return painelComConfig
+      setPainelAtualId(data.id)
+      aplicarConfigDoPainel(data, callbacks)
+      return data
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.warn('[useListaPainelBidFrete] falha ao criar painel', msg, err)
@@ -204,16 +231,26 @@ export function useListaPainelBidFrete() {
     estadoAtual: EstadoListaParaPainel,
     callbacks: AplicarConfigListaPainelCallbacks,
   ) => {
+    cancelarPersistenciaAgendada()
     const idAnterior = painelAtualIdRef.current
     painelHidratadoIdRef.current = null
+
+    let paineisAtualizados = paineis
     if (idAnterior && idAnterior !== id) {
-      const configJson = JSON.stringify(estadoParaConfig(estadoAtual))
-      await paineisListaBidFreteApi.atualizar(idAnterior, { config_json: configJson }).catch(err => {
+      const estadoSalvar = estadoRef.current ?? estadoAtual
+      const configJson = JSON.stringify(estadoParaConfig(estadoSalvar))
+      try {
+        await paineisListaBidFreteApi.atualizar(idAnterior, { config_json: configJson })
+        paineisAtualizados = paineis.map(p => (
+          p.id === idAnterior ? { ...p, config_json: configJson } : p
+        ))
+        setPaineis(paineisAtualizados)
+      } catch (err) {
         console.warn('[useListaPainelBidFrete] falha ao salvar painel anterior', idAnterior, err)
-      })
+      }
     }
 
-    const proximo = paineis.find(p => p.id === id)
+    const proximo = paineisAtualizados.find(p => p.id === id)
     if (!proximo) {
       console.warn('[useListaPainelBidFrete] painel não encontrado para troca', id)
       return
@@ -221,7 +258,7 @@ export function useListaPainelBidFrete() {
 
     setPainelAtualId(id)
     aplicarConfigDoPainel(proximo, callbacks)
-  }, [paineis, aplicarConfigDoPainel])
+  }, [paineis, aplicarConfigDoPainel, cancelarPersistenciaAgendada])
 
   const painelAtual = paineis.find(p => p.id === painelAtualId) ?? null
 
@@ -235,6 +272,7 @@ export function useListaPainelBidFrete() {
     carregarPaineis,
     aplicarConfigDoPainel,
     persistirPainelAtual,
+    persistirPainelAtualImediato,
     trocarPainel,
     criarPainel,
     aplicandoConfigRef,

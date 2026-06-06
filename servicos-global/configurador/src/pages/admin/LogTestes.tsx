@@ -9,7 +9,7 @@ import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
 import { ModalExecutarTestes } from './ModalTestesExecutar'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { adminTestesApi, adminAgendamentosTesteApi, apiFetch, type TesteApi } from '../../services/api-client'
+import { adminTestesApi, adminAgendamentosTesteApi, apiFetchBlob, type TesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
 
 
@@ -41,56 +41,102 @@ interface LogTeste {
   aiRejected?: boolean
   successLog?: string
   emtPrints?: string[]
+  emtPasta?: string
 }
 
-function EmtPrintImagem({ logId, arquivo }: { logId: string; arquivo: string }) {
-  const [src, setSrc] = useState<string | null>(null)
-  const [erro, setErro] = useState(false)
+const EMT_PRINT_API_TIMEOUT_MS = 5_000
+
+/** Extrai pasta relativa do monorepo a partir do success_log (linha "Pasta: ..."). */
+function extrairEmtPastaRelativa(texto?: string | null): string | undefined {
+  if (!texto) return undefined
+  const normalizado = texto.replace(/\\/g, '/')
+  const idx = normalizado.indexOf('testes/testes-em-tela/')
+  if (idx < 0) return undefined
+  const trecho = normalizado.slice(idx).split(/\s/)[0]?.replace(/\/+$/, '')
+  if (!trecho?.includes('/resultado-teste/')) return undefined
+  return trecho
+}
+
+function resolverEmtPastaItem(item: Pick<LogTeste, 'emtPasta' | 'successLog' | 'erroLog'>): string | undefined {
+  return item.emtPasta
+    ?? extrairEmtPastaRelativa(item.successLog)
+    ?? extrairEmtPastaRelativa(item.erroLog)
+}
+
+function urlDevPrintEmt(emtPasta: string, arquivo: string): string {
+  return `/dev-emt-artifacts/${emtPasta}/${encodeURIComponent(arquivo)}`
+}
+
+type ModoPrintEmt = 'dev' | 'api' | 'erro'
+
+function EmtPrintImagem({ logId, arquivo, emtPasta }: { logId: string; arquivo: string; emtPasta?: string }) {
+  const [modo, setModo] = useState<ModoPrintEmt>(emtPasta ? 'dev' : 'api')
+  const [apiSrc, setApiSrc] = useState<string | null>(null)
 
   useEffect(() => {
+    setModo(emtPasta ? 'dev' : 'api')
+    setApiSrc(null)
+  }, [logId, arquivo, emtPasta])
+
+  useEffect(() => {
+    if (modo !== 'api') return
+
     let cancelado = false
     let objectUrl: string | null = null
-    setErro(false)
-    setSrc(null)
+    const url = `/api/v1/admin/testes/emt-print/${encodeURIComponent(logId)}/${encodeURIComponent(arquivo)}`
 
-    apiFetch(`/api/v1/admin/testes/emt-print/${encodeURIComponent(logId)}/${encodeURIComponent(arquivo)}`)
+    apiFetchBlob(url, { signal: AbortSignal.timeout(EMT_PRINT_API_TIMEOUT_MS) })
       .then(res => {
         if (!res.ok) throw new Error(String(res.status))
         return res.blob()
       })
       .then(blob => {
         if (cancelado) return
+        if (blob.size === 0) throw new Error('empty blob')
         objectUrl = URL.createObjectURL(blob)
-        setSrc(objectUrl)
+        setApiSrc(objectUrl)
       })
-      .catch(() => { if (!cancelado) setErro(true) })
+      .catch(() => { if (!cancelado) setModo('erro') })
 
     return () => {
       cancelado = true
       if (objectUrl) URL.revokeObjectURL(objectUrl)
     }
-  }, [logId, arquivo])
+  }, [modo, logId, arquivo])
 
-  if (erro) {
+  if (modo === 'erro') {
     return (
       <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.75rem', textAlign: 'center' }}>
         Print indisponível
       </div>
     )
   }
-  if (!src) {
+
+  if (modo === 'dev' && emtPasta) {
     return (
-      <div style={{ padding: '2rem', display: 'flex', justifyContent: 'center' }}>
-        <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Carregando print…</span>
-      </div>
+      <img
+        src={urlDevPrintEmt(emtPasta, arquivo)}
+        alt={arquivo}
+        style={{ width: '100%', display: 'block', borderRadius: '6px' }}
+        onError={() => setModo('api')}
+      />
     )
   }
+
+  if (apiSrc) {
+    return (
+      <img
+        src={apiSrc}
+        alt={arquivo}
+        style={{ width: '100%', display: 'block', borderRadius: '6px' }}
+      />
+    )
+  }
+
   return (
-    <img
-      src={src}
-      alt={arquivo}
-      style={{ width: '100%', display: 'block', borderRadius: '6px' }}
-    />
+    <div style={{ padding: '2rem', display: 'flex', justifyContent: 'center' }}>
+      <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Carregando print…</span>
+    </div>
   )
 }
 
@@ -107,6 +153,7 @@ function PainelEmtExpandido({ item }: { item: LogTeste }) {
     : printsLog
 
   const aprovado = item.resultado === 'APROVADO'
+  const emtPastaResolvida = resolverEmtPastaItem(item)
 
   return (
     <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -168,7 +215,7 @@ function PainelEmtExpandido({ item }: { item: LogTeste }) {
                 <div style={{ padding: '0.4rem 0.65rem', fontSize: '0.68rem', fontWeight: 700, color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                   {arquivo}
                 </div>
-                <EmtPrintImagem logId={item.id} arquivo={arquivo} />
+                <EmtPrintImagem logId={item.id} arquivo={arquivo} emtPasta={emtPastaResolvida} />
               </div>
             ))}
           </div>
@@ -194,6 +241,7 @@ function mapTestesToLocal(log: TesteApi): LogTeste {
     erroLog: log.error_log ?? undefined,
     successLog: log.success_log ?? undefined,
     emtPrints: Array.isArray(log.emt_prints) ? log.emt_prints : undefined,
+    emtPasta: typeof log.emt_pasta === 'string' && log.emt_pasta.length > 0 ? log.emt_pasta : undefined,
     aiAnalise: log.ai_analysis ? {
       erroResumo: (log.ai_analysis as Record<string, string>).erroResumo ?? '',
       motivo: (log.ai_analysis as Record<string, string>).motivo ?? '',
@@ -270,13 +318,23 @@ export function LogTestes() {
     let stopped = false
 
     async function handleCompletion() {
-      const novosLogs = await loadLogs()
-      const destaRun = novosLogs.filter(d => !baselineIdsRef.current.has(d.id))
+      // Runner EMT detached pode gravar alguns segundos após o marker sumir — tenta de novo.
+      let novosLogs: LogTeste[] = []
+      let destaRun: LogTeste[] = []
+      for (let tentativa = 0; tentativa < 10; tentativa++) {
+        novosLogs = await loadLogs()
+        destaRun = novosLogs.filter(d => !baselineIdsRef.current.has(d.id))
+        if (destaRun.length > 0) break
+        if (tentativa < 9) await new Promise(r => setTimeout(r, 1500))
+      }
 
       if (destaRun.length === 0) {
         addNotification({
           type: 'warning',
-          message: 'Execução encerrou sem gravar linhas novas no histórico. Confira o filtro de tipos (EMT) e os planos selecionados.',
+          message:
+            'Execução encerrou sem gravar linhas novas no histórico. '
+            + 'Causa comum: cfg-back reiniciou (tsx watch) durante o run. '
+            + 'Aguarde ~2 min e rode de novo sem reiniciar serviços.',
         })
         addAviso({
           conteudo: 'Execução de testes encerrou sem novas entradas no histórico. Clique para revisar a tela.',

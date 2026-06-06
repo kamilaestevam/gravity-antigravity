@@ -26,16 +26,22 @@ import { fileURLToPath } from 'node:url'
 const PORTAS_DEV = [
   3001,  // Plataforma (ORG)
   8000,  // Configurador front (Vite)
-  8001,  // fallback Vite se 8000 ocupada
+  8001,  // fallback Vite / Marketplace
   8002,
   8003,
   8005,  // Configurador back
   8016,  // API-Cockpit
+  8017,  // Conector ERP
   8020,  // Simula-Custo
   8023,  // BID Frete Internacional
+  8025,  // BID Câmbio
   8026,  // Processo
+  8027,  // LPCO
+  8028,  // NF Importação
+  8029,  // Financeiro COMEX
   8030,  // Pedido
   8031,  // Cadastros
+  8032,  // Taxas Moeda (BCB)
 ] as const
 
 const __dirname = dirname(fileURLToPath(import.meta.url))

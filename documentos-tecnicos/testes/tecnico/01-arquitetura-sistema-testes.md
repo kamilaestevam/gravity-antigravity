@@ -222,6 +222,23 @@ Persiste tudo em data/test-logs/AAAA-MM-DD.json
 Frontend faz polling de /admin/test-logs → atualiza tabela
 ```
 
+### 2b. Execução EMT (teste em tela)
+
+```
+POST /admin/testes/disparar { planos: [TST-EMT-...], ambiente }
+  ↓
+Runner filho detached (EMT_RUN_ID = runId)
+  ↓
+npx tsx run-*.ts → grava em resultado-teste/<runId>/*.png + RESULTADO.txt
+  ↓
+coletarArtefatosEmt(script, runId) → emt_pasta + emt_prints só dessa subpasta
+  ↓
+Persiste em data/test-logs/AAAA-MM-DD.json (campo emt_pasta obrigatório)
+```
+
+**Organização:** `documentos-tecnicos/testes/regras/07-organizacao-plano-resultado-por-escopo.md`  
+**Anti-padrão:** pasta `YYYY-MM-DD-*` compartilhada na raiz do escopo — mistura prints entre runs.
+
 ### 3. Triagem (humano)
 ```
 Humano abre LogTestes → vê 28 aprovados, 306 reprovados

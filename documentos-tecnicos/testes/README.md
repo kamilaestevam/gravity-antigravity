@@ -26,7 +26,8 @@ documentos-tecnicos/testes/
     ├── 03-mapeamento-testids.md                   ← Single source of truth UI ↔ teste
     ├── 04-fluxo-criacao-tela-nova.md              ← Ordem obrigatória pra tela nova
     ├── 05-revisao-humana.md                       ← Quando humano valida vs IA aplica
-    └── 06-custo-e-circuit-breakers.md             ← Limites de token, retry, fallback
+    ├── 06-custo-e-circuit-breakers.md             ← Limites de token, retry, fallback
+    └── 07-organizacao-plano-resultado-por-escopo.md ← plano-teste/ + resultado-teste/ por feature
 ```
 
 ---
@@ -37,6 +38,7 @@ documentos-tecnicos/testes/
 |---|---|
 | Entender o sistema todo | [tecnico/01-arquitetura-sistema-testes.md](tecnico/01-arquitetura-sistema-testes.md) |
 | Criar um teste novo | [regras/01-convencao-ids.md](regras/01-convencao-ids.md) + [regras/02-cobertura-obrigatoria.md](regras/02-cobertura-obrigatoria.md) |
+| Onde guardar plano e prints | [regras/07-organizacao-plano-resultado-por-escopo.md](regras/07-organizacao-plano-resultado-por-escopo.md) |
 | Adicionar uma tela nova | [regras/04-fluxo-criacao-tela-nova.md](regras/04-fluxo-criacao-tela-nova.md) |
 | Entender por que a IA sugeriu X | [tecnico/03-integracao-gemini.md](tecnico/03-integracao-gemini.md) |
 | Configurar o cron diário | [tecnico/04-cron-externo.md](tecnico/04-cron-externo.md) |

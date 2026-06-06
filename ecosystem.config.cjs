@@ -1,6 +1,6 @@
 // ecosystem.config.cjs — PM2 local dev orchestration for Gravity
 //
-// 14 processos independentes via PM2 (substitui concurrently -k):
+// 15 processos independentes via PM2 (substitui concurrently -k):
 //   - cada serviço reinicia sozinho sem derrubar os outros
 //   - PORT explícito em cada entry evita conflito de herança de variável
 //   - backoff exponencial evita loops de crash em falha de banco
@@ -9,7 +9,8 @@
 // com windowsHide: true para evitar dezenas de janelas de terminal visíveis.
 //
 // Uso:
-//   npx pm2 start ecosystem.config.cjs   — inicia todos os 14 serviços
+//   npx pm2 start ecosystem.config.cjs   — inicia todos os 15 serviços
+//   npm run servidores                   — diagnóstico + sobe os que estiverem fora
 //   npx pm2 stop ecosystem.config.cjs     — para todos
 //   npx pm2 restart ecosystem.config.cjs  — reinicia todos
 //   npx pm2 status                        — lista status + restarts
@@ -79,6 +80,7 @@ module.exports = {
     // ── Serviços de plataforma independentes ─────────────────────────────────
     svc('cockpit', 'servicos-global/servicos-plataforma/api-cockpit', 8016, ENV_PLATAFORMA, 'server/src/index.ts'),
     svc('conector-erp', 'servicos-global/servicos-plataforma/conector-erp', 8017, ENV_PLATAFORMA, 'server/index.ts'),
+    svc('taxas-moeda', 'servicos-global/servicos-plataforma/taxas-moeda', 8032, ENV_PLATAFORMA, 'server/src/index.ts'),
 
     // ── Produtos ─────────────────────────────────────────────────────────────
     svc('sc-back', 'servicos-global/produto/simula-custo', 8020, ENV_PLATAFORMA, 'server/src/index.ts'),

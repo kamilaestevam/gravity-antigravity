@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs'
-import { join, resolve, dirname } from 'path'
+import { join, resolve, dirname, relative } from 'path'
 
 const monorepoRoot = resolve(process.cwd(), '..', '..')
 
@@ -16,7 +16,27 @@ function pastaRelativa(abs: string): string {
   return abs.replace(/\\/g, '/').replace(`${monorepoRoot.replace(/\\/g, '/')}/`, '')
 }
 
-/** Localiza a pasta EMT mais próxima do instante do run (RESULTADO.txt ou .png recentes). */
+function resolverFeatureRootDoScript(scriptRel: string): string {
+  const scriptDir = dirname(resolve(monorepoRoot, scriptRel))
+  const nome = scriptDir.replace(/\\/g, '/').split('/').pop() ?? ''
+  if (nome === 'plano-teste' || nome === 'plano-de-teste') {
+    return dirname(scriptDir)
+  }
+  return scriptDir
+}
+
+/** Pasta isolada por run: resultado-teste/<runId>/ */
+export function resolverPastaEmtPorRunId(scriptRel: string, runId: string): string | null {
+  try {
+    const featureRoot = resolverFeatureRootDoScript(scriptRel)
+    const pasta = join(featureRoot, 'resultado-teste', runId)
+    return existsSync(pasta) ? pasta : null
+  } catch {
+    return null
+  }
+}
+
+/** @deprecated Legado — pasta datada compartilhada. Preferir resultado-teste/<runId>. */
 export function resolverPastaEmtRecente(
   scriptRel: string,
   startedAtMs: number,
@@ -28,6 +48,7 @@ export function resolverPastaEmtRecente(
     let melhor: { path: string; mtime: number } | null = null
 
     for (const sub of subpastas) {
+      if (sub.name === 'plano-teste' || sub.name === 'resultado-teste') continue
       const dirPath = join(scriptDir, sub.name)
       const candidatos = ['RESULTADO.txt', '01-pos-login.png', '02-config-status-inicial.png']
       for (const nome of candidatos) {
@@ -45,12 +66,44 @@ export function resolverPastaEmtRecente(
   }
 }
 
+function listarPrintsDaPasta(pastaAbs: string, aprovado: boolean): string[] {
+  return readdirSync(pastaAbs)
+    .filter(f => f.endsWith('.png'))
+    .filter(f => (aprovado ? f !== '99-erro.png' : true))
+    .sort()
+}
+
+function artefatosDaPasta(pastaAbs: string, code: number, stdout: string): EmtRunArtifacts {
+  const aprovado = code === 0
+  const prints = listarPrintsDaPasta(pastaAbs, aprovado)
+
+  let success_log: string | null = null
+  const resultPath = join(pastaAbs, 'RESULTADO.txt')
+  if (existsSync(resultPath)) {
+    success_log = readFileSync(resultPath, 'utf-8').slice(0, 12_000)
+  } else if (aprovado) {
+    success_log = extrairLogSucessoDoStdout(stdout)
+  }
+
+  return {
+    emt_pasta: pastaRelativa(pastaAbs),
+    emt_prints: prints,
+    success_log,
+  }
+}
+
 export function coletarArtefatosEmt(
   scriptRel: string,
   startedAtMs: number,
   code: number,
   stdout: string,
+  runId?: string,
 ): EmtRunArtifacts {
+  if (runId) {
+    const pastaRun = resolverPastaEmtPorRunId(scriptRel, runId)
+    if (pastaRun) return artefatosDaPasta(pastaRun, code, stdout)
+  }
+
   const pastaAbs = resolverPastaEmtRecente(scriptRel, startedAtMs)
   if (!pastaAbs) {
     return {
@@ -60,23 +113,7 @@ export function coletarArtefatosEmt(
     }
   }
 
-  const prints = readdirSync(pastaAbs)
-    .filter(f => f.endsWith('.png'))
-    .sort()
-
-  let success_log: string | null = null
-  const resultPath = join(pastaAbs, 'RESULTADO.txt')
-  if (existsSync(resultPath)) {
-    success_log = readFileSync(resultPath, 'utf-8').slice(0, 12_000)
-  } else if (code === 0) {
-    success_log = extrairLogSucessoDoStdout(stdout)
-  }
-
-  return {
-    emt_pasta: pastaRelativa(pastaAbs),
-    emt_prints: prints,
-    success_log,
-  }
+  return artefatosDaPasta(pastaAbs, code, stdout)
 }
 
 function extrairLogSucessoDoStdout(stdout: string): string | null {
@@ -93,6 +130,23 @@ export function enrichirLogEmt(
   specFile: string | null,
 ): Record<string, unknown> {
   if (entry.type !== 'EMT' || !specFile) return entry
+
+  const emtPastaSalva = typeof entry.emt_pasta === 'string' && entry.emt_pasta.length > 0
+    ? entry.emt_pasta
+    : null
+
+  if (emtPastaSalva) {
+    const pastaAbs = resolve(monorepoRoot, emtPastaSalva)
+    if (existsSync(pastaAbs)) {
+      const code = entry.result === 'APROVADO' ? 0 : 1
+      const artefatos = artefatosDaPasta(pastaAbs, code, '')
+      return {
+        ...entry,
+        emt_prints: artefatos.emt_prints,
+        success_log: entry.success_log ?? artefatos.success_log,
+      }
+    }
+  }
 
   const temPrints = Array.isArray(entry.emt_prints) && (entry.emt_prints as unknown[]).length > 0
   const temLog = typeof entry.success_log === 'string' && entry.success_log.length > 0
@@ -119,9 +173,10 @@ export function resolverCaminhoPrintSeguro(
   if (!nomeArquivo.endsWith('.png')) return null
   if (!emtPastaRel.startsWith('testes/testes-em-tela/')) return null
 
-  const abs = resolve(monorepoRoot, emtPastaRel, nomeArquivo)
   const pastaAbs = resolve(monorepoRoot, emtPastaRel)
-  if (!abs.startsWith(pastaAbs)) return null
+  const abs = resolve(pastaAbs, nomeArquivo)
+  const rel = relative(pastaAbs, abs)
+  if (!rel || rel.startsWith('..') || rel.includes('..')) return null
   if (!existsSync(abs)) return null
   return abs
 }

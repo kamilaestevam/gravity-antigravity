@@ -125,6 +125,23 @@ export async function apiFetch(url: string, options: RequestInit = {}): Promise<
   })
 }
 
+/** fetch autenticado sem Content-Type fixo — para blob/imagem/arquivo binário */
+export async function apiFetchBlob(url: string, options: RequestInit = {}): Promise<Response> {
+  const { headers: extraHeaders, ...restOptions } = options
+  const authHeaders: Record<string, string> = {}
+  const token = await getAuthToken()
+  if (token) authHeaders['Authorization'] = `Bearer ${token}`
+
+  return fetch(url, {
+    headers: {
+      ...authHeaders,
+      ...injetarHeaderOverride(),
+      ...(extraHeaders as Record<string, string>),
+    },
+    ...restOptions,
+  })
+}
+
 // ─── Tipos de resposta ──────────────────────────────────────────────────────
 
 export interface ProductApi {
@@ -950,6 +967,7 @@ export interface PlanoTesteApi {
   sublocal: string           // sublocal_plano_teste
   modulo?: string
   tela?: string
+  rota?: string
   criticidade?: string       // criticidade_plano_teste
   planoFile?: string
   specFile?: string
@@ -1031,11 +1049,44 @@ export const adminAgendamentosTesteApi = {
 
 // ─── Admin: Planos de Teste (model TestePlano) ──────────────────────────────
 
+export interface CasoPlanoTesteApi {
+  ordem: string
+  titulo: string
+  detalhe: string
+  secao?: string
+}
+
+export interface AmbienteExecucaoApi {
+  ambiente: 'Local' | 'Staging' | 'Producao'
+  rotulo: string
+  uiUrl: string
+  apiUrl: string
+  nota: string
+}
+
 export const adminPlanosTesteApi = {
   /** GET /api/v1/admin/planos-teste?escopo=X */
   async listar(escopo?: string) {
     const qs = escopo ? `?escopo=${encodeURIComponent(escopo)}` : ''
     return request<{ planos: PlanoTesteApi[] }>(`/v1/admin/planos-teste${qs}`)
+  },
+  /** PATCH /api/v1/admin/planos-teste/:id — renomeia id e/ou titulo no registry */
+  async atualizar(id_plano_teste: string, data: { id?: string; titulo?: string }) {
+    return request<{ plano: PlanoTesteApi; id_anterior: string }>(
+      `/v1/admin/planos-teste/${encodeURIComponent(id_plano_teste)}`,
+      { method: 'PATCH', body: JSON.stringify(data) },
+    )
+  },
+  /** GET /api/v1/admin/planos-teste/:id/casos — prints/passos do plano */
+  async casos(id_plano_teste: string, ambiente?: 'Local' | 'Staging' | 'Producao') {
+    const qs = ambiente ? `?ambiente=${encodeURIComponent(ambiente)}` : ''
+    return request<{
+      plano: PlanoTesteApi
+      casos: CasoPlanoTesteApi[]
+      total: number
+      planoFile: string
+      ambienteExecucao: AmbienteExecucaoApi
+    }>(`/v1/admin/planos-teste/${encodeURIComponent(id_plano_teste)}/casos${qs}`)
   },
   /** POST /api/v1/admin/planos-teste/gerar */
   async gerar(data: {

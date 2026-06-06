@@ -22,9 +22,10 @@ import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { Play, CheckSquare, Square, Flask, Funnel } from '@phosphor-icons/react'
+import { Play, CheckSquare, Square, Flask, Funnel, ListMagnifyingGlass, PencilSimple, Check, X } from '@phosphor-icons/react'
 import { adminPlanosTesteApi, adminTestesApi, type PlanoTesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
+import { ModalDetalhePlanoTeste } from './ModalDetalhePlanoTeste'
 
 export interface ModalExecutarTestesProps {
   aberto: boolean
@@ -89,6 +90,11 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   const [planosSelecionados, setPlanosSelecionados] = useState<Set<string>>(new Set())
   const [carregandoPlanos, setCarregandoPlanos] = useState(false)
   const [rodando, setRodando] = useState(false)
+  const [planoDetalhe, setPlanoDetalhe] = useState<PlanoTesteApi | null>(null)
+  const [editandoPlanoId, setEditandoPlanoId] = useState<string | null>(null)
+  const [rascunhoNomePlano, setRascunhoNomePlano] = useState('')
+  const [rascunhoTituloPlano, setRascunhoTituloPlano] = useState('')
+  const [salvandoPlano, setSalvandoPlano] = useState(false)
 
   // Carrega planos quando o produto muda (ou quando o modal abre)
   useEffect(() => {
@@ -120,6 +126,68 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
       else next.add(id)
       return next
     })
+  }
+
+  function iniciarEdicaoPlano(plano: PlanoTesteApi) {
+    setEditandoPlanoId(plano.id)
+    setRascunhoNomePlano(plano.id)
+    setRascunhoTituloPlano(plano.tela ?? plano.modulo ?? '')
+  }
+
+  function cancelarEdicaoPlano() {
+    setEditandoPlanoId(null)
+    setRascunhoNomePlano('')
+    setRascunhoTituloPlano('')
+  }
+
+  async function salvarEdicaoPlano(idAtual: string) {
+    const nome = rascunhoNomePlano.trim()
+    const titulo = rascunhoTituloPlano.trim()
+    if (!nome || !titulo) {
+      setErroExecucao('Nome do plano (ID) e título são obrigatórios.')
+      return
+    }
+    if (!/^TST-[A-Z0-9][A-Z0-9-]*$/.test(nome)) {
+      setErroExecucao('ID inválido — use o padrão TST-… (maiúsculas, hífens).')
+      return
+    }
+
+    const planoAtual = planosDisponiveis.find(p => p.id === idAtual)
+    const tituloAtual = planoAtual?.tela ?? planoAtual?.modulo ?? ''
+    const payload: { id?: string; titulo?: string } = {}
+    if (nome !== idAtual) payload.id = nome
+    if (titulo !== tituloAtual) payload.titulo = titulo
+    if (Object.keys(payload).length === 0) {
+      cancelarEdicaoPlano()
+      return
+    }
+
+    setSalvandoPlano(true)
+    setErroExecucao(null)
+    try {
+      const res = await adminPlanosTesteApi.atualizar(idAtual, payload)
+      const atualizado = res.plano as PlanoTesteApi
+      setPlanosDisponiveis(prev => prev.map(p => (p.id === idAtual ? { ...p, ...atualizado } : p)))
+      if (payload.id && planosSelecionados.has(idAtual)) {
+        setPlanosSelecionados(prev => {
+          const next = new Set(prev)
+          next.delete(idAtual)
+          next.add(atualizado.id)
+          return next
+        })
+      }
+      if (planoDetalhe?.id === idAtual) {
+        setPlanoDetalhe({ ...planoDetalhe, ...atualizado })
+      }
+      cancelarEdicaoPlano()
+      addNotification({ type: 'success', message: 'Plano de teste atualizado no registry' })
+    } catch (err) {
+      const mensagem = err instanceof Error ? err.message : 'Erro ao salvar plano'
+      setErroExecucao(mensagem)
+      addNotification({ type: 'error', message: mensagem })
+    } finally {
+      setSalvandoPlano(false)
+    }
   }
 
   function toggleTipo(tipo: TipoTeste) {
@@ -272,45 +340,149 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, minHeight: 0, overflowY: 'auto' }}>
                 {planosFiltrados.map(plano => {
                   const selecionado = planosSelecionados.has(plano.id)
+                  const badgeTipo = plano.tipo === 'EMT'
+                    ? { bg: 'rgba(245, 158, 11, 0.15)', cor: '#fcd34d', borda: 'rgba(245, 158, 11, 0.35)' }
+                    : plano.tipo === 'E2E'
+                      ? { bg: 'rgba(99, 102, 241, 0.15)', cor: '#a5b4fc', borda: 'rgba(99, 102, 241, 0.35)' }
+                      : { bg: 'rgba(167, 139, 250, 0.15)', cor: '#c4b5fd', borda: 'rgba(167, 139, 250, 0.3)' }
                   return (
                     <div
                       key={plano.id}
-                      onClick={() => togglePlano(plano.id)}
                       style={{
                         display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
-                        padding: '0.875rem 1rem', borderRadius: '10px', cursor: 'pointer',
+                        padding: '0.875rem 1rem', borderRadius: '10px',
                         background: selecionado ? 'rgba(99, 102, 241, 0.08)' : 'rgba(15, 23, 42, 0.3)',
                         border: `1px solid ${selecionado ? 'rgba(99, 102, 241, 0.35)' : 'rgba(255,255,255,0.06)'}`,
                         transition: 'all 0.15s',
                       }}
                     >
-                      <div style={{ marginTop: '1px', flexShrink: 0, color: selecionado ? '#818cf8' : '#475569' }}>
+                      <button
+                        type="button"
+                        onClick={() => togglePlano(plano.id)}
+                        title={selecionado ? 'Desmarcar plano' : 'Marcar plano'}
+                        style={{
+                          marginTop: '1px', flexShrink: 0, background: 'none', border: 'none', padding: 0,
+                          color: selecionado ? '#818cf8' : '#475569', cursor: 'pointer',
+                        }}
+                      >
                         {selecionado
                           ? <CheckSquare size={18} weight="fill" />
                           : <Square size={18} />
                         }
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      </button>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'wrap' }}>
                           <span style={{
                             fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.06em',
-                            padding: '2px 5px', borderRadius: '3px',
-                            background: 'rgba(167, 139, 250, 0.15)', color: '#c4b5fd',
-                            border: '1px solid rgba(167, 139, 250, 0.3)',
+                            padding: '2px 5px', borderRadius: '3px', marginTop: editandoPlanoId === plano.id ? 6 : 0,
+                            background: badgeTipo.bg, color: badgeTipo.cor,
+                            border: `1px solid ${badgeTipo.borda}`,
                           }}>
                             {plano.tipo}
                           </span>
-                          <span style={{
-                            fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.06em',
-                            padding: '2px 6px', borderRadius: '4px',
-                            background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8',
-                            border: '1px solid rgba(99, 102, 241, 0.25)',
-                          }}>
-                            {plano.id}
-                          </span>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>
-                            {plano.tela ?? plano.modulo ?? plano.sublocal}
-                          </span>
+                          {editandoPlanoId === plano.id ? (
+                            <div
+                              style={{ flex: 1, minWidth: 220, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
+                              onClick={e => e.stopPropagation()}
+                            >
+                              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' }}>
+                                  Nome do teste (ID)
+                                </span>
+                                <input
+                                  value={rascunhoNomePlano}
+                                  onChange={e => setRascunhoNomePlano(e.target.value)}
+                                  disabled={salvandoPlano}
+                                  style={{
+                                    width: '100%', padding: '0.5rem 0.65rem', borderRadius: '6px',
+                                    background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(99,102,241,0.35)',
+                                    color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace',
+                                  }}
+                                />
+                              </label>
+                              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' }}>
+                                  Título
+                                </span>
+                                <input
+                                  value={rascunhoTituloPlano}
+                                  onChange={e => setRascunhoTituloPlano(e.target.value)}
+                                  disabled={salvandoPlano}
+                                  style={{
+                                    width: '100%', padding: '0.5rem 0.65rem', borderRadius: '6px',
+                                    background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(99,102,241,0.35)',
+                                    color: '#f1f5f9', fontSize: '0.85rem',
+                                  }}
+                                />
+                              </label>
+                              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <button
+                                  type="button"
+                                  disabled={salvandoPlano}
+                                  onClick={() => salvarEdicaoPlano(plano.id)}
+                                  style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                                    padding: '0.35rem 0.75rem', borderRadius: '6px', border: 'none',
+                                    background: '#10b981', color: '#fff', fontSize: '0.75rem', fontWeight: 700,
+                                    cursor: salvandoPlano ? 'not-allowed' : 'pointer',
+                                  }}
+                                >
+                                  <Check size={14} weight="bold" />
+                                  {salvandoPlano ? 'Salvando…' : 'Salvar'}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={salvandoPlano}
+                                  onClick={cancelarEdicaoPlano}
+                                  style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                                    padding: '0.35rem 0.75rem', borderRadius: '6px',
+                                    background: 'transparent', color: '#94a3b8',
+                                    border: '1px solid rgba(255,255,255,0.15)', fontSize: '0.75rem', fontWeight: 600,
+                                    cursor: salvandoPlano ? 'not-allowed' : 'pointer',
+                                  }}
+                                >
+                                  <X size={14} weight="bold" />
+                                  Cancelar
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => setPlanoDetalhe(plano)}
+                                title="Ver todos os casos deste plano"
+                                style={{
+                                  fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.06em',
+                                  padding: '2px 6px', borderRadius: '4px',
+                                  background: 'rgba(99, 102, 241, 0.15)', color: '#a5b4fc',
+                                  border: '1px solid rgba(99, 102, 241, 0.35)',
+                                  cursor: 'pointer', textDecoration: 'underline',
+                                  textUnderlineOffset: '2px',
+                                }}
+                              >
+                                {plano.id}
+                              </button>
+                              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#f1f5f9' }}>
+                                {plano.tela ?? plano.modulo ?? plano.sublocal}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => iniciarEdicaoPlano(plano)}
+                                title="Editar nome e título do plano"
+                                style={{
+                                  marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                                  padding: '0.25rem 0.5rem', borderRadius: '6px', border: 'none',
+                                  background: 'rgba(99, 102, 241, 0.12)', color: '#a5b4fc',
+                                  fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer',
+                                }}
+                              >
+                                <PencilSimple size={13} weight="bold" />
+                                Editar
+                              </button>
+                            </>
+                          )}
                         </div>
                         <p style={{ margin: '0.25rem 0 0', fontSize: '0.775rem', color: '#64748b', lineHeight: 1.4 }}>
                           {plano.sublocal}
@@ -318,6 +490,19 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
                           {typeof plano.passosTotal === 'number' && ` · ${plano.passosTotal} passos`}
                           {typeof plano.casosTotal === 'number' && ` · ${plano.casosTotal} casos`}
                         </p>
+                        <button
+                          type="button"
+                          onClick={() => setPlanoDetalhe(plano)}
+                          style={{
+                            marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                            background: 'none', border: 'none', padding: 0,
+                            color: '#818cf8', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                          }}
+                        >
+                          <ListMagnifyingGlass size={14} weight="bold" />
+                          Ver o que será testado
+                          {typeof plano.casosTotal === 'number' && ` (${plano.casosTotal} casos)`}
+                        </button>
                       </div>
                     </div>
                   )
@@ -381,17 +566,26 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   ]
 
   return (
-    <ModalFormularioAbasGlobal
-      aberto={aberto}
-      aoFechar={aoFechar}
-      aoSalvar={() => { /* no-op — aba é de ação, botão próprio */ }}
-      icone={<Play weight="fill" size={24} color="#10b981" />}
-      titulo="Rodar Testes"
-      subtitulo="Selecione o produto, o ambiente e os planos de teste a serem executados"
-      tamanho="lg"
-      altura="720px"
-      abas={abas}
-      semAbas={true}
-    />
+    <>
+      <ModalFormularioAbasGlobal
+        aberto={aberto}
+        aoFechar={aoFechar}
+        aoSalvar={() => { /* no-op — aba é de ação, botão próprio */ }}
+        icone={<Play weight="fill" size={24} color="#10b981" />}
+        titulo="Rodar Testes"
+        subtitulo="Selecione o produto, o ambiente e os planos de teste a serem executados"
+        tamanho="lg"
+        altura="720px"
+        abas={abas}
+        semAbas={true}
+      />
+
+      <ModalDetalhePlanoTeste
+        aberto={planoDetalhe !== null}
+        plano={planoDetalhe}
+        ambiente={dadosManual.ambiente as 'Local' | 'Staging' | 'Producao'}
+        aoFechar={() => setPlanoDetalhe(null)}
+      />
+    </>
   )
 }

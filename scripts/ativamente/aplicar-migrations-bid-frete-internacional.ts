@@ -10,6 +10,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { Client } from 'pg'
+import { repararTabelaGanhoBidFreteInternacional } from './lib/reparo-ganho-bid-frete-internacional.js'
 
 const REPO_ROOT = resolve(import.meta.dirname, '../..')
 const BID_DIR = join(REPO_ROOT, 'servicos-global/produto/bid-frete-internacional')
@@ -188,6 +189,7 @@ async function bootstrapSchemaVazio(databaseUrl: string, client: Client): Promis
 const COLUNAS_CANONICAS_MINIMAS: Array<{ tabela: string; coluna: string }> = [
   { tabela: 'cotacao_bid_frete_internacional', coluna: 'id_cotacao_bid_frete_internacional' },
   { tabela: 'ganho_bid_frete_internacional', coluna: 'id_ganho_bid_frete_internacional' },
+  { tabela: 'ganho_bid_frete_internacional', coluna: 'valor_meta_ganho_bid_frete_internacional' },
   { tabela: 'proposta_bid_frete_internacional', coluna: 'id_proposta_bid_frete_internacional' },
 ]
 
@@ -296,6 +298,7 @@ async function main(): Promise<void> {
       await sincronizarSchemaComDbPushSeDrift(databaseUrl, client)
     }
 
+    await repararTabelaGanhoBidFreteInternacional(client)
     await verificarSchemaAposDeploy(client)
   } finally {
     await client.end()

@@ -2281,7 +2281,7 @@ export function VisaoGeralMapaBidFrete({
           </div>
           <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 400, letterSpacing: '0.015em', lineHeight: 1.5 }}>
             {mapaVazioApi
-              ? 'Nenhuma cotação com coordenadas no mapa ainda. Os disparos aparecem aqui quando origem e destino têm localização no Cadastros.'
+              ? 'Nenhuma cotação com coordenadas no mapa ainda.'
               : mapaModo === 'transit'
                 ? descricaoMapaTransit
                 : (descricaoBids ??

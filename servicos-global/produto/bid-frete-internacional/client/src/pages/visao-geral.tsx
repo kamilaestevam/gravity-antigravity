@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useShellStore } from '@gravity/shell'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import {
   MagnifyingGlass,
@@ -52,6 +53,10 @@ import {
   getDashboardKpis,
   getDashboardMapaCotacoesVisaoGeral,
 } from '../shared/api'
+import {
+  resolverIdsWorkspacesParaApi,
+  useEscopoWorkspacesBidFreteInternacional,
+} from '../shared/useEscopoWorkspacesBidFreteInternacional'
 import { MODAL_LABELS, CalendarioAlerta } from '../shared/types'
 import type { DashboardKPIs } from '../shared/types'
 import {
@@ -355,6 +360,14 @@ type KpisInsightsVisaoGeral = DashboardKPIs & {
 }
 
 export default function VisaoGeral() {
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+  const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
+    [idsWorkspacesEscopo, idWorkspaceAtivo],
+  )
+
   const [isDialogoCompletoOpen, setIsDialogoCompletoOpen] = useState(false)
   const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
   const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<CalendarioAlerta | (RouteDetail & { tipo: 'route' }) | null>(null)
@@ -370,9 +383,9 @@ export default function VisaoGeral() {
     setErroCarregamento(null)
     try {
       const [kpisData, alertasData, mapaData] = await Promise.all([
-        getDashboardKpis(),
-        getDashboardInsightsAlertas(),
-        getDashboardMapaCotacoesVisaoGeral(),
+        getDashboardKpis(idsWorkspacesFiltro),
+        getDashboardInsightsAlertas(idsWorkspacesFiltro),
+        getDashboardMapaCotacoesVisaoGeral(idsWorkspacesFiltro),
       ])
       setKpis(kpisData)
       setAlertas(alertasData)
@@ -388,11 +401,12 @@ export default function VisaoGeral() {
     } finally {
       setCarregando(false)
     }
-  }, [])
+  }, [idsWorkspacesFiltro])
 
   useEffect(() => {
+    if (!escopoHidratado) return
     void carregarInsights()
-  }, [carregarInsights])
+  }, [carregarInsights, escopoHidratado, idsWorkspacesEscopo])
 
   // Interactive exchange rate & spread states (DDD nomenclature, PT-BR without accents)
   const [cambioModo, setCambioModo] = useState<'hoje' | 'historico' | 'futuro'>('hoje')

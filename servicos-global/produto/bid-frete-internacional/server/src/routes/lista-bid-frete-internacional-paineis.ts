@@ -11,6 +11,7 @@ import {
   listaPainelConfigV1Schema,
   serializarConfigListaPainel,
 } from '../../../shared/listaPainelConfigSchema.js'
+import { NOME_PAINEL_META_ESCOPO_WORKSPACES_BID_FRETE } from '../../../shared/preferenciasEscopoWorkspacesBidFreteInternacional.js'
 
 export const listaPaineisBidFreteRouter = Router()
 
@@ -110,6 +111,10 @@ listaPaineisBidFreteRouter.get('/paineis', async (req: Request, res: Response, n
         where:   whereUsuarioProduto(idOrganizacao, idUsuario),
         orderBy: { ordem_lista_painel_usuario_global: 'asc' },
       })
+
+      paineis = (paineis as PainelDB[]).filter(
+        p => p.nome_lista_painel_usuario_global !== NOME_PAINEL_META_ESCOPO_WORKSPACES_BID_FRETE,
+      )
 
       if (paineis.length === 0) {
         const padrao = await db.listaPainelUsuarioGlobal.create({
@@ -243,7 +248,10 @@ listaPaineisBidFreteRouter.delete('/paineis/:id_lista_painel_usuario_global', as
       const { idOrganizacao, idUsuario } = ctx
       const { id_lista_painel_usuario_global: id } = req.params
       const total = await db.listaPainelUsuarioGlobal.count({
-        where: whereUsuarioProduto(idOrganizacao, idUsuario),
+        where: {
+          ...whereUsuarioProduto(idOrganizacao, idUsuario),
+          nome_lista_painel_usuario_global: { not: NOME_PAINEL_META_ESCOPO_WORKSPACES_BID_FRETE },
+        },
       })
       if (total <= 1) throw new AppError('Não é possível deletar o único painel', 400, 'VALIDATION_ERROR')
       const painel = await db.listaPainelUsuarioGlobal.findFirst({

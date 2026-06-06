@@ -32,6 +32,7 @@ import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { dashboardPaineisRouter } from './routes/dashboard-paineis.js'
 import { listaPaineisBidFreteRouter } from './routes/lista-bid-frete-internacional-paineis.js'
+import { preferenciaEscopoWorkspacesBidFreteRouter } from './routes/preferencia-escopo-workspaces-bid-frete-internacional.js'
 import { startCronJobs } from './services/tarefas-agendadas.js'
 import { rateLimitPresets } from '../../../../servicos-plataforma/middleware/rateLimiter.js'
 import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
@@ -78,7 +79,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin)
   }
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-id-organizacao, x-id-usuario, x-correlation-id')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-chave-interna-servico, x-id-organizacao, x-id-usuario, x-id-workspace, x-correlation-id')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
   if (_req.method === 'OPTIONS') return res.sendStatus(204)
   next()
@@ -151,6 +152,7 @@ app.use('/api/v1/bid-frete-internacional/dashboard', dashboardRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardWidgetsRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardPaineisRouter)
 app.use('/api/v1/bid-frete-internacional/lista', listaPaineisBidFreteRouter)
+app.use('/api/v1/bid-frete-internacional/config', preferenciaEscopoWorkspacesBidFreteRouter)
 
 // --- 10. SPA Fallback ---
 app.get('*', (_req: Request, res: Response) => {

@@ -80,8 +80,8 @@ Query avulsas: `GET /cotacoes?apenas_avulsas=true` (sem `id_bid`).
 - API: `GET|POST|PATCH|DELETE /api/v1/bid-frete-internacional/lista/paineis`
 - Contrato `config_json`: `shared/listaPainelConfigSchema.ts` (Zod `.strict()`)
 - UI: `BidFreteListaPainelBar` + `useListaPainelBidFrete` em `lista-bid-frete-internacional.tsx`
-- Escopo de filiais: **somente** seletor lateral (`modoWorkspace="multiplo"`) — painel não guarda `ids_workspaces_escopo` no MVP
-- Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md`
+- Escopo de filiais: seletor lateral `modoWorkspace="multiplo"` (paridade Pedido) — preferência em `GET/PUT /config/escopo-workspaces`; painel Lista **não** guarda `ids_workspaces_escopo`
+- Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`
 
 ---
 

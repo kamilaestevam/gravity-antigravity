@@ -5,7 +5,7 @@
  * sidebar com logo + nome do produto, workspace, navegação, título de página.
  */
 
-import React, { lazy, Suspense, useEffect, useMemo } from 'react'
+import React, { lazy, Suspense, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
@@ -28,7 +28,7 @@ import {
   Kanban,
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
-import { injectTenantGetter, injectUserGetter } from './shared/api'
+import { injectTenantGetter, injectUserGetter, injectWorkspaceGetter } from './shared/api'
 import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from './shared/rotas-bid-frete-internacional'
 import { resolverPageMetaTopo } from './shared/page-meta-topo'
 import { PaginaCarregandoBidFreteInternacional } from './shared/pagina-carregando-bid-frete-internacional'
@@ -36,6 +36,10 @@ import './shared/bid-frete-page-shell.css'
 import { BidFreteVisualizacaoLayout } from './components/BidFreteVisualizacaoLayout'
 import { BidFreteMultiView } from './components/BidFreteMultiView'
 import type { NavItem } from '@nucleo/tela-produto-global'
+import { bidFreteConfigApi, setApiContext } from './shared/api'
+import {
+  useEscopoWorkspacesBidFreteInternacional,
+} from './shared/useEscopoWorkspacesBidFreteInternacional'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 
@@ -61,6 +65,12 @@ const VisaoFornecedorResponderPublico = lazy(() => import('./pages/visao-fornece
 
 injectTenantGetter(() => useShellStore.getState().currentUser?.idOrganizacao)
 injectUserGetter(() => useShellStore.getState().currentUser?.id)
+injectWorkspaceGetter(() => {
+  const idStore = useShellStore.getState().idWorkspaceAtivo
+  if (idStore) return idStore
+  try { return sessionStorage.getItem('gravity_company_id') || undefined }
+  catch { return undefined }
+})
 
 const PRODUTO       = getProdutoMeta('bid-frete-internacional')
 const PRODUCT_ID    = 'bid-frete-internacional'
@@ -100,12 +110,6 @@ function mapNavItem(item: NavigationItem, t: (key: string) => string): NavItem {
   }
 }
 
-const DEMO_WORKSPACES = [
-  { id: 'ws-1',  name: 'Gravity Soluções',     plan: 'Pro' },
-  { id: 'ws-2',  name: 'Acme Importações',     plan: 'Enterprise' },
-  { id: 'ws-3',  name: 'Comex Express',        plan: 'Starter' },
-]
-
 const ECOSYSTEM_NODES: EcosystemNode[] = [
   { id: 'hub',          label: 'Hub',          sublabel: 'workspaces',     color: '#818cf8',     type: 'hub',          status: 'accessible' },
   { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f472b6',     type: 'configurador', status: 'accessible' },
@@ -140,6 +144,64 @@ export default function App() {
   const workspacesStore  = useShellStore(s => s.workspaces)
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
 
+  const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
+  const hidratadoEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
+  const hidratarEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.hidratar)
+  const aplicarPreferenciaBackend = useEscopoWorkspacesBidFreteInternacional(s => s.aplicarPreferenciaBackend)
+  const reiniciarHidratacaoEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.reiniciarHidratacao)
+  const alternarWorkspaceEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.alternarWorkspace)
+  const definirEscopoWorkspaces = useEscopoWorkspacesBidFreteInternacional(s => s.definirEscopo)
+  const sinalAbrirMenuWorkspaces = useEscopoWorkspacesBidFreteInternacional(s => s.sinalAbrirMenuWorkspaces)
+  const sessaoEscopoHidratadaRef = useRef<string | null>(null)
+  const qtdWorkspaces = workspacesStore.length
+
+  useEffect(() => {
+    if (currentUser.id) {
+      setApiContext({
+        idOrganizacao: currentUser.idOrganizacao ?? '',
+        userId: currentUser.id,
+        userName: currentUser.name ?? '',
+      })
+    }
+  }, [currentUser.id, currentUser.idOrganizacao, currentUser.name])
+
+  useEffect(() => {
+    if (qtdWorkspaces === 0 || !idWorkspaceAtivo || !currentUser?.idOrganizacao || !currentUser.id) return
+
+    const sessao = `${currentUser.idOrganizacao}:${currentUser.id}`
+    if (sessaoEscopoHidratadaRef.current === sessao) return
+
+    reiniciarHidratacaoEscopo()
+
+    const idsDisponiveis = workspacesStore.map(ws => ws.id)
+
+    // Default imediato — UI e APIs filtram antes do roundtrip backend (paridade Pedido)
+    hidratarEscopo(idsDisponiveis, idWorkspaceAtivo, null)
+    sessaoEscopoHidratadaRef.current = sessao
+
+    let cancelled = false
+    void bidFreteConfigApi.obterEscopoWorkspaces()
+      .then(res => {
+        if (cancelled) return
+        const idsSalvos = res.data?.ids_workspaces_escopo
+        if (idsSalvos !== undefined) {
+          aplicarPreferenciaBackend(idsDisponiveis, idWorkspaceAtivo, idsSalvos)
+        }
+      })
+      .catch(() => { /* mantém escopo local */ })
+
+    return () => { cancelled = true }
+  }, [
+    qtdWorkspaces,
+    idWorkspaceAtivo,
+    currentUser?.idOrganizacao,
+    currentUser?.id,
+    hidratarEscopo,
+    aplicarPreferenciaBackend,
+    reiniciarHidratacaoEscopo,
+    workspacesStore,
+  ])
+
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
   useEffect(() => {
@@ -170,9 +232,28 @@ export default function App() {
   const wsAtivo = workspacesStore.find(ws => ws.id === idWorkspaceAtivo)
   const nomeWorkspaceAtivo = wsAtivo?.nome_workspace ?? currentUser.nomeWorkspacePreferido ?? currentUser.nomeOrganizacao ?? 'Minha Empresa'
 
-  const workspacesSidebar = workspacesStore.length > 0
-    ? workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
-    : DEMO_WORKSPACES
+  const escopoWorkspaces = useMemo(() => {
+    if (!hidratadoEscopo || idsWorkspacesEscopo.length === 0) {
+      return { tenantName: nomeWorkspaceAtivo, tenantPlan: currentUser.nomeOrganizacao ?? '' }
+    }
+    const nomes = idsWorkspacesEscopo
+      .map(id => workspacesStore.find(ws => ws.id === id)?.nome_workspace)
+      .filter((n): n is string => Boolean(n))
+    if (nomes.length === 0) {
+      return { tenantName: nomeWorkspaceAtivo, tenantPlan: currentUser.nomeOrganizacao ?? '' }
+    }
+    if (nomes.length === 1) {
+      return { tenantName: nomes[0], tenantPlan: currentUser.nomeOrganizacao ?? '' }
+    }
+    const preview = nomes.slice(0, 2).join(', ')
+    const suffix = nomes.length > 2 ? '…' : ''
+    return {
+      tenantName: `${nomes.length} workspaces`,
+      tenantPlan: `${preview}${suffix}`,
+    }
+  }, [hidratadoEscopo, idsWorkspacesEscopo, workspacesStore, nomeWorkspaceAtivo, currentUser.nomeOrganizacao])
+
+  const workspacesSidebar = workspacesStore.map(ws => ({ id: ws.id, name: ws.nome_workspace, plan: '' }))
 
   const isRespostaPublica = location.pathname.includes(
     '/visao-fornecedor-bid-frete-internacional/publico/',
@@ -230,14 +311,20 @@ export default function App() {
       productModoAriaLabel={productModoAriaLabel}
       productModoTooltipTitulo={productModoTooltipTitulo}
       productModoTooltipDescricao={productModoTooltipDescricao}
-      tenantName={nomeWorkspaceAtivo}
-      tenantPlan={currentUser.nomeOrganizacao ?? ''}
+      tenantName={escopoWorkspaces.tenantName}
+      tenantPlan={escopoWorkspaces.tenantPlan}
       navItems={navItems}
       workspaces={workspacesSidebar}
+      modoWorkspace="multiplo"
+      workspacesEscopoIds={idsWorkspacesEscopo}
+      onAlternarWorkspaceEscopo={alternarWorkspaceEscopo}
+      onDefinirEscopoWorkspaces={definirEscopoWorkspaces}
+      sinalAbrirMenuWorkspaces={sinalAbrirMenuWorkspaces}
       onSwitchWorkspace={(id: string) => {
         const ws = workspacesStore.find(w => w.id === id)
         sessionStorage.setItem('gravity_company_id', id)
         if (ws) sessionStorage.setItem('gravity_company_name', ws.nome_workspace)
+        definirEscopoWorkspaces([id])
         window.location.reload()
       }}
       onCreateWorkspace={() => { window.location.href = '/configurador/workspace/novo' }}
@@ -253,7 +340,7 @@ export default function App() {
         )
       }}
       localizador={{
-        workspaceName:       nomeWorkspaceAtivo,
+        workspaceName:       escopoWorkspaces.tenantName,
         currentPageLabel:    pageMeta.label,
         currentPageIcon:     pageMeta.icone,
         currentPageSubtitle: pageMeta.subtitulo,

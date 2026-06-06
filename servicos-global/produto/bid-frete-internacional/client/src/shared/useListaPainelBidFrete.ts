@@ -2,6 +2,7 @@
  * Estado e persistência dos painéis da Lista (BID Frete Internacional).
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useShellStore } from '@gravity/shell'
 import type { GTPreferencias } from '@nucleo/tabela-virtual-global'
 import {
   configListaPainelPadraoV1,
@@ -64,39 +65,55 @@ function estadoParaConfig(estado: EstadoListaParaPainel): ListaPainelConfigV1 {
 }
 
 export function useListaPainelBidFrete() {
+  const idOrganizacao = useShellStore(
+    s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '',
+  )
+  const idUsuario = useShellStore(s => s.currentUser.id ?? '')
+  const podeCarregar = Boolean(idOrganizacao && idUsuario)
+
   const [paineis, setPaineis] = useState<ListaPainel[]>([])
   const [painelAtualId, setPainelAtualId] = useState<string | null>(null)
-  const [carregando, setCarregando] = useState(true)
+  const [carregando, setCarregando] = useState(false)
   const persistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const painelAtualIdRef = useRef<string | null>(null)
   const estadoRef = useRef<EstadoListaParaPainel | null>(null)
   const aplicandoConfigRef = useRef(false)
   const painelHidratadoIdRef = useRef<string | null>(null)
+  const cargaPaineisSeqRef = useRef(0)
 
   useEffect(() => {
     painelAtualIdRef.current = painelAtualId
   }, [painelAtualId])
 
   const carregarPaineis = useCallback(async () => {
+    if (!podeCarregar) return
+    const seq = ++cargaPaineisSeqRef.current
     setCarregando(true)
     painelHidratadoIdRef.current = null
     try {
       const { data } = await paineisListaBidFreteApi.listar()
+      if (seq !== cargaPaineisSeqRef.current) return
       setPaineis(data)
       const visivel = data.find(p => p.is_visivel !== false) ?? data[0]
       if (visivel) setPainelAtualId(visivel.id)
     } catch (err) {
+      if (seq !== cargaPaineisSeqRef.current) return
       console.warn('[useListaPainelBidFrete] falha ao carregar painéis', err)
       setPaineis([])
       setPainelAtualId(null)
     } finally {
-      setCarregando(false)
+      if (seq === cargaPaineisSeqRef.current) setCarregando(false)
     }
-  }, [])
+  }, [podeCarregar])
 
   useEffect(() => {
+    if (!podeCarregar) {
+      cargaPaineisSeqRef.current += 1
+      setCarregando(false)
+      return
+    }
     void carregarPaineis()
-  }, [carregarPaineis])
+  }, [podeCarregar, carregarPaineis])
 
   const aplicarConfigDoPainel = useCallback((
     painel: ListaPainel,
@@ -158,6 +175,30 @@ export function useListaPainelBidFrete() {
     }, 400)
   }, [])
 
+  const criarPainel = useCallback(async (
+    nome: string,
+    estadoAtual: EstadoListaParaPainel,
+    callbacks: AplicarConfigListaPainelCallbacks,
+  ) => {
+    const trimmed = nome.trim()
+    if (!trimmed) return null
+    try {
+      const configJson = JSON.stringify(estadoParaConfig(estadoAtual))
+      const { data } = await paineisListaBidFreteApi.criar(trimmed)
+      await paineisListaBidFreteApi.atualizar(data.id, { config_json: configJson }).catch(() => {})
+      const painelComConfig = { ...data, config_json: configJson }
+      setPaineis(prev => [...prev, painelComConfig])
+      painelHidratadoIdRef.current = null
+      setPainelAtualId(painelComConfig.id)
+      aplicarConfigDoPainel(painelComConfig, callbacks)
+      return painelComConfig
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn('[useListaPainelBidFrete] falha ao criar painel', msg, err)
+      throw err instanceof Error ? err : new Error(msg)
+    }
+  }, [aplicarConfigDoPainel])
+
   const trocarPainel = useCallback(async (
     id: string,
     estadoAtual: EstadoListaParaPainel,
@@ -195,6 +236,7 @@ export function useListaPainelBidFrete() {
     aplicarConfigDoPainel,
     persistirPainelAtual,
     trocarPainel,
+    criarPainel,
     aplicandoConfigRef,
     painelHidratadoIdRef,
   }

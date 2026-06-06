@@ -25,7 +25,11 @@ export interface BidFreteDashboardVisaoConfig {
   catalog: EnrichedCatalogField[]
   catalogByKey: Record<string, EnrichedCatalogField>
   dashboardApi: {
-    kpis: (period: string, range?: { from: string; to: string }) => Promise<DashboardKpis>
+    kpis: (
+      period: string,
+      range?: { from: string; to: string },
+      idsWorkspacesFiltro?: string[],
+    ) => Promise<DashboardKpis>
     trend: (period: string, granularity?: string) => Promise<{ period: string; granularity: string; value: import('./api').DashboardTrendBucket[] }>
     insights: (period: string, range?: { from: string; to: string }) => Promise<{ period: string; role: string; insights: GabiInsightItem[] }>
   }

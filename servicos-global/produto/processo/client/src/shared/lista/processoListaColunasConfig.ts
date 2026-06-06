@@ -37,6 +37,7 @@ export const CAMPOS_EDITAVEIS_PEDIDO: string[] = COLUNAS_PAI
 
 /** Campos editáveis na linha de processo (camada avô). */
 export const CAMPOS_EDITAVEIS_PROCESSO: string[] = [
+  'numero_processo',
   'referencia_interna_processo',
   'responsavel_processo',
 ]

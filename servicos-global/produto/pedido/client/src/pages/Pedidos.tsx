@@ -303,9 +303,6 @@ function getLabelsFiltroInverso(campo: string, t: (key: string) => string = i18n
   return Object.fromEntries(Object.entries(map).map(([raw, label]) => [label, raw]))
 }
 
-// ── Status sem espelhamento (independentes entre pai e item) ─────────────────
-const STATUS_SEM_ESPELHAMENTO = new Set(['transferencia', 'consolidado'])
-
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
 
 const ABAS_STATUS_VALORES = ['todos','aberto','em_andamento','aprovado','transferencia','consolidado','cancelado'] as const
@@ -4173,8 +4170,49 @@ export default function Pedidos() {
         },
       }
     }
+    if (base.status) {
+      const STATUS_OPTS_FILHO = statusOpts
+      base.status = {
+        ...base.status,
+        opcoes: STATUS_OPTS_FILHO,
+        render: (row: PedidoItem) => {
+          const enr = row as PedidoItemEnriquecido
+          const p = enr._p
+          if (!p) return null
+          const itemStatus = p.status
+          const cor = getStatusCor(itemStatus)
+          const badge = (
+            <StatusBadgeGlobal
+              valor={getStatusLabel(itemStatus)}
+              genero="masculino"
+              style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33` }}
+            />
+          )
+          const pedidoPai = pedidos.find(pd => pd.id === p.id)
+          const pedidoStatus = pedidoPai?.status
+          const itensCache = itensCarregadosRef.current.get(p.id) ?? []
+          const statusesItens = itensCache
+            .map(i => (i as PedidoItemEnriquecido)._p?.status)
+            .filter((s): s is string => s != null && s !== '')
+          const distintosItens = new Set(statusesItens).size
+          const divergente = (pedidoStatus != null && itemStatus !== pedidoStatus) || distintosItens > 1
+          if (!divergente) return badge
+          return (
+            <TooltipGlobal
+              titulo={t('pedido.coluna_pai.status')}
+              descricao={t('pedido.coluna_pai.status_divergente', 'Status divergente entre pedido e itens')}
+            >
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                {badge}
+                <Warning size={14} weight="fill" style={{ color: '#F59E0B', flexShrink: 0 }} />
+              </span>
+            </TooltipGlobal>
+          )
+        },
+      }
+    }
     return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
-  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario])
+  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos])
   const {
     prefs: cardPrefs,
     visiveis: cardsVisiveis,
@@ -4449,12 +4487,18 @@ export default function Pedidos() {
           opcoes: STATUS_OPTS,
           render: (_val: unknown, row: Pedido) => {
             const cor = getStatusCor(row.status)
-            return (
+            const divergente = (row as Record<string, unknown>).status_divergente === true
+            const badge = (
               <StatusBadgeGlobal
                 valor={getStatusLabel(row.status)}
                 genero="masculino"
                 style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33`, cursor: 'pointer' }}
               />
+            )
+            return renderAgregado(
+              badge,
+              divergente,
+              t('pedido.coluna_pai.status_divergente', 'Status divergente entre pedido e itens'),
             )
           },
         }
@@ -5777,26 +5821,26 @@ export default function Pedidos() {
         if (!import.meta.env.DEV) throw err
         // DEV: sem servidor → aplica localmente mesmo assim
       })
-      if (replicar && !STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
-        const itensCache = itensCarregadosRef.current.get(id)
-        if (itensCache && itensCache.length > 0) {
-          const itensAtualizados = itensCache.map(i => {
-            const enr = i as PedidoItemEnriquecido
-            if (!enr._p) return i
-            return { ...i, _p: { ...enr._p, status: novoStatus } } as PedidoItem
-          })
-          itensCarregadosRef.current.set(id, itensAtualizados)
-        }
+      let itensCache = itensCarregadosRef.current.get(id) ?? []
+      if (replicar && itensCache.length > 0) {
+        itensCache = itensCache.map(i => {
+          const enr = i as PedidoItemEnriquecido
+          if (!enr._p) return i
+          return { ...i, _p: { ...enr._p, status: novoStatus } } as PedidoItem
+        })
+        itensCarregadosRef.current.set(id, itensCache)
       }
+      const sinc = itensCache.length > 0
+        ? sincronizarItensPedido(itensCache, atualizado)
+        : { itens: itensCache, divergencias: calcularDivergencias(itensCache, atualizado) as Partial<Pedido> }
       setPedidos(prev => prev.map(p => p.id === id
-        ? { ...atualizado, itens: itensCarregadosRef.current.get(id) ?? p.itens }
+        ? { ...atualizado, itens: sinc.itens, ...sinc.divergencias }
         : p
       ))
-      // filhosCache da TabelaVirtual é Map separado — força reload dos itens expandidos
-      if (replicar && !STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
+      if (replicar && itensCache.length > 0) {
         setResetFilhos(prev => prev + 1)
       }
-      return atualizado
+      return { ...atualizado, ...sinc.divergencias }
     }
     // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
     // PATCH directo nos itens. Lógica de propagação real fica no servidor para
@@ -6009,9 +6053,15 @@ export default function Pedidos() {
       } as PedidoItem
       const itensCache = getItensCache().map(i => i.id === id ? itemAtualizado : i)
       itensCarregadosRef.current.set(pedido.id, itensCache)
-      setPedidos(prev => prev.map(p => p.id !== pedido.id ? p : { ...p, itens: itensCache }))
-      // atualizarFilhoNoCache (TabelaVirtual) atualiza só esta linha — sem setResetFilhos
-      return itemAtualizado
+      const sinc = sincronizarItensPedido(itensCache, pedido)
+      itensCarregadosRef.current.set(pedido.id, sinc.itens)
+      setPedidos(prev => prev.map(p => p.id !== pedido.id
+        ? p
+        : { ...p, itens: sinc.itens, ...sinc.divergencias }
+      ))
+      const retorno = sinc.itens.find(i => i.id === id)
+      if (!retorno) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
+      return retorno
     }
 
     // Campos do pedido pai → atualiza o pedido, não o item

@@ -12,9 +12,11 @@ export function buildColunasAvo(_t: TFunction): GTColuna<ProcessoAvoLinha>[] {
     {
       key: 'numero_processo',
       label: 'Processo',
+      tipo: 'texto',
       sortavel: true,
       filtravel: true,
       naoOcultavel: true,
+      editavel: true,
       render: (_v, p) => (
         <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{p.numero_processo}</span>
       ),

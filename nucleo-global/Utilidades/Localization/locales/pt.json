@@ -5937,6 +5937,7 @@
       "status": "Status",
       "status_titulo": "Status do Pedido",
       "status_desc": "Ciclo de vida: Rascunho, Aberto, Em Transferência, Consolidado, Cancelado",
+      "status_divergente": "Status divergente entre pedido e itens",
       "referencia_fabricante": "Ref. Fabricante",
       "referencia_fabricante_titulo": "Referência do Fabricante",
       "referencia_fabricante_desc": "Código de referência utilizado pelo fabricante",

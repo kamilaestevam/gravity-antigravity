@@ -25,6 +25,36 @@ function dateKey(v: unknown): string | null {
 
 export type DivergenciasPedido = Record<string, unknown>
 
+/** Status efetivo na linha item — `_p.status` (UI), sem coluna no PedidoItem. */
+export function lerStatusEfetivoItem(item: Record<string, unknown>): string | null {
+  const p = item._p as { status?: string } | undefined
+  const viaP = p?.status
+  if (viaP != null && String(viaP) !== '') return String(viaP)
+  const direto = item.status
+  if (direto != null && String(direto) !== '') return String(direto)
+  return null
+}
+
+/** Pedido ≠ item ou item ≠ item → alerta na coluna Status. */
+export function calcularStatusDivergente(
+  itens: ReadonlyArray<Record<string, unknown>>,
+  pedidoPai?: Record<string, unknown>,
+): boolean {
+  const statusPai = pedidoPai?.status != null && String(pedidoPai.status) !== ''
+    ? String(pedidoPai.status)
+    : null
+  const statusItens = itens
+    .map(lerStatusEfetivoItem)
+    .filter((v): v is string => v != null && v !== '')
+  if (statusItens.length === 0) return false
+  const distintos = new Set(statusItens).size
+  if (distintos > 1) return true
+  if (statusPai != null) {
+    return statusItens.some(s => s !== statusPai)
+  }
+  return false
+}
+
 /** Recalcula flags `{campo}_divergente` a partir dos itens carregados. */
 export function calcularDivergenciasPedido(
   itens: ReadonlyArray<Record<string, unknown>>,
@@ -126,6 +156,8 @@ export function calcularDivergenciasPedido(
     divergenciasCustom[colId] = div
   }
   result['_colunas_usuario_divergentes'] = divergenciasCustom
+
+  result.status_divergente = calcularStatusDivergente(itens, pedidoPai)
 
   return result
 }

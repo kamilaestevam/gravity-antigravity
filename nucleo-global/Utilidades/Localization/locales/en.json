@@ -4235,6 +4235,7 @@
       "status": "Status",
       "status_titulo": "Order Status",
       "status_desc": "Lifecycle: Draft, Open, In Transfer, Consolidated, Canceled",
+      "status_divergente": "Status diverges between order and items",
       "referencia_fabricante": "Manufacturer's Reference",
       "referencia_fabricante_titulo": "Manufacturer's Reference",
       "referencia_fabricante_desc": "Reference code used by the manufacturer",

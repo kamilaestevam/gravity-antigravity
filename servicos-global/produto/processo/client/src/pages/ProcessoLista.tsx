@@ -38,6 +38,7 @@ import {
 import { useUnidadesPedido } from '../shared/lista/useUnidadesPedido'
 import { useLogisticaCadastrosPedido } from '../shared/lista/useLogisticaCadastrosPedido'
 import { ConectorFilhoLista } from '../components/lista/ConectorFilhoLista'
+import { ConectorPaiLista } from '../components/lista/ConectorPaiLista'
 import {
   CAMPOS_EDITAVEIS_PROCESSO,
   COLUNAS_EXPORT_PROCESSO,
@@ -440,6 +441,13 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
     />
   ), [pedidosExpandidos, togglePedidoItens])
 
+  const renderConectorPai = useCallback(
+    (_processo: ProcessoAvoLinha, ctx) => <ConectorPaiLista {...ctx} />,
+    [],
+  )
+
+  const classNameLinhaPai = useCallback(() => 'pl-linha--processo', [])
+
   const classNameLinhaFilho = useCallback(
     (filho: FilhoLinhaLista) =>
       filho.camada === 'pedido' ? 'pl-linha--pedido' : 'pl-linha--item',
@@ -475,6 +483,8 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
             onCarregarFilhos={handleCarregarFilhos}
             resetCacheFilhos={resetCacheFilhos}
             renderConectorFilho={renderConectorFilho}
+            renderConectorPai={renderConectorPai}
+            classNameLinhaPai={classNameLinhaPai}
             classNameLinhaFilho={classNameLinhaFilho}
             acoes={acoesProcesso}
             acoesExportacao={acoesExportacao}

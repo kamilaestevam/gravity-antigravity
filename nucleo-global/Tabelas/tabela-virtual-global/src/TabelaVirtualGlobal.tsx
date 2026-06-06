@@ -1588,6 +1588,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   resetCacheFilhos,
   acoesFilho,
   renderConectorFilho,
+  renderConectorPai,
   onBuscar,
   modoLocalizar = false,
   onFindProximaPagina,
@@ -3042,7 +3043,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           <div
             className="gtv-celula gtv-celula--expand gtv-col-fixa"
           >
-            {carregando_ ? (
+            {renderConectorPai ? (
+              renderConectorPai(item, {
+                expandido,
+                carregando: carregando_,
+                onToggle: () => toggle(id, item),
+              })
+            ) : carregando_ ? (
               <span className="gtv-spinner" aria-label="Carregando filhos..." />
             ) : (
               <button

@@ -27,6 +27,7 @@ export type {
   GTUnidadeOpcao,
   GTVirtualHandle,
   GTCarregarFilhosOpts,
+  GTConectorPaiContext,
 } from './tipos.js'
 
 // ─── FiltrosColuna (refactor D9 — 2026-05-13) ─────────────────────────────────

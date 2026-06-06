@@ -159,6 +159,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
 
 const ALERTA_OVERRIDE: Record<string, boolean> = {
   tipo_operacao: false, // replica do pedido — sem alerta de divergência
+  status: true, // pedido ≠ item ou item ≠ item → alerta na coluna Status
 }
 
 const TIPO_DEFAULTS_ITEM: Record<TipoCampo, boolean> = {

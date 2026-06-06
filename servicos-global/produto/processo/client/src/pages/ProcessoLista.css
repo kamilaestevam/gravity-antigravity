@@ -380,8 +380,33 @@
   padding-right: 0;
 }
 
-.pl-page .gtv-linha:not(.gtv-linha--filho) .gtv-celula--expand {
+.pl-page .gtv-linha:not(.pl-linha--processo):not(.pl-linha--pedido):not(.pl-linha--item) .gtv-celula--expand {
   overflow: hidden;
+}
+
+/* Processo (L1): chevron à direita da expand — mesma distância até Gravity que pedido → PO */
+.pl-page .pl-linha--processo.gtv-linha--pai .gtv-celula--expand {
+  justify-content: flex-end;
+  padding-right: calc(0.5rem + 0.75rem);
+  overflow: visible;
+}
+
+.pl-page .pl-conector-processo-slot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  overflow: visible;
+}
+
+.pl-page .pl-linha--processo.gtv-linha--pai .gtv-celula--expand + .gtv-celula {
+  margin-left: 0.625rem;
+}
+
+.pl-page .pl-processo-chevron {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 /* Item: tag na coluna expand */

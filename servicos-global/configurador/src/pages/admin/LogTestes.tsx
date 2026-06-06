@@ -160,6 +160,16 @@ const EMT_CELULA_PAD = '0.55rem 0.65rem'
 const FONTE_UI = "var(--font, 'Plus Jakarta Sans', system-ui, sans-serif)"
 /** Mono reservado a trechos de código (paths, diff). */
 const FONTE_MONO = 'var(--font-mono, ui-monospace, monospace)'
+/** Evita URLs/paths longos invadirem colunas vizinhas no grid. */
+const TEXTO_QUEBRA_LONGO: React.CSSProperties = {
+  overflowWrap: 'anywhere',
+  wordBreak: 'break-word',
+  maxWidth: '100%',
+}
+const COLUNA_GRID_IA: React.CSSProperties = {
+  minWidth: 0,
+  overflow: 'hidden',
+}
 
 function EmtLinhaChecklist({
   row,
@@ -464,19 +474,19 @@ function PainelAnaliseIaTeste({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) minmax(350px, 1.5fr)', gap: '1rem', padding: '1.25rem', position: 'relative' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.5fr)', gap: '1rem', padding: '1.25rem', position: 'relative' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', ...COLUNA_GRID_IA }}>
           <div>
             <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_o_que_e')}</span>
-            <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>{item.aiAnalise.erroResumo}</strong>
+            <strong style={{ display: 'block', fontSize: '0.95rem', color: '#f8fafc', ...TEXTO_QUEBRA_LONGO }}>{item.aiAnalise.erroResumo}</strong>
           </div>
           <div>
             <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_motivo')}</span>
-            <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>{item.aiAnalise.motivo}</p>
+            <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0, ...TEXTO_QUEBRA_LONGO }}>{item.aiAnalise.motivo}</p>
           </div>
           <div>
             <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_onde')}</span>
-            <code style={{ display: 'inline-block', padding: '0.3rem 0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '6px', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: FONTE_MONO }}>
+            <code style={{ display: 'block', padding: '0.3rem 0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '6px', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: FONTE_MONO, ...TEXTO_QUEBRA_LONGO }}>
               {item.aiAnalise.arquivo}
             </code>
           </div>
@@ -492,10 +502,10 @@ function PainelAnaliseIaTeste({
           )}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', ...COLUNA_GRID_IA }}>
           <div>
             <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_correcao')}</span>
-            <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>{item.aiAnalise.sugestaoCorrecao}</p>
+            <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0, ...TEXTO_QUEBRA_LONGO }}>{item.aiAnalise.sugestaoCorrecao}</p>
           </div>
 
           {item.aiAnalise.codigoDiff && (

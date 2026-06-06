@@ -368,6 +368,7 @@ export interface Pedido {
   // Divergência de itens — pré-computado pelo backend na list view
   // Elimina a necessidade de carregar itens no state apenas para exibir badges
   tipo_operacao_divergente?: boolean | null
+  status_divergente?: boolean | null
   ncm_divergente?: boolean | null
   ncm_valor_unico?: string | null
   /** Quando todos os itens têm a mesma descrição — exibido na linha pai (sem alerta). */

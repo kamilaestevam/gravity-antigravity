@@ -94,8 +94,8 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['somente_leitura'],
   },
   pai_status: {
-    pedido: ['editavel_pedido', 'replica_itens'],
-    item: ['editavel_item'],
+    pedido: ['editavel_pedido', 'replica_itens', 'alerta_divergencia'],
+    item: ['editavel_item', 'alerta_divergencia'],
   },
   pai_numero_pedido: {
     pedido: ['somente_leitura'],

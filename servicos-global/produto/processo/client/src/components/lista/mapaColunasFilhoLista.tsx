@@ -18,6 +18,10 @@ import {
   COLUNA_AVO_PARA_CAMPO_PEDIDO,
   COLUNAS_AVO_VAZIAS_EM_FILHO,
 } from '../../shared/lista/processoColunaAvoFilhoMap'
+import { CelulaIdentidadeItemLista } from './CelulaIdentidadeItemLista'
+
+/** Coluna avô onde L3 exibe identidade do item (badge + PN + descrição). */
+const CHAVE_AVO_IDENTIDADE_ITEM = 'numero_processo'
 
 function celulaVaziaFilho() {
   return <span className="pl-celula-vazia">—</span>
@@ -127,10 +131,20 @@ function wrapEntradaMapaColunaAvo(
     render: (filho) => {
       if (filho.camada === 'pedido') {
         const colPedido = colunasPedidoPorChave.get(chavePedido)
-        if (colPedido) return renderCelulaPedido(colPedido, filho.pedido)
-        const val = (filho.pedido as Record<string, unknown>)[chavePedido]
-        if (val == null || val === '') return celulaVaziaFilho()
-        return String(val)
+        const conteudo = colPedido
+          ? renderCelulaPedido(colPedido, filho.pedido)
+          : (() => {
+              const val = (filho.pedido as Record<string, unknown>)[chavePedido]
+              if (val == null || val === '') return celulaVaziaFilho()
+              return String(val)
+            })()
+        if (chaveAvo === CHAVE_AVO_IDENTIDADE_ITEM) {
+          return <span className="pl-pedido-identidade">{conteudo}</span>
+        }
+        return conteudo
+      }
+      if (chaveAvo === CHAVE_AVO_IDENTIDADE_ITEM) {
+        return <CelulaIdentidadeItemLista item={filho.item} />
       }
       if (!chaveItem) return celulaVaziaFilho()
       const pedido = resolverPedido(filho.item.pedido_id)

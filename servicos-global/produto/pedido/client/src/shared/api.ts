@@ -2244,8 +2244,7 @@ export const paineisListaApi = {
 
 export const paineisDashboardApi = {
   listar: (): Promise<{ data: DashboardPainel[] }> =>
-    request<{ data: DashboardPainel[] }>('/api/v1/pedidos/dashboard/paineis')
-      .catch(() => ({ data: [] })),
+    request<{ data: DashboardPainel[] }>('/api/v1/pedidos/dashboard/paineis'),
 
   criar: (nome: string): Promise<{ data: DashboardPainel }> =>
     request<{ data: DashboardPainel }>('/api/v1/pedidos/dashboard/paineis', {

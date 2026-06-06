@@ -6,9 +6,10 @@
  * Lazy imports com React.lazy + Suspense para code-splitting por rota.
  */
 
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useMemo } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from '@shell'
+import { corOficialProdutoGravity, LogoProcesso } from '@nucleo/logo-produtos'
 import { PRODUCT_CONFIG } from './shared/config'
 import { CurrencyDollar, Briefcase, Folders } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -122,9 +123,20 @@ function WorkspacePlaceholder() {
 
 // ─── App ───────────────────────────────────────────────────────────────────
 
+const PROCESSO_COR = corOficialProdutoGravity('processo')
+
 export function App() {
+  const moduleIcon = useMemo(
+    () => <LogoProcesso size={26} color={PROCESSO_COR} />,
+    [],
+  )
+
   return (
-    <Layout>
+    <Layout
+      moduleName="Processos"
+      moduleColor={PROCESSO_COR}
+      moduleIcon={moduleIcon}
+    >
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* Lista geral dos processos do workspace — workspace-level, SEM

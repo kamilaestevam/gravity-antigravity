@@ -145,3 +145,7 @@ button.pvt-tab {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
+
+.pedido-visualizacao-layout .pedido-dashboard-toolbar-wrapper {
+  flex: 0 0 auto;
+}

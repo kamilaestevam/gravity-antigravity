@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001  
 **Data:** 2026-06-06  
-**Versão:** 2.0  
+**Versão:** 3.1  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -15,7 +15,10 @@
 
 ## Resumo executivo
 
-Validação visual com Playwright na **Lista de Pedidos**: edição inline e salvar do **número do pedido** e do **Part Number do item** na coluna **Nº PEDIDO / Nº ITEM**, incluindo alerta no pedido quando dois itens compartilham o mesmo Part Number.
+Validação visual com Playwright na **Lista de Pedidos**:
+
+1. Coluna **Nº PEDIDO / Nº ITEM** — editar pedido e item, alerta de Part Number duplicado.
+2. Coluna **TIPO DE OPERAÇÃO** — passos **06 a 12**: modal no pedido, sem checkbox replicar, troca Importação ↔ Exportação com replicação nos itens, célula do item travada.
 
 ---
 
@@ -24,23 +27,22 @@ Validação visual com Playwright na **Lista de Pedidos**: edição inline e sal
 ```
 Produto: Pedido
 URL: https://usegravity.com.br/pedido/pedidos/lista
-Coluna alvo: Nº PEDIDO / Nº ITEM (pedido → numero_pedido | item → part_number)
-Critério de sucesso: toasts de sucesso nas edições + alerta âmbar após duplicata de Part Number (APROVADO = alerta visível; reprovado = alerta ausente)
 
-Contrato EMT (SSOT): `data-testid="lista-alerta-part-number-duplicado-pedido"` (linha pai) e `lista-alerta-part-number-duplicado-item` (itens). Fallback do runner: ícone `svg` na célula `data-gtv-campo="numero_pedido"`.
+Checklist TIPO DE OPERAÇÃO (EMT_ROW no log):
 
-Checklist no Admin — **tabela em camadas** (6 colunas):
+| # | O que foi feito | Resultado esperado |
+|---|-----------------|-------------------|
+| 06 | Abrir modal na linha do pedido (Importação) | Popover abre |
+| 07 | Modal sem «Aplicar a todos os itens» (Importação) | Checkbox ausente |
+| 08 | Alterar Importação → Exportação | Pedido **e** todos os itens exibem Exportação |
+| — | Itens travados após Exportação | Célula sem edição; popover não abre |
+| 09 | Abrir modal na linha do pedido (Exportação) | Popover abre |
+| 10 | Modal sem «Aplicar a todos os itens» (Exportação) | Checkbox ausente |
+| 11 | Alterar Exportação → Importação | Pedido **e** todos os itens exibem Importação |
+| 12 | Itens travados | Célula travada; popover não abre no item |
 
-| Ambiente | Produto | Local | Sublocal | O que foi feito | Resultado |
-|----------|---------|-------|----------|-----------------|-----------|
-| Produção | Pedido | Lista | Nº PEDIDO | Salvar o pedido (QA-NUM-…) | Aprovado |
-| Produção | Pedido | Lista | Nº ITEM | Salvar o item 1 (QA-PN-…) | Aprovado |
-| Produção | Pedido | Lista | Nº PEDIDO / Nº ITEM | Validar alerta Nº ITEM duplicado | Aprovado |
-
-Contrato no log (`RESULTADO.txt`): `✓ EMT_ROW|Ambiente|Produto|Local|Sublocal|O que foi feito|Resultado`
-
-- **Sublocal (exato em tela):** `Nº PEDIDO` (linha pedido) | `Nº ITEM` (linha item) | `Nº PEDIDO / Nº ITEM` (alerta na coluna)
-- **Local:** `Lista` | **Produto:** `Pedido` | **Ambiente:** `Produção` ou `Local`
+Contrato log: `✓ EMT_ROW|Ambiente|Produto|Local|Sublocal|O que foi feito|Resultado`
+Sublocal: `TIPO DE OPERAÇÃO` | Local: `Lista` | Produto: `Pedido`
 ```
 
 ---
@@ -51,9 +53,16 @@ Contrato no log (`RESULTADO.txt`): `✓ EMT_ROW|Ambiente|Produto|Local|Sublocal|
 |---|---------|------------------|
 | 01 | `01-pos-login.png` | Hub/pós-login |
 | 02 | `02-lista-carregada.png` | Lista aberta — pedido expandido com itens visíveis |
-| 03 | `03-editar-pedido-numero-sucesso.png` | Edição do **número do pedido** (coluna Nº PEDIDO / Nº ITEM, linha pai) salva |
-| 04 | `04-editar-item-part-number-sucesso.png` | Edição do **Part Number** do 1º item (mesma coluna, linha filho) salva |
-| 05 | `05-alerta-part-number-duplicado-pedido.png` | 2º item com mesmo Part Number → **alerta no pedido** (ícone âmbar) |
+| 03 | `03-editar-pedido-numero-sucesso.png` | Número do pedido salvo |
+| 04 | `04-editar-item-part-number-sucesso.png` | Part Number do 1º item salvo |
+| 05 | `05-alerta-part-number-duplicado-pedido.png` | Alerta PN duplicado |
+| 06 | `06-tipo-operacao-modal-importacao.png` | Clicar pedido → modal aberto (estado Importação) |
+| 07 | `07-tipo-operacao-sem-checkbox-importacao.png` | Modal **sem** «Aplicar a todos os itens do pedido» |
+| 08 | `08-tipo-operacao-pedido-itens-exportacao.png` | Após Importação → Exportação: pedido **e** itens = Exportação |
+| 09 | `09-tipo-operacao-modal-exportacao.png` | Clicar pedido → modal aberto (estado Exportação) |
+| 10 | `10-tipo-operacao-sem-checkbox-exportacao.png` | Modal **sem** checkbox replicar |
+| 11 | `11-tipo-operacao-pedido-itens-importacao.png` | Após Exportação → Importação: pedido **e** itens = Importação |
+| 12 | `12-tipo-operacao-item-travado.png` | Clicar item → célula travada, popover não abre |
 | 99 | `99-erro.png` | Só se falhar |
 
 Viewport: **1440×900** (fixo)
@@ -63,38 +72,33 @@ Viewport: **1440×900** (fixo)
 ## Roteiro de execução
 
 ### ETAPA 0 — Preparação
-1. Confirmar ambiente (Produção: `https://usegravity.com.br` ou dev `localhost:8000`)
-2. Runner cria `resultado-teste/<EMT_RUN_ID>/` automaticamente
-3. Login com credenciais org de teste → print `01-pos-login.png`
+1. Confirmar ambiente (Produção ou Local)
+2. Runner cria `resultado-teste/<EMT_RUN_ID>/`
+3. Login → print `01-pos-login.png`
 
-### ETAPA 1 — Lista (editar e salvar)
-1. Navegar `https://usegravity.com.br/pedido/pedidos/lista`
-2. Expandir um pedido com **≥2 itens**; confirmar grade pai + filhos → print `02-lista-carregada.png`
-3. Editar **número do pedido** na coluna **Nº PEDIDO / Nº ITEM** (linha pai, campo `numero_pedido`) e salvar — toast de sucesso → print `03-editar-pedido-numero-sucesso.png`
-4. Editar **Part Number** do **primeiro item** na mesma coluna (linha filho, campo `part_number`) e salvar — toast de sucesso → print `04-editar-item-part-number-sucesso.png`
-5. Editar **segundo item** com o **mesmo Part Number** do primeiro item e salvar — **APROVADO** quando existirem ≥2 itens com o mesmo PN **e** ícone âmbar visível no pedido pai e/ou nos itens (tooltip: “Existem itens com o mesmo Part Number neste pedido”) → print `05-alerta-part-number-duplicado-pedido.png`
+### ETAPA 1 — Nº PEDIDO / Nº ITEM
+1. Navegar lista; expandir pedido com **≥2 itens** → `02`
+2. Editar número do pedido → `03`
+3. Editar Part Number item 1 → `04`
+4. Duplicar PN no item 2 → alerta âmbar → `05`
 
-### ETAPA 2 — Relatório
-1. Gerar `RESULTADO.txt`:
+### ETAPA 2 — TIPO DE OPERAÇÃO (passos 06–12)
 
-```
-TESTE EM TELA — lista-editar-salvar
-Data: 2026-06-06
-Produto: Pedido | URL: /pedido/pedidos/lista
-Pasta: testes/testes-em-tela/pedido/lista/editar-salvar/resultado-teste/<runId>/
+**Pré-condição:** pedido expandido com itens visíveis; runner garante pedido em **Importação** antes do passo 06.
 
-Resultado: PASSOU / FALHOU
-```
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **06** | Clicar **TIPO DE OPERAÇÃO** na linha do **pedido** (Importação) | Modal/popover abre → print `06` |
+| **07** | Inspecionar o modal | Texto «Aplicar a todos os itens deste pedido» **não** aparece → print `07` |
+| **08** | Selecionar **Exportação** e confirmar | Badge **Exportação** no pedido **e** em **todos** os itens → print `08` |
+| *(impl.)* | Clicar **TIPO DE OPERAÇÃO** nos **itens** | Popover **não** abre; célula **travada** |
+| **09** | Clicar **TIPO DE OPERAÇÃO** na linha do **pedido** (Exportação) | Modal abre → print `09` |
+| **10** | Inspecionar o modal | Checkbox replicar **ausente** → print `10` |
+| **11** | Selecionar **Importação** e confirmar | Badge **Importação** no pedido **e** em **todos** os itens → print `11` |
+| **12** | Clicar célula **TIPO DE OPERAÇÃO** no **item** | Célula travada; popover **não** abre → print `12` |
 
----
-
-## Diferença vs E2E
-
-| | Este plano (EMT) | Plano E2E |
-|--|------------------|-----------|
-| Entrega | PNG + RESULTADO.txt | `.spec.ts` + CI |
-| Assertivas | Manual/visual | `expect()` automatizado |
-| Quando | Homologação pós-deploy | Regressão contínua |
+### ETAPA 3 — Relatório
+1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado PASSOU/FALHOU
 
 ---
 

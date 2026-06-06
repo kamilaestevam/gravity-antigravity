@@ -5,14 +5,7 @@
  * Gabi AI insights, e construtor de consultas global.
  */
 
-import React, { useMemo, useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
-import {
-  DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent,
-} from '@dnd-kit/core'
-import {
-  SortableContext, horizontalListSortingStrategy, useSortable, arrayMove,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   resolverIdsWorkspacesParaApi,
@@ -25,11 +18,11 @@ import {
   DashboardWidgetLinha,
   DashboardWidgetBarras,
   DashboardWidgetDistribuicao,
-  DashboardBarraFerramentas,
   DashboardPainelEditarModal,
   DashboardPainelSugestoes,
   DashboardValorKPI,
 } from '@nucleo/dashboard'
+import type { PeriodOption } from '@nucleo/dashboard'
 import type {
   DashboardWidgetConfig,
   WidgetResult,
@@ -48,10 +41,16 @@ import {
   Warning, UserCircleMinus, CheckCircle,
   ListNumbers, ArrowsLeftRight, Tag,
   CaretLeft, CaretRight, RocketLaunch,
-  DotsThree, PencilSimple, Trash, X, Timer, TrendUp,
+  Timer, TrendUp,
 } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 import './dashboard.css'
+import '../shared/lista-bid-frete-internacional-layout.css'
+import '../components/dashboard/BarraFerramentasDashboardBidFrete.css'
 import { DashboardConstrutorConsulta } from '@nucleo/query-builder-global'
+import { BarraFerramentasDashboardBidFrete } from '../components/dashboard/BarraFerramentasDashboardBidFrete'
+import { BidFreteDashboardFaixaPaineis } from '../components/BidFreteDashboardFaixaPaineis'
+import { useDashboardPainelBidFrete } from '../shared/useDashboardPainelBidFrete'
 
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
 import type { EnrichedCatalogField } from '@nucleo/dashboard'
@@ -618,28 +617,9 @@ const gabiEmptyStyles = {
 
 const sty = gabiEmptyStyles
 
-function SortableTabWrapper({ id, children }: { id: string; children: ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
-  return (
-    <div
-      ref={setNodeRef}
-      style={{
-        ...sty.painelTabWrap,
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-        cursor: isDragging ? 'grabbing' : undefined,
-      }}
-      {...attributes}
-      {...listeners}
-    >
-      {children}
-    </div>
-  )
-}
-
 // ── Componente Principal ──────────────────────────────────────────────────────
 export default function Dashboard() {
+  const { t } = useTranslation()
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
@@ -672,7 +652,7 @@ export default function Dashboard() {
     editMode, setEditMode,
     queryBuilderOpen, setQueryBuilderOpen,
     userDerivedMetrics,
-    paineis, painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
+    painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
   } = useDashboardStoreHook()
 
   const podeEditarDashboard = true // Hardcoded como true para o BID Frete Internacional
@@ -688,92 +668,59 @@ export default function Dashboard() {
   const [kpisData,     setKpisData]     = useState<DashboardKpis | null>(null)
   const [prevKpisData, setPrevKpisData] = useState<DashboardKpis | null>(null)
 
-  const [compactStatus, setCompactStatus] = useState(() => window.innerWidth < 1200)
-  useEffect(() => {
-    function handleResize() { setCompactStatus(window.innerWidth < 1200) }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
   const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
   const [loadingData,  setLoadingData]  = useState(true)
 
-  const [novoNomePainel, setNovoNomePainel] = useState('')
-  const [criandoPainel,  setCriandoPainel]  = useState(false)
-  const [renamingId,     setRenamingId]     = useState<string | null>(null)
-  const [renameValue,    setRenameValue]    = useState('')
-  const [menuPainelId,   setMenuPainelId]   = useState<string | null>(null)
-  const [deletingId,     setDeletingId]     = useState<string | null>(null)
-  const renameInFlightRef = useRef<string | null>(null)
+  const {
+    paineis: paineisDashboard,
+    painelAtualId: painelDashboardAtualId,
+    carregando: carregandoPaineis,
+    erroCarregar: erroCarregarPaineis,
+    carregarPaineis: recarregarPaineisDashboard,
+    setPaineis: setPaineisDashboard,
+    setPainelAtualId: setPainelDashboardAtualId,
+  } = useDashboardPainelBidFrete({
+    paineisDashboardApi,
+    setPaineisStore: setPaineis,
+    setPainelAtualStore: setPainelAtual,
+    painelAtualIdStore: painelAtualId,
+  })
 
-  const painelSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+  const handleTrocarPainel = useCallback((novoId: string) => {
+    if (novoId === painelDashboardAtualId) return
+    if (painelDashboardAtualId) salvarWidgetsPainelAtual(painelDashboardAtualId, widgets)
+    setPainelDashboardAtualId(novoId)
+  }, [painelDashboardAtualId, widgets, salvarWidgetsPainelAtual, setPainelDashboardAtualId])
 
-  // Fecha menu ao clicar fora
-  useEffect(() => {
-    if (!menuPainelId) return
-    const close = () => { setMenuPainelId(null); setDeletingId(null) }
-    document.addEventListener('click', close)
-    return () => document.removeEventListener('click', close)
-  }, [menuPainelId])
-
-  // Salva widgets do painel atual e troca de aba
-  const handleTrocarPainel = (novoId: string) => {
-    if (novoId === painelAtualId) return
-    if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
-    setPainelAtual(novoId)
-  }
-
-  // Renomeia painel
-  const handleRenomearPainel = (id: string, nome: string) => {
-    if (renameInFlightRef.current === id) return
-    renameInFlightRef.current = id
-    setRenamingId(null)
-    const trimmed = nome.trim()
-    if (!trimmed) { renameInFlightRef.current = null; return }
-    paineisDashboardApi.atualizar(id, { nome: trimmed })
-      .then(() => {
-        const fresh = useDashboardStoreHook.getState().paineis
-        setPaineis(fresh.map(p => p.id === id ? { ...p, nome: trimmed } : p))
+  const handleCriarPainelDashboard = useCallback(async (nome: string): Promise<boolean> => {
+    try {
+      if (painelDashboardAtualId) salvarWidgetsPainelAtual(painelDashboardAtualId, widgets)
+      const { data } = await paineisDashboardApi.criar(nome)
+      salvarWidgetsPainelAtual(data.id, [])
+      setPaineisDashboard([...paineisDashboard, data])
+      setPainelDashboardAtualId(data.id)
+      addNotification({
+        type: 'success',
+        message: t('bid_frete_internacional.dashboard.painel_criado_sucesso', {
+          defaultValue: 'Painel "{{nome}}" criado.',
+          nome: data.nome,
+        }),
       })
-      .catch(() => {})
-      .finally(() => { renameInFlightRef.current = null })
-  }
-
-  // Deleta painel
-  const handleDeletarPainel = (id: string) => {
-    if (paineis.length <= 1) return
-    paineisDashboardApi.deletar(id)
-      .then(() => {
-        const fresh = useDashboardStoreHook.getState().paineis
-        const atualizados = fresh.filter(p => p.id !== id)
-        setPaineis(atualizados)
-        if (painelAtualId === id) {
-          const proximo = atualizados.find(p => p.is_visivel)
-          if (proximo) setPainelAtual(proximo.id)
-        }
+      return true
+    } catch {
+      addNotification({
+        type: 'error',
+        message: t('bid_frete_internacional.dashboard.painel_criado_erro', {
+          defaultValue: 'Não foi possível salvar o painel.',
+        }),
       })
-      .catch(() => {})
-    setMenuPainelId(null)
-    setDeletingId(null)
-  }
-
-  // Reordena painéis
-  const handlePainelDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = paineis.findIndex(p => p.id === active.id)
-    const newIndex = paineis.findIndex(p => p.id === over.id)
-    if (oldIndex === -1 || newIndex === -1) return
-    const reordered = arrayMove(paineis, oldIndex, newIndex)
-    setPaineis(reordered)
-    paineisDashboardApi.reordenar(reordered.map(p => p.id)).catch(() => {})
-  }
-
-  // Carrega painéis ao montar
-  useEffect(() => {
-    paineisDashboardApi.listar().then(({ data }) => setPaineis(data)).catch(() => {})
-  }, [setPaineis])
+      return false
+    }
+  }, [
+    painelDashboardAtualId, widgets, paineisDashboard, salvarWidgetsPainelAtual,
+    setPaineisDashboard, setPainelDashboardAtualId, addNotification, t, paineisDashboardApi,
+  ])
 
   // Carrossel GABI
   const gabiCarouselRef = useRef<HTMLDivElement>(null)
@@ -1207,44 +1154,72 @@ export default function Dashboard() {
     })
   )
 
+  const periodOptions = useMemo((): PeriodOption[] => [
+    { value: 'tudo', label: t('nucleo.dashboard.periodo.tudo', { defaultValue: 'Tudo' }) },
+    { value: '7d', label: t('nucleo.dashboard.periodo.ultimos_7_dias') },
+    { value: '30d', label: t('nucleo.dashboard.periodo.ultimos_30_dias') },
+    { value: '6m', label: t('nucleo.dashboard.periodo.ultimos_6_meses', { defaultValue: '6 meses' }) },
+    { value: '1a', label: t('nucleo.dashboard.periodo.ultimo_ano', { defaultValue: '1 ano' }) },
+    { value: '90d', label: t('nucleo.dashboard.periodo.ultimos_90_dias') },
+    { value: '12m', label: t('nucleo.dashboard.periodo.ultimos_12_meses') },
+    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual') },
+    { value: 'current_year', label: t('nucleo.dashboard.periodo.ano_atual') },
+    { value: 'custom', label: t('nucleo.dashboard.periodo.personalizado') },
+  ], [t])
+
+  const temWidgets = widgets.length > 0
+
   return (
-    <div className="bid-frete-page-shell" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: '1rem' }}>
+    <div className="bid-frete-page-shell bfd-dashboard" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: '1rem' }}>
 
-      {/* ── Onboarding Banner ── */}
-      <div style={onboardingBannerStyle}>
-        <div style={onboardingBannerContent}>
-          <span style={onboardingBannerTitle}>Este dashboard é seu.</span>
-          <span style={onboardingBannerText}>
-            Adicione KPIs de frete, monitore adjudicações, mova seções e crie widgets customizados.
-          </span>
-          <div style={onboardingBannerActions}>
-            <button
-              type="button"
-              style={onboardingBtnAccent}
-              onClick={() => setSuggestionsOpen(true)}
+      <div className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada bfd-dashboard-toolbar-wrapper">
+        <div className="lp-tabela-chrome bfd-dashboard-chrome">
+          <BidFreteDashboardFaixaPaineis
+            paineis={paineisDashboard}
+            painelAtualId={painelDashboardAtualId}
+            setPaineis={setPaineisDashboard}
+            setPainelAtualId={setPainelDashboardAtualId}
+            onTrocarPainel={handleTrocarPainel}
+            onCriarPainel={handleCriarPainelDashboard}
+            carregando={carregandoPaineis}
+          />
+          {erroCarregarPaineis && (
+            <div
+              role="alert"
+              className="bfd-dashboard-paineis-erro"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0.75rem',
+                padding: '0.5rem 0.75rem',
+                fontSize: '0.75rem',
+                color: 'var(--gtv-text, #f1f5f9)',
+                background: 'rgba(239,68,68,0.1)',
+                borderTop: '1px solid rgba(239,68,68,0.25)',
+              }}
             >
-              <RocketLaunch size={13} weight="fill" />
-              Explorar sugestões
-            </button>
-            <button
-              type="button"
-              style={onboardingBtnGhost}
-              onClick={() => { setEditMode(true); setQueryBuilderOpen(true) }}
-            >
-              Criar Dashboard →
-            </button>
-          </div>
-        </div>
-      </div>
+              <span>{erroCarregarPaineis}</span>
+              <button
+                type="button"
+                className="gtv-btn"
+                onClick={() => void recarregarPaineisDashboard()}
+              >
+                {t('comum.tentar_novamente', { defaultValue: 'Tentar novamente' })}
+              </button>
+            </div>
+          )}
 
-      <DashboardBarraFerramentas
+          <BarraFerramentasDashboardBidFrete
+        temWidgets={temWidgets}
+        onboarding={!temWidgets ? {
+          onExplorarSugestoes: () => setSuggestionsOpen(true),
+          onCriarDoZero: () => { setEditMode(true); setQueryBuilderOpen(true) },
+        } : undefined}
         slicers={slicers}
         onPeriodChange={setPeriod}
+        periodOptions={periodOptions}
         onStatusChange={setStatusFilter}
-        activeFilters={activeFilters}
-        onClearFilters={clearFilters}
-        editMode={editMode}
-        onEditModeChange={setEditMode}
         statusOptions={STATUS_OPTIONS}
         statusLabels={STATUS_LABELS_TOOLBAR}
         statusActiveColors={STATUS_ACTIVE_COLORS}
@@ -1263,145 +1238,15 @@ export default function Dashboard() {
           aguardando_aprovacao: kpisData.cotacoes_status['AGUARDANDO_APROVACAO'] ?? 0,
           aprovada:             kpisData.cotacoes_status['APROVADA'] ?? 0,
         } : undefined}
-        compactStatus={compactStatus}
-        onAddWidget={undefined}
-      />
-
-      {/* Seletor de Painéis */}
-      {paineis.length > 0 && (
-        <div style={sty.painelBar}>
-          <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
-            <SortableContext
-              items={paineis.filter(p => p.is_visivel).map(p => p.id)}
-              strategy={horizontalListSortingStrategy}
-            >
-              {paineis.filter(p => p.is_visivel).map(p => (
-                <SortableTabWrapper key={p.id} id={p.id}>
-                  {renamingId === p.id ? (
-                    <form
-                      style={sty.painelNovoForm}
-                      onSubmit={(e) => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
-                      onPointerDown={e => e.stopPropagation()}
-                    >
-                      <input
-                        autoFocus
-                        type="text"
-                        value={renameValue}
-                        onChange={e => setRenameValue(e.target.value)}
-                        onBlur={() => handleRenomearPainel(p.id, renameValue)}
-                        onKeyDown={e => { if (e.key === 'Escape') { setRenamingId(null); renameInFlightRef.current = null } }}
-                        style={sty.painelRenameInput}
-                        maxLength={60}
-                      />
-                    </form>
-                  ) : (
-                    <button
-                      type="button"
-                      style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
-                      onClick={() => handleTrocarPainel(p.id)}
-                      onDoubleClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome) }}
-                      onPointerDown={e => e.stopPropagation()}
-                    >
-                      <span style={sty.painelTabInner}>
-                        {p.nome}
-                        <span
-                          role="button"
-                          aria-label="Opções do painel"
-                          style={sty.painelMenuBtn}
-                          onPointerDown={e => e.stopPropagation()}
-                          onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id); setDeletingId(null) }}
-                        >
-                          <DotsThree size={14} weight="bold" />
-                        </span>
-                      </span>
-                    </button>
-                  )}
-
-                  {/* Dropdown Menu */}
-                  {menuPainelId === p.id && (
-                    <div style={sty.painelMenuDropdown} onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
-                      {deletingId === p.id ? (
-                        <div style={{ padding: '0.5rem 0.75rem' }}>
-                          <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
-                            Excluir <strong style={{ color: '#fff' }}>{p.nome}</strong>?
-                          </p>
-                          <div style={{ display: 'flex', gap: '0.4rem' }}>
-                            <button type="button" style={sty.painelNovoBtnOk} onClick={() => handleDeletarPainel(p.id)}>
-                              Confirmar
-                            </button>
-                            <button type="button" style={sty.painelNovoBtnCancel} onClick={() => setDeletingId(null)}>
-                              Cancelar
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            style={sty.painelMenuItem}
-                            onClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
-                          >
-                            <PencilSimple size={13} />
-                            Renomear
-                          </button>
-                          <button
-                            type="button"
-                            style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
-                            onClick={() => paineis.length > 1 && setDeletingId(p.id)}
-                            disabled={paineis.length <= 1}
-                            title={paineis.length <= 1 ? 'Não é possível excluir o único painel' : ''}
-                          >
-                            <Trash size={13} />
-                            Excluir
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </SortableTabWrapper>
-              ))}
-            </SortableContext>
-          </DndContext>
-
-          {/* Criar Novo Painel */}
-          {criandoPainel ? (
-            <form
-              style={sty.painelNovoForm}
-              onSubmit={(e) => {
-                e.preventDefault()
-                const nome = novoNomePainel.trim()
-                if (!nome) return
-                if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
-                paineisDashboardApi.criar(nome).then(({ data }) => {
-                  salvarWidgetsPainelAtual(data.id, [])
-                  setPaineis([...paineis, data])
-                  setPainelAtual(data.id)
-                  setNovoNomePainel('')
-                  setCriandoPainel(false)
-                }).catch(() => {})
-              }}
-            >
-              <input
-                autoFocus
-                type="text"
-                placeholder="Nome do painel"
-                value={novoNomePainel}
-                onChange={(e) => setNovoNomePainel(e.target.value)}
-                style={sty.painelNovoInput}
-                maxLength={60}
-              />
-              <button type="submit" style={sty.painelNovoBtnOk}>Criar</button>
-              <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>
-                <X size={11} />
-              </button>
-            </form>
-          ) : (
-            <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title="Novo painel">
-              +
-            </button>
-          )}
+        activeFilters={activeFilters}
+        onClearFilters={clearFilters}
+        onAbrirSugestoes={podeEditarDashboard ? () => setSuggestionsOpen(true) : undefined}
+        onCriarWidgetZero={podeEditarDashboard ? () => setQueryBuilderOpen(true) : undefined}
+        editMode={editMode}
+        onEditModeChange={setEditMode}
+          />
         </div>
-      )}
+      </div>
 
       <DashboardGrid
         widgets={activeWidgets}

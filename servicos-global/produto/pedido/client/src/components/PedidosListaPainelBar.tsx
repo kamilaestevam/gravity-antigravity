@@ -1,3 +1,4 @@
+
 /**
  * PedidosListaPainelBar — abas de painéis da Lista (espelho do Dashboard).
  */
@@ -13,6 +14,21 @@ import { useTranslation } from 'react-i18next'
 import { DotsThree, PencilSimple, Trash, X } from '@phosphor-icons/react'
 import { paineisListaApi, type ListaPainel } from '../shared/api'
 import { rotuloExibicaoPainelLista } from '../shared/rotuloPainelLista'
+
+export interface PainelBarItem {
+  id: string
+  nome: string
+  ordem: number
+  is_visivel: boolean
+}
+
+export interface PainelBarApiPort {
+  atualizar: (id: string, patch: { nome?: string; is_visivel?: boolean }) => Promise<unknown>
+  deletar: (id: string) => Promise<unknown>
+  reordenar: (ids: string[]) => Promise<unknown>
+}
+
+const painelApiListaPadrao: PainelBarApiPort = paineisListaApi
 import '../pages/Pedidos.css'
 import '../pages/PedidosDashboard.css'
 
@@ -78,10 +94,10 @@ function SortableTabWrapper({ id, children }: { id: string; children: React.Reac
   )
 }
 
-export interface PedidosListaPainelBarProps {
-  paineis: ListaPainel[]
+export interface PedidosListaPainelBarProps<T extends PainelBarItem = ListaPainel> {
+  paineis: T[]
   painelAtualId: string | null
-  setPaineis: (paineis: ListaPainel[]) => void
+  setPaineis: (paineis: T[]) => void
   setPainelAtualId: (id: string) => void
   onTrocarPainel: (id: string) => void
   /** Cria painel (API + estado); retorna false se falhar — exibe notificação no pai */
@@ -89,9 +105,12 @@ export interface PedidosListaPainelBarProps {
   carregando?: boolean
   /** standalone = faixa isolada; unificado = embutido na faixa painéis+status */
   variant?: 'standalone' | 'unificado'
+  /** lista (padrão) ou dashboard — prefixo i18n e data-testid */
+  contexto?: 'lista' | 'dashboard'
+  painelApi?: PainelBarApiPort
 }
 
-export function PedidosListaPainelBar({
+export function PedidosListaPainelBar<T extends PainelBarItem = ListaPainel>({
   paineis,
   painelAtualId,
   setPaineis,
@@ -100,8 +119,17 @@ export function PedidosListaPainelBar({
   onCriarPainel,
   carregando,
   variant = 'standalone',
-}: PedidosListaPainelBarProps) {
+  contexto = 'lista',
+  painelApi = painelApiListaPadrao,
+}: PedidosListaPainelBarProps<T>) {
   const { t } = useTranslation()
+  const i18n = (chave: string, fallback: string, opts?: Record<string, unknown>) =>
+    t(`pedido.${contexto}.${chave}`, { defaultValue: fallback, ...opts })
+  const testIdBar = contexto === 'dashboard' ? 'dashboard-painel-bar' : 'lista-painel-bar'
+  const testIdPainelAtual = contexto === 'dashboard' ? 'dashboard-painel-atual' : 'lista-painel-atual'
+  const testIdPrefixTab = contexto === 'dashboard' ? 'dashboard-painel-tab' : 'lista-painel-tab'
+  const testIdPrefixMenu = contexto === 'dashboard' ? 'dashboard-painel-menu' : 'lista-painel-menu'
+  const testIdCriar = contexto === 'dashboard' ? 'dashboard-painel-criar' : 'lista-painel-criar'
   const [criandoPainel, setCriandoPainel] = useState(false)
   const [salvandoPainel, setSalvandoPainel] = useState(false)
   const [novoNomePainel, setNovoNomePainel] = useState('')
@@ -137,15 +165,15 @@ export function PedidosListaPainelBar({
       renameInFlightRef.current = null
       return
     }
-    paineisListaApi.atualizar(id, { nome: trimmed })
+    painelApi.atualizar(id, { nome: trimmed })
       .then(() => setPaineis(paineis.map(p => p.id === id ? { ...p, nome: trimmed } : p)))
       .catch(() => {})
       .finally(() => { renameInFlightRef.current = null })
-  }, [paineis, setPaineis])
+  }, [paineis, setPaineis, painelApi])
 
   const handleDeletarPainel = useCallback((id: string) => {
     if (paineis.length <= 1) return
-    paineisListaApi.deletar(id)
+    painelApi.deletar(id)
       .then(() => {
         const atualizados = paineis.filter(p => p.id !== id)
         setPaineis(atualizados)
@@ -160,7 +188,7 @@ export function PedidosListaPainelBar({
       .catch(() => {})
     setMenuPainelId(null)
     setDeletingId(null)
-  }, [paineis, painelAtualId, setPaineis, setPainelAtualId, onTrocarPainel])
+  }, [paineis, painelAtualId, setPaineis, setPainelAtualId, onTrocarPainel, painelApi])
 
   const handlePainelDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
@@ -170,23 +198,19 @@ export function PedidosListaPainelBar({
     if (oldIndex === -1 || newIndex === -1) return
     const reordered = arrayMove(paineis, oldIndex, newIndex)
     setPaineis(reordered)
-    paineisListaApi.reordenar(reordered.map(p => p.id)).catch(() => {})
-  }, [paineis, setPaineis])
+    painelApi.reordenar(reordered.map(p => p.id)).catch(() => {})
+  }, [paineis, setPaineis, painelApi])
 
   const painelAtual = paineis.find(p => p.id === painelAtualId) ?? null
   const paineisVisiveis = paineis.filter(p => p.is_visivel !== false)
 
   const rotulosPainel = useCallback(
-    (p: ListaPainel) =>
+    (p: T) =>
       rotuloExibicaoPainelLista(p, paineis, {
-        padrao: t('pedido.lista.painel_nome_padrao', { defaultValue: 'Padrão' }),
-        numerado: n =>
-          t('pedido.lista.painel_nome_numerado', {
-            defaultValue: 'Painel {{n}}',
-            n,
-          }),
+        padrao: i18n('painel_nome_padrao', 'Padrão'),
+        numerado: n => i18n('painel_nome_numerado', 'Painel {{n}}', { n }),
       }),
-    [paineis, t],
+    [paineis, contexto, t],
   )
 
   /** Garante que o painel em uso aparece na barra mesmo se is_visivel estiver false no banco. */
@@ -205,26 +229,24 @@ export function PedidosListaPainelBar({
       : 'lp-paineis-lista-strip'
 
   return (
-    <div className={stripClass} data-testid="lista-painel-bar">
+    <div className={stripClass} data-testid={testIdBar}>
       <span
         className="lp-paineis-lista-strip__label"
-        title={t('pedido.lista.paineis_secao', { defaultValue: 'Painéis da lista' })}
+        title={i18n('paineis_secao', contexto === 'dashboard' ? 'Painéis do dashboard' : 'Painéis da lista')}
       >
-        {t('pedido.lista.paineis_secao_curto', { defaultValue: 'Painéis' })}
+        {i18n('paineis_secao_curto', 'Painéis')}
       </span>
       <div className="lp-paineis-lista-strip__tabs pedido-dashboard-painel-bar">
       {carregando && paineisNaBarra.length === 0 ? (
         <span className="lp-paineis-lista-strip__vazio" role="status">
-          {t('pedido.lista.paineis_carregando', { defaultValue: 'Carregando…' })}
+          {i18n('paineis_carregando', 'Carregando…')}
         </span>
       ) : paineisNaBarra.length === 0 ? (
         <span
           className="lp-paineis-lista-strip__vazio"
-          title={t('pedido.lista.paineis_vazio', {
-            defaultValue: 'Crie em + Novo → Novo painel ou no + ao lado.',
-          })}
+          title={i18n('paineis_vazio', 'Crie em + Novo → Novo painel ou no + ao lado.')}
         >
-          {t('pedido.lista.paineis_vazio_curto', { defaultValue: '+ Novo painel ou botão +' })}
+          {i18n('paineis_vazio_curto', '+ Novo painel ou botão +')}
         </span>
       ) : (
       <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
@@ -263,7 +285,7 @@ export function PedidosListaPainelBar({
                 >
                   <button
                     type="button"
-                    data-testid={ativo ? 'lista-painel-atual' : `lista-painel-tab-${p.id}`}
+                    data-testid={ativo ? testIdPainelAtual : `${testIdPrefixTab}-${p.id}`}
                     className="lp-painel-tab lp-painel-tab--rotulo"
                     onClick={() => onTrocarPainel(p.id)}
                     onDoubleClick={() => { setRenamingId(p.id); setRenameValue(p.nome) }}
@@ -283,7 +305,7 @@ export function PedidosListaPainelBar({
                   </button>
                   <button
                     type="button"
-                    data-testid={`lista-painel-menu-${p.id}`}
+                    data-testid={`${testIdPrefixMenu}-${p.id}`}
                     className="lp-painel-tab__menu"
                     aria-label={t('pedido.lista.painel_renomear', { defaultValue: 'Renomear' })}
                     title={t('pedido.lista.painel_renomear_um_clique', {
@@ -417,7 +439,7 @@ export function PedidosListaPainelBar({
         <button
           type="button"
           className="lp-painel-tab-add"
-          data-testid="lista-painel-criar"
+          data-testid={testIdCriar}
           onClick={() => setCriandoPainel(true)}
           title={t('pedido.lista.painel_novo', { defaultValue: 'Novo painel' })}
           aria-label={t('pedido.lista.painel_novo', { defaultValue: 'Novo painel' })}

@@ -9,11 +9,41 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
+import type { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 import { AppError } from '../lib/erros.js'
 import crypto from 'crypto'
 
 export const dashboardPaineisRouter = Router()
+
+type ReqComTenant = Request & { prisma?: PrismaClient; tenantId?: string }
+
+function resolverCtxDashboardPainel(req: ReqComTenant): {
+  db: PrismaClient
+  idOrganizacao: string
+  idUsuario: string
+} {
+  if (!req.prisma) {
+    throw new AppError('Prisma tenant não disponível', 500, 'INTERNAL_ERROR')
+  }
+  const idOrganizacao = req.tenantId ?? (req.headers['x-id-organizacao'] as string | undefined)
+  const idUsuario = req.headers['x-id-usuario'] as string | undefined
+  if (!idOrganizacao) {
+    throw new AppError('x-id-organizacao obrigatório', 401, 'UNAUTHORIZED')
+  }
+  if (!idUsuario) {
+    throw new AppError('x-id-usuario obrigatório', 401, 'UNAUTHORIZED')
+  }
+  return { db: req.prisma, idOrganizacao, idUsuario }
+}
+
+function wherePainelBidFrete(idOrganizacao: string, idUsuario: string) {
+  return {
+    id_organizacao: idOrganizacao,
+    id_usuario: idUsuario,
+    id_dashboard_painel_usuario_global: { startsWith: 'bid_frete_' },
+  }
+}
 
 // ── Schemas Zod ───────────────────────────────────────────────────────────────
 
@@ -71,20 +101,10 @@ function mapPatch(patch: { nome?: string; is_visivel?: boolean; widgets_json?: s
 
 dashboardPaineisRouter.get('/paineis', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const db = req.prisma as any
-    const idOrganizacao = req.headers['x-id-organizacao'] as string
-    const idUsuario = req.headers['x-id-usuario'] as string
-
-    if (!idOrganizacao || !idUsuario) {
-      throw new AppError('Headers x-id-organizacao e x-id-usuario sao obrigatorios', 401, 'UNAUTHORIZED')
-    }
+    const { db, idOrganizacao, idUsuario } = resolverCtxDashboardPainel(req as ReqComTenant)
 
     let paineis = await db.dashboardPainelUsuarioGlobal.findMany({
-      where:   {
-        id_organizacao: idOrganizacao,
-        id_usuario: idUsuario,
-        id_dashboard_painel_usuario_global: { startsWith: 'bid_frete_' },
-      },
+      where: wherePainelBidFrete(idOrganizacao, idUsuario),
       orderBy: { ordem_dashboard_painel_usuario_global: 'asc' },
     })
 
@@ -116,20 +136,10 @@ dashboardPaineisRouter.post('/paineis', async (req: Request, res: Response, next
   }
 
   try {
-    const db = req.prisma as any
-    const idOrganizacao = req.headers['x-id-organizacao'] as string
-    const idUsuario = req.headers['x-id-usuario'] as string
-
-    if (!idOrganizacao || !idUsuario) {
-      throw new AppError('Headers x-id-organizacao e x-id-usuario sao obrigatorios', 401, 'UNAUTHORIZED')
-    }
+    const { db, idOrganizacao, idUsuario } = resolverCtxDashboardPainel(req as ReqComTenant)
 
     const ultimo = await db.dashboardPainelUsuarioGlobal.findFirst({
-      where:   {
-        id_organizacao: idOrganizacao,
-        id_usuario: idUsuario,
-        id_dashboard_painel_usuario_global: { startsWith: 'bid_frete_' },
-      },
+      where: wherePainelBidFrete(idOrganizacao, idUsuario),
       orderBy: { ordem_dashboard_painel_usuario_global: 'desc' },
       select:  { ordem_dashboard_painel_usuario_global: true },
     })
@@ -159,13 +169,7 @@ dashboardPaineisRouter.put('/paineis/reordenar', async (req: Request, res: Respo
   }
 
   try {
-    const db = req.prisma as any
-    const idOrganizacao = req.headers['x-id-organizacao'] as string
-    const idUsuario = req.headers['x-id-usuario'] as string
-
-    if (!idOrganizacao || !idUsuario) {
-      throw new AppError('Headers x-id-organizacao e x-id-usuario sao obrigatorios', 401, 'UNAUTHORIZED')
-    }
+    const { db, idOrganizacao, idUsuario } = resolverCtxDashboardPainel(req as ReqComTenant)
 
     await Promise.all(
       parsed.data.ids.map((id, index) =>
@@ -191,14 +195,8 @@ dashboardPaineisRouter.put('/paineis/:id_painel_dashboard_pedido', async (req: R
   }
 
   try {
-    const db = req.prisma as any
-    const idOrganizacao = req.headers['x-id-organizacao'] as string
-    const idUsuario = req.headers['x-id-usuario'] as string
+    const { db, idOrganizacao, idUsuario } = resolverCtxDashboardPainel(req as ReqComTenant)
     const { id_painel_dashboard_pedido: id } = req.params
-
-    if (!idOrganizacao || !idUsuario) {
-      throw new AppError('Headers x-id-organizacao e x-id-usuario sao obrigatorios', 401, 'UNAUTHORIZED')
-    }
 
     const painel = await db.dashboardPainelUsuarioGlobal.findFirst({
       where: { id_dashboard_painel_usuario_global: id, id_organizacao: idOrganizacao, id_usuario: idUsuario },
@@ -221,17 +219,11 @@ dashboardPaineisRouter.put('/paineis/:id_painel_dashboard_pedido', async (req: R
 
 dashboardPaineisRouter.delete('/paineis/:id_painel_dashboard_pedido', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const db = req.prisma as any
-    const idOrganizacao = req.headers['x-id-organizacao'] as string
-    const idUsuario = req.headers['x-id-usuario'] as string
+    const { db, idOrganizacao, idUsuario } = resolverCtxDashboardPainel(req as ReqComTenant)
     const { id_painel_dashboard_pedido: id } = req.params
 
-    if (!idOrganizacao || !idUsuario) {
-      throw new AppError('Headers x-id-organizacao e x-id-usuario sao obrigatorios', 401, 'UNAUTHORIZED')
-    }
-
     const total = await db.dashboardPainelUsuarioGlobal.count({
-      where: { id_organizacao: idOrganizacao, id_usuario: idUsuario, id_dashboard_painel_usuario_global: { startsWith: 'bid_frete_' } },
+      where: wherePainelBidFrete(idOrganizacao, idUsuario),
     })
     if (total <= 1) {
       throw new AppError('Não é possível deletar o único painel', 400, 'VALIDATION_ERROR')

@@ -220,7 +220,7 @@ export const useDashboardStore = create<DashboardState>()(
       setPaineis: (paineis) => set((s) => {
         const painelAtualId = s.painelAtualId && paineis.some(p => p.id === s.painelAtualId)
           ? s.painelAtualId
-          : (paineis.find(p => p.is_visivel)?.id ?? null)
+          : (paineis.find(p => p.is_visivel !== false)?.id ?? paineis[0]?.id ?? null)
 
         if (painelAtualId === s.painelAtualId) {
           if (s.widgets.length === 0 && s.widgetsByPainel[painelAtualId ?? ''] === undefined) {

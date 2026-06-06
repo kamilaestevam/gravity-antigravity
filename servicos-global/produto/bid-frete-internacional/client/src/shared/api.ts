@@ -12,6 +12,12 @@ import {
   listaPainelReordenarResponseSchema,
   type ListaPainel,
 } from '../../../shared/listaPainelApiSchema.js'
+import {
+  dashboardPainelDeletarResponseSchema,
+  dashboardPainelItemResponseSchema,
+  dashboardPainelListResponseSchema,
+  dashboardPainelReordenarResponseSchema,
+} from '../../../shared/dashboardPainelApiSchema.js'
 import { useShellStore, injetarHeaderOverride } from '@gravity/shell'
 import {
   visaoFornecedorBidFreteInternacionalCotacoesPendentesResponseSchema,
@@ -1191,35 +1197,54 @@ export const paineisListaBidFreteApi = {
 export const paineisDashboardApi = {
   listar: (): Promise<{ data: DashboardPainel[] }> =>
     fetch(`${API_BASE}/bid-frete-internacional/dashboard/paineis`, { headers: headers() })
-      .then(res => handleResponse<{ data: DashboardPainel[] }>(res))
-      .catch(() => ({ data: [] })),
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => {
+        const parsed = dashboardPainelListResponseSchema.safeParse(raw)
+        if (!parsed.success) {
+          console.warn(
+            '[paineisDashboardApi.listar] resposta fora do contrato Zod',
+            parsed.error.flatten(),
+            raw,
+          )
+          throw new Error('Resposta inválida ao listar painéis do dashboard')
+        }
+        return parsed.data
+      }),
 
   criar: (nome: string): Promise<{ data: DashboardPainel }> =>
     fetch(`${API_BASE}/bid-frete-internacional/dashboard/paineis`, {
       method: 'POST',
       headers: headers(),
       body: JSON.stringify({ nome }),
-    }).then(res => handleResponse<{ data: DashboardPainel }>(res)),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => dashboardPainelItemResponseSchema.parse(raw)),
 
   atualizar: (id: string, patch: Partial<Pick<DashboardPainel, 'nome' | 'is_visivel' | 'widgets_json'>>): Promise<{ data: DashboardPainel }> =>
     fetch(`${API_BASE}/bid-frete-internacional/dashboard/paineis/${id}`, {
       method: 'PUT',
       headers: headers(),
       body: JSON.stringify(patch),
-    }).then(res => handleResponse<{ data: DashboardPainel }>(res)),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => dashboardPainelItemResponseSchema.parse(raw)),
 
   reordenar: (ids: string[]): Promise<{ data: { reordenado: boolean } }> =>
     fetch(`${API_BASE}/bid-frete-internacional/dashboard/paineis/reordenar`, {
       method: 'PUT',
       headers: headers(),
       body: JSON.stringify({ ids }),
-    }).then(res => handleResponse<{ data: { reordenado: boolean } }>(res)),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => dashboardPainelReordenarResponseSchema.parse(raw)),
 
   deletar: (id: string): Promise<{ data: { deletado: boolean } }> =>
     fetch(`${API_BASE}/bid-frete-internacional/dashboard/paineis/${id}`, {
       method: 'DELETE',
       headers: headers(),
-    }).then(res => handleResponse<{ data: { deletado: boolean } }>(res)),
+    })
+      .then(res => handleResponse<unknown>(res))
+      .then(raw => dashboardPainelDeletarResponseSchema.parse(raw)),
 }
 
 export interface DashboardKpis {

@@ -1,5 +1,5 @@
 /**
- * Teste em tela — Lista Pedido: editar e salvar pedido + itens (coluna Nº PEDIDO / Nº ITEM)
+ * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO DE OPERAÇÃO (editar/salvar e bloqueios)
  * Plano: TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001
  *
  * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts
@@ -35,6 +35,10 @@ const WORKSPACE_CDE_PADRAO = process.env.ID_WORKSPACE_TESTE ?? 'cmorx5iwh000aclw
 const COLUNA_ALVO = 'Nº PEDIDO / Nº ITEM'
 const CAMPO_PEDIDO_COLUNA = 'Nº PEDIDO'
 const CAMPO_ITEM_COLUNA = 'Nº ITEM'
+const COLUNA_TIPO_OPERACAO = 'TIPO DE OPERAÇÃO'
+const LABEL_TIPO_IMPORTACAO = 'Importação'
+const LABEL_TIPO_EXPORTACAO = 'Exportação'
+const CHECKBOX_REPLICAR_REGEX = /aplicar a todos os itens deste pedido/i
 const ALERTA_DUPLICADO_TOOLTIP = 'Existem itens com o mesmo Part Number neste pedido'
 const PRODUTO_EMT = 'Pedido'
 const LOCAL_LISTA = 'Lista'
@@ -359,6 +363,276 @@ async function editarCampoTextoItemPorIndice(
  * Regra de negócio (APROVADO): Part Numbers iguais no pedido → alerta visível.
  * SSOT: data-testid no produto; fallback svg na coluna numero_pedido (produção sem deploy).
  */
+async function indiceColunaTipoOperacao(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const headers = Array.from(document.querySelectorAll('.gtv-cabecalho .gtv-celula'))
+    return headers.findIndex(h => /tipo de operação/i.test(h.textContent ?? ''))
+  })
+}
+
+async function clicarCelulaTipoOperacaoItem(
+  page: Page,
+  pedidoRowId: string,
+  indiceItem: number,
+): Promise<boolean> {
+  const colIdx = await indiceColunaTipoOperacao(page)
+  if (colIdx < 0) return false
+  return page.evaluate(({ paiId, idx, colIdx: cIdx }) => {
+    const filhos = (() => {
+      let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+      if (f.length === 0) {
+        const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+        if (paiEl) {
+          f = []
+          let prox = paiEl.nextElementSibling
+          while (prox?.classList.contains('gtv-linha--filho')) {
+            f.push(prox)
+            prox = prox.nextElementSibling
+          }
+        }
+      }
+      return f
+    })()
+    const filho = filhos[idx]
+    if (!filho) return false
+    const celulas = filho.querySelectorAll('.gtv-celula')
+    const cel = celulas[cIdx] as HTMLElement | undefined
+    if (!cel) return false
+    cel.click()
+    return true
+  }, { paiId: pedidoRowId, idx: indiceItem, colIdx })
+}
+
+async function abrirPopoverTipoOperacaoPai(page: Page, rowId: string): Promise<boolean> {
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="tipo_operacao"]`)
+  if (await cel.count() === 0) return false
+  await cel.click()
+  return page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function popoverExibeCheckboxReplicar(page: Page): Promise<boolean> {
+  const cb = page.locator('.gtv-edit-popover label').filter({ hasText: CHECKBOX_REPLICAR_REGEX })
+  return cb.isVisible().catch(() => false)
+}
+
+async function fecharPopoverSeAberto(page: Page): Promise<void> {
+  const visivel = await page.locator('.gtv-edit-popover').isVisible().catch(() => false)
+  if (visivel) {
+    await page.keyboard.press('Escape')
+    await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {})
+  }
+}
+
+async function selecionarTipoOperacaoPopover(page: Page, label: string): Promise<void> {
+  await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').filter({ hasText: label }).first().click()
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
+}
+
+async function lerBadgeTipoOperacaoPai(page: Page, rowId: string): Promise<string | null> {
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="tipo_operacao"]`)
+  return cel.textContent()
+}
+
+function pedidoExibeTipo(badge: string | null, label: string): boolean {
+  return badge?.includes(label) ?? false
+}
+
+async function lerTextosTipoOperacaoItens(page: Page, pedidoRowId: string): Promise<string[]> {
+  const colIdx = await indiceColunaTipoOperacao(page)
+  if (colIdx < 0) return []
+  return page.evaluate(({ paiId, cIdx }) => {
+    const filhos = (() => {
+      let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+      if (f.length === 0) {
+        const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+        if (paiEl) {
+          f = []
+          let prox = paiEl.nextElementSibling
+          while (prox?.classList.contains('gtv-linha--filho')) {
+            f.push(prox)
+            prox = prox.nextElementSibling
+          }
+        }
+      }
+      return f
+    })()
+    return filhos.map(filho => {
+      const cel = filho.querySelectorAll('.gtv-celula')[cIdx]
+      return cel?.textContent?.trim() ?? ''
+    })
+  }, { paiId: pedidoRowId, cIdx: colIdx })
+}
+
+async function pedidoEItensExibemTipo(
+  page: Page,
+  rowId: string,
+  label: typeof LABEL_TIPO_IMPORTACAO | typeof LABEL_TIPO_EXPORTACAO,
+): Promise<{ pedidoOk: boolean; itensOk: boolean; qtdItens: number }> {
+  const badgePai = await lerBadgeTipoOperacaoPai(page, rowId)
+  const textosItens = await lerTextosTipoOperacaoItens(page, rowId)
+  const pedidoOk = pedidoExibeTipo(badgePai, label)
+  const itensOk = textosItens.length > 0 && textosItens.every(t => t.includes(label))
+  return { pedidoOk, itensOk, qtdItens: textosItens.length }
+}
+
+async function itensTipoOperacaoTravados(page: Page, pedidoRowId: string): Promise<boolean> {
+  const colIdx = await indiceColunaTipoOperacao(page)
+  if (colIdx < 0) return false
+  const travados = await page.evaluate(({ paiId, cIdx }) => {
+    const filhos = (() => {
+      let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+      if (f.length === 0) {
+        const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+        if (paiEl) {
+          f = []
+          let prox = paiEl.nextElementSibling
+          while (prox?.classList.contains('gtv-linha--filho')) {
+            f.push(prox)
+            prox = prox.nextElementSibling
+          }
+        }
+      }
+      return f
+    })()
+    if (filhos.length === 0) return false
+    return filhos.every(filho => {
+      const cel = filho.querySelectorAll('.gtv-celula')[cIdx] as HTMLElement | undefined
+      return cel != null && !cel.classList.contains('gtv-celula--editavel')
+    })
+  }, { paiId: pedidoRowId, cIdx: colIdx })
+  if (!travados) return false
+  const textosItens = await lerTextosTipoOperacaoItens(page, pedidoRowId)
+  for (let i = 0; i < textosItens.length; i++) {
+    await fecharPopoverSeAberto(page)
+    await page.waitForTimeout(150)
+    const clicou = await clicarCelulaTipoOperacaoItem(page, pedidoRowId, i)
+    if (!clicou) return false
+    await page.waitForTimeout(400)
+    const popover = await page.locator('.gtv-edit-popover').isVisible().catch(() => false)
+    if (popover) return false
+  }
+  return textosItens.length > 0
+}
+
+async function garantirTipoOperacaoPedido(
+  page: Page,
+  rowId: string,
+  label: typeof LABEL_TIPO_IMPORTACAO | typeof LABEL_TIPO_EXPORTACAO,
+): Promise<void> {
+  const badge = await lerBadgeTipoOperacaoPai(page, rowId)
+  if (pedidoExibeTipo(badge, label)) return
+  const abriu = await abrirPopoverTipoOperacaoPai(page, rowId)
+  if (!abriu) return
+  await selecionarTipoOperacaoPopover(page, label)
+  await aguardarNotificacaoSalvar(page, 8000)
+  await page.waitForTimeout(500)
+}
+
+async function validarAlteracaoTipoPedidoEItens(
+  page: Page,
+  rowId: string,
+  label: typeof LABEL_TIPO_IMPORTACAO | typeof LABEL_TIPO_EXPORTACAO,
+  acaoLog: string,
+): Promise<boolean> {
+  const { pedidoOk, itensOk, qtdItens } = await pedidoEItensExibemTipo(page, rowId, label)
+  if (pedidoOk && itensOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, `${acaoLog} (${qtdItens} itens)`)
+    return true
+  }
+  if (!pedidoOk) falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, `${acaoLog} — pedido não exibe ${label}`)
+  if (!itensOk) falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, `${acaoLog} — itens não replicaram ${label}`)
+  return false
+}
+
+/** Passos 06–12 — TIPO DE OPERAÇÃO (Importação ↔ Exportação). */
+async function validarTipoOperacaoLista(page: Page, rowId: string): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_TIPO_OPERACAO}: passos 06–12 (modal, sem checkbox, replica pedido+itens, item travado)`)
+
+  await garantirTipoOperacaoPedido(page, rowId, LABEL_TIPO_IMPORTACAO)
+
+  // 06 — abrir modal com pedido em Importação
+  await fecharPopoverSeAberto(page)
+  const abriu06 = await abrirPopoverTipoOperacaoPai(page, rowId)
+  if (!abriu06) {
+    falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '06 — Abrir modal na linha do pedido (Importação)')
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '06 — Abrir modal na linha do pedido (Importação)')
+  }
+  await screenshot(page, '06-tipo-operacao-modal-importacao.png')
+
+  // 07 — modal sem checkbox (Importação)
+  const temCb07 = await popoverExibeCheckboxReplicar(page)
+  await screenshot(page, '07-tipo-operacao-sem-checkbox-importacao.png')
+  if (temCb07) {
+    falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '07 — Modal não deve exibir «Aplicar a todos os itens» (Importação)')
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '07 — Modal sem checkbox replicar (Importação)')
+  }
+
+  // 08 — Importação → Exportação (pedido + itens)
+  await selecionarTipoOperacaoPopover(page, LABEL_TIPO_EXPORTACAO)
+  await aguardarNotificacaoSalvar(page, 8000)
+  await page.waitForTimeout(600)
+  await validarAlteracaoTipoPedidoEItens(
+    page,
+    rowId,
+    LABEL_TIPO_EXPORTACAO,
+    '08 — Alterar pedido Importação → Exportação (pedido e itens)',
+  )
+  await screenshot(page, '08-tipo-operacao-pedido-itens-exportacao.png')
+
+  // Itens travados após Exportação (passo implícito entre 08 e 09)
+  const travadosPosExp = await itensTipoOperacaoTravados(page, rowId)
+  if (travadosPosExp) {
+    logAprovado(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, 'Itens com célula travada após Exportação')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, 'Itens devem estar travados após Exportação')
+  }
+
+  // 09 — abrir modal com pedido em Exportação
+  await fecharPopoverSeAberto(page)
+  const abriu09 = await abrirPopoverTipoOperacaoPai(page, rowId)
+  if (!abriu09) {
+    falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '09 — Abrir modal na linha do pedido (Exportação)')
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '09 — Abrir modal na linha do pedido (Exportação)')
+  }
+  await screenshot(page, '09-tipo-operacao-modal-exportacao.png')
+
+  // 10 — modal sem checkbox (Exportação)
+  const temCb10 = await popoverExibeCheckboxReplicar(page)
+  await screenshot(page, '10-tipo-operacao-sem-checkbox-exportacao.png')
+  if (temCb10) {
+    falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '10 — Modal não deve exibir «Aplicar a todos os itens» (Exportação)')
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '10 — Modal sem checkbox replicar (Exportação)')
+  }
+
+  // 11 — Exportação → Importação (pedido + itens)
+  await selecionarTipoOperacaoPopover(page, LABEL_TIPO_IMPORTACAO)
+  await aguardarNotificacaoSalvar(page, 8000)
+  await page.waitForTimeout(600)
+  await validarAlteracaoTipoPedidoEItens(
+    page,
+    rowId,
+    LABEL_TIPO_IMPORTACAO,
+    '11 — Alterar pedido Exportação → Importação (pedido e itens)',
+  )
+  await screenshot(page, '11-tipo-operacao-pedido-itens-importacao.png')
+
+  // 12 — itens travados (célula não editável, popover não abre)
+  await fecharPopoverSeAberto(page)
+  await clicarCelulaTipoOperacaoItem(page, rowId, 0)
+  await page.waitForTimeout(400)
+  const travados12 = await itensTipoOperacaoTravados(page, rowId)
+  await screenshot(page, '12-tipo-operacao-item-travado.png')
+  if (travados12) {
+    logAprovado(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '12 — Itens com célula travada (não permite edição)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_TIPO_OPERACAO, '12 — Itens devem estar travados (célula sem edição)')
+  }
+}
+
 async function pedidoTemAlertaPartNumberDuplicado(page: Page, pedidoRowId: string): Promise<boolean> {
   const pai = page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${pedidoRowId}"])`).first()
   const filhos = filhosDoPedidoLocator(page, pedidoRowId)
@@ -450,6 +724,8 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     await screenshot(page, '05-alerta-part-number-duplicado-pedido.png')
     falharTabela(LOCAL_LISTA, COLUNA_ALVO, `Validar alerta ${CAMPO_ITEM_COLUNA} duplicado — pedido com menos de 2 itens`)
   }
+
+  await validarTipoOperacaoLista(page, rowId)
 }
 
 async function main() {

@@ -184,12 +184,65 @@ async function bootstrapSchemaVazio(databaseUrl: string, client: Client): Promis
   }
 }
 
+/** Colunas canônicas mínimas — detecta drift pós-bootstrap (migrations registradas sem SQL). */
+const COLUNAS_CANONICAS_MINIMAS: Array<{ tabela: string; coluna: string }> = [
+  { tabela: 'cotacao_bid_frete_internacional', coluna: 'id_cotacao_bid_frete_internacional' },
+  { tabela: 'ganho_bid_frete_internacional', coluna: 'id_ganho_bid_frete_internacional' },
+  { tabela: 'proposta_bid_frete_internacional', coluna: 'id_proposta_bid_frete_internacional' },
+]
+
+async function schemaDriftDetectado(client: Client): Promise<boolean> {
+  for (const { tabela, coluna } of COLUNAS_CANONICAS_MINIMAS) {
+    if (!(await tabelaExiste(client, tabela))) continue
+    if (!(await colunaExiste(client, tabela, coluna))) {
+      console.warn(`[migrations-bid] Drift: ${tabela}.${coluna} ausente`)
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Reaplica SQL idempotente das migrations quando _prisma_migrations diz "ok"
+ * mas o schema físico ficou legado (caso comum após db push + baseline em produção).
+ */
+async function repararSchemaDrift(client: Client): Promise<void> {
+  console.log('[migrations-bid] Reparo schema drift — reaplicando SQL idempotente das migrations')
+  await client.query(CREATE_MIGRATIONS_TABLE)
+
+  for (const nome of listarMigrations()) {
+    const sqlPath = join(MIGRATIONS_DIR, nome, 'migration.sql')
+    const sql = readFileSync(sqlPath, 'utf-8')
+    console.log(`[migrations-bid]   reparo SQL: ${nome}`)
+    try {
+      await client.query('BEGIN')
+      await client.query(sql)
+      if (!(await migrationJaRegistrada(client, nome))) {
+        await registrarMigration(client, nome, sql)
+      }
+      await client.query('COMMIT')
+    } catch (err) {
+      await client.query('ROLLBACK')
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn(`[migrations-bid]   reparo ${nome} ignorado (idempotente): ${msg}`)
+    }
+  }
+}
+
 async function verificarSchemaAposDeploy(client: Client): Promise<void> {
-  if (await tabelaExiste(client, 'cotacao_bid_frete_internacional')) return
-  throw new Error(
-    'Tabela public.cotacao_bid_frete_internacional ausente após migrations. ' +
-      'Verifique BID_FRETE_INTERNATIONAL_DATABASE_URL (gravity-bid-frete-internacional-producao) e logs acima.',
-  )
+  if (!(await tabelaExiste(client, 'cotacao_bid_frete_internacional'))) {
+    throw new Error(
+      'Tabela public.cotacao_bid_frete_internacional ausente após migrations. ' +
+        'Verifique BID_FRETE_INTERNATIONAL_DATABASE_URL (gravity-bid-frete-internacional-producao) e logs acima.',
+    )
+  }
+
+  if (await schemaDriftDetectado(client)) {
+    throw new Error(
+      'Schema BID Frete Internacional com drift após migrations (colunas DDD ausentes). ' +
+        'Rode novamente este script ou verifique logs de reparo acima.',
+    )
+  }
 }
 
 async function main(): Promise<void> {
@@ -217,6 +270,8 @@ async function main(): Promise<void> {
       await bootstrapSchemaVazio(databaseUrl, client)
     } else if (await precisaBaseline(client)) {
       await aplicarBaseline(client)
+    } else if (await schemaDriftDetectado(client)) {
+      await repararSchemaDrift(client)
     }
 
     console.log('[migrations-bid] prisma migrate deploy...')

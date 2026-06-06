@@ -253,11 +253,11 @@ export const workspacesDisponiveisApi = {
       .filter((w): w is Record<string, unknown> => typeof w === 'object' && w !== null)
       .map((w) => ({
         id_workspace:    String(w.id_workspace ?? w.id ?? ''),
-        nome_workspace:  String(w.nome_workspace ?? ''),
+        nome_workspace:  String(w.nome_workspace ?? w.nome ?? '').trim(),
         cnpj_workspace:  w.cnpj_workspace == null ? null : String(w.cnpj_workspace),
         status_workspace: String(w.status_workspace ?? 'ATIVO'),
       }))
-      .filter((w) => w.id_workspace && w.nome_workspace)
+      .filter((w) => Boolean(w.id_workspace))
   },
 }
 

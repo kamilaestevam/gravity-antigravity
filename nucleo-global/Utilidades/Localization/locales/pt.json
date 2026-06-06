@@ -6206,6 +6206,7 @@
       "importador_workspace_desc": "Importador definido pelo workspace {{nome}}",
       "importador_espelhado_workspace_tooltip": "Espelhado com o workspace {{nome}} — altere o workspace do pedido para trocar o importador",
       "clique_abrir_seletor_importador": "Clique para trocar o importador vinculado",
+      "clique_editar_importador_lista": "Clique para trocar o importador vinculado",
       "exportador_workspace_desc": "Exportador definido pelo workspace {{nome}}",
       "exportador_e_workspace": "Exportador é o próprio Workspace. Clique para editar dados no Configurador",
       "workspace_sem_nome": "Nome do Workspace não cadastrado. Clique para cadastrar no Configurador",
@@ -7032,6 +7033,9 @@
         "importacao": "Importação",
         "exportacao": "Exportação"
       },
+      "popover": {
+        "editar_importador": "Editar Importador"
+      },
       "modal_importador": {
         "titulo": "Trocar importador",
         "subtitulo_workspace": "Pedido do workspace {{nome}}",
@@ -7113,6 +7117,11 @@
         "formula_config": "Fórmula configurada",
         "so_operacao": "Alterado por operação de saldo",
         "cond_import_export": "Depende de Importação ou Exportação",
+        "espelhado_workspace": "Espelhado com o Workspace",
+        "espelhado_workspace_cond": "em importação",
+        "espelhado_importador": "Espelhado com o Importador",
+        "espelhado_importador_cond": "em importação",
+        "itens_bloqueados_pedido": "Itens bloqueados — alteração apenas pelo pedido",
         "anexo": "Anexo pelo ícone na célula",
         "coluna_personalizada": "Coluna personalizada",
         "ghost_sem_checkbox": "Sem checkbox: grava só no pedido",
@@ -8026,6 +8035,7 @@
         "tooltip_titulo": "Exportador"
       },
       "mapa_nome_importador": {
+        "tooltip_bloqueado": "Somente leitura no item — altere na linha do pedido",
         "tooltip_bloqueado_cond": "Importador definido pelo workspace do pedido — não editável em Importação",
         "tooltip_titulo": "Importador"
       },

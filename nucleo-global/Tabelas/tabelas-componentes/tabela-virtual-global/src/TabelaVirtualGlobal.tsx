@@ -399,6 +399,7 @@ interface GTEditPopoverProps {
     gabiCampo?: string
     gabiEndpoint?: string
     avisoImpacto?: string
+    linkPopoverEdicao?: { label: string; href: string }
   }
   valorEditando: unknown
   salvando: boolean
@@ -860,6 +861,28 @@ const GTEditPopover = memo(function GTEditPopover({
             />
           )}
         </div>
+
+        {overlayInfo.linkPopoverEdicao ? (
+          <a
+            href={overlayInfo.linkPopoverEdicao.href}
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              margin: '0 12px 8px',
+              fontSize: '0.8rem',
+              color: '#818cf8',
+              textDecoration: 'none',
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+              <path d="M224,104a8,8,0,0,1-8,8H192v16a8,8,0,0,1-16,0V112H160a8,8,0,0,1,0-16h16V80a8,8,0,0,1,16,0v16h24A8,8,0,0,1,224,104ZM160,40H72A16,16,0,0,0,56,56V200a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V112a8,8,0,0,0-16,0v88H72V56h88a8,8,0,0,0,0-16Z"/>
+            </svg>
+            {overlayInfo.linkPopoverEdicao.label}
+          </a>
+        ) : null}
 
         {/* Aviso de impacto — badge com pulse glow. Informa o usuário quais
             colunas serão afetadas ANTES de confirmar. Texto definido por coluna
@@ -2177,7 +2200,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
 
     const classeIndent      = ''
-    const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : '')
+    const celulaBloqueadaPai = editavelColFn === false && !podeEditar
+    const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoEditar ? ' gtv-celula--sem-permissao' : (celulaBloqueadaPai ? ' gtv-celula--bloqueado' : ''))
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
@@ -2241,7 +2265,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             e.stopPropagation()
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
             const colU = col as GTColuna<unknown>
-            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais, gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto })
+            setOverlayInfo({
+              rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo,
+              opcoes: colU.getOpcoes ? colU.getOpcoes(item) : colU.opcoes,
+              moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais,
+              gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto,
+              linkPopoverEdicao: colU.linkPopoverEdicao?.(item),
+            })
             const valorParaEdicao = colU.getValorEditar ? colU.getValorEditar(item) : valor
             iniciarEdicao(id, col.key, valorParaEdicao)
           }
@@ -2503,11 +2533,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const colunaEditavelFilho = editavelMapaVal !== undefined ? editavelMapaVal : camposEditaveisFilhos.includes(col.key as string)
             const podeEditar = colunaEditavelFilho && !!onEditarFilho
             const semPermissaoFilho = colunaEditavelFilho && !podeEditar && !!mensagemSemPermissaoEditar
+            const celulaBloqueadaFilho = editavelMapaVal === false && !podeEditar
             const estaEditando = editandoCelulaFilho?.id === id && editandoCelulaFilho?.campo === campo
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
             const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
-            const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : '')
+            const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : (semPermissaoFilho ? ' gtv-celula--sem-permissao' : (celulaBloqueadaFilho ? ' gtv-celula--bloqueado' : ''))
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
@@ -2524,7 +2555,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                   const colU2 = col as GTColuna<unknown>
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: mapa?.opcoes ?? colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto })
+                  setOverlayInfo({
+                    rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo,
+                    opcoes: mapa?.opcoes ?? (colU2.getOpcoes ? colU2.getOpcoes(item as unknown) : colU2.opcoes),
+                    moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades,
+                    casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais,
+                    gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto,
+                    linkPopoverEdicao: colU2.linkPopoverEdicao?.(item as unknown),
+                  })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}

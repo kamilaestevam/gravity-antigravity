@@ -4504,6 +4504,7 @@
       "importador_workspace_desc": "Importer defined by workspace {{nome}}",
       "importador_espelhado_workspace_tooltip": "Mirrored from workspace {{nome}} — change the order workspace to switch the importer",
       "clique_abrir_seletor_importador": "Click to change the linked importer",
+      "clique_editar_importador_lista": "Click to change the linked importer",
       "exportador_workspace_desc": "Exporter defined by workspace {{nome}}",
       "exportador_e_workspace": "Exporter is the Workspace itself. Click to edit data in the Configurator",
       "workspace_sem_nome": "Workspace name not registered. Click to register in the Configurator",
@@ -6736,6 +6737,9 @@
         "importacao": "Import",
         "exportacao": "Export"
       },
+      "popover": {
+        "editar_importador": "Edit Importer"
+      },
       "modal_importador": {
         "titulo": "Change importer",
         "subtitulo_workspace": "Order from workspace {{nome}}",
@@ -6817,6 +6821,11 @@
         "formula_config": "Configured formula",
         "so_operacao": "Changed by balance operation",
         "cond_import_export": "Depends on Import or Export",
+        "espelhado_workspace": "Mirrored from Workspace",
+        "espelhado_workspace_cond": "on import",
+        "espelhado_importador": "Mirrored from Importer",
+        "espelhado_importador_cond": "on import",
+        "itens_bloqueados_pedido": "Items locked — edit on the order row only",
         "anexo": "Attachment via cell icon",
         "coluna_personalizada": "Custom column",
         "ghost_sem_checkbox": "Without checkbox: saves on order only",
@@ -7730,6 +7739,7 @@
         "tooltip_titulo": "Exporter"
       },
       "mapa_nome_importador": {
+        "tooltip_bloqueado": "Read-only on item — edit on the order row",
         "tooltip_bloqueado_cond": "Importer automatically defined by the workspace — not editable in Import",
         "tooltip_titulo": "Importer"
       },

@@ -321,6 +321,7 @@ function wrapTooltipRegraCelula(
   item: unknown,
   isFilho: boolean,
   ativo: boolean,
+  celulaBloqueada = false,
 ): React.ReactNode {
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
@@ -329,7 +330,12 @@ function wrapTooltipRegraCelula(
   const regra = resolverTooltipRegraCelula(col, item, isFilho)
   if (!regra) return conteudo
   return (
-    <TooltipGlobal titulo={regra.titulo} descricao={regra.descricao} interativo={regra.interativo}>
+    <TooltipGlobal
+      titulo={regra.titulo}
+      descricao={regra.descricao}
+      interativo={regra.interativo}
+      cursorBloqueado={celulaBloqueada}
+    >
       <span style={{ display: 'contents' }}>{conteudo}</span>
     </TooltipGlobal>
   )
@@ -446,6 +452,7 @@ interface GTEditPopoverProps {
     gabiEndpoint?: string
     avisoImpacto?: string
     apenasUnidade?: boolean
+    linkPopoverEdicao?: { label: string; href: string }
   }
   valorEditando: unknown
   salvando: boolean
@@ -1253,6 +1260,28 @@ const GTEditPopover = memo(function GTEditPopover({
           </div>
         )}
 
+        {overlayInfo.linkPopoverEdicao ? (
+          <a
+            href={overlayInfo.linkPopoverEdicao.href}
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              margin: '0 12px 8px',
+              fontSize: '0.8rem',
+              color: '#818cf8',
+              textDecoration: 'none',
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+              <path d="M224,104a8,8,0,0,1-8,8H192v16a8,8,0,0,1-16,0V112H160a8,8,0,0,1,0-16h16V80a8,8,0,0,1,16,0v16h24A8,8,0,0,1,224,104ZM160,40H72A16,16,0,0,0,56,56V200a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V112a8,8,0,0,0-16,0v88H72V56h88a8,8,0,0,0,0-16Z"/>
+            </svg>
+            {overlayInfo.linkPopoverEdicao.label}
+          </a>
+        ) : null}
+
         {/* Aviso de impacto — badge com pulse glow. Informa o usuário quais
             colunas serão afetadas ANTES de confirmar. Texto definido por coluna
             via prop avisoImpacto na GTColuna. Decisão UX 2026-05-15. */}
@@ -1784,6 +1813,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     casasDecimais?: number
     gabiCampo?: string
     gabiEndpoint?: string
+    avisoImpacto?: string
+    apenasUnidade?: boolean
+    linkPopoverEdicao?: { label: string; href: string }
   } | null>(null)
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
@@ -2843,7 +2875,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       ? (resultado === 'sucesso' ? ' gtv-celula--salvo' : resultado === 'erro' ? ' gtv-celula--erro-salvar' : '')
       : (estaEditando && salvando ? ' gtv-celula--salvando' : '')
 
-    const styleCelula: React.CSSProperties = {}
+    const styleCelula: React.CSSProperties = celulaBloqueadaPorRegra
+      ? { cursor: 'not-allowed' }
+      : {}
 
     // Overlay está ativo para esta célula específica
     const overlayAtivo = overlayInfo?.id === id && overlayInfo?.campo === col.key
@@ -2882,7 +2916,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       )
     } else if (tooltipBloqueadoMsg) {
       celInner = (
-        <TooltipGlobal titulo={col.label} descricao={tooltipBloqueadoMsg}>
+        <TooltipGlobal
+          titulo={col.label}
+          descricao={tooltipBloqueadoMsg}
+          cursorBloqueado={celulaBloqueadaPorRegra}
+        >
           <span style={{ display: 'contents' }}>{innerContent}</span>
         </TooltipGlobal>
       )
@@ -2894,7 +2932,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       )
     }
 
-    const celConteudo = wrapTooltipRegraCelula(colRegra, celInner, item, false, tooltipCelulaAtivo)
+    const celConteudo = wrapTooltipRegraCelula(
+      colRegra,
+      celInner,
+      item,
+      isFilho,
+      tooltipCelulaAtivo,
+      celulaBloqueadaPorRegra,
+    )
 
     return (
       <div
@@ -2909,7 +2954,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             e.stopPropagation()
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
             const colU = col as GTColuna<unknown>
-            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais, gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto, apenasUnidade: colU.apenasUnidade })
+            setOverlayInfo({
+              rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo,
+              opcoes: colU.getOpcoes ? colU.getOpcoes(item) : colU.opcoes,
+              moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais,
+              gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto,
+              apenasUnidade: colU.apenasUnidade,
+              linkPopoverEdicao: colU.linkPopoverEdicao?.(item),
+            })
             const valorParaEdicao = colU.getValorEditar ? colU.getValorEditar(item) : valor
             iniciarEdicao(id, col.key, valorParaEdicao)
           }
@@ -3213,7 +3265,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
-            const styleCelula: React.CSSProperties = {}
+            const styleCelula: React.CSSProperties = celulaBloqueadaFilho
+              ? { cursor: 'not-allowed' }
+              : {}
 
             const valor = (item as Record<string, unknown>)[campo]
 
@@ -3228,7 +3282,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                   const colU2 = col as GTColuna<unknown>
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: mapa?.opcoes ?? colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto, apenasUnidade: colU2.apenasUnidade })
+                  setOverlayInfo({
+                    rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo,
+                    opcoes: mapa?.opcoes ?? (colU2.getOpcoes ? colU2.getOpcoes(item as unknown) : colU2.opcoes),
+                    moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades,
+                    casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais,
+                    gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto,
+                    apenasUnidade: colU2.apenasUnidade,
+                    linkPopoverEdicao: colU2.linkPopoverEdicao?.(item as unknown),
+                  })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}
@@ -3271,13 +3333,24 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     const msg = typeof mapa.tooltipBloqueado === 'function' ? mapa.tooltipBloqueado(item) : mapa.tooltipBloqueado
                     if (msg) {
                       celFilhoInner = (
-                        <TooltipGlobal titulo={col.label} descricao={msg}>
+                        <TooltipGlobal
+                          titulo={col.label}
+                          descricao={msg}
+                          cursorBloqueado={celulaBloqueadaFilho}
+                        >
                           <span style={{ display: 'contents' }}>{conteudoFilho}</span>
                         </TooltipGlobal>
                       )
                     }
                   }
-                  return wrapTooltipRegraCelula(col as GTColuna<unknown>, celFilhoInner, item, true, tooltipFilhoAtivo)
+                  return wrapTooltipRegraCelula(
+                    col as GTColuna<unknown>,
+                    celFilhoInner,
+                    item,
+                    true,
+                    tooltipFilhoAtivo,
+                    celulaBloqueadaFilho,
+                  )
                 })()}
               </div>
             )

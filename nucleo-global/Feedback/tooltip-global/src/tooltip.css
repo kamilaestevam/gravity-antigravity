@@ -11,6 +11,10 @@
   cursor: pointer;
 }
 
+.tg-trigger--bloqueado {
+  cursor: not-allowed !important;
+}
+
 /* Ícone ⓘ que surge suavemente ao lado do texto no hover */
 body:not(.tooltips-disabled) .tg-trigger:not([data-tg-mute="true"])::after {
   content: '';

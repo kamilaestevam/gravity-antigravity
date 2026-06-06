@@ -21,6 +21,9 @@ export type RegraPillId =
   | 'formula_config'
   | 'so_operacao'
   | 'cond_import_export'
+  | 'espelhado_workspace'
+  | 'espelhado_importador'
+  | 'itens_bloqueados_pedido'
   | 'anexo'
   | 'coluna_personalizada'
 
@@ -89,8 +92,12 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     pedido: ['editavel_pedido', 'cond_import_export', 'replica_itens', 'alerta_divergencia'],
     item: ['editavel_item', 'cond_import_export'],
   },
+  pai_importador: {
+    pedido: ['editavel_pedido', 'replica_itens_auto', 'espelhado_workspace', 'itens_bloqueados_pedido'],
+    item: ['somente_leitura'],
+  },
   pai_workspace: {
-    pedido: ['editavel_pedido', 'replica_itens_auto'],
+    pedido: ['editavel_pedido', 'replica_itens_auto', 'espelhado_importador', 'itens_bloqueados_pedido'],
     item: ['somente_leitura'],
   },
   pai_status: {
@@ -106,7 +113,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_item', 'alerta_divergencia'],
   },
   pai_tipo_operacao: {
-    pedido: ['editavel_pedido', 'replica_itens_auto'],
+    pedido: ['editavel_pedido', 'replica_itens_auto', 'itens_bloqueados_pedido'],
     item: ['somente_leitura'],
   },
   dinamico_valor_total: {

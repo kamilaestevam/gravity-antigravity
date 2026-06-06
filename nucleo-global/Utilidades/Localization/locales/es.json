@@ -3096,6 +3096,7 @@
       "clique_editar_importador": "Haga clic para editar el importador en Registros",
       "importador_espelhado_workspace_tooltip": "Reflejado del workspace {{nome}} — cambie el workspace del pedido para cambiar el importador",
       "clique_abrir_seletor_importador": "Haga clic para cambiar el importador vinculado",
+      "clique_editar_importador_lista": "Haga clic para cambiar el importador vinculado",
       "nenhum_importador_vinculado": "Ningún importador vinculado. Haga clic para registrar en Registros",
       "vincular_importador": "Vincular Importador",
       "cnpj_importador": "CNPJ del Importador",
@@ -5310,6 +5311,9 @@
         "importacao": "Importación",
         "exportacao": "Exportación"
       },
+      "popover": {
+        "editar_importador": "Editar Importador"
+      },
       "modal_importador": {
         "titulo": "Cambiar importador",
         "subtitulo_workspace": "Pedido del workspace {{nome}}",
@@ -5391,6 +5395,11 @@
         "formula_config": "Fórmula configurada",
         "so_operacao": "Alterado por operación de saldo",
         "cond_import_export": "Depende de Importación o Exportación",
+        "espelhado_workspace": "Reflejado del Workspace",
+        "espelhado_workspace_cond": "en importación",
+        "espelhado_importador": "Reflejado del Importador",
+        "espelhado_importador_cond": "en importación",
+        "itens_bloqueados_pedido": "Artículos bloqueados — edición solo en la línea del pedido",
         "anexo": "Adjunto por el icono en la celda",
         "coluna_personalizada": "Columna personalizada",
         "ghost_sem_checkbox": "Sin checkbox: guarda solo en el pedido",
@@ -6306,6 +6315,7 @@
         "tooltip_titulo": "Exportador"
       },
       "mapa_nome_importador": {
+        "tooltip_bloqueado": "Solo lectura en el artículo — edite en la línea del pedido",
         "tooltip_bloqueado_cond": "Importador definido automáticamente por el workspace — no editable en Importación",
         "tooltip_titulo": "Importador"
       },

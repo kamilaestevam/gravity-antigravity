@@ -565,6 +565,13 @@
   justify-content: center;
 }
 
+/* Células de item bloqueadas (tipo operação, workspace…) — cursor proibido mesmo com tooltip de regras */
+.lp-tabela-wrapper .gtv-celula--bloqueada,
+.lp-tabela-wrapper .gtv-celula--bloqueada .tg-trigger,
+.lp-tabela-wrapper .gtv-celula--bloqueada .tg-trigger--bloqueado {
+  cursor: not-allowed !important;
+}
+
 /* Texto puro dentro de células — herda text-align do pai mas garantimos via width auto */
 .lp-tabela-wrapper .gtv-celula .gtv-celula-text {
   text-align: center;

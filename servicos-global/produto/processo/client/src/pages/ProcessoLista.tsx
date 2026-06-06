@@ -60,10 +60,15 @@ import {
   exportarXML,
 } from '../shared/lista/exportUtils'
 import { useEdicaoListaProcesso } from '../shared/lista/useEdicaoListaProcesso'
+import { rotaDetalheProcessoLista } from '../shared/lista/rotaProcessoLista'
+import { resolverRotuloStatusProcesso } from '../shared/lista/processoStatusConfig'
+import { ProcessoListaStats } from '../components/lista/ProcessoListaStats'
 import {
-  lerAbasStatusProcesso,
-  resolverRotuloStatusProcesso,
-} from '../shared/lista/processoStatusConfig'
+  ETAPAS_COR,
+  ETAPAS_LABEL,
+  ORDEM_ETAPAS,
+  type EtapaProcesso,
+} from './todos/_mocks'
 import { useSelecaoStore, useProcessosSelecionados } from '../shared/state/selecaoStore'
 import type { Pedido, PedidoItem } from '../shared/lista/pedidoTypes'
 import { TodosProcessosTabs } from './todos/TodosProcessosTabs'
@@ -77,8 +82,7 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
   const novoDropdownRef = useRef<HTMLDivElement>(null)
 
   const [busca, setBusca] = useState('')
-  const [abaAtiva, setAbaAtiva] = useState('todos')
-  const [abas, setAbas] = useState<GTAbaTipo[]>(() => lerAbasStatusProcesso(t))
+  const [abaAtiva, setAbaAtiva] = useState<'todos' | EtapaProcesso>('todos')
   const [processos, setProcessos] = useState<ProcessoAvoLinha[]>(() => [...MOCK_PROCESSOS_AVO])
   const [pedidos, setPedidos] = useState<Array<Pedido & { id_processo: string }>>(
     () => PEDIDOS_MOCK_INICIAL.map(p => ({ ...p })),
@@ -104,25 +108,13 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [excluindoLote, setExcluindoLote] = useState(false)
 
-  const recarregarAbas = useCallback(() => {
-    setAbas(lerAbasStatusProcesso(t))
-  }, [t])
-
-  useEffect(() => {
-    recarregarAbas()
-  }, [recarregarAbas, i18n.language])
-
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === 'processo:status_config') recarregarAbas()
-    }
-    window.addEventListener('storage', onStorage)
-    window.addEventListener('focus', recarregarAbas)
-    return () => {
-      window.removeEventListener('storage', onStorage)
-      window.removeEventListener('focus', recarregarAbas)
-    }
-  }, [recarregarAbas])
+  const abas = useMemo<GTAbaTipo[]>(() => [
+    { valor: 'todos', label: 'Todos' },
+    ...ORDEM_ETAPAS.map(etapa => ({
+      valor: etapa,
+      label: ETAPAS_LABEL[etapa],
+    })),
+  ], [])
 
   useEffect(() => {
     if (!novoDropdownAberto) return
@@ -187,19 +179,20 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
   const processosFiltrados = useMemo(() => {
     let resultado = processos
     if (abaAtiva !== 'todos') {
-      resultado = resultado.filter(p => p.codigo_status_processo === abaAtiva)
+      resultado = resultado.filter(p => p.etapa_atual === abaAtiva)
     }
     if (!buscaNorm) return resultado
     return resultado.filter(p =>
       p.numero_processo.toLowerCase().includes(buscaNorm)
       || (p.referencia_interna_processo?.toLowerCase().includes(buscaNorm) ?? false)
       || p.nome_importador.toLowerCase().includes(buscaNorm)
-      || p.nome_exportador.toLowerCase().includes(buscaNorm),
+      || p.nome_exportador.toLowerCase().includes(buscaNorm)
+      || p.responsavel_processo.toLowerCase().includes(buscaNorm),
     )
   }, [buscaNorm, processos, abaAtiva])
 
   const handleMudarAba = useCallback((novaAba: string) => {
-    setAbaAtiva(novaAba)
+    setAbaAtiva(novaAba as 'todos' | EtapaProcesso)
     limparSelecao()
   }, [limparSelecao])
 
@@ -239,9 +232,16 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
       if (p.id_processo !== id_processo) return p
       const patch: Partial<ProcessoAvoLinha> = { [campo]: v } as Partial<ProcessoAvoLinha>
       if (campo === 'codigo_status_processo' && typeof v === 'string') {
-        const { label, cor } = resolverRotuloStatusProcesso(v)
-        patch.rotulo_status_processo = label
-        patch.cor_status_processo = cor
+        if (v in ETAPAS_LABEL) {
+          const etapa = v as EtapaProcesso
+          patch.etapa_atual = etapa
+          patch.rotulo_status_processo = ETAPAS_LABEL[etapa]
+          patch.cor_status_processo = ETAPAS_COR[etapa]
+        } else {
+          const { label, cor } = resolverRotuloStatusProcesso(v)
+          patch.rotulo_status_processo = label
+          patch.cor_status_processo = cor
+        }
       }
       atualizado = { ...p, ...patch }
       return atualizado
@@ -260,9 +260,16 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
       if (!ids.includes(p.id_processo)) return p
       const patch: Partial<ProcessoAvoLinha> = { [campo]: valor } as Partial<ProcessoAvoLinha>
       if (campo === 'codigo_status_processo' && typeof valor === 'string') {
-        const { label, cor } = resolverRotuloStatusProcesso(valor)
-        patch.rotulo_status_processo = label
-        patch.cor_status_processo = cor
+        if (valor in ETAPAS_LABEL) {
+          const etapa = valor as EtapaProcesso
+          patch.etapa_atual = etapa
+          patch.rotulo_status_processo = ETAPAS_LABEL[etapa]
+          patch.cor_status_processo = ETAPAS_COR[etapa]
+        } else {
+          const { label, cor } = resolverRotuloStatusProcesso(valor)
+          patch.rotulo_status_processo = label
+          patch.cor_status_processo = cor
+        }
       }
       return { ...p, ...patch }
     }))
@@ -410,7 +417,7 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
       id: 'ver',
       tooltip: 'Abrir processo',
       icone: <Eye size={16} weight="duotone" />,
-      onClick: (p) => { void navigate(`${p.id_processo}/workflow`) },
+      onClick: (p) => { void navigate(rotaDetalheProcessoLista(p)) },
     },
   ], [navigate])
 
@@ -465,12 +472,13 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
           <CabecalhoGlobal
             icone={<Briefcase weight="duotone" size={22} />}
             titulo="Lista"
-            subtitulo="Lista hierárquica — Processo, Pedido e Item"
+            subtitulo="Processos do workspace — Processo, Pedido e Item"
           />
         ) : undefined
       }
       toolbar={embedTabs ? <TodosProcessosTabs /> : undefined}
     >
+      <ProcessoListaStats processos={processos} />
       <div className="lp-page pl-page">
         <div className="lp-tabela-wrapper">
           <TabelaVirtualGlobal<ProcessoAvoLinha, FilhoLinhaLista>
@@ -484,6 +492,7 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
             resetCacheFilhos={resetCacheFilhos}
             renderConectorFilho={renderConectorFilho}
             renderConectorPai={renderConectorPai}
+            larguraColunaExpand="6.25rem"
             classNameLinhaPai={classNameLinhaPai}
             classNameLinhaFilho={classNameLinhaFilho}
             acoes={acoesProcesso}
@@ -494,7 +503,7 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
             onMudarAba={handleMudarAba}
             onSelecaoMudar={setProcessosSelecionados}
             onBuscar={setBusca}
-            placeholderBusca="Buscar processo, referência ou parte..."
+            placeholderBusca="Buscar por número, importador, exportador, responsável…"
             emptyIcon={<Briefcase weight="duotone" size={48} />}
             emptyTitle="Nenhum processo encontrado"
             emptyDescription="Ajuste a busca, filtro de status ou crie um novo processo"

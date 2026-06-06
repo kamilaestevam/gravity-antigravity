@@ -1,3 +1,15 @@
+/* ProcessoLista.css */
+
+.pl-stats {
+  flex-shrink: 0;
+  margin-bottom: 0.75rem;
+}
+
+.processo-lista-page .pl-page {
+  flex: 1;
+  min-height: 0;
+}
+
 /* ListaPedidos.css */
 
 /* ── Botões do dropdown "Novo" e da barra de ações ──────────────────────── */

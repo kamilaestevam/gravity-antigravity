@@ -100,6 +100,21 @@ function buildTestApp() {
 | F-PROP-06 | PUT com replicar_em_itens=true em campo SEM par no MAPA | Apenas pedido muda, itens intactos |
 | F-PROP-07 | PUT com replicar_em_itens=false | Apenas pedido muda |
 | F-PROP-08 | updated_at de todos itens afetados atualizado | Timestamps recentes |
+| F-PROP-09 | PUT `tipo_operacao` no pedido (sem `replicar_em_itens` no body) | Pedido atualizado **e** todos os itens com `tipo_operacao_item` alinhado (replicação automática) |
+
+### 2b. TIPO DE OPERAÇÃO — regras de UI (validação EMT)
+
+**Plano EMT:** `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` (ETAPA 2)
+
+| ID | Caso | Resultado esperado |
+|----|------|-------------------|
+| F-EMT-TOP-06 | Abrir modal pedido (Importação) | Popover abre (print 06) |
+| F-EMT-TOP-07 | Modal Importação | Sem checkbox «Aplicar a todos os itens» (print 07) |
+| F-EMT-TOP-08 | Importação → Exportação | Pedido **e** todos os itens = Exportação (print 08) |
+| F-EMT-TOP-09 | Abrir modal pedido (Exportação) | Popover abre (print 09) |
+| F-EMT-TOP-10 | Modal Exportação | Sem checkbox replicar (print 10) |
+| F-EMT-TOP-11 | Exportação → Importação | Pedido **e** todos os itens = Importação (print 11) |
+| F-EMT-TOP-12 | Clicar item | Célula travada; popover não abre (print 12) |
 
 ### 3. PUT /api/v1/pedidos/:id/itens/:itemId — Editar item individual
 
@@ -121,6 +136,7 @@ function buildTestApp() {
 | F-ITM-10 | Demais itens NAO alterados | GET itens: apenas item editado mudou |
 | F-ITM-11 | Pedido pai NAO alterado | GET pedido: sem mudanca nos campos diretos |
 | F-ITM-12 | updated_at do item editado atualizado | Timestamp recente |
+| F-ITM-13 | PUT `tipo_operacao` / `tipo_operacao_item` no item | `400` — campo exclusivo do pedido (UI bloqueada) |
 
 #### GTValorMoeda { currency, amount }
 

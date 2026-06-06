@@ -16,7 +16,7 @@ export interface NavigationItem {
 export const PRODUCT_CONFIG = {
   id: 'processo',
   productId: 'processo',
-  name: 'Processo',
+  name: 'Processos',
   port: 8025,
 
   // Serviços de tenant consumidos via proxy (residem em tenant-db)

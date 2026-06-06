@@ -246,6 +246,12 @@
   --pl-linha-item-suave: #6ee7b7;
   --pl-linha-item-borda: rgba(52, 211, 153, 0.32);
   --pl-linha-item-conector: rgba(52, 211, 153, 0.58);
+  --pl-linha-separador: rgba(129, 140, 248, 0.2);
+}
+
+/* Separadores horizontais entre linhas (TVG padrão 6% → 20%) */
+.pl-page .lp-tabela-wrapper .gtv-linha:not(.gtv-linha--filho-ultimo) {
+  border-bottom: 1px solid var(--pl-linha-separador);
 }
 
 /* ── Badges camada 2/3 (ProcessoLista) ───────────────────────────────────── */
@@ -264,9 +270,10 @@
   border: 1px solid rgba(96, 165, 250, 0.22);
 }
 .pl-page .pl-camada--item {
-  background: rgba(52, 211, 153, 0.12);
-  color: var(--pl-linha-item-suave);
-  border: 1px solid rgba(52, 211, 153, 0.2);
+  /* Paridade sidebar "Meu Espaço" — var(--text-secondary) / #94a3b8 */
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 /* ── Bordas laterais das linhas filhas (L2 azul · L3 verde) ──────────────── */
@@ -305,10 +312,70 @@
   color: var(--pl-linha-pedido-suave);
 }
 
-.pl-page .pl-conector-item {
-  margin-left: 6px;
-  color: var(--pl-linha-item-conector);
-  opacity: 1;
+/* Slot da tag Item N — contido na coluna expand, sem invadir PROCESSO */
+.pl-page .pl-conector-item-slot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.pl-page .pl-conector-item-tag {
+  display: inline-block;
+  flex-shrink: 0;
+  max-width: 100%;
+  margin-left: -14px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 8.5px;
+  padding: 0.0625rem 0.375rem;
+  min-width: 0;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Coluna expand — mesma largura; chevron processo + pedido no mesmo eixo (centro) */
+.pl-page .gtv-th--expand,
+.pl-page .gtv-celula--expand {
+  flex: 0 0 4.75rem;
+  min-width: 4.75rem;
+  max-width: 4.75rem;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.pl-page .gtv-linha:not(.pl-linha--item) .gtv-celula--expand {
+  overflow: hidden;
+}
+
+/* Itens: tag à esquerda (pedido/processo permanecem centralizados acima) */
+.pl-page .pl-linha--item.gtv-linha--filho .gtv-celula--expand {
+  justify-content: flex-start;
+  padding-right: 0.5rem;
+  overflow: visible;
+  border-right: none;
+}
+
+/* margin-left negativo na tag precisa de overflow visible no slot, senão corta o pill */
+.pl-page .pl-linha--item .pl-conector-item-slot {
+  overflow: visible;
+}
+
+/* PROCESSO dos itens — respiro obrigatório após a faixa da tag */
+.pl-page .pl-linha--item.gtv-linha--filho .gtv-celula:has(.pl-item-identidade) {
+  padding-left: 1rem;
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .pl-page .pl-conector-vazio {
@@ -317,12 +384,44 @@
 }
 
 .pl-page .pl-pedido-chevron {
-  margin-left: 2px;
+  margin-left: 0;
 }
 
 .pl-page .pl-celula-vazia {
   color: var(--text-muted, #64748b);
   opacity: 0.45;
   user-select: none;
+}
+
+/* ── Identidade L3 na coluna Processo (PN + descrição; tag só na coluna expand) ─ */
+.pl-page .pl-item-identidade {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.125rem 0;
+  text-align: center;
+  width: 100%;
+}
+
+.pl-page .pl-item-identidade__pn {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #e2e8f0;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.pl-page .pl-item-identidade__desc {
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  color: var(--text-muted, #94a3b8);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 

@@ -155,6 +155,7 @@ Plano de teste unitario para edicao inline e salvamento na Lista de Pedidos. Cob
 | U-EDT-97 | `status` | somente_leitura | **true** | `true` (override) |
 | U-EDT-98 | `quantidade_transferida_total` | calculado | **false** | `false` (override) |
 | U-EDT-99 | `quantidade_cancelada_total_pedido` | calculado | **false** | `false` (override) |
+| U-EDT-105 | `tipo_operacao` | alfanumerico | **false** (item) | `false` — exclusivo do pedido; validado no EMT ETAPA 2 |
 
 ### 10. getTipoCampo — Retorna tipo correto
 

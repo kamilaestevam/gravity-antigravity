@@ -4,6 +4,7 @@
 import React from 'react'
 import type { FilhoLinhaLista } from '../../shared/lista/mockListaHierarquica'
 import { itensDoPedido } from '../../shared/lista/mockListaHierarquica'
+import { rotuloItemLista } from '../../shared/lista/rotuloItemLista'
 
 function IconeChevron() {
   return (
@@ -31,7 +32,14 @@ export function ConectorFilhoLista({
   onTogglePedido,
 }: ConectorFilhoListaProps) {
   if (filho.camada === 'item') {
-    return <span className="gtv-conector pl-conector-item" aria-hidden="true">└</span>
+    const rotulo = rotuloItemLista(filho.item.sequencia_item)
+    return (
+      <div className="pl-conector-item-slot">
+        <span className="pl-camada pl-camada--item pl-conector-item-tag" aria-label={rotulo}>
+          {rotulo}
+        </span>
+      </div>
+    )
   }
 
   const id_pedido = filho.pedido.id

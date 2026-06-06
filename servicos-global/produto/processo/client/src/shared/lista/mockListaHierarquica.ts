@@ -91,12 +91,12 @@ export const PEDIDOS_MOCK_INICIAL: Array<Pedido & { id_processo: string }> = [
 ]
 
 export const ITENS_MOCK_INICIAL: PedidoItem[] = [
-  criarItemMock({ id: 'item-1', pedido_id: 'ped-1', part_number: 'PCB-4401', descricao_item: 'Placa mãe industrial' }),
-  criarItemMock({ id: 'item-2', pedido_id: 'ped-1', part_number: 'CAP-2200', descricao_item: 'Capacitor SMD' }),
-  criarItemMock({ id: 'item-3', pedido_id: 'ped-2', part_number: 'LCD-9910', descricao_item: 'Display TFT 10"' }),
-  criarItemMock({ id: 'item-4', pedido_id: 'ped-3', part_number: 'MEM-8GB', descricao_item: 'Memória DDR5 8GB' }),
-  criarItemMock({ id: 'item-5', pedido_id: 'ped-3', part_number: 'SSD-512', descricao_item: 'SSD NVMe 512GB' }),
-  criarItemMock({ id: 'item-6', pedido_id: 'ped-4', part_number: 'TXT-100', descricao_item: 'Tecido algodão cru' }),
+  criarItemMock({ id: 'item-1', pedido_id: 'ped-1', sequencia_item: 1, part_number: 'PCB-4401', descricao_item: 'Placa mãe industrial' }),
+  criarItemMock({ id: 'item-2', pedido_id: 'ped-1', sequencia_item: 2, part_number: 'CAP-2200', descricao_item: 'Capacitor SMD' }),
+  criarItemMock({ id: 'item-3', pedido_id: 'ped-2', sequencia_item: 1, part_number: 'LCD-9910', descricao_item: 'Display TFT 10"' }),
+  criarItemMock({ id: 'item-4', pedido_id: 'ped-3', sequencia_item: 1, part_number: 'MEM-8GB', descricao_item: 'Memória DDR5 8GB' }),
+  criarItemMock({ id: 'item-5', pedido_id: 'ped-3', sequencia_item: 2, part_number: 'SSD-512', descricao_item: 'SSD NVMe 512GB' }),
+  criarItemMock({ id: 'item-6', pedido_id: 'ped-4', sequencia_item: 1, part_number: 'TXT-100', descricao_item: 'Tecido algodão cru' }),
 ]
 
 export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = [
@@ -188,9 +188,16 @@ export function filhosVisiveisDoProcesso(
   for (const pedido of pedidosDoProcesso(id_processo, pedidos)) {
     linhas.push({ camada: 'pedido', pedido })
     if (pedidosExpandidos.has(pedido.id)) {
-      for (const item of itensDoPedido(pedido.id, itens)) {
-        linhas.push({ camada: 'item', item })
-      }
+      const itensPedido = itensDoPedido(pedido.id, itens)
+      itensPedido.forEach((item, indice) => {
+        linhas.push({
+          camada: 'item',
+          item: {
+            ...item,
+            sequencia_item: item.sequencia_item ?? indice + 1,
+          },
+        })
+      })
     }
   }
   return linhas

@@ -16,6 +16,9 @@
 
   --processo-visualizacao-tabs-mb: 1rem;
 
+  /* SSOT: PRODUTO_META.processo.color — cores-produto-gravity.ts */
+  --processo-product-color: #facc15;
+
 }
 
 
@@ -138,7 +141,7 @@ body.light-theme .proc-pagina-topo {
 
   flex-shrink: 0;
 
-  color: var(--ws-accent, #818cf8);
+  color: var(--processo-product-color, #facc15);
 
 }
 

@@ -11,6 +11,7 @@ interface ProductSidebarProps {
   navItems?: NavItem[]
   moduleName?: string
   moduleColor?: string
+  moduleIcon?: React.ReactNode
 }
 
 /**
@@ -26,6 +27,7 @@ export function ProductSidebar({
   navItems = [],
   moduleName = 'Produto',
   moduleColor,
+  moduleIcon,
 }: ProductSidebarProps) {
   const { sidebarOpen, toggleSidebar } = useShellStore()
   const navigate = useNavigate()
@@ -52,6 +54,7 @@ export function ProductSidebar({
       navItems={items}
       moduleName={moduleName}
       moduleColor={resolvedColor}
+      moduleIcon={moduleIcon}
       isCollapsed={!sidebarOpen}
       onToggleCollapse={toggleSidebar}
     />

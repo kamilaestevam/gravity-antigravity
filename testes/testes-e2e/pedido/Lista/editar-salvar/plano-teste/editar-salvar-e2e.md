@@ -55,7 +55,7 @@ Plano de teste E2E completo para edicao inline e salvamento de campos individuai
 | Passo | Coluna | Tipo Input | Verificacao |
 |-------|--------|------------|-------------|
 | 1.1 | `numero_pedido` | texto | Editar → salvar → recarregar → valor persiste |
-| 1.2 | `tipo_operacao` | select (importacao/exportacao) | Selecionar → salvar → badge atualiza |
+| 1.2 | `tipo_operacao` | select (importacao/exportacao) | Selecionar → salvar → badge atualiza; **sem** checkbox «Aplicar a todos os itens»; item **não** editável (ver EMT TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001 ETAPA 2) |
 | 1.3 | `nome_fabricante` | texto | Editar → salvar → persistencia |
 | 1.4 | `referencia_importador` | texto | Editar → salvar → persistencia |
 | 1.5 | `referencia_exportador` | texto | Editar → salvar → persistencia |

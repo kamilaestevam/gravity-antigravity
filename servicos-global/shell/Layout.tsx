@@ -19,6 +19,7 @@ interface LayoutProps {
   navItems?: { to: string; label: string; icon: React.ReactNode }[]
   moduleName?: string
   moduleColor?: string
+  moduleIcon?: React.ReactNode
   tenantName?: string
   tenantPlan?: string
 }
@@ -38,6 +39,7 @@ export function Layout({
   navItems,
   moduleName,
   moduleColor,
+  moduleIcon,
   tenantName,
   tenantPlan
 }: LayoutProps) {
@@ -145,6 +147,7 @@ export function Layout({
           navItems={navItems}
           moduleName={moduleName}
           moduleColor={moduleColor}
+          moduleIcon={moduleIcon}
           tenantName={tenantName ?? nomeWsAtivo}
           tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}
         />
@@ -153,6 +156,7 @@ export function Layout({
           navItems={navItems}
           moduleName={moduleName}
           moduleColor={moduleColor}
+          moduleIcon={moduleIcon}
           tenantName={tenantName ?? nomeWsAtivo}
           tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}
         />

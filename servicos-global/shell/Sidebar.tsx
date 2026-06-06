@@ -34,6 +34,7 @@ interface SidebarProps {
   navItems?: NavItem[]
   moduleName?: string
   moduleColor?: string
+  moduleIcon?: React.ReactNode
   tenantName: string
   tenantPlan: string
 }
@@ -49,6 +50,7 @@ export function Sidebar({
   navItems: customNavItems,
   moduleName = 'SimulaCusto',
   moduleColor = '#818cf8',
+  moduleIcon,
   tenantName,
   tenantPlan
 }: SidebarProps) {
@@ -145,6 +147,7 @@ export function Sidebar({
       navItems={navItems}
       moduleName={moduleName}
       moduleColor={moduleColor}
+      moduleIcon={moduleIcon}
       isCollapsed={!sidebarOpen}
       onToggleCollapse={toggleSidebar}
     />

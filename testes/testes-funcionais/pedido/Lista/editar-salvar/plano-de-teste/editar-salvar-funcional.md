@@ -237,7 +237,7 @@ function buildTestApp() {
 
 | ID | Caso | Resultado |
 |----|------|-----------|
-| F-ITM-30 | Item com ncm diferente do pedido → ncm_divergente=true | Flag de divergencia |
+| F-ITM-30 | Itens com NCMs distintos no mesmo pedido → ncm_divergente=false | Vários NCMs é cenário normal — sem alerta |
 | F-ITM-31 | Item com incoterm diferente → incoterm_divergente=true | Flag |
 | F-ITM-32 | Item com moeda diferente → moeda_item_divergente=true | Flag |
 | F-ITM-33 | Item com valor IGUAL ao pedido → campo_divergente=false | Sem divergencia |

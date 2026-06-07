@@ -5339,9 +5339,15 @@
       },
       "regras_coluna": {
         "pai_editavel_replicar_alerta": "Editable en la fila del pedido. Marque «Aplicar a todos los artículos» en el popover para replicar el valor en todos los artículos. Icono de alerta cuando algún artículo difiere del pedido.",
+<<<<<<< HEAD
         "pai_ghost_descricao": "Editable en el pedido y en cada artículo. Sin «Aplicar a todos los artículos»: guarda solo en el pedido (artículos sin cambios). Con la casilla marcada: replica la descripción en todos los artículos. Sin alerta de divergencia.",
         "item_ghost_descricao": "Editable en el pedido y en cada artículo. Use «Aplicar a todos los artículos» en la fila del pedido para replicar. Sin alerta de divergencia.",
         "pai_ghost_ncm": "Editable en la fila del pedido. Sin checkbox: guarda solo en el pedido (artículos sin cambios). Con «Aplicar a todos los artículos»: replica el NCM en todos los artículos. Alerta si el NCM del pedido difiere de los artículos; texto si los artículos tienen NCMs distintos.",
+=======
+        "pai_ghost_descricao": "Editable en la fila del pedido. Sin checkbox: guarda solo en el pedido (artículos sin cambios). Con «Aplicar a todos los artículos»: replica la descripción en todos los artículos. Alerta si el texto del pedido difiere de los artículos.",
+        "pai_ghost_ncm": "Editable en la fila del pedido y en cada artículo. Varios NCM en el mismo pedido es normal — sin alerta de divergencia. La fila del pedido muestra el NCM cuando todos los artículos coinciden.",
+        "item_ghost_ncm": "Editable en este artículo. Cada artículo puede tener NCM distinto en el mismo pedido — sin alerta de divergencia.",
+>>>>>>> origin/master
         "pai_ghost_cobertura": "Editable en la fila del pedido. Con «Aplicar a todos los artículos» propaga la cobertura cambiaria a todos los artículos. Alerta cuando los artículos divergen.",
         "pai_calculado_valor": "Suma de los valores totales de los artículos (misma moneda). No editable en el pedido — edite en cada artículo. Alerta si las monedas de los artículos difieren.",
         "pai_calculado_quantidade": "Suma de las cantidades de los artículos (misma unidad). No editable en el pedido — edite en cada artículo. Alerta si las unidades de los artículos difieren.",

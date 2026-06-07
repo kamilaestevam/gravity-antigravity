@@ -115,6 +115,22 @@ Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLIC
 
 ---
 
+## 4. NCM
+
+> Decisão de produto **2026-06** — vários NCMs no mesmo pedido é cenário normal (cada item com classificação própria).
+
+| # | Regra |
+|---|--------|
+| **NCM-01** | Campo **ghost** — persiste no banco no **item**; linha do pedido guarda valor canônico de sessão. |
+| **NCM-02** | Linha **pedido** e linha **item** editáveis. |
+| **NCM-03** | Popover no pedido exibe checkbox **«Aplicar a todos os itens deste pedido»** (default desmarcado). |
+| **NCM-04** | **Sem** checkbox: só a linha do pedido atualiza na sessão; itens **não** recebem PATCH. |
+| **NCM-05** | **Com** checkbox: PATCH do mesmo NCM em **todos** os itens. |
+| **NCM-06** | **Sem** alerta âmbar — vários NCMs no mesmo pedido é normal. |
+| **NCM-07** | Exibição no pedido: valor canônico da sessão; se vazio e todos os itens coincidem, mostra o NCM único; senão `—`. |
+
+---
+
 ## 5. IMPORTADOR (`nome_importador`)
 
 > Decisão de produto **2026-06** — aprovada pelo dono.
@@ -177,7 +193,7 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 | **INC-07** | **Alerta âmbar** na coluna do pedido — tooltip *Incoterms divergentes entre itens*. |
 | **INC-08** | Sem diferença entre Importação e Exportação. |
 
-**EMT:** passos 21–25 em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 21–24 em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -218,6 +234,7 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 | 2026-06-03 | STATUS — regras 00–04; fix alerta sem expandir (`status_itens_snapshot`); TDZ `statusOpts`/`pedidos` |
 | 2026-06-03 | WORKSPACE — WS-01…06; sem alerta; select com todos workspaces habilitados |
 | 2026-06-03 | IMPORTADOR — IMP-01…04 / EXP-01…06; modal seletor na exportação; IMP espelhado com workspace |
+| 2026-06-06 | NCM — NCM-01…07; sem alerta de divergência (vários NCMs por pedido é normal) |
 | 2026-06-06 | REF. IMPORTADOR / EXPORTADOR — REF-01…08; EMT passos 13–20 (mesmas regras, padrão Incoterm) |
 | 2026-06-06 | LOGÍSTICA — LOG-01…06; tooltips espelhados (sem alerta/replicar) em Porto/País/Aeroporto |
-| 2026-06-06 | INCOTERM — INC-01…08; EMT passos 21–25 (select Cadastros + checkbox + alerta divergência) |
+| 2026-06-06 | INCOTERM — INC-01…08; EMT passos 21–24 (select Cadastros + checkbox + alerta divergência) |

@@ -168,7 +168,8 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
 const ALERTA_OVERRIDE: Record<string, boolean> = {
   id_workspace: false, // replica automática do pedido — sem alerta de divergência
   tipo_operacao: false, // replica do pedido — sem alerta de divergência
-  descricao_item: false, // ghost — agrega valor único; sem ícone âmbar de divergência
+  descricao_item: false, // ghost — várias descrições no pedido; sem alerta
+  ncm: false, // ghost — vários NCMs no mesmo pedido é normal; sem alerta
   status: true, // pedido ≠ item ou item ≠ item → alerta na coluna Status
   // Logística: valor único no Pedido — itens só espelham _p (sem divergência real)
   porto_origem: false,

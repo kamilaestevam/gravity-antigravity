@@ -131,6 +131,7 @@ import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../..
 import {
   calcularDivergenciasPedido,
   mesclarDivergenciasPreservandoDescricaoPedido,
+  mesclarDivergenciasPreservandoNcmPedido,
   pedidoPossuiItensNaLista,
   resolverStatusEfetivoItemAoCarregar,
 } from '../../../shared/pedidoDivergencias'
@@ -6539,7 +6540,36 @@ export default function Pedidos() {
         return pedidoAtualizado
       }
 
-      // NCM / cobertura: edição no pai sempre propaga aos itens (comportamento legado).
+      // NCM na linha pai: sem checkbox → só valor canônico do pedido (itens intactos).
+      if (campo === 'ncm' && !replicar) {
+        const valorStr = String(valorEnviar ?? '')
+        let itensExistentes = itensCarregadosRef.current.get(id) ?? []
+        if (itensExistentes.length === 0 && (pedidoAtual.itens?.length ?? 0) > 0) {
+          itensExistentes = pedidoAtual.itens as PedidoItem[]
+        }
+        const pedidoComValor = {
+          ...pedidoAtual,
+          ncm: valorStr,
+          ncm_valor_unico: valorStr,
+        } as Pedido
+        const sinc = sincronizarItensPedido(itensExistentes, pedidoComValor)
+        const divergencias = mesclarDivergenciasPreservandoNcmPedido(
+          pedidoComValor as Record<string, unknown>,
+          sinc.divergencias as Record<string, unknown>,
+        )
+        const pedidoAtualizado = {
+          ...pedidoComValor,
+          ...divergencias,
+          itens: sinc.itens,
+        } as Pedido
+        if (itensExistentes.length > 0) {
+          itensCarregadosRef.current.set(id, sinc.itens)
+        }
+        setPedidos(prev => prev.map(p => (p.id === id ? pedidoAtualizado : p)))
+        return pedidoAtualizado
+      }
+
+      // NCM com checkbox OU cobertura: propaga PATCH em todos os itens.
       let itensGhost = itensCarregadosRef.current.get(id) ?? []
       if (itensGhost.length === 0) {
         itensGhost = (pedidoAtual.itens?.length ?? 0) > 0
@@ -6556,10 +6586,15 @@ export default function Pedidos() {
       const pedidoComValorCanonico = { ...pedidoAtual, [campo]: valorEnviar } as Pedido
       const { itens: itensSinc, divergencias } = sincronizarItensPedido(itensComValor, pedidoComValorCanonico)
       itensCarregadosRef.current.set(id, itensSinc)
-      const divMesclada = mesclarDivergenciasPreservandoDescricaoPedido(
-        pedidoComValorCanonico as Record<string, unknown>,
-        divergencias as Record<string, unknown>,
-      )
+      const divMesclada = campo === 'ncm'
+        ? mesclarDivergenciasPreservandoNcmPedido(
+          pedidoComValorCanonico as Record<string, unknown>,
+          divergencias as Record<string, unknown>,
+        )
+        : mesclarDivergenciasPreservandoDescricaoPedido(
+          pedidoComValorCanonico as Record<string, unknown>,
+          divergencias as Record<string, unknown>,
+        )
       const pedidoAtualizado = { ...pedidoComValorCanonico, ...divMesclada, itens: itensSinc } as Pedido
       setPedidos(prev => prev.map(p => (p.id === id ? pedidoAtualizado : p)))
       setResetFilhos(prev => prev + 1)

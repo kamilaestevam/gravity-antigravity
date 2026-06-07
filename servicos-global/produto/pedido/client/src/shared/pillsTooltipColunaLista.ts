@@ -49,8 +49,12 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_pedido', 'editavel_item', 'replica_itens'],
   },
   pai_ghost_ncm: {
-    pedido: ['editavel_pedido', 'replica_itens', 'alerta_divergencia'],
-    item: ['editavel_item', 'alerta_divergencia'],
+    pedido: ['editavel_pedido', 'replica_itens', 'editavel_item'],
+    item: ['editavel_pedido', 'replica_itens', 'editavel_item'],
+  },
+  item_ghost_ncm: {
+    pedido: ['editavel_pedido', 'replica_itens', 'editavel_item'],
+    item: ['editavel_pedido', 'replica_itens', 'editavel_item'],
   },
   pai_ghost_cobertura: {
     pedido: ['editavel_pedido', 'replica_itens', 'alerta_divergencia'],
@@ -222,7 +226,8 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
 }
 
-const GHOST_KEYS = new Set(['descricao_item', 'ncm', 'cobertura_cambial'])
+// Sem subtexto «Sem checkbox» — NCM e descrição exibem checkbox no popover.
+const GHOST_KEYS = new Set(['cobertura_cambial'])
 
 export type ResolucaoPillsTooltip = {
   dual: boolean

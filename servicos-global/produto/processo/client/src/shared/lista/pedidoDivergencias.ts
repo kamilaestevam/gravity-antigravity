@@ -85,7 +85,7 @@ export function calcularDivergenciasPedido(
   const ncms = itens.map(i => i.ncm).filter((v): v is string => v != null && v !== '')
   const ncmsUnicos = new Set(ncms)
   result.ncms_distintos_count = ncmsUnicos.size
-  result.ncm_divergente = ncmsUnicos.size > 1
+  result.ncm_divergente = false
   result.ncm_valor_unico = ncmsUnicos.size === 1 ? [...ncmsUnicos][0] : null
 
   // Descrição: valor único na linha pai quando todos os itens coincidem — sem alerta ⚠.
@@ -147,6 +147,17 @@ export function sincronizarItensPedido<T extends Record<string, unknown>>(
   }
 }
 
+/** Valor exibido na linha pai — canônico do pedido tem prioridade sobre NCM único dos itens. */
+export function obterNcmExibicaoPedido(
+  pedido?: Record<string, unknown> | null,
+): string | null {
+  const canonico = pedido?.ncm
+  if (canonico != null && String(canonico).trim() !== '') return String(canonico)
+  const agregado = pedido?.ncm_valor_unico
+  if (agregado != null && String(agregado).trim() !== '') return String(agregado)
+  return null
+}
+
 /** Valor exibido na linha pai — canônico do pedido tem prioridade sobre agregado dos itens. */
 export function obterDescricaoExibicaoPedido(
   pedido?: Record<string, unknown> | null,
@@ -171,5 +182,17 @@ export function mesclarDivergenciasPreservandoDescricaoPedido(
   return {
     ...divergencias,
     descricao_item_valor_unico: canonico,
+  }
+}
+
+export function mesclarDivergenciasPreservandoNcmPedido(
+  pedidoPai: Record<string, unknown> | undefined,
+  divergencias: DivergenciasPedido,
+): DivergenciasPedido {
+  const canonico = obterNcmExibicaoPedido(pedidoPai)
+  if (!canonico) return divergencias
+  return {
+    ...divergencias,
+    ncm_valor_unico: canonico,
   }
 }

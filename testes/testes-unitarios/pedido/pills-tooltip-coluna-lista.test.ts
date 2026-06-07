@@ -35,6 +35,15 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.item).not.toContain('alerta_divergencia')
   })
 
+  it('NCM — três pills iguais no pedido e no item; sem subtexto ghost', () => {
+    const res = obterPillsTooltipColuna('ncm')
+    expect(res.ghostSemCheckbox).toBe(false)
+    expect(res.pedido).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
+    expect(res.item).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
+    expect(pillsParaNivelColuna('ncm', 'pai')).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
+    expect(pillsParaNivelColuna('ncm', 'item')).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
+  })
+
   it('pillsParaNivelColuna item saldo inclui formula', () => {
     const pills = pillsParaNivelColuna('saldo_itens_do_pedido', 'item')
     expect(pills).toContain('somente_leitura')

@@ -8,6 +8,7 @@ describe('classificarRegraTooltipColuna', () => {
   it('classifica colunas pai conhecidas', () => {
     expect(classificarRegraTooltipColuna('descricao_item', 'pai')).toBe('pai_ghost_descricao')
     expect(classificarRegraTooltipColuna('ncm', 'pai')).toBe('pai_ghost_ncm')
+    expect(classificarRegraTooltipColuna('ncm', 'item')).toBe('item_ghost_ncm')
     expect(classificarRegraTooltipColuna('valor_total_pedido', 'pai')).toBe('pai_calculado_valor')
     expect(classificarRegraTooltipColuna('saldo_itens_do_pedido', 'pai')).toBe('pai_saldo_formula')
     expect(classificarRegraTooltipColuna('moeda_cambio_pedido', 'pai')).toBe('pai_moeda_cambio')

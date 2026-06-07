@@ -4538,6 +4538,8 @@
       "moeda_item_titulo": "Item currency",
       "aviso_impacto_moeda": "Changing the currency will also change the Item Unit Value and Total Order/Item Value",
       "unidade_comercializada": "Commercialized Unit",
+      "unidade_comercializada_titulo_linha_pedido": "Commercialized Unit of the Order",
+      "unidade_comercializada_item_titulo": "Commercialized Unit of the Item",
       "aviso_impacto_unidade_full": "Changing the unit will also change Initial Qty., Ready Qty., Transferred Qty., Balance, and Canceled Qty.",
       "unidades_divergentes": "Divergent units among items",
       "aviso_impacto_unidade_inicial": "Changing the unit will also change Commercialized Unit, Ready Qty., Transferred Qty., Balance and Canceled Qty.",

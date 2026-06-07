@@ -3119,6 +3119,8 @@
       "moeda_item_titulo": "Moneda del ítem",
       "aviso_impacto_moeda": "La alteración de la moneda también cambiará el Valor Unitario del Ítem y el Valor Total del Pedido/Ítem",
       "unidade_comercializada": "Unidad Comercializada",
+      "unidade_comercializada_titulo_linha_pedido": "Unidad Comercializada del Pedido",
+      "unidade_comercializada_item_titulo": "Unidad Comercializada del Artículo",
       "aviso_impacto_unidade_full": "La alteración de la unidad también cambiará Cant. Inicial, Cant. Lista, Cant. Transferida, Saldo y Cant. Cancelada",
       "unidades_divergentes": "Unidades divergentes entre ítems",
       "aviso_impacto_unidade_inicial": "La alteración de la unidad también cambiará Unidad Comercializada, Cant. Lista, Cant. Transferida, Saldo y Cant. Cancelada",

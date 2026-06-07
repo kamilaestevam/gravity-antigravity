@@ -1,21 +1,21 @@
 /**
  * TooltipListaColuna — SSOT visual da lista de pedidos (título + pills + aviso).
  *
- * Componente único do produto Pedido para tooltips de regra na lista.
- * O núcleo (GTV) não monta tooltip de regra quando `tooltipInline: true`.
- *
- * Pills: vocabulário e ordem canônica em `pillsTooltipColunaLista.ts`
- * (espelha LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md §0 e /tooltip-pedido).
+ * O título é SEMPRE resolvido aqui via `colunaKey` + `nivel` — callers não podem
+ * passar título de pedido numa célula de item por engano ou legado do núcleo.
  */
 
 import React from 'react'
 import type { TFunction } from 'i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { RegraPillId } from './pillsTooltipColunaLista'
+import type { NivelColunaLista } from './regrasTooltipColunaLista'
+import { tituloTooltipListaPorNivel } from './tituloTooltipLista'
 import { TooltipRegrasColuna } from './TooltipRegrasColuna'
 
 export type TooltipListaColunaProps = {
-  titulo: string
+  colunaKey: string
+  nivel: NivelColunaLista
   children: React.ReactNode
   t: TFunction
   pills: RegraPillId[]
@@ -32,7 +32,8 @@ export type TooltipListaColunaProps = {
 
 /** Tooltip completa da lista — título no shell, pills no corpo. */
 export function TooltipListaColuna({
-  titulo,
+  colunaKey,
+  nivel,
   children,
   t,
   pills,
@@ -46,6 +47,7 @@ export function TooltipListaColuna({
   cursorBloqueado,
   triggerStyle,
 }: TooltipListaColunaProps) {
+  const titulo = tituloTooltipListaPorNivel(t, colunaKey, nivel)
   const styleTrigger = triggerStyle
     ?? (cursorBloqueado
       ? {
@@ -68,8 +70,8 @@ export function TooltipListaColuna({
           t={t}
           pillsPedido={pills}
           linkFormula={linkFormula}
-          ghostSemCheckbox={ghostSemCheckbox}
-          numeroUnicoOrg={numeroUnicoOrg}
+          ghostSemCheckbox={ghostSemCheckbox && nivel === 'pai'}
+          numeroUnicoOrg={numeroUnicoOrg && nivel === 'pai'}
           aviso={aviso}
           avisoImpacto={avisoImpacto}
           descricaoExtra={descricaoExtra}
@@ -78,7 +80,13 @@ export function TooltipListaColuna({
       interativo={interativo}
       cursorBloqueado={cursorBloqueado}
     >
-      <span style={styleTrigger}>{children}</span>
+      <span
+        style={styleTrigger}
+        data-tooltip-lista-coluna={colunaKey}
+        data-tooltip-lista-nivel={nivel}
+      >
+        {children}
+      </span>
     </TooltipGlobal>
   )
 }

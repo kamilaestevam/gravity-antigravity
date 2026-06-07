@@ -3360,8 +3360,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
-                  // Só o mapa filho com tooltipInline — não herdar tooltipInline da coluna pai.
-                  if (mapa?.tooltipInline === true) {
+                  // Linha item: tooltip de regra montada no produto (TooltipListaColuna no mapa
+                  // ou coluna pai inline). Núcleo não re-wrap — evita «Moeda do Pedido» + pills de item.
+                  const celulaComTooltipProduto =
+                    mapa?.tooltipInline === true
+                    || (mapa?.render != null && (col as GTColuna<unknown>).tooltipInline === true)
+                    || (mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== '')
+                  if (celulaComTooltipProduto) {
                     return celFilhoInner
                   }
                   const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''

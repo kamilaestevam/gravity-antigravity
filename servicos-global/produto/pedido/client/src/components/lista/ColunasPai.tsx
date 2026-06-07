@@ -938,7 +938,6 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'select',
     opcoes: moedasOpcoes ?? [],
     filtravel: true,
-    tooltipTituloItem: t('pedido.coluna_pai.moeda_item_titulo'),
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_moeda'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
@@ -1203,6 +1202,9 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     label: t('pedido.coluna_pai.moeda_cambio'),
     tipo: 'texto',
     filtravel: true,
+    editavel: getEditavel('moeda_cambio_pedido'),
+    tooltipTitulo: t('pedido.coluna_pai.moeda_cambio_titulo', { defaultValue: t('pedido.coluna_pai.moeda_cambio') }),
+    tooltipDescricao: t('pedido.coluna_pai.moeda_cambio_desc', { defaultValue: '' }),
     grupo: 'Câmbio',
     render: (_val: unknown, row: Pedido) => {
       const moeda = row.moeda_cambio_pedido
@@ -1220,6 +1222,9 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'numero',
     align: 'right',
     casasDecimais: 4,
+    editavel: getEditavel('taxa_cambio_estimada'),
+    tooltipTitulo: t('pedido.coluna_pai.taxa_cambio_estimada_titulo', { defaultValue: t('pedido.coluna_pai.taxa_cambio_estimada') }),
+    tooltipDescricao: t('pedido.coluna_pai.taxa_cambio_estimada_desc', { defaultValue: '' }),
     grupo: 'Câmbio',
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -1233,6 +1238,9 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'numero',
     align: 'left',
     casasDecimais: 2,
+    editavel: getEditavel('valor_total_cambio_pedido'),
+    tooltipTitulo: t('pedido.coluna_pai.valor_total_cambio_titulo', { defaultValue: t('pedido.coluna_pai.valor_total_cambio') }),
+    tooltipDescricao: t('pedido.coluna_pai.valor_total_cambio_desc', { defaultValue: '' }),
     grupo: 'Câmbio',
     render: (_val: unknown, row: Pedido) => {
       const moeda = row.moeda_cambio_pedido ?? row.moeda_pedido ?? 'BRL'
@@ -1274,6 +1282,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     sortavel: true,
     align: 'right',
+    editavel: false,
     casasDecimais: getCasas('peso_liquido_total_pedido', 3),
     unidades: unidadesPeso,
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_peso_bruto'),
@@ -1297,20 +1306,14 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         )
         const unidadesEfetivas = unidadesContribuintes.size > 0 ? unidadesContribuintes : unidadesDeclaradas
         if (unidadesEfetivas.size > 1) {
-          return (
-            <TooltipGlobal titulo={t('pedido.coluna_pai.peso_liquido_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_liquido_total_pedido_desc')}>
-              <span style={{ display: 'contents' }}>{renderAgregado(null, true, t('pedido.coluna_pai.unidades_peso_liquido_divergentes'))}</span>
-            </TooltipGlobal>
-          )
+          return renderAgregado(null, true, t('pedido.coluna_pai.unidades_peso_liquido_divergentes'))
         }
       }
       return (
-        <TooltipGlobal titulo={t('pedido.coluna_pai.peso_liquido_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_liquido_total_pedido_desc')}>
-          <span className="gtv-celula-moeda">
-            {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-            <span className="gtv-celula-unidade-badge">kg</span>
-          </span>
-        </TooltipGlobal>
+        <span className="gtv-celula-moeda">
+          {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+          <span className="gtv-celula-unidade-badge">kg</span>
+        </span>
       )
     },
   },
@@ -1321,6 +1324,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     sortavel: true,
     align: 'right',
+    editavel: false,
     casasDecimais: getCasas('peso_bruto_total_pedido', 3),
     unidades: unidadesPeso,
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_peso_liquido'),
@@ -1343,20 +1347,14 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         )
         const unidadesEfetivas = unidadesContribuintes.size > 0 ? unidadesContribuintes : unidadesDeclaradas
         if (unidadesEfetivas.size > 1) {
-          return (
-            <TooltipGlobal titulo={t('pedido.coluna_pai.peso_bruto_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_bruto_total_pedido_desc')}>
-              <span style={{ display: 'contents' }}>{renderAgregado(null, true, t('pedido.coluna_pai.unidades_peso_bruto_divergentes'))}</span>
-            </TooltipGlobal>
-          )
+          return renderAgregado(null, true, t('pedido.coluna_pai.unidades_peso_bruto_divergentes'))
         }
       }
       return (
-        <TooltipGlobal titulo={t('pedido.coluna_pai.peso_bruto_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_bruto_total_pedido_desc')}>
-          <span className="gtv-celula-moeda">
-            {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-            <span className="gtv-celula-unidade-badge">kg</span>
-          </span>
-        </TooltipGlobal>
+        <span className="gtv-celula-moeda">
+          {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+          <span className="gtv-celula-unidade-badge">kg</span>
+        </span>
       )
     },
   },
@@ -1367,6 +1365,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     sortavel: true,
     align: 'right',
+    editavel: false,
     casasDecimais: getCasas('cubagem_total_pedido', 4),
     unidades: unidadesCubagem,
     tooltipTitulo: t('pedido.coluna_pai.cubagem_total_pedido_titulo'),
@@ -1391,20 +1390,14 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         )
         const unidadesEfetivas = unidadesContribuintes.size > 0 ? unidadesContribuintes : unidadesDeclaradas
         if (unidadesEfetivas.size > 1) {
-          return (
-            <TooltipGlobal titulo={t('pedido.coluna_pai.cubagem_total_pedido_titulo')} descricao={t('pedido.coluna_pai.cubagem_total_pedido_desc')}>
-              <span style={{ display: 'contents' }}>{renderAgregado(null, true, t('pedido.coluna_pai.unidades_cubagem_divergentes'))}</span>
-            </TooltipGlobal>
-          )
+          return renderAgregado(null, true, t('pedido.coluna_pai.unidades_cubagem_divergentes'))
         }
       }
       return (
-        <TooltipGlobal titulo={t('pedido.coluna_pai.cubagem_total_pedido_titulo')} descricao={t('pedido.coluna_pai.cubagem_total_pedido_desc')}>
-          <span className="gtv-celula-moeda">
-            {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-            <span className="gtv-celula-unidade-badge">m³</span>
-          </span>
-        </TooltipGlobal>
+        <span className="gtv-celula-moeda">
+          {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+          <span className="gtv-celula-unidade-badge">m³</span>
+        </span>
       )
     },
   },
@@ -1732,6 +1725,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     sortavel: true,
     align: 'right',
+    editavel: false,
     grupo: 'Quantidades',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_volumes_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_volumes_pedido_desc'),

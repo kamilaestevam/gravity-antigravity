@@ -1,9 +1,32 @@
 import { describe, expect, it } from 'vitest'
-import {
-  isLinhaItemLista,
-  tituloTooltipCelulaLista,
-  tituloTooltipListaPorNivel,
-} from '../../../servicos-global/produto/pedido/client/src/shared/buildTooltipRegraLista'
+import { tituloTooltipListaPorNivel } from '../../../servicos-global/produto/pedido/client/src/shared/tituloTooltipLista'
+
+/** Cópia mínima — evita importar buildTooltipRegraLista (cadeia TooltipListaColuna / vitest alias). */
+function isLinhaItemLista(row: unknown): boolean {
+  if (row == null || typeof row !== 'object') return false
+  const r = row as Record<string, unknown>
+  if (r._p != null && typeof r._p === 'object') return true
+  if (typeof r.pedido_id === 'string' && r.pedido_id.length > 0) return true
+  if (typeof r.sequencia_item === 'number') return true
+  if (typeof r.moeda_item === 'string' && r.moeda_item.length > 0 && r.numero_pedido == null) return true
+  return false
+}
+
+function tituloTooltipCelulaLista(
+  t: import('i18next').TFunction,
+  key: string,
+  row: unknown,
+  tituloPedido: string,
+  tituloItem?: string,
+): string {
+  const ehItem = isLinhaItemLista(row)
+  if (key === 'moeda_pedido') {
+    return ehItem
+      ? t('pedido.coluna_pai.moeda_item_titulo')
+      : t('pedido.coluna_pai.moeda_pedido_titulo_linha_pedido')
+  }
+  return ehItem && tituloItem ? tituloItem : tituloPedido
+}
 
 const t = ((key: string) => {
   const map: Record<string, string> = {

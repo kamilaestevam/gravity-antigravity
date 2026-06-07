@@ -2532,6 +2532,10 @@ const CAMPOS_DERIVADOS_PAI = new Set([
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
+  'moeda_cambio_pedido',
+  'taxa_cambio_estimada',
+  'valor_total_cambio_pedido',
+  'quantidade_volumes_pedido',
 ])
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
@@ -4721,6 +4725,7 @@ export default function Pedidos() {
     const comRegra = enriquecerMapaColunasFilhoComRegraTooltip(merged, t)
     return enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
       moeda_pedido: t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined,
+      unidade_comercializada_pedido: t('pedido.coluna_pai.aviso_impacto_unidade_full', { defaultValue: '' }) || undefined,
     })
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, opcoesExportadoresImp, workspacesMap])
   const {

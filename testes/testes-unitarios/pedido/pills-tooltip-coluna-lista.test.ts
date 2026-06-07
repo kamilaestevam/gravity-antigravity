@@ -126,6 +126,23 @@ describe('obterPillsTooltipColuna', () => {
     expect(pillsParaNivelColuna('moeda_pedido', 'item')).toEqual(['editavel_item'])
   })
 
+  it('unidade_comercializada_pedido — pedido e item: editável + replicar + item + alerta', () => {
+    const pillsUnidade = [
+      'editavel_pedido',
+      'replica_itens',
+      'editavel_item',
+      'alerta_divergencia',
+    ] as const
+    const res = obterPillsTooltipColuna('unidade_comercializada_pedido')
+    expect(res.pedido).toEqual([...pillsUnidade])
+    expect(res.item).toEqual(expect.arrayContaining([...pillsUnidade]))
+    expect(res.item).toHaveLength(pillsUnidade.length)
+    expect(pillsParaNivelColuna('unidade_comercializada_pedido', 'pai')).toEqual([...pillsUnidade])
+    const pillsItem = pillsParaNivelColuna('unidade_comercializada_pedido', 'item')
+    expect(pillsItem).toEqual(expect.arrayContaining([...pillsUnidade]))
+    expect(pillsItem).toHaveLength(pillsUnidade.length)
+  })
+
   it('NCM — três pills iguais no pedido e no item; sem subtexto ghost', () => {
     const res = obterPillsTooltipColuna('ncm')
     expect(res.ghostSemCheckbox).toBe(false)
@@ -139,6 +156,33 @@ describe('obterPillsTooltipColuna', () => {
     const pills = pillsParaNivelColuna('saldo_itens_do_pedido', 'item')
     expect(pills).toContain('somente_leitura')
     expect(pills).toContain('formula_config')
+  })
+
+  it('peso_liquido_total_pedido — pedido bloqueado + calculado + alerta', () => {
+    const pills = pillsParaNivelColuna('peso_liquido_total_pedido', 'pai')
+    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido', 'alerta_divergencia'])
+  })
+
+  it('cubagem_total_pedido dinâmico — pedido bloqueado + calculado + alerta', () => {
+    const res = obterPillsTooltipColuna('cubagem_total_pedido', { modoDinamicoPedidoItem: true })
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual(['bloqueado_edicao', 'calculado_pedido', 'alerta_divergencia'])
+    expect(res.item).toEqual(['editavel_item', 'alerta_divergencia'])
+  })
+
+  it('valor_total_cambio_pedido — pedido bloqueado + calculado', () => {
+    const pills = pillsParaNivelColuna('valor_total_cambio_pedido', 'pai')
+    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido'])
+  })
+
+  it('taxa_cambio_estimada — pedido bloqueado + calculado', () => {
+    const pills = pillsParaNivelColuna('taxa_cambio_estimada', 'pai')
+    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido'])
+  })
+
+  it('quantidade_volumes_pedido — pedido bloqueado + total soma + alerta', () => {
+    const pills = pillsParaNivelColuna('quantidade_volumes_pedido', 'pai')
+    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido', 'alerta_divergencia'])
   })
 
   it.each([

@@ -73,15 +73,19 @@ export function resolverTituloFinalTooltipCelula(
   const ehNivelItem = isFilhoRender
     || (item != null && resolverNivelTooltipCelula(col, item, isFilhoRender))
 
-  // Linha filha GTV / célula de item: título de item vence mapa e override de pedido.
+  // Linha filha GTV / célula de item: título de item vence título de pedido.
   if (ehNivelItem) {
     if (tituloItemCol) return tituloItemCol
+    if (tituloOverrideTrim && tituloOverrideTrim !== tituloPedidoCol) return tituloOverrideTrim
     if (item != null) {
       const tituloCelula = col.tooltipTituloCelula?.(item)?.trim()
-      if (tituloCelula) return tituloCelula
+      if (tituloCelula && tituloCelula !== tituloPedidoCol) return tituloCelula
+      if (tituloCelula && tituloItemCol) return tituloItemCol
       const tituloResolvido = resolverTituloTooltipCelula(col, item, true)
-      if (tituloResolvido) return tituloResolvido
+      if (tituloResolvido && tituloResolvido !== tituloPedidoCol) return tituloResolvido
     }
+    if (tituloItemCol) return tituloItemCol
+    if (tituloOverrideTrim && tituloOverrideTrim !== tituloPedidoCol) return tituloOverrideTrim
   }
 
   if (tituloOverrideTrim) return tituloOverrideTrim
@@ -90,6 +94,9 @@ export function resolverTituloFinalTooltipCelula(
     return tituloItemCol
   }
   if (tituloItemCol && tituloPedidoCol && regra.titulo === tituloPedidoCol) return tituloItemCol
+  if (ehNivelItem && tituloPedidoCol && regra.titulo === tituloPedidoCol) {
+    return tituloItemCol ?? col.label
+  }
   return regra.titulo
 }
 

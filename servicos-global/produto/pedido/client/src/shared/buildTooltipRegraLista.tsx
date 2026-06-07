@@ -14,6 +14,13 @@ import {
 import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipColunaLista'
 import { TooltipListaColuna } from './TooltipListaColuna'
 import { TooltipRegrasColuna } from './TooltipRegrasColuna'
+import {
+  tituloTooltipCelulaPorColuna,
+  tituloTooltipColunaFallback,
+  tituloTooltipListaPorNivel,
+} from './tituloTooltipLista'
+
+export { tituloTooltipListaPorNivel } from './tituloTooltipLista'
 
 /** Render original da célula — preservado para re-aplicar TooltipListaColuna sem duplo wrap. */
 type ColunaComRenderListaBase<T> = GTColuna<T> & {
@@ -74,40 +81,6 @@ export function tituloTooltipCelulaLista(
     ?? (ehItem && tituloItem ? tituloItem : tituloPedido)
 }
 
-/** Título por coluna e nível — SSOT para mapa filho e wrap de célula (não usa heurística de row). */
-export function tituloTooltipListaPorNivel(
-  t: TFunction,
-  key: string,
-  nivel: NivelColunaLista,
-): string {
-  const isFilho = nivel === 'item'
-  return tituloTooltipCelulaPorColuna(t, key, isFilho)
-    ?? tituloTooltipColuna(t, key, isFilho ? 'item' : 'pai')
-}
-
-function tituloTooltipCelulaPorColuna(
-  t: TFunction,
-  key: string,
-  isFilho: boolean,
-): string | undefined {
-  if (key === 'moeda_pedido') {
-    return isFilho
-      ? t('pedido.coluna_pai.moeda_item_titulo')
-      : t('pedido.coluna_pai.moeda_pedido_titulo_linha_pedido')
-  }
-  if (key === 'valor_por_unidade_item') {
-    return isFilho
-      ? t('pedido.coluna_pai.valor_unitario_item_titulo')
-      : t('pedido.coluna_pai.valor_unitario_item_titulo_linha_pedido')
-  }
-  if (key === 'valor_total_pedido') {
-    return isFilho
-      ? t('pedido.coluna_pai.valor_total_item_titulo')
-      : t('pedido.coluna_pai.valor_total_pedido_titulo_linha_pedido')
-  }
-  return undefined
-}
-
 function avisoImpactoPorColuna(
   t: TFunction,
   key: string,
@@ -135,6 +108,13 @@ function nivelParaAvisoImpacto(
   return nivel
 }
 
+function descricaoExtraPorColuna(t: TFunction, key: string): string | undefined {
+  if (key === 'quantidade_transferida_total') {
+    return t('pedido.lista.regras_coluna.quantidade_transferida_edicao_via_transferir')
+  }
+  return undefined
+}
+
 function pillsResolucaoLista(
   t: TFunction,
   key: string,
@@ -156,7 +136,7 @@ function pillsResolucaoLista(
     pills,
     nivelBloco,
     avisoImpacto: avisoImpactoPorColuna(t, key, nivelBloco, opts?.avisoImpactoColuna),
-    descricaoExtra: opts?.descricaoUsuario?.trim() || undefined,
+    descricaoExtra: opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key) || undefined,
   }
 }
 
@@ -203,6 +183,7 @@ function montarTooltipPills(
 /** Colunas com tooltip montada pelo Pedido (`tooltipInline`) — núcleo não envolve a célula. */
 export const CHAVES_TOOLTIP_INLINE_LISTA = new Set([
   'moeda_pedido',
+  'unidade_comercializada_pedido',
   'valor_por_unidade_item',
   'valor_total_pedido',
   'quantidade_total_pedido',
@@ -210,7 +191,26 @@ export const CHAVES_TOOLTIP_INLINE_LISTA = new Set([
   'quantidade_transferida_total',
   'quantidade_cancelada_total_pedido',
   'saldo_itens_do_pedido',
+  'peso_liquido_total_pedido',
+  'peso_bruto_total_pedido',
+  'cubagem_total_pedido',
+  'moeda_cambio_pedido',
+  'taxa_cambio_estimada',
+  'valor_total_cambio_pedido',
+  'quantidade_volumes_pedido',
+  'nome_importador',
+  'nome_exportador',
 ])
+
+/** `cursor: not-allowed` na célula — bloqueio fixo ou condicional (`editavel` função). */
+export function resolverCursorBloqueadoCelulaLista<T>(
+  col: GTColuna<T>,
+  row: T,
+): boolean {
+  if (col.editavel === false) return true
+  if (typeof col.editavel === 'function') return !col.editavel(row)
+  return false
+}
 
 const CHAVES_TITULO_CELULA_PILOTO = CHAVES_TOOLTIP_INLINE_LISTA
 
@@ -230,9 +230,7 @@ export function tituloTooltipColuna(
   if (legadoTitulo) return legadoTitulo
   const legadoPai = t(`pedido.coluna_pai.${key}_titulo`, { defaultValue: '' })
   if (legadoPai) return legadoPai
-  const legadoFilho = t(`pedido.coluna_filho.${key}.tooltip_titulo`, { defaultValue: '' })
-  if (legadoFilho) return legadoFilho
-  return labelFallback ?? t(`pedido.coluna_pai.${key}`, { defaultValue: key })
+  return tituloTooltipColunaFallback(t, key, nivel, labelFallback)
 }
 
 export type OpcoesEnriquecerTooltip = {
@@ -261,9 +259,19 @@ export function enriquecerColunaComRegraTooltip<T>(
     key === 'moeda_pedido'
       ? t('pedido.coluna_pai.moeda_pedido_titulo_linha_pedido')
       : null
+  const tituloUnidadeLinhaPedido =
+    key === 'unidade_comercializada_pedido'
+      ? t('pedido.coluna_pai.unidade_comercializada_titulo_linha_pedido')
+      : null
+  const tituloQtdTransferidaLinhaPedido =
+    key === 'quantidade_transferida_total'
+      ? t('pedido.coluna_pai.quantidade_transferida_total_titulo_linha_pedido')
+      : null
   const titulo = tituloValorTotalLinhaPedido
     ?? tituloValorUnitarioLinhaPedido
     ?? tituloMoedaLinhaPedido
+    ?? tituloUnidadeLinhaPedido
+    ?? tituloQtdTransferidaLinhaPedido
     ?? (col.tooltipTitulo?.trim()
       ? col.tooltipTitulo
       : tituloTooltipColuna(t, key, 'pai', col.label))
@@ -274,7 +282,11 @@ export function enriquecerColunaComRegraTooltip<T>(
         ? t('pedido.coluna_pai.valor_total_item_titulo')
         : key === 'moeda_pedido'
           ? t('pedido.coluna_pai.moeda_item_titulo')
-          : undefined
+          : key === 'unidade_comercializada_pedido'
+            ? t('pedido.coluna_pai.unidade_comercializada_item_titulo')
+            : key === 'quantidade_transferida_total'
+              ? t('pedido.coluna_pai.quantidade_transferida_item_titulo')
+              : undefined
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)
@@ -301,7 +313,7 @@ export function enriquecerColunaComRegraTooltip<T>(
     : montarTooltipPills(t, key, optsMontar)
 
   // Colunas piloto: célula = TooltipListaColuna; cabeçalho = tooltipTitulo + tooltipDescricao apenas.
-  if (CHAVES_TOOLTIP_INLINE_LISTA.has(key)) {
+  if (CHAVES_TOOLTIP_INLINE_LISTA.has(key) || CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO.has(key)) {
     return aplicarRenderTooltipInlineLista(
       col,
       {
@@ -313,7 +325,7 @@ export function enriquecerColunaComRegraTooltip<T>(
       t,
       {
         modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-        cursorBloqueado: col.editavel === false,
+        cursorBloqueado: (row: T) => resolverCursorBloqueadoCelulaLista(col, row),
       },
     )
   }
@@ -340,6 +352,15 @@ export function enriquecerColunaComRegraTooltip<T>(
         || key === 'quantidade_transferida_total'
         || key === 'quantidade_cancelada_total_pedido'
         || key === 'saldo_itens_do_pedido'
+        || key === 'peso_liquido_total_pedido'
+        || key === 'peso_bruto_total_pedido'
+        || key === 'cubagem_total_pedido'
+        || key === 'moeda_cambio_pedido'
+        || key === 'taxa_cambio_estimada'
+        || key === 'valor_total_cambio_pedido'
+        || key === 'quantidade_volumes_pedido'
+        || key === 'nome_importador'
+        || key === 'nome_exportador'
         || pillsRes.dual
       ) {
         if (isLinhaItemLista(row)) return tooltipCelulaItem
@@ -399,7 +420,6 @@ export function enriquecerMapaColunasFilhoComRegraTooltip<C>(
 export type OpcoesWrapCelulaListaRegras = {
   key: string
   nivel: NivelColunaLista
-  titulo: string
   avisoImpactoColuna?: string
   modoDinamicoPedidoItem?: boolean
   colunaPersonalizada?: boolean
@@ -428,13 +448,10 @@ export function wrapCelulaListaRegras(
     },
   )
 
-  const titulo = CHAVES_TITULO_CELULA_PILOTO.has(opts.key)
-    ? tituloTooltipListaPorNivel(t, opts.key, opts.nivel)
-    : opts.titulo
-
   return (
     <TooltipListaColuna
-      titulo={titulo}
+      colunaKey={opts.key}
+      nivel={opts.nivel}
       t={t}
       pills={pills}
       linkFormula={res.linkFormula}
@@ -455,12 +472,13 @@ export function aplicarRenderTooltipInlineLista<T>(
   col: GTColuna<T>,
   enriched: GTColuna<T>,
   t: TFunction,
-  opts?: Pick<OpcoesEnriquecerTooltip, 'modoDinamicoPedidoItem'> & { cursorBloqueado?: boolean },
+  opts?: Pick<OpcoesEnriquecerTooltip, 'modoDinamicoPedidoItem'> & {
+    cursorBloqueado?: boolean | ((row: T) => boolean)
+  },
 ): GTColuna<T> {
   const colExt = col as ColunaComRenderListaBase<T>
   const renderBase = colExt.renderListaBase ?? enriched.render ?? col.render
   const key = String(col.key)
-  const bloqueado = opts?.cursorBloqueado ?? false
   const interativo = enriched.tooltipInterativo
 
   const colInline: ColunaComRenderListaBase<T> = {
@@ -470,10 +488,12 @@ export function aplicarRenderTooltipInlineLista<T>(
     render: (val: unknown, row: T) => {
       const nivel: NivelColunaLista = isLinhaItemLista(row) ? 'item' : 'pai'
       const conteudo = renderBase ? renderBase(val, row) : null
+      const bloqueado = typeof opts?.cursorBloqueado === 'function'
+        ? opts.cursorBloqueado(row)
+        : (opts?.cursorBloqueado ?? false)
       return wrapCelulaListaRegras(conteudo, t, {
         key,
         nivel,
-        titulo: tituloTooltipListaPorNivel(t, key, nivel),
         avisoImpactoColuna: col.avisoImpacto,
         modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
         interativo,
@@ -506,6 +526,13 @@ export const CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO = new Set([
   'quantidade_transferida_total',
   'quantidade_cancelada_total_pedido',
   'saldo_itens_do_pedido',
+  'peso_liquido_total_pedido',
+  'peso_bruto_total_pedido',
+  'cubagem_total_pedido',
+  'moeda_cambio_pedido',
+  'taxa_cambio_estimada',
+  'valor_total_cambio_pedido',
+  'quantidade_volumes_pedido',
 ])
 
 /** Aplica `TooltipListaColuna` no render de entradas do mapaColunasFilho (linha item). */
@@ -521,16 +548,16 @@ export function enriquecerMapaFilhoTooltipInline<C>(
     if (!entry?.render) continue
     const renderBase = entry.render
     const aviso = avisosPorChave?.[key]
+    const tituloItem = tituloTooltipListaPorNivel(t, key, 'item')
     out[key] = {
       ...entry,
       tooltipInline: true,
+      tooltipTitulo: tituloItem,
       render: (row: C) => {
         const conteudo = renderBase(row)
-        const titulo = tituloTooltipListaPorNivel(t, key, 'item')
         return wrapCelulaListaRegras(conteudo, t, {
           key,
           nivel: 'item',
-          titulo,
           avisoImpactoColuna: aviso,
         })
       },

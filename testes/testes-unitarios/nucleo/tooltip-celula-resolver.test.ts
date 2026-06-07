@@ -101,6 +101,22 @@ describe('resolverTooltipRegraCelula — título alinhado à descrição', () =>
     ).toBe('Moeda do Item')
   })
 
+  it('isFilhoRender=true: tituloOverride do mapa vence tooltipTitulo de pedido (col inline)', () => {
+    const colInline: GTColuna<unknown> = {
+      key: 'moeda_pedido',
+      label: 'Moeda do Pedido/Item',
+      tooltipTitulo: 'Moeda do Pedido',
+      tooltipDescricao: 'corpo-pedido',
+      tooltipDescricaoItem: 'corpo-item',
+      tooltipInline: true,
+    }
+    const item = { moeda_item: 'EUR' }
+    const regra = { titulo: 'Moeda do Pedido', descricao: 'corpo-item' }
+    expect(
+      resolverTituloFinalTooltipCelula(colInline, regra, true, 'Moeda do Item', item),
+    ).toBe('Moeda do Item')
+  })
+
   it('isFilhoRender=true sem tooltipTituloItem usa tooltipTituloCelula do item', () => {
     const colSemTituloItem: GTColuna<unknown> = {
       key: 'moeda_pedido',

@@ -341,6 +341,38 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ---
 
+## 8B. UNIDADE COMERCIALIZADA DO PEDIDO/ITEM (`unidade_comercializada_pedido`)
+
+> Decisão de produto **2026-06-08** — padrão Moeda/Incoterm (checkbox replicar) + aviso de impacto nas colunas de quantidade. Select de unidades via Cadastros (`useUnidadesPedido`).
+
+| # | Regra |
+|---|--------|
+| **UNC-01** | Label na grade: **Unidade Comercializada** — títulos de tooltip: *Unidade Comercializada do Pedido* (pai) / *Unidade Comercializada do Item* (filho). |
+| **UNC-02** | Campo **pedido vazio** (`—`) é **editável** — clicar abre popover de unidade. |
+| **UNC-03** | Hover na célula do **pedido** exibe tooltip (quando habilitada). |
+| **UNC-04** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `editavel_item` → `alerta_divergencia` + aviso *A alteração da unidade irá alterar também Qtd. Inicial, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada* (`aviso_impacto_unidade_full`). |
+| **UNC-05** | Clicar na célula do **pedido** abre popover/modal com dropdown de unidades. |
+| **UNC-06** | Lista do dropdown = **fonte única** Cadastros/unidade (`useUnidadesPedido`). |
+| **UNC-07** | Selecionar unidade no **pedido** (vazio ou preenchido) persiste `unidade_comercializada_pedido`. Sem checkbox: só o pedido; com checkbox: pedido **e todos** os itens (`unidade_comercializada_pedido` → `unidade_comercializada_item`). |
+| **UNC-08** | Clicar na célula do **item** abre o mesmo popover (somente unidade, `apenasUnidade`). |
+| **UNC-09** | Lista do item = mesma fonte Cadastros; editar unidade no item persiste `unidade_comercializada_item`. |
+| **UNC-10** | Unidade **divergente** entre itens → **alerta âmbar** na célula do **pedido** (`unidade_comercializada_item_divergente`) — *Unidades divergentes entre itens*. |
+| **UNC-11** | Tooltip **item**: mesmas 4 pills do pedido + mesmo aviso de impacto (`aviso_impacto_unidade_full`). |
+| **UNC-12** | Sair da Lista e voltar — unidades salvas no pedido e nos itens **persistem** na grade (passo 82 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Unidade Comercializada do Pedido* | `editavel_pedido` → `replica_itens` → `editavel_item` → `alerta_divergencia` |
+| **Item** | *Unidade Comercializada do Item* | `editavel_pedido` → `replica_itens` → `editavel_item` → `alerta_divergencia` |
+
+**Código:** `pai_unidade_comercializada` · `PILLS_PEDIDO_UNIDADE` / `PILLS_ITEM_UNIDADE` · `tipo: 'unidade'` + `apenasUnidade: true` em `ColunasPai.tsx`.
+
+**EMT:** passos 72–82 (ordem regras 01–08 do dono) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+
+---
+
 ## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.
@@ -359,14 +391,14 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ## 10. Resumo comparativo
 
-| Aspecto | Workspace | TIPO DE OPERAÇÃO | STATUS | Importador | Exportador | Ref. Imp./Exp. | Moeda | Valor total | Logística | Incoterm |
-|---------|-----------|------------------|--------|------------|------------|----------------|-------|-------------|-----------|----------|
-| Edição no pedido | ✅ | ✅ | ✅ | ✅ (IMP: via workspace) | ✅ (EXP: via workspace) | ✅ | ✅ | ❌ bloqueado | ✅ | ✅ |
-| Edição no item | ❌ travado | ❌ travado | ✅ | ❌ travado | ❌ travado | ✅ | ✅ | ✅ popover moeda+valor | ✅ (roteia pedido) | ✅ |
-| Checkbox replicar no pedido | ❌ ausente | ❌ ausente | ✅ presente | ❌ ausente | ❌ ausente | ✅ presente | ✅ presente | ❌ ausente | ❌ ausente | ✅ presente |
-| Replicação sem checkbox | ✅ sempre | ✅ sempre | ❌ não replica | — | — | ❌ não replica | ❌ não replica | — | Espelhado visual | ❌ não replica |
-| Alerta âmbar se diverge | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ (só célula) | ✅ (moeda no valor) | ❌ | ✅ |
-| Opções do select (pedido) | Workspaces habilitados | Importação / Exportação | Status nativos + custom | IMP: workspaces / EXP: fornecedores | EXP: workspaces / IMP: fornecedores | Texto livre | Cadastros moeda | — | Cadastros | Incoterms cadastros |
+| Aspecto | Workspace | TIPO DE OPERAÇÃO | STATUS | Importador | Exportador | Ref. Imp./Exp. | Moeda | Valor total | Unidade com. | Logística | Incoterm |
+|---------|-----------|------------------|--------|------------|------------|----------------|-------|-------------|--------------|-----------|----------|
+| Edição no pedido | ✅ | ✅ | ✅ | ✅ (IMP: via workspace) | ✅ (EXP: via workspace) | ✅ | ✅ | ❌ bloqueado | ✅ select unidade | ✅ | ✅ |
+| Edição no item | ❌ travado | ❌ travado | ✅ | ❌ travado | ❌ travado | ✅ | ✅ | ✅ popover moeda+valor | ✅ select unidade | ✅ (roteia pedido) | ✅ |
+| Checkbox replicar no pedido | ❌ ausente | ❌ ausente | ✅ presente | ❌ ausente | ❌ ausente | ✅ presente | ✅ presente | ❌ ausente | ✅ presente | ❌ ausente | ✅ presente |
+| Replicação sem checkbox | ✅ sempre | ✅ sempre | ❌ não replica | — | — | ❌ não replica | ❌ não replica | — | ❌ não replica | Espelhado visual | ❌ não replica |
+| Alerta âmbar se diverge | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ (só célula) | ✅ (moeda no valor) | ✅ (unidades) | ❌ | ✅ |
+| Opções do select (pedido) | Workspaces habilitados | Importação / Exportação | Status nativos + custom | IMP: workspaces / EXP: fornecedores | EXP: workspaces / IMP: fornecedores | Texto livre | Cadastros moeda | — | Cadastros unidade | Cadastros | Incoterms cadastros |
 
 ---
 
@@ -388,3 +420,4 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | 2026-06-07 | §0 Framework tooltips (linha pedido / linha item / avisos); LOG-06 alinhado a títulos `{Coluna} do Pedido/Item` |
 | 2026-06-07 | MOEDA — MND-01…08; tooltips pedido/item + aviso impacto; pills `editavel_pedido` → `replica_itens` → `editavel_item` / item `editavel_item` |
 | 2026-06-08 | VALOR TOTAL — VLR-01…10; pedido bloqueado + soma; item popover; pills `editavel_nos_itens`; EMT passos 62–71 (ordem 01–08) |
+| 2026-06-08 | UNIDADE COMERCIALIZADA — UNC-01…12; select Cadastros + checkbox; pills espelhadas pedido/item; EMT passos 72–82 |

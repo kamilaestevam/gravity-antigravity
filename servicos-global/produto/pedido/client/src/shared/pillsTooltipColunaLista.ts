@@ -199,6 +199,9 @@ export const PILLS_PEDIDO_QTD_TRANSFERIDA: RegraPillId[] = [
   'casas_decimais_config',
 ]
 
+/** Linha do item — Qtd. Transferida: somente leitura + operação Transferir. */
+export const PILLS_ITEM_QTD_TRANSFERIDA: RegraPillId[] = ['somente_leitura', 'so_operacao']
+
 /** Linha do pedido — Qtd. Cancelada: calculado, bloqueado, soma mesma unidade, alerta. */
 export const PILLS_PEDIDO_QTD_CANCELADA: RegraPillId[] = [
   'calculado_pedido',
@@ -225,6 +228,22 @@ export const PILLS_PEDIDO_MOEDA: RegraPillId[] = [
 /** Moeda — linha do item. */
 export const PILLS_ITEM_MOEDA: RegraPillId[] = ['editavel_item']
 
+/** Unidade Comercializada — linha do pedido. */
+export const PILLS_PEDIDO_UNIDADE: RegraPillId[] = [
+  'editavel_pedido',
+  'replica_itens',
+  'editavel_item',
+  'alerta_divergencia',
+]
+
+/** Unidade Comercializada — linha do item (espelha pedido: 4 pills + aviso impacto). */
+export const PILLS_ITEM_UNIDADE: RegraPillId[] = [
+  'editavel_pedido',
+  'replica_itens',
+  'editavel_item',
+  'alerta_divergencia',
+]
+
 /** Linha do pedido — Qtd. Inicial: soma, bloqueado, editável no item, alerta, casas decimais. */
 export const PILLS_PEDIDO_QTD_INICIAL: RegraPillId[] = [
   'calculado_pedido_qtd_inicial',
@@ -236,6 +255,26 @@ export const PILLS_PEDIDO_QTD_INICIAL: RegraPillId[] = [
 
 /** Linha item — Qtd. Inicial: editável no item. */
 export const PILLS_ITEM_QTD_INICIAL: RegraPillId[] = ['editavel_item']
+
+/** Linha do pedido — Peso/Cubagem total: calculado, bloqueado, alerta divergência. */
+export const PILLS_PEDIDO_PESO_CUBAGEM: RegraPillId[] = [
+  'calculado_pedido',
+  'bloqueado_edicao',
+  'alerta_divergencia',
+]
+
+/** Linha do pedido — Câmbio (derivado): bloqueado + calculado. */
+export const PILLS_PEDIDO_CAMBIO: RegraPillId[] = [
+  'bloqueado_edicao',
+  'calculado_pedido',
+]
+
+/** Linha do pedido — Qtd. Volumes: total do pedido, bloqueado, alerta divergência. */
+export const PILLS_PEDIDO_VOLUMES: RegraPillId[] = [
+  'bloqueado_edicao',
+  'calculado_pedido',
+  'alerta_divergencia',
+]
 
 const CHAVES_DUAL_SEMPRE = new Set(['numero_pedido'])
 
@@ -272,6 +311,10 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     pedido: [...PILLS_PEDIDO_MOEDA],
     item: [...PILLS_ITEM_MOEDA],
   },
+  pai_unidade_comercializada: {
+    pedido: [...PILLS_PEDIDO_UNIDADE],
+    item: [...PILLS_ITEM_UNIDADE],
+  },
   pai_calculado_valor: {
     pedido: [...PILLS_PEDIDO_VALOR_TOTAL],
     item: [...PILLS_ITEM_VALOR_TOTAL],
@@ -281,12 +324,16 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: [...PILLS_ITEM_QTD_INICIAL],
   },
   pai_calculado_peso: {
-    pedido: ['calculado_pedido', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
     item: ['editavel_item', 'alerta_divergencia'],
   },
   pai_calculado_cubagem: {
-    pedido: ['calculado_pedido', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
     item: ['editavel_item', 'alerta_divergencia'],
+  },
+  pai_calculado_volumes: {
+    pedido: [...PILLS_PEDIDO_VOLUMES],
+    item: ['somente_leitura'],
   },
   pai_saldo_formula: {
     pedido: [...PILLS_PEDIDO_SALDO],
@@ -297,7 +344,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['somente_leitura'],
   },
   pai_moeda_cambio: {
-    pedido: ['editavel_pedido', 'replica_itens'],
+    pedido: [...PILLS_PEDIDO_CAMBIO],
     item: ['editavel_item'],
   },
   pai_anexo: {
@@ -370,22 +417,22 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   dinamico_qtd_transferida: {
     pedido: [...PILLS_PEDIDO_QTD_TRANSFERIDA],
-    item: ['somente_leitura', 'so_operacao'],
+    item: [...PILLS_ITEM_QTD_TRANSFERIDA],
   },
   dinamico_qtd_cancelada: {
     pedido: [...PILLS_PEDIDO_QTD_CANCELADA],
     item: ['somente_leitura', 'so_operacao'],
   },
   dinamico_peso_liquido: {
-    pedido: ['calculado_pedido', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
     item: ['editavel_item', 'alerta_divergencia'],
   },
   dinamico_peso_bruto: {
-    pedido: ['calculado_pedido', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
     item: ['editavel_item', 'alerta_divergencia'],
   },
   dinamico_cubagem: {
-    pedido: ['calculado_pedido', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
     item: ['editavel_item', 'alerta_divergencia'],
   },
   item_editavel_padrao: {
@@ -414,7 +461,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   item_nao_editavel_transferencia: {
     pedido: [],
-    item: ['somente_leitura', 'so_operacao'],
+    item: [...PILLS_ITEM_QTD_TRANSFERIDA],
   },
   item_nao_editavel_cancelamento: {
     pedido: [],
@@ -462,20 +509,34 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_total_pedido') return PILLS_ITEM_VALOR_TOTAL
   if (key === 'valor_por_unidade_item') return PILLS_ITEM_VALOR_UNITARIO
   if (key === 'moeda_pedido') return PILLS_ITEM_MOEDA
+  if (key === 'unidade_comercializada_pedido') return PILLS_ITEM_UNIDADE
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_ITEM_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_ITEM_QTD_INICIAL
+  if (key === 'quantidade_transferida_total') return PILLS_ITEM_QTD_TRANSFERIDA
   return pills
 }
 
 function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_por_unidade_item') return PILLS_PEDIDO_VALOR_UNITARIO_ITEM
   if (key === 'moeda_pedido') return PILLS_PEDIDO_MOEDA
+  if (key === 'unidade_comercializada_pedido') return PILLS_PEDIDO_UNIDADE
   if (key === 'valor_total_pedido') return PILLS_PEDIDO_VALOR_TOTAL
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_PEDIDO_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_PEDIDO_QTD_INICIAL
   if (key === 'quantidade_transferida_total') return PILLS_PEDIDO_QTD_TRANSFERIDA
   if (key === 'quantidade_cancelada_total_pedido') return PILLS_PEDIDO_QTD_CANCELADA
   if (key === 'saldo_itens_do_pedido') return PILLS_PEDIDO_SALDO
+  if (
+    key === 'peso_liquido_total_pedido'
+    || key === 'peso_bruto_total_pedido'
+    || key === 'cubagem_total_pedido'
+  ) return PILLS_PEDIDO_PESO_CUBAGEM
+  if (
+    key === 'moeda_cambio_pedido'
+    || key === 'taxa_cambio_estimada'
+    || key === 'valor_total_cambio_pedido'
+  ) return PILLS_PEDIDO_CAMBIO
+  if (key === 'quantidade_volumes_pedido') return PILLS_PEDIDO_VOLUMES
   return pills
 }
 
@@ -503,6 +564,17 @@ export function obterPillsTooltipColuna(
       dual: false,
       pedido: limitarPills([...PILLS_COLUNA_VALOR_TOTAL], 'pai'),
       item: limitarPills([...PILLS_ITEM_VALOR_TOTAL], 'item'),
+      linkFormula: false,
+      ghostSemCheckbox: false,
+      numeroUnicoOrg: false,
+    }
+  }
+
+  if (key === 'quantidade_transferida_total' && !dual) {
+    return {
+      dual: false,
+      pedido: limitarPills([...PILLS_PEDIDO_QTD_TRANSFERIDA], 'pai'),
+      item: limitarPills([...PILLS_ITEM_QTD_TRANSFERIDA], 'item'),
       linkFormula: false,
       ghostSemCheckbox: false,
       numeroUnicoOrg: false,
@@ -548,6 +620,9 @@ export function pillsParaNivelColuna(
   if (key === 'moeda_pedido') {
     return limitarPills(nivel === 'item' ? [...PILLS_ITEM_MOEDA] : [...PILLS_PEDIDO_MOEDA], nivel)
   }
+  if (key === 'unidade_comercializada_pedido') {
+    return limitarPills(nivel === 'item' ? [...PILLS_ITEM_UNIDADE] : [...PILLS_PEDIDO_UNIDADE], nivel)
+  }
   if (key === 'valor_por_unidade_item' && nivel === 'pai') {
     return limitarPills([...PILLS_PEDIDO_VALOR_UNITARIO_ITEM], 'pai')
   }
@@ -575,11 +650,29 @@ export function pillsParaNivelColuna(
   if (key === 'quantidade_transferida_total' && nivel === 'pai') {
     return limitarPills(PILLS_PEDIDO_QTD_TRANSFERIDA, 'pai')
   }
+  if (key === 'quantidade_transferida_total' && nivel === 'item') {
+    return limitarPills(PILLS_ITEM_QTD_TRANSFERIDA, 'item')
+  }
   if (key === 'quantidade_cancelada_total_pedido' && nivel === 'pai') {
     return limitarPills(PILLS_PEDIDO_QTD_CANCELADA, 'pai')
   }
   if (key === 'saldo_itens_do_pedido' && nivel === 'pai') {
     return limitarPills(PILLS_PEDIDO_SALDO, 'pai')
+  }
+  if (
+    (key === 'peso_liquido_total_pedido' || key === 'peso_bruto_total_pedido' || key === 'cubagem_total_pedido')
+    && nivel === 'pai'
+  ) {
+    return limitarPills(PILLS_PEDIDO_PESO_CUBAGEM, 'pai')
+  }
+  if (
+    (key === 'moeda_cambio_pedido' || key === 'taxa_cambio_estimada' || key === 'valor_total_cambio_pedido')
+    && nivel === 'pai'
+  ) {
+    return limitarPills(PILLS_PEDIDO_CAMBIO, 'pai')
+  }
+  if (key === 'quantidade_volumes_pedido' && nivel === 'pai') {
+    return limitarPills(PILLS_PEDIDO_VOLUMES, 'pai')
   }
   return limitarPills(nivel === 'item' ? mapa.item : mapa.pedido, nivel)
 }

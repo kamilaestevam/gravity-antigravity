@@ -61,6 +61,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   referencia_fabricante:     { tipo: 'alfanumerico' },
   cobertura_cambial:         { tipo: 'alfanumerico' },
   condicao_pagamento: { tipo: 'alfanumerico' },
+  unidade_comercializada_pedido: { tipo: 'alfanumerico' },
 
   // ── Exceções: editavel depende do tipo de operação ──────────────────────────
   // IMP: fornecedores exportadores. EXP: lista workspaces (handler redireciona para id_workspace).
@@ -84,6 +85,10 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   peso_liquido_total_pedido:            { tipo: 'calculado' },
   peso_bruto_total_pedido:              { tipo: 'calculado' },
   cubagem_total_pedido:                 { tipo: 'calculado' },
+  quantidade_volumes_pedido:            { tipo: 'calculado' },
+  moeda_cambio_pedido:                  { tipo: 'somente_leitura' },
+  taxa_cambio_estimada:                 { tipo: 'somente_leitura' },
+  valor_total_cambio_pedido:            { tipo: 'calculado' },
 
   // ── Saldo — derivado de calculados via fórmula ──────────────────────────────
   saldo_itens_do_pedido: { tipo: 'saldo' },

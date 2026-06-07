@@ -28,6 +28,28 @@
 
 ---
 
+## Regra universal — persistência ao fim de cada ETAPA
+
+> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 23 (relatório).
+
+**Último passo da etapa** (quando ainda não existir):
+
+1. Navegar para o **hub** (sair da tela Lista)
+2. Voltar à **Lista de Pedidos**
+3. Reencontrar o pedido pelo **nº pedido** e **reexpandir**
+4. **APROVADO** quando **tudo** salvo na etapa permanece na grade (pedido + itens)
+
+**Print:** `{passo}-{slug}-persistencia-apos-navegar-resultado.png`
+
+| Situação | Ação |
+|----------|------|
+| Etapa já termina com persistência | Manter (Qtd. Pronta, Qtd. Inicial, Valor Total, Unidade Comercializada) |
+| Etapa sem persistência | Incluir como **último passo** da ETAPA |
+| Logística (29.x–34.x) | Subpasso **`.6`** (ex.: 29.6) |
+| Importador / Exportador (runners dedicados) | Mesma regra no fechamento |
+
+---
+
 ## Resumo executivo
 
 | Bloco | Passos no runner | Runner |
@@ -53,6 +75,7 @@
 | **QTD. INICIAL DO PEDIDO/ITEM** | 49–55 | `run-lista-editar-salvar.ts` |
 | **MOEDA DO PEDIDO/ITEM** | 56–61 | `run-lista-editar-salvar.ts` |
 | **VALOR TOTAL DO PEDIDO/ITEM** | 62–71 | `run-lista-editar-salvar.ts` |
+| **UNIDADE COMERCIALIZADA DO PEDIDO/ITEM** | 72–82 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -450,7 +473,27 @@ Coluna dinâmica **`valor_total_pedido`**. Passos **62, 63, 64…** seguem a **o
 
 **Valores no runner:** incluir = unitário×qtd (ou fallback `1.500,50`) · moeda = 1ª opção do Cadastros · editar `2.750,00` · item 2 `1.000,00`
 
-### ETAPA 22 — Relatório
+### ETAPA 22 — UNIDADE COMERCIALIZADA DO PEDIDO/ITEM (passos 72–82)
+
+Coluna **`unidade_comercializada_pedido`** — select do Cadastros com checkbox **«Aplicar em todos os itens»** (padrão Moeda). Popover `apenasUnidade` (somente sigla, sem quantidade). Passos **72, 73, 74…** seguem a **ordem exata** das regras **01–08** do dono (numeração contínua após o passo 71).
+
+| Passo | Regra | Ação | APROVADO quando |
+|-------|-------|------|-----------------|
+| **72** | **01** | **Clicar** na célula **Unidade** do **pedido** (vazio `—` ou preenchido) | Popover de unidade **abre** — campo editável · Print `72-unidade-pedido-abre-popover-resultado.png` |
+| **73** | **02** | Hover na célula **Unidade** do **pedido** | Tooltip visível · Print `73-unidade-tooltip-pedido-hover.png` |
+| **74** | **03** | Inspecionar tooltip do **pedido** | Título *Unidade Comercializada do Pedido* + pills Editável no pedido, Editável nos itens, Aplicar em todos os itens, Alerta se itens divergirem + aviso *«A alteração da unidade irá alterar também Qtd. Inicial, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada»* · Print `74-unidade-tooltip-pedido.png` |
+| **75** | **04** | Abrir popover do **pedido** (clicar célula) | Modal/popover visível · Print `75-unidade-pedido-modal-aberto.png` |
+| **76** | **05** | Abrir dropdown de unidades no popover do **pedido** | Lista com opções do **Cadastros** (≥3 siglas) · Print `76-unidade-pedido-lista-cadastros.png` |
+| **77** | **06** | Select no pedido, sigla A, **sem** checkbox → confirmar | Só pedido persiste · Prints `77-unidade-pedido-sem-replicar-selecao` · `…-resultado` |
+| **78** | **06** | Select no pedido, sigla B, **com** checkbox → confirmar | Pedido **e** todos os itens iguais · Prints `78-unidade-pedido-replicar-todos-selecao` · `…-resultado` |
+| **79** | **07** | **Clicar** na célula **Unidade** do **item 1** | Popover abre com dropdown de unidades · Print `79-unidade-item-modal-aberto.png` |
+| **80** | **08** | No **item 1**: sigla C → confirmar; no **item 2** (se houver): sigla **divergente** → confirmar | Item 1 isolado; alerta **«Unidades divergentes entre itens»** na coluna do pedido · Prints `80-unidade-item-isolado-selecao` · `…-resultado` · `80-unidade-alerta-divergencia-resultado` |
+| **81** | **07** | Hover tooltip na célula **Unidade** do **item 1** | Mesmas 4 pills + aviso de impacto · Print `81-unidade-tooltip-item.png` |
+| **82** | **08** | Sair da Lista (hub) → voltar à Lista → reexpandir o pedido | Pedido e itens mantêm unidades salvas nos passos 77–80 · Print `82-unidade-persistencia-apos-navegar-resultado.png` |
+
+**Valores no runner:** 3 siglas distintas do Cadastros (dinâmico) · item 2 = sigla divergente da replicada no passo 78
+
+### ETAPA 23 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -495,4 +538,5 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | QTD. INICIAL DO PEDIDO/ITEM | 49–55 | 7 |
 | MOEDA DO PEDIDO/ITEM | 56–61 | 6 |
 | VALOR TOTAL DO PEDIDO/ITEM | 62–71 | 10 |
-| **Total runner principal** | | **~88 passos / 117 casos** |
+| UNIDADE COMERCIALIZADA DO PEDIDO/ITEM | 72–82 | 11 |
+| **Total runner principal** | | **~99 passos / 128 casos** |

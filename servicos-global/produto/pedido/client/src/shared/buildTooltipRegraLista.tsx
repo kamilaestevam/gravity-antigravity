@@ -138,10 +138,9 @@ export function enriquecerColunaComRegraTooltip<T>(
     colunaPersonalizada: opts?.colunaPersonalizada,
     descricaoUsuario: opts?.descricaoUsuario,
   }
-  const somentePedidoValor = key === 'valor_total_pedido' ? 'pedido' as const : undefined
   const tooltipCelulaPedido = montarTooltipPills(t, key, {
     ...optsMontar,
-    somenteBloco: pillsRes.dual || somentePedidoValor ? 'pedido' : undefined,
+    somenteBloco: pillsRes.dual ? 'pedido' : undefined,
   }, 'pai')
   const tooltipCelulaItem = montarTooltipPills(t, key, {
     ...optsMontar,
@@ -152,15 +151,12 @@ export function enriquecerColunaComRegraTooltip<T>(
   return {
     ...col,
     tooltipTitulo: titulo,
-    tooltipDescricao: montarTooltipPills(t, key, {
-      ...optsMontar,
-      somenteBloco: somentePedidoValor,
-    }),
+    tooltipDescricao: montarTooltipPills(t, key, optsMontar),
     tooltipDescricaoItem: tooltipCelulaItem,
     tooltipDescricaoCelula: (row: T) => {
       const legado = col.tooltipDescricaoCelula?.(row)
       if (legado) return legado
-      if (key === 'valor_total_pedido' || pillsRes.dual) {
+      if (key === 'valor_total_pedido' || key === 'valor_por_unidade_item' || pillsRes.dual) {
         if (isLinhaItemLista(row)) return tooltipCelulaItem
         return tooltipCelulaPedido
       }

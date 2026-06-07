@@ -33,7 +33,7 @@ describe('extrairCasosDoPlano', () => {
     expect(etapas.some(t => t.includes('PORTO DE ORIGEM'))).toBe(true)
     expect(etapas.some(t => t.includes('NCM'))).toBe(true)
     expect(etapas.some(t => t.includes('MOEDA DO PEDIDO/ITEM'))).toBe(true)
-    expect(etapas.some(t => t.includes('VALOR DO ITEM'))).toBe(true)
+    expect(etapas.some(t => t.includes('VALOR TOTAL DO PEDIDO/ITEM'))).toBe(true)
 
     const passosNcm = roteiro.filter(x => x.titulo.includes('NCM'))
     expect(passosNcm.map(p => p.ordem)).toEqual(
@@ -45,7 +45,7 @@ describe('extrairCasosDoPlano', () => {
       expect.arrayContaining(['56', '57', '58', '59', '60', '61']),
     )
 
-    const passosValor = roteiro.filter(x => x.titulo.includes('VALOR DO ITEM'))
+    const passosValor = roteiro.filter(x => x.titulo.includes('VALOR TOTAL DO PEDIDO/ITEM'))
     expect(passosValor.map(p => p.ordem)).toEqual(
       expect.arrayContaining(['62', '63', '64', '65', '66']),
     )

@@ -19,18 +19,48 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.numeroUnicoOrg).toBe(true)
   })
 
-  it('valor_total dinâmico — pedido bloqueado (valor do item) + alerta; item editável', () => {
+  it('valor_total dinâmico — pedido bloqueado + soma mesma moeda; item editável', () => {
     const res = obterPillsTooltipColuna('valor_total_pedido', { modoDinamicoPedidoItem: true })
     expect(res.dual).toBe(true)
-    expect(res.pedido).toEqual(['bloqueado_valor_item', 'alerta_divergencia'])
-    expect(res.pedido).not.toContain('calculado_pedido')
-    expect(res.item).toEqual(['editavel_item'])
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'valor_total_soma_mesma_moeda',
+      'alerta_moeda_divergente',
+    ])
+    expect(res.item).toEqual(['editavel_nos_itens'])
   })
 
-  it('valor_total sem modo dinâmico — pedido bloqueado + alerta', () => {
+  it('valor_total sem expandir — 4 pills em sequência no cabeçalho', () => {
     const res = obterPillsTooltipColuna('valor_total_pedido')
-    expect(res.pedido).toEqual(['bloqueado_valor_item', 'alerta_divergencia'])
-    expect(res.pedido).not.toContain('calculado_pedido')
+    expect(res.dual).toBe(false)
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'valor_total_soma_mesma_moeda',
+      'alerta_moeda_divergente',
+      'editavel_nos_itens',
+    ])
+  })
+
+  it('valor_por_unidade_item sem expandir — 4 pills em sequência no cabeçalho', () => {
+    const res = obterPillsTooltipColuna('valor_por_unidade_item')
+    expect(res.dual).toBe(false)
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'valor_unitario_sem_somatoria',
+      'alerta_moeda_divergente',
+      'editavel_nos_itens',
+    ])
+  })
+
+  it('valor_por_unidade_item expandido — pedido 3 pills + item editável', () => {
+    const res = obterPillsTooltipColuna('valor_por_unidade_item', { modoDinamicoPedidoItem: true })
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'valor_unitario_sem_somatoria',
+      'alerta_moeda_divergente',
+    ])
+    expect(res.item).toEqual(['editavel_nos_itens'])
   })
 
   it('quantidade_pronta dinâmico — pedido soma qtd pronta, alerta e bloqueado; item só editável', () => {

@@ -1,6 +1,6 @@
 /**
  * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO OP. + REF. IMP./EXP. + INCOTERM + DESCRIÇÃO + LOGÍSTICA (6 colunas)
- * Plano: TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001
+ * Plano: TST-EMT-000002
  *
  * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts
  */
@@ -90,14 +90,15 @@ const TITULO_TOOLTIP_MOEDA = 'Moeda do Pedido/Item'
 const PILLS_TOOLTIP_MOEDA = PILLS_TOOLTIP_DESCRICAO
 const ALERTA_MOEDAS_DIVERGENTES = /moedas divergentes/i
 
-const COLUNA_VALOR_ITEM = 'VALOR DO ITEM'
+const COLUNA_VALOR_ITEM = 'VALOR TOTAL DO PEDIDO/ITEM'
 const COL_KEY_VALOR_ITEM = 'valor_total_pedido'
-const TITULO_TOOLTIP_VALOR = 'Valor do Item'
+const TITULO_TOOLTIP_VALOR = 'Valor Total do Pedido/Item'
 const PILLS_TOOLTIP_VALOR_PEDIDO = [
-  /bloqueado: valor do item/i,
-  /alerta se itens divergirem/i,
+  /bloqueado para edição/i,
+  /soma total dos itens na mesma moeda/i,
+  /tipo de moeda se divergem/i,
 ] as const
-const PILLS_TOOLTIP_VALOR_ITEM = [/editável no item/i] as const
+const PILLS_TOOLTIP_VALOR_ITEM = [/editável nos itens/i] as const
 const VALOR_ITEM_INCLUIR = '1.500,50'
 const VALOR_ITEM_EDITAR = '2.750,00'
 const MOEDA_VALOR_TESTE = 'EUR'
@@ -2927,7 +2928,7 @@ async function validarMoedaPedidoItemLista(page: Page, rowId: string, qtdItens: 
   }
 }
 
-/** Passos 62–66 — Valor do Item (pedido bloqueado + edição no item). */
+/** Passos 62–66 — Valor Total do Pedido/Item (pedido soma + edição no item). */
 async function validarValorItemLista(page: Page, rowId: string, qtdItens: number): Promise<void> {
   log(`ℹ Coluna ${COLUNA_VALOR_ITEM}: passos 62–66 (tooltip, pedido bloqueado, editar item, persistência)`)
   if (qtdItens < 1) {

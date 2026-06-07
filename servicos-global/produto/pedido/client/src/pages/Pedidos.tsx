@@ -140,6 +140,7 @@ import {
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { renderRotuloCadastro } from '../shared/useLogisticaCadastrosPedido'
 import {
+  aplicarRenderTooltipInlinePedido,
   enriquecerColunaComRegraTooltip,
   enriquecerMapaColunasFilhoComRegraTooltip,
 } from '../shared/buildTooltipRegraLista'
@@ -4712,6 +4713,7 @@ export default function Pedidos() {
       merged.moeda_pedido = {
         ...base.moeda_pedido,
         ...custom.moeda_pedido,
+        render: base.moeda_pedido.render,
         tooltipTitulo: t('pedido.coluna_pai.moeda_item_titulo'),
       }
     }
@@ -5178,32 +5180,26 @@ export default function Pedidos() {
         const label = COLUNAS_DINAMICAS_PEDIDO_ITEM[col.key]
         const bloqueadoNoPedido = col.key === 'quantidade_pronta_itens_pedido_total'
           || col.key === 'quantidade_total_pedido'
-        return enriquecerColunaComRegraTooltip(
+        const enriched = enriquecerColunaComRegraTooltip(
           {
             ...col,
             label,
-            ...(bloqueadoNoPedido
-              ? {
-                  editavel: false,
-                  tooltipBloqueado: t('pedido.lista.regras_pill.bloqueado_edicao'),
-                }
-              : {}),
+            ...(bloqueadoNoPedido ? { editavel: false } : {}),
           },
           t,
           'pai',
           { modoDinamicoPedidoItem: true },
         )
+        return bloqueadoNoPedido
+          ? aplicarRenderTooltipInlinePedido(col, enriched, t, { modoDinamicoPedidoItem: true })
+          : enriched
       }
 
       if (col.key === 'quantidade_pronta_itens_pedido_total' || col.key === 'quantidade_total_pedido') {
-        return enriquecerColunaComRegraTooltip(
-          {
-            ...col,
-            editavel: false,
-            tooltipBloqueado: t('pedido.lista.regras_pill.bloqueado_edicao'),
-          },
+        return aplicarRenderTooltipInlinePedido(
+          col,
+          enriquecerColunaComRegraTooltip({ ...col, editavel: false }, t, 'pai'),
           t,
-          'pai',
         )
       }
 

@@ -11,6 +11,7 @@ import {
   type NivelColunaLista,
   type RegraTooltipId,
 } from './regrasTooltipColunaLista'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipColunaLista'
 import { TooltipRegrasColuna } from './TooltipRegrasColuna'
 
@@ -173,6 +174,8 @@ const CHAVES_TITULO_CELULA_PILOTO = new Set([
   'moeda_pedido',
   'valor_por_unidade_item',
   'valor_total_pedido',
+  'quantidade_total_pedido',
+  'quantidade_pronta_itens_pedido_total',
 ])
 
 function usaTooltipPorNivelColuna(key: string, dual: boolean): boolean {
@@ -271,7 +274,14 @@ export function enriquecerColunaComRegraTooltip<T>(
     tooltipDescricaoCelula: (row: T) => {
       const legado = col.tooltipDescricaoCelula?.(row)
       if (legado) return legado
-      if (key === 'valor_total_pedido' || key === 'valor_por_unidade_item' || key === 'moeda_pedido' || pillsRes.dual) {
+      if (
+        key === 'valor_total_pedido'
+        || key === 'valor_por_unidade_item'
+        || key === 'moeda_pedido'
+        || key === 'quantidade_total_pedido'
+        || key === 'quantidade_pronta_itens_pedido_total'
+        || pillsRes.dual
+      ) {
         if (isLinhaItemLista(row)) return tooltipCelulaItem
         return tooltipCelulaPedido
       }
@@ -322,6 +332,76 @@ export function enriquecerMapaColunasFilhoComRegraTooltip<C>(
     }
   }
   return out
+}
+
+/** Tooltip inline na linha do pedido (célula bloqueada — padrão Tipo de Operação / Workspace no item). */
+export function wrapCelulaPedidoBloqueadoLista(
+  conteudo: React.ReactNode,
+  t: TFunction,
+  titulo: string,
+  key: string,
+  opts?: Pick<OpcoesMontarTooltipPills, 'avisoImpactoColuna' | 'modoDinamicoPedidoItem'>,
+): React.ReactElement {
+  return (
+    <TooltipGlobal
+      titulo={titulo}
+      descricao={montarTooltipPills(t, key, {
+        somenteBloco: 'pedido',
+        avisoImpactoColuna: opts?.avisoImpactoColuna,
+        modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+      }, 'pai')}
+      cursorBloqueado
+    >
+      <span
+        style={{
+          display: 'flex',
+          flex: 1,
+          alignSelf: 'stretch',
+          alignItems: 'center',
+          justifyContent: 'inherit',
+          minWidth: 0,
+          width: '100%',
+          cursor: 'not-allowed',
+        }}
+      >
+        {conteudo}
+      </span>
+    </TooltipGlobal>
+  )
+}
+
+/** Coluna pai bloqueada: render com tooltip inline + flag para o núcleo não duplicar wrap. */
+export function aplicarRenderTooltipInlinePedido<T>(
+  col: GTColuna<T>,
+  enriched: GTColuna<T>,
+  t: TFunction,
+  opts?: Pick<OpcoesEnriquecerTooltip, 'modoDinamicoPedidoItem'>,
+): GTColuna<T> {
+  const renderBase = enriched.render ?? col.render
+  const titulo = enriched.tooltipTitulo?.trim() || col.label
+  const key = String(col.key)
+  return {
+    ...enriched,
+    tooltipInline: true,
+    render: (val: unknown, row: T) => wrapCelulaPedidoBloqueadoLista(
+      renderBase ? renderBase(val, row) : null,
+      t,
+      titulo,
+      key,
+      {
+        avisoImpactoColuna: col.avisoImpacto,
+        modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+      },
+    ),
+  }
+}
+
+/** Tooltip da moeda na linha item — título e pills fixos (bypass do resolver do núcleo). */
+export function montarTooltipMoedaItemLista(t: TFunction, avisoImpactoColuna?: string): React.ReactNode {
+  return montarTooltipPills(t, 'moeda_pedido', {
+    somenteBloco: 'item',
+    avisoImpactoColuna,
+  }, 'item')
 }
 
 /** Monta tooltip de célula com aviso de divergência + pílulas. */

@@ -7,6 +7,8 @@ import {
   lerTestesFavoritosAdmin,
   montarResumoPlanosFavorito,
   planosExibicaoFavorito,
+  resolverOqueFoiTestadoLog,
+  resolverOqueFoiTestadoPlano,
   removerTesteFavoritoAdmin,
   rotuloTesteFavoritoAdmin,
   type TesteFavoritoAdmin,
@@ -109,6 +111,31 @@ describe('testes-favoritos-admin', () => {
     const exibicao = planosExibicaoFavorito(fav)
     expect(exibicao[0]?.titulo).toBe('Título completo do plano')
     expect(exibicao[0]?.descricao).toContain('lista/editar-salvar')
+  })
+
+  it('resolverOqueFoiTestadoPlano usa subtitulo (modulo) e cai no id se vazio', () => {
+    expect(resolverOqueFoiTestadoPlano({
+      id: 'TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045',
+      modulo: 'Edição e Salvar pedidos e itens (NCM)',
+    })).toBe('Edição e Salvar pedidos e itens (NCM)')
+    expect(resolverOqueFoiTestadoPlano({
+      id: 'TST-UNI-ADMIN-000021',
+    })).toBe('TST-UNI-ADMIN-000021')
+  })
+
+  it('resolverOqueFoiTestadoLog resolve ID legado via catálogo', () => {
+    const catalogo = new Map([
+      ['TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045', {
+        id: 'TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045',
+        sublocal: 'lista/editar-salvar',
+        modulo: 'Edição e Salvar pedidos e itens (NCM)',
+      }],
+    ])
+    expect(resolverOqueFoiTestadoLog(
+      'TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045',
+      'TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001',
+      catalogo,
+    )).toBe('Edição e Salvar pedidos e itens (NCM)')
   })
 
   it('chave ignora ordem de tipos e planos', () => {

@@ -78,6 +78,32 @@ export function extrairTituloPlanoTeste(plano: PlanoFavoritoResumoOrigem): strin
   return (plano.tela ?? plano.modulo ?? plano.sublocal).trim()
 }
 
+/**
+ * Subtítulo do card no modal Rodar Testes (`tela` → `modulo`).
+ * Coluna «O que foi testado» no histórico admin usa este texto; se vazio, cai no `id` do plano.
+ */
+export function resolverOqueFoiTestadoPlano(plano: Pick<PlanoFavoritoResumoOrigem, 'id' | 'tela' | 'modulo'>): string {
+  const subtitulo = (plano.tela ?? plano.modulo ?? '').trim()
+  return subtitulo || plano.id.trim()
+}
+
+/** Resolve rótulo humano para uma linha do histórico (logs legados gravavam só o ID). */
+export function resolverOqueFoiTestadoLog(
+  modulo: string,
+  teste: string,
+  catalogo?: ReadonlyMap<string, Pick<PlanoFavoritoResumoOrigem, 'id' | 'tela' | 'modulo'>>,
+): string {
+  const candidatoId = [modulo, teste].find(v => /^TST-/i.test(v.trim()))?.trim()
+  if (candidatoId && catalogo?.has(candidatoId)) {
+    return resolverOqueFoiTestadoPlano(catalogo.get(candidatoId)!)
+  }
+  const textoTeste = teste.trim()
+  if (textoTeste && textoTeste !== 'N/A' && !/^TST-/i.test(textoTeste)) {
+    return textoTeste
+  }
+  return candidatoId ?? textoTeste ?? modulo
+}
+
 /** Linha secundária — caminho + contagem de casos quando disponível. */
 export function extrairDescricaoPlanoTeste(plano: PlanoFavoritoResumoOrigem): string {
   const titulo = extrairTituloPlanoTeste(plano)

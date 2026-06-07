@@ -10,7 +10,11 @@ import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
 import { ModalExecutarTestes } from './ModalTestesExecutar'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { adminTestesApi, adminAgendamentosTesteApi, apiFetchBlob, type TesteApi } from '../../services/api-client'
+import { adminTestesApi, adminAgendamentosTesteApi, adminPlanosTesteApi, apiFetchBlob, type TesteApi } from '../../services/api-client'
+import {
+  resolverOqueFoiTestadoLog,
+  type PlanoFavoritoResumoOrigem,
+} from '@testes/infra/admin/testes-favoritos-admin'
 import { useShellStore } from '@gravity/shell'
 import {
   calcularPercentuaisEmt,
@@ -1006,6 +1010,7 @@ export function LogTestes() {
   const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
   const [modalExecutarAberto, setModalExecutarAberto] = useState(false)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
+  const [catalogoPlanos, setCatalogoPlanos] = useState<Map<string, PlanoFavoritoResumoOrigem>>(new Map())
   /** IDs já presentes no histórico antes do run — toast conta só entradas novas. */
   const baselineIdsRef = useRef<Set<string>>(new Set())
 
@@ -1025,6 +1030,14 @@ export function LogTestes() {
   }
 
   useEffect(() => { loadLogs() }, [])
+
+  useEffect(() => {
+    adminPlanosTesteApi.listar()
+      .then(({ planos }) => {
+        setCatalogoPlanos(new Map(planos.map(p => [p.id, p])))
+      })
+      .catch(() => { /* histórico ainda exibe fallback pelo test_name gravado */ })
+  }, [])
 
   // Carrega status do agendamento na montagem
   useEffect(() => {
@@ -1213,7 +1226,12 @@ export function LogTestes() {
       key: 'teste', label: t('admin.testes-gerais.col_teste'), tipo: 'texto',
       tooltipTitulo: t('admin.testes-gerais.tooltip_teste'),
       tooltipDescricao: t('admin.testes-gerais.tooltip_teste_desc'),
-      render: (v) => <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{v}</span> 
+      getValorBruto: (item) => resolverOqueFoiTestadoLog(item.modulo, item.teste, catalogoPlanos),
+      render: (_v, item) => (
+        <span style={{ fontWeight: 600, color: '#f1f5f9' }}>
+          {resolverOqueFoiTestadoLog(item.modulo, item.teste, catalogoPlanos)}
+        </span>
+      ),
     },
     {
       key: 'resultado',

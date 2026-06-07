@@ -76,6 +76,20 @@ describe('resolverTooltipRegraCelula — título alinhado à descrição', () =>
     ).toBe('Moeda do Item')
   })
 
+  it('isFilhoRender=true: tooltipTituloItem vence tituloOverride de pedido', () => {
+    const col: GTColuna<unknown> = {
+      key: 'moeda_pedido',
+      label: 'Moeda',
+      tooltipTitulo: 'Moeda do Pedido',
+      tooltipTituloItem: 'Moeda do Item',
+      tooltipDescricaoItem: 'corpo-item',
+    }
+    const regra = { titulo: 'Moeda do Pedido', descricao: 'corpo-item' }
+    expect(
+      resolverTituloFinalTooltipCelula(col, regra, true, 'Moeda do Pedido'),
+    ).toBe('Moeda do Item')
+  })
+
   it('isFilhoRender=true sem tooltipTituloItem usa tooltipTituloCelula do item', () => {
     const colSemTituloItem: GTColuna<unknown> = {
       key: 'moeda_pedido',

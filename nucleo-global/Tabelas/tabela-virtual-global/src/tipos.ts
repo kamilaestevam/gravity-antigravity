@@ -66,6 +66,8 @@ export interface GTColuna<T = unknown> {
   tooltipDescricaoCelula?: (item: T) => string | React.ReactNode | undefined
   /** Se true, o tooltip permanece aberto enquanto o mouse está sobre ele (permite clicar em links/botões dentro). */
   tooltipInterativo?: boolean
+  /** Quando true, `render` já inclui TooltipGlobal — o núcleo não aplica wrapTooltipRegraCelula na linha pai. */
+  tooltipInline?: boolean
   /** Função de renderização customizada */
   render?: (valor: unknown, item: T) => ReactNode
   /** Coluna oculta por padrão */
@@ -231,6 +233,8 @@ export interface GTMapaColunasFilho<C = unknown> {
   tooltipBloqueado?: string | ((item: C) => string | undefined)
   /** Título do tooltip de regra na linha filho (prioridade sobre tooltipTitulo da coluna pai). */
   tooltipTitulo?: string | ((item: C) => string)
+  /** Quando true, `render` já inclui TooltipGlobal — o núcleo não aplica wrapTooltipRegraCelula. */
+  tooltipInline?: boolean
   /** Campo do item filho usado no inline edit (default: usa o key da coluna pai) */
   campo?: string
   /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */

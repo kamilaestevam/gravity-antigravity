@@ -48,7 +48,11 @@ import type {
   GTUnidadeOpcao,
 } from './tipos.js'
 import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
-import { resolverTituloFinalTooltipCelula, resolverTooltipRegraCelula } from './tooltipCelulaResolver.js'
+import {
+  resolverNivelTooltipCelula,
+  resolverTituloFinalTooltipCelula,
+  resolverTooltipRegraCelula,
+} from './tooltipCelulaResolver.js'
 
 // ─── Ícones internos ──────────────────────────────────────────────────────────
 
@@ -312,11 +316,29 @@ function wrapTooltipRegraCelula(
   }
   const regra = resolverTooltipRegraCelula(col, item, isFilho)
   if (!regra) return conteudo
-  const tituloFinal = resolverTituloFinalTooltipCelula(col, regra, isFilho, tituloOverride, item)
+  const ehNivelItem = isFilho
+    || resolverNivelTooltipCelula(col, item, isFilho)
+  let tituloFinal = resolverTituloFinalTooltipCelula(col, regra, isFilho, tituloOverride, item)
+  let descricaoFinal = regra.descricao
+  // SSOT moeda item — título embutido na descrição (imune a override de pedido / tooltip duplo).
+  if (ehNivelItem && String(col.key) === 'moeda_pedido') {
+    const tituloItem = col.tooltipTituloItem?.trim()
+      || (item != null ? col.tooltipTituloCelula?.(item)?.trim() : undefined)
+      || tituloFinal
+    if (tituloItem) {
+      tituloFinal = undefined
+      descricaoFinal = (
+        <>
+          <p className="tg-titulo">{tituloItem}</p>
+          {regra.descricao}
+        </>
+      )
+    }
+  }
   return (
     <TooltipGlobal
       titulo={tituloFinal}
-      descricao={regra.descricao}
+      descricao={descricaoFinal}
       interativo={regra.interativo}
       cursorBloqueado={celulaBloqueada}
     >
@@ -2895,7 +2917,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     // Tooltip de célula bloqueada (editavel retornou false para esta linha)
     const colU0 = col as GTColuna<unknown>
-    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado && tooltipCelulaAtivo
+    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado && tooltipCelulaAtivo && !temRegraColuna
       ? (typeof colU0.tooltipBloqueado === 'function' ? colU0.tooltipBloqueado(item) : colU0.tooltipBloqueado)
       : undefined
 
@@ -2932,15 +2954,18 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         || colRegra.tooltipTituloCelula?.(item)?.trim()
         || undefined)
       : undefined
-    const celConteudo = wrapTooltipRegraCelula(
-      colRegra,
-      celInner,
-      item,
-      isFilho,
-      tooltipCelulaAtivo,
-      celulaBloqueadaPorRegra,
-      tituloOverrideCelula,
-    )
+    const tooltipInlinePai = !isFilho && colRegra.tooltipInline === true
+    const celConteudo = tooltipInlinePai
+      ? celInner
+      : wrapTooltipRegraCelula(
+        colRegra,
+        celInner,
+        item,
+        isFilho,
+        tooltipCelulaAtivo,
+        celulaBloqueadaPorRegra,
+        tituloOverrideCelula,
+      )
 
     return (
       <div
@@ -3350,7 +3375,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
-                  const tituloMapaFilho = mapa?.tooltipTitulo
+                  if (mapa?.tooltipInline) {
+                    return celFilhoInner
+                  }
+                  const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''
                     ? (typeof mapa.tooltipTitulo === 'function'
                       ? mapa.tooltipTitulo(item)
                       : mapa.tooltipTitulo)

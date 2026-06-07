@@ -54,9 +54,9 @@ function montarErrorLogEmt(
 ): string | null {
   if (code === 0) return null
   const terminal = [stderr, stdout].map(s => s.trim()).filter(Boolean).join('\n').trim()
-  if (terminal) return terminal.slice(0, 4000)
+  if (terminal) return terminal.slice(0, 32_000)
   const resultadoTxt = lerResultadoTxtEmtRecente(scriptRel, startedAtMs)
-  if (resultadoTxt) return resultadoTxt.slice(0, 4000)
+  if (resultadoTxt) return resultadoTxt.slice(0, 32_000)
   return 'Script EMT encerrou com erro (exit ≠ 0) sem saída no terminal. Verifique RESULTADO.txt na pasta do script.'
 }
 

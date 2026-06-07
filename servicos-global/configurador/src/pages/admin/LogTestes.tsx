@@ -12,6 +12,15 @@ import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { adminTestesApi, adminAgendamentosTesteApi, apiFetchBlob, type TesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
+import {
+  calcularPercentuaisEmt,
+  classificarLinhasLogEmt,
+  contarPassosEmt,
+  filtrarLinhasLogEmt,
+  resolverEstadoEmtUi,
+  resultadoEfetivoEmt,
+  type LinhaEmtTabela,
+} from '../../utils/emt-log-parser'
 
 
 type TipoTeste = 'E2E' | 'EMT' | 'FUNCIONAL' | 'UNITARIO'
@@ -94,14 +103,7 @@ function contarPassosTeste(item: Pick<LogTeste, 'tipo' | 'successLog' | 'erroLog
   aprovados: number
   reprovados: number
 } {
-  if (item.tipo === 'EMT') {
-    const linhas = filtrarLinhasLogEmt(item.successLog ?? item.erroLog ?? '')
-    const { aprovadas, reprovadas, tabelaAprovadas, tabelaReprovadas } = classificarLinhasLogEmt(linhas)
-    const aprovados = tabelaAprovadas.length + aprovadas.length
-    const reprovados = tabelaReprovadas.length + reprovadas.length
-    const total = aprovados + reprovados
-    if (total > 0) return { total, aprovados, reprovados }
-  }
+  if (item.tipo === 'EMT') return contarPassosEmt(item)
   if (item.resultado === 'APROVADO') return { total: 1, aprovados: 1, reprovados: 0 }
   if (item.resultado === 'REPROVADO' || item.resultado === 'ERRO_CATASTROFICO') {
     return { total: 1, aprovados: 0, reprovados: 1 }
@@ -113,6 +115,7 @@ function calcularPercentuaisResultado(item: Pick<LogTeste, 'tipo' | 'successLog'
   pctAprovado: number
   pctReprovado: number
 } {
+  if (item.tipo === 'EMT') return calcularPercentuaisEmt(item)
   const { total, aprovados, reprovados } = contarPassosTeste(item)
   if (total === 0) return { pctAprovado: 0, pctReprovado: 0 }
   return {
@@ -149,24 +152,6 @@ function resolverEmtPastaItem(item: Pick<LogTeste, 'emtPasta' | 'successLog' | '
     ?? extrairEmtPastaRelativa(item.erroLog)
 }
 
-function filtrarLinhasLogEmt(texto: string): string[] {
-  return texto
-    .split('\n')
-    .map(l => l.trim())
-    .filter(l => l.length > 0 && !l.startsWith('◇') && !l.startsWith('[dotenv'))
-}
-
-type LinhaEmtTabela = {
-  ambiente: string
-  produto: string
-  local: string
-  sublocal: string
-  acao: string
-  resultado: string
-}
-
-const EMT_ROW_PREFIX = 'EMT_ROW|'
-
 const COLUNAS_EMT_TABELA = [
   'Ambiente',
   'Produto',
@@ -175,66 +160,6 @@ const COLUNAS_EMT_TABELA = [
   'O que foi feito',
   'Resultado',
 ] as const
-
-function parseLinhaEmtTabela(texto: string): LinhaEmtTabela | null {
-  const limpo = texto.trim()
-  if (!limpo.includes(EMT_ROW_PREFIX)) return null
-  const idx = limpo.indexOf(EMT_ROW_PREFIX)
-  const payload = limpo.slice(idx + EMT_ROW_PREFIX.length)
-  const partes = payload.split('|')
-  if (partes.length < 6) return null
-  const [ambiente, produto, local, sublocal, acao, resultado] = partes
-  if (!ambiente || !produto || !local || !acao || !resultado) return null
-  return { ambiente, produto, local, sublocal: sublocal || '—', acao, resultado }
-}
-
-function classificarLinhasLogEmt(linhas: string[]): {
-  aprovadas: string[]
-  reprovadas: string[]
-  tabelaAprovadas: LinhaEmtTabela[]
-  tabelaReprovadas: LinhaEmtTabela[]
-} {
-  const aprovadas: string[] = []
-  const tabelaAprovadas: LinhaEmtTabela[] = []
-  const reprovadasVistas = new Set<string>()
-  const reprovadas: string[] = []
-  const tabelaReprovadas: LinhaEmtTabela[] = []
-  let emSecaoFalhas = false
-
-  const addReprovada = (texto: string) => {
-    const limpo = texto.trim()
-    if (!limpo || reprovadasVistas.has(limpo)) return
-    reprovadasVistas.add(limpo)
-    const tabela = parseLinhaEmtTabela(limpo)
-    if (tabela) tabelaReprovadas.push(tabela)
-    else reprovadas.push(limpo)
-  }
-
-  for (const linha of linhas) {
-    if (linha === 'Falhas:') {
-      emSecaoFalhas = true
-      continue
-    }
-    if (/^Falhas:\s*\d+$/.test(linha)) continue
-
-    if (linha.startsWith('✓') || (linha.includes('Resultado: PASSOU') && !linha.includes('FALHOU'))) {
-      const conteudo = linha.replace(/^✓\s*/, '')
-      const tabela = parseLinhaEmtTabela(conteudo)
-      if (tabela) tabelaAprovadas.push(tabela)
-      else if (!conteudo.startsWith('EMT_ROW|')) aprovadas.push(conteudo)
-      emSecaoFalhas = false
-    } else if (linha.startsWith('✗')) {
-      addReprovada(linha.replace(/^✗\s*/, ''))
-      emSecaoFalhas = false
-    } else if (emSecaoFalhas && (linha.startsWith('- ') || linha.startsWith('•'))) {
-      addReprovada(linha.replace(/^[-•]\s*/, ''))
-    } else if (linha.includes('Resultado: FALHOU') || linha.includes('Resultado final: FALHOU')) {
-      emSecaoFalhas = false
-    }
-  }
-
-  return { aprovadas, reprovadas, tabelaAprovadas, tabelaReprovadas }
-}
 
 type StatusPrintEmt = 'aprovado' | 'reprovado' | 'neutro'
 
@@ -898,14 +823,17 @@ function PainelEmtExpandido({
   item: LogTeste
   handlersAnaliseIa: HandlersAnaliseIaTeste
 }) {
+  const estadoEmt = resolverEstadoEmtUi(item)
   const linhas = filtrarLinhasLogEmt(item.successLog ?? item.erroLog ?? '')
-  const { aprovadas, reprovadas, tabelaAprovadas, tabelaReprovadas } = classificarLinhasLogEmt(linhas)
+  const { aprovadas, reprovadas, tabelaAprovadas, tabelaReprovadas } = estadoEmt?.classificacao
+    ?? classificarLinhasLogEmt(linhas)
   const printsLog = linhas.filter(l => l.startsWith('📸')).map(l => l.replace('📸', '').trim())
   const arquivosPrint = item.emtPrints?.length ? item.emtPrints : printsLog
-  const statusPorPrint = mapearResultadoPrintsEmt(linhas, item.resultado)
+  const resultadoEfetivo = resultadoEfetivoEmt(item)
+  const statusPorPrint = mapearResultadoPrintsEmt(linhas, resultadoEfetivo)
   const logCompleto = item.erroLog ?? item.successLog
 
-  const aprovado = item.resultado === 'APROVADO'
+  const aprovado = estadoEmt?.aprovado ?? item.resultado === 'APROVADO'
   const emtPastaResolvida = resolverEmtPastaItem(item)
 
   return (
@@ -921,6 +849,11 @@ function PainelEmtExpandido({
         <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
           {aprovado ? 'EMT aprovado — checklist e evidências abaixo' : 'EMT reprovado — falhas, IA e log abaixo'}
         </span>
+        {estadoEmt?.falhaNaoDetalhada && (
+          <span style={{ fontSize: '0.72rem', fontWeight: 500, color: '#fca5a5', marginLeft: '0.25rem' }}>
+            (falha global sem detalhe no log exibido)
+          </span>
+        )}
       </div>
 
       <EmtTabelaChecklistBloco
@@ -985,7 +918,7 @@ function PainelEmtExpandido({
           }}>
             {arquivosPrint.map(arquivo => {
               const statusPrint = statusPorPrint.get(arquivo)
-                ?? (item.resultado === 'APROVADO' ? 'aprovado' : 'reprovado')
+                ?? (resultadoEfetivo === 'APROVADO' ? 'aprovado' : 'reprovado')
               const corRotulo = statusPrint === 'aprovado' ? '#34d399' : statusPrint === 'reprovado' ? '#f87171' : '#94a3b8'
               return (
               <div key={arquivo} style={{

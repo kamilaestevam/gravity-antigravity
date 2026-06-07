@@ -47,6 +47,91 @@ interface LogTeste {
 
 const EMT_PRINT_API_TIMEOUT_MS = 5_000
 
+/** Escopos canônicos → rótulo da coluna Teste no histórico admin. */
+const MAPA_ESCOPO_PARA_NOME_TESTE: Record<string, string> = {
+  LOGIN: 'Login',
+  ADMIN: 'Admin',
+  CONFIG: 'Configurador',
+  CONFIGURADOR: 'Configurador',
+  PEDIDO: 'Pedido',
+  BIDFRT: 'Bid Frete Internacional',
+  'BID-FRETE': 'Bid Frete Internacional',
+  PROCSO: 'Processo',
+  PROCESSO: 'Processo',
+}
+
+function extrairEscopoDeIdentificador(id: string): string | null {
+  const limpo = id.trim().toUpperCase()
+  const partes = limpo.split('-')
+  if (partes[0] !== 'TST' || partes.length < 3) return null
+  if (partes[1] === 'EMT' && partes.length >= 4) {
+    if (partes[2] === 'BID' && partes[3] === 'FRETE') return 'BID-FRETE'
+    return partes[2]
+  }
+  if (partes.length >= 4) return partes[2]
+  return null
+}
+
+function resolverNomeTeste(modulo: string, teste: string): string {
+  for (const id of [teste, modulo]) {
+    const escopo = extrairEscopoDeIdentificador(id)
+    if (escopo && MAPA_ESCOPO_PARA_NOME_TESTE[escopo]) {
+      return MAPA_ESCOPO_PARA_NOME_TESTE[escopo]
+    }
+  }
+  const texto = `${modulo} ${teste}`.toLowerCase()
+  if (texto.includes('login')) return 'Login'
+  if (texto.includes('admin')) return 'Admin'
+  if (texto.includes('configurador') || texto.includes('/config')) return 'Configurador'
+  if (texto.includes('pedido')) return 'Pedido'
+  if (texto.includes('bid-frete') || texto.includes('bidfrete') || texto.includes('bidfrt')) return 'Bid Frete Internacional'
+  if (texto.includes('processo') || texto.includes('procso')) return 'Processo'
+  return modulo !== 'N/A' ? modulo : teste
+}
+
+function contarPassosTeste(item: Pick<LogTeste, 'tipo' | 'successLog' | 'erroLog' | 'resultado'>): {
+  total: number
+  aprovados: number
+  reprovados: number
+} {
+  if (item.tipo === 'EMT') {
+    const linhas = filtrarLinhasLogEmt(item.successLog ?? item.erroLog ?? '')
+    const { aprovadas, reprovadas, tabelaAprovadas, tabelaReprovadas } = classificarLinhasLogEmt(linhas)
+    const aprovados = tabelaAprovadas.length + aprovadas.length
+    const reprovados = tabelaReprovadas.length + reprovadas.length
+    const total = aprovados + reprovados
+    if (total > 0) return { total, aprovados, reprovados }
+  }
+  if (item.resultado === 'APROVADO') return { total: 1, aprovados: 1, reprovados: 0 }
+  if (item.resultado === 'REPROVADO' || item.resultado === 'ERRO_CATASTROFICO') {
+    return { total: 1, aprovados: 0, reprovados: 1 }
+  }
+  return { total: 1, aprovados: 1, reprovados: 0 }
+}
+
+function calcularPercentuaisResultado(item: Pick<LogTeste, 'tipo' | 'successLog' | 'erroLog' | 'resultado'>): {
+  pctAprovado: number
+  pctReprovado: number
+} {
+  const { total, aprovados, reprovados } = contarPassosTeste(item)
+  if (total === 0) return { pctAprovado: 0, pctReprovado: 0 }
+  return {
+    pctAprovado: Math.round((aprovados / total) * 100),
+    pctReprovado: Math.round((reprovados / total) * 100),
+  }
+}
+
+function formatarDuracaoMinutosSegundos(duracao: string): string {
+  if (!duracao || duracao === 'N/A') return duracao
+  const match = duracao.match(/^(\d+(?:\.\d+)?)\s*ms$/i)
+  if (!match) return duracao
+  const totalSegundos = Math.floor(Number(match[1]) / 1000)
+  const minutos = Math.floor(totalSegundos / 60)
+  const segundos = totalSegundos % 60
+  if (minutos === 0) return `${segundos}s`
+  return `${minutos}min ${segundos}s`
+}
+
 /** Extrai pasta relativa do monorepo a partir do success_log (linha "Pasta: ..."). */
 function extrairEmtPastaRelativa(texto?: string | null): string | undefined {
   if (!texto) return undefined
@@ -149,6 +234,64 @@ function classificarLinhasLogEmt(linhas: string[]): {
   }
 
   return { aprovadas, reprovadas, tabelaAprovadas, tabelaReprovadas }
+}
+
+type StatusPrintEmt = 'aprovado' | 'reprovado' | 'neutro'
+
+/**
+ * Associa cada print (📸) ao próximo ✓/✗ no log — mesma ordem do runner.
+ * Prints pendentes no fim herdam o resultado global do run.
+ */
+function mapearResultadoPrintsEmt(
+  linhas: string[],
+  resultadoRun: Resultado,
+): Map<string, StatusPrintEmt> {
+  const map = new Map<string, StatusPrintEmt>()
+  const pendentes: string[] = []
+
+  const flush = (status: StatusPrintEmt) => {
+    for (const nome of pendentes) map.set(nome, status)
+    pendentes.length = 0
+  }
+
+  for (const linha of linhas) {
+    if (linha.startsWith('📸')) {
+      const arquivo = linha.replace(/^📸\s*/, '').trim()
+      if (arquivo) pendentes.push(arquivo)
+      continue
+    }
+    if (linha.startsWith('✓')) {
+      flush('aprovado')
+      continue
+    }
+    if (linha.startsWith('✗')) {
+      flush('reprovado')
+    }
+  }
+
+  const fallback: StatusPrintEmt = resultadoRun === 'APROVADO' ? 'aprovado' : 'reprovado'
+  for (const nome of pendentes) {
+    if (/99-erro/i.test(nome)) map.set(nome, 'reprovado')
+    else map.set(nome, fallback)
+  }
+
+  return map
+}
+
+function estiloBordaPrintEmt(status: StatusPrintEmt): React.CSSProperties {
+  if (status === 'aprovado') {
+    return {
+      border: '2px solid #10b981',
+      boxShadow: '0 0 0 1px rgba(16, 185, 129, 0.15)',
+    }
+  }
+  if (status === 'reprovado') {
+    return {
+      border: '2px solid #ef4444',
+      boxShadow: '0 0 0 1px rgba(239, 68, 68, 0.15)',
+    }
+  }
+  return { border: '1px solid rgba(255,255,255,0.08)' }
 }
 
 /** Larguras fixas compartilhadas — aprovado e reprovado na mesma grade. */
@@ -759,6 +902,7 @@ function PainelEmtExpandido({
   const { aprovadas, reprovadas, tabelaAprovadas, tabelaReprovadas } = classificarLinhasLogEmt(linhas)
   const printsLog = linhas.filter(l => l.startsWith('📸')).map(l => l.replace('📸', '').trim())
   const arquivosPrint = item.emtPrints?.length ? item.emtPrints : printsLog
+  const statusPorPrint = mapearResultadoPrintsEmt(linhas, item.resultado)
   const logCompleto = item.erroLog ?? item.successLog
 
   const aprovado = item.resultado === 'APROVADO'
@@ -839,18 +983,31 @@ function PainelEmtExpandido({
             gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
             gap: '1rem',
           }}>
-            {arquivosPrint.map(arquivo => (
+            {arquivosPrint.map(arquivo => {
+              const statusPrint = statusPorPrint.get(arquivo)
+                ?? (item.resultado === 'APROVADO' ? 'aprovado' : 'reprovado')
+              const corRotulo = statusPrint === 'aprovado' ? '#34d399' : statusPrint === 'reprovado' ? '#f87171' : '#94a3b8'
+              return (
               <div key={arquivo} style={{
                 borderRadius: '10px', overflow: 'hidden',
-                border: '1px solid rgba(255,255,255,0.08)',
-                background: 'rgba(15,23,42,0.6)',
+                ...estiloBordaPrintEmt(statusPrint),
+                background: statusPrint === 'aprovado'
+                  ? 'rgba(16, 185, 129, 0.04)'
+                  : statusPrint === 'reprovado'
+                    ? 'rgba(239, 68, 68, 0.04)'
+                    : 'rgba(15,23,42,0.6)',
               }}>
-                <div style={{ padding: '0.4rem 0.65rem', fontSize: '0.68rem', fontWeight: 700, color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{
+                  padding: '0.4rem 0.65rem', fontSize: '0.68rem', fontWeight: 700,
+                  color: corRotulo,
+                  borderBottom: `1px solid ${statusPrint === 'aprovado' ? 'rgba(16,185,129,0.2)' : statusPrint === 'reprovado' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                }}>
                   {arquivo}
                 </div>
                 <EmtPrintImagem logId={item.id} arquivo={arquivo} emtPasta={emtPastaResolvida} />
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}
@@ -1111,7 +1268,13 @@ export function LogTestes() {
     {
       key: 'modulo', label: t('admin.testes-gerais.col_modulo'), tipo: 'texto',
       tooltipTitulo: t('admin.testes-gerais.tooltip_modulo'),
-      tooltipDescricao: t('admin.testes-gerais.tooltip_modulo_desc')
+      tooltipDescricao: t('admin.testes-gerais.tooltip_modulo_desc'),
+      getValorBruto: (item) => resolverNomeTeste(item.modulo, item.teste),
+      render: (_v, item) => (
+        <span style={{ fontWeight: 600, color: '#cbd5e1' }}>
+          {resolverNomeTeste(item.modulo, item.teste)}
+        </span>
+      ),
     },
     {
       key: 'teste', label: t('admin.testes-gerais.col_teste'), tipo: 'texto',
@@ -1125,18 +1288,20 @@ export function LogTestes() {
       tipo: 'texto',
       tooltipTitulo: t('admin.testes-gerais.tooltip_resultado'),
       tooltipDescricao: t('admin.testes-gerais.tooltip_resultado_desc'),
-      render: (v: Resultado) => {
-        const pass = v === 'APROVADO'
+      getValorBruto: (item) => {
+        const { pctAprovado, pctReprovado } = calcularPercentuaisResultado(item)
+        return `Aprovado ${pctAprovado}% / Reprovado ${pctReprovado}%`
+      },
+      render: (_v: Resultado, item) => {
+        const { pctAprovado, pctReprovado } = calcularPercentuaisResultado(item)
         return (
           <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.25rem 0.65rem', borderRadius: '999px',
-            background: pass ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-            border: `1px solid ${pass ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`,
-            color: pass ? '#10b981' : '#ef4444',
-            fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.02em', textTransform: 'uppercase'
+            display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+            fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.02em',
           }}>
-            {pass ? <CheckCircle size={14} weight="bold" /> : <XCircle size={14} weight="bold" />}
-            {v}
+            <span style={{ color: '#10b981' }}>Aprovado {pctAprovado}%</span>
+            <span style={{ color: '#64748b' }}>/</span>
+            <span style={{ color: '#ef4444' }}>Reprovado {pctReprovado}%</span>
           </span>
         )
       }
@@ -1145,7 +1310,8 @@ export function LogTestes() {
       key: 'duracao', label: t('admin.testes-gerais.col_duracao'), tipo: 'texto',
       tooltipTitulo: t('admin.testes-gerais.tooltip_duracao'),
       tooltipDescricao: t('admin.testes-gerais.tooltip_duracao_desc'),
-      render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span> 
+      getValorBruto: (item) => formatarDuracaoMinutosSegundos(item.duracao),
+      render: (v) => <span style={{ color: '#94a3b8' }}>{formatarDuracaoMinutosSegundos(String(v ?? ''))}</span>
     },
   ]
 

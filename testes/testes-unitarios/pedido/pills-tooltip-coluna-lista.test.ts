@@ -19,11 +19,38 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.numeroUnicoOrg).toBe(true)
   })
 
-  it('valor_total dinâmico separa pedido calculado e item editável', () => {
+  it('valor_total dinâmico — pedido bloqueado (valor do item) + alerta; item editável', () => {
     const res = obterPillsTooltipColuna('valor_total_pedido', { modoDinamicoPedidoItem: true })
     expect(res.dual).toBe(true)
-    expect(res.pedido).toContain('calculado_pedido')
-    expect(res.item).toContain('editavel_item')
+    expect(res.pedido).toEqual(['bloqueado_valor_item', 'alerta_divergencia'])
+    expect(res.pedido).not.toContain('calculado_pedido')
+    expect(res.item).toEqual(['editavel_item'])
+  })
+
+  it('valor_total sem modo dinâmico — pedido bloqueado + alerta', () => {
+    const res = obterPillsTooltipColuna('valor_total_pedido')
+    expect(res.pedido).toEqual(['bloqueado_valor_item', 'alerta_divergencia'])
+    expect(res.pedido).not.toContain('calculado_pedido')
+  })
+
+  it('quantidade_pronta dinâmico — pedido soma qtd pronta, alerta e bloqueado; item só editável', () => {
+    const res = obterPillsTooltipColuna('quantidade_pronta_itens_pedido_total', { modoDinamicoPedidoItem: true })
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual([
+      'calculado_pedido_qtd_pronta',
+      'soma_mesma_unidade',
+      'alerta_divergencia',
+      'bloqueado_edicao',
+    ])
+    expect(res.item).toEqual(['editavel_item', 'alerta_moeda_divergente'])
+    expect(res.pedido.at(-1)).toBe('bloqueado_edicao')
+    expect(pillsParaNivelColuna('quantidade_pronta_itens_pedido_total', 'item', { modoDinamicoPedidoItem: true }))
+      .toEqual(['editavel_item', 'alerta_moeda_divergente'])
+  })
+
+  it('quantidade_pronta sem modo dinâmico — pedido com pills específicas de qtd pronta', () => {
+    const pills = pillsParaNivelColuna('quantidade_pronta_itens_pedido_total', 'pai')
+    expect(pills).toEqual(['calculado_pedido_qtd_pronta', 'soma_mesma_unidade', 'alerta_divergencia', 'bloqueado_edicao'])
   })
 
   it('ghost descrição — pedido, item e replicar; sem alerta de divergência', () => {

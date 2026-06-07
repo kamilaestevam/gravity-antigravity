@@ -42,6 +42,15 @@ const COL_KEY_NCM = 'ncm'
 const NCM_CODIGO_TESTE = '8528.59.00'
 const NCM_BUSCA_TEXTO = 'monitor'
 const TOOLTIP_NCM_PEDIDO_REGEX = /editável no pedido/i
+const COLUNA_QTD_PRONTA = 'QTD. PRONTA DO PEDIDO/ITEM'
+const COL_KEY_QTD_PRONTA = 'quantidade_pronta_itens_pedido_total'
+const ALERTA_UNIDADES_DIVERGENTES = /unidades divergentes entre itens/i
+const AVISO_IMPACTO_UNIDADE_PRONTA =
+  /alteração da unidade irá alterar também unidade comercializada, qtd\. inicial, qtd\. transferida, saldo e qtd\. cancelada/i
+const QTD_PRONTA_VALOR_INCLUIR = '150,00'
+const QTD_PRONTA_VALOR_EDITAR = '275,50'
+const UNIDADE_QTD_PRONTA = 'UN'
+const HUB_URL = `${BASE_UI}/hub`
 const COLUNA_REF_IMPORTADOR = 'REFERÊNCIA IMPORTADOR'
 const COL_KEY_REF_IMPORTADOR = 'referencia_importador'
 const COLUNA_REF_EXPORTADOR = 'REFERÊNCIA EXPORTADOR'
@@ -647,10 +656,25 @@ async function selecionarTipoOperacaoPopover(page: Page, label: string): Promise
   await selecionarOpcaoPopoverSelect(page, label)
 }
 
-async function selecionarOpcaoPopoverSelect(page: Page, siglaOuLabel: string): Promise<void> {
+async function clicarOpcaoPopoverSelect(page: Page, siglaOuLabel: string): Promise<void> {
   const re = new RegExp(`\\b${siglaOuLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
   await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').filter({ hasText: re }).first().click()
+}
+
+/** Select sem checkbox: clique na opção já dispara save e fecha o popover. */
+async function selecionarOpcaoPopoverSelect(page: Page, siglaOuLabel: string): Promise<void> {
+  await clicarOpcaoPopoverSelect(page, siglaOuLabel)
   await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
+}
+
+/**
+ * Select com checkbox «Aplicar a todos os itens»: clique só pré-seleciona;
+ * o GTV exige botão Confirmar (ou Enter) para enviar replicar_em_itens.
+ */
+async function confirmarPopoverSelectComBotao(page: Page): Promise<void> {
+  const btn = page.locator('.gtv-edit-popover .gtv-edit-popover-btn--primary').filter({ hasText: /^Confirmar$/ })
+  await btn.click()
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 15000 })
 }
 
 async function popoverSelectTemOpcoes(page: Page): Promise<number> {
@@ -710,8 +734,17 @@ async function destacarSiglaNoPopoverSelect(page: Page, sigla: string): Promise<
   }, sigla)
 }
 
-async function confirmarOpcaoPopoverSelect(page: Page, sigla: string): Promise<'sucesso' | 'erro' | 'nenhuma'> {
-  await selecionarOpcaoPopoverSelect(page, sigla)
+async function confirmarOpcaoPopoverSelect(
+  page: Page,
+  sigla: string,
+  opts?: { replicarEmItens?: boolean },
+): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  await clicarOpcaoPopoverSelect(page, sigla)
+  if (opts?.replicarEmItens) {
+    await confirmarPopoverSelectComBotao(page)
+  } else {
+    await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
+  }
   return aguardarNotificacaoSalvar(page)
 }
 
@@ -725,7 +758,7 @@ async function editarCampoSelectPai(
   const abriu = await abrirPopoverSelectPai(page, rowId, campo)
   if (!abriu) return 'nenhuma'
   if (opts?.replicarEmItens) await marcarCheckboxReplicarPopover(page)
-  return confirmarOpcaoPopoverSelect(page, sigla)
+  return confirmarOpcaoPopoverSelect(page, sigla, { replicarEmItens: opts?.replicarEmItens })
 }
 
 async function clicarCelulaItemPorIndice(
@@ -1136,6 +1169,7 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   await validarDescricaoItemLista(page, rowId, sufixo, qtdItens)
   await validarLogisticaLista(page, rowId, qtdItens)
   await validarNcmLista(page, rowId)
+  await validarQtdProntaLista(page, rowId, numeroPedido)
 }
 
 function normalizarTextoCelula(texto: string): string {
@@ -1747,7 +1781,7 @@ async function validarIncotermLista(page: Page, rowId: string, qtdItens: number)
     await marcarCheckboxReplicarPopover(page)
     await destacarSiglaNoPopoverSelect(page, incTodos)
     await screenshot(page, printSelecao('22-incoterm-pedido-replicar-todos'))
-    const notif22 = await confirmarOpcaoPopoverSelect(page, incTodos)
+    const notif22 = await confirmarOpcaoPopoverSelect(page, incTodos, { replicarEmItens: true })
     await page.waitForTimeout(800)
     const textoPai22 = await lerTextoCampoPai(page, rowId, COL_KEY_INCOTERM)
     const textosItens22 = await lerTextosCampoItens(page, rowId, COL_KEY_INCOTERM)
@@ -2091,6 +2125,328 @@ async function validarNcmLista(page: Page, rowId: string): Promise<void> {
     logAprovado(LOCAL_LISTA, COLUNA_NCM, '41 — Tooltip NCM contém «Editável no pedido»')
   } else {
     falharTabela(LOCAL_LISTA, COLUNA_NCM, '41 — Tooltip NCM deve conter texto «Editável no pedido»')
+  }
+}
+
+function parseNumeroBR(valor: string): number {
+  const t = valor.replace(/\./g, '').replace(',', '.')
+  const n = parseFloat(t)
+  return Number.isFinite(n) ? n : 0
+}
+
+function parseQuantidadeUnidadeCelula(texto: string): { qty: number; unit: string } | null {
+  const t = normalizarTextoCelula(texto)
+  if (!t || t === '—' || t === '-') return null
+  if (ALERTA_UNIDADES_DIVERGENTES.test(t)) return null
+  const m = t.match(/^([\d.,]+)\s*([A-Za-z]{1,10})$/)
+  if (!m) return null
+  return { qty: parseNumeroBR(m[1]), unit: m[2].toUpperCase() }
+}
+
+function celulaQtdProntaEhVazia(texto: string): boolean {
+  const t = normalizarTextoCelula(texto)
+  return !t || t === '—' || t === '-'
+}
+
+function celulaQtdProntaExibeValor(texto: string, valor: string, unidade: string): boolean {
+  const t = normalizarTextoCelula(texto)
+  return t.includes(valor) && new RegExp(`\\b${unidade}\\b`, 'i').test(t)
+}
+
+function quantidadesProximas(a: number, b: number, eps = 0.01): boolean {
+  return Math.abs(a - b) <= eps
+}
+
+async function colapsarPedido(page: Page, rowId: string): Promise<void> {
+  const pai = page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first()
+  const expandido = await pai.evaluate(el => el.classList.contains('gtv-linha--expandida')).catch(() => false)
+  if (expandido) {
+    await pai.locator('.gtv-chevron-btn').click()
+    await page.waitForTimeout(500)
+  }
+}
+
+async function contarItensDoPedido(page: Page, rowId: string): Promise<number> {
+  return page.evaluate((paiId) => {
+    let filhos = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+    if (filhos.length === 0) {
+      const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+      if (paiEl) {
+        filhos = []
+        let prox = paiEl.nextElementSibling
+        while (prox?.classList.contains('gtv-linha--filho')) {
+          filhos.push(prox as Element)
+          prox = prox.nextElementSibling
+        }
+      }
+    }
+    return filhos.length
+  }, rowId)
+}
+
+async function expandirPedidoRetornaQtd(page: Page, rowId: string): Promise<number> {
+  const pai = page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first()
+  const chevron = pai.locator('.gtv-chevron-btn')
+  if (await chevron.count() === 0) return 0
+  const expandido = await pai.evaluate(el => el.classList.contains('gtv-linha--expandida'))
+  if (!expandido) {
+    await chevron.click()
+    await page.waitForTimeout(800)
+  }
+  return contarItensDoPedido(page, rowId)
+}
+
+async function localizarRowIdPorNumeroPedido(page: Page, numero: string): Promise<string | null> {
+  return page.evaluate((num) => {
+    const cels = Array.from(document.querySelectorAll('[data-gtv-campo="numero_pedido"][data-gtv-rowid]'))
+    for (const cel of cels) {
+      if ((cel.textContent ?? '').includes(num)) {
+        return cel.getAttribute('data-gtv-rowid')
+      }
+    }
+    return null
+  }, numero)
+}
+
+type ScanQtdProntaPedidos = {
+  semItens: string | null
+  mesmaUnidade: string | null
+  unidadesDivergentes: string | null
+}
+
+async function escanearPedidosQtdPronta(page: Page, excluirRowId: string): Promise<ScanQtdProntaPedidos> {
+  const resultado: ScanQtdProntaPedidos = {
+    semItens: null,
+    mesmaUnidade: null,
+    unidadesDivergentes: null,
+  }
+  const rowIds = await listarRowIdsPedidosEditaveis(page)
+  const limite = Math.min(rowIds.length, 15)
+
+  for (let i = 0; i < limite; i++) {
+    const id = rowIds[i]
+    if (id === excluirRowId) continue
+    await colapsarPedido(page, excluirRowId)
+    const qtdItens = await expandirPedidoRetornaQtd(page, id)
+    await scrollColunaParaVisivel(page, COL_KEY_QTD_PRONTA)
+
+    if (!resultado.semItens && qtdItens === 0) {
+      resultado.semItens = id
+    }
+
+    if (qtdItens >= 2) {
+      const textosItens = await lerTextosCampoItens(page, id, COL_KEY_QTD_PRONTA)
+      const unidades = textosItens
+        .map(t => parseQuantidadeUnidadeCelula(t)?.unit ?? extrairUnidadeBadgeCelula(t))
+        .filter((u): u is string => Boolean(u))
+      const unidadesUnicas = [...new Set(unidades)]
+
+      if (!resultado.mesmaUnidade && unidadesUnicas.length === 1 && unidades.length >= 2) {
+        const textoPai = await lerTextoCampoPai(page, id, COL_KEY_QTD_PRONTA)
+        const parsedItens = textosItens.map(t => parseQuantidadeUnidadeCelula(t))
+        const soma = parsedItens.reduce((s, p) => s + (p?.qty ?? 0), 0)
+        const parsedPai = parseQuantidadeUnidadeCelula(textoPai)
+        if (parsedPai && quantidadesProximas(parsedPai.qty, soma)) {
+          resultado.mesmaUnidade = id
+        }
+      }
+
+      if (!resultado.unidadesDivergentes && unidadesUnicas.length >= 2) {
+        const textoPai = await lerTextoCampoPai(page, id, COL_KEY_QTD_PRONTA)
+        if (ALERTA_UNIDADES_DIVERGENTES.test(textoPai) && !parseQuantidadeUnidadeCelula(textoPai)) {
+          resultado.unidadesDivergentes = id
+        }
+      }
+    }
+
+    await colapsarPedido(page, id)
+    if (resultado.semItens && resultado.mesmaUnidade && resultado.unidadesDivergentes) break
+  }
+
+  return resultado
+}
+
+function extrairUnidadeBadgeCelula(texto: string): string | null {
+  const t = normalizarTextoCelula(texto)
+  const m = t.match(/\b([A-Z]{1,10})\b$/)
+  return m?.[1] ?? null
+}
+
+async function abrirPopoverQtdProntaItem(page: Page, pedidoRowId: string, indice: number): Promise<boolean> {
+  const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, COL_KEY_QTD_PRONTA)
+  if (!clicou) return false
+  return page.locator('.gtv-edit-unidade-qty').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function preencherQuantidadePopover(page: Page, valor: string): Promise<void> {
+  await page.locator('.gtv-edit-unidade-qty').fill(valor)
+}
+
+async function abrirDropdownUnidadePopover(page: Page): Promise<void> {
+  await page.locator('.gtv-edit-unidade .gtv-edit-custom-select-trigger').click()
+  await page.locator('.gtv-edit-custom-select-list').waitFor({ timeout: 5000 })
+}
+
+async function selecionarUnidadePopover(page: Page, sigla: string): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  const re = new RegExp(`\\b${sigla.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+  await page.locator('.gtv-edit-custom-select-list .gtv-edit-custom-select-item').filter({ hasText: re }).first().click()
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {})
+  return aguardarNotificacaoSalvar(page)
+}
+
+async function popoverExibeAvisoImpactoUnidade(page: Page): Promise<boolean> {
+  const aviso = page.locator('.gtv-edit-aviso-impacto')
+  if (!(await aviso.isVisible().catch(() => false))) return false
+  const texto = await aviso.textContent()
+  return Boolean(texto && AVISO_IMPACTO_UNIDADE_PRONTA.test(texto))
+}
+
+async function salvarQtdProntaItem(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+  valor: string,
+  unidade: string,
+  prefixoPrint: string,
+): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  await fecharPopoverSeAberto(page)
+  const abriu = await abrirPopoverQtdProntaItem(page, pedidoRowId, indice)
+  if (!abriu) return 'nenhuma'
+  await preencherQuantidadePopover(page, valor)
+  await abrirDropdownUnidadePopover(page)
+  await screenshot(page, printSelecao(prefixoPrint))
+  return selecionarUnidadePopover(page, unidade)
+}
+
+/** Passos 42–48 — Qtd. Pronta do Pedido/Item (agregado + edição no item). */
+async function validarQtdProntaLista(page: Page, rowIdPrincipal: string, numeroPedido: string): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_QTD_PRONTA}: passos 42–48 (vazio, soma, divergência, incluir, editar, aviso, persistência)`)
+  await scrollColunaParaVisivel(page, COL_KEY_QTD_PRONTA)
+
+  const scan = await escanearPedidosQtdPronta(page, rowIdPrincipal)
+
+  if (scan.semItens) {
+    await colapsarPedido(page, rowIdPrincipal)
+    await expandirPedidoRetornaQtd(page, scan.semItens)
+    const texto42 = await lerTextoCampoPai(page, scan.semItens, COL_KEY_QTD_PRONTA)
+    await screenshot(page, '42-qtd-pronta-pedido-sem-itens-resultado.png')
+    if (celulaQtdProntaEhVazia(texto42)) {
+      logAprovado(LOCAL_LISTA, COLUNA_QTD_PRONTA, '42 — Pedido sem itens exibe célula vazia (—)')
+    } else {
+      falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, `42 — Pedido sem itens deve exibir — (obtido: ${texto42})`)
+    }
+    await colapsarPedido(page, scan.semItens)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '42 — Nenhum pedido sem itens encontrado na lista')
+    await screenshot(page, '42-qtd-pronta-pedido-sem-itens-resultado.png')
+  }
+
+  if (scan.mesmaUnidade) {
+    await expandirPedidoRetornaQtd(page, scan.mesmaUnidade)
+    const textoPai43 = await lerTextoCampoPai(page, scan.mesmaUnidade, COL_KEY_QTD_PRONTA)
+    const textosItens43 = await lerTextosCampoItens(page, scan.mesmaUnidade, COL_KEY_QTD_PRONTA)
+    const soma43 = textosItens43.reduce((s, t) => s + (parseQuantidadeUnidadeCelula(t)?.qty ?? 0), 0)
+    const parsedPai43 = parseQuantidadeUnidadeCelula(textoPai43)
+    await screenshot(page, '43-qtd-pronta-pedido-mesma-unidade-resultado.png')
+    if (parsedPai43 && quantidadesProximas(parsedPai43.qty, soma43)) {
+      logAprovado(LOCAL_LISTA, COLUNA_QTD_PRONTA, `43 — Pedido com mesma unidade exibe soma (${parsedPai43.qty} = ${soma43})`)
+    } else {
+      falharTabela(
+        LOCAL_LISTA,
+        COLUNA_QTD_PRONTA,
+        `43 — Soma incorreta (pedido=${textoPai43}, soma itens=${soma43})`,
+      )
+    }
+    await colapsarPedido(page, scan.mesmaUnidade)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '43 — Nenhum pedido com itens de mesma unidade e soma coerente')
+    await screenshot(page, '43-qtd-pronta-pedido-mesma-unidade-resultado.png')
+  }
+
+  if (scan.unidadesDivergentes) {
+    await expandirPedidoRetornaQtd(page, scan.unidadesDivergentes)
+    const textoPai44 = await lerTextoCampoPai(page, scan.unidadesDivergentes, COL_KEY_QTD_PRONTA)
+    await screenshot(page, '44-qtd-pronta-pedido-unidades-divergentes-resultado.png')
+    if (ALERTA_UNIDADES_DIVERGENTES.test(textoPai44) && !parseQuantidadeUnidadeCelula(textoPai44)) {
+      logAprovado(LOCAL_LISTA, COLUNA_QTD_PRONTA, '44 — Unidades divergentes — alerta sem valor numérico')
+    } else {
+      falharTabela(
+        LOCAL_LISTA,
+        COLUNA_QTD_PRONTA,
+        `44 — Deve exibir «Unidades divergentes entre itens» sem número (obtido: ${textoPai44})`,
+      )
+    }
+    await colapsarPedido(page, scan.unidadesDivergentes)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '44 — Nenhum pedido com unidades comercializadas divergentes')
+    await screenshot(page, '44-qtd-pronta-pedido-unidades-divergentes-resultado.png')
+  }
+
+  await expandirPedidoRetornaQtd(page, rowIdPrincipal)
+
+  const notif45 = await salvarQtdProntaItem(page, rowIdPrincipal, 0, QTD_PRONTA_VALOR_INCLUIR, UNIDADE_QTD_PRONTA, '45-qtd-pronta-item-incluir')
+  const textoItem45 = await lerTextosCampoItens(page, rowIdPrincipal, COL_KEY_QTD_PRONTA)
+  await screenshot(page, printResultado('45-qtd-pronta-item-incluir'))
+  if (notif45 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '45 — Salvar qtd pronta no item 1 — toast de erro')
+  } else if (!celulaQtdProntaExibeValor(textoItem45[0] ?? '', QTD_PRONTA_VALOR_INCLUIR, UNIDADE_QTD_PRONTA)) {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, `45 — Item 1 deve exibir ${QTD_PRONTA_VALOR_INCLUIR} ${UNIDADE_QTD_PRONTA} (obtido: ${textoItem45[0]})`)
+  } else if (notif45 === 'sucesso') {
+    logAprovado(LOCAL_LISTA, COLUNA_QTD_PRONTA, `45 — Incluir qtd pronta no item 1 (${QTD_PRONTA_VALOR_INCLUIR} ${UNIDADE_QTD_PRONTA})`)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '45 — Salvar qtd pronta no item 1 — toast de sucesso não detectado')
+  }
+
+  const notif46 = await salvarQtdProntaItem(page, rowIdPrincipal, 0, QTD_PRONTA_VALOR_EDITAR, UNIDADE_QTD_PRONTA, '46-qtd-pronta-item-editar')
+  const textoItem46 = await lerTextosCampoItens(page, rowIdPrincipal, COL_KEY_QTD_PRONTA)
+  await screenshot(page, printResultado('46-qtd-pronta-item-editar'))
+  if (notif46 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '46 — Editar qtd pronta no item 1 — toast de erro')
+  } else if (!celulaQtdProntaExibeValor(textoItem46[0] ?? '', QTD_PRONTA_VALOR_EDITAR, UNIDADE_QTD_PRONTA)) {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, `46 — Item 1 deve exibir ${QTD_PRONTA_VALOR_EDITAR} ${UNIDADE_QTD_PRONTA} (obtido: ${textoItem46[0]})`)
+  } else if (notif46 === 'sucesso') {
+    logAprovado(LOCAL_LISTA, COLUNA_QTD_PRONTA, `46 — Editar qtd pronta no item 1 (${QTD_PRONTA_VALOR_EDITAR} ${UNIDADE_QTD_PRONTA})`)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '46 — Editar qtd pronta no item 1 — toast de sucesso não detectado')
+  }
+
+  await fecharPopoverSeAberto(page)
+  const abriu47 = await abrirPopoverQtdProntaItem(page, rowIdPrincipal, 0)
+  if (!abriu47) {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '47 — Abrir popover qtd pronta no item 1')
+  } else {
+    const avisoOk = await popoverExibeAvisoImpactoUnidade(page)
+    await screenshot(page, '47-qtd-pronta-aviso-unidade-item.png')
+    if (avisoOk) {
+      logAprovado(LOCAL_LISTA, COLUNA_QTD_PRONTA, '47 — Popover item exibe aviso de impacto da unidade')
+    } else {
+      falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '47 — Popover deve exibir aviso de impacto da unidade comercializada')
+    }
+  }
+  await fecharPopoverSeAberto(page)
+
+  await page.goto(HUB_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await page.waitForTimeout(1500)
+  await garantirListaPedidos(page)
+
+  const rowId48 = await localizarRowIdPorNumeroPedido(page, numeroPedido)
+  if (!rowId48) {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, `48 — Reencontrar pedido ${numeroPedido} após navegar`)
+    await screenshot(page, '48-qtd-pronta-persistencia-apos-navegar-resultado.png')
+    return
+  }
+
+  await expandirPedidoRetornaQtd(page, rowId48)
+  const textoItem48 = await lerTextosCampoItens(page, rowId48, COL_KEY_QTD_PRONTA)
+  await screenshot(page, '48-qtd-pronta-persistencia-apos-navegar-resultado.png')
+  if (celulaQtdProntaExibeValor(textoItem48[0] ?? '', QTD_PRONTA_VALOR_EDITAR, UNIDADE_QTD_PRONTA)) {
+    logAprovado(LOCAL_LISTA, COLUNA_QTD_PRONTA, `48 — Persistência após navegar (${QTD_PRONTA_VALOR_EDITAR} ${UNIDADE_QTD_PRONTA})`)
+  } else {
+    falharTabela(
+      LOCAL_LISTA,
+      COLUNA_QTD_PRONTA,
+      `48 — Qtd pronta não persistiu após navegar (obtido: ${textoItem48[0]})`,
+    )
   }
 }
 

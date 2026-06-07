@@ -5140,6 +5140,18 @@ export default function Pedidos() {
         }, t, 'pai')
       }
 
+      if (col.key === 'valor_total_pedido') {
+        const label = temExpandido
+          ? t('pedido.lista.coluna_dinamica.valor_total')
+          : col.label
+        return enriquecerColunaComRegraTooltip(
+          { ...col, label },
+          t,
+          'pai',
+          { modoDinamicoPedidoItem: temExpandido },
+        )
+      }
+
       const COLUNAS_DINAMICAS_PEDIDO_ITEM: Record<string, string> = {
         valor_total_pedido:                   t('pedido.lista.coluna_dinamica.valor_total'),
         quantidade_total_pedido:              t('pedido.lista.coluna_dinamica.qtd_inicial'),

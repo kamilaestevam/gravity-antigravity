@@ -914,16 +914,9 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     sortavel: true,
     align: 'left',
     casasDecimais: getCasas('valor_total_pedido', 2),
-    tooltipTitulo: t('pedido.coluna_pai.valor_total_pedido_titulo'),
-    tooltipDescricao: t('pedido.coluna_pai.valor_total_pedido_desc'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('valor_total_pedido', 2)
-      // Onda A8 — homogeneidade de moeda. Quando itens divergem em moeda,
-      // o helper recalcularAgregadosPedido grava `valor_total_pedido = null`
-      // e o front (via calcularDivergencias em Pedidos.tsx) seta a flag
-      // `moeda_item_divergente = true`. renderAgregado então mostra o
-      // alerta padrão "⚠ Moedas divergentes entre itens".
       const moeda = row.moeda_pedido ?? 'USD'
       const num = Number(row.valor_total_pedido)
       const temValor = row.valor_total_pedido != null && !isNaN(num)
@@ -935,13 +928,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
           </span>
         )
         : null
-      return (
-        <TooltipGlobal titulo={t('pedido.coluna_pai.valor_total_pedido_titulo')} descricao={t('pedido.coluna_pai.valor_total_pedido_desc')}>
-          <span style={{ display: 'contents' }}>
-            {renderAgregado(valorJsx, row.moeda_item_divergente, t('pedido.coluna_pai.moedas_divergentes'))}
-          </span>
-        </TooltipGlobal>
-      )
+      return renderAgregado(valorJsx, row.moeda_item_divergente, t('pedido.coluna_pai.moedas_divergentes'))
     },
   },
   {

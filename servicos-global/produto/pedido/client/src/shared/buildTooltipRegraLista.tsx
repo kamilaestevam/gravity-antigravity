@@ -12,7 +12,6 @@ import {
   type RegraTooltipId,
 } from './regrasTooltipColunaLista'
 import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipColunaLista'
-import type { RegraPillId } from './pillsTooltipColunaLista'
 import { TooltipRegrasColuna } from './TooltipRegrasColuna'
 
 type OpcoesMontarTooltipPills = {
@@ -20,6 +19,21 @@ type OpcoesMontarTooltipPills = {
   colunaPersonalizada?: boolean
   descricaoUsuario?: string
   aviso?: React.ReactNode
+  /** Em coluna dual, renderiza só o bloco pedido ou item (ex.: célula da linha do pedido). */
+  somenteBloco?: 'pedido' | 'item'
+}
+
+function isLinhaItemLista(row: unknown): boolean {
+  if (row == null || typeof row !== 'object') return false
+  const pedidoId = (row as { pedido_id?: unknown }).pedido_id
+  return typeof pedidoId === 'string' && pedidoId.length > 0
+}
+
+function descricaoExtraPorColuna(t: TFunction, key: string, nivel: NivelColunaLista): string | undefined {
+  if (key === 'valor_total_pedido' && nivel === 'item') {
+    return t('pedido.lista.regras_coluna.valor_item_impacto_moeda')
+  }
+  return undefined
 }
 
 function montarTooltipPills(
@@ -33,6 +47,22 @@ function montarTooltipPills(
     colunaPersonalizada: opts?.colunaPersonalizada,
   })
 
+  if (opts?.somenteBloco) {
+    const nivelBloco = opts.somenteBloco === 'item' ? 'item' : 'pai'
+    const pills = opts.somenteBloco === 'item' ? res.item : res.pedido
+    return (
+      <TooltipRegrasColuna
+        t={t}
+        pillsPedido={pills}
+        linkFormula={res.linkFormula}
+        ghostSemCheckbox={res.ghostSemCheckbox && nivelBloco === 'pai'}
+        numeroUnicoOrg={res.numeroUnicoOrg && nivelBloco === 'pai'}
+        aviso={opts?.aviso}
+        descricaoExtra={opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key, nivelBloco) || undefined}
+      />
+    )
+  }
+
   if (res.dual) {
     return (
       <TooltipRegrasColuna
@@ -44,7 +74,7 @@ function montarTooltipPills(
         ghostSemCheckbox={res.ghostSemCheckbox}
         numeroUnicoOrg={res.numeroUnicoOrg}
         aviso={opts?.aviso}
-        descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
+        descricaoExtra={opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key, 'item') || undefined}
       />
     )
   }
@@ -58,7 +88,7 @@ function montarTooltipPills(
       ghostSemCheckbox={res.ghostSemCheckbox && nivel === 'pai'}
       numeroUnicoOrg={res.numeroUnicoOrg && nivel === 'pai'}
       aviso={opts?.aviso}
-      descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
+      descricaoExtra={opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key, nivel) || undefined}
     />
   )
 }
@@ -94,22 +124,48 @@ export function enriquecerColunaComRegraTooltip<T>(
   opts?: OpcoesEnriquecerTooltip,
 ): GTColuna<T> {
   const key = String(col.key)
-  const titulo = col.tooltipTitulo?.trim()
-    ? col.tooltipTitulo
-    : tituloTooltipColuna(t, key, 'pai', col.label)
+  const tituloValorItem =
+    key === 'valor_total_pedido' && col.label?.trim() ? col.label.trim() : null
+  const titulo = tituloValorItem
+    ?? (col.tooltipTitulo?.trim()
+      ? col.tooltipTitulo
+      : tituloTooltipColuna(t, key, 'pai', col.label))
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)
+  const optsMontar = {
+    modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+    colunaPersonalizada: opts?.colunaPersonalizada,
+    descricaoUsuario: opts?.descricaoUsuario,
+  }
+  const somentePedidoValor = key === 'valor_total_pedido' ? 'pedido' as const : undefined
+  const tooltipCelulaPedido = montarTooltipPills(t, key, {
+    ...optsMontar,
+    somenteBloco: pillsRes.dual || somentePedidoValor ? 'pedido' : undefined,
+  }, 'pai')
+  const tooltipCelulaItem = montarTooltipPills(t, key, {
+    ...optsMontar,
+    modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+    somenteBloco: pillsRes.dual ? 'item' : undefined,
+  }, 'item')
 
   return {
     ...col,
     tooltipTitulo: titulo,
     tooltipDescricao: montarTooltipPills(t, key, {
-      modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-      colunaPersonalizada: opts?.colunaPersonalizada,
-      descricaoUsuario: opts?.descricaoUsuario,
+      ...optsMontar,
+      somenteBloco: somentePedidoValor,
     }),
-    tooltipDescricaoItem: montarTooltipPills(t, key, { ...opts, modoDinamicoPedidoItem: false }, 'item'),
+    tooltipDescricaoItem: tooltipCelulaItem,
+    tooltipDescricaoCelula: (row: T) => {
+      const legado = col.tooltipDescricaoCelula?.(row)
+      if (legado) return legado
+      if (key === 'valor_total_pedido' || pillsRes.dual) {
+        if (isLinhaItemLista(row)) return tooltipCelulaItem
+        return tooltipCelulaPedido
+      }
+      return undefined
+    },
     tooltipInterativo: regraTooltipEhInterativa(regraId) || col.tooltipInterativo,
   }
 }

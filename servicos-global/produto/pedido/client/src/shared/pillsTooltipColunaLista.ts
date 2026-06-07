@@ -17,7 +17,12 @@ export type RegraPillId =
   | 'replica_itens'
   | 'replica_itens_auto'
   | 'alerta_divergencia'
+  | 'alerta_moeda_divergente'
+  | 'bloqueado_valor_item'
+  | 'bloqueado_edicao'
   | 'calculado_pedido'
+  | 'calculado_pedido_qtd_pronta'
+  | 'soma_mesma_unidade'
   | 'formula_config'
   | 'so_operacao'
   | 'cond_import_export'
@@ -32,6 +37,20 @@ export type RegraPillId =
   | 'coluna_personalizada'
 
 export const MAX_PILLS_POR_BLOCO = 4
+
+/** Linha do pedido — coluna valor do item: bloqueado, sem soma do pedido. */
+export const PILLS_PEDIDO_VALOR_ITEM: RegraPillId[] = ['bloqueado_valor_item', 'alerta_divergencia']
+
+/** Linha do pedido — Qtd. Pronta: soma (mesma unidade), alerta, bloqueado. */
+export const PILLS_PEDIDO_QTD_PRONTA: RegraPillId[] = [
+  'calculado_pedido_qtd_pronta',
+  'soma_mesma_unidade',
+  'alerta_divergencia',
+  'bloqueado_edicao',
+]
+
+/** Linha item — Qtd. Pronta: editável + alerta de moeda divergente entre itens. */
+export const PILLS_ITEM_QTD_PRONTA: RegraPillId[] = ['editavel_item', 'alerta_moeda_divergente']
 
 const CHAVES_DUAL_SEMPRE = new Set(['numero_pedido'])
 
@@ -59,6 +78,10 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   pai_ghost_cobertura: {
     pedido: ['editavel_pedido', 'replica_itens', 'alerta_divergencia'],
     item: ['editavel_item', 'alerta_divergencia'],
+  },
+  pai_valor_item_bloqueado: {
+    pedido: PILLS_PEDIDO_VALOR_ITEM,
+    item: ['editavel_item'],
   },
   pai_calculado_valor: {
     pedido: ['calculado_pedido', 'alerta_divergencia'],
@@ -137,16 +160,16 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_pedido', 'editavel_item', 'espelhado_logistica_bidirecional'],
   },
   dinamico_valor_total: {
-    pedido: ['calculado_pedido', 'alerta_divergencia'],
-    item: ['editavel_item', 'alerta_divergencia'],
+    pedido: PILLS_PEDIDO_VALOR_ITEM,
+    item: ['editavel_item'],
   },
   dinamico_qtd_inicial: {
     pedido: ['calculado_pedido', 'alerta_divergencia'],
     item: ['editavel_item', 'alerta_divergencia'],
   },
   dinamico_qtd_pronta: {
-    pedido: ['calculado_pedido', 'alerta_divergencia'],
-    item: ['editavel_item', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_QTD_PRONTA],
+    item: [...PILLS_ITEM_QTD_PRONTA],
   },
   dinamico_saldo: {
     pedido: ['calculado_pedido', 'formula_config'],
@@ -186,7 +209,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   item_editavel_qtd_pronta: {
     pedido: [],
-    item: ['editavel_item', 'alerta_divergencia'],
+    item: [...PILLS_ITEM_QTD_PRONTA],
   },
   item_editavel_ghost: {
     pedido: [],
@@ -242,6 +265,17 @@ function limitarPills(pills: RegraPillId[]): RegraPillId[] {
   return pills.slice(0, MAX_PILLS_POR_BLOCO)
 }
 
+function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
+  if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_ITEM_QTD_PRONTA
+  return pills
+}
+
+function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
+  if (key === 'valor_total_pedido') return PILLS_PEDIDO_VALOR_ITEM
+  if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_PEDIDO_QTD_PRONTA
+  return pills
+}
+
 export function obterPillsTooltipColuna(
   key: string,
   opts?: { modoDinamicoPedidoItem?: boolean; colunaPersonalizada?: boolean },
@@ -263,8 +297,8 @@ export function obterPillsTooltipColuna(
 
   return {
     dual,
-    pedido: limitarPills(mapaPai.pedido),
-    item: limitarPills(mapaItem.item),
+    pedido: limitarPills(pillsPedidoPorColuna(key, mapaPai.pedido)),
+    item: limitarPills(pillsItemPorColuna(key, mapaItem.item)),
     linkFormula,
     ghostSemCheckbox: GHOST_KEYS.has(key),
     numeroUnicoOrg: key === 'numero_pedido',
@@ -286,6 +320,13 @@ export function pillsParaNivelColuna(
   )
   const id = nivel === 'pai' && opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraId
   const mapa = MAPA_REGRA_PILLS[id] ?? MAPA_REGRA_PILLS.generico
+  if (key === 'valor_total_pedido' && nivel === 'pai') return limitarPills(PILLS_PEDIDO_VALOR_ITEM)
+  if (key === 'quantidade_pronta_itens_pedido_total' && nivel === 'pai') {
+    return limitarPills(PILLS_PEDIDO_QTD_PRONTA)
+  }
+  if (key === 'quantidade_pronta_itens_pedido_total' && nivel === 'item') {
+    return limitarPills(PILLS_ITEM_QTD_PRONTA)
+  }
   return limitarPills(nivel === 'item' ? mapa.item : mapa.pedido)
 }
 

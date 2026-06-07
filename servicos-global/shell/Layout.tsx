@@ -13,6 +13,7 @@ import { useShellStore } from './store'
 import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 import { useMeSync } from './hooks/useMeSync'
 import { BannerOrganizacaoOverride } from './BannerOrganizacaoOverride'
+import { isRotaDetalheProcesso } from './is-rota-detalhe-processo'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -56,8 +57,11 @@ export function Layout({
   const isProcessoLegacyRoute = location.pathname.startsWith('/processo/')
   const isProcessoWorkspaceLista =
     /^\/(?:acesso-processos|processo)\/(?:lista|kanban)\/?$/.test(location.pathname)
+  const isProcessoDetalheRoute = isRotaDetalheProcesso(location.pathname)
+  /** Detalhe usa só o p2-sidebar (ProcessoLayout) — sem trilho Deep Work nem menu global. */
+  const ocultaSidebarShell = isProcessoDetalheRoute
   const usaContextualSidebarProcesso =
-    isProcessoLegacyRoute && !isProcessoWorkspaceLista
+    isProcessoLegacyRoute && !isProcessoWorkspaceLista && !isProcessoDetalheRoute
 
   // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
   useMeSync()
@@ -127,17 +131,22 @@ export function Layout({
   const overrideAtivo = organizacaoOverride !== null
   const classeOverride = overrideAtivo ? ' layout--override-ativo' : ''
 
-  // Processo: trilho global + menu do processo viram uma superficie continua
-  // (sem gap do .shell-main, sem costura entre trilho e p2-sidebar).
-  const classeProcesso = usaContextualSidebarProcesso ? ' layout--processo' : ''
-  // Esconde marca Gravity no header para lista/kanban workspace (+ legado /processo/lista).
+  // Detalhe: shell sem sidebar — só p2-sidebar do ProcessoLayout.
+  const classeProcesso = isProcessoDetalheRoute
+    ? ' layout--processo layout--processo-detalhe'
+    : usaContextualSidebarProcesso
+      ? ' layout--processo'
+      : ''
+  // Esconde marca Gravity no header para lista/kanban workspace e detalhe do processo.
   const classeOcultaMarca =
-    isAcessoProcessosRoute || isProcessoWorkspaceLista ? ' layout--oculta-marca-header' : ''
+    isAcessoProcessosRoute || isProcessoWorkspaceLista || isProcessoDetalheRoute
+      ? ' layout--oculta-marca-header'
+      : ''
 
   return (
     <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}${classeOverride}${classeProcesso}${classeOcultaMarca}`}>
       {overrideAtivo && <BannerOrganizacaoOverride />}
-      {usaContextualSidebarProcesso ? (
+      {ocultaSidebarShell ? null : usaContextualSidebarProcesso ? (
         <ContextualSidebar
           tenantName={tenantName ?? nomeWsAtivo}
           tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}

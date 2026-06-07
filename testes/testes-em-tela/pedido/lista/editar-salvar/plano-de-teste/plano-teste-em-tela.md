@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001  
 **Data:** 2026-06-06  
-**Versão:** 3.9  
+**Versão:** 4.0  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -48,6 +48,7 @@
 | **AEROPORTO DE ORIGEM** | 33 (5 sub-passos) | `run-lista-editar-salvar.ts` |
 | **AEROPORTO DE DESTINO** | 34 (5 sub-passos) | `run-lista-editar-salvar.ts` |
 | **NCM** | 35–41 | `run-lista-editar-salvar.ts` |
+| **QTD. PRONTA DO PEDIDO/ITEM** | 42–48 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -142,6 +143,15 @@
 | 39 | `39-ncm-item-busca-monitor-selecao.png` | Busca «monitor» no item — lista de NCMs |
 | 40 | `40-ncm-item-busca-monitor-resultado.png` | NCM selecionada da busca salva no item |
 | 41 | `41-ncm-tooltip-pedido.png` | Tooltip NCM contém «Editável no pedido» |
+| 42 | `42-qtd-pronta-pedido-sem-itens-resultado.png` | Pedido sem itens — célula vazia (`—`) |
+| 43 | `43-qtd-pronta-pedido-mesma-unidade-resultado.png` | Pedido com itens mesma unidade — soma correta |
+| 44 | `44-qtd-pronta-pedido-unidades-divergentes-resultado.png` | Unidades divergentes — alerta sem valor numérico |
+| 45 | `45-qtd-pronta-item-incluir-selecao.png` | Popover item 1 — incluir qtd pronta |
+| | `45-qtd-pronta-item-incluir-resultado.png` | Valor e unidade salvos no item |
+| 46 | `46-qtd-pronta-item-editar-selecao.png` | Popover item 1 — editar qtd pronta |
+| | `46-qtd-pronta-item-editar-resultado.png` | Valor editado e unidade persistidos |
+| 47 | `47-qtd-pronta-aviso-unidade-item.png` | Modal exibe aviso de impacto da unidade |
+| 48 | `48-qtd-pronta-persistencia-apos-navegar-resultado.png` | Sair da lista e voltar — valores mantidos |
 | 99 | `99-erro.png` | Só se falhar |
 
 Viewport: **1440×900**
@@ -333,7 +343,23 @@ Campo **ghost** — persiste no banco no **item**; linha do pedido exibe valor c
 | **40** | Selecionar 1ª NCM da busca no **item 1** → confirmar | Valor salvo no item · Print `40-ncm-item-busca-monitor-resultado.png` (sucesso ou erro) |
 | **41** | Hover tooltip na célula **NCM** do **pedido** | Texto contém «Editável no pedido» · Print `41-ncm-tooltip-pedido.png` (sucesso ou erro) |
 
-### ETAPA 17 — Relatório
+### ETAPA 17 — QTD. PRONTA DO PEDIDO/ITEM (passos 42–48)
+
+Coluna **`quantidade_pronta_itens_pedido_total`** — pedido **bloqueado** (soma calculada); **item editável** via popover unidade+quantidade.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **42** | Localizar pedido **sem itens**; inspecionar célula do **pedido** | Exibe **`—`** (vazio) · Print `42-qtd-pronta-pedido-sem-itens-resultado.png` (sucesso ou erro) |
+| **43** | Localizar pedido com itens de **mesma unidade comercializada** | Célula do **pedido** = **soma** das qtd. prontas dos itens · Print `43-qtd-pronta-pedido-mesma-unidade-resultado.png` (sucesso ou erro) |
+| **44** | Localizar pedido com itens de **unidades comercializadas diferentes** | Célula do **pedido** exibe alerta **«Unidades divergentes entre itens»** — **sem** valor numérico · Print `44-qtd-pronta-pedido-unidades-divergentes-resultado.png` (sucesso ou erro) |
+| **45** | No **item 1** do pedido em uso: incluir qtd pronta **150,00** + unidade **UN** → confirmar | Salva com sucesso — valor e unidade exatos na grade · Prints `45-qtd-pronta-item-incluir-selecao` · `…-resultado` (sucesso ou erro) |
+| **46** | Editar qtd pronta do **item 1** para **275,50** + unidade **UN** → confirmar | Salva com sucesso — valor e unidade exatos · Prints `46-qtd-pronta-item-editar-selecao` · `…-resultado` (sucesso ou erro) |
+| **47** | Abrir popover de edição do **item 1** (qtd pronta) | Modal contém aviso **«A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Transferida, Saldo e Qtd. Cancelada»** · Print `47-qtd-pronta-aviso-unidade-item.png` (sucesso ou erro) |
+| **48** | Navegar para **hub** e voltar à lista; reabrir o pedido editado | Qtd pronta **275,50 UN** no item 1 e agregado coerente no pedido · Print `48-qtd-pronta-persistencia-apos-navegar-resultado.png` (sucesso ou erro) |
+
+**Valores no runner:** incluir `150,00` · editar `275,50` · unidade `UN`
+
+### ETAPA 18 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -373,4 +399,5 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | AEROPORTO DE ORIGEM | 33.1–33.5 | 5 |
 | AEROPORTO DE DESTINO | 34.1–34.5 | 5 |
 | NCM | 35–41 | 7 |
-| **Total runner principal** | | **~63 passos / 92 casos** |
+| QTD. PRONTA DO PEDIDO/ITEM | 42–48 | 7 |
+| **Total runner principal** | | **~70 passos / 99 casos** |

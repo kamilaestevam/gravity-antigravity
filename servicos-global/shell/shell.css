@@ -476,6 +476,23 @@ body,
   padding: 0;
 }
 
+/* Detalhe do processo: sem trilho global — grid só com main; menu = p2-sidebar */
+.shell-layout.layout--processo-detalhe {
+  grid-template-columns: 1fr;
+}
+
+.shell-layout.layout--processo-detalhe.sidebar-collapsed {
+  grid-template-columns: 1fr;
+}
+
+.shell-layout.layout--processo-detalhe .shell-header {
+  padding-left: 1.5rem;
+}
+
+.shell-layout.layout--processo-detalhe.sidebar-collapsed .shell-header {
+  padding-left: 1.5rem;
+}
+
 /* Trilho global (estreito) + menu do processo (expandido) sao os DOIS
    menus dessa tela. Linha fina divisoria entre o trilho global e o
    menu do processo. */

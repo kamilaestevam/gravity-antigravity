@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001  
 **Data:** 2026-06-06  
-**Versão:** 4.0  
+**Versão:** 4.1  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -49,6 +49,7 @@
 | **AEROPORTO DE DESTINO** | 34 (5 sub-passos) | `run-lista-editar-salvar.ts` |
 | **NCM** | 35–41 | `run-lista-editar-salvar.ts` |
 | **QTD. PRONTA DO PEDIDO/ITEM** | 42–48 | `run-lista-editar-salvar.ts` |
+| **QTD. INICIAL DO PEDIDO/ITEM** | 49–55 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -152,6 +153,15 @@
 | | `46-qtd-pronta-item-editar-resultado.png` | Valor editado e unidade persistidos |
 | 47 | `47-qtd-pronta-aviso-unidade-item.png` | Modal exibe aviso de impacto da unidade |
 | 48 | `48-qtd-pronta-persistencia-apos-navegar-resultado.png` | Sair da lista e voltar — valores mantidos |
+| 49 | `49-qtd-inicial-pedido-sem-itens-resultado.png` | Pedido sem itens — célula vazia (`—`) |
+| 50 | `50-qtd-inicial-pedido-mesma-unidade-resultado.png` | Pedido com itens mesma unidade — soma correta |
+| 51 | `51-qtd-inicial-pedido-unidades-divergentes-resultado.png` | Unidades divergentes — alerta sem valor numérico |
+| 52 | `52-qtd-inicial-item-incluir-selecao.png` | Popover item 1 — incluir qtd inicial |
+| | `52-qtd-inicial-item-incluir-resultado.png` | Valor e unidade salvos no item |
+| 53 | `53-qtd-inicial-item-editar-selecao.png` | Popover item 1 — editar qtd inicial |
+| | `53-qtd-inicial-item-editar-resultado.png` | Valor editado e unidade persistidos |
+| 54 | `54-qtd-inicial-aviso-unidade-item.png` | Modal exibe aviso de impacto da unidade |
+| 55 | `55-qtd-inicial-persistencia-apos-navegar-resultado.png` | Sair da lista e voltar — valores mantidos |
 | 99 | `99-erro.png` | Só se falhar |
 
 Viewport: **1440×900**
@@ -359,7 +369,23 @@ Coluna **`quantidade_pronta_itens_pedido_total`** — pedido **bloqueado** (soma
 
 **Valores no runner:** incluir `150,00` · editar `275,50` · unidade `UN`
 
-### ETAPA 18 — Relatório
+### ETAPA 18 — QTD. INICIAL DO PEDIDO/ITEM (passos 49–55)
+
+Coluna **`quantidade_total_pedido`** — pedido **bloqueado** (soma calculada); **item editável** via popover unidade+quantidade.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **49** | Localizar pedido **sem itens**; inspecionar célula do **pedido** | Exibe **`—`** (vazio) · Print `49-qtd-inicial-pedido-sem-itens-resultado.png` (sucesso ou erro) |
+| **50** | Localizar pedido com itens de **mesma unidade comercializada** | Célula do **pedido** = **soma** das qtd. iniciais dos itens · Print `50-qtd-inicial-pedido-mesma-unidade-resultado.png` (sucesso ou erro) |
+| **51** | Localizar pedido com itens de **unidades comercializadas diferentes** | Célula do **pedido** exibe alerta **«Unidades divergentes entre itens»** — **sem** valor numérico · Print `51-qtd-inicial-pedido-unidades-divergentes-resultado.png` (sucesso ou erro) |
+| **52** | No **item 1** do pedido em uso: incluir qtd inicial **320,00** + unidade **UN** → confirmar | Salva com sucesso — valor e unidade exatos na grade · Prints `52-qtd-inicial-item-incluir-selecao` · `…-resultado` (sucesso ou erro) |
+| **53** | Editar qtd inicial do **item 1** para **410,75** + unidade **UN** → confirmar | Salva com sucesso — valor e unidade exatos · Prints `53-qtd-inicial-item-editar-selecao` · `…-resultado` (sucesso ou erro) |
+| **54** | Abrir popover de edição do **item 1** (qtd inicial) | Modal contém aviso **«A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada»** · Print `54-qtd-inicial-aviso-unidade-item.png` (sucesso ou erro) |
+| **55** | Navegar para **hub** e voltar à lista; reabrir o pedido editado | Qtd inicial **410,75 UN** no item 1 e agregado coerente no pedido · Print `55-qtd-inicial-persistencia-apos-navegar-resultado.png` (sucesso ou erro) |
+
+**Valores no runner:** incluir `320,00` · editar `410,75` · unidade `UN`
+
+### ETAPA 19 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -400,4 +426,5 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | AEROPORTO DE DESTINO | 34.1–34.5 | 5 |
 | NCM | 35–41 | 7 |
 | QTD. PRONTA DO PEDIDO/ITEM | 42–48 | 7 |
-| **Total runner principal** | | **~70 passos / 99 casos** |
+| QTD. INICIAL DO PEDIDO/ITEM | 49–55 | 7 |
+| **Total runner principal** | | **~77 passos / 106 casos** |

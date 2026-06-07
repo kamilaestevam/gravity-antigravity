@@ -53,6 +53,31 @@ describe('obterPillsTooltipColuna', () => {
     expect(pills).toEqual(['calculado_pedido_qtd_pronta', 'soma_mesma_unidade', 'alerta_divergencia', 'bloqueado_edicao'])
   })
 
+  it('quantidade_total_pedido dinâmico — pedido bloqueado + casas decimais; item só editável', () => {
+    const res = obterPillsTooltipColuna('quantidade_total_pedido', { modoDinamicoPedidoItem: true })
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual([
+      'calculado_pedido',
+      'bloqueado_edicao',
+      'alerta_divergencia',
+      'casas_decimais_config',
+    ])
+    expect(res.pedido.at(1)).toBe('bloqueado_edicao')
+    expect(res.item).toEqual(['editavel_item'])
+    expect(pillsParaNivelColuna('quantidade_total_pedido', 'item', { modoDinamicoPedidoItem: true }))
+      .toEqual(['editavel_item'])
+  })
+
+  it('quantidade_total_pedido sem modo dinâmico — pedido com pills específicas de qtd inicial', () => {
+    const pills = pillsParaNivelColuna('quantidade_total_pedido', 'pai')
+    expect(pills).toEqual([
+      'calculado_pedido',
+      'bloqueado_edicao',
+      'alerta_divergencia',
+      'casas_decimais_config',
+    ])
+  })
+
   it('ghost descrição — pedido, item e replicar; sem alerta de divergência', () => {
     const res = obterPillsTooltipColuna('descricao_item')
     expect(res.ghostSemCheckbox).toBe(true)

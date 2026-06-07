@@ -6839,6 +6839,7 @@
         "itens_bloqueados_pedido": "Items locked — edit on the order row only",
         "anexo": "Attachment via cell icon",
         "coluna_personalizada": "Custom column",
+        "casas_decimais_config": "Decimal places based on settings",
         "ghost_sem_checkbox": "Without checkbox: saves on order only",
         "numero_unico_org": "Unique per organization",
         "link_configurador": "Edit formula in Configurator",

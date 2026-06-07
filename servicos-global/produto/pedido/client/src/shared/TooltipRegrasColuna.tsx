@@ -55,6 +55,7 @@ const PILL_DEFS: Record<RegraPillId, PillDef> = {
   itens_bloqueados_pedido:{ Icon: Lock,        color: '#94a3b8', bg: 'rgba(148,163,184,0.14)' },
   anexo:             { Icon: Paperclip,        color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   coluna_personalizada: { Icon: Sparkle,      color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
+  casas_decimais_config: { Icon: Gear,        color: '#c084fc', bg: 'rgba(192,132,252,0.12)' },
 }
 
 function RegraPill({

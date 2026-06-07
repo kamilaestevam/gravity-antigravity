@@ -25,7 +25,7 @@ Após sessão Clerk, o sistema **não** pode assumir `/hub` só por `isSignedIn`
 |--------|-------|-----------------|--------|
 | **Unitário** | `plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json` | `porteiro-resolver.test.ts`, `use-destino-pos-autenticacao.test.ts` | Implementado |
 | **Funcional** | idem | `../testes-funcionais/login/porteiro-pos-autenticacao.test.ts` | Implementado |
-| **E2E** | `../../testes-e2e/login/plano-teste/TST-E2E-LOGIN-000001.json` | `TST-E2E-LOGIN-000001.spec.ts` | Plano aprovado · spec skeleton |
+| **E2E** | `../../testes-e2e/login/plano-teste/TST-E2E-LOGIN-000040.json` | `TST-E2E-LOGIN-000040.spec.ts` | Plano aprovado · spec skeleton |
 | **Em tela** | `../../testes-em-tela/login/2026-05-26-porteiro-signup/PLANO-EM-TELA.md` | `run-porteiro-signup.ts` | Checklist manual |
 
 ### Legado substituído (deletado)
@@ -74,7 +74,7 @@ npx vitest run testes/testes-unitarios/login --config testes/testes-unitarios/lo
 npx vitest run testes/testes-funcionais/login --config testes/testes-funcionais/login/vitest.config.ts
 
 # E2E (após aprovação dono + credenciais Clerk test)
-npx playwright test testes/testes-e2e/login/TST-E2E-LOGIN-000001.spec.ts
+npx playwright test testes/testes-e2e/login/TST-E2E-LOGIN-000040.spec.ts
 ```
 
 ---
@@ -103,4 +103,4 @@ npx playwright test testes/testes-e2e/login/TST-E2E-LOGIN-000001.spec.ts
 
 ---
 
-**Última revisão:** 2026-05-26 · **Registry:** `TST-UNI-LOGIN-000001`, `TST-FUN-LOGIN-000001`, `TST-E2E-LOGIN-000001`, `TST-EMT-LOGIN-000001`
+**Última revisão:** 2026-05-26 · **Registry:** `TST-UNI-LOGIN-000038`, `TST-FUN-LOGIN-000039`, `TST-E2E-LOGIN-000040`, `TST-EMT-LOGIN-PORTEIRO-SIGNUP-000041`

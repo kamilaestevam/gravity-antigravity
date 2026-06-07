@@ -229,6 +229,8 @@ export interface GTMapaColunasFilho<C = unknown> {
   editavel?: boolean | ((item: C) => boolean)
   /** Tooltip exibido quando a célula filho está bloqueada */
   tooltipBloqueado?: string | ((item: C) => string | undefined)
+  /** Título do tooltip de regra na linha filho (prioridade sobre tooltipTitulo da coluna pai). */
+  tooltipTitulo?: string | ((item: C) => string)
   /** Campo do item filho usado no inline edit (default: usa o key da coluna pai) */
   campo?: string
   /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */

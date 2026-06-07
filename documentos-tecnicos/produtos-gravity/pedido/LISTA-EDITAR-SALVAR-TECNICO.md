@@ -204,8 +204,9 @@ Implementação: `ORDEM_PILLS_PEDIDO`, `ORDEM_PILLS_ITEM` e `ordenarPillsCanonic
 | Pedido | `tooltipNivelCelula` | Mesmo critério — injetado em colunas dual/piloto |
 | Pedido | `tooltipTituloCelula(row)` | Título por linha; **não** recebe `isFilho` |
 | Pedido | `tooltipDescricaoCelula(row)` | Pills por linha — mesmo critério que título |
-| Núcleo | `tooltipCelulaResolver.ts` | `tooltipNivelCelula` > inferência por `tooltipDescricaoCelula === tooltipDescricaoItem` > `isFilho` render |
-| Núcleo | `resolverTituloTooltipCelula` | Se nível=item e título retornado = `tooltipTitulo` (pedido), substitui por `tooltipTituloItem` |
+| Núcleo | `tooltipCelulaResolver.ts` | **`isFilhoRender === true` → nível item sempre**; `tooltipNivelCelula` só na linha pai |
+| Núcleo | `resolverTituloTooltipCelula` | Linha filha GTV + `tooltipTituloItem` → título de item (antes de qualquer callback) |
+| Núcleo | `wrapTooltipRegraCelula` | Rede de segurança: filho com título = `tooltipTitulo` → substitui por `tooltipTituloItem` |
 | UI | `TooltipGlobal.titulo` | Único lugar do título — `TooltipRegrasColuna` **não** repete título |
 
 **Anti-padrão:** título «Moeda do Pedido» + pill «Editável no item» — indica dessincronia entre `isFilho` da GTV e nível real da linha; corrigir com `tooltipNivelCelula` + `isLinhaItemLista`.

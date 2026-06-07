@@ -36,6 +36,7 @@ import {
   lerTestesFavoritosAdmin,
   montarResumoPlanosFavorito,
   planosExibicaoFavorito,
+  tituloPlanoFavoritoExibicao,
   removerTesteFavoritoAdmin,
   rotuloTesteFavoritoAdmin,
   type AmbienteTesteFavorito,
@@ -701,6 +702,7 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
                           {rotuloTesteFavoritoAdmin(fav, rotuloProduto)}
                         </div>
                         {planosCard.map((plano, idxPlano) => {
+                          const tituloExibicao = tituloPlanoFavoritoExibicao(plano)
                           const badgeTipo = plano.tipo === 'EMT'
                             ? { bg: 'rgba(245, 158, 11, 0.15)', cor: '#fcd34d', borda: 'rgba(245, 158, 11, 0.35)' }
                             : plano.tipo === 'E2E'
@@ -731,9 +733,11 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
                                   {plano.id}
                                 </span>
                               </div>
-                              <div style={estiloTituloPlano}>
-                                {plano.titulo}
-                              </div>
+                              {tituloExibicao ? (
+                                <div style={estiloTituloPlano}>
+                                  {tituloExibicao}
+                                </div>
+                              ) : null}
                               {plano.descricao ? (
                                 <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.2rem', lineHeight: 1.45 }}>
                                   {plano.descricao}

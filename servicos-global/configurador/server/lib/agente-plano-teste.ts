@@ -111,9 +111,19 @@ ${FORMATO_CONTENT}
 
 // ─── Gerador de ID ──────────────────────────────────────────────────────────
 
+function extrairSequenciaGlobalId(id: string): number | null {
+  const match = id.match(/-(\d{6})$/)
+  return match ? Number(match[1]) : null
+}
+
+/** Próximo sufixo global único em todo o registry (Regra 1 — 01-convencao-ids.md). */
 function generatePlanId(tipo: string, escopo: string, registry: PlanRegistryEntry[]): string {
-  const existing = registry.filter(p => p.escopo === escopo)
-  const nextNum = String(existing.length + 1).padStart(6, '0')
+  let max = 0
+  for (const plano of registry) {
+    const n = extrairSequenciaGlobalId(plano.id)
+    if (n !== null && n > max) max = n
+  }
+  const nextNum = String(max + 1).padStart(6, '0')
   return `TST-${tipo}-${escopo}-${nextNum}`
 }
 

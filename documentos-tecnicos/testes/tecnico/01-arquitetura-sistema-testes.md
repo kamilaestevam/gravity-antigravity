@@ -172,7 +172,7 @@ TST-{TIPO}-{ESCOPO}-{NNNNNN}
 - ID **não muda** após criação — refactors preservam o ID
 
 ### Exemplos válidos
-- `TST-E2E-CONFIG-000001` — primeiro E2E do Configurador
+- `TST-E2E-CONFIG-000013` — primeiro E2E do Configurador
 - `TST-UNI-CORE-000042` — unitário 42 do CORE
 - `TST-CRO-PEDIDO-000001` — primeiro cross-tenant do Pedido
 
@@ -342,7 +342,7 @@ model TestSchedule {
 ### `TestPlan`
 ```prisma
 model TestPlan {
-  id                  String   @id            // TST-E2E-CONFIG-000001
+  id                  String   @id            // TST-E2E-CONFIG-000013
   tenant_id           String                   // sempre "platform"
   versao              String
   tipo                String

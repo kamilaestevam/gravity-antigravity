@@ -1,5 +1,5 @@
 {
-  "id": "TST-UNIT-CONFIG-MSYNC-001",
+  "id": "TST-UNI-CONFIG-000016",
   "versao": "1.0",
   "geradoEm": "2026-04-20T12:00:00Z",
   "geradoPor": "agente-plano-teste-unitario",
@@ -75,7 +75,7 @@
   },
   "casos": [
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-001",
+      "id": "TST-UNI-CONFIG-000016-001",
       "codigo": "MSYNC-001",
       "origem": "agente-adicionado",
       "categoria": "happy",
@@ -86,7 +86,7 @@
       "assercao": "expect(resolveRole('SUPER_ADMIN')).toBe('Super Admin')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-002",
+      "id": "TST-UNI-CONFIG-000016-002",
       "codigo": "MSYNC-002",
       "origem": "agente-adicionado",
       "categoria": "happy",
@@ -97,7 +97,7 @@
       "assercao": "expect(resolveRole('ADMIN')).toBe('Admin')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-003",
+      "id": "TST-UNI-CONFIG-000016-003",
       "codigo": "MSYNC-003",
       "origem": "agente-adicionado",
       "categoria": "happy",
@@ -108,7 +108,7 @@
       "assercao": "expect(resolveRole('MASTER')).toBe('Master')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-004",
+      "id": "TST-UNI-CONFIG-000016-004",
       "codigo": "MSYNC-004",
       "origem": "agente-adicionado",
       "categoria": "happy",
@@ -119,7 +119,7 @@
       "assercao": "expect(resolveRole('STANDARD')).toBe('Standard')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-005",
+      "id": "TST-UNI-CONFIG-000016-005",
       "codigo": "MSYNC-005",
       "origem": "agente-adicionado",
       "categoria": "happy",
@@ -130,7 +130,7 @@
       "assercao": "expect(resolveRole('SUPPLIER')).toBe('Fornecedor')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-006",
+      "id": "TST-UNI-CONFIG-000016-006",
       "codigo": "MSYNC-006",
       "origem": "agente-adicionado",
       "categoria": "happy",
@@ -141,7 +141,7 @@
       "assercao": "expect(resolveRole('gravity_admin')).toBe('Admin Gravity')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-007",
+      "id": "TST-UNI-CONFIG-000016-007",
       "codigo": "MSYNC-007",
       "origem": "agente-adicionado",
       "categoria": "happy",
@@ -152,7 +152,7 @@
       "assercao": "expect(resolveRole('')).toBe('Standard')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-008",
+      "id": "TST-UNI-CONFIG-000016-008",
       "codigo": "MSYNC-008",
       "origem": "agente-adicionado",
       "categoria": "sad",
@@ -166,7 +166,7 @@
       "nota_implementacao": "ESTE TESTE DEVE FALHAR com a implementação atual. A correção é: `return ROLE_LABELS[raw] ?? 'Standard'` (remover o passthrough `raw || 'Standard'`)"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-009",
+      "id": "TST-UNI-CONFIG-000016-009",
       "codigo": "MSYNC-009",
       "origem": "agente-adicionado",
       "categoria": "sad",
@@ -178,7 +178,7 @@
       "assercao": "expect(resolveRole('usuario')).toBe('Standard')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-010",
+      "id": "TST-UNI-CONFIG-000016-010",
       "codigo": "MSYNC-010",
       "origem": "agente-adicionado",
       "categoria": "sad",
@@ -190,7 +190,7 @@
       "nota_implementacao": "TESTE DEVE FALHAR com implementação atual — current behavior é retornar 'ROLE_QUALQUER_OUTRA'"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-011",
+      "id": "TST-UNI-CONFIG-000016-011",
       "codigo": "MSYNC-011",
       "origem": "agente-adicionado",
       "categoria": "sad",
@@ -201,7 +201,7 @@
       "assercao": "['USUÁRIO','user','USER','Admin','standard','Unknown','123','null'].forEach(r => { expect(resolveRole(r)).toBe('Standard') })"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-012",
+      "id": "TST-UNI-CONFIG-000016-012",
       "codigo": "MSYNC-012",
       "origem": "agente-adicionado",
       "categoria": "sad",
@@ -212,7 +212,7 @@
       "assercao": "const VALID = new Set(['Admin Gravity','Super Admin','Admin','Master','Standard','Fornecedor'])\n['gravity_admin','SUPER_ADMIN','ADMIN','MASTER','STANDARD','SUPPLIER','','USUÁRIO','garbage'].forEach(r => {\n  expect(VALID.has(resolveRole(r))).toBe(true)\n})"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-013",
+      "id": "TST-UNI-CONFIG-000016-013",
       "codigo": "MSYNC-013",
       "origem": "agente-adicionado",
       "categoria": "edge",
@@ -223,7 +223,7 @@
       "assercao": "expect(resolveRole(null as unknown as string)).toBe('Standard')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-014",
+      "id": "TST-UNI-CONFIG-000016-014",
       "codigo": "MSYNC-014",
       "origem": "agente-adicionado",
       "categoria": "edge",
@@ -234,7 +234,7 @@
       "assercao": "expect(resolveRole(undefined as unknown as string)).toBe('Standard')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-015",
+      "id": "TST-UNI-CONFIG-000016-015",
       "codigo": "MSYNC-015",
       "origem": "agente-adicionado",
       "categoria": "edge",
@@ -245,7 +245,7 @@
       "assercao": "expect(useShellStore.getState().currentUser.role).toBeUndefined()"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-016",
+      "id": "TST-UNI-CONFIG-000016-016",
       "codigo": "MSYNC-016",
       "origem": "agente-adicionado",
       "categoria": "edge",
@@ -256,7 +256,7 @@
       "assercao": "const role = undefined\nexpect(role || 'Standard').toBe('Standard')\nexpect(role || 'Standard').not.toBe('USUÁRIO')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-017",
+      "id": "TST-UNI-CONFIG-000016-017",
       "codigo": "MSYNC-017",
       "origem": "agente-adicionado",
       "categoria": "integracao_store",
@@ -268,7 +268,7 @@
       "assercao": "await waitFor(() => expect(useShellStore.getState().currentUser.role).toBe('Standard'))\nexpect(useShellStore.getState().currentUser.role).not.toBe('USUÁRIO')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-018",
+      "id": "TST-UNI-CONFIG-000016-018",
       "codigo": "MSYNC-018",
       "origem": "agente-adicionado",
       "categoria": "integracao_store",
@@ -279,7 +279,7 @@
       "assercao": "await waitFor(() => expect(useShellStore.getState().meStatus).toBe('error'))\nexpect(useShellStore.getState().currentUser.role).toBeUndefined()\nexpect(useShellStore.getState().currentUser.role).not.toBe('USUÁRIO')"
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001-019",
+      "id": "TST-UNI-CONFIG-000016-019",
       "codigo": "MSYNC-019",
       "origem": "agente-adicionado",
       "categoria": "integracao_store",

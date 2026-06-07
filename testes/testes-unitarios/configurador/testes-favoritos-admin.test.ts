@@ -30,7 +30,7 @@ const favoritoBase: TesteFavoritoAdmin = {
   produto: 'pedido',
   ambiente: 'Producao',
   tipos: ['EMT'],
-  planos_ids: ['TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001'],
+  planos_ids: ['TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045'],
 }
 
 afterEach(() => {
@@ -70,7 +70,7 @@ describe('testes-favoritos-admin', () => {
 
   it('extrai título e descrição do plano como na lista', () => {
     const origem = {
-      id: 'TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001',
+      id: 'TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045',
       modulo: 'Edição e Salvar pedidos e itens (Nº PEDIDO + TIPO OP.)',
       sublocal: 'lista/editar-salvar',
       tipo: 'EMT',
@@ -82,9 +82,9 @@ describe('testes-favoritos-admin', () => {
 
   it('monta resumo de planos para favorito com snapshot', () => {
     const resumo = montarResumoPlanosFavorito(
-      ['TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001'],
+      ['TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045'],
       [{
-        id: 'TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001',
+        id: 'TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045',
         modulo: 'Edição e Salvar pedidos e itens',
         sublocal: 'lista/editar-salvar',
         tipo: 'EMT',

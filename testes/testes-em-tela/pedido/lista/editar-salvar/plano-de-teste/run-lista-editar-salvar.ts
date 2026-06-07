@@ -1,6 +1,6 @@
 /**
  * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO OP. + REF. IMP./EXP. + INCOTERM + DESCRIÇÃO + LOGÍSTICA (6 colunas)
- * Plano: TST-EMT-000002
+ * Plano: TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045
  *
  * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts
  */

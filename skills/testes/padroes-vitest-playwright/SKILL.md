@@ -539,7 +539,7 @@ test('modal de criação aberto', async ({ page }) => {
 
 Pasta canônica: `testes/testes-e2e/menu-botoes/seletor-universal-visoes/`
 
-- IDs: `TST-E2E-MBOTO-000001` … `000006`
+- IDs: `TST-E2E-MBOTO-000055` … `000006`
 - Helper SLA 1s: `helpers/sla-1s.ts` (`clicarAbaEMedir`, `assertSla1s`)
 - Fixtures de URL: `testes/_fixtures/seletor-universal-visoes/data-seed.ts` (local, gitignored — espelhar URLs no spec se necessário)
 - Execução staging: definir `PLAYWRIGHT_BASE_URL` + flags por produto (`PLAYWRIGHT_PEDIDO_AUTH=1`, `PLAYWRIGHT_BID_AUTH=1`, `PLAYWRIGHT_PROCESSO_AUTH=1`, `PLAYWRIGHT_PEDIDO_T2=1` para stress)

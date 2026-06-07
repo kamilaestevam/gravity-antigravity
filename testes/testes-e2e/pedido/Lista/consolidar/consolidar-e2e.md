@@ -1,6 +1,6 @@
 # Plano de Testes E2E — Consolidar Pedido
 
-**ID:** TST-E2E-PEDIDO-CONSOLIDAR-001
+**ID:** TST-E2E-PEDIDO-000034
 **Data:** 2026-05-17
 **Versão:** 1.0
 **Criticidade:** alta
@@ -31,7 +31,7 @@ Plano de teste E2E para a feature de consolidação de pedidos. Cobre o fluxo co
 
 ### Fluxo 1 — Consolidar 2 pedidos (happy path completo)
 
-**Spec:** `TST-E2E-PEDIDO-CONSOLIDAR-001.spec.ts`
+**Spec:** `TST-E2E-PEDIDO-000034.spec.ts`
 
 | Passo | Ação | Verificação | Locator |
 |-------|------|-------------|---------|
@@ -190,7 +190,7 @@ Plano de teste E2E para a feature de consolidação de pedidos. Cobre o fluxo co
 ```
 testes/testes-e2e/pedido/Lista/consolidar/
 ├── consolidar-e2e.md                           ← este plano
-└── TST-E2E-PEDIDO-CONSOLIDAR-001.spec.ts       ← Fluxos 1-11 (scaffold)
+└── TST-E2E-PEDIDO-000034.spec.ts       ← Fluxos 1-11 (scaffold)
 ```
 
 **Total de fluxos:** 11

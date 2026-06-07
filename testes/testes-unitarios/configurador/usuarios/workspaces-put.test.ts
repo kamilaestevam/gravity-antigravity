@@ -1,5 +1,5 @@
 // @vitest-environment node
-// TST-UNIT-CONFIG-WSUP-001 — SubstituirWorkspacesUsuarioSchema (Zod) + computarDiff (lógica pura)
+// TST-UNI-CONFIG-000005 — SubstituirWorkspacesUsuarioSchema (Zod) + computarDiff (lógica pura)
 // Plano: testes/testes-unitarios/configurador/_planos/users-workspaces-put.plan.json
 /// <reference types="vitest/globals" />
 
@@ -33,7 +33,7 @@ const CUID_B = 'cld8n2b0j0001mhog1234ws02'
 const CUID_C = 'cld8n2b0j0002mhog1234ws03'
 
 // ─── SubstituirWorkspacesUsuarioSchema: Happy Path ──────────────────────────────────────
-describe('TST-UNIT-CONFIG-WSUP-001..002 — SubstituirWorkspacesUsuarioSchema: happy path', () => {
+describe('TST-UNI-CONFIG-000005..002 — SubstituirWorkspacesUsuarioSchema: happy path', () => {
 
   it('array de 1 CUID válido → success: true', () => {
     const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: [CUID_A] })
@@ -47,7 +47,7 @@ describe('TST-UNIT-CONFIG-WSUP-001..002 — SubstituirWorkspacesUsuarioSchema: h
 })
 
 // ─── SubstituirWorkspacesUsuarioSchema: Sad Path ────────────────────────────────────────
-describe('TST-UNIT-CONFIG-WSUP-003..007 — SubstituirWorkspacesUsuarioSchema: sad path', () => {
+describe('TST-UNI-CONFIG-000005-003..007 — SubstituirWorkspacesUsuarioSchema: sad path', () => {
 
   it('array vazio [] → success: false com mensagem "pelo menos um workspace"', () => {
     const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: [] })
@@ -79,7 +79,7 @@ describe('TST-UNIT-CONFIG-WSUP-003..007 — SubstituirWorkspacesUsuarioSchema: s
 })
 
 // ─── SubstituirWorkspacesUsuarioSchema: Edge Cases ──────────────────────────────────────
-describe('TST-UNIT-CONFIG-WSUP-008..010 — SubstituirWorkspacesUsuarioSchema: edge cases', () => {
+describe('TST-UNI-CONFIG-000005-008..010 — SubstituirWorkspacesUsuarioSchema: edge cases', () => {
 
   it('CUIDs duplicados no array → success: false com "Workspaces duplicados não são permitidos"', () => {
     const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: [CUID_A, CUID_A] })
@@ -102,7 +102,7 @@ describe('TST-UNIT-CONFIG-WSUP-008..010 — SubstituirWorkspacesUsuarioSchema: e
 })
 
 // ─── SubstituirWorkspacesUsuarioSchema: Adversarial ─────────────────────────────────────
-describe('TST-UNIT-CONFIG-WSUP-011..012 — SubstituirWorkspacesUsuarioSchema: adversarial', () => {
+describe('TST-UNI-CONFIG-000005-011..012 — SubstituirWorkspacesUsuarioSchema: adversarial', () => {
 
   it('<script>alert(1)</script> como workspace ID → CUID rejeita, success: false', () => {
     const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: ['<script>alert(1)</script>'] })
@@ -128,7 +128,7 @@ function computarDiff(
   }
 }
 
-describe('TST-UNIT-CONFIG-WSUP-013..018 — computarDiff: lógica pura', () => {
+describe('TST-UNI-CONFIG-000005-013..018 — computarDiff: lógica pura', () => {
 
   it('adicionar workspace novo → adicionados=[novo], removidos=[]', () => {
     const { adicionados, removidos } = computarDiff([CUID_A], [CUID_A, CUID_B])

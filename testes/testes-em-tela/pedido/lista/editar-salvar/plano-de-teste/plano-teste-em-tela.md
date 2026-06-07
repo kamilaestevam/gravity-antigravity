@@ -1,6 +1,6 @@
 # Plano de Teste em Tela — Pedido / Lista / Editar e Salvar
 
-**ID:** TST-EMT-000002  
+**ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
 **Versão:** 4.2  
 **Criticidade:** alta  

@@ -51,7 +51,7 @@ JSON validado por Zod (ver [formato-plano.md](./formato-plano.md)). Estrutura ma
 
 ```typescript
 {
-  id:           "TST-E2E-CONFIG-000001",     // gerado pelo agente
+  id:           "TST-E2E-CONFIG-000013",     // gerado pelo agente
   versao:       "1.0",
   geradoEm:     "2026-04-15T...",
   geradoPor:    "agente-plano-teste",

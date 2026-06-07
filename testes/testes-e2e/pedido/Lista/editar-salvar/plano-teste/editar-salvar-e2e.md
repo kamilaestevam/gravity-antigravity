@@ -1,6 +1,6 @@
 # Plano de Testes E2E — Editar e Salvar Inline (Lista de Pedidos)
 
-**ID:** TST-E2E-PEDIDO-EDITAR-SALVAR-001
+**ID:** TST-E2E-PEDIDO-000031
 **Data:** 2026-05-17
 **Versao:** 1.0
 **Criticidade:** alta
@@ -55,7 +55,7 @@ Plano de teste E2E completo para edicao inline e salvamento de campos individuai
 | Passo | Coluna | Tipo Input | Verificacao |
 |-------|--------|------------|-------------|
 | 1.1 | `numero_pedido` | texto | Editar → salvar → recarregar → valor persiste |
-| 1.2 | `tipo_operacao` | select (importacao/exportacao) | Selecionar → salvar → badge atualiza; **sem** checkbox «Aplicar a todos os itens»; item **não** editável (ver EMT TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001 ETAPA 2) |
+| 1.2 | `tipo_operacao` | select (importacao/exportacao) | Selecionar → salvar → badge atualiza; **sem** checkbox «Aplicar a todos os itens»; item **não** editável (ver EMT TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045 ETAPA 2) |
 | 1.3 | `nome_fabricante` | texto | Editar → salvar → persistencia |
 | 1.4 | `referencia_importador` | texto | Editar → salvar → persistencia |
 | 1.5 | `referencia_exportador` | texto | Editar → salvar → persistencia |
@@ -421,7 +421,7 @@ Verificar tooltip "Calculado a partir dos itens" (se implementado).
 ```
 testes/testes-e2e/pedido/Lista/editar-salvar/
 ├── editar-salvar-e2e.md                             ← este plano
-├── TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts         ← Fluxos 1-6 (PAI: alfanumericos, datas, bloqueados, condicional, propagacao)
+├── TST-E2E-PEDIDO-000031.spec.ts         ← Fluxos 1-6 (PAI: alfanumericos, datas, bloqueados, condicional, propagacao)
 ├── TST-E2E-PEDIDO-EDITAR-SALVAR-ITENS-002.spec.ts   ← Fluxos 7-8 (ITEM: calculados editaveis, isolamento)
 ├── TST-E2E-PEDIDO-EDITAR-SALVAR-UX-003.spec.ts      ← Fluxos 9-13 (divergencia, formato, truncamento, vazios, deep-links)
 └── TST-E2E-PEDIDO-EDITAR-SALVAR-EDGE-004.spec.ts    ← Fluxos 14-18 (cancelar, erro, aggregates, status, permissao)

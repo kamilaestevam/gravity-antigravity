@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
 import {
   resolverNivelTooltipCelula,
+  resolverTituloFinalTooltipCelula,
   resolverTituloTooltipCelula,
   resolverTooltipRegraCelula,
 } from '../../../nucleo-global/Tabelas/tabela-virtual-global/src/tooltipCelulaResolver'
@@ -24,9 +25,9 @@ const colMoeda: GTColuna<unknown> = {
 }
 
 describe('resolverNivelTooltipCelula — SSOT núcleo', () => {
-  it('usa tooltipNivelCelula em vez de isFilho da renderização', () => {
+  it('linha filha GTV (isFilhoRender=true) é sempre nível item', () => {
     const pedido = { numero_pedido: 'P-1' }
-    expect(resolverNivelTooltipCelula(colMoeda, pedido, true)).toBe(false)
+    expect(resolverNivelTooltipCelula(colMoeda, pedido, true)).toBe(true)
     expect(resolverNivelTooltipCelula(colMoeda, pedido, false)).toBe(false)
   })
 
@@ -42,9 +43,14 @@ describe('resolverTituloTooltipCelula — moeda', () => {
     expect(resolverTituloTooltipCelula(colMoeda, item, false)).toBe('Moeda do Item')
   })
 
-  it('linha pedido → Moeda do Pedido', () => {
+  it('linha pedido (isFilhoRender=false) → Moeda do Pedido', () => {
     const pedido = { numero_pedido: 'P-1', moeda_pedido: 'USD' }
-    expect(resolverTituloTooltipCelula(colMoeda, pedido, true)).toBe('Moeda do Pedido')
+    expect(resolverTituloTooltipCelula(colMoeda, pedido, false)).toBe('Moeda do Pedido')
+  })
+
+  it('linha filha GTV (isFilhoRender=true) → Moeda do Item mesmo com payload de pedido', () => {
+    const pedido = { numero_pedido: 'P-1', moeda_pedido: 'USD' }
+    expect(resolverTituloTooltipCelula(colMoeda, pedido, true)).toBe('Moeda do Item')
   })
 })
 
@@ -54,6 +60,54 @@ describe('resolverTooltipRegraCelula — título alinhado à descrição', () =>
     const regra = resolverTooltipRegraCelula(colMoeda, item, false)
     expect(regra?.titulo).toBe('Moeda do Item')
     expect(regra?.descricao).toBe('bloco-item')
+  })
+
+  it('tituloOverride do mapaColunasFilho (moeda item)', () => {
+    const col: GTColuna<unknown> = {
+      key: 'moeda_pedido',
+      label: 'Moeda',
+      tooltipTitulo: 'Moeda do Pedido',
+      tooltipTituloItem: 'Moeda do Item',
+      tooltipDescricaoItem: 'corpo-item',
+    }
+    const regra = { titulo: 'Moeda do Pedido', descricao: 'corpo-item' }
+    expect(
+      resolverTituloFinalTooltipCelula(col, regra, true, 'Moeda do Item'),
+    ).toBe('Moeda do Item')
+  })
+
+  it('isFilhoRender=true sem tooltipTituloItem usa tooltipTituloCelula do item', () => {
+    const colSemTituloItem: GTColuna<unknown> = {
+      key: 'moeda_pedido',
+      label: 'Moeda',
+      tooltipTitulo: 'Moeda do Pedido',
+      tooltipTituloCelula: (row) => {
+        const r = row as Record<string, unknown>
+        return r.moeda_item ? 'Moeda do Item' : 'Moeda do Pedido'
+      },
+      tooltipDescricaoItem: 'corpo-item',
+    }
+    const item = { moeda_item: 'EUR' }
+    const regra = { titulo: 'Moeda do Pedido', descricao: 'corpo-item' }
+    expect(
+      resolverTituloFinalTooltipCelula(colSemTituloItem, regra, true, undefined, item),
+    ).toBe('Moeda do Item')
+  })
+
+  it('isFilhoRender=true vence tooltipNivelCelula pedido (bug moeda item)', () => {
+    const colNivelErrado: GTColuna<unknown> = {
+      key: 'moeda_pedido',
+      label: 'Moeda',
+      tooltipTitulo: 'Moeda do Pedido',
+      tooltipTituloItem: 'Moeda do Item',
+      tooltipNivelCelula: () => 'pedido',
+      tooltipTituloCelula: () => 'Moeda do Pedido',
+      tooltipDescricao: 'pedido',
+      tooltipDescricaoItem: 'item',
+    }
+    const item = { moeda_item: 'USD' }
+    expect(resolverTituloTooltipCelula(colNivelErrado, item, true)).toBe('Moeda do Item')
+    expect(resolverNivelTooltipCelula(colNivelErrado, item, true)).toBe(true)
   })
 
   it('inferência por referência de tooltipDescricaoItem (sem tooltipNivelCelula)', () => {

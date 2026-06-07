@@ -15,7 +15,7 @@ do zero ao fluxo finalizado, com print de cada estado significativo.
 
 > **Regra absoluta (2026-06-06):** Ver `documentos-tecnicos/testes/regras/07-organizacao-plano-resultado-por-escopo.md` — cada feature tem `plano-teste/` e `resultado-teste/<runId>/`. **Proibido** pasta datada compartilhada na raiz do escopo.
 
-> **ID EMT (2026-06-06):** `TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNN}` — ver `documentos-tecnicos/testes/regras/01-convencao-ids.md`. Ex.: `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001` = Pedido › Lista › editar-salvar.
+> **ID EMT (2026-06-06):** `TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNNNNN}` — sufixo **global único** (6 dígitos). Ex.: `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`. Ver `documentos-tecnicos/testes/regras/01-convencao-ids.md`.
 
 ---
 

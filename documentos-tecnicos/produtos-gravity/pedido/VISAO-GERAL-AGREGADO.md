@@ -39,7 +39,7 @@ Campos principais em `data`: `total`, `kpis`, `aprovacao`, `mensal`, `modal`, `f
 Testes:
 
 - Unitário: `testes/testes-unitarios/pedido/visao-geral-resumo-aggregate.test.ts`
-- Funcional MBOTO: `TST-FUN-MBOTO-000001`
+- Funcional MBOTO: `TST-FUN-MBOTO-000051`
 - k6 (opcional): `testes/_scripts/k6/seletor-universal-visoes.js` (threshold API 200 ms p95)
 
 ---

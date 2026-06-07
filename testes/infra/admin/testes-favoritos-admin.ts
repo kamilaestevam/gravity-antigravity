@@ -97,7 +97,7 @@ export function montarResumoPlanosFavorito(
   return planosIds.map((id) => {
     const plano = mapa.get(id)
     if (!plano) {
-      return { id, titulo: id, descricao: '' }
+      return { id, titulo: '', descricao: '' }
     }
     const tipo = plano.tipo
     return {
@@ -122,7 +122,14 @@ export function planosExibicaoFavorito(
   if (planosCatalogo && planosCatalogo.length > 0) {
     return montarResumoPlanosFavorito(fav.planos_ids, planosCatalogo)
   }
-  return fav.planos_ids.map(id => ({ id, titulo: id, descricao: '' }))
+  return fav.planos_ids.map(id => ({ id, titulo: '', descricao: '' }))
+}
+
+/** Evita exibir o ID duas vezes quando não há título humano no snapshot. */
+export function tituloPlanoFavoritoExibicao(plano: PlanoFavoritoResumo): string {
+  const titulo = plano.titulo.trim()
+  if (!titulo || titulo === plano.id) return ''
+  return titulo
 }
 
 export function chaveTestesFavoritosAdmin(idUsuario: string): string {

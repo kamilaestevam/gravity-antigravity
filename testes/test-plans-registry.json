@@ -77,7 +77,7 @@
       "ultimoResultado": "passou"
     },
     {
-      "id": "TST-E2E-PEDIDO-000001",
+      "id": "TST-E2E-PEDIDO-000002",
       "tipo": "E2E",
       "escopo": "PEDIDO",
       "sublocal": "dashboard",
@@ -94,7 +94,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNIT-TENANT-AE-001",
+      "id": "TST-UNI-TENANT-000003",
       "tipo": "UNI",
       "escopo": "TENANT",
       "sublocal": "historico-global",
@@ -111,7 +111,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNIT-TENANT-SAL-001",
+      "id": "TST-UNI-TENANT-000004",
       "tipo": "UNI",
       "escopo": "TENANT",
       "sublocal": "historico-global",
@@ -128,7 +128,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNIT-CONFIG-WSUP-001",
+      "id": "TST-UNI-CONFIG-000005",
       "tipo": "UNI",
       "escopo": "CONFIG",
       "sublocal": "configurador",
@@ -145,7 +145,7 @@
       "ultimoResultado": "18/18 passed"
     },
     {
-      "id": "TST-FUN-CONFIG-WSUP-001",
+      "id": "TST-FUN-CONFIG-000006",
       "tipo": "FUN",
       "escopo": "CONFIG",
       "sublocal": "configurador",
@@ -162,7 +162,7 @@
       "ultimoResultado": "18/18 passed"
     },
     {
-      "id": "TST-E2E-CONFIG-000001",
+      "id": "TST-E2E-CONFIG-000007",
       "tipo": "E2E",
       "escopo": "CONFIG",
       "sublocal": "Organiza??o",
@@ -186,7 +186,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-CONFIG-000002",
+      "id": "TST-E2E-CONFIG-000008",
       "tipo": "E2E",
       "escopo": "CONFIG",
       "sublocal": "Usuarios",
@@ -210,7 +210,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-CONFIG-000003",
+      "id": "TST-E2E-CONFIG-000009",
       "tipo": "E2E",
       "escopo": "CONFIG",
       "sublocal": "Permissoes",
@@ -234,7 +234,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-CONFIG-000004",
+      "id": "TST-E2E-CONFIG-000010",
       "tipo": "E2E",
       "escopo": "CONFIG",
       "sublocal": "Assinaturas",
@@ -258,7 +258,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-CONFIG-000005",
+      "id": "TST-E2E-CONFIG-000011",
       "tipo": "E2E",
       "escopo": "CONFIG",
       "sublocal": "Financeiro",
@@ -282,7 +282,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-CONFIG-000006",
+      "id": "TST-E2E-CONFIG-000012",
       "tipo": "E2E",
       "escopo": "CONFIG",
       "sublocal": "Api-Cockpit",
@@ -306,7 +306,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-CONFIG-000007",
+      "id": "TST-E2E-CONFIG-000013",
       "tipo": "E2E",
       "escopo": "CONFIG",
       "sublocal": "Conectores",
@@ -330,7 +330,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-CONFIG-000008",
+      "id": "TST-E2E-CONFIG-000014",
       "tipo": "E2E",
       "escopo": "CONFIG",
       "sublocal": "Workspaces",
@@ -354,7 +354,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-CONFIG-000009",
+      "id": "TST-E2E-CONFIG-000015",
       "tipo": "E2E",
       "escopo": "CONFIG",
       "sublocal": "Taxa-de-Cambio",
@@ -378,7 +378,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNIT-CONFIG-MSYNC-001",
+      "id": "TST-UNI-CONFIG-000016",
       "tipo": "UNI",
       "escopo": "CONFIG",
       "sublocal": "shell/hooks",
@@ -397,7 +397,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001",
+      "id": "TST-FUN-CONFIG-000017",
       "tipo": "FUN",
       "escopo": "CONFIG",
       "sublocal": "configurador",
@@ -416,7 +416,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-HUB-000001",
+      "id": "TST-E2E-HUB-000018",
       "tipo": "E2E",
       "escopo": "HUB",
       "sublocal": "Role Badge ? Acesso",
@@ -441,7 +441,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-ADMIN-000001",
+      "id": "TST-E2E-ADMIN-000019",
       "tipo": "E2E",
       "escopo": "ADMIN",
       "sublocal": "visao-geral",
@@ -458,14 +458,14 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-ADMIN-VG-000001",
+      "id": "TST-FUN-ADMIN-000020",
       "tipo": "FUN",
       "escopo": "ADMIN",
       "sublocal": "visao-geral",
       "modulo": "admin/visao-geral routes",
       "criticidade": "alta",
-      "planoFile": "testes-funcionais/admin/visao-geral/plano-teste/TST-FUN-ADMIN-VG-000001.json",
-      "specFile": "testes/testes-funcionais/admin/visao-geral/TST-FUN-ADMIN-VG-000001.test.ts",
+      "planoFile": "testes-funcionais/admin/visao-geral/plano-teste/TST-FUN-ADMIN-000001.json",
+      "specFile": "testes/testes-funcionais/admin/visao-geral/TST-FUN-ADMIN-000001.test.ts",
       "componenteFile": "servicos-global/configurador/server/routes/admin.ts",
       "casosTotal": 54,
       "coberturaPercentual": 80,
@@ -475,14 +475,14 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNIT-ADMIN-VG-000001",
+      "id": "TST-UNI-ADMIN-000021",
       "tipo": "UNI",
       "escopo": "ADMIN",
       "sublocal": "visao-geral",
       "modulo": "VisaoGeralAdmin component+hook+schema",
       "criticidade": "alta",
-      "planoFile": "testes-unitarios/admin/visao-geral/plano-teste/TST-UNIT-ADMIN-VG-000001.json",
-      "specFile": "testes/testes-unitarios/admin/visao-geral/TST-UNIT-ADMIN-VG-000001.test.ts",
+      "planoFile": "testes-unitarios/admin/visao-geral/plano-teste/TST-UNI-ADMIN-000001.json",
+      "specFile": "testes/testes-unitarios/admin/visao-geral/TST-UNI-ADMIN-000001.test.ts",
       "componenteFile": "servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx",
       "casosTotal": 92,
       "coberturaPercentual": 75,
@@ -492,14 +492,14 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-CRO-ADMIN-VG-000001",
+      "id": "TST-CRO-ADMIN-000022",
       "tipo": "CRO",
       "escopo": "ADMIN",
       "sublocal": "visao-geral",
       "modulo": "visao-geral isolamento HQ",
       "criticidade": "critica",
-      "planoFile": "testes-cross-organizacao/admin/visao-geral/plano-teste/TST-CRO-ADMIN-VG-000001.json",
-      "specFile": "testes/testes-cross-organizacao/admin/visao-geral/TST-CRO-ADMIN-VG-000001.test.ts",
+      "planoFile": "testes-cross-organizacao/admin/visao-geral/plano-teste/TST-CRO-ADMIN-000001.json",
+      "specFile": "testes/testes-cross-organizacao/admin/visao-geral/TST-CRO-ADMIN-000001.test.ts",
       "componenteFile": "servicos-global/configurador/server/routes/admin.ts",
       "casosTotal": 38,
       "coberturaPercentual": 90,
@@ -509,7 +509,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-PEDIDO-EDICAO-MASSA-000001",
+      "id": "TST-UNI-PEDIDO-000023",
       "tipo": "UNI",
       "escopo": "PEDIDO",
       "sublocal": "Lista/edicao-em-massa",
@@ -535,7 +535,7 @@
       "ultimoResultado": "58/58 passed"
     },
     {
-      "id": "TST-FUN-PEDIDO-EDICAO-MASSA-000001",
+      "id": "TST-FUN-PEDIDO-000024",
       "tipo": "FUN",
       "escopo": "PEDIDO",
       "sublocal": "Lista/edicao-em-massa",
@@ -557,7 +557,7 @@
       "ultimoResultado": "15/15 passed"
     },
     {
-      "id": "TST-E2E-PEDIDO-EDICAO-MASSA-000001",
+      "id": "TST-E2E-PEDIDO-000025",
       "tipo": "E2E",
       "escopo": "PEDIDO",
       "sublocal": "Lista/edicao-em-massa",
@@ -579,7 +579,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-PEDIDO-DUPLICAR-000001",
+      "id": "TST-UNI-PEDIDO-000026",
       "tipo": "UNI",
       "escopo": "PEDIDO",
       "sublocal": "Lista/duplicar",
@@ -600,7 +600,7 @@
       "ultimoResultado": "74/74 passed"
     },
     {
-      "id": "TST-FUN-PEDIDO-DUPLICAR-000001",
+      "id": "TST-FUN-PEDIDO-000027",
       "tipo": "FUN",
       "escopo": "PEDIDO",
       "sublocal": "Lista/duplicar",
@@ -623,7 +623,7 @@
       "ultimoResultado": "45/45 passed"
     },
     {
-      "id": "TST-E2E-PEDIDO-DUPLICAR-000001",
+      "id": "TST-E2E-PEDIDO-000028",
       "tipo": "E2E",
       "escopo": "PEDIDO",
       "sublocal": "Lista/duplicar",
@@ -635,7 +635,7 @@
         "Staging"
       ],
       "planoFile": "testes/testes-e2e/pedido/Lista/duplicar/duplicar-e2e.md",
-      "specFile": "testes/testes-e2e/pedido/Lista/duplicar/TST-E2E-PEDIDO-DUPLICAR-001.spec.ts",
+      "specFile": "testes/testes-e2e/pedido/Lista/duplicar/TST-E2E-PEDIDO-000003.spec.ts",
       "componenteFile": "servicos-global/produto/pedido/client/src/components/ModalPedidosDuplicar.tsx",
       "casosTotal": 11,
       "coberturaPercentual": 0,
@@ -645,7 +645,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-PEDIDO-EDITAR-SALVAR-001",
+      "id": "TST-UNI-PEDIDO-000029",
       "tipo": "UNI",
       "escopo": "PEDIDO",
       "sublocal": "Lista/editar-salvar",
@@ -668,7 +668,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-PEDIDO-EDITAR-SALVAR-001",
+      "id": "TST-FUN-PEDIDO-000030",
       "tipo": "FUN",
       "escopo": "PEDIDO",
       "sublocal": "Lista/editar-salvar",
@@ -693,7 +693,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-PEDIDO-EDITAR-SALVAR-001",
+      "id": "TST-E2E-PEDIDO-000031",
       "tipo": "E2E",
       "escopo": "PEDIDO",
       "sublocal": "Lista/editar-salvar",
@@ -705,9 +705,9 @@
         "Staging"
       ],
       "planoFile": "testes/testes-e2e/pedido/Lista/editar-salvar/editar-salvar-e2e.md",
-      "specFile": "testes/testes-e2e/pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts",
+      "specFile": "testes/testes-e2e/pedido/Lista/editar-salvar/TST-E2E-PEDIDO-000004.spec.ts",
       "specFiles": [
-        "testes/testes-e2e/pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts",
+        "testes/testes-e2e/pedido/Lista/editar-salvar/TST-E2E-PEDIDO-000004.spec.ts",
         "testes/testes-e2e/pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-ITENS-002.spec.ts",
         "testes/testes-e2e/pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-UX-003.spec.ts",
         "testes/testes-e2e/pedido/Lista/editar-salvar/TST-E2E-PEDIDO-EDITAR-SALVAR-EDGE-004.spec.ts"
@@ -721,7 +721,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-PEDIDO-CONSOLIDAR-000001",
+      "id": "TST-UNI-PEDIDO-000032",
       "tipo": "UNI",
       "escopo": "PEDIDO",
       "sublocal": "Lista/consolidar",
@@ -742,7 +742,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-PEDIDO-CONSOLIDAR-000001",
+      "id": "TST-FUN-PEDIDO-000033",
       "tipo": "FUN",
       "escopo": "PEDIDO",
       "sublocal": "Lista/consolidar",
@@ -764,7 +764,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-PEDIDO-CONSOLIDAR-000001",
+      "id": "TST-E2E-PEDIDO-000034",
       "tipo": "E2E",
       "escopo": "PEDIDO",
       "sublocal": "Lista/consolidar",
@@ -776,7 +776,7 @@
         "Staging"
       ],
       "planoFile": "testes/testes-e2e/pedido/Lista/consolidar/consolidar-e2e.md",
-      "specFile": "testes/testes-e2e/pedido/Lista/consolidar/TST-E2E-PEDIDO-CONSOLIDAR-001.spec.ts",
+      "specFile": "testes/testes-e2e/pedido/Lista/consolidar/TST-E2E-PEDIDO-000005.spec.ts",
       "componenteFile": "servicos-global/produto/pedido/client/src/components/ModalPedidosConsolidar.tsx",
       "casosTotal": 11,
       "coberturaPercentual": 0,
@@ -786,7 +786,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-PEDIDO-TRANSFERIR-000001",
+      "id": "TST-UNI-PEDIDO-000035",
       "tipo": "UNI",
       "escopo": "PEDIDO",
       "sublocal": "Lista/transferir",
@@ -803,7 +803,7 @@
       "ultimoResultado": "18/18 passed"
     },
     {
-      "id": "TST-FUN-PEDIDO-TRANSFERIR-000001",
+      "id": "TST-FUN-PEDIDO-000036",
       "tipo": "FUN",
       "escopo": "PEDIDO",
       "sublocal": "Lista/transferir",
@@ -827,7 +827,7 @@
       "ultimoResultado": "44/44 passed"
     },
     {
-      "id": "TST-E2E-PEDIDO-TRANSFERIR-000001",
+      "id": "TST-E2E-PEDIDO-000037",
       "tipo": "E2E",
       "escopo": "PEDIDO",
       "sublocal": "Lista/transferir",
@@ -839,7 +839,7 @@
         "Staging"
       ],
       "planoFile": "testes/testes-e2e/pedido/Lista/transferir/transferir-e2e.md",
-      "specFile": "testes/testes-e2e/pedido/Lista/transferir/TST-E2E-PEDIDO-TRANSFERIR-001.spec.ts",
+      "specFile": "testes/testes-e2e/pedido/Lista/transferir/TST-E2E-PEDIDO-000006.spec.ts",
       "componenteFile": "servicos-global/produto/pedido/client/src/components/lista/ColunasFilho.tsx",
       "casosTotal": 11,
       "coberturaPercentual": 0,
@@ -849,7 +849,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-LOGIN-000001",
+      "id": "TST-UNI-LOGIN-000038",
       "tipo": "UNI",
       "escopo": "LOGIN",
       "sublocal": "porteiro-pos-autenticacao",
@@ -870,7 +870,7 @@
       "ultimoResultado": "18/18 passou"
     },
     {
-      "id": "TST-FUN-LOGIN-000001",
+      "id": "TST-FUN-LOGIN-000039",
       "tipo": "FUN",
       "escopo": "LOGIN",
       "sublocal": "porteiro-pos-autenticacao",
@@ -887,7 +887,7 @@
       "ultimoResultado": "10/10 passou"
     },
     {
-      "id": "TST-E2E-LOGIN-000001",
+      "id": "TST-E2E-LOGIN-000040",
       "tipo": "E2E",
       "escopo": "LOGIN",
       "sublocal": "porteiro-pos-autenticacao",
@@ -909,7 +909,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-EMT-LOGIN-000001",
+      "id": "TST-EMT-LOGIN-PORTEIRO-SIGNUP-000041",
       "tipo": "EMT",
       "escopo": "LOGIN",
       "sublocal": "porteiro-signup",
@@ -926,7 +926,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-PEDIDO-CONFIG-STATUS-001",
+      "id": "TST-UNI-PEDIDO-000042",
       "tipo": "UNI",
       "escopo": "PEDIDO",
       "sublocal": "configuracoes/status",
@@ -943,7 +943,7 @@
       "ultimoResultado": "2/35 parcial (status-pedido-sistema.test.ts legado)"
     },
     {
-      "id": "TST-FUN-PEDIDO-CONFIG-STATUS-001",
+      "id": "TST-FUN-PEDIDO-000043",
       "tipo": "FUN",
       "escopo": "PEDIDO",
       "sublocal": "configuracoes/status",
@@ -960,7 +960,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-PEDIDO-CONFIG-STATUS-001",
+      "id": "TST-E2E-PEDIDO-000044",
       "tipo": "E2E",
       "escopo": "PEDIDO",
       "sublocal": "configuracao/status",
@@ -972,7 +972,7 @@
         "Staging"
       ],
       "planoFile": "testes/testes-e2e/pedido/configuracao/status/status-e2e.md",
-      "specFile": "testes/testes-e2e/pedido/configuracao/status/TST-E2E-PEDIDO-CONFIG-STATUS-001.spec.ts",
+      "specFile": "testes/testes-e2e/pedido/configuracao/status/TST-E2E-PEDIDO-000007.spec.ts",
       "componenteFile": "servicos-global/produto/pedido/client/src/pages/Configuracoes.tsx",
       "casosTotal": 87,
       "coberturaPercentual": 0,
@@ -982,7 +982,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001",
+      "id": "TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045",
       "tipo": "EMT",
       "escopo": "PEDIDO",
       "sublocal": "lista/editar-salvar",
@@ -999,7 +999,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-MBOTO-000001",
+      "id": "TST-UNI-MBOTO-000046",
       "tipo": "UNI",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1016,7 +1016,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-MBOTO-000002",
+      "id": "TST-UNI-MBOTO-000047",
       "tipo": "UNI",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1033,7 +1033,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-MBOTO-000003",
+      "id": "TST-UNI-MBOTO-000048",
       "tipo": "UNI",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1050,7 +1050,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-MBOTO-000004",
+      "id": "TST-UNI-MBOTO-000049",
       "tipo": "UNI",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1067,7 +1067,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-MBOTO-000005",
+      "id": "TST-UNI-MBOTO-000050",
       "tipo": "UNI",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1084,7 +1084,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-MBOTO-000001",
+      "id": "TST-FUN-MBOTO-000051",
       "tipo": "FUN",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1101,7 +1101,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-MBOTO-000002",
+      "id": "TST-FUN-MBOTO-000052",
       "tipo": "FUN",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1118,7 +1118,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-MBOTO-000003",
+      "id": "TST-FUN-MBOTO-000053",
       "tipo": "FUN",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1135,7 +1135,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-MBOTO-000004",
+      "id": "TST-FUN-MBOTO-000054",
       "tipo": "FUN",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1152,7 +1152,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-MBOTO-000001",
+      "id": "TST-E2E-MBOTO-000055",
       "tipo": "E2E",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1169,7 +1169,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-MBOTO-000002",
+      "id": "TST-E2E-MBOTO-000056",
       "tipo": "E2E",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1186,7 +1186,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-MBOTO-000003",
+      "id": "TST-E2E-MBOTO-000057",
       "tipo": "E2E",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1203,7 +1203,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-MBOTO-000004",
+      "id": "TST-E2E-MBOTO-000058",
       "tipo": "E2E",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1220,7 +1220,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-MBOTO-000005",
+      "id": "TST-E2E-MBOTO-000059",
       "tipo": "E2E",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1237,7 +1237,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-MBOTO-000006",
+      "id": "TST-E2E-MBOTO-000060",
       "tipo": "E2E",
       "escopo": "MBOTO",
       "sublocal": "menu-botoes/seletor-universal-visoes",
@@ -1254,7 +1254,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNIT-PEDIDO-PAINEL-LISTA-001",
+      "id": "TST-UNI-PEDIDO-000061",
       "tipo": "UNI",
       "escopo": "PEDIDO",
       "sublocal": "Lista/painel-lista",
@@ -1271,7 +1271,7 @@
       "ultimoResultado": "passou"
     },
     {
-      "id": "TST-FUN-PEDIDO-PAINEL-LISTA-001",
+      "id": "TST-FUN-PEDIDO-000062",
       "tipo": "FUN",
       "escopo": "PEDIDO",
       "sublocal": "Lista/painel-lista",
@@ -1288,7 +1288,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-PEDIDO-PAINEL-LISTA-001",
+      "id": "TST-E2E-PEDIDO-000063",
       "tipo": "E2E",
       "escopo": "PEDIDO",
       "sublocal": "Lista/painel-lista",
@@ -1305,7 +1305,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-STORE-000001",
+      "id": "TST-UNI-STORE-000064",
       "tipo": "UNI",
       "escopo": "STORE",
       "sublocal": "status",
@@ -1321,7 +1321,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-STORE-000002",
+      "id": "TST-UNI-STORE-000065",
       "tipo": "UNI",
       "escopo": "STORE",
       "sublocal": "catalogo-alinhamento",
@@ -1337,7 +1337,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-STORE-000003",
+      "id": "TST-UNI-STORE-000066",
       "tipo": "UNI",
       "escopo": "STORE",
       "sublocal": "zod-api",
@@ -1353,7 +1353,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-UNI-STORE-000004",
+      "id": "TST-UNI-STORE-000067",
       "tipo": "UNI",
       "escopo": "STORE",
       "sublocal": "carrossel-faixas",
@@ -1369,7 +1369,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-STORE-000001",
+      "id": "TST-FUN-STORE-000068",
       "tipo": "FUN",
       "escopo": "STORE",
       "sublocal": "assinar-produto",
@@ -1384,7 +1384,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-FUN-STORE-000002",
+      "id": "TST-FUN-STORE-000069",
       "tipo": "FUN",
       "escopo": "STORE",
       "sublocal": "catalogo-api",
@@ -1399,7 +1399,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-E2E-STORE-000001",
+      "id": "TST-E2E-STORE-000070",
       "tipo": "E2E",
       "escopo": "STORE",
       "sublocal": "catalogo-puzzle-carrosseis",
@@ -1415,7 +1415,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-CRO-STORE-000001",
+      "id": "TST-CRO-STORE-000071",
       "tipo": "CRO",
       "escopo": "STORE",
       "sublocal": "isolamento-organizacao",
@@ -1429,7 +1429,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-EMT-STORE-000001",
+      "id": "TST-EMT-STORE-CATALOGO-VALIDACAO-000072",
       "tipo": "EMT",
       "escopo": "STORE",
       "sublocal": "validacao-visual",

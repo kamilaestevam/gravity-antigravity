@@ -179,7 +179,7 @@ export type PlanoTeste = z.infer<typeof PlanoTesteSchema>
 
 ```json
 {
-  "id": "TST-E2E-CONFIG-000001",
+  "id": "TST-E2E-CONFIG-000013",
   "versao": "1.0",
   "geradoEm": "2026-04-15T14:30:00Z",
   "geradoPor": "agente-plano-teste",
@@ -274,13 +274,13 @@ export type PlanoTeste = z.infer<typeof PlanoTesteSchema>
 ```json
 [
   {
-    "id": "TST-E2E-CONFIG-000001",
+    "id": "TST-E2E-CONFIG-000013",
     "tipo": "E2E",
     "escopo": "CONFIG",
     "sublocal": "Organização",
     "criticidade": "alta",
     "planoFile": "_planos/configurador/organizacao.json",
-    "specFile": "testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts"
+    "specFile": "testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000013.spec.ts"
   }
 ]
 ```

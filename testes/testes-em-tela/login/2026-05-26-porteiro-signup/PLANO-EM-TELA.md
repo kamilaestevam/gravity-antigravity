@@ -1,6 +1,6 @@
 # Plano em tela — Porteiro Signup / Login
 
-> **ID:** `TST-EMT-LOGIN-000001`  
+> **ID:** `TST-EMT-LOGIN-PORTEIRO-SIGNUP-000041`  
 > **Plano mestre:** [`../../testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md`](../../testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md)
 
 Validação visual manual (skill `testes/teste-em-tela`) — complementa E2E antes de release em produção.

@@ -48,7 +48,7 @@ import type {
   GTUnidadeOpcao,
 } from './tipos.js'
 import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
-import { resolverTooltipRegraCelula } from './tooltipCelulaResolver.js'
+import { resolverTituloFinalTooltipCelula, resolverTooltipRegraCelula } from './tooltipCelulaResolver.js'
 
 // ─── Ícones internos ──────────────────────────────────────────────────────────
 
@@ -304,6 +304,7 @@ function wrapTooltipRegraCelula(
   isFilho: boolean,
   ativo: boolean,
   celulaBloqueada = false,
+  tituloOverride?: string,
 ): React.ReactNode {
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
@@ -311,9 +312,10 @@ function wrapTooltipRegraCelula(
   }
   const regra = resolverTooltipRegraCelula(col, item, isFilho)
   if (!regra) return conteudo
+  const tituloFinal = resolverTituloFinalTooltipCelula(col, regra, isFilho, tituloOverride, item)
   return (
     <TooltipGlobal
-      titulo={regra.titulo}
+      titulo={tituloFinal}
       descricao={regra.descricao}
       interativo={regra.interativo}
       cursorBloqueado={celulaBloqueada}
@@ -2925,6 +2927,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       )
     }
 
+    const tituloOverrideCelula = isFilho
+      ? (colRegra.tooltipTituloItem?.trim()
+        || colRegra.tooltipTituloCelula?.(item)?.trim()
+        || undefined)
+      : undefined
     const celConteudo = wrapTooltipRegraCelula(
       colRegra,
       celInner,
@@ -2932,6 +2939,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       isFilho,
       tooltipCelulaAtivo,
       celulaBloqueadaPorRegra,
+      tituloOverrideCelula,
     )
 
     return (
@@ -3342,6 +3350,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
+                  const tituloMapaFilho = mapa?.tooltipTitulo
+                    ? (typeof mapa.tooltipTitulo === 'function'
+                      ? mapa.tooltipTitulo(item)
+                      : mapa.tooltipTitulo)
+                    : undefined
                   return wrapTooltipRegraCelula(
                     col as GTColuna<unknown>,
                     celFilhoInner,
@@ -3349,6 +3362,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     true,
                     tooltipFilhoAtivo,
                     celulaBloqueadaFilho,
+                    tituloMapaFilho,
                   )
                 })()}
               </div>

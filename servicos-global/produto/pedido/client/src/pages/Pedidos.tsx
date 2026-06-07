@@ -3530,6 +3530,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   moeda_pedido: {
     editavel: true,
     campo: 'moeda_item',
+    tooltipTitulo: t('pedido.coluna_pai.moeda_item_titulo'),
     getValorEditar: (row: PedidoItem) => ({
       currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
       amount: 0,
@@ -4705,7 +4706,16 @@ export default function Pedidos() {
         tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'),
       }
     }
-    return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
+    const merged = { ...base, ...custom }
+    // SSOT título item na moeda — custom do usuário não pode apagar tooltipTitulo do mapa.
+    if (base.moeda_pedido) {
+      merged.moeda_pedido = {
+        ...base.moeda_pedido,
+        ...custom.moeda_pedido,
+        tooltipTitulo: t('pedido.coluna_pai.moeda_item_titulo'),
+      }
+    }
+    return enriquecerMapaColunasFilhoComRegraTooltip(merged, t)
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, opcoesExportadoresImp, workspacesMap])
   const {
     prefs: cardPrefs,

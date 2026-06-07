@@ -937,6 +937,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'select',
     opcoes: moedasOpcoes ?? [],
     filtravel: true,
+    tooltipTituloItem: t('pedido.coluna_pai.moeda_item_titulo'),
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_moeda'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {

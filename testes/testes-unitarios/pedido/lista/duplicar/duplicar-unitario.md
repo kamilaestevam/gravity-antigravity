@@ -1,6 +1,6 @@
 # Plano de Testes Unitários — Duplicar Pedido
 
-**ID:** TST-UNIT-PEDIDO-DUPLICAR-001
+**ID:** TST-UNI-PEDIDO-000026
 **Data:** 2026-05-16
 **Versão:** 1.0
 **Criticidade:** alta

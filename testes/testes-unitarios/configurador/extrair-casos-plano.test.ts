@@ -30,6 +30,13 @@ describe('extrairCasosDoPlano', () => {
     expect(etapas.some(t => t.includes('REFERÊNCIA EXPORTADOR'))).toBe(true)
     expect(etapas.some(t => t.includes('INCOTERM'))).toBe(true)
     expect(etapas.some(t => t.includes('DESCRIÇÃO'))).toBe(true)
-    expect(etapas.some(t => t.includes('LOGÍSTICA'))).toBe(true)
+    expect(etapas.some(t => t.includes('PORTO DE ORIGEM'))).toBe(true)
+    expect(etapas.some(t => t.includes('NCM'))).toBe(true)
+
+    const passosNcm = roteiro.filter(x => x.titulo.includes('NCM'))
+    expect(passosNcm.map(p => p.ordem)).toEqual(
+      expect.arrayContaining(['35', '36', '37', '38', '39', '40', '41']),
+    )
+    expect(casos.length).toBeGreaterThanOrEqual(170)
   })
 })

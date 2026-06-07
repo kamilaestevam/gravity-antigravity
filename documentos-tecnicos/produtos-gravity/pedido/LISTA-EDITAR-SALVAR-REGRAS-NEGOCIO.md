@@ -23,6 +23,7 @@ Regras de produto para colunas com comportamento **especial** na Lista (diferent
 | **TIPO DE OPERAÇÃO** | Exclusivo do pedido; replicação automática; item travado |
 | **STATUS** | Pedido e item editáveis; checkbox replicar; alerta âmbar de divergência |
 | **IMPORTADOR** (`nome_importador`) | Importação: espelhado com workspace; Exportação: vincular ou modal de troca |
+| **EXPORTADOR** (`nome_exportador`) | Exportação: espelhado com workspace; Importação: vincular ou popover de troca |
 | **REFERÊNCIA IMPORTADOR / EXPORTADOR** | Padrão Incoterm — pedido+item editáveis, checkbox replicar, alerta divergência |
 
 Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md) (Incoterm, datas, referência fabricante, etc.).
@@ -159,6 +160,36 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 
 ---
 
+## 5B. EXPORTADOR (`nome_exportador`)
+
+> Decisão de produto **2026-06** — espelho invertido do Importador (§5).
+
+O exportador exibido depende do **tipo de operação** do pedido.
+
+### Exportação (`tipo_operacao = exportacao`)
+
+| # | Regra |
+|---|--------|
+| **EXPX-01** | O exportador é o **workspace** do pedido — exibe o nome do workspace, não um fornecedor do Cadastros. |
+| **EXPX-02** | Tooltip: *Espelhado com o workspace* — **sem** link para Configurador ou Cadastros. |
+| **EXPX-03** | Edição inline no pedido abre o **mesmo select de Workspace** (alterar workspace troca o exportador). |
+| **EXPX-04** | Linha **item** somente leitura — espelha o workspace do pedido. |
+
+### Importação (`tipo_operacao = importacao`)
+
+| # | Regra |
+|---|--------|
+| **IMPX-01** | Exportador = contraparte estrangeira vinculada via Cadastros (`importacao_exportador_id` + `nome_exportador`). |
+| **IMPX-02** | Célula **vazia** → link **«Vincular exportador»** no popover → tela Fornecedor no Configurador (fluxo existente com `retorno`). |
+| **IMPX-03** | Célula **preenchida** → clique abre **popover** com lista de exportadores da organização (`pode_ser_exportador_fornecedor=true`). |
+| **IMPX-04** | Popover permite **trocar** o exportador sem sair da Lista; atalho → Configurador / Fornecedores. |
+| **IMPX-05** | **Sem** checkbox «Aplicar a todos os itens» e **sem** alerta de divergência na coluna Exportador. |
+| **IMPX-06** | Linha **item** somente leitura — espelha o pedido; clique abre o mesmo popover do pedido. |
+
+**EMT:** runner `run-lista-exportador-emt.ts` — ETAPA 5 EXPORTADOR em `plano-teste-em-tela.md`.
+
+---
+
 ## 6. REFERÊNCIA IMPORTADOR e REFERÊNCIA EXPORTADOR
 
 > Decisão de produto **2026-06** — **mesmas regras** para ambas as colunas (padrão Incoterm).
@@ -234,6 +265,7 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 | 2026-06-03 | STATUS — regras 00–04; fix alerta sem expandir (`status_itens_snapshot`); TDZ `statusOpts`/`pedidos` |
 | 2026-06-03 | WORKSPACE — WS-01…06; sem alerta; select com todos workspaces habilitados |
 | 2026-06-03 | IMPORTADOR — IMP-01…04 / EXP-01…06; modal seletor na exportação; IMP espelhado com workspace |
+| 2026-06-07 | EXPORTADOR — EXPX-01…04 / IMPX-01…06; espelho invertido do Importador; EMT runner dedicado |
 | 2026-06-06 | NCM — NCM-01…07; sem alerta de divergência (vários NCMs por pedido é normal) |
 | 2026-06-06 | REF. IMPORTADOR / EXPORTADOR — REF-01…08; EMT passos 13–20 (mesmas regras, padrão Incoterm) |
 | 2026-06-06 | LOGÍSTICA — LOG-01…06; tooltips espelhados (sem alerta/replicar) em Porto/País/Aeroporto |

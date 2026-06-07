@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001  
 **Data:** 2026-06-06  
-**Versão:** 4.2  
+**Versão:** 4.3  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -37,6 +37,7 @@
 | **TIPO DE OPERAÇÃO** | 06–12 | `run-lista-editar-salvar.ts` |
 | **STATUS** | — (documentado) | pendente no runner principal |
 | **IMPORTADOR** | — | `run-lista-importador-emt.ts` (dedicado) |
+| **EXPORTADOR** | — | `run-lista-exportador-emt.ts` (dedicado) |
 | **REFERÊNCIA IMPORTADOR** | 13–16 | `run-lista-editar-salvar.ts` |
 | **REFERÊNCIA EXPORTADOR** | 17–20 | `run-lista-editar-salvar.ts` |
 | **INCOTERM** | 21–24 | `run-lista-editar-salvar.ts` |
@@ -253,6 +254,15 @@ Viewport: **1440×900**
 2. Coluna **IMPORTADOR** em pedido **Exportação** — modal seletor de importadores / atalho fornecedores
 3. Tooltip espelhado conforme tipo de operação (ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §5)
 
+### ETAPA 5 — EXPORTADOR (`nome_exportador`)
+
+> Runner **dedicado:** `run-lista-exportador-emt.ts` (não faz parte da sequência 03–66 do runner principal).  
+> Espelho invertido do Importador — ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §5B.
+
+1. Coluna **EXPORTADOR** em pedido **Exportação** — select lista workspaces com **nomes** (nunca CUID cru); espelhado com workspace
+2. Coluna **EXPORTADOR** em pedido **Importação** — popover lista fornecedores exportadores / atalho **Vincular exportador**
+3. Tooltip espelhado conforme tipo de operação — **sem** link para Configurador na exportação (espelho workspace)
+
 ### ETAPA 6 — REFERÊNCIA IMPORTADOR (passos 13–16)
 
 **Pré-condição:** pedido expandido com **≥2 itens**.
@@ -448,6 +458,12 @@ Runner dedicado **Importador:**
 npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-importador-emt.ts
 ```
 
+Runner dedicado **Exportador:**
+
+```bash
+npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-exportador-emt.ts
+```
+
 ---
 
 ## Contagem de casos
@@ -459,6 +475,7 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | TIPO OPERAÇÃO | 06–12 | 7 |
 | STATUS | documentado | 5 regras |
 | IMPORTADOR | runner dedicado | 3 |
+| EXPORTADOR | runner dedicado | 3 |
 | REF. IMPORTADOR | 13–16 | 4 |
 | REF. EXPORTADOR | 17–20 | 4 |
 | INCOTERM | 21–24 | 4 |
@@ -475,3 +492,4 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | MOEDA DO PEDIDO/ITEM | 56–61 | 6 |
 | VALOR DO ITEM | 62–66 | 5 |
 | **Total runner principal** | | **~88 passos / 117 casos** |
+| **+ runners dedicados Importador/Exportador** | | **+6 regras** |

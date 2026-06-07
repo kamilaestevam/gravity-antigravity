@@ -3,7 +3,9 @@
 | Arquivo | Função |
 |---------|--------|
 | `plano-teste-em-tela.md` | Roteiro e prints |
-| `run-lista-editar-salvar.ts` | Runner Playwright |
+| `run-lista-editar-salvar.ts` | Runner Playwright principal |
+| `run-lista-importador-emt.ts` | Runner dedicado — coluna Importador |
+| `run-lista-exportador-emt.ts` | Runner dedicado — coluna Exportador |
 
 Colunas cobertas:
 

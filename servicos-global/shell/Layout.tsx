@@ -2,7 +2,6 @@ import React, { Suspense } from 'react'
 import './shell.css'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
-import { ContextualSidebar } from './ContextualSidebar'
 import { ProductSidebar } from './ProductSidebar'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -51,17 +50,12 @@ export function Layout({
   // Detecção de contexto de navegação
   const isProdutoRoute  = location.pathname.startsWith('/produto/')
   // Rotas workspace-level de Processo (/acesso-processos/lista, /kanban) usam
-  // o shell padrao — sidebar global normal, SEM ContextualSidebar — mas
-  // precisam esconder a marca Gravity do header (que sobrepoe o CabecalhoGlobal).
+  // o shell padrao — sidebar global expandido — e escondem a marca Gravity
+  // do header (que sobrepoe o CabecalhoGlobal). Detalhe recolhe o trilho via ProcessoLayout.
   const isAcessoProcessosRoute = location.pathname.startsWith('/acesso-processos')
-  const isProcessoLegacyRoute = location.pathname.startsWith('/processo/')
   const isProcessoWorkspaceLista =
     /^\/(?:acesso-processos|processo)\/(?:lista|kanban)\/?$/.test(location.pathname)
   const isProcessoDetalheRoute = isRotaDetalheProcesso(location.pathname)
-  /** Detalhe usa só o p2-sidebar (ProcessoLayout) — sem trilho Deep Work nem menu global. */
-  const ocultaSidebarShell = isProcessoDetalheRoute
-  const usaContextualSidebarProcesso =
-    isProcessoLegacyRoute && !isProcessoWorkspaceLista && !isProcessoDetalheRoute
 
   // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
   useMeSync()
@@ -131,12 +125,8 @@ export function Layout({
   const overrideAtivo = organizacaoOverride !== null
   const classeOverride = overrideAtivo ? ' layout--override-ativo' : ''
 
-  // Detalhe: shell sem sidebar — só p2-sidebar do ProcessoLayout.
-  const classeProcesso = isProcessoDetalheRoute
-    ? ' layout--processo layout--processo-detalhe'
-    : usaContextualSidebarProcesso
-      ? ' layout--processo'
-      : ''
+  // Detalhe: trilho global recolhido (ProcessoLayout) + p2-sidebar colados.
+  const classeProcesso = isProcessoDetalheRoute ? ' layout--processo' : ''
   // Esconde marca Gravity no header para lista/kanban workspace e detalhe do processo.
   const classeOcultaMarca =
     isAcessoProcessosRoute || isProcessoWorkspaceLista || isProcessoDetalheRoute
@@ -146,12 +136,7 @@ export function Layout({
   return (
     <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}${classeOverride}${classeProcesso}${classeOcultaMarca}`}>
       {overrideAtivo && <BannerOrganizacaoOverride />}
-      {ocultaSidebarShell ? null : usaContextualSidebarProcesso ? (
-        <ContextualSidebar
-          tenantName={tenantName ?? nomeWsAtivo}
-          tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}
-        />
-      ) : isProdutoRoute ? (
+      {isProdutoRoute ? (
         <ProductSidebar
           navItems={navItems}
           moduleName={moduleName}

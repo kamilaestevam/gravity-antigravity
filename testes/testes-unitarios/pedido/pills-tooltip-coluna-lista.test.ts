@@ -185,6 +185,33 @@ describe('obterPillsTooltipColuna', () => {
     expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido', 'alerta_divergencia'])
   })
 
+  it('quantidade_transferida_total dinâmico — pedido calculado + bloqueado; item somente leitura + operação', () => {
+    const res = obterPillsTooltipColuna('quantidade_transferida_total', { modoDinamicoPedidoItem: true })
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'calculado_pedido',
+      'soma_mesma_unidade',
+      'alerta_divergencia',
+      'casas_decimais_config',
+    ])
+    expect(res.item).toEqual(['somente_leitura', 'so_operacao'])
+  })
+
+  it('quantidade_transferida_total sem expandir — pills corretas no cabeçalho', () => {
+    const res = obterPillsTooltipColuna('quantidade_transferida_total')
+    expect(res.dual).toBe(false)
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'calculado_pedido',
+      'soma_mesma_unidade',
+      'alerta_divergencia',
+      'casas_decimais_config',
+    ])
+    expect(res.item).toEqual(['somente_leitura', 'so_operacao'])
+    expect(pillsParaNivelColuna('quantidade_transferida_total', 'item')).toEqual(['somente_leitura', 'so_operacao'])
+  })
+
   it.each([
     'porto_origem',
     'porto_destino',

@@ -16,7 +16,7 @@ const META_POR_VISUALIZACAO: Record<ProcessoVisualizacaoId, ProcessoPageMetaTopo
   },
   lista: {
     label: 'Lista',
-    subtitulo: 'Lista hierárquica — Processo, Pedido e Item',
+    subtitulo: 'Processos do workspace — Processo, Pedido e Item',
     icone: <ListBullets weight="duotone" size={22} />,
   },
   dashboard: {

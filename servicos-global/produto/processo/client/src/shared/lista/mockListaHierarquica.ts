@@ -3,6 +3,13 @@
  * Substituir por API agregada (BFF Processo) na Onda 7.
  */
 import type { Pedido, PedidoItem } from './pedidoTypes'
+import {
+  MOCK_PROCESSOS,
+  ETAPAS_COR,
+  ETAPAS_LABEL,
+  type EtapaProcesso,
+  type ProcessoLinha,
+} from '../../pages/todos/_mocks'
 
 export const ID_ORGANIZACAO_MOCK_LISTA = 'org_mock'
 
@@ -11,18 +18,53 @@ export interface ProcessoAvoLinha {
   id_organizacao: string
   numero_processo: string
   tipo_operacao_processo: 'importacao' | 'exportacao'
-  /** ID do status em Configurações (processo:status_config) */
+  /** Etapa do fluxo COMEX (abas da lista workspace). */
+  etapa_atual: EtapaProcesso
+  /** ID do status em Configurações (processo:status_config) ou etapa. */
   codigo_status_processo: string
   rotulo_status_processo: string
   cor_status_processo: string
   referencia_interna_processo: string | null
   nome_importador: string
   nome_exportador: string
+  pais_origem: string
+  pais_destino: string
+  incoterm: string
+  via_transporte: string
   valor_total_agregado: number
   moeda_agregada: string
   peso_bruto_agregado: number
   data_criacao_processo: string
+  data_embarque?: string
+  data_chegada?: string
   responsavel_processo: string
+}
+
+function processoWorkspaceParaAvo(linha: ProcessoLinha): ProcessoAvoLinha {
+  return {
+    id_processo: linha.id,
+    id_organizacao: ID_ORGANIZACAO_MOCK_LISTA,
+    numero_processo: linha.numero,
+    tipo_operacao_processo: 'importacao',
+    etapa_atual: linha.etapa_atual,
+    codigo_status_processo: linha.etapa_atual,
+    rotulo_status_processo: ETAPAS_LABEL[linha.etapa_atual],
+    cor_status_processo: ETAPAS_COR[linha.etapa_atual],
+    referencia_interna_processo: linha.numero.replace('IMP-', 'REF-'),
+    nome_importador: linha.importador,
+    nome_exportador: linha.exportador,
+    pais_origem: linha.pais_origem,
+    pais_destino: linha.pais_destino,
+    incoterm: linha.incoterm,
+    via_transporte: linha.via_transporte,
+    valor_total_agregado: linha.valor_fob,
+    moeda_agregada: linha.moeda,
+    peso_bruto_agregado: linha.peso_bruto,
+    data_criacao_processo: linha.data_abertura,
+    data_embarque: linha.data_embarque,
+    data_chegada: linha.data_chegada,
+    responsavel_processo: linha.responsavel,
+  }
 }
 
 export type FilhoLinhaLista =
@@ -87,10 +129,11 @@ function criarItemMock(
 }
 
 export const PEDIDOS_MOCK_INICIAL: Array<Pedido & { id_processo: string }> = [
-  criarPedidoMock({ id: 'ped-1', id_processo: 'proc-1', numero_pedido: 'PO-2026/001', valor_total_pedido: 45_000, nome_exportador: 'Shanghai Electronics Co.', referencia_importador: 'REF-IMP-001' }),
-  criarPedidoMock({ id: 'ped-2', id_processo: 'proc-1', numero_pedido: 'PO-2026/002', valor_total_pedido: 63_050, status: 'em_andamento', nome_exportador: 'Shenzhen Parts Ltd.', referencia_importador: 'REF-IMP-002' }),
-  criarPedidoMock({ id: 'ped-3', id_processo: 'proc-2', numero_pedido: 'PO-2026/003', valor_total_pedido: 54_200, nome_exportador: 'Korea Tech Ltd.', referencia_importador: 'REF-IMP-003' }),
-  criarPedidoMock({ id: 'ped-4', id_processo: 'proc-3', numero_pedido: 'PO-2026/004', valor_total_pedido: 32_900, status: 'consolidado', nome_exportador: 'Vietnam Goods SA', referencia_importador: 'REF-IMP-004' }),
+  criarPedidoMock({ id: 'ped-1', id_processo: 'p1', numero_pedido: 'PO-2026-001', valor_total_pedido: 68_400, nome_exportador: 'Shanghai Electronics Co.', referencia_importador: 'RC-4821' }),
+  criarPedidoMock({ id: 'ped-2', id_processo: 'p1', numero_pedido: 'PO-2026-002', valor_total_pedido: 32_650, status: 'em_andamento', nome_exportador: 'Shanghai Electronics Co.', referencia_importador: 'RC-4821-B' }),
+  criarPedidoMock({ id: 'ped-3', id_processo: 'p1', numero_pedido: 'PO-2026-003', valor_total_pedido: 7_000, status: 'pendente', nome_exportador: 'Shanghai Electronics Co.', referencia_importador: 'RC-4821-C' }),
+  criarPedidoMock({ id: 'ped-4', id_processo: 'p2', numero_pedido: 'PO-2026/003', valor_total_pedido: 54_200, nome_exportador: 'Korea Tech Ltd.', referencia_importador: 'REF-IMP-003' }),
+  criarPedidoMock({ id: 'ped-5', id_processo: 'p3', numero_pedido: 'PO-2026/004', valor_total_pedido: 32_900, status: 'consolidado', nome_exportador: 'Vietnam Goods SA', referencia_importador: 'REF-IMP-004' }),
 ]
 
 export const ITENS_MOCK_INICIAL: PedidoItem[] = [
@@ -102,59 +145,8 @@ export const ITENS_MOCK_INICIAL: PedidoItem[] = [
   criarItemMock({ id: 'item-6', pedido_id: 'ped-4', sequencia_item: 1, part_number: 'TXT-100', descricao_item: 'Tecido algodão cru' }),
 ]
 
-export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = [
-  {
-    id_processo: 'proc-1',
-    id_organizacao: ORG,
-    numero_processo: 'Gravity-00001/26',
-    tipo_operacao_processo: 'importacao',
-    codigo_status_processo: 's3',
-    rotulo_status_processo: 'Em Embarque',
-    cor_status_processo: '#a78bfa',
-    referencia_interna_processo: 'REF-ACME-0150',
-    nome_importador: 'Acme Importações Ltda.',
-    nome_exportador: 'Shanghai Electronics Co.',
-    valor_total_agregado: 108_050,
-    moeda_agregada: 'USD',
-    peso_bruto_agregado: 18_771,
-    data_criacao_processo: '2026-01-10',
-    responsavel_processo: 'Daniel Martins',
-  },
-  {
-    id_processo: 'proc-2',
-    id_organizacao: ORG,
-    numero_processo: 'Gravity-00002/26',
-    tipo_operacao_processo: 'importacao',
-    codigo_status_processo: 's4',
-    rotulo_status_processo: 'Em Desembaraço',
-    cor_status_processo: '#fbbf24',
-    referencia_interna_processo: 'REF-ACME-0149',
-    nome_importador: 'Acme Importações Ltda.',
-    nome_exportador: 'Korea Tech Ltd.',
-    valor_total_agregado: 54_200,
-    moeda_agregada: 'USD',
-    peso_bruto_agregado: 8_400,
-    data_criacao_processo: '2026-01-22',
-    responsavel_processo: 'Marina Albuquerque',
-  },
-  {
-    id_processo: 'proc-3',
-    id_organizacao: ORG,
-    numero_processo: 'Gravity-00003/26',
-    tipo_operacao_processo: 'importacao',
-    codigo_status_processo: 's5',
-    rotulo_status_processo: 'Concluído',
-    cor_status_processo: '#34d399',
-    referencia_interna_processo: 'REF-ACME-0148',
-    nome_importador: 'Acme Importações Ltda.',
-    nome_exportador: 'Vietnam Goods SA',
-    valor_total_agregado: 32_900,
-    moeda_agregada: 'USD',
-    peso_bruto_agregado: 5_100,
-    data_criacao_processo: '2025-12-15',
-    responsavel_processo: 'Rafael Mendes',
-  },
-]
+/** 7 processos do workspace — mesma fonte que TodosProcessosLista (Hub). */
+export const MOCK_PROCESSOS_AVO: ProcessoAvoLinha[] = MOCK_PROCESSOS.map(processoWorkspaceParaAvo)
 
 export function pedidosDoProcesso(
   id_processo: string,

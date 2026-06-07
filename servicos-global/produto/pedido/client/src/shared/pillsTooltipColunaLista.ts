@@ -46,11 +46,13 @@ export type RegraPillId =
   | 'alerta_divergencia'
   | 'alerta_moeda_divergente'
   | 'alerta_moeda_divergente_entre_itens'
+  | 'alerta_unidade_comercializada_divergente'
   | 'bloqueado_valor_item'
   | 'bloqueado_edicao'
   | 'calculado_pedido'
   | 'calculado_pedido_qtd_inicial'
   | 'calculado_pedido_qtd_pronta'
+  | 'calculado_pedido_qtd_transferida'
   | 'soma_mesma_unidade'
   | 'formula_config'
   | 'so_operacao'
@@ -86,6 +88,7 @@ export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
   'calculado_pedido',
   'calculado_pedido_qtd_inicial',
   'calculado_pedido_qtd_pronta',
+  'calculado_pedido_qtd_transferida',
   'valor_total_soma_mesma_moeda',
   'valor_unitario_sem_somatoria',
   'soma_mesma_unidade',
@@ -100,6 +103,7 @@ export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
   'alerta_divergencia',
   'alerta_moeda_divergente',
   'alerta_moeda_divergente_entre_itens',
+  'alerta_unidade_comercializada_divergente',
   'cond_import_export',
   'formula_config',
   'casas_decimais_config',
@@ -192,10 +196,10 @@ export const PILLS_ITEM_QTD_PRONTA: RegraPillId[] = ['editavel_item', 'alerta_mo
 
 /** Linha do pedido — Qtd. Transferida: calculado, bloqueado, soma mesma unidade, alerta. */
 export const PILLS_PEDIDO_QTD_TRANSFERIDA: RegraPillId[] = [
-  'calculado_pedido',
+  'calculado_pedido_qtd_transferida',
   'bloqueado_edicao',
   'soma_mesma_unidade',
-  'alerta_divergencia',
+  'alerta_unidade_comercializada_divergente',
   'casas_decimais_config',
 ]
 

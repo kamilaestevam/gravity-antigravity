@@ -3346,7 +3346,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                         <span style={{ display: 'contents' }}>{conteudoFilho}</span>
                       </TooltipGlobal>
                     )
-                  } else if (!podeEditar && mapa?.tooltipBloqueado && tooltipFilhoAtivo) {
+                  } else if (
+                    !podeEditar
+                    && mapa?.tooltipBloqueado
+                    && tooltipFilhoAtivo
+                    && mapa?.tooltipInline !== true
+                  ) {
                     const msg = typeof mapa.tooltipBloqueado === 'function' ? mapa.tooltipBloqueado(item) : mapa.tooltipBloqueado
                     if (msg) {
                       celFilhoInner = (
@@ -3360,13 +3365,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
-                  // Linha item: tooltip de regra montada no produto (TooltipListaColuna no mapa
-                  // ou coluna pai inline). Núcleo não re-wrap — evita «Moeda do Pedido» + pills de item.
-                  const celulaComTooltipProduto =
-                    mapa?.tooltipInline === true
-                    || (mapa?.render != null && (col as GTColuna<unknown>).tooltipInline === true)
-                    || (mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== '')
-                  if (celulaComTooltipProduto) {
+                  // mapaColunasFilho.render é dono da célula na linha item — núcleo não re-wrap.
+                  // Evita double TooltipGlobal («Moeda do Pedido» + pills de item).
+                  if (mapa?.render != null) {
                     return celFilhoInner
                   }
                   const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''

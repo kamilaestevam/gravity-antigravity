@@ -1082,7 +1082,6 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'unidade',
     align: 'right',
     editavel: false,
-    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_transferida'),
     tooltipTitulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_transferida_total_desc'),
     grupo: 'Quantidades',

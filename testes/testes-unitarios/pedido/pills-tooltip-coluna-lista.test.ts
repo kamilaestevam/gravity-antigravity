@@ -190,9 +190,9 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.dual).toBe(true)
     expect(res.pedido).toEqual([
       'bloqueado_edicao',
-      'calculado_pedido',
+      'calculado_pedido_qtd_transferida',
       'soma_mesma_unidade',
-      'alerta_divergencia',
+      'alerta_unidade_comercializada_divergente',
       'casas_decimais_config',
     ])
     expect(res.item).toEqual(['somente_leitura', 'so_operacao'])
@@ -203,13 +203,18 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.dual).toBe(false)
     expect(res.pedido).toEqual([
       'bloqueado_edicao',
-      'calculado_pedido',
+      'calculado_pedido_qtd_transferida',
       'soma_mesma_unidade',
-      'alerta_divergencia',
+      'alerta_unidade_comercializada_divergente',
       'casas_decimais_config',
     ])
     expect(res.item).toEqual(['somente_leitura', 'so_operacao'])
     expect(pillsParaNivelColuna('quantidade_transferida_total', 'item')).toEqual(['somente_leitura', 'so_operacao'])
+  })
+
+  it('saldo_itens_do_pedido item — somente leitura + formula', () => {
+    const pills = pillsParaNivelColuna('saldo_itens_do_pedido', 'item')
+    expect(pills).toEqual(['somente_leitura', 'formula_config'])
   })
 
   it.each([

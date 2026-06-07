@@ -93,6 +93,9 @@ function avisoImpactoPorColuna(
   if (key === 'valor_total_pedido' && (nivel === 'pai' || nivel === 'item')) {
     return t('pedido.lista.regras_coluna.valor_total_item_impacto_moeda_edicao')
   }
+  if (key === 'quantidade_transferida_total') {
+    return t('pedido.lista.regras_coluna.quantidade_transferida_edicao_via_transferir')
+  }
   if (avisoImpactoColuna?.trim()) {
     return avisoImpactoColuna.trim()
   }
@@ -106,13 +109,6 @@ function nivelParaAvisoImpacto(
   if (opts?.somenteBloco === 'item') return 'item'
   if (opts?.somenteBloco === 'pedido') return 'pai'
   return nivel
-}
-
-function descricaoExtraPorColuna(t: TFunction, key: string): string | undefined {
-  if (key === 'quantidade_transferida_total') {
-    return t('pedido.lista.regras_coluna.quantidade_transferida_edicao_via_transferir')
-  }
-  return undefined
 }
 
 function pillsResolucaoLista(
@@ -136,7 +132,7 @@ function pillsResolucaoLista(
     pills,
     nivelBloco,
     avisoImpacto: avisoImpactoPorColuna(t, key, nivelBloco, opts?.avisoImpactoColuna),
-    descricaoExtra: opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key) || undefined,
+    descricaoExtra: opts?.descricaoUsuario?.trim() || undefined,
   }
 }
 
@@ -202,6 +198,13 @@ export const CHAVES_TOOLTIP_INLINE_LISTA = new Set([
   'nome_exportador',
 ])
 
+/** Colunas bloqueadas na linha do item — cursor + tooltip inline com pills. */
+export const CHAVES_COLUNA_INLINE_BLOQUEADA_ITEM = new Set([
+  'quantidade_transferida_total',
+  'quantidade_cancelada_total_pedido',
+  'saldo_itens_do_pedido',
+])
+
 /** `cursor: not-allowed` na célula — bloqueio fixo ou condicional (`editavel` função). */
 export function resolverCursorBloqueadoCelulaLista<T>(
   col: GTColuna<T>,
@@ -209,6 +212,18 @@ export function resolverCursorBloqueadoCelulaLista<T>(
 ): boolean {
   if (col.editavel === false) return true
   if (typeof col.editavel === 'function') return !col.editavel(row)
+  return false
+}
+
+/** Bloqueio na linha item via mapaColunasFilho (`editavel: false` ou chave SSOT). */
+export function resolverCursorBloqueadoMapaFilho<C>(
+  key: string,
+  entry: GTMapaColunasFilho<C> | undefined,
+  row: C,
+): boolean {
+  if (CHAVES_COLUNA_INLINE_BLOQUEADA_ITEM.has(key)) return true
+  if (entry?.editavel === false) return true
+  if (typeof entry?.editavel === 'function') return !entry.editavel(row)
   return false
 }
 
@@ -549,16 +564,22 @@ export function enriquecerMapaFilhoTooltipInline<C>(
     const renderBase = entry.render
     const aviso = avisosPorChave?.[key]
     const tituloItem = tituloTooltipListaPorNivel(t, key, 'item')
+    const regraItem = classificarRegraTooltipColuna(key, 'item')
+    const interativoItem = regraTooltipEhInterativa(regraItem)
     out[key] = {
       ...entry,
+      ...(CHAVES_COLUNA_INLINE_BLOQUEADA_ITEM.has(key) ? { editavel: false as const } : {}),
       tooltipInline: true,
       tooltipTitulo: tituloItem,
       render: (row: C) => {
         const conteudo = renderBase(row)
+        const bloqueado = resolverCursorBloqueadoMapaFilho(key, entry, row)
         return wrapCelulaListaRegras(conteudo, t, {
           key,
           nivel: 'item',
           avisoImpactoColuna: aviso,
+          cursorBloqueado: bloqueado,
+          interativo: interativoItem,
         })
       },
     }

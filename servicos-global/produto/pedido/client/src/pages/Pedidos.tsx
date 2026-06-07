@@ -146,6 +146,7 @@ import {
   enriquecerColunaComRegraTooltip,
   enriquecerMapaColunasFilhoComRegraTooltip,
   enriquecerMapaFilhoTooltipInline,
+  wrapCelulaListaRegras,
 } from '../shared/buildTooltipRegraLista'
 import { TooltipRegrasColuna } from '../shared/TooltipRegrasColuna'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
@@ -3620,20 +3621,15 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     ),
   },
   saldo_itens_do_pedido: {
+    editavel: false,
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       const qtd = Math.max(0, (row.quantidade_inicial_pedido ?? 0) - (row.quantidade_transferida_pedido ?? 0) - (row.quantidade_cancelada_pedido ?? 0))
       return (
-        <TooltipGlobal
-          titulo={t('pedido.coluna_filho.mapa_saldo_itens_do_pedido.titulo')}
-          descricao={<span>{t('pedido.coluna_filho.helper.saldo_calculado_prefixo')}<a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">{t('pedido.coluna_filho.helper.saldo_calculado_link')}</a></span>}
-          interativo
-        >
-          <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
-            {fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0))}
-            <span className="gtv-celula-unidade-badge">{unidade}</span>
-          </span>
-        </TooltipGlobal>
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
+          {fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
       )
     },
   },
@@ -4722,11 +4718,28 @@ export default function Pedidos() {
         render: base.moeda_pedido.render,
       }
     }
+    const renderMoedaItemBase = merged.moeda_pedido?.render
     const comRegra = enriquecerMapaColunasFilhoComRegraTooltip(merged, t)
-    return enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
+    const mapaInline = enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
       moeda_pedido: t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined,
       unidade_comercializada_pedido: t('pedido.coluna_pai.aviso_impacto_unidade_full', { defaultValue: '' }) || undefined,
     })
+    // P0 moeda item: garantia explícita — TooltipListaColuna nível item (não depende de flags do núcleo).
+    if (renderMoedaItemBase && mapaInline.moeda_pedido) {
+      const avisoMoeda = t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined
+      mapaInline.moeda_pedido = {
+        ...mapaInline.moeda_pedido,
+        tooltipInline: true,
+        tooltipTitulo: t('pedido.coluna_pai.moeda_item_titulo'),
+        campo: 'moeda_item',
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderMoedaItemBase(row), t, {
+          key: 'moeda_pedido',
+          nivel: 'item',
+          avisoImpactoColuna: avisoMoeda,
+        }),
+      }
+    }
+    return mapaInline
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, opcoesExportadoresImp, workspacesMap])
   const {
     prefs: cardPrefs,

@@ -91,7 +91,7 @@ const getMockActivity = (t: (key: string, fallback?: string) => string) => [
 
 const getMockProcesses = (t: (key: string, fallback?: string) => string): ProcessoCoreResumo[] => [
   {
-    id: 'core_id_000001',
+    id: 'p1',
     num: 'IMP-2026/0150',
     name: 'Acme Importações · Shanghai Electronics',
     sub: 'US$ 108.050 · 18.771 kg · CIF · Marítima',
@@ -106,7 +106,7 @@ const getMockProcesses = (t: (key: string, fallback?: string) => string): Proces
     ],
   },
   {
-    id: 'core_id_000002',
+    id: 'p2',
     num: 'IMP-2026/0149',
     name: 'Acme Importações · Korea Tech Ltd.',
     sub: 'US$ 54.200 · 8.400 kg · FOB · Aérea',
@@ -121,7 +121,7 @@ const getMockProcesses = (t: (key: string, fallback?: string) => string): Proces
     ],
   },
   {
-    id: 'core_id_000003',
+    id: 'p3',
     num: 'IMP-2026/0148',
     name: 'Acme Importações · Vietnam Goods SA',
     sub: 'US$ 32.900 · 5.100 kg · EXW · Marítima',
@@ -246,9 +246,9 @@ export function Hub() {
     { ativos: 7, pendentes: 3, plugins: activeCount },
   )
 
-  const abrirProcesso = (id: string) => {
-    const orgId = sessionStorage.getItem('gravity_tenant_id') ?? 'tenant-demo'
-    navigate(`/processo?id=${encodeURIComponent(id)}&idOrganizacao=${encodeURIComponent(orgId)}`)
+  const abrirProcesso = (idProcesso: string) => {
+    const qs = new URLSearchParams({ id: idProcesso, idOrganizacao: 'org_mock' })
+    navigate(`/processo/detalhe/workflow?${qs.toString()}`)
   }
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
@@ -453,7 +453,7 @@ export function Hub() {
           <ListaProcessosCore
             processos={mockProcessos}
             onAbrirProcesso={abrirProcesso}
-            onNovoProcesso={() => abrirProcesso('core_id_000001')}
+            onNovoProcesso={() => abrirProcesso('p1')}
             t={t}
           />
         </div>

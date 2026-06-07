@@ -33,4 +33,24 @@ describe('resolverSegmentoDetalhe', () => {
       modo: 'lista',
     })
   })
+
+  it('resolve id workspace p1/workflow', () => {
+    expect(resolverSegmentoDetalhe('/acesso-processos/p1/workflow')).toEqual({
+      slug: 'p1',
+      segmento: 'workflow',
+      modo: 'id-workspace',
+    })
+  })
+
+  it('resolve plano legado /processo/workflow', () => {
+    expect(resolverSegmentoDetalhe('/processo/workflow')).toEqual({
+      slug: '',
+      segmento: 'workflow',
+      modo: 'plano-legado',
+    })
+  })
+
+  it('retorna null para lista workspace', () => {
+    expect(resolverSegmentoDetalhe('/acesso-processos/lista')).toBeNull()
+  })
 })

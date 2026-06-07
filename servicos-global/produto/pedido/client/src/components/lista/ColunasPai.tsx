@@ -19,7 +19,7 @@ import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
 import { enriquecerColunasComRegraTooltip, montarTooltipCelulaComAviso } from '../../shared/buildTooltipRegraLista'
-import { obterDescricaoExibicaoPedido } from '../../../../shared/pedidoDivergencias'
+import { obterDescricaoExibicaoPedido, obterNcmExibicaoPedido } from '../../../../shared/pedidoDivergencias'
 import { renderBadgeParteWorkspace } from './renderBadgeParteWorkspace'
 import {
   urlEditarCnpjWorkspace,
@@ -734,16 +734,13 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.ncm_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.ncm_desc'),
     grupo: 'Identificação',
+    getValorEditar: (row: Pedido) => obterNcmExibicaoPedido(row as Record<string, unknown>) ?? '',
     render: (_val: unknown, row: Pedido) => {
-      // Formata NCM (8 dígitos → 0000.00.00) para consistência visual.
-      const raw = row.ncm_valor_unico ?? null
-      const d = (raw ?? '').replace(/\D/g, '')
-      const fmt = d.length === 8 ? `${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6)}` : raw
-      // Quando divergente, label informa quantos NCMs distintos existem nos itens.
-      // Usa renderAgregado para padronizar com as demais colunas (valor + ícone
-      // de alerta lado a lado). Sem ⚠ na string — o ícone SVG já sinaliza.
-      const labelDivergente = t('pedido.coluna_pai.ncms_distintos', { count: row.ncms_distintos_count ?? '?' })
-      return renderAgregado(fmt, row.ncm_divergente, labelDivergente, { fontMono: true })
+      const raw = obterNcmExibicaoPedido(row as Record<string, unknown>)
+      if (!raw) return <span style={{ color: 'var(--text-muted)' }}>—</span>
+      const d = raw.replace(/\D/g, '')
+      const fmt = d.length === 8 ? `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6)}` : raw
+      return <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{fmt}</span>
     },
   },
   {

@@ -11,7 +11,8 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams, useNavigate, useLocation, useParams, Outlet } from 'react-router-dom'
+import { useSearchParams, useNavigate, useLocation, useParams } from 'react-router-dom'
+import { ProcessoDetalheRotas } from './ProcessoDetalheRotas'
 import { resolverProcessoListaPorSlug } from '../shared/lista/rotaProcessoLista'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -490,7 +491,7 @@ export default function ProcessoLayout() {
           )}
 
           <div className="p2-content">
-            <Outlet />
+            <ProcessoDetalheRotas />
           </div>
         </div>
 

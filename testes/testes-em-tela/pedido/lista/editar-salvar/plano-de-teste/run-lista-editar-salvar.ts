@@ -1,5 +1,5 @@
 /**
- * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO DE OPERAÇÃO (editar/salvar e bloqueios)
+ * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO DE OPERAÇÃO + NCM (editar/salvar)
  * Plano: TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001
  *
  * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts
@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 import dotenv from 'dotenv'
 import { clerk, clerkSetup } from '@clerk/testing/playwright'
 import { aplicarChavesClerkParaAmbiente, ambienteRemotoProducao } from '../../../../_lib/aplicar-chaves-clerk-ambiente.js'
+import { navegarComRetry } from '../../../../_lib/navegar-com-retry.js'
 import { resolverFeatureRootEmt, resolverPastaResultadoEmt } from '../../../../_lib/resolver-pasta-resultado-emt.js'
 
 const __dirRoot = dirname(fileURLToPath(import.meta.url))
@@ -37,6 +38,11 @@ const CAMPO_PEDIDO_COLUNA = 'Nº PEDIDO'
 const CAMPO_ITEM_COLUNA = 'Nº ITEM'
 const COLUNA_TIPO_OPERACAO = 'TIPO DE OPERAÇÃO'
 const COL_KEY_TIPO_OPERACAO = 'tipo_operacao'
+const COLUNA_NCM = 'NCM'
+const COL_KEY_NCM = 'ncm'
+const NCM_CODIGO_TESTE = '8528.59.00'
+const NCM_BUSCA_TEXTO = 'monitor'
+const TOOLTIP_NCM_PEDIDO_REGEX = /editável no pedido/i
 const LABEL_TIPO_IMPORTACAO = 'Importação'
 const LABEL_TIPO_EXPORTACAO = 'Exportação'
 const CHECKBOX_REPLICAR_REGEX = /aplicar a todos os itens deste pedido/i
@@ -150,7 +156,7 @@ async function autenticarClerk(page: Page): Promise<boolean> {
 
   log(`Auth ambiente=${ambienteExec} clerk=${clerkSecretPrefix} email=${email}`)
 
-  await page.goto(`${BASE_UI}/login`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await navegarComRetry(page, `${BASE_UI}/login`)
   await page.waitForFunction(() => {
     const c = (window as unknown as { Clerk?: { loaded?: boolean; client?: unknown } }).Clerk
     return Boolean(c?.loaded && c?.client)
@@ -791,6 +797,294 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   }
 
   await validarTipoOperacaoLista(page, rowId)
+  await validarNcmLista(page, rowId)
+}
+
+function normalizarNcmDigitos(texto: string): string {
+  return texto.replace(/\D/g, '')
+}
+
+function ncmExibeCodigo(texto: string | null, codigo: string): boolean {
+  if (!texto) return false
+  const alvo = normalizarNcmDigitos(codigo)
+  const norm = normalizarNcmDigitos(texto)
+  return norm.includes(alvo) || texto.includes(codigo)
+}
+
+async function inputNcmPopover(page: Page) {
+  return page.locator('.gtv-edit-popover--ncm .gtv-edit-popover-input, .gtv-edit-popover .gtv-edit-popover-input').first()
+}
+
+async function aguardarNcmValido(page: Page, timeoutMs = 20000): Promise<boolean> {
+  const ok = page.locator('.gtv-edit-popover-input--ncm-ok')
+    .or(page.locator('.gtv-ncm-validation'))
+  return ok.waitFor({ state: 'visible', timeout: timeoutMs }).then(() => true).catch(() => false)
+}
+
+async function confirmarPopoverNcm(page: Page): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  const btn = page.locator('.gtv-edit-popover-btn--primary')
+  if (await btn.isVisible().catch(() => false)) {
+    await btn.click({ force: true })
+  } else {
+    await page.keyboard.press('Enter')
+  }
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {})
+  return aguardarNotificacaoSalvar(page)
+}
+
+async function abrirPopoverNcmPai(page: Page, rowId: string): Promise<boolean> {
+  await scrollColunaParaVisivel(page, COL_KEY_NCM)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_NCM}"]`)
+  if (await cel.count() === 0) return false
+  await cel.click()
+  return page.locator('.gtv-edit-popover--ncm, .gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function clicarCelulaNcmItem(page: Page, pedidoRowId: string, indiceItem: number): Promise<boolean> {
+  await scrollColunaParaVisivel(page, COL_KEY_NCM)
+  return page.evaluate(({ paiId, idx, colKey }) => {
+    const filhos = (() => {
+      let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+      if (f.length === 0) {
+        const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+        if (paiEl) {
+          f = []
+          let prox = paiEl.nextElementSibling
+          while (prox?.classList.contains('gtv-linha--filho')) {
+            f.push(prox)
+            prox = prox.nextElementSibling
+          }
+        }
+      }
+      return f
+    })()
+    const filho = filhos[idx]
+    if (!filho) return false
+    const porAttr = filho.querySelector(`[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`) as HTMLElement | null
+    const cel = porAttr ?? (() => {
+      const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+      const colIdx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
+      if (colIdx < 0) return null
+      const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+        c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+      )
+      return (cells[colIdx] as HTMLElement) ?? null
+    })()
+    if (!cel) return false
+    cel.click()
+    return true
+  }, { paiId: pedidoRowId, idx: indiceItem, colKey: COL_KEY_NCM })
+}
+
+async function abrirPopoverNcmItem(page: Page, pedidoRowId: string, indiceItem: number): Promise<boolean> {
+  const clicou = await clicarCelulaNcmItem(page, pedidoRowId, indiceItem)
+  if (!clicou) return false
+  return page.locator('.gtv-edit-popover--ncm, .gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function lerTextoNcmPai(page: Page, rowId: string): Promise<string> {
+  await scrollColunaParaVisivel(page, COL_KEY_NCM)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_NCM}"]`)
+  return (await cel.textContent())?.trim() ?? ''
+}
+
+async function lerTextoNcmItem(page: Page, pedidoRowId: string, indiceItem: number): Promise<string> {
+  await scrollColunaParaVisivel(page, COL_KEY_NCM)
+  return page.evaluate(({ paiId, idx, colKey }) => {
+    const filhos = (() => {
+      let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+      if (f.length === 0) {
+        const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+        if (paiEl) {
+          f = []
+          let prox = paiEl.nextElementSibling
+          while (prox?.classList.contains('gtv-linha--filho')) {
+            f.push(prox)
+            prox = prox.nextElementSibling
+          }
+        }
+      }
+      return f
+    })()
+    const filho = filhos[idx]
+    if (!filho) return ''
+    const porAttr = filho.querySelector(`[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`)
+    const cel = porAttr ?? (() => {
+      const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+      const colIdx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
+      if (colIdx < 0) return null
+      const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+        c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+      )
+      return cells[colIdx] ?? null
+    })()
+    return cel?.textContent?.trim() ?? ''
+  }, { paiId: pedidoRowId, idx: indiceItem, colKey: COL_KEY_NCM })
+}
+
+async function preencherNcmCodigoNoPopover(page: Page, codigo: string): Promise<boolean> {
+  const input = await inputNcmPopover(page)
+  await input.waitFor({ timeout: 10000 })
+  await input.fill(codigo)
+  await page.waitForTimeout(600)
+  return aguardarNcmValido(page)
+}
+
+async function preencherNcmBuscaNoPopover(page: Page, termo: string): Promise<number> {
+  const input = await inputNcmPopover(page)
+  await input.waitFor({ timeout: 10000 })
+  await input.fill(termo)
+  await page.waitForTimeout(1200)
+  const lista = page.locator('.gtv-ncm-busca-item')
+  await lista.first().waitFor({ timeout: 20000 }).catch(() => {})
+  return lista.count()
+}
+
+async function selecionarPrimeiroNcmBusca(page: Page): Promise<string | null> {
+  const item = page.locator('.gtv-ncm-busca-item').first()
+  if (await item.count() === 0) return null
+  const codigo = await item.locator('.gtv-ncm-busca-codigo').textContent()
+  await item.click()
+  await page.waitForTimeout(400)
+  return codigo?.trim() ?? null
+}
+
+async function tooltipNcmContemPedido(page: Page): Promise<boolean> {
+  const tip = page.getByRole('tooltip').filter({ hasText: TOOLTIP_NCM_PEDIDO_REGEX })
+  return tip.first().isVisible({ timeout: 8000 }).catch(() => false)
+}
+
+async function hoverCelulaNcmPai(page: Page, rowId: string): Promise<void> {
+  await scrollColunaParaVisivel(page, COL_KEY_NCM)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_NCM}"]`)
+  await cel.hover()
+  await page.waitForTimeout(600)
+}
+
+/** Passos 21–27 — NCM (código, busca por texto, tooltip «Editável no pedido»). */
+async function validarNcmLista(page: Page, rowId: string): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_NCM}: passos 21–27 (código 8528.59.00, busca «monitor», tooltip pedido)`)
+
+  // 21 — NCM no pedido via código
+  await fecharPopoverSeAberto(page)
+  const abriu21 = await abrirPopoverNcmPai(page, rowId)
+  if (!abriu21) {
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '21 — Abrir NCM na linha do pedido')
+  } else {
+    await screenshot(page, '21-ncm-pedido-codigo-selecao.png')
+    const valido21 = await preencherNcmCodigoNoPopover(page, NCM_CODIGO_TESTE)
+    if (!valido21) {
+      falharTabela(LOCAL_LISTA, COLUNA_NCM, `21 — NCM ${NCM_CODIGO_TESTE} não validou no pedido`)
+    } else {
+      const notif21 = await confirmarPopoverNcm(page)
+      const texto21 = await lerTextoNcmPai(page, rowId)
+      await screenshot(page, '21-ncm-pedido-codigo-resultado.png')
+      if (notif21 === 'erro') falharTabela(LOCAL_LISTA, COLUNA_NCM, '21 — Salvar NCM por código no pedido — toast de erro')
+      else if (!ncmExibeCodigo(texto21, NCM_CODIGO_TESTE)) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, `21 — Pedido não exibe NCM ${NCM_CODIGO_TESTE} após salvar`)
+      } else if (notif21 === 'sucesso') {
+        logAprovado(LOCAL_LISTA, COLUNA_NCM, `21 — NCM ${NCM_CODIGO_TESTE} validou e salvou no pedido`)
+      } else {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '21 — Salvar NCM por código no pedido — toast de sucesso não detectado')
+      }
+    }
+  }
+
+  // 22–23 — NCM no pedido via busca «monitor»
+  await fecharPopoverSeAberto(page)
+  const abriu22 = await abrirPopoverNcmPai(page, rowId)
+  if (!abriu22) {
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '22 — Abrir NCM no pedido para busca por texto')
+  } else {
+    const qtd22 = await preencherNcmBuscaNoPopover(page, NCM_BUSCA_TEXTO)
+    await screenshot(page, '22-ncm-pedido-busca-monitor-selecao.png')
+    if (qtd22 < 2) {
+      falharTabela(LOCAL_LISTA, COLUNA_NCM, `22 — Busca «${NCM_BUSCA_TEXTO}» deve listar várias NCMs (encontradas: ${qtd22})`)
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_NCM, `22 — Busca «${NCM_BUSCA_TEXTO}» abriu lista com ${qtd22} NCMs`)
+      const codigoSel23 = await selecionarPrimeiroNcmBusca(page)
+      const notif23 = await confirmarPopoverNcm(page)
+      const texto23 = await lerTextoNcmPai(page, rowId)
+      await screenshot(page, '23-ncm-pedido-busca-monitor-resultado.png')
+      if (!codigoSel23) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '23 — Selecionar NCM da lista no pedido')
+      } else if (notif23 === 'erro') {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '23 — Salvar NCM selecionada no pedido — toast de erro')
+      } else if (!ncmExibeCodigo(texto23, codigoSel23)) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, `23 — Pedido não exibe NCM selecionada (${codigoSel23})`)
+      } else if (notif23 === 'sucesso') {
+        logAprovado(LOCAL_LISTA, COLUNA_NCM, `23 — NCM selecionada da busca salvou no pedido (${codigoSel23})`)
+      } else {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '23 — Salvar NCM selecionada no pedido — toast de sucesso não detectado')
+      }
+    }
+  }
+
+  // 24 — NCM no item via código
+  await fecharPopoverSeAberto(page)
+  const abriu24 = await abrirPopoverNcmItem(page, rowId, 0)
+  if (!abriu24) {
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '24 — Abrir NCM na linha do item 1')
+  } else {
+    await screenshot(page, '24-ncm-item-codigo-selecao.png')
+    const valido24 = await preencherNcmCodigoNoPopover(page, NCM_CODIGO_TESTE)
+    if (!valido24) {
+      falharTabela(LOCAL_LISTA, COLUNA_NCM, `24 — NCM ${NCM_CODIGO_TESTE} não validou no item`)
+    } else {
+      const notif24 = await confirmarPopoverNcm(page)
+      const texto24 = await lerTextoNcmItem(page, rowId, 0)
+      await screenshot(page, '24-ncm-item-codigo-resultado.png')
+      if (notif24 === 'erro') falharTabela(LOCAL_LISTA, COLUNA_NCM, '24 — Salvar NCM por código no item — toast de erro')
+      else if (!ncmExibeCodigo(texto24, NCM_CODIGO_TESTE)) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, `24 — Item 1 não exibe NCM ${NCM_CODIGO_TESTE} após salvar`)
+      } else if (notif24 === 'sucesso') {
+        logAprovado(LOCAL_LISTA, COLUNA_NCM, `24 — NCM ${NCM_CODIGO_TESTE} validou e salvou no item 1`)
+      } else {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '24 — Salvar NCM por código no item — toast de sucesso não detectado')
+      }
+    }
+  }
+
+  // 25–26 — NCM no item via busca «monitor»
+  await fecharPopoverSeAberto(page)
+  const abriu25 = await abrirPopoverNcmItem(page, rowId, 0)
+  if (!abriu25) {
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '25 — Abrir NCM no item para busca por texto')
+  } else {
+    const qtd25 = await preencherNcmBuscaNoPopover(page, NCM_BUSCA_TEXTO)
+    await screenshot(page, '25-ncm-item-busca-monitor-selecao.png')
+    if (qtd25 < 2) {
+      falharTabela(LOCAL_LISTA, COLUNA_NCM, `25 — Busca «${NCM_BUSCA_TEXTO}» no item deve listar várias NCMs (encontradas: ${qtd25})`)
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_NCM, `25 — Busca «${NCM_BUSCA_TEXTO}» no item abriu lista com ${qtd25} NCMs`)
+      const codigoSel26 = await selecionarPrimeiroNcmBusca(page)
+      const notif26 = await confirmarPopoverNcm(page)
+      const texto26 = await lerTextoNcmItem(page, rowId, 0)
+      await screenshot(page, '26-ncm-item-busca-monitor-resultado.png')
+      if (!codigoSel26) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '26 — Selecionar NCM da lista no item')
+      } else if (notif26 === 'erro') {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '26 — Salvar NCM selecionada no item — toast de erro')
+      } else if (!ncmExibeCodigo(texto26, codigoSel26)) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, `26 — Item 1 não exibe NCM selecionada (${codigoSel26})`)
+      } else if (notif26 === 'sucesso') {
+        logAprovado(LOCAL_LISTA, COLUNA_NCM, `26 — NCM selecionada da busca salvou no item 1 (${codigoSel26})`)
+      } else {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '26 — Salvar NCM selecionada no item — toast de sucesso não detectado')
+      }
+    }
+  }
+
+  // 27 — tooltip da coluna NCM deve conter «Pedido»
+  await fecharPopoverSeAberto(page)
+  await hoverCelulaNcmPai(page, rowId)
+  const tooltipOk = await tooltipNcmContemPedido(page)
+  await screenshot(page, '27-ncm-tooltip-pedido.png')
+  if (tooltipOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_NCM, '27 — Tooltip NCM contém «Editável no pedido»')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '27 — Tooltip NCM deve conter texto «Editável no pedido»')
+  }
 }
 
 async function main() {
@@ -803,6 +1097,9 @@ async function main() {
 
   const browser = await chromium.launch({ headless: true })
   const page = await browser.newPage()
+  const timeoutPadrao = ambienteRemotoProducao() ? 90_000 : 60_000
+  page.setDefaultNavigationTimeout(timeoutPadrao)
+  page.setDefaultTimeout(timeoutPadrao)
   await page.setViewportSize({ width: 1440, height: 900 })
 
   try {

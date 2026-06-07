@@ -42,16 +42,23 @@ export const MAX_PILLS_POR_BLOCO = 4
 /** Linha do pedido — coluna valor do item: bloqueado, sem soma do pedido. */
 export const PILLS_PEDIDO_VALOR_ITEM: RegraPillId[] = ['bloqueado_valor_item', 'alerta_divergencia']
 
-/** Linha do pedido — Qtd. Pronta: soma (mesma unidade), alerta, bloqueado. */
+/** Linha do pedido — Qtd. Pronta: total, bloqueado (2º), soma mesma unidade, alerta. */
 export const PILLS_PEDIDO_QTD_PRONTA: RegraPillId[] = [
   'calculado_pedido_qtd_pronta',
+  'bloqueado_edicao',
   'soma_mesma_unidade',
   'alerta_divergencia',
-  'bloqueado_edicao',
 ]
 
 /** Linha item — Qtd. Pronta: editável + alerta de moeda divergente entre itens. */
 export const PILLS_ITEM_QTD_PRONTA: RegraPillId[] = ['editavel_item', 'alerta_moeda_divergente']
+
+/** Moeda do Pedido/Item — mesmas 3 pills no pedido e no item. */
+export const PILLS_MOEDA_PEDIDO_ITEM: RegraPillId[] = [
+  'editavel_pedido',
+  'editavel_item',
+  'replica_itens',
+]
 
 /** Linha do pedido — Qtd. Inicial: soma, bloqueado, alerta, casas decimais. */
 export const PILLS_PEDIDO_QTD_INICIAL: RegraPillId[] = [
@@ -94,6 +101,10 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   pai_valor_item_bloqueado: {
     pedido: PILLS_PEDIDO_VALOR_ITEM,
     item: ['editavel_item'],
+  },
+  pai_moeda_pedido: {
+    pedido: [...PILLS_MOEDA_PEDIDO_ITEM],
+    item: [...PILLS_MOEDA_PEDIDO_ITEM],
   },
   pai_calculado_valor: {
     pedido: ['calculado_pedido', 'alerta_divergencia'],
@@ -278,12 +289,14 @@ function limitarPills(pills: RegraPillId[]): RegraPillId[] {
 }
 
 function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
+  if (key === 'moeda_pedido') return PILLS_MOEDA_PEDIDO_ITEM
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_ITEM_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_ITEM_QTD_INICIAL
   return pills
 }
 
 function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
+  if (key === 'moeda_pedido') return PILLS_MOEDA_PEDIDO_ITEM
   if (key === 'valor_total_pedido') return PILLS_PEDIDO_VALOR_ITEM
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_PEDIDO_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_PEDIDO_QTD_INICIAL
@@ -334,6 +347,7 @@ export function pillsParaNivelColuna(
   )
   const id = nivel === 'pai' && opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraId
   const mapa = MAPA_REGRA_PILLS[id] ?? MAPA_REGRA_PILLS.generico
+  if (key === 'moeda_pedido') return limitarPills(PILLS_MOEDA_PEDIDO_ITEM)
   if (key === 'valor_total_pedido' && nivel === 'pai') return limitarPills(PILLS_PEDIDO_VALOR_ITEM)
   if (key === 'quantidade_pronta_itens_pedido_total' && nivel === 'pai') {
     return limitarPills(PILLS_PEDIDO_QTD_PRONTA)

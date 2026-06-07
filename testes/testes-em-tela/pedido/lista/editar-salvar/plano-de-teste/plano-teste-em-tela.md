@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001  
 **Data:** 2026-06-06  
-**Versão:** 4.1  
+**Versão:** 4.2  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -50,6 +50,8 @@
 | **NCM** | 35–41 | `run-lista-editar-salvar.ts` |
 | **QTD. PRONTA DO PEDIDO/ITEM** | 42–48 | `run-lista-editar-salvar.ts` |
 | **QTD. INICIAL DO PEDIDO/ITEM** | 49–55 | `run-lista-editar-salvar.ts` |
+| **MOEDA DO PEDIDO/ITEM** | 56–61 | `run-lista-editar-salvar.ts` |
+| **VALOR DO ITEM** | 62–66 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -162,6 +164,22 @@
 | | `53-qtd-inicial-item-editar-resultado.png` | Valor editado e unidade persistidos |
 | 54 | `54-qtd-inicial-aviso-unidade-item.png` | Modal exibe aviso de impacto da unidade |
 | 55 | `55-qtd-inicial-persistencia-apos-navegar-resultado.png` | Sair da lista e voltar — valores mantidos |
+| 56 | `56-moeda-tooltip-pedido.png` | Tooltip pedido — Moeda do Pedido/Item (3 pills) |
+| | `57-moeda-tooltip-item.png` | Tooltip item — Moeda do Pedido/Item (3 pills) |
+| 58 | `58-moeda-pedido-sem-replicar-selecao.png` | Select Moeda no pedido (sem checkbox) |
+| | `58-moeda-pedido-sem-replicar-resultado.png` | Só pedido persiste |
+| 59 | `59-moeda-pedido-replicar-todos-selecao.png` | Select com checkbox marcado |
+| | `59-moeda-pedido-replicar-todos-resultado.png` | Pedido + todos os itens iguais |
+| 60 | `60-moeda-editar-item-isolado-selecao.png` | Select no item 1 |
+| | `60-moeda-editar-item-isolado-resultado.png` | Item isolado; pedido mantém valor |
+| 61 | `61-moeda-alerta-divergencia-resultado.png` | Alerta «Moedas divergentes entre itens» na coluna do pedido |
+| 62 | `62-valor-tooltip-pedido.png` | Tooltip pedido — Valor do Item (bloqueado + alerta) |
+| | `63-valor-tooltip-item.png` | Tooltip item — Valor do Item (editável) |
+| 64 | `64-valor-pedido-bloqueado-resultado.png` | Célula do pedido bloqueada (`—` ou classe bloqueada) |
+| 65 | `65-valor-item-incluir-selecao.png` | Popover moeda+valor no item 1 — incluir |
+| | `65-valor-item-incluir-resultado.png` | Valor e moeda salvos no item |
+| 66 | `66-valor-item-editar-selecao.png` | Popover moeda+valor no item 1 — editar |
+| | `66-valor-item-editar-resultado.png` | Valor editado e moeda persistidos |
 | 99 | `99-erro.png` | Só se falhar |
 
 Viewport: **1440×900**
@@ -385,7 +403,34 @@ Coluna **`quantidade_total_pedido`** — pedido **bloqueado** (soma calculada); 
 
 **Valores no runner:** incluir `320,00` · editar `410,75` · unidade `UN`
 
-### ETAPA 19 — Relatório
+### ETAPA 19 — MOEDA DO PEDIDO/ITEM (passos 56–61)
+
+Coluna **`moeda_pedido`** — select do Cadastros com checkbox **«Aplicar em todos os itens»** (igual Incoterm/REF). Tooltip com **3 pills** espelhadas no pedido e no item.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **56** | Hover tooltip na célula **Moeda** do **pedido** | Título «Moeda do Pedido/Item» + 3 pills (editável pedido, editável item, aplicar em todos) · Print `56-moeda-tooltip-pedido.png` (sucesso ou erro) |
+| **57** | Hover tooltip na célula **Moeda** do **item 1** | Mesmas 3 pills · Print `57-moeda-tooltip-item.png` (sucesso ou erro) |
+| **58** | Select no pedido, sigla A, **sem** checkbox → **Confirmar** | Só pedido persiste · Print `58-moeda-pedido-sem-replicar-selecao` · `…-resultado` (sucesso ou erro) |
+| **59** | Select no pedido, sigla B, **com** checkbox → **Confirmar** | Pedido **e** todos os itens iguais · Print `59-moeda-pedido-replicar-todos-selecao` · `…-resultado` (sucesso ou erro) |
+| **60** | Select no **item 1**, sigla C → **Confirmar** | Item isolado; pedido e demais itens mantêm valor · Print `60-moeda-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
+| **61** | Inspecionar coluna do **pedido** | Alerta **«Moedas divergentes entre itens»** visível · Print `61-moeda-alerta-divergencia-resultado.png` (sucesso ou erro) |
+
+### ETAPA 20 — VALOR DO ITEM (passos 62–66)
+
+Coluna dinâmica **`valor_total_pedido`** — pedido **bloqueado** (`—` / alerta se moedas divergirem); **item editável** via popover **moeda + valor** (`.gtv-edit-moeda-valor`).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **62** | Hover tooltip na célula **Valor** do **pedido** | Título «Valor do Item» + pills bloqueado e alerta · Print `62-valor-tooltip-pedido.png` (sucesso ou erro) |
+| **63** | Hover tooltip na célula **Valor** do **item 1** | Pill «Editável no item» · Print `63-valor-tooltip-item.png` (sucesso ou erro) |
+| **64** | Inspecionar célula do **pedido** (sem abrir popover) | Célula bloqueada ou exibe `—` · Print `64-valor-pedido-bloqueado-resultado.png` (sucesso ou erro) |
+| **65** | No **item 1**: incluir valor **1.500,50** + moeda **EUR** → confirmar | Salva com sucesso — valor e moeda exatos na grade · Prints `65-valor-item-incluir-selecao` · `…-resultado` (sucesso ou erro) |
+| **66** | Editar valor do **item 1** para **2.750,00** + moeda **EUR** → confirmar | Salva com sucesso — valor e moeda exatos · Prints `66-valor-item-editar-selecao` · `…-resultado` (sucesso ou erro) |
+
+**Valores no runner:** incluir `1.500,50` · editar `2.750,00` · moeda `EUR`
+
+### ETAPA 21 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -427,4 +472,6 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | NCM | 35–41 | 7 |
 | QTD. PRONTA DO PEDIDO/ITEM | 42–48 | 7 |
 | QTD. INICIAL DO PEDIDO/ITEM | 49–55 | 7 |
-| **Total runner principal** | | **~77 passos / 106 casos** |
+| MOEDA DO PEDIDO/ITEM | 56–61 | 6 |
+| VALOR DO ITEM | 62–66 | 5 |
+| **Total runner principal** | | **~88 passos / 117 casos** |

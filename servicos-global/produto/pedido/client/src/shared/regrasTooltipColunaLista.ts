@@ -20,6 +20,7 @@ export type RegraTooltipId =
   | 'pai_ghost_ncm'
   | 'pai_ghost_cobertura'
   | 'pai_valor_item_bloqueado'
+  | 'pai_moeda_pedido'
   | 'pai_calculado_valor'
   | 'pai_calculado_quantidade'
   | 'pai_calculado_peso'
@@ -68,7 +69,6 @@ const GHOST_NCM = new Set(['ncm'])
 const GHOST_COBERTURA = new Set(['cobertura_cambial'])
 
 const CALCULADO_VALOR = new Set([
-  'moeda_pedido',
   'moeda_item',
   'valor_por_unidade_item',
 ])
@@ -210,6 +210,7 @@ export function classificarRegraTooltipColuna(
     if (opts?.modoDinamicoPedidoItem) return 'dinamico_valor_total'
     return 'pai_valor_item_bloqueado'
   }
+  if (key === 'moeda_pedido') return 'pai_moeda_pedido'
   if (CALCULADO_VALOR.has(key)) return 'pai_calculado_valor'
   if (CALCULADO_PESO.has(key)) return 'pai_calculado_peso'
   if (CALCULADO_CUBAGEM.has(key)) return 'pai_calculado_cubagem'

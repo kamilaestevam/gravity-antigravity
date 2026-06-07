@@ -336,7 +336,13 @@ function wrapTooltipRegraCelula(
       interativo={regra.interativo}
       cursorBloqueado={celulaBloqueada}
     >
-      <span style={{ display: 'contents' }}>{conteudo}</span>
+      <span
+        style={celulaBloqueada
+          ? { display: 'flex', flex: 1, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'inherit', minWidth: 0, width: '100%', cursor: 'not-allowed' }
+          : { display: 'contents' }}
+      >
+        {conteudo}
+      </span>
     </TooltipGlobal>
   )
 }
@@ -2849,9 +2855,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     // Se col.editavel é função, ela tem prioridade sobre camposEditaveis (pode bloquear mesmo se incluído)
     const editavelColFn = typeof col.editavel === 'function' ? col.editavel(item) : undefined
-    const colunaEditavel = editavelColFn !== undefined
-      ? editavelColFn
-      : ((isFilho ? camposEditaveisFilhos : camposEditaveis).includes(col.key) || !!col.editavel)
+    const colunaEditavel = col.editavel === false || editavelColFn === false
+      ? false
+      : editavelColFn === true
+        ? true
+        : (isFilho ? camposEditaveisFilhos : camposEditaveis).includes(col.key)
+          || col.editavel === true
     const podeEditar = colunaEditavel && !!(isFilho ? onEditarFilho : onEditar)
     const semPermissaoEditar = colunaEditavel && !podeEditar && !!mensagemSemPermissaoEditar
     const estaEditando =
@@ -2861,9 +2870,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     const classeIndent      = ''
     const colEditavelBoolFalse = col.editavel === false
-    const celulaBloqueadaPorRegra = isFilho && !!onEditarFilho && !semPermissaoEditar
-      && (colEditavelBoolFalse || editavelColFn === false)
-    const classeEditavel    = podeEditar
+    const celulaBloqueadaPorRegra =
+      (!isFilho && !colunaEditavel && !semPermissaoEditar)
+      || (isFilho && !!onEditarFilho && !semPermissaoEditar
+        && (colEditavelBoolFalse || editavelColFn === false))
+    const classeEditavel    = podeEditar && !celulaBloqueadaPorRegra
       ? ' gtv-celula--editavel'
       : (semPermissaoEditar
         ? ' gtv-celula--sem-permissao'

@@ -38,6 +38,7 @@ const PILL_DEFS: Record<RegraPillId, PillDef> = {
   replica_itens_auto:{ Icon: Copy,             color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
   alerta_divergencia:{ Icon: Warning,          color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
   alerta_moeda_divergente:{ Icon: Warning,     color: '#F59E0B', bg: 'rgba(245,158,11,0.10)' },
+  alerta_moeda_divergente_entre_itens:{ Icon: Warning, color: '#F59E0B', bg: 'rgba(245,158,11,0.10)' },
   bloqueado_valor_item: { Icon: Lock,          color: '#94a3b8', bg: 'rgba(148,163,184,0.14)' },
   bloqueado_edicao:    { Icon: Lock,             color: '#94a3b8', bg: 'rgba(148,163,184,0.14)' },
   calculado_pedido:  { Icon: Sigma,            color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },

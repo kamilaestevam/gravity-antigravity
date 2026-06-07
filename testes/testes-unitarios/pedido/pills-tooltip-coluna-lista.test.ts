@@ -25,7 +25,8 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.pedido).toEqual([
       'bloqueado_edicao',
       'valor_total_soma_mesma_moeda',
-      'alerta_moeda_divergente',
+      'editavel_nos_itens',
+      'alerta_moeda_divergente_entre_itens',
     ])
     expect(res.item).toEqual(['editavel_nos_itens', 'valor_total_item_formula'])
   })
@@ -37,7 +38,7 @@ describe('obterPillsTooltipColuna', () => {
       'bloqueado_edicao',
       'valor_total_soma_mesma_moeda',
       'editavel_nos_itens',
-      'alerta_moeda_divergente',
+      'alerta_moeda_divergente_entre_itens',
     ])
   })
 

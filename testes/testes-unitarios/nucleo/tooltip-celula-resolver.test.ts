@@ -52,6 +52,17 @@ describe('resolverTituloTooltipCelula — moeda', () => {
     const pedido = { numero_pedido: 'P-1', moeda_pedido: 'USD' }
     expect(resolverTituloTooltipCelula(colMoeda, pedido, true)).toBe('Moeda do Item')
   })
+
+  it('isFilhoRender=true sem tooltipTituloItem não usa tooltipTitulo de pedido', () => {
+    const colSemTituloItem: GTColuna<unknown> = {
+      key: 'moeda_pedido',
+      label: 'Moeda do Pedido/Item',
+      tooltipTitulo: 'Moeda do Pedido',
+      tooltipDescricaoItem: 'corpo-item',
+    }
+    const item = { moeda_item: 'USD' }
+    expect(resolverTituloTooltipCelula(colSemTituloItem, item, true)).toBe('Moeda do Pedido/Item')
+  })
 })
 
 describe('resolverTooltipRegraCelula — título alinhado à descrição', () => {

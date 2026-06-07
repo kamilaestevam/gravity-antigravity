@@ -37,6 +37,7 @@
 | **TIPO DE OPERAÇÃO** | 06–12 | `run-lista-editar-salvar.ts` |
 | **STATUS** | — (documentado) | pendente no runner principal |
 | **IMPORTADOR** | — | `run-lista-importador-emt.ts` (dedicado) |
+| **EXPORTADOR** | — | `run-lista-exportador-emt.ts` (dedicado) |
 | **REFERÊNCIA IMPORTADOR** | 13–16 | `run-lista-editar-salvar.ts` |
 | **REFERÊNCIA EXPORTADOR** | 17–20 | `run-lista-editar-salvar.ts` |
 | **INCOTERM** | 21–24 | `run-lista-editar-salvar.ts` |
@@ -51,7 +52,7 @@
 | **QTD. PRONTA DO PEDIDO/ITEM** | 42–48 | `run-lista-editar-salvar.ts` |
 | **QTD. INICIAL DO PEDIDO/ITEM** | 49–55 | `run-lista-editar-salvar.ts` |
 | **MOEDA DO PEDIDO/ITEM** | 56–61 | `run-lista-editar-salvar.ts` |
-| **VALOR TOTAL DO PEDIDO/ITEM** | 62–66 | `run-lista-editar-salvar.ts` |
+| **VALOR TOTAL DO PEDIDO/ITEM** | 62–67 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -173,13 +174,15 @@
 | 60 | `60-moeda-editar-item-isolado-selecao.png` | Select no item 1 |
 | | `60-moeda-editar-item-isolado-resultado.png` | Item isolado; pedido mantém valor |
 | 61 | `61-moeda-alerta-divergencia-resultado.png` | Alerta «Moedas divergentes entre itens» na coluna do pedido |
-| 62 | `62-valor-tooltip-pedido.png` | Tooltip pedido — Valor do Item (bloqueado + alerta) |
-| | `63-valor-tooltip-item.png` | Tooltip item — Valor do Item (editável) |
-| 64 | `64-valor-pedido-bloqueado-resultado.png` | Célula do pedido bloqueada (`—` ou classe bloqueada) |
+| 62 | `62-valor-tooltip-pedido.png` | Tooltip pedido — Valor total do pedido (bloqueado + soma + editável nos itens + alerta + aviso moeda) |
+| | `63-valor-tooltip-item.png` | Tooltip item — Valor Total do Item (editável + fórmula + aviso moeda) |
+| 64 | `64-valor-pedido-bloqueado-resultado.png` | Célula do pedido bloqueada (`—` / cursor `not-allowed`) |
 | 65 | `65-valor-item-incluir-selecao.png` | Popover moeda+valor no item 1 — incluir |
 | | `65-valor-item-incluir-resultado.png` | Valor e moeda salvos no item |
-| 66 | `66-valor-item-editar-selecao.png` | Popover moeda+valor no item 1 — editar |
+| 66 | `66-valor-item-editar-selecao.png` | Popover exibe valor/moeda originais; editar item 1 |
 | | `66-valor-item-editar-resultado.png` | Valor editado e moeda persistidos |
+| 67 | `67-valor-item2-moeda-divergente-selecao.png` | Item 2 com moeda distinta do item 1 |
+| | `67-valor-alerta-divergencia-resultado.png` | Alerta «Moedas divergentes entre itens» na coluna Valor do pedido |
 | 99 | `99-erro.png` | Só se falhar |
 
 Viewport: **1440×900**
@@ -253,7 +256,15 @@ Viewport: **1440×900**
 2. Coluna **IMPORTADOR** em pedido **Exportação** — modal seletor de importadores / atalho fornecedores
 3. Tooltip espelhado conforme tipo de operação (ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §5)
 
-### ETAPA 6 — REFERÊNCIA IMPORTADOR (passos 13–16)
+### ETAPA 6 — EXPORTADOR (`nome_exportador`)
+
+> Runner **dedicado:** `run-lista-exportador-emt.ts` (espelho inverso do Importador — §5B).
+
+1. Coluna **EXPORTADOR** em pedido **Exportação** — select lista workspaces com **nomes** (nunca CUID cru; ex.: `CDE EXPORTADOR`)
+2. Coluna **EXPORTADOR** em pedido **Importação** — modal seletor de exportadores / atalho fornecedores (ex.: Foxconn, Bosch)
+3. Tooltip espelhado conforme tipo de operação (ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §5B)
+
+### ETAPA 7 — REFERÊNCIA IMPORTADOR (passos 13–16)
 
 **Pré-condição:** pedido expandido com **≥2 itens**.
 
@@ -264,7 +275,7 @@ Viewport: **1440×900**
 | **15** | Editar no **1º item** `REF-IMP-EMT-ITEM-*`; confirmar | Só item 1 muda · Print `15-ref-importador-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **16** | Inspecionar coluna do **pedido** | Ícone âmbar visível · Print `16-ref-importador-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 7 — REFERÊNCIA EXPORTADOR (passos 17–20)
+### ETAPA 8 — REFERÊNCIA EXPORTADOR (passos 17–20)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
@@ -273,7 +284,7 @@ Viewport: **1440×900**
 | **19** | Editar no **1º item** `REF-EXP-EMT-ITEM-*`; confirmar | Só item 1 muda · Print `19-ref-exportador-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **20** | Inspecionar coluna do **pedido** | Ícone âmbar visível · Print `20-ref-exportador-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 8 — INCOTERM (passos 21–24)
+### ETAPA 9 — INCOTERM (passos 21–24)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
@@ -282,7 +293,7 @@ Viewport: **1440×900**
 | **23** | Select no **item 1**, sigla C → confirmar | Item isolado · Print `23-incoterm-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **24** | Inspecionar coluna do **pedido** | Ícone âmbar visível · Print `24-incoterm-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 9 — DESCRIÇÃO DO ITEM (passos 25–28)
+### ETAPA 10 — DESCRIÇÃO DO ITEM (passos 25–28)
 
 Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedido é exibição agregada. **Sem** alerta âmbar de divergência.
 
@@ -295,7 +306,7 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 
 **Prefixos de valor no runner:** `DESC-EMT-SOLO-*` · `DESC-EMT-TODOS-*` · `DESC-EMT-ITEM-*`
 
-### ETAPA 10 — PORTO DE ORIGEM (`porto_origem`, passo 29)
+### ETAPA 11 — PORTO DE ORIGEM (`porto_origem`, passo 29)
 
 **Regras LOG-00…06:** **LOG-00** — o código escolhido (porto/país/aeroporto) é **qualquer opção disponível** no select; critério = salvou com sucesso + pedido e itens espelham o **mesmo** valor exibido. Demais: valor único no pedido; itens espelham `_p`; tooltip com 3 pills espelhadas; **sem** checkbox replicar; **sem** alerta âmbar.
 
@@ -307,7 +318,7 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 | **29.4** | Select no **item 1** → **outra opção** (se houver) → confirmar | Toast sucesso · Pedido atualizado via item; todos espelham o **mesmo** valor · Prints `29-log-porto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **29.5** | Inspecionar coluna do **pedido** | **Sem** ícone âmbar de divergência (LOG-05) |
 
-### ETAPA 11 — PORTO DE DESTINO (`porto_destino`, passo 30)
+### ETAPA 12 — PORTO DE DESTINO (`porto_destino`, passo 30)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
@@ -317,7 +328,7 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 | **30.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `30-log-porto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **30.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 12 — PAÍS DE ORIGEM (`local_de_origem`, passo 31)
+### ETAPA 13 — PAÍS DE ORIGEM (`local_de_origem`, passo 31)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
@@ -327,7 +338,7 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 | **31.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `31-log-pais-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **31.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 13 — PAÍS DE DESTINO (`local_de_destino`, passo 32)
+### ETAPA 14 — PAÍS DE DESTINO (`local_de_destino`, passo 32)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
@@ -337,7 +348,7 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 | **32.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `32-log-pais-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **32.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 14 — AEROPORTO DE ORIGEM (`aeroporto_origem`, passo 33)
+### ETAPA 15 — AEROPORTO DE ORIGEM (`aeroporto_origem`, passo 33)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
@@ -347,7 +358,7 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 | **33.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `33-log-aeroporto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **33.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 15 — AEROPORTO DE DESTINO (`aeroporto_destino`, passo 34)
+### ETAPA 16 — AEROPORTO DE DESTINO (`aeroporto_destino`, passo 34)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
@@ -357,7 +368,7 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 | **34.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `34-log-aeroporto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **34.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 16 — NCM (passos 35–41)
+### ETAPA 17 — NCM (passos 35–41)
 
 Campo **ghost** — persiste no banco no **item**; linha do pedido exibe valor canônico. **Sem** alerta âmbar (NCM-06).
 
@@ -371,7 +382,7 @@ Campo **ghost** — persiste no banco no **item**; linha do pedido exibe valor c
 | **40** | Selecionar 1ª NCM da busca no **item 1** → confirmar | Valor salvo no item · Print `40-ncm-item-busca-monitor-resultado.png` (sucesso ou erro) |
 | **41** | Hover tooltip na célula **NCM** do **pedido** | Texto contém «Editável no pedido» · Print `41-ncm-tooltip-pedido.png` (sucesso ou erro) |
 
-### ETAPA 17 — QTD. PRONTA DO PEDIDO/ITEM (passos 42–48)
+### ETAPA 18 — QTD. PRONTA DO PEDIDO/ITEM (passos 42–48)
 
 Coluna **`quantidade_pronta_itens_pedido_total`** — pedido **bloqueado** (soma calculada); **item editável** via popover unidade+quantidade.
 
@@ -387,7 +398,7 @@ Coluna **`quantidade_pronta_itens_pedido_total`** — pedido **bloqueado** (soma
 
 **Valores no runner:** incluir `150,00` · editar `275,50` · unidade `UN`
 
-### ETAPA 18 — QTD. INICIAL DO PEDIDO/ITEM (passos 49–55)
+### ETAPA 19 — QTD. INICIAL DO PEDIDO/ITEM (passos 49–55)
 
 Coluna **`quantidade_total_pedido`** — pedido **bloqueado** (soma calculada); **item editável** via popover unidade+quantidade.
 
@@ -403,7 +414,7 @@ Coluna **`quantidade_total_pedido`** — pedido **bloqueado** (soma calculada); 
 
 **Valores no runner:** incluir `320,00` · editar `410,75` · unidade `UN`
 
-### ETAPA 19 — MOEDA DO PEDIDO/ITEM (passos 56–61)
+### ETAPA 20 — MOEDA DO PEDIDO/ITEM (passos 56–61)
 
 Coluna **`moeda_pedido`** — select do Cadastros com checkbox **«Aplicar em todos os itens»** (igual Incoterm/REF). Tooltip com **3 pills** espelhadas no pedido e no item.
 
@@ -416,21 +427,22 @@ Coluna **`moeda_pedido`** — select do Cadastros com checkbox **«Aplicar em to
 | **60** | Select no **item 1**, sigla C → **Confirmar** | Item isolado; pedido e demais itens mantêm valor · Print `60-moeda-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **61** | Inspecionar coluna do **pedido** | Alerta **«Moedas divergentes entre itens»** visível · Print `61-moeda-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 20 — VALOR TOTAL DO PEDIDO/ITEM (passos 62–66)
+### ETAPA 21 — VALOR TOTAL DO PEDIDO/ITEM (passos 62–67)
 
-Coluna dinâmica **`valor_total_pedido`** — pedido **bloqueado** (`—` / alerta se moedas divergirem); **item editável** via popover **moeda + valor** (`.gtv-edit-moeda-valor`).
+Coluna dinâmica **`valor_total_pedido`** — pedido **bloqueado** (cursor `not-allowed`, `—` ou soma na mesma moeda; alerta âmbar se moedas divergirem); **item editável** via popover **moeda + valor** (`.gtv-edit-moeda-valor`). Valor preenchido do item segue **Valor unitário × Qtd. Inicial** (pill na tooltip).
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
-| **62** | Hover tooltip na célula **Valor** do **pedido** | Título «Valor do Item» + pills bloqueado e alerta · Print `62-valor-tooltip-pedido.png` (sucesso ou erro) |
-| **63** | Hover tooltip na célula **Valor** do **item 1** | Pill «Editável no item» · Print `63-valor-tooltip-item.png` (sucesso ou erro) |
-| **64** | Inspecionar célula do **pedido** (sem abrir popover) | Célula bloqueada ou exibe `—` · Print `64-valor-pedido-bloqueado-resultado.png` (sucesso ou erro) |
-| **65** | No **item 1**: incluir valor **1.500,50** + moeda **EUR** → confirmar | Salva com sucesso — valor e moeda exatos na grade · Prints `65-valor-item-incluir-selecao` · `…-resultado` (sucesso ou erro) |
-| **66** | Editar valor do **item 1** para **2.750,00** + moeda **EUR** → confirmar | Salva com sucesso — valor e moeda exatos · Prints `66-valor-item-editar-selecao` · `…-resultado` (sucesso ou erro) |
+| **62** | Hover tooltip na célula **Valor** do **pedido** | Título «Valor total do pedido» + pills Bloqueado, Total do Pedido (soma mesma moeda), Editável nos itens, Alerta moeda divergente + aviso de impacto na moeda · Print `62-valor-tooltip-pedido.png` (sucesso ou erro) |
+| **63** | Hover tooltip na célula **Valor** do **item 1** | Título «Valor Total do Item» + pills Editável nos itens, fórmula valor total + aviso de impacto na moeda · Print `63-valor-tooltip-item.png` (sucesso ou erro) |
+| **64** | Inspecionar célula do **pedido** (sem abrir popover) | Célula bloqueada ou `—` e cursor `not-allowed` · Print `64-valor-pedido-bloqueado-resultado.png` (sucesso ou erro) |
+| **65** | No **item 1** vazio: incluir valor **1.500,50** + moeda **EUR** → confirmar | Salva com sucesso — valor e moeda exatos na grade · Prints `65-valor-item-incluir-selecao` · `…-resultado` (sucesso ou erro) |
+| **66** | Abrir popover do **item 1** preenchido | Exibe valor **1.500,50** e moeda **EUR** originais; editar para **2.750,00** + **EUR** → confirmar · Prints `66-valor-item-editar-selecao` · `…-resultado` (sucesso ou erro) |
+| **67** | No **item 2**: valor **1.000,00** + moeda distinta do item 1 → confirmar | Alerta **«Moedas divergentes entre itens»** na coluna Valor do pedido · Prints `67-valor-item2-moeda-divergente-selecao` · `67-valor-alerta-divergencia-resultado` (sucesso ou erro) |
 
-**Valores no runner:** incluir `1.500,50` · editar `2.750,00` · moeda `EUR`
+**Valores no runner:** incluir `1.500,50` · editar `2.750,00` · item 2 `1.000,00` · moeda item 1 `EUR`
 
-### ETAPA 21 — Relatório
+### ETAPA 22 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -459,6 +471,7 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | TIPO OPERAÇÃO | 06–12 | 7 |
 | STATUS | documentado | 5 regras |
 | IMPORTADOR | runner dedicado | 3 |
+| EXPORTADOR | runner dedicado | 3 |
 | REF. IMPORTADOR | 13–16 | 4 |
 | REF. EXPORTADOR | 17–20 | 4 |
 | INCOTERM | 21–24 | 4 |
@@ -473,5 +486,5 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | QTD. PRONTA DO PEDIDO/ITEM | 42–48 | 7 |
 | QTD. INICIAL DO PEDIDO/ITEM | 49–55 | 7 |
 | MOEDA DO PEDIDO/ITEM | 56–61 | 6 |
-| VALOR TOTAL DO PEDIDO/ITEM | 62–66 | 5 |
+| VALOR TOTAL DO PEDIDO/ITEM | 62–67 | 6 |
 | **Total runner principal** | | **~88 passos / 117 casos** |

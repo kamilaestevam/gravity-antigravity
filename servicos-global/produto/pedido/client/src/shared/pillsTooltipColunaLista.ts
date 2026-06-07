@@ -1,6 +1,11 @@
 /**
  * pillsTooltipColunaLista.ts — Vocabulário e matriz de pílulas para tooltips da lista.
  *
+ * SSOT de pills — espelha:
+ * - `documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §0
+ * - `/tooltip-pedido` (ETAPA 3 — ordem canônica pedido/item)
+ * - `LISTA-EDITAR-SALVAR-TECNICO.md` §6
+ *
  * ## Tipos de tooltip (UX lista Pedido)
  *
  * **Linha pedido** (cabeçalho + célula do pedido)
@@ -40,6 +45,7 @@ export type RegraPillId =
   | 'replica_itens_auto'
   | 'alerta_divergencia'
   | 'alerta_moeda_divergente'
+  | 'alerta_moeda_divergente_entre_itens'
   | 'bloqueado_valor_item'
   | 'bloqueado_edicao'
   | 'calculado_pedido'
@@ -93,6 +99,7 @@ export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
   'editavel_nos_itens',
   'alerta_divergencia',
   'alerta_moeda_divergente',
+  'alerta_moeda_divergente_entre_itens',
   'cond_import_export',
   'formula_config',
   'casas_decimais_config',
@@ -136,7 +143,8 @@ export function ordenarPillsCanonico(
 export const PILLS_PEDIDO_VALOR_TOTAL: RegraPillId[] = [
   'bloqueado_edicao',
   'valor_total_soma_mesma_moeda',
-  'alerta_moeda_divergente',
+  'editavel_nos_itens',
+  'alerta_moeda_divergente_entre_itens',
 ]
 
 /** Valor Total do Pedido/Item — linha do item. */
@@ -146,7 +154,7 @@ export const PILLS_ITEM_VALOR_TOTAL: RegraPillId[] = ['editavel_nos_itens', 'val
 export const PILLS_COLUNA_VALOR_TOTAL: RegraPillId[] = [
   'bloqueado_edicao',
   'valor_total_soma_mesma_moeda',
-  'alerta_moeda_divergente',
+  'alerta_moeda_divergente_entre_itens',
   'editavel_nos_itens',
 ]
 
@@ -181,6 +189,31 @@ export const PILLS_PEDIDO_QTD_PRONTA: RegraPillId[] = [
 
 /** Linha item — Qtd. Pronta: editável + alerta de moeda divergente entre itens. */
 export const PILLS_ITEM_QTD_PRONTA: RegraPillId[] = ['editavel_item', 'alerta_moeda_divergente']
+
+/** Linha do pedido — Qtd. Transferida: calculado, bloqueado, soma mesma unidade, alerta. */
+export const PILLS_PEDIDO_QTD_TRANSFERIDA: RegraPillId[] = [
+  'calculado_pedido',
+  'bloqueado_edicao',
+  'soma_mesma_unidade',
+  'alerta_divergencia',
+  'casas_decimais_config',
+]
+
+/** Linha do pedido — Qtd. Cancelada: calculado, bloqueado, soma mesma unidade, alerta. */
+export const PILLS_PEDIDO_QTD_CANCELADA: RegraPillId[] = [
+  'calculado_pedido',
+  'bloqueado_edicao',
+  'soma_mesma_unidade',
+  'alerta_divergencia',
+  'casas_decimais_config',
+]
+
+/** Linha do pedido — Saldo: calculado por fórmula, bloqueado, link configurador. */
+export const PILLS_PEDIDO_SALDO: RegraPillId[] = [
+  'calculado_pedido',
+  'bloqueado_edicao',
+  'formula_config',
+]
 
 /** Moeda — linha do pedido. */
 export const PILLS_PEDIDO_MOEDA: RegraPillId[] = [
@@ -256,7 +289,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_item', 'alerta_divergencia'],
   },
   pai_saldo_formula: {
-    pedido: ['calculado_pedido', 'formula_config'],
+    pedido: [...PILLS_PEDIDO_SALDO],
     item: ['somente_leitura', 'formula_config'],
   },
   pai_somente_leitura: {
@@ -332,15 +365,15 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: [...PILLS_ITEM_QTD_PRONTA],
   },
   dinamico_saldo: {
-    pedido: ['calculado_pedido', 'formula_config'],
+    pedido: [...PILLS_PEDIDO_SALDO],
     item: ['somente_leitura', 'formula_config'],
   },
   dinamico_qtd_transferida: {
-    pedido: ['calculado_pedido'],
+    pedido: [...PILLS_PEDIDO_QTD_TRANSFERIDA],
     item: ['somente_leitura', 'so_operacao'],
   },
   dinamico_qtd_cancelada: {
-    pedido: ['calculado_pedido'],
+    pedido: [...PILLS_PEDIDO_QTD_CANCELADA],
     item: ['somente_leitura', 'so_operacao'],
   },
   dinamico_peso_liquido: {
@@ -440,6 +473,9 @@ function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] 
   if (key === 'valor_total_pedido') return PILLS_PEDIDO_VALOR_TOTAL
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_PEDIDO_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_PEDIDO_QTD_INICIAL
+  if (key === 'quantidade_transferida_total') return PILLS_PEDIDO_QTD_TRANSFERIDA
+  if (key === 'quantidade_cancelada_total_pedido') return PILLS_PEDIDO_QTD_CANCELADA
+  if (key === 'saldo_itens_do_pedido') return PILLS_PEDIDO_SALDO
   return pills
 }
 
@@ -535,6 +571,15 @@ export function pillsParaNivelColuna(
   }
   if (key === 'quantidade_total_pedido' && nivel === 'item') {
     return limitarPills(PILLS_ITEM_QTD_INICIAL, 'item')
+  }
+  if (key === 'quantidade_transferida_total' && nivel === 'pai') {
+    return limitarPills(PILLS_PEDIDO_QTD_TRANSFERIDA, 'pai')
+  }
+  if (key === 'quantidade_cancelada_total_pedido' && nivel === 'pai') {
+    return limitarPills(PILLS_PEDIDO_QTD_CANCELADA, 'pai')
+  }
+  if (key === 'saldo_itens_do_pedido' && nivel === 'pai') {
+    return limitarPills(PILLS_PEDIDO_SALDO, 'pai')
   }
   return limitarPills(nivel === 'item' ? mapa.item : mapa.pedido, nivel)
 }

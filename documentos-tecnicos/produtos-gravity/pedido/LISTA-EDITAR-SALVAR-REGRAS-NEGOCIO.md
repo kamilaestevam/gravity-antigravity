@@ -23,7 +23,9 @@ Regras de produto para colunas com comportamento **especial** na Lista (diferent
 | **TIPO DE OPERAÇÃO** | Exclusivo do pedido; replicação automática; item travado |
 | **STATUS** | Pedido e item editáveis; checkbox replicar; alerta âmbar de divergência |
 | **IMPORTADOR** (`nome_importador`) | Importação: espelhado com workspace; Exportação: vincular ou modal de troca |
+| **EXPORTADOR** (`nome_exportador`) | Exportação: espelhado com workspace; Importação: vincular ou modal de troca |
 | **REFERÊNCIA IMPORTADOR / EXPORTADOR** | Padrão Incoterm — pedido+item editáveis, checkbox replicar, alerta divergência |
+| **VALOR TOTAL DO PEDIDO/ITEM** (`valor_total_pedido`) | Pedido bloqueado (soma mesma moeda); item editável via popover moeda+valor |
 
 Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md) (Incoterm, datas, referência fabricante, etc.).
 
@@ -77,7 +79,8 @@ Texto livre orientado ao operador — ex.: *«A alteração da moeda irá altera
 | Coluna | Tooltips documentados neste arquivo | Alinhado ao framework 01/02 |
 |--------|-------------------------------------|------------------------------|
 | Moeda | ✅ MND-01…08 + tooltips §0 | ✅ |
-| Valor total / unitário | Em migração (piloto no código) | 🟡 parcial |
+| Valor total (`valor_total_pedido`) | ✅ VLR-01…09 + tooltips §0 | ✅ |
+| Valor unitário | Em migração (piloto no código) | 🟡 parcial |
 | Logística (LOG-06) | ✅ pills definidas | 🟡 títulos `{Coluna} do Pedido/Item` pendentes |
 | Demais seções 1–8 | Regras de edição + pills pontuais | 🟡 revisão campo a campo pelo dono |
 
@@ -213,6 +216,36 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 
 ---
 
+## 5B. EXPORTADOR (`nome_exportador`)
+
+> Decisão de produto **2026-06** — espelho inverso do Importador (§5), aprovada pelo dono.
+
+O exportador exibido depende do **tipo de operação** do pedido.
+
+### Exportação (`tipo_operacao = exportacao`)
+
+| # | Regra |
+|---|--------|
+| **EXPE-01** | O exportador é o **workspace** do pedido — exibe o nome do workspace, não um fornecedor do Cadastros. |
+| **EXPE-02** | Tooltip: *Espelhado com o workspace* — **sem** link para Configurador ou Cadastros na célula preenchida. |
+| **EXPE-03** | Edição inline no pedido abre o **mesmo select de Workspace** (alterar workspace troca o exportador). |
+| **EXPE-04** | Linha **item** somente leitura — espelha o workspace do pedido. |
+
+### Importação (`tipo_operacao = importacao`)
+
+| # | Regra |
+|---|--------|
+| **IMPE-01** | Exportador = contraparte estrangeira vinculada via Cadastros (`importacao_exportador_id` + `nome_exportador`). |
+| **IMPE-02** | Célula **vazia** → link **«Vincular exportador»** → tela Fornecedor no Configurador (fluxo existente com `retorno`). |
+| **IMPE-03** | Célula **preenchida** → clique abre **modal** com lista de exportadores da organização (`pode_ser_exportador_fornecedor=true`). |
+| **IMPE-04** | Modal permite **trocar** o exportador sem sair da Lista; atalho → Configurador / Fornecedores. |
+| **IMPE-05** | **Sem** checkbox «Aplicar a todos os itens» e **sem** alerta de divergência na coluna Exportador. |
+| **IMPE-06** | Linha **item** somente leitura — badge/link espelha o pedido; clique no badge abre o mesmo modal do pedido. |
+
+**EMT:** `run-lista-exportador-emt.ts` — espelho do runner Importador.
+
+---
+
 ## 6. REFERÊNCIA IMPORTADOR e REFERÊNCIA EXPORTADOR
 
 > Decisão de produto **2026-06** — **mesmas regras** para ambas as colunas (padrão Incoterm).
@@ -277,6 +310,36 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 
 ---
 
+## 8A. VALOR TOTAL DO PEDIDO/ITEM (`valor_total_pedido`)
+
+> Decisão de produto **2026-06-08** — coluna dinâmica pedido/item. Pedido **não editável**; item via popover **moeda + valor** (`.gtv-edit-moeda-valor`). Tooltips alinhados ao framework §0.
+
+| # | Regra |
+|---|--------|
+| **VLR-01** | Label na grade: **Valor Total do Pedido/Item** — títulos de tooltip: *Valor total do pedido* (pai) / *Valor Total do Item* (filho). |
+| **VLR-02** | Linha **pedido** **bloqueada** — cursor `not-allowed`; exibe soma dos `valor_total_item` na **mesma moeda** ou `—` se moedas divergirem. |
+| **VLR-03** | Linha **item** **editável** — popover moeda + valor; item vazio pode incluir valor e qualquer moeda e salvar. |
+| **VLR-04** | Valor preenchido do item = **Valor unitário do item × Qtd. Inicial do Item** (pill de fórmula na tooltip do item). |
+| **VLR-05** | Ao abrir o popover em item preenchido, exibir **valor e moeda originais** antes da edição. |
+| **VLR-06** | Alterar valor/moeda no item persiste `valor_total_item` + `moeda_item` e recalcula agregado do pedido. |
+| **VLR-07** | **Alerta âmbar** na célula do **pedido** quando itens têm moedas divergentes no valor (`moeda_item_divergente`) — *Moedas divergentes entre itens*. |
+| **VLR-08** | **Aviso amarelo** no tooltip **pedido e item**: *A alteração da moeda aqui irá alterar também Moeda do Pedido/Item e Valor Unitário do Item* (`valor_total_item_impacto_moeda_edicao`). |
+| **VLR-09** | Alterar moeda no popover do item propaga impacto em `moeda_item`, `valor_por_unidade_item` e agregados (sincronização local pós-save). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** (expandido) | *Valor total do pedido* | `bloqueado_edicao` → `valor_total_soma_mesma_moeda` → `editavel_nos_itens` → `alerta_moeda_divergente_entre_itens` |
+| **Item** | *Valor Total do Item* | `editavel_nos_itens` → `valor_total_item_formula` |
+| **Cabeçalho** (sem expandir) | *Valor Total do Pedido/Item* | `bloqueado_edicao` → `valor_total_soma_mesma_moeda` → `editavel_nos_itens` → `alerta_moeda_divergente_entre_itens` |
+
+**Código:** `PILLS_PEDIDO_VALOR_TOTAL` / `PILLS_ITEM_VALOR_TOTAL` · `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` · `enriquecerColunaBloqueadaInlinePedido` em `buildTooltipRegraLista.tsx`.
+
+**EMT:** passos 62–67 em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+
+---
+
 ## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.
@@ -295,14 +358,14 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 
 ## 10. Resumo comparativo
 
-| Aspecto | Workspace | TIPO DE OPERAÇÃO | STATUS | Importador | Ref. Imp./Exp. | Moeda | Logística | Incoterm |
-|---------|-----------|------------------|--------|------------|----------------|-------|-----------|----------|
-| Edição no pedido | ✅ | ✅ | ✅ | ✅ (IMP: via workspace) | ✅ | ✅ | ✅ | ✅ |
-| Edição no item | ❌ travado | ❌ travado | ✅ | ❌ travado | ✅ | ✅ | ✅ (roteia pedido) | ✅ |
-| Checkbox replicar no pedido | ❌ ausente | ❌ ausente | ✅ presente | ❌ ausente | ✅ presente | ✅ presente | ❌ ausente | ✅ presente |
-| Replicação sem checkbox | ✅ sempre | ✅ sempre | ❌ não replica | — | ❌ não replica | ❌ não replica | Espelhado visual | ❌ não replica |
-| Alerta âmbar se diverge | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ (só célula) | ❌ | ✅ |
-| Opções do select (pedido) | Workspaces habilitados | Importação / Exportação | Status nativos + custom | IMP: workspaces | Texto livre | Cadastros moeda | Cadastros | Incoterms cadastros |
+| Aspecto | Workspace | TIPO DE OPERAÇÃO | STATUS | Importador | Exportador | Ref. Imp./Exp. | Moeda | Valor total | Logística | Incoterm |
+|---------|-----------|------------------|--------|------------|------------|----------------|-------|-------------|-----------|----------|
+| Edição no pedido | ✅ | ✅ | ✅ | ✅ (IMP: via workspace) | ✅ (EXP: via workspace) | ✅ | ✅ | ❌ bloqueado | ✅ | ✅ |
+| Edição no item | ❌ travado | ❌ travado | ✅ | ❌ travado | ❌ travado | ✅ | ✅ | ✅ popover moeda+valor | ✅ (roteia pedido) | ✅ |
+| Checkbox replicar no pedido | ❌ ausente | ❌ ausente | ✅ presente | ❌ ausente | ❌ ausente | ✅ presente | ✅ presente | ❌ ausente | ❌ ausente | ✅ presente |
+| Replicação sem checkbox | ✅ sempre | ✅ sempre | ❌ não replica | — | — | ❌ não replica | ❌ não replica | — | Espelhado visual | ❌ não replica |
+| Alerta âmbar se diverge | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ (só célula) | ✅ (moeda no valor) | ❌ | ✅ |
+| Opções do select (pedido) | Workspaces habilitados | Importação / Exportação | Status nativos + custom | IMP: workspaces / EXP: fornecedores | EXP: workspaces / IMP: fornecedores | Texto livre | Cadastros moeda | — | Cadastros | Incoterms cadastros |
 
 ---
 
@@ -315,6 +378,7 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 | 2026-06-03 | STATUS — regras 00–04; fix alerta sem expandir (`status_itens_snapshot`); TDZ `statusOpts`/`pedidos` |
 | 2026-06-03 | WORKSPACE — WS-01…06; sem alerta; select com todos workspaces habilitados |
 | 2026-06-03 | IMPORTADOR — IMP-01…04 / EXP-01…06; modal seletor na exportação; IMP espelhado com workspace |
+| 2026-06-08 | EXPORTADOR — EXPE-01…04 / IMPE-01…06; espelho inverso do Importador; EMT `run-lista-exportador-emt.ts` |
 | 2026-06-06 | NCM — NCM-01…07; sem alerta de divergência (vários NCMs por pedido é normal) |
 | 2026-06-06 | REF. IMPORTADOR / EXPORTADOR — REF-01…08; EMT passos 13–20 (mesmas regras, padrão Incoterm) |
 | 2026-06-06 | LOGÍSTICA — LOG-01…06; tooltips espelhados (sem alerta/replicar) em Porto/País/Aeroporto |
@@ -322,3 +386,4 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 | 2026-06-06 | INCOTERM — INC-01…08; EMT passos 21–24 (select Cadastros + checkbox + alerta divergência) |
 | 2026-06-07 | §0 Framework tooltips (linha pedido / linha item / avisos); LOG-06 alinhado a títulos `{Coluna} do Pedido/Item` |
 | 2026-06-07 | MOEDA — MND-01…08; tooltips pedido/item + aviso impacto; pills `editavel_pedido` → `replica_itens` → `editavel_item` / item `editavel_item` |
+| 2026-06-08 | VALOR TOTAL — VLR-01…09; pedido bloqueado + soma; item popover; pills `editavel_nos_itens`; EMT passos 62–67 |

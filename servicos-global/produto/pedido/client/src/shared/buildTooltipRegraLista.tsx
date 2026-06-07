@@ -11,9 +11,8 @@ import {
   type NivelColunaLista,
   type RegraTooltipId,
 } from './regrasTooltipColunaLista'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipColunaLista'
-import { TooltipRegrasColuna } from './TooltipRegrasColuna'
+import { TooltipListaColuna } from './TooltipListaColuna'
 
 type OpcoesMontarTooltipPills = {
   modoDinamicoPedidoItem?: boolean
@@ -88,6 +87,9 @@ function avisoImpactoPorColuna(
   if (key === 'valor_por_unidade_item' && nivel === 'item') {
     return t('pedido.lista.regras_coluna.valor_unitario_item_impacto_moeda')
   }
+  if (key === 'valor_total_pedido' && (nivel === 'pai' || nivel === 'item')) {
+    return t('pedido.lista.regras_coluna.valor_total_item_impacto_moeda_edicao')
+  }
   if (avisoImpactoColuna?.trim()) {
     return avisoImpactoColuna.trim()
   }
@@ -101,13 +103,6 @@ function nivelParaAvisoImpacto(
   if (opts?.somenteBloco === 'item') return 'item'
   if (opts?.somenteBloco === 'pedido') return 'pai'
   return nivel
-}
-
-function descricaoExtraPorColuna(t: TFunction, key: string, nivel: NivelColunaLista): string | undefined {
-  if (key === 'valor_total_pedido' && nivel === 'item') {
-    return t('pedido.lista.regras_coluna.valor_item_impacto_moeda')
-  }
-  return undefined
 }
 
 function montarTooltipPills(
@@ -133,7 +128,7 @@ function montarTooltipPills(
         numeroUnicoOrg={res.numeroUnicoOrg && nivelBloco === 'pai'}
         aviso={opts?.aviso}
         avisoImpacto={avisoImpactoPorColuna(t, key, nivelBloco, opts?.avisoImpactoColuna)}
-        descricaoExtra={opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key, nivelBloco) || undefined}
+        descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
       />
     )
   }
@@ -150,7 +145,7 @@ function montarTooltipPills(
         numeroUnicoOrg={res.numeroUnicoOrg}
         aviso={opts?.aviso}
         avisoImpacto={avisoImpactoPorColuna(t, key, nivelParaAvisoImpacto(opts, nivel), opts?.avisoImpactoColuna)}
-        descricaoExtra={opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key, 'item') || undefined}
+        descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
       />
     )
   }
@@ -165,7 +160,7 @@ function montarTooltipPills(
       numeroUnicoOrg={res.numeroUnicoOrg && nivel === 'pai'}
       aviso={opts?.aviso}
       avisoImpacto={avisoImpactoPorColuna(t, key, nivel, opts?.avisoImpactoColuna)}
-      descricaoExtra={opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key, nivel) || undefined}
+      descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
     />
   )
 }
@@ -176,6 +171,9 @@ const CHAVES_TITULO_CELULA_PILOTO = new Set([
   'valor_total_pedido',
   'quantidade_total_pedido',
   'quantidade_pronta_itens_pedido_total',
+  'quantidade_transferida_total',
+  'quantidade_cancelada_total_pedido',
+  'saldo_itens_do_pedido',
 ])
 
 function usaTooltipPorNivelColuna(key: string, dual: boolean): boolean {
@@ -280,6 +278,9 @@ export function enriquecerColunaComRegraTooltip<T>(
         || key === 'moeda_pedido'
         || key === 'quantidade_total_pedido'
         || key === 'quantidade_pronta_itens_pedido_total'
+        || key === 'quantidade_transferida_total'
+        || key === 'quantidade_cancelada_total_pedido'
+        || key === 'saldo_itens_do_pedido'
         || pillsRes.dual
       ) {
         if (isLinhaItemLista(row)) return tooltipCelulaItem
@@ -340,7 +341,7 @@ export function wrapCelulaPedidoBloqueadoLista(
   t: TFunction,
   titulo: string,
   key: string,
-  opts?: Pick<OpcoesMontarTooltipPills, 'avisoImpactoColuna' | 'modoDinamicoPedidoItem'>,
+  opts?: Pick<OpcoesMontarTooltipPills, 'avisoImpactoColuna' | 'modoDinamicoPedidoItem'> & { interativo?: boolean },
 ): React.ReactElement {
   return (
     <TooltipGlobal
@@ -350,6 +351,7 @@ export function wrapCelulaPedidoBloqueadoLista(
         avisoImpactoColuna: opts?.avisoImpactoColuna,
         modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
       }, 'pai')}
+      interativo={opts?.interativo}
       cursorBloqueado
     >
       <span
@@ -391,9 +393,42 @@ export function aplicarRenderTooltipInlinePedido<T>(
       {
         avisoImpactoColuna: col.avisoImpacto,
         modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+        interativo: enriched.tooltipInterativo,
       },
     ),
   }
+}
+
+/** Colunas calculadas/bloqueadas na linha do pedido — tooltip inline (padrão Qtd. Inicial). */
+export const CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO = new Set([
+  'quantidade_total_pedido',
+  'quantidade_pronta_itens_pedido_total',
+  'valor_total_pedido',
+  'valor_por_unidade_item',
+  'quantidade_transferida_total',
+  'quantidade_cancelada_total_pedido',
+  'saldo_itens_do_pedido',
+])
+
+/** Enriquece coluna pai bloqueada + render inline com pills e cursor not-allowed. */
+export function enriquecerColunaBloqueadaInlinePedido<T>(
+  col: GTColuna<T>,
+  t: TFunction,
+  opts?: { label?: string; modoDinamicoPedidoItem?: boolean },
+): GTColuna<T> {
+  const enriched = enriquecerColunaComRegraTooltip(
+    {
+      ...col,
+      ...(opts?.label ? { label: opts.label } : {}),
+      editavel: false,
+    },
+    t,
+    'pai',
+    opts?.modoDinamicoPedidoItem ? { modoDinamicoPedidoItem: true } : undefined,
+  )
+  return aplicarRenderTooltipInlinePedido(col, enriched, t, {
+    modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+  })
 }
 
 /** Tooltip da moeda na linha item — título e pills fixos (bypass do resolver do núcleo). */
@@ -402,6 +437,23 @@ export function montarTooltipMoedaItemLista(t: TFunction, avisoImpactoColuna?: s
     somenteBloco: 'item',
     avisoImpactoColuna,
   }, 'item')
+}
+
+/** Linha item — moeda com TooltipGlobal inline; núcleo não aplica wrap (tooltipInline no mapa). */
+export function wrapCelulaMoedaItemLista(
+  conteudo: React.ReactNode,
+  t: TFunction,
+  avisoImpactoColuna?: string,
+): React.ReactElement {
+  const titulo = t('pedido.coluna_pai.moeda_item_titulo', { defaultValue: 'Moeda do Item' })
+  return (
+    <TooltipGlobal
+      titulo={titulo}
+      descricao={montarTooltipMoedaItemLista(t, avisoImpactoColuna)}
+    >
+      <span style={{ display: 'contents' }}>{conteudo}</span>
+    </TooltipGlobal>
+  )
 }
 
 /** Monta tooltip de célula com aviso de divergência + pílulas. */

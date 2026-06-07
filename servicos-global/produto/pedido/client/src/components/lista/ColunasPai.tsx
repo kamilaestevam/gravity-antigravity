@@ -915,6 +915,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     sortavel: true,
     align: 'left',
     casasDecimais: getCasas('valor_total_pedido', 2),
+    avisoImpacto: t('pedido.lista.regras_coluna.valor_total_item_impacto_moeda_edicao'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('valor_total_pedido', 2)
@@ -1029,6 +1030,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     // de renderQtdPedido. Decisão UX 2026-05-13.
     tipo: 'unidade',
     align: 'right',
+    editavel: false,
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_saldo'),
     tooltipTitulo: t('pedido.coluna_pai.saldo_itens_do_pedido_titulo'),
     tooltipDescricao: <span><Trans i18nKey="pedido.coluna_pai.calculado_itens_editar_formula" components={{ a: <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados" /> }} /></span>,
@@ -1036,28 +1038,18 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []
-      // Sem itens carregados (ex: lista colapsada) — usa o valor agregado do backend
-      // ou calcula inicial - transferida como fallback. Sem alerta porque não há
-      // como saber se diverge sem inspecionar os itens.
       if (itens.length === 0) {
         const total = row.quantidade_total_pedido ?? null
         const transf = row.quantidade_transferida_total ?? null
-        const qtd = row.saldo_itens_do_pedido ?? (total != null && transf != null ? Math.max(0, total - transf) : null)
+        const cancel = row.quantidade_cancelada_total_pedido ?? 0
+        const qtd = row.saldo_itens_do_pedido ?? (total != null && transf != null ? Math.max(0, total - transf - cancel) : null)
         return (
-          <TooltipGlobal
-            titulo={t('pedido.coluna_pai.saldo_itens_do_pedido_titulo')}
-            descricao={<span><Trans i18nKey="pedido.coluna_pai.calculado_itens_editar_formula" components={{ a: <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados" /> }} /></span>}
-            interativo
-          >
-            <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-              {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 2)) : '—'}
-            </span>
-          </TooltipGlobal>
+          <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+            {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 2)) : '—'}
+          </span>
         )
       }
 
-      // Detecção de divergência de unidade entre itens — mesma regra de
-      // renderQtdPedido (contribuintes com saldo>0; fallback declaradas).
       const saldoPorItem = (i: PedidoItem) =>
         Math.max(0, (Number(i.quantidade_inicial_pedido) || 0)
           - (Number(i.quantidade_transferida_pedido) || 0)
@@ -1071,23 +1063,13 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       )
       const unidadesEfetivas = unidadesContribuintes.size > 0 ? unidadesContribuintes : unidadesDeclaradas
 
-      const tooltipWrap = (node: React.ReactNode) => (
-        <TooltipGlobal
-          titulo={t('pedido.coluna_pai.saldo_itens_do_pedido_titulo')}
-          descricao={<span><Trans i18nKey="pedido.coluna_pai.calculado_itens_editar_formula" components={{ a: <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados" /> }} /></span>}
-          interativo
-        >
-          <span style={{ display: 'contents' }}>{node}</span>
-        </TooltipGlobal>
-      )
-
       if (unidadesEfetivas.size > 1) {
-        return tooltipWrap(renderAgregado(null, true, t('pedido.coluna_pai.unidades_divergentes')))
+        return renderAgregado(null, true, t('pedido.coluna_pai.unidades_divergentes'))
       }
 
       const unidade = [...unidadesEfetivas][0] ?? 'UN'
       const soma = itens.reduce((s, i) => s + saldoPorItem(i), 0)
-      return tooltipWrap(
+      return (
         <span className="gtv-celula-moeda" style={{ color: soma > 0 ? '#60a5fa' : undefined }}>
           {fmtQuantidade(soma, getCasas('saldo_itens_do_pedido', 2))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
@@ -1098,29 +1080,26 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'quantidade_transferida_total',
     label: t('pedido.coluna_pai.quantidade_transferida_total'),
-    // tipo: 'unidade' (espelhado com QTD inicial/pronta) — usa renderQtdPedido
-    // pra exibir badge de unidade + alerta "Unidades divergentes" quando itens
-    // têm unidade_comercializada_item diferente. Decisão UX 2026-05-13.
     tipo: 'unidade',
     align: 'right',
+    editavel: false,
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_transferida'),
     tooltipTitulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_transferida_total_desc'),
-    tooltipBloqueado: t('pedido.coluna_pai.quantidade_transferida_bloqueado'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_transferida_pedido', getCasas('quantidade_transferida_total', 2), { titulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'), descricao: t('pedido.coluna_pai.quantidade_transferida_total_desc') }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_transferida_pedido', getCasas('quantidade_transferida_total', 2)),
   },
   {
     key: 'quantidade_cancelada_total_pedido',
     label: t('pedido.coluna_pai.quantidade_cancelada_total_pedido'),
-    // tipo: 'unidade' (espelhado com QTD inicial/pronta) — usa renderQtdPedido.
     tipo: 'unidade',
     align: 'right',
+    editavel: false,
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_cancelada'),
     tooltipTitulo: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_desc'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_cancelada_pedido', getCasas('quantidade_cancelada_total_pedido', 2), { titulo: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo'), descricao: t('pedido.coluna_pai.quantidade_cancelada_total_pedido_desc') }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_cancelada_pedido', getCasas('quantidade_cancelada_total_pedido', 2)),
   },
   {
     key: 'data_emissao_pedido',

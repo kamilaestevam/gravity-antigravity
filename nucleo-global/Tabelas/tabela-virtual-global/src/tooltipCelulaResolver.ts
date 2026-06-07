@@ -54,6 +54,8 @@ export function resolverTituloTooltipCelula(
 
   const ehItem = resolverNivelTooltipCelula(col, item, isFilhoRender)
   if (ehItem && tituloItem) return tituloItem
+  // Linha filha GTV: nunca propagar título de pedido quando metadata de item ausente
+  if (isFilhoRender) return col.label
   if (tituloPedido) return tituloPedido
   return col.label
 }

@@ -310,6 +310,8 @@ function wrapTooltipRegraCelula(
   celulaBloqueada = false,
   tituloOverride?: string,
 ): React.ReactNode {
+  // Pedido lista — moeda do item monta tooltip no mapaColunasFilho (tooltipInline).
+  if (isFilho && String(col.key) === 'moeda_pedido') return conteudo
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
     return conteudo
@@ -3375,7 +3377,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
-                  if (mapa?.tooltipInline) {
+                  if (mapa?.tooltipInline || campo === 'moeda_item') {
                     return celFilhoInner
                   }
                   const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''

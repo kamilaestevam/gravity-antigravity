@@ -11,9 +11,14 @@ Colunas cobertas:
 - **TIPO DE OPERAÇÃO** (passos **06–12**)
 - **REFERÊNCIA IMPORTADOR** (passos **13–16**)
 - **REFERÊNCIA EXPORTADOR** (passos **17–20**)
-- **INCOTERM** (passos **21–24**: select Cadastros, checkbox, item isolado, alerta)
-- **DESCRIÇÃO DO ITEM** (passos **25–28**: tooltip ghost + texto + checkbox; sem alerta de divergência)
-- **LOGÍSTICA** (passos **29–34**: Porto/País/Aeroporto — tooltip espelhada + edição pedido/item)
-- **NCM** (passos **35–41**: código `8528.59.00`, busca `monitor`, tooltip «Editável no pedido»)
+- **INCOTERM** (passos **21–24**)
+- **DESCRIÇÃO DO ITEM** (passos **25–28**)
+- **PORTO DE ORIGEM** (ETAPA 10 — passo **29**, sub-passos 29.1–29.5)
+- **PORTO DE DESTINO** (ETAPA 11 — passo **30**, sub-passos 30.1–30.5)
+- **PAÍS DE ORIGEM** (ETAPA 12 — passo **31**)
+- **PAÍS DE DESTINO** (ETAPA 13 — passo **32**)
+- **AEROPORTO DE ORIGEM** (ETAPA 14 — passo **33**)
+- **AEROPORTO DE DESTINO** (ETAPA 15 — passo **34**)
+- **NCM** (ETAPA 16 — passos **35–41**)
 
 Resultados: `../resultado-teste/<runId>/` (PNG + `RESULTADO.txt`).

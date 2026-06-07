@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001  
 **Data:** 2026-06-06  
-**Versão:** 3.8  
+**Versão:** 3.9  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -41,7 +41,13 @@
 | **REFERÊNCIA EXPORTADOR** | 17–20 | `run-lista-editar-salvar.ts` |
 | **INCOTERM** | 21–24 | `run-lista-editar-salvar.ts` |
 | **DESCRIÇÃO DO ITEM** | 25–28 | `run-lista-editar-salvar.ts` |
-| **LOGÍSTICA (6 colunas)** | 29–34 | `run-lista-editar-salvar.ts` |
+| **PORTO DE ORIGEM** | 29 (5 sub-passos) | `run-lista-editar-salvar.ts` |
+| **PORTO DE DESTINO** | 30 (5 sub-passos) | `run-lista-editar-salvar.ts` |
+| **PAÍS DE ORIGEM** | 31 (5 sub-passos) | `run-lista-editar-salvar.ts` |
+| **PAÍS DE DESTINO** | 32 (5 sub-passos) | `run-lista-editar-salvar.ts` |
+| **AEROPORTO DE ORIGEM** | 33 (5 sub-passos) | `run-lista-editar-salvar.ts` |
+| **AEROPORTO DE DESTINO** | 34 (5 sub-passos) | `run-lista-editar-salvar.ts` |
+| **NCM** | 35–41 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -127,6 +133,15 @@
 | | `34-log-aeroporto-destino-pedido-resultado.png` | Espelhamento |
 | | `34-log-aeroporto-destino-item-selecao.png` | Select no item |
 | | `34-log-aeroporto-destino-item-resultado.png` | Espelhamento via item |
+| 35 | `35-ncm-pedido-codigo-selecao.png` | NCM `8528.59.00` no pedido — popover aberto |
+| | `35-ncm-pedido-codigo-resultado.png` | Código validado e salvo no pedido |
+| 36 | `36-ncm-pedido-busca-monitor-selecao.png` | Busca «monitor» no pedido — lista de NCMs |
+| 37 | `37-ncm-pedido-busca-monitor-resultado.png` | NCM selecionada da busca salva no pedido |
+| 38 | `38-ncm-item-codigo-selecao.png` | NCM `8528.59.00` no item 1 — popover aberto |
+| | `38-ncm-item-codigo-resultado.png` | Código validado e salvo no item |
+| 39 | `39-ncm-item-busca-monitor-selecao.png` | Busca «monitor» no item — lista de NCMs |
+| 40 | `40-ncm-item-busca-monitor-resultado.png` | NCM selecionada da busca salva no item |
+| 41 | `41-ncm-tooltip-pedido.png` | Tooltip NCM contém «Editável no pedido» |
 | 99 | `99-erro.png` | Só se falhar |
 
 Viewport: **1440×900**
@@ -242,20 +257,83 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 
 **Prefixos de valor no runner:** `DESC-EMT-SOLO-*` · `DESC-EMT-TODOS-*` · `DESC-EMT-ITEM-*`
 
-### ETAPA 10 — LOGÍSTICA (passos 29–34)
+### ETAPA 10 — PORTO DE ORIGEM (`porto_origem`, passo 29)
 
-**Regras LOG-01…06:** valor único no pedido; itens espelham `_p`; tooltip com 3 pills espelhadas; **sem** checkbox replicar; **sem** alerta âmbar. Cada passo: tooltips pedido+item → select pedido → select item → sem alerta âmbar.
+**Regras LOG-01…06:** valor único no pedido; itens espelham `_p`; tooltip com 3 pills espelhadas; **sem** checkbox replicar; **sem** alerta âmbar.
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
-| **29** | **Porto de Origem** (`porto_origem`) — tooltips + select pedido BRFOR + select item BRSSZ | Prints `29-log-porto-origem-*` (sucesso ou erro) |
-| **30** | **Porto de Destino** (`porto_destino`) — pedido BRSSZ · item BRITJ | Prints `30-log-porto-destino-*` (sucesso ou erro) |
-| **31** | **País de Origem** (`local_de_origem`) — pedido BR · item DE | Prints `31-log-pais-origem-*` (sucesso ou erro) |
-| **32** | **País de Destino** (`local_de_destino`) — pedido DE · item AO | Prints `32-log-pais-destino-*` (sucesso ou erro) |
-| **33** | **Aeroporto de Origem** (`aeroporto_origem`) — pedido GRU · item CGH | Prints `33-log-aeroporto-origem-*` (sucesso ou erro) |
-| **34** | **Aeroporto de Destino** (`aeroporto_destino`) — pedido EZE · item GRU | Prints `34-log-aeroporto-destino-*` (sucesso ou erro) |
+| **29.1** | Hover tooltip na célula do **pedido** | Título «Porto de Origem» + 3 pills espelhadas · Print `29-log-porto-origem-tooltip-pedido.png` (sucesso ou erro) |
+| **29.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `29-log-porto-origem-tooltip-item.png` (sucesso ou erro) |
+| **29.3** | Select no **pedido** → **BRFOR** → confirmar | **Sem** checkbox replicar · Pedido **e** itens espelham BRFOR · Prints `29-log-porto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **29.4** | Select no **item 1** → **BRSSZ** → confirmar | Pedido atualizado via item; todos espelham BRSSZ · Prints `29-log-porto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **29.5** | Inspecionar coluna do **pedido** | **Sem** ícone âmbar de divergência (LOG-05) |
 
-### ETAPA 11 — Relatório
+### ETAPA 11 — PORTO DE DESTINO (`porto_destino`, passo 30)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **30.1** | Hover tooltip na célula do **pedido** | Título «Porto de Destino» + 3 pills · Print `30-log-porto-destino-tooltip-pedido.png` (sucesso ou erro) |
+| **30.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `30-log-porto-destino-tooltip-item.png` (sucesso ou erro) |
+| **30.3** | Select no **pedido** → **BRSSZ** → confirmar | Espelhamento em todos os itens · Prints `30-log-porto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **30.4** | Select no **item 1** → **BRITJ** → confirmar | Pedido + itens = BRITJ · Prints `30-log-porto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **30.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
+
+### ETAPA 12 — PAÍS DE ORIGEM (`local_de_origem`, passo 31)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **31.1** | Hover tooltip na célula do **pedido** | Título «País de Origem» + 3 pills · Print `31-log-pais-origem-tooltip-pedido.png` (sucesso ou erro) |
+| **31.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `31-log-pais-origem-tooltip-item.png` (sucesso ou erro) |
+| **31.3** | Select no **pedido** → **BR** → confirmar | Espelhamento · Prints `31-log-pais-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **31.4** | Select no **item 1** → **DE** → confirmar | Pedido + itens = DE · Prints `31-log-pais-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **31.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
+
+### ETAPA 13 — PAÍS DE DESTINO (`local_de_destino`, passo 32)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **32.1** | Hover tooltip na célula do **pedido** | Título «País de Destino» + 3 pills · Print `32-log-pais-destino-tooltip-pedido.png` (sucesso ou erro) |
+| **32.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `32-log-pais-destino-tooltip-item.png` (sucesso ou erro) |
+| **32.3** | Select no **pedido** → **DE** → confirmar | Espelhamento · Prints `32-log-pais-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **32.4** | Select no **item 1** → **AO** → confirmar | Pedido + itens = AO · Prints `32-log-pais-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **32.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
+
+### ETAPA 14 — AEROPORTO DE ORIGEM (`aeroporto_origem`, passo 33)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **33.1** | Hover tooltip na célula do **pedido** | Título «Aeroporto de Origem» + 3 pills · Print `33-log-aeroporto-origem-tooltip-pedido.png` (sucesso ou erro) |
+| **33.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `33-log-aeroporto-origem-tooltip-item.png` (sucesso ou erro) |
+| **33.3** | Select no **pedido** → **GRU** → confirmar | Espelhamento · Prints `33-log-aeroporto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **33.4** | Select no **item 1** → **CGH** → confirmar | Pedido + itens = CGH · Prints `33-log-aeroporto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **33.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
+
+### ETAPA 15 — AEROPORTO DE DESTINO (`aeroporto_destino`, passo 34)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **34.1** | Hover tooltip na célula do **pedido** | Título «Aeroporto de Destino» + 3 pills · Print `34-log-aeroporto-destino-tooltip-pedido.png` (sucesso ou erro) |
+| **34.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `34-log-aeroporto-destino-tooltip-item.png` (sucesso ou erro) |
+| **34.3** | Select no **pedido** → **EZE** → confirmar | Espelhamento · Prints `34-log-aeroporto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **34.4** | Select no **item 1** → **GRU** → confirmar | Pedido + itens = GRU · Prints `34-log-aeroporto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **34.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
+
+### ETAPA 16 — NCM (passos 35–41)
+
+Campo **ghost** — persiste no banco no **item**; linha do pedido exibe valor canônico. **Sem** alerta âmbar (NCM-06).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **35** | Digitar código **8528.59.00** no **pedido** → confirmar | Código valida · Prints `35-ncm-pedido-codigo-selecao` · `…-resultado` (sucesso ou erro) |
+| **36** | Buscar **monitor** no **pedido** | Lista ≥2 NCMs · Print `36-ncm-pedido-busca-monitor-selecao.png` (sucesso ou erro) |
+| **37** | Selecionar 1ª NCM da busca no **pedido** → confirmar | Valor salvo no pedido · Print `37-ncm-pedido-busca-monitor-resultado.png` (sucesso ou erro) |
+| **38** | Digitar código **8528.59.00** no **item 1** → confirmar | Código valida no item · Prints `38-ncm-item-codigo-selecao` · `…-resultado` (sucesso ou erro) |
+| **39** | Buscar **monitor** no **item 1** | Lista ≥2 NCMs · Print `39-ncm-item-busca-monitor-selecao.png` (sucesso ou erro) |
+| **40** | Selecionar 1ª NCM da busca no **item 1** → confirmar | Valor salvo no item · Print `40-ncm-item-busca-monitor-resultado.png` (sucesso ou erro) |
+| **41** | Hover tooltip na célula **NCM** do **pedido** | Texto contém «Editável no pedido» · Print `41-ncm-tooltip-pedido.png` (sucesso ou erro) |
+
+### ETAPA 17 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -288,5 +366,11 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | REF. EXPORTADOR | 17–20 | 4 |
 | INCOTERM | 21–24 | 4 |
 | DESCRIÇÃO DO ITEM | 25–28 | 6 |
-| LOGÍSTICA | 29–34 | 24 |
-| **Total runner principal** | | **~50 passos / 92 casos** |
+| PORTO DE ORIGEM | 29.1–29.5 | 5 |
+| PORTO DE DESTINO | 30.1–30.5 | 5 |
+| PAÍS DE ORIGEM | 31.1–31.5 | 5 |
+| PAÍS DE DESTINO | 32.1–32.5 | 5 |
+| AEROPORTO DE ORIGEM | 33.1–33.5 | 5 |
+| AEROPORTO DE DESTINO | 34.1–34.5 | 5 |
+| NCM | 35–41 | 7 |
+| **Total runner principal** | | **~63 passos / 92 casos** |

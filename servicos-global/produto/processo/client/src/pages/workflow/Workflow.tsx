@@ -60,7 +60,7 @@ const STEP_ICONS: Record<number, React.ReactNode> = {
   5: <ShieldCheck  weight="duotone" size={18} />, // Desembaraco
   6: <House        weight="duotone" size={18} />, // Entrega
 }
-import { useProcesso } from '../ProcessoLayout'
+import { useProcesso } from '../processo-context'
 import { getFollowUps, createFollowUp, deleteDocumento } from '../../shared/api'
 import type { FollowUp, FilterFollowUp } from '../../shared/types'
 import './Workflow.css'
@@ -229,7 +229,10 @@ export default function Workflow() {
     setFollowUpsLoading(true)
     // Modo mock (sem backend) — detectado pelos identificadores da MOCK_PROCESSO
     // em ProcessoLayout (tenant-demo / core_id_000001). Pula a API direto.
-    const isMock = idOrganizacao === 'tenant-demo' || processoId.startsWith('core_id_')
+    const isMock = idOrganizacao === 'tenant-demo'
+      || idOrganizacao === 'org_mock'
+      || processoId.startsWith('core_id_')
+      || processoId.startsWith('proc-')
     if (isMock) {
       const filtrados = filter.categoria
         ? MOCK_FOLLOWUPS.filter(fu => fu.categoria === filter.categoria)
@@ -305,19 +308,10 @@ export default function Workflow() {
 
   if (loading) {
     return (
-      <div className="wf-loading">
-        <div className="wf-skeleton-stepper">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="wf-skeleton-step">
-              <div className="wf-skeleton-circle" />
-              <div className="wf-skeleton-label" />
-            </div>
-          ))}
-        </div>
-        <div className="wf-skeleton-content">
-          <div className="wf-skeleton-block wf-skeleton-block--lg" />
-          <div className="wf-skeleton-block wf-skeleton-block--sm" />
-        </div>
+      <div className="p2-page-loading processo-detalhe-page" aria-busy="true" aria-live="polite">
+        <div className="p2-skeleton p2-skeleton--lg" />
+        <div className="p2-skeleton p2-skeleton--md" />
+        <div className="p2-skeleton p2-skeleton--bar" />
       </div>
     )
   }
@@ -342,6 +336,7 @@ export default function Workflow() {
 
   return (
     <PaginaGlobal
+      className="processo-detalhe-page"
       layout="lista"
       cabecalho={
         <CabecalhoGlobal

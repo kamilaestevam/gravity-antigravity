@@ -63,8 +63,16 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   condicao_pagamento: { tipo: 'alfanumerico' },
 
   // ── Exceções: editavel depende do tipo de operação ──────────────────────────
-  nome_exportador: { tipo: 'alfanumerico', editavelFn: (row) => row.tipo_operacao === 'importacao' },
-  nome_importador: { tipo: 'alfanumerico', editavelFn: (row) => row.tipo_operacao === 'exportacao' },
+  // IMP: fornecedores exportadores. EXP: lista workspaces (handler redireciona para id_workspace).
+  nome_exportador: {
+    tipo: 'alfanumerico',
+    editavelFn: (row) => row.tipo_operacao === 'importacao' || row.tipo_operacao === 'exportacao',
+  },
+  // IMP: coluna lista workspaces (handler redireciona para id_workspace). EXP: fornecedores importadores.
+  nome_importador: {
+    tipo: 'alfanumerico',
+    editavelFn: (row) => row.tipo_operacao === 'importacao' || row.tipo_operacao === 'exportacao',
+  },
 
   // ── Calculado — soma de itens, não editável ─────────────────────────────────
   valor_total_pedido:                   { tipo: 'calculado' },
@@ -158,10 +166,18 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
 // Exceções condicionais (nome_exportador, nome_importador) permanecem no mapa filho.
 
 const ALERTA_OVERRIDE: Record<string, boolean> = {
+  id_workspace: false, // replica automática do pedido — sem alerta de divergência
   tipo_operacao: false, // replica do pedido — sem alerta de divergência
   descricao_item: false, // ghost — várias descrições no pedido; sem alerta
   ncm: false, // ghost — vários NCMs no mesmo pedido é normal; sem alerta
   status: true, // pedido ≠ item ou item ≠ item → alerta na coluna Status
+  // Logística: valor único no Pedido — itens só espelham _p (sem divergência real)
+  porto_origem: false,
+  porto_destino: false,
+  local_de_origem: false,
+  local_de_destino: false,
+  aeroporto_origem: false,
+  aeroporto_destino: false,
 }
 
 const TIPO_DEFAULTS_ITEM: Record<TipoCampo, boolean> = {
@@ -173,6 +189,7 @@ const TIPO_DEFAULTS_ITEM: Record<TipoCampo, boolean> = {
 
 // Colunas que fogem ao padrão do tipo no nível item
 const ITEM_EDITAVEL_OVERRIDE: Record<string, boolean> = {
+  id_workspace:                 false, // exclusivo do pedido — replica para itens
   tipo_operacao:                false, // exclusivo do pedido — replica para itens
   status:                       true,  // item herda status mas pode ser editado
   quantidade_transferida_total: false, // só muda via operação de transferência

@@ -66,6 +66,10 @@ export interface GTColuna<T = unknown> {
    * Quando definido, o popover exibe uma lista selecionável em vez de um input de texto.
    */
   opcoes?: { valor: string; label: string }[]
+  /** Opções dinâmicas por linha (tem prioridade sobre `opcoes` estático). */
+  getOpcoes?: (item: T) => { valor: string; label: string }[]
+  /** Link auxiliar no popover de edição (ex.: abrir Cadastros para editar contraparte). */
+  linkPopoverEdicao?: (item: T) => { label: string; href: string } | undefined
   /** Grupo de agrupamento exibido no gerenciador de colunas */
   grupo?: string
   /** Códigos ISO 4217 disponíveis no seletor (ativo quando tipo='moeda') */

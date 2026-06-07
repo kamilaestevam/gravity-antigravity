@@ -53,8 +53,15 @@ function buildTestApp() {
 | F-PED-02 | Editar tipo_operacao | body `{ tipo_operacao: 'exportacao' }` | `200`, tipo_operacao atualizado |
 | F-PED-03 | Editar nome_fabricante | body `{ nome_fabricante: 'Novo Fabricante' }` | `200` |
 | F-PED-04 | Editar referencia_importador | body `{ referencia_importador: 'REF-IMP-001' }` | `200` |
+| F-PED-04b | Editar referencia_exportador | body `{ referencia_exportador: 'REF-EXP-001' }` | `200` |
 | F-PED-05 | Editar ncm | body `{ ncm: '8471.30.19' }` | `200` |
 | F-PED-06 | Editar incoterm | body `{ incoterm: 'CIF' }` | `200` |
+| F-PED-06a | Editar porto_origem | body `{ porto_origem: 'BRSSZ' }` | `200` |
+| F-PED-06b | Editar porto_destino | body `{ porto_destino: 'BRITJ' }` | `200` |
+| F-PED-06c | Editar local_de_origem | body `{ local_de_origem: 'BR' }` | `200` |
+| F-PED-06d | Editar local_de_destino | body `{ local_de_destino: 'DE' }` | `200` |
+| F-PED-06e | Editar aeroporto_origem | body `{ aeroporto_origem: 'GRU' }` | `200` |
+| F-PED-06f | Editar aeroporto_destino | body `{ aeroporto_destino: 'EZE' }` | `200` |
 | F-PED-07 | Editar condicao_pagamento | body `{ condicao_pagamento: '30/60/90 dias' }` | `200` |
 | F-PED-08 | Editar data_emissao_pedido | body `{ data_emissao_pedido: '2026-06-15T00:00:00.000Z' }` | `200`, data no formato ISO |
 | F-PED-09 | Itens NAO alterados apos editar pedido | GET itens apos PUT pedido | Nenhum item teve campo correspondente alterado |
@@ -101,6 +108,8 @@ function buildTestApp() {
 | F-PROP-07 | PUT com replicar_em_itens=false | Apenas pedido muda |
 | F-PROP-08 | updated_at de todos itens afetados atualizado | Timestamps recentes |
 | F-PROP-09 | PUT `tipo_operacao` no pedido (sem `replicar_em_itens` no body) | Pedido atualizado **e** todos os itens com `tipo_operacao_item` alinhado (replicação automática) |
+| F-PROP-11 | `referencia_importador` com `replicar_em_itens=true` | Pedido + todos os itens com mesma referência |
+| F-PROP-12 | `referencia_exportador` com `replicar_em_itens=true` | Pedido + todos os itens com mesma referência |
 
 ### 2b. TIPO DE OPERAÇÃO — regras de UI (validação EMT)
 
@@ -115,6 +124,84 @@ function buildTestApp() {
 | F-EMT-TOP-10 | Modal Exportação | Sem checkbox replicar (print 10) |
 | F-EMT-TOP-11 | Exportação → Importação | Pedido **e** todos os itens = Importação (print 11) |
 | F-EMT-TOP-12 | Clicar item | Célula travada; popover não abre (print 12) |
+
+### 2c. REFERÊNCIA IMPORTADOR e EXPORTADOR — regras de UI (validação EMT)
+
+**Plano EMT:** `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` (ETAPAs 3 e 4)
+
+**Regras (padrão Incoterm — iguais para Importador e Exportador):**
+
+| Regra | Comportamento |
+|-------|----------------|
+| Tipo | `alfanumerico` — sem diferença IMP/EXP |
+| Pedido | Editável; popover com checkbox «Aplicar a todos os itens deste pedido» |
+| Item | Editável |
+| Sem checkbox | Só o pedido persiste; itens não replicam |
+| Com checkbox | Pedido + todos os itens recebem o mesmo valor |
+| Item isolado | Só o item editado muda; pedido e demais itens permanecem |
+| Divergência | Alerta âmbar na coluna do pedido («Referências divergentes entre itens») |
+
+#### REFERÊNCIA IMPORTADOR (passos 13–16)
+
+| ID | Caso | Resultado esperado |
+|----|------|-------------------|
+| F-EMT-REF-IMP-13 | Pedido sem checkbox replicar | Só pedido persiste (print 13) |
+| F-EMT-REF-IMP-14 | Pedido com checkbox replicar | Pedido + todos os itens iguais (print 14) |
+| F-EMT-REF-IMP-15 | Editar só o 1º item | Item isolado; pedido mantém valor anterior (print 15) |
+| F-EMT-REF-IMP-16 | Divergência pedido ≠ itens | Alerta âmbar visível (print 16) |
+
+#### REFERÊNCIA EXPORTADOR (passos 17–20) — mesmas regras
+
+| ID | Caso | Resultado esperado |
+|----|------|-------------------|
+| F-EMT-REF-EXP-17 | Pedido sem checkbox replicar | Só pedido persiste (print 17) |
+| F-EMT-REF-EXP-18 | Pedido com checkbox replicar | Pedido + todos os itens iguais (print 18) |
+| F-EMT-REF-EXP-19 | Editar só o 1º item | Item isolado; pedido mantém valor anterior (print 19) |
+| F-EMT-REF-EXP-20 | Divergência pedido ≠ itens | Alerta âmbar visível (print 20) |
+
+**API (propagação):** `propagacao-inline.test.ts` — F-PROP-11 (`referencia_importador`), F-PROP-12 (`referencia_exportador`) com `replicar_em_itens=true`.
+
+### 2d. DESCRIÇÃO DO ITEM — regras de UI (validação EMT)
+
+**Plano EMT:** `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` (ETAPA 6)
+
+**Regras (campo ghost — sem alerta de divergência):**
+
+| Regra | Comportamento |
+|-------|----------------|
+| Tipo | `alfanumerico` ghost — agrega `descricao_item_valor_unico` no pedido |
+| Pedido | Editável; popover texto com checkbox «Aplicar a todos os itens deste pedido» |
+| Item | Editável (`F-ITM-08`) |
+| Sem checkbox | Só o pedido persiste na sessão; itens não replicam |
+| Com checkbox | PATCH em cada item com a mesma descrição |
+| Item isolado | Só o item editado muda; pedido e demais itens permanecem |
+| Tooltip (pedido e item) | 3 pills: «Editável no pedido» · «Editável no item» · «Aplicar em todos os itens» — **sem** «Alerta se itens divergirem» |
+| Divergência | **Sem** alerta âmbar na coluna do pedido (`hasAlerta('descricao_item') === false`) |
+
+| ID | Caso | Resultado esperado |
+|----|------|-------------------|
+| F-EMT-DESC-25 | Tooltip pedido e item | Título «Descrição do Item»; 3 pills corretas; sem pill de alerta (prints 25) |
+| F-EMT-DESC-26 | Pedido sem checkbox replicar | Só pedido persiste (print 26) |
+| F-EMT-DESC-27 | Pedido com checkbox replicar | Pedido + todos os itens iguais (print 27) |
+| F-EMT-DESC-28 | Editar só o 1º item + inspecionar pedido | Item isolado; **sem** ícone âmbar de divergência (print 28) |
+
+**Unitário (pills/config):** `pills-tooltip-coluna-lista.test.ts` · `regras-tooltip-coluna-lista.test.ts` · `columnBehaviorConfig.test.ts` (`hasAlerta('descricao_item')`).
+
+#### LOGÍSTICA — 6 colunas espelhadas (passos EMT 29–34)
+
+**Regras:** `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` LOG-01…06 · SSOT `CAMPOS_LOGISTICA_PEDIDO`
+
+| ID | Caso | Resultado esperado |
+|----|------|-------------------|
+| F-EMT-LOG-29 | Porto de Origem — tooltip + edição pedido/item | Título «Porto de Origem»; 3 pills espelhadas; itens espelham pedido; sem checkbox/alerta |
+| F-EMT-LOG-30 | Porto de Destino | Idem |
+| F-EMT-LOG-31 | País de Origem | Idem («País de Origem») |
+| F-EMT-LOG-32 | País de Destino | Idem («País de Destino») |
+| F-EMT-LOG-33 | Aeroporto de Origem | Idem |
+| F-EMT-LOG-34 | Aeroporto de Destino | Idem |
+
+**API (pedido):** F-PED-06a…06f — PATCH/PUT campos logísticos no pedido (`200`).  
+**UI item:** edição na linha item roteia para o pedido (não persiste coluna em `PedidoItem`).
 
 ### 3. PUT /api/v1/pedidos/:id/itens/:itemId — Editar item individual
 
@@ -225,4 +312,4 @@ testes/testes-funcionais/pedido/Lista/editar-salvar/
 └── isolamento-inline.test.ts        ← F-ISO-01 a F-ISO-04 (cross-tenant)
 ```
 
-**Total de casos:** ~90
+**Total de casos:** ~94

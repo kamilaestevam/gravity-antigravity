@@ -57,6 +57,27 @@
 
   flex-direction: column;
 
+  width: 100%;
+
+}
+
+
+
+/* Ponte flex através de Suspense/Routes até o ProcessoLayout */
+
+.layout--processo .shell-main .p2-shell {
+
+  flex: 1;
+
+  min-height: 0;
+
+  height: 100%;
+
+  width: 100%;
+
+  /* shell-main > * força column — ProcessoLayout é row (sidebar | main) */
+  flex-direction: row;
+
 }
 
 
@@ -292,6 +313,132 @@ body.light-theme .proc-vis-toolbar {
   padding: 0;
 
   gap: 0;
+
+}
+
+
+
+/* Detalhe do processo (ProcessoLayout) — preenche shell-main e exibe Outlet */
+
+.layout--processo .p2-main {
+
+  flex: 1;
+
+  min-height: 0;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+
+
+
+.layout--processo .p2-content {
+
+  display: flex;
+
+  flex-direction: column;
+
+  flex: 1;
+
+  min-height: 0;
+
+  min-width: 0;
+
+}
+
+
+
+.layout--processo .p2-outlet-root {
+
+  flex: 1;
+
+  min-height: 0;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+
+
+
+.layout--processo .p2-outlet-root > * {
+
+  flex: 1;
+
+  min-height: 0;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  width: 100%;
+
+}
+
+
+
+.layout--processo .processo-detalhe-page.pg-container {
+
+  flex: 1 1 auto;
+
+  min-height: 0;
+
+  width: 100%;
+
+  overflow: visible;
+
+}
+
+
+
+.layout--processo .processo-detalhe-page .pg-conteudo-area {
+
+  display: flex;
+
+  flex-direction: column;
+
+  flex: 1;
+
+  min-height: 0;
+
+}
+
+
+
+/* CabecalhoGlobal no detalhe — fallback legível no tema escuro */
+
+.layout--processo .processo-detalhe-page .cg-header__title {
+
+  color: var(--ws-text, var(--text-primary, #f1f5f9));
+
+}
+
+
+
+/* ws-fade-up no ProcessoLayout.css inicia opacity:0 — filhos do detalhe ficam invisíveis */
+
+.layout--processo .p2-content .ws-fade-up,
+
+.layout--processo .p2-outlet-root .ws-fade-up,
+
+.layout--processo .processo-detalhe-page.ws-fade-up,
+
+.layout--processo .processo-detalhe-page .ws-fade-up {
+
+  opacity: 1;
+
+  animation: none;
+
+  transform: none;
 
 }
 

@@ -16,4 +16,6 @@ export interface TooltipProps {
   posicaoPreferida?: 'auto' | 'abaixo' | 'acima'
   /** Alinhamento horizontal do card em relação a `left` (padrão: centro com translate -50%) */
   alinhamentoHorizontal?: 'centro' | 'inicio' | 'fim'
+  /** Cursor proibido no gatilho (células bloqueadas por regra de negócio) */
+  cursorBloqueado?: boolean
 }

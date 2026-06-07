@@ -117,6 +117,7 @@ const PEDIDO_MOCK = {
   tipo_operacao_pedido: 'importacao',
   nome_fabricante: 'Fabricante Original',
   referencia_importador: 'REF-IMP-ORIGINAL',
+  referencia_exportador: 'REF-EXP-ORIGINAL',
   ncm: '8471.30.19',
   incoterm: 'FOB',
   condicao_pagamento: '30 dias',
@@ -178,6 +179,14 @@ describe('F-PED: PATCH /api/v1/pedidos/:id/campo — campos alfanumericos', () =
     const res = await request(app)
       .patch('/api/v1/pedidos/ped-001/campo')
       .send({ campo: 'referencia_importador', valor: 'REF-NOVA' })
+
+    expect(res.status).toBe(200)
+  })
+
+  it('F-PED-05b: Editar referencia_exportador → 200', async () => {
+    const res = await request(app)
+      .patch('/api/v1/pedidos/ped-001/campo')
+      .send({ campo: 'referencia_exportador', valor: 'REF-EXP-NOVA' })
 
     expect(res.status).toBe(200)
   })

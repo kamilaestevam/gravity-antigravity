@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
+import { Camera, ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
 import { ModalOverlay } from '@nucleo/modal-global'
 import {
   adminPlanosTesteApi,
@@ -13,6 +13,75 @@ export interface ModalDetalhePlanoTesteProps {
   plano: PlanoTesteApi | null
   ambiente: 'Local' | 'Staging' | 'Producao'
   aoFechar: () => void
+}
+
+type ParteDetalhePasso = { tipo: 'texto' | 'print'; valor: string }
+
+/** Detecta referências de print no roteiro EMT (`Print \`arquivo.png\``, legado `→ print \`06\``). */
+function segmentarDetalheComPrints(detalhe: string): ParteDetalhePasso[] {
+  const re = /(?:·\s*)?Print\s+`([^`]+)`(?:\s*\(sucesso ou erro\))?|(?:→\s*)?print\s+`([^`]+)`|→\s*`(\d{2}(?:-[\w-]+)*(?:\.png)?)`/gi
+  const partes: ParteDetalhePasso[] = []
+  let ultimo = 0
+  let match: RegExpExecArray | null
+
+  while ((match = re.exec(detalhe)) !== null) {
+    if (match.index > ultimo) {
+      partes.push({ tipo: 'texto', valor: detalhe.slice(ultimo, match.index) })
+    }
+    const arquivo = (match[1] ?? match[2] ?? match[3] ?? '').trim()
+    if (arquivo) partes.push({ tipo: 'print', valor: arquivo })
+    ultimo = match.index + match[0].length
+  }
+
+  if (ultimo < detalhe.length) {
+    partes.push({ tipo: 'texto', valor: detalhe.slice(ultimo) })
+  }
+  if (partes.length === 0) {
+    partes.push({ tipo: 'texto', valor: detalhe })
+  }
+  return partes
+}
+
+function BadgePrintEmt({ arquivo }: { arquivo: string }) {
+  const nome = /\.png$/i.test(arquivo) ? arquivo : `${arquivo}.png`
+  return (
+    <span
+      title="Screenshot capturado ao final do passo (sucesso ou erro)"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.3rem',
+        margin: '0 0.15rem',
+        padding: '0.12rem 0.45rem',
+        borderRadius: '5px',
+        background: 'rgba(245, 158, 11, 0.12)',
+        border: '1px solid rgba(245, 158, 11, 0.28)',
+        color: '#fcd34d',
+        fontSize: '0.68rem',
+        fontFamily: 'ui-monospace, monospace',
+        verticalAlign: 'middle',
+        whiteSpace: 'nowrap',
+        opacity: 0.65,
+      }}
+    >
+      <Camera size={12} weight="fill" aria-hidden />
+      <span>{nome}</span>
+      <span style={{ opacity: 0.72, fontSize: '0.6rem', fontFamily: 'inherit' }}>(sucesso ou erro)</span>
+    </span>
+  )
+}
+
+function DetalhePassoComPrints({ detalhe }: { detalhe: string }) {
+  const partes = segmentarDetalheComPrints(detalhe)
+  return (
+    <span style={{ fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.55 }}>
+      {partes.map((p, i) => (
+        p.tipo === 'print'
+          ? <BadgePrintEmt key={`print-${i}-${p.valor}`} arquivo={p.valor} />
+          : <span key={`txt-${i}`}>{p.valor}</span>
+      ))}
+    </span>
+  )
 }
 
 function LinhaCaso({ ordem, detalhe }: { ordem: string; detalhe: string }) {
@@ -34,16 +103,13 @@ function LinhaCaso({ ordem, detalhe }: { ordem: string; detalhe: string }) {
       }}>
         {ordem}
       </span>
-      <div style={{ fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.45 }}>
-        {detalhe}
-      </div>
+      <DetalhePassoComPrints detalhe={detalhe} />
     </div>
   )
 }
 
 function ListaCasosRoteiro({ itens }: { itens: CasoPlanoTesteApi[] }) {
   const etapas = [...new Set(itens.map(c => c.titulo))]
-  let sequencia = 0
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -56,16 +122,13 @@ function ListaCasosRoteiro({ itens }: { itens: CasoPlanoTesteApi[] }) {
             {etapa}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            {itens.filter(c => c.titulo === etapa).map(caso => {
-              sequencia += 1
-              return (
-                <LinhaCaso
-                  key={`${etapa}-${sequencia}`}
-                  ordem={String(sequencia)}
-                  detalhe={caso.detalhe}
-                />
-              )
-            })}
+            {itens.filter(c => c.titulo === etapa).map((caso, idx) => (
+              <LinhaCaso
+                key={`${etapa}-${caso.ordem}-${idx}`}
+                ordem={caso.ordem}
+                detalhe={caso.detalhe}
+              />
+            ))}
           </div>
         </div>
       ))}
@@ -120,7 +183,12 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
 
   const estilo = corTipo(plano.tipo)
   const titulo = plano.tela ?? plano.modulo ?? plano.sublocal
-  const secoes = [...new Set(casos.map(c => c.secao).filter(Boolean))] as string[]
+  const ORDEM_SECOES = ['Roteiro', 'Prints planejados', 'Fluxos', 'Passos E2E'] as const
+  const secoesUnicas = [...new Set(casos.map(c => c.secao).filter(Boolean))] as string[]
+  const secoes = [
+    ...ORDEM_SECOES.filter(s => secoesUnicas.includes(s)),
+    ...secoesUnicas.filter(s => !ORDEM_SECOES.includes(s as typeof ORDEM_SECOES[number])),
+  ]
 
   return (
     <ModalOverlay
@@ -290,13 +358,16 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
                             <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: caso.titulo ? '0.15rem' : 0, lineHeight: 1.45 }}>
                               {caso.secao === 'Prints planejados'
                                 ? (
-                                  <>
-                                    <span style={{ fontWeight: 600, color: '#e2e8f0' }}>{caso.titulo}</span>
-                                    {' — '}
-                                    {caso.detalhe}
-                                  </>
+                                  <span style={{ display: 'inline-flex', alignItems: 'flex-start', gap: '0.4rem', flexWrap: 'wrap', opacity: 0.65 }}>
+                                    <Camera size={14} weight="fill" color="#f59e0b" style={{ flexShrink: 0, marginTop: 2 }} aria-hidden />
+                                    <span>
+                                      <span style={{ fontWeight: 600, color: '#e2e8f0' }}>{caso.titulo}</span>
+                                      {' — '}
+                                      {caso.detalhe}
+                                    </span>
+                                  </span>
                                 )
-                                : caso.detalhe}
+                                : <DetalhePassoComPrints detalhe={caso.detalhe} />}
                             </div>
                           </div>
                         </div>

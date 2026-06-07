@@ -21,6 +21,13 @@ export type RegraPillId =
   | 'formula_config'
   | 'so_operacao'
   | 'cond_import_export'
+  | 'espelhado_workspace'
+  | 'espelhado_importador'
+  | 'espelhado_logistica_pedido'
+  | 'espelhado_logistica_item'
+  | 'espelhado_logistica_bidirecional'
+  | 'editavel_atualiza_pedido'
+  | 'itens_bloqueados_pedido'
   | 'anexo'
   | 'coluna_personalizada'
 
@@ -34,8 +41,12 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_item', 'alerta_divergencia'],
   },
   pai_ghost_descricao: {
-    pedido: ['editavel_pedido', 'replica_itens', 'alerta_divergencia'],
-    item: ['editavel_item', 'alerta_divergencia'],
+    pedido: ['editavel_pedido', 'editavel_item', 'replica_itens'],
+    item: ['editavel_pedido', 'editavel_item', 'replica_itens'],
+  },
+  item_ghost_descricao: {
+    pedido: ['editavel_pedido', 'editavel_item', 'replica_itens'],
+    item: ['editavel_pedido', 'editavel_item', 'replica_itens'],
   },
   pai_ghost_ncm: {
     pedido: ['editavel_pedido', 'replica_itens', 'editavel_item'],
@@ -93,8 +104,12 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     pedido: ['editavel_pedido', 'cond_import_export', 'replica_itens', 'alerta_divergencia'],
     item: ['editavel_item', 'cond_import_export'],
   },
+  pai_importador: {
+    pedido: ['editavel_pedido', 'replica_itens_auto', 'espelhado_workspace', 'itens_bloqueados_pedido'],
+    item: ['somente_leitura'],
+  },
   pai_workspace: {
-    pedido: ['editavel_pedido', 'replica_itens_auto'],
+    pedido: ['editavel_pedido', 'replica_itens_auto', 'espelhado_importador', 'itens_bloqueados_pedido'],
     item: ['somente_leitura'],
   },
   pai_status: {
@@ -110,8 +125,16 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_item', 'alerta_divergencia'],
   },
   pai_tipo_operacao: {
-    pedido: ['editavel_pedido', 'replica_itens_auto'],
+    pedido: ['editavel_pedido', 'replica_itens_auto', 'itens_bloqueados_pedido'],
     item: ['somente_leitura'],
+  },
+  pai_logistica: {
+    pedido: ['editavel_pedido', 'editavel_item', 'espelhado_logistica_bidirecional'],
+    item: ['editavel_pedido', 'editavel_item', 'espelhado_logistica_bidirecional'],
+  },
+  item_logistica: {
+    pedido: ['editavel_pedido', 'editavel_item', 'espelhado_logistica_bidirecional'],
+    item: ['editavel_pedido', 'editavel_item', 'espelhado_logistica_bidirecional'],
   },
   dinamico_valor_total: {
     pedido: ['calculado_pedido', 'alerta_divergencia'],

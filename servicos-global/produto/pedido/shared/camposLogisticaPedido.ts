@@ -9,8 +9,8 @@
  * |------------------------|-------------------|----------------------------|--------------|
  * | porto_origem           | Porto de Origem   | cadastros.porto (UN/LOCODE)| Marítimo     |
  * | porto_destino          | Porto de Destino  | cadastros.porto            | Marítimo     |
- * | local_de_origem        | País origem       | cadastros.pais (ISO alpha-2)| Rodoviário  |
- * | local_de_destino       | País destino      | cadastros.pais             | Rodoviário   |
+ * | local_de_origem        | País de Origem    | cadastros.pais (ISO alpha-2)| Rodoviário  |
+ * | local_de_destino       | País de Destino   | cadastros.pais             | Rodoviário   |
  * | aeroporto_origem       | Aeroporto Origem  | cadastros.aeroporto (IATA) | Aéreo        |
  * | aeroporto_destino      | Aeroporto Destino | cadastros.aeroporto        | Aéreo        |
  *

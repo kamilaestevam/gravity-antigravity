@@ -2788,11 +2788,11 @@
       "porto_destino": "Puerto de Destino",
       "porto_destino_titulo": "Puerto de Destino",
       "porto_destino_desc": "Puerto o lugar de desembarque (cadastros.porto — UN/LOCODE)",
-      "local_de_origem": "País origen",
-      "local_de_origem_titulo": "País origen",
+      "local_de_origem": "País de Origen",
+      "local_de_origem_titulo": "País de Origen",
       "local_de_origem_desc": "País de origen rodoviaria (cadastros.pais — ISO alpha-2)",
-      "local_de_destino": "País destino",
-      "local_de_destino_titulo": "País destino",
+      "local_de_destino": "País de Destino",
+      "local_de_destino_titulo": "País de Destino",
       "local_de_destino_desc": "País de destino rodoviario (cadastros.pais — ISO alpha-2)",
       "aeroporto_origem": "Aeropuerto de Origen",
       "aeroporto_origem_titulo": "Aeropuerto de Origen",
@@ -3094,6 +3094,9 @@
       "importador_e_workspace": "El importador es el propio Workspace. Haga clic para editar datos en el Configurador",
       "cadastrar_importador": "Registrar Importador",
       "clique_editar_importador": "Haga clic para editar el importador en Registros",
+      "importador_espelhado_workspace_tooltip": "Reflejado del workspace {{nome}} — cambie el workspace del pedido para cambiar el importador",
+      "clique_abrir_seletor_importador": "Haga clic para cambiar el importador vinculado",
+      "clique_editar_importador_lista": "Haga clic para cambiar el importador vinculado",
       "nenhum_importador_vinculado": "Ningún importador vinculado. Haga clic para registrar en Registros",
       "vincular_importador": "Vincular Importador",
       "cnpj_importador": "CNPJ del Importador",
@@ -5308,6 +5311,21 @@
         "importacao": "Importación",
         "exportacao": "Exportación"
       },
+      "popover": {
+        "editar_importador": "Editar Importador"
+      },
+      "modal_importador": {
+        "titulo": "Cambiar importador",
+        "subtitulo_workspace": "Pedido del workspace {{nome}}",
+        "carregando": "Cargando importadores…",
+        "vazio": "Ningún proveedor registrado con papel de importador.",
+        "atalho_config": "Gestionar proveedores en el Configurador",
+        "confirmar": "Confirmar",
+        "cancelar": "Cancelar",
+        "fechar": "Cerrar",
+        "erro_carregar": "Error al cargar importadores.",
+        "erro_salvar": "Error al guardar importador."
+      },
       "coluna_dinamica": {
         "valor_total": "Valor Total del Pedido/Artículo",
         "qtd_inicial": "Cant. Inicial del Pedido/Artículo",
@@ -5321,7 +5339,8 @@
       },
       "regras_coluna": {
         "pai_editavel_replicar_alerta": "Editable en la fila del pedido. Marque «Aplicar a todos los artículos» en el popover para replicar el valor en todos los artículos. Icono de alerta cuando algún artículo difiere del pedido.",
-        "pai_ghost_descricao": "Editable en la fila del pedido. Sin checkbox: guarda solo en el pedido (artículos sin cambios). Con «Aplicar a todos los artículos»: replica la descripción en todos los artículos. Alerta si el texto del pedido difiere de los artículos.",
+        "pai_ghost_descricao": "Editable en el pedido y en cada artículo. Sin «Aplicar a todos los artículos»: guarda solo en el pedido (artículos sin cambios). Con la casilla marcada: replica la descripción en todos los artículos. Sin alerta de divergencia.",
+        "item_ghost_descricao": "Editable en el pedido y en cada artículo. Use «Aplicar a todos los artículos» en la fila del pedido para replicar. Sin alerta de divergencia.",
         "pai_ghost_ncm": "Editable en la fila del pedido y en cada artículo. Varios NCM en el mismo pedido es normal — sin alerta de divergencia. La fila del pedido muestra el NCM cuando todos los artículos coinciden.",
         "item_ghost_ncm": "Editable en este artículo. Cada artículo puede tener NCM distinto en el mismo pedido — sin alerta de divergencia.",
         "pai_ghost_cobertura": "Editable en la fila del pedido. Con «Aplicar a todos los artículos» propaga la cobertura cambiaria a todos los artículos. Alerta cuando los artículos divergen.",
@@ -5378,6 +5397,15 @@
         "formula_config": "Fórmula configurada",
         "so_operacao": "Alterado por operación de saldo",
         "cond_import_export": "Depende de Importación o Exportación",
+        "espelhado_workspace": "Reflejado del Workspace",
+        "espelhado_workspace_cond": "en importación",
+        "espelhado_importador": "Reflejado del Importador",
+        "espelhado_importador_cond": "en importación",
+        "espelhado_logistica_pedido": "Reflejado en los artículos",
+        "espelhado_logistica_item": "Reflejado del Pedido",
+        "espelhado_logistica_bidirecional": "Reflejado entre artículos y pedido",
+        "editavel_atualiza_pedido": "Editable — actualiza el pedido",
+        "itens_bloqueados_pedido": "Artículos bloqueados — edición solo en la línea del pedido",
         "anexo": "Adjunto por el icono en la celda",
         "coluna_personalizada": "Columna personalizada",
         "ghost_sem_checkbox": "Sin checkbox: guarda solo en el pedido",
@@ -6293,6 +6321,7 @@
         "tooltip_titulo": "Exportador"
       },
       "mapa_nome_importador": {
+        "tooltip_bloqueado": "Solo lectura en el artículo — edite en la línea del pedido",
         "tooltip_bloqueado_cond": "Importador definido automáticamente por el workspace — no editable en Importación",
         "tooltip_titulo": "Importador"
       },
@@ -6357,6 +6386,14 @@
   },
   "processo": {
     "titulo": "Proceso",
+    "lista": {
+      "tag_pedido_titulo": "Pedido {{n}}",
+      "tag_pedido_titulo_fallback": "Pedido",
+      "tag_pedido_desc": "Capa 2 — pedido de compra vinculado al proceso",
+      "tag_item_titulo": "Ítem {{n}}",
+      "tag_item_titulo_fallback": "Ítem",
+      "tag_item_desc": "Capa 3 — línea de producto dentro del pedido"
+    },
     "status": {
       "rascunho": "Borrador",
       "em_andamento": "En Curso",

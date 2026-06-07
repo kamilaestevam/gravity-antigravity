@@ -24,11 +24,13 @@ export function renderBadgeParteVinculada(opts: {
   nome: string
   titulo: string
   descricao: string
-  href: string
+  href?: string
+  onClick?: (e: React.MouseEvent) => void
 }): React.ReactElement {
-  const { nome, titulo, descricao, href } = opts
+  const { nome, titulo, descricao, href, onClick } = opts
   const truncado = nome.length > 50
   const nomeExibicao = truncado ? `${nome.slice(0, 50)}…` : nome
+  const navegaExterno = Boolean(href || onClick)
 
   return (
     <TooltipGlobal
@@ -36,11 +38,21 @@ export function renderBadgeParteVinculada(opts: {
       descricao={truncado ? `${descricao} — ${nome}` : descricao}
     >
       <span
-        role="link"
-        tabIndex={0}
-        onClick={(e) => { e.stopPropagation(); window.location.href = href }}
-        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-        style={BADGE_STYLE}
+        role={navegaExterno ? 'button' : undefined}
+        tabIndex={navegaExterno ? 0 : undefined}
+        onClick={(e) => {
+          if (!navegaExterno) return
+          e.stopPropagation()
+          if (onClick) onClick(e)
+          else if (href) window.location.href = href
+        }}
+        onKeyDown={(e) => {
+          if (!navegaExterno || e.key !== 'Enter') return
+          e.stopPropagation()
+          if (onClick) onClick(e as unknown as React.MouseEvent)
+          else if (href) window.location.href = href
+        }}
+        style={navegaExterno ? BADGE_STYLE : { ...BADGE_STYLE, cursor: 'inherit' }}
       >
         <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeExibicao}</span>

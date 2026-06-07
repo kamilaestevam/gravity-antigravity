@@ -65,7 +65,12 @@ const GRUPOS: GrupoConfig[] = [
   },
 ]
 
-export default function ConfiguracoesLayout() {
+interface ConfiguracoesLayoutProps {
+  /** Quando informado, substitui o <Outlet /> (rotas manuais no ProcessoDetalheRotas). */
+  children?: React.ReactNode
+}
+
+export default function ConfiguracoesLayout({ children }: ConfiguracoesLayoutProps) {
   return (
     <PaginaGlobal
       className="ws-fade-up"
@@ -102,7 +107,7 @@ export default function ConfiguracoesLayout() {
         </aside>
 
         <main className="cfg-main">
-          <Outlet />
+          {children ?? <Outlet />}
         </main>
       </div>
     </PaginaGlobal>

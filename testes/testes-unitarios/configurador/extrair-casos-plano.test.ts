@@ -3,23 +3,33 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { extrairCasosDoPlano } from '../../../servicos-global/configurador/server/lib/extrair-casos-plano.js'
 
-const PLANO_PEDIDO_LISTA = resolve(
-  import.meta.dirname,
-  '../../testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md',
+const PLANO_LISTA = resolve(
+  process.cwd(),
+  'testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md',
 )
 
-describe('extrairCasosDoPlano — roteiro ETAPA', () => {
-  it('extrai ETAPAs com número, travessão e passos em tabela markdown', () => {
-    const conteudo = readFileSync(PLANO_PEDIDO_LISTA, 'utf-8')
+describe('extrairCasosDoPlano', () => {
+  it('lista-editar-salvar — extrai prints além de 01 e 02', () => {
+    const conteudo = readFileSync(PLANO_LISTA, 'utf8')
     const casos = extrairCasosDoPlano(conteudo, 'plano-teste-em-tela.md')
+    const prints = casos.filter(c => c.secao === 'Prints planejados')
     const roteiro = casos.filter(c => c.secao === 'Roteiro')
 
-    expect(roteiro.length).toBeGreaterThanOrEqual(28)
-
-    const titulos = [...new Set(roteiro.map(c => c.titulo))]
-    expect(titulos.some(t => t.includes('IMPORTADOR'))).toBe(true)
-    expect(titulos.some(t => t.includes('EXPORTADOR'))).toBe(true)
-    expect(titulos.some(t => t.includes('NCM'))).toBe(true)
-    expect(titulos.some(t => t.includes('TIPO DE OPERAÇÃO'))).toBe(true)
+    expect(prints.length).toBeGreaterThan(10)
+    expect(prints.some(p => p.ordem === '03' || p.titulo.includes('03-editar-pedido'))).toBe(true)
+    expect(prints.some(p => p.ordem === '29' || p.ordem.startsWith('29.'))).toBe(true)
+    expect(prints.some(p => p.titulo.includes('porto-origem'))).toBe(true)
+    expect(roteiro.length).toBeGreaterThan(20)
+    const etapas = [...new Set(roteiro.map(r => r.titulo))]
+    expect(etapas.some(t => t.includes('Nº PEDIDO'))).toBe(true)
+    expect(etapas.some(t => t.includes('WORKSPACE'))).toBe(true)
+    expect(etapas.some(t => t.includes('TIPO DE OPERAÇÃO'))).toBe(true)
+    expect(etapas.some(t => t.includes('STATUS'))).toBe(true)
+    expect(etapas.some(t => t.includes('IMPORTADOR'))).toBe(true)
+    expect(etapas.some(t => t.includes('REFERÊNCIA IMPORTADOR'))).toBe(true)
+    expect(etapas.some(t => t.includes('REFERÊNCIA EXPORTADOR'))).toBe(true)
+    expect(etapas.some(t => t.includes('INCOTERM'))).toBe(true)
+    expect(etapas.some(t => t.includes('DESCRIÇÃO'))).toBe(true)
+    expect(etapas.some(t => t.includes('LOGÍSTICA'))).toBe(true)
   })
 })

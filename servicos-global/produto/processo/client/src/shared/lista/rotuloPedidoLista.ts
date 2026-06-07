@@ -3,7 +3,7 @@
  */
 export function rotuloPedidoLista(sequencia: number | null | undefined): string {
   if (sequencia != null && sequencia > 0) {
-    return `Pedido ${sequencia}`
+    return `P-${sequencia}`
   }
-  return 'Pedido'
+  return 'P'
 }

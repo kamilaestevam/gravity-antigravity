@@ -9,12 +9,14 @@ import {
   isSomavel,
   type TipoCampo,
 } from './columnBehaviorConfig'
+import { isCampoLogisticaPedido } from '../../../shared/camposLogisticaPedido'
 
 export type NivelColunaLista = 'pai' | 'item'
 
 export type RegraTooltipId =
   | 'pai_editavel_replicar_alerta'
   | 'pai_ghost_descricao'
+  | 'item_ghost_descricao'
   | 'pai_ghost_ncm'
   | 'pai_ghost_cobertura'
   | 'pai_calculado_valor'
@@ -28,11 +30,14 @@ export type RegraTooltipId =
   | 'pai_coluna_personalizada'
   | 'pai_cond_exportador'
   | 'pai_cond_importador'
+  | 'pai_importador'
   | 'pai_workspace'
   | 'pai_status'
   | 'pai_numero_pedido'
   | 'pai_numero_pedido_item'
   | 'pai_tipo_operacao'
+  | 'pai_logistica'
+  | 'item_logistica'
   | 'dinamico_valor_total'
   | 'dinamico_qtd_inicial'
   | 'dinamico_qtd_pronta'
@@ -166,16 +171,21 @@ export function classificarRegraTooltipColuna(
     return REGRA_DINAMICA_POR_CHAVE[key] ?? 'generico'
   }
 
+  if (isCampoLogisticaPedido(key)) {
+    return nivel === 'item' ? 'item_logistica' : 'pai_logistica'
+  }
+
   if (nivel === 'item') {
     if (key === 'numero_pedido') return 'item_part_number'
-    if (key === 'tipo_operacao') return 'item_nao_editavel_padrao'
+    if (key === 'tipo_operacao' || key === 'id_workspace') return 'item_nao_editavel_padrao'
     if (key === 'saldo_itens_do_pedido') return 'item_nao_editavel_saldo'
     if (ITEM_NAO_EDITAVEL.has(key) || key.includes('transferida')) return 'item_nao_editavel_transferencia'
     if (key.includes('cancelada')) return 'item_nao_editavel_cancelamento'
     if (key === 'nome_exportador') return 'item_cond_exportador'
     if (key === 'nome_importador') return 'item_cond_importador'
+    if (GHOST_DESCRICAO.has(key)) return 'item_ghost_descricao'
     if (GHOST_NCM.has(key)) return 'item_ghost_ncm'
-    if (GHOST_DESCRICAO.has(key) || GHOST_COBERTURA.has(key)) return 'item_editavel_ghost'
+    if (GHOST_COBERTURA.has(key)) return 'item_editavel_ghost'
     if (key === 'valor_total_pedido' || key === 'valor_item') return 'item_editavel_valor_total'
     if (key === 'quantidade_pronta_itens_pedido_total') return 'item_editavel_qtd_pronta'
     if (key === 'quantidade_total_pedido') return 'item_editavel_quantidade_inicial'
@@ -192,7 +202,7 @@ export function classificarRegraTooltipColuna(
   if (key === 'status') return 'pai_status'
   if (key === 'id_workspace') return 'pai_workspace'
   if (key === 'nome_exportador') return 'pai_cond_exportador'
-  if (key === 'nome_importador') return 'pai_cond_importador'
+  if (key === 'nome_importador') return 'pai_importador'
   if (GHOST_DESCRICAO.has(key)) return 'pai_ghost_descricao'
   if (GHOST_NCM.has(key)) return 'pai_ghost_ncm'
   if (GHOST_COBERTURA.has(key)) return 'pai_ghost_cobertura'

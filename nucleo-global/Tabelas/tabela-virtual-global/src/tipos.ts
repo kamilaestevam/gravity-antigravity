@@ -81,6 +81,10 @@ export interface GTColuna<T = unknown> {
    * Quando definido, o popover exibe uma lista selecionável em vez de um input de texto.
    */
   opcoes?: { valor: string; label: string }[]
+  /** Opções dinâmicas por linha (tem prioridade sobre `opcoes` estático). */
+  getOpcoes?: (item: T) => { valor: string; label: string }[]
+  /** Link auxiliar no popover de edição (ex.: abrir Cadastros para editar contraparte). */
+  linkPopoverEdicao?: (item: T) => { label: string; href: string } | undefined
   /** Grupo de agrupamento exibido no gerenciador de colunas */
   grupo?: string
   /** Códigos ISO 4217 disponíveis no seletor (ativo quando tipo='moeda') */
@@ -357,6 +361,8 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   renderConectorFilho?: (item: C) => ReactNode
   /** Conteúdo da expand cell do pai (padrão: chevron TVG) */
   renderConectorPai?: (item: T, ctx: GTConectorPaiContext) => ReactNode
+  /** Largura da coluna expand no grid (padrão: 40px) */
+  larguraColunaExpand?: string
 
   // ── Busca, filtros e ordenação ─────────────────────────────────────────────
   onBuscar?: (termo: string) => void

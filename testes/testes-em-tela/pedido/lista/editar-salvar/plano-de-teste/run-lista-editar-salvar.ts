@@ -1,5 +1,5 @@
 /**
- * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO DE OPERAÇÃO + NCM (editar/salvar)
+ * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO OP. + REF. IMP./EXP. + INCOTERM + DESCRIÇÃO + LOGÍSTICA (6 colunas)
  * Plano: TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001
  *
  * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts
@@ -11,7 +11,6 @@ import { fileURLToPath } from 'node:url'
 import dotenv from 'dotenv'
 import { clerk, clerkSetup } from '@clerk/testing/playwright'
 import { aplicarChavesClerkParaAmbiente, ambienteRemotoProducao } from '../../../../_lib/aplicar-chaves-clerk-ambiente.js'
-import { navegarComRetry } from '../../../../_lib/navegar-com-retry.js'
 import { resolverFeatureRootEmt, resolverPastaResultadoEmt } from '../../../../_lib/resolver-pasta-resultado-emt.js'
 
 const __dirRoot = dirname(fileURLToPath(import.meta.url))
@@ -43,6 +42,83 @@ const COL_KEY_NCM = 'ncm'
 const NCM_CODIGO_TESTE = '8528.59.00'
 const NCM_BUSCA_TEXTO = 'monitor'
 const TOOLTIP_NCM_PEDIDO_REGEX = /editável no pedido/i
+const COLUNA_REF_IMPORTADOR = 'REFERÊNCIA IMPORTADOR'
+const COL_KEY_REF_IMPORTADOR = 'referencia_importador'
+const COLUNA_REF_EXPORTADOR = 'REFERÊNCIA EXPORTADOR'
+const COL_KEY_REF_EXPORTADOR = 'referencia_exportador'
+const COLUNA_INCOTERM = 'INCOTERM'
+const COL_KEY_INCOTERM = 'incoterm'
+const COLUNA_DESCRICAO_ITEM = 'DESCRIÇÃO DO ITEM'
+const COL_KEY_DESCRICAO_ITEM = 'descricao_item'
+const TITULO_TOOLTIP_DESCRICAO = 'Descrição do Item'
+const ALERTA_REF_DIVERGENTE = /referências divergentes entre itens/i
+const ALERTA_INCOTERM_DIVERGENTE = /incoterms divergentes entre itens/i
+const ALERTA_PILL_DIVERGENCIA = /alerta se itens divergirem/i
+
+const PILLS_TOOLTIP_LOGISTICA = [
+  /editável no pedido/i,
+  /editável no item/i,
+  /espelhado com itens e pedido/i,
+] as const
+
+const PILLS_TOOLTIP_DESCRICAO = [
+  /editável no pedido/i,
+  /editável no item/i,
+  /aplicar em todos os itens/i,
+] as const
+
+type ConfigLogisticaCampo = {
+  key: string
+  colunaLabel: string
+  tituloTooltip: string
+  opcaoPedido: string
+  opcaoItem: string
+  passo: number
+  slug: string
+}
+
+/** SSOT alinhado a `CAMPOS_LOGISTICA_PEDIDO` + i18n `pedido.coluna_pai.*_titulo`. */
+const CFG_LOGISTICA_COLUNAS: ConfigLogisticaCampo[] = [
+  { key: 'porto_origem', colunaLabel: 'PORTO DE ORIGEM', tituloTooltip: 'Porto de Origem', opcaoPedido: 'BRFOR', opcaoItem: 'BRSSZ', passo: 29, slug: 'porto-origem' },
+  { key: 'porto_destino', colunaLabel: 'PORTO DE DESTINO', tituloTooltip: 'Porto de Destino', opcaoPedido: 'BRSSZ', opcaoItem: 'BRITJ', passo: 30, slug: 'porto-destino' },
+  { key: 'local_de_origem', colunaLabel: 'PAÍS DE ORIGEM', tituloTooltip: 'País de Origem', opcaoPedido: 'BR', opcaoItem: 'DE', passo: 31, slug: 'pais-origem' },
+  { key: 'local_de_destino', colunaLabel: 'PAÍS DE DESTINO', tituloTooltip: 'País de Destino', opcaoPedido: 'DE', opcaoItem: 'AO', passo: 32, slug: 'pais-destino' },
+  { key: 'aeroporto_origem', colunaLabel: 'AEROPORTO DE ORIGEM', tituloTooltip: 'Aeroporto de Origem', opcaoPedido: 'GRU', opcaoItem: 'CGH', passo: 33, slug: 'aeroporto-origem' },
+  { key: 'aeroporto_destino', colunaLabel: 'AEROPORTO DE DESTINO', tituloTooltip: 'Aeroporto de Destino', opcaoPedido: 'EZE', opcaoItem: 'GRU', passo: 34, slug: 'aeroporto-destino' },
+]
+
+type ConfigReferenciaCampo = {
+  colunaLabel: string
+  colKey: string
+  passoSolo: number
+  passoReplicar: number
+  passoItem: number
+  passoAlerta: number
+  prefixoValor: string
+  slugPrint: string
+}
+
+const CFG_REF_IMPORTADOR: ConfigReferenciaCampo = {
+  colunaLabel: COLUNA_REF_IMPORTADOR,
+  colKey: COL_KEY_REF_IMPORTADOR,
+  passoSolo: 13,
+  passoReplicar: 14,
+  passoItem: 15,
+  passoAlerta: 16,
+  prefixoValor: 'REF-IMP-EMT',
+  slugPrint: 'importador',
+}
+
+const CFG_REF_EXPORTADOR: ConfigReferenciaCampo = {
+  colunaLabel: COLUNA_REF_EXPORTADOR,
+  colKey: COL_KEY_REF_EXPORTADOR,
+  passoSolo: 17,
+  passoReplicar: 18,
+  passoItem: 19,
+  passoAlerta: 20,
+  prefixoValor: 'REF-EXP-EMT',
+  slugPrint: 'exportador',
+}
 const LABEL_TIPO_IMPORTACAO = 'Importação'
 const LABEL_TIPO_EXPORTACAO = 'Exportação'
 const CHECKBOX_REPLICAR_REGEX = /aplicar a todos os itens deste pedido/i
@@ -156,7 +232,7 @@ async function autenticarClerk(page: Page): Promise<boolean> {
 
   log(`Auth ambiente=${ambienteExec} clerk=${clerkSecretPrefix} email=${email}`)
 
-  await navegarComRetry(page, `${BASE_UI}/login`)
+  await page.goto(`${BASE_UI}/login`, { waitUntil: 'domcontentloaded', timeout: 60000 })
   await page.waitForFunction(() => {
     const c = (window as unknown as { Clerk?: { loaded?: boolean; client?: unknown } }).Clerk
     return Boolean(c?.loaded && c?.client)
@@ -272,12 +348,90 @@ async function aguardarNotificacaoSalvar(
   }
 }
 
-async function obterPrimeiroPedidoRowId(page: Page): Promise<string | null> {
-  const cel = page.locator('.gtv-linha--pai .gtv-celula--editavel[data-gtv-campo="numero_pedido"]').first()
-    .or(page.locator('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').first())
-  const visivel = await cel.waitFor({ timeout: 45000 }).then(() => true).catch(() => false)
-  if (!visivel) return null
-  return cel.getAttribute('data-gtv-rowid')
+async function aguardarListaComPedidosEditaveis(page: Page): Promise<void> {
+  await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 })
+  await page.locator('.gtv-linha--pai .gtv-chevron-btn').first().waitFor({ timeout: 45000 })
+  await page.waitForFunction(
+    () => document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length > 0,
+    undefined,
+    { timeout: 60000 },
+  )
+  await page.waitForTimeout(800)
+}
+
+async function garantirColunasListaVisiveis(page: Page): Promise<void> {
+  const btnColunas = page.getByRole('button', { name: 'Colunas' })
+  const visivel = await btnColunas.isVisible({ timeout: 10000 }).catch(() => false)
+  if (!visivel) return
+  await btnColunas.click()
+  await page.getByRole('button', { name: /Selecionar tudo/i }).click()
+  await page.waitForTimeout(600)
+  await page.keyboard.press('Escape')
+  await page.locator('.scg-popover').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {})
+  await page.waitForTimeout(1200)
+  log('✓ Colunas: "Selecionar tudo" aplicado (Nº PEDIDO, TIPO OP., REF., INCOTERM, DESCRIÇÃO, LOGÍSTICA visíveis)')
+}
+
+async function garantirListaPedidos(page: Page): Promise<void> {
+  await aguardarWorkspaceAtivo(page)
+  await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+
+  if (page.url().includes('/hub') || page.url().includes('/login') || page.url().includes('/selecionar-workspace')) {
+    log(`⚠ Redirecionado (${page.url()}) — tentando lista novamente`)
+    await aguardarWorkspaceAtivo(page)
+    await prepararEscopoWorkspaces(page)
+    await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  }
+
+  await aguardarListaComPedidosEditaveis(page)
+
+  // Recarrega após escopo de workspace para garantir pedidos do CDE correto (padrão logística EMT)
+  await page.reload({ waitUntil: 'domcontentloaded' })
+  await aguardarListaComPedidosEditaveis(page)
+  await garantirColunasListaVisiveis(page)
+}
+
+async function diagnosticarLista(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const linhasPai = document.querySelectorAll('.gtv-linha--pai').length
+    const chevrons = document.querySelectorAll('.gtv-linha--pai .gtv-chevron-btn').length
+    const editaveis = document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length
+    const numeroPedidoEditavel = document.querySelectorAll(
+      '.gtv-linha--pai .gtv-celula--editavel[data-gtv-campo="numero_pedido"]',
+    ).length
+    return `linhasPai=${linhasPai}, chevrons=${chevrons}, editaveis=${editaveis}, numero_pedido_editavel=${numeroPedidoEditavel}`
+  })
+}
+
+async function listarRowIdsPedidosEditaveis(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const ids = new Set<string>()
+    document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').forEach(el => {
+      const id = el.getAttribute('data-gtv-rowid')
+      if (id) ids.add(id)
+    })
+    return Array.from(ids)
+  })
+}
+
+/** Prefere pedido com ≥2 itens (alerta PN duplicado / divergência REF); senão o primeiro com ≥1. */
+async function obterPedidoComItens(page: Page): Promise<{ rowId: string; qtdItens: number } | null> {
+  const rowIds = await listarRowIdsPedidosEditaveis(page)
+  if (rowIds.length === 0) {
+    log(`ℹ Diagnóstico lista: ${await diagnosticarLista(page)}`)
+    return null
+  }
+
+  const limite = Math.min(rowIds.length, 8)
+  for (let i = 0; i < limite; i++) {
+    const qtd = await expandirPrimeiroPedido(page, rowIds[i])
+    if (qtd >= 2) return { rowId: rowIds[i], qtdItens: qtd }
+  }
+  for (let i = 0; i < limite; i++) {
+    const qtd = await expandirPrimeiroPedido(page, rowIds[i])
+    if (qtd >= 1) return { rowId: rowIds[i], qtdItens: qtd }
+  }
+  return null
 }
 
 async function expandirPrimeiroPedido(page: Page, rowId: string): Promise<number> {
@@ -293,21 +447,64 @@ async function expandirPrimeiroPedido(page: Page, rowId: string): Promise<number
   return page.locator('.gtv-linha--filho').count()
 }
 
+function printSelecao(prefixo: string): string {
+  return `${prefixo}-selecao.png`
+}
+
+function printResultado(prefixo: string): string {
+  return `${prefixo}-resultado.png`
+}
+
+async function abrirPopoverTextoPai(page: Page, rowId: string, campo: string): Promise<boolean> {
+  await scrollColunaParaVisivel(page, campo)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
+  if (await cel.count() === 0) return false
+  await cel.click()
+  return page.locator('.gtv-edit-popover .gtv-edit-popover-input').first()
+    .waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function abrirPopoverTextoItem(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+  campo: string,
+): Promise<boolean> {
+  const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, campo)
+  if (!clicou) return false
+  return page.locator('.gtv-edit-popover .gtv-edit-popover-input').first()
+    .waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function marcarCheckboxReplicarPopover(page: Page): Promise<boolean> {
+  const cb = page.locator('.gtv-edit-popover input[type="checkbox"]').first()
+  if (!(await cb.isVisible().catch(() => false))) return false
+  if (!(await cb.isChecked().catch(() => false))) await cb.check()
+  return true
+}
+
+async function preencherPopoverTexto(page: Page, valor: string): Promise<void> {
+  await page.locator('.gtv-edit-popover .gtv-edit-popover-input').first().fill(valor)
+}
+
+async function confirmarPopoverTexto(page: Page): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  await page.locator('.gtv-edit-popover .gtv-edit-popover-input').first().press('Enter')
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
+  return aguardarNotificacaoSalvar(page)
+}
+
 async function editarCampoTextoPai(
   page: Page,
   rowId: string,
   campo: string,
   novoValor: string,
+  opts?: { replicarEmItens?: boolean; scrollColuna?: boolean },
 ): Promise<'sucesso' | 'erro' | 'nenhuma'> {
-  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
-  if (await cel.count() === 0) return 'nenhuma'
-  await cel.click()
-  const input = page.locator('.gtv-edit-popover .gtv-edit-popover-input').first()
-  await input.waitFor({ timeout: 10000 })
-  await input.fill(novoValor)
-  await input.press('Enter')
-  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
-  return aguardarNotificacaoSalvar(page)
+  const abriu = await abrirPopoverTextoPai(page, rowId, campo)
+  if (!abriu) return 'nenhuma'
+  if (opts?.replicarEmItens) await marcarCheckboxReplicarPopover(page)
+  await preencherPopoverTexto(page, novoValor)
+  return confirmarPopoverTexto(page)
 }
 
 /** Na grade mapeada, coluna pai `numero_pedido` usa data-gtv-campo=numero_pedido nos filhos. */
@@ -328,6 +525,7 @@ async function editarCampoTextoItemPorIndice(
   campo: string,
   novoValor: string,
 ): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  await scrollColunaParaVisivel(page, campo)
   const colKey = campoColunaFilho(campo)
   const clicou = await page.evaluate(({ paiId, idx, colKey }) => {
     let filhos = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
@@ -446,8 +644,144 @@ async function fecharPopoverSeAberto(page: Page): Promise<void> {
 }
 
 async function selecionarTipoOperacaoPopover(page: Page, label: string): Promise<void> {
-  await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').filter({ hasText: label }).first().click()
+  await selecionarOpcaoPopoverSelect(page, label)
+}
+
+async function selecionarOpcaoPopoverSelect(page: Page, siglaOuLabel: string): Promise<void> {
+  const re = new RegExp(`\\b${siglaOuLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+  await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').filter({ hasText: re }).first().click()
   await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
+}
+
+async function popoverSelectTemOpcoes(page: Page): Promise<number> {
+  const visivel = await page.locator('.gtv-edit-popover-opcoes').isVisible().catch(() => false)
+  if (!visivel) return 0
+  return page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').count()
+}
+
+/** Extrai siglas (FOB, CIF…) das opções do select padrão Incoterm (Cadastros). */
+async function listarSiglasIncotermPopover(page: Page): Promise<string[]> {
+  const textos = await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').evaluateAll(els =>
+    els.map(el => el.textContent?.trim() ?? '').filter(Boolean),
+  )
+  const siglas = textos.map(t => t.split(/\s|—|–|-/)[0]?.trim() ?? '').filter(Boolean)
+  return [...new Set(siglas)]
+}
+
+async function resolverTresIncotermsDistintos(page: Page, rowId: string): Promise<string[] | null> {
+  await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_INCOTERM)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_INCOTERM}"]`)
+  if (await cel.count() === 0) return null
+  await cel.click()
+  const abriu = await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  if (!abriu) return null
+  const siglas = await listarSiglasIncotermPopover(page)
+  await fecharPopoverSeAberto(page)
+  if (siglas.length < 3) return null
+  return siglas.slice(0, 3)
+}
+
+async function abrirPopoverSelectPai(page: Page, rowId: string, campo: string): Promise<boolean> {
+  await scrollColunaParaVisivel(page, campo)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
+  if (await cel.count() === 0) return false
+  await cel.click()
+  return page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function abrirPopoverSelectItem(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+  campo: string,
+): Promise<boolean> {
+  const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, campo)
+  if (!clicou) return false
+  return page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function destacarSiglaNoPopoverSelect(page: Page, sigla: string): Promise<void> {
+  await page.evaluate((codigo) => {
+    const re = new RegExp(`\\b${codigo}\\b`, 'i')
+    const op = Array.from(document.querySelectorAll('.gtv-edit-popover-opcao'))
+      .find(el => re.test(el.textContent ?? ''))
+    if (op) (op as HTMLElement).scrollIntoView({ block: 'nearest' })
+  }, sigla)
+}
+
+async function confirmarOpcaoPopoverSelect(page: Page, sigla: string): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  await selecionarOpcaoPopoverSelect(page, sigla)
+  return aguardarNotificacaoSalvar(page)
+}
+
+async function editarCampoSelectPai(
+  page: Page,
+  rowId: string,
+  campo: string,
+  sigla: string,
+  opts?: { replicarEmItens?: boolean; scrollColuna?: boolean },
+): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  const abriu = await abrirPopoverSelectPai(page, rowId, campo)
+  if (!abriu) return 'nenhuma'
+  if (opts?.replicarEmItens) await marcarCheckboxReplicarPopover(page)
+  return confirmarOpcaoPopoverSelect(page, sigla)
+}
+
+async function clicarCelulaItemPorIndice(
+  page: Page,
+  pedidoRowId: string,
+  indiceItem: number,
+  colKey: string,
+): Promise<boolean> {
+  await scrollColunaParaVisivel(page, colKey)
+  return page.evaluate(({ paiId, idx, colKey }) => {
+    const filhos = (() => {
+      let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+      if (f.length === 0) {
+        const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+        if (paiEl) {
+          f = []
+          let prox = paiEl.nextElementSibling
+          while (prox?.classList.contains('gtv-linha--filho')) {
+            f.push(prox)
+            prox = prox.nextElementSibling
+          }
+        }
+      }
+      return f
+    })()
+    const filho = filhos[idx]
+    if (!filho) return false
+    const porAttr = filho.querySelector(`[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`) as HTMLElement | null
+    const cel = porAttr ?? (() => {
+      const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+      const colIdx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
+      if (colIdx < 0) return null
+      const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+        c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+      )
+      return (cells[colIdx] as HTMLElement) ?? null
+    })()
+    if (!cel) return false
+    cel.click()
+    return true
+  }, { paiId: pedidoRowId, idx: indiceItem, colKey })
+}
+
+async function editarCampoSelectItemPorIndice(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+  campo: string,
+  sigla: string,
+): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, campo)
+  if (!clicou) return 'nenhuma'
+  const abriu = await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  if (!abriu) return 'nenhuma'
+  await selecionarOpcaoPopoverSelect(page, sigla)
+  return aguardarNotificacaoSalvar(page)
 }
 
 async function lerBadgeTipoOperacaoPai(page: Page, rowId: string): Promise<string | null> {
@@ -735,20 +1069,19 @@ async function pedidoTemAlertaPartNumberDuplicado(page: Page, pedidoRowId: strin
 }
 
 async function validarListaEditarSalvar(page: Page): Promise<void> {
-  await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
-  await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 }).catch(() => {})
+  await garantirListaPedidos(page)
   logAprovado(LOCAL_LISTA, '—', `Carregar a lista (${LISTA_URL})`)
 
-  const rowId = await obterPrimeiroPedidoRowId(page)
-  if (!rowId) {
-    falharTabela(LOCAL_LISTA, COLUNA_ALVO, 'Localizar campo editável na coluna')
+  const pedido = await obterPedidoComItens(page)
+  if (!pedido) {
+    falharTabela(LOCAL_LISTA, COLUNA_ALVO, `Localizar campo editável na coluna (${await diagnosticarLista(page)})`)
     await screenshot(page, '02-lista-carregada.png')
     return
   }
 
-  const qtdItens = await expandirPrimeiroPedido(page, rowId)
+  const { rowId, qtdItens } = pedido
   if (qtdItens === 0) {
-    falharTabela(LOCAL_LISTA, '—', 'Expandir pedido com itens visíveis (necessário ≥2)')
+    falharTabela(LOCAL_LISTA, '—', 'Expandir pedido com itens visíveis (necessário ≥1)')
     await screenshot(page, '02-lista-carregada.png')
     return
   }
@@ -797,7 +1130,686 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   }
 
   await validarTipoOperacaoLista(page, rowId)
+  await validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_IMPORTADOR)
+  await validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_EXPORTADOR)
+  await validarIncotermLista(page, rowId, qtdItens)
+  await validarDescricaoItemLista(page, rowId, sufixo, qtdItens)
+  await validarLogisticaLista(page, rowId, qtdItens)
   await validarNcmLista(page, rowId)
+}
+
+function normalizarTextoCelula(texto: string): string {
+  return texto.replace(/\s+/g, ' ').trim()
+}
+
+function celulaContemValor(texto: string | null | undefined, valor: string): boolean {
+  if (!texto) return false
+  return normalizarTextoCelula(texto).includes(valor)
+}
+
+async function lerTextoCampoPai(page: Page, rowId: string, campo: string): Promise<string> {
+  await scrollColunaParaVisivel(page, campo)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
+  return normalizarTextoCelula(await cel.textContent() ?? '')
+}
+
+async function lerTextosCampoItens(page: Page, pedidoRowId: string, campo: string): Promise<string[]> {
+  await scrollColunaParaVisivel(page, campo)
+  return page.evaluate(({ paiId, colKey }) => {
+    const filhos = (() => {
+      let f = Array.from(document.querySelectorAll(`.gtv-linha--filho[data-gtv-pai-id="${paiId}"]`))
+      if (f.length === 0) {
+        const paiEl = document.querySelector(`.gtv-linha--pai [data-gtv-rowid="${paiId}"]`)?.closest('.gtv-linha--pai')
+        if (paiEl) {
+          f = []
+          let prox = paiEl.nextElementSibling
+          while (prox?.classList.contains('gtv-linha--filho')) {
+            f.push(prox)
+            prox = prox.nextElementSibling
+          }
+        }
+      }
+      return f
+    })()
+    const headers = Array.from(document.querySelectorAll('[data-find-col-key]'))
+    const colIdx = headers.findIndex(h => h.getAttribute('data-find-col-key') === colKey)
+    return filhos.map(filho => {
+      const porAttr = filho.querySelector(`[data-gtv-filho-rowid][data-gtv-campo="${colKey}"]`)
+      const cel = porAttr ?? (() => {
+        if (colIdx < 0) return null
+        const cells = Array.from(filho.querySelectorAll('.gtv-celula')).filter(
+          c => !c.classList.contains('gtv-col-fixa') && !c.classList.contains('gtv-celula--expand'),
+        )
+        return cells[colIdx] ?? null
+      })()
+      return cel?.textContent?.replace(/\s+/g, ' ').trim() ?? ''
+    })
+  }, { paiId: pedidoRowId, colKey: campo })
+}
+
+async function pedidoTemAlertaCampoDivergente(
+  page: Page,
+  pedidoRowId: string,
+  colKey: string,
+  padraoTooltip: RegExp,
+): Promise<boolean> {
+  await scrollColunaParaVisivel(page, colKey)
+  const cel = page.locator(`[data-gtv-rowid="${pedidoRowId}"][data-gtv-campo="${colKey}"]`)
+  const svg = await cel.locator('svg').count()
+  if (svg > 0) return true
+  const title = await cel.getAttribute('title').catch(() => null)
+  if (title && padraoTooltip.test(title)) return true
+  const texto = await cel.textContent()
+  return Boolean(texto && padraoTooltip.test(texto))
+}
+
+/** Passos 13–16 (importador) ou 17–20 (exportador) — padrão Incoterm: pedido+item editáveis, checkbox, alerta. */
+async function validarReferenciaCampoLista(
+  page: Page,
+  rowId: string,
+  sufixo: string,
+  qtdItens: number,
+  cfg: ConfigReferenciaCampo,
+): Promise<void> {
+  const { colunaLabel, colKey, passoSolo, passoReplicar, passoItem, passoAlerta, prefixoValor, slugPrint } = cfg
+  log(`ℹ Coluna ${colunaLabel}: passos ${passoSolo}–${passoAlerta} (pedido sem replicar, com checkbox, item isolado, alerta)`)
+
+  if (qtdItens < 1) {
+    falharTabela(LOCAL_LISTA, colunaLabel, 'Pré-condição — pedido sem itens visíveis')
+    return
+  }
+
+  const refSolo = `${prefixoValor}-SOLO-${sufixo}`
+  const refTodos = `${prefixoValor}-TODOS-${sufixo}`
+  const refItem = `${prefixoValor}-ITEM-${sufixo}`
+
+  const textosItensAntes = await lerTextosCampoItens(page, rowId, colKey)
+  const prefixoSolo = `${String(passoSolo).padStart(2, '0')}-ref-${slugPrint}-pedido-sem-replicar`
+  const prefixoTodos = `${String(passoReplicar).padStart(2, '0')}-ref-${slugPrint}-pedido-replicar-todos`
+  const prefixoItem = `${String(passoItem).padStart(2, '0')}-ref-${slugPrint}-editar-item-isolado`
+
+  // pedido sem replicar — selecao → resultado
+  await fecharPopoverSeAberto(page)
+  const abriuSolo = await abrirPopoverTextoPai(page, rowId, colKey)
+  if (!abriuSolo) {
+    falharTabela(LOCAL_LISTA, colunaLabel, `${passoSolo} — Abrir popover no pedido (sem replicar)`)
+  } else {
+    await preencherPopoverTexto(page, refSolo)
+    await screenshot(page, printSelecao(prefixoSolo))
+    const notifSolo = await confirmarPopoverTexto(page)
+    await page.waitForTimeout(600)
+    const textoPaiSolo = await lerTextoCampoPai(page, rowId, colKey)
+    const textosItensSolo = await lerTextosCampoItens(page, rowId, colKey)
+    await screenshot(page, printResultado(prefixoSolo))
+
+    const pedidoOkSolo = celulaContemValor(textoPaiSolo, refSolo)
+    const itensNaoReplicaram = textosItensSolo.every((t, i) => t === (textosItensAntes[i] ?? ''))
+
+    if (notifSolo === 'erro') {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoSolo} — Salvar pedido sem replicar — toast de erro`)
+    } else if (!pedidoOkSolo) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoSolo} — Pedido deve exibir ${refSolo}`)
+    } else if (!itensNaoReplicaram) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoSolo} — Itens não devem replicar ao salvar pedido sem checkbox`)
+    } else {
+      logAprovado(LOCAL_LISTA, colunaLabel, `${passoSolo} — Salvar pedido sem replicar (${refSolo})`)
+    }
+  }
+
+  // pedido com checkbox replicar — selecao → resultado
+  await fecharPopoverSeAberto(page)
+  const abriuTodos = await abrirPopoverTextoPai(page, rowId, colKey)
+  if (!abriuTodos) {
+    falharTabela(LOCAL_LISTA, colunaLabel, `${passoReplicar} — Abrir popover no pedido (com replicar)`)
+  } else {
+    const temCbReplicar = await popoverExibeCheckboxReplicar(page)
+    if (!temCbReplicar) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoReplicar} — Popover do pedido deve exibir checkbox «Aplicar a todos os itens»`)
+    }
+    await marcarCheckboxReplicarPopover(page)
+    await preencherPopoverTexto(page, refTodos)
+    await screenshot(page, printSelecao(prefixoTodos))
+    const notifTodos = await confirmarPopoverTexto(page)
+    await page.waitForTimeout(800)
+    const textoPaiTodos = await lerTextoCampoPai(page, rowId, colKey)
+    const textosItensTodos = await lerTextosCampoItens(page, rowId, colKey)
+    await screenshot(page, printResultado(prefixoTodos))
+
+    const pedidoOkTodos = celulaContemValor(textoPaiTodos, refTodos)
+    const itensOkTodos = textosItensTodos.length > 0 && textosItensTodos.every(t => celulaContemValor(t, refTodos))
+
+    if (notifTodos === 'erro') {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoReplicar} — Salvar pedido com replicar — toast de erro`)
+    } else if (!pedidoOkTodos || !itensOkTodos) {
+      log(`ℹ Diagnóstico ${colKey}: pai=${JSON.stringify(textoPaiTodos)}, itens=${JSON.stringify(textosItensTodos)}`)
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoReplicar} — Pedido e todos os itens devem exibir ${refTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, colunaLabel, `${passoReplicar} — Replicar para todos os itens (${refTodos}, ${textosItensTodos.length} itens)`)
+    }
+  }
+
+  // editar só o 1º item — selecao → resultado
+  await fecharPopoverSeAberto(page)
+  const abriuItem = await abrirPopoverTextoItem(page, rowId, 0, colKey)
+  let notifItem: 'sucesso' | 'erro' | 'nenhuma' = 'nenhuma'
+  let textoPaiItem = ''
+  let textosItensItem: string[] = []
+  if (!abriuItem) {
+    falharTabela(LOCAL_LISTA, colunaLabel, `${passoItem} — Abrir popover no item 1`)
+  } else {
+    await preencherPopoverTexto(page, refItem)
+    await screenshot(page, printSelecao(prefixoItem))
+    notifItem = await confirmarPopoverTexto(page)
+    await page.waitForTimeout(800)
+    textoPaiItem = await lerTextoCampoPai(page, rowId, colKey)
+    textosItensItem = await lerTextosCampoItens(page, rowId, colKey)
+    await screenshot(page, printResultado(prefixoItem))
+
+    const item0Ok = celulaContemValor(textosItensItem[0], refItem)
+    const pedidoManteve = celulaContemValor(textoPaiItem, refTodos)
+    const demaisItensOk = textosItensItem.length <= 1
+      || textosItensItem.slice(1).every(t => celulaContemValor(t, refTodos))
+
+    if (notifItem === 'erro') {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoItem} — Salvar item isolado — toast de erro`)
+    } else if (!item0Ok) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoItem} — Item 1 deve exibir ${refItem}`)
+    } else if (!pedidoManteve) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoItem} — Pedido deve manter ${refTodos}`)
+    } else if (!demaisItensOk) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passoItem} — Demais itens devem manter ${refTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, colunaLabel, `${passoItem} — Editar apenas o item 1 (${refItem})`)
+    }
+  }
+
+  // alerta de divergência
+  await page.waitForTimeout(600)
+  const temAlerta = await pedidoTemAlertaCampoDivergente(page, rowId, colKey, ALERTA_REF_DIVERGENTE)
+  await screenshot(page, `${String(passoAlerta).padStart(2, '0')}-ref-${slugPrint}-alerta-divergencia-resultado.png`)
+  if (temAlerta) {
+    logAprovado(LOCAL_LISTA, colunaLabel, `${passoAlerta} — Alerta de divergência visível na coluna do pedido`)
+  } else {
+    falharTabela(LOCAL_LISTA, colunaLabel, `${passoAlerta} — Alerta «Referências divergentes entre itens» não detectado`)
+  }
+}
+
+async function esconderTooltipGlobal(page: Page): Promise<void> {
+  await page.mouse.move(8, 8)
+  await page.waitForTimeout(250)
+  await page.locator('.tg-card').waitFor({ state: 'hidden', timeout: 2000 }).catch(() => {})
+}
+
+async function validarTooltipLogisticaCelula(
+  page: Page,
+  locatorCelula: ReturnType<Page['locator']>,
+  tituloEsperado: string,
+  nomePrint: string,
+): Promise<boolean> {
+  await esconderTooltipGlobal(page)
+  await locatorCelula.hover()
+  const visivel = await page.locator('.tg-card').first()
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .then(() => true)
+    .catch(() => false)
+  if (!visivel) return false
+  await screenshot(page, nomePrint)
+  const titulo = (await page.locator('.tg-titulo').first().textContent()) ?? ''
+  const descricao = (await page.locator('.tg-descricao').first().innerText()) ?? ''
+  const tituloOk = normalizarTipoOperacaoTexto(titulo).includes(normalizarTipoOperacaoTexto(tituloEsperado))
+  const pillsOk = PILLS_TOOLTIP_LOGISTICA.every(re => re.test(descricao))
+  return tituloOk && pillsOk
+}
+
+async function validarTooltipDescricaoCelula(
+  page: Page,
+  locatorCelula: ReturnType<Page['locator']>,
+  nomePrint: string,
+): Promise<boolean> {
+  await esconderTooltipGlobal(page)
+  await locatorCelula.hover()
+  const visivel = await page.locator('.tg-card').first()
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .then(() => true)
+    .catch(() => false)
+  if (!visivel) return false
+  await screenshot(page, nomePrint)
+  const titulo = (await page.locator('.tg-titulo').first().textContent()) ?? ''
+  const descricao = (await page.locator('.tg-descricao').first().innerText()) ?? ''
+  const tituloOk = normalizarTipoOperacaoTexto(titulo).includes(normalizarTipoOperacaoTexto(TITULO_TOOLTIP_DESCRICAO))
+  const pillsOk = PILLS_TOOLTIP_DESCRICAO.every(re => re.test(descricao))
+  const semPillAlerta = !ALERTA_PILL_DIVERGENCIA.test(descricao)
+  return tituloOk && pillsOk && semPillAlerta
+}
+
+async function selecionarOpcaoPopoverPorTermo(page: Page, termo: string): Promise<void> {
+  await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 })
+  await page.waitForFunction(
+    () => document.querySelectorAll('.gtv-edit-popover-opcao').length > 0,
+    undefined,
+    { timeout: 20000 },
+  )
+  const clicou = await page.evaluate((t) => {
+    const botoes = Array.from(document.querySelectorAll('.gtv-edit-popover-opcao')) as HTMLElement[]
+    const alvo = botoes.find(b => (b.textContent ?? '').includes(t))
+      ?? botoes.find(b => (b.textContent ?? '').trim().startsWith(t))
+    const btn = alvo ?? botoes[0]
+    if (!btn) return false
+    btn.click()
+    return true
+  }, termo)
+  if (!clicou) throw new Error(`Nenhuma opção no popover para termo "${termo}"`)
+  await page.waitForTimeout(300)
+}
+
+async function confirmarOpcaoPopoverPorTermo(page: Page, termo: string): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  await selecionarOpcaoPopoverPorTermo(page, termo)
+  return aguardarNotificacaoSalvar(page)
+}
+
+function prefixoPrintLogistica(passo: number, slug: string): string {
+  return `${String(passo).padStart(2, '0')}-log-${slug}`
+}
+
+/** Um campo logístico — passo N (tooltip pedido/item, edição espelhada, sem checkbox). */
+async function validarLogisticaCampoLista(
+  page: Page,
+  rowId: string,
+  qtdItens: number,
+  cfg: ConfigLogisticaCampo,
+): Promise<void> {
+  const { key, colunaLabel, tituloTooltip, opcaoPedido, opcaoItem, passo, slug } = cfg
+  const prefix = prefixoPrintLogistica(passo, slug)
+  log(`ℹ Coluna ${colunaLabel}: passo ${passo} (tooltip espelhado + select pedido/item)`)
+
+  await scrollColunaParaVisivel(page, key)
+  const celPai = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${key}"]`)
+  const celItem = page.locator(`.gtv-linha--filho [data-gtv-campo="${key}"]`).first()
+
+  const tooltipPaiOk = await validarTooltipLogisticaCelula(
+    page,
+    celPai,
+    tituloTooltip,
+    `${prefix}-tooltip-pedido.png`,
+  )
+  if (tooltipPaiOk) {
+    logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Tooltip pedido («${tituloTooltip}» + 3 pills espelhadas)`)
+  } else {
+    falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Tooltip pedido com título e pills espelhadas`)
+  }
+
+  await esconderTooltipGlobal(page)
+  const tooltipItemOk = await validarTooltipLogisticaCelula(
+    page,
+    celItem,
+    tituloTooltip,
+    `${prefix}-tooltip-item.png`,
+  )
+  if (tooltipItemOk) {
+    logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Tooltip item («${tituloTooltip}» + 3 pills espelhadas)`)
+  } else {
+    falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Tooltip item com título e pills espelhadas`)
+  }
+
+  // Edição no pedido — espelha nos itens; sem checkbox replicar
+  await fecharPopoverSeAberto(page)
+  const abriuPedido = await abrirPopoverSelectPai(page, rowId, key)
+  if (!abriuPedido) {
+    falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Abrir select no pedido`)
+  } else {
+    const temCheckbox = await popoverExibeCheckboxReplicar(page)
+    if (temCheckbox) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Popover logística não deve exibir checkbox «Aplicar a todos os itens»`)
+    }
+    await destacarSiglaNoPopoverSelect(page, opcaoPedido)
+    await screenshot(page, printSelecao(`${prefix}-pedido`))
+    const notifPedido = await confirmarOpcaoPopoverPorTermo(page, opcaoPedido)
+    await page.waitForTimeout(800)
+    const textoPai = await lerTextoCampoPai(page, rowId, key)
+    const textosItens = await lerTextosCampoItens(page, rowId, key)
+    await screenshot(page, printResultado(`${prefix}-pedido`))
+
+    const pedidoOk = celulaContemValor(textoPai, opcaoPedido)
+    const itensEspelhados = textosItens.length > 0
+      && textosItens.every(t => celulaContemValor(t, opcaoPedido))
+
+    if (notifPedido === 'erro') {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar pedido (${opcaoPedido}) — toast de erro`)
+    } else if (!pedidoOk) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve exibir ${opcaoPedido}`)
+    } else if (!itensEspelhados) {
+      log(`ℹ Diagnóstico ${key}: pai=${JSON.stringify(textoPai)}, itens=${JSON.stringify(textosItens)}`)
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Itens devem espelhar pedido após edição no pedido`)
+    } else {
+      logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar pedido (${opcaoPedido}) — espelhado em ${textosItens.length} item(ns)`)
+    }
+  }
+
+  // Edição no item — roteia PATCH pedido; todos espelham
+  await fecharPopoverSeAberto(page)
+  const abriuItem = await abrirPopoverSelectItem(page, rowId, 0, key)
+  if (!abriuItem) {
+    falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Abrir select no item 1`)
+  } else {
+    await destacarSiglaNoPopoverSelect(page, opcaoItem)
+    await screenshot(page, printSelecao(`${prefix}-item`))
+    const notifItem = await confirmarOpcaoPopoverPorTermo(page, opcaoItem)
+    await page.waitForTimeout(800)
+    const textoPaiItem = await lerTextoCampoPai(page, rowId, key)
+    const textosItensItem = await lerTextosCampoItens(page, rowId, key)
+    await screenshot(page, printResultado(`${prefix}-item`))
+
+    const pedidoAtualizado = celulaContemValor(textoPaiItem, opcaoItem)
+    const itensOk = textosItensItem.length > 0
+      && textosItensItem.every(t => celulaContemValor(t, opcaoItem))
+
+    if (notifItem === 'erro') {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar item (${opcaoItem}) — toast de erro`)
+    } else if (!pedidoAtualizado) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve atualizar para ${opcaoItem} via edição no item`)
+    } else if (!itensOk) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Todos os itens devem espelhar ${opcaoItem}`)
+    } else {
+      logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar item (${opcaoItem}) — pedido + ${textosItensItem.length} item(ns) espelhados`)
+    }
+  }
+
+  // Sem alerta de divergência (logística não diverge)
+  await page.waitForTimeout(400)
+  const temAlertaRef = await pedidoTemAlertaCampoDivergente(page, rowId, key, ALERTA_REF_DIVERGENTE)
+  const temAlertaInc = await pedidoTemAlertaCampoDivergente(page, rowId, key, ALERTA_INCOTERM_DIVERGENTE)
+  if (temAlertaRef || temAlertaInc) {
+    falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Coluna logística não deve exibir alerta de divergência`)
+  } else if (qtdItens >= 1) {
+    logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Sem alerta de divergência na coluna`)
+  }
+}
+
+/** Passos 25–28 — DESCRIÇÃO DO ITEM (ghost: tooltip + texto + checkbox; sem alerta). */
+async function validarDescricaoItemLista(
+  page: Page,
+  rowId: string,
+  sufixo: string,
+  qtdItens: number,
+): Promise<void> {
+  const colKey = COL_KEY_DESCRICAO_ITEM
+  const colunaLabel = COLUNA_DESCRICAO_ITEM
+  log(`ℹ Coluna ${colunaLabel}: passos 25–28 (tooltip ghost + pedido/item + sem alerta de divergência)`)
+
+  if (qtdItens < 1) {
+    falharTabela(LOCAL_LISTA, colunaLabel, 'Pré-condição — pedido sem itens visíveis')
+    return
+  }
+
+  const descSolo = `DESC-EMT-SOLO-${sufixo}`
+  const descTodos = `DESC-EMT-TODOS-${sufixo}`
+  const descItem = `DESC-EMT-ITEM-${sufixo}`
+
+  await scrollColunaParaVisivel(page, colKey)
+  const celPai = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${colKey}"]`)
+  const celItem = page.locator(`.gtv-linha--filho [data-gtv-campo="${colKey}"]`).first()
+
+  // 25 — tooltips pedido e item
+  const tooltipPaiOk = await validarTooltipDescricaoCelula(page, celPai, '25-descricao-tooltip-pedido.png')
+  if (tooltipPaiOk) {
+    logAprovado(LOCAL_LISTA, colunaLabel, '25 — Tooltip pedido («Descrição do Item» + 3 pills ghost)')
+  } else {
+    falharTabela(LOCAL_LISTA, colunaLabel, '25 — Tooltip pedido com título e 3 pills (sem alerta)')
+  }
+
+  await esconderTooltipGlobal(page)
+  const tooltipItemOk = await validarTooltipDescricaoCelula(page, celItem, '25-descricao-tooltip-item.png')
+  if (tooltipItemOk) {
+    logAprovado(LOCAL_LISTA, colunaLabel, '25 — Tooltip item («Descrição do Item» + 3 pills ghost)')
+  } else {
+    falharTabela(LOCAL_LISTA, colunaLabel, '25 — Tooltip item com título e 3 pills (sem alerta)')
+  }
+
+  const textosItensAntes = await lerTextosCampoItens(page, rowId, colKey)
+
+  // 26 — pedido sem replicar
+  await fecharPopoverSeAberto(page)
+  const abriuSolo = await abrirPopoverTextoPai(page, rowId, colKey)
+  if (!abriuSolo) {
+    falharTabela(LOCAL_LISTA, colunaLabel, '26 — Abrir popover no pedido (sem replicar)')
+  } else {
+    await preencherPopoverTexto(page, descSolo)
+    await screenshot(page, printSelecao('26-descricao-pedido-sem-replicar'))
+    const notifSolo = await confirmarPopoverTexto(page)
+    await page.waitForTimeout(600)
+    const textoPaiSolo = await lerTextoCampoPai(page, rowId, colKey)
+    const textosItensSolo = await lerTextosCampoItens(page, rowId, colKey)
+    await screenshot(page, printResultado('26-descricao-pedido-sem-replicar'))
+
+    const pedidoOkSolo = celulaContemValor(textoPaiSolo, descSolo)
+    const itensNaoReplicaram = textosItensSolo.every((t, i) => t === (textosItensAntes[i] ?? ''))
+
+    if (notifSolo === 'erro') {
+      falharTabela(LOCAL_LISTA, colunaLabel, `26 — Salvar pedido sem replicar (${descSolo}) — toast de erro`)
+    } else if (!pedidoOkSolo) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `26 — Pedido deve exibir ${descSolo}`)
+    } else if (!itensNaoReplicaram) {
+      falharTabela(LOCAL_LISTA, colunaLabel, '26 — Itens não devem replicar ao salvar pedido sem checkbox')
+    } else {
+      logAprovado(LOCAL_LISTA, colunaLabel, `26 — Salvar pedido sem replicar (${descSolo})`)
+    }
+  }
+
+  // 27 — pedido com checkbox replicar
+  await fecharPopoverSeAberto(page)
+  const abriuTodos = await abrirPopoverTextoPai(page, rowId, colKey)
+  if (!abriuTodos) {
+    falharTabela(LOCAL_LISTA, colunaLabel, '27 — Abrir popover no pedido (com replicar)')
+  } else {
+    const temCbReplicar = await popoverExibeCheckboxReplicar(page)
+    if (!temCbReplicar) {
+      falharTabela(LOCAL_LISTA, colunaLabel, '27 — Popover do pedido deve exibir checkbox «Aplicar a todos os itens»')
+    }
+    await marcarCheckboxReplicarPopover(page)
+    await preencherPopoverTexto(page, descTodos)
+    await screenshot(page, printSelecao('27-descricao-pedido-replicar-todos'))
+    const notifTodos = await confirmarPopoverTexto(page)
+    await page.waitForTimeout(800)
+    const textoPaiTodos = await lerTextoCampoPai(page, rowId, colKey)
+    const textosItensTodos = await lerTextosCampoItens(page, rowId, colKey)
+    await screenshot(page, printResultado('27-descricao-pedido-replicar-todos'))
+
+    const pedidoOkTodos = celulaContemValor(textoPaiTodos, descTodos)
+    const itensOkTodos = textosItensTodos.length > 0 && textosItensTodos.every(t => celulaContemValor(t, descTodos))
+
+    if (notifTodos === 'erro') {
+      falharTabela(LOCAL_LISTA, colunaLabel, `27 — Salvar pedido com replicar (${descTodos}) — toast de erro`)
+    } else if (!pedidoOkTodos || !itensOkTodos) {
+      log(`ℹ Diagnóstico descricao_item: pai=${JSON.stringify(textoPaiTodos)}, itens=${JSON.stringify(textosItensTodos)}`)
+      falharTabela(LOCAL_LISTA, colunaLabel, `27 — Pedido e todos os itens devem exibir ${descTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, colunaLabel, `27 — Replicar para todos os itens (${descTodos}, ${textosItensTodos.length} itens)`)
+    }
+  }
+
+  // 28 — item isolado + sem alerta de divergência
+  await fecharPopoverSeAberto(page)
+  const abriuItem = await abrirPopoverTextoItem(page, rowId, 0, colKey)
+  if (!abriuItem) {
+    falharTabela(LOCAL_LISTA, colunaLabel, '28 — Abrir popover no item 1')
+  } else {
+    await preencherPopoverTexto(page, descItem)
+    await screenshot(page, printSelecao('28-descricao-editar-item-isolado'))
+    const notifItem = await confirmarPopoverTexto(page)
+    await page.waitForTimeout(800)
+    const textoPaiItem = await lerTextoCampoPai(page, rowId, colKey)
+    const textosItensItem = await lerTextosCampoItens(page, rowId, colKey)
+    await screenshot(page, printResultado('28-descricao-editar-item-isolado'))
+
+    const item0Ok = celulaContemValor(textosItensItem[0], descItem)
+    const pedidoManteve = celulaContemValor(textoPaiItem, descTodos)
+    const demaisItensOk = textosItensItem.length <= 1
+      || textosItensItem.slice(1).every(t => celulaContemValor(t, descTodos))
+
+    if (notifItem === 'erro') {
+      falharTabela(LOCAL_LISTA, colunaLabel, `28 — Salvar item isolado (${descItem}) — toast de erro`)
+    } else if (!item0Ok) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `28 — Item 1 deve exibir ${descItem}`)
+    } else if (!pedidoManteve) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `28 — Pedido deve manter ${descTodos}`)
+    } else if (!demaisItensOk) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `28 — Demais itens devem manter ${descTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, colunaLabel, `28 — Editar apenas o item 1 (${descItem})`)
+    }
+  }
+
+  await page.waitForTimeout(400)
+  const temAlertaRef = await pedidoTemAlertaCampoDivergente(page, rowId, colKey, ALERTA_REF_DIVERGENTE)
+  const temAlertaInc = await pedidoTemAlertaCampoDivergente(page, rowId, colKey, ALERTA_INCOTERM_DIVERGENTE)
+  const temAlertaGenerico = await pedidoTemAlertaCampoDivergente(page, rowId, colKey, /diverg/i)
+  await screenshot(page, '28-descricao-sem-alerta-divergencia-resultado.png')
+  if (temAlertaRef || temAlertaInc || temAlertaGenerico) {
+    falharTabela(LOCAL_LISTA, colunaLabel, '28 — Coluna descrição não deve exibir alerta âmbar de divergência')
+  } else {
+    logAprovado(LOCAL_LISTA, colunaLabel, '28 — Sem alerta de divergência na coluna do pedido')
+  }
+}
+
+/** Passos 29–34 — LOGÍSTICA (6 colunas espelhadas). */
+async function validarLogisticaLista(page: Page, rowId: string, qtdItens: number): Promise<void> {
+  log('ℹ ETAPA 7 — LOGÍSTICA: passos 29–34 (Porto, País, Aeroporto — tooltip + edição espelhada)')
+  if (qtdItens < 1) {
+    falharTabela(LOCAL_LISTA, 'LOGÍSTICA', 'Pré-condição — pedido sem itens visíveis')
+    return
+  }
+  for (const cfg of CFG_LOGISTICA_COLUNAS) {
+    await fecharPopoverSeAberto(page)
+    await validarLogisticaCampoLista(page, rowId, qtdItens, cfg)
+  }
+}
+
+/** Passos 21–24 — INCOTERM (select Cadastros; selecao → resultado por ação). */
+async function validarIncotermLista(page: Page, rowId: string, qtdItens: number): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_INCOTERM}: passos 21–24 (select: selecao → resultado; alerta no 24)`)
+
+  if (qtdItens < 1) {
+    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, 'Pré-condição — pedido sem itens visíveis')
+    return
+  }
+
+  const incoterms = await resolverTresIncotermsDistintos(page, rowId)
+  if (!incoterms || incoterms.length < 3) {
+    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, 'Pré-condição — select Incoterm deve listar ≥3 opções do Cadastros')
+    return
+  }
+
+  const [incSolo, incTodos, incItem] = incoterms
+  const textosItensAntes = await lerTextosCampoItens(page, rowId, COL_KEY_INCOTERM)
+
+  // 21 — pedido sem replicar: select aberto → grade após salvar
+  await fecharPopoverSeAberto(page)
+  const abriu21 = await abrirPopoverSelectPai(page, rowId, COL_KEY_INCOTERM)
+  if (!abriu21) {
+    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '21 — Abrir select Incoterm no pedido')
+  } else {
+    const qtdOpcoes = await popoverSelectTemOpcoes(page)
+    if (qtdOpcoes < 3) {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `21 — Select deve listar opções Cadastros (${qtdOpcoes} encontradas)`)
+    }
+    await destacarSiglaNoPopoverSelect(page, incSolo)
+    await screenshot(page, printSelecao('21-incoterm-pedido-sem-replicar'))
+    const notif21 = await confirmarOpcaoPopoverSelect(page, incSolo)
+    await page.waitForTimeout(600)
+    const textoPai21 = await lerTextoCampoPai(page, rowId, COL_KEY_INCOTERM)
+    const textosItens21 = await lerTextosCampoItens(page, rowId, COL_KEY_INCOTERM)
+    await screenshot(page, printResultado('21-incoterm-pedido-sem-replicar'))
+
+    const pedidoOk21 = celulaContemValor(textoPai21, incSolo)
+    const itensNaoReplicaram = textosItens21.every((t, i) => t === (textosItensAntes[i] ?? ''))
+
+    if (notif21 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `21 — Salvar pedido sem replicar (${incSolo}) — toast de erro`)
+    } else if (!pedidoOk21) {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `21 — Pedido deve exibir ${incSolo}`)
+    } else if (!itensNaoReplicaram) {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '21 — Itens não devem replicar ao salvar pedido sem checkbox')
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_INCOTERM, `21 — Salvar pedido sem replicar (${incSolo})`)
+    }
+  }
+
+  // 22 — pedido com replicar: select + checkbox → grade
+  await fecharPopoverSeAberto(page)
+  const abriu22 = await abrirPopoverSelectPai(page, rowId, COL_KEY_INCOTERM)
+  if (!abriu22) {
+    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '22 — Abrir select Incoterm no pedido (com replicar)')
+  } else {
+    const temCb22 = await popoverExibeCheckboxReplicar(page)
+    if (!temCb22) {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '22 — Select deve exibir checkbox «Aplicar a todos os itens»')
+    }
+    await marcarCheckboxReplicarPopover(page)
+    await destacarSiglaNoPopoverSelect(page, incTodos)
+    await screenshot(page, printSelecao('22-incoterm-pedido-replicar-todos'))
+    const notif22 = await confirmarOpcaoPopoverSelect(page, incTodos)
+    await page.waitForTimeout(800)
+    const textoPai22 = await lerTextoCampoPai(page, rowId, COL_KEY_INCOTERM)
+    const textosItens22 = await lerTextosCampoItens(page, rowId, COL_KEY_INCOTERM)
+    await screenshot(page, printResultado('22-incoterm-pedido-replicar-todos'))
+
+    const pedidoOk22 = celulaContemValor(textoPai22, incTodos)
+    const itensOk22 = textosItens22.length > 0 && textosItens22.every(t => celulaContemValor(t, incTodos))
+
+    if (notif22 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `22 — Salvar pedido com replicar (${incTodos}) — toast de erro`)
+    } else if (!pedidoOk22 || !itensOk22) {
+      log(`ℹ Diagnóstico incoterm: pai=${JSON.stringify(textoPai22)}, itens=${JSON.stringify(textosItens22)}`)
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `22 — Pedido e todos os itens devem exibir ${incTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_INCOTERM, `22 — Replicar para todos os itens (${incTodos}, ${textosItens22.length} itens)`)
+    }
+  }
+
+  // 23 — item isolado: select → grade
+  await fecharPopoverSeAberto(page)
+  const abriu23 = await abrirPopoverSelectItem(page, rowId, 0, COL_KEY_INCOTERM)
+  let notif23: 'sucesso' | 'erro' | 'nenhuma' = 'nenhuma'
+  let textoPai23 = ''
+  let textosItens23: string[] = []
+  if (!abriu23) {
+    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '23 — Abrir select Incoterm no item 1')
+  } else {
+    await destacarSiglaNoPopoverSelect(page, incItem)
+    await screenshot(page, printSelecao('23-incoterm-editar-item-isolado'))
+    notif23 = await confirmarOpcaoPopoverSelect(page, incItem)
+    await page.waitForTimeout(800)
+    textoPai23 = await lerTextoCampoPai(page, rowId, COL_KEY_INCOTERM)
+    textosItens23 = await lerTextosCampoItens(page, rowId, COL_KEY_INCOTERM)
+    await screenshot(page, printResultado('23-incoterm-editar-item-isolado'))
+
+    const item0Ok23 = celulaContemValor(textosItens23[0], incItem)
+    const pedidoManteve23 = celulaContemValor(textoPai23, incTodos)
+    const demaisItensOk23 = textosItens23.length <= 1
+      || textosItens23.slice(1).every(t => celulaContemValor(t, incTodos))
+
+    if (notif23 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `23 — Salvar item isolado (${incItem}) — toast de erro`)
+    } else if (!item0Ok23) {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `23 — Item 1 deve exibir ${incItem}`)
+    } else if (!pedidoManteve23) {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `23 — Pedido deve manter ${incTodos}`)
+    } else if (!demaisItensOk23) {
+      falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `23 — Demais itens devem manter ${incTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_INCOTERM, `23 — Editar apenas o item 1 (${incItem})`)
+    }
+  }
+
+  // 24 — alerta divergência (somente resultado na grade)
+  await page.waitForTimeout(600)
+  const temAlerta = await pedidoTemAlertaCampoDivergente(page, rowId, COL_KEY_INCOTERM, ALERTA_INCOTERM_DIVERGENTE)
+  await screenshot(page, '24-incoterm-alerta-divergencia-resultado.png')
+  if (temAlerta) {
+    logAprovado(LOCAL_LISTA, COLUNA_INCOTERM, '24 — Alerta «Incoterms divergentes entre itens» visível na coluna do pedido')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '24 — Alerta «Incoterms divergentes entre itens» não detectado')
+  }
 }
 
 function normalizarNcmDigitos(texto: string): string {
@@ -961,129 +1973,124 @@ async function hoverCelulaNcmPai(page: Page, rowId: string): Promise<void> {
   await page.waitForTimeout(600)
 }
 
-/** Passos 21–27 — NCM (código, busca por texto, tooltip «Editável no pedido»). */
+/** Passos 35–41 — NCM (código, busca por texto, tooltip «Editável no pedido»). */
 async function validarNcmLista(page: Page, rowId: string): Promise<void> {
-  log(`ℹ Coluna ${COLUNA_NCM}: passos 21–27 (código 8528.59.00, busca «monitor», tooltip pedido)`)
+  log(`ℹ Coluna ${COLUNA_NCM}: passos 35–41 (código 8528.59.00, busca «monitor», tooltip pedido)`)
 
-  // 21 — NCM no pedido via código
   await fecharPopoverSeAberto(page)
-  const abriu21 = await abrirPopoverNcmPai(page, rowId)
-  if (!abriu21) {
-    falharTabela(LOCAL_LISTA, COLUNA_NCM, '21 — Abrir NCM na linha do pedido')
+  const abriu35 = await abrirPopoverNcmPai(page, rowId)
+  if (!abriu35) {
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '35 — Abrir NCM na linha do pedido')
   } else {
-    await screenshot(page, '21-ncm-pedido-codigo-selecao.png')
-    const valido21 = await preencherNcmCodigoNoPopover(page, NCM_CODIGO_TESTE)
-    if (!valido21) {
-      falharTabela(LOCAL_LISTA, COLUNA_NCM, `21 — NCM ${NCM_CODIGO_TESTE} não validou no pedido`)
+    await screenshot(page, '35-ncm-pedido-codigo-selecao.png')
+    const valido35 = await preencherNcmCodigoNoPopover(page, NCM_CODIGO_TESTE)
+    if (!valido35) {
+      falharTabela(LOCAL_LISTA, COLUNA_NCM, `35 — NCM ${NCM_CODIGO_TESTE} não validou no pedido`)
     } else {
-      const notif21 = await confirmarPopoverNcm(page)
-      const texto21 = await lerTextoNcmPai(page, rowId)
-      await screenshot(page, '21-ncm-pedido-codigo-resultado.png')
-      if (notif21 === 'erro') falharTabela(LOCAL_LISTA, COLUNA_NCM, '21 — Salvar NCM por código no pedido — toast de erro')
-      else if (!ncmExibeCodigo(texto21, NCM_CODIGO_TESTE)) {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, `21 — Pedido não exibe NCM ${NCM_CODIGO_TESTE} após salvar`)
-      } else if (notif21 === 'sucesso') {
-        logAprovado(LOCAL_LISTA, COLUNA_NCM, `21 — NCM ${NCM_CODIGO_TESTE} validou e salvou no pedido`)
+      const notif35 = await confirmarPopoverNcm(page)
+      const texto35 = await lerTextoNcmPai(page, rowId)
+      await screenshot(page, '35-ncm-pedido-codigo-resultado.png')
+      if (notif35 === 'erro') falharTabela(LOCAL_LISTA, COLUNA_NCM, '35 — Salvar NCM por código no pedido — toast de erro')
+      else if (!ncmExibeCodigo(texto35, NCM_CODIGO_TESTE)) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, `35 — Pedido não exibe NCM ${NCM_CODIGO_TESTE} após salvar`)
+      } else if (notif35 === 'sucesso') {
+        logAprovado(LOCAL_LISTA, COLUNA_NCM, `35 — NCM ${NCM_CODIGO_TESTE} validou e salvou no pedido`)
       } else {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, '21 — Salvar NCM por código no pedido — toast de sucesso não detectado')
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '35 — Salvar NCM por código no pedido — toast de sucesso não detectado')
       }
     }
   }
 
-  // 22–23 — NCM no pedido via busca «monitor»
   await fecharPopoverSeAberto(page)
-  const abriu22 = await abrirPopoverNcmPai(page, rowId)
-  if (!abriu22) {
-    falharTabela(LOCAL_LISTA, COLUNA_NCM, '22 — Abrir NCM no pedido para busca por texto')
+  const abriu36 = await abrirPopoverNcmPai(page, rowId)
+  if (!abriu36) {
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '36 — Abrir NCM no pedido para busca por texto')
   } else {
-    const qtd22 = await preencherNcmBuscaNoPopover(page, NCM_BUSCA_TEXTO)
-    await screenshot(page, '22-ncm-pedido-busca-monitor-selecao.png')
-    if (qtd22 < 2) {
-      falharTabela(LOCAL_LISTA, COLUNA_NCM, `22 — Busca «${NCM_BUSCA_TEXTO}» deve listar várias NCMs (encontradas: ${qtd22})`)
+    const qtd36 = await preencherNcmBuscaNoPopover(page, NCM_BUSCA_TEXTO)
+    await screenshot(page, '36-ncm-pedido-busca-monitor-selecao.png')
+    if (qtd36 < 2) {
+      falharTabela(LOCAL_LISTA, COLUNA_NCM, `36 — Busca «${NCM_BUSCA_TEXTO}» deve listar várias NCMs (encontradas: ${qtd36})`)
     } else {
-      logAprovado(LOCAL_LISTA, COLUNA_NCM, `22 — Busca «${NCM_BUSCA_TEXTO}» abriu lista com ${qtd22} NCMs`)
-      const codigoSel23 = await selecionarPrimeiroNcmBusca(page)
-      const notif23 = await confirmarPopoverNcm(page)
-      const texto23 = await lerTextoNcmPai(page, rowId)
-      await screenshot(page, '23-ncm-pedido-busca-monitor-resultado.png')
-      if (!codigoSel23) {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, '23 — Selecionar NCM da lista no pedido')
-      } else if (notif23 === 'erro') {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, '23 — Salvar NCM selecionada no pedido — toast de erro')
-      } else if (!ncmExibeCodigo(texto23, codigoSel23)) {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, `23 — Pedido não exibe NCM selecionada (${codigoSel23})`)
-      } else if (notif23 === 'sucesso') {
-        logAprovado(LOCAL_LISTA, COLUNA_NCM, `23 — NCM selecionada da busca salvou no pedido (${codigoSel23})`)
+      logAprovado(LOCAL_LISTA, COLUNA_NCM, `36 — Busca «${NCM_BUSCA_TEXTO}» abriu lista com ${qtd36} NCMs`)
+      const codigoSel37 = await selecionarPrimeiroNcmBusca(page)
+      const notif37 = await confirmarPopoverNcm(page)
+      const texto37 = await lerTextoNcmPai(page, rowId)
+      await screenshot(page, '37-ncm-pedido-busca-monitor-resultado.png')
+      if (!codigoSel37) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '37 — Selecionar NCM da lista no pedido')
+      } else if (notif37 === 'erro') {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '37 — Salvar NCM selecionada no pedido — toast de erro')
+      } else if (!ncmExibeCodigo(texto37, codigoSel37)) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, `37 — Pedido não exibe NCM selecionada (${codigoSel37})`)
+      } else if (notif37 === 'sucesso') {
+        logAprovado(LOCAL_LISTA, COLUNA_NCM, `37 — NCM selecionada da busca salvou no pedido (${codigoSel37})`)
       } else {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, '23 — Salvar NCM selecionada no pedido — toast de sucesso não detectado')
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '37 — Salvar NCM selecionada no pedido — toast de sucesso não detectado')
       }
     }
   }
 
-  // 24 — NCM no item via código
   await fecharPopoverSeAberto(page)
-  const abriu24 = await abrirPopoverNcmItem(page, rowId, 0)
-  if (!abriu24) {
-    falharTabela(LOCAL_LISTA, COLUNA_NCM, '24 — Abrir NCM na linha do item 1')
+  const abriu38 = await abrirPopoverNcmItem(page, rowId, 0)
+  if (!abriu38) {
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '38 — Abrir NCM na linha do item 1')
   } else {
-    await screenshot(page, '24-ncm-item-codigo-selecao.png')
-    const valido24 = await preencherNcmCodigoNoPopover(page, NCM_CODIGO_TESTE)
-    if (!valido24) {
-      falharTabela(LOCAL_LISTA, COLUNA_NCM, `24 — NCM ${NCM_CODIGO_TESTE} não validou no item`)
+    await screenshot(page, '38-ncm-item-codigo-selecao.png')
+    const valido38 = await preencherNcmCodigoNoPopover(page, NCM_CODIGO_TESTE)
+    if (!valido38) {
+      falharTabela(LOCAL_LISTA, COLUNA_NCM, `38 — NCM ${NCM_CODIGO_TESTE} não validou no item`)
     } else {
-      const notif24 = await confirmarPopoverNcm(page)
-      const texto24 = await lerTextoNcmItem(page, rowId, 0)
-      await screenshot(page, '24-ncm-item-codigo-resultado.png')
-      if (notif24 === 'erro') falharTabela(LOCAL_LISTA, COLUNA_NCM, '24 — Salvar NCM por código no item — toast de erro')
-      else if (!ncmExibeCodigo(texto24, NCM_CODIGO_TESTE)) {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, `24 — Item 1 não exibe NCM ${NCM_CODIGO_TESTE} após salvar`)
-      } else if (notif24 === 'sucesso') {
-        logAprovado(LOCAL_LISTA, COLUNA_NCM, `24 — NCM ${NCM_CODIGO_TESTE} validou e salvou no item 1`)
+      const notif38 = await confirmarPopoverNcm(page)
+      const texto38 = await lerTextoNcmItem(page, rowId, 0)
+      await screenshot(page, '38-ncm-item-codigo-resultado.png')
+      if (notif38 === 'erro') falharTabela(LOCAL_LISTA, COLUNA_NCM, '38 — Salvar NCM por código no item — toast de erro')
+      else if (!ncmExibeCodigo(texto38, NCM_CODIGO_TESTE)) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, `38 — Item 1 não exibe NCM ${NCM_CODIGO_TESTE} após salvar`)
+      } else if (notif38 === 'sucesso') {
+        logAprovado(LOCAL_LISTA, COLUNA_NCM, `38 — NCM ${NCM_CODIGO_TESTE} validou e salvou no item 1`)
       } else {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, '24 — Salvar NCM por código no item — toast de sucesso não detectado')
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '38 — Salvar NCM por código no item — toast de sucesso não detectado')
       }
     }
   }
 
-  // 25–26 — NCM no item via busca «monitor»
   await fecharPopoverSeAberto(page)
-  const abriu25 = await abrirPopoverNcmItem(page, rowId, 0)
-  if (!abriu25) {
-    falharTabela(LOCAL_LISTA, COLUNA_NCM, '25 — Abrir NCM no item para busca por texto')
+  const abriu39 = await abrirPopoverNcmItem(page, rowId, 0)
+  if (!abriu39) {
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '39 — Abrir NCM no item para busca por texto')
   } else {
-    const qtd25 = await preencherNcmBuscaNoPopover(page, NCM_BUSCA_TEXTO)
-    await screenshot(page, '25-ncm-item-busca-monitor-selecao.png')
-    if (qtd25 < 2) {
-      falharTabela(LOCAL_LISTA, COLUNA_NCM, `25 — Busca «${NCM_BUSCA_TEXTO}» no item deve listar várias NCMs (encontradas: ${qtd25})`)
+    const qtd39 = await preencherNcmBuscaNoPopover(page, NCM_BUSCA_TEXTO)
+    await screenshot(page, '39-ncm-item-busca-monitor-selecao.png')
+    if (qtd39 < 2) {
+      falharTabela(LOCAL_LISTA, COLUNA_NCM, `39 — Busca «${NCM_BUSCA_TEXTO}» no item deve listar várias NCMs (encontradas: ${qtd39})`)
     } else {
-      logAprovado(LOCAL_LISTA, COLUNA_NCM, `25 — Busca «${NCM_BUSCA_TEXTO}» no item abriu lista com ${qtd25} NCMs`)
-      const codigoSel26 = await selecionarPrimeiroNcmBusca(page)
-      const notif26 = await confirmarPopoverNcm(page)
-      const texto26 = await lerTextoNcmItem(page, rowId, 0)
-      await screenshot(page, '26-ncm-item-busca-monitor-resultado.png')
-      if (!codigoSel26) {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, '26 — Selecionar NCM da lista no item')
-      } else if (notif26 === 'erro') {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, '26 — Salvar NCM selecionada no item — toast de erro')
-      } else if (!ncmExibeCodigo(texto26, codigoSel26)) {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, `26 — Item 1 não exibe NCM selecionada (${codigoSel26})`)
-      } else if (notif26 === 'sucesso') {
-        logAprovado(LOCAL_LISTA, COLUNA_NCM, `26 — NCM selecionada da busca salvou no item 1 (${codigoSel26})`)
+      logAprovado(LOCAL_LISTA, COLUNA_NCM, `39 — Busca «${NCM_BUSCA_TEXTO}» no item abriu lista com ${qtd39} NCMs`)
+      const codigoSel40 = await selecionarPrimeiroNcmBusca(page)
+      const notif40 = await confirmarPopoverNcm(page)
+      const texto40 = await lerTextoNcmItem(page, rowId, 0)
+      await screenshot(page, '40-ncm-item-busca-monitor-resultado.png')
+      if (!codigoSel40) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '40 — Selecionar NCM da lista no item')
+      } else if (notif40 === 'erro') {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '40 — Salvar NCM selecionada no item — toast de erro')
+      } else if (!ncmExibeCodigo(texto40, codigoSel40)) {
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, `40 — Item 1 não exibe NCM selecionada (${codigoSel40})`)
+      } else if (notif40 === 'sucesso') {
+        logAprovado(LOCAL_LISTA, COLUNA_NCM, `40 — NCM selecionada da busca salvou no item 1 (${codigoSel40})`)
       } else {
-        falharTabela(LOCAL_LISTA, COLUNA_NCM, '26 — Salvar NCM selecionada no item — toast de sucesso não detectado')
+        falharTabela(LOCAL_LISTA, COLUNA_NCM, '40 — Salvar NCM selecionada no item — toast de sucesso não detectado')
       }
     }
   }
 
-  // 27 — tooltip da coluna NCM deve conter «Pedido»
   await fecharPopoverSeAberto(page)
   await hoverCelulaNcmPai(page, rowId)
   const tooltipOk = await tooltipNcmContemPedido(page)
-  await screenshot(page, '27-ncm-tooltip-pedido.png')
+  await screenshot(page, '41-ncm-tooltip-pedido.png')
   if (tooltipOk) {
-    logAprovado(LOCAL_LISTA, COLUNA_NCM, '27 — Tooltip NCM contém «Editável no pedido»')
+    logAprovado(LOCAL_LISTA, COLUNA_NCM, '41 — Tooltip NCM contém «Editável no pedido»')
   } else {
-    falharTabela(LOCAL_LISTA, COLUNA_NCM, '27 — Tooltip NCM deve conter texto «Editável no pedido»')
+    falharTabela(LOCAL_LISTA, COLUNA_NCM, '41 — Tooltip NCM deve conter texto «Editável no pedido»')
   }
 }
 
@@ -1097,9 +2104,6 @@ async function main() {
 
   const browser = await chromium.launch({ headless: true })
   const page = await browser.newPage()
-  const timeoutPadrao = ambienteRemotoProducao() ? 90_000 : 60_000
-  page.setDefaultNavigationTimeout(timeoutPadrao)
-  page.setDefaultTimeout(timeoutPadrao)
   await page.setViewportSize({ width: 1440, height: 900 })
 
   try {

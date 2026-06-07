@@ -45,8 +45,8 @@ type ColunaLogistica = {
 const COLUNAS: ColunaLogistica[] = [
   { key: 'porto_origem', label: 'Porto de Origem', opcaoContem: 'DEHAM' },
   { key: 'porto_destino', label: 'Porto de Destino', opcaoContem: 'BRSSZ' },
-  { key: 'local_de_origem', label: 'País origem', opcaoContem: 'BR' },
-  { key: 'local_de_destino', label: 'País destino', opcaoContem: 'DE' },
+  { key: 'local_de_origem', label: 'País de Origem', opcaoContem: 'BR' },
+  { key: 'local_de_destino', label: 'País de Destino', opcaoContem: 'DE' },
   { key: 'aeroporto_origem', label: 'Aeroporto de Origem', opcaoContem: 'GRU' },
   { key: 'aeroporto_destino', label: 'Aeroporto de Destino', opcaoContem: 'EZE' },
 ]
@@ -257,12 +257,12 @@ async function screenshotCabecalhosPais(page: Page): Promise<void> {
       .filter(h => h.key === 'local_de_origem' || h.key === 'local_de_destino'),
   )
   log(`  Cabeçalhos país: ${JSON.stringify(headers)}`)
-  const ok = headers.some(h => h.key === 'local_de_origem' && /país origem/i.test(h.label))
-    && headers.some(h => h.key === 'local_de_destino' && /país destino/i.test(h.label))
+  const ok = headers.some(h => h.key === 'local_de_origem' && /país de origem/i.test(h.label))
+    && headers.some(h => h.key === 'local_de_destino' && /país de destino/i.test(h.label))
   if (!ok) {
     throw new Error(`Labels incorretos nos cabeçalhos: ${JSON.stringify(headers)}`)
   }
-  log('  ✓ Labels "País origem" e "País destino" visíveis no cabeçalho')
+  log('  ✓ Labels "País de Origem" e "País de Destino" visíveis no cabeçalho')
 }
 
 async function screenshot(page: Page, nome: string): Promise<void> {

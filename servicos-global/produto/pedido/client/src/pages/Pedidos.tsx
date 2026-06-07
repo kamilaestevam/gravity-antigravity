@@ -66,6 +66,13 @@ import {
   urlVincularExportador,
   urlVincularImportador,
 } from '../components/lista/urlsDeepLinkConfigurador'
+import {
+  cadastrosApi,
+  filtrarOpcoesExportadorImpSemWorkspaces,
+  filtrarOpcoesImportadorExpSemWorkspaces,
+  mapearOpcoesExportadorImportacao,
+  mapearOpcoesImportadorExportacao,
+} from '../shared/cadastrosApi'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
@@ -134,6 +141,7 @@ import {
   enriquecerColunaComRegraTooltip,
   enriquecerMapaColunasFilhoComRegraTooltip,
 } from '../shared/buildTooltipRegraLista'
+import { TooltipRegrasColuna } from '../shared/TooltipRegrasColuna'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import {
   inserirBlocoColunasFaltantes,
@@ -2620,6 +2628,277 @@ function extrairIdWorkspaceDeItem(item: PedidoItem): string {
   return String(item.company_id ?? enr._p?.id_workspace ?? '').trim()
 }
 
+const CUID_INTERNO_RE = /^c[a-z0-9]{8,}$/i
+
+function pareceIdInternoGravity(valor: string): boolean {
+  return CUID_INTERNO_RE.test(valor.trim())
+}
+
+/** Normaliza tipo_operacao vindo da API (importacao/exportacao). */
+function tipoOperacaoLista(row: { tipo_operacao?: string | null }): 'importacao' | 'exportacao' | null {
+  const raw = String(row.tipo_operacao ?? '').trim().toLowerCase()
+  if (raw === 'importacao' || raw === 'importação') return 'importacao'
+  if (raw === 'exportacao' || raw === 'exportação') return 'exportacao'
+  return null
+}
+
+/**
+ * Comportamento da coluna Importador — usa tipo_operacao ou heurística de dado corrompido
+ * (nome_importador = CUID do workspace → tratar como importação na UI).
+ */
+function comportamentoImportadorLista(row: Pedido): 'importacao' | 'exportacao' | null {
+  const tipo = tipoOperacaoLista(row)
+  if (tipo) return tipo
+  const idWs = extrairIdWorkspaceDePedido(row)
+  const snap = row.nome_importador?.trim()
+  if (!idWs || !snap) return null
+  if (snap === idWs || pareceIdInternoGravity(snap)) return 'importacao'
+  return null
+}
+
+/** Opções do popover IMP — nunca retorna vazio se o pedido tem workspace. */
+function garantirOpcoesWorkspaceImportador(
+  row: Pedido,
+  workspaceOpcoes: { valor: string; label: string }[],
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+): { valor: string; label: string }[] {
+  if (workspaceOpcoes.length > 0) return workspaceOpcoes
+  const id = extrairIdWorkspaceDePedido(row)
+  if (!id) return []
+  const label = nomeLegivelWorkspace(id, workspacesMap, [], null)
+  return [{ valor: id, label: label !== '—' ? label : id }]
+}
+
+/** Snapshot de nome_importador só quando legível (nunca CUID). */
+function snapshotNomeImportadorLegivel(valor?: string | null): string | null {
+  const snap = valor?.trim()
+  if (!snap || pareceIdInternoGravity(snap)) return null
+  return snap
+}
+
+/** Nunca exibir CUID cru na UI — mapa → opções → snapshot do pedido IMP. */
+function nomeLegivelWorkspace(
+  idWs: string,
+  workspacesMap?: Map<string, { nome: string; cnpj?: string | null }>,
+  opcoes?: { valor: string; label: string }[],
+  nomeSnapshot?: string | null,
+): string {
+  const id = idWs.trim()
+  if (!id) return '—'
+  const doMapa = workspacesMap?.get(id)?.nome?.trim()
+  if (doMapa && !pareceIdInternoGravity(doMapa)) return doMapa
+  const doOpcao = opcoes?.find((o) => o.valor === id)?.label?.trim()
+  if (doOpcao && !pareceIdInternoGravity(doOpcao)) return doOpcao
+  const snap = nomeSnapshot?.trim()
+  if (snap && !pareceIdInternoGravity(snap) && snap !== id) return snap
+  return '—'
+}
+
+/** Nome do workspace do pedido — usado para bloquear vazamento na coluna Importador (EXP). */
+function nomeWorkspacePedidoLista(
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+): string {
+  return nomeLegivelWorkspace(extrairIdWorkspaceDePedido(row), workspacesMap, workspaceOpcoes, null)
+}
+
+function nomeImportadorPareceWorkspace(
+  nome: string,
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+): boolean {
+  const nomeWs = nomeWorkspacePedidoLista(row, workspacesMap, workspaceOpcoes)
+  if (nomeWs === '—') return false
+  return nome.trim().toLowerCase() === nomeWs.trim().toLowerCase()
+}
+
+/** Nome exibido na coluna Importador (pedido) — IMP espelha workspace; EXP usa fornecedor. */
+function nomeExibicaoImportadorPedido(
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+  opcoesImportadoresExp: { valor: string; label: string }[],
+): string {
+  const tipo = comportamentoImportadorLista(row)
+  if (tipo === 'importacao') {
+    const nome = nomeLegivelWorkspace(
+      extrairIdWorkspaceDePedido(row),
+      workspacesMap,
+      workspaceOpcoes,
+      snapshotNomeImportadorLegivel(row.nome_importador),
+    )
+    return pareceIdInternoGravity(nome) ? '—' : nome
+  }
+  const idForn = row.exportacao_importador_id?.trim()
+  if (idForn) {
+    const doOpcao = opcoesImportadoresExp.find((o) => o.valor === idForn)?.label?.trim()
+    if (doOpcao && !pareceIdInternoGravity(doOpcao)) return doOpcao
+  }
+  const nome = snapshotNomeImportadorLegivel(row.nome_importador)
+  if (nome && nomeImportadorPareceWorkspace(nome, row, workspacesMap, workspaceOpcoes)) {
+    return ''
+  }
+  return nome ?? ''
+}
+
+/** Comportamento da coluna Exportador — espelho invertido do Importador. */
+function comportamentoExportadorLista(row: Pedido): 'importacao' | 'exportacao' | null {
+  const tipo = tipoOperacaoLista(row)
+  if (tipo) return tipo
+  const idWs = extrairIdWorkspaceDePedido(row)
+  const snap = row.nome_exportador?.trim()
+  if (!idWs || !snap) return null
+  if (snap === idWs || pareceIdInternoGravity(snap)) return 'exportacao'
+  return null
+}
+
+function snapshotNomeExportadorLegivel(valor?: string | null): string | null {
+  return snapshotNomeImportadorLegivel(valor)
+}
+
+function nomeExportadorPareceWorkspace(
+  nome: string,
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+): boolean {
+  return nomeImportadorPareceWorkspace(nome, row, workspacesMap, workspaceOpcoes)
+}
+
+/** Nome exibido na coluna Exportador — EXP espelha workspace; IMP usa fornecedor. */
+function nomeExibicaoExportadorPedido(
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+  opcoesExportadoresImp: { valor: string; label: string }[],
+): string {
+  const tipo = comportamentoExportadorLista(row)
+  if (tipo === 'exportacao') {
+    const nome = nomeLegivelWorkspace(
+      extrairIdWorkspaceDePedido(row),
+      workspacesMap,
+      workspaceOpcoes,
+      snapshotNomeExportadorLegivel(row.nome_exportador),
+    )
+    return pareceIdInternoGravity(nome) ? '—' : nome
+  }
+  const idForn = row.importacao_exportador_id?.trim()
+  if (idForn) {
+    const doOpcao = opcoesExportadoresImp.find((o) => o.valor === idForn)?.label?.trim()
+    if (doOpcao && !pareceIdInternoGravity(doOpcao)) return doOpcao
+  }
+  const nome = snapshotNomeExportadorLegivel(row.nome_exportador)
+  if (nome && nomeExportadorPareceWorkspace(nome, row, workspacesMap, workspaceOpcoes)) {
+    return ''
+  }
+  return nome ?? ''
+}
+
+function montarMapaWorkspacesRapido(
+  workspacesDisponiveis: { id_workspace: string; nome_workspace: string; cnpj_workspace?: string | null }[],
+  workspacesShell: { id: string; nome_workspace: string }[],
+): Map<string, { nome: string; cnpj?: string | null }> {
+  const m = new Map<string, { nome: string; cnpj?: string | null }>()
+  const registrar = (id: string, nome: string, cnpj?: string | null) => {
+    const idWs = id.trim()
+    if (!idWs) return
+    const label = nome.trim() || idWs
+    const prev = m.get(idWs)
+    if (!prev || (prev.nome === idWs && label !== idWs)) {
+      m.set(idWs, { nome: label, cnpj: cnpj ?? prev?.cnpj ?? null })
+    }
+  }
+  for (const w of workspacesDisponiveis) {
+    registrar(w.id_workspace, w.nome_workspace, w.cnpj_workspace ?? null)
+  }
+  for (const w of workspacesShell) {
+    registrar(w.id, w.nome_workspace)
+  }
+  return m
+}
+
+/** Corrige nome_importador e nome_exportador corrompidos ao carregar a lista. */
+function sanitizarNomesPartesListaPedidos(
+  lista: Pedido[],
+  workspacesDisponiveis: { id_workspace: string; nome_workspace: string; cnpj_workspace?: string | null }[],
+  workspacesShell: { id: string; nome_workspace: string }[],
+  opcoesImportadoresExp: { valor: string; label: string }[],
+  opcoesExportadoresImp: { valor: string; label: string }[],
+): Pedido[] {
+  const mapa = montarMapaWorkspacesRapido(workspacesDisponiveis, workspacesShell)
+  const workspaceOpcoes = [
+    ...workspacesDisponiveis.map((w) => ({
+      valor: w.id_workspace,
+      label: w.nome_workspace.trim() || w.id_workspace,
+    })),
+    ...workspacesShell.map((w) => ({
+      valor: w.id,
+      label: w.nome_workspace.trim() || w.id,
+    })),
+  ]
+  const opcoesImpExp = filtrarOpcoesImportadorExpSemWorkspaces(opcoesImportadoresExp, workspaceOpcoes)
+  const opcoesExpImp = filtrarOpcoesExportadorImpSemWorkspaces(opcoesExportadoresImp, workspaceOpcoes)
+  return lista.map((p) => {
+    const tipo = tipoOperacaoLista(p)
+    const idWs = extrairIdWorkspaceDePedido(p)
+    let next = p
+
+    const snapImp = p.nome_importador?.trim()
+    const snapImpCuid = Boolean(snapImp && idWs && (snapImp === idWs || pareceIdInternoGravity(snapImp)))
+    if (tipo === 'importacao' || (snapImpCuid && tipo !== 'exportacao')) {
+      const nomeCorreto = nomeLegivelWorkspace(idWs, mapa, workspaceOpcoes, null)
+      if (tipo === 'importacao' && nomeCorreto !== '—' && next.nome_importador !== nomeCorreto) {
+        next = { ...next, nome_importador: nomeCorreto }
+      } else if (snapImpCuid && nomeCorreto !== '—') {
+        next = { ...next, nome_importador: nomeCorreto }
+      }
+    } else if (tipo === 'exportacao') {
+      const nomeExibImp = nomeExibicaoImportadorPedido(next, mapa, workspaceOpcoes, opcoesImpExp)
+      const snapExpImp = next.nome_importador?.trim()
+      const precisaImp = Boolean(
+        snapExpImp && (
+          pareceIdInternoGravity(snapExpImp)
+          || snapExpImp === idWs
+          || nomeImportadorPareceWorkspace(snapExpImp, next, mapa, workspaceOpcoes)
+          || (nomeExibImp && snapExpImp !== nomeExibImp)
+        ),
+      )
+      if (precisaImp) {
+        next = { ...next, nome_importador: nomeExibImp || null }
+      }
+    }
+
+    const snapExp = next.nome_exportador?.trim()
+    const snapExpCuid = Boolean(snapExp && idWs && (snapExp === idWs || pareceIdInternoGravity(snapExp)))
+    if (tipo === 'exportacao' || (snapExpCuid && tipo !== 'importacao')) {
+      const nomeCorreto = nomeLegivelWorkspace(idWs, mapa, workspaceOpcoes, null)
+      if (tipo === 'exportacao' && nomeCorreto !== '—' && next.nome_exportador !== nomeCorreto) {
+        next = { ...next, nome_exportador: nomeCorreto }
+      } else if (snapExpCuid && nomeCorreto !== '—') {
+        next = { ...next, nome_exportador: nomeCorreto }
+      }
+    } else if (tipo === 'importacao') {
+      const nomeExibExp = nomeExibicaoExportadorPedido(next, mapa, workspaceOpcoes, opcoesExpImp)
+      const snapExpImp = next.nome_exportador?.trim()
+      const precisaExp = Boolean(
+        snapExpImp && (
+          pareceIdInternoGravity(snapExpImp)
+          || snapExpImp === idWs
+          || nomeExportadorPareceWorkspace(snapExpImp, next, mapa, workspaceOpcoes)
+          || (nomeExibExp && snapExpImp !== nomeExibExp)
+        ),
+      )
+      if (precisaExp) {
+        next = { ...next, nome_exportador: nomeExibExp || null }
+      }
+    }
+
+    return next
+  })
+}
+
 /** Propaga valor do pai no item em memória — traduz id_workspace → company_id (ACL JSON). */
 function aplicarPropagacaoPedidoNoItem(
   item: PedidoItem,
@@ -2645,20 +2924,55 @@ function aplicarPropagacaoPedidoNoItem(
   return patched
 }
 
-function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
-  const { unidadesPeso, unidadesCubagem, workspacesMap, paisesOpcoes = [], portosOpcoes = [], aeroportosOpcoes = [] } = opcoes
-  const tooltipLogisticaEditaPedido = t(
-    'pedido.coluna_filho.mapa_logistica.tooltip_edita_pedido',
-    'Valor do pedido — a alteração aqui atualiza o pedido inteiro (não grava no item).',
+/** Tooltip com pílulas para célula de item somente leitura (padrão Workspace / Tipo de Operação). */
+function wrapCelulaItemSomenteLeituraLista(
+  conteudo: React.ReactNode,
+  t: TFunction,
+  titulo: string,
+): React.ReactElement {
+  return (
+    <TooltipGlobal
+      titulo={titulo}
+      descricao={(
+        <TooltipRegrasColuna
+          t={t}
+          pillsPedido={['itens_bloqueados_pedido']}
+        />
+      )}
+    >
+      <span style={{ display: 'block', cursor: 'not-allowed' }}>{conteudo}</span>
+    </TooltipGlobal>
   )
+}
 
-  /** Nome do workspace do pedido pai — espelha ColunasPai (importação/exportação). */
-  const resolverNomeWorkspacePedidoPai = (row: PedidoItem): string | null => {
-    const enr = row as PedidoItemEnriquecido
-    const id = enr._p?.id_workspace ?? row.company_id ?? ''
-    if (!id) return null
-    return workspacesMap?.get(id)?.nome ?? null
-  }
+/** Logística: valor único no pedido — itens espelham _p; tooltip via coluna (wrapTooltipRegraCelula). */
+function wrapCelulaItemLogisticaLista(conteudo: React.ReactNode): React.ReactElement {
+  return <span style={{ display: 'block' }}>{conteudo}</span>
+}
+
+/** Nome do workspace do pedido pai — espelha ColunasPai (importação/exportação). */
+function resolverNomeWorkspacePedidoPai(
+  row: PedidoItem,
+  workspacesMap?: OpcoesUnidadesColunas['workspacesMap'],
+): string | null {
+  const enr = row as PedidoItemEnriquecido
+  const id = enr._p?.id_workspace ?? row.company_id ?? ''
+  if (!id) return null
+  return workspacesMap?.get(id)?.nome ?? null
+}
+
+function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
+  const {
+    unidadesPeso,
+    unidadesCubagem,
+    workspacesMap,
+    workspaceOpcoesLista = [],
+    opcoesImportadoresExpLista = [],
+    opcoesExportadoresImpLista = [],
+    paisesOpcoes = [],
+    portosOpcoes = [],
+    aeroportosOpcoes = [],
+  } = opcoes
 
   return {
   // ── Número do pedido → Part Number do item ────────────────────────────────
@@ -2690,7 +3004,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       const p = (row as PedidoItemEnriquecido)._p
       const tipo = tipoItem ?? p?.tipo_operacao ?? null
       if (!tipo) return null
-      return (
+      const badge = (
         <StatusBadgeGlobal
           valor={tipo === 'importacao' ? t('pedido.coluna_filho.mapa_tipo_operacao.valor_importacao') : t('pedido.coluna_filho.mapa_tipo_operacao.valor_exportacao')}
           genero="feminino"
@@ -2700,6 +3014,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
           }
         />
       )
+      return wrapCelulaItemSomenteLeituraLista(badge, t, t('pedido.coluna_pai.tipo_operacao'))
     },
   },
   id_workspace: {
@@ -2707,144 +3022,125 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     tooltipBloqueado: t('pedido.coluna_filho.mapa_id_workspace.tooltip_bloqueado', 'Workspace é do pedido — altere na linha do pedido'),
     render: (row: PedidoItem) => {
       const enr = row as PedidoItemEnriquecido
-      // Fonte canônica: workspace do pedido pai (itens sempre herdam).
       const id = enr._p?.id_workspace ?? row.company_id ?? ''
-      if (!id) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      const nome = workspacesMap?.get(id)?.nome ?? id
-      const divergente = enr._p?.id_workspace != null
-        && row.company_id != null
-        && row.company_id !== enr._p.id_workspace
+      const titulo = t('pedido.coluna_pai.workspace_label')
+      if (!id) {
+        return wrapCelulaItemSomenteLeituraLista(
+          <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>,
+          t,
+          titulo,
+        )
+      }
+      const nome = nomeLegivelWorkspace(id, workspacesMap, undefined, enr._p?.nome_importador)
       const conteudo = nome.length <= 50
         ? <span>{nome}</span>
         : (
-          <TooltipGlobal titulo={t('pedido.coluna_pai.workspace_label')} descricao={nome}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-              {nome.slice(0, 50) + '…'}
-              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-            </span>
-          </TooltipGlobal>
-        )
-      if (!divergente) return conteudo
-      return (
-        <TooltipGlobal
-          titulo={t('pedido.coluna_pai.workspace_label')}
-          descricao={t('pedido.coluna_pai.workspace_divergente', 'Workspace do item difere do pedido')}
-        >
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-            {conteudo}
-            <Warning size={14} weight="fill" style={{ color: '#F59E0B', flexShrink: 0 }} />
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            {nome.slice(0, 50) + '…'}
+            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
           </span>
-        </TooltipGlobal>
-      )
+        )
+      return wrapCelulaItemSomenteLeituraLista(conteudo, t, titulo)
     },
   },
   nome_exportador: {
-    editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao',
-    tooltipBloqueado: (row: PedidoItem) =>
-      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao'
-        ? t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond')
-        : undefined,
+    editavel: false,
+    tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'),
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const enr = row as PedidoItemEnriquecido
-      const tipoOp = enr._p?.tipo_operacao
-      const pedidoId = enr._p?.id
+      const titulo = t('pedido.coluna_pai.nome_exportador')
+      const pedidoEspelho = {
+        tipo_operacao: enr._p?.tipo_operacao,
+        id_workspace: enr._p?.id_workspace,
+        company_id: enr._p?.id_workspace ?? row.company_id,
+        importacao_exportador_id: enr._p?.importacao_exportador_id,
+        nome_exportador: enr._p?.nome_exportador,
+      } as Pedido
+      const tipoOp = comportamentoExportadorLista(pedidoEspelho)
 
       if (tipoOp === 'exportacao') {
-        const nomeWs = resolverNomeWorkspacePedidoPai(row)
-        if (nomeWs) {
-          return renderBadgeParteWorkspace({
-            nomeWorkspace: nomeWs,
-            titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
-            descricao: t('pedido.coluna_pai.exportador_workspace_desc', { nome: nomeWs }),
-            somenteLeitura: true,
-          })
-        }
+        const nomeWs = nomeExibicaoExportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, [])
+        const conteudo = nomeWs.length <= 50
+          ? <span>{nomeWs}</span>
+          : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              {nomeWs.slice(0, 50) + '…'}
+              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+            </span>
+          )
+        return wrapCelulaItemSomenteLeituraLista(conteudo, t, titulo)
       }
 
-      if (tipoOp === 'importacao') {
-        const nome = row.nome_exportador ?? enr._p?.nome_exportador ?? null
-        const idExportador = enr._p?.importacao_exportador_id ?? null
-        if (nome?.trim()) {
-          return renderBadgeParteVinculada({
-            nome,
-            titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
-            descricao: t('pedido.coluna_pai.clique_editar_exportador'),
-            href: urlVincularExportador(idExportador, pedidoId),
-          })
-        }
-        return renderLinkVincularParte({
-          label: t('pedido.coluna_pai.vincular_exportador'),
-          descricao: t('pedido.coluna_pai.nenhum_exportador_vinculado'),
-          href: urlVincularExportador(null, pedidoId),
-        })
+      const nome = nomeExibicaoExportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, opcoesExportadoresImpLista)
+      if (!nome) {
+        return wrapCelulaItemSomenteLeituraLista(
+          <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+            {t('pedido.coluna_pai.vincular_exportador')}
+          </span>,
+          t,
+          titulo,
+        )
       }
-
-      const v = row.nome_exportador ?? enr._p?.nome_exportador ?? null
-      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      if (v.length <= 50) return <span>{v}</span>
-      return (
-        <TooltipGlobal titulo={t('pedido.coluna_filho.mapa_nome_exportador.tooltip_titulo')} descricao={v}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            {v.slice(0, 50) + '…'}
-            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-          </span>
-        </TooltipGlobal>
+      return wrapCelulaItemSomenteLeituraLista(
+        renderBadgeParteVinculada({
+          nome,
+          titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
+          descricao: t('pedido.coluna_pai.clique_editar_exportador'),
+        }),
+        t,
+        titulo,
       )
     },
   },
   nome_importador: {
-    editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
-    tooltipBloqueado: (row: PedidoItem) =>
-      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao'
-        ? t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado_cond')
-        : undefined,
+    editavel: false,
+    tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado'),
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const enr = row as PedidoItemEnriquecido
-      const tipoOp = enr._p?.tipo_operacao
-      const pedidoId = enr._p?.id
+      const titulo = t('pedido.coluna_pai.nome_importador')
+      const pedidoEspelho = {
+        tipo_operacao: enr._p?.tipo_operacao,
+        id_workspace: enr._p?.id_workspace,
+        company_id: enr._p?.id_workspace ?? row.company_id,
+        exportacao_importador_id: enr._p?.exportacao_importador_id,
+        nome_importador: enr._p?.nome_importador,
+      } as Pedido
+      const tipoOp = comportamentoImportadorLista(pedidoEspelho)
 
       if (tipoOp === 'importacao') {
-        const nomeWs = resolverNomeWorkspacePedidoPai(row)
-        if (nomeWs) {
-          return renderBadgeParteWorkspace({
-            nomeWorkspace: nomeWs,
-            titulo: t('pedido.coluna_pai.parte_importador_titulo'),
-            descricao: t('pedido.coluna_pai.importador_workspace_desc', { nome: nomeWs }),
-            somenteLeitura: true,
-          })
-        }
+        const nomeWs = nomeExibicaoImportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, [])
+        const conteudo = nomeWs.length <= 50
+          ? <span>{nomeWs}</span>
+          : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              {nomeWs.slice(0, 50) + '…'}
+              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+            </span>
+          )
+        return wrapCelulaItemSomenteLeituraLista(conteudo, t, titulo)
       }
 
-      if (tipoOp === 'exportacao') {
-        const nome = row.nome_importador ?? enr._p?.nome_importador ?? null
-        const idImportador = enr._p?.exportacao_importador_id ?? null
-        if (nome?.trim()) {
-          return renderBadgeParteVinculada({
-            nome,
-            titulo: t('pedido.coluna_pai.parte_importador_titulo'),
-            descricao: t('pedido.coluna_pai.clique_editar_importador'),
-            href: urlVincularImportador(idImportador, pedidoId),
-          })
-        }
-        return renderLinkVincularParte({
-          label: t('pedido.coluna_pai.vincular_importador'),
-          descricao: t('pedido.coluna_pai.nenhum_importador_vinculado'),
-          href: urlVincularImportador(null, pedidoId),
-        })
+      // Exportação — espelha pedido (somente _p), somente leitura no item.
+      const nome = nomeExibicaoImportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, opcoesImportadoresExpLista)
+      if (!nome) {
+        return wrapCelulaItemSomenteLeituraLista(
+          <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+            {t('pedido.coluna_pai.vincular_importador')}
+          </span>,
+          t,
+          titulo,
+        )
       }
-
-      const v = row.nome_importador ?? enr._p?.nome_importador ?? null
-      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      if (v.length <= 50) return <span>{v}</span>
-      return (
-        <TooltipGlobal titulo={t('pedido.coluna_filho.mapa_nome_importador.tooltip_titulo')} descricao={v}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            {v.slice(0, 50) + '…'}
-            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-          </span>
-        </TooltipGlobal>
+      return wrapCelulaItemSomenteLeituraLista(
+        renderBadgeParteVinculada({
+          nome,
+          titulo: t('pedido.coluna_pai.parte_importador_titulo'),
+          descricao: t('pedido.coluna_pai.clique_editar_importador_lista'),
+        }),
+        t,
+        titulo,
       )
     },
   },
@@ -3357,10 +3653,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'porto_origem',
     opcoes: portosOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.porto_origem ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.porto_origem ?? null, portosOpcoes, t('pedido.coluna_pai.porto_origem'))
+      const titulo = t('pedido.coluna_pai.porto_origem')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.porto_origem ?? null, portosOpcoes, titulo),
+      )
     },
   },
   porto_destino: {
@@ -3368,10 +3666,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'porto_destino',
     opcoes: portosOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.porto_destino ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.porto_destino ?? null, portosOpcoes, t('pedido.coluna_pai.porto_destino'))
+      const titulo = t('pedido.coluna_pai.porto_destino')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.porto_destino ?? null, portosOpcoes, titulo),
+      )
     },
   },
   local_de_origem: {
@@ -3379,10 +3679,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'local_de_origem',
     opcoes: paisesOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.local_de_origem ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.local_de_origem ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_origem'))
+      const titulo = t('pedido.coluna_pai.local_de_origem')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.local_de_origem ?? null, paisesOpcoes, titulo),
+      )
     },
   },
   local_de_destino: {
@@ -3390,10 +3692,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'local_de_destino',
     opcoes: paisesOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.local_de_destino ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.local_de_destino ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_destino'))
+      const titulo = t('pedido.coluna_pai.local_de_destino')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.local_de_destino ?? null, paisesOpcoes, titulo),
+      )
     },
   },
   aeroporto_origem: {
@@ -3401,10 +3705,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'aeroporto_origem',
     opcoes: aeroportosOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.aeroporto_origem ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.aeroporto_origem ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_origem'))
+      const titulo = t('pedido.coluna_pai.aeroporto_origem')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.aeroporto_origem ?? null, aeroportosOpcoes, titulo),
+      )
     },
   },
   aeroporto_destino: {
@@ -3412,10 +3718,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'aeroporto_destino',
     opcoes: aeroportosOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.aeroporto_destino ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.aeroporto_destino ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_destino'))
+      const titulo = t('pedido.coluna_pai.aeroporto_destino')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.aeroporto_destino ?? null, aeroportosOpcoes, titulo),
+      )
     },
   },
   // ── Datas replicáveis pedido→item (44 colunas) ─────────────────────────────
@@ -4097,40 +4405,44 @@ export default function Pedidos() {
       })
     return () => { cancelado = true }
   }, [])
+
+  // SSOT de nomes: /me (shell) carrega antes do /hub/init da Lista — mesclar evita coluna Workspace/Importador IMP com ID cru.
+  const workspacesShell = useShellStore(s => s.workspaces)
+
+  // Declarado antes de workspacesMap/workspaceOpcoesLista (enriquecimento de nomes a partir dos pedidos carregados).
+  const [pedidos, setPedidos] = useState<Pedido[]>([])
+
   const workspacesMap = useMemo(() => {
     const m = new Map<string, { nome: string; cnpj?: string | null }>()
+    const registrar = (id: string, nome: string, cnpj?: string | null) => {
+      const idWs = id.trim()
+      if (!idWs) return
+      const label = nome.trim() || idWs
+      const prev = m.get(idWs)
+      if (!prev || (prev.nome === idWs && label !== idWs)) {
+        m.set(idWs, { nome: label, cnpj: cnpj ?? prev?.cnpj ?? null })
+      }
+    }
     for (const w of workspacesDisponiveis) {
-      m.set(w.id_workspace, { nome: w.nome_workspace, cnpj: w.cnpj_workspace ?? null })
+      registrar(w.id_workspace, w.nome_workspace, w.cnpj_workspace ?? null)
+    }
+    for (const w of workspacesShell) {
+      registrar(w.id, w.nome_workspace)
+    }
+    for (const p of pedidos) {
+      if (tipoOperacaoLista(p) !== 'importacao') continue
+      const id = extrairIdWorkspaceDePedido(p)
+      const snap = snapshotNomeImportadorLegivel(p.nome_importador)
+      if (snap) registrar(id, snap)
     }
     return m
-  }, [workspacesDisponiveis])
+  }, [workspacesDisponiveis, workspacesShell, pedidos])
 
-  const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
-    () => ({
-      unidadesPeso,
-      unidadesCubagem,
-      incotermsOpcoes,
-      moedasOpcoes,
-      workspacesMap,
-      paisesOpcoes: paisesLogisticaOpcoes,
-      portosOpcoes,
-      aeroportosOpcoes,
-    }),
-    [unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap, paisesLogisticaOpcoes, portosOpcoes, aeroportosOpcoes],
-  )
   // Colunas pai reativas — rebuild quando o idioma muda OU quando o catálogo
   // de unidades do Cadastros termina de carregar (primeiro render: vazio).
   // ── Colunas do Usuário ────────────────────────────────────────────────────────
   const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>([])
   const [temExpandido, setTemExpandido] = useState(false)
-
-  // IMPORTANTE: a função `t` do react-i18next é referencialmente estável mesmo
-  // após troca de idioma, então depender só de `[t]` NUNCA invalida o memo.
-  // i18n.language muda de string a cada troca ("pt" → "en"), forçando o rebuild.
-  const colunasPai = useMemo(
-    () => buildColunasPai(t, opcoesUnidadesColunas),
-    [t, i18n.language, opcoesUnidadesColunas],
-  )
 
   // Status customizados — declarado antes de mapaColunasFilho/colunasComUsuario (ambos usam statusOpts).
   const [statusOpts, setStatusOpts] = useState<{ valor: string; label: string }[]>(() => {
@@ -4148,8 +4460,125 @@ export default function Pedidos() {
         ]
   })
 
-  // Declarado antes de mapaColunasFilho/colunasComUsuario (render de status do item lê pedidos).
-  const [pedidos, setPedidos] = useState<Pedido[]>([])
+  /** Opções do select de Workspace — usado em id_workspace e Importador (importação). */
+  const workspaceOpcoesLista = useMemo(() => {
+    const seen = new Set<string>()
+    const opcoes: { valor: string; label: string }[] = []
+    const push = (id: string, label: string) => {
+      const valor = id.trim()
+      if (!valor || seen.has(valor)) return
+      seen.add(valor)
+      opcoes.push({ valor, label: label.trim() || valor })
+    }
+    for (const w of workspacesDisponiveis) {
+      push(w.id_workspace, w.nome_workspace.trim() || w.id_workspace)
+    }
+    for (const w of workspacesShell) {
+      push(w.id, w.nome_workspace.trim() || w.id)
+    }
+    // Sempre mesclar workspaces dos pedidos carregados — hub/init pode falhar ou atrasar.
+    for (const p of pedidos) {
+      const id = extrairIdWorkspaceDePedido(p)
+      const snap = tipoOperacaoLista(p) === 'importacao'
+        ? snapshotNomeImportadorLegivel(p.nome_importador)
+        : null
+      const label = nomeLegivelWorkspace(id, workspacesMap, undefined, snap)
+      const fallback = workspacesMap.get(id)?.nome?.trim()
+      push(id, label !== '—' ? label : (fallback && !pareceIdInternoGravity(fallback) ? fallback : id))
+    }
+    return opcoes.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+  }, [workspacesDisponiveis, workspacesShell, pedidos, workspacesMap])
+
+  const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
+
+  const [opcoesImportadoresExp, setOpcoesImportadoresExp] = useState<{ valor: string; label: string }[]>([])
+  const [opcoesExportadoresImp, setOpcoesExportadoresImp] = useState<{ valor: string; label: string }[]>([])
+
+  useEffect(() => {
+    if (!idOrganizacao) return
+    let cancelado = false
+    cadastrosApi.listarImportadores()
+      .then((res) => {
+        if (cancelado) return
+        setOpcoesImportadoresExp(mapearOpcoesImportadorExportacao(res.itens))
+      })
+      .catch(() => {
+        if (!cancelado) setOpcoesImportadoresExp([])
+      })
+    cadastrosApi.listarExportadores()
+      .then((res) => {
+        if (cancelado) return
+        setOpcoesExportadoresImp(mapearOpcoesExportadorImportacao(res.itens))
+      })
+      .catch(() => {
+        if (!cancelado) setOpcoesExportadoresImp([])
+      })
+    return () => { cancelado = true }
+  }, [idOrganizacao])
+
+  /** EXP: só fornecedores importadores — nunca workspaces (mesmo nome). */
+  const opcoesImportadoresExpLista = useMemo(
+    () => filtrarOpcoesImportadorExpSemWorkspaces(opcoesImportadoresExp, workspaceOpcoesLista),
+    [opcoesImportadoresExp, workspaceOpcoesLista],
+  )
+
+  /** IMP: só fornecedores exportadores — nunca workspaces (mesmo nome). */
+  const opcoesExportadoresImpLista = useMemo(
+    () => filtrarOpcoesExportadorImpSemWorkspaces(opcoesExportadoresImp, workspaceOpcoesLista),
+    [opcoesExportadoresImp, workspaceOpcoesLista],
+  )
+
+  // Re-sanitiza quando workspaces ou fornecedores terminam de carregar (corrige CUID residual).
+  useEffect(() => {
+    setPedidos((prev) => {
+      if (prev.length === 0) return prev
+      const next = sanitizarNomesPartesListaPedidos(
+        prev,
+        workspacesDisponiveis,
+        workspacesShell,
+        opcoesImportadoresExp,
+        opcoesExportadoresImp,
+      )
+      const mudou = next.some((p, i) =>
+        p.nome_importador !== prev[i]?.nome_importador
+        || p.nome_exportador !== prev[i]?.nome_exportador,
+      )
+      return mudou ? next : prev
+    })
+  }, [opcoesImportadoresExp, opcoesExportadoresImp, workspacesDisponiveis, workspacesShell, workspaceOpcoesLista])
+
+  const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
+    () => ({
+      unidadesPeso,
+      unidadesCubagem,
+      incotermsOpcoes,
+      moedasOpcoes,
+      workspacesMap,
+      workspaceOpcoesLista,
+      opcoesImportadoresExpLista,
+      opcoesExportadoresImpLista,
+      paisesOpcoes: paisesLogisticaOpcoes,
+      portosOpcoes,
+      aeroportosOpcoes,
+    }),
+    [
+      unidadesPeso,
+      unidadesCubagem,
+      incotermsOpcoes,
+      moedasOpcoes,
+      workspacesMap,
+      workspaceOpcoesLista,
+      opcoesImportadoresExpLista,
+      paisesLogisticaOpcoes,
+      portosOpcoes,
+      aeroportosOpcoes,
+    ],
+  )
+
+  const colunasPai = useMemo(
+    () => buildColunasPai(t, opcoesUnidadesColunas),
+    [t, i18n.language, opcoesUnidadesColunas],
+  )
 
   const mapaColunasFilho = useMemo(() => {
     const base = buildMapaColunasFilho(t, opcoesUnidadesColunas)
@@ -4235,8 +4664,22 @@ export default function Pedidos() {
         },
       }
     }
+    if (base.nome_importador) {
+      base.nome_importador = {
+        ...base.nome_importador,
+        editavel: false,
+        tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado'),
+      }
+    }
+    if (base.nome_exportador) {
+      base.nome_exportador = {
+        ...base.nome_exportador,
+        editavel: false,
+        tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'),
+      }
+    }
     return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
-  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos])
+  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, opcoesExportadoresImp, workspacesMap])
   const {
     prefs: cardPrefs,
     visiveis: cardsVisiveis,
@@ -4251,7 +4694,6 @@ export default function Pedidos() {
   const navigate = useNavigate()
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
-  const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
 
   // ── Escopo multi-workspace (menu lateral — SSOT do produto) ─────────────────
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
@@ -4512,24 +4954,164 @@ export default function Pedidos() {
       }
 
       if (col.key === 'id_workspace') {
-        const idsNaLista = new Set(
-          pedidos.map(p => extrairIdWorkspaceDePedido(p)).filter(Boolean),
-        )
-        const WORKSPACE_OPTS = workspacesDisponiveis
-          .filter(w => idsNaLista.has(w.id_workspace))
-          .map(w => ({
-            valor: w.nome_workspace,
-            label: w.nome_workspace,
-          }))
         return {
           ...col,
           editavel: true,
-          opcoes: WORKSPACE_OPTS,
-          getValorEditar: (row: Pedido) => {
+          opcoes: workspaceOpcoesLista,
+          getValorEditar: (row: Pedido) => extrairIdWorkspaceDePedido(row),
+          render: (_val: unknown, row: Pedido) => {
             const id = extrairIdWorkspaceDePedido(row)
-            return workspacesMap.get(id)?.nome ?? id
+            const nome = nomeLegivelWorkspace(
+              id,
+              workspacesMap,
+              workspaceOpcoesLista,
+              row.tipo_operacao === 'importacao' ? row.nome_importador : null,
+            )
+            return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
           },
         }
+      }
+
+      if (col.key === 'nome_exportador') {
+        // EXP: lista workspaces (igual id_workspace). IMP: lista fornecedores exportadores.
+        const WORKSPACE_OPTS_EXP = workspaceOpcoesLista
+        return enriquecerColunaComRegraTooltip({
+          ...col,
+          tipo: 'enum',
+          opcoes: WORKSPACE_OPTS_EXP,
+          editavel: (row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            return tipo === 'importacao' || tipo === 'exportacao'
+          },
+          getOpcoes: (row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            if (tipo === 'exportacao') {
+              return garantirOpcoesWorkspaceImportador(row, WORKSPACE_OPTS_EXP, workspacesMap)
+            }
+            if (tipo === 'importacao') return opcoesExportadoresImpLista
+            return []
+          },
+          getValorEditar: (row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            if (tipo === 'exportacao') return extrairIdWorkspaceDePedido(row)
+            const idForn = row.importacao_exportador_id?.trim()
+            if (idForn && !pareceIdInternoGravity(idForn)) return idForn
+            return ''
+          },
+          linkPopoverEdicao: (row: Pedido) => {
+            if (comportamentoExportadorLista(row) !== 'importacao') return undefined
+            const idExp = row.importacao_exportador_id
+            return {
+              label: idExp
+                ? t('pedido.coluna_pai.clique_editar_exportador')
+                : t('pedido.coluna_pai.vincular_exportador'),
+              href: urlVincularExportador(idExp, row.id),
+            }
+          },
+          render: (val: unknown, row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            const resolverTexto = () => {
+              const exibir = nomeExibicaoExportadorPedido(row, workspacesMap, WORKSPACE_OPTS_EXP, opcoesExportadoresImpLista)
+              if (exibir && exibir !== '—' && !pareceIdInternoGravity(exibir)) return exibir
+              if (tipoOperacaoLista(row) === 'exportacao') {
+                const doWs = nomeLegivelWorkspace(extrairIdWorkspaceDePedido(row), workspacesMap, WORKSPACE_OPTS_EXP, null)
+                if (doWs !== '—') return doWs
+              }
+              if (typeof val === 'string' && val.trim() && !pareceIdInternoGravity(val)) return val.trim()
+              return '—'
+            }
+            if (tipo === 'exportacao') {
+              return <span style={{ display: 'block', textAlign: 'left' }}>{resolverTexto()}</span>
+            }
+            if (!tipo && typeof val === 'string' && pareceIdInternoGravity(val)) {
+              return <span style={{ display: 'block', textAlign: 'left' }}>—</span>
+            }
+            const nome = resolverTexto()
+            if (!nome || nome === '—') {
+              return (
+                <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+                  {t('pedido.coluna_pai.vincular_exportador')}
+                </span>
+              )
+            }
+            return renderBadgeParteVinculada({
+              nome,
+              titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
+              descricao: t('pedido.coluna_pai.clique_editar_exportador'),
+            })
+          },
+        }, t, 'pai')
+      }
+
+      if (col.key === 'nome_importador') {
+        // IMP: lista todos workspaces (igual id_workspace). EXP: lista fornecedores importadores.
+        const WORKSPACE_OPTS_IMP = workspaceOpcoesLista
+        return enriquecerColunaComRegraTooltip({
+          ...col,
+          tipo: 'enum',
+          opcoes: WORKSPACE_OPTS_IMP,
+          editavel: (row: Pedido) => {
+            const tipo = comportamentoImportadorLista(row)
+            return tipo === 'importacao' || tipo === 'exportacao'
+          },
+          getOpcoes: (row: Pedido) => {
+            const tipo = comportamentoImportadorLista(row)
+            if (tipo === 'importacao') {
+              return garantirOpcoesWorkspaceImportador(row, WORKSPACE_OPTS_IMP, workspacesMap)
+            }
+            if (tipo === 'exportacao') return opcoesImportadoresExpLista
+            return []
+          },
+          getValorEditar: (row: Pedido) => {
+            const tipo = comportamentoImportadorLista(row)
+            if (tipo === 'importacao') return extrairIdWorkspaceDePedido(row)
+            const idForn = row.exportacao_importador_id?.trim()
+            if (idForn && !pareceIdInternoGravity(idForn)) return idForn
+            return ''
+          },
+          linkPopoverEdicao: (row: Pedido) => {
+            if (comportamentoImportadorLista(row) !== 'exportacao') return undefined
+            const idImp = row.exportacao_importador_id
+            return {
+              label: idImp
+                ? t('pedido.lista.popover.editar_importador')
+                : t('pedido.coluna_pai.vincular_importador'),
+              href: urlVincularImportador(idImp, row.id),
+            }
+          },
+          render: (val: unknown, row: Pedido) => {
+            const tipo = comportamentoImportadorLista(row)
+            const resolverTexto = () => {
+              const exibir = nomeExibicaoImportadorPedido(row, workspacesMap, WORKSPACE_OPTS_IMP, opcoesImportadoresExpLista)
+              if (exibir && exibir !== '—' && !pareceIdInternoGravity(exibir)) return exibir
+              if (tipoOperacaoLista(row) === 'importacao') {
+                const doWs = nomeLegivelWorkspace(extrairIdWorkspaceDePedido(row), workspacesMap, WORKSPACE_OPTS_IMP, null)
+                if (doWs !== '—') return doWs
+              }
+              if (typeof val === 'string' && val.trim() && !pareceIdInternoGravity(val)) return val.trim()
+              return '—'
+            }
+            if (tipo === 'importacao') {
+              return <span style={{ display: 'block', textAlign: 'left' }}>{resolverTexto()}</span>
+            }
+            if (!tipo && typeof val === 'string' && pareceIdInternoGravity(val)) {
+              return <span style={{ display: 'block', textAlign: 'left' }}>—</span>
+            }
+            const nome = nomeExibicaoImportadorPedido(row, workspacesMap, WORKSPACE_OPTS_IMP, opcoesImportadoresExpLista)
+            if (!nome) {
+              return (
+                <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+                  {t('pedido.coluna_pai.vincular_importador')}
+                </span>
+              )
+            }
+            return renderBadgeParteVinculada({
+              nome,
+              titulo: t('pedido.coluna_pai.parte_importador_titulo'),
+              descricao: t('pedido.coluna_pai.clique_editar_importador_lista'),
+            })
+          },
+        }, t, 'pai')
       }
 
       const COLUNAS_DINAMICAS_PEDIDO_ITEM: Record<string, string> = {
@@ -4602,7 +5184,7 @@ export default function Pedidos() {
     })
 
     return [...colunasBase, ...customEnriquecidas]
-  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspacesDisponiveis, pedidos, workspacesMap])
+  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspaceOpcoesLista, pedidos, workspacesMap, opcoesImportadoresExpLista, opcoesExportadoresImpLista])
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
@@ -4611,7 +5193,7 @@ export default function Pedidos() {
                  && ((c.escopo || 'ambos') === 'item' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
     // id_workspace e logística são exclusivos do pedido — itens herdam/exibem, sem PATCH em item.
-    const exclusivosPedido = new Set<string>(['id_workspace', 'tipo_operacao', ...CAMPOS_LOGISTICA_PEDIDO])
+    const exclusivosPedido = new Set<string>(['id_workspace', 'tipo_operacao', 'nome_importador', 'nome_exportador', ...CAMPOS_LOGISTICA_PEDIDO])
     return [...CAMPOS_EDITAVEIS_PAI, ...customKeys].filter(k => !exclusivosPedido.has(k))
   }, [colunasUsuario])
 
@@ -4926,7 +5508,14 @@ export default function Pedidos() {
       if (seq !== cargaListaSeqRef.current) return
       // Pré-computa flags de divergência no carregamento inicial — pedidos vem
       // com itens populados do backend (include itens_pedido na rota /listar).
-      const pedidosComDivergencias = res.data.map(p => {
+      const pedidosSanitizados = sanitizarNomesPartesListaPedidos(
+        res.data,
+        workspacesDisponiveis,
+        workspacesShell,
+        opcoesImportadoresExp,
+        opcoesExportadoresImp,
+      )
+      const pedidosComDivergencias = pedidosSanitizados.map(p => {
         if (!p.itens || p.itens.length === 0) return p
         const { itens, divergencias } = sincronizarItensPedido(p.itens, p)
         return { ...p, itens, ...divergencias }
@@ -4950,7 +5539,7 @@ export default function Pedidos() {
         carregandoRef.current = false
       }
     }
-  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, t])
+  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, workspacesDisponiveis, workspacesShell, opcoesImportadoresExp, opcoesExportadoresImp, t])
 
   const aplicarCardsTopoDoPainel = useCallback((
     cardsTopo: { ids_visiveis: string[]; periodo?: string } | undefined,
@@ -5772,6 +6361,56 @@ export default function Pedidos() {
     valor: unknown,
     opts?: { replicar_em_itens?: boolean },
   ): Promise<Pedido> => {
+    if (campo === 'nome_exportador') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (comportamentoExportadorLista(pedidoAtual ?? {} as Pedido) === 'exportacao') {
+        return handleEditar(id, 'id_workspace', valor, { replicar_em_itens: true })
+      }
+      if (comportamentoExportadorLista(pedidoAtual ?? {} as Pedido) === 'importacao') {
+        const idFornecedor = String(valor ?? '').trim()
+        if (!idFornecedor) throw new Error(t('pedido.lista.erro.exportador_obrigatorio', 'Selecione um exportador'))
+        const nomeFornecedor = opcoesExportadoresImpLista.find((o) => o.valor === idFornecedor)?.label
+          ?? pedidoAtual?.nome_exportador
+          ?? ''
+        const resultados = await Promise.all([
+          pedidoVirtualApi.editarCampo(id, 'importacao_exportador_id', idFornecedor),
+          pedidoVirtualApi.editarCampo(id, 'nome_exportador', nomeFornecedor),
+        ])
+        const pedidoAtualizado = {
+          ...pedidoAtual,
+          ...resultados[resultados.length - 1],
+          importacao_exportador_id: idFornecedor,
+          nome_exportador: nomeFornecedor,
+        } as Pedido
+        setPedidos((prev) => prev.map((p) => (p.id === id ? pedidoAtualizado : p)))
+        return pedidoAtualizado
+      }
+    }
+    if (campo === 'nome_importador') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (comportamentoImportadorLista(pedidoAtual ?? {} as Pedido) === 'importacao') {
+        return handleEditar(id, 'id_workspace', valor, { replicar_em_itens: true })
+      }
+      if (comportamentoImportadorLista(pedidoAtual ?? {} as Pedido) === 'exportacao') {
+        const idFornecedor = String(valor ?? '').trim()
+        if (!idFornecedor) throw new Error(t('pedido.lista.erro.importador_obrigatorio', 'Selecione um importador'))
+        const nomeFornecedor = opcoesImportadoresExpLista.find((o) => o.valor === idFornecedor)?.label
+          ?? pedidoAtual.nome_importador
+          ?? ''
+        const resultados = await Promise.all([
+          pedidoVirtualApi.editarCampo(id, 'exportacao_importador_id', idFornecedor),
+          pedidoVirtualApi.editarCampo(id, 'nome_importador', nomeFornecedor),
+        ])
+        const pedidoAtualizado = {
+          ...pedidoAtual,
+          ...resultados[resultados.length - 1],
+          exportacao_importador_id: idFornecedor,
+          nome_importador: nomeFornecedor,
+        } as Pedido
+        setPedidos((prev) => prev.map((p) => (p.id === id ? pedidoAtualizado : p)))
+        return pedidoAtualizado
+      }
+    }
     // Coluna customizada do usuário — salva via endpoint próprio
     const colunaCustom = colunasUsuario.find(c => c.chave === campo)
     if (colunaCustom) {
@@ -5995,10 +6634,24 @@ export default function Pedidos() {
       ? true
       : (opts?.replicar_em_itens ?? false)
     const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai, replicar)
-    const updatedPedido = {
+    let updatedPedido = {
       ...updatedPedidoRaw,
       [campo]: valorEnviarPai,
     } as Pedido
+    // Trocar workspace atualiza parte espelhada (IMP→importador, EXP→exportador).
+    if (campo === 'id_workspace') {
+      const pai = pedidos.find(p => p.id === id)
+      const tipo = tipoOperacaoLista(pai ?? {})
+      const idWs = String(valorEnviarPai ?? '').trim()
+      const nomeWs = nomeLegivelWorkspace(idWs, workspacesMap, workspaceOpcoesLista)
+      if (nomeWs !== '—') {
+        if (tipo === 'importacao') {
+          updatedPedido = { ...updatedPedido, nome_importador: nomeWs }
+        } else if (tipo === 'exportacao') {
+          updatedPedido = { ...updatedPedido, nome_exportador: nomeWs }
+        }
+      }
+    }
     // Quando replicou, o servidor atualizou os itens filhos via updateMany.
     // ATUALIZA o cache local de itens com o novo valor (em vez de só invalidar
     // — invalidar sozinho exige refetch ao expandir e mantém flag stale).
@@ -6032,7 +6685,7 @@ export default function Pedidos() {
       return { ...updatedPedido, itens: sinc.itens.length > 0 ? sinc.itens : p.itens, ...sinc.divergencias }
     }))
     return updatedPedido
-  }, [pedidos, colunasUsuario])
+  }, [pedidos, colunasUsuario, opcoesImportadoresExpLista, opcoesExportadoresImpLista, workspacesMap, workspaceOpcoesLista, t])
 
   // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
   // SSOT: pedidoDivergencias.ts (shared) + getAlertavelKeys() em columnAlertConfig.ts
@@ -6096,6 +6749,14 @@ export default function Pedidos() {
       const itemAtual = itensAtualizados.find(i => i.id === id)
       if (!itemAtual) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
       return itemAtual
+    }
+
+    if (campo === 'nome_importador') {
+      throw new Error(t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado'))
+    }
+
+    if (campo === 'nome_exportador') {
+      throw new Error(t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'))
     }
 
     if (campo === 'status') {
@@ -6715,7 +7376,7 @@ export default function Pedidos() {
       }
     }))
     return itensAposEdicao.find(i => i.id === id) ?? enriquecido
-  }, [pedidos])
+  }, [pedidos, handleEditar, t])
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   function montarPedidoComItensCarregados(
@@ -7091,6 +7752,8 @@ export default function Pedidos() {
             const COLUNAS_SEM_REPLICACAO = new Set([
               'id_workspace', // replicação automática — sem checkbox
               'tipo_operacao', // sempre replica — sem checkbox
+              'nome_importador', // IMP: workspace; EXP: fornecedor — sem checkbox
+              'nome_exportador', // EXP: workspace; IMP: fornecedor — sem checkbox
               'numero_pedido',
               'valor_total_pedido',
               'valor_por_unidade_item',

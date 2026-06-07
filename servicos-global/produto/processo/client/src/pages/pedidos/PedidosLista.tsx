@@ -284,7 +284,7 @@ export default function PedidosLista() {
 
   return (
     <PaginaGlobal
-      className="ws-fade-up"
+      className="processo-detalhe-page"
       layout="lista"
       cabecalho={
         <CabecalhoGlobal

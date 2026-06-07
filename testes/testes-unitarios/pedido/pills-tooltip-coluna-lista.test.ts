@@ -26,6 +26,15 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.item).toContain('editavel_item')
   })
 
+  it('ghost descrição — pedido, item e replicar; sem alerta de divergência', () => {
+    const res = obterPillsTooltipColuna('descricao_item')
+    expect(res.ghostSemCheckbox).toBe(true)
+    expect(res.pedido).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
+    expect(res.item).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
+    expect(res.pedido).not.toContain('alerta_divergencia')
+    expect(res.item).not.toContain('alerta_divergencia')
+  })
+
   it('NCM — três pills iguais no pedido e no item; sem subtexto ghost', () => {
     const res = obterPillsTooltipColuna('ncm')
     expect(res.ghostSemCheckbox).toBe(false)
@@ -39,5 +48,22 @@ describe('obterPillsTooltipColuna', () => {
     const pills = pillsParaNivelColuna('saldo_itens_do_pedido', 'item')
     expect(pills).toContain('somente_leitura')
     expect(pills).toContain('formula_config')
+  })
+
+  it.each([
+    'porto_origem',
+    'porto_destino',
+    'local_de_origem',
+    'local_de_destino',
+    'aeroporto_origem',
+    'aeroporto_destino',
+  ] as const)('%s — pedido e item com mesmas pills espelhadas', (campo) => {
+    const pills = ['editavel_pedido', 'editavel_item', 'espelhado_logistica_bidirecional'] as const
+    const res = obterPillsTooltipColuna(campo)
+    expect(res.pedido).toEqual([...pills])
+    expect(res.item).toEqual([...pills])
+    expect(res.pedido).not.toContain('replica_itens')
+    expect(res.pedido).not.toContain('alerta_divergencia')
+    expect(res.item).not.toContain('alerta_divergencia')
   })
 })

@@ -902,6 +902,10 @@
   cursor: not-allowed;
 }
 
+.gtv-celula--bloqueado {
+  cursor: not-allowed;
+}
+
 /* ─── Input de edição inline ──────────────────────────────────────────────── */
 .gtv-celula-input {
   width: 100%;

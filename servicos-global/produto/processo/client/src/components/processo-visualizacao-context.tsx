@@ -18,7 +18,7 @@ export function resolverProcessoVisualizacaoPorPathname(pathname: string): Proce
   if (pathname.includes('/kanban')) return 'kanban'
   if (pathname.includes('/dashboard')) return 'dashboard'
   if (pathname.includes('/insights')) return 'insights'
-  if (pathname.includes('/lista')) return 'lista'
+  if (/\/(?:processo|acesso-processos)\/lista\/?$/.test(pathname)) return 'lista'
   return null
 }
 

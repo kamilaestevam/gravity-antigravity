@@ -5594,8 +5594,8 @@
       "referencia_fabricante": "Referência Fabricante",
       "porto_origem": "Porto de Origem",
       "porto_destino": "Porto de Destino",
-      "local_de_origem": "País origem",
-      "local_de_destino": "País destino",
+      "local_de_origem": "País de Origem",
+      "local_de_destino": "País de Destino",
       "aeroporto_origem": "Aeroporto de Origem",
       "aeroporto_destino": "Aeroporto de Destino",
       "data_emissao_pedido": "Data de Emissão",
@@ -5899,11 +5899,11 @@
       "porto_destino": "Porto de Destino",
       "porto_destino_titulo": "Porto de Destino",
       "porto_destino_desc": "Porto ou local de desembarque (cadastros.porto — UN/LOCODE)",
-      "local_de_origem": "País origem",
-      "local_de_origem_titulo": "País origem",
+      "local_de_origem": "País de Origem",
+      "local_de_origem_titulo": "País de Origem",
       "local_de_origem_desc": "País de origem rodoviária (cadastros.pais — ISO alpha-2)",
-      "local_de_destino": "País destino",
-      "local_de_destino_titulo": "País destino",
+      "local_de_destino": "País de Destino",
+      "local_de_destino_titulo": "País de Destino",
       "local_de_destino_desc": "País de destino rodoviário (cadastros.pais — ISO alpha-2)",
       "aeroporto_origem": "Aeroporto de Origem",
       "aeroporto_origem_titulo": "Aeroporto de Origem",
@@ -6204,6 +6204,9 @@
       "parte_importador_titulo": "Importador",
       "parte_exportador_titulo": "Exportador",
       "importador_workspace_desc": "Importador definido pelo workspace {{nome}}",
+      "importador_espelhado_workspace_tooltip": "Espelhado com o workspace {{nome}} — altere o workspace do pedido para trocar o importador",
+      "clique_abrir_seletor_importador": "Clique para trocar o importador vinculado",
+      "clique_editar_importador_lista": "Clique para trocar o importador vinculado",
       "exportador_workspace_desc": "Exportador definido pelo workspace {{nome}}",
       "exportador_e_workspace": "Exportador é o próprio Workspace. Clique para editar dados no Configurador",
       "workspace_sem_nome": "Nome do Workspace não cadastrado. Clique para cadastrar no Configurador",
@@ -7030,6 +7033,21 @@
         "importacao": "Importação",
         "exportacao": "Exportação"
       },
+      "popover": {
+        "editar_importador": "Editar Importador"
+      },
+      "modal_importador": {
+        "titulo": "Trocar importador",
+        "subtitulo_workspace": "Pedido do workspace {{nome}}",
+        "carregando": "Carregando importadores…",
+        "vazio": "Nenhum importador cadastrado com papel de importador.",
+        "atalho_config": "Gerenciar fornecedores no Configurador",
+        "confirmar": "Confirmar",
+        "cancelar": "Cancelar",
+        "fechar": "Fechar",
+        "erro_carregar": "Erro ao carregar importadores.",
+        "erro_salvar": "Erro ao salvar importador."
+      },
       "coluna_dinamica": {
         "valor_total": "Valor Total do Pedido/Item",
         "qtd_inicial": "Qtd. Inicial do Pedido/Item",
@@ -7043,7 +7061,8 @@
       },
       "regras_coluna": {
         "pai_editavel_replicar_alerta": "Editável na linha do pedido. Marque «Aplicar a todos os itens» no popover para replicar o valor em todos os itens. Ícone de alerta quando algum item difere do pedido.",
-        "pai_ghost_descricao": "Editável na linha do pedido. Sem checkbox: grava só no pedido (itens não mudam). Com «Aplicar a todos os itens»: replica a descrição em todos os itens. Alerta se o texto do pedido difere dos itens.",
+        "pai_ghost_descricao": "Editável no pedido e em cada item. Sem «Aplicar a todos os itens»: grava só no pedido (itens não mudam). Com o checkbox marcado: replica a descrição em todos os itens. Sem alerta de divergência.",
+        "item_ghost_descricao": "Editável no pedido e em cada item. Use «Aplicar a todos os itens» na linha do pedido para replicar. Sem alerta de divergência.",
         "pai_ghost_ncm": "Editável na linha do pedido e em cada item. Sem «Aplicar a todos os itens» grava só na linha do pedido; com checkbox replica em todos os itens. Vários NCMs no mesmo pedido é normal — sem alerta.",
         "item_ghost_ncm": "Editável neste item. Cada item pode ter NCM distinto no mesmo pedido — sem alerta de divergência.",
         "pai_ghost_cobertura": "Editável na linha do pedido. Com «Aplicar a todos os itens» propaga a cobertura cambial para todos os itens. Alerta quando itens divergem.",
@@ -7100,6 +7119,15 @@
         "formula_config": "Fórmula configurada",
         "so_operacao": "Alterado por operação de saldo",
         "cond_import_export": "Depende de Importação ou Exportação",
+        "espelhado_workspace": "Espelhado com o Workspace",
+        "espelhado_workspace_cond": "em importação",
+        "espelhado_importador": "Espelhado com o Importador",
+        "espelhado_importador_cond": "em importação",
+        "espelhado_logistica_pedido": "Espelhado nos itens",
+        "espelhado_logistica_item": "Espelhado com o Pedido",
+        "espelhado_logistica_bidirecional": "Espelhado com itens e pedido",
+        "editavel_atualiza_pedido": "Editável — atualiza o pedido",
+        "itens_bloqueados_pedido": "Itens bloqueados — alteração apenas pelo pedido",
         "anexo": "Anexo pelo ícone na célula",
         "coluna_personalizada": "Coluna personalizada",
         "ghost_sem_checkbox": "Sem checkbox: grava só no pedido",
@@ -8013,6 +8041,7 @@
         "tooltip_titulo": "Exportador"
       },
       "mapa_nome_importador": {
+        "tooltip_bloqueado": "Somente leitura no item — altere na linha do pedido",
         "tooltip_bloqueado_cond": "Importador definido pelo workspace do pedido — não editável em Importação",
         "tooltip_titulo": "Importador"
       },
@@ -8077,6 +8106,14 @@
   },
   "processo": {
     "titulo": "Processo",
+    "lista": {
+      "tag_pedido_titulo": "Pedido {{n}}",
+      "tag_pedido_titulo_fallback": "Pedido",
+      "tag_pedido_desc": "Camada 2 — pedido de compra vinculado ao processo",
+      "tag_item_titulo": "Item {{n}}",
+      "tag_item_titulo_fallback": "Item",
+      "tag_item_desc": "Camada 3 — linha de produto dentro do pedido"
+    },
     "status": {
       "rascunho": "Rascunho",
       "em_andamento": "Em Andamento",

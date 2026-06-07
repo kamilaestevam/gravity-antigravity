@@ -34,6 +34,7 @@ export function TooltipGlobal({
   interativo,
   posicaoPreferida = 'auto',
   alinhamentoHorizontal = 'centro',
+  cursorBloqueado,
 }: TooltipProps) {
   const [show, setShow] = useState(false)
   const [bloqueado, setBloqueado] = useState(tooltipsGlobaisDesabilitados)
@@ -157,7 +158,7 @@ export function TooltipGlobal({
         onFocus={mostra}
         onBlur={esconde}
         onKeyDown={onKeyDown}
-        className="tg-trigger"
+        className={cursorBloqueado ? 'tg-trigger tg-trigger--bloqueado' : 'tg-trigger'}
         data-tg-mute={!descricao}
         aria-describedby={show ? tooltipId : undefined}
       >

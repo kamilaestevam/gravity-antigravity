@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Briefcase, Kanban, Plus, MagnifyingGlass, X, CurrencyDollar,
   Package, User, CalendarBlank, Globe, ArrowRight,
@@ -21,6 +22,7 @@ import {
   fmtMoeda, fmtPeso,
   type EtapaProcesso, type ProcessoLinha,
 } from './_mocks'
+import { rotaWorkflowProcessoWorkspace } from '../../shared/rotaDetalheProcessoWorkspace'
 import './TodosProcessos.css'
 
 function diasDesde(iso: string): number {
@@ -29,6 +31,7 @@ function diasDesde(iso: string): number {
 }
 
 export default function TodosProcessosKanban({ embedTabs = true }: { embedTabs?: boolean }) {
+  const navigate = useNavigate()
   const [busca, setBusca] = useState('')
 
   const buscaNorm = busca.trim().toLowerCase()
@@ -55,7 +58,7 @@ export default function TodosProcessosKanban({ embedTabs = true }: { embedTabs?:
   }, [processosFiltrados])
 
   function abrirProcesso(p: ProcessoLinha) {
-    window.location.href = `/acesso-processos/${p.id}/workflow`
+    void navigate(rotaWorkflowProcessoWorkspace(p))
   }
 
   return (

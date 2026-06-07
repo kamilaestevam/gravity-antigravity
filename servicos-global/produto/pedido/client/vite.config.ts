@@ -115,6 +115,11 @@ export default defineConfig({
         target: 'http://localhost:8005',
         changeOrigin: true,
       },
+      // Workspaces da Lista — mesmo endpoint do Hub (Configurador 8005)
+      '/api/v1/hub': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
       // Notificacoes + users — proxy para configurador que valida JWT e repassa ao super-servidor da plataforma
       '/api/v1/notificacoes': {
         target: 'http://localhost:8005',
@@ -125,6 +130,15 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api/v1/cadastros': {
+        target: 'http://localhost:8031',
+        changeOrigin: true,
+      },
+      // Parceiros COMEX — Cadastros (8031). Sem este proxy, /fornecedores cai no catch-all → Pedido 8030 (404).
+      '/api/v1/fornecedores': {
+        target: 'http://localhost:8031',
+        changeOrigin: true,
+      },
+      '/api/v1/empresas': {
         target: 'http://localhost:8031',
         changeOrigin: true,
       },

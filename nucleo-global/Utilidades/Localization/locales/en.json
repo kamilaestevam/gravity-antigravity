@@ -4197,11 +4197,11 @@
       "porto_destino": "Port of Destination",
       "porto_destino_titulo": "Port of Destination",
       "porto_destino_desc": "Port or place of discharge (cadastros.porto — UN/LOCODE)",
-      "local_de_origem": "Origin country",
-      "local_de_origem_titulo": "Origin country",
+      "local_de_origem": "Country of Origin",
+      "local_de_origem_titulo": "Country of Origin",
       "local_de_origem_desc": "Road origin country (cadastros.pais — ISO alpha-2)",
-      "local_de_destino": "Destination country",
-      "local_de_destino_titulo": "Destination country",
+      "local_de_destino": "Country of Destination",
+      "local_de_destino_titulo": "Country of Destination",
       "local_de_destino_desc": "Road destination country (cadastros.pais — ISO alpha-2)",
       "aeroporto_origem": "Origin Airport",
       "aeroporto_origem_titulo": "Origin Airport",
@@ -4502,6 +4502,9 @@
       "parte_importador_titulo": "Importer",
       "parte_exportador_titulo": "Exporter",
       "importador_workspace_desc": "Importer defined by workspace {{nome}}",
+      "importador_espelhado_workspace_tooltip": "Mirrored from workspace {{nome}} — change the order workspace to switch the importer",
+      "clique_abrir_seletor_importador": "Click to change the linked importer",
+      "clique_editar_importador_lista": "Click to change the linked importer",
       "exportador_workspace_desc": "Exporter defined by workspace {{nome}}",
       "exportador_e_workspace": "Exporter is the Workspace itself. Click to edit data in the Configurator",
       "workspace_sem_nome": "Workspace name not registered. Click to register in the Configurator",
@@ -6734,6 +6737,21 @@
         "importacao": "Import",
         "exportacao": "Export"
       },
+      "popover": {
+        "editar_importador": "Edit Importer"
+      },
+      "modal_importador": {
+        "titulo": "Change importer",
+        "subtitulo_workspace": "Order from workspace {{nome}}",
+        "carregando": "Loading importers…",
+        "vazio": "No suppliers registered with importer role.",
+        "atalho_config": "Manage suppliers in Configurator",
+        "confirmar": "Confirm",
+        "cancelar": "Cancel",
+        "fechar": "Close",
+        "erro_carregar": "Failed to load importers.",
+        "erro_salvar": "Failed to save importer."
+      },
       "coluna_dinamica": {
         "valor_total": "Total Order/Item Value",
         "qtd_inicial": "Initial Order/Item Qty.",
@@ -6747,7 +6765,8 @@
       },
       "regras_coluna": {
         "pai_editavel_replicar_alerta": "Editable on the order row. Check «Apply to all items» in the popover to replicate the value to every item. Alert icon when any item differs from the order.",
-        "pai_ghost_descricao": "Editable on the order row. Without checkbox: saves on the order only (items unchanged). With «Apply to all items»: replicates description to all items. Alert when order text differs from items.",
+        "pai_ghost_descricao": "Editable on the order and on each item. Without «Apply to all items»: saves on the order only (items unchanged). With the checkbox checked: replicates description to all items. No divergence alert.",
+        "item_ghost_descricao": "Editable on the order and on each item. Use «Apply to all items» on the order row to replicate. No divergence alert.",
         "pai_ghost_ncm": "Editable on the order row and on each item. Multiple NCMs in the same order is normal — no divergence alert. The order row shows NCM when all items match.",
         "item_ghost_ncm": "Editable on this item. Each item may have a different NCM in the same order — no divergence alert.",
         "pai_ghost_cobertura": "Editable on the order row. «Apply to all items» propagates exchange coverage to all items. Alert when items diverge.",
@@ -6804,6 +6823,15 @@
         "formula_config": "Configured formula",
         "so_operacao": "Changed by balance operation",
         "cond_import_export": "Depends on Import or Export",
+        "espelhado_workspace": "Mirrored from Workspace",
+        "espelhado_workspace_cond": "on import",
+        "espelhado_importador": "Mirrored from Importer",
+        "espelhado_importador_cond": "on import",
+        "espelhado_logistica_pedido": "Mirrored on items",
+        "espelhado_logistica_item": "Mirrored from order",
+        "espelhado_logistica_bidirecional": "Mirrored between items and order",
+        "editavel_atualiza_pedido": "Editable — updates the order",
+        "itens_bloqueados_pedido": "Items locked — edit on the order row only",
         "anexo": "Attachment via cell icon",
         "coluna_personalizada": "Custom column",
         "ghost_sem_checkbox": "Without checkbox: saves on order only",
@@ -7717,6 +7745,7 @@
         "tooltip_titulo": "Exporter"
       },
       "mapa_nome_importador": {
+        "tooltip_bloqueado": "Read-only on item — edit on the order row",
         "tooltip_bloqueado_cond": "Importer automatically defined by the workspace — not editable in Import",
         "tooltip_titulo": "Importer"
       },
@@ -7781,6 +7810,14 @@
   },
   "processo": {
     "titulo": "Process",
+    "lista": {
+      "tag_pedido_titulo": "Order {{n}}",
+      "tag_pedido_titulo_fallback": "Order",
+      "tag_pedido_desc": "Layer 2 — purchase order linked to the process",
+      "tag_item_titulo": "Item {{n}}",
+      "tag_item_titulo_fallback": "Item",
+      "tag_item_desc": "Layer 3 — product line within the order"
+    },
     "status": {
       "rascunho": "Draft",
       "em_andamento": "In Progress",

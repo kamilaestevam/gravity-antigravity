@@ -19,10 +19,13 @@ Regras de produto para colunas com comportamento **especial** na Lista (diferent
 | Coluna | Foco |
 |--------|------|
 | **Nº PEDIDO / Nº ITEM** (identificadores) | Edição por nível; alerta de Part Number duplicado |
+| **WORKSPACE** | Exclusivo do pedido; replicação automática; item travado; sem alerta |
 | **TIPO DE OPERAÇÃO** | Exclusivo do pedido; replicação automática; item travado |
 | **STATUS** | Pedido e item editáveis; checkbox replicar; alerta âmbar de divergência |
+| **IMPORTADOR** (`nome_importador`) | Importação: espelhado com workspace; Exportação: vincular ou modal de troca |
+| **REFERÊNCIA IMPORTADOR / EXPORTADOR** | Padrão Incoterm — pedido+item editáveis, checkbox replicar, alerta divergência |
 
-Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md) (Incoterm, datas, referências, etc.).
+Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md) (Incoterm, datas, referência fabricante, etc.).
 
 ---
 
@@ -42,7 +45,22 @@ Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLIC
 
 ---
 
-## 2. TIPO DE OPERAÇÃO
+## 2. WORKSPACE
+
+> Decisão de produto **2026-06** — alinhada a TIPO DE OPERAÇÃO na replicação; **sem** alerta de divergência.
+
+| # | Regra |
+|---|--------|
+| **WS-01** | Somente a linha **pedido** edita workspace (`id_workspace`). |
+| **WS-02** | Linha **item** é **somente leitura** (igual TIPO DE OPERAÇÃO) — popover não abre. |
+| **WS-03** | Ao salvar no pedido, replica **automaticamente** para todos os itens (`replicar_em_itens` efetivo = `true`). |
+| **WS-04** | Popover **sem** checkbox «Aplicar a todos os itens». |
+| **WS-05** | **Sem** alerta âmbar — pedido e itens ficam sempre alinhados após edição. |
+| **WS-06** | Select **único**: opções = todos os workspaces **habilitados** ao usuário (`workspacesDisponiveis` / `/hub/init`), não só os já visíveis na página. |
+
+---
+
+## 3. TIPO DE OPERAÇÃO
 
 > Decisão de produto **2026-06** (validada em produção e EMT passos 06–12).
 
@@ -67,7 +85,7 @@ Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLIC
 
 ---
 
-## 3. STATUS
+## 4. STATUS
 
 > Decisão de produto **2026-06** — regras **00–04** definidas pelo dono.
 
@@ -113,23 +131,110 @@ Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLIC
 
 ---
 
-## 5. Resumo comparativo
+## 5. IMPORTADOR (`nome_importador`)
 
-| Aspecto | TIPO DE OPERAÇÃO | STATUS | Incoterm (referência) |
-|---------|------------------|--------|------------------------|
-| Edição no pedido | ✅ | ✅ | ✅ |
-| Edição no item | ❌ travado | ✅ | ✅ |
-| Checkbox replicar no pedido | ❌ ausente | ✅ presente | ✅ presente |
-| Replicação sem checkbox | ✅ sempre | ❌ não replica | ❌ não replica |
-| Alerta âmbar se diverge | ❌ | ✅ | ✅ |
+> Decisão de produto **2026-06** — aprovada pelo dono.
+
+O importador exibido depende do **tipo de operação** do pedido (espelhado com Exportador na lógica inversa).
+
+### Importação (`tipo_operacao = importacao`)
+
+| # | Regra |
+|---|--------|
+| **IMP-01** | O importador é o **workspace** do pedido — exibe o nome do workspace, não um fornecedor do Cadastros. |
+| **IMP-02** | Tooltip: *Espelhado com o workspace* — **sem** link para Configurador ou Cadastros. |
+| **IMP-03** | Edição inline no pedido abre o **mesmo select de Workspace** (alterar workspace troca o importador). |
+| **IMP-04** | Linha **item** somente leitura — espelha o workspace do pedido. |
+
+### Exportação (`tipo_operacao = exportacao`)
+
+| # | Regra |
+|---|--------|
+| **EXP-01** | Importador = contraparte estrangeira vinculada via Cadastros (`exportacao_importador_id` + `nome_importador`). |
+| **EXP-02** | Célula **vazia** → link **«Vincular importador»** → tela Fornecedor no Configurador (fluxo existente com `retorno`). |
+| **EXP-03** | Célula **preenchida** → clique abre **modal** com lista de importadores da organização (`pode_ser_importador_fornecedor=true`). |
+| **EXP-04** | Modal permite **trocar** o importador sem sair da Lista; atalho → Configurador / Fornecedores. |
+| **EXP-05** | **Sem** checkbox «Aplicar a todos os itens» e **sem** alerta de divergência na coluna Importador. |
+| **EXP-06** | Linha **item** somente leitura — badge/link espelha o pedido; clique no badge abre o mesmo modal do pedido. |
 
 ---
 
-## 6. Histórico
+## 6. REFERÊNCIA IMPORTADOR e REFERÊNCIA EXPORTADOR
+
+> Decisão de produto **2026-06** — **mesmas regras** para ambas as colunas (padrão Incoterm).
+
+| # | Regra |
+|---|--------|
+| **REF-01** | Tipo `alfanumerico` — **sem** diferença entre Importação e Exportação. |
+| **REF-02** | Linha **pedido** editável; popover exibe checkbox **«Aplicar a todos os itens deste pedido»** (default desmarcado). |
+| **REF-03** | Linha **item** editável. |
+| **REF-04** | Sem checkbox: só o **pedido** persiste; itens **não** replicam. |
+| **REF-05** | Com checkbox: pedido **e todos** os itens recebem o mesmo valor (`referencia_*_pedido` → `referencia_*_item`). |
+| **REF-06** | Edição isolada no item altera só aquele item; pedido e demais itens permanecem. |
+| **REF-07** | **Alerta âmbar** na coluna do pedido quando valor do pedido ≠ valor de algum item — tooltip *Referências divergentes entre itens*. |
+| **REF-08** | Campos **não** estão em `COLUNAS_SEM_REPLICACAO` — replicação opcional via checkbox. |
+
+**EMT:** passos 13–16 (Importador) e 17–20 (Exportador) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+
+---
+
+## 7. INCOTERM
+
+> Padrão de referência para Ref. Importador/Exportador. Select validado em produção pelo dono (2026-06).
+
+| # | Regra |
+|---|--------|
+| **INC-01** | UI **select** padrão — opções de `cadastros.incoterm` (`useIncotermsPedido`); **não** input de texto livre. |
+| **INC-02** | Linha **pedido** e linha **item** editáveis. |
+| **INC-03** | Popover no pedido exibe checkbox **«Aplicar a todos os itens deste pedido»** (default desmarcado). |
+| **INC-04** | Sem checkbox: só o pedido persiste; itens não replicam. |
+| **INC-05** | Com checkbox: pedido e todos os itens = mesmo Incoterm (`incoterm_pedido` → `incoterm_item`). |
+| **INC-06** | Edição isolada no item altera só aquele item. |
+| **INC-07** | **Alerta âmbar** na coluna do pedido — tooltip *Incoterms divergentes entre itens*. |
+| **INC-08** | Sem diferença entre Importação e Exportação. |
+
+**EMT:** passos 21–24 em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+
+---
+
+## 8. Logística (Porto, País, Aeroporto)
+
+> Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.
+
+| # | Regra |
+|---|--------|
+| **LOG-01** | Campo existe só no model **Pedido** (sem coluna em `PedidoItem`). |
+| **LOG-02** | Linha **pedido** editável (select Cadastros). |
+| **LOG-03** | Linha **item** exibe o mesmo valor (**espelhado** com o pedido). |
+| **LOG-04** | Edição no **item** roteia PATCH para o **pedido**. |
+| **LOG-05** | **Sem** checkbox replicar e **sem** alerta de divergência. |
+| **LOG-06** | Tooltip **pedido e item** (mesmas 3 pills): «Editável no pedido» · «Editável no item» · «Espelhado com itens e pedido». Título = label da coluna (Porto de Origem, País de Origem, etc.). |
+
+---
+
+## 9. Resumo comparativo
+
+| Aspecto | Workspace | TIPO DE OPERAÇÃO | STATUS | Importador | Ref. Imp./Exp. | Logística | Incoterm |
+|---------|-----------|------------------|--------|------------|----------------|-----------|----------|
+| Edição no pedido | ✅ | ✅ | ✅ | ✅ (IMP: via workspace) | ✅ | ✅ | ✅ |
+| Edição no item | ❌ travado | ❌ travado | ✅ | ❌ travado | ✅ | ✅ (roteia pedido) | ✅ |
+| Checkbox replicar no pedido | ❌ ausente | ❌ ausente | ✅ presente | ❌ ausente | ✅ presente | ❌ ausente | ✅ presente |
+| Replicação sem checkbox | ✅ sempre | ✅ sempre | ❌ não replica | — | ❌ não replica | Espelhado visual | ❌ não replica |
+| Alerta âmbar se diverge | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
+| Opções do select (pedido) | Workspaces habilitados | Importação / Exportação | Status nativos + custom | IMP: workspaces | Texto livre | Cadastros | Incoterms cadastros |
+
+---
+
+## 10. Histórico
 
 | Data | Evento |
 |------|--------|
 | 2026-05-13 | Checkbox «Aplicar a todos os itens» — entrega genérica ([`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md)) |
 | 2026-06 | TIPO DE OPERAÇÃO — regras TOP-01…05; EMT aprovado (PR #199, runner #201) |
 | 2026-06-03 | STATUS — regras 00–04; fix alerta sem expandir (`status_itens_snapshot`); TDZ `statusOpts`/`pedidos` |
-| 2026-06-06 | NCM — NCM-01…04; sem alerta de divergência (vários NCMs por pedido é normal) |
+| 2026-06-03 | WORKSPACE — WS-01…06; sem alerta; select com todos workspaces habilitados |
+| 2026-06-03 | IMPORTADOR — IMP-01…04 / EXP-01…06; modal seletor na exportação; IMP espelhado com workspace |
+| 2026-06-06 | NCM — NCM-01…07; sem alerta de divergência (vários NCMs por pedido é normal) |
+| 2026-06-06 | REF. IMPORTADOR / EXPORTADOR — REF-01…08; EMT passos 13–20 (mesmas regras, padrão Incoterm) |
+| 2026-06-06 | LOGÍSTICA — LOG-01…06; tooltips espelhados (sem alerta/replicar) em Porto/País/Aeroporto |
+| 2026-06-06 | INCOTERM — INC-01…08; EMT passos 21–24 (select Cadastros + checkbox + alerta divergência) |

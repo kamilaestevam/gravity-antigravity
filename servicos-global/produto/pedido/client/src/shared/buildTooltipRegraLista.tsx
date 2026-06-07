@@ -15,30 +15,48 @@ import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipCol
 import type { RegraPillId } from './pillsTooltipColunaLista'
 import { TooltipRegrasColuna } from './TooltipRegrasColuna'
 
+type OpcoesMontarTooltipPills = {
+  modoDinamicoPedidoItem?: boolean
+  colunaPersonalizada?: boolean
+  descricaoUsuario?: string
+  aviso?: React.ReactNode
+}
+
 function montarTooltipPills(
   t: TFunction,
   key: string,
-  opts?: {
-    modoDinamicoPedidoItem?: boolean
-    colunaPersonalizada?: boolean
-    descricaoUsuario?: string
-    aviso?: React.ReactNode
-  },
+  opts?: OpcoesMontarTooltipPills,
+  nivel: NivelColunaLista = 'pai',
 ): React.ReactNode {
   const res = obterPillsTooltipColuna(key, {
     modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
     colunaPersonalizada: opts?.colunaPersonalizada,
   })
 
+  if (res.dual) {
+    return (
+      <TooltipRegrasColuna
+        t={t}
+        dual
+        pillsPedido={res.pedido}
+        pillsItem={res.item}
+        linkFormula={res.linkFormula}
+        ghostSemCheckbox={res.ghostSemCheckbox}
+        numeroUnicoOrg={res.numeroUnicoOrg}
+        aviso={opts?.aviso}
+        descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
+      />
+    )
+  }
+
+  const pills = nivel === 'item' ? res.item : res.pedido
   return (
     <TooltipRegrasColuna
       t={t}
-      dual={res.dual}
-      pillsPedido={res.pedido}
-      pillsItem={res.item}
+      pillsPedido={pills}
       linkFormula={res.linkFormula}
-      ghostSemCheckbox={res.ghostSemCheckbox}
-      numeroUnicoOrg={res.numeroUnicoOrg}
+      ghostSemCheckbox={res.ghostSemCheckbox && nivel === 'pai'}
+      numeroUnicoOrg={res.numeroUnicoOrg && nivel === 'pai'}
       aviso={opts?.aviso}
       descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
     />
@@ -91,15 +109,7 @@ export function enriquecerColunaComRegraTooltip<T>(
       colunaPersonalizada: opts?.colunaPersonalizada,
       descricaoUsuario: opts?.descricaoUsuario,
     }),
-    tooltipDescricaoItem: pillsRes.dual
-      ? (
-        <TooltipRegrasColuna
-          t={t}
-          pillsPedido={pillsRes.item}
-          linkFormula={pillsRes.linkFormula}
-        />
-      )
-      : montarTooltipPills(t, key, { ...opts, modoDinamicoPedidoItem: false }),
+    tooltipDescricaoItem: montarTooltipPills(t, key, { ...opts, modoDinamicoPedidoItem: false }, 'item'),
     tooltipInterativo: regraTooltipEhInterativa(regraId) || col.tooltipInterativo,
   }
 }

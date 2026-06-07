@@ -15,6 +15,7 @@ import {
   ArrowsLeftRight,
   Paperclip,
   Sparkle,
+  ArrowsOutLineHorizontal,
 } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
 import type { RegraPillId } from './pillsTooltipColunaLista'
@@ -40,6 +41,13 @@ const PILL_DEFS: Record<RegraPillId, PillDef> = {
   formula_config:    { Icon: Gear,             color: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },
   so_operacao:       { Icon: Prohibit,         color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   cond_import_export:{ Icon: ArrowsLeftRight,  color: '#34d399', bg: 'rgba(52,211,153,0.12)' },
+  espelhado_workspace:{ Icon: ArrowsOutLineHorizontal, color: '#22d3ee', bg: 'rgba(34,211,238,0.12)' },
+  espelhado_importador:{ Icon: ArrowsOutLineHorizontal, color: '#22d3ee', bg: 'rgba(34,211,238,0.12)' },
+  espelhado_logistica_pedido:{ Icon: ArrowsOutLineHorizontal, color: '#22d3ee', bg: 'rgba(34,211,238,0.12)' },
+  espelhado_logistica_item:{ Icon: ArrowsOutLineHorizontal, color: '#22d3ee', bg: 'rgba(34,211,238,0.12)' },
+  espelhado_logistica_bidirecional:{ Icon: ArrowsOutLineHorizontal, color: '#22d3ee', bg: 'rgba(34,211,238,0.12)' },
+  editavel_atualiza_pedido:{ Icon: PencilSimple, color: '#60a5fa', bg: 'rgba(96,165,250,0.08)' },
+  itens_bloqueados_pedido:{ Icon: Lock,        color: '#94a3b8', bg: 'rgba(148,163,184,0.14)' },
   anexo:             { Icon: Paperclip,        color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   coluna_personalizada: { Icon: Sparkle,      color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
 }
@@ -116,7 +124,11 @@ function BlocoPills({
                 ? t('pedido.lista.regras_pill.ghost_sem_checkbox')
                 : id === 'editavel_pedido' && numeroUnicoOrg
                   ? t('pedido.lista.regras_pill.numero_unico_org')
-                  : undefined
+                  : id === 'espelhado_importador'
+                    ? t('pedido.lista.regras_pill.espelhado_importador_cond')
+                    : id === 'espelhado_workspace'
+                      ? t('pedido.lista.regras_pill.espelhado_workspace_cond')
+                      : undefined
             }
           />
         ))}

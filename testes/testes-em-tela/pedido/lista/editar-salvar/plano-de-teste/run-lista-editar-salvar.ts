@@ -107,20 +107,18 @@ type ConfigLogisticaCampo = {
   key: string
   colunaLabel: string
   tituloTooltip: string
-  opcaoPedido: string
-  opcaoItem: string
   passo: number
   slug: string
 }
 
 /** SSOT alinhado a `CAMPOS_LOGISTICA_PEDIDO` + i18n `pedido.coluna_pai.*_titulo`. */
 const CFG_LOGISTICA_COLUNAS: ConfigLogisticaCampo[] = [
-  { key: 'porto_origem', colunaLabel: 'PORTO DE ORIGEM', tituloTooltip: 'Porto de Origem', opcaoPedido: 'BRFOR', opcaoItem: 'BRSSZ', passo: 29, slug: 'porto-origem' },
-  { key: 'porto_destino', colunaLabel: 'PORTO DE DESTINO', tituloTooltip: 'Porto de Destino', opcaoPedido: 'BRSSZ', opcaoItem: 'BRITJ', passo: 30, slug: 'porto-destino' },
-  { key: 'local_de_origem', colunaLabel: 'PAÍS DE ORIGEM', tituloTooltip: 'País de Origem', opcaoPedido: 'BR', opcaoItem: 'DE', passo: 31, slug: 'pais-origem' },
-  { key: 'local_de_destino', colunaLabel: 'PAÍS DE DESTINO', tituloTooltip: 'País de Destino', opcaoPedido: 'DE', opcaoItem: 'AO', passo: 32, slug: 'pais-destino' },
-  { key: 'aeroporto_origem', colunaLabel: 'AEROPORTO DE ORIGEM', tituloTooltip: 'Aeroporto de Origem', opcaoPedido: 'GRU', opcaoItem: 'CGH', passo: 33, slug: 'aeroporto-origem' },
-  { key: 'aeroporto_destino', colunaLabel: 'AEROPORTO DE DESTINO', tituloTooltip: 'Aeroporto de Destino', opcaoPedido: 'EZE', opcaoItem: 'GRU', passo: 34, slug: 'aeroporto-destino' },
+  { key: 'porto_origem', colunaLabel: 'PORTO DE ORIGEM', tituloTooltip: 'Porto de Origem', passo: 29, slug: 'porto-origem' },
+  { key: 'porto_destino', colunaLabel: 'PORTO DE DESTINO', tituloTooltip: 'Porto de Destino', passo: 30, slug: 'porto-destino' },
+  { key: 'local_de_origem', colunaLabel: 'PAÍS DE ORIGEM', tituloTooltip: 'País de Origem', passo: 31, slug: 'pais-origem' },
+  { key: 'local_de_destino', colunaLabel: 'PAÍS DE DESTINO', tituloTooltip: 'País de Destino', passo: 32, slug: 'pais-destino' },
+  { key: 'aeroporto_origem', colunaLabel: 'AEROPORTO DE ORIGEM', tituloTooltip: 'Aeroporto de Origem', passo: 33, slug: 'aeroporto-origem' },
+  { key: 'aeroporto_destino', colunaLabel: 'AEROPORTO DE DESTINO', tituloTooltip: 'Aeroporto de Destino', passo: 34, slug: 'aeroporto-destino' },
 ]
 
 type ConfigReferenciaCampo = {
@@ -711,6 +709,43 @@ async function popoverSelectTemOpcoes(page: Page): Promise<number> {
 }
 
 /** Extrai siglas (FOB, CIF…) das opções do select padrão Incoterm (Cadastros). */
+/** Extrai termo clicável do rótulo do popover (ex.: «GRU — Guarulhos» → GRU). */
+function extrairTermoOpcaoPopover(label: string): string {
+  const normalizado = label.replace(/\s+/g, ' ').trim()
+  const antesTraco = normalizado.split('—')[0]?.trim()
+  if (antesTraco) return antesTraco.split(/\s+/)[0] ?? antesTraco
+  return normalizado.split(/\s+/)[0] ?? normalizado
+}
+
+/** Lista termos das opções visíveis no popover de select logístico. */
+async function listarTermosOpcaoPopover(page: Page): Promise<string[]> {
+  await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 })
+  const labels = await page.locator('.gtv-edit-popover-opcao').evaluateAll(els =>
+    els.map(el => (el.textContent ?? '').trim()).filter(Boolean),
+  )
+  const termos = labels.map(extrairTermoOpcaoPopover).filter(Boolean)
+  return [...new Set(termos)]
+}
+
+/** Primeira opção disponível; se `preferirDistintoDe` informado, tenta outra opção. */
+function resolverOpcaoLogisticaPopover(
+  termos: readonly string[],
+  preferirDistintoDe?: string,
+): string | null {
+  if (termos.length === 0) return null
+  if (preferirDistintoDe) {
+    const distinta = termos.find(t => !celulaContemValor(preferirDistintoDe, t) && !celulaContemValor(t, preferirDistintoDe))
+    if (distinta) return distinta
+  }
+  return termos[0] ?? null
+}
+
+function celulasLogisticaEspelhadas(textoPai: string, textosItens: readonly string[]): boolean {
+  if (!textoPai.trim() || textosItens.length === 0) return false
+  const normPai = normalizarTextoCelula(textoPai)
+  return textosItens.every(t => normalizarTextoCelula(t) === normPai)
+}
+
 async function listarSiglasIncotermPopover(page: Page): Promise<string[]> {
   const textos = await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').evaluateAll(els =>
     els.map(el => el.textContent?.trim() ?? '').filter(Boolean),
@@ -1488,22 +1523,27 @@ async function validarTooltipDescricaoCelula(
   return tituloOk && pillsOk && semPillAlerta
 }
 
-async function selecionarOpcaoPopoverPorTermo(page: Page, termo: string): Promise<void> {
+async function selecionarOpcaoPopoverPorTermo(
+  page: Page,
+  termo: string,
+  opts?: { permitirFallbackPrimeira?: boolean },
+): Promise<void> {
   await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 })
   await page.waitForFunction(
     () => document.querySelectorAll('.gtv-edit-popover-opcao').length > 0,
     undefined,
     { timeout: 20000 },
   )
-  const clicou = await page.evaluate((t) => {
+  const permitirFallback = opts?.permitirFallbackPrimeira ?? true
+  const clicou = await page.evaluate(({ t, fallback }) => {
     const botoes = Array.from(document.querySelectorAll('.gtv-edit-popover-opcao')) as HTMLElement[]
     const alvo = botoes.find(b => (b.textContent ?? '').includes(t))
       ?? botoes.find(b => (b.textContent ?? '').trim().startsWith(t))
-    const btn = alvo ?? botoes[0]
+    const btn = alvo ?? (fallback ? botoes[0] : null)
     if (!btn) return false
     btn.click()
     return true
-  }, termo)
+  }, { t: termo, fallback: permitirFallback })
   if (!clicou) throw new Error(`Nenhuma opção no popover para termo "${termo}"`)
   await page.waitForTimeout(300)
 }
@@ -1524,9 +1564,9 @@ async function validarLogisticaCampoLista(
   qtdItens: number,
   cfg: ConfigLogisticaCampo,
 ): Promise<void> {
-  const { key, colunaLabel, tituloTooltip, opcaoPedido, opcaoItem, passo, slug } = cfg
+  const { key, colunaLabel, tituloTooltip, passo, slug } = cfg
   const prefix = prefixoPrintLogistica(passo, slug)
-  log(`ℹ Coluna ${colunaLabel}: passo ${passo} (tooltip espelhado + select pedido/item)`)
+  log(`ℹ Coluna ${colunaLabel}: passo ${passo} (tooltip espelhado + select pedido/item — opção dinâmica do catálogo)`)
 
   await scrollColunaParaVisivel(page, key)
   const celPai = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${key}"]`)
@@ -1567,56 +1607,66 @@ async function validarLogisticaCampoLista(
     if (temCheckbox) {
       falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Popover logística não deve exibir checkbox «Aplicar a todos os itens»`)
     }
-    await destacarSiglaNoPopoverSelect(page, opcaoPedido)
-    await screenshot(page, printSelecao(`${prefix}-pedido`))
-    const notifPedido = await confirmarOpcaoPopoverPorTermo(page, opcaoPedido)
-    await page.waitForTimeout(800)
-    const textoPai = await lerTextoCampoPai(page, rowId, key)
-    const textosItens = await lerTextosCampoItens(page, rowId, key)
-    await screenshot(page, printResultado(`${prefix}-pedido`))
-
-    const pedidoOk = celulaContemValor(textoPai, opcaoPedido)
-    const itensEspelhados = textosItens.length > 0
-      && textosItens.every(t => celulaContemValor(t, opcaoPedido))
-
-    if (notifPedido === 'erro') {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar pedido (${opcaoPedido}) — toast de erro`)
-    } else if (!pedidoOk) {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve exibir ${opcaoPedido}`)
-    } else if (!itensEspelhados) {
-      log(`ℹ Diagnóstico ${key}: pai=${JSON.stringify(textoPai)}, itens=${JSON.stringify(textosItens)}`)
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Itens devem espelhar pedido após edição no pedido`)
+    const termosPedido = await listarTermosOpcaoPopover(page)
+    const opcaoPedido = resolverOpcaoLogisticaPopover(termosPedido)
+    if (!opcaoPedido) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Popover sem opções no pedido`)
     } else {
-      logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar pedido (${opcaoPedido}) — espelhado em ${textosItens.length} item(ns)`)
+      await destacarSiglaNoPopoverSelect(page, opcaoPedido)
+      await screenshot(page, printSelecao(`${prefix}-pedido`))
+      const notifPedido = await confirmarOpcaoPopoverPorTermo(page, opcaoPedido)
+      await page.waitForTimeout(800)
+      const textoPai = await lerTextoCampoPai(page, rowId, key)
+      const textosItens = await lerTextosCampoItens(page, rowId, key)
+      await screenshot(page, printResultado(`${prefix}-pedido`))
+
+      const espelhadoPedido = celulasLogisticaEspelhadas(textoPai, textosItens)
+
+      if (notifPedido === 'erro') {
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar pedido — toast de erro`)
+      } else if (!textoPai.trim()) {
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve persistir valor após edição`)
+      } else if (!espelhadoPedido) {
+        log(`ℹ Diagnóstico ${key}: pai=${JSON.stringify(textoPai)}, itens=${JSON.stringify(textosItens)}`)
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Itens devem espelhar pedido após edição no pedido`)
+      } else {
+        logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar pedido (${opcaoPedido}) — espelhado em ${textosItens.length} item(ns)`)
+      }
     }
   }
 
   // Edição no item — roteia PATCH pedido; todos espelham
   await fecharPopoverSeAberto(page)
+  const textoPaiAntesItem = await lerTextoCampoPai(page, rowId, key)
   const abriuItem = await abrirPopoverSelectItem(page, rowId, 0, key)
   if (!abriuItem) {
     falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Abrir select no item 1`)
   } else {
-    await destacarSiglaNoPopoverSelect(page, opcaoItem)
-    await screenshot(page, printSelecao(`${prefix}-item`))
-    const notifItem = await confirmarOpcaoPopoverPorTermo(page, opcaoItem)
-    await page.waitForTimeout(800)
-    const textoPaiItem = await lerTextoCampoPai(page, rowId, key)
-    const textosItensItem = await lerTextosCampoItens(page, rowId, key)
-    await screenshot(page, printResultado(`${prefix}-item`))
-
-    const pedidoAtualizado = celulaContemValor(textoPaiItem, opcaoItem)
-    const itensOk = textosItensItem.length > 0
-      && textosItensItem.every(t => celulaContemValor(t, opcaoItem))
-
-    if (notifItem === 'erro') {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar item (${opcaoItem}) — toast de erro`)
-    } else if (!pedidoAtualizado) {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve atualizar para ${opcaoItem} via edição no item`)
-    } else if (!itensOk) {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Todos os itens devem espelhar ${opcaoItem}`)
+    const termosItem = await listarTermosOpcaoPopover(page)
+    const opcaoItem = resolverOpcaoLogisticaPopover(termosItem, textoPaiAntesItem)
+    if (!opcaoItem) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Popover sem opções no item`)
     } else {
-      logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar item (${opcaoItem}) — pedido + ${textosItensItem.length} item(ns) espelhados`)
+      await destacarSiglaNoPopoverSelect(page, opcaoItem)
+      await screenshot(page, printSelecao(`${prefix}-item`))
+      const notifItem = await confirmarOpcaoPopoverPorTermo(page, opcaoItem)
+      await page.waitForTimeout(800)
+      const textoPaiItem = await lerTextoCampoPai(page, rowId, key)
+      const textosItensItem = await lerTextosCampoItens(page, rowId, key)
+      await screenshot(page, printResultado(`${prefix}-item`))
+
+      const espelhadoItem = celulasLogisticaEspelhadas(textoPaiItem, textosItensItem)
+
+      if (notifItem === 'erro') {
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar item — toast de erro`)
+      } else if (!textoPaiItem.trim()) {
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve persistir valor após edição no item`)
+      } else if (!espelhadoItem) {
+        log(`ℹ Diagnóstico ${key}: pai=${JSON.stringify(textoPaiItem)}, itens=${JSON.stringify(textosItensItem)}`)
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido e itens devem espelhar o mesmo valor após edição no item`)
+      } else {
+        logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar item (${opcaoItem}) — pedido + ${textosItensItem.length} item(ns) espelhados`)
+      }
     }
   }
 

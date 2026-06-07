@@ -297,14 +297,14 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 
 ### ETAPA 10 — PORTO DE ORIGEM (`porto_origem`, passo 29)
 
-**Regras LOG-01…06:** valor único no pedido; itens espelham `_p`; tooltip com 3 pills espelhadas; **sem** checkbox replicar; **sem** alerta âmbar.
+**Regras LOG-00…06:** **LOG-00** — o código escolhido (porto/país/aeroporto) é **qualquer opção disponível** no select; critério = salvou com sucesso + pedido e itens espelham o **mesmo** valor exibido. Demais: valor único no pedido; itens espelham `_p`; tooltip com 3 pills espelhadas; **sem** checkbox replicar; **sem** alerta âmbar.
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
 | **29.1** | Hover tooltip na célula do **pedido** | Título «Porto de Origem» + 3 pills espelhadas · Print `29-log-porto-origem-tooltip-pedido.png` (sucesso ou erro) |
 | **29.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `29-log-porto-origem-tooltip-item.png` (sucesso ou erro) |
-| **29.3** | Select no **pedido** → **BRFOR** → confirmar | **Sem** checkbox replicar · Pedido **e** itens espelham BRFOR · Prints `29-log-porto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **29.4** | Select no **item 1** → **BRSSZ** → confirmar | Pedido atualizado via item; todos espelham BRSSZ · Prints `29-log-porto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **29.3** | Select no **pedido** → **1ª opção do catálogo** → confirmar | **Sem** checkbox replicar · Toast sucesso · Pedido **e** itens com o **mesmo** valor · Prints `29-log-porto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **29.4** | Select no **item 1** → **outra opção** (se houver) → confirmar | Toast sucesso · Pedido atualizado via item; todos espelham o **mesmo** valor · Prints `29-log-porto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **29.5** | Inspecionar coluna do **pedido** | **Sem** ícone âmbar de divergência (LOG-05) |
 
 ### ETAPA 11 — PORTO DE DESTINO (`porto_destino`, passo 30)
@@ -313,8 +313,8 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 |-------|------|-----------------|
 | **30.1** | Hover tooltip na célula do **pedido** | Título «Porto de Destino» + 3 pills · Print `30-log-porto-destino-tooltip-pedido.png` (sucesso ou erro) |
 | **30.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `30-log-porto-destino-tooltip-item.png` (sucesso ou erro) |
-| **30.3** | Select no **pedido** → **BRSSZ** → confirmar | Espelhamento em todos os itens · Prints `30-log-porto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **30.4** | Select no **item 1** → **BRITJ** → confirmar | Pedido + itens = BRITJ · Prints `30-log-porto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **30.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento em todos os itens · Prints `30-log-porto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **30.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `30-log-porto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **30.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
 ### ETAPA 12 — PAÍS DE ORIGEM (`local_de_origem`, passo 31)
@@ -323,8 +323,8 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 |-------|------|-----------------|
 | **31.1** | Hover tooltip na célula do **pedido** | Título «País de Origem» + 3 pills · Print `31-log-pais-origem-tooltip-pedido.png` (sucesso ou erro) |
 | **31.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `31-log-pais-origem-tooltip-item.png` (sucesso ou erro) |
-| **31.3** | Select no **pedido** → **BR** → confirmar | Espelhamento · Prints `31-log-pais-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **31.4** | Select no **item 1** → **DE** → confirmar | Pedido + itens = DE · Prints `31-log-pais-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **31.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento · Prints `31-log-pais-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **31.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `31-log-pais-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **31.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
 ### ETAPA 13 — PAÍS DE DESTINO (`local_de_destino`, passo 32)
@@ -333,8 +333,8 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 |-------|------|-----------------|
 | **32.1** | Hover tooltip na célula do **pedido** | Título «País de Destino» + 3 pills · Print `32-log-pais-destino-tooltip-pedido.png` (sucesso ou erro) |
 | **32.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `32-log-pais-destino-tooltip-item.png` (sucesso ou erro) |
-| **32.3** | Select no **pedido** → **DE** → confirmar | Espelhamento · Prints `32-log-pais-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **32.4** | Select no **item 1** → **AO** → confirmar | Pedido + itens = AO · Prints `32-log-pais-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **32.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento · Prints `32-log-pais-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **32.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `32-log-pais-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **32.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
 ### ETAPA 14 — AEROPORTO DE ORIGEM (`aeroporto_origem`, passo 33)
@@ -343,8 +343,8 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 |-------|------|-----------------|
 | **33.1** | Hover tooltip na célula do **pedido** | Título «Aeroporto de Origem» + 3 pills · Print `33-log-aeroporto-origem-tooltip-pedido.png` (sucesso ou erro) |
 | **33.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `33-log-aeroporto-origem-tooltip-item.png` (sucesso ou erro) |
-| **33.3** | Select no **pedido** → **GRU** → confirmar | Espelhamento · Prints `33-log-aeroporto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **33.4** | Select no **item 1** → **CGH** → confirmar | Pedido + itens = CGH · Prints `33-log-aeroporto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **33.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento · Prints `33-log-aeroporto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **33.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `33-log-aeroporto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **33.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
 ### ETAPA 15 — AEROPORTO DE DESTINO (`aeroporto_destino`, passo 34)
@@ -353,8 +353,8 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 |-------|------|-----------------|
 | **34.1** | Hover tooltip na célula do **pedido** | Título «Aeroporto de Destino» + 3 pills · Print `34-log-aeroporto-destino-tooltip-pedido.png` (sucesso ou erro) |
 | **34.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `34-log-aeroporto-destino-tooltip-item.png` (sucesso ou erro) |
-| **34.3** | Select no **pedido** → **EZE** → confirmar | Espelhamento · Prints `34-log-aeroporto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **34.4** | Select no **item 1** → **GRU** → confirmar | Pedido + itens = GRU · Prints `34-log-aeroporto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **34.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento · Prints `34-log-aeroporto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **34.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `34-log-aeroporto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **34.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
 ### ETAPA 16 — NCM (passos 35–41)

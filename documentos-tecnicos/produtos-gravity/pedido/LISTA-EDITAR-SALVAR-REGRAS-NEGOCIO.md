@@ -27,6 +27,60 @@ Regras de produto para colunas com comportamento **especial** na Lista (diferent
 
 Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md) (Incoterm, datas, referência fabricante, etc.).
 
+**Tooltips de coluna:** framework em [`LISTA-EDITAR-SALVAR-TECNICO.md` §6](./LISTA-EDITAR-SALVAR-TECNICO.md#6-tooltips-de-coluna-na-lista). As seções abaixo descrevem pills e alertas **por coluna**; títulos e matriz completas serão fechados campo a campo pelo dono.
+
+---
+
+## 0. Framework de tooltips (lista)
+
+> Vigente **2026-06-07**. Não substitui as regras de edição das seções 1–8 — define **como** a UI explica cada coluna no hover.
+
+### 01 — Tooltip linha pedido
+
+Aparece no **cabeçalho** da coluna e na **célula da linha do pedido**.
+
+| Elemento | Regra |
+|----------|--------|
+| **Título** | Sempre `{Nome da coluna} do Pedido` — ex.: *Moeda do Pedido*, *Valor Total do Pedido* |
+| **Pills** | Apenas as exigidas pela regra do campo, nesta ordem: (1) Bloqueado para edição → (2) Total/somatória → (3) Editável no pedido → (4) Aplicar em todos os itens → (5) Editável no item → (6) Alerta se divergirem → (7) Depende de importação/exportação |
+| **Aviso amarelo** | Opcional, abaixo das pills — quando editar o campo impacta outras colunas |
+
+### 02 — Tooltip linha item
+
+Aparece na **célula da linha do item** (pedido expandido).
+
+| Elemento | Regra |
+|----------|--------|
+| **Título** | Sempre `{Nome da coluna} do Item` — ex.: *Moeda do item* |
+| **Pills** | Apenas as exigidas, nesta ordem: (1) Bloqueado → (2) Editável no item → (3) Alerta se divergirem |
+| **Aviso amarelo** | Opcional — mesmo critério do pedido |
+
+### 03 — Avisos de impacto (ambos os níveis)
+
+Texto livre orientado ao operador — ex.: *«A alteração da moeda irá alterar também Valor Unitário do Item e Valor Total do Pedido/Item»*. Não substitui pill de alerta de divergência (âmbar na célula).
+
+### Mapeamento pill → linguagem do usuário
+
+| Pill (código) | Texto na UI |
+|---------------|-------------|
+| `bloqueado_edicao` / `somente_leitura` | Bloqueado para edição |
+| `valor_total_soma_mesma_moeda`, `calculado_pedido`, etc. | Total do xxx / somatória (conforme coluna) |
+| `editavel_pedido` | Editável no pedido |
+| `replica_itens` / `replica_itens_auto` | Aplicar em todos os itens |
+| `editavel_item` / `editavel_nos_itens` | Editável no item |
+| `alerta_divergencia` / `alerta_moeda_divergente` | Alerta se XX divergirem |
+| `cond_import_export` | Depende de importação ou exportação |
+| `espelhado_logistica_bidirecional` | Espelhado com itens e pedido |
+
+### Status da documentação por coluna
+
+| Coluna | Tooltips documentados neste arquivo | Alinhado ao framework 01/02 |
+|--------|-------------------------------------|------------------------------|
+| Moeda | Em migração (piloto no código) | 🟡 parcial |
+| Valor total / unitário | Em migração (piloto no código) | 🟡 parcial |
+| Logística (LOG-06) | ✅ pills definidas | 🟡 títulos `{Coluna} do Pedido/Item` pendentes |
+| Demais seções 1–8 | Regras de edição + pills pontuais | 🟡 revisão campo a campo pelo dono |
+
 ---
 
 ## 1. Nº PEDIDO e Nº ITEM
@@ -203,12 +257,13 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 
 | # | Regra |
 |---|--------|
+| **LOG-00** | EMT: o código escolhido (UN/LOCODE, ISO, IATA) pode ser **qualquer opção** do Cadastros — o critério é **salvou com sucesso** e pedido + itens exibem o **mesmo** valor espelhado. |
 | **LOG-01** | Campo existe só no model **Pedido** (sem coluna em `PedidoItem`). |
 | **LOG-02** | Linha **pedido** editável (select Cadastros). |
 | **LOG-03** | Linha **item** exibe o mesmo valor (**espelhado** com o pedido). |
 | **LOG-04** | Edição no **item** roteia PATCH para o **pedido**. |
 | **LOG-05** | **Sem** checkbox replicar e **sem** alerta de divergência. |
-| **LOG-06** | Tooltip **pedido e item** (mesmas 3 pills): «Editável no pedido» · «Editável no item» · «Espelhado com itens e pedido». Título = label da coluna (Porto de Origem, País de Origem, etc.). |
+| **LOG-06** | Tooltip **pedido**: «Editável no pedido» · «Editável no item» · «Espelhado com itens e pedido» (ordem canônica §0). **Item**: mesmas pills até revisão campo a campo. Título: `{Coluna} do Pedido` / `{Coluna} do Item` (ex.: *Porto de Origem do Pedido*). |
 
 ---
 
@@ -237,4 +292,6 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 | 2026-06-06 | NCM — NCM-01…07; sem alerta de divergência (vários NCMs por pedido é normal) |
 | 2026-06-06 | REF. IMPORTADOR / EXPORTADOR — REF-01…08; EMT passos 13–20 (mesmas regras, padrão Incoterm) |
 | 2026-06-06 | LOGÍSTICA — LOG-01…06; tooltips espelhados (sem alerta/replicar) em Porto/País/Aeroporto |
+| 2026-06-03 | LOG-00 — EMT logística valida espelhamento, não código fixo (runner opção dinâmica) |
 | 2026-06-06 | INCOTERM — INC-01…08; EMT passos 21–24 (select Cadastros + checkbox + alerta divergência) |
+| 2026-06-07 | §0 Framework tooltips (linha pedido / linha item / avisos); LOG-06 alinhado a títulos `{Coluna} do Pedido/Item` |

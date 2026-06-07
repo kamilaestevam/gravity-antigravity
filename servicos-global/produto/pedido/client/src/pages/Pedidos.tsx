@@ -120,6 +120,7 @@ import {
 } from '../shared/api'
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
+import { valorTotalItemParaLista } from '../shared/valorTotalItemLista'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { obterCampoItemComLegado } from '../../../shared/mapaPropagacaoPedidoItem'
 import {
@@ -3422,16 +3423,16 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     casasDecimais: getCasas('valor_total_pedido', 2),
     getValorEditar: (row: PedidoItem) => ({
       currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
-      amount: row.valor_total_item ?? 0,
+      amount: valorTotalItemParaLista(row) ?? 0,
     }),
     render: (row: PedidoItem) => {
       const casas = getCasas('valor_total_pedido', 2)
       const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
-      const num = Number(row.valor_total_item)
+      const num = valorTotalItemParaLista(row)
       return (
         <span className="gtv-celula-moeda">
           <span className="gtv-celula-moeda-badge">{moeda}</span>
-          {row.valor_total_item != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
+          {num != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
         </span>
       )
     },

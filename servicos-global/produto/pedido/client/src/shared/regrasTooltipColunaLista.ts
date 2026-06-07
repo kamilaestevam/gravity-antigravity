@@ -41,6 +41,7 @@ export type RegraTooltipId =
   | 'pai_logistica'
   | 'item_logistica'
   | 'dinamico_valor_total'
+  | 'dinamico_valor_unitario_item'
   | 'dinamico_qtd_inicial'
   | 'dinamico_qtd_pronta'
   | 'dinamico_saldo'
@@ -70,7 +71,6 @@ const GHOST_COBERTURA = new Set(['cobertura_cambial'])
 
 const CALCULADO_VALOR = new Set([
   'moeda_item',
-  'valor_por_unidade_item',
 ])
 const CALCULADO_QTD = new Set([
   'quantidade_total_pedido',
@@ -99,6 +99,7 @@ const ITEM_NAO_EDITAVEL = new Set([
 
 /** Colunas com rótulo dinâmico Pedido/Item quando há itens expandidos. */
 export const CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM = new Set([
+  'valor_por_unidade_item',
   'valor_total_pedido',
   'quantidade_total_pedido',
   'quantidade_pronta_itens_pedido_total',
@@ -111,6 +112,7 @@ export const CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM = new Set([
 ])
 
 const REGRA_DINAMICA_POR_CHAVE: Record<string, RegraTooltipId> = {
+  valor_por_unidade_item: 'dinamico_valor_unitario_item',
   valor_total_pedido: 'dinamico_valor_total',
   quantidade_total_pedido: 'dinamico_qtd_inicial',
   quantidade_pronta_itens_pedido_total: 'dinamico_qtd_pronta',
@@ -186,6 +188,7 @@ export function classificarRegraTooltipColuna(
     if (GHOST_DESCRICAO.has(key)) return 'item_ghost_descricao'
     if (GHOST_NCM.has(key)) return 'item_ghost_ncm'
     if (GHOST_COBERTURA.has(key)) return 'item_editavel_ghost'
+    if (key === 'valor_por_unidade_item') return 'item_editavel_padrao'
     if (key === 'valor_total_pedido' || key === 'valor_item') return 'item_editavel_valor_total'
     if (key === 'quantidade_pronta_itens_pedido_total') return 'item_editavel_qtd_pronta'
     if (key === 'quantidade_total_pedido') return 'item_editavel_quantidade_inicial'
@@ -206,9 +209,10 @@ export function classificarRegraTooltipColuna(
   if (GHOST_DESCRICAO.has(key)) return 'pai_ghost_descricao'
   if (GHOST_NCM.has(key)) return 'pai_ghost_ncm'
   if (GHOST_COBERTURA.has(key)) return 'pai_ghost_cobertura'
+  if (key === 'valor_por_unidade_item') return 'dinamico_valor_unitario_item'
   if (key === 'valor_total_pedido') {
     if (opts?.modoDinamicoPedidoItem) return 'dinamico_valor_total'
-    return 'pai_valor_item_bloqueado'
+    return 'pai_calculado_valor'
   }
   if (key === 'moeda_pedido') return 'pai_moeda_pedido'
   if (CALCULADO_VALOR.has(key)) return 'pai_calculado_valor'

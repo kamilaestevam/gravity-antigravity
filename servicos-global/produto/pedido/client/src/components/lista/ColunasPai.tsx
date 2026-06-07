@@ -916,10 +916,20 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     align: 'left',
     casasDecimais: getCasas('valor_total_pedido', 2),
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => (
-      // Coluna «Valor do Item» — valor por item; linha do pedido não soma nem exibe total.
-      renderAgregado(null, row.moeda_item_divergente, t('pedido.coluna_pai.moedas_divergentes'))
-    ),
+    render: (_val: unknown, row: Pedido) => {
+      const casas = getCasas('valor_total_pedido', 2)
+      const moeda = row.moeda_pedido
+      const total = row.valor_total_pedido
+      const num = total != null ? Number(total) : null
+      const valorNode =
+        num != null && !isNaN(num) ? (
+          <span className="gtv-celula-moeda">
+            {moeda ? <span className={classeMoedaBadge(moeda)}>{moeda}</span> : null}
+            {fmtQuantidade(num, casas)}
+          </span>
+        ) : null
+      return renderAgregado(valorNode, row.moeda_item_divergente, t('pedido.coluna_pai.moedas_divergentes'))
+    },
   },
   {
     key: 'moeda_pedido',

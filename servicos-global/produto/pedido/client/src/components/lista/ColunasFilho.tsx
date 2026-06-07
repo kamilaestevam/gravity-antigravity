@@ -14,6 +14,7 @@ import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global
 import type { Pedido, PedidoItem, ColunaUsuario } from '../../shared/types'
 import { fmtQuantidade, fmtData, classeMoedaBadge } from '../../shared/types'
 import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
+import { valorTotalItemParaLista } from '../../shared/valorTotalItemLista'
 import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel, type OpcoesUnidadesColunas } from './ColunasPai'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
@@ -1877,15 +1878,15 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     casasDecimais: 2,
     getValorEditar: (row: PedidoItem) => ({
       currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
-      amount: row.valor_total_item ?? 0,
+      amount: valorTotalItemParaLista(row) ?? 0,
     }),
     render: (row: PedidoItem) => {
       const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
-      const num = Number(row.valor_total_item)
+      const num = valorTotalItemParaLista(row)
       return (
         <span className="gtv-celula-moeda">
           <span className={classeMoedaBadge(moeda)}>{moeda}</span>
-          {row.valor_total_item != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+          {num != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
     },

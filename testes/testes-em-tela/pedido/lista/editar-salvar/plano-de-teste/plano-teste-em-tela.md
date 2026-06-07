@@ -1,6 +1,6 @@
 # Plano de Teste em Tela — Pedido / Lista / Editar e Salvar
 
-**ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001  
+**ID:** TST-EMT-000002  
 **Data:** 2026-06-06  
 **Versão:** 4.2  
 **Criticidade:** alta  
@@ -51,7 +51,7 @@
 | **QTD. PRONTA DO PEDIDO/ITEM** | 42–48 | `run-lista-editar-salvar.ts` |
 | **QTD. INICIAL DO PEDIDO/ITEM** | 49–55 | `run-lista-editar-salvar.ts` |
 | **MOEDA DO PEDIDO/ITEM** | 56–61 | `run-lista-editar-salvar.ts` |
-| **VALOR DO ITEM** | 62–66 | `run-lista-editar-salvar.ts` |
+| **VALOR TOTAL DO PEDIDO/ITEM** | 62–66 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -416,7 +416,7 @@ Coluna **`moeda_pedido`** — select do Cadastros com checkbox **«Aplicar em to
 | **60** | Select no **item 1**, sigla C → **Confirmar** | Item isolado; pedido e demais itens mantêm valor · Print `60-moeda-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **61** | Inspecionar coluna do **pedido** | Alerta **«Moedas divergentes entre itens»** visível · Print `61-moeda-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 20 — VALOR DO ITEM (passos 62–66)
+### ETAPA 20 — VALOR TOTAL DO PEDIDO/ITEM (passos 62–66)
 
 Coluna dinâmica **`valor_total_pedido`** — pedido **bloqueado** (`—` / alerta se moedas divergirem); **item editável** via popover **moeda + valor** (`.gtv-edit-moeda-valor`).
 
@@ -473,5 +473,5 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | QTD. PRONTA DO PEDIDO/ITEM | 42–48 | 7 |
 | QTD. INICIAL DO PEDIDO/ITEM | 49–55 | 7 |
 | MOEDA DO PEDIDO/ITEM | 56–61 | 6 |
-| VALOR DO ITEM | 62–66 | 5 |
+| VALOR TOTAL DO PEDIDO/ITEM | 62–66 | 5 |
 | **Total runner principal** | | **~88 passos / 117 casos** |

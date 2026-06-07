@@ -56,6 +56,9 @@ const PILL_DEFS: Record<RegraPillId, PillDef> = {
   anexo:             { Icon: Paperclip,        color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   coluna_personalizada: { Icon: Sparkle,      color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
   casas_decimais_config: { Icon: Gear,        color: '#c084fc', bg: 'rgba(192,132,252,0.12)' },
+  valor_unitario_sem_somatoria: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.10)' },
+  valor_total_soma_mesma_moeda: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
+  editavel_nos_itens:  { Icon: PencilSimple, color: '#60a5fa', bg: 'rgba(96,165,250,0.08)' },
 }
 
 function RegraPill({

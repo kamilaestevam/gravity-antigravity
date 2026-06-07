@@ -141,10 +141,11 @@ import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { renderRotuloCadastro } from '../shared/useLogisticaCadastrosPedido'
 import {
   CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO,
+  CHAVES_TOOLTIP_INLINE_LISTA,
   enriquecerColunaBloqueadaInlinePedido,
   enriquecerColunaComRegraTooltip,
   enriquecerMapaColunasFilhoComRegraTooltip,
-  wrapCelulaMoedaItemLista,
+  enriquecerMapaFilhoTooltipInline,
 } from '../shared/buildTooltipRegraLista'
 import { TooltipRegrasColuna } from '../shared/TooltipRegrasColuna'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
@@ -3533,7 +3534,6 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   moeda_pedido: {
     editavel: true,
     campo: 'moeda_item',
-    tooltipInline: true,
     getValorEditar: (row: PedidoItem) => ({
       currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
       amount: 0,
@@ -3541,13 +3541,10 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     render: (row: PedidoItem) => {
       const moeda = row.moeda_item
       if (!moeda) return <span>{'—'}</span>
-      const aviso = t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' })
-      return wrapCelulaMoedaItemLista(
+      return (
         <span className="gtv-celula-moeda">
           <span className="gtv-celula-moeda-badge">{moeda}</span>
-        </span>,
-        t,
-        aviso || undefined,
+        </span>
       )
     },
   },
@@ -4713,17 +4710,18 @@ export default function Pedidos() {
       }
     }
     const merged = { ...base, ...custom }
-    // SSOT título item na moeda — custom do usuário não pode apagar tooltipTitulo do mapa.
     if (base.moeda_pedido) {
       merged.moeda_pedido = {
         ...base.moeda_pedido,
         ...custom.moeda_pedido,
         campo: 'moeda_item',
         render: base.moeda_pedido.render,
-        tooltipInline: true,
       }
     }
-    return enriquecerMapaColunasFilhoComRegraTooltip(merged, t)
+    const comRegra = enriquecerMapaColunasFilhoComRegraTooltip(merged, t)
+    return enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
+      moeda_pedido: t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined,
+    })
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, opcoesExportadoresImp, workspacesMap])
   const {
     prefs: cardPrefs,
@@ -5189,10 +5187,6 @@ export default function Pedidos() {
           'pai',
           { modoDinamicoPedidoItem: true },
         )
-      }
-
-      if (col.key === 'moeda_pedido') {
-        return enriquecerColunaComRegraTooltip(col, t, 'pai')
       }
 
       return col

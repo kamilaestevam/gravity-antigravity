@@ -13,6 +13,25 @@ import {
 } from './regrasTooltipColunaLista'
 import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipColunaLista'
 import { TooltipListaColuna } from './TooltipListaColuna'
+import { TooltipRegrasColuna } from './TooltipRegrasColuna'
+
+/** Render original da célula — preservado para re-aplicar TooltipListaColuna sem duplo wrap. */
+type ColunaComRenderListaBase<T> = GTColuna<T> & {
+  renderListaBase?: GTColuna<T>['render']
+}
+
+/** Remove metadados que o núcleo usa para wrapTooltipRegraCelula — célula usa só TooltipListaColuna. */
+function semMetadadosTooltipCelulaNucleo<T>(col: GTColuna<T>): GTColuna<T> {
+  const {
+    tooltipTituloItem: _ti,
+    tooltipDescricaoItem: _di,
+    tooltipTituloCelula: _tc,
+    tooltipDescricaoCelula: _dc,
+    tooltipNivelCelula: _nc,
+    ...rest
+  } = col
+  return rest
+}
 
 type OpcoesMontarTooltipPills = {
   modoDinamicoPedidoItem?: boolean
@@ -53,6 +72,17 @@ export function tituloTooltipCelulaLista(
   const ehItem = isLinhaItemLista(row)
   return tituloTooltipCelulaPorColuna(t, key, ehItem)
     ?? (ehItem && tituloItem ? tituloItem : tituloPedido)
+}
+
+/** Título por coluna e nível — SSOT para mapa filho e wrap de célula (não usa heurística de row). */
+export function tituloTooltipListaPorNivel(
+  t: TFunction,
+  key: string,
+  nivel: NivelColunaLista,
+): string {
+  const isFilho = nivel === 'item'
+  return tituloTooltipCelulaPorColuna(t, key, isFilho)
+    ?? tituloTooltipColuna(t, key, isFilho ? 'item' : 'pai')
 }
 
 function tituloTooltipCelulaPorColuna(
@@ -105,35 +135,41 @@ function nivelParaAvisoImpacto(
   return nivel
 }
 
+function pillsResolucaoLista(
+  t: TFunction,
+  key: string,
+  nivel: NivelColunaLista,
+  opts?: OpcoesMontarTooltipPills,
+) {
+  const res = obterPillsTooltipColuna(key, {
+    modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+    colunaPersonalizada: opts?.colunaPersonalizada,
+  })
+  const nivelBloco = opts?.somenteBloco === 'item' ? 'item' : opts?.somenteBloco === 'pedido' ? 'pai' : nivel
+  const pills = opts?.somenteBloco === 'item'
+    ? res.item
+    : opts?.somenteBloco === 'pedido'
+      ? res.pedido
+      : (nivel === 'item' ? res.item : res.pedido)
+  return {
+    res,
+    pills,
+    nivelBloco,
+    avisoImpacto: avisoImpactoPorColuna(t, key, nivelBloco, opts?.avisoImpactoColuna),
+    descricaoExtra: opts?.descricaoUsuario?.trim() || undefined,
+  }
+}
+
+/** Corpo de pills (cabeçalho da coluna — núcleo ainda monta o shell). */
 function montarTooltipPills(
   t: TFunction,
   key: string,
   opts?: OpcoesMontarTooltipPills,
   nivel: NivelColunaLista = 'pai',
 ): React.ReactNode {
-  const res = obterPillsTooltipColuna(key, {
-    modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-    colunaPersonalizada: opts?.colunaPersonalizada,
-  })
+  const { res, pills, nivelBloco, avisoImpacto, descricaoExtra } = pillsResolucaoLista(t, key, nivel, opts)
 
-  if (opts?.somenteBloco) {
-    const nivelBloco = opts.somenteBloco === 'item' ? 'item' : 'pai'
-    const pills = opts.somenteBloco === 'item' ? res.item : res.pedido
-    return (
-      <TooltipRegrasColuna
-        t={t}
-        pillsPedido={pills}
-        linkFormula={res.linkFormula}
-        ghostSemCheckbox={res.ghostSemCheckbox && nivelBloco === 'pai'}
-        numeroUnicoOrg={res.numeroUnicoOrg && nivelBloco === 'pai'}
-        aviso={opts?.aviso}
-        avisoImpacto={avisoImpactoPorColuna(t, key, nivelBloco, opts?.avisoImpactoColuna)}
-        descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
-      />
-    )
-  }
-
-  if (res.dual) {
+  if (res.dual && !opts?.somenteBloco) {
     return (
       <TooltipRegrasColuna
         t={t}
@@ -145,27 +181,27 @@ function montarTooltipPills(
         numeroUnicoOrg={res.numeroUnicoOrg}
         aviso={opts?.aviso}
         avisoImpacto={avisoImpactoPorColuna(t, key, nivelParaAvisoImpacto(opts, nivel), opts?.avisoImpactoColuna)}
-        descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
+        descricaoExtra={descricaoExtra}
       />
     )
   }
 
-  const pills = nivel === 'item' ? res.item : res.pedido
   return (
     <TooltipRegrasColuna
       t={t}
       pillsPedido={pills}
       linkFormula={res.linkFormula}
-      ghostSemCheckbox={res.ghostSemCheckbox && nivel === 'pai'}
-      numeroUnicoOrg={res.numeroUnicoOrg && nivel === 'pai'}
+      ghostSemCheckbox={res.ghostSemCheckbox && nivelBloco === 'pai'}
+      numeroUnicoOrg={res.numeroUnicoOrg && nivelBloco === 'pai'}
       aviso={opts?.aviso}
-      avisoImpacto={avisoImpactoPorColuna(t, key, nivel, opts?.avisoImpactoColuna)}
-      descricaoExtra={opts?.descricaoUsuario?.trim() || undefined}
+      avisoImpacto={avisoImpacto}
+      descricaoExtra={descricaoExtra}
     />
   )
 }
 
-const CHAVES_TITULO_CELULA_PILOTO = new Set([
+/** Colunas com tooltip montada pelo Pedido (`tooltipInline`) — núcleo não envolve a célula. */
+export const CHAVES_TOOLTIP_INLINE_LISTA = new Set([
   'moeda_pedido',
   'valor_por_unidade_item',
   'valor_total_pedido',
@@ -175,6 +211,8 @@ const CHAVES_TITULO_CELULA_PILOTO = new Set([
   'quantidade_cancelada_total_pedido',
   'saldo_itens_do_pedido',
 ])
+
+const CHAVES_TITULO_CELULA_PILOTO = CHAVES_TOOLTIP_INLINE_LISTA
 
 function usaTooltipPorNivelColuna(key: string, dual: boolean): boolean {
   return dual || CHAVES_TITULO_CELULA_PILOTO.has(key)
@@ -257,7 +295,30 @@ export function enriquecerColunaComRegraTooltip<T>(
     somenteBloco: usaPorNivel ? 'item' : undefined,
   }, 'item')
 
-  return {
+  const tooltipInterativo = regraTooltipEhInterativa(regraId) || col.tooltipInterativo
+  const tooltipDescricaoCabecalho = usaPorNivel
+    ? montarTooltipPills(t, key, { ...optsMontar, somenteBloco: 'pedido' })
+    : montarTooltipPills(t, key, optsMontar)
+
+  // Colunas piloto: célula = TooltipListaColuna; cabeçalho = tooltipTitulo + tooltipDescricao apenas.
+  if (CHAVES_TOOLTIP_INLINE_LISTA.has(key)) {
+    return aplicarRenderTooltipInlineLista(
+      col,
+      {
+        ...col,
+        tooltipTitulo: titulo,
+        tooltipDescricao: tooltipDescricaoCabecalho,
+        tooltipInterativo,
+      },
+      t,
+      {
+        modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+        cursorBloqueado: col.editavel === false,
+      },
+    )
+  }
+
+  const enriched: GTColuna<T> = {
     ...col,
     tooltipTitulo: titulo,
     tooltipTituloItem: tituloItem,
@@ -265,9 +326,7 @@ export function enriquecerColunaComRegraTooltip<T>(
       ? { tooltipNivelCelula: (row: T) => (isLinhaItemLista(row) ? 'item' : 'pedido') }
       : {}),
     tooltipTituloCelula: (row) => tituloTooltipCelulaLista(t, key, row, titulo, tituloItem),
-    tooltipDescricao: usaPorNivel
-      ? montarTooltipPills(t, key, { ...optsMontar, somenteBloco: 'pedido' })
-      : montarTooltipPills(t, key, optsMontar),
+    tooltipDescricao: tooltipDescricaoCabecalho,
     tooltipDescricaoItem: tooltipCelulaItem,
     tooltipDescricaoCelula: (row: T) => {
       const legado = col.tooltipDescricaoCelula?.(row)
@@ -288,8 +347,10 @@ export function enriquecerColunaComRegraTooltip<T>(
       }
       return undefined
     },
-    tooltipInterativo: regraTooltipEhInterativa(regraId) || col.tooltipInterativo,
+    tooltipInterativo,
   }
+
+  return enriched
 }
 
 export function enriquecerColunasComRegraTooltip<T>(
@@ -335,68 +396,105 @@ export function enriquecerMapaColunasFilhoComRegraTooltip<C>(
   return out
 }
 
-/** Tooltip inline na linha do pedido (célula bloqueada — padrão Tipo de Operação / Workspace no item). */
-export function wrapCelulaPedidoBloqueadoLista(
+export type OpcoesWrapCelulaListaRegras = {
+  key: string
+  nivel: NivelColunaLista
+  titulo: string
+  avisoImpactoColuna?: string
+  modoDinamicoPedidoItem?: boolean
+  colunaPersonalizada?: boolean
+  descricaoUsuario?: string
+  interativo?: boolean
+  cursorBloqueado?: boolean
+}
+
+/** SSOT — tooltip completa de célula na lista (título + pills + aviso). */
+export function wrapCelulaListaRegras(
   conteudo: React.ReactNode,
   t: TFunction,
-  titulo: string,
-  key: string,
-  opts?: Pick<OpcoesMontarTooltipPills, 'avisoImpactoColuna' | 'modoDinamicoPedidoItem'> & { interativo?: boolean },
+  opts: OpcoesWrapCelulaListaRegras,
 ): React.ReactElement {
+  const somenteBloco = opts.nivel === 'item' ? 'item' as const : 'pedido' as const
+  const { res, pills, nivelBloco, avisoImpacto, descricaoExtra } = pillsResolucaoLista(
+    t,
+    opts.key,
+    opts.nivel,
+    {
+      somenteBloco,
+      avisoImpactoColuna: opts.avisoImpactoColuna,
+      modoDinamicoPedidoItem: opts.modoDinamicoPedidoItem,
+      colunaPersonalizada: opts.colunaPersonalizada,
+      descricaoUsuario: opts.descricaoUsuario,
+    },
+  )
+
+  const titulo = CHAVES_TITULO_CELULA_PILOTO.has(opts.key)
+    ? tituloTooltipListaPorNivel(t, opts.key, opts.nivel)
+    : opts.titulo
+
   return (
-    <TooltipGlobal
+    <TooltipListaColuna
       titulo={titulo}
-      descricao={montarTooltipPills(t, key, {
-        somenteBloco: 'pedido',
-        avisoImpactoColuna: opts?.avisoImpactoColuna,
-        modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-      }, 'pai')}
-      interativo={opts?.interativo}
-      cursorBloqueado
+      t={t}
+      pills={pills}
+      linkFormula={res.linkFormula}
+      ghostSemCheckbox={res.ghostSemCheckbox && nivelBloco === 'pai'}
+      numeroUnicoOrg={res.numeroUnicoOrg && nivelBloco === 'pai'}
+      avisoImpacto={avisoImpacto}
+      descricaoExtra={descricaoExtra}
+      interativo={opts.interativo}
+      cursorBloqueado={opts.cursorBloqueado}
     >
-      <span
-        style={{
-          display: 'flex',
-          flex: 1,
-          alignSelf: 'stretch',
-          alignItems: 'center',
-          justifyContent: 'inherit',
-          minWidth: 0,
-          width: '100%',
-          cursor: 'not-allowed',
-        }}
-      >
-        {conteudo}
-      </span>
-    </TooltipGlobal>
+      {conteudo}
+    </TooltipListaColuna>
   )
 }
 
-/** Coluna pai bloqueada: render com tooltip inline + flag para o núcleo não duplicar wrap. */
+/** Coluna com tooltip montada no render — núcleo não aplica segundo wrap (`tooltipInline`). */
+export function aplicarRenderTooltipInlineLista<T>(
+  col: GTColuna<T>,
+  enriched: GTColuna<T>,
+  t: TFunction,
+  opts?: Pick<OpcoesEnriquecerTooltip, 'modoDinamicoPedidoItem'> & { cursorBloqueado?: boolean },
+): GTColuna<T> {
+  const colExt = col as ColunaComRenderListaBase<T>
+  const renderBase = colExt.renderListaBase ?? enriched.render ?? col.render
+  const key = String(col.key)
+  const bloqueado = opts?.cursorBloqueado ?? false
+  const interativo = enriched.tooltipInterativo
+
+  const colInline: ColunaComRenderListaBase<T> = {
+    ...semMetadadosTooltipCelulaNucleo(enriched),
+    tooltipInline: true,
+    renderListaBase: renderBase,
+    render: (val: unknown, row: T) => {
+      const nivel: NivelColunaLista = isLinhaItemLista(row) ? 'item' : 'pai'
+      const conteudo = renderBase ? renderBase(val, row) : null
+      return wrapCelulaListaRegras(conteudo, t, {
+        key,
+        nivel,
+        titulo: tituloTooltipListaPorNivel(t, key, nivel),
+        avisoImpactoColuna: col.avisoImpacto,
+        modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
+        interativo,
+        cursorBloqueado: bloqueado,
+      })
+    },
+  }
+  return colInline
+}
+
+/** @deprecated Use aplicarRenderTooltipInlineLista */
 export function aplicarRenderTooltipInlinePedido<T>(
   col: GTColuna<T>,
   enriched: GTColuna<T>,
   t: TFunction,
   opts?: Pick<OpcoesEnriquecerTooltip, 'modoDinamicoPedidoItem'>,
 ): GTColuna<T> {
-  const renderBase = enriched.render ?? col.render
-  const titulo = enriched.tooltipTitulo?.trim() || col.label
-  const key = String(col.key)
-  return {
-    ...enriched,
-    tooltipInline: true,
-    render: (val: unknown, row: T) => wrapCelulaPedidoBloqueadoLista(
-      renderBase ? renderBase(val, row) : null,
-      t,
-      titulo,
-      key,
-      {
-        avisoImpactoColuna: col.avisoImpacto,
-        modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-        interativo: enriched.tooltipInterativo,
-      },
-    ),
-  }
+  return aplicarRenderTooltipInlineLista(col, enriched, t, {
+    ...opts,
+    cursorBloqueado: true,
+  })
 }
 
 /** Colunas calculadas/bloqueadas na linha do pedido — tooltip inline (padrão Qtd. Inicial). */
@@ -410,13 +508,44 @@ export const CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO = new Set([
   'saldo_itens_do_pedido',
 ])
 
+/** Aplica `TooltipListaColuna` no render de entradas do mapaColunasFilho (linha item). */
+export function enriquecerMapaFilhoTooltipInline<C>(
+  mapa: Record<string, GTMapaColunasFilho<C>>,
+  t: TFunction,
+  keys: Iterable<string> = CHAVES_TOOLTIP_INLINE_LISTA,
+  avisosPorChave?: Record<string, string | undefined>,
+): Record<string, GTMapaColunasFilho<C>> {
+  const out: Record<string, GTMapaColunasFilho<C>> = { ...mapa }
+  for (const key of keys) {
+    const entry = out[key]
+    if (!entry?.render) continue
+    const renderBase = entry.render
+    const aviso = avisosPorChave?.[key]
+    out[key] = {
+      ...entry,
+      tooltipInline: true,
+      render: (row: C) => {
+        const conteudo = renderBase(row)
+        const titulo = tituloTooltipListaPorNivel(t, key, 'item')
+        return wrapCelulaListaRegras(conteudo, t, {
+          key,
+          nivel: 'item',
+          titulo,
+          avisoImpactoColuna: aviso,
+        })
+      },
+    }
+  }
+  return out
+}
+
 /** Enriquece coluna pai bloqueada + render inline com pills e cursor not-allowed. */
 export function enriquecerColunaBloqueadaInlinePedido<T>(
   col: GTColuna<T>,
   t: TFunction,
   opts?: { label?: string; modoDinamicoPedidoItem?: boolean },
 ): GTColuna<T> {
-  const enriched = enriquecerColunaComRegraTooltip(
+  return enriquecerColunaComRegraTooltip(
     {
       ...col,
       ...(opts?.label ? { label: opts.label } : {}),
@@ -425,34 +554,6 @@ export function enriquecerColunaBloqueadaInlinePedido<T>(
     t,
     'pai',
     opts?.modoDinamicoPedidoItem ? { modoDinamicoPedidoItem: true } : undefined,
-  )
-  return aplicarRenderTooltipInlinePedido(col, enriched, t, {
-    modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-  })
-}
-
-/** Tooltip da moeda na linha item — título e pills fixos (bypass do resolver do núcleo). */
-export function montarTooltipMoedaItemLista(t: TFunction, avisoImpactoColuna?: string): React.ReactNode {
-  return montarTooltipPills(t, 'moeda_pedido', {
-    somenteBloco: 'item',
-    avisoImpactoColuna,
-  }, 'item')
-}
-
-/** Linha item — moeda com TooltipGlobal inline; núcleo não aplica wrap (tooltipInline no mapa). */
-export function wrapCelulaMoedaItemLista(
-  conteudo: React.ReactNode,
-  t: TFunction,
-  avisoImpactoColuna?: string,
-): React.ReactElement {
-  const titulo = t('pedido.coluna_pai.moeda_item_titulo', { defaultValue: 'Moeda do Item' })
-  return (
-    <TooltipGlobal
-      titulo={titulo}
-      descricao={montarTooltipMoedaItemLista(t, avisoImpactoColuna)}
-    >
-      <span style={{ display: 'contents' }}>{conteudo}</span>
-    </TooltipGlobal>
   )
 }
 

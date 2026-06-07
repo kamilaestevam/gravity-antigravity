@@ -79,7 +79,7 @@ Texto livre orientado ao operador — ex.: *«A alteração da moeda irá altera
 | Coluna | Tooltips documentados neste arquivo | Alinhado ao framework 01/02 |
 |--------|-------------------------------------|------------------------------|
 | Moeda | ✅ MND-01…08 + tooltips §0 | ✅ |
-| Valor total (`valor_total_pedido`) | ✅ VLR-01…09 + tooltips §0 | ✅ |
+| Valor total (`valor_total_pedido`) | ✅ VLR-01…10 + tooltips §0 | ✅ |
 | Valor unitário | Em migração (piloto no código) | 🟡 parcial |
 | Logística (LOG-06) | ✅ pills definidas | 🟡 títulos `{Coluna} do Pedido/Item` pendentes |
 | Demais seções 1–8 | Regras de edição + pills pontuais | 🟡 revisão campo a campo pelo dono |
@@ -325,6 +325,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | **VLR-07** | **Alerta âmbar** na célula do **pedido** quando itens têm moedas divergentes no valor (`moeda_item_divergente`) — *Moedas divergentes entre itens*. |
 | **VLR-08** | **Aviso amarelo** no tooltip **pedido e item**: *A alteração da moeda aqui irá alterar também Moeda do Pedido/Item e Valor Unitário do Item* (`valor_total_item_impacto_moeda_edicao`). |
 | **VLR-09** | Alterar moeda no popover do item propaga impacto em `moeda_item`, `valor_por_unidade_item` e agregados (sincronização local pós-save). |
+| **VLR-10** | Sair da Lista e voltar — valores e moedas salvos nos itens **persistem** na grade (passo 71 EMT). |
 
 ### Tooltips (framework §0)
 
@@ -336,7 +337,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `PILLS_PEDIDO_VALOR_TOTAL` / `PILLS_ITEM_VALOR_TOTAL` · `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` · `enriquecerColunaBloqueadaInlinePedido` em `buildTooltipRegraLista.tsx`.
 
-**EMT:** passos 62–67 em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 62–71 (ordem exata regras 01–08) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -386,4 +387,4 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | 2026-06-06 | INCOTERM — INC-01…08; EMT passos 21–24 (select Cadastros + checkbox + alerta divergência) |
 | 2026-06-07 | §0 Framework tooltips (linha pedido / linha item / avisos); LOG-06 alinhado a títulos `{Coluna} do Pedido/Item` |
 | 2026-06-07 | MOEDA — MND-01…08; tooltips pedido/item + aviso impacto; pills `editavel_pedido` → `replica_itens` → `editavel_item` / item `editavel_item` |
-| 2026-06-08 | VALOR TOTAL — VLR-01…09; pedido bloqueado + soma; item popover; pills `editavel_nos_itens`; EMT passos 62–67 |
+| 2026-06-08 | VALOR TOTAL — VLR-01…10; pedido bloqueado + soma; item popover; pills `editavel_nos_itens`; EMT passos 62–71 (ordem 01–08) |

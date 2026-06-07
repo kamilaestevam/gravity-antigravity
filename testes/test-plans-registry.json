@@ -991,7 +991,7 @@
       "planoFile": "testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md",
       "specFile": "testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts",
       "componenteFile": "servicos-global/produto/pedido/client/src/pages/Pedidos.tsx",
-      "casosTotal": 97,
+      "casosTotal": 101,
       "coberturaPercentual": 0,
       "status": "aguardando_aprovacao_dono",
       "criadoEm": "2026-06-02T00:00:00Z",

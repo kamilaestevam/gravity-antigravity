@@ -52,7 +52,7 @@
 | **QTD. PRONTA DO PEDIDO/ITEM** | 42–48 | `run-lista-editar-salvar.ts` |
 | **QTD. INICIAL DO PEDIDO/ITEM** | 49–55 | `run-lista-editar-salvar.ts` |
 | **MOEDA DO PEDIDO/ITEM** | 56–61 | `run-lista-editar-salvar.ts` |
-| **VALOR TOTAL DO PEDIDO/ITEM** | 62–67 | `run-lista-editar-salvar.ts` |
+| **VALOR TOTAL DO PEDIDO/ITEM** | 62–71 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -174,15 +174,19 @@
 | 60 | `60-moeda-editar-item-isolado-selecao.png` | Select no item 1 |
 | | `60-moeda-editar-item-isolado-resultado.png` | Item isolado; pedido mantém valor |
 | 61 | `61-moeda-alerta-divergencia-resultado.png` | Alerta «Moedas divergentes entre itens» na coluna do pedido |
-| 62 | `62-valor-tooltip-pedido.png` | Tooltip pedido — Valor total do pedido (bloqueado + soma + editável nos itens + alerta + aviso moeda) |
-| | `63-valor-tooltip-item.png` | Tooltip item — Valor Total do Item (editável + fórmula + aviso moeda) |
-| 64 | `64-valor-pedido-bloqueado-resultado.png` | Célula do pedido bloqueada (`—` / cursor `not-allowed`) |
-| 65 | `65-valor-item-incluir-selecao.png` | Popover moeda+valor no item 1 — incluir |
+| 62 | `62-valor-pedido-nao-edita-resultado.png` | **01** — Pedido não editável (clicar não abre popover) |
+| 63 | `63-valor-pedido-cursor-bloqueado.png` | **02** — Cursor `not-allowed` no hover do pedido |
+| 64 | `64-valor-tooltip-pedido.png` | **03** — Tooltip pedido (bloqueado + soma + editável nos itens + alerta + aviso moeda) |
+| 65 | `65-valor-item-incluir-selecao.png` | **04** — Item vazio: incluir valor + moeda qualquer |
 | | `65-valor-item-incluir-resultado.png` | Valor e moeda salvos no item |
-| 66 | `66-valor-item-editar-selecao.png` | Popover exibe valor/moeda originais; editar item 1 |
-| | `66-valor-item-editar-resultado.png` | Valor editado e moeda persistidos |
-| 67 | `67-valor-item2-moeda-divergente-selecao.png` | Item 2 com moeda distinta do item 1 |
-| | `67-valor-alerta-divergencia-resultado.png` | Alerta «Moedas divergentes entre itens» na coluna Valor do pedido |
+| 66 | `66-valor-item-formula-unitario-qtd-resultado.png` | **05** — Grade: valor total = unitário × qtd inicial |
+| 67 | `67-valor-item-popover-originais.png` | **04** — Popover exibe valor e moeda originais |
+| 68 | `68-valor-item-editar-selecao.png` | **05** — Editar novo valor e moeda |
+| | `68-valor-item-editar-resultado.png` | Valor editado persistido |
+| 69 | `69-valor-item2-moeda-divergente-selecao.png` | **06** — Item 2 com moeda distinta |
+| | `69-valor-alerta-divergencia-resultado.png` | Alerta «Moedas divergentes entre itens» na coluna Valor do pedido |
+| 70 | `70-valor-tooltip-item.png` | **07** — Tooltip item (editável + fórmula + aviso moeda) |
+| 71 | `71-valor-persistencia-apos-navegar-resultado.png` | **08** — Sair da lista, voltar — dados salvos persistem |
 | 99 | `99-erro.png` | Só se falhar |
 
 Viewport: **1440×900**
@@ -427,20 +431,24 @@ Coluna **`moeda_pedido`** — select do Cadastros com checkbox **«Aplicar em to
 | **60** | Select no **item 1**, sigla C → **Confirmar** | Item isolado; pedido e demais itens mantêm valor · Print `60-moeda-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **61** | Inspecionar coluna do **pedido** | Alerta **«Moedas divergentes entre itens»** visível · Print `61-moeda-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 21 — VALOR TOTAL DO PEDIDO/ITEM (passos 62–67)
+### ETAPA 21 — VALOR TOTAL DO PEDIDO/ITEM (passos 62–71)
 
-Coluna dinâmica **`valor_total_pedido`** — pedido **bloqueado** (cursor `not-allowed`, `—` ou soma na mesma moeda; alerta âmbar se moedas divergirem); **item editável** via popover **moeda + valor** (`.gtv-edit-moeda-valor`). Valor preenchido do item segue **Valor unitário × Qtd. Inicial** (pill na tooltip).
+Coluna dinâmica **`valor_total_pedido`**. Passos **62, 63, 64…** seguem a **ordem exata** das regras **01–08** do dono (numeração contínua após o passo 61).
 
-| Passo | Ação | APROVADO quando |
-|-------|------|-----------------|
-| **62** | Hover tooltip na célula **Valor** do **pedido** | Título «Valor total do pedido» + pills Bloqueado, Total do Pedido (soma mesma moeda), Editável nos itens, Alerta moeda divergente + aviso de impacto na moeda · Print `62-valor-tooltip-pedido.png` (sucesso ou erro) |
-| **63** | Hover tooltip na célula **Valor** do **item 1** | Título «Valor Total do Item» + pills Editável nos itens, fórmula valor total + aviso de impacto na moeda · Print `63-valor-tooltip-item.png` (sucesso ou erro) |
-| **64** | Inspecionar célula do **pedido** (sem abrir popover) | Célula bloqueada ou `—` e cursor `not-allowed` · Print `64-valor-pedido-bloqueado-resultado.png` (sucesso ou erro) |
-| **65** | No **item 1** vazio: incluir valor **1.500,50** + moeda **EUR** → confirmar | Salva com sucesso — valor e moeda exatos na grade · Prints `65-valor-item-incluir-selecao` · `…-resultado` (sucesso ou erro) |
-| **66** | Abrir popover do **item 1** preenchido | Exibe valor **1.500,50** e moeda **EUR** originais; editar para **2.750,00** + **EUR** → confirmar · Prints `66-valor-item-editar-selecao` · `…-resultado` (sucesso ou erro) |
-| **67** | No **item 2**: valor **1.000,00** + moeda distinta do item 1 → confirmar | Alerta **«Moedas divergentes entre itens»** na coluna Valor do pedido · Prints `67-valor-item2-moeda-divergente-selecao` · `67-valor-alerta-divergencia-resultado` (sucesso ou erro) |
+| Passo | Regra | Ação | APROVADO quando |
+|-------|-------|------|-----------------|
+| **62** | **01** | **Clicar** na célula **Valor** do **pedido** | Popover **não** abre — pedido não editável · Print `62-valor-pedido-nao-edita-resultado.png` |
+| **63** | **02** | Hover na célula **Valor** do **pedido** | Cursor `not-allowed` · Print `63-valor-pedido-cursor-bloqueado.png` |
+| **64** | **03** | Hover tooltip na célula **Valor** do **pedido** | Título «Valor total do pedido» + pills Bloqueado, Total do Pedido (soma mesma moeda), Editável nos itens, Alerta moeda divergente + aviso *«A alteração da moeda aqui irá alterar também Moeda do Pedido/Item e Valor Unitário do Item»* · Print `64-valor-tooltip-pedido.png` |
+| **65** | **04** | No **item 1** vazio: incluir valor + **qualquer** moeda do Cadastros → confirmar | Salva com sucesso — valor e moeda exatos na grade · Prints `65-valor-item-incluir-selecao` · `…-resultado` |
+| **66** | **05** | Inspecionar **item 1** preenchido na grade | Valor total exibido = **Valor unitário do item × Qtd. Inicial do item** · Print `66-valor-item-formula-unitario-qtd-resultado.png` |
+| **67** | **04** | Abrir popover do **item 1** preenchido (sem editar) | Exibe valor e moeda **originais** do passo 65 · Print `67-valor-item-popover-originais.png` |
+| **68** | **05** | No popover: editar para **2.750,00** + mesma moeda do passo 65 → confirmar | Salva com sucesso · Prints `68-valor-item-editar-selecao` · `…-resultado` |
+| **69** | **06** | No **item 2**: valor **1.000,00** + moeda **distinta** do item 1 → confirmar | Alerta **«Moedas divergentes entre itens»** na coluna Valor do pedido · Prints `69-valor-item2-moeda-divergente-selecao` · `69-valor-alerta-divergencia-resultado` |
+| **70** | **07** | Hover tooltip na célula **Valor** do **item 1** | Título «Valor Total do Item» + pills Editável nos itens, fórmula *Valor unitário × Qtd. Inicial* + aviso de moeda · Print `70-valor-tooltip-item.png` |
+| **71** | **08** | Sair da Lista (hub) → voltar à Lista → reexpandir o pedido | Item 1 mantém **2.750,00** + moeda; item 2 mantém **1.000,00** + moeda · Print `71-valor-persistencia-apos-navegar-resultado.png` |
 
-**Valores no runner:** incluir `1.500,50` · editar `2.750,00` · item 2 `1.000,00` · moeda item 1 `EUR`
+**Valores no runner:** incluir = unitário×qtd (ou fallback `1.500,50`) · moeda = 1ª opção do Cadastros · editar `2.750,00` · item 2 `1.000,00`
 
 ### ETAPA 22 — Relatório
 
@@ -486,5 +494,5 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | QTD. PRONTA DO PEDIDO/ITEM | 42–48 | 7 |
 | QTD. INICIAL DO PEDIDO/ITEM | 49–55 | 7 |
 | MOEDA DO PEDIDO/ITEM | 56–61 | 6 |
-| VALOR TOTAL DO PEDIDO/ITEM | 62–67 | 6 |
+| VALOR TOTAL DO PEDIDO/ITEM | 62–71 | 10 |
 | **Total runner principal** | | **~88 passos / 117 casos** |

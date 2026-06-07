@@ -310,33 +310,16 @@ function wrapTooltipRegraCelula(
   celulaBloqueada = false,
   tituloOverride?: string,
 ): React.ReactNode {
-  // Pedido lista — moeda do item monta tooltip no mapaColunasFilho (tooltipInline).
-  if (isFilho && String(col.key) === 'moeda_pedido') return conteudo
+  // Tooltip montada no produto (tooltipInline) — núcleo não duplica wrap.
+  if (col.tooltipInline === true) return conteudo
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
     return conteudo
   }
   const regra = resolverTooltipRegraCelula(col, item, isFilho)
   if (!regra) return conteudo
-  const ehNivelItem = isFilho
-    || resolverNivelTooltipCelula(col, item, isFilho)
-  let tituloFinal = resolverTituloFinalTooltipCelula(col, regra, isFilho, tituloOverride, item)
-  let descricaoFinal = regra.descricao
-  // SSOT moeda item — título embutido na descrição (imune a override de pedido / tooltip duplo).
-  if (ehNivelItem && String(col.key) === 'moeda_pedido') {
-    const tituloItem = col.tooltipTituloItem?.trim()
-      || (item != null ? col.tooltipTituloCelula?.(item)?.trim() : undefined)
-      || tituloFinal
-    if (tituloItem) {
-      tituloFinal = undefined
-      descricaoFinal = (
-        <>
-          <p className="tg-titulo">{tituloItem}</p>
-          {regra.descricao}
-        </>
-      )
-    }
-  }
+  const tituloFinal = resolverTituloFinalTooltipCelula(col, regra, isFilho, tituloOverride, item)
+  const descricaoFinal = regra.descricao
   return (
     <TooltipGlobal
       titulo={tituloFinal}
@@ -2956,8 +2939,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         || colRegra.tooltipTituloCelula?.(item)?.trim()
         || undefined)
       : undefined
-    const tooltipInlinePai = !isFilho && colRegra.tooltipInline === true
-    const celConteudo = tooltipInlinePai
+    const tooltipInlineCelula = colRegra.tooltipInline === true
+    const celConteudo = tooltipInlineCelula
       ? celInner
       : wrapTooltipRegraCelula(
         colRegra,
@@ -3377,7 +3360,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
-                  if (mapa?.tooltipInline || campo === 'moeda_item') {
+                  // Só o mapa filho com tooltipInline — não herdar tooltipInline da coluna pai.
+                  if (mapa?.tooltipInline === true) {
                     return celFilhoInner
                   }
                   const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''

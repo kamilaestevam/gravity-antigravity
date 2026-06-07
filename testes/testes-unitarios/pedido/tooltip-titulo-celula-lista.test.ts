@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   isLinhaItemLista,
   tituloTooltipCelulaLista,
+  tituloTooltipListaPorNivel,
 } from '../../../servicos-global/produto/pedido/client/src/shared/buildTooltipRegraLista'
 
 const t = ((key: string) => {
@@ -57,5 +58,15 @@ describe('tituloTooltipCelulaLista — moeda_pedido', () => {
         'Moeda do Item',
       ),
     ).toBe('Moeda do Item')
+  })
+})
+
+describe('tituloTooltipListaPorNivel — mapa filho (sem heurística de row)', () => {
+  it('nível item → Moeda do Item mesmo com row ambíguo', () => {
+    expect(tituloTooltipListaPorNivel(t, 'moeda_pedido', 'item')).toBe('Moeda do Item')
+  })
+
+  it('nível pai → Moeda do Pedido', () => {
+    expect(tituloTooltipListaPorNivel(t, 'moeda_pedido', 'pai')).toBe('Moeda do Pedido')
   })
 })

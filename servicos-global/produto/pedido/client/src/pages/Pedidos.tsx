@@ -121,6 +121,7 @@ import {
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
+import { obterCampoItemComLegado } from '../../../shared/mapaPropagacaoPedidoItem'
 import {
   CAMPOS_LOGISTICA_PEDIDO,
   isCampoLogisticaPedido,
@@ -2899,18 +2900,29 @@ function sanitizarNomesPartesListaPedidos(
   })
 }
 
-/** Propaga valor do pai no item em memória — traduz id_workspace → company_id (ACL JSON). */
+/** Coluna Prisma do item → chave no contrato JSON do mapItem (ACL). */
+const CAMPO_ITEM_JSON: Partial<Record<string, keyof PedidoItem | string>> = {
+  moeda_item: 'moeda_item',
+  incoterm_item: 'incoterm',
+  tipo_operacao_item: 'tipo_operacao',
+  condicao_pagamento_item: 'condicao_pagamento_pedido',
+  unidade_comercializada_item: 'unidade_comercializada_item',
+}
+
+/** Propaga valor do pai no item em memória — usa MAPA_PROPAGACAO + nomes JSON do mapItem. */
 function aplicarPropagacaoPedidoNoItem(
   item: PedidoItem,
   campoPedido: string,
   valor: unknown,
 ): PedidoItem {
-  // Contrato JSON (mapItem): campos propagáveis expõem o mesmo nome do pai
-  // (ex: data_confirmada_pedido_pronto), não a coluna Prisma do item.
-  const patched = { ...item, [campoPedido]: valor } as PedidoItem
+  const patched = { ...item } as PedidoItem & Record<string, unknown>
+
   if (campoPedido === 'tipo_operacao' || campoPedido === 'tipo_operacao_pedido') {
+    patched.tipo_operacao = valor as string | null | undefined
     patched.tipo_operacao_item = valor as string | null | undefined
+    return patched
   }
+
   if (campoPedido === 'id_workspace') {
     patched.company_id = String(valor ?? '')
     const enr = item as PedidoItemEnriquecido
@@ -2920,7 +2932,21 @@ function aplicarPropagacaoPedidoNoItem(
         id_workspace: (valor as string | null | undefined) ?? null,
       }
     }
+    return patched
   }
+
+  const campoItemPrisma = obterCampoItemComLegado(campoPedido)
+  if (campoItemPrisma) {
+    const chaveJson = CAMPO_ITEM_JSON[campoItemPrisma]
+      ?? (campoPedido.startsWith('data_') ? campoPedido : campoItemPrisma)
+    patched[chaveJson] = valor
+    if (campoItemPrisma === 'tipo_operacao_item') {
+      patched.tipo_operacao_item = valor
+    }
+    return patched
+  }
+
+  patched[campoPedido] = valor
   return patched
 }
 
@@ -6657,11 +6683,20 @@ export default function Pedidos() {
     // — invalidar sozinho exige refetch ao expandir e mantém flag stale).
     // Decisão UX 2026-05-13: refletir imediatamente nos itens em memória.
     if (replicar && isPropagavel(campo)) {
-      const patchItens = (lista: PedidoItem[]) =>
-        lista.map(i => aplicarPropagacaoPedidoNoItem(i, campo, valorEnviarPai))
+      const itensApi = updatedPedidoRaw.itens
       const itensCache = itensCarregadosRef.current.get(id) ?? []
-      if (itensCache.length > 0) {
-        itensCarregadosRef.current.set(id, patchItens(itensCache))
+      if (Array.isArray(itensApi) && itensApi.length > 0) {
+        const enriquecidos = itensApi.map(i => ({
+          ...i,
+          _p: montarContextoPaiItem(updatedPedido, i),
+        })) as PedidoItemEnriquecido[]
+        itensCarregadosRef.current.set(id, enriquecidos)
+        setResetFilhos(prev => prev + 1)
+      } else if (itensCache.length > 0) {
+        itensCarregadosRef.current.set(
+          id,
+          itensCache.map(i => aplicarPropagacaoPedidoNoItem(i, campo, valorEnviarPai)),
+        )
         setResetFilhos(prev => prev + 1)
       } else {
         itensCarregadosRef.current.delete(id)

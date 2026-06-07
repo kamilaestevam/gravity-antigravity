@@ -1,5 +1,27 @@
 /**
  * pillsTooltipColunaLista.ts — Vocabulário e matriz de pílulas para tooltips da lista.
+ *
+ * ## Tipos de tooltip (UX lista Pedido)
+ *
+ * **Linha pedido** (cabeçalho + célula do pedido)
+ * - Título: `{Coluna} do Pedido` (ex.: Moeda do Pedido)
+ * - Pills na ordem canônica (apenas as que a regra do campo exigir):
+ *   1. Bloqueado para edição
+ *   2. Total do xxx / somatória / sem somatória
+ *   3. Editável no pedido
+ *   4. Aplicar em todos os itens
+ *   5. Editável no item
+ *   6. Alerta se XX divergirem
+ *   7. Depende de importação ou exportação
+ * - Aviso amarelo opcional abaixo das pills (impacto em outras colunas)
+ *
+ * **Linha item** (célula do item expandido)
+ * - Título: `{Coluna} do Item` (ex.: Moeda do item)
+ * - Pills na ordem canônica:
+ *   1. Bloqueado para edição
+ *   2. Editável no item
+ *   3. Alerta se XX divergirem
+ * - Aviso amarelo opcional abaixo das pills
  */
 
 import { CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM } from './regrasTooltipColunaLista'
@@ -21,6 +43,7 @@ export type RegraPillId =
   | 'bloqueado_valor_item'
   | 'bloqueado_edicao'
   | 'calculado_pedido'
+  | 'calculado_pedido_qtd_inicial'
   | 'calculado_pedido_qtd_pronta'
   | 'soma_mesma_unidade'
   | 'formula_config'
@@ -38,9 +61,76 @@ export type RegraPillId =
   | 'casas_decimais_config'
   | 'valor_unitario_sem_somatoria'
   | 'valor_total_soma_mesma_moeda'
+  | 'valor_total_item_formula'
   | 'editavel_nos_itens'
 
-export const MAX_PILLS_POR_BLOCO = 4
+/** Máximo de pills visíveis por bloco (pedido ou item). */
+export const MAX_PILLS_POR_BLOCO = 7
+
+/**
+ * Ordem canônica — linha pedido. Pills ausentes na regra do campo são omitidas;
+ * as presentes são reordenadas conforme esta lista.
+ */
+export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
+  'bloqueado_edicao',
+  'bloqueado_valor_item',
+  'somente_leitura',
+  'itens_bloqueados_pedido',
+  'so_operacao',
+  'calculado_pedido',
+  'calculado_pedido_qtd_inicial',
+  'calculado_pedido_qtd_pronta',
+  'valor_total_soma_mesma_moeda',
+  'valor_unitario_sem_somatoria',
+  'soma_mesma_unidade',
+  'valor_total_item_formula',
+  'editavel_pedido',
+  'editavel_pedido_numero',
+  'editavel_atualiza_pedido',
+  'replica_itens',
+  'replica_itens_auto',
+  'editavel_item',
+  'editavel_nos_itens',
+  'alerta_divergencia',
+  'alerta_moeda_divergente',
+  'cond_import_export',
+  'formula_config',
+  'casas_decimais_config',
+  'coluna_personalizada',
+  'anexo',
+  'espelhado_workspace',
+  'espelhado_importador',
+  'espelhado_logistica_pedido',
+  'espelhado_logistica_item',
+  'espelhado_logistica_bidirecional',
+]
+
+/** Ordem canônica — linha item. */
+export const ORDEM_PILLS_ITEM: RegraPillId[] = [
+  'bloqueado_edicao',
+  'bloqueado_valor_item',
+  'somente_leitura',
+  'itens_bloqueados_pedido',
+  'so_operacao',
+  'editavel_item',
+  'editavel_nos_itens',
+  'alerta_divergencia',
+  'alerta_moeda_divergente',
+  'valor_total_item_formula',
+  'formula_config',
+  'cond_import_export',
+  'coluna_personalizada',
+  'anexo',
+]
+
+export function ordenarPillsCanonico(
+  pills: RegraPillId[],
+  nivel: NivelColunaLista,
+): RegraPillId[] {
+  const ordem = nivel === 'item' ? ORDEM_PILLS_ITEM : ORDEM_PILLS_PEDIDO
+  const rank = new Map(ordem.map((id, index) => [id, index]))
+  return [...pills].sort((a, b) => (rank.get(a) ?? 999) - (rank.get(b) ?? 999))
+}
 
 /** Valor Total do Pedido/Item — linha do pedido (soma na mesma moeda). */
 export const PILLS_PEDIDO_VALOR_TOTAL: RegraPillId[] = [
@@ -50,7 +140,7 @@ export const PILLS_PEDIDO_VALOR_TOTAL: RegraPillId[] = [
 ]
 
 /** Valor Total do Pedido/Item — linha do item. */
-export const PILLS_ITEM_VALOR_TOTAL: RegraPillId[] = ['editavel_nos_itens']
+export const PILLS_ITEM_VALOR_TOTAL: RegraPillId[] = ['editavel_nos_itens', 'valor_total_item_formula']
 
 /** Valor Total do Pedido/Item — cabeçalho sem itens expandidos (4 pills em sequência). */
 export const PILLS_COLUNA_VALOR_TOTAL: RegraPillId[] = [
@@ -92,17 +182,21 @@ export const PILLS_PEDIDO_QTD_PRONTA: RegraPillId[] = [
 /** Linha item — Qtd. Pronta: editável + alerta de moeda divergente entre itens. */
 export const PILLS_ITEM_QTD_PRONTA: RegraPillId[] = ['editavel_item', 'alerta_moeda_divergente']
 
-/** Moeda do Pedido/Item — mesmas 3 pills no pedido e no item. */
-export const PILLS_MOEDA_PEDIDO_ITEM: RegraPillId[] = [
+/** Moeda — linha do pedido. */
+export const PILLS_PEDIDO_MOEDA: RegraPillId[] = [
   'editavel_pedido',
-  'editavel_item',
   'replica_itens',
+  'editavel_item',
 ]
 
-/** Linha do pedido — Qtd. Inicial: soma, bloqueado, alerta, casas decimais. */
+/** Moeda — linha do item. */
+export const PILLS_ITEM_MOEDA: RegraPillId[] = ['editavel_item']
+
+/** Linha do pedido — Qtd. Inicial: soma, bloqueado, editável no item, alerta, casas decimais. */
 export const PILLS_PEDIDO_QTD_INICIAL: RegraPillId[] = [
-  'calculado_pedido',
+  'calculado_pedido_qtd_inicial',
   'bloqueado_edicao',
+  'editavel_item',
   'alerta_divergencia',
   'casas_decimais_config',
 ]
@@ -142,8 +236,8 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_item'],
   },
   pai_moeda_pedido: {
-    pedido: [...PILLS_MOEDA_PEDIDO_ITEM],
-    item: [...PILLS_MOEDA_PEDIDO_ITEM],
+    pedido: [...PILLS_PEDIDO_MOEDA],
+    item: [...PILLS_ITEM_MOEDA],
   },
   pai_calculado_valor: {
     pedido: [...PILLS_PEDIDO_VALOR_TOTAL],
@@ -327,14 +421,14 @@ export type ResolucaoPillsTooltip = {
   numeroUnicoOrg: boolean
 }
 
-function limitarPills(pills: RegraPillId[]): RegraPillId[] {
-  return pills.slice(0, MAX_PILLS_POR_BLOCO)
+function limitarPills(pills: RegraPillId[], nivel: NivelColunaLista): RegraPillId[] {
+  return ordenarPillsCanonico(pills, nivel).slice(0, MAX_PILLS_POR_BLOCO)
 }
 
 function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_total_pedido') return PILLS_ITEM_VALOR_TOTAL
   if (key === 'valor_por_unidade_item') return PILLS_ITEM_VALOR_UNITARIO
-  if (key === 'moeda_pedido') return PILLS_MOEDA_PEDIDO_ITEM
+  if (key === 'moeda_pedido') return PILLS_ITEM_MOEDA
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_ITEM_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_ITEM_QTD_INICIAL
   return pills
@@ -342,7 +436,7 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
 
 function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_por_unidade_item') return PILLS_PEDIDO_VALOR_UNITARIO_ITEM
-  if (key === 'moeda_pedido') return PILLS_MOEDA_PEDIDO_ITEM
+  if (key === 'moeda_pedido') return PILLS_PEDIDO_MOEDA
   if (key === 'valor_total_pedido') return PILLS_PEDIDO_VALOR_TOTAL
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_PEDIDO_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_PEDIDO_QTD_INICIAL
@@ -360,8 +454,8 @@ export function obterPillsTooltipColuna(
   if (key === 'valor_por_unidade_item' && !dual) {
     return {
       dual: false,
-      pedido: limitarPills([...PILLS_COLUNA_VALOR_UNITARIO]),
-      item: limitarPills([...PILLS_ITEM_VALOR_UNITARIO]),
+      pedido: limitarPills([...PILLS_COLUNA_VALOR_UNITARIO], 'pai'),
+      item: limitarPills([...PILLS_ITEM_VALOR_UNITARIO], 'item'),
       linkFormula: false,
       ghostSemCheckbox: false,
       numeroUnicoOrg: false,
@@ -371,8 +465,8 @@ export function obterPillsTooltipColuna(
   if (key === 'valor_total_pedido' && !dual) {
     return {
       dual: false,
-      pedido: limitarPills([...PILLS_COLUNA_VALOR_TOTAL]),
-      item: limitarPills([...PILLS_ITEM_VALOR_TOTAL]),
+      pedido: limitarPills([...PILLS_COLUNA_VALOR_TOTAL], 'pai'),
+      item: limitarPills([...PILLS_ITEM_VALOR_TOTAL], 'item'),
       linkFormula: false,
       ghostSemCheckbox: false,
       numeroUnicoOrg: false,
@@ -392,8 +486,8 @@ export function obterPillsTooltipColuna(
 
   return {
     dual,
-    pedido: limitarPills(pillsPedidoPorColuna(key, mapaPai.pedido)),
-    item: limitarPills(pillsItemPorColuna(key, mapaItem.item)),
+    pedido: limitarPills(pillsPedidoPorColuna(key, mapaPai.pedido), 'pai'),
+    item: limitarPills(pillsItemPorColuna(key, mapaItem.item), 'item'),
     linkFormula,
     ghostSemCheckbox: GHOST_KEYS.has(key),
     numeroUnicoOrg: key === 'numero_pedido',
@@ -415,32 +509,34 @@ export function pillsParaNivelColuna(
   )
   const id = nivel === 'pai' && opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraId
   const mapa = MAPA_REGRA_PILLS[id] ?? MAPA_REGRA_PILLS.generico
-  if (key === 'moeda_pedido') return limitarPills(PILLS_MOEDA_PEDIDO_ITEM)
+  if (key === 'moeda_pedido') {
+    return limitarPills(nivel === 'item' ? [...PILLS_ITEM_MOEDA] : [...PILLS_PEDIDO_MOEDA], nivel)
+  }
   if (key === 'valor_por_unidade_item' && nivel === 'pai') {
-    return limitarPills([...PILLS_PEDIDO_VALOR_UNITARIO_ITEM])
+    return limitarPills([...PILLS_PEDIDO_VALOR_UNITARIO_ITEM], 'pai')
   }
   if (key === 'valor_por_unidade_item' && nivel === 'item') {
-    return limitarPills([...PILLS_ITEM_VALOR_UNITARIO])
+    return limitarPills([...PILLS_ITEM_VALOR_UNITARIO], 'item')
   }
   if (key === 'valor_total_pedido' && nivel === 'pai') {
-    return limitarPills([...PILLS_PEDIDO_VALOR_TOTAL])
+    return limitarPills([...PILLS_PEDIDO_VALOR_TOTAL], 'pai')
   }
   if (key === 'valor_total_pedido' && nivel === 'item') {
-    return limitarPills([...PILLS_ITEM_VALOR_TOTAL])
+    return limitarPills([...PILLS_ITEM_VALOR_TOTAL], 'item')
   }
   if (key === 'quantidade_pronta_itens_pedido_total' && nivel === 'pai') {
-    return limitarPills(PILLS_PEDIDO_QTD_PRONTA)
+    return limitarPills(PILLS_PEDIDO_QTD_PRONTA, 'pai')
   }
   if (key === 'quantidade_pronta_itens_pedido_total' && nivel === 'item') {
-    return limitarPills(PILLS_ITEM_QTD_PRONTA)
+    return limitarPills(PILLS_ITEM_QTD_PRONTA, 'item')
   }
   if (key === 'quantidade_total_pedido' && nivel === 'pai') {
-    return limitarPills(PILLS_PEDIDO_QTD_INICIAL)
+    return limitarPills(PILLS_PEDIDO_QTD_INICIAL, 'pai')
   }
   if (key === 'quantidade_total_pedido' && nivel === 'item') {
-    return limitarPills(PILLS_ITEM_QTD_INICIAL)
+    return limitarPills(PILLS_ITEM_QTD_INICIAL, 'item')
   }
-  return limitarPills(nivel === 'item' ? mapa.item : mapa.pedido)
+  return limitarPills(nivel === 'item' ? mapa.item : mapa.pedido, nivel)
 }
 
 export function regraTemLinkFormula(pills: RegraPillId[]): boolean {

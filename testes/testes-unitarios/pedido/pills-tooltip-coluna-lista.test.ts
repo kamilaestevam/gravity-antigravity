@@ -27,7 +27,7 @@ describe('obterPillsTooltipColuna', () => {
       'valor_total_soma_mesma_moeda',
       'alerta_moeda_divergente',
     ])
-    expect(res.item).toEqual(['editavel_nos_itens'])
+    expect(res.item).toEqual(['editavel_nos_itens', 'valor_total_item_formula'])
   })
 
   it('valor_total sem expandir — 4 pills em sequência no cabeçalho', () => {
@@ -36,8 +36,8 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.pedido).toEqual([
       'bloqueado_edicao',
       'valor_total_soma_mesma_moeda',
-      'alerta_moeda_divergente',
       'editavel_nos_itens',
+      'alerta_moeda_divergente',
     ])
   })
 
@@ -47,8 +47,8 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.pedido).toEqual([
       'bloqueado_edicao',
       'valor_unitario_sem_somatoria',
-      'alerta_moeda_divergente',
       'editavel_nos_itens',
+      'alerta_moeda_divergente',
     ])
   })
 
@@ -67,32 +67,31 @@ describe('obterPillsTooltipColuna', () => {
     const res = obterPillsTooltipColuna('quantidade_pronta_itens_pedido_total', { modoDinamicoPedidoItem: true })
     expect(res.dual).toBe(true)
     expect(res.pedido).toEqual([
-      'calculado_pedido_qtd_pronta',
       'bloqueado_edicao',
+      'calculado_pedido_qtd_pronta',
       'soma_mesma_unidade',
       'alerta_divergencia',
     ])
     expect(res.item).toEqual(['editavel_item', 'alerta_moeda_divergente'])
-    expect(res.pedido.at(1)).toBe('bloqueado_edicao')
     expect(pillsParaNivelColuna('quantidade_pronta_itens_pedido_total', 'item', { modoDinamicoPedidoItem: true }))
       .toEqual(['editavel_item', 'alerta_moeda_divergente'])
   })
 
   it('quantidade_pronta sem modo dinâmico — pedido com pills específicas de qtd pronta', () => {
     const pills = pillsParaNivelColuna('quantidade_pronta_itens_pedido_total', 'pai')
-    expect(pills).toEqual(['calculado_pedido_qtd_pronta', 'bloqueado_edicao', 'soma_mesma_unidade', 'alerta_divergencia'])
+    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido_qtd_pronta', 'soma_mesma_unidade', 'alerta_divergencia'])
   })
 
   it('quantidade_total_pedido dinâmico — pedido bloqueado + casas decimais; item só editável', () => {
     const res = obterPillsTooltipColuna('quantidade_total_pedido', { modoDinamicoPedidoItem: true })
     expect(res.dual).toBe(true)
     expect(res.pedido).toEqual([
-      'calculado_pedido',
       'bloqueado_edicao',
+      'calculado_pedido_qtd_inicial',
+      'editavel_item',
       'alerta_divergencia',
       'casas_decimais_config',
     ])
-    expect(res.pedido.at(1)).toBe('bloqueado_edicao')
     expect(res.item).toEqual(['editavel_item'])
     expect(pillsParaNivelColuna('quantidade_total_pedido', 'item', { modoDinamicoPedidoItem: true }))
       .toEqual(['editavel_item'])
@@ -101,8 +100,9 @@ describe('obterPillsTooltipColuna', () => {
   it('quantidade_total_pedido sem modo dinâmico — pedido com pills específicas de qtd inicial', () => {
     const pills = pillsParaNivelColuna('quantidade_total_pedido', 'pai')
     expect(pills).toEqual([
-      'calculado_pedido',
       'bloqueado_edicao',
+      'calculado_pedido_qtd_inicial',
+      'editavel_item',
       'alerta_divergencia',
       'casas_decimais_config',
     ])
@@ -110,28 +110,28 @@ describe('obterPillsTooltipColuna', () => {
 
   it('ghost descrição — pedido, item e replicar; sem alerta de divergência', () => {
     const res = obterPillsTooltipColuna('descricao_item')
-    expect(res.ghostSemCheckbox).toBe(true)
-    expect(res.pedido).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
-    expect(res.item).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
+    expect(res.ghostSemCheckbox).toBe(false)
+    expect(res.pedido).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
+    expect(res.item).toEqual(['editavel_item', 'editavel_pedido', 'replica_itens'])
     expect(res.pedido).not.toContain('alerta_divergencia')
     expect(res.item).not.toContain('alerta_divergencia')
   })
 
-  it('moeda_pedido — três pills iguais no pedido e no item (editável + replicar)', () => {
+  it('moeda_pedido — pedido: editável → replicar → editável item; item: só editável no item', () => {
     const res = obterPillsTooltipColuna('moeda_pedido')
-    expect(res.pedido).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
-    expect(res.item).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
-    expect(pillsParaNivelColuna('moeda_pedido', 'pai')).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
-    expect(pillsParaNivelColuna('moeda_pedido', 'item')).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
+    expect(res.pedido).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
+    expect(res.item).toEqual(['editavel_item'])
+    expect(pillsParaNivelColuna('moeda_pedido', 'pai')).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
+    expect(pillsParaNivelColuna('moeda_pedido', 'item')).toEqual(['editavel_item'])
   })
 
   it('NCM — três pills iguais no pedido e no item; sem subtexto ghost', () => {
     const res = obterPillsTooltipColuna('ncm')
     expect(res.ghostSemCheckbox).toBe(false)
     expect(res.pedido).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
-    expect(res.item).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
+    expect(res.item).toEqual(['editavel_item', 'editavel_pedido', 'replica_itens'])
     expect(pillsParaNivelColuna('ncm', 'pai')).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
-    expect(pillsParaNivelColuna('ncm', 'item')).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
+    expect(pillsParaNivelColuna('ncm', 'item')).toEqual(['editavel_item', 'editavel_pedido', 'replica_itens'])
   })
 
   it('pillsParaNivelColuna item saldo inclui formula', () => {
@@ -148,10 +148,11 @@ describe('obterPillsTooltipColuna', () => {
     'aeroporto_origem',
     'aeroporto_destino',
   ] as const)('%s — pedido e item com mesmas pills espelhadas', (campo) => {
-    const pills = ['editavel_pedido', 'editavel_item', 'espelhado_logistica_bidirecional'] as const
+    const pillsPedido = ['editavel_pedido', 'editavel_item', 'espelhado_logistica_bidirecional'] as const
+    const pillsItem = ['editavel_item', 'editavel_pedido', 'espelhado_logistica_bidirecional'] as const
     const res = obterPillsTooltipColuna(campo)
-    expect(res.pedido).toEqual([...pills])
-    expect(res.item).toEqual([...pills])
+    expect(res.pedido).toEqual([...pillsPedido])
+    expect(res.item).toEqual([...pillsItem])
     expect(res.pedido).not.toContain('replica_itens')
     expect(res.pedido).not.toContain('alerta_divergencia')
     expect(res.item).not.toContain('alerta_divergencia')

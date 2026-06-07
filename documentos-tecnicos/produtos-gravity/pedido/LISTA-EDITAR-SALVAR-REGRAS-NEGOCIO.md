@@ -76,7 +76,7 @@ Texto livre orientado ao operador — ex.: *«A alteração da moeda irá altera
 
 | Coluna | Tooltips documentados neste arquivo | Alinhado ao framework 01/02 |
 |--------|-------------------------------------|------------------------------|
-| Moeda | Em migração (piloto no código) | 🟡 parcial |
+| Moeda | ✅ MND-01…08 + tooltips §0 | ✅ |
 | Valor total / unitário | Em migração (piloto no código) | 🟡 parcial |
 | Logística (LOG-06) | ✅ pills definidas | 🟡 títulos `{Coluna} do Pedido/Item` pendentes |
 | Demais seções 1–8 | Regras de edição + pills pontuais | 🟡 revisão campo a campo pelo dono |
@@ -251,7 +251,33 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 
 ---
 
-## 8. Logística (Porto, País, Aeroporto)
+## 8. MOEDA DO PEDIDO/ITEM (`moeda_pedido`)
+
+> Decisão de produto **2026-06-07** — padrão Incoterm (checkbox replicar) + aviso de impacto cruzado em Valor Unitário e Valor Total. Tooltips alinhados ao framework §0.
+
+| # | Regra |
+|---|--------|
+| **MND-01** | Label da coluna na grade: **Moeda do Pedido/Item** — títulos de tooltip separados por nível (§0). |
+| **MND-02** | Linha **pedido** editável — select de `cadastros.moeda` (`useMoedasPedido`). |
+| **MND-03** | Popover no pedido exibe checkbox **«Aplicar a todos os itens deste pedido»** (default desmarcado). |
+| **MND-04** | Linha **item** editável — persiste `moeda_item`. |
+| **MND-05** | Sem checkbox: só o **pedido** persiste; itens **não** replicam. |
+| **MND-06** | Com checkbox: pedido **e todos** os itens recebem a mesma moeda (`moeda_pedido` → `moeda_item`). |
+| **MND-07** | **Alerta âmbar** (`⚠`) na célula do **pedido** quando itens divergem (`moeda_item_divergente`) — tooltip *Moedas divergentes entre itens*. **Sem** pill `alerta_moeda_divergente` no tooltip (ícone na célula basta). |
+| **MND-08** | **Aviso amarelo** no tooltip **pedido e item** + popover de edição: *A alteração da moeda irá alterar também Valor Unitário do Item e Valor Total do Pedido/Item* (`aviso_impacto_moeda`). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Moeda do Pedido* (`moeda_pedido_titulo_linha_pedido`) | `editavel_pedido` → `replica_itens` → `editavel_item` |
+| **Item** | *Moeda do item* (`moeda_item_titulo`) | `editavel_item` |
+
+**Código:** `pai_moeda_pedido` · `PILLS_PEDIDO_MOEDA` / `PILLS_ITEM_MOEDA` · `tituloTooltipCelulaPorColuna` em `buildTooltipRegraLista.tsx`.
+
+---
+
+## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.
 
@@ -267,20 +293,20 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 
 ---
 
-## 9. Resumo comparativo
+## 10. Resumo comparativo
 
-| Aspecto | Workspace | TIPO DE OPERAÇÃO | STATUS | Importador | Ref. Imp./Exp. | Logística | Incoterm |
-|---------|-----------|------------------|--------|------------|----------------|-----------|----------|
-| Edição no pedido | ✅ | ✅ | ✅ | ✅ (IMP: via workspace) | ✅ | ✅ | ✅ |
-| Edição no item | ❌ travado | ❌ travado | ✅ | ❌ travado | ✅ | ✅ (roteia pedido) | ✅ |
-| Checkbox replicar no pedido | ❌ ausente | ❌ ausente | ✅ presente | ❌ ausente | ✅ presente | ❌ ausente | ✅ presente |
-| Replicação sem checkbox | ✅ sempre | ✅ sempre | ❌ não replica | — | ❌ não replica | Espelhado visual | ❌ não replica |
-| Alerta âmbar se diverge | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ✅ |
-| Opções do select (pedido) | Workspaces habilitados | Importação / Exportação | Status nativos + custom | IMP: workspaces | Texto livre | Cadastros | Incoterms cadastros |
+| Aspecto | Workspace | TIPO DE OPERAÇÃO | STATUS | Importador | Ref. Imp./Exp. | Moeda | Logística | Incoterm |
+|---------|-----------|------------------|--------|------------|----------------|-------|-----------|----------|
+| Edição no pedido | ✅ | ✅ | ✅ | ✅ (IMP: via workspace) | ✅ | ✅ | ✅ | ✅ |
+| Edição no item | ❌ travado | ❌ travado | ✅ | ❌ travado | ✅ | ✅ | ✅ (roteia pedido) | ✅ |
+| Checkbox replicar no pedido | ❌ ausente | ❌ ausente | ✅ presente | ❌ ausente | ✅ presente | ✅ presente | ❌ ausente | ✅ presente |
+| Replicação sem checkbox | ✅ sempre | ✅ sempre | ❌ não replica | — | ❌ não replica | ❌ não replica | Espelhado visual | ❌ não replica |
+| Alerta âmbar se diverge | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ (só célula) | ❌ | ✅ |
+| Opções do select (pedido) | Workspaces habilitados | Importação / Exportação | Status nativos + custom | IMP: workspaces | Texto livre | Cadastros moeda | Cadastros | Incoterms cadastros |
 
 ---
 
-## 10. Histórico
+## 11. Histórico
 
 | Data | Evento |
 |------|--------|
@@ -295,3 +321,4 @@ O importador exibido depende do **tipo de operação** do pedido (espelhado com 
 | 2026-06-03 | LOG-00 — EMT logística valida espelhamento, não código fixo (runner opção dinâmica) |
 | 2026-06-06 | INCOTERM — INC-01…08; EMT passos 21–24 (select Cadastros + checkbox + alerta divergência) |
 | 2026-06-07 | §0 Framework tooltips (linha pedido / linha item / avisos); LOG-06 alinhado a títulos `{Coluna} do Pedido/Item` |
+| 2026-06-07 | MOEDA — MND-01…08; tooltips pedido/item + aviso impacto; pills `editavel_pedido` → `replica_itens` → `editavel_item` / item `editavel_item` |

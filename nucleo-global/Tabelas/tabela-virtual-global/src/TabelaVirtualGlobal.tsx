@@ -48,6 +48,7 @@ import type {
   GTUnidadeOpcao,
 } from './tipos.js'
 import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
+import { resolverTooltipRegraCelula } from './tooltipCelulaResolver.js'
 
 // ─── Ícones internos ──────────────────────────────────────────────────────────
 
@@ -295,25 +296,6 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 // porque dependia da constante hardcoded UNIDADES_SISCOMEX já deletada.
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
 const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
-
-/** Tooltip de regra da coluna em células (pedido e item), respeitando tooltips-disabled no body. */
-function resolverTooltipRegraCelula(
-  col: GTColuna<unknown>,
-  item: unknown,
-  isFilho: boolean,
-): { titulo: string; descricao: React.ReactNode; interativo?: boolean } | null {
-  const descricaoOverride = col.tooltipDescricaoCelula?.(item)
-  const descricaoBase = isFilho
-    ? (col.tooltipDescricaoItem ?? col.tooltipDescricao)
-    : col.tooltipDescricao
-  const descricao = descricaoOverride ?? descricaoBase
-  if (descricao == null || descricao === '') return null
-  return {
-    titulo: col.tooltipTitulo ?? col.label,
-    descricao,
-    interativo: col.tooltipInterativo,
-  }
-}
 
 function wrapTooltipRegraCelula(
   col: GTColuna<unknown>,

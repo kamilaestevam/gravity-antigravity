@@ -50,6 +50,15 @@ export interface GTColuna<T = unknown> {
   tipo?: GTTipo
   align?: GTAlign
   tooltipTitulo?: string
+  /** Título do tooltip em células de linha filho (item), quando diferente do pedido/cabeçalho. */
+  tooltipTituloItem?: string
+  /**
+   * Nível da linha para tooltip de célula (SSOT do produto).
+   * Quando definido, substitui o flag `isFilho` da renderização em título e descrição base.
+   */
+  tooltipNivelCelula?: (item: T) => 'pedido' | 'item'
+  /** Título do tooltip por célula (pedido vs item). Prioridade sobre tooltipTitulo/tooltipTituloItem. */
+  tooltipTituloCelula?: (item: T) => string | undefined
   tooltipDescricao?: string | React.ReactNode
   /** Regra/descrição ao passar o mouse na célula de linha filho (quando diferente do pedido). */
   tooltipDescricaoItem?: string | React.ReactNode

@@ -19,14 +19,87 @@ type OpcoesMontarTooltipPills = {
   colunaPersonalizada?: boolean
   descricaoUsuario?: string
   aviso?: React.ReactNode
+  /** Texto de aviso de impacto vindo da coluna (`avisoImpacto` — moeda, unidade, etc.). */
+  avisoImpactoColuna?: string
   /** Em coluna dual, renderiza só o bloco pedido ou item (ex.: célula da linha do pedido). */
   somenteBloco?: 'pedido' | 'item'
 }
 
-function isLinhaItemLista(row: unknown): boolean {
+/**
+ * SSOT — pedido (pai) vs item (filho) na lista.
+ * Usado por tooltipNivelCelula, tooltipDescricaoCelula e tooltipTituloCelula.
+ * Sinais positivos de item têm prioridade (ex.: `_p` do PedidoItemEnriquecido).
+ */
+export function isLinhaItemLista(row: unknown): boolean {
   if (row == null || typeof row !== 'object') return false
-  const pedidoId = (row as { pedido_id?: unknown }).pedido_id
-  return typeof pedidoId === 'string' && pedidoId.length > 0
+  const r = row as Record<string, unknown>
+  if (r._p != null && typeof r._p === 'object') return true
+  if (typeof r.pedido_id === 'string' && r.pedido_id.length > 0) return true
+  if (typeof r.sequencia_item === 'number') return true
+  if (typeof r.part_number === 'string' && r.part_number.length > 0) return true
+  if (typeof r.moeda_item === 'string' && r.moeda_item.length > 0) return true
+  if (typeof r.numero_pedido === 'string' && r.numero_pedido.length > 0) return false
+  return false
+}
+
+/** Título do tooltip de célula — mesma regra de nível que tooltipDescricaoCelula. */
+export function tituloTooltipCelulaLista(
+  t: TFunction,
+  key: string,
+  row: unknown,
+  tituloPedido: string,
+  tituloItem?: string,
+): string {
+  const ehItem = isLinhaItemLista(row)
+  return tituloTooltipCelulaPorColuna(t, key, ehItem)
+    ?? (ehItem && tituloItem ? tituloItem : tituloPedido)
+}
+
+function tituloTooltipCelulaPorColuna(
+  t: TFunction,
+  key: string,
+  isFilho: boolean,
+): string | undefined {
+  if (key === 'moeda_pedido') {
+    return isFilho
+      ? t('pedido.coluna_pai.moeda_item_titulo')
+      : t('pedido.coluna_pai.moeda_pedido_titulo_linha_pedido')
+  }
+  if (key === 'valor_por_unidade_item') {
+    return isFilho
+      ? t('pedido.coluna_pai.valor_unitario_item_titulo')
+      : t('pedido.coluna_pai.valor_unitario_item_titulo_linha_pedido')
+  }
+  if (key === 'valor_total_pedido') {
+    return isFilho
+      ? t('pedido.coluna_pai.valor_total_item_titulo')
+      : t('pedido.coluna_pai.valor_total_pedido_titulo_linha_pedido')
+  }
+  return undefined
+}
+
+function avisoImpactoPorColuna(
+  t: TFunction,
+  key: string,
+  nivel: NivelColunaLista,
+  avisoImpactoColuna?: string,
+): string | undefined {
+  if (key === 'valor_por_unidade_item' && nivel === 'item') {
+    return t('pedido.lista.regras_coluna.valor_unitario_item_impacto_moeda')
+  }
+  if (avisoImpactoColuna?.trim()) {
+    return avisoImpactoColuna.trim()
+  }
+  return undefined
+}
+
+function nivelParaAvisoImpacto(
+  opts: OpcoesMontarTooltipPills | undefined,
+  nivel: NivelColunaLista,
+): NivelColunaLista {
+  if (opts?.somenteBloco === 'item') return 'item'
+  if (opts?.somenteBloco === 'pedido') return 'pai'
+  return nivel
 }
 
 function descricaoExtraPorColuna(t: TFunction, key: string, nivel: NivelColunaLista): string | undefined {
@@ -58,6 +131,7 @@ function montarTooltipPills(
         ghostSemCheckbox={res.ghostSemCheckbox && nivelBloco === 'pai'}
         numeroUnicoOrg={res.numeroUnicoOrg && nivelBloco === 'pai'}
         aviso={opts?.aviso}
+        avisoImpacto={avisoImpactoPorColuna(t, key, nivelBloco, opts?.avisoImpactoColuna)}
         descricaoExtra={opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key, nivelBloco) || undefined}
       />
     )
@@ -74,6 +148,7 @@ function montarTooltipPills(
         ghostSemCheckbox={res.ghostSemCheckbox}
         numeroUnicoOrg={res.numeroUnicoOrg}
         aviso={opts?.aviso}
+        avisoImpacto={avisoImpactoPorColuna(t, key, nivelParaAvisoImpacto(opts, nivel), opts?.avisoImpactoColuna)}
         descricaoExtra={opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key, 'item') || undefined}
       />
     )
@@ -88,9 +163,20 @@ function montarTooltipPills(
       ghostSemCheckbox={res.ghostSemCheckbox && nivel === 'pai'}
       numeroUnicoOrg={res.numeroUnicoOrg && nivel === 'pai'}
       aviso={opts?.aviso}
+      avisoImpacto={avisoImpactoPorColuna(t, key, nivel, opts?.avisoImpactoColuna)}
       descricaoExtra={opts?.descricaoUsuario?.trim() || descricaoExtraPorColuna(t, key, nivel) || undefined}
     />
   )
+}
+
+const CHAVES_TITULO_CELULA_PILOTO = new Set([
+  'moeda_pedido',
+  'valor_por_unidade_item',
+  'valor_total_pedido',
+])
+
+function usaTooltipPorNivelColuna(key: string, dual: boolean): boolean {
+  return dual || CHAVES_TITULO_CELULA_PILOTO.has(key)
 }
 
 /** Título padrão: label da coluna ou i18n legado. */
@@ -124,12 +210,32 @@ export function enriquecerColunaComRegraTooltip<T>(
   opts?: OpcoesEnriquecerTooltip,
 ): GTColuna<T> {
   const key = String(col.key)
-  const tituloValorItem =
-    key === 'valor_total_pedido' && col.label?.trim() ? col.label.trim() : null
-  const titulo = tituloValorItem
+  const tituloValorTotalLinhaPedido =
+    key === 'valor_total_pedido'
+      ? t('pedido.coluna_pai.valor_total_pedido_titulo_linha_pedido')
+      : null
+  const tituloValorUnitarioLinhaPedido =
+    key === 'valor_por_unidade_item'
+      ? t('pedido.coluna_pai.valor_unitario_item_titulo_linha_pedido')
+      : null
+  const tituloMoedaLinhaPedido =
+    key === 'moeda_pedido'
+      ? t('pedido.coluna_pai.moeda_pedido_titulo_linha_pedido')
+      : null
+  const titulo = tituloValorTotalLinhaPedido
+    ?? tituloValorUnitarioLinhaPedido
+    ?? tituloMoedaLinhaPedido
     ?? (col.tooltipTitulo?.trim()
       ? col.tooltipTitulo
       : tituloTooltipColuna(t, key, 'pai', col.label))
+  const tituloItem =
+    key === 'valor_por_unidade_item'
+      ? t('pedido.coluna_pai.valor_unitario_item_titulo')
+      : key === 'valor_total_pedido'
+        ? t('pedido.coluna_pai.valor_total_item_titulo')
+        : key === 'moeda_pedido'
+          ? t('pedido.coluna_pai.moeda_item_titulo')
+          : undefined
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)
@@ -137,26 +243,35 @@ export function enriquecerColunaComRegraTooltip<T>(
     modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
     colunaPersonalizada: opts?.colunaPersonalizada,
     descricaoUsuario: opts?.descricaoUsuario,
+    avisoImpactoColuna: col.avisoImpacto,
   }
+  const usaPorNivel = usaTooltipPorNivelColuna(key, pillsRes.dual)
   const tooltipCelulaPedido = montarTooltipPills(t, key, {
     ...optsMontar,
-    somenteBloco: pillsRes.dual ? 'pedido' : undefined,
+    somenteBloco: usaPorNivel ? 'pedido' : undefined,
   }, 'pai')
   const tooltipCelulaItem = montarTooltipPills(t, key, {
     ...optsMontar,
     modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-    somenteBloco: pillsRes.dual ? 'item' : undefined,
+    somenteBloco: usaPorNivel ? 'item' : undefined,
   }, 'item')
 
   return {
     ...col,
     tooltipTitulo: titulo,
-    tooltipDescricao: montarTooltipPills(t, key, optsMontar),
+    tooltipTituloItem: tituloItem,
+    ...(usaPorNivel
+      ? { tooltipNivelCelula: (row: T) => (isLinhaItemLista(row) ? 'item' : 'pedido') }
+      : {}),
+    tooltipTituloCelula: (row) => tituloTooltipCelulaLista(t, key, row, titulo, tituloItem),
+    tooltipDescricao: usaPorNivel
+      ? montarTooltipPills(t, key, { ...optsMontar, somenteBloco: 'pedido' })
+      : montarTooltipPills(t, key, optsMontar),
     tooltipDescricaoItem: tooltipCelulaItem,
     tooltipDescricaoCelula: (row: T) => {
       const legado = col.tooltipDescricaoCelula?.(row)
       if (legado) return legado
-      if (key === 'valor_total_pedido' || key === 'valor_por_unidade_item' || pillsRes.dual) {
+      if (key === 'valor_total_pedido' || key === 'valor_por_unidade_item' || key === 'moeda_pedido' || pillsRes.dual) {
         if (isLinhaItemLista(row)) return tooltipCelulaItem
         return tooltipCelulaPedido
       }

@@ -963,8 +963,9 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'moeda',
     filtravel: true,
     align: 'left',
+    editavel: false,
     casasDecimais: getCasas('valor_por_unidade_item', 2),
-    tooltipTitulo: t('pedido.coluna_pai.valor_unitario_item_titulo'),
+    tooltipTitulo: t('pedido.coluna_pai.valor_unitario_item_titulo_linha_pedido'),
     tooltipDescricao: t('pedido.coluna_pai.valor_unitario_item_desc'),
     grupo: 'Financeiro',
     // valor_por_unidade_item é por item — não há somatória no nível pai.

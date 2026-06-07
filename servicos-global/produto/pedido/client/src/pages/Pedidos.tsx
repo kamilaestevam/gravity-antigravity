@@ -5197,6 +5197,10 @@ export default function Pedidos() {
         )
       }
 
+      if (col.key === 'moeda_pedido') {
+        return enriquecerColunaComRegraTooltip(col, t, 'pai')
+      }
+
       if (col.key === 'saldo_itens_do_pedido') {
         const tooltipSaldo = (conteudo: React.ReactNode) => (
           <TooltipGlobal

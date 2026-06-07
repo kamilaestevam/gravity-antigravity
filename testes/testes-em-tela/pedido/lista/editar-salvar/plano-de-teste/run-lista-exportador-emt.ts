@@ -1,6 +1,6 @@
 /**
  * EMT — Coluna Exportador (Lista Pedido)
- * Valida: EXP → badge/select workspace com nomes; IMP → lista exportadores; nunca CUID cru.
+ * Valida: EXP → lista workspaces com nomes; IMP → lista fornecedores exportadores; nunca CUID cru.
  *
  * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-exportador-emt.ts
  */
@@ -26,6 +26,7 @@ const OUT = resolverPastaResultadoEmt(FEATURE_ROOT, process.env.EMT_RUN_ID ?? 'e
 const BASE_UI = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8000'
 const LISTA_URL = `${BASE_UI}/pedido/pedidos/lista`
 
+const COLUNA_EXPORTADOR = 'EXPORTADOR'
 const CUID_RE = /^c[a-z0-9]{8,}$/i
 
 const linhas: string[] = []
@@ -156,11 +157,11 @@ async function main() {
   await screenshot(page, '01-lista-carregada.png')
 
   const celulasExportador = page.locator('.gtv-linha--pai .gtv-celula[data-gtv-campo="nome_exportador"]')
-  const qtdCelulas = await celulasExportador.count()
-  if (qtdCelulas < 1) {
+  const qtdCelulasExp = await celulasExportador.count()
+  if (qtdCelulasExp < 1) {
     falhar('Coluna nome_exportador não visível (data-gtv-campo)')
   } else {
-    log(`✓ Coluna Exportador visível (${qtdCelulas} células)`)
+    log(`✓ Coluna ${COLUNA_EXPORTADOR} visível (${qtdCelulasExp} células editáveis)`)
   }
 
   const linhasPai = page.locator('.gtv-linha--pai')
@@ -169,59 +170,70 @@ async function main() {
 
   let pedidoExp: Locator | null = null
   let pedidoImp: Locator | null = null
+  let textoWsExp = ''
+  let textoExp = ''
 
   for (let i = 0; i < Math.min(total, 40); i++) {
     const linha = linhasPai.nth(i)
     const tipo = await tipoOperacaoDaLinha(linha)
-    if (tipo === 'exportacao' && !pedidoExp) pedidoExp = linha
+    if (tipo === 'exportacao' && !pedidoExp) {
+      pedidoExp = linha
+      textoWsExp = await textoCelula(await celulaCampo(linha, 'id_workspace'))
+      textoExp = await textoCelula(await celulaCampo(linha, 'nome_exportador'))
+    }
     if (tipo === 'importacao' && !pedidoImp) pedidoImp = linha
   }
 
-  // Passo 1 — EXP: exportador espelha workspace (nome legível, nunca CUID)
+  // Passo 1 — EXP: célula Exportador não exibe CUID (espelha workspace)
   if (!pedidoExp) {
     falhar('Nenhum pedido de Exportação encontrado na página')
   } else {
-    const textoWs = await textoCelula(await celulaCampo(pedidoExp, 'id_workspace'))
-    const textoExp = await textoCelula(await celulaCampo(pedidoExp, 'nome_exportador'))
     if (CUID_RE.test(textoExp)) {
-      falhar(`EXP: coluna Exportador exibe CUID cru (${textoExp})`)
+      falhar(`Exportação: coluna Exportador exibe CUID cru (${textoExp})`)
       await screenshot(page, '02-exp-cuid-errado.png')
     } else {
       log(`✓ EXP Exportador legível: "${textoExp}"`)
-      if (textoWs && textoExp && textoWs !== textoExp && !CUID_RE.test(textoWs)) {
-        log(`⚠ EXP: Exportador (${textoExp}) difere de Workspace (${textoWs}) — verificar espelho`)
+      if (textoWsExp && textoExp !== textoWsExp && !CUID_RE.test(textoWsExp)) {
+        log(`⚠ EXP: Exportador (${textoExp}) difere de Workspace (${textoWsExp}) — verificar regra espelho`)
       }
     }
   }
 
-  // Passo 2 — EXP: popover lista workspaces (não fornecedores)
+  // Passo 2 — EXP: popover abre com lista de workspaces (não texto livre)
   if (pedidoExp) {
-    const celExp = await celulaCampo(pedidoExp, 'nome_exportador')
-    await celExp.click()
+    const celExpCol = await celulaCampo(pedidoExp, 'nome_exportador')
+    await celExpCol.click()
     const popover = page.locator('.gtv-edit-popover')
     await popover.waitFor({ state: 'visible', timeout: 8000 })
     await page.locator('.gtv-edit-popover-opcao').first().waitFor({ state: 'visible', timeout: 8000 }).catch(() => {})
     await page.waitForTimeout(400)
     const opcoes = popover.locator('.gtv-edit-popover-opcao')
     const qtdOpcoes = await opcoes.count()
+    const inputTexto = popover.locator('input[type="text"], textarea').first()
+    const temInput = await inputTexto.isVisible().catch(() => false)
+
     await screenshot(page, '03-exp-popover-exportador.png')
 
     if (qtdOpcoes < 2) {
       falhar(`EXP: popover Exportador deveria listar workspaces (opções=${qtdOpcoes})`)
     } else {
+      log(`✓ EXP popover com ${qtdOpcoes} opções de workspace`)
       const labels = await opcoes.allInnerTexts()
       const cuidNasOpcoes = labels.some(l => CUID_RE.test(l.trim()))
       if (cuidNasOpcoes) {
         falhar('EXP: opções do popover contêm CUID como label')
       } else {
-        log(`✓ EXP popover com ${qtdOpcoes} workspaces legíveis`)
+        log('✓ EXP: labels das opções são legíveis')
       }
+    }
+    if (temInput && qtdOpcoes === 0) {
+      falhar('EXP: popover abriu em modo texto livre em vez de lista')
     }
     await page.keyboard.press('Escape')
     await page.waitForTimeout(300)
   }
 
-  // Passo 3 — IMP: exportador = fornecedor (popover lista exportadores, não workspace)
+  // Passo 3 — IMP: popover lista fornecedores exportadores (não workspace do pedido)
   if (!pedidoImp) {
     log('⚠ Nenhum pedido Importação na página — passo IMP ignorado')
   } else {
@@ -247,7 +259,7 @@ async function main() {
       falhar(`IMP: popover Exportador sem fornecedores (opções=${qtdImp})`)
     } else {
       const labelsImp = await opcoesImp.allInnerTexts()
-      const vazouWorkspace = labelsImp.some(l => l.trim() === textoWsImp.trim())
+      const vazouWorkspace = labelsImp.some((l) => l.trim() === textoWsImp.trim())
       if (vazouWorkspace && textoWsImp.trim()) {
         falhar(`IMP: popover listou workspace "${textoWsImp}" como exportador`)
       } else {
@@ -257,6 +269,7 @@ async function main() {
     await page.keyboard.press('Escape')
   }
 
+  // Passo 4 — MANUAL 777 se existir
   const linha777 = page.locator('.gtv-linha--pai').filter({ hasText: 'MANUAL 777' }).first()
   if (await linha777.isVisible().catch(() => false)) {
     const txt777 = await textoCelula(await celulaCampo(linha777, 'nome_exportador'))

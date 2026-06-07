@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 4.2  
+**Versão:** 4.3  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -285,11 +285,12 @@ Viewport: **1440×900**
 
 ### ETAPA 6 — EXPORTADOR (`nome_exportador`)
 
-> Runner **dedicado:** `run-lista-exportador-emt.ts` (espelho inverso do Importador — §5B).
+> Runner **dedicado:** `run-lista-exportador-emt.ts` (não faz parte da sequência 03–82 do runner principal).  
+> Espelho invertido do Importador — ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §5B.
 
-1. Coluna **EXPORTADOR** em pedido **Exportação** — select lista workspaces com **nomes** (nunca CUID cru; ex.: `CDE EXPORTADOR`)
-2. Coluna **EXPORTADOR** em pedido **Importação** — modal seletor de exportadores / atalho fornecedores (ex.: Foxconn, Bosch)
-3. Tooltip espelhado conforme tipo de operação (ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §5B)
+1. Coluna **EXPORTADOR** em pedido **Exportação** — select lista workspaces com **nomes** (nunca CUID cru; ex.: `CDE EXPORTADOR`); espelhado com workspace
+2. Coluna **EXPORTADOR** em pedido **Importação** — popover lista fornecedores exportadores / atalho **Vincular exportador** (ex.: Foxconn, Bosch)
+3. Tooltip espelhado conforme tipo de operação — **sem** link para Configurador na exportação (espelho workspace)
 
 ### ETAPA 7 — REFERÊNCIA IMPORTADOR (passos 13–16)
 
@@ -511,6 +512,12 @@ Runner dedicado **Importador:**
 npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-importador-emt.ts
 ```
 
+Runner dedicado **Exportador:**
+
+```bash
+npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-exportador-emt.ts
+```
+
 ---
 
 ## Contagem de casos
@@ -540,3 +547,4 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | VALOR TOTAL DO PEDIDO/ITEM | 62–71 | 10 |
 | UNIDADE COMERCIALIZADA DO PEDIDO/ITEM | 72–82 | 11 |
 | **Total runner principal** | | **~99 passos / 128 casos** |
+| **+ runners dedicados Importador/Exportador** | | **+6 regras** |

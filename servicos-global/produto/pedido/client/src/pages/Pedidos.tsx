@@ -5145,7 +5145,7 @@ export default function Pedidos() {
           ? t('pedido.lista.coluna_dinamica.valor_total')
           : col.label
         return enriquecerColunaComRegraTooltip(
-          { ...col, label },
+          { ...col, label, editavel: false },
           t,
           'pai',
           { modoDinamicoPedidoItem: temExpandido },
@@ -5165,11 +5165,34 @@ export default function Pedidos() {
       }
       if (temExpandido && col.key in COLUNAS_DINAMICAS_PEDIDO_ITEM) {
         const label = COLUNAS_DINAMICAS_PEDIDO_ITEM[col.key]
+        const bloqueadoNoPedido = col.key === 'quantidade_pronta_itens_pedido_total'
+          || col.key === 'quantidade_total_pedido'
         return enriquecerColunaComRegraTooltip(
-          { ...col, label },
+          {
+            ...col,
+            label,
+            ...(bloqueadoNoPedido
+              ? {
+                  editavel: false,
+                  tooltipBloqueado: t('pedido.lista.regras_pill.bloqueado_edicao'),
+                }
+              : {}),
+          },
           t,
           'pai',
           { modoDinamicoPedidoItem: true },
+        )
+      }
+
+      if (col.key === 'quantidade_pronta_itens_pedido_total' || col.key === 'quantidade_total_pedido') {
+        return enriquecerColunaComRegraTooltip(
+          {
+            ...col,
+            editavel: false,
+            tooltipBloqueado: t('pedido.lista.regras_pill.bloqueado_edicao'),
+          },
+          t,
+          'pai',
         )
       }
 

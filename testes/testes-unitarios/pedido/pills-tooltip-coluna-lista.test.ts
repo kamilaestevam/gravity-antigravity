@@ -38,19 +38,19 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.dual).toBe(true)
     expect(res.pedido).toEqual([
       'calculado_pedido_qtd_pronta',
+      'bloqueado_edicao',
       'soma_mesma_unidade',
       'alerta_divergencia',
-      'bloqueado_edicao',
     ])
     expect(res.item).toEqual(['editavel_item', 'alerta_moeda_divergente'])
-    expect(res.pedido.at(-1)).toBe('bloqueado_edicao')
+    expect(res.pedido.at(1)).toBe('bloqueado_edicao')
     expect(pillsParaNivelColuna('quantidade_pronta_itens_pedido_total', 'item', { modoDinamicoPedidoItem: true }))
       .toEqual(['editavel_item', 'alerta_moeda_divergente'])
   })
 
   it('quantidade_pronta sem modo dinâmico — pedido com pills específicas de qtd pronta', () => {
     const pills = pillsParaNivelColuna('quantidade_pronta_itens_pedido_total', 'pai')
-    expect(pills).toEqual(['calculado_pedido_qtd_pronta', 'soma_mesma_unidade', 'alerta_divergencia', 'bloqueado_edicao'])
+    expect(pills).toEqual(['calculado_pedido_qtd_pronta', 'bloqueado_edicao', 'soma_mesma_unidade', 'alerta_divergencia'])
   })
 
   it('quantidade_total_pedido dinâmico — pedido bloqueado + casas decimais; item só editável', () => {
@@ -85,6 +85,14 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.item).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
     expect(res.pedido).not.toContain('alerta_divergencia')
     expect(res.item).not.toContain('alerta_divergencia')
+  })
+
+  it('moeda_pedido — três pills iguais no pedido e no item (editável + replicar)', () => {
+    const res = obterPillsTooltipColuna('moeda_pedido')
+    expect(res.pedido).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
+    expect(res.item).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
+    expect(pillsParaNivelColuna('moeda_pedido', 'pai')).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
+    expect(pillsParaNivelColuna('moeda_pedido', 'item')).toEqual(['editavel_pedido', 'editavel_item', 'replica_itens'])
   })
 
   it('NCM — três pills iguais no pedido e no item; sem subtexto ghost', () => {

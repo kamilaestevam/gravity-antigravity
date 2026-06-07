@@ -159,6 +159,7 @@ export function TooltipGlobal({
         onBlur={esconde}
         onKeyDown={onKeyDown}
         className={cursorBloqueado ? 'tg-trigger tg-trigger--bloqueado' : 'tg-trigger'}
+        style={cursorBloqueado ? { cursor: 'not-allowed' } : undefined}
         data-tg-mute={!descricao}
         aria-describedby={show ? tooltipId : undefined}
       >

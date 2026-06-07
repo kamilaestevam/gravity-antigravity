@@ -914,12 +914,26 @@
   cursor: not-allowed;
 }
 
-/* Célula bloqueada por regra de negócio (ex.: workspace/tipo operação só no pedido) */
+/* Célula bloqueada por regra de negócio (ex.: valor do item só no item, workspace no pedido) */
 .gtv-celula--bloqueada,
 .gtv-celula--bloqueada *,
 .gtv-celula--bloqueada .tg-trigger,
 .gtv-celula--bloqueada .tg-trigger--bloqueado {
   cursor: not-allowed !important;
+}
+
+.gtv-celula--bloqueada:hover {
+  cursor: not-allowed !important;
+  outline: none;
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 4px;
+}
+
+.gtv-celula .tg-trigger.tg-trigger--bloqueado {
+  cursor: not-allowed !important;
+  flex: 1;
+  align-self: stretch;
+  min-width: 0;
 }
 
 /* Modo visual: somente leitura — texto muted, sem fundo na célula */

@@ -910,26 +910,16 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'valor_total_pedido',
     label: t('pedido.coluna_pai.valor_total_pedido'),
     tipo: 'moeda',
+    editavel: false,
     filtravel: true,
     sortavel: true,
     align: 'left',
     casasDecimais: getCasas('valor_total_pedido', 2),
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => {
-      const casas = getCasas('valor_total_pedido', 2)
-      const moeda = row.moeda_pedido ?? 'USD'
-      const num = Number(row.valor_total_pedido)
-      const temValor = row.valor_total_pedido != null && !isNaN(num)
-      const valorJsx = temValor
-        ? (
-          <span className="gtv-celula-moeda">
-            <span className={classeMoedaBadge(moeda)}>{moeda}</span>
-            {fmtQuantidade(num, casas)}
-          </span>
-        )
-        : null
-      return renderAgregado(valorJsx, row.moeda_item_divergente, t('pedido.coluna_pai.moedas_divergentes'))
-    },
+    render: (_val: unknown, row: Pedido) => (
+      // Coluna «Valor do Item» — valor por item; linha do pedido não soma nem exibe total.
+      renderAgregado(null, row.moeda_item_divergente, t('pedido.coluna_pai.moedas_divergentes'))
+    ),
   },
   {
     key: 'moeda_pedido',
@@ -1000,22 +990,24 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     label: t('pedido.coluna_pai.quantidade_total_inicial_pedido'),
     tipo: 'unidade',
     align: 'right',
+    editavel: false,
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_inicial'),
     tooltipTitulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_pedido', getCasas('quantidade_total_pedido', 2), { titulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'), descricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc') }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_pedido', getCasas('quantidade_total_pedido', 2)),
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
     label: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total'),
     tipo: 'unidade',
     align: 'right',
+    editavel: false,
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_pronta'),
     tooltipTitulo: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_desc'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', getCasas('quantidade_pronta_itens_pedido_total', 2), { titulo: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_titulo'), descricao: t('pedido.coluna_pai.quantidade_pronta_itens_pedido_total_desc') }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', getCasas('quantidade_pronta_itens_pedido_total', 2)),
   },
   {
     key: 'saldo_itens_do_pedido',

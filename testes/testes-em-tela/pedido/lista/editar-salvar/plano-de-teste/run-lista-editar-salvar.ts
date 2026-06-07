@@ -84,6 +84,24 @@ const PILLS_TOOLTIP_DESCRICAO = [
   /aplicar em todos os itens/i,
 ] as const
 
+const COLUNA_MOEDA = 'MOEDA DO PEDIDO/ITEM'
+const COL_KEY_MOEDA = 'moeda_pedido'
+const TITULO_TOOLTIP_MOEDA = 'Moeda do Pedido/Item'
+const PILLS_TOOLTIP_MOEDA = PILLS_TOOLTIP_DESCRICAO
+const ALERTA_MOEDAS_DIVERGENTES = /moedas divergentes/i
+
+const COLUNA_VALOR_ITEM = 'VALOR DO ITEM'
+const COL_KEY_VALOR_ITEM = 'valor_total_pedido'
+const TITULO_TOOLTIP_VALOR = 'Valor do Item'
+const PILLS_TOOLTIP_VALOR_PEDIDO = [
+  /bloqueado: valor do item/i,
+  /alerta se itens divergirem/i,
+] as const
+const PILLS_TOOLTIP_VALOR_ITEM = [/editável no item/i] as const
+const VALOR_ITEM_INCLUIR = '1.500,50'
+const VALOR_ITEM_EDITAR = '2.750,00'
+const MOEDA_VALOR_TESTE = 'EUR'
+
 type ConfigLogisticaCampo = {
   key: string
   colunaLabel: string
@@ -1179,6 +1197,8 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   await validarNcmLista(page, rowId)
   await validarQtdProntaLista(page, rowId, numeroPedido)
   await validarQtdInicialLista(page, rowId, numeroPedido, qtdItens)
+  await validarMoedaPedidoItemLista(page, rowId, qtdItens)
+  await validarValorItemLista(page, rowId, qtdItens)
 }
 
 function normalizarTextoCelula(texto: string): string {
@@ -1401,6 +1421,48 @@ async function validarTooltipLogisticaCelula(
   const descricao = (await page.locator('.tg-descricao').first().innerText()) ?? ''
   const tituloOk = normalizarTipoOperacaoTexto(titulo).includes(normalizarTipoOperacaoTexto(tituloEsperado))
   const pillsOk = PILLS_TOOLTIP_LOGISTICA.every(re => re.test(descricao))
+  return tituloOk && pillsOk
+}
+
+async function validarTooltipMoedaCelula(
+  page: Page,
+  locatorCelula: ReturnType<Page['locator']>,
+  nomePrint: string,
+): Promise<boolean> {
+  await esconderTooltipGlobal(page)
+  await locatorCelula.hover()
+  const visivel = await page.locator('.tg-card').first()
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .then(() => true)
+    .catch(() => false)
+  if (!visivel) return false
+  await screenshot(page, nomePrint)
+  const titulo = (await page.locator('.tg-titulo').first().textContent()) ?? ''
+  const descricao = (await page.locator('.tg-descricao').first().innerText()) ?? ''
+  const tituloOk = normalizarTipoOperacaoTexto(titulo).includes(normalizarTipoOperacaoTexto(TITULO_TOOLTIP_MOEDA))
+  const pillsOk = PILLS_TOOLTIP_MOEDA.every(re => re.test(descricao))
+  return tituloOk && pillsOk
+}
+
+async function validarTooltipValorCelula(
+  page: Page,
+  locatorCelula: ReturnType<Page['locator']>,
+  nivel: 'pedido' | 'item',
+  nomePrint: string,
+): Promise<boolean> {
+  await esconderTooltipGlobal(page)
+  await locatorCelula.hover()
+  const visivel = await page.locator('.tg-card').first()
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .then(() => true)
+    .catch(() => false)
+  if (!visivel) return false
+  await screenshot(page, nomePrint)
+  const titulo = (await page.locator('.tg-titulo').first().textContent()) ?? ''
+  const descricao = (await page.locator('.tg-descricao').first().innerText()) ?? ''
+  const tituloOk = normalizarTipoOperacaoTexto(titulo).includes(normalizarTipoOperacaoTexto(TITULO_TOOLTIP_VALOR))
+  const pills = nivel === 'pedido' ? PILLS_TOOLTIP_VALOR_PEDIDO : PILLS_TOOLTIP_VALOR_ITEM
+  const pillsOk = pills.every(re => re.test(descricao))
   return tituloOk && pillsOk
 }
 
@@ -2656,6 +2718,270 @@ async function validarQtdInicialLista(
       COLUNA_QTD_INICIAL,
       `55 — Qtd inicial não persistiu após navegar (obtido: ${textoItem55[0]})`,
     )
+  }
+}
+
+async function resolverTresMoedasDistintas(page: Page, rowId: string): Promise<string[] | null> {
+  await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_MOEDA)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_MOEDA}"]`)
+  if (await cel.count() === 0) return null
+  await cel.click()
+  const abriu = await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  if (!abriu) return null
+  const siglas = await listarSiglasIncotermPopover(page)
+  await fecharPopoverSeAberto(page)
+  if (siglas.length < 3) return null
+  return siglas.slice(0, 3)
+}
+
+function celulaValorItemExibe(texto: string | null | undefined, valor: string, moeda: string): boolean {
+  if (!texto) return false
+  const norm = normalizarTextoCelula(texto)
+  const valorNorm = valor.replace(/\./g, '').replace(',', '.')
+  const partesValor = valor.split(',')
+  const temMoeda = celulaContemValor(norm, moeda)
+  const temValor = norm.includes(valor)
+    || norm.includes(partesValor[0])
+    || norm.replace(/\./g, '').includes(valorNorm.replace('.', ''))
+  return temMoeda && temValor
+}
+
+async function abrirPopoverValorItem(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+): Promise<boolean> {
+  const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, COL_KEY_VALOR_ITEM)
+  if (!clicou) return false
+  return page.locator('.gtv-edit-moeda-valor').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function preencherValorMoedaPopover(page: Page, valor: string, moeda: string): Promise<void> {
+  const trigger = page.locator('.gtv-edit-moeda .gtv-edit-custom-select-trigger').first()
+  if (await trigger.isVisible().catch(() => false)) {
+    await trigger.click()
+    await page.locator('.gtv-edit-custom-select-list').waitFor({ timeout: 5000 })
+    const re = new RegExp(`\\b${moeda.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+    await page.locator('.gtv-edit-custom-select-list .gtv-edit-custom-select-item').filter({ hasText: re }).first().click()
+  }
+  await page.locator('.gtv-edit-moeda-valor').fill(valor)
+}
+
+async function confirmarPopoverMoedaValor(page: Page): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  const btn = page.locator('.gtv-edit-popover .gtv-edit-popover-btn--primary').filter({ hasText: /^Confirmar$/ })
+  if (await btn.isVisible().catch(() => false)) {
+    await btn.click()
+  } else {
+    await page.locator('.gtv-edit-moeda-valor').press('Enter')
+  }
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {})
+  return aguardarNotificacaoSalvar(page)
+}
+
+async function salvarValorItem(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+  valor: string,
+  moeda: string,
+  prefixoPrint: string,
+): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  await fecharPopoverSeAberto(page)
+  const abriu = await abrirPopoverValorItem(page, pedidoRowId, indice)
+  if (!abriu) return 'nenhuma'
+  await preencherValorMoedaPopover(page, valor, moeda)
+  await screenshot(page, printSelecao(prefixoPrint))
+  const notif = await confirmarPopoverMoedaValor(page)
+  await page.waitForTimeout(600)
+  await screenshot(page, printResultado(prefixoPrint))
+  return notif
+}
+
+/** Passos 56–61 — Moeda do Pedido/Item (select + checkbox replicar). */
+async function validarMoedaPedidoItemLista(page: Page, rowId: string, qtdItens: number): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_MOEDA}: passos 56–61 (tooltip, sem replicar, replicar todos, item isolado, alerta)`)
+  if (qtdItens < 1) {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, 'Pré-condição — pedido sem itens visíveis')
+    return
+  }
+
+  await scrollColunaParaVisivel(page, COL_KEY_MOEDA)
+  const celPai = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_MOEDA}"]`)
+  const celItem = page.locator(`.gtv-linha--filho[data-gtv-pai-id="${rowId}"]`).first()
+    .locator(`[data-gtv-campo="${COL_KEY_MOEDA}"]`)
+
+  const tooltipPaiOk = await validarTooltipMoedaCelula(page, celPai, '56-moeda-tooltip-pedido.png')
+  if (tooltipPaiOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_MOEDA, '56 — Tooltip pedido (3 pills espelhadas)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '56 — Tooltip pedido com título e 3 pills')
+  }
+
+  await esconderTooltipGlobal(page)
+  const tooltipItemOk = await validarTooltipMoedaCelula(page, celItem, '57-moeda-tooltip-item.png')
+  if (tooltipItemOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_MOEDA, '57 — Tooltip item (3 pills espelhadas)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '57 — Tooltip item com título e 3 pills')
+  }
+
+  const moedas = await resolverTresMoedasDistintas(page, rowId)
+  if (!moedas || moedas.length < 3) {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, 'Pré-condição — select Moeda deve listar ≥3 opções do Cadastros')
+    return
+  }
+  const [moedaSolo, moedaTodos, moedaItem] = moedas
+  const textosItensAntes = await lerTextosCampoItens(page, rowId, COL_KEY_MOEDA)
+
+  await fecharPopoverSeAberto(page)
+  const abriu58 = await abrirPopoverSelectPai(page, rowId, COL_KEY_MOEDA)
+  if (!abriu58) {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '58 — Abrir select Moeda no pedido (sem replicar)')
+  } else {
+    await destacarSiglaNoPopoverSelect(page, moedaSolo)
+    await screenshot(page, printSelecao('58-moeda-pedido-sem-replicar'))
+    const notif58 = await confirmarOpcaoPopoverSelect(page, moedaSolo)
+    await page.waitForTimeout(600)
+    const textoPai58 = await lerTextoCampoPai(page, rowId, COL_KEY_MOEDA)
+    const textosItens58 = await lerTextosCampoItens(page, rowId, COL_KEY_MOEDA)
+    await screenshot(page, printResultado('58-moeda-pedido-sem-replicar'))
+    const pedidoOk58 = celulaContemValor(textoPai58, moedaSolo)
+    const itensNaoReplicaram = textosItens58.every((t, i) => t === (textosItensAntes[i] ?? ''))
+    if (notif58 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, `58 — Salvar pedido sem replicar (${moedaSolo}) — toast de erro`)
+    } else if (!pedidoOk58) {
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, `58 — Pedido deve exibir ${moedaSolo}`)
+    } else if (!itensNaoReplicaram) {
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '58 — Itens não devem replicar ao salvar pedido sem checkbox')
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_MOEDA, `58 — Salvar pedido sem replicar (${moedaSolo})`)
+    }
+  }
+
+  await fecharPopoverSeAberto(page)
+  const abriu59 = await abrirPopoverSelectPai(page, rowId, COL_KEY_MOEDA)
+  if (!abriu59) {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '59 — Abrir select Moeda no pedido (com replicar)')
+  } else {
+    const temCb59 = await popoverExibeCheckboxReplicar(page)
+    if (!temCb59) {
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '59 — Select deve exibir checkbox «Aplicar a todos os itens»')
+    }
+    await marcarCheckboxReplicarPopover(page)
+    await destacarSiglaNoPopoverSelect(page, moedaTodos)
+    await screenshot(page, printSelecao('59-moeda-pedido-replicar-todos'))
+    const notif59 = await confirmarOpcaoPopoverSelect(page, moedaTodos, { replicarEmItens: true })
+    await page.waitForTimeout(800)
+    const textoPai59 = await lerTextoCampoPai(page, rowId, COL_KEY_MOEDA)
+    const textosItens59 = await lerTextosCampoItens(page, rowId, COL_KEY_MOEDA)
+    await screenshot(page, printResultado('59-moeda-pedido-replicar-todos'))
+    const pedidoOk59 = celulaContemValor(textoPai59, moedaTodos)
+    const itensOk59 = textosItens59.length > 0 && textosItens59.every(t => celulaContemValor(t, moedaTodos))
+    if (notif59 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, `59 — Salvar pedido com replicar (${moedaTodos}) — toast de erro`)
+    } else if (!pedidoOk59 || !itensOk59) {
+      log(`ℹ Diagnóstico moeda: pai=${JSON.stringify(textoPai59)}, itens=${JSON.stringify(textosItens59)}`)
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, `59 — Pedido e todos os itens devem exibir ${moedaTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_MOEDA, `59 — Replicar para todos os itens (${moedaTodos}, ${textosItens59.length} itens)`)
+    }
+  }
+
+  await fecharPopoverSeAberto(page)
+  const abriu60 = await abrirPopoverSelectItem(page, rowId, 0, COL_KEY_MOEDA)
+  if (!abriu60) {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '60 — Abrir select Moeda no item 1')
+  } else {
+    await destacarSiglaNoPopoverSelect(page, moedaItem)
+    await screenshot(page, printSelecao('60-moeda-editar-item-isolado'))
+    const notif60 = await confirmarOpcaoPopoverSelect(page, moedaItem)
+    await page.waitForTimeout(600)
+    const textoPai60 = await lerTextoCampoPai(page, rowId, COL_KEY_MOEDA)
+    const textosItens60 = await lerTextosCampoItens(page, rowId, COL_KEY_MOEDA)
+    await screenshot(page, printResultado('60-moeda-editar-item-isolado'))
+    const item0Ok60 = celulaContemValor(textosItens60[0], moedaItem)
+    const pedidoManteve60 = celulaContemValor(textoPai60, moedaTodos)
+    const demaisItensOk60 = textosItens60.length <= 1
+      || textosItens60.slice(1).every(t => celulaContemValor(t, moedaTodos))
+    if (notif60 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, `60 — Salvar item isolado (${moedaItem}) — toast de erro`)
+    } else if (!item0Ok60) {
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, `60 — Item 1 deve exibir ${moedaItem}`)
+    } else if (!pedidoManteve60) {
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, `60 — Pedido deve manter ${moedaTodos}`)
+    } else if (!demaisItensOk60) {
+      falharTabela(LOCAL_LISTA, COLUNA_MOEDA, `60 — Demais itens devem manter ${moedaTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_MOEDA, `60 — Editar apenas o item 1 (${moedaItem})`)
+    }
+  }
+
+  await page.waitForTimeout(600)
+  const temAlerta61 = await pedidoTemAlertaCampoDivergente(page, rowId, COL_KEY_MOEDA, ALERTA_MOEDAS_DIVERGENTES)
+  await screenshot(page, '61-moeda-alerta-divergencia-resultado.png')
+  if (temAlerta61) {
+    logAprovado(LOCAL_LISTA, COLUNA_MOEDA, '61 — Alerta «Moedas divergentes entre itens» visível na coluna do pedido')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '61 — Alerta «Moedas divergentes entre itens» não detectado')
+  }
+}
+
+/** Passos 62–66 — Valor do Item (pedido bloqueado + edição no item). */
+async function validarValorItemLista(page: Page, rowId: string, qtdItens: number): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_VALOR_ITEM}: passos 62–66 (tooltip, pedido bloqueado, editar item, persistência)`)
+  if (qtdItens < 1) {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, 'Pré-condição — pedido sem itens visíveis')
+    return
+  }
+
+  await scrollColunaParaVisivel(page, COL_KEY_VALOR_ITEM)
+  const celPai = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_VALOR_ITEM}"]`)
+  const celItem = page.locator(`.gtv-linha--filho[data-gtv-pai-id="${rowId}"]`).first()
+    .locator(`[data-gtv-campo="${COL_KEY_VALOR_ITEM}"]`)
+
+  const tooltipPaiOk = await validarTooltipValorCelula(page, celPai, 'pedido', '62-valor-tooltip-pedido.png')
+  if (tooltipPaiOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '62 — Tooltip pedido (bloqueado + alerta)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '62 — Tooltip pedido com pills de valor bloqueado')
+  }
+
+  await esconderTooltipGlobal(page)
+  const tooltipItemOk = await validarTooltipValorCelula(page, celItem, 'item', '63-valor-tooltip-item.png')
+  if (tooltipItemOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '63 — Tooltip item (editável no item)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '63 — Tooltip item com pill editável')
+  }
+
+  const classeBloqueada = await celPai.evaluate(el => el.classList.contains('gtv-celula--bloqueada'))
+  const textoPai64 = await lerTextoCampoPai(page, rowId, COL_KEY_VALOR_ITEM)
+  await screenshot(page, '64-valor-pedido-bloqueado-resultado.png')
+  if (classeBloqueada || textoPai64 === '—' || textoPai64 === '-') {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '64 — Célula do pedido bloqueada (sem edição / traço)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `64 — Pedido deve permanecer bloqueado (obtido: ${textoPai64})`)
+  }
+
+  const notif65 = await salvarValorItem(page, rowId, 0, VALOR_ITEM_INCLUIR, MOEDA_VALOR_TESTE, '65-valor-item-incluir')
+  const textoItem65 = (await lerTextosCampoItens(page, rowId, COL_KEY_VALOR_ITEM))[0] ?? ''
+  if (notif65 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `65 — Salvar valor no item (${VALOR_ITEM_INCLUIR} ${MOEDA_VALOR_TESTE}) — toast de erro`)
+  } else if (!celulaValorItemExibe(textoItem65, VALOR_ITEM_INCLUIR, MOEDA_VALOR_TESTE)) {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `65 — Item 1 deve exibir ${VALOR_ITEM_INCLUIR} ${MOEDA_VALOR_TESTE} (obtido: ${textoItem65})`)
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, `65 — Incluir valor no item 1 (${VALOR_ITEM_INCLUIR} ${MOEDA_VALOR_TESTE})`)
+  }
+
+  const notif66 = await salvarValorItem(page, rowId, 0, VALOR_ITEM_EDITAR, MOEDA_VALOR_TESTE, '66-valor-item-editar')
+  const textoItem66 = (await lerTextosCampoItens(page, rowId, COL_KEY_VALOR_ITEM))[0] ?? ''
+  if (notif66 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `66 — Editar valor no item (${VALOR_ITEM_EDITAR} ${MOEDA_VALOR_TESTE}) — toast de erro`)
+  } else if (!celulaValorItemExibe(textoItem66, VALOR_ITEM_EDITAR, MOEDA_VALOR_TESTE)) {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `66 — Item 1 deve exibir ${VALOR_ITEM_EDITAR} ${MOEDA_VALOR_TESTE} (obtido: ${textoItem66})`)
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, `66 — Editar valor no item 1 (${VALOR_ITEM_EDITAR} ${MOEDA_VALOR_TESTE})`)
   }
 }
 

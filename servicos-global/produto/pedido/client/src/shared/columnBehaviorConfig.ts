@@ -159,6 +159,8 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
 
 const ALERTA_OVERRIDE: Record<string, boolean> = {
   tipo_operacao: false, // replica do pedido — sem alerta de divergência
+  descricao_item: false, // ghost — várias descrições no pedido; sem alerta
+  ncm: false, // ghost — vários NCMs no mesmo pedido é normal; sem alerta
   status: true, // pedido ≠ item ou item ≠ item → alerta na coluna Status
 }
 

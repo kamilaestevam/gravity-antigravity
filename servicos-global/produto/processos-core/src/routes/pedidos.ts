@@ -525,10 +525,8 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     quantidade_cancelada_total_pedido: Array.isArray(itens)
       ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_cancelada_pedido ?? 0), 0)
       : (pedido.quantidade_cancelada_total_pedido ?? null),
-    // Virtuais: agregação de NCM por pedido seguindo o padrão renderAgregado
-    // do front (ColunasPai.tsx). `ncm_valor_unico` populado quando todos os
-    // itens compartilham o mesmo NCM; `ncm_divergente=true` quando há mais
-    // de um NCM distinto (front mostra "⚠ N NCMs"); contagem para o badge.
+    // Virtuais: agregação de NCM — valor único quando todos os itens coincidem;
+    // vários NCMs no mesmo pedido é normal (sem alerta de divergência na UI).
     ...(() => {
       if (!Array.isArray(itens)) {
         return {
@@ -542,7 +540,7 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
       )
       return {
         ncm_valor_unico:      ncmsUnicos.size === 1 ? [...ncmsUnicos][0] : null,
-        ncm_divergente:       ncmsUnicos.size > 1,
+        ncm_divergente:       false,
         ncms_distintos_count: ncmsUnicos.size,
       }
     })(),

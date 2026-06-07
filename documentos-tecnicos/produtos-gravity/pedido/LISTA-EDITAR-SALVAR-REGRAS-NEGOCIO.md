@@ -97,7 +97,23 @@ Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLIC
 
 ---
 
-## 4. Resumo comparativo
+## 4. NCM
+
+> Decisão de produto **2026-06** — vários NCMs no mesmo pedido é cenário normal (cada item com classificação própria).
+
+| # | Regra |
+|---|--------|
+| **NCM-01** | Campo **ghost** — persiste no banco no **item**; linha do pedido guarda valor canônico de sessão. |
+| **NCM-02** | Linha **pedido** e linha **item** editáveis. |
+| **NCM-03** | Popover no pedido exibe checkbox **«Aplicar a todos os itens deste pedido»** (default desmarcado). |
+| **NCM-04** | **Sem** checkbox: só a linha do pedido atualiza na sessão; itens **não** recebem PATCH. |
+| **NCM-05** | **Com** checkbox: PATCH do mesmo NCM em **todos** os itens. |
+| **NCM-06** | **Sem** alerta âmbar — vários NCMs no mesmo pedido é normal. |
+| **NCM-07** | Exibição no pedido: valor canônico da sessão; se vazio e todos os itens coincidem, mostra o NCM único; senão `—`. |
+
+---
+
+## 5. Resumo comparativo
 
 | Aspecto | TIPO DE OPERAÇÃO | STATUS | Incoterm (referência) |
 |---------|------------------|--------|------------------------|
@@ -109,10 +125,11 @@ Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLIC
 
 ---
 
-## 5. Histórico
+## 6. Histórico
 
 | Data | Evento |
 |------|--------|
 | 2026-05-13 | Checkbox «Aplicar a todos os itens» — entrega genérica ([`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md)) |
 | 2026-06 | TIPO DE OPERAÇÃO — regras TOP-01…05; EMT aprovado (PR #199, runner #201) |
 | 2026-06-03 | STATUS — regras 00–04; fix alerta sem expandir (`status_itens_snapshot`); TDZ `statusOpts`/`pedidos` |
+| 2026-06-06 | NCM — NCM-01…04; sem alerta de divergência (vários NCMs por pedido é normal) |

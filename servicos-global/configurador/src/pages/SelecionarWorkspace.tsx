@@ -326,6 +326,8 @@ function formatHubDate(locale: string): string {
 
 interface HubProcessoOperacaoResumo {
   id: string
+  /** ID mock do processo (p1, p2…) — rota canônica /acesso-processos/:id/workflow */
+  id_processo: string
   nome: string
   detalhe: string
   badge: string
@@ -338,6 +340,7 @@ function getHubProcessosOperacaoMock(
   return [
     {
       id: 'hub-op-1',
+      id_processo: 'p1',
       nome: 'Acme Importações · Shanghai Electronics',
       detalhe: 'IMP-2026/0150 · US$ 108.050 · Marítima',
       badge: t('hub.mock_badge_embarque', 'Embarque').toUpperCase(),
@@ -345,6 +348,7 @@ function getHubProcessosOperacaoMock(
     },
     {
       id: 'hub-op-2',
+      id_processo: 'p2',
       nome: 'Acme Importações · Korea Tech Ltd.',
       detalhe: 'IMP-2026/0149 · US$ 54.200 · Aérea',
       badge: t('hub.mock_badge_desembaraco', 'Desembaraço').toUpperCase(),
@@ -511,14 +515,14 @@ export function SelecionarWorkspace() {
     [t],
   )
 
-  const abrirProcessoHub = useCallback(() => {
-    const orgId = idOrganizacao ?? sessionStorage.getItem('gravity_tenant_id')
-    if (orgId) {
-      navigate(`/processo?idOrganizacao=${encodeURIComponent(orgId)}`)
-    } else {
-      navigate('/processo')
-    }
-  }, [idOrganizacao, navigate])
+  const abrirListaProcessosHub = useCallback(() => {
+    navigate('/acesso-processos/lista')
+  }, [navigate])
+
+  const abrirProcessoHub = useCallback((idProcesso: string) => {
+    const qs = new URLSearchParams({ id: idProcesso, idOrganizacao: 'org_mock' })
+    navigate(`/processo/detalhe/workflow?${qs.toString()}`)
+  }, [navigate])
 
   const abrirProdutoContratadoHub = useCallback((slug: string, rota?: string) => {
     const escopoProduto = escoposPorProduto[slug]
@@ -1299,14 +1303,7 @@ export function SelecionarWorkspace() {
                   <button
                     type="button"
                     className="sw-hub-link-pill"
-                    onClick={() => {
-                      const orgId = idOrganizacao ?? sessionStorage.getItem('gravity_tenant_id')
-                      if (orgId) {
-                        navigate(`/processo?idOrganizacao=${encodeURIComponent(orgId)}`)
-                      } else {
-                        navigate('/processo')
-                      }
-                    }}
+                    onClick={abrirListaProcessosHub}
                   >
                     <Folders size={13} weight="duotone" aria-hidden />
                     {t('hub.ver_todos_processos', 'Ver todos os processos')}
@@ -1341,7 +1338,7 @@ export function SelecionarWorkspace() {
                       key={proc.id}
                       type="button"
                       className="sw-hub-proc"
-                      onClick={abrirProcessoHub}
+                      onClick={() => abrirProcessoHub(proc.id_processo)}
                     >
                       <div>
                         <div className="sw-hub-proc-name">{proc.nome}</div>

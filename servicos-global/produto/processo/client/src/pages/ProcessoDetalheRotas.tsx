@@ -22,6 +22,7 @@ import {
   baseDetalheLegado,
   baseListaProcesso,
   resolverSegmentoDetalhe,
+  rotaListaWorkspace,
 } from './resolver-segmento-detalhe-processo'
 
 function DetalhePaginaLoading() {
@@ -131,8 +132,13 @@ const PAGINAS_EAGER = new Set(['workflow', 'dados-tecnicos', 'pedidos', 'pedidos
 export function ProcessoDetalheRotas() {
   const { pathname, search } = useLocation()
   const detalhe = resolverSegmentoDetalhe(pathname)
-  const segmento = detalhe?.segmento ?? 'workflow'
-  const slugProcesso = detalhe?.slug ?? ''
+
+  if (!detalhe) {
+    return <Navigate to={rotaListaWorkspace(pathname)} replace />
+  }
+
+  const segmento = detalhe.segmento
+  const slugProcesso = detalhe.slug
   const pagina = renderPaginaDetalhe(segmento)
 
   if (!pagina && detalhe?.modo === 'legado') {
@@ -145,7 +151,7 @@ export function ProcessoDetalheRotas() {
   }
 
   if (!pagina) {
-    return <Navigate to="/processo/lista" replace />
+    return <Navigate to={rotaListaWorkspace(pathname)} replace />
   }
 
   const conteudo = PAGINAS_EAGER.has(segmento) ? pagina : (

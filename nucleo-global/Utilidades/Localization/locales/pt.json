@@ -7136,6 +7136,7 @@
         "itens_bloqueados_pedido": "Itens bloqueados — alteração apenas pelo pedido",
         "anexo": "Anexo pelo ícone na célula",
         "coluna_personalizada": "Coluna personalizada",
+        "casas_decimais_config": "Casas decimais com base em configurações",
         "ghost_sem_checkbox": "Sem checkbox: grava só no pedido",
         "numero_unico_org": "Único na organização",
         "link_configurador": "Editar fórmula no Configurador",

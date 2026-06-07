@@ -35,6 +35,7 @@ export type RegraPillId =
   | 'itens_bloqueados_pedido'
   | 'anexo'
   | 'coluna_personalizada'
+  | 'casas_decimais_config'
 
 export const MAX_PILLS_POR_BLOCO = 4
 
@@ -51,6 +52,17 @@ export const PILLS_PEDIDO_QTD_PRONTA: RegraPillId[] = [
 
 /** Linha item — Qtd. Pronta: editável + alerta de moeda divergente entre itens. */
 export const PILLS_ITEM_QTD_PRONTA: RegraPillId[] = ['editavel_item', 'alerta_moeda_divergente']
+
+/** Linha do pedido — Qtd. Inicial: soma, bloqueado, alerta, casas decimais. */
+export const PILLS_PEDIDO_QTD_INICIAL: RegraPillId[] = [
+  'calculado_pedido',
+  'bloqueado_edicao',
+  'alerta_divergencia',
+  'casas_decimais_config',
+]
+
+/** Linha item — Qtd. Inicial: editável no item. */
+export const PILLS_ITEM_QTD_INICIAL: RegraPillId[] = ['editavel_item']
 
 const CHAVES_DUAL_SEMPRE = new Set(['numero_pedido'])
 
@@ -88,8 +100,8 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_item', 'alerta_divergencia'],
   },
   pai_calculado_quantidade: {
-    pedido: ['calculado_pedido', 'alerta_divergencia'],
-    item: ['editavel_item', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_QTD_INICIAL],
+    item: [...PILLS_ITEM_QTD_INICIAL],
   },
   pai_calculado_peso: {
     pedido: ['calculado_pedido', 'alerta_divergencia'],
@@ -164,8 +176,8 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_item'],
   },
   dinamico_qtd_inicial: {
-    pedido: ['calculado_pedido', 'alerta_divergencia'],
-    item: ['editavel_item', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_QTD_INICIAL],
+    item: [...PILLS_ITEM_QTD_INICIAL],
   },
   dinamico_qtd_pronta: {
     pedido: [...PILLS_PEDIDO_QTD_PRONTA],
@@ -201,7 +213,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   item_editavel_quantidade_inicial: {
     pedido: [],
-    item: ['editavel_item', 'alerta_divergencia'],
+    item: [...PILLS_ITEM_QTD_INICIAL],
   },
   item_editavel_valor_total: {
     pedido: [],
@@ -267,12 +279,14 @@ function limitarPills(pills: RegraPillId[]): RegraPillId[] {
 
 function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_ITEM_QTD_PRONTA
+  if (key === 'quantidade_total_pedido') return PILLS_ITEM_QTD_INICIAL
   return pills
 }
 
 function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_total_pedido') return PILLS_PEDIDO_VALOR_ITEM
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_PEDIDO_QTD_PRONTA
+  if (key === 'quantidade_total_pedido') return PILLS_PEDIDO_QTD_INICIAL
   return pills
 }
 
@@ -326,6 +340,12 @@ export function pillsParaNivelColuna(
   }
   if (key === 'quantidade_pronta_itens_pedido_total' && nivel === 'item') {
     return limitarPills(PILLS_ITEM_QTD_PRONTA)
+  }
+  if (key === 'quantidade_total_pedido' && nivel === 'pai') {
+    return limitarPills(PILLS_PEDIDO_QTD_INICIAL)
+  }
+  if (key === 'quantidade_total_pedido' && nivel === 'item') {
+    return limitarPills(PILLS_ITEM_QTD_INICIAL)
   }
   return limitarPills(nivel === 'item' ? mapa.item : mapa.pedido)
 }

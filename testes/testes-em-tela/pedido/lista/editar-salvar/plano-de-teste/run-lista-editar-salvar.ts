@@ -51,6 +51,14 @@ const QTD_PRONTA_VALOR_INCLUIR = '150,00'
 const QTD_PRONTA_VALOR_EDITAR = '275,50'
 const UNIDADE_QTD_PRONTA = 'UN'
 const HUB_URL = `${BASE_UI}/hub`
+const COLUNA_QTD_INICIAL = 'QTD. INICIAL DO PEDIDO/ITEM'
+const COL_KEY_QTD_INICIAL = 'quantidade_total_pedido'
+const AVISO_IMPACTO_UNIDADE_INICIAL =
+  /alteração da unidade irá alterar também unidade comercializada, qtd\. pronta, qtd\. transferida, saldo e qtd\. cancelada/i
+const QTD_INICIAL_VALOR_INCLUIR = '320,00'
+const QTD_INICIAL_VALOR_EDITAR = '410,75'
+const UNIDADE_QTD_INICIAL = 'UN'
+const UNIDADE_DIVERGENTE_TESTE = 'KG'
 const COLUNA_REF_IMPORTADOR = 'REFERÊNCIA IMPORTADOR'
 const COL_KEY_REF_IMPORTADOR = 'referencia_importador'
 const COLUNA_REF_EXPORTADOR = 'REFERÊNCIA EXPORTADOR'
@@ -1170,6 +1178,7 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   await validarLogisticaLista(page, rowId, qtdItens)
   await validarNcmLista(page, rowId)
   await validarQtdProntaLista(page, rowId, numeroPedido)
+  await validarQtdInicialLista(page, rowId, numeroPedido, qtdItens)
 }
 
 function normalizarTextoCelula(texto: string): string {
@@ -2208,14 +2217,18 @@ async function localizarRowIdPorNumeroPedido(page: Page, numero: string): Promis
   }, numero)
 }
 
-type ScanQtdProntaPedidos = {
+type ScanQuantidadePedidos = {
   semItens: string | null
   mesmaUnidade: string | null
   unidadesDivergentes: string | null
 }
 
-async function escanearPedidosQtdPronta(page: Page, excluirRowId: string): Promise<ScanQtdProntaPedidos> {
-  const resultado: ScanQtdProntaPedidos = {
+async function escanearPedidosQuantidadeColuna(
+  page: Page,
+  excluirRowId: string,
+  colKey: string,
+): Promise<ScanQuantidadePedidos> {
+  const resultado: ScanQuantidadePedidos = {
     semItens: null,
     mesmaUnidade: null,
     unidadesDivergentes: null,
@@ -2228,21 +2241,21 @@ async function escanearPedidosQtdPronta(page: Page, excluirRowId: string): Promi
     if (id === excluirRowId) continue
     await colapsarPedido(page, excluirRowId)
     const qtdItens = await expandirPedidoRetornaQtd(page, id)
-    await scrollColunaParaVisivel(page, COL_KEY_QTD_PRONTA)
+    await scrollColunaParaVisivel(page, colKey)
 
     if (!resultado.semItens && qtdItens === 0) {
       resultado.semItens = id
     }
 
     if (qtdItens >= 2) {
-      const textosItens = await lerTextosCampoItens(page, id, COL_KEY_QTD_PRONTA)
+      const textosItens = await lerTextosCampoItens(page, id, colKey)
       const unidades = textosItens
         .map(t => parseQuantidadeUnidadeCelula(t)?.unit ?? extrairUnidadeBadgeCelula(t))
         .filter((u): u is string => Boolean(u))
       const unidadesUnicas = [...new Set(unidades)]
 
       if (!resultado.mesmaUnidade && unidadesUnicas.length === 1 && unidades.length >= 2) {
-        const textoPai = await lerTextoCampoPai(page, id, COL_KEY_QTD_PRONTA)
+        const textoPai = await lerTextoCampoPai(page, id, colKey)
         const parsedItens = textosItens.map(t => parseQuantidadeUnidadeCelula(t))
         const soma = parsedItens.reduce((s, p) => s + (p?.qty ?? 0), 0)
         const parsedPai = parseQuantidadeUnidadeCelula(textoPai)
@@ -2252,7 +2265,7 @@ async function escanearPedidosQtdPronta(page: Page, excluirRowId: string): Promi
       }
 
       if (!resultado.unidadesDivergentes && unidadesUnicas.length >= 2) {
-        const textoPai = await lerTextoCampoPai(page, id, COL_KEY_QTD_PRONTA)
+        const textoPai = await lerTextoCampoPai(page, id, colKey)
         if (ALERTA_UNIDADES_DIVERGENTES.test(textoPai) && !parseQuantidadeUnidadeCelula(textoPai)) {
           resultado.unidadesDivergentes = id
         }
@@ -2266,16 +2279,29 @@ async function escanearPedidosQtdPronta(page: Page, excluirRowId: string): Promi
   return resultado
 }
 
+async function escanearPedidosQtdPronta(page: Page, excluirRowId: string): Promise<ScanQuantidadePedidos> {
+  return escanearPedidosQuantidadeColuna(page, excluirRowId, COL_KEY_QTD_PRONTA)
+}
+
 function extrairUnidadeBadgeCelula(texto: string): string | null {
   const t = normalizarTextoCelula(texto)
   const m = t.match(/\b([A-Z]{1,10})\b$/)
   return m?.[1] ?? null
 }
 
-async function abrirPopoverQtdProntaItem(page: Page, pedidoRowId: string, indice: number): Promise<boolean> {
-  const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, COL_KEY_QTD_PRONTA)
+async function abrirPopoverQuantidadeItem(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+  colKey: string,
+): Promise<boolean> {
+  const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, colKey)
   if (!clicou) return false
   return page.locator('.gtv-edit-unidade-qty').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function abrirPopoverQtdProntaItem(page: Page, pedidoRowId: string, indice: number): Promise<boolean> {
+  return abrirPopoverQuantidadeItem(page, pedidoRowId, indice, COL_KEY_QTD_PRONTA)
 }
 
 async function preencherQuantidadePopover(page: Page, valor: string): Promise<void> {
@@ -2294,11 +2320,29 @@ async function selecionarUnidadePopover(page: Page, sigla: string): Promise<'suc
   return aguardarNotificacaoSalvar(page)
 }
 
-async function popoverExibeAvisoImpactoUnidade(page: Page): Promise<boolean> {
+async function popoverExibeAvisoImpactoUnidade(page: Page, padrao: RegExp): Promise<boolean> {
   const aviso = page.locator('.gtv-edit-aviso-impacto')
   if (!(await aviso.isVisible().catch(() => false))) return false
   const texto = await aviso.textContent()
-  return Boolean(texto && AVISO_IMPACTO_UNIDADE_PRONTA.test(texto))
+  return Boolean(texto && padrao.test(texto))
+}
+
+async function salvarQuantidadeUnidadeItem(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+  colKey: string,
+  valor: string,
+  unidade: string,
+  prefixoPrint: string,
+): Promise<'sucesso' | 'erro' | 'nenhuma'> {
+  await fecharPopoverSeAberto(page)
+  const abriu = await abrirPopoverQuantidadeItem(page, pedidoRowId, indice, colKey)
+  if (!abriu) return 'nenhuma'
+  await preencherQuantidadePopover(page, valor)
+  await abrirDropdownUnidadePopover(page)
+  await screenshot(page, printSelecao(prefixoPrint))
+  return selecionarUnidadePopover(page, unidade)
 }
 
 async function salvarQtdProntaItem(
@@ -2309,13 +2353,7 @@ async function salvarQtdProntaItem(
   unidade: string,
   prefixoPrint: string,
 ): Promise<'sucesso' | 'erro' | 'nenhuma'> {
-  await fecharPopoverSeAberto(page)
-  const abriu = await abrirPopoverQtdProntaItem(page, pedidoRowId, indice)
-  if (!abriu) return 'nenhuma'
-  await preencherQuantidadePopover(page, valor)
-  await abrirDropdownUnidadePopover(page)
-  await screenshot(page, printSelecao(prefixoPrint))
-  return selecionarUnidadePopover(page, unidade)
+  return salvarQuantidadeUnidadeItem(page, pedidoRowId, indice, COL_KEY_QTD_PRONTA, valor, unidade, prefixoPrint)
 }
 
 /** Passos 42–48 — Qtd. Pronta do Pedido/Item (agregado + edição no item). */
@@ -2415,7 +2453,7 @@ async function validarQtdProntaLista(page: Page, rowIdPrincipal: string, numeroP
   if (!abriu47) {
     falharTabela(LOCAL_LISTA, COLUNA_QTD_PRONTA, '47 — Abrir popover qtd pronta no item 1')
   } else {
-    const avisoOk = await popoverExibeAvisoImpactoUnidade(page)
+    const avisoOk = await popoverExibeAvisoImpactoUnidade(page, AVISO_IMPACTO_UNIDADE_PRONTA)
     await screenshot(page, '47-qtd-pronta-aviso-unidade-item.png')
     if (avisoOk) {
       logAprovado(LOCAL_LISTA, COLUNA_QTD_PRONTA, '47 — Popover item exibe aviso de impacto da unidade')
@@ -2446,6 +2484,177 @@ async function validarQtdProntaLista(page: Page, rowIdPrincipal: string, numeroP
       LOCAL_LISTA,
       COLUNA_QTD_PRONTA,
       `48 — Qtd pronta não persistiu após navegar (obtido: ${textoItem48[0]})`,
+    )
+  }
+}
+
+/** Passos 49–55 — Qtd. Inicial do Pedido/Item (agregado + edição no item). */
+async function validarQtdInicialLista(
+  page: Page,
+  rowIdPrincipal: string,
+  numeroPedido: string,
+  qtdItens: number,
+): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_QTD_INICIAL}: passos 49–55 (vazio, soma, divergência, incluir, editar, aviso, persistência)`)
+  await scrollColunaParaVisivel(page, COL_KEY_QTD_INICIAL)
+
+  let scan = await escanearPedidosQuantidadeColuna(page, rowIdPrincipal, COL_KEY_QTD_INICIAL)
+
+  if (scan.semItens) {
+    await colapsarPedido(page, rowIdPrincipal)
+    await expandirPedidoRetornaQtd(page, scan.semItens)
+    const texto49 = await lerTextoCampoPai(page, scan.semItens, COL_KEY_QTD_INICIAL)
+    await screenshot(page, '49-qtd-inicial-pedido-sem-itens-resultado.png')
+    if (celulaQtdProntaEhVazia(texto49)) {
+      logAprovado(LOCAL_LISTA, COLUNA_QTD_INICIAL, '49 — Pedido sem itens exibe célula vazia (—)')
+    } else {
+      falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, `49 — Pedido sem itens deve exibir — (obtido: ${texto49})`)
+    }
+    await colapsarPedido(page, scan.semItens)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, '49 — Nenhum pedido sem itens encontrado na lista')
+    await screenshot(page, '49-qtd-inicial-pedido-sem-itens-resultado.png')
+  }
+
+  if (scan.mesmaUnidade) {
+    await expandirPedidoRetornaQtd(page, scan.mesmaUnidade)
+    const textoPai50 = await lerTextoCampoPai(page, scan.mesmaUnidade, COL_KEY_QTD_INICIAL)
+    const textosItens50 = await lerTextosCampoItens(page, scan.mesmaUnidade, COL_KEY_QTD_INICIAL)
+    const soma50 = textosItens50.reduce((s, t) => s + (parseQuantidadeUnidadeCelula(t)?.qty ?? 0), 0)
+    const parsedPai50 = parseQuantidadeUnidadeCelula(textoPai50)
+    await screenshot(page, '50-qtd-inicial-pedido-mesma-unidade-resultado.png')
+    if (parsedPai50 && quantidadesProximas(parsedPai50.qty, soma50)) {
+      logAprovado(LOCAL_LISTA, COLUNA_QTD_INICIAL, `50 — Pedido com mesma unidade exibe soma (${parsedPai50.qty} = ${soma50})`)
+    } else {
+      falharTabela(
+        LOCAL_LISTA,
+        COLUNA_QTD_INICIAL,
+        `50 — Soma incorreta (pedido=${textoPai50}, soma itens=${soma50})`,
+      )
+    }
+    await colapsarPedido(page, scan.mesmaUnidade)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, '50 — Nenhum pedido com itens de mesma unidade e soma coerente')
+    await screenshot(page, '50-qtd-inicial-pedido-mesma-unidade-resultado.png')
+  }
+
+  if (!scan.unidadesDivergentes && qtdItens >= 2) {
+    await expandirPedidoRetornaQtd(page, rowIdPrincipal)
+    await salvarQuantidadeUnidadeItem(
+      page,
+      rowIdPrincipal,
+      1,
+      COL_KEY_QTD_INICIAL,
+      '10,00',
+      UNIDADE_DIVERGENTE_TESTE,
+      '51-qtd-inicial-forcar-divergencia-item2',
+    )
+    await page.waitForTimeout(600)
+    scan = {
+      ...scan,
+      unidadesDivergentes: rowIdPrincipal,
+    }
+  }
+
+  if (scan.unidadesDivergentes) {
+    await expandirPedidoRetornaQtd(page, scan.unidadesDivergentes)
+    const textoPai51 = await lerTextoCampoPai(page, scan.unidadesDivergentes, COL_KEY_QTD_INICIAL)
+    await screenshot(page, '51-qtd-inicial-pedido-unidades-divergentes-resultado.png')
+    if (ALERTA_UNIDADES_DIVERGENTES.test(textoPai51) && !parseQuantidadeUnidadeCelula(textoPai51)) {
+      logAprovado(LOCAL_LISTA, COLUNA_QTD_INICIAL, '51 — Unidades divergentes — alerta sem valor numérico')
+    } else {
+      falharTabela(
+        LOCAL_LISTA,
+        COLUNA_QTD_INICIAL,
+        `51 — Deve exibir «Unidades divergentes entre itens» sem número (obtido: ${textoPai51})`,
+      )
+    }
+    await colapsarPedido(page, scan.unidadesDivergentes)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, '51 — Nenhum pedido com unidades comercializadas divergentes')
+    await screenshot(page, '51-qtd-inicial-pedido-unidades-divergentes-resultado.png')
+  }
+
+  await expandirPedidoRetornaQtd(page, rowIdPrincipal)
+
+  const notif52 = await salvarQuantidadeUnidadeItem(
+    page,
+    rowIdPrincipal,
+    0,
+    COL_KEY_QTD_INICIAL,
+    QTD_INICIAL_VALOR_INCLUIR,
+    UNIDADE_QTD_INICIAL,
+    '52-qtd-inicial-item-incluir',
+  )
+  const textoItem52 = await lerTextosCampoItens(page, rowIdPrincipal, COL_KEY_QTD_INICIAL)
+  await screenshot(page, printResultado('52-qtd-inicial-item-incluir'))
+  if (notif52 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, '52 — Salvar qtd inicial no item 1 — toast de erro')
+  } else if (!celulaQtdProntaExibeValor(textoItem52[0] ?? '', QTD_INICIAL_VALOR_INCLUIR, UNIDADE_QTD_INICIAL)) {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, `52 — Item 1 deve exibir ${QTD_INICIAL_VALOR_INCLUIR} ${UNIDADE_QTD_INICIAL} (obtido: ${textoItem52[0]})`)
+  } else if (notif52 === 'sucesso') {
+    logAprovado(LOCAL_LISTA, COLUNA_QTD_INICIAL, `52 — Incluir qtd inicial no item 1 (${QTD_INICIAL_VALOR_INCLUIR} ${UNIDADE_QTD_INICIAL})`)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, '52 — Salvar qtd inicial no item 1 — toast de sucesso não detectado')
+  }
+
+  const notif53 = await salvarQuantidadeUnidadeItem(
+    page,
+    rowIdPrincipal,
+    0,
+    COL_KEY_QTD_INICIAL,
+    QTD_INICIAL_VALOR_EDITAR,
+    UNIDADE_QTD_INICIAL,
+    '53-qtd-inicial-item-editar',
+  )
+  const textoItem53 = await lerTextosCampoItens(page, rowIdPrincipal, COL_KEY_QTD_INICIAL)
+  await screenshot(page, printResultado('53-qtd-inicial-item-editar'))
+  if (notif53 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, '53 — Editar qtd inicial no item 1 — toast de erro')
+  } else if (!celulaQtdProntaExibeValor(textoItem53[0] ?? '', QTD_INICIAL_VALOR_EDITAR, UNIDADE_QTD_INICIAL)) {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, `53 — Item 1 deve exibir ${QTD_INICIAL_VALOR_EDITAR} ${UNIDADE_QTD_INICIAL} (obtido: ${textoItem53[0]})`)
+  } else if (notif53 === 'sucesso') {
+    logAprovado(LOCAL_LISTA, COLUNA_QTD_INICIAL, `53 — Editar qtd inicial no item 1 (${QTD_INICIAL_VALOR_EDITAR} ${UNIDADE_QTD_INICIAL})`)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, '53 — Editar qtd inicial no item 1 — toast de sucesso não detectado')
+  }
+
+  await fecharPopoverSeAberto(page)
+  const abriu54 = await abrirPopoverQuantidadeItem(page, rowIdPrincipal, 0, COL_KEY_QTD_INICIAL)
+  if (!abriu54) {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, '54 — Abrir popover qtd inicial no item 1')
+  } else {
+    const avisoOk = await popoverExibeAvisoImpactoUnidade(page, AVISO_IMPACTO_UNIDADE_INICIAL)
+    await screenshot(page, '54-qtd-inicial-aviso-unidade-item.png')
+    if (avisoOk) {
+      logAprovado(LOCAL_LISTA, COLUNA_QTD_INICIAL, '54 — Popover item exibe aviso de impacto da unidade')
+    } else {
+      falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, '54 — Popover deve exibir aviso de impacto da unidade comercializada')
+    }
+  }
+  await fecharPopoverSeAberto(page)
+
+  await page.goto(HUB_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await page.waitForTimeout(1500)
+  await garantirListaPedidos(page)
+
+  const rowId55 = await localizarRowIdPorNumeroPedido(page, numeroPedido)
+  if (!rowId55) {
+    falharTabela(LOCAL_LISTA, COLUNA_QTD_INICIAL, `55 — Reencontrar pedido ${numeroPedido} após navegar`)
+    await screenshot(page, '55-qtd-inicial-persistencia-apos-navegar-resultado.png')
+    return
+  }
+
+  await expandirPedidoRetornaQtd(page, rowId55)
+  const textoItem55 = await lerTextosCampoItens(page, rowId55, COL_KEY_QTD_INICIAL)
+  await screenshot(page, '55-qtd-inicial-persistencia-apos-navegar-resultado.png')
+  if (celulaQtdProntaExibeValor(textoItem55[0] ?? '', QTD_INICIAL_VALOR_EDITAR, UNIDADE_QTD_INICIAL)) {
+    logAprovado(LOCAL_LISTA, COLUNA_QTD_INICIAL, `55 — Persistência após navegar (${QTD_INICIAL_VALOR_EDITAR} ${UNIDADE_QTD_INICIAL})`)
+  } else {
+    falharTabela(
+      LOCAL_LISTA,
+      COLUNA_QTD_INICIAL,
+      `55 — Qtd inicial não persistiu após navegar (obtido: ${textoItem55[0]})`,
     )
   }
 }

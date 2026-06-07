@@ -616,3 +616,11 @@ body.light-theme .p2-stat {
 .p2-content::-webkit-scrollbar-thumb:hover {
   background: rgba(99, 102, 241, 0.3);
 }
+
+/* processo-page-shell.css força flex-direction:column em .shell-main > *.
+   Sem row aqui, .p2-main cai fora da viewport (height:0) e a área central fica vazia. */
+.layout--processo .shell-main > .p2-shell {
+  flex-direction: row !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}

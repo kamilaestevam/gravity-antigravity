@@ -298,6 +298,29 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
 const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
 
+function nomeExibicaoUnidadeRotulo(rotulo: string): string {
+  const m = rotulo.match(/^\s*\S+\s+[—–-]\s+(.+)\s*$/u)
+  return m ? m[1].trim() : rotulo.trim()
+}
+
+function codigosUnidadeEquivalentes(a: string, b: string): boolean {
+  const na = a.trim()
+  const nb = b.trim()
+  if (na === nb) return true
+  if (/^\d+$/.test(na) && /^\d+$/.test(nb)) {
+    return na.padStart(2, '0') === nb.padStart(2, '0')
+  }
+  return false
+}
+
+function rotuloExibicaoUnidadeSelecionada(unit: string, lista: GTUnidadeOpcao[]): string {
+  const unitNorm = String(unit ?? '').trim()
+  if (!unitNorm) return unitNorm
+  const match = lista.find(u => codigosUnidadeEquivalentes(getUnidadeSigla(u), unitNorm))
+  if (!match) return unitNorm
+  return nomeExibicaoUnidadeRotulo(getUnidadeRotulo(match))
+}
+
 /** Coluna pode passar `[]` enquanto Cadastros carrega — array vazio não deve bloquear o fallback SSOT. */
 function resolverListaUnidades(
   restritas: GTUnidadeOpcao[] | undefined,
@@ -756,7 +779,7 @@ const GTEditPopover = memo(function GTEditPopover({
                   disabled={salvando}
                   onMouseDown={e => { e.preventDefault(); e.stopPropagation(); if (unidadeAberta) { setUnidadeAberta(false) } else { dropdownAbrindoRef.current = true; abrirUnidade() } }}
                 >
-                  <span>{uv.unit}</span>
+                  <span>{rotuloExibicaoUnidadeSelecionada(uv.unit, listaUnidades)}</span>
                   <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
                     style={{ transform: unidadeAberta ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
                     <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>

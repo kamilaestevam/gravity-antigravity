@@ -73,9 +73,8 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     '@nucleo/menu-topo-global': path.resolve(nucleoRoot, 'Layout/menu-topo-global/src'),
 
     // tabela-virtual-global — SSOT: Tabelas/tabela-virtual-global (NÃO tabelas-componentes/).
-    // index.ts para import bare; trailing slash para sub-paths (hooks, CSS).
-    '@nucleo/tabela-virtual-global': path.resolve(nucleoRoot, 'Tabelas/tabela-virtual-global/src/index.ts'),
-    '@nucleo/tabela-virtual-global/': path.resolve(nucleoRoot, 'Tabelas/tabela-virtual-global/src/'),
+    // Diretório src/ (não index.ts) para sub-paths como tabela-virtual.css.
+    '@nucleo/tabela-virtual-global': path.resolve(nucleoRoot, 'Tabelas/tabela-virtual-global/src'),
 
     // Sub-export do Dashboard (DashboardConstrutorConsulta isolado)
     '@nucleo/query-builder-global': path.resolve(nucleoRoot, 'Dashboard/dashboard-global/src/DashboardConstrutorConsulta/DashboardConstrutorConsulta.tsx'),

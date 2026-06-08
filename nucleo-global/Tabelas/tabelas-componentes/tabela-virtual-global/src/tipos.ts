@@ -182,6 +182,13 @@ export interface GTAbaTipo {
 export interface GTPreferencias {
   /** Keys das colunas visíveis, na ordem exibida */
   colunas_visiveis: string[]
+  /** Larguras persistidas por coluna (key → px) */
+  colunas_largura?: Record<string, number>
+  /**
+   * Keys de colunas manuais (criadas pelo usuário) já apresentadas ao menos uma vez.
+   * Usado para não re-exibir colunas que o usuário ocultou de propósito.
+   */
+  colunas_manuais_conhecidas?: string[]
 }
 
 // ─── Linha virtual interna ─────────────────────────────────────────────────────
@@ -387,7 +394,7 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   onSalvarPreferencias?: (prefs: GTPreferencias) => void
   /** Keys na sequência padrão — usadas pelo botão "Restaurar padrão" no gerenciador de colunas */
   colunasPadrao?: string[]
-  colunasSeletor?: Array<{ key: string; label: string; naoOcultavel?: boolean; grupo?: string }>
+  colunasSeletor?: Array<{ key: string; label: string; naoOcultavel?: boolean; manual?: boolean }>
 
   // ── Handle imperativo ─────────────────────────────────────────────────────
   /**

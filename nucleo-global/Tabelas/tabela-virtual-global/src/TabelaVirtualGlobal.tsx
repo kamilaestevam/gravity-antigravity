@@ -325,12 +325,28 @@ function conteudoTemTooltipProdutoMontada(conteudo: React.ReactNode): boolean {
   return false
 }
 
+/** Extrai nome legível de rotulos `SIGLA — Nome` (em dash, en dash ou hífen). */
+function nomeExibicaoUnidadeRotulo(rotulo: string): string {
+  const m = rotulo.match(/^\s*\S+\s+[—–-]\s+(.+)\s*$/u)
+  return m ? m[1].trim() : rotulo.trim()
+}
+
+function codigosUnidadeEquivalentes(a: string, b: string): boolean {
+  const na = a.trim()
+  const nb = b.trim()
+  if (na === nb) return true
+  if (/^\d+$/.test(na) && /^\d+$/.test(nb)) {
+    return na.padStart(2, '0') === nb.padStart(2, '0')
+  }
+  return false
+}
+
 function rotuloExibicaoUnidadeSelecionada(unit: string, lista: GTUnidadeOpcao[]): string {
-  const match = lista.find(u => getUnidadeSigla(u) === unit)
-  if (!match) return unit
-  const rotulo = getUnidadeRotulo(match)
-  const sep = rotulo.indexOf(' — ')
-  return sep >= 0 ? rotulo.slice(sep + 3).trim() : rotulo
+  const unitNorm = String(unit ?? '').trim()
+  if (!unitNorm) return unitNorm
+  const match = lista.find(u => codigosUnidadeEquivalentes(getUnidadeSigla(u), unitNorm))
+  if (!match) return unitNorm
+  return nomeExibicaoUnidadeRotulo(getUnidadeRotulo(match))
 }
 
 /** Coluna pode passar `[]` enquanto Cadastros carrega — array vazio não deve bloquear o fallback SSOT. */

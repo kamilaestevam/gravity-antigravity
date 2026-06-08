@@ -22,6 +22,7 @@ vi.mock('@nucleo/modal-tabela-unidades', () => ({
 import {
   buildMapaFatorParaKg,
   filtrarUnidadesPorCategorias,
+  formatarBadgeUnidadeCelula,
   formatarRotuloUnidade,
   kgParaQuantidadeExibicao,
   quantidadeExibicaoParaKg,
@@ -92,6 +93,17 @@ describe('filtrarUnidadesPorCategorias', () => {
     const r = filtrarUnidadesPorCategorias(UNIDADES_FAKE, ['peso', 'contagem'])
     expect(r).toHaveLength(5)
     expect(r.map((u) => u.sigla).sort()).toEqual(['G', 'KG', 'PC', 'TON', 'UN'])
+  })
+})
+
+describe('formatarBadgeUnidadeCelula', () => {
+  it('exibe siglas em maiúsculas', () => {
+    expect(formatarBadgeUnidadeCelula('kg')).toBe('KG')
+    expect(formatarBadgeUnidadeCelula('ton')).toBe('TON')
+  })
+
+  it('M3 vira M³ no badge', () => {
+    expect(formatarBadgeUnidadeCelula('m3')).toBe('M³')
   })
 })
 

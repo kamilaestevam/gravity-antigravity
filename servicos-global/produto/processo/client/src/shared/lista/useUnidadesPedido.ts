@@ -22,6 +22,14 @@ export function formatarRotuloUnidade(u: Unidade): string {
   return `${u.codigo_unidade} — ${u.nome_unidade}`
 }
 
+/** Badge de unidade na célula da lista — siglas em maiúsculas (alinha ao modal). */
+export function formatarBadgeUnidadeCelula(codigo: string | null | undefined): string {
+  const u = (codigo ?? '').trim().toUpperCase()
+  if (!u) return '—'
+  if (u === 'M3') return 'M³'
+  return u
+}
+
 export function filtrarUnidadesPorCategorias(
   unidades: Unidade[],
   categorias: readonly TipoUnidade[],

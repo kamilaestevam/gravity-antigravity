@@ -188,6 +188,7 @@ import {
 import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
 import {
   useUnidadesPedido,
+  formatarBadgeUnidadeCelula,
   kgParaQuantidadeExibicao,
   quantidadeExibicaoParaKg,
   rotuloExibicaoUnidadeOpcao,
@@ -976,7 +977,7 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
-          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} kg`
+          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} ${formatarBadgeUnidadeCelula(row.peso_liquido_unidade_item ?? 'KG')}`
           : '—'}
       </span>
     ),
@@ -992,7 +993,7 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
-          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} kg`
+          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} ${formatarBadgeUnidadeCelula(row.peso_bruto_unidade_item ?? 'KG')}`
           : '—'}
       </span>
     ),
@@ -1008,7 +1009,7 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
-          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} m³`
+          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} ${formatarBadgeUnidadeCelula(row.cubagem_unidade_item ?? 'M3')}`
           : '—'}
       </span>
     ),
@@ -3382,7 +3383,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
           {row.peso_liquido_unitario != null
             ? fmtQuantidade(display, getCasas('peso_liquido_unitario', 3))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -3406,7 +3407,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
           {row.peso_bruto_unitario != null
             ? fmtQuantidade(display, getCasas('peso_bruto_unitario', 3))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -3427,7 +3428,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
           {row.cubagem_unitaria != null
             ? fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase().replace('m3', 'm³')}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -3722,10 +3723,6 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
         </span>
       )
     },
-  },
-  quantidade_volumes_pedido: {
-    editavel: true,
-    render: () => <span style={{ color: 'var(--text-muted)' }}>—</span>,
   },
   // ── Logística: valor no Pedido; edição na linha do item roteia para PATCH pedido ──
   porto_origem: {
@@ -5275,14 +5272,19 @@ export default function Pedidos() {
     return [...colunasBase, ...customEnriquecidas]
   }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspaceOpcoesLista, pedidos, workspacesMap, opcoesImportadoresExpLista, opcoesExportadoresImpLista])
 
+  const colunasManuaisKeys = useMemo(
+    () => new Set(colunasUsuario.map(c => String(c.chave))),
+    [colunasUsuario],
+  )
+
   const colunasSeletorLista = useMemo(
     () => colunasComUsuario.map(c => ({
       key: String(c.key),
       label: c.label,
       naoOcultavel: c.naoOcultavel,
-      grupo: c.grupo,
+      manual: colunasManuaisKeys.has(String(c.key)),
     })),
-    [colunasComUsuario],
+    [colunasComUsuario, colunasManuaisKeys],
   )
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
@@ -6284,13 +6286,17 @@ export default function Pedidos() {
         ? preferencias.colunas_visiveis
         : COLUNAS_PADRAO_VISIVEIS
 
-      // Colunas customizadas ativas que ainda não estão nas preferências salvas
-      // (criadas após o último save de prefs) → adicionar como visíveis por padrão
+      // Colunas customizadas ativas que ainda não estão nas preferências salvas.
+      // Só auto-exibimos colunas manuais REALMENTE novas (nunca apresentadas). Uma
+      // coluna manual que o usuário ocultou de propósito fica em `conhecidas` e NÃO
+      // deve voltar a aparecer — sem isso o checkbox "ia e voltava" ao ocultar.
       const activeCustomKeys = lista
         .filter(c => c.ativo && ((c.escopo || 'ambos') === 'pedido' || (c.escopo || 'ambos') === 'ambos'))
         .map(c => c.chave)
       const savedSet = new Set(savedVisible)
-      const novas = activeCustomKeys.filter(k => !savedSet.has(k))
+      const conhecidasAntigas = new Set(preferencias?.colunas_manuais_conhecidas ?? [])
+      const novas = activeCustomKeys.filter(k => !savedSet.has(k) && !conhecidasAntigas.has(k))
+      const conhecidasNovas = Array.from(new Set([...conhecidasAntigas, ...activeCustomKeys]))
 
       // Migração de prefs salvas → padrão atual via helpers de `migracaoColunas`.
       // Refactor D12 (2026-05-13): lógica antes inline aqui (40+ linhas duplicadas)
@@ -6357,8 +6363,12 @@ export default function Pedidos() {
       setPreferencias(prev => ({
         colunas_visiveis: finalVisible,
         ...(prev?.colunas_largura ? { colunas_largura: prev.colunas_largura } : {}),
+        colunas_manuais_conhecidas: conhecidasNovas,
       }))
     })
+    // `colunas_manuais_conhecidas` é lida mas NÃO entra nas deps de propósito: o efeito
+    // a escreve (nova ref a cada run) e re-disparar nela causaria loop infinito. O efeito
+    // já re-roda quando `colunas_visiveis` muda (toggle), que carrega o `conhecidas` atual.
   }, [idOrganizacao, preferencias?.colunas_visiveis, t]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────

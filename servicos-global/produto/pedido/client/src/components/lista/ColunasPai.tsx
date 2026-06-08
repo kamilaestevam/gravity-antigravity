@@ -1311,7 +1311,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       return (
         <span className="gtv-celula-moeda">
           {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-          <span className="gtv-celula-unidade-badge">kg</span>
+          <span className="gtv-celula-unidade-badge">KG</span>
         </span>
       )
     },
@@ -1352,7 +1352,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       return (
         <span className="gtv-celula-moeda">
           {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-          <span className="gtv-celula-unidade-badge">kg</span>
+          <span className="gtv-celula-unidade-badge">KG</span>
         </span>
       )
     },
@@ -1395,7 +1395,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       return (
         <span className="gtv-celula-moeda">
           {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-          <span className="gtv-celula-unidade-badge">m³</span>
+          <span className="gtv-celula-unidade-badge">M³</span>
         </span>
       )
     },

@@ -1,9 +1,21 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
 import { join } from 'path'
 import type { TestLogEntry } from '../utils/playwright-parser.js'
 import { enrichNewFailuresWithGemini } from './enrich-test-failures.js'
 
 export const testLogsDir = join(process.cwd(), 'data', 'test-logs')
+
+/** Arquivos diários YYYY-MM-DD.json — exclui emt-manifest, emt-runner-pid, playwright-run. */
+const DAILY_LOG_FILE = /^\d{4}-\d{2}-\d{2}\.json$/
+
+export function listDailyTestLogFiles(maxDays = 7): string[] {
+  if (!existsSync(testLogsDir)) return []
+  return readdirSync(testLogsDir)
+    .filter(f => DAILY_LOG_FILE.test(f))
+    .sort()
+    .reverse()
+    .slice(0, maxDays)
+}
 
 export function appendTestLogEntries(
   entries: TestLogEntry[],

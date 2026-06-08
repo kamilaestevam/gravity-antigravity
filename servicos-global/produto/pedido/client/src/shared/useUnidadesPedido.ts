@@ -31,21 +31,40 @@ export interface GTUnidadeOpcao {
   rotulo: string
 }
 
+function codigosUnidadeEquivalentes(a: string, b: string): boolean {
+  const na = a.trim()
+  const nb = b.trim()
+  if (na === nb) return true
+  if (/^\d+$/.test(na) && /^\d+$/.test(nb)) {
+    return na.padStart(2, '0') === nb.padStart(2, '0')
+  }
+  return false
+}
+
 /** Exibe só o nome quando o rotulo segue o padrão `SIGLA — Nome` (volumes, unidades). */
 export function rotuloExibicaoUnidadeOpcao(
   codigo: string | null | undefined,
   opcoes: readonly GTUnidadeOpcao[],
 ): string {
   if (!codigo) return '—'
-  const op = opcoes.find(o => o.sigla === codigo)
-  if (!op) return codigo
-  const sep = op.rotulo.indexOf(' — ')
-  return sep >= 0 ? op.rotulo.slice(sep + 3).trim() : op.rotulo
+  const cod = String(codigo).trim()
+  const op = opcoes.find(o => codigosUnidadeEquivalentes(o.sigla, cod))
+  if (!op) return cod
+  const m = op.rotulo.match(/^\s*\S+\s+[—–-]\s+(.+)\s*$/u)
+  return m ? m[1].trim() : op.rotulo.trim()
 }
 
 /** Formata `SIGLA — Nome` (decisão UX 2026-05-12). Exportado para teste. */
 export function formatarRotuloUnidade(u: Unidade): string {
   return `${u.codigo_unidade} — ${u.nome_unidade}`
+}
+
+/** Badge de unidade na célula da lista — siglas em maiúsculas (alinha ao modal). */
+export function formatarBadgeUnidadeCelula(codigo: string | null | undefined): string {
+  const u = (codigo ?? '').trim().toUpperCase()
+  if (!u) return '—'
+  if (u === 'M3') return 'M³'
+  return u
 }
 
 /** Filtra `Unidade[]` por categorias e formata como `GTUnidadeOpcao[]`. Exportado para teste. */

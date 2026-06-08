@@ -32,6 +32,12 @@ export const filtroAtivoSerializadoSchema = z.discriminatedUnion('tipo', [
 export const listaPainelConfigV1Schema = z.object({
   versao: z.literal(1),
   colunas_visiveis: z.array(z.string()),
+  /**
+   * Chaves de colunas manuais (criadas pelo usuário) que já foram apresentadas ao
+   * usuário ao menos uma vez. Distingue "coluna nova nunca vista" (auto-exibir) de
+   * "coluna que o usuário ocultou de propósito" (manter oculta entre sessões).
+   */
+  colunas_manuais_conhecidas: z.array(z.string()).optional(),
   colunas_largura: z.record(z.string(), z.number()).optional(),
   aba_status_ativa: z.string(),
   filtros_coluna: z.record(z.string(), filtroAtivoSerializadoSchema),

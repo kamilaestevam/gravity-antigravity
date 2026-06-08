@@ -17,6 +17,7 @@ import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
 import { valorTotalItemParaLista } from '../../shared/valorTotalItemLista'
 import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel, type OpcoesUnidadesColunas } from './ColunasPai'
 import {
+  formatarBadgeUnidadeCelula,
   kgParaQuantidadeExibicao,
 } from '../../shared/useUnidadesPedido'
 
@@ -373,7 +374,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
-          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} kg`
+          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} ${formatarBadgeUnidadeCelula(row.peso_liquido_unidade_item ?? 'KG')}`
           : '—'}
       </span>
     ),
@@ -389,7 +390,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
-          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} kg`
+          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} ${formatarBadgeUnidadeCelula(row.peso_bruto_unidade_item ?? 'KG')}`
           : '—'}
       </span>
     ),
@@ -405,7 +406,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
-          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} m³`
+          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} ${formatarBadgeUnidadeCelula(row.cubagem_unidade_item ?? 'M3')}`
           : '—'}
       </span>
     ),
@@ -1781,7 +1782,7 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
           {row.peso_liquido_unitario != null
             ? fmtQuantidade(display, getCasas('peso_liquido_unitario', 3))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -1805,7 +1806,7 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
           {row.peso_bruto_unitario != null
             ? fmtQuantidade(display, getCasas('peso_bruto_unitario', 3))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -1826,7 +1827,7 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
           {row.cubagem_unitaria != null
             ? fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase().replace('m3', 'm³')}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },

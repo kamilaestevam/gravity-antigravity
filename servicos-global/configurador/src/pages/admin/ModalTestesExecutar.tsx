@@ -92,6 +92,9 @@ const TIPOS_TESTE: Array<{ valor: TipoTeste; rotulo: string; descricao: string }
   { valor: 'EMT', rotulo: 'Em tela',      descricao: 'Playwright visual — script tsx dedicado' },
 ]
 
+/** Filtro padrão: todos os tipos visíveis (evita lista vazia ao abrir o modal). */
+const TODOS_TIPOS_ATIVOS = new Set<TipoTeste>(TIPOS_TESTE.map(t => t.valor))
+
 /**
  * Títulos de seção (uppercase) — Solid Slate:
  * cor #94a3b8 (--text-secondary), 0.7rem, peso 800, letter-spacing 0.1em.
@@ -135,8 +138,8 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
     ambiente: 'Local',
   })
 
-  /** Tipos de teste selecionados (filtro). Inicia vazio — usuário escolhe ou usa Selecionar todos. */
-  const [tiposAtivos, setTiposAtivos] = useState<Set<TipoTeste>>(new Set())
+  /** Tipos de teste selecionados (filtro). Padrão: todos visíveis. */
+  const [tiposAtivos, setTiposAtivos] = useState<Set<TipoTeste>>(() => new Set(TODOS_TIPOS_ATIVOS))
 
   const [planosDisponiveis, setPlanosDisponiveis] = useState<PlanoTesteApi[]>([])
   const [planosSelecionados, setPlanosSelecionados] = useState<Set<string>>(new Set())
@@ -153,10 +156,10 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   const currentUser = useShellStore(s => s.currentUser)
   const idUsuario = currentUser.id?.trim() || null
 
-  // Ao abrir o modal: filtros e planos começam desmarcados
+  // Ao abrir o modal: tipos com filtro completo; planos desmarcados (favorito pode pré-selecionar)
   useEffect(() => {
     if (!aberto) return
-    setTiposAtivos(new Set())
+    setTiposAtivos(new Set(TODOS_TIPOS_ATIVOS))
     setPlanosSelecionados(new Set())
     setFavoritoPendente(null)
     if (idUsuario) setFavoritos(lerTestesFavoritosAdmin(idUsuario))
@@ -470,7 +473,9 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
                 border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px' }}>
                 {planosDisponiveis.length === 0
                   ? 'Nenhum plano de teste cadastrado para este produto.'
-                  : `Nenhum plano cadastrado para os tipos selecionados (${planosDisponiveis.length} ocultados pelo filtro).`}
+                  : tiposAtivos.size === 0
+                    ? `Nenhum tipo marcado — use «Selecionar todos» acima. ${planosDisponiveis.length} plano(s) aguardando no registry.`
+                    : `Nenhum plano para os tipos marcados (${planosDisponiveis.length} ocultados pelo filtro).`}
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, minHeight: 0, overflowY: 'auto' }}>

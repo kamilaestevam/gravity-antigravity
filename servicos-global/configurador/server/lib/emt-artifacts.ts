@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs'
 import { join, resolve, dirname, relative } from 'path'
+import { listDailyTestLogFiles } from './test-log-persist.js'
 
 const monorepoRoot = resolve(process.cwd(), '..', '..')
 
@@ -187,11 +188,7 @@ export function buscarLogTestePorId(
 ): Record<string, unknown> | null {
   try {
     if (!existsSync(testLogsDir)) return null
-    const files = readdirSync(testLogsDir)
-      .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-'))
-      .sort()
-      .reverse()
-    for (const file of files.slice(0, 14)) {
+    for (const file of listDailyTestLogFiles(14)) {
       try {
         const content = JSON.parse(readFileSync(join(testLogsDir, file), 'utf-8'))
         if (!Array.isArray(content)) continue

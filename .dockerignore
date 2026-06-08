@@ -3,5 +3,6 @@ node_modules
 *.md
 documentos-tecnicos
 skills
-testes
+testes/*
+!testes/infra
 .claude

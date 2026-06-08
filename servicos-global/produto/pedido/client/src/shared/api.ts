@@ -384,6 +384,7 @@ export const pedidoVirtualApi = {
     dir?: 'asc' | 'desc'
     limit?: number
     status?: string
+    tipo_operacao?: string
     busca?: string
     /** Filtro multi-workspace (lista de IDs). Vence sobre o header x-id-workspace. */
     idsWorkspacesFiltro?: string[]
@@ -395,6 +396,7 @@ export const pedidoVirtualApi = {
     if (params.dir)              q.set('dir', params.dir)
     if (params.limit)            q.set('limit', String(params.limit))
     if (params.status)           q.set('status', params.status)
+    if (params.tipo_operacao)    q.set('tipo_operacao', params.tipo_operacao)
     if (params.busca)            q.set('busca', params.busca)
     if (params.idsWorkspacesFiltro && params.idsWorkspacesFiltro.length > 0) {
       q.set('ids_workspaces', params.idsWorkspacesFiltro.join(','))

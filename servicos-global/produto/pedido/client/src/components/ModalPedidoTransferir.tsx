@@ -47,7 +47,8 @@ import type {
   TransferPreview,
   TransferResultado,
 } from '../shared/types'
-import { pedidoTransferirApi, pedidoApi } from '../shared/api'
+import { pedidoTransferirApi, pedidoVirtualApi } from '../shared/api'
+import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import { fmtQuantidade } from '../shared/types'
 
 // ── Definição de Cenários ─────────────────────────────────────────────────────
@@ -542,6 +543,13 @@ function PreviewImpacto({ preview, indice, total }: PreviewImpactoProps) {
 export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar, onConcluido }: ModalTransferirPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo ?? '')
+  const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo),
+    [idsWorkspacesEscopo, idWorkspaceAtivo],
+  )
 
   const NOMES_PASSOS = useMemo<Record<Passo, string>>(() => ({
     1: t('pedido.modal_transf.passo_cenario'),
@@ -637,7 +645,7 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
   // com cenário split_pedido_existente. Filtra pela mesma tipo_operacao_pedido
   // do pedido de origem e remove o próprio pedido da lista.
   useEffect(() => {
-    if (passo !== 3 || cenario !== 'split_pedido_existente' || !pedido) return
+    if (passo !== 3 || cenario !== 'split_pedido_existente' || !pedido || !escopoHidratado) return
     const tipo = pedido.tipo_operacao
     if (!tipo) {
       setErroPedidosDestino(t('pedido.modal_transf.erro_carregar_pedidos'))
@@ -646,8 +654,12 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
     setCarregandoPedidosDestino(true)
     setErroPedidosDestino(null)
     const idsOrigem = new Set(pedidos.map(p => p.id))
-    pedidoApi.listar({ tipo_operacao: tipo, limit: '500' })
-      .then((res: { data: Pedido[]; total: number }) => {
+    pedidoVirtualApi.listar({
+      tipo_operacao: tipo,
+      limit: 500,
+      idsWorkspacesFiltro,
+    })
+      .then(res => {
         const lista = res.data ?? []
         setPedidosDestinoDisponiveis(lista.filter(p => !idsOrigem.has(p.id)))
       })
@@ -656,7 +668,7 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
         setErroPedidosDestino(err instanceof Error ? err.message : t('pedido.modal_transf.erro_carregar_pedidos'))
       })
       .finally(() => setCarregandoPedidosDestino(false))
-  }, [passo, cenario, pedido, pedidos, t])
+  }, [passo, cenario, pedido, pedidos, escopoHidratado, idsWorkspacesFiltro, t])
 
   // ── Handlers multi-item ─────────────────────────────────────────────────────
 

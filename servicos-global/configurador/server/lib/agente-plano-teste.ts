@@ -15,6 +15,10 @@ import {
   CriticidadeSchema,
 } from './test-schemas.js'
 import { generateTestidMapping, loadTestidMapping } from './extrator-testids.js'
+import {
+  mesclarEntradaRegistryAutomacao,
+  novaEntradaRegistryComPropriedadeDono,
+} from './registry-propriedade-dono.js'
 
 // ─── Categorias do checklist 20/20 ──────────────────────────────────────────
 
@@ -367,9 +371,9 @@ function updateRegistry(plan: PlanoTeste, escopo: string, sublocal: string): voi
   }
 
   if (existingIdx >= 0) {
-    planos[existingIdx] = entry
+    planos[existingIdx] = mesclarEntradaRegistryAutomacao(planos[existingIdx], entry)
   } else {
-    planos.push(entry)
+    planos.push(novaEntradaRegistryComPropriedadeDono(entry))
   }
 
   registry.planos = planos

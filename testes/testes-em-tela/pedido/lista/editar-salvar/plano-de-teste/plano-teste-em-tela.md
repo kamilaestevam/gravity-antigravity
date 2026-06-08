@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 4.5  
+**Versão:** 4.6  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -30,7 +30,7 @@
 
 ## Regra universal — persistência ao fim de cada ETAPA
 
-> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 27 (relatório).
+> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 33 (relatório).
 
 **Último passo da etapa** (quando ainda não existir):
 
@@ -80,6 +80,11 @@
 | **QTD. TRANSFERIDA — Novo Pedido** | 88–106 | `run-lista-editar-salvar.ts` |
 | **QTD. TRANSFERIDA — Pedido Existente** | 107–124 | `run-lista-editar-salvar.ts` |
 | **QTD. TRANSFERIDA — Redução Simples** | 125–134 | `run-lista-editar-salvar.ts` |
+| **SALDO — Básico** | 135–142 | `run-lista-editar-salvar.ts` |
+| **SALDO — Alterar fórmula Config e restaurar** | 143–150 | `run-lista-editar-salvar.ts` |
+| **SALDO — Fórmula item e recálculo** | 151–156 | `run-lista-editar-salvar.ts` |
+| **SALDO — Unidades divergentes** | 157–160 | `run-lista-editar-salvar.ts` |
+| **SALDO — Pós-transferência** | 161–168 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -572,7 +577,76 @@ Coluna **`quantidade_transferida_total`**. Pedido e item **bloqueados** (`cursor
 | **133** | **Saldo** | `inicial − transferida − cancelada` |
 | **134** | Hub → Lista | Persistência · Print `134-transf-reducao-persistencia.png` |
 
-### ETAPA 27 — Relatório
+### ETAPA 28 — SALDO DO PEDIDO/ITEM — Básico (passos 135–142)
+
+Coluna **`saldo_itens_do_pedido`**. Pedido e item **somente leitura** (`tipo: saldo`). Regras §8D SLD-01…04 · `PILLS_PEDIDO_SALDO` / `PILLS_ITEM_SALDO`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **135** | Hover célula **Saldo** do **pedido** | Cursor bloqueado · Print `135-saldo-cursor-pedido.png` |
+| **136** | Tooltip **pedido** | Título *Saldo do Pedido* + pills `calculado_pedido_saldo` → `bloqueado_edicao` → `alerta_unidade_comercializada_divergente` → `formula_config` → `casas_decimais_config` + link *Editar fórmula no Configurador* · Print `136-saldo-tooltip-pedido.png` |
+| **137** | Clicar célula **pedido** | Popover **não** abre · Print `137-saldo-pedido-nao-edita.png` |
+| **138** | Hover tooltip célula **Saldo** do **item 1** | Título *Saldo do Item* + pills `somente_leitura` → `formula_config` · Print `138-saldo-tooltip-item.png` |
+| **139** | Clicar célula **item 1** | Popover **não** abre · Print `139-saldo-item-nao-edita.png` |
+| **140** | Colapsar pedido → hover cabeçalho **Saldo do Pedido/Item** | Tooltip bloco único pedido + item (override `!dual`) · Print `140-saldo-tooltip-cabecalho.png` |
+| **141** | Inspecionar **formato** na grade | Separadores BR; sufixo **UN** quando > 0; **0,00** sem UN quando zero |
+| **142** | Hub → Lista → reexpandir pedido | Saldos inalterados · Print `142-saldo-persistencia-basico.png` |
+
+### ETAPA 29 — SALDO — Alterar fórmula no Configurador e restaurar (passos 143–150)
+
+> Fluxo obrigatório: **Config → alterar → Lista (conferir mudou) → Config → restaurar original → Lista (conferir voltou) → hub/Lista (persistência)**. Runner grava snapshot da fórmula antes de alterar e restaura em `try/finally`. Fórmula original: `quantidade_total_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **143** | Na **Lista**, clicar link *Editar fórmula no Configurador* do tooltip Saldo (passo 136) **ou** navegar **Pedido → Configurações → Fórmula de Saldo** | Tela de fórmula aberta · Print `143-saldo-config-formula-atual.png` |
+| **144** | **Antes de editar:** registrar snapshot da fórmula original (API `GET /api/v1/pedidos/configuracoes/saldo-formula` ou texto visível) | Fórmula padrão confirmada e salva no runner |
+| **145** | No **Configurador**, alterar fórmula para variante **válida** (ex.: `quantidade_total_pedido - quantidade_cancelada_total_pedido`) → clicar **Salvar** | Toast/sucesso · Print `145-saldo-config-formula-alterada.png` |
+| **146** | Voltar à **Lista de Pedidos** → expandir o **mesmo pedido** de teste → inspecionar coluna **Saldo do pedido** | Valor na grade **diferente** do passo 142 — reflete a **nova** fórmula · Print `146-saldo-lista-formula-alterada-resultado.png` |
+| **147** | Voltar ao **Configurador → Fórmula de Saldo** → colar/restaurar a **fórmula original** do passo 144 → **Salvar** | Fórmula padrão salva no tenant · Print `147-saldo-config-formula-restaurada.png` |
+| **148** | Voltar à **Lista** → **mesmo pedido** → inspecionar coluna **Saldo do pedido** | Valor na grade **igual** ao esperado com fórmula original (antes do passo 145) · Print `148-saldo-lista-formula-padrao-resultado.png` |
+| **149** | Abrir **Configurações** novamente | Campo exibe fórmula original — confirma persistência no backend |
+| **150** | **Hub** → **Lista** → reexpandir pedido | Fórmula original no Config **e** saldos corretos na grade após navegação · Print `150-saldo-persistencia-pos-config.png` |
+
+### ETAPA 30 — SALDO — Fórmula item e recálculo (passos 151–156)
+
+Regra **SLD-06** — saldo altera ao mudar Qtd. Inicial, Transferir ou Cancelar.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **151** | Inspecionar **item 1** na grade | Saldo item = `inicial − transferida − cancelada` |
+| **152** | Editar **Qtd. Inicial** do **item 1** → confirmar | Saldo item **recalcula** na grade · Prints `152-saldo-qtd-inicial-selecao` · `…-resultado` |
+| **153** | Inspecionar pedido com itens na **mesma unidade** | Saldo pedido = **soma** dos saldos dos itens |
+| **154** | Conferir **item** pós-redução simples (ETAPA 26) | Saldo reflete `cancelada` incrementada |
+| **155** | Tooltip **item** após recálculo | Pill `formula_config` visível |
+| **156** | Hub → Lista → reexpandir | Saldos persistem · Print `156-saldo-persistencia-recalculo.png` |
+
+### ETAPA 31 — SALDO — Unidades divergentes (passos 157–160)
+
+Regra **SLD-05** — pedido com itens em unidades distintas (item 2 da ETAPA 22).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **157** | Inspecionar célula **Saldo** do **pedido** | Alerta *Unidades divergentes* — **sem** soma · Print `157-saldo-alerta-unidades-divergentes.png` |
+| **158** | Expandir → inspecionar **cada item** | Saldo individual de cada item correto |
+| **159** | Tooltip **pedido** | Pill `alerta_unidade_comercializada_divergente` visível |
+| **160** | Hub → Lista → reexpandir | Alerta e saldos por item persistem · Print `160-saldo-persistencia-divergencia.png` |
+
+### ETAPA 32 — SALDO — Pós-transferência (passos 161–168)
+
+Valida **somente a coluna Saldo** reaproveitando pedidos das ETAPAs 24–26 (não repete fluxo Transferir).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **161** | **Novo Pedido** — saldo **item** no pedido criado (ETAPA 24) | `inicial − transferida − cancelada` |
+| **162** | **Novo Pedido** — saldo **item** no pedido de **origem** | Reduzido conforme transferência |
+| **163** | **Novo Pedido** — saldo **pedido** (mesma unidade) | Soma dos saldos dos itens na mesma unidade |
+| **164** | **Pedido Existente** — saldo **destino** e **origem** (ETAPA 25) | Atualizados e corretos |
+| **165** | **Redução Simples** — saldo após cancelamento (ETAPA 26) | `inicial − transferida − cancelada` |
+| **166** | Inspecionar **0,00** na grade | Exibe `0,00` **sem** sufixo UN |
+| **167** | Inspecionar valor **> 0** | Exibe quantidade + **UN** |
+| **168** | Hub → Lista → reexpandir origem, destino e novo pedido | Saldos persistem · Print `168-saldo-persistencia-pos-transferencia.png` |
+
+### ETAPA 33 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -628,5 +702,10 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | QTD. TRANSFERIDA — Novo Pedido | 88–106 | 19 |
 | QTD. TRANSFERIDA — Pedido Existente | 107–124 | 18 |
 | QTD. TRANSFERIDA — Redução Simples | 125–134 | 10 |
-| **Total runner principal** | | **~134 passos / 164 casos** |
+| SALDO — Básico | 135–142 | 8 |
+| SALDO — Alterar fórmula Config e restaurar | 143–150 | 8 |
+| SALDO — Fórmula item e recálculo | 151–156 | 6 |
+| SALDO — Unidades divergentes | 157–160 | 4 |
+| SALDO — Pós-transferência | 161–168 | 8 |
+| **Total runner principal** | | **~168 passos / 200 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

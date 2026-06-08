@@ -1162,6 +1162,9 @@ adminRouter.patch('/planos-teste/:id_plano_teste', (req, res, next) => {
       }
     }
 
+    entry.propriedade_dono = true
+    entry.editado_pelo_dono_em = new Date().toISOString()
+
     writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`, 'utf-8')
 
     res.json({ plano: entry, id_anterior: idAnterior })

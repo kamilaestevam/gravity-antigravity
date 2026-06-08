@@ -106,8 +106,8 @@ function BotaoVisualizarPasso({ onClick }: { onClick: () => void }) {
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 32,
-        height: 32,
+        width: 16,
+        height: 16,
         borderRadius: '8px',
         border: '1px solid rgba(255,255,255,0.1)',
         background: 'rgba(30, 41, 59, 0.6)',
@@ -116,7 +116,7 @@ function BotaoVisualizarPasso({ onClick }: { onClick: () => void }) {
         flexShrink: 0,
       }}
     >
-      <Eye size={18} weight="regular" />
+      <Eye size={9} weight="regular" />
     </button>
   )
 }

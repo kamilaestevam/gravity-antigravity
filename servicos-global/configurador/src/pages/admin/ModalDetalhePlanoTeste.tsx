@@ -225,14 +225,18 @@ function BlocoColapsavel({
   contagem,
   colapsado,
   onToggle,
+  rotuloContagem,
   children,
 }: {
   titulo: string
   contagem: number
   colapsado: boolean
   onToggle: () => void
+  /** Ex.: "passo(s)" ou "print(s)" — padrão passos */
+  rotuloContagem?: string
   children: React.ReactNode
 }) {
+  const suffix = rotuloContagem ?? (contagem !== 1 ? 'passos' : 'passo')
   return (
     <div style={{
       borderRadius: '8px',
@@ -244,7 +248,7 @@ function BlocoColapsavel({
         type="button"
         onClick={onToggle}
         aria-expanded={!colapsado}
-        title={colapsado ? 'Expandir etapa' : 'Recolher etapa'}
+        title={colapsado ? 'Expandir' : 'Recolher'}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -285,7 +289,7 @@ function BlocoColapsavel({
           fontVariantNumeric: 'tabular-nums',
           flexShrink: 0,
         }}>
-          {contagem} passo{contagem !== 1 ? 's' : ''}
+          {contagem} {suffix}
         </span>
       </button>
       {!colapsado && (
@@ -294,6 +298,68 @@ function BlocoColapsavel({
         </div>
       )}
     </div>
+  )
+}
+
+function LinhaPrintPlanejado({
+  caso,
+  onVisualizar,
+}: {
+  caso: CasoPlanoTesteApi
+  onVisualizar: () => void
+}) {
+  return (
+    <div style={estiloLinhaCaso}>
+      <span style={{
+        fontSize: '0.75rem', fontWeight: 800, color: '#818cf8',
+        fontFamily: 'ui-monospace, monospace',
+      }}>
+        {caso.ordem}
+      </span>
+      <div style={{ fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.45 }}>
+        <span style={{ display: 'inline-flex', alignItems: 'flex-start', gap: '0.4rem', flexWrap: 'wrap', opacity: 0.65 }}>
+          <Camera size={14} weight="fill" color="#f59e0b" style={{ flexShrink: 0, marginTop: 2 }} aria-hidden />
+          <span>
+            <span style={{ fontWeight: 600, color: '#e2e8f0' }}>{caso.titulo}</span>
+            {' — '}
+            {caso.detalhe}
+          </span>
+        </span>
+      </div>
+      <BotaoVisualizarPasso onClick={onVisualizar} />
+    </div>
+  )
+}
+
+function ListaPrintsPlanejados({
+  itens,
+  onVisualizarPasso,
+}: {
+  itens: CasoPlanoTesteApi[]
+  onVisualizarPasso: (caso: CasoPlanoTesteApi) => void
+}) {
+  const [colapsado, setColapsado] = useState(true)
+
+  useEffect(() => {
+    setColapsado(true)
+  }, [itens])
+
+  return (
+    <BlocoColapsavel
+      titulo="PRINTS PLANEJADOS"
+      contagem={itens.length}
+      colapsado={colapsado}
+      onToggle={() => setColapsado(c => !c)}
+      rotuloContagem={itens.length !== 1 ? 'prints' : 'print'}
+    >
+      {itens.map((caso, idx) => (
+        <LinhaPrintPlanejado
+          key={`print-${caso.ordem}-${idx}`}
+          caso={caso}
+          onVisualizar={() => onVisualizarPasso(caso)}
+        />
+      ))}
+    </BlocoColapsavel>
   )
 }
 
@@ -571,7 +637,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
               const itens = secao ? casos.filter(c => c.secao === secao) : casos
               return (
                 <div key={secao ?? 'todos'}>
-                  {secao && (
+                  {secao && secao !== 'Prints planejados' && (
                     <div style={{
                       fontSize: '0.7rem', fontWeight: 700, color: '#a78bfa',
                       marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em',
@@ -581,6 +647,8 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
                   )}
                   {secao === 'Roteiro' ? (
                     <ListaCasosRoteiro itens={itens} onVisualizarPasso={setCasoDetalhe} />
+                  ) : secao === 'Prints planejados' ? (
+                    <ListaPrintsPlanejados itens={itens} onVisualizarPasso={setCasoDetalhe} />
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                       {itens.map((caso, idx) => (
@@ -592,24 +660,13 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
                             {caso.ordem}
                           </span>
                           <div>
-                            {caso.titulo && caso.secao !== 'Prints planejados' && (
+                            {caso.titulo && (
                               <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#e2e8f0' }}>
                                 {caso.titulo}
                               </div>
                             )}
                             <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: caso.titulo ? '0.15rem' : 0, lineHeight: 1.45 }}>
-                              {caso.secao === 'Prints planejados'
-                                ? (
-                                  <span style={{ display: 'inline-flex', alignItems: 'flex-start', gap: '0.4rem', flexWrap: 'wrap', opacity: 0.65 }}>
-                                    <Camera size={14} weight="fill" color="#f59e0b" style={{ flexShrink: 0, marginTop: 2 }} aria-hidden />
-                                    <span>
-                                      <span style={{ fontWeight: 600, color: '#e2e8f0' }}>{caso.titulo}</span>
-                                      {' — '}
-                                      {caso.detalhe}
-                                    </span>
-                                  </span>
-                                )
-                                : <DetalhePassoComPrints detalhe={caso.detalhe} />}
+                              <DetalhePassoComPrints detalhe={caso.detalhe} />
                             </div>
                           </div>
                           <BotaoVisualizarPasso onClick={() => setCasoDetalhe(caso)} />

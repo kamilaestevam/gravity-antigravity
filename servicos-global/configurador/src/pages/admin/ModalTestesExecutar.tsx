@@ -92,9 +92,6 @@ const TIPOS_TESTE: Array<{ valor: TipoTeste; rotulo: string; descricao: string }
   { valor: 'EMT', rotulo: 'Em tela',      descricao: 'Playwright visual — script tsx dedicado' },
 ]
 
-/** Filtro padrão: todos os tipos visíveis (evita lista vazia ao abrir o modal). */
-const TODOS_TIPOS_ATIVOS = new Set<TipoTeste>(TIPOS_TESTE.map(t => t.valor))
-
 /**
  * Títulos de seção (uppercase) — Solid Slate:
  * cor #94a3b8 (--text-secondary), 0.7rem, peso 800, letter-spacing 0.1em.
@@ -138,8 +135,8 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
     ambiente: 'Local',
   })
 
-  /** Tipos de teste selecionados (filtro). Padrão: todos visíveis. */
-  const [tiposAtivos, setTiposAtivos] = useState<Set<TipoTeste>>(() => new Set(TODOS_TIPOS_ATIVOS))
+  /** Tipos de teste selecionados (filtro). Padrão: nenhum — usuário escolhe ou usa Selecionar todos. */
+  const [tiposAtivos, setTiposAtivos] = useState<Set<TipoTeste>>(new Set())
 
   const [planosDisponiveis, setPlanosDisponiveis] = useState<PlanoTesteApi[]>([])
   const [planosSelecionados, setPlanosSelecionados] = useState<Set<string>>(new Set())
@@ -156,10 +153,10 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   const currentUser = useShellStore(s => s.currentUser)
   const idUsuario = currentUser.id?.trim() || null
 
-  // Ao abrir o modal: tipos com filtro completo; planos desmarcados (favorito pode pré-selecionar)
+  // Ao abrir o modal: filtros e planos desmarcados (favorito pode pré-selecionar)
   useEffect(() => {
     if (!aberto) return
-    setTiposAtivos(new Set(TODOS_TIPOS_ATIVOS))
+    setTiposAtivos(new Set())
     setPlanosSelecionados(new Set())
     setFavoritoPendente(null)
     if (idUsuario) setFavoritos(lerTestesFavoritosAdmin(idUsuario))

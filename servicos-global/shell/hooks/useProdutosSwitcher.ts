@@ -10,7 +10,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react'
 import { z } from 'zod'
-import { cloneElement } from 'react'
+import { cloneElement, createElement } from 'react'
+import { Folders } from '@phosphor-icons/react'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { useShellStore } from '../store'
 import {
@@ -83,10 +84,27 @@ function garantirProdutoAtualNaLista(
   return [montarItemProduto(produtoAtualSlug, nomeProdutoAtual), ...itens]
 }
 
+/**
+ * Atalho "Processos" — não é um produto, é uma visão transversal de todos eles.
+ * Ícone agregador (Folders, igual ao "Ver todos os processos" do Hub) e kind 'acao'
+ * para o seletor renderizar separado, com seta de navegação em vez de check.
+ */
+function montarAtalhoProcessos(): ProductSwitcherItem {
+  const meta = getProdutoMeta(SLUG_ATALHO_PROCESSOS)
+  return {
+    slug: SLUG_ATALHO_PROCESSOS,
+    name: 'Processos',
+    color: meta.color,
+    icon: createElement(Folders, { weight: 'duotone', size: 22 }),
+    kind: 'acao',
+    sublabel: 'Visão unificada dos produtos Gravity',
+  }
+}
+
 /** Adiciona o atalho "Processos" sempre por último (não é um produto, é um link para o Hub). */
 function adicionarAtalhoProcessos(itens: ProductSwitcherItem[]): ProductSwitcherItem[] {
   const semProcessos = itens.filter(p => p.slug !== SLUG_ATALHO_PROCESSOS)
-  return [...semProcessos, montarItemProduto(SLUG_ATALHO_PROCESSOS, 'Processos')]
+  return [...semProcessos, montarAtalhoProcessos()]
 }
 
 export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?: string) {

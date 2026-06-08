@@ -321,12 +321,12 @@ function rotuloExibicaoUnidadeSelecionada(unit: string, lista: GTUnidadeOpcao[])
   return nomeExibicaoUnidadeRotulo(getUnidadeRotulo(match))
 }
 
-/** Coluna pode passar `[]` enquanto Cadastros carrega — array vazio não deve bloquear o fallback SSOT. */
+/** `undefined` → lista canônica do Cadastros; array (mesmo vazio) → catálogo próprio da coluna. */
 function resolverListaUnidades(
   restritas: GTUnidadeOpcao[] | undefined,
   padrao: GTUnidadeOpcao[],
 ): GTUnidadeOpcao[] {
-  if (restritas && restritas.length > 0) return restritas
+  if (restritas !== undefined) return restritas
   return padrao
 }
 

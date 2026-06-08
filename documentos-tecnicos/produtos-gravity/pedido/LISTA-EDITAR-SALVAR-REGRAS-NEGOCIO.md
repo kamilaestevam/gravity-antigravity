@@ -487,6 +487,68 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ---
 
+## 8G. PESO LÍQUIDO TOTAL DO PEDIDO/ITEM (`peso_liquido_total_pedido` / `peso_liquido_unitario_item`)
+
+> Decisão de produto **2026-06-08** — pedido = soma dos itens na mesma unidade de peso (ou alerta *Unidades de peso líquido divergentes*); item editável via popover qty + unidade. Fonte de unidades: Cadastros `categoria=peso` (**G**, **KG**, **TON**).
+
+| # | Regra |
+|---|--------|
+| **PLQ-01** | Label na grade: **Peso Líquido Total do Pedido/Item** — tooltip pedido: *Peso Líquido Total do Pedido*; item: editável unitário. |
+| **PLQ-02** | Célula do **pedido**: não editável na lista (`editavel: false`, `cursor: not-allowed`). |
+| **PLQ-03** | Tooltip **pedido**: `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia`. |
+| **PLQ-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **PLQ-05** | Clicar no **item** abre popover com quantidade + select de unidade de peso. |
+| **PLQ-06** | Lista do select = Cadastros/unidade `categoria=peso` — EMT exige **G**, **KG** e **TON** visíveis (`G — Grama`, `KG — Quilograma`, `TON — Tonelada`). |
+| **PLQ-07** | Aviso amarelo no popover do item: *A alteração da unidade irá alterar também Peso Bruto Total* (`aviso_impacto_peso_bruto`). |
+| **PLQ-08** | Editar peso líquido no item persiste `peso_liquido_unitario_item` + `peso_liquido_unidade_item`; pedido recalcula `peso_liquido_total_pedido`. |
+| **PLQ-09** | Unidades de peso **divergentes** entre itens → pedido sem soma (alerta *Unidades de peso líquido divergentes*). |
+| **PLQ-10** | Formato: casas decimais de Config (`peso_liquido_total_pedido` / unitário); badge de unidade na célula do item; pedido exibe **KG** agregado. |
+| **PLQ-11** | Persistência validada ao sair para o hub e voltar à lista (passo 237 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Peso Líquido Total do Pedido* | `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` → `alerta_divergencia` |
+
+**Código:** `pai_calculado_peso` · `dinamico_peso_liquido` · `PILLS_PEDIDO_PESO_CUBAGEM` · `unidadesPeso` em `useUnidadesPedido` · `aviso_impacto_peso_bruto` em `ColunasPai.tsx`.
+
+**EMT:** passos 227–237 (ETAPA 44) · `validar-peso-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8H. PESO BRUTO TOTAL DO PEDIDO/ITEM (`peso_bruto_total_pedido` / `peso_bruto_unitario_item`)
+
+> Espelha §8G — pedido bloqueado (soma); item editável; unidades de peso do Cadastros; aviso cruzado com Peso Líquido.
+
+| # | Regra |
+|---|--------|
+| **PLB-01** | Label na grade: **Peso Bruto Total do Pedido/Item** — tooltip pedido: *Peso Bruto Total do Pedido*. |
+| **PLB-02** | Célula do **pedido**: não editável na lista. |
+| **PLB-03** | Tooltip **pedido**: `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia`. |
+| **PLB-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **PLB-05** | Clicar no **item** abre popover qty + select de unidade. |
+| **PLB-06** | Select lista **G**, **KG** e **TON** (mesma fonte Cadastros `categoria=peso`). |
+| **PLB-07** | Aviso amarelo: *A alteração da unidade irá alterar também Peso Líquido Total* (`aviso_impacto_peso_liquido`). |
+| **PLB-08** | Editar no item persiste `peso_bruto_unitario_item` + `peso_bruto_unidade_item`; pedido recalcula total. |
+| **PLB-09** | Unidades divergentes → alerta *Unidades de peso bruto divergentes* no pedido. |
+| **PLB-10** | Casas decimais de Config; badge de unidade no item; pedido em **KG**. |
+| **PLB-11** | Persistência hub → lista (passo 248 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Peso Bruto Total do Pedido* | `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` → `alerta_divergencia` |
+
+**Código:** `dinamico_peso_bruto` · `aviso_impacto_peso_liquido` em `ColunasPai.tsx`.
+
+**EMT:** passos 238–248 (ETAPA 45) · `validar-peso-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
 ## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.

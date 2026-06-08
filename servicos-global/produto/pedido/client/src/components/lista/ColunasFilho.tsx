@@ -1533,7 +1533,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
   },
   {
     key: 'condicao_pagamento_siscomex',
-    label: 'Cond. Pagamento — Siscomex',
+    label: t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido'),
     tipo: 'select',
     opcoes: modalidadePagamentoOpcoes,
     filtravel: true,

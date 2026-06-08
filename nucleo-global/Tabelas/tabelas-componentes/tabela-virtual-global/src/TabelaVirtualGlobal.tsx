@@ -21,7 +21,7 @@ import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
 import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
-import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
+import { SelectColunasGlobal, type ColunaSelectConfig } from '@nucleo/select-colunas-global'
 
 import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { useUnidades } from '@nucleo/modal-tabela-unidades'
@@ -41,6 +41,15 @@ import type {
   GTUnidadeOpcao,
 } from './tipos.js'
 import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
+
+function colunaParaSeletor<T>(c: GTColuna<T>): ColunaSelectConfig {
+  return {
+    key: c.key as string,
+    label: c.label,
+    naoOcultavel: c.naoOcultavel,
+    grupo: c.grupo,
+  }
+}
 
 // ─── Ícones internos ──────────────────────────────────────────────────────────
 
@@ -289,6 +298,15 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
 const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
 
+/** Coluna pode passar `[]` enquanto Cadastros carrega — array vazio não deve bloquear o fallback SSOT. */
+function resolverListaUnidades(
+  restritas: GTUnidadeOpcao[] | undefined,
+  padrao: GTUnidadeOpcao[],
+): GTUnidadeOpcao[] {
+  if (restritas && restritas.length > 0) return restritas
+  return padrao
+}
+
 function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: number): string {
   if (tipo === 'moeda' && val != null && typeof val === 'object') {
     const v = val as GTValorMoeda
@@ -485,7 +503,7 @@ const GTEditPopover = memo(function GTEditPopover({
   // SSOT: listas vêm do banco Cadastros via hooks (antes hardcoded).
   // Se a coluna restringe moedas/unidades, filtra a lista canônica.
   const { moedas: moedasCadastros } = useMoedas()
-  const { unidades: unidadesCadastros } = useUnidades()
+  const { unidades: unidadesCadastros, loading: loadingUnidades, erro: erroUnidades } = useUnidades()
   const listaMoedasSiscomex = overlayInfo.moedas
     ? moedasCadastros.filter(m => overlayInfo.moedas!.some(mo => getUnidadeSigla(mo) === m.codigo_moeda))
     : moedasCadastros
@@ -496,7 +514,7 @@ const GTEditPopover = memo(function GTEditPopover({
     sigla: u.codigo_unidade,
     rotulo: `${u.codigo_unidade} — ${u.nome_unidade}`,
   }))
-  const listaUnidades = overlayInfo.unidades ?? unidadesPadrao
+  const listaUnidades = resolverListaUnidades(overlayInfo.unidades, unidadesPadrao)
   const casas = overlayInfo.casasDecimais ?? 0
 
   // Estados de display pt-BR para os inputs numéricos (inicializados uma vez na abertura do popover)
@@ -1068,12 +1086,24 @@ const GTEditPopover = memo(function GTEditPopover({
                 onKeyDown={e => { if (e.key === 'Escape') setUnidadeAberta(false) }}
               />
             </div>
-            {listaUnidades
-              .filter(u => {
+            {(() => {
+              const filtradas = listaUnidades.filter(u => {
                 const q = unidadeBusca.toLowerCase()
                 return getUnidadeSigla(u).toLowerCase().includes(q) || getUnidadeRotulo(u).toLowerCase().includes(q)
               })
-              .map(u => {
+              if (filtradas.length === 0) {
+                const msg = loadingUnidades
+                  ? 'Carregando unidades…'
+                  : erroUnidades
+                    ? 'Erro ao carregar unidades'
+                    : 'Nenhuma unidade encontrada'
+                return (
+                  <div className="gtv-edit-custom-select-item" style={{ cursor: 'default', opacity: 0.7 }}>
+                    {msg}
+                  </div>
+                )
+              }
+              return filtradas.map(u => {
                 const sigla  = getUnidadeSigla(u)
                 const rotulo = getUnidadeRotulo(u)
                 return (
@@ -1085,7 +1115,7 @@ const GTEditPopover = memo(function GTEditPopover({
                   >{rotulo}</button>
                 )
               })
-            }
+            })()}
           </div>
         </>,
         document.body
@@ -1147,6 +1177,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   preferencias,
   onSalvarPreferencias,
   colunasPadrao,
+  colunasSeletor,
   imperativeRef,
   carregando,
   emptyIcon,
@@ -2873,17 +2904,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               </button>
               {colunasAbertas && (
                 <SelectColunasGlobal
-                  colunas={[
-                    // Visíveis na frente, na ORDEM EXATA da tabela — sem grupo para espelhar fielmente
-                    ...colunasVisiveis
-                      .map(key => colunas.find(c => c.key === key))
-                      .filter((c): c is GTColuna<T> => c != null)
-                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel })),
-                    // Ocultas no final
-                    ...colunas
-                      .filter(c => !colunasVisiveis.includes(c.key))
-                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel })),
-                  ]}
+                  colunas={colunasSeletor ?? colunas.map(colunaParaSeletor)}
                   colunasVisiveis={colunasVisiveis}
                   onToggle={toggleColuna}
                   onFechar={() => setColunasAbertas(false)}

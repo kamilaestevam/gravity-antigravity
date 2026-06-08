@@ -186,7 +186,13 @@ import {
   fmtData,
 } from '../shared/types'
 import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
-import { useUnidadesPedido } from '../shared/useUnidadesPedido'
+import {
+  useUnidadesPedido,
+  kgParaQuantidadeExibicao,
+  quantidadeExibicaoParaKg,
+  rotuloExibicaoUnidadeOpcao,
+} from '../shared/useUnidadesPedido'
+import { useVolumesPedido } from '../shared/useVolumesPedido'
 import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import { useMoedasPedido } from '../shared/useMoedasPedido'
 import { useLogisticaCadastrosPedido } from '../shared/useLogisticaCadastrosPedido'
@@ -444,7 +450,7 @@ function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0, to
 // Aqui só usamos as KEYS (COLUNAS_PAI_CHAVES) — unidades podem ser vazias.
 const COLUNAS_PAI: GTColuna<Pedido>[] = buildColunasPai(
   i18next.t.bind(i18next),
-  { unidadesPeso: [], unidadesCubagem: [] },
+  { unidadesPeso: [], unidadesCubagem: [], mapaFatorParaKg: {} },
 )
 
 // ── Chaves das colunas estáticas do Pedido (para camposDisponiveis em fórmulas) ──
@@ -482,6 +488,7 @@ const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'valor_total_pedido',
   'quantidade_pronta_itens_pedido_total',
   'unidade_comercializada_pedido',
+  'tipo_volume_pedido',
   'quantidade_transferida_total',
   'saldo_itens_do_pedido',
   'quantidade_cancelada_total_pedido',
@@ -2553,9 +2560,6 @@ const CAMPOS_NUMERICOS_ITEM = new Set([
   'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
 ])
 
-// Fator de conversão reversa: KG armazenado → unidade de exibição
-const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KGBR: 1 }
-
 // Campos com unidade física fixa — GTValorUnidade usado só para exibir a unidade no popover,
 // mas NÃO grava unidade_comercializada_item (a unidade não muda)
 const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
@@ -2917,6 +2921,7 @@ const CAMPO_ITEM_JSON: Partial<Record<string, keyof PedidoItem | string>> = {
   tipo_operacao_item: 'tipo_operacao',
   condicao_pagamento_item: 'condicao_pagamento_pedido',
   unidade_comercializada_item: 'unidade_comercializada_item',
+  tipo_volume_item: 'tipo_volume_item',
 }
 
 /** Propaga valor do pai no item em memória — usa MAPA_PROPAGACAO + nomes JSON do mapItem. */
@@ -3001,6 +3006,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   const {
     unidadesPeso,
     unidadesCubagem,
+    mapaFatorParaKg,
+    volumesOpcoes = [],
     workspacesMap,
     workspaceOpcoesLista = [],
     opcoesImportadoresExpLista = [],
@@ -3364,12 +3371,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
-      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+      return { unit, quantity: kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg) }
     },
     render: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
-      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      const display = kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg)
       return (
         <span className="gtv-celula-moeda">
           {row.peso_liquido_unitario != null
@@ -3388,12 +3395,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
-      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+      return { unit, quantity: kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg) }
     },
     render: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
-      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      const display = kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg)
       return (
         <span className="gtv-celula-moeda">
           {row.peso_bruto_unitario != null
@@ -3585,6 +3592,44 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       return (
         <span className="gtv-celula-moeda">
           <span className="gtv-celula-moeda-badge">{unidade}</span>
+        </span>
+      )
+    },
+  },
+  tipo_volume_pedido: {
+    editavel: true,
+    campo: 'tipo_volume_item',
+    unidades: volumesOpcoes,
+    getValorEditar: (row: PedidoItem) => ({
+      unit: (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item ?? '05',
+      quantity: 0,
+    }),
+    render: (row: PedidoItem) => {
+      const tipo = (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item
+      if (!tipo) return <span>{'—'}</span>
+      const nome = rotuloExibicaoUnidadeOpcao(tipo, volumesOpcoes)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-unidade-badge">{nome}</span>
+        </span>
+      )
+    },
+  },
+  quantidade_volumes_pedido: {
+    editavel: true,
+    campo: 'tipo_volume_item',
+    unidades: volumesOpcoes,
+    getValorEditar: (row: PedidoItem) => ({
+      unit: (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item ?? '05',
+      quantity: 0,
+    }),
+    render: (row: PedidoItem) => {
+      const tipo = (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item
+      if (!tipo) return <span style={{ opacity: 0.4 }}>—</span>
+      const nome = rotuloExibicaoUnidadeOpcao(tipo, volumesOpcoes)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-unidade-badge">{nome}</span>
         </span>
       )
     },
@@ -4414,7 +4459,8 @@ export default function Pedidos() {
   const { podeEditar } = usePermissoesPedido()
   const podeEditarLista = podeEditar('lista')
   // Unidades de medida — SSOT cadastros.unidade via hook (substitui hardcode anterior).
-  const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
+  const { unidadesPeso, unidadesCubagem, mapaFatorParaKg } = useUnidadesPedido()
+  const { volumesOpcoes } = useVolumesPedido()
   // Incoterms — SSOT cadastros.incoterm via hook (substitui hardcode em 2026-05-13).
   const { incotermsOpcoes } = useIncotermsPedido()
   // Moedas — SSOT cadastros.moeda via hook (select inline em moeda_pedido).
@@ -4586,6 +4632,8 @@ export default function Pedidos() {
     () => ({
       unidadesPeso,
       unidadesCubagem,
+      mapaFatorParaKg,
+      volumesOpcoes,
       incotermsOpcoes,
       moedasOpcoes,
       workspacesMap,
@@ -4599,6 +4647,8 @@ export default function Pedidos() {
     [
       unidadesPeso,
       unidadesCubagem,
+      mapaFatorParaKg,
+      volumesOpcoes,
       incotermsOpcoes,
       moedasOpcoes,
       workspacesMap,
@@ -5224,6 +5274,16 @@ export default function Pedidos() {
 
     return [...colunasBase, ...customEnriquecidas]
   }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspaceOpcoesLista, pedidos, workspacesMap, opcoesImportadoresExpLista, opcoesExportadoresImpLista])
+
+  const colunasSeletorLista = useMemo(
+    () => colunasComUsuario.map(c => ({
+      key: String(c.key),
+      label: c.label,
+      naoOcultavel: c.naoOcultavel,
+      grupo: c.grupo,
+    })),
+    [colunasComUsuario],
+  )
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
@@ -6640,15 +6700,36 @@ export default function Pedidos() {
       return pedidoAtualizado
     }
     const pedidoAtual = pedidos.find(p => p.id === id)
+    if (
+      campo === 'quantidade_volumes_pedido'
+      && valor != null
+      && typeof valor === 'object'
+      && 'unit' in (valor as object)
+      && 'quantity' in (valor as object)
+    ) {
+      const { unit, quantity } = valor as { unit: string; quantity: number }
+      const qtdEnviar = Math.max(0, Math.round(Number(quantity) || 0))
+      const replicarVol = opts?.replicar_em_itens ?? false
+      const updatedQtdRaw = await pedidoVirtualApi.editarCampo(id, 'quantidade_volumes_pedido', qtdEnviar, replicarVol)
+      let resultado = { ...updatedQtdRaw, quantidade_volumes_pedido: qtdEnviar } as Pedido
+      const tipoAtual = pedidoAtual?.tipo_volume_pedido ?? null
+      if (unit && unit !== tipoAtual) {
+        const updatedTipoRaw = await pedidoVirtualApi.editarCampo(id, 'tipo_volume_pedido', unit, replicarVol)
+        resultado = { ...updatedTipoRaw, quantidade_volumes_pedido: qtdEnviar, tipo_volume_pedido: unit } as Pedido
+      } else if (unit) {
+        resultado = { ...resultado, tipo_volume_pedido: unit }
+      }
+      setPedidos(prev => prev.map(p => (p.id === id ? resultado : p)))
+      return resultado
+    }
     // GTValorMoeda { currency, amount } → campos moeda_*_pedido armazenam apenas o código ISO (String)
     // O overlay tipo='moeda' envia objeto composto; extraímos só `currency` para campos de código.
     const CAMPOS_MOEDA_CODIGO = new Set(['moeda_pedido', 'moeda_cambio_pedido'])
     const isMoedaObj = valor != null && typeof valor === 'object' && 'currency' in (valor as object)
     // GTValorUnidade { unit, quantity } → extrai quantity, aplica conversão para KG em campos de peso
-    const FATOR_PARA_KG_PAI: Record<string, number> = { KG: 1, G: 0.001, TON: 1000, KGBR: 1 }
     const CAMPOS_PESO_PAI = new Set(['peso_liquido_total_pedido', 'peso_bruto_total_pedido'])
     // apenasUnidade: true — grava só a sigla (string), não quantity
-    const CAMPOS_UNIDADE_CODIGO_PAI = new Set(['unidade_comercializada_pedido'])
+    const CAMPOS_UNIDADE_CODIGO_PAI = new Set(['unidade_comercializada_pedido', 'tipo_volume_pedido'])
     const isUnidadePai = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
     const valorEnviarPaiBruto: unknown = isMoedaObj && CAMPOS_MOEDA_CODIGO.has(campo)
       ? (valor as { currency: string }).currency
@@ -6657,7 +6738,7 @@ export default function Pedidos() {
         : isUnidadePai
           ? (() => {
               const { unit, quantity } = valor as { unit: string; quantity: number }
-              return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
+              return CAMPOS_PESO_PAI.has(campo) ? quantidadeExibicaoParaKg(quantity, unit, mapaFatorParaKg) : quantity
             })()
           : valor
     const valorEnviarPaiBrutoNorm = isCampoLogisticaPedido(campo)
@@ -6733,7 +6814,7 @@ export default function Pedidos() {
       return { ...updatedPedido, itens: sinc.itens.length > 0 ? sinc.itens : p.itens, ...sinc.divergencias }
     }))
     return updatedPedido
-  }, [pedidos, colunasUsuario, opcoesImportadoresExpLista, opcoesExportadoresImpLista, workspacesMap, workspaceOpcoesLista, t])
+  }, [pedidos, colunasUsuario, opcoesImportadoresExpLista, opcoesExportadoresImpLista, workspacesMap, workspaceOpcoesLista, mapaFatorParaKg, t])
 
   // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
   // SSOT: pedidoDivergencias.ts (shared) + getAlertavelKeys() em columnAlertConfig.ts
@@ -7041,6 +7122,32 @@ export default function Pedidos() {
       return enriquecidoMi
     }
 
+    if (campo === 'tipo_volume_item' && valor != null && typeof valor === 'object' && 'unit' in (valor as object)) {
+      const uv = valor as { unit: string; quantity: number }
+      const itemAtualTv = getItensCache().find(i => i.id === id)
+      const atualizadoTv = await pedidoItemApi.atualizar(pedido.id, id, {
+        tipo_volume_item: uv.unit,
+      } as Partial<PedidoItem>)
+        .catch(() => {
+          if (import.meta.env.DEV && itemAtualTv) return { ...itemAtualTv, tipo_volume_item: uv.unit } as PedidoItem
+          throw new Error(t('pedido.lista.erro.editar_tipo_volume_item', 'Erro ao editar tipo de volume do item'))
+        })
+      const enriquecidoTv: PedidoItemEnriquecido = {
+        ...atualizadoTv,
+        _p: montarContextoPaiItem(pedido, atualizadoTv),
+      }
+      const { itens: itensAposEdicaoTv, divergencias: divergenciasTv } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoTv : i),
+        pedido,
+      )
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoTv)
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return { ...p, ...divergenciasTv, itens: itensAposEdicaoTv }
+      }))
+      return enriquecidoTv
+    }
+
     // unidade_comercializada_item: o editor tipo 'unidade' retorna
     // GTValorUnidade { unit, quantity }. Extraímos apenas o unit.
     if (campo === 'unidade_comercializada_item' && valor != null && typeof valor === 'object' && 'unit' in (valor as object)) {
@@ -7341,14 +7448,13 @@ export default function Pedidos() {
       // GTValorUnidade { unit, quantity } → extrai quantity para campos numéricos + salva unidade
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
       // Fatores de conversão para kg (todos os campos de peso são persistidos em kg)
-      const FATOR_PARA_KG: Record<string, number> = { 'KG': 1, 'G': 0.001, 'TON': 1000, 'KGBR': 1 }
       const CAMPOS_PESO_ITEM = new Set(['peso_liquido_unitario', 'peso_bruto_unitario'])
       const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo)
         ? (() => {
             const qty = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
             if (CAMPOS_PESO_ITEM.has(campo) && isUnidade) {
               const unit = (valor as { unit: string }).unit
-              return qty * (FATOR_PARA_KG[unit] ?? 1)
+              return quantidadeExibicaoParaKg(qty, unit, mapaFatorParaKg)
             }
             return qty
           })()
@@ -7424,7 +7530,7 @@ export default function Pedidos() {
       }
     }))
     return itensAposEdicao.find(i => i.id === id) ?? enriquecido
-  }, [pedidos, handleEditar, t])
+  }, [pedidos, handleEditar, mapaFatorParaKg, t])
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   function montarPedidoComItensCarregados(
@@ -7726,6 +7832,7 @@ export default function Pedidos() {
           imperativeRef={tabelaRef}
           dados={pedidosFiltrados}
           colunas={colunasComUsuario}
+          colunasSeletor={colunasSeletorLista}
           itemId={pedidoItemId}
 
           mapaColunasFilho={mapaColunasFilho}

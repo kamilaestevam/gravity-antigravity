@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-06-05T23:28:17.908Z
+// Gerado em: 2026-06-08T02:10:02.128Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/produto/pedido
 // ============================================================================
@@ -90,6 +90,7 @@ model Pedido {
   // ============================================================
   cobertura_cambial_pedido                                    String?
   quantidade_volumes_pedido                                   Int?
+  tipo_volume_pedido                                          String?
 
   // ============================================================
   // FASE 06B — Datas dos documentos (Pedido / Proforma / Invoice)
@@ -299,6 +300,7 @@ model PedidoItem {
   campo_especial_item              String?
   atributos_catalogo               String?
   tipo_embalagem                   String?
+  tipo_volume_item                 String?
   numero_lpco                      String?
   numero_certificado_origem        String?
   data_certificado_origem          DateTime?

@@ -387,6 +387,7 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   onSalvarPreferencias?: (prefs: GTPreferencias) => void
   /** Keys na sequência padrão — usadas pelo botão "Restaurar padrão" no gerenciador de colunas */
   colunasPadrao?: string[]
+  colunasSeletor?: Array<{ key: string; label: string; naoOcultavel?: boolean; grupo?: string }>
 
   // ── Handle imperativo ─────────────────────────────────────────────────────
   /**

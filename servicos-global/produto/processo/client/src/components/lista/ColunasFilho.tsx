@@ -16,6 +16,7 @@ import { fmtQuantidade, fmtData, classeMoedaBadge } from '../../shared/lista/ped
 import { parsearFormula, avaliarFormula } from '../../shared/lista/formulaEngine'
 import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel, type OpcoesUnidadesColunas } from './ColunasPai'
 import { renderRotuloCadastro } from '../../shared/lista/useLogisticaCadastrosPedido'
+import { kgParaQuantidadeExibicao } from '../../shared/lista/useUnidadesPedido'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
 export { _regrasAlertasRef }
@@ -1587,11 +1588,8 @@ type PedidoItemEnriquecido = PedidoItem & {
   }
 }
 
-// Fator de conversão reversa: KG armazenado → unidade de exibição
-const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KGBR: 1 }
-
 export function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
-  const { unidadesPeso, unidadesCubagem, workspacesMap, paisesOpcoes = [], portosOpcoes = [], aeroportosOpcoes = [] } = opcoes
+  const { unidadesPeso, unidadesCubagem, mapaFatorParaKg, workspacesMap, paisesOpcoes = [], portosOpcoes = [], aeroportosOpcoes = [] } = opcoes
   const tooltipLogisticaEditaPedido = t(
     'pedido.coluna_filho.mapa_logistica.tooltip_edita_pedido',
     'Valor do pedido — a alteração aqui atualiza o pedido inteiro (não grava no item).',
@@ -1776,12 +1774,12 @@ export function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColuna
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
-      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+      return { unit, quantity: kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg) }
     },
     render: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
-      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      const display = kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg)
       return (
         <span className="gtv-celula-moeda">
           {row.peso_liquido_unitario != null
@@ -1800,12 +1798,12 @@ export function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColuna
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
-      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+      return { unit, quantity: kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg) }
     },
     render: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
-      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      const display = kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg)
       return (
         <span className="gtv-celula-moeda">
           {row.peso_bruto_unitario != null

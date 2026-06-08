@@ -1000,6 +1000,23 @@
       "ultimoResultado": null
     },
     {
+      "id": "TST-EMT-PEDIDO-LISTA-NOVO-ITEM-MANUAL-001",
+      "tipo": "EMT",
+      "escopo": "PEDIDO",
+      "sublocal": "lista/novo-item-manual",
+      "modulo": "Novo Item Manual — modal passo a passo, escopo workspace, grade e persistência",
+      "criticidade": "alta",
+      "planoFile": "testes/testes-em-tela/pedido/lista/novo-item-manual/plano-de-teste/plano-teste-em-tela.md",
+      "specFile": "testes/testes-em-tela/pedido/lista/novo-item-manual/plano-de-teste/run-novo-item-manual.ts",
+      "componenteFile": "servicos-global/produto/pedido/client/src/components/ModalItemNovo.tsx",
+      "casosTotal": 22,
+      "coberturaPercentual": 0,
+      "status": "aguardando_aprovacao_dono",
+      "criadoEm": "2026-06-03T00:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
       "id": "TST-UNI-MBOTO-000046",
       "tipo": "UNI",
       "escopo": "MBOTO",

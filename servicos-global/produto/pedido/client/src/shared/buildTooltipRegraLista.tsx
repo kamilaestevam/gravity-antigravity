@@ -393,6 +393,7 @@ export function enriquecerColunaComRegraTooltip<T>(
         || key === 'moeda_cambio_pedido'
         || key === 'taxa_cambio_estimada'
         || key === 'valor_total_cambio_pedido'
+        || key === 'tipo_volume_pedido'
         || key === 'quantidade_volumes_pedido'
         || key === 'nome_importador'
         || key === 'nome_exportador'

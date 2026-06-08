@@ -13,6 +13,7 @@ import {
 } from './pedidoDivergencias'
 import { CAMPOS_EDITAVEIS_PEDIDO } from './processoListaColunasConfig'
 import { resolverCampoEdicaoFilho } from './processoColunaAvoFilhoMap'
+import { quantidadeExibicaoParaKg } from './useUnidadesPedido'
 
 export type PedidoComProcesso = Pedido & { id_processo: string }
 
@@ -29,8 +30,6 @@ const CAMPOS_MOEDA_CODIGO = new Set(['moeda_pedido', 'moeda_cambio_pedido'])
 const CAMPOS_PESO_PAI = new Set(['peso_liquido_total_pedido', 'peso_bruto_total_pedido'])
 
 const CAMPOS_UNIDADE_CODIGO_PAI = new Set(['unidade_comercializada_pedido'])
-
-const FATOR_PARA_KG_PAI: Record<string, number> = { KG: 1, G: 0.001, TON: 1000, KGBR: 1 }
 
 export function normalizarDataISO(val: unknown): string | null {
   if (!val || typeof val !== 'string') return null
@@ -101,7 +100,11 @@ export function aplicarPropagacaoPedidoNoItem(
   return patched
 }
 
-function normalizarValorPedidoPai(campo: string, valor: unknown): unknown {
+function normalizarValorPedidoPai(
+  campo: string,
+  valor: unknown,
+  mapaFatorParaKg: Record<string, number>,
+): unknown {
   const isMoedaObj = valor != null && typeof valor === 'object' && 'currency' in (valor as object)
   const isUnidadePai = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
 
@@ -112,7 +115,7 @@ function normalizarValorPedidoPai(campo: string, valor: unknown): unknown {
       : isUnidadePai
         ? (() => {
             const { unit, quantity } = valor as { unit: string; quantity: number }
-            return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
+            return CAMPOS_PESO_PAI.has(campo) ? quantidadeExibicaoParaKg(quantity, unit, mapaFatorParaKg) : quantity
           })()
         : valor
 
@@ -177,6 +180,7 @@ export function useEdicaoListaProcesso(
   itens: PedidoItem[],
   setItens: SetItens,
   setResetCacheFilhos: Dispatch<SetStateAction<number>>,
+  mapaFatorParaKg: Record<string, number>,
 ) {
   const pedidosExibicao = useMemo(
     () => pedidos.map(p => mesclarPedidoComDivergencias(p, itens.filter(i => i.pedido_id === p.id))),
@@ -272,7 +276,7 @@ export function useEdicaoListaProcesso(
       return montarFilhoPedidoLista(pedidoAtualizado, pedidos)
     }
 
-    const valorEnviar = normalizarValorPedidoPai(campo, valor)
+    const valorEnviar = normalizarValorPedidoPai(campo, valor, mapaFatorParaKg)
     const replicar = campo === 'id_workspace' ? true : (opts?.replicar_em_itens ?? false)
 
     let pedidoAtualizado = { ...pedido, [campo]: valorEnviar } as PedidoComProcesso

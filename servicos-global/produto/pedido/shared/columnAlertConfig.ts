@@ -49,6 +49,7 @@ const CAMPOS_ALERTAVEIS = new Set([
   // "⚠ Moedas/Unidades divergentes entre itens" via padrão `_divergente`.
   'moeda_item',
   'unidade_comercializada_item',
+  'tipo_volume_item',
 
   // Datas — pedido pronto (3)
   'data_prevista_pedido_pronto',

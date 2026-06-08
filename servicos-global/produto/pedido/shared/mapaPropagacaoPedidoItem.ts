@@ -44,6 +44,7 @@ export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Obj
   incoterm_pedido:                  'incoterm_item',
   moeda_pedido:                     'moeda_item',
   unidade_comercializada_pedido:    'unidade_comercializada_item',
+  tipo_volume_pedido:               'tipo_volume_item',
   condicao_pagamento_pedido:        'condicao_pagamento_item',
   data_emissao_pedido:              'data_emissao_item',
 

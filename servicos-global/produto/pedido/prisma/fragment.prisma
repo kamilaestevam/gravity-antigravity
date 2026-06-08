@@ -61,6 +61,7 @@ model Pedido {
   // ============================================================
   cobertura_cambial_pedido                                    String?
   quantidade_volumes_pedido                                   Int?
+  tipo_volume_pedido                                          String?
 
   // ============================================================
   // FASE 06B — Datas dos documentos (Pedido / Proforma / Invoice)
@@ -270,6 +271,7 @@ model PedidoItem {
   campo_especial_item              String?
   atributos_catalogo               String?
   tipo_embalagem                   String?
+  tipo_volume_item                 String?
   numero_lpco                      String?
   numero_certificado_origem        String?
   data_certificado_origem          DateTime?

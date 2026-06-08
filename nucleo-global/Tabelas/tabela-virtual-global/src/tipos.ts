@@ -455,6 +455,11 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   onSalvarPreferencias?: (prefs: GTPreferencias) => void
   /** Keys na sequência padrão — usadas pelo botão "Restaurar padrão" no gerenciador de colunas */
   colunasPadrao?: string[]
+  /**
+   * Config explícita do seletor Colunas (inclui `grupo` para agrupamento).
+   * Quando omitido, deriva de `colunas` via colunaParaSeletor no núcleo.
+   */
+  colunasSeletor?: Array<{ key: string; label: string; naoOcultavel?: boolean; grupo?: string }>
 
   // ── Handle imperativo ─────────────────────────────────────────────────────
   /**

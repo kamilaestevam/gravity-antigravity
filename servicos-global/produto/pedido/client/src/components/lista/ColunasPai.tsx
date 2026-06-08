@@ -17,6 +17,7 @@ import { STATUS_PEDIDO_LABELS, fmtQuantidade, fmtData, classeMoedaBadge } from '
 import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
+import { rotuloExibicaoUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
 import { enriquecerColunasComRegraTooltip, montarTooltipCelulaComAviso } from '../../shared/buildTooltipRegraLista'
 import { obterDescricaoExibicaoPedido, obterNcmExibicaoPedido } from '../../../../shared/pedidoDivergencias'
@@ -284,6 +285,9 @@ function criarColunaDataReplicavel(
 export interface OpcoesUnidadesColunas {
   unidadesPeso: GTUnidadeOpcao[]
   unidadesCubagem: GTUnidadeOpcao[]
+  /** SSOT cadastros.unidade.fator_para_kg_unidade — conversão qty ↔ KG. */
+  mapaFatorParaKg: Record<string, number>
+  volumesOpcoes?: GTUnidadeOpcao[]
   /**
    * Opções de Incoterm vindas de cadastros.incoterm via useIncotermsPedido.
    * Formato `{ valor, label }` esperado pelo popover de edição inline (select).
@@ -315,6 +319,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   const {
     unidadesPeso,
     unidadesCubagem,
+    volumesOpcoes = [],
     incotermsOpcoes,
     moedasOpcoes,
     workspacesMap,
@@ -1713,21 +1718,59 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     render: (_val: unknown, row: Pedido) => <span>{row.anexo_invoice ? '📎' : '—'}</span>,
   },
   {
+    key: 'tipo_volume_pedido',
+    label: t('pedido.coluna_pai.tipo_volume_pedido'),
+    tipo: 'unidade',
+    apenasUnidade: true,
+    filtravel: true,
+    grupo: 'Quantidades',
+    unidades: volumesOpcoes,
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_tipo_volume'),
+    getValorEditar: (row: Pedido) => ({
+      unit: row.tipo_volume_pedido ?? '05',
+      quantity: 0,
+    }),
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(
+        row.tipo_volume_pedido
+          ? rotuloExibicaoUnidadeOpcao(row.tipo_volume_pedido, volumesOpcoes)
+          : null,
+        row.tipo_volume_item_divergente,
+        t('pedido.coluna_pai.tipos_volume_divergentes'),
+      ),
+  },
+  {
     key: 'quantidade_volumes_pedido',
     label: t('pedido.coluna_pai.quantidade_volumes_pedido'),
-    tipo: 'numero',
+    tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
-    editavel: false,
+    editavel: true,
+    casasDecimais: 0,
+    unidades: volumesOpcoes,
     grupo: 'Quantidades',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_volumes_pedido_titulo'),
-    tooltipDescricao: t('pedido.coluna_pai.quantidade_volumes_pedido_desc'),
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.quantidade_volumes_pedido != null ? String(row.quantidade_volumes_pedido) : '—'}
-      </span>
-    ),
+    getValorEditar: (row: Pedido) => ({
+      unit: row.tipo_volume_pedido ?? '05',
+      quantity: row.quantidade_volumes_pedido ?? 0,
+    }),
+    render: (_val: unknown, row: Pedido) => {
+      const qtd = row.quantidade_volumes_pedido
+      const tipo = row.tipo_volume_pedido
+      if (qtd == null && !tipo) return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
+      const nomeTipo = tipo ? rotuloExibicaoUnidadeOpcao(tipo, volumesOpcoes) : null
+      return (
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {qtd != null ? fmtQuantidade(qtd, 0) : '—'}
+          {nomeTipo ? (
+            <TooltipGlobal titulo={tipo ?? ''} descricao={nomeTipo}>
+              <span className="gtv-celula-unidade-badge">{nomeTipo}</span>
+            </TooltipGlobal>
+          ) : null}
+        </span>
+      )
+    },
   },
   // ── Datas — Draft do Pedido + Proforma + Invoice (Decisão UX 2026-05-13:
   // todas seguem pattern unificado com replicar-em-itens via checkbox) ────────

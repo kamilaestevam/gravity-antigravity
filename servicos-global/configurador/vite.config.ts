@@ -148,6 +148,15 @@ export default defineConfig(({ command }) => {
       // historico-global: nome de pasta difere do alias usado pelo produto
       '@plataforma/historico': path.resolve(monorepoRoot, 'servicos-global/servicos-plataforma/historico-global/src/index.ts'),
       ...createNucleoAliases(monorepoRoot),
+      // SSOT tabela-virtual-global — sobrescreve scan/HMR stale (nunca tabelas-componentes/)
+      '@nucleo/tabela-virtual-global': path.resolve(
+        monorepoRoot,
+        'nucleo-global/Tabelas/tabela-virtual-global/src/index.ts',
+      ),
+      '@nucleo/tabela-virtual-global/': path.resolve(
+        monorepoRoot,
+        'nucleo-global/Tabelas/tabela-virtual-global/src/',
+      ),
       // Pacote novo — alias explícito garante resolve mesmo com cache/HMR stale
       '@nucleo/campo-dado-global': path.resolve(
         monorepoRoot,

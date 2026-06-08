@@ -147,7 +147,7 @@ const CAMPOS_REFERENCIAS_ITEM = [
 
 const CAMPOS_PESOS_PEDIDO = [
   'peso_liquido_total_pedido', 'peso_bruto_total_pedido', 'cubagem_total_pedido',
-  'tipo_embalagem_pedido', 'quantidade_volumes_pedido',
+  'tipo_embalagem_pedido', 'tipo_volume_pedido', 'quantidade_volumes_pedido',
 ] as const
 
 const CAMPOS_PESOS_ITEM = [

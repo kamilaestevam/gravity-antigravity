@@ -284,6 +284,7 @@ function criarColunaDataReplicavel(
 export interface OpcoesUnidadesColunas {
   unidadesPeso: GTUnidadeOpcao[]
   unidadesCubagem: GTUnidadeOpcao[]
+  mapaFatorParaKg: Record<string, number>
   /**
    * Opções de Incoterm vindas de cadastros.incoterm via useIncotermsPedido.
    * Formato `{ valor, label }` esperado pelo popover de edição inline (select).

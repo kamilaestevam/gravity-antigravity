@@ -297,7 +297,11 @@ export const PILLS_PEDIDO_VOLUMES: RegraPillId[] = [
 /** Linha do item — Qtd. Volumes: editável no item. */
 export const PILLS_ITEM_VOLUMES: RegraPillId[] = ['editavel_item']
 
-const CHAVES_DUAL_SEMPRE = new Set(['numero_pedido'])
+const CHAVES_DUAL_SEMPRE = new Set([
+  'numero_pedido',
+  'tipo_volume_pedido',
+  'quantidade_volumes_pedido',
+])
 
 const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: RegraPillId[] }> = {
   pai_editavel_replicar_alerta: {

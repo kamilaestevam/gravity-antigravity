@@ -52,6 +52,7 @@ export const unidadeSchema = z.object({
   nome_unidade: z.string().min(1),
   tipo_unidade: tipoUnidadeEnum,
   ativo_unidade: z.boolean(),
+  fator_para_kg_unidade: z.coerce.number().nullable().optional(),
 })
 
 export const listaUnidadesSchema = z.object({

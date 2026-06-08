@@ -150,6 +150,19 @@ export function calcularDivergenciasPedido(
     result.unidade_comercializada_item_divergente = unidadeDivergente
   }
 
+  {
+    const tiposItens = itens
+      .map(i => i.tipo_volume_item)
+      .filter((u): u is string => u != null && u !== '')
+    const tiposUnicos = new Set(tiposItens)
+    const tipoPai = pedidoPai?.tipo_volume_pedido ?? null
+    let tipoDivergente = tiposUnicos.size > 1
+    if (!tipoDivergente && tipoPai && tiposItens.length > 0) {
+      tipoDivergente = tiposItens.some(u => u !== tipoPai)
+    }
+    result.tipo_volume_item_divergente = tipoDivergente
+  }
+
   const ncms = itens.map(i => i.ncm).filter((v): v is string => v != null && v !== '')
   const ncmsUnicos = new Set(ncms)
   result.ncms_distintos_count = ncmsUnicos.size

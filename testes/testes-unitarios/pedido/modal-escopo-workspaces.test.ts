@@ -29,6 +29,12 @@ describe('Modais Pedido — escopo multi-workspace (SSOT Lista)', () => {
     expect(modalNovoItemSource).not.toMatch(/pedidoApi\.listar\(\{ status/)
   })
 
+  it('ModalNovoItem envia idWorkspace do pedido selecionado ao adicionar item', () => {
+    expect(modalNovoItemSource).toContain('pedidoWorkspaceSelecionadoId')
+    expect(modalNovoItemSource).toContain('company_id')
+    expect(modalNovoItemSource).toContain('idWorkspace: idWorkspaceAlvo')
+  })
+
   it('ModalTransferir usa pedidoVirtualApi.listar com idsWorkspacesFiltro no passo destino', () => {
     expect(modalTransferirSource).toContain('pedidoVirtualApi.listar')
     expect(modalTransferirSource).toContain('useEscopoWorkspacesPedido')

@@ -186,6 +186,7 @@ export function ModalNovoItemPedido({
 
   const [passo, setPasso]                         = useState(modoContexto ? 1 : 1)
   const [pedidoSelecionadoId, setPedidoSelecionadoId] = useState<string>(pedidoIdProp ?? '')
+  const [pedidoWorkspaceSelecionadoId, setPedidoWorkspaceSelecionadoId] = useState<string>('')
   const [numeroPedido, setNumeroPedido]            = useState<string>(numeroPedidoProp ?? '')
   const [pedidos, setPedidos]                      = useState<Pedido[]>([])
   const [carregandoPedidos, setCarregandoPedidos]  = useState(false)
@@ -234,6 +235,7 @@ export function ModalNovoItemPedido({
     setPasso(1)
     setItem(ITEM_VAZIO)
     setPedidoSelecionadoId(pedidoIdProp ?? '')
+    setPedidoWorkspaceSelecionadoId('')
     setNumeroPedido(numeroPedidoProp ?? '')
     setErro(null)
     onFechar()
@@ -275,16 +277,23 @@ export function ModalNovoItemPedido({
       const pedidoAlvo = modoContexto ? pedidoIdProp! : pedidoSelecionadoId
       const qtd = parseFloat(item.quantidade_inicial_item) || 0
       const valorUnit = item.valor_por_unidade_item.trim() === '' ? null : (parseFloat(item.valor_por_unidade_item) || 0)
-      const resultado = await pedidoItemApi.adicionar(pedidoAlvo, {
-        part_number_item:        item.part_number_item,
-        ncm_item:                item.ncm_item,
-        descricao_item:          item.descricao_item,
-        quantidade_inicial_item: qtd,
-        moeda_item:              item.moeda_item,
-        valor_por_unidade_item:  valorUnit,
-        // valor_total_item: NÃO enviado — backend recalcula via
-        // recalcularAgregadosPedido (fonte única de verdade, Mandamento 08)
-      } as Partial<PedidoItem>)
+      const idWorkspaceAlvo = modoContexto
+        ? undefined
+        : (pedidoWorkspaceSelecionadoId.trim() || undefined)
+      const resultado = await pedidoItemApi.adicionar(
+        pedidoAlvo,
+        {
+          part_number_item:        item.part_number_item,
+          ncm_item:                item.ncm_item,
+          descricao_item:          item.descricao_item,
+          quantidade_inicial_item: qtd,
+          moeda_item:              item.moeda_item,
+          valor_por_unidade_item:  valorUnit,
+          // valor_total_item: NÃO enviado — backend recalcula via
+          // recalcularAgregadosPedido (fonte única de verdade, Mandamento 08)
+        } as Partial<PedidoItem>,
+        idWorkspaceAlvo ? { idWorkspace: idWorkspaceAlvo } : undefined,
+      )
       const pn = item.part_number_item.trim() || item.descricao_item.trim() || t('pedido.modal_item.item_padrao')
       addNotification({ type: 'success', message: t('pedido.modal_item.notif_adicionado', { item: pn }), duration: 4000 })
       onSalvo(resultado)
@@ -344,7 +353,12 @@ export function ModalNovoItemPedido({
               const id = String(v ?? '')
               setPedidoSelecionadoId(id)
               const found = pedidos.find(p => p.id === id)
-              if (found) setNumeroPedido(found.numero_pedido)
+              if (found) {
+                setNumeroPedido(found.numero_pedido)
+                setPedidoWorkspaceSelecionadoId(found.company_id ?? '')
+              } else {
+                setPedidoWorkspaceSelecionadoId('')
+              }
             }}
           />
           {erroCarregarPedidos && <p style={s.erro}>{erroCarregarPedidos}</p>}

@@ -306,10 +306,15 @@ export const pedidoItemApi = {
   listar: (pedidoId: string) =>
     request<PedidoItem[]>(`/api/v1/pedidos/${pid(pedidoId)}/itens`),
 
-  adicionar: (pedidoId: string, data: Partial<PedidoItem>) =>
+  adicionar: (
+    pedidoId: string,
+    data: Partial<PedidoItem>,
+    opts?: { idWorkspace?: string },
+  ) =>
     request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens`, {
       method: 'POST',
       body: JSON.stringify(data),
+      headers: opts?.idWorkspace ? { 'x-id-workspace': opts.idWorkspace } : undefined,
     }).then(item => {
       // Em dev: sincroniza mock para que listar() fallback reflita o item real
       if (import.meta.env.DEV) {

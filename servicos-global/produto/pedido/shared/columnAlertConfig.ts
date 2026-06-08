@@ -41,6 +41,7 @@ const CAMPOS_ALERTAVEIS = new Set([
   'referencia_fabricante',
   'incoterm',
   'condicao_pagamento_pedido',
+  'condicao_pagamento_siscomex',
 
   // Homogeneidade de moeda/unidade (Onda A8 — 2025-05-11):
   // Quando itens divergem em moeda/unidade, o pai não soma os agregados

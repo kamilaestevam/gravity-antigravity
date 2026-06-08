@@ -209,9 +209,24 @@ describe('obterPillsTooltipColuna', () => {
 
   it('quantidade_volumes_pedido obterPills — pedido e item distintos', () => {
     const res = obterPillsTooltipColuna('quantidade_volumes_pedido')
-    expect(res.dual).toBe(false)
+    expect(res.dual).toBe(true)
     expect(res.pedido).toEqual(['bloqueado_edicao', 'calculado_pedido_volumes', 'alerta_divergencia'])
     expect(res.item).toEqual(['editavel_item'])
+  })
+
+  it('cobertura_cambial — dual; pedido replica + alerta; item editável + alerta', () => {
+    const res = obterPillsTooltipColuna('cobertura_cambial')
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual(['editavel_pedido', 'replica_itens', 'alerta_divergencia'])
+    expect(res.item).toEqual(['editavel_item', 'alerta_divergencia'])
+    expect(res.ghostSemCheckbox).toBe(true)
+  })
+
+  it('condicao_pagamento — dual; pedido replica + alerta; item editável + alerta', () => {
+    const res = obterPillsTooltipColuna('condicao_pagamento')
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual(['editavel_pedido', 'replica_itens', 'alerta_divergencia'])
+    expect(res.item).toEqual(['editavel_item', 'alerta_divergencia'])
   })
 
   it('quantidade_transferida_total dinâmico — pedido calculado + bloqueado; item somente leitura + operação', () => {

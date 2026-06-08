@@ -123,7 +123,7 @@ export function aggregateListaCardKpis(
 
   const pedidosSemCobertura = new Set<string>()
   for (const i of itens) {
-    if (i.cobertura_cambial_item === 'sem_cobertura') {
+    if (i.cobertura_cambial_item === 'SEM_COBERTURA' || i.cobertura_cambial_item === 'sem_cobertura') {
       pedidosSemCobertura.add(String(i.id_pedido))
     }
   }

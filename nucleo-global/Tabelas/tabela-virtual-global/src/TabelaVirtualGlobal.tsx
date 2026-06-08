@@ -573,6 +573,8 @@ const GTEditPopover = memo(function GTEditPopover({
   const { rect, colLabel } = overlayInfo
   const isPeriodo = overlayInfo.colTipo === 'periodo'
   const isOpcoes  = Array.isArray(overlayInfo.opcoes) && overlayInfo.opcoes!.length > 0
+  /** tipo='select' na coluna — dropdown compacto (padrão moeda/unidade), não lista expandida. */
+  const isSelectDropdown = isOpcoes && overlayInfo.colTipo === 'select'
   const isMoeda   = overlayInfo.colTipo === 'moeda'
   const isUnidade = overlayInfo.colTipo === 'unidade'
   const isUnidadeComposta = isUnidade && !overlayInfo.apenasUnidade
@@ -621,8 +623,9 @@ const GTEditPopover = memo(function GTEditPopover({
 
   const popoverRef    = useRef<HTMLDivElement>(null)
   const inputRef      = useRef<HTMLInputElement>(null)
-  const moedaTriggerRef    = useRef<HTMLButtonElement>(null)
-  const unidadeTriggerRef  = useRef<HTMLButtonElement>(null)
+  const moedaTriggerRef         = useRef<HTMLButtonElement>(null)
+  const unidadeTriggerRef       = useRef<HTMLButtonElement>(null)
+  const opcoesSelectTriggerRef  = useRef<HTMLButtonElement>(null)
   // Flag síncrona: true durante o mousedown do trigger antes do blur do input
   const dropdownAbrindoRef = useRef(false)
   // Colar / menu de contexto disparam blur antes do onPaste em inputs controlados.
@@ -654,10 +657,12 @@ const GTEditPopover = memo(function GTEditPopover({
 
   const [moedaAberta, setMoedaAberta] = useState(false)
   const [unidadeAberta, setUnidadeAberta] = useState(false)
+  const [opcoesSelectAberta, setOpcoesSelectAberta] = useState(false)
   // Calendário inicia fechado — abre quando usuário clica no icone à direita do input.
   const [calendarioAberto, setCalendarioAberto] = useState(false)
   const [moedaListPos, setMoedaListPos]       = useState<{ top: number; left: number; width: number } | null>(null)
   const [unidadeListPos, setUnidadeListPos]   = useState<{ top: number; left: number } | null>(null)
+  const [opcoesSelectListPos, setOpcoesSelectListPos] = useState<{ top: number; left: number; width: number } | null>(null)
   const [moedaBusca, setMoedaBusca]     = useState('')
   const [unidadeBusca, setUnidadeBusca] = useState('')
   const [opcoesBusca, setOpcoesBusca]   = useState('')
@@ -675,6 +680,17 @@ const GTEditPopover = memo(function GTEditPopover({
     setUnidadeBusca('')
     setUnidadeAberta(true)
   }
+  function abrirOpcoesSelect() {
+    const r = opcoesSelectTriggerRef.current?.getBoundingClientRect()
+    if (r) setOpcoesSelectListPos({ top: r.bottom + 4, left: r.left, width: Math.max(280, r.width) })
+    setOpcoesBusca('')
+    setOpcoesSelectAberta(true)
+  }
+  const rotuloOpcaoSelecionada = (() => {
+    if (!isSelectDropdown) return ''
+    const hit = overlayInfo.opcoes!.find(o => o.valor === String(valorEditando ?? ''))
+    return hit?.label ?? (valorEditando ? String(valorEditando) : 'Selecione…')
+  })()
 
   // Valores compostos — calculados sempre mas usados só nos modos moeda/unidade
   const mv: GTValorMoeda = (isMoeda && valorEditando != null && typeof valorEditando === 'object' && 'currency' in (valorEditando as object))
@@ -1059,7 +1075,33 @@ const GTEditPopover = memo(function GTEditPopover({
 
         {/* Input / Lista de opções */}
         <div className="gtv-edit-popover-body">
-          {isOpcoes ? (() => {
+          {isSelectDropdown ? (
+            <div className="gtv-edit-custom-select">
+              <button
+                ref={opcoesSelectTriggerRef}
+                type="button"
+                className="gtv-edit-custom-select-trigger"
+                disabled={salvando}
+                autoFocus
+                onMouseDown={e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if (opcoesSelectAberta) {
+                    setOpcoesSelectAberta(false)
+                  } else {
+                    dropdownAbrindoRef.current = true
+                    abrirOpcoesSelect()
+                  }
+                }}
+              >
+                <span title={rotuloOpcaoSelecionada}>{rotuloOpcaoSelecionada}</span>
+                <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
+                  style={{ transform: opcoesSelectAberta ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
+                  <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
+                </svg>
+              </button>
+            </div>
+          ) : isOpcoes ? (() => {
             const todasOpcoes = overlayInfo.opcoes!
             const temBusca = todasOpcoes.length > 8
             const termo = opcoesBusca.trim().toLowerCase()
@@ -1500,7 +1542,7 @@ const GTEditPopover = memo(function GTEditPopover({
         {/* Footer: hints + botões. Oculto no modo opcoes (clique já confirma)
             EXCETO quando há checkbox de replicação — usuário precisa do botão
             Confirmar pra finalizar após decidir se replica nos itens. */}
-        <div className={`gtv-edit-popover-footer${(isOpcoes && !mostrarCheckboxReplicar) ? ' gtv-edit-popover-footer--hidden' : ''}`}>
+        <div className={`gtv-edit-popover-footer${(isOpcoes && !isSelectDropdown && !mostrarCheckboxReplicar) ? ' gtv-edit-popover-footer--hidden' : ''}`}>
           <div className="gtv-edit-popover-hints" aria-hidden="true">
             <kbd className="gtv-edit-popover-kbd">Enter</kbd>
             <span>Confirmar</span>
@@ -1611,6 +1653,62 @@ const GTEditPopover = memo(function GTEditPopover({
                 </button>
               ))
             }
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* Dropdown de select (incoterm, cobertura cambial, modalidade Siscomex, etc.) */}
+      {opcoesSelectAberta && opcoesSelectListPos && createPortal(
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 10000 }}
+            onMouseDown={() => setOpcoesSelectAberta(false)}
+          />
+          <div
+            className="gtv-edit-custom-select-list gtv-edit-opcoes-select-list"
+            style={{ position: 'fixed', top: opcoesSelectListPos.top, left: opcoesSelectListPos.left, zIndex: 10001, minWidth: opcoesSelectListPos.width }}
+            onMouseDown={e => e.preventDefault()}
+          >
+            <div className="gtv-edit-custom-select-busca">
+              <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/>
+              </svg>
+              <input
+                ref={opcoesBuscaRef}
+                className="gtv-edit-custom-select-busca-input"
+                placeholder="Buscar..."
+                autoFocus
+                value={opcoesBusca}
+                onChange={e => setOpcoesBusca(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Escape') setOpcoesSelectAberta(false) }}
+              />
+            </div>
+            {(() => {
+              const filtradas = overlayInfo.opcoes!.filter(op => {
+                const q = opcoesBusca.trim().toLowerCase()
+                if (!q) return true
+                return (op.label ?? '').toLowerCase().includes(q) || (op.valor ?? '').toLowerCase().includes(q)
+              })
+              if (filtradas.length === 0) {
+                return (
+                  <div className="gtv-edit-custom-select-item gtv-edit-custom-select-item--vazio">
+                    Nenhum resultado
+                  </div>
+                )
+              }
+              return filtradas.map(op => (
+                <button
+                  key={op.valor}
+                  type="button"
+                  title={op.label}
+                  className={`gtv-edit-custom-select-item${String(valorEditando) === op.valor ? ' gtv-edit-custom-select-item--ativo' : ''}`}
+                  onClick={() => { onAtualizar(op.valor); setOpcoesSelectAberta(false) }}
+                >
+                  <span className="gtv-edit-custom-select-item-label">{op.label}</span>
+                </button>
+              ))
+            })()}
           </div>
         </>,
         document.body

@@ -1120,6 +1120,15 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   min-height: 0;
 }
 
+.gtv-edit-popover-body > .gtv-edit-custom-select {
+  width: 100%;
+}
+
+.gtv-edit-popover-body > .gtv-edit-custom-select .gtv-edit-custom-select-trigger {
+  width: 100%;
+  justify-content: space-between;
+}
+
 /* ── Modo lista de opções ────────────────────────────────────────────────────── */
 
 .gtv-edit-popover-opcoes {
@@ -1551,6 +1560,8 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   align-items: center;
   gap: 0.3rem;
   height: 2.125rem;
+  max-width: 100%;
+  min-width: 0;
   padding: 0 0.625rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1564,6 +1575,14 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   white-space: nowrap;
   transition: border-color 0.15s, background 0.15s;
   outline: none;
+}
+
+.gtv-edit-custom-select-trigger > span:first-child {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .gtv-edit-custom-select-trigger:hover:not(:disabled) {
@@ -1629,6 +1648,26 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   background: rgba(99, 102, 241, 0.18);
   color: var(--gtv-text, #e2e8f0);
   font-weight: 700;
+}
+
+.gtv-edit-custom-select-item-label {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gtv-edit-custom-select-item--vazio {
+  cursor: default;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Select de opções (incoterm, cobertura, Siscomex): lista expande além do trigger */
+.gtv-edit-opcoes-select-list {
+  width: max-content;
+  max-width: min(420px, calc(100vw - 16px));
 }
 
 .gtv-edit-custom-select-busca {

@@ -190,6 +190,22 @@ export function calcularDivergenciasPedido(
   result.data_emissao_pedido_divergente = dataEmissaoDivergente
   result.data_emissao_pedido_valor_unico = datasUnicas.size === 1 ? [...datasUnicas][0] : null
 
+  {
+    const coberturasItens = itens
+      .map(i => i.cobertura_cambial)
+      .filter((v): v is string => v != null && String(v).trim() !== '')
+    const coberturasUnicas = new Set(coberturasItens)
+    const canonico = pedidoPai?.cobertura_cambial ?? pedidoPai?.cobertura_cambial_pedido
+    const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+    let divergente = coberturasUnicas.size > 1
+    if (!divergente && canonicoStr && coberturasItens.length > 0) {
+      divergente = coberturasItens.some(v => String(v) !== canonicoStr)
+    }
+    result.cobertura_cambial_divergente = divergente
+    result.cobertura_cambial_valor_unico = canonicoStr
+      ?? (coberturasUnicas.size === 1 ? [...coberturasUnicas][0] : null)
+  }
+
   const colIdsSet = new Set<string>()
   for (const item of itens) {
     const cu = item._colunas_usuario as Record<string, string> | undefined
@@ -266,5 +282,29 @@ export function mesclarDivergenciasPreservandoNcmPedido(
   return {
     ...divergencias,
     ncm_valor_unico: canonico,
+  }
+}
+
+/** Valor exibido na linha pai — canônico do pedido tem prioridade sobre agregado dos itens. */
+export function obterCoberturaExibicaoPedido(
+  pedido?: Record<string, unknown> | null,
+): string | null {
+  const canonico = pedido?.cobertura_cambial ?? pedido?.cobertura_cambial_pedido
+  if (canonico != null && String(canonico).trim() !== '') return String(canonico)
+  const agregado = pedido?.cobertura_cambial_valor_unico
+  if (agregado != null && String(agregado).trim() !== '') return String(agregado)
+  return null
+}
+
+/** Mantém cobertura canônica do pedido após recalcular divergências dos itens. */
+export function mesclarDivergenciasPreservandoCoberturaPedido(
+  pedidoPai: Record<string, unknown> | undefined,
+  divergencias: DivergenciasPedido,
+): DivergenciasPedido {
+  const canonico = obterCoberturaExibicaoPedido(pedidoPai)
+  if (!canonico) return divergencias
+  return {
+    ...divergencias,
+    cobertura_cambial_valor_unico: canonico,
   }
 }

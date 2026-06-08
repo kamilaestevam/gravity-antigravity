@@ -328,6 +328,9 @@ const CHAVES_DUAL_SEMPRE = new Set([
   'numero_pedido',
   'tipo_volume_pedido',
   'quantidade_volumes_pedido',
+  'cobertura_cambial',
+  'condicao_pagamento',
+  'condicao_pagamento_siscomex',
 ])
 
 const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: RegraPillId[] }> = {

@@ -19,7 +19,8 @@ $service = if ($Ambiente -eq 'producao') { 'gravity-pedido-producao' } else { 'g
 
 Write-Host "Servico Railway Postgres: $service" -ForegroundColor Cyan
 
-$json = railway variables --service $service --environment $Ambiente --json | ConvertFrom-Json
+# Railway usa environment "production" para teste e producao (servicos distintos).
+$json = railway variables --service $service --environment production --json | ConvertFrom-Json
 $url = [string]$json.DATABASE_PUBLIC_URL
 
 if (-not $url -or $url -notmatch 'proxy\.rlwy\.net') {
@@ -37,7 +38,8 @@ if ($url -match '@([^:/]+):(\d+)') {
   Write-Host "Destino: $($matches[1]):$($matches[2])"
 }
 
-$cfgJson = railway variables --service site-usegravity --environment $Ambiente --json | ConvertFrom-Json
+$cfgService = if ($Ambiente -eq 'producao') { 'site-usegravity' } else { 'gravity-configurador-teste' }
+$cfgJson = railway variables --service $cfgService --environment production --json | ConvertFrom-Json
 $cfgUrl = [string]$cfgJson.CONFIGURADOR_DATABASE_URL
 if (-not $cfgUrl) { $cfgUrl = [string]$cfgJson.DATABASE_URL }
 

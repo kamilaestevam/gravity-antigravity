@@ -470,7 +470,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | **VOL-05** | Tooltip **item**: `editavel_item`. |
 | **VOL-06** | Exibição: `formatarExibicaoQuantidadeVolume` — ex. `12 caixas de papelão` (qtd + nome pluralizado do tipo); qtd `0`/ausente com tipo → só o nome do tipo; sem tipo → `—`. |
 | **VOL-07** | Select do popover = **SSOT** `cadastros.volume` via `useVolumesPedido` (rótulo `codigo — nome`, ex. `05 — Caixa de Papelão`). |
-| **VOL-08** | Aviso amarelo no popover do item: *A edição aqui irá alterar Tipo de Volume do Pedido/Item* (`aviso_impacto_quantidade_volumes`). |
+| **VOL-08** | Sem aviso amarelo no tooltip — pills «Aplicar em todos os itens» / «Editável no item» bastam; item não espelha pedido automaticamente. |
 | **VOL-09** | Edição em Massa no **pedido** (checkbox + campo `quantidade_volumes_pedido`) replica qtd/tipo para pedido e itens. |
 | **VOL-10** | Coluna **filtrável** e **ordenável**; rodapé soma dos pedidos visíveis (ETAPA 48 unifica grade/rodapé; ex-ETAPA 49). |
 | **VOL-11** | Mudança de qtd/tipo no item deve refletir na coluna **Tipo Volume Pedido/Item** (pedido + itens espelhados). |
@@ -595,7 +595,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | **TVL-04** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `alerta_divergencia`. |
 | **TVL-05** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
 | **TVL-06** | Select lista **todas** as opções ativas de `cadastros.volume` — formato `codigo — nome_volume` (ex. `01 — Tambor de Plástico` … `06 — Caixa de Isopor`); busca «Buscar…» funcional. |
-| **TVL-07** | Aviso amarelo no modal (pedido e item): *A edição aqui irá alterar a Qtd de Volumes do Pedido/Item* (`aviso_impacto_tipo_volume`). |
+| **TVL-07** | Sem aviso amarelo no tooltip — acoplamento tipo↔qtd fica no popover de edição se necessário; não espelha pedido↔item sozinho. |
 | **TVL-08** | Checkbox «Aplicar em todos os itens» no **pedido** — marcado replica tipo em todos os itens; desmarcado altera só o pedido. |
 | **TVL-09** | Tipos **divergentes** entre itens → alerta âmbar *Tipos de volume divergentes entre itens* no pedido (`tipo_volume_item_divergente`). |
 | **TVL-10** | Exibição pedido: rótulo do tipo agregado ou alerta; item: `formatarNomeVolumeExibicao` (singular). |
@@ -613,6 +613,31 @@ O exportador exibido depende do **tipo de operação** do pedido.
 **Código:** `tipo_volume_pedido` em `ColunasPai.tsx` (`apenasUnidade: true`) · mapa filho `tipo_volume_pedido` · `useVolumesPedido` · `aviso_impacto_tipo_volume`.
 
 **EMT:** passos 260–272 (ETAPA 47) · `validar-tipo-volume-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8K. COBERTURA CAMBIAL DO PEDIDO (`cobertura_cambial`)
+
+> Decisão de produto **2026-06-03** — coluna dual pedido/item; select Cadastros; checkbox replicar no pedido; alerta de divergência entre itens.
+
+| # | Regra |
+|---|--------|
+| **COB-01** | Label na grade: **Cobertura Cambial do Pedido/Item** — tooltip: *Cobertura Cambial*. |
+| **COB-02** | Célula do **pedido** e do **item**: editáveis via popover **select**. |
+| **COB-03** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `alerta_divergencia`. |
+| **COB-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **COB-05** | Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»** (visível; desmarcado por padrão). |
+| **COB-06** | **Sem** checkbox: salva **somente** no pedido; itens permanecem com valor anterior. |
+| **COB-07** | **Com** checkbox marcado: replica a opção escolhida em **todos** os itens do pedido. |
+| **COB-08** | Select lista opções ativas de **`cadastros.cambio_siscomex`** (`tipo=cobertura_cambial`) — rótulo `codigo — nome`. |
+| **COB-09** | Coberturas **divergentes** entre itens → alerta âmbar *Coberturas cambiais divergentes entre itens* no pedido. |
+| **COB-10** | Edição em Massa (`cobertura_cambial_pedido`) replica para pedido e itens. |
+| **COB-11** | Coluna **filtrável**; **sem** aviso amarelo de impacto cruzado. |
+| **COB-12** | Persistência hub → lista (passo 301 EMT). |
+
+**Código:** `pai_ghost_cobertura` · `useCambioSiscomexPedido` · `cobertura_cambial_divergente` · `GHOST_COBERTURA`.
+
+**EMT:** passos 288–302 (ETAPA 49) · `validar-cobertura-cambial-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
 
 ---
 
@@ -665,3 +690,4 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | 2026-06-08 | VALOR TOTAL — VLR-01…10; pedido bloqueado + soma; item popover; pills `editavel_nos_itens`; EMT passos 62–71 (ordem 01–08) |
 | 2026-06-08 | UNIDADE COMERCIALIZADA — UNC-01…12; select Cadastros + checkbox; pills espelhadas pedido/item; EMT passos 72–82 |
 | 2026-06-03 | §8F revisada (VOL-01…12) + §8J TVL-01…12 — Tipo Volume + Qtd. Volumes; SSOT `cadastros.volume`; cruzamento 265/279; ETAPA 49 fundida na 48 |
+| 2026-06-03 | §8K COB-01…12 — Cobertura Cambial; checkbox replicar + alerta divergência; EMT passos 288–302 |

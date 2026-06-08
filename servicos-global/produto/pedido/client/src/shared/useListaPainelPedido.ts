@@ -10,6 +10,7 @@ import {
   parsearConfigListaPainelSeguro,
   type ListaPainelConfigV1,
 } from '../../../shared/listaPainelConfigSchema'
+import { podePersistirPainelLista } from '../../../shared/persistenciaListaPainel'
 import { paineisListaApi, type ListaPainel } from './api'
 import { deserializarFiltrosLista, serializarFiltrosLista } from './lista-painel-filtros'
 import type { FiltrosAtivosMap } from '../components/lista/filtros'
@@ -46,6 +47,11 @@ export interface SnapshotAplicarListaPainel {
   busca: string
   filtrosColuna: FiltrosAtivosMap
   cardsTopo?: ListaPainelConfigV1['cards_topo']
+}
+
+export interface PersistirPainelOpcoes {
+  /** Grava na API sem debounce — uso em toggle de colunas e demais prefs críticas. */
+  imediato?: boolean
 }
 
 function estadoParaConfig(estado: EstadoListaParaPainel): ListaPainelConfigV1 {
@@ -167,20 +173,53 @@ export function useListaPainelPedido() {
     })
   }, [])
 
-  const persistirPainelAtual = useCallback((estado: EstadoListaParaPainel) => {
+  const executarPersistencia = useCallback((id: string, estado: EstadoListaParaPainel) => {
+    const configJson = JSON.stringify(estadoParaConfig(estado))
+    paineisListaApi.atualizar(id, { config_json: configJson }).catch(err => {
+      console.warn('[useListaPainelPedido] falha ao persistir painel', id, err)
+    })
+  }, [])
+
+  const persistirPainelAtual = useCallback((
+    estado: EstadoListaParaPainel,
+    opcoes?: PersistirPainelOpcoes,
+  ) => {
     estadoRef.current = estado
     const id = painelAtualIdRef.current
-    if (!id || aplicandoConfigRef.current) return
-    if (painelHidratadoIdRef.current !== id) return
+    if (!podePersistirPainelLista(id, aplicandoConfigRef.current, painelHidratadoIdRef.current)) return
 
-    if (persistTimerRef.current) clearTimeout(persistTimerRef.current)
+    if (persistTimerRef.current) {
+      clearTimeout(persistTimerRef.current)
+      persistTimerRef.current = null
+    }
+
+    if (opcoes?.imediato) {
+      executarPersistencia(id, estado)
+      return
+    }
+
     persistTimerRef.current = setTimeout(() => {
-      const configJson = JSON.stringify(estadoParaConfig(estado))
-      paineisListaApi.atualizar(id, { config_json: configJson }).catch(err => {
-        console.warn('[useListaPainelPedido] falha ao persistir painel', id, err)
-      })
+      persistTimerRef.current = null
+      const idAtual = painelAtualIdRef.current
+      const estadoAtual = estadoRef.current
+      if (!idAtual || !estadoAtual) return
+      if (!podePersistirPainelLista(idAtual, aplicandoConfigRef.current, painelHidratadoIdRef.current)) return
+      executarPersistencia(idAtual, estadoAtual)
     }, 400)
-  }, [])
+  }, [executarPersistencia])
+
+  useEffect(() => () => {
+    if (persistTimerRef.current) {
+      clearTimeout(persistTimerRef.current)
+      persistTimerRef.current = null
+    }
+    const estado = estadoRef.current
+    const id = painelAtualIdRef.current
+    if (!estado || !podePersistirPainelLista(id, aplicandoConfigRef.current, painelHidratadoIdRef.current)) {
+      return
+    }
+    executarPersistencia(id, estado)
+  }, [executarPersistencia])
 
   const trocarPainel = useCallback(async (
     id: string,

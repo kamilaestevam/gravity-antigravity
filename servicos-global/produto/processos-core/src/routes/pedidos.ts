@@ -133,6 +133,7 @@ const criarPedidoObjectSchema = z.object({
   unidade_comercializada_pedido:    z.string().optional().nullable(),
   tipo_volume_pedido:               z.string().optional().nullable(),
   condicao_pagamento_pedido:        z.string().optional().nullable(),
+  condicao_pagamento_siscomex_pedido: z.string().optional().nullable(),
   data_emissao_pedido:              z.string().datetime().optional(),
   detalhes_operacionais_pedido:     z.any().optional().nullable(),
   itens:                            z.array(criarItemSchema).optional().default([]),
@@ -229,6 +230,7 @@ export const atualizarItemSchema = z.object({
   referencia_fabricante: z.string().optional().nullable(),
   incoterm: z.string().optional().nullable(),
   condicao_pagamento: z.string().optional().nullable(),
+  condicao_pagamento_siscomex: z.string().optional().nullable(),
   data_emissao_pedido: z.string().optional().nullable(),
   // Dados físicos unitários — sigla validada cruzada com cadastros.unidade
   // (categoria=peso para peso_*; categorias=comprimento|area|volume para cubagem).
@@ -337,7 +339,8 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     referencia_exportador:     item.referencia_exportador_item,
     referencia_fabricante:     item.referencia_fabricante_item,
     incoterm:                  item.incoterm_item,
-    condicao_pagamento_pedido: item.condicao_pagamento_item,
+    condicao_pagamento:        item.condicao_pagamento_item,
+    condicao_pagamento_siscomex: item.condicao_pagamento_siscomex_item,
     data_emissao_pedido:       item.data_emissao_item,
     data_embarque_item:        normDate(item.data_embarque_item),
 
@@ -446,6 +449,8 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     fabricante_id:            pedido.id_fabricante_pedido        ?? pedido.id_fabricante        ?? pedido.fabricante_id,
     incoterm:                 pedido.incoterm_pedido      ?? pedido.incoterm,
     condicao_pagamento:       pedido.condicao_pagamento_pedido ?? pedido.condicao_pagamento,
+    condicao_pagamento_siscomex: pedido.condicao_pagamento_siscomex_pedido ?? pedido.condicao_pagamento_siscomex,
+    cobertura_cambial:        pedido.cobertura_cambial_pedido ?? pedido.cobertura_cambial,
     numero_proforma:          pedido.numero_proforma_pedido    ?? pedido.numero_proforma,
     numero_invoice:           pedido.numero_invoice_pedido     ?? pedido.numero_invoice,
     referencia_importador:    pedido.referencia_importador_pedido ?? pedido.referencia_importador,
@@ -581,6 +586,32 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
       )
       return {
         descricao_item_valor_unico: descUnicas.size === 1 ? [...descUnicas][0] : null,
+      }
+    })(),
+    // Cobertura cambial — canônico no pedido; agregado dos itens quando todos coincidem.
+    ...(() => {
+      const canonico = (pedido.cobertura_cambial_pedido ?? pedido.cobertura_cambial) as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          cobertura_cambial_valor_unico: canonicoStr
+            ?? (pedido as { cobertura_cambial_valor_unico?: string | null }).cobertura_cambial_valor_unico
+            ?? null,
+          cobertura_cambial_divergente: (pedido as { cobertura_cambial_divergente?: boolean | null }).cobertura_cambial_divergente ?? false,
+        }
+      }
+      const coberturasItens = itens
+        .map((i: PedidoItemRaw) => i.cobertura_cambial as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const coberturasUnicas = new Set(coberturasItens)
+      let divergente = coberturasUnicas.size > 1
+      if (!divergente && canonicoStr && coberturasItens.length > 0) {
+        divergente = coberturasItens.some((v) => v !== canonicoStr)
+      }
+      return {
+        cobertura_cambial_valor_unico: canonicoStr
+          ?? (coberturasUnicas.size === 1 ? [...coberturasUnicas][0] : null),
+        cobertura_cambial_divergente: divergente,
       }
     })(),
   }
@@ -1969,6 +2000,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'aeroporto_destino',
   'moeda_pedido',
   'condicao_pagamento',
+  'condicao_pagamento_siscomex',
   'importacao_exportador_id',
   'exportacao_importador_id',
   'data_emissao_pedido',
@@ -2055,6 +2087,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'anexo_proforma',
   'anexo_invoice',
   // Outros (3)
+  'cobertura_cambial',
   'cobertura_cambial_pedido',
   'quantidade_volumes_pedido',
   'quantidade_transferida_total',
@@ -2218,6 +2251,8 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         referencia_fabricante:   'referencia_fabricante_pedido',
         incoterm:                'incoterm_pedido',
         condicao_pagamento:      'condicao_pagamento_pedido',
+        condicao_pagamento_siscomex: 'condicao_pagamento_siscomex_pedido',
+        cobertura_cambial:       'cobertura_cambial_pedido',
         status:                  'status_pedido',
         // ─── BLOCO 3: datas Proforma (prevista/confirmada → previsao/confirmacao + _pedido) ───
         data_prevista_recebimento_rascunho_proforma:      'data_previsao_recebimento_rascunho_proforma_pedido',
@@ -2721,6 +2756,7 @@ const publicToDddItem: Record<string, string> = {
   referencia_fabricante:       'referencia_fabricante_item',
   incoterm:                    'incoterm_item',
   condicao_pagamento:          'condicao_pagamento_item',
+  condicao_pagamento_siscomex: 'condicao_pagamento_siscomex_item',
   data_emissao_pedido:         'data_emissao_item',
   peso_liquido_unitario:       'peso_liquido_unitario_item',
   peso_liquido_unidade_item:   'peso_liquido_unidade_item',
@@ -2812,7 +2848,7 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'cobertura_cambial', 'ncm', 'descricao_item', 'part_number',
-  'incoterm', 'condicao_pagamento', 'data_emissao_pedido',
+  'incoterm', 'condicao_pagamento', 'condicao_pagamento_siscomex', 'data_emissao_pedido',
   'numero_proforma', 'numero_invoice', 'data_consolidacao_pedido',
   // Datas (43)
   'data_prevista_pedido_pronto',
@@ -2894,6 +2930,7 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'anexo_invoice',
   // Outros
   'cobertura_cambial_pedido',
+  'condicao_pagamento_siscomex_pedido',
   'tipo_volume_item',
   'moeda_item',
   'unidade_comercializada_item',

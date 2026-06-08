@@ -1522,13 +1522,23 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
   },
   {
     key: 'condicao_pagamento',
-    label: 'Cond. Pagamento',
+    label: 'Cond. Pagamento — Comercial',
     tipo: 'texto',
     filtravel: true,
     grupo: t('pedido.item_grupo.quantidades'),
-    tooltipTitulo: 'Condição de Pagamento',
-    tooltipDescricao: 'Condição de pagamento acordada para o item',
+    tooltipTitulo: 'Condição de Pagamento — Comercial',
+    tooltipDescricao: 'Condição de pagamento negociada para o item (texto livre)',
     render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento, 'condicao_pagamento'),
+  },
+  {
+    key: 'condicao_pagamento_siscomex',
+    label: 'Cond. Pagamento — Siscomex',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: 'Modalidade de Pagamento — Siscomex',
+    tooltipDescricao: 'Código oficial de modalidade de pagamento para LI/DI',
+    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento_siscomex, 'condicao_pagamento_siscomex'),
   },
   {
     key: 'casas_decimais_quantidade_item',
@@ -1721,6 +1731,11 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     editavel: true,
     campo: 'condicao_pagamento',
     render: (row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento, 'condicao_pagamento'),
+  },
+  condicao_pagamento_siscomex: {
+    editavel: true,
+    campo: 'condicao_pagamento_siscomex',
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento_siscomex, 'condicao_pagamento_siscomex'),
   },
   data_emissao_pedido: {
     editavel: true,

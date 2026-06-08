@@ -360,8 +360,8 @@ describe('TST-UNI-PEDIDO-000001 — aggregateKpis (pure function)', () => {
       { id_pedido: 'p2', status_pedido: 'aberto', valor_total_pedido: 2000, moeda_pedido: 'BRL' },
     ]
     const itens = [
-      { id_pedido: 'p1', cobertura_cambial_item: 'sem_cobertura' },
-      { id_pedido: 'p2', cobertura_cambial_item: 'com_cobertura' },
+      { id_pedido: 'p1', cobertura_cambial_item: 'SEM_COBERTURA' },
+      { id_pedido: 'p2', cobertura_cambial_item: 'ATE_180_DIAS' },
     ]
     const result = aggregateKpis(pedidos, itens, { BRL: 1 }, '30d')
     expect(result.cobertura_pendente).toBe(1000)

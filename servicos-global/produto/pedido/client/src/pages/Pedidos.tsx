@@ -4896,6 +4896,8 @@ export default function Pedidos() {
   const escopoListaInicialDisparadoRef = useRef(false)
   /** Carga do painel adiada até escopo de workspaces ter ao menos uma filial. */
   const painelSnapshotPendenteRef = useRef<SnapshotAplicarListaPainel | null>(null)
+  /** Cache da última listagem de colunas manuais — merge só após hidratação do painel. */
+  const colunasUsuarioListaRef = useRef<ColunaUsuario[]>([])
 
   useEffect(() => {
     painelListaAplicadoRef.current = null
@@ -5758,6 +5760,80 @@ export default function Pedidos() {
     })
   }, [workspacesSelecionados, carregarInicial, aplicarSnapshotPainelNaUi])
 
+  const mesclarColunasManuaisNasPreferencias = useCallback((lista: ColunaUsuario[]) => {
+    const activeCustomKeys = lista
+      .filter(c => c.ativo && ((c.escopo || 'ambos') === 'pedido' || (c.escopo || 'ambos') === 'ambos'))
+      .map(c => c.chave)
+
+    setPreferencias(prev => {
+      if (!prev?.colunas_visiveis?.length) {
+        return prev
+      }
+      const savedVisible: string[] = prev.colunas_visiveis
+      const savedSet = new Set(savedVisible)
+      const conhecidasAntigas = new Set(prev?.colunas_manuais_conhecidas ?? [])
+      const novas = activeCustomKeys.filter(k => !savedSet.has(k) && !conhecidasAntigas.has(k))
+      const conhecidasNovas = Array.from(new Set([...conhecidasAntigas, ...activeCustomKeys]))
+
+      const passoInserir = inserirColunaAposAncora(
+        savedVisible,
+        'id_workspace',
+        ['tipo_operacao', 'numero_pedido'],
+      )
+      const passoMover = moverColunaParaAposAncora(
+        passoInserir.resultado,
+        'id_workspace',
+        'tipo_operacao',
+      )
+      const passoDescItem = inserirColunaAposAncora(
+        passoMover.resultado,
+        'descricao_item',
+        ['ncm'],
+      )
+      const passoMoeda = inserirColunaAposAncora(
+        passoDescItem.resultado,
+        'moeda_pedido',
+        ['descricao_item', 'ncm'],
+      )
+      const passoUnidade = inserirColunaAposAncora(
+        passoMoeda.resultado,
+        'unidade_comercializada_pedido',
+        ['quantidade_pronta_itens_pedido_total', 'valor_total_pedido', 'quantidade_total_pedido'],
+      )
+      const passoLogisticaInsert = inserirBlocoColunasFaltantes(
+        passoUnidade.resultado,
+        CAMPOS_LOGISTICA_PEDIDO,
+        'incoterm',
+      )
+      const passoLogisticaOrder = reordenarBlocoColunas(
+        passoLogisticaInsert.resultado,
+        CAMPOS_LOGISTICA_PEDIDO,
+      )
+      const visivelComMigracao = passoLogisticaOrder.resultado
+      const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
+        || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou
+      const novasBuiltin = [
+        ...(passoInserir.mudou ? ['id_workspace'] : []),
+        ...(passoDescItem.mudou ? ['descricao_item'] : []),
+        ...(passoMoeda.mudou ? ['moeda_pedido'] : []),
+        ...(passoUnidade.mudou ? ['unidade_comercializada_pedido'] : []),
+        ...(passoLogisticaInsert.mudou
+          ? CAMPOS_LOGISTICA_PEDIDO.filter(k => passoLogisticaInsert.resultado.includes(k) && !savedSet.has(k))
+          : []),
+      ]
+
+      const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
+        ? [...visivelComMigracao, ...novas]
+        : savedVisible
+
+      return {
+        colunas_visiveis: finalVisible,
+        ...(prev?.colunas_largura ? { colunas_largura: prev.colunas_largura } : {}),
+        colunas_manuais_conhecidas: conhecidasNovas,
+      }
+    })
+  }, [])
+
   const listaPainelCallbacks = useMemo(() => ({
     setPreferencias,
     setAbaAtiva,
@@ -5771,8 +5847,11 @@ export default function Pedidos() {
     },
     onPainelHidratado: (id: string) => {
       painelListaAplicadoRef.current = id
+      if (colunasUsuarioListaRef.current.length > 0) {
+        mesclarColunasManuaisNasPreferencias(colunasUsuarioListaRef.current)
+      }
     },
-  }), [executarCargaComSnapshotPainel, aplicarCardsTopoDoPainel])
+  }), [executarCargaComSnapshotPainel, aplicarCardsTopoDoPainel, mesclarColunasManuaisNasPreferencias])
 
   useEffect(() => {
     if (!escopoHidratado || !idOrganizacao) return
@@ -6345,100 +6424,19 @@ export default function Pedidos() {
     if (!idOrganizacao) return
 
     colunasUsuarioApi.listar().catch(() => [] as ColunaUsuario[]).then((lista) => {
+      colunasUsuarioListaRef.current = lista
       setColunasUsuario(lista)
 
-      // Colunas customizadas ativas. Só auto-exibimos colunas manuais REALMENTE novas
-      // (nunca apresentadas). Uma coluna manual que o usuário ocultou de propósito fica
-      // em `conhecidas` e NÃO deve voltar a aparecer.
-      const activeCustomKeys = lista
-        .filter(c => c.ativo && ((c.escopo || 'ambos') === 'pedido' || (c.escopo || 'ambos') === 'ambos'))
-        .map(c => c.chave)
-
-      // Toda a derivação roda DENTRO do updater funcional para ler sempre o estado mais
-      // recente (`prev`). Sem isso, um `listar()` antigo resolvendo tarde sobrescrevia
-      // `colunas_visiveis` com um valor defasado e a coluna ocultada "ia e voltava".
-      setPreferencias(prev => {
-        const savedVisible: string[] = prev?.colunas_visiveis && prev.colunas_visiveis.length > 0
-          ? prev.colunas_visiveis
-          : COLUNAS_PADRAO_VISIVEIS
-        const savedSet = new Set(savedVisible)
-        const conhecidasAntigas = new Set(prev?.colunas_manuais_conhecidas ?? [])
-        const novas = activeCustomKeys.filter(k => !savedSet.has(k) && !conhecidasAntigas.has(k))
-        const conhecidasNovas = Array.from(new Set([...conhecidasAntigas, ...activeCustomKeys]))
-
-        // Migração de prefs salvas → padrão atual via helpers de `migracaoColunas`.
-        // Refactor D12 (2026-05-13): lógica antes inline aqui (40+ linhas duplicadas)
-        // foi extraída para shared/migracaoColunas.ts com cobertura unitária.
-        //
-        // Caso 1: id_workspace NÃO está nas prefs → inserir (entrega 2026-05-13).
-        //         Tenta inserir após tipo_operacao; fallback para numero_pedido; fallback no início.
-        // Caso 2: id_workspace JÁ está, mas em posição antiga (antes de tipo_operacao) → mover.
-        const passoInserir = inserirColunaAposAncora(
-          savedVisible,
-          'id_workspace',
-          ['tipo_operacao', 'numero_pedido'],
-        )
-        const passoMover = moverColunaParaAposAncora(
-          passoInserir.resultado,
-          'id_workspace',
-          'tipo_operacao',
-        )
-        // Caso 3: descricao_item NÃO está nas prefs → inserir após ncm (entrega 2026-05-14).
-        const passoDescItem = inserirColunaAposAncora(
-          passoMover.resultado,
-          'descricao_item',
-          ['ncm'],
-        )
-        // Caso 4: moeda_pedido NÃO está nas prefs → inserir após ncm/descricao_item (entrega 2026-05-15).
-        const passoMoeda = inserirColunaAposAncora(
-          passoDescItem.resultado,
-          'moeda_pedido',
-          ['descricao_item', 'ncm'],
-        )
-        // Caso 5: unidade_comercializada_pedido NÃO está nas prefs → inserir após quantidade_pronta_itens_pedido_total (entrega 2026-05-15).
-        const passoUnidade = inserirColunaAposAncora(
-          passoMoeda.resultado,
-          'unidade_comercializada_pedido',
-          ['quantidade_pronta_itens_pedido_total', 'valor_total_pedido', 'quantidade_total_pedido'],
-        )
-        // Caso 6: bloco logística (porto → país → aeroporto) após incoterm — SSOT camposLogisticaPedido
-        const passoLogisticaInsert = inserirBlocoColunasFaltantes(
-          passoUnidade.resultado,
-          CAMPOS_LOGISTICA_PEDIDO,
-          'incoterm',
-        )
-        const passoLogisticaOrder = reordenarBlocoColunas(
-          passoLogisticaInsert.resultado,
-          CAMPOS_LOGISTICA_PEDIDO,
-        )
-        const visivelComMigracao = passoLogisticaOrder.resultado
-        const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
-          || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou
-        const novasBuiltin = [
-          ...(passoInserir.mudou ? ['id_workspace'] : []),
-          ...(passoDescItem.mudou ? ['descricao_item'] : []),
-          ...(passoMoeda.mudou ? ['moeda_pedido'] : []),
-          ...(passoUnidade.mudou ? ['unidade_comercializada_pedido'] : []),
-          ...(passoLogisticaInsert.mudou
-            ? CAMPOS_LOGISTICA_PEDIDO.filter(k => passoLogisticaInsert.resultado.includes(k) && !savedSet.has(k))
-            : []),
-        ]
-
-        const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
-          ? [...visivelComMigracao, ...novas]
-          : savedVisible
-
-        return {
-          colunas_visiveis: finalVisible,
-          ...(prev?.colunas_largura ? { colunas_largura: prev.colunas_largura } : {}),
-          colunas_manuais_conhecidas: conhecidasNovas,
-        }
-      })
+      // Merge só DEPOIS da hidratação do painel. Se rodar antes (login/remount),
+      // `prev` ainda não tem config_json do banco → expande para ~140 e sobrescreve ocultações.
+      if (
+        painelListaAtualId
+        && painelListaAplicadoRef.current === painelListaAtualId
+      ) {
+        mesclarColunasManuaisNasPreferencias(lista)
+      }
     })
-    // `colunas_manuais_conhecidas` é lida mas NÃO entra nas deps de propósito: o efeito
-    // a escreve (nova ref a cada run) e re-disparar nela causaria loop infinito. O efeito
-    // já re-roda quando `colunas_visiveis` muda (toggle), que carrega o `conhecidas` atual.
-  }, [idOrganizacao, preferencias?.colunas_visiveis, t]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idOrganizacao, painelListaAtualId, mesclarColunasManuaisNasPreferencias, t])
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
   useEffect(() => {
@@ -7745,7 +7743,7 @@ export default function Pedidos() {
         filtrosAtivos,
         cardsVisiveisIds: cardsVisiveis.map(c => c.id),
         periodoCards,
-      })
+      }, { imediato: true })
     }
   }, [
     painelListaAtualId,

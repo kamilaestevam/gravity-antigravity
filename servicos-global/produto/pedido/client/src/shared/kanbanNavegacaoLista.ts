@@ -70,6 +70,7 @@ export const CAMPOS_GHOST_PAI = new Set([
   'ncm',
   'descricao_item',
   'cobertura_cambial',
+  'condicao_pagamento_siscomex',
 ])
 
 export function resolverEdicaoKanbanParaLista(

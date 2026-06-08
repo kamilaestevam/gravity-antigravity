@@ -174,14 +174,14 @@ export async function calcularKpisDashboardSql(
     db.pedidoItem.count({
       where: {
         pedido_item: whereItemPedido,
-        cobertura_cambial_item: 'sem_cobertura',
+        cobertura_cambial_item: 'SEM_COBERTURA',
       },
     }),
     db.pedido.findMany({ where: whereAtraso, select: ATRASO_SELECT }),
     db.pedidoItem.findMany({
       where: {
         pedido_item: whereItemPedido,
-        cobertura_cambial_item: 'sem_cobertura',
+        cobertura_cambial_item: 'SEM_COBERTURA',
       },
       select: { id_pedido: true },
       distinct: ['id_pedido'],

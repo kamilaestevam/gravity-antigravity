@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 5.2  
+**Versão:** 5.3  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -96,8 +96,9 @@
 | **CUBAGEM TOTAL DO PEDIDO/ITEM** | 249–259 | `run-lista-editar-salvar.ts` + `validar-cubagem-lista.ts` |
 | **TIPO VOLUME PEDIDO/ITEM** | 260–272 | `run-lista-editar-salvar.ts` + `validar-tipo-volume-lista.ts` |
 | **QTD. DE VOLUMES DO PEDIDO** | 273–287 | `run-lista-editar-salvar.ts` + `validar-qtd-volumes-lista.ts` |
+| **COBERTURA CAMBIAL DO PEDIDO** | 288–302 | `run-lista-editar-salvar.ts` + `validar-cobertura-cambial-lista.ts` |
 
-> **Ordem de execução no runner:** Peso (227–248), Cubagem (249–259), Tipo Volume (260–272) e Qtd. Volumes (273–287) rodam **antes** de Qtd. Transferida (83–134), após Unidade Comercializada (82). **SSOT** tipos de volume: tabela **`cadastros.volume`** (ex.: `01 — Tambor de Plástico` … `05 — Caixa de Papelão`).
+> **Ordem de execução no runner:** Peso (227–248), Cubagem (249–259), Tipo Volume (260–272), Qtd. Volumes (273–287) e Cobertura Cambial (288–302) rodam **antes** de Qtd. Transferida (83–134), após Unidade Comercializada (82). **SSOT** tipos de volume: **`cadastros.volume`** · cobertura cambial: **`cadastros.cambio_siscomex`** (`tipo=cobertura_cambial`).
 
 ---
 
@@ -830,6 +831,28 @@ Coluna **`quantidade_volumes_pedido`**. Pedido **bloqueado** inline; edição no
 | **286** | Hub → Lista → reexpandir | **24** persiste · Print `286-vol-persistencia-apos-navegar-resultado.png` |
 | **287** | *(fechamento etapa 48 — grade incluída)* | Estado final consolidado · Print `287-vol-estado-final-grade.png` |
 
+### ETAPA 49 — COBERTURA CAMBIAL DO PEDIDO (passos 288–302)
+
+Coluna **`cobertura_cambial`** (dual pedido/item). Select editável · **SSOT** `cadastros.cambio_siscomex` (`tipo=cobertura_cambial`) via `useCambioSiscomexPedido` — rótulo `código — nome`. Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»**; **marcado** replica em todos os itens; **desmarcado** altera só o pedido. Alerta âmbar *Coberturas cambiais divergentes entre itens* quando itens divergem. Regras §8K COB-01…12.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **288** | Scroll até **Cobertura Cambial do Pedido/Item** | Coluna visível |
+| **289** | Hover célula **pedido** | Cursor editável · Print `289-cob-cursor-pedido.png` |
+| **290** | Tooltip **pedido** | Título *Cobertura Cambial* + pills `editavel_pedido` → `replica_itens` → `alerta_divergencia` · Print `290-cob-tooltip-pedido.png` |
+| **291** | Tooltip **item 1** | Pills `editavel_item` → `alerta_divergencia` · Print `291-cob-tooltip-item.png` |
+| **292** | Clicar célula **pedido** | Popover select abre · Print `292-cob-pedido-abre-popover-resultado.png` |
+| **293** | Abrir dropdown | Lista **completa** do Cadastros (`cobertura_cambial` ativos); busca «Buscar…» funcional · Print `293-cob-select-cadastros-ssot.png` |
+| **294** | Inspecionar popover **pedido** | Checkbox **«Aplicar a todos os itens deste pedido»** visível e desmarcado por padrão · Print `294-cob-checkbox-aplicar-todos-visivel.png` |
+| **295** | Selecionar opção **A** → checkbox **desmarcado** → confirmar | **Só pedido** = A; itens **inalterados** · Prints `295-cob-pedido-sem-replicar-selecao.png` + `295-cob-pedido-sem-replicar-resultado.png` |
+| **296** | Selecionar opção **B** → checkbox **marcado** → confirmar | **Pedido e todos os itens** = B (réplica válida) · Prints `296-cob-pedido-replicar-todos-selecao.png` + `296-cob-pedido-replicar-todos-resultado.png` |
+| **297** | Editar **somente item 2** → opção **C** → confirmar | Item 2 = C; pedido mantém B · Print `297-cob-item2-isolado-resultado.png` |
+| **298** | Inspecionar célula **pedido** | Ícone/alerta âmbar *Coberturas cambiais divergentes entre itens* visível · Print `298-cob-alerta-divergencia-resultado.png` |
+| **299** | Editar **item 1** → opção **D** → confirmar | Edição isolada no item · Prints `299-cob-item1-editar-selecao.png` + `299-cob-item1-editar-resultado.png` |
+| **300** | Checkbox **pedido** → **Edição em Massa** → **Cobertura Cambial** → opção **E** → confirmar | Pedido + itens espelhados = E · Prints `300-cob-massa-selecao.png` + `300-cob-massa-resultado.png` |
+| **301** | Hub → Lista → reexpandir | Cobertura persiste · Print `301-cob-persistencia-apos-navegar-resultado.png` |
+| **302** | *(fechamento etapa 49)* | Estado final consolidado · Print `302-cob-estado-final-grade.png` |
+
 ### ETAPA 43 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
@@ -901,5 +924,6 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | PESO LÍQUIDO TOTAL DO PEDIDO/ITEM | 227–237 | 11 |
 | PESO BRUTO TOTAL DO PEDIDO/ITEM | 238–248 | 11 |
 | CUBAGEM TOTAL DO PEDIDO/ITEM | 249–259 | 11 |
-| **Total runner principal** | | **~287 passos / ~319 casos** |
+| COBERTURA CAMBIAL DO PEDIDO | 288–302 | 15 |
+| **Total runner principal** | | **~302 passos / ~334 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

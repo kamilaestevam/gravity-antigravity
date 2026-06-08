@@ -55,6 +55,7 @@ import {
 import { useIncotermsPedido } from '../../shared/useIncotermsPedido'
 import { useMoedasPedido } from '../../shared/useMoedasPedido'
 import { useUnidadesPedido } from '../../shared/useUnidadesPedido'
+import { useCambioSiscomexPedido } from '../../shared/useCambioSiscomexPedido'
 import { ROTULO_POR_CAMPO } from '../../../../shared/campos-pedido-ddd'
 
 // ── Le casas decimais do localStorage (mesma fonte de Pedidos.tsx) ────────────
@@ -125,6 +126,7 @@ export function CampoSmartImport(props: CampoSmartImportProps) {
   const { incotermsOpcoes }       = useIncotermsPedido()
   const { moedasOpcoes }          = useMoedasPedido()
   const { unidadesComercializadas } = useUnidadesPedido()
+  const { coberturaCambialOpcoes, modalidadePagamentoOpcoes } = useCambioSiscomexPedido()
 
   const kind = kindOverride ?? kindUiDeCampo(campo)
   const rotulo = labelOverride ?? ROTULO_POR_CAMPO[campo] ?? campo.replace(/_/g, ' ')
@@ -321,16 +323,25 @@ export function CampoSmartImport(props: CampoSmartImportProps) {
           />
         )
 
-      // ─── Cobertura Cambial — texto enquanto nao oficializa enum ───────────
+      // ─── Cobertura Cambial — SSOT cadastros.cambio_siscomex ───────────────
       case 'cobertura_cambial':
         return (
-          <input
-            className="smart-import__input"
-            value={valor}
-            onChange={(e) => onChange(e.target.value)}
-            autoFocus={autoFocus}
-            placeholder="A definir"
-            aria-label={rotulo}
+          <SelectGlobal
+            opcoes={coberturaCambialOpcoes.map(o => ({ valor: o.valor, rotulo: o.label }))}
+            valor={valor || null}
+            aoMudarValor={(v) => onChange(String(v ?? ''))}
+            buscavel={false}
+          />
+        )
+
+      // ─── Condição de pagamento Siscomex — modalidade oficial ──────────────
+      case 'condicao_pagamento_siscomex':
+        return (
+          <SelectGlobal
+            opcoes={modalidadePagamentoOpcoes.map(o => ({ valor: o.valor, rotulo: o.label }))}
+            valor={valor || null}
+            aoMudarValor={(v) => onChange(String(v ?? ''))}
+            buscavel={modalidadePagamentoOpcoes.length > 6}
           />
         )
 

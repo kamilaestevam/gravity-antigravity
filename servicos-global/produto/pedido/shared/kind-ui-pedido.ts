@@ -57,7 +57,8 @@ export type KindUI =
   | 'unidade'            // select (PC/KG/M/UN/...) — pode ser livre tambem
   | 'tipo_linha'         // select PEDIDO|ITEM
   | 'tipo_operacao'      // select importacao|exportacao
-  | 'cobertura_cambial'  // select (a definir — texto enquanto nao oficializa)
+  | 'cobertura_cambial'  // select cadastros.cambio_siscomex (tipo cobertura_cambial)
+  | 'condicao_pagamento_siscomex' // select cadastros.cambio_siscomex (modalidade_pagamento)
   | 'select_ssot'        // select cujas opcoes vem do `opcoesSelect` do SSOT
   // Numericos / decimais
   | 'decimal_quantidade' // CampoDecimalGlobal, casas via config quantidade_*
@@ -79,8 +80,12 @@ const OVERRIDES: Record<string, KindUI> = {
   tipo_linha:                  'tipo_linha',
   tipo_operacao:               'tipo_operacao',
   // Texto especial / "tipo enum semantico" — manter texto ate definir spec
+  cobertura_cambial:           'cobertura_cambial',
   cobertura_cambial_pedido:    'cobertura_cambial',
   cobertura_cambial_item:      'cobertura_cambial',
+  condicao_pagamento_siscomex: 'condicao_pagamento_siscomex',
+  condicao_pagamento_siscomex_pedido: 'condicao_pagamento_siscomex',
+  condicao_pagamento_siscomex_item:   'condicao_pagamento_siscomex',
   exportador_ou_fabricante:    'texto',
   relacao_exportador_fabricante: 'texto',
   situacao_ope:                'texto',
@@ -205,8 +210,12 @@ export function kindUiDeCampo(campo: string): KindUI {
   // 1) Override explicito
   if (OVERRIDES[campo]) return OVERRIDES[campo]
 
-  // 2) Select com opcoesSelect no SSOT
+  // 2) Select com dropdown dinâmico (cadastros.cambio_siscomex)
   const meta = metadataDeCampo(campo)
+  if (meta?.dropdownDinamico === 'cambio_siscomex_cobertura') return 'cobertura_cambial'
+  if (meta?.dropdownDinamico === 'cambio_siscomex_modalidade') return 'condicao_pagamento_siscomex'
+
+  // 3) Select com opcoesSelect no SSOT
   if (meta?.tipo === 'select' && meta.opcoesSelect?.length) {
     // tipo_linha e tipo_operacao caem nos overrides; outros casos usam select_ssot
     return 'select_ssot'

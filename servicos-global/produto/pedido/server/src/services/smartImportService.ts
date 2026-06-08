@@ -1860,6 +1860,9 @@ export class SmartImportService {
     if (dados['incoterm_pedido'] ?? dados['incoterm']) result.incoterm_pedido = String(dados['incoterm_pedido'] ?? dados['incoterm'])
     if (dados['unidade_comercializada_pedido']) result.unidade_comercializada_pedido = extrairCodigoDropdown(dados['unidade_comercializada_pedido'])
     if (dados['condicao_pagamento_pedido']) result.condicao_pagamento_pedido = String(dados['condicao_pagamento_pedido'])
+    if (dados['condicao_pagamento_siscomex_pedido']) {
+      result.condicao_pagamento_siscomex_pedido = extrairCodigoDropdown(dados['condicao_pagamento_siscomex_pedido'])
+    }
     if (dados['numero_proforma_pedido']) result.numero_proforma_pedido = String(dados['numero_proforma_pedido'])
     if (dados['numero_invoice_pedido']) result.numero_invoice_pedido = String(dados['numero_invoice_pedido'])
     if (dados['referencia_importador_pedido']) result.referencia_importador_pedido = String(dados['referencia_importador_pedido'])
@@ -1868,7 +1871,9 @@ export class SmartImportService {
     if (dados['moeda_cambio_pedido']) result.moeda_cambio_pedido = extrairCodigoDropdown(dados['moeda_cambio_pedido'])
     if (dados['contrato_cambio_id_pedido']) result.contrato_cambio_id_pedido = String(dados['contrato_cambio_id_pedido'])
     if (dados['cnpj_importador_pedido']) result.cnpj_importador_pedido = String(dados['cnpj_importador_pedido'])
-    if (dados['cobertura_cambial_pedido']) result.cobertura_cambial_pedido = String(dados['cobertura_cambial_pedido'])
+    if (dados['cobertura_cambial_pedido']) {
+      result.cobertura_cambial_pedido = extrairCodigoDropdown(dados['cobertura_cambial_pedido'])
+    }
     // Logística — SSOT usa 'porto_origem_pedido', Prisma usa 'porto_origem'
     if (dados['porto_origem_pedido'] ?? dados['porto_origem']) result.porto_origem = String(dados['porto_origem_pedido'] ?? dados['porto_origem']).toUpperCase()
     if (dados['porto_destino_pedido'] ?? dados['porto_destino']) result.porto_destino = String(dados['porto_destino_pedido'] ?? dados['porto_destino']).toUpperCase()
@@ -2021,7 +2026,14 @@ export class SmartImportService {
     // ── Campos String opcionais ───────────────────────────────────────────
     if (dados['tipo_operacao_item'] ?? dados['tipo_operacao']) itemData.tipo_operacao_item = String(dados['tipo_operacao_item'] ?? dados['tipo_operacao'])
     if (dados['unidade_comercializada_item']) itemData.unidade_comercializada_item = extrairCodigoDropdown(dados['unidade_comercializada_item'])
-    if (dados['cobertura_cambial_item']) itemData.cobertura_cambial_item = String(dados['cobertura_cambial_item'])
+    if (dados['cobertura_cambial_item']) {
+      itemData.cobertura_cambial_item = extrairCodigoDropdown(dados['cobertura_cambial_item'])
+    }
+    if (dados['condicao_pagamento_siscomex_item'] ?? dados['condicao_pagamento_siscomex_pedido']) {
+      itemData.condicao_pagamento_siscomex_item = extrairCodigoDropdown(
+        dados['condicao_pagamento_siscomex_item'] ?? dados['condicao_pagamento_siscomex_pedido'],
+      )
+    }
     if (dados['nome_exportador_item'] ?? dados['nome_exportador']) itemData.nome_exportador_item = String(dados['nome_exportador_item'] ?? dados['nome_exportador'])
     if (dados['nome_importador_item'] ?? dados['nome_importador']) itemData.nome_importador_item = String(dados['nome_importador_item'] ?? dados['nome_importador'])
     if (dados['nome_fabricante_item'] ?? dados['nome_fabricante']) itemData.nome_fabricante_item = String(dados['nome_fabricante_item'] ?? dados['nome_fabricante'])

@@ -67,7 +67,7 @@ const MOEDAS = ['USD', 'EUR', 'CNY', 'JPY', 'GBP', 'BRL'] as const
 
 const UNIDADES = ['UNID', 'KG', 'TON', 'M', 'M2', 'M3', 'LT', 'PARES', 'DUZIA', 'JOGO'] as const
 
-const COBERTURA_CAMBIAL = ['com_cobertura', 'sem_cobertura'] as const
+const COBERTURA_CAMBIAL = ['ATE_180_DIAS', '181_ATE_360', 'ACIMA_360', 'SEM_COBERTURA'] as const
 
 const CONDICOES_PAGAMENTO = [
   '30% antecipado, 70% contra BL',

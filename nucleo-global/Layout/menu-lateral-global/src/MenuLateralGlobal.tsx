@@ -462,7 +462,9 @@ export function MenuLateralGlobal({
                       <div className="mlg-ws-item-info">
                         <span className="mlg-ws-item-name">{prod.name}</span>
                         {prod.sublabel && (
-                          <span className="mlg-ws-item-sub">{prod.sublabel}</span>
+                          <TooltipGlobal descricao={prod.sublabel}>
+                            <span className="mlg-ws-item-sub">{prod.sublabel}</span>
+                          </TooltipGlobal>
                         )}
                       </div>
                       {isAcao ? (

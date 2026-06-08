@@ -97,7 +97,7 @@ function montarAtalhoProcessos(): ProductSwitcherItem {
     color: meta.color,
     icon: createElement(Folders, { weight: 'duotone', size: 22 }),
     kind: 'acao',
-    sublabel: 'Visão unificada dos produtos Gravity',
+    sublabel: 'Visão unificada dos Produtos Gravity',
   }
 }
 

@@ -425,11 +425,9 @@
   font-size: 0.625rem;
   font-weight: 500;
   color: var(--ws-muted, #94a3b8);
-  line-height: 1.25;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .mlg-ws-item-arrow {

@@ -1029,6 +1029,11 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
+/* Qtd + tipo de volume/unidade — dois controles lado a lado */
+.gtv-edit-popover--unidade-composta {
+  width: 420px;
+}
+
 /* Quando o popover está acima da célula (flip) */
 .gtv-edit-popover--flip {
   animation: gtv-popover-in-flip 0.14s cubic-bezier(0.16, 1, 0.3, 1);

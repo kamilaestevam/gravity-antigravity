@@ -54,6 +54,7 @@ export type PesoEmtCtx = {
   abrirPopoverQuantidadeItem: (page: Page, pedidoRowId: string, indice: number, colKey: string) => Promise<boolean>
   abrirDropdownUnidadePopover: (page: Page) => Promise<void>
   listarUnidadesDropdownPopover: (page: Page) => Promise<string[]>
+  listarRotulosDropdownPopover?: (page: Page) => Promise<string[]>
   popoverExibeAvisoImpactoUnidade: (page: Page, padrao: RegExp) => Promise<boolean>
   salvarQuantidadeUnidadeItem: (
     page: Page,
@@ -416,7 +417,7 @@ async function validarPesoBruto(
 export async function validarPesoLista(
   ctx: PesoEmtCtx,
   page: Page,
-  rowId: string,
+  rowIdInicial: string,
   numeroPedido: string,
   qtdItens: number,
 ): Promise<void> {
@@ -424,6 +425,8 @@ export async function validarPesoLista(
     ctx.falharTabela(LOCAL_LISTA, COLUNA_PESO_LIQ, 'Pré-condição — pedido sem itens visíveis para peso')
     return
   }
+  const rowId = (await ctx.localizarRowIdPorNumeroPedido(page, numeroPedido)) ?? rowIdInicial
+  await ctx.expandirPedido(page, rowId)
   await validarPesoLiquido(ctx, page, rowId, numeroPedido)
 
   const rowIdAtual = await ctx.localizarRowIdPorNumeroPedido(page, numeroPedido)

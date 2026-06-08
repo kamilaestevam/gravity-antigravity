@@ -179,6 +179,9 @@ export function classificarRegraTooltipColuna(
   }
 
   if (nivel === 'item') {
+    if (key === 'peso_liquido_total_pedido') return 'dinamico_peso_liquido'
+    if (key === 'peso_bruto_total_pedido') return 'dinamico_peso_bruto'
+    if (key === 'cubagem_total_pedido') return 'dinamico_cubagem'
     if (key === 'numero_pedido') return 'item_part_number'
     if (key === 'tipo_operacao' || key === 'id_workspace') return 'item_nao_editavel_padrao'
     if (key === 'saldo_itens_do_pedido') return 'item_nao_editavel_saldo'

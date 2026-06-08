@@ -51,7 +51,7 @@ export function formatarNomeVolumeExibicao(nomeVolume: string, qtd: number): str
   const resto = partes.slice(1).join(' ')
   const primeiraFmt = pluralizarPrimeiraPalavraVolume(primeira, qtd !== 1)
   const texto = resto ? `${primeiraFmt} ${resto}` : primeiraFmt
-  return texto.charAt(0).toLowerCase() + texto.slice(1)
+  return texto.toLowerCase()
 }
 
 /** Ex.: `10 caixas de papelão` — quantidade + tipo (sem código Siscomex). */

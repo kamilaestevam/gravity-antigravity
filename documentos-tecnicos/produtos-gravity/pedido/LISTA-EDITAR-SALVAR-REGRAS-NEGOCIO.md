@@ -459,31 +459,34 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ## 8F. QTD. DE VOLUMES DO PEDIDO (`quantidade_volumes_pedido`)
 
-> Decisão de produto **2026-06-08** — coluna **somente no pedido**; itens exibem `—`. Não editável na célula da lista; alteração via **Edição em Massa** (nível pedido). Inteiro, sem unidade comercializada.
+> Decisão de produto **2026-06-08** (revisada **2026-06-03**) — valor persiste no **Pedido**; na grade o **pedido** exibe o total formatado e **não** abre popover inline; **itens** editam via popover **quantidade inteira + select de tipo** (`cadastros.volume`). Alteração no item ou em **Edição em Massa** atualiza também **Tipo Volume Pedido/Item**.
 
 | # | Regra |
 |---|--------|
-| **VOL-01** | Label na grade: **Qtd. de Volumes do Pedido** — tooltip: *Qtd. Total de Volumes do Pedido* (pai). |
-| **VOL-02** | Célula do **pedido**: não editável inline (`editavel: false`, `tipo: calculado`). |
-| **VOL-03** | Linhas de **item**: sempre **`—`** (campo não existe em `PedidoItem`). |
-| **VOL-04** | Tooltip **pedido**: `bloqueado_edicao` → `calculado_pedido` → `alerta_divergencia`. |
-| **VOL-05** | Tooltip **item** (coluna alinhada): `somente_leitura` — indica campo do pedido. |
-| **VOL-06** | Formato: inteiro; `null`/`undefined` → `—`; **sem** sufixo UN. |
-| **VOL-07** | Edição permitida via **Edição em Massa** (`ModalPedidosEdicaoMassa`, campo `quantidade_volumes_pedido`). |
-| **VOL-08** | **Não** replica em itens; **sem** checkbox «Aplicar em todos os itens». |
-| **VOL-09** | Coluna **filtrável** e **ordenável**; rodapé pode exibir soma dos pedidos visíveis. |
+| **VOL-01** | Label na grade: **Qtd. de Volumes do Pedido/Item** — tooltip pedido: *Qtd. Total de Volumes do Pedido*. |
+| **VOL-02** | Célula do **pedido**: bloqueada inline (`CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO`); clique **não** abre popover. |
+| **VOL-03** | Célula do **item**: editável — popover com **campo numérico** (inteiro) **e** **select** de tipo de volume. |
+| **VOL-04** | Tooltip **pedido**: `bloqueado_edicao` → `calculado_pedido_volumes` → `alerta_divergencia`. |
+| **VOL-05** | Tooltip **item**: `editavel_item`. |
+| **VOL-06** | Exibição: `formatarExibicaoQuantidadeVolume` — ex. `12 caixas de papelão` (qtd + nome pluralizado do tipo); qtd `0`/ausente com tipo → só o nome do tipo; sem tipo → `—`. |
+| **VOL-07** | Select do popover = **SSOT** `cadastros.volume` via `useVolumesPedido` (rótulo `codigo — nome`, ex. `05 — Caixa de Papelão`). |
+| **VOL-08** | Aviso amarelo no popover do item: *A edição aqui irá alterar Tipo de Volume do Pedido/Item* (`aviso_impacto_quantidade_volumes`). |
+| **VOL-09** | Edição em Massa no **pedido** (checkbox + campo `quantidade_volumes_pedido`) replica qtd/tipo para pedido e itens. |
+| **VOL-10** | Coluna **filtrável** e **ordenável**; rodapé soma dos pedidos visíveis (ETAPA 48 unifica grade/rodapé; ex-ETAPA 49). |
+| **VOL-11** | Mudança de qtd/tipo no item deve refletir na coluna **Tipo Volume Pedido/Item** (pedido + itens espelhados). |
+| **VOL-12** | Persistência validada hub → lista (passo 286 EMT). |
 
 ### Tooltips (framework §0)
 
 | Nível | Título | Pills (ordem canônica) |
 |-------|--------|--------------------------|
-| **Pedido** | *Qtd. Total de Volumes do Pedido* | `bloqueado_edicao` → `calculado_pedido` → `alerta_divergencia` |
-| **Item** | *(coluna alinhada)* | `somente_leitura` |
-| **Cabeçalho** (sem expandir) | *Qtd. de Volumes do Pedido* | Override `!dual` (pedido + item) |
+| **Pedido** | *Qtd. Total de Volumes do Pedido* | `bloqueado_edicao` → `calculado_pedido_volumes` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` |
+| **Cabeçalho** (sem expandir) | *Qtd. de Volumes do Pedido/Item* | Override `!dual` (pedido + item) |
 
-**Código:** `pai_calculado_volumes` · `PILLS_PEDIDO_VOLUMES` · `CHAVES_COLUNA_INLINE_BLOQUEADA_ITEM` · `CAMPOS_DERIVADOS_PAI`.
+**Código:** `pai_calculado_volumes` · `PILLS_PEDIDO_VOLUMES` · `PILLS_ITEM_VOLUMES` · `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` · `formatarExibicaoQuantidadeVolume` · `useVolumesPedido`.
 
-**EMT:** passos 207–226 (ETAPAs 40–42) · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+**EMT:** passos 273–287 (ETAPA 48) · `validar-qtd-volumes-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
 
 ---
 
@@ -549,6 +552,70 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ---
 
+## 8I. CUBAGEM TOTAL DO PEDIDO/ITEM (`cubagem_total_pedido` / `cubagem_unitaria_item`)
+
+> Decisão de produto **2026-06-08** — pedido = soma dos itens na mesma unidade de cubagem (ou alerta *Unidades de cubagem divergentes*); item editável via popover qty + unidade. Fonte: Cadastros `categoria` ∈ comprimento \| area \| volume (**M3** obrigatório no EMT).
+
+| # | Regra |
+|---|--------|
+| **CUB-01** | Label na grade: **Cubagem Total do Pedido/Item** — tooltip pedido: *Cubagem Total do Pedido*. |
+| **CUB-02** | Célula do **pedido**: não editável na lista (`editavel: false`). |
+| **CUB-03** | Tooltip **pedido**: `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia`. |
+| **CUB-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **CUB-05** | Clicar no **item** abre popover qty + select de unidade de cubagem. |
+| **CUB-06** | Lista do select = Cadastros/unidade (comprimento \| area \| volume) — EMT exige **M3** (`M3 — …`) e ≥3 opções. |
+| **CUB-07** | **Sem** aviso amarelo de impacto cruzado nesta coluna (diferente de peso). |
+| **CUB-08** | Editar no item persiste `cubagem_unitaria_item` + `cubagem_unidade_item`; pedido recalcula `cubagem_total_pedido`. |
+| **CUB-09** | Unidades divergentes entre itens → pedido sem soma (*Unidades de cubagem divergentes*). |
+| **CUB-10** | Formato: casas decimais de Config; badge **M³** no pedido; item exibe unidade escolhida. |
+| **CUB-11** | Persistência hub → lista (passo 259 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Cubagem Total do Pedido* | `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` → `alerta_divergencia` |
+
+**Código:** `pai_calculado_cubagem` · `dinamico_cubagem` · `PILLS_PEDIDO_PESO_CUBAGEM` · `unidadesCubagem` em `useUnidadesPedido`.
+
+**EMT:** passos 249–259 (ETAPA 46) · `validar-cubagem-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8J. TIPO VOLUME PEDIDO/ITEM (`tipo_volume_pedido` / `tipo_volume_item`)
+
+> Decisão de produto **2026-06-03** — pedido e itens editáveis; popover **somente select** (`apenasUnidade`). **SSOT:** `cadastros.volume` via `useVolumesPedido`. Alteração de tipo atualiza exibição em **Qtd. de Volumes do Pedido** (pluralização/nome).
+
+| # | Regra |
+|---|--------|
+| **TVL-01** | Label na grade: **Tipo Volume Pedido/Item** — tooltip pedido: *Tipo de Volume do Pedido*. |
+| **TVL-02** | Célula do **pedido**: editável — popover com **apenas** select de tipo (sem campo numérico). |
+| **TVL-03** | Célula do **item**: editável — mesmo popover (select only), campo `tipo_volume_item`. |
+| **TVL-04** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `alerta_divergencia`. |
+| **TVL-05** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **TVL-06** | Select lista **todas** as opções ativas de `cadastros.volume` — formato `codigo — nome_volume` (ex. `01 — Tambor de Plástico` … `06 — Caixa de Isopor`); busca «Buscar…» funcional. |
+| **TVL-07** | Aviso amarelo no modal (pedido e item): *A edição aqui irá alterar a Qtd de Volumes do Pedido/Item* (`aviso_impacto_tipo_volume`). |
+| **TVL-08** | Checkbox «Aplicar em todos os itens» no **pedido** — marcado replica tipo em todos os itens; desmarcado altera só o pedido. |
+| **TVL-09** | Tipos **divergentes** entre itens → alerta âmbar *Tipos de volume divergentes entre itens* no pedido (`tipo_volume_item_divergente`). |
+| **TVL-10** | Exibição pedido: rótulo do tipo agregado ou alerta; item: `formatarNomeVolumeExibicao` (singular). |
+| **TVL-11** | Confirmar tipo diferente deve refletir na coluna **Qtd. de Volumes** (texto com novo tipo, mesmo qtd = 0). |
+| **TVL-12** | Persistência hub → lista (passo 272 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Tipo de Volume do Pedido* | `editavel_pedido` → `replica_itens` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` → `alerta_divergencia` |
+| **Cabeçalho** (sem expandir) | *Tipo Volume Pedido/Item* | Override `!dual` (pedido + item) |
+
+**Código:** `tipo_volume_pedido` em `ColunasPai.tsx` (`apenasUnidade: true`) · mapa filho `tipo_volume_pedido` · `useVolumesPedido` · `aviso_impacto_tipo_volume`.
+
+**EMT:** passos 260–272 (ETAPA 47) · `validar-tipo-volume-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
 ## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.
@@ -597,3 +664,4 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | 2026-06-07 | MOEDA — MND-01…08; tooltips pedido/item + aviso impacto; pills `editavel_pedido` → `replica_itens` → `editavel_item` / item `editavel_item` |
 | 2026-06-08 | VALOR TOTAL — VLR-01…10; pedido bloqueado + soma; item popover; pills `editavel_nos_itens`; EMT passos 62–71 (ordem 01–08) |
 | 2026-06-08 | UNIDADE COMERCIALIZADA — UNC-01…12; select Cadastros + checkbox; pills espelhadas pedido/item; EMT passos 72–82 |
+| 2026-06-03 | §8F revisada (VOL-01…12) + §8J TVL-01…12 — Tipo Volume + Qtd. Volumes; SSOT `cadastros.volume`; cruzamento 265/279; ETAPA 49 fundida na 48 |

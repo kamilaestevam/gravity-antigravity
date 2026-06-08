@@ -2892,9 +2892,11 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'anexo_pedido',
   'anexo_proforma',
   'anexo_invoice',
-  // Outros (2)
+  // Outros
   'cobertura_cambial_pedido',
-  'quantidade_volumes_pedido',
+  'tipo_volume_item',
+  'moeda_item',
+  'unidade_comercializada_item',
 ])
 
 // Campos numéricos editáveis inline que disparam cascata:

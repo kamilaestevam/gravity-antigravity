@@ -18,6 +18,7 @@ import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { rotuloExibicaoUnidadeOpcao } from '../../shared/useUnidadesPedido'
+import { formatarExibicaoQuantidadeVolume } from '../../shared/useVolumesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
 import { enriquecerColunasComRegraTooltip, montarTooltipCelulaComAviso } from '../../shared/buildTooltipRegraLista'
 import { obterDescricaoExibicaoPedido, obterNcmExibicaoPedido } from '../../../../shared/pedidoDivergencias'
@@ -1725,6 +1726,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     grupo: 'Quantidades',
     unidades: volumesOpcoes,
+    rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
     avisoImpacto: t('pedido.coluna_pai.aviso_impacto_tipo_volume'),
     getValorEditar: (row: Pedido) => ({
       unit: row.tipo_volume_pedido ?? '05',
@@ -1749,27 +1751,23 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     editavel: true,
     casasDecimais: 0,
     unidades: volumesOpcoes,
+    rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
+    formatarValorUnidade: (v) => formatarExibicaoQuantidadeVolume(v.quantity, v.unit, volumesOpcoes),
     grupo: 'Quantidades',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_volumes_pedido_titulo'),
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_quantidade_volumes'),
     getValorEditar: (row: Pedido) => ({
       unit: row.tipo_volume_pedido ?? '05',
       quantity: row.quantidade_volumes_pedido ?? 0,
     }),
     render: (_val: unknown, row: Pedido) => {
-      const qtd = row.quantidade_volumes_pedido
-      const tipo = row.tipo_volume_pedido
-      if (qtd == null && !tipo) return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
-      const nomeTipo = tipo ? rotuloExibicaoUnidadeOpcao(tipo, volumesOpcoes) : null
-      return (
-        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {qtd != null ? fmtQuantidade(qtd, 0) : '—'}
-          {nomeTipo ? (
-            <TooltipGlobal titulo={tipo ?? ''} descricao={nomeTipo}>
-              <span className="gtv-celula-unidade-badge">{nomeTipo}</span>
-            </TooltipGlobal>
-          ) : null}
-        </span>
+      const texto = formatarExibicaoQuantidadeVolume(
+        row.quantidade_volumes_pedido,
+        row.tipo_volume_pedido,
+        volumesOpcoes,
       )
+      if (texto === '—') return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
+      return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{texto}</span>
     },
   },
   // ── Datas — Draft do Pedido + Proforma + Invoice (Decisão UX 2026-05-13:

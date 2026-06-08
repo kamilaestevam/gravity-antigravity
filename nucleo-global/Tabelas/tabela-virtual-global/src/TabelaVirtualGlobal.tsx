@@ -316,6 +316,16 @@ function conteudoTemTooltipProdutoMontada(conteudo: React.ReactNode): boolean {
   const props = conteudo.props as Record<string, unknown>
   if (props['data-tooltip-lista-mount'] != null) return true
   if (props['data-tooltip-lista-coluna'] != null) return true
+  // Componentes de tooltip montados pelo produto (ex.: TooltipListaColuna) emitem o
+  // marcador `data-tooltip-lista-mount` num <span> INTERNO ao seu render — invisível
+  // como prop neste ponto. Detecta pela identidade do componente para o núcleo não
+  // re-embrulhar a célula (caso contrário a célula de item ganha uma 2ª tooltip de pedido).
+  const tipo = conteudo.type as { displayName?: string; name?: string } | string
+  if (typeof tipo === 'function' || typeof tipo === 'object') {
+    const nome = (tipo as { displayName?: string; name?: string }).displayName
+      ?? (tipo as { displayName?: string; name?: string }).name
+    if (nome === 'TooltipListaColuna') return true
+  }
   const children = props.children
   if (React.isValidElement(children)) {
     const childProps = children.props as Record<string, unknown>
@@ -367,8 +377,8 @@ function wrapTooltipRegraCelula(
   celulaBloqueada = false,
   tituloOverride?: string,
 ): React.ReactNode {
-  // Tooltip montada no produto (tooltipInline / TooltipListaColuna) — núcleo não duplica wrap.
-  if (col.tooltipInline === true) return conteudo
+  // tooltipInline na coluna pai — só pula wrap na linha do pedido; filho usa fallback do núcleo.
+  if (col.tooltipInline === true && !isFilho) return conteudo
   if (conteudoTemTooltipProdutoMontada(conteudo)) return conteudo
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
@@ -401,7 +411,7 @@ function wrapTooltipRegraCelula(
   )
 }
 
-function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: number): string {
+function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: number, unidades?: GTUnidadeOpcao[]): string {
   if (tipo === 'moeda' && val != null && typeof val === 'object') {
     const v = val as GTValorMoeda
     return `${v.currency} ${Number(v.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -409,7 +419,9 @@ function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: numbe
   if (tipo === 'unidade' && val != null && typeof val === 'object') {
     const v = val as GTValorUnidade
     const casas = casasDecimais ?? 0
-    return `${Number(v.quantity).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })} ${v.unit}`
+    const qty = Number(v.quantity).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
+    const rotuloUnit = rotuloExibicaoUnidadeSelecionada(v.unit, unidades ?? [])
+    return `${qty} ${rotuloUnit}`
   }
   return String(val ?? '')
 }
@@ -535,6 +547,8 @@ interface GTEditPopoverProps {
 }
 
 const POPOVER_W = 340
+/** Popover qtd + unidade (dois campos lado a lado — ex.: volumes do pedido). */
+const POPOVER_W_UNIDADE_COMPOSTA = 420
 
 const GTEditPopover = memo(function GTEditPopover({
   overlayInfo,
@@ -561,6 +575,8 @@ const GTEditPopover = memo(function GTEditPopover({
   const isOpcoes  = Array.isArray(overlayInfo.opcoes) && overlayInfo.opcoes!.length > 0
   const isMoeda   = overlayInfo.colTipo === 'moeda'
   const isUnidade = overlayInfo.colTipo === 'unidade'
+  const isUnidadeComposta = isUnidade && !overlayInfo.apenasUnidade
+  const popoverW = isUnidadeComposta ? POPOVER_W_UNIDADE_COMPOSTA : POPOVER_W
   const isNumero  = overlayInfo.colTipo === 'numero'
   const isNCM     = campoEhNcm(overlayInfo.campo)
   const isTextoLivre = !isPeriodo && !isOpcoes && !isMoeda && !isUnidade && !isNumero && !isNCM
@@ -636,13 +652,6 @@ const GTEditPopover = memo(function GTEditPopover({
     setTimeout(() => { ignorarBlurConfirmacaoRef.current = false }, 300)
   }
 
-  // Helper único — todos os caminhos de confirmação propagam o estado do checkbox.
-  // Quando mostrarCheckboxReplicar=false, replicarEmItens é sempre false (estado
-  // inicial), entao o backend recebe replicar_em_itens=false (padrão divergente).
-  const confirmarComOpts = useCallback(() => {
-    if (isTextoLivre) onAtualizar(textoLocalRef.current)
-    onConfirmar({ replicar_em_itens: replicarEmItens })
-  }, [onConfirmar, replicarEmItens, isTextoLivre, onAtualizar])
   const [moedaAberta, setMoedaAberta] = useState(false)
   const [unidadeAberta, setUnidadeAberta] = useState(false)
   // Calendário inicia fechado — abre quando usuário clica no icone à direita do input.
@@ -707,6 +716,16 @@ const GTEditPopover = memo(function GTEditPopover({
     if (isUnidade) setDisplayQty(fmtBR(Number(uv.quantity), casas))
     if (isNumero)  setDisplayNumero(fmtBR(numericInitial, casas) || String(valorEditando ?? ''))
   }, []) // intentional empty deps — runs once on mount, same scope as lazy-init
+
+  // Helper único — todos os caminhos de confirmação propagam o estado do checkbox.
+  const confirmarComOpts = useCallback(() => {
+    if (isTextoLivre) onAtualizar(textoLocalRef.current)
+    if (isUnidadeComposta) {
+      const parsed = parseBRNum(displayQty)
+      onAtualizar({ ...uv, quantity: parsed })
+    }
+    onConfirmar({ replicar_em_itens: replicarEmItens })
+  }, [onConfirmar, replicarEmItens, isTextoLivre, onAtualizar, isUnidadeComposta, displayQty, uv])
 
   // Estado de aviso para input inválido (ex: letras em campo numérico)
   const [erroInput, setErroInput] = useState<string | null>(null)
@@ -934,7 +953,7 @@ const GTEditPopover = memo(function GTEditPopover({
 
   // Posição inicial (abaixo da célula) — reajustada pelo useLayoutEffect
   const [pos, setPos] = useState(() => {
-    const left = Math.max(8, Math.min(rect.left, window.innerWidth - POPOVER_W - 8))
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - popoverW - 8))
     return { top: rect.bottom + 8, left, arrowLeft: 16, flipUp: false }
   })
 
@@ -1002,7 +1021,7 @@ const GTEditPopover = memo(function GTEditPopover({
       {/* Popover */}
       <div
         ref={popoverRef}
-        className={`gtv-edit-popover${pos.flipUp ? ' gtv-edit-popover--flip' : ''}${isNCM ? ' gtv-edit-popover--ncm' : ''}`}
+        className={`gtv-edit-popover${pos.flipUp ? ' gtv-edit-popover--flip' : ''}${isNCM ? ' gtv-edit-popover--ncm' : ''}${isUnidadeComposta ? ' gtv-edit-popover--unidade-composta' : ''}`}
         style={{ top: pos.top, left: pos.left }}
         onMouseDown={e => e.stopPropagation()}
       >
@@ -1647,7 +1666,7 @@ const GTEditPopover = memo(function GTEditPopover({
                     key={sigla}
                     type="button"
                     className={`gtv-edit-custom-select-item${uv.unit === sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
-                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false); confirmarComOpts() }}
+                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false) }}
                   >{rotulo}</button>
                 )
               })
@@ -1912,10 +1931,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         casasDecimais: colU.casasDecimais ?? overlayInfo.casasDecimais,
         apenasUnidade: colU.apenasUnidade ?? overlayInfo.apenasUnidade,
         avisoImpacto: colU.avisoImpacto ?? overlayInfo.avisoImpacto,
+        rotuloUnidadeSelecionada: colU.rotuloUnidadeSelecionada ?? overlayInfo.rotuloUnidadeSelecionada,
+        formatarValorUnidade: colU.formatarValorUnidade ?? overlayInfo.formatarValorUnidade,
       }
     }
-    const mapa = mapaColunasFilho?.[overlayInfo.campo]
-    const colFilha = colunasFilhas?.find((c) => String(c.key) === overlayInfo.campo)
+    const mapaKeyFilho = mapaColunasFilho
+      ? Object.keys(mapaColunasFilho).find(
+          (k) => mapaColunasFilho[k]?.campo === overlayInfo.campo || k === overlayInfo.campo,
+        ) ?? overlayInfo.campo
+      : overlayInfo.campo
+    const mapa = mapaColunasFilho?.[mapaKeyFilho]
+    const colFilha = colunasFilhas?.find((c) => String(c.key) === mapaKeyFilho)
     const colU = colFilha as GTColuna<C> | undefined
     return {
       ...overlayInfo,
@@ -1924,6 +1950,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       unidades: mapa?.unidades ?? colU?.unidades ?? overlayInfo.unidades,
       casasDecimais: mapa?.casasDecimais ?? colU?.casasDecimais ?? overlayInfo.casasDecimais,
       apenasUnidade: colU?.apenasUnidade ?? overlayInfo.apenasUnidade,
+      avisoImpacto: mapa?.avisoImpacto ?? colU?.avisoImpacto ?? overlayInfo.avisoImpacto,
+      rotuloUnidadeSelecionada: mapa?.rotuloUnidadeSelecionada ?? colU?.rotuloUnidadeSelecionada ?? overlayInfo.rotuloUnidadeSelecionada,
+      formatarValorUnidade: mapa?.formatarValorUnidade ?? colU?.formatarValorUnidade ?? overlayInfo.formatarValorUnidade,
     }
   }, [overlayInfo, colunas, colunasFilhas, mapaColunasFilho])
 
@@ -3090,6 +3119,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto,
               apenasUnidade: colU.apenasUnidade,
               linkPopoverEdicao: colU.linkPopoverEdicao?.(item),
+              rotuloUnidadeSelecionada: colU.rotuloUnidadeSelecionada,
+              formatarValorUnidade: colU.formatarValorUnidade,
             })
             const valorParaEdicao = colU.getValorEditar ? colU.getValorEditar(item) : valor
             iniciarEdicao(id, col.key, valorParaEdicao)
@@ -3140,7 +3171,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           // Overlay ativo: mostra indicador visual, o input real está no popover flutuante
           <span className="gtv-celula--editando-overlay">
             {(overlayInfo?.opcoes ?? (col as GTColuna<unknown>).opcoes)?.find(op => op.valor === String(valorEditando))?.label
-              ?? formatarOverlayValor(valorEditando, col.tipo, (col as GTColuna<unknown>).casasDecimais)}
+              ?? (() => {
+                const colU = col as GTColuna<unknown>
+                if (col.tipo === 'unidade' && colU.formatarValorUnidade && valorEditando != null && typeof valorEditando === 'object' && 'unit' in (valorEditando as object)) {
+                  return colU.formatarValorUnidade(valorEditando as GTValorUnidade)
+                }
+                return formatarOverlayValor(valorEditando, col.tipo, colU.casasDecimais, colU.unidades)
+              })()}
           </span>
         ) : estaEditando ? (
           <input
@@ -3416,9 +3453,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     opcoes: mapa?.opcoes ?? (colU2.getOpcoes ? colU2.getOpcoes(item as unknown) : colU2.opcoes),
                     moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades,
                     casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais,
-                    gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto,
+                    gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint,                     avisoImpacto: mapa?.avisoImpacto ?? colU2.avisoImpacto,
                     apenasUnidade: colU2.apenasUnidade,
                     linkPopoverEdicao: colU2.linkPopoverEdicao?.(item as unknown),
+                    rotuloUnidadeSelecionada: mapa?.rotuloUnidadeSelecionada ?? colU2.rotuloUnidadeSelecionada,
+                    formatarValorUnidade: mapa?.formatarValorUnidade ?? colU2.formatarValorUnidade,
                   })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
@@ -3427,7 +3466,19 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 {estaEditando && overlayAtivo ? (
                   <span className="gtv-celula--editando-overlay">
                     {(mapa?.opcoes ?? (col as GTColuna<unknown>).opcoes)?.find(op => op.valor === String(valorEditandoFilho))?.label
-                      ?? formatarOverlayValor(valorEditandoFilho, col.tipo, mapa?.casasDecimais ?? (col as GTColuna<unknown>).casasDecimais)}
+                      ?? (() => {
+                        const colU = col as GTColuna<unknown>
+                        const fmt = mapa?.formatarValorUnidade ?? colU.formatarValorUnidade
+                        if (col.tipo === 'unidade' && fmt && valorEditandoFilho != null && typeof valorEditandoFilho === 'object' && 'unit' in (valorEditandoFilho as object)) {
+                          return fmt(valorEditandoFilho as GTValorUnidade)
+                        }
+                        return formatarOverlayValor(
+                          valorEditandoFilho,
+                          col.tipo,
+                          mapa?.casasDecimais ?? colU.casasDecimais,
+                          mapa?.unidades ?? colU.unidades,
+                        )
+                      })()}
                   </span>
                 ) : estaEditando ? (
                   <input
@@ -3477,8 +3528,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
-                  // mapaColunasFilho / TooltipListaColuna — núcleo não re-wrap na linha item.
-                  if (mapa?.render != null || conteudoTemTooltipProdutoMontada(celFilhoInner)) {
+                  // mapaColunasFilho / TooltipListaColuna — núcleo só pula wrap se produto já montou tooltip.
+                  if (conteudoTemTooltipProdutoMontada(celFilhoInner)) {
                     return celFilhoInner
                   }
                   const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''

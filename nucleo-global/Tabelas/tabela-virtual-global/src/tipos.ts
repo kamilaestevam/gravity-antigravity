@@ -110,6 +110,10 @@ export interface GTColuna<T = unknown> {
    * representam só a unidade (ex: unidade_comercializada_pedido).
    */
   apenasUnidade?: boolean
+  /** Rótulo do trigger do seletor de unidade no popover (ex.: só o nome, sem código). */
+  rotuloUnidadeSelecionada?: (unit: string) => string
+  /** Formata GTValorUnidade na célula enquanto o popover está aberto. */
+  formatarValorUnidade?: (valor: GTValorUnidade) => string
   /**
    * Extrai o valor composto para edição inline (ex: { currency, amount }).
    * Quando omitido, usa item[col.key] diretamente.
@@ -252,6 +256,12 @@ export interface GTMapaColunasFilho<C = unknown> {
   casasDecimais?: number
   /** Unidades disponíveis no seletor (ativo quando tipo='unidade') */
   unidades?: GTUnidadeOpcao[]
+  /** Rótulo do trigger do seletor de unidade no popover (ex.: só o nome, sem código). */
+  rotuloUnidadeSelecionada?: (unit: string) => string
+  /** Formata GTValorUnidade na célula enquanto o popover está aberto. */
+  formatarValorUnidade?: (valor: GTValorUnidade) => string
+  /** Aviso de impacto cruzado exibido no popover de edição (ex.: moeda ↔ valor). */
+  avisoImpacto?: string
 }
 
 // ─── Handle imperativo ────────────────────────────────────────────────────────

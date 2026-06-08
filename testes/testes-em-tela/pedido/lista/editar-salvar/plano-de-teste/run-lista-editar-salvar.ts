@@ -12,6 +12,7 @@ import dotenv from 'dotenv'
 import { clerk, clerkSetup } from '@clerk/testing/playwright'
 import { aplicarChavesClerkParaAmbiente, ambienteRemotoProducao } from '../../../../_lib/aplicar-chaves-clerk-ambiente.js'
 import { resolverFeatureRootEmt, resolverPastaResultadoEmt } from '../../../../_lib/resolver-pasta-resultado-emt.js'
+import { validarCubagemLista } from './validar-cubagem-lista.js'
 import { validarPesoLista } from './validar-peso-lista.js'
 import { validarQtdTransferidaLista } from './validar-qtd-transferida-lista.js'
 
@@ -502,6 +503,11 @@ async function expandirPrimeiroPedido(page: Page, rowId: string): Promise<number
   }
   await page.locator('.gtv-linha--filho').first().waitFor({ timeout: 30000 }).catch(() => {})
   return page.locator('.gtv-linha--filho').count()
+}
+
+/** C1 — grade com popover fechado, antes de editar (obrigatório em toda edição). */
+function printComoEsta(prefixo: string): string {
+  return `${prefixo}-como-esta.png`
 }
 
 function printSelecao(prefixo: string): string {
@@ -1259,20 +1265,8 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   await validarMoedaPedidoItemLista(page, rowId, qtdItens)
   await validarValorItemLista(page, rowId, numeroPedido, qtdItens)
   await validarUnidadeComercializadaLista(page, rowId, numeroPedido, qtdItens)
-  await validarQtdTransferidaLista(page, {
-    log,
-    logAprovado,
-    falharTabela,
-    screenshot,
-    scrollColunaParaVisivel,
-    esconderTooltipGlobal,
-    garantirListaPedidos,
-    localizarRowIdPorNumeroPedido,
-    expandirPedido: expandirPrimeiroPedido,
-    hubUrl: HUB_URL,
-  }, rowId, numeroPedido, qtdItens)
 
-  await validarPesoLista({
+  const ctxQtyUnidade = {
     log,
     logAprovado,
     falharTabela,
@@ -1289,10 +1283,27 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     abrirPopoverQuantidadeItem,
     abrirDropdownUnidadePopover,
     listarUnidadesDropdownPopover,
+    listarRotulosDropdownPopover,
     popoverExibeAvisoImpactoUnidade,
     salvarQuantidadeUnidadeItem,
     printResultado,
-  }, page, rowId, numeroPedido, qtdItens)
+  }
+
+  await validarPesoLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens)
+  await validarCubagemLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens)
+
+  await validarQtdTransferidaLista(page, {
+    log,
+    logAprovado,
+    falharTabela,
+    screenshot,
+    scrollColunaParaVisivel,
+    esconderTooltipGlobal,
+    garantirListaPedidos,
+    localizarRowIdPorNumeroPedido,
+    expandirPedido: expandirPrimeiroPedido,
+    hubUrl: HUB_URL,
+  }, rowId, numeroPedido, qtdItens)
 }
 
 function normalizarTextoCelula(texto: string): string {
@@ -1385,8 +1396,10 @@ async function validarReferenciaCampoLista(
   const prefixoTodos = `${String(passoReplicar).padStart(2, '0')}-ref-${slugPrint}-pedido-replicar-todos`
   const prefixoItem = `${String(passoItem).padStart(2, '0')}-ref-${slugPrint}-editar-item-isolado`
 
-  // pedido sem replicar — selecao → resultado
+  // pedido sem replicar — como-esta → selecao → resultado
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, colKey)
+  await screenshot(page, printComoEsta(prefixoSolo))
   const abriuSolo = await abrirPopoverTextoPai(page, rowId, colKey)
   if (!abriuSolo) {
     falharTabela(LOCAL_LISTA, colunaLabel, `${passoSolo} — Abrir popover no pedido (sem replicar)`)
@@ -1413,8 +1426,10 @@ async function validarReferenciaCampoLista(
     }
   }
 
-  // pedido com checkbox replicar — selecao → resultado
+  // pedido com checkbox replicar — como-esta → selecao → resultado
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, colKey)
+  await screenshot(page, printComoEsta(prefixoTodos))
   const abriuTodos = await abrirPopoverTextoPai(page, rowId, colKey)
   if (!abriuTodos) {
     falharTabela(LOCAL_LISTA, colunaLabel, `${passoReplicar} — Abrir popover no pedido (com replicar)`)
@@ -1445,8 +1460,10 @@ async function validarReferenciaCampoLista(
     }
   }
 
-  // editar só o 1º item — selecao → resultado
+  // editar só o 1º item — como-esta → selecao → resultado
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, colKey)
+  await screenshot(page, printComoEsta(prefixoItem))
   const abriuItem = await abrirPopoverTextoItem(page, rowId, 0, colKey)
   let notifItem: 'sucesso' | 'erro' | 'nenhuma' = 'nenhuma'
   let textoPaiItem = ''
@@ -1679,8 +1696,9 @@ async function validarLogisticaCampoLista(
     falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Tooltip item com título e pills espelhadas`)
   }
 
-  // Edição no pedido — espelha nos itens; sem checkbox replicar
+  // Edição no pedido — como-esta → selecao → resultado
   await fecharPopoverSeAberto(page)
+  await screenshot(page, printComoEsta(`${prefix}-pedido`))
   const abriuPedido = await abrirPopoverSelectPai(page, rowId, key)
   if (!abriuPedido) {
     falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Abrir select no pedido`)
@@ -1717,9 +1735,10 @@ async function validarLogisticaCampoLista(
     }
   }
 
-  // Edição no item — roteia PATCH pedido; todos espelham
+  // Edição no item — como-esta → selecao → resultado
   await fecharPopoverSeAberto(page)
   const textoPaiAntesItem = await lerTextoCampoPai(page, rowId, key)
+  await screenshot(page, printComoEsta(`${prefix}-item`))
   const abriuItem = await abrirPopoverSelectItem(page, rowId, 0, key)
   if (!abriuItem) {
     falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Abrir select no item 1`)
@@ -1807,6 +1826,7 @@ async function validarDescricaoItemLista(
 
   // 26 — pedido sem replicar
   await fecharPopoverSeAberto(page)
+  await screenshot(page, printComoEsta('26-descricao-pedido-sem-replicar'))
   const abriuSolo = await abrirPopoverTextoPai(page, rowId, colKey)
   if (!abriuSolo) {
     falharTabela(LOCAL_LISTA, colunaLabel, '26 — Abrir popover no pedido (sem replicar)')
@@ -1835,6 +1855,7 @@ async function validarDescricaoItemLista(
 
   // 27 — pedido com checkbox replicar
   await fecharPopoverSeAberto(page)
+  await screenshot(page, printComoEsta('27-descricao-pedido-replicar-todos'))
   const abriuTodos = await abrirPopoverTextoPai(page, rowId, colKey)
   if (!abriuTodos) {
     falharTabela(LOCAL_LISTA, colunaLabel, '27 — Abrir popover no pedido (com replicar)')
@@ -1867,6 +1888,7 @@ async function validarDescricaoItemLista(
 
   // 28 — item isolado + sem alerta de divergência
   await fecharPopoverSeAberto(page)
+  await screenshot(page, printComoEsta('28-descricao-editar-item-isolado'))
   const abriuItem = await abrirPopoverTextoItem(page, rowId, 0, colKey)
   if (!abriuItem) {
     falharTabela(LOCAL_LISTA, colunaLabel, '28 — Abrir popover no item 1')
@@ -1940,8 +1962,10 @@ async function validarIncotermLista(page: Page, rowId: string, qtdItens: number)
   const [incSolo, incTodos, incItem] = incoterms
   const textosItensAntes = await lerTextosCampoItens(page, rowId, COL_KEY_INCOTERM)
 
-  // 21 — pedido sem replicar: select aberto → grade após salvar
+  // 21 — pedido sem replicar: como-esta → selecao → resultado
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_INCOTERM)
+  await screenshot(page, printComoEsta('21-incoterm-pedido-sem-replicar'))
   const abriu21 = await abrirPopoverSelectPai(page, rowId, COL_KEY_INCOTERM)
   if (!abriu21) {
     falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '21 — Abrir select Incoterm no pedido')
@@ -1972,8 +1996,10 @@ async function validarIncotermLista(page: Page, rowId: string, qtdItens: number)
     }
   }
 
-  // 22 — pedido com replicar: select + checkbox → grade
+  // 22 — pedido com replicar: como-esta → selecao → resultado
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_INCOTERM)
+  await screenshot(page, printComoEsta('22-incoterm-pedido-replicar-todos'))
   const abriu22 = await abrirPopoverSelectPai(page, rowId, COL_KEY_INCOTERM)
   if (!abriu22) {
     falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '22 — Abrir select Incoterm no pedido (com replicar)')
@@ -2004,8 +2030,10 @@ async function validarIncotermLista(page: Page, rowId: string, qtdItens: number)
     }
   }
 
-  // 23 — item isolado: select → grade
+  // 23 — item isolado: como-esta → selecao → resultado
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_INCOTERM)
+  await screenshot(page, printComoEsta('23-incoterm-editar-item-isolado'))
   const abriu23 = await abrirPopoverSelectItem(page, rowId, 0, COL_KEY_INCOTERM)
   let notif23: 'sucesso' | 'erro' | 'nenhuma' = 'nenhuma'
   let textoPai23 = ''
@@ -2216,12 +2244,14 @@ async function validarNcmLista(page: Page, rowId: string): Promise<void> {
   log(`ℹ Coluna ${COLUNA_NCM}: passos 35–41 (código 8528.59.00, busca «monitor», tooltip pedido)`)
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_NCM)
+  await screenshot(page, '35-ncm-pedido-codigo-como-esta.png')
   const abriu35 = await abrirPopoverNcmPai(page, rowId)
   if (!abriu35) {
     falharTabela(LOCAL_LISTA, COLUNA_NCM, '35 — Abrir NCM na linha do pedido')
   } else {
-    await screenshot(page, '35-ncm-pedido-codigo-selecao.png')
     const valido35 = await preencherNcmCodigoNoPopover(page, NCM_CODIGO_TESTE)
+    await screenshot(page, '35-ncm-pedido-codigo-selecao.png')
     if (!valido35) {
       falharTabela(LOCAL_LISTA, COLUNA_NCM, `35 — NCM ${NCM_CODIGO_TESTE} não validou no pedido`)
     } else {
@@ -2240,6 +2270,8 @@ async function validarNcmLista(page: Page, rowId: string): Promise<void> {
   }
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_NCM)
+  await screenshot(page, '36-ncm-pedido-busca-monitor-como-esta.png')
   const abriu36 = await abrirPopoverNcmPai(page, rowId)
   if (!abriu36) {
     falharTabela(LOCAL_LISTA, COLUNA_NCM, '36 — Abrir NCM no pedido para busca por texto')
@@ -2269,12 +2301,14 @@ async function validarNcmLista(page: Page, rowId: string): Promise<void> {
   }
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_NCM)
+  await screenshot(page, '38-ncm-item-codigo-como-esta.png')
   const abriu38 = await abrirPopoverNcmItem(page, rowId, 0)
   if (!abriu38) {
     falharTabela(LOCAL_LISTA, COLUNA_NCM, '38 — Abrir NCM na linha do item 1')
   } else {
-    await screenshot(page, '38-ncm-item-codigo-selecao.png')
     const valido38 = await preencherNcmCodigoNoPopover(page, NCM_CODIGO_TESTE)
+    await screenshot(page, '38-ncm-item-codigo-selecao.png')
     if (!valido38) {
       falharTabela(LOCAL_LISTA, COLUNA_NCM, `38 — NCM ${NCM_CODIGO_TESTE} não validou no item`)
     } else {
@@ -2293,6 +2327,8 @@ async function validarNcmLista(page: Page, rowId: string): Promise<void> {
   }
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_NCM)
+  await screenshot(page, '39-ncm-item-busca-monitor-como-esta.png')
   const abriu39 = await abrirPopoverNcmItem(page, rowId, 0)
   if (!abriu39) {
     falharTabela(LOCAL_LISTA, COLUNA_NCM, '39 — Abrir NCM no item para busca por texto')
@@ -2521,10 +2557,17 @@ async function listarUnidadesDropdownPopover(page: Page): Promise<string[]> {
     const siglas: string[] = []
     for (const el of itens) {
       const texto = (el.textContent ?? '').trim()
-      const m = texto.match(/\b([A-Z]{1,10})\b/)
+      const m = texto.match(/\b([A-Z0-9]{1,10})\b/i)
       if (m?.[1]) siglas.push(m[1].toUpperCase())
     }
     return [...new Set(siglas)]
+  })
+}
+
+async function listarRotulosDropdownPopover(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const itens = Array.from(document.querySelectorAll('.gtv-edit-custom-select-list .gtv-edit-custom-select-item'))
+    return itens.map(el => (el.textContent ?? '').replace(/\s+/g, ' ').trim())
   })
 }
 
@@ -2585,6 +2628,8 @@ async function salvarQuantidadeUnidadeItem(
   prefixoPrint: string,
 ): Promise<'sucesso' | 'erro' | 'nenhuma'> {
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, colKey)
+  await screenshot(page, printComoEsta(prefixoPrint))
   const abriu = await abrirPopoverQuantidadeItem(page, pedidoRowId, indice, colKey)
   if (!abriu) return 'nenhuma'
   await preencherQuantidadePopover(page, valor)
@@ -3028,6 +3073,8 @@ async function salvarValorItem(
   prefixoPrint: string,
 ): Promise<'sucesso' | 'erro' | 'nenhuma'> {
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_VALOR_ITEM)
+  await screenshot(page, printComoEsta(prefixoPrint))
   const abriu = await abrirPopoverValorItem(page, pedidoRowId, indice)
   if (!abriu) return 'nenhuma'
   await preencherValorMoedaPopover(page, valor, moeda)
@@ -3094,6 +3141,8 @@ async function validarMoedaPedidoItemLista(page: Page, rowId: string, qtdItens: 
   const textosItensAntes = await lerTextosCampoItens(page, rowId, COL_KEY_MOEDA)
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_MOEDA)
+  await screenshot(page, printComoEsta('58-moeda-pedido-sem-replicar'))
   const abriu58 = await abrirPopoverSelectPai(page, rowId, COL_KEY_MOEDA)
   if (!abriu58) {
     falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '58 — Abrir select Moeda no pedido (sem replicar)')
@@ -3119,6 +3168,8 @@ async function validarMoedaPedidoItemLista(page: Page, rowId: string, qtdItens: 
   }
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_MOEDA)
+  await screenshot(page, printComoEsta('59-moeda-pedido-replicar-todos'))
   const abriu59 = await abrirPopoverSelectPai(page, rowId, COL_KEY_MOEDA)
   if (!abriu59) {
     falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '59 — Abrir select Moeda no pedido (com replicar)')
@@ -3148,6 +3199,8 @@ async function validarMoedaPedidoItemLista(page: Page, rowId: string, qtdItens: 
   }
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_MOEDA)
+  await screenshot(page, printComoEsta('60-moeda-editar-item-isolado'))
   const abriu60 = await abrirPopoverSelectItem(page, rowId, 0, COL_KEY_MOEDA)
   if (!abriu60) {
     falharTabela(LOCAL_LISTA, COLUNA_MOEDA, '60 — Abrir select Moeda no item 1')
@@ -3457,6 +3510,8 @@ async function validarUnidadeComercializadaLista(
   const textosItensAntes = await lerTextosCampoItens(page, rowId, COL_KEY_UNIDADE)
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_UNIDADE)
+  await screenshot(page, printComoEsta('77-unidade-pedido-sem-replicar'))
   const abriu77 = await abrirPopoverUnidadeComercializadaPai(page, rowId)
   if (!abriu77) {
     falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '77 — Abrir popover Unidade no pedido (sem replicar)')
@@ -3482,6 +3537,8 @@ async function validarUnidadeComercializadaLista(
   }
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_UNIDADE)
+  await screenshot(page, printComoEsta('78-unidade-pedido-replicar-todos'))
   const abriu78 = await abrirPopoverUnidadeComercializadaPai(page, rowId)
   if (!abriu78) {
     falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '78 — Abrir popover Unidade no pedido (com replicar)')
@@ -3520,6 +3577,8 @@ async function validarUnidadeComercializadaLista(
   await fecharPopoverSeAberto(page)
 
   await fecharPopoverSeAberto(page)
+  await scrollColunaParaVisivel(page, COL_KEY_UNIDADE)
+  await screenshot(page, printComoEsta('80-unidade-item-isolado'))
   const abriu80 = await abrirPopoverUnidadeComercializadaItem(page, rowId, 0)
   if (!abriu80) {
     falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '80 — Abrir popover Unidade no item 1 para editar')
@@ -3552,6 +3611,8 @@ async function validarUnidadeComercializadaLista(
   if (qtdItens >= 2) {
     const unidadeDivergente = unidadeDivergenteItem2
     await fecharPopoverSeAberto(page)
+    await scrollColunaParaVisivel(page, COL_KEY_UNIDADE)
+    await screenshot(page, printComoEsta('80-unidade-item2-divergente'))
     const abriu80b = await abrirPopoverUnidadeComercializadaItem(page, rowId, 1)
     if (!abriu80b) {
       falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '80 — Abrir popover Unidade no item 2 (divergente)')

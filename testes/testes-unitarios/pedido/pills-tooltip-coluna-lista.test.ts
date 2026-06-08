@@ -160,7 +160,24 @@ describe('obterPillsTooltipColuna', () => {
 
   it('peso_liquido_total_pedido — pedido bloqueado + calculado + alerta', () => {
     const pills = pillsParaNivelColuna('peso_liquido_total_pedido', 'pai')
-    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido', 'alerta_divergencia'])
+    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido_peso_liquido', 'alerta_divergencia'])
+  })
+
+  it('peso_liquido_total_pedido — item editável + alerta unidade peso', () => {
+    const pills = pillsParaNivelColuna('peso_liquido_total_pedido', 'item')
+    expect(pills).toEqual(['editavel_item', 'alerta_unidade_peso_divergente'])
+  })
+
+  it('peso_bruto_total_pedido — item editável + alerta unidade peso', () => {
+    const pills = pillsParaNivelColuna('peso_bruto_total_pedido', 'item')
+    expect(pills).toEqual(['editavel_item', 'alerta_unidade_peso_divergente'])
+  })
+
+  it('peso_liquido_total_pedido dinâmico — item distinto do pedido', () => {
+    const res = obterPillsTooltipColuna('peso_liquido_total_pedido', { modoDinamicoPedidoItem: true })
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual(['bloqueado_edicao', 'calculado_pedido_peso_liquido', 'alerta_divergencia'])
+    expect(res.item).toEqual(['editavel_item', 'alerta_unidade_peso_divergente'])
   })
 
   it('cubagem_total_pedido dinâmico — pedido bloqueado + calculado + alerta', () => {

@@ -98,6 +98,7 @@ const criarItemSchema = z.object({
   descricao_item:                 z.string().optional().nullable().default(''),
   quantidade_inicial_item:        z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().default(0),
   unidade_comercializada_item:    z.string().optional().nullable(),
+  tipo_volume_item:               z.string().optional().nullable(),
   moeda_item:                     z.string().optional(),  // propagado de moeda_pedido se ausente
   valor_por_unidade_item:         z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().nullable(),
   valor_total_item:               z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().nullable(),
@@ -130,6 +131,7 @@ const criarPedidoObjectSchema = z.object({
   casas_decimais_valor_pedido:      z.number().int().default(2),
   casas_decimais_quantidade_pedido: z.number().int().default(2),
   unidade_comercializada_pedido:    z.string().optional().nullable(),
+  tipo_volume_pedido:               z.string().optional().nullable(),
   condicao_pagamento_pedido:        z.string().optional().nullable(),
   data_emissao_pedido:              z.string().datetime().optional(),
   detalhes_operacionais_pedido:     z.any().optional().nullable(),
@@ -213,6 +215,7 @@ export const atualizarItemSchema = z.object({
   ncm: z.string().min(1).optional(),
   descricao_item: z.string().min(1).optional(),
   unidade_comercializada_item: z.string().optional().nullable(),
+  tipo_volume_item: z.string().optional().nullable(),
   moeda_item: z.string().optional(),
   valor_por_unidade_item: z.number().optional().nullable(),
   valor_total_item: z.number().optional().nullable(),
@@ -309,6 +312,7 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     tipo_operacao_item:          item.tipo_operacao_item,
     tipo_operacao:               item.tipo_operacao_item,
     unidade_comercializada_item: item.unidade_comercializada_item,
+    tipo_volume_item:            item.tipo_volume_item,
 
     // Decimal → number (quantidades)
     quantidade_inicial_pedido:     num(item.quantidade_inicial_item),
@@ -885,6 +889,58 @@ async function validarMultiWorkspace(
   return { valido: true }
 }
 
+/** Garante que o usuário pode operar no workspace do pedido (Mand. 08 — falha alta). */
+async function assertAcessoWorkspacePedido(
+  ctx: ContextoOrganizacao,
+  idWorkspacePedido: string,
+): Promise<void> {
+  const validacao = await validarMultiWorkspace(ctx, [idWorkspacePedido])
+  if (!validacao.valido) {
+    throw new AppError(
+      403,
+      `${validacao.bloqueados.length} workspace(s) não autorizado(s) para este usuário`,
+    )
+  }
+}
+
+/**
+ * Resolve pedido por id_pedido + org (sem filtrar pelo header x-id-workspace).
+ * Usado em rotas por ID quando a Lista pode exibir pedidos de vários workspaces.
+ */
+type PedidoDbLeitura = {
+  pedido: {
+    findFirst: (args: Record<string, unknown>) => Promise<Record<string, unknown> | null>
+  }
+}
+
+async function buscarPedidoPorIdComAcessoWorkspace(
+  db: PedidoDbLeitura,
+  ctx: ContextoOrganizacao,
+  idPedido: string,
+  include?: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const pedido = await db.pedido.findFirst({
+    where: {
+      id_pedido: idPedido,
+      id_organizacao: ctx.idOrganizacao,
+      data_exclusao_pedido: null,
+    },
+    ...(include ? { include } : {}),
+  })
+
+  if (!pedido) {
+    throw new AppError(404, 'Pedido nao encontrado')
+  }
+
+  const idWorkspacePedido = String(pedido.id_workspace ?? '').trim()
+  if (!idWorkspacePedido) {
+    throw new AppError(500, 'Pedido sem id_workspace — dado inconsistente no banco')
+  }
+
+  await assertAcessoWorkspacePedido(ctx, idWorkspacePedido)
+  return pedido as Record<string, unknown>
+}
+
 // ── Helper: tagear pedidos com indicadores de transferência ──────────────────
 // Consulta PedidoTransferencia uma única vez para todo o lote (evita N+1).
 // Popula campos virtuais `enviou_transferencia` e `recebeu_transferencia`.
@@ -1341,16 +1397,10 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
-      const pedido = await db.pedido.findFirst({
-        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
-        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+      const pedido = await buscarPedidoPorIdComAcessoWorkspace(db, ctx, req.params.id, {
+        itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
       })
-
-      if (!pedido) {
-        throw new AppError(404, 'Pedido nao encontrado')
-      }
 
       // Injeção em 2 níveis (Mand. 09 — leitura espelha a escrita):
       //  1) o próprio Pedido recebe `_colunas_usuario` do escopo='pedido'
@@ -1375,25 +1425,16 @@ pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFu
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
-      // Garante que o pedido existe e pertence à organização (e ao workspace, se vier
-      // no header) antes de expor itens. Nomes legados `id`/`tenant_id`/`company_id`
-      // causavam `Unknown argument 'id'` no Prisma → 500 → frontend mostrava itens vazios.
-      const pedido = await db.pedido.findFirst({
+      const pedido = await buscarPedidoPorIdComAcessoWorkspace(db, ctx, req.params.id)
+      const idWorkspacePedido = String(pedido.id_workspace)
+
+      const itens = await db.pedidoItem.findMany({
         where: {
           id_pedido: req.params.id,
           id_organizacao: tenant_id,
-          ...(company_id && company_id !== tenant_id ? { id_workspace: company_id } : {}),
+          id_workspace: idWorkspacePedido,
         },
-        select: { id_pedido: true },
-      })
-      if (!pedido) {
-        throw new AppError(404, 'Pedido nao encontrado')
-      }
-
-      const itens = await db.pedidoItem.findMany({
-        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
         orderBy: { sequencia_item_pedido: 'asc' },
       })
 
@@ -1933,6 +1974,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'data_emissao_pedido',
   'campos_custom',
   'unidade_comercializada_pedido',
+  'tipo_volume_pedido',
   'status',
   // Datas (43)
   'data_prevista_pedido_pronto',
@@ -2568,25 +2610,22 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const idOrganizacao = ctx.idOrganizacao
-      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
-      const pedido = await db.pedido.findFirst({
-        where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
-        include: {
-          snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true } },
-        },
+      const pedido = await buscarPedidoPorIdComAcessoWorkspace(db, ctx, req.params.id_pedido, {
+        snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true } },
       })
-
-      if (!pedido) {
-        throw new AppError(404, 'Pedido nao encontrado')
-      }
+      const idWorkspacePedido = String(pedido.id_workspace)
 
       if (!['rascunho', 'aberto'].includes(pedido.status_pedido)) {
         throw new AppError(400, 'Itens so podem ser adicionados em pedidos Rascunho ou Aberto')
       }
 
       const itemCount = await db.pedidoItem.count({
-        where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
+        where: {
+          id_pedido: req.params.id_pedido,
+          id_organizacao: idOrganizacao,
+          id_workspace: idWorkspacePedido,
+        },
       })
 
       const propagacaoPedido = construirCamposPropagadosParaItem(pedido as Record<string, unknown>)
@@ -2609,7 +2648,7 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
       const itemData: Record<string, unknown> = {
         id_item:                        gerarId('pite'),
         id_organizacao:                 idOrganizacao,
-        id_workspace:                   idWorkspace,
+        id_workspace:                   idWorkspacePedido,
         id_pedido:                      req.params.id_pedido,
         ...camposHerdados,
         sequencia_item_pedido:          result.data.sequencia_item_pedido ?? (itemCount + 1),
@@ -2667,6 +2706,7 @@ const publicToDddItem: Record<string, string> = {
   ncm:                         'ncm_item',
   descricao_item:              'descricao_item',
   unidade_comercializada_item: 'unidade_comercializada_item',
+  tipo_volume_item:            'tipo_volume_item',
   moeda_item:                  'moeda_item',
   valor_por_unidade_item:      'valor_por_unidade_item',
   valor_total_item:            'valor_total_item',

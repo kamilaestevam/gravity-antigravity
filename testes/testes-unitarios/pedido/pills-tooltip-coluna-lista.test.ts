@@ -118,6 +118,13 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.item).not.toContain('alerta_divergencia')
   })
 
+  it('moeda_cambio_pedido — pedido e item editáveis; taxa/valor câmbio permanecem bloqueados', () => {
+    const res = obterPillsTooltipColuna('moeda_cambio_pedido')
+    expect(res.pedido).toEqual(['editavel_pedido', 'editavel_item'])
+    expect(res.item).toEqual(['editavel_item'])
+    expect(pillsParaNivelColuna('taxa_cambio_estimada', 'pai')).toEqual(['bloqueado_edicao', 'calculado_pedido'])
+  })
+
   it('moeda_pedido — pedido: editável → replicar → editável item; item: só editável no item', () => {
     const res = obterPillsTooltipColuna('moeda_pedido')
     expect(res.pedido).toEqual(['editavel_pedido', 'replica_itens', 'editavel_item'])
@@ -219,7 +226,7 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.dual).toBe(true)
     expect(res.pedido).toEqual(['editavel_pedido', 'replica_itens', 'alerta_divergencia'])
     expect(res.item).toEqual(['editavel_item', 'alerta_divergencia'])
-    expect(res.ghostSemCheckbox).toBe(true)
+    expect(res.ghostSemCheckbox).toBe(false)
   })
 
   it('condicao_pagamento — dual; pedido replica + alerta; item editável + alerta', () => {

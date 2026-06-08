@@ -399,7 +399,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['somente_leitura'],
   },
   pai_moeda_cambio: {
-    pedido: [...PILLS_PEDIDO_CAMBIO],
+    pedido: ['editavel_pedido', 'editavel_item'],
     item: ['editavel_item'],
   },
   pai_anexo: {
@@ -545,7 +545,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
 }
 
 // Sem subtexto «Sem checkbox» — NCM e descrição exibem checkbox no popover.
-const GHOST_KEYS = new Set(['cobertura_cambial'])
+const GHOST_KEYS = new Set<string>()
 
 export type ResolucaoPillsTooltip = {
   dual: boolean
@@ -564,6 +564,7 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_total_pedido') return PILLS_ITEM_VALOR_TOTAL
   if (key === 'valor_por_unidade_item') return PILLS_ITEM_VALOR_UNITARIO
   if (key === 'moeda_pedido') return PILLS_ITEM_MOEDA
+  if (key === 'moeda_cambio_pedido') return PILLS_ITEM_MOEDA
   if (key === 'unidade_comercializada_pedido') return PILLS_ITEM_UNIDADE
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_ITEM_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_ITEM_QTD_INICIAL
@@ -578,6 +579,7 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
 function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_por_unidade_item') return PILLS_PEDIDO_VALOR_UNITARIO_ITEM
   if (key === 'moeda_pedido') return PILLS_PEDIDO_MOEDA
+  if (key === 'moeda_cambio_pedido') return ['editavel_pedido', 'editavel_item']
   if (key === 'unidade_comercializada_pedido') return PILLS_PEDIDO_UNIDADE
   if (key === 'valor_total_pedido') return PILLS_PEDIDO_VALOR_TOTAL
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_PEDIDO_QTD_PRONTA
@@ -589,8 +591,7 @@ function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] 
   if (key === 'peso_bruto_total_pedido') return PILLS_PEDIDO_PESO_BRUTO
   if (key === 'cubagem_total_pedido') return PILLS_PEDIDO_PESO_CUBAGEM
   if (
-    key === 'moeda_cambio_pedido'
-    || key === 'taxa_cambio_estimada'
+    key === 'taxa_cambio_estimada'
     || key === 'valor_total_cambio_pedido'
   ) return PILLS_PEDIDO_CAMBIO
   if (key === 'quantidade_volumes_pedido') return PILLS_PEDIDO_VOLUMES
@@ -767,7 +768,7 @@ export function pillsParaNivelColuna(
     return limitarPills(PILLS_ITEM_PESO, 'item')
   }
   if (
-    (key === 'moeda_cambio_pedido' || key === 'taxa_cambio_estimada' || key === 'valor_total_cambio_pedido')
+    (key === 'taxa_cambio_estimada' || key === 'valor_total_cambio_pedido')
     && nivel === 'pai'
   ) {
     return limitarPills(PILLS_PEDIDO_CAMBIO, 'pai')

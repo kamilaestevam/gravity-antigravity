@@ -16,6 +16,7 @@ import { fmtQuantidade, fmtData, classeMoedaBadge } from '../../shared/types'
 import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
 import { valorTotalItemParaLista } from '../../shared/valorTotalItemLista'
 import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel, type OpcoesUnidadesColunas } from './ColunasPai'
+import { rotuloCambioSiscomex } from '../../shared/useCambioSiscomexPedido'
 import {
   formatarBadgeUnidadeCelula,
   kgParaQuantidadeExibicao,
@@ -153,7 +154,7 @@ export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedid
 // ── Colunas filha (PedidoItem) ────────────────────────────────────────────────
 
 export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<PedidoItem>[] {
-  const { unidadesPeso, unidadesCubagem } = opcoes
+  const { unidadesPeso, unidadesCubagem, modalidadePagamentoOpcoes = [] } = opcoes
   return [
   {
     key: 'part_number',
@@ -1533,12 +1534,22 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
   {
     key: 'condicao_pagamento_siscomex',
     label: 'Cond. Pagamento — Siscomex',
-    tipo: 'texto',
+    tipo: 'select',
+    opcoes: modalidadePagamentoOpcoes,
     filtravel: true,
+    editavel: true,
+    campo: 'condicao_pagamento_siscomex',
     grupo: t('pedido.item_grupo.quantidades'),
     tooltipTitulo: 'Modalidade de Pagamento — Siscomex',
     tooltipDescricao: 'Código oficial de modalidade de pagamento para LI/DI',
-    render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento_siscomex, 'condicao_pagamento_siscomex'),
+    getValorEditar: (row: PedidoItem) => row.condicao_pagamento_siscomex ?? '',
+    render: (_val: unknown, row: PedidoItem) => {
+      const codigo = row.condicao_pagamento_siscomex
+      const rotulo = codigo
+        ? (modalidadePagamentoOpcoes.find(o => o.valor === codigo)?.label ?? codigo)
+        : null
+      return renderDescricaoTruncada(rotulo, 'condicao_pagamento_siscomex')
+    },
   },
   {
     key: 'casas_decimais_quantidade_item',
@@ -1602,7 +1613,15 @@ type PedidoItemEnriquecido = PedidoItem & {
 }
 
 export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
-  const { unidadesPeso, unidadesCubagem, mapaFatorParaKg } = opcoes
+  const {
+    unidadesPeso,
+    unidadesCubagem,
+    mapaFatorParaKg,
+    coberturaCambialOpcoes = [],
+    modalidadePagamentoOpcoes = [],
+  } = opcoes
+  const opcoesCobertura = coberturaCambialOpcoes.map(o => ({ valor: o.valor, label: o.label }))
+  const opcoesSiscomex = modalidadePagamentoOpcoes.map(o => ({ valor: o.valor, label: o.label }))
   return {
   // ── Número do pedido → Part Number do item ────────────────────────────────
   numero_pedido: {
@@ -1725,7 +1744,13 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   cobertura_cambial: {
     editavel: true,
     campo: 'cobertura_cambial',
-    render: (row: PedidoItem) => renderDescricaoTruncada(row.cobertura_cambial, 'cobertura_cambial'),
+    opcoes: opcoesCobertura,
+    getValorEditar: (row: PedidoItem) => row.cobertura_cambial ?? '',
+    render: (row: PedidoItem) => {
+      const rotulo = rotuloCambioSiscomex(row.cobertura_cambial, coberturaCambialOpcoes)
+      if (rotulo === '—') return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      return renderDescricaoTruncada(rotulo, 'cobertura_cambial')
+    },
   },
   condicao_pagamento: {
     editavel: true,
@@ -1735,7 +1760,13 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   condicao_pagamento_siscomex: {
     editavel: true,
     campo: 'condicao_pagamento_siscomex',
-    render: (row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento_siscomex, 'condicao_pagamento_siscomex'),
+    opcoes: opcoesSiscomex,
+    getValorEditar: (row: PedidoItem) => row.condicao_pagamento_siscomex ?? '',
+    render: (row: PedidoItem) => {
+      const rotulo = rotuloCambioSiscomex(row.condicao_pagamento_siscomex, modalidadePagamentoOpcoes)
+      if (rotulo === '—') return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      return renderDescricaoTruncada(rotulo, 'condicao_pagamento_siscomex')
+    },
   },
   data_emissao_pedido: {
     editavel: true,

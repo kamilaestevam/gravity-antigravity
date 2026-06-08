@@ -87,7 +87,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   peso_bruto_total_pedido:              { tipo: 'calculado' },
   cubagem_total_pedido:                 { tipo: 'calculado' },
   quantidade_volumes_pedido:            { tipo: 'calculado' },
-  moeda_cambio_pedido:                  { tipo: 'somente_leitura' },
+  moeda_cambio_pedido:                  { tipo: 'alfanumerico' },
   taxa_cambio_estimada:                 { tipo: 'somente_leitura' },
   valor_total_cambio_pedido:            { tipo: 'calculado' },
 
@@ -207,6 +207,8 @@ const ITEM_EDITAVEL_OVERRIDE: Record<string, boolean> = {
   local_de_destino:             false,
   aeroporto_origem:             false,
   aeroporto_destino:            false,
+  // Câmbio: valor no Pedido; edição na linha item roteia para PATCH pedido (Pedidos.tsx)
+  moeda_cambio_pedido:          false,
 }
 
 // ── API pública ──────────────────────────────────────────────────────────────

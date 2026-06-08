@@ -240,6 +240,15 @@ exports.Prisma.IncotermScalarFieldEnum = {
   ativo_incoterm: 'ativo_incoterm'
 };
 
+exports.Prisma.CambioSiscomexScalarFieldEnum = {
+  codigo_cambio_siscomex: 'codigo_cambio_siscomex',
+  tipo_cambio_siscomex: 'tipo_cambio_siscomex',
+  nome_cambio_siscomex: 'nome_cambio_siscomex',
+  descricao_cambio_siscomex: 'descricao_cambio_siscomex',
+  ordem_cambio_siscomex: 'ordem_cambio_siscomex',
+  ativo_cambio_siscomex: 'ativo_cambio_siscomex'
+};
+
 exports.Prisma.PortoScalarFieldEnum = {
   id_porto: 'id_porto',
   codigo_unlocode_porto: 'codigo_unlocode_porto',
@@ -448,6 +457,7 @@ exports.Prisma.ModelName = {
   Moeda: 'Moeda',
   Unidade: 'Unidade',
   Incoterm: 'Incoterm',
+  CambioSiscomex: 'CambioSiscomex',
   Porto: 'Porto',
   Aeroporto: 'Aeroporto',
   TaxaOrigemDestino: 'TaxaOrigemDestino',

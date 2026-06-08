@@ -316,6 +316,16 @@ function conteudoTemTooltipProdutoMontada(conteudo: React.ReactNode): boolean {
   const props = conteudo.props as Record<string, unknown>
   if (props['data-tooltip-lista-mount'] != null) return true
   if (props['data-tooltip-lista-coluna'] != null) return true
+  // Componentes de tooltip montados pelo produto (ex.: TooltipListaColuna) emitem o
+  // marcador `data-tooltip-lista-mount` num <span> INTERNO ao seu render — invisível
+  // como prop neste ponto. Detecta pela identidade do componente para o núcleo não
+  // re-embrulhar a célula (caso contrário a célula de item ganha uma 2ª tooltip de pedido).
+  const tipo = conteudo.type as { displayName?: string; name?: string } | string
+  if (typeof tipo === 'function' || typeof tipo === 'object') {
+    const nome = (tipo as { displayName?: string; name?: string }).displayName
+      ?? (tipo as { displayName?: string; name?: string }).name
+    if (nome === 'TooltipListaColuna') return true
+  }
   const children = props.children
   if (React.isValidElement(children)) {
     const childProps = children.props as Record<string, unknown>

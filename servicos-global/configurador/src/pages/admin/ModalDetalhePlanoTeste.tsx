@@ -106,17 +106,17 @@ function BotaoVisualizarPasso({ onClick }: { onClick: () => void }) {
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 16,
-        height: 16,
-        borderRadius: '8px',
-        border: '1px solid rgba(255,255,255,0.1)',
-        background: 'rgba(30, 41, 59, 0.6)',
+        padding: 0,
+        margin: 0,
+        border: 'none',
+        background: 'transparent',
         color: '#94a3b8',
         cursor: 'pointer',
         flexShrink: 0,
+        lineHeight: 0,
       }}
     >
-      <Eye size={9} weight="regular" />
+      <Eye size={16} weight="regular" />
     </button>
   )
 }

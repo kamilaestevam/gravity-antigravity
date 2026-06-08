@@ -53,6 +53,7 @@ export type RegraPillId =
   | 'calculado_pedido_qtd_inicial'
   | 'calculado_pedido_qtd_pronta'
   | 'calculado_pedido_qtd_transferida'
+  | 'calculado_pedido_qtd_cancelada'
   | 'calculado_pedido_saldo'
   | 'soma_mesma_unidade'
   | 'formula_config'
@@ -90,6 +91,7 @@ export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
   'calculado_pedido_qtd_inicial',
   'calculado_pedido_qtd_pronta',
   'calculado_pedido_qtd_transferida',
+  'calculado_pedido_qtd_cancelada',
   'calculado_pedido_saldo',
   'valor_total_soma_mesma_moeda',
   'valor_unitario_sem_somatoria',
@@ -208,12 +210,15 @@ export const PILLS_PEDIDO_QTD_TRANSFERIDA: RegraPillId[] = [
 /** Linha do item — Qtd. Transferida: somente leitura + operação Transferir. */
 export const PILLS_ITEM_QTD_TRANSFERIDA: RegraPillId[] = ['somente_leitura', 'so_operacao']
 
-/** Linha do pedido — Qtd. Cancelada: calculado, bloqueado, soma mesma unidade, alerta. */
+/** Linha do item — Qtd. Cancelada: somente leitura + operação cancelamento. */
+export const PILLS_ITEM_QTD_CANCELADA: RegraPillId[] = ['somente_leitura', 'so_operacao']
+
+/** Linha do pedido — Qtd. Cancelada: calculado, bloqueado, soma mesma unidade, alerta unidade. */
 export const PILLS_PEDIDO_QTD_CANCELADA: RegraPillId[] = [
-  'calculado_pedido',
+  'calculado_pedido_qtd_cancelada',
   'bloqueado_edicao',
   'soma_mesma_unidade',
-  'alerta_divergencia',
+  'alerta_unidade_comercializada_divergente',
   'casas_decimais_config',
 ]
 
@@ -432,7 +437,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   dinamico_qtd_cancelada: {
     pedido: [...PILLS_PEDIDO_QTD_CANCELADA],
-    item: ['somente_leitura', 'so_operacao'],
+    item: [...PILLS_ITEM_QTD_CANCELADA],
   },
   dinamico_peso_liquido: {
     pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
@@ -476,7 +481,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   item_nao_editavel_cancelamento: {
     pedido: [],
-    item: ['somente_leitura', 'so_operacao'],
+    item: [...PILLS_ITEM_QTD_CANCELADA],
   },
   item_nao_editavel_padrao: {
     pedido: [],
@@ -525,6 +530,7 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'quantidade_total_pedido') return PILLS_ITEM_QTD_INICIAL
   if (key === 'quantidade_transferida_total') return PILLS_ITEM_QTD_TRANSFERIDA
   if (key === 'saldo_itens_do_pedido') return PILLS_ITEM_SALDO
+  if (key === 'quantidade_cancelada_total_pedido') return PILLS_ITEM_QTD_CANCELADA
   return pills
 }
 
@@ -604,6 +610,17 @@ export function obterPillsTooltipColuna(
     }
   }
 
+  if (key === 'quantidade_cancelada_total_pedido' && !dual) {
+    return {
+      dual: false,
+      pedido: limitarPills([...PILLS_PEDIDO_QTD_CANCELADA], 'pai'),
+      item: limitarPills([...PILLS_ITEM_QTD_CANCELADA], 'item'),
+      linkFormula: false,
+      ghostSemCheckbox: false,
+      numeroUnicoOrg: false,
+    }
+  }
+
   const regraPai = classificarRegraTooltipColuna(key, 'pai', opts)
   const regraItem = classificarRegraTooltipColuna(key, 'item', opts)
   const idPai = opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraPai
@@ -678,6 +695,9 @@ export function pillsParaNivelColuna(
   }
   if (key === 'quantidade_cancelada_total_pedido' && nivel === 'pai') {
     return limitarPills(PILLS_PEDIDO_QTD_CANCELADA, 'pai')
+  }
+  if (key === 'quantidade_cancelada_total_pedido' && nivel === 'item') {
+    return limitarPills(PILLS_ITEM_QTD_CANCELADA, 'item')
   }
   if (key === 'saldo_itens_do_pedido' && nivel === 'pai') {
     return limitarPills(PILLS_PEDIDO_SALDO, 'pai')

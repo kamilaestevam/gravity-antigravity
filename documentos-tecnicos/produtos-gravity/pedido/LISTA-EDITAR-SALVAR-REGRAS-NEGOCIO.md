@@ -427,6 +427,36 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ---
 
+## 8E. QTD. CANCELADA DO PEDIDO/ITEM (`quantidade_cancelada_total_pedido`)
+
+> Decisão de produto **2026-06-08** — coluna **somente leitura**; alteração via menu **Transferir** (redução simples incrementa `quantidade_cancelada_item`). Espelha §8C (Qtd. Transferida).
+
+| # | Regra |
+|---|--------|
+| **QCN-01** | Label na grade: **Qtd. Cancelada do Pedido/Item** — títulos: *Qtd. Cancelada do Pedido* (pai) / *Qtd. Cancelada do Item* (filho). |
+| **QCN-02** | Célula do **pedido** e do **item**: não editável na lista. |
+| **QCN-03** | Tooltip **pedido**: `calculado_pedido_qtd_cancelada` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` + aviso *Para cancelar os itens, selecione o(s) item(s) e clique em Transferir no menu principal. Escolha a opção Redução Simples*. |
+| **QCN-04** | Tooltip **item**: `somente_leitura` → `so_operacao` + **mesmo aviso** do pedido. |
+| **QCN-05** | Unidades **divergentes** → pedido sem soma agregada (*Unidades divergentes*). |
+| **QCN-06** | **Sem** aviso amarelo de impacto de unidade nesta coluna. |
+| **QCN-07** | Cenário **Redução simples** incrementa **`quantidade_cancelada_item`** na origem — **Qtd. Transferida** inalterada (ver QTR-08). |
+| **QCN-08** | Cenários **Split** (novo/existente) **não** incrementam Qtd. Cancelada — apenas Qtd. Transferida. |
+| **QCN-09** | Casas decimais da coluna configuráveis em **Pedido → Configurações → Casas decimais** (`quantidade_cancelada_total_pedido`). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Qtd. Cancelada do Pedido* | `calculado_pedido_qtd_cancelada` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` |
+| **Item** | *Qtd. Cancelada do Item* | `somente_leitura` → `so_operacao` |
+| **Cabeçalho** (sem expandir) | *Qtd. Cancelada do Pedido/Item* | Override `!dual` (pedido + item) |
+
+**Código:** `dinamico_qtd_cancelada` · `PILLS_PEDIDO_QTD_CANCELADA` / item `somente_leitura` + `so_operacao` · aviso em `buildTooltipRegraLista.tsx` (`quantidade_cancelada_edicao_via_transferir`).
+
+**EMT:** passos 169–206 (ETAPAs 34–38) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
 ## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.

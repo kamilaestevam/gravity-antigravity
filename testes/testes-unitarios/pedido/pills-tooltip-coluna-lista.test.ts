@@ -241,6 +241,33 @@ describe('obterPillsTooltipColuna', () => {
     expect(pillsParaNivelColuna('saldo_itens_do_pedido', 'item')).toEqual(['somente_leitura', 'formula_config'])
   })
 
+  it('quantidade_cancelada_total_pedido dinâmico — pedido calculado + alerta unidade; item somente leitura', () => {
+    const res = obterPillsTooltipColuna('quantidade_cancelada_total_pedido', { modoDinamicoPedidoItem: true })
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'calculado_pedido_qtd_cancelada',
+      'soma_mesma_unidade',
+      'alerta_unidade_comercializada_divergente',
+      'casas_decimais_config',
+    ])
+    expect(res.item).toEqual(['somente_leitura', 'so_operacao'])
+  })
+
+  it('quantidade_cancelada_total_pedido sem expandir — pills corretas no cabeçalho', () => {
+    const res = obterPillsTooltipColuna('quantidade_cancelada_total_pedido')
+    expect(res.dual).toBe(false)
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'calculado_pedido_qtd_cancelada',
+      'soma_mesma_unidade',
+      'alerta_unidade_comercializada_divergente',
+      'casas_decimais_config',
+    ])
+    expect(res.item).toEqual(['somente_leitura', 'so_operacao'])
+    expect(pillsParaNivelColuna('quantidade_cancelada_total_pedido', 'item')).toEqual(['somente_leitura', 'so_operacao'])
+  })
+
   it.each([
     'porto_origem',
     'porto_destino',

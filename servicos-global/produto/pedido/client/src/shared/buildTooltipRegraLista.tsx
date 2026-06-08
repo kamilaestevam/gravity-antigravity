@@ -96,6 +96,9 @@ function avisoImpactoPorColuna(
   if (key === 'quantidade_transferida_total') {
     return t('pedido.lista.regras_coluna.quantidade_transferida_edicao_via_transferir')
   }
+  if (key === 'quantidade_cancelada_total_pedido') {
+    return t('pedido.lista.regras_coluna.quantidade_cancelada_edicao_via_transferir')
+  }
   if (avisoImpactoColuna?.trim()) {
     return avisoImpactoColuna.trim()
   }
@@ -286,12 +289,17 @@ export function enriquecerColunaComRegraTooltip<T>(
     key === 'saldo_itens_do_pedido'
       ? t('pedido.coluna_pai.saldo_itens_do_pedido_titulo_linha_pedido')
       : null
+  const tituloQtdCanceladaLinhaPedido =
+    key === 'quantidade_cancelada_total_pedido'
+      ? t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo_linha_pedido')
+      : null
   const titulo = tituloValorTotalLinhaPedido
     ?? tituloValorUnitarioLinhaPedido
     ?? tituloMoedaLinhaPedido
     ?? tituloUnidadeLinhaPedido
     ?? tituloQtdTransferidaLinhaPedido
     ?? tituloSaldoLinhaPedido
+    ?? tituloQtdCanceladaLinhaPedido
     ?? (col.tooltipTitulo?.trim()
       ? col.tooltipTitulo
       : tituloTooltipColuna(t, key, 'pai', col.label))
@@ -308,7 +316,9 @@ export function enriquecerColunaComRegraTooltip<T>(
               ? t('pedido.coluna_pai.quantidade_transferida_item_titulo')
               : key === 'saldo_itens_do_pedido'
                 ? t('pedido.coluna_pai.saldo_item_titulo')
-                : undefined
+                : key === 'quantidade_cancelada_total_pedido'
+                  ? t('pedido.coluna_pai.quantidade_cancelada_item_titulo')
+                  : undefined
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)

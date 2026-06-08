@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 4.6  
+**Versão:** 4.7  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -30,7 +30,7 @@
 
 ## Regra universal — persistência ao fim de cada ETAPA
 
-> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 33 (relatório).
+> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 39 (relatório).
 
 **Último passo da etapa** (quando ainda não existir):
 
@@ -85,6 +85,11 @@
 | **SALDO — Fórmula item e recálculo** | 151–156 | `run-lista-editar-salvar.ts` |
 | **SALDO — Unidades divergentes** | 157–160 | `run-lista-editar-salvar.ts` |
 | **SALDO — Pós-transferência** | 161–168 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Básico** | 169–176 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Redução Simples** | 177–188 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Unidades divergentes** | 189–192 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Split não incrementa** | 193–198 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Casas decimais Config** | 199–206 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -646,7 +651,80 @@ Valida **somente a coluna Saldo** reaproveitando pedidos das ETAPAs 24–26 (nã
 | **167** | Inspecionar valor **> 0** | Exibe quantidade + **UN** |
 | **168** | Hub → Lista → reexpandir origem, destino e novo pedido | Saldos persistem · Print `168-saldo-persistencia-pos-transferencia.png` |
 
-### ETAPA 33 — Relatório
+### ETAPA 34 — QTD. CANCELADA DO PEDIDO/ITEM — Básico (passos 169–176)
+
+Coluna **`quantidade_cancelada_total_pedido`**. Pedido e item **somente leitura** (`tipo: calculado`). Regras §8E QCN-01…06 · `PILLS_PEDIDO_QTD_CANCELADA` / item `somente_leitura` + `so_operacao`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **169** | Hover célula **Qtd. Cancelada** do **pedido** | Cursor bloqueado · Print `169-qcan-cursor-pedido.png` |
+| **170** | Tooltip **pedido** | Título *Qtd. Cancelada do Pedido* + pills `calculado_pedido_qtd_cancelada` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` + aviso Redução Simples via Transferir · Print `170-qcan-tooltip-pedido.png` |
+| **171** | Clicar célula **pedido** | Popover **não** abre · Print `171-qcan-pedido-nao-edita.png` |
+| **172** | Hover tooltip **item 1** | Título *Qtd. Cancelada do Item* + pills `somente_leitura` → `so_operacao` · Print `172-qcan-tooltip-item.png` |
+| **173** | Clicar célula **item 1** | Popover **não** abre · Print `173-qcan-item-nao-edita.png` |
+| **174** | Item sem cancelamento | `0,00 UN` ou `—` conforme estado |
+| **175** | Colapsar pedido → hover cabeçalho **Qtd. Cancelada do Pedido/Item** | Tooltip bloco único pedido + item · Print `175-qcan-tooltip-cabecalho.png` |
+| **176** | Hub → Lista → reexpandir pedido | Valores inalterados · Print `176-qcan-persistencia-basico.png` |
+
+### ETAPA 35 — QTD. CANCELADA — Redução Simples (passos 177–188)
+
+> Fluxo que **incrementa** a coluna (QCN-07 / QTR-08). Valida **Qtd. Cancelada**; **Qtd. Transferida** permanece inalterada.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **177** | Checkbox **outro item** (saldo ≥ 1) | Item selecionado |
+| **178** | Menu → **Redução Simples** | Modal aberto · Print `178-qcan-reducao-modal.png` |
+| **179** | Anotar **Qtd. Cancelada** atual do item na grade | Baseline registrado no runner |
+| **180** | Quantidade válida (saldo após ≥ 1) | Preview correto |
+| **181** | Saldo negativo | Não confirma |
+| **182** | Clicar **Confirmar** | Sucesso · Print `182-qcan-reducao-sucesso.png` |
+| **183** | **Qtd. Cancelada** do **item** | Incrementada pela quantidade cancelada |
+| **184** | **Qtd. Transferida** do **item** | **Inalterada** |
+| **185** | **Qtd. Cancelada** do **pedido** | Soma dos itens (mesma unidade) |
+| **186** | **Saldo** do item | `inicial − transferida − cancelada` |
+| **187** | Item com cancelada **> 0** | Célula com destaque vermelho |
+| **188** | Hub → Lista → reexpandir | Valores persistem · Print `188-qcan-persistencia-reducao.png` |
+
+### ETAPA 36 — QTD. CANCELADA — Unidades divergentes (passos 189–192)
+
+Regra **QCN-05** — item 2 com unidade distinta (ETAPA 22).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **189** | Inspecionar célula **Qtd. Cancelada** do **pedido** | Alerta *Unidades divergentes* — **sem** soma · Print `189-qcan-alerta-unidades-divergentes.png` |
+| **190** | Expandir → inspecionar **cada item** | Cancelada individual correta |
+| **191** | Tooltip **pedido** | Pill `alerta_unidade_comercializada_divergente` visível |
+| **192** | Hub → Lista → reexpandir | Persistência · Print `192-qcan-persistencia-divergencia.png` |
+
+### ETAPA 37 — QTD. CANCELADA — Split não incrementa (passos 193–198)
+
+> Split (ETAPAs 24–25) **não** incrementa Qtd. Cancelada (QCN-08).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **193** | Anotar cancelada do **item** na **origem** (pós-ETAPA 35) | Baseline registrado |
+| **194** | Após **Split Novo Pedido** (ETAPA 24) — **origem** | Cancelada **igual** ao baseline |
+| **195** | **Novo pedido** criado | Cancelada = `0,00 UN` (ou valor esperado) |
+| **196** | Após **Split Pedido Existente** (ETAPA 25) — origem e destino | Sem incremento indevido em cancelada |
+| **197** | Conferir colunas | **Qtd. Transferida** alterada; **Qtd. Cancelada** independente |
+| **198** | Hub → Lista → reexpandir | Persistência · Print `198-qcan-persistencia-pos-split.png` |
+
+### ETAPA 38 — QTD. CANCELADA — Casas decimais no Config (passos 199–206)
+
+> Runner grava casas decimais originais (padrão **2**) e restaura em `try/finally`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **199** | **Pedido → Configurações → Casas decimais** | Valor atual de *Qtd. Cancelada do Pedido* visível · Print `199-qcan-config-casas-atual.png` |
+| **200** | Registrar snapshot casas decimais originais | Padrão confirmado antes da edição |
+| **201** | Alterar *Qtd. Cancelada* para **0** casas → **Salvar** | Sucesso · Print `201-qcan-config-casas-alteradas.png` |
+| **202** | Voltar à **Lista** → item com cancelada **> 0** | Exibição **sem** decimais (ex.: `10 UN`) · Print `202-qcan-lista-casas-alteradas.png` |
+| **203** | Config → restaurar **2** casas → **Salvar** | Valor original · Print `203-qcan-config-casas-restauradas.png` |
+| **204** | Lista → **mesmo item** | Volta `10,00 UN` · Print `204-qcan-lista-casas-padrao.png` |
+| **205** | Abrir **Configurações** novamente | Campo exibe **2** casas — persistência no backend |
+| **206** | **Hub** → **Lista** → reexpandir | Config + grade corretos · Print `206-qcan-persistencia-pos-config.png` |
+
+### ETAPA 39 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -707,5 +785,10 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | SALDO — Fórmula item e recálculo | 151–156 | 6 |
 | SALDO — Unidades divergentes | 157–160 | 4 |
 | SALDO — Pós-transferência | 161–168 | 8 |
-| **Total runner principal** | | **~168 passos / 200 casos** |
+| QTD. CANCELADA — Básico | 169–176 | 8 |
+| QTD. CANCELADA — Redução Simples | 177–188 | 12 |
+| QTD. CANCELADA — Unidades divergentes | 189–192 | 4 |
+| QTD. CANCELADA — Split não incrementa | 193–198 | 6 |
+| QTD. CANCELADA — Casas decimais Config | 199–206 | 8 |
+| **Total runner principal** | | **~206 passos / 238 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

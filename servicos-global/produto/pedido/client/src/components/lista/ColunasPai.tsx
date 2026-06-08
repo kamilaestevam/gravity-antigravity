@@ -18,9 +18,14 @@ import type { RegrasConfigBackend } from '../../shared/api'
 import { LABELS_FILTRO_INVERSO } from './filtros'
 import type { GTUnidadeOpcao } from '../../shared/useUnidadesPedido'
 import { rotuloExibicaoUnidadeOpcao } from '../../shared/useUnidadesPedido'
+import { formatarExibicaoQuantidadeVolume } from '../../shared/useVolumesPedido'
 import { getEditavel } from '../../shared/columnBehaviorConfig'
 import { enriquecerColunasComRegraTooltip, montarTooltipCelulaComAviso } from '../../shared/buildTooltipRegraLista'
-import { obterDescricaoExibicaoPedido, obterNcmExibicaoPedido } from '../../../../shared/pedidoDivergencias'
+import {
+  obterCoberturaExibicaoPedido,
+  obterDescricaoExibicaoPedido,
+  obterNcmExibicaoPedido,
+} from '../../../../shared/pedidoDivergencias'
 import { renderBadgeParteWorkspace } from './renderBadgeParteWorkspace'
 import {
   urlEditarCnpjWorkspace,
@@ -293,6 +298,8 @@ export interface OpcoesUnidadesColunas {
    * Formato `{ valor, label }` esperado pelo popover de edição inline (select).
    */
   incotermsOpcoes?: Array<{ valor: string; label: string }>
+  coberturaCambialOpcoes?: Array<{ valor: string; label: string }>
+  modalidadePagamentoOpcoes?: Array<{ valor: string; label: string }>
   /**
    * Opções de moeda vindas de cadastros.moeda via useMoedasPedido.
    * Formato `{ valor, label }` esperado pelo popover select inline.
@@ -321,6 +328,8 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     unidadesCubagem,
     volumesOpcoes = [],
     incotermsOpcoes,
+    coberturaCambialOpcoes,
+    modalidadePagamentoOpcoes,
     moedasOpcoes,
     workspacesMap,
     paisesOpcoes = [],
@@ -1185,15 +1194,24 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'cobertura_cambial',
     label: t('pedido.coluna_pai.cobertura_cambial'),
-    tipo: 'texto',
+    tipo: 'select',
+    opcoes: coberturaCambialOpcoes ?? [],
     filtravel: true,
     editavel: getEditavel('cobertura_cambial'),
     campo: 'cobertura_cambial',
-    tooltipTitulo: t('pedido.coluna_pai.cobertura_cambial_titulo'),
-    tooltipDescricao: t('pedido.coluna_pai.cobertura_cambial_desc'),
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) =>
-      renderAgregado(truncarParaAgregado(row.cobertura_cambial_valor_unico, t('pedido.coluna_pai.cobertura_cambial')), row.cobertura_cambial_divergente, t('pedido.coluna_pai.coberturas_cambiais_divergentes')),
+    getValorEditar: (row: Pedido) => obterCoberturaExibicaoPedido(row as Record<string, unknown>) ?? '',
+    render: (_val: unknown, row: Pedido) => {
+      const codigo = obterCoberturaExibicaoPedido(row as Record<string, unknown>)
+      const rotulo = codigo
+        ? (coberturaCambialOpcoes?.find(o => o.valor === codigo)?.label ?? codigo)
+        : null
+      return renderAgregado(
+        truncarParaAgregado(rotulo, t('pedido.coluna_pai.cobertura_cambial')),
+        row.cobertura_cambial_divergente,
+        t('pedido.coluna_pai.coberturas_cambiais_divergentes'),
+      )
+    },
   },
   // ── Câmbio ────────────────────────────────────────────────────────────────────
   {
@@ -1267,11 +1285,33 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'texto',
     filtravel: true,
     editavel: getEditavel('condicao_pagamento'),
-    tooltipTitulo: t('pedido.coluna_pai.condicao_pagamento_pedido_titulo'),
-    tooltipDescricao: t('pedido.coluna_pai.condicao_pagamento_pedido_desc'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) =>
       renderAgregado(truncarParaAgregado(row.condicao_pagamento, t('pedido.coluna_pai.condicao_pagamento')), row.condicao_pagamento_divergente, t('pedido.coluna_pai.condicoes_pagamento_divergentes')),
+  },
+  {
+    key: 'condicao_pagamento_siscomex',
+    label: t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido'),
+    tipo: 'select',
+    opcoes: modalidadePagamentoOpcoes ?? [],
+    filtravel: true,
+    editavel: getEditavel('condicao_pagamento_siscomex'),
+    campo: 'condicao_pagamento_siscomex',
+    tooltipTitulo: t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido_titulo'),
+    tooltipDescricao: t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido_desc'),
+    grupo: 'Financeiro',
+    getValorEditar: (row: Pedido) => row.condicao_pagamento_siscomex ?? '',
+    render: (_val: unknown, row: Pedido) => {
+      const codigo = row.condicao_pagamento_siscomex
+      const rotulo = codigo
+        ? (modalidadePagamentoOpcoes?.find(o => o.valor === codigo)?.label ?? codigo)
+        : null
+      return renderAgregado(
+        truncarParaAgregado(rotulo, t('pedido.coluna_pai.condicao_pagamento_siscomex')),
+        row.condicao_pagamento_siscomex_divergente,
+        t('pedido.coluna_pai.condicoes_pagamento_siscomex_divergentes'),
+      )
+    },
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {
@@ -1725,7 +1765,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     grupo: 'Quantidades',
     unidades: volumesOpcoes,
-    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_tipo_volume'),
+    rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
     getValorEditar: (row: Pedido) => ({
       unit: row.tipo_volume_pedido ?? '05',
       quantity: 0,
@@ -1749,6 +1789,8 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     editavel: true,
     casasDecimais: 0,
     unidades: volumesOpcoes,
+    rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
+    formatarValorUnidade: (v) => formatarExibicaoQuantidadeVolume(v.quantity, v.unit, volumesOpcoes),
     grupo: 'Quantidades',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_volumes_pedido_titulo'),
     getValorEditar: (row: Pedido) => ({
@@ -1756,20 +1798,13 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       quantity: row.quantidade_volumes_pedido ?? 0,
     }),
     render: (_val: unknown, row: Pedido) => {
-      const qtd = row.quantidade_volumes_pedido
-      const tipo = row.tipo_volume_pedido
-      if (qtd == null && !tipo) return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
-      const nomeTipo = tipo ? rotuloExibicaoUnidadeOpcao(tipo, volumesOpcoes) : null
-      return (
-        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {qtd != null ? fmtQuantidade(qtd, 0) : '—'}
-          {nomeTipo ? (
-            <TooltipGlobal titulo={tipo ?? ''} descricao={nomeTipo}>
-              <span className="gtv-celula-unidade-badge">{nomeTipo}</span>
-            </TooltipGlobal>
-          ) : null}
-        </span>
+      const texto = formatarExibicaoQuantidadeVolume(
+        row.quantidade_volumes_pedido,
+        row.tipo_volume_pedido,
+        volumesOpcoes,
       )
+      if (texto === '—') return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
+      return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{texto}</span>
     },
   },
   // ── Datas — Draft do Pedido + Proforma + Invoice (Decisão UX 2026-05-13:

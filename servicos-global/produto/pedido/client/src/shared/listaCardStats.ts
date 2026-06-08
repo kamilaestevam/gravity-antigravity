@@ -142,7 +142,7 @@ export function computeCardStats(
   const valorItens     = itens.reduce((acc, i) => acc + safeNum(i.valor_total_item), 0)
 
   const coberturaPend = pedidos
-    .filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura'))
+    .filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'SEM_COBERTURA' || i.cobertura_cambial === 'sem_cobertura'))
     .reduce((acc, p) => acc + safeNum(p.valor_total_pedido), 0)
 
   const itensByPedido = new Map<string, Record<string, unknown>[]>()

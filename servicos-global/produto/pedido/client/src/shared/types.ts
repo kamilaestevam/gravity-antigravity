@@ -70,6 +70,7 @@ export interface PedidoItem {
   // Financeiro
   incoterm?: string | null
   condicao_pagamento?: string | null
+  condicao_pagamento_siscomex?: string | null
   moeda_item: string
   valor_total_item: number | null
   valor_por_unidade_item?: number | null
@@ -381,6 +382,8 @@ export interface Pedido {
   referencia_exportador_divergente?: boolean | null
   incoterm_divergente?: boolean | null
   condicao_pagamento_divergente?: boolean | null
+  condicao_pagamento_siscomex_divergente?: boolean | null
+  condicao_pagamento_siscomex?: string | null
   nome_exportador_divergente?: boolean | null
   nome_importador_divergente?: boolean | null
   nome_fabricante_divergente?: boolean | null

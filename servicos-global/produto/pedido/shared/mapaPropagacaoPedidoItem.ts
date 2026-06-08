@@ -46,6 +46,7 @@ export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Obj
   unidade_comercializada_pedido:    'unidade_comercializada_item',
   tipo_volume_pedido:               'tipo_volume_item',
   condicao_pagamento_pedido:        'condicao_pagamento_item',
+  condicao_pagamento_siscomex_pedido: 'condicao_pagamento_siscomex_item',
   data_emissao_pedido:              'data_emissao_item',
 
   // ── Casas decimais — configuração de exibição (4) ────────────────────────
@@ -260,8 +261,9 @@ const LEGADO_PARA_DDD_COMPAT: Readonly<Record<string, string>> = Object.freeze({
   referencia_importador: 'referencia_importador_pedido',
   referencia_exportador: 'referencia_exportador_pedido',
   referencia_fabricante: 'referencia_fabricante_pedido',
-  condicao_pagamento:    'condicao_pagamento_pedido',
-  cobertura_cambial:     'cobertura_cambial_pedido',
+  condicao_pagamento:            'condicao_pagamento_pedido',
+  condicao_pagamento_siscomex:   'condicao_pagamento_siscomex_pedido',
+  cobertura_cambial:             'cobertura_cambial_pedido',
   tipo_operacao:         'tipo_operacao_pedido',
 
   // Datas Rascunho Pedido — frontend usa 'prevista/confirmada', banco usa 'previsao/confirmacao'

@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 4.9  
+**Versão:** 5.3  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -90,11 +90,15 @@
 | **QTD. CANCELADA — Unidades divergentes** | 189–192 | `run-lista-editar-salvar.ts` |
 | **QTD. CANCELADA — Split não incrementa** | 193–198 | `run-lista-editar-salvar.ts` |
 | **QTD. CANCELADA — Casas decimais Config** | 199–206 | `run-lista-editar-salvar.ts` |
-| **QTD. VOLUMES — Básico** | 207–214 | `run-lista-editar-salvar.ts` |
-| **QTD. VOLUMES — Edição em Massa** | 215–222 | `run-lista-editar-salvar.ts` |
-| **QTD. VOLUMES — Grade e rodapé** | 223–226 | `run-lista-editar-salvar.ts` |
+| ~~QTD. VOLUMES (legado 207–226)~~ | — | **substituído** por ETAPA 48 (273–287) |
 | **PESO LÍQUIDO TOTAL DO PEDIDO/ITEM** | 227–237 | `run-lista-editar-salvar.ts` + `validar-peso-lista.ts` |
 | **PESO BRUTO TOTAL DO PEDIDO/ITEM** | 238–248 | `run-lista-editar-salvar.ts` + `validar-peso-lista.ts` |
+| **CUBAGEM TOTAL DO PEDIDO/ITEM** | 249–259 | `run-lista-editar-salvar.ts` + `validar-cubagem-lista.ts` |
+| **TIPO VOLUME PEDIDO/ITEM** | 260–272 | `run-lista-editar-salvar.ts` + `validar-tipo-volume-lista.ts` |
+| **QTD. DE VOLUMES DO PEDIDO** | 273–287 | `run-lista-editar-salvar.ts` + `validar-qtd-volumes-lista.ts` |
+| **COBERTURA CAMBIAL DO PEDIDO** | 288–302 | `run-lista-editar-salvar.ts` + `validar-cobertura-cambial-lista.ts` |
+
+> **Ordem de execução no runner:** Peso (227–248), Cubagem (249–259), Tipo Volume (260–272), Qtd. Volumes (273–287) e Cobertura Cambial (288–302) rodam **antes** de Qtd. Transferida (83–134), após Unidade Comercializada (82). **SSOT** tipos de volume: **`cadastros.volume`** · cobertura cambial: **`cadastros.cambio_siscomex`** (`tipo=cobertura_cambial`).
 
 ---
 
@@ -729,44 +733,7 @@ Regra **QCN-05** — item 2 com unidade distinta (ETAPA 22).
 | **205** | Abrir **Configurações** novamente | Campo exibe **2** casas — persistência no backend |
 | **206** | **Hub** → **Lista** → reexpandir | Config + grade corretos · Print `206-qcan-persistencia-pos-config.png` |
 
-### ETAPA 40 — QTD. DE VOLUMES DO PEDIDO — Básico (passos 207–214)
-
-Coluna **`quantidade_volumes_pedido`** — **somente no pedido** (itens exibem `—`). Não editável na célula da lista. Regras §8F VOL-01…06 · `PILLS_PEDIDO_VOLUMES`.
-
-| Passo | Ação | APROVADO quando |
-|-------|------|-----------------|
-| **207** | Hover célula **Qtd. de Volumes** do **pedido** | Cursor bloqueado · Print `207-vol-cursor-pedido.png` |
-| **208** | Tooltip **pedido** | Título *Qtd. Total de Volumes do Pedido* + pills `bloqueado_edicao` → `calculado_pedido` → `alerta_divergencia` · Print `208-vol-tooltip-pedido.png` |
-| **209** | Clicar célula **pedido** | Popover **não** abre · Print `209-vol-pedido-nao-edita.png` |
-| **210** | Expandir pedido → inspecionar **linhas dos itens** | Coluna exibe **`—`** em todos os itens (campo não existe no item) |
-| **211** | Hover célula **item 1** na coluna Volumes | Tooltip `somente_leitura` (campo do pedido) · Print `211-vol-tooltip-item.png` |
-| **212** | Colapsar → hover cabeçalho **Qtd. de Volumes do Pedido** | Tooltip bloco pedido + item · Print `212-vol-tooltip-cabecalho.png` |
-| **213** | Inspecionar **formato** | Inteiro sem decimais; `null` → `—`; sem sufixo UN |
-| **214** | Hub → Lista → reexpandir | Valor inalterado · Print `214-vol-persistencia-basico.png` |
-
-### ETAPA 41 — QTD. DE VOLUMES — Edição em Massa (passos 215–222)
-
-> Alteração **fora da célula** — menu **Edição em Massa** (VOL-07). Campo **nível pedido**; **não** replica em itens.
-
-| Passo | Ação | APROVADO quando |
-|-------|------|-----------------|
-| **215** | Checkbox no **pedido** de teste | Pedido selecionado |
-| **216** | Menu → **Edição em Massa** → campo **Qtd. de Volumes** | Modal aberto · Print `216-vol-massa-modal.png` |
-| **217** | Informar **12** → **Confirmar** | Sucesso · Print `217-vol-massa-12-resultado.png` |
-| **218** | Inspecionar célula **pedido** na grade | Exibe **12** |
-| **219** | Inspecionar **itens** expandidos | Permanecem **`—`** |
-| **220** | Repetir massa → alterar para **24** → confirmar | Grade atualiza · Print `220-vol-massa-24-resultado.png` |
-| **221** | Clicar célula **pedido** | Popover **ainda não** abre (continua bloqueado inline) |
-| **222** | Hub → Lista → reexpandir | **24** persiste · Print `222-vol-persistencia-massa.png` |
-
-### ETAPA 42 — QTD. DE VOLUMES — Grade e rodapé (passos 223–226)
-
-| Passo | Ação | APROVADO quando |
-|-------|------|-----------------|
-| **223** | Ordenar coluna **Qtd. de Volumes** (asc/desc) | Lista reordena sem erro |
-| **224** | Filtrar coluna (valor **> 0** ou equivalente) | Só pedidos com volumes preenchidos · rodapé exibe **soma** dos visíveis |
-| **225** | Limpar filtro → pedido de teste visível | Valor **24** mantido na linha do pedido |
-| **226** | Hub → Lista | Persistência · Print `226-vol-persistencia-grade.png` |
+> **Obsoleto:** ETAPAs 40–42 (passos 207–226) foram **substituídas** pelas ETAPAs 47–48 (260–288), alinhadas ao produto atual.
 
 ### ETAPA 44 — PESO LÍQUIDO TOTAL DO PEDIDO/ITEM (passos 227–237)
 
@@ -803,6 +770,88 @@ Coluna **`peso_bruto_total_pedido`** (pedido bloqueado) / **`peso_bruto_unitario
 | **246** | Inspecionar célula **pedido** | Total atualizado · Print `246-plb-pedido-soma-resultado.png` |
 | **247** | Editar item 1 para **25,500 KG** | Grade atualiza · Prints `247-plb-item-editar-selecao.png` + `247-plb-item-editar-resultado.png` |
 | **248** | Hub → Lista → reexpandir | **25,500 KG** persiste · Print `248-plb-persistencia-apos-navegar-resultado.png` |
+
+### ETAPA 46 — CUBAGEM TOTAL DO PEDIDO/ITEM (passos 249–259)
+
+Coluna **`cubagem_total_pedido`** (pedido bloqueado, soma) / **`cubagem_unitaria`** no item (editável). Regras §8I CUB-01…11 · select Cadastros com **M3** obrigatório · **sem** aviso amarelo cruzado.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **249** | Hover célula **pedido** na coluna Cubagem | Cursor `not-allowed` · Print `249-cub-cursor-pedido.png` |
+| **250** | Tooltip **pedido** | Título *Cubagem Total do Pedido* + pills calculado/bloqueado/divergência · Print `250-cub-tooltip-pedido.png` |
+| **251** | Clicar célula **pedido** | Popover **não** abre · Print `251-cub-pedido-nao-edita.png` |
+| **252** | Hover célula **item 1** | Tooltip editável + divergência · Print `252-cub-tooltip-item.png` |
+| **253** | Clicar célula **item 1** | Popover qty + unidade abre · Print `253-cub-item-abre-popover-resultado.png` |
+| **254** | Abrir select de unidade | **M3** com rótulo `M3 — …` e ≥3 opções Cadastros · Print `254-cub-select-unidades.png` |
+| **255** | Inspecionar popover | **Sem** aviso amarelo de impacto em outro campo · Print `255-cub-sem-aviso-impacto.png` |
+| **256** | Informar **15,250** → **M3** → confirmar | Item 1 exibe valor em M³ · Prints `256-cub-item-incluir-selecao.png` + `256-cub-item-incluir-resultado.png` |
+| **257** | Inspecionar célula **pedido** | Total = soma dos itens (mesma unidade) · Print `257-cub-pedido-soma-resultado.png` |
+| **258** | Editar item 1 para **20,500 M3** | Grade atualiza · Prints `258-cub-item-editar-selecao.png` + `258-cub-item-editar-resultado.png` |
+| **259** | Hub → Lista → reexpandir | **20,500 M³** persiste · Print `259-cub-persistencia-apos-navegar-resultado.png` |
+
+### ETAPA 47 — TIPO VOLUME PEDIDO/ITEM (passos 260–272)
+
+Coluna **`tipo_volume_pedido`** / **`tipo_volume_item`**. Popover **somente select** (`apenasUnidade`). **SSOT:** `cadastros.volume` — modal deve listar **todas** as opções ativas do banco (ex.: `01 — Tambor de Plástico` … `06 — Caixa de Isopor`). Ao abrir o modal, **aviso amarelo obrigatório:** *«A edição aqui irá alterar a Qtd de Volumes do Pedido/Item»* (`aviso_impacto_tipo_volume`). Regras §8J TVL-01…12.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **260** | Scroll até coluna **Tipo Volume Pedido/Item** | Coluna visível |
+| **261** | Hover célula **pedido** | Cursor editável · Print `261-tvl-cursor-pedido.png` |
+| **262** | Tooltip **pedido** | Título *Tipo de Volume do Pedido* + pills `editavel_pedido` → `replica_itens` → `alerta_divergencia` · Print `262-tvl-tooltip-pedido.png` |
+| **263** | Clicar célula **pedido** | Modal/popover **Tipo Volume Pedido/Item** abre (somente select) **com aviso amarelo** *«A edição aqui irá alterar a Qtd de Volumes do Pedido/Item»* · Print `263-tvl-pedido-abre-popover-aviso-resultado.png` |
+| **264** | Abrir dropdown no modal | Lista **completa** de `cadastros.volume` — mesma ordem/códigos do banco (`01`, `02`, `03` …); busca «Buscar…» funcional · Print `264-tvl-select-cadastros-volume.png` |
+| **265** | Selecionar tipo **diferente do atual** (ex. `05 — Caixa de Papelão`) → **Confirmar** | Coluna **Qtd. de Volumes do Pedido** reflete o novo tipo na exibição (ex. pluralização/nome do tipo na célula qtd, mesmo que qtd = 0) · Print `265-tvl-impacto-qtd-volumes-resultado.png` |
+| **266** | Reabrir popover **pedido** | Aviso amarelo **persiste** — mesmo texto *«A edição aqui irá alterar a Qtd de Volumes do Pedido/Item»* · Print `266-tvl-aviso-impacto.png` |
+| **267** | Tipo **A** → **sem** checkbox «Aplicar em todos os itens» → confirmar | Só **pedido** exibe tipo A · Prints `267-tvl-pedido-sem-replicar-selecao.png` + `267-tvl-pedido-sem-replicar-resultado.png` |
+| **268** | Tipo **B** → **com** checkbox marcado → confirmar | Pedido **e todos os itens** = tipo B · Prints `268-tvl-pedido-replicar-todos-selecao.png` + `268-tvl-pedido-replicar-todos-resultado.png` |
+| **269** | Editar **somente item 2** → tipo **C** | Item 2 = C; pedido mantém B · Print `269-tvl-item2-isolado-resultado.png` |
+| **270** | Inspecionar **pedido** | Alerta âmbar *Tipos de volume divergentes entre itens* · Print `270-tvl-alerta-divergencia-resultado.png` |
+| **271** | Hover + clicar **item 1** → alterar tipo → confirmar | Tooltip item + edição isolada · Prints `271-tvl-item1-editar-selecao.png` + `271-tvl-item1-editar-resultado.png` |
+| **272** | Hub → Lista → reexpandir | Tipos persistem · Print `272-tvl-persistencia-apos-navegar-resultado.png` |
+
+### ETAPA 48 — QTD. DE VOLUMES DO PEDIDO (passos 273–287)
+
+Coluna **`quantidade_volumes_pedido`**. Pedido **bloqueado** inline; edição no **item** (popover com **número inteiro + select tipo**) e **Edição em Massa**. **SSOT** do select: mesmo `cadastros.volume` do passo 264. Regras §8F VOL-01…12 (revisada). Grade/rodapé **incluídos nesta etapa** (ex-ETAPA 49).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **273** | Scroll até **Qtd. de Volumes do Pedido** | Coluna visível |
+| **274** | Hover célula **pedido** | Cursor `not-allowed` · Print `274-vol-cursor-pedido.png` |
+| **275** | Tooltip **pedido** | Título *Qtd. Total de Volumes do Pedido* + pills `bloqueado_edicao` → `calculado_pedido_volumes` → `alerta_divergencia` · Print `275-vol-tooltip-pedido.png` |
+| **276** | Clicar célula **pedido** | Popover **não** abre · Print `276-vol-pedido-nao-edita.png` |
+| **277** | Hover célula **item 1** | Tooltip `editavel_item` · Print `277-vol-tooltip-item.png` |
+| **278** | Clicar célula **item 1** | Modal abre com **campo numérico** (inteiro) **e** **select de tipo de volume**; select lista opções `cadastros.volume` (SSOT) · Print `278-vol-item-popover-qty-e-select.png` |
+| **279** | Informar **12** + selecionar tipo **05 — Caixa de Papelão** → confirmar | Coluna **Tipo Volume Pedido/Item** no **pedido** (e itens espelhados) atualizada para o tipo escolhido; Qtd. exibe `12 caixas de papelão` · Prints `279-vol-impacto-tipo-volume-selecao.png` + `279-vol-impacto-tipo-volume-resultado.png` |
+| **280** | Reabrir popover **item** | Aviso *«A edição aqui irá alterar Tipo de Volume do Pedido/Item»* · Print `280-vol-aviso-impacto.png` |
+| **281** | Checkbox **pedido** → **Edição em Massa** → **Qtd. de Volumes** → **24** → confirmar | Pedido e itens espelhados = `24 …` · Prints `281-vol-massa-24-modal.png` + `281-vol-massa-24-resultado.png` |
+| **282** | Clicar célula **pedido** | Popover **ainda não** abre · Print `282-vol-pedido-ainda-bloqueado.png` |
+| **283** | Ordenar coluna (asc/desc) | Lista reordena sem erro |
+| **284** | Filtrar (valor **> 0**) | Só pedidos com volumes; rodapé com **soma** dos visíveis |
+| **285** | Limpar filtro | Pedido de teste ainda exibe **24** |
+| **286** | Hub → Lista → reexpandir | **24** persiste · Print `286-vol-persistencia-apos-navegar-resultado.png` |
+| **287** | *(fechamento etapa 48 — grade incluída)* | Estado final consolidado · Print `287-vol-estado-final-grade.png` |
+
+### ETAPA 49 — COBERTURA CAMBIAL DO PEDIDO (passos 288–302)
+
+Coluna **`cobertura_cambial`** (dual pedido/item). Select editável · **SSOT** `cadastros.cambio_siscomex` (`tipo=cobertura_cambial`) via `useCambioSiscomexPedido` — rótulo `código — nome`. Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»**; **marcado** replica em todos os itens; **desmarcado** altera só o pedido. Alerta âmbar *Coberturas cambiais divergentes entre itens* quando itens divergem. Regras §8K COB-01…12.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **288** | Scroll até **Cobertura Cambial do Pedido/Item** | Coluna visível |
+| **289** | Hover célula **pedido** | Cursor editável · Print `289-cob-cursor-pedido.png` |
+| **290** | Tooltip **pedido** | Título *Cobertura Cambial* + pills `editavel_pedido` → `replica_itens` → `alerta_divergencia` · Print `290-cob-tooltip-pedido.png` |
+| **291** | Tooltip **item 1** | Pills `editavel_item` → `alerta_divergencia` · Print `291-cob-tooltip-item.png` |
+| **292** | Clicar célula **pedido** | Popover select abre · Print `292-cob-pedido-abre-popover-resultado.png` |
+| **293** | Abrir dropdown | Lista **completa** do Cadastros (`cobertura_cambial` ativos); busca «Buscar…» funcional · Print `293-cob-select-cadastros-ssot.png` |
+| **294** | Inspecionar popover **pedido** | Checkbox **«Aplicar a todos os itens deste pedido»** visível e desmarcado por padrão · Print `294-cob-checkbox-aplicar-todos-visivel.png` |
+| **295** | Selecionar opção **A** → checkbox **desmarcado** → confirmar | **Só pedido** = A; itens **inalterados** · Prints `295-cob-pedido-sem-replicar-selecao.png` + `295-cob-pedido-sem-replicar-resultado.png` |
+| **296** | Selecionar opção **B** → checkbox **marcado** → confirmar | **Pedido e todos os itens** = B (réplica válida) · Prints `296-cob-pedido-replicar-todos-selecao.png` + `296-cob-pedido-replicar-todos-resultado.png` |
+| **297** | Editar **somente item 2** → opção **C** → confirmar | Item 2 = C; pedido mantém B · Print `297-cob-item2-isolado-resultado.png` |
+| **298** | Inspecionar célula **pedido** | Ícone/alerta âmbar *Coberturas cambiais divergentes entre itens* visível · Print `298-cob-alerta-divergencia-resultado.png` |
+| **299** | Editar **item 1** → opção **D** → confirmar | Edição isolada no item · Prints `299-cob-item1-editar-selecao.png` + `299-cob-item1-editar-resultado.png` |
+| **300** | Checkbox **pedido** → **Edição em Massa** → **Cobertura Cambial** → opção **E** → confirmar | Pedido + itens espelhados = E · Prints `300-cob-massa-selecao.png` + `300-cob-massa-resultado.png` |
+| **301** | Hub → Lista → reexpandir | Cobertura persiste · Print `301-cob-persistencia-apos-navegar-resultado.png` |
+| **302** | *(fechamento etapa 49)* | Estado final consolidado · Print `302-cob-estado-final-grade.png` |
 
 ### ETAPA 43 — Relatório
 
@@ -870,10 +919,11 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | QTD. CANCELADA — Unidades divergentes | 189–192 | 4 |
 | QTD. CANCELADA — Split não incrementa | 193–198 | 6 |
 | QTD. CANCELADA — Casas decimais Config | 199–206 | 8 |
-| QTD. VOLUMES — Básico | 207–214 | 8 |
-| QTD. VOLUMES — Edição em Massa | 215–222 | 8 |
-| QTD. VOLUMES — Grade e rodapé | 223–226 | 4 |
+| TIPO VOLUME PEDIDO/ITEM | 260–272 | 13 |
+| QTD. DE VOLUMES DO PEDIDO | 273–287 | 15 |
 | PESO LÍQUIDO TOTAL DO PEDIDO/ITEM | 227–237 | 11 |
 | PESO BRUTO TOTAL DO PEDIDO/ITEM | 238–248 | 11 |
-| **Total runner principal** | | **~248 passos / 280 casos** |
+| CUBAGEM TOTAL DO PEDIDO/ITEM | 249–259 | 11 |
+| COBERTURA CAMBIAL DO PEDIDO | 288–302 | 15 |
+| **Total runner principal** | | **~302 passos / ~334 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

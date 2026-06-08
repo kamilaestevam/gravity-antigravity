@@ -39,8 +39,16 @@ const ID_REGEX = new RegExp(
 
 const EMT_ID_REGEX = /^TST-EMT-[A-Z0-9]+(-[A-Z0-9]+){2,}-\d{6}$/
 
+/** IDs descritivos (paridade EMT) — escopo real fica no campo `escopo` do registry (ex.: CONFIG). */
+const DESCRIPTIVE_MENU_LATERAL_REGEX =
+  /^TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}$/
+
 function idValido(id: string, tipo: string): boolean {
   if (tipo === 'EMT') return EMT_ID_REGEX.test(id)
+  if (DESCRIPTIVE_MENU_LATERAL_REGEX.test(id)) {
+    const tipoFromId = id.match(/^TST-(UNI|FUN|CRO|E2E)-/)?.[1]
+    return tipoFromId === tipo
+  }
   return ID_REGEX.test(id)
 }
 
@@ -90,6 +98,11 @@ for (const entry of registry.planos) {
   if (entry.tipo === 'EMT') {
     if (!entry.id.startsWith('TST-EMT-')) {
       errors.push(`Registry: ID EMT "${entry.id}" deve começar com TST-EMT-`)
+    }
+  } else if (DESCRIPTIVE_MENU_LATERAL_REGEX.test(entry.id)) {
+    const match = entry.id.match(/^TST-(UNI|FUN|CRO|E2E)-/)
+    if (match && match[1] !== entry.tipo) {
+      errors.push(`Registry: ID "${entry.id}" diz tipo=${match[1]} mas o campo é ${entry.tipo}`)
     }
   } else {
     const match = entry.id.match(/^TST-(\w+)-(\w+)-(\d{6})$/)
@@ -160,10 +173,13 @@ function walk(dir: string, found: Map<string, string>): void {
     if (stat.isDirectory()) {
       walk(path, found)
     } else if (/^TST-(UNI|CON|FUN|CRO|E2E|PEN)-/.test(name)) {
-      const idMatch = name.match(/TST-\w+-\w+-\d{6}/)
-      if (idMatch) {
-        const id = idMatch[0]
-        if (!ID_REGEX.test(id)) {
+      const idMatchDesc = name.match(
+        /TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}/
+      )
+      const idMatchLegacy = name.match(/TST-\w+-\w+-\d{6}/)
+      const id = idMatchDesc?.[0] ?? idMatchLegacy?.[0]
+      if (id) {
+        if (!idValido(id, id.match(/^TST-(\w+)-/)?.[1] ?? '')) {
           errors.push(`Arquivo "${relative(ROOT, path)}": ID "${id}" não casa com o regex`)
         }
         if (found.has(id)) {

@@ -51,6 +51,31 @@ export function tituloTooltipCelulaPorColuna(
       ? t('pedido.coluna_pai.quantidade_volumes_pedido_item_titulo')
       : t('pedido.coluna_pai.quantidade_volumes_pedido_titulo')
   }
+  if (key === 'tipo_volume_pedido') {
+    return isFilho
+      ? t('pedido.coluna_pai.tipo_volume_pedido_item_titulo')
+      : t('pedido.coluna_pai.tipo_volume_pedido_titulo')
+  }
+  if (key === 'cobertura_cambial') {
+    return isFilho
+      ? t('pedido.coluna_pai.cobertura_cambial_item_titulo')
+      : t('pedido.coluna_pai.cobertura_cambial_titulo_linha_pedido')
+  }
+  if (key === 'condicao_pagamento') {
+    return isFilho
+      ? t('pedido.coluna_pai.condicao_pagamento_item_titulo')
+      : t('pedido.coluna_pai.condicao_pagamento_titulo_linha_pedido')
+  }
+  if (key === 'peso_liquido_total_pedido') {
+    return isFilho
+      ? t('pedido.coluna_pai.peso_liquido_item_titulo')
+      : t('pedido.coluna_pai.peso_liquido_total_pedido_titulo')
+  }
+  if (key === 'peso_bruto_total_pedido') {
+    return isFilho
+      ? t('pedido.coluna_pai.peso_bruto_item_titulo')
+      : t('pedido.coluna_pai.peso_bruto_total_pedido_titulo')
+  }
   return undefined
 }
 

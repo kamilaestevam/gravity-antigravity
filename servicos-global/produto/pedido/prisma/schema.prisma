@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-06-08T02:10:02.128Z
+// Gerado em: 2026-06-08T19:50:56.207Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/produto/pedido
 // ============================================================================
@@ -61,6 +61,7 @@ model Pedido {
   casas_decimais_quantidade_pedido                            Int                         @default(2)
   unidade_comercializada_pedido                               String?
   condicao_pagamento_pedido                                   String?
+  condicao_pagamento_siscomex_pedido                          String?
   numero_proforma_pedido                                      String?
   numero_invoice_pedido                                       String?
   referencia_importador_pedido                                String?
@@ -223,6 +224,7 @@ model PedidoItem {
   referencia_fabricante_item       String?
   incoterm_item                    String?
   condicao_pagamento_item          String?
+  condicao_pagamento_siscomex_item String?
   data_emissao_item                DateTime?
   peso_liquido_unitario_item       Decimal?       @db.Decimal(18, 6)
   peso_liquido_unidade_item        String?        @default("KG")

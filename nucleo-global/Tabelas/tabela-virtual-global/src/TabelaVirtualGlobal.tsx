@@ -377,8 +377,8 @@ function wrapTooltipRegraCelula(
   celulaBloqueada = false,
   tituloOverride?: string,
 ): React.ReactNode {
-  // Tooltip montada no produto (tooltipInline / TooltipListaColuna) — núcleo não duplica wrap.
-  if (col.tooltipInline === true) return conteudo
+  // tooltipInline na coluna pai — só pula wrap na linha do pedido; filho usa fallback do núcleo.
+  if (col.tooltipInline === true && !isFilho) return conteudo
   if (conteudoTemTooltipProdutoMontada(conteudo)) return conteudo
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
@@ -411,7 +411,7 @@ function wrapTooltipRegraCelula(
   )
 }
 
-function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: number): string {
+function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: number, unidades?: GTUnidadeOpcao[]): string {
   if (tipo === 'moeda' && val != null && typeof val === 'object') {
     const v = val as GTValorMoeda
     return `${v.currency} ${Number(v.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -419,7 +419,9 @@ function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: numbe
   if (tipo === 'unidade' && val != null && typeof val === 'object') {
     const v = val as GTValorUnidade
     const casas = casasDecimais ?? 0
-    return `${Number(v.quantity).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })} ${v.unit}`
+    const qty = Number(v.quantity).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
+    const rotuloUnit = rotuloExibicaoUnidadeSelecionada(v.unit, unidades ?? [])
+    return `${qty} ${rotuloUnit}`
   }
   return String(val ?? '')
 }
@@ -545,6 +547,8 @@ interface GTEditPopoverProps {
 }
 
 const POPOVER_W = 340
+/** Popover qtd + unidade (dois campos lado a lado — ex.: volumes do pedido). */
+const POPOVER_W_UNIDADE_COMPOSTA = 420
 
 const GTEditPopover = memo(function GTEditPopover({
   overlayInfo,
@@ -569,8 +573,12 @@ const GTEditPopover = memo(function GTEditPopover({
   const { rect, colLabel } = overlayInfo
   const isPeriodo = overlayInfo.colTipo === 'periodo'
   const isOpcoes  = Array.isArray(overlayInfo.opcoes) && overlayInfo.opcoes!.length > 0
+  /** tipo='select' na coluna — dropdown compacto (padrão moeda/unidade), não lista expandida. */
+  const isSelectDropdown = isOpcoes && overlayInfo.colTipo === 'select'
   const isMoeda   = overlayInfo.colTipo === 'moeda'
   const isUnidade = overlayInfo.colTipo === 'unidade'
+  const isUnidadeComposta = isUnidade && !overlayInfo.apenasUnidade
+  const popoverW = isUnidadeComposta ? POPOVER_W_UNIDADE_COMPOSTA : POPOVER_W
   const isNumero  = overlayInfo.colTipo === 'numero'
   const isNCM     = campoEhNcm(overlayInfo.campo)
   const isTextoLivre = !isPeriodo && !isOpcoes && !isMoeda && !isUnidade && !isNumero && !isNCM
@@ -615,8 +623,9 @@ const GTEditPopover = memo(function GTEditPopover({
 
   const popoverRef    = useRef<HTMLDivElement>(null)
   const inputRef      = useRef<HTMLInputElement>(null)
-  const moedaTriggerRef    = useRef<HTMLButtonElement>(null)
-  const unidadeTriggerRef  = useRef<HTMLButtonElement>(null)
+  const moedaTriggerRef         = useRef<HTMLButtonElement>(null)
+  const unidadeTriggerRef       = useRef<HTMLButtonElement>(null)
+  const opcoesSelectTriggerRef  = useRef<HTMLButtonElement>(null)
   // Flag síncrona: true durante o mousedown do trigger antes do blur do input
   const dropdownAbrindoRef = useRef(false)
   // Colar / menu de contexto disparam blur antes do onPaste em inputs controlados.
@@ -646,19 +655,14 @@ const GTEditPopover = memo(function GTEditPopover({
     setTimeout(() => { ignorarBlurConfirmacaoRef.current = false }, 300)
   }
 
-  // Helper único — todos os caminhos de confirmação propagam o estado do checkbox.
-  // Quando mostrarCheckboxReplicar=false, replicarEmItens é sempre false (estado
-  // inicial), entao o backend recebe replicar_em_itens=false (padrão divergente).
-  const confirmarComOpts = useCallback(() => {
-    if (isTextoLivre) onAtualizar(textoLocalRef.current)
-    onConfirmar({ replicar_em_itens: replicarEmItens })
-  }, [onConfirmar, replicarEmItens, isTextoLivre, onAtualizar])
   const [moedaAberta, setMoedaAberta] = useState(false)
   const [unidadeAberta, setUnidadeAberta] = useState(false)
+  const [opcoesSelectAberta, setOpcoesSelectAberta] = useState(false)
   // Calendário inicia fechado — abre quando usuário clica no icone à direita do input.
   const [calendarioAberto, setCalendarioAberto] = useState(false)
   const [moedaListPos, setMoedaListPos]       = useState<{ top: number; left: number; width: number } | null>(null)
   const [unidadeListPos, setUnidadeListPos]   = useState<{ top: number; left: number } | null>(null)
+  const [opcoesSelectListPos, setOpcoesSelectListPos] = useState<{ top: number; left: number; width: number } | null>(null)
   const [moedaBusca, setMoedaBusca]     = useState('')
   const [unidadeBusca, setUnidadeBusca] = useState('')
   const [opcoesBusca, setOpcoesBusca]   = useState('')
@@ -676,6 +680,17 @@ const GTEditPopover = memo(function GTEditPopover({
     setUnidadeBusca('')
     setUnidadeAberta(true)
   }
+  function abrirOpcoesSelect() {
+    const r = opcoesSelectTriggerRef.current?.getBoundingClientRect()
+    if (r) setOpcoesSelectListPos({ top: r.bottom + 4, left: r.left, width: Math.max(280, r.width) })
+    setOpcoesBusca('')
+    setOpcoesSelectAberta(true)
+  }
+  const rotuloOpcaoSelecionada = (() => {
+    if (!isSelectDropdown) return ''
+    const hit = overlayInfo.opcoes!.find(o => o.valor === String(valorEditando ?? ''))
+    return hit?.label ?? (valorEditando ? String(valorEditando) : 'Selecione…')
+  })()
 
   // Valores compostos — calculados sempre mas usados só nos modos moeda/unidade
   const mv: GTValorMoeda = (isMoeda && valorEditando != null && typeof valorEditando === 'object' && 'currency' in (valorEditando as object))
@@ -717,6 +732,16 @@ const GTEditPopover = memo(function GTEditPopover({
     if (isUnidade) setDisplayQty(fmtBR(Number(uv.quantity), casas))
     if (isNumero)  setDisplayNumero(fmtBR(numericInitial, casas) || String(valorEditando ?? ''))
   }, []) // intentional empty deps — runs once on mount, same scope as lazy-init
+
+  // Helper único — todos os caminhos de confirmação propagam o estado do checkbox.
+  const confirmarComOpts = useCallback(() => {
+    if (isTextoLivre) onAtualizar(textoLocalRef.current)
+    if (isUnidadeComposta) {
+      const parsed = parseBRNum(displayQty)
+      onAtualizar({ ...uv, quantity: parsed })
+    }
+    onConfirmar({ replicar_em_itens: replicarEmItens })
+  }, [onConfirmar, replicarEmItens, isTextoLivre, onAtualizar, isUnidadeComposta, displayQty, uv])
 
   // Estado de aviso para input inválido (ex: letras em campo numérico)
   const [erroInput, setErroInput] = useState<string | null>(null)
@@ -944,7 +969,7 @@ const GTEditPopover = memo(function GTEditPopover({
 
   // Posição inicial (abaixo da célula) — reajustada pelo useLayoutEffect
   const [pos, setPos] = useState(() => {
-    const left = Math.max(8, Math.min(rect.left, window.innerWidth - POPOVER_W - 8))
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - popoverW - 8))
     return { top: rect.bottom + 8, left, arrowLeft: 16, flipUp: false }
   })
 
@@ -1012,7 +1037,7 @@ const GTEditPopover = memo(function GTEditPopover({
       {/* Popover */}
       <div
         ref={popoverRef}
-        className={`gtv-edit-popover${pos.flipUp ? ' gtv-edit-popover--flip' : ''}${isNCM ? ' gtv-edit-popover--ncm' : ''}`}
+        className={`gtv-edit-popover${pos.flipUp ? ' gtv-edit-popover--flip' : ''}${isNCM ? ' gtv-edit-popover--ncm' : ''}${isUnidadeComposta ? ' gtv-edit-popover--unidade-composta' : ''}`}
         style={{ top: pos.top, left: pos.left }}
         onMouseDown={e => e.stopPropagation()}
       >
@@ -1050,7 +1075,33 @@ const GTEditPopover = memo(function GTEditPopover({
 
         {/* Input / Lista de opções */}
         <div className="gtv-edit-popover-body">
-          {isOpcoes ? (() => {
+          {isSelectDropdown ? (
+            <div className="gtv-edit-custom-select">
+              <button
+                ref={opcoesSelectTriggerRef}
+                type="button"
+                className="gtv-edit-custom-select-trigger"
+                disabled={salvando}
+                autoFocus
+                onMouseDown={e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if (opcoesSelectAberta) {
+                    setOpcoesSelectAberta(false)
+                  } else {
+                    dropdownAbrindoRef.current = true
+                    abrirOpcoesSelect()
+                  }
+                }}
+              >
+                <span title={rotuloOpcaoSelecionada}>{rotuloOpcaoSelecionada}</span>
+                <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
+                  style={{ transform: opcoesSelectAberta ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
+                  <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
+                </svg>
+              </button>
+            </div>
+          ) : isOpcoes ? (() => {
             const todasOpcoes = overlayInfo.opcoes!
             const temBusca = todasOpcoes.length > 8
             const termo = opcoesBusca.trim().toLowerCase()
@@ -1491,7 +1542,7 @@ const GTEditPopover = memo(function GTEditPopover({
         {/* Footer: hints + botões. Oculto no modo opcoes (clique já confirma)
             EXCETO quando há checkbox de replicação — usuário precisa do botão
             Confirmar pra finalizar após decidir se replica nos itens. */}
-        <div className={`gtv-edit-popover-footer${(isOpcoes && !mostrarCheckboxReplicar) ? ' gtv-edit-popover-footer--hidden' : ''}`}>
+        <div className={`gtv-edit-popover-footer${(isOpcoes && !isSelectDropdown && !mostrarCheckboxReplicar) ? ' gtv-edit-popover-footer--hidden' : ''}`}>
           <div className="gtv-edit-popover-hints" aria-hidden="true">
             <kbd className="gtv-edit-popover-kbd">Enter</kbd>
             <span>Confirmar</span>
@@ -1607,6 +1658,62 @@ const GTEditPopover = memo(function GTEditPopover({
         document.body
       )}
 
+      {/* Dropdown de select (incoterm, cobertura cambial, modalidade Siscomex, etc.) */}
+      {opcoesSelectAberta && opcoesSelectListPos && createPortal(
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 10000 }}
+            onMouseDown={() => setOpcoesSelectAberta(false)}
+          />
+          <div
+            className="gtv-edit-custom-select-list gtv-edit-opcoes-select-list"
+            style={{ position: 'fixed', top: opcoesSelectListPos.top, left: opcoesSelectListPos.left, zIndex: 10001, minWidth: opcoesSelectListPos.width }}
+            onMouseDown={e => e.preventDefault()}
+          >
+            <div className="gtv-edit-custom-select-busca">
+              <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/>
+              </svg>
+              <input
+                ref={opcoesBuscaRef}
+                className="gtv-edit-custom-select-busca-input"
+                placeholder="Buscar..."
+                autoFocus
+                value={opcoesBusca}
+                onChange={e => setOpcoesBusca(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Escape') setOpcoesSelectAberta(false) }}
+              />
+            </div>
+            {(() => {
+              const filtradas = overlayInfo.opcoes!.filter(op => {
+                const q = opcoesBusca.trim().toLowerCase()
+                if (!q) return true
+                return (op.label ?? '').toLowerCase().includes(q) || (op.valor ?? '').toLowerCase().includes(q)
+              })
+              if (filtradas.length === 0) {
+                return (
+                  <div className="gtv-edit-custom-select-item gtv-edit-custom-select-item--vazio">
+                    Nenhum resultado
+                  </div>
+                )
+              }
+              return filtradas.map(op => (
+                <button
+                  key={op.valor}
+                  type="button"
+                  title={op.label}
+                  className={`gtv-edit-custom-select-item${String(valorEditando) === op.valor ? ' gtv-edit-custom-select-item--ativo' : ''}`}
+                  onClick={() => { onAtualizar(op.valor); setOpcoesSelectAberta(false) }}
+                >
+                  <span className="gtv-edit-custom-select-item-label">{op.label}</span>
+                </button>
+              ))
+            })()}
+          </div>
+        </>,
+        document.body
+      )}
+
       {/* Dropdown de unidade — portal fora do popover */}
       {unidadeAberta && unidadeListPos && createPortal(
         <>
@@ -1657,7 +1764,7 @@ const GTEditPopover = memo(function GTEditPopover({
                     key={sigla}
                     type="button"
                     className={`gtv-edit-custom-select-item${uv.unit === sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
-                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false); confirmarComOpts() }}
+                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false) }}
                   >{rotulo}</button>
                 )
               })
@@ -1922,10 +2029,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         casasDecimais: colU.casasDecimais ?? overlayInfo.casasDecimais,
         apenasUnidade: colU.apenasUnidade ?? overlayInfo.apenasUnidade,
         avisoImpacto: colU.avisoImpacto ?? overlayInfo.avisoImpacto,
+        rotuloUnidadeSelecionada: colU.rotuloUnidadeSelecionada ?? overlayInfo.rotuloUnidadeSelecionada,
+        formatarValorUnidade: colU.formatarValorUnidade ?? overlayInfo.formatarValorUnidade,
       }
     }
-    const mapa = mapaColunasFilho?.[overlayInfo.campo]
-    const colFilha = colunasFilhas?.find((c) => String(c.key) === overlayInfo.campo)
+    const mapaKeyFilho = mapaColunasFilho
+      ? Object.keys(mapaColunasFilho).find(
+          (k) => mapaColunasFilho[k]?.campo === overlayInfo.campo || k === overlayInfo.campo,
+        ) ?? overlayInfo.campo
+      : overlayInfo.campo
+    const mapa = mapaColunasFilho?.[mapaKeyFilho]
+    const colFilha = colunasFilhas?.find((c) => String(c.key) === mapaKeyFilho)
     const colU = colFilha as GTColuna<C> | undefined
     return {
       ...overlayInfo,
@@ -1934,6 +2048,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       unidades: mapa?.unidades ?? colU?.unidades ?? overlayInfo.unidades,
       casasDecimais: mapa?.casasDecimais ?? colU?.casasDecimais ?? overlayInfo.casasDecimais,
       apenasUnidade: colU?.apenasUnidade ?? overlayInfo.apenasUnidade,
+      avisoImpacto: mapa?.avisoImpacto ?? colU?.avisoImpacto ?? overlayInfo.avisoImpacto,
+      rotuloUnidadeSelecionada: mapa?.rotuloUnidadeSelecionada ?? colU?.rotuloUnidadeSelecionada ?? overlayInfo.rotuloUnidadeSelecionada,
+      formatarValorUnidade: mapa?.formatarValorUnidade ?? colU?.formatarValorUnidade ?? overlayInfo.formatarValorUnidade,
     }
   }, [overlayInfo, colunas, colunasFilhas, mapaColunasFilho])
 
@@ -3100,6 +3217,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto,
               apenasUnidade: colU.apenasUnidade,
               linkPopoverEdicao: colU.linkPopoverEdicao?.(item),
+              rotuloUnidadeSelecionada: colU.rotuloUnidadeSelecionada,
+              formatarValorUnidade: colU.formatarValorUnidade,
             })
             const valorParaEdicao = colU.getValorEditar ? colU.getValorEditar(item) : valor
             iniciarEdicao(id, col.key, valorParaEdicao)
@@ -3150,7 +3269,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           // Overlay ativo: mostra indicador visual, o input real está no popover flutuante
           <span className="gtv-celula--editando-overlay">
             {(overlayInfo?.opcoes ?? (col as GTColuna<unknown>).opcoes)?.find(op => op.valor === String(valorEditando))?.label
-              ?? formatarOverlayValor(valorEditando, col.tipo, (col as GTColuna<unknown>).casasDecimais)}
+              ?? (() => {
+                const colU = col as GTColuna<unknown>
+                if (col.tipo === 'unidade' && colU.formatarValorUnidade && valorEditando != null && typeof valorEditando === 'object' && 'unit' in (valorEditando as object)) {
+                  return colU.formatarValorUnidade(valorEditando as GTValorUnidade)
+                }
+                return formatarOverlayValor(valorEditando, col.tipo, colU.casasDecimais, colU.unidades)
+              })()}
           </span>
         ) : estaEditando ? (
           <input
@@ -3426,9 +3551,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     opcoes: mapa?.opcoes ?? (colU2.getOpcoes ? colU2.getOpcoes(item as unknown) : colU2.opcoes),
                     moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades,
                     casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais,
-                    gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint, avisoImpacto: colU2.avisoImpacto,
+                    gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint,                     avisoImpacto: mapa?.avisoImpacto ?? colU2.avisoImpacto,
                     apenasUnidade: colU2.apenasUnidade,
                     linkPopoverEdicao: colU2.linkPopoverEdicao?.(item as unknown),
+                    rotuloUnidadeSelecionada: mapa?.rotuloUnidadeSelecionada ?? colU2.rotuloUnidadeSelecionada,
+                    formatarValorUnidade: mapa?.formatarValorUnidade ?? colU2.formatarValorUnidade,
                   })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
@@ -3437,7 +3564,19 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 {estaEditando && overlayAtivo ? (
                   <span className="gtv-celula--editando-overlay">
                     {(mapa?.opcoes ?? (col as GTColuna<unknown>).opcoes)?.find(op => op.valor === String(valorEditandoFilho))?.label
-                      ?? formatarOverlayValor(valorEditandoFilho, col.tipo, mapa?.casasDecimais ?? (col as GTColuna<unknown>).casasDecimais)}
+                      ?? (() => {
+                        const colU = col as GTColuna<unknown>
+                        const fmt = mapa?.formatarValorUnidade ?? colU.formatarValorUnidade
+                        if (col.tipo === 'unidade' && fmt && valorEditandoFilho != null && typeof valorEditandoFilho === 'object' && 'unit' in (valorEditandoFilho as object)) {
+                          return fmt(valorEditandoFilho as GTValorUnidade)
+                        }
+                        return formatarOverlayValor(
+                          valorEditandoFilho,
+                          col.tipo,
+                          mapa?.casasDecimais ?? colU.casasDecimais,
+                          mapa?.unidades ?? colU.unidades,
+                        )
+                      })()}
                   </span>
                 ) : estaEditando ? (
                   <input
@@ -3487,8 +3626,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
-                  // mapaColunasFilho / TooltipListaColuna — núcleo não re-wrap na linha item.
-                  if (mapa?.render != null || conteudoTemTooltipProdutoMontada(celFilhoInner)) {
+                  // mapaColunasFilho / TooltipListaColuna — núcleo só pula wrap se produto já montou tooltip.
+                  if (conteudoTemTooltipProdutoMontada(celFilhoInner)) {
                     return celFilhoInner
                   }
                   const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''

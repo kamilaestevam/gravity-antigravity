@@ -193,7 +193,11 @@ import {
   quantidadeExibicaoParaKg,
   rotuloExibicaoUnidadeOpcao,
 } from '../shared/useUnidadesPedido'
-import { useVolumesPedido } from '../shared/useVolumesPedido'
+import {
+  formatarExibicaoQuantidadeVolume,
+  formatarNomeVolumeExibicao,
+  useVolumesPedido,
+} from '../shared/useVolumesPedido'
 import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import { useMoedasPedido } from '../shared/useMoedasPedido'
 import { useLogisticaCadastrosPedido } from '../shared/useLogisticaCadastrosPedido'
@@ -2599,6 +2603,8 @@ type PedidoItemEnriquecido = PedidoItem & {
     local_de_destino: string | null
     aeroporto_origem: string | null
     aeroporto_destino: string | null
+    quantidade_volumes_pedido: number | null
+    tipo_volume_pedido: string | null
   }
 }
 
@@ -2629,7 +2635,25 @@ function montarContextoPaiItem(pedido: Pedido, item: PedidoItem): PedidoItemEnri
     local_de_destino: pedido.local_de_destino ?? null,
     aeroporto_origem: pedido.aeroporto_origem ?? null,
     aeroporto_destino: pedido.aeroporto_destino ?? null,
+    quantidade_volumes_pedido: pedido.quantidade_volumes_pedido ?? null,
+    tipo_volume_pedido: pedido.tipo_volume_pedido ?? null,
   }
+}
+
+function atualizarCacheItensContextoPai(
+  pedidoId: string,
+  pedidoAtualizado: Pedido,
+  itensCarregadosRef: React.MutableRefObject<Map<string, PedidoItem[]>>,
+) {
+  const itens = itensCarregadosRef.current.get(pedidoId)
+  if (!itens?.length) return
+  itensCarregadosRef.current.set(
+    pedidoId,
+    itens.map((i) => ({
+      ...i,
+      _p: montarContextoPaiItem(pedidoAtualizado, i),
+    })) as PedidoItem[],
+  )
 }
 
 /** ID de workspace do pedido (DDD id_workspace ou ACL company_id). */
@@ -3601,6 +3625,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     editavel: true,
     campo: 'tipo_volume_item',
     unidades: volumesOpcoes,
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_tipo_volume'),
+    rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
     getValorEditar: (row: PedidoItem) => ({
       unit: (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item ?? '05',
       quantity: 0,
@@ -3609,30 +3635,35 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       const tipo = (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item
       if (!tipo) return <span>{'—'}</span>
       const nome = rotuloExibicaoUnidadeOpcao(tipo, volumesOpcoes)
-      return (
-        <span className="gtv-celula-moeda">
-          <span className="gtv-celula-unidade-badge">{nome}</span>
-        </span>
-      )
+      return <span>{formatarNomeVolumeExibicao(nome, 1)}</span>
     },
   },
   quantidade_volumes_pedido: {
     editavel: true,
-    campo: 'tipo_volume_item',
+    campo: 'quantidade_volumes_pedido',
     unidades: volumesOpcoes,
-    getValorEditar: (row: PedidoItem) => ({
-      unit: (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item ?? '05',
-      quantity: 0,
-    }),
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_quantidade_volumes'),
+    rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
+    formatarValorUnidade: (v) => formatarExibicaoQuantidadeVolume(v.quantity, v.unit, volumesOpcoes),
+    getValorEditar: (row: PedidoItem) => {
+      const enr = row as PedidoItemEnriquecido
+      return {
+        unit: (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item
+          ?? enr._p?.tipo_volume_pedido
+          ?? '05',
+        quantity: enr._p?.quantidade_volumes_pedido ?? 0,
+      }
+    },
     render: (row: PedidoItem) => {
+      const enr = row as PedidoItemEnriquecido
       const tipo = (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item
-      if (!tipo) return <span style={{ opacity: 0.4 }}>—</span>
-      const nome = rotuloExibicaoUnidadeOpcao(tipo, volumesOpcoes)
-      return (
-        <span className="gtv-celula-moeda">
-          <span className="gtv-celula-unidade-badge">{nome}</span>
-        </span>
+      const texto = formatarExibicaoQuantidadeVolume(
+        enr._p?.quantidade_volumes_pedido,
+        tipo,
+        volumesOpcoes,
       )
+      if (texto === '—') return <span style={{ opacity: 0.4 }}>—</span>
+      return <span>{texto}</span>
     },
   },
   // ── Quantidades ───────────────────────────────────────────────────────────
@@ -3922,6 +3953,8 @@ function mensagemErro(err: unknown, t: (key: string) => string = i18next.t.bind(
   // ── Mensagem da API com conteúdo útil — exibir diretamente ───────────────
   // Mensagens curtas sem prefixo HTTP vêm do backend e são legíveis
   // ex: "O campo incoterm deve ser FOB, CIF ou EXW"
+  const msgCampoNaoEditavel = msg.match(/^Campo "[^"]+" nao pode ser editado inline\./)
+  if (msgCampoNaoEditavel) return msgCampoNaoEditavel[0]
   if (msg.length > 0 && msg.length <= 120 && !msg.startsWith('HTTP'))
     return msg
 
@@ -4770,10 +4803,16 @@ export default function Pedidos() {
       }
     }
     const renderMoedaItemBase = merged.moeda_pedido?.render
+    const renderPesoLiqItemBase = merged.peso_liquido_total_pedido?.render
+    const renderPesoBruItemBase = merged.peso_bruto_total_pedido?.render
     const comRegra = enriquecerMapaColunasFilhoComRegraTooltip(merged, t)
     const mapaInline = enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
       moeda_pedido: t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined,
       unidade_comercializada_pedido: t('pedido.coluna_pai.aviso_impacto_unidade_full', { defaultValue: '' }) || undefined,
+      peso_liquido_total_pedido: t('pedido.coluna_pai.aviso_impacto_peso_bruto', { defaultValue: '' }) || undefined,
+      peso_bruto_total_pedido: t('pedido.coluna_pai.aviso_impacto_peso_liquido', { defaultValue: '' }) || undefined,
+      tipo_volume_pedido: t('pedido.coluna_pai.aviso_impacto_tipo_volume', { defaultValue: '' }) || undefined,
+      quantidade_volumes_pedido: t('pedido.coluna_pai.aviso_impacto_quantidade_volumes', { defaultValue: '' }) || undefined,
     })
     // P0 moeda item: garantia explícita — TooltipListaColuna nível item (não depende de flags do núcleo).
     if (renderMoedaItemBase && mapaInline.moeda_pedido) {
@@ -4787,6 +4826,34 @@ export default function Pedidos() {
           key: 'moeda_pedido',
           nivel: 'item',
           avisoImpactoColuna: avisoMoeda,
+        }),
+      }
+    }
+    if (renderPesoLiqItemBase && mapaInline.peso_liquido_total_pedido) {
+      const avisoPesoBruto = t('pedido.coluna_pai.aviso_impacto_peso_bruto', { defaultValue: '' }) || undefined
+      mapaInline.peso_liquido_total_pedido = {
+        ...mapaInline.peso_liquido_total_pedido,
+        tooltipInline: true,
+        tooltipTitulo: t('pedido.coluna_pai.peso_liquido_item_titulo'),
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderPesoLiqItemBase(row), t, {
+          key: 'peso_liquido_total_pedido',
+          nivel: 'item',
+          modoDinamicoPedidoItem: true,
+          avisoImpactoColuna: avisoPesoBruto,
+        }),
+      }
+    }
+    if (renderPesoBruItemBase && mapaInline.peso_bruto_total_pedido) {
+      const avisoPesoLiq = t('pedido.coluna_pai.aviso_impacto_peso_liquido', { defaultValue: '' }) || undefined
+      mapaInline.peso_bruto_total_pedido = {
+        ...mapaInline.peso_bruto_total_pedido,
+        tooltipInline: true,
+        tooltipTitulo: t('pedido.coluna_pai.peso_bruto_item_titulo'),
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderPesoBruItemBase(row), t, {
+          key: 'peso_bruto_total_pedido',
+          nivel: 'item',
+          modoDinamicoPedidoItem: true,
+          avisoImpactoColuna: avisoPesoLiq,
         }),
       }
     }
@@ -4831,6 +4898,8 @@ export default function Pedidos() {
   const escopoListaInicialDisparadoRef = useRef(false)
   /** Carga do painel adiada até escopo de workspaces ter ao menos uma filial. */
   const painelSnapshotPendenteRef = useRef<SnapshotAplicarListaPainel | null>(null)
+  /** Cache da última listagem de colunas manuais — merge só após hidratação do painel. */
+  const colunasUsuarioListaRef = useRef<ColunaUsuario[]>([])
 
   useEffect(() => {
     painelListaAplicadoRef.current = null
@@ -5693,6 +5762,80 @@ export default function Pedidos() {
     })
   }, [workspacesSelecionados, carregarInicial, aplicarSnapshotPainelNaUi])
 
+  const mesclarColunasManuaisNasPreferencias = useCallback((lista: ColunaUsuario[]) => {
+    const activeCustomKeys = lista
+      .filter(c => c.ativo && ((c.escopo || 'ambos') === 'pedido' || (c.escopo || 'ambos') === 'ambos'))
+      .map(c => c.chave)
+
+    setPreferencias(prev => {
+      if (!prev?.colunas_visiveis?.length) {
+        return prev
+      }
+      const savedVisible: string[] = prev.colunas_visiveis
+      const savedSet = new Set(savedVisible)
+      const conhecidasAntigas = new Set(prev?.colunas_manuais_conhecidas ?? [])
+      const novas = activeCustomKeys.filter(k => !savedSet.has(k) && !conhecidasAntigas.has(k))
+      const conhecidasNovas = Array.from(new Set([...conhecidasAntigas, ...activeCustomKeys]))
+
+      const passoInserir = inserirColunaAposAncora(
+        savedVisible,
+        'id_workspace',
+        ['tipo_operacao', 'numero_pedido'],
+      )
+      const passoMover = moverColunaParaAposAncora(
+        passoInserir.resultado,
+        'id_workspace',
+        'tipo_operacao',
+      )
+      const passoDescItem = inserirColunaAposAncora(
+        passoMover.resultado,
+        'descricao_item',
+        ['ncm'],
+      )
+      const passoMoeda = inserirColunaAposAncora(
+        passoDescItem.resultado,
+        'moeda_pedido',
+        ['descricao_item', 'ncm'],
+      )
+      const passoUnidade = inserirColunaAposAncora(
+        passoMoeda.resultado,
+        'unidade_comercializada_pedido',
+        ['quantidade_pronta_itens_pedido_total', 'valor_total_pedido', 'quantidade_total_pedido'],
+      )
+      const passoLogisticaInsert = inserirBlocoColunasFaltantes(
+        passoUnidade.resultado,
+        CAMPOS_LOGISTICA_PEDIDO,
+        'incoterm',
+      )
+      const passoLogisticaOrder = reordenarBlocoColunas(
+        passoLogisticaInsert.resultado,
+        CAMPOS_LOGISTICA_PEDIDO,
+      )
+      const visivelComMigracao = passoLogisticaOrder.resultado
+      const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
+        || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou
+      const novasBuiltin = [
+        ...(passoInserir.mudou ? ['id_workspace'] : []),
+        ...(passoDescItem.mudou ? ['descricao_item'] : []),
+        ...(passoMoeda.mudou ? ['moeda_pedido'] : []),
+        ...(passoUnidade.mudou ? ['unidade_comercializada_pedido'] : []),
+        ...(passoLogisticaInsert.mudou
+          ? CAMPOS_LOGISTICA_PEDIDO.filter(k => passoLogisticaInsert.resultado.includes(k) && !savedSet.has(k))
+          : []),
+      ]
+
+      const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
+        ? [...visivelComMigracao, ...novas]
+        : savedVisible
+
+      return {
+        colunas_visiveis: finalVisible,
+        ...(prev?.colunas_largura ? { colunas_largura: prev.colunas_largura } : {}),
+        colunas_manuais_conhecidas: conhecidasNovas,
+      }
+    })
+  }, [])
+
   const listaPainelCallbacks = useMemo(() => ({
     setPreferencias,
     setAbaAtiva,
@@ -5706,8 +5849,11 @@ export default function Pedidos() {
     },
     onPainelHidratado: (id: string) => {
       painelListaAplicadoRef.current = id
+      if (colunasUsuarioListaRef.current.length > 0) {
+        mesclarColunasManuaisNasPreferencias(colunasUsuarioListaRef.current)
+      }
     },
-  }), [executarCargaComSnapshotPainel, aplicarCardsTopoDoPainel])
+  }), [executarCargaComSnapshotPainel, aplicarCardsTopoDoPainel, mesclarColunasManuaisNasPreferencias])
 
   useEffect(() => {
     if (!escopoHidratado || !idOrganizacao) return
@@ -6280,96 +6426,19 @@ export default function Pedidos() {
     if (!idOrganizacao) return
 
     colunasUsuarioApi.listar().catch(() => [] as ColunaUsuario[]).then((lista) => {
+      colunasUsuarioListaRef.current = lista
       setColunasUsuario(lista)
 
-      const savedVisible: string[] = preferencias?.colunas_visiveis && preferencias.colunas_visiveis.length > 0
-        ? preferencias.colunas_visiveis
-        : COLUNAS_PADRAO_VISIVEIS
-
-      // Colunas customizadas ativas que ainda não estão nas preferências salvas.
-      // Só auto-exibimos colunas manuais REALMENTE novas (nunca apresentadas). Uma
-      // coluna manual que o usuário ocultou de propósito fica em `conhecidas` e NÃO
-      // deve voltar a aparecer — sem isso o checkbox "ia e voltava" ao ocultar.
-      const activeCustomKeys = lista
-        .filter(c => c.ativo && ((c.escopo || 'ambos') === 'pedido' || (c.escopo || 'ambos') === 'ambos'))
-        .map(c => c.chave)
-      const savedSet = new Set(savedVisible)
-      const conhecidasAntigas = new Set(preferencias?.colunas_manuais_conhecidas ?? [])
-      const novas = activeCustomKeys.filter(k => !savedSet.has(k) && !conhecidasAntigas.has(k))
-      const conhecidasNovas = Array.from(new Set([...conhecidasAntigas, ...activeCustomKeys]))
-
-      // Migração de prefs salvas → padrão atual via helpers de `migracaoColunas`.
-      // Refactor D12 (2026-05-13): lógica antes inline aqui (40+ linhas duplicadas)
-      // foi extraída para shared/migracaoColunas.ts com cobertura unitária.
-      //
-      // Caso 1: id_workspace NÃO está nas prefs → inserir (entrega 2026-05-13).
-      //         Tenta inserir após tipo_operacao; fallback para numero_pedido; fallback no início.
-      // Caso 2: id_workspace JÁ está, mas em posição antiga (antes de tipo_operacao) → mover.
-      const passoInserir = inserirColunaAposAncora(
-        savedVisible,
-        'id_workspace',
-        ['tipo_operacao', 'numero_pedido'],
-      )
-      const passoMover = moverColunaParaAposAncora(
-        passoInserir.resultado,
-        'id_workspace',
-        'tipo_operacao',
-      )
-      // Caso 3: descricao_item NÃO está nas prefs → inserir após ncm (entrega 2026-05-14).
-      const passoDescItem = inserirColunaAposAncora(
-        passoMover.resultado,
-        'descricao_item',
-        ['ncm'],
-      )
-      // Caso 4: moeda_pedido NÃO está nas prefs → inserir após ncm/descricao_item (entrega 2026-05-15).
-      const passoMoeda = inserirColunaAposAncora(
-        passoDescItem.resultado,
-        'moeda_pedido',
-        ['descricao_item', 'ncm'],
-      )
-      // Caso 5: unidade_comercializada_pedido NÃO está nas prefs → inserir após quantidade_pronta_itens_pedido_total (entrega 2026-05-15).
-      const passoUnidade = inserirColunaAposAncora(
-        passoMoeda.resultado,
-        'unidade_comercializada_pedido',
-        ['quantidade_pronta_itens_pedido_total', 'valor_total_pedido', 'quantidade_total_pedido'],
-      )
-      // Caso 6: bloco logística (porto → país → aeroporto) após incoterm — SSOT camposLogisticaPedido
-      const passoLogisticaInsert = inserirBlocoColunasFaltantes(
-        passoUnidade.resultado,
-        CAMPOS_LOGISTICA_PEDIDO,
-        'incoterm',
-      )
-      const passoLogisticaOrder = reordenarBlocoColunas(
-        passoLogisticaInsert.resultado,
-        CAMPOS_LOGISTICA_PEDIDO,
-      )
-      const visivelComMigracao = passoLogisticaOrder.resultado
-      const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
-        || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou
-      const novasBuiltin = [
-        ...(passoInserir.mudou ? ['id_workspace'] : []),
-        ...(passoDescItem.mudou ? ['descricao_item'] : []),
-        ...(passoMoeda.mudou ? ['moeda_pedido'] : []),
-        ...(passoUnidade.mudou ? ['unidade_comercializada_pedido'] : []),
-        ...(passoLogisticaInsert.mudou
-          ? CAMPOS_LOGISTICA_PEDIDO.filter(k => passoLogisticaInsert.resultado.includes(k) && !savedSet.has(k))
-          : []),
-      ]
-
-      const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
-        ? [...visivelComMigracao, ...novas]
-        : savedVisible
-
-      setPreferencias(prev => ({
-        colunas_visiveis: finalVisible,
-        ...(prev?.colunas_largura ? { colunas_largura: prev.colunas_largura } : {}),
-        colunas_manuais_conhecidas: conhecidasNovas,
-      }))
+      // Merge só DEPOIS da hidratação do painel. Se rodar antes (login/remount),
+      // `prev` ainda não tem config_json do banco → expande para ~140 e sobrescreve ocultações.
+      if (
+        painelListaAtualId
+        && painelListaAplicadoRef.current === painelListaAtualId
+      ) {
+        mesclarColunasManuaisNasPreferencias(lista)
+      }
     })
-    // `colunas_manuais_conhecidas` é lida mas NÃO entra nas deps de propósito: o efeito
-    // a escreve (nova ref a cada run) e re-disparar nela causaria loop infinito. O efeito
-    // já re-roda quando `colunas_visiveis` muda (toggle), que carrega o `conhecidas` atual.
-  }, [idOrganizacao, preferencias?.colunas_visiveis, t]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idOrganizacao, painelListaAtualId, mesclarColunasManuaisNasPreferencias, t])
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
   useEffect(() => {
@@ -6611,6 +6680,64 @@ export default function Pedidos() {
       }
       return { ...atualizado, ...sinc.divergencias }
     }
+    // Cobertura cambial — coluna no pedido (cobertura_cambial_pedido); PATCH no pai.
+    if (campo === 'cobertura_cambial' || campo === 'cobertura_cambial_pedido') {
+      const campoApi = 'cobertura_cambial'
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
+      const valorStr = valor == null || valor === '' ? null : String(valor)
+      if (!valorStr) {
+        throw new Error(t('pedido.lista.erro.cobertura_obrigatoria', 'Selecione uma cobertura cambial.'))
+      }
+      const replicar = opts?.replicar_em_itens ?? false
+      const updatedRaw = await pedidoVirtualApi.editarCampo(id, campoApi, valorStr, replicar)
+      let updatedPedido = {
+        ...updatedRaw,
+        cobertura_cambial: valorStr,
+        cobertura_cambial_valor_unico: valorStr,
+      } as Pedido
+      if (replicar && isPropagavel(campoApi)) {
+        const itensApi = updatedRaw.itens
+        const itensCache = itensCarregadosRef.current.get(id) ?? []
+        if (Array.isArray(itensApi) && itensApi.length > 0) {
+          const enriquecidos = itensApi.map(i => ({
+            ...i,
+            _p: montarContextoPaiItem(updatedPedido, i),
+          })) as PedidoItemEnriquecido[]
+          itensCarregadosRef.current.set(id, enriquecidos)
+          setResetFilhos(prev => prev + 1)
+        } else if (itensCache.length > 0) {
+          itensCarregadosRef.current.set(
+            id,
+            itensCache.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr)),
+          )
+          setResetFilhos(prev => prev + 1)
+        } else {
+          itensCarregadosRef.current.delete(id)
+        }
+      }
+      const itensAtuais = itensCarregadosRef.current.get(id) ?? []
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== id) return p
+        let itensFallback = itensAtuais.length > 0 ? itensAtuais : (p.itens ?? [])
+        if (replicar && isPropagavel(campoApi) && itensAtuais.length === 0 && itensFallback.length > 0) {
+          itensFallback = itensFallback.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr))
+        }
+        const sinc = itensFallback.length > 0
+          ? sincronizarItensPedido(itensFallback, updatedPedido)
+          : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
+        const divergencias = mesclarDivergenciasPreservandoCoberturaPedido(
+          updatedPedido as Record<string, unknown>,
+          sinc.divergencias as Record<string, unknown>,
+        )
+        return {
+          ...updatedPedido,
+          ...divergencias,
+          itens: sinc.itens.length > 0 ? sinc.itens : p.itens,
+        }
+      }))
+      return updatedPedido
+    }
     // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
     // PATCH directo nos itens. Lógica de propagação real fica no servidor para
     // campos normais (isPropagavel) — o frontend é apenas o reflexo visual.
@@ -6730,6 +6857,8 @@ export default function Pedidos() {
         resultado = { ...resultado, tipo_volume_pedido: unit }
       }
       setPedidos(prev => prev.map(p => (p.id === id ? resultado : p)))
+      atualizarCacheItensContextoPai(id, resultado, itensCarregadosRef)
+      setResetFilhos(prev => prev + 1)
       return resultado
     }
     // GTValorMoeda { currency, amount } → campos moeda_*_pedido armazenam apenas o código ISO (String)
@@ -7133,29 +7262,83 @@ export default function Pedidos() {
     }
 
     if (campo === 'tipo_volume_item' && valor != null && typeof valor === 'object' && 'unit' in (valor as object)) {
-      const uv = valor as { unit: string; quantity: number }
+      const unit = (valor as { unit: string }).unit
+      let pedidoAtualizado = pedido
+      const tipoAtualPedido = pedido.tipo_volume_pedido ?? null
+      if (unit && unit !== tipoAtualPedido) {
+        const updatedTipoRaw = await pedidoVirtualApi.editarCampo(pedido.id, 'tipo_volume_pedido', unit)
+        pedidoAtualizado = { ...updatedTipoRaw, tipo_volume_pedido: unit } as Pedido
+      }
       const itemAtualTv = getItensCache().find(i => i.id === id)
-      const atualizadoTv = await pedidoItemApi.atualizar(pedido.id, id, {
-        tipo_volume_item: uv.unit,
-      } as Partial<PedidoItem>)
+      const atualizadoTv = await pedidoItemApi.editarCampo(pedido.id, id, 'tipo_volume_item', unit)
         .catch(() => {
-          if (import.meta.env.DEV && itemAtualTv) return { ...itemAtualTv, tipo_volume_item: uv.unit } as PedidoItem
+          if (import.meta.env.DEV && itemAtualTv) return { ...itemAtualTv, tipo_volume_item: unit } as PedidoItem
           throw new Error(t('pedido.lista.erro.editar_tipo_volume_item', 'Erro ao editar tipo de volume do item'))
         })
       const enriquecidoTv: PedidoItemEnriquecido = {
         ...atualizadoTv,
-        _p: montarContextoPaiItem(pedido, atualizadoTv),
+        _p: montarContextoPaiItem(pedidoAtualizado, atualizadoTv),
       }
       const { itens: itensAposEdicaoTv, divergencias: divergenciasTv } = sincronizarItensPedido(
         getItensCache().map(i => i.id === id ? enriquecidoTv : i),
-        pedido,
+        pedidoAtualizado,
       )
       itensCarregadosRef.current.set(pedido.id, itensAposEdicaoTv)
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
-        return { ...p, ...divergenciasTv, itens: itensAposEdicaoTv }
+        return { ...pedidoAtualizado, ...divergenciasTv, itens: itensAposEdicaoTv }
       }))
+      setResetFilhos(prev => prev + 1)
       return enriquecidoTv
+    }
+
+    if (
+      campo === 'quantidade_volumes_pedido'
+      && valor != null
+      && typeof valor === 'object'
+      && 'unit' in (valor as object)
+      && 'quantity' in (valor as object)
+    ) {
+      const { unit, quantity } = valor as { unit: string; quantity: number }
+      const qtdEnviar = Math.max(0, Math.round(Number(quantity) || 0))
+      const updatedQtdRaw = await pedidoVirtualApi.editarCampo(pedido.id, 'quantidade_volumes_pedido', qtdEnviar)
+      let pedidoAtualizado = { ...updatedQtdRaw, quantidade_volumes_pedido: qtdEnviar } as Pedido
+      const tipoAtualPedido = pedido.tipo_volume_pedido ?? null
+      if (unit && unit !== tipoAtualPedido) {
+        const updatedTipoRaw = await pedidoVirtualApi.editarCampo(pedido.id, 'tipo_volume_pedido', unit)
+        pedidoAtualizado = {
+          ...updatedTipoRaw,
+          quantidade_volumes_pedido: qtdEnviar,
+          tipo_volume_pedido: unit,
+        } as Pedido
+      } else if (unit) {
+        pedidoAtualizado = { ...pedidoAtualizado, tipo_volume_pedido: unit }
+      }
+      const itemAtualQv = getItensCache().find(i => i.id === id)
+      const tipoItemAtual = itemAtualQv?.tipo_volume_item ?? null
+      let atualizadoQv = itemAtualQv!
+      if (unit && unit !== tipoItemAtual) {
+        atualizadoQv = await pedidoItemApi.editarCampo(pedido.id, id, 'tipo_volume_item', unit)
+          .catch(() => {
+            if (import.meta.env.DEV && itemAtualQv) return { ...itemAtualQv, tipo_volume_item: unit } as PedidoItem
+            throw new Error(t('pedido.lista.erro.editar_tipo_volume_item', 'Erro ao editar tipo de volume do item'))
+          })
+      }
+      const enriquecidoQv: PedidoItemEnriquecido = {
+        ...atualizadoQv,
+        _p: montarContextoPaiItem(pedidoAtualizado, atualizadoQv),
+      }
+      const { itens: itensAposEdicaoQv, divergencias: divergenciasQv } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoQv : i),
+        pedidoAtualizado,
+      )
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoQv)
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return { ...pedidoAtualizado, ...divergenciasQv, itens: itensAposEdicaoQv }
+      }))
+      setResetFilhos(prev => prev + 1)
+      return enriquecidoQv
     }
 
     // unidade_comercializada_item: o editor tipo 'unidade' retorna
@@ -7620,7 +7803,7 @@ export default function Pedidos() {
         filtrosAtivos,
         cardsVisiveisIds: cardsVisiveis.map(c => c.id),
         periodoCards,
-      })
+      }, { imediato: true })
     }
   }, [
     painelListaAtualId,

@@ -28,6 +28,9 @@ import {
 import { useShellStore } from './store'
 import { MenuLateralGlobal, NavItem } from '@nucleo/menu-lateral-global'
 import { useProductMenu, ProductMenuItem } from './hooks/useProductMenu'
+import { useProdutosSwitcher } from './hooks/useProdutosSwitcher'
+import { slugsProdutoEquivalentes } from './utils/resolver-rota-produto'
+import { rotaTemSeletorProdutosProcesso } from './utils/rota-processo-com-switcher'
 import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
 
 interface SidebarProps {
@@ -57,7 +60,18 @@ export function Sidebar({
   const { sidebarOpen, toggleSidebar } = useShellStore()
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
   const { products } = useProductMenu()
+
+  const exibirSwitcherProcesso = rotaTemSeletorProdutosProcesso(location.pathname)
+  const {
+    produtos: produtosSwitcher,
+    exibirSeletor: exibirSeletorProduto,
+    trocarProduto,
+    produtoAtualSlug,
+  } = useProdutosSwitcher('processo', moduleName ?? 'Processos', {
+    enabled: exibirSwitcherProcesso,
+  })
 
   /** Monta children do grupo "Produtos Gravity" dinamicamente */
   function buildProductChildren(): NavItem[] {
@@ -150,6 +164,10 @@ export function Sidebar({
       moduleIcon={moduleIcon}
       isCollapsed={!sidebarOpen}
       onToggleCollapse={toggleSidebar}
+      produtos={exibirSwitcherProcesso && exibirSeletorProduto ? produtosSwitcher : undefined}
+      produtoAtualSlug={exibirSwitcherProcesso ? produtoAtualSlug : undefined}
+      onSwitchProduct={exibirSwitcherProcesso && exibirSeletorProduto ? trocarProduto : undefined}
+      produtoSlugEquivalente={exibirSwitcherProcesso ? slugsProdutoEquivalentes : undefined}
     />
   )
 }

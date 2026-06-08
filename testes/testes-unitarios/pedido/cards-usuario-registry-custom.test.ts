@@ -227,8 +227,8 @@ describe('computeCardStats', () => {
 
   it('calcula coberturaPend de pedidos sem cobertura', () => {
     const pedidos = [
-      { valor_total_pedido: 1000, itens: [{ cobertura_cambial: 'sem_cobertura' }] },
-      { valor_total_pedido: 2000, itens: [{ cobertura_cambial: 'com_cobertura' }] },
+      { valor_total_pedido: 1000, itens: [{ cobertura_cambial: 'SEM_COBERTURA' }] },
+      { valor_total_pedido: 2000, itens: [{ cobertura_cambial: 'ATE_180_DIAS' }] },
     ] as any[]
     const stats = computeCardStats(pedidos, [], 2, '2026-05-17')
     expect(stats.coberturaPend).toBe(1000)

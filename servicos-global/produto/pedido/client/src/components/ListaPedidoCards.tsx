@@ -238,7 +238,7 @@ export function ListaPedidoCards({
                 valor={fmtMoedaCard(cardStats.coberturaPend)}
                 variante="erro"
                 subtexto={t('pedido.sem_cobertura')}
-                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidosBase.filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura')).length}</strong></p>}
+                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidosBase.filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'SEM_COBERTURA' || i.cobertura_cambial === 'sem_cobertura')).length}</strong></p>}
               />
             )
           }

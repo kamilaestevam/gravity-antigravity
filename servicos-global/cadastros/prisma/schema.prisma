@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-06-08T02:30:39.813Z
+// Gerado em: 2026-06-08T19:50:55.352Z
 // Banco: gravity-cadastros-* (Railway)
 // Serviço: @gravity/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -287,6 +287,23 @@ model Incoterm {
   ativo_incoterm     Boolean @default(true)
 
   @@map("incoterm")
+}
+
+// ---------------------------------------------------------------------
+// CambioSiscomex — catálogo global Portal Único / BACEN (cobertura cambial
+// e modalidade de pagamento). SSOT para dropdowns do produto Pedido.
+// Fonte: Tabelas Aduaneiras RFB + API Integra Comex (dadosCambiais).
+// ---------------------------------------------------------------------
+model CambioSiscomex {
+  codigo_cambio_siscomex      String  @id
+  tipo_cambio_siscomex        String  // cobertura_cambial | modalidade_pagamento
+  nome_cambio_siscomex        String
+  descricao_cambio_siscomex   String?
+  ordem_cambio_siscomex       Int     @default(0)
+  ativo_cambio_siscomex       Boolean @default(true)
+
+  @@index([tipo_cambio_siscomex], map: "cambio_siscomex_tipo_idx")
+  @@map("cambio_siscomex")
 }
 
 // ---------------------------------------------------------------------

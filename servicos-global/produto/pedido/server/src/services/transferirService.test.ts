@@ -45,7 +45,7 @@ function criarItemPrisma(overrides: Record<string, unknown> = {}) {
     valor_por_unidade_item: 10,
     valor_total_item: 1110,
     casas_decimais_valor_item: 2,
-    cobertura_cambial_item: 'com_cobertura',
+    cobertura_cambial_item: 'ATE_180_DIAS',
     dados_extras_importacao_item: null,
     data_criacao_item: new Date(),
     data_atualizacao_item: new Date(),

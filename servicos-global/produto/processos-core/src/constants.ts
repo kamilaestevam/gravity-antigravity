@@ -22,7 +22,7 @@ export const STATUS_PEDIDO = ['aberto', 'transferencia', 'consolidado', 'cancela
 export type StatusPedido = (typeof STATUS_PEDIDO)[number]
 export const StatusPedidoSchema = z.enum(STATUS_PEDIDO)
 
-export const COBERTURA_CAMBIAL = ['com_cobertura', 'sem_cobertura'] as const
+export const COBERTURA_CAMBIAL = ['ATE_180_DIAS', '181_ATE_360', 'ACIMA_360', 'SEM_COBERTURA'] as const
 export type CoberturaCambial = (typeof COBERTURA_CAMBIAL)[number]
 export const CoberturaCambialSchema = z.enum(COBERTURA_CAMBIAL)
 

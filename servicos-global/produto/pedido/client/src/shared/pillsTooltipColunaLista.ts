@@ -47,6 +47,7 @@ export type RegraPillId =
   | 'alerta_moeda_divergente'
   | 'alerta_moeda_divergente_entre_itens'
   | 'alerta_unidade_comercializada_divergente'
+  | 'alerta_unidade_peso_divergente'
   | 'bloqueado_valor_item'
   | 'bloqueado_edicao'
   | 'calculado_pedido'
@@ -56,6 +57,8 @@ export type RegraPillId =
   | 'calculado_pedido_qtd_cancelada'
   | 'calculado_pedido_saldo'
   | 'calculado_pedido_volumes'
+  | 'calculado_pedido_peso_liquido'
+  | 'calculado_pedido_peso_bruto'
   | 'soma_mesma_unidade'
   | 'formula_config'
   | 'so_operacao'
@@ -95,6 +98,8 @@ export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
   'calculado_pedido_qtd_cancelada',
   'calculado_pedido_saldo',
   'calculado_pedido_volumes',
+  'calculado_pedido_peso_liquido',
+  'calculado_pedido_peso_bruto',
   'valor_total_soma_mesma_moeda',
   'valor_unitario_sem_somatoria',
   'soma_mesma_unidade',
@@ -110,6 +115,7 @@ export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
   'alerta_moeda_divergente',
   'alerta_moeda_divergente_entre_itens',
   'alerta_unidade_comercializada_divergente',
+  'alerta_unidade_peso_divergente',
   'cond_import_export',
   'formula_config',
   'casas_decimais_config',
@@ -133,6 +139,7 @@ export const ORDEM_PILLS_ITEM: RegraPillId[] = [
   'editavel_nos_itens',
   'alerta_divergencia',
   'alerta_moeda_divergente',
+  'alerta_unidade_peso_divergente',
   'valor_total_item_formula',
   'formula_config',
   'cond_import_export',
@@ -281,6 +288,26 @@ export const PILLS_PEDIDO_PESO_CUBAGEM: RegraPillId[] = [
   'alerta_divergencia',
 ]
 
+/** Linha do pedido — Peso líquido total. */
+export const PILLS_PEDIDO_PESO_LIQUIDO: RegraPillId[] = [
+  'calculado_pedido_peso_liquido',
+  'bloqueado_edicao',
+  'alerta_divergencia',
+]
+
+/** Linha do pedido — Peso bruto total. */
+export const PILLS_PEDIDO_PESO_BRUTO: RegraPillId[] = [
+  'calculado_pedido_peso_bruto',
+  'bloqueado_edicao',
+  'alerta_divergencia',
+]
+
+/** Linha item — Peso líquido/bruto: editável + alerta de unidade de peso divergente. */
+export const PILLS_ITEM_PESO: RegraPillId[] = [
+  'editavel_item',
+  'alerta_unidade_peso_divergente',
+]
+
 /** Linha do pedido — Câmbio (derivado): bloqueado + calculado. */
 export const PILLS_PEDIDO_CAMBIO: RegraPillId[] = [
   'bloqueado_edicao',
@@ -301,6 +328,9 @@ const CHAVES_DUAL_SEMPRE = new Set([
   'numero_pedido',
   'tipo_volume_pedido',
   'quantidade_volumes_pedido',
+  'cobertura_cambial',
+  'condicao_pagamento',
+  'condicao_pagamento_siscomex',
 ])
 
 const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: RegraPillId[] }> = {
@@ -350,7 +380,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   pai_calculado_peso: {
     pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
-    item: ['editavel_item', 'alerta_divergencia'],
+    item: [...PILLS_ITEM_PESO],
   },
   pai_calculado_cubagem: {
     pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
@@ -449,12 +479,12 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: [...PILLS_ITEM_QTD_CANCELADA],
   },
   dinamico_peso_liquido: {
-    pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
-    item: ['editavel_item', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_PESO_LIQUIDO],
+    item: [...PILLS_ITEM_PESO],
   },
   dinamico_peso_bruto: {
-    pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
-    item: ['editavel_item', 'alerta_divergencia'],
+    pedido: [...PILLS_PEDIDO_PESO_BRUTO],
+    item: [...PILLS_ITEM_PESO],
   },
   dinamico_cubagem: {
     pedido: [...PILLS_PEDIDO_PESO_CUBAGEM],
@@ -541,6 +571,7 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'saldo_itens_do_pedido') return PILLS_ITEM_SALDO
   if (key === 'quantidade_cancelada_total_pedido') return PILLS_ITEM_QTD_CANCELADA
   if (key === 'quantidade_volumes_pedido') return PILLS_ITEM_VOLUMES
+  if (key === 'peso_liquido_total_pedido' || key === 'peso_bruto_total_pedido') return PILLS_ITEM_PESO
   return pills
 }
 
@@ -554,11 +585,9 @@ function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] 
   if (key === 'quantidade_transferida_total') return PILLS_PEDIDO_QTD_TRANSFERIDA
   if (key === 'quantidade_cancelada_total_pedido') return PILLS_PEDIDO_QTD_CANCELADA
   if (key === 'saldo_itens_do_pedido') return PILLS_PEDIDO_SALDO
-  if (
-    key === 'peso_liquido_total_pedido'
-    || key === 'peso_bruto_total_pedido'
-    || key === 'cubagem_total_pedido'
-  ) return PILLS_PEDIDO_PESO_CUBAGEM
+  if (key === 'peso_liquido_total_pedido') return PILLS_PEDIDO_PESO_LIQUIDO
+  if (key === 'peso_bruto_total_pedido') return PILLS_PEDIDO_PESO_BRUTO
+  if (key === 'cubagem_total_pedido') return PILLS_PEDIDO_PESO_CUBAGEM
   if (
     key === 'moeda_cambio_pedido'
     || key === 'taxa_cambio_estimada'
@@ -730,7 +759,12 @@ export function pillsParaNivelColuna(
     (key === 'peso_liquido_total_pedido' || key === 'peso_bruto_total_pedido' || key === 'cubagem_total_pedido')
     && nivel === 'pai'
   ) {
+    if (key === 'peso_liquido_total_pedido') return limitarPills(PILLS_PEDIDO_PESO_LIQUIDO, 'pai')
+    if (key === 'peso_bruto_total_pedido') return limitarPills(PILLS_PEDIDO_PESO_BRUTO, 'pai')
     return limitarPills(PILLS_PEDIDO_PESO_CUBAGEM, 'pai')
+  }
+  if ((key === 'peso_liquido_total_pedido' || key === 'peso_bruto_total_pedido') && nivel === 'item') {
+    return limitarPills(PILLS_ITEM_PESO, 'item')
   }
   if (
     (key === 'moeda_cambio_pedido' || key === 'taxa_cambio_estimada' || key === 'valor_total_cambio_pedido')

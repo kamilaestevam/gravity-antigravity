@@ -430,11 +430,9 @@ export function MenuLateralGlobal({
             <div className="mlg-ws-dropdown__list">
               {filteredProdutos.map((prod, index) => {
                 const isAcao = prod.kind === 'acao'
-                const isCurrent = isAcao
-                  ? false
-                  : produtoAtualSlug
-                    ? produtoSlugEquivalente(prod.slug, produtoAtualSlug)
-                    : prod.name === moduleName
+                const isCurrent = produtoAtualSlug
+                  ? produtoSlugEquivalente(prod.slug, produtoAtualSlug)
+                  : !isAcao && prod.name === moduleName
                 // Divisor antes do primeiro item 'acao' — separa produtos de visões transversais.
                 const mostrarDivisor =
                   isAcao && filteredProdutos[index - 1]?.kind !== 'acao'
@@ -447,8 +445,7 @@ export function MenuLateralGlobal({
                       role="option"
                       aria-selected={isCurrent}
                       onClick={() => {
-                        if (isAcao) onSwitchProduct?.(prod.slug)
-                        else if (!isCurrent) onSwitchProduct?.(prod.slug)
+                        if (!isCurrent) onSwitchProduct?.(prod.slug)
                         setProdOpen(false)
                       }}
                     >
@@ -467,10 +464,10 @@ export function MenuLateralGlobal({
                           </TooltipGlobal>
                         )}
                       </div>
-                      {isAcao ? (
-                        <ArrowRight size={13} weight="bold" className="mlg-ws-item-arrow" style={{ flexShrink: 0 }} />
-                      ) : isCurrent ? (
+                      {isCurrent ? (
                         <Check size={13} weight="bold" style={{ color: prod.color, flexShrink: 0 }} />
+                      ) : isAcao ? (
+                        <ArrowRight size={13} weight="bold" className="mlg-ws-item-arrow" style={{ flexShrink: 0 }} />
                       ) : null}
                     </button>
                   </React.Fragment>

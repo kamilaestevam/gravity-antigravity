@@ -8,6 +8,7 @@ import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global
 import {
   classificarRegraTooltipColuna,
   regraTooltipEhInterativa,
+  CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM,
   type NivelColunaLista,
   type RegraTooltipId,
 } from './regrasTooltipColunaLista'
@@ -197,6 +198,9 @@ export const CHAVES_TOOLTIP_INLINE_LISTA = new Set([
   'taxa_cambio_estimada',
   'valor_total_cambio_pedido',
   'quantidade_volumes_pedido',
+  'tipo_volume_pedido',
+  'cobertura_cambial',
+  'condicao_pagamento',
   'nome_importador',
   'nome_exportador',
 ])
@@ -293,6 +297,14 @@ export function enriquecerColunaComRegraTooltip<T>(
     key === 'quantidade_cancelada_total_pedido'
       ? t('pedido.coluna_pai.quantidade_cancelada_total_pedido_titulo_linha_pedido')
       : null
+  const tituloCoberturaLinhaPedido =
+    key === 'cobertura_cambial'
+      ? t('pedido.coluna_pai.cobertura_cambial_titulo_linha_pedido')
+      : null
+  const tituloCondicaoPagamentoLinhaPedido =
+    key === 'condicao_pagamento'
+      ? t('pedido.coluna_pai.condicao_pagamento_titulo_linha_pedido')
+      : null
   const titulo = tituloValorTotalLinhaPedido
     ?? tituloValorUnitarioLinhaPedido
     ?? tituloMoedaLinhaPedido
@@ -300,6 +312,8 @@ export function enriquecerColunaComRegraTooltip<T>(
     ?? tituloQtdTransferidaLinhaPedido
     ?? tituloSaldoLinhaPedido
     ?? tituloQtdCanceladaLinhaPedido
+    ?? tituloCoberturaLinhaPedido
+    ?? tituloCondicaoPagamentoLinhaPedido
     ?? (col.tooltipTitulo?.trim()
       ? col.tooltipTitulo
       : tituloTooltipColuna(t, key, 'pai', col.label))
@@ -320,7 +334,17 @@ export function enriquecerColunaComRegraTooltip<T>(
                   ? t('pedido.coluna_pai.quantidade_cancelada_item_titulo')
                   : key === 'quantidade_volumes_pedido'
                     ? t('pedido.coluna_pai.quantidade_volumes_pedido_item_titulo')
-                    : undefined
+                    : key === 'tipo_volume_pedido'
+                      ? t('pedido.coluna_pai.tipo_volume_pedido_item_titulo')
+                      : key === 'cobertura_cambial'
+                        ? t('pedido.coluna_pai.cobertura_cambial_item_titulo')
+                        : key === 'condicao_pagamento'
+                          ? t('pedido.coluna_pai.condicao_pagamento_item_titulo')
+                          : key === 'peso_liquido_total_pedido'
+                      ? t('pedido.coluna_pai.peso_liquido_item_titulo')
+                      : key === 'peso_bruto_total_pedido'
+                        ? t('pedido.coluna_pai.peso_bruto_item_titulo')
+                        : undefined
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)
@@ -395,6 +419,9 @@ export function enriquecerColunaComRegraTooltip<T>(
         || key === 'valor_total_cambio_pedido'
         || key === 'tipo_volume_pedido'
         || key === 'quantidade_volumes_pedido'
+        || key === 'tipo_volume_pedido'
+        || key === 'cobertura_cambial'
+        || key === 'condicao_pagamento'
         || key === 'nome_importador'
         || key === 'nome_exportador'
         || pillsRes.dual
@@ -521,6 +548,8 @@ export function aplicarRenderTooltipInlineLista<T>(
   const colInline: ColunaComRenderListaBase<T> = {
     ...semMetadadosTooltipCelulaNucleo(enriched),
     ...(tituloItemCol ? { tooltipTituloItem: tituloItemCol } : {}),
+    ...(enriched.tooltipDescricaoItem != null ? { tooltipDescricaoItem: enriched.tooltipDescricaoItem } : {}),
+    ...(enriched.tooltipDescricaoCelula ? { tooltipDescricaoCelula: enriched.tooltipDescricaoCelula } : {}),
     tooltipInline: true,
     renderListaBase: renderBase,
     render: (val: unknown, row: T) => {
@@ -603,6 +632,7 @@ export function enriquecerMapaFilhoTooltipInline<C>(
           avisoImpactoColuna: aviso,
           cursorBloqueado: bloqueado,
           interativo: interativoItem,
+          modoDinamicoPedidoItem: CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM.has(key),
         })
       },
     }

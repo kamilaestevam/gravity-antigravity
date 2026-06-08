@@ -257,6 +257,23 @@ model Incoterm {
 }
 
 // ---------------------------------------------------------------------
+// CambioSiscomex — catálogo global Portal Único / BACEN (cobertura cambial
+// e modalidade de pagamento). SSOT para dropdowns do produto Pedido.
+// Fonte: Tabelas Aduaneiras RFB + API Integra Comex (dadosCambiais).
+// ---------------------------------------------------------------------
+model CambioSiscomex {
+  codigo_cambio_siscomex      String  @id
+  tipo_cambio_siscomex        String  // cobertura_cambial | modalidade_pagamento
+  nome_cambio_siscomex        String
+  descricao_cambio_siscomex   String?
+  ordem_cambio_siscomex       Int     @default(0)
+  ativo_cambio_siscomex       Boolean @default(true)
+
+  @@index([tipo_cambio_siscomex], map: "cambio_siscomex_tipo_idx")
+  @@map("cambio_siscomex")
+}
+
+// ---------------------------------------------------------------------
 // Porto — catálogo global de portos marítimos/fluviais (UN/LOCODE).
 // Fonte: UNECE UN/LOCODE (datahub.io), ~6.000 portos ativos.
 // Critério de inclusão: Function contém "1" (port) ou "8" (inland water).

@@ -345,7 +345,7 @@ export function gerarPedido(
     valor_total_cambio_pedido: inc('valor_total_cambio_pedido', null), // calculado depois
     moeda_cambio_pedido: inc('moeda_cambio_pedido', 'BRL'),
     taxa_cambio_estimada_pedido: inc('taxa_cambio_estimada_pedido', taxaCamb.toFixed(4)),
-    contrato_cambio_id_pedido: inc('contrato_cambio_id_pedido', cobertura === 'com_cobertura' ? gerarCuid('cccm', idx) : null),
+    contrato_cambio_id_pedido: inc('contrato_cambio_id_pedido', cobertura !== 'SEM_COBERTURA' ? gerarCuid('cccm', idx) : null),
     dados_extras_importacao_pedido: inc('dados_extras_importacao_pedido', { observacao: 'Gerado por teste-carga-pedido', tier }),
     ids_origem_consolidacao_pedido: inc('ids_origem_consolidacao_pedido', []),
     data_consolidacao_pedido: dConsolidacao,
@@ -435,7 +435,7 @@ export function gerarItensDoPedido(
       casas_decimais_quantidade_item: 0,
       moeda_item: pedido.moeda_pedido,
       casas_decimais_valor_item: 2,
-      cobertura_cambial_item: pedido.cobertura_cambial_pedido ?? 'com_cobertura',
+      cobertura_cambial_item: pedido.cobertura_cambial_pedido ?? 'ATE_180_DIAS',
       casas_decimais_peso_item: 3,
       casas_decimais_cubagem_item: 4,
       data_criacao_item: pedido.data_criacao_pedido,

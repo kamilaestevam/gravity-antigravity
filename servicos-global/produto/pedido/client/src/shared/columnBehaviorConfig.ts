@@ -59,8 +59,9 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   aeroporto_destino:         { tipo: 'alfanumerico' },
   data_emissao_pedido:       { tipo: 'alfanumerico' },
   referencia_fabricante:     { tipo: 'alfanumerico' },
-  cobertura_cambial:         { tipo: 'alfanumerico' },
-  condicao_pagamento: { tipo: 'alfanumerico' },
+  cobertura_cambial:              { tipo: 'alfanumerico' },
+  condicao_pagamento:             { tipo: 'alfanumerico' },
+  condicao_pagamento_siscomex:    { tipo: 'alfanumerico' },
   unidade_comercializada_pedido: { tipo: 'alfanumerico' },
 
   // ── Exceções: editavel depende do tipo de operação ──────────────────────────

@@ -55,6 +55,11 @@ describe('isAlertavel — campos em CAMPOS_ALERTAVEIS', () => {
     expect(isAlertavel('incoterm')).toBe(true)
   })
 
+  it('U-ALRT-02b: condicao_pagamento (contrato JSON) → true', () => {
+    expect(isAlertavel('condicao_pagamento')).toBe(true)
+    expect(isAlertavel('condicao_pagamento_pedido')).toBe(false)
+  })
+
   it('U-ALRT-03: moeda_item → true', () => {
     expect(isAlertavel('moeda_item')).toBe(true)
   })

@@ -614,6 +614,46 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
         cobertura_cambial_divergente: divergente,
       }
     })(),
+    // Condição de pagamento — Comercial (texto livre; contrato JSON: condicao_pagamento).
+    ...(() => {
+      const canonico = (pedido.condicao_pagamento_pedido ?? pedido.condicao_pagamento) as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          condicao_pagamento_divergente:
+            (pedido as { condicao_pagamento_divergente?: boolean | null }).condicao_pagamento_divergente ?? false,
+        }
+      }
+      const valoresItens = itens
+        .map((i: PedidoItemRaw) => i.condicao_pagamento as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const valoresUnicos = new Set(valoresItens)
+      let divergente = valoresUnicos.size > 1
+      if (!divergente && canonicoStr && valoresItens.length > 0) {
+        divergente = valoresItens.some((v) => v !== canonicoStr)
+      }
+      return { condicao_pagamento_divergente: divergente }
+    })(),
+    // Modalidade Siscomex — códigos 10–52.
+    ...(() => {
+      const canonico = (pedido.condicao_pagamento_siscomex_pedido ?? pedido.condicao_pagamento_siscomex) as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          condicao_pagamento_siscomex_divergente:
+            (pedido as { condicao_pagamento_siscomex_divergente?: boolean | null }).condicao_pagamento_siscomex_divergente ?? false,
+        }
+      }
+      const valoresItens = itens
+        .map((i: PedidoItemRaw) => i.condicao_pagamento_siscomex as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const valoresUnicos = new Set(valoresItens)
+      let divergente = valoresUnicos.size > 1
+      if (!divergente && canonicoStr && valoresItens.length > 0) {
+        divergente = valoresItens.some((v) => v !== canonicoStr)
+      }
+      return { condicao_pagamento_siscomex_divergente: divergente }
+    })(),
   }
 }
 
@@ -1999,6 +2039,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'aeroporto_origem',
   'aeroporto_destino',
   'moeda_pedido',
+  'moeda_cambio_pedido',
   'condicao_pagamento',
   'condicao_pagamento_siscomex',
   'importacao_exportador_id',

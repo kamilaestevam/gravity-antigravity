@@ -45,6 +45,38 @@ describe('calcularDivergenciasPedido — referencia_importador / referencia_expo
   })
 })
 
+describe('calcularDivergenciasPedido — condicao_pagamento (Comercial)', () => {
+  it('marca divergente quando itens têm valores distintos (aaa vs bbb)', () => {
+    const divergencias = calcularDivergenciasPedido(
+      [
+        { condicao_pagamento: 'aaa' },
+        { condicao_pagamento: 'bbb' },
+      ],
+      { condicao_pagamento: 'aaa' },
+    )
+    expect(divergencias.condicao_pagamento_divergente).toBe(true)
+  })
+
+  it('marca divergente quando pedido difere dos itens', () => {
+    const divergencias = calcularDivergenciasPedido(
+      [{ condicao_pagamento: '60 days L/C' }],
+      { condicao_pagamento: 'TT 30%' },
+    )
+    expect(divergencias.condicao_pagamento_divergente).toBe(true)
+  })
+
+  it('não marca divergente quando pedido e itens concordam', () => {
+    const divergencias = calcularDivergenciasPedido(
+      [
+        { condicao_pagamento: 'TT 30%' },
+        { condicao_pagamento: 'TT 30%' },
+      ],
+      { condicao_pagamento: 'TT 30%' },
+    )
+    expect(divergencias.condicao_pagamento_divergente).toBe(false)
+  })
+})
+
 describe('calcularDivergenciasPedido — NCM', () => {
   it('não marca ncm_divergente quando itens têm NCMs distintos', () => {
     const divergencias = calcularDivergenciasPedido(

@@ -201,6 +201,7 @@ export const CHAVES_TOOLTIP_INLINE_LISTA = new Set([
   'tipo_volume_pedido',
   'cobertura_cambial',
   'condicao_pagamento',
+  'condicao_pagamento_siscomex',
   'nome_importador',
   'nome_exportador',
 ])
@@ -305,6 +306,10 @@ export function enriquecerColunaComRegraTooltip<T>(
     key === 'condicao_pagamento'
       ? t('pedido.coluna_pai.condicao_pagamento_titulo_linha_pedido')
       : null
+  const tituloCondicaoPagamentoSiscomexLinhaPedido =
+    key === 'condicao_pagamento_siscomex'
+      ? t('pedido.coluna_pai.condicao_pagamento_siscomex_titulo_linha_pedido')
+      : null
   const titulo = tituloValorTotalLinhaPedido
     ?? tituloValorUnitarioLinhaPedido
     ?? tituloMoedaLinhaPedido
@@ -314,6 +319,7 @@ export function enriquecerColunaComRegraTooltip<T>(
     ?? tituloQtdCanceladaLinhaPedido
     ?? tituloCoberturaLinhaPedido
     ?? tituloCondicaoPagamentoLinhaPedido
+    ?? tituloCondicaoPagamentoSiscomexLinhaPedido
     ?? (col.tooltipTitulo?.trim()
       ? col.tooltipTitulo
       : tituloTooltipColuna(t, key, 'pai', col.label))
@@ -340,7 +346,9 @@ export function enriquecerColunaComRegraTooltip<T>(
                         ? t('pedido.coluna_pai.cobertura_cambial_item_titulo')
                         : key === 'condicao_pagamento'
                           ? t('pedido.coluna_pai.condicao_pagamento_item_titulo')
-                          : key === 'peso_liquido_total_pedido'
+                          : key === 'condicao_pagamento_siscomex'
+                            ? t('pedido.coluna_pai.condicao_pagamento_siscomex_item_titulo')
+                            : key === 'peso_liquido_total_pedido'
                       ? t('pedido.coluna_pai.peso_liquido_item_titulo')
                       : key === 'peso_bruto_total_pedido'
                         ? t('pedido.coluna_pai.peso_bruto_item_titulo')
@@ -422,6 +430,7 @@ export function enriquecerColunaComRegraTooltip<T>(
         || key === 'tipo_volume_pedido'
         || key === 'cobertura_cambial'
         || key === 'condicao_pagamento'
+        || key === 'condicao_pagamento_siscomex'
         || key === 'nome_importador'
         || key === 'nome_exportador'
         || pillsRes.dual

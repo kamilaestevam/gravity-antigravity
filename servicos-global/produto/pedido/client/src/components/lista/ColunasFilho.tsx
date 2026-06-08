@@ -1540,7 +1540,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     editavel: true,
     campo: 'condicao_pagamento_siscomex',
     grupo: t('pedido.item_grupo.quantidades'),
-    tooltipTitulo: 'Modalidade de Pagamento — Siscomex',
+    tooltipTitulo: t('pedido.coluna_pai.condicao_pagamento_siscomex_item_titulo'),
     tooltipDescricao: 'Código oficial de modalidade de pagamento para LI/DI',
     getValorEditar: (row: PedidoItem) => row.condicao_pagamento_siscomex ?? '',
     render: (_val: unknown, row: PedidoItem) => {

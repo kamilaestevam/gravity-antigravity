@@ -66,6 +66,11 @@ export function tituloTooltipCelulaPorColuna(
       ? t('pedido.coluna_pai.condicao_pagamento_item_titulo')
       : t('pedido.coluna_pai.condicao_pagamento_titulo_linha_pedido')
   }
+  if (key === 'condicao_pagamento_siscomex') {
+    return isFilho
+      ? t('pedido.coluna_pai.condicao_pagamento_siscomex_item_titulo')
+      : t('pedido.coluna_pai.condicao_pagamento_siscomex_titulo_linha_pedido')
+  }
   if (key === 'peso_liquido_total_pedido') {
     return isFilho
       ? t('pedido.coluna_pai.peso_liquido_item_titulo')

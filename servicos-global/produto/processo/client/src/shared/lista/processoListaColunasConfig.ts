@@ -11,7 +11,7 @@ import type { ColunasExport } from './exportUtils'
 
 const COLUNAS_PAI: GTColuna<Pedido>[] = buildColunasPai(
   i18next.t.bind(i18next),
-  { unidadesPeso: [], unidadesCubagem: [] },
+  { unidadesPeso: [], unidadesCubagem: [], mapaFatorParaKg: {} },
 )
 
 export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI.map(c => c.key as string)

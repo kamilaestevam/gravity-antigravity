@@ -1,6 +1,6 @@
 # Plano de Testes Unitários — Consolidar Pedido
 
-**ID:** TST-UNI-PEDIDO-CONSOLIDAR-001
+**ID:** TST-UNI-PEDIDO-000032
 **Data:** 2026-05-17
 **Versão:** 1.0
 **Criticidade:** alta

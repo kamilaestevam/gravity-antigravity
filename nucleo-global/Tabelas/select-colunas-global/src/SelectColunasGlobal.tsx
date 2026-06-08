@@ -8,9 +8,14 @@ export interface ColunaSelectConfig {
   label: string
   /** Se true: não pode ser ocultada nem reordenada — exibe cadeado */
   naoOcultavel?: boolean
-  /** Grupo de agrupamento — colunas com o mesmo grupo são agrupadas sob um cabeçalho colapsável */
+  /** Coluna criada pelo usuário (personalizada) — aparece na aba "Manuais" */
+  manual?: boolean
+  /** @deprecated mantido por compatibilidade — não é mais usado para agrupar */
   grupo?: string
 }
+
+/** Abas/filtros do seletor de colunas. */
+export type AbaSelectColunas = 'todas' | 'exibidas' | 'ocultas' | 'manuais'
 
 export interface SelectColunasGlobalProps {
   /** Todas as colunas disponíveis */
@@ -88,33 +93,21 @@ function IcoDrag() {
   )
 }
 
-interface IcoChevronProps {
-  expandido: boolean
+// ── Definição das abas ──────────────────────────────────────────────────────
+
+const ABAS: { id: AbaSelectColunas; label: string }[] = [
+  { id: 'todas',    label: 'Todas' },
+  { id: 'exibidas', label: 'Exibidas' },
+  { id: 'ocultas',  label: 'Ocultas' },
+  { id: 'manuais',  label: 'Manuais' },
+]
+
+const VAZIO_POR_ABA: Record<AbaSelectColunas, string> = {
+  todas:    'Nenhuma coluna disponível',
+  exibidas: 'Nenhuma coluna exibida',
+  ocultas:  'Nenhuma coluna oculta',
+  manuais:  'Nenhuma coluna manual',
 }
-
-function IcoChevron({ expandido }: IcoChevronProps) {
-  return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 256 256"
-      fill="currentColor"
-      aria-hidden="true"
-      className={`scg-grupo-chevron${expandido ? ' scg-grupo-chevron--expandido' : ''}`}
-    >
-      <path d="M96.59,209.66l96-96a8,8,0,0,0,0-11.32l-96-96a8,8,0,0,0-11.32,11.32L175.31,128,85.25,218.34a8,8,0,1,0,11.34,11.32Z"/>
-    </svg>
-  )
-}
-
-// ── Tipos internos ────────────────────────────────────────────────────────────
-
-interface GrupoInterno {
-  nome: string
-  colunas: ColunaSelectConfig[]
-}
-
-const GRUPO_GERAL = 'Geral'
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
@@ -131,9 +124,8 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
 }: SelectColunasGlobalProps) {
   const ref        = useRef<HTMLDivElement>(null)
   const dragKeyRef = useRef<string | null>(null)
-  const dragGrupoRef = useRef<string | null>(null)
   const [busca, setBusca] = useState('')
-  const [gruposColapsados, setGruposColapsados] = useState<Set<string>>(new Set())
+  const [aba, setAba] = useState<AbaSelectColunas>('todas')
 
   // Fechar ao clicar fora
   useEffect(() => {
@@ -156,95 +148,73 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
     return () => document.removeEventListener('keydown', handleKey)
   }, [onFechar])
 
-  // Verifica se alguma coluna tem grupo definido
-  const temGrupos = useMemo(() => colunas.some(c => c.grupo !== undefined), [colunas])
+  const visiveisSet = useMemo(() => new Set(colunasVisiveis), [colunasVisiveis])
 
-  // Lista plana filtrada — usada quando há busca ativa
-  const colunasFiltradas = useMemo(() => {
+  // Colunas visíveis na ORDEM salva pelo usuário (espelha a tabela)
+  const visiveisOrdenadas = useMemo(
+    () => colunasVisiveis
+      .map(key => colunas.find(c => c.key === key))
+      .filter((c): c is ColunaSelectConfig => c != null),
+    [colunas, colunasVisiveis],
+  )
+
+  const ocultas = useMemo(
+    () => colunas.filter(c => !visiveisSet.has(c.key)),
+    [colunas, visiveisSet],
+  )
+
+  // Contagens exibidas nos badges de cada aba (derivadas do estado persistido)
+  const contagens = useMemo<Record<AbaSelectColunas, number>>(() => ({
+    todas:    colunas.length,
+    exibidas: visiveisOrdenadas.length,
+    ocultas:  ocultas.length,
+    manuais:  colunas.filter(c => c.manual).length,
+  }), [colunas, visiveisOrdenadas, ocultas])
+
+  // Lista base da aba ativa (antes da busca)
+  const listaBase = useMemo<ColunaSelectConfig[]>(() => {
+    switch (aba) {
+      case 'exibidas': return visiveisOrdenadas
+      case 'ocultas':  return ocultas
+      case 'manuais':  return colunas.filter(c => c.manual)
+      case 'todas':
+      default:         return [...visiveisOrdenadas, ...ocultas]
+    }
+  }, [aba, colunas, visiveisOrdenadas, ocultas])
+
+  // Aplica a busca textual sobre a lista da aba
+  const listaExibida = useMemo<ColunaSelectConfig[]>(() => {
     const termo = busca.trim().toLowerCase()
-    if (!termo) {
-      return [
-        ...colunas.filter(c =>  c.naoOcultavel),
-        ...colunas.filter(c => !c.naoOcultavel),
-      ]
-    }
-    const filtradas = colunas.filter(c => c.label.toLowerCase().includes(termo))
-    const sorted = [...filtradas].sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
-    return [
-      ...sorted.filter(c =>  c.naoOcultavel),
-      ...sorted.filter(c => !c.naoOcultavel),
-    ]
-  }, [colunas, busca])
-
-  // Grupos — usado quando não há busca ativa e há colunas com grupo
-  const grupos = useMemo<GrupoInterno[]>(() => {
-    if (!temGrupos) return []
-
-    const mapa = new Map<string, ColunaSelectConfig[]>()
-
-    // Preserva a ordem de aparição dos grupos conforme a ordem das colunas
-    for (const col of colunas) {
-      const nome = col.grupo ?? GRUPO_GERAL
-      if (!mapa.has(nome)) mapa.set(nome, [])
-      mapa.get(nome)!.push(col)
-    }
-
-    return Array.from(mapa.entries()).map(([nome, cols]) => ({
-      nome,
-      colunas: [
-        ...cols.filter(c =>  c.naoOcultavel),
-        ...cols.filter(c => !c.naoOcultavel),
-      ],
-    }))
-  }, [colunas, temGrupos])
-
-  function toggleGrupo(nome: string) {
-    setGruposColapsados(prev => {
-      const next = new Set(prev)
-      if (next.has(nome)) {
-        next.delete(nome)
-      } else {
-        next.add(nome)
-      }
-      return next
-    })
-  }
+    if (!termo) return listaBase
+    return listaBase.filter(c => c.label.toLowerCase().includes(termo))
+  }, [listaBase, busca])
 
   // ── Renderização de um item de coluna ──────────────────────────────────────
 
-  function renderItem(col: ColunaSelectConfig, idx: number, lista: ColunaSelectConfig[], grupoNome?: string) {
+  function renderItem(col: ColunaSelectConfig, idx: number, lista: ColunaSelectConfig[]) {
+    const visivel = visiveisSet.has(col.key)
+    // Drag só faz sentido entre colunas visíveis (a ordem reflete a tabela)
+    const arrastavel = !!onReordenar && !col.naoOcultavel && visivel
     const prevObrigatorio = idx > 0 && lista[idx - 1].naoOcultavel
-    const visivel = colunasVisiveis.includes(col.key)
 
     return (
       <React.Fragment key={col.key}>
-        {/* Divisor entre obrigatórias e opcionais (apenas na lista plana sem grupos) */}
-        {!grupoNome && !col.naoOcultavel && prevObrigatorio && (
-          <div className="scg-divisor" />
-        )}
+        {!col.naoOcultavel && prevObrigatorio && <div className="scg-divisor" />}
         <label
           className={`scg-item${col.naoOcultavel ? ' scg-item--locked' : ''}`}
-          draggable={!!onReordenar && !col.naoOcultavel}
-          onDragStart={() => {
-            dragKeyRef.current = col.key
-            dragGrupoRef.current = grupoNome ?? null
-          }}
-          onDragOver={e => e.preventDefault()}
+          draggable={arrastavel}
+          onDragStart={() => { if (arrastavel) dragKeyRef.current = col.key }}
+          onDragOver={e => { if (dragKeyRef.current && visivel) e.preventDefault() }}
           onDrop={() => {
-            const fromKey   = dragKeyRef.current
-            const fromGrupo = dragGrupoRef.current
-            // Só permite drop dentro do mesmo grupo (ou ambos sem grupo)
-            if (fromKey && fromKey !== col.key && fromGrupo === (grupoNome ?? null)) {
+            const fromKey = dragKeyRef.current
+            // Reordena apenas quando origem e destino são visíveis
+            if (fromKey && fromKey !== col.key && visivel && visiveisSet.has(fromKey)) {
               onReordenar?.(fromKey, col.key)
             }
-            dragKeyRef.current   = null
-            dragGrupoRef.current = null
+            dragKeyRef.current = null
           }}
         >
-          {/* Cadeado ou handle de drag */}
-          {onReordenar && (
-            col.naoOcultavel ? <IcoCadeado /> : <IcoDrag />
-          )}
+          {onReordenar && (col.naoOcultavel ? <IcoCadeado /> : arrastavel ? <IcoDrag /> : <span className="scg-drag-spacer" />)}
 
           <input
             type="checkbox"
@@ -255,43 +225,11 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
             aria-label={col.label}
           />
           <span className="scg-label">{col.label}</span>
+          {col.manual && <span className="scg-tag-manual">manual</span>}
         </label>
       </React.Fragment>
     )
   }
-
-  // ── Renderização de um grupo colapsável ────────────────────────────────────
-
-  function renderGrupo(grupo: GrupoInterno) {
-    const expandido  = !gruposColapsados.has(grupo.nome)
-    const totalGrupo = grupo.colunas.length
-    const visivelGrupo = grupo.colunas.filter(c => colunasVisiveis.includes(c.key)).length
-
-    return (
-      <div key={grupo.nome} className="scg-grupo">
-        <button
-          type="button"
-          className="scg-grupo-header"
-          onClick={() => toggleGrupo(grupo.nome)}
-          aria-expanded={expandido}
-          aria-label={`${grupo.nome} — ${expandido ? 'recolher' : 'expandir'} grupo`}
-        >
-          <IcoChevron expandido={expandido} />
-          <span className="scg-grupo-nome">{grupo.nome}</span>
-          <span className="scg-grupo-badge">{visivelGrupo}&nbsp;/&nbsp;{totalGrupo}</span>
-        </button>
-
-        {expandido && (
-          <div className="scg-grupo-itens">
-            {grupo.colunas.map((col, idx) => renderItem(col, idx, grupo.colunas, grupo.nome))}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  const estaFiltrando = busca.trim() !== ''
-  const usarGrupos    = temGrupos && !estaFiltrando
 
   return (
     <div
@@ -326,6 +264,23 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
         )}
       </div>
 
+      {/* ── Abas / filtros (Todas / Exibidas / Ocultas / Manuais) ── */}
+      <div className="scg-tabs" role="tablist" aria-label="Filtrar colunas">
+        {ABAS.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={aba === id}
+            className={`scg-tab${aba === id ? ' scg-tab--ativa' : ''}`}
+            onClick={() => setAba(id)}
+          >
+            {label}
+            <span className="scg-tab-badge">{contagens[id]}</span>
+          </button>
+        ))}
+      </div>
+
       {/* ── Ações em lote ── */}
       <div className="scg-acoes">
         <button type="button" className="scg-acao-btn" onClick={onSelecionarTodos}>
@@ -338,18 +293,12 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
 
       {/* ── Lista ── */}
       <div className="scg-lista">
-        {usarGrupos ? (
-          grupos.length === 0 ? (
-            <div className="scg-vazio">Nenhuma coluna encontrada</div>
-          ) : (
-            grupos.map(grupo => renderGrupo(grupo))
-          )
+        {listaExibida.length === 0 ? (
+          <div className="scg-vazio">
+            {busca.trim() ? 'Nenhuma coluna encontrada' : VAZIO_POR_ABA[aba]}
+          </div>
         ) : (
-          colunasFiltradas.length === 0 ? (
-            <div className="scg-vazio">Nenhuma coluna encontrada</div>
-          ) : (
-            colunasFiltradas.map((col, idx) => renderItem(col, idx, colunasFiltradas))
-          )
+          listaExibida.map((col, idx) => renderItem(col, idx, listaExibida))
         )}
       </div>
     </div>

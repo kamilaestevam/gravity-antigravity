@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Camera, ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Camera, CaretDown, Eye, ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
 import { ModalOverlay } from '@nucleo/modal-global'
 import {
   adminPlanosTesteApi,
@@ -84,19 +84,130 @@ function DetalhePassoComPrints({ detalhe }: { detalhe: string }) {
   )
 }
 
-function LinhaCaso({ ordem, detalhe }: { ordem: string; detalhe: string }) {
+const estiloLinhaCaso = {
+  display: 'grid',
+  gridTemplateColumns: '48px 1fr auto',
+  gap: '0.75rem',
+  alignItems: 'center',
+  padding: '0.625rem 0.75rem',
+  borderRadius: '8px',
+  background: 'rgba(15, 23, 42, 0.4)',
+  border: '1px solid rgba(255,255,255,0.06)',
+} as const
+
+function BotaoVisualizarPasso({ onClick }: { onClick: () => void }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
+      title="Visualizar passo completo"
+      aria-label="Visualizar passo completo"
       style={{
-        display: 'grid',
-        gridTemplateColumns: '48px 1fr',
-        gap: '0.75rem',
-        padding: '0.625rem 0.75rem',
-        borderRadius: '8px',
-        background: 'rgba(15, 23, 42, 0.4)',
-        border: '1px solid rgba(255,255,255,0.06)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0,
+        margin: 0,
+        border: 'none',
+        background: 'transparent',
+        color: '#94a3b8',
+        cursor: 'pointer',
+        flexShrink: 0,
+        lineHeight: 0,
       }}
     >
+      <Eye size={16} weight="regular" />
+    </button>
+  )
+}
+
+function SecaoPassoPlano({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: '1rem' }}>
+      <div style={{
+        fontSize: '0.65rem', fontWeight: 700, color: '#64748b',
+        textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.35rem',
+      }}>
+        {rotulo}
+      </div>
+      <div style={{ fontSize: '0.85rem', color: '#e2e8f0', lineHeight: 1.55 }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function ModalPassoPlanoTeste({
+  caso,
+  aoFechar,
+}: {
+  caso: CasoPlanoTesteApi
+  aoFechar: () => void
+}) {
+  const temEstrutura = Boolean(caso.acao || caso.aprovadoQuando)
+
+  return (
+    <ModalOverlay
+      aberto
+      aoFechar={aoFechar}
+      tamanho="md"
+      titulo={`Passo ${caso.ordem}`}
+      renderizarFooter={() => (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 1.5rem 1.5rem' }}>
+          <button
+            type="button"
+            onClick={aoFechar}
+            style={{
+              padding: '0.625rem 1.25rem', borderRadius: '8px',
+              background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0',
+              fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer',
+            }}
+          >
+            Fechar
+          </button>
+        </div>
+      )}
+    >
+      <div style={{ padding: '0 1.5rem 1.25rem' }}>
+        {caso.titulo && (
+          <SecaoPassoPlano rotulo="Etapa">
+            <span style={{ color: '#a78bfa', fontWeight: 600 }}>{caso.titulo}</span>
+          </SecaoPassoPlano>
+        )}
+        {temEstrutura ? (
+          <>
+            {caso.acao && (
+              <SecaoPassoPlano rotulo="Ação">
+                <DetalhePassoComPrints detalhe={caso.acao} />
+              </SecaoPassoPlano>
+            )}
+            {caso.aprovadoQuando && (
+              <SecaoPassoPlano rotulo="APROVADO quando">
+                <DetalhePassoComPrints detalhe={caso.aprovadoQuando} />
+              </SecaoPassoPlano>
+            )}
+          </>
+        ) : (
+          <SecaoPassoPlano rotulo="Detalhe">
+            <DetalhePassoComPrints detalhe={caso.detalhe} />
+          </SecaoPassoPlano>
+        )}
+      </div>
+    </ModalOverlay>
+  )
+}
+
+function LinhaCaso({
+  ordem,
+  detalhe,
+  onVisualizar,
+}: {
+  ordem: string
+  detalhe: string
+  onVisualizar: () => void
+}) {
+  return (
+    <div style={estiloLinhaCaso}>
       <span style={{
         fontSize: '0.75rem', fontWeight: 800, color: '#818cf8',
         fontFamily: 'ui-monospace, monospace',
@@ -104,34 +215,173 @@ function LinhaCaso({ ordem, detalhe }: { ordem: string; detalhe: string }) {
         {ordem}
       </span>
       <DetalhePassoComPrints detalhe={detalhe} />
+      <BotaoVisualizarPasso onClick={onVisualizar} />
     </div>
   )
 }
 
-function ListaCasosRoteiro({ itens }: { itens: CasoPlanoTesteApi[] }) {
-  const etapas = [...new Set(itens.map(c => c.titulo))]
+function BlocoColapsavel({
+  titulo,
+  contagem,
+  colapsado,
+  onToggle,
+  children,
+}: {
+  titulo: string
+  contagem: number
+  colapsado: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div style={{
+      borderRadius: '8px',
+      border: '1px solid rgba(255,255,255,0.06)',
+      background: 'rgba(15, 23, 42, 0.25)',
+      overflow: 'hidden',
+    }}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={!colapsado}
+        title={colapsado ? 'Expandir etapa' : 'Recolher etapa'}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          width: '100%',
+          padding: '0.55rem 0.75rem',
+          border: 'none',
+          background: 'transparent',
+          color: '#a78bfa',
+          cursor: 'pointer',
+          textAlign: 'left',
+        }}
+      >
+        <CaretDown
+          size={14}
+          weight="bold"
+          style={{
+            flexShrink: 0,
+            transition: 'transform 0.15s ease',
+            transform: colapsado ? 'rotate(-90deg)' : 'rotate(0deg)',
+          }}
+          aria-hidden
+        />
+        <span style={{
+          flex: 1,
+          fontSize: '0.7rem',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          lineHeight: 1.35,
+        }}>
+          {titulo}
+        </span>
+        <span style={{
+          fontSize: '0.65rem',
+          fontWeight: 600,
+          color: '#64748b',
+          fontVariantNumeric: 'tabular-nums',
+          flexShrink: 0,
+        }}>
+          {contagem} passo{contagem !== 1 ? 's' : ''}
+        </span>
+      </button>
+      {!colapsado && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', padding: '0 0.5rem 0.5rem' }}>
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ListaCasosRoteiro({
+  itens,
+  onVisualizarPasso,
+}: {
+  itens: CasoPlanoTesteApi[]
+  onVisualizarPasso: (caso: CasoPlanoTesteApi) => void
+}) {
+  const etapas = useMemo(() => [...new Set(itens.map(c => c.titulo))], [itens])
+  const [etapasColapsadas, setEtapasColapsadas] = useState<Set<string>>(() => new Set(etapas))
+
+  useEffect(() => {
+    setEtapasColapsadas(new Set(etapas))
+  }, [etapas])
+
+  const todasColapsadas = etapas.length > 0 && etapasColapsadas.size === etapas.length
+
+  function toggleEtapa(etapa: string) {
+    setEtapasColapsadas(prev => {
+      const next = new Set(prev)
+      if (next.has(etapa)) next.delete(etapa)
+      else next.add(etapa)
+      return next
+    })
+  }
+
+  function toggleTodasEtapas() {
+    setEtapasColapsadas(prev =>
+      prev.size === etapas.length ? new Set() : new Set(etapas),
+    )
+  }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-      {etapas.map(etapa => (
-        <div key={etapa}>
-          <div style={{
-            fontSize: '0.7rem', fontWeight: 700, color: '#a78bfa',
-            marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em',
-          }}>
-            {etapa}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            {itens.filter(c => c.titulo === etapa).map((caso, idx) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      {etapas.length > 1 && (
+        <button
+          type="button"
+          onClick={toggleTodasEtapas}
+          style={{
+            alignSelf: 'flex-end',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            padding: '0.25rem 0.5rem',
+            border: 'none',
+            borderRadius: '6px',
+            background: 'transparent',
+            color: '#64748b',
+            fontSize: '0.68rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          <CaretDown
+            size={12}
+            weight="bold"
+            style={{
+              transition: 'transform 0.15s ease',
+              transform: todasColapsadas ? 'rotate(-90deg)' : 'rotate(0deg)',
+            }}
+            aria-hidden
+          />
+          {todasColapsadas ? 'Expandir todas' : 'Recolher todas'}
+        </button>
+      )}
+      {etapas.map(etapa => {
+        const passosEtapa = itens.filter(c => c.titulo === etapa)
+        return (
+          <BlocoColapsavel
+            key={etapa}
+            titulo={etapa}
+            contagem={passosEtapa.length}
+            colapsado={etapasColapsadas.has(etapa)}
+            onToggle={() => toggleEtapa(etapa)}
+          >
+            {passosEtapa.map((caso, idx) => (
               <LinhaCaso
                 key={`${etapa}-${caso.ordem}-${idx}`}
                 ordem={caso.ordem}
                 detalhe={caso.detalhe}
+                onVisualizar={() => onVisualizarPasso(caso)}
               />
             ))}
-          </div>
-        </div>
-      ))}
+          </BlocoColapsavel>
+        )
+      })}
     </div>
   )
 }
@@ -152,6 +402,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
   const [casos, setCasos] = useState<CasoPlanoTesteApi[]>([])
   const [planoFile, setPlanoFile] = useState<string | null>(null)
   const [ambienteExecucao, setAmbienteExecucao] = useState<AmbienteExecucaoApi | null>(null)
+  const [casoDetalhe, setCasoDetalhe] = useState<CasoPlanoTesteApi | null>(null)
 
   useEffect(() => {
     if (!aberto || !plano) {
@@ -159,6 +410,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
       setPlanoFile(null)
       setAmbienteExecucao(null)
       setErro(null)
+      setCasoDetalhe(null)
       return
     }
 
@@ -191,6 +443,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
   ]
 
   return (
+    <>
     <ModalOverlay
       aberto={aberto}
       aoFechar={aoFechar}
@@ -327,22 +580,11 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
                     </div>
                   )}
                   {secao === 'Roteiro' ? (
-                    <ListaCasosRoteiro itens={itens} />
+                    <ListaCasosRoteiro itens={itens} onVisualizarPasso={setCasoDetalhe} />
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                       {itens.map((caso, idx) => (
-                        <div
-                          key={`${caso.ordem}-${idx}`}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '48px 1fr',
-                            gap: '0.75rem',
-                            padding: '0.625rem 0.75rem',
-                            borderRadius: '8px',
-                            background: 'rgba(15, 23, 42, 0.4)',
-                            border: '1px solid rgba(255,255,255,0.06)',
-                          }}
-                        >
+                        <div key={`${caso.ordem}-${idx}`} style={estiloLinhaCaso}>
                           <span style={{
                             fontSize: '0.75rem', fontWeight: 800, color: '#818cf8',
                             fontFamily: 'ui-monospace, monospace',
@@ -370,6 +612,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
                                 : <DetalhePassoComPrints detalhe={caso.detalhe} />}
                             </div>
                           </div>
+                          <BotaoVisualizarPasso onClick={() => setCasoDetalhe(caso)} />
                         </div>
                       ))}
                     </div>
@@ -381,5 +624,9 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
         )}
       </div>
     </ModalOverlay>
+    {casoDetalhe && (
+      <ModalPassoPlanoTeste caso={casoDetalhe} aoFechar={() => setCasoDetalhe(null)} />
+    )}
+    </>
   )
 }

@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// TST-UNIT-TENANT-AE-001..010
+// TST-UNI-TENANT-000003..010
 // Plano: testes/testes-unitarios/historico/_planos/alert-engine.plan.json
 
 const { mockPrisma, MockPrismaClient } = vi.hoisted(() => {
@@ -57,7 +57,7 @@ describe('AlertEngine.check', () => {
     mockDispatch.mockResolvedValue(undefined)
   })
 
-  it('TST-UNIT-TENANT-AE-001: regras vazias → resolve sem criar nenhum evento', async () => {
+  it('TST-UNI-TENANT-000003: regras vazias → resolve sem criar nenhum evento', async () => {
     mockPrisma.regraAlerta.findMany.mockResolvedValue([])
 
     await AlertEngine.check(BASE_LOG as any, 'log-1')
@@ -66,7 +66,7 @@ describe('AlertEngine.check', () => {
     expect(mockDispatch).not.toHaveBeenCalled()
   })
 
-  it('TST-UNIT-TENANT-AE-002: 1 regra ativa sem threshold → eventoAlerta criado e dispatch chamado', async () => {
+  it('TST-UNI-TENANT-000003-002: 1 regra ativa sem threshold → eventoAlerta criado e dispatch chamado', async () => {
     mockPrisma.regraAlerta.findMany.mockResolvedValue([BASE_RULE])
 
     await AlertEngine.check(BASE_LOG as any, 'log-1')
@@ -75,7 +75,7 @@ describe('AlertEngine.check', () => {
     expect(mockDispatch).toHaveBeenCalledOnce()
   })
 
-  it('TST-UNIT-TENANT-AE-003: busca inclui regras globais (tenant_id null) via OR', async () => {
+  it('TST-UNI-TENANT-000003-003: busca inclui regras globais (tenant_id null) via OR', async () => {
     mockPrisma.regraAlerta.findMany.mockResolvedValue([])
 
     await AlertEngine.check(BASE_LOG as any, 'log-1')
@@ -99,13 +99,13 @@ describe('AlertEngine.evaluateRule', () => {
     mockDispatch.mockResolvedValue(undefined)
   })
 
-  it('TST-UNIT-TENANT-AE-004: rule=null → retorna sem criar evento', async () => {
+  it('TST-UNI-TENANT-000003-004: rule=null → retorna sem criar evento', async () => {
     await AlertEngine.evaluateRule(null as any, BASE_LOG as any, 'log-1')
 
     expect(mockPrisma.eventoAlerta.create).not.toHaveBeenCalled()
   })
 
-  it('TST-UNIT-TENANT-AE-005: actor_type filter não bate com o log → sem evento criado', async () => {
+  it('TST-UNI-TENANT-000003-005: actor_type filter não bate com o log → sem evento criado', async () => {
     const rule = { ...BASE_RULE, actor_type: 'API' }
 
     await AlertEngine.evaluateRule(rule as any, { ...BASE_LOG, actor_type: 'USER' } as any, 'log-1')
@@ -113,7 +113,7 @@ describe('AlertEngine.evaluateRule', () => {
     expect(mockPrisma.eventoAlerta.create).not.toHaveBeenCalled()
   })
 
-  it('TST-UNIT-TENANT-AE-006: action filter não bate com o log → sem evento criado', async () => {
+  it('TST-UNI-TENANT-000003-006: action filter não bate com o log → sem evento criado', async () => {
     const rule = { ...BASE_RULE, action: 'DELETE' }
 
     await AlertEngine.evaluateRule(rule as any, { ...BASE_LOG, action: 'CREATE' } as any, 'log-1')
@@ -121,7 +121,7 @@ describe('AlertEngine.evaluateRule', () => {
     expect(mockPrisma.eventoAlerta.create).not.toHaveBeenCalled()
   })
 
-  it('TST-UNIT-TENANT-AE-007: sem threshold → evento criado com AlertaStatus.PENDENTE e audit_log_ids=[logId]', async () => {
+  it('TST-UNI-TENANT-000003-007: sem threshold → evento criado com AlertaStatus.PENDENTE e audit_log_ids=[logId]', async () => {
     await AlertEngine.evaluateRule(BASE_RULE as any, BASE_LOG as any, 'log-xyz')
 
     expect(mockPrisma.eventoAlerta.create).toHaveBeenCalledWith(
@@ -134,7 +134,7 @@ describe('AlertEngine.evaluateRule', () => {
     )
   })
 
-  it('TST-UNIT-TENANT-AE-008: sem threshold → actor_type castado para AcaoExecutadaPor.USUARIO no evento', async () => {
+  it('TST-UNI-TENANT-000003-008: sem threshold → actor_type castado para AcaoExecutadaPor.USUARIO no evento', async () => {
     const log = { ...BASE_LOG, actor_type: AcaoExecutadaPor.USUARIO }
 
     await AlertEngine.evaluateRule(BASE_RULE as any, log as any, 'log-1')
@@ -146,7 +146,7 @@ describe('AlertEngine.evaluateRule', () => {
     )
   })
 
-  it('TST-UNIT-TENANT-AE-009: com threshold, count < mínimo → sem evento e sem dispatch', async () => {
+  it('TST-UNI-TENANT-000003-009: com threshold, count < mínimo → sem evento e sem dispatch', async () => {
     const rule = { ...BASE_RULE, threshold_count: 5, threshold_window_seconds: 60 }
     mockPrisma.historicoLog.count.mockResolvedValue(3)
 
@@ -156,7 +156,7 @@ describe('AlertEngine.evaluateRule', () => {
     expect(mockDispatch).not.toHaveBeenCalled()
   })
 
-  it('TST-UNIT-TENANT-AE-010: com threshold, count >= mínimo → evento criado com AlertaStatus.PENDENTE', async () => {
+  it('TST-UNI-TENANT-000003-010: com threshold, count >= mínimo → evento criado com AlertaStatus.PENDENTE', async () => {
     const rule = { ...BASE_RULE, threshold_count: 5, threshold_window_seconds: 60 }
     mockPrisma.historicoLog.count.mockResolvedValue(5)
     mockPrisma.historicoLog.findMany.mockResolvedValue([{ id: 'l1' }, { id: 'l2' }])

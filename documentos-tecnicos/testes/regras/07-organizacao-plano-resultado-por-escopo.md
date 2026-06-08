@@ -33,7 +33,7 @@ testes/<tipo>/<produto>/<area>/<feature>/
 
 ## Exemplo — Pedido › Lista › Editar-salvar (EMT)
 
-**ID:** `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-001` (`TST` + `EMT` + local `PEDIDO` + área `LISTA` + resumo `EDITAR-SALVAR` + `001`)
+**ID:** `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045` (`TST` + `EMT` + local `PEDIDO` + área `LISTA` + resumo `EDITAR-SALVAR` + `001`)
 
 ```
 testes/testes-em-tela/pedido/lista/editar-salvar/

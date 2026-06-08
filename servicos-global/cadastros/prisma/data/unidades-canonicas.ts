@@ -38,13 +38,15 @@ export interface UnidadeCanonica {
     | 'agrupamento'
     | 'embalagem'
     | 'caixa'
+  /** Multiplicador qty → KG canônico (só categoria peso). */
+  fatorParaKg?: number
 }
 
 export const UNIDADES_CANONICAS: UnidadeCanonica[] = [
   // ── Peso ────────────────────────────────────────────────────────────
-  { sigla: 'G',         descricao: 'Grama',                            categoria: 'peso' },
-  { sigla: 'KG',        descricao: 'Quilograma',                       categoria: 'peso' },
-  { sigla: 'TON',       descricao: 'Tonelada',                         categoria: 'peso' },
+  { sigla: 'G',         descricao: 'Grama',                            categoria: 'peso', fatorParaKg: 0.001 },
+  { sigla: 'KG',        descricao: 'Quilograma',                       categoria: 'peso', fatorParaKg: 1 },
+  { sigla: 'TON',       descricao: 'Tonelada',                         categoria: 'peso', fatorParaKg: 1000 },
   // ── Volume ──────────────────────────────────────────────────────────
   { sigla: 'ML',        descricao: 'Mililitro',                        categoria: 'volume' },
   { sigla: 'LT',        descricao: 'Litro',                            categoria: 'volume' },

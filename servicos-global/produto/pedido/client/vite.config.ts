@@ -66,6 +66,10 @@ export default defineConfig({
           ...createTenantAliases(monorepoRoot, ['gabi']),
         }),
       ),
+      '@nucleo/tabela-virtual-global': path.resolve(
+        monorepoRoot,
+        'nucleo-global/Tabelas/tabela-virtual-global/src',
+      ),
     },
   },
 

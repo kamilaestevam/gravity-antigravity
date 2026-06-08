@@ -69,6 +69,11 @@ export type Aeroporto = $Result.DefaultSelection<Prisma.$AeroportoPayload>
  */
 export type TaxaOrigemDestino = $Result.DefaultSelection<Prisma.$TaxaOrigemDestinoPayload>
 /**
+ * Model Volume
+ * 
+ */
+export type Volume = $Result.DefaultSelection<Prisma.$VolumePayload>
+/**
  * Model Container
  * 
  */
@@ -403,6 +408,16 @@ export class PrismaClient<
     * ```
     */
   get taxaOrigemDestino(): Prisma.TaxaOrigemDestinoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.volume`: Exposes CRUD operations for the **Volume** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Volumes
+    * const volumes = await prisma.volume.findMany()
+    * ```
+    */
+  get volume(): Prisma.VolumeDelegate<ExtArgs>;
 
   /**
    * `prisma.container`: Exposes CRUD operations for the **Container** model.
@@ -914,6 +929,7 @@ export namespace Prisma {
     Porto: 'Porto',
     Aeroporto: 'Aeroporto',
     TaxaOrigemDestino: 'TaxaOrigemDestino',
+    Volume: 'Volume',
     Container: 'Container',
     NcmSync: 'NcmSync',
     NcmSyncLog: 'NcmSyncLog',
@@ -935,7 +951,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "porto" | "aeroporto" | "taxaOrigemDestino" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
+      modelProps: "empresa" | "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "porto" | "aeroporto" | "taxaOrigemDestino" | "volume" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1636,6 +1652,76 @@ export namespace Prisma {
           count: {
             args: Prisma.TaxaOrigemDestinoCountArgs<ExtArgs>
             result: $Utils.Optional<TaxaOrigemDestinoCountAggregateOutputType> | number
+          }
+        }
+      }
+      Volume: {
+        payload: Prisma.$VolumePayload<ExtArgs>
+        fields: Prisma.VolumeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VolumeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VolumeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload>
+          }
+          findFirst: {
+            args: Prisma.VolumeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VolumeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload>
+          }
+          findMany: {
+            args: Prisma.VolumeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload>[]
+          }
+          create: {
+            args: Prisma.VolumeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload>
+          }
+          createMany: {
+            args: Prisma.VolumeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.VolumeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload>[]
+          }
+          delete: {
+            args: Prisma.VolumeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload>
+          }
+          update: {
+            args: Prisma.VolumeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload>
+          }
+          deleteMany: {
+            args: Prisma.VolumeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VolumeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.VolumeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VolumePayload>
+          }
+          aggregate: {
+            args: Prisma.VolumeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVolume>
+          }
+          groupBy: {
+            args: Prisma.VolumeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VolumeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VolumeCountArgs<ExtArgs>
+            result: $Utils.Optional<VolumeCountAggregateOutputType> | number
           }
         }
       }
@@ -7503,8 +7589,18 @@ export namespace Prisma {
 
   export type AggregateUnidade = {
     _count: UnidadeCountAggregateOutputType | null
+    _avg: UnidadeAvgAggregateOutputType | null
+    _sum: UnidadeSumAggregateOutputType | null
     _min: UnidadeMinAggregateOutputType | null
     _max: UnidadeMaxAggregateOutputType | null
+  }
+
+  export type UnidadeAvgAggregateOutputType = {
+    fator_para_kg_unidade: number | null
+  }
+
+  export type UnidadeSumAggregateOutputType = {
+    fator_para_kg_unidade: number | null
   }
 
   export type UnidadeMinAggregateOutputType = {
@@ -7512,6 +7608,7 @@ export namespace Prisma {
     nome_unidade: string | null
     tipo_unidade: string | null
     ativo_unidade: boolean | null
+    fator_para_kg_unidade: number | null
   }
 
   export type UnidadeMaxAggregateOutputType = {
@@ -7519,6 +7616,7 @@ export namespace Prisma {
     nome_unidade: string | null
     tipo_unidade: string | null
     ativo_unidade: boolean | null
+    fator_para_kg_unidade: number | null
   }
 
   export type UnidadeCountAggregateOutputType = {
@@ -7526,15 +7624,25 @@ export namespace Prisma {
     nome_unidade: number
     tipo_unidade: number
     ativo_unidade: number
+    fator_para_kg_unidade: number
     _all: number
   }
 
+
+  export type UnidadeAvgAggregateInputType = {
+    fator_para_kg_unidade?: true
+  }
+
+  export type UnidadeSumAggregateInputType = {
+    fator_para_kg_unidade?: true
+  }
 
   export type UnidadeMinAggregateInputType = {
     codigo_unidade?: true
     nome_unidade?: true
     tipo_unidade?: true
     ativo_unidade?: true
+    fator_para_kg_unidade?: true
   }
 
   export type UnidadeMaxAggregateInputType = {
@@ -7542,6 +7650,7 @@ export namespace Prisma {
     nome_unidade?: true
     tipo_unidade?: true
     ativo_unidade?: true
+    fator_para_kg_unidade?: true
   }
 
   export type UnidadeCountAggregateInputType = {
@@ -7549,6 +7658,7 @@ export namespace Prisma {
     nome_unidade?: true
     tipo_unidade?: true
     ativo_unidade?: true
+    fator_para_kg_unidade?: true
     _all?: true
   }
 
@@ -7590,6 +7700,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: UnidadeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UnidadeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: UnidadeMinAggregateInputType
@@ -7620,6 +7742,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: UnidadeCountAggregateInputType | true
+    _avg?: UnidadeAvgAggregateInputType
+    _sum?: UnidadeSumAggregateInputType
     _min?: UnidadeMinAggregateInputType
     _max?: UnidadeMaxAggregateInputType
   }
@@ -7629,7 +7753,10 @@ export namespace Prisma {
     nome_unidade: string
     tipo_unidade: string
     ativo_unidade: boolean
+    fator_para_kg_unidade: number | null
     _count: UnidadeCountAggregateOutputType | null
+    _avg: UnidadeAvgAggregateOutputType | null
+    _sum: UnidadeSumAggregateOutputType | null
     _min: UnidadeMinAggregateOutputType | null
     _max: UnidadeMaxAggregateOutputType | null
   }
@@ -7653,6 +7780,7 @@ export namespace Prisma {
     nome_unidade?: boolean
     tipo_unidade?: boolean
     ativo_unidade?: boolean
+    fator_para_kg_unidade?: boolean
   }, ExtArgs["result"]["unidade"]>
 
   export type UnidadeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7660,6 +7788,7 @@ export namespace Prisma {
     nome_unidade?: boolean
     tipo_unidade?: boolean
     ativo_unidade?: boolean
+    fator_para_kg_unidade?: boolean
   }, ExtArgs["result"]["unidade"]>
 
   export type UnidadeSelectScalar = {
@@ -7667,6 +7796,7 @@ export namespace Prisma {
     nome_unidade?: boolean
     tipo_unidade?: boolean
     ativo_unidade?: boolean
+    fator_para_kg_unidade?: boolean
   }
 
 
@@ -7678,6 +7808,10 @@ export namespace Prisma {
       nome_unidade: string
       tipo_unidade: string
       ativo_unidade: boolean
+      /**
+       * Multiplicador qty na unidade → KG canônico (só tipo_unidade=peso). SSOT conversão Pedido.
+       */
+      fator_para_kg_unidade: number | null
     }, ExtArgs["result"]["unidade"]>
     composites: {}
   }
@@ -8075,6 +8209,7 @@ export namespace Prisma {
     readonly nome_unidade: FieldRef<"Unidade", 'String'>
     readonly tipo_unidade: FieldRef<"Unidade", 'String'>
     readonly ativo_unidade: FieldRef<"Unidade", 'Boolean'>
+    readonly fator_para_kg_unidade: FieldRef<"Unidade", 'Float'>
   }
     
 
@@ -12140,6 +12275,932 @@ export namespace Prisma {
      * Select specific fields to fetch from the TaxaOrigemDestino
      */
     select?: TaxaOrigemDestinoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Volume
+   */
+
+  export type AggregateVolume = {
+    _count: VolumeCountAggregateOutputType | null
+    _min: VolumeMinAggregateOutputType | null
+    _max: VolumeMaxAggregateOutputType | null
+  }
+
+  export type VolumeMinAggregateOutputType = {
+    codigo_volume: string | null
+    nome_volume: string | null
+    nome_volume_ingles: string | null
+    codigo_siscomex_volume: string | null
+    codigo_unece_rec21_volume: string | null
+    texto_especie_nfe_volume: string | null
+    categoria_volume: string | null
+    eh_unidade_carga_volume: boolean | null
+    ativo_volume: boolean | null
+  }
+
+  export type VolumeMaxAggregateOutputType = {
+    codigo_volume: string | null
+    nome_volume: string | null
+    nome_volume_ingles: string | null
+    codigo_siscomex_volume: string | null
+    codigo_unece_rec21_volume: string | null
+    texto_especie_nfe_volume: string | null
+    categoria_volume: string | null
+    eh_unidade_carga_volume: boolean | null
+    ativo_volume: boolean | null
+  }
+
+  export type VolumeCountAggregateOutputType = {
+    codigo_volume: number
+    nome_volume: number
+    nome_volume_ingles: number
+    codigo_siscomex_volume: number
+    codigo_unece_rec21_volume: number
+    texto_especie_nfe_volume: number
+    categoria_volume: number
+    eh_unidade_carga_volume: number
+    ativo_volume: number
+    _all: number
+  }
+
+
+  export type VolumeMinAggregateInputType = {
+    codigo_volume?: true
+    nome_volume?: true
+    nome_volume_ingles?: true
+    codigo_siscomex_volume?: true
+    codigo_unece_rec21_volume?: true
+    texto_especie_nfe_volume?: true
+    categoria_volume?: true
+    eh_unidade_carga_volume?: true
+    ativo_volume?: true
+  }
+
+  export type VolumeMaxAggregateInputType = {
+    codigo_volume?: true
+    nome_volume?: true
+    nome_volume_ingles?: true
+    codigo_siscomex_volume?: true
+    codigo_unece_rec21_volume?: true
+    texto_especie_nfe_volume?: true
+    categoria_volume?: true
+    eh_unidade_carga_volume?: true
+    ativo_volume?: true
+  }
+
+  export type VolumeCountAggregateInputType = {
+    codigo_volume?: true
+    nome_volume?: true
+    nome_volume_ingles?: true
+    codigo_siscomex_volume?: true
+    codigo_unece_rec21_volume?: true
+    texto_especie_nfe_volume?: true
+    categoria_volume?: true
+    eh_unidade_carga_volume?: true
+    ativo_volume?: true
+    _all?: true
+  }
+
+  export type VolumeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Volume to aggregate.
+     */
+    where?: VolumeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Volumes to fetch.
+     */
+    orderBy?: VolumeOrderByWithRelationInput | VolumeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VolumeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Volumes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Volumes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Volumes
+    **/
+    _count?: true | VolumeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VolumeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VolumeMaxAggregateInputType
+  }
+
+  export type GetVolumeAggregateType<T extends VolumeAggregateArgs> = {
+        [P in keyof T & keyof AggregateVolume]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVolume[P]>
+      : GetScalarType<T[P], AggregateVolume[P]>
+  }
+
+
+
+
+  export type VolumeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VolumeWhereInput
+    orderBy?: VolumeOrderByWithAggregationInput | VolumeOrderByWithAggregationInput[]
+    by: VolumeScalarFieldEnum[] | VolumeScalarFieldEnum
+    having?: VolumeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VolumeCountAggregateInputType | true
+    _min?: VolumeMinAggregateInputType
+    _max?: VolumeMaxAggregateInputType
+  }
+
+  export type VolumeGroupByOutputType = {
+    codigo_volume: string
+    nome_volume: string
+    nome_volume_ingles: string | null
+    codigo_siscomex_volume: string | null
+    codigo_unece_rec21_volume: string | null
+    texto_especie_nfe_volume: string
+    categoria_volume: string
+    eh_unidade_carga_volume: boolean
+    ativo_volume: boolean
+    _count: VolumeCountAggregateOutputType | null
+    _min: VolumeMinAggregateOutputType | null
+    _max: VolumeMaxAggregateOutputType | null
+  }
+
+  type GetVolumeGroupByPayload<T extends VolumeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VolumeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VolumeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VolumeGroupByOutputType[P]>
+            : GetScalarType<T[P], VolumeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VolumeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    codigo_volume?: boolean
+    nome_volume?: boolean
+    nome_volume_ingles?: boolean
+    codigo_siscomex_volume?: boolean
+    codigo_unece_rec21_volume?: boolean
+    texto_especie_nfe_volume?: boolean
+    categoria_volume?: boolean
+    eh_unidade_carga_volume?: boolean
+    ativo_volume?: boolean
+  }, ExtArgs["result"]["volume"]>
+
+  export type VolumeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    codigo_volume?: boolean
+    nome_volume?: boolean
+    nome_volume_ingles?: boolean
+    codigo_siscomex_volume?: boolean
+    codigo_unece_rec21_volume?: boolean
+    texto_especie_nfe_volume?: boolean
+    categoria_volume?: boolean
+    eh_unidade_carga_volume?: boolean
+    ativo_volume?: boolean
+  }, ExtArgs["result"]["volume"]>
+
+  export type VolumeSelectScalar = {
+    codigo_volume?: boolean
+    nome_volume?: boolean
+    nome_volume_ingles?: boolean
+    codigo_siscomex_volume?: boolean
+    codigo_unece_rec21_volume?: boolean
+    texto_especie_nfe_volume?: boolean
+    categoria_volume?: boolean
+    eh_unidade_carga_volume?: boolean
+    ativo_volume?: boolean
+  }
+
+
+  export type $VolumePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Volume"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      codigo_volume: string
+      nome_volume: string
+      nome_volume_ingles: string | null
+      codigo_siscomex_volume: string | null
+      codigo_unece_rec21_volume: string | null
+      texto_especie_nfe_volume: string
+      categoria_volume: string
+      eh_unidade_carga_volume: boolean
+      ativo_volume: boolean
+    }, ExtArgs["result"]["volume"]>
+    composites: {}
+  }
+
+  type VolumeGetPayload<S extends boolean | null | undefined | VolumeDefaultArgs> = $Result.GetResult<Prisma.$VolumePayload, S>
+
+  type VolumeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<VolumeFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: VolumeCountAggregateInputType | true
+    }
+
+  export interface VolumeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Volume'], meta: { name: 'Volume' } }
+    /**
+     * Find zero or one Volume that matches the filter.
+     * @param {VolumeFindUniqueArgs} args - Arguments to find a Volume
+     * @example
+     * // Get one Volume
+     * const volume = await prisma.volume.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VolumeFindUniqueArgs>(args: SelectSubset<T, VolumeFindUniqueArgs<ExtArgs>>): Prisma__VolumeClient<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Volume that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {VolumeFindUniqueOrThrowArgs} args - Arguments to find a Volume
+     * @example
+     * // Get one Volume
+     * const volume = await prisma.volume.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VolumeFindUniqueOrThrowArgs>(args: SelectSubset<T, VolumeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VolumeClient<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Volume that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VolumeFindFirstArgs} args - Arguments to find a Volume
+     * @example
+     * // Get one Volume
+     * const volume = await prisma.volume.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VolumeFindFirstArgs>(args?: SelectSubset<T, VolumeFindFirstArgs<ExtArgs>>): Prisma__VolumeClient<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Volume that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VolumeFindFirstOrThrowArgs} args - Arguments to find a Volume
+     * @example
+     * // Get one Volume
+     * const volume = await prisma.volume.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VolumeFindFirstOrThrowArgs>(args?: SelectSubset<T, VolumeFindFirstOrThrowArgs<ExtArgs>>): Prisma__VolumeClient<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Volumes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VolumeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Volumes
+     * const volumes = await prisma.volume.findMany()
+     * 
+     * // Get first 10 Volumes
+     * const volumes = await prisma.volume.findMany({ take: 10 })
+     * 
+     * // Only select the `codigo_volume`
+     * const volumeWithCodigo_volumeOnly = await prisma.volume.findMany({ select: { codigo_volume: true } })
+     * 
+     */
+    findMany<T extends VolumeFindManyArgs>(args?: SelectSubset<T, VolumeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Volume.
+     * @param {VolumeCreateArgs} args - Arguments to create a Volume.
+     * @example
+     * // Create one Volume
+     * const Volume = await prisma.volume.create({
+     *   data: {
+     *     // ... data to create a Volume
+     *   }
+     * })
+     * 
+     */
+    create<T extends VolumeCreateArgs>(args: SelectSubset<T, VolumeCreateArgs<ExtArgs>>): Prisma__VolumeClient<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Volumes.
+     * @param {VolumeCreateManyArgs} args - Arguments to create many Volumes.
+     * @example
+     * // Create many Volumes
+     * const volume = await prisma.volume.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends VolumeCreateManyArgs>(args?: SelectSubset<T, VolumeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Volumes and returns the data saved in the database.
+     * @param {VolumeCreateManyAndReturnArgs} args - Arguments to create many Volumes.
+     * @example
+     * // Create many Volumes
+     * const volume = await prisma.volume.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Volumes and only return the `codigo_volume`
+     * const volumeWithCodigo_volumeOnly = await prisma.volume.createManyAndReturn({ 
+     *   select: { codigo_volume: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends VolumeCreateManyAndReturnArgs>(args?: SelectSubset<T, VolumeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Volume.
+     * @param {VolumeDeleteArgs} args - Arguments to delete one Volume.
+     * @example
+     * // Delete one Volume
+     * const Volume = await prisma.volume.delete({
+     *   where: {
+     *     // ... filter to delete one Volume
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VolumeDeleteArgs>(args: SelectSubset<T, VolumeDeleteArgs<ExtArgs>>): Prisma__VolumeClient<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Volume.
+     * @param {VolumeUpdateArgs} args - Arguments to update one Volume.
+     * @example
+     * // Update one Volume
+     * const volume = await prisma.volume.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VolumeUpdateArgs>(args: SelectSubset<T, VolumeUpdateArgs<ExtArgs>>): Prisma__VolumeClient<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Volumes.
+     * @param {VolumeDeleteManyArgs} args - Arguments to filter Volumes to delete.
+     * @example
+     * // Delete a few Volumes
+     * const { count } = await prisma.volume.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VolumeDeleteManyArgs>(args?: SelectSubset<T, VolumeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Volumes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VolumeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Volumes
+     * const volume = await prisma.volume.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VolumeUpdateManyArgs>(args: SelectSubset<T, VolumeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Volume.
+     * @param {VolumeUpsertArgs} args - Arguments to update or create a Volume.
+     * @example
+     * // Update or create a Volume
+     * const volume = await prisma.volume.upsert({
+     *   create: {
+     *     // ... data to create a Volume
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Volume we want to update
+     *   }
+     * })
+     */
+    upsert<T extends VolumeUpsertArgs>(args: SelectSubset<T, VolumeUpsertArgs<ExtArgs>>): Prisma__VolumeClient<$Result.GetResult<Prisma.$VolumePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Volumes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VolumeCountArgs} args - Arguments to filter Volumes to count.
+     * @example
+     * // Count the number of Volumes
+     * const count = await prisma.volume.count({
+     *   where: {
+     *     // ... the filter for the Volumes we want to count
+     *   }
+     * })
+    **/
+    count<T extends VolumeCountArgs>(
+      args?: Subset<T, VolumeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VolumeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Volume.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VolumeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VolumeAggregateArgs>(args: Subset<T, VolumeAggregateArgs>): Prisma.PrismaPromise<GetVolumeAggregateType<T>>
+
+    /**
+     * Group by Volume.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VolumeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VolumeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VolumeGroupByArgs['orderBy'] }
+        : { orderBy?: VolumeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VolumeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVolumeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Volume model
+   */
+  readonly fields: VolumeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Volume.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VolumeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Volume model
+   */ 
+  interface VolumeFieldRefs {
+    readonly codigo_volume: FieldRef<"Volume", 'String'>
+    readonly nome_volume: FieldRef<"Volume", 'String'>
+    readonly nome_volume_ingles: FieldRef<"Volume", 'String'>
+    readonly codigo_siscomex_volume: FieldRef<"Volume", 'String'>
+    readonly codigo_unece_rec21_volume: FieldRef<"Volume", 'String'>
+    readonly texto_especie_nfe_volume: FieldRef<"Volume", 'String'>
+    readonly categoria_volume: FieldRef<"Volume", 'String'>
+    readonly eh_unidade_carga_volume: FieldRef<"Volume", 'Boolean'>
+    readonly ativo_volume: FieldRef<"Volume", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Volume findUnique
+   */
+  export type VolumeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
+    /**
+     * Filter, which Volume to fetch.
+     */
+    where: VolumeWhereUniqueInput
+  }
+
+  /**
+   * Volume findUniqueOrThrow
+   */
+  export type VolumeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
+    /**
+     * Filter, which Volume to fetch.
+     */
+    where: VolumeWhereUniqueInput
+  }
+
+  /**
+   * Volume findFirst
+   */
+  export type VolumeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
+    /**
+     * Filter, which Volume to fetch.
+     */
+    where?: VolumeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Volumes to fetch.
+     */
+    orderBy?: VolumeOrderByWithRelationInput | VolumeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Volumes.
+     */
+    cursor?: VolumeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Volumes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Volumes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Volumes.
+     */
+    distinct?: VolumeScalarFieldEnum | VolumeScalarFieldEnum[]
+  }
+
+  /**
+   * Volume findFirstOrThrow
+   */
+  export type VolumeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
+    /**
+     * Filter, which Volume to fetch.
+     */
+    where?: VolumeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Volumes to fetch.
+     */
+    orderBy?: VolumeOrderByWithRelationInput | VolumeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Volumes.
+     */
+    cursor?: VolumeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Volumes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Volumes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Volumes.
+     */
+    distinct?: VolumeScalarFieldEnum | VolumeScalarFieldEnum[]
+  }
+
+  /**
+   * Volume findMany
+   */
+  export type VolumeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
+    /**
+     * Filter, which Volumes to fetch.
+     */
+    where?: VolumeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Volumes to fetch.
+     */
+    orderBy?: VolumeOrderByWithRelationInput | VolumeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Volumes.
+     */
+    cursor?: VolumeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Volumes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Volumes.
+     */
+    skip?: number
+    distinct?: VolumeScalarFieldEnum | VolumeScalarFieldEnum[]
+  }
+
+  /**
+   * Volume create
+   */
+  export type VolumeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
+    /**
+     * The data needed to create a Volume.
+     */
+    data: XOR<VolumeCreateInput, VolumeUncheckedCreateInput>
+  }
+
+  /**
+   * Volume createMany
+   */
+  export type VolumeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Volumes.
+     */
+    data: VolumeCreateManyInput | VolumeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Volume createManyAndReturn
+   */
+  export type VolumeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Volumes.
+     */
+    data: VolumeCreateManyInput | VolumeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Volume update
+   */
+  export type VolumeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
+    /**
+     * The data needed to update a Volume.
+     */
+    data: XOR<VolumeUpdateInput, VolumeUncheckedUpdateInput>
+    /**
+     * Choose, which Volume to update.
+     */
+    where: VolumeWhereUniqueInput
+  }
+
+  /**
+   * Volume updateMany
+   */
+  export type VolumeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Volumes.
+     */
+    data: XOR<VolumeUpdateManyMutationInput, VolumeUncheckedUpdateManyInput>
+    /**
+     * Filter which Volumes to update
+     */
+    where?: VolumeWhereInput
+  }
+
+  /**
+   * Volume upsert
+   */
+  export type VolumeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
+    /**
+     * The filter to search for the Volume to update in case it exists.
+     */
+    where: VolumeWhereUniqueInput
+    /**
+     * In case the Volume found by the `where` argument doesn't exist, create a new Volume with this data.
+     */
+    create: XOR<VolumeCreateInput, VolumeUncheckedCreateInput>
+    /**
+     * In case the Volume was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<VolumeUpdateInput, VolumeUncheckedUpdateInput>
+  }
+
+  /**
+   * Volume delete
+   */
+  export type VolumeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
+    /**
+     * Filter which Volume to delete.
+     */
+    where: VolumeWhereUniqueInput
+  }
+
+  /**
+   * Volume deleteMany
+   */
+  export type VolumeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Volumes to delete
+     */
+    where?: VolumeWhereInput
+  }
+
+  /**
+   * Volume without action
+   */
+  export type VolumeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Volume
+     */
+    select?: VolumeSelect<ExtArgs> | null
   }
 
 
@@ -18049,7 +19110,8 @@ export namespace Prisma {
     codigo_unidade: 'codigo_unidade',
     nome_unidade: 'nome_unidade',
     tipo_unidade: 'tipo_unidade',
-    ativo_unidade: 'ativo_unidade'
+    ativo_unidade: 'ativo_unidade',
+    fator_para_kg_unidade: 'fator_para_kg_unidade'
   };
 
   export type UnidadeScalarFieldEnum = (typeof UnidadeScalarFieldEnum)[keyof typeof UnidadeScalarFieldEnum]
@@ -18113,6 +19175,21 @@ export namespace Prisma {
   };
 
   export type TaxaOrigemDestinoScalarFieldEnum = (typeof TaxaOrigemDestinoScalarFieldEnum)[keyof typeof TaxaOrigemDestinoScalarFieldEnum]
+
+
+  export const VolumeScalarFieldEnum: {
+    codigo_volume: 'codigo_volume',
+    nome_volume: 'nome_volume',
+    nome_volume_ingles: 'nome_volume_ingles',
+    codigo_siscomex_volume: 'codigo_siscomex_volume',
+    codigo_unece_rec21_volume: 'codigo_unece_rec21_volume',
+    texto_especie_nfe_volume: 'texto_especie_nfe_volume',
+    categoria_volume: 'categoria_volume',
+    eh_unidade_carga_volume: 'eh_unidade_carga_volume',
+    ativo_volume: 'ativo_volume'
+  };
+
+  export type VolumeScalarFieldEnum = (typeof VolumeScalarFieldEnum)[keyof typeof VolumeScalarFieldEnum]
 
 
   export const ContainerScalarFieldEnum: {
@@ -18988,6 +20065,7 @@ export namespace Prisma {
     nome_unidade?: StringFilter<"Unidade"> | string
     tipo_unidade?: StringFilter<"Unidade"> | string
     ativo_unidade?: BoolFilter<"Unidade"> | boolean
+    fator_para_kg_unidade?: FloatNullableFilter<"Unidade"> | number | null
   }
 
   export type UnidadeOrderByWithRelationInput = {
@@ -18995,6 +20073,7 @@ export namespace Prisma {
     nome_unidade?: SortOrder
     tipo_unidade?: SortOrder
     ativo_unidade?: SortOrder
+    fator_para_kg_unidade?: SortOrderInput | SortOrder
   }
 
   export type UnidadeWhereUniqueInput = Prisma.AtLeast<{
@@ -19005,6 +20084,7 @@ export namespace Prisma {
     nome_unidade?: StringFilter<"Unidade"> | string
     tipo_unidade?: StringFilter<"Unidade"> | string
     ativo_unidade?: BoolFilter<"Unidade"> | boolean
+    fator_para_kg_unidade?: FloatNullableFilter<"Unidade"> | number | null
   }, "codigo_unidade">
 
   export type UnidadeOrderByWithAggregationInput = {
@@ -19012,9 +20092,12 @@ export namespace Prisma {
     nome_unidade?: SortOrder
     tipo_unidade?: SortOrder
     ativo_unidade?: SortOrder
+    fator_para_kg_unidade?: SortOrderInput | SortOrder
     _count?: UnidadeCountOrderByAggregateInput
+    _avg?: UnidadeAvgOrderByAggregateInput
     _max?: UnidadeMaxOrderByAggregateInput
     _min?: UnidadeMinOrderByAggregateInput
+    _sum?: UnidadeSumOrderByAggregateInput
   }
 
   export type UnidadeScalarWhereWithAggregatesInput = {
@@ -19025,6 +20108,7 @@ export namespace Prisma {
     nome_unidade?: StringWithAggregatesFilter<"Unidade"> | string
     tipo_unidade?: StringWithAggregatesFilter<"Unidade"> | string
     ativo_unidade?: BoolWithAggregatesFilter<"Unidade"> | boolean
+    fator_para_kg_unidade?: FloatNullableWithAggregatesFilter<"Unidade"> | number | null
   }
 
   export type IncotermWhereInput = {
@@ -19317,6 +20401,78 @@ export namespace Prisma {
     ativo_taxa_origem_destino?: BoolWithAggregatesFilter<"TaxaOrigemDestino"> | boolean
     data_criacao_taxa_origem_destino?: DateTimeWithAggregatesFilter<"TaxaOrigemDestino"> | Date | string
     data_atualizacao_taxa_origem_destino?: DateTimeWithAggregatesFilter<"TaxaOrigemDestino"> | Date | string
+  }
+
+  export type VolumeWhereInput = {
+    AND?: VolumeWhereInput | VolumeWhereInput[]
+    OR?: VolumeWhereInput[]
+    NOT?: VolumeWhereInput | VolumeWhereInput[]
+    codigo_volume?: StringFilter<"Volume"> | string
+    nome_volume?: StringFilter<"Volume"> | string
+    nome_volume_ingles?: StringNullableFilter<"Volume"> | string | null
+    codigo_siscomex_volume?: StringNullableFilter<"Volume"> | string | null
+    codigo_unece_rec21_volume?: StringNullableFilter<"Volume"> | string | null
+    texto_especie_nfe_volume?: StringFilter<"Volume"> | string
+    categoria_volume?: StringFilter<"Volume"> | string
+    eh_unidade_carga_volume?: BoolFilter<"Volume"> | boolean
+    ativo_volume?: BoolFilter<"Volume"> | boolean
+  }
+
+  export type VolumeOrderByWithRelationInput = {
+    codigo_volume?: SortOrder
+    nome_volume?: SortOrder
+    nome_volume_ingles?: SortOrderInput | SortOrder
+    codigo_siscomex_volume?: SortOrderInput | SortOrder
+    codigo_unece_rec21_volume?: SortOrderInput | SortOrder
+    texto_especie_nfe_volume?: SortOrder
+    categoria_volume?: SortOrder
+    eh_unidade_carga_volume?: SortOrder
+    ativo_volume?: SortOrder
+  }
+
+  export type VolumeWhereUniqueInput = Prisma.AtLeast<{
+    codigo_volume?: string
+    AND?: VolumeWhereInput | VolumeWhereInput[]
+    OR?: VolumeWhereInput[]
+    NOT?: VolumeWhereInput | VolumeWhereInput[]
+    nome_volume?: StringFilter<"Volume"> | string
+    nome_volume_ingles?: StringNullableFilter<"Volume"> | string | null
+    codigo_siscomex_volume?: StringNullableFilter<"Volume"> | string | null
+    codigo_unece_rec21_volume?: StringNullableFilter<"Volume"> | string | null
+    texto_especie_nfe_volume?: StringFilter<"Volume"> | string
+    categoria_volume?: StringFilter<"Volume"> | string
+    eh_unidade_carga_volume?: BoolFilter<"Volume"> | boolean
+    ativo_volume?: BoolFilter<"Volume"> | boolean
+  }, "codigo_volume">
+
+  export type VolumeOrderByWithAggregationInput = {
+    codigo_volume?: SortOrder
+    nome_volume?: SortOrder
+    nome_volume_ingles?: SortOrderInput | SortOrder
+    codigo_siscomex_volume?: SortOrderInput | SortOrder
+    codigo_unece_rec21_volume?: SortOrderInput | SortOrder
+    texto_especie_nfe_volume?: SortOrder
+    categoria_volume?: SortOrder
+    eh_unidade_carga_volume?: SortOrder
+    ativo_volume?: SortOrder
+    _count?: VolumeCountOrderByAggregateInput
+    _max?: VolumeMaxOrderByAggregateInput
+    _min?: VolumeMinOrderByAggregateInput
+  }
+
+  export type VolumeScalarWhereWithAggregatesInput = {
+    AND?: VolumeScalarWhereWithAggregatesInput | VolumeScalarWhereWithAggregatesInput[]
+    OR?: VolumeScalarWhereWithAggregatesInput[]
+    NOT?: VolumeScalarWhereWithAggregatesInput | VolumeScalarWhereWithAggregatesInput[]
+    codigo_volume?: StringWithAggregatesFilter<"Volume"> | string
+    nome_volume?: StringWithAggregatesFilter<"Volume"> | string
+    nome_volume_ingles?: StringNullableWithAggregatesFilter<"Volume"> | string | null
+    codigo_siscomex_volume?: StringNullableWithAggregatesFilter<"Volume"> | string | null
+    codigo_unece_rec21_volume?: StringNullableWithAggregatesFilter<"Volume"> | string | null
+    texto_especie_nfe_volume?: StringWithAggregatesFilter<"Volume"> | string
+    categoria_volume?: StringWithAggregatesFilter<"Volume"> | string
+    eh_unidade_carga_volume?: BoolWithAggregatesFilter<"Volume"> | boolean
+    ativo_volume?: BoolWithAggregatesFilter<"Volume"> | boolean
   }
 
   export type ContainerWhereInput = {
@@ -20525,6 +21681,7 @@ export namespace Prisma {
     nome_unidade: string
     tipo_unidade: string
     ativo_unidade?: boolean
+    fator_para_kg_unidade?: number | null
   }
 
   export type UnidadeUncheckedCreateInput = {
@@ -20532,6 +21689,7 @@ export namespace Prisma {
     nome_unidade: string
     tipo_unidade: string
     ativo_unidade?: boolean
+    fator_para_kg_unidade?: number | null
   }
 
   export type UnidadeUpdateInput = {
@@ -20539,6 +21697,7 @@ export namespace Prisma {
     nome_unidade?: StringFieldUpdateOperationsInput | string
     tipo_unidade?: StringFieldUpdateOperationsInput | string
     ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
+    fator_para_kg_unidade?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type UnidadeUncheckedUpdateInput = {
@@ -20546,6 +21705,7 @@ export namespace Prisma {
     nome_unidade?: StringFieldUpdateOperationsInput | string
     tipo_unidade?: StringFieldUpdateOperationsInput | string
     ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
+    fator_para_kg_unidade?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type UnidadeCreateManyInput = {
@@ -20553,6 +21713,7 @@ export namespace Prisma {
     nome_unidade: string
     tipo_unidade: string
     ativo_unidade?: boolean
+    fator_para_kg_unidade?: number | null
   }
 
   export type UnidadeUpdateManyMutationInput = {
@@ -20560,6 +21721,7 @@ export namespace Prisma {
     nome_unidade?: StringFieldUpdateOperationsInput | string
     tipo_unidade?: StringFieldUpdateOperationsInput | string
     ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
+    fator_para_kg_unidade?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type UnidadeUncheckedUpdateManyInput = {
@@ -20567,6 +21729,7 @@ export namespace Prisma {
     nome_unidade?: StringFieldUpdateOperationsInput | string
     tipo_unidade?: StringFieldUpdateOperationsInput | string
     ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
+    fator_para_kg_unidade?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type IncotermCreateInput = {
@@ -20903,6 +22066,90 @@ export namespace Prisma {
     ativo_taxa_origem_destino?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_taxa_origem_destino?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VolumeCreateInput = {
+    codigo_volume: string
+    nome_volume: string
+    nome_volume_ingles?: string | null
+    codigo_siscomex_volume?: string | null
+    codigo_unece_rec21_volume?: string | null
+    texto_especie_nfe_volume: string
+    categoria_volume: string
+    eh_unidade_carga_volume?: boolean
+    ativo_volume?: boolean
+  }
+
+  export type VolumeUncheckedCreateInput = {
+    codigo_volume: string
+    nome_volume: string
+    nome_volume_ingles?: string | null
+    codigo_siscomex_volume?: string | null
+    codigo_unece_rec21_volume?: string | null
+    texto_especie_nfe_volume: string
+    categoria_volume: string
+    eh_unidade_carga_volume?: boolean
+    ativo_volume?: boolean
+  }
+
+  export type VolumeUpdateInput = {
+    codigo_volume?: StringFieldUpdateOperationsInput | string
+    nome_volume?: StringFieldUpdateOperationsInput | string
+    nome_volume_ingles?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_siscomex_volume?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_unece_rec21_volume?: NullableStringFieldUpdateOperationsInput | string | null
+    texto_especie_nfe_volume?: StringFieldUpdateOperationsInput | string
+    categoria_volume?: StringFieldUpdateOperationsInput | string
+    eh_unidade_carga_volume?: BoolFieldUpdateOperationsInput | boolean
+    ativo_volume?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type VolumeUncheckedUpdateInput = {
+    codigo_volume?: StringFieldUpdateOperationsInput | string
+    nome_volume?: StringFieldUpdateOperationsInput | string
+    nome_volume_ingles?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_siscomex_volume?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_unece_rec21_volume?: NullableStringFieldUpdateOperationsInput | string | null
+    texto_especie_nfe_volume?: StringFieldUpdateOperationsInput | string
+    categoria_volume?: StringFieldUpdateOperationsInput | string
+    eh_unidade_carga_volume?: BoolFieldUpdateOperationsInput | boolean
+    ativo_volume?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type VolumeCreateManyInput = {
+    codigo_volume: string
+    nome_volume: string
+    nome_volume_ingles?: string | null
+    codigo_siscomex_volume?: string | null
+    codigo_unece_rec21_volume?: string | null
+    texto_especie_nfe_volume: string
+    categoria_volume: string
+    eh_unidade_carga_volume?: boolean
+    ativo_volume?: boolean
+  }
+
+  export type VolumeUpdateManyMutationInput = {
+    codigo_volume?: StringFieldUpdateOperationsInput | string
+    nome_volume?: StringFieldUpdateOperationsInput | string
+    nome_volume_ingles?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_siscomex_volume?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_unece_rec21_volume?: NullableStringFieldUpdateOperationsInput | string | null
+    texto_especie_nfe_volume?: StringFieldUpdateOperationsInput | string
+    categoria_volume?: StringFieldUpdateOperationsInput | string
+    eh_unidade_carga_volume?: BoolFieldUpdateOperationsInput | boolean
+    ativo_volume?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type VolumeUncheckedUpdateManyInput = {
+    codigo_volume?: StringFieldUpdateOperationsInput | string
+    nome_volume?: StringFieldUpdateOperationsInput | string
+    nome_volume_ingles?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_siscomex_volume?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_unece_rec21_volume?: NullableStringFieldUpdateOperationsInput | string | null
+    texto_especie_nfe_volume?: StringFieldUpdateOperationsInput | string
+    categoria_volume?: StringFieldUpdateOperationsInput | string
+    eh_unidade_carga_volume?: BoolFieldUpdateOperationsInput | boolean
+    ativo_volume?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ContainerCreateInput = {
@@ -21975,11 +23222,27 @@ export namespace Prisma {
     ativo_moeda?: SortOrder
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type UnidadeCountOrderByAggregateInput = {
     codigo_unidade?: SortOrder
     nome_unidade?: SortOrder
     tipo_unidade?: SortOrder
     ativo_unidade?: SortOrder
+    fator_para_kg_unidade?: SortOrder
+  }
+
+  export type UnidadeAvgOrderByAggregateInput = {
+    fator_para_kg_unidade?: SortOrder
   }
 
   export type UnidadeMaxOrderByAggregateInput = {
@@ -21987,6 +23250,7 @@ export namespace Prisma {
     nome_unidade?: SortOrder
     tipo_unidade?: SortOrder
     ativo_unidade?: SortOrder
+    fator_para_kg_unidade?: SortOrder
   }
 
   export type UnidadeMinOrderByAggregateInput = {
@@ -21994,6 +23258,27 @@ export namespace Prisma {
     nome_unidade?: SortOrder
     tipo_unidade?: SortOrder
     ativo_unidade?: SortOrder
+    fator_para_kg_unidade?: SortOrder
+  }
+
+  export type UnidadeSumOrderByAggregateInput = {
+    fator_para_kg_unidade?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type IncotermCountOrderByAggregateInput = {
@@ -22021,17 +23306,6 @@ export namespace Prisma {
     modal_transporte?: SortOrder
     versao_incoterm?: SortOrder
     ativo_incoterm?: SortOrder
-  }
-
-  export type FloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type PortoCountOrderByAggregateInput = {
@@ -22084,22 +23358,6 @@ export namespace Prisma {
   export type PortoSumOrderByAggregateInput = {
     latitude_porto?: SortOrder
     longitude_porto?: SortOrder
-  }
-
-  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type AeroportoCountOrderByAggregateInput = {
@@ -22185,6 +23443,42 @@ export namespace Prisma {
     ativo_taxa_origem_destino?: SortOrder
     data_criacao_taxa_origem_destino?: SortOrder
     data_atualizacao_taxa_origem_destino?: SortOrder
+  }
+
+  export type VolumeCountOrderByAggregateInput = {
+    codigo_volume?: SortOrder
+    nome_volume?: SortOrder
+    nome_volume_ingles?: SortOrder
+    codigo_siscomex_volume?: SortOrder
+    codigo_unece_rec21_volume?: SortOrder
+    texto_especie_nfe_volume?: SortOrder
+    categoria_volume?: SortOrder
+    eh_unidade_carga_volume?: SortOrder
+    ativo_volume?: SortOrder
+  }
+
+  export type VolumeMaxOrderByAggregateInput = {
+    codigo_volume?: SortOrder
+    nome_volume?: SortOrder
+    nome_volume_ingles?: SortOrder
+    codigo_siscomex_volume?: SortOrder
+    codigo_unece_rec21_volume?: SortOrder
+    texto_especie_nfe_volume?: SortOrder
+    categoria_volume?: SortOrder
+    eh_unidade_carga_volume?: SortOrder
+    ativo_volume?: SortOrder
+  }
+
+  export type VolumeMinOrderByAggregateInput = {
+    codigo_volume?: SortOrder
+    nome_volume?: SortOrder
+    nome_volume_ingles?: SortOrder
+    codigo_siscomex_volume?: SortOrder
+    codigo_unece_rec21_volume?: SortOrder
+    texto_especie_nfe_volume?: SortOrder
+    categoria_volume?: SortOrder
+    eh_unidade_carga_volume?: SortOrder
+    ativo_volume?: SortOrder
   }
 
   export type EnumContainerTipoFilter<$PrismaModel = never> = {
@@ -23335,6 +24629,10 @@ export namespace Prisma {
      * @deprecated Use TaxaOrigemDestinoDefaultArgs instead
      */
     export type TaxaOrigemDestinoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TaxaOrigemDestinoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use VolumeDefaultArgs instead
+     */
+    export type VolumeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = VolumeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ContainerDefaultArgs instead
      */

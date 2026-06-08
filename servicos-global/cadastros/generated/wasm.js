@@ -227,7 +227,8 @@ exports.Prisma.UnidadeScalarFieldEnum = {
   codigo_unidade: 'codigo_unidade',
   nome_unidade: 'nome_unidade',
   tipo_unidade: 'tipo_unidade',
-  ativo_unidade: 'ativo_unidade'
+  ativo_unidade: 'ativo_unidade',
+  fator_para_kg_unidade: 'fator_para_kg_unidade'
 };
 
 exports.Prisma.IncotermScalarFieldEnum = {
@@ -276,6 +277,18 @@ exports.Prisma.TaxaOrigemDestinoScalarFieldEnum = {
   ativo_taxa_origem_destino: 'ativo_taxa_origem_destino',
   data_criacao_taxa_origem_destino: 'data_criacao_taxa_origem_destino',
   data_atualizacao_taxa_origem_destino: 'data_atualizacao_taxa_origem_destino'
+};
+
+exports.Prisma.VolumeScalarFieldEnum = {
+  codigo_volume: 'codigo_volume',
+  nome_volume: 'nome_volume',
+  nome_volume_ingles: 'nome_volume_ingles',
+  codigo_siscomex_volume: 'codigo_siscomex_volume',
+  codigo_unece_rec21_volume: 'codigo_unece_rec21_volume',
+  texto_especie_nfe_volume: 'texto_especie_nfe_volume',
+  categoria_volume: 'categoria_volume',
+  eh_unidade_carga_volume: 'eh_unidade_carga_volume',
+  ativo_volume: 'ativo_volume'
 };
 
 exports.Prisma.ContainerScalarFieldEnum = {
@@ -438,6 +451,7 @@ exports.Prisma.ModelName = {
   Porto: 'Porto',
   Aeroporto: 'Aeroporto',
   TaxaOrigemDestino: 'TaxaOrigemDestino',
+  Volume: 'Volume',
   Container: 'Container',
   NcmSync: 'NcmSync',
   NcmSyncLog: 'NcmSyncLog',

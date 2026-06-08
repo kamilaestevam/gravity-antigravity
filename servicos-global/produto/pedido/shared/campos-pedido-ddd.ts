@@ -149,7 +149,9 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   { campo: 'quantidade_total_pedido',                      rotulo: 'Quantidade Total do Pedido',             tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['total quantity', 'total qty'] },
   { campo: 'unidade_comercializada_pedido',                rotulo: 'Unidade Comercializada do Pedido',       tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', dropdownDinamico: 'unidade', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade comercializada', 'unidade'] },
   { campo: 'condicao_pagamento_pedido',                    rotulo: 'Condicao de Pagamento',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['payment terms', 'pay terms'] },
+  { campo: 'tipo_volume_pedido',                           rotulo: 'Tipo Volume Pedido',                     tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', dropdownDinamico: 'volume' },
   { campo: 'quantidade_volumes_pedido',                    rotulo: 'Qtd. de Volumes',                        tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'tipo_volume_item',                             rotulo: 'Tipo Volume Item',                       tipo: 'texto',  nivel: 'item',   grupo: 'Comercial', dropdownDinamico: 'volume' },
   { campo: 'cobertura_cambial_pedido',                     rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
 
   // Cambio

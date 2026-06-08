@@ -284,6 +284,7 @@ function criarColunaDataReplicavel(
 export interface OpcoesUnidadesColunas {
   unidadesPeso: GTUnidadeOpcao[]
   unidadesCubagem: GTUnidadeOpcao[]
+  mapaFatorParaKg: Record<string, number>
   /**
    * Opções de Incoterm vindas de cadastros.incoterm via useIncotermsPedido.
    * Formato `{ valor, label }` esperado pelo popover de edição inline (select).
@@ -1347,7 +1348,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         <TooltipGlobal titulo={t('pedido.coluna_pai.peso_liquido_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_liquido_total_pedido_desc')}>
           <span className="gtv-celula-moeda">
             {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-            <span className="gtv-celula-unidade-badge">kg</span>
+            <span className="gtv-celula-unidade-badge">KG</span>
           </span>
         </TooltipGlobal>
       )
@@ -1393,7 +1394,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         <TooltipGlobal titulo={t('pedido.coluna_pai.peso_bruto_total_pedido_titulo')} descricao={t('pedido.coluna_pai.peso_bruto_total_pedido_desc')}>
           <span className="gtv-celula-moeda">
             {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-            <span className="gtv-celula-unidade-badge">kg</span>
+            <span className="gtv-celula-unidade-badge">KG</span>
           </span>
         </TooltipGlobal>
       )
@@ -1441,7 +1442,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
         <TooltipGlobal titulo={t('pedido.coluna_pai.cubagem_total_pedido_titulo')} descricao={t('pedido.coluna_pai.cubagem_total_pedido_desc')}>
           <span className="gtv-celula-moeda">
             {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-            <span className="gtv-celula-unidade-badge">m³</span>
+            <span className="gtv-celula-unidade-badge">M³</span>
           </span>
         </TooltipGlobal>
       )

@@ -55,6 +55,7 @@ async function main() {
       nome_unidade: u.descricao,
       tipo_unidade: u.categoria,
       ativo_unidade: true,
+      fator_para_kg_unidade: u.fatorParaKg ?? null,
     }
     const existia = await prisma.unidade.findUnique({ where: { codigo_unidade: u.sigla } })
     await prisma.unidade.upsert({
@@ -64,6 +65,7 @@ async function main() {
         nome_unidade: dados.nome_unidade,
         tipo_unidade: dados.tipo_unidade,
         ativo_unidade: dados.ativo_unidade,
+        fator_para_kg_unidade: dados.fator_para_kg_unidade,
       },
     })
     if (existia) atualizadas += 1

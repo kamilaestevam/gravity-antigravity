@@ -1,6 +1,6 @@
 # Plano de Testes Unitários — Pedido / Configurações / Status
 
-**ID:** TST-UNI-PEDIDO-CONFIG-STATUS-001  
+**ID:** TST-UNI-PEDIDO-000042  
 **Data:** 2026-06-02  
 **Versão:** 1.0  
 **Criticidade:** alta  

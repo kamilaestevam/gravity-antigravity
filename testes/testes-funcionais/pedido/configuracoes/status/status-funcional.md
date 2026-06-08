@@ -1,6 +1,6 @@
 # Plano de Testes Funcionais — Pedido / Configurações / Status (API)
 
-**ID:** TST-FUN-PEDIDO-CONFIG-STATUS-001  
+**ID:** TST-FUN-PEDIDO-000043  
 **Data:** 2026-06-02  
 **Versão:** 1.0  
 **Criticidade:** alta  

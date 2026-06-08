@@ -12,7 +12,7 @@ documentos-tecnicos/testes/
 ├── README.md                                      ← este arquivo
 │
 ├── tecnico/                                       ← COMO funciona
-│   ├── 01-arquitetura-sistema-testes.md           ← Visão macro + componentes
+│   ├── 01-arquitetura-sistema-testes.md           ← Visão macro + componentes + testes/infra/admin
 │   ├── 02-fluxo-execucao-detalhado.md             ← Passo a passo de uma execução
 │   ├── 03-integracao-gemini.md                    ← Análise de falhas via IA
 │   ├── 04-cron-externo.md                         ← Setup Railway/GitHub Actions
@@ -37,6 +37,7 @@ documentos-tecnicos/testes/
 | Você quer... | Leia primeiro |
 |---|---|
 | Entender o sistema todo | [tecnico/01-arquitetura-sistema-testes.md](tecnico/01-arquitetura-sistema-testes.md) |
+| Favoritos do modal «Rodar Testes» | [testes/infra/admin/README.md](../../testes/infra/admin/README.md) + `testes-favoritos-admin.ts` |
 | Criar um teste novo | [regras/01-convencao-ids.md](regras/01-convencao-ids.md) + [regras/02-cobertura-obrigatoria.md](regras/02-cobertura-obrigatoria.md) |
 | Onde guardar plano e prints | [regras/07-organizacao-plano-resultado-por-escopo.md](regras/07-organizacao-plano-resultado-por-escopo.md) |
 | Adicionar uma tela nova | [regras/04-fluxo-criacao-tela-nova.md](regras/04-fluxo-criacao-tela-nova.md) |
@@ -74,7 +75,13 @@ documentos-tecnicos/testes/
 
 ---
 
-## Estado atual (2026-04-19)
+## Infra compartilhada — `testes/infra/admin/`
+
+Lógica **sem React** consumida pela UI Admin/Testes no Configurador. Hoje: favoritos de execução manual (`testes-favoritos-admin.ts`). Ver [README da pasta](../../testes/infra/admin/README.md).
+
+---
+
+## Estado atual (2026-06-03)
 
 | Item | Status |
 |---|---|
@@ -85,6 +92,7 @@ documentos-tecnicos/testes/
 | **Suites Configurador (17 unit + 14 funcional)** | ✅ `testes/testes-unitarios/configurador/` + `testes/testes-funcionais/configurador/` |
 | **Contract test `/api/v1/me` (DDD)** | ✅ `me-contract.test.ts` — 7 testes, `meResponseSchema` Zod |
 | **Unit test `useCarregarTipoUsuario`** | ✅ 17 testes — cache, erros, anti-regressão DDD, `isGravityAdmin` |
+| **`testes/infra/admin/` (favoritos Rodar Testes)** | ✅ SSOT em `testes-favoritos-admin.ts` + 8 testes Vitest |
 | Estrutura `testes/` nova | ❌ Pendente — apagar antiga e criar nova |
 | Migrations Prisma (TestLog, TestSchedule, TestPlan) | ❌ Pendente |
 | Backend `/admin/test-plans/generate` | ❌ Pendente |

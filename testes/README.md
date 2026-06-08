@@ -100,7 +100,7 @@ TST-{TIPO}-{ESCOPO}-{NNNNNN}
 ```
 
 Exemplos:
-- `TST-E2E-CONFIG-000001` — primeiro E2E do Configurador
+- `TST-E2E-CONFIG-000013` — primeiro E2E do Configurador
 - `TST-UNI-CORE-000042` — unitário 42 do CORE
 - `TST-CRO-PEDIDO-000003` — cross-tenant 3 do Pedido
 
@@ -128,7 +128,7 @@ npm run validate:testes           # roda todos acima
 npx playwright test --project=configurador
 
 # Rodar 1 plano específico
-npx playwright test testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts
+npx playwright test testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000013.spec.ts
 
 # Rodar testes unitários de um escopo
 npx vitest run testes/testes-unitarios/configurador

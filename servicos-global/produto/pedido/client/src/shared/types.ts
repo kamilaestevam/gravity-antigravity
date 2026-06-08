@@ -95,6 +95,7 @@ export interface PedidoItem {
 
   // Embalagem e documentos
   tipo_embalagem?: string | null
+  tipo_volume_item?: string | null
   numero_lpco?: string | null
   anexo_lpco?: string | null
   numero_certificado_origem?: string | null
@@ -340,6 +341,7 @@ export interface Pedido {
   quantidade_total_pedido: number | null
   casas_decimais_quantidade_pedido: number
   unidade_comercializada_pedido?: string | null
+  tipo_volume_pedido?: string | null
   quantidade_volumes_pedido?: number | null
 
   // Câmbio
@@ -392,6 +394,7 @@ export interface Pedido {
   // e estas flags ficam `true` (via `calcularDivergencias` em Pedidos.tsx).
   moeda_item_divergente?: boolean | null
   unidade_comercializada_item_divergente?: boolean | null
+  tipo_volume_item_divergente?: boolean | null
   /** Computado no client — algum item repete part_number no mesmo pedido */
   part_number_duplicado_no_pedido?: boolean | null
 

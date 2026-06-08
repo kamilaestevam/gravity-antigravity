@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-// TST-UNIT-TENANT-SAL-001..008
+// TST-UNI-TENANT-000004..008
 // Plano: testes/testes-unitarios/historico/_planos/securityAuditLogger.plan.json
 
 const { mockAuditLog } = vi.hoisted(() => ({
@@ -30,7 +30,7 @@ describe('securityAudit', () => {
     vi.unstubAllGlobals()
   })
 
-  it('TST-UNIT-TENANT-SAL-001: permissionChanged → AuditService.log com actor_type=AcaoExecutadaPor.USUARIO', async () => {
+  it('TST-UNI-TENANT-000004: permissionChanged → AuditService.log com actor_type=AcaoExecutadaPor.USUARIO', async () => {
     await securityAudit.permissionChanged('t-1', 'u-1', {
       id_usuario_alvo: 'u-2',
       nome_permissao: 'pedido:create',
@@ -42,7 +42,7 @@ describe('securityAudit', () => {
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-002: rateLimitHit → AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO', async () => {
+  it('TST-UNI-TENANT-000004-002: rateLimitHit → AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO', async () => {
     await securityAudit.rateLimitHit('t-1', {
       ip: '1.2.3.4',
       endpoint: '/api/test',
@@ -54,7 +54,7 @@ describe('securityAudit', () => {
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-003: apiKeyUsed → AuditService.log com actor_type=AcaoExecutadaPor.API', async () => {
+  it('TST-UNI-TENANT-000004-003: apiKeyUsed → AuditService.log com actor_type=AcaoExecutadaPor.API', async () => {
     await securityAudit.apiKeyUsed('t-1', 'key-abc', {
       module: 'pedido',
       endpoint: '/api/pedidos',
@@ -66,7 +66,7 @@ describe('securityAudit', () => {
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-004: webhookSignatureFailure → AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO', async () => {
+  it('TST-UNI-TENANT-000004-004: webhookSignatureFailure → AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO', async () => {
     await securityAudit.webhookSignatureFailure('t-1', {
       source: 'STRIPE',
       ip: '54.1.2.3',
@@ -78,7 +78,7 @@ describe('securityAudit', () => {
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-005: crossTenantAttempt com blocked=true → status=EventoStatus.FALHA', async () => {
+  it('TST-UNI-TENANT-000004-005: crossTenantAttempt com blocked=true → status=EventoStatus.FALHA', async () => {
     await securityAudit.crossTenantAttempt('t-1', 'u-1', {
       targetTenantId: 't-2',
       resource: 'pedido',
@@ -90,7 +90,7 @@ describe('securityAudit', () => {
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-006: authFailure sem blocked → status=EventoStatus.SUCESSO', async () => {
+  it('TST-UNI-TENANT-000004-006: authFailure sem blocked → status=EventoStatus.SUCESSO', async () => {
     await securityAudit.authFailure('t-1', {
       ip: '1.2.3.4',
       reason: 'invalid token',
@@ -102,7 +102,7 @@ describe('securityAudit', () => {
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-007: dataDeleted → actor_type=AcaoExecutadaPor.USUARIO e module=admin', async () => {
+  it('TST-UNI-TENANT-000004-007: dataDeleted → actor_type=AcaoExecutadaPor.USUARIO e module=admin', async () => {
     await securityAudit.dataDeleted('t-1', 'admin-1', {
       id_usuario_alvo: 'u-2',
       tabelas_afetadas: ['pedido', 'item_pedido'],
@@ -118,7 +118,7 @@ describe('securityAudit', () => {
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-008: sem CONFIGURADOR_URL (env não definido) → fetch não é chamado', async () => {
+  it('TST-UNI-TENANT-000004-008: sem CONFIGURADOR_URL (env não definido) → fetch não é chamado', async () => {
     await securityAudit.adminAccess('t-1', 'admin-1', {
       targetTenantId: 't-2',
       resource: 'configuracoes',

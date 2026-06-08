@@ -1,6 +1,6 @@
 # Plano de Testes E2E — Pedido / Configurações / Status (fluxo completo)
 
-**ID:** TST-E2E-PEDIDO-CONFIG-STATUS-001  
+**ID:** TST-E2E-PEDIDO-000044  
 **Data:** 2026-06-02  
 **Versão:** 1.0  
 **Criticidade:** alta  
@@ -8,7 +8,7 @@
 **SSOT índice:** `testes/testes-unitarios/pedido/_planos/PLANO-PEDIDO-CONFIG-STATUS-SSOT.md`  
 **Status:** Aguardando aprovação do dono
 
-**Spec alvo:** `testes/testes-e2e/pedido/configuracao/status/TST-E2E-PEDIDO-CONFIG-STATUS-001.spec.ts`
+**Spec alvo:** `testes/testes-e2e/pedido/configuracao/status/TST-E2E-PEDIDO-000044.spec.ts`
 
 ---
 
@@ -199,7 +199,7 @@ Plano E2E end-to-end: alterar status em Configurações e verificar reflexo em *
 ## Execução
 
 ```bash
-npx playwright test testes/testes-e2e/pedido/configuracao/status/TST-E2E-PEDIDO-CONFIG-STATUS-001.spec.ts
+npx playwright test testes/testes-e2e/pedido/configuracao/status/TST-E2E-PEDIDO-000044.spec.ts
 ```
 
 **Estado atual:** 0/87 passos implementados (spec scaffold pendente)

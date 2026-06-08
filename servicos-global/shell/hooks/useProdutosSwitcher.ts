@@ -45,6 +45,22 @@ const produtosWorkspaceResponseSchema = z.object({
   products: z.array(produtoWorkspaceItemSchema),
 })
 
+/** Atalho fixo no fim do seletor — abre a lista de processos do Hub. */
+const SLUG_ATALHO_PROCESSOS = 'processo'
+const ROTA_ATALHO_PROCESSOS = '/acesso-processos/lista'
+
+/** Ordem fixa do seletor de produtos (slug normalizado por resolverSlugMetaProduto). */
+const ORDEM_PRODUTOS_SWITCHER = ['pedido', 'bid-frete', 'bid-cambio']
+
+function ordenarProdutosSwitcher(a: ProductSwitcherItem, b: ProductSwitcherItem): number {
+  const ia = ORDEM_PRODUTOS_SWITCHER.indexOf(resolverSlugMetaProduto(a.slug))
+  const ib = ORDEM_PRODUTOS_SWITCHER.indexOf(resolverSlugMetaProduto(b.slug))
+  const pa = ia === -1 ? Number.MAX_SAFE_INTEGER : ia
+  const pb = ib === -1 ? Number.MAX_SAFE_INTEGER : ib
+  if (pa !== pb) return pa - pb
+  return a.name.localeCompare(b.name, 'pt-BR')
+}
+
 function montarItemProduto(slug: string, nome?: string): ProductSwitcherItem {
   const meta = getProdutoMeta(resolverSlugMetaProduto(slug))
   return {
@@ -65,6 +81,12 @@ function garantirProdutoAtualNaLista(
     return itens
   }
   return [montarItemProduto(produtoAtualSlug, nomeProdutoAtual), ...itens]
+}
+
+/** Adiciona o atalho "Processos" sempre por último (não é um produto, é um link para o Hub). */
+function adicionarAtalhoProcessos(itens: ProductSwitcherItem[]): ProductSwitcherItem[] {
+  const semProcessos = itens.filter(p => p.slug !== SLUG_ATALHO_PROCESSOS)
+  return [...semProcessos, montarItemProduto(SLUG_ATALHO_PROCESSOS, 'Processos')]
 }
 
 export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?: string) {
@@ -93,7 +115,7 @@ export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?:
       const token = await getToken()
       if (!token) {
         console.warn('[useProdutosSwitcher] JWT ausente — não foi possível listar produtos')
-        setProdutos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual))
+        setProdutos(adicionarAtalhoProcessos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual)))
         return
       }
 
@@ -105,7 +127,7 @@ export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?:
 
       if (!res.ok) {
         console.warn('[useProdutosSwitcher] API retornou', res.status)
-        setProdutos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual))
+        setProdutos(adicionarAtalhoProcessos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual)))
         return
       }
 
@@ -115,12 +137,12 @@ export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?:
       const itens: ProductSwitcherItem[] = parsed.products
         .filter(p => p.is_active)
         .map(p => montarItemProduto(p.product_key, p.catalog?.name ?? p.product_key))
-        .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+        .sort(ordenarProdutosSwitcher)
 
-      setProdutos(garantirProdutoAtualNaLista(itens, produtoAtualSlug, nomeProdutoAtual))
+      setProdutos(adicionarAtalhoProcessos(garantirProdutoAtualNaLista(itens, produtoAtualSlug, nomeProdutoAtual)))
     } catch (err) {
       console.warn('[useProdutosSwitcher] Falha ao carregar produtos acessíveis:', err)
-      setProdutos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual))
+      setProdutos(adicionarAtalhoProcessos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual)))
     } finally {
       setCarregando(false)
     }
@@ -152,6 +174,10 @@ export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?:
 
   const trocarProduto = useCallback(
     (slug: string) => {
+      if (slug === SLUG_ATALHO_PROCESSOS) {
+        window.location.href = ROTA_ATALHO_PROCESSOS
+        return
+      }
       if (slugsProdutoEquivalentes(slug, produtoAtualSlug)) return
       window.location.href = resolverRotaProdutoGravity(slug)
     },

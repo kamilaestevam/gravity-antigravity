@@ -187,18 +187,18 @@ Escopo **STORE** — pasta `testes/**/gravity-store/` (registry `TST-*-STORE-*`)
 | Unitário | `testes/testes-unitarios/gravity-store/` | `npx vitest run --config testes/testes-unitarios/gravity-store/vitest.config.ts` |
 | Funcional | `testes/testes-funcionais/gravity-store/` | `npx vitest run --config testes/testes-funcionais/gravity-store/vitest.config.ts` |
 | Cross-org | `testes/testes-cross-organizacao/gravity-store/` | `npx vitest run --config testes/testes-cross-organizacao/gravity-store/vitest.config.ts` |
-| E2E | `testes/testes-e2e/gravity-store/` | Plano `TST-E2E-STORE-000001` (aguarda dono) |
+| E2E | `testes/testes-e2e/gravity-store/` | Plano `TST-E2E-STORE-000070` (aguarda dono) |
 | Em tela | `testes/testes-em-tela/gravity-store/` | `npx tsx testes/testes-em-tela/gravity-store/run-gravity-store.ts` |
 
 | ID | Cobertura |
 |----|-----------|
-| `TST-UNI-STORE-000001` | Regras de status, aliases, contadores |
-| `TST-UNI-STORE-000002` | Alinhamento catálogo ↔ puzzle (13 produtos) |
-| `TST-UNI-STORE-000003` | Zod `store-catalogo-api.ts` |
-| `TST-UNI-STORE-000004` | Faixas carrossel `store-cards-rows.tsx` |
-| `TST-FUN-STORE-000001` | POST `assinar-produto` |
-| `TST-FUN-STORE-000002` | GET `/api/v1/produtos-gravity` |
-| `TST-CRO-STORE-000001` | Isolamento org (scaffold `it.todo`) |
+| `TST-UNI-STORE-000064` | Regras de status, aliases, contadores |
+| `TST-UNI-STORE-000065` | Alinhamento catálogo ↔ puzzle (13 produtos) |
+| `TST-UNI-STORE-000066` | Zod `store-catalogo-api.ts` |
+| `TST-UNI-STORE-000067` | Faixas carrossel `store-cards-rows.tsx` |
+| `TST-FUN-STORE-000068` | POST `assinar-produto` |
+| `TST-FUN-STORE-000069` | GET `/api/v1/produtos-gravity` |
+| `TST-CRO-STORE-000071` | Isolamento org (scaffold `it.todo`) |
 | `testes-unitarios/nucleo-global/logo-produtos/icone-produto-gravity.test.ts` | Ícones SSOT (`@nucleo/logo-produtos`) |
 
 ---

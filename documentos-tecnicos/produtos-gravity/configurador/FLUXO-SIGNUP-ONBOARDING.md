@@ -95,7 +95,7 @@ Callbacks SSO em `App.tsx` repetem os mesmos valores em `<AuthenticateWithRedire
 |--------|------|
 | Unitário | `testes/testes-unitarios/login/porteiro-resolver.test.ts`, `use-destino-pos-autenticacao.test.ts` |
 | Funcional | `testes/testes-funcionais/login/porteiro-pos-autenticacao.test.ts` |
-| E2E | `testes/testes-e2e/login/TST-E2E-LOGIN-000001.spec.ts` (aguarda aprovação dono) |
+| E2E | `testes/testes-e2e/login/TST-E2E-LOGIN-000040.spec.ts` (aguarda aprovação dono) |
 | Em tela | `testes/testes-em-tela/login/2026-05-26-porteiro-signup/PLANO-EM-TELA.md` |
 
 ```bash
@@ -103,7 +103,7 @@ npx vitest run testes/testes-unitarios/login --config testes/testes-unitarios/lo
 npx vitest run testes/testes-funcionais/login --config testes/testes-funcionais/login/vitest.config.ts
 ```
 
-Registry: `TST-UNI-LOGIN-000001`, `TST-FUN-LOGIN-000001`, `TST-E2E-LOGIN-000001`, `TST-EMT-LOGIN-000001` em `testes/test-plans-registry.json`.
+Registry: `TST-UNI-LOGIN-000038`, `TST-FUN-LOGIN-000039`, `TST-E2E-LOGIN-000040`, `TST-EMT-LOGIN-PORTEIRO-SIGNUP-000041` em `testes/test-plans-registry.json`.
 
 ---
 

@@ -4,17 +4,7 @@
  * do dono em 2026-05-12).
  *
  * SSOT: a lista vem de `cadastros.unidade` via /api/v1/cadastros/unidades.
- * Substitui o arquivo (deletado) `unidadesPesoColuna.ts` que duplicava o
- * subset de peso hardcoded.
- *
- * Categorias por uso no produto Pedido:
- *   - unidadesComercializadas → todas (UN, KG, LT, M, etc.)
- *   - unidadesPeso            → categoria='peso' (KG, G, TON)
- *   - unidadesCubagem         → categorias=comprimento|area|volume
- *                               (CM, M, CM2, M2, ML, LT, M3)
- *
- * Mandamento 06+09: Zod do useUnidades garante o contrato bilateral com
- * Cadastros. Aqui só transformamos a saída em `GTUnidadeOpcao`.
+ * Conversão peso → KG: `fator_para_kg_unidade` do banco.
  */
 import { useMemo } from 'react'
 import {
@@ -28,12 +18,18 @@ export interface GTUnidadeOpcao {
   rotulo: string
 }
 
-/** Formata `SIGLA — Nome` (decisão UX 2026-05-12). Exportado para teste. */
 export function formatarRotuloUnidade(u: Unidade): string {
   return `${u.codigo_unidade} — ${u.nome_unidade}`
 }
 
-/** Filtra `Unidade[]` por categorias e formata como `GTUnidadeOpcao[]`. Exportado para teste. */
+/** Badge de unidade na célula da lista — siglas em maiúsculas (alinha ao modal). */
+export function formatarBadgeUnidadeCelula(codigo: string | null | undefined): string {
+  const u = (codigo ?? '').trim().toUpperCase()
+  if (!u) return '—'
+  if (u === 'M3') return 'M³'
+  return u
+}
+
 export function filtrarUnidadesPorCategorias(
   unidades: Unidade[],
   categorias: readonly TipoUnidade[],
@@ -43,16 +39,48 @@ export function filtrarUnidadesPorCategorias(
     .map((u) => ({ sigla: u.codigo_unidade, rotulo: formatarRotuloUnidade(u) }))
 }
 
+export function buildMapaFatorParaKg(unidades: Unidade[]): Record<string, number> {
+  const mapa: Record<string, number> = {}
+  for (const u of unidades) {
+    if (u.tipo_unidade === 'peso' && u.fator_para_kg_unidade != null) {
+      mapa[u.codigo_unidade] = u.fator_para_kg_unidade
+    }
+  }
+  return mapa
+}
+
+export function kgParaQuantidadeExibicao(
+  kg: number,
+  unit: string,
+  mapa: Record<string, number>,
+): number {
+  const fator = mapa[unit]
+  if (fator == null || fator === 0) {
+    console.warn('[useUnidadesPedido] fator_para_kg_unidade ausente para', unit)
+    return kg
+  }
+  return kg / fator
+}
+
+export function quantidadeExibicaoParaKg(
+  qty: number,
+  unit: string,
+  mapa: Record<string, number>,
+): number {
+  const fator = mapa[unit]
+  if (fator == null) {
+    console.warn('[useUnidadesPedido] fator_para_kg_unidade ausente para', unit)
+    return qty
+  }
+  return qty * fator
+}
+
 export interface UnidadesPedidoSet {
-  /** Todas as unidades (qualquer categoria) — para `unidade_comercializada_item`. */
   unidadesComercializadas: GTUnidadeOpcao[]
-  /** Apenas categoria='peso' — para peso_liquido / peso_bruto. */
   unidadesPeso: GTUnidadeOpcao[]
-  /** Categorias comprimento|area|volume — para cubagem (decisão UX 2026-05-12). */
   unidadesCubagem: GTUnidadeOpcao[]
-  /** True enquanto o fetch do Cadastros não terminou. Dropdowns ficam vazios. */
+  mapaFatorParaKg: Record<string, number>
   loading: boolean
-  /** Mensagem se o Cadastros falhou (rede/zod). */
   erro: string | null
 }
 
@@ -67,6 +95,7 @@ export function useUnidadesPedido(): UnidadesPedidoSet {
       })),
       unidadesPeso: filtrarUnidadesPorCategorias(unidades, ['peso']),
       unidadesCubagem: filtrarUnidadesPorCategorias(unidades, ['comprimento', 'area', 'volume']),
+      mapaFatorParaKg: buildMapaFatorParaKg(unidades),
       loading,
       erro,
     }),

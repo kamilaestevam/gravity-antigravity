@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-06-05T23:28:15.833Z
+// Gerado em: 2026-06-08T02:07:21.455Z
 // Banco: gravity-cadastros-* (Railway)
 // Serviço: @gravity/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -385,6 +385,27 @@ model TaxaOrigemDestino {
   @@index([ativo_taxa_origem_destino], map: "taxa_origem_destino_ativo_idx")
   @@index([nome_taxa_origem_destino], map: "taxa_origem_destino_nome_idx")
   @@map("taxa_origem_destino")
+}
+
+// ---------------------------------------------------------------------
+// Volume — tipos de embalagem COMEX / NF-e / Siscomex (exceto código 22 → container).
+// Catálogo global — sem id_organizacao. SSOT para tipo_volume_pedido / tipo_volume_item.
+// ---------------------------------------------------------------------
+
+model Volume {
+  codigo_volume             String  @id
+  nome_volume               String
+  nome_volume_ingles        String?
+  codigo_siscomex_volume    String?
+  codigo_unece_rec21_volume String?
+  texto_especie_nfe_volume  String
+  categoria_volume          String
+  eh_unidade_carga_volume   Boolean @default(false)
+  ativo_volume              Boolean @default(true)
+
+  @@index([ativo_volume], map: "volume_ativo_idx")
+  @@index([categoria_volume], map: "volume_categoria_idx")
+  @@map("volume")
 }
 
 // ---------------------------------------------------------------------

@@ -21,7 +21,7 @@ import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
 import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
-import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
+import { SelectColunasGlobal, type ColunaSelectConfig } from '@nucleo/select-colunas-global'
 
 import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { useUnidades } from '@nucleo/modal-tabela-unidades'
@@ -48,6 +48,20 @@ import type {
   GTUnidadeOpcao,
 } from './tipos.js'
 import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
+import {
+  resolverNivelTooltipCelula,
+  resolverTituloFinalTooltipCelula,
+  resolverTooltipRegraCelula,
+} from './tooltipCelulaResolver.js'
+
+function colunaParaSeletor<T>(c: GTColuna<T>): ColunaSelectConfig {
+  return {
+    key: c.key as string,
+    label: c.label,
+    naoOcultavel: c.naoOcultavel,
+    grupo: c.grupo,
+  }
+}
 
 // ─── Ícones internos ──────────────────────────────────────────────────────────
 
@@ -296,23 +310,52 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
 const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
 
-/** Tooltip de regra da coluna em células (pedido e item), respeitando tooltips-disabled no body. */
-function resolverTooltipRegraCelula(
-  col: GTColuna<unknown>,
-  item: unknown,
-  isFilho: boolean,
-): { titulo: string; descricao: React.ReactNode; interativo?: boolean } | null {
-  const descricaoOverride = col.tooltipDescricaoCelula?.(item)
-  const descricaoBase = isFilho
-    ? (col.tooltipDescricaoItem ?? col.tooltipDescricao)
-    : col.tooltipDescricao
-  const descricao = descricaoOverride ?? descricaoBase
-  if (descricao == null || descricao === '') return null
-  return {
-    titulo: col.tooltipTitulo ?? col.label,
-    descricao,
-    interativo: col.tooltipInterativo,
+/** Conteúdo já montado pelo produto (ex.: TooltipListaColuna na lista de pedidos). */
+function conteudoTemTooltipProdutoMontada(conteudo: React.ReactNode): boolean {
+  if (!React.isValidElement(conteudo)) return false
+  const props = conteudo.props as Record<string, unknown>
+  if (props['data-tooltip-lista-mount'] != null) return true
+  if (props['data-tooltip-lista-coluna'] != null) return true
+  const children = props.children
+  if (React.isValidElement(children)) {
+    const childProps = children.props as Record<string, unknown>
+    if (childProps['data-tooltip-lista-mount'] != null) return true
+    if (childProps['data-tooltip-lista-coluna'] != null) return true
   }
+  return false
+}
+
+/** Extrai nome legível de rotulos `SIGLA — Nome` (em dash, en dash ou hífen). */
+function nomeExibicaoUnidadeRotulo(rotulo: string): string {
+  const m = rotulo.match(/^\s*\S+\s+[—–-]\s+(.+)\s*$/u)
+  return m ? m[1].trim() : rotulo.trim()
+}
+
+function codigosUnidadeEquivalentes(a: string, b: string): boolean {
+  const na = a.trim()
+  const nb = b.trim()
+  if (na === nb) return true
+  if (/^\d+$/.test(na) && /^\d+$/.test(nb)) {
+    return na.padStart(2, '0') === nb.padStart(2, '0')
+  }
+  return false
+}
+
+function rotuloExibicaoUnidadeSelecionada(unit: string, lista: GTUnidadeOpcao[]): string {
+  const unitNorm = String(unit ?? '').trim()
+  if (!unitNorm) return unitNorm
+  const match = lista.find(u => codigosUnidadeEquivalentes(getUnidadeSigla(u), unitNorm))
+  if (!match) return unitNorm
+  return nomeExibicaoUnidadeRotulo(getUnidadeRotulo(match))
+}
+
+/** Coluna pode passar `[]` enquanto Cadastros carrega — array vazio não deve bloquear o fallback SSOT. */
+function resolverListaUnidades(
+  restritas: GTUnidadeOpcao[] | undefined,
+  padrao: GTUnidadeOpcao[],
+): GTUnidadeOpcao[] {
+  if (restritas && restritas.length > 0) return restritas
+  return padrao
 }
 
 function wrapTooltipRegraCelula(
@@ -322,17 +365,28 @@ function wrapTooltipRegraCelula(
   isFilho: boolean,
   ativo: boolean,
   celulaBloqueada = false,
+  tituloOverride?: string,
 ): React.ReactNode {
+  // Tooltip montada no produto (tooltipInline / TooltipListaColuna) — núcleo não duplica wrap.
+  if (col.tooltipInline === true) return conteudo
+  if (conteudoTemTooltipProdutoMontada(conteudo)) return conteudo
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
     return conteudo
   }
   const regra = resolverTooltipRegraCelula(col, item, isFilho)
   if (!regra) return conteudo
+  let tituloFinal = resolverTituloFinalTooltipCelula(col, regra, isFilho, tituloOverride, item)
+  const tituloPedidoCol = col.tooltipTitulo?.trim()
+  const tituloItemCol = col.tooltipTituloItem?.trim()
+  if (isFilho && tituloPedidoCol && tituloFinal === tituloPedidoCol) {
+    tituloFinal = tituloItemCol ?? tituloOverride?.trim() ?? col.label
+  }
+  const descricaoFinal = regra.descricao
   return (
     <TooltipGlobal
-      titulo={regra.titulo}
-      descricao={regra.descricao}
+      titulo={tituloFinal}
+      descricao={descricaoFinal}
       interativo={regra.interativo}
       cursorBloqueado={celulaBloqueada}
     >
@@ -621,7 +675,7 @@ const GTEditPopover = memo(function GTEditPopover({
   // SSOT: listas vêm do banco Cadastros via hooks (antes hardcoded).
   // Se a coluna restringe moedas/unidades, filtra a lista canônica.
   const { moedas: moedasCadastros } = useMoedas()
-  const { unidades: unidadesCadastros } = useUnidades()
+  const { unidades: unidadesCadastros, loading: loadingUnidades, erro: erroUnidades } = useUnidades()
   const listaMoedasSiscomex = overlayInfo.moedas
     ? moedasCadastros.filter(m => overlayInfo.moedas!.some(mo => getUnidadeSigla(mo) === m.codigo_moeda))
     : moedasCadastros
@@ -632,7 +686,7 @@ const GTEditPopover = memo(function GTEditPopover({
     sigla: u.codigo_unidade,
     rotulo: `${u.codigo_unidade} — ${u.nome_unidade}`,
   }))
-  const listaUnidades = overlayInfo.unidades ?? unidadesPadrao
+  const listaUnidades = resolverListaUnidades(overlayInfo.unidades, unidadesPadrao)
   const casas = overlayInfo.casasDecimais ?? 0
 
   // Estados de display pt-BR para os inputs numéricos (inicializados uma vez na abertura do popover)
@@ -1126,7 +1180,7 @@ const GTEditPopover = memo(function GTEditPopover({
                   disabled={salvando}
                   onMouseDown={e => { e.preventDefault(); e.stopPropagation(); if (unidadeAberta) { setUnidadeAberta(false) } else { dropdownAbrindoRef.current = true; abrirUnidade() } }}
                 >
-                  <span>{uv.unit}</span>
+                  <span>{rotuloExibicaoUnidadeSelecionada(uv.unit, listaUnidades)}</span>
                   <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
                     style={{ transform: unidadeAberta ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
                     <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
@@ -1564,12 +1618,24 @@ const GTEditPopover = memo(function GTEditPopover({
                 onKeyDown={e => { if (e.key === 'Escape') setUnidadeAberta(false) }}
               />
             </div>
-            {listaUnidades
-              .filter(u => {
+            {(() => {
+              const filtradas = listaUnidades.filter(u => {
                 const q = unidadeBusca.toLowerCase()
                 return getUnidadeSigla(u).toLowerCase().includes(q) || getUnidadeRotulo(u).toLowerCase().includes(q)
               })
-              .map(u => {
+              if (filtradas.length === 0) {
+                const msg = loadingUnidades
+                  ? 'Carregando unidades…'
+                  : erroUnidades
+                    ? 'Erro ao carregar unidades'
+                    : 'Nenhuma unidade encontrada'
+                return (
+                  <div className="gtv-edit-custom-select-item" style={{ cursor: 'default', opacity: 0.7 }}>
+                    {msg}
+                  </div>
+                )
+              }
+              return filtradas.map(u => {
                 const sigla  = getUnidadeSigla(u)
                 const rotulo = getUnidadeRotulo(u)
                 return (
@@ -1581,7 +1647,7 @@ const GTEditPopover = memo(function GTEditPopover({
                   >{rotulo}</button>
                 )
               })
-            }
+            })()}
           </div>
         </>,
         document.body
@@ -1647,6 +1713,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   preferencias,
   onSalvarPreferencias,
   colunasPadrao,
+  colunasSeletor,
   imperativeRef,
   carregando,
   exibirCabecalhoQuandoVazio = false,
@@ -2911,7 +2978,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     // Tooltip de célula bloqueada (editavel retornou false para esta linha)
     const colU0 = col as GTColuna<unknown>
-    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado && tooltipCelulaAtivo
+    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado && tooltipCelulaAtivo && !temRegraColuna
       ? (typeof colU0.tooltipBloqueado === 'function' ? colU0.tooltipBloqueado(item) : colU0.tooltipBloqueado)
       : undefined
 
@@ -2943,14 +3010,23 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       )
     }
 
-    const celConteudo = wrapTooltipRegraCelula(
-      colRegra,
-      celInner,
-      item,
-      isFilho,
-      tooltipCelulaAtivo,
-      celulaBloqueadaPorRegra,
-    )
+    const tituloOverrideCelula = isFilho
+      ? (colRegra.tooltipTituloItem?.trim()
+        || colRegra.tooltipTituloCelula?.(item)?.trim()
+        || undefined)
+      : undefined
+    const tooltipInlineCelula = colRegra.tooltipInline === true
+    const celConteudo = tooltipInlineCelula
+      ? celInner
+      : wrapTooltipRegraCelula(
+        colRegra,
+        celInner,
+        item,
+        isFilho,
+        tooltipCelulaAtivo,
+        celulaBloqueadaPorRegra,
+        tituloOverrideCelula,
+      )
 
     return (
       <div
@@ -3346,7 +3422,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                         <span style={{ display: 'contents' }}>{conteudoFilho}</span>
                       </TooltipGlobal>
                     )
-                  } else if (!podeEditar && mapa?.tooltipBloqueado && tooltipFilhoAtivo) {
+                  } else if (
+                    !podeEditar
+                    && mapa?.tooltipBloqueado
+                    && tooltipFilhoAtivo
+                    && mapa?.tooltipInline !== true
+                  ) {
                     const msg = typeof mapa.tooltipBloqueado === 'function' ? mapa.tooltipBloqueado(item) : mapa.tooltipBloqueado
                     if (msg) {
                       celFilhoInner = (
@@ -3360,6 +3441,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
+                  // mapaColunasFilho / TooltipListaColuna — núcleo não re-wrap na linha item.
+                  if (mapa?.render != null || conteudoTemTooltipProdutoMontada(celFilhoInner)) {
+                    return celFilhoInner
+                  }
+                  const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''
+                    ? (typeof mapa.tooltipTitulo === 'function'
+                      ? mapa.tooltipTitulo(item)
+                      : mapa.tooltipTitulo)
+                    : undefined
                   return wrapTooltipRegraCelula(
                     col as GTColuna<unknown>,
                     celFilhoInner,
@@ -3367,6 +3457,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     true,
                     tooltipFilhoAtivo,
                     celulaBloqueadaFilho,
+                    tituloMapaFilho,
                   )
                 })()}
               </div>
@@ -3663,17 +3754,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               </button>
               {colunasAbertas && (
                 <SelectColunasGlobal
-                  colunas={[
-                    // Visíveis na frente, na ORDEM EXATA da tabela — sem grupo para espelhar fielmente
-                    ...colunasVisiveis
-                      .map(key => colunas.find(c => c.key === key))
-                      .filter((c): c is GTColuna<T> => c != null)
-                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel })),
-                    // Ocultas no final
-                    ...colunas
-                      .filter(c => !colunasVisiveis.includes(c.key))
-                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel })),
-                  ]}
+                  colunas={colunasSeletor ?? colunas.map(colunaParaSeletor)}
                   colunasVisiveis={colunasVisiveis}
                   onToggle={toggleColuna}
                   onFechar={() => setColunasAbertas(false)}

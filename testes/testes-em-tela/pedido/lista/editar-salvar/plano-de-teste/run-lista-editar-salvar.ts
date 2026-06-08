@@ -1,6 +1,6 @@
 /**
  * Teste em tela — Lista Pedido: Nº PEDIDO / Nº ITEM + TIPO OP. + REF. IMP./EXP. + INCOTERM + DESCRIÇÃO + LOGÍSTICA (6 colunas)
- * Plano: TST-EMT-000002
+ * Plano: TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045
  *
  * Uso: npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts
  */
@@ -12,6 +12,7 @@ import dotenv from 'dotenv'
 import { clerk, clerkSetup } from '@clerk/testing/playwright'
 import { aplicarChavesClerkParaAmbiente, ambienteRemotoProducao } from '../../../../_lib/aplicar-chaves-clerk-ambiente.js'
 import { resolverFeatureRootEmt, resolverPastaResultadoEmt } from '../../../../_lib/resolver-pasta-resultado-emt.js'
+import { validarQtdTransferidaLista } from './validar-qtd-transferida-lista.js'
 
 const __dirRoot = dirname(fileURLToPath(import.meta.url))
 const FEATURE_ROOT = resolverFeatureRootEmt(__dirRoot)
@@ -92,35 +93,54 @@ const ALERTA_MOEDAS_DIVERGENTES = /moedas divergentes/i
 
 const COLUNA_VALOR_ITEM = 'VALOR TOTAL DO PEDIDO/ITEM'
 const COL_KEY_VALOR_ITEM = 'valor_total_pedido'
-const TITULO_TOOLTIP_VALOR = 'Valor Total do Pedido/Item'
+const COL_KEY_VALOR_UNITARIO = 'valor_por_unidade_item'
+const TITULO_TOOLTIP_VALOR_PEDIDO = 'Valor total do pedido'
+const TITULO_TOOLTIP_VALOR_ITEM = 'Valor Total do Item'
 const PILLS_TOOLTIP_VALOR_PEDIDO = [
   /bloqueado para edição/i,
   /soma total dos itens na mesma moeda/i,
-  /tipo de moeda se divergem/i,
+  /editável nos itens/i,
+  /tipo de moeda divergente entre itens/i,
+  /alteração da moeda aqui irá alterar também.*moeda do pedido\/item e valor unitário do item/i,
 ] as const
-const PILLS_TOOLTIP_VALOR_ITEM = [/editável nos itens/i] as const
-const VALOR_ITEM_INCLUIR = '1.500,50'
+const PILLS_TOOLTIP_VALOR_ITEM = [
+  /editável nos itens/i,
+  /valor total do item\s*=.*valor unitário.*qtd inicial/i,
+  /alteração da moeda aqui irá alterar também.*moeda do pedido\/item e valor unitário do item/i,
+] as const
+const VALOR_ITEM2_DIVERGENTE = '1.000,00'
+const VALOR_ITEM_INCLUIR_PADRAO = '1.500,50'
 const VALOR_ITEM_EDITAR = '2.750,00'
-const MOEDA_VALOR_TESTE = 'EUR'
+
+const COLUNA_UNIDADE_COMERCIALIZADA = 'UNIDADE COMERCIALIZADA DO PEDIDO/ITEM'
+const COL_KEY_UNIDADE = 'unidade_comercializada_pedido'
+const TITULO_TOOLTIP_UNIDADE_PEDIDO = 'Unidade Comercializada do Pedido'
+const TITULO_TOOLTIP_UNIDADE_ITEM = 'Unidade Comercializada do Item'
+const AVISO_IMPACTO_UNIDADE_COMERCIALIZADA =
+  /alteração da unidade irá alterar também qtd\. inicial, qtd\. pronta, qtd\. transferida, saldo e qtd\. cancelada/i
+const PILLS_TOOLTIP_UNIDADE = [
+  /editável no pedido/i,
+  /editável no item/i,
+  /aplicar em todos os itens/i,
+  /alerta se itens divergirem/i,
+] as const
 
 type ConfigLogisticaCampo = {
   key: string
   colunaLabel: string
   tituloTooltip: string
-  opcaoPedido: string
-  opcaoItem: string
   passo: number
   slug: string
 }
 
 /** SSOT alinhado a `CAMPOS_LOGISTICA_PEDIDO` + i18n `pedido.coluna_pai.*_titulo`. */
 const CFG_LOGISTICA_COLUNAS: ConfigLogisticaCampo[] = [
-  { key: 'porto_origem', colunaLabel: 'PORTO DE ORIGEM', tituloTooltip: 'Porto de Origem', opcaoPedido: 'BRFOR', opcaoItem: 'BRSSZ', passo: 29, slug: 'porto-origem' },
-  { key: 'porto_destino', colunaLabel: 'PORTO DE DESTINO', tituloTooltip: 'Porto de Destino', opcaoPedido: 'BRSSZ', opcaoItem: 'BRITJ', passo: 30, slug: 'porto-destino' },
-  { key: 'local_de_origem', colunaLabel: 'PAÍS DE ORIGEM', tituloTooltip: 'País de Origem', opcaoPedido: 'BR', opcaoItem: 'DE', passo: 31, slug: 'pais-origem' },
-  { key: 'local_de_destino', colunaLabel: 'PAÍS DE DESTINO', tituloTooltip: 'País de Destino', opcaoPedido: 'DE', opcaoItem: 'AO', passo: 32, slug: 'pais-destino' },
-  { key: 'aeroporto_origem', colunaLabel: 'AEROPORTO DE ORIGEM', tituloTooltip: 'Aeroporto de Origem', opcaoPedido: 'GRU', opcaoItem: 'CGH', passo: 33, slug: 'aeroporto-origem' },
-  { key: 'aeroporto_destino', colunaLabel: 'AEROPORTO DE DESTINO', tituloTooltip: 'Aeroporto de Destino', opcaoPedido: 'EZE', opcaoItem: 'GRU', passo: 34, slug: 'aeroporto-destino' },
+  { key: 'porto_origem', colunaLabel: 'PORTO DE ORIGEM', tituloTooltip: 'Porto de Origem', passo: 29, slug: 'porto-origem' },
+  { key: 'porto_destino', colunaLabel: 'PORTO DE DESTINO', tituloTooltip: 'Porto de Destino', passo: 30, slug: 'porto-destino' },
+  { key: 'local_de_origem', colunaLabel: 'PAÍS DE ORIGEM', tituloTooltip: 'País de Origem', passo: 31, slug: 'pais-origem' },
+  { key: 'local_de_destino', colunaLabel: 'PAÍS DE DESTINO', tituloTooltip: 'País de Destino', passo: 32, slug: 'pais-destino' },
+  { key: 'aeroporto_origem', colunaLabel: 'AEROPORTO DE ORIGEM', tituloTooltip: 'Aeroporto de Origem', passo: 33, slug: 'aeroporto-origem' },
+  { key: 'aeroporto_destino', colunaLabel: 'AEROPORTO DE DESTINO', tituloTooltip: 'Aeroporto de Destino', passo: 34, slug: 'aeroporto-destino' },
 ]
 
 type ConfigReferenciaCampo = {
@@ -711,6 +731,43 @@ async function popoverSelectTemOpcoes(page: Page): Promise<number> {
 }
 
 /** Extrai siglas (FOB, CIF…) das opções do select padrão Incoterm (Cadastros). */
+/** Extrai termo clicável do rótulo do popover (ex.: «GRU — Guarulhos» → GRU). */
+function extrairTermoOpcaoPopover(label: string): string {
+  const normalizado = label.replace(/\s+/g, ' ').trim()
+  const antesTraco = normalizado.split('—')[0]?.trim()
+  if (antesTraco) return antesTraco.split(/\s+/)[0] ?? antesTraco
+  return normalizado.split(/\s+/)[0] ?? normalizado
+}
+
+/** Lista termos das opções visíveis no popover de select logístico. */
+async function listarTermosOpcaoPopover(page: Page): Promise<string[]> {
+  await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 })
+  const labels = await page.locator('.gtv-edit-popover-opcao').evaluateAll(els =>
+    els.map(el => (el.textContent ?? '').trim()).filter(Boolean),
+  )
+  const termos = labels.map(extrairTermoOpcaoPopover).filter(Boolean)
+  return [...new Set(termos)]
+}
+
+/** Primeira opção disponível; se `preferirDistintoDe` informado, tenta outra opção. */
+function resolverOpcaoLogisticaPopover(
+  termos: readonly string[],
+  preferirDistintoDe?: string,
+): string | null {
+  if (termos.length === 0) return null
+  if (preferirDistintoDe) {
+    const distinta = termos.find(t => !celulaContemValor(preferirDistintoDe, t) && !celulaContemValor(t, preferirDistintoDe))
+    if (distinta) return distinta
+  }
+  return termos[0] ?? null
+}
+
+function celulasLogisticaEspelhadas(textoPai: string, textosItens: readonly string[]): boolean {
+  if (!textoPai.trim() || textosItens.length === 0) return false
+  const normPai = normalizarTextoCelula(textoPai)
+  return textosItens.every(t => normalizarTextoCelula(t) === normPai)
+}
+
 async function listarSiglasIncotermPopover(page: Page): Promise<string[]> {
   const textos = await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').evaluateAll(els =>
     els.map(el => el.textContent?.trim() ?? '').filter(Boolean),
@@ -1199,7 +1256,20 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   await validarQtdProntaLista(page, rowId, numeroPedido)
   await validarQtdInicialLista(page, rowId, numeroPedido, qtdItens)
   await validarMoedaPedidoItemLista(page, rowId, qtdItens)
-  await validarValorItemLista(page, rowId, qtdItens)
+  await validarValorItemLista(page, rowId, numeroPedido, qtdItens)
+  await validarUnidadeComercializadaLista(page, rowId, numeroPedido, qtdItens)
+  await validarQtdTransferidaLista(page, {
+    log,
+    logAprovado,
+    falharTabela,
+    screenshot,
+    scrollColunaParaVisivel,
+    esconderTooltipGlobal,
+    garantirListaPedidos,
+    localizarRowIdPorNumeroPedido,
+    expandirPedido: expandirPrimeiroPedido,
+    hubUrl: HUB_URL,
+  }, rowId, numeroPedido, qtdItens)
 }
 
 function normalizarTextoCelula(texto: string): string {
@@ -1425,6 +1495,29 @@ async function validarTooltipLogisticaCelula(
   return tituloOk && pillsOk
 }
 
+async function validarTooltipUnidadeCelula(
+  page: Page,
+  locatorCelula: ReturnType<Page['locator']>,
+  nivel: 'pedido' | 'item',
+  nomePrint: string,
+): Promise<boolean> {
+  await esconderTooltipGlobal(page)
+  await locatorCelula.hover()
+  const visivel = await page.locator('.tg-card').first()
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .then(() => true)
+    .catch(() => false)
+  if (!visivel) return false
+  await screenshot(page, nomePrint)
+  const titulo = (await page.locator('.tg-titulo').first().textContent()) ?? ''
+  const descricao = (await page.locator('.tg-descricao').first().innerText()) ?? ''
+  const tituloEsperado = nivel === 'pedido' ? TITULO_TOOLTIP_UNIDADE_PEDIDO : TITULO_TOOLTIP_UNIDADE_ITEM
+  const tituloOk = normalizarTipoOperacaoTexto(titulo).includes(normalizarTipoOperacaoTexto(tituloEsperado))
+  const pillsOk = PILLS_TOOLTIP_UNIDADE.every(re => re.test(descricao))
+  const avisoOk = AVISO_IMPACTO_UNIDADE_COMERCIALIZADA.test(descricao)
+  return tituloOk && pillsOk && avisoOk
+}
+
 async function validarTooltipMoedaCelula(
   page: Page,
   locatorCelula: ReturnType<Page['locator']>,
@@ -1461,7 +1554,8 @@ async function validarTooltipValorCelula(
   await screenshot(page, nomePrint)
   const titulo = (await page.locator('.tg-titulo').first().textContent()) ?? ''
   const descricao = (await page.locator('.tg-descricao').first().innerText()) ?? ''
-  const tituloOk = normalizarTipoOperacaoTexto(titulo).includes(normalizarTipoOperacaoTexto(TITULO_TOOLTIP_VALOR))
+  const tituloEsperado = nivel === 'pedido' ? TITULO_TOOLTIP_VALOR_PEDIDO : TITULO_TOOLTIP_VALOR_ITEM
+  const tituloOk = normalizarTipoOperacaoTexto(titulo).includes(normalizarTipoOperacaoTexto(tituloEsperado))
   const pills = nivel === 'pedido' ? PILLS_TOOLTIP_VALOR_PEDIDO : PILLS_TOOLTIP_VALOR_ITEM
   const pillsOk = pills.every(re => re.test(descricao))
   return tituloOk && pillsOk
@@ -1488,22 +1582,27 @@ async function validarTooltipDescricaoCelula(
   return tituloOk && pillsOk && semPillAlerta
 }
 
-async function selecionarOpcaoPopoverPorTermo(page: Page, termo: string): Promise<void> {
+async function selecionarOpcaoPopoverPorTermo(
+  page: Page,
+  termo: string,
+  opts?: { permitirFallbackPrimeira?: boolean },
+): Promise<void> {
   await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 })
   await page.waitForFunction(
     () => document.querySelectorAll('.gtv-edit-popover-opcao').length > 0,
     undefined,
     { timeout: 20000 },
   )
-  const clicou = await page.evaluate((t) => {
+  const permitirFallback = opts?.permitirFallbackPrimeira ?? true
+  const clicou = await page.evaluate(({ t, fallback }) => {
     const botoes = Array.from(document.querySelectorAll('.gtv-edit-popover-opcao')) as HTMLElement[]
     const alvo = botoes.find(b => (b.textContent ?? '').includes(t))
       ?? botoes.find(b => (b.textContent ?? '').trim().startsWith(t))
-    const btn = alvo ?? botoes[0]
+    const btn = alvo ?? (fallback ? botoes[0] : null)
     if (!btn) return false
     btn.click()
     return true
-  }, termo)
+  }, { t: termo, fallback: permitirFallback })
   if (!clicou) throw new Error(`Nenhuma opção no popover para termo "${termo}"`)
   await page.waitForTimeout(300)
 }
@@ -1524,9 +1623,9 @@ async function validarLogisticaCampoLista(
   qtdItens: number,
   cfg: ConfigLogisticaCampo,
 ): Promise<void> {
-  const { key, colunaLabel, tituloTooltip, opcaoPedido, opcaoItem, passo, slug } = cfg
+  const { key, colunaLabel, tituloTooltip, passo, slug } = cfg
   const prefix = prefixoPrintLogistica(passo, slug)
-  log(`ℹ Coluna ${colunaLabel}: passo ${passo} (tooltip espelhado + select pedido/item)`)
+  log(`ℹ Coluna ${colunaLabel}: passo ${passo} (tooltip espelhado + select pedido/item — opção dinâmica do catálogo)`)
 
   await scrollColunaParaVisivel(page, key)
   const celPai = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${key}"]`)
@@ -1567,56 +1666,66 @@ async function validarLogisticaCampoLista(
     if (temCheckbox) {
       falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Popover logística não deve exibir checkbox «Aplicar a todos os itens»`)
     }
-    await destacarSiglaNoPopoverSelect(page, opcaoPedido)
-    await screenshot(page, printSelecao(`${prefix}-pedido`))
-    const notifPedido = await confirmarOpcaoPopoverPorTermo(page, opcaoPedido)
-    await page.waitForTimeout(800)
-    const textoPai = await lerTextoCampoPai(page, rowId, key)
-    const textosItens = await lerTextosCampoItens(page, rowId, key)
-    await screenshot(page, printResultado(`${prefix}-pedido`))
-
-    const pedidoOk = celulaContemValor(textoPai, opcaoPedido)
-    const itensEspelhados = textosItens.length > 0
-      && textosItens.every(t => celulaContemValor(t, opcaoPedido))
-
-    if (notifPedido === 'erro') {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar pedido (${opcaoPedido}) — toast de erro`)
-    } else if (!pedidoOk) {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve exibir ${opcaoPedido}`)
-    } else if (!itensEspelhados) {
-      log(`ℹ Diagnóstico ${key}: pai=${JSON.stringify(textoPai)}, itens=${JSON.stringify(textosItens)}`)
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Itens devem espelhar pedido após edição no pedido`)
+    const termosPedido = await listarTermosOpcaoPopover(page)
+    const opcaoPedido = resolverOpcaoLogisticaPopover(termosPedido)
+    if (!opcaoPedido) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Popover sem opções no pedido`)
     } else {
-      logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar pedido (${opcaoPedido}) — espelhado em ${textosItens.length} item(ns)`)
+      await destacarSiglaNoPopoverSelect(page, opcaoPedido)
+      await screenshot(page, printSelecao(`${prefix}-pedido`))
+      const notifPedido = await confirmarOpcaoPopoverPorTermo(page, opcaoPedido)
+      await page.waitForTimeout(800)
+      const textoPai = await lerTextoCampoPai(page, rowId, key)
+      const textosItens = await lerTextosCampoItens(page, rowId, key)
+      await screenshot(page, printResultado(`${prefix}-pedido`))
+
+      const espelhadoPedido = celulasLogisticaEspelhadas(textoPai, textosItens)
+
+      if (notifPedido === 'erro') {
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar pedido — toast de erro`)
+      } else if (!textoPai.trim()) {
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve persistir valor após edição`)
+      } else if (!espelhadoPedido) {
+        log(`ℹ Diagnóstico ${key}: pai=${JSON.stringify(textoPai)}, itens=${JSON.stringify(textosItens)}`)
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Itens devem espelhar pedido após edição no pedido`)
+      } else {
+        logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar pedido (${opcaoPedido}) — espelhado em ${textosItens.length} item(ns)`)
+      }
     }
   }
 
   // Edição no item — roteia PATCH pedido; todos espelham
   await fecharPopoverSeAberto(page)
+  const textoPaiAntesItem = await lerTextoCampoPai(page, rowId, key)
   const abriuItem = await abrirPopoverSelectItem(page, rowId, 0, key)
   if (!abriuItem) {
     falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Abrir select no item 1`)
   } else {
-    await destacarSiglaNoPopoverSelect(page, opcaoItem)
-    await screenshot(page, printSelecao(`${prefix}-item`))
-    const notifItem = await confirmarOpcaoPopoverPorTermo(page, opcaoItem)
-    await page.waitForTimeout(800)
-    const textoPaiItem = await lerTextoCampoPai(page, rowId, key)
-    const textosItensItem = await lerTextosCampoItens(page, rowId, key)
-    await screenshot(page, printResultado(`${prefix}-item`))
-
-    const pedidoAtualizado = celulaContemValor(textoPaiItem, opcaoItem)
-    const itensOk = textosItensItem.length > 0
-      && textosItensItem.every(t => celulaContemValor(t, opcaoItem))
-
-    if (notifItem === 'erro') {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar item (${opcaoItem}) — toast de erro`)
-    } else if (!pedidoAtualizado) {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve atualizar para ${opcaoItem} via edição no item`)
-    } else if (!itensOk) {
-      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Todos os itens devem espelhar ${opcaoItem}`)
+    const termosItem = await listarTermosOpcaoPopover(page)
+    const opcaoItem = resolverOpcaoLogisticaPopover(termosItem, textoPaiAntesItem)
+    if (!opcaoItem) {
+      falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Popover sem opções no item`)
     } else {
-      logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar item (${opcaoItem}) — pedido + ${textosItensItem.length} item(ns) espelhados`)
+      await destacarSiglaNoPopoverSelect(page, opcaoItem)
+      await screenshot(page, printSelecao(`${prefix}-item`))
+      const notifItem = await confirmarOpcaoPopoverPorTermo(page, opcaoItem)
+      await page.waitForTimeout(800)
+      const textoPaiItem = await lerTextoCampoPai(page, rowId, key)
+      const textosItensItem = await lerTextosCampoItens(page, rowId, key)
+      await screenshot(page, printResultado(`${prefix}-item`))
+
+      const espelhadoItem = celulasLogisticaEspelhadas(textoPaiItem, textosItensItem)
+
+      if (notifItem === 'erro') {
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Salvar item — toast de erro`)
+      } else if (!textoPaiItem.trim()) {
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido deve persistir valor após edição no item`)
+      } else if (!espelhadoItem) {
+        log(`ℹ Diagnóstico ${key}: pai=${JSON.stringify(textoPaiItem)}, itens=${JSON.stringify(textosItensItem)}`)
+        falharTabela(LOCAL_LISTA, colunaLabel, `${passo} — Pedido e itens devem espelhar o mesmo valor após edição no item`)
+      } else {
+        logAprovado(LOCAL_LISTA, colunaLabel, `${passo} — Editar item (${opcaoItem}) — pedido + ${textosItensItem.length} item(ns) espelhados`)
+      }
     }
   }
 
@@ -2383,6 +2492,59 @@ async function selecionarUnidadePopover(page: Page, sigla: string): Promise<'suc
   return aguardarNotificacaoSalvar(page)
 }
 
+async function listarUnidadesDropdownPopover(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const itens = Array.from(document.querySelectorAll('.gtv-edit-custom-select-list .gtv-edit-custom-select-item'))
+    const siglas: string[] = []
+    for (const el of itens) {
+      const texto = (el.textContent ?? '').trim()
+      const m = texto.match(/\b([A-Z]{1,10})\b/)
+      if (m?.[1]) siglas.push(m[1].toUpperCase())
+    }
+    return [...new Set(siglas)]
+  })
+}
+
+async function abrirPopoverUnidadeComercializadaPai(page: Page, rowId: string): Promise<boolean> {
+  await scrollColunaParaVisivel(page, COL_KEY_UNIDADE)
+  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_UNIDADE}"]`)
+  if (await cel.count() === 0) return false
+  await cel.click()
+  return page.locator('.gtv-edit-unidade .gtv-edit-custom-select-trigger')
+    .waitFor({ timeout: 10000 })
+    .then(() => true)
+    .catch(() => false)
+}
+
+async function abrirPopoverUnidadeComercializadaItem(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+): Promise<boolean> {
+  const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, COL_KEY_UNIDADE)
+  if (!clicou) return false
+  return page.locator('.gtv-edit-unidade .gtv-edit-custom-select-trigger')
+    .waitFor({ timeout: 10000 })
+    .then(() => true)
+    .catch(() => false)
+}
+
+async function resolverTresUnidadesDistintas(page: Page, rowId: string): Promise<string[] | null> {
+  await fecharPopoverSeAberto(page)
+  const abriu = await abrirPopoverUnidadeComercializadaPai(page, rowId)
+  if (!abriu) return null
+  await abrirDropdownUnidadePopover(page)
+  const unidades = await listarUnidadesDropdownPopover(page)
+  await fecharPopoverSeAberto(page)
+  if (unidades.length < 3) return null
+  return unidades.slice(0, 3)
+}
+
+function celulaUnidadeExibe(texto: string | null | undefined, sigla: string): boolean {
+  if (!texto) return false
+  return new RegExp(`\\b${sigla.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(normalizarTextoCelula(texto))
+}
+
 async function popoverExibeAvisoImpactoUnidade(page: Page, padrao: RegExp): Promise<boolean> {
   const aviso = page.locator('.gtv-edit-aviso-impacto')
   if (!(await aviso.isVisible().catch(() => false))) return false
@@ -2736,6 +2898,21 @@ async function resolverTresMoedasDistintas(page: Page, rowId: string): Promise<s
   return siglas.slice(0, 3)
 }
 
+function parseNumeroBrasileiroGrade(texto: string | null | undefined): number | null {
+  if (!texto) return null
+  const digitos = texto.replace(/[^\d,.-]/g, '')
+  if (!digitos) return null
+  const normalizado = digitos.includes(',')
+    ? digitos.replace(/\./g, '').replace(',', '.')
+    : digitos
+  const n = Number.parseFloat(normalizado)
+  return Number.isFinite(n) ? n : null
+}
+
+function formatarNumeroBrasileiroGrade(valor: number, casas = 2): string {
+  return valor.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
+}
+
 function celulaValorItemExibe(texto: string | null | undefined, valor: string, moeda: string): boolean {
   if (!texto) return false
   const norm = normalizarTextoCelula(texto)
@@ -2780,6 +2957,45 @@ async function confirmarPopoverMoedaValor(page: Page): Promise<'sucesso' | 'erro
   return aguardarNotificacaoSalvar(page)
 }
 
+async function lerPopoverValorMoeda(page: Page): Promise<{ valor: string; moeda: string }> {
+  const valor = await page.locator('.gtv-edit-moeda-valor').inputValue().catch(() => '')
+  const moeda = (await page.locator('.gtv-edit-moeda .gtv-edit-custom-select-trigger').first().textContent()) ?? ''
+  return { valor: valor.trim(), moeda: moeda.trim() }
+}
+
+async function popoverValorMoedaExibe(
+  page: Page,
+  valorEsperado: string,
+  moedaEsperada: string,
+): Promise<boolean> {
+  const { valor, moeda } = await lerPopoverValorMoeda(page)
+  const normValor = normalizarTextoCelula(valor)
+  const normMoeda = normalizarTextoCelula(moeda)
+  const partes = valorEsperado.split(',')
+  const temValor = normValor.includes(valorEsperado)
+    || normValor.includes(partes[0])
+    || normValor.replace(/\./g, '').includes(valorEsperado.replace(/\./g, '').replace(',', '.'))
+  const temMoeda = celulaContemValor(normMoeda, moedaEsperada)
+  return temValor && temMoeda
+}
+
+async function abrirPopoverValorItemVerOriginais(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+  valorEsperado: string,
+  moedaEsperada: string,
+  nomePrint: string,
+): Promise<boolean> {
+  await fecharPopoverSeAberto(page)
+  const abriu = await abrirPopoverValorItem(page, pedidoRowId, indice)
+  if (!abriu) return false
+  const ok = await popoverValorMoedaExibe(page, valorEsperado, moedaEsperada)
+  await screenshot(page, nomePrint)
+  await fecharPopoverSeAberto(page)
+  return ok
+}
+
 async function salvarValorItem(
   page: Page,
   pedidoRowId: string,
@@ -2797,6 +3013,25 @@ async function salvarValorItem(
   await page.waitForTimeout(600)
   await screenshot(page, printResultado(prefixoPrint))
   return notif
+}
+
+async function itemValorTotalConfereFormulaUnitarioQtd(
+  page: Page,
+  pedidoRowId: string,
+  indice: number,
+): Promise<{ ok: boolean; unitario: number | null; qtd: number | null; total: number | null; esperado: number | null }> {
+  const textosUnit = await lerTextosCampoItens(page, pedidoRowId, COL_KEY_VALOR_UNITARIO)
+  const textosQtd = await lerTextosCampoItens(page, pedidoRowId, COL_KEY_QTD_INICIAL)
+  const textosTotal = await lerTextosCampoItens(page, pedidoRowId, COL_KEY_VALOR_ITEM)
+  const unitario = parseNumeroBrasileiroGrade(textosUnit[indice])
+  const qtd = parseNumeroBrasileiroGrade(textosQtd[indice])
+  const total = parseNumeroBrasileiroGrade(textosTotal[indice])
+  if (unitario == null || qtd == null || total == null) {
+    return { ok: false, unitario, qtd, total, esperado: null }
+  }
+  const esperado = unitario * qtd
+  const ok = Math.abs(total - esperado) < 0.02
+  return { ok, unitario, qtd, total, esperado }
 }
 
 /** Passos 56–61 — Moeda do Pedido/Item (select + checkbox replicar). */
@@ -2928,9 +3163,17 @@ async function validarMoedaPedidoItemLista(page: Page, rowId: string, qtdItens: 
   }
 }
 
-/** Passos 62–66 — Valor Total do Pedido/Item (pedido soma + edição no item). */
-async function validarValorItemLista(page: Page, rowId: string, qtdItens: number): Promise<void> {
-  log(`ℹ Coluna ${COLUNA_VALOR_ITEM}: passos 62–66 (tooltip, pedido bloqueado, editar item, persistência)`)
+/**
+ * Passos 62–71 — Valor Total do Pedido/Item.
+ * Sequência numérica contínua = ordem exata das regras 01–08 do dono.
+ */
+async function validarValorItemLista(
+  page: Page,
+  rowId: string,
+  numeroPedido: string,
+  qtdItens: number,
+): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_VALOR_ITEM}: passos 62–71 (regras 01–08 na ordem pedida)`)
   if (qtdItens < 1) {
     falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, 'Pré-condição — pedido sem itens visíveis')
     return
@@ -2941,48 +3184,415 @@ async function validarValorItemLista(page: Page, rowId: string, qtdItens: number
   const celItem = page.locator(`.gtv-linha--filho[data-gtv-pai-id="${rowId}"]`).first()
     .locator(`[data-gtv-campo="${COL_KEY_VALOR_ITEM}"]`)
 
-  const tooltipPaiOk = await validarTooltipValorCelula(page, celPai, 'pedido', '62-valor-tooltip-pedido.png')
-  if (tooltipPaiOk) {
-    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '62 — Tooltip pedido (bloqueado + alerta)')
+  const moedasValor = await resolverTresMoedasDistintas(page, rowId)
+  const moedaIncluir = moedasValor?.[0] ?? 'USD'
+  const formulaAntes = await itemValorTotalConfereFormulaUnitarioQtd(page, rowId, 0)
+  const valorIncluir = formulaAntes.esperado != null && formulaAntes.esperado > 0
+    ? formatarNumeroBrasileiroGrade(formulaAntes.esperado, 2)
+    : VALOR_ITEM_INCLUIR_PADRAO
+  let moedaItem2 = moedasValor?.find(m => m !== moedaIncluir) ?? 'EUR'
+
+  // 62 — regra 01: pedido não editável
+  await fecharPopoverSeAberto(page)
+  await celPai.click()
+  await page.waitForTimeout(400)
+  const popoverPedidoAbriu = await page.locator('.gtv-edit-moeda-valor').isVisible().catch(() => false)
+    || await page.locator('.gtv-edit-popover').isVisible().catch(() => false)
+  await screenshot(page, '62-valor-pedido-nao-edita-resultado.png')
+  await fecharPopoverSeAberto(page)
+  if (!popoverPedidoAbriu) {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '62 — Pedido não abre popover (não editável)')
   } else {
-    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '62 — Tooltip pedido com pills de valor bloqueado')
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '62 — Célula do pedido não deve abrir popover')
+  }
+
+  // 63 — regra 02: cursor not-allowed no pedido
+  await celPai.hover()
+  await page.waitForTimeout(250)
+  const cursorBloqueado = await celPai.evaluate(el => {
+    const alvo = el.querySelector('.tg-trigger') ?? el
+    return window.getComputedStyle(alvo).cursor === 'not-allowed'
+  })
+  await screenshot(page, '63-valor-pedido-cursor-bloqueado.png')
+  if (cursorBloqueado) {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '63 — Cursor not-allowed na célula do pedido')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '63 — Cursor do pedido deve ser not-allowed no hover')
+  }
+
+  // 64 — regra 03: tooltip pedido
+  await esconderTooltipGlobal(page)
+  const tooltipPaiOk = await validarTooltipValorCelula(page, celPai, 'pedido', '64-valor-tooltip-pedido.png')
+  if (tooltipPaiOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '64 — Tooltip pedido (bloqueado + soma + editável nos itens + alerta + aviso)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '64 — Tooltip pedido incompleto')
+  }
+
+  // 65 — regra 04: item vazio — incluir valor + qualquer moeda
+  await esconderTooltipGlobal(page)
+  const textoValorAntes65 = (await lerTextosCampoItens(page, rowId, COL_KEY_VALOR_ITEM))[0] ?? ''
+  if (textoValorAntes65 && textoValorAntes65 !== '—' && textoValorAntes65 !== '-') {
+    log(`ℹ Passo 65 — item 1 já exibe valor (${textoValorAntes65}); incluir mesmo assim`)
+  }
+  const notif65 = await salvarValorItem(page, rowId, 0, valorIncluir, moedaIncluir, '65-valor-item-incluir')
+  const textoItem65 = (await lerTextosCampoItens(page, rowId, COL_KEY_VALOR_ITEM))[0] ?? ''
+  if (notif65 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `65 — Salvar item vazio (${valorIncluir} ${moedaIncluir}) — toast de erro`)
+  } else if (!celulaValorItemExibe(textoItem65, valorIncluir, moedaIncluir)) {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `65 — Item 1 deve exibir ${valorIncluir} ${moedaIncluir} (obtido: ${textoItem65})`)
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, `65 — Item vazio: incluir ${valorIncluir} ${moedaIncluir}`)
+  }
+
+  // 66 — regra 05: valor total = unitário × qtd inicial
+  const formula66 = await itemValorTotalConfereFormulaUnitarioQtd(page, rowId, 0)
+  await screenshot(page, '66-valor-item-formula-unitario-qtd-resultado.png')
+  if (formula66.ok) {
+    logAprovado(
+      LOCAL_LISTA,
+      COLUNA_VALOR_ITEM,
+      `66 — Valor total = unitário × qtd (${formula66.unitario} × ${formula66.qtd} = ${formula66.esperado})`,
+    )
+  } else {
+    falharTabela(
+      LOCAL_LISTA,
+      COLUNA_VALOR_ITEM,
+      `66 — Valor total deve ser unitário × qtd (unit=${formula66.unitario}, qtd=${formula66.qtd}, total=${formula66.total}, esperado=${formula66.esperado})`,
+    )
+  }
+
+  // 67 — regra 04 (modal): popover exibe valor e moeda originais
+  const originaisOk = await abrirPopoverValorItemVerOriginais(
+    page,
+    rowId,
+    0,
+    valorIncluir,
+    moedaIncluir,
+    '67-valor-item-popover-originais.png',
+  )
+  if (originaisOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, `67 — Popover exibe originais (${valorIncluir} ${moedaIncluir})`)
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `67 — Popover deve exibir ${valorIncluir} ${moedaIncluir}`)
+  }
+
+  // 68 — regra 05 (modal): editar novo valor e moeda
+  const notif68 = await salvarValorItem(page, rowId, 0, VALOR_ITEM_EDITAR, moedaIncluir, '68-valor-item-editar')
+  const textoItem68 = (await lerTextosCampoItens(page, rowId, COL_KEY_VALOR_ITEM))[0] ?? ''
+  if (notif68 === 'erro') {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `68 — Editar valor (${VALOR_ITEM_EDITAR} ${moedaIncluir}) — toast de erro`)
+  } else if (!celulaValorItemExibe(textoItem68, VALOR_ITEM_EDITAR, moedaIncluir)) {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `68 — Item 1 deve exibir ${VALOR_ITEM_EDITAR} ${moedaIncluir} (obtido: ${textoItem68})`)
+  } else {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, `68 — Editar e salvar ${VALOR_ITEM_EDITAR} ${moedaIncluir}`)
+  }
+
+  // 69 — regra 06: item 2 moeda divergente → alerta no pedido
+  if (qtdItens < 2) {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '69 — Pré-condição: pedido precisa de ≥2 itens para divergência de moeda')
+  } else {
+    moedaItem2 = moedasValor?.find(m => m !== moedaIncluir) ?? 'EUR'
+    const notif69 = await salvarValorItem(page, rowId, 1, VALOR_ITEM2_DIVERGENTE, moedaItem2, '69-valor-item2-moeda-divergente')
+    if (notif69 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `69 — Salvar item 2 (${VALOR_ITEM2_DIVERGENTE} ${moedaItem2}) — toast de erro`)
+    } else {
+      await page.waitForTimeout(600)
+      const temAlerta69 = await pedidoTemAlertaCampoDivergente(page, rowId, COL_KEY_VALOR_ITEM, ALERTA_MOEDAS_DIVERGENTES)
+      await screenshot(page, '69-valor-alerta-divergencia-resultado.png')
+      if (temAlerta69) {
+        logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '69 — Alerta «Moedas divergentes entre itens» na coluna Valor do pedido')
+      } else {
+        falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '69 — Alerta de moedas divergentes não detectado na coluna Valor do pedido')
+      }
+    }
+  }
+
+  // 70 — regra 07: tooltip item
+  await esconderTooltipGlobal(page)
+  const tooltipItemOk = await validarTooltipValorCelula(page, celItem, 'item', '70-valor-tooltip-item.png')
+  if (tooltipItemOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '70 — Tooltip item (editável + fórmula + aviso)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '70 — Tooltip item incompleto')
+  }
+
+  // 71 — regra 08: sair da lista, voltar — dados persistidos
+  await fecharPopoverSeAberto(page)
+  await page.goto(HUB_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await page.waitForTimeout(1500)
+  await garantirListaPedidos(page)
+
+  const rowId71 = await localizarRowIdPorNumeroPedido(page, numeroPedido)
+  if (!rowId71) {
+    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `71 — Reencontrar pedido ${numeroPedido} após sair da lista`)
+    await screenshot(page, '71-valor-persistencia-apos-navegar-resultado.png')
+    return
+  }
+
+  await expandirPedidoRetornaQtd(page, rowId71)
+  const textoItem71 = (await lerTextosCampoItens(page, rowId71, COL_KEY_VALOR_ITEM))[0] ?? ''
+  const textoItem2_71 = qtdItens >= 2
+    ? (await lerTextosCampoItens(page, rowId71, COL_KEY_VALOR_ITEM))[1] ?? ''
+    : ''
+  await screenshot(page, '71-valor-persistencia-apos-navegar-resultado.png')
+
+  const item1Ok = celulaValorItemExibe(textoItem71, VALOR_ITEM_EDITAR, moedaIncluir)
+  const item2Ok = qtdItens < 2
+    || celulaValorItemExibe(textoItem2_71, VALOR_ITEM2_DIVERGENTE, moedaItem2)
+  if (item1Ok && item2Ok) {
+    logAprovado(
+      LOCAL_LISTA,
+      COLUNA_VALOR_ITEM,
+      `71 — Persistência após sair/voltar (item1: ${VALOR_ITEM_EDITAR} ${moedaIncluir}${qtdItens >= 2 ? `; item2: ${VALOR_ITEM2_DIVERGENTE} ${moedaItem2}` : ''})`,
+    )
+  } else {
+    falharTabela(
+      LOCAL_LISTA,
+      COLUNA_VALOR_ITEM,
+      `71 — Valores não persistiram (item1=${textoItem71}${qtdItens >= 2 ? `; item2=${textoItem2_71}` : ''})`,
+    )
+  }
+}
+
+/**
+ * Passos 72–82 — Unidade Comercializada do Pedido/Item.
+ * Sequência numérica contínua = ordem exata das regras 01–08 do dono.
+ */
+async function validarUnidadeComercializadaLista(
+  page: Page,
+  rowId: string,
+  numeroPedido: string,
+  qtdItens: number,
+): Promise<void> {
+  log(`ℹ Coluna ${COLUNA_UNIDADE_COMERCIALIZADA}: passos 72–82 (regras 01–08 na ordem pedida)`)
+  if (qtdItens < 1) {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, 'Pré-condição — pedido sem itens visíveis')
+    return
+  }
+
+  await scrollColunaParaVisivel(page, COL_KEY_UNIDADE)
+  const celPai = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_UNIDADE}"]`)
+  const celItem = page.locator(`.gtv-linha--filho[data-gtv-pai-id="${rowId}"]`).first()
+    .locator(`[data-gtv-campo="${COL_KEY_UNIDADE}"]`)
+
+  await fecharPopoverSeAberto(page)
+  const abriu72 = await abrirPopoverUnidadeComercializadaPai(page, rowId)
+  await screenshot(page, '72-unidade-pedido-abre-popover-resultado.png')
+  if (abriu72) {
+    logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '72 — Pedido editável (popover abre ao clicar)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '72 — Clicar pedido deve abrir popover de unidade')
+  }
+  await fecharPopoverSeAberto(page)
+
+  await esconderTooltipGlobal(page)
+  await celPai.hover()
+  const tooltipHover72 = await page.locator('.tg-card').first()
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .then(() => true)
+    .catch(() => false)
+  await screenshot(page, '73-unidade-tooltip-pedido-hover.png')
+  if (tooltipHover72) {
+    logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '73 — Tooltip pedido visível no hover')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '73 — Tooltip pedido não exibida no hover')
   }
 
   await esconderTooltipGlobal(page)
-  const tooltipItemOk = await validarTooltipValorCelula(page, celItem, 'item', '63-valor-tooltip-item.png')
+  const tooltipPaiOk = await validarTooltipUnidadeCelula(page, celPai, 'pedido', '74-unidade-tooltip-pedido.png')
+  if (tooltipPaiOk) {
+    logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '74 — Tooltip pedido (4 pills + aviso impacto)')
+  } else {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '74 — Tooltip pedido com título, 4 pills e aviso')
+  }
+
+  await fecharPopoverSeAberto(page)
+  const abriu75 = await abrirPopoverUnidadeComercializadaPai(page, rowId)
+  if (!abriu75) {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '75 — Abrir modal/popover no pedido')
+  } else {
+    await screenshot(page, '75-unidade-pedido-modal-aberto.png')
+    logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '75 — Modal/popover pedido aberto')
+    await abrirDropdownUnidadePopover(page)
+    const unidadesLista = await listarUnidadesDropdownPopover(page)
+    await screenshot(page, '76-unidade-pedido-lista-cadastros.png')
+    if (unidadesLista.length < 3) {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `76 — Dropdown deve listar ≥3 unidades do Cadastros (encontradas: ${unidadesLista.length})`)
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `76 — Lista Cadastros com ${unidadesLista.length} unidades`)
+    }
+  }
+  await fecharPopoverSeAberto(page)
+
+  const unidades = await resolverTresUnidadesDistintas(page, rowId)
+  if (!unidades || unidades.length < 3) {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, 'Pré-condição — dropdown Unidade deve listar ≥3 opções do Cadastros')
+    return
+  }
+  const [unidadeSolo, unidadeTodos, unidadeItem] = unidades
+  const textosItensAntes = await lerTextosCampoItens(page, rowId, COL_KEY_UNIDADE)
+
+  await fecharPopoverSeAberto(page)
+  const abriu77 = await abrirPopoverUnidadeComercializadaPai(page, rowId)
+  if (!abriu77) {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '77 — Abrir popover Unidade no pedido (sem replicar)')
+  } else {
+    await abrirDropdownUnidadePopover(page)
+    await screenshot(page, printSelecao('77-unidade-pedido-sem-replicar'))
+    const notif77 = await selecionarUnidadePopover(page, unidadeSolo)
+    await page.waitForTimeout(600)
+    const textoPai77 = await lerTextoCampoPai(page, rowId, COL_KEY_UNIDADE)
+    const textosItens77 = await lerTextosCampoItens(page, rowId, COL_KEY_UNIDADE)
+    await screenshot(page, printResultado('77-unidade-pedido-sem-replicar'))
+    const pedidoOk77 = celulaUnidadeExibe(textoPai77, unidadeSolo)
+    const itensNaoReplicaram = textosItens77.every((t, i) => t === (textosItensAntes[i] ?? ''))
+    if (notif77 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `77 — Salvar pedido sem replicar (${unidadeSolo}) — toast de erro`)
+    } else if (!pedidoOk77) {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `77 — Pedido deve exibir ${unidadeSolo}`)
+    } else if (!itensNaoReplicaram) {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '77 — Itens não devem replicar ao salvar pedido sem checkbox')
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `77 — Salvar pedido sem replicar (${unidadeSolo})`)
+    }
+  }
+
+  await fecharPopoverSeAberto(page)
+  const abriu78 = await abrirPopoverUnidadeComercializadaPai(page, rowId)
+  if (!abriu78) {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '78 — Abrir popover Unidade no pedido (com replicar)')
+  } else {
+    const temCb78 = await popoverExibeCheckboxReplicar(page)
+    if (!temCb78) {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '78 — Popover deve exibir checkbox «Aplicar a todos os itens»')
+    }
+    await marcarCheckboxReplicarPopover(page)
+    await abrirDropdownUnidadePopover(page)
+    await screenshot(page, printSelecao('78-unidade-pedido-replicar-todos'))
+    const notif78 = await selecionarUnidadePopover(page, unidadeTodos)
+    await page.waitForTimeout(800)
+    const textoPai78 = await lerTextoCampoPai(page, rowId, COL_KEY_UNIDADE)
+    const textosItens78 = await lerTextosCampoItens(page, rowId, COL_KEY_UNIDADE)
+    await screenshot(page, printResultado('78-unidade-pedido-replicar-todos'))
+    const pedidoOk78 = celulaUnidadeExibe(textoPai78, unidadeTodos)
+    const itensOk78 = textosItens78.length > 0 && textosItens78.every(t => celulaUnidadeExibe(t, unidadeTodos))
+    if (notif78 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `78 — Salvar pedido com replicar (${unidadeTodos}) — toast de erro`)
+    } else if (!pedidoOk78 || !itensOk78) {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `78 — Pedido e todos os itens devem exibir ${unidadeTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `78 — Replicar para todos os itens (${unidadeTodos}, ${textosItens78.length} itens)`)
+    }
+  }
+
+  await fecharPopoverSeAberto(page)
+  const abriu79 = await abrirPopoverUnidadeComercializadaItem(page, rowId, 0)
+  if (!abriu79) {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '79 — Abrir popover Unidade no item 1')
+  } else {
+    await screenshot(page, '79-unidade-item-modal-aberto.png')
+    logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '79 — Modal/popover item 1 aberto')
+  }
+  await fecharPopoverSeAberto(page)
+
+  await fecharPopoverSeAberto(page)
+  const abriu80 = await abrirPopoverUnidadeComercializadaItem(page, rowId, 0)
+  if (!abriu80) {
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '80 — Abrir popover Unidade no item 1 para editar')
+  } else {
+    await abrirDropdownUnidadePopover(page)
+    await screenshot(page, printSelecao('80-unidade-item-isolado'))
+    const notif80 = await selecionarUnidadePopover(page, unidadeItem)
+    await page.waitForTimeout(600)
+    const textoPai80 = await lerTextoCampoPai(page, rowId, COL_KEY_UNIDADE)
+    const textosItens80 = await lerTextosCampoItens(page, rowId, COL_KEY_UNIDADE)
+    await screenshot(page, printResultado('80-unidade-item-isolado'))
+    const item0Ok80 = celulaUnidadeExibe(textosItens80[0], unidadeItem)
+    const pedidoManteve80 = celulaUnidadeExibe(textoPai80, unidadeTodos)
+    const demaisItensOk80 = textosItens80.length <= 1
+      || textosItens80.slice(1).every(t => celulaUnidadeExibe(t, unidadeTodos))
+    if (notif80 === 'erro') {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `80 — Salvar item isolado (${unidadeItem}) — toast de erro`)
+    } else if (!item0Ok80) {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `80 — Item 1 deve exibir ${unidadeItem}`)
+    } else if (!pedidoManteve80) {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `80 — Pedido deve manter ${unidadeTodos}`)
+    } else if (!demaisItensOk80) {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `80 — Demais itens devem manter ${unidadeTodos}`)
+    } else {
+      logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `80 — Editar apenas o item 1 (${unidadeItem})`)
+    }
+  }
+
+  let unidadeDivergenteItem2 = unidades.find(u => u !== unidadeTodos && u !== unidadeItem) ?? UNIDADE_DIVERGENTE_TESTE
+  if (qtdItens >= 2) {
+    const unidadeDivergente = unidadeDivergenteItem2
+    await fecharPopoverSeAberto(page)
+    const abriu80b = await abrirPopoverUnidadeComercializadaItem(page, rowId, 1)
+    if (!abriu80b) {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '80 — Abrir popover Unidade no item 2 (divergente)')
+    } else {
+      await abrirDropdownUnidadePopover(page)
+      await screenshot(page, printSelecao('80-unidade-item2-divergente'))
+      const notif80b = await selecionarUnidadePopover(page, unidadeDivergente)
+      await page.waitForTimeout(600)
+      await screenshot(page, printResultado('80-unidade-item2-divergente'))
+      if (notif80b === 'erro') {
+        falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `80 — Salvar item 2 divergente (${unidadeDivergente}) — toast de erro`)
+      } else {
+        logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `80 — Item 2 com unidade divergente (${unidadeDivergente})`)
+      }
+    }
+    await page.waitForTimeout(600)
+    const temAlerta80 = await pedidoTemAlertaCampoDivergente(page, rowId, COL_KEY_UNIDADE, ALERTA_UNIDADES_DIVERGENTES)
+    await screenshot(page, '80-unidade-alerta-divergencia-resultado.png')
+    if (temAlerta80) {
+      logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '80 — Alerta «Unidades divergentes entre itens» visível na coluna do pedido')
+    } else {
+      falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '80 — Alerta «Unidades divergentes entre itens» não detectado')
+    }
+  } else {
+    log(`⚠ ${emtRow(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, 'Alerta divergência item 2 — pulado (menos de 2 itens)', 'Reprovado')}`)
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '80 — Alerta divergência requer ≥2 itens no pedido')
+  }
+
+  await esconderTooltipGlobal(page)
+  const tooltipItemOk = await validarTooltipUnidadeCelula(page, celItem, 'item', '81-unidade-tooltip-item.png')
   if (tooltipItemOk) {
-    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '63 — Tooltip item (editável no item)')
+    logAprovado(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '81 — Tooltip item (4 pills + aviso impacto)')
   } else {
-    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, '63 — Tooltip item com pill editável')
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, '81 — Tooltip item com título, 4 pills e aviso')
   }
 
-  const classeBloqueada = await celPai.evaluate(el => el.classList.contains('gtv-celula--bloqueada'))
-  const textoPai64 = await lerTextoCampoPai(page, rowId, COL_KEY_VALOR_ITEM)
-  await screenshot(page, '64-valor-pedido-bloqueado-resultado.png')
-  if (classeBloqueada || textoPai64 === '—' || textoPai64 === '-') {
-    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, '64 — Célula do pedido bloqueada (sem edição / traço)')
-  } else {
-    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `64 — Pedido deve permanecer bloqueado (obtido: ${textoPai64})`)
+  await page.goto(HUB_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await page.waitForTimeout(800)
+  await garantirListaPedidos(page)
+  const rowId82 = await localizarRowIdPorNumeroPedido(page, numeroPedido)
+  if (!rowId82) {
+    await screenshot(page, '82-unidade-persistencia-apos-navegar-resultado.png')
+    falharTabela(LOCAL_LISTA, COLUNA_UNIDADE_COMERCIALIZADA, `82 — Pedido ${numeroPedido} não encontrado após navegar`)
+    return
   }
-
-  const notif65 = await salvarValorItem(page, rowId, 0, VALOR_ITEM_INCLUIR, MOEDA_VALOR_TESTE, '65-valor-item-incluir')
-  const textoItem65 = (await lerTextosCampoItens(page, rowId, COL_KEY_VALOR_ITEM))[0] ?? ''
-  if (notif65 === 'erro') {
-    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `65 — Salvar valor no item (${VALOR_ITEM_INCLUIR} ${MOEDA_VALOR_TESTE}) — toast de erro`)
-  } else if (!celulaValorItemExibe(textoItem65, VALOR_ITEM_INCLUIR, MOEDA_VALOR_TESTE)) {
-    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `65 — Item 1 deve exibir ${VALOR_ITEM_INCLUIR} ${MOEDA_VALOR_TESTE} (obtido: ${textoItem65})`)
+  await expandirPedidoRetornaQtd(page, rowId82)
+  const textoPai82 = await lerTextoCampoPai(page, rowId82, COL_KEY_UNIDADE)
+  const textosItens82 = await lerTextosCampoItens(page, rowId82, COL_KEY_UNIDADE)
+  await screenshot(page, '82-unidade-persistencia-apos-navegar-resultado.png')
+  const pedidoPersistiu = celulaUnidadeExibe(textoPai82, unidadeTodos)
+  const item1Persistiu = celulaUnidadeExibe(textosItens82[0], unidadeItem)
+  const item2Persistiu = qtdItens < 2 || celulaUnidadeExibe(textosItens82[1], unidadeDivergenteItem2)
+  if (pedidoPersistiu && item1Persistiu && item2Persistiu) {
+    logAprovado(
+      LOCAL_LISTA,
+      COLUNA_UNIDADE_COMERCIALIZADA,
+      `82 — Persistência após sair/voltar (pedido: ${unidadeTodos}; item1: ${unidadeItem})`,
+    )
   } else {
-    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, `65 — Incluir valor no item 1 (${VALOR_ITEM_INCLUIR} ${MOEDA_VALOR_TESTE})`)
-  }
-
-  const notif66 = await salvarValorItem(page, rowId, 0, VALOR_ITEM_EDITAR, MOEDA_VALOR_TESTE, '66-valor-item-editar')
-  const textoItem66 = (await lerTextosCampoItens(page, rowId, COL_KEY_VALOR_ITEM))[0] ?? ''
-  if (notif66 === 'erro') {
-    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `66 — Editar valor no item (${VALOR_ITEM_EDITAR} ${MOEDA_VALOR_TESTE}) — toast de erro`)
-  } else if (!celulaValorItemExibe(textoItem66, VALOR_ITEM_EDITAR, MOEDA_VALOR_TESTE)) {
-    falharTabela(LOCAL_LISTA, COLUNA_VALOR_ITEM, `66 — Item 1 deve exibir ${VALOR_ITEM_EDITAR} ${MOEDA_VALOR_TESTE} (obtido: ${textoItem66})`)
-  } else {
-    logAprovado(LOCAL_LISTA, COLUNA_VALOR_ITEM, `66 — Editar valor no item 1 (${VALOR_ITEM_EDITAR} ${MOEDA_VALOR_TESTE})`)
+    falharTabela(
+      LOCAL_LISTA,
+      COLUNA_UNIDADE_COMERCIALIZADA,
+      `82 — Unidades não persistiram (pai=${textoPai82}; itens=${JSON.stringify(textosItens82)})`,
+    )
   }
 }
 

@@ -259,10 +259,9 @@ async function main() {
       falhar(`IMP: popover Exportador sem fornecedores (opções=${qtdImp})`)
     } else {
       const labelsImp = await opcoesImp.allInnerTexts()
-      const textoWs = await textoCelula(await celulaCampo(pedidoImp, 'id_workspace'))
-      const vazouWorkspace = labelsImp.some((l) => l.trim() === textoWs.trim())
-      if (vazouWorkspace && textoWs.trim()) {
-        falhar(`IMP: popover listou workspace "${textoWs}" como exportador`)
+      const vazouWorkspace = labelsImp.some((l) => l.trim() === textoWsImp.trim())
+      if (vazouWorkspace && textoWsImp.trim()) {
+        falhar(`IMP: popover listou workspace "${textoWsImp}" como exportador`)
       } else {
         log(`✓ IMP popover com ${qtdImp} exportadores (sem workspace do pedido)`)
       }

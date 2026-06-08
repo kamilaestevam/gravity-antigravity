@@ -148,8 +148,8 @@ Doc completo: [`EDICAO-EM-MASSA-TECNICO.md` §Auto-fill](../../../documentos-tec
 
 ## Parte 2 — Lista de Pedidos
 
-> Regras de negócio: [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md)  
-> Técnico: [`LISTA-EDITAR-SALVAR-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-TECNICO.md)  
+> Regras de negócio: [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md) (§0 tooltips + colunas especiais)  
+> Técnico: [`LISTA-EDITAR-SALVAR-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-TECNICO.md) (§6 tooltips — arquitetura)  
 > Checkbox genérico: [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/REPLICAR-PAI-EM-ITENS-TECNICO.md)
 
 ### Infraestrutura
@@ -157,6 +157,7 @@ Doc completo: [`EDICAO-EM-MASSA-TECNICO.md` §Auto-fill](../../../documentos-tec
 - `Pedidos.tsx` + `TabelaVirtualGlobal` — 99 colunas pai, 165 colunas filho
 - `ColunasPai.tsx` / `ColunasFilho.tsx` — catálogo; `renderAgregado()` = valor + `⚠` divergência
 - SSOT comportamento: `columnBehaviorConfig.ts`, `columnAlertConfig.ts`, `pedidoDivergencias.ts`
+- **Tooltips de coluna:** `TooltipRegrasColuna.tsx`, `buildTooltipRegraLista.tsx` (`isLinhaItemLista`, `tooltipNivelCelula`), `pillsTooltipColunaLista.ts`, núcleo `tooltipCelulaResolver.ts` — SSOT único pedido/item para título e pills; ver doc §6 e `/tooltip-pedido`
 
 ### Colunas com regra especial (editar-salvar inline)
 
@@ -180,6 +181,7 @@ Doc completo: [`EDICAO-EM-MASSA-TECNICO.md` §Auto-fill](../../../documentos-tec
 
 - **Consolidar:** BLOQUEIA mistura importação+exportação (regra de negócio)
 - **Transferir:** AVISA mistura mas permite (cross-tenant possível)
+- **Lista — Qtd. Transferida:** coluna somente leitura; `reducao_simples` incrementa `quantidade_cancelada_item` (não transferida) — ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §8C e `TRANSFERIR-REGRAS-NEGOCIO.md`
 - Ambos usam `bulkSchemas.ts` — `detectarTiposMistos()` síncrono e `assertTiposHomogeneos()` (refinement Zod)
 
 ---

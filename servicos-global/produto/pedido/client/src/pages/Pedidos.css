@@ -565,6 +565,25 @@
   justify-content: center;
 }
 
+/* Célula bloqueada — trigger ocupa a célula inteira (hover + tooltip em toda a área) */
+.lp-tabela-wrapper .gtv-celula--bloqueada .tg-trigger,
+.lp-tabela-wrapper .gtv-celula--bloqueada .tg-trigger--bloqueado {
+  flex: 1;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.lp-tabela-wrapper .gtv-celula--right.gtv-celula--bloqueada .tg-trigger,
+.lp-tabela-wrapper .gtv-celula--right.gtv-celula--bloqueada .tg-trigger--bloqueado {
+  justify-content: flex-end;
+}
+
+.lp-tabela-wrapper .gtv-celula--left.gtv-celula--bloqueada .tg-trigger,
+.lp-tabela-wrapper .gtv-celula--left.gtv-celula--bloqueada .tg-trigger--bloqueado {
+  justify-content: flex-start;
+}
+
 /* Células de item bloqueadas (tipo operação, workspace…) — cursor proibido mesmo com tooltip de regras */
 .lp-tabela-wrapper .gtv-celula--bloqueada,
 .lp-tabela-wrapper .gtv-celula--bloqueada .tg-trigger,

@@ -50,8 +50,10 @@ export interface SnapshotAplicarListaPainel {
 
 function estadoParaConfig(estado: EstadoListaParaPainel): ListaPainelConfigV1 {
   const colunasVisiveis = estado.preferencias?.colunas_visiveis ?? []
+  const conhecidas = estado.preferencias?.colunas_manuais_conhecidas
   return configListaPainelPadraoV1({
     colunas_visiveis: colunasVisiveis,
+    ...(conhecidas && conhecidas.length > 0 ? { colunas_manuais_conhecidas: conhecidas } : {}),
     ...(estado.preferencias?.colunas_largura
       ? { colunas_largura: estado.preferencias.colunas_largura as Record<string, number> }
       : {}),
@@ -142,6 +144,9 @@ export function useListaPainelPedido() {
       const prefs: GTPreferencias = {
         colunas_visiveis: config.colunas_visiveis,
         ...(config.colunas_largura ? { colunas_largura: config.colunas_largura } : {}),
+        ...(config.colunas_manuais_conhecidas
+          ? { colunas_manuais_conhecidas: config.colunas_manuais_conhecidas }
+          : {}),
       }
       callbacks.setPreferencias(prefs)
     }

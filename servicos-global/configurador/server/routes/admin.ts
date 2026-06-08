@@ -46,7 +46,7 @@ import {
   type AmbienteTesteUi,
 } from '../lib/ambiente-teste-execucao.js'
 import { extrairCasosDoPlano } from '../lib/extrair-casos-plano.js'
-import { appendTestLogEntries, testLogsDir } from '../lib/test-log-persist.js'
+import { appendTestLogEntries, listDailyTestLogFiles, testLogsDir } from '../lib/test-log-persist.js'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { analyzeTestFailure, getMetrics as getGeminiMetrics } from '../lib/gemini-test-analyzer.js'
 import { readSpecFileContent } from '../lib/test-spec-content.js'
@@ -1091,6 +1091,10 @@ adminRouter.get('/planos-teste/:id_plano_teste/casos', (req, res, next) => {
       ...c,
       titulo: adaptarTextoCasoParaAmbiente(c.titulo, ambienteExecucao),
       detalhe: adaptarTextoCasoParaAmbiente(c.detalhe, ambienteExecucao),
+      acao: c.acao ? adaptarTextoCasoParaAmbiente(c.acao, ambienteExecucao) : undefined,
+      aprovadoQuando: c.aprovadoQuando
+        ? adaptarTextoCasoParaAmbiente(c.aprovadoQuando, ambienteExecucao)
+        : undefined,
     }))
 
     res.json({
@@ -1158,6 +1162,9 @@ adminRouter.patch('/planos-teste/:id_plano_teste', (req, res, next) => {
       }
     }
 
+    entry.propriedade_dono = true
+    entry.editado_pelo_dono_em = new Date().toISOString()
+
     writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`, 'utf-8')
 
     res.json({ plano: entry, id_anterior: idAnterior })
@@ -1178,16 +1185,11 @@ adminRouter.get('/testes', async (_req, res, next) => {
 
     const byId = new Map<string, Record<string, unknown>>()
 
-    // 1. Lê arquivos JSON em data/test-logs/ (fonte primária — run-tests escreve aqui)
+    // 1. Lê arquivos diários YYYY-MM-DD.json (ignora emt-manifest / emt-runner-pid)
     try {
       const dir = join(process.cwd(), 'data', 'test-logs')
       if (existsSync(dir)) {
-        const files = readdirSync(dir)
-          .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-'))
-          .sort()
-          .reverse()
-
-        for (const file of files.slice(0, 7)) { // até 7 dias de histórico
+        for (const file of listDailyTestLogFiles(7)) {
           try {
             const content = JSON.parse(readFileSync(join(dir, file), 'utf-8'))
             if (Array.isArray(content)) {
@@ -2552,12 +2554,7 @@ function findLogEntry(id: string): Record<string, unknown> | null {
   const dir = join(process.cwd(), 'data', 'test-logs')
   if (!existsSync(dir)) return null
 
-  const files = readdirSync(dir)
-    .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-') && !f.startsWith('_'))
-    .sort()
-    .reverse()
-
-  for (const file of files.slice(0, 14)) {
+  for (const file of listDailyTestLogFiles(14)) {
     try {
       const content = JSON.parse(readFileSync(join(dir, file), 'utf-8'))
       if (Array.isArray(content)) {
@@ -2577,12 +2574,7 @@ function updateLogEntryField(id: string, field: string, value: unknown): void {
   const dir = join(process.cwd(), 'data', 'test-logs')
   if (!existsSync(dir)) return
 
-  const files = readdirSync(dir)
-    .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-') && !f.startsWith('_'))
-    .sort()
-    .reverse()
-
-  for (const file of files.slice(0, 14)) {
+  for (const file of listDailyTestLogFiles(14)) {
     const filePath = join(dir, file)
     try {
       const content = JSON.parse(readFileSync(filePath, 'utf-8'))

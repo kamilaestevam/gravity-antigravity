@@ -15,6 +15,10 @@ import {
   CriticidadeSchema,
 } from './test-schemas.js'
 import { generateTestidMapping, loadTestidMapping } from './extrator-testids.js'
+import {
+  mesclarEntradaRegistryAutomacao,
+  novaEntradaRegistryComPropriedadeDono,
+} from './registry-propriedade-dono.js'
 
 // ─── Categorias do checklist 20/20 ──────────────────────────────────────────
 
@@ -111,9 +115,19 @@ ${FORMATO_CONTENT}
 
 // ─── Gerador de ID ──────────────────────────────────────────────────────────
 
+function extrairSequenciaGlobalId(id: string): number | null {
+  const match = id.match(/-(\d{6})$/)
+  return match ? Number(match[1]) : null
+}
+
+/** Próximo sufixo global único em todo o registry (Regra 1 — 01-convencao-ids.md). */
 function generatePlanId(tipo: string, escopo: string, registry: PlanRegistryEntry[]): string {
-  const existing = registry.filter(p => p.escopo === escopo)
-  const nextNum = String(existing.length + 1).padStart(6, '0')
+  let max = 0
+  for (const plano of registry) {
+    const n = extrairSequenciaGlobalId(plano.id)
+    if (n !== null && n > max) max = n
+  }
+  const nextNum = String(max + 1).padStart(6, '0')
   return `TST-${tipo}-${escopo}-${nextNum}`
 }
 
@@ -357,9 +371,9 @@ function updateRegistry(plan: PlanoTeste, escopo: string, sublocal: string): voi
   }
 
   if (existingIdx >= 0) {
-    planos[existingIdx] = entry
+    planos[existingIdx] = mesclarEntradaRegistryAutomacao(planos[existingIdx], entry)
   } else {
-    planos.push(entry)
+    planos.push(novaEntradaRegistryComPropriedadeDono(entry))
   }
 
   registry.planos = planos

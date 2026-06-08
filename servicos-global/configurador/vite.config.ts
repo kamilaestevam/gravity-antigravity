@@ -148,6 +148,11 @@ export default defineConfig(({ command }) => {
       // historico-global: nome de pasta difere do alias usado pelo produto
       '@plataforma/historico': path.resolve(monorepoRoot, 'servicos-global/servicos-plataforma/historico-global/src/index.ts'),
       ...createNucleoAliases(monorepoRoot),
+      // SSOT tabela-virtual-global — sobrescreve scan/HMR stale (nunca tabelas-componentes/)
+      '@nucleo/tabela-virtual-global': path.resolve(
+        monorepoRoot,
+        'nucleo-global/Tabelas/tabela-virtual-global/src',
+      ),
       // Pacote novo — alias explícito garante resolve mesmo com cache/HMR stale
       '@nucleo/campo-dado-global': path.resolve(
         monorepoRoot,
@@ -163,6 +168,8 @@ export default defineConfig(({ command }) => {
       '@produto': path.resolve(monorepoRoot, 'servicos-global/produto'),
       // Cadastros — domínio próprio fora de servicos-plataforma
       '@cadastros': path.resolve(monorepoRoot, 'servicos-global/cadastros'),
+      // Lógica pura Admin/Testes — testes/infra/admin/ (sem React)
+      '@testes/infra': path.resolve(monorepoRoot, 'testes/infra'),
     },
   },
   optimizeDeps: {
@@ -187,6 +194,7 @@ export default defineConfig(({ command }) => {
     ],
     exclude: [
       '@nucleo/localizador-global',
+      '@nucleo/tabela-virtual-global',
       // Só via resolve.alias — pré-bundle em .vite/deps gera 504 e quebra lazy-load da lista.
       '@dnd-kit/core',
       '@dnd-kit/sortable',

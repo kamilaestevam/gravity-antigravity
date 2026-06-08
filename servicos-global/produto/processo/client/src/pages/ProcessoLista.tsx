@@ -127,15 +127,16 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
     return () => document.removeEventListener('mousedown', handleClick)
   }, [novoDropdownAberto])
 
+  const { unidadesPeso, unidadesCubagem, mapaFatorParaKg } = useUnidadesPedido()
+
   const { handleEditarFilho, pedidosExibicao } = useEdicaoListaProcesso(
     pedidos,
     setPedidos,
     itens,
     setItens,
     setResetCacheFilhos,
+    mapaFatorParaKg,
   )
-
-  const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
   const {
     paisesOpcoes,
     portosOpcoes,
@@ -145,13 +146,14 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
   const opcoesColunas = useMemo<OpcoesUnidadesColunas>(() => ({
     unidadesPeso,
     unidadesCubagem,
+    mapaFatorParaKg,
     incotermsOpcoes: [],
     moedasOpcoes: [],
     workspacesMap: new Map(),
     paisesOpcoes,
     portosOpcoes,
     aeroportosOpcoes,
-  }), [unidadesPeso, unidadesCubagem, paisesOpcoes, portosOpcoes, aeroportosOpcoes])
+  }), [unidadesPeso, unidadesCubagem, mapaFatorParaKg, paisesOpcoes, portosOpcoes, aeroportosOpcoes])
 
   const colunasPedido = useMemo(
     () => buildColunasPai(t, opcoesColunas),

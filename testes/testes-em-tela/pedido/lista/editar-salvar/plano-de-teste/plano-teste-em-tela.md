@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 4.7  
+**Versão:** 4.8  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -30,7 +30,7 @@
 
 ## Regra universal — persistência ao fim de cada ETAPA
 
-> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 39 (relatório).
+> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 43 (relatório).
 
 **Último passo da etapa** (quando ainda não existir):
 
@@ -90,6 +90,9 @@
 | **QTD. CANCELADA — Unidades divergentes** | 189–192 | `run-lista-editar-salvar.ts` |
 | **QTD. CANCELADA — Split não incrementa** | 193–198 | `run-lista-editar-salvar.ts` |
 | **QTD. CANCELADA — Casas decimais Config** | 199–206 | `run-lista-editar-salvar.ts` |
+| **QTD. VOLUMES — Básico** | 207–214 | `run-lista-editar-salvar.ts` |
+| **QTD. VOLUMES — Edição em Massa** | 215–222 | `run-lista-editar-salvar.ts` |
+| **QTD. VOLUMES — Grade e rodapé** | 223–226 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -724,7 +727,46 @@ Regra **QCN-05** — item 2 com unidade distinta (ETAPA 22).
 | **205** | Abrir **Configurações** novamente | Campo exibe **2** casas — persistência no backend |
 | **206** | **Hub** → **Lista** → reexpandir | Config + grade corretos · Print `206-qcan-persistencia-pos-config.png` |
 
-### ETAPA 39 — Relatório
+### ETAPA 40 — QTD. DE VOLUMES DO PEDIDO — Básico (passos 207–214)
+
+Coluna **`quantidade_volumes_pedido`** — **somente no pedido** (itens exibem `—`). Não editável na célula da lista. Regras §8F VOL-01…06 · `PILLS_PEDIDO_VOLUMES`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **207** | Hover célula **Qtd. de Volumes** do **pedido** | Cursor bloqueado · Print `207-vol-cursor-pedido.png` |
+| **208** | Tooltip **pedido** | Título *Qtd. Total de Volumes do Pedido* + pills `bloqueado_edicao` → `calculado_pedido` → `alerta_divergencia` · Print `208-vol-tooltip-pedido.png` |
+| **209** | Clicar célula **pedido** | Popover **não** abre · Print `209-vol-pedido-nao-edita.png` |
+| **210** | Expandir pedido → inspecionar **linhas dos itens** | Coluna exibe **`—`** em todos os itens (campo não existe no item) |
+| **211** | Hover célula **item 1** na coluna Volumes | Tooltip `somente_leitura` (campo do pedido) · Print `211-vol-tooltip-item.png` |
+| **212** | Colapsar → hover cabeçalho **Qtd. de Volumes do Pedido** | Tooltip bloco pedido + item · Print `212-vol-tooltip-cabecalho.png` |
+| **213** | Inspecionar **formato** | Inteiro sem decimais; `null` → `—`; sem sufixo UN |
+| **214** | Hub → Lista → reexpandir | Valor inalterado · Print `214-vol-persistencia-basico.png` |
+
+### ETAPA 41 — QTD. DE VOLUMES — Edição em Massa (passos 215–222)
+
+> Alteração **fora da célula** — menu **Edição em Massa** (VOL-07). Campo **nível pedido**; **não** replica em itens.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **215** | Checkbox no **pedido** de teste | Pedido selecionado |
+| **216** | Menu → **Edição em Massa** → campo **Qtd. de Volumes** | Modal aberto · Print `216-vol-massa-modal.png` |
+| **217** | Informar **12** → **Confirmar** | Sucesso · Print `217-vol-massa-12-resultado.png` |
+| **218** | Inspecionar célula **pedido** na grade | Exibe **12** |
+| **219** | Inspecionar **itens** expandidos | Permanecem **`—`** |
+| **220** | Repetir massa → alterar para **24** → confirmar | Grade atualiza · Print `220-vol-massa-24-resultado.png` |
+| **221** | Clicar célula **pedido** | Popover **ainda não** abre (continua bloqueado inline) |
+| **222** | Hub → Lista → reexpandir | **24** persiste · Print `222-vol-persistencia-massa.png` |
+
+### ETAPA 42 — QTD. DE VOLUMES — Grade e rodapé (passos 223–226)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **223** | Ordenar coluna **Qtd. de Volumes** (asc/desc) | Lista reordena sem erro |
+| **224** | Filtrar coluna (valor **> 0** ou equivalente) | Só pedidos com volumes preenchidos · rodapé exibe **soma** dos visíveis |
+| **225** | Limpar filtro → pedido de teste visível | Valor **24** mantido na linha do pedido |
+| **226** | Hub → Lista | Persistência · Print `226-vol-persistencia-grade.png` |
+
+### ETAPA 43 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -790,5 +832,8 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | QTD. CANCELADA — Unidades divergentes | 189–192 | 4 |
 | QTD. CANCELADA — Split não incrementa | 193–198 | 6 |
 | QTD. CANCELADA — Casas decimais Config | 199–206 | 8 |
-| **Total runner principal** | | **~206 passos / 238 casos** |
+| QTD. VOLUMES — Básico | 207–214 | 8 |
+| QTD. VOLUMES — Edição em Massa | 215–222 | 8 |
+| QTD. VOLUMES — Grade e rodapé | 223–226 | 4 |
+| **Total runner principal** | | **~226 passos / 258 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

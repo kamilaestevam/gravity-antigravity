@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Camera, Eye, ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Camera, CaretDown, Eye, ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
 import { ModalOverlay } from '@nucleo/modal-global'
 import {
   adminPlanosTesteApi,
@@ -220,6 +220,83 @@ function LinhaCaso({
   )
 }
 
+function BlocoColapsavel({
+  titulo,
+  contagem,
+  colapsado,
+  onToggle,
+  children,
+}: {
+  titulo: string
+  contagem: number
+  colapsado: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div style={{
+      borderRadius: '8px',
+      border: '1px solid rgba(255,255,255,0.06)',
+      background: 'rgba(15, 23, 42, 0.25)',
+      overflow: 'hidden',
+    }}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={!colapsado}
+        title={colapsado ? 'Expandir etapa' : 'Recolher etapa'}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          width: '100%',
+          padding: '0.55rem 0.75rem',
+          border: 'none',
+          background: 'transparent',
+          color: '#a78bfa',
+          cursor: 'pointer',
+          textAlign: 'left',
+        }}
+      >
+        <CaretDown
+          size={14}
+          weight="bold"
+          style={{
+            flexShrink: 0,
+            transition: 'transform 0.15s ease',
+            transform: colapsado ? 'rotate(-90deg)' : 'rotate(0deg)',
+          }}
+          aria-hidden
+        />
+        <span style={{
+          flex: 1,
+          fontSize: '0.7rem',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          lineHeight: 1.35,
+        }}>
+          {titulo}
+        </span>
+        <span style={{
+          fontSize: '0.65rem',
+          fontWeight: 600,
+          color: '#64748b',
+          fontVariantNumeric: 'tabular-nums',
+          flexShrink: 0,
+        }}>
+          {contagem} passo{contagem !== 1 ? 's' : ''}
+        </span>
+      </button>
+      {!colapsado && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', padding: '0 0.5rem 0.5rem' }}>
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ListaCasosRoteiro({
   itens,
   onVisualizarPasso,
@@ -227,20 +304,74 @@ function ListaCasosRoteiro({
   itens: CasoPlanoTesteApi[]
   onVisualizarPasso: (caso: CasoPlanoTesteApi) => void
 }) {
-  const etapas = [...new Set(itens.map(c => c.titulo))]
+  const etapas = useMemo(() => [...new Set(itens.map(c => c.titulo))], [itens])
+  const [etapasColapsadas, setEtapasColapsadas] = useState<Set<string>>(() => new Set(etapas))
+
+  useEffect(() => {
+    setEtapasColapsadas(new Set(etapas))
+  }, [etapas])
+
+  const todasColapsadas = etapas.length > 0 && etapasColapsadas.size === etapas.length
+
+  function toggleEtapa(etapa: string) {
+    setEtapasColapsadas(prev => {
+      const next = new Set(prev)
+      if (next.has(etapa)) next.delete(etapa)
+      else next.add(etapa)
+      return next
+    })
+  }
+
+  function toggleTodasEtapas() {
+    setEtapasColapsadas(prev =>
+      prev.size === etapas.length ? new Set() : new Set(etapas),
+    )
+  }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-      {etapas.map(etapa => (
-        <div key={etapa}>
-          <div style={{
-            fontSize: '0.7rem', fontWeight: 700, color: '#a78bfa',
-            marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.06em',
-          }}>
-            {etapa}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            {itens.filter(c => c.titulo === etapa).map((caso, idx) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      {etapas.length > 1 && (
+        <button
+          type="button"
+          onClick={toggleTodasEtapas}
+          style={{
+            alignSelf: 'flex-end',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            padding: '0.25rem 0.5rem',
+            border: 'none',
+            borderRadius: '6px',
+            background: 'transparent',
+            color: '#64748b',
+            fontSize: '0.68rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          <CaretDown
+            size={12}
+            weight="bold"
+            style={{
+              transition: 'transform 0.15s ease',
+              transform: todasColapsadas ? 'rotate(-90deg)' : 'rotate(0deg)',
+            }}
+            aria-hidden
+          />
+          {todasColapsadas ? 'Expandir todas' : 'Recolher todas'}
+        </button>
+      )}
+      {etapas.map(etapa => {
+        const passosEtapa = itens.filter(c => c.titulo === etapa)
+        return (
+          <BlocoColapsavel
+            key={etapa}
+            titulo={etapa}
+            contagem={passosEtapa.length}
+            colapsado={etapasColapsadas.has(etapa)}
+            onToggle={() => toggleEtapa(etapa)}
+          >
+            {passosEtapa.map((caso, idx) => (
               <LinhaCaso
                 key={`${etapa}-${caso.ordem}-${idx}`}
                 ordem={caso.ordem}
@@ -248,9 +379,9 @@ function ListaCasosRoteiro({
                 onVisualizar={() => onVisualizarPasso(caso)}
               />
             ))}
-          </div>
-        </div>
-      ))}
+          </BlocoColapsavel>
+        )
+      })}
     </div>
   )
 }

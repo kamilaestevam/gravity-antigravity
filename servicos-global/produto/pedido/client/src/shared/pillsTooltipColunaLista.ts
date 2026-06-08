@@ -55,6 +55,7 @@ export type RegraPillId =
   | 'calculado_pedido_qtd_transferida'
   | 'calculado_pedido_qtd_cancelada'
   | 'calculado_pedido_saldo'
+  | 'calculado_pedido_volumes'
   | 'soma_mesma_unidade'
   | 'formula_config'
   | 'so_operacao'
@@ -93,6 +94,7 @@ export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
   'calculado_pedido_qtd_transferida',
   'calculado_pedido_qtd_cancelada',
   'calculado_pedido_saldo',
+  'calculado_pedido_volumes',
   'valor_total_soma_mesma_moeda',
   'valor_unitario_sem_somatoria',
   'soma_mesma_unidade',
@@ -288,9 +290,12 @@ export const PILLS_PEDIDO_CAMBIO: RegraPillId[] = [
 /** Linha do pedido — Qtd. Volumes: total do pedido, bloqueado, alerta divergência. */
 export const PILLS_PEDIDO_VOLUMES: RegraPillId[] = [
   'bloqueado_edicao',
-  'calculado_pedido',
+  'calculado_pedido_volumes',
   'alerta_divergencia',
 ]
+
+/** Linha do item — Qtd. Volumes: editável no item. */
+export const PILLS_ITEM_VOLUMES: RegraPillId[] = ['editavel_item']
 
 const CHAVES_DUAL_SEMPRE = new Set(['numero_pedido'])
 
@@ -349,7 +354,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   pai_calculado_volumes: {
     pedido: [...PILLS_PEDIDO_VOLUMES],
-    item: ['somente_leitura'],
+    item: [...PILLS_ITEM_VOLUMES],
   },
   pai_saldo_formula: {
     pedido: [...PILLS_PEDIDO_SALDO],
@@ -531,6 +536,7 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'quantidade_transferida_total') return PILLS_ITEM_QTD_TRANSFERIDA
   if (key === 'saldo_itens_do_pedido') return PILLS_ITEM_SALDO
   if (key === 'quantidade_cancelada_total_pedido') return PILLS_ITEM_QTD_CANCELADA
+  if (key === 'quantidade_volumes_pedido') return PILLS_ITEM_VOLUMES
   return pills
 }
 
@@ -615,6 +621,17 @@ export function obterPillsTooltipColuna(
       dual: false,
       pedido: limitarPills([...PILLS_PEDIDO_QTD_CANCELADA], 'pai'),
       item: limitarPills([...PILLS_ITEM_QTD_CANCELADA], 'item'),
+      linkFormula: false,
+      ghostSemCheckbox: false,
+      numeroUnicoOrg: false,
+    }
+  }
+
+  if (key === 'quantidade_volumes_pedido' && !dual) {
+    return {
+      dual: false,
+      pedido: limitarPills([...PILLS_PEDIDO_VOLUMES], 'pai'),
+      item: limitarPills([...PILLS_ITEM_VOLUMES], 'item'),
       linkFormula: false,
       ghostSemCheckbox: false,
       numeroUnicoOrg: false,
@@ -719,6 +736,9 @@ export function pillsParaNivelColuna(
   }
   if (key === 'quantidade_volumes_pedido' && nivel === 'pai') {
     return limitarPills(PILLS_PEDIDO_VOLUMES, 'pai')
+  }
+  if (key === 'quantidade_volumes_pedido' && nivel === 'item') {
+    return limitarPills(PILLS_ITEM_VOLUMES, 'item')
   }
   return limitarPills(nivel === 'item' ? mapa.item : mapa.pedido, nivel)
 }

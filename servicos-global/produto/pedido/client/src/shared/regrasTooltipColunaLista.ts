@@ -193,6 +193,7 @@ export function classificarRegraTooltipColuna(
     if (key === 'valor_total_pedido' || key === 'valor_item') return 'item_editavel_valor_total'
     if (key === 'quantidade_pronta_itens_pedido_total') return 'item_editavel_qtd_pronta'
     if (key === 'quantidade_total_pedido') return 'item_editavel_quantidade_inicial'
+    if (key === 'quantidade_volumes_pedido') return 'pai_calculado_volumes'
     if (key === 'unidade_comercializada_pedido') return 'item_editavel_padrao'
     if (isCampoData(key)) return 'pai_editavel_replicar_alerta'
     if (getEditavelItem(key)) return 'item_editavel_padrao'

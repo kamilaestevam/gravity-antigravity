@@ -457,6 +457,36 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ---
 
+## 8F. QTD. DE VOLUMES DO PEDIDO (`quantidade_volumes_pedido`)
+
+> Decisão de produto **2026-06-08** — coluna **somente no pedido**; itens exibem `—`. Não editável na célula da lista; alteração via **Edição em Massa** (nível pedido). Inteiro, sem unidade comercializada.
+
+| # | Regra |
+|---|--------|
+| **VOL-01** | Label na grade: **Qtd. de Volumes do Pedido** — tooltip: *Qtd. Total de Volumes do Pedido* (pai). |
+| **VOL-02** | Célula do **pedido**: não editável inline (`editavel: false`, `tipo: calculado`). |
+| **VOL-03** | Linhas de **item**: sempre **`—`** (campo não existe em `PedidoItem`). |
+| **VOL-04** | Tooltip **pedido**: `bloqueado_edicao` → `calculado_pedido` → `alerta_divergencia`. |
+| **VOL-05** | Tooltip **item** (coluna alinhada): `somente_leitura` — indica campo do pedido. |
+| **VOL-06** | Formato: inteiro; `null`/`undefined` → `—`; **sem** sufixo UN. |
+| **VOL-07** | Edição permitida via **Edição em Massa** (`ModalPedidosEdicaoMassa`, campo `quantidade_volumes_pedido`). |
+| **VOL-08** | **Não** replica em itens; **sem** checkbox «Aplicar em todos os itens». |
+| **VOL-09** | Coluna **filtrável** e **ordenável**; rodapé pode exibir soma dos pedidos visíveis. |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Qtd. Total de Volumes do Pedido* | `bloqueado_edicao` → `calculado_pedido` → `alerta_divergencia` |
+| **Item** | *(coluna alinhada)* | `somente_leitura` |
+| **Cabeçalho** (sem expandir) | *Qtd. de Volumes do Pedido* | Override `!dual` (pedido + item) |
+
+**Código:** `pai_calculado_volumes` · `PILLS_PEDIDO_VOLUMES` · `CHAVES_COLUNA_INLINE_BLOQUEADA_ITEM` · `CAMPOS_DERIVADOS_PAI`.
+
+**EMT:** passos 207–226 (ETAPAs 40–42) · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
 ## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.

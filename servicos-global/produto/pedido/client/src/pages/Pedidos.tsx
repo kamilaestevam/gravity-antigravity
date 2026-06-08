@@ -3678,6 +3678,10 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       )
     },
   },
+  quantidade_volumes_pedido: {
+    editavel: true,
+    render: () => <span style={{ color: 'var(--text-muted)' }}>—</span>,
+  },
   // ── Logística: valor no Pedido; edição na linha do item roteia para PATCH pedido ──
   porto_origem: {
     editavel: true,

@@ -182,7 +182,19 @@ describe('obterPillsTooltipColuna', () => {
 
   it('quantidade_volumes_pedido — pedido bloqueado + total soma + alerta', () => {
     const pills = pillsParaNivelColuna('quantidade_volumes_pedido', 'pai')
-    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido', 'alerta_divergencia'])
+    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido_volumes', 'alerta_divergencia'])
+  })
+
+  it('quantidade_volumes_pedido — item editável no item', () => {
+    const pills = pillsParaNivelColuna('quantidade_volumes_pedido', 'item')
+    expect(pills).toEqual(['editavel_item'])
+  })
+
+  it('quantidade_volumes_pedido obterPills — pedido e item distintos', () => {
+    const res = obterPillsTooltipColuna('quantidade_volumes_pedido')
+    expect(res.dual).toBe(false)
+    expect(res.pedido).toEqual(['bloqueado_edicao', 'calculado_pedido_volumes', 'alerta_divergencia'])
+    expect(res.item).toEqual(['editavel_item'])
   })
 
   it('quantidade_transferida_total dinâmico — pedido calculado + bloqueado; item somente leitura + operação', () => {

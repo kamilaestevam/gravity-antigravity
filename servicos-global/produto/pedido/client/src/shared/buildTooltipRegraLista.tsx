@@ -318,7 +318,9 @@ export function enriquecerColunaComRegraTooltip<T>(
                 ? t('pedido.coluna_pai.saldo_item_titulo')
                 : key === 'quantidade_cancelada_total_pedido'
                   ? t('pedido.coluna_pai.quantidade_cancelada_item_titulo')
-                  : undefined
+                  : key === 'quantidade_volumes_pedido'
+                    ? t('pedido.coluna_pai.quantidade_volumes_pedido_item_titulo')
+                    : undefined
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)

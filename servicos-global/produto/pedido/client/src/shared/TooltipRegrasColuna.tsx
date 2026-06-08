@@ -21,7 +21,7 @@ import type { Icon } from '@phosphor-icons/react'
 import type { RegraPillId } from './pillsTooltipColunaLista'
 import { MAX_PILLS_POR_BLOCO } from './pillsTooltipColunaLista'
 
-const URL_FORMULA = '/produto/pedido/configuracoes?tab=colunas-campos-calculados'
+const URL_FORMULA = '/pedido/configuracoes?tab=colunas-campos-calculados'
 
 type PillDef = {
   Icon: Icon

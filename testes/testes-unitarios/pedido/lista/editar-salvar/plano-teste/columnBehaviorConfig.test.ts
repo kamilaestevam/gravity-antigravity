@@ -33,6 +33,7 @@ describe('getEditavel — campos alfanumericos', () => {
     'referencia_fabricante',
     'cobertura_cambial',
     'condicao_pagamento',
+    'moeda_cambio_pedido',
   ] as const
 
   for (const campo of ALFANUMERICOS) {

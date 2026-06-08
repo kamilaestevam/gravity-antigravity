@@ -84,8 +84,7 @@ const CALCULADO_QTD = new Set([
 const CALCULADO_PESO = new Set(['peso_liquido_total_pedido', 'peso_bruto_total_pedido'])
 const CALCULADO_CUBAGEM = new Set(['cubagem_total_pedido'])
 
-const MOEDA_CAMBIO = new Set([
-  'moeda_cambio_pedido',
+const MOEDA_CAMBIO_DERIVADO = new Set([
   'taxa_cambio_estimada',
   'valor_total_cambio_pedido',
   'contrato_cambio_id_pedido',
@@ -191,7 +190,7 @@ export function classificarRegraTooltipColuna(
     if (key === 'nome_importador') return 'item_cond_importador'
     if (GHOST_DESCRICAO.has(key)) return 'item_ghost_descricao'
     if (GHOST_NCM.has(key)) return 'item_ghost_ncm'
-    if (GHOST_COBERTURA.has(key)) return 'item_editavel_ghost'
+    if (GHOST_COBERTURA.has(key)) return 'item_editavel_padrao'
     if (key === 'valor_por_unidade_item') return 'item_editavel_padrao'
     if (key === 'valor_total_pedido' || key === 'valor_item') return 'item_editavel_valor_total'
     if (key === 'quantidade_pronta_itens_pedido_total') return 'item_editavel_qtd_pronta'
@@ -199,6 +198,7 @@ export function classificarRegraTooltipColuna(
     if (key === 'quantidade_volumes_pedido') return 'item_editavel_padrao'
     if (key === 'tipo_volume_pedido') return 'item_editavel_padrao'
     if (key === 'unidade_comercializada_pedido') return 'item_editavel_padrao'
+    if (key === 'moeda_cambio_pedido') return 'item_editavel_padrao'
     if (isCampoData(key)) return 'pai_editavel_replicar_alerta'
     if (getEditavelItem(key)) return 'item_editavel_padrao'
     const tipoItem = getTipoCampo(key)
@@ -215,7 +215,7 @@ export function classificarRegraTooltipColuna(
   if (key === 'nome_importador') return 'pai_importador'
   if (GHOST_DESCRICAO.has(key)) return 'pai_ghost_descricao'
   if (GHOST_NCM.has(key)) return 'pai_ghost_ncm'
-  if (GHOST_COBERTURA.has(key)) return 'pai_ghost_cobertura'
+  if (GHOST_COBERTURA.has(key)) return 'pai_editavel_replicar_alerta'
   if (key === 'valor_por_unidade_item') return 'dinamico_valor_unitario_item'
   if (key === 'valor_total_pedido') {
     if (opts?.modoDinamicoPedidoItem) return 'dinamico_valor_total'
@@ -228,7 +228,8 @@ export function classificarRegraTooltipColuna(
   if (CALCULADO_VALOR.has(key)) return 'pai_calculado_valor'
   if (CALCULADO_PESO.has(key)) return 'pai_calculado_peso'
   if (CALCULADO_CUBAGEM.has(key)) return 'pai_calculado_cubagem'
-  if (MOEDA_CAMBIO.has(key)) return 'pai_moeda_cambio'
+  if (key === 'moeda_cambio_pedido') return 'pai_moeda_cambio'
+  if (MOEDA_CAMBIO_DERIVADO.has(key)) return 'pai_moeda_cambio'
   if (isCampoAnexo(key)) return 'pai_anexo'
   if (isCampoSomenteLeituraCadastro(key)) return 'pai_somente_leitura'
   if (CALCULADO_QTD.has(key) || isSomavel(key)) return 'pai_calculado_quantidade'

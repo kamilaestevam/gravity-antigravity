@@ -1217,9 +1217,12 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'moeda_cambio_pedido',
     label: t('pedido.coluna_pai.moeda_cambio'),
-    tipo: 'texto',
+    tipo: 'select',
+    opcoes: moedasOpcoes ?? [],
     filtravel: true,
     editavel: getEditavel('moeda_cambio_pedido'),
+    campo: 'moeda_cambio_pedido',
+    getValorEditar: (row: Pedido) => row.moeda_cambio_pedido ?? '',
     tooltipTitulo: t('pedido.coluna_pai.moeda_cambio_titulo', { defaultValue: t('pedido.coluna_pai.moeda_cambio') }),
     tooltipDescricao: t('pedido.coluna_pai.moeda_cambio_desc', { defaultValue: '' }),
     grupo: 'Câmbio',

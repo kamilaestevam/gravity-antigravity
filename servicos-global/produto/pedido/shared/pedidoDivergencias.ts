@@ -7,7 +7,7 @@
 
 import { getAlertavelKeys } from './columnAlertConfig.js'
 
-const CAMPOS_GHOST = new Set(['ncm', 'cobertura_cambial', 'data_emissao_pedido'])
+const CAMPOS_GHOST = new Set(['ncm', 'data_emissao_pedido'])
 
 function dateKey(v: unknown): string | null {
   if (v == null) return null

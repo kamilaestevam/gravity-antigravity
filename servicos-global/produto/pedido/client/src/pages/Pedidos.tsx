@@ -3953,6 +3953,8 @@ function mensagemErro(err: unknown, t: (key: string) => string = i18next.t.bind(
   // ── Mensagem da API com conteúdo útil — exibir diretamente ───────────────
   // Mensagens curtas sem prefixo HTTP vêm do backend e são legíveis
   // ex: "O campo incoterm deve ser FOB, CIF ou EXW"
+  const msgCampoNaoEditavel = msg.match(/^Campo "[^"]+" nao pode ser editado inline\./)
+  if (msgCampoNaoEditavel) return msgCampoNaoEditavel[0]
   if (msg.length > 0 && msg.length <= 120 && !msg.startsWith('HTTP'))
     return msg
 
@@ -6677,6 +6679,64 @@ export default function Pedidos() {
         setResetFilhos(prev => prev + 1)
       }
       return { ...atualizado, ...sinc.divergencias }
+    }
+    // Cobertura cambial — coluna no pedido (cobertura_cambial_pedido); PATCH no pai.
+    if (campo === 'cobertura_cambial' || campo === 'cobertura_cambial_pedido') {
+      const campoApi = 'cobertura_cambial'
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
+      const valorStr = valor == null || valor === '' ? null : String(valor)
+      if (!valorStr) {
+        throw new Error(t('pedido.lista.erro.cobertura_obrigatoria', 'Selecione uma cobertura cambial.'))
+      }
+      const replicar = opts?.replicar_em_itens ?? false
+      const updatedRaw = await pedidoVirtualApi.editarCampo(id, campoApi, valorStr, replicar)
+      let updatedPedido = {
+        ...updatedRaw,
+        cobertura_cambial: valorStr,
+        cobertura_cambial_valor_unico: valorStr,
+      } as Pedido
+      if (replicar && isPropagavel(campoApi)) {
+        const itensApi = updatedRaw.itens
+        const itensCache = itensCarregadosRef.current.get(id) ?? []
+        if (Array.isArray(itensApi) && itensApi.length > 0) {
+          const enriquecidos = itensApi.map(i => ({
+            ...i,
+            _p: montarContextoPaiItem(updatedPedido, i),
+          })) as PedidoItemEnriquecido[]
+          itensCarregadosRef.current.set(id, enriquecidos)
+          setResetFilhos(prev => prev + 1)
+        } else if (itensCache.length > 0) {
+          itensCarregadosRef.current.set(
+            id,
+            itensCache.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr)),
+          )
+          setResetFilhos(prev => prev + 1)
+        } else {
+          itensCarregadosRef.current.delete(id)
+        }
+      }
+      const itensAtuais = itensCarregadosRef.current.get(id) ?? []
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== id) return p
+        let itensFallback = itensAtuais.length > 0 ? itensAtuais : (p.itens ?? [])
+        if (replicar && isPropagavel(campoApi) && itensAtuais.length === 0 && itensFallback.length > 0) {
+          itensFallback = itensFallback.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr))
+        }
+        const sinc = itensFallback.length > 0
+          ? sincronizarItensPedido(itensFallback, updatedPedido)
+          : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
+        const divergencias = mesclarDivergenciasPreservandoCoberturaPedido(
+          updatedPedido as Record<string, unknown>,
+          sinc.divergencias as Record<string, unknown>,
+        )
+        return {
+          ...updatedPedido,
+          ...divergencias,
+          itens: sinc.itens.length > 0 ? sinc.itens : p.itens,
+        }
+      }))
+      return updatedPedido
     }
     // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
     // PATCH directo nos itens. Lógica de propagação real fica no servidor para

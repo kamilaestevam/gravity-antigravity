@@ -1200,6 +1200,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     editavel: getEditavel('cobertura_cambial'),
     campo: 'cobertura_cambial',
     grupo: 'Financeiro',
+    getValorEditar: (row: Pedido) => obterCoberturaExibicaoPedido(row as Record<string, unknown>) ?? '',
     render: (_val: unknown, row: Pedido) => {
       const codigo = obterCoberturaExibicaoPedido(row as Record<string, unknown>)
       const rotulo = codigo
@@ -1299,6 +1300,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido_desc'),
     grupo: 'Financeiro',
+    getValorEditar: (row: Pedido) => row.condicao_pagamento_siscomex ?? '',
     render: (_val: unknown, row: Pedido) => {
       const codigo = row.condicao_pagamento_siscomex
       const rotulo = codigo

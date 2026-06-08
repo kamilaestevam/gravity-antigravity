@@ -63,30 +63,33 @@ export function TooltipListaColuna({
       : { display: 'contents' })
 
   return (
-    <TooltipGlobal
-      titulo={titulo}
-      descricao={(
-        <TooltipRegrasColuna
-          t={t}
-          pillsPedido={pills}
-          linkFormula={linkFormula}
-          ghostSemCheckbox={ghostSemCheckbox && nivel === 'pai'}
-          numeroUnicoOrg={numeroUnicoOrg && nivel === 'pai'}
-          aviso={aviso}
-          avisoImpacto={avisoImpacto}
-          descricaoExtra={descricaoExtra}
-        />
-      )}
-      interativo={interativo}
-      cursorBloqueado={cursorBloqueado}
+    <span
+      data-tooltip-lista-mount="pedido-lista"
+      data-tooltip-lista-coluna={colunaKey}
+      data-tooltip-lista-nivel={nivel}
+      style={{ display: 'contents' }}
     >
-      <span
-        style={styleTrigger}
-        data-tooltip-lista-coluna={colunaKey}
-        data-tooltip-lista-nivel={nivel}
+      <TooltipGlobal
+        titulo={titulo}
+        descricao={(
+          <TooltipRegrasColuna
+            t={t}
+            pillsPedido={pills}
+            linkFormula={linkFormula}
+            ghostSemCheckbox={ghostSemCheckbox && nivel === 'pai'}
+            numeroUnicoOrg={numeroUnicoOrg && nivel === 'pai'}
+            aviso={aviso}
+            avisoImpacto={avisoImpacto}
+            descricaoExtra={descricaoExtra}
+          />
+        )}
+        interativo={interativo}
+        cursorBloqueado={cursorBloqueado}
       >
-        {children}
-      </span>
-    </TooltipGlobal>
+        <span style={styleTrigger}>
+          {children}
+        </span>
+      </TooltipGlobal>
+    </span>
   )
 }

@@ -373,6 +373,60 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ---
 
+## 8C. QTD. TRANSFERIDA DO PEDIDO/ITEM (`quantidade_transferida_total`)
+
+> Decisão de produto **2026-06-03** — coluna **somente leitura** na lista; alteração exclusiva via menu **Transferir**. Pedido = soma dos itens na mesma unidade comercializada (ou alerta de divergência). Fluxos split/redução: `documentos-tecnicos/produtos-gravity/pedido/TRANSFERIR-REGRAS-NEGOCIO.md`.
+
+| # | Regra |
+|---|--------|
+| **QTR-01** | Label na grade: **Qtd. Transferida do Pedido/Item** — títulos de tooltip: *Qtd. Transferida do Pedido* (pai) / *Qtd. Transferida do Item* (filho). |
+| **QTR-02** | Célula do **pedido** e do **item**: não editável na lista (`cursor: not-allowed`); popover de edição **não** abre ao clicar. |
+| **QTR-03** | Tooltip **pedido**: `calculado_pedido_qtd_transferida` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` + aviso *Para alterar os itens, clique em Transferir no menu principal*. |
+| **QTR-04** | Tooltip **item**: `somente_leitura` → `so_operacao` + **mesmo aviso** Transferir do pedido. |
+| **QTR-05** | Conteúdo do tooltip **item** = conteúdo do tooltip **pedido** (mesmas pills + aviso) quando ambos visíveis na mesma linha expandida. |
+| **QTR-06** | Unidades **divergentes** entre itens → pedido sem soma agregada (alerta visual *Unidades divergentes*), alinhado às demais colunas de quantidade. |
+| **QTR-07** | Cenários **Split** (novo/existente) incrementam `quantidade_transferida_item` na origem e destino conforme `TRANSFERIR-REGRAS-NEGOCIO.md`. |
+| **QTR-08** | Cenário **Redução simples** incrementa **`quantidade_cancelada_item`** (não `quantidade_transferida_item`) na origem — coluna Qtd. Transferida **permanece inalterada**. |
+| **QTR-09** | Após Transferir, persistência validada ao sair para o hub e voltar à lista (passos 106 / 124 / 134 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Qtd. Transferida do Pedido* | `calculado_pedido_qtd_transferida` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` |
+| **Item** | *Qtd. Transferida do Item* | `somente_leitura` → `so_operacao` |
+
+**Código:** `PILLS_PEDIDO_QTD_TRANSFERIDA` / `PILLS_ITEM_QTD_TRANSFERIDA` em `pillsTooltipColunaLista.ts` · `tipo: 'qtd_transferida'` em `ColunasPai.tsx`.
+
+**EMT:** passos 83–134 (ETAPAs 23–26) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8D. SALDO DO PEDIDO/ITEM (`saldo_itens_do_pedido`)
+
+> Decisão de produto **2026-06-08** — coluna **somente leitura**; pedido = soma dos saldos dos itens na **mesma unidade** (ou alerta *Unidades divergentes*); item = inicial − transferida − cancelada. Fórmula do pedido editável no Configurador.
+
+| # | Regra |
+|---|--------|
+| **SLD-01** | Label na grade: **Saldo do Pedido/Item** — títulos de tooltip: *Saldo do Pedido* (pai) / *Saldo do Item* (filho). |
+| **SLD-02** | Célula do **pedido** e do **item**: não editável na lista (`tipo: saldo`). |
+| **SLD-03** | Tooltip **pedido**: `calculado_pedido_saldo` → `bloqueado_edicao` → `alerta_unidade_comercializada_divergente` → `formula_config` → `casas_decimais_config` + link *Editar fórmula no Configurador*. |
+| **SLD-04** | Tooltip **item**: `somente_leitura` → `formula_config` + mesmo link ao Configurador. |
+| **SLD-05** | Unidades **divergentes** entre itens → célula do pedido sem soma (alerta visual *Unidades divergentes*). |
+| **SLD-06** | Saldo do item altera ao mudar Qtd. Inicial, Transferir ou Cancelar — **sem** aviso amarelo de impacto de unidade nesta coluna. |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Saldo do Pedido* | `calculado_pedido_saldo` → `bloqueado_edicao` → `alerta_unidade_comercializada_divergente` → `formula_config` → `casas_decimais_config` |
+| **Item** | *Saldo do Item* | `somente_leitura` → `formula_config` |
+| **Cabeçalho** (sem expandir) | *Saldo do Pedido/Item* | Mesmas pills pedido + item em bloco único (override `!dual`) |
+
+**Código:** `pai_saldo_formula` / `dinamico_saldo` · `PILLS_PEDIDO_SALDO` / `PILLS_ITEM_SALDO` · `tituloTooltipCelulaPorColuna` (`saldo_itens_do_pedido`).
+
+---
+
 ## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.

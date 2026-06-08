@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 4.3  
+**Versão:** 4.5  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -30,7 +30,7 @@
 
 ## Regra universal — persistência ao fim de cada ETAPA
 
-> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 23 (relatório).
+> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 27 (relatório).
 
 **Último passo da etapa** (quando ainda não existir):
 
@@ -76,6 +76,10 @@
 | **MOEDA DO PEDIDO/ITEM** | 56–61 | `run-lista-editar-salvar.ts` |
 | **VALOR TOTAL DO PEDIDO/ITEM** | 62–71 | `run-lista-editar-salvar.ts` |
 | **UNIDADE COMERCIALIZADA DO PEDIDO/ITEM** | 72–82 | `run-lista-editar-salvar.ts` |
+| **QTD. TRANSFERIDA — Básico** | 83–87 | `run-lista-editar-salvar.ts` |
+| **QTD. TRANSFERIDA — Novo Pedido** | 88–106 | `run-lista-editar-salvar.ts` |
+| **QTD. TRANSFERIDA — Pedido Existente** | 107–124 | `run-lista-editar-salvar.ts` |
+| **QTD. TRANSFERIDA — Redução Simples** | 125–134 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -494,7 +498,81 @@ Coluna **`unidade_comercializada_pedido`** — select do Cadastros com checkbox 
 
 **Valores no runner:** 3 siglas distintas do Cadastros (dinâmico) · item 2 = sigla divergente da replicada no passo 78
 
-### ETAPA 23 — Relatório
+### ETAPA 23 — QTD. TRANSFERIDA DO PEDIDO/ITEM — Básico (passos 83–87)
+
+Coluna **`quantidade_transferida_total`**. Pedido e item **bloqueados** (`cursor: not-allowed`). **Tooltip único** (mesmo conteúdo pedido = item). Regras §8C QTR-01…06 · `TRANSFERIR-REGRAS-NEGOCIO.md` para fluxos seguintes.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **83** | Hover célula **pedido** | Cursor bloqueado · Print `83-qtd-transf-cursor-pedido.png` |
+| **84** | Tooltip **pedido** | Título *Qtd. Transferida do Pedido* + pills + aviso Transferir · Print `84-qtd-transf-tooltip-pedido.png` |
+| **85** | Clicar célula **pedido** | Popover **não** abre · Print `85-qtd-transf-pedido-nao-edita.png` |
+| **86** | Hover célula **item 1** | Cursor bloqueado · tooltip **idêntico** ao passo 84 · Print `86-qtd-transf-item-tooltip.png` |
+| **87** | Clicar célula **item 1** | Popover **não** abre · Print `87-qtd-transf-item-nao-edita.png` |
+
+### ETAPA 24 — QTD. TRANSFERIDA — Novo Pedido (Split) (passos 88–106)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **88** | Checkbox **item 1** | Item selecionado |
+| **89** | Menu → **Transferir** | Modal abre · Print `89-transf-modal-aberto.png` |
+| **90** | **Split — Novo Pedido** → Próximo | Passo quantidade |
+| **91** | Quantidade com **saldo após ≥ 1** | Saldo correto · Print `91-transf-novo-saldo.png` |
+| **92** | Saldo negativo | Não avança |
+| **93** | Nº do **novo pedido** | Campo aceito |
+| **94** | **Quantidade a Transferir** | Correta · Print `94-transf-novo-qtd-transferir.png` |
+| **95** | Inspecionar painel **Origem** no modal (antes de confirmar) | Pedido/item de origem, quantidade e saldo exibidos corretamente |
+| **96** | Inspecionar painel **Destino** (novo pedido) | Nº do novo pedido e quantidade a transferir corretos |
+| **97** | Clicar **Confirmar** no modal Transferir (split — novo pedido) | Transferência concluída com sucesso; modal fecha · Print `97-transf-novo-sucesso.png` |
+| **98** | Na lista, localizar e expandir o **novo pedido** | Pedido encontrado; linha expandida com itens visíveis |
+| **99** | Abrir pedido e item e conferir se **todos os dados** foram replicados — **todas as colunas** do pedido e item | Grade SSOT 100% correta · Print `99-transf-novo-grade-completa.png` |
+| **100** | Confirmar se — **Novo Pedido** — a **Qtd. Inicial** do(s) item(ns) é igual; não foi alterada | Valor igual ao esperado pós-transferência |
+| **101** | Confirmar se — **Novo Pedido** — a **Qtd. Transferida** do(s) item(ns) foi atualizada e está correta | Valor reflete a quantidade transferida |
+| **102** | Confirmar se — **Novo Pedido** — o **Saldo** do(s) item(ns) foi atualizado e está correto | Saldo consistente com inicial − transferida − cancelada |
+| **103** | Confirmar se — **Pedido de Origem** — a **Qtd. Inicial** do(s) item(ns) é igual; não foi alterada | Valor idêntico ao pré-transferência |
+| **104** | Confirmar se — **Pedido de Origem** — a **Qtd. Transferida** do(s) item(ns) foi atualizada e está correta | Incremento conforme quantidade transferida |
+| **105** | Confirmar se — **Pedido de Origem** — o **Saldo** do(s) item(ns) foi atualizado e está correto | Saldo reduzido conforme regra de transferência |
+| **106** | Hub → Lista → reexpandir origem e novo pedido | Dados persistem após navegação · Print `106-transf-novo-persistencia.png` |
+
+### ETAPA 25 — QTD. TRANSFERIDA — Pedido Existente (Split) (passos 107–124)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **107** | Checkbox **outro item** | Item selecionado |
+| **108** | **Transferir** → **Split — Pedido Existente** | Modal · Print `108-transf-existente-modal.png` |
+| **109** | Quantidade válida | Saldo ≥ 1 |
+| **110** | Saldo negativo | Bloqueado |
+| **111** | **Pedido de Destino** | Destino válido |
+| **112** | Conferir **Quantidade a transferir** no modal | Valor correto conforme saldo disponível |
+| **113** | Inspecionar painéis **Origem** e **Destino** (pedido existente) | Dados de origem e destino corretos |
+| **114** | Clicar **Confirmar** no modal Transferir (split — pedido existente) | Transferência concluída com sucesso; modal fecha · Print `114-transf-existente-sucesso.png` |
+| **115** | Na lista, localizar e expandir o **pedido de destino** | Pedido destino encontrado e expandido |
+| **116** | Na lista, localizar e expandir o **pedido de origem** | Pedido origem encontrado e expandido |
+| **117** | Abrir pedido e item e conferir se **todos os dados** foram replicados — **todas as colunas** | Grade SSOT 100% correta · Print `115-transf-existente-grade.png` |
+| **118** | Confirmar se — **Pedido de Destino** — **Qtd. Inicial** do(s) item(ns) | Valor correto pós-transferência |
+| **119** | Confirmar se — **Pedido de Destino** — **Qtd. Transferida** do(s) item(ns) | Atualizada e correta |
+| **120** | Confirmar se — **Pedido de Destino** — **Saldo** do(s) item(ns) | Atualizado e correto |
+| **121** | Confirmar se — **Pedido de Origem** — **Qtd. Inicial**, **Qtd. Transferida** e **Saldo** do(s) item(ns) | Inicial inalterada; transferida e saldo atualizados |
+| **124** | Hub → Lista | Persistência · Print `124-transf-existente-persistencia.png` |
+
+### ETAPA 26 — QTD. TRANSFERIDA — Redução Simples (passos 125–134)
+
+> `reducao_simples` incrementa **`quantidade_cancelada_item`** (não `quantidade_transferida_item`).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **125** | Checkbox em **outro item** | Item selecionado |
+| **126** | **Redução Simples** | Fluxo sem destino · Print `126-transf-reducao-modal.png` |
+| **127** | Quantidade com **saldo após ≥ 1** | Saldo correto |
+| **128** | Saldo negativo | Não confirma |
+| **129** | Confirmar | Sucesso · Print `129-transf-reducao-sucesso.png` |
+| **130** | **Qtd. Inicial** | Inalterada |
+| **131** | **Qtd. Transferida** | Inalterada |
+| **132** | **Qtd. Cancelada** | Incrementada |
+| **133** | **Saldo** | `inicial − transferida − cancelada` |
+| **134** | Hub → Lista | Persistência · Print `134-transf-reducao-persistencia.png` |
+
+### ETAPA 27 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -546,5 +624,9 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | MOEDA DO PEDIDO/ITEM | 56–61 | 6 |
 | VALOR TOTAL DO PEDIDO/ITEM | 62–71 | 10 |
 | UNIDADE COMERCIALIZADA DO PEDIDO/ITEM | 72–82 | 11 |
-| **Total runner principal** | | **~99 passos / 128 casos** |
+| QTD. TRANSFERIDA — Básico | 83–87 | 5 |
+| QTD. TRANSFERIDA — Novo Pedido | 88–106 | 19 |
+| QTD. TRANSFERIDA — Pedido Existente | 107–124 | 18 |
+| QTD. TRANSFERIDA — Redução Simples | 125–134 | 10 |
+| **Total runner principal** | | **~134 passos / 164 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

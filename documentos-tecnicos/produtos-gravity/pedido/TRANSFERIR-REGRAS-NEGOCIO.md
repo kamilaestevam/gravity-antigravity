@@ -20,6 +20,8 @@ O sistema foi desenhado para cobrir **todos os cenários de um só vez via confi
 | # | Cenário | Descrição + Exemplo | Part# muda? | Qty origem | Pedido destino | Qty destino | Cria novo pedido? | Origem encerra? | Destino logístico muda? | Data muda? | Reversível? |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | **Redução simples** | Quantidade entregue é menor e a diferença é cancelada. _Ex: PO-001 tinha 1.000 computadores, entregará 800 — os 200 são cancelados._ | Não | Reduz 200 | Nenhum | — | Não | Só se qty=0 + config | Não | Não | Não |
+
+> **Lista (grade):** na confirmação de `reducao_simples`, o backend incrementa **`quantidade_cancelada_item`** na origem — **não** `quantidade_transferida_item`. A coluna *Qtd. Transferida* na lista permanece inalterada; ver §8C QTR-08 em `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`. Cenários split incrementam `quantidade_transferida_item` (QTR-07).
 | 2 | **Split → novo pedido** | Diferença sai do pedido original e vira um novo pedido. _Ex: PO-001 tinha 1.000, entregará 800 — os 200 viram PO-002 (novo)._ | Não | Reduz 200 | Novo criado | +200 | Sim | Só se qty=0 + config | Não | Não | Sim |
 | 3 | **Split → pedido existente** | Diferença vai para um pedido que já existe. _Ex: PO-001 tinha 1.000, entregará 800 — os 200 vão para PO-005 que já existia._ | Não | Reduz 200 | Existente | +200 | Não | Só se qty=0 + config | Não | Não | Sim |
 | 4 | **Multi-split** | Diferença é dividida entre múltiplos destinos (existentes ou novos). _Ex: PO-001 tinha 1.000 — 600 ficam, 300 vão para PO-005, 100 viram PO-006 (novo)._ | Não | Reduz 400 | Múltiplos | Cada um recebe sua parte | Opcional | Só se qty=0 + config | Não | Não | Sim |

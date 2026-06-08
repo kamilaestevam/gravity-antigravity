@@ -2,6 +2,8 @@ export interface CasoPlanoTeste {
   ordem: string
   titulo: string
   detalhe: string
+  acao?: string
+  aprovadoQuando?: string
   secao?: string
 }
 
@@ -21,9 +23,35 @@ function normalizarOrdemCelula(raw: string): string {
   return raw.replace(/\*\*/g, '').trim()
 }
 
+interface LinhaPassoEtapa {
+  ordem: string
+  detalhe: string
+  acao?: string
+  aprovadoQuando?: string
+}
+
+/** Faixa `95–96` ou `95-96` vira passos individuais no modal Admin. */
+function expandirOrdensPasso(ordem: string): string[] {
+  const norm = ordem.replace(/\*\*/g, '').trim()
+  const faixa = norm.match(/^(\d+(?:\.\d+)?)\s*[–—-]\s*(\d+(?:\.\d+)?)$/)
+  if (faixa) {
+    const inicio = Number(faixa[1])
+    const fim = Number(faixa[2])
+    if (
+      Number.isInteger(inicio)
+      && Number.isInteger(fim)
+      && fim >= inicio
+      && fim - inicio <= 24
+    ) {
+      return Array.from({ length: fim - inicio + 1 }, (_, i) => String(inicio + i))
+    }
+  }
+  return [norm]
+}
+
 /** Linha numerada `1. …` ou linha de tabela `| **06** | Ação | Critério |`. */
-function extrairLinhasPassoEtapa(bloco: string): Array<{ ordem: string; detalhe: string }> {
-  const itens: Array<{ ordem: string; detalhe: string }> = []
+function extrairLinhasPassoEtapa(bloco: string): LinhaPassoEtapa[] {
+  const itens: LinhaPassoEtapa[] = []
 
   for (const raw of bloco.split('\n')) {
     const line = raw.trim()
@@ -44,11 +72,15 @@ function extrairLinhasPassoEtapa(bloco: string): Array<{ ordem: string; detalhe:
     if (!colPasso || colPasso === 'Passo' || colPasso === '#' || colPasso === 'Sub-etapa') continue
     if (colPasso.toLowerCase() === 'ação' || colPasso.toLowerCase() === 'acao') continue
 
-    const passo = colPasso === '—' ? '—' : colPasso
-    const detalhe = cols.length >= 3
-      ? `${cols[1]} — ${cols[2]}`
-      : cols[1]
-    itens.push({ ordem: passo, detalhe })
+    const acao = cols.length >= 2 ? cols[1].trim() : undefined
+    const aprovadoQuando = cols.length >= 3 ? cols[2].trim() : undefined
+    const detalhe = acao && aprovadoQuando
+      ? `${acao} — ${aprovadoQuando}`
+      : acao ?? aprovadoQuando ?? ''
+
+    for (const ordem of expandirOrdensPasso(colPasso === '—' ? '—' : colPasso)) {
+      itens.push({ ordem, detalhe, acao, aprovadoQuando })
+    }
   }
 
   return itens
@@ -124,6 +156,8 @@ export function extrairCasosDoPlano(conteudo: string, planoFile: string): CasoPl
         ordem: linha.ordem,
         titulo: secao,
         detalhe: linha.detalhe,
+        acao: linha.acao,
+        aprovadoQuando: linha.aprovadoQuando,
         secao: 'Roteiro',
       })
     }
@@ -140,6 +174,8 @@ export function extrairCasosDoPlano(conteudo: string, planoFile: string): CasoPl
         ordem: linha.ordem,
         titulo: tituloBloco,
         detalhe: linha.detalhe,
+        acao: linha.acao,
+        aprovadoQuando: linha.aprovadoQuando,
         secao: 'Roteiro',
       })
     }

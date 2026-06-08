@@ -46,6 +46,7 @@ const PILL_DEFS: Record<RegraPillId, PillDef> = {
   calculado_pedido_qtd_inicial: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   calculado_pedido_qtd_pronta: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   calculado_pedido_qtd_transferida: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
+  calculado_pedido_saldo: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   soma_mesma_unidade:  { Icon: Sigma, color: '#60a5fa', bg: 'rgba(96,165,250,0.10)' },
   formula_config:    { Icon: Gear,             color: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },
   so_operacao:       { Icon: Prohibit,         color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },

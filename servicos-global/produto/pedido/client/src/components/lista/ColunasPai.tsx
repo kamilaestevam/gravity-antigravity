@@ -1030,10 +1030,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'unidade',
     align: 'right',
     editavel: false,
-    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_unidade_saldo'),
     tooltipTitulo: t('pedido.coluna_pai.saldo_itens_do_pedido_titulo'),
-    tooltipDescricao: <span><Trans i18nKey="pedido.coluna_pai.calculado_itens_editar_formula" components={{ a: <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados" /> }} /></span>,
-    tooltipInterativo: true,
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []

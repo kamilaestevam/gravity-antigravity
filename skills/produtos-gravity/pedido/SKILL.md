@@ -181,6 +181,7 @@ Doc completo: [`EDICAO-EM-MASSA-TECNICO.md` §Auto-fill](../../../documentos-tec
 
 - **Consolidar:** BLOQUEIA mistura importação+exportação (regra de negócio)
 - **Transferir:** AVISA mistura mas permite (cross-tenant possível)
+- **Lista — Qtd. Transferida:** coluna somente leitura; `reducao_simples` incrementa `quantidade_cancelada_item` (não transferida) — ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §8C e `TRANSFERIR-REGRAS-NEGOCIO.md`
 - Ambos usam `bulkSchemas.ts` — `detectarTiposMistos()` síncrono e `assertTiposHomogeneos()` (refinement Zod)
 
 ---

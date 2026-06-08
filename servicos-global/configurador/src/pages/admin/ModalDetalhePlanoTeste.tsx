@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Camera, ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
+import { Camera, Eye, ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
 import { ModalOverlay } from '@nucleo/modal-global'
 import {
   adminPlanosTesteApi,
@@ -84,19 +84,130 @@ function DetalhePassoComPrints({ detalhe }: { detalhe: string }) {
   )
 }
 
-function LinhaCaso({ ordem, detalhe }: { ordem: string; detalhe: string }) {
+const estiloLinhaCaso = {
+  display: 'grid',
+  gridTemplateColumns: '48px 1fr auto',
+  gap: '0.75rem',
+  alignItems: 'center',
+  padding: '0.625rem 0.75rem',
+  borderRadius: '8px',
+  background: 'rgba(15, 23, 42, 0.4)',
+  border: '1px solid rgba(255,255,255,0.06)',
+} as const
+
+function BotaoVisualizarPasso({ onClick }: { onClick: () => void }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
+      title="Visualizar passo completo"
+      aria-label="Visualizar passo completo"
       style={{
-        display: 'grid',
-        gridTemplateColumns: '48px 1fr',
-        gap: '0.75rem',
-        padding: '0.625rem 0.75rem',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 32,
+        height: 32,
         borderRadius: '8px',
-        background: 'rgba(15, 23, 42, 0.4)',
-        border: '1px solid rgba(255,255,255,0.06)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        background: 'rgba(30, 41, 59, 0.6)',
+        color: '#94a3b8',
+        cursor: 'pointer',
+        flexShrink: 0,
       }}
     >
+      <Eye size={18} weight="regular" />
+    </button>
+  )
+}
+
+function SecaoPassoPlano({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: '1rem' }}>
+      <div style={{
+        fontSize: '0.65rem', fontWeight: 700, color: '#64748b',
+        textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.35rem',
+      }}>
+        {rotulo}
+      </div>
+      <div style={{ fontSize: '0.85rem', color: '#e2e8f0', lineHeight: 1.55 }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function ModalPassoPlanoTeste({
+  caso,
+  aoFechar,
+}: {
+  caso: CasoPlanoTesteApi
+  aoFechar: () => void
+}) {
+  const temEstrutura = Boolean(caso.acao || caso.aprovadoQuando)
+
+  return (
+    <ModalOverlay
+      aberto
+      aoFechar={aoFechar}
+      tamanho="md"
+      titulo={`Passo ${caso.ordem}`}
+      renderizarFooter={() => (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 1.5rem 1.5rem' }}>
+          <button
+            type="button"
+            onClick={aoFechar}
+            style={{
+              padding: '0.625rem 1.25rem', borderRadius: '8px',
+              background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0',
+              fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer',
+            }}
+          >
+            Fechar
+          </button>
+        </div>
+      )}
+    >
+      <div style={{ padding: '0 1.5rem 1.25rem' }}>
+        {caso.titulo && (
+          <SecaoPassoPlano rotulo="Etapa">
+            <span style={{ color: '#a78bfa', fontWeight: 600 }}>{caso.titulo}</span>
+          </SecaoPassoPlano>
+        )}
+        {temEstrutura ? (
+          <>
+            {caso.acao && (
+              <SecaoPassoPlano rotulo="Ação">
+                <DetalhePassoComPrints detalhe={caso.acao} />
+              </SecaoPassoPlano>
+            )}
+            {caso.aprovadoQuando && (
+              <SecaoPassoPlano rotulo="APROVADO quando">
+                <DetalhePassoComPrints detalhe={caso.aprovadoQuando} />
+              </SecaoPassoPlano>
+            )}
+          </>
+        ) : (
+          <SecaoPassoPlano rotulo="Detalhe">
+            <DetalhePassoComPrints detalhe={caso.detalhe} />
+          </SecaoPassoPlano>
+        )}
+      </div>
+    </ModalOverlay>
+  )
+}
+
+function LinhaCaso({
+  ordem,
+  detalhe,
+  onVisualizar,
+}: {
+  ordem: string
+  detalhe: string
+  onVisualizar: () => void
+}) {
+  return (
+    <div style={estiloLinhaCaso}>
       <span style={{
         fontSize: '0.75rem', fontWeight: 800, color: '#818cf8',
         fontFamily: 'ui-monospace, monospace',
@@ -104,11 +215,18 @@ function LinhaCaso({ ordem, detalhe }: { ordem: string; detalhe: string }) {
         {ordem}
       </span>
       <DetalhePassoComPrints detalhe={detalhe} />
+      <BotaoVisualizarPasso onClick={onVisualizar} />
     </div>
   )
 }
 
-function ListaCasosRoteiro({ itens }: { itens: CasoPlanoTesteApi[] }) {
+function ListaCasosRoteiro({
+  itens,
+  onVisualizarPasso,
+}: {
+  itens: CasoPlanoTesteApi[]
+  onVisualizarPasso: (caso: CasoPlanoTesteApi) => void
+}) {
   const etapas = [...new Set(itens.map(c => c.titulo))]
 
   return (
@@ -127,6 +245,7 @@ function ListaCasosRoteiro({ itens }: { itens: CasoPlanoTesteApi[] }) {
                 key={`${etapa}-${caso.ordem}-${idx}`}
                 ordem={caso.ordem}
                 detalhe={caso.detalhe}
+                onVisualizar={() => onVisualizarPasso(caso)}
               />
             ))}
           </div>
@@ -152,6 +271,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
   const [casos, setCasos] = useState<CasoPlanoTesteApi[]>([])
   const [planoFile, setPlanoFile] = useState<string | null>(null)
   const [ambienteExecucao, setAmbienteExecucao] = useState<AmbienteExecucaoApi | null>(null)
+  const [casoDetalhe, setCasoDetalhe] = useState<CasoPlanoTesteApi | null>(null)
 
   useEffect(() => {
     if (!aberto || !plano) {
@@ -159,6 +279,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
       setPlanoFile(null)
       setAmbienteExecucao(null)
       setErro(null)
+      setCasoDetalhe(null)
       return
     }
 
@@ -191,6 +312,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
   ]
 
   return (
+    <>
     <ModalOverlay
       aberto={aberto}
       aoFechar={aoFechar}
@@ -327,22 +449,11 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
                     </div>
                   )}
                   {secao === 'Roteiro' ? (
-                    <ListaCasosRoteiro itens={itens} />
+                    <ListaCasosRoteiro itens={itens} onVisualizarPasso={setCasoDetalhe} />
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                       {itens.map((caso, idx) => (
-                        <div
-                          key={`${caso.ordem}-${idx}`}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '48px 1fr',
-                            gap: '0.75rem',
-                            padding: '0.625rem 0.75rem',
-                            borderRadius: '8px',
-                            background: 'rgba(15, 23, 42, 0.4)',
-                            border: '1px solid rgba(255,255,255,0.06)',
-                          }}
-                        >
+                        <div key={`${caso.ordem}-${idx}`} style={estiloLinhaCaso}>
                           <span style={{
                             fontSize: '0.75rem', fontWeight: 800, color: '#818cf8',
                             fontFamily: 'ui-monospace, monospace',
@@ -370,6 +481,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
                                 : <DetalhePassoComPrints detalhe={caso.detalhe} />}
                             </div>
                           </div>
+                          <BotaoVisualizarPasso onClick={() => setCasoDetalhe(caso)} />
                         </div>
                       ))}
                     </div>
@@ -381,5 +493,9 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
         )}
       </div>
     </ModalOverlay>
+    {casoDetalhe && (
+      <ModalPassoPlanoTeste caso={casoDetalhe} aoFechar={() => setCasoDetalhe(null)} />
+    )}
+    </>
   )
 }

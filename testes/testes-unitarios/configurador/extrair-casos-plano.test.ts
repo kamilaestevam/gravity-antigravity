@@ -52,5 +52,15 @@ describe('extrairCasosDoPlano', () => {
     )
 
     expect(casos.length).toBeGreaterThanOrEqual(190)
+
+    const passo83 = roteiro.find(c => c.ordem === '83' && c.titulo.includes('QTD. TRANSFERIDA'))
+    expect(passo83).toBeDefined()
+    expect(passo83?.acao).toContain('Hover célula')
+    expect(passo83?.aprovadoQuando).toContain('83-qtd-transf-cursor-pedido.png')
+
+    const passosExpandidos = roteiro.filter(c => c.titulo.includes('Novo Pedido (Split)'))
+    expect(passosExpandidos.map(p => p.ordem)).toEqual(
+      expect.arrayContaining(['95', '96']),
+    )
   })
 })

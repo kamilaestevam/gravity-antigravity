@@ -282,11 +282,16 @@ export function enriquecerColunaComRegraTooltip<T>(
     key === 'quantidade_transferida_total'
       ? t('pedido.coluna_pai.quantidade_transferida_total_titulo_linha_pedido')
       : null
+  const tituloSaldoLinhaPedido =
+    key === 'saldo_itens_do_pedido'
+      ? t('pedido.coluna_pai.saldo_itens_do_pedido_titulo_linha_pedido')
+      : null
   const titulo = tituloValorTotalLinhaPedido
     ?? tituloValorUnitarioLinhaPedido
     ?? tituloMoedaLinhaPedido
     ?? tituloUnidadeLinhaPedido
     ?? tituloQtdTransferidaLinhaPedido
+    ?? tituloSaldoLinhaPedido
     ?? (col.tooltipTitulo?.trim()
       ? col.tooltipTitulo
       : tituloTooltipColuna(t, key, 'pai', col.label))
@@ -301,7 +306,9 @@ export function enriquecerColunaComRegraTooltip<T>(
             ? t('pedido.coluna_pai.unidade_comercializada_item_titulo')
             : key === 'quantidade_transferida_total'
               ? t('pedido.coluna_pai.quantidade_transferida_item_titulo')
-              : undefined
+              : key === 'saldo_itens_do_pedido'
+                ? t('pedido.coluna_pai.saldo_item_titulo')
+                : undefined
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)
@@ -334,6 +341,7 @@ export function enriquecerColunaComRegraTooltip<T>(
       {
         ...col,
         tooltipTitulo: titulo,
+        ...(tituloItem ? { tooltipTituloItem: tituloItem } : {}),
         tooltipDescricao: tooltipDescricaoCabecalho,
         tooltipInterativo,
       },
@@ -496,8 +504,10 @@ export function aplicarRenderTooltipInlineLista<T>(
   const key = String(col.key)
   const interativo = enriched.tooltipInterativo
 
+  const tituloItemCol = enriched.tooltipTituloItem?.trim()
   const colInline: ColunaComRenderListaBase<T> = {
     ...semMetadadosTooltipCelulaNucleo(enriched),
+    ...(tituloItemCol ? { tooltipTituloItem: tituloItemCol } : {}),
     tooltipInline: true,
     renderListaBase: renderBase,
     render: (val: unknown, row: T) => {

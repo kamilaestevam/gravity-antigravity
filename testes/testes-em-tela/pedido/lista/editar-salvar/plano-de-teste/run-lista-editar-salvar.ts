@@ -12,6 +12,7 @@ import dotenv from 'dotenv'
 import { clerk, clerkSetup } from '@clerk/testing/playwright'
 import { aplicarChavesClerkParaAmbiente, ambienteRemotoProducao } from '../../../../_lib/aplicar-chaves-clerk-ambiente.js'
 import { resolverFeatureRootEmt, resolverPastaResultadoEmt } from '../../../../_lib/resolver-pasta-resultado-emt.js'
+import { validarQtdTransferidaLista } from './validar-qtd-transferida-lista.js'
 
 const __dirRoot = dirname(fileURLToPath(import.meta.url))
 const FEATURE_ROOT = resolverFeatureRootEmt(__dirRoot)
@@ -1257,6 +1258,18 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
   await validarMoedaPedidoItemLista(page, rowId, qtdItens)
   await validarValorItemLista(page, rowId, numeroPedido, qtdItens)
   await validarUnidadeComercializadaLista(page, rowId, numeroPedido, qtdItens)
+  await validarQtdTransferidaLista(page, {
+    log,
+    logAprovado,
+    falharTabela,
+    screenshot,
+    scrollColunaParaVisivel,
+    esconderTooltipGlobal,
+    garantirListaPedidos,
+    localizarRowIdPorNumeroPedido,
+    expandirPedido: expandirPrimeiroPedido,
+    hubUrl: HUB_URL,
+  }, rowId, numeroPedido, qtdItens)
 }
 
 function normalizarTextoCelula(texto: string): string {

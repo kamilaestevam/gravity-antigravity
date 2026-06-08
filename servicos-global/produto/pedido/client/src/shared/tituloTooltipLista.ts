@@ -36,6 +36,11 @@ export function tituloTooltipCelulaPorColuna(
       ? t('pedido.coluna_pai.quantidade_transferida_item_titulo')
       : t('pedido.coluna_pai.quantidade_transferida_total_titulo_linha_pedido')
   }
+  if (key === 'saldo_itens_do_pedido') {
+    return isFilho
+      ? t('pedido.coluna_pai.saldo_item_titulo')
+      : t('pedido.coluna_pai.saldo_itens_do_pedido_titulo_linha_pedido')
+  }
   return undefined
 }
 

@@ -53,6 +53,7 @@ export type RegraPillId =
   | 'calculado_pedido_qtd_inicial'
   | 'calculado_pedido_qtd_pronta'
   | 'calculado_pedido_qtd_transferida'
+  | 'calculado_pedido_saldo'
   | 'soma_mesma_unidade'
   | 'formula_config'
   | 'so_operacao'
@@ -89,6 +90,7 @@ export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
   'calculado_pedido_qtd_inicial',
   'calculado_pedido_qtd_pronta',
   'calculado_pedido_qtd_transferida',
+  'calculado_pedido_saldo',
   'valor_total_soma_mesma_moeda',
   'valor_unitario_sem_somatoria',
   'soma_mesma_unidade',
@@ -215,11 +217,16 @@ export const PILLS_PEDIDO_QTD_CANCELADA: RegraPillId[] = [
   'casas_decimais_config',
 ]
 
-/** Linha do pedido — Saldo: calculado por fórmula, bloqueado, link configurador. */
+/** Linha do item — Saldo: somente leitura + fórmula (inicial − transferida − cancelada). */
+export const PILLS_ITEM_SALDO: RegraPillId[] = ['somente_leitura', 'formula_config']
+
+/** Linha do pedido — Saldo: soma na mesma unidade, bloqueado, fórmula, alerta unidade. */
 export const PILLS_PEDIDO_SALDO: RegraPillId[] = [
-  'calculado_pedido',
+  'calculado_pedido_saldo',
   'bloqueado_edicao',
   'formula_config',
+  'alerta_unidade_comercializada_divergente',
+  'casas_decimais_config',
 ]
 
 /** Moeda — linha do pedido. */
@@ -341,7 +348,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   pai_saldo_formula: {
     pedido: [...PILLS_PEDIDO_SALDO],
-    item: ['somente_leitura', 'formula_config'],
+    item: [...PILLS_ITEM_SALDO],
   },
   pai_somente_leitura: {
     pedido: ['somente_leitura'],
@@ -417,7 +424,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   dinamico_saldo: {
     pedido: [...PILLS_PEDIDO_SALDO],
-    item: ['somente_leitura', 'formula_config'],
+    item: [...PILLS_ITEM_SALDO],
   },
   dinamico_qtd_transferida: {
     pedido: [...PILLS_PEDIDO_QTD_TRANSFERIDA],
@@ -461,7 +468,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
   },
   item_nao_editavel_saldo: {
     pedido: [],
-    item: ['somente_leitura', 'formula_config'],
+    item: [...PILLS_ITEM_SALDO],
   },
   item_nao_editavel_transferencia: {
     pedido: [],
@@ -517,6 +524,7 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_ITEM_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_ITEM_QTD_INICIAL
   if (key === 'quantidade_transferida_total') return PILLS_ITEM_QTD_TRANSFERIDA
+  if (key === 'saldo_itens_do_pedido') return PILLS_ITEM_SALDO
   return pills
 }
 
@@ -580,6 +588,17 @@ export function obterPillsTooltipColuna(
       pedido: limitarPills([...PILLS_PEDIDO_QTD_TRANSFERIDA], 'pai'),
       item: limitarPills([...PILLS_ITEM_QTD_TRANSFERIDA], 'item'),
       linkFormula: false,
+      ghostSemCheckbox: false,
+      numeroUnicoOrg: false,
+    }
+  }
+
+  if (key === 'saldo_itens_do_pedido' && !dual) {
+    return {
+      dual: false,
+      pedido: limitarPills([...PILLS_PEDIDO_SALDO], 'pai'),
+      item: limitarPills([...PILLS_ITEM_SALDO], 'item'),
+      linkFormula: true,
       ghostSemCheckbox: false,
       numeroUnicoOrg: false,
     }
@@ -662,6 +681,9 @@ export function pillsParaNivelColuna(
   }
   if (key === 'saldo_itens_do_pedido' && nivel === 'pai') {
     return limitarPills(PILLS_PEDIDO_SALDO, 'pai')
+  }
+  if (key === 'saldo_itens_do_pedido' && nivel === 'item') {
+    return limitarPills(PILLS_ITEM_SALDO, 'item')
   }
   if (
     (key === 'peso_liquido_total_pedido' || key === 'peso_bruto_total_pedido' || key === 'cubagem_total_pedido')

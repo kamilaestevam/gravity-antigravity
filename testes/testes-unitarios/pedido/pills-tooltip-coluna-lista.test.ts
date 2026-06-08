@@ -212,9 +212,33 @@ describe('obterPillsTooltipColuna', () => {
     expect(pillsParaNivelColuna('quantidade_transferida_total', 'item')).toEqual(['somente_leitura', 'so_operacao'])
   })
 
-  it('saldo_itens_do_pedido item — somente leitura + formula', () => {
-    const pills = pillsParaNivelColuna('saldo_itens_do_pedido', 'item')
-    expect(pills).toEqual(['somente_leitura', 'formula_config'])
+  it('saldo_itens_do_pedido dinâmico — pedido fórmula + alerta unidade; item somente leitura', () => {
+    const res = obterPillsTooltipColuna('saldo_itens_do_pedido', { modoDinamicoPedidoItem: true })
+    expect(res.dual).toBe(true)
+    expect(res.linkFormula).toBe(true)
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'calculado_pedido_saldo',
+      'alerta_unidade_comercializada_divergente',
+      'formula_config',
+      'casas_decimais_config',
+    ])
+    expect(res.item).toEqual(['somente_leitura', 'formula_config'])
+  })
+
+  it('saldo_itens_do_pedido sem expandir — pills corretas no cabeçalho', () => {
+    const res = obterPillsTooltipColuna('saldo_itens_do_pedido')
+    expect(res.dual).toBe(false)
+    expect(res.linkFormula).toBe(true)
+    expect(res.pedido).toEqual([
+      'bloqueado_edicao',
+      'calculado_pedido_saldo',
+      'alerta_unidade_comercializada_divergente',
+      'formula_config',
+      'casas_decimais_config',
+    ])
+    expect(res.item).toEqual(['somente_leitura', 'formula_config'])
+    expect(pillsParaNivelColuna('saldo_itens_do_pedido', 'item')).toEqual(['somente_leitura', 'formula_config'])
   })
 
   it.each([

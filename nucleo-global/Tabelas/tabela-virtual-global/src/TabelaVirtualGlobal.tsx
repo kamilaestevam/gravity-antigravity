@@ -301,6 +301,21 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
 const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
 
+/** Conteúdo já montado pelo produto (ex.: TooltipListaColuna na lista de pedidos). */
+function conteudoTemTooltipProdutoMontada(conteudo: React.ReactNode): boolean {
+  if (!React.isValidElement(conteudo)) return false
+  const props = conteudo.props as Record<string, unknown>
+  if (props['data-tooltip-lista-mount'] != null) return true
+  if (props['data-tooltip-lista-coluna'] != null) return true
+  const children = props.children
+  if (React.isValidElement(children)) {
+    const childProps = children.props as Record<string, unknown>
+    if (childProps['data-tooltip-lista-mount'] != null) return true
+    if (childProps['data-tooltip-lista-coluna'] != null) return true
+  }
+  return false
+}
+
 function wrapTooltipRegraCelula(
   col: GTColuna<unknown>,
   conteudo: React.ReactNode,
@@ -310,15 +325,21 @@ function wrapTooltipRegraCelula(
   celulaBloqueada = false,
   tituloOverride?: string,
 ): React.ReactNode {
-  // Tooltip montada no produto (tooltipInline) — núcleo não duplica wrap.
+  // Tooltip montada no produto (tooltipInline / TooltipListaColuna) — núcleo não duplica wrap.
   if (col.tooltipInline === true) return conteudo
+  if (conteudoTemTooltipProdutoMontada(conteudo)) return conteudo
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
     return conteudo
   }
   const regra = resolverTooltipRegraCelula(col, item, isFilho)
   if (!regra) return conteudo
-  const tituloFinal = resolverTituloFinalTooltipCelula(col, regra, isFilho, tituloOverride, item)
+  let tituloFinal = resolverTituloFinalTooltipCelula(col, regra, isFilho, tituloOverride, item)
+  const tituloPedidoCol = col.tooltipTitulo?.trim()
+  const tituloItemCol = col.tooltipTituloItem?.trim()
+  if (isFilho && tituloPedidoCol && tituloFinal === tituloPedidoCol) {
+    tituloFinal = tituloItemCol ?? tituloOverride?.trim() ?? col.label
+  }
   const descricaoFinal = regra.descricao
   return (
     <TooltipGlobal
@@ -3365,9 +3386,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
-                  // mapaColunasFilho.render é dono da célula na linha item — núcleo não re-wrap.
-                  // Evita double TooltipGlobal («Moeda do Pedido» + pills de item).
-                  if (mapa?.render != null) {
+                  // mapaColunasFilho / TooltipListaColuna — núcleo não re-wrap na linha item.
+                  if (mapa?.render != null || conteudoTemTooltipProdutoMontada(celFilhoInner)) {
                     return celFilhoInner
                   }
                   const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''

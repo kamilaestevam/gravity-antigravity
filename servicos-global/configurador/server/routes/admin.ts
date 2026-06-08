@@ -1091,6 +1091,10 @@ adminRouter.get('/planos-teste/:id_plano_teste/casos', (req, res, next) => {
       ...c,
       titulo: adaptarTextoCasoParaAmbiente(c.titulo, ambienteExecucao),
       detalhe: adaptarTextoCasoParaAmbiente(c.detalhe, ambienteExecucao),
+      acao: c.acao ? adaptarTextoCasoParaAmbiente(c.acao, ambienteExecucao) : undefined,
+      aprovadoQuando: c.aprovadoQuando
+        ? adaptarTextoCasoParaAmbiente(c.aprovadoQuando, ambienteExecucao)
+        : undefined,
     }))
 
     res.json({

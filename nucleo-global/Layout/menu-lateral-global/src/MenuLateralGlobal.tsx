@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { SidebarSimple, CaretDown, Check, Plus, Gear, Square, CheckSquare } from '@phosphor-icons/react'
+import { SidebarSimple, CaretDown, Check, Plus, Gear, Square, CheckSquare, ArrowRight } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoModoBadgeVisaoFornecedor } from './LogoModoBadgeVisaoFornecedor'
@@ -19,6 +19,10 @@ export interface ProductSwitcherItem {
   name: string
   color: string
   icon: React.ReactNode
+  /** 'produto' = troca de contexto (padrão); 'acao' = atalho/visão transversal (não é produto). */
+  kind?: 'produto' | 'acao'
+  /** Descrição curta exibida abaixo do nome (usada por itens 'acao'). */
+  sublabel?: string
 }
 
 export interface NavItem {
@@ -424,36 +428,52 @@ export function MenuLateralGlobal({
               </div>
             )}
             <div className="mlg-ws-dropdown__list">
-              {filteredProdutos.map(prod => {
-                const isCurrent = produtoAtualSlug
-                  ? produtoSlugEquivalente(prod.slug, produtoAtualSlug)
-                  : prod.name === moduleName
+              {filteredProdutos.map((prod, index) => {
+                const isAcao = prod.kind === 'acao'
+                const isCurrent = isAcao
+                  ? false
+                  : produtoAtualSlug
+                    ? produtoSlugEquivalente(prod.slug, produtoAtualSlug)
+                    : prod.name === moduleName
+                // Divisor antes do primeiro item 'acao' — separa produtos de visões transversais.
+                const mostrarDivisor =
+                  isAcao && filteredProdutos[index - 1]?.kind !== 'acao'
                 return (
-                  <button
-                    key={prod.slug}
-                    type="button"
-                    className={`mlg-ws-item ${isCurrent ? 'mlg-ws-item--current' : ''}`}
-                    role="option"
-                    aria-selected={isCurrent}
-                    onClick={() => {
-                      if (!isCurrent) onSwitchProduct?.(prod.slug)
-                      setProdOpen(false)
-                    }}
-                  >
-                    <div
-                      className="mlg-prod-item-icon"
-                      style={{ color: prod.color }}
-                      aria-hidden
+                  <React.Fragment key={prod.slug}>
+                    {mostrarDivisor && <div className="mlg-prod-divider" role="separator" />}
+                    <button
+                      type="button"
+                      className={`mlg-ws-item ${isCurrent ? 'mlg-ws-item--current' : ''} ${isAcao ? 'mlg-ws-item--acao' : ''}`}
+                      role="option"
+                      aria-selected={isCurrent}
+                      onClick={() => {
+                        if (isAcao) onSwitchProduct?.(prod.slug)
+                        else if (!isCurrent) onSwitchProduct?.(prod.slug)
+                        setProdOpen(false)
+                      }}
                     >
-                      {prod.icon}
-                    </div>
-                    <div className="mlg-ws-item-info">
-                      <span className="mlg-ws-item-name">{prod.name}</span>
-                    </div>
-                    {isCurrent && (
-                      <Check size={13} weight="bold" style={{ color: prod.color, flexShrink: 0 }} />
-                    )}
-                  </button>
+                      <div
+                        className="mlg-prod-item-icon"
+                        style={{ color: prod.color }}
+                        aria-hidden
+                      >
+                        {prod.icon}
+                      </div>
+                      <div className="mlg-ws-item-info">
+                        <span className="mlg-ws-item-name">{prod.name}</span>
+                        {prod.sublabel && (
+                          <TooltipGlobal descricao={prod.sublabel}>
+                            <span className="mlg-ws-item-sub">{prod.sublabel}</span>
+                          </TooltipGlobal>
+                        )}
+                      </div>
+                      {isAcao ? (
+                        <ArrowRight size={13} weight="bold" className="mlg-ws-item-arrow" style={{ flexShrink: 0 }} />
+                      ) : isCurrent ? (
+                        <Check size={13} weight="bold" style={{ color: prod.color, flexShrink: 0 }} />
+                      ) : null}
+                    </button>
+                  </React.Fragment>
                 )
               })}
             </div>

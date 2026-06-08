@@ -9,7 +9,65 @@
  */
 import { useEffect, useState, useMemo } from 'react'
 import { z } from 'zod'
-import type { GTUnidadeOpcao } from './useUnidadesPedido'
+import { rotuloExibicaoUnidadeOpcao, type GTUnidadeOpcao } from './useUnidadesPedido'
+
+const PLURAL_PRIMEIRA_PALAVRA_VOLUME: Record<string, string> = {
+  caixa: 'caixas',
+  tambor: 'tambores',
+  saco: 'sacos',
+  pacote: 'pacotes',
+  peça: 'peças',
+  amarrado: 'amarrados',
+  envelope: 'envelopes',
+  canudo: 'canudos',
+  engradado: 'engradados',
+  mala: 'malas',
+  urna: 'urnas',
+  baú: 'baús',
+  palete: 'paletes',
+  granel: 'granel',
+  diversos: 'diversos',
+  'light-van': 'light-vans',
+}
+
+function pluralizarPrimeiraPalavraVolume(palavra: string, plural: boolean): string {
+  if (!plural) return palavra
+  const lower = palavra.toLowerCase()
+  if (PLURAL_PRIMEIRA_PALAVRA_VOLUME[lower]) return PLURAL_PRIMEIRA_PALAVRA_VOLUME[lower]
+  if (lower.endsWith('ão')) return `${palavra.slice(0, -2)}ões`
+  if (lower.endsWith('a')) return `${palavra}s`
+  if (lower.endsWith('r')) return `${palavra}es`
+  if (lower.endsWith('e')) return `${palavra}s`
+  if (lower.endsWith('o')) return `${palavra}es`
+  return `${palavra}s`
+}
+
+/** Nome do tipo em minúsculas; pluraliza só a primeira palavra (ex.: 10 → "caixas de papelão"). */
+export function formatarNomeVolumeExibicao(nomeVolume: string, qtd: number): string {
+  const nome = nomeVolume.trim()
+  if (!nome) return '—'
+  const partes = nome.split(/\s+/)
+  const primeira = partes[0] ?? nome
+  const resto = partes.slice(1).join(' ')
+  const primeiraFmt = pluralizarPrimeiraPalavraVolume(primeira, qtd !== 1)
+  const texto = resto ? `${primeiraFmt} ${resto}` : primeiraFmt
+  return texto.charAt(0).toLowerCase() + texto.slice(1)
+}
+
+/** Ex.: `10 caixas de papelão` — quantidade + tipo (sem código Siscomex). */
+export function formatarExibicaoQuantidadeVolume(
+  qtd: number | null | undefined,
+  codigoTipo: string | null | undefined,
+  opcoes: readonly GTUnidadeOpcao[],
+): string {
+  const nomeTipo = rotuloExibicaoUnidadeOpcao(codigoTipo, opcoes)
+  if (!codigoTipo || nomeTipo === '—') {
+    return qtd != null && Number(qtd) > 0 ? String(Math.round(Number(qtd))) : '—'
+  }
+  const n = qtd != null ? Math.max(0, Math.round(Number(qtd))) : null
+  if (n == null || n === 0) return formatarNomeVolumeExibicao(nomeTipo, 1)
+  return `${n} ${formatarNomeVolumeExibicao(nomeTipo, n)}`
+}
 
 const volumeSchema = z.object({
   codigo_volume: z.string().min(1),

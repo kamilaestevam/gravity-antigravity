@@ -349,12 +349,12 @@ function rotuloExibicaoUnidadeSelecionada(unit: string, lista: GTUnidadeOpcao[])
   return nomeExibicaoUnidadeRotulo(getUnidadeRotulo(match))
 }
 
-/** Coluna pode passar `[]` enquanto Cadastros carrega — array vazio não deve bloquear o fallback SSOT. */
+/** `undefined` → lista canônica do Cadastros; array (mesmo vazio) → catálogo próprio da coluna. */
 function resolverListaUnidades(
   restritas: GTUnidadeOpcao[] | undefined,
   padrao: GTUnidadeOpcao[],
 ): GTUnidadeOpcao[] {
-  if (restritas && restritas.length > 0) return restritas
+  if (restritas !== undefined) return restritas
   return padrao
 }
 
@@ -513,6 +513,8 @@ interface GTEditPopoverProps {
     avisoImpacto?: string
     apenasUnidade?: boolean
     linkPopoverEdicao?: { label: string; href: string }
+    rotuloUnidadeSelecionada?: (unit: string) => string
+    formatarValorUnidade?: (valor: GTValorUnidade) => string
   }
   valorEditando: unknown
   salvando: boolean
@@ -1180,7 +1182,9 @@ const GTEditPopover = memo(function GTEditPopover({
                   disabled={salvando}
                   onMouseDown={e => { e.preventDefault(); e.stopPropagation(); if (unidadeAberta) { setUnidadeAberta(false) } else { dropdownAbrindoRef.current = true; abrirUnidade() } }}
                 >
-                  <span>{rotuloExibicaoUnidadeSelecionada(uv.unit, listaUnidades)}</span>
+                  <span>{overlayInfo.rotuloUnidadeSelecionada
+                    ? overlayInfo.rotuloUnidadeSelecionada(uv.unit)
+                    : rotuloExibicaoUnidadeSelecionada(uv.unit, listaUnidades)}</span>
                   <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
                     style={{ transform: unidadeAberta ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
                     <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
@@ -1889,7 +1893,39 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     avisoImpacto?: string
     apenasUnidade?: boolean
     linkPopoverEdicao?: { label: string; href: string }
+    rotuloUnidadeSelecionada?: (unit: string) => string
+    formatarValorUnidade?: (valor: GTValorUnidade) => string
   } | null>(null)
+
+  /** Releitura ao vivo de moedas/unidades da coluna — evita snapshot vazio se Cadastros carregou após o click. */
+  const overlayInfoAoVivo = useMemo(() => {
+    if (!overlayInfo) return null
+    if (!overlayInfo.isFilho) {
+      const col = colunas.find((c) => c.key === overlayInfo.campo)
+      if (!col) return overlayInfo
+      const colU = col as GTColuna<T>
+      return {
+        ...overlayInfo,
+        opcoes: colU.opcoes?.length ? colU.opcoes : overlayInfo.opcoes,
+        moedas: colU.moedas ?? overlayInfo.moedas,
+        unidades: colU.unidades ?? overlayInfo.unidades,
+        casasDecimais: colU.casasDecimais ?? overlayInfo.casasDecimais,
+        apenasUnidade: colU.apenasUnidade ?? overlayInfo.apenasUnidade,
+        avisoImpacto: colU.avisoImpacto ?? overlayInfo.avisoImpacto,
+      }
+    }
+    const mapa = mapaColunasFilho?.[overlayInfo.campo]
+    const colFilha = colunasFilhas?.find((c) => String(c.key) === overlayInfo.campo)
+    const colU = colFilha as GTColuna<C> | undefined
+    return {
+      ...overlayInfo,
+      opcoes: mapa?.opcoes ?? colU?.opcoes ?? overlayInfo.opcoes,
+      moedas: mapa?.moedas ?? colU?.moedas ?? overlayInfo.moedas,
+      unidades: mapa?.unidades ?? colU?.unidades ?? overlayInfo.unidades,
+      casasDecimais: mapa?.casasDecimais ?? colU?.casasDecimais ?? overlayInfo.casasDecimais,
+      apenasUnidade: colU?.apenasUnidade ?? overlayInfo.apenasUnidade,
+    }
+  }, [overlayInfo, colunas, colunasFilhas, mapaColunasFilho])
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
   const { expandidos, filhosCache, carregandoFilhos, toggle, colapsarTodos, expandirTodos: expandirTodosHook, atualizarFilhoNoCache, ensureFilhosCarregados } = useGTExpandir<T, C>(
@@ -3984,10 +4020,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
       {/* Overlay de edição — portal direto no body para evitar problemas de stacking context */}
       {/* key = id+campo garante remount completo a cada célula — reinicia useState (displayQty/displayMoedaAmt) */}
-      {overlayInfo != null && (editandoCelulaPai != null || editandoCelulaFilho != null) && createPortal(
+      {overlayInfoAoVivo != null && (editandoCelulaPai != null || editandoCelulaFilho != null) && createPortal(
         <GTEditPopover
-          key={`${overlayInfo.id}-${overlayInfo.campo}`}
-          overlayInfo={overlayInfo}
+          key={`${overlayInfoAoVivo.id}-${overlayInfoAoVivo.campo}`}
+          overlayInfo={overlayInfoAoVivo}
           valorEditando={overlayInfo.isFilho ? valorEditandoFilho : valorEditandoPai}
           salvando={overlayInfo.isFilho ? salvandoFilho : salvandoPai}
           resultado={overlayInfo.isFilho ? resultadoFilho : resultadoPai}

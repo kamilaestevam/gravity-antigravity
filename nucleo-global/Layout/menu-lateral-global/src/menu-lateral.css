@@ -410,6 +410,41 @@
   color: var(--ws-muted, #94a3b8);
 }
 
+/* ── Item de ação (visão transversal, ex.: Processos) ── */
+.mlg-prod-divider {
+  height: 1px;
+  margin: 0.25rem 0.375rem;
+  background: var(--ws-accent-border, rgba(129, 140, 248, 0.20));
+}
+
+.mlg-ws-item--acao .mlg-ws-item-name {
+  color: var(--ws-muted, #cbd5e1);
+}
+
+.mlg-ws-item-sub {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--ws-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mlg-ws-item-arrow {
+  color: var(--ws-muted, #94a3b8);
+  flex-shrink: 0;
+  transition: transform 0.12s ease, color 0.12s ease;
+}
+
+.mlg-ws-item--acao:hover .mlg-ws-item-name {
+  color: var(--ws-text, #f1f5f9);
+}
+
+.mlg-ws-item--acao:hover .mlg-ws-item-arrow {
+  color: var(--ws-text, #f1f5f9);
+  transform: translateX(2px);
+}
+
 /* ── Busca no dropdown ── */
 .mlg-ws-search {
   padding: 0.25rem 0.25rem 0.375rem;

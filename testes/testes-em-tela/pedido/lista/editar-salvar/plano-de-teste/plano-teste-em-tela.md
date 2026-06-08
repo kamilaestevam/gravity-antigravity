@@ -2,7 +2,7 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 4.8  
+**Versão:** 4.9  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -93,6 +93,8 @@
 | **QTD. VOLUMES — Básico** | 207–214 | `run-lista-editar-salvar.ts` |
 | **QTD. VOLUMES — Edição em Massa** | 215–222 | `run-lista-editar-salvar.ts` |
 | **QTD. VOLUMES — Grade e rodapé** | 223–226 | `run-lista-editar-salvar.ts` |
+| **PESO LÍQUIDO TOTAL DO PEDIDO/ITEM** | 227–237 | `run-lista-editar-salvar.ts` + `validar-peso-lista.ts` |
+| **PESO BRUTO TOTAL DO PEDIDO/ITEM** | 238–248 | `run-lista-editar-salvar.ts` + `validar-peso-lista.ts` |
 
 ---
 
@@ -766,6 +768,42 @@ Coluna **`quantidade_volumes_pedido`** — **somente no pedido** (itens exibem `
 | **225** | Limpar filtro → pedido de teste visível | Valor **24** mantido na linha do pedido |
 | **226** | Hub → Lista | Persistência · Print `226-vol-persistencia-grade.png` |
 
+### ETAPA 44 — PESO LÍQUIDO TOTAL DO PEDIDO/ITEM (passos 227–237)
+
+Coluna **`peso_liquido_total_pedido`** (pedido = soma bloqueada) / **`peso_liquido_unitario`** no item (editável). Regras §8G PLQ-01…11 · `PILLS_PEDIDO_PESO_CUBAGEM` · select Cadastros **G / KG / TON**.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **227** | Hover célula **pedido** na coluna Peso Líquido | Cursor `not-allowed` · Print `227-plq-cursor-pedido.png` |
+| **228** | Tooltip **pedido** | Título *Peso Líquido Total do Pedido* + pills `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia` · Print `228-plq-tooltip-pedido.png` |
+| **229** | Clicar célula **pedido** | Popover **não** abre · Print `229-plq-pedido-nao-edita.png` |
+| **230** | Hover célula **item 1** | Tooltip `editavel_item` → `alerta_divergencia` · Print `230-plq-tooltip-item.png` |
+| **231** | Clicar célula **item 1** | Popover qty + unidade abre · Print `231-plq-item-abre-popover-resultado.png` |
+| **232** | Abrir select de unidade no popover | Lista contém **G**, **KG** e **TON** (`G — Grama`, `KG — Quilograma`, `TON — Tonelada`) · Print `232-plq-select-unidades.png` |
+| **233** | Inspecionar aviso amarelo no popover | Texto *A alteração da unidade irá alterar também Peso Bruto Total* · Print `233-plq-aviso-impacto-bruto.png` |
+| **234** | Informar **10,000** → unidade **KG** → confirmar | Item 1 exibe valor · Prints `234-plq-item-incluir-selecao.png` + `234-plq-item-incluir-resultado.png` |
+| **235** | Inspecionar célula **pedido** | Total atualizado (soma dos itens) · Print `235-plq-pedido-soma-resultado.png` |
+| **236** | Editar item 1 para **12,500 KG** | Grade atualiza · Prints `236-plq-item-editar-selecao.png` + `236-plq-item-editar-resultado.png` |
+| **237** | Hub → Lista → reexpandir | **12,500 KG** persiste no item · Print `237-plq-persistencia-apos-navegar-resultado.png` |
+
+### ETAPA 45 — PESO BRUTO TOTAL DO PEDIDO/ITEM (passos 238–248)
+
+Coluna **`peso_bruto_total_pedido`** (pedido bloqueado) / **`peso_bruto_unitario`** no item. Regras §8H PLB-01…11 · mesmo select **G / KG / TON** · aviso cruzado com Peso Líquido.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **238** | Hover célula **pedido** na coluna Peso Bruto | Cursor `not-allowed` · Print `238-plb-cursor-pedido.png` |
+| **239** | Tooltip **pedido** | Título *Peso Bruto Total do Pedido* + pills calculado/bloqueado/divergência · Print `239-plb-tooltip-pedido.png` |
+| **240** | Clicar célula **pedido** | Popover **não** abre · Print `240-plb-pedido-nao-edita.png` |
+| **241** | Hover célula **item 1** | Tooltip editável + divergência · Print `241-plb-tooltip-item.png` |
+| **242** | Clicar célula **item 1** | Popover abre · Print `242-plb-item-abre-popover-resultado.png` |
+| **243** | Abrir select de unidade | Lista contém **G**, **KG** e **TON** · Print `243-plb-select-unidades.png` |
+| **244** | Inspecionar aviso amarelo | *A alteração da unidade irá alterar também Peso Líquido Total* · Print `244-plb-aviso-impacto-liquido.png` |
+| **245** | Informar **20,000** → **KG** → confirmar | Item 1 exibe valor · Prints `245-plb-item-incluir-selecao.png` + `245-plb-item-incluir-resultado.png` |
+| **246** | Inspecionar célula **pedido** | Total atualizado · Print `246-plb-pedido-soma-resultado.png` |
+| **247** | Editar item 1 para **25,500 KG** | Grade atualiza · Prints `247-plb-item-editar-selecao.png` + `247-plb-item-editar-resultado.png` |
+| **248** | Hub → Lista → reexpandir | **25,500 KG** persiste · Print `248-plb-persistencia-apos-navegar-resultado.png` |
+
 ### ETAPA 43 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
@@ -835,5 +873,7 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | QTD. VOLUMES — Básico | 207–214 | 8 |
 | QTD. VOLUMES — Edição em Massa | 215–222 | 8 |
 | QTD. VOLUMES — Grade e rodapé | 223–226 | 4 |
-| **Total runner principal** | | **~226 passos / 258 casos** |
+| PESO LÍQUIDO TOTAL DO PEDIDO/ITEM | 227–237 | 11 |
+| PESO BRUTO TOTAL DO PEDIDO/ITEM | 238–248 | 11 |
+| **Total runner principal** | | **~248 passos / 280 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

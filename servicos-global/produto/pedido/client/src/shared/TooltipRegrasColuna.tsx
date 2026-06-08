@@ -38,10 +38,17 @@ const PILL_DEFS: Record<RegraPillId, PillDef> = {
   replica_itens_auto:{ Icon: Copy,             color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
   alerta_divergencia:{ Icon: Warning,          color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
   alerta_moeda_divergente:{ Icon: Warning,     color: '#F59E0B', bg: 'rgba(245,158,11,0.10)' },
+  alerta_moeda_divergente_entre_itens:{ Icon: Warning, color: '#F59E0B', bg: 'rgba(245,158,11,0.10)' },
+  alerta_unidade_comercializada_divergente:{ Icon: Warning, color: '#F59E0B', bg: 'rgba(245,158,11,0.10)' },
   bloqueado_valor_item: { Icon: Lock,          color: '#94a3b8', bg: 'rgba(148,163,184,0.14)' },
   bloqueado_edicao:    { Icon: Lock,             color: '#94a3b8', bg: 'rgba(148,163,184,0.14)' },
   calculado_pedido:  { Icon: Sigma,            color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
+  calculado_pedido_qtd_inicial: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   calculado_pedido_qtd_pronta: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
+  calculado_pedido_qtd_transferida: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
+  calculado_pedido_qtd_cancelada: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
+  calculado_pedido_saldo: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
+  calculado_pedido_volumes: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   soma_mesma_unidade:  { Icon: Sigma, color: '#60a5fa', bg: 'rgba(96,165,250,0.10)' },
   formula_config:    { Icon: Gear,             color: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },
   so_operacao:       { Icon: Prohibit,         color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
@@ -56,8 +63,9 @@ const PILL_DEFS: Record<RegraPillId, PillDef> = {
   anexo:             { Icon: Paperclip,        color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   coluna_personalizada: { Icon: Sparkle,      color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
   casas_decimais_config: { Icon: Gear,        color: '#c084fc', bg: 'rgba(192,132,252,0.12)' },
-  valor_unitario_sem_somatoria: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.10)' },
+  valor_unitario_sem_somatoria: { Icon: Sigma, color: '#F59E0B', bg: 'rgba(245,158,11,0.10)' },
   valor_total_soma_mesma_moeda: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
+  valor_total_item_formula: { Icon: Sigma, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   editavel_nos_itens:  { Icon: PencilSimple, color: '#60a5fa', bg: 'rgba(96,165,250,0.08)' },
 }
 
@@ -72,6 +80,7 @@ function RegraPill({
 }) {
   const def = PILL_DEFS[id]
   const label = t(`pedido.lista.regras_pill.${id}`)
+  const quebraLinha = id === 'valor_total_item_formula'
   return (
     <span
       style={{
@@ -85,7 +94,8 @@ function RegraPill({
         fontSize: 11,
         lineHeight: 1.25,
         color: 'var(--text-primary, #e2e8f0)',
-        whiteSpace: 'nowrap',
+        whiteSpace: quebraLinha ? 'normal' : 'nowrap',
+        maxWidth: quebraLinha ? 300 : undefined,
       }}
     >
       <def.Icon size={12} weight="duotone" color={def.color} style={{ flexShrink: 0 }} />
@@ -96,6 +106,16 @@ function RegraPill({
         ) : null}
       </span>
     </span>
+  )
+}
+
+/** Mesmo badge amarelo do popover de edição (`.gtv-edit-aviso-impacto`). */
+function AvisoImpactoEdicao({ texto }: { texto: string }) {
+  return (
+    <div className="gtv-edit-aviso-impacto" style={{ margin: 0 }}>
+      <span className="gtv-edit-aviso-impacto-icone">⚠</span>
+      <span>{texto}</span>
+    </div>
   )
 }
 
@@ -157,6 +177,9 @@ export type TooltipRegrasColunaProps = {
   pillsItem?: RegraPillId[]
   dual?: boolean
   aviso?: React.ReactNode
+  /** Aviso de impacto (moeda, unidade…) — estilo do popover de edição; default: após as pills. */
+  avisoImpacto?: string
+  avisoImpactoAposPills?: boolean
   descricaoExtra?: string
   linkFormula?: boolean
   ghostSemCheckbox?: boolean
@@ -169,6 +192,8 @@ export function TooltipRegrasColuna({
   pillsItem = [],
   dual = false,
   aviso,
+  avisoImpacto,
+  avisoImpactoAposPills = true,
   descricaoExtra,
   linkFormula = false,
   ghostSemCheckbox = false,
@@ -178,6 +203,43 @@ export function TooltipRegrasColuna({
   const omitItem = 0
 
   const temFormulaLink = linkFormula || pillsPedido.includes('formula_config') || pillsItem.includes('formula_config')
+
+  const blocoPills = dual ? (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        columnGap: 10,
+        rowGap: 4,
+        alignItems: 'start',
+      }}
+    >
+      <BlocoPills
+        rotulo={t('pedido.lista.regras_pill.rotulo_pedido')}
+        pills={pillsPedido}
+        t={t}
+        ghostSemCheckbox={ghostSemCheckbox}
+        numeroUnicoOrg={false}
+        omitidos={omitPedido}
+      />
+      <BlocoPills
+        rotulo={t('pedido.lista.regras_pill.rotulo_item')}
+        pills={pillsItem}
+        t={t}
+        omitidos={omitItem}
+      />
+    </div>
+  ) : (
+    <BlocoPills
+      pills={pillsPedido.length > 0 ? pillsPedido : pillsItem}
+      t={t}
+      ghostSemCheckbox={ghostSemCheckbox}
+      numeroUnicoOrg={numeroUnicoOrg}
+      omitidos={0}
+    />
+  )
+
+  const blocoAvisoImpacto = avisoImpacto ? <AvisoImpactoEdicao texto={avisoImpacto} /> : null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 320, textAlign: 'left' }}>
@@ -197,44 +259,15 @@ export function TooltipRegrasColuna({
         </div>
       ) : null}
 
+      {!avisoImpactoAposPills ? blocoAvisoImpacto : null}
+
+      {blocoPills}
+
       {descricaoExtra ? (
         <span style={{ fontSize: 11, opacity: 0.85, lineHeight: 1.4 }}>{descricaoExtra}</span>
       ) : null}
 
-      {dual ? (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            columnGap: 10,
-            rowGap: 4,
-            alignItems: 'start',
-          }}
-        >
-          <BlocoPills
-            rotulo={t('pedido.lista.regras_pill.rotulo_pedido')}
-            pills={pillsPedido}
-            t={t}
-            ghostSemCheckbox={ghostSemCheckbox}
-            numeroUnicoOrg={false}
-            omitidos={omitPedido}
-          />
-          <BlocoPills
-            rotulo={t('pedido.lista.regras_pill.rotulo_item')}
-            pills={pillsItem}
-            t={t}
-            omitidos={omitItem}
-          />
-        </div>
-      ) : (
-        <BlocoPills
-          pills={pillsPedido.length > 0 ? pillsPedido : pillsItem}
-          t={t}
-          ghostSemCheckbox={ghostSemCheckbox}
-          numeroUnicoOrg={numeroUnicoOrg}
-          omitidos={0}
-        />
-      )}
+      {avisoImpactoAposPills ? blocoAvisoImpacto : null}
 
       {temFormulaLink ? (
         <a

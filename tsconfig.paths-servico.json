@@ -37,7 +37,8 @@
       "@gravity/shell": ["../shell/index.ts"],
       "@plataforma/historico": ["../servicos-plataforma/historico-global/src/index.ts"],
       "@plataforma/*": ["../servicos-plataforma/*"],
-      "@produto/*": ["../produto/*"]
+      "@produto/*": ["../produto/*"],
+      "@testes/infra/*": ["../../testes/infra/*"]
     }
   }
 }

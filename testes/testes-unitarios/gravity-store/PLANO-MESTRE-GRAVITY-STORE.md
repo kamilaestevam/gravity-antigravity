@@ -4,10 +4,10 @@
 
 | ID | Arquivo | Cobertura |
 |----|---------|-----------|
-| TST-UNI-STORE-000001 | `TST-UNI-STORE-000001.test.ts` | `status-produto-store.ts` |
-| TST-UNI-STORE-000002 | `TST-UNI-STORE-000002.test.ts` | Alinhamento 13 produtos + puzzle |
-| TST-UNI-STORE-000003 | `TST-UNI-STORE-000003.test.ts` | Zod `store-catalogo-api.ts` |
-| TST-UNI-STORE-000004 | `TST-UNI-STORE-000004.test.ts` | Faixas `store-cards-rows.tsx` |
+| TST-UNI-STORE-000064 | `TST-UNI-STORE-000064.test.ts` | `status-produto-store.ts` |
+| TST-UNI-STORE-000065 | `TST-UNI-STORE-000065.test.ts` | Alinhamento 13 produtos + puzzle |
+| TST-UNI-STORE-000066 | `TST-UNI-STORE-000066.test.ts` | Zod `store-catalogo-api.ts` |
+| TST-UNI-STORE-000067 | `TST-UNI-STORE-000067.test.ts` | Faixas `store-cards-rows.tsx` |
 
 ## Execução
 

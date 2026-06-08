@@ -1,5 +1,5 @@
 {
-  "id": "TST-FUN-CONFIG-WSUP-001",
+  "id": "TST-FUN-CONFIG-000006",
   "versao": "1.0",
   "geradoEm": "2026-04-20T12:00:00Z",
   "geradoPor": "agente-plano-teste-funcional",
@@ -35,7 +35,7 @@
     { "nome": "isolation",  "total": 3  }
   ],
   "casos": [
-    { "id": "TST-FUN-CONFIG-WSUP-001", "categoria": "happy",      "descricao": "STANDARD + workspaces válidos → 200 { workspaces: [...] }",                              "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-000006", "categoria": "happy",      "descricao": "STANDARD + workspaces válidos → 200 { workspaces: [...] }",                              "origem": "agente-adicionado" },
     { "id": "TST-FUN-CONFIG-WSUP-002", "categoria": "happy",      "descricao": "deleteMany chamado com tenant_id e user_id do req.auth",                                "origem": "agente-adicionado" },
     { "id": "TST-FUN-CONFIG-WSUP-003", "categoria": "happy",      "descricao": "createMany com tenant_id, user_id, is_active: true, skipDuplicates: true",               "origem": "agente-adicionado" },
     { "id": "TST-FUN-CONFIG-WSUP-004", "categoria": "happy",      "descricao": "workspace adicionado → permissionChanged com action: GRANTED",                          "origem": "agente-adicionado" },

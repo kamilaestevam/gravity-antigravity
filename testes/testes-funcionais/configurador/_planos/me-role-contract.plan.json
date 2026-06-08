@@ -1,5 +1,5 @@
 {
-  "id": "TST-FUN-CONFIG-ME-001",
+  "id": "TST-FUN-CONFIG-000017",
   "versao": "1.0",
   "geradoEm": "2026-04-20T12:00:00Z",
   "geradoPor": "agente-plano-teste-funcional",
@@ -89,7 +89,7 @@
   ],
   "casos": [
     {
-      "id": "TST-FUN-CONFIG-ME-001-001",
+      "id": "TST-FUN-CONFIG-000017-001",
       "codigo": "ME-001",
       "categoria": "contrato_response",
       "prioridade": "CRITICA",
@@ -100,7 +100,7 @@
       "assercao": "expect(res.status).toBe(200)\nconst parsed = meResponseSchema.safeParse(res.body)\nexpect(parsed.success).toBe(true)"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-002",
+      "id": "TST-FUN-CONFIG-000017-002",
       "codigo": "ME-002",
       "categoria": "contrato_response",
       "descricao": "Response não contém campos legados (ex: user.role em vez de usuario.tipo_usuario)",
@@ -110,7 +110,7 @@
       "assercao": "expect(res.body.usuario.tipo_usuario).toBeDefined()\nexpect((res.body.usuario as Record<string, unknown>).role).toBeUndefined()"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-003",
+      "id": "TST-FUN-CONFIG-000017-003",
       "codigo": "ME-003",
       "categoria": "contrato_response",
       "descricao": "Response para SUPER_ADMIN — contrato DDD completo com organizacao e workspaces",
@@ -120,7 +120,7 @@
       "assercao": "expect(res.body.usuario.tipo_usuario).toBe('SUPER_ADMIN')\nexpect(res.body.organizacao).not.toBeNull()\nexpect(res.body.workspaces).toHaveLength(2)"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-004",
+      "id": "TST-FUN-CONFIG-000017-004",
       "codigo": "ME-004",
       "categoria": "tipo_usuario_enum",
       "prioridade": "CRITICA",
@@ -131,7 +131,7 @@
       "assercao": "const VALID = ['SUPER_ADMIN','ADMIN','MASTER','STANDARD','SUPPLIER']\nexpect(VALID).toContain(res.body.usuario.tipo_usuario)\nexpect(res.body.usuario.tipo_usuario).not.toBe('USUÁRIO')"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-005",
+      "id": "TST-FUN-CONFIG-000017-005",
       "codigo": "ME-005",
       "categoria": "tipo_usuario_enum",
       "prioridade": "CRITICA",
@@ -143,7 +143,7 @@
       "nota": "O meResponseSchema tem `tipo_usuario: z.enum([...])` como apenas OUTPUT validation — validação real é feita no banco. Este caso verifica o comportamento de runtime."
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-006",
+      "id": "TST-FUN-CONFIG-000017-006",
       "codigo": "ME-006",
       "categoria": "tipo_usuario_enum",
       "descricao": "tipo_usuario para cada role válida — testar os 5 valores do enum individualmente",
@@ -153,7 +153,7 @@
       "assercao": "for (const role of ['SUPER_ADMIN','ADMIN','MASTER','STANDARD','SUPPLIER']) { ... expect(res.body.usuario.tipo_usuario).toBe(role) }"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-007",
+      "id": "TST-FUN-CONFIG-000017-007",
       "codigo": "ME-007",
       "categoria": "tipo_usuario_enum",
       "descricao": "organizacao pode ser null — response válido mesmo sem org vinculada",
@@ -163,7 +163,7 @@
       "assercao": "expect(res.status).toBe(200)\nexpect(res.body.organizacao).toBeNull()\nexpect(meResponseSchema.safeParse(res.body).success).toBe(true)"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-008",
+      "id": "TST-FUN-CONFIG-000017-008",
       "codigo": "ME-008",
       "categoria": "auth",
       "descricao": "Auth ausente (sem header Authorization) → 401",
@@ -173,7 +173,7 @@
       "assercao": "expect(res.status).toBe(401)\nexpect(res.body.error?.code).toBeDefined()"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-009",
+      "id": "TST-FUN-CONFIG-000017-009",
       "codigo": "ME-009",
       "categoria": "auth",
       "descricao": "Token inválido → 401 sem expor detalhes internos",
@@ -183,7 +183,7 @@
       "assercao": "expect(res.status).toBe(401)\nexpect(res.body.error?.stack).toBeUndefined()"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-010",
+      "id": "TST-FUN-CONFIG-000017-010",
       "codigo": "ME-010",
       "categoria": "not_found",
       "descricao": "Usuário não encontrado no banco → 404 NOT_FOUND",
@@ -193,7 +193,7 @@
       "assercao": "expect(res.status).toBe(404)\nexpect(res.body.error.code).toBe('NOT_FOUND')"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-011",
+      "id": "TST-FUN-CONFIG-000017-011",
       "codigo": "ME-011",
       "categoria": "erro_banco",
       "descricao": "DB falha (Prisma rejeita) → 500 sem stack trace exposto",
@@ -203,7 +203,7 @@
       "assercao": "expect(res.status).toBe(500)\nexpect(res.body.error?.stack).toBeUndefined()\nexpect(res.body.error?.code).toBeDefined()"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-012",
+      "id": "TST-FUN-CONFIG-000017-012",
       "codigo": "ME-012",
       "categoria": "preferencias",
       "descricao": "GET /preferences com SUPPLIER → retorna null (SUPPLIER nunca tem preferido)",
@@ -213,7 +213,7 @@
       "assercao": "expect(res.status).toBe(200)\nexpect(res.body.data.preferredCompanyId).toBeNull()"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-013",
+      "id": "TST-FUN-CONFIG-000017-013",
       "codigo": "ME-013",
       "categoria": "preferencias",
       "descricao": "PUT /preferences com SUPPLIER → 403 FORBIDDEN",
@@ -223,7 +223,7 @@
       "assercao": "expect(res.status).toBe(403)\nexpect(res.body.error.code).toBe('FORBIDDEN')"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-014",
+      "id": "TST-FUN-CONFIG-000017-014",
       "codigo": "ME-014",
       "categoria": "preferencias",
       "descricao": "PUT /preferences com preferredCompanyId inválido (não-cuid) → 400 VALIDATION_ERROR",
@@ -233,7 +233,7 @@
       "assercao": "expect(res.status).toBe(400)\nexpect(res.body.error.code).toBe('VALIDATION_ERROR')"
     },
     {
-      "id": "TST-FUN-CONFIG-ME-001-015",
+      "id": "TST-FUN-CONFIG-000017-015",
       "codigo": "ME-015",
       "categoria": "preferencias",
       "descricao": "GET /preferences — preferred_company_id inválido (FK setNull, membership revogada) → null silencioso + banco atualizado",

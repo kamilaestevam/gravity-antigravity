@@ -172,7 +172,7 @@ TST-{TIPO}-{ESCOPO}-{NNNNNN}
 - ID **não muda** após criação — refactors preservam o ID
 
 ### Exemplos válidos
-- `TST-E2E-CONFIG-000001` — primeiro E2E do Configurador
+- `TST-E2E-CONFIG-000013` — primeiro E2E do Configurador
 - `TST-UNI-CORE-000042` — unitário 42 do CORE
 - `TST-CRO-PEDIDO-000001` — primeiro cross-tenant do Pedido
 
@@ -342,7 +342,7 @@ model TestSchedule {
 ### `TestPlan`
 ```prisma
 model TestPlan {
-  id                  String   @id            // TST-E2E-CONFIG-000001
+  id                  String   @id            // TST-E2E-CONFIG-000013
   tenant_id           String                   // sempre "platform"
   versao              String
   tipo                String
@@ -453,6 +453,39 @@ GEMINI_API_KEY=AIza...        # https://aistudio.google.com/apikey
 GEMINI_MODEL=gemini-2.0-flash # default
 GEMINI_PRO_FALLBACK=true      # escala pro Pro se Flash der baixa confiança
 ```
+
+---
+
+## Camada `testes/infra/admin/` — lógica compartilhada da UI Admin/Testes
+
+O painel **Admin › Testes** vive no Configurador (`servicos-global/configurador/src/pages/admin/`), mas a **lógica pura** que não depende de React ou HTTP fica em `testes/infra/admin/`.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  UI (Configurador)                                          │
+│  ModalTestesExecutar.tsx · LogTestes.tsx · modais de plano  │
+│  → fetch APIs · estado React · i18n · @nucleo/*             │
+└────────────────────────────┬────────────────────────────────┘
+                             │ import @testes/infra/admin/*
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│  DOMÍNIO (testes/infra/admin/)                              │
+│  Contratos Zod · localStorage · rótulos · deduplicação      │
+└────────────────────────────┬────────────────────────────────┘
+                             │ Vitest
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│  testes/testes-unitarios/configurador/*.test.ts             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Módulo | Arquivo | Responsabilidade |
+|--------|---------|------------------|
+| Favoritos de execução manual | `testes/infra/admin/testes-favoritos-admin.ts` | Persiste produto, ambiente, tipos e planos por `id_usuario`; snapshot `planos_resumo` para exibir título/descrição completos no card |
+
+Detalhes operacionais: [`testes/infra/admin/README.md`](../../../testes/infra/admin/README.md).
+
+**Regra:** novo helper de Admin/Testes sem JSX → `testes/infra/admin/` + teste unitário + doc; não criar `utils/` solto no Configurador.
 
 ---
 

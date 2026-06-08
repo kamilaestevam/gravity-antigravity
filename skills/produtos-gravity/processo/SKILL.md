@@ -42,7 +42,7 @@ servicos-global/produto/processo/
 └── server/src/...
 ```
 
-**Seletor workspace (2 abas):** [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · `TST-E2E-MBOTO-000005`.
+**Seletor workspace (2 abas):** [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · `TST-E2E-MBOTO-000059`.
 
 ---
 

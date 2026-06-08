@@ -140,8 +140,13 @@ import {
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { renderRotuloCadastro } from '../shared/useLogisticaCadastrosPedido'
 import {
+  CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO,
+  CHAVES_TOOLTIP_INLINE_LISTA,
+  enriquecerColunaBloqueadaInlinePedido,
   enriquecerColunaComRegraTooltip,
   enriquecerMapaColunasFilhoComRegraTooltip,
+  enriquecerMapaFilhoTooltipInline,
+  wrapCelulaListaRegras,
 } from '../shared/buildTooltipRegraLista'
 import { TooltipRegrasColuna } from '../shared/TooltipRegrasColuna'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
@@ -2528,6 +2533,10 @@ const CAMPOS_DERIVADOS_PAI = new Set([
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
+  'moeda_cambio_pedido',
+  'taxa_cambio_estimada',
+  'valor_total_cambio_pedido',
+  'quantidade_volumes_pedido',
 ])
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
@@ -3612,20 +3621,15 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     ),
   },
   saldo_itens_do_pedido: {
+    editavel: false,
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       const qtd = Math.max(0, (row.quantidade_inicial_pedido ?? 0) - (row.quantidade_transferida_pedido ?? 0) - (row.quantidade_cancelada_pedido ?? 0))
       return (
-        <TooltipGlobal
-          titulo={t('pedido.coluna_filho.mapa_saldo_itens_do_pedido.titulo')}
-          descricao={<span>{t('pedido.coluna_filho.helper.saldo_calculado_prefixo')}<a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">{t('pedido.coluna_filho.helper.saldo_calculado_link')}</a></span>}
-          interativo
-        >
-          <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
-            {fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0))}
-            <span className="gtv-celula-unidade-badge">{unidade}</span>
-          </span>
-        </TooltipGlobal>
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
+          {fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
       )
     },
   },
@@ -3673,6 +3677,10 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
         </span>
       )
     },
+  },
+  quantidade_volumes_pedido: {
+    editavel: true,
+    render: () => <span style={{ color: 'var(--text-muted)' }}>—</span>,
   },
   // ── Logística: valor no Pedido; edição na linha do item roteia para PATCH pedido ──
   porto_origem: {
@@ -4705,7 +4713,37 @@ export default function Pedidos() {
         tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'),
       }
     }
-    return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
+    const merged = { ...base, ...custom }
+    if (base.moeda_pedido) {
+      merged.moeda_pedido = {
+        ...base.moeda_pedido,
+        ...custom.moeda_pedido,
+        campo: 'moeda_item',
+        render: base.moeda_pedido.render,
+      }
+    }
+    const renderMoedaItemBase = merged.moeda_pedido?.render
+    const comRegra = enriquecerMapaColunasFilhoComRegraTooltip(merged, t)
+    const mapaInline = enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
+      moeda_pedido: t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined,
+      unidade_comercializada_pedido: t('pedido.coluna_pai.aviso_impacto_unidade_full', { defaultValue: '' }) || undefined,
+    })
+    // P0 moeda item: garantia explícita — TooltipListaColuna nível item (não depende de flags do núcleo).
+    if (renderMoedaItemBase && mapaInline.moeda_pedido) {
+      const avisoMoeda = t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined
+      mapaInline.moeda_pedido = {
+        ...mapaInline.moeda_pedido,
+        tooltipInline: true,
+        tooltipTitulo: t('pedido.coluna_pai.moeda_item_titulo'),
+        campo: 'moeda_item',
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderMoedaItemBase(row), t, {
+          key: 'moeda_pedido',
+          nivel: 'item',
+          avisoImpactoColuna: avisoMoeda,
+        }),
+      }
+    }
+    return mapaInline
   }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, opcoesExportadoresImp, workspacesMap])
   const {
     prefs: cardPrefs,
@@ -5141,18 +5179,6 @@ export default function Pedidos() {
         }, t, 'pai')
       }
 
-      if (col.key === 'valor_total_pedido') {
-        const label = temExpandido
-          ? t('pedido.lista.coluna_dinamica.valor_total')
-          : col.label
-        return enriquecerColunaComRegraTooltip(
-          { ...col, label, editavel: false },
-          t,
-          'pai',
-          { modoDinamicoPedidoItem: temExpandido },
-        )
-      }
-
       const COLUNAS_DINAMICAS_PEDIDO_ITEM: Record<string, string> = {
         valor_total_pedido:                   t('pedido.lista.coluna_dinamica.valor_total'),
         quantidade_total_pedido:              t('pedido.lista.coluna_dinamica.qtd_inicial'),
@@ -5164,74 +5190,25 @@ export default function Pedidos() {
         peso_bruto_total_pedido:              t('pedido.lista.coluna_dinamica.peso_bruto'),
         cubagem_total_pedido:                 t('pedido.lista.coluna_dinamica.cubagem'),
       }
+
+      if (CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO.has(col.key)) {
+        const labelDinamico = temExpandido && col.key in COLUNAS_DINAMICAS_PEDIDO_ITEM
+          ? COLUNAS_DINAMICAS_PEDIDO_ITEM[col.key]
+          : undefined
+        return enriquecerColunaBloqueadaInlinePedido(col, t, {
+          label: labelDinamico,
+          modoDinamicoPedidoItem: temExpandido,
+        })
+      }
+
       if (temExpandido && col.key in COLUNAS_DINAMICAS_PEDIDO_ITEM) {
         const label = COLUNAS_DINAMICAS_PEDIDO_ITEM[col.key]
-        const bloqueadoNoPedido = col.key === 'quantidade_pronta_itens_pedido_total'
-          || col.key === 'quantidade_total_pedido'
         return enriquecerColunaComRegraTooltip(
-          {
-            ...col,
-            label,
-            ...(bloqueadoNoPedido
-              ? {
-                  editavel: false,
-                  tooltipBloqueado: t('pedido.lista.regras_pill.bloqueado_edicao'),
-                }
-              : {}),
-          },
+          { ...col, label },
           t,
           'pai',
           { modoDinamicoPedidoItem: true },
         )
-      }
-
-      if (col.key === 'quantidade_pronta_itens_pedido_total' || col.key === 'quantidade_total_pedido') {
-        return enriquecerColunaComRegraTooltip(
-          {
-            ...col,
-            editavel: false,
-            tooltipBloqueado: t('pedido.lista.regras_pill.bloqueado_edicao'),
-          },
-          t,
-          'pai',
-        )
-      }
-
-      if (col.key === 'saldo_itens_do_pedido') {
-        const tooltipSaldo = (conteudo: React.ReactNode) => (
-          <TooltipGlobal
-            titulo={t('pedido.lista.saldo_pedido.titulo')}
-            descricao={<span>{t('pedido.lista.saldo_pedido.descricao_prefixo')} <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">{t('pedido.lista.saldo_pedido.link_editor')}</a></span>}
-            interativo
-          >
-            <span style={{ display: 'contents' }}>{conteudo}</span>
-          </TooltipGlobal>
-        )
-        return {
-          ...col,
-          render: (_val: unknown, row: Pedido) => {
-            try {
-              const contexto = buildFormulaContexto(row)
-              const { valor: num, temNulo } = avaliarFormula(saldoFormulaAST, contexto)
-              const qtd = temNulo || num == null ? null : Math.max(0, num)
-              return tooltipSaldo(
-                <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-                  {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0)) : '—'}
-                </span>
-              )
-            } catch {
-              const total = row.quantidade_total_pedido ?? null
-              const transf = row.quantidade_transferida_total ?? null
-              const cancel = row.quantidade_cancelada_total_pedido ?? 0
-              const qtd = total != null && transf != null ? Math.max(0, total - transf - cancel) : null
-              return tooltipSaldo(
-                <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-                  {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0)) : '—'}
-                </span>
-              )
-            }
-          },
-        }
       }
 
       return col

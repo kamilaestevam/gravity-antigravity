@@ -50,6 +50,15 @@ export interface GTColuna<T = unknown> {
   tipo?: GTTipo
   align?: GTAlign
   tooltipTitulo?: string
+  /** Título do tooltip em células de linha filho (item), quando diferente do pedido/cabeçalho. */
+  tooltipTituloItem?: string
+  /**
+   * Nível da linha para tooltip de célula (SSOT do produto).
+   * Quando definido, substitui o flag `isFilho` da renderização em título e descrição base.
+   */
+  tooltipNivelCelula?: (item: T) => 'pedido' | 'item'
+  /** Título do tooltip por célula (pedido vs item). Prioridade sobre tooltipTitulo/tooltipTituloItem. */
+  tooltipTituloCelula?: (item: T) => string | undefined
   tooltipDescricao?: string | React.ReactNode
   /** Regra/descrição ao passar o mouse na célula de linha filho (quando diferente do pedido). */
   tooltipDescricaoItem?: string | React.ReactNode
@@ -57,6 +66,8 @@ export interface GTColuna<T = unknown> {
   tooltipDescricaoCelula?: (item: T) => string | React.ReactNode | undefined
   /** Se true, o tooltip permanece aberto enquanto o mouse está sobre ele (permite clicar em links/botões dentro). */
   tooltipInterativo?: boolean
+  /** Quando true, `render` já inclui TooltipGlobal — o núcleo não aplica wrapTooltipRegraCelula na linha pai. */
+  tooltipInline?: boolean
   /** Função de renderização customizada */
   render?: (valor: unknown, item: T) => ReactNode
   /** Coluna oculta por padrão */
@@ -220,6 +231,10 @@ export interface GTMapaColunasFilho<C = unknown> {
   editavel?: boolean | ((item: C) => boolean)
   /** Tooltip exibido quando a célula filho está bloqueada */
   tooltipBloqueado?: string | ((item: C) => string | undefined)
+  /** Título do tooltip de regra na linha filho (prioridade sobre tooltipTitulo da coluna pai). */
+  tooltipTitulo?: string | ((item: C) => string)
+  /** Quando true, `render` já inclui TooltipGlobal — o núcleo não aplica wrapTooltipRegraCelula. */
+  tooltipInline?: boolean
   /** Campo do item filho usado no inline edit (default: usa o key da coluna pai) */
   campo?: string
   /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */

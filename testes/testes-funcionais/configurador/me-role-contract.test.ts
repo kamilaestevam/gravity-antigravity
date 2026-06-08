@@ -1,5 +1,5 @@
 // @vitest-environment node
-// TST-FUN-CONFIG-ME-001 — GET /api/v1/me contrato de role (complementar a me-contract.test.ts)
+// TST-FUN-CONFIG-000017 — GET /api/v1/me contrato de role (complementar a me-contract.test.ts)
 // BUG DETECTION: ME-005 documenta que banco com role='USUÁRIO' viola meResponseSchema
 /// <reference types="vitest/globals" />
 

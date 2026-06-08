@@ -1091,6 +1091,10 @@ adminRouter.get('/planos-teste/:id_plano_teste/casos', (req, res, next) => {
       ...c,
       titulo: adaptarTextoCasoParaAmbiente(c.titulo, ambienteExecucao),
       detalhe: adaptarTextoCasoParaAmbiente(c.detalhe, ambienteExecucao),
+      acao: c.acao ? adaptarTextoCasoParaAmbiente(c.acao, ambienteExecucao) : undefined,
+      aprovadoQuando: c.aprovadoQuando
+        ? adaptarTextoCasoParaAmbiente(c.aprovadoQuando, ambienteExecucao)
+        : undefined,
     }))
 
     res.json({
@@ -1157,6 +1161,9 @@ adminRouter.patch('/planos-teste/:id_plano_teste', (req, res, next) => {
         entry.tela = parsed.data.titulo
       }
     }
+
+    entry.propriedade_dono = true
+    entry.editado_pelo_dono_em = new Date().toISOString()
 
     writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`, 'utf-8')
 

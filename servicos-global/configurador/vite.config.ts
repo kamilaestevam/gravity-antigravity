@@ -163,6 +163,8 @@ export default defineConfig(({ command }) => {
       '@produto': path.resolve(monorepoRoot, 'servicos-global/produto'),
       // Cadastros — domínio próprio fora de servicos-plataforma
       '@cadastros': path.resolve(monorepoRoot, 'servicos-global/cadastros'),
+      // Lógica pura Admin/Testes — testes/infra/admin/ (sem React)
+      '@testes/infra': path.resolve(monorepoRoot, 'testes/infra'),
     },
   },
   optimizeDeps: {

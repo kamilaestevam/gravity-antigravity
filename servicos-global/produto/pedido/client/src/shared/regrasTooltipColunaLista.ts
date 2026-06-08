@@ -21,10 +21,12 @@ export type RegraTooltipId =
   | 'pai_ghost_cobertura'
   | 'pai_valor_item_bloqueado'
   | 'pai_moeda_pedido'
+  | 'pai_unidade_comercializada'
   | 'pai_calculado_valor'
   | 'pai_calculado_quantidade'
   | 'pai_calculado_peso'
   | 'pai_calculado_cubagem'
+  | 'pai_calculado_volumes'
   | 'pai_saldo_formula'
   | 'pai_somente_leitura'
   | 'pai_moeda_cambio'
@@ -78,7 +80,6 @@ const CALCULADO_QTD = new Set([
   'quantidade_transferida_total',
   'quantidade_cancelada_total_pedido',
   'unidade_comercializada_pedido',
-  'quantidade_volumes_pedido',
 ])
 const CALCULADO_PESO = new Set(['peso_liquido_total_pedido', 'peso_bruto_total_pedido'])
 const CALCULADO_CUBAGEM = new Set(['cubagem_total_pedido'])
@@ -192,6 +193,8 @@ export function classificarRegraTooltipColuna(
     if (key === 'valor_total_pedido' || key === 'valor_item') return 'item_editavel_valor_total'
     if (key === 'quantidade_pronta_itens_pedido_total') return 'item_editavel_qtd_pronta'
     if (key === 'quantidade_total_pedido') return 'item_editavel_quantidade_inicial'
+    if (key === 'quantidade_volumes_pedido') return 'pai_calculado_volumes'
+    if (key === 'unidade_comercializada_pedido') return 'item_editavel_padrao'
     if (isCampoData(key)) return 'pai_editavel_replicar_alerta'
     if (getEditavelItem(key)) return 'item_editavel_padrao'
     const tipoItem = getTipoCampo(key)
@@ -215,9 +218,11 @@ export function classificarRegraTooltipColuna(
     return 'pai_calculado_valor'
   }
   if (key === 'moeda_pedido') return 'pai_moeda_pedido'
+  if (key === 'unidade_comercializada_pedido') return 'pai_unidade_comercializada'
   if (CALCULADO_VALOR.has(key)) return 'pai_calculado_valor'
   if (CALCULADO_PESO.has(key)) return 'pai_calculado_peso'
   if (CALCULADO_CUBAGEM.has(key)) return 'pai_calculado_cubagem'
+  if (key === 'quantidade_volumes_pedido') return 'pai_calculado_volumes'
   if (MOEDA_CAMBIO.has(key)) return 'pai_moeda_cambio'
   if (isCampoAnexo(key)) return 'pai_anexo'
   if (isCampoSomenteLeituraCadastro(key)) return 'pai_somente_leitura'

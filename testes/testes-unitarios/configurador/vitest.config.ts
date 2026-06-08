@@ -22,6 +22,7 @@ export default defineConfig({
     alias: {
       ...createNucleoAliases(root),
       ...createServiceAliases(root),
+      '@testes/infra': path.resolve(root, 'testes/infra'),
     },
   },
   test: {

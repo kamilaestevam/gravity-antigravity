@@ -1,4 +1,4 @@
-// TST-FUN-LOGIN-000001 — Porteiro SSOT wiring (App.tsx)
+// TST-FUN-LOGIN-000039 — Porteiro SSOT wiring (App.tsx)
 // Plano: testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json
 // Substitui: testes/testes-funcionais/configurador/fluxo-signup-onboarding.test.ts (FONTE PRIMARIA)
 import { describe, it, expect } from 'vitest'
@@ -11,7 +11,7 @@ function lerArquivo(caminho: string): string {
   return readFileSync(resolve(ROOT, caminho), 'utf-8')
 }
 
-describe('TST-FUN-LOGIN-000001 — porteiro SSOT em App.tsx', () => {
+describe('TST-FUN-LOGIN-000039 — porteiro SSOT em App.tsx', () => {
   it('FUN-001: deve importar NavigateDestinoPosAutenticacao e useDestinoPosAutenticacao', () => {
     const app = lerArquivo('servicos-global/configurador/src/App.tsx')
     expect(app).toContain('NavigateDestinoPosAutenticacao')

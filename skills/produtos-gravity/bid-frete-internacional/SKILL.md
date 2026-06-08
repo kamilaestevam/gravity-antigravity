@@ -163,7 +163,7 @@ Paridade com Pedido — layout route + keep-alive:
 - `bid-frete-prefetch.ts` (prefetch de chunk no hover)
 - `data-testid`: `seletor-visao-tab-*`, `seletor-visao-painel-*`
 
-Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · E2E: `TST-E2E-MBOTO-000003` (cliente), `000004` (fornecedor).
+Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · E2E: `TST-E2E-MBOTO-000057` (cliente), `000004` (fornecedor).
 
 ---
 

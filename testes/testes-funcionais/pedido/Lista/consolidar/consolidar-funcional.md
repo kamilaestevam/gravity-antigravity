@@ -1,6 +1,6 @@
 # Plano de Testes Funcionais — Consolidar Pedido
 
-**ID:** TST-FUN-PEDIDO-CONSOLIDAR-001
+**ID:** TST-FUN-PEDIDO-000033
 **Data:** 2026-05-17
 **Versão:** 1.0
 **Criticidade:** alta

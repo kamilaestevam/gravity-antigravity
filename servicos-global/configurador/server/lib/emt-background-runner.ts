@@ -14,7 +14,12 @@ const RUN_TESTS_TIMEOUT_MS = 30 * 60 * 1000
 const monorepoRoot = resolve(process.cwd(), '..', '..')
 const testLogsDir = join(process.cwd(), 'data', 'test-logs')
 
-type RegistryPlanoRun = { id: string; specFile?: string; tipo?: string }
+type RegistryPlanoRun = { id: string; specFile?: string; tipo?: string; tela?: string; modulo?: string }
+
+function resolverOqueFoiTestadoPlano(plano: RegistryPlanoRun): string {
+  const subtitulo = (plano.tela ?? plano.modulo ?? '').trim()
+  return subtitulo || plano.id.trim()
+}
 
 interface EmtManifest {
   planos: RegistryPlanoRun[]
@@ -54,9 +59,9 @@ function montarErrorLogEmt(
 ): string | null {
   if (code === 0) return null
   const terminal = [stderr, stdout].map(s => s.trim()).filter(Boolean).join('\n').trim()
-  if (terminal) return terminal.slice(0, 4000)
+  if (terminal) return terminal.slice(0, 32_000)
   const resultadoTxt = lerResultadoTxtEmtRecente(scriptRel, startedAtMs)
-  if (resultadoTxt) return resultadoTxt.slice(0, 4000)
+  if (resultadoTxt) return resultadoTxt.slice(0, 32_000)
   return 'Script EMT encerrou com erro (exit ≠ 0) sem saída no terminal. Verifique RESULTADO.txt na pasta do script.'
 }
 
@@ -124,7 +129,7 @@ async function main(): Promise<void> {
       entries.push({
         type: 'EMT',
         module: plano.id,
-        test_name: plano.id,
+        test_name: resolverOqueFoiTestadoPlano(plano),
         result: code === 0 ? 'APROVADO' : 'REPROVADO',
         duration: `${durationMs}ms`,
         error_log: montarErrorLogEmt(code, stdout, stderr, plano.specFile, startedAtMs),

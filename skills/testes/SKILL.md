@@ -89,6 +89,13 @@ CI bloqueia merge abaixo do limite. Ver `padroes-vitest-playwright` para configu
 
 ---
 
+## Numeração de IDs (novos vs legados)
+
+- **Novos planos:** sufixo `{NNNNNN}` **global único** (automático via `generatePlanId` + Regra 1/10 em `01-convencao-ids.md`).
+- **Legados:** corrigir **só a sequência numérica** quando o plano for revisado — plano a plano, sem migração em massa (Regra 11 no mesmo documento).
+
+---
+
 ## Mapa das 8 Skills Filhas
 
 | Skill | Quando consultar |

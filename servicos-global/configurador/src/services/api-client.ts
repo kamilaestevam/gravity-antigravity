@@ -1053,6 +1053,8 @@ export interface CasoPlanoTesteApi {
   ordem: string
   titulo: string
   detalhe: string
+  acao?: string
+  aprovadoQuando?: string
   secao?: string
 }
 

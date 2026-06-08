@@ -252,12 +252,17 @@ export class TransferirService {
       // Reduzir quantidade do item de origem (para todos os cenários exceto substituicao_pura)
       if (payload.cenario !== 'substituicao_pura') {
         const novaQty = Number(itemOrigem.quantidade_atual_item) - payload.quantidade_origem
+        const dadosOrigem: Record<string, number> = { quantidade_atual_item: novaQty }
+        if (payload.cenario === 'reducao_simples') {
+          dadosOrigem.quantidade_cancelada_item =
+            Number(itemOrigem.quantidade_cancelada_item) + payload.quantidade_origem
+        } else {
+          dadosOrigem.quantidade_transferida_item =
+            Number(itemOrigem.quantidade_transferida_item) + payload.quantidade_origem
+        }
         await tx.pedidoItem.update({
           where: { id_item: itemOrigem.id_item as string },
-          data: {
-            quantidade_atual_item: novaQty,
-            quantidade_transferida_item: Number(itemOrigem.quantidade_transferida_item) + payload.quantidade_origem,
-          },
+          data: dadosOrigem,
         })
 
         // Avaliar encerramento por configuração

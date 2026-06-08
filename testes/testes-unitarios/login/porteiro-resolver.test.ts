@@ -1,4 +1,4 @@
-// TST-UNI-LOGIN-000001 — resolverDestinoPosAutenticacao + meDestinoPorteiroSchema
+// TST-UNI-LOGIN-000038 — resolverDestinoPosAutenticacao + meDestinoPorteiroSchema
 // Plano: testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json
 /// <reference types="vitest/globals" />
 import {
@@ -10,7 +10,7 @@ import {
   invalidarCacheDestinoPosAutenticacao,
 } from '../../../servicos-global/configurador/src/routing/destino-pos-autenticacao.js'
 
-describe('TST-UNI-LOGIN-000001 — meDestinoPorteiroSchema', () => {
+describe('TST-UNI-LOGIN-000038 — meDestinoPorteiroSchema', () => {
   it('UNI-001: aceita organizacao presente', () => {
     const parsed = meDestinoPorteiroSchema.parse({
       organizacao: { id_organizacao: 'org_abc' },
@@ -27,7 +27,7 @@ describe('TST-UNI-LOGIN-000001 — meDestinoPorteiroSchema', () => {
   })
 })
 
-describe('TST-UNI-LOGIN-000001 — resolverDestinoPosAutenticacao', () => {
+describe('TST-UNI-LOGIN-000038 — resolverDestinoPosAutenticacao', () => {
   it('UNI-010: 401 → trial', () => {
     expect(resolverDestinoPosAutenticacao(401, null)).toBe('trial')
   })

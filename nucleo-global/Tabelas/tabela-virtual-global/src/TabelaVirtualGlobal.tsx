@@ -48,6 +48,11 @@ import type {
   GTUnidadeOpcao,
 } from './tipos.js'
 import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
+import {
+  resolverNivelTooltipCelula,
+  resolverTituloFinalTooltipCelula,
+  resolverTooltipRegraCelula,
+} from './tooltipCelulaResolver.js'
 
 // ─── Ícones internos ──────────────────────────────────────────────────────────
 
@@ -296,23 +301,19 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
 const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
 
-/** Tooltip de regra da coluna em células (pedido e item), respeitando tooltips-disabled no body. */
-function resolverTooltipRegraCelula(
-  col: GTColuna<unknown>,
-  item: unknown,
-  isFilho: boolean,
-): { titulo: string; descricao: React.ReactNode; interativo?: boolean } | null {
-  const descricaoOverride = col.tooltipDescricaoCelula?.(item)
-  const descricaoBase = isFilho
-    ? (col.tooltipDescricaoItem ?? col.tooltipDescricao)
-    : col.tooltipDescricao
-  const descricao = descricaoOverride ?? descricaoBase
-  if (descricao == null || descricao === '') return null
-  return {
-    titulo: col.tooltipTitulo ?? col.label,
-    descricao,
-    interativo: col.tooltipInterativo,
+/** Conteúdo já montado pelo produto (ex.: TooltipListaColuna na lista de pedidos). */
+function conteudoTemTooltipProdutoMontada(conteudo: React.ReactNode): boolean {
+  if (!React.isValidElement(conteudo)) return false
+  const props = conteudo.props as Record<string, unknown>
+  if (props['data-tooltip-lista-mount'] != null) return true
+  if (props['data-tooltip-lista-coluna'] != null) return true
+  const children = props.children
+  if (React.isValidElement(children)) {
+    const childProps = children.props as Record<string, unknown>
+    if (childProps['data-tooltip-lista-mount'] != null) return true
+    if (childProps['data-tooltip-lista-coluna'] != null) return true
   }
+  return false
 }
 
 function wrapTooltipRegraCelula(
@@ -322,17 +323,28 @@ function wrapTooltipRegraCelula(
   isFilho: boolean,
   ativo: boolean,
   celulaBloqueada = false,
+  tituloOverride?: string,
 ): React.ReactNode {
+  // Tooltip montada no produto (tooltipInline / TooltipListaColuna) — núcleo não duplica wrap.
+  if (col.tooltipInline === true) return conteudo
+  if (conteudoTemTooltipProdutoMontada(conteudo)) return conteudo
   if (!ativo) return conteudo
   if (typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')) {
     return conteudo
   }
   const regra = resolverTooltipRegraCelula(col, item, isFilho)
   if (!regra) return conteudo
+  let tituloFinal = resolverTituloFinalTooltipCelula(col, regra, isFilho, tituloOverride, item)
+  const tituloPedidoCol = col.tooltipTitulo?.trim()
+  const tituloItemCol = col.tooltipTituloItem?.trim()
+  if (isFilho && tituloPedidoCol && tituloFinal === tituloPedidoCol) {
+    tituloFinal = tituloItemCol ?? tituloOverride?.trim() ?? col.label
+  }
+  const descricaoFinal = regra.descricao
   return (
     <TooltipGlobal
-      titulo={regra.titulo}
-      descricao={regra.descricao}
+      titulo={tituloFinal}
+      descricao={descricaoFinal}
       interativo={regra.interativo}
       cursorBloqueado={celulaBloqueada}
     >
@@ -2911,7 +2923,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     // Tooltip de célula bloqueada (editavel retornou false para esta linha)
     const colU0 = col as GTColuna<unknown>
-    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado && tooltipCelulaAtivo
+    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado && tooltipCelulaAtivo && !temRegraColuna
       ? (typeof colU0.tooltipBloqueado === 'function' ? colU0.tooltipBloqueado(item) : colU0.tooltipBloqueado)
       : undefined
 
@@ -2943,14 +2955,23 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       )
     }
 
-    const celConteudo = wrapTooltipRegraCelula(
-      colRegra,
-      celInner,
-      item,
-      isFilho,
-      tooltipCelulaAtivo,
-      celulaBloqueadaPorRegra,
-    )
+    const tituloOverrideCelula = isFilho
+      ? (colRegra.tooltipTituloItem?.trim()
+        || colRegra.tooltipTituloCelula?.(item)?.trim()
+        || undefined)
+      : undefined
+    const tooltipInlineCelula = colRegra.tooltipInline === true
+    const celConteudo = tooltipInlineCelula
+      ? celInner
+      : wrapTooltipRegraCelula(
+        colRegra,
+        celInner,
+        item,
+        isFilho,
+        tooltipCelulaAtivo,
+        celulaBloqueadaPorRegra,
+        tituloOverrideCelula,
+      )
 
     return (
       <div
@@ -3346,7 +3367,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                         <span style={{ display: 'contents' }}>{conteudoFilho}</span>
                       </TooltipGlobal>
                     )
-                  } else if (!podeEditar && mapa?.tooltipBloqueado && tooltipFilhoAtivo) {
+                  } else if (
+                    !podeEditar
+                    && mapa?.tooltipBloqueado
+                    && tooltipFilhoAtivo
+                    && mapa?.tooltipInline !== true
+                  ) {
                     const msg = typeof mapa.tooltipBloqueado === 'function' ? mapa.tooltipBloqueado(item) : mapa.tooltipBloqueado
                     if (msg) {
                       celFilhoInner = (
@@ -3360,6 +3386,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )
                     }
                   }
+                  // mapaColunasFilho / TooltipListaColuna — núcleo não re-wrap na linha item.
+                  if (mapa?.render != null || conteudoTemTooltipProdutoMontada(celFilhoInner)) {
+                    return celFilhoInner
+                  }
+                  const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''
+                    ? (typeof mapa.tooltipTitulo === 'function'
+                      ? mapa.tooltipTitulo(item)
+                      : mapa.tooltipTitulo)
+                    : undefined
                   return wrapTooltipRegraCelula(
                     col as GTColuna<unknown>,
                     celFilhoInner,
@@ -3367,6 +3402,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     true,
                     tooltipFilhoAtivo,
                     celulaBloqueadaFilho,
+                    tituloMapaFilho,
                   )
                 })()}
               </div>

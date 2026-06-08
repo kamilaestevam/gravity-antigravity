@@ -1,8 +1,8 @@
 # Plano de Teste em Tela — Pedido / Lista / Editar e Salvar
 
-**ID:** TST-EMT-000002  
+**ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 4.3  
+**Versão:** 4.8  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
 **Status:** Aguardando aprovação do dono
@@ -25,6 +25,28 @@
 >
 > Alertas de divergência usam apenas **`-resultado.png`** (não há popover de edição).  
 > Tooltips usam **um** print por nível (`-tooltip-pedido.png` / `-tooltip-item.png`).
+
+---
+
+## Regra universal — persistência ao fim de cada ETAPA
+
+> **Obrigatório** em toda `### ETAPA …` que altera dados na lista (runner principal ou dedicado), **exceto** ETAPA 0 (preparação) e ETAPA 43 (relatório).
+
+**Último passo da etapa** (quando ainda não existir):
+
+1. Navegar para o **hub** (sair da tela Lista)
+2. Voltar à **Lista de Pedidos**
+3. Reencontrar o pedido pelo **nº pedido** e **reexpandir**
+4. **APROVADO** quando **tudo** salvo na etapa permanece na grade (pedido + itens)
+
+**Print:** `{passo}-{slug}-persistencia-apos-navegar-resultado.png`
+
+| Situação | Ação |
+|----------|------|
+| Etapa já termina com persistência | Manter (Qtd. Pronta, Qtd. Inicial, Valor Total, Unidade Comercializada) |
+| Etapa sem persistência | Incluir como **último passo** da ETAPA |
+| Logística (29.x–34.x) | Subpasso **`.6`** (ex.: 29.6) |
+| Importador / Exportador (runners dedicados) | Mesma regra no fechamento |
 
 ---
 
@@ -52,7 +74,25 @@
 | **QTD. PRONTA DO PEDIDO/ITEM** | 42–48 | `run-lista-editar-salvar.ts` |
 | **QTD. INICIAL DO PEDIDO/ITEM** | 49–55 | `run-lista-editar-salvar.ts` |
 | **MOEDA DO PEDIDO/ITEM** | 56–61 | `run-lista-editar-salvar.ts` |
-| **VALOR TOTAL DO PEDIDO/ITEM** | 62–66 | `run-lista-editar-salvar.ts` |
+| **VALOR TOTAL DO PEDIDO/ITEM** | 62–71 | `run-lista-editar-salvar.ts` |
+| **UNIDADE COMERCIALIZADA DO PEDIDO/ITEM** | 72–82 | `run-lista-editar-salvar.ts` |
+| **QTD. TRANSFERIDA — Básico** | 83–87 | `run-lista-editar-salvar.ts` |
+| **QTD. TRANSFERIDA — Novo Pedido** | 88–106 | `run-lista-editar-salvar.ts` |
+| **QTD. TRANSFERIDA — Pedido Existente** | 107–124 | `run-lista-editar-salvar.ts` |
+| **QTD. TRANSFERIDA — Redução Simples** | 125–134 | `run-lista-editar-salvar.ts` |
+| **SALDO — Básico** | 135–142 | `run-lista-editar-salvar.ts` |
+| **SALDO — Alterar fórmula Config e restaurar** | 143–150 | `run-lista-editar-salvar.ts` |
+| **SALDO — Fórmula item e recálculo** | 151–156 | `run-lista-editar-salvar.ts` |
+| **SALDO — Unidades divergentes** | 157–160 | `run-lista-editar-salvar.ts` |
+| **SALDO — Pós-transferência** | 161–168 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Básico** | 169–176 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Redução Simples** | 177–188 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Unidades divergentes** | 189–192 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Split não incrementa** | 193–198 | `run-lista-editar-salvar.ts` |
+| **QTD. CANCELADA — Casas decimais Config** | 199–206 | `run-lista-editar-salvar.ts` |
+| **QTD. VOLUMES — Básico** | 207–214 | `run-lista-editar-salvar.ts` |
+| **QTD. VOLUMES — Edição em Massa** | 215–222 | `run-lista-editar-salvar.ts` |
+| **QTD. VOLUMES — Grade e rodapé** | 223–226 | `run-lista-editar-salvar.ts` |
 
 ---
 
@@ -174,13 +214,19 @@
 | 60 | `60-moeda-editar-item-isolado-selecao.png` | Select no item 1 |
 | | `60-moeda-editar-item-isolado-resultado.png` | Item isolado; pedido mantém valor |
 | 61 | `61-moeda-alerta-divergencia-resultado.png` | Alerta «Moedas divergentes entre itens» na coluna do pedido |
-| 62 | `62-valor-tooltip-pedido.png` | Tooltip pedido — Valor do Item (bloqueado + alerta) |
-| | `63-valor-tooltip-item.png` | Tooltip item — Valor do Item (editável) |
-| 64 | `64-valor-pedido-bloqueado-resultado.png` | Célula do pedido bloqueada (`—` ou classe bloqueada) |
-| 65 | `65-valor-item-incluir-selecao.png` | Popover moeda+valor no item 1 — incluir |
+| 62 | `62-valor-pedido-nao-edita-resultado.png` | **01** — Pedido não editável (clicar não abre popover) |
+| 63 | `63-valor-pedido-cursor-bloqueado.png` | **02** — Cursor `not-allowed` no hover do pedido |
+| 64 | `64-valor-tooltip-pedido.png` | **03** — Tooltip pedido (bloqueado + soma + editável nos itens + alerta + aviso moeda) |
+| 65 | `65-valor-item-incluir-selecao.png` | **04** — Item vazio: incluir valor + moeda qualquer |
 | | `65-valor-item-incluir-resultado.png` | Valor e moeda salvos no item |
-| 66 | `66-valor-item-editar-selecao.png` | Popover moeda+valor no item 1 — editar |
-| | `66-valor-item-editar-resultado.png` | Valor editado e moeda persistidos |
+| 66 | `66-valor-item-formula-unitario-qtd-resultado.png` | **05** — Grade: valor total = unitário × qtd inicial |
+| 67 | `67-valor-item-popover-originais.png` | **04** — Popover exibe valor e moeda originais |
+| 68 | `68-valor-item-editar-selecao.png` | **05** — Editar novo valor e moeda |
+| | `68-valor-item-editar-resultado.png` | Valor editado persistido |
+| 69 | `69-valor-item2-moeda-divergente-selecao.png` | **06** — Item 2 com moeda distinta |
+| | `69-valor-alerta-divergencia-resultado.png` | Alerta «Moedas divergentes entre itens» na coluna Valor do pedido |
+| 70 | `70-valor-tooltip-item.png` | **07** — Tooltip item (editável + fórmula + aviso moeda) |
+| 71 | `71-valor-persistencia-apos-navegar-resultado.png` | **08** — Sair da lista, voltar — dados salvos persistem |
 | 99 | `99-erro.png` | Só se falhar |
 
 Viewport: **1440×900**
@@ -254,16 +300,16 @@ Viewport: **1440×900**
 2. Coluna **IMPORTADOR** em pedido **Exportação** — modal seletor de importadores / atalho fornecedores
 3. Tooltip espelhado conforme tipo de operação (ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §5)
 
-### ETAPA 5 — EXPORTADOR (`nome_exportador`)
+### ETAPA 6 — EXPORTADOR (`nome_exportador`)
 
-> Runner **dedicado:** `run-lista-exportador-emt.ts` (não faz parte da sequência 03–66 do runner principal).  
+> Runner **dedicado:** `run-lista-exportador-emt.ts` (não faz parte da sequência 03–82 do runner principal).  
 > Espelho invertido do Importador — ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §5B.
 
-1. Coluna **EXPORTADOR** em pedido **Exportação** — select lista workspaces com **nomes** (nunca CUID cru); espelhado com workspace
-2. Coluna **EXPORTADOR** em pedido **Importação** — popover lista fornecedores exportadores / atalho **Vincular exportador**
+1. Coluna **EXPORTADOR** em pedido **Exportação** — select lista workspaces com **nomes** (nunca CUID cru; ex.: `CDE EXPORTADOR`); espelhado com workspace
+2. Coluna **EXPORTADOR** em pedido **Importação** — popover lista fornecedores exportadores / atalho **Vincular exportador** (ex.: Foxconn, Bosch)
 3. Tooltip espelhado conforme tipo de operação — **sem** link para Configurador na exportação (espelho workspace)
 
-### ETAPA 6 — REFERÊNCIA IMPORTADOR (passos 13–16)
+### ETAPA 7 — REFERÊNCIA IMPORTADOR (passos 13–16)
 
 **Pré-condição:** pedido expandido com **≥2 itens**.
 
@@ -274,7 +320,7 @@ Viewport: **1440×900**
 | **15** | Editar no **1º item** `REF-IMP-EMT-ITEM-*`; confirmar | Só item 1 muda · Print `15-ref-importador-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **16** | Inspecionar coluna do **pedido** | Ícone âmbar visível · Print `16-ref-importador-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 7 — REFERÊNCIA EXPORTADOR (passos 17–20)
+### ETAPA 8 — REFERÊNCIA EXPORTADOR (passos 17–20)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
@@ -283,7 +329,7 @@ Viewport: **1440×900**
 | **19** | Editar no **1º item** `REF-EXP-EMT-ITEM-*`; confirmar | Só item 1 muda · Print `19-ref-exportador-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **20** | Inspecionar coluna do **pedido** | Ícone âmbar visível · Print `20-ref-exportador-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 8 — INCOTERM (passos 21–24)
+### ETAPA 9 — INCOTERM (passos 21–24)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
@@ -292,7 +338,7 @@ Viewport: **1440×900**
 | **23** | Select no **item 1**, sigla C → confirmar | Item isolado · Print `23-incoterm-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **24** | Inspecionar coluna do **pedido** | Ícone âmbar visível · Print `24-incoterm-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 9 — DESCRIÇÃO DO ITEM (passos 25–28)
+### ETAPA 10 — DESCRIÇÃO DO ITEM (passos 25–28)
 
 Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedido é exibição agregada. **Sem** alerta âmbar de divergência.
 
@@ -305,69 +351,69 @@ Campo **ghost** (`descricao_item`): persiste no banco só no item; linha do pedi
 
 **Prefixos de valor no runner:** `DESC-EMT-SOLO-*` · `DESC-EMT-TODOS-*` · `DESC-EMT-ITEM-*`
 
-### ETAPA 10 — PORTO DE ORIGEM (`porto_origem`, passo 29)
+### ETAPA 11 — PORTO DE ORIGEM (`porto_origem`, passo 29)
 
-**Regras LOG-01…06:** valor único no pedido; itens espelham `_p`; tooltip com 3 pills espelhadas; **sem** checkbox replicar; **sem** alerta âmbar.
+**Regras LOG-00…06:** **LOG-00** — o código escolhido (porto/país/aeroporto) é **qualquer opção disponível** no select; critério = salvou com sucesso + pedido e itens espelham o **mesmo** valor exibido. Demais: valor único no pedido; itens espelham `_p`; tooltip com 3 pills espelhadas; **sem** checkbox replicar; **sem** alerta âmbar.
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
 | **29.1** | Hover tooltip na célula do **pedido** | Título «Porto de Origem» + 3 pills espelhadas · Print `29-log-porto-origem-tooltip-pedido.png` (sucesso ou erro) |
 | **29.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `29-log-porto-origem-tooltip-item.png` (sucesso ou erro) |
-| **29.3** | Select no **pedido** → **BRFOR** → confirmar | **Sem** checkbox replicar · Pedido **e** itens espelham BRFOR · Prints `29-log-porto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **29.4** | Select no **item 1** → **BRSSZ** → confirmar | Pedido atualizado via item; todos espelham BRSSZ · Prints `29-log-porto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **29.3** | Select no **pedido** → **1ª opção do catálogo** → confirmar | **Sem** checkbox replicar · Toast sucesso · Pedido **e** itens com o **mesmo** valor · Prints `29-log-porto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **29.4** | Select no **item 1** → **outra opção** (se houver) → confirmar | Toast sucesso · Pedido atualizado via item; todos espelham o **mesmo** valor · Prints `29-log-porto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **29.5** | Inspecionar coluna do **pedido** | **Sem** ícone âmbar de divergência (LOG-05) |
 
-### ETAPA 11 — PORTO DE DESTINO (`porto_destino`, passo 30)
+### ETAPA 12 — PORTO DE DESTINO (`porto_destino`, passo 30)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
 | **30.1** | Hover tooltip na célula do **pedido** | Título «Porto de Destino» + 3 pills · Print `30-log-porto-destino-tooltip-pedido.png` (sucesso ou erro) |
 | **30.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `30-log-porto-destino-tooltip-item.png` (sucesso ou erro) |
-| **30.3** | Select no **pedido** → **BRSSZ** → confirmar | Espelhamento em todos os itens · Prints `30-log-porto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **30.4** | Select no **item 1** → **BRITJ** → confirmar | Pedido + itens = BRITJ · Prints `30-log-porto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **30.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento em todos os itens · Prints `30-log-porto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **30.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `30-log-porto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **30.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 12 — PAÍS DE ORIGEM (`local_de_origem`, passo 31)
+### ETAPA 13 — PAÍS DE ORIGEM (`local_de_origem`, passo 31)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
 | **31.1** | Hover tooltip na célula do **pedido** | Título «País de Origem» + 3 pills · Print `31-log-pais-origem-tooltip-pedido.png` (sucesso ou erro) |
 | **31.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `31-log-pais-origem-tooltip-item.png` (sucesso ou erro) |
-| **31.3** | Select no **pedido** → **BR** → confirmar | Espelhamento · Prints `31-log-pais-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **31.4** | Select no **item 1** → **DE** → confirmar | Pedido + itens = DE · Prints `31-log-pais-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **31.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento · Prints `31-log-pais-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **31.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `31-log-pais-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **31.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 13 — PAÍS DE DESTINO (`local_de_destino`, passo 32)
+### ETAPA 14 — PAÍS DE DESTINO (`local_de_destino`, passo 32)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
 | **32.1** | Hover tooltip na célula do **pedido** | Título «País de Destino» + 3 pills · Print `32-log-pais-destino-tooltip-pedido.png` (sucesso ou erro) |
 | **32.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `32-log-pais-destino-tooltip-item.png` (sucesso ou erro) |
-| **32.3** | Select no **pedido** → **DE** → confirmar | Espelhamento · Prints `32-log-pais-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **32.4** | Select no **item 1** → **AO** → confirmar | Pedido + itens = AO · Prints `32-log-pais-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **32.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento · Prints `32-log-pais-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **32.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `32-log-pais-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **32.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 14 — AEROPORTO DE ORIGEM (`aeroporto_origem`, passo 33)
+### ETAPA 15 — AEROPORTO DE ORIGEM (`aeroporto_origem`, passo 33)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
 | **33.1** | Hover tooltip na célula do **pedido** | Título «Aeroporto de Origem» + 3 pills · Print `33-log-aeroporto-origem-tooltip-pedido.png` (sucesso ou erro) |
 | **33.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `33-log-aeroporto-origem-tooltip-item.png` (sucesso ou erro) |
-| **33.3** | Select no **pedido** → **GRU** → confirmar | Espelhamento · Prints `33-log-aeroporto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **33.4** | Select no **item 1** → **CGH** → confirmar | Pedido + itens = CGH · Prints `33-log-aeroporto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **33.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento · Prints `33-log-aeroporto-origem-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **33.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `33-log-aeroporto-origem-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **33.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 15 — AEROPORTO DE DESTINO (`aeroporto_destino`, passo 34)
+### ETAPA 16 — AEROPORTO DE DESTINO (`aeroporto_destino`, passo 34)
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
 | **34.1** | Hover tooltip na célula do **pedido** | Título «Aeroporto de Destino» + 3 pills · Print `34-log-aeroporto-destino-tooltip-pedido.png` (sucesso ou erro) |
 | **34.2** | Hover tooltip na célula do **item 1** | Mesmas 3 pills · Print `34-log-aeroporto-destino-tooltip-item.png` (sucesso ou erro) |
-| **34.3** | Select no **pedido** → **EZE** → confirmar | Espelhamento · Prints `34-log-aeroporto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
-| **34.4** | Select no **item 1** → **GRU** → confirmar | Pedido + itens = GRU · Prints `34-log-aeroporto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
+| **34.3** | Select no **pedido** → opção do catálogo → confirmar | Toast sucesso · Espelhamento · Prints `34-log-aeroporto-destino-pedido-selecao` · `…-resultado` (sucesso ou erro) |
+| **34.4** | Select no **item 1** → outra opção (se houver) → confirmar | Toast sucesso · Pedido + itens espelham o mesmo valor · Prints `34-log-aeroporto-destino-item-selecao` · `…-resultado` (sucesso ou erro) |
 | **34.5** | Inspecionar coluna do **pedido** | **Sem** alerta âmbar |
 
-### ETAPA 16 — NCM (passos 35–41)
+### ETAPA 17 — NCM (passos 35–41)
 
 Campo **ghost** — persiste no banco no **item**; linha do pedido exibe valor canônico. **Sem** alerta âmbar (NCM-06).
 
@@ -381,7 +427,7 @@ Campo **ghost** — persiste no banco no **item**; linha do pedido exibe valor c
 | **40** | Selecionar 1ª NCM da busca no **item 1** → confirmar | Valor salvo no item · Print `40-ncm-item-busca-monitor-resultado.png` (sucesso ou erro) |
 | **41** | Hover tooltip na célula **NCM** do **pedido** | Texto contém «Editável no pedido» · Print `41-ncm-tooltip-pedido.png` (sucesso ou erro) |
 
-### ETAPA 17 — QTD. PRONTA DO PEDIDO/ITEM (passos 42–48)
+### ETAPA 18 — QTD. PRONTA DO PEDIDO/ITEM (passos 42–48)
 
 Coluna **`quantidade_pronta_itens_pedido_total`** — pedido **bloqueado** (soma calculada); **item editável** via popover unidade+quantidade.
 
@@ -397,7 +443,7 @@ Coluna **`quantidade_pronta_itens_pedido_total`** — pedido **bloqueado** (soma
 
 **Valores no runner:** incluir `150,00` · editar `275,50` · unidade `UN`
 
-### ETAPA 18 — QTD. INICIAL DO PEDIDO/ITEM (passos 49–55)
+### ETAPA 19 — QTD. INICIAL DO PEDIDO/ITEM (passos 49–55)
 
 Coluna **`quantidade_total_pedido`** — pedido **bloqueado** (soma calculada); **item editável** via popover unidade+quantidade.
 
@@ -413,7 +459,7 @@ Coluna **`quantidade_total_pedido`** — pedido **bloqueado** (soma calculada); 
 
 **Valores no runner:** incluir `320,00` · editar `410,75` · unidade `UN`
 
-### ETAPA 19 — MOEDA DO PEDIDO/ITEM (passos 56–61)
+### ETAPA 20 — MOEDA DO PEDIDO/ITEM (passos 56–61)
 
 Coluna **`moeda_pedido`** — select do Cadastros com checkbox **«Aplicar em todos os itens»** (igual Incoterm/REF). Tooltip com **3 pills** espelhadas no pedido e no item.
 
@@ -426,21 +472,301 @@ Coluna **`moeda_pedido`** — select do Cadastros com checkbox **«Aplicar em to
 | **60** | Select no **item 1**, sigla C → **Confirmar** | Item isolado; pedido e demais itens mantêm valor · Print `60-moeda-editar-item-isolado-selecao` · `…-resultado` (sucesso ou erro) |
 | **61** | Inspecionar coluna do **pedido** | Alerta **«Moedas divergentes entre itens»** visível · Print `61-moeda-alerta-divergencia-resultado.png` (sucesso ou erro) |
 
-### ETAPA 20 — VALOR TOTAL DO PEDIDO/ITEM (passos 62–66)
+### ETAPA 21 — VALOR TOTAL DO PEDIDO/ITEM (passos 62–71)
 
-Coluna dinâmica **`valor_total_pedido`** — pedido **bloqueado** (`—` / alerta se moedas divergirem); **item editável** via popover **moeda + valor** (`.gtv-edit-moeda-valor`).
+Coluna dinâmica **`valor_total_pedido`**. Passos **62, 63, 64…** seguem a **ordem exata** das regras **01–08** do dono (numeração contínua após o passo 61).
+
+| Passo | Regra | Ação | APROVADO quando |
+|-------|-------|------|-----------------|
+| **62** | **01** | **Clicar** na célula **Valor** do **pedido** | Popover **não** abre — pedido não editável · Print `62-valor-pedido-nao-edita-resultado.png` |
+| **63** | **02** | Hover na célula **Valor** do **pedido** | Cursor `not-allowed` · Print `63-valor-pedido-cursor-bloqueado.png` |
+| **64** | **03** | Hover tooltip na célula **Valor** do **pedido** | Título «Valor total do pedido» + pills Bloqueado, Total do Pedido (soma mesma moeda), Editável nos itens, Alerta moeda divergente + aviso *«A alteração da moeda aqui irá alterar também Moeda do Pedido/Item e Valor Unitário do Item»* · Print `64-valor-tooltip-pedido.png` |
+| **65** | **04** | No **item 1** vazio: incluir valor + **qualquer** moeda do Cadastros → confirmar | Salva com sucesso — valor e moeda exatos na grade · Prints `65-valor-item-incluir-selecao` · `…-resultado` |
+| **66** | **05** | Inspecionar **item 1** preenchido na grade | Valor total exibido = **Valor unitário do item × Qtd. Inicial do item** · Print `66-valor-item-formula-unitario-qtd-resultado.png` |
+| **67** | **04** | Abrir popover do **item 1** preenchido (sem editar) | Exibe valor e moeda **originais** do passo 65 · Print `67-valor-item-popover-originais.png` |
+| **68** | **05** | No popover: editar para **2.750,00** + mesma moeda do passo 65 → confirmar | Salva com sucesso · Prints `68-valor-item-editar-selecao` · `…-resultado` |
+| **69** | **06** | No **item 2**: valor **1.000,00** + moeda **distinta** do item 1 → confirmar | Alerta **«Moedas divergentes entre itens»** na coluna Valor do pedido · Prints `69-valor-item2-moeda-divergente-selecao` · `69-valor-alerta-divergencia-resultado` |
+| **70** | **07** | Hover tooltip na célula **Valor** do **item 1** | Título «Valor Total do Item» + pills Editável nos itens, fórmula *Valor unitário × Qtd. Inicial* + aviso de moeda · Print `70-valor-tooltip-item.png` |
+| **71** | **08** | Sair da Lista (hub) → voltar à Lista → reexpandir o pedido | Item 1 mantém **2.750,00** + moeda; item 2 mantém **1.000,00** + moeda · Print `71-valor-persistencia-apos-navegar-resultado.png` |
+
+**Valores no runner:** incluir = unitário×qtd (ou fallback `1.500,50`) · moeda = 1ª opção do Cadastros · editar `2.750,00` · item 2 `1.000,00`
+
+### ETAPA 22 — UNIDADE COMERCIALIZADA DO PEDIDO/ITEM (passos 72–82)
+
+Coluna **`unidade_comercializada_pedido`** — select do Cadastros com checkbox **«Aplicar em todos os itens»** (padrão Moeda). Popover `apenasUnidade` (somente sigla, sem quantidade). Passos **72, 73, 74…** seguem a **ordem exata** das regras **01–08** do dono (numeração contínua após o passo 71).
+
+| Passo | Regra | Ação | APROVADO quando |
+|-------|-------|------|-----------------|
+| **72** | **01** | **Clicar** na célula **Unidade** do **pedido** (vazio `—` ou preenchido) | Popover de unidade **abre** — campo editável · Print `72-unidade-pedido-abre-popover-resultado.png` |
+| **73** | **02** | Hover na célula **Unidade** do **pedido** | Tooltip visível · Print `73-unidade-tooltip-pedido-hover.png` |
+| **74** | **03** | Inspecionar tooltip do **pedido** | Título *Unidade Comercializada do Pedido* + pills Editável no pedido, Editável nos itens, Aplicar em todos os itens, Alerta se itens divergirem + aviso *«A alteração da unidade irá alterar também Qtd. Inicial, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada»* · Print `74-unidade-tooltip-pedido.png` |
+| **75** | **04** | Abrir popover do **pedido** (clicar célula) | Modal/popover visível · Print `75-unidade-pedido-modal-aberto.png` |
+| **76** | **05** | Abrir dropdown de unidades no popover do **pedido** | Lista com opções do **Cadastros** (≥3 siglas) · Print `76-unidade-pedido-lista-cadastros.png` |
+| **77** | **06** | Select no pedido, sigla A, **sem** checkbox → confirmar | Só pedido persiste · Prints `77-unidade-pedido-sem-replicar-selecao` · `…-resultado` |
+| **78** | **06** | Select no pedido, sigla B, **com** checkbox → confirmar | Pedido **e** todos os itens iguais · Prints `78-unidade-pedido-replicar-todos-selecao` · `…-resultado` |
+| **79** | **07** | **Clicar** na célula **Unidade** do **item 1** | Popover abre com dropdown de unidades · Print `79-unidade-item-modal-aberto.png` |
+| **80** | **08** | No **item 1**: sigla C → confirmar; no **item 2** (se houver): sigla **divergente** → confirmar | Item 1 isolado; alerta **«Unidades divergentes entre itens»** na coluna do pedido · Prints `80-unidade-item-isolado-selecao` · `…-resultado` · `80-unidade-alerta-divergencia-resultado` |
+| **81** | **07** | Hover tooltip na célula **Unidade** do **item 1** | Mesmas 4 pills + aviso de impacto · Print `81-unidade-tooltip-item.png` |
+| **82** | **08** | Sair da Lista (hub) → voltar à Lista → reexpandir o pedido | Pedido e itens mantêm unidades salvas nos passos 77–80 · Print `82-unidade-persistencia-apos-navegar-resultado.png` |
+
+**Valores no runner:** 3 siglas distintas do Cadastros (dinâmico) · item 2 = sigla divergente da replicada no passo 78
+
+### ETAPA 23 — QTD. TRANSFERIDA DO PEDIDO/ITEM — Básico (passos 83–87)
+
+Coluna **`quantidade_transferida_total`**. Pedido e item **bloqueados** (`cursor: not-allowed`). **Tooltip único** (mesmo conteúdo pedido = item). Regras §8C QTR-01…06 · `TRANSFERIR-REGRAS-NEGOCIO.md` para fluxos seguintes.
 
 | Passo | Ação | APROVADO quando |
 |-------|------|-----------------|
-| **62** | Hover tooltip na célula **Valor** do **pedido** | Título «Valor do Item» + pills bloqueado e alerta · Print `62-valor-tooltip-pedido.png` (sucesso ou erro) |
-| **63** | Hover tooltip na célula **Valor** do **item 1** | Pill «Editável no item» · Print `63-valor-tooltip-item.png` (sucesso ou erro) |
-| **64** | Inspecionar célula do **pedido** (sem abrir popover) | Célula bloqueada ou exibe `—` · Print `64-valor-pedido-bloqueado-resultado.png` (sucesso ou erro) |
-| **65** | No **item 1**: incluir valor **1.500,50** + moeda **EUR** → confirmar | Salva com sucesso — valor e moeda exatos na grade · Prints `65-valor-item-incluir-selecao` · `…-resultado` (sucesso ou erro) |
-| **66** | Editar valor do **item 1** para **2.750,00** + moeda **EUR** → confirmar | Salva com sucesso — valor e moeda exatos · Prints `66-valor-item-editar-selecao` · `…-resultado` (sucesso ou erro) |
+| **83** | Hover célula **pedido** | Cursor bloqueado · Print `83-qtd-transf-cursor-pedido.png` |
+| **84** | Tooltip **pedido** | Título *Qtd. Transferida do Pedido* + pills + aviso Transferir · Print `84-qtd-transf-tooltip-pedido.png` |
+| **85** | Clicar célula **pedido** | Popover **não** abre · Print `85-qtd-transf-pedido-nao-edita.png` |
+| **86** | Hover célula **item 1** | Cursor bloqueado · tooltip **idêntico** ao passo 84 · Print `86-qtd-transf-item-tooltip.png` |
+| **87** | Clicar célula **item 1** | Popover **não** abre · Print `87-qtd-transf-item-nao-edita.png` |
 
-**Valores no runner:** incluir `1.500,50` · editar `2.750,00` · moeda `EUR`
+### ETAPA 24 — QTD. TRANSFERIDA — Novo Pedido (Split) (passos 88–106)
 
-### ETAPA 21 — Relatório
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **88** | Checkbox **item 1** | Item selecionado |
+| **89** | Menu → **Transferir** | Modal abre · Print `89-transf-modal-aberto.png` |
+| **90** | **Split — Novo Pedido** → Próximo | Passo quantidade |
+| **91** | Quantidade com **saldo após ≥ 1** | Saldo correto · Print `91-transf-novo-saldo.png` |
+| **92** | Saldo negativo | Não avança |
+| **93** | Nº do **novo pedido** | Campo aceito |
+| **94** | **Quantidade a Transferir** | Correta · Print `94-transf-novo-qtd-transferir.png` |
+| **95** | Inspecionar painel **Origem** no modal (antes de confirmar) | Pedido/item de origem, quantidade e saldo exibidos corretamente |
+| **96** | Inspecionar painel **Destino** (novo pedido) | Nº do novo pedido e quantidade a transferir corretos |
+| **97** | Clicar **Confirmar** no modal Transferir (split — novo pedido) | Transferência concluída com sucesso; modal fecha · Print `97-transf-novo-sucesso.png` |
+| **98** | Na lista, localizar e expandir o **novo pedido** | Pedido encontrado; linha expandida com itens visíveis |
+| **99** | Abrir pedido e item e conferir se **todos os dados** foram replicados — **todas as colunas** do pedido e item | Grade SSOT 100% correta · Print `99-transf-novo-grade-completa.png` |
+| **100** | Confirmar se — **Novo Pedido** — a **Qtd. Inicial** do(s) item(ns) é igual; não foi alterada | Valor igual ao esperado pós-transferência |
+| **101** | Confirmar se — **Novo Pedido** — a **Qtd. Transferida** do(s) item(ns) foi atualizada e está correta | Valor reflete a quantidade transferida |
+| **102** | Confirmar se — **Novo Pedido** — o **Saldo** do(s) item(ns) foi atualizado e está correto | Saldo consistente com inicial − transferida − cancelada |
+| **103** | Confirmar se — **Pedido de Origem** — a **Qtd. Inicial** do(s) item(ns) é igual; não foi alterada | Valor idêntico ao pré-transferência |
+| **104** | Confirmar se — **Pedido de Origem** — a **Qtd. Transferida** do(s) item(ns) foi atualizada e está correta | Incremento conforme quantidade transferida |
+| **105** | Confirmar se — **Pedido de Origem** — o **Saldo** do(s) item(ns) foi atualizado e está correto | Saldo reduzido conforme regra de transferência |
+| **106** | Hub → Lista → reexpandir origem e novo pedido | Dados persistem após navegação · Print `106-transf-novo-persistencia.png` |
+
+### ETAPA 25 — QTD. TRANSFERIDA — Pedido Existente (Split) (passos 107–124)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **107** | Checkbox **outro item** | Item selecionado |
+| **108** | **Transferir** → **Split — Pedido Existente** | Modal · Print `108-transf-existente-modal.png` |
+| **109** | Quantidade válida | Saldo ≥ 1 |
+| **110** | Saldo negativo | Bloqueado |
+| **111** | **Pedido de Destino** | Destino válido |
+| **112** | Conferir **Quantidade a transferir** no modal | Valor correto conforme saldo disponível |
+| **113** | Inspecionar painéis **Origem** e **Destino** (pedido existente) | Dados de origem e destino corretos |
+| **114** | Clicar **Confirmar** no modal Transferir (split — pedido existente) | Transferência concluída com sucesso; modal fecha · Print `114-transf-existente-sucesso.png` |
+| **115** | Na lista, localizar e expandir o **pedido de destino** | Pedido destino encontrado e expandido |
+| **116** | Na lista, localizar e expandir o **pedido de origem** | Pedido origem encontrado e expandido |
+| **117** | Abrir pedido e item e conferir se **todos os dados** foram replicados — **todas as colunas** | Grade SSOT 100% correta · Print `115-transf-existente-grade.png` |
+| **118** | Confirmar se — **Pedido de Destino** — **Qtd. Inicial** do(s) item(ns) | Valor correto pós-transferência |
+| **119** | Confirmar se — **Pedido de Destino** — **Qtd. Transferida** do(s) item(ns) | Atualizada e correta |
+| **120** | Confirmar se — **Pedido de Destino** — **Saldo** do(s) item(ns) | Atualizado e correto |
+| **121** | Confirmar se — **Pedido de Origem** — **Qtd. Inicial**, **Qtd. Transferida** e **Saldo** do(s) item(ns) | Inicial inalterada; transferida e saldo atualizados |
+| **124** | Hub → Lista | Persistência · Print `124-transf-existente-persistencia.png` |
+
+### ETAPA 26 — QTD. TRANSFERIDA — Redução Simples (passos 125–134)
+
+> `reducao_simples` incrementa **`quantidade_cancelada_item`** (não `quantidade_transferida_item`).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **125** | Checkbox em **outro item** | Item selecionado |
+| **126** | **Redução Simples** | Fluxo sem destino · Print `126-transf-reducao-modal.png` |
+| **127** | Quantidade com **saldo após ≥ 1** | Saldo correto |
+| **128** | Saldo negativo | Não confirma |
+| **129** | Confirmar | Sucesso · Print `129-transf-reducao-sucesso.png` |
+| **130** | **Qtd. Inicial** | Inalterada |
+| **131** | **Qtd. Transferida** | Inalterada |
+| **132** | **Qtd. Cancelada** | Incrementada |
+| **133** | **Saldo** | `inicial − transferida − cancelada` |
+| **134** | Hub → Lista | Persistência · Print `134-transf-reducao-persistencia.png` |
+
+### ETAPA 28 — SALDO DO PEDIDO/ITEM — Básico (passos 135–142)
+
+Coluna **`saldo_itens_do_pedido`**. Pedido e item **somente leitura** (`tipo: saldo`). Regras §8D SLD-01…04 · `PILLS_PEDIDO_SALDO` / `PILLS_ITEM_SALDO`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **135** | Hover célula **Saldo** do **pedido** | Cursor bloqueado · Print `135-saldo-cursor-pedido.png` |
+| **136** | Tooltip **pedido** | Título *Saldo do Pedido* + pills `calculado_pedido_saldo` → `bloqueado_edicao` → `alerta_unidade_comercializada_divergente` → `formula_config` → `casas_decimais_config` + link *Editar fórmula no Configurador* · Print `136-saldo-tooltip-pedido.png` |
+| **137** | Clicar célula **pedido** | Popover **não** abre · Print `137-saldo-pedido-nao-edita.png` |
+| **138** | Hover tooltip célula **Saldo** do **item 1** | Título *Saldo do Item* + pills `somente_leitura` → `formula_config` · Print `138-saldo-tooltip-item.png` |
+| **139** | Clicar célula **item 1** | Popover **não** abre · Print `139-saldo-item-nao-edita.png` |
+| **140** | Colapsar pedido → hover cabeçalho **Saldo do Pedido/Item** | Tooltip bloco único pedido + item (override `!dual`) · Print `140-saldo-tooltip-cabecalho.png` |
+| **141** | Inspecionar **formato** na grade | Separadores BR; sufixo **UN** quando > 0; **0,00** sem UN quando zero |
+| **142** | Hub → Lista → reexpandir pedido | Saldos inalterados · Print `142-saldo-persistencia-basico.png` |
+
+### ETAPA 29 — SALDO — Alterar fórmula no Configurador e restaurar (passos 143–150)
+
+> Fluxo obrigatório: **Config → alterar → Lista (conferir mudou) → Config → restaurar original → Lista (conferir voltou) → hub/Lista (persistência)**. Runner grava snapshot da fórmula antes de alterar e restaura em `try/finally`. Fórmula original: `quantidade_total_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **143** | Na **Lista**, clicar link *Editar fórmula no Configurador* do tooltip Saldo (passo 136) **ou** navegar **Pedido → Configurações → Fórmula de Saldo** | Tela de fórmula aberta · Print `143-saldo-config-formula-atual.png` |
+| **144** | **Antes de editar:** registrar snapshot da fórmula original (API `GET /api/v1/pedidos/configuracoes/saldo-formula` ou texto visível) | Fórmula padrão confirmada e salva no runner |
+| **145** | No **Configurador**, alterar fórmula para variante **válida** (ex.: `quantidade_total_pedido - quantidade_cancelada_total_pedido`) → clicar **Salvar** | Toast/sucesso · Print `145-saldo-config-formula-alterada.png` |
+| **146** | Voltar à **Lista de Pedidos** → expandir o **mesmo pedido** de teste → inspecionar coluna **Saldo do pedido** | Valor na grade **diferente** do passo 142 — reflete a **nova** fórmula · Print `146-saldo-lista-formula-alterada-resultado.png` |
+| **147** | Voltar ao **Configurador → Fórmula de Saldo** → colar/restaurar a **fórmula original** do passo 144 → **Salvar** | Fórmula padrão salva no tenant · Print `147-saldo-config-formula-restaurada.png` |
+| **148** | Voltar à **Lista** → **mesmo pedido** → inspecionar coluna **Saldo do pedido** | Valor na grade **igual** ao esperado com fórmula original (antes do passo 145) · Print `148-saldo-lista-formula-padrao-resultado.png` |
+| **149** | Abrir **Configurações** novamente | Campo exibe fórmula original — confirma persistência no backend |
+| **150** | **Hub** → **Lista** → reexpandir pedido | Fórmula original no Config **e** saldos corretos na grade após navegação · Print `150-saldo-persistencia-pos-config.png` |
+
+### ETAPA 30 — SALDO — Fórmula item e recálculo (passos 151–156)
+
+Regra **SLD-06** — saldo altera ao mudar Qtd. Inicial, Transferir ou Cancelar.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **151** | Inspecionar **item 1** na grade | Saldo item = `inicial − transferida − cancelada` |
+| **152** | Editar **Qtd. Inicial** do **item 1** → confirmar | Saldo item **recalcula** na grade · Prints `152-saldo-qtd-inicial-selecao` · `…-resultado` |
+| **153** | Inspecionar pedido com itens na **mesma unidade** | Saldo pedido = **soma** dos saldos dos itens |
+| **154** | Conferir **item** pós-redução simples (ETAPA 26) | Saldo reflete `cancelada` incrementada |
+| **155** | Tooltip **item** após recálculo | Pill `formula_config` visível |
+| **156** | Hub → Lista → reexpandir | Saldos persistem · Print `156-saldo-persistencia-recalculo.png` |
+
+### ETAPA 31 — SALDO — Unidades divergentes (passos 157–160)
+
+Regra **SLD-05** — pedido com itens em unidades distintas (item 2 da ETAPA 22).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **157** | Inspecionar célula **Saldo** do **pedido** | Alerta *Unidades divergentes* — **sem** soma · Print `157-saldo-alerta-unidades-divergentes.png` |
+| **158** | Expandir → inspecionar **cada item** | Saldo individual de cada item correto |
+| **159** | Tooltip **pedido** | Pill `alerta_unidade_comercializada_divergente` visível |
+| **160** | Hub → Lista → reexpandir | Alerta e saldos por item persistem · Print `160-saldo-persistencia-divergencia.png` |
+
+### ETAPA 32 — SALDO — Pós-transferência (passos 161–168)
+
+Valida **somente a coluna Saldo** reaproveitando pedidos das ETAPAs 24–26 (não repete fluxo Transferir).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **161** | **Novo Pedido** — saldo **item** no pedido criado (ETAPA 24) | `inicial − transferida − cancelada` |
+| **162** | **Novo Pedido** — saldo **item** no pedido de **origem** | Reduzido conforme transferência |
+| **163** | **Novo Pedido** — saldo **pedido** (mesma unidade) | Soma dos saldos dos itens na mesma unidade |
+| **164** | **Pedido Existente** — saldo **destino** e **origem** (ETAPA 25) | Atualizados e corretos |
+| **165** | **Redução Simples** — saldo após cancelamento (ETAPA 26) | `inicial − transferida − cancelada` |
+| **166** | Inspecionar **0,00** na grade | Exibe `0,00` **sem** sufixo UN |
+| **167** | Inspecionar valor **> 0** | Exibe quantidade + **UN** |
+| **168** | Hub → Lista → reexpandir origem, destino e novo pedido | Saldos persistem · Print `168-saldo-persistencia-pos-transferencia.png` |
+
+### ETAPA 34 — QTD. CANCELADA DO PEDIDO/ITEM — Básico (passos 169–176)
+
+Coluna **`quantidade_cancelada_total_pedido`**. Pedido e item **somente leitura** (`tipo: calculado`). Regras §8E QCN-01…06 · `PILLS_PEDIDO_QTD_CANCELADA` / item `somente_leitura` + `so_operacao`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **169** | Hover célula **Qtd. Cancelada** do **pedido** | Cursor bloqueado · Print `169-qcan-cursor-pedido.png` |
+| **170** | Tooltip **pedido** | Título *Qtd. Cancelada do Pedido* + pills `calculado_pedido_qtd_cancelada` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` + aviso Redução Simples via Transferir · Print `170-qcan-tooltip-pedido.png` |
+| **171** | Clicar célula **pedido** | Popover **não** abre · Print `171-qcan-pedido-nao-edita.png` |
+| **172** | Hover tooltip **item 1** | Título *Qtd. Cancelada do Item* + pills `somente_leitura` → `so_operacao` · Print `172-qcan-tooltip-item.png` |
+| **173** | Clicar célula **item 1** | Popover **não** abre · Print `173-qcan-item-nao-edita.png` |
+| **174** | Item sem cancelamento | `0,00 UN` ou `—` conforme estado |
+| **175** | Colapsar pedido → hover cabeçalho **Qtd. Cancelada do Pedido/Item** | Tooltip bloco único pedido + item · Print `175-qcan-tooltip-cabecalho.png` |
+| **176** | Hub → Lista → reexpandir pedido | Valores inalterados · Print `176-qcan-persistencia-basico.png` |
+
+### ETAPA 35 — QTD. CANCELADA — Redução Simples (passos 177–188)
+
+> Fluxo que **incrementa** a coluna (QCN-07 / QTR-08). Valida **Qtd. Cancelada**; **Qtd. Transferida** permanece inalterada.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **177** | Checkbox **outro item** (saldo ≥ 1) | Item selecionado |
+| **178** | Menu → **Redução Simples** | Modal aberto · Print `178-qcan-reducao-modal.png` |
+| **179** | Anotar **Qtd. Cancelada** atual do item na grade | Baseline registrado no runner |
+| **180** | Quantidade válida (saldo após ≥ 1) | Preview correto |
+| **181** | Saldo negativo | Não confirma |
+| **182** | Clicar **Confirmar** | Sucesso · Print `182-qcan-reducao-sucesso.png` |
+| **183** | **Qtd. Cancelada** do **item** | Incrementada pela quantidade cancelada |
+| **184** | **Qtd. Transferida** do **item** | **Inalterada** |
+| **185** | **Qtd. Cancelada** do **pedido** | Soma dos itens (mesma unidade) |
+| **186** | **Saldo** do item | `inicial − transferida − cancelada` |
+| **187** | Item com cancelada **> 0** | Célula com destaque vermelho |
+| **188** | Hub → Lista → reexpandir | Valores persistem · Print `188-qcan-persistencia-reducao.png` |
+
+### ETAPA 36 — QTD. CANCELADA — Unidades divergentes (passos 189–192)
+
+Regra **QCN-05** — item 2 com unidade distinta (ETAPA 22).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **189** | Inspecionar célula **Qtd. Cancelada** do **pedido** | Alerta *Unidades divergentes* — **sem** soma · Print `189-qcan-alerta-unidades-divergentes.png` |
+| **190** | Expandir → inspecionar **cada item** | Cancelada individual correta |
+| **191** | Tooltip **pedido** | Pill `alerta_unidade_comercializada_divergente` visível |
+| **192** | Hub → Lista → reexpandir | Persistência · Print `192-qcan-persistencia-divergencia.png` |
+
+### ETAPA 37 — QTD. CANCELADA — Split não incrementa (passos 193–198)
+
+> Split (ETAPAs 24–25) **não** incrementa Qtd. Cancelada (QCN-08).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **193** | Anotar cancelada do **item** na **origem** (pós-ETAPA 35) | Baseline registrado |
+| **194** | Após **Split Novo Pedido** (ETAPA 24) — **origem** | Cancelada **igual** ao baseline |
+| **195** | **Novo pedido** criado | Cancelada = `0,00 UN` (ou valor esperado) |
+| **196** | Após **Split Pedido Existente** (ETAPA 25) — origem e destino | Sem incremento indevido em cancelada |
+| **197** | Conferir colunas | **Qtd. Transferida** alterada; **Qtd. Cancelada** independente |
+| **198** | Hub → Lista → reexpandir | Persistência · Print `198-qcan-persistencia-pos-split.png` |
+
+### ETAPA 38 — QTD. CANCELADA — Casas decimais no Config (passos 199–206)
+
+> Runner grava casas decimais originais (padrão **2**) e restaura em `try/finally`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **199** | **Pedido → Configurações → Casas decimais** | Valor atual de *Qtd. Cancelada do Pedido* visível · Print `199-qcan-config-casas-atual.png` |
+| **200** | Registrar snapshot casas decimais originais | Padrão confirmado antes da edição |
+| **201** | Alterar *Qtd. Cancelada* para **0** casas → **Salvar** | Sucesso · Print `201-qcan-config-casas-alteradas.png` |
+| **202** | Voltar à **Lista** → item com cancelada **> 0** | Exibição **sem** decimais (ex.: `10 UN`) · Print `202-qcan-lista-casas-alteradas.png` |
+| **203** | Config → restaurar **2** casas → **Salvar** | Valor original · Print `203-qcan-config-casas-restauradas.png` |
+| **204** | Lista → **mesmo item** | Volta `10,00 UN` · Print `204-qcan-lista-casas-padrao.png` |
+| **205** | Abrir **Configurações** novamente | Campo exibe **2** casas — persistência no backend |
+| **206** | **Hub** → **Lista** → reexpandir | Config + grade corretos · Print `206-qcan-persistencia-pos-config.png` |
+
+### ETAPA 40 — QTD. DE VOLUMES DO PEDIDO — Básico (passos 207–214)
+
+Coluna **`quantidade_volumes_pedido`** — **somente no pedido** (itens exibem `—`). Não editável na célula da lista. Regras §8F VOL-01…06 · `PILLS_PEDIDO_VOLUMES`.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **207** | Hover célula **Qtd. de Volumes** do **pedido** | Cursor bloqueado · Print `207-vol-cursor-pedido.png` |
+| **208** | Tooltip **pedido** | Título *Qtd. Total de Volumes do Pedido* + pills `bloqueado_edicao` → `calculado_pedido` → `alerta_divergencia` · Print `208-vol-tooltip-pedido.png` |
+| **209** | Clicar célula **pedido** | Popover **não** abre · Print `209-vol-pedido-nao-edita.png` |
+| **210** | Expandir pedido → inspecionar **linhas dos itens** | Coluna exibe **`—`** em todos os itens (campo não existe no item) |
+| **211** | Hover célula **item 1** na coluna Volumes | Tooltip `somente_leitura` (campo do pedido) · Print `211-vol-tooltip-item.png` |
+| **212** | Colapsar → hover cabeçalho **Qtd. de Volumes do Pedido** | Tooltip bloco pedido + item · Print `212-vol-tooltip-cabecalho.png` |
+| **213** | Inspecionar **formato** | Inteiro sem decimais; `null` → `—`; sem sufixo UN |
+| **214** | Hub → Lista → reexpandir | Valor inalterado · Print `214-vol-persistencia-basico.png` |
+
+### ETAPA 41 — QTD. DE VOLUMES — Edição em Massa (passos 215–222)
+
+> Alteração **fora da célula** — menu **Edição em Massa** (VOL-07). Campo **nível pedido**; **não** replica em itens.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **215** | Checkbox no **pedido** de teste | Pedido selecionado |
+| **216** | Menu → **Edição em Massa** → campo **Qtd. de Volumes** | Modal aberto · Print `216-vol-massa-modal.png` |
+| **217** | Informar **12** → **Confirmar** | Sucesso · Print `217-vol-massa-12-resultado.png` |
+| **218** | Inspecionar célula **pedido** na grade | Exibe **12** |
+| **219** | Inspecionar **itens** expandidos | Permanecem **`—`** |
+| **220** | Repetir massa → alterar para **24** → confirmar | Grade atualiza · Print `220-vol-massa-24-resultado.png` |
+| **221** | Clicar célula **pedido** | Popover **ainda não** abre (continua bloqueado inline) |
+| **222** | Hub → Lista → reexpandir | **24** persiste · Print `222-vol-persistencia-massa.png` |
+
+### ETAPA 42 — QTD. DE VOLUMES — Grade e rodapé (passos 223–226)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **223** | Ordenar coluna **Qtd. de Volumes** (asc/desc) | Lista reordena sem erro |
+| **224** | Filtrar coluna (valor **> 0** ou equivalente) | Só pedidos com volumes preenchidos · rodapé exibe **soma** dos visíveis |
+| **225** | Limpar filtro → pedido de teste visível | Valor **24** mantido na linha do pedido |
+| **226** | Hub → Lista | Persistência · Print `226-vol-persistencia-grade.png` |
+
+### ETAPA 43 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
 
@@ -490,6 +816,24 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | QTD. PRONTA DO PEDIDO/ITEM | 42–48 | 7 |
 | QTD. INICIAL DO PEDIDO/ITEM | 49–55 | 7 |
 | MOEDA DO PEDIDO/ITEM | 56–61 | 6 |
-| VALOR TOTAL DO PEDIDO/ITEM | 62–66 | 5 |
-| **Total runner principal** | | **~88 passos / 117 casos** |
+| VALOR TOTAL DO PEDIDO/ITEM | 62–71 | 10 |
+| UNIDADE COMERCIALIZADA DO PEDIDO/ITEM | 72–82 | 11 |
+| QTD. TRANSFERIDA — Básico | 83–87 | 5 |
+| QTD. TRANSFERIDA — Novo Pedido | 88–106 | 19 |
+| QTD. TRANSFERIDA — Pedido Existente | 107–124 | 18 |
+| QTD. TRANSFERIDA — Redução Simples | 125–134 | 10 |
+| SALDO — Básico | 135–142 | 8 |
+| SALDO — Alterar fórmula Config e restaurar | 143–150 | 8 |
+| SALDO — Fórmula item e recálculo | 151–156 | 6 |
+| SALDO — Unidades divergentes | 157–160 | 4 |
+| SALDO — Pós-transferência | 161–168 | 8 |
+| QTD. CANCELADA — Básico | 169–176 | 8 |
+| QTD. CANCELADA — Redução Simples | 177–188 | 12 |
+| QTD. CANCELADA — Unidades divergentes | 189–192 | 4 |
+| QTD. CANCELADA — Split não incrementa | 193–198 | 6 |
+| QTD. CANCELADA — Casas decimais Config | 199–206 | 8 |
+| QTD. VOLUMES — Básico | 207–214 | 8 |
+| QTD. VOLUMES — Edição em Massa | 215–222 | 8 |
+| QTD. VOLUMES — Grade e rodapé | 223–226 | 4 |
+| **Total runner principal** | | **~226 passos / 258 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

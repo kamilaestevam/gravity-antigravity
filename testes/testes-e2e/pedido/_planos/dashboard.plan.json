@@ -1,5 +1,5 @@
 {
-  "id": "TST-E2E-PEDIDO-000001",
+  "id": "TST-E2E-PEDIDO-000025",
   "versao": "1.0",
   "geradoEm": "2026-05-08T00:00:00Z",
   "geradoPor": "claude-opus-1m",
@@ -139,7 +139,7 @@
   "categoriasNaoAplicaveis": [
     { "id": 13, "justificativa": "Dashboard não tem listagem com colunas ordenáveis. Ordenação aplicável só dentro de widgets de tabela específicos (não cobertos por este plano)." }
   ],
-  "specFile": "testes/testes-e2e/pedido/dashboard/TST-E2E-PEDIDO-000001.spec.ts",
+  "specFile": "testes/testes-e2e/pedido/dashboard/TST-E2E-PEDIDO-000025.spec.ts",
   "totalCasos": 0,
   "estado": "PLANO_CRIADO_AGUARDA_APROVACAO_DONO_ANTES_DE_GERAR_SPECS"
 }

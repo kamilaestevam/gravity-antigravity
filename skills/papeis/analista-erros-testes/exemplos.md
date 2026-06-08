@@ -9,7 +9,7 @@
 ### Input
 ```json
 {
-  "errorLog": "Error: page.getByTestId('btn-salvar-organizacao') not found in DOM\n  at TST-E2E-CONFIG-000001.spec.ts:48:23",
+  "errorLog": "Error: page.getByTestId('btn-salvar-organizacao') not found in DOM\n  at TST-E2E-CONFIG-000013.spec.ts:48:23",
   "testName": "18. Salvar Nome da Empresa",
   "specFileContent": "...\nawait page.getByTestId('btn-salvar-organizacao').click()\n...",
   "componentFileContent": "<button data-testid='btn-salvar-org' onClick={salvar}>{t('comum.salvar')}</button>",
@@ -23,11 +23,11 @@
 ```json
 {
   "erroResumo": "Testid 'btn-salvar-organizacao' não existe — foi renomeado para 'btn-salvar-org' no commit abc1234",
-  "motivo": "O componente Organizacao.tsx agora usa data-testid='btn-salvar-org' (8 chars mais curto). O commit abc1234 do dia 14/04 'simplifica testids' renomeou todos os botões da tela mas o spec TST-E2E-CONFIG-000001 não foi atualizado em conjunto. Isso é teste desatualizado por refactor não-coordenado, não um bug do produto.",
+  "motivo": "O componente Organizacao.tsx agora usa data-testid='btn-salvar-org' (8 chars mais curto). O commit abc1234 do dia 14/04 'simplifica testids' renomeou todos os botões da tela mas o spec TST-E2E-CONFIG-000013 não foi atualizado em conjunto. Isso é teste desatualizado por refactor não-coordenado, não um bug do produto.",
   "sugestaoCorrecao": "Substituir 'btn-salvar-organizacao' por 'btn-salvar-org' na linha 48 do spec. Buscar outras ocorrências do mesmo testid antigo no projeto inteiro — é provável que outros 5-10 testes da mesma tela tenham quebrado pelo mesmo motivo.",
-  "arquivo": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts:48",
+  "arquivo": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000013.spec.ts:48",
   "codigoDiff": {
-    "arquivo": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts",
+    "arquivo": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000013.spec.ts",
     "linha": 48,
     "old": "await page.getByTestId('btn-salvar-organizacao').click()",
     "new": "await page.getByTestId('btn-salvar-org').click()",

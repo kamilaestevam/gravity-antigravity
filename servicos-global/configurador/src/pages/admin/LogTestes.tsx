@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap, X } from '@phosphor-icons/react'
+import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap, X, Eye } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -32,8 +32,7 @@ type Resultado = 'APROVADO' | 'REPROVADO' | 'ERRO_CATASTROFICO'
 
 interface LogTeste {
   id: string
-  data: string
-  hora: string
+  dataHora: string
   tipo: TipoTeste
   modulo: string
   teste: string
@@ -59,6 +58,20 @@ interface LogTeste {
 }
 
 const EMT_PRINT_API_TIMEOUT_MS = 5_000
+
+function renderTextoTruncado50(valor: string, labelTooltip: string): React.ReactNode {
+  if (valor.length <= 50) {
+    return <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{valor}</span>
+  }
+  return (
+    <TooltipGlobal titulo={labelTooltip} descricao={valor}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600, color: '#f1f5f9' }}>
+        {valor.slice(0, 50) + '…'}
+        <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+      </span>
+    </TooltipGlobal>
+  )
+}
 
 /** Escopos canônicos → rótulo da coluna Teste no histórico admin. */
 const MAPA_ESCOPO_PARA_NOME_TESTE: Record<string, string> = {
@@ -972,10 +985,11 @@ function PainelEmtExpandido({
 function mapTestesToLocal(log: TesteApi): LogTeste {
   const created = new Date(log.created_at)
   const pad = (n: number) => n.toString().padStart(2, '0')
+  const data = `${pad(created.getDate())}/${pad(created.getMonth() + 1)}/${created.getFullYear()}`
+  const hora = `${pad(created.getHours())}:${pad(created.getMinutes())}:${pad(created.getSeconds())}`
   return {
     id: log.id,
-    data: `${pad(created.getDate())}/${pad(created.getMonth() + 1)}/${created.getFullYear()}`,
-    hora: `${pad(created.getHours())}:${pad(created.getMinutes())}:${pad(created.getSeconds())}`,
+    dataHora: `${data} ${hora}`,
     tipo: (log.type as TipoTeste) || 'E2E',
     modulo: log.module || 'N/A',
     teste: log.test_name || 'N/A',
@@ -1184,14 +1198,9 @@ export function LogTestes() {
 
   const colunas: TabelaGlobalColuna<LogTeste>[] = [
     {
-      key: 'data', label: t('admin.testes-gerais.col_data'), tipo: 'texto',
-      tooltipTitulo: t('admin.testes-gerais.tooltip_data'),
-      tooltipDescricao: t('admin.testes-gerais.tooltip_data_desc')
-    },
-    {
-      key: 'hora', label: t('admin.testes-gerais.col_hora'), tipo: 'texto',
-      tooltipTitulo: t('admin.testes-gerais.tooltip_hora'),
-      tooltipDescricao: t('admin.testes-gerais.tooltip_hora_desc')
+      key: 'dataHora', label: t('admin.testes-gerais.col_data_hora'), tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_data_hora'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_data_hora_desc'),
     },
     {
       key: 'tipo',
@@ -1227,11 +1236,32 @@ export function LogTestes() {
       tooltipTitulo: t('admin.testes-gerais.tooltip_teste'),
       tooltipDescricao: t('admin.testes-gerais.tooltip_teste_desc'),
       getValorBruto: (item) => resolverOqueFoiTestadoLog(item.modulo, item.teste, catalogoPlanos),
-      render: (_v, item) => (
-        <span style={{ fontWeight: 600, color: '#f1f5f9' }}>
-          {resolverOqueFoiTestadoLog(item.modulo, item.teste, catalogoPlanos)}
-        </span>
-      ),
+      render: (_v, item) => {
+        const texto = resolverOqueFoiTestadoLog(item.modulo, item.teste, catalogoPlanos)
+        return renderTextoTruncado50(texto, t('admin.testes-gerais.col_teste'))
+      },
+    },
+    {
+      key: 'qtdPassos',
+      label: t('admin.testes-gerais.col_qtd_passos'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_qtd_passos'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_qtd_passos_desc'),
+      getValorBruto: (item) => String(contarPassosTeste(item).total),
+      render: (_v, item) => {
+        const { total, aprovados, reprovados } = contarPassosTeste(item)
+        if (item.tipo === 'EMT' && total > 1) {
+          return (
+            <TooltipGlobal
+              titulo={t('admin.testes-gerais.tooltip_qtd_passos')}
+              descricao={`${aprovados} aprovados · ${reprovados} reprovados`}
+            >
+              <span style={{ fontWeight: 600, color: '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>{total}</span>
+            </TooltipGlobal>
+          )
+        }
+        return <span style={{ fontWeight: 600, color: '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>{total}</span>
+      },
     },
     {
       key: 'resultado',

@@ -1,8 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs'
 import { join, resolve, dirname, relative } from 'path'
 import { listDailyTestLogFiles } from './test-log-persist.js'
-
-const monorepoRoot = resolve(process.cwd(), '..', '..')
+import { raizRepositorioGravity, registryPlanosTestePath } from './raiz-repositorio-gravity.js'
 
 export interface EmtRunArtifacts {
   /** Caminho relativo ao monorepo da pasta de saída (prints + RESULTADO.txt). */
@@ -14,11 +13,11 @@ export interface EmtRunArtifacts {
 }
 
 function pastaRelativa(abs: string): string {
-  return abs.replace(/\\/g, '/').replace(`${monorepoRoot.replace(/\\/g, '/')}/`, '')
+  return abs.replace(/\\/g, '/').replace(`${raizRepositorioGravity.replace(/\\/g, '/')}/`, '')
 }
 
 function resolverFeatureRootDoScript(scriptRel: string): string {
-  const scriptDir = dirname(resolve(monorepoRoot, scriptRel))
+  const scriptDir = dirname(resolve(raizRepositorioGravity, scriptRel))
   const nome = scriptDir.replace(/\\/g, '/').split('/').pop() ?? ''
   if (nome === 'plano-teste' || nome === 'plano-de-teste') {
     return dirname(scriptDir)
@@ -44,7 +43,7 @@ export function resolverPastaEmtRecente(
   janelaMs = 180_000,
 ): string | null {
   try {
-    const scriptDir = dirname(resolve(monorepoRoot, scriptRel))
+    const scriptDir = dirname(resolve(raizRepositorioGravity, scriptRel))
     const subpastas = readdirSync(scriptDir, { withFileTypes: true }).filter(d => d.isDirectory())
     let melhor: { path: string; mtime: number } | null = null
 
@@ -165,7 +164,7 @@ export function enrichirLogEmt(
     : null
 
   if (emtPastaSalva) {
-    const pastaAbs = resolve(monorepoRoot, emtPastaSalva)
+    const pastaAbs = resolve(raizRepositorioGravity, emtPastaSalva)
     if (existsSync(pastaAbs)) {
       const code = entry.result === 'APROVADO' ? 0 : 1
       const artefatos = artefatosDaPasta(pastaAbs, code, '')
@@ -182,7 +181,7 @@ export function enrichirLogEmt(
   const artefatos = coletarArtefatosEmt(specFile, createdMs, entry.result === 'APROVADO' ? 0 : 1, '')
 
   if (artefatos.emt_pasta) {
-    const pastaAbs = resolve(monorepoRoot, artefatos.emt_pasta)
+    const pastaAbs = resolve(raizRepositorioGravity, artefatos.emt_pasta)
     if (existsSync(pastaAbs)) {
       return aplicarLogCompletoDoDisco(
         { ...entry, emt_pasta: artefatos.emt_pasta },
@@ -209,7 +208,7 @@ export function resolverCaminhoPrintSeguro(
   if (!nomeArquivo.endsWith('.png')) return null
   if (!emtPastaRel.startsWith('testes/testes-em-tela/')) return null
 
-  const pastaAbs = resolve(monorepoRoot, emtPastaRel)
+  const pastaAbs = resolve(raizRepositorioGravity, emtPastaRel)
   const abs = resolve(pastaAbs, nomeArquivo)
   const rel = relative(pastaAbs, abs)
   if (!rel || rel.startsWith('..') || rel.includes('..')) return null
@@ -239,7 +238,7 @@ export function buscarLogTestePorId(
 
 export function specFileDoRegistry(planoId: string): string | null {
   try {
-    const registryPath = resolve(monorepoRoot, 'testes', 'test-plans-registry.json')
+    const registryPath = registryPlanosTestePath
     const raw = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
       planos?: Array<{ id: string; specFile?: string }>
     }

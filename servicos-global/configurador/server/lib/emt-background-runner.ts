@@ -11,9 +11,9 @@ import { coletarArtefatosEmt } from './emt-artifacts.js'
 import type { TestLogEntry } from '../utils/playwright-parser.js'
 
 import { RUN_TESTES_TIMEOUT_MS } from './emt-run-timeout.js'
+import { raizRepositorioGravity, registryPlanosTestePath } from './raiz-repositorio-gravity.js'
 /** Só para stderr/stdout quando não há RESULTADO.txt em emt_pasta. */
 const EMT_TERMINAL_LOG_MAX_CHARS = 16_000
-const monorepoRoot = resolve(process.cwd(), '..', '..')
 const testLogsDir = join(process.cwd(), 'data', 'test-logs')
 
 type RegistryPlanoRun = { id: string; specFile?: string; tipo?: string; tela?: string; modulo?: string }
@@ -51,7 +51,7 @@ function runTsxScript(
     let stderr = ''
     let stdout = ''
     const proc = spawn('npx', ['tsx', scriptRel], {
-      cwd: monorepoRoot,
+      cwd: raizRepositorioGravity,
       env,
       shell: true,
       windowsHide: true,

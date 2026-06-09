@@ -61,6 +61,12 @@ import { securityAudit } from '../../../servicos-plataforma/historico-global/ser
 import { getBillingProvider } from '../lib/billing/index.js'
 import { deployLogService } from '../services/deploy-log-service.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
+import {
+  configuradorRoot,
+  raizRepositorioGravity,
+  registryPlanosTestePath,
+  resolverArquivoPlanoTeste,
+} from '../lib/raiz-repositorio-gravity.js'
 
 export const adminRouter = Router()
 
@@ -1030,13 +1036,15 @@ adminRouter.delete('/registros-deploy/:id_deploy', async (req, res, next) => {
  */
 adminRouter.get('/planos-teste', (req, res, next) => {
   try {
-    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'test-plans-registry.json')
     let planos: Array<{ id: string; escopo: string; tipo: string }> = []
     try {
-      const raw = JSON.parse(readFileSync(registryPath, 'utf-8')) as { planos?: typeof planos }
+      const raw = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as { planos?: typeof planos }
       planos = Array.isArray(raw.planos) ? raw.planos : []
-    } catch {
-      // Registry ainda não existe — retorna vazio
+    } catch (err) {
+      log.warn(
+        { registryPlanosTestePath, err: err instanceof Error ? err.message : String(err) },
+        'Registry de planos de teste indisponível — retornando vazio',
+      )
     }
 
     const escopo = req.query.escopo as string | undefined
@@ -1057,12 +1065,11 @@ adminRouter.get('/planos-teste', (req, res, next) => {
  */
 adminRouter.get('/planos-teste/:id_plano_teste/casos', (req, res, next) => {
   try {
-    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'test-plans-registry.json')
-    if (!existsSync(registryPath)) {
+    if (!existsSync(registryPlanosTestePath)) {
       throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
     }
 
-    const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
+    const registry = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as {
       planos: Array<Record<string, unknown> & { id: string; planoFile?: string }>
     }
     const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
@@ -1070,11 +1077,7 @@ adminRouter.get('/planos-teste/:id_plano_teste/casos', (req, res, next) => {
       throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
     }
 
-    const candidatos = [
-      resolve(process.cwd(), '..', '..', entry.planoFile),
-      resolve(process.cwd(), '..', '..', 'testes', entry.planoFile.replace(/^testes\//, '')),
-    ]
-    const resolvedPath = candidatos.find(p => existsSync(p))
+    const resolvedPath = resolverArquivoPlanoTeste(entry.planoFile)
     if (!resolvedPath) {
       throw new AppError('Arquivo do plano não encontrado', 404, 'NOT_FOUND')
     }
@@ -1133,12 +1136,11 @@ adminRouter.patch('/planos-teste/:id_plano_teste', (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const registryPath = resolve(monorepoRoot, 'testes', 'test-plans-registry.json')
-    if (!existsSync(registryPath)) {
+    if (!existsSync(registryPlanosTestePath)) {
       throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
     }
 
-    const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
+    const registry = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as {
       planos: Array<Record<string, unknown> & { id: string; modulo?: string; tela?: string }>
     }
     const idx = registry.planos.findIndex(p => p.id === req.params.id_plano_teste)
@@ -1166,7 +1168,7 @@ adminRouter.patch('/planos-teste/:id_plano_teste', (req, res, next) => {
     entry.propriedade_dono = true
     entry.editado_pelo_dono_em = new Date().toISOString()
 
-    writeFileSync(registryPath, `${JSON.stringify(registry, null, 2)}\n`, 'utf-8')
+    writeFileSync(registryPlanosTestePath, `${JSON.stringify(registry, null, 2)}\n`, 'utf-8')
 
     res.json({ plano: entry, id_anterior: idAnterior })
   } catch (err) {
@@ -1247,10 +1249,9 @@ adminRouter.get('/testes', async (_req, res, next) => {
 })
 
 // ── Constantes para run-tests ─────────────────────────────────────────────────
-const monorepoRoot = resolve(process.cwd(), '..', '..')
 const RUN_MARKER_PATH = join(testLogsDir, '_current-run.json')
-const TSX_CLI = resolve(monorepoRoot, 'node_modules/tsx/dist/cli.mjs')
-const EMT_RUNNER_ENTRY = join(process.cwd(), 'server/lib/emt-background-runner.ts')
+const TSX_CLI = resolve(raizRepositorioGravity, 'node_modules/tsx/dist/cli.mjs')
+const EMT_RUNNER_ENTRY = join(configuradorRoot, 'server/lib/emt-background-runner.ts')
 
 /** @see RUN_TESTES_TIMEOUT_MS em emt-run-timeout.ts (padrão 90 min; override GRAVITY_TEST_RUN_TIMEOUT_MS) */
 
@@ -1524,14 +1525,13 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     const projectsDerivados = new Set<string>()
 
     if (Array.isArray(planos) && planos.length > 0) {
-      const registryPath2 = resolve(monorepoRoot, 'testes', 'test-plans-registry.json')
       let registryPlanos: RegistryPlanoRun[] = []
       try {
-        const raw = JSON.parse(readFileSync(registryPath2, 'utf-8')) as { planos?: RegistryPlanoRun[] }
+        const raw = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as { planos?: RegistryPlanoRun[] }
         registryPlanos = Array.isArray(raw.planos) ? raw.planos : []
       } catch (err) {
         throw new AppError(
-          `Registry não encontrado em ${registryPath2}: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
+          `Registry não encontrado em ${registryPlanosTestePath}: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
           500,
           'REGISTRY_READ_ERROR',
         )
@@ -1547,7 +1547,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
           planosSemSpec.push(`${planId} (sem campo specFile no registry)`)
           continue
         }
-        const specPath = resolve(monorepoRoot, entry.specFile)
+        const specPath = resolve(raizRepositorioGravity, entry.specFile)
         if (!existsSync(specPath)) {
           planosSemSpec.push(`${planId} (specFile ${entry.specFile} não existe)`)
           continue
@@ -1632,7 +1632,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
 
     const stdoutPath = join(testLogsDir, `playwright-run-${runId}.json`)
     const stderrPath = join(testLogsDir, `playwright-run-${runId}.stderr.log`)
-    debugLog(`cwd=${monorepoRoot}`)
+    debugLog(`cwd=${raizRepositorioGravity}`)
     debugLog(`cmd=npx playwright test ${specArgs.join(' ')} ${projectArgs.join(' ')} --reporter=json`)
     debugLog(`specArgs=${JSON.stringify(specArgs)}`)
     debugLog(`projectArgs=${JSON.stringify(projectArgs)}`)
@@ -1645,7 +1645,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       'npx',
       ['playwright', 'test', ...specArgs, ...projectArgs, '--reporter=json'],
       {
-        cwd:        monorepoRoot,
+        cwd:        raizRepositorioGravity,
         env:        testEnv,
         shell:      true,
         windowsHide: true,
@@ -2279,13 +2279,11 @@ adminRouter.post('/planos-teste/:id_plano_teste/expandir', async (req, res, next
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    // Carrega plano existente do registry
-    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'test-plans-registry.json')
-    if (!existsSync(registryPath)) {
+    if (!existsSync(registryPlanosTestePath)) {
       throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
     }
 
-    const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
+    const registry = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as {
       planos: Array<{ id: string; planoFile: string }>
     }
     const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
@@ -2293,8 +2291,8 @@ adminRouter.post('/planos-teste/:id_plano_teste/expandir', async (req, res, next
       throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
     }
 
-    const planPath = resolve(process.cwd(), '..', '..', 'testes', entry.planoFile)
-    if (!existsSync(planPath)) {
+    const planPath = resolverArquivoPlanoTeste(entry.planoFile)
+    if (!planPath) {
       throw new AppError('Arquivo do plano não encontrado', 404, 'NOT_FOUND')
     }
 
@@ -2331,12 +2329,11 @@ adminRouter.post('/planos-teste/:id_plano_teste/gerar-spec', async (req, res, ne
       throw new AppError('Apenas Super Admin pode gerar specs', 403, 'FORBIDDEN')
     }
 
-    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'test-plans-registry.json')
-    if (!existsSync(registryPath)) {
+    if (!existsSync(registryPlanosTestePath)) {
       throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
     }
 
-    const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
+    const registry = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as {
       planos: Array<{ id: string; planoFile: string }>
     }
     const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
@@ -2344,7 +2341,10 @@ adminRouter.post('/planos-teste/:id_plano_teste/gerar-spec', async (req, res, ne
       throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
     }
 
-    const planPath = resolve(process.cwd(), '..', '..', 'testes', entry.planoFile)
+    const planPath = resolverArquivoPlanoTeste(entry.planoFile)
+    if (!planPath) {
+      throw new AppError('Arquivo do plano não encontrado', 404, 'NOT_FOUND')
+    }
     const plan = JSON.parse(readFileSync(planPath, 'utf-8'))
     const specPath = generateAndSaveSpec(plan)
 
@@ -2463,7 +2463,7 @@ adminRouter.post('/testes/:id_teste/aplicar-correcao', async (req, res, next) =>
       new: string
     }
 
-    const filePath = resolve(monorepoRoot, diff.arquivo)
+    const filePath = resolve(raizRepositorioGravity, diff.arquivo)
     if (!existsSync(filePath)) {
       throw new AppError(`Arquivo não encontrado: ${diff.arquivo}`, 404, 'FILE_NOT_FOUND')
     }

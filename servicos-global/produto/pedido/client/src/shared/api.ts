@@ -234,7 +234,9 @@ async function requestBlob(endpoint: string, options?: RequestInit): Promise<Blo
     },
   })
   if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`)
+    const raw = await response.json().catch(() => null)
+    const msg = raw?.error?.message ?? raw?.erro?.mensagem ?? `HTTP ${response.status}`
+    throw new Error(typeof msg === 'string' ? msg : `HTTP ${response.status}`)
   }
   return response.blob()
 }

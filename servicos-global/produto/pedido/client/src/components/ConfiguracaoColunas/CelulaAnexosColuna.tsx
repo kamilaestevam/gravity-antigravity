@@ -9,7 +9,8 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Paperclip, Upload, Trash, Download, X } from '@phosphor-icons/react'
+import { Paperclip, Upload, Trash, Download, X, FloppyDisk } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import type { Anexo } from '../../shared/types'
 import { anexosApi } from '../../shared/api'
 import './CelulaAnexosColuna.css'
@@ -25,7 +26,7 @@ interface CelulaAnexosColunaProps {
   colunaNome: string
 }
 
-const LARGURA_PAINEL_PX = 260
+const LARGURA_PAINEL_PX = 340
 
 export function CelulaAnexosColuna({
   vinculo_id,
@@ -183,7 +184,20 @@ export function CelulaAnexosColuna({
       <div className="cac-lista">
         {carregando && <p className="cac-info">{t('comum.carregando')}</p>}
         {!carregando && anexosColuna.length === 0 && (
-          <p className="cac-info cac-info--vazio">{t('pedido.cel_anexos.nenhum_arquivo')}</p>
+          <button
+            type="button"
+            className="cac-vazio"
+            disabled={enviando}
+            onMouseDown={e => e.stopPropagation()}
+            onClick={e => {
+              e.stopPropagation()
+              inputFileRef.current?.click()
+            }}
+            aria-label={t('pedido.cel_anexos.continuar_anexando')}
+          >
+            <Paperclip size={22} weight="duotone" className="cac-vazio-icone" aria-hidden />
+            <span className="cac-info cac-info--vazio">{t('pedido.cel_anexos.nenhum_arquivo')}</span>
+          </button>
         )}
         {!carregando && anexosColuna.map(a => (
           <div key={a.id} className="cac-item">
@@ -222,25 +236,28 @@ export function CelulaAnexosColuna({
       />
 
       <div className="cac-rodape">
-        <button
-          type="button"
-          className="cac-btn-secundario"
+        <BotaoGlobal
+          variante="secundario"
+          tamanho="pequeno"
+          icone={<Upload size={13} weight="bold" />}
           onClick={() => inputFileRef.current?.click()}
-          disabled={enviando || carregando}
+          disabled={carregando}
+          carregando={enviando}
+          textoCarregando={t('pedido.cel_anexos.enviando')}
           aria-label={t('pedido.cel_anexos.continuar_anexando')}
         >
-          <Upload size={12} />
-          {enviando ? t('pedido.cel_anexos.enviando') : t('pedido.cel_anexos.continuar_anexando')}
-        </button>
-        <button
-          type="button"
-          className="cac-btn-salvar"
+          {t('pedido.cel_anexos.continuar_anexando')}
+        </BotaoGlobal>
+        <BotaoGlobal
+          variante="primario"
+          tamanho="pequeno"
+          icone={<FloppyDisk size={13} weight="bold" />}
           onClick={() => setAberto(false)}
           disabled={enviando}
           aria-label={t('pedido.cel_anexos.salvar')}
         >
           {t('pedido.cel_anexos.salvar')}
-        </button>
+        </BotaoGlobal>
       </div>
     </div>
   ) : null

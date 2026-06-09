@@ -5,7 +5,6 @@
  *  - Grid de pills para seleção de tipo (com ícones)
  *  - Editor tokenizado (pill-based) para fórmulas
  *  - GABI AI: análise semântica local + Gemini async com sugestões
- *  - Valor padrão contextual (checkbox toggle, select das opções, input tipado)
  *  - Toggles: "Itens podem ter dados diferentes" + "Pedido também é editável"
  *  - Campos disponíveis agrupados (Quantidades, Financeiro, Minhas Colunas)
  *
@@ -13,14 +12,15 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
-import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
+import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import {
   X, Plus, Warning, Info, Columns,
   TextT, Hash, CalendarBlank, Percent, ListBullets,
   CheckSquare, Tag, MathOperations, Paperclip,
+  Eye, PencilSimple, Asterisk, TextAlignLeft,
+  SquaresFour, Rows,
 } from '@phosphor-icons/react'
-import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type {
   ColunaUsuario,
@@ -88,6 +88,41 @@ interface ModalNovaColunaProps {
   todasColunas?: ColunaUsuario[]
 }
 
+const ICONE_LABEL_SECAO = { size: 13, weight: 'fill' as const }
+
+function MncLabelSecao({
+  icone,
+  children,
+  obrigatorio,
+  toggle,
+  htmlFor,
+  iconeDestaque,
+}: {
+  icone: React.ReactNode
+  children: React.ReactNode
+  obrigatorio?: boolean
+  toggle?: boolean
+  htmlFor?: string
+  iconeDestaque?: boolean
+}) {
+  const classe = [
+    'mnc-label-secao',
+    toggle ? 'mnc-label-secao--toggle' : '',
+    iconeDestaque ? 'mnc-label-secao--icone-destaque' : '',
+  ].filter(Boolean).join(' ')
+  const conteudo = (
+    <>
+      {icone}
+      <span>{children}</span>
+      {obrigatorio && <span className="mnc-obrig">*</span>}
+    </>
+  )
+  if (htmlFor) {
+    return <label className={classe} htmlFor={htmlFor}>{conteudo}</label>
+  }
+  return <span className={classe}>{conteudo}</span>
+}
+
 // ── Toggle inline ─────────────────────────────────────────────────────────────
 
 function MncToggle({ checked, onChange, id }: { checked: boolean; onChange: (v: boolean) => void; id?: string }) {
@@ -126,7 +161,6 @@ export function ModalNovaColunaUsuario({
   const [alertaDivergenciaItens, setAlertaDivergenciaItens] = useState(
     colunaEdicao?.alerta_divergencia_itens ?? false,
   )
-  const [valorPadrao, setValorPadrao]   = useState(colunaEdicao?.valor_padrao ?? '')
   const [descricao, setDescricao]       = useState(colunaEdicao?.descricao ?? '')
   const [opcoes, setOpcoes]             = useState<string[]>(colunaEdicao?.opcoes ?? [])
   const [novaOpcao, setNovaOpcao]       = useState('')
@@ -395,7 +429,7 @@ export function ModalNovaColunaUsuario({
       visibilidade,
       obrigatorio,
       alerta_divergencia_itens: escopo === 'ambos' ? alertaDivergenciaItens : false,
-      valor_padrao: tipoFormula ? formulaChave : (valorPadrao.trim() || undefined),
+      ...(tipoFormula ? { valor_padrao: formulaChave } : {}),
       descricao: descricao.trim() || undefined,
       opcoes: tipoComOpcoes ? opcoes : undefined,
     }
@@ -407,92 +441,90 @@ export function ModalNovaColunaUsuario({
       } else {
         await colunasUsuarioApi.criar({ ...basePayload, tipo })
       }
-      // Dados salvos — fechar modal e notificar pai.
-      setSalvando(false)
-      try { await Promise.resolve(onSalvo()) } catch { /* pai trata */ }
+      await Promise.resolve(onSalvo())
+      onFechar()
     } catch (err) {
       const msg = err instanceof Error ? err.message : t('pedido.modal_col.erro_salvar')
       setErro(msg)
+    } finally {
       setSalvando(false)
     }
   }, [
-    nome, tipo, escopo, visibilidade, obrigatorio, alertaDivergenciaItens, valorPadrao,
+    nome, tipo, escopo, visibilidade, obrigatorio, alertaDivergenciaItens,
     descricao, opcoes, tipoComOpcoes, tipoFormula, formulaTokens,
-    formulaErro, isEdicao, colunaEdicao, onSalvo,
+    formulaErro, isEdicao, colunaEdicao, onSalvo, onFechar,
   ])
-
-  // Fecha com Escape
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onFechar() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onFechar])
 
   // ── Render ─────────────────────────────────────────────────────────────
 
-  return createPortal(
-    <div
-      className="mnc-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}
-      onClick={e => { if (e.target === e.currentTarget) onFechar() }}
-    >
-      <div className="mnc-modal">
-        {/* Cabeçalho */}
-        <div className="mnc-header">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Columns size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
-              <h2 className="mnc-titulo">{t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}</h2>
-            </div>
-            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>
-              {isEdicao ? t('pedido.modal_col.subtitulo_edicao') : t('pedido.modal_col.subtitulo_novo')}
-            </p>
-          </div>
-          <button
-            type="button"
-            className="mnc-fechar"
-            onClick={onFechar}
-            aria-label={t('pedido.modal_col.aria_fechar')}
-          >
-            <X size={18} weight="bold" />
-          </button>
-        </div>
-
-        {/* Corpo */}
+  return (
+    <ModalFormularioAbasGlobal
+      aberto
+      aoFechar={onFechar}
+      aoSalvar={handleSalvar}
+      icone={<Columns size={24} weight="duotone" color="var(--ws-accent, #818cf8)" />}
+      titulo={t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}
+      subtitulo={isEdicao ? t('pedido.modal_col.subtitulo_edicao') : t('pedido.modal_col.subtitulo_novo')}
+      tamanho="md"
+      larguraMaxima="560px"
+      semAbas
+      dirty
+      carregando={salvando}
+      textoSalvar={t('pedido.modal_col.salvar')}
+      textoCancelar={t('pedido.modal_col.cancelar')}
+      footerExtraEsquerda={erro ? (
+        <p className="mnc-erro mnc-erro--inline" role="alert">{erro}</p>
+      ) : undefined}
+      abas={[{
+        id: 'form',
+        rotulo: '',
+        conteudo: (
         <div className="mnc-corpo">
           {/* Nome */}
           <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-nome">
-              {t('pedido.modal_col.label_nome')} <span className="mnc-obrig">*</span>
-            </label>
+            <MncLabelSecao
+              htmlFor="mnc-nome"
+              icone={<TextT {...ICONE_LABEL_SECAO} />}
+              obrigatorio
+            >
+              {t('pedido.modal_col.label_nome')}
+            </MncLabelSecao>
             <input
               id="mnc-nome"
-              className="mnc-input"
+              className={['mnc-input', isEdicao ? 'mnc-input--readonly' : ''].filter(Boolean).join(' ')}
               type="text"
               value={nome}
-              onChange={e => setNome(e.target.value)}
+              onChange={e => !isEdicao && setNome(e.target.value)}
+              readOnly={isEdicao}
               maxLength={60}
-              placeholder={t('pedido.modal_col.placeholder_nome')}
-              autoFocus
+              placeholder={isEdicao ? undefined : t('pedido.modal_col.placeholder_nome')}
+              autoFocus={!isEdicao}
+              aria-readonly={isEdicao || undefined}
             />
           </div>
 
           {/* Tipo — Grid de Pills */}
           <div className="mnc-campo">
-            <label className="mnc-label">
-              {t('pedido.modal_col.label_tipo')} <span className="mnc-obrig">*</span>
-            </label>
+            <MncLabelSecao
+              icone={<SquaresFour {...ICONE_LABEL_SECAO} />}
+              obrigatorio
+            >
+              {t('pedido.modal_col.label_tipo')}
+            </MncLabelSecao>
             <div className="mnc-tipo-grid">
               {TIPOS_COLUNA.map(tc => (
                 <button
                   key={tc.id}
                   type="button"
-                  className={`mnc-tipo-btn${tipo === tc.id ? ' mnc-tipo-btn--ativo' : ''}`}
+                  className={[
+                    'mnc-tipo-btn',
+                    tipo === tc.id ? 'mnc-tipo-btn--ativo' : '',
+                    isEdicao ? 'mnc-tipo-btn--readonly' : '',
+                  ].filter(Boolean).join(' ')}
                   onClick={() => !isEdicao && setTipo(tc.id)}
                   aria-pressed={tipo === tc.id}
-                  disabled={isEdicao}
+                  aria-disabled={isEdicao || undefined}
+                  tabIndex={isEdicao ? -1 : 0}
                 >
                   <span className="mnc-tipo-btn__icone">{tc.icone}</span>
                   <span className="mnc-tipo-btn__label">{t(`pedido.coluna_tipo.${tc.id}`)}</span>
@@ -500,9 +532,9 @@ export function ModalNovaColunaUsuario({
               ))}
             </div>
             {isEdicao && (
-              <p style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#f59e0b' }}>
+              <p style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', margin: '0.25rem 0 0', fontSize: '10px', color: '#f59e0b' }}>
                 <Warning size={13} weight="fill" style={{ flexShrink: 0 }} />
-                {t('pedido.modal_col.tipo_readonly', 'O tipo da coluna não pode ser alterado após a criação.')}
+                {t('pedido.modal_col.tipo_readonly', 'O tipo da coluna não pode ser alterado após a criação')}
               </p>
             )}
           </div>
@@ -510,9 +542,12 @@ export function ModalNovaColunaUsuario({
           {/* ── Editor de Fórmula Tokenizado + GABI ── */}
           {tipoFormula && (
             <div className="mnc-campo">
-              <label className="mnc-label">
-                {t('pedido.modal_col.label_formula')} <span className="mnc-obrig">*</span>
-              </label>
+              <MncLabelSecao
+                icone={<MathOperations {...ICONE_LABEL_SECAO} />}
+                obrigatorio
+              >
+                {t('pedido.modal_col.label_formula')}
+              </MncLabelSecao>
 
               {/* Área de tokens (pills) */}
               <div className={[
@@ -633,9 +668,12 @@ export function ModalNovaColunaUsuario({
           {/* Opções (select / tipo_documento) */}
           {tipoComOpcoes && (
             <div className="mnc-campo">
-              <label className="mnc-label">
-                {t('pedido.modal_col.label_opcoes')} <span className="mnc-obrig">*</span>
-              </label>
+              <MncLabelSecao
+                icone={<ListBullets {...ICONE_LABEL_SECAO} />}
+                obrigatorio
+              >
+                {t('pedido.modal_col.label_opcoes')}
+              </MncLabelSecao>
               <div className="mnc-nova-opcao">
                 <input
                   className="mnc-input mnc-input--opcao"
@@ -679,10 +717,14 @@ export function ModalNovaColunaUsuario({
 
           {/* Visibilidade */}
           <div className="mnc-campo">
-            <label className="mnc-label">
-              {t('pedido.modal_col.label_visibilidade')} <span className="mnc-obrig">*</span>
-            </label>
+            <MncLabelSecao
+              icone={<Eye {...ICONE_LABEL_SECAO} />}
+              obrigatorio
+            >
+              {t('pedido.modal_col.label_visibilidade')}
+            </MncLabelSecao>
             <SelectGlobal
+              id="mnc-visibilidade"
               buscavel={false}
               opcoes={VISIBILIDADE_OPCOES.map(o => ({ valor: o.valor, rotulo: t(o.labelKey) }))}
               valor={visibilidade}
@@ -690,12 +732,28 @@ export function ModalNovaColunaUsuario({
             />
           </div>
 
+          {/* Descrição — mesmo padrão/layout da visibilidade */}
+          <div className="mnc-campo">
+            <MncLabelSecao icone={<TextAlignLeft {...ICONE_LABEL_SECAO} />}>
+              {t('pedido.modal_col.label_descricao')}
+            </MncLabelSecao>
+            <input
+              id="mnc-descricao"
+              className="mnc-input mnc-input--como-select"
+              type="text"
+              value={descricao}
+              onChange={e => setDescricao(e.target.value)}
+              placeholder={t('pedido.modal_col.placeholder_descricao')}
+              maxLength={200}
+            />
+          </div>
+
           {/* Itens podem ter dados diferentes (toggle) */}
           <div className="mnc-campo mnc-campo--toggle-row">
             <div>
-              <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+              <MncLabelSecao toggle icone={<Rows {...ICONE_LABEL_SECAO} />}>
                 {t('pedido.modal_col.itens_diferentes')}
-              </span>
+              </MncLabelSecao>
               <p className="mnc-hint">{t('pedido.modal_col.itens_diferentes_hint')}</p>
             </div>
             <MncToggle checked={itensDiferentes} onChange={setItensDiferentes} id="mnc-itens-dif" />
@@ -710,9 +768,9 @@ export function ModalNovaColunaUsuario({
 
               <div className="mnc-campo mnc-campo--toggle-row">
                 <div>
-                  <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  <MncLabelSecao toggle icone={<PencilSimple {...ICONE_LABEL_SECAO} />}>
                     {t('pedido.modal_col.pedido_editavel')}
-                  </span>
+                  </MncLabelSecao>
                   <p className="mnc-hint">{t('pedido.modal_col.pedido_editavel_hint')}</p>
                 </div>
                 <MncToggle checked={pedidoEditavel} onChange={setPedidoEditavel} id="mnc-pedido-edit" />
@@ -723,9 +781,12 @@ export function ModalNovaColunaUsuario({
           {/* Obrigatório */}
           {tipo !== 'formula' && (
             <div className="mnc-campo mnc-campo--toggle-row">
-              <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                {t('pedido.modal_col.label_obrigatorio')}
-              </span>
+              <div>
+                <MncLabelSecao toggle icone={<Asterisk {...ICONE_LABEL_SECAO} />}>
+                  {t('pedido.modal_col.label_obrigatorio')}
+                </MncLabelSecao>
+                <p className="mnc-hint">{t('pedido.modal_col.obrigatorio_hint')}</p>
+              </div>
               <MncToggle checked={obrigatorio} onChange={setObrigatorio} id="mnc-obrigatorio" />
             </div>
           )}
@@ -733,95 +794,22 @@ export function ModalNovaColunaUsuario({
           {escopo === 'ambos' && (
             <div className="mnc-campo mnc-campo--toggle-row">
               <div>
-                <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                <MncLabelSecao
+                  toggle
+                  iconeDestaque
+                  icone={<Warning {...ICONE_LABEL_SECAO} aria-hidden="true" />}
+                >
                   {t('pedido.modal_col.alerta_divergencia_itens')}
-                </span>
+                </MncLabelSecao>
                 <p className="mnc-hint">{t('pedido.modal_col.alerta_divergencia_itens_hint')}</p>
               </div>
               <MncToggle checked={alertaDivergenciaItens} onChange={setAlertaDivergenciaItens} id="mnc-alerta-div" />
             </div>
           )}
 
-          {/* Valor Padrão — contextual por tipo */}
-          {tipo !== 'formula' && (
-            <div className="mnc-campo">
-              <label className="mnc-label" htmlFor="mnc-valor-padrao">{t('pedido.modal_col.label_valor_padrao')}</label>
-              <p className="mnc-hint">{t('pedido.modal_col.valor_padrao_hint')}</p>
-              {tipo === 'checkbox' ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input
-                    id="mnc-valor-padrao"
-                    type="checkbox"
-                    className="mnc-checkbox"
-                    checked={valorPadrao === 'true'}
-                    onChange={e => setValorPadrao(e.target.checked ? 'true' : 'false')}
-                  />
-                  <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                    {valorPadrao === 'true' ? t('pedido.modal_col.marcado_padrao') : t('pedido.modal_col.desmarcado_padrao')}
-                  </span>
-                </div>
-              ) : (tipo === 'select' || tipo === 'tipo_documento') ? (
-                opcoes.length > 0 ? (
-                  <SelectGlobal
-                    opcoes={[
-                      { valor: '', rotulo: t('pedido.modal_col.sem_valor_padrao') },
-                      ...opcoes.map(o => ({ valor: o, rotulo: o })),
-                    ]}
-                    valor={valorPadrao}
-                    aoMudarValor={v => setValorPadrao(String(v ?? ''))}
-                    buscavel={false}
-                  />
-                ) : (
-                  <p className="mnc-hint" style={{ fontStyle: 'italic' }}>{t('pedido.modal_col.adicione_opcoes_padrao')}</p>
-                )
-              ) : (
-                <input
-                  id="mnc-valor-padrao"
-                  className="mnc-input"
-                  type={tipo === 'numero' || tipo === 'percentual' ? 'number' : tipo === 'data' ? 'date' : 'text'}
-                  value={valorPadrao}
-                  onChange={e => setValorPadrao(e.target.value)}
-                  placeholder={t('pedido.modal_col.placeholder_valor_padrao')}
-                />
-              )}
-            </div>
-          )}
-
-          {/* Descrição */}
-          <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-descricao">{t('pedido.modal_col.label_descricao')}</label>
-            <input
-              id="mnc-descricao"
-              className="mnc-input"
-              type="text"
-              value={descricao}
-              onChange={e => setDescricao(e.target.value)}
-              placeholder={t('pedido.modal_col.placeholder_descricao')}
-              maxLength={200}
-            />
-          </div>
-
-          {/* Erro */}
-          {erro && (
-            <p className="mnc-erro" role="alert">{erro}</p>
-          )}
         </div>
-
-        {/* Rodapé */}
-        <div className="mnc-rodape">
-          <BotaoGlobal variante="secundario" onClick={onFechar} disabled={salvando}>
-            {t('pedido.modal_col.cancelar')}
-          </BotaoGlobal>
-          <BotaoGlobal
-            variante="primario"
-            onClick={handleSalvar}
-            carregando={salvando}
-          >
-            {t('pedido.modal_col.salvar')}
-          </BotaoGlobal>
-        </div>
-      </div>
-    </div>,
-    document.body,
+        ),
+      }]}
+    />
   )
 }

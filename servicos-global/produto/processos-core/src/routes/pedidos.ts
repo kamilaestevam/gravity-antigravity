@@ -218,6 +218,7 @@ export const atualizarItemSchema = z.object({
   unidade_comercializada_item: z.string().optional().nullable(),
   tipo_volume_item: z.string().optional().nullable(),
   moeda_item: z.string().optional(),
+  moeda_cambio_pedido: z.string().optional().nullable(),
   moeda_cambio_item_pedido: z.string().optional().nullable(),
   valor_por_unidade_item: z.number().optional().nullable(),
   valor_total_item: z.number().optional().nullable(),
@@ -2830,6 +2831,7 @@ const publicToDddItem: Record<string, string> = {
   quantidade_inicial_pedido:   'quantidade_inicial_item',
   quantidade_atual_pedido:     'quantidade_atual_item',
   cobertura_cambial:           'cobertura_cambial_item',
+  moeda_cambio_pedido:         'moeda_cambio_item_pedido',
   moeda_cambio_item_pedido:    'moeda_cambio_item_pedido',
   nome_exportador:             'nome_exportador_item',
   nome_importador:             'nome_importador_item',
@@ -3018,6 +3020,7 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'condicao_pagamento_siscomex_pedido',
   'tipo_volume_item',
   'moeda_item',
+  'moeda_cambio_pedido',
   'moeda_cambio_item_pedido',
   'unidade_comercializada_item',
 ])
@@ -3081,6 +3084,13 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res
             if (isNaN(d.getTime())) throw new AppError(400, `Data invalida para "${campo}": "${valorFinalItem}". Esperado YYYY-MM-DD.`)
             valorFinalItem = d
           }
+        } else if (
+          campoDdd === 'moeda_cambio_item_pedido'
+          && typeof valorFinalItem === 'string'
+          && valorFinalItem !== ''
+        ) {
+          const sep = valorFinalItem.indexOf(' — ')
+          if (sep > 0) valorFinalItem = valorFinalItem.slice(0, sep).trim()
         }
         const updated = await db.pedidoItem.update({
           where: { id_item: req.params.id_item },

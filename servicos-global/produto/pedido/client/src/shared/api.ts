@@ -215,6 +215,44 @@ export async function request<T>(endpoint: string, options?: RequestInit): Promi
   }
 }
 
+/** GET binário (download) com os mesmos headers de auth que `request`. */
+async function requestBlob(endpoint: string, options?: RequestInit): Promise<Blob> {
+  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''
+  const token = await getAuthToken()
+
+  const response = await fetch(endpoint, {
+    ...options,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      'x-id-organizacao': idOrganizacao,
+      'x-id-usuario':   context.userId,
+      'x-nome-usuario': context.userName,
+      ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
+      'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
+      ...options?.headers,
+    },
+  })
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`)
+  }
+  return response.blob()
+}
+
+async function buildMultipartAuthHeaders(): Promise<Record<string, string>> {
+  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''
+  const token = await getAuthToken()
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    'x-id-organizacao': idOrganizacao,
+    'x-id-usuario':   context.userId,
+    'x-nome-usuario': context.userName,
+    ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
+    'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
+  }
+}
+
 // ── Pedidos ───────────────────────────────────────────────────────────────────
 
 /** Codifica IDs legados que contêm '/' (ex: pedi_id_1234/26) para uso em URLs */
@@ -1689,16 +1727,13 @@ export const anexosApi = {
     if (descricao) form.append('descricao', descricao)
     if (categoria) form.append('categoria', categoria)
     // Não enviar Content-Type — o browser define boundary automaticamente para multipart
-    return fetch('/api/v1/pedidos/anexos', {
-      method: 'POST',
-      headers: {
-        'x-id-organizacao': context.idOrganizacao,
-        'x-id-usuario': context.userId,
-        'x-nome-usuario': context.userName,
-        'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
-      },
-      body: form,
-    }).then(async res => {
+    return buildMultipartAuthHeaders().then(headers =>
+      fetch('/api/v1/pedidos/anexos', {
+        method: 'POST',
+        headers,
+        body: form,
+      }),
+    ).then(async res => {
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: { message: 'Erro desconhecido' } }))
         throw new Error(err.error?.message || `HTTP ${res.status}`)
@@ -1711,17 +1746,7 @@ export const anexosApi = {
   },
 
   download: (id: string) =>
-    fetch(`/api/v1/pedidos/anexos/${id}/download`, {
-      headers: {
-        'x-id-organizacao': context.idOrganizacao,
-        'x-id-usuario': context.userId,
-        'x-nome-usuario': context.userName,
-        'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
-      },
-    }).then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      return res.blob()
-    }),
+    requestBlob(`/api/v1/pedidos/anexos/${id}/download`),
 
   excluir: (id: string) =>
     request<void>(`/api/v1/pedidos/anexos/${id}`, { method: 'DELETE' }).catch(err => {

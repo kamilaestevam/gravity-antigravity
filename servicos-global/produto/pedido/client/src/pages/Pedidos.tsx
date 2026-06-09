@@ -4983,7 +4983,7 @@ export default function Pedidos() {
         ...mapaInline.moeda_cambio_pedido,
         tooltipInline: true,
         tooltipTitulo: t('pedido.coluna_pai.moeda_cambio_titulo', { defaultValue: t('pedido.coluna_pai.moeda_cambio') }),
-        campo: 'moeda_cambio_pedido',
+        campo: 'moeda_cambio_item_pedido',
         render: (row: PedidoItem) => wrapCelulaListaRegras(renderMoedaCambioItemBase(row), t, {
           key: 'moeda_cambio_pedido',
           nivel: 'item',
@@ -7241,18 +7241,26 @@ export default function Pedidos() {
       throw new Error(t('pedido.lista.erro.workspace_somente_pedido', 'Workspace é definido no pedido e aplica-se a todos os itens.'))
     }
 
-    // Moeda câmbio: a coluna de item compartilha a key 'moeda_cambio_pedido' com o pai
-    // (a GTV dispara col.key no edit), mas no ITEM gravamos moeda_cambio_item_pedido — edição
-    // independente, NÃO toca no pedido. O pai usa handleEditar (com "Aplicar a todos").
-    if (campo === 'moeda_cambio_pedido') {
+    // Moeda câmbio item: col.key = moeda_cambio_pedido; mapa.campo = moeda_cambio_item_pedido (espelha moeda_pedido→moeda_item).
+    if (campo === 'moeda_cambio_pedido' || campo === 'moeda_cambio_item_pedido') {
       const moedaCodigo = extrairCodigoMoedaLista(valor)
       if (!moedaCodigo) throw new Error(t('pedido.lista.erro.moeda_cambio_obrigatoria', 'Selecione uma moeda do câmbio.'))
       const itemAtualMc = getItensCache().find(i => i.id === id)
-      const atualizadoMc = await pedidoItemApi.atualizar(pedido.id, id, { moeda_cambio_item_pedido: moedaCodigo } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualMc) return { ...itemAtualMc, moeda_cambio_item_pedido: moedaCodigo } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_campo', { campo }))
-        })
+      let atualizadoMcRaw: PedidoItem
+      try {
+        atualizadoMcRaw = await pedidoItemApi.editarCampo(pedido.id, id, 'moeda_cambio_item_pedido', moedaCodigo)
+      } catch {
+        atualizadoMcRaw = await pedidoItemApi.atualizar(
+          pedido.id,
+          id,
+          { moeda_cambio_item_pedido: moedaCodigo } as Partial<PedidoItem>,
+        )
+      }
+      const atualizadoMc = {
+        ...(itemAtualMc ?? {}),
+        ...atualizadoMcRaw,
+        moeda_cambio_item_pedido: moedaCodigo,
+      } as PedidoItem
       const enriquecidoMc: PedidoItemEnriquecido = {
         ...atualizadoMc,
         _p: montarContextoPaiItem(pedido, atualizadoMc),

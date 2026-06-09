@@ -2974,6 +2974,25 @@ function sanitizarNomesPartesListaPedidos(
   })
 }
 
+/** Extrai código ISO de moeda (select, GTValorMoeda ou rótulo "USD — Dólar…"). */
+function extrairCodigoMoedaLista(valor: unknown): string | null {
+  if (valor == null || valor === '') return null
+  if (typeof valor === 'object' && valor !== null && 'currency' in valor) {
+    const codigo = (valor as { currency: unknown }).currency
+    return codigo == null || codigo === '' ? null : String(codigo).trim()
+  }
+  const bruto = String(valor).trim()
+  if (!bruto) return null
+  const sep = bruto.indexOf(' — ')
+  return sep > 0 ? bruto.slice(0, sep).trim() : bruto
+}
+
+function codigoMoedaExibicaoLista(valor: string | null | undefined): string | null {
+  if (!valor?.trim()) return null
+  const sep = valor.indexOf(' — ')
+  return sep > 0 ? valor.slice(0, sep).trim() : valor.trim()
+}
+
 /** Coluna Prisma do item → chave no contrato JSON do mapItem (ACL). */
 const CAMPO_ITEM_JSON: Partial<Record<string, keyof PedidoItem | string>> = {
   moeda_item: 'moeda_item',
@@ -2984,6 +3003,8 @@ const CAMPO_ITEM_JSON: Partial<Record<string, keyof PedidoItem | string>> = {
   tipo_volume_item: 'tipo_volume_item',
   numero_proforma_item: 'numero_proforma',
   numero_invoice_item: 'numero_invoice',
+  cobertura_cambial_item: 'cobertura_cambial',
+  moeda_cambio_item_pedido: 'moeda_cambio_item_pedido',
 }
 
 /** Propaga valor do pai no item em memória — usa MAPA_PROPAGACAO + nomes JSON do mapItem. */
@@ -3824,7 +3845,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     opcoes: moedasOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido).moeda_cambio_item_pedido ?? '',
     render: (row: PedidoItem) => {
-      const moeda = (row as PedidoItemEnriquecido).moeda_cambio_item_pedido
+      const moeda = codigoMoedaExibicaoLista((row as PedidoItemEnriquecido).moeda_cambio_item_pedido)
       if (!moeda) return <span>{'—'}</span>
       return (
         <span className="gtv-celula-moeda">
@@ -6892,7 +6913,7 @@ export default function Pedidos() {
       const campoApi = 'moeda_cambio_pedido'
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
-      const valorStr = valor == null || valor === '' ? null : String(valor)
+      const valorStr = extrairCodigoMoedaLista(valor)
       if (!valorStr) {
         throw new Error(t('pedido.lista.erro.moeda_cambio_obrigatoria', 'Selecione uma moeda do câmbio.'))
       }
@@ -6904,23 +6925,25 @@ export default function Pedidos() {
         moeda_cambio_pedido_valor_unico: valorStr,
       } as Pedido
       if (replicar && isPropagavel(campoApi)) {
-        const itensApi = updatedRaw.itens
+        const itensApi = Array.isArray(updatedRaw.itens) ? updatedRaw.itens : []
         const itensCache = itensCarregadosRef.current.get(id) ?? []
-        if (Array.isArray(itensApi) && itensApi.length > 0) {
-          const enriquecidos = itensApi.map(i => ({
-            ...i,
-            _p: montarContextoPaiItem(updatedPedido, i),
-          })) as PedidoItemEnriquecido[]
+        const base = itensCache.length > 0 ? itensCache : itensApi
+        if (base.length > 0) {
+          const porId = new Map(itensApi.map(i => [i.id, i]))
+          const enriquecidos = base.map(item => {
+            const fromApi = porId.get(item.id)
+            const merged = aplicarPropagacaoPedidoNoItem(
+              fromApi ? { ...item, ...fromApi } : item,
+              campoApi,
+              valorStr,
+            )
+            return {
+              ...merged,
+              _p: montarContextoPaiItem(updatedPedido, merged),
+            }
+          }) as PedidoItemEnriquecido[]
           itensCarregadosRef.current.set(id, enriquecidos)
           setResetFilhos(prev => prev + 1)
-        } else if (itensCache.length > 0) {
-          itensCarregadosRef.current.set(
-            id,
-            itensCache.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr)),
-          )
-          setResetFilhos(prev => prev + 1)
-        } else {
-          itensCarregadosRef.current.delete(id)
         }
       }
       const itensAtuais = itensCarregadosRef.current.get(id) ?? []
@@ -6937,11 +6960,14 @@ export default function Pedidos() {
           updatedPedido as Record<string, unknown>,
           sinc.divergencias as Record<string, unknown>,
         )
-        return {
-          ...updatedPedido,
-          ...divergencias,
-          itens: sinc.itens.length > 0 ? sinc.itens : p.itens,
+        if (sinc.itens.length > 0) {
+          return montarPedidoComItensCarregados(
+            { ...updatedPedido, ...divergencias },
+            sinc.itens,
+            divergencias as Partial<Pedido>,
+          )
         }
+        return { ...updatedPedido, ...divergencias, itens: p.itens }
       }))
       return updatedPedido
     }
@@ -7067,35 +7093,6 @@ export default function Pedidos() {
       atualizarCacheItensContextoPai(id, resultado, itensCarregadosRef)
       setResetFilhos(prev => prev + 1)
       return resultado
-    }
-    if (campo === 'moeda_cambio_pedido') {
-      const moedaCodigo = valor != null && typeof valor === 'object' && 'currency' in (valor as object)
-        ? (valor as { currency: string }).currency
-        : String(valor ?? '')
-      const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(id, campo, moedaCodigo, false)
-      const updatedPedido = {
-        ...updatedPedidoRaw,
-        moeda_cambio_pedido: moedaCodigo,
-      } as Pedido
-      const itensCache = itensCarregadosRef.current.get(id) ?? []
-      if (itensCache.length > 0) {
-        const enriquecidos = itensCache.map(i => ({
-          ...i,
-          _p: montarContextoPaiItem(updatedPedido, i),
-        })) as PedidoItemEnriquecido[]
-        itensCarregadosRef.current.set(id, enriquecidos)
-      }
-      const itensPos = itensCarregadosRef.current.get(id) ?? []
-      const sinc = itensPos.length > 0
-        ? sincronizarItensPedido(itensPos, updatedPedido)
-        : { itens: itensPos, divergencias: {} as Partial<Pedido> }
-      setPedidos(prev => prev.map(p => (p.id !== id ? p : {
-        ...updatedPedido,
-        ...sinc.divergencias,
-        itens: p.itens,
-      })))
-      setResetFilhos(prev => prev + 1)
-      return { ...updatedPedido, ...sinc.divergencias }
     }
     // GTValorMoeda { currency, amount } → campos moeda_*_pedido armazenam apenas o código ISO (String)
     // O overlay tipo='moeda' envia objeto composto; extraímos só `currency` para campos de código.
@@ -7248,7 +7245,8 @@ export default function Pedidos() {
     // (a GTV dispara col.key no edit), mas no ITEM gravamos moeda_cambio_item_pedido — edição
     // independente, NÃO toca no pedido. O pai usa handleEditar (com "Aplicar a todos").
     if (campo === 'moeda_cambio_pedido') {
-      const moedaCodigo = valor == null || valor === '' ? null : String(valor)
+      const moedaCodigo = extrairCodigoMoedaLista(valor)
+      if (!moedaCodigo) throw new Error(t('pedido.lista.erro.moeda_cambio_obrigatoria', 'Selecione uma moeda do câmbio.'))
       const itemAtualMc = getItensCache().find(i => i.id === id)
       const atualizadoMc = await pedidoItemApi.atualizar(pedido.id, id, { moeda_cambio_item_pedido: moedaCodigo } as Partial<PedidoItem>)
         .catch(() => {

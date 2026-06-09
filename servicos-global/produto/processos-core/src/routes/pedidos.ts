@@ -2498,7 +2498,12 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
           // Mesma conversão de data ISO-8601 aplicada ao pai (acima): se o
           // campoItem é DateTime, string YYYY-MM-DD → Date object.
           const ehDataItem = campoItem.startsWith('data_')
-          let valorItem: unknown = valor === undefined ? null : valor
+          const colunaPrismaPedido = ALIAS_LEGADO_PARA_PRISMA[campo] ?? campo
+          let valorItem: unknown = dadosUpdate[colunaPrismaPedido] ?? (valor === undefined ? null : valor)
+          if (typeof valorItem === 'string' && (campoPedido === 'moeda_cambio_pedido' || campoPedido === 'moeda_pedido')) {
+            const sep = valorItem.indexOf(' — ')
+            if (sep > 0) valorItem = valorItem.slice(0, sep).trim()
+          }
           if (ehDataItem && typeof valorItem === 'string' && valorItem !== '') {
             const d = new Date(valorItem)
             if (!isNaN(d.getTime())) valorItem = d
@@ -2825,6 +2830,7 @@ const publicToDddItem: Record<string, string> = {
   quantidade_inicial_pedido:   'quantidade_inicial_item',
   quantidade_atual_pedido:     'quantidade_atual_item',
   cobertura_cambial:           'cobertura_cambial_item',
+  moeda_cambio_item_pedido:    'moeda_cambio_item_pedido',
   nome_exportador:             'nome_exportador_item',
   nome_importador:             'nome_importador_item',
   nome_fabricante:             'nome_fabricante_item',

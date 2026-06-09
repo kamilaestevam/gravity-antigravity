@@ -181,13 +181,19 @@ Implementação: `ORDEM_PILLS_PEDIDO`, `ORDEM_PILLS_ITEM` e `ordenarPillsCanonic
 
 | Arquivo | Papel |
 |---------|--------|
+| `pedido/client/src/shared/TooltipListaColuna.tsx` | SSOT visual da lista: `TooltipGlobal` + `TooltipRegrasColuna`; título via `tituloTooltipListaPorNivel` |
 | `pedido/client/src/shared/TooltipRegrasColuna.tsx` | Shell visual: ícone, cor, pills, `AvisoImpactoEdicao` |
-| `pedido/client/src/shared/buildTooltipRegraLista.tsx` | Orquestração: `enriquecerColunaComRegraTooltip`, títulos por nível (`tituloTooltipColuna`, `tituloTooltipCelulaPorColuna`) |
+| `pedido/client/src/shared/buildTooltipRegraLista.tsx` | Orquestração: `enriquecerColunaComRegraTooltip`, `aplicarRenderTooltipInlineLista`, `wrapCelulaListaRegras` |
+| `pedido/client/src/shared/tituloTooltipLista.ts` | Títulos por nível; helpers `tituloTooltipPedidoAnexo`, `tituloTooltipItemAnexo`, `descricaoTooltipColunaAnexo` |
+| `pedido/client/src/shared/anexoColunaLista.ts` | SSOT chaves `anexo_*`, metadados GTV, `resolverIdVinculoAnexoLista` |
+| `pedido/client/src/shared/renderCelulaAnexoLista.tsx` | Render da célula anexo + `buildEntradasMapaAnexoLista` (mapa filho GTV) |
+| `pedido/client/src/components/ConfiguracaoColunas/CelulaAnexosColuna.tsx` | Ícone + badge de contagem + painel portal (upload/download/delete) |
 | `pedido/client/src/shared/pillsTooltipColunaLista.ts` | Vocabulário (`RegraPillId`), matriz por coluna, `obterPillsTooltipColuna`, `pillsParaNivelColuna` |
 | `pedido/client/src/shared/regrasTooltipColunaLista.ts` | Classificação da regra (`classificarRegraTooltipColuna`, `RegraTooltipId`) |
 | `pedido/client/src/components/lista/ColunasPai.tsx` | `enriquecerColunasComRegraTooltip` no catálogo pai; `avisoImpacto` por coluna |
+| `nucleo-global/Feedback/tooltip-global/src/tooltip.tsx` | Fecha tooltip órfã em scroll virtualizado / `mouseleave` perdido |
 | `nucleo-global/.../tooltipCelulaResolver.ts` | SSOT núcleo: `resolverNivelTooltipCelula`, `resolverTituloTooltipCelula`, `resolverTooltipRegraCelula` |
-| `nucleo-global/.../TabelaVirtualGlobal.tsx` | Consome `tooltipCelulaResolver` em `wrapTooltipRegraCelula` |
+| `nucleo-global/.../TabelaVirtualGlobal.tsx` | Respeita `mapa.tooltipInline === true` — não duplica wrap de tooltip no filho |
 
 ### Fluxo na tabela
 
@@ -216,7 +222,22 @@ Implementação: `ORDEM_PILLS_PEDIDO`, `ORDEM_PILLS_ITEM` e `ordenarPillsCanonic
 - Pills: `pedido.lista.regras_pill.*`  
 - Descrições extras: `pedido.lista.regras_coluna.*`  
 - Títulos dedicados (piloto): `pedido.coluna_pai.{campo}_titulo_linha_pedido`, `pedido.coluna_pai.{campo}_titulo` / `*_item_titulo`  
+- Colunas anexo: `pedido.coluna_pai.{campo}_desc` → `descricaoExtra` abaixo das pills (ex.: *«Clique no ícone na célula…»*)  
 - Demais colunas: migração progressiva para o padrão `{Coluna} do Pedido` / `{Coluna} do Item`
+
+### Colunas anexo (`anexo_*` e custom `tipo === 'anexo'`)
+
+Colunas **não editáveis inline** — interação só pelo ícone (`CelulaAnexosColuna`). Tooltip montado **inline** pelo produto (`tooltipInline: true`); núcleo não envolve de novo.
+
+| Aspecto | Comportamento |
+|---------|----------------|
+| **Chaves padrão** | `anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco` (`CHAVES_COLUNA_ANEXO_PADRAO`) |
+| **Vínculo API** | Cada linha usa `vinculo` + `vinculo_id` próprios (`pedido.id` na linha pai; `item.id` na linha filho via `resolverIdVinculoAnexoLista`) |
+| **Categoria** | `categoriaAnexoPorChaveColuna` — sufixo após `anexo_`; colunas custom usam id da coluna usuário |
+| **Badge contagem** | `useEffect` no mount chama `anexosApi.listar` — contagem visível **sem** abrir o painel |
+| **Painel** | Portal 340px; rodapé `BotaoGlobal` (Continuar anexando + Salvar); sem `title` nativo no botão (só `aria-label`) |
+| **Regra tooltip** | `RegraTooltipId`: `pai_anexo` — pills `editavel_pedido` (pedido) / `editavel_item` (item); **dual** sempre |
+| **Pill legada** | `anexo` **não** é usada nas colunas padrão — substituída por editável pedido/item |
 
 ### Colunas já alinhadas ao framework (piloto)
 
@@ -225,6 +246,7 @@ Implementação: `ORDEM_PILLS_PEDIDO`, `ORDEM_PILLS_ITEM` e `ordenarPillsCanonic
 | `moeda_pedido` | Editável no pedido → Aplicar em todos → Editável no item | Só Editável no item | Sim (`aviso_impacto_moeda`) |
 | `valor_total_pedido` | Bloqueado + soma mesma moeda + alerta moeda (+ editável nos itens no cabeçalho) | Editável nos itens + fórmula | Texto em `regras_coluna` |
 | `valor_por_unidade_item` | Bloqueado + sem somatória + alerta (+ editável nos itens no cabeçalho) | Editável nos itens | Sim pedido e item (`valor_unitario_item_impacto_moeda`) |
+| `anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco` | Editável no pedido | Editável no item | Não — `descricaoExtra` orienta uso do ícone |
 
 ### Testes
 
@@ -257,3 +279,4 @@ Implementação: `ORDEM_PILLS_PEDIDO`, `ORDEM_PILLS_ITEM` e `ordenarPillsCanonic
 | 2026-06-03 | Doc criado; STATUS 00–04 + TOP 01–05; P1 snapshot; ordem hooks |
 | 2026-06 | Runner EMT tipo_operacao: coluna via `data-find-col-key`, poll 15s, case badge |
 | 2026-06-07 | Seção 6 — framework tooltips lista (pedido/item, pills, camadas, piloto moeda/valor) |
+| 2026-06-09 | Seção 6 — colunas anexo: tooltip inline, pills editável pedido/item, preload badge, `TooltipGlobal` órfã |

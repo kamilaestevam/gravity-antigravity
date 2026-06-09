@@ -81,7 +81,9 @@ Exibir na resposta **nesta ordem**, com o **rótulo PT** de `pedido.lista.regras
 | 7 — Condição | `cond_import_export` | Depende de Importação ou Exportação |
 
 **Pills extras** (fora dos 7 slots — usar quando a regra exigir, após ordenação canônica):  
-`formula_config`, `casas_decimais_config`, `coluna_personalizada`, `anexo`, `espelhado_workspace`, `espelhado_importador`, `espelhado_logistica_pedido`, `espelhado_logistica_item`, `espelhado_logistica_bidirecional`
+`formula_config`, `casas_decimais_config`, `coluna_personalizada`, `espelhado_workspace`, `espelhado_importador`, `espelhado_logistica_pedido`, `espelhado_logistica_item`, `espelhado_logistica_bidirecional`
+
+> **Colunas anexo na lista (`anexo_*`):** regra `pai_anexo` usa pills **`editavel_pedido`** / **`editavel_item`** (dual). A pill `anexo` permanece no vocabulário legado, mas **não** é emitida nas colunas padrão desde 2026-06-09.
 
 **Metadados no tooltip (não são pills coloridas):** `ghost_sem_checkbox`, `numero_unico_org`, `link_configurador`, `mais_regras`
 
@@ -93,7 +95,7 @@ Exibir na resposta **nesta ordem**, com o **rótulo PT** de `pedido.lista.regras
 | 2 — Editável item | `editavel_item`, `editavel_nos_itens` | Editável no item / Editável nos itens |
 | 3 — Alerta | `alerta_divergencia`, `alerta_moeda_divergente` | Alertas de divergência |
 
-**Extras no item:** `valor_total_item_formula`, `formula_config`, `cond_import_export`, `coluna_personalizada`, `anexo`
+**Extras no item:** `valor_total_item_formula`, `formula_config`, `cond_import_export`, `coluna_personalizada`
 
 ### Aviso amarelo (opcional, abaixo das pills)
 

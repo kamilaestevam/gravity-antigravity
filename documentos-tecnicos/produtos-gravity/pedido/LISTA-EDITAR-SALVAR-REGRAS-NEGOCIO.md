@@ -25,7 +25,8 @@ Regras de produto para colunas com comportamento **especial** na Lista (diferent
 | **IMPORTADOR** (`nome_importador`) | Importação: espelhado com workspace; Exportação: vincular ou modal de troca |
 | **EXPORTADOR** (`nome_exportador`) | Exportação: espelhado com workspace; Importação: vincular ou popover de troca |
 | **REFERÊNCIA IMPORTADOR / EXPORTADOR** | Padrão Incoterm — pedido+item editáveis, checkbox replicar, alerta divergência |
-| **VALOR TOTAL DO PEDIDO/ITEM** (`valor_total_pedido`) | Pedido bloqueado (soma mesma moeda); item editável via popover moeda+valor |
+| **MOEDA CÂMBIO** (`moeda_cambio_pedido`) | Valor único no pedido; itens espelham; alerta moeda comercial divergente |
+| **ANEXOS** (`anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco` + custom `tipo === 'anexo'`) | Célula ícone + painel; vínculo individual por linha; tooltips dual editável pedido/item |
 
 Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md) (Incoterm, datas, referência fabricante, etc.).
 
@@ -82,6 +83,7 @@ Texto livre orientado ao operador — ex.: *«A alteração da moeda irá altera
 | Valor total (`valor_total_pedido`) | ✅ VLR-01…10 + tooltips §0 | ✅ |
 | Valor unitário | Em migração (piloto no código) | 🟡 parcial |
 | Logística (LOG-06) | ✅ pills definidas | 🟡 títulos `{Coluna} do Pedido/Item` pendentes |
+| Anexos (`anexo_*`) | ✅ §8P ANX-01…10 | ✅ |
 | Demais seções 1–8 | Regras de edição + pills pontuais | 🟡 revisão campo a campo pelo dono |
 
 ---
@@ -751,6 +753,36 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ---
 
+## 8P. ANEXOS NA LISTA (`anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco`)
+
+> Decisão de produto **2026-06-09** — colunas **não editáveis inline**; operador interage pelo **ícone de clipe** na célula. Cada linha (pedido **ou** item) possui anexos **individuais** (`vinculo` + `vinculo_id` da própria linha). Colunas customizadas `tipo === 'anexo'` seguem a mesma UX.
+
+| # | Regra |
+|---|--------|
+| **ANX-01** | Chaves padrão: `anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco` — SSOT em `anexoColunaLista.ts`. |
+| **ANX-02** | Célula exibe ícone de clipe; badge numérico quando há arquivos na **categoria** da coluna. |
+| **ANX-03** | Contagem carregada no **mount** da célula (`anexosApi.listar`) — operador vê quantidade **sem** abrir o painel. |
+| **ANX-04** | Clique abre painel flutuante (portal, 340px): listar, upload, download e exclusão por arquivo. |
+| **ANX-05** | Linha **pedido**: `vinculo = pedido`, `vinculo_id = pedido.id`. Linha **item**: `vinculo = item`, `vinculo_id = item.id`. |
+| **ANX-06** | Categoria do anexo = sufixo da chave (`pedido`, `proforma`, `invoice`, `lpco`) ou id da coluna customizada. |
+| **ANX-07** | **Sem** edição inline de texto; **sem** alerta âmbar de divergência entre linhas. |
+| **ANX-08** | Tooltip **pedido**: título `{Coluna} do Pedido` + pill `editavel_pedido` + descrição *«Clique no ícone…»* (`pedido.coluna_pai.{campo}_desc`). |
+| **ANX-09** | Tooltip **item**: título `{Coluna} do Item` + pill `editavel_item` + mesma descrição orientativa. |
+| **ANX-10** | Painel usa `BotaoGlobal` (Continuar anexando / Salvar); ícone vazio também abre seletor de arquivo. |
+
+### Tooltips (framework §0)
+
+| Nível | Pills | Descrição extra |
+|-------|-------|-----------------|
+| Pedido | `editavel_pedido` | `pedido.coluna_pai.anexo_*_desc` |
+| Item | `editavel_item` | Idem |
+
+**Código:** `anexoColunaLista.ts` · `renderCelulaAnexoLista.tsx` · `CelulaAnexosColuna.tsx` · `buildTooltipRegraLista.tsx` (`pai_anexo`).
+
+**Doc técnico:** [`LISTA-EDITAR-SALVAR-TECNICO.md` §6](./LISTA-EDITAR-SALVAR-TECNICO.md#6-tooltips-de-coluna-na-lista) · [`ANEXOS-GERAR-PDF-TECNICO.md`](./ANEXOS-GERAR-PDF-TECNICO.md).
+
+---
+
 ## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.
@@ -805,3 +837,4 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | 2026-06-08 | §8M CPG-01…12 — Condição Pagamento Comercial; texto livre + checkbox; EMT passos 318–332 |
 | 2026-06-08 | §8N MCB-01…12 — Moeda Câmbio; espelhamento pedido/itens + alerta moeda comercial divergente; EMT passos 333–347 |
 | 2026-06-08 | §8O DTS-01…14 — Data Transferência Saldo; automático (Transferir) + manual; EMT passos 348–363 (após passo 134) |
+| 2026-06-09 | §8P ANX-01…10 — Anexos na lista (ícone, vínculo por linha, tooltips dual, preload badge) |

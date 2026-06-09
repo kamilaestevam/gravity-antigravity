@@ -1756,6 +1756,11 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   color: #818cf8;
   text-align: center;
 }
+.gtv-celula--center .gtv-celula-moeda {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
 .gtv-celula-unidade-badge {
   flex-shrink: 0;
   font-size: 0.75em;

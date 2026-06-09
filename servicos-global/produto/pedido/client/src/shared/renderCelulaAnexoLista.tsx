@@ -9,25 +9,21 @@ import type { TFunction } from 'i18next'
 import type { GTMapaColunasFilho } from '@nucleo/tabela-virtual-global'
 import type { Pedido, PedidoItem } from './types'
 import { CelulaAnexosColuna } from '../components/ConfiguracaoColunas/CelulaAnexosColuna'
+import { wrapCelulaListaRegras } from './buildTooltipRegraLista'
+import {
+  CHAVES_COLUNA_ANEXO_PADRAO,
+  METADADOS_COLUNA_ANEXO_LISTA,
+  categoriaAnexoPorChaveColuna,
+  type ChaveColunaAnexoPadrao,
+} from './anexoColunaLista'
 
-export const CHAVES_COLUNA_ANEXO_PADRAO = [
-  'anexo_pedido',
-  'anexo_proforma',
-  'anexo_invoice',
-  'anexo_lpco',
-] as const
-
-export type ChaveColunaAnexoPadrao = (typeof CHAVES_COLUNA_ANEXO_PADRAO)[number]
-
-export function isChaveColunaAnexo(chave: string): boolean {
-  return chave.startsWith('anexo_')
-}
-
-/** Categoria gravada em `categoria_anexo_pedido` — alinhada ao DDD (`proforma`, `pedido`, …). */
-export function categoriaAnexoPorChaveColuna(chaveColuna: string): string {
-  if (chaveColuna.startsWith('anexo_')) return chaveColuna.slice('anexo_'.length)
-  return chaveColuna
-}
+export {
+  CHAVES_COLUNA_ANEXO_PADRAO,
+  METADADOS_COLUNA_ANEXO_LISTA,
+  categoriaAnexoPorChaveColuna,
+  isChaveColunaAnexo,
+} from './anexoColunaLista'
+export type { ChaveColunaAnexoPadrao } from './anexoColunaLista'
 
 interface RenderCelulaAnexoListaOpts {
   vinculo: 'pedido' | 'item'
@@ -61,13 +57,6 @@ function rotuloAnexoPadrao(t: TFunction, chave: ChaveColunaAnexoPadrao): string 
 }
 
 /** Entradas do mapa filho GTV — anexos editáveis só pelo ícone na célula. */
-/** Metadados GTV compartilhados — célula clicável (ícone), sem edição inline de texto. */
-export const METADADOS_COLUNA_ANEXO_LISTA = {
-  editavel: false as const,
-  celulaInterativa: true as const,
-  align: 'center' as const,
-}
-
 export function buildEntradasMapaAnexoLista(
   t: TFunction,
 ): Record<string, GTMapaColunasFilho<PedidoItem>> {
@@ -75,13 +64,19 @@ export function buildEntradasMapaAnexoLista(
   for (const chave of CHAVES_COLUNA_ANEXO_PADRAO) {
     entries[chave] = {
       editavel: false,
+      tooltipInline: true,
+      tooltipTitulo: rotuloAnexoPadrao(t, chave),
       render: (row: PedidoItem) =>
-        renderCelulaAnexoLista({
-          vinculo: 'item',
-          vinculo_id: row.id,
-          chaveColuna: chave,
-          colunaNome: rotuloAnexoPadrao(t, chave),
-        }),
+        wrapCelulaListaRegras(
+          renderCelulaAnexoLista({
+            vinculo: 'item',
+            vinculo_id: row.id,
+            chaveColuna: chave,
+            colunaNome: rotuloAnexoPadrao(t, chave),
+          }),
+          t,
+          { key: chave, nivel: 'item', cursorBloqueado: false },
+        ),
     }
   }
   return entries

@@ -422,6 +422,7 @@ model PedidoListaColunaUsuario {
   visibilidade_coluna_usuario_pedido String
   tipos_usuario_workspace_permitidos_coluna_usuario_pedido String[] @default([])
   obrigatorio_coluna_usuario_pedido Boolean                    @default(false)
+  alerta_divergencia_itens_coluna_usuario_pedido Boolean      @default(false)
   opcoes_coluna_usuario_pedido       String[]                   @default([])
   descricao_coluna_usuario_pedido    String?
   valor_padrao_coluna_usuario_pedido String?

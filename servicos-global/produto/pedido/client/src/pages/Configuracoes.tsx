@@ -682,6 +682,7 @@ interface NovaColuna {
   escopo: EscopoColunaUsuario
   visibilidade: VisibilidadeColunaUsuario
   obrigatorio: boolean
+  alerta_divergencia_itens: boolean
   valor_padrao: string
   descricao: string
   opcoes: string[]
@@ -772,6 +773,7 @@ const NOVA_COLUNA_PADRAO: NovaColuna = {
   escopo: 'ambos',
   visibilidade: 'todos',
   obrigatorio: false,
+  alerta_divergencia_itens: false,
   valor_padrao: '',
   descricao: '',
   opcoes: [],
@@ -1612,6 +1614,9 @@ export default function Configuracoes() {
         escopo: escopoDeToggle(novaItensDif, novaPedidoEdit),
         visibilidade: novaColuna.visibilidade,
         obrigatorio: novaColuna.obrigatorio,
+        alerta_divergencia_itens: escopoDeToggle(novaItensDif, novaPedidoEdit) === 'ambos'
+          ? novaColuna.alerta_divergencia_itens
+          : false,
         valor_padrao: novaColuna.valor_padrao.trim() || undefined,
         descricao: novaColuna.descricao.trim() || undefined,
         opcoes: tipoComOpcoes ? novaColuna.opcoes : undefined,
@@ -4688,6 +4693,23 @@ export default function Configuracoes() {
                         id="nova-coluna-obrigatorio"
                         checked={novaColuna.obrigatorio}
                         onChange={v => setNovaColuna(prev => ({ ...prev, obrigatorio: v }))}
+                      />
+                    </div>
+                  )}
+
+                  {novaItensDif && novaPedidoEdit && (
+                    <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <label className="cfg-form-label" style={{ margin: 0 }}>
+                          {t('pedido.config.colunas.personalizadas.form_alerta_divergencia_itens')}
+                        </label>
+                        <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>
+                          {t('pedido.config.colunas.personalizadas.form_alerta_divergencia_itens_hint')}
+                        </p>
+                      </div>
+                      <Toggle
+                        checked={novaColuna.alerta_divergencia_itens}
+                        onChange={v => setNovaColuna(prev => ({ ...prev, alerta_divergencia_itens: v }))}
                       />
                     </div>
                   )}

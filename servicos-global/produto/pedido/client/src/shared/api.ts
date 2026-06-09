@@ -374,6 +374,11 @@ export const pedidoVisaoGeralApi = {
 
 // ── Cursor pagination + inline edit ───────────────────────────────────────────
 
+/** Chave da coluna na lista → nome aceito pelo PATCH /pedidos/:id/campo (legado backend). */
+const CAMPO_PATCH_PEDIDO_ALIAS: Record<string, string> = {
+  data_documento_proforma: 'data_proforma_invoice',
+}
+
 export const pedidoVirtualApi = {
   /**
    * Listagem com cursor keyset — para TabelaVirtualGlobal.
@@ -426,15 +431,16 @@ export const pedidoVirtualApi = {
    *  pedido na mesma transação backend. Decisão UX 2026-05-13.
    */
   editarCampo: (id: string, campo: string, valor: unknown, replicar_em_itens = false) => {
+    const campoApi = CAMPO_PATCH_PEDIDO_ALIAS[campo] ?? campo
     // Log diagnóstico — facilita debug de erros que ficam mascarados pela
     // mensagem default "Erro ao salvar" e que não aparecem claramente no
     // Network (ex: requests muito rápidos, filtros do DevTools).
     // eslint-disable-next-line no-console
-    console.log('[pedidoVirtualApi.editarCampo] →', { id, campo, valor, replicar_em_itens })
+    console.log('[pedidoVirtualApi.editarCampo] →', { id, campo, campoApi, valor, replicar_em_itens })
     return request<Pedido>(`/api/v1/pedidos/${pid(id)}/campo`, {
       method: 'PATCH',
       body: JSON.stringify({
-        campo,
+        campo: campoApi,
         valor: valor === undefined ? null : valor,
         replicar_em_itens,
       }),
@@ -447,6 +453,7 @@ export const pedidoVirtualApi = {
       console.error('[pedidoVirtualApi.editarCampo] ← ERRO', {
         id,
         campo,
+        campoApi,
         valor,
         replicar_em_itens,
         mensagem: err instanceof Error ? err.message : String(err),

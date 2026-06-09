@@ -706,7 +706,9 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
       const valor = valores?.[col.id] ?? '—'
 
       const divergentes = (row as Record<string, unknown>)['_colunas_usuario_divergentes'] as Record<string, boolean> | undefined
-      const divergente = (col.escopo || 'ambos') === 'ambos' && (divergentes?.[col.id] ?? false)
+      const divergente = col.alerta_divergencia_itens === true
+        && (col.escopo || 'ambos') === 'ambos'
+        && (divergentes?.[col.id] ?? false)
 
       // ── Checkbox ────────────────────────────────────────────────────────────
       if (col.tipo === 'checkbox') {
@@ -3922,6 +3924,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     'data_prevista_aprovacao_rascunho_proforma', 'data_confirmada_aprovacao_rascunho_proforma', 'data_meta_aprovacao_rascunho_proforma',
     'data_prevista_envio_original_proforma', 'data_confirmada_envio_original_proforma', 'data_meta_envio_original_proforma',
     'data_prevista_recebimento_original_proforma', 'data_confirmada_recebimento_original_proforma', 'data_meta_recebimento_original_proforma',
+    'data_documento_proforma',
     'data_prevista_recebimento_rascunho_invoice', 'data_confirmada_recebimento_rascunho_invoice', 'data_meta_recebimento_rascunho_invoice',
     'data_prevista_aprovacao_rascunho_invoice', 'data_confirmada_aprovacao_rascunho_invoice', 'data_meta_aprovacao_rascunho_invoice',
     'data_prevista_envio_original_invoice', 'data_confirmada_envio_original_invoice', 'data_meta_envio_original_invoice',
@@ -7067,9 +7070,12 @@ export default function Pedidos() {
       ? true
       : (opts?.replicar_em_itens ?? false)
     const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai, replicar)
+    const valorPedidoAposSave = campo.startsWith('data_')
+      ? ((updatedPedidoRaw as Record<string, unknown>)[campo] as string | null | undefined) ?? valorEnviarPai
+      : valorEnviarPai
     let updatedPedido = {
       ...updatedPedidoRaw,
-      [campo]: valorEnviarPai,
+      [campo]: valorPedidoAposSave,
     } as Pedido
     // Trocar workspace atualiza parte espelhada (IMP→importador, EXP→exportador).
     if (campo === 'id_workspace') {

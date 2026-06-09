@@ -12,6 +12,7 @@ import {
   type NivelColunaLista,
   type RegraTooltipId,
 } from './regrasTooltipColunaLista'
+import { isChaveColunaAnexo } from './anexoColunaLista'
 import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipColunaLista'
 import { TooltipListaColuna } from './TooltipListaColuna'
 import { TooltipRegrasColuna } from './TooltipRegrasColuna'
@@ -386,7 +387,11 @@ export function enriquecerColunaComRegraTooltip<T>(
     : montarTooltipPills(t, key, optsMontar)
 
   // Colunas piloto: célula = TooltipListaColuna; cabeçalho = tooltipTitulo + tooltipDescricao apenas.
-  if (CHAVES_TOOLTIP_INLINE_LISTA.has(key) || CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO.has(key)) {
+  if (
+    CHAVES_TOOLTIP_INLINE_LISTA.has(key)
+    || CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO.has(key)
+    || isChaveColunaAnexo(key)
+  ) {
     return aplicarRenderTooltipInlineLista(
       col,
       {
@@ -395,11 +400,14 @@ export function enriquecerColunaComRegraTooltip<T>(
         ...(tituloItem ? { tooltipTituloItem: tituloItem } : {}),
         tooltipDescricao: tooltipDescricaoCabecalho,
         tooltipInterativo,
+        tooltipInline: true,
       },
       t,
       {
         modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-        cursorBloqueado: (row: T) => resolverCursorBloqueadoCelulaLista(col, row),
+        cursorBloqueado: isChaveColunaAnexo(key)
+          ? () => false
+          : (row: T) => resolverCursorBloqueadoCelulaLista(col, row),
       },
     )
   }

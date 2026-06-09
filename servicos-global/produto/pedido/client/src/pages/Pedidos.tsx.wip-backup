@@ -149,10 +149,6 @@ import {
   enriquecerMapaFilhoTooltipInline,
   wrapCelulaListaRegras,
 } from '../shared/buildTooltipRegraLista'
-import {
-  buildEntradasMapaAnexoLista,
-  renderCelulaAnexoLista,
-} from '../shared/renderCelulaAnexoLista'
 import { TooltipRegrasColuna } from '../shared/TooltipRegrasColuna'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import {
@@ -204,8 +200,8 @@ import {
   useVolumesPedido,
 } from '../shared/useVolumesPedido'
 import { useIncotermsPedido } from '../shared/useIncotermsPedido'
+import { useCambioSiscomexPedido } from '../shared/useCambioSiscomexPedido'
 import { useMoedasPedido } from '../shared/useMoedasPedido'
-import { useCambioSiscomexPedido, rotuloCambioSiscomex } from '../shared/useCambioSiscomexPedido'
 import { useLogisticaCadastrosPedido } from '../shared/useLogisticaCadastrosPedido'
 import type { OpcoesUnidadesColunas } from '../components/lista/ColunasPai'
 import './Pedidos.css'
@@ -527,6 +523,7 @@ const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'zip_code_fabricante',
   'cobertura_cambial',
   'condicao_pagamento',
+  'condicao_pagamento_siscomex',
   'moeda_cambio_pedido',
   'valor_total_cambio_pedido',
   'contrato_cambio_id_pedido',
@@ -645,28 +642,6 @@ function renderTextoC2(valor: string, label: string): React.ReactElement {
 }
 
 function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
-  if (col.tipo === 'anexo') {
-    return {
-      key: col.chave as keyof Pedido,
-      label: col.nome,
-      tipo: 'texto',
-      align: 'center',
-      filtravel: false,
-      oculta: !col.ativo,
-      editavel: false,
-      tooltipTitulo: col.nome,
-      tooltipDescricao: col.descricao,
-      render: (_val: unknown, row: Pedido) =>
-        renderCelulaAnexoLista({
-          vinculo: 'pedido',
-          vinculo_id: row.id,
-          chaveColuna: col.chave,
-          colunaNome: col.nome,
-          categoriaOverride: col.id,
-        }),
-    }
-  }
-
   // Parse AST e casas decimais uma vez por definição de coluna, não por linha renderizada
   const formulaExpr = col.tipo === 'formula' ? (col.valor_padrao ?? col.formula_expressao) : null
   const formulaAST = formulaExpr
@@ -1277,18 +1252,10 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     key: 'anexo_lpco',
     label: t('pedido.coluna_filho.anexo_lpco.label'),
     tipo: 'texto',
-    align: 'center',
-    editavel: false,
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: t('pedido.coluna_filho.anexo_lpco.tooltip_titulo'),
     tooltipDescricao: t('pedido.coluna_filho.anexo_lpco.tooltip_descricao'),
-    render: (_val: unknown, row: PedidoItem) =>
-      renderCelulaAnexoLista({
-        vinculo: 'item',
-        vinculo_id: row.id,
-        chaveColuna: 'anexo_lpco',
-        colunaNome: t('pedido.coluna_filho.anexo_lpco.label'),
-      }),
+    render: (_val: unknown, row: PedidoItem) => <span>{row.anexo_lpco ? '📎' : '—'}</span>,
   },
   // ── Datas do item ────────────────────────────────────────────────────────────
   {
@@ -2581,6 +2548,7 @@ const CAMPOS_DERIVADOS_PAI = new Set([
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
+  'moeda_cambio_pedido',
   'taxa_cambio_estimada',
   'valor_total_cambio_pedido',
   'quantidade_volumes_pedido',
@@ -2606,6 +2574,11 @@ const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
   'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
 ])
 
+// Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
+const CAMPOS_PAI_TEXTO = new Set([
+  'numero_proforma', 'numero_invoice',
+])
+
 // Tipo auxiliar: item enriquecido com dados do pedido pai para renderização
 type PedidoItemEnriquecido = PedidoItem & {
   _p: {
@@ -2624,8 +2597,7 @@ type PedidoItemEnriquecido = PedidoItem & {
     condicao_pagamento: string | null
     data_emissao_pedido: string | null
     status: string
-    moeda_pedido: string | null
-    moeda_cambio_pedido: string | null
+    moeda_pedido: string
     importacao_exportador_id: string | null
     exportacao_importador_id: string | null
     porto_origem: string | null
@@ -2651,14 +2623,13 @@ function montarContextoPaiItem(pedido: Pedido, item: PedidoItem): PedidoItemEnri
     referencia_importador: item.referencia_importador ?? pedido.referencia_importador ?? null,
     referencia_exportador: item.referencia_exportador ?? pedido.referencia_exportador ?? null,
     referencia_fabricante: item.referencia_fabricante ?? pedido.referencia_fabricante ?? null,
-    numero_proforma: item.numero_proforma ?? pedido.numero_proforma ?? null,
-    numero_invoice: item.numero_invoice ?? pedido.numero_invoice ?? null,
+    numero_proforma: pedido.numero_proforma ?? null,
+    numero_invoice: pedido.numero_invoice ?? null,
     incoterm: pedido.incoterm ?? null,
     condicao_pagamento: pedido.condicao_pagamento ?? null,
     data_emissao_pedido: pedido.data_emissao_pedido ?? null,
     status: statusItem as Pedido['status'],
-    moeda_pedido: pedido.moeda_pedido ?? null,
-    moeda_cambio_pedido: pedido.moeda_cambio_pedido ?? null,
+    moeda_pedido: pedido.moeda_pedido ?? 'USD',
     importacao_exportador_id: pedido.importacao_exportador_id ?? null,
     exportacao_importador_id: pedido.exportacao_importador_id ?? null,
     porto_origem: pedido.porto_origem ?? null,
@@ -2977,10 +2948,10 @@ const CAMPO_ITEM_JSON: Partial<Record<string, keyof PedidoItem | string>> = {
   incoterm_item: 'incoterm',
   tipo_operacao_item: 'tipo_operacao',
   condicao_pagamento_item: 'condicao_pagamento_pedido',
+  condicao_pagamento_siscomex_item: 'condicao_pagamento_siscomex',
+  cobertura_cambial_item: 'cobertura_cambial',
   unidade_comercializada_item: 'unidade_comercializada_item',
   tipo_volume_item: 'tipo_volume_item',
-  numero_proforma_item: 'numero_proforma',
-  numero_invoice_item: 'numero_invoice',
 }
 
 /** Propaga valor do pai no item em memória — usa MAPA_PROPAGACAO + nomes JSON do mapItem. */
@@ -3067,6 +3038,9 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     unidadesCubagem,
     mapaFatorParaKg,
     volumesOpcoes = [],
+    incotermsOpcoes = [],
+    coberturaCambialOpcoes = [],
+    modalidadePagamentoOpcoes = [],
     workspacesMap,
     workspaceOpcoesLista = [],
     opcoesImportadoresExpLista = [],
@@ -3074,12 +3048,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     paisesOpcoes = [],
     portosOpcoes = [],
     aeroportosOpcoes = [],
-    coberturaCambialOpcoes = [],
-    modalidadePagamentoOpcoes = [],
-    moedasOpcoes = [],
   } = opcoes
-  const opcoesCobertura = coberturaCambialOpcoes.map(o => ({ valor: o.valor, label: o.label }))
-  const opcoesSiscomex = modalidadePagamentoOpcoes.map(o => ({ valor: o.valor, label: o.label }))
 
   return {
   // ── Número do pedido → Part Number do item ────────────────────────────────
@@ -3306,7 +3275,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     editavel: true,
     campo: 'numero_proforma',
     render: (row: PedidoItem) => {
-      const v = row.numero_proforma
+      const p = (row as PedidoItemEnriquecido)._p
+      const v = p?.numero_proforma
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (
@@ -3323,7 +3293,8 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     editavel: true,
     campo: 'numero_invoice',
     render: (row: PedidoItem) => {
-      const v = row.numero_invoice
+      const p = (row as PedidoItemEnriquecido)._p
+      const v = p?.numero_invoice
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (
@@ -3389,11 +3360,11 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   cobertura_cambial: {
     editavel: true,
     campo: 'cobertura_cambial',
-    opcoes: opcoesCobertura,
-    getValorEditar: (row: PedidoItem) => row.cobertura_cambial ?? '',
+    opcoes: coberturaCambialOpcoes,
     render: (row: PedidoItem) => {
-      const rotulo = rotuloCambioSiscomex(row.cobertura_cambial, coberturaCambialOpcoes)
-      if (rotulo === '—') return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      const v = row.cobertura_cambial
+      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      const rotulo = coberturaCambialOpcoes.find(o => o.valor === v)?.label ?? v
       if (rotulo.length <= 50) return <span>{rotulo}</span>
       return (
         <TooltipGlobal titulo={t('pedido.coluna_filho.mapa_cobertura_cambial.tooltip_titulo')} descricao={rotulo}>
@@ -3408,11 +3379,11 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   condicao_pagamento_siscomex: {
     editavel: true,
     campo: 'condicao_pagamento_siscomex',
-    opcoes: opcoesSiscomex,
-    getValorEditar: (row: PedidoItem) => row.condicao_pagamento_siscomex ?? '',
+    opcoes: modalidadePagamentoOpcoes,
     render: (row: PedidoItem) => {
-      const rotulo = rotuloCambioSiscomex(row.condicao_pagamento_siscomex, modalidadePagamentoOpcoes)
-      if (rotulo === '—') return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      const v = row.condicao_pagamento_siscomex
+      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      const rotulo = modalidadePagamentoOpcoes.find(o => o.valor === v)?.label ?? v
       if (rotulo.length <= 50) return <span>{rotulo}</span>
       return (
         <TooltipGlobal titulo={t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido_titulo')} descricao={rotulo}>
@@ -3684,7 +3655,6 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     editavel: true,
     campo: 'tipo_volume_item',
     unidades: volumesOpcoes,
-    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_tipo_volume'),
     rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
     getValorEditar: (row: PedidoItem) => ({
       unit: (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item ?? '05',
@@ -3701,7 +3671,6 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     editavel: true,
     campo: 'quantidade_volumes_pedido',
     unidades: volumesOpcoes,
-    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_quantidade_volumes'),
     rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
     formatarValorUnidade: (v) => formatarExibicaoQuantidadeVolume(v.quantity, v.unit, volumesOpcoes),
     getValorEditar: (row: PedidoItem) => {
@@ -3814,22 +3783,6 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       )
     },
   },
-  // ── Moeda Câmbio: valor no Pedido; edição na linha do item roteia para PATCH pedido ──
-  moeda_cambio_pedido: {
-    editavel: true,
-    campo: 'moeda_cambio_pedido',
-    opcoes: moedasOpcoes,
-    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.moeda_cambio_pedido ?? '',
-    render: (row: PedidoItem) => {
-      const moeda = (row as PedidoItemEnriquecido)._p?.moeda_cambio_pedido
-      if (!moeda) return <span>{'—'}</span>
-      return (
-        <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
-        </span>
-      )
-    },
-  },
   // ── Logística: valor no Pedido; edição na linha do item roteia para PATCH pedido ──
   porto_origem: {
     editavel: true,
@@ -3933,7 +3886,6 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       return <span>{v ? fmtData(v) : '—'}</span>
     },
   }])),
-  ...buildEntradasMapaAnexoLista(t),
   }
 }
 
@@ -3958,8 +3910,9 @@ const COLUNAS_EXPORT: ColunasExport[] = [
   { header: 'Peso Líquido Total do Pedido',              key: 'peso_liquido_total_pedido',        largura: 18 },
   { header: 'Peso Bruto Total do Pedido',                key: 'peso_bruto_total_pedido',          largura: 18 },
   { header: 'Cubagem Total do Pedido',                   key: 'cubagem_total_pedido',             largura: 16 },
-  { header: 'Cobertura Cambial do Pedido',               key: 'cobertura_cambial',               largura: 18 },
-  { header: 'Condição de Pagamento do Pedido',           key: 'condicao_pagamento',       largura: 18 },
+  { header: 'Cobertura Cambial do Pedido/Item',               key: 'cobertura_cambial',               largura: 18 },
+  { header: 'Condição de Pagamento do Pedido/Item — Comercial', key: 'condicao_pagamento',       largura: 22 },
+  { header: 'Condição de Pagamento do Pedido — Siscomex', key: 'condicao_pagamento_siscomex', largura: 22 },
   { header: 'Data P.O',                                  key: 'data_emissao_pedido',              largura: 14 },
   { header: 'Data Prevista Pedido Pronto',               key: 'data_prevista_pedido_pronto',      largura: 14 },
   { header: 'Data Confirmada Pedido Pronto',             key: 'data_confirmada_pedido_pronto',    largura: 14 },
@@ -4029,8 +3982,6 @@ function mensagemErro(err: unknown, t: (key: string) => string = i18next.t.bind(
   // ── Mensagem da API com conteúdo útil — exibir diretamente ───────────────
   // Mensagens curtas sem prefixo HTTP vêm do backend e são legíveis
   // ex: "O campo incoterm deve ser FOB, CIF ou EXW"
-  const msgCampoNaoEditavel = msg.match(/^Campo "[^"]+" nao pode ser editado inline\./)
-  if (msgCampoNaoEditavel) return msgCampoNaoEditavel[0]
   if (msg.length > 0 && msg.length <= 120 && !msg.startsWith('HTTP'))
     return msg
 
@@ -4781,28 +4732,6 @@ export default function Pedidos() {
     const custom: Record<string, GTMapaColunasFilho<PedidoItem>> = {}
     for (const col of colunasUsuario) {
       const escopo = col.escopo || 'ambos'
-      if (col.tipo === 'anexo') {
-        if (escopo === 'pedido') {
-          custom[col.chave] = {
-            editavel: false,
-            tooltipBloqueado: t('pedido.config.colunas.personalizadas.tooltip_escopo_pedido', 'Esta coluna é exclusiva do pedido. Para editar, clique na linha do pedido.'),
-            render: () => <span style={{ opacity: 0.4 }}>—</span>,
-          }
-        } else {
-          custom[col.chave] = {
-            editavel: false,
-            render: (row: PedidoItem) =>
-              renderCelulaAnexoLista({
-                vinculo: 'item',
-                vinculo_id: row.id,
-                chaveColuna: col.chave,
-                colunaNome: col.nome,
-                categoriaOverride: col.id,
-              }),
-          }
-        }
-        continue
-      }
       if (escopo === 'pedido') {
         custom[col.chave] = {
           editavel: false,
@@ -4911,12 +4840,9 @@ export default function Pedidos() {
     const comRegra = enriquecerMapaColunasFilhoComRegraTooltip(merged, t)
     const mapaInline = enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
       moeda_pedido: t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined,
-      moeda_cambio_pedido: t('pedido.coluna_pai.aviso_impacto_moeda_cambio', { defaultValue: '' }) || undefined,
       unidade_comercializada_pedido: t('pedido.coluna_pai.aviso_impacto_unidade_full', { defaultValue: '' }) || undefined,
       peso_liquido_total_pedido: t('pedido.coluna_pai.aviso_impacto_peso_bruto', { defaultValue: '' }) || undefined,
       peso_bruto_total_pedido: t('pedido.coluna_pai.aviso_impacto_peso_liquido', { defaultValue: '' }) || undefined,
-      tipo_volume_pedido: t('pedido.coluna_pai.aviso_impacto_tipo_volume', { defaultValue: '' }) || undefined,
-      quantidade_volumes_pedido: t('pedido.coluna_pai.aviso_impacto_quantidade_volumes', { defaultValue: '' }) || undefined,
     })
     // P0 moeda item: garantia explícita — TooltipListaColuna nível item (não depende de flags do núcleo).
     if (renderMoedaItemBase && mapaInline.moeda_pedido) {
@@ -4930,21 +4856,6 @@ export default function Pedidos() {
           key: 'moeda_pedido',
           nivel: 'item',
           avisoImpactoColuna: avisoMoeda,
-        }),
-      }
-    }
-    const renderMoedaCambioItemBase = merged.moeda_cambio_pedido?.render
-    if (renderMoedaCambioItemBase && mapaInline.moeda_cambio_pedido) {
-      const avisoMoedaCambio = t('pedido.coluna_pai.aviso_impacto_moeda_cambio', { defaultValue: '' }) || undefined
-      mapaInline.moeda_cambio_pedido = {
-        ...mapaInline.moeda_cambio_pedido,
-        tooltipInline: true,
-        tooltipTitulo: t('pedido.coluna_pai.moeda_cambio_titulo', { defaultValue: t('pedido.coluna_pai.moeda_cambio') }),
-        campo: 'moeda_cambio_pedido',
-        render: (row: PedidoItem) => wrapCelulaListaRegras(renderMoedaCambioItemBase(row), t, {
-          key: 'moeda_cambio_pedido',
-          nivel: 'item',
-          avisoImpactoColuna: avisoMoedaCambio,
         }),
       }
     }
@@ -5482,13 +5393,7 @@ export default function Pedidos() {
                  && ((c.escopo || 'ambos') === 'item' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
     // id_workspace e logística são exclusivos do pedido — itens herdam/exibem, sem PATCH em item.
-    const exclusivosPedido = new Set<string>([
-      'id_workspace',
-      'tipo_operacao',
-      'nome_importador',
-      'nome_exportador',
-      ...CAMPOS_LOGISTICA_PEDIDO,
-    ])
+    const exclusivosPedido = new Set<string>(['id_workspace', 'tipo_operacao', 'nome_importador', 'nome_exportador', ...CAMPOS_LOGISTICA_PEDIDO])
     return [...CAMPOS_EDITAVEIS_PAI, ...customKeys].filter(k => !exclusivosPedido.has(k))
   }, [colunasUsuario])
 
@@ -5936,14 +5841,20 @@ export default function Pedidos() {
         passoLogisticaInsert.resultado,
         CAMPOS_LOGISTICA_PEDIDO,
       )
-      const visivelComMigracao = passoLogisticaOrder.resultado
+      const passoSiscomex = inserirColunaAposAncora(
+        passoLogisticaOrder.resultado,
+        'condicao_pagamento_siscomex',
+        ['condicao_pagamento', 'cobertura_cambial'],
+      )
+      const visivelComMigracao = passoSiscomex.resultado
       const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
-        || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou
+        || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou || passoSiscomex.mudou
       const novasBuiltin = [
         ...(passoInserir.mudou ? ['id_workspace'] : []),
         ...(passoDescItem.mudou ? ['descricao_item'] : []),
         ...(passoMoeda.mudou ? ['moeda_pedido'] : []),
         ...(passoUnidade.mudou ? ['unidade_comercializada_pedido'] : []),
+        ...(passoSiscomex.mudou ? ['condicao_pagamento_siscomex'] : []),
         ...(passoLogisticaInsert.mudou
           ? CAMPOS_LOGISTICA_PEDIDO.filter(k => passoLogisticaInsert.resultado.includes(k) && !savedSet.has(k))
           : []),
@@ -6406,7 +6317,7 @@ export default function Pedidos() {
     // Usar '/configuracoes' (sem prefixo) bate no shell e dá 404.
     // tab=colunas-personalizadas (não 'colunas' — id de categoria precisa
     // bater com COLUNAS_FILHOS para o effect de scroll+focus disparar).
-    navigate('/pedido/configuracoes?tab=colunas-personalizadas&acao=nova')
+    navigate('/produto/pedido/configuracoes?tab=colunas-personalizadas&acao=nova')
     setNovoDropdownAberto(false)
   }, [navigate])
 
@@ -6805,65 +6716,6 @@ export default function Pedidos() {
       }
       return { ...atualizado, ...sinc.divergencias }
     }
-    // Cobertura cambial — coluna no pedido (cobertura_cambial_pedido); PATCH no pai.
-    if (campo === 'cobertura_cambial' || campo === 'cobertura_cambial_pedido') {
-      const campoApi = 'cobertura_cambial'
-      const pedidoAtual = pedidos.find(p => p.id === id)
-      if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
-      const valorStr = valor == null || valor === '' ? null : String(valor)
-      if (!valorStr) {
-        throw new Error(t('pedido.lista.erro.cobertura_obrigatoria', 'Selecione uma cobertura cambial.'))
-      }
-      const replicar = opts?.replicar_em_itens ?? false
-      const updatedRaw = await pedidoVirtualApi.editarCampo(id, campoApi, valorStr, replicar)
-      let updatedPedido = {
-        ...updatedRaw,
-        cobertura_cambial: valorStr,
-        cobertura_cambial_valor_unico: valorStr,
-      } as Pedido
-      if (replicar && isPropagavel(campoApi)) {
-        const itensApi = updatedRaw.itens
-        const itensCache = itensCarregadosRef.current.get(id) ?? []
-        if (Array.isArray(itensApi) && itensApi.length > 0) {
-          const enriquecidos = itensApi.map(i => ({
-            ...i,
-            _p: montarContextoPaiItem(updatedPedido, i),
-          })) as PedidoItemEnriquecido[]
-          itensCarregadosRef.current.set(id, enriquecidos)
-          setResetFilhos(prev => prev + 1)
-        } else if (itensCache.length > 0) {
-          itensCarregadosRef.current.set(
-            id,
-            itensCache.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr)),
-          )
-          setResetFilhos(prev => prev + 1)
-        }
-      }
-      const itensAtuais = itensCarregadosRef.current.get(id) ?? []
-      setPedidos(prev => prev.map(p => {
-        if (p.id !== id) return p
-        let itensFallback = itensAtuais.length > 0 ? itensAtuais : (p.itens ?? [])
-        if (replicar && isPropagavel(campoApi) && itensAtuais.length === 0 && itensFallback.length > 0) {
-          itensFallback = itensFallback.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr))
-        }
-        const sinc = itensFallback.length > 0
-          ? sincronizarItensPedido(itensFallback, updatedPedido)
-          : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
-        const divergencias = mesclarDivergenciasPreservandoCoberturaPedido(
-          updatedPedido as Record<string, unknown>,
-          sinc.divergencias as Record<string, unknown>,
-        )
-        if (sinc.itens.length > 0) {
-          return montarPedidoComItensCarregados(
-            { ...updatedPedido, ...divergencias },
-            sinc.itens,
-            divergencias as Partial<Pedido>,
-          )
-        }
-        return { ...updatedPedido, ...divergencias, itens: p.itens }
-      }))
-      return updatedPedido
-    }
     // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
     // PATCH directo nos itens. Lógica de propagação real fica no servidor para
     // campos normais (isPropagavel) — o frontend é apenas o reflexo visual.
@@ -6931,7 +6783,7 @@ export default function Pedidos() {
         return pedidoAtualizado
       }
 
-      // NCM com checkbox OU cobertura: propaga PATCH em todos os itens.
+      // NCM com checkbox: propaga PATCH em todos os itens.
       let itensGhost = itensCarregadosRef.current.get(id) ?? []
       if (itensGhost.length === 0) {
         itensGhost = (pedidoAtual.itens?.length ?? 0) > 0
@@ -6986,35 +6838,6 @@ export default function Pedidos() {
       atualizarCacheItensContextoPai(id, resultado, itensCarregadosRef)
       setResetFilhos(prev => prev + 1)
       return resultado
-    }
-    if (campo === 'moeda_cambio_pedido') {
-      const moedaCodigo = valor != null && typeof valor === 'object' && 'currency' in (valor as object)
-        ? (valor as { currency: string }).currency
-        : String(valor ?? '')
-      const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(id, campo, moedaCodigo, false)
-      const updatedPedido = {
-        ...updatedPedidoRaw,
-        moeda_cambio_pedido: moedaCodigo,
-      } as Pedido
-      const itensCache = itensCarregadosRef.current.get(id) ?? []
-      if (itensCache.length > 0) {
-        const enriquecidos = itensCache.map(i => ({
-          ...i,
-          _p: montarContextoPaiItem(updatedPedido, i),
-        })) as PedidoItemEnriquecido[]
-        itensCarregadosRef.current.set(id, enriquecidos)
-      }
-      const itensPos = itensCarregadosRef.current.get(id) ?? []
-      const sinc = itensPos.length > 0
-        ? sincronizarItensPedido(itensPos, updatedPedido)
-        : { itens: itensPos, divergencias: {} as Partial<Pedido> }
-      setPedidos(prev => prev.map(p => (p.id !== id ? p : {
-        ...updatedPedido,
-        ...sinc.divergencias,
-        itens: p.itens,
-      })))
-      setResetFilhos(prev => prev + 1)
-      return { ...updatedPedido, ...sinc.divergencias }
     }
     // GTValorMoeda { currency, amount } → campos moeda_*_pedido armazenam apenas o código ISO (String)
     // O overlay tipo='moeda' envia objeto composto; extraímos só `currency` para campos de código.
@@ -7086,6 +6909,8 @@ export default function Pedidos() {
           itensCache.map(i => aplicarPropagacaoPedidoNoItem(i, campo, valorEnviarPai)),
         )
         setResetFilhos(prev => prev + 1)
+      } else {
+        itensCarregadosRef.current.delete(id)
       }
     }
     // Recalcula flags de divergência com o novo valor do pai. Necessário pra
@@ -7103,10 +6928,7 @@ export default function Pedidos() {
       const sinc = itensFallback.length > 0
         ? sincronizarItensPedido(itensFallback, updatedPedido)
         : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
-      if (sinc.itens.length > 0) {
-        return montarPedidoComItensCarregados(updatedPedido, sinc.itens, sinc.divergencias)
-      }
-      return { ...updatedPedido, itens: p.itens, ...sinc.divergencias }
+      return { ...updatedPedido, itens: sinc.itens.length > 0 ? sinc.itens : p.itens, ...sinc.divergencias }
     }))
     return updatedPedido
   }, [pedidos, colunasUsuario, opcoesImportadoresExpLista, opcoesExportadoresImpLista, workspacesMap, workspaceOpcoesLista, mapaFatorParaKg, t])
@@ -7134,18 +6956,16 @@ export default function Pedidos() {
       itens: itensMarcados,
       divergencias: mesclarDivergenciasPreservandoDescricaoPedido(
         pedidoPai as Record<string, unknown> | undefined,
-        divergencias as Record<string, unknown>,
+        mesclarDivergenciasPreservandoCoberturaPedido(
+          pedidoPai as Record<string, unknown> | undefined,
+          divergencias as Record<string, unknown>,
+        ),
       ) as Partial<Pedido>,
     }
   }
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
-  const handleEditarFilho = useCallback(async (
-    id: string,
-    campo: string,
-    valor: unknown,
-    opts?: { replicar_em_itens?: boolean },
-  ): Promise<PedidoItem> => {
+  const handleEditarFilho = useCallback(async (id: string, campo: string, valor: unknown): Promise<PedidoItem> => {
     // Localiza o pedido pai via cache de itens carregados (p.itens é sempre [] na list view)
     let pedidoId: string | undefined
     for (const [pId, itensCache] of itensCarregadosRef.current) {
@@ -7158,32 +6978,6 @@ export default function Pedidos() {
 
     if (campo === 'id_workspace' || campo === 'company_id') {
       throw new Error(t('pedido.lista.erro.workspace_somente_pedido', 'Workspace é definido no pedido e aplica-se a todos os itens.'))
-    }
-
-    if (campo === 'moeda_cambio_pedido') {
-      const moedaCodigo = valor != null && typeof valor === 'object' && 'currency' in (valor as object)
-        ? (valor as { currency: string }).currency
-        : String(valor ?? '')
-      const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(pedido.id, 'moeda_cambio_pedido', moedaCodigo, false)
-      const updatedPedido = {
-        ...updatedPedidoRaw,
-        moeda_cambio_pedido: moedaCodigo,
-      } as Pedido
-      const itensAtualizados = getItensCache().map(i => ({
-        ...i,
-        _p: montarContextoPaiItem(updatedPedido, i),
-      })) as PedidoItemEnriquecido[]
-      const sinc = sincronizarItensPedido(itensAtualizados, updatedPedido)
-      itensCarregadosRef.current.set(pedido.id, sinc.itens)
-      setPedidos(prev => prev.map(p => (p.id !== pedido.id ? p : {
-        ...updatedPedido,
-        ...sinc.divergencias,
-        itens: p.itens,
-      })))
-      setResetFilhos(prev => prev + 1)
-      const itemAtual = sinc.itens.find(i => i.id === id)
-      if (!itemAtual) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
-      return itemAtual
     }
 
     if (isCampoLogisticaPedido(campo)) {
@@ -7233,6 +7027,45 @@ export default function Pedidos() {
       const retorno = sinc.itens.find(i => i.id === id)
       if (!retorno) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
       return retorno
+    }
+
+    // Campos do pedido pai → atualiza o pedido, não o item
+    if (CAMPOS_PAI_TEXTO.has(campo)) {
+      const pedidoAtualizado = await pedidoApi.atualizar(pedido.id, { [campo]: valor as string } as Partial<Pedido>)
+        .catch(() => {
+          if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
+          throw new Error(t('pedido.lista.erro.editar_campo_pedido', { campo }))
+        })
+      // _p completo construído a partir do pedidoAtualizado (itens crus de pedidos.itens não têm _p)
+      const novoPaiP = {
+        id: pedidoAtualizado.id,
+        id_workspace: pedidoAtualizado.id_workspace ?? null,
+        tipo_operacao: pedidoAtualizado.tipo_operacao,
+        nome_exportador: pedidoAtualizado.nome_exportador ?? null,
+        nome_importador: pedidoAtualizado.nome_importador ?? null,
+        nome_fabricante: pedidoAtualizado.nome_fabricante ?? null,
+        referencia_importador: pedidoAtualizado.referencia_importador ?? null,
+        referencia_exportador: pedidoAtualizado.referencia_exportador ?? null,
+        referencia_fabricante: pedidoAtualizado.referencia_fabricante ?? null,
+        numero_proforma: pedidoAtualizado.numero_proforma ?? null,
+        numero_invoice: pedidoAtualizado.numero_invoice ?? null,
+        incoterm: pedidoAtualizado.incoterm ?? null,
+        condicao_pagamento: pedidoAtualizado.condicao_pagamento ?? null,
+        data_emissao_pedido: pedidoAtualizado.data_emissao_pedido ?? null,
+        status: pedidoAtualizado.status,
+        moeda_pedido: (pedidoAtualizado as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+      }
+      // Atualiza o pedido e re-enriquece os itens com o _p correto
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return {
+          ...p,
+          ...pedidoAtualizado,
+          itens: p.itens?.map(i => ({ ...i, _p: novoPaiP })),
+        }
+      }))
+      const item = getItensCache().find(i => i.id === id)!
+      return { ...item, _p: novoPaiP } as PedidoItem
     }
 
     // valor_total_item retorna GTValorMoeda { currency, amount } → salva amount + moeda_item no item (por item)
@@ -7901,14 +7734,9 @@ export default function Pedidos() {
     // injeta o `_colunas_usuario` correto em cada item (GET /:id/itens + init),
     // então só preservamos o que veio da rede via spread `...item`.
     // Init e paginação já incluem itens no pedido. Só busca via API se não vieram carregados.
-    // Após "Aplicar a todos os itens", itensCarregadosRef já tem os valores
-    // propagados — priorizar o ref evita filhosCache vazio no resetCacheFilhos.
-    const itensEmRef = itensCarregadosRef.current.get(pedido.id)
-    const rawItens = (itensEmRef?.length ?? 0) > 0
-      ? itensEmRef
-      : (pedido.itens?.length ?? 0) > 0
-        ? pedido.itens
-        : await pedidoItemApi.listar(pedido.id)
+    const rawItens = (pedido.itens?.length ?? 0) > 0
+      ? pedido.itens
+      : await pedidoItemApi.listar(pedido.id)
     const itensEnriquecidos = rawItens.map(item => ({
       ...item,
       _p: montarContextoPaiItem(pedido, item),
@@ -8259,7 +8087,6 @@ export default function Pedidos() {
               'valor_total_pedido',
               'valor_por_unidade_item',
               'valor_total_cambio_pedido',
-              'moeda_cambio_pedido',
               'quantidade_total_pedido',
               'saldo_itens_do_pedido',
               'quantidade_transferida_total',
@@ -8270,8 +8097,8 @@ export default function Pedidos() {
             return !COLUNAS_SEM_REPLICACAO.has(campo)
           } : undefined}
           camposEditaveisFilhos={camposEditaveisFilhosComCustom}
-          onEditarFilho={podeEditarLista ? async (id: string, campo: string, valor: unknown, opts?: { replicar_em_itens?: boolean }) => {
-            const resultado = await handleEditarFilho(id, campo, valor, opts)
+          onEditarFilho={podeEditarLista ? async (id: string, campo: string, valor: unknown) => {
+            const resultado = await handleEditarFilho(id, campo, valor)
             for (const [pId, itensCache] of itensCarregadosRef.current) {
               if (itensCache.some(i => i.id === id)) {
                 setPedidoFocoId(prev => (prev === pId ? null : prev))

@@ -42,6 +42,16 @@ describe('isPropagavel — campos com par no MAPA_PROPAGACAO_PEDIDO_ITEM', () =>
     expect(isPropagavel('tipo_operacao')).toBe(true)
     expect(isPropagavel('tipo_operacao_pedido')).toBe(true)
   })
+
+  it('U-PROP-08: numero_proforma (legado) → true via numero_proforma_pedido', () => {
+    expect(isPropagavel('numero_proforma')).toBe(true)
+    expect(isPropagavel('numero_proforma_pedido')).toBe(true)
+  })
+
+  it('U-PROP-09: numero_invoice (legado) → true via numero_invoice_pedido', () => {
+    expect(isPropagavel('numero_invoice')).toBe(true)
+    expect(isPropagavel('numero_invoice_pedido')).toBe(true)
+  })
 })
 
 // ── 14b. isAlertavel ─────────────────────────────────────────────────────────

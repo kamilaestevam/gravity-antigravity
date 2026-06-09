@@ -641,6 +641,116 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ---
 
+## 8L. CONDIÇÃO DE PAGAMENTO DO PEDIDO/ITEM — SISCOMEX (`condicao_pagamento_siscomex`)
+
+> Decisão de produto **2026-06-03** — coluna dual pedido/item; select Cadastros; checkbox replicar no pedido; alerta de divergência entre itens. Espelha Cobertura Cambial (§8K), com SSOT `modalidade_pagamento`.
+
+| # | Regra |
+|---|--------|
+| **CPS-01** | Label na grade: **Condição de Pagamento do Pedido/Item — Siscomex** — tooltip: *Modalidade de Pagamento — Siscomex*. |
+| **CPS-02** | Célula do **pedido** e do **item**: editáveis via popover **select**. |
+| **CPS-03** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `alerta_divergencia`. |
+| **CPS-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **CPS-05** | Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»** (visível; desmarcado por padrão). |
+| **CPS-06** | **Sem** checkbox: salva **somente** no pedido; itens permanecem com valor anterior. |
+| **CPS-07** | **Com** checkbox marcado: replica a modalidade escolhida em **todos** os itens do pedido. |
+| **CPS-08** | Select lista opções ativas de **`cadastros.cambio_siscomex`** (`tipo=modalidade_pagamento`) — rótulo `codigo — nome` (ex.: `21 — Pagamento à vista total ou preponderante — outros`). |
+| **CPS-09** | Modalidades **divergentes** entre itens → alerta âmbar *Modalidades Siscomex divergentes entre itens* no pedido (`condicao_pagamento_siscomex_divergente`). |
+| **CPS-10** | Edição em Massa (`condicao_pagamento_siscomex_pedido` / `_item`) replica para pedido e itens quando nível pedido. |
+| **CPS-11** | Coluna **filtrável**; **sem** aviso amarelo de impacto cruzado. |
+| **CPS-12** | Persistência hub → lista (passo 316 EMT). |
+
+**Código:** `condicao_pagamento_siscomex` · `useCambioSiscomexPedido` · `condicao_pagamento_siscomex_divergente` · `mapaPropagacaoPedidoItem`.
+
+**EMT:** passos 303–317 (ETAPA 50) · `validar-condicao-pagamento-siscomex-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8M. CONDIÇÃO DE PAGAMENTO DO PEDIDO/ITEM — COMERCIAL (`condicao_pagamento`)
+
+> Decisão de produto **2026-06-03** — coluna dual pedido/item; **texto livre** (sem Cadastros); checkbox replicar no pedido; alerta de divergência entre itens; truncamento na grade com ícone olho quando > 50 caracteres.
+
+| # | Regra |
+|---|--------|
+| **CPG-01** | Label na grade: **Condição de Pagamento do Pedido/Item — Comercial** — tooltip pedido: *Condição de Pagamento do Pedido — Comercial*; item: *Condição de Pagamento do Item — Comercial*. |
+| **CPG-02** | Célula do **pedido** e do **item**: editáveis via popover **texto livre** (alfanumérico). |
+| **CPG-03** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `alerta_divergencia`. |
+| **CPG-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **CPG-05** | Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»** (visível; desmarcado por padrão). |
+| **CPG-06** | **Sem** checkbox: salva **somente** no pedido; itens permanecem com valor anterior. |
+| **CPG-07** | **Com** checkbox marcado: replica o texto em **todos** os itens do pedido. |
+| **CPG-08** | Texto **> 50 caracteres** na grade: exibição truncada com reticências + ícone **olho**; hover/click revela texto completo. |
+| **CPG-09** | Condições **divergentes** entre itens → alerta âmbar *Condições de pagamento divergentes entre itens* no pedido (`condicao_pagamento_divergente`). |
+| **CPG-10** | Edição em Massa (`condicao_pagamento_pedido` / `condicao_pagamento_item`) replica para pedido e itens quando nível pedido. |
+| **CPG-11** | Popover (pedido e item) exibe **aviso amarelo** *«A edição aqui irá alterar a Condição de Pagamento do Pedido/Item»* (`aviso_impacto_condicao_pagamento`). |
+| **CPG-12** | Coluna **filtrável**; persistência hub → lista (passo 331 EMT). |
+
+**Código:** `condicao_pagamento` · `condicao_pagamento_pedido` / `condicao_pagamento_item` · `condicao_pagamento_divergente` · `mapaPropagacaoPedidoItem` · `renderDescricaoTruncada`.
+
+**EMT:** passos 318–332 (ETAPA 51) · `validar-condicao-pagamento-comercial-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+**Prefixos de valor no runner:** `CPG-EMT-SOLO-*` · `CPG-EMT-TODOS-*` · `CPG-EMT-ITEM-*` · `CPG-EMT-LONGO-*` (> 50 caracteres).
+
+---
+
+## 8N. MOEDA CÂMBIO (`moeda_cambio_pedido`)
+
+> Decisão de produto **2026-06-08** — valor **único no Pedido**; itens **espelham** `_p.moeda_cambio_pedido` na UI (badge ISO, ex.: `EUR` na captura do dono); select Cadastros; **sem** checkbox replicar; alerta âmbar quando `moeda_pedido` ≠ `moeda_item` em algum item.
+
+| # | Regra |
+|---|--------|
+| **MCB-01** | Label na grade: **Moeda Câmbio** — tooltip: *Moeda Câmbio*; coluna **filtrável** (ícone funil). |
+| **MCB-02** | Campo existe só no model **Pedido** (`moeda_cambio_pedido`); itens exibem o mesmo código via contexto `_p`. |
+| **MCB-03** | Célula exibe **badge** com sigla ISO (ex.: `EUR`, `USD`, `BRL`) — classe `gtv-celula-moeda`. |
+| **MCB-04** | Tooltip **pedido**: `editavel_pedido` → `editavel_item` → `alerta_moeda_divergente`. |
+| **MCB-05** | Tooltip **item**: `editavel_item`. |
+| **MCB-06** | Linha **pedido** e **item** editáveis via popover **select** (opções ativas de **`cadastros.moeda`**). |
+| **MCB-07** | Edição no **item** roteia PATCH para o **pedido**; após salvar, **pedido e todos os itens** exibem a **mesma** sigla (espelhamento). |
+| **MCB-08** | Popover **sem** checkbox «Aplicar a todos os itens» — valor é sempre do pedido. |
+| **MCB-09** | Popover exibe **aviso amarelo** *«Moeda de câmbio é exclusiva do pedido e não altera a moeda comercial dos itens»* (`aviso_impacto_moeda_cambio`). |
+| **MCB-10** | Alterar Moeda Câmbio **não** modifica colunas **Moeda do Pedido/Item** (`moeda_pedido` / `moeda_item`). |
+| **MCB-11** | Quando `moeda_pedido` ≠ `moeda_item` em algum item → alerta âmbar *Moedas divergentes entre itens* na célula do **pedido** (`moeda_cambio_divergente`); itens **sem** ícone na célula. |
+| **MCB-12** | Edição em Massa (`moeda_cambio_pedido`) e persistência hub → lista (passo 346 EMT). |
+
+**Código:** `moeda_cambio_pedido` · `calcularMoedaCambioDivergente` · `montarContextoPaiItem` · `classeMoedaBadge`.
+
+**EMT:** passos 333–347 (ETAPA 52) · `validar-moeda-cambio-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+**Valores no runner:** siglas do Cadastros (ex.: `EUR` · `USD` · `BRL`) — critério = salvou + espelhamento visual em pedido e itens.
+
+---
+
+## 8O. DATA DE TRANSFERÊNCIA DE SALDO (`data_transferencia_saldo_pedido`)
+
+> Decisão de produto **2026-06-08** — coluna dual pedido/item (`data_transferencia_saldo_pedido` → `data_transferencia_saldo_item`); **dupla origem**: alimentação **automática** ao transferir saldo **e** edição **manual** na lista; formato **DD/MM/AAAA** (ex.: `06/06/2026` na captura do dono).
+
+| # | Regra |
+|---|--------|
+| **DTS-01** | Label na grade: **Data de Transferência de Saldo** — tooltip: *Data de Transferência de Saldo*; coluna **filtrável** e **ordenável**. |
+| **DTS-02** | Célula do **pedido** e do **item**: editáveis via popover **data** (`tipo: periodo`). |
+| **DTS-03** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `atualiza_transferencia_saldo` → `alerta_divergencia`. |
+| **DTS-04** | Tooltip **item**: `editavel_item` → `atualiza_transferencia_saldo` → `alerta_divergencia`. |
+| **DTS-05** | Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»** (visível; desmarcado por padrão). |
+| **DTS-06** | **Sem** checkbox: salva **somente** no pedido; itens permanecem com data anterior. |
+| **DTS-07** | **Com** checkbox marcado: replica a data em **todos** os itens (`mapaPropagacaoPedidoItem`). |
+| **DTS-08** | **Automático — Transferir:** ao confirmar split (`novo_pedido`, `pedido_existente`, `transfer_intercompany`, etc.), grava **data do dia** no **pedido de origem** (`data_transferencia_saldo_pedido`) e no **item de origem** (`data_transferencia_saldo_item`). |
+| **DTS-09** | **Automático — exceções:** `reducao_simples` e `substituicao_pura` **não** alteram esta coluna (QTR-08 / `CENARIOS_SEM_DATA_TRANSFERENCIA_SALDO`). |
+| **DTS-10** | Datas **divergentes** entre itens → alerta âmbar *Datas de transferência de saldo divergentes entre itens* no pedido (`data_transferencia_saldo_pedido_divergente`). |
+| **DTS-11** | Edição em Massa (`data_transferencia_saldo_pedido`, tipo `data`) replica para pedido e itens quando nível pedido. |
+| **DTS-12** | Pill `atualiza_transferencia_saldo` documenta a alimentação automática via menu **Transferir**. |
+| **DTS-13** | **Sem** aviso amarelo de impacto cruzado no popover (diferente de Tipo Volume / Moeda). |
+| **DTS-14** | Persistência hub → lista (passo 362 EMT). |
+
+**Código:** `criarColunaDataReplicavel` · `TransferirService.dataTransferenciaSaldoParaCenario` · `PILLS_PEDIDO_DATA_TRANSFERENCIA_SALDO` · `fmtData`.
+
+**EMT:** passos 348–363 (ETAPA 53) · `validar-data-transferencia-saldo-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+**Ordem runner:** passos 348–363 rodam **após** ETAPA 26 (Qtd. Transferida — Redução Simples, passo **134**), para validar alimentação automática pós-Transferir.
+
+**Datas no runner (manual):** `15/01/2026` · `20/02/2026` · `25/03/2026` · `06/06/2026` (massa / captura dono).
+
+---
+
 ## 9. Logística (Porto, País, Aeroporto)
 
 > Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.
@@ -691,3 +801,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | 2026-06-08 | UNIDADE COMERCIALIZADA — UNC-01…12; select Cadastros + checkbox; pills espelhadas pedido/item; EMT passos 72–82 |
 | 2026-06-03 | §8F revisada (VOL-01…12) + §8J TVL-01…12 — Tipo Volume + Qtd. Volumes; SSOT `cadastros.volume`; cruzamento 265/279; ETAPA 49 fundida na 48 |
 | 2026-06-03 | §8K COB-01…12 — Cobertura Cambial; checkbox replicar + alerta divergência; EMT passos 288–302 |
+| 2026-06-03 | §8L CPS-01…12 — Condição Pagamento Siscomex; SSOT `modalidade_pagamento`; EMT passos 303–317 |
+| 2026-06-08 | §8M CPG-01…12 — Condição Pagamento Comercial; texto livre + checkbox; EMT passos 318–332 |
+| 2026-06-08 | §8N MCB-01…12 — Moeda Câmbio; espelhamento pedido/itens + alerta moeda comercial divergente; EMT passos 333–347 |
+| 2026-06-08 | §8O DTS-01…14 — Data Transferência Saldo; automático (Transferir) + manual; EMT passos 348–363 (após passo 134) |

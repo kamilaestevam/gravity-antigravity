@@ -17,8 +17,8 @@ const EXCLUSIVOS_EDICAO_MASSA: Record<string, string> = {
 }
 
 describe('Cascade composição — SSOT + exclusivos edição em massa', () => {
-  it('SSOT contém exatamente 59 pares', () => {
-    expect(Object.keys(MAPA_PROPAGACAO_PEDIDO_ITEM).length).toBe(59)
+  it('SSOT contém exatamente 63 pares', () => {
+    expect(Object.keys(MAPA_PROPAGACAO_PEDIDO_ITEM).length).toBe(63)
   })
 
   it('os 3 campos exclusivos da edição em massa NÃO existem no SSOT', () => {
@@ -27,9 +27,9 @@ describe('Cascade composição — SSOT + exclusivos edição em massa', () => {
     }
   })
 
-  it('composição SSOT + exclusivos resulta em 62 pares sem colisão', () => {
+  it('composição SSOT + exclusivos resulta em 66 pares sem colisão', () => {
     const composto = { ...MAPA_PROPAGACAO_PEDIDO_ITEM, ...EXCLUSIVOS_EDICAO_MASSA }
-    expect(Object.keys(composto).length).toBe(62)
+    expect(Object.keys(composto).length).toBe(66)
   })
 
   it('tipo_operacao_pedido mapeia para tipo_operacao_item no SSOT (lista + massa + create)', () => {
@@ -56,8 +56,10 @@ describe('Cascade composição — SSOT + exclusivos edição em massa', () => {
 
   it('35 datas adicionais (rascunho/proforma/invoice) estão no SSOT', () => {
     const datasAdicionais = Object.keys(MAPA_PROPAGACAO_PEDIDO_ITEM).filter(k =>
-      k.includes('rascunho') || k.includes('proforma') || k.includes('invoice') ||
-      k === 'data_documento_pedido' || k === 'data_consolidacao_pedido' || k === 'data_transferencia_saldo_pedido',
+      k.startsWith('data_') && (
+        k.includes('rascunho') || k.includes('proforma') || k.includes('invoice') ||
+        k === 'data_documento_pedido' || k === 'data_consolidacao_pedido' || k === 'data_transferencia_saldo_pedido'
+      ),
     )
     expect(datasAdicionais.length).toBe(35)
   })

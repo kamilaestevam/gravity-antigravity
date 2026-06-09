@@ -143,6 +143,7 @@ const CAMPOS_REFERENCIAS_ITEM = [
   'numero_lpco', 'numero_certificado_origem',
   'referencia_importador_item', 'referencia_exportador_item',
   'referencia_fabricante_item',
+  'numero_proforma_item', 'numero_invoice_item',
 ] as const
 
 const CAMPOS_PESOS_PEDIDO = [

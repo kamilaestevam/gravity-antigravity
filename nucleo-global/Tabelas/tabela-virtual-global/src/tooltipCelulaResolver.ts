@@ -90,10 +90,9 @@ export function resolverTituloFinalTooltipCelula(
 
   if (tituloOverrideTrim) return tituloOverrideTrim
 
-  if (tituloItemCol && col.tooltipDescricaoItem != null && regra.descricao === col.tooltipDescricaoItem) {
+  if (ehNivelItem && tituloItemCol && col.tooltipDescricaoItem != null && regra.descricao === col.tooltipDescricaoItem) {
     return tituloItemCol
   }
-  if (tituloItemCol && tituloPedidoCol && regra.titulo === tituloPedidoCol) return tituloItemCol
   if (ehNivelItem && tituloPedidoCol && regra.titulo === tituloPedidoCol) {
     return tituloItemCol ?? col.label
   }

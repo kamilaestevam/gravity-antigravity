@@ -33,6 +33,7 @@ import {
   urlVincularImportador,
 } from './urlsDeepLinkConfigurador'
 import { renderRotuloCadastro, type GTOpcaoCadastro } from '../../shared/useLogisticaCadastrosPedido'
+import { renderColunaAnexoPedido } from '../../shared/renderCelulaAnexoLista'
 
 // Re-export so callers that used to import from ListaPedidos still work
 export { LABELS_FILTRO_INVERSO }
@@ -787,7 +788,8 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.numero_proforma_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.numero_proforma_desc'),
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.numero_proforma, t('pedido.coluna_pai.numero_proforma')),
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(truncarParaAgregado(row.numero_proforma, t('pedido.coluna_pai.numero_proforma')), row.numero_proforma_divergente, t('pedido.coluna_pai.proformas_divergentes')),
   },
   {
     key: 'numero_invoice',
@@ -799,7 +801,8 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tooltipTitulo: t('pedido.coluna_pai.numero_invoice_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.numero_invoice_desc'),
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => renderTextoTruncado(row.numero_invoice, t('pedido.coluna_pai.numero_invoice')),
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(truncarParaAgregado(row.numero_invoice, t('pedido.coluna_pai.numero_invoice')), row.numero_invoice_divergente, t('pedido.coluna_pai.invoices_divergentes')),
   },
   {
     key: 'incoterm',
@@ -1223,6 +1226,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     editavel: getEditavel('moeda_cambio_pedido'),
     campo: 'moeda_cambio_pedido',
     getValorEditar: (row: Pedido) => row.moeda_cambio_pedido ?? '',
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_moeda_cambio'),
     tooltipTitulo: t('pedido.coluna_pai.moeda_cambio_titulo', { defaultValue: t('pedido.coluna_pai.moeda_cambio') }),
     tooltipDescricao: t('pedido.coluna_pai.moeda_cambio_desc', { defaultValue: '' }),
     grupo: 'Câmbio',
@@ -1230,8 +1234,16 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
       const moeda = row.moeda_cambio_pedido
       if (!moeda) return <span>{'—'}</span>
       return (
-        <span className="gtv-celula-moeda">
-          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
+        <span
+          style={{ position: 'relative', display: 'inline-block' }}
+          title={row.moeda_cambio_divergente ? t('pedido.coluna_pai.moedas_divergentes') : undefined}
+        >
+          <span className="gtv-celula-moeda">
+            <span className={classeMoedaBadge(moeda)}>{moeda}</span>
+          </span>
+          {row.moeda_cambio_divergente && (
+            <span style={{ position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)', marginLeft: '5px', display: 'inline-flex', color: '#F59E0B' }}><WarnIcon /></span>
+          )}
         </span>
       )
     },
@@ -1737,28 +1749,37 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'anexo_pedido',
     label: t('pedido.coluna_pai.anexo_pedido'),
     tipo: 'texto',
+    align: 'center',
+    editavel: false,
     grupo: 'Identificação',
     tooltipTitulo: t('pedido.coluna_pai.anexo_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.anexo_pedido_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.anexo_pedido ? '📎' : '—'}</span>,
+    render: (_val: unknown, row: Pedido) =>
+      renderColunaAnexoPedido(row, 'anexo_pedido', t('pedido.coluna_pai.anexo_pedido')),
   },
   {
     key: 'anexo_proforma',
     label: t('pedido.coluna_pai.anexo_proforma'),
     tipo: 'texto',
+    align: 'center',
+    editavel: false,
     grupo: 'Identificação',
     tooltipTitulo: t('pedido.coluna_pai.anexo_proforma_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.anexo_proforma_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.anexo_proforma ? '📎' : '—'}</span>,
+    render: (_val: unknown, row: Pedido) =>
+      renderColunaAnexoPedido(row, 'anexo_proforma', t('pedido.coluna_pai.anexo_proforma')),
   },
   {
     key: 'anexo_invoice',
     label: t('pedido.coluna_pai.anexo_invoice'),
     tipo: 'texto',
+    align: 'center',
+    editavel: false,
     grupo: 'Identificação',
     tooltipTitulo: t('pedido.coluna_pai.anexo_invoice_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.anexo_invoice_desc'),
-    render: (_val: unknown, row: Pedido) => <span>{row.anexo_invoice ? '📎' : '—'}</span>,
+    render: (_val: unknown, row: Pedido) =>
+      renderColunaAnexoPedido(row, 'anexo_invoice', t('pedido.coluna_pai.anexo_invoice')),
   },
   {
     key: 'tipo_volume_pedido',

@@ -38,6 +38,7 @@ import {
   resolverCaminhoPrintSeguro,
   buscarLogTestePorId,
 } from '../lib/emt-artifacts.js'
+import { RUN_TESTES_TIMEOUT_MS } from '../lib/emt-run-timeout.js'
 import { join, resolve, dirname } from 'path'
 import {
   adaptarTextoCasoParaAmbiente,
@@ -1251,8 +1252,7 @@ const RUN_MARKER_PATH = join(testLogsDir, '_current-run.json')
 const TSX_CLI = resolve(monorepoRoot, 'node_modules/tsx/dist/cli.mjs')
 const EMT_RUNNER_ENTRY = join(process.cwd(), 'server/lib/emt-background-runner.ts')
 
-/** Timeout máximo de um run completo (30 min). Suite completo com browser leva ~20 min. */
-const RUN_TESTS_TIMEOUT_MS = 30 * 60 * 1000
+/** @see RUN_TESTES_TIMEOUT_MS em emt-run-timeout.ts (padrão 90 min; override GRAVITY_TEST_RUN_TIMEOUT_MS) */
 
 // ── Status de run persistido em arquivo (sobrevive a restart do servidor) ─────
 interface RunMarker {
@@ -1500,11 +1500,8 @@ const RunTestsSchema = z.object({
 
 adminRouter.post('/testes/disparar', async (req, res, next) => {
   try {
-    // Só SUPER_ADMIN pode disparar run — é operação destrutiva que spawn
-    // Playwright consumindo CPU/memória por até 15 min, faz CRUD de verdade
-    // nos bancos de teste e pode disparar webhooks externos. ADMIN (CFO,
-    // suporte, etc) não precisa desse poder. Mesmo padrão do endpoint
-    // POST /admin/usuarios/:id_usuario/promover.
+    // Só SUPER_ADMIN — spawn pesado (RUN_TESTES_TIMEOUT_MS), CRUD em bancos de teste.
+    // ADMIN (CFO, suporte) não precisa desse poder. Mesmo padrão de promover usuário.
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Somente Super Admin pode disparar runs de teste', 403, 'FORBIDDEN')
     }
@@ -1652,7 +1649,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
         env:        testEnv,
         shell:      true,
         windowsHide: true,
-        timeout:    RUN_TESTS_TIMEOUT_MS,
+        timeout:    RUN_TESTES_TIMEOUT_MS,
       }
     )
 
@@ -1736,8 +1733,8 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
             error_log: `Processo matado após timeout. stderr: ${stderrContent.slice(0, 400)}`,
             ai_analysis: {
               erroResumo: 'Processo Playwright matado por timeout',
-              motivo: `O run excedeu o timeout máximo de ${RUN_TESTS_TIMEOUT_MS / 60000} minutos e foi encerrado com SIGTERM. O JSON de saída ficou incompleto e não pôde ser parseado.`,
-              sugestaoCorrecao: 'Rodar um subconjunto menor de testes, ou aumentar o timeout em admin.ts (RUN_TESTS_TIMEOUT_MS).',
+              motivo: `O run excedeu o timeout máximo de ${RUN_TESTES_TIMEOUT_MS / 60000} minutos e foi encerrado com SIGTERM. O JSON de saída ficou incompleto e não pôde ser parseado.`,
+              sugestaoCorrecao: 'Rodar um subconjunto menor de testes, ou definir GRAVITY_TEST_RUN_TIMEOUT_MS (ms) no cfg-back.',
               arquivo: 'servicos-global/configurador/server/routes/admin.ts',
             },
           })

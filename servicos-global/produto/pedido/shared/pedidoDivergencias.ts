@@ -228,7 +228,48 @@ export function calcularDivergenciasPedido(
 
   result.status_divergente = calcularStatusDivergente(itens, pedidoPai)
 
+  result.moeda_cambio_divergente = calcularMoedaCambioDivergente(itens, pedidoPai)
+
   return result
+}
+
+/** Moeda comercial de referência do pedido (`moeda_pedido`, senão `moeda_cambio_pedido`). */
+export function referenciaMoedaComercialPedido(
+  pedidoPai?: Record<string, unknown> | null,
+): string | null {
+  if (!pedidoPai) return null
+  const moedaPedido = pedidoPai.moeda_pedido
+  if (moedaPedido != null && String(moedaPedido).trim() !== '') {
+    return String(moedaPedido).trim()
+  }
+  const cambio = pedidoPai.moeda_cambio_pedido
+  if (cambio != null && String(cambio).trim() !== '') {
+    return String(cambio).trim()
+  }
+  return null
+}
+
+/**
+ * Coluna Moeda Câmbio (linha pedido): alerta quando `moeda_pedido` ≠ `moeda_item` em algum item.
+ * Itens não exibem ⚠ na célula — mesmo padrão da coluna Moeda do Pedido/Item.
+ */
+export function calcularMoedaCambioDivergente(
+  itens: ReadonlyArray<Record<string, unknown>>,
+  pedidoPai?: Record<string, unknown>,
+): boolean {
+  const moedaPedido = pedidoPai?.moeda_pedido
+  const referencia = moedaPedido != null && String(moedaPedido).trim() !== ''
+    ? String(moedaPedido).trim()
+    : null
+  if (!referencia) return false
+
+  return itens.some(i => {
+    const moedaItem = i.moeda_item
+    const itemStr = moedaItem != null && String(moedaItem).trim() !== ''
+      ? String(moedaItem).trim()
+      : null
+    return itemStr != null && itemStr !== referencia
+  })
 }
 
 /** Valor exibido na linha pai — canônico do pedido tem prioridade sobre NCM único dos itens. */

@@ -222,6 +222,8 @@ model PedidoItem {
   referencia_importador_item       String?
   referencia_exportador_item       String?
   referencia_fabricante_item       String?
+  numero_proforma_item             String?
+  numero_invoice_item              String?
   incoterm_item                    String?
   condicao_pagamento_item          String?
   condicao_pagamento_siscomex_item String?

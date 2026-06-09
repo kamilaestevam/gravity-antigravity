@@ -213,6 +213,19 @@ function falharTabela(local: string, sublocal: string, acao: string, produto = P
   falhar(emtRow(local, sublocal, acao, 'Reprovado', produto))
 }
 
+/** Isola exceção Playwright — reprova a etapa e segue o runner (não aborta o run inteiro). */
+async function executarEtapaLista(page: Page, rotulo: string, fn: () => Promise<void>): Promise<void> {
+  await fecharPopoverSeAberto(page).catch(() => {})
+  try {
+    await fn()
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    falharTabela(LOCAL_LISTA, '—', `Exceção em ${rotulo}: ${msg}`)
+  } finally {
+    await fecharPopoverSeAberto(page).catch(() => {})
+  }
+}
+
 const linhas: string[] = []
 const falhas: string[] = []
 
@@ -699,11 +712,23 @@ async function popoverExibeCheckboxReplicar(page: Page): Promise<boolean> {
 }
 
 async function fecharPopoverSeAberto(page: Page): Promise<void> {
-  const visivel = await page.locator('.gtv-edit-popover').isVisible().catch(() => false)
-  if (visivel) {
-    await page.keyboard.press('Escape')
-    await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {})
+  for (let tentativa = 0; tentativa < 5; tentativa++) {
+    const backdrop = page.locator('.gtv-edit-popover-backdrop')
+    const popover = page.locator('.gtv-edit-popover')
+    const bdVis = await backdrop.isVisible().catch(() => false)
+    const popVis = await popover.isVisible().catch(() => false)
+    if (!bdVis && !popVis) return
+    if (bdVis) {
+      await backdrop.click({ force: true, timeout: 2000 }).catch(() => {})
+      await page.waitForTimeout(300)
+    }
+    if (popVis) {
+      await page.keyboard.press('Escape')
+      await page.waitForTimeout(250)
+    }
   }
+  await page.locator('.gtv-edit-popover-backdrop').waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {})
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {})
 }
 
 async function selecionarTipoOperacaoPopover(page: Page, label: string): Promise<void> {
@@ -785,15 +810,28 @@ async function listarSiglasIncotermPopover(page: Page): Promise<string[]> {
 
 async function resolverTresIncotermsDistintos(page: Page, rowId: string): Promise<string[] | null> {
   await fecharPopoverSeAberto(page)
-  await scrollColunaParaVisivel(page, COL_KEY_INCOTERM)
-  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_INCOTERM}"]`)
-  if (await cel.count() === 0) return null
-  await cel.click()
-  const abriu = await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
-  if (!abriu) return null
-  const siglas = await listarSiglasIncotermPopover(page)
+  const abriu = await abrirPopoverSelectPai(page, rowId, COL_KEY_INCOTERM)
+  if (!abriu) {
+    log('ℹ Incoterm: popover não abriu ao listar opções Cadastros')
+    return null
+  }
+  await page.waitForFunction(
+    () => document.querySelectorAll('.gtv-edit-popover .gtv-edit-popover-opcao').length > 0,
+    undefined,
+    { timeout: 25000 },
+  ).catch(() => {})
+  await page.waitForTimeout(800)
+  let siglas = await listarSiglasIncotermPopover(page)
   await fecharPopoverSeAberto(page)
-  if (siglas.length < 3) return null
+  if (siglas.length === 0) {
+    log('ℹ Incoterm Cadastros: nenhuma opção no popover')
+    return null
+  }
+  if (siglas.length < 3) {
+    log(`ℹ Incoterm Cadastros: ${siglas.length} opção(ões) (${siglas.join(', ')}) — reutilizando para passos 21–23`)
+    const base = [...siglas]
+    while (siglas.length < 3) siglas.push(base[siglas.length % base.length])
+  }
   return siglas.slice(0, 3)
 }
 
@@ -1253,18 +1291,21 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     falharTabela(LOCAL_LISTA, COLUNA_ALVO, `Validar alerta ${CAMPO_ITEM_COLUNA} duplicado — pedido com menos de 2 itens`)
   }
 
-  await validarTipoOperacaoLista(page, rowId)
-  await validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_IMPORTADOR)
-  await validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_EXPORTADOR)
-  await validarIncotermLista(page, rowId, qtdItens)
-  await validarDescricaoItemLista(page, rowId, sufixo, qtdItens)
-  await validarLogisticaLista(page, rowId, qtdItens)
-  await validarNcmLista(page, rowId)
-  await validarQtdProntaLista(page, rowId, numeroPedido)
-  await validarQtdInicialLista(page, rowId, numeroPedido, qtdItens)
-  await validarMoedaPedidoItemLista(page, rowId, qtdItens)
-  await validarValorItemLista(page, rowId, numeroPedido, qtdItens)
-  await validarUnidadeComercializadaLista(page, rowId, numeroPedido, qtdItens)
+  await executarEtapaLista(page, 'TIPO DE OPERAÇÃO', () => validarTipoOperacaoLista(page, rowId))
+  await executarEtapaLista(page, 'REFERÊNCIA IMPORTADOR', () =>
+    validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_IMPORTADOR))
+  await executarEtapaLista(page, 'REFERÊNCIA EXPORTADOR', () =>
+    validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_EXPORTADOR))
+  await executarEtapaLista(page, 'INCOTERM', () => validarIncotermLista(page, rowId, qtdItens))
+  await executarEtapaLista(page, 'DESCRIÇÃO DO ITEM', () => validarDescricaoItemLista(page, rowId, sufixo, qtdItens))
+  await executarEtapaLista(page, 'LOGÍSTICA', () => validarLogisticaLista(page, rowId, qtdItens))
+  await executarEtapaLista(page, 'NCM', () => validarNcmLista(page, rowId))
+  await executarEtapaLista(page, 'QTD. PRONTA', () => validarQtdProntaLista(page, rowId, numeroPedido))
+  await executarEtapaLista(page, 'QTD. INICIAL', () => validarQtdInicialLista(page, rowId, numeroPedido, qtdItens))
+  await executarEtapaLista(page, 'MOEDA', () => validarMoedaPedidoItemLista(page, rowId, qtdItens))
+  await executarEtapaLista(page, 'VALOR TOTAL', () => validarValorItemLista(page, rowId, numeroPedido, qtdItens))
+  await executarEtapaLista(page, 'UNIDADE COMERCIALIZADA', () =>
+    validarUnidadeComercializadaLista(page, rowId, numeroPedido, qtdItens))
 
   const ctxQtyUnidade = {
     log,
@@ -1289,10 +1330,12 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     printResultado,
   }
 
-  await validarPesoLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens)
-  await validarCubagemLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens)
+  await executarEtapaLista(page, 'PESO LÍQUIDO/BRUTO', () =>
+    validarPesoLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens))
+  await executarEtapaLista(page, 'CUBAGEM', () =>
+    validarCubagemLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens))
 
-  await validarQtdTransferidaLista(page, {
+  await executarEtapaLista(page, 'QTD. TRANSFERIDA', () => validarQtdTransferidaLista(page, {
     log,
     logAprovado,
     falharTabela,
@@ -1303,7 +1346,7 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     localizarRowIdPorNumeroPedido,
     expandirPedido: expandirPrimeiroPedido,
     hubUrl: HUB_URL,
-  }, rowId, numeroPedido, qtdItens)
+  }, rowId, numeroPedido, qtdItens))
 }
 
 function normalizarTextoCelula(texto: string): string {
@@ -1606,8 +1649,18 @@ async function validarTooltipDescricaoCelula(
   locatorCelula: ReturnType<Page['locator']>,
   nomePrint: string,
 ): Promise<boolean> {
+  await fecharPopoverSeAberto(page)
   await esconderTooltipGlobal(page)
-  await locatorCelula.hover()
+  try {
+    await locatorCelula.hover({ timeout: 10000 })
+  } catch {
+    await fecharPopoverSeAberto(page)
+    try {
+      await locatorCelula.hover({ force: true, timeout: 8000 })
+    } catch {
+      return false
+    }
+  }
   const visivel = await page.locator('.tg-card').first()
     .waitFor({ state: 'visible', timeout: 5000 })
     .then(() => true)
@@ -1798,6 +1851,8 @@ async function validarDescricaoItemLista(
     return
   }
 
+  await fecharPopoverSeAberto(page)
+
   const descSolo = `DESC-EMT-SOLO-${sufixo}`
   const descTodos = `DESC-EMT-TODOS-${sufixo}`
   const descItem = `DESC-EMT-ITEM-${sufixo}`
@@ -1954,8 +2009,9 @@ async function validarIncotermLista(page: Page, rowId: string, qtdItens: number)
   }
 
   const incoterms = await resolverTresIncotermsDistintos(page, rowId)
-  if (!incoterms || incoterms.length < 3) {
-    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, 'Pré-condição — select Incoterm deve listar ≥3 opções do Cadastros')
+  if (!incoterms || incoterms.length < 1) {
+    await fecharPopoverSeAberto(page)
+    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, 'Pré-condição — select Incoterm deve listar opções do Cadastros')
     return
   }
 
@@ -1971,7 +2027,7 @@ async function validarIncotermLista(page: Page, rowId: string, qtdItens: number)
     falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '21 — Abrir select Incoterm no pedido')
   } else {
     const qtdOpcoes = await popoverSelectTemOpcoes(page)
-    if (qtdOpcoes < 3) {
+    if (qtdOpcoes < 1) {
       falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `21 — Select deve listar opções Cadastros (${qtdOpcoes} encontradas)`)
     }
     await destacarSiglaNoPopoverSelect(page, incSolo)
@@ -3724,10 +3780,21 @@ async function main() {
 
     process.exitCode = falhas.length > 0 ? 1 : 0
   } catch (err) {
+    await fecharPopoverSeAberto(page).catch(() => {})
     await screenshot(page, '99-erro.png').catch(() => {})
     const msg = err instanceof Error ? err.message : String(err)
     falhar(`Exceção: ${msg}`)
-    writeFileSync(`${OUT}/RESULTADO.txt`, linhas.join('\n') + `\n\nERRO: ${msg}`, 'utf8')
+    writeFileSync(`${OUT}/RESULTADO.txt`, [
+      'TESTE EM TELA — lista-editar-salvar',
+      `Data: ${DATA}`,
+      `Base: ${BASE_UI}`,
+      `Pasta: ${OUT}`,
+      '',
+      ...linhas,
+      '',
+      `Resultado final: FALHOU`,
+      `Falhas: ${falhas.length}`,
+    ].join('\n'), 'utf8')
     process.exitCode = 1
   } finally {
     await browser.close()

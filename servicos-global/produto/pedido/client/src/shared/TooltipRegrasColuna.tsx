@@ -62,6 +62,7 @@ const PILL_DEFS: Record<RegraPillId, PillDef> = {
   espelhado_logistica_item:{ Icon: ArrowsOutLineHorizontal, color: '#22d3ee', bg: 'rgba(34,211,238,0.12)' },
   espelhado_logistica_bidirecional:{ Icon: ArrowsOutLineHorizontal, color: '#22d3ee', bg: 'rgba(34,211,238,0.12)' },
   editavel_atualiza_pedido:{ Icon: PencilSimple, color: '#60a5fa', bg: 'rgba(96,165,250,0.08)' },
+  atualiza_transferencia_saldo:{ Icon: ArrowsLeftRight, color: '#34d399', bg: 'rgba(52,211,153,0.12)' },
   itens_bloqueados_pedido:{ Icon: Lock,        color: '#94a3b8', bg: 'rgba(148,163,184,0.14)' },
   anexo:             { Icon: Paperclip,        color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   coluna_personalizada: { Icon: Sparkle,      color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },

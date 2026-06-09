@@ -105,6 +105,7 @@ function criarMockDb(pedidoBase = criarPedidoPrisma()) {
   const pedidoTransferenciaCreate = vi.fn().mockResolvedValue({ id: 'hist-001' })
   const pedidoTransferenciaFindFirst = vi.fn().mockResolvedValue(null)
   const pedidoTransferenciaUpdate = vi.fn().mockResolvedValue({})
+  const statusPedidoFindFirst = vi.fn().mockResolvedValue({ id_pedido_status: 'status-aberto' })
 
   // Audit trail migrado para auditLog() do historico-global (fire-and-forget HTTP, não precisa mock aqui)
 
@@ -112,6 +113,7 @@ function criarMockDb(pedidoBase = criarPedidoPrisma()) {
     pedido: { create: pedidoCreate, findFirst: pedidoFindFirst, update: pedidoUpdate },
     pedidoItem: { create: itemCreate, update: itemUpdate, findMany: itemFindMany, delete: itemDelete, findFirst: itemFindFirst },
     pedidoTransferencia: { create: pedidoTransferenciaCreate, findFirst: pedidoTransferenciaFindFirst, update: pedidoTransferenciaUpdate },
+    statusPedido: { findFirst: statusPedidoFindFirst },
   }
 
   const queryRaw = vi.fn().mockImplementation((strings: TemplateStringsArray) => {
@@ -152,6 +154,7 @@ function criarMockDb(pedidoBase = criarPedidoPrisma()) {
       findFirst: pedidoTransferenciaFindFirst,
       findMany: vi.fn().mockResolvedValue([]),
     },
+    statusPedido: txBase.statusPedido,
     $transaction: vi.fn().mockImplementation(async (fn: (tx: typeof txBase) => Promise<unknown>) => fn(txBase)),
     $queryRaw: queryRaw,
   }
@@ -274,6 +277,20 @@ describe('TransferirService.confirmar — reducao_simples', () => {
       quantidade_cancelada_item: 110,
     })
     expect(updateCall.data).not.toHaveProperty('quantidade_transferida_item')
+    expect(updateCall.data).not.toHaveProperty('data_transferencia_saldo_item')
+  })
+
+  it('não atualiza data_transferencia_saldo na reducao_simples', async () => {
+    const { db, mocks } = criarMockDb()
+    const service = new TransferirService()
+
+    await service.confirmar(TENANT, USER, NOME_USUARIO, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 10 }), db)
+
+    type PedidoUpdateArg = { data: Record<string, unknown> }
+    const updateComData = (mocks.pedidoUpdate.mock.calls as PedidoUpdateArg[][]).find(
+      c => c[0].data?.data_transferencia_saldo_pedido !== undefined,
+    )
+    expect(updateComData).toBeUndefined()
   })
 
   it('não cria pedido novo nem item destino', async () => {
@@ -433,6 +450,34 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
     expect(pedidoData.nome_fabricante).toBeUndefined()
     expect(pedidoData.quantidade_total_pedido).toBeUndefined()
     expect(pedidoData.quantidade_transferida_total).toBeUndefined()
+  })
+
+  it('atualiza data_transferencia_saldo_pedido e data_transferencia_saldo_item na origem', async () => {
+    const { db, txBase, mocks } = criarMockDb()
+    txBase.pedido.findFirst
+      .mockResolvedValueOnce(criarPedidoPrisma())
+      .mockResolvedValueOnce(criarPedidoPrisma({ id: 'pedi_destino', numero_pedido: 'PO-DEST', itens_pedido: [] }))
+
+    const service = new TransferirService()
+    const payload = criarPayload({
+      cenario: 'split_pedido_existente',
+      quantidade_origem: 50,
+      destinos: [{ tipo: 'existente', pedido_id: 'pedi_destino', quantidade: 50 }],
+    })
+
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
+
+    type UpdateArg = { where: { id_item: string }; data: Record<string, unknown> }
+    const updateOrigemCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
+      c => c[0].where.id_item === 'pite_id_0000001-26',
+    )
+    expect(updateOrigemCall?.[0].data.data_transferencia_saldo_item).toBeInstanceOf(Date)
+
+    type PedidoUpdateArg = { where: { id_pedido: string }; data: Record<string, unknown> }
+    const updatePedidoCall = (mocks.pedidoUpdate.mock.calls as PedidoUpdateArg[][]).find(
+      c => c[0].data?.data_transferencia_saldo_pedido instanceof Date,
+    )
+    expect(updatePedidoCall?.[0].where.id_pedido).toBe('pedi_id_0000001-26')
   })
 })
 

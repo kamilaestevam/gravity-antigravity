@@ -45,9 +45,16 @@ describe('obterCampoItemPropagado — tradução pedido → item', () => {
     expect(obterCampoItemPropagado('data_prevista_pedido_pronto')).toBe('data_prevista_item_pronto')
   })
 
+  it('numero_proforma_pedido traduz para numero_proforma_item', () => {
+    expect(obterCampoItemPropagado('numero_proforma_pedido')).toBe('numero_proforma_item')
+  })
+
+  it('numero_invoice_pedido traduz para numero_invoice_item', () => {
+    expect(obterCampoItemPropagado('numero_invoice_pedido')).toBe('numero_invoice_item')
+  })
+
   it('campo pedido-only retorna null', () => {
-    // numero_proforma_pedido existe no Pedido mas NÃO no item
-    expect(obterCampoItemPropagado('numero_proforma_pedido')).toBeNull()
+    expect(obterCampoItemPropagado('numero_pedido')).toBeNull()
   })
 
   it('campo agregado (valor_total_pedido) retorna null', () => {
@@ -79,9 +86,11 @@ describe('isPropagavel — whitelist de campos elegíveis', () => {
     expect(isPropagavel('tipo_operacao')).toBe(true)
   })
 
-  it('rejeita campos pedido-only', () => {
-    expect(isPropagavel('numero_proforma_pedido')).toBe(false)
-    expect(isPropagavel('numero_invoice_pedido')).toBe(false)
+  it('aceita documentos propagáveis (proforma/invoice)', () => {
+    expect(isPropagavel('numero_proforma_pedido')).toBe(true)
+    expect(isPropagavel('numero_invoice_pedido')).toBe(true)
+    expect(isPropagavel('numero_proforma')).toBe(true)
+    expect(isPropagavel('numero_invoice')).toBe(true)
   })
 
   it('rejeita agregados calculados', () => {
@@ -186,8 +195,10 @@ describe('CAMPOS_PEDIDO_PROPAGAVEIS — contrato', () => {
     expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('data_transferencia_saldo_pedido')).toBe(true)
   })
 
-  it('whitelist subiu de 22 para 59 campos (datas + workspace + tipo_operacao)', () => {
-    expect(CAMPOS_PEDIDO_PROPAGAVEIS.size).toBe(59)
+  it('whitelist inclui documentos proforma/invoice por item (63 campos)', () => {
+    expect(CAMPOS_PEDIDO_PROPAGAVEIS.size).toBe(63)
+    expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('numero_proforma_pedido')).toBe(true)
+    expect(CAMPOS_PEDIDO_PROPAGAVEIS.has('numero_invoice_pedido')).toBe(true)
   })
 
   it('data_consolidacao_pedido NAO mapeia para data_consolidacao_item (semantica diferente)', () => {
@@ -239,10 +250,16 @@ describe('Cenários de replicação pai → itens (simulados)', () => {
     expect(r.payload).toEqual({ referencia_importador_item: 'REF-IMP-0026' })
   })
 
-  it('replicar campo NÃO propagável retorna null (handler vai lançar AppError 400)', () => {
+  it('replicar numero_proforma gera campo correto', () => {
     const r = simularReplicacao('numero_proforma', 'PI-001')
-    expect(r.campoItem).toBeNull()
-    expect(r.payload).toBeNull()
+    expect(r.campoItem).toBe('numero_proforma_item')
+    expect(r.payload).toEqual({ numero_proforma_item: 'PI-001' })
+  })
+
+  it('replicar numero_invoice gera campo correto', () => {
+    const r = simularReplicacao('numero_invoice', 'INV-001')
+    expect(r.campoItem).toBe('numero_invoice_item')
+    expect(r.payload).toEqual({ numero_invoice_item: 'INV-001' })
   })
 
   it('replicar valor null funciona (limpa o campo nos itens)', () => {

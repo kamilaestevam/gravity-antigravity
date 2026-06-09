@@ -3100,10 +3100,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     const classeIndent      = ''
     const colEditavelBoolFalse = col.editavel === false
-    const celulaBloqueadaPorRegra =
-      (!isFilho && !colunaEditavel && !semPermissaoEditar)
-      || (isFilho && !!onEditarFilho && !semPermissaoEditar
-        && (colEditavelBoolFalse || editavelColFn === false))
+    const celulaInterativa = col.celulaInterativa === true
+    const celulaBloqueadaPorRegra = celulaInterativa
+      ? false
+      : ((!isFilho && !colunaEditavel && !semPermissaoEditar)
+        || (isFilho && !!onEditarFilho && !semPermissaoEditar
+          && (colEditavelBoolFalse || editavelColFn === false)))
     const classeEditavel    = podeEditar && !celulaBloqueadaPorRegra
       ? ' gtv-celula--editavel'
       : (semPermissaoEditar
@@ -3519,7 +3521,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
             const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
-            const celulaBloqueadaFilho = editavelMapaDef && editavelMapaVal === false
+            const celulaInterativaFilho = col.celulaInterativa === true
+            const celulaBloqueadaFilho = !celulaInterativaFilho
+              && editavelMapaDef && editavelMapaVal === false
               && !!onEditarFilho && !semPermissaoFilho
             const classeEditavel    = podeEditar
               ? ' gtv-celula--editavel'

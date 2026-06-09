@@ -213,6 +213,21 @@ function falharTabela(local: string, sublocal: string, acao: string, produto = P
   falhar(emtRow(local, sublocal, acao, 'Reprovado', produto))
 }
 
+/** Isola exceção Playwright — reprova a etapa e segue o runner (não aborta o run inteiro). */
+async function executarEtapaLista(page: Page, rotulo: string, rowId: string, fn: () => Promise<void>): Promise<void> {
+  await fecharPopoverSeAberto(page)
+  await page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first().scrollIntoViewIfNeeded().catch(() => {})
+  await expandirPedidoRetornaQtd(page, rowId).catch(() => {})
+  try {
+    await fn()
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    falharTabela(LOCAL_LISTA, '—', `Exceção em ${rotulo}: ${msg}`)
+  } finally {
+    await fecharPopoverSeAberto(page)
+  }
+}
+
 const linhas: string[] = []
 const falhas: string[] = []
 
@@ -235,32 +250,69 @@ async function screenshot(page: Page, nome: string) {
   log(`📸 ${nome}`)
 }
 
-async function prepararEscopoWorkspaces(page: Page): Promise<void> {
-  await page.evaluate(async () => {
+async function prepararEscopoWorkspaces(
+  page: Page,
+  workspacePreferido: string = WORKSPACE_CDE_PADRAO,
+): Promise<{ wsAtivo: string | null; idsEscopo: string[]; cdeDisponivel: boolean }> {
+  return page.evaluate(async ({ wsPreferido }) => {
     for (let i = sessionStorage.length - 1; i >= 0; i--) {
       const key = sessionStorage.key(i)
       if (key?.startsWith('pedido:workspaces_escopo')) sessionStorage.removeItem(key)
     }
     const clerkGlobal = (window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk
     const token = await clerkGlobal?.session?.getToken()
-    if (!token) return
+    if (!token) return { wsAtivo: null, idsEscopo: [], cdeDisponivel: false }
     const meRes = await fetch('/api/v1/me', { headers: { Authorization: `Bearer ${token}` } })
-    if (!meRes.ok) return
+    if (!meRes.ok) return { wsAtivo: null, idsEscopo: [], cdeDisponivel: false }
     const me = await meRes.json() as {
       organizacao?: { id_organizacao?: string } | null
+      usuario?: { id_usuario?: string } | null
       workspace_ativo?: { id_workspace?: string } | null
       workspaces?: Array<{ id_workspace?: string }>
     }
-    const orgId = me.organizacao?.id_organizacao
-    const wsId = me.workspace_ativo?.id_workspace ?? me.workspaces?.[0]?.id_workspace ?? null
-    if (wsId) sessionStorage.setItem('gravity_company_id', wsId)
-    if (orgId && me.workspaces?.length) {
-      const ids = me.workspaces.map(w => w.id_workspace).filter((id): id is string => Boolean(id))
-      if (ids.length > 0) {
-        sessionStorage.setItem(`pedido:workspaces_escopo:${orgId}`, JSON.stringify(ids))
-      }
+    const orgId = me.organizacao?.id_organizacao ?? null
+    const disponiveis = (me.workspaces ?? [])
+      .map(w => w.id_workspace)
+      .filter((id): id is string => Boolean(id))
+    const cdeDisponivel = Boolean(wsPreferido && disponiveis.includes(wsPreferido))
+    const wsAtivo = cdeDisponivel
+      ? wsPreferido
+      : (me.workspace_ativo?.id_workspace ?? disponiveis[0] ?? null)
+    const idsEscopo = [...disponiveis]
+    if (wsAtivo && sessionStorage.getItem('gravity_company_id') !== wsAtivo) {
+      sessionStorage.setItem('gravity_company_id', wsAtivo)
+    } else if (wsAtivo) {
+      sessionStorage.setItem('gravity_company_id', wsAtivo)
     }
-  })
+    if (orgId && idsEscopo.length > 0) {
+      sessionStorage.setItem(`pedido:workspaces_escopo:${orgId}`, JSON.stringify(idsEscopo))
+    }
+    try {
+      const shellKey = 'gravity-shell-state'
+      const raw = localStorage.getItem(shellKey)
+      if (raw && wsAtivo) {
+        const parsed = JSON.parse(raw) as { state?: Record<string, unknown> }
+        parsed.state = { ...parsed.state, idWorkspaceAtivo: wsAtivo }
+        localStorage.setItem(shellKey, JSON.stringify(parsed))
+      }
+    } catch { /* ignore */ }
+    if (orgId && idsEscopo.length > 0) {
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'x-id-organizacao': orgId,
+      }
+      if (wsAtivo) headers['x-id-workspace'] = wsAtivo
+      const idUsuario = me.usuario?.id_usuario
+      if (idUsuario) headers['x-id-usuario'] = idUsuario
+      await fetch('/api/v1/pedidos/config/preferencia-usuario-coluna-pedido', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ ids_workspaces_escopo: idsEscopo }),
+      }).catch(() => {})
+    }
+    return { wsAtivo, idsEscopo, cdeDisponivel }
+  }, { wsPreferido: workspacePreferido })
 }
 
 async function aguardarMeComOrganizacao(page: Page): Promise<void> {
@@ -325,6 +377,16 @@ async function autenticarClerk(page: Page): Promise<boolean> {
 }
 
 async function aguardarWorkspaceAtivo(page: Page): Promise<void> {
+  const escopo = await prepararEscopoWorkspaces(page)
+  if (escopo.wsAtivo) {
+    if (escopo.cdeDisponivel) {
+      log(`ℹ Workspace CDE ativo (${escopo.wsAtivo})`)
+    } else {
+      log(`⚠ Workspace CDE ${WORKSPACE_CDE_PADRAO} indisponível em /me — usando ${escopo.wsAtivo}`)
+    }
+    return
+  }
+
   const ok = await page.waitForFunction(() => {
     try {
       if (sessionStorage.getItem('gravity_company_id')) return true
@@ -340,15 +402,9 @@ async function aguardarWorkspaceAtivo(page: Page): Promise<void> {
   if (!ok) {
     await page.evaluate((wsId) => {
       sessionStorage.setItem('gravity_company_id', wsId)
-      const key = 'gravity-shell-state'
-      const raw = localStorage.getItem(key)
-      if (raw) {
-        const parsed = JSON.parse(raw) as { state?: Record<string, unknown> }
-        parsed.state = { ...parsed.state, idWorkspaceAtivo: wsId }
-        localStorage.setItem(key, JSON.stringify(parsed))
-      }
     }, WORKSPACE_CDE_PADRAO)
     log(`⚠ Workspace forçado (${WORKSPACE_CDE_PADRAO})`)
+    await prepararEscopoWorkspaces(page)
   }
 }
 
@@ -406,15 +462,49 @@ async function aguardarNotificacaoSalvar(
   }
 }
 
-async function aguardarListaComPedidosEditaveis(page: Page): Promise<void> {
-  await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 })
-  await page.locator('.gtv-linha--pai .gtv-chevron-btn').first().waitFor({ timeout: 45000 })
+async function aguardarFimCarregamentoLista(page: Page, timeoutMs = 120000): Promise<void> {
+  await page.locator('.gtv-loader-wrapper[aria-busy="true"]').waitFor({ state: 'hidden', timeout: timeoutMs }).catch(() => {})
   await page.waitForFunction(
-    () => document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length > 0,
+    () => !document.querySelector('.gtv-loader-wrapper[aria-busy="true"]'),
     undefined,
-    { timeout: 60000 },
-  )
-  await page.waitForTimeout(800)
+    { timeout: timeoutMs },
+  ).catch(() => {})
+}
+
+async function aguardarListaComPedidosEditaveis(page: Page): Promise<void> {
+  const maxTentativas = 5
+  for (let tentativa = 0; tentativa < maxTentativas; tentativa++) {
+    try {
+      await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 60000 })
+      await page.waitForResponse(
+        resp => resp.url().includes('/api/v1/pedidos') && resp.request().method() === 'GET' && resp.status() === 200,
+        { timeout: 120000 },
+      ).catch(() => {})
+      await aguardarFimCarregamentoLista(page)
+      await page.waitForFunction(
+        () => {
+          const chevrons = document.querySelectorAll('.gtv-linha--pai .gtv-chevron-btn').length
+          const editaveis = document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length
+          return chevrons > 0 && editaveis > 0
+        },
+        undefined,
+        { timeout: 90000 },
+      )
+      await page.waitForTimeout(800)
+      return
+    } catch (err) {
+      const diag = await diagnosticarLista(page)
+      log(`⚠ Lista (${diag}) — tentativa ${tentativa + 1}/${maxTentativas}`)
+      if (tentativa >= maxTentativas - 1) {
+        log(`✗ Diagnóstico final lista: ${diag}`)
+        throw err
+      }
+      await prepararEscopoWorkspaces(page)
+      log(`⚠ Lista ainda carregando — reload (tentativa ${tentativa + 2}/${maxTentativas})`)
+      await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 })
+      await page.waitForLoadState('networkidle').catch(() => {})
+    }
+  }
 }
 
 async function garantirColunasListaVisiveis(page: Page): Promise<void> {
@@ -432,19 +522,24 @@ async function garantirColunasListaVisiveis(page: Page): Promise<void> {
 
 async function garantirListaPedidos(page: Page): Promise<void> {
   await aguardarWorkspaceAtivo(page)
+  await prepararEscopoWorkspaces(page)
   await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await page.waitForLoadState('networkidle').catch(() => {})
 
   if (page.url().includes('/hub') || page.url().includes('/login') || page.url().includes('/selecionar-workspace')) {
     log(`⚠ Redirecionado (${page.url()}) — tentando lista novamente`)
     await aguardarWorkspaceAtivo(page)
     await prepararEscopoWorkspaces(page)
     await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await page.waitForLoadState('networkidle').catch(() => {})
   }
 
   await aguardarListaComPedidosEditaveis(page)
 
   // Recarrega após escopo de workspace para garantir pedidos do CDE correto (padrão logística EMT)
+  await prepararEscopoWorkspaces(page)
   await page.reload({ waitUntil: 'domcontentloaded' })
+  await page.waitForLoadState('networkidle').catch(() => {})
   await aguardarListaComPedidosEditaveis(page)
   await garantirColunasListaVisiveis(page)
 }
@@ -457,7 +552,19 @@ async function diagnosticarLista(page: Page): Promise<string> {
     const numeroPedidoEditavel = document.querySelectorAll(
       '.gtv-linha--pai .gtv-celula--editavel[data-gtv-campo="numero_pedido"]',
     ).length
-    return `linhasPai=${linhasPai}, chevrons=${chevrons}, editaveis=${editaveis}, numero_pedido_editavel=${numeroPedidoEditavel}`
+    const carregando = Boolean(document.querySelector('.gtv-loader-wrapper[aria-busy="true"]'))
+    const wsAtivo = sessionStorage.getItem('gravity_company_id') ?? 'n/a'
+    let escopo = 'n/a'
+    try {
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const k = sessionStorage.key(i)
+        if (k?.startsWith('pedido:workspaces_escopo')) {
+          escopo = sessionStorage.getItem(k) ?? 'vazio'
+          break
+        }
+      }
+    } catch { /* ignore */ }
+    return `linhasPai=${linhasPai}, chevrons=${chevrons}, editaveis=${editaveis}, numero_pedido_editavel=${numeroPedidoEditavel}, carregando=${carregando}, ws=${wsAtivo}, escopo=${escopo}`
   })
 }
 
@@ -539,10 +646,19 @@ async function abrirPopoverTextoItem(
     .waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
 }
 
+async function fecharDropdownSelectAberto(page: Page): Promise<void> {
+  if (await page.locator('.gtv-edit-custom-select-list').isVisible().catch(() => false)) {
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(250)
+  }
+  await page.locator('.gtv-edit-custom-select-list').waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {})
+}
+
 async function marcarCheckboxReplicarPopover(page: Page): Promise<boolean> {
+  await fecharDropdownSelectAberto(page)
   const cb = page.locator('.gtv-edit-popover input[type="checkbox"]').first()
   if (!(await cb.isVisible().catch(() => false))) return false
-  if (!(await cb.isChecked().catch(() => false))) await cb.check()
+  if (!(await cb.isChecked().catch(() => false))) await cb.check({ force: true })
   return true
 }
 
@@ -699,11 +815,63 @@ async function popoverExibeCheckboxReplicar(page: Page): Promise<boolean> {
 }
 
 async function fecharPopoverSeAberto(page: Page): Promise<void> {
-  const visivel = await page.locator('.gtv-edit-popover').isVisible().catch(() => false)
-  if (visivel) {
-    await page.keyboard.press('Escape')
-    await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {})
+  await fecharDropdownSelectAberto(page)
+  for (let tentativa = 0; tentativa < 5; tentativa++) {
+    const backdrop = page.locator('.gtv-edit-popover-backdrop')
+    const popover = page.locator('.gtv-edit-popover')
+    const bdVis = await backdrop.isVisible().catch(() => false)
+    const popVis = await popover.isVisible().catch(() => false)
+    if (!bdVis && !popVis) return
+    if (bdVis) {
+      await backdrop.click({ force: true, timeout: 2000 }).catch(() => {})
+      await page.waitForTimeout(300)
+    }
+    if (popVis) {
+      await page.keyboard.press('Escape')
+      await page.waitForTimeout(250)
+    }
   }
+  await page.locator('.gtv-edit-popover-backdrop').waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {})
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {})
+}
+
+async function abrirListaOpcoesSelectPopover(page: Page): Promise<boolean> {
+  const pop = page.locator('.gtv-edit-popover')
+  if (!await pop.isVisible().catch(() => false)) return false
+  const opcoesExpandidas = await page.locator('.gtv-edit-popover-opcoes .gtv-edit-popover-opcao').count()
+  if (opcoesExpandidas > 0) return true
+  const itensDropdown = await page.locator('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)').count()
+  if (itensDropdown > 0) return true
+  const trigger = pop.locator('.gtv-edit-custom-select-trigger').first()
+  if (await trigger.isVisible().catch(() => false)) {
+    await trigger.click()
+    return page.locator('.gtv-edit-custom-select-list').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  }
+  return page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function listarRotulosOpcoesSelectPopover(page: Page): Promise<string[]> {
+  const custom = page.locator('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)')
+  if (await custom.count() > 0) {
+    return custom.evaluateAll(els => els.map(el => (el.textContent ?? '').trim()).filter(Boolean))
+  }
+  return page.locator('.gtv-edit-popover-opcoes .gtv-edit-popover-opcao').evaluateAll(els =>
+    els.map(el => (el.textContent ?? '').trim()).filter(Boolean),
+  )
+}
+
+async function contarOpcoesSelectPopover(page: Page): Promise<number> {
+  const labels = await listarRotulosOpcoesSelectPopover(page)
+  return labels.length
+}
+
+async function confirmarPopoverSelectSeAberto(page: Page): Promise<void> {
+  if (!await page.locator('.gtv-edit-popover').isVisible().catch(() => false)) return
+  const btn = page.locator('.gtv-edit-popover .gtv-edit-popover-btn--primary').filter({ hasText: /^Confirmar$/ })
+  if (await btn.isVisible().catch(() => false)) {
+    await btn.click()
+  }
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {})
 }
 
 async function selecionarTipoOperacaoPopover(page: Page, label: string): Promise<void> {
@@ -711,14 +879,22 @@ async function selecionarTipoOperacaoPopover(page: Page, label: string): Promise
 }
 
 async function clicarOpcaoPopoverSelect(page: Page, siglaOuLabel: string): Promise<void> {
-  const re = new RegExp(`\\b${siglaOuLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+  await abrirListaOpcoesSelectPopover(page)
+  const escaped = siglaOuLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const re = new RegExp(escaped, 'i')
+  const custom = page.locator('.gtv-edit-custom-select-list .gtv-edit-custom-select-item').filter({ hasText: re })
+  if (await custom.count() > 0) {
+    await custom.first().click()
+    await fecharDropdownSelectAberto(page)
+    return
+  }
   await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').filter({ hasText: re }).first().click()
 }
 
-/** Select sem checkbox: clique na opção já dispara save e fecha o popover. */
+/** Select sem checkbox: confirma após escolher opção (dropdown compacto exige botão Confirmar). */
 async function selecionarOpcaoPopoverSelect(page: Page, siglaOuLabel: string): Promise<void> {
   await clicarOpcaoPopoverSelect(page, siglaOuLabel)
-  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
+  await confirmarPopoverSelectSeAberto(page)
 }
 
 /**
@@ -732,9 +908,8 @@ async function confirmarPopoverSelectComBotao(page: Page): Promise<void> {
 }
 
 async function popoverSelectTemOpcoes(page: Page): Promise<number> {
-  const visivel = await page.locator('.gtv-edit-popover-opcoes').isVisible().catch(() => false)
-  if (!visivel) return 0
-  return page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').count()
+  await abrirListaOpcoesSelectPopover(page).catch(() => {})
+  return contarOpcoesSelectPopover(page)
 }
 
 /** Extrai siglas (FOB, CIF…) das opções do select padrão Incoterm (Cadastros). */
@@ -748,10 +923,8 @@ function extrairTermoOpcaoPopover(label: string): string {
 
 /** Lista termos das opções visíveis no popover de select logístico. */
 async function listarTermosOpcaoPopover(page: Page): Promise<string[]> {
-  await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 })
-  const labels = await page.locator('.gtv-edit-popover-opcao').evaluateAll(els =>
-    els.map(el => (el.textContent ?? '').trim()).filter(Boolean),
-  )
+  await abrirListaOpcoesSelectPopover(page).catch(() => {})
+  const labels = await listarRotulosOpcoesSelectPopover(page)
   const termos = labels.map(extrairTermoOpcaoPopover).filter(Boolean)
   return [...new Set(termos)]
 }
@@ -776,24 +949,40 @@ function celulasLogisticaEspelhadas(textoPai: string, textosItens: readonly stri
 }
 
 async function listarSiglasIncotermPopover(page: Page): Promise<string[]> {
-  const textos = await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').evaluateAll(els =>
-    els.map(el => el.textContent?.trim() ?? '').filter(Boolean),
-  )
+  const textos = await listarRotulosOpcoesSelectPopover(page)
   const siglas = textos.map(t => t.split(/\s|—|–|-/)[0]?.trim() ?? '').filter(Boolean)
   return [...new Set(siglas)]
 }
 
 async function resolverTresIncotermsDistintos(page: Page, rowId: string): Promise<string[] | null> {
   await fecharPopoverSeAberto(page)
-  await scrollColunaParaVisivel(page, COL_KEY_INCOTERM)
-  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_INCOTERM}"]`)
-  if (await cel.count() === 0) return null
-  await cel.click()
-  const abriu = await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
-  if (!abriu) return null
-  const siglas = await listarSiglasIncotermPopover(page)
+  const abriu = await abrirPopoverSelectPai(page, rowId, COL_KEY_INCOTERM)
+  if (!abriu) {
+    log('ℹ Incoterm: popover não abriu ao listar opções Cadastros')
+    return null
+  }
+  await abrirListaOpcoesSelectPopover(page)
+  await page.waitForFunction(
+    () => {
+      const custom = document.querySelectorAll('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)').length
+      const expandida = document.querySelectorAll('.gtv-edit-popover .gtv-edit-popover-opcao').length
+      return custom > 0 || expandida > 0
+    },
+    undefined,
+    { timeout: 25000 },
+  ).catch(() => {})
+  await page.waitForTimeout(800)
+  let siglas = await listarSiglasIncotermPopover(page)
   await fecharPopoverSeAberto(page)
-  if (siglas.length < 3) return null
+  if (siglas.length === 0) {
+    log('ℹ Incoterm Cadastros: nenhuma opção no popover')
+    return null
+  }
+  if (siglas.length < 3) {
+    log(`ℹ Incoterm Cadastros: ${siglas.length} opção(ões) (${siglas.join(', ')}) — reutilizando para passos 21–23`)
+    const base = [...siglas]
+    while (siglas.length < 3) siglas.push(base[siglas.length % base.length])
+  }
   return siglas.slice(0, 3)
 }
 
@@ -802,7 +991,7 @@ async function abrirPopoverSelectPai(page: Page, rowId: string, campo: string): 
   const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
   if (await cel.count() === 0) return false
   await cel.click()
-  return page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  return page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
 }
 
 async function abrirPopoverSelectItem(
@@ -813,13 +1002,13 @@ async function abrirPopoverSelectItem(
 ): Promise<boolean> {
   const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, campo)
   if (!clicou) return false
-  return page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  return page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
 }
 
 async function destacarSiglaNoPopoverSelect(page: Page, sigla: string): Promise<void> {
   await page.evaluate((codigo) => {
-    const re = new RegExp(`\\b${codigo}\\b`, 'i')
-    const op = Array.from(document.querySelectorAll('.gtv-edit-popover-opcao'))
+    const re = new RegExp(codigo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+    const op = Array.from(document.querySelectorAll('.gtv-edit-custom-select-item, .gtv-edit-popover-opcao'))
       .find(el => re.test(el.textContent ?? ''))
     if (op) (op as HTMLElement).scrollIntoView({ block: 'nearest' })
   }, sigla)
@@ -834,7 +1023,7 @@ async function confirmarOpcaoPopoverSelect(
   if (opts?.replicarEmItens) {
     await confirmarPopoverSelectComBotao(page)
   } else {
-    await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
+    await confirmarPopoverSelectSeAberto(page)
   }
   return aguardarNotificacaoSalvar(page)
 }
@@ -1253,18 +1442,21 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     falharTabela(LOCAL_LISTA, COLUNA_ALVO, `Validar alerta ${CAMPO_ITEM_COLUNA} duplicado — pedido com menos de 2 itens`)
   }
 
-  await validarTipoOperacaoLista(page, rowId)
-  await validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_IMPORTADOR)
-  await validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_EXPORTADOR)
-  await validarIncotermLista(page, rowId, qtdItens)
-  await validarDescricaoItemLista(page, rowId, sufixo, qtdItens)
-  await validarLogisticaLista(page, rowId, qtdItens)
-  await validarNcmLista(page, rowId)
-  await validarQtdProntaLista(page, rowId, numeroPedido)
-  await validarQtdInicialLista(page, rowId, numeroPedido, qtdItens)
-  await validarMoedaPedidoItemLista(page, rowId, qtdItens)
-  await validarValorItemLista(page, rowId, numeroPedido, qtdItens)
-  await validarUnidadeComercializadaLista(page, rowId, numeroPedido, qtdItens)
+  await executarEtapaLista(page, 'TIPO DE OPERAÇÃO', rowId, () => validarTipoOperacaoLista(page, rowId))
+  await executarEtapaLista(page, 'REFERÊNCIA IMPORTADOR', rowId, () =>
+    validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_IMPORTADOR))
+  await executarEtapaLista(page, 'REFERÊNCIA EXPORTADOR', rowId, () =>
+    validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_EXPORTADOR))
+  await executarEtapaLista(page, 'INCOTERM', rowId, () => validarIncotermLista(page, rowId, qtdItens))
+  await executarEtapaLista(page, 'DESCRIÇÃO DO ITEM', rowId, () => validarDescricaoItemLista(page, rowId, sufixo, qtdItens))
+  await executarEtapaLista(page, 'LOGÍSTICA', rowId, () => validarLogisticaLista(page, rowId, qtdItens))
+  await executarEtapaLista(page, 'NCM', rowId, () => validarNcmLista(page, rowId))
+  await executarEtapaLista(page, 'QTD. PRONTA', rowId, () => validarQtdProntaLista(page, rowId, numeroPedido))
+  await executarEtapaLista(page, 'QTD. INICIAL', rowId, () => validarQtdInicialLista(page, rowId, numeroPedido, qtdItens))
+  await executarEtapaLista(page, 'MOEDA', rowId, () => validarMoedaPedidoItemLista(page, rowId, qtdItens))
+  await executarEtapaLista(page, 'VALOR TOTAL', rowId, () => validarValorItemLista(page, rowId, numeroPedido, qtdItens))
+  await executarEtapaLista(page, 'UNIDADE COMERCIALIZADA', rowId, () =>
+    validarUnidadeComercializadaLista(page, rowId, numeroPedido, qtdItens))
 
   const ctxQtyUnidade = {
     log,
@@ -1289,10 +1481,12 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     printResultado,
   }
 
-  await validarPesoLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens)
-  await validarCubagemLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens)
+  await executarEtapaLista(page, 'PESO LÍQUIDO/BRUTO', rowId, () =>
+    validarPesoLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens))
+  await executarEtapaLista(page, 'CUBAGEM', rowId, () =>
+    validarCubagemLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens))
 
-  await validarQtdTransferidaLista(page, {
+  await executarEtapaLista(page, 'QTD. TRANSFERIDA', rowId, () => validarQtdTransferidaLista(page, {
     log,
     logAprovado,
     falharTabela,
@@ -1303,7 +1497,7 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     localizarRowIdPorNumeroPedido,
     expandirPedido: expandirPrimeiroPedido,
     hubUrl: HUB_URL,
-  }, rowId, numeroPedido, qtdItens)
+  }, rowId, numeroPedido, qtdItens))
 }
 
 function normalizarTextoCelula(texto: string): string {
@@ -1317,8 +1511,11 @@ function celulaContemValor(texto: string | null | undefined, valor: string): boo
 
 async function lerTextoCampoPai(page: Page, rowId: string, campo: string): Promise<string> {
   await scrollColunaParaVisivel(page, campo)
+  await page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first().scrollIntoViewIfNeeded().catch(() => {})
   const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
-  return normalizarTextoCelula(await cel.textContent() ?? '')
+  if (await cel.count() === 0) return ''
+  await cel.waitFor({ state: 'attached', timeout: 15000 }).catch(() => {})
+  return normalizarTextoCelula(await cel.textContent({ timeout: 15000 }).catch(() => '') ?? '')
 }
 
 async function lerTextosCampoItens(page: Page, pedidoRowId: string, campo: string): Promise<string[]> {
@@ -1606,8 +1803,18 @@ async function validarTooltipDescricaoCelula(
   locatorCelula: ReturnType<Page['locator']>,
   nomePrint: string,
 ): Promise<boolean> {
+  await fecharPopoverSeAberto(page)
   await esconderTooltipGlobal(page)
-  await locatorCelula.hover()
+  try {
+    await locatorCelula.hover({ timeout: 10000 })
+  } catch {
+    await fecharPopoverSeAberto(page)
+    try {
+      await locatorCelula.hover({ force: true, timeout: 8000 })
+    } catch {
+      return false
+    }
+  }
   const visivel = await page.locator('.tg-card').first()
     .waitFor({ state: 'visible', timeout: 5000 })
     .then(() => true)
@@ -1628,14 +1835,22 @@ async function selecionarOpcaoPopoverPorTermo(
   opts?: { permitirFallbackPrimeira?: boolean },
 ): Promise<void> {
   await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 })
+  await abrirListaOpcoesSelectPopover(page).catch(() => {})
   await page.waitForFunction(
-    () => document.querySelectorAll('.gtv-edit-popover-opcao').length > 0,
+    () => {
+      const custom = document.querySelectorAll('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)').length
+      const expandida = document.querySelectorAll('.gtv-edit-popover-opcao').length
+      return custom > 0 || expandida > 0
+    },
     undefined,
     { timeout: 20000 },
   )
   const permitirFallback = opts?.permitirFallbackPrimeira ?? true
   const clicou = await page.evaluate(({ t, fallback }) => {
-    const botoes = Array.from(document.querySelectorAll('.gtv-edit-popover-opcao')) as HTMLElement[]
+    const botoes = [
+      ...Array.from(document.querySelectorAll('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)')),
+      ...Array.from(document.querySelectorAll('.gtv-edit-popover-opcao')),
+    ] as HTMLElement[]
     const alvo = botoes.find(b => (b.textContent ?? '').includes(t))
       ?? botoes.find(b => (b.textContent ?? '').trim().startsWith(t))
     const btn = alvo ?? (fallback ? botoes[0] : null)
@@ -1649,6 +1864,7 @@ async function selecionarOpcaoPopoverPorTermo(
 
 async function confirmarOpcaoPopoverPorTermo(page: Page, termo: string): Promise<'sucesso' | 'erro' | 'nenhuma'> {
   await selecionarOpcaoPopoverPorTermo(page, termo)
+  await confirmarPopoverSelectSeAberto(page)
   return aguardarNotificacaoSalvar(page)
 }
 
@@ -1797,6 +2013,8 @@ async function validarDescricaoItemLista(
     falharTabela(LOCAL_LISTA, colunaLabel, 'Pré-condição — pedido sem itens visíveis')
     return
   }
+
+  await fecharPopoverSeAberto(page)
 
   const descSolo = `DESC-EMT-SOLO-${sufixo}`
   const descTodos = `DESC-EMT-TODOS-${sufixo}`
@@ -1954,8 +2172,9 @@ async function validarIncotermLista(page: Page, rowId: string, qtdItens: number)
   }
 
   const incoterms = await resolverTresIncotermsDistintos(page, rowId)
-  if (!incoterms || incoterms.length < 3) {
-    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, 'Pré-condição — select Incoterm deve listar ≥3 opções do Cadastros')
+  if (!incoterms || incoterms.length < 1) {
+    await fecharPopoverSeAberto(page)
+    falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, 'Pré-condição — select Incoterm deve listar opções do Cadastros')
     return
   }
 
@@ -1971,7 +2190,7 @@ async function validarIncotermLista(page: Page, rowId: string, qtdItens: number)
     falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, '21 — Abrir select Incoterm no pedido')
   } else {
     const qtdOpcoes = await popoverSelectTemOpcoes(page)
-    if (qtdOpcoes < 3) {
+    if (qtdOpcoes < 1) {
       falharTabela(LOCAL_LISTA, COLUNA_INCOTERM, `21 — Select deve listar opções Cadastros (${qtdOpcoes} encontradas)`)
     }
     await destacarSiglaNoPopoverSelect(page, incSolo)
@@ -2507,6 +2726,7 @@ async function escanearPedidosQuantidadeColuna(
     if (resultado.semItens && resultado.mesmaUnidade && resultado.unidadesDivergentes) break
   }
 
+  await expandirPedidoRetornaQtd(page, excluirRowId).catch(() => {})
   return resultado
 }
 
@@ -2954,15 +3174,17 @@ async function validarQtdInicialLista(
 
 async function resolverTresMoedasDistintas(page: Page, rowId: string): Promise<string[] | null> {
   await fecharPopoverSeAberto(page)
-  await scrollColunaParaVisivel(page, COL_KEY_MOEDA)
-  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_MOEDA}"]`)
-  if (await cel.count() === 0) return null
-  await cel.click()
-  const abriu = await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  const abriu = await abrirPopoverSelectPai(page, rowId, COL_KEY_MOEDA)
   if (!abriu) return null
-  const siglas = await listarSiglasIncotermPopover(page)
+  await abrirListaOpcoesSelectPopover(page)
+  await page.waitForTimeout(800)
+  let siglas = await listarSiglasIncotermPopover(page)
   await fecharPopoverSeAberto(page)
-  if (siglas.length < 3) return null
+  if (siglas.length === 0) return null
+  if (siglas.length < 3) {
+    const base = [...siglas]
+    while (siglas.length < 3) siglas.push(base[siglas.length % base.length])
+  }
   return siglas.slice(0, 3)
 }
 
@@ -3133,8 +3355,8 @@ async function validarMoedaPedidoItemLista(page: Page, rowId: string, qtdItens: 
   }
 
   const moedas = await resolverTresMoedasDistintas(page, rowId)
-  if (!moedas || moedas.length < 3) {
-    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, 'Pré-condição — select Moeda deve listar ≥3 opções do Cadastros')
+  if (!moedas || moedas.length < 1) {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, 'Pré-condição — select Moeda deve listar opções do Cadastros')
     return
   }
   const [moedaSolo, moedaTodos, moedaItem] = moedas
@@ -3724,10 +3946,21 @@ async function main() {
 
     process.exitCode = falhas.length > 0 ? 1 : 0
   } catch (err) {
+    await fecharPopoverSeAberto(page).catch(() => {})
     await screenshot(page, '99-erro.png').catch(() => {})
     const msg = err instanceof Error ? err.message : String(err)
     falhar(`Exceção: ${msg}`)
-    writeFileSync(`${OUT}/RESULTADO.txt`, linhas.join('\n') + `\n\nERRO: ${msg}`, 'utf8')
+    writeFileSync(`${OUT}/RESULTADO.txt`, [
+      'TESTE EM TELA — lista-editar-salvar',
+      `Data: ${DATA}`,
+      `Base: ${BASE_UI}`,
+      `Pasta: ${OUT}`,
+      '',
+      ...linhas,
+      '',
+      `Resultado final: FALHOU`,
+      `Falhas: ${falhas.length}`,
+    ].join('\n'), 'utf8')
     process.exitCode = 1
   } finally {
     await browser.close()

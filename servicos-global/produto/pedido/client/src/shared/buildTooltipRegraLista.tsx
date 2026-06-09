@@ -12,12 +12,15 @@ import {
   type NivelColunaLista,
   type RegraTooltipId,
 } from './regrasTooltipColunaLista'
+import { isChaveColunaAnexo } from './anexoColunaLista'
 import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipColunaLista'
 import { TooltipListaColuna } from './TooltipListaColuna'
 import { TooltipRegrasColuna } from './TooltipRegrasColuna'
 import {
+  ehCampoDataReplicavelLista,
   tituloTooltipCelulaPorColuna,
   tituloTooltipColunaFallback,
+  tituloTooltipItemDataReplicavel,
   tituloTooltipListaPorNivel,
 } from './tituloTooltipLista'
 
@@ -201,6 +204,7 @@ export const CHAVES_TOOLTIP_INLINE_LISTA = new Set([
   'tipo_volume_pedido',
   'cobertura_cambial',
   'condicao_pagamento',
+  'condicao_pagamento_siscomex',
   'nome_importador',
   'nome_exportador',
 ])
@@ -217,6 +221,7 @@ export function resolverCursorBloqueadoCelulaLista<T>(
   col: GTColuna<T>,
   row: T,
 ): boolean {
+  if (col.celulaInterativa === true) return false
   if (col.editavel === false) return true
   if (typeof col.editavel === 'function') return !col.editavel(row)
   return false
@@ -228,6 +233,7 @@ export function resolverCursorBloqueadoMapaFilho<C>(
   entry: GTMapaColunasFilho<C> | undefined,
   row: C,
 ): boolean {
+  if (key.startsWith('anexo_')) return false
   if (CHAVES_COLUNA_INLINE_BLOQUEADA_ITEM.has(key)) return true
   if (entry?.editavel === false) return true
   if (typeof entry?.editavel === 'function') return !entry.editavel(row)
@@ -305,6 +311,10 @@ export function enriquecerColunaComRegraTooltip<T>(
     key === 'condicao_pagamento'
       ? t('pedido.coluna_pai.condicao_pagamento_titulo_linha_pedido')
       : null
+  const tituloCondicaoPagamentoSiscomexLinhaPedido =
+    key === 'condicao_pagamento_siscomex'
+      ? t('pedido.coluna_pai.condicao_pagamento_siscomex_titulo_linha_pedido')
+      : null
   const titulo = tituloValorTotalLinhaPedido
     ?? tituloValorUnitarioLinhaPedido
     ?? tituloMoedaLinhaPedido
@@ -314,6 +324,7 @@ export function enriquecerColunaComRegraTooltip<T>(
     ?? tituloQtdCanceladaLinhaPedido
     ?? tituloCoberturaLinhaPedido
     ?? tituloCondicaoPagamentoLinhaPedido
+    ?? tituloCondicaoPagamentoSiscomexLinhaPedido
     ?? (col.tooltipTitulo?.trim()
       ? col.tooltipTitulo
       : tituloTooltipColuna(t, key, 'pai', col.label))
@@ -340,11 +351,15 @@ export function enriquecerColunaComRegraTooltip<T>(
                         ? t('pedido.coluna_pai.cobertura_cambial_item_titulo')
                         : key === 'condicao_pagamento'
                           ? t('pedido.coluna_pai.condicao_pagamento_item_titulo')
-                          : key === 'peso_liquido_total_pedido'
-                      ? t('pedido.coluna_pai.peso_liquido_item_titulo')
-                      : key === 'peso_bruto_total_pedido'
-                        ? t('pedido.coluna_pai.peso_bruto_item_titulo')
-                        : undefined
+                          : key === 'condicao_pagamento_siscomex'
+                            ? t('pedido.coluna_pai.condicao_pagamento_siscomex_item_titulo')
+                            : ehCampoDataReplicavelLista(key)
+                              ? tituloTooltipItemDataReplicavel(t, key)
+                              : key === 'peso_liquido_total_pedido'
+                                ? t('pedido.coluna_pai.peso_liquido_item_titulo')
+                                : key === 'peso_bruto_total_pedido'
+                                  ? t('pedido.coluna_pai.peso_bruto_item_titulo')
+                                  : undefined
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)
@@ -355,23 +370,28 @@ export function enriquecerColunaComRegraTooltip<T>(
     avisoImpactoColuna: col.avisoImpacto,
   }
   const usaPorNivel = usaTooltipPorNivelColuna(key, pillsRes.dual)
+  const temTooltipPorNivel = usaPorNivel || Boolean(tituloItem)
   const tooltipCelulaPedido = montarTooltipPills(t, key, {
     ...optsMontar,
-    somenteBloco: usaPorNivel ? 'pedido' : undefined,
+    somenteBloco: temTooltipPorNivel ? 'pedido' : undefined,
   }, 'pai')
   const tooltipCelulaItem = montarTooltipPills(t, key, {
     ...optsMontar,
     modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-    somenteBloco: usaPorNivel ? 'item' : undefined,
+    somenteBloco: temTooltipPorNivel ? 'item' : undefined,
   }, 'item')
 
   const tooltipInterativo = regraTooltipEhInterativa(regraId) || col.tooltipInterativo
-  const tooltipDescricaoCabecalho = usaPorNivel
+  const tooltipDescricaoCabecalho = temTooltipPorNivel
     ? montarTooltipPills(t, key, { ...optsMontar, somenteBloco: 'pedido' })
     : montarTooltipPills(t, key, optsMontar)
 
   // Colunas piloto: célula = TooltipListaColuna; cabeçalho = tooltipTitulo + tooltipDescricao apenas.
-  if (CHAVES_TOOLTIP_INLINE_LISTA.has(key) || CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO.has(key)) {
+  if (
+    CHAVES_TOOLTIP_INLINE_LISTA.has(key)
+    || CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO.has(key)
+    || isChaveColunaAnexo(key)
+  ) {
     return aplicarRenderTooltipInlineLista(
       col,
       {
@@ -380,11 +400,14 @@ export function enriquecerColunaComRegraTooltip<T>(
         ...(tituloItem ? { tooltipTituloItem: tituloItem } : {}),
         tooltipDescricao: tooltipDescricaoCabecalho,
         tooltipInterativo,
+        tooltipInline: true,
       },
       t,
       {
         modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-        cursorBloqueado: (row: T) => resolverCursorBloqueadoCelulaLista(col, row),
+        cursorBloqueado: isChaveColunaAnexo(key)
+          ? () => false
+          : (row: T) => resolverCursorBloqueadoCelulaLista(col, row),
       },
     )
   }
@@ -393,10 +416,12 @@ export function enriquecerColunaComRegraTooltip<T>(
     ...col,
     tooltipTitulo: titulo,
     tooltipTituloItem: tituloItem,
-    ...(usaPorNivel
+    ...(temTooltipPorNivel
       ? { tooltipNivelCelula: (row: T) => (isLinhaItemLista(row) ? 'item' : 'pedido') }
       : {}),
-    tooltipTituloCelula: (row) => tituloTooltipCelulaLista(t, key, row, titulo, tituloItem),
+    ...(tituloItem
+      ? {}
+      : { tooltipTituloCelula: (row: T) => tituloTooltipCelulaLista(t, key, row, titulo, tituloItem) }),
     tooltipDescricao: tooltipDescricaoCabecalho,
     tooltipDescricaoItem: tooltipCelulaItem,
     tooltipDescricaoCelula: (row: T) => {
@@ -422,9 +447,11 @@ export function enriquecerColunaComRegraTooltip<T>(
         || key === 'tipo_volume_pedido'
         || key === 'cobertura_cambial'
         || key === 'condicao_pagamento'
+        || key === 'condicao_pagamento_siscomex'
         || key === 'nome_importador'
         || key === 'nome_exportador'
         || pillsRes.dual
+        || temTooltipPorNivel
       ) {
         if (isLinhaItemLista(row)) return tooltipCelulaItem
         return tooltipCelulaPedido
@@ -447,8 +474,13 @@ export function enriquecerColunasComRegraTooltip<T>(
 }
 
 /** Texto plano para tooltipBloqueado em células de item. */
-export function textoRegraTooltipPlain(t: TFunction, key: string, nivel: NivelColunaLista = 'item'): string {
-  const pills = pillsParaNivelColuna(key, nivel)
+export function textoRegraTooltipPlain(
+  t: TFunction,
+  key: string,
+  nivel: NivelColunaLista = 'item',
+  opts?: { colunaPersonalizada?: boolean },
+): string {
+  const pills = pillsParaNivelColuna(key, nivel, opts)
   return pills.map(id => t(`pedido.lista.regras_pill.${id}`)).join(' · ')
 }
 
@@ -465,16 +497,22 @@ const REGRAS_BLOQUEIO_ITEM = new Set<RegraTooltipId>([
 export function enriquecerMapaColunasFilhoComRegraTooltip<C>(
   mapa: Record<string, GTMapaColunasFilho<C>>,
   t: TFunction,
+  opts?: { chavesColunaPersonalizada?: ReadonlySet<string> },
 ): Record<string, GTMapaColunasFilho<C>> {
   const out: Record<string, GTMapaColunasFilho<C>> = { ...mapa }
   for (const key of Object.keys(out)) {
     const entry = out[key]
     if (!entry || entry.tooltipBloqueado != null) continue
-    const regraId = classificarRegraTooltipColuna(key, 'item')
+    if (entry.editavel === true) continue
+    const regraId = classificarRegraTooltipColuna(key, 'item', {
+      colunaPersonalizada: opts?.chavesColunaPersonalizada?.has(key),
+    })
     if (!REGRAS_BLOQUEIO_ITEM.has(regraId)) continue
     out[key] = {
       ...entry,
-      tooltipBloqueado: textoRegraTooltipPlain(t, key, 'item'),
+      tooltipBloqueado: textoRegraTooltipPlain(t, key, 'item', {
+        colunaPersonalizada: opts?.chavesColunaPersonalizada?.has(key),
+      }),
     }
   }
   return out
@@ -596,7 +634,6 @@ export const CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO = new Set([
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
-  'moeda_cambio_pedido',
   'taxa_cambio_estimada',
   'valor_total_cambio_pedido',
   'quantidade_volumes_pedido',

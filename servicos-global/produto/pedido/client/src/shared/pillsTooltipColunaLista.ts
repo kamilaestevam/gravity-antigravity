@@ -69,6 +69,7 @@ export type RegraPillId =
   | 'espelhado_logistica_item'
   | 'espelhado_logistica_bidirecional'
   | 'editavel_atualiza_pedido'
+  | 'atualiza_transferencia_saldo'
   | 'itens_bloqueados_pedido'
   | 'anexo'
   | 'coluna_personalizada'
@@ -109,6 +110,7 @@ export const ORDEM_PILLS_PEDIDO: RegraPillId[] = [
   'editavel_atualiza_pedido',
   'replica_itens',
   'replica_itens_auto',
+  'atualiza_transferencia_saldo',
   'editavel_item',
   'editavel_nos_itens',
   'alerta_divergencia',
@@ -137,6 +139,7 @@ export const ORDEM_PILLS_ITEM: RegraPillId[] = [
   'so_operacao',
   'editavel_item',
   'editavel_nos_itens',
+  'atualiza_transferencia_saldo',
   'alerta_divergencia',
   'alerta_moeda_divergente',
   'alerta_unidade_peso_divergente',
@@ -206,6 +209,21 @@ export const PILLS_PEDIDO_QTD_PRONTA: RegraPillId[] = [
 
 /** Linha item — Qtd. Pronta: editável + alerta de moeda divergente entre itens. */
 export const PILLS_ITEM_QTD_PRONTA: RegraPillId[] = ['editavel_item', 'alerta_moeda_divergente']
+
+/** Data Transferência Saldo — linha do pedido. */
+export const PILLS_PEDIDO_DATA_TRANSFERENCIA_SALDO: RegraPillId[] = [
+  'editavel_pedido',
+  'replica_itens',
+  'atualiza_transferencia_saldo',
+  'alerta_divergencia',
+]
+
+/** Data Transferência Saldo — linha do item. */
+export const PILLS_ITEM_DATA_TRANSFERENCIA_SALDO: RegraPillId[] = [
+  'editavel_item',
+  'atualiza_transferencia_saldo',
+  'alerta_divergencia',
+]
 
 /** Linha do pedido — Qtd. Transferida: calculado, bloqueado, soma mesma unidade, alerta. */
 export const PILLS_PEDIDO_QTD_TRANSFERIDA: RegraPillId[] = [
@@ -399,7 +417,7 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['somente_leitura'],
   },
   pai_moeda_cambio: {
-    pedido: ['editavel_pedido', 'editavel_item'],
+    pedido: ['editavel_pedido', 'editavel_item', 'alerta_moeda_divergente'],
     item: ['editavel_item'],
   },
   pai_anexo: {
@@ -564,7 +582,7 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_total_pedido') return PILLS_ITEM_VALOR_TOTAL
   if (key === 'valor_por_unidade_item') return PILLS_ITEM_VALOR_UNITARIO
   if (key === 'moeda_pedido') return PILLS_ITEM_MOEDA
-  if (key === 'moeda_cambio_pedido') return PILLS_ITEM_MOEDA
+  if (key === 'moeda_cambio_pedido') return ['editavel_item']
   if (key === 'unidade_comercializada_pedido') return PILLS_ITEM_UNIDADE
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_ITEM_QTD_PRONTA
   if (key === 'quantidade_total_pedido') return PILLS_ITEM_QTD_INICIAL
@@ -579,7 +597,7 @@ function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
 function pillsPedidoPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_por_unidade_item') return PILLS_PEDIDO_VALOR_UNITARIO_ITEM
   if (key === 'moeda_pedido') return PILLS_PEDIDO_MOEDA
-  if (key === 'moeda_cambio_pedido') return ['editavel_pedido', 'editavel_item']
+  if (key === 'moeda_cambio_pedido') return ['editavel_pedido', 'editavel_item', 'alerta_moeda_divergente']
   if (key === 'unidade_comercializada_pedido') return PILLS_PEDIDO_UNIDADE
   if (key === 'valor_total_pedido') return PILLS_PEDIDO_VALOR_TOTAL
   if (key === 'quantidade_pronta_itens_pedido_total') return PILLS_PEDIDO_QTD_PRONTA
@@ -602,6 +620,18 @@ export function obterPillsTooltipColuna(
   key: string,
   opts?: { modoDinamicoPedidoItem?: boolean; colunaPersonalizada?: boolean },
 ): ResolucaoPillsTooltip {
+  if (opts?.colunaPersonalizada) {
+    const mapa = MAPA_REGRA_PILLS.pai_coluna_personalizada
+    return {
+      dual: true,
+      pedido: limitarPills([...mapa.pedido], 'pai'),
+      item: limitarPills([...mapa.item], 'item'),
+      linkFormula: false,
+      ghostSemCheckbox: false,
+      numeroUnicoOrg: false,
+    }
+  }
+
   const dual =
     CHAVES_DUAL_SEMPRE.has(key)
     || Boolean(opts?.modoDinamicoPedidoItem && CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM.has(key))
@@ -672,6 +702,17 @@ export function obterPillsTooltipColuna(
     }
   }
 
+  if (key === 'data_transferencia_saldo_pedido' && !dual) {
+    return {
+      dual: false,
+      pedido: limitarPills([...PILLS_PEDIDO_DATA_TRANSFERENCIA_SALDO], 'pai'),
+      item: limitarPills([...PILLS_ITEM_DATA_TRANSFERENCIA_SALDO], 'item'),
+      linkFormula: false,
+      ghostSemCheckbox: false,
+      numeroUnicoOrg: false,
+    }
+  }
+
   const regraPai = classificarRegraTooltipColuna(key, 'pai', opts)
   const regraItem = classificarRegraTooltipColuna(key, 'item', opts)
   const idPai = opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraPai
@@ -706,7 +747,7 @@ export function pillsParaNivelColuna(
     nivel,
     opts,
   )
-  const id = nivel === 'pai' && opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraId
+  const id = opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraId
   const mapa = MAPA_REGRA_PILLS[id] ?? MAPA_REGRA_PILLS.generico
   if (key === 'moeda_pedido') {
     return limitarPills(nivel === 'item' ? [...PILLS_ITEM_MOEDA] : [...PILLS_PEDIDO_MOEDA], nivel)
@@ -778,6 +819,12 @@ export function pillsParaNivelColuna(
   }
   if (key === 'quantidade_volumes_pedido' && nivel === 'item') {
     return limitarPills(PILLS_ITEM_VOLUMES, 'item')
+  }
+  if (key === 'data_transferencia_saldo_pedido' && nivel === 'pai') {
+    return limitarPills(PILLS_PEDIDO_DATA_TRANSFERENCIA_SALDO, 'pai')
+  }
+  if (key === 'data_transferencia_saldo_pedido' && nivel === 'item') {
+    return limitarPills(PILLS_ITEM_DATA_TRANSFERENCIA_SALDO, 'item')
   }
   return limitarPills(nivel === 'item' ? mapa.item : mapa.pedido, nivel)
 }

@@ -5,13 +5,15 @@
  * Uso: npx tsx server/lib/emt-background-runner.ts <runId>
  */
 import { spawn } from 'child_process'
-import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync, statSync } from 'fs'
-import { join, resolve, dirname } from 'path'
+import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs'
+import { join, resolve } from 'path'
 import { coletarArtefatosEmt } from './emt-artifacts.js'
 import type { TestLogEntry } from '../utils/playwright-parser.js'
 
-const RUN_TESTS_TIMEOUT_MS = 30 * 60 * 1000
-const monorepoRoot = resolve(process.cwd(), '..', '..')
+import { RUN_TESTES_TIMEOUT_MS } from './emt-run-timeout.js'
+import { raizRepositorioGravity, registryPlanosTestePath } from './raiz-repositorio-gravity.js'
+/** Só para stderr/stdout quando não há RESULTADO.txt em emt_pasta. */
+const EMT_TERMINAL_LOG_MAX_CHARS = 16_000
 const testLogsDir = join(process.cwd(), 'data', 'test-logs')
 
 type RegistryPlanoRun = { id: string; specFile?: string; tipo?: string; tela?: string; modulo?: string }
@@ -33,36 +35,11 @@ function debugLog(msg: string): void {
   } catch { /* ignora */ }
 }
 
-function lerResultadoTxtEmtRecente(scriptRel: string, startedAtMs: number): string | null {
-  try {
-    const scriptDir = dirname(resolve(monorepoRoot, scriptRel))
-    const subpastas = readdirSync(scriptDir, { withFileTypes: true }).filter(d => d.isDirectory())
-    let melhor: { path: string; mtime: number } | null = null
-    for (const sub of subpastas) {
-      const resultPath = join(scriptDir, sub.name, 'RESULTADO.txt')
-      if (!existsSync(resultPath)) continue
-      const mtime = statSync(resultPath).mtimeMs
-      if (mtime < startedAtMs - 5000) continue
-      if (!melhor || mtime > melhor.mtime) melhor = { path: resultPath, mtime }
-    }
-    if (melhor) return readFileSync(melhor.path, 'utf-8')
-  } catch { /* pasta indisponível */ }
-  return null
-}
-
-function montarErrorLogEmt(
-  code: number,
-  stdout: string,
-  stderr: string,
-  scriptRel: string,
-  startedAtMs: number,
-): string | null {
+function montarErrorLogEmt(code: number, stdout: string, stderr: string): string | null {
   if (code === 0) return null
   const terminal = [stderr, stdout].map(s => s.trim()).filter(Boolean).join('\n').trim()
-  if (terminal) return terminal.slice(0, 32_000)
-  const resultadoTxt = lerResultadoTxtEmtRecente(scriptRel, startedAtMs)
-  if (resultadoTxt) return resultadoTxt.slice(0, 32_000)
-  return 'Script EMT encerrou com erro (exit ≠ 0) sem saída no terminal. Verifique RESULTADO.txt na pasta do script.'
+  if (terminal) return terminal.slice(0, EMT_TERMINAL_LOG_MAX_CHARS)
+  return 'Script EMT encerrou com erro (exit ≠ 0). Abra o run expandido — log completo em RESULTADO.txt na pasta emt_pasta.'
 }
 
 function runTsxScript(
@@ -74,11 +51,11 @@ function runTsxScript(
     let stderr = ''
     let stdout = ''
     const proc = spawn('npx', ['tsx', scriptRel], {
-      cwd: monorepoRoot,
+      cwd: raizRepositorioGravity,
       env,
       shell: true,
       windowsHide: true,
-      timeout: RUN_TESTS_TIMEOUT_MS,
+      timeout: RUN_TESTES_TIMEOUT_MS,
     })
     proc.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString() })
     proc.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString() })
@@ -132,8 +109,8 @@ async function main(): Promise<void> {
         test_name: resolverOqueFoiTestadoPlano(plano),
         result: code === 0 ? 'APROVADO' : 'REPROVADO',
         duration: `${durationMs}ms`,
-        error_log: montarErrorLogEmt(code, stdout, stderr, plano.specFile, startedAtMs),
-        success_log: code === 0 ? artefatos.success_log : null,
+        error_log: artefatos.emt_pasta ? null : montarErrorLogEmt(code, stdout, stderr),
+        success_log: artefatos.emt_pasta ? null : (code === 0 ? artefatos.success_log : null),
         emt_pasta: artefatos.emt_pasta,
         emt_prints: artefatos.emt_prints,
         ai_analysis: null,

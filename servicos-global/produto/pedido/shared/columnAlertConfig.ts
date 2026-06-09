@@ -19,7 +19,7 @@
  *   - Servidor (~68 campos): base autoritativa
  *   - Cliente (8 campos omitidos do servidor): nome_exportador, nome_importador,
  *     nome_fabricante, referencia_importador, referencia_exportador,
- *     referencia_fabricante, incoterm, condicao_pagamento_pedido
+ *     referencia_fabricante, incoterm, condicao_pagamento
  */
 
 const CAMPOS_ALERTAVEIS = new Set([
@@ -40,7 +40,7 @@ const CAMPOS_ALERTAVEIS = new Set([
   'referencia_exportador',
   'referencia_fabricante',
   'incoterm',
-  'condicao_pagamento_pedido',
+  'condicao_pagamento',
   'condicao_pagamento_siscomex',
 
   // Homogeneidade de moeda/unidade (Onda A8 — 2025-05-11):

@@ -22,6 +22,7 @@ export interface CriarColunaInput {
   visibilidade: string
   roles_permitidas?: string[]
   obrigatorio?: boolean
+  alerta_divergencia_itens?: boolean
   opcoes?: string[]
   descricao?: string
   valor_padrao?: string
@@ -34,6 +35,7 @@ export interface AtualizarColunaInput {
   visibilidade?: string
   roles_permitidas?: string[]
   obrigatorio?: boolean
+  alerta_divergencia_itens?: boolean
   opcoes?: string[]
   descricao?: string
   valor_padrao?: string
@@ -79,6 +81,7 @@ function mapColuna(c: Record<string, unknown>): Record<string, unknown> {
     visibilidade:     c.visibilidade_coluna_usuario_pedido,
     roles_permitidas: c.tipos_usuario_workspace_permitidos_coluna_usuario_pedido,
     obrigatorio:      c.obrigatorio_coluna_usuario_pedido,
+    alerta_divergencia_itens: c.alerta_divergencia_itens_coluna_usuario_pedido ?? false,
     opcoes:           c.opcoes_coluna_usuario_pedido,
     descricao:        c.descricao_coluna_usuario_pedido,
     valor_padrao:     c.valor_padrao_coluna_usuario_pedido,
@@ -147,6 +150,7 @@ export class ColunasUsuarioService {
           visibilidade_coluna_usuario_pedido: input.visibilidade,
           tipos_usuario_workspace_permitidos_coluna_usuario_pedido: input.roles_permitidas ?? [],
           obrigatorio_coluna_usuario_pedido: input.obrigatorio ?? false,
+          alerta_divergencia_itens_coluna_usuario_pedido: input.alerta_divergencia_itens ?? false,
           opcoes_coluna_usuario_pedido:      input.opcoes ?? [],
           descricao_coluna_usuario_pedido:   input.descricao,
           valor_padrao_coluna_usuario_pedido: input.valor_padrao,
@@ -175,6 +179,7 @@ export class ColunasUsuarioService {
         visibilidade_coluna_usuario_pedido: input.visibilidade,
         tipos_usuario_workspace_permitidos_coluna_usuario_pedido: input.roles_permitidas ?? [],
         obrigatorio_coluna_usuario_pedido: input.obrigatorio ?? false,
+        alerta_divergencia_itens_coluna_usuario_pedido: input.alerta_divergencia_itens ?? false,
         opcoes_coluna_usuario_pedido:      input.opcoes ?? [],
         descricao_coluna_usuario_pedido:   input.descricao,
         valor_padrao_coluna_usuario_pedido: input.valor_padrao,
@@ -247,6 +252,7 @@ export class ColunasUsuarioService {
         visibilidade_coluna_usuario_pedido: input.visibilidade,
         tipos_usuario_workspace_permitidos_coluna_usuario_pedido: input.roles_permitidas,
         obrigatorio_coluna_usuario_pedido: input.obrigatorio,
+        alerta_divergencia_itens_coluna_usuario_pedido: input.alerta_divergencia_itens,
         opcoes_coluna_usuario_pedido:      input.opcoes,
         descricao_coluna_usuario_pedido:   input.descricao,
         valor_padrao_coluna_usuario_pedido: input.valor_padrao,

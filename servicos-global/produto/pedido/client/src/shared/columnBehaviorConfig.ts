@@ -145,6 +145,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   data_meta_recebimento_original_proforma:        { tipo: 'alfanumerico' },
   // Documento Proforma
   data_proforma_invoice:                          { tipo: 'alfanumerico' },
+  data_documento_proforma:                        { tipo: 'alfanumerico' },
   // Invoice — Recebimento Rascunho
   data_prevista_recebimento_rascunho_invoice:    { tipo: 'alfanumerico' },
   data_confirmada_recebimento_rascunho_invoice:  { tipo: 'alfanumerico' },
@@ -163,6 +164,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   data_meta_recebimento_original_invoice:        { tipo: 'alfanumerico' },
   // Documento Invoice
   data_invoice:                                  { tipo: 'alfanumerico' },
+  data_documento_invoice:                        { tipo: 'alfanumerico' },
 }
 
 // ── Comportamento no nível ITEM (filho) ──────────────────────────────────────

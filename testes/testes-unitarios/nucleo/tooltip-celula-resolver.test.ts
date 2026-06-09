@@ -151,6 +151,21 @@ describe('resolverTooltipRegraCelula — título alinhado à descrição', () =>
     expect(resolverNivelTooltipCelula(colNivelErrado, item, true)).toBe(true)
   })
 
+  it('linha pedido: título pedido permanece pedido (não troca por tooltipTituloItem)', () => {
+    const col: GTColuna<unknown> = {
+      key: 'data_prevista_pedido_pronto',
+      label: 'Data Prevista',
+      tooltipTitulo: 'Data Prevista — Pedido Pronto',
+      tooltipTituloItem: 'Data Prevista — Item Pronto',
+      tooltipDescricao: 'bloco-pedido',
+      tooltipDescricaoItem: 'bloco-item',
+    }
+    const pedido = { numero_pedido: 'P-1' }
+    const regra = resolverTooltipRegraCelula(col, pedido, false)
+    expect(regra?.titulo).toBe('Data Prevista — Pedido Pronto')
+    expect(regra?.descricao).toBe('bloco-pedido')
+  })
+
   it('inferência por referência de tooltipDescricaoItem (sem tooltipNivelCelula)', () => {
     const descricaoItem = 'bloco-item-ref' as unknown as GTColuna<unknown>['tooltipDescricaoItem']
     const colSemNivel: GTColuna<unknown> = {

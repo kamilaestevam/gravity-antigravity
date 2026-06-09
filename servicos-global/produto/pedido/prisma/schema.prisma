@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-06-09T01:01:54.088Z
+// Gerado em: 2026-06-09T14:35:16.101Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/produto/pedido
 // ============================================================================
@@ -223,6 +223,8 @@ model PedidoItem {
   referencia_importador_item       String?
   referencia_exportador_item       String?
   referencia_fabricante_item       String?
+  numero_proforma_item             String?
+  numero_invoice_item              String?
   incoterm_item                    String?
   condicao_pagamento_item          String?
   condicao_pagamento_siscomex_item String?
@@ -450,6 +452,7 @@ model PedidoListaColunaUsuario {
   visibilidade_coluna_usuario_pedido String
   tipos_usuario_workspace_permitidos_coluna_usuario_pedido String[] @default([])
   obrigatorio_coluna_usuario_pedido Boolean                    @default(false)
+  alerta_divergencia_itens_coluna_usuario_pedido Boolean      @default(false)
   opcoes_coluna_usuario_pedido       String[]                   @default([])
   descricao_coluna_usuario_pedido    String?
   valor_padrao_coluna_usuario_pedido String?

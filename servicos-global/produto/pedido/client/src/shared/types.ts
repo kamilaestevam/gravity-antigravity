@@ -83,6 +83,8 @@ export interface PedidoItem {
   referencia_importador?: string | null
   referencia_exportador?: string | null
   referencia_fabricante?: string | null
+  numero_proforma?: string | null
+  numero_invoice?: string | null
 
   // Pesos e cubagem — unidades vêm de cadastros.unidade (SSOT).
   // Defaults do backend (mapItem): 'KG' para peso, 'M3' para cubagem.
@@ -381,6 +383,8 @@ export interface Pedido {
   descricao_item_valor_unico?: string | null
   referencia_importador_divergente?: boolean | null
   referencia_exportador_divergente?: boolean | null
+  numero_proforma_divergente?: boolean | null
+  numero_invoice_divergente?: boolean | null
   incoterm_divergente?: boolean | null
   condicao_pagamento_divergente?: boolean | null
   condicao_pagamento_siscomex_divergente?: boolean | null
@@ -1023,6 +1027,8 @@ export interface ColunaUsuario {
   visibilidade: VisibilidadeColunaUsuario
   roles_permitidas?: string[]
   obrigatorio: boolean
+  /** Exibe ícone de alerta na linha do pedido quando valores dos itens divergem (escopo ambos). */
+  alerta_divergencia_itens?: boolean
   opcoes?: string[]
   descricao?: string
   valor_padrao?: string

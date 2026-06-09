@@ -291,6 +291,8 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'referencia_importador_item',                   rotulo: 'Referencia Importador (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
   { campo: 'referencia_exportador_item',                   rotulo: 'Referencia Exportador (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
   { campo: 'referencia_fabricante_item',                   rotulo: 'Referencia Fabricante (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'numero_proforma_item',                         rotulo: 'No Proforma (Item)',                     tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'numero_invoice_item',                          rotulo: 'No Invoice (Item)',                      tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
 
   // Comercial
   { campo: 'incoterm_item',                                rotulo: 'Incoterm (Item)',                        tipo: 'texto',  nivel: 'item', grupo: 'Comercial', prioridade: 'principal' },

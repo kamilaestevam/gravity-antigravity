@@ -6,6 +6,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { registryPlanosTestePath } from './raiz-repositorio-gravity.js'
 import {
   PlanoTesteSchema,
   type PlanoTeste,
@@ -159,7 +160,7 @@ export async function generateTestPlan(input: GeneratePlanInput): Promise<PlanoT
   }
 
   // Carregar registry
-  const registryPath = resolve(process.cwd(), 'testes/test-plans-registry.json')
+  const registryPath = registryPlanosTestePath
   const registry = existsSync(registryPath)
     ? (JSON.parse(readFileSync(registryPath, 'utf-8')) as { planos: PlanRegistryEntry[] }).planos
     : []
@@ -332,7 +333,7 @@ function persistPlan(plan: PlanoTeste, escopo: string, sublocal: string): void {
 }
 
 function updateRegistry(plan: PlanoTeste, escopo: string, sublocal: string): void {
-  const registryPath = resolve(process.cwd(), 'testes/test-plans-registry.json')
+  const registryPath = registryPlanosTestePath
   const registry = existsSync(registryPath)
     ? JSON.parse(readFileSync(registryPath, 'utf-8')) as Record<string, unknown>
     : {

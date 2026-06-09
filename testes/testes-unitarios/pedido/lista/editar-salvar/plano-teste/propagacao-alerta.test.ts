@@ -42,6 +42,16 @@ describe('isPropagavel — campos com par no MAPA_PROPAGACAO_PEDIDO_ITEM', () =>
     expect(isPropagavel('tipo_operacao')).toBe(true)
     expect(isPropagavel('tipo_operacao_pedido')).toBe(true)
   })
+
+  it('U-PROP-08: numero_proforma (legado) → true via numero_proforma_pedido', () => {
+    expect(isPropagavel('numero_proforma')).toBe(true)
+    expect(isPropagavel('numero_proforma_pedido')).toBe(true)
+  })
+
+  it('U-PROP-09: numero_invoice (legado) → true via numero_invoice_pedido', () => {
+    expect(isPropagavel('numero_invoice')).toBe(true)
+    expect(isPropagavel('numero_invoice_pedido')).toBe(true)
+  })
 })
 
 // ── 14b. isAlertavel ─────────────────────────────────────────────────────────
@@ -53,6 +63,11 @@ describe('isAlertavel — campos em CAMPOS_ALERTAVEIS', () => {
 
   it('U-ALRT-02: incoterm → true', () => {
     expect(isAlertavel('incoterm')).toBe(true)
+  })
+
+  it('U-ALRT-02b: condicao_pagamento (contrato JSON) → true', () => {
+    expect(isAlertavel('condicao_pagamento')).toBe(true)
+    expect(isAlertavel('condicao_pagamento_pedido')).toBe(false)
   })
 
   it('U-ALRT-03: moeda_item → true', () => {

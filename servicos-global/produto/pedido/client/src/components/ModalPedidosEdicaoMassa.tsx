@@ -266,6 +266,8 @@ function construirCamposItemEditaveis(t: TFunc): DefinicaoCampo[] { return [
   { campo: 'referencia_importador_item', rotulo: t('pedido.massa_campos.referencia_importador_item'),                  tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
   { campo: 'referencia_exportador_item', rotulo: t('pedido.massa_campos.referencia_exportador_item'),                  tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
   { campo: 'referencia_fabricante_item', rotulo: t('pedido.massa_campos.referencia_fabricante_item'),                  tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
+  { campo: 'numero_proforma_item', rotulo: t('pedido.massa_campos.numero_proforma_item'),                              tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
+  { campo: 'numero_invoice_item', rotulo: t('pedido.massa_campos.numero_invoice_item'),                                tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
 
   // Embalagem e documentos
   { campo: 'tipo_embalagem', rotulo: t('pedido.massa_campos.tipo_embalagem'),                         tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },

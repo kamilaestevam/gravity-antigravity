@@ -105,6 +105,13 @@ function avisoImpactoPorColuna(
   if (key === 'quantidade_cancelada_total_pedido') {
     return t('pedido.lista.regras_coluna.quantidade_cancelada_edicao_via_transferir')
   }
+  if (
+    key === 'moeda_cambio_pedido'
+    || key === 'valor_total_cambio_pedido'
+    || key === 'taxa_cambio_estimada'
+  ) {
+    return t('pedido.coluna_pai.aviso_impacto_moeda_cambio')
+  }
   if (avisoImpactoColuna?.trim()) {
     return avisoImpactoColuna.trim()
   }

@@ -36,8 +36,12 @@ import {
 import { renderRotuloCadastro, type GTOpcaoCadastro } from '../../shared/useLogisticaCadastrosPedido'
 import { METADADOS_COLUNA_ANEXO_LISTA, renderColunaAnexoPedido } from '../../shared/renderCelulaAnexoLista'
 
-// Re-export so callers that used to import from ListaPedidos still work
-export { LABELS_FILTRO_INVERSO }
+function codigoMoedaBadgeLista(valor: string | null | undefined): string | null {
+  if (!valor?.trim()) return null
+  const sep = valor.indexOf(' — ')
+  return sep > 0 ? valor.slice(0, sep).trim() : valor.trim()
+}
+
 
 // ── Status: cores padrão e leitura de localStorage ───────────────────────────
 
@@ -1222,6 +1226,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'moeda_cambio_pedido',
     label: t('pedido.coluna_pai.moeda_cambio'),
     tipo: 'select',
+    align: 'center',
     opcoes: moedasOpcoes ?? [],
     filtravel: true,
     editavel: getEditavel('moeda_cambio_pedido'),
@@ -1233,10 +1238,11 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     grupo: 'Câmbio',
     render: (_val: unknown, row: Pedido) => {
       const moeda = obterMoedaCambioExibicaoPedido(row as Record<string, unknown>)
+      const codigo = codigoMoedaBadgeLista(moeda)
       return renderAgregado(
-        moeda ? (
+        codigo ? (
           <span className="gtv-celula-moeda">
-            <span className={classeMoedaBadge(moeda)}>{moeda}</span>
+            <span className={classeMoedaBadge(codigo)}>{codigo}</span>
           </span>
         ) : null,
         row.moeda_cambio_pedido_divergente,

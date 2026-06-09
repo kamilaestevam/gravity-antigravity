@@ -4564,7 +4564,7 @@
       "moeda_pedido_titulo_linha_pedido": "Order Currency",
       "moeda_item_titulo": "Item currency",
       "aviso_impacto_moeda": "Changing the currency will also change the Item Unit Value and Total Order/Item Value",
-      "aviso_impacto_moeda_cambio": "Exchange currency is order-only and does not change items' commercial currency",
+      "aviso_impacto_moeda_cambio": "Does not change items' commercial currency. Total Exchange Value uses this currency.",
       "moedas_cambio_divergentes": "Exchange currency differs from item currency",
       "unidade_comercializada": "Commercialized Unit",
       "unidade_comercializada_titulo_linha_pedido": "Commercialized Unit of the Order",

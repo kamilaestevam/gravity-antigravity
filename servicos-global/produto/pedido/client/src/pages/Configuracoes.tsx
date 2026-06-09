@@ -407,7 +407,7 @@ function ColunaSortavel({
       </TooltipGlobal>
       <TooltipGlobal descricao={t('pedido.config.colunas.personalizadas.tooltip_excluir_coluna')}>
         <button type="button" className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove" onClick={onRemover} aria-label={t('pedido.config.colunas.personalizadas.aria_excluir_coluna', { nome: col.nome })}>
-          <X size={13} weight="bold" />
+          <Trash size={14} weight="bold" />
         </button>
       </TooltipGlobal>
     </div>
@@ -1067,6 +1067,7 @@ export default function Configuracoes() {
   // ── Estado: gerenciamento de colunas existentes (pending — DnD + ativo) ──
   const [pendingColunas,    setPendingColunas]    = useState<ColunaUsuarioApi[]>([])
   const [salvandoColunas,   setSalvandoColunas]   = useState(false)
+  const [confirmarExcluirColunaPersonalizadaId, setConfirmarExcluirColunaPersonalizadaId] = useState<string | null>(null)
 
   // Sincroniza pending quando a lista da API muda (cria, exclui, etc.)
   useEffect(() => {
@@ -1638,12 +1639,29 @@ export default function Configuracoes() {
     }
   }
 
-  async function handleRemoverColuna(id: string) {
+  function solicitarExcluirColunaPersonalizada(id: string) {
+    setConfirmarExcluirColunaPersonalizadaId(id)
+  }
+
+  async function excluirColunaPersonalizadaConfirmada() {
+    const id = confirmarExcluirColunaPersonalizadaId
+    if (!id) return
+    const nomeColuna = colunasUsuarioApi_.find(c => c.id === id)?.nome ?? ''
     try {
       await colunasUsuarioApi.excluir(id)
       const lista = await colunasUsuarioApi.listar()
       setColunasUsuarioApi(lista)
-    } catch { /* ignore */ }
+      addNotification({
+        type: 'success',
+        message: String(t('pedido.config.colunas.personalizadas.msg_excluida', { nome: nomeColuna })),
+      })
+    } catch {
+      addNotification({
+        type: 'error',
+        message: String(t('pedido.config.colunas.personalizadas.msg_erro_excluir')),
+      })
+      throw new Error('excluir_coluna_personalizada')
+    }
   }
 
   function handleAdicionarOpcao() {
@@ -4426,7 +4444,7 @@ export default function Configuracoes() {
                             key={col.id}
                             col={col}
                             onToggleAtivo={() => handleToggleAtivoColuna(col.id)}
-                            onRemover={() => handleRemoverColuna(col.id)}
+                            onRemover={() => solicitarExcluirColunaPersonalizada(col.id)}
                             onEditar={() => abrirEdicaoColuna(col)}
                             editando={false}
                           />
@@ -5184,6 +5202,15 @@ export default function Configuracoes() {
         nomeItem={templates.find(tpl => tpl.id === confirmarExcluirTemplateId)?.nome}
         aoConfirmar={excluirTemplateConfirmado}
         aoCancelar={() => setConfirmarExcluirTemplateId(null)}
+      />
+
+      <ModalConfirmarExcluirGlobal
+        aberto={confirmarExcluirColunaPersonalizadaId !== null}
+        titulo={String(t('pedido.config.colunas.personalizadas.modal_excluir_titulo'))}
+        descricao={String(t('pedido.config.colunas.personalizadas.modal_excluir_descricao'))}
+        nomeItem={colunasUsuarioApi_.find(c => c.id === confirmarExcluirColunaPersonalizadaId)?.nome}
+        aoConfirmar={excluirColunaPersonalizadaConfirmada}
+        aoCancelar={() => setConfirmarExcluirColunaPersonalizadaId(null)}
       />
 
       {criandoCard && (

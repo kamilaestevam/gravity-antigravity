@@ -294,3 +294,12 @@ testes/testes-unitarios/nucleo-global/tabela-virtual-global/
 - **Regras de negócio:** [`DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md`](./DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md)
 - **Skill do produto:** [`skills/produtos-gravity/pedido/SKILL.md`](../../../skills/produtos-gravity/pedido/SKILL.md) — Parte 4
 - **Skill nucleo-global:** [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — Tabelas hierárquicas
+
+### Modal de exclusão — qual usar
+
+| Cenário | Componente | Onde |
+|---------|------------|------|
+| Exclusão em lote (N pedidos e/ou itens avulsos, preview + tabela) | `ModalPedidosExcluir` | `Pedidos.tsx` — toolbar e dropdown da linha |
+| Exclusão de **registro único** (coluna personalizada, template PDF, anexo, workspace…) | `ModalConfirmarExcluirGlobal` | `@nucleo/modal-confirmar-excluir-global` |
+
+Ambos compartilham o mesmo layout visual (Solid Slate). O global **não** tem tabela de múltiplos itens — apenas seção "Registro" com `nomeItem`. Documentação visual: `nucleo-global/Modais/modal-confirmar-excluir-global/PREVISAO_VISUAL.md`.

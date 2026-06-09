@@ -620,6 +620,18 @@ export function obterPillsTooltipColuna(
   key: string,
   opts?: { modoDinamicoPedidoItem?: boolean; colunaPersonalizada?: boolean },
 ): ResolucaoPillsTooltip {
+  if (opts?.colunaPersonalizada) {
+    const mapa = MAPA_REGRA_PILLS.pai_coluna_personalizada
+    return {
+      dual: true,
+      pedido: limitarPills([...mapa.pedido], 'pai'),
+      item: limitarPills([...mapa.item], 'item'),
+      linkFormula: false,
+      ghostSemCheckbox: false,
+      numeroUnicoOrg: false,
+    }
+  }
+
   const dual =
     CHAVES_DUAL_SEMPRE.has(key)
     || Boolean(opts?.modoDinamicoPedidoItem && CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM.has(key))
@@ -735,7 +747,7 @@ export function pillsParaNivelColuna(
     nivel,
     opts,
   )
-  const id = nivel === 'pai' && opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraId
+  const id = opts?.colunaPersonalizada ? 'pai_coluna_personalizada' : regraId
   const mapa = MAPA_REGRA_PILLS[id] ?? MAPA_REGRA_PILLS.generico
   if (key === 'moeda_pedido') {
     return limitarPills(nivel === 'item' ? [...PILLS_ITEM_MOEDA] : [...PILLS_PEDIDO_MOEDA], nivel)

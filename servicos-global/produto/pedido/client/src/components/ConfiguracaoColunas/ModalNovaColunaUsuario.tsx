@@ -13,14 +13,13 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
-import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
+import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import {
   X, Plus, Warning, Info, Columns,
   TextT, Hash, CalendarBlank, Percent, ListBullets,
   CheckSquare, Tag, MathOperations, Paperclip,
 } from '@phosphor-icons/react'
-import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type {
   ColunaUsuario,
@@ -407,60 +406,44 @@ export function ModalNovaColunaUsuario({
       } else {
         await colunasUsuarioApi.criar({ ...basePayload, tipo })
       }
-      // Dados salvos — fechar modal e notificar pai.
-      setSalvando(false)
-      try { await Promise.resolve(onSalvo()) } catch { /* pai trata */ }
+      await Promise.resolve(onSalvo())
+      onFechar()
     } catch (err) {
       const msg = err instanceof Error ? err.message : t('pedido.modal_col.erro_salvar')
       setErro(msg)
+    } finally {
       setSalvando(false)
     }
   }, [
     nome, tipo, escopo, visibilidade, obrigatorio, alertaDivergenciaItens, valorPadrao,
     descricao, opcoes, tipoComOpcoes, tipoFormula, formulaTokens,
-    formulaErro, isEdicao, colunaEdicao, onSalvo,
+    formulaErro, isEdicao, colunaEdicao, onSalvo, onFechar,
   ])
-
-  // Fecha com Escape
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onFechar() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onFechar])
 
   // ── Render ─────────────────────────────────────────────────────────────
 
-  return createPortal(
-    <div
-      className="mnc-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}
-      onClick={e => { if (e.target === e.currentTarget) onFechar() }}
-    >
-      <div className="mnc-modal">
-        {/* Cabeçalho */}
-        <div className="mnc-header">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Columns size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
-              <h2 className="mnc-titulo">{t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}</h2>
-            </div>
-            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>
-              {isEdicao ? t('pedido.modal_col.subtitulo_edicao') : t('pedido.modal_col.subtitulo_novo')}
-            </p>
-          </div>
-          <button
-            type="button"
-            className="mnc-fechar"
-            onClick={onFechar}
-            aria-label={t('pedido.modal_col.aria_fechar')}
-          >
-            <X size={18} weight="bold" />
-          </button>
-        </div>
-
-        {/* Corpo */}
+  return (
+    <ModalFormularioAbasGlobal
+      aberto
+      aoFechar={onFechar}
+      aoSalvar={handleSalvar}
+      icone={<Columns size={24} weight="duotone" color="var(--ws-accent, #818cf8)" />}
+      titulo={t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}
+      subtitulo={isEdicao ? t('pedido.modal_col.subtitulo_edicao') : t('pedido.modal_col.subtitulo_novo')}
+      tamanho="md"
+      larguraMaxima="560px"
+      semAbas
+      dirty
+      carregando={salvando}
+      textoSalvar={t('pedido.modal_col.salvar')}
+      textoCancelar={t('pedido.modal_col.cancelar')}
+      footerExtraEsquerda={erro ? (
+        <p className="mnc-erro mnc-erro--inline" role="alert">{erro}</p>
+      ) : undefined}
+      abas={[{
+        id: 'form',
+        rotulo: '',
+        conteudo: (
         <div className="mnc-corpo">
           {/* Nome */}
           <div className="mnc-campo">
@@ -469,13 +452,15 @@ export function ModalNovaColunaUsuario({
             </label>
             <input
               id="mnc-nome"
-              className="mnc-input"
+              className={['mnc-input', isEdicao ? 'mnc-input--readonly' : ''].filter(Boolean).join(' ')}
               type="text"
               value={nome}
-              onChange={e => setNome(e.target.value)}
+              onChange={e => !isEdicao && setNome(e.target.value)}
+              readOnly={isEdicao}
               maxLength={60}
-              placeholder={t('pedido.modal_col.placeholder_nome')}
-              autoFocus
+              placeholder={isEdicao ? undefined : t('pedido.modal_col.placeholder_nome')}
+              autoFocus={!isEdicao}
+              aria-readonly={isEdicao || undefined}
             />
           </div>
 
@@ -489,10 +474,15 @@ export function ModalNovaColunaUsuario({
                 <button
                   key={tc.id}
                   type="button"
-                  className={`mnc-tipo-btn${tipo === tc.id ? ' mnc-tipo-btn--ativo' : ''}`}
+                  className={[
+                    'mnc-tipo-btn',
+                    tipo === tc.id ? 'mnc-tipo-btn--ativo' : '',
+                    isEdicao ? 'mnc-tipo-btn--readonly' : '',
+                  ].filter(Boolean).join(' ')}
                   onClick={() => !isEdicao && setTipo(tc.id)}
                   aria-pressed={tipo === tc.id}
-                  disabled={isEdicao}
+                  aria-disabled={isEdicao || undefined}
+                  tabIndex={isEdicao ? -1 : 0}
                 >
                   <span className="mnc-tipo-btn__icone">{tc.icone}</span>
                   <span className="mnc-tipo-btn__label">{t(`pedido.coluna_tipo.${tc.id}`)}</span>
@@ -733,7 +723,8 @@ export function ModalNovaColunaUsuario({
           {escopo === 'ambos' && (
             <div className="mnc-campo mnc-campo--toggle-row">
               <div>
-                <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                <span className="mnc-label mnc-label--icone-alerta" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-primary)' }}>
+                  <Warning size={14} weight="regular" style={{ color: '#F59E0B', flexShrink: 0 }} aria-hidden="true" />
                   {t('pedido.modal_col.alerta_divergencia_itens')}
                 </span>
                 <p className="mnc-hint">{t('pedido.modal_col.alerta_divergencia_itens_hint')}</p>
@@ -801,27 +792,9 @@ export function ModalNovaColunaUsuario({
             />
           </div>
 
-          {/* Erro */}
-          {erro && (
-            <p className="mnc-erro" role="alert">{erro}</p>
-          )}
         </div>
-
-        {/* Rodapé */}
-        <div className="mnc-rodape">
-          <BotaoGlobal variante="secundario" onClick={onFechar} disabled={salvando}>
-            {t('pedido.modal_col.cancelar')}
-          </BotaoGlobal>
-          <BotaoGlobal
-            variante="primario"
-            onClick={handleSalvar}
-            carregando={salvando}
-          >
-            {t('pedido.modal_col.salvar')}
-          </BotaoGlobal>
-        </div>
-      </div>
-    </div>,
-    document.body,
+        ),
+      }]}
+    />
   )
 }

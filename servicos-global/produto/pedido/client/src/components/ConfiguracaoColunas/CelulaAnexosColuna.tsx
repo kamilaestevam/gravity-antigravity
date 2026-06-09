@@ -2,11 +2,12 @@
  * CelulaAnexosColuna.tsx — Célula interativa para colunas do tipo 'anexo'
  *
  * Exibe um ícone de clipe com contagem de arquivos. Ao clicar, abre um
- * mini-painel inline para upload, visualização e exclusão dos arquivos
+ * painel flutuante (portal) para upload, visualização e exclusão dos arquivos
  * vinculados àquela coluna específica (via categoria = coluna.id).
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Paperclip, Upload, Trash, Download, X } from '@phosphor-icons/react'
 import type { Anexo } from '../../shared/types'
@@ -24,6 +25,8 @@ interface CelulaAnexosColunaProps {
   colunaNome: string
 }
 
+const LARGURA_PAINEL_PX = 260
+
 export function CelulaAnexosColuna({
   vinculo_id,
   vinculo,
@@ -36,10 +39,11 @@ export function CelulaAnexosColuna({
   const [enviando, setEnviando]       = useState(false)
   const [anexos, setAnexos]           = useState<Anexo[] | null>(null)
   const [erro, setErro]               = useState<string | null>(null)
+  const [posPainel, setPosPainel]     = useState({ top: 0, left: 0 })
+  const triggerRef                    = useRef<HTMLButtonElement>(null)
   const panelRef                      = useRef<HTMLDivElement>(null)
   const inputFileRef                  = useRef<HTMLInputElement>(null)
 
-  // Filtra apenas os anexos desta coluna
   const anexosColuna = anexos?.filter(a => a.categoria === colunaId) ?? []
 
   const carregar = useCallback(async () => {
@@ -56,13 +60,29 @@ export function CelulaAnexosColuna({
     }
   }, [vinculo, vinculo_id, carregando, t])
 
+  const posicionarPainel = useCallback(() => {
+    const r = triggerRef.current?.getBoundingClientRect()
+    if (!r) return
+    const metade = LARGURA_PAINEL_PX / 2
+    const margem = 8
+    const left = Math.max(
+      margem + metade,
+      Math.min(r.left + r.width / 2, window.innerWidth - margem - metade),
+    )
+    setPosPainel({ top: r.bottom + 4, left })
+  }, [])
+
   const handleToggle = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
-    if (!aberto && anexos === null) {
-      carregar()
+    if (!aberto) {
+      posicionarPainel()
+      if (anexos === null) void carregar()
+      setAberto(true)
+      return
     }
-    setAberto(prev => !prev)
-  }, [aberto, anexos, carregar])
+    setAberto(false)
+  }, [aberto, anexos, carregar, posicionarPainel])
 
   const handleUpload = useCallback(async (arquivo: File) => {
     setEnviando(true)
@@ -79,7 +99,7 @@ export function CelulaAnexosColuna({
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const arquivo = e.target.files?.[0]
-    if (arquivo) handleUpload(arquivo)
+    if (arquivo) void handleUpload(arquivo)
     e.target.value = ''
   }, [handleUpload])
 
@@ -107,13 +127,24 @@ export function CelulaAnexosColuna({
     }
   }, [t])
 
-  // Fecha ao clicar fora
+  useEffect(() => {
+    if (!aberto) return
+    const reposicionar = () => posicionarPainel()
+    window.addEventListener('resize', reposicionar)
+    window.addEventListener('scroll', reposicionar, true)
+    return () => {
+      window.removeEventListener('resize', reposicionar)
+      window.removeEventListener('scroll', reposicionar, true)
+    }
+  }, [aberto, posicionarPainel])
+
   useEffect(() => {
     if (!aberto) return
     const handler = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        setAberto(false)
-      }
+      const alvo = e.target as Node
+      if (triggerRef.current?.contains(alvo)) return
+      if (panelRef.current?.contains(alvo)) return
+      setAberto(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -121,12 +152,110 @@ export function CelulaAnexosColuna({
 
   const contagem = anexosColuna.length
 
+  const painel = aberto ? (
+    <div
+      ref={panelRef}
+      className="cac-painel cac-painel--portal"
+      role="dialog"
+      aria-label={t('pedido.cel_anexos.painel_aria', { coluna: colunaNome })}
+      style={{
+        position: 'fixed',
+        top: posPainel.top,
+        left: posPainel.left,
+        transform: 'translateX(-50%)',
+        zIndex: 10050,
+      }}
+      onMouseDown={e => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
+    >
+      <div className="cac-painel-header">
+        <span className="cac-painel-titulo">{colunaNome}</span>
+        <button
+          type="button"
+          className="cac-painel-fechar"
+          onClick={() => setAberto(false)}
+          aria-label={t('pedido.cel_anexos.fechar_painel')}
+        >
+          <X size={13} weight="bold" />
+        </button>
+      </div>
+
+      <div className="cac-lista">
+        {carregando && <p className="cac-info">{t('comum.carregando')}</p>}
+        {!carregando && anexosColuna.length === 0 && (
+          <p className="cac-info cac-info--vazio">{t('pedido.cel_anexos.nenhum_arquivo')}</p>
+        )}
+        {!carregando && anexosColuna.map(a => (
+          <div key={a.id} className="cac-item">
+            <Paperclip size={12} className="cac-item-icone" />
+            <span className="cac-item-nome" title={a.nome_arquivo}>{a.nome_arquivo}</span>
+            <button
+              type="button"
+              className="cac-item-btn"
+              onClick={() => void handleDownload(a)}
+              title={t('pedido.cel_anexos.baixar')}
+              aria-label={t('pedido.cel_anexos.baixar_arquivo', { nome: a.nome_arquivo })}
+            >
+              <Download size={12} />
+            </button>
+            <button
+              type="button"
+              className="cac-item-btn cac-item-btn--excluir"
+              onClick={() => void handleExcluir(a.id)}
+              title={t('pedido.cel_anexos.excluir')}
+              aria-label={t('pedido.cel_anexos.excluir_arquivo', { nome: a.nome_arquivo })}
+            >
+              <Trash size={12} />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {erro && <p className="cac-erro">{erro}</p>}
+
+      <input
+        ref={inputFileRef}
+        type="file"
+        className="cac-input-file"
+        onChange={handleFileChange}
+        aria-label={t('pedido.cel_anexos.selecionar_arquivo')}
+      />
+
+      <div className="cac-rodape">
+        <button
+          type="button"
+          className="cac-btn-secundario"
+          onClick={() => inputFileRef.current?.click()}
+          disabled={enviando || carregando}
+          aria-label={t('pedido.cel_anexos.continuar_anexando')}
+        >
+          <Upload size={12} />
+          {enviando ? t('pedido.cel_anexos.enviando') : t('pedido.cel_anexos.continuar_anexando')}
+        </button>
+        <button
+          type="button"
+          className="cac-btn-salvar"
+          onClick={() => setAberto(false)}
+          disabled={enviando}
+          aria-label={t('pedido.cel_anexos.salvar')}
+        >
+          {t('pedido.cel_anexos.salvar')}
+        </button>
+      </div>
+    </div>
+  ) : null
+
   return (
-    <div className="cac-raiz" ref={panelRef}>
-      {/* Botão trigger */}
+    <div
+      className="cac-raiz"
+      onMouseDown={e => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
+    >
       <button
+        ref={triggerRef}
         type="button"
         className={['cac-trigger', contagem > 0 ? 'cac-trigger--com-anexos' : ''].filter(Boolean).join(' ')}
+        onMouseDown={e => e.stopPropagation()}
         onClick={handleToggle}
         title={contagem > 0 ? t('pedido.cel_anexos.arquivos_anexados', { count: contagem }) : t('pedido.cel_anexos.anexar_arquivo')}
         aria-label={t('pedido.cel_anexos.coluna_arquivos_aria', { coluna: colunaNome, count: contagem })}
@@ -136,79 +265,7 @@ export function CelulaAnexosColuna({
         {contagem > 0 && <span className="cac-badge">{contagem}</span>}
       </button>
 
-      {/* Painel dropdown */}
-      {aberto && (
-        <div className="cac-painel" role="dialog" aria-label={t('pedido.cel_anexos.painel_aria', { coluna: colunaNome })}>
-          {/* Cabeçalho */}
-          <div className="cac-painel-header">
-            <span className="cac-painel-titulo">{colunaNome}</span>
-            <button
-              type="button"
-              className="cac-painel-fechar"
-              onClick={() => setAberto(false)}
-              aria-label={t('pedido.cel_anexos.fechar_painel')}
-            >
-              <X size={13} weight="bold" />
-            </button>
-          </div>
-
-          {/* Lista de arquivos */}
-          <div className="cac-lista">
-            {carregando && <p className="cac-info">{t('comum.carregando')}</p>}
-            {!carregando && anexosColuna.length === 0 && (
-              <p className="cac-info cac-info--vazio">{t('pedido.cel_anexos.nenhum_arquivo')}</p>
-            )}
-            {!carregando && anexosColuna.map(a => (
-              <div key={a.id} className="cac-item">
-                <Paperclip size={12} className="cac-item-icone" />
-                <span className="cac-item-nome" title={a.nome_arquivo}>{a.nome_arquivo}</span>
-                <button
-                  type="button"
-                  className="cac-item-btn"
-                  onClick={() => handleDownload(a)}
-                  title={t('pedido.cel_anexos.baixar')}
-                  aria-label={t('pedido.cel_anexos.baixar_arquivo', { nome: a.nome_arquivo })}
-                >
-                  <Download size={12} />
-                </button>
-                <button
-                  type="button"
-                  className="cac-item-btn cac-item-btn--excluir"
-                  onClick={() => handleExcluir(a.id)}
-                  title={t('pedido.cel_anexos.excluir')}
-                  aria-label={t('pedido.cel_anexos.excluir_arquivo', { nome: a.nome_arquivo })}
-                >
-                  <Trash size={12} />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Erro */}
-          {erro && <p className="cac-erro">{erro}</p>}
-
-          {/* Upload */}
-          <div className="cac-upload">
-            <input
-              ref={inputFileRef}
-              type="file"
-              className="cac-input-file"
-              onChange={handleFileChange}
-              aria-label={t('pedido.cel_anexos.selecionar_arquivo')}
-            />
-            <button
-              type="button"
-              className="cac-btn-upload"
-              onClick={() => inputFileRef.current?.click()}
-              disabled={enviando}
-              aria-label={t('pedido.cel_anexos.anexar_arquivo')}
-            >
-              <Upload size={12} />
-              {enviando ? t('pedido.cel_anexos.enviando') : t('pedido.cel_anexos.anexar_arquivo')}
-            </button>
-          </div>
-        </div>
-      )}
+      {typeof document !== 'undefined' && painel ? createPortal(painel, document.body) : null}
     </div>
   )
 }

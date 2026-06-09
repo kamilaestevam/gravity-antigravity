@@ -1025,6 +1025,8 @@ export interface ColunaUsuario {
   visibilidade: VisibilidadeColunaUsuario
   roles_permitidas?: string[]
   obrigatorio: boolean
+  /** Exibe ícone de alerta na linha do pedido quando valores dos itens divergem (escopo ambos). */
+  alerta_divergencia_itens?: boolean
   opcoes?: string[]
   descricao?: string
   valor_padrao?: string

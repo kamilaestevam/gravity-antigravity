@@ -123,6 +123,9 @@ export function ModalNovaColunaUsuario({
   const [escopo, setEscopo]             = useState<EscopoColunaUsuario>(colunaEdicao?.escopo ?? 'ambos')
   const [visibilidade, setVisibilidade] = useState<VisibilidadeColunaUsuario>(colunaEdicao?.visibilidade ?? 'todos')
   const [obrigatorio, setObrigatorio]   = useState(colunaEdicao?.obrigatorio ?? false)
+  const [alertaDivergenciaItens, setAlertaDivergenciaItens] = useState(
+    colunaEdicao?.alerta_divergencia_itens ?? false,
+  )
   const [valorPadrao, setValorPadrao]   = useState(colunaEdicao?.valor_padrao ?? '')
   const [descricao, setDescricao]       = useState(colunaEdicao?.descricao ?? '')
   const [opcoes, setOpcoes]             = useState<string[]>(colunaEdicao?.opcoes ?? [])
@@ -146,6 +149,10 @@ export function ModalNovaColunaUsuario({
     else if (itensDiferentes) setEscopo('item')
     else setEscopo('pedido')
   }, [itensDiferentes, pedidoEditavel])
+
+  useEffect(() => {
+    if (escopo !== 'ambos') setAlertaDivergenciaItens(false)
+  }, [escopo])
 
   // ── Estado: fórmula tokenizada + GABI ──────────────────────────────────
   const [formulaTokens, setFormulaTokens] = useState<FormulaToken[]>(() => {
@@ -387,6 +394,7 @@ export function ModalNovaColunaUsuario({
       escopo,
       visibilidade,
       obrigatorio,
+      alerta_divergencia_itens: escopo === 'ambos' ? alertaDivergenciaItens : false,
       valor_padrao: tipoFormula ? formulaChave : (valorPadrao.trim() || undefined),
       descricao: descricao.trim() || undefined,
       opcoes: tipoComOpcoes ? opcoes : undefined,
@@ -408,7 +416,7 @@ export function ModalNovaColunaUsuario({
       setSalvando(false)
     }
   }, [
-    nome, tipo, escopo, visibilidade, obrigatorio, valorPadrao,
+    nome, tipo, escopo, visibilidade, obrigatorio, alertaDivergenciaItens, valorPadrao,
     descricao, opcoes, tipoComOpcoes, tipoFormula, formulaTokens,
     formulaErro, isEdicao, colunaEdicao, onSalvo,
   ])
@@ -719,6 +727,18 @@ export function ModalNovaColunaUsuario({
                 {t('pedido.modal_col.label_obrigatorio')}
               </span>
               <MncToggle checked={obrigatorio} onChange={setObrigatorio} id="mnc-obrigatorio" />
+            </div>
+          )}
+
+          {escopo === 'ambos' && (
+            <div className="mnc-campo mnc-campo--toggle-row">
+              <div>
+                <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  {t('pedido.modal_col.alerta_divergencia_itens')}
+                </span>
+                <p className="mnc-hint">{t('pedido.modal_col.alerta_divergencia_itens_hint')}</p>
+              </div>
+              <MncToggle checked={alertaDivergenciaItens} onChange={setAlertaDivergenciaItens} id="mnc-alerta-div" />
             </div>
           )}
 

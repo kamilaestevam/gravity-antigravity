@@ -4904,6 +4904,8 @@
           "form_pedido_editavel": "Order is also editable",
           "form_pedido_editavel_hint": "Allows setting a default value at order level in addition to per-item values.",
           "form_obrigatorio": "Required",
+          "form_alerta_divergencia_itens": "Alert on order when items diverge",
+          "form_alerta_divergencia_itens_hint": "Shows a warning icon on the order row when items have different values in this column.",
           "form_valor_padrao": "Default value",
           "form_valor_padrao_hint": "Automatically filled when creating a new order.",
           "form_valor_padrao_placeholder": "Leave blank to not define",
@@ -6035,6 +6037,8 @@
       "dados_nao_migrados": "Existing data will not be migrated automatically. Order values will be kept, and items start empty.",
       "pedido_editavel": "The order is also editable",
       "pedido_editavel_hint": "In addition to items, the order-level value can also be filled in",
+      "alerta_divergencia_itens": "Alert on order when items diverge",
+      "alerta_divergencia_itens_hint": "Shows a warning icon on the order row when items have different values in this column.",
       "valor_padrao_hint": "Value automatically filled when creating a new order/item",
       "adicione_opcoes_padrao": "Add options above to set a default value"
     },
@@ -6644,6 +6648,8 @@
     },
     "cel_anexos": {
       "anexar_arquivo": "Attach file",
+      "continuar_anexando": "Attach more",
+      "salvar": "Save",
       "arquivos_anexados_one": "{{count}} file attached",
       "arquivos_anexados_other": "{{count}} files attached",
       "coluna_arquivos_aria_one": "{{coluna}}: {{count}} file",

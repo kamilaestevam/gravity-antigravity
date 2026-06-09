@@ -422,14 +422,23 @@ async function aguardarNotificacaoSalvar(
 }
 
 async function aguardarListaComPedidosEditaveis(page: Page): Promise<void> {
-  await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 })
-  await page.locator('.gtv-linha--pai .gtv-chevron-btn').first().waitFor({ timeout: 45000 })
-  await page.waitForFunction(
-    () => document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length > 0,
-    undefined,
-    { timeout: 60000 },
-  )
-  await page.waitForTimeout(800)
+  for (let tentativa = 0; tentativa < 3; tentativa++) {
+    try {
+      await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 60000 })
+      await page.locator('.gtv-linha--pai .gtv-chevron-btn').first().waitFor({ timeout: 60000 })
+      await page.waitForFunction(
+        () => document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length > 0,
+        undefined,
+        { timeout: 90000 },
+      )
+      await page.waitForTimeout(800)
+      return
+    } catch (err) {
+      if (tentativa >= 2) throw err
+      log(`⚠ Lista ainda carregando — reload (tentativa ${tentativa + 2}/3)`)
+      await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 })
+    }
+  }
 }
 
 async function garantirColunasListaVisiveis(page: Page): Promise<void> {

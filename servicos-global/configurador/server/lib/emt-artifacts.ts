@@ -25,12 +25,14 @@ function resolverFeatureRootDoScript(scriptRel: string): string {
   return scriptDir
 }
 
-/** Pasta isolada por run: resultado-teste/<runId>/ */
+/** Pasta isolada por run: resultado-teste/<runId>/ — só válida se RESULTADO.txt existir. */
 export function resolverPastaEmtPorRunId(scriptRel: string, runId: string): string | null {
   try {
     const featureRoot = resolverFeatureRootDoScript(scriptRel)
     const pasta = join(featureRoot, 'resultado-teste', runId)
-    return existsSync(pasta) ? pasta : null
+    if (!existsSync(pasta)) return null
+    if (!existsSync(join(pasta, 'RESULTADO.txt'))) return null
+    return pasta
   } catch {
     return null
   }

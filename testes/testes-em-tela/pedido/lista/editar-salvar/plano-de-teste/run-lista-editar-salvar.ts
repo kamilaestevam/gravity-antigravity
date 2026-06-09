@@ -3908,13 +3908,15 @@ async function main() {
   log(`Data: ${DATA} | Base: ${BASE_UI} | Ambiente: ${ambienteExec} | Clerk: ${clerkSecretPrefix}`)
   log(`Pasta: ${OUT}`)
 
-  await clerkSetup()
-
-  const browser = await chromium.launch({ headless: true })
-  const page = await browser.newPage()
-  await page.setViewportSize({ width: 1440, height: 900 })
+  let browser: Awaited<ReturnType<typeof chromium.launch>> | null = null
+  let page: Page | null = null
 
   try {
+    await clerkSetup()
+    browser = await chromium.launch({ headless: true })
+    page = await browser.newPage()
+    await page.setViewportSize({ width: 1440, height: 900 })
+
     const okAuth = await autenticarClerk(page)
     if (!okAuth) throw new Error('Autenticação falhou')
     await page.waitForLoadState('networkidle').catch(() => {})
@@ -3946,8 +3948,8 @@ async function main() {
 
     process.exitCode = falhas.length > 0 ? 1 : 0
   } catch (err) {
-    await fecharPopoverSeAberto(page).catch(() => {})
-    await screenshot(page, '99-erro.png').catch(() => {})
+    if (page) await fecharPopoverSeAberto(page).catch(() => {})
+    if (page) await screenshot(page, '99-erro.png').catch(() => {})
     const msg = err instanceof Error ? err.message : String(err)
     falhar(`Exceção: ${msg}`)
     writeFileSync(`${OUT}/RESULTADO.txt`, [
@@ -3963,7 +3965,7 @@ async function main() {
     ].join('\n'), 'utf8')
     process.exitCode = 1
   } finally {
-    await browser.close()
+    if (browser) await browser.close()
   }
 }
 

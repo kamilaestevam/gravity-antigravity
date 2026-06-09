@@ -17,9 +17,11 @@ import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipCol
 import { TooltipListaColuna } from './TooltipListaColuna'
 import { TooltipRegrasColuna } from './TooltipRegrasColuna'
 import {
+  descricaoTooltipColunaAnexo,
   ehCampoDataReplicavelLista,
   tituloTooltipCelulaPorColuna,
   tituloTooltipColunaFallback,
+  tituloTooltipItemAnexo,
   tituloTooltipItemDataReplicavel,
   tituloTooltipListaPorNivel,
 } from './tituloTooltipLista'
@@ -359,14 +361,20 @@ export function enriquecerColunaComRegraTooltip<T>(
                                 ? t('pedido.coluna_pai.peso_liquido_item_titulo')
                                 : key === 'peso_bruto_total_pedido'
                                   ? t('pedido.coluna_pai.peso_bruto_item_titulo')
-                                  : undefined
+                                  : isChaveColunaAnexo(key)
+                                    ? tituloTooltipItemAnexo(t, key)
+                                    : undefined
+
+  const descricaoExtraColuna =
+    opts?.descricaoUsuario?.trim()
+    || (isChaveColunaAnexo(key) ? descricaoTooltipColunaAnexo(t, key) : undefined)
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)
   const optsMontar = {
     modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
     colunaPersonalizada: opts?.colunaPersonalizada,
-    descricaoUsuario: opts?.descricaoUsuario,
+    descricaoUsuario: descricaoExtraColuna,
     avisoImpactoColuna: col.avisoImpacto,
   }
   const usaPorNivel = usaTooltipPorNivelColuna(key, pillsRes.dual)
@@ -382,9 +390,11 @@ export function enriquecerColunaComRegraTooltip<T>(
   }, 'item')
 
   const tooltipInterativo = regraTooltipEhInterativa(regraId) || col.tooltipInterativo
-  const tooltipDescricaoCabecalho = temTooltipPorNivel
-    ? montarTooltipPills(t, key, { ...optsMontar, somenteBloco: 'pedido' })
-    : montarTooltipPills(t, key, optsMontar)
+  const tooltipDescricaoCabecalho = isChaveColunaAnexo(key)
+    ? montarTooltipPills(t, key, optsMontar)
+    : temTooltipPorNivel
+      ? montarTooltipPills(t, key, { ...optsMontar, somenteBloco: 'pedido' })
+      : montarTooltipPills(t, key, optsMontar)
 
   // Colunas piloto: célula = TooltipListaColuna; cabeçalho = tooltipTitulo + tooltipDescricao apenas.
   if (
@@ -582,12 +592,8 @@ export function aplicarRenderTooltipInlineLista<T>(
   const key = String(col.key)
   const interativo = enriched.tooltipInterativo
 
-  const tituloItemCol = enriched.tooltipTituloItem?.trim()
   const colInline: ColunaComRenderListaBase<T> = {
     ...semMetadadosTooltipCelulaNucleo(enriched),
-    ...(tituloItemCol ? { tooltipTituloItem: tituloItemCol } : {}),
-    ...(enriched.tooltipDescricaoItem != null ? { tooltipDescricaoItem: enriched.tooltipDescricaoItem } : {}),
-    ...(enriched.tooltipDescricaoCelula ? { tooltipDescricaoCelula: enriched.tooltipDescricaoCelula } : {}),
     tooltipInline: true,
     renderListaBase: renderBase,
     render: (val: unknown, row: T) => {
@@ -600,6 +606,7 @@ export function aplicarRenderTooltipInlineLista<T>(
         key,
         nivel,
         avisoImpactoColuna: col.avisoImpacto,
+        descricaoUsuario: isChaveColunaAnexo(key) ? descricaoTooltipColunaAnexo(t, key) : undefined,
         modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
         interativo,
         cursorBloqueado: bloqueado,

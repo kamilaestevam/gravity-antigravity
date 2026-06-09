@@ -10,6 +10,7 @@ import type { GTMapaColunasFilho } from '@nucleo/tabela-virtual-global'
 import type { Pedido, PedidoItem } from './types'
 import { CelulaAnexosColuna } from '../components/ConfiguracaoColunas/CelulaAnexosColuna'
 import { wrapCelulaListaRegras } from './buildTooltipRegraLista'
+import { descricaoTooltipColunaAnexo } from './tituloTooltipLista'
 import {
   CHAVES_COLUNA_ANEXO_PADRAO,
   METADADOS_COLUNA_ANEXO_LISTA,
@@ -68,7 +69,6 @@ export function buildEntradasMapaAnexoLista(
     entries[chave] = {
       editavel: false,
       tooltipInline: true,
-      tooltipTitulo: rotuloAnexoPadrao(t, chave),
       render: (row: PedidoItem) =>
         wrapCelulaListaRegras(
           renderCelulaAnexoLista({
@@ -78,7 +78,12 @@ export function buildEntradasMapaAnexoLista(
             colunaNome: rotuloAnexoPadrao(t, chave),
           }),
           t,
-          { key: chave, nivel: 'item', cursorBloqueado: false },
+          {
+            key: chave,
+            nivel: 'item',
+            cursorBloqueado: false,
+            descricaoUsuario: descricaoTooltipColunaAnexo(t, chave),
+          },
         ),
     }
   }

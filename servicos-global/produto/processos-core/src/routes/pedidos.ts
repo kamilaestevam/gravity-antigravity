@@ -2084,6 +2084,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'data_confirmada_recebimento_original_proforma',
   'data_meta_recebimento_original_proforma',
   'data_proforma_invoice',
+  'data_documento_proforma',
   'data_prevista_recebimento_rascunho_invoice',
   'data_confirmada_recebimento_rascunho_invoice',
   'data_meta_recebimento_rascunho_invoice',
@@ -2327,6 +2328,7 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         data_meta_recebimento_original_invoice:        'data_meta_recebimento_original_invoice_pedido',
         // ─── BLOCO 5: datas documento ───
         data_proforma_invoice:   'data_documento_proforma_pedido',
+        data_documento_proforma: 'data_documento_proforma_pedido',
         data_invoice:            'data_documento_invoice_pedido',
         // campos_custom é tratado em branch próprio
       }

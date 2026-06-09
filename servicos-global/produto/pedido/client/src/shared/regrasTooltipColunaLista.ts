@@ -164,11 +164,21 @@ function regraPorTipo(tipo: TipoCampo, nivel: NivelColunaLista): RegraTooltipId 
   return 'pai_somente_leitura'
 }
 
+export type OpcoesClassificarRegraTooltipColuna = {
+  modoDinamicoPedidoItem?: boolean
+  /** Coluna criada pelo usuário (chave fora do COLUMN_CONFIG). */
+  colunaPersonalizada?: boolean
+}
+
 export function classificarRegraTooltipColuna(
   key: string,
   nivel: NivelColunaLista,
-  opts?: { modoDinamicoPedidoItem?: boolean },
+  opts?: OpcoesClassificarRegraTooltipColuna,
 ): RegraTooltipId {
+  if (opts?.colunaPersonalizada) {
+    return 'pai_coluna_personalizada'
+  }
+
   if (opts?.modoDinamicoPedidoItem && CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM.has(key)) {
     return REGRA_DINAMICA_POR_CHAVE[key] ?? 'generico'
   }

@@ -4778,6 +4778,14 @@ export default function Pedidos() {
 
   const mapaColunasFilho = useMemo(() => {
     const base = buildMapaColunasFilho(t, opcoesUnidadesColunas)
+    const chavesColunaPersonalizada = new Set(
+      colunasUsuario
+        .filter(c => {
+          const escopoCol = c.escopo || 'ambos'
+          return c.tipo !== 'formula' && (escopoCol === 'item' || escopoCol === 'ambos')
+        })
+        .map(c => c.chave),
+    )
     const custom: Record<string, GTMapaColunasFilho<PedidoItem>> = {}
     for (const col of colunasUsuario) {
       const escopo = col.escopo || 'ambos'
@@ -4811,27 +4819,37 @@ export default function Pedidos() {
         }
         continue
       }
+      const renderValorColunaPersonalizada = (row: PedidoItem) => {
+        const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
+        const valor = valores?.[col.id] ?? '—'
+        if (col.tipo === 'checkbox') return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
+        if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
+          const num = Number(valor)
+          if (!isNaN(num)) {
+            const sufixo = col.tipo === 'percentual' ? '%' : ''
+            return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, getCasas(col.id, 2))}{sufixo}</span>
+          }
+        }
+        if (col.tipo === 'data' && valor !== '—') return <span>{fmtData(valor)}</span>
+        return <span>{typeof valor === 'string' && valor.length > 150 ? valor.slice(0, 150) + '…' : valor}</span>
+      }
+      const editavelItem = col.tipo !== 'formula'
       custom[col.chave] = {
-        editavel: col.tipo !== 'formula',
+        editavel: editavelItem,
+        tooltipInline: true,
+        tooltipTitulo: col.nome,
         opcoes: col.tipo === 'checkbox'
           ? [{ valor: 'true', label: '✓ Sim' }, { valor: 'false', label: '✗ Não' }]
           : (col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes?.length
             ? col.opcoes.map(o => ({ valor: o, label: o }))
             : undefined,
-        render: (row: PedidoItem) => {
-          const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
-          const valor = valores?.[col.id] ?? '—'
-          if (col.tipo === 'checkbox') return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
-          if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
-            const num = Number(valor)
-            if (!isNaN(num)) {
-              const sufixo = col.tipo === 'percentual' ? '%' : ''
-              return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, getCasas(col.id, 2))}{sufixo}</span>
-            }
-          }
-          if (col.tipo === 'data' && valor !== '—') return <span>{fmtData(valor)}</span>
-          return <span>{typeof valor === 'string' && valor.length > 150 ? valor.slice(0, 150) + '…' : valor}</span>
-        },
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderValorColunaPersonalizada(row), t, {
+          key: col.chave,
+          nivel: 'item',
+          colunaPersonalizada: true,
+          descricaoUsuario: col.descricao,
+          cursorBloqueado: !editavelItem,
+        }),
         getValorEditar: (row: PedidoItem) => {
           const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
           const raw = valores?.[col.id]
@@ -4908,7 +4926,7 @@ export default function Pedidos() {
     const renderMoedaItemBase = merged.moeda_pedido?.render
     const renderPesoLiqItemBase = merged.peso_liquido_total_pedido?.render
     const renderPesoBruItemBase = merged.peso_bruto_total_pedido?.render
-    const comRegra = enriquecerMapaColunasFilhoComRegraTooltip(merged, t)
+    const comRegra = enriquecerMapaColunasFilhoComRegraTooltip(merged, t, { chavesColunaPersonalizada })
     const mapaInline = enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
       moeda_pedido: t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined,
       moeda_cambio_pedido: t('pedido.coluna_pai.aviso_impacto_moeda_cambio', { defaultValue: '' }) || undefined,

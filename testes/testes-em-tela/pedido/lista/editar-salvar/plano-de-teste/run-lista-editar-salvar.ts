@@ -422,14 +422,23 @@ async function aguardarNotificacaoSalvar(
 }
 
 async function aguardarListaComPedidosEditaveis(page: Page): Promise<void> {
-  await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 45000 })
-  await page.locator('.gtv-linha--pai .gtv-chevron-btn').first().waitFor({ timeout: 45000 })
-  await page.waitForFunction(
-    () => document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length > 0,
-    undefined,
-    { timeout: 60000 },
-  )
-  await page.waitForTimeout(800)
+  for (let tentativa = 0; tentativa < 3; tentativa++) {
+    try {
+      await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 60000 })
+      await page.locator('.gtv-linha--pai .gtv-chevron-btn').first().waitFor({ timeout: 60000 })
+      await page.waitForFunction(
+        () => document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length > 0,
+        undefined,
+        { timeout: 90000 },
+      )
+      await page.waitForTimeout(800)
+      return
+    } catch (err) {
+      if (tentativa >= 2) throw err
+      log(`⚠ Lista ainda carregando — reload (tentativa ${tentativa + 2}/3)`)
+      await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 })
+    }
+  }
 }
 
 async function garantirColunasListaVisiveis(page: Page): Promise<void> {
@@ -554,10 +563,19 @@ async function abrirPopoverTextoItem(
     .waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
 }
 
+async function fecharDropdownSelectAberto(page: Page): Promise<void> {
+  if (await page.locator('.gtv-edit-custom-select-list').isVisible().catch(() => false)) {
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(250)
+  }
+  await page.locator('.gtv-edit-custom-select-list').waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {})
+}
+
 async function marcarCheckboxReplicarPopover(page: Page): Promise<boolean> {
+  await fecharDropdownSelectAberto(page)
   const cb = page.locator('.gtv-edit-popover input[type="checkbox"]').first()
   if (!(await cb.isVisible().catch(() => false))) return false
-  if (!(await cb.isChecked().catch(() => false))) await cb.check()
+  if (!(await cb.isChecked().catch(() => false))) await cb.check({ force: true })
   return true
 }
 
@@ -714,6 +732,7 @@ async function popoverExibeCheckboxReplicar(page: Page): Promise<boolean> {
 }
 
 async function fecharPopoverSeAberto(page: Page): Promise<void> {
+  await fecharDropdownSelectAberto(page)
   for (let tentativa = 0; tentativa < 5; tentativa++) {
     const backdrop = page.locator('.gtv-edit-popover-backdrop')
     const popover = page.locator('.gtv-edit-popover')
@@ -777,11 +796,13 @@ async function selecionarTipoOperacaoPopover(page: Page, label: string): Promise
 }
 
 async function clicarOpcaoPopoverSelect(page: Page, siglaOuLabel: string): Promise<void> {
+  await abrirListaOpcoesSelectPopover(page)
   const escaped = siglaOuLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const re = new RegExp(escaped, 'i')
   const custom = page.locator('.gtv-edit-custom-select-list .gtv-edit-custom-select-item').filter({ hasText: re })
   if (await custom.count() > 0) {
     await custom.first().click()
+    await fecharDropdownSelectAberto(page)
     return
   }
   await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').filter({ hasText: re }).first().click()
@@ -804,6 +825,7 @@ async function confirmarPopoverSelectComBotao(page: Page): Promise<void> {
 }
 
 async function popoverSelectTemOpcoes(page: Page): Promise<number> {
+  await abrirListaOpcoesSelectPopover(page).catch(() => {})
   return contarOpcoesSelectPopover(page)
 }
 
@@ -856,6 +878,7 @@ async function resolverTresIncotermsDistintos(page: Page, rowId: string): Promis
     log('ℹ Incoterm: popover não abriu ao listar opções Cadastros')
     return null
   }
+  await abrirListaOpcoesSelectPopover(page)
   await page.waitForFunction(
     () => {
       const custom = document.querySelectorAll('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)').length
@@ -885,9 +908,7 @@ async function abrirPopoverSelectPai(page: Page, rowId: string, campo: string): 
   const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
   if (await cel.count() === 0) return false
   await cel.click()
-  const popAbriu = await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
-  if (!popAbriu) return false
-  return abrirListaOpcoesSelectPopover(page)
+  return page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
 }
 
 async function abrirPopoverSelectItem(
@@ -898,9 +919,7 @@ async function abrirPopoverSelectItem(
 ): Promise<boolean> {
   const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, campo)
   if (!clicou) return false
-  const popAbriu = await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
-  if (!popAbriu) return false
-  return abrirListaOpcoesSelectPopover(page)
+  return page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
 }
 
 async function destacarSiglaNoPopoverSelect(page: Page, sigla: string): Promise<void> {
@@ -1411,8 +1430,9 @@ async function lerTextoCampoPai(page: Page, rowId: string, campo: string): Promi
   await scrollColunaParaVisivel(page, campo)
   await page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first().scrollIntoViewIfNeeded().catch(() => {})
   const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
+  if (await cel.count() === 0) return ''
   await cel.waitFor({ state: 'attached', timeout: 15000 }).catch(() => {})
-  return normalizarTextoCelula(await cel.textContent({ timeout: 15000 }) ?? '')
+  return normalizarTextoCelula(await cel.textContent({ timeout: 15000 }).catch(() => '') ?? '')
 }
 
 async function lerTextosCampoItens(page: Page, pedidoRowId: string, campo: string): Promise<string[]> {
@@ -3073,6 +3093,7 @@ async function resolverTresMoedasDistintas(page: Page, rowId: string): Promise<s
   await fecharPopoverSeAberto(page)
   const abriu = await abrirPopoverSelectPai(page, rowId, COL_KEY_MOEDA)
   if (!abriu) return null
+  await abrirListaOpcoesSelectPopover(page)
   await page.waitForTimeout(800)
   let siglas = await listarSiglasIncotermPopover(page)
   await fecharPopoverSeAberto(page)

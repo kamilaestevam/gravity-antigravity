@@ -466,8 +466,13 @@ export function enriquecerColunasComRegraTooltip<T>(
 }
 
 /** Texto plano para tooltipBloqueado em células de item. */
-export function textoRegraTooltipPlain(t: TFunction, key: string, nivel: NivelColunaLista = 'item'): string {
-  const pills = pillsParaNivelColuna(key, nivel)
+export function textoRegraTooltipPlain(
+  t: TFunction,
+  key: string,
+  nivel: NivelColunaLista = 'item',
+  opts?: { colunaPersonalizada?: boolean },
+): string {
+  const pills = pillsParaNivelColuna(key, nivel, opts)
   return pills.map(id => t(`pedido.lista.regras_pill.${id}`)).join(' · ')
 }
 
@@ -484,16 +489,22 @@ const REGRAS_BLOQUEIO_ITEM = new Set<RegraTooltipId>([
 export function enriquecerMapaColunasFilhoComRegraTooltip<C>(
   mapa: Record<string, GTMapaColunasFilho<C>>,
   t: TFunction,
+  opts?: { chavesColunaPersonalizada?: ReadonlySet<string> },
 ): Record<string, GTMapaColunasFilho<C>> {
   const out: Record<string, GTMapaColunasFilho<C>> = { ...mapa }
   for (const key of Object.keys(out)) {
     const entry = out[key]
     if (!entry || entry.tooltipBloqueado != null) continue
-    const regraId = classificarRegraTooltipColuna(key, 'item')
+    if (entry.editavel === true) continue
+    const regraId = classificarRegraTooltipColuna(key, 'item', {
+      colunaPersonalizada: opts?.chavesColunaPersonalizada?.has(key),
+    })
     if (!REGRAS_BLOQUEIO_ITEM.has(regraId)) continue
     out[key] = {
       ...entry,
-      tooltipBloqueado: textoRegraTooltipPlain(t, key, 'item'),
+      tooltipBloqueado: textoRegraTooltipPlain(t, key, 'item', {
+        colunaPersonalizada: opts?.chavesColunaPersonalizada?.has(key),
+      }),
     }
   }
   return out

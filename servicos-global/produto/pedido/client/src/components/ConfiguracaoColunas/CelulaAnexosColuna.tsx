@@ -109,8 +109,8 @@ export function CelulaAnexosColuna({
     try {
       await anexosApi.excluir(id)
       setAnexos(prev => prev?.filter(a => a.id !== id) ?? null)
-    } catch {
-      setErro(t('pedido.cel_anexos.erro_excluir'))
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : t('pedido.cel_anexos.erro_excluir'))
     }
   }, [t])
 
@@ -123,8 +123,8 @@ export function CelulaAnexosColuna({
       a.download = anexo.nome_arquivo
       a.click()
       URL.revokeObjectURL(url)
-    } catch {
-      setErro(t('pedido.cel_anexos.erro_baixar'))
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : t('pedido.cel_anexos.erro_baixar'))
     }
   }, [t])
 

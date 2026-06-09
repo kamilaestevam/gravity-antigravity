@@ -1,8 +1,8 @@
 {
   "$schema": "./test-plans-registry.schema.json",
   "versao": "1.0.0",
-  "atualizadoEm": "2026-06-08T20:45:00.000Z",
-  "totalPlanos": 82,
+  "atualizadoEm": "2026-06-09T12:00:00.000Z",
+  "totalPlanos": 83,
   "totalPorTipo": {
     "UNI": 27,
     "CON": 0,
@@ -10,7 +10,7 @@
     "CRO": 3,
     "E2E": 29,
     "PEN": 0,
-    "EMT": 4
+    "EMT": 5
   },
   "totalPorEscopo": {
     "LOGIN": 4,
@@ -21,7 +21,7 @@
     "MARKET": 0,
     "TENANT": 2,
     "DBASE": 0,
-    "PEDIDO": 24,
+    "PEDIDO": 25,
     "NFIMP": 0,
     "LPCO": 0,
     "BIDFRT": 0,
@@ -1615,6 +1615,25 @@
       "coberturaPercentual": 0,
       "status": "aguardando_aprovacao_dono",
       "criadoEm": "2026-06-03T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-EMT-EXCLUIR-COLUNA-MANUAL-CONFIGURACOES-LISTA-PEDIDO-001",
+      "tipo": "EMT",
+      "escopo": "PEDIDO",
+      "sublocal": "configuracoes/colunas/personalizadas",
+      "modulo": "Excluir coluna manual — Configurações e Lista",
+      "tela": "Configurações → Colunas → Personalizadas + Lista de Pedidos",
+      "rota": "/pedido/configuracoes?tab=colunas-personalizadas",
+      "criticidade": "alta",
+      "planoFile": "testes/testes-em-tela/pedido/configuracoes/colunas/personalizadas/plano-de-teste/plano-teste-em-tela.md",
+      "specFile": "testes/testes-em-tela/pedido/configuracoes/colunas/personalizadas/plano-de-teste/run-excluir-coluna-personalizada.ts",
+      "componenteFile": "servicos-global/produto/pedido/client/src/pages/Configuracoes.tsx",
+      "casosTotal": 9,
+      "coberturaPercentual": 0,
+      "status": "aguardando_aprovacao_dono",
+      "criadoEm": "2026-06-09T12:00:00Z",
       "ultimaExecucao": null,
       "ultimoResultado": null
     }

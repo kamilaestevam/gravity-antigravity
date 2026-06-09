@@ -3154,6 +3154,8 @@
       "aviso_impacto_unidade_cancelada": "La alteración de la unidad también cambiará Unidad Comercializada, Cant. Inicial, Cant. Lista, Cant. Transferida y Saldo",
       "datas_emissao_divergentes": "Fechas de emisión divergentes entre ítems",
       "coberturas_cambiais_divergentes": "Coberturas cambiarias divergentes entre ítems",
+      "moedas_cambio_divergentes": "Monedas de cambio divergentes entre ítems",
+      "aviso_impacto_moeda_cambio": "La moneda de cambio es exclusiva del pedido y no cambia la moneda comercial de los ítems",
       "moeda_cambio": "Moneda de Cambio",
       "taxa_cambio_estimada": "Tasa de Cambio Estimada",
       "valor_total_cambio": "Valor Total de Cambio",

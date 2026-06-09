@@ -4577,6 +4577,7 @@
       "aviso_impacto_unidade_cancelada": "Changing the unit will also change Commercialized Unit, Initial Qty., Ready Qty., Transferred Qty. and Balance",
       "datas_emissao_divergentes": "Divergent issue dates among items",
       "coberturas_cambiais_divergentes": "Divergent exchange rate coverages among items",
+      "moedas_cambio_divergentes": "Divergent exchange currencies among items",
       "moeda_cambio": "Exchange Currency",
       "taxa_cambio_estimada": "Estimated Exchange Rate",
       "valor_total_cambio": "Total Exchange Value",

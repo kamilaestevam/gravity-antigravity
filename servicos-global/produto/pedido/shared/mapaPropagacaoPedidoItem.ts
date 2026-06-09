@@ -55,8 +55,9 @@ export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Obj
   casas_decimais_peso_pedido:       'casas_decimais_peso_item',
   casas_decimais_cubagem_pedido:    'casas_decimais_cubagem_item',
 
-  // ── Câmbio (1) ────────────────────────────────────────────────────────────
+  // ── Câmbio (2) ────────────────────────────────────────────────────────────
   cobertura_cambial_pedido:         'cobertura_cambial_item',
+  moeda_cambio_pedido:              'moeda_cambio_item',
 
   // ── Referências (3) ──────────────────────────────────────────────────────
   referencia_importador_pedido:     'referencia_importador_item',

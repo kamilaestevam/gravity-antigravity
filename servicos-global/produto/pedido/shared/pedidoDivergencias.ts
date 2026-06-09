@@ -206,6 +206,22 @@ export function calcularDivergenciasPedido(
       ?? (coberturasUnicas.size === 1 ? [...coberturasUnicas][0] : null)
   }
 
+  {
+    const moedasItens = itens
+      .map(i => i.moeda_cambio_item)
+      .filter((v): v is string => v != null && String(v).trim() !== '')
+    const moedasUnicas = new Set(moedasItens)
+    const canonico = pedidoPai?.moeda_cambio_pedido
+    const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+    let divergente = moedasUnicas.size > 1
+    if (!divergente && canonicoStr && moedasItens.length > 0) {
+      divergente = moedasItens.some(v => String(v) !== canonicoStr)
+    }
+    result.moeda_cambio_pedido_divergente = divergente
+    result.moeda_cambio_pedido_valor_unico = canonicoStr
+      ?? (moedasUnicas.size === 1 ? [...moedasUnicas][0] : null)
+  }
+
   const colIdsSet = new Set<string>()
   for (const item of itens) {
     const cu = item._colunas_usuario as Record<string, string> | undefined
@@ -228,48 +244,7 @@ export function calcularDivergenciasPedido(
 
   result.status_divergente = calcularStatusDivergente(itens, pedidoPai)
 
-  result.moeda_cambio_divergente = calcularMoedaCambioDivergente(itens, pedidoPai)
-
   return result
-}
-
-/** Moeda comercial de referência do pedido (`moeda_pedido`, senão `moeda_cambio_pedido`). */
-export function referenciaMoedaComercialPedido(
-  pedidoPai?: Record<string, unknown> | null,
-): string | null {
-  if (!pedidoPai) return null
-  const moedaPedido = pedidoPai.moeda_pedido
-  if (moedaPedido != null && String(moedaPedido).trim() !== '') {
-    return String(moedaPedido).trim()
-  }
-  const cambio = pedidoPai.moeda_cambio_pedido
-  if (cambio != null && String(cambio).trim() !== '') {
-    return String(cambio).trim()
-  }
-  return null
-}
-
-/**
- * Coluna Moeda Câmbio (linha pedido): alerta quando `moeda_pedido` ≠ `moeda_item` em algum item.
- * Itens não exibem ⚠ na célula — mesmo padrão da coluna Moeda do Pedido/Item.
- */
-export function calcularMoedaCambioDivergente(
-  itens: ReadonlyArray<Record<string, unknown>>,
-  pedidoPai?: Record<string, unknown>,
-): boolean {
-  const moedaPedido = pedidoPai?.moeda_pedido
-  const referencia = moedaPedido != null && String(moedaPedido).trim() !== ''
-    ? String(moedaPedido).trim()
-    : null
-  if (!referencia) return false
-
-  return itens.some(i => {
-    const moedaItem = i.moeda_item
-    const itemStr = moedaItem != null && String(moedaItem).trim() !== ''
-      ? String(moedaItem).trim()
-      : null
-    return itemStr != null && itemStr !== referencia
-  })
 }
 
 /** Valor exibido na linha pai — canônico do pedido tem prioridade sobre NCM único dos itens. */
@@ -347,5 +322,29 @@ export function mesclarDivergenciasPreservandoCoberturaPedido(
   return {
     ...divergencias,
     cobertura_cambial_valor_unico: canonico,
+  }
+}
+
+/** Valor exibido na linha pai — canônico do pedido tem prioridade sobre agregado dos itens. */
+export function obterMoedaCambioExibicaoPedido(
+  pedido?: Record<string, unknown> | null,
+): string | null {
+  const canonico = pedido?.moeda_cambio_pedido
+  if (canonico != null && String(canonico).trim() !== '') return String(canonico)
+  const agregado = pedido?.moeda_cambio_pedido_valor_unico
+  if (agregado != null && String(agregado).trim() !== '') return String(agregado)
+  return null
+}
+
+/** Mantém moeda câmbio canônica do pedido após recalcular divergências dos itens. */
+export function mesclarDivergenciasPreservandoMoedaCambioPedido(
+  pedidoPai: Record<string, unknown> | undefined,
+  divergencias: DivergenciasPedido,
+): DivergenciasPedido {
+  const canonico = obterMoedaCambioExibicaoPedido(pedidoPai)
+  if (!canonico) return divergencias
+  return {
+    ...divergencias,
+    moeda_cambio_pedido_valor_unico: canonico,
   }
 }

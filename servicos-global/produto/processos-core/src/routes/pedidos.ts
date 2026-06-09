@@ -218,6 +218,7 @@ export const atualizarItemSchema = z.object({
   unidade_comercializada_item: z.string().optional().nullable(),
   tipo_volume_item: z.string().optional().nullable(),
   moeda_item: z.string().optional(),
+  moeda_cambio_item: z.string().optional().nullable(),
   valor_por_unidade_item: z.number().optional().nullable(),
   valor_total_item: z.number().optional().nullable(),
   quantidade_inicial_pedido: z.number().min(0).optional(),
@@ -334,6 +335,7 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
 
     casas_decimais_valor_item: item.casas_decimais_valor_item,
     cobertura_cambial:         item.cobertura_cambial_item,
+    moeda_cambio_item:         item.moeda_cambio_item,
     nome_exportador:           item.nome_exportador_item,
     nome_importador:           item.nome_importador_item,
     nome_fabricante:           item.nome_fabricante_item,
@@ -616,6 +618,32 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
         cobertura_cambial_valor_unico: canonicoStr
           ?? (coberturasUnicas.size === 1 ? [...coberturasUnicas][0] : null),
         cobertura_cambial_divergente: divergente,
+      }
+    })(),
+    // Moeda câmbio — canônico no pedido; agregado dos itens quando todos coincidem.
+    ...(() => {
+      const canonico = pedido.moeda_cambio_pedido as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          moeda_cambio_pedido_valor_unico: canonicoStr
+            ?? (pedido as { moeda_cambio_pedido_valor_unico?: string | null }).moeda_cambio_pedido_valor_unico
+            ?? null,
+          moeda_cambio_pedido_divergente: (pedido as { moeda_cambio_pedido_divergente?: boolean | null }).moeda_cambio_pedido_divergente ?? false,
+        }
+      }
+      const moedasItens = itens
+        .map((i: PedidoItemRaw) => i.moeda_cambio_item as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const moedasUnicas = new Set(moedasItens)
+      let divergente = moedasUnicas.size > 1
+      if (!divergente && canonicoStr && moedasItens.length > 0) {
+        divergente = moedasItens.some((v) => v !== canonicoStr)
+      }
+      return {
+        moeda_cambio_pedido_valor_unico: canonicoStr
+          ?? (moedasUnicas.size === 1 ? [...moedasUnicas][0] : null),
+        moeda_cambio_pedido_divergente: divergente,
       }
     })(),
     // Condição de pagamento — Comercial (texto livre; contrato JSON: condicao_pagamento).
@@ -2135,6 +2163,7 @@ const CAMPOS_EDITAVEIS = new Set([
   // Outros (3)
   'cobertura_cambial',
   'cobertura_cambial_pedido',
+  'moeda_cambio_pedido',
   'quantidade_volumes_pedido',
   'quantidade_transferida_total',
 ])
@@ -2619,6 +2648,7 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
               valor_total_item: item.valor_total_item,
               casas_decimais_valor_item: item.casas_decimais_valor_item,
               cobertura_cambial_item: item.cobertura_cambial_item,
+              moeda_cambio_item: item.moeda_cambio_item,
             })),
           },
           snapshots_empresa_pedido: snapshotsOriginais.length
@@ -2982,6 +3012,7 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'condicao_pagamento_siscomex_pedido',
   'tipo_volume_item',
   'moeda_item',
+  'moeda_cambio_item',
   'unidade_comercializada_item',
 ])
 

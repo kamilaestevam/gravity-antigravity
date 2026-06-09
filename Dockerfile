@@ -11,6 +11,9 @@ COPY . .
 # Install all dependencies including devDependencies (needed for build tools + tsx)
 RUN npm ci --include=dev
 
+# EMT no Admin dispara Playwright headless dentro do container (npx tsx testes/testes-em-tela/...)
+RUN npx playwright install --with-deps chromium
+
 # Build workspace packages required by sidecars (symlink resolves to packages/)
 # rm -rf dist: bust Docker layer cache — stale dist caused CUID v1-only regex in prod
 RUN cd packages/resolver-organizacao && rm -rf dist && npx tsup

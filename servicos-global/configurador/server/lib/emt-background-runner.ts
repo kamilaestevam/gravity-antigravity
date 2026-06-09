@@ -11,7 +11,9 @@ import { coletarArtefatosEmt } from './emt-artifacts.js'
 import type { TestLogEntry } from '../utils/playwright-parser.js'
 
 import { RUN_TESTES_TIMEOUT_MS } from './emt-run-timeout.js'
-import { raizRepositorioGravity, registryPlanosTestePath } from './raiz-repositorio-gravity.js'
+import { raizRepositorioGravity } from './raiz-repositorio-gravity.js'
+
+const TSX_CLI = resolve(raizRepositorioGravity, 'node_modules/tsx/dist/cli.mjs')
 /** Só para stderr/stdout quando não há RESULTADO.txt em emt_pasta. */
 const EMT_TERMINAL_LOG_MAX_CHARS = 16_000
 const testLogsDir = join(process.cwd(), 'data', 'test-logs')
@@ -50,15 +52,24 @@ function runTsxScript(
   return new Promise(resolve => {
     let stderr = ''
     let stdout = ''
-    const proc = spawn('npx', ['tsx', scriptRel], {
+    const proc = spawn(process.execPath, [TSX_CLI, scriptRel], {
       cwd: raizRepositorioGravity,
-      env,
-      shell: true,
+      env: { ...process.env, ...env },
       windowsHide: true,
       timeout: RUN_TESTES_TIMEOUT_MS,
     })
     proc.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString() })
     proc.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString() })
+    proc.on('error', err => {
+      stderr += `\n[spawn error] ${err.message}`
+      resolve({
+        code: 1,
+        stdout,
+        stderr,
+        durationMs: Date.now() - startedAtMs,
+        startedAtMs,
+      })
+    })
     proc.on('close', code => {
       resolve({
         code: code ?? 1,
@@ -100,7 +111,7 @@ async function main(): Promise<void> {
   try {
     for (const plano of manifest.planos) {
       if (!plano.specFile) continue
-      debugLog(`EMT ${plano.id} → npx tsx ${plano.specFile}`)
+      debugLog(`EMT ${plano.id} → node tsx ${plano.specFile}`)
       const { code, stdout, stderr, durationMs, startedAtMs } = await runTsxScript(plano.specFile, manifest.env)
       const artefatos = coletarArtefatosEmt(plano.specFile, startedAtMs, code, stdout, runId)
       entries.push({
@@ -109,7 +120,7 @@ async function main(): Promise<void> {
         test_name: resolverOqueFoiTestadoPlano(plano),
         result: code === 0 ? 'APROVADO' : 'REPROVADO',
         duration: `${durationMs}ms`,
-        error_log: artefatos.emt_pasta ? null : montarErrorLogEmt(code, stdout, stderr),
+        error_log: code === 0 ? null : montarErrorLogEmt(code, stdout, stderr),
         success_log: artefatos.emt_pasta ? null : (code === 0 ? artefatos.success_log : null),
         emt_pasta: artefatos.emt_pasta,
         emt_prints: artefatos.emt_prints,

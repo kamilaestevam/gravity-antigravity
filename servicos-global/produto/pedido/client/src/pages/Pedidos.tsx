@@ -7116,9 +7116,29 @@ export default function Pedidos() {
       throw new Error(t('pedido.lista.erro.workspace_somente_pedido', 'Workspace é definido no pedido e aplica-se a todos os itens.'))
     }
 
-    // Moeda câmbio: item é editável de forma independente (campo 'moeda_cambio_item')
-    // e segue o caminho genérico (PUT no item). O pai usa campo 'moeda_cambio_pedido'
-    // via handleEditar (com checkbox "Aplicar a todos os itens").
+    // Moeda câmbio: a coluna de item compartilha a key 'moeda_cambio_pedido' com o pai
+    // (a GTV dispara col.key no edit), mas no ITEM gravamos moeda_cambio_item — edição
+    // independente, NÃO toca no pedido. O pai usa handleEditar (com "Aplicar a todos").
+    if (campo === 'moeda_cambio_pedido') {
+      const moedaCodigo = valor == null || valor === '' ? null : String(valor)
+      const itemAtualMc = getItensCache().find(i => i.id === id)
+      const atualizadoMc = await pedidoItemApi.atualizar(pedido.id, id, { moeda_cambio_item: moedaCodigo } as Partial<PedidoItem>)
+        .catch(() => {
+          if (import.meta.env.DEV && itemAtualMc) return { ...itemAtualMc, moeda_cambio_item: moedaCodigo } as PedidoItem
+          throw new Error(t('pedido.lista.erro.editar_campo', { campo }))
+        })
+      const enriquecidoMc: PedidoItemEnriquecido = {
+        ...atualizadoMc,
+        _p: montarContextoPaiItem(pedido, atualizadoMc),
+      }
+      const { itens: itensAposMc, divergencias: divMc } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoMc : i),
+        pedido,
+      )
+      itensCarregadosRef.current.set(pedido.id, itensAposMc)
+      setPedidos(prev => prev.map(p => p.id !== pedido.id ? p : { ...p, ...divMc, itens: itensAposMc }))
+      return itensAposMc.find(i => i.id === id) ?? enriquecidoMc
+    }
 
     if (isCampoLogisticaPedido(campo)) {
       const valorNorm = normalizarCodigoLogisticaPedido(valor)
@@ -8227,7 +8247,7 @@ export default function Pedidos() {
               'valor_total_pedido',
               'valor_por_unidade_item',
               'valor_total_cambio_pedido',
-              'moeda_cambio_pedido',
+              // moeda_cambio_pedido: AGORA replicável — mostra checkbox "Aplicar a todos os itens"
               'quantidade_total_pedido',
               'saldo_itens_do_pedido',
               'quantidade_transferida_total',

@@ -1,19 +1,22 @@
 # Colunas do Usuário — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Abril 2026
+> **Última atualização:** 2026-06-09 — fluxo de exclusão com `ModalConfirmarExcluirGlobal`
 
 ---
 
 ## Estrutura de Arquivos
 
 ```
-produto/pedido/
+servicos-global/produto/pedido/
 ├── client/src/
+│   ├── pages/
+│   │   └── Configuracoes.tsx              ← Aba Colunas → Personalizadas (lista + exclusão)
 │   ├── components/
 │   │   └── ConfiguracaoColunas/
-│   │       ├── GerenciadorColunas.tsx     ← Tela de gerenciar colunas (em Configurações)
+│   │       ├── GerenciadorColunas.tsx     ← Variante legada/alternativa de gerenciamento
 │   │       ├── GerenciadorColunas.css
 │   │       ├── ModalNovaColuna.tsx        ← Modal criar/editar coluna
 │   │       └── ModalNovaColuna.css
@@ -217,24 +220,46 @@ model ValorColunaUsuarioPedido {
 
 ---
 
-## Frontend — GerenciadorColunas.tsx
+## Frontend — Colunas Personalizadas (`Configuracoes.tsx`)
 
-Tela em Configurações do Produto:
+Tela em **Configurações do Produto** → sidebar **Colunas** → **Personalizadas** (`/pedido/configuracoes`):
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│  Colunas Customizadas                  [+ Nova Coluna]│
+│  Colunas Personalizadas                [+ Nova Coluna] │
 ├──────────────────────────────────────────────────────┤
-│  ⠿  Margem %        Percentual  Pedido   Todos   ✏🗑  │
-│  ⠿  Prioridade      Select      Ambos    Todos   ✏🗑  │
-│  ⠿  Ref. Interna    Texto       Item     Privado ✏🗑  │
-│  ⠿  Tipo Doc        Tipo Doc    Pedido   Roles   ✏🗑  │
+│  ⠿  Margem %        Percentual  Pedido   Ativo  ✏ X │
+│  ⠿  Prioridade      Select      Ambos    Ativo  ✏ X │
+│  ⠿  Ref. Interna    Texto       Item     Ativo  ✏ X │
 └──────────────────────────────────────────────────────┘
 ```
 
-- Drag-and-drop para reordenar (usando `onReordenar`)
-- Botão editar → abre `ModalNovaColuna` preenchido
-- Botão excluir → confirma e faz soft delete
+- Drag-and-drop para reordenar (`pendingColunas` → `colunasUsuarioApi.reordenar`)
+- Botão editar (✏) → painel inline de propriedades da coluna
+- Botão excluir (X) → abre `ModalConfirmarExcluirGlobal` (não exclui imediatamente)
+
+### Fluxo de exclusão (2026-06-09)
+
+```
+Usuário clica X
+  → solicitarExcluirColunaPersonalizada(id)
+  → ModalConfirmarExcluirGlobal
+       titulo:  pedido.config.colunas.personalizadas.modal_excluir_titulo
+       descricao: "... Os valores existentes serão preservados."
+       nomeItem: nome da coluna
+  → Usuário clica Excluir
+       → botão entra em loading ("Excluindo...")
+       → excluirColunaPersonalizadaConfirmada()
+            → colunasUsuarioApi.excluir(id)
+            → colunasUsuarioApi.listar() + atualiza estado
+            → addNotification (sucesso ou erro)
+            → em erro: throw (modal permanece aberto, botão "Falhou")
+       → sucesso: flash "Excluído" → modal fecha (~1,2s)
+```
+
+**Componente do núcleo:** `@nucleo/modal-confirmar-excluir-global` — ver `PREVISAO_VISUAL.md` no pacote.
+
+> **Variante alternativa:** `GerenciadorColunas.tsx` usa o mesmo modal com o mesmo contrato (`handleExcluirConfirmado`).
 
 ---
 

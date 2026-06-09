@@ -207,14 +207,14 @@ export function GerenciadorColunas() {
   const handleExcluirConfirmado = useCallback(async () => {
     const id = confirmarExcluirColunaId
     if (!id) return
-    setConfirmarExcluirColunaId(null)
     try {
       await colunasUsuarioApi.excluir(id)
       setColunas(prev => prev.filter(c => c.id !== id))
     } catch {
       setErro(t('pedido.config_colunas.erro_excluir'))
+      throw new Error('excluir_coluna')
     }
-  }, [confirmarExcluirColunaId])
+  }, [confirmarExcluirColunaId, t])
 
   const handleNova = useCallback(() => {
     setColunaEdicao(undefined)

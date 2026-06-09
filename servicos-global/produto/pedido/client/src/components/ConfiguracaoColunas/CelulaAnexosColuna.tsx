@@ -13,6 +13,7 @@ import { Paperclip, Upload, Trash, Download, X, FloppyDisk } from '@phosphor-ico
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { Anexo } from '../../shared/types'
 import { anexosApi } from '../../shared/api'
+import { filtrarAnexosPorColuna } from '../../shared/anexoColunaLista'
 import './CelulaAnexosColuna.css'
 
 interface CelulaAnexosColunaProps {
@@ -27,15 +28,6 @@ interface CelulaAnexosColunaProps {
 }
 
 const LARGURA_PAINEL_PX = 340
-
-/** Filtra anexos da coluna — aceita categoria atual e legado `anexo_*`. */
-function filtrarAnexosColuna(anexos: Anexo[], colunaId: string): Anexo[] {
-  return anexos.filter(a => {
-    const cat = a.categoria
-    if (!cat) return false
-    return cat === colunaId || cat === `anexo_${colunaId}`
-  })
-}
 
 export function CelulaAnexosColuna({
   vinculo_id,
@@ -55,7 +47,7 @@ export function CelulaAnexosColuna({
   const inputFileRef                  = useRef<HTMLInputElement>(null)
   const carregandoRef                 = useRef(false)
 
-  const anexosColuna = anexos ? filtrarAnexosColuna(anexos, colunaId) : []
+  const anexosColuna = anexos ? filtrarAnexosPorColuna(anexos, colunaId) : []
   const aguardandoLista = anexos === null || carregando
 
   const carregar = useCallback(async () => {

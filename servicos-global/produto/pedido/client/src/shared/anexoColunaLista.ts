@@ -35,6 +35,18 @@ export function categoriaAnexoPorChaveColuna(chaveColuna: string): string {
   return chaveColuna
 }
 
+/** Filtra anexos da coluna — aceita categoria atual e legado `anexo_*`. */
+export function filtrarAnexosPorColuna<T extends { categoria?: string }>(
+  anexos: T[],
+  colunaId: string,
+): T[] {
+  return anexos.filter(a => {
+    const cat = a.categoria
+    if (!cat) return false
+    return cat === colunaId || cat === `anexo_${colunaId}`
+  })
+}
+
 export const METADADOS_COLUNA_ANEXO_LISTA = {
   editavel: false as const,
   celulaInterativa: true as const,

@@ -54,5 +54,10 @@ else
   fi
 fi
 
+# Storage persistente de anexos do Pedido (montar volume Railway em PEDIDO_ANEXOS_UPLOAD_DIR se necessário)
+export PEDIDO_ANEXOS_UPLOAD_DIR="${PEDIDO_ANEXOS_UPLOAD_DIR:-/app/data/pedido-anexos}"
+mkdir -p "$PEDIDO_ANEXOS_UPLOAD_DIR"
+echo "[start-site] Pedido anexos upload dir: $PEDIDO_ANEXOS_UPLOAD_DIR"
+
 echo "[start-site] Subindo Configurador + sidecars..."
 exec node servicos-global/configurador/dist/server.mjs

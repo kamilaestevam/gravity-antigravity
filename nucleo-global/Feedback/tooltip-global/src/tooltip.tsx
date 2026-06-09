@@ -149,6 +149,41 @@ export function TooltipGlobal({
     return () => cancelAnimationFrame(id)
   }, [show, titulo, descricao, pos.left, pos.alinhamento, ajustarPosComLarguraReal])
 
+  /** Fecha tooltip órfã quando scroll virtualiza a célula ou mouseleave não dispara no trigger. */
+  useEffect(() => {
+    if (!show) return
+
+    const ocultarImediato = () => {
+      limparTimerEsconder()
+      setShow(false)
+    }
+
+    const ponteiroSobreAlvo = (x: number, y: number): boolean => {
+      const alvo = document.elementFromPoint(x, y)
+      if (!alvo) return false
+      if (ref.current?.contains(alvo)) return true
+      if (interativo && cardRef.current?.contains(alvo)) return true
+      return false
+    }
+
+    const onScroll = () => ocultarImediato()
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (ponteiroSobreAlvo(e.clientX, e.clientY)) {
+        limparTimerEsconder()
+        return
+      }
+      esconde()
+    }
+
+    document.addEventListener('scroll', onScroll, true)
+    document.addEventListener('pointermove', onPointerMove)
+    return () => {
+      document.removeEventListener('scroll', onScroll, true)
+      document.removeEventListener('pointermove', onPointerMove)
+    }
+  }, [show, interativo, esconde, limparTimerEsconder])
+
   return (
     <>
       <span

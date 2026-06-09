@@ -129,6 +129,19 @@ export function CelulaAnexosColuna({
   }, [t])
 
   useEffect(() => {
+    let ativo = true
+    void (async () => {
+      try {
+        const todos = await anexosApi.listar(vinculo, vinculo_id)
+        if (ativo) setAnexos(todos)
+      } catch {
+        if (ativo) setAnexos([])
+      }
+    })()
+    return () => { ativo = false }
+  }, [vinculo, vinculo_id, colunaId])
+
+  useEffect(() => {
     if (!aberto) return
     const reposicionar = () => posicionarPainel()
     window.addEventListener('resize', reposicionar)
@@ -274,7 +287,6 @@ export function CelulaAnexosColuna({
         className={['cac-trigger', contagem > 0 ? 'cac-trigger--com-anexos' : ''].filter(Boolean).join(' ')}
         onMouseDown={e => e.stopPropagation()}
         onClick={handleToggle}
-        title={contagem > 0 ? t('pedido.cel_anexos.arquivos_anexados', { count: contagem }) : t('pedido.cel_anexos.anexar_arquivo')}
         aria-label={t('pedido.cel_anexos.coluna_arquivos_aria', { coluna: colunaNome, count: contagem })}
         aria-expanded={aberto}
       >

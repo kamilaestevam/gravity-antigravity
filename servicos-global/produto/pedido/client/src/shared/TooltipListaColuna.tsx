@@ -48,19 +48,16 @@ export function TooltipListaColuna({
   triggerStyle,
 }: TooltipListaColunaProps) {
   const titulo = tituloTooltipListaPorNivel(t, colunaKey, nivel)
-  const styleTrigger = triggerStyle
-    ?? (cursorBloqueado
-      ? {
-        display: 'flex',
-        flex: 1,
-        alignSelf: 'stretch',
-        alignItems: 'center',
-        justifyContent: 'inherit',
-        minWidth: 0,
-        width: '100%',
-        cursor: 'not-allowed',
-      }
-      : { display: 'contents' })
+  const styleTrigger = triggerStyle ?? {
+    display: 'flex',
+    flex: 1,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'inherit',
+    minWidth: 0,
+    width: '100%',
+    ...(cursorBloqueado ? { cursor: 'not-allowed' } : {}),
+  }
 
   return (
     <span

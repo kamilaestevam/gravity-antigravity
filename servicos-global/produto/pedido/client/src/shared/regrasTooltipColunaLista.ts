@@ -210,6 +210,7 @@ export function classificarRegraTooltipColuna(
     if (key === 'unidade_comercializada_pedido') return 'item_editavel_padrao'
     if (key === 'moeda_cambio_pedido') return 'item_editavel_padrao'
     if (isCampoData(key)) return 'pai_editavel_replicar_alerta'
+    if (isCampoAnexo(key)) return 'pai_anexo'
     if (getEditavelItem(key)) return 'item_editavel_padrao'
     const tipoItem = getTipoCampo(key)
     if (tipoItem) return regraPorTipo(tipoItem, 'item')

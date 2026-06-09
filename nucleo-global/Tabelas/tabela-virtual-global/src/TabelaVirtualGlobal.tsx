@@ -3631,7 +3631,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     }
                   }
                   // mapaColunasFilho / TooltipListaColuna — núcleo só pula wrap se produto já montou tooltip.
-                  if (conteudoTemTooltipProdutoMontada(celFilhoInner)) {
+                  if (mapa?.tooltipInline === true || conteudoTemTooltipProdutoMontada(celFilhoInner)) {
                     return celFilhoInner
                   }
                   const tituloMapaFilho = mapa?.tooltipTitulo != null && mapa.tooltipTitulo !== ''

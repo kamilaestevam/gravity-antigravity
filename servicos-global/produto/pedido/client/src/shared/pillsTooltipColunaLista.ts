@@ -30,6 +30,7 @@
  */
 
 import { CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM } from './regrasTooltipColunaLista'
+import { CHAVES_COLUNA_ANEXO_PADRAO } from './anexoColunaLista'
 import {
   classificarRegraTooltipColuna,
   type NivelColunaLista,
@@ -421,8 +422,8 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     item: ['editavel_item'],
   },
   pai_anexo: {
-    pedido: ['anexo'],
-    item: ['anexo'],
+    pedido: ['editavel_pedido'],
+    item: ['editavel_item'],
   },
   pai_coluna_personalizada: {
     pedido: ['coluna_personalizada', 'editavel_pedido'],
@@ -634,6 +635,7 @@ export function obterPillsTooltipColuna(
 
   const dual =
     CHAVES_DUAL_SEMPRE.has(key)
+    || (CHAVES_COLUNA_ANEXO_PADRAO as readonly string[]).includes(key)
     || Boolean(opts?.modoDinamicoPedidoItem && CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM.has(key))
 
   if (key === 'valor_por_unidade_item' && !dual) {

@@ -5,6 +5,7 @@
 
 import type { TFunction } from 'i18next'
 import type { NivelColunaLista } from './regrasTooltipColunaLista'
+import { isChaveColunaAnexo } from './anexoColunaLista'
 
 /** SSOT — datas replicáveis pedido→item na lista (ColunasPai + mapa filho Pedidos.tsx). */
 export const CAMPOS_DATA_REPLICAVEIS_LISTA = [
@@ -89,6 +90,27 @@ export function tituloTooltipItemDataReplicavel(t: TFunction, key: string): stri
   return derivarTituloItemDeTituloPedido(pedido)
 }
 
+export function tituloTooltipPedidoAnexo(t: TFunction, key: string): string | undefined {
+  const titulo = t(`pedido.coluna_pai.${key}_titulo`, { defaultValue: '' })
+  return titulo.trim() ? titulo : undefined
+}
+
+export function tituloTooltipItemAnexo(t: TFunction, key: string): string | undefined {
+  const explicito = t(`pedido.coluna_pai.${key}_item_titulo`, { defaultValue: '' })
+  if (explicito.trim()) return explicito
+  const filho = t(`pedido.coluna_filho.${key}.tooltip_titulo_item`, { defaultValue: '' })
+  if (filho.trim()) return filho
+  const pedido = tituloTooltipPedidoAnexo(t, key)
+  if (!pedido) return undefined
+  return derivarTituloItemDeTituloPedido(pedido)
+}
+
+/** Texto explicativo abaixo das pills no tooltip de colunas anexo. */
+export function descricaoTooltipColunaAnexo(t: TFunction, key: string): string | undefined {
+  const desc = t(`pedido.coluna_pai.${key}_desc`, { defaultValue: '' })
+  return desc.trim() ? desc : undefined
+}
+
 export function tituloTooltipCelulaPorColuna(
   t: TFunction,
   key: string,
@@ -168,6 +190,11 @@ export function tituloTooltipCelulaPorColuna(
     return isFilho
       ? t('pedido.coluna_pai.peso_bruto_item_titulo')
       : t('pedido.coluna_pai.peso_bruto_total_pedido_titulo')
+  }
+  if (isChaveColunaAnexo(key)) {
+    return isFilho
+      ? tituloTooltipItemAnexo(t, key)
+      : tituloTooltipPedidoAnexo(t, key)
   }
   return undefined
 }

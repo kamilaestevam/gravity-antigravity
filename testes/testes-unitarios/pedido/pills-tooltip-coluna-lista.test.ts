@@ -355,4 +355,12 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.pedido).not.toContain('alerta_divergencia')
     expect(res.item).not.toContain('alerta_divergencia')
   })
+
+  it('anexo_pedido — dual editável pedido/item', () => {
+    const res = obterPillsTooltipColuna('anexo_pedido')
+    expect(res.dual).toBe(true)
+    expect(res.pedido).toEqual(['editavel_pedido'])
+    expect(res.item).toEqual(['editavel_item'])
+    expect(res.pedido).not.toContain('anexo')
+  })
 })

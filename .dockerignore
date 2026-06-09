@@ -5,4 +5,6 @@ documentos-tecnicos
 skills
 testes/*
 !testes/infra
+# Registry lido pelo Admin (GET /api/v1/admin/planos-teste) — sem este arquivo o modal mostra 0 planos em produção
+!testes/test-plans-registry.json
 .claude

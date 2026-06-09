@@ -120,7 +120,7 @@ describe('calcularDivergenciasPedido — NCM', () => {
 describe('calcularDivergenciasPedido — moeda câmbio (independente por item)', () => {
   it('marca divergente quando um item difere da moeda do pedido', () => {
     const divergencias = calcularDivergenciasPedido(
-      [{ moeda_cambio_item: 'USD' }, { moeda_cambio_item: 'BRL' }],
+      [{ moeda_cambio_item_pedido: 'USD' }, { moeda_cambio_item_pedido: 'BRL' }],
       { moeda_cambio_pedido: 'BRL' },
     )
     expect(divergencias.moeda_cambio_pedido_divergente).toBe(true)
@@ -128,7 +128,7 @@ describe('calcularDivergenciasPedido — moeda câmbio (independente por item)',
 
   it('marca divergente quando itens divergem entre si', () => {
     const divergencias = calcularDivergenciasPedido(
-      [{ moeda_cambio_item: 'USD' }, { moeda_cambio_item: 'EUR' }],
+      [{ moeda_cambio_item_pedido: 'USD' }, { moeda_cambio_item_pedido: 'EUR' }],
       { moeda_cambio_pedido: null },
     )
     expect(divergencias.moeda_cambio_pedido_divergente).toBe(true)
@@ -136,7 +136,7 @@ describe('calcularDivergenciasPedido — moeda câmbio (independente por item)',
 
   it('não marca divergente quando pedido e todos os itens coincidem', () => {
     const divergencias = calcularDivergenciasPedido(
-      [{ moeda_cambio_item: 'BRL' }, { moeda_cambio_item: 'BRL' }],
+      [{ moeda_cambio_item_pedido: 'BRL' }, { moeda_cambio_item_pedido: 'BRL' }],
       { moeda_cambio_pedido: 'BRL' },
     )
     expect(divergencias.moeda_cambio_pedido_divergente).toBe(false)
@@ -145,7 +145,7 @@ describe('calcularDivergenciasPedido — moeda câmbio (independente por item)',
 
   it('não marca divergente quando itens não têm valor próprio (null)', () => {
     const divergencias = calcularDivergenciasPedido(
-      [{ moeda_cambio_item: null }, { moeda_cambio_item: '' }],
+      [{ moeda_cambio_item_pedido: null }, { moeda_cambio_item_pedido: '' }],
       { moeda_cambio_pedido: 'BRL' },
     )
     expect(divergencias.moeda_cambio_pedido_divergente).toBe(false)

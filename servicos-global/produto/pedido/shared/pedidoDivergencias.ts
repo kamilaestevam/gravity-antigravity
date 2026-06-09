@@ -208,7 +208,7 @@ export function calcularDivergenciasPedido(
 
   {
     const moedasItens = itens
-      .map(i => i.moeda_cambio_item)
+      .map(i => i.moeda_cambio_item_pedido)
       .filter((v): v is string => v != null && String(v).trim() !== '')
     const moedasUnicas = new Set(moedasItens)
     const canonico = pedidoPai?.moeda_cambio_pedido

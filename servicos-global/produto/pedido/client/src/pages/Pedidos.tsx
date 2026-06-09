@@ -3820,11 +3820,11 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   // ── Moeda Câmbio: item editável independente do pedido (mirror cobertura_cambial) ──
   moeda_cambio_pedido: {
     editavel: true,
-    campo: 'moeda_cambio_item',
+    campo: 'moeda_cambio_item_pedido',
     opcoes: moedasOpcoes,
-    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido).moeda_cambio_item ?? '',
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido).moeda_cambio_item_pedido ?? '',
     render: (row: PedidoItem) => {
-      const moeda = (row as PedidoItemEnriquecido).moeda_cambio_item
+      const moeda = (row as PedidoItemEnriquecido).moeda_cambio_item_pedido
       if (!moeda) return <span>{'—'}</span>
       return (
         <span className="gtv-celula-moeda">
@@ -7245,14 +7245,14 @@ export default function Pedidos() {
     }
 
     // Moeda câmbio: a coluna de item compartilha a key 'moeda_cambio_pedido' com o pai
-    // (a GTV dispara col.key no edit), mas no ITEM gravamos moeda_cambio_item — edição
+    // (a GTV dispara col.key no edit), mas no ITEM gravamos moeda_cambio_item_pedido — edição
     // independente, NÃO toca no pedido. O pai usa handleEditar (com "Aplicar a todos").
     if (campo === 'moeda_cambio_pedido') {
       const moedaCodigo = valor == null || valor === '' ? null : String(valor)
       const itemAtualMc = getItensCache().find(i => i.id === id)
-      const atualizadoMc = await pedidoItemApi.atualizar(pedido.id, id, { moeda_cambio_item: moedaCodigo } as Partial<PedidoItem>)
+      const atualizadoMc = await pedidoItemApi.atualizar(pedido.id, id, { moeda_cambio_item_pedido: moedaCodigo } as Partial<PedidoItem>)
         .catch(() => {
-          if (import.meta.env.DEV && itemAtualMc) return { ...itemAtualMc, moeda_cambio_item: moedaCodigo } as PedidoItem
+          if (import.meta.env.DEV && itemAtualMc) return { ...itemAtualMc, moeda_cambio_item_pedido: moedaCodigo } as PedidoItem
           throw new Error(t('pedido.lista.erro.editar_campo', { campo }))
         })
       const enriquecidoMc: PedidoItemEnriquecido = {

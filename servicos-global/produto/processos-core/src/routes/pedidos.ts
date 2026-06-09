@@ -218,7 +218,7 @@ export const atualizarItemSchema = z.object({
   unidade_comercializada_item: z.string().optional().nullable(),
   tipo_volume_item: z.string().optional().nullable(),
   moeda_item: z.string().optional(),
-  moeda_cambio_item: z.string().optional().nullable(),
+  moeda_cambio_item_pedido: z.string().optional().nullable(),
   valor_por_unidade_item: z.number().optional().nullable(),
   valor_total_item: z.number().optional().nullable(),
   quantidade_inicial_pedido: z.number().min(0).optional(),
@@ -335,7 +335,7 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
 
     casas_decimais_valor_item: item.casas_decimais_valor_item,
     cobertura_cambial:         item.cobertura_cambial_item,
-    moeda_cambio_item:         item.moeda_cambio_item,
+    moeda_cambio_item_pedido:         item.moeda_cambio_item_pedido,
     nome_exportador:           item.nome_exportador_item,
     nome_importador:           item.nome_importador_item,
     nome_fabricante:           item.nome_fabricante_item,
@@ -633,7 +633,7 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
         }
       }
       const moedasItens = itens
-        .map((i: PedidoItemRaw) => i.moeda_cambio_item as string | null | undefined)
+        .map((i: PedidoItemRaw) => i.moeda_cambio_item_pedido as string | null | undefined)
         .filter((x): x is string => !!x && x.trim().length > 0)
       const moedasUnicas = new Set(moedasItens)
       let divergente = moedasUnicas.size > 1
@@ -2648,7 +2648,7 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
               valor_total_item: item.valor_total_item,
               casas_decimais_valor_item: item.casas_decimais_valor_item,
               cobertura_cambial_item: item.cobertura_cambial_item,
-              moeda_cambio_item: item.moeda_cambio_item,
+              moeda_cambio_item_pedido: item.moeda_cambio_item_pedido,
             })),
           },
           snapshots_empresa_pedido: snapshotsOriginais.length
@@ -3012,7 +3012,7 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'condicao_pagamento_siscomex_pedido',
   'tipo_volume_item',
   'moeda_item',
-  'moeda_cambio_item',
+  'moeda_cambio_item_pedido',
   'unidade_comercializada_item',
 ])
 

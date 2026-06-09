@@ -6285,6 +6285,7 @@
       "aviso_impacto_unidade_cancelada": "A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Pronta, Qtd. Transferida e Saldo",
       "datas_emissao_divergentes": "Datas de emissão divergentes entre itens",
       "coberturas_cambiais_divergentes": "Coberturas cambiais divergentes entre itens",
+      "moedas_cambio_divergentes": "Moedas de câmbio divergentes entre itens",
       "moeda_cambio": "Moeda Câmbio",
       "taxa_cambio_estimada": "Taxa Câmbio Estimada",
       "valor_total_cambio": "Valor Total Câmbio",

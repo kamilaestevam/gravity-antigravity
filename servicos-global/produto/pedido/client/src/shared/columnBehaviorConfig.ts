@@ -207,8 +207,8 @@ const ITEM_EDITAVEL_OVERRIDE: Record<string, boolean> = {
   local_de_destino:             false,
   aeroporto_origem:             false,
   aeroporto_destino:            false,
-  // Câmbio: valor no Pedido; edição na linha item roteia para PATCH pedido (Pedidos.tsx)
-  moeda_cambio_pedido:          false,
+  // Câmbio: moeda câmbio é editável independente no item (mirror cobertura_cambial).
+  // Pedido e item têm valor próprio; alerta de divergência quando diferem.
 }
 
 // ── API pública ──────────────────────────────────────────────────────────────

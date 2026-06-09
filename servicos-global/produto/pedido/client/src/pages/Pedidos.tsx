@@ -133,6 +133,7 @@ import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../..
 import {
   calcularDivergenciasPedido,
   mesclarDivergenciasPreservandoCoberturaPedido,
+  mesclarDivergenciasPreservandoMoedaCambioPedido,
   mesclarDivergenciasPreservandoDescricaoPedido,
   mesclarDivergenciasPreservandoNcmPedido,
   pedidoPossuiItensNaLista,
@@ -3785,14 +3786,14 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       )
     },
   },
-  // ── Moeda Câmbio: valor no Pedido; edição na linha do item roteia para PATCH pedido ──
+  // ── Moeda Câmbio: item editável independente do pedido (mirror cobertura_cambial) ──
   moeda_cambio_pedido: {
     editavel: true,
-    campo: 'moeda_cambio_pedido',
+    campo: 'moeda_cambio_item',
     opcoes: moedasOpcoes,
-    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.moeda_cambio_pedido ?? '',
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido).moeda_cambio_item ?? '',
     render: (row: PedidoItem) => {
-      const moeda = (row as PedidoItemEnriquecido)._p?.moeda_cambio_pedido
+      const moeda = (row as PedidoItemEnriquecido).moeda_cambio_item
       if (!moeda) return <span>{'—'}</span>
       return (
         <span className="gtv-celula-moeda">
@@ -6796,6 +6797,64 @@ export default function Pedidos() {
       }))
       return updatedPedido
     }
+    // Moeda câmbio — coluna no pedido (moeda_cambio_pedido); PATCH no pai.
+    if (campo === 'moeda_cambio_pedido') {
+      const campoApi = 'moeda_cambio_pedido'
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
+      const valorStr = valor == null || valor === '' ? null : String(valor)
+      if (!valorStr) {
+        throw new Error(t('pedido.lista.erro.moeda_cambio_obrigatoria', 'Selecione uma moeda do câmbio.'))
+      }
+      const replicar = opts?.replicar_em_itens ?? false
+      const updatedRaw = await pedidoVirtualApi.editarCampo(id, campoApi, valorStr, replicar)
+      const updatedPedido = {
+        ...updatedRaw,
+        moeda_cambio_pedido: valorStr,
+        moeda_cambio_pedido_valor_unico: valorStr,
+      } as Pedido
+      if (replicar && isPropagavel(campoApi)) {
+        const itensApi = updatedRaw.itens
+        const itensCache = itensCarregadosRef.current.get(id) ?? []
+        if (Array.isArray(itensApi) && itensApi.length > 0) {
+          const enriquecidos = itensApi.map(i => ({
+            ...i,
+            _p: montarContextoPaiItem(updatedPedido, i),
+          })) as PedidoItemEnriquecido[]
+          itensCarregadosRef.current.set(id, enriquecidos)
+          setResetFilhos(prev => prev + 1)
+        } else if (itensCache.length > 0) {
+          itensCarregadosRef.current.set(
+            id,
+            itensCache.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr)),
+          )
+          setResetFilhos(prev => prev + 1)
+        } else {
+          itensCarregadosRef.current.delete(id)
+        }
+      }
+      const itensAtuais = itensCarregadosRef.current.get(id) ?? []
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== id) return p
+        let itensFallback = itensAtuais.length > 0 ? itensAtuais : (p.itens ?? [])
+        if (replicar && isPropagavel(campoApi) && itensAtuais.length === 0 && itensFallback.length > 0) {
+          itensFallback = itensFallback.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr))
+        }
+        const sinc = itensFallback.length > 0
+          ? sincronizarItensPedido(itensFallback, updatedPedido)
+          : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
+        const divergencias = mesclarDivergenciasPreservandoMoedaCambioPedido(
+          updatedPedido as Record<string, unknown>,
+          sinc.divergencias as Record<string, unknown>,
+        )
+        return {
+          ...updatedPedido,
+          ...divergencias,
+          itens: sinc.itens.length > 0 ? sinc.itens : p.itens,
+        }
+      }))
+      return updatedPedido
+    }
     // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
     // PATCH directo nos itens. Lógica de propagação real fica no servidor para
     // campos normais (isPropagavel) — o frontend é apenas o reflexo visual.
@@ -7057,27 +7116,9 @@ export default function Pedidos() {
       throw new Error(t('pedido.lista.erro.workspace_somente_pedido', 'Workspace é definido no pedido e aplica-se a todos os itens.'))
     }
 
-    if (campo === 'moeda_cambio_pedido') {
-      const moedaCodigo = valor != null && typeof valor === 'object' && 'currency' in (valor as object)
-        ? (valor as { currency: string }).currency
-        : String(valor)
-      const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(pedido.id, campo, moedaCodigo, false)
-      const updatedPedido = {
-        ...updatedPedidoRaw,
-        moeda_cambio_pedido: moedaCodigo,
-      } as Pedido
-      const itensCache = getItensCache()
-      const itensAtualizados = itensCache.map(i => ({
-        ...i,
-        _p: montarContextoPaiItem(updatedPedido, i),
-      })) as PedidoItemEnriquecido[]
-      itensCarregadosRef.current.set(pedido.id, itensAtualizados)
-      setPedidos(prev => prev.map(p => (p.id !== pedido.id ? p : { ...updatedPedido, itens: p.itens })))
-      setResetFilhos(prev => prev + 1)
-      const itemAtual = itensAtualizados.find(i => i.id === id)
-      if (!itemAtual) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
-      return itemAtual
-    }
+    // Moeda câmbio: item é editável de forma independente (campo 'moeda_cambio_item')
+    // e segue o caminho genérico (PUT no item). O pai usa campo 'moeda_cambio_pedido'
+    // via handleEditar (com checkbox "Aplicar a todos os itens").
 
     if (isCampoLogisticaPedido(campo)) {
       const valorNorm = normalizarCodigoLogisticaPedido(valor)

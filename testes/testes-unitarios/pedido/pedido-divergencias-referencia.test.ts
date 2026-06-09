@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   calcularDivergenciasPedido,
   mesclarDivergenciasPreservandoNcmPedido,
+  mesclarDivergenciasPreservandoMoedaCambioPedido,
+  obterMoedaCambioExibicaoPedido,
   obterNcmExibicaoPedido,
 } from '../../../servicos-global/produto/pedido/shared/pedidoDivergencias'
 
@@ -80,5 +82,55 @@ describe('calcularDivergenciasPedido — NCM', () => {
       { ncm_valor_unico: '8471.30.19', ncm_divergente: false },
     )
     expect(mesclado.ncm_valor_unico).toBe('0302.89.34')
+  })
+})
+
+describe('calcularDivergenciasPedido — moeda câmbio (independente por item)', () => {
+  it('marca divergente quando um item difere da moeda do pedido', () => {
+    const divergencias = calcularDivergenciasPedido(
+      [{ moeda_cambio_item: 'USD' }, { moeda_cambio_item: 'BRL' }],
+      { moeda_cambio_pedido: 'BRL' },
+    )
+    expect(divergencias.moeda_cambio_pedido_divergente).toBe(true)
+  })
+
+  it('marca divergente quando itens divergem entre si', () => {
+    const divergencias = calcularDivergenciasPedido(
+      [{ moeda_cambio_item: 'USD' }, { moeda_cambio_item: 'EUR' }],
+      { moeda_cambio_pedido: null },
+    )
+    expect(divergencias.moeda_cambio_pedido_divergente).toBe(true)
+  })
+
+  it('não marca divergente quando pedido e todos os itens coincidem', () => {
+    const divergencias = calcularDivergenciasPedido(
+      [{ moeda_cambio_item: 'BRL' }, { moeda_cambio_item: 'BRL' }],
+      { moeda_cambio_pedido: 'BRL' },
+    )
+    expect(divergencias.moeda_cambio_pedido_divergente).toBe(false)
+    expect(divergencias.moeda_cambio_pedido_valor_unico).toBe('BRL')
+  })
+
+  it('não marca divergente quando itens não têm valor próprio (null)', () => {
+    const divergencias = calcularDivergenciasPedido(
+      [{ moeda_cambio_item: null }, { moeda_cambio_item: '' }],
+      { moeda_cambio_pedido: 'BRL' },
+    )
+    expect(divergencias.moeda_cambio_pedido_divergente).toBe(false)
+    expect(divergencias.moeda_cambio_pedido_valor_unico).toBe('BRL')
+  })
+
+  it('obterMoedaCambioExibicaoPedido prioriza valor canônico do pedido', () => {
+    expect(
+      obterMoedaCambioExibicaoPedido({ moeda_cambio_pedido: 'USD', moeda_cambio_pedido_valor_unico: 'BRL' }),
+    ).toBe('USD')
+  })
+
+  it('mesclarDivergenciasPreservandoMoedaCambioPedido mantém valor canônico do pedido', () => {
+    const mesclado = mesclarDivergenciasPreservandoMoedaCambioPedido(
+      { moeda_cambio_pedido: 'USD' },
+      { moeda_cambio_pedido_valor_unico: 'BRL', moeda_cambio_pedido_divergente: false },
+    )
+    expect(mesclado.moeda_cambio_pedido_valor_unico).toBe('USD')
   })
 })

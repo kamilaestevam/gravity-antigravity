@@ -76,6 +76,7 @@ export interface PedidoItem {
   valor_por_unidade_item?: number | null
   casas_decimais_valor_item: number
   cobertura_cambial?: string
+  moeda_cambio_item?: string | null
   nome_exportador?: string | null
   nome_importador?: string | null
   nome_fabricante?: string | null
@@ -390,6 +391,8 @@ export interface Pedido {
   referencia_fabricante_divergente?: boolean | null
   cobertura_cambial_divergente?: boolean | null
   cobertura_cambial_valor_unico?: string | null
+  moeda_cambio_pedido_divergente?: boolean | null
+  moeda_cambio_pedido_valor_unico?: string | null
   data_emissao_pedido_divergente?: boolean | null
   data_emissao_pedido_valor_unico?: string | null
   // Onda A8 — homogeneidade de moeda/unidade. Quando itens divergem,

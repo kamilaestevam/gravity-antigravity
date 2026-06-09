@@ -23,6 +23,7 @@ import { getEditavel } from '../../shared/columnBehaviorConfig'
 import { enriquecerColunasComRegraTooltip, montarTooltipCelulaComAviso } from '../../shared/buildTooltipRegraLista'
 import {
   obterCoberturaExibicaoPedido,
+  obterMoedaCambioExibicaoPedido,
   obterDescricaoExibicaoPedido,
   obterNcmExibicaoPedido,
 } from '../../../../shared/pedidoDivergencias'
@@ -1222,17 +1223,20 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     filtravel: true,
     editavel: getEditavel('moeda_cambio_pedido'),
     campo: 'moeda_cambio_pedido',
-    getValorEditar: (row: Pedido) => row.moeda_cambio_pedido ?? '',
+    getValorEditar: (row: Pedido) => obterMoedaCambioExibicaoPedido(row as Record<string, unknown>) ?? '',
     tooltipTitulo: t('pedido.coluna_pai.moeda_cambio_titulo', { defaultValue: t('pedido.coluna_pai.moeda_cambio') }),
     tooltipDescricao: t('pedido.coluna_pai.moeda_cambio_desc', { defaultValue: '' }),
     grupo: 'Câmbio',
     render: (_val: unknown, row: Pedido) => {
-      const moeda = row.moeda_cambio_pedido
-      if (!moeda) return <span>{'—'}</span>
-      return (
-        <span className="gtv-celula-moeda">
-          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
-        </span>
+      const moeda = obterMoedaCambioExibicaoPedido(row as Record<string, unknown>)
+      return renderAgregado(
+        moeda ? (
+          <span className="gtv-celula-moeda">
+            <span className={classeMoedaBadge(moeda)}>{moeda}</span>
+          </span>
+        ) : null,
+        row.moeda_cambio_pedido_divergente,
+        t('pedido.coluna_pai.moedas_cambio_divergentes'),
       )
     },
   },

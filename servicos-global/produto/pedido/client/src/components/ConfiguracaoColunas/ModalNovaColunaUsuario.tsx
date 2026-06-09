@@ -5,7 +5,6 @@
  *  - Grid de pills para seleção de tipo (com ícones)
  *  - Editor tokenizado (pill-based) para fórmulas
  *  - GABI AI: análise semântica local + Gemini async com sugestões
- *  - Valor padrão contextual (checkbox toggle, select das opções, input tipado)
  *  - Toggles: "Itens podem ter dados diferentes" + "Pedido também é editável"
  *  - Campos disponíveis agrupados (Quantidades, Financeiro, Minhas Colunas)
  *
@@ -19,6 +18,8 @@ import {
   X, Plus, Warning, Info, Columns,
   TextT, Hash, CalendarBlank, Percent, ListBullets,
   CheckSquare, Tag, MathOperations, Paperclip,
+  Eye, PencilSimple, Asterisk, TextAlignLeft,
+  SquaresFour, Rows,
 } from '@phosphor-icons/react'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type {
@@ -87,6 +88,41 @@ interface ModalNovaColunaProps {
   todasColunas?: ColunaUsuario[]
 }
 
+const ICONE_LABEL_SECAO = { size: 13, weight: 'fill' as const }
+
+function MncLabelSecao({
+  icone,
+  children,
+  obrigatorio,
+  toggle,
+  htmlFor,
+  iconeDestaque,
+}: {
+  icone: React.ReactNode
+  children: React.ReactNode
+  obrigatorio?: boolean
+  toggle?: boolean
+  htmlFor?: string
+  iconeDestaque?: boolean
+}) {
+  const classe = [
+    'mnc-label-secao',
+    toggle ? 'mnc-label-secao--toggle' : '',
+    iconeDestaque ? 'mnc-label-secao--icone-destaque' : '',
+  ].filter(Boolean).join(' ')
+  const conteudo = (
+    <>
+      {icone}
+      <span>{children}</span>
+      {obrigatorio && <span className="mnc-obrig">*</span>}
+    </>
+  )
+  if (htmlFor) {
+    return <label className={classe} htmlFor={htmlFor}>{conteudo}</label>
+  }
+  return <span className={classe}>{conteudo}</span>
+}
+
 // ── Toggle inline ─────────────────────────────────────────────────────────────
 
 function MncToggle({ checked, onChange, id }: { checked: boolean; onChange: (v: boolean) => void; id?: string }) {
@@ -125,7 +161,6 @@ export function ModalNovaColunaUsuario({
   const [alertaDivergenciaItens, setAlertaDivergenciaItens] = useState(
     colunaEdicao?.alerta_divergencia_itens ?? false,
   )
-  const [valorPadrao, setValorPadrao]   = useState(colunaEdicao?.valor_padrao ?? '')
   const [descricao, setDescricao]       = useState(colunaEdicao?.descricao ?? '')
   const [opcoes, setOpcoes]             = useState<string[]>(colunaEdicao?.opcoes ?? [])
   const [novaOpcao, setNovaOpcao]       = useState('')
@@ -394,7 +429,7 @@ export function ModalNovaColunaUsuario({
       visibilidade,
       obrigatorio,
       alerta_divergencia_itens: escopo === 'ambos' ? alertaDivergenciaItens : false,
-      valor_padrao: tipoFormula ? formulaChave : (valorPadrao.trim() || undefined),
+      ...(tipoFormula ? { valor_padrao: formulaChave } : {}),
       descricao: descricao.trim() || undefined,
       opcoes: tipoComOpcoes ? opcoes : undefined,
     }
@@ -415,7 +450,7 @@ export function ModalNovaColunaUsuario({
       setSalvando(false)
     }
   }, [
-    nome, tipo, escopo, visibilidade, obrigatorio, alertaDivergenciaItens, valorPadrao,
+    nome, tipo, escopo, visibilidade, obrigatorio, alertaDivergenciaItens,
     descricao, opcoes, tipoComOpcoes, tipoFormula, formulaTokens,
     formulaErro, isEdicao, colunaEdicao, onSalvo, onFechar,
   ])
@@ -447,9 +482,13 @@ export function ModalNovaColunaUsuario({
         <div className="mnc-corpo">
           {/* Nome */}
           <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-nome">
-              {t('pedido.modal_col.label_nome')} <span className="mnc-obrig">*</span>
-            </label>
+            <MncLabelSecao
+              htmlFor="mnc-nome"
+              icone={<TextT {...ICONE_LABEL_SECAO} />}
+              obrigatorio
+            >
+              {t('pedido.modal_col.label_nome')}
+            </MncLabelSecao>
             <input
               id="mnc-nome"
               className={['mnc-input', isEdicao ? 'mnc-input--readonly' : ''].filter(Boolean).join(' ')}
@@ -466,9 +505,12 @@ export function ModalNovaColunaUsuario({
 
           {/* Tipo — Grid de Pills */}
           <div className="mnc-campo">
-            <label className="mnc-label">
-              {t('pedido.modal_col.label_tipo')} <span className="mnc-obrig">*</span>
-            </label>
+            <MncLabelSecao
+              icone={<SquaresFour {...ICONE_LABEL_SECAO} />}
+              obrigatorio
+            >
+              {t('pedido.modal_col.label_tipo')}
+            </MncLabelSecao>
             <div className="mnc-tipo-grid">
               {TIPOS_COLUNA.map(tc => (
                 <button
@@ -490,9 +532,9 @@ export function ModalNovaColunaUsuario({
               ))}
             </div>
             {isEdicao && (
-              <p style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#f59e0b' }}>
+              <p style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', margin: '0.25rem 0 0', fontSize: '10px', color: '#f59e0b' }}>
                 <Warning size={13} weight="fill" style={{ flexShrink: 0 }} />
-                {t('pedido.modal_col.tipo_readonly', 'O tipo da coluna não pode ser alterado após a criação.')}
+                {t('pedido.modal_col.tipo_readonly', 'O tipo da coluna não pode ser alterado após a criação')}
               </p>
             )}
           </div>
@@ -500,9 +542,12 @@ export function ModalNovaColunaUsuario({
           {/* ── Editor de Fórmula Tokenizado + GABI ── */}
           {tipoFormula && (
             <div className="mnc-campo">
-              <label className="mnc-label">
-                {t('pedido.modal_col.label_formula')} <span className="mnc-obrig">*</span>
-              </label>
+              <MncLabelSecao
+                icone={<MathOperations {...ICONE_LABEL_SECAO} />}
+                obrigatorio
+              >
+                {t('pedido.modal_col.label_formula')}
+              </MncLabelSecao>
 
               {/* Área de tokens (pills) */}
               <div className={[
@@ -623,9 +668,12 @@ export function ModalNovaColunaUsuario({
           {/* Opções (select / tipo_documento) */}
           {tipoComOpcoes && (
             <div className="mnc-campo">
-              <label className="mnc-label">
-                {t('pedido.modal_col.label_opcoes')} <span className="mnc-obrig">*</span>
-              </label>
+              <MncLabelSecao
+                icone={<ListBullets {...ICONE_LABEL_SECAO} />}
+                obrigatorio
+              >
+                {t('pedido.modal_col.label_opcoes')}
+              </MncLabelSecao>
               <div className="mnc-nova-opcao">
                 <input
                   className="mnc-input mnc-input--opcao"
@@ -669,10 +717,14 @@ export function ModalNovaColunaUsuario({
 
           {/* Visibilidade */}
           <div className="mnc-campo">
-            <label className="mnc-label">
-              {t('pedido.modal_col.label_visibilidade')} <span className="mnc-obrig">*</span>
-            </label>
+            <MncLabelSecao
+              icone={<Eye {...ICONE_LABEL_SECAO} />}
+              obrigatorio
+            >
+              {t('pedido.modal_col.label_visibilidade')}
+            </MncLabelSecao>
             <SelectGlobal
+              id="mnc-visibilidade"
               buscavel={false}
               opcoes={VISIBILIDADE_OPCOES.map(o => ({ valor: o.valor, rotulo: t(o.labelKey) }))}
               valor={visibilidade}
@@ -680,12 +732,28 @@ export function ModalNovaColunaUsuario({
             />
           </div>
 
+          {/* Descrição — mesmo padrão/layout da visibilidade */}
+          <div className="mnc-campo">
+            <MncLabelSecao icone={<TextAlignLeft {...ICONE_LABEL_SECAO} />}>
+              {t('pedido.modal_col.label_descricao')}
+            </MncLabelSecao>
+            <input
+              id="mnc-descricao"
+              className="mnc-input mnc-input--como-select"
+              type="text"
+              value={descricao}
+              onChange={e => setDescricao(e.target.value)}
+              placeholder={t('pedido.modal_col.placeholder_descricao')}
+              maxLength={200}
+            />
+          </div>
+
           {/* Itens podem ter dados diferentes (toggle) */}
           <div className="mnc-campo mnc-campo--toggle-row">
             <div>
-              <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+              <MncLabelSecao toggle icone={<Rows {...ICONE_LABEL_SECAO} />}>
                 {t('pedido.modal_col.itens_diferentes')}
-              </span>
+              </MncLabelSecao>
               <p className="mnc-hint">{t('pedido.modal_col.itens_diferentes_hint')}</p>
             </div>
             <MncToggle checked={itensDiferentes} onChange={setItensDiferentes} id="mnc-itens-dif" />
@@ -700,9 +768,9 @@ export function ModalNovaColunaUsuario({
 
               <div className="mnc-campo mnc-campo--toggle-row">
                 <div>
-                  <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  <MncLabelSecao toggle icone={<PencilSimple {...ICONE_LABEL_SECAO} />}>
                     {t('pedido.modal_col.pedido_editavel')}
-                  </span>
+                  </MncLabelSecao>
                   <p className="mnc-hint">{t('pedido.modal_col.pedido_editavel_hint')}</p>
                 </div>
                 <MncToggle checked={pedidoEditavel} onChange={setPedidoEditavel} id="mnc-pedido-edit" />
@@ -713,9 +781,12 @@ export function ModalNovaColunaUsuario({
           {/* Obrigatório */}
           {tipo !== 'formula' && (
             <div className="mnc-campo mnc-campo--toggle-row">
-              <span className="mnc-label" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                {t('pedido.modal_col.label_obrigatorio')}
-              </span>
+              <div>
+                <MncLabelSecao toggle icone={<Asterisk {...ICONE_LABEL_SECAO} />}>
+                  {t('pedido.modal_col.label_obrigatorio')}
+                </MncLabelSecao>
+                <p className="mnc-hint">{t('pedido.modal_col.obrigatorio_hint')}</p>
+              </div>
               <MncToggle checked={obrigatorio} onChange={setObrigatorio} id="mnc-obrigatorio" />
             </div>
           )}
@@ -723,74 +794,18 @@ export function ModalNovaColunaUsuario({
           {escopo === 'ambos' && (
             <div className="mnc-campo mnc-campo--toggle-row">
               <div>
-                <span className="mnc-label mnc-label--icone-alerta" style={{ textTransform: 'none', fontWeight: 500, fontSize: '0.875rem', color: 'var(--text-primary)' }}>
-                  <Warning size={14} weight="regular" style={{ color: '#F59E0B', flexShrink: 0 }} aria-hidden="true" />
+                <MncLabelSecao
+                  toggle
+                  iconeDestaque
+                  icone={<Warning {...ICONE_LABEL_SECAO} aria-hidden="true" />}
+                >
                   {t('pedido.modal_col.alerta_divergencia_itens')}
-                </span>
+                </MncLabelSecao>
                 <p className="mnc-hint">{t('pedido.modal_col.alerta_divergencia_itens_hint')}</p>
               </div>
               <MncToggle checked={alertaDivergenciaItens} onChange={setAlertaDivergenciaItens} id="mnc-alerta-div" />
             </div>
           )}
-
-          {/* Valor Padrão — contextual por tipo */}
-          {tipo !== 'formula' && (
-            <div className="mnc-campo">
-              <label className="mnc-label" htmlFor="mnc-valor-padrao">{t('pedido.modal_col.label_valor_padrao')}</label>
-              <p className="mnc-hint">{t('pedido.modal_col.valor_padrao_hint')}</p>
-              {tipo === 'checkbox' ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input
-                    id="mnc-valor-padrao"
-                    type="checkbox"
-                    className="mnc-checkbox"
-                    checked={valorPadrao === 'true'}
-                    onChange={e => setValorPadrao(e.target.checked ? 'true' : 'false')}
-                  />
-                  <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                    {valorPadrao === 'true' ? t('pedido.modal_col.marcado_padrao') : t('pedido.modal_col.desmarcado_padrao')}
-                  </span>
-                </div>
-              ) : (tipo === 'select' || tipo === 'tipo_documento') ? (
-                opcoes.length > 0 ? (
-                  <SelectGlobal
-                    opcoes={[
-                      { valor: '', rotulo: t('pedido.modal_col.sem_valor_padrao') },
-                      ...opcoes.map(o => ({ valor: o, rotulo: o })),
-                    ]}
-                    valor={valorPadrao}
-                    aoMudarValor={v => setValorPadrao(String(v ?? ''))}
-                    buscavel={false}
-                  />
-                ) : (
-                  <p className="mnc-hint" style={{ fontStyle: 'italic' }}>{t('pedido.modal_col.adicione_opcoes_padrao')}</p>
-                )
-              ) : (
-                <input
-                  id="mnc-valor-padrao"
-                  className="mnc-input"
-                  type={tipo === 'numero' || tipo === 'percentual' ? 'number' : tipo === 'data' ? 'date' : 'text'}
-                  value={valorPadrao}
-                  onChange={e => setValorPadrao(e.target.value)}
-                  placeholder={t('pedido.modal_col.placeholder_valor_padrao')}
-                />
-              )}
-            </div>
-          )}
-
-          {/* Descrição */}
-          <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-descricao">{t('pedido.modal_col.label_descricao')}</label>
-            <input
-              id="mnc-descricao"
-              className="mnc-input"
-              type="text"
-              value={descricao}
-              onChange={e => setDescricao(e.target.value)}
-              placeholder={t('pedido.modal_col.placeholder_descricao')}
-              maxLength={200}
-            />
-          </div>
 
         </div>
         ),

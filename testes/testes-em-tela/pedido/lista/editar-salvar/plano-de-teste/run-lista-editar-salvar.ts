@@ -250,32 +250,69 @@ async function screenshot(page: Page, nome: string) {
   log(`📸 ${nome}`)
 }
 
-async function prepararEscopoWorkspaces(page: Page): Promise<void> {
-  await page.evaluate(async () => {
+async function prepararEscopoWorkspaces(
+  page: Page,
+  workspacePreferido: string = WORKSPACE_CDE_PADRAO,
+): Promise<{ wsAtivo: string | null; idsEscopo: string[]; cdeDisponivel: boolean }> {
+  return page.evaluate(async ({ wsPreferido }) => {
     for (let i = sessionStorage.length - 1; i >= 0; i--) {
       const key = sessionStorage.key(i)
       if (key?.startsWith('pedido:workspaces_escopo')) sessionStorage.removeItem(key)
     }
     const clerkGlobal = (window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk
     const token = await clerkGlobal?.session?.getToken()
-    if (!token) return
+    if (!token) return { wsAtivo: null, idsEscopo: [], cdeDisponivel: false }
     const meRes = await fetch('/api/v1/me', { headers: { Authorization: `Bearer ${token}` } })
-    if (!meRes.ok) return
+    if (!meRes.ok) return { wsAtivo: null, idsEscopo: [], cdeDisponivel: false }
     const me = await meRes.json() as {
       organizacao?: { id_organizacao?: string } | null
+      usuario?: { id_usuario?: string } | null
       workspace_ativo?: { id_workspace?: string } | null
       workspaces?: Array<{ id_workspace?: string }>
     }
-    const orgId = me.organizacao?.id_organizacao
-    const wsId = me.workspace_ativo?.id_workspace ?? me.workspaces?.[0]?.id_workspace ?? null
-    if (wsId) sessionStorage.setItem('gravity_company_id', wsId)
-    if (orgId && me.workspaces?.length) {
-      const ids = me.workspaces.map(w => w.id_workspace).filter((id): id is string => Boolean(id))
-      if (ids.length > 0) {
-        sessionStorage.setItem(`pedido:workspaces_escopo:${orgId}`, JSON.stringify(ids))
-      }
+    const orgId = me.organizacao?.id_organizacao ?? null
+    const disponiveis = (me.workspaces ?? [])
+      .map(w => w.id_workspace)
+      .filter((id): id is string => Boolean(id))
+    const cdeDisponivel = Boolean(wsPreferido && disponiveis.includes(wsPreferido))
+    const wsAtivo = cdeDisponivel
+      ? wsPreferido
+      : (me.workspace_ativo?.id_workspace ?? disponiveis[0] ?? null)
+    const idsEscopo = [...disponiveis]
+    if (wsAtivo && sessionStorage.getItem('gravity_company_id') !== wsAtivo) {
+      sessionStorage.setItem('gravity_company_id', wsAtivo)
+    } else if (wsAtivo) {
+      sessionStorage.setItem('gravity_company_id', wsAtivo)
     }
-  })
+    if (orgId && idsEscopo.length > 0) {
+      sessionStorage.setItem(`pedido:workspaces_escopo:${orgId}`, JSON.stringify(idsEscopo))
+    }
+    try {
+      const shellKey = 'gravity-shell-state'
+      const raw = localStorage.getItem(shellKey)
+      if (raw && wsAtivo) {
+        const parsed = JSON.parse(raw) as { state?: Record<string, unknown> }
+        parsed.state = { ...parsed.state, idWorkspaceAtivo: wsAtivo }
+        localStorage.setItem(shellKey, JSON.stringify(parsed))
+      }
+    } catch { /* ignore */ }
+    if (orgId && idsEscopo.length > 0) {
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'x-id-organizacao': orgId,
+      }
+      if (wsAtivo) headers['x-id-workspace'] = wsAtivo
+      const idUsuario = me.usuario?.id_usuario
+      if (idUsuario) headers['x-id-usuario'] = idUsuario
+      await fetch('/api/v1/pedidos/config/preferencia-usuario-coluna-pedido', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ ids_workspaces_escopo: idsEscopo }),
+      }).catch(() => {})
+    }
+    return { wsAtivo, idsEscopo, cdeDisponivel }
+  }, { wsPreferido: workspacePreferido })
 }
 
 async function aguardarMeComOrganizacao(page: Page): Promise<void> {
@@ -340,6 +377,16 @@ async function autenticarClerk(page: Page): Promise<boolean> {
 }
 
 async function aguardarWorkspaceAtivo(page: Page): Promise<void> {
+  const escopo = await prepararEscopoWorkspaces(page)
+  if (escopo.wsAtivo) {
+    if (escopo.cdeDisponivel) {
+      log(`ℹ Workspace CDE ativo (${escopo.wsAtivo})`)
+    } else {
+      log(`⚠ Workspace CDE ${WORKSPACE_CDE_PADRAO} indisponível em /me — usando ${escopo.wsAtivo}`)
+    }
+    return
+  }
+
   const ok = await page.waitForFunction(() => {
     try {
       if (sessionStorage.getItem('gravity_company_id')) return true
@@ -355,15 +402,9 @@ async function aguardarWorkspaceAtivo(page: Page): Promise<void> {
   if (!ok) {
     await page.evaluate((wsId) => {
       sessionStorage.setItem('gravity_company_id', wsId)
-      const key = 'gravity-shell-state'
-      const raw = localStorage.getItem(key)
-      if (raw) {
-        const parsed = JSON.parse(raw) as { state?: Record<string, unknown> }
-        parsed.state = { ...parsed.state, idWorkspaceAtivo: wsId }
-        localStorage.setItem(key, JSON.stringify(parsed))
-      }
     }, WORKSPACE_CDE_PADRAO)
     log(`⚠ Workspace forçado (${WORKSPACE_CDE_PADRAO})`)
+    await prepararEscopoWorkspaces(page)
   }
 }
 
@@ -421,22 +462,47 @@ async function aguardarNotificacaoSalvar(
   }
 }
 
+async function aguardarFimCarregamentoLista(page: Page, timeoutMs = 120000): Promise<void> {
+  await page.locator('.gtv-loader-wrapper[aria-busy="true"]').waitFor({ state: 'hidden', timeout: timeoutMs }).catch(() => {})
+  await page.waitForFunction(
+    () => !document.querySelector('.gtv-loader-wrapper[aria-busy="true"]'),
+    undefined,
+    { timeout: timeoutMs },
+  ).catch(() => {})
+}
+
 async function aguardarListaComPedidosEditaveis(page: Page): Promise<void> {
-  for (let tentativa = 0; tentativa < 3; tentativa++) {
+  const maxTentativas = 5
+  for (let tentativa = 0; tentativa < maxTentativas; tentativa++) {
     try {
       await page.getByRole('button', { name: /novo/i }).first().waitFor({ timeout: 60000 })
-      await page.locator('.gtv-linha--pai .gtv-chevron-btn').first().waitFor({ timeout: 60000 })
+      await page.waitForResponse(
+        resp => resp.url().includes('/api/v1/pedidos') && resp.request().method() === 'GET' && resp.status() === 200,
+        { timeout: 120000 },
+      ).catch(() => {})
+      await aguardarFimCarregamentoLista(page)
       await page.waitForFunction(
-        () => document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length > 0,
+        () => {
+          const chevrons = document.querySelectorAll('.gtv-linha--pai .gtv-chevron-btn').length
+          const editaveis = document.querySelectorAll('.gtv-linha--pai .gtv-celula--editavel[data-gtv-rowid]').length
+          return chevrons > 0 && editaveis > 0
+        },
         undefined,
         { timeout: 90000 },
       )
       await page.waitForTimeout(800)
       return
     } catch (err) {
-      if (tentativa >= 2) throw err
-      log(`⚠ Lista ainda carregando — reload (tentativa ${tentativa + 2}/3)`)
+      const diag = await diagnosticarLista(page)
+      log(`⚠ Lista (${diag}) — tentativa ${tentativa + 1}/${maxTentativas}`)
+      if (tentativa >= maxTentativas - 1) {
+        log(`✗ Diagnóstico final lista: ${diag}`)
+        throw err
+      }
+      await prepararEscopoWorkspaces(page)
+      log(`⚠ Lista ainda carregando — reload (tentativa ${tentativa + 2}/${maxTentativas})`)
       await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 })
+      await page.waitForLoadState('networkidle').catch(() => {})
     }
   }
 }
@@ -456,19 +522,24 @@ async function garantirColunasListaVisiveis(page: Page): Promise<void> {
 
 async function garantirListaPedidos(page: Page): Promise<void> {
   await aguardarWorkspaceAtivo(page)
+  await prepararEscopoWorkspaces(page)
   await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await page.waitForLoadState('networkidle').catch(() => {})
 
   if (page.url().includes('/hub') || page.url().includes('/login') || page.url().includes('/selecionar-workspace')) {
     log(`⚠ Redirecionado (${page.url()}) — tentando lista novamente`)
     await aguardarWorkspaceAtivo(page)
     await prepararEscopoWorkspaces(page)
     await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await page.waitForLoadState('networkidle').catch(() => {})
   }
 
   await aguardarListaComPedidosEditaveis(page)
 
   // Recarrega após escopo de workspace para garantir pedidos do CDE correto (padrão logística EMT)
+  await prepararEscopoWorkspaces(page)
   await page.reload({ waitUntil: 'domcontentloaded' })
+  await page.waitForLoadState('networkidle').catch(() => {})
   await aguardarListaComPedidosEditaveis(page)
   await garantirColunasListaVisiveis(page)
 }
@@ -481,7 +552,19 @@ async function diagnosticarLista(page: Page): Promise<string> {
     const numeroPedidoEditavel = document.querySelectorAll(
       '.gtv-linha--pai .gtv-celula--editavel[data-gtv-campo="numero_pedido"]',
     ).length
-    return `linhasPai=${linhasPai}, chevrons=${chevrons}, editaveis=${editaveis}, numero_pedido_editavel=${numeroPedidoEditavel}`
+    const carregando = Boolean(document.querySelector('.gtv-loader-wrapper[aria-busy="true"]'))
+    const wsAtivo = sessionStorage.getItem('gravity_company_id') ?? 'n/a'
+    let escopo = 'n/a'
+    try {
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const k = sessionStorage.key(i)
+        if (k?.startsWith('pedido:workspaces_escopo')) {
+          escopo = sessionStorage.getItem(k) ?? 'vazio'
+          break
+        }
+      }
+    } catch { /* ignore */ }
+    return `linhasPai=${linhasPai}, chevrons=${chevrons}, editaveis=${editaveis}, numero_pedido_editavel=${numeroPedidoEditavel}, carregando=${carregando}, ws=${wsAtivo}, escopo=${escopo}`
   })
 }
 

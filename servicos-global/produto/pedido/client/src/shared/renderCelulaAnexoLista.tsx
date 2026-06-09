@@ -14,6 +14,8 @@ import {
   CHAVES_COLUNA_ANEXO_PADRAO,
   METADADOS_COLUNA_ANEXO_LISTA,
   categoriaAnexoPorChaveColuna,
+  nivelVinculoAnexoColuna,
+  resolverIdVinculoAnexoLista,
   type ChaveColunaAnexoPadrao,
 } from './anexoColunaLista'
 
@@ -62,6 +64,7 @@ export function buildEntradasMapaAnexoLista(
 ): Record<string, GTMapaColunasFilho<PedidoItem>> {
   const entries: Record<string, GTMapaColunasFilho<PedidoItem>> = {}
   for (const chave of CHAVES_COLUNA_ANEXO_PADRAO) {
+    const vinculo = nivelVinculoAnexoColuna(chave)
     entries[chave] = {
       editavel: false,
       tooltipInline: true,
@@ -69,8 +72,8 @@ export function buildEntradasMapaAnexoLista(
       render: (row: PedidoItem) =>
         wrapCelulaListaRegras(
           renderCelulaAnexoLista({
-            vinculo: 'item',
-            vinculo_id: row.id,
+            vinculo,
+            vinculo_id: resolverIdVinculoAnexoLista(vinculo, row),
             chaveColuna: chave,
             colunaNome: rotuloAnexoPadrao(t, chave),
           }),

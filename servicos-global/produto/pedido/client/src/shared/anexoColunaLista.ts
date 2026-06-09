@@ -9,6 +9,23 @@ export const CHAVES_COLUNA_ANEXO_PADRAO = [
 
 export type ChaveColunaAnexoPadrao = (typeof CHAVES_COLUNA_ANEXO_PADRAO)[number]
 
+export type VinculoAnexoLista = 'pedido' | 'item'
+
+const CHAVES_ANEXO_VINCULO_ITEM = new Set<ChaveColunaAnexoPadrao>(['anexo_lpco'])
+
+export function nivelVinculoAnexoColuna(chave: ChaveColunaAnexoPadrao): VinculoAnexoLista {
+  return CHAVES_ANEXO_VINCULO_ITEM.has(chave) ? 'item' : 'pedido'
+}
+
+export function resolverIdVinculoAnexoLista(
+  vinculo: VinculoAnexoLista,
+  row: { id: string; pedido_id: string },
+): string {
+  if (vinculo === 'item') return row.id
+  const pai = (row as { _p?: { id?: string } })._p?.id
+  return pai ?? row.pedido_id
+}
+
 export function isChaveColunaAnexo(chave: string): boolean {
   return chave.startsWith('anexo_')
 }

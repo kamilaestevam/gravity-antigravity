@@ -28,6 +28,15 @@ interface CelulaAnexosColunaProps {
 
 const LARGURA_PAINEL_PX = 340
 
+/** Filtra anexos da coluna — aceita categoria atual e legado `anexo_*`. */
+function filtrarAnexosColuna(anexos: Anexo[], colunaId: string): Anexo[] {
+  return anexos.filter(a => {
+    const cat = a.categoria
+    if (!cat) return false
+    return cat === colunaId || cat === `anexo_${colunaId}`
+  })
+}
+
 export function CelulaAnexosColuna({
   vinculo_id,
   vinculo,
@@ -44,22 +53,27 @@ export function CelulaAnexosColuna({
   const triggerRef                    = useRef<HTMLButtonElement>(null)
   const panelRef                      = useRef<HTMLDivElement>(null)
   const inputFileRef                  = useRef<HTMLInputElement>(null)
+  const carregandoRef                 = useRef(false)
 
-  const anexosColuna = anexos?.filter(a => a.categoria === colunaId) ?? []
+  const anexosColuna = anexos ? filtrarAnexosColuna(anexos, colunaId) : []
+  const aguardandoLista = anexos === null || carregando
 
   const carregar = useCallback(async () => {
-    if (carregando) return
+    if (carregandoRef.current) return
+    carregandoRef.current = true
     setCarregando(true)
     setErro(null)
     try {
       const todos = await anexosApi.listar(vinculo, vinculo_id)
       setAnexos(todos)
-    } catch {
-      setErro(t('pedido.cel_anexos.erro_carregar'))
+    } catch (err) {
+      setAnexos(prev => prev ?? [])
+      setErro(err instanceof Error ? err.message : t('pedido.cel_anexos.erro_carregar'))
     } finally {
+      carregandoRef.current = false
       setCarregando(false)
     }
-  }, [vinculo, vinculo_id, carregando, t])
+  }, [vinculo, vinculo_id, t])
 
   const posicionarPainel = useCallback(() => {
     const r = triggerRef.current?.getBoundingClientRect()
@@ -78,12 +92,12 @@ export function CelulaAnexosColuna({
     e.stopPropagation()
     if (!aberto) {
       posicionarPainel()
-      if (anexos === null) void carregar()
+      void carregar()
       setAberto(true)
       return
     }
     setAberto(false)
-  }, [aberto, anexos, carregar, posicionarPainel])
+  }, [aberto, carregar, posicionarPainel])
 
   const handleUpload = useCallback(async (arquivo: File) => {
     setEnviando(true)
@@ -129,17 +143,9 @@ export function CelulaAnexosColuna({
   }, [t])
 
   useEffect(() => {
-    let ativo = true
-    void (async () => {
-      try {
-        const todos = await anexosApi.listar(vinculo, vinculo_id)
-        if (ativo) setAnexos(todos)
-      } catch {
-        if (ativo) setAnexos([])
-      }
-    })()
-    return () => { ativo = false }
-  }, [vinculo, vinculo_id, colunaId])
+    setAnexos(null)
+    void carregar()
+  }, [vinculo, vinculo_id, carregar])
 
   useEffect(() => {
     if (!aberto) return
@@ -195,8 +201,8 @@ export function CelulaAnexosColuna({
       </div>
 
       <div className="cac-lista">
-        {carregando && <p className="cac-info">{t('comum.carregando')}</p>}
-        {!carregando && anexosColuna.length === 0 && (
+        {aguardandoLista && <p className="cac-info">{t('comum.carregando')}</p>}
+        {!aguardandoLista && anexosColuna.length === 0 && (
           <button
             type="button"
             className="cac-vazio"
@@ -212,7 +218,7 @@ export function CelulaAnexosColuna({
             <span className="cac-info cac-info--vazio">{t('pedido.cel_anexos.nenhum_arquivo')}</span>
           </button>
         )}
-        {!carregando && anexosColuna.map(a => (
+        {!aguardandoLista && anexosColuna.map(a => (
           <div key={a.id} className="cac-item">
             <Paperclip size={12} className="cac-item-icone" />
             <span className="cac-item-nome" title={a.nome_arquivo}>{a.nome_arquivo}</span>

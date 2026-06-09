@@ -61,6 +61,13 @@ function rotuloAnexoPadrao(t: TFunction, chave: ChaveColunaAnexoPadrao): string 
 }
 
 /** Entradas do mapa filho GTV — anexos editáveis só pelo ícone na célula. */
+/** Metadados GTV compartilhados — célula clicável (ícone), sem edição inline de texto. */
+export const METADADOS_COLUNA_ANEXO_LISTA = {
+  editavel: false as const,
+  celulaInterativa: true as const,
+  align: 'center' as const,
+}
+
 export function buildEntradasMapaAnexoLista(
   t: TFunction,
 ): Record<string, GTMapaColunasFilho<PedidoItem>> {

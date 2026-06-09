@@ -151,6 +151,8 @@ import {
 } from '../shared/buildTooltipRegraLista'
 import {
   buildEntradasMapaAnexoLista,
+  isChaveColunaAnexo,
+  METADADOS_COLUNA_ANEXO_LISTA,
   renderCelulaAnexoLista,
 } from '../shared/renderCelulaAnexoLista'
 import { TooltipRegrasColuna } from '../shared/TooltipRegrasColuna'
@@ -650,10 +652,9 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
       key: col.chave as keyof Pedido,
       label: col.nome,
       tipo: 'texto',
-      align: 'center',
       filtravel: false,
       oculta: !col.ativo,
-      editavel: false,
+      ...METADADOS_COLUNA_ANEXO_LISTA,
       tooltipTitulo: col.nome,
       tooltipDescricao: col.descricao,
       render: (_val: unknown, row: Pedido) =>
@@ -1277,8 +1278,7 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     key: 'anexo_lpco',
     label: t('pedido.coluna_filho.anexo_lpco.label'),
     tipo: 'texto',
-    align: 'center',
-    editavel: false,
+    ...METADADOS_COLUNA_ANEXO_LISTA,
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: t('pedido.coluna_filho.anexo_lpco.tooltip_titulo'),
     tooltipDescricao: t('pedido.coluna_filho.anexo_lpco.tooltip_descricao'),
@@ -2587,7 +2587,7 @@ const CAMPOS_DERIVADOS_PAI = new Set([
 ])
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
-  .filter(c => !CAMPOS_DERIVADOS_PAI.has(c.key) && c.editavel !== false)
+  .filter(c => !CAMPOS_DERIVADOS_PAI.has(c.key) && c.editavel !== false && !isChaveColunaAnexo(String(c.key)))
   .map(c => c.key)
 
 // ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────
@@ -5489,7 +5489,8 @@ export default function Pedidos() {
       'nome_exportador',
       ...CAMPOS_LOGISTICA_PEDIDO,
     ])
-    return [...CAMPOS_EDITAVEIS_PAI, ...customKeys].filter(k => !exclusivosPedido.has(k))
+    return [...CAMPOS_EDITAVEIS_PAI, ...customKeys]
+      .filter(k => !exclusivosPedido.has(k) && !isChaveColunaAnexo(k))
   }, [colunasUsuario])
 
   // ── Estado de filtros de coluna ───────────────────────────────────────────────

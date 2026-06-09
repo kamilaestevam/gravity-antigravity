@@ -21,7 +21,7 @@ import {
   formatarBadgeUnidadeCelula,
   kgParaQuantidadeExibicao,
 } from '../../shared/useUnidadesPedido'
-import { renderCelulaAnexoLista } from '../../shared/renderCelulaAnexoLista'
+import { METADADOS_COLUNA_ANEXO_LISTA, renderCelulaAnexoLista } from '../../shared/renderCelulaAnexoLista'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
 export { _regrasAlertasRef }
@@ -524,8 +524,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'anexo_lpco',
     label: t('pedido.item.anexo_lpco'),
     tipo: 'texto',
-    align: 'center',
-    editavel: false,
+    ...METADADOS_COLUNA_ANEXO_LISTA,
     grupo: t('pedido.item_grupo.duimp_fiscal'),
     tooltipTitulo: t('pedido.item.anexo_lpco_tooltip'),
     tooltipDescricao: t('pedido.item.anexo_lpco_desc'),

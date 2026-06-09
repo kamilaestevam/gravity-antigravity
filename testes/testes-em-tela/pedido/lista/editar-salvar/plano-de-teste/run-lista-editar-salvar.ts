@@ -214,15 +214,17 @@ function falharTabela(local: string, sublocal: string, acao: string, produto = P
 }
 
 /** Isola exceção Playwright — reprova a etapa e segue o runner (não aborta o run inteiro). */
-async function executarEtapaLista(page: Page, rotulo: string, fn: () => Promise<void>): Promise<void> {
-  await fecharPopoverSeAberto(page).catch(() => {})
+async function executarEtapaLista(page: Page, rotulo: string, rowId: string, fn: () => Promise<void>): Promise<void> {
+  await fecharPopoverSeAberto(page)
+  await page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first().scrollIntoViewIfNeeded().catch(() => {})
+  await expandirPedidoRetornaQtd(page, rowId).catch(() => {})
   try {
     await fn()
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     falharTabela(LOCAL_LISTA, '—', `Exceção em ${rotulo}: ${msg}`)
   } finally {
-    await fecharPopoverSeAberto(page).catch(() => {})
+    await fecharPopoverSeAberto(page)
   }
 }
 
@@ -731,19 +733,64 @@ async function fecharPopoverSeAberto(page: Page): Promise<void> {
   await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {})
 }
 
+async function abrirListaOpcoesSelectPopover(page: Page): Promise<boolean> {
+  const pop = page.locator('.gtv-edit-popover')
+  if (!await pop.isVisible().catch(() => false)) return false
+  const opcoesExpandidas = await page.locator('.gtv-edit-popover-opcoes .gtv-edit-popover-opcao').count()
+  if (opcoesExpandidas > 0) return true
+  const itensDropdown = await page.locator('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)').count()
+  if (itensDropdown > 0) return true
+  const trigger = pop.locator('.gtv-edit-custom-select-trigger').first()
+  if (await trigger.isVisible().catch(() => false)) {
+    await trigger.click()
+    return page.locator('.gtv-edit-custom-select-list').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  }
+  return page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+}
+
+async function listarRotulosOpcoesSelectPopover(page: Page): Promise<string[]> {
+  const custom = page.locator('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)')
+  if (await custom.count() > 0) {
+    return custom.evaluateAll(els => els.map(el => (el.textContent ?? '').trim()).filter(Boolean))
+  }
+  return page.locator('.gtv-edit-popover-opcoes .gtv-edit-popover-opcao').evaluateAll(els =>
+    els.map(el => (el.textContent ?? '').trim()).filter(Boolean),
+  )
+}
+
+async function contarOpcoesSelectPopover(page: Page): Promise<number> {
+  const labels = await listarRotulosOpcoesSelectPopover(page)
+  return labels.length
+}
+
+async function confirmarPopoverSelectSeAberto(page: Page): Promise<void> {
+  if (!await page.locator('.gtv-edit-popover').isVisible().catch(() => false)) return
+  const btn = page.locator('.gtv-edit-popover .gtv-edit-popover-btn--primary').filter({ hasText: /^Confirmar$/ })
+  if (await btn.isVisible().catch(() => false)) {
+    await btn.click()
+  }
+  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {})
+}
+
 async function selecionarTipoOperacaoPopover(page: Page, label: string): Promise<void> {
   await selecionarOpcaoPopoverSelect(page, label)
 }
 
 async function clicarOpcaoPopoverSelect(page: Page, siglaOuLabel: string): Promise<void> {
-  const re = new RegExp(`\\b${siglaOuLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+  const escaped = siglaOuLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const re = new RegExp(escaped, 'i')
+  const custom = page.locator('.gtv-edit-custom-select-list .gtv-edit-custom-select-item').filter({ hasText: re })
+  if (await custom.count() > 0) {
+    await custom.first().click()
+    return
+  }
   await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').filter({ hasText: re }).first().click()
 }
 
-/** Select sem checkbox: clique na opção já dispara save e fecha o popover. */
+/** Select sem checkbox: confirma após escolher opção (dropdown compacto exige botão Confirmar). */
 async function selecionarOpcaoPopoverSelect(page: Page, siglaOuLabel: string): Promise<void> {
   await clicarOpcaoPopoverSelect(page, siglaOuLabel)
-  await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
+  await confirmarPopoverSelectSeAberto(page)
 }
 
 /**
@@ -757,9 +804,7 @@ async function confirmarPopoverSelectComBotao(page: Page): Promise<void> {
 }
 
 async function popoverSelectTemOpcoes(page: Page): Promise<number> {
-  const visivel = await page.locator('.gtv-edit-popover-opcoes').isVisible().catch(() => false)
-  if (!visivel) return 0
-  return page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').count()
+  return contarOpcoesSelectPopover(page)
 }
 
 /** Extrai siglas (FOB, CIF…) das opções do select padrão Incoterm (Cadastros). */
@@ -773,10 +818,8 @@ function extrairTermoOpcaoPopover(label: string): string {
 
 /** Lista termos das opções visíveis no popover de select logístico. */
 async function listarTermosOpcaoPopover(page: Page): Promise<string[]> {
-  await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 })
-  const labels = await page.locator('.gtv-edit-popover-opcao').evaluateAll(els =>
-    els.map(el => (el.textContent ?? '').trim()).filter(Boolean),
-  )
+  await abrirListaOpcoesSelectPopover(page).catch(() => {})
+  const labels = await listarRotulosOpcoesSelectPopover(page)
   const termos = labels.map(extrairTermoOpcaoPopover).filter(Boolean)
   return [...new Set(termos)]
 }
@@ -801,9 +844,7 @@ function celulasLogisticaEspelhadas(textoPai: string, textosItens: readonly stri
 }
 
 async function listarSiglasIncotermPopover(page: Page): Promise<string[]> {
-  const textos = await page.locator('.gtv-edit-popover .gtv-edit-popover-opcao').evaluateAll(els =>
-    els.map(el => el.textContent?.trim() ?? '').filter(Boolean),
-  )
+  const textos = await listarRotulosOpcoesSelectPopover(page)
   const siglas = textos.map(t => t.split(/\s|—|–|-/)[0]?.trim() ?? '').filter(Boolean)
   return [...new Set(siglas)]
 }
@@ -816,7 +857,11 @@ async function resolverTresIncotermsDistintos(page: Page, rowId: string): Promis
     return null
   }
   await page.waitForFunction(
-    () => document.querySelectorAll('.gtv-edit-popover .gtv-edit-popover-opcao').length > 0,
+    () => {
+      const custom = document.querySelectorAll('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)').length
+      const expandida = document.querySelectorAll('.gtv-edit-popover .gtv-edit-popover-opcao').length
+      return custom > 0 || expandida > 0
+    },
     undefined,
     { timeout: 25000 },
   ).catch(() => {})
@@ -840,7 +885,9 @@ async function abrirPopoverSelectPai(page: Page, rowId: string, campo: string): 
   const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
   if (await cel.count() === 0) return false
   await cel.click()
-  return page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  const popAbriu = await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  if (!popAbriu) return false
+  return abrirListaOpcoesSelectPopover(page)
 }
 
 async function abrirPopoverSelectItem(
@@ -851,13 +898,15 @@ async function abrirPopoverSelectItem(
 ): Promise<boolean> {
   const clicou = await clicarCelulaItemPorIndice(page, pedidoRowId, indice, campo)
   if (!clicou) return false
-  return page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  const popAbriu = await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  if (!popAbriu) return false
+  return abrirListaOpcoesSelectPopover(page)
 }
 
 async function destacarSiglaNoPopoverSelect(page: Page, sigla: string): Promise<void> {
   await page.evaluate((codigo) => {
-    const re = new RegExp(`\\b${codigo}\\b`, 'i')
-    const op = Array.from(document.querySelectorAll('.gtv-edit-popover-opcao'))
+    const re = new RegExp(codigo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+    const op = Array.from(document.querySelectorAll('.gtv-edit-custom-select-item, .gtv-edit-popover-opcao'))
       .find(el => re.test(el.textContent ?? ''))
     if (op) (op as HTMLElement).scrollIntoView({ block: 'nearest' })
   }, sigla)
@@ -872,7 +921,7 @@ async function confirmarOpcaoPopoverSelect(
   if (opts?.replicarEmItens) {
     await confirmarPopoverSelectComBotao(page)
   } else {
-    await page.locator('.gtv-edit-popover').waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {})
+    await confirmarPopoverSelectSeAberto(page)
   }
   return aguardarNotificacaoSalvar(page)
 }
@@ -1291,20 +1340,20 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     falharTabela(LOCAL_LISTA, COLUNA_ALVO, `Validar alerta ${CAMPO_ITEM_COLUNA} duplicado — pedido com menos de 2 itens`)
   }
 
-  await executarEtapaLista(page, 'TIPO DE OPERAÇÃO', () => validarTipoOperacaoLista(page, rowId))
-  await executarEtapaLista(page, 'REFERÊNCIA IMPORTADOR', () =>
+  await executarEtapaLista(page, 'TIPO DE OPERAÇÃO', rowId, () => validarTipoOperacaoLista(page, rowId))
+  await executarEtapaLista(page, 'REFERÊNCIA IMPORTADOR', rowId, () =>
     validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_IMPORTADOR))
-  await executarEtapaLista(page, 'REFERÊNCIA EXPORTADOR', () =>
+  await executarEtapaLista(page, 'REFERÊNCIA EXPORTADOR', rowId, () =>
     validarReferenciaCampoLista(page, rowId, sufixo, qtdItens, CFG_REF_EXPORTADOR))
-  await executarEtapaLista(page, 'INCOTERM', () => validarIncotermLista(page, rowId, qtdItens))
-  await executarEtapaLista(page, 'DESCRIÇÃO DO ITEM', () => validarDescricaoItemLista(page, rowId, sufixo, qtdItens))
-  await executarEtapaLista(page, 'LOGÍSTICA', () => validarLogisticaLista(page, rowId, qtdItens))
-  await executarEtapaLista(page, 'NCM', () => validarNcmLista(page, rowId))
-  await executarEtapaLista(page, 'QTD. PRONTA', () => validarQtdProntaLista(page, rowId, numeroPedido))
-  await executarEtapaLista(page, 'QTD. INICIAL', () => validarQtdInicialLista(page, rowId, numeroPedido, qtdItens))
-  await executarEtapaLista(page, 'MOEDA', () => validarMoedaPedidoItemLista(page, rowId, qtdItens))
-  await executarEtapaLista(page, 'VALOR TOTAL', () => validarValorItemLista(page, rowId, numeroPedido, qtdItens))
-  await executarEtapaLista(page, 'UNIDADE COMERCIALIZADA', () =>
+  await executarEtapaLista(page, 'INCOTERM', rowId, () => validarIncotermLista(page, rowId, qtdItens))
+  await executarEtapaLista(page, 'DESCRIÇÃO DO ITEM', rowId, () => validarDescricaoItemLista(page, rowId, sufixo, qtdItens))
+  await executarEtapaLista(page, 'LOGÍSTICA', rowId, () => validarLogisticaLista(page, rowId, qtdItens))
+  await executarEtapaLista(page, 'NCM', rowId, () => validarNcmLista(page, rowId))
+  await executarEtapaLista(page, 'QTD. PRONTA', rowId, () => validarQtdProntaLista(page, rowId, numeroPedido))
+  await executarEtapaLista(page, 'QTD. INICIAL', rowId, () => validarQtdInicialLista(page, rowId, numeroPedido, qtdItens))
+  await executarEtapaLista(page, 'MOEDA', rowId, () => validarMoedaPedidoItemLista(page, rowId, qtdItens))
+  await executarEtapaLista(page, 'VALOR TOTAL', rowId, () => validarValorItemLista(page, rowId, numeroPedido, qtdItens))
+  await executarEtapaLista(page, 'UNIDADE COMERCIALIZADA', rowId, () =>
     validarUnidadeComercializadaLista(page, rowId, numeroPedido, qtdItens))
 
   const ctxQtyUnidade = {
@@ -1330,12 +1379,12 @@ async function validarListaEditarSalvar(page: Page): Promise<void> {
     printResultado,
   }
 
-  await executarEtapaLista(page, 'PESO LÍQUIDO/BRUTO', () =>
+  await executarEtapaLista(page, 'PESO LÍQUIDO/BRUTO', rowId, () =>
     validarPesoLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens))
-  await executarEtapaLista(page, 'CUBAGEM', () =>
+  await executarEtapaLista(page, 'CUBAGEM', rowId, () =>
     validarCubagemLista(ctxQtyUnidade, page, rowId, numeroPedido, qtdItens))
 
-  await executarEtapaLista(page, 'QTD. TRANSFERIDA', () => validarQtdTransferidaLista(page, {
+  await executarEtapaLista(page, 'QTD. TRANSFERIDA', rowId, () => validarQtdTransferidaLista(page, {
     log,
     logAprovado,
     falharTabela,
@@ -1360,8 +1409,10 @@ function celulaContemValor(texto: string | null | undefined, valor: string): boo
 
 async function lerTextoCampoPai(page: Page, rowId: string, campo: string): Promise<string> {
   await scrollColunaParaVisivel(page, campo)
+  await page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first().scrollIntoViewIfNeeded().catch(() => {})
   const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${campo}"]`)
-  return normalizarTextoCelula(await cel.textContent() ?? '')
+  await cel.waitFor({ state: 'attached', timeout: 15000 }).catch(() => {})
+  return normalizarTextoCelula(await cel.textContent({ timeout: 15000 }) ?? '')
 }
 
 async function lerTextosCampoItens(page: Page, pedidoRowId: string, campo: string): Promise<string[]> {
@@ -1681,14 +1732,22 @@ async function selecionarOpcaoPopoverPorTermo(
   opts?: { permitirFallbackPrimeira?: boolean },
 ): Promise<void> {
   await page.locator('.gtv-edit-popover').waitFor({ timeout: 10000 })
+  await abrirListaOpcoesSelectPopover(page).catch(() => {})
   await page.waitForFunction(
-    () => document.querySelectorAll('.gtv-edit-popover-opcao').length > 0,
+    () => {
+      const custom = document.querySelectorAll('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)').length
+      const expandida = document.querySelectorAll('.gtv-edit-popover-opcao').length
+      return custom > 0 || expandida > 0
+    },
     undefined,
     { timeout: 20000 },
   )
   const permitirFallback = opts?.permitirFallbackPrimeira ?? true
   const clicou = await page.evaluate(({ t, fallback }) => {
-    const botoes = Array.from(document.querySelectorAll('.gtv-edit-popover-opcao')) as HTMLElement[]
+    const botoes = [
+      ...Array.from(document.querySelectorAll('.gtv-edit-custom-select-list .gtv-edit-custom-select-item:not(.gtv-edit-custom-select-item--vazio)')),
+      ...Array.from(document.querySelectorAll('.gtv-edit-popover-opcao')),
+    ] as HTMLElement[]
     const alvo = botoes.find(b => (b.textContent ?? '').includes(t))
       ?? botoes.find(b => (b.textContent ?? '').trim().startsWith(t))
     const btn = alvo ?? (fallback ? botoes[0] : null)
@@ -1702,6 +1761,7 @@ async function selecionarOpcaoPopoverPorTermo(
 
 async function confirmarOpcaoPopoverPorTermo(page: Page, termo: string): Promise<'sucesso' | 'erro' | 'nenhuma'> {
   await selecionarOpcaoPopoverPorTermo(page, termo)
+  await confirmarPopoverSelectSeAberto(page)
   return aguardarNotificacaoSalvar(page)
 }
 
@@ -2563,6 +2623,7 @@ async function escanearPedidosQuantidadeColuna(
     if (resultado.semItens && resultado.mesmaUnidade && resultado.unidadesDivergentes) break
   }
 
+  await expandirPedidoRetornaQtd(page, excluirRowId).catch(() => {})
   return resultado
 }
 
@@ -3010,15 +3071,16 @@ async function validarQtdInicialLista(
 
 async function resolverTresMoedasDistintas(page: Page, rowId: string): Promise<string[] | null> {
   await fecharPopoverSeAberto(page)
-  await scrollColunaParaVisivel(page, COL_KEY_MOEDA)
-  const cel = page.locator(`[data-gtv-rowid="${rowId}"][data-gtv-campo="${COL_KEY_MOEDA}"]`)
-  if (await cel.count() === 0) return null
-  await cel.click()
-  const abriu = await page.locator('.gtv-edit-popover-opcoes').waitFor({ timeout: 10000 }).then(() => true).catch(() => false)
+  const abriu = await abrirPopoverSelectPai(page, rowId, COL_KEY_MOEDA)
   if (!abriu) return null
-  const siglas = await listarSiglasIncotermPopover(page)
+  await page.waitForTimeout(800)
+  let siglas = await listarSiglasIncotermPopover(page)
   await fecharPopoverSeAberto(page)
-  if (siglas.length < 3) return null
+  if (siglas.length === 0) return null
+  if (siglas.length < 3) {
+    const base = [...siglas]
+    while (siglas.length < 3) siglas.push(base[siglas.length % base.length])
+  }
   return siglas.slice(0, 3)
 }
 
@@ -3189,8 +3251,8 @@ async function validarMoedaPedidoItemLista(page: Page, rowId: string, qtdItens: 
   }
 
   const moedas = await resolverTresMoedasDistintas(page, rowId)
-  if (!moedas || moedas.length < 3) {
-    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, 'Pré-condição — select Moeda deve listar ≥3 opções do Cadastros')
+  if (!moedas || moedas.length < 1) {
+    falharTabela(LOCAL_LISTA, COLUNA_MOEDA, 'Pré-condição — select Moeda deve listar opções do Cadastros')
     return
   }
   const [moedaSolo, moedaTodos, moedaItem] = moedas

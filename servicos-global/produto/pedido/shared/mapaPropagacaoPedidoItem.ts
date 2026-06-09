@@ -57,7 +57,7 @@ export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Obj
 
   // ── Câmbio (2) ────────────────────────────────────────────────────────────
   cobertura_cambial_pedido:         'cobertura_cambial_item',
-  moeda_cambio_pedido:              'moeda_cambio_item',
+  moeda_cambio_pedido:              'moeda_cambio_item_pedido',
 
   // ── Referências (3) ──────────────────────────────────────────────────────
   referencia_importador_pedido:     'referencia_importador_item',

@@ -76,7 +76,7 @@ export interface PedidoItem {
   valor_por_unidade_item?: number | null
   casas_decimais_valor_item: number
   cobertura_cambial?: string
-  moeda_cambio_item?: string | null
+  moeda_cambio_item_pedido?: string | null
   nome_exportador?: string | null
   nome_importador?: string | null
   nome_fabricante?: string | null

@@ -491,7 +491,7 @@ export function ModalNovaColunaUsuario({
             </MncLabelSecao>
             <input
               id="mnc-nome"
-              className={['mnc-input', isEdicao ? 'mnc-input--readonly' : ''].filter(Boolean).join(' ')}
+              className={['mnc-input', isEdicao ? 'mnc-input--readonly' : 'mnc-input--como-select'].filter(Boolean).join(' ')}
               type="text"
               value={nome}
               onChange={e => !isEdicao && setNome(e.target.value)}

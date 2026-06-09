@@ -21,7 +21,7 @@
  *
  * O que NÃO está aqui:
  *   - Campos item-specific (quantidades, valores, peso unitário, NCM, etc.)
- *   - Campos pedido-only (numero_proforma_pedido, valor_total_pedido agregado, etc.)
+ *   - Campos pedido-only (valor_total_pedido agregado, IDs, etc.)
  *   - Snapshot derivativos (nome_exportador_item ← snapshots_empresa_pedido)
  *     ficam na helper `derivarNomesEmpresaParaItem` por terem origem indireta.
  */
@@ -62,6 +62,10 @@ export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Obj
   referencia_importador_pedido:     'referencia_importador_item',
   referencia_exportador_pedido:     'referencia_exportador_item',
   referencia_fabricante_pedido:     'referencia_fabricante_item',
+
+  // ── Documentos (2) ───────────────────────────────────────────────────────
+  numero_proforma_pedido:           'numero_proforma_item',
+  numero_invoice_pedido:            'numero_invoice_item',
 
   // ── Datas — Pedido Pronto (3) ────────────────────────────────────────────
   data_prevista_pedido_pronto:      'data_prevista_item_pronto',

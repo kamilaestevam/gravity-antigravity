@@ -163,6 +163,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   data_meta_recebimento_original_invoice:        { tipo: 'alfanumerico' },
   // Documento Invoice
   data_invoice:                                  { tipo: 'alfanumerico' },
+  data_documento_invoice:                        { tipo: 'alfanumerico' },
 }
 
 // ── Comportamento no nível ITEM (filho) ──────────────────────────────────────

@@ -6,6 +6,89 @@
 import type { TFunction } from 'i18next'
 import type { NivelColunaLista } from './regrasTooltipColunaLista'
 
+/** SSOT — datas replicáveis pedido→item na lista (ColunasPai + mapa filho Pedidos.tsx). */
+export const CAMPOS_DATA_REPLICAVEIS_LISTA = [
+  'data_prevista_pedido_pronto',
+  'data_confirmada_pedido_pronto',
+  'data_meta_pedido_pronto',
+  'data_prevista_inspecao_pedido',
+  'data_confirmada_inspecao_pedido',
+  'data_meta_inspecao_pedido',
+  'data_prevista_coleta_pedido',
+  'data_confirmada_coleta_pedido',
+  'data_meta_coleta_pedido',
+  'data_consolidacao_pedido',
+  'data_transferencia_saldo_pedido',
+  'data_prevista_recebimento_rascunho_pedido',
+  'data_confirmada_recebimento_rascunho_pedido',
+  'data_meta_recebimento_rascunho_pedido',
+  'data_prevista_aprovacao_rascunho_pedido',
+  'data_confirmada_aprovacao_rascunho_pedido',
+  'data_meta_aprovacao_rascunho_pedido',
+  'data_documento_pedido',
+  'data_documento_proforma',
+  'data_documento_invoice',
+  'data_prevista_recebimento_rascunho_proforma',
+  'data_confirmada_recebimento_rascunho_proforma',
+  'data_meta_recebimento_rascunho_proforma',
+  'data_prevista_aprovacao_rascunho_proforma',
+  'data_confirmada_aprovacao_rascunho_proforma',
+  'data_meta_aprovacao_rascunho_proforma',
+  'data_prevista_envio_original_proforma',
+  'data_confirmada_envio_original_proforma',
+  'data_meta_envio_original_proforma',
+  'data_prevista_recebimento_original_proforma',
+  'data_confirmada_recebimento_original_proforma',
+  'data_meta_recebimento_original_proforma',
+  'data_prevista_recebimento_rascunho_invoice',
+  'data_confirmada_recebimento_rascunho_invoice',
+  'data_meta_recebimento_rascunho_invoice',
+  'data_prevista_aprovacao_rascunho_invoice',
+  'data_confirmada_aprovacao_rascunho_invoice',
+  'data_meta_aprovacao_rascunho_invoice',
+  'data_prevista_envio_original_invoice',
+  'data_confirmada_envio_original_invoice',
+  'data_meta_envio_original_invoice',
+  'data_prevista_recebimento_original_invoice',
+  'data_confirmada_recebimento_original_invoice',
+  'data_meta_recebimento_original_invoice',
+] as const
+
+export type CampoDataReplicavelLista = (typeof CAMPOS_DATA_REPLICAVEIS_LISTA)[number]
+
+export function ehCampoDataReplicavelLista(key: string): key is CampoDataReplicavelLista {
+  return (CAMPOS_DATA_REPLICAVEIS_LISTA as readonly string[]).includes(key)
+}
+
+export function tituloTooltipPedidoDataReplicavel(t: TFunction, key: string): string | undefined {
+  const titulo = t(`pedido.coluna_pai.${key}_titulo`, { defaultValue: '' })
+  return titulo.trim() ? titulo : undefined
+}
+
+/** Deriva título item a partir do título pedido quando não há `{key}_item_titulo` explícito. */
+export function derivarTituloItemDeTituloPedido(tituloPedido: string): string {
+  return tituloPedido
+    .replace(/Pedido Pronto/g, 'Item Pronto')
+    .replace(/Pedido Listo/g, 'Ítem Listo')
+    .replace(/ do Pedido/g, ' do Item')
+    .replace(/ del Pedido/g, ' del Ítem')
+    .replace(/ de Pedido/g, ' de Ítem')
+    .replace(/Draft Pedido/g, 'Draft Ítem')
+    .replace(/Order Ready/g, 'Item Ready')
+    .replace(/Draft Order/g, 'Draft Item')
+    .replace(/Order Consolidation Date/g, 'Item Consolidation Date')
+    .replace(/Order Document Date/g, 'Item Document Date')
+    .replace(/ of the Order/g, ' of the Item')
+}
+
+export function tituloTooltipItemDataReplicavel(t: TFunction, key: string): string | undefined {
+  const explicito = t(`pedido.coluna_pai.${key}_item_titulo`, { defaultValue: '' })
+  if (explicito.trim()) return explicito
+  const pedido = tituloTooltipPedidoDataReplicavel(t, key)
+  if (!pedido) return undefined
+  return derivarTituloItemDeTituloPedido(pedido)
+}
+
 export function tituloTooltipCelulaPorColuna(
   t: TFunction,
   key: string,
@@ -65,6 +148,16 @@ export function tituloTooltipCelulaPorColuna(
     return isFilho
       ? t('pedido.coluna_pai.condicao_pagamento_item_titulo')
       : t('pedido.coluna_pai.condicao_pagamento_titulo_linha_pedido')
+  }
+  if (ehCampoDataReplicavelLista(key)) {
+    return isFilho
+      ? tituloTooltipItemDataReplicavel(t, key)
+      : tituloTooltipPedidoDataReplicavel(t, key)
+  }
+  if (key === 'condicao_pagamento_siscomex') {
+    return isFilho
+      ? t('pedido.coluna_pai.condicao_pagamento_siscomex_item_titulo')
+      : t('pedido.coluna_pai.condicao_pagamento_siscomex_titulo_linha_pedido')
   }
   if (key === 'peso_liquido_total_pedido') {
     return isFilho

@@ -8,6 +8,7 @@ import { resolve, join } from 'path'
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { analyzeTestFailure } from '../lib/gemini-test-analyzer.js'
+import { RUN_TESTES_TIMEOUT_MS } from '../lib/emt-run-timeout.js'
 
 // ─── Cron parser simplificado ────────────────────────────────────────────────
 
@@ -150,7 +151,7 @@ function dispatchRun(
     cwd:         monorepoRoot,
     shell:       true,
     windowsHide: true,
-    timeout:     15 * 60 * 1000,
+    timeout:     RUN_TESTES_TIMEOUT_MS,
     env:         { ...process.env, CI: '1' },
   })
 

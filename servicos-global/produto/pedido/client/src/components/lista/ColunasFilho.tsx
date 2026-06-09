@@ -21,6 +21,7 @@ import {
   formatarBadgeUnidadeCelula,
   kgParaQuantidadeExibicao,
 } from '../../shared/useUnidadesPedido'
+import { renderCelulaAnexoLista } from '../../shared/renderCelulaAnexoLista'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
 export { _regrasAlertasRef }
@@ -523,10 +524,18 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'anexo_lpco',
     label: t('pedido.item.anexo_lpco'),
     tipo: 'texto',
+    align: 'center',
+    editavel: false,
     grupo: t('pedido.item_grupo.duimp_fiscal'),
     tooltipTitulo: t('pedido.item.anexo_lpco_tooltip'),
     tooltipDescricao: t('pedido.item.anexo_lpco_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.anexo_lpco ? '📎' : '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) =>
+      renderCelulaAnexoLista({
+        vinculo: 'item',
+        vinculo_id: row.id,
+        chaveColuna: 'anexo_lpco',
+        colunaNome: t('pedido.item.anexo_lpco'),
+      }),
   },
   // ── Datas do item ────────────────────────────────────────────────────────────
   {
@@ -1533,14 +1542,14 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
   },
   {
     key: 'condicao_pagamento_siscomex',
-    label: 'Cond. Pagamento — Siscomex',
+    label: t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido'),
     tipo: 'select',
     opcoes: modalidadePagamentoOpcoes,
     filtravel: true,
     editavel: true,
     campo: 'condicao_pagamento_siscomex',
     grupo: t('pedido.item_grupo.quantidades'),
-    tooltipTitulo: 'Modalidade de Pagamento — Siscomex',
+    tooltipTitulo: t('pedido.coluna_pai.condicao_pagamento_siscomex_item_titulo'),
     tooltipDescricao: 'Código oficial de modalidade de pagamento para LI/DI',
     getValorEditar: (row: PedidoItem) => row.condicao_pagamento_siscomex ?? '',
     render: (_val: unknown, row: PedidoItem) => {
@@ -1702,18 +1711,12 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   numero_proforma: {
     editavel: true,
     campo: 'numero_proforma',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.numero_proforma ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.numero_proforma, 'Nº Proforma'),
   },
   numero_invoice: {
     editavel: true,
     campo: 'numero_invoice',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.numero_invoice ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.numero_invoice, 'Nº Invoice'),
   },
   incoterm: {
     editavel: true,

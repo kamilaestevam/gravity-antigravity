@@ -16,8 +16,10 @@ import { obterPillsTooltipColuna, pillsParaNivelColuna } from './pillsTooltipCol
 import { TooltipListaColuna } from './TooltipListaColuna'
 import { TooltipRegrasColuna } from './TooltipRegrasColuna'
 import {
+  ehCampoDataReplicavelLista,
   tituloTooltipCelulaPorColuna,
   tituloTooltipColunaFallback,
+  tituloTooltipItemDataReplicavel,
   tituloTooltipListaPorNivel,
 } from './tituloTooltipLista'
 
@@ -201,6 +203,7 @@ export const CHAVES_TOOLTIP_INLINE_LISTA = new Set([
   'tipo_volume_pedido',
   'cobertura_cambial',
   'condicao_pagamento',
+  'condicao_pagamento_siscomex',
   'nome_importador',
   'nome_exportador',
 ])
@@ -305,6 +308,10 @@ export function enriquecerColunaComRegraTooltip<T>(
     key === 'condicao_pagamento'
       ? t('pedido.coluna_pai.condicao_pagamento_titulo_linha_pedido')
       : null
+  const tituloCondicaoPagamentoSiscomexLinhaPedido =
+    key === 'condicao_pagamento_siscomex'
+      ? t('pedido.coluna_pai.condicao_pagamento_siscomex_titulo_linha_pedido')
+      : null
   const titulo = tituloValorTotalLinhaPedido
     ?? tituloValorUnitarioLinhaPedido
     ?? tituloMoedaLinhaPedido
@@ -314,6 +321,7 @@ export function enriquecerColunaComRegraTooltip<T>(
     ?? tituloQtdCanceladaLinhaPedido
     ?? tituloCoberturaLinhaPedido
     ?? tituloCondicaoPagamentoLinhaPedido
+    ?? tituloCondicaoPagamentoSiscomexLinhaPedido
     ?? (col.tooltipTitulo?.trim()
       ? col.tooltipTitulo
       : tituloTooltipColuna(t, key, 'pai', col.label))
@@ -340,11 +348,15 @@ export function enriquecerColunaComRegraTooltip<T>(
                         ? t('pedido.coluna_pai.cobertura_cambial_item_titulo')
                         : key === 'condicao_pagamento'
                           ? t('pedido.coluna_pai.condicao_pagamento_item_titulo')
-                          : key === 'peso_liquido_total_pedido'
-                      ? t('pedido.coluna_pai.peso_liquido_item_titulo')
-                      : key === 'peso_bruto_total_pedido'
-                        ? t('pedido.coluna_pai.peso_bruto_item_titulo')
-                        : undefined
+                          : key === 'condicao_pagamento_siscomex'
+                            ? t('pedido.coluna_pai.condicao_pagamento_siscomex_item_titulo')
+                            : ehCampoDataReplicavelLista(key)
+                              ? tituloTooltipItemDataReplicavel(t, key)
+                              : key === 'peso_liquido_total_pedido'
+                                ? t('pedido.coluna_pai.peso_liquido_item_titulo')
+                                : key === 'peso_bruto_total_pedido'
+                                  ? t('pedido.coluna_pai.peso_bruto_item_titulo')
+                                  : undefined
 
   const pillsRes = obterPillsTooltipColuna(key, opts)
   const regraId = classificarRegraTooltipColuna(key, 'pai', opts)
@@ -355,18 +367,19 @@ export function enriquecerColunaComRegraTooltip<T>(
     avisoImpactoColuna: col.avisoImpacto,
   }
   const usaPorNivel = usaTooltipPorNivelColuna(key, pillsRes.dual)
+  const temTooltipPorNivel = usaPorNivel || Boolean(tituloItem)
   const tooltipCelulaPedido = montarTooltipPills(t, key, {
     ...optsMontar,
-    somenteBloco: usaPorNivel ? 'pedido' : undefined,
+    somenteBloco: temTooltipPorNivel ? 'pedido' : undefined,
   }, 'pai')
   const tooltipCelulaItem = montarTooltipPills(t, key, {
     ...optsMontar,
     modoDinamicoPedidoItem: opts?.modoDinamicoPedidoItem,
-    somenteBloco: usaPorNivel ? 'item' : undefined,
+    somenteBloco: temTooltipPorNivel ? 'item' : undefined,
   }, 'item')
 
   const tooltipInterativo = regraTooltipEhInterativa(regraId) || col.tooltipInterativo
-  const tooltipDescricaoCabecalho = usaPorNivel
+  const tooltipDescricaoCabecalho = temTooltipPorNivel
     ? montarTooltipPills(t, key, { ...optsMontar, somenteBloco: 'pedido' })
     : montarTooltipPills(t, key, optsMontar)
 
@@ -393,10 +406,12 @@ export function enriquecerColunaComRegraTooltip<T>(
     ...col,
     tooltipTitulo: titulo,
     tooltipTituloItem: tituloItem,
-    ...(usaPorNivel
+    ...(temTooltipPorNivel
       ? { tooltipNivelCelula: (row: T) => (isLinhaItemLista(row) ? 'item' : 'pedido') }
       : {}),
-    tooltipTituloCelula: (row) => tituloTooltipCelulaLista(t, key, row, titulo, tituloItem),
+    ...(tituloItem
+      ? {}
+      : { tooltipTituloCelula: (row: T) => tituloTooltipCelulaLista(t, key, row, titulo, tituloItem) }),
     tooltipDescricao: tooltipDescricaoCabecalho,
     tooltipDescricaoItem: tooltipCelulaItem,
     tooltipDescricaoCelula: (row: T) => {
@@ -422,9 +437,11 @@ export function enriquecerColunaComRegraTooltip<T>(
         || key === 'tipo_volume_pedido'
         || key === 'cobertura_cambial'
         || key === 'condicao_pagamento'
+        || key === 'condicao_pagamento_siscomex'
         || key === 'nome_importador'
         || key === 'nome_exportador'
         || pillsRes.dual
+        || temTooltipPorNivel
       ) {
         if (isLinhaItemLista(row)) return tooltipCelulaItem
         return tooltipCelulaPedido
@@ -596,7 +613,6 @@ export const CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO = new Set([
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
-  'moeda_cambio_pedido',
   'taxa_cambio_estimada',
   'valor_total_cambio_pedido',
   'quantidade_volumes_pedido',

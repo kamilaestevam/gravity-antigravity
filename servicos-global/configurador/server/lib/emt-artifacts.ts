@@ -9,7 +9,7 @@ export interface EmtRunArtifacts {
   emt_pasta: string | null
   /** Nomes dos arquivos .png na pasta. */
   emt_prints: string[]
-  /** Texto do RESULTADO.txt ou trecho do stdout com checks aprovados. */
+  /** Legado / fallback sem pasta — persistência nova deixa null e lê RESULTADO.txt na listagem. */
   success_log: string | null
 }
 
@@ -67,6 +67,17 @@ export function resolverPastaEmtRecente(
   }
 }
 
+/** SSOT do log EMT — arquivo completo, sem truncar (escala para planos longos). */
+export function lerResultadoTxtDaPasta(pastaAbs: string): string | null {
+  try {
+    const resultPath = join(pastaAbs, 'RESULTADO.txt')
+    if (!existsSync(resultPath)) return null
+    return readFileSync(resultPath, 'utf-8')
+  } catch {
+    return null
+  }
+}
+
 function listarPrintsDaPasta(pastaAbs: string, aprovado: boolean): string[] {
   return readdirSync(pastaAbs)
     .filter(f => f.endsWith('.png'))
@@ -74,15 +85,14 @@ function listarPrintsDaPasta(pastaAbs: string, aprovado: boolean): string[] {
     .sort()
 }
 
+/** Metadados para persistir no JSON diário — não embute RESULTADO.txt (fica em emt_pasta). */
 function artefatosDaPasta(pastaAbs: string, code: number, stdout: string): EmtRunArtifacts {
   const aprovado = code === 0
   const prints = listarPrintsDaPasta(pastaAbs, aprovado)
+  const temResultadoTxt = existsSync(join(pastaAbs, 'RESULTADO.txt'))
 
   let success_log: string | null = null
-  const resultPath = join(pastaAbs, 'RESULTADO.txt')
-  if (existsSync(resultPath)) {
-    success_log = readFileSync(resultPath, 'utf-8').slice(0, 12_000)
-  } else if (aprovado) {
+  if (!temResultadoTxt && aprovado) {
     success_log = extrairLogSucessoDoStdout(stdout)
   }
 
@@ -125,7 +135,25 @@ function extrairLogSucessoDoStdout(stdout: string): string | null {
   return linhas.length > 0 ? linhas.join('\n') : null
 }
 
-/** Enriquece logs EMT antigos que não gravaram success_log / prints. */
+function aplicarLogCompletoDoDisco(
+  entry: Record<string, unknown>,
+  pastaAbs: string,
+  prints: string[],
+): Record<string, unknown> {
+  const logCompleto = lerResultadoTxtDaPasta(pastaAbs)
+  const aprovado = entry.result === 'APROVADO'
+
+  return {
+    ...entry,
+    emt_prints: prints,
+    success_log: aprovado ? (logCompleto ?? entry.success_log ?? null) : null,
+    error_log: !aprovado
+      ? (logCompleto ?? entry.error_log ?? null)
+      : entry.error_log,
+  }
+}
+
+/** Enriquece logs EMT — lê RESULTADO.txt integral da pasta quando existir. */
 export function enrichirLogEmt(
   entry: Record<string, unknown>,
   specFile: string | null,
@@ -141,11 +169,7 @@ export function enrichirLogEmt(
     if (existsSync(pastaAbs)) {
       const code = entry.result === 'APROVADO' ? 0 : 1
       const artefatos = artefatosDaPasta(pastaAbs, code, '')
-      return {
-        ...entry,
-        emt_prints: artefatos.emt_prints,
-        success_log: entry.success_log ?? artefatos.success_log,
-      }
+      return aplicarLogCompletoDoDisco(entry, pastaAbs, artefatos.emt_prints)
     }
   }
 
@@ -156,6 +180,17 @@ export function enrichirLogEmt(
 
   const createdMs = new Date(String(entry.created_at ?? Date.now())).getTime()
   const artefatos = coletarArtefatosEmt(specFile, createdMs, entry.result === 'APROVADO' ? 0 : 1, '')
+
+  if (artefatos.emt_pasta) {
+    const pastaAbs = resolve(monorepoRoot, artefatos.emt_pasta)
+    if (existsSync(pastaAbs)) {
+      return aplicarLogCompletoDoDisco(
+        { ...entry, emt_pasta: artefatos.emt_pasta },
+        pastaAbs,
+        temPrints ? (entry.emt_prints as string[]) : artefatos.emt_prints,
+      )
+    }
+  }
 
   return {
     ...entry,

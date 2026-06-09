@@ -2,10 +2,10 @@
 
 **ID:** TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  
 **Data:** 2026-06-06  
-**Versão:** 5.3  
+**Versão:** 5.7  
 **Criticidade:** alta  
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`  
-**Status:** Aguardando aprovação do dono
+**Status:** Aguardando aprovação do dono — **ETAPA 53** (Data Transferência Saldo) pendente nesta versão
 
 **Escopo pasta:** `testes/testes-em-tela/pedido/lista/editar-salvar/`  
 **Plano + runner:** `plano-de-teste/` (este arquivo + `run-lista-editar-salvar.ts`)  
@@ -97,8 +97,12 @@
 | **TIPO VOLUME PEDIDO/ITEM** | 260–272 | `run-lista-editar-salvar.ts` + `validar-tipo-volume-lista.ts` |
 | **QTD. DE VOLUMES DO PEDIDO** | 273–287 | `run-lista-editar-salvar.ts` + `validar-qtd-volumes-lista.ts` |
 | **COBERTURA CAMBIAL DO PEDIDO** | 288–302 | `run-lista-editar-salvar.ts` + `validar-cobertura-cambial-lista.ts` |
+| **CONDIÇÃO PAGAMENTO SISCOMEX DO PEDIDO/ITEM** | 303–317 | `run-lista-editar-salvar.ts` + `validar-condicao-pagamento-siscomex-lista.ts` |
+| **CONDIÇÃO PAGAMENTO COMERCIAL DO PEDIDO/ITEM** | 318–332 | `run-lista-editar-salvar.ts` + `validar-condicao-pagamento-comercial-lista.ts` |
+| **MOEDA CÂMBIO** | 333–347 | `run-lista-editar-salvar.ts` + `validar-moeda-cambio-lista.ts` |
+| **DATA TRANSFERÊNCIA DE SALDO** | 348–363 | `run-lista-editar-salvar.ts` + `validar-data-transferencia-saldo-lista.ts` |
 
-> **Ordem de execução no runner:** Peso (227–248), Cubagem (249–259), Tipo Volume (260–272), Qtd. Volumes (273–287) e Cobertura Cambial (288–302) rodam **antes** de Qtd. Transferida (83–134), após Unidade Comercializada (82). **SSOT** tipos de volume: **`cadastros.volume`** · cobertura cambial: **`cadastros.cambio_siscomex`** (`tipo=cobertura_cambial`).
+> **Ordem de execução no runner:** Peso (227–248), Cubagem (249–259), Tipo Volume (260–272), Qtd. Volumes (273–287), Cobertura Cambial (288–302), Condição Pagamento Siscomex (303–317), Condição Pagamento Comercial (318–332) e Moeda Câmbio (333–347) rodam **antes** de Qtd. Transferida (83–134), após Unidade Comercializada (82). **Data Transferência de Saldo (348–363)** roda **depois** da Redução Simples (passo **134**), pois depende de operações Transferir. **SSOT** tipos de volume: **`cadastros.volume`** · cobertura cambial: **`cadastros.cambio_siscomex`** (`tipo=cobertura_cambial`) · modalidade pagamento Siscomex: **`cadastros.cambio_siscomex`** (`tipo=modalidade_pagamento`) · condição pagamento comercial: **texto livre** · moeda câmbio: **`cadastros.moeda`** (badge ISO).
 
 ---
 
@@ -853,6 +857,101 @@ Coluna **`cobertura_cambial`** (dual pedido/item). Select editável · **SSOT** 
 | **301** | Hub → Lista → reexpandir | Cobertura persiste · Print `301-cob-persistencia-apos-navegar-resultado.png` |
 | **302** | *(fechamento etapa 49)* | Estado final consolidado · Print `302-cob-estado-final-grade.png` |
 
+### ETAPA 50 — CONDIÇÃO DE PAGAMENTO DO PEDIDO/ITEM — SISCOMEX (passos 303–317)
+
+Coluna **`condicao_pagamento_siscomex`** (dual pedido/item). Select editável · **SSOT** `cadastros.cambio_siscomex` (`tipo=modalidade_pagamento`) via `useCambioSiscomexPedido` — rótulo `código — nome` (ex.: `21 — Pagamento à vista total ou preponderante — outros`). Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»**; **marcado** replica em todos os itens; **desmarcado** altera só o pedido. Alerta âmbar *Modalidades Siscomex divergentes entre itens* quando itens divergem. Regras §8L CPS-01…12.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **303** | Scroll até **Condição de Pagamento do Pedido/Item — Siscomex** | Coluna visível |
+| **304** | Hover célula **pedido** | Cursor editável · Print `304-cps-cursor-pedido.png` |
+| **305** | Tooltip **pedido** | Título *Condição de Pagamento do Pedido — Siscomex* + pills `editavel_pedido` → `replica_itens` → `alerta_divergencia` · Print `305-cps-tooltip-pedido.png` |
+| **306** | Tooltip **item 1** | Pills `editavel_item` → `alerta_divergencia` · Print `306-cps-tooltip-item.png` |
+| **307** | Clicar célula **pedido** | Popover select abre · Print `307-cps-pedido-abre-popover-resultado.png` |
+| **308** | Abrir dropdown | Lista **completa** do Cadastros (`modalidade_pagamento` ativas); busca «Buscar…» funcional; opção **21** visível com rótulo longo truncado na célula e completo no dropdown · Print `308-cps-select-cadastros-ssot.png` |
+| **309** | Inspecionar popover **pedido** | Checkbox **«Aplicar a todos os itens deste pedido»** visível e desmarcado por padrão · Print `309-cps-checkbox-aplicar-todos-visivel.png` |
+| **310** | Selecionar modalidade **A** (ex. código `10`) → checkbox **desmarcado** → confirmar | **Só pedido** = A; itens **inalterados** · Prints `310-cps-pedido-sem-replicar-selecao.png` + `310-cps-pedido-sem-replicar-resultado.png` |
+| **311** | Selecionar modalidade **B** (ex. código `21`) → checkbox **marcado** → confirmar | **Pedido e todos os itens** = B (réplica válida; grade exibe texto como na captura do dono) · Prints `311-cps-pedido-replicar-todos-selecao.png` + `311-cps-pedido-replicar-todos-resultado.png` |
+| **312** | Editar **somente item 2** → modalidade **C** (ex. código `30`) → confirmar | Item 2 = C; pedido mantém B · Print `312-cps-item2-isolado-resultado.png` |
+| **313** | Inspecionar célula **pedido** | Ícone/alerta âmbar *Modalidades Siscomex divergentes entre itens* visível · Print `313-cps-alerta-divergencia-resultado.png` |
+| **314** | Editar **item 1** → modalidade **D** (ex. código `20`) → confirmar | Edição isolada no item · Prints `314-cps-item1-editar-selecao.png` + `314-cps-item1-editar-resultado.png` |
+| **315** | Checkbox **pedido** → **Edição em Massa** → **Condição de Pagamento — Siscomex** → modalidade **E** (ex. código `31`) → confirmar | Pedido + itens espelhados = E · Prints `315-cps-massa-selecao.png` + `315-cps-massa-resultado.png` |
+| **316** | Hub → Lista → reexpandir | Modalidade persiste · Print `316-cps-persistencia-apos-navegar-resultado.png` |
+| **317** | *(fechamento etapa 50)* | Estado final consolidado · Print `317-cps-estado-final-grade.png` |
+
+### ETAPA 51 — CONDIÇÃO DE PAGAMENTO DO PEDIDO/ITEM — COMERCIAL (passos 318–332)
+
+Coluna **`condicao_pagamento`** (dual pedido/item). Popover **texto livre** (alfanumérico) — exemplos da captura: `aaa`, `vvada`. Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»**; **marcado** replica em todos os itens; **desmarcado** altera só o pedido. Alerta âmbar *Condições de pagamento divergentes entre itens* quando itens divergem (ícone na linha do pedido, como na imagem do dono). Texto **> 50 caracteres**: truncamento na grade + ícone olho. Aviso amarelo no popover: *«A edição aqui irá alterar a Condição de Pagamento do Pedido/Item»* (`aviso_impacto_condicao_pagamento`). Regras §8M CPG-01…12.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **318** | Scroll até **Condição de Pagamento do Pedido/Item — Comercial** | Coluna visível |
+| **319** | Hover célula **pedido** | Cursor editável · Print `319-cpg-cursor-pedido.png` |
+| **320** | Tooltip **pedido** | Título *Condição de Pagamento do Pedido — Comercial* + pills `editavel_pedido` → `replica_itens` → `alerta_divergencia` · Print `320-cpg-tooltip-pedido.png` |
+| **321** | Tooltip **item 1** | Pills `editavel_item` → `alerta_divergencia` · Print `321-cpg-tooltip-item.png` |
+| **322** | Clicar célula **pedido** | Popover texto abre **com aviso amarelo** *«A edição aqui irá alterar a Condição de Pagamento do Pedido/Item»* · Print `322-cpg-pedido-abre-popover-aviso-resultado.png` |
+| **323** | Inspecionar popover **pedido** | Checkbox **«Aplicar a todos os itens deste pedido»** visível e desmarcado por padrão · Print `323-cpg-checkbox-aplicar-todos-visivel.png` |
+| **324** | Texto `CPG-EMT-SOLO-*` → checkbox **desmarcado** → confirmar | **Só pedido** persiste; itens **inalterados** · Prints `324-cpg-pedido-sem-replicar-selecao.png` + `324-cpg-pedido-sem-replicar-resultado.png` |
+| **325** | Texto `CPG-EMT-TODOS-*` → checkbox **marcado** → confirmar | **Pedido e todos os itens** iguais · Prints `325-cpg-pedido-replicar-todos-selecao.png` + `325-cpg-pedido-replicar-todos-resultado.png` |
+| **326** | Editar **somente item 2** → texto `CPG-EMT-ITEM-2-*` → confirmar | Item 2 alterado; pedido mantém valor anterior · Print `326-cpg-item2-isolado-resultado.png` |
+| **327** | Inspecionar célula **pedido** | Ícone/alerta âmbar *Condições de pagamento divergentes entre itens* visível (como captura do dono) · Print `327-cpg-alerta-divergencia-resultado.png` |
+| **328** | Editar **item 1** → texto `CPG-EMT-ITEM-1-*` → confirmar | Edição isolada no item · Prints `328-cpg-item1-editar-selecao.png` + `328-cpg-item1-editar-resultado.png` |
+| **329** | Editar **pedido** → texto `CPG-EMT-LONGO-*` (> 50 caracteres) → confirmar | Grade exibe truncamento + ícone olho; tooltip/olho revela texto completo · Prints `329-cpg-truncamento-longo-selecao.png` + `329-cpg-truncamento-longo-resultado.png` |
+| **330** | Checkbox **pedido** → **Edição em Massa** → **Condição de Pagamento — Comercial** → texto `CPG-EMT-MASSA-*` → confirmar | Pedido + itens espelhados · Prints `330-cpg-massa-selecao.png` + `330-cpg-massa-resultado.png` |
+| **331** | Hub → Lista → reexpandir | Textos persistem · Print `331-cpg-persistencia-apos-navegar-resultado.png` |
+| **332** | *(fechamento etapa 51)* | Estado final consolidado · Print `332-cpg-estado-final-grade.png` |
+
+### ETAPA 52 — MOEDA CÂMBIO (passos 333–347)
+
+Coluna **`moeda_cambio_pedido`**. Valor **único no pedido**; linhas de **item espelham** o mesmo badge ISO (ex.: `EUR` na captura do dono). Select **`cadastros.moeda`** · **sem** checkbox replicar · edição no **item** roteia PATCH no pedido. Aviso amarelo: *«Moeda de câmbio é exclusiva do pedido e não altera a moeda comercial dos itens»*. Alerta âmbar na linha do **pedido** quando `moeda_pedido` ≠ `moeda_item` (*Moedas divergentes entre itens*). Regras §8N MCB-01…12.
+
+**Pré-condição:** pedido expandido com **≥2 itens**; idealmente após ETAPA 20 (passos 56–61) com moedas comerciais divergentes para validar o alerta no passo 343.
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **333** | Scroll até **Moeda Câmbio** | Coluna visível (badge `EUR` ou valor atual) |
+| **334** | Hover célula **pedido** | Cursor editável · Print `334-mcb-cursor-pedido.png` |
+| **335** | Tooltip **pedido** | Título *Moeda Câmbio* + pills `editavel_pedido` → `editavel_item` → `alerta_moeda_divergente` · Print `335-mcb-tooltip-pedido.png` |
+| **336** | Tooltip **item 1** | Pill `editavel_item` · Print `336-mcb-tooltip-item.png` |
+| **337** | Clicar célula **pedido** | Popover select abre **com aviso amarelo**; **sem** checkbox «Aplicar a todos» · Print `337-mcb-pedido-abre-popover-aviso-resultado.png` |
+| **338** | Abrir dropdown | Lista moedas ativas do Cadastros; sigla **EUR** (ou equivalente) visível · Print `338-mcb-select-cadastros-ssot.png` |
+| **339** | Select **EUR** no **pedido** → confirmar | Pedido **e todos os itens** exibem badge **EUR** (espelhamento) · Prints `339-mcb-pedido-eur-selecao.png` + `339-mcb-pedido-eur-resultado.png` |
+| **340** | Select **USD** no **item 1** → confirmar | PATCH no pedido; pedido + itens = **USD** · Prints `340-mcb-item-usd-selecao.png` + `340-mcb-item-usd-resultado.png` |
+| **341** | Inspecionar coluna **Moeda do Pedido/Item** | Siglas comerciais (`moeda_pedido` / `moeda_item`) **inalteradas** pela edição de Moeda Câmbio · Print `341-mcb-moeda-comercial-inalterada-resultado.png` |
+| **342** | Reabrir popover **pedido** | Aviso amarelo persiste · Print `342-mcb-aviso-impacto.png` |
+| **343** | Inspecionar célula **pedido** | Se `moeda_pedido` ≠ `moeda_item` em algum item → ícone âmbar *Moedas divergentes entre itens* visível · Print `343-mcb-alerta-moeda-divergente-resultado.png` |
+| **344** | Filtrar coluna (ícone funil) por sigla atual (**USD**) | Grade filtra sem erro; pedido de teste permanece visível · Print `344-mcb-filtro-coluna-resultado.png` |
+| **345** | Checkbox **pedido** → **Edição em Massa** → **Moeda Câmbio** → **BRL** → confirmar | Pedido + itens espelhados = **BRL** · Prints `345-mcb-massa-selecao.png` + `345-mcb-massa-resultado.png` |
+| **346** | Hub → Lista → reexpandir | Moeda Câmbio persiste · Print `346-mcb-persistencia-apos-navegar-resultado.png` |
+| **347** | *(fechamento etapa 52)* | Estado final consolidado · Print `347-mcb-estado-final-grade.png` |
+
+### ETAPA 53 — DATA DE TRANSFERÊNCIA DE SALDO (passos 348–363)
+
+Coluna **`data_transferencia_saldo_pedido`** / **`data_transferencia_saldo_item`**. Exibição **DD/MM/AAAA** (ex.: `06/06/2026` na captura do dono). **Dupla origem:** (1) **automática** — ao confirmar **Transferir** (split), grava data do dia no pedido de origem e no item transferido (`TransferirService`); **não** altera em **Redução Simples** nem substituição pura; (2) **manual** — popover data com checkbox **«Aplicar a todos os itens deste pedido»**. Pills: pedido `editavel_pedido` → `replica_itens` → `atualiza_transferencia_saldo` → `alerta_divergencia`; item `editavel_item` → `atualiza_transferencia_saldo` → `alerta_divergencia`. Regras §8O DTS-01…14.
+
+**Ordem runner:** executar **após** passo **134** (ETAPA 26 — Redução Simples).
+
+**Pré-condição:** pedido expandido com **≥2 itens** e saldo disponível para transferência; ETAPAs 24–26 já executadas no mesmo run (recomendado).
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **348** | Scroll até **Data de Transferência de Saldo** | Coluna visível (formato data ou `—`) |
+| **349** | Tooltip **pedido** | Título *Data de Transferência de Saldo* + pills `editavel_pedido` → `replica_itens` → `atualiza_transferencia_saldo` → `alerta_divergencia` · Print `349-dts-tooltip-pedido.png` |
+| **350** | Tooltip **item 1** | Pills `editavel_item` → `atualiza_transferencia_saldo` → `alerta_divergencia` · Print `350-dts-tooltip-item.png` |
+| **351** | **Automático** — inspecionar após Split da ETAPA 24/25 **ou** executar Split mínimo agora | Pedido de **origem** + **item transferido** exibem **data do dia** da transferência (DD/MM/AAAA) · Print `351-dts-auto-pos-transferir-resultado.png` |
+| **352** | **Automático (negativo)** — após Redução Simples (ETAPA 26 / passo 134) | Data da coluna **permanece** a do passo 351 (redução **não** altera) · Print `352-dts-auto-reducao-nao-altera-resultado.png` |
+| **353** | Clicar célula **pedido** | Popover **data** abre; checkbox **«Aplicar a todos os itens deste pedido»** visível e desmarcado; **sem** aviso amarelo · Print `353-dts-pedido-abre-popover-resultado.png` |
+| **354** | Data **15/01/2026** → checkbox **desmarcado** → confirmar | **Só pedido** = 15/01/2026; itens inalterados · Prints `354-dts-pedido-sem-replicar-selecao.png` + `354-dts-pedido-sem-replicar-resultado.png` |
+| **355** | Data **20/02/2026** → checkbox **marcado** → confirmar | Pedido **e todos os itens** = 20/02/2026 · Prints `355-dts-pedido-replicar-todos-selecao.png` + `355-dts-pedido-replicar-todos-resultado.png` |
+| **356** | Editar **somente item 2** → data **25/03/2026** → confirmar | Item 2 = 25/03/2026; pedido mantém 20/02/2026 · Print `356-dts-item2-isolado-resultado.png` |
+| **357** | Inspecionar célula **pedido** | Ícone/alerta âmbar *Datas de transferência de saldo divergentes entre itens* visível · Print `357-dts-alerta-divergencia-resultado.png` |
+| **358** | Ordenar coluna (asc/desc) | Lista reordena sem erro · Print `358-dts-ordenacao-resultado.png` |
+| **359** | Filtrar coluna (ícone funil) por data visível | Grade filtra; pedido de teste permanece visível · Print `359-dts-filtro-coluna-resultado.png` |
+| **360** | Checkbox **pedido** → **Edição em Massa** → **Data Transferência Saldo** → **06/06/2026** → confirmar | Pedido + itens = **06/06/2026** (como captura do dono) · Prints `360-dts-massa-selecao.png` + `360-dts-massa-resultado.png` |
+| **361** | Editar **item 1** → data **10/05/2026** → confirmar | Edição isolada no item · Prints `361-dts-item1-editar-selecao.png` + `361-dts-item1-editar-resultado.png` |
+| **362** | Hub → Lista → reexpandir | Datas persistem · Print `362-dts-persistencia-apos-navegar-resultado.png` |
+| **363** | *(fechamento etapa 53)* | Estado final consolidado · Print `363-dts-estado-final-grade.png` |
+
 ### ETAPA 43 — Relatório
 
 1. Gerar `RESULTADO.txt` com linhas `EMT_ROW|…` e resultado Aprovado/Reprovado
@@ -925,5 +1024,9 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | PESO BRUTO TOTAL DO PEDIDO/ITEM | 238–248 | 11 |
 | CUBAGEM TOTAL DO PEDIDO/ITEM | 249–259 | 11 |
 | COBERTURA CAMBIAL DO PEDIDO | 288–302 | 15 |
-| **Total runner principal** | | **~302 passos / ~334 casos** |
+| CONDIÇÃO PAGAMENTO SISCOMEX DO PEDIDO/ITEM | 303–317 | 15 |
+| CONDIÇÃO PAGAMENTO COMERCIAL DO PEDIDO/ITEM | 318–332 | 15 |
+| MOEDA CÂMBIO | 333–347 | 15 |
+| DATA TRANSFERÊNCIA DE SALDO | 348–363 | 16 |
+| **Total runner principal** | | **~363 passos / ~395 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

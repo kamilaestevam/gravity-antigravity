@@ -228,6 +228,8 @@ export const atualizarItemSchema = z.object({
   referencia_importador: z.string().optional().nullable(),
   referencia_exportador: z.string().optional().nullable(),
   referencia_fabricante: z.string().optional().nullable(),
+  numero_proforma: z.string().optional().nullable(),
+  numero_invoice: z.string().optional().nullable(),
   incoterm: z.string().optional().nullable(),
   condicao_pagamento: z.string().optional().nullable(),
   condicao_pagamento_siscomex: z.string().optional().nullable(),
@@ -338,6 +340,8 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     referencia_importador:     item.referencia_importador_item,
     referencia_exportador:     item.referencia_exportador_item,
     referencia_fabricante:     item.referencia_fabricante_item,
+    numero_proforma:           item.numero_proforma_item,
+    numero_invoice:            item.numero_invoice_item,
     incoterm:                  item.incoterm_item,
     condicao_pagamento:        item.condicao_pagamento_item,
     condicao_pagamento_siscomex: item.condicao_pagamento_siscomex_item,
@@ -613,6 +617,46 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
           ?? (coberturasUnicas.size === 1 ? [...coberturasUnicas][0] : null),
         cobertura_cambial_divergente: divergente,
       }
+    })(),
+    // Condição de pagamento — Comercial (texto livre; contrato JSON: condicao_pagamento).
+    ...(() => {
+      const canonico = (pedido.condicao_pagamento_pedido ?? pedido.condicao_pagamento) as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          condicao_pagamento_divergente:
+            (pedido as { condicao_pagamento_divergente?: boolean | null }).condicao_pagamento_divergente ?? false,
+        }
+      }
+      const valoresItens = itens
+        .map((i: PedidoItemRaw) => i.condicao_pagamento as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const valoresUnicos = new Set(valoresItens)
+      let divergente = valoresUnicos.size > 1
+      if (!divergente && canonicoStr && valoresItens.length > 0) {
+        divergente = valoresItens.some((v) => v !== canonicoStr)
+      }
+      return { condicao_pagamento_divergente: divergente }
+    })(),
+    // Modalidade Siscomex — códigos 10–52.
+    ...(() => {
+      const canonico = (pedido.condicao_pagamento_siscomex_pedido ?? pedido.condicao_pagamento_siscomex) as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          condicao_pagamento_siscomex_divergente:
+            (pedido as { condicao_pagamento_siscomex_divergente?: boolean | null }).condicao_pagamento_siscomex_divergente ?? false,
+        }
+      }
+      const valoresItens = itens
+        .map((i: PedidoItemRaw) => i.condicao_pagamento_siscomex as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const valoresUnicos = new Set(valoresItens)
+      let divergente = valoresUnicos.size > 1
+      if (!divergente && canonicoStr && valoresItens.length > 0) {
+        divergente = valoresItens.some((v) => v !== canonicoStr)
+      }
+      return { condicao_pagamento_siscomex_divergente: divergente }
     })(),
   }
 }
@@ -1999,6 +2043,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'aeroporto_origem',
   'aeroporto_destino',
   'moeda_pedido',
+  'moeda_cambio_pedido',
   'condicao_pagamento',
   'condicao_pagamento_siscomex',
   'importacao_exportador_id',
@@ -2754,6 +2799,8 @@ const publicToDddItem: Record<string, string> = {
   referencia_importador:       'referencia_importador_item',
   referencia_exportador:       'referencia_exportador_item',
   referencia_fabricante:       'referencia_fabricante_item',
+  numero_proforma:             'numero_proforma_item',
+  numero_invoice:              'numero_invoice_item',
   incoterm:                    'incoterm_item',
   condicao_pagamento:          'condicao_pagamento_item',
   condicao_pagamento_siscomex: 'condicao_pagamento_siscomex_item',

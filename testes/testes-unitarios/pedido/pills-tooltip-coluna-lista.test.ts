@@ -118,10 +118,11 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.item).not.toContain('alerta_divergencia')
   })
 
-  it('moeda_cambio_pedido — pedido e item editáveis; taxa/valor câmbio permanecem bloqueados', () => {
+  it('moeda_cambio_pedido — pedido e item editáveis sem replicar; taxa/valor câmbio bloqueados', () => {
     const res = obterPillsTooltipColuna('moeda_cambio_pedido')
-    expect(res.pedido).toEqual(['editavel_pedido', 'editavel_item'])
+    expect(res.pedido).toEqual(['editavel_pedido', 'editavel_item', 'alerta_moeda_divergente'])
     expect(res.item).toEqual(['editavel_item'])
+    expect(res.pedido).not.toContain('replica_itens')
     expect(pillsParaNivelColuna('taxa_cambio_estimada', 'pai')).toEqual(['bloqueado_edicao', 'calculado_pedido'])
   })
 
@@ -261,6 +262,24 @@ describe('obterPillsTooltipColuna', () => {
     ])
     expect(res.item).toEqual(['somente_leitura', 'so_operacao'])
     expect(pillsParaNivelColuna('quantidade_transferida_total', 'item')).toEqual(['somente_leitura', 'so_operacao'])
+  })
+
+  it('data_transferencia_saldo_pedido — pedido editável + replica + atualiza transferência; item editável + atualiza', () => {
+    const res = obterPillsTooltipColuna('data_transferencia_saldo_pedido')
+    expect(res.dual).toBe(false)
+    expect(res.pedido).toEqual([
+      'editavel_pedido',
+      'replica_itens',
+      'atualiza_transferencia_saldo',
+      'alerta_divergencia',
+    ])
+    expect(res.item).toEqual([
+      'editavel_item',
+      'atualiza_transferencia_saldo',
+      'alerta_divergencia',
+    ])
+    expect(pillsParaNivelColuna('data_transferencia_saldo_pedido', 'pai')).toEqual(res.pedido)
+    expect(pillsParaNivelColuna('data_transferencia_saldo_pedido', 'item')).toEqual(res.item)
   })
 
   it('saldo_itens_do_pedido dinâmico — pedido fórmula + alerta unidade; item somente leitura', () => {

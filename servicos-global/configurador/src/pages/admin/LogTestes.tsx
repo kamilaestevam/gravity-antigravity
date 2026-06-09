@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap, X, Eye } from '@phosphor-icons/react'
+import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap, X, Eye, ChartPieSlice } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
-import { CardBasicoGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
 import { ModalExecutarTestes } from './ModalTestesExecutar'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
@@ -33,6 +33,7 @@ type Resultado = 'APROVADO' | 'REPROVADO' | 'ERRO_CATASTROFICO'
 interface LogTeste {
   id: string
   dataHora: string
+  createdAtMs: number
   tipo: TipoTeste
   modulo: string
   teste: string
@@ -58,6 +59,61 @@ interface LogTeste {
 }
 
 const EMT_PRINT_API_TIMEOUT_MS = 5_000
+const MS_POR_DIA = 86_400_000
+
+const CORES_TIPO_TESTE: Record<TipoTeste, string> = {
+  EMT: '#fbbf24',
+  E2E: '#eab308',
+  UNITARIO: '#38bdf8',
+  FUNCIONAL: '#a78bfa',
+}
+
+function filtrarLogsPorDias(dados: LogTeste[], dias: number): LogTeste[] {
+  const corte = Date.now() - dias * MS_POR_DIA
+  return dados.filter(d => d.createdAtMs >= corte)
+}
+
+function somarPassosAprovacao(itens: LogTeste[]): { aprovados: number; reprovados: number; total: number } {
+  let aprovados = 0
+  let reprovados = 0
+  for (const item of itens) {
+    const passos = contarPassosTeste(item)
+    aprovados += passos.aprovados
+    reprovados += passos.reprovados
+  }
+  return { aprovados, reprovados, total: aprovados + reprovados }
+}
+
+function somarPassosErro(itens: LogTeste[]): number {
+  let erros = 0
+  for (const item of itens) {
+    const passos = contarPassosTeste(item)
+    if (item.resultado === 'ERRO_CATASTROFICO') {
+      erros += passos.total > 0 ? passos.total : 1
+    } else {
+      erros += passos.reprovados
+    }
+  }
+  return erros
+}
+
+function somarPassosPorTipo(itens: LogTeste[]): Record<TipoTeste, number> {
+  const acc: Record<TipoTeste, number> = { EMT: 0, E2E: 0, UNITARIO: 0, FUNCIONAL: 0 }
+  for (const item of itens) {
+    acc[item.tipo] += contarPassosTeste(item).total
+  }
+  return acc
+}
+
+function rotuloTipoTeste(tipo: TipoTeste, t: (k: string) => string): string {
+  const map: Record<TipoTeste, string> = {
+    EMT: t('admin.testes-gerais.tipo_emt'),
+    E2E: t('admin.testes-gerais.tipo_e2e'),
+    UNITARIO: t('admin.testes-gerais.tipo_unitario'),
+    FUNCIONAL: t('admin.testes-gerais.tipo_funcional'),
+  }
+  return map[tipo]
+}
 
 function renderTextoTruncado50(valor: string, labelTooltip: string): React.ReactNode {
   if (valor.length <= 50) {
@@ -990,6 +1046,7 @@ function mapTestesToLocal(log: TesteApi): LogTeste {
   return {
     id: log.id,
     dataHora: `${data} ${hora}`,
+    createdAtMs: created.getTime(),
     tipo: (log.type as TipoTeste) || 'E2E',
     modulo: log.module || 'N/A',
     teste: log.test_name || 'N/A',
@@ -1155,9 +1212,23 @@ export function LogTestes() {
     return () => { stopped = true; clearInterval(interval) }
   }, [rodandoTestes])
 
-  const aprovadosCount = dados.filter(d => d.resultado === 'APROVADO').length
-  const reprovadosCount = dados.filter(d => d.resultado === 'REPROVADO').length
-  const erroCount = dados.filter(d => d.resultado === 'ERRO_CATASTROFICO').length
+  const logs7d = useMemo(() => filtrarLogsPorDias(dados, 7), [dados])
+  const logs30d = useMemo(() => filtrarLogsPorDias(dados, 30), [dados])
+  const passos7d = useMemo(() => somarPassosAprovacao(logs7d), [logs7d])
+  const passos30d = useMemo(() => somarPassosAprovacao(logs30d), [logs30d])
+  const erros7d = useMemo(() => somarPassosErro(logs7d), [logs7d])
+  const erros30d = useMemo(() => somarPassosErro(logs30d), [logs30d])
+  const passosPorTipo30d = useMemo(() => somarPassosPorTipo(logs30d), [logs30d])
+
+  const legendaTipos30d = useMemo(() => {
+    return (['UNITARIO', 'FUNCIONAL', 'E2E', 'EMT'] as TipoTeste[])
+      .map(tipo => ({ tipo, passos: passosPorTipo30d[tipo] }))
+      .filter(e => e.passos > 0)
+      .sort((a, b) => b.passos - a.passos)
+  }, [passosPorTipo30d])
+
+  const totalPassosTipo30d = legendaTipos30d.reduce((s, e) => s + e.passos, 0)
+  const passosDominanteTipo30d = legendaTipos30d[0]?.passos ?? 0
 
   // Handlers para os botões de ação Gemini
   const handleReanalyze = async (id: string, opts?: { silent?: boolean }) => {
@@ -1420,26 +1491,109 @@ export function LogTestes() {
       }
       stats={
         <>
-          <CardBasicoGlobal
-            titulo={t('admin.testes-gerais.card_aprovados')}
-            valor={aprovadosCount}
-            icone={<CheckCircle weight="duotone" size={18} />}
-            variante="sucesso"
-            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.testes-gerais.card_aprovados_tooltip')}</span>}
+          <CardGraficoGlobal
+            titulo={t('admin.testes-gerais.card_pizza_7d')}
+            icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            total={passos7d.total}
+            valorPrincipal={passos7d.aprovados}
+            corGauge="#34d399"
+            legenda={[
+              { label: t('admin.testes-gerais.legenda_aprovados'), valor: passos7d.aprovados, cor: 'green' },
+              { label: t('admin.testes-gerais.legenda_reprovados'), valor: passos7d.reprovados, cor: 'red' },
+            ]}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('admin.testes-gerais.legenda_aprovados')}</span>
+                  <strong style={{ color: '#34d399' }}>{passos7d.aprovados}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('admin.testes-gerais.legenda_reprovados')}</span>
+                  <strong style={{ color: '#f87171' }}>{passos7d.reprovados}</strong>
+                </div>
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
+                  <span>{t('admin.testes-gerais.card_pizza_taxa_aprovacao')}</span>
+                  <strong style={{ color: '#34d399' }}>
+                    {passos7d.total ? Math.round((passos7d.aprovados / passos7d.total) * 100) : 0}%
+                  </strong>
+                </div>
+              </>
+            }
+          />
+          <CardGraficoGlobal
+            titulo={t('admin.testes-gerais.card_pizza_30d')}
+            icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
+            total={passos30d.total}
+            valorPrincipal={passos30d.aprovados}
+            corGauge="#34d399"
+            legenda={[
+              { label: t('admin.testes-gerais.legenda_aprovados'), valor: passos30d.aprovados, cor: 'green' },
+              { label: t('admin.testes-gerais.legenda_reprovados'), valor: passos30d.reprovados, cor: 'red' },
+            ]}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>{t('admin.testes-gerais.legenda_aprovados')}</span>
+                  <strong style={{ color: '#34d399' }}>{passos30d.aprovados}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>{t('admin.testes-gerais.legenda_reprovados')}</span>
+                  <strong style={{ color: '#f87171' }}>{passos30d.reprovados}</strong>
+                </div>
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
+                  <span>{t('admin.testes-gerais.card_pizza_taxa_aprovacao')}</span>
+                  <strong style={{ color: '#34d399' }}>
+                    {passos30d.total ? Math.round((passos30d.aprovados / passos30d.total) * 100) : 0}%
+                  </strong>
+                </div>
+              </>
+            }
+          />
+          <CardGraficoGlobal
+            titulo={t('admin.testes-gerais.card_tipo_passos')}
+            icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+            total={totalPassosTipo30d}
+            valorPrincipal={passosDominanteTipo30d}
+            corGauge={legendaTipos30d[0] ? CORES_TIPO_TESTE[legendaTipos30d[0].tipo] : '#64748b'}
+            legenda={legendaTipos30d.map(({ tipo, passos }) => ({
+              label: rotuloTipoTeste(tipo, t),
+              valor: passos,
+              cor: CORES_TIPO_TESTE[tipo],
+            }))}
+            tooltip={
+              <>
+                {legendaTipos30d.map(({ tipo, passos }) => (
+                  <div key={tipo} className="cg-tooltip__row">
+                    <span>{rotuloTipoTeste(tipo, t)}</span>
+                    <strong style={{ color: CORES_TIPO_TESTE[tipo] }}>
+                      {passos} ({totalPassosTipo30d ? Math.round((passos / totalPassosTipo30d) * 100) : 0}%)
+                    </strong>
+                  </div>
+                ))}
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
+                  <span>{t('admin.testes-gerais.card_tipo_passos_total')}</span>
+                  <strong>{totalPassosTipo30d}</strong>
+                </div>
+              </>
+            }
           />
           <CardBasicoGlobal
-            titulo={t('admin.testes-gerais.card_reprovados')}
-            valor={reprovadosCount}
-            icone={<XCircle weight="duotone" size={18} />}
-            variante="perigo"
-            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.testes-gerais.card_reprovados_tooltip')}</span>}
-          />
-          <CardBasicoGlobal
-            titulo={t('admin.testes-gerais.card_erro')}
-            valor={erroCount}
+            titulo={t('admin.testes-gerais.card_total_erros')}
             icone={<Warning weight="duotone" size={18} />}
+            valor={erros30d}
             variante="aviso"
-            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.testes-gerais.card_erro_tooltip')}</span>}
+            periodos={[
+              { periodo: '7d', rotulo: t('admin.testes-gerais.periodo_7d'), valor: String(erros7d), direcao: 'neutral' },
+              { periodo: '30d', rotulo: t('admin.testes-gerais.periodo_30d'), valor: String(erros30d), direcao: 'neutral' },
+            ] as PeriodoTendencia[]}
+            tooltip={
+              <span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                {t('admin.testes-gerais.card_total_erros_tooltip')}
+              </span>
+            }
           />
         </>
       }

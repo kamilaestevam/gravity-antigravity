@@ -39,6 +39,7 @@ interface LogTeste {
   teste: string
   resultado: Resultado
   duracao: string
+  quantidadePassos?: number
   erroLog?: string
   aiAnalise?: {
     erroResumo: string
@@ -171,11 +172,19 @@ function resolverNomeTeste(modulo: string, teste: string): string {
   return modulo !== 'N/A' ? modulo : teste
 }
 
-function contarPassosTeste(item: Pick<LogTeste, 'tipo' | 'successLog' | 'erroLog' | 'resultado'>): {
+function contarPassosTeste(item: Pick<LogTeste, 'tipo' | 'successLog' | 'erroLog' | 'resultado' | 'quantidadePassos'>): {
   total: number
   aprovados: number
   reprovados: number
 } {
+  if (item.quantidadePassos != null && item.quantidadePassos > 0 && item.tipo !== 'EMT') {
+    const total = item.quantidadePassos
+    if (item.resultado === 'APROVADO') return { total, aprovados: total, reprovados: 0 }
+    if (item.resultado === 'REPROVADO' || item.resultado === 'ERRO_CATASTROFICO') {
+      return { total, aprovados: 0, reprovados: total }
+    }
+    return { total, aprovados: total, reprovados: 0 }
+  }
   if (item.tipo === 'EMT') return contarPassosEmt(item)
   if (item.resultado === 'APROVADO') return { total: 1, aprovados: 1, reprovados: 0 }
   if (item.resultado === 'REPROVADO' || item.resultado === 'ERRO_CATASTROFICO') {
@@ -1039,35 +1048,38 @@ function PainelEmtExpandido({
 
 // Helper: mapeia dados do backend para o formato do frontend
 function mapTestesToLocal(log: TesteApi): LogTeste {
-  const created = new Date(log.created_at)
+  const created = new Date(log.data_criacao_teste)
   const pad = (n: number) => n.toString().padStart(2, '0')
   const data = `${pad(created.getDate())}/${pad(created.getMonth() + 1)}/${created.getFullYear()}`
   const hora = `${pad(created.getHours())}:${pad(created.getMinutes())}:${pad(created.getSeconds())}`
+  const resultadoRaw = log.resultado_teste
+  const resultado: Resultado = resultadoRaw === 'ERRO' ? 'ERRO_CATASTROFICO' : (resultadoRaw as Resultado) || 'APROVADO'
   return {
-    id: log.id,
+    id: log.id_teste,
     dataHora: `${data} ${hora}`,
     createdAtMs: created.getTime(),
-    tipo: (log.type as TipoTeste) || 'E2E',
-    modulo: log.module || 'N/A',
-    teste: log.test_name || 'N/A',
-    resultado: (log.result as Resultado) || 'APROVADO',
-    duracao: log.duration || 'N/A',
-    erroLog: log.error_log ?? undefined,
-    successLog: log.success_log ?? undefined,
-    emtPrints: Array.isArray(log.emt_prints) ? log.emt_prints : undefined,
-    emtPasta: typeof log.emt_pasta === 'string' && log.emt_pasta.length > 0 ? log.emt_pasta : undefined,
-    aiAnalise: log.ai_analysis ? {
-      erroResumo: (log.ai_analysis as Record<string, string>).erroResumo ?? '',
-      motivo: (log.ai_analysis as Record<string, string>).motivo ?? '',
-      sugestaoCorrecao: (log.ai_analysis as Record<string, string>).sugestaoCorrecao ?? '',
-      arquivo: (log.ai_analysis as Record<string, string>).arquivo ?? '',
-      codigoDiff: (log.ai_analysis as Record<string, unknown>).codigoDiff as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['codigoDiff'],
-      categoria: (log.ai_analysis as Record<string, string>).categoria as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['categoria'],
-      confianca: (log.ai_analysis as Record<string, string>).confianca as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['confianca'],
-      commitSuspeito: (log.ai_analysis as Record<string, unknown>).commitSuspeito as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['commitSuspeito'],
-      modeloUsado: (log.ai_analysis as Record<string, string>).modeloUsado,
+    tipo: (log.tipo_teste as TipoTeste) || 'E2E',
+    modulo: log.modulo_teste || 'N/A',
+    teste: log.nome_teste || 'N/A',
+    resultado,
+    duracao: log.duracao_teste || 'N/A',
+    quantidadePassos: log.quantidade_passos_teste,
+    erroLog: log.log_erro_teste ?? undefined,
+    successLog: log.log_sucesso_teste ?? undefined,
+    emtPrints: Array.isArray(log.lista_prints_emt_teste) ? log.lista_prints_emt_teste : undefined,
+    emtPasta: typeof log.pasta_emt_teste === 'string' && log.pasta_emt_teste.length > 0 ? log.pasta_emt_teste : undefined,
+    aiAnalise: log.analise_ia_teste ? {
+      erroResumo: (log.analise_ia_teste as Record<string, string>).erroResumo ?? '',
+      motivo: (log.analise_ia_teste as Record<string, string>).motivo ?? '',
+      sugestaoCorrecao: (log.analise_ia_teste as Record<string, string>).sugestaoCorrecao ?? '',
+      arquivo: (log.analise_ia_teste as Record<string, string>).arquivo ?? '',
+      codigoDiff: (log.analise_ia_teste as Record<string, unknown>).codigoDiff as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['codigoDiff'],
+      categoria: (log.analise_ia_teste as Record<string, string>).categoria as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['categoria'],
+      confianca: (log.analise_ia_teste as Record<string, string>).confianca as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['confianca'],
+      commitSuspeito: (log.analise_ia_teste as Record<string, unknown>).commitSuspeito as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['commitSuspeito'],
+      modeloUsado: (log.analise_ia_teste as Record<string, string>).modeloUsado,
     } : undefined,
-    aiRejected: Boolean((log as unknown as Record<string, unknown>).ai_rejected),
+    aiRejected: Boolean((log.analise_ia_teste as Record<string, unknown> | null)?.rejeitado),
   }
 }
 

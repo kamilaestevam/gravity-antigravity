@@ -945,18 +945,24 @@ export const adminDeploysApi = {
 //   - adminMetricasLlmApi     → model LLMMetricas      (recurso /metricas-llm)
 
 export interface TesteApi {
-  id: string
-  created_at: string
-  type: string
-  module: string
-  test_name: string
-  result: string
-  duration: string
-  error_log: string | null
-  success_log?: string | null
-  emt_pasta?: string | null
-  emt_prints?: string[]
-  ai_analysis: Record<string, unknown> | null
+  id_teste: string
+  data_criacao_teste: string
+  tipo_teste: string
+  escopo_teste: string
+  sublocal_teste?: string | null
+  modulo_teste: string
+  nome_teste: string
+  id_plano_teste?: string | null
+  resultado_teste: string
+  duracao_teste: string
+  quantidade_passos_teste: number
+  log_erro_teste: string | null
+  log_sucesso_teste?: string | null
+  pasta_emt_teste?: string | null
+  lista_prints_emt_teste?: string[]
+  analise_ia_teste: Record<string, unknown> | null
+  ambiente_teste?: string
+  id_execucao_teste?: string | null
 }
 
 /** Plano de teste — espelha colunas do model TestePlano + atalhos do registry. */

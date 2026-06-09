@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { analyzeTestFailure } from './gemini-test-analyzer.js'
 import { readSpecFileContent } from './test-spec-content.js'
+import { atualizarCampoTeste } from './teste-persist.js'
 import type { AiAnalysis } from './test-schemas.js'
 
 export type LogEntryGravado = {
@@ -17,6 +18,7 @@ function resultadoEhFalha(result: string): boolean {
 }
 
 function atualizarAnaliseNoArquivo(filePath: string, id: string, analysis: AiAnalysis): void {
+  if (!filePath) return
   try {
     const content = JSON.parse(readFileSync(filePath, 'utf-8')) as Array<Record<string, unknown>>
     const idx = content.findIndex(e => e.id === id)
@@ -29,10 +31,6 @@ function atualizarAnaliseNoArquivo(filePath: string, id: string, analysis: AiAna
   }
 }
 
-/**
- * Dispara análise Gemini (ou fallback heurístico) para falhas recém-gravadas.
- * Fire-and-forget — atualiza o JSON do dia quando cada análise concluir.
- */
 export function enrichNewFailuresWithGemini(
   novosLogs: LogEntryGravado[],
   filePath: string,
@@ -47,9 +45,13 @@ export function enrichNewFailuresWithGemini(
       specFileContent: readSpecFileContent(falha as Record<string, unknown>),
       forceRefresh: false,
     })
-      .then(analysis => atualizarAnaliseNoArquivo(filePath, falha.id, analysis))
-      .catch(err => {
-        console.error(`[enrich-test-failures] Gemini falhou para ${falha.id}:`, err)
+      .then(async analysis => {
+        if (filePath) atualizarAnaliseNoArquivo(filePath, falha.id, analysis)
+        else {
+          const ok = await atualizarCampoTeste(falha.id, 'analise_ia_teste', analysis)
+          if (!ok) console.error(`[enrich-test-failures] Falha DB para ${falha.id}`)
+        }
       })
+      .catch(err => console.error(`[enrich-test-failures] Gemini falhou para ${falha.id}:`, err))
   }
 }

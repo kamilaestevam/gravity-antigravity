@@ -48,6 +48,16 @@ import {
 } from '../lib/ambiente-teste-execucao.js'
 import { extrairCasosDoPlano } from '../lib/extrair-casos-plano.js'
 import { appendTestLogEntries, listDailyTestLogFiles, testLogsDir } from '../lib/test-log-persist.js'
+import {
+  listarTestesDoBanco,
+  buscarTesteComoLogLegado,
+  buscarTestePorId,
+  entradaJsonLegadaParaApi,
+  persistirEntradasTeste,
+  atualizarCampoTeste,
+  type TesteApiRegistro,
+  type PersistTesteContexto,
+} from '../lib/teste-persist.js'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { analyzeTestFailure, getMetrics as getGeminiMetrics } from '../lib/gemini-test-analyzer.js'
 import { readSpecFileContent } from '../lib/test-spec-content.js'
@@ -1183,12 +1193,15 @@ adminRouter.patch('/planos-teste/:id_plano_teste', (req, res, next) => {
  */
 adminRouter.get('/testes', async (_req, res, next) => {
   try {
-    // Recovery: se há um run órfão (servidor reiniciou durante execução), processa
     processOrphanedRun()
+    const byId = new Map<string, TesteApiRegistro>()
 
-    const byId = new Map<string, Record<string, unknown>>()
+    try {
+      for (const log of await listarTestesDoBanco(500)) {
+        byId.set(log.id_teste, enrichirLogEmtApi(log))
+      }
+    } catch { /* migration pendente */ }
 
-    // 1. Lê arquivos diários YYYY-MM-DD.json (ignora emt-manifest / emt-runner-pid)
     try {
       const dir = join(process.cwd(), 'data', 'test-logs')
       if (existsSync(dir)) {
@@ -1197,56 +1210,55 @@ adminRouter.get('/testes', async (_req, res, next) => {
             const content = JSON.parse(readFileSync(join(dir, file), 'utf-8'))
             if (Array.isArray(content)) {
               for (const entry of content) {
-                if (entry && typeof entry === 'object' && typeof (entry as { id?: unknown }).id === 'string') {
-                  byId.set((entry as { id: string }).id, entry as Record<string, unknown>)
+                if (entry && typeof entry === 'object') {
+                  const legado = entradaJsonLegadaParaApi(entry as Record<string, unknown>)
+                  if (!byId.has(legado.id_teste)) byId.set(legado.id_teste, enrichirLogEmtApi(legado))
                 }
               }
             }
-          } catch { /* arquivo inválido — ignora */ }
+          } catch { /* ignora */ }
         }
       }
-    } catch { /* diretório não existe */ }
+    } catch { /* ok */ }
 
-    // 2. Merge com banco (complementa, não substitui — id é único)
-    try {
-      const dbLogs = await (prisma as any).testLog?.findMany?.({
-        orderBy: { created_at: 'desc' },
-        take: 500,
-      }) ?? []
-      for (const log of dbLogs) {
-        if (log && typeof log.id === 'string' && !byId.has(log.id)) {
-          byId.set(log.id, log)
-        }
-      }
-    } catch {
-      // Tabela não existe — ok
-    }
-
-    // 3. Ordena por created_at DESC (mais recentes primeiro), com id DESC como
-    //    tiebreaker — IDs são da forma "${Date.now()}-${i}", então id DESC dentro
-    //    do mesmo created_at coloca o último teste do batch no topo.
-    //    Sem tiebreaker, todas as 300+ entradas de um run em lote ficavam na
-    //    ordem alfabética do nome do teste (ordem de execução do Playwright).
-    const logs = Array.from(byId.values())
-      .map(entry => enrichirLogEmt(
-        entry,
-        specFileDoRegistry(String(entry.module ?? '')),
-      ))
-      .sort((a, b) => {
-      const ta = String(a.created_at ?? '')
-      const tb = String(b.created_at ?? '')
-      const cmp = tb.localeCompare(ta)
+    const logs = Array.from(byId.values()).sort((a, b) => {
+      const cmp = b.data_criacao_teste.localeCompare(a.data_criacao_teste)
       if (cmp !== 0) return cmp
-      const ida = String(a.id ?? '')
-      const idb = String(b.id ?? '')
-      return idb.localeCompare(ida, undefined, { numeric: true })
+      return b.id_teste.localeCompare(a.id_teste, undefined, { numeric: true })
     })
-
     res.json({ logs })
   } catch (err) {
     next(err)
   }
 })
+
+function enrichirLogEmtApi(reg: TesteApiRegistro): TesteApiRegistro {
+  const enriched = enrichirLogEmt(
+    {
+      id: reg.id_teste,
+      created_at: reg.data_criacao_teste,
+      type: reg.tipo_teste,
+      module: reg.modulo_teste,
+      test_name: reg.nome_teste,
+      result: reg.resultado_teste,
+      emt_pasta: reg.pasta_emt_teste,
+      success_log: reg.log_sucesso_teste,
+      error_log: reg.log_erro_teste,
+      emt_prints: reg.lista_prints_emt_teste,
+    },
+    specFileDoRegistry(reg.modulo_teste),
+  )
+  return {
+    ...reg,
+    pasta_emt_teste: typeof enriched.emt_pasta === 'string' && enriched.emt_pasta.length > 0
+      ? enriched.emt_pasta : reg.pasta_emt_teste,
+    log_sucesso_teste: typeof enriched.success_log === 'string' && enriched.success_log.length > 0
+      ? enriched.success_log : reg.log_sucesso_teste,
+    lista_prints_emt_teste: Array.isArray(enriched.emt_prints)
+      ? enriched.emt_prints.filter((p): p is string => typeof p === 'string')
+      : reg.lista_prints_emt_teste,
+  }
+}
 
 // ── Constantes para run-tests ─────────────────────────────────────────────────
 const RUN_MARKER_PATH = join(testLogsDir, '_current-run.json')
@@ -1261,8 +1273,19 @@ interface RunMarker {
   pid: number
   started_at: string
   runId: string
-  /** EMT usa processo filho detached; E2E usa spawn Playwright no cfg-back. */
   runner?: 'EMT' | 'E2E'
+  ambiente_teste?: string
+  disparado_por_teste?: string
+}
+
+function ctxDoMarker(marker: RunMarker): PersistTesteContexto {
+  return {
+    id_execucao_teste: marker.runId,
+    ambiente_teste: marker.ambiente_teste ?? 'Local',
+    disparado_por_teste: marker.disparado_por_teste,
+    gatilho_teste: 'manual',
+    data_criacao_teste: marker.started_at,
+  }
 }
 
 function readRunMarker(): RunMarker | null {
@@ -1302,7 +1325,7 @@ function finalizeEmtRun(marker: RunMarker, debugLog?: (msg: string) => void): vo
     try {
       const raw = JSON.parse(readFileSync(resultPath, 'utf-8')) as { entries: TestLogEntry[] }
       if (Array.isArray(raw.entries) && raw.entries.length > 0) {
-        appendTestLogEntries(raw.entries, log, marker.started_at)
+        void appendTestLogEntries(raw.entries, log, marker.started_at, ctxDoMarker(marker))
       }
       unlinkSync(resultPath)
       log(`EMT finalize ${marker.runId} — ${raw.entries?.length ?? 0} entries`)
@@ -1323,7 +1346,7 @@ function finalizeEmtRun(marker: RunMarker, debugLog?: (msg: string) => void): vo
       'Run EMT interrompido antes de gravar resultado (cfg-back reiniciou via tsx watch, ou processo filho morreu). '
       + 'Aguarde ~2 min na próxima execução sem reiniciar o cfg-back.',
     ai_analysis: null,
-  }], log, marker.started_at)
+  }], log, marker.started_at, ctxDoMarker(marker))
   log(`EMT finalize ${marker.runId} — orphan sem emt-result (gravado ERRO)`)
   clearRunMarker()
 }
@@ -1393,15 +1416,7 @@ function processOrphanedRun(): void {
   }
 
   if (entries.length > 0) {
-    const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)
-    let existing: unknown[] = []
-    try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
-    const novosLogs = entries.map((e, i) => ({
-      id: `${Date.now()}-${i}`,
-      created_at,
-      ...e,
-    }))
-    writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
+    void appendTestLogEntries(entries, undefined, created_at, ctxDoMarker(marker))
   }
 
   try { unlinkSync(stdoutPath) } catch { /* ok */ }
@@ -1621,11 +1636,16 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     debugLog('=== NEW RUN ===')
     debugLog(`runId=${runId} ambiente=${ambiente ?? 'Local'}`)
 
+    const markerCtx = {
+      ambiente_teste: ambiente ?? 'Local',
+      disparado_por_teste: req.auth.id_usuario,
+    }
+
     if (planosEmtResolvidos.length > 0) {
       debugLog(`cmd=EMT detached (${planosEmtResolvidos.length} scripts)`)
       const started_at = new Date().toISOString()
       const childPid = spawnEmtRunnerDetached(runId, planosEmtResolvidos, testEnv, started_at, debugLog)
-      writeRunMarker({ status: 'running', pid: childPid, started_at, runId, runner: 'EMT' })
+      writeRunMarker({ status: 'running', pid: childPid, started_at, runId, runner: 'EMT', ...markerCtx })
       res.json({ started: true })
       return
     }
@@ -1656,7 +1676,9 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     const pid = proc.pid ?? 0
     debugLog(`spawn pid=${pid}`)
 
-    writeRunMarker({ status: 'running', pid, started_at: new Date().toISOString(), runId, runner: 'E2E' })
+    writeRunMarker({
+      status: 'running', pid, started_at: new Date().toISOString(), runId, runner: 'E2E', ...markerCtx,
+    })
     res.json({ started: true })
 
     // Stdout/stderr → arquivo em disco (sobrevive a restart do servidor)
@@ -1741,20 +1763,12 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
         }
       }
 
-      const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)
-      let existing: unknown[] = []
-      try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
-      const novosLogs = entries.map((e, i) => ({
-        id: `${Date.now()}-${i}`,
-        created_at,
-        ...e,
-      }))
-      try {
-        writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
-        debugLog(`WROTE ${novosLogs.length} entries to ${filePath}`)
-      } catch (writeErr) {
-        debugLog(`WRITE FAILED: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`)
-      }
+      void appendTestLogEntries(entries, debugLog, created_at, {
+        id_execucao_teste: runId,
+        ambiente_teste: ambiente ?? 'Local',
+        disparado_por_teste: req.auth.id_usuario,
+        gatilho_teste: 'manual',
+      })
 
       // Limpa arquivos intermediários e marker
       try { unlinkSync(stdoutPath) } catch { /* ok */ }
@@ -1816,7 +1830,10 @@ adminRouter.get('/testes/emt-print/:id_log/:nome_arquivo', async (req, res, next
     }
     const idLog = req.params.id_log
     const nomeArquivo = decodeURIComponent(req.params.nome_arquivo)
-    const logEntry = buscarLogTestePorId(idLog, testLogsDir)
+    const dbLog = await buscarTestePorId(idLog)
+    const logEntry = dbLog
+      ? { type: dbLog.tipo_teste, module: dbLog.modulo_teste, emt_pasta: dbLog.pasta_emt_teste, created_at: dbLog.data_criacao_teste }
+      : buscarLogTestePorId(idLog, testLogsDir)
     if (!logEntry || logEntry.type !== 'EMT') {
       throw new AppError('Log EMT não encontrado', 404, 'NOT_FOUND')
     }
@@ -1882,42 +1899,24 @@ adminRouter.post('/testes', async (req, res, next) => {
 
     const { entries } = parse.data
     const created_at = new Date().toISOString()
-    let salvouNoBanco = false
+    const { salvouNoBanco } = await persistirEntradasTeste(entries, {
+      ambiente_teste: 'Local',
+      gatilho_teste: 'ci',
+      disparado_por_teste: req.auth.id_usuario,
+      data_criacao_teste: created_at,
+    })
 
-    // Tenta salvar no banco (requer migração futura com modelo Testes)
-    try {
-      if ((prisma as any).testLog?.createMany) {
-        await (prisma as any).testLog.createMany({
-          data: entries.map(e => ({
-            type:      e.type,
-            module:    e.module,
-            test_name: e.test_name,
-            result:    e.result,
-            duration:  e.duration,
-            error_log: e.error_log ?? null,
-            created_at,
-          })),
-        })
-        salvouNoBanco = true
-      }
-    } catch {
-      // Tabela não existe ainda — fallback para arquivo JSON
-    }
-
-    // Fallback: persiste em arquivo JSON local (lido pela mesma GET /test-logs via merge futuro)
     if (!salvouNoBanco) {
-      const { writeFileSync, readFileSync, mkdirSync } = await import('fs')
-      const { join } = await import('path')
       const dir = join(process.cwd(), 'data', 'test-logs')
       mkdirSync(dir, { recursive: true })
       const filePath = join(dir, `${created_at.slice(0, 10)}.json`)
       let existing: unknown[] = []
-      try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo arquivo */ }
+      try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
       const novosLogs = entries.map((e, i) => ({
         id: `${Date.now()}-${i}`,
         created_at,
         ...e,
-        error_log:   e.error_log ?? null,
+        error_log: e.error_log ?? null,
         ai_analysis: e.ai_analysis ?? null,
       }))
       writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
@@ -2397,7 +2396,7 @@ adminRouter.post('/testes/:id_teste/reanalisar', async (req, res, next) => {
       throw new AppError('Apenas Super Admin pode reanalizar', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id_teste)
+    const logEntry = await findLogEntryAsync(req.params.id_teste)
     if (!logEntry) {
       throw new AppError('Teste não encontrado', 404, 'NOT_FOUND')
     }
@@ -2447,7 +2446,7 @@ adminRouter.post('/testes/:id_teste/aplicar-correcao', async (req, res, next) =>
       throw new AppError('Apenas Super Admin pode aplicar correções', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id_teste)
+    const logEntry = await findLogEntryAsync(req.params.id_teste)
     if (!logEntry) {
       throw new AppError('Teste não encontrado', 404, 'NOT_FOUND')
     }
@@ -2513,7 +2512,7 @@ adminRouter.post('/testes/:id_teste/rejeitar', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Motivo é obrigatório', 400, 'VALIDATION_ERROR')
     }
 
-    const logEntry = findLogEntry(req.params.id_teste)
+    const logEntry = await findLogEntryAsync(req.params.id_teste)
     if (!logEntry) {
       throw new AppError('Teste não encontrado', 404, 'NOT_FOUND')
     }
@@ -2547,10 +2546,11 @@ adminRouter.post('/testes/:id_teste/rejeitar', async (req, res, next) => {
 
 // ─── Helpers para manipular log entries em arquivos JSON ─────────────────────
 
-function findLogEntry(id: string): Record<string, unknown> | null {
+async function findLogEntryAsync(id: string): Promise<Record<string, unknown> | null> {
+  const db = await buscarTesteComoLogLegado(id)
+  if (db) return db
   const dir = join(process.cwd(), 'data', 'test-logs')
   if (!existsSync(dir)) return null
-
   for (const file of listDailyTestLogFiles(14)) {
     try {
       const content = JSON.parse(readFileSync(join(dir, file), 'utf-8'))
@@ -2564,10 +2564,13 @@ function findLogEntry(id: string): Record<string, unknown> | null {
 }
 
 function updateLogEntryAnalysis(id: string, analysis: Record<string, unknown>): void {
-  updateLogEntryField(id, 'ai_analysis', analysis)
+  void atualizarCampoTeste(id, 'analise_ia_teste', analysis).then(ok => {
+    if (!ok) updateLogEntryField(id, 'ai_analysis', analysis)
+  })
 }
 
 function updateLogEntryField(id: string, field: string, value: unknown): void {
+  if (field === 'ai_analysis') void atualizarCampoTeste(id, 'analise_ia_teste', value)
   const dir = join(process.cwd(), 'data', 'test-logs')
   if (!existsSync(dir)) return
 

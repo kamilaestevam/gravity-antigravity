@@ -220,6 +220,7 @@ export function resolverCursorBloqueadoCelulaLista<T>(
   col: GTColuna<T>,
   row: T,
 ): boolean {
+  if (col.celulaInterativa === true) return false
   if (col.editavel === false) return true
   if (typeof col.editavel === 'function') return !col.editavel(row)
   return false
@@ -231,6 +232,7 @@ export function resolverCursorBloqueadoMapaFilho<C>(
   entry: GTMapaColunasFilho<C> | undefined,
   row: C,
 ): boolean {
+  if (key.startsWith('anexo_')) return false
   if (CHAVES_COLUNA_INLINE_BLOQUEADA_ITEM.has(key)) return true
   if (entry?.editavel === false) return true
   if (typeof entry?.editavel === 'function') return !entry.editavel(row)

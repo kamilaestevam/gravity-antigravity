@@ -33,7 +33,7 @@ import {
   urlVincularImportador,
 } from './urlsDeepLinkConfigurador'
 import { renderRotuloCadastro, type GTOpcaoCadastro } from '../../shared/useLogisticaCadastrosPedido'
-import { renderColunaAnexoPedido } from '../../shared/renderCelulaAnexoLista'
+import { METADADOS_COLUNA_ANEXO_LISTA, renderColunaAnexoPedido } from '../../shared/renderCelulaAnexoLista'
 
 // Re-export so callers that used to import from ListaPedidos still work
 export { LABELS_FILTRO_INVERSO }
@@ -1749,8 +1749,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'anexo_pedido',
     label: t('pedido.coluna_pai.anexo_pedido'),
     tipo: 'texto',
-    align: 'center',
-    editavel: false,
+    ...METADADOS_COLUNA_ANEXO_LISTA,
     grupo: 'Identificação',
     tooltipTitulo: t('pedido.coluna_pai.anexo_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.anexo_pedido_desc'),
@@ -1761,8 +1760,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'anexo_proforma',
     label: t('pedido.coluna_pai.anexo_proforma'),
     tipo: 'texto',
-    align: 'center',
-    editavel: false,
+    ...METADADOS_COLUNA_ANEXO_LISTA,
     grupo: 'Identificação',
     tooltipTitulo: t('pedido.coluna_pai.anexo_proforma_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.anexo_proforma_desc'),
@@ -1773,8 +1771,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     key: 'anexo_invoice',
     label: t('pedido.coluna_pai.anexo_invoice'),
     tipo: 'texto',
-    align: 'center',
-    editavel: false,
+    ...METADADOS_COLUNA_ANEXO_LISTA,
     grupo: 'Identificação',
     tooltipTitulo: t('pedido.coluna_pai.anexo_invoice_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.anexo_invoice_desc'),

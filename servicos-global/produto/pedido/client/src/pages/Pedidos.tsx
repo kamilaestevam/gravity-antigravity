@@ -3573,7 +3573,6 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   valor_total_cambio_pedido: {
     editavel: true,
     campo: 'valor_total_cambio_item_pedido',
-    apenasValorMoeda: true,
     casasDecimais: getCasas('valor_total_cambio_pedido', 2),
     getValorEditar: (row: PedidoItem) => {
       const enriquecido = row as PedidoItemEnriquecido
@@ -7434,11 +7433,14 @@ export default function Pedidos() {
       return enriquecidoMv
     }
 
-    // valor_total_cambio_item_pedido — popover só valor (moeda câmbio = outra coluna); PUT com número puro.
+    // valor_total_cambio_item_pedido — espelha valor_total_item: salva amount + moeda câmbio do item.
     if (campo === 'valor_total_cambio_item_pedido' || campo === 'valor_total_cambio_pedido') {
       let amount: number
+      let moedaCambio: string | null = null
       if (valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
-        amount = Number((valor as { amount?: unknown }).amount)
+        const mv = valor as { currency?: string; amount?: unknown }
+        amount = Number(mv.amount)
+        moedaCambio = extrairCodigoMoedaLista(mv.currency) ?? null
       } else {
         amount = Number(valor)
       }
@@ -7447,6 +7449,7 @@ export default function Pedidos() {
       }
       const atualizadoVtc = await pedidoItemApi.atualizar(pedido.id, id, {
         valor_total_cambio_item_pedido: amount,
+        ...(moedaCambio ? { moeda_cambio_item_pedido: moedaCambio } : {}),
       } as Partial<PedidoItem>)
         .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_valor_total_cambio_item', 'Erro ao salvar valor total do câmbio.')))
       const enriquecidoVtc: PedidoItemEnriquecido = {

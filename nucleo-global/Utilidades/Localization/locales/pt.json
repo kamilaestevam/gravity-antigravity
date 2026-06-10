@@ -7189,7 +7189,7 @@
         "dinamico_valor_total": "Pedido: bloqueado — soma dos totais dos itens na mesma moeda. Item: editável — valor e moeda. Alerta se tipos de moeda divergirem.",
         "valor_item_impacto_moeda": "A alteração da moeda nesse campo irá alterar também: Valor unitário do item",
         "valor_total_item_impacto_moeda_edicao": "A alteração da moeda aqui irá alterar também Moeda do Pedido/Item e Valor Unitário do Item",
-        "valor_total_cambio_impacto_edicao": "A alteração do valor aqui não altera a Moeda Câmbio — edite o valor em cada item; o pedido exibe a soma na mesma moeda de câmbio.",
+        "valor_total_cambio_impacto_edicao": "Alterar a moeda aqui também altera a Moeda Câmbio do item; o pedido exibe a soma quando todos os itens usam a mesma moeda de câmbio.",
         "valor_total_pedido_impacto_moeda": "A alteração da moeda aqui irá alterar também Moeda do Pedido/Item e Valor Unitário do Item",
         "valor_unitario_item_impacto_moeda": "A alteração da moeda irá alterar também Moeda do Pedido/Item e Valor Total do Pedido/Item",
         "dinamico_qtd_inicial": "Pedido: soma das quantidades iniciais (não editável). Item: editável — recalcula saldo e total do pedido.",

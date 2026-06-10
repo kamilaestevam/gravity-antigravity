@@ -1272,7 +1272,6 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     tipo: 'moeda',
     align: 'center',
     casasDecimais: getCasas('valor_total_cambio_pedido', 2),
-    apenasValorMoeda: true,
     editavel: false,
     filtravel: true,
     avisoImpacto: t('pedido.lista.regras_coluna.valor_total_cambio_impacto_edicao'),

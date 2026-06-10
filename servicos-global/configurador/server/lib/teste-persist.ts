@@ -1,8 +1,6 @@
 import { Prisma } from '../../../../configurador/generated/index.js'
-import { resolve } from 'path'
 import { prisma } from './prisma.js'
-import { lerResultadoTxtDaPasta } from './emt-artifacts.js'
-import { raizRepositorioGravity } from './raiz-repositorio-gravity.js'
+import { lerResultadoTxtDaPasta, resolverPastaEmtAbsoluta } from './emt-artifacts.js'
 import type { TestLogEntry } from '../utils/playwright-parser.js'
 
 export interface PersistTesteContexto {
@@ -57,8 +55,8 @@ export function extrairIdPlanoTeste(modulo: string): string | null {
 function textoLogEmt(entry: TestLogEntry): string {
   const pasta = entry.emt_pasta
   if (pasta) {
-    const abs = resolve(raizRepositorioGravity, pasta)
-    return lerResultadoTxtDaPasta(abs) ?? entry.success_log ?? entry.error_log ?? ''
+    const abs = resolverPastaEmtAbsoluta(pasta)
+    if (abs) return lerResultadoTxtDaPasta(abs) ?? entry.success_log ?? entry.error_log ?? ''
   }
   return entry.success_log ?? entry.error_log ?? ''
 }
@@ -78,8 +76,8 @@ export function calcularQuantidadePassosTeste(entry: TestLogEntry): number {
 function resolverLogSucessoTeste(entry: TestLogEntry): string | null {
   if (entry.type !== 'EMT') return entry.success_log ?? null
   if (entry.emt_pasta) {
-    const abs = resolve(raizRepositorioGravity, entry.emt_pasta)
-    return lerResultadoTxtDaPasta(abs) ?? entry.success_log ?? null
+    const abs = resolverPastaEmtAbsoluta(entry.emt_pasta)
+    if (abs) return lerResultadoTxtDaPasta(abs) ?? entry.success_log ?? null
   }
   return entry.success_log ?? null
 }

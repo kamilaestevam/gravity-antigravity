@@ -4,8 +4,10 @@
 
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'node:url'
-import { createReadStream, existsSync } from 'node:fs'
+import { mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
+import { middlewareServirPrintEmt } from './lib/servir-print-emt.js'
+import { dirArtefatosEmtPersistente } from './lib/emt-artifacts.js'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 // Chaves globais (GEMINI_API_KEY, CHAVE_INTERNA_SERVICO) vêm do .env.local da raiz
@@ -60,6 +62,7 @@ import { prisma } from './lib/prisma.js'
 export const app = express()
 const PORT = Number(process.env.PORT ?? 8005)
 const monorepoRoot = resolve(__dir, '../../..')
+mkdirSync(dirArtefatosEmtPersistente(), { recursive: true })
 
 // ─── Trust proxy ────────────────────────────────────────────────────────────
 // Necessário em produção (Railway / load balancer): faz Express ler IP real
@@ -132,41 +135,8 @@ app.get('/health', async (_req, res) => {
   })
 })
 
-// ─── Dev: prints EMT locais (mesmo contrato do Vite /dev-emt-artifacts) ───────
-if (process.env.NODE_ENV !== 'production' && !process.env.RAILWAY_ENVIRONMENT) {
-  app.use('/dev-emt-artifacts', (req, res, next) => {
-    if (req.method !== 'GET' && req.method !== 'HEAD') {
-      next()
-      return
-    }
-    const rel = decodeURIComponent((req.url ?? '').split('?')[0].replace(/^\//, '')).replace(/\\/g, '/')
-    if (
-      !rel.startsWith('testes/testes-em-tela/')
-      || !rel.includes('/resultado-teste/')
-      || !rel.endsWith('.png')
-      || rel.includes('..')
-    ) {
-      res.status(403).end('Forbidden')
-      return
-    }
-    const abs = resolve(monorepoRoot, rel)
-    if (!abs.startsWith(resolve(monorepoRoot))) {
-      res.status(403).end('Forbidden')
-      return
-    }
-    if (!existsSync(abs)) {
-      res.status(404).end('Not found')
-      return
-    }
-    res.setHeader('Content-Type', 'image/png')
-    res.setHeader('Cache-Control', 'private, max-age=300')
-    if (req.method === 'HEAD') {
-      res.status(200).end()
-      return
-    }
-    createReadStream(abs).pipe(res)
-  })
-}
+// ─── Prints EMT (dev + produção) — monorepo + data/emt-artifacts persistente ─
+app.use('/dev-emt-artifacts', middlewareServirPrintEmt)
 
 // ─── Rate Limiting (endpoints publicos e webhooks) ─────────────────────────
 app.use('/api/v1/webhooks', rateLimitPresets.webhook())

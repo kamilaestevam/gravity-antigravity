@@ -217,10 +217,15 @@ function formatarDuracaoMinutosSegundos(duracao: string): string {
   return `${minutos}min ${segundos}s`
 }
 
-/** Extrai pasta relativa do monorepo a partir do success_log (linha "Pasta: ..."). */
+/** Extrai pasta relativa a partir do success_log (linha "Pasta: ..."). */
 function extrairEmtPastaRelativa(texto?: string | null): string | undefined {
   if (!texto) return undefined
   const normalizado = texto.replace(/\\/g, '/')
+  const idxPersist = normalizado.indexOf('data/emt-artifacts/testes/testes-em-tela/')
+  if (idxPersist >= 0) {
+    const trecho = normalizado.slice(idxPersist).split(/\s/)[0]?.replace(/\/+$/, '')
+    if (trecho?.includes('/resultado-teste/')) return trecho
+  }
   const idx = normalizado.indexOf('testes/testes-em-tela/')
   if (idx < 0) return undefined
   const trecho = normalizado.slice(idx).split(/\s/)[0]?.replace(/\/+$/, '')
@@ -816,15 +821,16 @@ function LightboxPrintEmt({
 }
 
 function EmtPrintImagem({ logId, arquivo, emtPasta }: { logId: string; arquivo: string; emtPasta?: string }) {
-  const [modo, setModo] = useState<ModoPrintEmt>(emtPasta ? 'dev' : 'api')
+  const preferirDev = import.meta.env.DEV && Boolean(emtPasta)
+  const [modo, setModo] = useState<ModoPrintEmt>(preferirDev ? 'dev' : 'api')
   const [apiSrc, setApiSrc] = useState<string | null>(null)
   const [ampliado, setAmpliado] = useState(false)
 
   useEffect(() => {
-    setModo(emtPasta ? 'dev' : 'api')
+    setModo(preferirDev ? 'dev' : 'api')
     setApiSrc(null)
     setAmpliado(false)
-  }, [logId, arquivo, emtPasta])
+  }, [logId, arquivo, emtPasta, preferirDev])
 
   useEffect(() => {
     if (modo !== 'api') return

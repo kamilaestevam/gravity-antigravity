@@ -1269,22 +1269,32 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
   {
     key: 'valor_total_cambio_pedido',
     label: t('pedido.coluna_pai.valor_total_cambio'),
-    tipo: 'numero',
-    align: 'left',
-    casasDecimais: 2,
-    editavel: getEditavel('valor_total_cambio_pedido'),
+    tipo: 'moeda',
+    align: 'center',
+    casasDecimais: getCasas('valor_total_cambio_pedido', 2),
+    apenasValorMoeda: true,
+    editavel: false,
+    filtravel: true,
+    avisoImpacto: t('pedido.lista.regras_coluna.valor_total_cambio_impacto_edicao'),
     tooltipTitulo: t('pedido.coluna_pai.valor_total_cambio_titulo', { defaultValue: t('pedido.coluna_pai.valor_total_cambio') }),
     tooltipDescricao: t('pedido.coluna_pai.valor_total_cambio_desc', { defaultValue: '' }),
     grupo: 'Câmbio',
     render: (_val: unknown, row: Pedido) => {
-      const moeda = row.moeda_cambio_pedido ?? row.moeda_pedido ?? 'BRL'
-      const num = Number(row.valor_total_cambio_pedido)
-      if (row.valor_total_cambio_pedido == null || isNaN(num)) return <span>{'—'}</span>
-      return (
-        <span className="gtv-celula-moeda">
-          <span className={classeMoedaBadge(moeda)}>{moeda}</span>
-          {fmtQuantidade(num, 2)}
-        </span>
+      const casas = getCasas('valor_total_cambio_pedido', 2)
+      const moeda = obterMoedaCambioExibicaoPedido(row as Record<string, unknown>)
+      const codigo = codigoMoedaBadgeLista(moeda)
+      const num = row.valor_total_cambio_pedido != null ? Number(row.valor_total_cambio_pedido) : null
+      const valorNode =
+        num != null && !isNaN(num) ? (
+          <span className="gtv-celula-moeda">
+            {codigo ? <span className={classeMoedaBadge(codigo)}>{codigo}</span> : null}
+            {fmtQuantidade(num, casas)}
+          </span>
+        ) : null
+      return renderAgregado(
+        valorNode,
+        row.moeda_cambio_pedido_divergente,
+        t('pedido.coluna_pai.moedas_cambio_divergentes'),
       )
     },
   },

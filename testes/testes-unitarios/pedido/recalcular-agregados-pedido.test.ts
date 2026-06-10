@@ -425,6 +425,33 @@ describe('recalcularAgregadosPedido — homogeneidade (Onda A8)', () => {
     const data = (updateCalls[0] as any).data
     expect(data.valor_total_pedido).toBe(250)        // só USD contribui → soma
   })
+
+  it('qty × peso excede Decimal(18,6) → agregados físicos null sem abortar valor', async () => {
+    const { tx, updateCalls } = fabricarTx({
+      pedido: PEDIDO_PADRAO,
+      itens: [
+        {
+          valor_total_item: 60_012,
+          quantidade_inicial_item: 6_000_000_000,
+          peso_liquido_unitario_item: 200,
+          peso_bruto_unitario_item: 200,
+          cubagem_unitaria_item: 200,
+          moeda_item: 'USD',
+          unidade_comercializada_item: 'UN',
+        },
+      ],
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await recalcularAgregadosPedido(tx as any, PEDIDO_ID, ORG)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = (updateCalls[0] as any).data
+    expect(data.valor_total_pedido).toBe(60_012)
+    expect(data.peso_liquido_total_pedido).toBeNull()
+    expect(data.peso_bruto_total_pedido).toBeNull()
+    expect(data.cubagem_total_pedido).toBeNull()
+  })
 })
 
 // ─── campoItemAfetaAgregado ──────────────────────────────────────────────────

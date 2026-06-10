@@ -524,6 +524,7 @@ interface GTEditPopoverProps {
     gabiEndpoint?: string
     avisoImpacto?: string
     apenasUnidade?: boolean
+    apenasValorMoeda?: boolean
     linkPopoverEdicao?: { label: string; href: string }
     rotuloUnidadeSelecionada?: (unit: string) => string
     formatarValorUnidade?: (valor: GTValorUnidade) => string
@@ -740,8 +741,12 @@ const GTEditPopover = memo(function GTEditPopover({
       const parsed = parseBRNum(displayQty)
       onAtualizar({ ...uv, quantity: parsed })
     }
+    if (isMoeda) {
+      const parsed = parseBRNum(displayMoedaAmt)
+      onAtualizar({ ...mv, amount: parsed })
+    }
     onConfirmar({ replicar_em_itens: replicarEmItens })
-  }, [onConfirmar, replicarEmItens, isTextoLivre, onAtualizar, isUnidadeComposta, displayQty, uv])
+  }, [onConfirmar, replicarEmItens, isTextoLivre, onAtualizar, isUnidadeComposta, displayQty, uv, isMoeda, displayMoedaAmt, mv])
 
   // Estado de aviso para input inválido (ex: letras em campo numérico)
   const [erroInput, setErroInput] = useState<string | null>(null)
@@ -811,6 +816,7 @@ const GTEditPopover = memo(function GTEditPopover({
     if (isMoeda) {
       const parsed = parseBRNum(displayMoedaAmt)
       setDisplayMoedaAmt(fmtBR(parsed, 2))
+      onAtualizar({ ...mv, amount: parsed })
     } else if (isUnidade && !overlayInfo.apenasUnidade) {
       const parsed = parseBRNum(displayQty)
       setDisplayQty(fmtBR(parsed, casas))
@@ -1155,22 +1161,28 @@ const GTEditPopover = memo(function GTEditPopover({
           })()
           : isMoeda ? (
             <div className="gtv-edit-moeda">
-              {/* Trigger — dropdown inline com busca e lista Siscomex completa */}
-              <div className="gtv-edit-custom-select">
-                <button
-                  ref={moedaTriggerRef}
-                  type="button"
-                  className="gtv-edit-custom-select-trigger"
-                  disabled={salvando}
-                  onMouseDown={e => { e.preventDefault(); e.stopPropagation(); if (moedaAberta) { setMoedaAberta(false) } else { dropdownAbrindoRef.current = true; abrirMoeda() } }}
-                >
-                  <span>{mv.currency}</span>
-                  <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
-                    style={{ transform: moedaAberta ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
-                    <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
-                  </svg>
-                </button>
-              </div>
+              {overlayInfo.apenasValorMoeda ? (
+                <span className="gtv-edit-custom-select-trigger gtv-edit-moeda-badge-fixa" aria-label="Moeda (somente leitura)">
+                  {mv.currency}
+                </span>
+              ) : (
+                /* Trigger — dropdown inline com busca e lista Siscomex completa */
+                <div className="gtv-edit-custom-select">
+                  <button
+                    ref={moedaTriggerRef}
+                    type="button"
+                    className="gtv-edit-custom-select-trigger"
+                    disabled={salvando}
+                    onMouseDown={e => { e.preventDefault(); e.stopPropagation(); if (moedaAberta) { setMoedaAberta(false) } else { dropdownAbrindoRef.current = true; abrirMoeda() } }}
+                  >
+                    <span>{mv.currency}</span>
+                    <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
+                      style={{ transform: moedaAberta ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
+                      <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
+                    </svg>
+                  </button>
+                </div>
+              )}
               <input
                 ref={inputRef}
                 autoFocus
@@ -2009,6 +2021,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     gabiEndpoint?: string
     avisoImpacto?: string
     apenasUnidade?: boolean
+    apenasValorMoeda?: boolean
     linkPopoverEdicao?: { label: string; href: string }
     rotuloUnidadeSelecionada?: (unit: string) => string
     formatarValorUnidade?: (valor: GTValorUnidade) => string
@@ -2028,6 +2041,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         unidades: colU.unidades ?? overlayInfo.unidades,
         casasDecimais: colU.casasDecimais ?? overlayInfo.casasDecimais,
         apenasUnidade: colU.apenasUnidade ?? overlayInfo.apenasUnidade,
+        apenasValorMoeda: colU.apenasValorMoeda ?? overlayInfo.apenasValorMoeda,
         avisoImpacto: colU.avisoImpacto ?? overlayInfo.avisoImpacto,
         rotuloUnidadeSelecionada: colU.rotuloUnidadeSelecionada ?? overlayInfo.rotuloUnidadeSelecionada,
         formatarValorUnidade: colU.formatarValorUnidade ?? overlayInfo.formatarValorUnidade,
@@ -2048,6 +2062,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       unidades: mapa?.unidades ?? colU?.unidades ?? overlayInfo.unidades,
       casasDecimais: mapa?.casasDecimais ?? colU?.casasDecimais ?? overlayInfo.casasDecimais,
       apenasUnidade: colU?.apenasUnidade ?? overlayInfo.apenasUnidade,
+      apenasValorMoeda: mapa?.apenasValorMoeda ?? colU?.apenasValorMoeda ?? overlayInfo.apenasValorMoeda,
       avisoImpacto: mapa?.avisoImpacto ?? colU?.avisoImpacto ?? overlayInfo.avisoImpacto,
       rotuloUnidadeSelecionada: mapa?.rotuloUnidadeSelecionada ?? colU?.rotuloUnidadeSelecionada ?? overlayInfo.rotuloUnidadeSelecionada,
       formatarValorUnidade: mapa?.formatarValorUnidade ?? colU?.formatarValorUnidade ?? overlayInfo.formatarValorUnidade,
@@ -3218,6 +3233,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais,
               gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint, avisoImpacto: colU.avisoImpacto,
               apenasUnidade: colU.apenasUnidade,
+              apenasValorMoeda: colU.apenasValorMoeda,
               linkPopoverEdicao: colU.linkPopoverEdicao?.(item),
               rotuloUnidadeSelecionada: colU.rotuloUnidadeSelecionada,
               formatarValorUnidade: colU.formatarValorUnidade,
@@ -3557,6 +3573,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais,
                     gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint,                     avisoImpacto: mapa?.avisoImpacto ?? colU2.avisoImpacto,
                     apenasUnidade: colU2.apenasUnidade,
+                    apenasValorMoeda: mapa?.apenasValorMoeda ?? colU2.apenasValorMoeda,
                     linkPopoverEdicao: colU2.linkPopoverEdicao?.(item as unknown),
                     rotuloUnidadeSelecionada: mapa?.rotuloUnidadeSelecionada ?? colU2.rotuloUnidadeSelecionada,
                     formatarValorUnidade: mapa?.formatarValorUnidade ?? colU2.formatarValorUnidade,

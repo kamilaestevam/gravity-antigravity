@@ -99,6 +99,9 @@ function avisoImpactoPorColuna(
   if (key === 'valor_total_pedido' && (nivel === 'pai' || nivel === 'item')) {
     return t('pedido.lista.regras_coluna.valor_total_item_impacto_moeda_edicao')
   }
+  if (key === 'valor_total_cambio_pedido' && nivel === 'item') {
+    return t('pedido.lista.regras_coluna.valor_total_cambio_impacto_edicao')
+  }
   if (key === 'quantidade_transferida_total') {
     return t('pedido.lista.regras_coluna.quantidade_transferida_edicao_via_transferir')
   }

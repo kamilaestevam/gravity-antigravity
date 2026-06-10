@@ -171,6 +171,17 @@ export const PILLS_PEDIDO_VALOR_TOTAL: RegraPillId[] = [
 /** Valor Total do Pedido/Item — linha do item. */
 export const PILLS_ITEM_VALOR_TOTAL: RegraPillId[] = ['editavel_nos_itens', 'valor_total_item_formula']
 
+/** Valor Total Câmbio — linha do pedido (soma na mesma moeda câmbio). */
+export const PILLS_PEDIDO_VALOR_TOTAL_CAMBIO: RegraPillId[] = [
+  'bloqueado_edicao',
+  'valor_total_soma_mesma_moeda',
+  'editavel_nos_itens',
+  'alerta_moeda_divergente_entre_itens',
+]
+
+/** Valor Total Câmbio — linha do item. */
+export const PILLS_ITEM_VALOR_TOTAL_CAMBIO: RegraPillId[] = ['editavel_nos_itens']
+
 /** Valor Total do Pedido/Item — cabeçalho sem itens expandidos (4 pills em sequência). */
 export const PILLS_COLUNA_VALOR_TOTAL: RegraPillId[] = [
   'bloqueado_edicao',
@@ -477,6 +488,10 @@ const MAPA_REGRA_PILLS: Record<RegraTooltipId, { pedido: RegraPillId[]; item: Re
     pedido: [...PILLS_PEDIDO_VALOR_TOTAL],
     item: [...PILLS_ITEM_VALOR_TOTAL],
   },
+  dinamico_valor_total_cambio: {
+    pedido: [...PILLS_PEDIDO_VALOR_TOTAL_CAMBIO],
+    item: [...PILLS_ITEM_VALOR_TOTAL_CAMBIO],
+  },
   dinamico_qtd_inicial: {
     pedido: [...PILLS_PEDIDO_QTD_INICIAL],
     item: [...PILLS_ITEM_QTD_INICIAL],
@@ -581,6 +596,7 @@ function limitarPills(pills: RegraPillId[], nivel: NivelColunaLista): RegraPillI
 
 function pillsItemPorColuna(key: string, pills: RegraPillId[]): RegraPillId[] {
   if (key === 'valor_total_pedido') return PILLS_ITEM_VALOR_TOTAL
+  if (key === 'valor_total_cambio_pedido') return PILLS_ITEM_VALOR_TOTAL_CAMBIO
   if (key === 'valor_por_unidade_item') return PILLS_ITEM_VALOR_UNITARIO
   if (key === 'moeda_pedido') return PILLS_ITEM_MOEDA
   if (key === 'moeda_cambio_pedido') return ['editavel_item']
@@ -768,6 +784,12 @@ export function pillsParaNivelColuna(
   }
   if (key === 'valor_total_pedido' && nivel === 'item') {
     return limitarPills([...PILLS_ITEM_VALOR_TOTAL], 'item')
+  }
+  if (key === 'valor_total_cambio_pedido' && nivel === 'pai') {
+    return limitarPills([...PILLS_PEDIDO_VALOR_TOTAL_CAMBIO], 'pai')
+  }
+  if (key === 'valor_total_cambio_pedido' && nivel === 'item') {
+    return limitarPills([...PILLS_ITEM_VALOR_TOTAL_CAMBIO], 'item')
   }
   if (key === 'quantidade_pronta_itens_pedido_total' && nivel === 'pai') {
     return limitarPills(PILLS_PEDIDO_QTD_PRONTA, 'pai')

@@ -43,6 +43,7 @@ export type RegraTooltipId =
   | 'pai_logistica'
   | 'item_logistica'
   | 'dinamico_valor_total'
+  | 'dinamico_valor_total_cambio'
   | 'dinamico_valor_unitario_item'
   | 'dinamico_qtd_inicial'
   | 'dinamico_qtd_pronta'
@@ -109,6 +110,7 @@ export const CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM = new Set([
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
+  'valor_total_cambio_pedido',
 ])
 
 const REGRA_DINAMICA_POR_CHAVE: Record<string, RegraTooltipId> = {
@@ -122,6 +124,7 @@ const REGRA_DINAMICA_POR_CHAVE: Record<string, RegraTooltipId> = {
   peso_liquido_total_pedido: 'dinamico_peso_liquido',
   peso_bruto_total_pedido: 'dinamico_peso_bruto',
   cubagem_total_pedido: 'dinamico_cubagem',
+  valor_total_cambio_pedido: 'dinamico_valor_total_cambio',
 }
 
 function isCampoData(key: string): boolean {
@@ -231,6 +234,10 @@ export function classificarRegraTooltipColuna(
   if (key === 'valor_total_pedido') {
     if (opts?.modoDinamicoPedidoItem) return 'dinamico_valor_total'
     return 'pai_calculado_valor'
+  }
+  if (key === 'valor_total_cambio_pedido') {
+    if (opts?.modoDinamicoPedidoItem) return 'dinamico_valor_total_cambio'
+    return 'pai_moeda_cambio'
   }
   if (key === 'moeda_pedido') return 'pai_moeda_pedido'
   if (key === 'unidade_comercializada_pedido') return 'pai_unidade_comercializada'

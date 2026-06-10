@@ -131,6 +131,11 @@ export function tituloTooltipCelulaPorColuna(
       ? t('pedido.coluna_pai.valor_total_item_titulo')
       : t('pedido.coluna_pai.valor_total_pedido_titulo_linha_pedido')
   }
+  if (key === 'valor_total_cambio_pedido') {
+    return isFilho
+      ? t('pedido.coluna_pai.valor_total_cambio_item_titulo', { defaultValue: 'Valor Total Câmbio do Item' })
+      : t('pedido.coluna_pai.valor_total_cambio_titulo_linha_pedido', { defaultValue: 'Valor total do câmbio' })
+  }
   if (key === 'unidade_comercializada_pedido') {
     return isFilho
       ? t('pedido.coluna_pai.unidade_comercializada_item_titulo')

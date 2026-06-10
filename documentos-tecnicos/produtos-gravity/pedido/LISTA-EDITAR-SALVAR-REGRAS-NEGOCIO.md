@@ -81,7 +81,7 @@ Texto livre orientado ao operador — ex.: *«A alteração da moeda irá altera
 |--------|-------------------------------------|------------------------------|
 | Moeda | ✅ MND-01…08 + tooltips §0 | ✅ |
 | Valor total (`valor_total_pedido`) | ✅ VLR-01…10 + tooltips §0 | ✅ |
-| Valor unitário | Em migração (piloto no código) | 🟡 parcial |
+| Valor unitário (`valor_por_unidade_item`) | ✅ VUN-01…10 + tooltips §0 | ✅ |
 | Logística (LOG-06) | ✅ pills definidas | 🟡 títulos `{Coluna} do Pedido/Item` pendentes |
 | Anexos (`anexo_*`) | ✅ §8P ANX-01…10 | ✅ |
 | Demais seções 1–8 | Regras de edição + pills pontuais | 🟡 revisão campo a campo pelo dono |
@@ -312,6 +312,29 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 ---
 
+## 8A-UNIT. VALOR UNITÁRIO DO ITEM (`valor_por_unidade_item`)
+
+> Decisão de produto **2026-06-08** — coluna entre Moeda e Valor Total; pedido **bloqueado** (sem somatória); item editável via popover **moeda + valor**; recalcula `valor_total_item` (= unitário × Qtd. Inicial).
+
+| # | Regra |
+|---|--------|
+| **VUN-01** | Label na grade: **Valor Unitário do Item** — tooltip pedido: *Valor Unitário do Item - Linha Pedido*; item: *Valor Unitário do Item*. |
+| **VUN-02** | Linha **pedido** **bloqueada** — cursor `not-allowed`; exibe `—` ou alerta âmbar *Moedas divergentes entre itens* (`moeda_item_divergente`). |
+| **VUN-03** | Linha **item** **editável** — popover moeda + valor (`GTValorMoeda`); exibição badge moeda + valor (ex.: `GBP 100,00`). |
+| **VUN-04** | Tooltip **pedido**: `bloqueado_edicao` → `valor_unitario_sem_somatoria` → `alerta_moeda_divergente`. |
+| **VUN-05** | Tooltip **item**: `editavel_nos_itens` + aviso *«A alteração da moeda irá alterar também Moeda do Pedido/Item e Valor Total do Pedido/Item»*. |
+| **VUN-06** | **Sem** somatória no pedido — não agrega unitários dos itens. |
+| **VUN-07** | Salvar unitário no item recalcula **Valor Total do Item** (= unitário × Qtd. Inicial) na grade. |
+| **VUN-08** | Moedas divergentes entre itens → alerta âmbar na célula do **pedido** nesta coluna. |
+| **VUN-09** | Casas decimais de Config (`valor_por_unidade_item`). |
+| **VUN-10** | Persistência hub → lista (passo 71 EMT). |
+
+**Código:** `PILLS_PEDIDO_VALOR_UNITARIO_ITEM` / `PILLS_ITEM_VALOR_UNITARIO` · `dinamico_valor_unitario_item` · `gtv-celula-moeda`.
+
+**EMT:** passos 62–71 (ETAPA 21) · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
 ## 8A. VALOR TOTAL DO PEDIDO/ITEM (`valor_total_pedido`)
 
 > Decisão de produto **2026-06-08** — coluna dinâmica pedido/item. Pedido **não editável**; item via popover **moeda + valor** (`.gtv-edit-moeda-valor`). Tooltips alinhados ao framework §0.
@@ -321,13 +344,13 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | **VLR-01** | Label na grade: **Valor Total do Pedido/Item** — títulos de tooltip: *Valor total do pedido* (pai) / *Valor Total do Item* (filho). |
 | **VLR-02** | Linha **pedido** **bloqueada** — cursor `not-allowed`; exibe soma dos `valor_total_item` na **mesma moeda** ou `—` se moedas divergirem. |
 | **VLR-03** | Linha **item** **editável** — popover moeda + valor; item vazio pode incluir valor e qualquer moeda e salvar. |
-| **VLR-04** | Valor preenchido do item = **Valor unitário do item × Qtd. Inicial do Item** (pill de fórmula na tooltip do item). |
+| **VLR-04** | Valor preenchido do item = **Valor unitário do item × Qtd. Inicial do Item** (pill de fórmula na tooltip do item) — validado na **ETAPA 21** (passo 68). |
 | **VLR-05** | Ao abrir o popover em item preenchido, exibir **valor e moeda originais** antes da edição. |
 | **VLR-06** | Alterar valor/moeda no item persiste `valor_total_item` + `moeda_item` e recalcula agregado do pedido. |
 | **VLR-07** | **Alerta âmbar** na célula do **pedido** quando itens têm moedas divergentes no valor (`moeda_item_divergente`) — *Moedas divergentes entre itens*. |
 | **VLR-08** | **Aviso amarelo** no tooltip **pedido e item**: *A alteração da moeda aqui irá alterar também Moeda do Pedido/Item e Valor Unitário do Item* (`valor_total_item_impacto_moeda_edicao`). |
 | **VLR-09** | Alterar moeda no popover do item propaga impacto em `moeda_item`, `valor_por_unidade_item` e agregados (sincronização local pós-save). |
-| **VLR-10** | Sair da Lista e voltar — valores e moedas salvos nos itens **persistem** na grade (passo 71 EMT). |
+| **VLR-10** | Sair da Lista e voltar — valores e moedas salvos nos itens **persistem** na grade (passo 81 EMT). |
 
 ### Tooltips (framework §0)
 
@@ -339,7 +362,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `PILLS_PEDIDO_VALOR_TOTAL` / `PILLS_ITEM_VALOR_TOTAL` · `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` · `enriquecerColunaBloqueadaInlinePedido` em `buildTooltipRegraLista.tsx`.
 
-**EMT:** passos 62–71 (ordem exata regras 01–08) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 72–81 (ordem exata regras 01–08) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -829,7 +852,8 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | 2026-06-06 | INCOTERM — INC-01…08; EMT passos 21–24 (select Cadastros + checkbox + alerta divergência) |
 | 2026-06-07 | §0 Framework tooltips (linha pedido / linha item / avisos); LOG-06 alinhado a títulos `{Coluna} do Pedido/Item` |
 | 2026-06-07 | MOEDA — MND-01…08; tooltips pedido/item + aviso impacto; pills `editavel_pedido` → `replica_itens` → `editavel_item` / item `editavel_item` |
-| 2026-06-08 | VALOR TOTAL — VLR-01…10; pedido bloqueado + soma; item popover; pills `editavel_nos_itens`; EMT passos 62–71 (ordem 01–08) |
+| 2026-06-08 | VALOR UNITÁRIO — VUN-01…10; pedido bloqueado sem soma; item popover; EMT passos 62–71 (ETAPA 21) |
+| 2026-06-08 | VALOR TOTAL — VLR-01…10; pedido bloqueado + soma; item popover; pills `editavel_nos_itens`; EMT passos 72–81 (ETAPA 22) |
 | 2026-06-08 | UNIDADE COMERCIALIZADA — UNC-01…12; select Cadastros + checkbox; pills espelhadas pedido/item; EMT passos 72–82 |
 | 2026-06-03 | §8F revisada (VOL-01…12) + §8J TVL-01…12 — Tipo Volume + Qtd. Volumes; SSOT `cadastros.volume`; cruzamento 265/279; ETAPA 49 fundida na 48 |
 | 2026-06-03 | §8K COB-01…12 — Cobertura Cambial; checkbox replicar + alerta divergência; EMT passos 288–302 |

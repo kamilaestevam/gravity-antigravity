@@ -188,6 +188,7 @@ model PedidoItem {
   casas_decimais_valor_item        Int            @default(2)
   cobertura_cambial_item           String?
   moeda_cambio_item_pedido                String?
+  valor_total_cambio_item_pedido          Decimal?       @db.Decimal(18, 6)
   nome_exportador_item             String?
   nome_importador_item             String?
   nome_fabricante_item             String?

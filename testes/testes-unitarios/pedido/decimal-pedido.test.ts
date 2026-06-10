@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   arredondarAgregadoDecimal186,
   casasDecimaisSeguras,
+  multiplicarDecimal186,
   numeroDecimal186,
   somarDecimal186,
 } from '../../../servicos-global/produto/processos-core/src/services/decimalPedido'
@@ -31,5 +32,10 @@ describe('decimalPedido', () => {
     expect(casasDecimaisSeguras(null, 2)).toBe(2)
     expect(casasDecimaisSeguras(undefined, 2)).toBe(2)
     expect(casasDecimaisSeguras(0, 2)).toBe(0)
+  })
+
+  it('multiplicarDecimal186 retorna null quando produto excede Decimal(18,6)', () => {
+    expect(multiplicarDecimal186(200, 6_000_000_000, 'peso_liquido_unitario_item')).toBeNull()
+    expect(multiplicarDecimal186(0.5, 100, 'peso_liquido_unitario_item')).toBe(50)
   })
 })

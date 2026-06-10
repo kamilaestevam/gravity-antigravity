@@ -117,10 +117,19 @@ import {
   casasDecimaisApi,
   saldoFormulaApi,
   getApiContext,
+  relancarErroApi,
 } from '../shared/api'
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { valorTotalItemParaLista } from '../shared/valorTotalItemLista'
+import {
+  somaCubagemItensLista,
+  somaPesoBrutoItensLista,
+  somaPesoLiquidoItensLista,
+  somaQuantidadeTotalPedidoLocal,
+  somaValorTotalPedidoLocal,
+} from '../shared/agregadosFisicosLista'
+import { valorTotalCambioItemParaLista } from '../shared/valorTotalCambioItemLista'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { obterCampoItemComLegado } from '../../../shared/mapaPropagacaoPedidoItem'
 import {
@@ -3561,6 +3570,34 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       )
     },
   },
+  valor_total_cambio_pedido: {
+    editavel: true,
+    campo: 'valor_total_cambio_item_pedido',
+    apenasValorMoeda: true,
+    casasDecimais: getCasas('valor_total_cambio_pedido', 2),
+    getValorEditar: (row: PedidoItem) => {
+      const enriquecido = row as PedidoItemEnriquecido
+      const moedaRaw = enriquecido.moeda_cambio_item_pedido ?? enriquecido._p?.moeda_cambio_pedido ?? 'BRL'
+      const moeda = codigoMoedaExibicaoLista(moedaRaw) ?? moedaRaw ?? 'BRL'
+      return {
+        currency: moeda,
+        amount: valorTotalCambioItemParaLista(row) ?? 0,
+      }
+    },
+    render: (row: PedidoItem) => {
+      const casas = getCasas('valor_total_cambio_pedido', 2)
+      const enriquecido = row as PedidoItemEnriquecido
+      const moedaRaw = enriquecido.moeda_cambio_item_pedido ?? enriquecido._p?.moeda_cambio_pedido ?? 'BRL'
+      const moeda = codigoMoedaExibicaoLista(moedaRaw) ?? moedaRaw ?? 'BRL'
+      const num = valorTotalCambioItemParaLista(row)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {num != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
+        </span>
+      )
+    },
+  },
   valor_por_unidade_item: {
     editavel: true,
     campo: 'valor_por_unidade_item',
@@ -4955,6 +4992,7 @@ export default function Pedidos() {
     const mapaInline = enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
       moeda_pedido: t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined,
       moeda_cambio_pedido: t('pedido.coluna_pai.aviso_impacto_moeda_cambio', { defaultValue: '' }) || undefined,
+      valor_total_cambio_pedido: t('pedido.lista.regras_coluna.valor_total_cambio_impacto_edicao', { defaultValue: '' }) || undefined,
       unidade_comercializada_pedido: t('pedido.coluna_pai.aviso_impacto_unidade_full', { defaultValue: '' }) || undefined,
       peso_liquido_total_pedido: t('pedido.coluna_pai.aviso_impacto_peso_bruto', { defaultValue: '' }) || undefined,
       peso_bruto_total_pedido: t('pedido.coluna_pai.aviso_impacto_peso_liquido', { defaultValue: '' }) || undefined,
@@ -5459,6 +5497,7 @@ export default function Pedidos() {
 
       const COLUNAS_DINAMICAS_PEDIDO_ITEM: Record<string, string> = {
         valor_total_pedido:                   t('pedido.lista.coluna_dinamica.valor_total'),
+        valor_total_cambio_pedido:            t('pedido.lista.coluna_dinamica.valor_total_cambio'),
         quantidade_total_pedido:              t('pedido.lista.coluna_dinamica.qtd_inicial'),
         quantidade_pronta_itens_pedido_total: t('pedido.lista.coluna_dinamica.qtd_pronta'),
         saldo_itens_do_pedido:                t('pedido.lista.coluna_dinamica.saldo'),
@@ -7326,15 +7365,11 @@ export default function Pedidos() {
     // valor_total_item retorna GTValorMoeda { currency, amount } → salva amount + moeda_item no item (por item)
     if (campo === 'valor_total_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
-      const itemAtualMv = getItensCache().find(i => i.id === id)
       const atualizadoMv = await pedidoItemApi.atualizar(pedido.id, id, {
         valor_total_item: mv.amount,
         moeda_item: mv.currency,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualMv) return { ...itemAtualMv, valor_total_item: mv.amount, moeda_item: mv.currency } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_valor_total_item'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_valor_total_item')))
       const enriquecidoMv: PedidoItemEnriquecido = {
         ...atualizadoMv,
         _p: {
@@ -7399,18 +7434,78 @@ export default function Pedidos() {
       return enriquecidoMv
     }
 
+    // valor_total_cambio_item_pedido — popover só valor (moeda câmbio = outra coluna); PUT com número puro.
+    if (campo === 'valor_total_cambio_item_pedido' || campo === 'valor_total_cambio_pedido') {
+      let amount: number
+      if (valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
+        amount = Number((valor as { amount?: unknown }).amount)
+      } else {
+        amount = Number(valor)
+      }
+      if (!Number.isFinite(amount) || amount < 0) {
+        throw new Error(t('pedido.lista.erro.editar_valor_total_cambio_item', 'Valor total do câmbio inválido.'))
+      }
+      const atualizadoVtc = await pedidoItemApi.atualizar(pedido.id, id, {
+        valor_total_cambio_item_pedido: amount,
+      } as Partial<PedidoItem>)
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_valor_total_cambio_item', 'Erro ao salvar valor total do câmbio.')))
+      const enriquecidoVtc: PedidoItemEnriquecido = {
+        ...atualizadoVtc,
+        _p: {
+          id: pedido.id,
+          id_workspace: pedido.id_workspace ?? null,
+          tipo_operacao: pedido.tipo_operacao,
+          nome_exportador: pedido.nome_exportador ?? null,
+          nome_importador: pedido.nome_importador ?? null,
+          nome_fabricante: pedido.nome_fabricante ?? null,
+          referencia_importador: pedido.referencia_importador ?? null,
+          referencia_exportador: pedido.referencia_exportador ?? null,
+          referencia_fabricante: pedido.referencia_fabricante ?? null,
+          numero_proforma: pedido.numero_proforma ?? null,
+          numero_invoice: pedido.numero_invoice ?? null,
+          incoterm: pedido.incoterm ?? null,
+          condicao_pagamento: pedido.condicao_pagamento ?? null,
+          data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+          status: pedido.status,
+          moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+          moeda_cambio_pedido: pedido.moeda_cambio_pedido ?? null,
+        },
+      }
+      const { itens: itensAposEdicaoVtc, divergencias: divergenciasVtc } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoVtc : i),
+        pedido,
+      )
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoVtc)
+
+      const moedasCambioContrib = new Set(
+        itensAposEdicaoVtc
+          .filter(i => Number(i.valor_total_cambio_item_pedido ?? 0) > 0 && i.moeda_cambio_item_pedido)
+          .map(i => i.moeda_cambio_item_pedido as string)
+      )
+      const valorTotalCambioLocal = moedasCambioContrib.size > 1
+        ? null
+        : itensAposEdicaoVtc.reduce((s, i) => s + (Number(i.valor_total_cambio_item_pedido) || 0), 0)
+
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return {
+          ...p,
+          ...divergenciasVtc,
+          itens: itensAposEdicaoVtc,
+          valor_total_cambio_pedido: valorTotalCambioLocal,
+        }
+      }))
+      return enriquecidoVtc
+    }
+
     // moeda_pedido editado a partir de uma linha FILHO (tipo='select' → valor é string pura, ex: 'USD').
     // Salva no campo moeda_item do item (mapeamento: moeda_pedido → moeda_item).
     if (campo === 'moeda_pedido') {
       const moedaCodigo = String(valor)
-      const itemAtualMp = getItensCache().find(i => i.id === id)
       const atualizadoMp = await pedidoItemApi.atualizar(pedido.id, id, {
         moeda_item: moedaCodigo,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualMp) return { ...itemAtualMp, moeda_item: moedaCodigo } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_moeda_item'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_moeda_item')))
       const enriquecidoMp: PedidoItemEnriquecido = {
         ...atualizadoMp,
         _p: {
@@ -7452,14 +7547,10 @@ export default function Pedidos() {
     // Precisamos extrair apenas o currency e salvar no campo moeda_item.
     if (campo === 'moeda_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
-      const itemAtualMi = getItensCache().find(i => i.id === id)
       const atualizadoMi = await pedidoItemApi.atualizar(pedido.id, id, {
         moeda_item: mv.currency,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualMi) return { ...itemAtualMi, moeda_item: mv.currency } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_moeda_item_obj'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_moeda_item_obj')))
       const enriquecidoMi: PedidoItemEnriquecido = {
         ...atualizadoMi,
         _p: {
@@ -7505,12 +7596,8 @@ export default function Pedidos() {
         const updatedTipoRaw = await pedidoVirtualApi.editarCampo(pedido.id, 'tipo_volume_pedido', unit)
         pedidoAtualizado = { ...updatedTipoRaw, tipo_volume_pedido: unit } as Pedido
       }
-      const itemAtualTv = getItensCache().find(i => i.id === id)
       const atualizadoTv = await pedidoItemApi.editarCampo(pedido.id, id, 'tipo_volume_item', unit)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualTv) return { ...itemAtualTv, tipo_volume_item: unit } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_tipo_volume_item', 'Erro ao editar tipo de volume do item'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_tipo_volume_item', 'Erro ao editar tipo de volume do item')))
       const enriquecidoTv: PedidoItemEnriquecido = {
         ...atualizadoTv,
         _p: montarContextoPaiItem(pedidoAtualizado, atualizadoTv),
@@ -7555,10 +7642,7 @@ export default function Pedidos() {
       let atualizadoQv = itemAtualQv!
       if (unit && unit !== tipoItemAtual) {
         atualizadoQv = await pedidoItemApi.editarCampo(pedido.id, id, 'tipo_volume_item', unit)
-          .catch(() => {
-            if (import.meta.env.DEV && itemAtualQv) return { ...itemAtualQv, tipo_volume_item: unit } as PedidoItem
-            throw new Error(t('pedido.lista.erro.editar_tipo_volume_item', 'Erro ao editar tipo de volume do item'))
-          })
+          .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_tipo_volume_item', 'Erro ao editar tipo de volume do item')))
       }
       const enriquecidoQv: PedidoItemEnriquecido = {
         ...atualizadoQv,
@@ -7581,14 +7665,10 @@ export default function Pedidos() {
     // GTValorUnidade { unit, quantity }. Extraímos apenas o unit.
     if (campo === 'unidade_comercializada_item' && valor != null && typeof valor === 'object' && 'unit' in (valor as object)) {
       const uv = valor as { unit: string; quantity: number }
-      const itemAtualUi = getItensCache().find(i => i.id === id)
       const atualizadoUi = await pedidoItemApi.atualizar(pedido.id, id, {
         unidade_comercializada_item: uv.unit,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualUi) return { ...itemAtualUi, unidade_comercializada_item: uv.unit } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_unidade_item'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_unidade_item')))
       const enriquecidoUi: PedidoItemEnriquecido = {
         ...atualizadoUi,
         _p: {
@@ -7634,15 +7714,11 @@ export default function Pedidos() {
     // (catch DEV mascarava), resultando em "USD —" no front (NaN render).
     if (campo === 'valor_por_unidade_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
-      const itemAtualVu = getItensCache().find(i => i.id === id)
       const atualizadoVu = await pedidoItemApi.atualizar(pedido.id, id, {
         valor_por_unidade_item: mv.amount,
         moeda_item: mv.currency,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualVu) return { ...itemAtualVu, valor_por_unidade_item: mv.amount, moeda_item: mv.currency } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_valor_unidade_item'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_valor_unidade_item')))
       const enriquecidoVu: PedidoItemEnriquecido = {
         ...atualizadoVu,
         _p: {
@@ -7715,16 +7791,11 @@ export default function Pedidos() {
       // Mesmo padrão aplicado a peso/cubagem: unidade do item deve persistir.
       if (unidadeMudou) {
         await pedidoItemApi.atualizar(pedido.id, id, { unidade_comercializada_item: novaUnidade } as Partial<PedidoItem>)
-          .catch(() => {
-            if (!import.meta.env.DEV) throw new Error(t('pedido.lista.erro.atualizar_unidade_item'))
-          })
+          .catch((err) => relancarErroApi(err, t('pedido.lista.erro.atualizar_unidade_item')))
       }
 
       const atualizadoPronta = await pedidoItemApi.atualizarPronta(pedido.id, id, qtd)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualPronta) return { ...itemAtualPronta, quantidade_pronta_total_item_pedido: qtd, unidade_comercializada_item: novaUnidade ?? itemAtualPronta.unidade_comercializada_item } as PedidoItem
-          throw new Error(t('pedido.lista.erro.atualizar_qtd_pronta'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.atualizar_qtd_pronta')))
       // Garante que a unidade persistida via PUT acima esteja no objeto retornado
       // (atualizarPronta devolve apenas o item — pode não refletir a unidade nova).
       const itemComUnidade: PedidoItem = unidadeMudou && novaUnidade
@@ -7850,14 +7921,8 @@ export default function Pedidos() {
       // Datas replicáveis — PATCH /itens/:id/campo (PUT strict não aceita data_*).
       if (campo.startsWith('data_')) {
         const isoData = normalizarDataISO(valor)
-        const itemAtualData = getItensCache().find(i => i.id === id)
         const atualizadoData = await pedidoItemApi.editarCampo(pedido.id, id, campo, isoData)
-          .catch(() => {
-            if (import.meta.env.DEV && itemAtualData) {
-              return { ...itemAtualData, [campo]: isoData } as PedidoItem
-            }
-            throw new Error(t('pedido.lista.erro.editar_campo', { campo }))
-          })
+          .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_campo', { campo })))
         const enriquecidoData: PedidoItemEnriquecido = {
           ...atualizadoData,
           _p: montarContextoPaiItem(pedido, atualizadoData),
@@ -7878,7 +7943,11 @@ export default function Pedidos() {
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
       // Fatores de conversão para kg (todos os campos de peso são persistidos em kg)
       const CAMPOS_PESO_ITEM = new Set(['peso_liquido_unitario', 'peso_bruto_unitario'])
-      const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo)
+      const valorFinal: unknown = (
+        campo === 'valor_total_cambio_item_pedido' || campo === 'valor_total_cambio_pedido'
+      ) && valor != null && typeof valor === 'object' && 'currency' in (valor as object)
+        ? Number((valor as { amount?: unknown }).amount)
+        : CAMPOS_NUMERICOS_ITEM.has(campo)
         ? (() => {
             const qty = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
             if (CAMPOS_PESO_ITEM.has(campo) && isUnidade) {
@@ -7888,7 +7957,8 @@ export default function Pedidos() {
             return qty
           })()
         : valor
-      payload = { [campo]: valorFinal } as Partial<PedidoItem>
+      const chavePayload = campo === 'valor_total_cambio_pedido' ? 'valor_total_cambio_item_pedido' : campo
+      payload = { [chavePayload]: valorFinal } as Partial<PedidoItem>
       if (isUnidade && !CAMPOS_UNIDADE_FIXA_ITEM.has(campo)) {
         // Salva a unidade comercializada junto com a quantidade (apenas campos com unidade variável)
         ;(payload as Record<string, unknown>).unidade_comercializada_item = (valor as { unit: string }).unit
@@ -7912,14 +7982,8 @@ export default function Pedidos() {
       }
     }
 
-    const itemAtual = getItensCache().find(i => i.id === id)
     const atualizado = await pedidoItemApi.atualizar(pedido.id, id, payload)
-      .catch(() => {
-        if (import.meta.env.DEV) {
-          if (itemAtual) return { ...itemAtual, ...payload } as PedidoItem
-        }
-        throw new Error(t('pedido.lista.erro.editar_campo', { campo }))
-      })
+      .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_campo', { campo })))
 
     // Persiste o total do pedido pai no servidor (fire-and-forget) quando um campo de peso muda
     if (campo === 'peso_liquido_unitario') {
@@ -7951,11 +8015,12 @@ export default function Pedidos() {
         ...divergencias,
         descricao_item: p.descricao_item,
         itens: itensAposEdicao,
-        quantidade_total_pedido: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
+        quantidade_total_pedido: somaQuantidadeTotalPedidoLocal(itensAposEdicao),
         quantidade_transferida_total:    itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido)    || 0), 0),
-        peso_liquido_total_pedido:       itensAposEdicao.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0), 0),
-        peso_bruto_total_pedido:         itensAposEdicao.reduce((s, i) => s + (Number(i.peso_bruto_unitario)  || 0), 0),
-        cubagem_total_pedido:            itensAposEdicao.reduce((s, i) => s + (Number(i.cubagem_unitaria)     || 0), 0),
+        peso_liquido_total_pedido:       somaPesoLiquidoItensLista(itensAposEdicao),
+        peso_bruto_total_pedido:         somaPesoBrutoItensLista(itensAposEdicao),
+        cubagem_total_pedido:            somaCubagemItensLista(itensAposEdicao),
+        valor_total_pedido:              somaValorTotalPedidoLocal(itensAposEdicao),
       }
     }))
     return itensAposEdicao.find(i => i.id === id) ?? enriquecido
@@ -7971,11 +8036,11 @@ export default function Pedidos() {
       ...p,
       ...divergencias,
       itens: itensComAlertas,
-      quantidade_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
+      quantidade_total_pedido: somaQuantidadeTotalPedidoLocal(itensComAlertas),
       quantidade_transferida_total: itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido) || 0), 0),
-      peso_liquido_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0), 0),
-      peso_bruto_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.peso_bruto_unitario) || 0), 0),
-      cubagem_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.cubagem_unitaria) || 0), 0),
+      peso_liquido_total_pedido: somaPesoLiquidoItensLista(itensComAlertas),
+      peso_bruto_total_pedido: somaPesoBrutoItensLista(itensComAlertas),
+      cubagem_total_pedido: somaCubagemItensLista(itensComAlertas),
     }
   }
 

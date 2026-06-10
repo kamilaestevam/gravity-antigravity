@@ -161,6 +161,11 @@ export function getApiContext(): { idOrganizacao: string; userId: string; userNa
   }
 }
 
+/** Mand. 08 — propaga mensagem real da API; nunca simula sucesso em DEV. */
+export function relancarErroApi(err: unknown, mensagemPadrao: string): never {
+  throw new Error(err instanceof Error && err.message ? err.message : mensagemPadrao)
+}
+
 export async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
   const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''

@@ -17,14 +17,14 @@ Em cada environment: **Environment secrets → Add secret**.
 
 ---
 
-## Staging (obrigatórios)
+## Staging (obrigatórios só para **migrations** no CI)
 
 | Secret | Origem |
 |--------|--------|
 | `STAGING_CONFIGURADOR_DATABASE_URL` | Railway → Postgres Configurador (teste/staging) → `DATABASE_URL` |
 | `STAGING_ORGANIZACAO_DATABASE_URL` | Railway → Postgres Serviços/Tenant (teste/staging) |
-| `RAILWAY_TOKEN_STAGING` | Railway → Account Settings → Tokens |
-| `CLERK_SECRET_KEY` | Clerk → API Keys → Secret key do ambiente de **staging/dev** |
+
+> Se ausentes, o workflow **não falha** — pula migrations e valida `https://www.usegravity.com.br/health` (deploy Railway pelo hook de git).
 
 Opcional (pula migrations Pedido se ausente):
 
@@ -34,14 +34,14 @@ Opcional (pula migrations Pedido se ausente):
 
 ---
 
-## Produção (obrigatórios)
+## Produção (obrigatórios só para **migrations** no CI)
 
 | Secret | Origem |
 |--------|--------|
 | `PROD_CONFIGURADOR_DATABASE_URL` | Railway → Postgres Configurador **produção** |
 | `PROD_ORGANIZACAO_DATABASE_URL` | Railway → Postgres Serviços/Tenant **produção** |
-| `RAILWAY_TOKEN_PRODUCTION` | Railway → token com acesso ao project **production** |
-| `CLERK_SECRET_KEY` | Clerk → Secret key **produção** (`sk_live_...`) |
+
+> `RAILWAY_TOKEN_*` e `CLERK_SECRET_KEY` **não** são usados pelo Gravity Deploy (migrations via Prisma CLI).
 
 Opcional:
 

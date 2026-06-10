@@ -685,7 +685,44 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
     : null
   const casasCol = getCasas(col.id, 2)
 
+  // Texto que o find-in-page enxerga na célula. O valor da coluna do usuário
+  // vive em `_colunas_usuario[col.id]` (não em `row[col.chave]`) — sem isto o
+  // find lê `undefined` e o conteúdo fica invisível para a busca. O find usa
+  // esta mesma coluna-pai para varrer linhas filhas, então `row` pode ser
+  // Pedido OU PedidoItem — ambos carregam `_colunas_usuario` keyed por col.id.
+  const findDisplayColunaUsuario = (row: Pedido): string => {
+    const valores = (row as unknown as Record<string, unknown>)['_colunas_usuario'] as
+      Record<string, string> | undefined
+    if (col.tipo === 'formula') {
+      if (!formulaAST) return ''
+      try {
+        const contexto = buildFormulaContexto(row)
+        if (valores) {
+          for (const [k, v] of Object.entries(valores)) {
+            const num = Number(v)
+            if (!isNaN(num)) contexto[k] = num
+          }
+        }
+        const { valor: num } = avaliarFormula(formulaAST, contexto)
+        return fmtQuantidade(num, casasCol)
+      } catch {
+        return ''
+      }
+    }
+    const valor = valores?.[col.id]
+    if (valor == null || valor === '') return ''
+    if (col.tipo === 'checkbox') return valor === 'true' ? '✓' : valor === 'false' ? '✗' : ''
+    if (col.tipo === 'numero' || col.tipo === 'percentual') {
+      const num = Number(valor)
+      if (!isNaN(num)) return `${fmtQuantidade(num, casasCol)}${col.tipo === 'percentual' ? '%' : ''}`
+      return valor
+    }
+    if (col.tipo === 'data') return fmtData(valor)
+    return valor
+  }
+
   return {
+    findDisplay:     findDisplayColunaUsuario,
     key:             col.chave as keyof Pedido,
     label:           col.nome,
     tipo:            col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula' ? 'numero' : col.tipo === 'data' ? 'periodo' : 'texto',

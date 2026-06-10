@@ -1,6 +1,6 @@
 /**
  * Processo filho detached para runs EMT.
- * Sobrevive a restart do cfg-back (tsx watch) e grava emt-result-{runId}.json ao terminar.
+ * Sobrevive a restart do cfg-back (tsx watch) e grava emt-resultado-teste-{runId}.json ao terminar.
  *
  * Uso: npx tsx server/lib/emt-background-runner.ts <runId>
  */
@@ -12,11 +12,12 @@ import type { TestLogEntry } from '../utils/playwright-parser.js'
 
 import { RUN_TESTES_TIMEOUT_MS } from './emt-run-timeout.js'
 import { raizRepositorioGravity } from './raiz-repositorio-gravity.js'
+import { testLogsDir } from './test-log-persist.js'
+import { caminhoManifestoEmtTeste, caminhoResultadoEmtTeste } from './execucao-teste-markers.js'
 
 const TSX_CLI = resolve(raizRepositorioGravity, 'node_modules/tsx/dist/cli.mjs')
 /** Só para stderr/stdout quando não há RESULTADO.txt em emt_pasta. */
 const EMT_TERMINAL_LOG_MAX_CHARS = 16_000
-const testLogsDir = join(process.cwd(), 'data', 'test-logs')
 
 type RegistryPlanoRun = { id: string; specFile?: string; tipo?: string; tela?: string; modulo?: string }
 
@@ -89,8 +90,8 @@ async function main(): Promise<void> {
     process.exit(1)
   }
 
-  const manifestPath = join(testLogsDir, `emt-manifest-${runId}.json`)
-  const resultPath = join(testLogsDir, `emt-result-${runId}.json`)
+  const manifestPath = caminhoManifestoEmtTeste(runId)
+  const resultPath = caminhoResultadoEmtTeste(runId)
 
   if (!existsSync(manifestPath)) {
     debugLog(`EMT runner ${runId} — manifest ausente`)

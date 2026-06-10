@@ -965,6 +965,26 @@ export interface TesteApi {
   id_execucao_teste?: string | null
 }
 
+const execucaoTesteStatusSchema = z.object({
+  id_execucao_teste: z.string(),
+  data_inicio_execucao_teste: z.string(),
+  runner_execucao_teste: z.enum(['EMT', 'E2E']).nullable(),
+  ambiente_teste: z.string(),
+  gatilho_teste: z.enum(['manual', 'cron', 'ci']),
+  lista_planos_execucao_teste: z.array(z.string()),
+  lista_modulos_execucao_teste: z.array(z.string()),
+  disparado_por_teste: z.string().nullable(),
+})
+
+export const statusExecucoesTesteResponseSchema = z.object({
+  execucoes_teste: z.array(execucaoTesteStatusSchema),
+  limite_execucoes_simultaneas_teste: z.number().int().positive(),
+  quantidade_execucoes_ativas_teste: z.number().int().nonnegative(),
+})
+
+export type ExecucaoTesteStatusApi = z.infer<typeof execucaoTesteStatusSchema>
+export type StatusExecucoesTesteResponse = z.infer<typeof statusExecucoesTesteResponseSchema>
+
 /** Plano de teste — espelha colunas do model TestePlano + atalhos do registry. */
 export interface PlanoTesteApi {
   id: string                 // id_plano_teste
@@ -993,14 +1013,15 @@ export const adminTestesApi = {
   },
   /** POST /api/v1/admin/testes/disparar */
   async disparar(opts?: { planos?: string[]; modulos?: string[]; ambiente?: 'Local' | 'Staging' | 'Producao' }) {
-    return request<{ started: boolean }>('/v1/admin/testes/disparar', {
+    return request<{ started: boolean; id_execucao_teste?: string }>('/v1/admin/testes/disparar', {
       method: 'POST',
       body: JSON.stringify(opts ?? {}),
     })
   },
   /** GET /api/v1/admin/testes/status */
-  async status() {
-    return request<{ running: boolean }>('/v1/admin/testes/status')
+  async status(): Promise<StatusExecucoesTesteResponse> {
+    const raw = await request<unknown>('/v1/admin/testes/status')
+    return statusExecucoesTesteResponseSchema.parse(raw)
   },
   /** POST /api/v1/admin/testes/:id_teste/reanalisar */
   async reanalisar(id_teste: string) {

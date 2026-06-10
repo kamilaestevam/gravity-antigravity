@@ -10,9 +10,10 @@ import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
 import { ModalExecutarTestes } from './ModalTestesExecutar'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { adminTestesApi, adminAgendamentosTesteApi, adminPlanosTesteApi, apiFetchBlob, type TesteApi } from '../../services/api-client'
+import { adminTestesApi, adminAgendamentosTesteApi, adminPlanosTesteApi, apiFetchBlob, type TesteApi, type ExecucaoTesteStatusApi } from '../../services/api-client'
 import {
   resolverOqueFoiTestadoLog,
+  resolverOqueFoiTestadoPlano,
   type PlanoFavoritoResumoOrigem,
 } from '@testes/infra/admin/testes-favoritos-admin'
 import { useShellStore } from '@gravity/shell'
@@ -28,6 +29,39 @@ import {
 
 
 type TipoTeste = 'E2E' | 'EMT' | 'FUNCIONAL' | 'UNITARIO'
+
+type AbaTestesGerais = 'executados' | 'em_execucao'
+
+function formatarDuracaoCorrente(dataInicioIso: string): string {
+  const inicio = new Date(dataInicioIso).getTime()
+  if (Number.isNaN(inicio)) return '—'
+  const seg = Math.max(0, Math.floor((Date.now() - inicio) / 1000))
+  const min = Math.floor(seg / 60)
+  const resto = seg % 60
+  if (min === 0) return `${resto}s`
+  return `${min}min ${resto}s`
+}
+
+function rotuloOrigemExecucao(gatilho: ExecucaoTesteStatusApi['gatilho_teste'], t: (k: string) => string): string {
+  if (gatilho === 'cron') return t('admin.testes-gerais.badge_origem_agendado')
+  if (gatilho === 'ci') return t('admin.testes-gerais.badge_origem_ci')
+  return t('admin.testes-gerais.badge_origem_manual')
+}
+
+function rotuloPlanosExecucao(exec: ExecucaoTesteStatusApi, catalogo: Map<string, PlanoFavoritoResumoOrigem>): string {
+  if (exec.lista_planos_execucao_teste.length > 0) {
+    return exec.lista_planos_execucao_teste
+      .map(id => {
+        const plano = catalogo.get(id)
+        return plano ? resolverOqueFoiTestadoPlano(plano) : id
+      })
+      .join(', ')
+  }
+  if (exec.lista_modulos_execucao_teste.length > 0) {
+    return exec.lista_modulos_execucao_teste.join(', ')
+  }
+  return exec.runner_execucao_teste ?? '—'
+}
 type Resultado = 'APROVADO' | 'REPROVADO' | 'ERRO_CATASTROFICO'
 
 interface LogTeste {
@@ -1095,13 +1129,31 @@ export function LogTestes() {
   const addAviso = useShellStore((s) => s.addAviso)
   const [dados, setDados] = useState<LogTeste[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [rodandoTestes, setRodandoTestes] = useState(false)
+  const [execucoesAtivas, setExecucoesAtivas] = useState<ExecucaoTesteStatusApi[]>([])
+  const [limiteExecucoes, setLimiteExecucoes] = useState(3)
+  const [abaAtiva, setAbaAtiva] = useState<AbaTestesGerais>('executados')
   const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
   const [modalExecutarAberto, setModalExecutarAberto] = useState(false)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
   const [catalogoPlanos, setCatalogoPlanos] = useState<Map<string, PlanoFavoritoResumoOrigem>>(new Map())
+  const execucoesAnterioresRef = useRef<Set<string>>(new Set())
   /** IDs já presentes no histórico antes do run — toast conta só entradas novas. */
   const baselineIdsRef = useRef<Set<string>>(new Set())
+
+  const temExecucoesAtivas = execucoesAtivas.length > 0
+  const noLimiteExecucoes = execucoesAtivas.length >= limiteExecucoes
+
+  async function carregarStatusExecucoes(): Promise<ExecucaoTesteStatusApi[]> {
+    try {
+      const status = await adminTestesApi.status()
+      setExecucoesAtivas(status.execucoes_teste)
+      setLimiteExecucoes(status.limite_execucoes_simultaneas_teste)
+      execucoesAnterioresRef.current = new Set(status.execucoes_teste.map(e => e.id_execucao_teste))
+      return status.execucoes_teste
+    } catch {
+      return execucoesAtivas
+    }
+  }
 
   async function loadLogs(): Promise<LogTeste[]> {
     try {
@@ -1140,22 +1192,21 @@ export function LogTestes() {
       .catch(() => {})
   }, [])
 
-  // Auto-detecta run em progresso quando a tela monta (resiliente a F5 / navegação)
+  // Auto-detecta runs em progresso quando a tela monta (resiliente a F5 / navegação)
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        const status = await adminTestesApi.status()
-        if (!cancelled && status.running) setRodandoTestes(true)
+        const ativas = await carregarStatusExecucoes()
+        if (!cancelled && ativas.length > 0) setAbaAtiva('em_execucao')
       } catch { /* offline / erro — ignora */ }
     })()
     return () => { cancelled = true }
   }, [])
 
-  // Polling enquanto testes estão rodando.
-  // Tick imediato (não espera os 5s iniciais) + polling a cada 3s para feedback rápido.
+  // Polling enquanto há execuções ativas.
   useEffect(() => {
-    if (!rodandoTestes) return
+    if (!temExecucoesAtivas) return
     let stopped = false
 
     async function handleCompletion() {
@@ -1214,11 +1265,17 @@ export function LogTestes() {
     async function tick() {
       if (stopped) return
       try {
-        const status = await adminTestesApi.status()
-        if (!status.running) {
-          stopped = true
-          setRodandoTestes(false)
+        const idsAntes = execucoesAnterioresRef.current
+        const ativas = await carregarStatusExecucoes()
+        const idsAgora = new Set(ativas.map(e => e.id_execucao_teste))
+        const algumaConcluiu = [...idsAntes].some(id => !idsAgora.has(id))
+        execucoesAnterioresRef.current = idsAgora
+
+        if (algumaConcluiu) {
           await handleCompletion()
+        }
+        if (ativas.length === 0) {
+          stopped = true
         }
       } catch { /* ignora falha de polling */ }
     }
@@ -1228,7 +1285,7 @@ export function LogTestes() {
     tick()
     const interval = setInterval(tick, 3000)
     return () => { stopped = true; clearInterval(interval) }
-  }, [rodandoTestes])
+  }, [temExecucoesAtivas])
 
   const logs7d = useMemo(() => filtrarLogsPorDias(dados, 7), [dados])
   const logs30d = useMemo(() => filtrarLogsPorDias(dados, 30), [dados])
@@ -1385,6 +1442,69 @@ export function LogTestes() {
     },
   ]
 
+  const colunasExecucao: TabelaGlobalColuna<ExecucaoTesteStatusApi>[] = [
+    {
+      chave: 'lista_planos_execucao_teste',
+      titulo: t('admin.testes-gerais.col_modulo'),
+      tooltipTitulo: t('admin.testes-gerais.tooltip_modulo'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_modulo_desc'),
+      getValorBruto: (item) => rotuloPlanosExecucao(item, catalogoPlanos),
+      render: (_, item) => (
+        <span style={{ color: '#e2e8f0', fontWeight: 500 }}>
+          {rotuloPlanosExecucao(item, catalogoPlanos)}
+        </span>
+      ),
+    },
+    {
+      chave: 'gatilho_teste',
+      titulo: t('admin.testes-gerais.col_origem_execucao'),
+      getValorBruto: (item) => rotuloOrigemExecucao(item.gatilho_teste, t),
+      render: (_, item) => {
+        const agendado = item.gatilho_teste === 'cron'
+        return (
+          <span style={{
+            fontSize: '0.65rem', fontWeight: 800, padding: '2px 8px', borderRadius: '4px',
+            letterSpacing: '0.05em', textTransform: 'uppercase',
+            background: agendado ? 'rgba(99,102,241,0.15)' : 'rgba(16,185,129,0.12)',
+            color: agendado ? '#818cf8' : '#10b981',
+            border: `1px solid ${agendado ? 'rgba(99,102,241,0.35)' : 'rgba(16,185,129,0.35)'}`,
+          }}>
+            {rotuloOrigemExecucao(item.gatilho_teste, t)}
+          </span>
+        )
+      },
+    },
+    {
+      chave: 'ambiente_teste',
+      titulo: t('admin.testes-gerais.col_ambiente_execucao'),
+      render: (v) => <span style={{ color: '#94a3b8' }}>{String(v ?? 'Local')}</span>,
+    },
+    {
+      chave: 'data_inicio_execucao_teste',
+      titulo: t('admin.testes-gerais.col_data_hora'),
+      getValorBruto: (item) => item.data_inicio_execucao_teste,
+      render: (v) => {
+        const d = new Date(String(v))
+        if (Number.isNaN(d.getTime())) return '—'
+        return (
+          <span style={{ color: '#94a3b8' }}>
+            {d.toLocaleDateString('pt-BR')} {d.toLocaleTimeString('pt-BR')}
+          </span>
+        )
+      },
+    },
+    {
+      chave: 'id_execucao_teste',
+      titulo: t('admin.testes-gerais.col_duracao'),
+      getValorBruto: (item) => formatarDuracaoCorrente(item.data_inicio_execucao_teste),
+      render: (_, item) => (
+        <span style={{ color: '#10b981', fontWeight: 600 }}>
+          {formatarDuracaoCorrente(item.data_inicio_execucao_teste)}
+        </span>
+      ),
+    },
+  ]
+
   const handlersAnaliseIa: HandlersAnaliseIaTeste = {
     onReanalyze: handleReanalyze,
     onApplyFix: handleApplyFix,
@@ -1493,14 +1613,16 @@ export function LogTestes() {
               <TooltipGlobal descricao={t('admin.testes-gerais.tooltip_rodar')}>
                 <BotaoGlobal
                   variante="primario"
-                  icone={rodandoTestes
+                  icone={temExecucoesAtivas
                     ? <SpinnerGap size={16} weight="bold" style={{ animation: 'ws-running-spin 0.9s linear infinite' }} />
                     : <PlayCircle size={16} weight="bold" />
                   }
                   onClick={() => setModalExecutarAberto(true)}
-                  disabled={rodandoTestes}
+                  disabled={noLimiteExecucoes}
                 >
-                  {rodandoTestes ? 'Rodando...' : t('admin.testes-gerais.btn_rodar')}
+                  {temExecucoesAtivas
+                    ? t('admin.testes-gerais.btn_rodando_count', { count: execucoesAtivas.length })
+                    : t('admin.testes-gerais.btn_rodar')}
                 </BotaoGlobal>
               </TooltipGlobal>
             </div>
@@ -1619,112 +1741,73 @@ export function LogTestes() {
       {/* Container pai: trava qualquer scroll externo herdado do pg-conteudo-area */}
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
-        {/* Banner de execução — estático, nunca rola */}
-        {rodandoTestes && (
-          <div
-            role="status"
-            aria-live="polite"
-            style={{
-              flexShrink: 0,
-              marginBottom: '12px',
-              borderRadius: '14px',
-              overflow: 'hidden',
-              border: '1px solid rgba(16, 185, 129, 0.45)',
-              background:
-                'linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(56, 189, 248, 0.12) 50%, rgba(16, 185, 129, 0.12) 100%)',
-              backgroundSize: '200% 100%',
-              animation: 'ws-running-shimmer 2.5s linear infinite',
-              boxShadow: '0 0 0 1px rgba(16, 185, 129, 0.15), 0 12px 32px rgba(16, 185, 129, 0.12)',
-            }}
-          >
-            <div
+        <div
+          role="tablist"
+          style={{
+            display: 'flex', gap: '0.25rem', marginBottom: '12px', flexShrink: 0,
+            borderBottom: '1px solid rgba(100,116,139,0.25)',
+          }}
+        >
+          {([
+            { key: 'em_execucao' as const, rotulo: t('admin.testes-gerais.aba_em_execucao'), badge: execucoesAtivas.length },
+            { key: 'executados' as const, rotulo: t('admin.testes-gerais.aba_executados'), badge: dados.length },
+          ]).map(tab => (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={abaAtiva === tab.key}
+              onClick={() => setAbaAtiva(tab.key)}
               style={{
-                display: 'flex', alignItems: 'center', gap: '1rem',
-                padding: '1rem 1.25rem', position: 'relative', zIndex: 1,
+                padding: '0.6rem 1rem', border: 'none', cursor: 'pointer',
+                background: abaAtiva === tab.key ? 'var(--ws-surface, #1e293b)' : 'transparent',
+                color: abaAtiva === tab.key ? '#10b981' : 'var(--ws-muted, #94a3b8)',
+                borderBottom: abaAtiva === tab.key ? '2px solid #10b981' : '2px solid transparent',
+                fontSize: '0.85rem', fontWeight: abaAtiva === tab.key ? 600 : 400,
+                display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
               }}
             >
-              <div
-                style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  border: '3px solid rgba(16, 185, 129, 0.25)',
-                  borderTopColor: '#10b981',
-                  animation: 'ws-running-spin 0.9s linear infinite',
-                  flexShrink: 0,
-                }}
-              />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '0.5rem',
-                    fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9',
-                    letterSpacing: '0.01em',
-                  }}
-                >
-                  <span
-                    style={{
-                      display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
-                      background: '#10b981',
-                      animation: 'ws-running-pulse 1.4s ease-in-out infinite',
-                    }}
-                  />
-                  Testes em execução...
-                </div>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
-                  Aguarde o término — você será avisado na mensageria quando concluir.
-                </p>
-              </div>
-              <div
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '0.4rem',
-                  padding: '0.35rem 0.75rem', borderRadius: '9999px',
-                  background: 'rgba(16, 185, 129, 0.15)',
-                  border: '1px solid rgba(16, 185, 129, 0.4)',
-                  color: '#10b981', fontSize: '0.7rem', fontWeight: 800,
-                  letterSpacing: '0.08em', textTransform: 'uppercase',
-                  flexShrink: 0,
-                }}
-              >
-                <PlayCircle size={14} weight="fill" />
-                Running
-              </div>
-            </div>
-            <div
-              style={{
-                position: 'relative',
-                height: 3,
-                background: 'rgba(16, 185, 129, 0.15)',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute', top: 0, left: 0,
-                  width: '40%', height: '100%',
-                  background: 'linear-gradient(90deg, transparent, #10b981, transparent)',
-                  animation: 'ws-running-bar 1.6s ease-in-out infinite',
-                }}
-              />
-            </div>
-          </div>
-        )}
+              {tab.rotulo}
+              {tab.badge > 0 && (
+                <span style={{
+                  fontSize: '0.65rem', fontWeight: 800, padding: '1px 6px', borderRadius: '9999px',
+                  background: tab.key === 'em_execucao' && temExecucoesAtivas ? 'rgba(16,185,129,0.2)' : 'rgba(100,116,139,0.2)',
+                  color: tab.key === 'em_execucao' && temExecucoesAtivas ? '#10b981' : '#64748b',
+                }}>
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
 
-        {/* Único container com scroll — abraça exclusivamente a tabela */}
         <div
           className="ws-fade-up"
           style={{ flex: 1, minHeight: 0, overflowY: 'auto', position: 'relative', zIndex: 10 }}
         >
-          <TabelaGlobal
-            id="admin-test-logs"
-            dados={dados}
-            colunas={colunas}
-            idKey="id"
-            renderExpandido={renderExpandido}
-            mensagemVazio={t('admin.testes-gerais.vazio')}
-            mensagemSemFiltro={t('admin.testes-gerais.vazio_filtro')}
-            tooltipBusca={t('admin.testes-gerais.tooltip_busca')}
-            tooltipExpandir={t('admin.testes-gerais.tooltip_expandir')}
-            acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Logs')}
-          />
+          {abaAtiva === 'em_execucao' ? (
+            <TabelaGlobal
+              id="admin-test-runs-ativos"
+              dados={execucoesAtivas}
+              colunas={colunasExecucao}
+              idKey="id_execucao_teste"
+              mensagemVazio={t('admin.testes-gerais.vazio_em_execucao')}
+              mensagemSemFiltro={t('admin.testes-gerais.vazio_em_execucao')}
+            />
+          ) : (
+            <TabelaGlobal
+              id="admin-test-logs"
+              dados={dados}
+              colunas={colunas}
+              idKey="id"
+              renderExpandido={renderExpandido}
+              mensagemVazio={t('admin.testes-gerais.vazio')}
+              mensagemSemFiltro={t('admin.testes-gerais.vazio_filtro')}
+              tooltipBusca={t('admin.testes-gerais.tooltip_busca')}
+              tooltipExpandir={t('admin.testes-gerais.tooltip_expandir')}
+              acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Logs')}
+            />
+          )}
         </div>
 
         <ModalAgendamentoTestes
@@ -1748,7 +1831,8 @@ export function LogTestes() {
           aoFechar={() => setModalExecutarAberto(false)}
           aoIniciarRun={() => {
             baselineIdsRef.current = new Set(dados.map(d => d.id))
-            setRodandoTestes(true)
+            setAbaAtiva('em_execucao')
+            void carregarStatusExecucoes()
             setModalExecutarAberto(false)
           }}
         />

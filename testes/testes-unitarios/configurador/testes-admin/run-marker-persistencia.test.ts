@@ -1,133 +1,110 @@
 // @vitest-environment node
-// Testes unitários para o sistema de run marker persistido em arquivo.
-// Garante que o status de execução de testes sobrevive a restarts do servidor.
+// Markers de execução de teste — suporte a runs simultâneos.
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { existsSync, writeFileSync, readFileSync, mkdirSync, unlinkSync, rmSync, renameSync } from 'node:fs'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { existsSync, writeFileSync, readFileSync, mkdirSync, rmSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '../../../..')
-
 const tmpDir = path.join(root, 'testes', 'testes-unitarios', 'configurador', 'testes-admin', '_tmp-run-marker')
-const MARKER_PATH = path.join(tmpDir, '_current-run.json')
 
-interface RunMarker {
-  status: 'running' | 'completed'
-  pid: number
-  started_at: string
-  runId: string
+vi.mock('../../../../servicos-global/configurador/server/lib/test-log-persist.js', () => ({
+  testLogsDir: tmpDir,
+  appendTestLogEntries: vi.fn(),
+}))
+
+const {
+  gravarMarkerExecucaoTeste,
+  lerMarkerExecucaoTeste,
+  listarMarkersExecucaoTeste,
+  removerMarkerExecucaoTeste,
+  listarExecucoesAtivasTeste,
+  validarNovaExecucaoTeste,
+  migrarMarkerLegadoSeExistir,
+  caminhoResultadoEmtTeste,
+  DIRETORIO_MARKERS_EXECUCAO_TESTE,
+} = await import('../../../../servicos-global/configurador/server/lib/execucao-teste-markers.js')
+
+function markerExemplo(id: string, pid = process.pid): Parameters<typeof gravarMarkerExecucaoTeste>[0] {
+  return {
+    status_execucao_teste: 'rodando',
+    pid_execucao_teste: pid,
+    data_inicio_execucao_teste: '2026-06-10T12:00:00.000Z',
+    id_execucao_teste: id,
+    runner_execucao_teste: 'EMT',
+    ambiente_teste: 'Local',
+    gatilho_teste: 'manual',
+    lista_planos_execucao_teste: ['TST-EMT-PEDIDO-001'],
+  }
 }
-
-function readRunMarker(): RunMarker | null {
-  try {
-    if (!existsSync(MARKER_PATH)) return null
-    return JSON.parse(readFileSync(MARKER_PATH, 'utf-8')) as RunMarker
-  } catch { return null }
-}
-
-function writeRunMarker(marker: RunMarker): void {
-  mkdirSync(tmpDir, { recursive: true })
-  const tmpPath = MARKER_PATH + '.tmp'
-  writeFileSync(tmpPath, JSON.stringify(marker, null, 2))
-  renameSync(tmpPath, MARKER_PATH)
-}
-
-function clearRunMarker(): void {
-  try { unlinkSync(MARKER_PATH) } catch { /* ok */ }
-}
-
-function isProcessAlive(pid: number): boolean {
-  try { process.kill(pid, 0); return true } catch { return false }
-}
-
-// ─── Setup / Teardown ───────────────────────────────────────────────────────
 
 beforeEach(() => {
   mkdirSync(tmpDir, { recursive: true })
-  clearRunMarker()
+  mkdirSync(DIRETORIO_MARKERS_EXECUCAO_TESTE, { recursive: true })
 })
 
 afterEach(() => {
   try { rmSync(tmpDir, { recursive: true, force: true }) } catch { /* ok */ }
 })
 
-// ─── readRunMarker ──────────────────────────────────────────────────────────
-
-describe('readRunMarker', () => {
-  it('retorna null quando arquivo não existe', () => {
-    expect(readRunMarker()).toBeNull()
+describe('markers de execucao teste', () => {
+  it('gravar e ler marker por id_execucao_teste', () => {
+    const m = markerExemplo('run-001')
+    gravarMarkerExecucaoTeste(m)
+    expect(lerMarkerExecucaoTeste('run-001')).toEqual(m)
   })
 
-  it('retorna marker quando arquivo existe e é válido', () => {
-    const marker: RunMarker = {
+  it('listar múltiplos markers simultâneos', () => {
+    gravarMarkerExecucaoTeste(markerExemplo('run-a'))
+    gravarMarkerExecucaoTeste(markerExemplo('run-b', process.pid))
+    expect(listarMarkersExecucaoTeste()).toHaveLength(2)
+    expect(listarExecucoesAtivasTeste()).toHaveLength(2)
+  })
+
+  it('remover marker específico sem afetar outros', () => {
+    gravarMarkerExecucaoTeste(markerExemplo('run-x'))
+    gravarMarkerExecucaoTeste(markerExemplo('run-y'))
+    removerMarkerExecucaoTeste('run-x')
+    expect(lerMarkerExecucaoTeste('run-x')).toBeNull()
+    expect(lerMarkerExecucaoTeste('run-y')).not.toBeNull()
+  })
+
+  it('validarNovaExecucaoTeste bloqueia plano já em execução', () => {
+    gravarMarkerExecucaoTeste(markerExemplo('ativo'))
+    const r = validarNovaExecucaoTeste({
+      runner_execucao_teste: 'E2E',
+      lista_planos_execucao_teste: ['TST-EMT-PEDIDO-001'],
+    })
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.codigo).toBe('PLANO_EM_EXECUCAO')
+  })
+
+  it('validarNovaExecucaoTeste bloqueia segundo EMT simultâneo', () => {
+    gravarMarkerExecucaoTeste(markerExemplo('emt-1'))
+    const r = validarNovaExecucaoTeste({
+      runner_execucao_teste: 'EMT',
+      lista_planos_execucao_teste: ['TST-EMT-PEDIDO-002'],
+    })
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.codigo).toBe('EMT_CONCORRENTE')
+  })
+
+  it('migra _current-run.json legado para runs/', () => {
+    writeFileSync(path.join(tmpDir, '_current-run.json'), JSON.stringify({
       status: 'running',
-      pid: 12345,
-      started_at: '2026-05-17T20:00:00.000Z',
-      runId: '1747515600000',
-    }
-    writeFileSync(MARKER_PATH, JSON.stringify(marker))
-    expect(readRunMarker()).toEqual(marker)
+      pid: process.pid,
+      started_at: '2026-06-10T11:00:00.000Z',
+      runId: 'legado-123',
+      runner: 'E2E',
+    }))
+    migrarMarkerLegadoSeExistir()
+    expect(existsSync(path.join(tmpDir, '_current-run.json'))).toBe(false)
+    expect(lerMarkerExecucaoTeste('legado-123')?.id_execucao_teste).toBe('legado-123')
   })
 
-  it('retorna null quando arquivo tem JSON inválido', () => {
-    writeFileSync(MARKER_PATH, 'not json{{{')
-    expect(readRunMarker()).toBeNull()
-  })
-})
-
-// ─── writeRunMarker ─────────────────────────────────────────────────────────
-
-describe('writeRunMarker', () => {
-  it('cria arquivo com dados do marker', () => {
-    const marker: RunMarker = {
-      status: 'running',
-      pid: 99999,
-      started_at: '2026-05-17T21:00:00.000Z',
-      runId: '1747519200000',
-    }
-    writeRunMarker(marker)
-    expect(existsSync(MARKER_PATH)).toBe(true)
-
-    const saved = JSON.parse(readFileSync(MARKER_PATH, 'utf-8'))
-    expect(saved.status).toBe('running')
-    expect(saved.pid).toBe(99999)
-    expect(saved.runId).toBe('1747519200000')
-  })
-
-  it('sobrescreve marker existente', () => {
-    writeRunMarker({ status: 'running', pid: 1, started_at: '', runId: 'old' })
-    writeRunMarker({ status: 'completed', pid: 2, started_at: '', runId: 'new' })
-
-    const saved = readRunMarker()
-    expect(saved?.runId).toBe('new')
-    expect(saved?.status).toBe('completed')
-  })
-})
-
-// ─── clearRunMarker ─────────────────────────────────────────────────────────
-
-describe('clearRunMarker', () => {
-  it('remove arquivo existente', () => {
-    writeFileSync(MARKER_PATH, '{}')
-    clearRunMarker()
-    expect(existsSync(MARKER_PATH)).toBe(false)
-  })
-
-  it('não falha quando arquivo não existe', () => {
-    expect(() => clearRunMarker()).not.toThrow()
-  })
-})
-
-// ─── isProcessAlive ─────────────────────────────────────────────────────────
-
-describe('isProcessAlive', () => {
-  it('retorna true para PID do processo atual', () => {
-    expect(isProcessAlive(process.pid)).toBe(true)
-  })
-
-  it('retorna false para PID inexistente', () => {
-    expect(isProcessAlive(999999999)).toBe(false)
+  it('caminhoResultadoEmtTeste usa nome DDD emt-resultado-teste', () => {
+    expect(caminhoResultadoEmtTeste('abc')).toContain('emt-resultado-teste-abc.json')
   })
 })

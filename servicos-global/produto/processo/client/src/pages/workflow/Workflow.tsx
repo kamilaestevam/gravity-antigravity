@@ -17,6 +17,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -209,8 +210,16 @@ const CUSTO_ICONS: Record<string, React.ReactNode> = {
 
 export default function Workflow() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  const location = useLocation()
   const { processo, loading, refetch } = useProcesso()
   const addNotification = useShellStore((state) => state.addNotification)
+
+  // Voltar para a tela de origem (Lista, Kanban…); fallback Lista em deep link/nova aba
+  const voltarParaOrigem = useCallback(() => {
+    if (location.key !== 'default') navigate(-1)
+    else navigate('/processo/lista')
+  }, [location.key, navigate])
 
   const [followUps, setFollowUps] = useState<FollowUp[]>([])
   const [followUpsLoading, setFollowUpsLoading] = useState(true)
@@ -343,6 +352,7 @@ export default function Workflow() {
           icone={<FlowArrow weight="duotone" size={26} />}
           titulo={`Visão Geral — ${processo.numero}`}
           subtitulo={`${processo.importador_nome} | ${processo.exportador_nome}`}
+          aoVoltar={voltarParaOrigem}
         />
       }
     >

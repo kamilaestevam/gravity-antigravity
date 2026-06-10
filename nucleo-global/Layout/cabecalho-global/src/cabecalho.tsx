@@ -21,12 +21,25 @@ import type { CabecalhoProps } from './tipos.js'
  *   acoes={<BotaoGlobal variante="primario">Nova Empresa</BotaoGlobal>}
  * />
  */
-export function CabecalhoGlobal({ titulo, subtitulo, icone, acoes, viewToggle }: CabecalhoProps) {
+export function CabecalhoGlobal({ titulo, subtitulo, icone, acoes, viewToggle, aoVoltar }: CabecalhoProps) {
   return (
     <header className="cg-header">
       <div className="cg-header__title-block">
         {/* Linha: ícone + h1 */}
         <div className="cg-header__title-row">
+          {aoVoltar && (
+            <button
+              type="button"
+              className="cg-header__back"
+              onClick={aoVoltar}
+              aria-label="Voltar"
+              title="Voltar"
+            >
+              <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                <path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/>
+              </svg>
+            </button>
+          )}
           {icone && (
             <span className="cg-header__icon" aria-hidden="true">
               {icone}

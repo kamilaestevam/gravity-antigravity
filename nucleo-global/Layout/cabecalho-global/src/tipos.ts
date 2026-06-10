@@ -10,6 +10,8 @@ export interface CabecalhoProps {
   subtitulo?: string
   /** Ícone à esquerda do título (ReactNode — ex: ícone Phosphor) */
   icone?: ReactNode
+  /** Ação de voltar — quando presente, renderiza seta circular à esquerda do ícone/título */
+  aoVoltar?: () => void
   /** Slot central — ex: SeletorVisualizacaoGlobal (Dashboard/Lista/Kanban) */
   viewToggle?: ReactNode
   /** Slot direito — ex: botão de ação primária */

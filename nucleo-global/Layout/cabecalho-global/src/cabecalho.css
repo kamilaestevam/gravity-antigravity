@@ -50,6 +50,29 @@
   gap: 0.5rem;
 }
 
+/* Botão voltar — seta circular à esquerda do ícone/título */
+.cg-header__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin-right: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--cg-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.cg-header__back:hover {
+  color: var(--cg-text);
+  background: color-mix(in srgb, var(--cg-accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cg-accent) 28%, transparent);
+}
+
 /* Ícone */
 .cg-header__icon {
   display: inline-flex;

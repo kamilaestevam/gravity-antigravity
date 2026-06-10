@@ -57,6 +57,26 @@ export function somarDecimal186(acumulado: number, parcela: number, campo: strin
 }
 
 /**
+ * Soma tolerante para AGREGADOS do pedido: quando o acumulado, a parcela ou
+ * o resultado não cabem em Decimal(18,6), retorna `null` (agregado
+ * indeterminável) em vez de lançar erro.
+ *
+ * Razão: o recálculo dos 5 agregados roda em TODO save de item/pedido e em
+ * transferências. Um estouro na soma de peso não pode abortar a edição de
+ * valor (campos sem relação de negócio) nem bloquear transferências — o
+ * agregado vira `null`, mesmo padrão de moedas/unidades divergentes.
+ */
+export function somarAgregadoDecimal186(
+  acumulado: number | null,
+  parcela: number | null,
+): number | null {
+  if (acumulado === null || parcela === null) return null
+  const proximo = acumulado + parcela
+  if (!Number.isFinite(proximo) || Math.abs(proximo) >= 1e12) return null
+  return proximo
+}
+
+/**
  * unitário × quantidade para agregados físicos (peso/cubagem).
  * Retorna `null` quando o produto não cabe em Decimal(18,6) — caller
  * deve marcar o agregado como indeterminável (`null`) em vez de abortar

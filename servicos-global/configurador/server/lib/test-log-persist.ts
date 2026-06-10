@@ -3,6 +3,7 @@ import { join } from 'path'
 import type { TestLogEntry } from '../utils/playwright-parser.js'
 import { enrichNewFailuresWithGemini } from './enrich-test-failures.js'
 import { persistirEntradasTeste, type PersistTesteContexto } from './teste-persist.js'
+import { prepararEntradaEmtParaPersistencia } from './emt-artifacts.js'
 
 export const testLogsDir = join(process.cwd(), 'data', 'test-logs')
 
@@ -26,12 +27,16 @@ export async function appendTestLogEntries(
   const created_at = createdAt ?? new Date().toISOString()
   const contexto: PersistTesteContexto = { ...ctx, data_criacao_teste: created_at }
 
-  const { ids, salvouNoBanco } = await persistirEntradasTeste(entries, contexto, debugLog)
+  const entradasNormalizadas = entries.map(e =>
+    e.type === 'EMT' ? prepararEntradaEmtParaPersistencia(e) : e,
+  )
+
+  const { ids, salvouNoBanco } = await persistirEntradasTeste(entradasNormalizadas, contexto, debugLog)
 
   if (salvouNoBanco) {
     debugLog?.(`DB persistiu ${ids.length} entrada(s)`)
     enrichNewFailuresWithGemini(
-      entries.map((e, i) => ({ id: ids[i] ?? `${Date.now()}-${i}`, result: e.result, ...e })),
+      entradasNormalizadas.map((e, i) => ({ id: ids[i] ?? `${Date.now()}-${i}`, result: e.result, ...e })),
       '',
     )
     return
@@ -41,7 +46,7 @@ export async function appendTestLogEntries(
   const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)
   let existing: unknown[] = []
   try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
-  const novosLogs = entries.map((e, i) => ({ id: `${Date.now()}-${i}`, created_at, ...e }))
+  const novosLogs = entradasNormalizadas.map((e, i) => ({ id: `${Date.now()}-${i}`, created_at, ...e }))
   try {
     writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
     debugLog?.(`WROTE ${novosLogs.length} entries to ${filePath} (fallback JSON)`)

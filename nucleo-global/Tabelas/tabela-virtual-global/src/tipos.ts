@@ -112,6 +112,11 @@ export interface GTColuna<T = unknown> {
    * representam só a unidade (ex: unidade_comercializada_pedido).
    */
   apenasUnidade?: boolean
+  /**
+   * Quando true (e tipo='moeda'), o popover exibe a moeda como badge fixo —
+   * só o valor numérico é editável (moeda câmbio/comercial em outra coluna).
+   */
+  apenasValorMoeda?: boolean
   /** Rótulo do trigger do seletor de unidade no popover (ex.: só o nome, sem código). */
   rotuloUnidadeSelecionada?: (unit: string) => string
   /** Formata GTValorUnidade na célula enquanto o popover está aberto. */
@@ -264,6 +269,8 @@ export interface GTMapaColunasFilho<C = unknown> {
   formatarValorUnidade?: (valor: GTValorUnidade) => string
   /** Aviso de impacto cruzado exibido no popover de edição (ex.: moeda ↔ valor). */
   avisoImpacto?: string
+  /** Popover moeda: só valor editável; moeda exibida como badge (não altera moeda do item). */
+  apenasValorMoeda?: boolean
 }
 
 // ─── Handle imperativo ────────────────────────────────────────────────────────

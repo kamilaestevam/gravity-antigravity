@@ -54,6 +54,11 @@ else
   fi
 fi
 
+# Storage persistente de prints EMT (montar volume Railway em EMT_ARTIFACTS_DIR)
+export EMT_ARTIFACTS_DIR="${EMT_ARTIFACTS_DIR:-/app/data/emt-artifacts}"
+mkdir -p "$EMT_ARTIFACTS_DIR"
+echo "[start-site] EMT artifacts dir: $EMT_ARTIFACTS_DIR"
+
 # Storage persistente de anexos do Pedido (montar volume Railway em PEDIDO_ANEXOS_UPLOAD_DIR se necessário)
 export PEDIDO_ANEXOS_UPLOAD_DIR="${PEDIDO_ANEXOS_UPLOAD_DIR:-/app/data/pedido-anexos}"
 mkdir -p "$PEDIDO_ANEXOS_UPLOAD_DIR"

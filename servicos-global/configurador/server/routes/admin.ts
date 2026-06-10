@@ -1245,6 +1245,7 @@ function enrichirLogEmtApi(reg: TesteApiRegistro): TesteApiRegistro {
       success_log: reg.log_sucesso_teste,
       error_log: reg.log_erro_teste,
       emt_prints: reg.lista_prints_emt_teste,
+      id_execucao_teste: reg.id_execucao_teste,
     },
     specFileDoRegistry(reg.modulo_teste),
   )
@@ -1832,25 +1833,27 @@ adminRouter.get('/testes/emt-print/:id_log/:nome_arquivo', async (req, res, next
     const nomeArquivo = decodeURIComponent(req.params.nome_arquivo)
     const dbLog = await buscarTestePorId(idLog)
     const logEntry = dbLog
-      ? { type: dbLog.tipo_teste, module: dbLog.modulo_teste, emt_pasta: dbLog.pasta_emt_teste, created_at: dbLog.data_criacao_teste }
+      ? {
+          type: dbLog.tipo_teste,
+          module: dbLog.modulo_teste,
+          emt_pasta: dbLog.pasta_emt_teste,
+          created_at: dbLog.data_criacao_teste,
+          id_execucao_teste: dbLog.id_execucao_teste,
+        }
       : buscarLogTestePorId(idLog, testLogsDir)
     if (!logEntry || logEntry.type !== 'EMT') {
       throw new AppError('Log EMT não encontrado', 404, 'NOT_FOUND')
     }
-    const emtPasta = String(logEntry.emt_pasta ?? '')
+    let emtPasta = String(logEntry.emt_pasta ?? '')
     if (!emtPasta) {
       const spec = specFileDoRegistry(String(logEntry.module ?? ''))
       const createdMs = new Date(String(logEntry.created_at ?? Date.now())).getTime()
-      const artefatos = spec ? coletarArtefatosEmt(spec, createdMs, 0, '') : null
+      const runId = typeof logEntry.id_execucao_teste === 'string' ? logEntry.id_execucao_teste : undefined
+      const artefatos = spec ? coletarArtefatosEmt(spec, createdMs, 0, '', runId) : null
       if (!artefatos?.emt_pasta) {
         throw new AppError('Pasta de artefatos EMT não encontrada', 404, 'NOT_FOUND')
       }
-      const abs = resolverCaminhoPrintSeguro(artefatos.emt_pasta, nomeArquivo)
-      if (!abs) throw new AppError('Print não encontrado', 404, 'NOT_FOUND')
-      res.setHeader('Content-Type', 'image/png')
-      res.setHeader('Cache-Control', 'private, max-age=3600')
-      createReadStream(abs).pipe(res)
-      return
+      emtPasta = artefatos.emt_pasta
     }
     const abs = resolverCaminhoPrintSeguro(emtPasta, nomeArquivo)
     if (!abs) throw new AppError('Print não encontrado', 404, 'NOT_FOUND')

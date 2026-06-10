@@ -5,6 +5,7 @@
 import { existsSync, readdirSync, statSync, unlinkSync, rmdirSync } from 'fs'
 import { resolve, join } from 'path'
 import { raizRepositorioGravity } from './raiz-repositorio-gravity.js'
+import { dirArtefatosEmtPersistente } from './emt-artifacts.js'
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -18,6 +19,7 @@ function getArtifactDirs(): string[] {
     resolve(raizRepositorioGravity, 'testes', 'test-results'),
     resolve(process.cwd(), 'data', 'test-logs'),
     resolve(process.cwd(), 'data', 'pentest-reports'),
+    dirArtefatosEmtPersistente(),
   ]
 }
 

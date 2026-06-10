@@ -195,9 +195,19 @@ describe('obterPillsTooltipColuna', () => {
     expect(res.item).toEqual(['editavel_item', 'alerta_divergencia'])
   })
 
-  it('valor_total_cambio_pedido — pedido bloqueado + calculado', () => {
+  it('valor_total_cambio_pedido — pedido bloqueado + soma mesma moeda + editável item', () => {
     const pills = pillsParaNivelColuna('valor_total_cambio_pedido', 'pai')
-    expect(pills).toEqual(['bloqueado_edicao', 'calculado_pedido'])
+    expect(pills).toEqual([
+      'bloqueado_edicao',
+      'valor_total_soma_mesma_moeda',
+      'editavel_nos_itens',
+      'alerta_moeda_divergente_entre_itens',
+    ])
+  })
+
+  it('valor_total_cambio_pedido — item editável nos itens', () => {
+    const pills = pillsParaNivelColuna('valor_total_cambio_pedido', 'item')
+    expect(pills).toEqual(['editavel_nos_itens'])
   })
 
   it('taxa_cambio_estimada — pedido bloqueado + calculado', () => {

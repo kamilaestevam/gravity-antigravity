@@ -1,7 +1,78 @@
-import { existsSync, readFileSync, readdirSync, statSync } from 'fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync } from 'fs'
 import { join, resolve, dirname, relative } from 'path'
 import { listDailyTestLogFiles } from './test-log-persist.js'
 import { raizRepositorioGravity, registryPlanosTestePath } from './raiz-repositorio-gravity.js'
+import type { TestLogEntry } from '../utils/playwright-parser.js'
+
+const PREFIXO_EMT_PERSISTENTE = 'data/emt-artifacts/'
+
+/** Diretório persistente de PNGs EMT — montar volume Railway aqui em produção. */
+export function dirArtefatosEmtPersistente(): string {
+  const base = process.env.EMT_ARTIFACTS_DIR?.trim()
+  if (base) return resolve(base)
+  return resolve(process.cwd(), 'data', 'emt-artifacts')
+}
+
+export function isCaminhoRelPrintEmtPermitido(rel: string): boolean {
+  return (
+    (rel.startsWith('testes/testes-em-tela/') || rel.startsWith(PREFIXO_EMT_PERSISTENTE + 'testes/testes-em-tela/'))
+    && rel.includes('/resultado-teste/')
+    && !rel.includes('..')
+  )
+}
+
+/** Caminho relativo persistido no banco (convenção fixa, independente de EMT_ARTIFACTS_DIR). */
+export function pastaEmtPersistenteRel(emtPastaRelMonorepo: string): string {
+  return `${PREFIXO_EMT_PERSISTENTE}${emtPastaRelMonorepo}`
+}
+
+/** Resolve pasta EMT absoluta (monorepo ou cópia persistente). */
+export function resolverPastaEmtAbsoluta(emtPastaRel: string): string | null {
+  if (!emtPastaRel || emtPastaRel.includes('..')) return null
+  if (emtPastaRel.startsWith(PREFIXO_EMT_PERSISTENTE)) {
+    const sufixo = emtPastaRel.slice(PREFIXO_EMT_PERSISTENTE.length)
+    if (!sufixo.startsWith('testes/testes-em-tela/')) return null
+    return resolve(dirArtefatosEmtPersistente(), sufixo)
+  }
+  if (emtPastaRel.startsWith('testes/testes-em-tela/')) {
+    const monorepo = resolve(raizRepositorioGravity, emtPastaRel)
+    if (existsSync(monorepo)) return monorepo
+    const espelho = resolve(dirArtefatosEmtPersistente(), emtPastaRel)
+    if (existsSync(espelho)) return espelho
+    return monorepo
+  }
+  return null
+}
+
+/**
+ * Copia prints + RESULTADO.txt para data/emt-artifacts/ (sobrevive redeploy Railway).
+ * Retorna caminho relativo ao cwd para gravar em pasta_emt_teste.
+ */
+export function espelharArtefatosEmtPersistente(emtPastaRelMonorepo: string): string | null {
+  if (!emtPastaRelMonorepo.startsWith('testes/testes-em-tela/')) return null
+  const origem = resolve(raizRepositorioGravity, emtPastaRelMonorepo)
+  if (!existsSync(origem)) return null
+
+  const destino = resolve(dirArtefatosEmtPersistente(), emtPastaRelMonorepo)
+  mkdirSync(dirname(destino), { recursive: true })
+  try {
+    cpSync(origem, destino, { recursive: true, force: true })
+  } catch {
+    return null
+  }
+
+  const relPersistente = pastaEmtPersistenteRel(emtPastaRelMonorepo)
+  return relPersistente
+}
+
+/** Antes de persistir no banco — espelha PNGs para pasta persistente. */
+export function prepararEntradaEmtParaPersistencia(entry: TestLogEntry): TestLogEntry {
+  if (entry.type !== 'EMT' || !entry.emt_pasta) return entry
+  if (entry.emt_pasta.startsWith(PREFIXO_EMT_PERSISTENTE)) return entry
+  const pastaPersistente = espelharArtefatosEmtPersistente(entry.emt_pasta)
+  if (!pastaPersistente) return entry
+  return { ...entry, emt_pasta: pastaPersistente }
+}
 
 export interface EmtRunArtifacts {
   /** Caminho relativo ao monorepo da pasta de saída (prints + RESULTADO.txt). */
@@ -114,6 +185,12 @@ export function coletarArtefatosEmt(
   if (runId) {
     const pastaRun = resolverPastaEmtPorRunId(scriptRel, runId)
     if (pastaRun) return artefatosDaPasta(pastaRun, code, stdout)
+
+    const featureRel = pastaRelativa(resolverFeatureRootDoScript(scriptRel))
+    const pastaPersist = join(dirArtefatosEmtPersistente(), featureRel, 'resultado-teste', runId)
+    if (existsSync(join(pastaPersist, 'RESULTADO.txt'))) {
+      return artefatosDaPasta(pastaPersist, code, stdout)
+    }
   }
 
   const pastaAbs = resolverPastaEmtRecente(scriptRel, startedAtMs)
@@ -166,8 +243,8 @@ export function enrichirLogEmt(
     : null
 
   if (emtPastaSalva) {
-    const pastaAbs = resolve(raizRepositorioGravity, emtPastaSalva)
-    if (existsSync(pastaAbs)) {
+    const pastaAbs = resolverPastaEmtAbsoluta(emtPastaSalva)
+    if (pastaAbs && existsSync(pastaAbs)) {
       const code = entry.result === 'APROVADO' ? 0 : 1
       const artefatos = artefatosDaPasta(pastaAbs, code, '')
       return aplicarLogCompletoDoDisco(entry, pastaAbs, artefatos.emt_prints)
@@ -180,11 +257,18 @@ export function enrichirLogEmt(
   if (entry.result !== 'APROVADO' && entry.error_log && temPrints) return entry
 
   const createdMs = new Date(String(entry.created_at ?? Date.now())).getTime()
-  const artefatos = coletarArtefatosEmt(specFile, createdMs, entry.result === 'APROVADO' ? 0 : 1, '')
+  const runIdFallback = typeof entry.id_execucao_teste === 'string' ? entry.id_execucao_teste : undefined
+  const artefatos = coletarArtefatosEmt(
+    specFile,
+    createdMs,
+    entry.result === 'APROVADO' ? 0 : 1,
+    '',
+    runIdFallback,
+  )
 
   if (artefatos.emt_pasta) {
-    const pastaAbs = resolve(raizRepositorioGravity, artefatos.emt_pasta)
-    if (existsSync(pastaAbs)) {
+    const pastaAbs = resolverPastaEmtAbsoluta(artefatos.emt_pasta)
+    if (pastaAbs && existsSync(pastaAbs)) {
       return aplicarLogCompletoDoDisco(
         { ...entry, emt_pasta: artefatos.emt_pasta },
         pastaAbs,
@@ -208,9 +292,11 @@ export function resolverCaminhoPrintSeguro(
   if (!emtPastaRel || !nomeArquivo) return null
   if (nomeArquivo.includes('..') || nomeArquivo.includes('/') || nomeArquivo.includes('\\')) return null
   if (!nomeArquivo.endsWith('.png')) return null
-  if (!emtPastaRel.startsWith('testes/testes-em-tela/')) return null
+  if (!isCaminhoRelPrintEmtPermitido(emtPastaRel)) return null
 
-  const pastaAbs = resolve(raizRepositorioGravity, emtPastaRel)
+  const pastaAbs = resolverPastaEmtAbsoluta(emtPastaRel)
+  if (!pastaAbs) return null
+
   const abs = resolve(pastaAbs, nomeArquivo)
   const rel = relative(pastaAbs, abs)
   if (!rel || rel.startsWith('..') || rel.includes('..')) return null

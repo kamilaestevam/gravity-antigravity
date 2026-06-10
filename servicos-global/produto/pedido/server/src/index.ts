@@ -65,6 +65,7 @@ import { listaPedidoKpisRouter } from './routes/lista-pedido-kpis.js'
 import { listaPaineisRouter } from './routes/lista-pedido-paineis.js'
 import { visaoGeralAgregadoRouter } from './routes/visao-geral-agregado.js'
 import { invalidarCacheDashboardAoMutarPedido } from './middleware/invalidar-cache-dashboard-pedido.js'
+// processos-core pedidos router — reinicie `npm run dev` após alterar rotas do core.
 import { pedidosRouter } from '../../../processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../processos-core/src/routes/pedidos-config.js'
 import { importacaoRouter } from '../../../processos-core/src/routes/importacao.js'

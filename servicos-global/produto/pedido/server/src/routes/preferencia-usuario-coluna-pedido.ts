@@ -25,6 +25,10 @@ import {
   mesclarSuprimirAvisoEscopoHubEmColunasLargura,
   type ColunasLarguraGravacao,
 } from '../../../shared/preferenciasUsuarioColunaPedido.js'
+import {
+  migrarListaChavesCampoPedido,
+  migrarRecordChavesCampoPedido,
+} from '../../../shared/migracaoChavesCampoPedido.js'
 
 export const preferenciaUsuarioColunaPedidoRouter = Router()
 
@@ -70,9 +74,12 @@ function mapPrismaParaJson(row: PreferenciaPrismaRow | null): PreferenciaRespons
   const larguraBruta = row.colunas_largura_preferencia_usuario_coluna_pedido
   const idsEscopo = extrairEscopoWorkspacesDeColunasLargura(larguraBruta)
   const suprimirAviso = extrairSuprimirAvisoEscopoHubDeColunasLargura(larguraBruta)
+  const colunasLarguraCliente = colunasLarguraParaCliente(larguraBruta)
   return {
-    colunas_visiveis: row.colunas_visiveis_preferencia_usuario_coluna_pedido,
-    colunas_largura:  colunasLarguraParaCliente(larguraBruta),
+    colunas_visiveis: migrarListaChavesCampoPedido(row.colunas_visiveis_preferencia_usuario_coluna_pedido),
+    colunas_largura:  colunasLarguraCliente
+      ? migrarRecordChavesCampoPedido(colunasLarguraCliente)
+      : undefined,
     ...(idsEscopo !== undefined ? { ids_workspaces_escopo: idsEscopo } : {}),
     ...(suprimirAviso === true ? { suprimir_aviso_escopo_hub_pedido: true } : {}),
   }
@@ -89,10 +96,13 @@ function mesclarPreferenciaGravacao(
   let colunasLargura = existente?.colunas_largura_preferencia_usuario_coluna_pedido ?? null
 
   if (body.colunas_visiveis !== undefined) {
-    colunasVisiveis = body.colunas_visiveis
+    colunasVisiveis = migrarListaChavesCampoPedido(body.colunas_visiveis)
   }
   if (body.colunas_largura !== undefined) {
-    colunasLargura = mesclarLargurasNumericas(colunasLargura, body.colunas_largura)
+    colunasLargura = mesclarLargurasNumericas(
+      colunasLargura,
+      migrarRecordChavesCampoPedido(body.colunas_largura),
+    )
   }
   if (body.ids_workspaces_escopo !== undefined) {
     colunasLargura = mesclarEscopoEmColunasLargura(colunasLargura, body.ids_workspaces_escopo)

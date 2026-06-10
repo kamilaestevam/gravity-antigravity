@@ -59,7 +59,7 @@ export interface PedidoItem {
   // Quantidades
   quantidade_inicial_pedido: number
   quantidade_atual_pedido: number
-  quantidade_pronta_total_item_pedido: number
+  quantidade_pronta_item: number
   quantidade_transferida_pedido: number
   quantidade_cancelada_pedido: number
   casas_decimais_quantidade_item: number

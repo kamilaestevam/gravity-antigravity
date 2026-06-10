@@ -60,7 +60,7 @@ function normalizarPedidoParaAlertas(
   itensMapped: Record<string, unknown>[],
 ): Record<string, unknown> {
   const prontaSoma = itensMapped.reduce(
-    (s, i) => s + (Number(i.quantidade_pronta_pedido) || 0),
+    (s, i) => s + (Number(i.quantidade_pronta_item) || 0),
     0,
   )
   return {

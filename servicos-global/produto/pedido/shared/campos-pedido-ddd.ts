@@ -250,8 +250,6 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
 //   - 26 campos do schema adicionados (cobertura ~100% dos preenchiveis).
 //
 // Debitos conhecidos (nao corrigidos por decisao de produto):
-//   - quantidade_pronta_total_item: schema tem `quantidade_pronta_item`. Mantido
-//     com "total" por requisito de UI. Parser precisara de alias ou schema deve adicionar.
 //   - data_embarque_item_pedido: nao existe no schema. Mantido como placeholder
 //     conceitual. Parser nao vai gravar; OU schema deve adicionar a coluna.
 
@@ -267,8 +265,7 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'quantidade_inicial_item',                      rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades', prioridade: 'critica',   obrigatorio: true, aliasesLegados: ['qty', 'quantity', 'qtd', 'qtde', 'quantidade', 'ordered qty', 'order qty', 'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'zmenge', 'menge'] },
   { campo: 'quantidade_atual_item',                        rotulo: 'Qtd. Atual',                             tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'quantidade_transferida_item',                  rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  // DEBITO: schema tem `quantidade_pronta_item`. Mantido com "total" por decisao de produto (alinha com UI).
-  { campo: 'quantidade_pronta_total_item',                 rotulo: 'Qtd. Pronta Total',                      tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_pronta_item',                       rotulo: 'Qtd. Pronta Total',                      tipo: 'numero', nivel: 'item', grupo: 'Quantidades', aliasesLegados: ['quantidade_pronta_total_item', 'quantidade_pronta_total_item_pedido', 'quantidade_pronta_pedido'] },
   { campo: 'quantidade_cancelada_item',                    rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'casas_decimais_quantidade_item',               rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 

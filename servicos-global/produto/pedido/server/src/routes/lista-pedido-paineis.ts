@@ -20,9 +20,14 @@ import {
   configListaPainelPadraoV1,
   ID_PRODUTO_GRAVITY_PEDIDO,
   listaPainelConfigV1Schema,
+  migrarChavesConfigListaPainel,
   serializarConfigListaPainel,
   type ListaPainelConfigV1,
 } from '../../../shared/listaPainelConfigSchema.js'
+import {
+  migrarListaChavesCampoPedido,
+  migrarRecordChavesCampoPedido,
+} from '../../../shared/migracaoChavesCampoPedido.js'
 
 export const listaPaineisRouter = Router()
 
@@ -79,8 +84,10 @@ function mapPatch(patch: {
   if (patch.nome !== undefined)        data.nome_lista_painel_usuario_global = patch.nome
   if (patch.is_visivel !== undefined)  data.visivel_lista_painel_usuario_global = patch.is_visivel
   if (patch.config_json !== undefined) {
-    listaPainelConfigV1Schema.parse(JSON.parse(patch.config_json))
-    data.config_json_lista_painel_usuario_global = patch.config_json
+    const configMigrado = migrarChavesConfigListaPainel(
+      listaPainelConfigV1Schema.parse(JSON.parse(patch.config_json)),
+    )
+    data.config_json_lista_painel_usuario_global = serializarConfigListaPainel(configMigrado)
   }
   return data
 }
@@ -112,10 +119,14 @@ async function configInicialDePreferenciaLegada(
   )
   const colunasLargura = colunasLarguraCliente ?? {}
 
-  return configListaPainelPadraoV1({
-    colunas_visiveis: colunasVisiveis.length > 0 ? colunasVisiveis : [],
-    ...(Object.keys(colunasLargura).length > 0 ? { colunas_largura: colunasLargura } : {}),
-  })
+  return migrarChavesConfigListaPainel(configListaPainelPadraoV1({
+    colunas_visiveis: colunasVisiveis.length > 0
+      ? migrarListaChavesCampoPedido(colunasVisiveis)
+      : [],
+    ...(Object.keys(colunasLargura).length > 0
+      ? { colunas_largura: migrarRecordChavesCampoPedido(colunasLargura) }
+      : {}),
+  }))
 }
 
 function whereUsuarioProduto(idOrganizacao: string, idUsuario: string) {
@@ -238,7 +249,9 @@ listaPaineisRouter.post('/paineis', async (req: Request, res: Response, next: Ne
 
       let configInicial = configListaPainelPadraoV1()
       if (parsed.data.config_json) {
-        configInicial = listaPainelConfigV1Schema.parse(JSON.parse(parsed.data.config_json))
+        configInicial = migrarChavesConfigListaPainel(
+          listaPainelConfigV1Schema.parse(JSON.parse(parsed.data.config_json)),
+        )
       }
 
       const painel = await db.listaPainelUsuarioGlobal.create({

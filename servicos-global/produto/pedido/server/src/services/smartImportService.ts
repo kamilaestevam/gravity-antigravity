@@ -105,7 +105,7 @@ const CAMPOS_BLOQ_PARA_PEDIDO: ReadonlySet<string> = new Set([
   'quantidade_inicial_item',
   'quantidade_atual_item',
   'quantidade_transferida_item',
-  'quantidade_pronta_total_item',
+  'quantidade_pronta_item',
   'quantidade_cancelada_item',
   'valor_por_unidade_item',
   'nome_exportador_item',
@@ -2072,8 +2072,12 @@ export class SmartImportService {
     if (cubagem !== null) itemData.cubagem_unitaria_item = cubagem
     const qtdTransf = parseNumeroBrOpcional(dados['quantidade_transferida_item'])
     if (qtdTransf !== null) itemData.quantidade_transferida_item = qtdTransf
-    // SSOT usa 'quantidade_pronta_total_item', Prisma usa 'quantidade_pronta_item'
-    const qtdPronta = parseNumeroBrOpcional(dados['quantidade_pronta_total_item'] ?? dados['quantidade_pronta_item'])
+    const qtdPronta = parseNumeroBrOpcional(
+      dados['quantidade_pronta_item']
+      ?? dados['quantidade_pronta_total_item']
+      ?? dados['quantidade_pronta_total_item_pedido']
+      ?? dados['quantidade_pronta_pedido'],
+    )
     if (qtdPronta !== null) itemData.quantidade_pronta_item = qtdPronta
     const qtdCancel = parseNumeroBrOpcional(dados['quantidade_cancelada_item'])
     if (qtdCancel !== null) itemData.quantidade_cancelada_item = qtdCancel

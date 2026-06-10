@@ -20,7 +20,7 @@ function item(partial: Partial<PedidoItem>): PedidoItem {
     descricao_item: 'x',
     quantidade_inicial_pedido: 10,
     quantidade_atual_pedido: 10,
-    quantidade_pronta_total_item_pedido: 0,
+    quantidade_pronta_item: 0,
     quantidade_transferida_pedido: 0,
     quantidade_cancelada_pedido: 0,
     casas_decimais_quantidade_item: 2,

@@ -44,7 +44,7 @@ export const CAMPOS_AGREGADOS_EDITAVEIS_NO_ITEM: Record<string, { colunaPai: str
   },
   quantidade_pronta_itens_pedido_total: {
     colunaPai: 'quantidade_pronta_itens_pedido_total',
-    campoItem: 'quantidade_pronta_total_item_pedido',
+    campoItem: 'quantidade_pronta_item',
   },
 }
 

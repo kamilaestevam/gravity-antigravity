@@ -13,6 +13,8 @@
 **Componente:** `servicos-global/produto/pedido/client/src/pages/Configuracoes.tsx`  
 **Modal:** `nucleo-global/Modais/modal-confirmar-excluir-global/src/ModalConfirmarExcluirGlobal.tsx`
 
+> O modal Admin («O que será testado») agrupa casos pelos títulos `### ETAPA …` abaixo. **Não remover** essa estrutura.
+
 ---
 
 ## Regra de sequência dos prints
@@ -29,127 +31,114 @@
 
 > **ATENÇÃO:** seguir na íntegra com todos os detalhes. Não resumir nem omitir passos.
 
-### Passo 01
+---
+
+## Roteiro de execução
+
+### ETAPA 0 — Preparação
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **00** | Confirmar ambiente (Produção `https://usegravity.com.br` ou Local `http://localhost:8000`) | Runner usa `PLAYWRIGHT_BASE_URL` coerente com o ambiente escolhido no Admin |
+| **00.1** | Login Clerk + workspace CDE | `EMT_ROW` Login · Aprovado |
+| **00.2** | Criar pasta `resultado-teste/<EMT_RUN_ID>/` | Pasta de saída criada pelo runner |
+
+### ETAPA 1 — Lista / localizar coluna manual (se não houver, criar)
 
 Ir até **Pedido / Lista** / Localizar alguma coluna manual criada pelo usuário — **se não houver, crie**.
 
-| Verificação | Resultado esperado |
-|-------------|-------------------|
-| URL | `/pedido/pedidos/lista` |
-| Coluna manual | Cabeçalho visível na grade (`data-find-col-key` = `chave` da coluna) |
-| Se ausente | Criar coluna texto via **Configurações → Colunas → Personalizadas → + Criar Coluna** e voltar à lista com todas as colunas visíveis |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **01** | Navegar `/pedido/pedidos/lista`; garantir colunas visíveis (Selecionar tudo) | Cabeçalho da coluna manual visível (`data-find-col-key` = `chave`) · Print `01-lista-coluna-manual-como-esta.png` |
+| **01.1** | Se nenhuma coluna manual visível: criar via Configurações → Colunas → Personalizadas → + Criar Coluna (tipo Texto) | Coluna `EMT EXCLUIR …` criada e visível na lista após reload |
 
-**Prints:** `01-lista-coluna-manual-como-esta.png`
-
----
-
-### Passo 02
+### ETAPA 2 — Configurações / Colunas / Personalizadas
 
 Ir até **Pedido / Configurações / Colunas / Personalizadas** e ver a coluna criada.
 
-| Verificação | Resultado esperado |
-|-------------|-------------------|
-| Navegação | Menu **Configurações** → sidebar **Colunas** expandido → **Personalizadas** |
-| Lista | Linha com nome da coluna alvo visível em **Colunas Personalizadas** |
-| Tipo | Rótulo do tipo exibido (ex.: Texto, Numérico, Data) |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **02** | Menu **Configurações** → sidebar **Colunas** expandido → **Personalizadas** | URL `/pedido/configuracoes` com aba personalizadas · Print `02-config-personalizadas-coluna-como-esta.png` |
+| **02.1** | Localizar linha da coluna alvo na lista **Colunas Personalizadas** | Nome e tipo (Texto/Numérico/Data) visíveis · Print `02-config-personalizadas-coluna-resultado.png` |
 
-**Prints:** `02-config-personalizadas-coluna-como-esta.png`, `02-config-personalizadas-coluna-resultado.png`
+### ETAPA 3 — Ícone lixeira
 
----
+Clicar no ícone da **lixeira** (botão `.cfg-kanban-campo-btn--remove`, ícone `Trash`, `aria-label` Excluir {{nome}}).
 
-### Passo 03
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **03** | Clicar lixeira na linha da coluna alvo | Modal abre — **não** exclui imediatamente · Print `03-excluir-icone-como-esta.png` |
+| **03.1** | — | Print `03-excluir-icone-selecao.png` com modal visível |
 
-Clicar no ícone da **lixeira** (na UI pode ainda aparecer X em capturas antigas; o botão usa ícone `Trash` e `aria-label` «Excluir {{nome}}»).
-
-| Verificação | Resultado esperado |
-|-------------|-------------------|
-| Botão | `.cfg-kanban-campo-btn--remove` na linha da coluna |
-| Ação | Abre modal — **não** exclui imediatamente |
-
-**Prints:** `03-excluir-icone-selecao.png`
-
----
-
-### Passo 04
+### ETAPA 4 — Modal padrão (mensagem, botões, layout)
 
 Abrir **modal padrão** — mensagem correta, botões corretos e layout correto.
 
-| Verificação | Resultado esperado |
-|-------------|-------------------|
-| Overlay | `.mce__overlay` + `role="dialog"` |
-| Título | `Excluir coluna` (i18n `modal_excluir_titulo`) |
-| Subtítulo | `Confirme antes de prosseguir com a exclusão.` |
-| Aviso | `Esta ação é irreversível.` + `Os valores existentes serão preservados.` |
-| Registro | Seção **REGISTRO** com nome da coluna em `.mce__td` |
-| Footer | Botão **Cancelar** (secundário) + **Excluir** (perigo, ícone lixeira) |
-| Layout | Classes `mce__container`, `mce__header`, `mce__body`, `mce__footer` |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **04** | Validar overlay `.mce__overlay` + `role="dialog"` | Modal padrão aberto · Print `04-modal-excluir-como-esta.png` |
+| **04.1** | Validar título `Excluir coluna` e subtítulo `Confirme antes de prosseguir com a exclusão.` | Textos i18n corretos |
+| **04.2** | Validar aviso `Esta ação é irreversível.` + `Os valores existentes serão preservados.` | Banner vermelho correto |
+| **04.3** | Validar seção **REGISTRO** com nome da coluna em `.mce__td` | Nome da coluna exibido |
+| **04.4** | Validar footer: **Cancelar** (secundário) + **Excluir** (perigo, ícone lixeira) | Botões e classes `mce__container`, `mce__header`, `mce__body`, `mce__footer` |
 
-**Prints:** `04-modal-excluir-como-esta.png`
+### ETAPA 5 — Confirmar exclusão
 
----
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **05** | Clicar botão **Excluir** no footer do modal | Ação de confirmação iniciada · Print `05-confirmar-exclusao-selecao.png` |
 
-### Passo 05
-
-Confirmar exclusão.
-
-| Verificação | Resultado esperado |
-|-------------|-------------------|
-| Ação | Clicar botão **Excluir** no footer do modal |
-
-**Prints:** `05-confirmar-exclusao-selecao.png`
-
----
-
-### Passo 06
+### ETAPA 6 — Botão Excluindo...
 
 Botão fica **Excluindo...**
 
-| Verificação | Resultado esperado |
-|-------------|-------------------|
-| Loading | `textoCarregando` = `Excluindo...` no `BotaoGlobal` |
-| Guards | Cancelar, X do header e Escape desabilitados durante loading |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **06** | Aguardar estado de loading no botão Excluir | Texto `Excluindo...` (`textoCarregando` no `BotaoGlobal`) · Print `06-botao-excluindo-resultado.png` |
+| **06.1** | Durante loading | **Cancelar**, X do header e Escape **desabilitados** |
 
-**Prints:** `06-botao-excluindo-resultado.png`
+### ETAPA 7 — Mensagem de confirmação de exclusão
 
----
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **07** | Aguardar toast `.shell-toast--success` | Texto `Coluna "{{nome}}" excluída com sucesso.` (i18n `msg_excluida`) · Print `07-toast-exclusao-resultado.png` |
+| **07.1** | Verificar lista Personalizadas | Coluna **ausente** da lista |
+| **07.2** | Aguardar modal | Fecha após flash «Excluído» (~1,2s) |
 
-### Passo 07
-
-Mensagem de confirmação de exclusão.
-
-| Verificação | Resultado esperado |
-|-------------|-------------------|
-| Toast | `.shell-toast--success` com texto `Coluna "{{nome}}" excluída com sucesso.` (i18n `msg_excluida`) |
-| Lista config | Coluna **ausente** da lista de personalizadas |
-| Modal | Fecha após flash «Excluído» (~1,2s) |
-
-**Prints:** `07-toast-exclusao-resultado.png`
-
----
-
-### Passo 08
+### ETAPA 8 — Voltar à Lista (coluna excluída)
 
 Voltar em **Pedido / Lista** para ter certeza que coluna foi excluída.
 
-| Verificação | Resultado esperado |
-|-------------|-------------------|
-| URL | `/pedido/pedidos/lista` |
-| Cabeçalho | Coluna alvo **não** presente (`data-find-col-key` ausente) |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **08** | Navegar `/pedido/pedidos/lista` | Cabeçalho da coluna alvo **ausente** (`data-find-col-key` não presente) · Print `08-lista-sem-coluna-resultado.png` |
 
-**Prints:** `08-lista-sem-coluna-resultado.png`
-
----
-
-### Passo 08 (persistência Hub)
+### ETAPA 9 — Hub → voltar (persistência)
 
 Sair da tela da lista — **HUB** — Voltar e ter certeza que a coluna está excluída.
 
-| Verificação | Resultado esperado |
-|-------------|-------------------|
-| Navegação | Sair da lista → `/hub` → voltar à lista de pedidos |
-| Cabeçalho | Coluna alvo continua **ausente** após navegação |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **09** | Sair da lista → `/hub` → voltar à lista de pedidos | Navegação completa sem erro |
+| **09.1** | Revalidar cabeçalho na grade | Coluna alvo continua **ausente** · Print `08-hub-voltar-lista-sem-coluna-resultado.png` |
 
-**Prints:** `08-hub-voltar-lista-sem-coluna-resultado.png`
+---
+
+## Prints planejados
+
+| # | Arquivo | Estado capturado |
+|---|---------|------------------|
+| 01 | `01-lista-coluna-manual-como-esta.png` | Lista com coluna manual visível (C1) |
+| 02 | `02-config-personalizadas-coluna-como-esta.png` | Config Personalizadas antes de validar linha (C1) |
+| | `02-config-personalizadas-coluna-resultado.png` | Coluna visível na lista Personalizadas |
+| 03 | `03-excluir-icone-como-esta.png` | Linha da coluna antes do clique na lixeira (C1) |
+| | `03-excluir-icone-selecao.png` | Após clique — modal aberto (C2) |
+| 04 | `04-modal-excluir-como-esta.png` | Modal padrão — layout e textos (C1) |
+| 05 | `05-confirmar-exclusao-selecao.png` | Botão Excluir antes/durante confirmação (C2) |
+| 06 | `06-botao-excluindo-resultado.png` | Botão com texto Excluindo... |
+| 07 | `07-toast-exclusao-resultado.png` | Toast de sucesso + lista sem coluna |
+| 08 | `08-lista-sem-coluna-resultado.png` | Lista sem cabeçalho da coluna excluída |
+| | `08-hub-voltar-lista-sem-coluna-resultado.png` | Após Hub → voltar — coluna ainda ausente |
 
 ---
 
@@ -157,7 +146,7 @@ Sair da tela da lista — **HUB** — Voltar e ter certeza que a coluna está ex
 
 | Requisito | Detalhe |
 |-----------|---------|
-| URL shell | `http://localhost:8000` ou staging |
+| URL shell | `https://usegravity.com.br` (Produção) ou `http://localhost:8000` (Local) |
 | Login | Clerk — `E2E_CLERK_USER_EMAIL` + `CLERK_SECRET_KEY` |
 | Permissões | `pedido:configuracao:editar` |
 | Workspace | CDE Exportador (`ID_WORKSPACE_TESTE` opcional) |

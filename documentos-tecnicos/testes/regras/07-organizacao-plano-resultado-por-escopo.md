@@ -63,7 +63,7 @@ testes/testes-em-tela/pedido/configuracoes/status/
 
 ## `runId` e isolamento
 
-- Disparo pelo Admin (`POST /admin/testes/disparar`) define `EMT_RUN_ID=<runId>` no processo filho.
+- Disparo pelo Admin (`POST /admin/testes/disparar`) define `EMT_RUN_ID=<id_execucao_teste>` no processo filho (único por run, suporta execuções paralelas).
 - Cada run grava **somente** em `resultado-teste/<runId>/`.
 - O histórico (`data/test-logs/*.json`) persiste `emt_pasta` apontando para essa subpasta.
 - **Proibido** gravar prints na raiz do escopo ou em pasta datada compartilhada (`YYYY-MM-DD-nome/` — legado).

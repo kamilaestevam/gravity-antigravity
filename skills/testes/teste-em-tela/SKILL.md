@@ -55,7 +55,7 @@ testes/testes-em-tela/
 
 ### `runId`
 
-- Disparo Admin: `EMT_RUN_ID` = timestamp do `POST /admin/testes/disparar`
+- Disparo Admin: `EMT_RUN_ID` = `id_execucao_teste` retornado por `POST /admin/testes/disparar` (ex.: `1749581234567-x7k2m`)
 - Local: `npx tsx ...` sem env → `local-<timestamp>`
 
 ### Convenção de nome do print

@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
@@ -268,7 +268,14 @@ function InfoRowComIcone({
 export default function DetalheCotacao() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
   const { id_cotacao: id } = useParams<{ id_cotacao: string }>()
+
+  // Voltar para a tela de origem (Lista, Kanban, Dashboard…); fallback Lista em deep link/nova aba
+  const voltarParaOrigem = useCallback(() => {
+    if (location.key !== 'default') navigate(-1)
+    else navigate('/bid-frete/lista')
+  }, [location.key, navigate])
   const [cotacao, setCotacao] = useState<Cotacao | null>(null)
   const [bids, setBids] = useState<DisparoCotacaoBidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -380,6 +387,7 @@ export default function DetalheCotacao() {
       return {
         label: erro ?? t('bidfrete.detalhe_cotacao.nao_encontrada', 'Cotação não encontrada'),
         icone: <Warning weight="duotone" size={22} />,
+        aoVoltar: voltarParaOrigem,
       }
     }
     return {
@@ -388,8 +396,9 @@ export default function DetalheCotacao() {
       subtitulo: cotacao.referencia_interna_cotacao_bid_frete_internacional
         ? `Ref: ${cotacao.referencia_interna_cotacao_bid_frete_internacional}`
         : undefined,
+      aoVoltar:  voltarParaOrigem,
     }
-  }, [carregando, cotacao, erro, t])
+  }, [carregando, cotacao, erro, t, voltarParaOrigem])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 

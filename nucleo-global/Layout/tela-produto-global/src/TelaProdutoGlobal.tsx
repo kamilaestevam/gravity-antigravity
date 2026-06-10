@@ -170,6 +170,7 @@ function TelaProdutoLayout({
               currentPageLabel:    tituloMesclado.label,
               currentPageIcon:     tituloMesclado.icone,
               currentPageSubtitle: tituloMesclado.subtitulo,
+              currentPageOnBack:   tituloMesclado.aoVoltar,
             }}
             usuario={usuario}
             onNavigateHub={onNavigateHub}

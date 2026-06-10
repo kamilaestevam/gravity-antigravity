@@ -1,5 +1,9 @@
-import React, { useEffect, useState } from 'react'
+/**
+ * Edição de campo texto — popover global (mesmo padrão do prazo/datas do cockpit).
+ */
+import React, { useRef, useState } from 'react'
 import { PencilSimple } from '@phosphor-icons/react'
+import { EdicaoTextoPopoverGlobal } from '@nucleo/tabela-virtual-global'
 
 export interface EdicaoTextoCampoCotacaoBidFreteInternacionalProps {
   label: string
@@ -16,55 +20,51 @@ export function EdicaoTextoCampoCotacaoBidFreteInternacional({
   salvando,
   onConfirmar,
 }: EdicaoTextoCampoCotacaoBidFreteInternacionalProps) {
-  const [editando, setEditando] = useState(false)
-  const [rascunho, setRascunho] = useState(valor ?? '')
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const [popoverAberto, setPopoverAberto] = useState(false)
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null)
 
-  useEffect(() => {
-    if (!editando) setRascunho(valor ?? '')
-  }, [valor, editando])
+  function abrirPopover() {
+    if (!permiteEditar || salvando) return
+    const el = triggerRef.current
+    if (!el) return
+    setAnchorRect(el.getBoundingClientRect())
+    setPopoverAberto(true)
+  }
 
-  async function confirmar() {
-    const texto = rascunho.trim() || null
+  async function handleConfirmar(texto: string | null) {
     await onConfirmar(texto)
-    setEditando(false)
+    setPopoverAberto(false)
   }
 
   if (!permiteEditar) {
     return <span className="cdado-texto">{valor?.trim() ? valor : '—'}</span>
   }
 
-  if (editando) {
-    return (
-      <input
-        type="text"
-        className="dc-campo-espelho-input"
-        value={rascunho}
+  return (
+    <div className="dc-cronograma-prazo-editor">
+      <button
+        ref={triggerRef}
+        type="button"
+        className="dc-cronograma-prazo-trigger"
         disabled={salvando}
         aria-label={label}
-        autoFocus
-        onChange={(e) => setRascunho(e.target.value)}
-        onBlur={() => void confirmar()}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') void confirmar()
-          if (e.key === 'Escape') {
-            setRascunho(valor ?? '')
-            setEditando(false)
-          }
-        }}
-      />
-    )
-  }
+        onClick={abrirPopover}
+      >
+        <span className="dc-cronograma-prazo-trigger-valor">{valor?.trim() ? valor : '—'}</span>
+        <PencilSimple weight="bold" size={14} className="dc-cronograma-prazo-trigger-icone" aria-hidden />
+      </button>
 
-  return (
-    <button
-      type="button"
-      className="dc-cronograma-prazo-trigger"
-      disabled={salvando}
-      aria-label={label}
-      onClick={() => setEditando(true)}
-    >
-      <span className="dc-cronograma-prazo-trigger-valor">{valor?.trim() ? valor : '—'}</span>
-      <PencilSimple weight="bold" size={14} className="dc-cronograma-prazo-trigger-icone" aria-hidden />
-    </button>
+      {popoverAberto && anchorRect ? (
+        <EdicaoTextoPopoverGlobal
+          anchorRect={anchorRect}
+          label={label.toUpperCase()}
+          valor={valor}
+          salvando={salvando}
+          onConfirmar={(texto) => void handleConfirmar(texto)}
+          onCancelar={() => setPopoverAberto(false)}
+        />
+      ) : null}
+    </div>
   )
 }

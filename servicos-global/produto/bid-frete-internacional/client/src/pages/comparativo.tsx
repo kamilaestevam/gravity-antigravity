@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
@@ -114,7 +114,14 @@ function RatingStars({ rating }: { rating: number | null }) {
 export default function Comparativo() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
   const { id_cotacao: id } = useParams<{ id_cotacao: string }>()
+
+  // Voltar para a tela de origem; fallback detalhe da cotação em deep link/nova aba
+  const voltarParaOrigem = useCallback(() => {
+    if (location.key !== 'default') navigate(-1)
+    else navigate(`/bid-frete/cotacoes/${id}`)
+  }, [location.key, navigate, id])
 
   const [cotacao, setCotacao] = useState<Cotacao | null>(null)
   const [respostas, setRespostas] = useState<PropostaRankingBidFreteInternacional[]>([])
@@ -177,8 +184,9 @@ export default function Comparativo() {
       subtitulo: cotacao
         ? `${cotacao.numero_cotacao_bid_frete_internacional} — ${cotacao.origem_nome_cotacao_bid_frete_internacional} → ${cotacao.destino_nome_cotacao_bid_frete_internacional}`
         : t('bidfrete.comparativo.subtitulo'),
+      aoVoltar:  voltarParaOrigem,
     }
-  }, [carregando, resultadoAprovacao, cotacao, t])
+  }, [carregando, resultadoAprovacao, cotacao, t, voltarParaOrigem])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 

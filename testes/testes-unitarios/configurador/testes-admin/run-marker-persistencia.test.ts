@@ -81,14 +81,13 @@ describe('markers de execucao teste', () => {
     if (!r.ok) expect(r.codigo).toBe('PLANO_EM_EXECUCAO')
   })
 
-  it('validarNovaExecucaoTeste bloqueia segundo EMT simultâneo', () => {
+  it('validarNovaExecucaoTeste permite segundo EMT com plano diferente', () => {
     gravarMarkerExecucaoTeste(markerExemplo('emt-1'))
     const r = validarNovaExecucaoTeste({
       runner_execucao_teste: 'EMT',
       lista_planos_execucao_teste: ['TST-EMT-PEDIDO-002'],
     })
-    expect(r.ok).toBe(false)
-    if (!r.ok) expect(r.codigo).toBe('EMT_CONCORRENTE')
+    expect(r.ok).toBe(true)
   })
 
   it('migra _current-run.json legado para runs/', () => {

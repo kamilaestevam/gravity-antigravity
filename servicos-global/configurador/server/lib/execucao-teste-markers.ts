@@ -165,14 +165,6 @@ export function validarNovaExecucaoTeste(opts: {
     }
   }
 
-  if (opts.runner_execucao_teste === 'EMT' && ativas.some(a => a.runner_execucao_teste === 'EMT')) {
-    return {
-      ok: false,
-      codigo: 'EMT_CONCORRENTE',
-      mensagem: 'Já existe um run EMT em andamento. Aguarde a conclusão ou aborte antes de iniciar outro.',
-    }
-  }
-
   const planosNovos = new Set(opts.lista_planos_execucao_teste ?? [])
   if (planosNovos.size > 0) {
     for (const ativa of ativas) {

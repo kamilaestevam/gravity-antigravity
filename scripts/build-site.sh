@@ -71,6 +71,17 @@ else
   echo "[build-site] PROCESSO_DATABASE_URL ausente — skip Processo migrations"
 fi
 
+# 2e. Configurador — migrations (teste, organizacao, plano_teste, etc.)
+#     Sem isso o Prisma client gerado no build fica à frente do banco e a
+#     persistência do histórico de testes falha em silêncio (fallback JSON efêmero).
+if [ -n "${CONFIGURADOR_DATABASE_URL:-}" ] || [ -n "${DATABASE_URL:-}" ]; then
+  echo "[build-site] Applying Configurador migrations..."
+  CONFIGURADOR_DATABASE_URL="${CONFIGURADOR_DATABASE_URL:-$DATABASE_URL}" \
+    npx prisma migrate deploy --schema=configurador/prisma/schema.prisma
+else
+  echo "[build-site] CONFIGURADOR_DATABASE_URL ausente — skip Configurador migrations"
+fi
+
 # 2c. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but
 #     @prisma/client at root does require('.prisma/client') from root.
 #     Other services use custom output="../generated" so root is free.

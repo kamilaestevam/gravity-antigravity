@@ -54,6 +54,21 @@ else
   fi
 fi
 
+# Configurador — migrations (histórico de testes em tabela teste; best-effort no boot)
+export CONFIGURADOR_DATABASE_URL="${CONFIGURADOR_DATABASE_URL:-${DATABASE_URL:-}}"
+if [ -n "${CONFIGURADOR_DATABASE_URL:-}" ]; then
+  echo "[start-site] Aplicando migrations Configurador..."
+  if CONFIGURADOR_DATABASE_URL="$CONFIGURADOR_DATABASE_URL" \
+    npx prisma migrate deploy --schema=configurador/prisma/schema.prisma; then
+    echo "[start-site] Migrations Configurador concluídas."
+  else
+    echo "[start-site] ERRO: migrations Configurador falharam — servidor sobe mesmo assim (ver logs acima)."
+    echo "[start-site] Admin /testes-gerais pode não persistir histórico até migrate deploy passar."
+  fi
+else
+  echo "[start-site] AVISO: CONFIGURADOR_DATABASE_URL ausente — migrations Configurador ignoradas."
+fi
+
 # Storage persistente de prints EMT (montar volume Railway em EMT_ARTIFACTS_DIR)
 export EMT_ARTIFACTS_DIR="${EMT_ARTIFACTS_DIR:-/app/data/emt-artifacts}"
 mkdir -p "$EMT_ARTIFACTS_DIR"

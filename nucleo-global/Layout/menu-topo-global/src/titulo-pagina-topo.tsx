@@ -13,6 +13,8 @@ export interface TituloPaginaTopoOverride {
   label?: string
   icone?: ReactNode
   subtitulo?: string
+  /** Ação de voltar — quando presente, o top bar exibe seta à esquerda do título */
+  aoVoltar?: () => void
 }
 
 interface TituloPaginaTopoContextValue {
@@ -48,13 +50,14 @@ export function useDefinirTituloPaginaTopo(): (value: TituloPaginaTopoOverride |
 }
 
 export function mesclarTituloPaginaTopo(
-  base: { label: string; icone?: ReactNode; subtitulo?: string },
+  base: { label: string; icone?: ReactNode; subtitulo?: string; aoVoltar?: () => void },
   override: TituloPaginaTopoOverride | null,
-): { label: string; icone?: ReactNode; subtitulo?: string } {
+): { label: string; icone?: ReactNode; subtitulo?: string; aoVoltar?: () => void } {
   if (!override) return base
   return {
     label:     override.label     ?? base.label,
     icone:     override.icone     ?? base.icone,
     subtitulo: override.subtitulo ?? base.subtitulo,
+    aoVoltar:  override.aoVoltar  ?? base.aoVoltar,
   }
 }

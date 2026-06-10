@@ -43,7 +43,7 @@ import {
   casasDecimaisSeguras,
   multiplicarDecimal186,
   numeroDecimal186,
-  somarDecimal186,
+  somarAgregadoDecimal186,
 } from './decimalPedido.js'
 
 // Mesmo padrão do saldo-pedido.ts: tipo Tx que preserva delegates de modelo.
@@ -205,76 +205,44 @@ export async function recalcularAgregadosPedido(
   //   peso_liquido_total_pedido  = SUM(peso_liquido_unitario × qty)  — sempre (unidade física homogênea)
   //   peso_bruto_total_pedido    = SUM(peso_bruto_unitario × qty)    — sempre
   //   cubagem_total_pedido       = SUM(cubagem_unitaria × qty)       — sempre
-  let somaValor   = 0
-  let somaValorCambio = 0
-  let somaQtd     = 0
-  let somaPesoLiq = 0
-  let somaPesoBr  = 0
-  let somaCubagem = 0
-  let pesoLiquidoAgregavel = true
-  let pesoBrutoAgregavel = true
-  let cubagemAgregavel = true
+  // Somas tolerantes: overflow Decimal(18,6) em qualquer soma → agregado `null`
+  // (indeterminável), NUNCA aborta a transação. Um estouro no peso não pode
+  // bloquear o save de valor nem uma transferência (campos sem relação).
+  let somaValor:       number | null = 0
+  let somaValorCambio: number | null = 0
+  let somaQtd:         number | null = 0
+  let somaPesoLiq:     number | null = 0
+  let somaPesoBr:      number | null = 0
+  let somaCubagem:     number | null = 0
 
   for (const it of itens) {
     const qty = n(it.quantidade_inicial_item, 'quantidade_inicial_item')
-    somaValor   = somarDecimal186(somaValor,   n(it.valor_total_item, 'valor_total_item'), 'valor_total_item')
-    somaValorCambio = somarDecimal186(
-      somaValorCambio,
-      n(it.valor_total_cambio_item_pedido, 'valor_total_cambio_item_pedido'),
-      'valor_total_cambio_item_pedido',
-    )
-    somaQtd     = somarDecimal186(somaQtd,     qty, 'quantidade_inicial_item')
-
-    const contribPesoLiq = multiplicarDecimal186(
-      it.peso_liquido_unitario_item,
-      qty,
-      'peso_liquido_unitario_item',
-    )
-    if (contribPesoLiq === null) {
-      pesoLiquidoAgregavel = false
-    } else {
-      somaPesoLiq = somarDecimal186(somaPesoLiq, contribPesoLiq, 'peso_liquido_total_pedido')
-    }
-
-    const contribPesoBr = multiplicarDecimal186(
-      it.peso_bruto_unitario_item,
-      qty,
-      'peso_bruto_unitario_item',
-    )
-    if (contribPesoBr === null) {
-      pesoBrutoAgregavel = false
-    } else {
-      somaPesoBr = somarDecimal186(somaPesoBr, contribPesoBr, 'peso_bruto_total_pedido')
-    }
-
-    const contribCubagem = multiplicarDecimal186(
-      it.cubagem_unitaria_item,
-      qty,
-      'cubagem_unitaria_item',
-    )
-    if (contribCubagem === null) {
-      cubagemAgregavel = false
-    } else {
-      somaCubagem = somarDecimal186(somaCubagem, contribCubagem, 'cubagem_total_pedido')
-    }
+    somaValor       = somarAgregadoDecimal186(somaValor, n(it.valor_total_item, 'valor_total_item'))
+    somaValorCambio = somarAgregadoDecimal186(somaValorCambio, n(it.valor_total_cambio_item_pedido, 'valor_total_cambio_item_pedido'))
+    somaQtd         = somarAgregadoDecimal186(somaQtd, qty)
+    // multiplicarDecimal186 retorna null quando unitário × qty estoura — o
+    // null propaga pela soma tolerante e o agregado físico vai a null.
+    somaPesoLiq = somarAgregadoDecimal186(somaPesoLiq, multiplicarDecimal186(it.peso_liquido_unitario_item, qty, 'peso_liquido_unitario_item'))
+    somaPesoBr  = somarAgregadoDecimal186(somaPesoBr,  multiplicarDecimal186(it.peso_bruto_unitario_item,   qty, 'peso_bruto_unitario_item'))
+    somaCubagem = somarAgregadoDecimal186(somaCubagem, multiplicarDecimal186(it.cubagem_unitaria_item,      qty, 'cubagem_unitaria_item'))
   }
 
-  const valorTotal: number | null = valorHomogeneo
+  const valorTotal: number | null = valorHomogeneo && somaValor !== null
     ? arredondarAgregadoDecimal186(somaValor, casasValor, 'valor_total_pedido')
     : null
-  const valorTotalCambio: number | null = valorCambioHomogeneo
+  const valorTotalCambio: number | null = valorCambioHomogeneo && somaValorCambio !== null
     ? arredondarAgregadoDecimal186(somaValorCambio, casasValor, 'valor_total_cambio_pedido')
     : null
-  const qtdTotal: number | null = qtyHomogenea
+  const qtdTotal: number | null = qtyHomogenea && somaQtd !== null
     ? arredondarAgregadoDecimal186(somaQtd, casasQtd, 'quantidade_total_pedido')
     : null
-  const pesoLiquidoTotal: number | null = pesoLiquidoAgregavel
+  const pesoLiquidoTotal: number | null = somaPesoLiq !== null
     ? arredondarAgregadoDecimal186(somaPesoLiq, casasPeso, 'peso_liquido_total_pedido')
     : null
-  const pesoBrutoTotal: number | null = pesoBrutoAgregavel
+  const pesoBrutoTotal: number | null = somaPesoBr !== null
     ? arredondarAgregadoDecimal186(somaPesoBr, casasPeso, 'peso_bruto_total_pedido')
     : null
-  const cubagemTotal: number | null = cubagemAgregavel
+  const cubagemTotal: number | null = somaCubagem !== null
     ? arredondarAgregadoDecimal186(somaCubagem, casasCubagem, 'cubagem_total_pedido')
     : null
 

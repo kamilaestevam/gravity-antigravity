@@ -49,6 +49,10 @@ import type {
 } from '../shared/types'
 import { pedidoTransferirApi, pedidoVirtualApi } from '../shared/api'
 import { montarDestinosConfirmarTransferir } from '../shared/transferirConfirmarDestinos'
+import {
+  inicializarItensQuantidadesTransferir,
+  montarItensComPedidoParaTransferir,
+} from '../shared/montarItensComPedidoTransferir'
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import { fmtQuantidade } from '../shared/types'
 
@@ -94,6 +98,10 @@ const CENARIOS: CenarioInfo[] = [
 
 interface ModalTransferirPedidoProps {
   pedidos: Pedido[]
+  /** Itens selecionados na lista (fonte primária — pedido.itens costuma vir vazio). */
+  itens?: PedidoItem[]
+  /** Catálogo completo de pedidos da tela — resolve pedido pai por item.pedido_id. */
+  todosPedidos?: Pedido[]
   /** IDs dos itens que o usuário selecionou explicitamente na lista.
    *  Se fornecido, apenas esses itens vêm pré-selecionados.
    *  Se ausente/vazio, todos os itens de todos os pedidos são pré-selecionados. */
@@ -541,7 +549,14 @@ function PreviewImpacto({ preview, indice, total }: PreviewImpactoProps) {
 
 // ── NOMES_PASSOS — definido dentro do componente via useMemo([t]) ─────────────
 
-export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar, onConcluido }: ModalTransferirPedidoProps) {
+export function ModalTransferirPedido({
+  pedidos,
+  itens,
+  todosPedidos,
+  itensSelecionadosIds,
+  onFechar,
+  onConcluido,
+}: ModalTransferirPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo ?? '')
@@ -561,16 +576,11 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
   }), [t])
   const pedido = pedidos[0]
 
-  // ── Multi-pedido: todos os itens de todos os pedidos selecionados ────────────
-  const itensComPedido = useMemo<ItemComPedido[]>(() => {
-    const resultado: ItemComPedido[] = []
-    for (const p of pedidos) {
-      for (const item of p.itens) {
-        resultado.push({ item, pedido: p })
-      }
-    }
-    return resultado
-  }, [pedidos])
+  // ── Multi-pedido: itens da seleção (store) ou itens já carregados no pai ─────
+  const itensComPedido = useMemo<ItemComPedido[]>(
+    () => montarItensComPedidoParaTransferir(pedidos, itens, todosPedidos),
+    [pedidos, itens, todosPedidos],
+  )
 
   const multiPedido = pedidos.length > 1
 
@@ -587,28 +597,12 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
   const [cenario, setCenario] = useState<CenarioTransfer | null>(null)
 
   // ── Multi-item: mapa itemId → quantidade ────────────────────────────────────
-  const [itensQuantidades, setItensQuantidades] = useState<Map<string, number>>(() => {
-    const mapa = new Map<string, number>()
-    // Se o usuário selecionou itens específicos, apenas esses vêm pré-selecionados.
-    // Se selecionou pedidos inteiros (sem itens específicos), todos os itens são pré-selecionados.
-    if (itensSelecionadosIds && itensSelecionadosIds.length > 0) {
-      const idsSet = new Set(itensSelecionadosIds)
-      for (const p of pedidos) {
-        for (const item of p.itens) {
-          if (idsSet.has(item.id)) {
-            mapa.set(item.id, 0)
-          }
-        }
-      }
-    } else {
-      for (const p of pedidos) {
-        for (const item of p.itens) {
-          mapa.set(item.id, 0)
-        }
-      }
-    }
-    return mapa
-  })
+  const [itensQuantidades, setItensQuantidades] = useState<Map<string, number>>(() =>
+    inicializarItensQuantidadesTransferir(
+      montarItensComPedidoParaTransferir(pedidos, itens, todosPedidos),
+      itensSelecionadosIds,
+    ),
+  )
 
   // Compat: primeiro item selecionado (para preview/destinos que usam single-item)
   const primeiroItemId = useMemo(() => {

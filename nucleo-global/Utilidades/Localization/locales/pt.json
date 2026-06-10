@@ -1,8 +1,4 @@
 {
-  "BIDFRETE.NOVA_COTACAO.TIPO_OPERACAO_COTACAO_BID_FRETE_INTERNACIONAL": "Tipo de Operação",
-  "BIDFRETE.NOVA_COTACAO.MODALIDADE_COTACAO_BID_FRETE_INTERNACIONAL": "Modalidade",
-  "bidfrete.nova_cotacao.tipo_operacao_cotacao_bid_frete_internacional": "Tipo de Operação",
-  "bidfrete.nova_cotacao.modalidade_cotacao_bid_frete_internacional": "Modalidade",
   "comum": {
     "salvar": "Salvar",
     "cancelar": "Cancelar",
@@ -2348,6 +2344,26 @@
         "restaurar_tooltip": "Restaura os status padrão dos 4 cards do topo",
         "preview": "Preview — como ficará na Visão Geral",
         "msg_salvo": "Preferências dos KPIs da Visão Geral salvas com sucesso."
+      },
+      "colunas": {
+        "casas_decimais": {
+          "descricao": "Define quantas casas decimais são exibidas em colunas numéricas. Padrão: 2.",
+          "grupo_personalizadas": "Personalizadas",
+          "titulo": "Casas decimais por coluna"
+        },
+        "formato_data": {
+          "descricao": "Define como as datas são exibidas em todas as colunas da tabela, nos inputs de edição e nas exportações.",
+          "preview_label": "Preview com a data de hoje:",
+          "titulo": "Formato de Data"
+        }
+      },
+      "tabela": {
+        "descricao": "Configure paginação e destaque visual na listagem de cotações.",
+        "destacar_expirar": "Destacar cotações prestes a expirar",
+        "destacar_expirar_desc": "Aplica borda sutil avermelhada a cotações com menos de 2 horas restantes para expiração.",
+        "linhas_por_pagina": "Linhas por página padrão",
+        "preferencias": "Preferências de exibição",
+        "titulo": "Preferências da Tabela"
       }
     },
     "tabela": {
@@ -2421,7 +2437,9 @@
           "tooltipAguardandoEnvio": "Aguardando envio",
           "tooltipPropostas": "Com propostas",
           "tooltipSla": "SLA médio",
-          "tooltipSlaDias": "{{val}} dias"
+          "tooltipSlaDias": "{{val}} dias",
+          "tooltipEmCotacao": "Em cotação",
+          "tooltipEnviada": "Enviada ao fornecedor"
         },
         "saving": {
           "titulo": "Saving Total",
@@ -2429,7 +2447,8 @@
           "tooltipTotal": "Total saving",
           "tooltipMedia": "Média",
           "tooltipMaritimo": "Marítimo",
-          "tooltipAereo": "Aéreo"
+          "tooltipAereo": "Aéreo",
+          "tooltipCotacoes": "Cotações com saving"
         },
         "aguardandoAprovacao": {
           "titulo": "Aguardando Aprovação",
@@ -2439,7 +2458,8 @@
           "tooltipTempoDias": "{{val}} dias",
           "tooltipDecisao": "Decisão",
           "tooltipUrgencia": "Urgência",
-          "tooltipUrgenciaAlto": "Alta"
+          "tooltipUrgenciaAlto": "Alta",
+          "tooltipPropostas": "Propostas recebidas"
         },
         "expiradas": {
           "titulo": "Expiradas",
@@ -2449,7 +2469,9 @@
           "tooltipMotivo": "Principal motivo",
           "tooltipMotivoValor": "Sem fornecedores",
           "tooltipAcao": "Ação",
-          "tooltipAcaoValor": "Reabrir ou arquivar"
+          "tooltipAcaoValor": "Reabrir ou arquivar",
+          "tooltipComProposta": "Com pelo menos 1 proposta",
+          "tooltipSemProposta": "Sem proposta recebida"
         },
         "emAtraso": {
           "titulo": "Cotações em Atraso",
@@ -2470,6 +2492,11 @@
           "tooltipPercentualPeriodo": "% do período",
           "tooltipMediaAcima": "Média acima da meta",
           "tooltipVazio": "Nenhuma nos últimos 30 dias"
+        },
+        "custom": {
+          "tooltipCampo": "Campo base",
+          "tooltipFormula": "Fórmula / nota",
+          "tooltipTipo": "Agregação"
         }
       }
     },
@@ -2683,7 +2710,9 @@
       "reprovada": "Reprovada",
       "tag_melhor_preco": "Melhor preço",
       "tag_melhor_transit": "Melhor trânsito",
-      "tag_melhor_avaliacao": "Melhor avaliação"
+      "tag_melhor_avaliacao": "Melhor avaliação",
+      "erro_aprovar": "Erro ao aprovar cotação",
+      "erro_aprovar_mock": "Esta proposta é apenas demonstração (mock) e não pode ser aprovada. Use respostas reais de fornecedores."
     },
     "configuracoes": {
       "titulo": "Configurações",
@@ -2920,7 +2949,8 @@
       "field_resposta_automatica": "Resposta automática",
       "field_cadastrado_em": "Cadastrado em",
       "sim": "Sim",
-      "nao": "Não"
+      "nao": "Não",
+      "nota_global_classificacao_bid_frete_internacional": "Nota global"
     },
     "importar": {
       "titulo": "Importar Cotações em Lote",
@@ -3098,7 +3128,12 @@
         "cabecalho_importador": "Importador",
         "cabecalho_exportador": "Exportador",
         "cabecalho_cliente_oculto": "Cliente optou por oculto",
-        "voltar": "Voltar"
+        "voltar": "Voltar",
+        "taxas_adicionar_manual": "Adicionar taxa manual",
+        "taxas_moeda": "Moeda",
+        "taxas_nome": "Taxa",
+        "taxas_placeholder_nome_manual": "Nome da taxa (digitação livre)",
+        "taxas_valor": "Valor"
       },
       "publico": {
         "carregando": "Carregando cotação...",
@@ -3110,7 +3145,12 @@
         "campos_obrigatorios": "Preencha os campos obrigatórios: Moeda, Valor Frete, Transit Time, Validade, Prazo de pagamento e Free Time (quando FCL)",
         "header_titulo": "BID Frete Internacional — Responder Cotação",
         "erro_envio": "Erro ao enviar resposta",
-        "placeholder_observacoes": "Informações adicionais, condições especiais, observações..."
+        "placeholder_observacoes": "Informações adicionais, condições especiais, observações...",
+        "atualizando": "Atualizando proposta...",
+        "atualizar_proposta": "Atualizar Proposta",
+        "aviso_edicao": "Você pode editar sua proposta enquanto o prazo de resposta estiver aberto.",
+        "obrigado_atualizacao_desc": "Sua proposta foi atualizada com sucesso e será analisada pelo comprador.",
+        "obrigado_atualizacao_titulo": "Proposta atualizada"
       },
       "tabela_precos": {
         "titulo": "Tabela de Preços",
@@ -3264,7 +3304,18 @@
         "col_prazo": "Prazo resposta",
         "col_recebido": "Recebido em",
         "acao_abrir": "Abrir",
-        "toggle_visao": "Alternar visualização"
+        "toggle_visao": "Alternar visualização",
+        "col_destino": "Destino",
+        "col_modalidade": "Modalidade",
+        "col_origem": "Origem",
+        "col_referencia": "Referência",
+        "col_status_funil": "Status",
+        "kpi_oportunidades": "Oportunidades",
+        "kpi_oportunidades_desc": "Convites e cotações no seu funil",
+        "kpi_propostas_enviadas": "Propostas enviadas",
+        "kpi_propostas_enviadas_desc": "Respostas que você já enviou",
+        "kpi_valor_aprovado": "Valor aprovado",
+        "kpi_valor_aprovado_desc": "Soma das suas propostas aprovadas no período"
       },
       "kanban": {
         "aguardando_resposta": "Aguardando resposta",
@@ -3583,7 +3634,63 @@
       "info_respostas_n": "{{n}} respostas",
       "info_legenda": "Insights com base em {{n}} propostas recebidas",
       "info_minutos": "min",
-      "info_horas": "h"
+      "info_horas": "h",
+      "abrir_link": "Abrir",
+      "cockpit_abas": "Abas",
+      "cockpit_aviso_graficos_passo_aguardando_1": "Melhor proposta e métricas Transit / Free Time / Escala dependem de propostas recebidas.",
+      "cockpit_aviso_graficos_passo_aguardando_2": "Com 2 ou mais respostas, as barras comparativas são exibidas em todos os cards.",
+      "cockpit_aviso_graficos_passo_parcial_1": "Aguarde mais uma resposta ou convide fornecedores adicionais.",
+      "cockpit_aviso_graficos_passo_parcial_2": "Com 2+ propostas, o ranking e a Melhor proposta exibem barras comparativas.",
+      "cockpit_aviso_graficos_passo_rascunho_1": "Finalize os dados e dispare a cotação.",
+      "cockpit_aviso_graficos_passo_rascunho_2": "Com as respostas, liberamos Melhor proposta, ranking e mini-gráficos.",
+      "cockpit_aviso_graficos_passo_rascunho_3": "O termômetro histórico usa dados reais após aprovações na mesma rota.",
+      "cockpit_aviso_graficos_passo_sem_dados_1": "Envie a cotação aos fornecedores cadastrados.",
+      "cockpit_aviso_graficos_passo_sem_dados_2": "Os mini-gráficos só comparam valores entre propostas recebidas.",
+      "cockpit_aviso_graficos_termometro": "O termômetro histórico exibe série ilustrativa até existirem cotações aprovadas na mesma rota e condições.",
+      "cockpit_aviso_graficos_texto_aguardando": "{{n}} disparo(s) enviado(s). Os gráficos comparativos aparecem assim que chegar a primeira resposta.",
+      "cockpit_aviso_graficos_texto_parcial": "Já existe 1 proposta. Os mini-gráficos de Transit Time, Free Time e Escala aparecem quando houver pelo menos 2 respostas para comparar.",
+      "cockpit_aviso_graficos_texto_rascunho": "Esta cotação ainda está em rascunho. Envie aos fornecedores para iniciar o leilão e popular o painel.",
+      "cockpit_aviso_graficos_texto_sem_dados": "Não há propostas nesta cotação. Dispare ou aguarde respostas para ativar os insights visuais.",
+      "cockpit_aviso_graficos_titulo_aguardando": "Aguardando propostas dos fornecedores",
+      "cockpit_aviso_graficos_titulo_parcial": "Comparativo visual quase pronto",
+      "cockpit_aviso_graficos_titulo_rascunho": "Gráficos liberados após o disparo",
+      "cockpit_aviso_graficos_titulo_sem_dados": "Sem dados para gráficos ainda",
+      "cockpit_documentos": "Documentos",
+      "cockpit_em_breve": "Em breve",
+      "cockpit_escala": "Escala",
+      "cockpit_insights": "Insights",
+      "cockpit_media_6_meses": "Média 6 Meses",
+      "cockpit_melhor_proposta": "Melhor proposta",
+      "cockpit_metricas_competicao": "Métricas da competição",
+      "cockpit_painel_titulo": "Painel de Insights Inteligente",
+      "cockpit_recusas": "Recusas",
+      "cockpit_respostas": "Respostas",
+      "cockpit_savings_valor": "Valor do saving",
+      "cockpit_termometro": "Termômetro histórico",
+      "cockpit_termometro_contexto": "Mesma origem, destino, modal, container e incoterm",
+      "cockpit_termometro_demo": "Preview",
+      "cockpit_termometro_demo_legenda": "Dados ilustrativos — aguardando cotações aprovadas nas mesmas condições.",
+      "cockpit_transit_time": "Transit Time",
+      "dados_gerais_expandir_todas": "Expandir todas",
+      "dados_gerais_recolher_todas": "Recolher todas",
+      "erro_envio_sem_detalhe": "Serviço de e-mail indisponível ou URL incorreta (verifique EMAIL_SERVICE_URL na porta 8008)",
+      "ir_aba_disparos": "Ir para Disparos",
+      "ir_aba_recusas": "Ir para Recusas",
+      "ir_aba_respostas": "Ir para Propostas",
+      "link_resposta": "Link resposta",
+      "motivo_erro": "Motivo",
+      "nao_encontrada": "Cotação não encontrada",
+      "resposta_metricas_comparativo": "Comparativo entre propostas",
+      "spark_esta_proposta": "Esta proposta",
+      "spark_tooltip_frete_total": "Frete total",
+      "spark_tooltip_posicao": "{{pos}}º nesta métrica",
+      "spark_tooltip_ranking_geral": "Ranking geral",
+      "spark_tooltip_referencia": "Referência",
+      "spark_tooltip_resumo_proposta": "Resumo da proposta",
+      "spark_tooltip_valor_metrica": "Valor",
+      "spark_tooltip_valor_referencia": "Valor referência",
+      "spark_tooltip_vs_referencia": "Vs proposta do card",
+      "vazio_recusas": "Nenhum disparo sem resposta no momento"
     },
     "colunas": {
       "processo": "Processo (DATI)",
@@ -3684,6 +3791,18 @@
       "rota_desempenho": "Desempenho",
       "usuario_fallback": "Usuário",
       "membro_fallback": "Membro"
+    },
+    "kanban": {
+      "localizar": "Localizar cotação...",
+      "propostas_contagem": "{{count}} proposta(s)",
+      "semCotacoes": "Nenhuma cotação",
+      "totalCotacoes": "{{count}} cotações"
+    },
+    "lista": {
+      "colunas": {
+        "data_aprovacao": "Data aprovação",
+        "data_cancelamento": "Data cancelamento"
+      }
     }
   },
   "bidcambio": {
@@ -6330,7 +6449,7 @@
       "moeda_item_titulo": "Moeda do Item",
       "aviso_impacto_moeda": "A alteração da moeda irá alterar também Valor Unitário do Item e Valor Total do Pedido/Item",
       "aviso_impacto_moeda_cambio": "Alterações da moeda do câmbio irão alterar também o Valor total do câmbio.",
-      "moedas_cambio_divergentes": "Moeda de câmbio divergente da moeda do item",
+      "moedas_cambio_divergentes": "Moedas de câmbio divergentes entre itens",
       "unidade_comercializada": "Unidade Comercializada",
       "unidade_comercializada_titulo_linha_pedido": "Unidade Comercializada do Pedido",
       "unidade_comercializada_item_titulo": "Unidade Comercializada do Item",
@@ -6345,7 +6464,6 @@
       "aviso_impacto_unidade_cancelada": "A alteração da unidade irá alterar também Unidade Comercializada, Qtd. Inicial, Qtd. Pronta, Qtd. Transferida e Saldo",
       "datas_emissao_divergentes": "Datas de emissão divergentes entre itens",
       "coberturas_cambiais_divergentes": "Coberturas cambiais divergentes entre itens",
-      "moedas_cambio_divergentes": "Moedas de câmbio divergentes entre itens",
       "moeda_cambio": "Moeda Câmbio",
       "taxa_cambio_estimada": "Taxa Câmbio Estimada",
       "valor_total_cambio": "Valor Total Câmbio",
@@ -9432,7 +9550,6 @@
         "hint_selecione_um": "Selecione um campo para o widget.",
         "buscar_campo_placeholder": "Buscar campo...",
         "warning_eixo_duplo": "Campos com unidades diferentes usarão eixo Y duplo neste gráfico.",
-        "buscar_campo_placeholder": "Buscar campo...",
         "buscar_campo_aria": "Buscar campo",
         "selecionar_todos": "Selecionar todos",
         "limpar_selecao": "Limpar",

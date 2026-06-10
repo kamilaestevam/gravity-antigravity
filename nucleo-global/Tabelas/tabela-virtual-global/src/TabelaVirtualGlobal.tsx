@@ -414,7 +414,8 @@ function wrapTooltipRegraCelula(
 function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: number, unidades?: GTUnidadeOpcao[]): string {
   if (tipo === 'moeda' && val != null && typeof val === 'object') {
     const v = val as GTValorMoeda
-    return `${v.currency} ${Number(v.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    const casasMoeda = casasDecimais ?? 2
+    return `${v.currency} ${Number(v.amount).toLocaleString('pt-BR', { minimumFractionDigits: casasMoeda, maximumFractionDigits: casasMoeda })}`
   }
   if (tipo === 'unidade' && val != null && typeof val === 'object') {
     const v = val as GTValorUnidade
@@ -716,10 +717,12 @@ const GTEditPopover = memo(function GTEditPopover({
   }))
   const listaUnidades = resolverListaUnidades(overlayInfo.unidades, unidadesPadrao)
   const casas = overlayInfo.casasDecimais ?? 0
+  // Moeda tem default próprio (2) — não herda o default 0 de quantidade
+  const casasMoeda = overlayInfo.casasDecimais ?? 2
 
   // Estados de display pt-BR para os inputs numéricos (inicializados uma vez na abertura do popover)
   // fmtBR() formata via regex — não depende de toLocaleString nem de locale do browser
-  const [displayMoedaAmt, setDisplayMoedaAmt] = useState(() => fmtBR(Number(mv.amount), 2))
+  const [displayMoedaAmt, setDisplayMoedaAmt] = useState(() => fmtBR(Number(mv.amount), casasMoeda))
   const [displayQty, setDisplayQty]           = useState(() => fmtBR(Number(uv.quantity), casas))
   const numericInitial = isNumero ? (typeof valorEditando === 'number' ? valorEditando : parseBRNum(String(valorEditando ?? ''))) : 0
   const [displayNumero, setDisplayNumero] = useState(() =>
@@ -729,7 +732,7 @@ const GTEditPopover = memo(function GTEditPopover({
   // useLayoutEffect garante valor formatado antes do primeiro paint — cobre casos onde o
   // useState lazy-init roda antes de valorEditando estar pronto (ex: HMR, Strict Mode duplo-mount)
   useLayoutEffect(() => {
-    if (isMoeda)   setDisplayMoedaAmt(fmtBR(Number(mv.amount), 2))
+    if (isMoeda)   setDisplayMoedaAmt(fmtBR(Number(mv.amount), casasMoeda))
     if (isUnidade) setDisplayQty(fmtBR(Number(uv.quantity), casas))
     if (isNumero)  setDisplayNumero(fmtBR(numericInitial, casas) || String(valorEditando ?? ''))
   }, []) // intentional empty deps — runs once on mount, same scope as lazy-init
@@ -815,7 +818,7 @@ const GTEditPopover = memo(function GTEditPopover({
     if (isTextoLivre) return
     if (isMoeda) {
       const parsed = parseBRNum(displayMoedaAmt)
-      setDisplayMoedaAmt(fmtBR(parsed, 2))
+      setDisplayMoedaAmt(fmtBR(parsed, casasMoeda))
       onAtualizar({ ...mv, amount: parsed })
     } else if (isUnidade && !overlayInfo.apenasUnidade) {
       const parsed = parseBRNum(displayQty)

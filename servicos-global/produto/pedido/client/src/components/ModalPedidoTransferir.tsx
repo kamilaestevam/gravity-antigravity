@@ -48,6 +48,7 @@ import type {
   TransferResultado,
 } from '../shared/types'
 import { pedidoTransferirApi, pedidoVirtualApi } from '../shared/api'
+import { montarDestinosConfirmarTransferir } from '../shared/transferirConfirmarDestinos'
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import { fmtQuantidade } from '../shared/types'
 
@@ -819,6 +820,8 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
     const itensArray = Array.from(itensQuantidades.entries())
     let ultimoResultado: TransferResultado | null = null
     let numeroPedidoCriado = numeroPedidoNovo.trim() || undefined
+    /** Id do pedido novo criado pelo 1º item — reutilizado por todos os demais. */
+    let idPedidoDestinoCriado: string | undefined
 
     try {
       for (let idx = 0; idx < itensArray.length; idx++) {
@@ -831,19 +834,21 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
           pedido_id: pedidoDoItem.id,
           item_id: itemIdAtual,
           quantidade_origem: qty,
-          destinos: cenario === 'reducao_simples' ? [] : destinos.map(d => ({
-            ...d,
-            quantidade: qty,
-            // Após o primeiro item criar o pedido novo, os demais vão para o mesmo pedido
-            ...(idx > 0 && cenario === 'split_novo_pedido' && ultimoResultado?.pedidos_criados[0]
-              ? { tipo: 'existente' as const, pedido_id: ultimoResultado.pedidos_criados[0] }
-              : {}),
-          })),
+          destinos: montarDestinosConfirmarTransferir(
+            cenario,
+            destinos,
+            qty,
+            idx,
+            idPedidoDestinoCriado,
+          ),
           numero_pedido_novo: idx === 0 ? numeroPedidoCriado : undefined,
         }
 
         const res = await pedidoTransferirApi.confirmar(payload)
         ultimoResultado = res
+        if (cenario === 'split_novo_pedido' && res.pedidos_criados[0]) {
+          idPedidoDestinoCriado ??= res.pedidos_criados[0]
+        }
       }
 
       setResultado(ultimoResultado)

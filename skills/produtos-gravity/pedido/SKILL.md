@@ -173,6 +173,13 @@ Doc completo: [`EDICAO-EM-MASSA-TECNICO.md` §Auto-fill](../../../documentos-tec
 
 **Hooks:** `statusOpts` e `pedidos` declarados **antes** de `mapaColunasFilho` / `colunasComUsuario` (TDZ).
 
+### Busca da Lista (2026-06-10)
+
+- Fonte única do WHERE: `processos-core/src/services/filtro-busca-pedido.ts` (`montarCondicoesBuscaPedido`) — consumida por `GET /pedidos`, `GET /pedidos/lista/kpis` e `GET /pedidos/inicializacao`. **Nunca** reimplemente a condição de busca em uma rota.
+- Cobre campos fixos + `PedidoSnapshotEmpresa.nome_empresa` + **colunas do usuário por nome e conteúdo** (respeitando visibilidade `todos`/`roles`/`privado`).
+- O filtro client-side de `Pedidos.tsx` espelha as mesmas condições sobre `_colunas_usuario` (Mand. 07 — alterar um lado exige alterar o outro).
+- Detalhes: [`COLUNAS-USUARIO-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/COLUNAS-USUARIO-TECNICO.md) §Busca da Lista.
+
 ---
 
 ## Parte 3 — Consolidar / Transferir / Outras Features

@@ -56,6 +56,7 @@ import {
   buscarUnidadePorCodigo,
   type CadastrosRequestContext,
 } from '../services/cadastrosClient.js'
+import { montarCondicoesBuscaPedido } from '../services/filtro-busca-pedido.js'
 import { validarUnidadesItem } from '../services/validarUnidadesItem.js'
 import { validarIncotermPedidoItem } from '../services/validarIncotermPedidoItem.js'
 import { validarLogisticaPedidoCampo } from '../services/validarLogisticaPedidoCampo.js'
@@ -1157,7 +1158,13 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       }
       if (tipo_operacao) where.tipo_operacao_pedido = tipo_operacao
       if (busca) {
-        where.numero_pedido = { contains: busca as string, mode: 'insensitive' }
+        // Busca ampla: campos fixos + nomes das partes + colunas do usuário
+        // (nome e conteúdo). Em AND para não colidir com o OR do keyset abaixo.
+        const condicoesBusca = await montarCondicoesBuscaPedido(
+          db, busca as string, idOrganizacao,
+          { idUsuario: ctx.idUsuario, tiposUsuario: ctx.tiposUsuario },
+        )
+        where.AND = [{ OR: condicoesBusca }]
       }
 
       // ── Cursor pagination ──

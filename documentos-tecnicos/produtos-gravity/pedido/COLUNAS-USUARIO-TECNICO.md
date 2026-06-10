@@ -326,3 +326,42 @@ testes/unitarios/pedido/colunasUsuarioService.test.ts
   ├── salvar valores — upsert correto
   └── cross-tenant — coluna de outro tenant não retornada
 ```
+
+---
+
+## Busca da Lista (2026-06-10)
+
+A busca textual da Lista de Pedidos cobre as colunas do usuário em **nome** e **conteúdo**.
+
+**Fonte única:** `servicos-global/produto/processos-core/src/services/filtro-busca-pedido.ts`
+(`montarCondicoesBuscaPedido`) — consumida por:
+
+| Rota | Uso |
+|------|-----|
+| `GET /api/v1/pedidos` | `where.AND = [{ OR: condicoes }]` (AND para não colidir com o OR do keyset/cursor) |
+| `GET /api/v1/pedidos/lista/kpis` | `where.OR = condicoes` (cards batem com a lista filtrada) |
+| `GET /api/v1/pedidos/inicializacao` | `where.AND = [{ OR: condicoes }]` |
+
+**Famílias de match:**
+1. Campos fixos do Pedido (número, referências, proforma, invoice)
+2. Nomes das partes via `PedidoSnapshotEmpresa.nome_empresa`
+3. Colunas do usuário:
+   - **conteúdo** — `valor_coluna_usuario_pedido contains termo` (vínculo `pedido` ou `item`;
+     match em item promove o pedido pai via `itens_pedido: { some: ... }`)
+   - **nome** — termo contido no nome da coluna → pedidos com a coluna **preenchida**
+
+**Regras:**
+- Visibilidade respeitada (mesma regra do `ColunasUsuarioService.listar`): coluna `privado`
+  só conta para o criador; `roles` só para tipos permitidos — sem isso a busca vazaria
+  existência de dado privado.
+- Teto de 5.000 vínculos coletados por busca (proteção de SLA contra termos de 1 letra).
+- Colunas tipo `formula` não têm valor persistido — resultado de fórmula não é buscável
+  no servidor (limitação conhecida).
+- O filtro client-side da página (`Pedidos.tsx`, busca global) espelha as mesmas condições
+  sobre `_colunas_usuario` — obrigatório manter os dois em sincronia (Mand. 07).
+
+**Pendência (Coordenador):** índice trigram para sustentar o ILIKE no volume —
+`CREATE EXTENSION IF NOT EXISTS pg_trgm;` +
+`CREATE INDEX CONCURRENTLY idx_valor_coluna_usuario_pedido_valor_trgm ON valor_coluna_usuario_pedido USING gin (valor_coluna_usuario_pedido gin_trgm_ops);`
+
+**Testes:** `servicos-global/produto/pedido/server/src/routes/filtro-busca-pedido.test.ts`

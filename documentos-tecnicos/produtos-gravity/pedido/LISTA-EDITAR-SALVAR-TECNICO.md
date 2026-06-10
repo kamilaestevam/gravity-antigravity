@@ -261,7 +261,56 @@ Colunas **não editáveis inline** — interação só pelo ícone (`CelulaAnexo
 
 ---
 
-## 7. Dívidas e melhorias
+## 7. VALOR TOTAL CÂMBIO (`valor_total_cambio_pedido`)
+
+> Regras de negócio: **§8A-C** em [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](./LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md). Entrega **2026-06-10** (PR #256).
+
+### Frontend — coluna pai (`ColunasPai.tsx`)
+
+- `key: 'valor_total_cambio_pedido'`, `tipo: 'moeda'`, `editavel: false`.
+- `renderAgregado` com alerta `moeda_cambio_pedido_divergente` (*Moedas de câmbio divergentes entre itens*).
+- `avisoImpacto`: i18n `valor_total_cambio_impacto_edicao`.
+
+### Frontend — coluna filho (`Pedidos.tsx` → `buildMapaColunasFilho`)
+
+- Entrada `valor_total_cambio_pedido`: `editavel: true`, `campo: 'valor_total_cambio_item_pedido'`.
+- `getValorEditar` / `render`: badge `moeda_cambio_item_pedido` (fallback `_p.moeda_cambio_pedido`); valor via `valorTotalCambioItemParaLista` (`valorTotalCambioItemLista.ts`).
+- Popover **moeda + valor** (sem `apenasValorMoeda`) — select de moedas ativas de Cadastros.
+
+### Frontend — persistência (`handleEditarFilho`)
+
+Ramo dedicado quando `campo === 'valor_total_cambio_item_pedido' || campo === 'valor_total_cambio_pedido'`:
+
+1. Extrai `amount` e `currency` do popover (`extrairCodigoMoedaLista`).
+2. `pedidoItemApi.atualizar` com `valor_total_cambio_item_pedido` e, se moeda alterada, `moeda_cambio_item_pedido`.
+3. `sincronizarItensPedido` + recálculo local de `valor_total_cambio_pedido` (soma se uma moeda de câmbio; `null` se divergem).
+
+`CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` inclui `valor_total_cambio_pedido` — linha pai não abre popover inline.
+
+### Backend (`processos-core/src/routes/pedidos.ts`)
+
+| Artefato | Campo |
+|----------|--------|
+| `atualizarItemSchema` | `valor_total_cambio_item_pedido`, `valor_total_cambio_pedido` (alias aceito no body) |
+| `mapItem` | `valor_total_cambio_item_pedido` |
+| `publicToDddItem` | `valor_total_cambio_pedido` → `valor_total_cambio_item_pedido` |
+
+Rota: `PUT /api/v1/pedidos/:id/itens/:itemId` (Zod `.strict()` — campo fora do schema retorna 400).
+
+### Tooltips e pills
+
+- Regra: `dinamico_valor_total_cambio` em `regrasTooltipColunaLista.ts`.
+- Pills: `PILLS_PEDIDO_VALOR_TOTAL_CAMBIO` / `PILLS_ITEM_VALOR_TOTAL_CAMBIO` em `pillsTooltipColunaLista.ts`.
+- Aviso item: `buildTooltipRegraLista.tsx` → `valor_total_cambio_impacto_edicao`.
+
+### Testes
+
+- Unitário: `testes/testes-unitarios/pedido/valor-total-cambio-item-lista.test.ts` (`valorTotalCambioItemParaLista`).
+- EMT: pendente (sem ETAPA no plano lista-editar-salvar).
+
+---
+
+## 8. Dívidas e melhorias
 
 | ID | Descrição | Prioridade |
 |----|-----------|------------|
@@ -272,7 +321,7 @@ Colunas **não editáveis inline** — interação só pelo ícone (`CelulaAnexo
 
 ---
 
-## 8. Histórico
+## 9. Histórico
 
 | Data | Alteração |
 |------|-----------|
@@ -280,3 +329,4 @@ Colunas **não editáveis inline** — interação só pelo ícone (`CelulaAnexo
 | 2026-06 | Runner EMT tipo_operacao: coluna via `data-find-col-key`, poll 15s, case badge |
 | 2026-06-07 | Seção 6 — framework tooltips lista (pedido/item, pills, camadas, piloto moeda/valor) |
 | 2026-06-09 | Seção 6 — colunas anexo: tooltip inline, pills editável pedido/item, preload badge, `TooltipGlobal` órfã |
+| 2026-06-10 | Seção 7 — Valor Total Câmbio: `handleEditarFilho`, `atualizarItemSchema`, pills `PILLS_*_VALOR_TOTAL_CAMBIO` |

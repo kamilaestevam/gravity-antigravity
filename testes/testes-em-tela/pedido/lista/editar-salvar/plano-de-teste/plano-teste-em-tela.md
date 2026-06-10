@@ -102,8 +102,9 @@
 | **CONDIÇÃO PAGAMENTO COMERCIAL DO PEDIDO/ITEM** | 328–342 | `run-lista-editar-salvar.ts` + `validar-condicao-pagamento-comercial-lista.ts` |
 | **MOEDA CÂMBIO** | 343–357 | `run-lista-editar-salvar.ts` + `validar-moeda-cambio-lista.ts` |
 | **DATA TRANSFERÊNCIA DE SALDO** | 358–373 | `run-lista-editar-salvar.ts` + `validar-data-transferencia-saldo-lista.ts` |
+| **VALOR TOTAL CÂMBIO DO PEDIDO/ITEM** | 374–390 | `run-lista-editar-salvar.ts` + `validar-valor-total-cambio-lista.ts` |
 
-> **Ordem de execução no runner:** Peso (227–248), Cubagem (249–259), Tipo Volume (260–272), Qtd. Volumes (273–287), Cobertura Cambial (288–302), Condição Pagamento Siscomex (303–317), Condição Pagamento Comercial (318–332) e Moeda Câmbio (333–347) rodam **antes** de Qtd. Transferida (93–144), após Unidade Comercializada (82–92). **Data Transferência de Saldo (358–373)** roda **depois** da Redução Simples (passo **144**), pois depende de operações Transferir. **SSOT** tipos de volume: **`cadastros.volume`** · cobertura cambial: **`cadastros.cambio_siscomex`** (`tipo=cobertura_cambial`) · modalidade pagamento Siscomex: **`cadastros.cambio_siscomex`** (`tipo=modalidade_pagamento`) · condição pagamento comercial: **texto livre** · moeda câmbio: **`cadastros.moeda`** (badge ISO).
+> **Ordem de execução no runner:** Peso (227–248), Cubagem (249–259), Tipo Volume (260–272), Qtd. Volumes (273–287), Cobertura Cambial (288–302), Condição Pagamento Siscomex (303–317), Condição Pagamento Comercial (318–332) e Moeda Câmbio (333–347) rodam **antes** de Qtd. Transferida (93–144), após Unidade Comercializada (82–92). **Data Transferência de Saldo (358–373)** roda **depois** da Redução Simples (passo **144**), pois depende de operações Transferir. **Valor Total Câmbio (374–390)** roda **após Moeda Câmbio (343–357)** — pré-condição: pedido com moeda câmbio base **USD**. **SSOT** tipos de volume: **`cadastros.volume`** · cobertura cambial: **`cadastros.cambio_siscomex`** (`tipo=cobertura_cambial`) · modalidade pagamento Siscomex: **`cadastros.cambio_siscomex`** (`tipo=modalidade_pagamento`) · condição pagamento comercial: **texto livre** · moeda câmbio: **`cadastros.moeda`** (badge ISO).
 
 ---
 
@@ -984,7 +985,35 @@ Coluna **`data_transferencia_saldo_pedido`** / **`data_transferencia_saldo_item`
 | **370** | Checkbox **pedido** → **Edição em Massa** → **Data Transferência Saldo** → **06/06/2026** → confirmar | Pedido + itens = **06/06/2026** (como captura do dono) · Prints `370-dts-massa-selecao.png` + `370-dts-massa-resultado.png` |
 | **371** | Editar **item 1** → data **10/05/2026** → confirmar | Edição isolada no item · Prints `371-dts-item1-editar-selecao.png` + `371-dts-item1-editar-resultado.png` |
 | **372** | Hub → Lista → reexpandir | Datas persistem · Print `372-dts-persistencia-apos-navegar-resultado.png` |
-| **373** | *(fechamento etapa 53)* | Estado final consolidado · Print `373-dts-estado-final-grade.png` |
+| **373** | *(fechamento etapa 54)* | Estado final consolidado · Print `373-dts-estado-final-grade.png` |
+
+### ETAPA 55 — VALOR TOTAL CÂMBIO DO PEDIDO/ITEM (passos 374–390)
+
+Coluna **`valor_total_cambio_pedido`** / **`valor_total_cambio_item_pedido`**. Pedido **bloqueado** (soma na mesma moeda câmbio); item via popover **moeda câmbio + valor**. **Alterar moeda no popover VTC** atualiza também a coluna **Moeda Câmbio** (item + espelho no pedido). Regras §8Q VTC-01…11.
+
+**Pré-condição:** **ETAPA 53** (Moeda Câmbio) com base **USD** no pedido; pedido expandido com **≥2 itens**.
+
+| Passo | Regra | Ação | APROVADO quando |
+|-------|-------|------|-----------------|
+| **374** | VTC-01 | Scroll até **Valor Total Câmbio** | Coluna visível na grade |
+| **375** | VTC-02 | **Clicar** célula do **pedido** | Popover **não** abre · Print `375-vtc-pedido-nao-edita.png` |
+| **376** | VTC-02 | Hover célula do **pedido** | Cursor `not-allowed` · Print `376-vtc-pedido-cursor-bloqueado.png` |
+| **377** | VTC-02 | Tooltip **pedido** | Título *Valor total do câmbio* + pills `bloqueado_edicao` → `valor_total_soma_mesma_moeda` → `editavel_nos_itens` → `alerta_moeda_divergente_entre_itens` · Print `377-vtc-tooltip-pedido.png` |
+| **378** | VTC-05 | **Item 1** vazio: popover → **145,00** + moeda **USD** → confirmar | Badge `USD` + `145,00` · Prints `378-vtc-item1-incluir-selecao` / `…-resultado` |
+| **379** | VTC-05 | **Item 2** vazio: **111,00** + **USD** → confirmar | Badge `USD` + `111,00` · Print `379-vtc-item2-incluir-resultado.png` |
+| **380** | VTC-03 | Inspecionar célula do **pedido** | Soma **256,00** + badge `USD` · Print `380-vtc-pedido-soma-resultado.png` |
+| **381** | VTC-06 | Reabrir popover **item 1** (sem editar) | Exibe **145,00** + **USD** originais · Print `381-vtc-item1-popover-originais.png` |
+| **382** | VTC-06 | Editar **item 1** → **200,00** + **USD** → confirmar | Item 1 = `200,00`; pedido = **311,00** · Prints `382-vtc-item1-editar-selecao` / `…-resultado` |
+| **383** | VTC-07 | No popover do **item 1**: manter **200,00**, trocar moeda **USD** → **EUR** → confirmar | VTC item 1 = **200,00** + badge **EUR** · Prints `383-vtc-item1-troca-moeda-selecao` / `…-resultado` |
+| **384** | VTC-07 | Inspecionar coluna **Moeda Câmbio** (mesma linha) | **Item 1** e **pedido** = badge **EUR** (espelhamento) · Print `384-vtc-moeda-cambio-espelhada-resultado.png` |
+| **385** | VTC-07 | Inspecionar **item 2** | Coluna **Moeda Câmbio** do item 2 permanece **USD** · Print `385-vtc-item2-moeda-cambio-inalterada.png` |
+| **386** | VTC-08 | **Item 2**: **50,00** + moeda **EUR** → confirmar | Pedido VTC = `—` + alerta *Moedas de câmbio divergentes entre itens* · Prints `386-vtc-item2-eur-selecao` / `386-vtc-alerta-divergencia-resultado` |
+| **387** | VTC-09 | Tooltip **item 1** | Título *Valor Total Câmbio do Item* + pill `editavel_nos_itens` + aviso amarelo · Print `387-vtc-tooltip-item.png` |
+| **388** | VTC-10 | Filtrar coluna por **EUR** | Grade filtra sem erro · Print `388-vtc-filtro-resultado.png` |
+| **389** | VTC-10 | Checkbox pedido → **Edição em Massa** → **Valor Total Câmbio** → **100,00** → confirmar | Itens homogêneos atualizados; pedido recalcula · Prints `389-vtc-massa-selecao` / `…-resultado` |
+| **390** | VTC-11 | Hub → Lista → reexpandir | Valores VTC e **Moeda Câmbio** persistem · Print `390-vtc-persistencia-resultado.png` |
+
+**Valores no runner:** `145,00` · `111,00` · `200,00` · `50,00` · massa `100,00` · moedas **USD** / **EUR** do Cadastros.
 
 ### ETAPA 44 — Relatório
 
@@ -1063,5 +1092,6 @@ npx tsx testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-list
 | CONDIÇÃO PAGAMENTO COMERCIAL DO PEDIDO/ITEM | 328–342 | 15 |
 | MOEDA CÂMBIO | 343–357 | 15 |
 | DATA TRANSFERÊNCIA DE SALDO | 358–373 | 16 |
-| **Total runner principal** | | **~373 passos / ~405 casos** |
+| VALOR TOTAL CÂMBIO DO PEDIDO/ITEM | 374–390 | 17 |
+| **Total runner principal** | | **~390 passos / ~422 casos** |
 | **+ runners dedicados Importador/Exportador** | | **+6 regras** |

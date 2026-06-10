@@ -81,6 +81,8 @@ Texto livre orientado ao operador — ex.: *«A alteração da moeda irá altera
 |--------|-------------------------------------|------------------------------|
 | Moeda | ✅ MND-01…08 + tooltips §0 | ✅ |
 | Valor total (`valor_total_pedido`) | ✅ VLR-01…10 + tooltips §0 | ✅ |
+| Valor total câmbio (`valor_total_cambio_pedido`) | ✅ VTCC-01…10 + tooltips §0 | ✅ |
+| Moeda câmbio (`moeda_cambio_pedido`) | ✅ MCB-01…12 + tooltips §0 | ✅ |
 | Valor unitário (`valor_por_unidade_item`) | ✅ VUN-01…10 + tooltips §0 | ✅ |
 | Logística (LOG-06) | ✅ pills definidas | 🟡 títulos `{Coluna} do Pedido/Item` pendentes |
 | Anexos (`anexo_*`) | ✅ §8P ANX-01…10 | ✅ |
@@ -363,6 +365,37 @@ O exportador exibido depende do **tipo de operação** do pedido.
 **Código:** `PILLS_PEDIDO_VALOR_TOTAL` / `PILLS_ITEM_VALOR_TOTAL` · `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` · `enriquecerColunaBloqueadaInlinePedido` em `buildTooltipRegraLista.tsx`.
 
 **EMT:** passos 72–81 (ordem exata regras 01–08) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+
+---
+
+## 8A-C. VALOR TOTAL CÂMBIO DO PEDIDO/ITEM (`valor_total_cambio_pedido`)
+
+> Decisão de produto **2026-06-10** — coluna dinâmica pedido/item, espelho de **§8A** na dimensão **câmbio**. Pedido **não editável**; item via popover **moeda + valor** (`.gtv-edit-moeda-valor`, select `cadastros.moeda`). Persistência no item: `valor_total_cambio_item_pedido` (+ `moeda_cambio_item_pedido` quando o operador troca a moeda no popover). Coluna **Moeda Câmbio** (`§8N`) permanece o fluxo próprio (valor único no pedido, espelhamento visual).
+
+| # | Regra |
+|---|--------|
+| **VTCC-01** | Label na grade: **Valor Total Câmbio do Pedido/Item** — títulos de tooltip: *Valor total do câmbio* (pai) / *Valor Total Câmbio do Item* (filho). |
+| **VTCC-02** | Linha **pedido** **bloqueada** (`editavel: false` em `ColunasPai` + `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO`); exibe soma dos `valor_total_cambio_item_pedido` na **mesma moeda de câmbio** ou `—` se moedas de câmbio divergirem entre itens com valor. |
+| **VTCC-03** | Linha **item** **editável** — popover moeda + valor; item vazio pode incluir valor e qualquer moeda e salvar. |
+| **VTCC-04** | Badge na célula usa `moeda_cambio_item_pedido` do item, com fallback `_p.moeda_cambio_pedido`. |
+| **VTCC-05** | Ao abrir o popover em item preenchido, exibir **valor e moeda de câmbio originais** (`getValorEditar` em `buildMapaColunasFilho`). |
+| **VTCC-06** | Alterar valor no item persiste `valor_total_cambio_item_pedido` via `PUT /api/v1/pedidos/:id/itens/:id` (`pedidoItemApi.atualizar`). |
+| **VTCC-07** | Alterar **moeda** no popover do item persiste também `moeda_cambio_item_pedido` no mesmo PUT (espelha `valor_total_item` + `moeda_item`). |
+| **VTCC-08** | Após save, recalcula agregado local `valor_total_cambio_pedido` no pedido (soma ou `null` se moedas de câmbio divergem). |
+| **VTCC-09** | **Alerta âmbar** na célula do **pedido** quando itens têm moedas de câmbio divergentes com valor (`moeda_cambio_pedido_divergente`) — *Moedas de câmbio divergentes entre itens*. |
+| **VTCC-10** | **Aviso amarelo** no tooltip do **item** (e aviso de coluna no pai): *Alterar a moeda aqui também altera a Moeda Câmbio do item* (`valor_total_cambio_impacto_edicao`). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** (expandido) | *Valor total do câmbio* | `bloqueado_edicao` → `valor_total_soma_mesma_moeda` → `editavel_nos_itens` → `alerta_moeda_divergente_entre_itens` |
+| **Item** | *Valor Total Câmbio do Item* | `editavel_nos_itens` |
+| **Cabeçalho** (sem expandir) | *Valor Total Câmbio do Pedido/Item* | `bloqueado_edicao` → `valor_total_soma_mesma_moeda` → `editavel_nos_itens` → `alerta_moeda_divergente_entre_itens` |
+
+**Código:** `PILLS_PEDIDO_VALOR_TOTAL_CAMBIO` / `PILLS_ITEM_VALOR_TOTAL_CAMBIO` · `dinamico_valor_total_cambio` · `valorTotalCambioItemParaLista` · `enriquecerColunaBloqueadaInlinePedido` em `buildTooltipRegraLista.tsx`.
+
+**EMT:** pendente — coluna ainda sem ETAPA dedicada no plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
 
 ---
 
@@ -862,3 +895,4 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | 2026-06-08 | §8N MCB-01…12 — Moeda Câmbio; espelhamento pedido/itens + alerta moeda comercial divergente; EMT passos 333–347 |
 | 2026-06-08 | §8O DTS-01…14 — Data Transferência Saldo; automático (Transferir) + manual; EMT passos 348–363 (após passo 134) |
 | 2026-06-09 | §8P ANX-01…10 — Anexos na lista (ícone, vínculo por linha, tooltips dual, preload badge) |
+| 2026-06-10 | §8A-C VTCC-01…10 — Valor Total Câmbio; pedido bloqueado + soma; item popover moeda+valor; PUT item com `valor_total_cambio_item_pedido` |

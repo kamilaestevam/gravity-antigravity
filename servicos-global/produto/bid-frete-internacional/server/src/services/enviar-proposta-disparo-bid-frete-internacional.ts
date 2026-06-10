@@ -9,6 +9,7 @@ import {
 } from '../lib/acesso-resposta-disparo-bid-frete-internacional.js'
 import { validarPropostaEnvioModalidadeCotacaoBidFreteInternacional } from '../lib/validar-proposta-envio-modalidade-cotacao-bid-frete-internacional.js'
 import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
+import { persistirTaxasProposta, type TaxaInputProposta } from '../lib/persistir-taxas-proposta.js'
 import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
 import { notificacoesIntegration, historicoIntegration, atividadesIntegration } from './integracoes-tenant.js'
 

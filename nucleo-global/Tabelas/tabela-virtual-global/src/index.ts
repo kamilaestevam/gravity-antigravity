@@ -7,6 +7,8 @@ export { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
 export type { BotaoCompletoExportarProps } from './BotaoCompletoExportar.js'
 export { EdicaoPeriodoPopoverGlobal } from './EdicaoPeriodoPopoverGlobal.js'
 export type { EdicaoPeriodoPopoverGlobalProps } from './EdicaoPeriodoPopoverGlobal.js'
+export { EdicaoTextoPopoverGlobal } from './EdicaoTextoPopoverGlobal.js'
+export type { EdicaoTextoPopoverGlobalProps } from './EdicaoTextoPopoverGlobal.js'
 export type {
   GTColuna,
   GTAcao,

@@ -140,7 +140,7 @@ function recalcularAgregadosPedido(itens: PedidoItem[]): Partial<Pedido> {
       ? null
       : itens.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
     quantidade_pronta_itens_pedido_total: itens.reduce(
-      (s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0,
+      (s, i) => s + (Number(i.quantidade_pronta_item) || 0), 0,
     ),
   }
 }
@@ -344,7 +344,7 @@ export function useEdicaoListaProcesso(
 
     if (CAMPOS_PAI_TEXTO.has(campo) || (CAMPOS_EDITAVEIS_PEDIDO.includes(campo) && ![
       'part_number', 'ncm', 'descricao_item', 'valor_total_item', 'valor_por_unidade_item',
-      'quantidade_inicial_pedido', 'quantidade_pronta_total_item_pedido', 'moeda_item',
+      'quantidade_inicial_pedido', 'quantidade_pronta_item', 'moeda_item',
       'unidade_comercializada_item', 'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
     ].includes(campo))) {
       const pedidoAtualizado = { ...pedido, [campo]: valor } as PedidoComProcesso
@@ -412,11 +412,11 @@ export function useEdicaoListaProcesso(
       return { camada: 'item', item: enriquecerItemComPai(itemPatch, merged) }
     }
 
-    if (campo === 'quantidade_pronta_total_item_pedido') {
+    if (campo === 'quantidade_pronta_item') {
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
       const qtd = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
       const novaUnidade = isUnidade ? (valor as { unit: string }).unit : undefined
-      let itemPatch: PedidoItem = { ...item, quantidade_pronta_total_item_pedido: qtd }
+      let itemPatch: PedidoItem = { ...item, quantidade_pronta_item: qtd }
       if (novaUnidade) {
         itemPatch = { ...itemPatch, unidade_comercializada_item: novaUnidade }
       }
@@ -430,7 +430,7 @@ export function useEdicaoListaProcesso(
         ...pedido,
         ...sinc.divergencias,
         quantidade_pronta_itens_pedido_total: itensAtualizados.reduce(
-          (s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0,
+          (s, i) => s + (Number(i.quantidade_pronta_item) || 0), 0,
         ),
       } as PedidoComProcesso
       setPedidos(prev => prev.map(p => (p.id === pedido.id ? merged : p)))

@@ -19,7 +19,7 @@
  *   model PedidoItem → db.pedidoItem  → campos: quantidade_inicial_pedido,
  *                                               quantidade_atual_pedido,
  *                                               quantidade_transferida_pedido,
- *                                               quantidade_pronta_pedido,
+ *                                               quantidade_pronta_item,
  *                                               valor_total_item
  *
  * Status reais: 'rascunho' | 'aberto' | 'transferencia' | 'consolidado' | 'cancelado'

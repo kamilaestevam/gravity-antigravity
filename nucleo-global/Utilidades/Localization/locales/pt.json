@@ -5691,7 +5691,6 @@
       "atributos_catalogo": "Atributos Catálogo",
       "quantidade_inicial_item_pedido": "Qtd. Inicial",
       "quantidade_transferida_item_pedido": "Qtd. Transferida",
-      "quantidade_pronta_total_item_pedido": "Qtd. Pronta",
       "quantidade_cancelada_item_pedido": "Qtd. Cancelada",
       "casas_decimais_quantidade_item": "Casas Decimais — Qtd.",
       "peso_liquido_unitario_item": "Peso Líquido Unitário",
@@ -7652,7 +7651,7 @@
         "tooltip_titulo": "Saldo",
         "tooltip_descricao": "Quantidade inicial menos canceladas e transferidas"
       },
-      "quantidade_pronta_total_item_pedido": {
+      "quantidade_pronta_item": {
         "label": "Quantidade Pronta do Item no Pedido",
         "tooltip_titulo": "Quantidade Pronta",
         "tooltip_descricao": "Montante produzido pela fábrica e validado para embarque"

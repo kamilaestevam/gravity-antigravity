@@ -393,7 +393,7 @@ export const pedidoItemApi = {
   atualizarPronta: (pedidoId: string, itemId: string, quantidade: number) =>
     request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}/pronta`, {
       method: 'PATCH',
-      body: JSON.stringify({ quantidade_pronta_total_item_pedido: quantidade }),
+      body: JSON.stringify({ quantidade_pronta_item: quantidade }),
     }),
 
   reordenar: (pedidoId: string, ids: string[]) =>

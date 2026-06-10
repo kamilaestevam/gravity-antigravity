@@ -252,9 +252,34 @@ const cancelarQuantidadeSchema = z.object({
   quantidade: z.number().positive(),
 })
 
-const atualizarProntaSchema = z.object({
-  quantidade_pronta_pedido: z.number().min(0),
-})
+const atualizarProntaSchema = z
+  .object({
+    quantidade_pronta_item: z.number().min(0).optional(),
+    /** @deprecated — aceito na leitura para rollout / clientes antigos */
+    quantidade_pronta_pedido: z.number().min(0).optional(),
+    /** @deprecated — aceito na leitura para rollout / clientes antigos */
+    quantidade_pronta_total_item_pedido: z.number().min(0).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const temValor =
+      data.quantidade_pronta_item != null
+      || data.quantidade_pronta_pedido != null
+      || data.quantidade_pronta_total_item_pedido != null
+    if (!temValor) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'quantidade_pronta_item é obrigatória',
+        path: ['quantidade_pronta_item'],
+      })
+    }
+  })
+  .transform((data) => ({
+    quantidade_pronta_item:
+      data.quantidade_pronta_item
+      ?? data.quantidade_pronta_pedido
+      ?? data.quantidade_pronta_total_item_pedido
+      ?? 0,
+  }))
 
 const statusTransicaoSchema = z.object({
   status: z.string().min(1).max(100).regex(/^[a-z0-9_]+$/, 'Nome de status inválido'),
@@ -324,7 +349,7 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     // Decimal → number (quantidades)
     quantidade_inicial_pedido:     num(item.quantidade_inicial_item),
     quantidade_atual_pedido:       num(item.quantidade_atual_item),
-    quantidade_pronta_pedido:      num(item.quantidade_pronta_item),
+    quantidade_pronta_item:      num(item.quantidade_pronta_item),
     quantidade_transferida_pedido: num(item.quantidade_transferida_item),
     quantidade_cancelada_pedido:   num(item.quantidade_cancelada_item),
 
@@ -551,7 +576,7 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
       ?? null,
     // Virtual: somatório de quantidade_pronta dos itens (não persistido no Pedido)
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
-      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_pedido ?? 0), 0)
+      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_item ?? 0), 0)
       : (pedido.quantidade_pronta_itens_pedido_total ?? null),
     // Virtual: somatório de quantidade_transferida dos itens (não persistido no Pedido)
     quantidade_transferida_total: Array.isArray(itens)
@@ -3297,7 +3322,7 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/pronta', async (req: Request, re
 
       const saldo = await saldoPedido.atualizarPronta(db, {
         pedido_item_id: req.params.id_item,
-        quantidade_pronta: result.data.quantidade_pronta_pedido,
+        quantidade_pronta: result.data.quantidade_pronta_item,
         id_organizacao: idOrganizacao,
         id_workspace: idWorkspace,
       })

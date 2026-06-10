@@ -5895,7 +5895,6 @@
       "atributos_catalogo": "Catalog Attributes",
       "quantidade_inicial_item_pedido": "Initial Qty.",
       "quantidade_transferida_item_pedido": "Transferred Qty.",
-      "quantidade_pronta_total_item_pedido": "Ready Qty.",
       "quantidade_cancelada_item_pedido": "Canceled Qty.",
       "casas_decimais_quantidade_item": "Decimal Places — Qty.",
       "peso_liquido_unitario_item": "Unit Net Weight",
@@ -7335,7 +7334,7 @@
         "tooltip_titulo": "Balance",
         "tooltip_descricao": "Initial quantity minus canceled and transferred"
       },
-      "quantidade_pronta_total_item_pedido": {
+      "quantidade_pronta_item": {
         "label": "Total Ready Quantity of Item in Order",
         "tooltip_titulo": "Ready Quantity",
         "tooltip_descricao": "Amount produced by the factory and validated for shipment"

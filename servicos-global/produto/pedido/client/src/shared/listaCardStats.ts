@@ -72,7 +72,7 @@ export function resolveQuantidadeInicialPedido(p: Pedido, itens: PedidoItem[]): 
 export function resolveSaldoPedido(p: Pedido, itens: PedidoItem[]): number {
   const inicial = resolveQuantidadeInicialPedido(p, itens)
   const pronta = itens.length > 0
-    ? itens.reduce((s, i) => s + safeNum(i.quantidade_pronta_total_item_pedido), 0)
+    ? itens.reduce((s, i) => s + safeNum(i.quantidade_pronta_item), 0)
     : safeNum((p as Pedido & { quantidade_pronta_itens_pedido_total?: number }).quantidade_pronta_itens_pedido_total)
   const cancelada = itens.length > 0
     ? itens.reduce((s, i) => s + safeNum((i as PedidoItem & { quantidade_cancelada_pedido?: number }).quantidade_cancelada_pedido), 0)
@@ -136,7 +136,7 @@ export function computeCardStats(
     }
   }
 
-  const itensProntos   = itens.reduce((acc, i) => acc + safeNum(i.quantidade_pronta_total_item_pedido), 0)
+  const itensProntos   = itens.reduce((acc, i) => acc + safeNum(i.quantidade_pronta_item), 0)
   const qtdTransferida = itens.reduce((acc, i) => acc + safeNum(i.quantidade_transferida_pedido), 0)
   const qtdInicial     = itens.reduce((acc, i) => acc + safeNum(i.quantidade_inicial_pedido), 0)
   const valorItens     = itens.reduce((acc, i) => acc + safeNum(i.valor_total_item), 0)

@@ -117,7 +117,7 @@ function criarItemMock(
     descricao_item: 'Componente eletrônico',
     quantidade_inicial_pedido: 50,
     quantidade_atual_pedido: 50,
-    quantidade_pronta_total_item_pedido: 0,
+    quantidade_pronta_item: 0,
     quantidade_transferida_pedido: 0,
     quantidade_cancelada_pedido: 0,
     casas_decimais_quantidade_item: 2,

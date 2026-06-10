@@ -46,7 +46,7 @@ const KANBAN_RAIO_X_ESPERADO: Record<string, EsperadoRaioX> = {
   quantidade_pronta_itens_pedido_total: {
     nivel: 'item',
     colunaPai: 'quantidade_pronta_itens_pedido_total',
-    campoItem: 'quantidade_pronta_total_item_pedido',
+    campoItem: 'quantidade_pronta_item',
   },
   quantidade_transferida_total:        { nivel: 'visualizar', colunaPai: 'quantidade_transferida_total' },
   quantidade_cancelada_total_pedido:   { nivel: 'visualizar', colunaPai: 'quantidade_cancelada_total_pedido' },

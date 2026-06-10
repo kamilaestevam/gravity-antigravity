@@ -634,7 +634,7 @@ function buildFormulaContexto(row: Pedido): Record<string, number | null> {
     quantidade_total_pedido:              n(r.quantidade_total_pedido)              ?? n(r.quantidade_inicial_pedido),
     quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_total_pedido)    ?? n(r.quantidade_cancelada_pedido),
     quantidade_transferida_total:         n(r.quantidade_transferida_total)         ?? n(r.quantidade_transferida_pedido),
-    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total) ?? n(r.quantidade_pronta_pedido),
+    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total) ?? n(r.quantidade_pronta_item),
     saldo_itens_do_pedido:                n(r.saldo_itens_do_pedido)                ?? n(r.quantidade_atual_pedido),
     valor_total:                          n(r.valor_total_pedido)                   ?? n(r.valor_total_item),
     peso_liquido_total_pedido:            n(r.peso_liquido_total_pedido),
@@ -893,16 +893,16 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     ),
   },
   {
-    key: 'quantidade_pronta_total_item_pedido',
-    label: t('pedido.coluna_filho.quantidade_pronta_total_item_pedido.label'),
+    key: 'quantidade_pronta_item',
+    label: t('pedido.coluna_filho.quantidade_pronta_item.label'),
     tipo: 'numero',
     align: 'right',
     grupo: 'Quantidades',
-    tooltipTitulo: t('pedido.coluna_filho.quantidade_pronta_total_item_pedido.tooltip_titulo'),
-    tooltipDescricao: t('pedido.coluna_filho.quantidade_pronta_total_item_pedido.tooltip_descricao'),
+    tooltipTitulo: t('pedido.coluna_filho.quantidade_pronta_item.tooltip_titulo'),
+    tooltipDescricao: t('pedido.coluna_filho.quantidade_pronta_item.tooltip_descricao'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta_total_item_pedido, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_pronta_item, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -2607,7 +2607,7 @@ const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
 // Colunas sem mapeamento ficam vazias na linha do item.
 
 const CAMPOS_NUMERICOS_ITEM = new Set([
-  'quantidade_inicial_pedido', 'quantidade_atual_pedido', 'quantidade_pronta_total_item_pedido',
+  'quantidade_inicial_pedido', 'quantidade_atual_pedido', 'quantidade_pronta_item',
   'quantidade_transferida_pedido', 'quantidade_cancelada_pedido',
   'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
 ])
@@ -3845,17 +3845,17 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   },
   quantidade_pronta_itens_pedido_total: {
     editavel: true,
-    campo: 'quantidade_pronta_total_item_pedido',
+    campo: 'quantidade_pronta_item',
     casasDecimais: getCasas('quantidade_item', 0),
     getValorEditar: (row: PedidoItem) => ({
       unit: (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN',
-      quantity: Number(row.quantidade_pronta_total_item_pedido ?? 0),
+      quantity: Number(row.quantidade_pronta_item ?? 0),
     }),
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       return (
         <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {fmtQuantidade(row.quantidade_pronta_total_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+          {fmtQuantidade(row.quantidade_pronta_item ?? 0, getCasas('quantidade_item', 0))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
       )
@@ -7778,8 +7778,8 @@ export default function Pedidos() {
       return enriquecidoVu
     }
 
-    // quantidade_pronta_total_item_pedido → endpoint dedicado PATCH /pronta
-    if (campo === 'quantidade_pronta_total_item_pedido') {
+    // quantidade_pronta_item → endpoint dedicado PATCH /pronta
+    if (campo === 'quantidade_pronta_item') {
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
       const qtd = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
       const novaUnidade = isUnidade ? (valor as { unit: string }).unit : undefined
@@ -7836,7 +7836,7 @@ export default function Pedidos() {
           ...p,
           ...divergenciasPronta,
           itens: itensAposEdicao,
-          quantidade_pronta_itens_pedido_total: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0),
+          quantidade_pronta_itens_pedido_total: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_pronta_item) || 0), 0),
         }
       }))
       return enriquecidoPronta

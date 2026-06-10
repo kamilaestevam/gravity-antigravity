@@ -9,7 +9,7 @@ function itemBase(parcial: Partial<PedidoItem>): PedidoItem {
     numero_item: 1,
     quantidade_inicial_pedido: 10,
     quantidade_atual_pedido: 10,
-    quantidade_pronta_total_item_pedido: 0,
+    quantidade_pronta_item: 0,
     quantidade_transferida_pedido: 0,
     quantidade_cancelada_pedido: 0,
     ...parcial,

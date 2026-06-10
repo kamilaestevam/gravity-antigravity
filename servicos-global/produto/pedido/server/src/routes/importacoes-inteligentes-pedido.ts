@@ -550,7 +550,7 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       'quantidade_inicial_item',
       'quantidade_atual_item',
       'quantidade_transferida_item',
-      'quantidade_pronta_total_item',
+      'quantidade_pronta_item',
       'quantidade_cancelada_item',
       'valor_por_unidade_item',
       'nome_exportador_item',

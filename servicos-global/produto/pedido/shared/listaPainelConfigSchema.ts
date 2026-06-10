@@ -2,6 +2,11 @@
  * Contrato bilateral — config_json dos painéis da Lista (Pedido v1).
  */
 import { z } from 'zod'
+import {
+  migrarListaChavesCampoPedido,
+  migrarRecordChavesCampoPedido,
+  normalizarChaveCampoPedido,
+} from './migracaoChavesCampoPedido.js'
 
 export const ID_PRODUTO_GRAVITY_PEDIDO = 'pedido' as const
 
@@ -72,9 +77,27 @@ export function serializarConfigListaPainel(config: ListaPainelConfigV1): string
   return JSON.stringify(listaPainelConfigV1Schema.parse(config))
 }
 
+export function migrarChavesConfigListaPainel(config: ListaPainelConfigV1): ListaPainelConfigV1 {
+  return {
+    ...config,
+    colunas_visiveis: migrarListaChavesCampoPedido(config.colunas_visiveis),
+    colunas_manuais_conhecidas: config.colunas_manuais_conhecidas
+      ? migrarListaChavesCampoPedido(config.colunas_manuais_conhecidas)
+      : undefined,
+    colunas_largura: config.colunas_largura
+      ? migrarRecordChavesCampoPedido(config.colunas_largura)
+      : undefined,
+    filtros_coluna: migrarRecordChavesCampoPedido(config.filtros_coluna),
+    ordenacao: {
+      campo: normalizarChaveCampoPedido(config.ordenacao.campo),
+      direcao: config.ordenacao.direcao,
+    },
+  }
+}
+
 export function parsearConfigListaPainel(raw: string): ListaPainelConfigV1 {
   const json: unknown = JSON.parse(raw)
-  return listaPainelConfigV1Schema.parse(json)
+  return migrarChavesConfigListaPainel(listaPainelConfigV1Schema.parse(json))
 }
 
 export function parsearConfigListaPainelSeguro(

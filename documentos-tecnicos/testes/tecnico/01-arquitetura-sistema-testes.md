@@ -10,17 +10,18 @@
 ┌────────────────────────────────────────────────────────────────────┐
 │                      ADMIN / TESTES (UI)                          │
 │  LogTestes.tsx  │  ModalExecutarTestes  │  ModalAgendamentoTestes │
+│  Abas: Em Execução · Executados                         │
 └─────────────────────────────┬──────────────────────────────────────┘
                               │ HTTP
                               ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │              CONFIGURADOR SERVER (porta 8005)                     │
-│  GET  /admin/test-plans              ← lê test-plans-registry.json │
-│  POST /admin/test-plans/generate     ← agente-plano-teste          │
-│  POST /admin/run-tests               ← spawn Playwright            │
-│  GET  /admin/test-logs               ← lê data/test-logs/*.json    │
-│  POST /admin/test-logs/:id/reanalyze ← Gemini analyzer             │
-│  POST /admin/test-schedule           ← persiste agendamento        │
+│  GET  /admin/planos-teste            ← registry + casos           │
+│  POST /admin/testes/disparar         ← spawn E2E ou EMT (N runs)  │
+│  GET  /admin/testes/status           ← execucoes_teste[] ativas   │
+│  GET  /admin/testes                  ← histórico (model Teste)    │
+│  POST /admin/testes/:id/reanalisar   ← Gemini analyzer            │
+│  GET/POST /admin/agendamentos-teste  ← cron interno               │
 └─────────────────────────────┬──────────────────────────────────────┘
                               │
        ┌──────────────────────┼──────────────────────┐
@@ -35,9 +36,11 @@
        │
        ▼
 ┌─────────────────────────────────────────────┐
-│ data/test-logs/AAAA-MM-DD.json (fallback)  │
-│ test-results/screenshots, traces            │
-│ playwright-report/index.html                │
+│ data/test-logs/AAAA-MM-DD.json (fallback legado)                 │
+│ data/test-logs/runs/run-<id_execucao_teste>.json (markers ativos)│
+│ data/test-logs/emt-resultado-teste-<id>.json (saída runner EMT)  │
+│ test-results/screenshots, traces                                  │
+│ playwright-report/index.html                                      │
 └─────────────────────────────────────────────┘
 
        ▲
@@ -198,46 +201,49 @@ Plano vira entrada em testes/test-plans-registry.json
 ```
 
 ### 2. Execução (manual ou cron)
+
 ```
-Trigger: humano clica "Rodar" OU cron diário dispara
+Trigger: humano clica "Rodar" OU cron dispara (gatilho_teste = cron)
   ↓
-POST /admin/run-tests com lista de plano IDs
+POST /admin/testes/disparar { planos: [...], ambiente? }
   ↓
-Backend resolve IDs → spec files via registry
+validarNovaExecucaoTeste:
+  - limite global (LIMITE_EXECUCOES_SIMULTANEAS_TESTE, default 3)
+  - mesmo plano não pode rodar 2x (PLANO_EM_EXECUCAO)
   ↓
-spawn('npx', ['playwright', 'test', ...specs, '--reporter=json'])
+Grava marker em data/test-logs/runs/run-<id_execucao_teste>.json
   ↓
-Playwright executa specs, tira screenshot por teste
+Runner E2E: spawn playwright → stdout em playwright-run-<id>.json
+Runner EMT: spawn detached emt-background-runner.ts
   ↓
-Saída JSON parseada por playwright-parser.ts → entries
+Ao concluir: appendTestLogEntries → model Teste (+ fallback JSON diário)
   ↓
-Para cada entry REPROVADO/ERRO:
-  ↓
-  analyzeTestFailure() → Gemini Flash → AiAnalysis
-  ↓
-  Validação: codigoDiff existe literalmente nos arquivos? → ok ou rebaixa
-  ↓
-Persiste tudo em data/test-logs/AAAA-MM-DD.json
-  ↓
-Frontend faz polling de /admin/test-logs → atualiza tabela
+Remove marker do run; frontend polling em GET /admin/testes/status
 ```
+
+**Execuções simultâneas (2026-06):** vários runs podem estar ativos ao mesmo tempo (até o limite). A UI **Admin › Testes** separa **Em Execução** (markers ativos) e **Executados** (histórico). Cada run tem `id_execucao_teste` único e `gatilho_teste` (`manual` | `cron` | `ci`).
 
 ### 2b. Execução EMT (teste em tela)
 
 ```
 POST /admin/testes/disparar { planos: [TST-EMT-...], ambiente }
   ↓
-Runner filho detached (EMT_RUN_ID = runId)
+Marker + emt-manifest-<id_execucao_teste>.json (planos + env)
+  ↓
+Runner filho detached (EMT_RUN_ID = id_execucao_teste)
   ↓
 npx tsx run-*.ts → grava em resultado-teste/<runId>/*.png + RESULTADO.txt
   ↓
+Ao terminar: emt-resultado-teste-<id_execucao_teste>.json
+  ↓
 coletarArtefatosEmt(script, runId) → emt_pasta + emt_prints só dessa subpasta
   ↓
-Persiste em data/test-logs/AAAA-MM-DD.json (campo emt_pasta obrigatório)
+Persiste em model Teste / data/test-logs (campo emt_pasta obrigatório)
 ```
 
 **Organização:** `documentos-tecnicos/testes/regras/07-organizacao-plano-resultado-por-escopo.md`  
-**Anti-padrão:** pasta `YYYY-MM-DD-*` compartilhada na raiz do escopo — mistura prints entre runs.
+**Anti-padrão:** pasta `YYYY-MM-DD-*` compartilhada na raiz do escopo — mistura prints entre runs.  
+**Legado:** `_current-run.json` e `emt-result-<id>.json` são migrados/lidos automaticamente se existirem.
 
 ### 3. Triagem (humano)
 ```
@@ -263,16 +269,32 @@ Humano decide:
 
 ## Backend — Endpoints
 
-### Já existentes (não tocar)
+### Admin › Testes (implementados — prefixo `/api/v1/admin`)
+
 | Rota | Função |
 |---|---|
-| `GET /admin/test-plans` | Lista planos do registry |
-| `POST /admin/run-tests` | Dispara Playwright em background |
-| `GET /admin/run-tests/status` | `{ running: bool }` |
-| `GET /admin/test-logs` | Lista logs do dia (até 7 dias) |
-| `POST /admin/test-logs` | Ingestão externa (CI envia resultados) |
+| `GET /admin/testes` | Lista histórico (model `Teste` + fallback JSON 7 dias) |
+| `POST /admin/testes/disparar` | Dispara E2E ou EMT em background; retorna `{ started, id_execucao_teste }` |
+| `GET /admin/testes/status` | `{ execucoes_teste[], limite_execucoes_simultaneas_teste, quantidade_execucoes_ativas_teste }` |
+| `POST /admin/testes/:id_teste/reanalisar` | Re-análise Gemini |
+| `POST /admin/testes/:id_teste/aplicar-correcao` | Aplica diff sugerido |
+| `POST /admin/testes/:id_teste/rejeitar` | Marca análise como ruim |
+| `GET /admin/planos-teste` | Lista planos do registry |
+| `GET/POST/PATCH/DELETE /admin/agendamentos-teste` | CRUD agendamento cron |
 
-### A criar (ondas do Dream Team)
+**Contrato `GET /admin/testes/status` (Zod bilateral no front):** cada item em `execucoes_teste` expõe `id_execucao_teste`, `data_inicio_execucao_teste`, `runner_execucao_teste` (`EMT`|`E2E`), `ambiente_teste`, `gatilho_teste`, `lista_planos_execucao_teste`, `lista_modulos_execucao_teste`.
+
+**Env:** `LIMITE_EXECUCOES_SIMULTANEAS_TESTE` (default `3`, máx. `20`).
+
+### Legado / referência histórica (não usar em código novo)
+
+| Rota antiga | Substituída por |
+|---|---|
+| `POST /admin/run-tests` | `POST /admin/testes/disparar` |
+| `GET /admin/run-tests/status` `{ running: bool }` | `GET /admin/testes/status` (array) |
+| `GET /admin/test-logs` | `GET /admin/testes` |
+
+### A criar ou expandir (ondas do Dream Team)
 | Rota | Função | Onda |
 |---|---|---|
 | `POST /admin/test-plans/generate` | Chama agente-plano-teste | 2 |
@@ -393,9 +415,9 @@ schedule = "0 3 * * *"   # 03:00 UTC todo dia
 ```
 
 O container `test-runner-cron`:
-1. Lê `TestSchedule` ativo via API do Configurador
-2. Se há agendamento ativo pra hoje, dispara `POST /admin/run-tests` com os IDs filtrados
-3. Espera completar (polling em `/admin/run-tests/status`)
+1. Lê agendamento ativo via `GET /admin/agendamentos-teste`
+2. Se há schedule para o minuto atual, dispara `POST /admin/testes/disparar` com os planos filtrados
+3. Espera completar (polling em `GET /admin/testes/status` até `quantidade_execucoes_ativas_teste === 0`)
 4. Encerra (Railway cobra só o tempo de execução)
 
 ### Setup alternativo: GitHub Actions
@@ -413,9 +435,9 @@ jobs:
       - run: npm ci
       - run: npx playwright install
       - run: |
-          curl -X POST $CONFIGURADOR_URL/admin/run-tests \
-            -H "x-internal-key: $INTERNAL_KEY" \
-            -d '{"escopos":["CONFIG","ADMIN","PEDIDO"]}'
+          curl -X POST $CONFIGURADOR_URL/api/v1/admin/testes/disparar \
+            -H "Authorization: Bearer $TOKEN" \
+            -d '{"planos":["TST-E2E-CONFIG-000001"],"ambiente":"Staging"}'
 ```
 
 ---
@@ -489,13 +511,15 @@ Detalhes operacionais: [`testes/infra/admin/README.md`](../../../testes/infra/ad
 
 ---
 
-## Frontend — Mudanças no LogTestes
+## Frontend — Admin › Testes (`LogTestes.tsx`)
 
-### Já existe
-- Tabela com cards (Aprovados/Reprovados/Erros)
-- Botão "Rodar Todos os Testes"
-- Botão "Agendamento ativo"
-- Expansão de linha com erro bruto + análise heurística
+### Implementado (2026-06)
+- Cards de passos (7d / 30d) e erros
+- Abas **Em Execução** e **Executados** (mesmas colunas: DATA/HORA, TIPO, TESTE, O QUE FOI TESTADO, PASSOS, RESULTADO, DURAÇÃO)
+- Botão **Rodar** abre modal mesmo com runs ativos (bloqueia só no limite global)
+- Polling `GET /admin/testes/status` enquanto há execuções ativas; toast ao concluir
+- Expansão de linha EMT (prints, RESULTADO.txt) + análise IA Gemini
+- Modal agendamento + favoritos de planos (`testes/infra/admin/`)
 
 ### A adicionar (Ondas 3-4)
 - **Badge de tipo** (UNI/CON/FUN/CRO/E2E/PEN) com cor distinta

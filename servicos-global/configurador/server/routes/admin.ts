@@ -77,6 +77,14 @@ import {
   registryPlanosTestePath,
   resolverArquivoPlanoTeste,
 } from '../lib/raiz-repositorio-gravity.js'
+import {
+  caminhoManifestoEmtTeste,
+  gravarMarkerExecucaoTeste,
+  montarRespostaStatusExecucoesTeste,
+  processarExecucoesOrfasTeste,
+  removerMarkerExecucaoTeste,
+  validarNovaExecucaoTeste,
+} from '../lib/execucao-teste-markers.js'
 
 export const adminRouter = Router()
 
@@ -1193,7 +1201,7 @@ adminRouter.patch('/planos-teste/:id_plano_teste', (req, res, next) => {
  */
 adminRouter.get('/testes', async (_req, res, next) => {
   try {
-    processOrphanedRun()
+    processarExecucoesOrfasTeste()
     const byId = new Map<string, TesteApiRegistro>()
 
     try {
@@ -1262,111 +1270,26 @@ function enrichirLogEmtApi(reg: TesteApiRegistro): TesteApiRegistro {
 }
 
 // ── Constantes para run-tests ─────────────────────────────────────────────────
-const RUN_MARKER_PATH = join(testLogsDir, '_current-run.json')
 const TSX_CLI = resolve(raizRepositorioGravity, 'node_modules/tsx/dist/cli.mjs')
 const EMT_RUNNER_ENTRY = join(configuradorRoot, 'server/lib/emt-background-runner.ts')
 
 /** @see RUN_TESTES_TIMEOUT_MS em emt-run-timeout.ts (padrão 90 min; override GRAVITY_TEST_RUN_TIMEOUT_MS) */
 
-// ── Status de run persistido em arquivo (sobrevive a restart do servidor) ─────
-interface RunMarker {
-  status: 'running' | 'completed'
-  pid: number
-  started_at: string
-  runId: string
-  runner?: 'EMT' | 'E2E'
-  ambiente_teste?: string
-  disparado_por_teste?: string
-}
-
-function ctxDoMarker(marker: RunMarker): PersistTesteContexto {
-  return {
-    id_execucao_teste: marker.runId,
-    ambiente_teste: marker.ambiente_teste ?? 'Local',
-    disparado_por_teste: marker.disparado_por_teste,
-    gatilho_teste: 'manual',
-    data_criacao_teste: marker.started_at,
-  }
-}
-
-function readRunMarker(): RunMarker | null {
-  try {
-    if (!existsSync(RUN_MARKER_PATH)) return null
-    return JSON.parse(readFileSync(RUN_MARKER_PATH, 'utf-8')) as RunMarker
-  } catch { return null }
-}
-
-function writeRunMarker(marker: RunMarker): void {
-  mkdirSync(testLogsDir, { recursive: true })
-  const tmpPath = RUN_MARKER_PATH + '.tmp'
-  writeFileSync(tmpPath, JSON.stringify(marker, null, 2))
-  renameSync(tmpPath, RUN_MARKER_PATH)
-}
-
-function clearRunMarker(): void {
-  try { unlinkSync(RUN_MARKER_PATH) } catch { /* já não existe */ }
-}
-
-function isProcessAlive(pid: number): boolean {
-  try { process.kill(pid, 0); return true } catch { return false }
-}
-
-function isRunActive(): boolean {
-  const marker = readRunMarker()
-  if (!marker) return false
-  if (marker.status !== 'running') return false
-  return isProcessAlive(marker.pid)
-}
-
-function finalizeEmtRun(marker: RunMarker, debugLog?: (msg: string) => void): void {
-  const log = debugLog ?? (() => {})
-  const resultPath = join(testLogsDir, `emt-result-${marker.runId}.json`)
-
-  if (existsSync(resultPath)) {
-    try {
-      const raw = JSON.parse(readFileSync(resultPath, 'utf-8')) as { entries: TestLogEntry[] }
-      if (Array.isArray(raw.entries) && raw.entries.length > 0) {
-        void appendTestLogEntries(raw.entries, log, marker.started_at, ctxDoMarker(marker))
-      }
-      unlinkSync(resultPath)
-      log(`EMT finalize ${marker.runId} — ${raw.entries?.length ?? 0} entries`)
-    } catch (err) {
-      log(`EMT finalize ${marker.runId} READ FAILED: ${err instanceof Error ? err.message : String(err)}`)
-    }
-    clearRunMarker()
-    return
-  }
-
-  appendTestLogEntries([{
-    type: 'EMT',
-    module: 'EMT/run-interrompido',
-    test_name: marker.runId,
-    result: 'ERRO',
-    duration: '0ms',
-    error_log:
-      'Run EMT interrompido antes de gravar resultado (cfg-back reiniciou via tsx watch, ou processo filho morreu). '
-      + 'Aguarde ~2 min na próxima execução sem reiniciar o cfg-back.',
-    ai_analysis: null,
-  }], log, marker.started_at, ctxDoMarker(marker))
-  log(`EMT finalize ${marker.runId} — orphan sem emt-result (gravado ERRO)`)
-  clearRunMarker()
-}
-
 function spawnEmtRunnerDetached(
-  runId: string,
+  id_execucao_teste: string,
   planos: RegistryPlanoRun[],
   env: Record<string, string>,
-  started_at: string,
+  data_inicio_execucao_teste: string,
   debugLog: (msg: string) => void,
 ): number {
-  const manifestPath = join(testLogsDir, `emt-manifest-${runId}.json`)
+  const manifestPath = caminhoManifestoEmtTeste(id_execucao_teste)
   writeFileSync(manifestPath, JSON.stringify({
     planos,
-    env: { ...env, EMT_RUN_ID: runId },
-    started_at,
+    env: { ...env, EMT_RUN_ID: id_execucao_teste },
+    started_at: data_inicio_execucao_teste,
   }, null, 2))
 
-  const proc = spawn(process.execPath, [TSX_CLI, EMT_RUNNER_ENTRY, runId], {
+  const proc = spawn(process.execPath, [TSX_CLI, EMT_RUNNER_ENTRY, id_execucao_teste], {
     cwd: process.cwd(),
     env: process.env,
     detached: true,
@@ -1375,54 +1298,8 @@ function spawnEmtRunnerDetached(
   })
   proc.unref()
   const pid = proc.pid ?? 0
-  debugLog(`EMT detached spawn pid=${pid} runId=${runId}`)
+  debugLog(`EMT detached spawn pid=${pid} id_execucao_teste=${id_execucao_teste}`)
   return pid
-}
-
-function processOrphanedRun(): void {
-  const marker = readRunMarker()
-  if (!marker) return
-  if (marker.status === 'running' && isProcessAlive(marker.pid)) return
-
-  if (marker.runner === 'EMT') {
-    finalizeEmtRun(marker)
-    return
-  }
-
-  const stdoutPath = join(testLogsDir, `playwright-run-${marker.runId}.json`)
-  if (!existsSync(stdoutPath)) {
-    clearRunMarker()
-    return
-  }
-
-  const entries: TestLogEntry[] = []
-  const created_at = marker.started_at
-  try {
-    const raw = readFileSync(stdoutPath, 'utf-8').trim()
-    if (raw) {
-      const parsed = JSON.parse(raw) as { suites?: unknown[] }
-      for (const suite of (parsed.suites ?? [])) {
-        walkSuite(suite as Parameters<typeof walkSuite>[0], entries)
-      }
-    }
-  } catch {
-    entries.push({
-      type: 'E2E', module: 'playwright/recovery',
-      test_name: 'Recovery de run órfão',
-      result: 'ERRO',
-      duration: '0ms',
-      error_log: 'Run não produziu JSON válido (servidor reiniciou durante execução)',
-      ai_analysis: null,
-    })
-  }
-
-  if (entries.length > 0) {
-    void appendTestLogEntries(entries, undefined, created_at, ctxDoMarker(marker))
-  }
-
-  try { unlinkSync(stdoutPath) } catch { /* ok */ }
-  try { unlinkSync(stdoutPath.replace('.json', '.stderr.log')) } catch { /* ok */ }
-  clearRunMarker()
 }
 
 /**
@@ -1523,10 +1400,6 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       throw new AppError('Somente Super Admin pode disparar runs de teste', 403, 'FORBIDDEN')
     }
 
-    if (isRunActive()) {
-      throw new AppError('Já existe um run em andamento', 409, 'CONFLICT')
-    }
-
     const parsed = RunTestsSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
@@ -1611,6 +1484,19 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       )
     }
 
+    const runnerExecucao = planosEmtResolvidos.length > 0 ? 'EMT' as const : 'E2E' as const
+    const listaPlanosExecucao = planosEmtResolvidos.length > 0
+      ? planosEmtResolvidos.map(p => p.id)
+      : (planos ?? [])
+    const validacao = validarNovaExecucaoTeste({
+      runner_execucao_teste: runnerExecucao,
+      lista_planos_execucao_teste: listaPlanosExecucao,
+      lista_modulos_execucao_teste: modulos ?? [],
+    })
+    if (!validacao.ok) {
+      throw new AppError(validacao.mensagem, 409, validacao.codigo)
+    }
+
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,
       tipo_ator_historico_log: 'USUARIO',
@@ -1625,7 +1511,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
-    const runId = String(Date.now())
+    const id_execucao_teste = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
     mkdirSync(testLogsDir, { recursive: true })
     const debugPath = join(testLogsDir, '_debug-spawn.log')
     const debugLog = (msg: string) => {
@@ -1635,24 +1521,34 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     }
 
     debugLog('=== NEW RUN ===')
-    debugLog(`runId=${runId} ambiente=${ambiente ?? 'Local'}`)
+    debugLog(`id_execucao_teste=${id_execucao_teste} ambiente=${ambiente ?? 'Local'}`)
 
-    const markerCtx = {
+    const data_inicio_execucao_teste = new Date().toISOString()
+    const markerBase = {
+      status_execucao_teste: 'rodando' as const,
+      data_inicio_execucao_teste,
+      id_execucao_teste,
       ambiente_teste: ambiente ?? 'Local',
       disparado_por_teste: req.auth.id_usuario,
+      gatilho_teste: 'manual' as const,
+      lista_planos_execucao_teste: listaPlanosExecucao,
+      lista_modulos_execucao_teste: modulos ?? [],
     }
 
     if (planosEmtResolvidos.length > 0) {
       debugLog(`cmd=EMT detached (${planosEmtResolvidos.length} scripts)`)
-      const started_at = new Date().toISOString()
-      const childPid = spawnEmtRunnerDetached(runId, planosEmtResolvidos, testEnv, started_at, debugLog)
-      writeRunMarker({ status: 'running', pid: childPid, started_at, runId, runner: 'EMT', ...markerCtx })
-      res.json({ started: true })
+      const childPid = spawnEmtRunnerDetached(id_execucao_teste, planosEmtResolvidos, testEnv, data_inicio_execucao_teste, debugLog)
+      gravarMarkerExecucaoTeste({
+        ...markerBase,
+        pid_execucao_teste: childPid,
+        runner_execucao_teste: 'EMT',
+      })
+      res.json({ started: true, id_execucao_teste })
       return
     }
 
-    const stdoutPath = join(testLogsDir, `playwright-run-${runId}.json`)
-    const stderrPath = join(testLogsDir, `playwright-run-${runId}.stderr.log`)
+    const stdoutPath = join(testLogsDir, `playwright-run-${id_execucao_teste}.json`)
+    const stderrPath = join(testLogsDir, `playwright-run-${id_execucao_teste}.stderr.log`)
     debugLog(`cwd=${raizRepositorioGravity}`)
     debugLog(`cmd=npx playwright test ${specArgs.join(' ')} ${projectArgs.join(' ')} --reporter=json`)
     debugLog(`specArgs=${JSON.stringify(specArgs)}`)
@@ -1677,10 +1573,12 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     const pid = proc.pid ?? 0
     debugLog(`spawn pid=${pid}`)
 
-    writeRunMarker({
-      status: 'running', pid, started_at: new Date().toISOString(), runId, runner: 'E2E', ...markerCtx,
+    gravarMarkerExecucaoTeste({
+      ...markerBase,
+      pid_execucao_teste: pid,
+      runner_execucao_teste: 'E2E',
     })
-    res.json({ started: true })
+    res.json({ started: true, id_execucao_teste })
 
     // Stdout/stderr → arquivo em disco (sobrevive a restart do servidor)
     proc.stdout?.pipe(stdoutStream)
@@ -1698,7 +1596,6 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       stderrStream.end()
 
       const entries: TestLogEntry[] = []
-      const created_at = new Date().toISOString()
 
       try {
         const raw = readFileSync(stdoutPath, 'utf-8').trim()
@@ -1764,8 +1661,8 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
         }
       }
 
-      void appendTestLogEntries(entries, debugLog, created_at, {
-        id_execucao_teste: runId,
+      void appendTestLogEntries(entries, debugLog, data_inicio_execucao_teste, {
+        id_execucao_teste,
         ambiente_teste: ambiente ?? 'Local',
         disparado_por_teste: req.auth.id_usuario,
         gatilho_teste: 'manual',
@@ -1774,7 +1671,7 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       // Limpa arquivos intermediários e marker
       try { unlinkSync(stdoutPath) } catch { /* ok */ }
       try { unlinkSync(stderrPath) } catch { /* ok */ }
-      clearRunMarker()
+      removerMarkerExecucaoTeste(id_execucao_teste)
 
       // Audit trail: fim do run
       const aprovados = entries.filter(e => e.result === 'APROVADO').length
@@ -1798,26 +1695,16 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     })
 
   } catch (err) {
-    clearRunMarker()
     next(err)
   }
 })
 
 /**
  * GET /api/v1/admin/testes/status
- * Verifica se há um run em andamento.
- * Usa arquivo _current-run.json + verificação de PID (sobrevive a restart).
+ * Lista execuções de teste em andamento (suporta runs simultâneos).
  */
 adminRouter.get('/testes/status', (_req, res) => {
-  const marker = readRunMarker()
-  if (!marker || marker.status !== 'running') {
-    return res.json({ running: false })
-  }
-  if (!isProcessAlive(marker.pid)) {
-    processOrphanedRun()
-    return res.json({ running: false })
-  }
-  res.json({ running: true })
+  res.json(montarRespostaStatusExecucoesTeste())
 })
 
 /**

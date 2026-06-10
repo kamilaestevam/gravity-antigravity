@@ -17,6 +17,7 @@ import {
   type RegrasAlertasConfig,
 } from '../../../shared/pedidoAlertasAggregate.js'
 import { mapItem } from '../../../../processos-core/src/routes/pedidos.js'
+import { montarCondicoesBuscaPedido } from '../../../../processos-core/src/services/filtro-busca-pedido.js'
 
 export const listaPedidoKpisRouter = Router()
 
@@ -95,7 +96,10 @@ listaPedidoKpisRouter.get('/kpis', async (req: Request, res: Response) => {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { organizacao: { idOrganizacao: string } }).organizacao.idOrganizacao
+      const organizacao = (req as unknown as {
+        organizacao: { idOrganizacao: string; idUsuario: string; tiposUsuario: string[] }
+      }).organizacao
+      const tenant_id = organizacao.idOrganizacao
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const where: Record<string, any> = {
@@ -117,13 +121,13 @@ listaPedidoKpisRouter.get('/kpis', async (req: Request, res: Response) => {
       }
 
       if (busca) {
-        where.OR = [
-          { numero_pedido: { contains: busca, mode: 'insensitive' } },
-          { referencia_importador_pedido: { contains: busca, mode: 'insensitive' } },
-          { referencia_exportador_pedido: { contains: busca, mode: 'insensitive' } },
-          { numero_proforma_pedido: { contains: busca, mode: 'insensitive' } },
-          { numero_invoice_pedido: { contains: busca, mode: 'insensitive' } },
-        ]
+        // Mesmas condições da lista (GET /api/v1/pedidos) — campos fixos +
+        // nomes das partes + colunas do usuário (nome e conteúdo). Sem isso
+        // os cards de KPI divergem da lista filtrada.
+        where.OR = await montarCondicoesBuscaPedido(db, busca, tenant_id, {
+          idUsuario: organizacao.idUsuario,
+          tiposUsuario: organizacao.tiposUsuario,
+        })
       }
 
       const pedidoSelect = {

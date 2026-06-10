@@ -8,3 +8,4 @@ export {
   injetarColunasPedidoEItens,
 } from '../../../processos-core/src/routes/pedidos.js'
 export type { CursorSortField } from '../../../processos-core/src/routes/pedidos.js'
+export { montarCondicoesBuscaPedido } from '../../../processos-core/src/services/filtro-busca-pedido.js'

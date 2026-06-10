@@ -5590,14 +5590,30 @@ export default function Pedidos() {
     if (abaAtiva !== 'todos') {
       resultado = resultado.filter(p => p.status === abaAtiva)
     }
-    // Busca global client-side (em dev o mock ignora o param de busca do servidor)
+    // Busca global client-side (em dev o mock ignora o param de busca do servidor).
+    // Espelha as condições do backend (montarCondicoesBuscaPedido) — Mand. 07:
+    // sem isso, pedidos que o servidor retornou por match em coluna do usuário
+    // seriam re-filtrados para fora aqui.
     if (busca.trim()) {
       const termo = busca.trim().toLowerCase()
+      const idsColunasNomeBate = new Set(
+        colunasUsuario.filter(c => c.nome.toLowerCase().includes(termo)).map(c => c.id),
+      )
+      const matchColunasUsuario = (registro: Record<string, unknown>): boolean => {
+        const valores = registro['_colunas_usuario'] as Record<string, string> | undefined
+        if (!valores) return false
+        return Object.entries(valores).some(([idColuna, valor]) =>
+          (valor !== '' && idsColunasNomeBate.has(idColuna))
+          || String(valor).toLowerCase().includes(termo),
+        )
+      }
       resultado = resultado.filter(p =>
         [p.numero_pedido, p.nome_exportador, p.nome_fabricante,
          p.referencia_importador, p.referencia_exportador,
          p.numero_proforma, p.numero_invoice]
           .some(v => v != null && String(v).toLowerCase().includes(termo))
+        || matchColunasUsuario(p as unknown as Record<string, unknown>)
+        || (p.itens ?? []).some(i => matchColunasUsuario(i as unknown as Record<string, unknown>)),
       )
     }
     if (Object.keys(filtrosAtivos).length === 0) return resultado
@@ -5626,7 +5642,7 @@ export default function Pedidos() {
       }
       return true
     })
-  }, [pedidos, filtrosAtivos, abaAtiva, busca, pedidoFocoId, workspacesMap, t])
+  }, [pedidos, filtrosAtivos, abaAtiva, busca, pedidoFocoId, workspacesMap, colunasUsuario, t])
 
   const temFiltroColunaCliente = useMemo(
     () => Object.keys(filtrosAtivos).length > 0,

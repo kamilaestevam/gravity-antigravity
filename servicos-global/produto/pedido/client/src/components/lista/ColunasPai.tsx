@@ -935,7 +935,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
     editavel: false,
     filtravel: true,
     sortavel: true,
-    align: 'left',
+    align: 'center',
     casasDecimais: getCasas('valor_total_pedido', 2),
     avisoImpacto: t('pedido.lista.regras_coluna.valor_total_item_impacto_moeda_edicao'),
     grupo: 'Financeiro',

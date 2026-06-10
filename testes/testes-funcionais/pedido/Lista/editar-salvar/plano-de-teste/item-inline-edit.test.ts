@@ -25,6 +25,9 @@ const mockPrisma = vi.hoisted(() => ({
     update: vi.fn(),
     updateMany: vi.fn(),
   },
+  pedidoCasasDecimais: {
+    findUnique: vi.fn(),
+  },
 }))
 
 vi.mock('@gravity/resolver-organizacao', () => ({
@@ -33,7 +36,7 @@ vi.mock('@gravity/resolver-organizacao', () => ({
   obterWorkspacesHabilitadosDoUsuario: vi.fn().mockResolvedValue([]),
 }))
 
-vi.mock('../../../../servicos-global/produto/processos-core/src/services/saldo-pedido.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/processos-core/src/services/saldo-pedido.js', () => ({
   saldoPedido: vi.fn(),
   AppError: class AppError extends Error {
     statusCode: number
@@ -44,14 +47,14 @@ vi.mock('../../../../servicos-global/produto/processos-core/src/services/saldo-p
   },
 }))
 
-vi.mock('../../../../servicos-global/produto/processos-core/src/services/formulaEngine.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/processos-core/src/services/formulaEngine.js', () => ({
   parsearFormula: vi.fn(),
   avaliarFormula: vi.fn(),
   buildContextoItem: vi.fn(),
   SALDO_FORMULA_PADRAO: '',
 }))
 
-vi.mock('../../../../servicos-global/produto/pedido/shared/mapaPropagacaoPedidoItem.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/shared/mapaPropagacaoPedidoItem.js', () => ({
   isPropagavel: vi.fn().mockReturnValue(false),
   obterCampoItemPropagado: vi.fn(),
   obterCampoItemComLegado: vi.fn(),
@@ -59,7 +62,7 @@ vi.mock('../../../../servicos-global/produto/pedido/shared/mapaPropagacaoPedidoI
   derivarNomesEmpresaParaItem: vi.fn().mockReturnValue({}),
 }))
 
-vi.mock('../../../../servicos-global/produto/processos-core/src/services/cadastrosClient.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/processos-core/src/services/cadastrosClient.js', () => ({
   buscarEmpresasPorSuids: vi.fn().mockResolvedValue([]),
   buscarMoedaPorCodigo: vi.fn().mockResolvedValue(null),
   buscarNcmPorCodigo: vi.fn().mockResolvedValue(null),
@@ -67,15 +70,15 @@ vi.mock('../../../../servicos-global/produto/processos-core/src/services/cadastr
   buscarUnidadePorCodigo: vi.fn().mockResolvedValue(null),
 }))
 
-vi.mock('../../../../servicos-global/produto/processos-core/src/services/validarUnidadesItem.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/processos-core/src/services/validarUnidadesItem.js', () => ({
   validarUnidadesItem: vi.fn(),
 }))
 
-vi.mock('../../../../servicos-global/produto/processos-core/src/services/validarIncotermPedidoItem.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/processos-core/src/services/validarIncotermPedidoItem.js', () => ({
   validarIncotermPedidoItem: vi.fn(),
 }))
 
-vi.mock('../../../../servicos-global/produto/processos-core/src/services/pedidoSnapshots.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/processos-core/src/services/pedidoSnapshots.js', () => ({
   montarSnapshotEmpresa: vi.fn().mockResolvedValue(null),
   montarSnapshotOpe: vi.fn().mockResolvedValue(null),
   montarSnapshotNcm: vi.fn().mockResolvedValue(null),
@@ -83,14 +86,14 @@ vi.mock('../../../../servicos-global/produto/processos-core/src/services/pedidoS
   montarSnapshotUnidade: vi.fn().mockResolvedValue(null),
 }))
 
-vi.mock('../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/processos-core/src/services/recalcularAgregadosPedido.js', () => ({
   recalcularAgregadosPedido: vi.fn().mockResolvedValue({}),
   campoItemAfetaAgregado: vi.fn().mockReturnValue(false),
 }))
 
 // ── Import da rota real ─────────────────────────────────────────────────────
 
-import { pedidosRouter } from '../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
+import { pedidosRouter } from '../../../../../../servicos-global/produto/processos-core/src/routes/pedidos.js'
 
 // ── App de teste ─────────────────────────────────────────────────────────────
 
@@ -128,6 +131,7 @@ const ITEM_MOCK = {
   id_pedido: 'ped-itm-001',
   id_organizacao: 'org-001',
   valor_total_item: 1000.00,
+  valor_por_unidade_item: 10,
   moeda_item: 'USD',
   quantidade_inicial_item: 100,
   ncm_item: '8471.30.19',
@@ -154,6 +158,7 @@ beforeEach(() => {
     updated_at: new Date().toISOString(),
   }))
   mockPrisma.pedidoItem.updateMany.mockResolvedValue({ count: 0 })
+  mockPrisma.pedidoCasasDecimais.findUnique.mockResolvedValue({ valor_total_pedido: 2 })
 })
 
 // ── Testes — Happy path item ────────────────────────────────────────────────
@@ -168,12 +173,52 @@ describe('F-ITM: PUT /api/v1/pedidos/:id/itens/:itemId — happy path', () => {
     expect(mockPrisma.pedidoItem.update).toHaveBeenCalled()
   })
 
-  it('F-ITM-02: Editar quantidade_inicial_item → 200', async () => {
+  it('F-ITM-02: Editar quantidade_inicial_pedido → recalcula valor_total_item (unit × qtd)', async () => {
     const res = await request(app)
       .put('/api/v1/pedidos/ped-itm-001/itens/itm-001')
-      .send({ quantidade_inicial_item: 200 })
+      .send({ quantidade_inicial_pedido: 200 })
 
     expect(res.status).toBe(200)
+    expect(mockPrisma.pedidoItem.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          quantidade_inicial_item: 200,
+          valor_total_item: 2000,
+        }),
+      }),
+    )
+  })
+
+  it('F-ITM-03: Editar valor_por_unidade_item → recalcula valor_total_item', async () => {
+    const res = await request(app)
+      .put('/api/v1/pedidos/ped-itm-001/itens/itm-001')
+      .send({ valor_por_unidade_item: 12.5 })
+
+    expect(res.status).toBe(200)
+    expect(mockPrisma.pedidoItem.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          valor_por_unidade_item: 12.5,
+          valor_total_item: 1250,
+        }),
+      }),
+    )
+  })
+
+  it('F-ITM-04: valor_total_item manual não é sobrescrito quando enviado no PUT', async () => {
+    const res = await request(app)
+      .put('/api/v1/pedidos/ped-itm-001/itens/itm-001')
+      .send({ valor_por_unidade_item: 99, valor_total_item: 777 })
+
+    expect(res.status).toBe(200)
+    expect(mockPrisma.pedidoItem.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          valor_por_unidade_item: 99,
+          valor_total_item: 777,
+        }),
+      }),
+    )
   })
 
   it('F-ITM-06: Editar ncm_item → 200', async () => {

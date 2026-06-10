@@ -55,3 +55,30 @@ export function somarDecimal186(acumulado: number, parcela: number, campo: strin
   }
   return proximo
 }
+
+/**
+ * unitário × quantidade para agregados físicos (peso/cubagem).
+ * Retorna `null` quando o produto não cabe em Decimal(18,6) — caller
+ * deve marcar o agregado como indeterminável (`null`) em vez de abortar
+ * saves de campos financeiros no mesmo pedido.
+ */
+export function multiplicarDecimal186(
+  unitario: unknown,
+  quantidade: number,
+  campoUnitario: string,
+): number | null {
+  let factorUnitario: number
+  try {
+    factorUnitario = numeroDecimal186(unitario, campoUnitario)
+  } catch {
+    return null
+  }
+  if (!Number.isFinite(quantidade) || Math.abs(quantidade) >= 1e12) {
+    return null
+  }
+  const produto = factorUnitario * quantidade
+  if (!Number.isFinite(produto) || Math.abs(produto) >= 1e12) {
+    return null
+  }
+  return produto
+}

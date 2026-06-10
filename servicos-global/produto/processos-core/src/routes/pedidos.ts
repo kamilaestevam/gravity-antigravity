@@ -76,6 +76,7 @@ import {
   campoItemAfetaAgregado,
 } from '../services/recalcularAgregadosPedido.js'
 import { LIMITE_ABSOLUTO_DECIMAL_18_6 } from '../services/decimalPedido.js'
+import { calcularValorTotalItemPedido } from '../services/valorTotalItemPedido.js'
 // FASE 06E (Frente 1, completa): OPE agora vem via `suid_ope` no payload.
 // montarSnapshotOpe é plugado no fluxo POST quando suid_ope está presente.
 // SnapshotOpeData usado no array de snapshots tipados.
@@ -2907,6 +2908,29 @@ pedidosRouter.put('/:id_pedido/itens/:id_item', async (req: Request, res: Respon
         prismaData.quantidade_atual_item = Math.max(0, novoAtual)
       }
 
+      // Fórmula item (lista usa PUT): unit × qtd. inicial → valor_total_item.
+      // Override manual preservado quando o payload inclui valor_total_item.
+      const editouUnitOuQtd =
+        result.data.quantidade_inicial_pedido !== undefined
+        || result.data.valor_por_unidade_item !== undefined
+      const editouTotalManual = result.data.valor_total_item !== undefined
+      if (editouUnitOuQtd && !editouTotalManual) {
+        const casasCfg = await db.pedidoCasasDecimais.findUnique({
+          where: { id_organizacao: idOrganizacao },
+        })
+        const qtdInicial = result.data.quantidade_inicial_pedido !== undefined
+          ? result.data.quantidade_inicial_pedido
+          : Number(item.quantidade_inicial_item ?? 0)
+        const valorUnit = result.data.valor_por_unidade_item !== undefined
+          ? Number(result.data.valor_por_unidade_item ?? 0)
+          : Number(item.valor_por_unidade_item ?? 0)
+        prismaData.valor_total_item = calcularValorTotalItemPedido(
+          valorUnit,
+          qtdInicial,
+          casasCfg?.valor_total_pedido,
+        )
+      }
+
       // Recalc condicional: só dispara se algum campo do payload afeta agregado.
       // withOrganizacao já garante atomicidade via $transaction — `db` é o
       // TransactionClient, NÃO criar $transaction aninhada (Prisma proíbe).
@@ -3167,9 +3191,8 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res
         )
       }
 
-      // valor_total_item usa as casas decimais configuradas
-      const fator = Math.pow(10, casasValor)
-      const valor_total_novo = Math.round(unit_novo * A_novo * fator) / fator
+      // valor_total_item = unit × qtd. inicial (casas decimais configuradas)
+      const valor_total_novo = calcularValorTotalItemPedido(unit_novo, A_novo, casasValor)
 
       // withOrganizacao já garante atomicidade — `db` é TransactionClient.
       // Aqui o campo SEMPRE afeta agregado (CAMPOS_EDITAVEIS_ITEM_NUMERICOS =

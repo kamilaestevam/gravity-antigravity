@@ -41,6 +41,7 @@ import { AppError } from './saldo-pedido.js'
 import {
   arredondarAgregadoDecimal186,
   casasDecimaisSeguras,
+  multiplicarDecimal186,
   numeroDecimal186,
   somarDecimal186,
 } from './decimalPedido.js'
@@ -68,11 +69,13 @@ const CASAS_DEFAULT = {
  */
 interface ItemAgregado {
   valor_total_item:                unknown
+  valor_total_cambio_item_pedido:  unknown
   quantidade_inicial_item:         unknown
   peso_liquido_unitario_item:      unknown
   peso_bruto_unitario_item:        unknown
   cubagem_unitaria_item:           unknown
   moeda_item:                      string | null
+  moeda_cambio_item_pedido:        string | null
   unidade_comercializada_item:     string | null
 }
 
@@ -153,11 +156,13 @@ export async function recalcularAgregadosPedido(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const itens = await (tx as any).$queryRaw`
     SELECT valor_total_item,
+           valor_total_cambio_item_pedido,
            quantidade_inicial_item,
            peso_liquido_unitario_item,
            peso_bruto_unitario_item,
            cubagem_unitaria_item,
            moeda_item,
+           moeda_cambio_item_pedido,
            unidade_comercializada_item
       FROM "public"."pedido_item"
      WHERE id_pedido = ${idPedido}
@@ -176,16 +181,21 @@ export async function recalcularAgregadosPedido(
   // Peso/cubagem NÃO checam homogeneidade — unidade física é homogênea
   // (KG/M³ por convenção) e a soma faz sentido independente da moeda.
   const moedasComValor = new Set<string>()
+  const moedasCambioComValor = new Set<string>()
   const unidadesComQty = new Set<string>()
   for (const it of itens) {
     if (n(it.valor_total_item) > 0 && it.moeda_item) {
       moedasComValor.add(it.moeda_item)
+    }
+    if (n(it.valor_total_cambio_item_pedido) > 0 && it.moeda_cambio_item_pedido) {
+      moedasCambioComValor.add(it.moeda_cambio_item_pedido)
     }
     if (n(it.quantidade_inicial_item) > 0 && it.unidade_comercializada_item) {
       unidadesComQty.add(it.unidade_comercializada_item)
     }
   }
   const valorHomogeneo = moedasComValor.size <= 1   // 0 ou 1 moeda → soma OK
+  const valorCambioHomogeneo = moedasCambioComValor.size <= 1
   const qtyHomogenea   = unidadesComQty.size <= 1   // 0 ou 1 unidade → soma OK
 
   // ── 4. Calcular os 5 agregados ──────────────────────────────────────────────
@@ -196,29 +206,77 @@ export async function recalcularAgregadosPedido(
   //   peso_bruto_total_pedido    = SUM(peso_bruto_unitario × qty)    — sempre
   //   cubagem_total_pedido       = SUM(cubagem_unitaria × qty)       — sempre
   let somaValor   = 0
+  let somaValorCambio = 0
   let somaQtd     = 0
   let somaPesoLiq = 0
   let somaPesoBr  = 0
   let somaCubagem = 0
+  let pesoLiquidoAgregavel = true
+  let pesoBrutoAgregavel = true
+  let cubagemAgregavel = true
 
   for (const it of itens) {
     const qty = n(it.quantidade_inicial_item, 'quantidade_inicial_item')
     somaValor   = somarDecimal186(somaValor,   n(it.valor_total_item, 'valor_total_item'), 'valor_total_item')
+    somaValorCambio = somarDecimal186(
+      somaValorCambio,
+      n(it.valor_total_cambio_item_pedido, 'valor_total_cambio_item_pedido'),
+      'valor_total_cambio_item_pedido',
+    )
     somaQtd     = somarDecimal186(somaQtd,     qty, 'quantidade_inicial_item')
-    somaPesoLiq = somarDecimal186(somaPesoLiq, n(it.peso_liquido_unitario_item, 'peso_liquido_unitario_item') * qty, 'peso_liquido_total_pedido')
-    somaPesoBr  = somarDecimal186(somaPesoBr,  n(it.peso_bruto_unitario_item, 'peso_bruto_unitario_item') * qty, 'peso_bruto_total_pedido')
-    somaCubagem = somarDecimal186(somaCubagem, n(it.cubagem_unitaria_item, 'cubagem_unitaria_item') * qty, 'cubagem_total_pedido')
+
+    const contribPesoLiq = multiplicarDecimal186(
+      it.peso_liquido_unitario_item,
+      qty,
+      'peso_liquido_unitario_item',
+    )
+    if (contribPesoLiq === null) {
+      pesoLiquidoAgregavel = false
+    } else {
+      somaPesoLiq = somarDecimal186(somaPesoLiq, contribPesoLiq, 'peso_liquido_total_pedido')
+    }
+
+    const contribPesoBr = multiplicarDecimal186(
+      it.peso_bruto_unitario_item,
+      qty,
+      'peso_bruto_unitario_item',
+    )
+    if (contribPesoBr === null) {
+      pesoBrutoAgregavel = false
+    } else {
+      somaPesoBr = somarDecimal186(somaPesoBr, contribPesoBr, 'peso_bruto_total_pedido')
+    }
+
+    const contribCubagem = multiplicarDecimal186(
+      it.cubagem_unitaria_item,
+      qty,
+      'cubagem_unitaria_item',
+    )
+    if (contribCubagem === null) {
+      cubagemAgregavel = false
+    } else {
+      somaCubagem = somarDecimal186(somaCubagem, contribCubagem, 'cubagem_total_pedido')
+    }
   }
 
   const valorTotal: number | null = valorHomogeneo
     ? arredondarAgregadoDecimal186(somaValor, casasValor, 'valor_total_pedido')
     : null
+  const valorTotalCambio: number | null = valorCambioHomogeneo
+    ? arredondarAgregadoDecimal186(somaValorCambio, casasValor, 'valor_total_cambio_pedido')
+    : null
   const qtdTotal: number | null = qtyHomogenea
     ? arredondarAgregadoDecimal186(somaQtd, casasQtd, 'quantidade_total_pedido')
     : null
-  const pesoLiquidoTotal = arredondarAgregadoDecimal186(somaPesoLiq, casasPeso, 'peso_liquido_total_pedido')
-  const pesoBrutoTotal   = arredondarAgregadoDecimal186(somaPesoBr, casasPeso, 'peso_bruto_total_pedido')
-  const cubagemTotal     = arredondarAgregadoDecimal186(somaCubagem, casasCubagem, 'cubagem_total_pedido')
+  const pesoLiquidoTotal: number | null = pesoLiquidoAgregavel
+    ? arredondarAgregadoDecimal186(somaPesoLiq, casasPeso, 'peso_liquido_total_pedido')
+    : null
+  const pesoBrutoTotal: number | null = pesoBrutoAgregavel
+    ? arredondarAgregadoDecimal186(somaPesoBr, casasPeso, 'peso_bruto_total_pedido')
+    : null
+  const cubagemTotal: number | null = cubagemAgregavel
+    ? arredondarAgregadoDecimal186(somaCubagem, casasCubagem, 'cubagem_total_pedido')
+    : null
 
   // ── 5. UPDATE no pedido pai ─────────────────────────────────────────────────
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -226,6 +284,7 @@ export async function recalcularAgregadosPedido(
     where: { id_pedido: idPedido },
     data: {
       valor_total_pedido:         valorTotal,         // null quando moedas mistas
+      valor_total_cambio_pedido:  valorTotalCambio,   // null quando moedas câmbio mistas
       quantidade_total_pedido:    qtdTotal,           // null quando unidades mistas
       peso_liquido_total_pedido:  pesoLiquidoTotal,
       peso_bruto_total_pedido:    pesoBrutoTotal,
@@ -244,6 +303,8 @@ export async function recalcularAgregadosPedido(
  */
 export const CAMPOS_ITEM_QUE_AFETAM_AGREGADO: ReadonlySet<string> = new Set([
   'valor_total_item',
+  'valor_total_cambio_item_pedido',
+  'valor_total_cambio_pedido',
   'valor_por_unidade_item',
   'quantidade_inicial_item',
   'quantidade_inicial_pedido', // alias público → físico via mapItem

@@ -134,7 +134,13 @@ export async function persistirEntradasTeste(
     debugLog?.(`DB: ${created.length} registro(s) em teste`)
     return { ids: created.map(r => r.id_teste), salvouNoBanco: true }
   } catch (err) {
-    debugLog?.(`DB FAILED: ${err instanceof Error ? err.message : String(err)}`)
+    // Falha ruidosa (Mandamento 08): histórico caindo no fallback JSON efêmero
+    // do Railway é perda de dados no próximo redeploy — precisa aparecer no log.
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(
+      `[teste-persist] FALHA ao gravar ${entries.length} teste(s) no Postgres — caindo no fallback JSON efêmero (histórico será perdido no redeploy). Causa: ${msg}`,
+    )
+    debugLog?.(`DB FAILED: ${msg}`)
     return { ids: [], salvouNoBanco: false }
   }
 }

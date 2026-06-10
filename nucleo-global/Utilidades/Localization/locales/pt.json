@@ -1221,6 +1221,7 @@
       "badge_origem_manual": "Manual",
       "badge_origem_ci": "CI",
       "btn_rodando_count": "Rodando ({{count}})",
+      "resultado_em_execucao": "Em execução",
       "vazio_em_execucao": "Nenhum teste em execução no momento.",
       "vazio": "Nenhum log encontrado.",
       "vazio_filtro": "Pipeline de testes aguardando execução.",

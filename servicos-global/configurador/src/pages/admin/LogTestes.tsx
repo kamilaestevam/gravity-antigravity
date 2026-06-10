@@ -42,13 +42,19 @@ function formatarDuracaoCorrente(dataInicioIso: string): string {
   return `${min}min ${resto}s`
 }
 
-function rotuloOrigemExecucao(gatilho: ExecucaoTesteStatusApi['gatilho_teste'], t: (k: string) => string): string {
-  if (gatilho === 'cron') return t('admin.testes-gerais.badge_origem_agendado')
-  if (gatilho === 'ci') return t('admin.testes-gerais.badge_origem_ci')
-  return t('admin.testes-gerais.badge_origem_manual')
+
+function resolverNomeTesteExecucao(exec: ExecucaoTesteStatusApi): string {
+  const idPlano = exec.lista_planos_execucao_teste[0]
+  if (idPlano) return resolverNomeTeste(idPlano, idPlano)
+  const modulo = exec.lista_modulos_execucao_teste[0]
+  if (modulo) return resolverNomeTeste(modulo, modulo)
+  return exec.runner_execucao_teste ?? '—'
 }
 
-function rotuloPlanosExecucao(exec: ExecucaoTesteStatusApi, catalogo: Map<string, PlanoFavoritoResumoOrigem>): string {
+function resolverOqueFoiTestadoExecucao(
+  exec: ExecucaoTesteStatusApi,
+  catalogo: Map<string, PlanoFavoritoResumoOrigem>,
+): string {
   if (exec.lista_planos_execucao_teste.length > 0) {
     return exec.lista_planos_execucao_teste
       .map(id => {
@@ -60,7 +66,18 @@ function rotuloPlanosExecucao(exec: ExecucaoTesteStatusApi, catalogo: Map<string
   if (exec.lista_modulos_execucao_teste.length > 0) {
     return exec.lista_modulos_execucao_teste.join(', ')
   }
-  return exec.runner_execucao_teste ?? '—'
+  return '—'
+}
+
+function passosPrevistosExecucao(
+  exec: ExecucaoTesteStatusApi,
+  catalogo: Map<string, PlanoFavoritoResumoOrigem>,
+): string {
+  let total = 0
+  for (const id of exec.lista_planos_execucao_teste) {
+    total += catalogo.get(id)?.casosTotal ?? 0
+  }
+  return total > 0 ? String(total) : '—'
 }
 type Resultado = 'APROVADO' | 'REPROVADO' | 'ERRO_CATASTROFICO'
 
@@ -1444,44 +1461,11 @@ export function LogTestes() {
 
   const colunasExecucao: TabelaGlobalColuna<ExecucaoTesteStatusApi>[] = [
     {
-      chave: 'lista_planos_execucao_teste',
-      titulo: t('admin.testes-gerais.col_modulo'),
-      tooltipTitulo: t('admin.testes-gerais.tooltip_modulo'),
-      tooltipDescricao: t('admin.testes-gerais.tooltip_modulo_desc'),
-      getValorBruto: (item) => rotuloPlanosExecucao(item, catalogoPlanos),
-      render: (_, item) => (
-        <span style={{ color: '#e2e8f0', fontWeight: 500 }}>
-          {rotuloPlanosExecucao(item, catalogoPlanos)}
-        </span>
-      ),
-    },
-    {
-      chave: 'gatilho_teste',
-      titulo: t('admin.testes-gerais.col_origem_execucao'),
-      getValorBruto: (item) => rotuloOrigemExecucao(item.gatilho_teste, t),
-      render: (_, item) => {
-        const agendado = item.gatilho_teste === 'cron'
-        return (
-          <span style={{
-            fontSize: '0.65rem', fontWeight: 800, padding: '2px 8px', borderRadius: '4px',
-            letterSpacing: '0.05em', textTransform: 'uppercase',
-            background: agendado ? 'rgba(99,102,241,0.15)' : 'rgba(16,185,129,0.12)',
-            color: agendado ? '#818cf8' : '#10b981',
-            border: `1px solid ${agendado ? 'rgba(99,102,241,0.35)' : 'rgba(16,185,129,0.35)'}`,
-          }}>
-            {rotuloOrigemExecucao(item.gatilho_teste, t)}
-          </span>
-        )
-      },
-    },
-    {
-      chave: 'ambiente_teste',
-      titulo: t('admin.testes-gerais.col_ambiente_execucao'),
-      render: (v) => <span style={{ color: '#94a3b8' }}>{String(v ?? 'Local')}</span>,
-    },
-    {
-      chave: 'data_inicio_execucao_teste',
-      titulo: t('admin.testes-gerais.col_data_hora'),
+      key: 'data_inicio_execucao_teste',
+      label: t('admin.testes-gerais.col_data_hora'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_data_hora'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_data_hora_desc'),
       getValorBruto: (item) => item.data_inicio_execucao_teste,
       render: (v) => {
         const d = new Date(String(v))
@@ -1494,8 +1478,85 @@ export function LogTestes() {
       },
     },
     {
-      chave: 'id_execucao_teste',
-      titulo: t('admin.testes-gerais.col_duracao'),
+      key: 'runner_execucao_teste',
+      label: t('admin.testes-gerais.col_tipo'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_tipo'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_tipo_desc'),
+      getValorBruto: (item) => item.runner_execucao_teste ?? '—',
+      render: (v) => {
+        const tipo = String(v ?? 'EMT') as TipoTeste
+        return (
+          <span style={{
+            display: 'inline-flex', padding: '0.15rem 0.6rem', borderRadius: '4px',
+            background: tipo === 'E2E' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(251, 191, 36, 0.15)',
+            color: tipo === 'E2E' ? '#eab308' : '#fbbf24',
+            border: `1px solid ${tipo === 'E2E' ? 'rgba(234, 179, 8, 0.4)' : 'rgba(251, 191, 36, 0.4)'}`,
+            fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.04em',
+          }}>
+            {tipo}
+          </span>
+        )
+      },
+    },
+    {
+      key: 'lista_planos_execucao_teste',
+      label: t('admin.testes-gerais.col_modulo'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_modulo'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_modulo_desc'),
+      getValorBruto: (item) => resolverNomeTesteExecucao(item),
+      render: (_, item) => (
+        <span style={{ fontWeight: 600, color: '#cbd5e1' }}>
+          {resolverNomeTesteExecucao(item)}
+        </span>
+      ),
+    },
+    {
+      key: 'lista_modulos_execucao_teste',
+      label: t('admin.testes-gerais.col_teste'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_teste'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_teste_desc'),
+      getValorBruto: (item) => resolverOqueFoiTestadoExecucao(item, catalogoPlanos),
+      render: (_, item) => {
+        const texto = resolverOqueFoiTestadoExecucao(item, catalogoPlanos)
+        return renderTextoTruncado50(texto, t('admin.testes-gerais.col_teste'))
+      },
+    },
+    {
+      key: 'gatilho_teste',
+      label: t('admin.testes-gerais.col_qtd_passos'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_qtd_passos'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_qtd_passos_desc'),
+      getValorBruto: (item) => passosPrevistosExecucao(item, catalogoPlanos),
+      render: (_, item) => (
+        <span style={{ fontWeight: 600, color: '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>
+          {passosPrevistosExecucao(item, catalogoPlanos)}
+        </span>
+      ),
+    },
+    {
+      key: 'ambiente_teste',
+      label: t('admin.testes-gerais.col_resultado'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_resultado'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_resultado_desc'),
+      getValorBruto: () => t('admin.testes-gerais.resultado_em_execucao'),
+      render: () => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', fontWeight: 600, color: '#10b981' }}>
+          <SpinnerGap size={14} weight="bold" style={{ animation: 'ws-running-spin 0.9s linear infinite' }} />
+          {t('admin.testes-gerais.resultado_em_execucao')}
+        </span>
+      ),
+    },
+    {
+      key: 'id_execucao_teste',
+      label: t('admin.testes-gerais.col_duracao'),
+      tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_duracao'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_duracao_desc'),
       getValorBruto: (item) => formatarDuracaoCorrente(item.data_inicio_execucao_teste),
       render: (_, item) => (
         <span style={{ color: '#10b981', fontWeight: 600 }}>

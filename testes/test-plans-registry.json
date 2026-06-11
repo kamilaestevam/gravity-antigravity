@@ -1460,7 +1460,7 @@
       "planoFile": "testes/testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/plano-teste-em-tela.md",
       "specFile": "testes/testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/run-lista-edicao-em-massa.ts",
       "componenteFile": "servicos-global/produto/pedido/client/src/components/ModalPedidosEdicaoMassa.tsx",
-      "casosTotal": 190,
+      "casosTotal": 217,
       "coberturaPercentual": 0,
       "status": "aprovado",
       "criadoEm": "2026-06-11T19:00:00Z",

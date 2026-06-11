@@ -21,6 +21,7 @@ import {
   CAMPOS_BLOQUEADOS_PEDIDO,
   CAMPOS_BLOQUEADOS_ITEM,
 } from '../../../../../../servicos-global/produto/pedido/shared/camposEdicaoMassa.js'
+import { NUMERACAO, fmtPasso, slugCampo } from './numeracao-passos-edicao-em-massa.js'
 
 const __dirRoot = dirname(fileURLToPath(import.meta.url))
 const FEATURE_ROOT = resolverFeatureRootEmt(__dirRoot)
@@ -63,22 +64,13 @@ const LABEL_NIVEL: Record<NivelModal, string> = {
 
 type CampoMassa = (typeof CAMPOS_EDICAO_MASSA_PEDIDO)[number]
 
-/**
- * Numeração global de passos — mantida em sincronia com o plano gerado por
- * `gerar-plano-edicao-em-massa.ts` (prints `NNN-<slug>-selecao/resultado.png`).
- * Passos 001–005 = preparação/UX/drift; campos começam no passo 006.
- */
-const PASSO_BASE_CAMPOS = 5
-const TOTAL_CAMPOS = CAMPOS_EDICAO_MASSA_PEDIDO.length + CAMPOS_EDICAO_MASSA_ITEM.length
-const PASSO_COMBINADO = PASSO_BASE_CAMPOS + TOTAL_CAMPOS + 1 // 172
-const PASSO_COLUNAS_USUARIO = PASSO_COMBINADO + 2 // 174 (7 tipos) … 181 fórmula, 182 escopo
-const PASSO_TIPO_OPERACAO = PASSO_COLUNAS_USUARIO + 9 // 183
-const PASSO_ERROS = PASSO_TIPO_OPERACAO + 3 // 186
-const PASSO_PERSISTENCIA = PASSO_ERROS + 4 // 190
-
-function fmtPasso(n: number): string {
-  return String(n).padStart(3, '0')
-}
+// Numeração global de passos — SSOT compartilhado com o gerador do plano .md
+// (prints `NNN-<slug>-selecao/resultado.png` idênticos nos dois lados).
+const PASSO_COMBINADO = NUMERACAO.PASSO_COMBINADO
+const PASSO_COLUNAS_USUARIO = NUMERACAO.PASSO_COLUNAS_USUARIO
+const PASSO_TIPO_OPERACAO = NUMERACAO.PASSO_TIPO_OPERACAO
+const PASSO_ERROS = NUMERACAO.PASSO_ERROS
+const PASSO_PERSISTENCIA = NUMERACAO.PASSO_FINAL
 
 // ── Relatório (contrato Admin EMT_ROW) ───────────────────────────────────────
 function resolverLabelAmbiente(): string {
@@ -111,6 +103,7 @@ function falharTabela(sublocal: string, acao: string) {
 
 async function screenshot(page: Page, nome: string) {
   mkdirSync(OUT, { recursive: true })
+  await page.waitForLoadState('networkidle').catch(() => {})
   await page.waitForTimeout(350)
   await page.screenshot({ path: `${OUT}/${nome}`, fullPage: false })
   log(`📸 ${nome}`)
@@ -542,30 +535,37 @@ async function etapaDriftCombobox(page: Page, rowId: string): Promise<void> {
   await fecharModalSeAberto(page)
 }
 
-async function etapasCampoACampo(page: Page, rowId: string): Promise<void> {
-  const plano: Array<{ campo: CampoMassa; nivel: NivelModal; indiceGlobal: number }> = [
-    ...CAMPOS_EDICAO_MASSA_PEDIDO.map((campo, i) => ({ campo, nivel: 'pedido' as const, indiceGlobal: i })),
-    ...CAMPOS_EDICAO_MASSA_ITEM.map((campo, i) => ({ campo, nivel: 'item' as const, indiceGlobal: CAMPOS_EDICAO_MASSA_PEDIDO.length + i })),
-  ]
+/** Persistência da etapa (regra universal EMT): hub → lista → reexpandir pedido-alvo + print. */
+async function persistenciaDaEtapa(page: Page, rowId: string, passo: number, slugPrint: string, rotuloEtapa: string): Promise<void> {
+  await page.goto(HUB_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await page.waitForTimeout(800)
+  await garantirListaPedidos(page)
+  await expandirPedidoRetornaQtd(page, rowId).catch(() => {})
+  await screenshot(page, `${slugPrint}.png`)
+  logAprovado(SUBLOCAL, `Passo ${fmtPasso(passo)} — Persistência da etapa ${rotuloEtapa} após navegar hub→lista`)
+}
 
-  for (const { campo, nivel, indiceGlobal } of plano) {
-    const n = indiceGlobal + 1
-    const passoPlano = PASSO_BASE_CAMPOS + n
-    const slug = `${fmtPasso(passoPlano)}-${campo.campo.replace(/[^a-z0-9_]/gi, '')}`
-    // Anti-viés 50/50 (alinhado ao plano): passos pares partem de vazio (1 aplicação);
-    // passos ímpares aplicam 2x — a 2ª aplicação parte de campo garantidamente pré-preenchido.
-    const aplicacoes = passoPlano % 2 === 0 ? 1 : 2
-    let okFinal = true
-    for (let a = 0; a < aplicacoes; a++) {
-      const seed = n * 7 + a
-      const ok = await aplicarCampoEmMassa(page, rowId, campo, nivel, seed, a === aplicacoes - 1 ? slug : `${slug}-pre`)
-      if (!ok) { okFinal = false; break }
+async function etapasCampoACampo(page: Page, rowId: string): Promise<void> {
+  for (const grupo of NUMERACAO.grupos) {
+    const nivelModal: NivelModal = grupo.nivel === 'PEDIDO' ? 'pedido' : 'item'
+    for (const { passo, campo } of grupo.passos) {
+      const slug = `${fmtPasso(passo)}-${slugCampo(campo.campo)}`
+      // Anti-viés 50/50 (alinhado ao plano): passos pares partem de vazio (1 aplicação);
+      // passos ímpares aplicam 2x — a 2ª aplicação parte de campo garantidamente pré-preenchido.
+      const aplicacoes = passo % 2 === 0 ? 1 : 2
+      let okFinal = true
+      for (let a = 0; a < aplicacoes; a++) {
+        const seed = passo * 7 + a
+        const ok = await aplicarCampoEmMassa(page, rowId, campo, nivelModal, seed, a === aplicacoes - 1 ? slug : `${slug}-pre`)
+        if (!ok) { okFinal = false; break }
+      }
+      if (okFinal) {
+        const modo = aplicacoes === 2 ? 'pré-preenchido→substituir' : 'preencher'
+        logAprovado(SUBLOCAL, `Passo ${fmtPasso(passo)} — ${campo.rotulo} (${campo.campo}, nível ${nivelModal}, ${modo}) aplicado com preview de→para`)
+        await screenshot(page, `${slug}-resultado.png`)
+      }
     }
-    if (okFinal) {
-      const modo = aplicacoes === 2 ? 'pré-preenchido→substituir' : 'preencher'
-      logAprovado(SUBLOCAL, `Passo ${fmtPasso(passoPlano)} — ${campo.rotulo} (${campo.campo}, nível ${nivel}, ${modo}) aplicado com preview de→para`)
-      await screenshot(page, `${slug}-resultado.png`)
-    }
+    await persistenciaDaEtapa(page, rowId, grupo.passoPersistencia, grupo.slugPersistencia, `${grupo.nivel}·${grupo.grupo}`)
   }
 }
 
@@ -581,6 +581,11 @@ async function etapaCombinadoCascade(page: Page, rowId: string): Promise<void> {
   } else {
     falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_COMBINADO)} — campo incoterm não encontrado no SSOT`)
   }
+  await persistenciaDaEtapa(
+    page, rowId, NUMERACAO.PASSO_COMBINADO_PERSISTENCIA,
+    `${fmtPasso(NUMERACAO.PASSO_COMBINADO_PERSISTENCIA)}-combinado-persistencia-apos-navegar-resultado`,
+    'Combinado',
+  )
 }
 
 async function listarRotulosPersonalizadas(page: Page): Promise<string[]> {
@@ -682,6 +687,11 @@ async function etapaColunasUsuario(page: Page, rowId: string): Promise<void> {
     logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_COLUNAS_USUARIO + 8)} — Escopos de colunas manuais registrados (pedido vs item)`)
     await fecharModalSeAberto(page)
   }
+  await persistenciaDaEtapa(
+    page, rowId, NUMERACAO.PASSO_COLUNAS_PERSISTENCIA,
+    `${fmtPasso(NUMERACAO.PASSO_COLUNAS_PERSISTENCIA)}-colunas-usuario-persistencia-apos-navegar-resultado`,
+    'Colunas manuais',
+  )
 }
 
 async function etapaTipoOperacao(page: Page, rowId: string): Promise<void> {
@@ -709,6 +719,11 @@ async function etapaTipoOperacao(page: Page, rowId: string): Promise<void> {
       logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_TIPO_OPERACAO + 2)} — tipo_operacao_item aplicado no nível Item`)
     }
   }
+  await persistenciaDaEtapa(
+    page, rowId, NUMERACAO.PASSO_TIPO_OP_PERSISTENCIA,
+    `${fmtPasso(NUMERACAO.PASSO_TIPO_OP_PERSISTENCIA)}-tipo-operacao-persistencia-apos-navegar-resultado`,
+    'Tipo de operação',
+  )
 }
 
 async function etapaErrosEstados(page: Page, rowId: string): Promise<void> {

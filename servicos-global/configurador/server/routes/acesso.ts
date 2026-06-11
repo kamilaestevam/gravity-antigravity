@@ -20,6 +20,7 @@ import {
   type AcaoProduto,
 } from '../services/permissao-usuario-servico.js'
 import { AppError } from '../lib/appError.js'
+import { resolverUsuarioPorClerkSub } from '../services/usuario-clerk-resolver.js'
 
 export const accessRouter = Router()
 
@@ -338,24 +339,27 @@ accessRouter.get('/usuarios/:id_clerk_usuario', async (req, res, next) => {
   try {
     const { id_clerk_usuario } = req.params
 
-    const usuario = await prisma.usuario.findUnique({
-      where: { id_clerk_usuario },
-      select: {
-        id_usuario: true,
-        tipo_usuario: true,
-        id_organizacao: true,
-        id_workspace_preferido_usuario: true,
-        tenant: { select: { status_organizacao: true } },
-      },
-    })
+    // Mesmo lookup + self-heal do requireAuth (service compartilhado). Usuários
+    // convidados ficam com id_clerk_usuario='pending_*' até o primeiro login
+    // religar pelo e-mail. Sem o self-heal AQUI, o resolver de TODO produto dava
+    // 404 "Usuário ou organização não encontrada" para esses usuários (36/67 em
+    // prod 2026-06-11), mesmo com o /me funcionando. Ver usuario-clerk-resolver.ts.
+    const { usuario } = await resolverUsuarioPorClerkSub(id_clerk_usuario)
+    if (!usuario) {
+      throw new AppError('Usuário ou organização não encontrada', 404, 'NOT_FOUND')
+    }
 
-    if (!usuario || !usuario.tenant) {
+    const organizacao = await prisma.organizacao.findUnique({
+      where: { id_organizacao: usuario.id_organizacao },
+      select: { status_organizacao: true },
+    })
+    if (!organizacao) {
       throw new AppError('Usuário ou organização não encontrada', 404, 'NOT_FOUND')
     }
 
     res.json({
       idOrganizacao: usuario.id_organizacao,
-      status: StatusSdkMap[usuario.tenant.status_organizacao] ?? 'suspended',
+      status: StatusSdkMap[organizacao.status_organizacao] ?? 'suspended',
       idUsuario: usuario.id_usuario,
       tiposUsuario: [usuario.tipo_usuario],
       idWorkspace: usuario.id_workspace_preferido_usuario,

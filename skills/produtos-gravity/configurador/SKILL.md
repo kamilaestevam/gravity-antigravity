@@ -90,6 +90,8 @@ servicos-global/configurador/
 
 > **Skill dedicada:** toda a lógica de permissões está documentada em `antigravity-permissoes`. Leia-a antes de implementar qualquer tela de usuários, middleware de autorização ou lógica de acesso.
 
+> ⚠️ **Resolução de usuário por Clerk sub — fonte ÚNICA (2026-06-11).** Convidados ficam com `id_clerk_usuario = 'pending_<inv>'` até o primeiro login religar a linha ao sub real. Esse lookup + self-heal (busca por sub → fallback por e-mail verificado → vínculo) vive em **`server/services/usuario-clerk-resolver.ts`** e é usado por **dois** caminhos: `middleware/requireAuth.ts` (rota `/me`) e `routes/acesso.ts` (rota interna `/api/v1/internal/usuarios/:id_clerk_usuario`, consumida pelo SDK `@gravity/resolver-organizacao` em TODO produto). **Nunca** faça `findUnique({ where: { id_clerk_usuario } })` seco numa rota que resolve identidade — usuários `pending_` dariam 404 só nesse caminho enquanto o `/me` funciona (assimetria que quebrou o Pedido para 36/67 usuários em prod). Sempre use `resolverUsuarioPorClerkSub`.
+
 ### As Duas Cadeias
 
 O Gravity opera com dois sistemas complementares:

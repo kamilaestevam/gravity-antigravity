@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Truck,
@@ -30,6 +30,7 @@ import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 
 import { criarCotacao, getFornecedores } from '../shared/api'
+import { idBidDoQueryParam } from '../shared/novo-bid-frete-internacional-utils'
 import { formatarRotuloLocalLogistico } from '../shared/formatacao-local-logistico-bid-frete-internacional'
 import { rotuloContainerCadastro } from '../shared/cadastrosApi'
 import {
@@ -1666,6 +1667,8 @@ function limparHtmlNcm(texto: string): string {
 export default function ModalNovaCotacaoBidFreteInternacional() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
+  const idBid = idBidDoQueryParam(searchParams.get('id_bid'))
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [salvando, setSalvando] = useState(false)
@@ -2029,6 +2032,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           : undefined,
         moeda_meta_cotacao_bid_frete_internacional: form.moeda_meta_cotacao_bid_frete_internacional,
         data_limite_resposta_cotacao_bid_frete_internacional: form.data_limite_resposta_cotacao_bid_frete_internacional || undefined,
+        id_bid_bid_frete_internacional: idBid ?? undefined,
         fornecedor_ids: form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA' ? fornecedorIdsSelecionados : undefined,
         disparar_ao_criar: canaisDisparo.length > 0
           && (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
@@ -2801,6 +2805,16 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   // ─── Sucesso ──────────────────────────────────────────────────────────
   const handleFechar = () => navigate(ROTA_LISTA)
 
+  const handleNovaCotacaoMesmoBid = () => {
+    setForm(INITIAL_FORM)
+    setFornecedorIdsSelecionados([])
+    setCanaisDisparo([])
+    setCotacaoId(null)
+    setSucesso(false)
+    proximoIdLinhaContainerRef.current = 2
+    setStep(1)
+  }
+
   const handleProximo = () => {
     if (step < 5) setStep((s) => s + 1)
     else void handleSubmit()
@@ -2828,6 +2842,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               <BotaoGlobal variante="fantasma" tamanho="medio" onClick={handleFechar}>
                 {t('bidfrete.nova_cotacao.ver_cotacoes')}
               </BotaoGlobal>
+              {idBid && (
+                <BotaoGlobal variante="secundario" tamanho="medio" onClick={handleNovaCotacaoMesmoBid}>
+                  {t('bidfrete.nova_cotacao.adicionar_outra_bid', { defaultValue: 'Adicionar outra cotação ao BID' })}
+                </BotaoGlobal>
+              )}
               {cotacaoId && (
                 <BotaoGlobal
                   variante="primario"
@@ -2860,7 +2879,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       <ModalPassoPassoGlobal
         titulo="Nova Cotação"
         icone={<Truck weight="duotone" size={22} />}
-        subtitulo="Preencha as informações para buscar as melhores opções de frete"
+        subtitulo={idBid
+          ? 'Cotação vinculada ao BID — preencha as informações para buscar as melhores opções de frete'
+          : 'Preencha as informações para buscar as melhores opções de frete'}
         aberto
         passos={STEPS}
         passoAtual={step}

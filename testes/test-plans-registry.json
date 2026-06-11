@@ -624,10 +624,11 @@
         "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-preview.test.ts",
         "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-confirmar.test.ts",
         "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-itens.test.ts",
-        "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-isolamento-organizacao.test.ts"
+        "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-isolamento-organizacao.test.ts",
+        "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-misto-pedido-itens.test.ts"
       ],
       "componenteFile": "servicos-global/produto/pedido/server/src/routes/duplicacoes-pedido.ts",
-      "casosTotal": 48,
+      "casosTotal": 52,
       "coberturaPercentual": 85,
       "status": "aprovado",
       "criadoEm": "2026-05-16T00:00:00Z",

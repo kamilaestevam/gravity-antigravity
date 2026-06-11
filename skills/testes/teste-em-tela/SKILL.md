@@ -15,7 +15,7 @@ do zero ao fluxo finalizado, com print de cada estado significativo.
 
 > **Regra absoluta (2026-06-06):** Ver `documentos-tecnicos/testes/regras/07-organizacao-plano-resultado-por-escopo.md` — cada feature tem `plano-teste/` e `resultado-teste/<runId>/`. **Proibido** pasta datada compartilhada na raiz do escopo.
 
-> **ID EMT (2026-06-06):** `TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNNNNN}` — sufixo **global único** (6 dígitos). Ex.: `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`. Ver `documentos-tecnicos/testes/regras/01-convencao-ids.md`.
+> **ID EMT (2026-06-06):** `TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNNNNN}` — sufixo **global único** (6 dígitos). Ex.: `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`. Variante feature-first: `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`. Ver `documentos-tecnicos/testes/regras/01-convencao-ids.md`.
 
 ---
 
@@ -51,6 +51,7 @@ testes/testes-em-tela/
 | Feature | Plano | Resultados |
 |---------|-------|------------|
 | Pedido › Lista › Editar-salvar | `testes-em-tela/pedido/lista/editar-salvar/plano-teste/` | `.../resultado-teste/<runId>/` |
+| Pedido › Lista › Edição em massa | `testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/` (`TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`) | `.../resultado-teste/<runId>/` |
 | Pedido › Config › Status | `testes-em-tela/pedido/configuracoes/status/plano-teste/` | `.../resultado-teste/<runId>/` |
 
 ### `runId`

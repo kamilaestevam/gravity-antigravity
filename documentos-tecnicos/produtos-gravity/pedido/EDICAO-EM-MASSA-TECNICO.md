@@ -1,8 +1,8 @@
 # Edição em Massa — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 2.0 (DDD-puro + Cascade Combinado)
-> **Última atualização:** 2026-05-12
+> **Versão:** 3.0 (SSOT `camposEdicaoMassa.ts` + colunas do usuário)
+> **Última atualização:** 2026-06-11
 > **Status:** Implementado em produção
 
 ---
@@ -24,25 +24,48 @@
 
 ```
 produto/pedido/
+├── shared/
+│   ├── campos-pedido-ddd.ts                         ← Dicionário DDD (Pedido + Item)
+│   └── camposEdicaoMassa.ts                         ← SSOT campos editáveis em massa (blocklist + derivação)
 ├── client/
 │   └── src/
 │       ├── components/
-│       │   ├── ModalPedidosEdicaoMassa.tsx          ← Modal principal
+│       │   ├── ModalPedidosEdicaoMassa.tsx          ← Modal (consome SSOT via types.ts)
 │       │   └── ModalPedidosEdicaoMassa.css
 │       ├── shared/
-│       │   ├── types.ts                              ← TipoCampoEdicao, EdicaoMassa*
+│       │   ├── types.ts                              ← re-export CampoEdicaoMassaDef do shared/
 │       │   └── api.ts                                ← pedidoEdicaoMassaApi
 │       └── pages/
 │           └── Pedidos.tsx                           ← Botão "Editar em Massa"
 └── server/
     └── src/
         ├── routes/
-        │   └── edicoes-em-massa-pedido.ts           ← Rotas REST
+        │   └── edicoes-em-massa-pedido.ts           ← Rotas REST + CAMPOS_UNIQUE_PEDIDO (Zod)
         ├── services/
-        │   └── edicaoEmMassaService.ts              ← Lógica + cascade
+        │   └── edicaoEmMassaService.ts              ← Lógica + cascade + colunas EAV
         └── shared/
             └── bulkSchemas.ts                        ← Zod compartilhado
 ```
+
+---
+
+## SSOT — campos editáveis (`shared/camposEdicaoMassa.ts`)
+
+**Regra de produto (2026-06-10):** se o campo é editável inline na Lista, deve ser editável em massa — incluindo colunas criadas pelo usuário.
+
+| Export | Função |
+|--------|--------|
+| `CAMPOS_EDICAO_MASSA_PEDIDO` | Deriva de `CAMPOS_PEDIDO_DDD` menos `CAMPOS_BLOQUEADOS_PEDIDO` + extras JSON |
+| `CAMPOS_EDICAO_MASSA_ITEM` | Deriva de `CAMPOS_ITEM_DDD` menos `CAMPOS_BLOQUEADOS_ITEM` |
+| `CAMPOS_BLOQUEADOS_*` | **Única blocklist** — agregados, identidade, audit, fluxos próprios |
+| `PREFIXO_COLUNA_USUARIO` | Transporte EAV: `coluna_usuario:<id_coluna_usuario_pedido>` |
+| `campoEditavelEmMassa()` | Validação server-side antes de preview/confirmar |
+
+**Consumidores:** `edicaoEmMassaService.ts`, `ModalPedidosEdicaoMassa.tsx` (via `types.ts`), testes `drift-lista-massa` e plano EMT `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`.
+
+**Colunas do usuário (EAV):** o modal injeta campos dinâmicos com os 8 tipos suportados na lista (`texto`, `numero`, `data`, `select`, `ncm`, `usuario`, `moeda`, `decimal`). O service faz upsert em `PedidoListaColunaUsuarioValor` por vínculo pedido/item.
+
+**Não duplicar listas de campo** no modal nem no service — alterações passam pelo SSOT + blocklist.
 
 ---
 
@@ -135,7 +158,7 @@ export interface EdicaoMassaResultado {
 | `id_workspace` | `company_id` |
 | `id_pedido` | `id` |
 
-A definição (`DefinicaoCampo`) em `ModalPedidosEdicaoMassa.tsx` tem `campo` com o nome DDD exato + `rotulo` com label canonical PT-BR (skill `ddd-nomenclatura` REGRA 9).
+O modal monta `DefinicaoCampo` a partir de `CAMPOS_EDICAO_MASSA_PEDIDO` / `CAMPOS_EDICAO_MASSA_ITEM` (`camposEdicaoMassa.ts`): `campo` com nome DDD exato + `rotulo` canonical PT-BR (skill `ddd-nomenclatura` REGRA 9).
 
 ---
 
@@ -179,41 +202,9 @@ Lista mantida em `CAMPOS_DETALHES_OPERACIONAIS` no service. O preview e o confir
 
 ## Campos bloqueados (calculados — nunca editáveis)
 
-```ts
-const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
-  // Agregados calculados pelo recalcularAgregadosPedido
-  'valor_total_pedido',
-  'quantidade_total_pedido',
-  'peso_liquido_total_pedido',
-  'peso_bruto_total_pedido',
-  'cubagem_total_pedido',
-  // Sistema / identidade
-  'id_pedido',
-  'id_organizacao',
-  'id_workspace',
-  'id_status_pedido',
-  'data_criacao_pedido',
-  'data_atualizacao_pedido',
-  'data_exclusao_pedido',
-  'data_consolidacao_pedido',
-  'ids_origem_consolidacao_pedido',
-])
+Blocklist única em `shared/camposEdicaoMassa.ts` → `CAMPOS_BLOQUEADOS_PEDIDO` e `CAMPOS_BLOQUEADOS_ITEM` (agregados, identidade, audit, consolidação, saldo).
 
-const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_total_item',
-  'quantidade_atual_item',
-  'quantidade_transferida_item',   // saldoEngine
-  'id_item',
-  'id_organizacao',
-  'id_workspace',
-  'id_pedido',
-  'data_criacao_item',
-  'data_atualizacao_item',
-  'data_exclusao_item',
-])
-```
-
-**Defesa em profundidade:** validação server-side rejeita campos bloqueados mesmo se o frontend tentar contornar. Cross-org attack mitigado — não é possível mudar `id_organizacao` via edição em massa.
+**Defesa em profundidade:** `campoEditavelEmMassa()` + `validarCamposEditaveis` no service rejeitam campos bloqueados mesmo se o frontend tentar contornar. Cross-org attack mitigado — não é possível mudar `id_organizacao` via edição em massa.
 
 ---
 
@@ -407,7 +398,7 @@ Outros 10 `@@unique` no schema do Pedido estão em models de sistema/config não
 
 ### Convenção para o futuro
 
-Ao expor novo campo `@@unique` em `CAMPOS_PEDIDO_EDITAVEIS` ou `CAMPOS_ITEM_EDITAVEIS`:
+Ao expor novo campo `@@unique` em `CAMPOS_EDICAO_MASSA_PEDIDO` ou `CAMPOS_EDICAO_MASSA_ITEM` (via SSOT — não adicionar lista paralela no modal):
 1. Adicionar a `CAMPOS_UNIQUE` no frontend
 2. Adicionar a `CAMPOS_UNIQUE_PEDIDO` no Zod custom do backend
 3. Sem isso, o usuário recebe erro confuso (P2002 ou 500)
@@ -507,6 +498,12 @@ server/src/services/edicaoEmMassaService.integration.test.ts  (11 integração �
 ---
 
 ## Histórico de versões
+
+- **v3.0 (2026-06-11)** — SSOT `camposEdicaoMassa.ts`
+  - Derivação automática a partir de `campos-pedido-ddd.ts` + blocklist única
+  - Paridade lista ↔ massa (inclui colunas EAV do usuário via `coluna_usuario:<id>`)
+  - Plano EMT `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081` (217 passos campo a campo)
+  - Teste `drift-lista-massa` impede regressão entre lista inline e modal
 
 - **v2.2 (2026-05-12)** — Auto-fill ao trocar `tipo_operacao_pedido` em massa
   - Endpoint novo `GET /api/v1/internal/workspaces?ids=...` (Configurador) — batch lookup S2S

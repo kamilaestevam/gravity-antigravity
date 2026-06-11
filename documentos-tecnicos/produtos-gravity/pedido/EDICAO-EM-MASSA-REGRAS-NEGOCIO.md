@@ -1,9 +1,19 @@
 # Edição em Massa — Regras de Negócio
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
-> **Data:** Abril 2026
-> **Status:** Definido — aguardando implementação
+> **Versão:** 2.0
+> **Data:** Junho 2026
+> **Status:** Implementado em produção
+
+---
+
+## Paridade lista ↔ massa (decisão 2026-06-10)
+
+**Regra:** todo campo editável inline na Lista de Pedidos deve aparecer no modal Editar em Massa — incluindo colunas criadas pelo usuário (EAV).
+
+**SSOT técnico:** `shared/camposEdicaoMassa.ts` deriva os campos de `campos-pedido-ddd.ts` com blocklist única. Colunas do usuário via `coluna_usuario:<id_coluna_usuario_pedido>`.
+
+**Validação:** teste `drift-lista-massa.test.ts` + plano EMT `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`.
 
 ---
 

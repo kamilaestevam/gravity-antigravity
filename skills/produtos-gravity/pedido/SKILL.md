@@ -25,6 +25,9 @@ rascunho → aberto → consolidado/transferido → cancelado.
 ```text
 servicos-global/produto/pedido/
 ├── shared/
+│   ├── campos-pedido-ddd.ts           ← dicionário DDD
+│   ├── camposEdicaoMassa.ts           ← SSOT edição em massa (blocklist + derivação)
+│   ├── mapaPropagacaoPedidoItem.ts    ← cascade Pedido→Item
 │   └── visaoGeralResumoAggregate.ts   ← agregação Insights (server + unit)
 ├── client/src/
 │   ├── App.tsx                        ← rotas irmãs → <PedidosMultiView />
@@ -88,6 +91,14 @@ servicos-global/produto/pedido/
 
 **Regra:** campo item explícito vence sobre cascade do mesmo destino.
 
+### SSOT campos editáveis — paridade lista ↔ massa
+
+**SSOT:** `shared/camposEdicaoMassa.ts` — deriva `CAMPOS_EDICAO_MASSA_PEDIDO` e `CAMPOS_EDICAO_MASSA_ITEM` de `campos-pedido-ddd.ts` com blocklist única. Inclui colunas do usuário (EAV) via prefixo `coluna_usuario:<id_coluna_usuario_pedido>`.
+
+**Regra:** editável na lista ⇒ editável em massa. Não manter listas paralelas no modal ou no service.
+
+**Teste EMT:** `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081` · drift: `drift-lista-massa.test.ts`
+
 ### Campos `@@unique` — convenção crítica
 
 Campos com `@@unique` no schema **não podem** ser editados em massa via `substituir` com >1 pedido (geraria P2002).
@@ -102,8 +113,8 @@ Campos com `@@unique` no schema **não podem** ser editados em massa via `substi
 2. **Backend Zod** — Set espelhado `CAMPOS_UNIQUE_PEDIDO` em `edicoes-em-massa-pedido.ts` + `superRefine`
 3. **Backend try/catch P2002** — fast path `updateMany` envolvido, converte em `AppError 422 UNIQUE_VIOLATION`
 
-**Convenção ao expor novo campo `@@unique` em `CAMPOS_*_EDITAVEIS`:**
-- Adicionar a `CAMPOS_UNIQUE` no frontend
+**Convenção ao expor novo campo `@@unique` no SSOT (`camposEdicaoMassa.ts`):**
+- Adicionar a `CAMPOS_UNIQUE` no frontend (modal)
 - Adicionar a `CAMPOS_UNIQUE_PEDIDO` no backend Zod
 - Sem isso, retorna 500 e ponto cego para o usuário
 

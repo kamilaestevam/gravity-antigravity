@@ -41,6 +41,15 @@ export function useMeSync() {
     if (isSignedIn === false) {
       clearCurrentUser()
       fetchedForRef.current = null
+      // Limpa o tenant persistido — senão o id_organizacao da sessão anterior
+      // sobrevive ao logout e contamina x-id-organizacao no próximo login (na
+      // janela sem-JWT), resolvendo a org errada → 404 "Organização não
+      // encontrada". A org real é re-hidratada pelo /me a cada sessão (abaixo).
+      try {
+        localStorage.removeItem('gravity:idOrganizacao')
+        sessionStorage.removeItem('gravity_id_organizacao')
+        sessionStorage.removeItem('gravity_company_id')
+      } catch { /* ignore */ }
     }
   }, [isSignedIn, clearCurrentUser])
 

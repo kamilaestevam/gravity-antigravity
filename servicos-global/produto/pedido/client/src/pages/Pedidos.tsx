@@ -8683,8 +8683,14 @@ export default function Pedidos() {
             for (const p of pedidos) {
               if (todosIds.has(p.id) && !idsPedidosSelecionados.has(p.id)) resultado.push(p)
             }
-            return resultado
+            // Hidrata itens do cache da lista (pedido.itens vem vazio na view virtual)
+            return resultado.map(p => ({
+              ...p,
+              itens: itensCarregadosRef.current.get(p.id) ?? p.itens ?? [],
+            }))
           })()}
+          itens={itensSelecionados}
+          todosPedidos={pedidos}
           itensSelecionadosIds={itensSelecionados.length > 0 ? itensSelecionados.map(i => i.id) : undefined}
           onFechar={() => setModalTransferirAberto(false)}
           onConcluido={() => {

@@ -154,8 +154,11 @@ export function setApiContext(ctx: { idOrganizacao: string; userId: string; user
 }
 
 export function getApiContext(): { idOrganizacao: string; userId: string; userName: string } {
+  // Consumido para montar headers/payloads de request (GABI quota, cadastro
+  // rápido de fornecedor). NUNCA lsGet() aqui — mesmo motivo do `request`:
+  // localStorage defasado contamina x-id-organizacao entre sessões/orgs.
   return {
-    idOrganizacao: context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || '',
+    idOrganizacao: context.idOrganizacao || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || '',
     userId:   context.userId,
     userName: context.userName,
   }
@@ -167,7 +170,13 @@ export function relancarErroApi(err: unknown, mensagemPadrao: string): never {
 }
 
 export async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  // Fonte única do tenant é o store (getDynamicTenantId) — NUNCA lsGet() aqui.
+  // localStorage sobrevive a logout/troca de org e contamina x-id-organizacao na
+  // janela sem-JWT (Clerk ainda hidratando), resolvendo a org errada → 404
+  // "Organização não encontrada". lsGet só hidrata o injectTenantGetter, validado
+  // contra o store live. Sem org no store → header vazio → backend responde 401
+  // honesto em vez de servir dados de outra organização (Mand. 08 + isolamento).
+  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
   const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''
   const token = await getAuthToken()
 
@@ -222,7 +231,13 @@ export async function request<T>(endpoint: string, options?: RequestInit): Promi
 
 /** GET binário (download) com os mesmos headers de auth que `request`. */
 async function requestBlob(endpoint: string, options?: RequestInit): Promise<Blob> {
-  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  // Fonte única do tenant é o store (getDynamicTenantId) — NUNCA lsGet() aqui.
+  // localStorage sobrevive a logout/troca de org e contamina x-id-organizacao na
+  // janela sem-JWT (Clerk ainda hidratando), resolvendo a org errada → 404
+  // "Organização não encontrada". lsGet só hidrata o injectTenantGetter, validado
+  // contra o store live. Sem org no store → header vazio → backend responde 401
+  // honesto em vez de servir dados de outra organização (Mand. 08 + isolamento).
+  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
   const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''
   const token = await getAuthToken()
 
@@ -247,7 +262,13 @@ async function requestBlob(endpoint: string, options?: RequestInit): Promise<Blo
 }
 
 async function buildMultipartAuthHeaders(): Promise<Record<string, string>> {
-  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  // Fonte única do tenant é o store (getDynamicTenantId) — NUNCA lsGet() aqui.
+  // localStorage sobrevive a logout/troca de org e contamina x-id-organizacao na
+  // janela sem-JWT (Clerk ainda hidratando), resolvendo a org errada → 404
+  // "Organização não encontrada". lsGet só hidrata o injectTenantGetter, validado
+  // contra o store live. Sem org no store → header vazio → backend responde 401
+  // honesto em vez de servir dados de outra organização (Mand. 08 + isolamento).
+  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
   const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''
   const token = await getAuthToken()
   return {

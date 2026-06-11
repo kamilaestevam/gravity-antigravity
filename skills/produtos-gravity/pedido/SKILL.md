@@ -357,6 +357,7 @@ FORNECEDOR pode ser cross-organização (não exige org match). Mand. 04 NÃO se
 - **AP2**: fazer fetch quando `workspacesSelecionados.length === 0` — backend cairia no header e mostraria pedidos do ativo. Curto-circuito local força lista vazia.
 - **AP3**: repopular filtro automaticamente após "× Limpar" — quebra o modelo mental (usuário desmarcou de propósito). Init é UMA vez no mount.
 - **AP4**: hardcoded "consolidar quando há N+" no chip — usar `rotulofiltro` único (`<=2 nomes / 3+ contagem`). Vale para todos os filtros enum.
+- **AP5**: usar `localStorage` (`gravity:idOrganizacao`) como fonte do `x-id-organizacao` em request. A **fonte única do tenant é o store** (`getDynamicTenantId` / `getApiContext` lendo `currentUser.idOrganizacao`). `lsGet()` só hidrata o `injectTenantGetter` (validado contra o store live), NUNCA alimenta request direto. Motivo: o localStorage sobrevive a logout/troca de org/sessão e, na janela sem-JWT (Clerk hidratando), resolve a **org errada** → 404 "Organização não encontrada" intermitente. O logout limpa `gravity:idOrganizacao` + `gravity_id_organizacao` + `gravity_company_id` em `shell/hooks/useMeSync.ts`. Correção 2026-06-11.
 
 ### Documentos relacionados
 

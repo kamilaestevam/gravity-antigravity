@@ -519,4 +519,5 @@ Use `/comando` para ativar papéis e fluxos específicos:
 - `/criar-produto` — Fluxo para criar novo produto
 - `/deploy` — Fluxo de deploy/migração
 - `/tooltip-pedido` — Consultor de tooltips da Lista de Pedidos (títulos, pills, conclusão por coluna)
+- `/testes-criar` — **Pipeline obrigatório dos 5 tipos de teste** (UNI, FUN, E2E, CRO, EMT): pastas, IDs do registry, ETAPAs e prints
 - `/skill [nome]` — Ler uma skill específica pelo nome

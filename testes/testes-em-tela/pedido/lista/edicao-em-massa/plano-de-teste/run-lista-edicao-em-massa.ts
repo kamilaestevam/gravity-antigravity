@@ -1,6 +1,6 @@
 /**
  * Teste em tela — Lista Pedido: EDIÇÃO EM MASSA (campo a campo via SSOT)
- * Plano: TST-EMT-PEDIDO-LISTA-EDICAO-EM-MASSA-000081
+ * Plano: TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081
  *
  * Data-driven: itera CAMPOS_EDICAO_MASSA_PEDIDO/ITEM do SSOT `camposEdicaoMassa.ts`,
  * portanto novos campos do DDD entram no teste automaticamente (zero drift).
@@ -802,7 +802,7 @@ async function etapaPersistenciaFinal(page: Page): Promise<void> {
 // ── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
   mkdirSync(OUT, { recursive: true })
-  log('TESTE EM TELA — lista-edicao-em-massa (TST-EMT-PEDIDO-LISTA-EDICAO-EM-MASSA-000081)')
+  log('TESTE EM TELA — lista-edicao-em-massa (TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081)')
   log(`Data: ${DATA} | Base: ${BASE_UI} | Ambiente: ${ambienteExec} | Clerk: ${clerkSecretPrefix}`)
   log(`Campos SSOT: ${CAMPOS_EDICAO_MASSA_PEDIDO.length} pedido + ${CAMPOS_EDICAO_MASSA_ITEM.length} item`)
   log(`Pasta: ${OUT}`)

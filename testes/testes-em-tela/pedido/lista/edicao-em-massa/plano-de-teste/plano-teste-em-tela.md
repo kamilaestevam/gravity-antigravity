@@ -1,6 +1,6 @@
 # Plano de Teste em Tela — Pedido / Lista / Edição em Massa
 
-**ID:** TST-EMT-PEDIDO-LISTA-EDICAO-EM-MASSA-000081
+**ID:** TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081
 **Data:** 2026-06-11
 **Versão:** 1.1
 **Criticidade:** alta

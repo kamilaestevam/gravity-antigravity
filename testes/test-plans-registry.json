@@ -1451,7 +1451,7 @@
       "ultimoResultado": null
     },
     {
-      "id": "TST-EMT-PEDIDO-LISTA-EDICAO-EM-MASSA-000081",
+      "id": "TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081",
       "tipo": "EMT",
       "escopo": "PEDIDO",
       "sublocal": "lista/edicao-em-massa",

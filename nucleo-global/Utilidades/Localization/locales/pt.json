@@ -2410,10 +2410,15 @@
       "labelPai_other": "{{count}} cotações",
       "toolbar": {
         "novo": "Novo",
-        "buscarFrete": "Buscar frete",
-        "criarCotacaoManual": "Criar cotação manualmente",
-        "importarPlanilha": "Importar planilha",
-        "subirPlanilha": "Subir planilha"
+        "buscarFrete": "Buscar Frete",
+        "buscarFreteDesc": "Cotação avulsa ou BID",
+        "cotacaoAvulsa": "Cotação Avulsa",
+        "cotacaoAvulsaDesc": "Cotar um frete com fornecedores",
+        "bid": "BID",
+        "bidDesc": "Conjunto de cotações para vários fornecedores",
+        "criarCotacaoManual": "Criar cotação manual",
+        "importarPlanilha": "Importar de Planilha",
+        "subirPlanilha": "Subir planilha de dados"
       },
       "abas": {
         "todas": "Todas",
@@ -2661,7 +2666,26 @@
       "incotermDdpResp": "Comprador apenas recebe",
       "incotermFasTitle": "FAS — Free Alongside Ship",
       "incotermFasDesc": "Vendedor entrega ao lado do navio",
-      "incotermFasResp": "Comprador paga embarque + frete"
+      "incotermFasResp": "Comprador paga embarque + frete",
+      "adicionar_outra_bid": "Adicionar outra cotação ao BID",
+      "subtitulo_vinculada_bid": "Cotação vinculada ao BID — preencha as informações para buscar as melhores opções de frete"
+    },
+    "novo_bid": {
+      "titulo": "Novo BID",
+      "titulo_sucesso": "BID criado",
+      "subtitulo": "Agrupe várias cotações em um único processo de licitação.",
+      "subtitulo_sucesso": "Agora adicione cotações ao conjunto ou volte para a lista.",
+      "referencia": "Referência interna (opcional)",
+      "referencia_placeholder": "Ex.: Licitação Q2 / Projeto Alpha",
+      "vincular_avulsas": "Vincular cotações avulsas existentes (opcional)",
+      "sem_avulsas": "Nenhuma cotação avulsa disponível no escopo atual.",
+      "criar": "Criar BID",
+      "criando": "Criando BID...",
+      "criar_cotacao": "Criar cotação para o BID",
+      "voltar_lista": "Voltar para a lista",
+      "toast_sucesso": "BID {{numero}} criado com sucesso.",
+      "erro_criar": "Erro ao criar BID",
+      "erro_carregar_avulsas": "Erro ao carregar cotações avulsas"
     },
     "calendario": {
       "ontem": "Ontem",

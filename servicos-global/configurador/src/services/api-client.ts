@@ -5,6 +5,10 @@
 import { z } from 'zod'
 import { injetarHeaderOverride } from '@gravity/shell'
 import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
+import {
+  testeFavoritoUsuarioSchema,
+  type TesteFavoritoUsuario,
+} from '@testes/infra/admin/testes-favoritos-admin'
 
 const BASE_URL = '/api'
 
@@ -1044,6 +1048,52 @@ export const adminTestesApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     })
+  },
+}
+
+// ─── Admin: Testes Favoritos (model TesteFavoritoUsuario, tabela `teste_favorito_usuario`) ──
+// Combinações salvas no modal "Rodar Testes", por usuário. Substitui o localStorage.
+// Paridade nominal: payload/resposta usam os nomes exatos das colunas (DDD).
+
+const testesFavoritosResponseSchema = z.object({
+  favoritos: z.array(testeFavoritoUsuarioSchema),
+})
+
+const testeFavoritoResponseSchema = z.object({
+  favorito: testeFavoritoUsuarioSchema,
+})
+
+/** Payload de criação — sem id/data (gerados no banco). */
+export type CriarTesteFavoritoUsuario = Pick<
+  TesteFavoritoUsuario,
+  | 'produto_teste_favorito_usuario'
+  | 'ambiente_teste_favorito_usuario'
+  | 'tipos_teste_favorito_usuario'
+  | 'planos_ids_teste_favorito_usuario'
+  | 'planos_resumo_teste_favorito_usuario'
+>
+
+/** Recurso /testes-favoritos — model TesteFavoritoUsuario */
+export const adminTestesFavoritosApi = {
+  /** GET /api/v1/admin/testes-favoritos — favoritos do usuário autenticado */
+  async listar(): Promise<TesteFavoritoUsuario[]> {
+    const raw = await request<unknown>('/v1/admin/testes-favoritos')
+    return testesFavoritosResponseSchema.parse(raw).favoritos
+  },
+  /** POST /api/v1/admin/testes-favoritos */
+  async salvar(payload: CriarTesteFavoritoUsuario): Promise<TesteFavoritoUsuario> {
+    const raw = await request<unknown>('/v1/admin/testes-favoritos', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    return testeFavoritoResponseSchema.parse(raw).favorito
+  },
+  /** DELETE /api/v1/admin/testes-favoritos/:id_teste_favorito_usuario */
+  async remover(id_teste_favorito_usuario: string) {
+    return request<{ deleted: boolean; id: string }>(
+      `/v1/admin/testes-favoritos/${id_teste_favorito_usuario}`,
+      { method: 'DELETE' },
+    )
   },
 }
 

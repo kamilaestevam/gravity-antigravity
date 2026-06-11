@@ -1,0 +1,31 @@
+{
+  "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000086",
+  "versao": "1.0",
+  "geradoEm": "2026-06-11T00:00:00Z",
+  "geradoPor": "pipeline-multi-agente",
+  "escopo": "PEDIDO",
+  "sublocal": "usuario/teste-organizacao",
+  "modulo": "fonte do tenant em request/getApiContext (sem localStorage defasado)",
+  "tipoModulo": "client_api",
+  "arquivoFilePath": "servicos-global/produto/pedido/client/src/shared/api.ts",
+  "ambiente": "node",
+  "criticidade": "critica",
+  "coberturaMinima": 70,
+  "exportacoes": ["request", "getApiContext", "setApiContext", "injectTenantGetter"],
+  "contexto": "Fase 1 (commit 502e73df3) — localStorage gravity:idOrganizacao defasado contaminava x-id-organizacao. Substitui o legado quebrado api-context.test.ts (FONTE PRIMARIA).",
+  "substitui": ["testes/testes-unitarios/pedido/api-context.test.ts"],
+  "categorias": [
+    { "nome": "happy",       "min": 2, "total": 2 },
+    { "nome": "contrato",    "min": 1, "total": 1 },
+    { "nome": "regression",  "min": 1, "total": 1 }
+  ],
+  "casos": [
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000086-001", "categoria": "happy",      "descricao": "UNI-09 store tem precedencia sobre localStorage defasado no header x-id-organizacao", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000086-002", "categoria": "contrato",   "descricao": "UNI-09b store vazio + localStorage presente -> usa localStorage (hidratacao pos-F5, limpo no logout)", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000086-003", "categoria": "regression", "descricao": "UNI-10 getApiContext contexto vazio + localStorage defasado -> idOrganizacao vazio (nunca a org do storage)", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000086-004", "categoria": "happy",      "descricao": "UNI-10b getApiContext contexto preenchido -> idOrganizacao do contexto", "origem": "matriz-definitiva" }
+  ],
+  "specFile": "testes/testes-unitarios/usuario/teste-organizacao/tenant-source-api.test.ts",
+  "status": "aprovado",
+  "ultimoResultado": "passou"
+}

@@ -119,6 +119,11 @@ export type TesteAgendamento = $Result.DefaultSelection<Prisma.$TesteAgendamento
  */
 export type TestePlano = $Result.DefaultSelection<Prisma.$TestePlanoPayload>
 /**
+ * Model TesteFavoritoUsuario
+ * 
+ */
+export type TesteFavoritoUsuario = $Result.DefaultSelection<Prisma.$TesteFavoritoUsuarioPayload>
+/**
  * Model ProdutoGravityFatura
  * 
  */
@@ -679,6 +684,16 @@ export class PrismaClient<
   get testePlano(): Prisma.TestePlanoDelegate<ExtArgs>;
 
   /**
+   * `prisma.testeFavoritoUsuario`: Exposes CRUD operations for the **TesteFavoritoUsuario** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TesteFavoritoUsuarios
+    * const testeFavoritoUsuarios = await prisma.testeFavoritoUsuario.findMany()
+    * ```
+    */
+  get testeFavoritoUsuario(): Prisma.TesteFavoritoUsuarioDelegate<ExtArgs>;
+
+  /**
    * `prisma.produtoGravityFatura`: Exposes CRUD operations for the **ProdutoGravityFatura** model.
     * Example usage:
     * ```ts
@@ -1209,6 +1224,7 @@ export namespace Prisma {
     Teste: 'Teste',
     TesteAgendamento: 'TesteAgendamento',
     TestePlano: 'TestePlano',
+    TesteFavoritoUsuario: 'TesteFavoritoUsuario',
     ProdutoGravityFatura: 'ProdutoGravityFatura',
     ProdutoGravityFaturaItem: 'ProdutoGravityFaturaItem',
     ProdutoGravityFaturaDocumento: 'ProdutoGravityFaturaDocumento',
@@ -1231,7 +1247,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "previsaoTaxaFuturaMoeda" | "teste" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas" | "gabiLimiteMonetarioGlobal" | "gabiAlertaEmitidoGlobal" | "auditLogAdmin"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "previsaoTaxaFuturaMoeda" | "teste" | "testeAgendamento" | "testePlano" | "testeFavoritoUsuario" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas" | "gabiLimiteMonetarioGlobal" | "gabiAlertaEmitidoGlobal" | "auditLogAdmin"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2705,6 +2721,76 @@ export namespace Prisma {
           }
         }
       }
+      TesteFavoritoUsuario: {
+        payload: Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>
+        fields: Prisma.TesteFavoritoUsuarioFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TesteFavoritoUsuarioFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TesteFavoritoUsuarioFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload>
+          }
+          findFirst: {
+            args: Prisma.TesteFavoritoUsuarioFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TesteFavoritoUsuarioFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload>
+          }
+          findMany: {
+            args: Prisma.TesteFavoritoUsuarioFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload>[]
+          }
+          create: {
+            args: Prisma.TesteFavoritoUsuarioCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload>
+          }
+          createMany: {
+            args: Prisma.TesteFavoritoUsuarioCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TesteFavoritoUsuarioCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload>[]
+          }
+          delete: {
+            args: Prisma.TesteFavoritoUsuarioDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload>
+          }
+          update: {
+            args: Prisma.TesteFavoritoUsuarioUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload>
+          }
+          deleteMany: {
+            args: Prisma.TesteFavoritoUsuarioDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TesteFavoritoUsuarioUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TesteFavoritoUsuarioUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteFavoritoUsuarioPayload>
+          }
+          aggregate: {
+            args: Prisma.TesteFavoritoUsuarioAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTesteFavoritoUsuario>
+          }
+          groupBy: {
+            args: Prisma.TesteFavoritoUsuarioGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TesteFavoritoUsuarioGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TesteFavoritoUsuarioCountArgs<ExtArgs>
+            result: $Utils.Optional<TesteFavoritoUsuarioCountAggregateOutputType> | number
+          }
+        }
+      }
       ProdutoGravityFatura: {
         payload: Prisma.$ProdutoGravityFaturaPayload<ExtArgs>
         fields: Prisma.ProdutoGravityFaturaFieldRefs
@@ -3461,11 +3547,13 @@ export namespace Prisma {
   export type UsuarioCountOutputType = {
     user_permissions: number
     memberships: number
+    testes_favoritos: number
   }
 
   export type UsuarioCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user_permissions?: boolean | UsuarioCountOutputTypeCountUser_permissionsArgs
     memberships?: boolean | UsuarioCountOutputTypeCountMembershipsArgs
+    testes_favoritos?: boolean | UsuarioCountOutputTypeCountTestes_favoritosArgs
   }
 
   // Custom InputTypes
@@ -3491,6 +3579,13 @@ export namespace Prisma {
    */
   export type UsuarioCountOutputTypeCountMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UsuarioWorkspaceWhereInput
+  }
+
+  /**
+   * UsuarioCountOutputType without action
+   */
+  export type UsuarioCountOutputTypeCountTestes_favoritosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TesteFavoritoUsuarioWhereInput
   }
 
 
@@ -5149,6 +5244,7 @@ export namespace Prisma {
     preferred_company?: boolean | Usuario$preferred_companyArgs<ExtArgs>
     user_permissions?: boolean | Usuario$user_permissionsArgs<ExtArgs>
     memberships?: boolean | Usuario$membershipsArgs<ExtArgs>
+    testes_favoritos?: boolean | Usuario$testes_favoritosArgs<ExtArgs>
     _count?: boolean | UsuarioCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuario"]>
 
@@ -5187,6 +5283,7 @@ export namespace Prisma {
     preferred_company?: boolean | Usuario$preferred_companyArgs<ExtArgs>
     user_permissions?: boolean | Usuario$user_permissionsArgs<ExtArgs>
     memberships?: boolean | Usuario$membershipsArgs<ExtArgs>
+    testes_favoritos?: boolean | Usuario$testes_favoritosArgs<ExtArgs>
     _count?: boolean | UsuarioCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UsuarioIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5201,6 +5298,7 @@ export namespace Prisma {
       preferred_company: Prisma.$WorkspacePayload<ExtArgs> | null
       user_permissions: Prisma.$UsuarioPermissaoPayload<ExtArgs>[]
       memberships: Prisma.$UsuarioWorkspacePayload<ExtArgs>[]
+      testes_favoritos: Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id_usuario: string
@@ -5582,6 +5680,7 @@ export namespace Prisma {
     preferred_company<T extends Usuario$preferred_companyArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$preferred_companyArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     user_permissions<T extends Usuario$user_permissionsArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$user_permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPermissaoPayload<ExtArgs>, T, "findMany"> | Null>
     memberships<T extends Usuario$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
+    testes_favoritos<T extends Usuario$testes_favoritosArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$testes_favoritosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5992,6 +6091,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UsuarioWorkspaceScalarFieldEnum | UsuarioWorkspaceScalarFieldEnum[]
+  }
+
+  /**
+   * Usuario.testes_favoritos
+   */
+  export type Usuario$testes_favoritosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    where?: TesteFavoritoUsuarioWhereInput
+    orderBy?: TesteFavoritoUsuarioOrderByWithRelationInput | TesteFavoritoUsuarioOrderByWithRelationInput[]
+    cursor?: TesteFavoritoUsuarioWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TesteFavoritoUsuarioScalarFieldEnum | TesteFavoritoUsuarioScalarFieldEnum[]
   }
 
   /**
@@ -22497,8 +22616,18 @@ export namespace Prisma {
 
   export type AggregateTeste = {
     _count: TesteCountAggregateOutputType | null
+    _avg: TesteAvgAggregateOutputType | null
+    _sum: TesteSumAggregateOutputType | null
     _min: TesteMinAggregateOutputType | null
     _max: TesteMaxAggregateOutputType | null
+  }
+
+  export type TesteAvgAggregateOutputType = {
+    quantidade_passos_teste: number | null
+  }
+
+  export type TesteSumAggregateOutputType = {
+    quantidade_passos_teste: number | null
   }
 
   export type TesteMinAggregateOutputType = {
@@ -22514,6 +22643,9 @@ export namespace Prisma {
     resultado_teste: string | null
     duracao_teste: string | null
     log_erro_teste: string | null
+    log_sucesso_teste: string | null
+    pasta_emt_teste: string | null
+    quantidade_passos_teste: number | null
     screenshot_teste: string | null
     ambiente_teste: string | null
     id_execucao_teste: string | null
@@ -22536,6 +22668,9 @@ export namespace Prisma {
     resultado_teste: string | null
     duracao_teste: string | null
     log_erro_teste: string | null
+    log_sucesso_teste: string | null
+    pasta_emt_teste: string | null
+    quantidade_passos_teste: number | null
     screenshot_teste: string | null
     ambiente_teste: string | null
     id_execucao_teste: string | null
@@ -22558,6 +22693,10 @@ export namespace Prisma {
     resultado_teste: number
     duracao_teste: number
     log_erro_teste: number
+    log_sucesso_teste: number
+    pasta_emt_teste: number
+    lista_prints_emt_teste: number
+    quantidade_passos_teste: number
     analise_ia_teste: number
     screenshot_teste: number
     ambiente_teste: number
@@ -22569,6 +22708,14 @@ export namespace Prisma {
     _all: number
   }
 
+
+  export type TesteAvgAggregateInputType = {
+    quantidade_passos_teste?: true
+  }
+
+  export type TesteSumAggregateInputType = {
+    quantidade_passos_teste?: true
+  }
 
   export type TesteMinAggregateInputType = {
     id_teste?: true
@@ -22583,6 +22730,9 @@ export namespace Prisma {
     resultado_teste?: true
     duracao_teste?: true
     log_erro_teste?: true
+    log_sucesso_teste?: true
+    pasta_emt_teste?: true
+    quantidade_passos_teste?: true
     screenshot_teste?: true
     ambiente_teste?: true
     id_execucao_teste?: true
@@ -22605,6 +22755,9 @@ export namespace Prisma {
     resultado_teste?: true
     duracao_teste?: true
     log_erro_teste?: true
+    log_sucesso_teste?: true
+    pasta_emt_teste?: true
+    quantidade_passos_teste?: true
     screenshot_teste?: true
     ambiente_teste?: true
     id_execucao_teste?: true
@@ -22627,6 +22780,10 @@ export namespace Prisma {
     resultado_teste?: true
     duracao_teste?: true
     log_erro_teste?: true
+    log_sucesso_teste?: true
+    pasta_emt_teste?: true
+    lista_prints_emt_teste?: true
+    quantidade_passos_teste?: true
     analise_ia_teste?: true
     screenshot_teste?: true
     ambiente_teste?: true
@@ -22676,6 +22833,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: TesteAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TesteSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: TesteMinAggregateInputType
@@ -22706,6 +22875,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: TesteCountAggregateInputType | true
+    _avg?: TesteAvgAggregateInputType
+    _sum?: TesteSumAggregateInputType
     _min?: TesteMinAggregateInputType
     _max?: TesteMaxAggregateInputType
   }
@@ -22723,6 +22894,10 @@ export namespace Prisma {
     resultado_teste: string
     duracao_teste: string
     log_erro_teste: string | null
+    log_sucesso_teste: string | null
+    pasta_emt_teste: string | null
+    lista_prints_emt_teste: JsonValue | null
+    quantidade_passos_teste: number
     analise_ia_teste: JsonValue | null
     screenshot_teste: string | null
     ambiente_teste: string
@@ -22732,6 +22907,8 @@ export namespace Prisma {
     data_criacao_teste: Date
     data_atualizacao_teste: Date
     _count: TesteCountAggregateOutputType | null
+    _avg: TesteAvgAggregateOutputType | null
+    _sum: TesteSumAggregateOutputType | null
     _min: TesteMinAggregateOutputType | null
     _max: TesteMaxAggregateOutputType | null
   }
@@ -22763,6 +22940,10 @@ export namespace Prisma {
     resultado_teste?: boolean
     duracao_teste?: boolean
     log_erro_teste?: boolean
+    log_sucesso_teste?: boolean
+    pasta_emt_teste?: boolean
+    lista_prints_emt_teste?: boolean
+    quantidade_passos_teste?: boolean
     analise_ia_teste?: boolean
     screenshot_teste?: boolean
     ambiente_teste?: boolean
@@ -22787,6 +22968,10 @@ export namespace Prisma {
     resultado_teste?: boolean
     duracao_teste?: boolean
     log_erro_teste?: boolean
+    log_sucesso_teste?: boolean
+    pasta_emt_teste?: boolean
+    lista_prints_emt_teste?: boolean
+    quantidade_passos_teste?: boolean
     analise_ia_teste?: boolean
     screenshot_teste?: boolean
     ambiente_teste?: boolean
@@ -22811,6 +22996,10 @@ export namespace Prisma {
     resultado_teste?: boolean
     duracao_teste?: boolean
     log_erro_teste?: boolean
+    log_sucesso_teste?: boolean
+    pasta_emt_teste?: boolean
+    lista_prints_emt_teste?: boolean
+    quantidade_passos_teste?: boolean
     analise_ia_teste?: boolean
     screenshot_teste?: boolean
     ambiente_teste?: boolean
@@ -22846,6 +23035,10 @@ export namespace Prisma {
       resultado_teste: string
       duracao_teste: string
       log_erro_teste: string | null
+      log_sucesso_teste: string | null
+      pasta_emt_teste: string | null
+      lista_prints_emt_teste: Prisma.JsonValue | null
+      quantidade_passos_teste: number
       analise_ia_teste: Prisma.JsonValue | null
       screenshot_teste: string | null
       ambiente_teste: string
@@ -23260,6 +23453,10 @@ export namespace Prisma {
     readonly resultado_teste: FieldRef<"Teste", 'String'>
     readonly duracao_teste: FieldRef<"Teste", 'String'>
     readonly log_erro_teste: FieldRef<"Teste", 'String'>
+    readonly log_sucesso_teste: FieldRef<"Teste", 'String'>
+    readonly pasta_emt_teste: FieldRef<"Teste", 'String'>
+    readonly lista_prints_emt_teste: FieldRef<"Teste", 'Json'>
+    readonly quantidade_passos_teste: FieldRef<"Teste", 'Int'>
     readonly analise_ia_teste: FieldRef<"Teste", 'Json'>
     readonly screenshot_teste: FieldRef<"Teste", 'String'>
     readonly ambiente_teste: FieldRef<"Teste", 'String'>
@@ -25818,6 +26015,987 @@ export namespace Prisma {
      * Select specific fields to fetch from the TestePlano
      */
     select?: TestePlanoSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TesteFavoritoUsuario
+   */
+
+  export type AggregateTesteFavoritoUsuario = {
+    _count: TesteFavoritoUsuarioCountAggregateOutputType | null
+    _min: TesteFavoritoUsuarioMinAggregateOutputType | null
+    _max: TesteFavoritoUsuarioMaxAggregateOutputType | null
+  }
+
+  export type TesteFavoritoUsuarioMinAggregateOutputType = {
+    id_teste_favorito_usuario: string | null
+    id_organizacao_teste_favorito_usuario: string | null
+    id_usuario: string | null
+    produto_teste_favorito_usuario: string | null
+    ambiente_teste_favorito_usuario: string | null
+    data_criacao_teste_favorito_usuario: Date | null
+    data_atualizacao_teste_favorito_usuario: Date | null
+  }
+
+  export type TesteFavoritoUsuarioMaxAggregateOutputType = {
+    id_teste_favorito_usuario: string | null
+    id_organizacao_teste_favorito_usuario: string | null
+    id_usuario: string | null
+    produto_teste_favorito_usuario: string | null
+    ambiente_teste_favorito_usuario: string | null
+    data_criacao_teste_favorito_usuario: Date | null
+    data_atualizacao_teste_favorito_usuario: Date | null
+  }
+
+  export type TesteFavoritoUsuarioCountAggregateOutputType = {
+    id_teste_favorito_usuario: number
+    id_organizacao_teste_favorito_usuario: number
+    id_usuario: number
+    produto_teste_favorito_usuario: number
+    ambiente_teste_favorito_usuario: number
+    tipos_teste_favorito_usuario: number
+    planos_ids_teste_favorito_usuario: number
+    planos_resumo_teste_favorito_usuario: number
+    data_criacao_teste_favorito_usuario: number
+    data_atualizacao_teste_favorito_usuario: number
+    _all: number
+  }
+
+
+  export type TesteFavoritoUsuarioMinAggregateInputType = {
+    id_teste_favorito_usuario?: true
+    id_organizacao_teste_favorito_usuario?: true
+    id_usuario?: true
+    produto_teste_favorito_usuario?: true
+    ambiente_teste_favorito_usuario?: true
+    data_criacao_teste_favorito_usuario?: true
+    data_atualizacao_teste_favorito_usuario?: true
+  }
+
+  export type TesteFavoritoUsuarioMaxAggregateInputType = {
+    id_teste_favorito_usuario?: true
+    id_organizacao_teste_favorito_usuario?: true
+    id_usuario?: true
+    produto_teste_favorito_usuario?: true
+    ambiente_teste_favorito_usuario?: true
+    data_criacao_teste_favorito_usuario?: true
+    data_atualizacao_teste_favorito_usuario?: true
+  }
+
+  export type TesteFavoritoUsuarioCountAggregateInputType = {
+    id_teste_favorito_usuario?: true
+    id_organizacao_teste_favorito_usuario?: true
+    id_usuario?: true
+    produto_teste_favorito_usuario?: true
+    ambiente_teste_favorito_usuario?: true
+    tipos_teste_favorito_usuario?: true
+    planos_ids_teste_favorito_usuario?: true
+    planos_resumo_teste_favorito_usuario?: true
+    data_criacao_teste_favorito_usuario?: true
+    data_atualizacao_teste_favorito_usuario?: true
+    _all?: true
+  }
+
+  export type TesteFavoritoUsuarioAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TesteFavoritoUsuario to aggregate.
+     */
+    where?: TesteFavoritoUsuarioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TesteFavoritoUsuarios to fetch.
+     */
+    orderBy?: TesteFavoritoUsuarioOrderByWithRelationInput | TesteFavoritoUsuarioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TesteFavoritoUsuarioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TesteFavoritoUsuarios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TesteFavoritoUsuarios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TesteFavoritoUsuarios
+    **/
+    _count?: true | TesteFavoritoUsuarioCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TesteFavoritoUsuarioMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TesteFavoritoUsuarioMaxAggregateInputType
+  }
+
+  export type GetTesteFavoritoUsuarioAggregateType<T extends TesteFavoritoUsuarioAggregateArgs> = {
+        [P in keyof T & keyof AggregateTesteFavoritoUsuario]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTesteFavoritoUsuario[P]>
+      : GetScalarType<T[P], AggregateTesteFavoritoUsuario[P]>
+  }
+
+
+
+
+  export type TesteFavoritoUsuarioGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TesteFavoritoUsuarioWhereInput
+    orderBy?: TesteFavoritoUsuarioOrderByWithAggregationInput | TesteFavoritoUsuarioOrderByWithAggregationInput[]
+    by: TesteFavoritoUsuarioScalarFieldEnum[] | TesteFavoritoUsuarioScalarFieldEnum
+    having?: TesteFavoritoUsuarioScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TesteFavoritoUsuarioCountAggregateInputType | true
+    _min?: TesteFavoritoUsuarioMinAggregateInputType
+    _max?: TesteFavoritoUsuarioMaxAggregateInputType
+  }
+
+  export type TesteFavoritoUsuarioGroupByOutputType = {
+    id_teste_favorito_usuario: string
+    id_organizacao_teste_favorito_usuario: string
+    id_usuario: string
+    produto_teste_favorito_usuario: string
+    ambiente_teste_favorito_usuario: string
+    tipos_teste_favorito_usuario: string[]
+    planos_ids_teste_favorito_usuario: string[]
+    planos_resumo_teste_favorito_usuario: JsonValue | null
+    data_criacao_teste_favorito_usuario: Date
+    data_atualizacao_teste_favorito_usuario: Date
+    _count: TesteFavoritoUsuarioCountAggregateOutputType | null
+    _min: TesteFavoritoUsuarioMinAggregateOutputType | null
+    _max: TesteFavoritoUsuarioMaxAggregateOutputType | null
+  }
+
+  type GetTesteFavoritoUsuarioGroupByPayload<T extends TesteFavoritoUsuarioGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TesteFavoritoUsuarioGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TesteFavoritoUsuarioGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TesteFavoritoUsuarioGroupByOutputType[P]>
+            : GetScalarType<T[P], TesteFavoritoUsuarioGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TesteFavoritoUsuarioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_teste_favorito_usuario?: boolean
+    id_organizacao_teste_favorito_usuario?: boolean
+    id_usuario?: boolean
+    produto_teste_favorito_usuario?: boolean
+    ambiente_teste_favorito_usuario?: boolean
+    tipos_teste_favorito_usuario?: boolean
+    planos_ids_teste_favorito_usuario?: boolean
+    planos_resumo_teste_favorito_usuario?: boolean
+    data_criacao_teste_favorito_usuario?: boolean
+    data_atualizacao_teste_favorito_usuario?: boolean
+    usuario?: boolean | UsuarioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["testeFavoritoUsuario"]>
+
+  export type TesteFavoritoUsuarioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_teste_favorito_usuario?: boolean
+    id_organizacao_teste_favorito_usuario?: boolean
+    id_usuario?: boolean
+    produto_teste_favorito_usuario?: boolean
+    ambiente_teste_favorito_usuario?: boolean
+    tipos_teste_favorito_usuario?: boolean
+    planos_ids_teste_favorito_usuario?: boolean
+    planos_resumo_teste_favorito_usuario?: boolean
+    data_criacao_teste_favorito_usuario?: boolean
+    data_atualizacao_teste_favorito_usuario?: boolean
+    usuario?: boolean | UsuarioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["testeFavoritoUsuario"]>
+
+  export type TesteFavoritoUsuarioSelectScalar = {
+    id_teste_favorito_usuario?: boolean
+    id_organizacao_teste_favorito_usuario?: boolean
+    id_usuario?: boolean
+    produto_teste_favorito_usuario?: boolean
+    ambiente_teste_favorito_usuario?: boolean
+    tipos_teste_favorito_usuario?: boolean
+    planos_ids_teste_favorito_usuario?: boolean
+    planos_resumo_teste_favorito_usuario?: boolean
+    data_criacao_teste_favorito_usuario?: boolean
+    data_atualizacao_teste_favorito_usuario?: boolean
+  }
+
+  export type TesteFavoritoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    usuario?: boolean | UsuarioDefaultArgs<ExtArgs>
+  }
+  export type TesteFavoritoUsuarioIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    usuario?: boolean | UsuarioDefaultArgs<ExtArgs>
+  }
+
+  export type $TesteFavoritoUsuarioPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TesteFavoritoUsuario"
+    objects: {
+      usuario: Prisma.$UsuarioPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id_teste_favorito_usuario: string
+      id_organizacao_teste_favorito_usuario: string
+      id_usuario: string
+      produto_teste_favorito_usuario: string
+      ambiente_teste_favorito_usuario: string
+      tipos_teste_favorito_usuario: string[]
+      planos_ids_teste_favorito_usuario: string[]
+      planos_resumo_teste_favorito_usuario: Prisma.JsonValue | null
+      data_criacao_teste_favorito_usuario: Date
+      data_atualizacao_teste_favorito_usuario: Date
+    }, ExtArgs["result"]["testeFavoritoUsuario"]>
+    composites: {}
+  }
+
+  type TesteFavoritoUsuarioGetPayload<S extends boolean | null | undefined | TesteFavoritoUsuarioDefaultArgs> = $Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload, S>
+
+  type TesteFavoritoUsuarioCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TesteFavoritoUsuarioFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: TesteFavoritoUsuarioCountAggregateInputType | true
+    }
+
+  export interface TesteFavoritoUsuarioDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TesteFavoritoUsuario'], meta: { name: 'TesteFavoritoUsuario' } }
+    /**
+     * Find zero or one TesteFavoritoUsuario that matches the filter.
+     * @param {TesteFavoritoUsuarioFindUniqueArgs} args - Arguments to find a TesteFavoritoUsuario
+     * @example
+     * // Get one TesteFavoritoUsuario
+     * const testeFavoritoUsuario = await prisma.testeFavoritoUsuario.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TesteFavoritoUsuarioFindUniqueArgs>(args: SelectSubset<T, TesteFavoritoUsuarioFindUniqueArgs<ExtArgs>>): Prisma__TesteFavoritoUsuarioClient<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one TesteFavoritoUsuario that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {TesteFavoritoUsuarioFindUniqueOrThrowArgs} args - Arguments to find a TesteFavoritoUsuario
+     * @example
+     * // Get one TesteFavoritoUsuario
+     * const testeFavoritoUsuario = await prisma.testeFavoritoUsuario.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TesteFavoritoUsuarioFindUniqueOrThrowArgs>(args: SelectSubset<T, TesteFavoritoUsuarioFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TesteFavoritoUsuarioClient<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first TesteFavoritoUsuario that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TesteFavoritoUsuarioFindFirstArgs} args - Arguments to find a TesteFavoritoUsuario
+     * @example
+     * // Get one TesteFavoritoUsuario
+     * const testeFavoritoUsuario = await prisma.testeFavoritoUsuario.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TesteFavoritoUsuarioFindFirstArgs>(args?: SelectSubset<T, TesteFavoritoUsuarioFindFirstArgs<ExtArgs>>): Prisma__TesteFavoritoUsuarioClient<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first TesteFavoritoUsuario that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TesteFavoritoUsuarioFindFirstOrThrowArgs} args - Arguments to find a TesteFavoritoUsuario
+     * @example
+     * // Get one TesteFavoritoUsuario
+     * const testeFavoritoUsuario = await prisma.testeFavoritoUsuario.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TesteFavoritoUsuarioFindFirstOrThrowArgs>(args?: SelectSubset<T, TesteFavoritoUsuarioFindFirstOrThrowArgs<ExtArgs>>): Prisma__TesteFavoritoUsuarioClient<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more TesteFavoritoUsuarios that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TesteFavoritoUsuarioFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TesteFavoritoUsuarios
+     * const testeFavoritoUsuarios = await prisma.testeFavoritoUsuario.findMany()
+     * 
+     * // Get first 10 TesteFavoritoUsuarios
+     * const testeFavoritoUsuarios = await prisma.testeFavoritoUsuario.findMany({ take: 10 })
+     * 
+     * // Only select the `id_teste_favorito_usuario`
+     * const testeFavoritoUsuarioWithId_teste_favorito_usuarioOnly = await prisma.testeFavoritoUsuario.findMany({ select: { id_teste_favorito_usuario: true } })
+     * 
+     */
+    findMany<T extends TesteFavoritoUsuarioFindManyArgs>(args?: SelectSubset<T, TesteFavoritoUsuarioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a TesteFavoritoUsuario.
+     * @param {TesteFavoritoUsuarioCreateArgs} args - Arguments to create a TesteFavoritoUsuario.
+     * @example
+     * // Create one TesteFavoritoUsuario
+     * const TesteFavoritoUsuario = await prisma.testeFavoritoUsuario.create({
+     *   data: {
+     *     // ... data to create a TesteFavoritoUsuario
+     *   }
+     * })
+     * 
+     */
+    create<T extends TesteFavoritoUsuarioCreateArgs>(args: SelectSubset<T, TesteFavoritoUsuarioCreateArgs<ExtArgs>>): Prisma__TesteFavoritoUsuarioClient<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many TesteFavoritoUsuarios.
+     * @param {TesteFavoritoUsuarioCreateManyArgs} args - Arguments to create many TesteFavoritoUsuarios.
+     * @example
+     * // Create many TesteFavoritoUsuarios
+     * const testeFavoritoUsuario = await prisma.testeFavoritoUsuario.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TesteFavoritoUsuarioCreateManyArgs>(args?: SelectSubset<T, TesteFavoritoUsuarioCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TesteFavoritoUsuarios and returns the data saved in the database.
+     * @param {TesteFavoritoUsuarioCreateManyAndReturnArgs} args - Arguments to create many TesteFavoritoUsuarios.
+     * @example
+     * // Create many TesteFavoritoUsuarios
+     * const testeFavoritoUsuario = await prisma.testeFavoritoUsuario.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TesteFavoritoUsuarios and only return the `id_teste_favorito_usuario`
+     * const testeFavoritoUsuarioWithId_teste_favorito_usuarioOnly = await prisma.testeFavoritoUsuario.createManyAndReturn({ 
+     *   select: { id_teste_favorito_usuario: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TesteFavoritoUsuarioCreateManyAndReturnArgs>(args?: SelectSubset<T, TesteFavoritoUsuarioCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a TesteFavoritoUsuario.
+     * @param {TesteFavoritoUsuarioDeleteArgs} args - Arguments to delete one TesteFavoritoUsuario.
+     * @example
+     * // Delete one TesteFavoritoUsuario
+     * const TesteFavoritoUsuario = await prisma.testeFavoritoUsuario.delete({
+     *   where: {
+     *     // ... filter to delete one TesteFavoritoUsuario
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TesteFavoritoUsuarioDeleteArgs>(args: SelectSubset<T, TesteFavoritoUsuarioDeleteArgs<ExtArgs>>): Prisma__TesteFavoritoUsuarioClient<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one TesteFavoritoUsuario.
+     * @param {TesteFavoritoUsuarioUpdateArgs} args - Arguments to update one TesteFavoritoUsuario.
+     * @example
+     * // Update one TesteFavoritoUsuario
+     * const testeFavoritoUsuario = await prisma.testeFavoritoUsuario.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TesteFavoritoUsuarioUpdateArgs>(args: SelectSubset<T, TesteFavoritoUsuarioUpdateArgs<ExtArgs>>): Prisma__TesteFavoritoUsuarioClient<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more TesteFavoritoUsuarios.
+     * @param {TesteFavoritoUsuarioDeleteManyArgs} args - Arguments to filter TesteFavoritoUsuarios to delete.
+     * @example
+     * // Delete a few TesteFavoritoUsuarios
+     * const { count } = await prisma.testeFavoritoUsuario.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TesteFavoritoUsuarioDeleteManyArgs>(args?: SelectSubset<T, TesteFavoritoUsuarioDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TesteFavoritoUsuarios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TesteFavoritoUsuarioUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TesteFavoritoUsuarios
+     * const testeFavoritoUsuario = await prisma.testeFavoritoUsuario.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TesteFavoritoUsuarioUpdateManyArgs>(args: SelectSubset<T, TesteFavoritoUsuarioUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TesteFavoritoUsuario.
+     * @param {TesteFavoritoUsuarioUpsertArgs} args - Arguments to update or create a TesteFavoritoUsuario.
+     * @example
+     * // Update or create a TesteFavoritoUsuario
+     * const testeFavoritoUsuario = await prisma.testeFavoritoUsuario.upsert({
+     *   create: {
+     *     // ... data to create a TesteFavoritoUsuario
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TesteFavoritoUsuario we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TesteFavoritoUsuarioUpsertArgs>(args: SelectSubset<T, TesteFavoritoUsuarioUpsertArgs<ExtArgs>>): Prisma__TesteFavoritoUsuarioClient<$Result.GetResult<Prisma.$TesteFavoritoUsuarioPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of TesteFavoritoUsuarios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TesteFavoritoUsuarioCountArgs} args - Arguments to filter TesteFavoritoUsuarios to count.
+     * @example
+     * // Count the number of TesteFavoritoUsuarios
+     * const count = await prisma.testeFavoritoUsuario.count({
+     *   where: {
+     *     // ... the filter for the TesteFavoritoUsuarios we want to count
+     *   }
+     * })
+    **/
+    count<T extends TesteFavoritoUsuarioCountArgs>(
+      args?: Subset<T, TesteFavoritoUsuarioCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TesteFavoritoUsuarioCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TesteFavoritoUsuario.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TesteFavoritoUsuarioAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TesteFavoritoUsuarioAggregateArgs>(args: Subset<T, TesteFavoritoUsuarioAggregateArgs>): Prisma.PrismaPromise<GetTesteFavoritoUsuarioAggregateType<T>>
+
+    /**
+     * Group by TesteFavoritoUsuario.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TesteFavoritoUsuarioGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TesteFavoritoUsuarioGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TesteFavoritoUsuarioGroupByArgs['orderBy'] }
+        : { orderBy?: TesteFavoritoUsuarioGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TesteFavoritoUsuarioGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTesteFavoritoUsuarioGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TesteFavoritoUsuario model
+   */
+  readonly fields: TesteFavoritoUsuarioFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TesteFavoritoUsuario.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TesteFavoritoUsuarioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    usuario<T extends UsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UsuarioDefaultArgs<ExtArgs>>): Prisma__UsuarioClient<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TesteFavoritoUsuario model
+   */ 
+  interface TesteFavoritoUsuarioFieldRefs {
+    readonly id_teste_favorito_usuario: FieldRef<"TesteFavoritoUsuario", 'String'>
+    readonly id_organizacao_teste_favorito_usuario: FieldRef<"TesteFavoritoUsuario", 'String'>
+    readonly id_usuario: FieldRef<"TesteFavoritoUsuario", 'String'>
+    readonly produto_teste_favorito_usuario: FieldRef<"TesteFavoritoUsuario", 'String'>
+    readonly ambiente_teste_favorito_usuario: FieldRef<"TesteFavoritoUsuario", 'String'>
+    readonly tipos_teste_favorito_usuario: FieldRef<"TesteFavoritoUsuario", 'String[]'>
+    readonly planos_ids_teste_favorito_usuario: FieldRef<"TesteFavoritoUsuario", 'String[]'>
+    readonly planos_resumo_teste_favorito_usuario: FieldRef<"TesteFavoritoUsuario", 'Json'>
+    readonly data_criacao_teste_favorito_usuario: FieldRef<"TesteFavoritoUsuario", 'DateTime'>
+    readonly data_atualizacao_teste_favorito_usuario: FieldRef<"TesteFavoritoUsuario", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TesteFavoritoUsuario findUnique
+   */
+  export type TesteFavoritoUsuarioFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    /**
+     * Filter, which TesteFavoritoUsuario to fetch.
+     */
+    where: TesteFavoritoUsuarioWhereUniqueInput
+  }
+
+  /**
+   * TesteFavoritoUsuario findUniqueOrThrow
+   */
+  export type TesteFavoritoUsuarioFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    /**
+     * Filter, which TesteFavoritoUsuario to fetch.
+     */
+    where: TesteFavoritoUsuarioWhereUniqueInput
+  }
+
+  /**
+   * TesteFavoritoUsuario findFirst
+   */
+  export type TesteFavoritoUsuarioFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    /**
+     * Filter, which TesteFavoritoUsuario to fetch.
+     */
+    where?: TesteFavoritoUsuarioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TesteFavoritoUsuarios to fetch.
+     */
+    orderBy?: TesteFavoritoUsuarioOrderByWithRelationInput | TesteFavoritoUsuarioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TesteFavoritoUsuarios.
+     */
+    cursor?: TesteFavoritoUsuarioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TesteFavoritoUsuarios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TesteFavoritoUsuarios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TesteFavoritoUsuarios.
+     */
+    distinct?: TesteFavoritoUsuarioScalarFieldEnum | TesteFavoritoUsuarioScalarFieldEnum[]
+  }
+
+  /**
+   * TesteFavoritoUsuario findFirstOrThrow
+   */
+  export type TesteFavoritoUsuarioFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    /**
+     * Filter, which TesteFavoritoUsuario to fetch.
+     */
+    where?: TesteFavoritoUsuarioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TesteFavoritoUsuarios to fetch.
+     */
+    orderBy?: TesteFavoritoUsuarioOrderByWithRelationInput | TesteFavoritoUsuarioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TesteFavoritoUsuarios.
+     */
+    cursor?: TesteFavoritoUsuarioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TesteFavoritoUsuarios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TesteFavoritoUsuarios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TesteFavoritoUsuarios.
+     */
+    distinct?: TesteFavoritoUsuarioScalarFieldEnum | TesteFavoritoUsuarioScalarFieldEnum[]
+  }
+
+  /**
+   * TesteFavoritoUsuario findMany
+   */
+  export type TesteFavoritoUsuarioFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    /**
+     * Filter, which TesteFavoritoUsuarios to fetch.
+     */
+    where?: TesteFavoritoUsuarioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TesteFavoritoUsuarios to fetch.
+     */
+    orderBy?: TesteFavoritoUsuarioOrderByWithRelationInput | TesteFavoritoUsuarioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TesteFavoritoUsuarios.
+     */
+    cursor?: TesteFavoritoUsuarioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TesteFavoritoUsuarios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TesteFavoritoUsuarios.
+     */
+    skip?: number
+    distinct?: TesteFavoritoUsuarioScalarFieldEnum | TesteFavoritoUsuarioScalarFieldEnum[]
+  }
+
+  /**
+   * TesteFavoritoUsuario create
+   */
+  export type TesteFavoritoUsuarioCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TesteFavoritoUsuario.
+     */
+    data: XOR<TesteFavoritoUsuarioCreateInput, TesteFavoritoUsuarioUncheckedCreateInput>
+  }
+
+  /**
+   * TesteFavoritoUsuario createMany
+   */
+  export type TesteFavoritoUsuarioCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TesteFavoritoUsuarios.
+     */
+    data: TesteFavoritoUsuarioCreateManyInput | TesteFavoritoUsuarioCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TesteFavoritoUsuario createManyAndReturn
+   */
+  export type TesteFavoritoUsuarioCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many TesteFavoritoUsuarios.
+     */
+    data: TesteFavoritoUsuarioCreateManyInput | TesteFavoritoUsuarioCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TesteFavoritoUsuario update
+   */
+  export type TesteFavoritoUsuarioUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TesteFavoritoUsuario.
+     */
+    data: XOR<TesteFavoritoUsuarioUpdateInput, TesteFavoritoUsuarioUncheckedUpdateInput>
+    /**
+     * Choose, which TesteFavoritoUsuario to update.
+     */
+    where: TesteFavoritoUsuarioWhereUniqueInput
+  }
+
+  /**
+   * TesteFavoritoUsuario updateMany
+   */
+  export type TesteFavoritoUsuarioUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TesteFavoritoUsuarios.
+     */
+    data: XOR<TesteFavoritoUsuarioUpdateManyMutationInput, TesteFavoritoUsuarioUncheckedUpdateManyInput>
+    /**
+     * Filter which TesteFavoritoUsuarios to update
+     */
+    where?: TesteFavoritoUsuarioWhereInput
+  }
+
+  /**
+   * TesteFavoritoUsuario upsert
+   */
+  export type TesteFavoritoUsuarioUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TesteFavoritoUsuario to update in case it exists.
+     */
+    where: TesteFavoritoUsuarioWhereUniqueInput
+    /**
+     * In case the TesteFavoritoUsuario found by the `where` argument doesn't exist, create a new TesteFavoritoUsuario with this data.
+     */
+    create: XOR<TesteFavoritoUsuarioCreateInput, TesteFavoritoUsuarioUncheckedCreateInput>
+    /**
+     * In case the TesteFavoritoUsuario was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TesteFavoritoUsuarioUpdateInput, TesteFavoritoUsuarioUncheckedUpdateInput>
+  }
+
+  /**
+   * TesteFavoritoUsuario delete
+   */
+  export type TesteFavoritoUsuarioDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
+    /**
+     * Filter which TesteFavoritoUsuario to delete.
+     */
+    where: TesteFavoritoUsuarioWhereUniqueInput
+  }
+
+  /**
+   * TesteFavoritoUsuario deleteMany
+   */
+  export type TesteFavoritoUsuarioDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TesteFavoritoUsuarios to delete
+     */
+    where?: TesteFavoritoUsuarioWhereInput
+  }
+
+  /**
+   * TesteFavoritoUsuario without action
+   */
+  export type TesteFavoritoUsuarioDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteFavoritoUsuario
+     */
+    select?: TesteFavoritoUsuarioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteFavoritoUsuarioInclude<ExtArgs> | null
   }
 
 
@@ -33269,6 +34447,10 @@ export namespace Prisma {
     resultado_teste: 'resultado_teste',
     duracao_teste: 'duracao_teste',
     log_erro_teste: 'log_erro_teste',
+    log_sucesso_teste: 'log_sucesso_teste',
+    pasta_emt_teste: 'pasta_emt_teste',
+    lista_prints_emt_teste: 'lista_prints_emt_teste',
+    quantidade_passos_teste: 'quantidade_passos_teste',
     analise_ia_teste: 'analise_ia_teste',
     screenshot_teste: 'screenshot_teste',
     ambiente_teste: 'ambiente_teste',
@@ -33329,6 +34511,22 @@ export namespace Prisma {
   };
 
   export type TestePlanoScalarFieldEnum = (typeof TestePlanoScalarFieldEnum)[keyof typeof TestePlanoScalarFieldEnum]
+
+
+  export const TesteFavoritoUsuarioScalarFieldEnum: {
+    id_teste_favorito_usuario: 'id_teste_favorito_usuario',
+    id_organizacao_teste_favorito_usuario: 'id_organizacao_teste_favorito_usuario',
+    id_usuario: 'id_usuario',
+    produto_teste_favorito_usuario: 'produto_teste_favorito_usuario',
+    ambiente_teste_favorito_usuario: 'ambiente_teste_favorito_usuario',
+    tipos_teste_favorito_usuario: 'tipos_teste_favorito_usuario',
+    planos_ids_teste_favorito_usuario: 'planos_ids_teste_favorito_usuario',
+    planos_resumo_teste_favorito_usuario: 'planos_resumo_teste_favorito_usuario',
+    data_criacao_teste_favorito_usuario: 'data_criacao_teste_favorito_usuario',
+    data_atualizacao_teste_favorito_usuario: 'data_atualizacao_teste_favorito_usuario'
+  };
+
+  export type TesteFavoritoUsuarioScalarFieldEnum = (typeof TesteFavoritoUsuarioScalarFieldEnum)[keyof typeof TesteFavoritoUsuarioScalarFieldEnum]
 
 
   export const ProdutoGravityFaturaScalarFieldEnum: {
@@ -33909,6 +35107,7 @@ export namespace Prisma {
     preferred_company?: XOR<WorkspaceNullableRelationFilter, WorkspaceWhereInput> | null
     user_permissions?: UsuarioPermissaoListRelationFilter
     memberships?: UsuarioWorkspaceListRelationFilter
+    testes_favoritos?: TesteFavoritoUsuarioListRelationFilter
   }
 
   export type UsuarioOrderByWithRelationInput = {
@@ -33927,6 +35126,7 @@ export namespace Prisma {
     preferred_company?: WorkspaceOrderByWithRelationInput
     user_permissions?: UsuarioPermissaoOrderByRelationAggregateInput
     memberships?: UsuarioWorkspaceOrderByRelationAggregateInput
+    testes_favoritos?: TesteFavoritoUsuarioOrderByRelationAggregateInput
   }
 
   export type UsuarioWhereUniqueInput = Prisma.AtLeast<{
@@ -33949,6 +35149,7 @@ export namespace Prisma {
     preferred_company?: XOR<WorkspaceNullableRelationFilter, WorkspaceWhereInput> | null
     user_permissions?: UsuarioPermissaoListRelationFilter
     memberships?: UsuarioWorkspaceListRelationFilter
+    testes_favoritos?: TesteFavoritoUsuarioListRelationFilter
   }, "id_usuario" | "id_clerk_usuario" | "id_organizacao_email_usuario">
 
   export type UsuarioOrderByWithAggregationInput = {
@@ -35500,6 +36701,10 @@ export namespace Prisma {
     resultado_teste?: StringFilter<"Teste"> | string
     duracao_teste?: StringFilter<"Teste"> | string
     log_erro_teste?: StringNullableFilter<"Teste"> | string | null
+    log_sucesso_teste?: StringNullableFilter<"Teste"> | string | null
+    pasta_emt_teste?: StringNullableFilter<"Teste"> | string | null
+    lista_prints_emt_teste?: JsonNullableFilter<"Teste">
+    quantidade_passos_teste?: IntFilter<"Teste"> | number
     analise_ia_teste?: JsonNullableFilter<"Teste">
     screenshot_teste?: StringNullableFilter<"Teste"> | string | null
     ambiente_teste?: StringFilter<"Teste"> | string
@@ -35524,6 +36729,10 @@ export namespace Prisma {
     resultado_teste?: SortOrder
     duracao_teste?: SortOrder
     log_erro_teste?: SortOrderInput | SortOrder
+    log_sucesso_teste?: SortOrderInput | SortOrder
+    pasta_emt_teste?: SortOrderInput | SortOrder
+    lista_prints_emt_teste?: SortOrderInput | SortOrder
+    quantidade_passos_teste?: SortOrder
     analise_ia_teste?: SortOrderInput | SortOrder
     screenshot_teste?: SortOrderInput | SortOrder
     ambiente_teste?: SortOrder
@@ -35551,6 +36760,10 @@ export namespace Prisma {
     resultado_teste?: StringFilter<"Teste"> | string
     duracao_teste?: StringFilter<"Teste"> | string
     log_erro_teste?: StringNullableFilter<"Teste"> | string | null
+    log_sucesso_teste?: StringNullableFilter<"Teste"> | string | null
+    pasta_emt_teste?: StringNullableFilter<"Teste"> | string | null
+    lista_prints_emt_teste?: JsonNullableFilter<"Teste">
+    quantidade_passos_teste?: IntFilter<"Teste"> | number
     analise_ia_teste?: JsonNullableFilter<"Teste">
     screenshot_teste?: StringNullableFilter<"Teste"> | string | null
     ambiente_teste?: StringFilter<"Teste"> | string
@@ -35575,6 +36788,10 @@ export namespace Prisma {
     resultado_teste?: SortOrder
     duracao_teste?: SortOrder
     log_erro_teste?: SortOrderInput | SortOrder
+    log_sucesso_teste?: SortOrderInput | SortOrder
+    pasta_emt_teste?: SortOrderInput | SortOrder
+    lista_prints_emt_teste?: SortOrderInput | SortOrder
+    quantidade_passos_teste?: SortOrder
     analise_ia_teste?: SortOrderInput | SortOrder
     screenshot_teste?: SortOrderInput | SortOrder
     ambiente_teste?: SortOrder
@@ -35584,8 +36801,10 @@ export namespace Prisma {
     data_criacao_teste?: SortOrder
     data_atualizacao_teste?: SortOrder
     _count?: TesteCountOrderByAggregateInput
+    _avg?: TesteAvgOrderByAggregateInput
     _max?: TesteMaxOrderByAggregateInput
     _min?: TesteMinOrderByAggregateInput
+    _sum?: TesteSumOrderByAggregateInput
   }
 
   export type TesteScalarWhereWithAggregatesInput = {
@@ -35604,6 +36823,10 @@ export namespace Prisma {
     resultado_teste?: StringWithAggregatesFilter<"Teste"> | string
     duracao_teste?: StringWithAggregatesFilter<"Teste"> | string
     log_erro_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    log_sucesso_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    pasta_emt_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    lista_prints_emt_teste?: JsonNullableWithAggregatesFilter<"Teste">
+    quantidade_passos_teste?: IntWithAggregatesFilter<"Teste"> | number
     analise_ia_teste?: JsonNullableWithAggregatesFilter<"Teste">
     screenshot_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
     ambiente_teste?: StringWithAggregatesFilter<"Teste"> | string
@@ -35858,6 +37081,86 @@ export namespace Prisma {
     ultimo_resultado_plano_teste?: StringNullableWithAggregatesFilter<"TestePlano"> | string | null
     data_criacao_plano_teste?: DateTimeWithAggregatesFilter<"TestePlano"> | Date | string
     data_atualizacao_plano_teste?: DateTimeWithAggregatesFilter<"TestePlano"> | Date | string
+  }
+
+  export type TesteFavoritoUsuarioWhereInput = {
+    AND?: TesteFavoritoUsuarioWhereInput | TesteFavoritoUsuarioWhereInput[]
+    OR?: TesteFavoritoUsuarioWhereInput[]
+    NOT?: TesteFavoritoUsuarioWhereInput | TesteFavoritoUsuarioWhereInput[]
+    id_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    id_organizacao_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    id_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    produto_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    ambiente_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    tipos_teste_favorito_usuario?: StringNullableListFilter<"TesteFavoritoUsuario">
+    planos_ids_teste_favorito_usuario?: StringNullableListFilter<"TesteFavoritoUsuario">
+    planos_resumo_teste_favorito_usuario?: JsonNullableFilter<"TesteFavoritoUsuario">
+    data_criacao_teste_favorito_usuario?: DateTimeFilter<"TesteFavoritoUsuario"> | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFilter<"TesteFavoritoUsuario"> | Date | string
+    usuario?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
+  }
+
+  export type TesteFavoritoUsuarioOrderByWithRelationInput = {
+    id_teste_favorito_usuario?: SortOrder
+    id_organizacao_teste_favorito_usuario?: SortOrder
+    id_usuario?: SortOrder
+    produto_teste_favorito_usuario?: SortOrder
+    ambiente_teste_favorito_usuario?: SortOrder
+    tipos_teste_favorito_usuario?: SortOrder
+    planos_ids_teste_favorito_usuario?: SortOrder
+    planos_resumo_teste_favorito_usuario?: SortOrderInput | SortOrder
+    data_criacao_teste_favorito_usuario?: SortOrder
+    data_atualizacao_teste_favorito_usuario?: SortOrder
+    usuario?: UsuarioOrderByWithRelationInput
+  }
+
+  export type TesteFavoritoUsuarioWhereUniqueInput = Prisma.AtLeast<{
+    id_teste_favorito_usuario?: string
+    AND?: TesteFavoritoUsuarioWhereInput | TesteFavoritoUsuarioWhereInput[]
+    OR?: TesteFavoritoUsuarioWhereInput[]
+    NOT?: TesteFavoritoUsuarioWhereInput | TesteFavoritoUsuarioWhereInput[]
+    id_organizacao_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    id_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    produto_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    ambiente_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    tipos_teste_favorito_usuario?: StringNullableListFilter<"TesteFavoritoUsuario">
+    planos_ids_teste_favorito_usuario?: StringNullableListFilter<"TesteFavoritoUsuario">
+    planos_resumo_teste_favorito_usuario?: JsonNullableFilter<"TesteFavoritoUsuario">
+    data_criacao_teste_favorito_usuario?: DateTimeFilter<"TesteFavoritoUsuario"> | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFilter<"TesteFavoritoUsuario"> | Date | string
+    usuario?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
+  }, "id_teste_favorito_usuario">
+
+  export type TesteFavoritoUsuarioOrderByWithAggregationInput = {
+    id_teste_favorito_usuario?: SortOrder
+    id_organizacao_teste_favorito_usuario?: SortOrder
+    id_usuario?: SortOrder
+    produto_teste_favorito_usuario?: SortOrder
+    ambiente_teste_favorito_usuario?: SortOrder
+    tipos_teste_favorito_usuario?: SortOrder
+    planos_ids_teste_favorito_usuario?: SortOrder
+    planos_resumo_teste_favorito_usuario?: SortOrderInput | SortOrder
+    data_criacao_teste_favorito_usuario?: SortOrder
+    data_atualizacao_teste_favorito_usuario?: SortOrder
+    _count?: TesteFavoritoUsuarioCountOrderByAggregateInput
+    _max?: TesteFavoritoUsuarioMaxOrderByAggregateInput
+    _min?: TesteFavoritoUsuarioMinOrderByAggregateInput
+  }
+
+  export type TesteFavoritoUsuarioScalarWhereWithAggregatesInput = {
+    AND?: TesteFavoritoUsuarioScalarWhereWithAggregatesInput | TesteFavoritoUsuarioScalarWhereWithAggregatesInput[]
+    OR?: TesteFavoritoUsuarioScalarWhereWithAggregatesInput[]
+    NOT?: TesteFavoritoUsuarioScalarWhereWithAggregatesInput | TesteFavoritoUsuarioScalarWhereWithAggregatesInput[]
+    id_teste_favorito_usuario?: StringWithAggregatesFilter<"TesteFavoritoUsuario"> | string
+    id_organizacao_teste_favorito_usuario?: StringWithAggregatesFilter<"TesteFavoritoUsuario"> | string
+    id_usuario?: StringWithAggregatesFilter<"TesteFavoritoUsuario"> | string
+    produto_teste_favorito_usuario?: StringWithAggregatesFilter<"TesteFavoritoUsuario"> | string
+    ambiente_teste_favorito_usuario?: StringWithAggregatesFilter<"TesteFavoritoUsuario"> | string
+    tipos_teste_favorito_usuario?: StringNullableListFilter<"TesteFavoritoUsuario">
+    planos_ids_teste_favorito_usuario?: StringNullableListFilter<"TesteFavoritoUsuario">
+    planos_resumo_teste_favorito_usuario?: JsonNullableWithAggregatesFilter<"TesteFavoritoUsuario">
+    data_criacao_teste_favorito_usuario?: DateTimeWithAggregatesFilter<"TesteFavoritoUsuario"> | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeWithAggregatesFilter<"TesteFavoritoUsuario"> | Date | string
   }
 
   export type ProdutoGravityFaturaWhereInput = {
@@ -36612,6 +37915,7 @@ export namespace Prisma {
     preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateInput = {
@@ -36628,6 +37932,7 @@ export namespace Prisma {
     data_atualizacao_usuario?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUpdateInput = {
@@ -36644,6 +37949,7 @@ export namespace Prisma {
     preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateInput = {
@@ -36660,6 +37966,7 @@ export namespace Prisma {
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioCreateManyInput = {
@@ -38441,6 +39748,10 @@ export namespace Prisma {
     resultado_teste: string
     duracao_teste: string
     log_erro_teste?: string | null
+    log_sucesso_teste?: string | null
+    pasta_emt_teste?: string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: string | null
     ambiente_teste?: string
@@ -38465,6 +39776,10 @@ export namespace Prisma {
     resultado_teste: string
     duracao_teste: string
     log_erro_teste?: string | null
+    log_sucesso_teste?: string | null
+    pasta_emt_teste?: string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: string | null
     ambiente_teste?: string
@@ -38487,6 +39802,10 @@ export namespace Prisma {
     resultado_teste?: StringFieldUpdateOperationsInput | string
     duracao_teste?: StringFieldUpdateOperationsInput | string
     log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    log_sucesso_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    pasta_emt_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: IntFieldUpdateOperationsInput | number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
     ambiente_teste?: StringFieldUpdateOperationsInput | string
@@ -38511,6 +39830,10 @@ export namespace Prisma {
     resultado_teste?: StringFieldUpdateOperationsInput | string
     duracao_teste?: StringFieldUpdateOperationsInput | string
     log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    log_sucesso_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    pasta_emt_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: IntFieldUpdateOperationsInput | number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
     ambiente_teste?: StringFieldUpdateOperationsInput | string
@@ -38534,6 +39857,10 @@ export namespace Prisma {
     resultado_teste: string
     duracao_teste: string
     log_erro_teste?: string | null
+    log_sucesso_teste?: string | null
+    pasta_emt_teste?: string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: string | null
     ambiente_teste?: string
@@ -38556,6 +39883,10 @@ export namespace Prisma {
     resultado_teste?: StringFieldUpdateOperationsInput | string
     duracao_teste?: StringFieldUpdateOperationsInput | string
     log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    log_sucesso_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    pasta_emt_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: IntFieldUpdateOperationsInput | number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
     ambiente_teste?: StringFieldUpdateOperationsInput | string
@@ -38579,6 +39910,10 @@ export namespace Prisma {
     resultado_teste?: StringFieldUpdateOperationsInput | string
     duracao_teste?: StringFieldUpdateOperationsInput | string
     log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    log_sucesso_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    pasta_emt_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: IntFieldUpdateOperationsInput | number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
     ambiente_teste?: StringFieldUpdateOperationsInput | string
@@ -38892,6 +40227,96 @@ export namespace Prisma {
     ultimo_resultado_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteFavoritoUsuarioCreateInput = {
+    id_teste_favorito_usuario?: string
+    id_organizacao_teste_favorito_usuario?: string
+    produto_teste_favorito_usuario: string
+    ambiente_teste_favorito_usuario?: string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioCreatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioCreateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: Date | string
+    data_atualizacao_teste_favorito_usuario?: Date | string
+    usuario: UsuarioCreateNestedOneWithoutTestes_favoritosInput
+  }
+
+  export type TesteFavoritoUsuarioUncheckedCreateInput = {
+    id_teste_favorito_usuario?: string
+    id_organizacao_teste_favorito_usuario?: string
+    id_usuario: string
+    produto_teste_favorito_usuario: string
+    ambiente_teste_favorito_usuario?: string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioCreatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioCreateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: Date | string
+    data_atualizacao_teste_favorito_usuario?: Date | string
+  }
+
+  export type TesteFavoritoUsuarioUpdateInput = {
+    id_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    produto_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    ambiente_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioUpdatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioUpdateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    usuario?: UsuarioUpdateOneRequiredWithoutTestes_favoritosNestedInput
+  }
+
+  export type TesteFavoritoUsuarioUncheckedUpdateInput = {
+    id_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    produto_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    ambiente_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioUpdatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioUpdateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteFavoritoUsuarioCreateManyInput = {
+    id_teste_favorito_usuario?: string
+    id_organizacao_teste_favorito_usuario?: string
+    id_usuario: string
+    produto_teste_favorito_usuario: string
+    ambiente_teste_favorito_usuario?: string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioCreatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioCreateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: Date | string
+    data_atualizacao_teste_favorito_usuario?: Date | string
+  }
+
+  export type TesteFavoritoUsuarioUpdateManyMutationInput = {
+    id_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    produto_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    ambiente_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioUpdatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioUpdateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteFavoritoUsuarioUncheckedUpdateManyInput = {
+    id_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    produto_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    ambiente_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioUpdatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioUpdateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityFaturaCreateInput = {
@@ -39837,7 +41262,17 @@ export namespace Prisma {
     none?: UsuarioWorkspaceWhereInput
   }
 
+  export type TesteFavoritoUsuarioListRelationFilter = {
+    every?: TesteFavoritoUsuarioWhereInput
+    some?: TesteFavoritoUsuarioWhereInput
+    none?: TesteFavoritoUsuarioWhereInput
+  }
+
   export type UsuarioWorkspaceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TesteFavoritoUsuarioOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -41195,6 +42630,10 @@ export namespace Prisma {
     resultado_teste?: SortOrder
     duracao_teste?: SortOrder
     log_erro_teste?: SortOrder
+    log_sucesso_teste?: SortOrder
+    pasta_emt_teste?: SortOrder
+    lista_prints_emt_teste?: SortOrder
+    quantidade_passos_teste?: SortOrder
     analise_ia_teste?: SortOrder
     screenshot_teste?: SortOrder
     ambiente_teste?: SortOrder
@@ -41203,6 +42642,10 @@ export namespace Prisma {
     gatilho_teste?: SortOrder
     data_criacao_teste?: SortOrder
     data_atualizacao_teste?: SortOrder
+  }
+
+  export type TesteAvgOrderByAggregateInput = {
+    quantidade_passos_teste?: SortOrder
   }
 
   export type TesteMaxOrderByAggregateInput = {
@@ -41218,6 +42661,9 @@ export namespace Prisma {
     resultado_teste?: SortOrder
     duracao_teste?: SortOrder
     log_erro_teste?: SortOrder
+    log_sucesso_teste?: SortOrder
+    pasta_emt_teste?: SortOrder
+    quantidade_passos_teste?: SortOrder
     screenshot_teste?: SortOrder
     ambiente_teste?: SortOrder
     id_execucao_teste?: SortOrder
@@ -41240,6 +42686,9 @@ export namespace Prisma {
     resultado_teste?: SortOrder
     duracao_teste?: SortOrder
     log_erro_teste?: SortOrder
+    log_sucesso_teste?: SortOrder
+    pasta_emt_teste?: SortOrder
+    quantidade_passos_teste?: SortOrder
     screenshot_teste?: SortOrder
     ambiente_teste?: SortOrder
     id_execucao_teste?: SortOrder
@@ -41247,6 +42696,10 @@ export namespace Prisma {
     gatilho_teste?: SortOrder
     data_criacao_teste?: SortOrder
     data_atualizacao_teste?: SortOrder
+  }
+
+  export type TesteSumOrderByAggregateInput = {
+    quantidade_passos_teste?: SortOrder
   }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
@@ -41404,6 +42857,39 @@ export namespace Prisma {
   export type TestePlanoSumOrderByAggregateInput = {
     cobertura_pct_plano_teste?: SortOrder
     passos_total_plano_teste?: SortOrder
+  }
+
+  export type TesteFavoritoUsuarioCountOrderByAggregateInput = {
+    id_teste_favorito_usuario?: SortOrder
+    id_organizacao_teste_favorito_usuario?: SortOrder
+    id_usuario?: SortOrder
+    produto_teste_favorito_usuario?: SortOrder
+    ambiente_teste_favorito_usuario?: SortOrder
+    tipos_teste_favorito_usuario?: SortOrder
+    planos_ids_teste_favorito_usuario?: SortOrder
+    planos_resumo_teste_favorito_usuario?: SortOrder
+    data_criacao_teste_favorito_usuario?: SortOrder
+    data_atualizacao_teste_favorito_usuario?: SortOrder
+  }
+
+  export type TesteFavoritoUsuarioMaxOrderByAggregateInput = {
+    id_teste_favorito_usuario?: SortOrder
+    id_organizacao_teste_favorito_usuario?: SortOrder
+    id_usuario?: SortOrder
+    produto_teste_favorito_usuario?: SortOrder
+    ambiente_teste_favorito_usuario?: SortOrder
+    data_criacao_teste_favorito_usuario?: SortOrder
+    data_atualizacao_teste_favorito_usuario?: SortOrder
+  }
+
+  export type TesteFavoritoUsuarioMinOrderByAggregateInput = {
+    id_teste_favorito_usuario?: SortOrder
+    id_organizacao_teste_favorito_usuario?: SortOrder
+    id_usuario?: SortOrder
+    produto_teste_favorito_usuario?: SortOrder
+    ambiente_teste_favorito_usuario?: SortOrder
+    data_criacao_teste_favorito_usuario?: SortOrder
+    data_atualizacao_teste_favorito_usuario?: SortOrder
   }
 
   export type EnumStatusFaturaProdutoGravityFilter<$PrismaModel = never> = {
@@ -42226,6 +43712,13 @@ export namespace Prisma {
     connect?: UsuarioWorkspaceWhereUniqueInput | UsuarioWorkspaceWhereUniqueInput[]
   }
 
+  export type TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput = {
+    create?: XOR<TesteFavoritoUsuarioCreateWithoutUsuarioInput, TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput> | TesteFavoritoUsuarioCreateWithoutUsuarioInput[] | TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput[]
+    connectOrCreate?: TesteFavoritoUsuarioCreateOrConnectWithoutUsuarioInput | TesteFavoritoUsuarioCreateOrConnectWithoutUsuarioInput[]
+    createMany?: TesteFavoritoUsuarioCreateManyUsuarioInputEnvelope
+    connect?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
+  }
+
   export type UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<UsuarioPermissaoCreateWithoutUserInput, UsuarioPermissaoUncheckedCreateWithoutUserInput> | UsuarioPermissaoCreateWithoutUserInput[] | UsuarioPermissaoUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UsuarioPermissaoCreateOrConnectWithoutUserInput | UsuarioPermissaoCreateOrConnectWithoutUserInput[]
@@ -42238,6 +43731,13 @@ export namespace Prisma {
     connectOrCreate?: UsuarioWorkspaceCreateOrConnectWithoutUserInput | UsuarioWorkspaceCreateOrConnectWithoutUserInput[]
     createMany?: UsuarioWorkspaceCreateManyUserInputEnvelope
     connect?: UsuarioWorkspaceWhereUniqueInput | UsuarioWorkspaceWhereUniqueInput[]
+  }
+
+  export type TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput = {
+    create?: XOR<TesteFavoritoUsuarioCreateWithoutUsuarioInput, TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput> | TesteFavoritoUsuarioCreateWithoutUsuarioInput[] | TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput[]
+    connectOrCreate?: TesteFavoritoUsuarioCreateOrConnectWithoutUsuarioInput | TesteFavoritoUsuarioCreateOrConnectWithoutUsuarioInput[]
+    createMany?: TesteFavoritoUsuarioCreateManyUsuarioInputEnvelope
+    connect?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
   }
 
   export type EnumUsuarioTipoFieldUpdateOperationsInput = {
@@ -42294,6 +43794,20 @@ export namespace Prisma {
     deleteMany?: UsuarioWorkspaceScalarWhereInput | UsuarioWorkspaceScalarWhereInput[]
   }
 
+  export type TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput = {
+    create?: XOR<TesteFavoritoUsuarioCreateWithoutUsuarioInput, TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput> | TesteFavoritoUsuarioCreateWithoutUsuarioInput[] | TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput[]
+    connectOrCreate?: TesteFavoritoUsuarioCreateOrConnectWithoutUsuarioInput | TesteFavoritoUsuarioCreateOrConnectWithoutUsuarioInput[]
+    upsert?: TesteFavoritoUsuarioUpsertWithWhereUniqueWithoutUsuarioInput | TesteFavoritoUsuarioUpsertWithWhereUniqueWithoutUsuarioInput[]
+    createMany?: TesteFavoritoUsuarioCreateManyUsuarioInputEnvelope
+    set?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
+    disconnect?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
+    delete?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
+    connect?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
+    update?: TesteFavoritoUsuarioUpdateWithWhereUniqueWithoutUsuarioInput | TesteFavoritoUsuarioUpdateWithWhereUniqueWithoutUsuarioInput[]
+    updateMany?: TesteFavoritoUsuarioUpdateManyWithWhereWithoutUsuarioInput | TesteFavoritoUsuarioUpdateManyWithWhereWithoutUsuarioInput[]
+    deleteMany?: TesteFavoritoUsuarioScalarWhereInput | TesteFavoritoUsuarioScalarWhereInput[]
+  }
+
   export type UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<UsuarioPermissaoCreateWithoutUserInput, UsuarioPermissaoUncheckedCreateWithoutUserInput> | UsuarioPermissaoCreateWithoutUserInput[] | UsuarioPermissaoUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UsuarioPermissaoCreateOrConnectWithoutUserInput | UsuarioPermissaoCreateOrConnectWithoutUserInput[]
@@ -42320,6 +43834,20 @@ export namespace Prisma {
     update?: UsuarioWorkspaceUpdateWithWhereUniqueWithoutUserInput | UsuarioWorkspaceUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: UsuarioWorkspaceUpdateManyWithWhereWithoutUserInput | UsuarioWorkspaceUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: UsuarioWorkspaceScalarWhereInput | UsuarioWorkspaceScalarWhereInput[]
+  }
+
+  export type TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput = {
+    create?: XOR<TesteFavoritoUsuarioCreateWithoutUsuarioInput, TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput> | TesteFavoritoUsuarioCreateWithoutUsuarioInput[] | TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput[]
+    connectOrCreate?: TesteFavoritoUsuarioCreateOrConnectWithoutUsuarioInput | TesteFavoritoUsuarioCreateOrConnectWithoutUsuarioInput[]
+    upsert?: TesteFavoritoUsuarioUpsertWithWhereUniqueWithoutUsuarioInput | TesteFavoritoUsuarioUpsertWithWhereUniqueWithoutUsuarioInput[]
+    createMany?: TesteFavoritoUsuarioCreateManyUsuarioInputEnvelope
+    set?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
+    disconnect?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
+    delete?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
+    connect?: TesteFavoritoUsuarioWhereUniqueInput | TesteFavoritoUsuarioWhereUniqueInput[]
+    update?: TesteFavoritoUsuarioUpdateWithWhereUniqueWithoutUsuarioInput | TesteFavoritoUsuarioUpdateWithWhereUniqueWithoutUsuarioInput[]
+    updateMany?: TesteFavoritoUsuarioUpdateManyWithWhereWithoutUsuarioInput | TesteFavoritoUsuarioUpdateManyWithWhereWithoutUsuarioInput[]
+    deleteMany?: TesteFavoritoUsuarioScalarWhereInput | TesteFavoritoUsuarioScalarWhereInput[]
   }
 
   export type OrganizacaoCreateNestedOneWithoutSubscriptions_organizacaoInput = {
@@ -42982,6 +44510,38 @@ export namespace Prisma {
   export type TestePlanoUpdateambientes_plano_testeInput = {
     set?: string[]
     push?: string | string[]
+  }
+
+  export type TesteFavoritoUsuarioCreatetipos_teste_favorito_usuarioInput = {
+    set: string[]
+  }
+
+  export type TesteFavoritoUsuarioCreateplanos_ids_teste_favorito_usuarioInput = {
+    set: string[]
+  }
+
+  export type UsuarioCreateNestedOneWithoutTestes_favoritosInput = {
+    create?: XOR<UsuarioCreateWithoutTestes_favoritosInput, UsuarioUncheckedCreateWithoutTestes_favoritosInput>
+    connectOrCreate?: UsuarioCreateOrConnectWithoutTestes_favoritosInput
+    connect?: UsuarioWhereUniqueInput
+  }
+
+  export type TesteFavoritoUsuarioUpdatetipos_teste_favorito_usuarioInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type TesteFavoritoUsuarioUpdateplanos_ids_teste_favorito_usuarioInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type UsuarioUpdateOneRequiredWithoutTestes_favoritosNestedInput = {
+    create?: XOR<UsuarioCreateWithoutTestes_favoritosInput, UsuarioUncheckedCreateWithoutTestes_favoritosInput>
+    connectOrCreate?: UsuarioCreateOrConnectWithoutTestes_favoritosInput
+    upsert?: UsuarioUpsertWithoutTestes_favoritosInput
+    connect?: UsuarioWhereUniqueInput
+    update?: XOR<XOR<UsuarioUpdateToOneWithWhereWithoutTestes_favoritosInput, UsuarioUpdateWithoutTestes_favoritosInput>, UsuarioUncheckedUpdateWithoutTestes_favoritosInput>
   }
 
   export type ProdutoGravityFaturaItemCreateNestedManyWithoutFaturaInput = {
@@ -43713,6 +45273,7 @@ export namespace Prisma {
     preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutTenantInput = {
@@ -43728,6 +45289,7 @@ export namespace Prisma {
     data_atualizacao_usuario?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutTenantInput = {
@@ -44472,6 +46034,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TesteFavoritoUsuarioCreateWithoutUsuarioInput = {
+    id_teste_favorito_usuario?: string
+    id_organizacao_teste_favorito_usuario?: string
+    produto_teste_favorito_usuario: string
+    ambiente_teste_favorito_usuario?: string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioCreatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioCreateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: Date | string
+    data_atualizacao_teste_favorito_usuario?: Date | string
+  }
+
+  export type TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput = {
+    id_teste_favorito_usuario?: string
+    id_organizacao_teste_favorito_usuario?: string
+    produto_teste_favorito_usuario: string
+    ambiente_teste_favorito_usuario?: string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioCreatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioCreateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: Date | string
+    data_atualizacao_teste_favorito_usuario?: Date | string
+  }
+
+  export type TesteFavoritoUsuarioCreateOrConnectWithoutUsuarioInput = {
+    where: TesteFavoritoUsuarioWhereUniqueInput
+    create: XOR<TesteFavoritoUsuarioCreateWithoutUsuarioInput, TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput>
+  }
+
+  export type TesteFavoritoUsuarioCreateManyUsuarioInputEnvelope = {
+    data: TesteFavoritoUsuarioCreateManyUsuarioInput | TesteFavoritoUsuarioCreateManyUsuarioInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrganizacaoUpsertWithoutUsers_organizacaoInput = {
     update: XOR<OrganizacaoUpdateWithoutUsers_organizacaoInput, OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput>
     create: XOR<OrganizacaoCreateWithoutUsers_organizacaoInput, OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput>
@@ -44624,6 +46220,38 @@ export namespace Prisma {
     ativo_usuario_workspace?: BoolFilter<"UsuarioWorkspace"> | boolean
     data_criacao_usuario_workspace?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     data_atualizacao_usuario_workspace?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
+  }
+
+  export type TesteFavoritoUsuarioUpsertWithWhereUniqueWithoutUsuarioInput = {
+    where: TesteFavoritoUsuarioWhereUniqueInput
+    update: XOR<TesteFavoritoUsuarioUpdateWithoutUsuarioInput, TesteFavoritoUsuarioUncheckedUpdateWithoutUsuarioInput>
+    create: XOR<TesteFavoritoUsuarioCreateWithoutUsuarioInput, TesteFavoritoUsuarioUncheckedCreateWithoutUsuarioInput>
+  }
+
+  export type TesteFavoritoUsuarioUpdateWithWhereUniqueWithoutUsuarioInput = {
+    where: TesteFavoritoUsuarioWhereUniqueInput
+    data: XOR<TesteFavoritoUsuarioUpdateWithoutUsuarioInput, TesteFavoritoUsuarioUncheckedUpdateWithoutUsuarioInput>
+  }
+
+  export type TesteFavoritoUsuarioUpdateManyWithWhereWithoutUsuarioInput = {
+    where: TesteFavoritoUsuarioScalarWhereInput
+    data: XOR<TesteFavoritoUsuarioUpdateManyMutationInput, TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioInput>
+  }
+
+  export type TesteFavoritoUsuarioScalarWhereInput = {
+    AND?: TesteFavoritoUsuarioScalarWhereInput | TesteFavoritoUsuarioScalarWhereInput[]
+    OR?: TesteFavoritoUsuarioScalarWhereInput[]
+    NOT?: TesteFavoritoUsuarioScalarWhereInput | TesteFavoritoUsuarioScalarWhereInput[]
+    id_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    id_organizacao_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    id_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    produto_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    ambiente_teste_favorito_usuario?: StringFilter<"TesteFavoritoUsuario"> | string
+    tipos_teste_favorito_usuario?: StringNullableListFilter<"TesteFavoritoUsuario">
+    planos_ids_teste_favorito_usuario?: StringNullableListFilter<"TesteFavoritoUsuario">
+    planos_resumo_teste_favorito_usuario?: JsonNullableFilter<"TesteFavoritoUsuario">
+    data_criacao_teste_favorito_usuario?: DateTimeFilter<"TesteFavoritoUsuario"> | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFilter<"TesteFavoritoUsuario"> | Date | string
   }
 
   export type OrganizacaoCreateWithoutSubscriptions_organizacaoInput = {
@@ -44970,6 +46598,7 @@ export namespace Prisma {
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutUser_permissionsInput = {
@@ -44985,6 +46614,7 @@ export namespace Prisma {
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutUser_permissionsInput = {
@@ -45077,6 +46707,7 @@ export namespace Prisma {
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutUser_permissionsInput = {
@@ -45092,6 +46723,7 @@ export namespace Prisma {
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type OrganizacaoCreateWithoutCompanies_organizacaoInput = {
@@ -45220,6 +46852,7 @@ export namespace Prisma {
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutPreferred_companyInput = {
@@ -45235,6 +46868,7 @@ export namespace Prisma {
     data_atualizacao_usuario?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutPreferred_companyInput = {
@@ -45369,6 +47003,7 @@ export namespace Prisma {
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioUncheckedCreateWithoutMembershipsInput = {
@@ -45384,6 +47019,7 @@ export namespace Prisma {
     data_criacao_usuario?: Date | string
     data_atualizacao_usuario?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedCreateNestedManyWithoutUsuarioInput
   }
 
   export type UsuarioCreateOrConnectWithoutMembershipsInput = {
@@ -45456,6 +47092,7 @@ export namespace Prisma {
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutMembershipsInput = {
@@ -45471,6 +47108,7 @@ export namespace Prisma {
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type WorkspaceUpsertWithoutMembershipsInput = {
@@ -46691,6 +48329,10 @@ export namespace Prisma {
     resultado_teste: string
     duracao_teste: string
     log_erro_teste?: string | null
+    log_sucesso_teste?: string | null
+    pasta_emt_teste?: string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: string | null
     ambiente_teste?: string
@@ -46713,6 +48355,10 @@ export namespace Prisma {
     resultado_teste: string
     duracao_teste: string
     log_erro_teste?: string | null
+    log_sucesso_teste?: string | null
+    pasta_emt_teste?: string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: string | null
     ambiente_teste?: string
@@ -46765,6 +48411,10 @@ export namespace Prisma {
     resultado_teste?: StringFilter<"Teste"> | string
     duracao_teste?: StringFilter<"Teste"> | string
     log_erro_teste?: StringNullableFilter<"Teste"> | string | null
+    log_sucesso_teste?: StringNullableFilter<"Teste"> | string | null
+    pasta_emt_teste?: StringNullableFilter<"Teste"> | string | null
+    lista_prints_emt_teste?: JsonNullableFilter<"Teste">
+    quantidade_passos_teste?: IntFilter<"Teste"> | number
     analise_ia_teste?: JsonNullableFilter<"Teste">
     screenshot_teste?: StringNullableFilter<"Teste"> | string | null
     ambiente_teste?: StringFilter<"Teste"> | string
@@ -46773,6 +48423,86 @@ export namespace Prisma {
     gatilho_teste?: StringNullableFilter<"Teste"> | string | null
     data_criacao_teste?: DateTimeFilter<"Teste"> | Date | string
     data_atualizacao_teste?: DateTimeFilter<"Teste"> | Date | string
+  }
+
+  export type UsuarioCreateWithoutTestes_favoritosInput = {
+    id_usuario?: string
+    id_clerk_usuario: string
+    email_usuario: string
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
+    status_usuario?: $Enums.StatusUsuario
+    acesso_workspaces_futuros?: boolean
+    data_criacao_usuario?: Date | string
+    data_atualizacao_usuario?: Date | string
+    tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
+    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
+    user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
+    memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
+  }
+
+  export type UsuarioUncheckedCreateWithoutTestes_favoritosInput = {
+    id_usuario?: string
+    id_organizacao: string
+    id_clerk_usuario: string
+    email_usuario: string
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
+    status_usuario?: $Enums.StatusUsuario
+    id_workspace_preferido_usuario?: string | null
+    acesso_workspaces_futuros?: boolean
+    data_criacao_usuario?: Date | string
+    data_atualizacao_usuario?: Date | string
+    user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
+    memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UsuarioCreateOrConnectWithoutTestes_favoritosInput = {
+    where: UsuarioWhereUniqueInput
+    create: XOR<UsuarioCreateWithoutTestes_favoritosInput, UsuarioUncheckedCreateWithoutTestes_favoritosInput>
+  }
+
+  export type UsuarioUpsertWithoutTestes_favoritosInput = {
+    update: XOR<UsuarioUpdateWithoutTestes_favoritosInput, UsuarioUncheckedUpdateWithoutTestes_favoritosInput>
+    create: XOR<UsuarioCreateWithoutTestes_favoritosInput, UsuarioUncheckedCreateWithoutTestes_favoritosInput>
+    where?: UsuarioWhereInput
+  }
+
+  export type UsuarioUpdateToOneWithWhereWithoutTestes_favoritosInput = {
+    where?: UsuarioWhereInput
+    data: XOR<UsuarioUpdateWithoutTestes_favoritosInput, UsuarioUncheckedUpdateWithoutTestes_favoritosInput>
+  }
+
+  export type UsuarioUpdateWithoutTestes_favoritosInput = {
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
+    email_usuario?: StringFieldUpdateOperationsInput | string
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    status_usuario?: EnumStatusUsuarioFieldUpdateOperationsInput | $Enums.StatusUsuario
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
+    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
+    user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
+    memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
+  }
+
+  export type UsuarioUncheckedUpdateWithoutTestes_favoritosInput = {
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
+    email_usuario?: StringFieldUpdateOperationsInput | string
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    status_usuario?: EnumStatusUsuarioFieldUpdateOperationsInput | $Enums.StatusUsuario
+    id_workspace_preferido_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    acesso_workspaces_futuros?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
+    memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ProdutoGravityFaturaItemCreateWithoutFaturaInput = {
@@ -47672,6 +49402,7 @@ export namespace Prisma {
     preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutTenantInput = {
@@ -47687,6 +49418,7 @@ export namespace Prisma {
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateManyWithoutTenantInput = {
@@ -48024,6 +49756,18 @@ export namespace Prisma {
     data_atualizacao_usuario_workspace?: Date | string
   }
 
+  export type TesteFavoritoUsuarioCreateManyUsuarioInput = {
+    id_teste_favorito_usuario?: string
+    id_organizacao_teste_favorito_usuario?: string
+    produto_teste_favorito_usuario: string
+    ambiente_teste_favorito_usuario?: string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioCreatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioCreateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: Date | string
+    data_atualizacao_teste_favorito_usuario?: Date | string
+  }
+
   export type UsuarioPermissaoUpdateWithoutUserInput = {
     id_usuario_permissao?: StringFieldUpdateOperationsInput | string
     id_workspace?: StringFieldUpdateOperationsInput | string
@@ -48085,6 +49829,42 @@ export namespace Prisma {
     ativo_usuario_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteFavoritoUsuarioUpdateWithoutUsuarioInput = {
+    id_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    produto_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    ambiente_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioUpdatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioUpdateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteFavoritoUsuarioUncheckedUpdateWithoutUsuarioInput = {
+    id_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    produto_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    ambiente_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioUpdatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioUpdateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioInput = {
+    id_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    produto_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    ambiente_teste_favorito_usuario?: StringFieldUpdateOperationsInput | string
+    tipos_teste_favorito_usuario?: TesteFavoritoUsuarioUpdatetipos_teste_favorito_usuarioInput | string[]
+    planos_ids_teste_favorito_usuario?: TesteFavoritoUsuarioUpdateplanos_ids_teste_favorito_usuarioInput | string[]
+    planos_resumo_teste_favorito_usuario?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste_favorito_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioWorkspaceCreateManyCompanyInput = {
@@ -48189,6 +49969,7 @@ export namespace Prisma {
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutPreferred_companyInput = {
@@ -48204,6 +49985,7 @@ export namespace Prisma {
     data_atualizacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
+    testes_favoritos?: TesteFavoritoUsuarioUncheckedUpdateManyWithoutUsuarioNestedInput
   }
 
   export type UsuarioUncheckedUpdateManyWithoutPreferred_companyInput = {
@@ -48459,6 +50241,10 @@ export namespace Prisma {
     resultado_teste: string
     duracao_teste: string
     log_erro_teste?: string | null
+    log_sucesso_teste?: string | null
+    pasta_emt_teste?: string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: string | null
     ambiente_teste?: string
@@ -48481,6 +50267,10 @@ export namespace Prisma {
     resultado_teste?: StringFieldUpdateOperationsInput | string
     duracao_teste?: StringFieldUpdateOperationsInput | string
     log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    log_sucesso_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    pasta_emt_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: IntFieldUpdateOperationsInput | number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
     ambiente_teste?: StringFieldUpdateOperationsInput | string
@@ -48503,6 +50293,10 @@ export namespace Prisma {
     resultado_teste?: StringFieldUpdateOperationsInput | string
     duracao_teste?: StringFieldUpdateOperationsInput | string
     log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    log_sucesso_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    pasta_emt_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: IntFieldUpdateOperationsInput | number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
     ambiente_teste?: StringFieldUpdateOperationsInput | string
@@ -48525,6 +50319,10 @@ export namespace Prisma {
     resultado_teste?: StringFieldUpdateOperationsInput | string
     duracao_teste?: StringFieldUpdateOperationsInput | string
     log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    log_sucesso_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    pasta_emt_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    lista_prints_emt_teste?: NullableJsonNullValueInput | InputJsonValue
+    quantidade_passos_teste?: IntFieldUpdateOperationsInput | number
     analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
     screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
     ambiente_teste?: StringFieldUpdateOperationsInput | string
@@ -48756,6 +50554,10 @@ export namespace Prisma {
      * @deprecated Use TestePlanoDefaultArgs instead
      */
     export type TestePlanoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TestePlanoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TesteFavoritoUsuarioDefaultArgs instead
+     */
+    export type TesteFavoritoUsuarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TesteFavoritoUsuarioDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ProdutoGravityFaturaDefaultArgs instead
      */

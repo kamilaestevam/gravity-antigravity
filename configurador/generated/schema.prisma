@@ -152,10 +152,11 @@ model Usuario {
   data_atualizacao_usuario DateTime @updatedAt
 
   // Relações
-  tenant            Organizacao        @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "usuario_id_organizacao_fkey")
-  preferred_company Workspace?         @relation("UserPreferredCompany", fields: [id_workspace_preferido_usuario], references: [id_workspace], onDelete: SetNull, map: "usuario_id_workspace_preferido_usuario_fkey")
+  tenant            Organizacao            @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "usuario_id_organizacao_fkey")
+  preferred_company Workspace?             @relation("UserPreferredCompany", fields: [id_workspace_preferido_usuario], references: [id_workspace], onDelete: SetNull, map: "usuario_id_workspace_preferido_usuario_fkey")
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
+  testes_favoritos  TesteFavoritoUsuario[]
 
   // Email único por organização
   @@unique([id_organizacao, email_usuario], map: "usuario_id_organizacao_email_usuario_key")
@@ -746,26 +747,30 @@ model PrevisaoTaxaFuturaMoeda {
 // Convenção de IDs: TST-{TIPO}-{ESCOPO}-{NNNNNN}
 
 model Teste {
-  id_teste               String   @id @default(cuid())
-  id_organizacao         String   @default("platform") // sempre "platform" — logs globais
-  tipo_teste             String // UNI | CON | FUN | CRO | E2E | PEN
-  escopo_teste           String // LOGIN | CONFIG | ADMIN | HUB | CORE | MARKET | TENANT | DBASE | PEDIDO | NFIMP | LPCO | BIDFRT | BIDCAM | SIMCUS | FINCOM | PROCSO
-  sublocal_teste         String?
-  modulo_teste           String
-  nome_teste             String
-  id_plano_teste         String? // TST-E2E-CONFIG-000001 (quando vinculado a um plano)
-  id_agendamento_teste   String? // FK opcional para agendamento_teste
-  resultado_teste        String // APROVADO | REPROVADO | ERRO
-  duracao_teste          String
-  log_erro_teste         String?  @db.Text
-  analise_ia_teste       Json? // AiAnalysis schema do gemini-test-analyzer
-  screenshot_teste       String? // path do PNG capturado pela fixture
-  ambiente_teste         String   @default("Local") // Local | Staging | Producao
-  id_execucao_teste      String? // agrupa logs do mesmo run
-  disparado_por_teste    String? // userId que disparou (manual) ou "cron" (automático)
-  gatilho_teste          String? // tipo de gatilho: manual | cron | ci | post_deploy
-  data_criacao_teste     DateTime @default(now())
-  data_atualizacao_teste DateTime @updatedAt
+  id_teste                String   @id @default(cuid())
+  id_organizacao          String   @default("platform") // sempre "platform" — logs globais
+  tipo_teste              String // UNI | CON | FUN | CRO | E2E | PEN
+  escopo_teste            String // LOGIN | CONFIG | ADMIN | HUB | CORE | MARKET | TENANT | DBASE | PEDIDO | NFIMP | LPCO | BIDFRT | BIDCAM | SIMCUS | FINCOM | PROCSO
+  sublocal_teste          String?
+  modulo_teste            String
+  nome_teste              String
+  id_plano_teste          String? // TST-E2E-CONFIG-000001 (quando vinculado a um plano)
+  id_agendamento_teste    String? // FK opcional para agendamento_teste
+  resultado_teste         String // APROVADO | REPROVADO | ERRO
+  duracao_teste           String
+  log_erro_teste          String?  @db.Text
+  log_sucesso_teste       String?  @db.Text // log EMT completo (RESULTADO.txt ou stdout)
+  pasta_emt_teste         String? // caminho relativo resultado-teste/<runId>/
+  lista_prints_emt_teste  Json? // string[] — nomes dos PNG na pasta EMT
+  quantidade_passos_teste Int      @default(1) // passos do run (EMT: ✓/✗/EMT_ROW; demais: 1)
+  analise_ia_teste        Json? // AiAnalysis schema do gemini-test-analyzer
+  screenshot_teste        String? // path do PNG capturado pela fixture
+  ambiente_teste          String   @default("Local") // Local | Staging | Producao
+  id_execucao_teste       String? // agrupa logs do mesmo run
+  disparado_por_teste     String? // userId que disparou (manual) ou "cron" (automático)
+  gatilho_teste           String? // tipo de gatilho: manual | cron | ci | post_deploy
+  data_criacao_teste      DateTime @default(now())
+  data_atualizacao_teste  DateTime @updatedAt
 
   // Relação opcional para agendamento (set null se agendamento for excluído)
   agendamento TesteAgendamento? @relation(fields: [id_agendamento_teste], references: [id_agendamento_teste], onDelete: SetNull, map: "teste_agendamento_fkey")
@@ -835,6 +840,32 @@ model TestePlano {
   @@index([status_plano_teste], map: "plt_status_idx")
   @@index([sublocal_plano_teste], map: "plt_sublocal_idx")
   @@map("plano_teste")
+}
+
+// ---------------------------------------------------------------------------
+// TESTE FAVORITO USUARIO (combinações salvas no modal "Rodar Testes" do Admin)
+// Substitui a persistência localStorage por linha por usuário no banco —
+// favoritos seguem o usuário entre navegadores/máquinas/sessões.
+// ---------------------------------------------------------------------------
+
+model TesteFavoritoUsuario {
+  id_teste_favorito_usuario               String   @id @default(cuid())
+  id_organizacao_teste_favorito_usuario   String   @default("platform")
+  id_usuario                              String // vínculo com o usuário dono do favorito
+  produto_teste_favorito_usuario          String // admin | configurador | pedido | bid-frete | ...
+  ambiente_teste_favorito_usuario         String   @default("Local") // Local | Staging | Producao
+  tipos_teste_favorito_usuario            String[] // UNI | FUN | E2E | CRO | EMT
+  planos_ids_teste_favorito_usuario       String[] // ids dos planos marcados
+  planos_resumo_teste_favorito_usuario    Json? // snapshot { id, titulo, descricao, tipo? } ao salvar
+  data_criacao_teste_favorito_usuario     DateTime @default(now())
+  data_atualizacao_teste_favorito_usuario DateTime @updatedAt
+
+  // Relações
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "teste_favorito_usuario_id_usuario_fkey")
+
+  @@index([id_usuario], map: "tfu_usuario_idx")
+  @@index([id_organizacao_teste_favorito_usuario], map: "tfu_org_idx")
+  @@map("teste_favorito_usuario")
 }
 
 // ---------------------------------------------------------------------------

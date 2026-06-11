@@ -867,7 +867,7 @@ export default function Cotacoes() {
         icone={<Plus size={14} weight="bold" />}
         onClick={() => setNovoDropdownAberto(prev => !prev)}
       >
-        Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
+        {t('bidfrete.cotacoes.toolbar.novo')} <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
       </BotaoGlobal>
 
       {novoDropdownAberto && (
@@ -892,8 +892,8 @@ export default function Cotacoes() {
                 <Truck size={16} weight="duotone" />
               </span>
               <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left', flex: 1 }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Buscar Frete</span>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Cotação avulsa ou BID</span>
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.buscarFrete')}</span>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.buscarFreteDesc')}</span>
               </span>
               <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, alignSelf: 'center' }} />
             </button>
@@ -918,8 +918,8 @@ export default function Cotacoes() {
                     <Truck size={16} weight="duotone" />
                   </span>
                   <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Cotação Avulsa</span>
-                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Cotar um frete com fornecedores</span>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.cotacaoAvulsa')}</span>
+                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.cotacaoAvulsaDesc')}</span>
                   </span>
                 </button>
 
@@ -936,8 +936,8 @@ export default function Cotacoes() {
                     <Stack size={16} weight="duotone" />
                   </span>
                   <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>BID</span>
-                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Conjunto de cotações para vários fornecedores</span>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.bid')}</span>
+                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.bidDesc')}</span>
                   </span>
                 </button>
               </div>
@@ -956,8 +956,8 @@ export default function Cotacoes() {
               <Upload size={16} weight="duotone" />
             </span>
             <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Importar de Planilha</span>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Subir planilha de dados</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.importarPlanilha')}</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.subirPlanilha')}</span>
             </span>
           </button>
 

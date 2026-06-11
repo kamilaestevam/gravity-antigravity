@@ -781,6 +781,130 @@ export async function excluirCotacao(id: string): Promise<void> {
   if (!res.ok) throw new Error(`Erro ${res.status} ao excluir cotação`)
 }
 
+// ─── Duplicações e Exclusões em lote (lista) ────────────────────────────────
+
+const cotacaoPreviewExclusaoSchema = z.object({
+  id_cotacao_bid_frete_internacional: z.string(),
+  numero_cotacao_bid_frete_internacional: z.string(),
+  status_cotacao_bid_frete_internacional: z.string(),
+  total_propostas: z.number(),
+  motivo_bloqueio: z.enum(['COM_PROPOSTAS', 'ENVIADA_FORNECEDOR']).optional(),
+})
+
+const bidPreviewExclusaoSchema = z.object({
+  id_bid_bid_frete_internacional: z.string(),
+  numero_bid_bid_frete_internacional: z.string(),
+  total_cotacoes: z.number(),
+  cotacoes_bloqueadas: z.array(cotacaoPreviewExclusaoSchema).optional(),
+})
+
+const exclusoesCotacoesPreviewResponseSchema = z.object({
+  permitidas: z.array(cotacaoPreviewExclusaoSchema),
+  bloqueadas: z.array(cotacaoPreviewExclusaoSchema),
+})
+
+const exclusoesCotacoesConfirmarResponseSchema = z.object({
+  total_excluidas: z.number(),
+  ids_excluidos: z.array(z.string()),
+  bloqueadas: z.array(cotacaoPreviewExclusaoSchema),
+})
+
+const exclusoesBidsPreviewResponseSchema = z.object({
+  permitidos: z.array(bidPreviewExclusaoSchema),
+  bloqueados: z.array(bidPreviewExclusaoSchema),
+})
+
+const exclusoesBidsConfirmarResponseSchema = z.object({
+  total_excluidos: z.number(),
+  ids_excluidos: z.array(z.string()),
+  bloqueados: z.array(bidPreviewExclusaoSchema),
+})
+
+const duplicacoesCotacoesResponseSchema = z.object({
+  total_duplicadas: z.number(),
+  cotacoes: z.array(z.unknown()),
+})
+
+const duplicacoesBidsResponseSchema = z.object({
+  total_duplicadas: z.number(),
+  bids_frete_internacional: z.array(z.unknown()),
+})
+
+export type CotacaoPreviewExclusaoBidFrete = z.infer<typeof cotacaoPreviewExclusaoSchema>
+export type BidPreviewExclusaoBidFrete = z.infer<typeof bidPreviewExclusaoSchema>
+export type ExclusoesCotacoesPreviewBidFrete = z.infer<typeof exclusoesCotacoesPreviewResponseSchema>
+export type ExclusoesBidsPreviewBidFrete = z.infer<typeof exclusoesBidsPreviewResponseSchema>
+
+export const duplicacoesBidFreteApi = {
+  /** Duplica cotações (avulsas ou filhas de BID) — cópia nasce em RASCUNHO */
+  duplicarCotacoes: async (ids: string[]): Promise<{ total_duplicadas: number; cotacoes: Cotacao[] }> => {
+    const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes/duplicacoes`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ ids }),
+    })
+    const raw = await handleResponse<unknown>(res)
+    const parsed = duplicacoesCotacoesResponseSchema.parse(raw)
+    return {
+      total_duplicadas: parsed.total_duplicadas,
+      cotacoes: parsed.cotacoes.map(mapCotacaoFromServer),
+    }
+  },
+
+  /** Duplica BIDs + cotações filhas — tudo em RASCUNHO com números novos */
+  duplicarBids: async (ids: string[]): Promise<{ total_duplicadas: number; bids_frete_internacional: BidFreteInternacional[] }> => {
+    const res = await fetch(`${API_BASE}/bid-frete-internacional/bids-frete-internacional/duplicacoes`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ ids }),
+    })
+    const raw = await handleResponse<unknown>(res)
+    const parsed = duplicacoesBidsResponseSchema.parse(raw)
+    return {
+      total_duplicadas: parsed.total_duplicadas,
+      bids_frete_internacional: parsed.bids_frete_internacional.map(mapBidFreteInternacionalFromServer),
+    }
+  },
+}
+
+export const exclusoesBidFreteApi = {
+  previewCotacoes: async (ids: string[]): Promise<ExclusoesCotacoesPreviewBidFrete> => {
+    const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes/exclusoes/preview`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ ids }),
+    })
+    return exclusoesCotacoesPreviewResponseSchema.parse(await handleResponse<unknown>(res))
+  },
+
+  confirmarCotacoes: async (ids: string[]): Promise<z.infer<typeof exclusoesCotacoesConfirmarResponseSchema>> => {
+    const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes/exclusoes/confirmar`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ ids }),
+    })
+    return exclusoesCotacoesConfirmarResponseSchema.parse(await handleResponse<unknown>(res))
+  },
+
+  previewBids: async (ids: string[]): Promise<ExclusoesBidsPreviewBidFrete> => {
+    const res = await fetch(`${API_BASE}/bid-frete-internacional/bids-frete-internacional/exclusoes/preview`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ ids }),
+    })
+    return exclusoesBidsPreviewResponseSchema.parse(await handleResponse<unknown>(res))
+  },
+
+  confirmarBids: async (ids: string[]): Promise<z.infer<typeof exclusoesBidsConfirmarResponseSchema>> => {
+    const res = await fetch(`${API_BASE}/bid-frete-internacional/bids-frete-internacional/exclusoes/confirmar`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ ids }),
+    })
+    return exclusoesBidsConfirmarResponseSchema.parse(await handleResponse<unknown>(res))
+  },
+}
+
 // ─── Solicitação de cotação (disparo) ───────────────────────────────────────
 
 const SOLICITACAO_COTACAO_BASE = `${API_BASE}/bid-frete-internacional/solicitacao-cotacao-bid-frete-internacional`

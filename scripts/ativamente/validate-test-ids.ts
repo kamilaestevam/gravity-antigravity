@@ -39,9 +39,20 @@ const ID_REGEX = new RegExp(
 
 const EMT_ID_REGEX = /^TST-EMT-[A-Z0-9]+(-[A-Z0-9]+){2,}-\d{6}$/
 
-/** IDs descritivos (paridade EMT) — escopo real fica no campo `escopo` do registry (ex.: CONFIG). */
-const DESCRIPTIVE_MENU_LATERAL_REGEX =
-  /^TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}$/
+/**
+ * IDs descritivos (paridade EMT) para tipos legado — o escopo real fica no campo
+ * `escopo` do registry (ex.: CONFIG), enquanto o ID carrega o tema legível.
+ * Cada domínio descritivo entra como um regex próprio nesta lista.
+ */
+const DESCRIPTIVE_REGEXES: readonly RegExp[] = [
+  /^TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}$/,
+  /^TST-(UNI|FUN|CRO|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}$/,
+]
+
+/** Retorna o regex descritivo que casa o ID, ou undefined. */
+function matchDescriptive(id: string): RegExp | undefined {
+  return DESCRIPTIVE_REGEXES.find((r) => r.test(id))
+}
 
 const DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX =
   /^TST-(UNI|FUN|CRO|E2E|EMT)-DUPLICAR-LISTA-PEDIDO-\d{6}$/
@@ -50,7 +61,7 @@ function idValido(id: string, tipo: string): boolean {
   if (tipo === 'EMT') {
     return EMT_ID_REGEX.test(id) || DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX.test(id)
   }
-  if (DESCRIPTIVE_MENU_LATERAL_REGEX.test(id)) {
+  if (matchDescriptive(id)) {
     const tipoFromId = id.match(/^TST-(UNI|FUN|CRO|E2E)-/)?.[1]
     return tipoFromId === tipo
   }
@@ -108,7 +119,7 @@ for (const entry of registry.planos) {
     if (!entry.id.startsWith('TST-EMT-')) {
       errors.push(`Registry: ID EMT "${entry.id}" deve começar com TST-EMT-`)
     }
-  } else if (DESCRIPTIVE_MENU_LATERAL_REGEX.test(entry.id)) {
+  } else if (matchDescriptive(entry.id)) {
     const match = entry.id.match(/^TST-(UNI|FUN|CRO|E2E)-/)
     if (match && match[1] !== entry.tipo) {
       errors.push(`Registry: ID "${entry.id}" diz tipo=${match[1]} mas o campo é ${entry.tipo}`)
@@ -185,9 +196,9 @@ function walk(dir: string, found: Map<string, string>): void {
       !name.endsWith('.md')
       && (/^TST-(UNI|CON|FUN|CRO|E2E|PEN)-/.test(name) || /^run-TST-EMT-/.test(name))
     ) {
-      const idMatchDesc = name.match(
-        /TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}/
-      )
+      const idMatchDesc =
+        name.match(/TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}/) ??
+        name.match(/TST-(UNI|FUN|CRO|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}/)
       const idMatchDuplicar = name.match(
         /TST-(UNI|FUN|CRO|E2E|EMT)-DUPLICAR-LISTA-PEDIDO-\d{6}/
       )

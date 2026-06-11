@@ -19,6 +19,7 @@ import { createPortal } from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
 import { useGTExpandir } from './hooks/useGTExpandir.js'
+import { useGTJanelaVirtual, type GTJanelaVirtualResultado } from './hooks/useGTJanelaVirtual.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
 import { SelectColunasGlobal, type ColunaSelectConfig } from '@nucleo/select-colunas-global'
@@ -147,6 +148,12 @@ function IconeDragHandle() {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+// ── Windowing: alturas determinísticas das linhas ─────────────────────────────
+// .gtv-linha tem min-height 44px + 1px border-bottom; células nowrap garantem
+// linha de altura única. .gtv-linha--filho-ultimo adiciona 6px de margem.
+const ALTURA_LINHA_VIRTUAL = 45
+const ALTURA_MARGEM_ULTIMO_FILHO = 6
 
 function buildFlatRows<T, C>(
   dados: T[],
@@ -2723,6 +2730,49 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const toggleRef      = useRef(toggle)
   toggleRef.current    = toggle
 
+  // ── Windowing: refs para uso no handle imperativo ─────────────────────────────
+  // linhasPagina/janelaVirtual são computados mais abaixo; os refs são atribuídos
+  // a cada render para os métodos imperativos enxergarem o estado atual.
+  const linhasPaginaRef  = useRef<GTLinhaVirtual<T, C>[]>([])
+  const janelaVirtualRef = useRef<GTJanelaVirtualResultado | null>(null)
+
+  /** Rola o container até a linha de índice `idx` (centralizada no viewport).
+   *  Com windowing ativo, a linha pode não existir no DOM — o scroll posiciona
+   *  pelo offset estimado e a fatia renderizada acompanha. */
+  const rolarParaLinhaVirtual = useCallback((idx: number) => {
+    const el = scrollContainerRef.current
+    const janela = janelaVirtualRef.current
+    if (!el || !janela) return
+    const headerHeight = el.querySelector<HTMLElement>('.gtv-th')?.offsetHeight ?? 44
+    const offsetLinha = janela.offsets[Math.max(0, Math.min(idx, janela.offsets.length - 1))]
+    const alvo = Math.max(0, offsetLinha - Math.max(0, (el.clientHeight - headerHeight) / 2))
+    el.scrollTo({ top: alvo, behavior: 'instant' as ScrollBehavior })
+  }, [])
+
+  /** Localiza uma célula no DOM com retry: se a linha está fora da janela
+   *  renderizada, rola até o índice estimado e tenta de novo no próximo frame. */
+  const localizarCelulaComRetry = useCallback((
+    seletor: string,
+    idLinha: string,
+    aoEncontrar: (celula: HTMLElement) => void,
+    tentativas = 6,
+  ) => {
+    const tentar = (restantes: number) => {
+      const celula = document.querySelector<HTMLElement>(seletor)
+      if (celula) {
+        aoEncontrar(celula)
+        return
+      }
+      if (restantes <= 0) return
+      if (restantes === tentativas) {
+        const idx = linhasPaginaRef.current.findIndex(l => l.id === idLinha)
+        if (idx >= 0) rolarParaLinhaVirtual(idx)
+      }
+      requestAnimationFrame(() => tentar(restantes - 1))
+    }
+    tentar(tentativas)
+  }, [rolarParaLinhaVirtual])
+
   // Expõe iniciarEdicao + expandir ao pai via imperativeRef.
   // iniciarEdicao dispara clique na célula real para acionar o fluxo completo
   // (setOverlayInfo + iniciarEdicaoPai), garantindo posicionamento correto do popover.
@@ -2730,27 +2780,43 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // via onCarregarFilhos quando necessário. No-op se já expandido.
   useImperativeHandle(imperativeRef, () => ({
     iniciarEdicao: (id: string, campo: string, valorAtual: unknown) => {
-      const celula = document.querySelector<HTMLElement>(
-        `[data-gtv-rowid="${id}"][data-gtv-campo="${campo}"]`
+      // Com windowing, a célula pode ainda não estar montada — retry rola até
+      // o índice estimado da linha e procura de novo no próximo frame.
+      let encontrou = false
+      localizarCelulaComRetry(
+        `[data-gtv-rowid="${id}"][data-gtv-campo="${campo}"]`,
+        id,
+        celula => {
+          encontrou = true
+          celula.scrollIntoView({ block: 'center', behavior: 'instant' })
+          requestAnimationFrame(() => celula.click())
+        },
       )
-      if (celula) {
-        celula.scrollIntoView({ block: 'center', behavior: 'instant' })
-        requestAnimationFrame(() => celula.click())
-      } else {
-        iniciarEdicaoPai(id, campo, valorAtual)
-      }
+      // Fallback imediato preservado: se a linha nem existe na página atual,
+      // inicia a edição via estado (comportamento pré-windowing).
+      requestAnimationFrame(() => {
+        if (!encontrou && linhasPaginaRef.current.findIndex(l => l.id === id) < 0) {
+          iniciarEdicaoPai(id, campo, valorAtual)
+        }
+      })
     },
     iniciarEdicaoFilho: (id: string, campo: string, valorAtual: unknown, colunaPai?: string) => {
       const colBusca = colunaPai ?? campo
-      const celula = document.querySelector<HTMLElement>(
-        `[data-gtv-filho-rowid="${id}"][data-gtv-campo="${colBusca}"]`
+      let encontrou = false
+      localizarCelulaComRetry(
+        `[data-gtv-filho-rowid="${id}"][data-gtv-campo="${colBusca}"]`,
+        id,
+        celula => {
+          encontrou = true
+          celula.scrollIntoView({ block: 'center', behavior: 'instant' })
+          requestAnimationFrame(() => celula.click())
+        },
       )
-      if (celula) {
-        celula.scrollIntoView({ block: 'center', behavior: 'instant' })
-        requestAnimationFrame(() => celula.click())
-      } else {
-        iniciarEdicaoFilho(id, campo, valorAtual)
-      }
+      requestAnimationFrame(() => {
+        if (!encontrou && linhasPaginaRef.current.findIndex(l => l.id === id) < 0) {
+          iniciarEdicaoFilho(id, campo, valorAtual)
+        }
+      })
     },
     expandir: (id: string) => {
       if (expandidosRef2.current.has(id)) return
@@ -2770,16 +2836,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       colapsarTodos()
     },
     rolarParaCelula: (id: string, campo: string) => {
-      const celula = document.querySelector<HTMLElement>(
-        `[data-gtv-rowid="${id}"][data-gtv-campo="${campo}"]`
-      ) ?? document.querySelector<HTMLElement>(
-        `[data-gtv-filho-rowid="${id}"][data-gtv-campo="${campo}"]`
+      localizarCelulaComRetry(
+        `[data-gtv-rowid="${id}"][data-gtv-campo="${campo}"], [data-gtv-filho-rowid="${id}"][data-gtv-campo="${campo}"]`,
+        id,
+        celula => celula.scrollIntoView({ block: 'center', behavior: 'instant' }),
       )
-      if (celula) {
-        celula.scrollIntoView({ block: 'center', behavior: 'instant' })
-      }
     },
-  }), [iniciarEdicaoPai, iniciarEdicaoFilho, colapsarTodos, expandirTodosHook])
+  }), [iniciarEdicaoPai, iniciarEdicaoFilho, colapsarTodos, expandirTodosHook, localizarCelulaComRetry])
 
   // ── Paginação ─────────────────────────────────────────────────────────────────
   const modoExterno = totalItens !== undefined
@@ -2822,6 +2885,60 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dadosPaginaOrdenados, expandidos, filhosCache, itemId, filhoId, filhosCacheVer],
   )
+  linhasPaginaRef.current = linhasPagina
+
+  // ── Windowing (virtualização real das linhas) ─────────────────────────────────
+  // Alturas determinísticas: células nowrap + min-height 44px + 1px de borda.
+  // Último filho de um grupo tem margin-bottom de 6px (.gtv-linha--filho-ultimo).
+  const alturasLinhas = useMemo(
+    () => linhasPagina.map(l =>
+      l.tipo === 'filho' && l.ultimoFilho
+        ? ALTURA_LINHA_VIRTUAL + ALTURA_MARGEM_ULTIMO_FILHO
+        : ALTURA_LINHA_VIRTUAL,
+    ),
+    [linhasPagina],
+  )
+  const janelaVirtual = useGTJanelaVirtual(scrollContainerRef, alturasLinhas)
+  janelaVirtualRef.current = janelaVirtual
+  const linhasJanela = janelaVirtual.ativo
+    ? linhasPagina.slice(janelaVirtual.inicio, janelaVirtual.fim)
+    : linhasPagina
+
+  // ── Congelamento de larguras durante windowing ────────────────────────────────
+  // As colunas de dados usam `max-content`: a largura depende do conteúdo das
+  // linhas RENDERIZADAS. Com windowing, cada scroll mudaria as larguras (jitter).
+  // Ao ativar a janela, medimos as larguras reais do cabeçalho (já dimensionado
+  // pelo conteúdo da primeira fatia) e congelamos o template em px. Mudou o set
+  // de colunas → descongela por 1 frame (render max-content) e remede.
+  const gradeRef = useRef<HTMLDivElement>(null)
+  // A assinatura inclui o flag "há filhos expandidos": itens têm conteúdo mais
+  // largo que os pais — ao expandir, descongela 1 frame e remede com os filhos
+  // na fatia (senão as células dos itens ficariam truncadas no px dos pais).
+  const temFilhoExpandido = expandidos.size > 0
+  const assinaturaColunas = useMemo(
+    () => `${colunasFiltradas.map(c => String(c.key)).join('|')}§exp:${temFilhoExpandido ? 1 : 0}`,
+    [colunasFiltradas, temFilhoExpandido],
+  )
+  const [colsCongeladas, setColsCongeladas] = useState<{ assinatura: string; template: string } | null>(null)
+  useLayoutEffect(() => {
+    if (!janelaVirtual.ativo) {
+      if (colsCongeladas) setColsCongeladas(null)
+      return
+    }
+    if (colsCongeladas && colsCongeladas.assinatura !== assinaturaColunas) {
+      setColsCongeladas(null) // 1 frame com max-content para remedir
+      return
+    }
+    if (colsCongeladas) return
+    const grade = gradeRef.current
+    if (!grade) return
+    const ths = grade.querySelectorAll<HTMLElement>(':scope > .gtv-cabecalho > .gtv-th')
+    if (ths.length === 0) return
+    const template = Array.from(ths)
+      .map(el => `${Math.ceil(el.getBoundingClientRect().width)}px`)
+      .join(' ')
+    setColsCongeladas({ assinatura: assinaturaColunas, template })
+  }, [janelaVirtual.ativo, assinaturaColunas, colsCongeladas])
 
   const totalEfetivo = modoExterno ? totalItens : dados.length
   const totalPaginas = Math.ceil(totalEfetivo / itensPorPagina)
@@ -2948,8 +3065,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [termoBusca, dadosPagina, modoLocalizar])
 
   // ── Find: scroll para trazer o match ativo para a viewport (vertical + horizontal)
+  // `findScrollPendenteRef` marca que o match ATIVO mudou e ainda não foi
+  // scrollado. Sem essa flag, o efeito (que também re-executa quando a janela
+  // virtual muda) sequestraria o scroll manual do usuário de volta ao match.
+  const findScrollPendenteRef = useRef(false)
+  useEffect(() => {
+    findScrollPendenteRef.current = true
+  }, [findAtivo, findMatches])
+
   useEffect(() => {
     if (!modoLocalizar || findMatches.length === 0) return
+    if (!findScrollPendenteRef.current) return
     const match = findMatches[findAtivo]
     if (!match) return
 
@@ -2959,6 +3085,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     if (match.tipo === 'celula') {
       // Célula ativa: scroll vertical + horizontal com compensação de header sticky
       const cellEl = container.querySelector<HTMLElement>('.gtv-celula--find-match-ativo')
+      if (!cellEl && janelaVirtual.ativo) {
+        // Windowing: a linha do match está fora da fatia montada — rola até o
+        // offset estimado; o efeito re-executa quando a janela muda (dep
+        // janelaVirtual.inicio) e faz o ajuste fino com a célula no DOM.
+        // Mantém findScrollPendenteRef=true para a re-execução concluir.
+        rolarParaLinhaVirtual(match.linhaIndex)
+        return
+      }
+      findScrollPendenteRef.current = false
       if (cellEl) {
         const cr  = container.getBoundingClientRect()
         const cel = cellEl.getBoundingClientRect()
@@ -2987,8 +3122,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       // Header match: scroll horizontal apenas (header é sticky, sempre visível verticalmente)
       const headerEl = container.querySelector<HTMLElement>(`[data-find-col-key="${match.colKey}"]`)
       headerEl?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+      findScrollPendenteRef.current = false
     }
-  }, [findAtivo, findMatches, modoLocalizar])
+    // janelaVirtual.inicio/ativo: re-executa quando a fatia montada muda para
+    // concluir o scroll fino até o match que estava fora do DOM.
+  }, [findAtivo, findMatches, modoLocalizar, janelaVirtual.ativo, janelaVirtual.inicio, rolarParaLinhaVirtual])
 
   // ── Itens selecionados (objetos) ──────────────────────────────────────────────
   // Exclui pais auto-promovidos: esses foram marcados automaticamente porque
@@ -4035,8 +4173,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           ) : (
             /* Grade compartilhada: header + linhas como filhos diretos */
             <div
+              ref={gradeRef}
               className="gtv-grade"
-              style={{ gridTemplateColumns: gridTemplateCols }}
+              style={{ gridTemplateColumns: colsCongeladas?.template ?? gridTemplateCols }}
             >
               {/* Cabeçalho — display:contents faz os th serem filhos diretos do grid */}
               <div className="gtv-cabecalho" role="row">
@@ -4134,13 +4273,34 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   />
                 </div>
               ) : (
-                linhasPagina.map((linha, idx) => (
-                  <React.Fragment key={`${linha.tipo}-${linha.id}`}>
-                    {linha.tipo === 'pai'
-                      ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' }, idx)
-                      : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }, idx)}
-                  </React.Fragment>
-                ))
+                <>
+                  {/* Spacer superior — mantém o scrollbar correto com a janela virtual */}
+                  {janelaVirtual.ativo && janelaVirtual.alturaTopo > 0 && (
+                    <div
+                      aria-hidden="true"
+                      style={{ gridColumn: '1 / -1', height: janelaVirtual.alturaTopo }}
+                    />
+                  )}
+                  {linhasJanela.map((linha, i) => {
+                    // idx ABSOLUTO em linhasPagina — find-in-page e smart paste
+                    // referenciam índices da página inteira, não da fatia.
+                    const idx = janelaVirtual.ativo ? janelaVirtual.inicio + i : i
+                    return (
+                      <React.Fragment key={`${linha.tipo}-${linha.id}`}>
+                        {linha.tipo === 'pai'
+                          ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' }, idx)
+                          : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }, idx)}
+                      </React.Fragment>
+                    )
+                  })}
+                  {/* Spacer inferior */}
+                  {janelaVirtual.ativo && janelaVirtual.alturaFundo > 0 && (
+                    <div
+                      aria-hidden="true"
+                      style={{ gridColumn: '1 / -1', height: janelaVirtual.alturaFundo }}
+                    />
+                  )}
+                </>
               )}
             </div>
           )}

@@ -10,7 +10,7 @@
 ┌────────────────────────────────────────────────────────────────────┐
 │                      ADMIN / TESTES (UI)                          │
 │  LogTestes.tsx  │  ModalExecutarTestes  │  ModalAgendamentoTestes │
-│  Abas: Em Execução · Executados                         │
+│  Abas: Em Execução · Executados · Plano de Teste        │
 └─────────────────────────────┬──────────────────────────────────────┘
                               │ HTTP
                               ▼
@@ -221,7 +221,7 @@ Ao concluir: appendTestLogEntries → model Teste (+ fallback JSON diário)
 Remove marker do run; frontend polling em GET /admin/testes/status
 ```
 
-**Execuções simultâneas (2026-06):** vários runs podem estar ativos ao mesmo tempo (até o limite). A UI **Admin › Testes** separa **Em Execução** (markers ativos) e **Executados** (histórico). Cada run tem `id_execucao_teste` único e `gatilho_teste` (`manual` | `cron` | `ci`).
+**Execuções simultâneas (2026-06):** vários runs podem estar ativos ao mesmo tempo (até o limite). A UI **Admin › Testes** separa **Em Execução** (markers ativos), **Executados** (histórico) e **Plano de Teste** (catálogo de planos do registry). Cada run tem `id_execucao_teste` único e `gatilho_teste` (`manual` | `cron` | `ci`).
 
 ### 2b. Execução EMT (teste em tela)
 
@@ -515,7 +515,10 @@ Detalhes operacionais: [`testes/infra/admin/README.md`](../../../testes/infra/ad
 
 ### Implementado (2026-06)
 - Cards de passos (7d / 30d) e erros
-- Abas **Em Execução** e **Executados** (mesmas colunas: DATA/HORA, TIPO, TESTE, O QUE FOI TESTADO, PASSOS, RESULTADO, DURAÇÃO)
+- Abas **Em Execução**, **Executados** e **Plano de Teste**
+  - Em Execução / Executados: colunas DATA/HORA, TIPO, LOCAL, O QUE FOI TESTADO, PASSOS, RESULTADO, DURAÇÃO
+  - Plano de Teste: lista todo o registry (`GET /admin/planos-teste`) com colunas ID, ESCOPO, TELA, DATA, PASSOS, COBERTURA, STATUS; clique na linha abre `ModalDetalhePlanoTeste`
+- Coluna de data escalável: as **3 datas mais recentes** aparecem por extenso e as demais ficam compactas (só a data) com ícone de visualizar + tooltip com data/hora completa — vale para Executados (`dataHora`) e Plano de Teste (`criadoEm`)
 - Botão **Rodar** abre modal mesmo com runs ativos (bloqueia só no limite global)
 - Polling `GET /admin/testes/status` enquanto há execuções ativas; toast ao concluir
 - Expansão de linha EMT (prints, RESULTADO.txt) + análise IA Gemini
@@ -533,7 +536,7 @@ Detalhes operacionais: [`testes/infra/admin/README.md`](../../../testes/infra/ad
   - Botão "Reanalizar"
   - Botão "Rejeitar análise"
   - Commit suspeito (se REGRESSAO_RECENTE)
-- **Tela "Planos de Teste"**: listagem dos planos, filtros, botão "Gerar plano para tela X"
+- **Aba "Plano de Teste"**: filtros e botão "Gerar plano para tela X" (a listagem básica já está na aba)
 - **Tela "Métricas Gemini"**: custo do mês, cache hit rate, distribuição de categoria/confiança
 
 ---

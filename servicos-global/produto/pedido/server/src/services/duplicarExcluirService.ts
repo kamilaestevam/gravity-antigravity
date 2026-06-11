@@ -515,9 +515,10 @@ export class DuplicarService {
       throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
     }
 
-    // Workspace alvo dos itens novos: header > workspace do pedido pai > id_organizacao
+    // Cópia permanece no pedido pai — id_workspace DEVE ser o do pedido (GET /:id/itens
+    // filtra por id_workspace do pai). Header da sessão não entra aqui.
     const id_workspace_alvo =
-      id_workspace ?? (pedido.id_workspace as string | undefined) ?? id_organizacao
+      (pedido.id_workspace as string | undefined) ?? id_organizacao
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const itens = await (db as any).pedidoItem.findMany({

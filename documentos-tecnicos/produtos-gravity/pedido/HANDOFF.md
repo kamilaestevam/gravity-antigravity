@@ -41,7 +41,7 @@ O sistema resolve:
 
 | Area | Funcionalidades |
 |------|----------------|
-| Lista de Pedidos | Grid hierarquico virtualizado (TabelaVirtualGlobal), Pedido como pai (99 colunas), PedidoItem como filho (165 colunas), filtros, busca, exportacao, resize de colunas, overlay de edicao |
+| Lista de Pedidos | Grid hierarquico virtualizado (TabelaVirtualGlobal — windowing real desde 2026-06-11 via `useGTJanelaVirtual`: so as linhas do viewport+overscan sao montadas no DOM quando a pagina tem 80+ linhas), Pedido como pai (99 colunas), PedidoItem como filho (165 colunas), filtros, busca, exportacao, resize de colunas, overlay de edicao |
 | Gestao de Itens | Quantidade Inicial/Atual/Transferida/Pronta/Cancelada, unidade de medida, valores |
 | Entrada de Dados | Manual, importacao de arquivo (Excel, CSV, XML, TXT, JSON), integracao ERP via API Cockpit |
 | Ciclo de Vida | Draft -> Aberto -> Vinculado -> Liquidado |

@@ -199,6 +199,18 @@ Se você for habilitar `selecionavelFilhos` numa tabela nova que herda do nucleo
 
 ---
 
+## TabelaVirtualGlobal — windowing real das linhas (2026-06-11)
+
+> Origem: "Expandir todos" na Lista de Pedidos (206 pedidos/832 itens) bloqueava a main thread por ~8s (INP 8.040ms medido). A tabela paginava, mas renderizava TODAS as linhas pai+filho da página no DOM.
+
+- **`useGTJanelaVirtual`** (`src/hooks/useGTJanelaVirtual.ts`): calcula a fatia visível (viewport + overscan 12) por soma de prefixos + busca binária. Ativa automaticamente quando a página tem **80+ linhas** (pai+filho); abaixo disso o render é integral (zero mudança para tabelas pequenas).
+- **Alturas determinísticas**: células `white-space: nowrap` + `min-height: 44px` + 1px borda = 45px/linha; último filho do grupo +6px de margem. Se mudar o CSS de altura de linha, atualizar `ALTURA_LINHA_VIRTUAL` em `TabelaVirtualGlobal.tsx`.
+- **Larguras congeladas durante windowing**: colunas usam `max-content` — com janela, o template é medido do cabeçalho e congelado em px para não tremer no scroll. Descongela e remede por 1 frame quando o set de colunas muda OU quando expande/colapsa filhos (conteúdo do item é mais largo que o do pai).
+- **DOM não é mais fonte de verdade de linhas**: célula fora da fatia NÃO existe no DOM. Qualquer feature nova que use `querySelector` em linha/célula deve usar o padrão `localizarCelulaComRetry` (rola até o índice estimado e re-busca por frame) — find-in-page, `rolarParaCelula`, `iniciarEdicao(Filho)` já seguem esse padrão.
+- **Spacers**: dois divs `grid-column: 1 / -1` (topo/fundo) mantêm o scrollbar exato. Testes: `testes/testes-unitarios/nucleo-global/tabela-virtual-global/janela-virtual.test.ts`.
+
+---
+
 ## Hooks de Master-Data — referência canônica
 
 Quando um componente do `nucleo-global` precisar de catálogo global do Cadastros (Moeda, Unidade, NCM, País, etc.), **o padrão obrigatório** é o hook `useMoedas` em `@nucleo/modal-tabela-moeda` (commit 2026-05-08). Replicar a arquitetura, não criar variantes.

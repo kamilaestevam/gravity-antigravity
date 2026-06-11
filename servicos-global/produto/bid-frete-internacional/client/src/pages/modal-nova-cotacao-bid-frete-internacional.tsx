@@ -2844,7 +2844,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </BotaoGlobal>
               {idBid && (
                 <BotaoGlobal variante="secundario" tamanho="medio" onClick={handleNovaCotacaoMesmoBid}>
-                  {t('bidfrete.nova_cotacao.adicionar_outra_bid', { defaultValue: 'Adicionar outra cotação ao BID' })}
+                  {t('bidfrete.nova_cotacao.adicionar_outra_bid')}
                 </BotaoGlobal>
               )}
               {cotacaoId && (
@@ -2877,11 +2877,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   return (
     <>
       <ModalPassoPassoGlobal
-        titulo="Nova Cotação"
+        titulo={t('bidfrete.nova_cotacao.titulo')}
         icone={<Truck weight="duotone" size={22} />}
         subtitulo={idBid
-          ? 'Cotação vinculada ao BID — preencha as informações para buscar as melhores opções de frete'
-          : 'Preencha as informações para buscar as melhores opções de frete'}
+          ? t('bidfrete.nova_cotacao.subtitulo_vinculada_bid')
+          : t('bidfrete.nova_cotacao.subtitulo')}
         aberto
         passos={STEPS}
         passoAtual={step}

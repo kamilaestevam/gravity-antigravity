@@ -83,7 +83,7 @@ export function ModalNovoBidFreteInternacional({
       })
       setCotacoesAvulsas(res.cotacoes)
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : t('bidfrete.novo_bid.erro_carregar_avulsas', 'Erro ao carregar cotações avulsas')
+      const msg = e instanceof Error ? e.message : t('bidfrete.novo_bid.erro_carregar_avulsas')
       setErro(msg)
     } finally {
       setCarregandoAvulsas(false)
@@ -114,14 +114,11 @@ export function ModalNovoBidFreteInternacional({
       aoCriarBid?.()
       addNotification({
         type: 'success',
-        message: t('bidfrete.novo_bid.toast_sucesso', {
-          defaultValue: 'BID {{numero}} criado com sucesso.',
-          numero: bid.numero_bid_bid_frete_internacional,
-        }),
+        message: t('bidfrete.novo_bid.toast_sucesso', { numero: bid.numero_bid_bid_frete_internacional }),
         duration: 4000,
       })
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : t('bidfrete.novo_bid.erro_criar', 'Erro ao criar BID')
+      const msg = e instanceof Error ? e.message : t('bidfrete.novo_bid.erro_criar')
       setErro(msg)
     } finally {
       setSalvando(false)
@@ -147,21 +144,17 @@ export function ModalNovoBidFreteInternacional({
             <div>
               <h2 id="bf-novo-bid-titulo">
                 {bidCriado
-                  ? t('bidfrete.novo_bid.titulo_sucesso', { defaultValue: 'BID criado' })
-                  : t('bidfrete.novo_bid.titulo', { defaultValue: 'Novo BID' })}
+                  ? t('bidfrete.novo_bid.titulo_sucesso')
+                  : t('bidfrete.novo_bid.titulo')}
               </h2>
               <p className="bf-novo-bid-subtitulo">
                 {bidCriado
-                  ? t('bidfrete.novo_bid.subtitulo_sucesso', {
-                      defaultValue: 'Agora adicione cotações ao conjunto ou volte para a lista.',
-                    })
-                  : t('bidfrete.novo_bid.subtitulo', {
-                      defaultValue: 'Agrupe várias cotações em um único processo de licitação.',
-                    })}
+                  ? t('bidfrete.novo_bid.subtitulo_sucesso')
+                  : t('bidfrete.novo_bid.subtitulo')}
               </p>
             </div>
           </div>
-          <button type="button" className="bf-novo-bid-fechar" onClick={fecharModal} aria-label={t('comum.fechar', 'Fechar')}>
+          <button type="button" className="bf-novo-bid-fechar" onClick={fecharModal} aria-label={t('comum.fechar')}>
             <X weight="bold" size={18} />
           </button>
         </div>
@@ -179,34 +172,34 @@ export function ModalNovoBidFreteInternacional({
             </div>
             <div className="bf-novo-bid-acoes">
               <BotaoGlobal variante="secundario" tamanho="medio" onClick={fecharModal}>
-                {t('bidfrete.novo_bid.voltar_lista', { defaultValue: 'Voltar para a lista' })}
+                {t('bidfrete.novo_bid.voltar_lista')}
               </BotaoGlobal>
               <BotaoGlobal variante="primario" tamanho="medio" onClick={handleIrParaNovaCotacao}>
-                {t('bidfrete.novo_bid.criar_cotacao', { defaultValue: 'Criar cotação para o BID' })}
+                {t('bidfrete.novo_bid.criar_cotacao')}
               </BotaoGlobal>
             </div>
           </>
         ) : (
           <>
             <label className="bf-novo-bid-campo">
-              <span>{t('bidfrete.novo_bid.referencia', { defaultValue: 'Referência interna (opcional)' })}</span>
+              <span>{t('bidfrete.novo_bid.referencia')}</span>
               <input
                 type="text"
                 value={referenciaInterna}
                 onChange={e => setReferenciaInterna(e.target.value)}
-                placeholder={t('bidfrete.novo_bid.referencia_placeholder', { defaultValue: 'Ex.: Licitação Q2 / Projeto Alpha' })}
+                placeholder={t('bidfrete.novo_bid.referencia_placeholder')}
               />
             </label>
 
             <div className="bf-novo-bid-secao">
               <div className="bf-novo-bid-secao-titulo">
-                {t('bidfrete.novo_bid.vincular_avulsas', { defaultValue: 'Vincular cotações avulsas existentes (opcional)' })}
+                {t('bidfrete.novo_bid.vincular_avulsas')}
               </div>
               {carregandoAvulsas ? (
-                <p className="bf-novo-bid-ajuda">{t('comum.carregando', 'Carregando...')}</p>
+                <p className="bf-novo-bid-ajuda">{t('comum.carregando')}</p>
               ) : cotacoesAvulsas.length === 0 ? (
                 <p className="bf-novo-bid-ajuda">
-                  {t('bidfrete.novo_bid.sem_avulsas', { defaultValue: 'Nenhuma cotação avulsa disponível no escopo atual.' })}
+                  {t('bidfrete.novo_bid.sem_avulsas')}
                 </p>
               ) : (
                 <div className="bf-novo-bid-lista">
@@ -228,16 +221,16 @@ export function ModalNovoBidFreteInternacional({
 
             <div className="bf-novo-bid-acoes">
               <BotaoGlobal variante="secundario" tamanho="medio" onClick={fecharModal} disabled={salvando}>
-                {t('comum.cancelar', 'Cancelar')}
+                {t('comum.cancelar')}
               </BotaoGlobal>
               <BotaoGlobal
                 variante="primario"
                 tamanho="medio"
                 carregando={salvando}
-                textoCarregando={t('bidfrete.novo_bid.criando', { defaultValue: 'Criando BID...' })}
+                textoCarregando={t('bidfrete.novo_bid.criando')}
                 onClick={() => void handleCriarBid()}
               >
-                {t('bidfrete.novo_bid.criar', { defaultValue: 'Criar BID' })}
+                {t('bidfrete.novo_bid.criar')}
               </BotaoGlobal>
             </div>
           </>

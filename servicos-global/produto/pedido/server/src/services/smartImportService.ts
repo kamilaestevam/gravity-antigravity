@@ -47,6 +47,7 @@ import {
   sanitizarDadosLinhaImport,
 } from '../../../shared/smart-import-confirmar-decisoes.js'
 import { gerarIdImportacao } from '../../../shared/smart-import-ids.js'
+import { normalizarChaveCampoPedido } from '../../../shared/migracaoChavesCampoPedido.js'
 
 export {
   obterDecisaoDuplicataImport,
@@ -114,36 +115,12 @@ const CAMPOS_BLOQ_PARA_PEDIDO: ReadonlySet<string> = new Set([
   'peso_liquido_unitario_item',
   'peso_bruto_unitario_item',
   'cubagem_unitaria_item',
-  'data_embarque_item_pedido',
+  'data_embarque_item',
 ])
 
-/**
- * Colunas Prisma que existem no schema PedidoItem mas NAO estao no SSOT
- * (campos-pedido-ddd.ts). Sao campos de "Edicao em Massa" e dados extras
- * que o mapper precisa reconhecer para nao cair no fuzzy match (Tier 4)
- * e mapear incorretamente para outro campo.
- *
- * Chave = nome normalizado da coluna (lowercase, sem acentos, sem "* ")
- * Valor = nome exato da coluna Prisma
- */
-const CAMPOS_PRISMA_EXTRAS_MAPEAMENTO = new Map<string, string>([
-  // Chave = forma NORMALIZADA (underscores viram espaços, lowercase, sem acentos)
-  // Valor = nome exato da coluna Prisma
-  ['descricao completa item pt', 'descricao_completa_item_pt'],
-  ['descricao completa item en', 'descricao_completa_item_en'],
-  ['descricao completa item es', 'descricao_completa_item_es'],
-  ['descricao completa item nf', 'descricao_completa_item_nf'],
-  ['texto posicao ncm', 'texto_posicao_ncm'],
-  ['grupo item', 'grupo_item'],
-  ['subgrupo item', 'subgrupo_item'],
-  ['campo especial item', 'campo_especial_item'],
-  ['atributos catalogo', 'atributos_catalogo'],
-  ['tipo embalagem', 'tipo_embalagem'],
-  ['numero lpco', 'numero_lpco'],
-  ['numero certificado origem', 'numero_certificado_origem'],
-  ['data certificado origem', 'data_certificado_origem'],
-  ['data embarque item', 'data_embarque_item'],
-])
+// CAMPOS_PRISMA_EXTRAS_MAPEAMENTO removido (Onda 1 — 2026-06-11): as colunas
+// "Edicao em Massa" entraram no SSOT campos-pedido-ddd.ts e agora resolvem
+// pelo Tier 1 (nome interno) / Tier 2 (rotulo) do mapper.
 
 /** Prisma encerrou a transação (timeout P2024, desconexão, etc.). */
 export function transacaoPrismaExpiradaOuEncerrada(err: unknown): boolean {
@@ -547,6 +524,9 @@ export class SmartImportService {
     if (mapeamentoSalvo) {
       mapeamento = mapeamentoSalvo.map(m => ({
         ...m,
+        // Memorias salvas antes do alinhamento SSOT↔Prisma (Onda 1) podem
+        // trazer chaves legadas (porto_origem_pedido, data_embarque_item_pedido).
+        campo_sistema: m.campo_sistema ? normalizarChaveCampoPedido(m.campo_sistema) : m.campo_sistema,
         inferido_por: 'memoria' as const,
         valor_exemplo_coluna_pedido: exemplosPorColuna[m.coluna_arquivo] ?? null,
       }))
@@ -1313,22 +1293,8 @@ export class SmartImportService {
         }
       }
 
-      // Tier 2.5: coluna Prisma extra (nao esta no SSOT mas existe no schema)
-      // Previne que descricao_completa_item_pt caia no Tier 4 como "descricao_item"
-      if (!campoEscolhido) {
-        const matchExtra = CAMPOS_PRISMA_EXTRAS_MAPEAMENTO.get(cabNorm)
-        if (matchExtra) {
-          // Retorna como campo_sistema = nome da coluna Prisma (vai para _campos_extras -> extração)
-          return {
-            coluna_arquivo: cabecalho,
-            campo_sistema: matchExtra,
-            confianca: 93,
-            nivel: 'auto' as const,
-            inferido_por: 'dados' as const,
-            valor_exemplo_coluna_pedido: exemploStr,
-          }
-        }
-      }
+      // Tier 2.5 removido (Onda 1 — 2026-06-11): colunas "Edicao em Massa"
+      // entraram no SSOT e resolvem pelos Tiers 1/2 acima.
 
       // Tier 3: alias legado exato
       if (!campoEscolhido) {
@@ -1541,13 +1507,16 @@ export class SmartImportService {
 
     // ── Tipo Operacao (enum critico) ──────────────────────────────────────
     // Antes era silencioso (vira 'importacao' default). Agora avisa.
-    if (dados['tipo_operacao'] !== undefined) {
-      const tipoOp = String(dados['tipo_operacao']).trim().toLowerCase()
+    // SSOT usa 'tipo_operacao_pedido' (paridade Prisma); memoria de
+    // mapeamentos antigos ainda pode trazer 'tipo_operacao'.
+    const tipoOperacaoBruto = dados['tipo_operacao_pedido'] ?? dados['tipo_operacao']
+    if (tipoOperacaoBruto !== undefined) {
+      const tipoOp = String(tipoOperacaoBruto).trim().toLowerCase()
       if (tipoOp && !['importacao', 'exportacao'].includes(tipoOp)) {
         alertas.push({
-          campo: 'tipo_operacao',
+          campo: 'tipo_operacao_pedido',
           tipo: 'formato_invalido',
-          mensagem: `Tipo de Operacao "${dados['tipo_operacao']}" invalido — aceitos apenas: importacao, exportacao`,
+          mensagem: `Tipo de Operacao "${tipoOperacaoBruto}" invalido — aceitos apenas: importacao, exportacao`,
           nivel: 'erro',
         })
       }
@@ -1622,8 +1591,9 @@ export class SmartImportService {
     // P14 — Nomes alinhados ao SSOT atual (eram legados: part_number, ncm,
     // quantidade_inicial_pedido, data_embarque — que nao existem mais).
     const CAMPOS_JA_VALIDADOS = new Set([
-      'tipo_linha', 'tipo_operacao', 'numero_pedido', 'part_number_item',
-      'quantidade_inicial_item', 'valor_por_unidade_item', 'ncm_item',
+      'tipo_linha', 'tipo_operacao_pedido', 'tipo_operacao', 'numero_pedido',
+      'part_number_item', 'quantidade_inicial_item', 'valor_por_unidade_item',
+      'ncm_item',
     ])
     for (const def of CAMPOS_PEDIDO_DDD_TODOS as readonly CampoPedidoDDD[]) {
       if (CAMPOS_JA_VALIDADOS.has(def.campo)) continue
@@ -1824,9 +1794,9 @@ export class SmartImportService {
     ordemPlanilha?: OpcoesOrdemPlanilhaImportacao,
   ): Record<string, unknown> {
     // P1.3 — validar enum tipo_operacao_pedido para evitar valores arbitrarios.
-    // SSOT (campos-pedido-ddd.ts) usa `tipo_operacao` como nome do campo no
-    // upload; schema usa `tipo_operacao_pedido`. Aceitamos ambos no `dados[]`
-    // por tolerancia (preview pode ter usado um ou outro alias).
+    // SSOT alinhado ao Prisma (Onda 1 — 2026-06-11): nome canonico e'
+    // `tipo_operacao_pedido`. Aceitamos tambem `tipo_operacao` por tolerancia
+    // a memorias de mapeamento salvas antes do alinhamento.
     const TIPOS_OPERACAO_VALIDOS = ['importacao', 'exportacao'] as const
     const tipoOperacaoRaw = (dados['tipo_operacao_pedido'] ?? dados['tipo_operacao']) as string | undefined
     const tipoOperacao = TIPOS_OPERACAO_VALIDOS.includes(tipoOperacaoRaw as typeof TIPOS_OPERACAO_VALIDOS[number])
@@ -1874,13 +1844,15 @@ export class SmartImportService {
     if (dados['cobertura_cambial_pedido']) {
       result.cobertura_cambial_pedido = extrairCodigoDropdown(dados['cobertura_cambial_pedido'])
     }
-    // Logística — SSOT usa 'porto_origem_pedido', Prisma usa 'porto_origem'
-    if (dados['porto_origem_pedido'] ?? dados['porto_origem']) result.porto_origem = String(dados['porto_origem_pedido'] ?? dados['porto_origem']).toUpperCase()
-    if (dados['porto_destino_pedido'] ?? dados['porto_destino']) result.porto_destino = String(dados['porto_destino_pedido'] ?? dados['porto_destino']).toUpperCase()
-    if (dados['local_de_origem_pedido'] ?? dados['local_de_origem']) result.local_de_origem = String(dados['local_de_origem_pedido'] ?? dados['local_de_origem']).toUpperCase()
-    if (dados['local_de_destino_pedido'] ?? dados['local_de_destino']) result.local_de_destino = String(dados['local_de_destino_pedido'] ?? dados['local_de_destino']).toUpperCase()
-    if (dados['aeroporto_origem_pedido'] ?? dados['aeroporto_origem']) result.aeroporto_origem = String(dados['aeroporto_origem_pedido'] ?? dados['aeroporto_origem']).toUpperCase()
-    if (dados['aeroporto_destino_pedido'] ?? dados['aeroporto_destino']) result.aeroporto_destino = String(dados['aeroporto_destino_pedido'] ?? dados['aeroporto_destino']).toUpperCase()
+    // Logística — SSOT alinhado ao Prisma (Onda 1 — 2026-06-11): nome canonico
+    // sem sufixo. Fallback '*_pedido' cobre memorias de mapeamento salvas
+    // antes do alinhamento.
+    if (dados['porto_origem'] ?? dados['porto_origem_pedido']) result.porto_origem = String(dados['porto_origem'] ?? dados['porto_origem_pedido']).toUpperCase()
+    if (dados['porto_destino'] ?? dados['porto_destino_pedido']) result.porto_destino = String(dados['porto_destino'] ?? dados['porto_destino_pedido']).toUpperCase()
+    if (dados['local_de_origem'] ?? dados['local_de_origem_pedido']) result.local_de_origem = String(dados['local_de_origem'] ?? dados['local_de_origem_pedido']).toUpperCase()
+    if (dados['local_de_destino'] ?? dados['local_de_destino_pedido']) result.local_de_destino = String(dados['local_de_destino'] ?? dados['local_de_destino_pedido']).toUpperCase()
+    if (dados['aeroporto_origem'] ?? dados['aeroporto_origem_pedido']) result.aeroporto_origem = String(dados['aeroporto_origem'] ?? dados['aeroporto_origem_pedido']).toUpperCase()
+    if (dados['aeroporto_destino'] ?? dados['aeroporto_destino_pedido']) result.aeroporto_destino = String(dados['aeroporto_destino'] ?? dados['aeroporto_destino_pedido']).toUpperCase()
 
     // ── Campos numéricos (Decimal) opcionais ────────────────────────────────
     if (dados['taxa_cambio_estimada_pedido']) result.taxa_cambio_estimada_pedido = parseNumeroBr(dados['taxa_cambio_estimada_pedido'])
@@ -2140,21 +2112,20 @@ export class SmartImportService {
       'data_embarque_item',
     ]
     for (const campo of DATAS_ITEM) {
-      // SSOT pode usar variantes de nome (ex: 'data_embarque_item_pedido' → Prisma 'data_embarque_item')
       const val = normalizarData(dados[campo])
       if (val) itemData[campo] = val
     }
-    // Tratar alias SSOT 'data_embarque_item_pedido' → Prisma 'data_embarque_item'
+    // Alias legado 'data_embarque_item_pedido' (SSOT pre-Onda 1) — cobre
+    // memorias de mapeamento salvas antes do alinhamento ao Prisma.
     if (!itemData['data_embarque_item'] && dados['data_embarque_item_pedido']) {
       const val = normalizarData(dados['data_embarque_item_pedido'])
       if (val) itemData.data_embarque_item = val
     }
 
-    // ── Extrair campos Prisma extras (não estão no SSOT) ─────────────────
-    // Campos "Edição em Massa" existem no Prisma mas não no SSOT. Podem chegar
-    // por 2 caminhos: (a) mapeados via Tier 2.5 direto em dados[campo], ou
-    // (b) em _campos_extras (quando o mapper não reconhecia o header).
-    // Verificamos ambos.
+    // ── Extrair campos de _campos_extras com coluna propria ──────────────
+    // Onda 1 (2026-06-11): as colunas "Edicao em Massa" entraram no SSOT e
+    // chegam direto em dados[campo] (tratadas acima). O fallback abaixo cobre
+    // apenas _campos_extras de previews/memorias gerados antes do alinhamento.
     const CAMPOS_EXTRAS_COM_COLUNA_PROPRIA: string[] = [
       'descricao_completa_item_pt', 'descricao_completa_item_en',
       'descricao_completa_item_es', 'descricao_completa_item_nf',
@@ -2164,20 +2135,7 @@ export class SmartImportService {
     ]
     const DATAS_EXTRAS_COM_COLUNA: string[] = ['data_certificado_origem', 'data_embarque_item']
 
-    // (a) Extrair de dados[] direto (Tier 2.5 do mapper)
-    for (const campo of CAMPOS_EXTRAS_COM_COLUNA_PROPRIA) {
-      if (dados[campo] && !itemData[campo]) {
-        itemData[campo] = String(dados[campo])
-      }
-    }
-    for (const campo of DATAS_EXTRAS_COM_COLUNA) {
-      if (dados[campo] && !itemData[campo]) {
-        const val = normalizarData(dados[campo])
-        if (val) itemData[campo] = val
-      }
-    }
-
-    // (b) Extrair de _campos_extras (fallback para mappers antigos)
+    // Extrair de _campos_extras (fallback para mappers antigos)
     const extras = (dados['_campos_extras'] && typeof dados['_campos_extras'] === 'object')
       ? { ...(dados['_campos_extras'] as Record<string, unknown>) }
       : null

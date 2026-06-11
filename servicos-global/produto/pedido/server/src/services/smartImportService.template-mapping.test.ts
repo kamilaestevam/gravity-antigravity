@@ -138,7 +138,7 @@ describe('P4.3 — Integracao template <-> mapeador', () => {
 
     // Bug #1c — Tipo Linha != Tipo de Operacao
     expect(mapa.get('Tipo Linha')).toBe('tipo_linha')
-    expect(mapa.get('Tipo de Operacao')).toBe('tipo_operacao')
+    expect(mapa.get('Tipo de Operacao')).toBe('tipo_operacao_pedido')
 
     // Bug #2 — Numero do Pedido mapeia
     expect(mapa.get('Numero do Pedido')).toBe('numero_pedido')
@@ -182,7 +182,7 @@ describe('P4.3 — Integracao template <-> mapeador', () => {
     expect(mapa.get('* Numero do Pedido')!.campo).toBe('numero_pedido')
     expect(mapa.get('* Numero do Pedido')!.conf).toBe(99)
 
-    expect(mapa.get('* Tipo de Operacao')!.campo).toBe('tipo_operacao')
+    expect(mapa.get('* Tipo de Operacao')!.campo).toBe('tipo_operacao_pedido')
     expect(mapa.get('* Tipo de Operacao')!.conf).toBe(99)
 
     expect(mapa.get('* Part Number')!.campo).toBe('part_number_item')

@@ -7,20 +7,15 @@
  * sucesso no modal mas o valor não era salvo, pois o campo `referencia_importador_item`
  * não existia em CAMPOS_ITEM_EDITAVEIS. O mesmo para exportador e fabricante.
  *
- * Fix: adicionados referencia_importador_item, referencia_exportador_item e
- * referencia_fabricante_item ao array CAMPOS_ITEM_EDITAVEIS em
- * ModalPedidosEdicaoMassa.tsx.
+ * Onda 3 (2026-06-11): o modal deixou de ter listas hardcoded e passou a derivar
+ * os campos do SSOT shared/camposEdicaoMassa.ts — o teste valida o SSOT direto.
  */
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
-
-// ── Ler o arquivo fonte (arrays não são exportados) ──────────────────────────
-const MODAL_PATH = resolve(
-  __dirname,
-  '../../../servicos-global/produto/pedido/client/src/components/ModalPedidosEdicaoMassa.tsx',
-)
-const conteudo = readFileSync(MODAL_PATH, 'utf-8')
+import {
+  CAMPOS_EDICAO_MASSA_ITEM,
+  campoEditavelEmMassa,
+} from '../../../servicos-global/produto/pedido/shared/camposEdicaoMassa'
+import { kindUiDeCampo } from '../../../servicos-global/produto/pedido/shared/kind-ui-pedido'
 
 // ── Campos de referência obrigatórios no nível item ──────────────────────────
 const REFERENCIAS_ITEM_OBRIGATORIAS = [
@@ -29,36 +24,23 @@ const REFERENCIAS_ITEM_OBRIGATORIAS = [
   'referencia_fabricante_item',
 ] as const
 
-describe('Referências item na edição em massa — campos presentes', () => {
+describe('Referências item na edição em massa — campos presentes no SSOT', () => {
   for (const campo of REFERENCIAS_ITEM_OBRIGATORIAS) {
-    it(`${campo} está presente em CAMPOS_ITEM_EDITAVEIS`, () => {
-      // Verifica que o campo aparece como string literal no array
-      expect(conteudo).toContain(`campo: '${campo}'`)
+    it(`${campo} está presente em CAMPOS_EDICAO_MASSA_ITEM`, () => {
+      expect(CAMPOS_EDICAO_MASSA_ITEM.map(c => c.campo)).toContain(campo)
     })
 
-    it(`${campo} tem nivel: 'item'`, () => {
-      // Regex para verificar que o campo está na mesma linha/objeto com nivel 'item'
-      const regex = new RegExp(
-        `campo:\\s*'${campo}'[^}]*nivel:\\s*'item'`,
-        's',
-      )
-      expect(conteudo).toMatch(regex)
+    it(`${campo} é editável em massa no nível 'item'`, () => {
+      expect(campoEditavelEmMassa(campo, 'item')).toBe(true)
     })
 
-    it(`${campo} tem tipo: 'texto'`, () => {
-      const regex = new RegExp(
-        `campo:\\s*'${campo}'[^}]*tipo:\\s*'texto'`,
-        's',
-      )
-      expect(conteudo).toMatch(regex)
+    it(`${campo} renderiza como texto livre (KindUI 'texto')`, () => {
+      expect(kindUiDeCampo(campo)).toBe('texto')
     })
 
-    it(`${campo} tem grupo: 'Documentos'`, () => {
-      const regex = new RegExp(
-        `campo:\\s*'${campo}'[^}]*grupo:\\s*'Documentos'`,
-        's',
-      )
-      expect(conteudo).toMatch(regex)
+    it(`${campo} pertence ao grupo Documentos`, () => {
+      const def = CAMPOS_EDICAO_MASSA_ITEM.find(c => c.campo === campo)
+      expect(def?.grupo).toBe('Documentos')
     })
   }
 })

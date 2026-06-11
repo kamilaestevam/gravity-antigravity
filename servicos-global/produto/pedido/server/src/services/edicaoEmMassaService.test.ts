@@ -51,31 +51,30 @@ function criarPedido(overrides: Record<string, unknown> = {}) {
   }
 }
 
-interface TxMock {
-  pedidoItem: { update: ReturnType<typeof vi.fn> }
-  pedido:     { update: ReturnType<typeof vi.fn> }
-}
-
-function criarDbMock(pedido = criarPedido()) {
+// Mock do db: o service recebe um TransactionClient (withOrganizacao já abriu
+// a transação) e usa os delegates diretamente — sem $transaction aninhado.
+function criarDbMock(pedido = criarPedido(), colunasUsuario: Record<string, unknown>[] = [], valoresColunaUsuario: Record<string, unknown>[] = []) {
   const itemUpdateMock = vi.fn().mockResolvedValue({ id_item: 'item-001' })
   const pedidoUpdateMock = vi.fn().mockResolvedValue({ id_pedido: 'pedido-001' })
-
-  const tx: TxMock = {
-    pedidoItem: { update: itemUpdateMock },
-    pedido:     { update: pedidoUpdateMock },
-  }
-
   const updateManyMock = vi.fn().mockResolvedValue({ count: 1 })
+  const valorUpsertMock = vi.fn().mockResolvedValue({})
+
   const dbBase = {
     pedido: {
       findMany: vi.fn().mockResolvedValue([pedido]),
       updateMany: updateManyMock,
+      update: pedidoUpdateMock,
     },
-    $transaction: vi.fn().mockImplementation((fn: (tx: TxMock) => Promise<unknown>) => fn(tx)),
+    pedidoItem: { update: itemUpdateMock },
+    pedidoListaColunaUsuario: { findMany: vi.fn().mockResolvedValue(colunasUsuario) },
+    pedidoListaColunaUsuarioValor: {
+      findMany: vi.fn().mockResolvedValue(valoresColunaUsuario),
+      upsert: valorUpsertMock,
+    },
   }
   const db = dbBase as unknown as PrismaClient
 
-  return { db, tx, itemUpdateMock, pedidoUpdateMock, updateManyMock }
+  return { db, itemUpdateMock, pedidoUpdateMock, updateManyMock, valorUpsertMock }
 }
 
 // ── Testes ────────────────────────────────────────────────────────────────────
@@ -211,13 +210,11 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
         itens_pedido: criarItens('pedido-0061', 5),
       }
 
-      const tx: TxMock = {
-        pedidoItem: { update: itemUpdateMock },
-        pedido:     { update: pedidoUpdateMock },
-      }
       const dbBase = {
-        pedido: { findMany: vi.fn().mockResolvedValue([pedido1, pedido2]), updateMany: vi.fn() },
-        $transaction: vi.fn().mockImplementation((fn: (tx: TxMock) => Promise<unknown>) => fn(tx)),
+        pedido: { findMany: vi.fn().mockResolvedValue([pedido1, pedido2]), updateMany: vi.fn(), update: pedidoUpdateMock },
+        pedidoItem: { update: itemUpdateMock },
+        pedidoListaColunaUsuario: { findMany: vi.fn().mockResolvedValue([]) },
+        pedidoListaColunaUsuarioValor: { findMany: vi.fn().mockResolvedValue([]), upsert: vi.fn() },
       }
       const db = dbBase as unknown as PrismaClient
 
@@ -267,6 +264,52 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
           nivel: 'item',
         })
       ).rejects.toThrow(AppError)
+    })
+
+    // Guard-rail Onda 4 — rejeição nos 3 níveis (pedido/item/combinado)
+
+    it('rejeita campo bloqueado de pedido no nível combinado', async () => {
+      const { db } = criarDbMock()
+      await expect(
+        service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'quantidade_total_pedido', tipo: 'numero', nivel: 'pedido', operacao: 'substituir', valor: 1 }],
+          nivel: 'combinado',
+        })
+      ).rejects.toMatchObject({ code: 'CAMPO_BLOQUEADO' })
+    })
+
+    it('rejeita campo bloqueado de item no nível combinado', async () => {
+      const { db } = criarDbMock()
+      await expect(
+        service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'valor_total_item', tipo: 'numero', nivel: 'item', operacao: 'substituir', valor: 1 }],
+          nivel: 'combinado',
+        })
+      ).rejects.toMatchObject({ code: 'CAMPO_BLOQUEADO' })
+    })
+
+    it('preview() também rejeita campo bloqueado (não só confirmar)', async () => {
+      const { db } = criarDbMock()
+      await expect(
+        service.preview(ID_ORG, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'valor_total_pedido', tipo: 'numero', nivel: 'pedido', operacao: 'substituir', valor: 1 }],
+          nivel: 'pedido',
+        })
+      ).rejects.toMatchObject({ code: 'CAMPO_BLOQUEADO' })
+    })
+
+    it('preview() rejeita campo desconhecido', async () => {
+      const { db } = criarDbMock()
+      await expect(
+        service.preview(ID_ORG, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'campo_inventado', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'x' }],
+          nivel: 'pedido',
+        })
+      ).rejects.toMatchObject({ code: 'CAMPO_DESCONHECIDO' })
     })
   })
 
@@ -641,10 +684,11 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
 
       const itemUpdateMock = vi.fn().mockResolvedValue({ id_item: 'i' })
       const pedidoUpdateMock = vi.fn().mockResolvedValue({ id_pedido: 'X' })
-      const tx: TxMock = { pedidoItem: { update: itemUpdateMock }, pedido: { update: pedidoUpdateMock } }
       const dbBase = {
-        pedido: { findMany: vi.fn().mockResolvedValue([p1, p2]), updateMany: vi.fn() },
-        $transaction: vi.fn().mockImplementation((fn: (tx: TxMock) => Promise<unknown>) => fn(tx)),
+        pedido: { findMany: vi.fn().mockResolvedValue([p1, p2]), updateMany: vi.fn(), update: pedidoUpdateMock },
+        pedidoItem: { update: itemUpdateMock },
+        pedidoListaColunaUsuario: { findMany: vi.fn().mockResolvedValue([]) },
+        pedidoListaColunaUsuarioValor: { findMany: vi.fn().mockResolvedValue([]), upsert: vi.fn() },
       }
       const db = dbBase as unknown as PrismaClient
 
@@ -657,7 +701,7 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
       // pedido-CDE recebe CDE EXPORTADOR
       expect(pedidoUpdateMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id_pedido: 'pedido-CDE' },
+          where: expect.objectContaining({ id_pedido: 'pedido-CDE' }),
           data: expect.objectContaining({
             detalhes_operacionais_pedido: expect.objectContaining({ nome_exportador: 'CDE EXPORTADOR' }),
           }),
@@ -666,7 +710,7 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
       // pedido-AMST recebe AMSTED LTDA
       expect(pedidoUpdateMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id_pedido: 'pedido-AMST' },
+          where: expect.objectContaining({ id_pedido: 'pedido-AMST' }),
           data: expect.objectContaining({
             detalhes_operacionais_pedido: expect.objectContaining({ nome_exportador: 'AMSTED LTDA', cnpj_exportador: '00.000.000/0001-00' }),
           }),
@@ -708,6 +752,18 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
       ).rejects.toMatchObject({ statusCode: 503 })
     })
 
+    /** Onda 2 — campo fora do SSOT é rejeitado (falha ruidosa, Mand. 08) */
+    it('rejeita campo desconhecido (fora do SSOT camposEdicaoMassa)', async () => {
+      const { db } = criarDbMock()
+      await expect(
+        service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'campo_que_nao_existe', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'x' }],
+          nivel: 'pedido',
+        })
+      ).rejects.toMatchObject({ code: 'CAMPO_DESCONHECIDO', statusCode: 400 })
+    })
+
     /** Bonus QA1 — Preview retorna workspaces_auto_fill com nome real */
     it('QA1 — Preview retorna workspaces_auto_fill com nome real do workspace', async () => {
       mockObterWorkspaces.mockResolvedValueOnce([
@@ -724,6 +780,204 @@ describe('EdicaoEmMassaService — DDD-puro', () => {
       expect(preview.workspaces_auto_fill).toEqual([
         { id_workspace: 'ws-001', nome_workspace: 'CDE EXPORTADOR', cnpj_workspace: null },
       ])
+    })
+  })
+
+  // ── Colunas criadas pelo usuário (EAV) — Onda 2, 2026-06-11 ─────────────────
+
+  describe('Colunas de usuário (coluna_usuario:<id>)', () => {
+
+    const COLUNA_TEXTO = {
+      id_coluna_usuario_pedido: 'col-001',
+      nome_coluna_usuario_pedido: 'Ref. Interna',
+      tipo_coluna_usuario_pedido: 'texto',
+      escopo_coluna_usuario_pedido: 'ambos',
+    }
+    const COLUNA_NUMERO = {
+      id_coluna_usuario_pedido: 'col-002',
+      nome_coluna_usuario_pedido: 'Margem',
+      tipo_coluna_usuario_pedido: 'numero',
+      escopo_coluna_usuario_pedido: 'ambos',
+    }
+
+    it('grava coluna de usuário nível pedido via upsert EAV (vinculo pedido)', async () => {
+      const { db, valorUpsertMock } = criarDbMock(criarPedido(), [COLUNA_TEXTO])
+
+      const resultado = await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'coluna_usuario:col-001', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'REF-99' }],
+        nivel: 'pedido',
+      })
+
+      expect(valorUpsertMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({
+            id_organizacao: ID_ORG,
+            id_coluna_usuario_pedido: 'col-001',
+            vinculo_valor_coluna_usuario_pedido: 'pedido',
+            id_vinculo_valor_coluna_usuario_pedido: 'pedido-001',
+            valor_coluna_usuario_pedido: 'REF-99',
+          }),
+        })
+      )
+      expect(resultado.pedidos_atualizados).toBe(1)
+      expect(resultado.campos_pedido_alterados).toBe(1)
+    })
+
+    it('grava coluna de usuário nível item via upsert EAV (vinculo item, por item)', async () => {
+      const { db, valorUpsertMock } = criarDbMock(criarPedido(), [COLUNA_TEXTO])
+
+      const resultado = await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'coluna_usuario:col-001', tipo: 'texto', nivel: 'item', operacao: 'substituir', valor: 'LOTE-A' }],
+        nivel: 'item',
+      })
+
+      expect(valorUpsertMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({
+            vinculo_valor_coluna_usuario_pedido: 'item',
+            id_vinculo_valor_coluna_usuario_pedido: 'item-001',
+            valor_coluna_usuario_pedido: 'LOTE-A',
+          }),
+        })
+      )
+      expect(resultado.itens_atualizados).toBe(1)
+      expect(resultado.campos_item_alterados).toBe(1)
+    })
+
+    it('operação somar em coluna numero usa o valor atual do EAV', async () => {
+      const valorAtual = {
+        id_coluna_usuario_pedido: 'col-002',
+        id_vinculo_valor_coluna_usuario_pedido: 'pedido-001',
+        valor_coluna_usuario_pedido: '10',
+      }
+      const { db, valorUpsertMock } = criarDbMock(criarPedido(), [COLUNA_NUMERO], [valorAtual])
+
+      await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'coluna_usuario:col-002', tipo: 'numero', nivel: 'pedido', operacao: 'somar', valor: 5 }],
+        nivel: 'pedido',
+      })
+
+      expect(valorUpsertMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          update: { valor_coluna_usuario_pedido: '15' }, // 10 + 5
+        })
+      )
+    })
+
+    it('rejeita coluna de usuário inexistente/inativa', async () => {
+      const { db } = criarDbMock(criarPedido(), [])
+      await expect(
+        service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'coluna_usuario:col-fantasma', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'x' }],
+          nivel: 'pedido',
+        })
+      ).rejects.toMatchObject({ code: 'COLUNA_USUARIO_NAO_ENCONTRADA', statusCode: 400 })
+    })
+
+    it('rejeita coluna de usuário tipo formula (calculada)', async () => {
+      const colunaFormula = { ...COLUNA_TEXTO, tipo_coluna_usuario_pedido: 'formula' }
+      const { db } = criarDbMock(criarPedido(), [colunaFormula])
+      await expect(
+        service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'coluna_usuario:col-001', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'x' }],
+          nivel: 'pedido',
+        })
+      ).rejects.toMatchObject({ code: 'CAMPO_BLOQUEADO' })
+    })
+
+    it('rejeita escopo incompatível (coluna escopo item editada no nível pedido)', async () => {
+      const colunaItem = { ...COLUNA_TEXTO, escopo_coluna_usuario_pedido: 'item' }
+      const { db } = criarDbMock(criarPedido(), [colunaItem])
+      await expect(
+        service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'coluna_usuario:col-001', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'x' }],
+          nivel: 'pedido',
+        })
+      ).rejects.toMatchObject({ code: 'ESCOPO_INCOMPATIVEL' })
+    })
+
+    it('rejeita operação incompatível (percentual em coluna texto)', async () => {
+      const { db } = criarDbMock(criarPedido(), [COLUNA_TEXTO])
+      await expect(
+        service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'coluna_usuario:col-001', tipo: 'texto', nivel: 'pedido', operacao: 'percentual', valor: 10 }],
+          nivel: 'pedido',
+        })
+      ).rejects.toMatchObject({ code: 'OPERACAO_INCOMPATIVEL' })
+    })
+
+    it('nível combinado: coluna escopo ambos grava no vínculo pedido e escopo item no vínculo item', async () => {
+      const colunaItem = {
+        id_coluna_usuario_pedido: 'col-003',
+        nome_coluna_usuario_pedido: 'Lote',
+        tipo_coluna_usuario_pedido: 'texto',
+        escopo_coluna_usuario_pedido: 'item',
+      }
+      const { db, valorUpsertMock } = criarDbMock(criarPedido(), [COLUNA_TEXTO, colunaItem])
+
+      await service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [
+          { campo: 'coluna_usuario:col-001', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'REF-X' },
+          { campo: 'coluna_usuario:col-003', tipo: 'texto', nivel: 'item', operacao: 'substituir', valor: 'LOTE-1' },
+        ],
+        nivel: 'combinado',
+      })
+
+      expect(valorUpsertMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({
+            id_coluna_usuario_pedido: 'col-001',
+            vinculo_valor_coluna_usuario_pedido: 'pedido',
+            id_vinculo_valor_coluna_usuario_pedido: 'pedido-001',
+          }),
+        })
+      )
+      expect(valorUpsertMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({
+            id_coluna_usuario_pedido: 'col-003',
+            vinculo_valor_coluna_usuario_pedido: 'item',
+            id_vinculo_valor_coluna_usuario_pedido: 'item-001',
+          }),
+        })
+      )
+    })
+
+    it('rejeita campo coluna_usuario malformado (sem id) como desconhecido', async () => {
+      const { db } = criarDbMock(criarPedido(), [COLUNA_TEXTO])
+      await expect(
+        service.confirmar(ID_ORG, ID_USER, NOME_USER, db, {
+          pedido_ids: ['pedido-001'],
+          campos: [{ campo: 'coluna_usuario:', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'x' }],
+          nivel: 'pedido',
+        })
+      ).rejects.toMatchObject({ code: 'CAMPO_DESCONHECIDO' })
+    })
+
+    it('preview lê valor atual da coluna de usuário no EAV', async () => {
+      const valorAtual = {
+        id_coluna_usuario_pedido: 'col-001',
+        id_vinculo_valor_coluna_usuario_pedido: 'pedido-001',
+        valor_coluna_usuario_pedido: 'REF-ANTIGA',
+      }
+      const { db } = criarDbMock(criarPedido(), [COLUNA_TEXTO], [valorAtual])
+
+      const preview = await service.preview(ID_ORG, db, {
+        pedido_ids: ['pedido-001'],
+        campos: [{ campo: 'coluna_usuario:col-001', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'REF-NOVA' }],
+        nivel: 'pedido',
+      })
+
+      expect(preview.campos[0].valores_distintos).toContain('REF-ANTIGA')
+      expect(preview.campos_pedido_alterados).toBe(1)
     })
   })
 })

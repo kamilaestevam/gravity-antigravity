@@ -27,12 +27,15 @@ describe('Edição em Massa — Campos Bloqueados', () => {
       expect(CAMPOS_BLOQUEADOS_PEDIDO.has('cubagem_total_pedido')).toBe(true)
     })
 
-    it('U19: id está bloqueado', () => {
-      expect(CAMPOS_BLOQUEADOS_PEDIDO.has('id')).toBe(true)
+    // U19/U20 atualizados (Onda 2 — 2026-06-11): blocklist agora vem do SSOT
+    // shared/camposEdicaoMassa.ts com nomes DDD reais ('id' e 'tenant_id'
+    // eram nomes legados que nunca batiam com campos do payload).
+    it('U19: id_pedido está bloqueado', () => {
+      expect(CAMPOS_BLOQUEADOS_PEDIDO.has('id_pedido')).toBe(true)
     })
 
-    it('U20: tenant_id está bloqueado', () => {
-      expect(CAMPOS_BLOQUEADOS_PEDIDO.has('tenant_id')).toBe(true)
+    it('U20: id_organizacao está bloqueado', () => {
+      expect(CAMPOS_BLOQUEADOS_PEDIDO.has('id_organizacao')).toBe(true)
     })
   })
 
@@ -41,12 +44,16 @@ describe('Edição em Massa — Campos Bloqueados', () => {
       expect(CAMPOS_BLOQUEADOS_ITEM.has('valor_total_item')).toBe(true)
     })
 
-    it('U22: quantidade_atual_pedido está bloqueado', () => {
-      expect(CAMPOS_BLOQUEADOS_ITEM.has('quantidade_atual_pedido')).toBe(true)
+    it('U22: quantidade_atual_item está bloqueado', () => {
+      expect(CAMPOS_BLOQUEADOS_ITEM.has('quantidade_atual_item')).toBe(true)
     })
 
-    it('U23: id está bloqueado', () => {
-      expect(CAMPOS_BLOQUEADOS_ITEM.has('id')).toBe(true)
+    it('U23: id_item está bloqueado', () => {
+      expect(CAMPOS_BLOQUEADOS_ITEM.has('id_item')).toBe(true)
+    })
+
+    it('U23b: quantidade_transferida_item (saldoEngine) está bloqueado', () => {
+      expect(CAMPOS_BLOQUEADOS_ITEM.has('quantidade_transferida_item')).toBe(true)
     })
   })
 

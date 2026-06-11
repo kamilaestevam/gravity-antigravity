@@ -88,7 +88,10 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   // ITEM   -> linha de Item   (vincula ao Pedido imediatamente acima OU por numero_pedido).
   { campo: 'tipo_linha',                                   rotulo: 'Tipo Linha',                             tipo: 'select', nivel: 'pedido', grupo: 'Identificacao', opcoesSelect: ['PEDIDO', 'ITEM'], prioridade: 'critica',   obrigatorio: true,  aliasesLegados: ['row type', 'tipo de linha', 'linha'] },
   { campo: 'numero_pedido',                                rotulo: 'Numero do Pedido',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Identificacao', prioridade: 'critica',   obrigatorio: true,  aliasesLegados: ['po number', 'po no', 'purchase order', 'purchase order number', 'order number', 'order no', 'numero pedido', 'num pedido', 'n pedido', 'po num', 'sales order', 'so number', 'so no'] },
-  { campo: 'tipo_operacao',                                rotulo: 'Tipo de Operacao',                       tipo: 'select', nivel: 'pedido', grupo: 'Identificacao', opcoesSelect: ['importacao', 'exportacao'], prioridade: 'critica',   obrigatorio: true,  aliasesLegados: ['tipo operacao', 'operation type', 'operacao', 'import export', 'import/export'] },
+  // Paridade Prisma (Onda 1 — 2026-06-11): campo renomeado de 'tipo_operacao'
+  // para o nome fisico real 'tipo_operacao_pedido'. Alias legado preserva
+  // match de mapeamentos salvos e planilhas antigas.
+  { campo: 'tipo_operacao_pedido',                         rotulo: 'Tipo de Operacao',                       tipo: 'select', nivel: 'pedido', grupo: 'Identificacao', opcoesSelect: ['importacao', 'exportacao'], prioridade: 'critica',   obrigatorio: true,  aliasesLegados: ['tipo operacao', 'operation type', 'operacao', 'import export', 'import/export'] },
 
   // Exportador
   { campo: 'nome_exportador',                              rotulo: 'Exportador — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador', prioridade: 'principal', aliasesLegados: ['exporter', 'exporter name', 'shipper', 'shipper name', 'supplier', 'supplier name', 'vendor', 'vendor name', 'seller', 'nome exportador'] },
@@ -176,12 +179,16 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
 
   // Logistica
   // P11 — Rebaixados a 'secundaria' por decisao do dono (ESSENCIAL para em U).
-  { campo: 'porto_origem_pedido',                          rotulo: 'Porto de Origem',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
-  { campo: 'porto_destino_pedido',                         rotulo: 'Porto de Destino',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
-  { campo: 'local_de_origem_pedido',                       rotulo: 'País origem',                            tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
-  { campo: 'local_de_destino_pedido',                      rotulo: 'País destino',                           tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
-  { campo: 'aeroporto_origem_pedido',                      rotulo: 'Aeroporto de Origem',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
-  { campo: 'aeroporto_destino_pedido',                     rotulo: 'Aeroporto de Destino',                   tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica' },
+  // Paridade Prisma (Onda 1 — 2026-06-11): renomeados de '*_pedido' para os
+  // nomes fisicos reais (Prisma nao usa sufixo nestas colunas). Aliases
+  // legados preservam match de mapeamentos salvos.
+  { campo: 'porto_origem',                                 rotulo: 'Porto de Origem',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica', aliasesLegados: ['porto origem pedido'] },
+  { campo: 'porto_destino',                                rotulo: 'Porto de Destino',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica', aliasesLegados: ['porto destino pedido'] },
+  { campo: 'local_de_origem',                              rotulo: 'País origem',                            tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica', aliasesLegados: ['local de origem pedido'] },
+  { campo: 'local_de_destino',                             rotulo: 'País destino',                           tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica', aliasesLegados: ['local de destino pedido'] },
+  { campo: 'aeroporto_origem',                             rotulo: 'Aeroporto de Origem',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica', aliasesLegados: ['aeroporto origem pedido'] },
+  { campo: 'aeroporto_destino',                            rotulo: 'Aeroporto de Destino',                   tipo: 'texto',  nivel: 'pedido', grupo: 'Logistica', aliasesLegados: ['aeroporto destino pedido'] },
+  { campo: 'data_embarque_origem',                         rotulo: 'Data de Embarque na Origem',             tipo: 'data',   nivel: 'pedido', grupo: 'Logistica' },
 
   // Datas principais
   // P11 — Rebaixado a 'secundaria' por decisao do dono (ESSENCIAL para em U = Incoterm).
@@ -221,6 +228,7 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   { campo: 'data_previsao_recebimento_original_proforma_pedido', rotulo: 'Original Proforma — Prev. Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
   { campo: 'data_confirmacao_recebimento_original_proforma_pedido', rotulo: 'Original Proforma — Conf. Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
   { campo: 'data_meta_recebimento_original_proforma_pedido',     rotulo: 'Original Proforma — Meta Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
+  { campo: 'data_proforma_invoice',                              rotulo: 'Data da Proforma Invoice',           tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Proforma' },
 
   // Datas — Draft Invoice
   { campo: 'data_previsao_recebimento_rascunho_invoice_pedido',     rotulo: 'Draft Invoice — Prev. Recebimento',  tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
@@ -235,23 +243,25 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   { campo: 'data_previsao_recebimento_original_invoice_pedido',  rotulo: 'Original Invoice — Prev. Recebimento',   tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
   { campo: 'data_confirmacao_recebimento_original_invoice_pedido', rotulo: 'Original Invoice — Conf. Recebimento', tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
   { campo: 'data_meta_recebimento_original_invoice_pedido',      rotulo: 'Original Invoice — Meta Recebimento',    tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+  { campo: 'data_invoice',                                       rotulo: 'Data da Invoice',                        tipo: 'data', nivel: 'pedido', grupo: 'Datas Draft Invoice' },
+
+  // Datas de fluxo (Onda 1 — 2026-06-11): coluna Prisma exposta no modal de
+  // edicao em massa. data_transferencia_saldo_pedido tambem e' gravada pelo
+  // fluxo de transferencia — edicao manual permitida por decisao de produto.
+  { campo: 'data_transferencia_saldo_pedido',                    rotulo: 'Data de Transferencia de Saldo',         tipo: 'data', nivel: 'pedido', grupo: 'Datas' },
 ]
 
 // ── Campos do Item (detail) ───────────────────────────────────────────────────
 //
 // Auditoria 2026-05-08 — alinhamento com Prisma fragment do PedidoItem.
-// Mudancas vs versao inicial:
-//   - 11 campos INVENTADOS removidos (descricao_completa_item_*, texto_posicao_ncm_item,
-//     grupo_item, subgrupo_item, campo_especial_item, atributos_catalogo_item,
-//     tipo_embalagem_item, numero_lpco_item, numero_certificado_origem_item,
-//     data_certificado_origem_item) — nao existem no schema.
-//   - 13 campos com sufixo `_pedido` removido (alinha com schema).
-//   - 1 campo com nome corrigido (valor_unitario -> valor_por_unidade).
-//   - 26 campos do schema adicionados (cobertura ~100% dos preenchiveis).
-//
-// Debitos conhecidos (nao corrigidos por decisao de produto):
-//   - data_embarque_item_pedido: nao existe no schema. Mantido como placeholder
-//     conceitual. Parser nao vai gravar; OU schema deve adicionar a coluna.
+// Auditoria 2026-06-11 (Onda 1 — SSOT edicao em massa):
+//   - Colunas criadas pela migration "Edicao em Massa" (2026-05-12) adicionadas
+//     ao SSOT: descricao_completa_item_*, texto_posicao_ncm, grupo_item,
+//     subgrupo_item, campo_especial_item, atributos_catalogo, tipo_embalagem,
+//     numero_lpco, numero_certificado_origem, data_certificado_origem,
+//     data_embarque_item, tipo_operacao_item.
+//   - Debito data_embarque_item_pedido RESOLVIDO: a coluna data_embarque_item
+//     existe no schema desde 2026-05-12. Campo renomeado para o nome fisico.
 
 export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   // Identificacao do produto
@@ -260,6 +270,17 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'ncm_item',                                     rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', aliasesLegados: ['hs code', 'hs', 'harmonized code', 'tariff code', 'h s code', 'tariff'] },
   { campo: 'descricao_item',                               rotulo: 'Descricao do Item',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', aliasesLegados: ['description', 'item description', 'product description', 'product name', 'descricao', 'goods description', 'zmaktx'] },
   { campo: 'unidade_comercializada_item',                  rotulo: 'Unidade Comercializada do Item',         tipo: 'texto',  nivel: 'item', grupo: 'Produto', prioridade: 'principal', dropdownDinamico: 'unidade', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade', 'zmeins'] },
+  { campo: 'tipo_operacao_item',                           rotulo: 'Tipo de Operacao (Item)',                tipo: 'select', nivel: 'item', grupo: 'Produto', opcoesSelect: ['importacao', 'exportacao'] },
+  // Colunas "Edicao em Massa" (migration 2026-05-12) — descricoes e catalogo
+  { campo: 'descricao_completa_item_pt',                   rotulo: 'Descricao Completa (PT)',                tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_completa_item_en',                   rotulo: 'Descricao Completa (EN)',                tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_completa_item_es',                   rotulo: 'Descricao Completa (ES)',                tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_completa_item_nf',                   rotulo: 'Descricao Completa (NF)',                tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'texto_posicao_ncm',                            rotulo: 'Texto Posicao NCM',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'grupo_item',                                   rotulo: 'Grupo do Item',                          tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'subgrupo_item',                                rotulo: 'Subgrupo do Item',                       tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'campo_especial_item',                          rotulo: 'Campo Especial do Item',                 tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'atributos_catalogo',                           rotulo: 'Atributos de Catalogo',                  tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
 
   // Quantidades
   { campo: 'quantidade_inicial_item',                      rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades', prioridade: 'critica',   obrigatorio: true, aliasesLegados: ['qty', 'quantity', 'qtd', 'qtde', 'quantidade', 'ordered qty', 'order qty', 'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'zmenge', 'menge'] },
@@ -290,6 +311,11 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'referencia_fabricante_item',                   rotulo: 'Referencia Fabricante (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
   { campo: 'numero_proforma_item',                         rotulo: 'No Proforma (Item)',                     tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
   { campo: 'numero_invoice_item',                          rotulo: 'No Invoice (Item)',                      tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  // Colunas "Edicao em Massa" (migration 2026-05-12) — embalagem e documentos
+  { campo: 'tipo_embalagem',                               rotulo: 'Tipo de Embalagem',                      tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'numero_lpco',                                  rotulo: 'No LPCO',                                tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'numero_certificado_origem',                    rotulo: 'No Certificado de Origem',               tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'data_certificado_origem',                      rotulo: 'Data Certificado de Origem',             tipo: 'data',   nivel: 'item', grupo: 'Documentos' },
 
   // Comercial
   { campo: 'incoterm_item',                                rotulo: 'Incoterm (Item)',                        tipo: 'texto',  nivel: 'item', grupo: 'Comercial', prioridade: 'principal' },
@@ -305,8 +331,9 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   // Datas do item
   { campo: 'data_emissao_item',                            rotulo: 'Data de Emissao (Item)',                 tipo: 'data',   nivel: 'item', grupo: 'Datas' },
   { campo: 'data_consolidacao_item',                       rotulo: 'Data de Consolidacao (Item)',            tipo: 'data',   nivel: 'item', grupo: 'Datas' },
-  // DEBITO: nao existe no schema. Mantido como placeholder conceitual por decisao de produto.
-  { campo: 'data_embarque_item_pedido',                    rotulo: 'Data de Embarque (Item)',                tipo: 'data',   nivel: 'item', grupo: 'Datas' },
+  // Paridade Prisma (Onda 1 — 2026-06-11): debito resolvido — coluna
+  // data_embarque_item existe desde a migration de 2026-05-12.
+  { campo: 'data_embarque_item',                           rotulo: 'Data de Embarque (Item)',                tipo: 'data',   nivel: 'item', grupo: 'Datas', aliasesLegados: ['data embarque item pedido'] },
   { campo: 'data_prevista_item_pronto',                    rotulo: 'Data Prevista — Item Pronto',            tipo: 'data',   nivel: 'item', grupo: 'Datas' },
   { campo: 'data_confirmada_item_pronto',                  rotulo: 'Data Confirmada — Item Pronto',          tipo: 'data',   nivel: 'item', grupo: 'Datas' },
   { campo: 'data_meta_item_pronto',                        rotulo: 'Data Meta — Item Pronto',                tipo: 'data',   nivel: 'item', grupo: 'Datas' },

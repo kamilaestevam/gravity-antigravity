@@ -5782,7 +5782,8 @@
       "grupo_datas_draft_proforma": "Proforma Draft Dates",
       "grupo_datas_draft_invoice": "Invoice Draft Dates",
       "grupo_produto": "Product",
-      "grupo_quantidades": "Quantities"
+      "grupo_quantidades": "Quantities",
+      "grupo_personalizadas": "Custom"
     },
     "massa_campos": {
       "numero_pedido": "Order Number",

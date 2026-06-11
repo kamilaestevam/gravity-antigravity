@@ -1409,6 +1409,24 @@
       "ultimoResultado": null
     },
     {
+      "id": "TST-EMT-PEDIDO-LISTA-EDICAO-EM-MASSA-000081",
+      "tipo": "EMT",
+      "escopo": "PEDIDO",
+      "sublocal": "lista/edicao-em-massa",
+      "modulo": "Edição em Massa — 166 campos SSOT + 8 tipos de colunas manuais",
+      "propriedade_dono": true,
+      "criticidade": "alta",
+      "planoFile": "testes/testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/plano-teste-em-tela.md",
+      "specFile": "testes/testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/run-lista-edicao-em-massa.ts",
+      "componenteFile": "servicos-global/produto/pedido/client/src/components/ModalPedidosEdicaoMassa.tsx",
+      "casosTotal": 212,
+      "coberturaPercentual": 0,
+      "status": "aprovado",
+      "criadoEm": "2026-06-11T19:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
       "id": "TST-UNI-PEDIDO-000061",
       "tipo": "UNI",
       "escopo": "PEDIDO",
@@ -1634,6 +1652,25 @@
       "coberturaPercentual": 0,
       "status": "aguardando_aprovacao_dono",
       "criadoEm": "2026-06-09T12:00:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    },
+    {
+      "id": "TST-UNI-ADMIN-000073",
+      "tipo": "UNI",
+      "escopo": "ADMIN",
+      "sublocal": "testes-gerais/datas-colunas",
+      "modulo": "Formatacao de data, 3 recentes por extenso, demais com tooltip",
+      "tela": "Admin › Testes — aba Plano de Teste e coluna DATA",
+      "rota": "/admin/testes-gerais",
+      "criticidade": "media",
+      "planoFile": "testes/testes-unitarios/admin/visao-geral/teste/plano-de-teste/TST-UNI-ADMIN-000073.json",
+      "specFile": "testes/testes-unitarios/admin/visao-geral/teste/plano-de-teste/TST-UNI-ADMIN-000073.test.ts",
+      "componenteFile": "servicos-global/configurador/src/pages/admin/LogTestes.tsx",
+      "casosTotal": 33,
+      "coberturaPercentual": 0,
+      "status": "aguardando_aprovacao_dono",
+      "criadoEm": "2026-06-11T12:00:00Z",
       "ultimaExecucao": null,
       "ultimoResultado": null
     }

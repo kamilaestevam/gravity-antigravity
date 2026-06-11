@@ -280,15 +280,14 @@ export class DuplicarService {
   ): Promise<DuplicarResultado> {
     const { duplicar: config } = await buscarConfig(db, id_organizacao)
 
-    // id_workspace é conditional: aplica só se o header veio. Caso contrário, o
-    // filtro fica apenas em id_organizacao (pattern do GET /pedidos). Forçar a
-    // coluna sempre causava 404 quando o pedido tinha workspace NULL ou diverso.
+    // Sem filtro por x-id-workspace na lookup — mesmo contrato de reordenacao-itens-pedido
+    // e POST /exclusoes/*: pedidos visíveis na lista multi-workspace podem ser duplicados
+    // mesmo quando o header aponta outro workspace ativo.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
       where: {
         id_pedido: { in: payload.ids },
         id_organizacao: id_organizacao,
-        ...(id_workspace ? { id_workspace } : {}),
       },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
@@ -504,14 +503,12 @@ export class DuplicarService {
     id_workspace: string | undefined,
     payload: DuplicarItemPayload,
   ): Promise<DuplicarResultado> {
-    // id_workspace conditional (mesma justificativa de confirmar()).
-    // Verificar que o pedido pertence à organização (workspace só se header veio)
+    // Sem filtro por x-id-workspace na lookup — lista multi-workspace (menu lateral).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedido = await (db as any).pedido.findFirst({
       where: {
         id_pedido: payload.pedido_id,
         id_organizacao: id_organizacao,
-        ...(id_workspace ? { id_workspace } : {}),
       },
     })
     if (!pedido) {
@@ -528,7 +525,6 @@ export class DuplicarService {
         id_item: { in: payload.item_ids },
         id_pedido: payload.pedido_id,
         id_organizacao: id_organizacao,
-        ...(id_workspace ? { id_workspace } : {}),
       },
     })
 
@@ -556,7 +552,6 @@ export class DuplicarService {
       where: {
         id_pedido: payload.pedido_id,
         id_organizacao: id_organizacao,
-        ...(id_workspace ? { id_workspace } : {}),
       },
       select: { id_item: true, sequencia_item_pedido: true },
       orderBy: { sequencia_item_pedido: 'asc' },

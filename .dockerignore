@@ -9,4 +9,9 @@ testes/*
 !testes/test-plans-registry.json
 # Specs EMT executados via Admin POST /api/v1/admin/testes/disparar (npx tsx)
 !testes/testes-em-tela/**
+# Planos (md/json) lidos pelo modal Admin de detalhe de plano — todos os tipos.
+# Sem isto o modal mostra "Arquivo do plano não encontrado" (specs .ts seguem fora da imagem).
+!testes/**/
+!testes/**/*.md
+!testes/**/*.plan.json
 .claude

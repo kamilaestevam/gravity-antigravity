@@ -8,9 +8,10 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
 import { ModalExecutarTestes } from './ModalTestesExecutar'
+import { ModalDetalhePlanoTeste } from './ModalDetalhePlanoTeste'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { adminTestesApi, adminAgendamentosTesteApi, adminPlanosTesteApi, apiFetchBlob, type TesteApi, type ExecucaoTesteStatusApi } from '../../services/api-client'
+import { adminTestesApi, adminAgendamentosTesteApi, adminPlanosTesteApi, apiFetchBlob, type TesteApi, type ExecucaoTesteStatusApi, type PlanoTesteApi } from '../../services/api-client'
 import {
   resolverOqueFoiTestadoLog,
   resolverOqueFoiTestadoPlano,
@@ -30,7 +31,23 @@ import {
 
 type TipoTeste = 'E2E' | 'EMT' | 'FUNCIONAL' | 'UNITARIO'
 
-type AbaTestesGerais = 'executados' | 'em_execucao'
+type AbaTestesGerais = 'executados' | 'em_execucao' | 'planos'
+
+function formatarDataPlano(iso?: string): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`
+}
+
+function formatarDataHoraPlano(iso?: string): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
 
 function formatarDuracaoCorrente(dataInicioIso: string): string {
   const inicio = new Date(dataInicioIso).getTime()
@@ -167,18 +184,27 @@ function rotuloTipoTeste(tipo: TipoTeste, t: (k: string) => string): string {
   return map[tipo]
 }
 
-function renderTextoTruncado50(valor: string, labelTooltip: string): React.ReactNode {
-  if (valor.length <= 50) {
-    return <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{valor}</span>
+function renderTextoTruncado(
+  valor: string,
+  labelTooltip: string,
+  limite: number,
+  estilo?: React.CSSProperties,
+): React.ReactNode {
+  if (valor.length <= limite) {
+    return <span style={{ fontWeight: 600, color: '#f1f5f9', ...estilo }}>{valor}</span>
   }
   return (
     <TooltipGlobal titulo={labelTooltip} descricao={valor}>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600, color: '#f1f5f9' }}>
-        {valor.slice(0, 50) + '…'}
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600, color: '#f1f5f9', ...estilo }}>
+        {valor.slice(0, limite) + '…'}
         <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
       </span>
     </TooltipGlobal>
   )
+}
+
+function renderTextoTruncado50(valor: string, labelTooltip: string): React.ReactNode {
+  return renderTextoTruncado(valor, labelTooltip, 50)
 }
 
 /** Escopos canônicos → rótulo da coluna Teste no histórico admin. */
@@ -1153,6 +1179,8 @@ export function LogTestes() {
   const [modalExecutarAberto, setModalExecutarAberto] = useState(false)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
   const [catalogoPlanos, setCatalogoPlanos] = useState<Map<string, PlanoFavoritoResumoOrigem>>(new Map())
+  const [planosLista, setPlanosLista] = useState<PlanoTesteApi[]>([])
+  const [planoDetalhe, setPlanoDetalhe] = useState<PlanoTesteApi | null>(null)
   const execucoesAnterioresRef = useRef<Set<string>>(new Set())
   /** IDs já presentes no histórico antes do run — toast conta só entradas novas. */
   const baselineIdsRef = useRef<Set<string>>(new Set())
@@ -1192,6 +1220,7 @@ export function LogTestes() {
   useEffect(() => {
     adminPlanosTesteApi.listar()
       .then(({ planos }) => {
+        setPlanosLista(planos)
         setCatalogoPlanos(new Map(planos.map(p => [p.id, p])))
       })
       .catch(() => { /* histórico ainda exibe fallback pelo test_name gravado */ })
@@ -1304,6 +1333,39 @@ export function LogTestes() {
     return () => { stopped = true; clearInterval(interval) }
   }, [temExecucoesAtivas])
 
+  /** As 3 datas mais recentes (dd/mm/aaaa) ficam por extenso; o resto fica compacto. */
+  const datasRecentes = useMemo(() => {
+    const ultimoMsPorData = new Map<string, number>()
+    for (const item of dados) {
+      const data = item.dataHora.split(' ')[0]
+      const atual = ultimoMsPorData.get(data) ?? 0
+      if (item.createdAtMs > atual) ultimoMsPorData.set(data, item.createdAtMs)
+    }
+    const top3 = [...ultimoMsPorData.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([data]) => data)
+    return new Set(top3)
+  }, [dados])
+
+  /** Mesma regra das 3 datas recentes, agora sobre a data de criação dos planos. */
+  const datasRecentesPlanos = useMemo(() => {
+    const ultimoMsPorData = new Map<string, number>()
+    for (const plano of planosLista) {
+      if (!plano.criadoEm) continue
+      const ms = new Date(plano.criadoEm).getTime()
+      if (Number.isNaN(ms)) continue
+      const data = formatarDataPlano(plano.criadoEm)
+      const atual = ultimoMsPorData.get(data) ?? 0
+      if (ms > atual) ultimoMsPorData.set(data, ms)
+    }
+    const top3 = [...ultimoMsPorData.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([data]) => data)
+    return new Set(top3)
+  }, [planosLista])
+
   const logs7d = useMemo(() => filtrarLogsPorDias(dados, 7), [dados])
   const logs30d = useMemo(() => filtrarLogsPorDias(dados, 30), [dados])
   const passos7d = useMemo(() => somarPassosAprovacao(logs7d), [logs7d])
@@ -1364,6 +1426,21 @@ export function LogTestes() {
       key: 'dataHora', label: t('admin.testes-gerais.col_data_hora'), tipo: 'texto',
       tooltipTitulo: t('admin.testes-gerais.tooltip_data_hora'),
       tooltipDescricao: t('admin.testes-gerais.tooltip_data_hora_desc'),
+      getValorBruto: (item) => item.dataHora,
+      render: (_v, item) => {
+        const dataCurta = item.dataHora.split(' ')[0]
+        if (datasRecentes.has(dataCurta)) {
+          return <span style={{ color: '#94a3b8' }}>{item.dataHora}</span>
+        }
+        return (
+          <TooltipGlobal titulo={t('admin.testes-gerais.col_data_hora')} descricao={item.dataHora}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#94a3b8' }}>
+              {dataCurta}
+              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+            </span>
+          </TooltipGlobal>
+        )
+      },
     },
     {
       key: 'tipo',
@@ -1563,6 +1640,73 @@ export function LogTestes() {
           {formatarDuracaoCorrente(item.data_inicio_execucao_teste)}
         </span>
       ),
+    },
+  ]
+
+  const colunasPlanos: TabelaGlobalColuna<PlanoTesteApi>[] = [
+    { key: 'id', label: 'ID', tipo: 'texto' },
+    {
+      key: 'escopo', label: 'ESCOPO', tipo: 'texto',
+      render: (v) => (
+        <span style={{ padding: '0.1rem 0.4rem', borderRadius: '4px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#818cf8', fontSize: '0.7rem', fontWeight: 700 }}>
+          {String(v ?? '—')}
+        </span>
+      ),
+    },
+    {
+      key: 'tela', label: 'TELA', tipo: 'texto',
+      getValorBruto: (item) => item.tela ?? item.sublocal ?? '—',
+      render: (_v, item) => <span style={{ fontWeight: 600, color: '#cbd5e1' }}>{item.tela ?? item.sublocal ?? '—'}</span>,
+    },
+    {
+      key: 'criadoEm', label: 'DATA', tipo: 'texto',
+      getValorBruto: (item) => formatarDataPlano(item.criadoEm),
+      render: (_v, item) => {
+        const dataCurta = formatarDataPlano(item.criadoEm)
+        if (dataCurta === '—' || datasRecentesPlanos.has(dataCurta)) {
+          return <span style={{ color: '#94a3b8' }}>{dataCurta}</span>
+        }
+        return (
+          <TooltipGlobal titulo="DATA" descricao={formatarDataHoraPlano(item.criadoEm)}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#94a3b8' }}>
+              {dataCurta}
+              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+            </span>
+          </TooltipGlobal>
+        )
+      },
+    },
+    {
+      key: 'passosTotal', label: 'PASSOS', tipo: 'numero',
+      getValorBruto: (item) => String(item.passosTotal ?? item.casosTotal ?? 0),
+      render: (_v, item) => (
+        <span style={{ fontWeight: 600, color: '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>
+          {item.passosTotal ?? item.casosTotal ?? 0}
+        </span>
+      ),
+    },
+    {
+      key: 'coberturaPercentual', label: 'COBERTURA', tipo: 'numero',
+      getValorBruto: (item) => String(item.coberturaPercentual ?? 0),
+      render: (_v, item) => {
+        const cob = item.coberturaPercentual ?? 0
+        return (
+          <span style={{ color: cob >= 80 ? '#10b981' : cob >= 60 ? '#eab308' : '#ef4444', fontWeight: 700 }}>
+            {cob}%
+          </span>
+        )
+      },
+    },
+    {
+      key: 'status', label: 'STATUS', tipo: 'texto',
+      render: (v) => {
+        const st = String(v ?? '')
+        return (
+          <span style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: st === 'validado' ? 'rgba(16,185,129,0.15)' : 'rgba(234,179,8,0.15)', border: `1px solid ${st === 'validado' ? 'rgba(16,185,129,0.3)' : 'rgba(234,179,8,0.3)'}`, color: st === 'validado' ? '#10b981' : '#eab308', fontSize: '0.7rem', fontWeight: 700 }}>
+            {st || '—'}
+          </span>
+        )
+      },
     },
   ]
 
@@ -1812,6 +1956,7 @@ export function LogTestes() {
           {([
             { key: 'em_execucao' as const, rotulo: t('admin.testes-gerais.aba_em_execucao'), badge: execucoesAtivas.length },
             { key: 'executados' as const, rotulo: t('admin.testes-gerais.aba_executados'), badge: dados.length },
+            { key: 'planos' as const, rotulo: t('admin.testes-gerais.aba_planos', 'Plano de Teste'), badge: planosLista.length },
           ]).map(tab => (
             <button
               key={tab.key}
@@ -1846,7 +1991,7 @@ export function LogTestes() {
           className="ws-fade-up"
           style={{ flex: 1, minHeight: 0, overflowY: 'auto', position: 'relative', zIndex: 10 }}
         >
-          {abaAtiva === 'em_execucao' ? (
+          {abaAtiva === 'em_execucao' && (
             <TabelaGlobal
               id="admin-test-runs-ativos"
               dados={execucoesAtivas}
@@ -1855,7 +2000,8 @@ export function LogTestes() {
               mensagemVazio={t('admin.testes-gerais.vazio_em_execucao')}
               mensagemSemFiltro={t('admin.testes-gerais.vazio_em_execucao')}
             />
-          ) : (
+          )}
+          {abaAtiva === 'executados' && (
             <TabelaGlobal
               id="admin-test-logs"
               dados={dados}
@@ -1867,6 +2013,18 @@ export function LogTestes() {
               tooltipBusca={t('admin.testes-gerais.tooltip_busca')}
               tooltipExpandir={t('admin.testes-gerais.tooltip_expandir')}
               acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Logs')}
+            />
+          )}
+          {abaAtiva === 'planos' && (
+            <TabelaGlobal
+              id="admin-test-plans"
+              dados={planosLista}
+              colunas={colunasPlanos}
+              idKey="id"
+              aoClicarLinha={(plano) => setPlanoDetalhe(plano)}
+              mensagemVazio={t('admin.testes-gerais.vazio_planos', 'Nenhum plano de teste registrado.')}
+              mensagemSemFiltro={t('admin.testes-gerais.vazio_planos', 'Nenhum plano de teste registrado.')}
+              acoesExportacao={getAcoesExportacaoPadrao(colunasPlanos, 'planos-teste', 'Planos de Teste')}
             />
           )}
         </div>
@@ -1896,6 +2054,13 @@ export function LogTestes() {
             void carregarStatusExecucoes()
             setModalExecutarAberto(false)
           }}
+        />
+
+        <ModalDetalhePlanoTeste
+          aberto={planoDetalhe !== null}
+          plano={planoDetalhe}
+          ambiente="Local"
+          aoFechar={() => setPlanoDetalhe(null)}
         />
       </div>
     </PaginaGlobal>

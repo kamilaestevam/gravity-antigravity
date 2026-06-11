@@ -21,60 +21,19 @@ function toggleItem<T extends string>(lista: T[], item: T): T[] {
   return lista.includes(item) ? lista.filter(i => i !== item) : [...lista, item]
 }
 
-/** Preview de quem receberá a cotação aberta: totais por tipo + barras de nota. */
-function PreviewFornecedoresElegiveis({
-  fornecedores,
-  carregando,
-}: {
-  fornecedores: Fornecedor[]
-  carregando: boolean
-}) {
+/** Toggle expandível com barras de nota por fornecedor (Aberta e Direcionada). */
+function BarrasNotasFornecedores({ fornecedores }: { fornecedores: Fornecedor[] }) {
   const { t } = useTranslation()
   const [graficoAberto, setGraficoAberto] = React.useState(false)
 
-  if (carregando) {
-    return <p className="bf-disparo-vazio">{t('comum.carregando')}</p>
-  }
+  if (fornecedores.length === 0) return null
 
-  const elegiveis = fornecedores.filter(
-    f => f.status_fornecedor_bid_frete_internacional === 'ATIVO'
-      && f.aceita_cotacao_aberta_fornecedor_bid_frete_internacional,
-  )
-
-  if (elegiveis.length === 0) {
-    return (
-      <p className="bf-disparo-vazio">
-        {t('bidfrete.disparo.sem_elegiveis', 'Nenhum fornecedor ativo aceita cotação aberta — o disparo não terá destinatários.')}
-      </p>
-    )
-  }
-
-  const porTipo = new Map<TipoFornecedor, number>()
-  for (const f of elegiveis) {
-    porTipo.set(f.tipo_fornecedor_bid_frete_internacional, (porTipo.get(f.tipo_fornecedor_bid_frete_internacional) ?? 0) + 1)
-  }
-
-  const ordenadosPorNota = [...elegiveis].sort(
+  const ordenadosPorNota = [...fornecedores].sort(
     (a, b) => (b.nota_global_classificacao_bid_frete_internacional ?? 0) - (a.nota_global_classificacao_bid_frete_internacional ?? 0),
   )
 
   return (
-    <div className="bf-preview-elegiveis">
-      <span className="bf-preview-titulo">{t('bidfrete.disparo.preview', 'Preview')}</span>
-      <div className="bf-preview-cards">
-        <div className="bf-preview-card bf-preview-card--total">
-          <UsersThree weight="duotone" size={18} />
-          <span className="bf-preview-card-num">{elegiveis.length}</span>
-          <span className="bf-preview-card-label">{t('bidfrete.disparo.total_elegiveis', 'Fornecedores elegíveis')}</span>
-        </div>
-        {[...porTipo.entries()].map(([tipo, qtd]) => (
-          <div key={tipo} className="bf-preview-card">
-            <span className="bf-preview-card-num">{qtd}</span>
-            <span className="bf-preview-card-label">{TIPO_FORNECEDOR_LABELS[tipo] ?? tipo}</span>
-          </div>
-        ))}
-      </div>
-
+    <>
       <button type="button" className="bf-preview-toggle" onClick={() => setGraficoAberto(v => !v)}>
         <Star weight="duotone" size={14} />
         {graficoAberto
@@ -103,6 +62,60 @@ function PreviewFornecedoresElegiveis({
           })}
         </div>
       )}
+    </>
+  )
+}
+
+/** Preview de quem receberá a cotação aberta: totais por tipo + barras de nota. */
+function PreviewFornecedoresElegiveis({
+  fornecedores,
+  carregando,
+}: {
+  fornecedores: Fornecedor[]
+  carregando: boolean
+}) {
+  const { t } = useTranslation()
+
+  if (carregando) {
+    return <p className="bf-disparo-vazio">{t('comum.carregando')}</p>
+  }
+
+  const elegiveis = fornecedores.filter(
+    f => f.status_fornecedor_bid_frete_internacional === 'ATIVO'
+      && f.aceita_cotacao_aberta_fornecedor_bid_frete_internacional,
+  )
+
+  if (elegiveis.length === 0) {
+    return (
+      <p className="bf-disparo-vazio">
+        {t('bidfrete.disparo.sem_elegiveis', 'Nenhum fornecedor ativo aceita cotação aberta — o disparo não terá destinatários.')}
+      </p>
+    )
+  }
+
+  const porTipo = new Map<TipoFornecedor, number>()
+  for (const f of elegiveis) {
+    porTipo.set(f.tipo_fornecedor_bid_frete_internacional, (porTipo.get(f.tipo_fornecedor_bid_frete_internacional) ?? 0) + 1)
+  }
+
+  return (
+    <div className="bf-preview-elegiveis">
+      <span className="bf-preview-titulo">{t('bidfrete.disparo.preview', 'Preview')}</span>
+      <div className="bf-preview-cards">
+        <div className="bf-preview-card bf-preview-card--total">
+          <UsersThree weight="duotone" size={18} />
+          <span className="bf-preview-card-num">{elegiveis.length}</span>
+          <span className="bf-preview-card-label">{t('bidfrete.disparo.total_elegiveis', 'Fornecedores elegíveis')}</span>
+        </div>
+        {[...porTipo.entries()].map(([tipo, qtd]) => (
+          <div key={tipo} className="bf-preview-card">
+            <span className="bf-preview-card-num">{qtd}</span>
+            <span className="bf-preview-card-label">{TIPO_FORNECEDOR_LABELS[tipo] ?? tipo}</span>
+          </div>
+        ))}
+      </div>
+
+      <BarrasNotasFornecedores fornecedores={elegiveis} />
     </div>
   )
 }
@@ -196,6 +209,7 @@ export function SelecaoFornecedoresDisparo({
               )
             })}
               </div>
+              <BarrasNotasFornecedores fornecedores={fornecedores} />
             </>
           )}
         </div>

@@ -1,0 +1,31 @@
+{
+  "id": "TST-E2E-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000089",
+  "versao": "1.0",
+  "geradoEm": "2026-06-11T00:00:00Z",
+  "geradoPor": "pipeline-multi-agente",
+  "escopo": "PEDIDO",
+  "sublocal": "usuario/teste-organizacao",
+  "modulo": "E2E porteiro /me -> resolver -> Lista de Pedidos (sem 'Organizacao nao encontrada')",
+  "tipoModulo": "playwright_spec",
+  "arquivoFilePath": "servicos-global/produto/pedido/client/src/pages/Pedidos.tsx",
+  "ambiente": "local-ou-producao",
+  "criticidade": "critica",
+  "preRequisitos": [
+    "shell :8000 + Configurador :8005 + sidecar Pedido",
+    "seed: U_OK (user_*), U_PENDING (pending_*, mesmo e-mail verificado), org ATIVA com >=1 pedido",
+    "env: E2E_EMAIL_USER_OK, E2E_EMAIL_USER_PENDING, E2E_EMAIL_USER_OUTRO"
+  ],
+  "categorias": [
+    { "nome": "happy",       "min": 1, "total": 2 },
+    { "nome": "regression",  "min": 2, "total": 2 }
+  ],
+  "casos": [
+    { "id": "TST-E2E-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000089-001", "categoria": "happy",      "descricao": "E2E-01 usuario user_* abre a Lista sem erro de organizacao", "origem": "matriz-definitiva" },
+    { "id": "TST-E2E-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000089-002", "categoria": "happy",      "descricao": "E2E-02 usuario pending_ abre a Lista (self-heal) sem 404 [skip sem seed]", "origem": "matriz-definitiva" },
+    { "id": "TST-E2E-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000089-003", "categoria": "regression", "descricao": "E2E-03 logout limpa gravity:idOrganizacao + sessionStorage", "origem": "matriz-definitiva" },
+    { "id": "TST-E2E-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000089-004", "categoria": "regression", "descricao": "E2E-04 F5 repetido nunca cai em 'Organizacao nao encontrada' nem mostra label generico", "origem": "matriz-definitiva" }
+  ],
+  "specFile": "testes/testes-e2e/usuario/teste-organizacao/TST-E2E-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000089.spec.ts",
+  "status": "aprovado",
+  "ultimoResultado": "pendente-ambiente"
+}

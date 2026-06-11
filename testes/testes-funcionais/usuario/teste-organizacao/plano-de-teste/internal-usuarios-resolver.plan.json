@@ -1,0 +1,30 @@
+{
+  "id": "TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000088",
+  "versao": "1.0",
+  "geradoEm": "2026-06-11T00:00:00Z",
+  "geradoPor": "pipeline-multi-agente",
+  "escopo": "PEDIDO",
+  "sublocal": "usuario/teste-organizacao",
+  "modulo": "GET /api/v1/internal/usuarios/:id_clerk_usuario (rota interna do resolver SDK)",
+  "tipoModulo": "rota_express",
+  "arquivoFilePath": "servicos-global/configurador/server/routes/acesso.ts",
+  "ambiente": "node",
+  "criticidade": "critica",
+  "coberturaMinima": 70,
+  "contexto": "Fase 2 (commit 1b8b1749a) — rota interna usa resolverUsuarioPorClerkSub (self-heal). Cura usuarios pending_ no 1o acesso a qualquer produto.",
+  "categorias": [
+    { "nome": "happy",  "min": 2, "total": 2 },
+    { "nome": "sad",    "min": 2, "total": 2 },
+    { "nome": "edge",   "min": 1, "total": 1 }
+  ],
+  "casos": [
+    { "id": "TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000088-001", "categoria": "happy", "descricao": "FUN-01 usuario pending_ resolvido (self-heal) + org ATIVO -> 200 contrato SDK", "origem": "matriz-definitiva" },
+    { "id": "TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000088-002", "categoria": "happy", "descricao": "FUN-02 usuario user_* vinculado + org ATIVO -> 200 (regressao)", "origem": "matriz-definitiva" },
+    { "id": "TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000088-003", "categoria": "sad",   "descricao": "FUN-03a resolver null -> 404 NOT_FOUND", "origem": "matriz-definitiva" },
+    { "id": "TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000088-004", "categoria": "sad",   "descricao": "FUN-03b usuario ok + org inexistente -> 404 NOT_FOUND", "origem": "matriz-definitiva" },
+    { "id": "TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000088-005", "categoria": "edge",  "descricao": "FUN-03c org SUSPENSO -> 200 status 'suspended' (StatusSdkMap)", "origem": "matriz-definitiva" }
+  ],
+  "specFile": "testes/testes-funcionais/usuario/teste-organizacao/internal-usuarios-resolver.test.ts",
+  "status": "aprovado",
+  "ultimoResultado": "passou"
+}

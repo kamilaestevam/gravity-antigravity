@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
@@ -123,7 +123,14 @@ type TabKey = 'info' | 'precos' | 'avaliacoes'
 export default function DetalheFornecedor() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
   const { id_fornecedor: id } = useParams<{ id_fornecedor: string }>()
+
+  // Voltar para a tela de origem; fallback Fornecedores em deep link/nova aba
+  const voltarParaOrigem = useCallback(() => {
+    if (location.key !== 'default') navigate(-1)
+    else navigate('/bid-frete/fornecedores')
+  }, [location.key, navigate])
   const [fornecedor, setFornecedor] = useState<Fornecedor | null>(null)
   const [tabela, setTabela] = useState<TabelaPreco[]>([])
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([])
@@ -159,8 +166,9 @@ export default function DetalheFornecedor() {
       label:     fornecedor?.nome_fornecedor_bid_frete_internacional ?? t('bidfrete.detalhe_fornecedor.carregando'),
       icone:     <Buildings weight="duotone" size={22} />,
       subtitulo: fornecedor?.nome_fantasia_fornecedor_bid_frete_internacional ?? undefined,
+      aoVoltar:  voltarParaOrigem,
     }
-  }, [fornecedor, carregando, t])
+  }, [fornecedor, carregando, t, voltarParaOrigem])
 
   useSincronizarTituloPaginaTopo(tituloTopo)
 

@@ -8,6 +8,7 @@ describe('classificarRegraTooltipColuna', () => {
   it('classifica colunas pai conhecidas', () => {
     expect(classificarRegraTooltipColuna('descricao_item', 'pai')).toBe('pai_ghost_descricao')
     expect(classificarRegraTooltipColuna('ncm', 'pai')).toBe('pai_ghost_ncm')
+    expect(classificarRegraTooltipColuna('ncm', 'item')).toBe('item_ghost_ncm')
     expect(classificarRegraTooltipColuna('valor_total_pedido', 'pai')).toBe('pai_calculado_valor')
     expect(classificarRegraTooltipColuna('saldo_itens_do_pedido', 'pai')).toBe('pai_saldo_formula')
     expect(classificarRegraTooltipColuna('moeda_cambio_pedido', 'pai')).toBe('pai_moeda_cambio')
@@ -19,6 +20,8 @@ describe('classificarRegraTooltipColuna', () => {
   })
 
   it('classifica colunas item conhecidas', () => {
+    expect(classificarRegraTooltipColuna('descricao_item', 'item')).toBe('item_ghost_descricao')
+    expect(classificarRegraTooltipColuna('tipo_operacao', 'item')).toBe('item_nao_editavel_padrao')
     expect(classificarRegraTooltipColuna('saldo_itens_do_pedido', 'item')).toBe('item_nao_editavel_saldo')
     expect(classificarRegraTooltipColuna('quantidade_transferida_total', 'item')).toBe(
       'item_nao_editavel_transferencia',
@@ -37,5 +40,17 @@ describe('classificarRegraTooltipColuna', () => {
   it('datas e alfanuméricos do pedido usam regra de replicação', () => {
     expect(classificarRegraTooltipColuna('data_emissao_pedido', 'pai')).toBe('pai_editavel_replicar_alerta')
     expect(classificarRegraTooltipColuna('incoterm', 'pai')).toBe('pai_editavel_replicar_alerta')
+  })
+
+  it.each([
+    'porto_origem',
+    'porto_destino',
+    'local_de_origem',
+    'local_de_destino',
+    'aeroporto_origem',
+    'aeroporto_destino',
+  ] as const)('%s — regra espelhada pedido/item (sem alerta/replicar)', (campo) => {
+    expect(classificarRegraTooltipColuna(campo, 'pai')).toBe('pai_logistica')
+    expect(classificarRegraTooltipColuna(campo, 'item')).toBe('item_logistica')
   })
 })

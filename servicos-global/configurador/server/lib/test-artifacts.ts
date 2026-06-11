@@ -4,6 +4,8 @@
 
 import { existsSync, readdirSync, statSync, unlinkSync, rmdirSync } from 'fs'
 import { resolve, join } from 'path'
+import { raizRepositorioGravity } from './raiz-repositorio-gravity.js'
+import { dirArtefatosEmtPersistente } from './emt-artifacts.js'
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -13,11 +15,11 @@ const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000
 // ─── Diretórios de artefatos ─────────────────────────────────────────────────
 
 function getArtifactDirs(): string[] {
-  const monorepoRoot = resolve(process.cwd(), '..', '..')
   return [
-    resolve(monorepoRoot, 'testes', 'test-results'),
+    resolve(raizRepositorioGravity, 'testes', 'test-results'),
     resolve(process.cwd(), 'data', 'test-logs'),
     resolve(process.cwd(), 'data', 'pentest-reports'),
+    dirArtefatosEmtPersistente(),
   ]
 }
 

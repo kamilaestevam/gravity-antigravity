@@ -7,7 +7,9 @@ import { spawn } from 'child_process'
 import { resolve, join } from 'path'
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
-import { analyzeTestFailure } from '../lib/gemini-test-analyzer.js'
+import { appendTestLogEntries } from '../lib/test-log-persist.js'
+import { RUN_TESTES_TIMEOUT_MS } from '../lib/emt-run-timeout.js'
+import { raizRepositorioGravity, registryPlanosTestePath } from '../lib/raiz-repositorio-gravity.js'
 
 // ─── Cron parser simplificado ────────────────────────────────────────────────
 
@@ -46,7 +48,6 @@ function cronMatches(cron: string, now: Date): boolean {
 
 let running = false
 let intervalId: ReturnType<typeof setInterval> | null = null
-const monorepoRoot = resolve(process.cwd(), '..', '..')
 
 // ─── Worker principal ────────────────────────────────────────────────────────
 
@@ -129,14 +130,14 @@ function dispatchRun(
   if (config.planos?.length) {
     // Resolve spec files do registry
     try {
-      const registryPath = resolve(monorepoRoot, 'testes', 'test-plans-registry.json')
+      const registryPath = registryPlanosTestePath
       const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
         planos: Array<{ id: string; specFile: string }>
       }
       for (const planId of config.planos) {
         const entry = registry.planos.find(p => p.id === planId)
         if (entry?.specFile) {
-          args.push(resolve(monorepoRoot, 'testes', entry.specFile))
+          args.push(resolve(raizRepositorioGravity, 'testes', entry.specFile))
         }
       }
     } catch { /* registry missing */ }
@@ -147,10 +148,10 @@ function dispatchRun(
   }
 
   const proc = spawn('npx', args, {
-    cwd:         monorepoRoot,
+    cwd:         raizRepositorioGravity,
     shell:       true,
     windowsHide: true,
-    timeout:     15 * 60 * 1000,
+    timeout:     RUN_TESTES_TIMEOUT_MS,
     env:         { ...process.env, CI: '1' },
   })
 
@@ -166,43 +167,12 @@ function dispatchRun(
       }
     } catch { /* parse failed */ }
 
-    // Salva resultados
-    const dir = join(process.cwd(), 'data', 'test-logs')
-    mkdirSync(dir, { recursive: true })
     const created_at = new Date().toISOString()
-    const filePath = join(dir, `${created_at.slice(0, 10)}.json`)
-    let existing: unknown[] = []
-    try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
-    const novosLogs = entries.map((e, i) => ({
-      id: `sched-${scheduleId}-${Date.now()}-${i}`,
-      created_at,
-      schedule_id: scheduleId,
-      ...e,
-    }))
-    writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
-
-    // Enriquece falhas com Gemini
-    const falhas = novosLogs.filter(l => l.result === 'REPROVADO' || l.result === 'ERRO')
-    for (const falha of falhas) {
-      analyzeTestFailure({
-        errorLog:        falha.error_log ?? '',
-        testName:        falha.test_name,
-        specFilePath:    `${falha.module}/${falha.test_name}`,
-        specFileContent: '',
-      }).then(analysis => {
-        // Atualiza entry no arquivo
-        try {
-          const content = JSON.parse(readFileSync(filePath, 'utf-8')) as Array<Record<string, unknown>>
-          const idx = content.findIndex(e => e.id === falha.id)
-          if (idx >= 0) {
-            content[idx].ai_analysis = analysis
-            writeFileSync(filePath, JSON.stringify(content, null, 2))
-          }
-        } catch { /* ok */ }
-      }).catch(err => {
-        console.error(`[testScheduleWorker] Gemini falhou para ${falha.id}:`, err)
-      })
-    }
+    await appendTestLogEntries(entries, undefined, created_at, {
+      id_agendamento_teste: scheduleId,
+      gatilho_teste: 'cron',
+      ambiente_teste: 'Local',
+    })
 
     // Notificação de falha
     if (config.notificar && falhas.length > 0) {

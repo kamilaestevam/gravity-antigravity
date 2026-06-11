@@ -67,7 +67,7 @@ Devolva APENAS um JSON com estes campos exatos:
 
 INPUT do user turn:
 {
-  "errorLog": "TimeoutError: page.getByTestId('btn-salvar-organizacao') waiting for element to be visible at testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts:48",
+  "errorLog": "TimeoutError: page.getByTestId('btn-salvar-organizacao') waiting for element to be visible at testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000013.spec.ts:48",
   "testName": "18. Salvar Nome da Empresa",
   "specFileContent": "import { test, expect } from '@playwright/test'\n...\nawait page.getByTestId('btn-salvar-organizacao').click()\n...",
   "componentFileContent": "<button data-testid='btn-salvar-org'>{t('comum.salvar')}</button>",
@@ -81,9 +81,9 @@ OUTPUT esperado:
   "erroResumo": "Botão Salvar não encontrado: testid foi renomeado de 'btn-salvar-organizacao' para 'btn-salvar-org' no componente",
   "motivo": "O teste procura getByTestId('btn-salvar-organizacao') mas o componente Organizacao.tsx agora usa data-testid='btn-salvar-org'. O commit abc1234 (Daniel, 2026-04-14) renomeou os testids da tela mas o spec não foi atualizado. Isso é um teste desatualizado, não um bug — o produto continua funcionando, só o teste ficou pra trás.",
   "sugestaoCorrecao": "Atualizar o seletor no spec linha 48 de 'btn-salvar-organizacao' para 'btn-salvar-org'. Em paralelo, revisar se outros specs da mesma tela quebraram pelo mesmo motivo.",
-  "arquivo": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts:48",
+  "arquivo": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000013.spec.ts:48",
   "codigoDiff": {
-    "arquivo": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts",
+    "arquivo": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000013.spec.ts",
     "linha": 48,
     "old": "await page.getByTestId('btn-salvar-organizacao').click()",
     "new": "await page.getByTestId('btn-salvar-org').click()",

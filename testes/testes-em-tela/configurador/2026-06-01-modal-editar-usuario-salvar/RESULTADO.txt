@@ -1,0 +1,14 @@
+✓ Login Clerk (dmmltda@gmail.com)
+📷 01-lista-usuarios.png
+📷 02-modal-convidar-preenchido.png
+📷 03-modal-editar-aba-permissoes.png
+✓ Clicou "Tudo" (permissões granulares do produto)
+📷 04-permissoes-alteradas-pendentes.png
+⚠ Spinner "Salvando" não detectado (footer pode estar desatualizado no bundle)
+✓ Requisição de persistência disparada (ou save sincronizado sem PUT)
+ℹ Toast "atualizado" não capturado — pode ter sido só sincronização
+📷 99-erro.png
+✗ Falha: locator.waitFor: Timeout 45000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog').filter({ has: getByText('Editar Usuário', { exact: true }) }) to be hidden
+    92 × locator resolved to visible <div role="dialog" class="mg-dialog" aria-modal="true" aria-labelledby=":r1d:-titulo">…</div>

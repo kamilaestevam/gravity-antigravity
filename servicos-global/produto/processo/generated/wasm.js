@@ -122,198 +122,198 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.ProcessoGravityScalarFieldEnum = {
-  id: 'id',
+exports.Prisma.ProcessoScalarFieldEnum = {
+  id_processo: 'id_processo',
   id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  numero: 'numero',
-  referencia_interna: 'referencia_interna',
-  referencia_dati: 'referencia_dati',
-  status: 'status',
-  tipo: 'tipo',
-  responsavel_id: 'responsavel_id',
-  vendedor_id: 'vendedor_id',
-  setor_responsavel: 'setor_responsavel',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.ProcessoEtapasScalarFieldEnum = {
-  id: 'id',
-  id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  processo_id: 'processo_id',
-  nome: 'nome',
-  status: 'status',
-  data_prevista: 'data_prevista',
-  data_realizada: 'data_realizada',
-  observacao: 'observacao'
-};
-
-exports.Prisma.ProcessoPedidoScalarFieldEnum = {
-  id: 'id',
-  id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  processo_id: 'processo_id',
-  numero: 'numero',
-  exportador_nome: 'exportador_nome',
-  exportador_pais: 'exportador_pais',
-  valor_fob: 'valor_fob',
-  moeda: 'moeda',
-  peso_bruto: 'peso_bruto',
-  status: 'status',
-  status_id: 'status_id',
-  campos_custom: 'campos_custom',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.ProcessoPedidoItensScalarFieldEnum = {
-  id: 'id',
-  id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  pedido_id: 'pedido_id',
-  numero_item: 'numero_item',
-  descricao: 'descricao',
-  ncm: 'ncm',
-  quantidade: 'quantidade',
-  unidade: 'unidade',
-  valor_unitario: 'valor_unitario',
-  valor_total: 'valor_total',
-  moeda: 'moeda',
-  status_li: 'status_li',
-  campos_custom: 'campos_custom',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.ProcessoFollowupScalarFieldEnum = {
-  id: 'id',
-  id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  processo_id: 'processo_id',
-  titulo: 'titulo',
-  descricao: 'descricao',
-  tipo: 'tipo',
-  categoria: 'categoria',
-  usuario_id: 'usuario_id',
-  usuario_nome: 'usuario_nome',
-  created_at: 'created_at'
-};
-
-exports.Prisma.ProcessoAnexosScalarFieldEnum = {
-  id: 'id',
-  id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  processo_id: 'processo_id',
-  nome: 'nome',
-  tipo_arquivo: 'tipo_arquivo',
-  tamanho_bytes: 'tamanho_bytes',
-  url: 'url',
-  categoria: 'categoria',
-  created_at: 'created_at'
-};
-
-exports.Prisma.ProcessoEstimativaCustoScalarFieldEnum = {
-  id: 'id',
-  id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  processo_id: 'processo_id',
-  impostos: 'impostos',
-  frete: 'frete',
-  despacho: 'despacho',
-  outros: 'outros',
-  total: 'total',
-  moeda: 'moeda'
-};
-
-exports.Prisma.ProcessoDadosTecnicosScalarFieldEnum = {
-  id: 'id',
-  id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  processo_id: 'processo_id',
-  importador_nome: 'importador_nome',
-  importador_cnpj: 'importador_cnpj',
-  importador_endereco: 'importador_endereco',
-  exportador_nome: 'exportador_nome',
-  exportador_pais: 'exportador_pais',
-  exportador_endereco: 'exportador_endereco',
-  modal: 'modal',
-  porto_embarque: 'porto_embarque',
-  porto_destino: 'porto_destino',
-  navio_voo: 'navio_voo',
-  data_embarque: 'data_embarque',
-  data_chegada_prevista: 'data_chegada_prevista',
-  data_chegada_real: 'data_chegada_real',
-  bl_numero: 'bl_numero',
-  container_numero: 'container_numero',
-  despachante_nome: 'despachante_nome',
-  despachante_contato: 'despachante_contato',
-  di_numero: 'di_numero',
-  di_data: 'di_data',
-  canal: 'canal',
-  seguro_apolice: 'seguro_apolice',
-  seguro_valor: 'seguro_valor',
-  seguro_moeda: 'seguro_moeda'
+  id_workspace: 'id_workspace',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
+  numero_processo: 'numero_processo',
+  tipo_operacao_processo: 'tipo_operacao_processo',
+  referencia_interna_processo: 'referencia_interna_processo',
+  referencia_importador_processo: 'referencia_importador_processo',
+  referencia_exportador_processo: 'referencia_exportador_processo',
+  id_status_atual_processo: 'id_status_atual_processo',
+  id_importacao_exportador_processo: 'id_importacao_exportador_processo',
+  id_exportacao_importador_processo: 'id_exportacao_importador_processo',
+  id_cotacao_bid_frete_internacional: 'id_cotacao_bid_frete_internacional',
+  id_proposta_bid_frete_internacional: 'id_proposta_bid_frete_internacional',
+  id_transito_processo: 'id_transito_processo',
+  id_operacao_cambio_processo: 'id_operacao_cambio_processo',
+  id_responsavel_processo: 'id_responsavel_processo',
+  responsavel_rotina_processo: 'responsavel_rotina_processo',
+  setor_responsavel_processo: 'setor_responsavel_processo',
+  vendedor_responsavel_processo: 'vendedor_responsavel_processo',
+  data_criacao_processo: 'data_criacao_processo',
+  data_atualizacao_processo: 'data_atualizacao_processo'
 };
 
 exports.Prisma.ProcessoStatusScalarFieldEnum = {
-  id: 'id',
+  id_processo_status: 'id_processo_status',
   id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  nome: 'nome',
-  rotulo: 'rotulo',
-  cor: 'cor',
-  icone: 'icone',
-  ordem: 'ordem',
-  is_padrao: 'is_padrao',
-  is_sistema: 'is_sistema',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_produto_gravity: 'id_produto_gravity',
+  tipo_status_processo: 'tipo_status_processo',
+  rotulo_status_processo: 'rotulo_status_processo',
+  cor_status_processo: 'cor_status_processo',
+  ordem_status_processo: 'ordem_status_processo',
+  regras_status_processo: 'regras_status_processo',
+  eh_padrao_status_processo: 'eh_padrao_status_processo',
+  eh_sistema_status_processo: 'eh_sistema_status_processo',
+  data_criacao_processo_status: 'data_criacao_processo_status',
+  data_atualizacao_processo_status: 'data_atualizacao_processo_status'
 };
 
-exports.Prisma.ProcessoColunasScalarFieldEnum = {
-  id: 'id',
+exports.Prisma.HistoricoStatusProcessoScalarFieldEnum = {
+  id_historico_status_processo: 'id_historico_status_processo',
   id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  nome: 'nome',
-  rotulo: 'rotulo',
-  tipo: 'tipo',
-  casas_decimais: 'casas_decimais',
-  opcoes: 'opcoes',
-  ordem: 'ordem',
-  filtravel: 'filtravel',
-  exibida_padrao: 'exibida_padrao',
-  index_criado: 'index_criado',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_produto_gravity: 'id_produto_gravity',
+  id_processo: 'id_processo',
+  id_status_anterior_processo: 'id_status_anterior_processo',
+  id_status_novo_processo: 'id_status_novo_processo',
+  id_usuario_mudanca_status_processo: 'id_usuario_mudanca_status_processo',
+  data_mudanca_status_processo: 'data_mudanca_status_processo',
+  observacao_mudanca_status_processo: 'observacao_mudanca_status_processo'
 };
 
-exports.Prisma.ProcessosPedidoPreferenciaScalarFieldEnum = {
-  id: 'id',
+exports.Prisma.LogisticaInternacionalProcessoScalarFieldEnum = {
+  id_logistica_internacional_processo: 'id_logistica_internacional_processo',
   id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  colunas_visiveis: 'colunas_visiveis',
-  colunas_largura: 'colunas_largura',
-  updated_at: 'updated_at'
+  id_produto_gravity: 'id_produto_gravity',
+  id_processo: 'id_processo',
+  modal_frete_internacional_processo: 'modal_frete_internacional_processo',
+  tipo_frete_internacional_processo: 'tipo_frete_internacional_processo',
+  tipo_volume_processo: 'tipo_volume_processo',
+  incoterm_processo: 'incoterm_processo',
+  porto_origem_processo: 'porto_origem_processo',
+  porto_destino_processo: 'porto_destino_processo',
+  porto_transbordo_processo: 'porto_transbordo_processo',
+  aeroporto_origem_processo: 'aeroporto_origem_processo',
+  aeroporto_destino_processo: 'aeroporto_destino_processo',
+  aeroporto_escala_processo: 'aeroporto_escala_processo',
+  id_agente_carga: 'id_agente_carga',
+  id_armador: 'id_armador',
+  id_cia_aerea: 'id_cia_aerea',
+  id_transportador_rodo_internacional: 'id_transportador_rodo_internacional',
+  id_transportador_rodo_nacional: 'id_transportador_rodo_nacional',
+  id_transportador_ferroviario: 'id_transportador_ferroviario',
+  id_despachante: 'id_despachante',
+  id_armazem_alfandegado: 'id_armazem_alfandegado',
+  id_seguradora_internacional: 'id_seguradora_internacional',
+  data_criacao_logistica_internacional_processo: 'data_criacao_logistica_internacional_processo',
+  data_atualizacao_logistica_internacional_processo: 'data_atualizacao_logistica_internacional_processo'
 };
 
-exports.Prisma.ProcessoPedidoPadraoScalarFieldEnum = {
-  id: 'id',
+exports.Prisma.DadosProcessoScalarFieldEnum = {
+  id_dados_processo: 'id_dados_processo',
   id_organizacao: 'id_organizacao',
-  product_id: 'product_id',
-  colunas_visiveis: 'colunas_visiveis',
-  colunas_largura: 'colunas_largura',
-  updated_at: 'updated_at'
+  id_produto_gravity: 'id_produto_gravity',
+  id_processo: 'id_processo',
+  canal_parametrizacao_processo: 'canal_parametrizacao_processo',
+  numero_duimp_processo: 'numero_duimp_processo',
+  numero_nfe_processo: 'numero_nfe_processo',
+  chave_acesso_nfe_processo: 'chave_acesso_nfe_processo',
+  data_registro_duimp_processo: 'data_registro_duimp_processo',
+  data_liberacao_duimp_processo: 'data_liberacao_duimp_processo',
+  data_consulta_liberacao_duimp_processo: 'data_consulta_liberacao_duimp_processo',
+  data_previsao_registro_duimp_processo: 'data_previsao_registro_duimp_processo',
+  data_previsao_liberacao_duimp_processo: 'data_previsao_liberacao_duimp_processo',
+  data_registro_lpco_processo: 'data_registro_lpco_processo',
+  data_deferimento_lpco_processo: 'data_deferimento_lpco_processo',
+  data_indeferimento_lpco_processo: 'data_indeferimento_lpco_processo',
+  data_pendencia_lpco_processo: 'data_pendencia_lpco_processo',
+  data_consulta_liberacao_lpco_processo: 'data_consulta_liberacao_lpco_processo',
+  data_previsao_registro_lpco_processo: 'data_previsao_registro_lpco_processo',
+  data_criacao_dados_processo: 'data_criacao_dados_processo',
+  data_atualizacao_dados_processo: 'data_atualizacao_dados_processo'
+};
+
+exports.Prisma.CambioProcessoScalarFieldEnum = {
+  id_cambio_processo: 'id_cambio_processo',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_processo: 'id_processo',
+  id_banco_processo: 'id_banco_processo',
+  id_corretora_cambio_processo: 'id_corretora_cambio_processo',
+  data_criacao_cambio_processo: 'data_criacao_cambio_processo',
+  data_atualizacao_cambio_processo: 'data_atualizacao_cambio_processo'
+};
+
+exports.Prisma.EstimativaProcessoScalarFieldEnum = {
+  id_estimativa_processo: 'id_estimativa_processo',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_processo: 'id_processo',
+  total_imposto_ii_processo: 'total_imposto_ii_processo',
+  total_imposto_ipi_processo: 'total_imposto_ipi_processo',
+  total_imposto_pis_processo: 'total_imposto_pis_processo',
+  total_imposto_cofins_processo: 'total_imposto_cofins_processo',
+  total_imposto_icms_processo: 'total_imposto_icms_processo',
+  valor_frete_estimado_processo: 'valor_frete_estimado_processo',
+  valor_despacho_estimado_processo: 'valor_despacho_estimado_processo',
+  valor_outros_estimado_processo: 'valor_outros_estimado_processo',
+  valor_total_estimado_processo: 'valor_total_estimado_processo',
+  moeda_estimativa_processo: 'moeda_estimativa_processo',
+  data_criacao_estimativa_processo: 'data_criacao_estimativa_processo',
+  data_atualizacao_estimativa_processo: 'data_atualizacao_estimativa_processo'
+};
+
+exports.Prisma.DocumentoProcessoScalarFieldEnum = {
+  id_documento_processo: 'id_documento_processo',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
+  id_processo: 'id_processo',
+  nome_documento_processo: 'nome_documento_processo',
+  tipo_arquivo_documento_processo: 'tipo_arquivo_documento_processo',
+  tamanho_bytes_documento_processo: 'tamanho_bytes_documento_processo',
+  url_documento_processo: 'url_documento_processo',
+  categoria_documento_processo: 'categoria_documento_processo',
+  numero_bl_processo: 'numero_bl_processo',
+  numero_hawb_processo: 'numero_hawb_processo',
+  numero_mawb_processo: 'numero_mawb_processo',
+  numero_awb_processo: 'numero_awb_processo',
+  numero_hbl_processo: 'numero_hbl_processo',
+  numero_mbl_processo: 'numero_mbl_processo',
+  numero_ce_mercante_processo: 'numero_ce_mercante_processo',
+  numero_certificado_origem_processo: 'numero_certificado_origem_processo',
+  numero_cim_processo: 'numero_cim_processo',
+  numero_crt_processo: 'numero_crt_processo',
+  numero_presenca_carga_destino_processo: 'numero_presenca_carga_destino_processo',
+  data_criacao_documento_processo: 'data_criacao_documento_processo'
+};
+
+exports.Prisma.ContainerProcessoScalarFieldEnum = {
+  id_processo_container: 'id_processo_container',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_processo: 'id_processo',
+  container_numero_processo_container: 'container_numero_processo_container',
+  container_tipo_processo_container: 'container_tipo_processo_container',
+  container_lacre_processo_container: 'container_lacre_processo_container',
+  container_tara_processo_container: 'container_tara_processo_container',
+  container_peso_bruto_processo_container: 'container_peso_bruto_processo_container',
+  container_peso_liquido_processo_container: 'container_peso_liquido_processo_container',
+  container_metragem_cubica_processo_container: 'container_metragem_cubica_processo_container',
+  local_devolucao_processo_container: 'local_devolucao_processo_container',
+  data_devolucao_prevista_processo_container: 'data_devolucao_prevista_processo_container',
+  data_devolucao_real_processo_container: 'data_devolucao_real_processo_container',
+  data_criacao_container_processo: 'data_criacao_container_processo',
+  data_atualizacao_container_processo: 'data_atualizacao_container_processo'
+};
+
+exports.Prisma.FollowUpProcessoScalarFieldEnum = {
+  id_follow_up_processo: 'id_follow_up_processo',
+  id_organizacao: 'id_organizacao',
+  id_produto_gravity: 'id_produto_gravity',
+  id_usuario: 'id_usuario',
+  id_processo: 'id_processo',
+  titulo_follow_up_processo: 'titulo_follow_up_processo',
+  descricao_follow_up_processo: 'descricao_follow_up_processo',
+  tipo_follow_up_processo: 'tipo_follow_up_processo',
+  categoria_follow_up_processo: 'categoria_follow_up_processo',
+  id_usuario_registro_follow_up_processo: 'id_usuario_registro_follow_up_processo',
+  nome_usuario_registro_follow_up_processo: 'nome_usuario_registro_follow_up_processo',
+  data_criacao_follow_up_processo: 'data_criacao_follow_up_processo'
 };
 
 exports.Prisma.SortOrder = {
@@ -344,18 +344,16 @@ exports.Prisma.JsonNullValueFilter = {
 
 
 exports.Prisma.ModelName = {
-  ProcessoGravity: 'ProcessoGravity',
-  ProcessoEtapas: 'ProcessoEtapas',
-  ProcessoPedido: 'ProcessoPedido',
-  ProcessoPedidoItens: 'ProcessoPedidoItens',
-  ProcessoFollowup: 'ProcessoFollowup',
-  ProcessoAnexos: 'ProcessoAnexos',
-  ProcessoEstimativaCusto: 'ProcessoEstimativaCusto',
-  ProcessoDadosTecnicos: 'ProcessoDadosTecnicos',
+  Processo: 'Processo',
   ProcessoStatus: 'ProcessoStatus',
-  ProcessoColunas: 'ProcessoColunas',
-  ProcessosPedidoPreferencia: 'ProcessosPedidoPreferencia',
-  ProcessoPedidoPadrao: 'ProcessoPedidoPadrao'
+  HistoricoStatusProcesso: 'HistoricoStatusProcesso',
+  LogisticaInternacionalProcesso: 'LogisticaInternacionalProcesso',
+  DadosProcesso: 'DadosProcesso',
+  CambioProcesso: 'CambioProcesso',
+  EstimativaProcesso: 'EstimativaProcesso',
+  DocumentoProcesso: 'DocumentoProcesso',
+  ContainerProcesso: 'ContainerProcesso',
+  FollowUpProcesso: 'FollowUpProcesso'
 };
 
 /**

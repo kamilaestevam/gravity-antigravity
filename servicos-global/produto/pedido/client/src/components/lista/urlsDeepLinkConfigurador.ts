@@ -36,6 +36,11 @@ export function urlGerenciarWorkspaces(): string {
   return `${urlBaseConfigurador()}/workspaces`
 }
 
+/** Listagem de fornecedores/parceiros COMEX no Configurador. */
+export function urlGerenciarFornecedores(): string {
+  return `${urlBaseConfigurador()}/fornecedores`
+}
+
 /** Criar workspace no Configurador (menu lateral → Criar workspace). */
 export function urlCriarWorkspace(): string {
   return `${urlBaseConfigurador()}/workspaces?criar=1`

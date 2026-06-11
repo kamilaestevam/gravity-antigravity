@@ -1,0 +1,214 @@
+/**
+ * Topbar de página do Configurador (HUB, Store, etc.)
+ * SSOT: esquerda = Gravity + tela; direita = ações na mesma ordem e posição.
+ */
+
+.gravity-topbar-pagina {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hb-border, rgba(255, 255, 255, 0.08));
+  box-sizing: border-box;
+}
+
+body.light-theme .gravity-topbar-pagina {
+  background: rgba(241, 245, 249, 0.9);
+}
+
+.gravity-topbar-pagina__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  max-width: var(--gravity-shell-layout-max, 100%);
+  height: 56px;
+  margin-inline: auto;
+  padding-inline: 2rem;
+  box-sizing: border-box;
+}
+
+.gravity-topbar-pagina__esq {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.gravity-topbar-pagina__marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gravity-topbar-pagina__marca-nome {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--hb-text, #f1f5f9);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+body.light-theme .gravity-topbar-pagina__marca-nome {
+  color: #1e293b;
+}
+
+.gravity-topbar-pagina__div {
+  width: 1px;
+  height: 18px;
+  background: var(--hb-border, rgba(255, 255, 255, 0.08));
+  flex-shrink: 0;
+}
+
+.gravity-topbar-pagina__rotulo {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(148, 163, 184, 0.85);
+  flex-shrink: 0;
+}
+
+.gravity-topbar-pagina__dir {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Reutiliza estilos de botões da hb-topbar (hub.css) — paridade sw-topbar */
+.gravity-topbar-pagina .hb-topbar-navlink,
+.gravity-topbar-pagina .hb-topbar-btn,
+.gravity-topbar-pagina .hb-topbar-sep {
+  flex-shrink: 0;
+}
+
+.gravity-topbar-pagina .hb-topbar-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  color: var(--sw-text-2, var(--hb-muted));
+}
+
+.gravity-topbar-pagina .hb-topbar-btn:hover {
+  background: var(--sw-accent-dim, var(--hb-accent-d));
+  color: var(--sw-text-1, var(--hb-text));
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+.gravity-topbar-pagina .hb-topbar-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(99, 102, 241, 0.12);
+}
+
+/* CampoLocalizarExpandidoGlobal — mesma aparência do Acessar Workspace */
+.gravity-topbar-pagina .ws-global-search {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border-radius: 9999px;
+  height: 36px;
+  width: 36px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  flex-shrink: 0;
+}
+
+.gravity-topbar-pagina .ws-global-search.expanded {
+  width: 280px;
+  background: var(--sw-surface, var(--hb-surface, rgba(15, 23, 42, 0.95)));
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.08);
+}
+
+.gravity-topbar-pagina .ws-global-search.expanded:focus-within {
+  border-color: rgba(129, 140, 248, 0.55);
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.35);
+}
+
+.gravity-topbar-pagina .ws-global-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  color: var(--sw-text-2, #94a3b8);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gravity-topbar-pagina .ws-global-btn:hover {
+  background: var(--sw-accent-dim, rgba(99, 102, 241, 0.12));
+  color: var(--sw-text-1, #f1f5f9);
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+.gravity-topbar-pagina .ws-global-search__input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--sw-text-1, #f1f5f9);
+  font-size: 0.8125rem;
+  opacity: 0;
+  width: 0;
+  padding-right: 0.5rem;
+}
+
+.gravity-topbar-pagina .ws-global-search.expanded .ws-global-search__input {
+  opacity: 1;
+  width: auto;
+  padding-left: 0.25rem;
+}
+
+.gravity-topbar-pagina .ws-global-search__input::placeholder {
+  color: var(--sw-text-3, #64748b);
+}
+
+.gravity-topbar-pagina .ws-global-cmd {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--sw-text-3, #64748b);
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 4px;
+  padding: 0.125rem 0.375rem;
+  pointer-events: none;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.gravity-topbar-pagina .ws-global-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--sw-text-3, #64748b);
+  cursor: pointer;
+  padding: 0 0.35rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .gravity-topbar-pagina__inner {
+    padding-inline: 1rem;
+  }
+
+  .gravity-topbar-pagina .ws-global-search.expanded {
+    width: min(220px, 42vw);
+  }
+}

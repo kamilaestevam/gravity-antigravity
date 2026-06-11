@@ -8,6 +8,7 @@
 import { useEffect, useRef } from 'react'
 import { useAuth, useUser } from '@clerk/clerk-react'
 import { useShellStore } from '../store'
+import { resolverNomeExibicaoUsuario } from '../utils/resolver-nome-exibicao-usuario'
 
 const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
 
@@ -40,6 +41,15 @@ export function useMeSync() {
     if (isSignedIn === false) {
       clearCurrentUser()
       fetchedForRef.current = null
+      // Limpa o tenant persistido — senão o id_organizacao da sessão anterior
+      // sobrevive ao logout e contamina x-id-organizacao no próximo login (na
+      // janela sem-JWT), resolvendo a org errada → 404 "Organização não
+      // encontrada". A org real é re-hidratada pelo /me a cada sessão (abaixo).
+      try {
+        localStorage.removeItem('gravity:idOrganizacao')
+        sessionStorage.removeItem('gravity_id_organizacao')
+        sessionStorage.removeItem('gravity_company_id')
+      } catch { /* ignore */ }
     }
   }, [isSignedIn, clearCurrentUser])
 
@@ -72,10 +82,11 @@ export function useMeSync() {
           ?? workspaces[0]
         : undefined
 
+      const emailUsuario = usuario.email_usuario ?? ''
       setCurrentUser({
         id:         usuario.id_usuario,
-        name:       usuario.nome_usuario ?? '',
-        email:      usuario.email_usuario ?? '',
+        name:       resolverNomeExibicaoUsuario(usuario.nome_usuario ?? '', emailUsuario),
+        email:      emailUsuario,
         avatarUrl:  userImageRef.current ?? undefined,
         idOrganizacao:   usuario.id_organizacao ?? undefined,
         nomeOrganizacao: organizacao?.nome_organizacao ?? undefined,
@@ -88,6 +99,14 @@ export function useMeSync() {
         // Mandamento 08: autorização não pode depender de label traduzido.
         tipoUsuario: usuario.tipo_usuario ?? undefined,
       })
+
+      if (usuario.id_usuario) {
+        sessionStorage.setItem('gravity_id_usuario', usuario.id_usuario)
+      }
+      if (usuario.id_organizacao) {
+        sessionStorage.setItem('gravity_id_organizacao', usuario.id_organizacao)
+        try { localStorage.setItem('gravity:idOrganizacao', usuario.id_organizacao) } catch { /* ignore */ }
+      }
 
       if (Array.isArray(workspaces)) {
         setWorkspaces(workspaces)

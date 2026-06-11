@@ -83,7 +83,8 @@ Ao criar uma coluna, o usuário configura quem pode vê-la:
 ## Gerenciamento
 
 - Colunas são criadas/editadas/excluídas em **Configurações do Produto** (tela de settings do pedido)
-- Excluir uma coluna: dados existentes são **preservados** mas a coluna some da interface
+- Excluir uma coluna exige **confirmação no modal padrão do sistema** (`ModalConfirmarExcluirGlobal`); o botão Excluir exibe loading até a API responder; toast de sucesso ou erro após o resultado
+- Excluir uma coluna: dados existentes são **preservados** (soft delete) mas a coluna some da interface
 - Reativar uma coluna: dados voltam a aparecer
 - Ordenação das colunas: drag-and-drop na tela de configurações
 

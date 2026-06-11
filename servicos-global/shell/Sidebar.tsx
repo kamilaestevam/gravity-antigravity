@@ -28,24 +28,18 @@ import {
 import { useShellStore } from './store'
 import { MenuLateralGlobal, NavItem } from '@nucleo/menu-lateral-global'
 import { useProductMenu, ProductMenuItem } from './hooks/useProductMenu'
+import { useProdutosSwitcher } from './hooks/useProdutosSwitcher'
+import { slugsProdutoEquivalentes } from './utils/resolver-rota-produto'
+import { rotaTemSeletorProdutosProcesso } from './utils/rota-processo-com-switcher'
+import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
 
 interface SidebarProps {
   navItems?: NavItem[]
   moduleName?: string
   moduleColor?: string
+  moduleIcon?: React.ReactNode
   tenantName: string
   tenantPlan: string
-}
-
-/** Icones por slug de produto */
-const PRODUCT_ICONS: Record<string, React.ReactNode> = {
-  'simula-custo':            <Calculator weight="duotone" size={18} />,
-  'pedidos-de-compra':       <Package weight="duotone" size={18} />,
-  'exportador-duimp':        <FileArchive weight="duotone" size={18} />,
-  'tracking-de-carga':       <Anchor weight="duotone" size={18} />,
-  'smart-read':              <FileText weight="duotone" size={18} />,
-  'bid-frete-internacional': <Anchor weight="duotone" size={18} />,
-  'bid-cambio':              <CurrencyDollar weight="duotone" size={18} />,
 }
 
 /**
@@ -59,18 +53,30 @@ export function Sidebar({
   navItems: customNavItems,
   moduleName = 'SimulaCusto',
   moduleColor = '#818cf8',
+  moduleIcon,
   tenantName,
   tenantPlan
 }: SidebarProps) {
   const { sidebarOpen, toggleSidebar } = useShellStore()
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const location = useLocation()
   const { products } = useProductMenu()
+
+  const exibirSwitcherProcesso = rotaTemSeletorProdutosProcesso(location.pathname)
+  const {
+    produtos: produtosSwitcher,
+    exibirSeletor: exibirSeletorProduto,
+    trocarProduto,
+    produtoAtualSlug,
+  } = useProdutosSwitcher('processo', moduleName ?? 'Processos', {
+    enabled: exibirSwitcherProcesso,
+  })
 
   /** Monta children do grupo "Produtos Gravity" dinamicamente */
   function buildProductChildren(): NavItem[] {
     return products.map((p) => {
-      const icon = PRODUCT_ICONS[p.slug] || <Package weight="duotone" size={18} />
+      const icon = iconeOficialProdutoGravity(p.slug, 18) ?? <Package weight="duotone" size={18} />
 
       switch (p.status) {
         case 'active':
@@ -155,8 +161,13 @@ export function Sidebar({
       navItems={navItems}
       moduleName={moduleName}
       moduleColor={moduleColor}
+      moduleIcon={moduleIcon}
       isCollapsed={!sidebarOpen}
       onToggleCollapse={toggleSidebar}
+      produtos={exibirSwitcherProcesso && exibirSeletorProduto ? produtosSwitcher : undefined}
+      produtoAtualSlug={exibirSwitcherProcesso ? produtoAtualSlug : undefined}
+      onSwitchProduct={exibirSwitcherProcesso && exibirSeletorProduto ? trocarProduto : undefined}
+      produtoSlugEquivalente={exibirSwitcherProcesso ? slugsProdutoEquivalentes : undefined}
     />
   )
 }

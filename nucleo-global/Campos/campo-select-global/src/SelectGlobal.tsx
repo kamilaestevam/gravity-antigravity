@@ -20,6 +20,7 @@ import React, {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactDOM from 'react-dom'
+import { CheckSquare, Square } from '@phosphor-icons/react'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import type { SelectProps, SelectOpcao } from './tipos.js'
 import './select.css'
@@ -95,17 +96,24 @@ function ItemOpcao({
 }) {
   return (
     <li
-      className={`sg-opcao ${selecionada ? 'sg-opcao--selecionada' : ''} ${opcao.desabilitada ? 'sg-opcao--desabilitada' : ''}`}
+      className={[
+        'sg-opcao',
+        multiplo ? 'sg-opcao--multi' : '',
+        selecionada ? 'sg-opcao--selecionada' : '',
+        opcao.desabilitada ? 'sg-opcao--desabilitada' : '',
+      ].filter(Boolean).join(' ')}
       role="option"
       aria-selected={selecionada}
       aria-disabled={opcao.desabilitada}
       onClick={() => !opcao.desabilitada && aoSelecionar(opcao)}
     >
-      {multiplo && (
-        <span className="sg-check-box" aria-hidden="true">
-          {selecionada ? '✓' : ''}
+      {multiplo ? (
+        <span className="sg-check-icon" aria-hidden="true">
+          {selecionada
+            ? <CheckSquare size={16} weight="fill" />
+            : <Square size={16} weight="regular" />}
         </span>
-      )}
+      ) : null}
       {renderizarOpcao ? (
         renderizarOpcao(opcao)
       ) : (
@@ -147,6 +155,7 @@ export function SelectGlobal({
   monoValor = false,
   renderizarOpcao,
   renderizarValorSelecionado,
+  conteudoToolbarDropdown,
   id: idExterno,
   name,
   'aria-label': ariaLabel,
@@ -445,6 +454,10 @@ export function SelectGlobal({
           />
         </div>
       )}
+
+      {conteudoToolbarDropdown ? (
+        <div className="sg-toolbar-dropdown">{conteudoToolbarDropdown}</div>
+      ) : null}
 
       <ul
         id={idLista}

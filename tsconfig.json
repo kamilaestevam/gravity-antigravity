@@ -13,6 +13,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "resolveJsonModule": true,
+    "noEmit": true,
     "baseUrl": ".",
     "paths": {
       "@nucleo/*": [
@@ -39,7 +40,8 @@
       "@shell/*": ["servicos-global/shell/*"],
       "@gravity/shell": ["servicos-global/shell/index.ts"],
       "@plataforma/*": ["servicos-global/servicos-plataforma/*"],
-      "@produto/*": ["servicos-global/produto/*"]
+      "@produto/*": ["servicos-global/produto/*"],
+      "@testes/infra/*": ["testes/infra/*"]
     }
   },
   "exclude": ["node_modules", "dist", "**/demo/**"]

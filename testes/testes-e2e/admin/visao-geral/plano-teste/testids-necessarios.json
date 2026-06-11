@@ -4,7 +4,7 @@
   "layout": "servicos-global/configurador/src/pages/admin/AdminLayout.tsx",
   "rota": "/admin/visao-geral",
   "extraidoEm": "2026-05-02",
-  "observacao": "Componente atual NÃO possui nenhum data-testid. Todos os testids abaixo precisam ser adicionados ao componente antes de o spec rodar. O plano TST-E2E-ADMIN-000001 referencia estes ids como contrato.",
+  "observacao": "Componente atual NÃO possui nenhum data-testid. Todos os testids abaixo precisam ser adicionados ao componente antes de o spec rodar. O plano TST-E2E-ADMIN-000019 referencia estes ids como contrato.",
 
   "elementos": {
     "tela-visao-geral-admin-root": { "tipo": "outro", "descricao": "Container raiz da página Visão Geral Admin (PaginaGlobal)", "componente": "VisaoGeralAdmin.tsx" },

@@ -21,7 +21,7 @@
  *
  * O que NÃO está aqui:
  *   - Campos item-specific (quantidades, valores, peso unitário, NCM, etc.)
- *   - Campos pedido-only (numero_proforma_pedido, valor_total_pedido agregado, etc.)
+ *   - Campos pedido-only (valor_total_pedido agregado, IDs, etc.)
  *   - Snapshot derivativos (nome_exportador_item ← snapshots_empresa_pedido)
  *     ficam na helper `derivarNomesEmpresaParaItem` por terem origem indireta.
  */
@@ -44,7 +44,9 @@ export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Obj
   incoterm_pedido:                  'incoterm_item',
   moeda_pedido:                     'moeda_item',
   unidade_comercializada_pedido:    'unidade_comercializada_item',
+  tipo_volume_pedido:               'tipo_volume_item',
   condicao_pagamento_pedido:        'condicao_pagamento_item',
+  condicao_pagamento_siscomex_pedido: 'condicao_pagamento_siscomex_item',
   data_emissao_pedido:              'data_emissao_item',
 
   // ── Casas decimais — configuração de exibição (4) ────────────────────────
@@ -53,13 +55,18 @@ export const MAPA_PROPAGACAO_PEDIDO_ITEM: Readonly<Record<string, string>> = Obj
   casas_decimais_peso_pedido:       'casas_decimais_peso_item',
   casas_decimais_cubagem_pedido:    'casas_decimais_cubagem_item',
 
-  // ── Câmbio (1) ────────────────────────────────────────────────────────────
+  // ── Câmbio (2) ────────────────────────────────────────────────────────────
   cobertura_cambial_pedido:         'cobertura_cambial_item',
+  moeda_cambio_pedido:              'moeda_cambio_item_pedido',
 
   // ── Referências (3) ──────────────────────────────────────────────────────
   referencia_importador_pedido:     'referencia_importador_item',
   referencia_exportador_pedido:     'referencia_exportador_item',
   referencia_fabricante_pedido:     'referencia_fabricante_item',
+
+  // ── Documentos (2) ───────────────────────────────────────────────────────
+  numero_proforma_pedido:           'numero_proforma_item',
+  numero_invoice_pedido:            'numero_invoice_item',
 
   // ── Datas — Pedido Pronto (3) ────────────────────────────────────────────
   data_prevista_pedido_pronto:      'data_prevista_item_pronto',
@@ -259,8 +266,9 @@ const LEGADO_PARA_DDD_COMPAT: Readonly<Record<string, string>> = Object.freeze({
   referencia_importador: 'referencia_importador_pedido',
   referencia_exportador: 'referencia_exportador_pedido',
   referencia_fabricante: 'referencia_fabricante_pedido',
-  condicao_pagamento:    'condicao_pagamento_pedido',
-  cobertura_cambial:     'cobertura_cambial_pedido',
+  condicao_pagamento:            'condicao_pagamento_pedido',
+  condicao_pagamento_siscomex:   'condicao_pagamento_siscomex_pedido',
+  cobertura_cambial:             'cobertura_cambial_pedido',
   tipo_operacao:         'tipo_operacao_pedido',
 
   // Datas Rascunho Pedido — frontend usa 'prevista/confirmada', banco usa 'previsao/confirmacao'

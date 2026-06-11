@@ -166,7 +166,7 @@ function contarBreakdownAgregadoConfig(
 
   if (regras.alerta_quantidade_pronta_divergente) {
     const db = safeNum(pedido.quantidade_pronta_itens_pedido_total)
-    const soma = itens.reduce((s, i) => s + safeNum(i.quantidade_pronta_pedido), 0)
+    const soma = itens.reduce((s, i) => s + safeNum(i.quantidade_pronta_item), 0)
     if ((db > 0 || soma > 0) && !nearlyEqual(db, soma)) breakdown.quantidade_pronta_divergente = 1
   }
 

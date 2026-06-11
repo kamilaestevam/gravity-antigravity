@@ -20,11 +20,29 @@
   color: var(--sw-text-1);
 }
 
-/* Wrapper geral do conteúdo — topbar agora é .hb-topbar sticky, toma seu próprio espaço */
+/* ── Shell layout SSOT (HUB unificado + Gravity Store) ── */
+.gs-root,
+.sw-hub-root,
+.sw-page--full:has(.sw-content--hub-unificado) {
+  --gravity-shell-layout-base: 1140px;
+  --gravity-shell-layout-max: min(100%, calc((100vw + var(--gravity-shell-layout-base)) / 2));
+  --gravity-shell-layout-gutter: clamp(0.75rem, 2vw, 1.375rem);
+  --gravity-shell-pad-inline: calc(
+    (100% - min(100%, var(--gravity-shell-layout-max))) / 2 + var(--gravity-shell-layout-gutter)
+  );
+}
+
 .gs-store {
-  padding: 1.5rem 2rem 4rem;
-  max-width: 1280px;
-  margin: 0 auto;
+  padding: 1.5rem var(--gravity-shell-layout-gutter) 4rem;
+  max-width: var(--gravity-shell-layout-max);
+  width: 100%;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+/* Puzzle stack — escala hub (HUB unificado + Store) */
+.gs-stack.gs-stack--puzzle {
+  --gs-piece-scale: 0.8;
 }
 
 /* Loading centralizado — posição fixa cobrindo viewport inteira,
@@ -270,7 +288,7 @@
   margin-left: auto;
 }
 
-/* ── Segmented control: Catálogo | Meus produtos ───────────────────────── */
+/* ── Segmented: Todos | Ativos | Em breve | Meus ───────────────────────── */
 .gs-segmented {
   display: inline-flex;
   align-items: center;
@@ -280,6 +298,37 @@
   padding: 3px;
   gap: 2px;
   flex-shrink: 0;
+}
+
+.gs-segmented--4 .gs-segmented__btn {
+  padding: 0.28rem 0.55rem;
+  font-size: 0.74rem;
+}
+
+.gs-segmented__btn--soon {
+  color: #fb923c;
+}
+
+.gs-segmented__btn--soon.gs-segmented__btn--active {
+  background: rgba(251, 146, 60, 0.16);
+  color: #fdba74;
+}
+
+.gs-segmented__btn--soon.gs-segmented__btn--active .gs-segmented__count {
+  background: rgba(251, 146, 60, 0.22);
+}
+
+.gs-segmented__btn--assinar {
+  color: #86efac;
+}
+
+.gs-segmented__btn--assinar.gs-segmented__btn--active {
+  background: rgba(34, 197, 94, 0.16);
+  color: #bbf7d0;
+}
+
+.gs-segmented__btn--assinar.gs-segmented__btn--active .gs-segmented__count {
+  background: rgba(34, 197, 94, 0.22);
 }
 
 .gs-segmented__btn {
@@ -382,7 +431,226 @@
   padding: 0 0.25rem;
 }
 
-/* ── GRID DE CARDS ──────────────────────────────────────────────────────── */
+/* ── Quatro linhas de cards em carrossel ─────────────────────────────────── */
+.gs-cards-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.gs-cards-row {
+  scroll-margin-top: 5.5rem;
+}
+
+/* Títulos e cards na mesma coluna — sem recuo extra quando há setas */
+.gs-cards-row .gs-section-label,
+.gs-cards-row .gs-cards-carousel.gs-puzzle-carousel,
+.gs-cards-row .gs-cards-carousel.gs-puzzle-carousel--overflow {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+/* Trilho limitado à largura da tela → setas quando há muitos cards (ex.: 10 em breve) */
+.gs-cards-row .gs-cards-carousel.gs-puzzle-carousel {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.gs-cards-row .gs-cards-carousel .gs-puzzle-carousel__track {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.gs-cards-carousel .gs-puzzle-carousel__btn--left {
+  left: 4px;
+}
+
+.gs-cards-carousel .gs-puzzle-carousel__btn--right {
+  right: 4px;
+}
+
+.gs-cards-row__label span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gs-cards-row__icon-soon {
+  color: #f59e0b;
+}
+
+.gs-cards-rows__empty {
+  text-align: center;
+  color: var(--sw-text-3);
+  font-size: 0.9rem;
+  padding: 2rem 1rem;
+}
+
+.gs-cards-carousel .gs-puzzle-carousel__track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 4px 2px 12px;
+}
+
+/* Modelo oficial do card de produto (Store, Assinaturas, carrosséis) */
+.gs-card--store {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+}
+
+.gs-cards-carousel .gs-card--store {
+  flex: 0 0 min(400px, 84vw);
+  width: min(400px, 84vw);
+  max-width: 440px;
+  height: 204px;
+  max-height: 204px;
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+.gs-grid .gs-card--store {
+  width: 100%;
+  max-width: none;
+}
+
+.gs-card--store .gs-card__top {
+  padding: 0.5rem 0.9rem 0;
+  align-items: center;
+}
+
+.gs-card--store .gs-card__icon {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 9px;
+}
+
+.gs-card--store .gs-card__icon svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.gs-card--store .gs-card__badges {
+  gap: 0.2rem;
+}
+
+.gs-card--store .gs-badge {
+  font-size: 0.58rem;
+  padding: 0.12rem 0.45rem;
+  gap: 0.25rem;
+}
+
+.gs-card--store .gs-badge svg {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.gs-card--store .gs-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.35rem 0.9rem 0.45rem;
+  gap: 0.2rem;
+  min-height: 0;
+}
+
+.gs-card--store .gs-card__name {
+  font-size: 0.9375rem;
+  line-height: 1.15;
+}
+
+.gs-card--store .gs-card__category {
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+}
+
+.gs-card--store .gs-card__desc {
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  min-height: calc(0.6875rem * 1.35 * 2);
+  max-height: calc(0.6875rem * 1.35 * 2);
+}
+
+/* Tags de recurso (NCM, Impostos…) — faixa inferior (sem “Combina com”) */
+.gs-card--store .gs-card__tags--rodape {
+  margin-top: auto;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.3rem;
+  min-height: 2.1rem;
+  max-height: 2.1rem;
+  overflow: hidden;
+}
+
+.gs-card--store .gs-card__tags--rodape-vazio {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.gs-card--store .gs-card__tags--rodape .gs-tag {
+  font-size: 0.625rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--sw-text-2);
+}
+
+.gs-card--store.gs-card--available .gs-card__tags--rodape .gs-tag {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.18);
+}
+
+.gs-card--store.gs-card--soon .gs-card__tags--rodape .gs-tag {
+  opacity: 0.65;
+}
+
+body.light-theme .gs-card--store .gs-card__tags--rodape {
+  border-top-color: rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .gs-card--store .gs-card__tags--rodape .gs-tag {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+.gs-card--store .gs-card__footer {
+  flex-shrink: 0;
+  padding: 0.4rem 0.9rem;
+  gap: 0.5rem;
+}
+
+.gs-card--store .gs-card__footer .gb-btn {
+  min-height: 28px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.7rem;
+}
+
+.gs-card--store.gs-card--available::after,
+.gs-card--store.gs-card--soon::after {
+  top: 6px;
+  bottom: 6px;
+}
+
+.gs-cards-carousel--overflow .gs-puzzle-carousel__btn {
+  top: 38%;
+}
+
+/* ── GRID DE CARDS (legado — preferir carrossel) ───────────────────────── */
 .gs-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -532,13 +800,36 @@
 }
 
 .gs-card--soon {
-  opacity: 0.7 !important;
+  border-color: rgba(245,158,11,0.35);
+  background:
+    linear-gradient(180deg, rgba(245,158,11,0.08) 0%, transparent 55%),
+    var(--color-surface);
+  opacity: 0.92;
+}
+
+.gs-card--soon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 0 10px rgba(245,158,11,0.45);
 }
 
 .gs-card--soon:hover {
-  border-color: rgba(245,158,11,0.3);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  border-color: rgba(245,158,11,0.5);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 0 16px rgba(245,158,11,0.12);
   transform: translateY(-2px);
+  opacity: 1;
+}
+
+.gs-badge--contratado {
+  background: rgba(16,185,129,0.14);
+  color: #6ee7b7;
+  border: 1px solid rgba(16,185,129,0.35);
 }
 
 .gs-card--highlight {
@@ -874,9 +1165,20 @@
   transition: background 0.4s, box-shadow 0.4s;
 }
 
+.gs-stack__seg--contratado,
 .gs-stack__seg--on {
   background: #10b981;
   box-shadow: 0 0 6px rgba(16,185,129,0.6);
+}
+
+.gs-stack__seg--disponivel {
+  background: #818cf8;
+  box-shadow: 0 0 6px rgba(129,140,248,0.45);
+}
+
+.gs-stack__seg--em-breve {
+  background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245,158,11,0.45);
 }
 
 .gs-stack__meter-label {
@@ -887,22 +1189,163 @@
   letter-spacing: 0.05em;
 }
 
-/* Fila de peças — overflow-x:auto no wrapper, overflow:visible nas peças */
-.gs-stack__pieces-scroll {
-  overflow-x: auto;
-  overflow-y: visible;
-  scrollbar-width: none;
-  padding: 8px 4px 16px;
+/* Filas do puzzle (ativos + em breve) */
+.gs-stack__lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 8px 0 16px;
 }
 
-.gs-stack__pieces-scroll::-webkit-scrollbar { display: none; }
+/* Carrossel horizontal — setas só quando há overflow (padrão Workspaces) */
+.gs-puzzle-carousel {
+  position: relative;
+  padding: 0 0.25rem;
+}
+
+.gs-puzzle-carousel--overflow {
+  padding: 0 1.75rem;
+}
+
+.gs-puzzle-carousel__track {
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.gs-puzzle-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.gs-puzzle-carousel__btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--sw-border-mid, rgba(255, 255, 255, 0.12));
+  background: var(--sw-surface, rgba(15, 23, 42, 0.95));
+  color: var(--sw-text-2, #94a3b8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 6;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gs-puzzle-carousel--overflow .gs-puzzle-carousel__btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gs-puzzle-carousel__btn:hover:not(:disabled) {
+  background: var(--sw-surface-2, rgba(30, 41, 59, 0.98));
+  border-color: var(--sw-accent, #818cf8);
+  color: var(--sw-text-1, #e2e8f0);
+}
+
+.gs-puzzle-carousel__btn--left {
+  left: -6px;
+}
+
+.gs-puzzle-carousel__btn--right {
+  right: -6px;
+}
+
+.gs-puzzle-carousel__btn:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gs-puzzle-carousel--em-breve {
+  margin-top: 0.25rem;
+}
+
+body.light-theme .gs-puzzle-carousel__btn {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+}
 
 .gs-stack__pieces {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0;
-  /* largura mínima para que as peças caibam sem comprimir */
   min-width: min-content;
+  width: max-content;
+}
+
+.gs-stack__lane-soon {
+  margin-top: 1.25rem;
+  padding-top: 1.125rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.gs-stack__row-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #f59e0b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gs-stack__pieces--soon .gs-piece {
+  opacity: 0.88;
+}
+
+.gs-stack__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.25rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.gs-stack__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--sw-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gs-stack__legend-swatch {
+  width: 14px;
+  height: 5px;
+  border-radius: 3px;
+}
+
+.gs-stack__legend-swatch--contratado {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16,185,129,0.55);
+}
+
+.gs-stack__legend-swatch--disponivel {
+  background: #818cf8;
+  box-shadow: 0 0 6px rgba(129,140,248,0.45);
+}
+
+.gs-stack__legend-swatch--em-breve {
+  background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245,158,11,0.45);
 }
 
 .gs-stack__hint {
@@ -917,6 +1360,9 @@
 
 /* Container da peça: 138px wide para incluir a aba (tab) que estende 18px */
 .gs-piece {
+  --gs-piece-scale: 0.8;
+  transform: scale(var(--gs-piece-scale));
+  transform-origin: left center;
   position: relative;
   width: 138px;
   height: 90px;
@@ -926,13 +1372,21 @@
   transition: transform 0.2s cubic-bezier(0.16,1,0.3,1);
 }
 
-/* Peças com cavidade à esquerda ficam sobrepostas 18px sobre a aba anterior */
+/* Encaixe: aba da peça anterior entra na cavidade (18px = geometria do path SVG) */
 .gs-piece--has-blank {
   margin-left: -18px;
 }
 
+.gs-stack__pieces .gs-piece {
+  flex-shrink: 0;
+}
+
+.gs-piece__svg path {
+  shape-rendering: geometricPrecision;
+}
+
 .gs-piece:hover {
-  transform: translateY(-5px);
+  transform: scale(var(--gs-piece-scale)) translateY(-5px);
 }
 
 /* SVG de fundo — fornece o shape da peça */
@@ -948,10 +1402,22 @@
   filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
 }
 
+.gs-piece--contratado .gs-piece__svg {
+  filter: drop-shadow(0 0 12px rgba(16,185,129,0.65));
+}
+
+.gs-piece--disponivel .gs-piece__svg,
 .gs-piece--on .gs-piece__svg {
   filter: drop-shadow(0 0 10px var(--piece-color, #818cf8));
 }
 
+.gs-piece--em-breve .gs-piece__svg {
+  filter: drop-shadow(0 0 10px rgba(245,158,11,0.55));
+}
+
+.gs-piece--contratado:hover .gs-piece__svg,
+.gs-piece--disponivel:hover .gs-piece__svg,
+.gs-piece--em-breve:hover .gs-piece__svg,
 .gs-piece--on:hover .gs-piece__svg {
   filter: drop-shadow(0 0 14px var(--piece-color, #818cf8)) drop-shadow(0 6px 16px rgba(0,0,0,0.4));
 }
@@ -986,8 +1452,19 @@
   transition: transform 0.2s;
 }
 
+.gs-piece--contratado .gs-piece__icon,
+.gs-piece--disponivel .gs-piece__icon,
+.gs-piece--em-breve .gs-piece__icon,
 .gs-piece--on .gs-piece__icon {
   background: rgba(255,255,255,0.12);
+}
+
+.gs-piece--disponivel .gs-piece__icon {
+  opacity: 0.92;
+}
+
+.gs-piece--em-breve .gs-piece__icon {
+  background: rgba(245,158,11,0.16);
 }
 
 .gs-piece:hover .gs-piece__icon {
@@ -999,13 +1476,48 @@
   font-weight: 700;
   color: rgba(255,255,255,0.35);
   letter-spacing: 0.02em;
-  line-height: 1.2;
+  line-height: 1.15;
   text-align: center;
-  max-width: 72px;
+  max-width: 88px;
 }
 
+.gs-piece__status {
+  font-size: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  max-width: 92px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.gs-piece__status--contratado {
+  color: #6ee7b7;
+  background: rgba(16,185,129,0.18);
+}
+
+.gs-piece__status--disponivel {
+  color: #a5b4fc;
+  background: rgba(99,102,241,0.2);
+}
+
+.gs-piece__status--em_breve {
+  color: #fcd34d;
+  background: rgba(245,158,11,0.2);
+}
+
+.gs-piece--contratado .gs-piece__name,
+.gs-piece--disponivel .gs-piece__name,
+.gs-piece--em-breve .gs-piece__name,
 .gs-piece--on .gs-piece__name {
   color: rgba(255,255,255,0.9);
+}
+
+.gs-piece--em-breve .gs-piece__name {
+  color: rgba(251,191,36,0.95);
 }
 
 .gs-piece__check {
@@ -1013,6 +1525,26 @@
   top: 6px;
   right: 6px;
   z-index: 2;
+}
+
+.gs-piece__dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--piece-color, #818cf8);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--piece-color, #818cf8) 70%, transparent);
+}
+
+.gs-piece__soon {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: flex;
 }
 
 /* Responsivo */
@@ -2421,4 +2953,121 @@ body.light-theme .gs-search {
 /* ── Store: Toolbar count ────────────────────────────────────────────────── */
 body.light-theme .gs-toolbar__count {
   color: #475569;
+}
+
+.sw-shell.sw-hub-root {
+  height: 100vh;
+  overflow: hidden;
+  background: var(--sw-bg, #0f172a);
+  font-family: var(--sw-f-body, var(--font));
+  color: var(--sw-text-1);
+  position: relative;
+}
+
+.sw-shell.sw-hub-root .sw-content.sw-content--hub-unificado {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding: 1.5rem var(--gravity-shell-pad-inline, 2rem) 4rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .sw-shell.sw-hub-root .sw-content.sw-content--hub-unificado,
+  .gs-root > .gs-store {
+    padding-top: 1.25rem;
+    padding-bottom: 2.5rem;
+  }
+}
+
+/* ── Store carrossel: caixa idêntica (Assinar = Ativo = Em breve = Todos) ── */
+.gs-cards-carousel .gs-card--store {
+  box-sizing: border-box;
+  display: grid !important;
+  grid-template-rows: 2.75rem minmax(0, 1fr) 2.5rem;
+  flex: 0 0 400px !important;
+  width: 400px !important;
+  min-width: 400px !important;
+  max-width: 400px !important;
+  height: 204px !important;
+  min-height: 204px !important;
+  max-height: 204px !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  position: relative;
+}
+
+.gs-cards-carousel .gs-card--store .gs-card__top {
+  grid-row: 1;
+  min-height: 0;
+}
+
+.gs-cards-carousel .gs-card--store .gs-card__body {
+  grid-row: 2;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.gs-cards-carousel .gs-card--store .gs-card__footer {
+  grid-row: 3;
+  min-height: 0;
+}
+
+.gs-cards-carousel .gs-card--store .gs-card__icon > * {
+  max-width: 20px;
+  max-height: 20px;
+}
+
+/* Mesmo “peso” visual — sem glow extra no Disponível/Assinar */
+.gs-cards-carousel .gs-card--store.gs-card--available,
+.gs-cards-carousel .gs-card--store.gs-card--disponivel {
+  border-color: rgba(99, 102, 241, 0.32) !important;
+  background: var(--color-surface) !important;
+  box-shadow: none !important;
+}
+
+.gs-cards-carousel .gs-card--store.gs-card--available::before {
+  display: none !important;
+}
+
+.gs-cards-carousel .gs-card--store.gs-card--owned {
+  border-color: rgba(16, 185, 129, 0.28) !important;
+  background: var(--color-surface) !important;
+  box-shadow: none !important;
+  outline: none !important;
+  animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.gs-cards-carousel .gs-card--store.gs-card--soon {
+  border-color: rgba(245, 158, 11, 0.32) !important;
+  background: var(--color-surface) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.gs-cards-carousel .gs-card--store:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28) !important;
+}
+
+.gs-cards-carousel .gs-card--store.gs-card--available:hover,
+.gs-cards-carousel .gs-card--store.gs-card--owned:hover,
+.gs-cards-carousel .gs-card--store.gs-card--soon:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28) !important;
+  transform: translateY(-2px) !important;
+}
+
+@media (max-width: 520px) {
+  .gs-cards-carousel .gs-card--store {
+    flex: 0 0 min(320px, 84vw) !important;
+    width: min(320px, 84vw) !important;
+    min-width: min(320px, 84vw) !important;
+    max-width: min(320px, 84vw) !important;
+  }
+}
+
+/* Reforço: carrossel de cards nunca desloca faixa por causa das setas */
+.gs-cards-rows .gs-cards-carousel.gs-puzzle-carousel--overflow {
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
 }

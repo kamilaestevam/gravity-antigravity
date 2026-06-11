@@ -6,7 +6,6 @@
 export const CAMPOS_GHOST_ITEM_EDITAVEIS_NO_PEDIDO: ReadonlySet<string> = new Set([
   'ncm',
   'descricao_item',
-  'cobertura_cambial',
 ])
 
 export function isCampoGhostItemNoPedido(campo: string): boolean {

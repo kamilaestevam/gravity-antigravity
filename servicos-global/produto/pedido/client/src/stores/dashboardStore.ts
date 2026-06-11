@@ -13,6 +13,13 @@ import { persist } from 'zustand/middleware'
 import type { TFunction } from 'i18next'
 import type { DashboardWidgetConfig, WidgetQuerySpec, FieldQuerySpec, DerivedMetric, ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
 import type { DashboardPainel } from '../shared/api'
+import {
+  WIDGET_CONFIG_IS_VISIVEL,
+  WIDGET_CONFIG_ORDEM_PAINEL,
+  ordenarWidgetsPorPadrao,
+  reordenarWidgetsLista,
+  reflowPosicoesWidgets,
+} from '../shared/dashboardWidgetVisibilidade'
 
 // ── i18n — chaves de tradução dos títulos dos widgets padrão ─────────────────
 //
@@ -40,10 +47,22 @@ export const WIDGET_TITLE_KEYS: Record<string, string> = {
 }
 
 /**
+ * Título editado pelo usuário no modal (diferente do default do painel Principal).
+ * KPIs do topo e widgets padrão usam i18n/status só enquanto o título não foi customizado.
+ */
+export function widgetTituloFoiCustomizado(widget: DashboardWidgetConfig): boolean {
+  const padrao = DEFAULT_WIDGETS.find(w => w.id === widget.id)
+  if (!padrao) return true
+  return widget.title.trim() !== padrao.title.trim()
+}
+
+/**
  * Resolve o título do widget para o idioma corrente. Para widgets criados pelo
  * usuário (sem entrada em WIDGET_TITLE_KEYS) mantém o título salvo no painel.
+ * Título customizado no modal sempre prevalece sobre i18n e rótulo de status.
  */
 export function translateWidgetTitle(widget: DashboardWidgetConfig, t: TFunction): string {
+  if (widgetTituloFoiCustomizado(widget)) return widget.title
   const key = WIDGET_TITLE_KEYS[widget.id]
   return key ? t(key) : widget.title
 }
@@ -142,6 +161,10 @@ interface DashboardState {
   removeWidget: (widgetId: string) => void
   updateWidget: (widgetId: string, patch: Partial<DashboardWidgetConfig>) => void
   updateLayout: (updates: Array<{ id: string; position: DashboardWidgetConfig['position'] }>) => void
+  toggleWidgetVisibilidade: (widgetId: string) => void
+  reordenarWidgets: (fromId: string, toId: string) => void
+  selecionarTodosWidgetsVisiveis: () => void
+  restaurarVisibilidadePadraoWidgets: () => void
 
   activeFilters: ActiveFilter[]
   addFilter: (filter: ActiveFilter) => void
@@ -156,6 +179,10 @@ interface DashboardState {
   userDerivedMetrics: DerivedMetric[]
   addDerivedMetric: (metric: DerivedMetric) => void
   removeDerivedMetric: (metricId: string) => void
+
+  widgetLayoutInteracao: { widgetId: string; modo: 'moving' | 'resizing' } | null
+  setWidgetLayoutInteracao: (interacao: { widgetId: string; modo: 'moving' | 'resizing' } | null) => void
+  clearWidgetLayoutInteracao: () => void
 
   editMode: boolean
   setEditMode: (v: boolean) => void
@@ -367,9 +394,44 @@ export const useDashboardStore = create<DashboardState>()(
       updateLayout: (updates) => set(s => ({
         widgets: s.widgets.map(w => {
           const upd = updates.find(u => u.id === w.id)
-          return upd ? { ...w, position: upd.position } : w
+          const next = upd ? { ...w, position: upd.position } : w
+          if (!upd) return next
+          const ordem = s.widgets.findIndex(x => x.id === w.id)
+          return {
+            ...next,
+            config: { ...next.config, [WIDGET_CONFIG_ORDEM_PAINEL]: ordem },
+          }
         }),
       })),
+
+      toggleWidgetVisibilidade: (widgetId) => set(s => ({
+        widgets: s.widgets.map(w => {
+          if (w.id !== widgetId) return w
+          const visivel = w.config?.[WIDGET_CONFIG_IS_VISIVEL] !== false
+          return { ...w, config: { ...w.config, [WIDGET_CONFIG_IS_VISIVEL]: !visivel } }
+        }),
+      })),
+
+      reordenarWidgets: (fromId, toId) => set(s => ({
+        widgets: reordenarWidgetsLista(s.widgets, fromId, toId),
+      })),
+
+      selecionarTodosWidgetsVisiveis: () => set(s => ({
+        widgets: s.widgets.map(w => ({
+          ...w,
+          config: { ...w.config, [WIDGET_CONFIG_IS_VISIVEL]: true },
+        })),
+      })),
+
+      restaurarVisibilidadePadraoWidgets: () => set(s => {
+        const idsPadrao = DEFAULT_WIDGETS.map(w => w.id)
+        const sorted = ordenarWidgetsPorPadrao(s.widgets, idsPadrao)
+        const comVisibilidade = sorted.map((w, i) => ({
+          ...w,
+          config: { ...w.config, [WIDGET_CONFIG_IS_VISIVEL]: true, [WIDGET_CONFIG_ORDEM_PAINEL]: i },
+        }))
+        return { widgets: reflowPosicoesWidgets(comVisibilidade) }
+      }),
 
       activeFilters: [],
       addFilter: (filter) => set(s => ({
@@ -398,7 +460,11 @@ export const useDashboardStore = create<DashboardState>()(
         userDerivedMetrics: s.userDerivedMetrics.filter(m => m.id !== id),
       })),
 
-      editMode: true,
+      widgetLayoutInteracao: null,
+      setWidgetLayoutInteracao: (widgetLayoutInteracao) => set({ widgetLayoutInteracao }),
+      clearWidgetLayoutInteracao: () => set({ widgetLayoutInteracao: null }),
+
+      editMode: false,
       setEditMode: (editMode) => set({ editMode }),
       queryBuilderOpen: false,
       setQueryBuilderOpen: (queryBuilderOpen) => set({ queryBuilderOpen }),

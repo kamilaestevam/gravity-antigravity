@@ -17,6 +17,12 @@ import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
+import {
+  useListaPainelPedido,
+  type EstadoListaParaPainel,
+  type SnapshotAplicarListaPainel,
+} from '../shared/useListaPainelPedido'
+import { PedidosListaFaixaNavegacao } from '../components/PedidosListaFaixaNavegacao'
 import { useSelecaoStore, usePedidosSelecionados, useItensSelecionados, useHasMixedTipos } from '../shared/state/selecaoStore'
 import { useLinkContextualSync } from '../shared/state/useLinkContextualSync'
 import {
@@ -48,6 +54,7 @@ import {
   PlusCircle,
   Tag,
   Columns,
+  SquaresFour,
   PlugsConnected,
   PencilSimpleLine,
 } from '@phosphor-icons/react'
@@ -59,6 +66,13 @@ import {
   urlVincularExportador,
   urlVincularImportador,
 } from '../components/lista/urlsDeepLinkConfigurador'
+import {
+  cadastrosApi,
+  filtrarOpcoesExportadorImpSemWorkspaces,
+  filtrarOpcoesImportadorExpSemWorkspaces,
+  mapearOpcoesExportadorImportacao,
+  mapearOpcoesImportadorExportacao,
+} from '../shared/cadastrosApi'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
@@ -103,10 +117,21 @@ import {
   casasDecimaisApi,
   saldoFormulaApi,
   getApiContext,
+  relancarErroApi,
 } from '../shared/api'
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
+import { valorTotalItemParaLista } from '../shared/valorTotalItemLista'
+import {
+  somaCubagemItensLista,
+  somaPesoBrutoItensLista,
+  somaPesoLiquidoItensLista,
+  somaQuantidadeTotalPedidoLocal,
+  somaValorTotalPedidoLocal,
+} from '../shared/agregadosFisicosLista'
+import { valorTotalCambioItemParaLista } from '../shared/valorTotalCambioItemLista'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
+import { obterCampoItemComLegado } from '../../../shared/mapaPropagacaoPedidoItem'
 import {
   CAMPOS_LOGISTICA_PEDIDO,
   isCampoLogisticaPedido,
@@ -116,14 +141,31 @@ import { resolverEdicaoKanbanParaLista } from '../shared/kanbanNavegacaoLista'
 import { marcarPartNumbersDuplicados, pedidoTemPartNumberDuplicado } from '../../../shared/partNumberDuplicado'
 import {
   calcularDivergenciasPedido,
+  mesclarDivergenciasPreservandoCoberturaPedido,
+  mesclarDivergenciasPreservandoMoedaCambioPedido,
   mesclarDivergenciasPreservandoDescricaoPedido,
+  mesclarDivergenciasPreservandoNcmPedido,
+  pedidoPossuiItensNaLista,
+  resolverStatusEfetivoItemAoCarregar,
 } from '../../../shared/pedidoDivergencias'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { renderRotuloCadastro } from '../shared/useLogisticaCadastrosPedido'
 import {
+  CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO,
+  CHAVES_TOOLTIP_INLINE_LISTA,
+  enriquecerColunaBloqueadaInlinePedido,
   enriquecerColunaComRegraTooltip,
   enriquecerMapaColunasFilhoComRegraTooltip,
+  enriquecerMapaFilhoTooltipInline,
+  wrapCelulaListaRegras,
 } from '../shared/buildTooltipRegraLista'
+import {
+  buildEntradasMapaAnexoLista,
+  isChaveColunaAnexo,
+  METADADOS_COLUNA_ANEXO_LISTA,
+  renderCelulaAnexoLista,
+} from '../shared/renderCelulaAnexoLista'
+import { TooltipRegrasColuna } from '../shared/TooltipRegrasColuna'
 import { workspacesDisponiveisApi, type WorkspaceDisponivel } from '../shared/api'
 import {
   inserirBlocoColunasFaltantes,
@@ -161,9 +203,21 @@ import {
   fmtData,
 } from '../shared/types'
 import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
-import { useUnidadesPedido } from '../shared/useUnidadesPedido'
+import {
+  useUnidadesPedido,
+  formatarBadgeUnidadeCelula,
+  kgParaQuantidadeExibicao,
+  quantidadeExibicaoParaKg,
+  rotuloExibicaoUnidadeOpcao,
+} from '../shared/useUnidadesPedido'
+import {
+  formatarExibicaoQuantidadeVolume,
+  formatarNomeVolumeExibicao,
+  useVolumesPedido,
+} from '../shared/useVolumesPedido'
 import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import { useMoedasPedido } from '../shared/useMoedasPedido'
+import { useCambioSiscomexPedido, rotuloCambioSiscomex } from '../shared/useCambioSiscomexPedido'
 import { useLogisticaCadastrosPedido } from '../shared/useLogisticaCadastrosPedido'
 import type { OpcoesUnidadesColunas } from '../components/lista/ColunasPai'
 import './Pedidos.css'
@@ -296,9 +350,6 @@ function getLabelsFiltroInverso(campo: string, t: (key: string) => string = i18n
   return Object.fromEntries(Object.entries(map).map(([raw, label]) => [label, raw]))
 }
 
-// ── Status sem espelhamento (independentes entre pai e item) ─────────────────
-const STATUS_SEM_ESPELHAMENTO = new Set(['transferencia', 'consolidado'])
-
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
 
 const ABAS_STATUS_VALORES = ['todos','aberto','em_andamento','aprovado','transferencia','consolidado','cancelado'] as const
@@ -317,9 +368,10 @@ function lerAbasDoLocalStorage(t: TFunction = i18next.t.bind(i18next) as unknown
       { valor: 'todos', label: t('pedido.status.todos') },
       ...entries.map(([id, cfg]) => ({
         valor: id,
-        // Para IDs de sistema (rascunho/aberto/etc) traduz via i18n; para IDs
-        // customizados pelo usuario, mantem o label salvo no localStorage.
-        label: t(`pedido.status.${id}`, { defaultValue: cfg.label }),
+        // SSOT: rótulo salvo em Configurações (rotulo do banco). i18n só se faltar label.
+        label: cfg.label?.trim()
+          ? cfg.label
+          : t(`pedido.status.${id}`, { defaultValue: id }),
         cor: cfg.cor,
       })),
     ]
@@ -421,7 +473,7 @@ function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0, to
 // Aqui só usamos as KEYS (COLUNAS_PAI_CHAVES) — unidades podem ser vazias.
 const COLUNAS_PAI: GTColuna<Pedido>[] = buildColunasPai(
   i18next.t.bind(i18next),
-  { unidadesPeso: [], unidadesCubagem: [] },
+  { unidadesPeso: [], unidadesCubagem: [], mapaFatorParaKg: {} },
 )
 
 // ── Chaves das colunas estáticas do Pedido (para camposDisponiveis em fórmulas) ──
@@ -459,6 +511,7 @@ const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'valor_total_pedido',
   'quantidade_pronta_itens_pedido_total',
   'unidade_comercializada_pedido',
+  'tipo_volume_pedido',
   'quantidade_transferida_total',
   'saldo_itens_do_pedido',
   'quantidade_cancelada_total_pedido',
@@ -581,7 +634,7 @@ function buildFormulaContexto(row: Pedido): Record<string, number | null> {
     quantidade_total_pedido:              n(r.quantidade_total_pedido)              ?? n(r.quantidade_inicial_pedido),
     quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_total_pedido)    ?? n(r.quantidade_cancelada_pedido),
     quantidade_transferida_total:         n(r.quantidade_transferida_total)         ?? n(r.quantidade_transferida_pedido),
-    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total) ?? n(r.quantidade_pronta_pedido),
+    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total) ?? n(r.quantidade_pronta_item),
     saldo_itens_do_pedido:                n(r.saldo_itens_do_pedido)                ?? n(r.quantidade_atual_pedido),
     valor_total:                          n(r.valor_total_pedido)                   ?? n(r.valor_total_item),
     peso_liquido_total_pedido:            n(r.peso_liquido_total_pedido),
@@ -604,6 +657,27 @@ function renderTextoC2(valor: string, label: string): React.ReactElement {
 }
 
 function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
+  if (col.tipo === 'anexo') {
+    return {
+      key: col.chave as keyof Pedido,
+      label: col.nome,
+      tipo: 'texto',
+      filtravel: false,
+      oculta: !col.ativo,
+      ...METADADOS_COLUNA_ANEXO_LISTA,
+      tooltipTitulo: col.nome,
+      tooltipDescricao: col.descricao,
+      render: (_val: unknown, row: Pedido) =>
+        renderCelulaAnexoLista({
+          vinculo: 'pedido',
+          vinculo_id: row.id,
+          chaveColuna: col.chave,
+          colunaNome: col.nome,
+          categoriaOverride: col.id,
+        }),
+    }
+  }
+
   // Parse AST e casas decimais uma vez por definição de coluna, não por linha renderizada
   const formulaExpr = col.tipo === 'formula' ? (col.valor_padrao ?? col.formula_expressao) : null
   const formulaAST = formulaExpr
@@ -611,7 +685,44 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
     : null
   const casasCol = getCasas(col.id, 2)
 
+  // Texto que o find-in-page enxerga na célula. O valor da coluna do usuário
+  // vive em `_colunas_usuario[col.id]` (não em `row[col.chave]`) — sem isto o
+  // find lê `undefined` e o conteúdo fica invisível para a busca. O find usa
+  // esta mesma coluna-pai para varrer linhas filhas, então `row` pode ser
+  // Pedido OU PedidoItem — ambos carregam `_colunas_usuario` keyed por col.id.
+  const findDisplayColunaUsuario = (row: Pedido): string => {
+    const valores = (row as unknown as Record<string, unknown>)['_colunas_usuario'] as
+      Record<string, string> | undefined
+    if (col.tipo === 'formula') {
+      if (!formulaAST) return ''
+      try {
+        const contexto = buildFormulaContexto(row)
+        if (valores) {
+          for (const [k, v] of Object.entries(valores)) {
+            const num = Number(v)
+            if (!isNaN(num)) contexto[k] = num
+          }
+        }
+        const { valor: num } = avaliarFormula(formulaAST, contexto)
+        return fmtQuantidade(num, casasCol)
+      } catch {
+        return ''
+      }
+    }
+    const valor = valores?.[col.id]
+    if (valor == null || valor === '') return ''
+    if (col.tipo === 'checkbox') return valor === 'true' ? '✓' : valor === 'false' ? '✗' : ''
+    if (col.tipo === 'numero' || col.tipo === 'percentual') {
+      const num = Number(valor)
+      if (!isNaN(num)) return `${fmtQuantidade(num, casasCol)}${col.tipo === 'percentual' ? '%' : ''}`
+      return valor
+    }
+    if (col.tipo === 'data') return fmtData(valor)
+    return valor
+  }
+
   return {
+    findDisplay:     findDisplayColunaUsuario,
     key:             col.chave as keyof Pedido,
     label:           col.nome,
     tipo:            col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula' ? 'numero' : col.tipo === 'data' ? 'periodo' : 'texto',
@@ -642,7 +753,9 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
       const valor = valores?.[col.id] ?? '—'
 
       const divergentes = (row as Record<string, unknown>)['_colunas_usuario_divergentes'] as Record<string, boolean> | undefined
-      const divergente = (col.escopo || 'ambos') === 'ambos' && (divergentes?.[col.id] ?? false)
+      const divergente = col.alerta_divergencia_itens === true
+        && (col.escopo || 'ambos') === 'ambos'
+        && (divergentes?.[col.id] ?? false)
 
       // ── Checkbox ────────────────────────────────────────────────────────────
       if (col.tipo === 'checkbox') {
@@ -729,7 +842,13 @@ function renderPartNumberItemLista(t: TFunction, row: PedidoItem): React.ReactEl
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
         {texto}
-        <Warning size={14} weight="fill" style={{ color: '#F59E0B', flexShrink: 0 }} />
+        <Warning
+          data-testid="lista-alerta-part-number-duplicado-item"
+          size={14}
+          weight="fill"
+          style={{ color: '#F59E0B', flexShrink: 0 }}
+          aria-hidden="true"
+        />
       </span>
     </TooltipGlobal>
   )
@@ -811,16 +930,16 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     ),
   },
   {
-    key: 'quantidade_pronta_total_item_pedido',
-    label: t('pedido.coluna_filho.quantidade_pronta_total_item_pedido.label'),
+    key: 'quantidade_pronta_item',
+    label: t('pedido.coluna_filho.quantidade_pronta_item.label'),
     tipo: 'numero',
     align: 'right',
     grupo: 'Quantidades',
-    tooltipTitulo: t('pedido.coluna_filho.quantidade_pronta_total_item_pedido.tooltip_titulo'),
-    tooltipDescricao: t('pedido.coluna_filho.quantidade_pronta_total_item_pedido.tooltip_descricao'),
+    tooltipTitulo: t('pedido.coluna_filho.quantidade_pronta_item.tooltip_titulo'),
+    tooltipDescricao: t('pedido.coluna_filho.quantidade_pronta_item.tooltip_descricao'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta_total_item_pedido, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_pronta_item, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -940,7 +1059,7 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
-          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} kg`
+          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} ${formatarBadgeUnidadeCelula(row.peso_liquido_unidade_item ?? 'KG')}`
           : '—'}
       </span>
     ),
@@ -956,7 +1075,7 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
-          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} kg`
+          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} ${formatarBadgeUnidadeCelula(row.peso_bruto_unidade_item ?? 'KG')}`
           : '—'}
       </span>
     ),
@@ -972,7 +1091,7 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
-          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} m³`
+          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} ${formatarBadgeUnidadeCelula(row.cubagem_unidade_item ?? 'M3')}`
           : '—'}
       </span>
     ),
@@ -1208,10 +1327,17 @@ function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
     key: 'anexo_lpco',
     label: t('pedido.coluna_filho.anexo_lpco.label'),
     tipo: 'texto',
+    ...METADADOS_COLUNA_ANEXO_LISTA,
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: t('pedido.coluna_filho.anexo_lpco.tooltip_titulo'),
     tooltipDescricao: t('pedido.coluna_filho.anexo_lpco.tooltip_descricao'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.anexo_lpco ? '📎' : '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) =>
+      renderCelulaAnexoLista({
+        vinculo: 'item',
+        vinculo_id: row.id,
+        chaveColuna: 'anexo_lpco',
+        colunaNome: t('pedido.coluna_filho.anexo_lpco.label'),
+      }),
   },
   // ── Datas do item ────────────────────────────────────────────────────────────
   {
@@ -2504,10 +2630,13 @@ const CAMPOS_DERIVADOS_PAI = new Set([
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
+  'taxa_cambio_estimada',
+  'valor_total_cambio_pedido',
+  'quantidade_volumes_pedido',
 ])
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
-  .filter(c => !CAMPOS_DERIVADOS_PAI.has(c.key) && c.editavel !== false)
+  .filter(c => !CAMPOS_DERIVADOS_PAI.has(c.key) && c.editavel !== false && !isChaveColunaAnexo(String(c.key)))
   .map(c => c.key)
 
 // ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────
@@ -2515,23 +2644,15 @@ const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
 // Colunas sem mapeamento ficam vazias na linha do item.
 
 const CAMPOS_NUMERICOS_ITEM = new Set([
-  'quantidade_inicial_pedido', 'quantidade_atual_pedido', 'quantidade_pronta_total_item_pedido',
+  'quantidade_inicial_pedido', 'quantidade_atual_pedido', 'quantidade_pronta_item',
   'quantidade_transferida_pedido', 'quantidade_cancelada_pedido',
   'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
 ])
-
-// Fator de conversão reversa: KG armazenado → unidade de exibição
-const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KGBR: 1 }
 
 // Campos com unidade física fixa — GTValorUnidade usado só para exibir a unidade no popover,
 // mas NÃO grava unidade_comercializada_item (a unidade não muda)
 const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
   'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
-])
-
-// Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
-const CAMPOS_PAI_TEXTO = new Set([
-  'numero_proforma', 'numero_invoice',
 ])
 
 // Tipo auxiliar: item enriquecido com dados do pedido pai para renderização
@@ -2552,7 +2673,8 @@ type PedidoItemEnriquecido = PedidoItem & {
     condicao_pagamento: string | null
     data_emissao_pedido: string | null
     status: string
-    moeda_pedido: string
+    moeda_pedido: string | null
+    moeda_cambio_pedido: string | null
     importacao_exportador_id: string | null
     exportacao_importador_id: string | null
     porto_origem: string | null
@@ -2561,10 +2683,13 @@ type PedidoItemEnriquecido = PedidoItem & {
     local_de_destino: string | null
     aeroporto_origem: string | null
     aeroporto_destino: string | null
+    quantidade_volumes_pedido: number | null
+    tipo_volume_pedido: string | null
   }
 }
 
 function montarContextoPaiItem(pedido: Pedido, item: PedidoItem): PedidoItemEnriquecido['_p'] {
+  const statusItem = resolverStatusEfetivoItemAoCarregar(pedido as Record<string, unknown>) ?? pedido.status
   return {
     id: pedido.id,
     id_workspace: pedido.id_workspace ?? null,
@@ -2575,13 +2700,14 @@ function montarContextoPaiItem(pedido: Pedido, item: PedidoItem): PedidoItemEnri
     referencia_importador: item.referencia_importador ?? pedido.referencia_importador ?? null,
     referencia_exportador: item.referencia_exportador ?? pedido.referencia_exportador ?? null,
     referencia_fabricante: item.referencia_fabricante ?? pedido.referencia_fabricante ?? null,
-    numero_proforma: pedido.numero_proforma ?? null,
-    numero_invoice: pedido.numero_invoice ?? null,
+    numero_proforma: item.numero_proforma ?? pedido.numero_proforma ?? null,
+    numero_invoice: item.numero_invoice ?? pedido.numero_invoice ?? null,
     incoterm: pedido.incoterm ?? null,
     condicao_pagamento: pedido.condicao_pagamento ?? null,
     data_emissao_pedido: pedido.data_emissao_pedido ?? null,
-    status: pedido.status,
-    moeda_pedido: pedido.moeda_pedido ?? 'USD',
+    status: statusItem as Pedido['status'],
+    moeda_pedido: pedido.moeda_pedido ?? null,
+    moeda_cambio_pedido: pedido.moeda_cambio_pedido ?? null,
     importacao_exportador_id: pedido.importacao_exportador_id ?? null,
     exportacao_importador_id: pedido.exportacao_importador_id ?? null,
     porto_origem: pedido.porto_origem ?? null,
@@ -2590,7 +2716,25 @@ function montarContextoPaiItem(pedido: Pedido, item: PedidoItem): PedidoItemEnri
     local_de_destino: pedido.local_de_destino ?? null,
     aeroporto_origem: pedido.aeroporto_origem ?? null,
     aeroporto_destino: pedido.aeroporto_destino ?? null,
+    quantidade_volumes_pedido: pedido.quantidade_volumes_pedido ?? null,
+    tipo_volume_pedido: pedido.tipo_volume_pedido ?? null,
   }
+}
+
+function atualizarCacheItensContextoPai(
+  pedidoId: string,
+  pedidoAtualizado: Pedido,
+  itensCarregadosRef: React.MutableRefObject<Map<string, PedidoItem[]>>,
+) {
+  const itens = itensCarregadosRef.current.get(pedidoId)
+  if (!itens?.length) return
+  itensCarregadosRef.current.set(
+    pedidoId,
+    itens.map((i) => ({
+      ...i,
+      _p: montarContextoPaiItem(pedidoAtualizado, i),
+    })) as PedidoItem[],
+  )
 }
 
 /** ID de workspace do pedido (DDD id_workspace ou ACL company_id). */
@@ -2605,18 +2749,324 @@ function extrairIdWorkspaceDeItem(item: PedidoItem): string {
   return String(item.company_id ?? enr._p?.id_workspace ?? '').trim()
 }
 
-/** Propaga valor do pai no item em memória — traduz id_workspace → company_id (ACL JSON). */
+const CUID_INTERNO_RE = /^c[a-z0-9]{8,}$/i
+
+function pareceIdInternoGravity(valor: string): boolean {
+  return CUID_INTERNO_RE.test(valor.trim())
+}
+
+/** Normaliza tipo_operacao vindo da API (importacao/exportacao). */
+function tipoOperacaoLista(row: { tipo_operacao?: string | null }): 'importacao' | 'exportacao' | null {
+  const raw = String(row.tipo_operacao ?? '').trim().toLowerCase()
+  if (raw === 'importacao' || raw === 'importação') return 'importacao'
+  if (raw === 'exportacao' || raw === 'exportação') return 'exportacao'
+  return null
+}
+
+/**
+ * Comportamento da coluna Importador — usa tipo_operacao ou heurística de dado corrompido
+ * (nome_importador = CUID do workspace → tratar como importação na UI).
+ */
+function comportamentoImportadorLista(row: Pedido): 'importacao' | 'exportacao' | null {
+  const tipo = tipoOperacaoLista(row)
+  if (tipo) return tipo
+  const idWs = extrairIdWorkspaceDePedido(row)
+  const snap = row.nome_importador?.trim()
+  if (!idWs || !snap) return null
+  if (snap === idWs || pareceIdInternoGravity(snap)) return 'importacao'
+  return null
+}
+
+/** Opções do popover IMP — nunca retorna vazio se o pedido tem workspace. */
+function garantirOpcoesWorkspaceImportador(
+  row: Pedido,
+  workspaceOpcoes: { valor: string; label: string }[],
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+): { valor: string; label: string }[] {
+  if (workspaceOpcoes.length > 0) return workspaceOpcoes
+  const id = extrairIdWorkspaceDePedido(row)
+  if (!id) return []
+  const label = nomeLegivelWorkspace(id, workspacesMap, [], null)
+  return [{ valor: id, label: label !== '—' ? label : id }]
+}
+
+/** Snapshot de nome_importador só quando legível (nunca CUID). */
+function snapshotNomeImportadorLegivel(valor?: string | null): string | null {
+  const snap = valor?.trim()
+  if (!snap || pareceIdInternoGravity(snap)) return null
+  return snap
+}
+
+/** Nunca exibir CUID cru na UI — mapa → opções → snapshot do pedido IMP. */
+function nomeLegivelWorkspace(
+  idWs: string,
+  workspacesMap?: Map<string, { nome: string; cnpj?: string | null }>,
+  opcoes?: { valor: string; label: string }[],
+  nomeSnapshot?: string | null,
+): string {
+  const id = idWs.trim()
+  if (!id) return '—'
+  const doMapa = workspacesMap?.get(id)?.nome?.trim()
+  if (doMapa && !pareceIdInternoGravity(doMapa)) return doMapa
+  const doOpcao = opcoes?.find((o) => o.valor === id)?.label?.trim()
+  if (doOpcao && !pareceIdInternoGravity(doOpcao)) return doOpcao
+  const snap = nomeSnapshot?.trim()
+  if (snap && !pareceIdInternoGravity(snap) && snap !== id) return snap
+  return '—'
+}
+
+/** Nome do workspace do pedido — usado para bloquear vazamento na coluna Importador (EXP). */
+function nomeWorkspacePedidoLista(
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+): string {
+  return nomeLegivelWorkspace(extrairIdWorkspaceDePedido(row), workspacesMap, workspaceOpcoes, null)
+}
+
+function nomeImportadorPareceWorkspace(
+  nome: string,
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+): boolean {
+  const nomeWs = nomeWorkspacePedidoLista(row, workspacesMap, workspaceOpcoes)
+  if (nomeWs === '—') return false
+  return nome.trim().toLowerCase() === nomeWs.trim().toLowerCase()
+}
+
+/** Nome exibido na coluna Importador (pedido) — IMP espelha workspace; EXP usa fornecedor. */
+function nomeExibicaoImportadorPedido(
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+  opcoesImportadoresExp: { valor: string; label: string }[],
+): string {
+  const tipo = comportamentoImportadorLista(row)
+  if (tipo === 'importacao') {
+    const nome = nomeLegivelWorkspace(
+      extrairIdWorkspaceDePedido(row),
+      workspacesMap,
+      workspaceOpcoes,
+      snapshotNomeImportadorLegivel(row.nome_importador),
+    )
+    return pareceIdInternoGravity(nome) ? '—' : nome
+  }
+  const idForn = row.exportacao_importador_id?.trim()
+  if (idForn) {
+    const doOpcao = opcoesImportadoresExp.find((o) => o.valor === idForn)?.label?.trim()
+    if (doOpcao && !pareceIdInternoGravity(doOpcao)) return doOpcao
+  }
+  const nome = snapshotNomeImportadorLegivel(row.nome_importador)
+  if (nome && nomeImportadorPareceWorkspace(nome, row, workspacesMap, workspaceOpcoes)) {
+    return ''
+  }
+  return nome ?? ''
+}
+
+/** Comportamento da coluna Exportador — espelho invertido do Importador. */
+function comportamentoExportadorLista(row: Pedido): 'importacao' | 'exportacao' | null {
+  const tipo = tipoOperacaoLista(row)
+  if (tipo) return tipo
+  const idWs = extrairIdWorkspaceDePedido(row)
+  const snap = row.nome_exportador?.trim()
+  if (!idWs || !snap) return null
+  if (snap === idWs || pareceIdInternoGravity(snap)) return 'exportacao'
+  return null
+}
+
+function snapshotNomeExportadorLegivel(valor?: string | null): string | null {
+  return snapshotNomeImportadorLegivel(valor)
+}
+
+function nomeExportadorPareceWorkspace(
+  nome: string,
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+): boolean {
+  return nomeImportadorPareceWorkspace(nome, row, workspacesMap, workspaceOpcoes)
+}
+
+/** Nome exibido na coluna Exportador — EXP espelha workspace; IMP usa fornecedor. */
+function nomeExibicaoExportadorPedido(
+  row: Pedido,
+  workspacesMap: Map<string, { nome: string; cnpj?: string | null }> | undefined,
+  workspaceOpcoes: { valor: string; label: string }[],
+  opcoesExportadoresImp: { valor: string; label: string }[],
+): string {
+  const tipo = comportamentoExportadorLista(row)
+  if (tipo === 'exportacao') {
+    const nome = nomeLegivelWorkspace(
+      extrairIdWorkspaceDePedido(row),
+      workspacesMap,
+      workspaceOpcoes,
+      snapshotNomeExportadorLegivel(row.nome_exportador),
+    )
+    return pareceIdInternoGravity(nome) ? '—' : nome
+  }
+  const idForn = row.importacao_exportador_id?.trim()
+  if (idForn) {
+    const doOpcao = opcoesExportadoresImp.find((o) => o.valor === idForn)?.label?.trim()
+    if (doOpcao && !pareceIdInternoGravity(doOpcao)) return doOpcao
+  }
+  const nome = snapshotNomeExportadorLegivel(row.nome_exportador)
+  if (nome && nomeExportadorPareceWorkspace(nome, row, workspacesMap, workspaceOpcoes)) {
+    return ''
+  }
+  return nome ?? ''
+}
+
+function montarMapaWorkspacesRapido(
+  workspacesDisponiveis: { id_workspace: string; nome_workspace: string; cnpj_workspace?: string | null }[],
+  workspacesShell: { id: string; nome_workspace: string }[],
+): Map<string, { nome: string; cnpj?: string | null }> {
+  const m = new Map<string, { nome: string; cnpj?: string | null }>()
+  const registrar = (id: string, nome: string, cnpj?: string | null) => {
+    const idWs = id.trim()
+    if (!idWs) return
+    const label = nome.trim() || idWs
+    const prev = m.get(idWs)
+    if (!prev || (prev.nome === idWs && label !== idWs)) {
+      m.set(idWs, { nome: label, cnpj: cnpj ?? prev?.cnpj ?? null })
+    }
+  }
+  for (const w of workspacesDisponiveis) {
+    registrar(w.id_workspace, w.nome_workspace, w.cnpj_workspace ?? null)
+  }
+  for (const w of workspacesShell) {
+    registrar(w.id, w.nome_workspace)
+  }
+  return m
+}
+
+/** Corrige nome_importador e nome_exportador corrompidos ao carregar a lista. */
+function sanitizarNomesPartesListaPedidos(
+  lista: Pedido[],
+  workspacesDisponiveis: { id_workspace: string; nome_workspace: string; cnpj_workspace?: string | null }[],
+  workspacesShell: { id: string; nome_workspace: string }[],
+  opcoesImportadoresExp: { valor: string; label: string }[],
+  opcoesExportadoresImp: { valor: string; label: string }[],
+): Pedido[] {
+  const mapa = montarMapaWorkspacesRapido(workspacesDisponiveis, workspacesShell)
+  const workspaceOpcoes = [
+    ...workspacesDisponiveis.map((w) => ({
+      valor: w.id_workspace,
+      label: w.nome_workspace.trim() || w.id_workspace,
+    })),
+    ...workspacesShell.map((w) => ({
+      valor: w.id,
+      label: w.nome_workspace.trim() || w.id,
+    })),
+  ]
+  const opcoesImpExp = filtrarOpcoesImportadorExpSemWorkspaces(opcoesImportadoresExp, workspaceOpcoes)
+  const opcoesExpImp = filtrarOpcoesExportadorImpSemWorkspaces(opcoesExportadoresImp, workspaceOpcoes)
+  return lista.map((p) => {
+    const tipo = tipoOperacaoLista(p)
+    const idWs = extrairIdWorkspaceDePedido(p)
+    let next = p
+
+    const snapImp = p.nome_importador?.trim()
+    const snapImpCuid = Boolean(snapImp && idWs && (snapImp === idWs || pareceIdInternoGravity(snapImp)))
+    if (tipo === 'importacao' || (snapImpCuid && tipo !== 'exportacao')) {
+      const nomeCorreto = nomeLegivelWorkspace(idWs, mapa, workspaceOpcoes, null)
+      if (tipo === 'importacao' && nomeCorreto !== '—' && next.nome_importador !== nomeCorreto) {
+        next = { ...next, nome_importador: nomeCorreto }
+      } else if (snapImpCuid && nomeCorreto !== '—') {
+        next = { ...next, nome_importador: nomeCorreto }
+      }
+    } else if (tipo === 'exportacao') {
+      const nomeExibImp = nomeExibicaoImportadorPedido(next, mapa, workspaceOpcoes, opcoesImpExp)
+      const snapExpImp = next.nome_importador?.trim()
+      const precisaImp = Boolean(
+        snapExpImp && (
+          pareceIdInternoGravity(snapExpImp)
+          || snapExpImp === idWs
+          || nomeImportadorPareceWorkspace(snapExpImp, next, mapa, workspaceOpcoes)
+          || (nomeExibImp && snapExpImp !== nomeExibImp)
+        ),
+      )
+      if (precisaImp) {
+        next = { ...next, nome_importador: nomeExibImp || null }
+      }
+    }
+
+    const snapExp = next.nome_exportador?.trim()
+    const snapExpCuid = Boolean(snapExp && idWs && (snapExp === idWs || pareceIdInternoGravity(snapExp)))
+    if (tipo === 'exportacao' || (snapExpCuid && tipo !== 'importacao')) {
+      const nomeCorreto = nomeLegivelWorkspace(idWs, mapa, workspaceOpcoes, null)
+      if (tipo === 'exportacao' && nomeCorreto !== '—' && next.nome_exportador !== nomeCorreto) {
+        next = { ...next, nome_exportador: nomeCorreto }
+      } else if (snapExpCuid && nomeCorreto !== '—') {
+        next = { ...next, nome_exportador: nomeCorreto }
+      }
+    } else if (tipo === 'importacao') {
+      const nomeExibExp = nomeExibicaoExportadorPedido(next, mapa, workspaceOpcoes, opcoesExpImp)
+      const snapExpImp = next.nome_exportador?.trim()
+      const precisaExp = Boolean(
+        snapExpImp && (
+          pareceIdInternoGravity(snapExpImp)
+          || snapExpImp === idWs
+          || nomeExportadorPareceWorkspace(snapExpImp, next, mapa, workspaceOpcoes)
+          || (nomeExibExp && snapExpImp !== nomeExibExp)
+        ),
+      )
+      if (precisaExp) {
+        next = { ...next, nome_exportador: nomeExibExp || null }
+      }
+    }
+
+    return next
+  })
+}
+
+/** Extrai código ISO de moeda (select, GTValorMoeda ou rótulo "USD — Dólar…"). */
+function extrairCodigoMoedaLista(valor: unknown): string | null {
+  if (valor == null || valor === '') return null
+  if (typeof valor === 'object' && valor !== null && 'currency' in valor) {
+    const codigo = (valor as { currency: unknown }).currency
+    return codigo == null || codigo === '' ? null : String(codigo).trim()
+  }
+  const bruto = String(valor).trim()
+  if (!bruto) return null
+  const sep = bruto.indexOf(' — ')
+  return sep > 0 ? bruto.slice(0, sep).trim() : bruto
+}
+
+function codigoMoedaExibicaoLista(valor: string | null | undefined): string | null {
+  if (!valor?.trim()) return null
+  const sep = valor.indexOf(' — ')
+  return sep > 0 ? valor.slice(0, sep).trim() : valor.trim()
+}
+
+/** Coluna Prisma do item → chave no contrato JSON do mapItem (ACL). */
+const CAMPO_ITEM_JSON: Partial<Record<string, keyof PedidoItem | string>> = {
+  moeda_item: 'moeda_item',
+  incoterm_item: 'incoterm',
+  tipo_operacao_item: 'tipo_operacao',
+  condicao_pagamento_item: 'condicao_pagamento_pedido',
+  unidade_comercializada_item: 'unidade_comercializada_item',
+  tipo_volume_item: 'tipo_volume_item',
+  numero_proforma_item: 'numero_proforma',
+  numero_invoice_item: 'numero_invoice',
+  cobertura_cambial_item: 'cobertura_cambial',
+  moeda_cambio_item_pedido: 'moeda_cambio_item_pedido',
+}
+
+/** Propaga valor do pai no item em memória — usa MAPA_PROPAGACAO + nomes JSON do mapItem. */
 function aplicarPropagacaoPedidoNoItem(
   item: PedidoItem,
   campoPedido: string,
   valor: unknown,
 ): PedidoItem {
-  // Contrato JSON (mapItem): campos propagáveis expõem o mesmo nome do pai
-  // (ex: data_confirmada_pedido_pronto), não a coluna Prisma do item.
-  const patched = { ...item, [campoPedido]: valor } as PedidoItem
+  const patched = { ...item } as PedidoItem & Record<string, unknown>
+
   if (campoPedido === 'tipo_operacao' || campoPedido === 'tipo_operacao_pedido') {
+    patched.tipo_operacao = valor as string | null | undefined
     patched.tipo_operacao_item = valor as string | null | undefined
+    return patched
   }
+
   if (campoPedido === 'id_workspace') {
     patched.company_id = String(valor ?? '')
     const enr = item as PedidoItemEnriquecido
@@ -2626,24 +3076,80 @@ function aplicarPropagacaoPedidoNoItem(
         id_workspace: (valor as string | null | undefined) ?? null,
       }
     }
+    return patched
   }
+
+  const campoItemPrisma = obterCampoItemComLegado(campoPedido)
+  if (campoItemPrisma) {
+    const chaveJson = CAMPO_ITEM_JSON[campoItemPrisma]
+      ?? (campoPedido.startsWith('data_') ? campoPedido : campoItemPrisma)
+    patched[chaveJson] = valor
+    if (campoItemPrisma === 'tipo_operacao_item') {
+      patched.tipo_operacao_item = valor
+    }
+    return patched
+  }
+
+  patched[campoPedido] = valor
   return patched
 }
 
-function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
-  const { unidadesPeso, unidadesCubagem, workspacesMap, paisesOpcoes = [], portosOpcoes = [], aeroportosOpcoes = [] } = opcoes
-  const tooltipLogisticaEditaPedido = t(
-    'pedido.coluna_filho.mapa_logistica.tooltip_edita_pedido',
-    'Valor do pedido — a alteração aqui atualiza o pedido inteiro (não grava no item).',
+/** Tooltip com pílulas para célula de item somente leitura (padrão Workspace / Tipo de Operação). */
+function wrapCelulaItemSomenteLeituraLista(
+  conteudo: React.ReactNode,
+  t: TFunction,
+  titulo: string,
+): React.ReactElement {
+  return (
+    <TooltipGlobal
+      titulo={titulo}
+      descricao={(
+        <TooltipRegrasColuna
+          t={t}
+          pillsPedido={['itens_bloqueados_pedido']}
+        />
+      )}
+    >
+      <span style={{ display: 'block', cursor: 'not-allowed' }}>{conteudo}</span>
+    </TooltipGlobal>
   )
+}
 
-  /** Nome do workspace do pedido pai — espelha ColunasPai (importação/exportação). */
-  const resolverNomeWorkspacePedidoPai = (row: PedidoItem): string | null => {
-    const enr = row as PedidoItemEnriquecido
-    const id = enr._p?.id_workspace ?? row.company_id ?? ''
-    if (!id) return null
-    return workspacesMap?.get(id)?.nome ?? null
-  }
+/** Logística: valor único no pedido — itens espelham _p; tooltip via coluna (wrapTooltipRegraCelula). */
+function wrapCelulaItemLogisticaLista(conteudo: React.ReactNode): React.ReactElement {
+  return <span style={{ display: 'block' }}>{conteudo}</span>
+}
+
+/** Nome do workspace do pedido pai — espelha ColunasPai (importação/exportação). */
+function resolverNomeWorkspacePedidoPai(
+  row: PedidoItem,
+  workspacesMap?: OpcoesUnidadesColunas['workspacesMap'],
+): string | null {
+  const enr = row as PedidoItemEnriquecido
+  const id = enr._p?.id_workspace ?? row.company_id ?? ''
+  if (!id) return null
+  return workspacesMap?.get(id)?.nome ?? null
+}
+
+function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
+  const {
+    unidadesPeso,
+    unidadesCubagem,
+    mapaFatorParaKg,
+    volumesOpcoes = [],
+    workspacesMap,
+    workspaceOpcoesLista = [],
+    opcoesImportadoresExpLista = [],
+    opcoesExportadoresImpLista = [],
+    paisesOpcoes = [],
+    portosOpcoes = [],
+    aeroportosOpcoes = [],
+    coberturaCambialOpcoes = [],
+    modalidadePagamentoOpcoes = [],
+    moedasOpcoes = [],
+  } = opcoes
+  const opcoesCobertura = coberturaCambialOpcoes.map(o => ({ valor: o.valor, label: o.label }))
+  const opcoesSiscomex = modalidadePagamentoOpcoes.map(o => ({ valor: o.valor, label: o.label }))
 
   return {
   // ── Número do pedido → Part Number do item ────────────────────────────────
@@ -2665,13 +3171,17 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   },
   // ── Colunas herdadas do pedido pai ────────────────────────────────────────
   tipo_operacao: {
+    editavel: false,
+    tooltipBloqueado: t(
+      'pedido.coluna_filho.mapa_tipo_operacao.tooltip_bloqueado',
+      'Tipo de operação é do pedido — altere na linha do pedido',
+    ),
     render: (row: PedidoItem) => {
-      // Bug 2 fix: usar tipo_operacao_item do próprio item; fallback para pai se null
       const tipoItem = (row as Record<string, unknown>).tipo_operacao_item as string | null
       const p = (row as PedidoItemEnriquecido)._p
       const tipo = tipoItem ?? p?.tipo_operacao ?? null
       if (!tipo) return null
-      return (
+      const badge = (
         <StatusBadgeGlobal
           valor={tipo === 'importacao' ? t('pedido.coluna_filho.mapa_tipo_operacao.valor_importacao') : t('pedido.coluna_filho.mapa_tipo_operacao.valor_exportacao')}
           genero="feminino"
@@ -2681,6 +3191,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
           }
         />
       )
+      return wrapCelulaItemSomenteLeituraLista(badge, t, t('pedido.coluna_pai.tipo_operacao'))
     },
   },
   id_workspace: {
@@ -2688,144 +3199,125 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     tooltipBloqueado: t('pedido.coluna_filho.mapa_id_workspace.tooltip_bloqueado', 'Workspace é do pedido — altere na linha do pedido'),
     render: (row: PedidoItem) => {
       const enr = row as PedidoItemEnriquecido
-      // Fonte canônica: workspace do pedido pai (itens sempre herdam).
       const id = enr._p?.id_workspace ?? row.company_id ?? ''
-      if (!id) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      const nome = workspacesMap?.get(id)?.nome ?? id
-      const divergente = enr._p?.id_workspace != null
-        && row.company_id != null
-        && row.company_id !== enr._p.id_workspace
+      const titulo = t('pedido.coluna_pai.workspace_label')
+      if (!id) {
+        return wrapCelulaItemSomenteLeituraLista(
+          <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>,
+          t,
+          titulo,
+        )
+      }
+      const nome = nomeLegivelWorkspace(id, workspacesMap, undefined, enr._p?.nome_importador)
       const conteudo = nome.length <= 50
         ? <span>{nome}</span>
         : (
-          <TooltipGlobal titulo={t('pedido.coluna_pai.workspace_label')} descricao={nome}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-              {nome.slice(0, 50) + '…'}
-              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-            </span>
-          </TooltipGlobal>
-        )
-      if (!divergente) return conteudo
-      return (
-        <TooltipGlobal
-          titulo={t('pedido.coluna_pai.workspace_label')}
-          descricao={t('pedido.coluna_pai.workspace_divergente', 'Workspace do item difere do pedido')}
-        >
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-            {conteudo}
-            <Warning size={14} weight="fill" style={{ color: '#F59E0B', flexShrink: 0 }} />
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            {nome.slice(0, 50) + '…'}
+            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
           </span>
-        </TooltipGlobal>
-      )
+        )
+      return wrapCelulaItemSomenteLeituraLista(conteudo, t, titulo)
     },
   },
   nome_exportador: {
-    editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao',
-    tooltipBloqueado: (row: PedidoItem) =>
-      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao'
-        ? t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond')
-        : undefined,
+    editavel: false,
+    tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'),
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const enr = row as PedidoItemEnriquecido
-      const tipoOp = enr._p?.tipo_operacao
-      const pedidoId = enr._p?.id
+      const titulo = t('pedido.coluna_pai.nome_exportador')
+      const pedidoEspelho = {
+        tipo_operacao: enr._p?.tipo_operacao,
+        id_workspace: enr._p?.id_workspace,
+        company_id: enr._p?.id_workspace ?? row.company_id,
+        importacao_exportador_id: enr._p?.importacao_exportador_id,
+        nome_exportador: enr._p?.nome_exportador,
+      } as Pedido
+      const tipoOp = comportamentoExportadorLista(pedidoEspelho)
 
       if (tipoOp === 'exportacao') {
-        const nomeWs = resolverNomeWorkspacePedidoPai(row)
-        if (nomeWs) {
-          return renderBadgeParteWorkspace({
-            nomeWorkspace: nomeWs,
-            titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
-            descricao: t('pedido.coluna_pai.exportador_workspace_desc', { nome: nomeWs }),
-            somenteLeitura: true,
-          })
-        }
+        const nomeWs = nomeExibicaoExportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, [])
+        const conteudo = nomeWs.length <= 50
+          ? <span>{nomeWs}</span>
+          : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              {nomeWs.slice(0, 50) + '…'}
+              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+            </span>
+          )
+        return wrapCelulaItemSomenteLeituraLista(conteudo, t, titulo)
       }
 
-      if (tipoOp === 'importacao') {
-        const nome = row.nome_exportador ?? enr._p?.nome_exportador ?? null
-        const idExportador = enr._p?.importacao_exportador_id ?? null
-        if (nome?.trim()) {
-          return renderBadgeParteVinculada({
-            nome,
-            titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
-            descricao: t('pedido.coluna_pai.clique_editar_exportador'),
-            href: urlVincularExportador(idExportador, pedidoId),
-          })
-        }
-        return renderLinkVincularParte({
-          label: t('pedido.coluna_pai.vincular_exportador'),
-          descricao: t('pedido.coluna_pai.nenhum_exportador_vinculado'),
-          href: urlVincularExportador(null, pedidoId),
-        })
+      const nome = nomeExibicaoExportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, opcoesExportadoresImpLista)
+      if (!nome) {
+        return wrapCelulaItemSomenteLeituraLista(
+          <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+            {t('pedido.coluna_pai.vincular_exportador')}
+          </span>,
+          t,
+          titulo,
+        )
       }
-
-      const v = row.nome_exportador ?? enr._p?.nome_exportador ?? null
-      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      if (v.length <= 50) return <span>{v}</span>
-      return (
-        <TooltipGlobal titulo={t('pedido.coluna_filho.mapa_nome_exportador.tooltip_titulo')} descricao={v}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            {v.slice(0, 50) + '…'}
-            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-          </span>
-        </TooltipGlobal>
+      return wrapCelulaItemSomenteLeituraLista(
+        renderBadgeParteVinculada({
+          nome,
+          titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
+          descricao: t('pedido.coluna_pai.clique_editar_exportador'),
+        }),
+        t,
+        titulo,
       )
     },
   },
   nome_importador: {
-    editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
-    tooltipBloqueado: (row: PedidoItem) =>
-      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao'
-        ? t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado_cond')
-        : undefined,
+    editavel: false,
+    tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado'),
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const enr = row as PedidoItemEnriquecido
-      const tipoOp = enr._p?.tipo_operacao
-      const pedidoId = enr._p?.id
+      const titulo = t('pedido.coluna_pai.nome_importador')
+      const pedidoEspelho = {
+        tipo_operacao: enr._p?.tipo_operacao,
+        id_workspace: enr._p?.id_workspace,
+        company_id: enr._p?.id_workspace ?? row.company_id,
+        exportacao_importador_id: enr._p?.exportacao_importador_id,
+        nome_importador: enr._p?.nome_importador,
+      } as Pedido
+      const tipoOp = comportamentoImportadorLista(pedidoEspelho)
 
       if (tipoOp === 'importacao') {
-        const nomeWs = resolverNomeWorkspacePedidoPai(row)
-        if (nomeWs) {
-          return renderBadgeParteWorkspace({
-            nomeWorkspace: nomeWs,
-            titulo: t('pedido.coluna_pai.parte_importador_titulo'),
-            descricao: t('pedido.coluna_pai.importador_workspace_desc', { nome: nomeWs }),
-            somenteLeitura: true,
-          })
-        }
+        const nomeWs = nomeExibicaoImportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, [])
+        const conteudo = nomeWs.length <= 50
+          ? <span>{nomeWs}</span>
+          : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              {nomeWs.slice(0, 50) + '…'}
+              <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+            </span>
+          )
+        return wrapCelulaItemSomenteLeituraLista(conteudo, t, titulo)
       }
 
-      if (tipoOp === 'exportacao') {
-        const nome = row.nome_importador ?? enr._p?.nome_importador ?? null
-        const idImportador = enr._p?.exportacao_importador_id ?? null
-        if (nome?.trim()) {
-          return renderBadgeParteVinculada({
-            nome,
-            titulo: t('pedido.coluna_pai.parte_importador_titulo'),
-            descricao: t('pedido.coluna_pai.clique_editar_importador'),
-            href: urlVincularImportador(idImportador, pedidoId),
-          })
-        }
-        return renderLinkVincularParte({
-          label: t('pedido.coluna_pai.vincular_importador'),
-          descricao: t('pedido.coluna_pai.nenhum_importador_vinculado'),
-          href: urlVincularImportador(null, pedidoId),
-        })
+      // Exportação — espelha pedido (somente _p), somente leitura no item.
+      const nome = nomeExibicaoImportadorPedido(pedidoEspelho, workspacesMap, workspaceOpcoesLista, opcoesImportadoresExpLista)
+      if (!nome) {
+        return wrapCelulaItemSomenteLeituraLista(
+          <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+            {t('pedido.coluna_pai.vincular_importador')}
+          </span>,
+          t,
+          titulo,
+        )
       }
-
-      const v = row.nome_importador ?? enr._p?.nome_importador ?? null
-      if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
-      if (v.length <= 50) return <span>{v}</span>
-      return (
-        <TooltipGlobal titulo={t('pedido.coluna_filho.mapa_nome_importador.tooltip_titulo')} descricao={v}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            {v.slice(0, 50) + '…'}
-            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
-          </span>
-        </TooltipGlobal>
+      return wrapCelulaItemSomenteLeituraLista(
+        renderBadgeParteVinculada({
+          nome,
+          titulo: t('pedido.coluna_pai.parte_importador_titulo'),
+          descricao: t('pedido.coluna_pai.clique_editar_importador_lista'),
+        }),
+        t,
+        titulo,
       )
     },
   },
@@ -2884,8 +3376,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     editavel: true,
     campo: 'numero_proforma',
     render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      const v = p?.numero_proforma
+      const v = row.numero_proforma
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (
@@ -2902,8 +3393,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     editavel: true,
     campo: 'numero_invoice',
     render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      const v = p?.numero_invoice
+      const v = row.numero_invoice
       if (!v) return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
       if (v.length <= 50) return <span>{v}</span>
       return (
@@ -2969,13 +3459,35 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   cobertura_cambial: {
     editavel: true,
     campo: 'cobertura_cambial',
+    opcoes: opcoesCobertura,
+    getValorEditar: (row: PedidoItem) => row.cobertura_cambial ?? '',
     render: (row: PedidoItem) => {
-      const v = row.cobertura_cambial ?? 'com_cobertura'
-      if (v.length <= 50) return <span>{v}</span>
+      const rotulo = rotuloCambioSiscomex(row.cobertura_cambial, coberturaCambialOpcoes)
+      if (rotulo === '—') return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      if (rotulo.length <= 50) return <span>{rotulo}</span>
       return (
-        <TooltipGlobal titulo={t('pedido.coluna_filho.mapa_cobertura_cambial.tooltip_titulo')} descricao={v}>
+        <TooltipGlobal titulo={t('pedido.coluna_filho.mapa_cobertura_cambial.tooltip_titulo')} descricao={rotulo}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-            {v.slice(0, 50) + '…'}
+            {rotulo.slice(0, 50) + '…'}
+            <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
+          </span>
+        </TooltipGlobal>
+      )
+    },
+  },
+  condicao_pagamento_siscomex: {
+    editavel: true,
+    campo: 'condicao_pagamento_siscomex',
+    opcoes: opcoesSiscomex,
+    getValorEditar: (row: PedidoItem) => row.condicao_pagamento_siscomex ?? '',
+    render: (row: PedidoItem) => {
+      const rotulo = rotuloCambioSiscomex(row.condicao_pagamento_siscomex, modalidadePagamentoOpcoes)
+      if (rotulo === '—') return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      if (rotulo.length <= 50) return <span>{rotulo}</span>
+      return (
+        <TooltipGlobal titulo={t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido_titulo')} descricao={rotulo}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            {rotulo.slice(0, 50) + '…'}
             <Eye size={14} style={{ flexShrink: 0, opacity: 0.6 }} />
           </span>
         </TooltipGlobal>
@@ -3013,18 +3525,18 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
-      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+      return { unit, quantity: kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg) }
     },
     render: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
-      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      const display = kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg)
       return (
         <span className="gtv-celula-moeda">
           {row.peso_liquido_unitario != null
             ? fmtQuantidade(display, getCasas('peso_liquido_unitario', 3))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -3037,18 +3549,18 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
-      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+      return { unit, quantity: kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg) }
     },
     render: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
-      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      const display = kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg)
       return (
         <span className="gtv-celula-moeda">
           {row.peso_bruto_unitario != null
             ? fmtQuantidade(display, getCasas('peso_bruto_unitario', 3))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -3069,7 +3581,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
           {row.cubagem_unitaria != null
             ? fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase().replace('m3', 'm³')}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -3081,16 +3593,43 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     casasDecimais: getCasas('valor_total_pedido', 2),
     getValorEditar: (row: PedidoItem) => ({
       currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
-      amount: row.valor_total_item ?? 0,
+      amount: valorTotalItemParaLista(row) ?? 0,
     }),
     render: (row: PedidoItem) => {
       const casas = getCasas('valor_total_pedido', 2)
       const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
-      const num = Number(row.valor_total_item)
+      const num = valorTotalItemParaLista(row)
       return (
         <span className="gtv-celula-moeda">
           <span className="gtv-celula-moeda-badge">{moeda}</span>
-          {row.valor_total_item != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
+          {num != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
+        </span>
+      )
+    },
+  },
+  valor_total_cambio_pedido: {
+    editavel: true,
+    campo: 'valor_total_cambio_item_pedido',
+    casasDecimais: getCasas('valor_total_cambio_pedido', 2),
+    getValorEditar: (row: PedidoItem) => {
+      const enriquecido = row as PedidoItemEnriquecido
+      const moedaRaw = enriquecido.moeda_cambio_item_pedido ?? enriquecido._p?.moeda_cambio_pedido ?? 'BRL'
+      const moeda = codigoMoedaExibicaoLista(moedaRaw) ?? moedaRaw ?? 'BRL'
+      return {
+        currency: moeda,
+        amount: valorTotalCambioItemParaLista(row) ?? 0,
+      }
+    },
+    render: (row: PedidoItem) => {
+      const casas = getCasas('valor_total_cambio_pedido', 2)
+      const enriquecido = row as PedidoItemEnriquecido
+      const moedaRaw = enriquecido.moeda_cambio_item_pedido ?? enriquecido._p?.moeda_cambio_pedido ?? 'BRL'
+      const moeda = codigoMoedaExibicaoLista(moedaRaw) ?? moedaRaw ?? 'BRL'
+      const num = valorTotalCambioItemParaLista(row)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {num != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
         </span>
       )
     },
@@ -3238,6 +3777,51 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       )
     },
   },
+  tipo_volume_pedido: {
+    editavel: true,
+    campo: 'tipo_volume_item',
+    unidades: volumesOpcoes,
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_tipo_volume'),
+    rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item ?? '05',
+      quantity: 0,
+    }),
+    render: (row: PedidoItem) => {
+      const tipo = (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item
+      if (!tipo) return <span>{'—'}</span>
+      const nome = rotuloExibicaoUnidadeOpcao(tipo, volumesOpcoes)
+      return <span>{formatarNomeVolumeExibicao(nome, 1)}</span>
+    },
+  },
+  quantidade_volumes_pedido: {
+    editavel: true,
+    campo: 'quantidade_volumes_pedido',
+    unidades: volumesOpcoes,
+    avisoImpacto: t('pedido.coluna_pai.aviso_impacto_quantidade_volumes'),
+    rotuloUnidadeSelecionada: (unit) => rotuloExibicaoUnidadeOpcao(unit, volumesOpcoes),
+    formatarValorUnidade: (v) => formatarExibicaoQuantidadeVolume(v.quantity, v.unit, volumesOpcoes),
+    getValorEditar: (row: PedidoItem) => {
+      const enr = row as PedidoItemEnriquecido
+      return {
+        unit: (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item
+          ?? enr._p?.tipo_volume_pedido
+          ?? '05',
+        quantity: enr._p?.quantidade_volumes_pedido ?? 0,
+      }
+    },
+    render: (row: PedidoItem) => {
+      const enr = row as PedidoItemEnriquecido
+      const tipo = (row as PedidoItem & { tipo_volume_item?: string | null }).tipo_volume_item
+      const texto = formatarExibicaoQuantidadeVolume(
+        enr._p?.quantidade_volumes_pedido,
+        tipo,
+        volumesOpcoes,
+      )
+      if (texto === '—') return <span style={{ opacity: 0.4 }}>—</span>
+      return <span>{texto}</span>
+    },
+  },
   // ── Quantidades ───────────────────────────────────────────────────────────
   quantidade_atual_pedido: {
     // Saldo = qtd_inicial - cancelada - transferida → sempre calculado, nunca editável
@@ -3270,20 +3854,15 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     ),
   },
   saldo_itens_do_pedido: {
+    editavel: false,
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       const qtd = Math.max(0, (row.quantidade_inicial_pedido ?? 0) - (row.quantidade_transferida_pedido ?? 0) - (row.quantidade_cancelada_pedido ?? 0))
       return (
-        <TooltipGlobal
-          titulo={t('pedido.coluna_filho.mapa_saldo_itens_do_pedido.titulo')}
-          descricao={<span>{t('pedido.coluna_filho.helper.saldo_calculado_prefixo')}<a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">{t('pedido.coluna_filho.helper.saldo_calculado_link')}</a></span>}
-          interativo
-        >
-          <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
-            {fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0))}
-            <span className="gtv-celula-unidade-badge">{unidade}</span>
-          </span>
-        </TooltipGlobal>
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
+          {fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
       )
     },
   },
@@ -3302,17 +3881,17 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
   },
   quantidade_pronta_itens_pedido_total: {
     editavel: true,
-    campo: 'quantidade_pronta_total_item_pedido',
+    campo: 'quantidade_pronta_item',
     casasDecimais: getCasas('quantidade_item', 0),
     getValorEditar: (row: PedidoItem) => ({
       unit: (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN',
-      quantity: Number(row.quantidade_pronta_total_item_pedido ?? 0),
+      quantity: Number(row.quantidade_pronta_item ?? 0),
     }),
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       return (
         <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {fmtQuantidade(row.quantidade_pronta_total_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+          {fmtQuantidade(row.quantidade_pronta_item ?? 0, getCasas('quantidade_item', 0))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
       )
@@ -3332,16 +3911,34 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       )
     },
   },
+  // ── Moeda Câmbio: item editável independente do pedido (mirror cobertura_cambial) ──
+  moeda_cambio_pedido: {
+    editavel: true,
+    campo: 'moeda_cambio_item_pedido',
+    opcoes: moedasOpcoes,
+    getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido).moeda_cambio_item_pedido ?? '',
+    render: (row: PedidoItem) => {
+      const moeda = codigoMoedaExibicaoLista((row as PedidoItemEnriquecido).moeda_cambio_item_pedido)
+      if (!moeda) return <span>{'—'}</span>
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+        </span>
+      )
+    },
+  },
   // ── Logística: valor no Pedido; edição na linha do item roteia para PATCH pedido ──
   porto_origem: {
     editavel: true,
     campo: 'porto_origem',
     opcoes: portosOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.porto_origem ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.porto_origem ?? null, portosOpcoes, t('pedido.coluna_pai.porto_origem'))
+      const titulo = t('pedido.coluna_pai.porto_origem')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.porto_origem ?? null, portosOpcoes, titulo),
+      )
     },
   },
   porto_destino: {
@@ -3349,10 +3946,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'porto_destino',
     opcoes: portosOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.porto_destino ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.porto_destino ?? null, portosOpcoes, t('pedido.coluna_pai.porto_destino'))
+      const titulo = t('pedido.coluna_pai.porto_destino')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.porto_destino ?? null, portosOpcoes, titulo),
+      )
     },
   },
   local_de_origem: {
@@ -3360,10 +3959,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'local_de_origem',
     opcoes: paisesOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.local_de_origem ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.local_de_origem ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_origem'))
+      const titulo = t('pedido.coluna_pai.local_de_origem')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.local_de_origem ?? null, paisesOpcoes, titulo),
+      )
     },
   },
   local_de_destino: {
@@ -3371,10 +3972,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'local_de_destino',
     opcoes: paisesOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.local_de_destino ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.local_de_destino ?? null, paisesOpcoes, t('pedido.coluna_pai.local_de_destino'))
+      const titulo = t('pedido.coluna_pai.local_de_destino')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.local_de_destino ?? null, paisesOpcoes, titulo),
+      )
     },
   },
   aeroporto_origem: {
@@ -3382,10 +3985,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'aeroporto_origem',
     opcoes: aeroportosOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.aeroporto_origem ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.aeroporto_origem ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_origem'))
+      const titulo = t('pedido.coluna_pai.aeroporto_origem')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.aeroporto_origem ?? null, aeroportosOpcoes, titulo),
+      )
     },
   },
   aeroporto_destino: {
@@ -3393,10 +3998,12 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     campo: 'aeroporto_destino',
     opcoes: aeroportosOpcoes,
     getValorEditar: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.aeroporto_destino ?? null,
-    tooltipBloqueado: tooltipLogisticaEditaPedido,
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return renderRotuloCadastro(p?.aeroporto_destino ?? null, aeroportosOpcoes, t('pedido.coluna_pai.aeroporto_destino'))
+      const titulo = t('pedido.coluna_pai.aeroporto_destino')
+      return wrapCelulaItemLogisticaLista(
+        renderRotuloCadastro(p?.aeroporto_destino ?? null, aeroportosOpcoes, titulo),
+      )
     },
   },
   // ── Datas replicáveis pedido→item (44 colunas) ─────────────────────────────
@@ -3412,6 +4019,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
     'data_prevista_aprovacao_rascunho_proforma', 'data_confirmada_aprovacao_rascunho_proforma', 'data_meta_aprovacao_rascunho_proforma',
     'data_prevista_envio_original_proforma', 'data_confirmada_envio_original_proforma', 'data_meta_envio_original_proforma',
     'data_prevista_recebimento_original_proforma', 'data_confirmada_recebimento_original_proforma', 'data_meta_recebimento_original_proforma',
+    'data_documento_proforma',
     'data_prevista_recebimento_rascunho_invoice', 'data_confirmada_recebimento_rascunho_invoice', 'data_meta_recebimento_rascunho_invoice',
     'data_prevista_aprovacao_rascunho_invoice', 'data_confirmada_aprovacao_rascunho_invoice', 'data_meta_aprovacao_rascunho_invoice',
     'data_prevista_envio_original_invoice', 'data_confirmada_envio_original_invoice', 'data_meta_envio_original_invoice',
@@ -3423,6 +4031,7 @@ function buildMapaColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): Rec
       return <span>{v ? fmtData(v) : '—'}</span>
     },
   }])),
+  ...buildEntradasMapaAnexoLista(t),
   }
 }
 
@@ -3518,6 +4127,8 @@ function mensagemErro(err: unknown, t: (key: string) => string = i18next.t.bind(
   // ── Mensagem da API com conteúdo útil — exibir diretamente ───────────────
   // Mensagens curtas sem prefixo HTTP vêm do backend e são legíveis
   // ex: "O campo incoterm deve ser FOB, CIF ou EXW"
+  const msgCampoNaoEditavel = msg.match(/^Campo "[^"]+" nao pode ser editado inline\./)
+  if (msgCampoNaoEditavel) return msgCampoNaoEditavel[0]
   if (msg.length > 0 && msg.length <= 120 && !msg.startsWith('HTTP'))
     return msg
 
@@ -3533,13 +4144,14 @@ function mensagemErro(err: unknown, t: (key: string) => string = i18next.t.bind(
 interface BarraAcoesPedidoProps {
   novoDropdownRef: React.RefObject<HTMLDivElement>
   novoDropdownAberto: boolean
-  novoSubmenu: 'pedido' | 'item' | null
+  novoSubmenu: 'pedido' | 'item' | 'painel' | null
+  onCriarPainelLista: (nome: string) => Promise<boolean>
   pedidosSelecionados: Pedido[]
   itensSelecionados: PedidoItem[]
   excluindoLote: boolean
   filtrosAtivos: FiltrosAtivosMap
   setNovoDropdownAberto: React.Dispatch<React.SetStateAction<boolean>>
-  setNovoSubmenu: React.Dispatch<React.SetStateAction<'pedido' | 'item' | null>>
+  setNovoSubmenu: React.Dispatch<React.SetStateAction<'pedido' | 'item' | 'painel' | null>>
   setSmartImportAberto: React.Dispatch<React.SetStateAction<boolean>>
   setModalCockpitAberto: React.Dispatch<React.SetStateAction<boolean>>
   setModalNovoPedidoAberto: React.Dispatch<React.SetStateAction<boolean>>
@@ -3587,6 +4199,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   novoDropdownRef,
   novoDropdownAberto,
   novoSubmenu,
+  onCriarPainelLista,
   pedidosSelecionados,
   itensSelecionados,
   excluindoLote,
@@ -3615,9 +4228,10 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   podeEditarLista,
 }: BarraAcoesPedidoProps) {
   const { t } = useTranslation()
+  const [novoNomePainelLista, setNovoNomePainelLista] = useState('')
   return (
     <>
-      {/* ── Dropdown "Novo" — Pedido · Item · Coluna ── */}
+      {/* ── Dropdown "Novo" — Pedido · Item · Coluna · Painel ── */}
       <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
         <BotaoGlobal
           variante="primario"
@@ -3766,6 +4380,91 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
               </span>
               <ArrowRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             </button>
+
+            <div style={{ height: 1, margin: '0.25rem 0.375rem', background: 'var(--border-subtle)' }} />
+
+            {/* ── Novo Painel (lista) ── */}
+            <div
+              style={{ position: 'relative' }}
+              onMouseEnter={() => setNovoSubmenu('painel')}
+              onMouseLeave={() => setNovoSubmenu(null)}
+            >
+              <button type="button" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                background: novoSubmenu === 'painel' ? 'var(--bg-hover)' : 'transparent',
+                color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
+                cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+              }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(139,92,246,0.12)', flexShrink: 0 }}>
+                    <SquaresFour size={13} weight="duotone" style={{ color: '#a78bfa' }} />
+                  </span>
+                  {t('pedido.lista.painel_novo', { defaultValue: 'Novo painel' })}
+                </span>
+                <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+              </button>
+
+              {novoSubmenu === 'painel' && (
+                <form
+                  style={{
+                    position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
+                    background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                    borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                    minWidth: '220px', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.375rem',
+                  }}
+                  onSubmit={e => {
+                    e.preventDefault()
+                    const nome = novoNomePainelLista.trim()
+                    if (!nome) return
+                    void (async () => {
+                      const ok = await onCriarPainelLista(nome)
+                      if (!ok) return
+                      setNovoNomePainelLista('')
+                      setNovoDropdownAberto(false)
+                      setNovoSubmenu(null)
+                    })()
+                  }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <input
+                    autoFocus
+                    type="text"
+                    placeholder={t('pedido.lista.painel_novo_placeholder', { defaultValue: 'Nome do painel' })}
+                    value={novoNomePainelLista}
+                    onChange={e => setNovoNomePainelLista(e.target.value)}
+                    maxLength={60}
+                    style={{
+                      background: 'var(--bg-hover)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: '0.375rem',
+                      padding: '0.375rem 0.5rem',
+                      fontSize: '0.8125rem',
+                      color: 'var(--text-primary)',
+                      outline: 'none',
+                      width: '100%',
+                      fontFamily: 'inherit',
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      padding: '0.375rem 0.625rem',
+                      borderRadius: '0.375rem',
+                      border: 'none',
+                      background: 'rgba(139,92,246,0.25)',
+                      color: '#c4b5fd',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {t('pedido.dashboard.painel_criar', { defaultValue: 'Criar' })}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -3964,9 +4663,11 @@ export default function Pedidos() {
   const { podeEditar } = usePermissoesPedido()
   const podeEditarLista = podeEditar('lista')
   // Unidades de medida — SSOT cadastros.unidade via hook (substitui hardcode anterior).
-  const { unidadesPeso, unidadesCubagem } = useUnidadesPedido()
+  const { unidadesPeso, unidadesCubagem, mapaFatorParaKg } = useUnidadesPedido()
+  const { volumesOpcoes } = useVolumesPedido()
   // Incoterms — SSOT cadastros.incoterm via hook (substitui hardcode em 2026-05-13).
   const { incotermsOpcoes } = useIncotermsPedido()
+  const { coberturaCambialOpcoes, modalidadePagamentoOpcoes } = useCambioSiscomexPedido()
   // Moedas — SSOT cadastros.moeda via hook (select inline em moeda_pedido).
   const { moedasOpcoes } = useMoedasPedido()
   const {
@@ -3990,45 +4691,224 @@ export default function Pedidos() {
       })
     return () => { cancelado = true }
   }, [])
+
+  // SSOT de nomes: /me (shell) carrega antes do /hub/init da Lista — mesclar evita coluna Workspace/Importador IMP com ID cru.
+  const workspacesShell = useShellStore(s => s.workspaces)
+
+  // Declarado antes de workspacesMap/workspaceOpcoesLista (enriquecimento de nomes a partir dos pedidos carregados).
+  const [pedidos, setPedidos] = useState<Pedido[]>([])
+
   const workspacesMap = useMemo(() => {
     const m = new Map<string, { nome: string; cnpj?: string | null }>()
+    const registrar = (id: string, nome: string, cnpj?: string | null) => {
+      const idWs = id.trim()
+      if (!idWs) return
+      const label = nome.trim() || idWs
+      const prev = m.get(idWs)
+      if (!prev || (prev.nome === idWs && label !== idWs)) {
+        m.set(idWs, { nome: label, cnpj: cnpj ?? prev?.cnpj ?? null })
+      }
+    }
     for (const w of workspacesDisponiveis) {
-      m.set(w.id_workspace, { nome: w.nome_workspace, cnpj: w.cnpj_workspace ?? null })
+      registrar(w.id_workspace, w.nome_workspace, w.cnpj_workspace ?? null)
+    }
+    for (const w of workspacesShell) {
+      registrar(w.id, w.nome_workspace)
+    }
+    for (const p of pedidos) {
+      if (tipoOperacaoLista(p) !== 'importacao') continue
+      const id = extrairIdWorkspaceDePedido(p)
+      const snap = snapshotNomeImportadorLegivel(p.nome_importador)
+      if (snap) registrar(id, snap)
     }
     return m
-  }, [workspacesDisponiveis])
+  }, [workspacesDisponiveis, workspacesShell, pedidos])
 
-  const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
-    () => ({
-      unidadesPeso,
-      unidadesCubagem,
-      incotermsOpcoes,
-      moedasOpcoes,
-      workspacesMap,
-      paisesOpcoes: paisesLogisticaOpcoes,
-      portosOpcoes,
-      aeroportosOpcoes,
-    }),
-    [unidadesPeso, unidadesCubagem, incotermsOpcoes, moedasOpcoes, workspacesMap, paisesLogisticaOpcoes, portosOpcoes, aeroportosOpcoes],
-  )
   // Colunas pai reativas — rebuild quando o idioma muda OU quando o catálogo
   // de unidades do Cadastros termina de carregar (primeiro render: vazio).
   // ── Colunas do Usuário ────────────────────────────────────────────────────────
   const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>([])
   const [temExpandido, setTemExpandido] = useState(false)
 
-  // IMPORTANTE: a função `t` do react-i18next é referencialmente estável mesmo
-  // após troca de idioma, então depender só de `[t]` NUNCA invalida o memo.
-  // i18n.language muda de string a cada troca ("pt" → "en"), forçando o rebuild.
+  // Status customizados — declarado antes de mapaColunasFilho/colunasComUsuario (ambos usam statusOpts).
+  const [statusOpts, setStatusOpts] = useState<{ valor: string; label: string }[]>(() => {
+    const abas = lerAbasDoLocalStorage(t)
+    return abas
+      ? abas.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label }))
+      : [
+          { valor: 'rascunho',      label: t('pedido.status.rascunho')      },
+          { valor: 'aberto',        label: t('pedido.status.aberto')        },
+          { valor: 'em_andamento',  label: t('pedido.status.em_andamento')  },
+          { valor: 'aprovado',      label: t('pedido.status.aprovado')      },
+          { valor: 'transferencia', label: t('pedido.status.transferencia') },
+          { valor: 'consolidado',   label: t('pedido.status.consolidado')   },
+          { valor: 'cancelado',     label: t('pedido.status.cancelado')     },
+        ]
+  })
+
+  /** Opções do select de Workspace — usado em id_workspace e Importador (importação). */
+  const workspaceOpcoesLista = useMemo(() => {
+    const seen = new Set<string>()
+    const opcoes: { valor: string; label: string }[] = []
+    const push = (id: string, label: string) => {
+      const valor = id.trim()
+      if (!valor || seen.has(valor)) return
+      seen.add(valor)
+      opcoes.push({ valor, label: label.trim() || valor })
+    }
+    for (const w of workspacesDisponiveis) {
+      push(w.id_workspace, w.nome_workspace.trim() || w.id_workspace)
+    }
+    for (const w of workspacesShell) {
+      push(w.id, w.nome_workspace.trim() || w.id)
+    }
+    // Sempre mesclar workspaces dos pedidos carregados — hub/init pode falhar ou atrasar.
+    for (const p of pedidos) {
+      const id = extrairIdWorkspaceDePedido(p)
+      const snap = tipoOperacaoLista(p) === 'importacao'
+        ? snapshotNomeImportadorLegivel(p.nome_importador)
+        : null
+      const label = nomeLegivelWorkspace(id, workspacesMap, undefined, snap)
+      const fallback = workspacesMap.get(id)?.nome?.trim()
+      push(id, label !== '—' ? label : (fallback && !pareceIdInternoGravity(fallback) ? fallback : id))
+    }
+    return opcoes.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+  }, [workspacesDisponiveis, workspacesShell, pedidos, workspacesMap])
+
+  const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
+
+  const [opcoesImportadoresExp, setOpcoesImportadoresExp] = useState<{ valor: string; label: string }[]>([])
+  const [opcoesExportadoresImp, setOpcoesExportadoresImp] = useState<{ valor: string; label: string }[]>([])
+
+  useEffect(() => {
+    if (!idOrganizacao) return
+    let cancelado = false
+    cadastrosApi.listarImportadores()
+      .then((res) => {
+        if (cancelado) return
+        setOpcoesImportadoresExp(mapearOpcoesImportadorExportacao(res.itens))
+      })
+      .catch(() => {
+        if (!cancelado) setOpcoesImportadoresExp([])
+      })
+    cadastrosApi.listarExportadores()
+      .then((res) => {
+        if (cancelado) return
+        setOpcoesExportadoresImp(mapearOpcoesExportadorImportacao(res.itens))
+      })
+      .catch(() => {
+        if (!cancelado) setOpcoesExportadoresImp([])
+      })
+    return () => { cancelado = true }
+  }, [idOrganizacao])
+
+  /** EXP: só fornecedores importadores — nunca workspaces (mesmo nome). */
+  const opcoesImportadoresExpLista = useMemo(
+    () => filtrarOpcoesImportadorExpSemWorkspaces(opcoesImportadoresExp, workspaceOpcoesLista),
+    [opcoesImportadoresExp, workspaceOpcoesLista],
+  )
+
+  /** IMP: só fornecedores exportadores — nunca workspaces (mesmo nome). */
+  const opcoesExportadoresImpLista = useMemo(
+    () => filtrarOpcoesExportadorImpSemWorkspaces(opcoesExportadoresImp, workspaceOpcoesLista),
+    [opcoesExportadoresImp, workspaceOpcoesLista],
+  )
+
+  // Re-sanitiza quando workspaces ou fornecedores terminam de carregar (corrige CUID residual).
+  useEffect(() => {
+    setPedidos((prev) => {
+      if (prev.length === 0) return prev
+      const next = sanitizarNomesPartesListaPedidos(
+        prev,
+        workspacesDisponiveis,
+        workspacesShell,
+        opcoesImportadoresExp,
+        opcoesExportadoresImp,
+      )
+      const mudou = next.some((p, i) =>
+        p.nome_importador !== prev[i]?.nome_importador
+        || p.nome_exportador !== prev[i]?.nome_exportador,
+      )
+      return mudou ? next : prev
+    })
+  }, [opcoesImportadoresExp, opcoesExportadoresImp, workspacesDisponiveis, workspacesShell, workspaceOpcoesLista])
+
+  const opcoesUnidadesColunas = useMemo<OpcoesUnidadesColunas>(
+    () => ({
+      unidadesPeso,
+      unidadesCubagem,
+      mapaFatorParaKg,
+      volumesOpcoes,
+      incotermsOpcoes,
+      coberturaCambialOpcoes,
+      modalidadePagamentoOpcoes,
+      moedasOpcoes,
+      workspacesMap,
+      workspaceOpcoesLista,
+      opcoesImportadoresExpLista,
+      opcoesExportadoresImpLista,
+      paisesOpcoes: paisesLogisticaOpcoes,
+      portosOpcoes,
+      aeroportosOpcoes,
+    }),
+    [
+      unidadesPeso,
+      unidadesCubagem,
+      mapaFatorParaKg,
+      volumesOpcoes,
+      incotermsOpcoes,
+      coberturaCambialOpcoes,
+      modalidadePagamentoOpcoes,
+      moedasOpcoes,
+      workspacesMap,
+      workspaceOpcoesLista,
+      opcoesImportadoresExpLista,
+      paisesLogisticaOpcoes,
+      portosOpcoes,
+      aeroportosOpcoes,
+    ],
+  )
+
   const colunasPai = useMemo(
     () => buildColunasPai(t, opcoesUnidadesColunas),
     [t, i18n.language, opcoesUnidadesColunas],
   )
+
   const mapaColunasFilho = useMemo(() => {
     const base = buildMapaColunasFilho(t, opcoesUnidadesColunas)
+    const chavesColunaPersonalizada = new Set(
+      colunasUsuario
+        .filter(c => {
+          const escopoCol = c.escopo || 'ambos'
+          return c.tipo !== 'formula' && (escopoCol === 'item' || escopoCol === 'ambos')
+        })
+        .map(c => c.chave),
+    )
     const custom: Record<string, GTMapaColunasFilho<PedidoItem>> = {}
     for (const col of colunasUsuario) {
       const escopo = col.escopo || 'ambos'
+      if (col.tipo === 'anexo') {
+        if (escopo === 'pedido') {
+          custom[col.chave] = {
+            editavel: false,
+            tooltipBloqueado: t('pedido.config.colunas.personalizadas.tooltip_escopo_pedido', 'Esta coluna é exclusiva do pedido. Para editar, clique na linha do pedido.'),
+            render: () => <span style={{ opacity: 0.4 }}>—</span>,
+          }
+        } else {
+          custom[col.chave] = {
+            editavel: false,
+            render: (row: PedidoItem) =>
+              renderCelulaAnexoLista({
+                vinculo: 'item',
+                vinculo_id: row.id,
+                chaveColuna: col.chave,
+                colunaNome: col.nome,
+                categoriaOverride: col.id,
+              }),
+          }
+        }
+        continue
+      }
       if (escopo === 'pedido') {
         custom[col.chave] = {
           editavel: false,
@@ -4037,27 +4917,37 @@ export default function Pedidos() {
         }
         continue
       }
+      const renderValorColunaPersonalizada = (row: PedidoItem) => {
+        const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
+        const valor = valores?.[col.id] ?? '—'
+        if (col.tipo === 'checkbox') return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
+        if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
+          const num = Number(valor)
+          if (!isNaN(num)) {
+            const sufixo = col.tipo === 'percentual' ? '%' : ''
+            return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, getCasas(col.id, 2))}{sufixo}</span>
+          }
+        }
+        if (col.tipo === 'data' && valor !== '—') return <span>{fmtData(valor)}</span>
+        return <span>{typeof valor === 'string' && valor.length > 150 ? valor.slice(0, 150) + '…' : valor}</span>
+      }
+      const editavelItem = col.tipo !== 'formula'
       custom[col.chave] = {
-        editavel: col.tipo !== 'formula',
+        editavel: editavelItem,
+        tooltipInline: true,
+        tooltipTitulo: col.nome,
         opcoes: col.tipo === 'checkbox'
           ? [{ valor: 'true', label: '✓ Sim' }, { valor: 'false', label: '✗ Não' }]
           : (col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes?.length
             ? col.opcoes.map(o => ({ valor: o, label: o }))
             : undefined,
-        render: (row: PedidoItem) => {
-          const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
-          const valor = valores?.[col.id] ?? '—'
-          if (col.tipo === 'checkbox') return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
-          if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
-            const num = Number(valor)
-            if (!isNaN(num)) {
-              const sufixo = col.tipo === 'percentual' ? '%' : ''
-              return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, getCasas(col.id, 2))}{sufixo}</span>
-            }
-          }
-          if (col.tipo === 'data' && valor !== '—') return <span>{fmtData(valor)}</span>
-          return <span>{typeof valor === 'string' && valor.length > 150 ? valor.slice(0, 150) + '…' : valor}</span>
-        },
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderValorColunaPersonalizada(row), t, {
+          key: col.chave,
+          nivel: 'item',
+          colunaPersonalizada: true,
+          descricaoUsuario: col.descricao,
+          cursorBloqueado: !editavelItem,
+        }),
         getValorEditar: (row: PedidoItem) => {
           const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
           const raw = valores?.[col.id]
@@ -4067,13 +4957,158 @@ export default function Pedidos() {
         },
       }
     }
-    return enriquecerMapaColunasFilhoComRegraTooltip({ ...base, ...custom }, t)
-  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario])
-  const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferences()
+    if (base.status) {
+      const STATUS_OPTS_FILHO = statusOpts
+      base.status = {
+        ...base.status,
+        opcoes: STATUS_OPTS_FILHO,
+        render: (row: PedidoItem) => {
+          const enr = row as PedidoItemEnriquecido
+          const p = enr._p
+          if (!p) return null
+          const itemStatus = p.status
+          const cor = getStatusCor(itemStatus)
+          const badge = (
+            <StatusBadgeGlobal
+              valor={getStatusLabel(itemStatus)}
+              genero="masculino"
+              style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33` }}
+            />
+          )
+          const pedidoPai = pedidos.find(pd => pd.id === p.id)
+          const pedidoStatus = pedidoPai?.status
+          const itensCache = itensCarregadosRef.current.get(p.id) ?? []
+          const statusesItens = itensCache
+            .map(i => (i as PedidoItemEnriquecido)._p?.status)
+            .filter((s): s is string => s != null && s !== '')
+          const distintosItens = new Set(statusesItens).size
+          const divergente = (pedidoStatus != null && itemStatus !== pedidoStatus) || distintosItens > 1
+          if (!divergente) return badge
+          return (
+            <TooltipGlobal
+              titulo={t('pedido.coluna_pai.status')}
+              descricao={t('pedido.coluna_pai.status_divergente', 'Status divergente entre pedido e itens')}
+            >
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                {badge}
+                <Warning size={14} weight="fill" style={{ color: '#F59E0B', flexShrink: 0 }} />
+              </span>
+            </TooltipGlobal>
+          )
+        },
+      }
+    }
+    if (base.nome_importador) {
+      base.nome_importador = {
+        ...base.nome_importador,
+        editavel: false,
+        tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado'),
+      }
+    }
+    if (base.nome_exportador) {
+      base.nome_exportador = {
+        ...base.nome_exportador,
+        editavel: false,
+        tooltipBloqueado: t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'),
+      }
+    }
+    const merged = { ...base, ...custom }
+    if (base.moeda_pedido) {
+      merged.moeda_pedido = {
+        ...base.moeda_pedido,
+        ...custom.moeda_pedido,
+        campo: 'moeda_item',
+        render: base.moeda_pedido.render,
+      }
+    }
+    const renderMoedaItemBase = merged.moeda_pedido?.render
+    const renderPesoLiqItemBase = merged.peso_liquido_total_pedido?.render
+    const renderPesoBruItemBase = merged.peso_bruto_total_pedido?.render
+    const comRegra = enriquecerMapaColunasFilhoComRegraTooltip(merged, t, { chavesColunaPersonalizada })
+    const mapaInline = enriquecerMapaFilhoTooltipInline(comRegra, t, CHAVES_TOOLTIP_INLINE_LISTA, {
+      moeda_pedido: t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined,
+      moeda_cambio_pedido: t('pedido.coluna_pai.aviso_impacto_moeda_cambio', { defaultValue: '' }) || undefined,
+      valor_total_cambio_pedido: t('pedido.lista.regras_coluna.valor_total_cambio_impacto_edicao', { defaultValue: '' }) || undefined,
+      unidade_comercializada_pedido: t('pedido.coluna_pai.aviso_impacto_unidade_full', { defaultValue: '' }) || undefined,
+      peso_liquido_total_pedido: t('pedido.coluna_pai.aviso_impacto_peso_bruto', { defaultValue: '' }) || undefined,
+      peso_bruto_total_pedido: t('pedido.coluna_pai.aviso_impacto_peso_liquido', { defaultValue: '' }) || undefined,
+      tipo_volume_pedido: t('pedido.coluna_pai.aviso_impacto_tipo_volume', { defaultValue: '' }) || undefined,
+      quantidade_volumes_pedido: t('pedido.coluna_pai.aviso_impacto_quantidade_volumes', { defaultValue: '' }) || undefined,
+    })
+    // P0 moeda item: garantia explícita — TooltipListaColuna nível item (não depende de flags do núcleo).
+    if (renderMoedaItemBase && mapaInline.moeda_pedido) {
+      const avisoMoeda = t('pedido.coluna_pai.aviso_impacto_moeda', { defaultValue: '' }) || undefined
+      mapaInline.moeda_pedido = {
+        ...mapaInline.moeda_pedido,
+        tooltipInline: true,
+        tooltipTitulo: t('pedido.coluna_pai.moeda_item_titulo'),
+        campo: 'moeda_item',
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderMoedaItemBase(row), t, {
+          key: 'moeda_pedido',
+          nivel: 'item',
+          avisoImpactoColuna: avisoMoeda,
+        }),
+      }
+    }
+    const renderMoedaCambioItemBase = merged.moeda_cambio_pedido?.render
+    if (renderMoedaCambioItemBase && mapaInline.moeda_cambio_pedido) {
+      const avisoMoedaCambio = t('pedido.coluna_pai.aviso_impacto_moeda_cambio', { defaultValue: '' }) || undefined
+      mapaInline.moeda_cambio_pedido = {
+        ...mapaInline.moeda_cambio_pedido,
+        tooltipInline: true,
+        tooltipTitulo: t('pedido.coluna_pai.moeda_cambio_titulo', { defaultValue: t('pedido.coluna_pai.moeda_cambio') }),
+        campo: 'moeda_cambio_item_pedido',
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderMoedaCambioItemBase(row), t, {
+          key: 'moeda_cambio_pedido',
+          nivel: 'item',
+          avisoImpactoColuna: avisoMoedaCambio,
+        }),
+      }
+    }
+    if (renderPesoLiqItemBase && mapaInline.peso_liquido_total_pedido) {
+      const avisoPesoBruto = t('pedido.coluna_pai.aviso_impacto_peso_bruto', { defaultValue: '' }) || undefined
+      mapaInline.peso_liquido_total_pedido = {
+        ...mapaInline.peso_liquido_total_pedido,
+        tooltipInline: true,
+        tooltipTitulo: t('pedido.coluna_pai.peso_liquido_item_titulo'),
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderPesoLiqItemBase(row), t, {
+          key: 'peso_liquido_total_pedido',
+          nivel: 'item',
+          modoDinamicoPedidoItem: true,
+          avisoImpactoColuna: avisoPesoBruto,
+        }),
+      }
+    }
+    if (renderPesoBruItemBase && mapaInline.peso_bruto_total_pedido) {
+      const avisoPesoLiq = t('pedido.coluna_pai.aviso_impacto_peso_liquido', { defaultValue: '' }) || undefined
+      mapaInline.peso_bruto_total_pedido = {
+        ...mapaInline.peso_bruto_total_pedido,
+        tooltipInline: true,
+        tooltipTitulo: t('pedido.coluna_pai.peso_bruto_item_titulo'),
+        render: (row: PedidoItem) => wrapCelulaListaRegras(renderPesoBruItemBase(row), t, {
+          key: 'peso_bruto_total_pedido',
+          nivel: 'item',
+          modoDinamicoPedidoItem: true,
+          avisoImpactoColuna: avisoPesoLiq,
+        }),
+      }
+    }
+    return mapaInline
+  }, [t, i18n.language, opcoesUnidadesColunas, colunasUsuario, statusOpts, pedidos, opcoesImportadoresExp, opcoesExportadoresImp, workspacesMap])
+  const {
+    prefs: cardPrefs,
+    visiveis: cardsVisiveis,
+    periodo: periodoCards,
+    persistir: persistirCardPrefs,
+    setPeriodo: setPeriodoCards,
+  } = useCardPreferences()
+  const cardsVisiveisIdsKey = useMemo(
+    () => cardsVisiveis.map(c => c.id).join('\0'),
+    [cardsVisiveis],
+  )
   const navigate = useNavigate()
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
-  const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '')
 
   // ── Escopo multi-workspace (menu lateral — SSOT do produto) ─────────────────
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
@@ -4081,6 +5116,32 @@ export default function Pedidos() {
   const workspaceAtivo = useShellStore(s => s.idWorkspaceAtivo ?? '')
   const pedirAbrirMenuWorkspaces = useEscopoWorkspacesPedido(s => s.pedirAbrirMenuWorkspaces)
   const workspacesSelecionados = idsWorkspacesEscopo
+
+  const {
+    paineis: paineisLista,
+    setPaineis: setPaineisLista,
+    painelAtualId: painelListaAtualId,
+    setPainelAtualId: setPainelListaAtualId,
+    painelAtual: painelListaAtual,
+    carregando: carregandoPaineisLista,
+    aplicarConfigDoPainel,
+    persistirPainelAtual,
+    trocarPainel: trocarPainelLista,
+    criarPainel: criarPainelLista,
+  } = useListaPainelPedido()
+  const painelListaAplicadoRef = useRef<string | null>(null)
+  /** Evita 2º carregarInicial do efeito de escopo antes do painel hidratar (causava flash → zero). */
+  const escopoListaInicialDisparadoRef = useRef(false)
+  /** Carga do painel adiada até escopo de workspaces ter ao menos uma filial. */
+  const painelSnapshotPendenteRef = useRef<SnapshotAplicarListaPainel | null>(null)
+  /** Cache da última listagem de colunas manuais — merge só após hidratação do painel. */
+  const colunasUsuarioListaRef = useRef<ColunaUsuario[]>([])
+
+  useEffect(() => {
+    painelListaAplicadoRef.current = null
+    escopoListaInicialDisparadoRef.current = false
+    painelSnapshotPendenteRef.current = null
+  }, [idOrganizacao])
 
   // ── GABI quota badge ────────────────────────────────────────────────────────
   // useGabiQuota faz fetch direto sem passar pelo request() do api.ts —
@@ -4116,7 +5177,6 @@ export default function Pedidos() {
   const { trackFilter } = useTrackBehavior()
 
   // ── Estado de dados ──────────────────────────────────────────────────────────
-  const [pedidos, setPedidos]               = useState<Pedido[]>([])
   const [carregando, setCarregando]         = useState(true)
   // Erro do ultimo carregamento — usado pelo empty state para diferenciar
   // "lista vazia" de "falhou ao carregar" (Mand. 08, sem fallback silencioso).
@@ -4262,22 +5322,6 @@ export default function Pedidos() {
     return () => { cancelado = true }
   }, [])
 
-  // ── Status customizados (sincroniza com localStorage ao ganhar foco) ─────────
-  const [statusOpts, setStatusOpts] = useState<{ valor: string; label: string }[]>(() => {
-    const abas = lerAbasDoLocalStorage(t)
-    return abas
-      ? abas.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label }))
-      : [
-          { valor: 'rascunho',      label: t('pedido.status.rascunho')      },
-          { valor: 'aberto',        label: t('pedido.status.aberto')        },
-          { valor: 'em_andamento',  label: t('pedido.status.em_andamento')  },
-          { valor: 'aprovado',      label: t('pedido.status.aprovado')      },
-          { valor: 'transferencia', label: t('pedido.status.transferencia') },
-          { valor: 'consolidado',   label: t('pedido.status.consolidado')   },
-          { valor: 'cancelado',     label: t('pedido.status.cancelado')     },
-        ]
-  })
-
   useEffect(() => {
     const sync = () => {
       const abasLocal = lerAbasDoLocalStorage(t)
@@ -4309,40 +5353,187 @@ export default function Pedidos() {
           opcoes: STATUS_OPTS,
           render: (_val: unknown, row: Pedido) => {
             const cor = getStatusCor(row.status)
-            return (
+            const divergente = (row as Record<string, unknown>).status_divergente === true
+            const badge = (
               <StatusBadgeGlobal
                 valor={getStatusLabel(row.status)}
                 genero="masculino"
                 style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33`, cursor: 'pointer' }}
               />
             )
+            return renderAgregado(
+              badge,
+              divergente,
+              t('pedido.coluna_pai.status_divergente', 'Status divergente entre pedido e itens'),
+            )
           },
         }
       }
 
       if (col.key === 'id_workspace') {
-        const idsNaLista = new Set(
-          pedidos.map(p => extrairIdWorkspaceDePedido(p)).filter(Boolean),
-        )
-        const WORKSPACE_OPTS = workspacesDisponiveis
-          .filter(w => idsNaLista.has(w.id_workspace))
-          .map(w => ({
-            valor: w.nome_workspace,
-            label: w.nome_workspace,
-          }))
         return {
           ...col,
           editavel: true,
-          opcoes: WORKSPACE_OPTS,
-          getValorEditar: (row: Pedido) => {
+          opcoes: workspaceOpcoesLista,
+          getValorEditar: (row: Pedido) => extrairIdWorkspaceDePedido(row),
+          render: (_val: unknown, row: Pedido) => {
             const id = extrairIdWorkspaceDePedido(row)
-            return workspacesMap.get(id)?.nome ?? id
+            const nome = nomeLegivelWorkspace(
+              id,
+              workspacesMap,
+              workspaceOpcoesLista,
+              row.tipo_operacao === 'importacao' ? row.nome_importador : null,
+            )
+            return <span style={{ display: 'block', textAlign: 'left' }}>{nome}</span>
           },
         }
       }
 
+      if (col.key === 'nome_exportador') {
+        // EXP: lista workspaces (igual id_workspace). IMP: lista fornecedores exportadores.
+        const WORKSPACE_OPTS_EXP = workspaceOpcoesLista
+        return enriquecerColunaComRegraTooltip({
+          ...col,
+          tipo: 'enum',
+          opcoes: WORKSPACE_OPTS_EXP,
+          editavel: (row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            return tipo === 'importacao' || tipo === 'exportacao'
+          },
+          getOpcoes: (row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            if (tipo === 'exportacao') {
+              return garantirOpcoesWorkspaceImportador(row, WORKSPACE_OPTS_EXP, workspacesMap)
+            }
+            if (tipo === 'importacao') return opcoesExportadoresImpLista
+            return []
+          },
+          getValorEditar: (row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            if (tipo === 'exportacao') return extrairIdWorkspaceDePedido(row)
+            const idForn = row.importacao_exportador_id?.trim()
+            if (idForn && !pareceIdInternoGravity(idForn)) return idForn
+            return ''
+          },
+          linkPopoverEdicao: (row: Pedido) => {
+            if (comportamentoExportadorLista(row) !== 'importacao') return undefined
+            const idExp = row.importacao_exportador_id
+            return {
+              label: idExp
+                ? t('pedido.coluna_pai.clique_editar_exportador')
+                : t('pedido.coluna_pai.vincular_exportador'),
+              href: urlVincularExportador(idExp, row.id),
+            }
+          },
+          render: (val: unknown, row: Pedido) => {
+            const tipo = comportamentoExportadorLista(row)
+            const resolverTexto = () => {
+              const exibir = nomeExibicaoExportadorPedido(row, workspacesMap, WORKSPACE_OPTS_EXP, opcoesExportadoresImpLista)
+              if (exibir && exibir !== '—' && !pareceIdInternoGravity(exibir)) return exibir
+              if (tipoOperacaoLista(row) === 'exportacao') {
+                const doWs = nomeLegivelWorkspace(extrairIdWorkspaceDePedido(row), workspacesMap, WORKSPACE_OPTS_EXP, null)
+                if (doWs !== '—') return doWs
+              }
+              if (typeof val === 'string' && val.trim() && !pareceIdInternoGravity(val)) return val.trim()
+              return '—'
+            }
+            if (tipo === 'exportacao') {
+              return <span style={{ display: 'block', textAlign: 'left' }}>{resolverTexto()}</span>
+            }
+            if (!tipo && typeof val === 'string' && pareceIdInternoGravity(val)) {
+              return <span style={{ display: 'block', textAlign: 'left' }}>—</span>
+            }
+            const nome = resolverTexto()
+            if (!nome || nome === '—') {
+              return (
+                <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+                  {t('pedido.coluna_pai.vincular_exportador')}
+                </span>
+              )
+            }
+            return renderBadgeParteVinculada({
+              nome,
+              titulo: t('pedido.coluna_pai.parte_exportador_titulo'),
+              descricao: t('pedido.coluna_pai.clique_editar_exportador'),
+            })
+          },
+        }, t, 'pai')
+      }
+
+      if (col.key === 'nome_importador') {
+        // IMP: lista todos workspaces (igual id_workspace). EXP: lista fornecedores importadores.
+        const WORKSPACE_OPTS_IMP = workspaceOpcoesLista
+        return enriquecerColunaComRegraTooltip({
+          ...col,
+          tipo: 'enum',
+          opcoes: WORKSPACE_OPTS_IMP,
+          editavel: (row: Pedido) => {
+            const tipo = comportamentoImportadorLista(row)
+            return tipo === 'importacao' || tipo === 'exportacao'
+          },
+          getOpcoes: (row: Pedido) => {
+            const tipo = comportamentoImportadorLista(row)
+            if (tipo === 'importacao') {
+              return garantirOpcoesWorkspaceImportador(row, WORKSPACE_OPTS_IMP, workspacesMap)
+            }
+            if (tipo === 'exportacao') return opcoesImportadoresExpLista
+            return []
+          },
+          getValorEditar: (row: Pedido) => {
+            const tipo = comportamentoImportadorLista(row)
+            if (tipo === 'importacao') return extrairIdWorkspaceDePedido(row)
+            const idForn = row.exportacao_importador_id?.trim()
+            if (idForn && !pareceIdInternoGravity(idForn)) return idForn
+            return ''
+          },
+          linkPopoverEdicao: (row: Pedido) => {
+            if (comportamentoImportadorLista(row) !== 'exportacao') return undefined
+            const idImp = row.exportacao_importador_id
+            return {
+              label: idImp
+                ? t('pedido.lista.popover.editar_importador')
+                : t('pedido.coluna_pai.vincular_importador'),
+              href: urlVincularImportador(idImp, row.id),
+            }
+          },
+          render: (val: unknown, row: Pedido) => {
+            const tipo = comportamentoImportadorLista(row)
+            const resolverTexto = () => {
+              const exibir = nomeExibicaoImportadorPedido(row, workspacesMap, WORKSPACE_OPTS_IMP, opcoesImportadoresExpLista)
+              if (exibir && exibir !== '—' && !pareceIdInternoGravity(exibir)) return exibir
+              if (tipoOperacaoLista(row) === 'importacao') {
+                const doWs = nomeLegivelWorkspace(extrairIdWorkspaceDePedido(row), workspacesMap, WORKSPACE_OPTS_IMP, null)
+                if (doWs !== '—') return doWs
+              }
+              if (typeof val === 'string' && val.trim() && !pareceIdInternoGravity(val)) return val.trim()
+              return '—'
+            }
+            if (tipo === 'importacao') {
+              return <span style={{ display: 'block', textAlign: 'left' }}>{resolverTexto()}</span>
+            }
+            if (!tipo && typeof val === 'string' && pareceIdInternoGravity(val)) {
+              return <span style={{ display: 'block', textAlign: 'left' }}>—</span>
+            }
+            const nome = nomeExibicaoImportadorPedido(row, workspacesMap, WORKSPACE_OPTS_IMP, opcoesImportadoresExpLista)
+            if (!nome) {
+              return (
+                <span style={{ color: '#818cf8', fontSize: '0.75rem', textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+                  {t('pedido.coluna_pai.vincular_importador')}
+                </span>
+              )
+            }
+            return renderBadgeParteVinculada({
+              nome,
+              titulo: t('pedido.coluna_pai.parte_importador_titulo'),
+              descricao: t('pedido.coluna_pai.clique_editar_importador_lista'),
+            })
+          },
+        }, t, 'pai')
+      }
+
       const COLUNAS_DINAMICAS_PEDIDO_ITEM: Record<string, string> = {
         valor_total_pedido:                   t('pedido.lista.coluna_dinamica.valor_total'),
+        valor_total_cambio_pedido:            t('pedido.lista.coluna_dinamica.valor_total_cambio'),
         quantidade_total_pedido:              t('pedido.lista.coluna_dinamica.qtd_inicial'),
         quantidade_pronta_itens_pedido_total: t('pedido.lista.coluna_dinamica.qtd_pronta'),
         saldo_itens_do_pedido:                t('pedido.lista.coluna_dinamica.saldo'),
@@ -4352,6 +5543,17 @@ export default function Pedidos() {
         peso_bruto_total_pedido:              t('pedido.lista.coluna_dinamica.peso_bruto'),
         cubagem_total_pedido:                 t('pedido.lista.coluna_dinamica.cubagem'),
       }
+
+      if (CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO.has(col.key)) {
+        const labelDinamico = temExpandido && col.key in COLUNAS_DINAMICAS_PEDIDO_ITEM
+          ? COLUNAS_DINAMICAS_PEDIDO_ITEM[col.key]
+          : undefined
+        return enriquecerColunaBloqueadaInlinePedido(col, t, {
+          label: labelDinamico,
+          modoDinamicoPedidoItem: temExpandido,
+        })
+      }
+
       if (temExpandido && col.key in COLUNAS_DINAMICAS_PEDIDO_ITEM) {
         const label = COLUNAS_DINAMICAS_PEDIDO_ITEM[col.key]
         return enriquecerColunaComRegraTooltip(
@@ -4360,43 +5562,6 @@ export default function Pedidos() {
           'pai',
           { modoDinamicoPedidoItem: true },
         )
-      }
-
-      if (col.key === 'saldo_itens_do_pedido') {
-        const tooltipSaldo = (conteudo: React.ReactNode) => (
-          <TooltipGlobal
-            titulo={t('pedido.lista.saldo_pedido.titulo')}
-            descricao={<span>{t('pedido.lista.saldo_pedido.descricao_prefixo')} <a href="/produto/pedido/configuracoes?tab=colunas-campos-calculados">{t('pedido.lista.saldo_pedido.link_editor')}</a></span>}
-            interativo
-          >
-            <span style={{ display: 'contents' }}>{conteudo}</span>
-          </TooltipGlobal>
-        )
-        return {
-          ...col,
-          render: (_val: unknown, row: Pedido) => {
-            try {
-              const contexto = buildFormulaContexto(row)
-              const { valor: num, temNulo } = avaliarFormula(saldoFormulaAST, contexto)
-              const qtd = temNulo || num == null ? null : Math.max(0, num)
-              return tooltipSaldo(
-                <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-                  {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0)) : '—'}
-                </span>
-              )
-            } catch {
-              const total = row.quantidade_total_pedido ?? null
-              const transf = row.quantidade_transferida_total ?? null
-              const cancel = row.quantidade_cancelada_total_pedido ?? 0
-              const qtd = total != null && transf != null ? Math.max(0, total - transf - cancel) : null
-              return tooltipSaldo(
-                <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-                  {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0)) : '—'}
-                </span>
-              )
-            }
-          },
-        }
       }
 
       return col
@@ -4411,7 +5576,22 @@ export default function Pedidos() {
     })
 
     return [...colunasBase, ...customEnriquecidas]
-  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspacesDisponiveis, pedidos, workspacesMap])
+  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido, t, workspaceOpcoesLista, pedidos, workspacesMap, opcoesImportadoresExpLista, opcoesExportadoresImpLista])
+
+  const colunasManuaisKeys = useMemo(
+    () => new Set(colunasUsuario.map(c => String(c.chave))),
+    [colunasUsuario],
+  )
+
+  const colunasSeletorLista = useMemo(
+    () => colunasComUsuario.map(c => ({
+      key: String(c.key),
+      label: c.label,
+      naoOcultavel: c.naoOcultavel,
+      manual: colunasManuaisKeys.has(String(c.key)),
+    })),
+    [colunasComUsuario, colunasManuaisKeys],
+  )
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
@@ -4420,8 +5600,15 @@ export default function Pedidos() {
                  && ((c.escopo || 'ambos') === 'item' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
     // id_workspace e logística são exclusivos do pedido — itens herdam/exibem, sem PATCH em item.
-    const exclusivosPedido = new Set<string>(['id_workspace', ...CAMPOS_LOGISTICA_PEDIDO])
-    return [...CAMPOS_EDITAVEIS_PAI, ...customKeys].filter(k => !exclusivosPedido.has(k))
+    const exclusivosPedido = new Set<string>([
+      'id_workspace',
+      'tipo_operacao',
+      'nome_importador',
+      'nome_exportador',
+      ...CAMPOS_LOGISTICA_PEDIDO,
+    ])
+    return [...CAMPOS_EDITAVEIS_PAI, ...customKeys]
+      .filter(k => !exclusivosPedido.has(k) && !isChaveColunaAnexo(k))
   }, [colunasUsuario])
 
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
@@ -4440,14 +5627,30 @@ export default function Pedidos() {
     if (abaAtiva !== 'todos') {
       resultado = resultado.filter(p => p.status === abaAtiva)
     }
-    // Busca global client-side (em dev o mock ignora o param de busca do servidor)
+    // Busca global client-side (em dev o mock ignora o param de busca do servidor).
+    // Espelha as condições do backend (montarCondicoesBuscaPedido) — Mand. 07:
+    // sem isso, pedidos que o servidor retornou por match em coluna do usuário
+    // seriam re-filtrados para fora aqui.
     if (busca.trim()) {
       const termo = busca.trim().toLowerCase()
+      const idsColunasNomeBate = new Set(
+        colunasUsuario.filter(c => c.nome.toLowerCase().includes(termo)).map(c => c.id),
+      )
+      const matchColunasUsuario = (registro: Record<string, unknown>): boolean => {
+        const valores = registro['_colunas_usuario'] as Record<string, string> | undefined
+        if (!valores) return false
+        return Object.entries(valores).some(([idColuna, valor]) =>
+          (valor !== '' && idsColunasNomeBate.has(idColuna))
+          || String(valor).toLowerCase().includes(termo),
+        )
+      }
       resultado = resultado.filter(p =>
         [p.numero_pedido, p.nome_exportador, p.nome_fabricante,
          p.referencia_importador, p.referencia_exportador,
          p.numero_proforma, p.numero_invoice]
           .some(v => v != null && String(v).toLowerCase().includes(termo))
+        || matchColunasUsuario(p as unknown as Record<string, unknown>)
+        || (p.itens ?? []).some(i => matchColunasUsuario(i as unknown as Record<string, unknown>)),
       )
     }
     if (Object.keys(filtrosAtivos).length === 0) return resultado
@@ -4476,7 +5679,7 @@ export default function Pedidos() {
       }
       return true
     })
-  }, [pedidos, filtrosAtivos, abaAtiva, busca, pedidoFocoId, workspacesMap, t])
+  }, [pedidos, filtrosAtivos, abaAtiva, busca, pedidoFocoId, workspacesMap, colunasUsuario, t])
 
   const temFiltroColunaCliente = useMemo(
     () => Object.keys(filtrosAtivos).length > 0,
@@ -4668,7 +5871,7 @@ export default function Pedidos() {
   const [modalNovoItemAberto, setModalNovoItemAberto]     = useState(false)
   const [smartImportAberto, setSmartImportAberto] = useState(false)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
-  const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | null>(null)
+  const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | 'painel' | null>(null)
   const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
   const novoDropdownRef = useRef<HTMLDivElement>(null)
 
@@ -4735,7 +5938,14 @@ export default function Pedidos() {
       if (seq !== cargaListaSeqRef.current) return
       // Pré-computa flags de divergência no carregamento inicial — pedidos vem
       // com itens populados do backend (include itens_pedido na rota /listar).
-      const pedidosComDivergencias = res.data.map(p => {
+      const pedidosSanitizados = sanitizarNomesPartesListaPedidos(
+        res.data,
+        workspacesDisponiveis,
+        workspacesShell,
+        opcoesImportadoresExp,
+        opcoesExportadoresImp,
+      )
+      const pedidosComDivergencias = pedidosSanitizados.map(p => {
         if (!p.itens || p.itens.length === 0) return p
         const { itens, divergencias } = sincronizarItensPedido(p.itens, p)
         return { ...p, itens, ...divergencias }
@@ -4759,7 +5969,277 @@ export default function Pedidos() {
         carregandoRef.current = false
       }
     }
-  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, t])
+  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, workspacesSelecionados, workspaceAtivo, workspacesDisponiveis, workspacesShell, opcoesImportadoresExp, opcoesExportadoresImp, t])
+
+  const aplicarCardsTopoDoPainel = useCallback((
+    cardsTopo: { ids_visiveis: string[]; periodo?: string } | undefined,
+  ) => {
+    if (!cardsTopo) return
+    const periodosValidos = ['7d', '30d', '6m', '1a', 'tudo'] as const
+    if (cardsTopo.periodo && periodosValidos.includes(cardsTopo.periodo as typeof periodosValidos[number])) {
+      setPeriodoCards(cardsTopo.periodo as typeof periodosValidos[number])
+    }
+    if (cardsTopo.ids_visiveis.length > 0) {
+      const visiveisSet = new Set(cardsTopo.ids_visiveis)
+      const algumIdValido = cardPrefs.some(p => visiveisSet.has(p.id))
+      if (algumIdValido) {
+        persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
+      } else {
+        console.warn(
+          '[Pedidos] cards_topo.ids_visiveis do painel não batem com nenhum card local — mantendo visibilidade atual',
+          cardsTopo.ids_visiveis,
+        )
+      }
+    }
+  }, [cardPrefs, persistirCardPrefs, setPeriodoCards])
+
+  const aplicarSnapshotPainelNaUi = useCallback((snapshot: SnapshotAplicarListaPainel) => {
+    setAbaAtiva(snapshot.aba)
+    setSortCampo(snapshot.sortCampo)
+    setSortDir(snapshot.sortDir)
+    setBusca(snapshot.busca)
+    aplicarCardsTopoDoPainel(snapshot.cardsTopo)
+    setFiltrosAtivos(snapshot.filtrosColuna)
+  }, [aplicarCardsTopoDoPainel])
+
+  const executarCargaComSnapshotPainel = useCallback((snapshot: SnapshotAplicarListaPainel) => {
+    if (workspacesSelecionados.length === 0) {
+      painelSnapshotPendenteRef.current = snapshot
+      return
+    }
+    painelSnapshotPendenteRef.current = null
+    setPedidoFocoId(null)
+    void carregarInicial(
+      snapshot.aba,
+      snapshot.sortCampo,
+      snapshot.sortDir,
+      snapshot.busca,
+      1,
+      true,
+    ).finally(() => {
+      aplicarSnapshotPainelNaUi(snapshot)
+      escopoListaInicialDisparadoRef.current = true
+    })
+  }, [workspacesSelecionados, carregarInicial, aplicarSnapshotPainelNaUi])
+
+  const mesclarColunasManuaisNasPreferencias = useCallback((lista: ColunaUsuario[]) => {
+    const activeCustomKeys = lista
+      .filter(c => c.ativo && ((c.escopo || 'ambos') === 'pedido' || (c.escopo || 'ambos') === 'ambos'))
+      .map(c => c.chave)
+
+    setPreferencias(prev => {
+      if (!prev?.colunas_visiveis?.length) {
+        return prev
+      }
+      const savedVisible: string[] = prev.colunas_visiveis
+      const savedSet = new Set(savedVisible)
+      const conhecidasAntigas = new Set(prev?.colunas_manuais_conhecidas ?? [])
+      const novas = activeCustomKeys.filter(k => !savedSet.has(k) && !conhecidasAntigas.has(k))
+      const conhecidasNovas = Array.from(new Set([...conhecidasAntigas, ...activeCustomKeys]))
+
+      const passoInserir = inserirColunaAposAncora(
+        savedVisible,
+        'id_workspace',
+        ['tipo_operacao', 'numero_pedido'],
+      )
+      const passoMover = moverColunaParaAposAncora(
+        passoInserir.resultado,
+        'id_workspace',
+        'tipo_operacao',
+      )
+      const passoDescItem = inserirColunaAposAncora(
+        passoMover.resultado,
+        'descricao_item',
+        ['ncm'],
+      )
+      const passoMoeda = inserirColunaAposAncora(
+        passoDescItem.resultado,
+        'moeda_pedido',
+        ['descricao_item', 'ncm'],
+      )
+      const passoUnidade = inserirColunaAposAncora(
+        passoMoeda.resultado,
+        'unidade_comercializada_pedido',
+        ['quantidade_pronta_itens_pedido_total', 'valor_total_pedido', 'quantidade_total_pedido'],
+      )
+      const passoLogisticaInsert = inserirBlocoColunasFaltantes(
+        passoUnidade.resultado,
+        CAMPOS_LOGISTICA_PEDIDO,
+        'incoterm',
+      )
+      const passoLogisticaOrder = reordenarBlocoColunas(
+        passoLogisticaInsert.resultado,
+        CAMPOS_LOGISTICA_PEDIDO,
+      )
+      const visivelComMigracao = passoLogisticaOrder.resultado
+      const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
+        || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou
+      const novasBuiltin = [
+        ...(passoInserir.mudou ? ['id_workspace'] : []),
+        ...(passoDescItem.mudou ? ['descricao_item'] : []),
+        ...(passoMoeda.mudou ? ['moeda_pedido'] : []),
+        ...(passoUnidade.mudou ? ['unidade_comercializada_pedido'] : []),
+        ...(passoLogisticaInsert.mudou
+          ? CAMPOS_LOGISTICA_PEDIDO.filter(k => passoLogisticaInsert.resultado.includes(k) && !savedSet.has(k))
+          : []),
+      ]
+
+      const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
+        ? [...visivelComMigracao, ...novas]
+        : savedVisible
+
+      return {
+        colunas_visiveis: finalVisible,
+        ...(prev?.colunas_largura ? { colunas_largura: prev.colunas_largura } : {}),
+        colunas_manuais_conhecidas: conhecidasNovas,
+      }
+    })
+  }, [])
+
+  const listaPainelCallbacks = useMemo(() => ({
+    setPreferencias,
+    setAbaAtiva,
+    setSortCampo,
+    setSortDir,
+    setBusca,
+    setFiltrosAtivos,
+    setCardsTopoDoPainel: aplicarCardsTopoDoPainel,
+    onConfigAplicada: (snapshot: SnapshotAplicarListaPainel) => {
+      executarCargaComSnapshotPainel(snapshot)
+    },
+    onPainelHidratado: (id: string) => {
+      painelListaAplicadoRef.current = id
+      if (colunasUsuarioListaRef.current.length > 0) {
+        mesclarColunasManuaisNasPreferencias(colunasUsuarioListaRef.current)
+      }
+    },
+  }), [executarCargaComSnapshotPainel, aplicarCardsTopoDoPainel, mesclarColunasManuaisNasPreferencias])
+
+  useEffect(() => {
+    if (!escopoHidratado || !idOrganizacao) return
+    if (workspacesSelecionados.length === 0) return
+    if (!painelSnapshotPendenteRef.current) return
+    executarCargaComSnapshotPainel(painelSnapshotPendenteRef.current)
+  }, [escopoHidratado, idOrganizacao, workspacesSelecionados, executarCargaComSnapshotPainel])
+
+  useEffect(() => {
+    if (!escopoHidratado || !idOrganizacao) return
+    if (workspacesSelecionados.length === 0) return
+    if (!painelListaAtual || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current === painelListaAtual.id) return
+    aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
+  }, [
+    escopoHidratado,
+    idOrganizacao,
+    workspacesSelecionados.length,
+    painelListaAtual?.id,
+    painelListaAtual?.config_json,
+    carregandoPaineisLista,
+    aplicarConfigDoPainel,
+    listaPainelCallbacks,
+  ])
+
+  const estadoListaParaPainel = useCallback((): EstadoListaParaPainel => ({
+    preferencias,
+    abaAtiva,
+    sortCampo,
+    sortDir,
+    busca,
+    filtrosAtivos,
+    cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+    periodoCards,
+  }), [preferencias, abaAtiva, sortCampo, sortDir, busca, filtrosAtivos, cardsVisiveis, periodoCards])
+
+  const handleCriarPainelLista = useCallback(async (nome: string): Promise<boolean> => {
+    painelListaAplicadoRef.current = null
+    try {
+      const criado = await criarPainelLista(nome, estadoListaParaPainel(), listaPainelCallbacks)
+      if (!criado) {
+        addNotification({
+          type: 'error',
+          message: t('pedido.lista.painel_criado_erro', {
+            defaultValue: 'Não foi possível salvar o painel. Verifique a API /lista/paineis e a migration no banco.',
+          }),
+        })
+        return false
+      }
+      addNotification({
+        type: 'success',
+        message: t('pedido.lista.painel_criado_sucesso', {
+          defaultValue: 'Painel "{{nome}}" criado — use as abas roxas acima dos cards de totais.',
+          nome: criado.nome,
+        }),
+      })
+      return true
+    } catch (err) {
+      const detalhe = err instanceof Error ? err.message : ''
+      addNotification({
+        type: 'error',
+        message: detalhe
+          ? `${t('pedido.lista.painel_criado_erro', { defaultValue: 'Não foi possível salvar o painel.' })} ${detalhe}`
+          : t('pedido.lista.painel_criado_erro', {
+              defaultValue: 'Não foi possível salvar o painel. Verifique a API /lista/paineis e a migration no banco.',
+            }),
+      })
+      return false
+    }
+  }, [criarPainelLista, estadoListaParaPainel, listaPainelCallbacks, addNotification, t])
+
+  const handleTrocarPainelLista = useCallback((id: string) => {
+    painelListaAplicadoRef.current = null
+    void trocarPainelLista(
+      id,
+      {
+        preferencias,
+        abaAtiva,
+        sortCampo,
+        sortDir,
+        busca,
+        filtrosAtivos,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      },
+      listaPainelCallbacks,
+    )
+  }, [
+    trocarPainelLista,
+    preferencias,
+    abaAtiva,
+    sortCampo,
+    sortDir,
+    busca,
+    filtrosAtivos,
+    cardsVisiveis,
+    periodoCards,
+    listaPainelCallbacks,
+  ])
+
+  useEffect(() => {
+    if (!painelListaAtualId || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current !== painelListaAtualId) return
+    persistirPainelAtual({
+      preferencias,
+      abaAtiva,
+      sortCampo,
+      sortDir,
+      busca,
+      filtrosAtivos,
+      cardsVisiveisIds: cardsVisiveisIdsKey ? cardsVisiveisIdsKey.split('\0') : [],
+      periodoCards,
+    })
+  }, [
+    preferencias,
+    abaAtiva,
+    sortCampo,
+    sortDir,
+    busca,
+    filtrosAtivos,
+    cardsVisiveisIdsKey,
+    periodoCards,
+    painelListaAtualId,
+    carregandoPaineisLista,
+    persistirPainelAtual,
+  ])
 
   /** Mesmo padrão de Edição em Massa / Consolidar — limpa cache de filhos antes de listar. */
   const recarregarListaPosImportacao = useCallback(async () => {
@@ -4769,13 +6249,21 @@ export default function Pedidos() {
     await carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
   }, [carregarInicial, abaAtiva, sortCampo, sortDir, busca])
 
-  // Recarrega lista quando mudou escopo de workspaces (menu lateral).
-  // forcar=true evita que um fetch in-flight (escopo antigo) bloqueie o reload.
+  // Recarrega lista quando mudou escopo de workspaces (menu lateral) ou quando
+  // idOrganizacao hidrata do /me. A primeira carga com painel salvo fica só no onConfigAplicada.
   useEffect(() => {
     if (!idOrganizacao || !escopoHidratado) return
-    carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
+    if (carregandoPaineisLista) return
+
+    if (!escopoListaInicialDisparadoRef.current) {
+      if (painelListaAtualId && painelListaAplicadoRef.current !== painelListaAtualId) return
+      if (painelListaAtualId) return
+      escopoListaInicialDisparadoRef.current = true
+    }
+
+    void carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workspacesSelecionados, escopoHidratado])
+  }, [workspacesSelecionados, escopoHidratado, idOrganizacao, carregandoPaineisLista])
 
   // Sincroniza com mudanças feitas em outras views (Kanban, Dashboard)
   useEffect(() => {
@@ -5053,7 +6541,7 @@ export default function Pedidos() {
     // Usar '/configuracoes' (sem prefixo) bate no shell e dá 404.
     // tab=colunas-personalizadas (não 'colunas' — id de categoria precisa
     // bater com COLUNAS_FILHOS para o effect de scroll+focus disparar).
-    navigate('/produto/pedido/configuracoes?tab=colunas-personalizadas&acao=nova')
+    navigate('/pedido/configuracoes?tab=colunas-personalizadas&acao=nova')
     setNovoDropdownAberto(false)
   }, [navigate])
 
@@ -5094,6 +6582,7 @@ export default function Pedidos() {
         novoDropdownRef={novoDropdownRef}
         novoDropdownAberto={novoDropdownAberto}
         novoSubmenu={novoSubmenu}
+        onCriarPainelLista={handleCriarPainelLista}
         pedidosSelecionados={pedidosSelecionados}
         itensSelecionados={itensSelecionados}
         excluindoLote={excluindoLote}
@@ -5123,7 +6612,7 @@ export default function Pedidos() {
       />
     </div>
   ), [
-    novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca, rotuloEscopoWorkspaces, tooltipEscopoWorkspaces, pedirAbrirMenuWorkspaces,
+    novoDropdownAberto, novoSubmenu, handleCriarPainelLista, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca, rotuloEscopoWorkspaces, tooltipEscopoWorkspaces, pedirAbrirMenuWorkspaces,
     novoDropdownRef, setNovoDropdownAberto, setNovoSubmenu, setSmartImportAberto,
     setModalCockpitAberto, setModalNovoPedidoAberto, setModalNovoItemAberto,
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,
@@ -5162,132 +6651,54 @@ export default function Pedidos() {
     return result
   }, [pedidos, colunasPai, workspacesDisponiveis, t])
 
-  // ── Carregar status e preferências ──────────────────────────────────────────
+  // ── Abas de status (rótulo único: rotulo do banco / localStorage) ───────────
   useEffect(() => {
-    // Inicializar abas do localStorage imediatamente (enquanto API carrega)
     const abasLocal = lerAbasDoLocalStorage(t)
     if (abasLocal && abasLocal.length > 1) setAbas(abasLocal)
 
-    // Conditional fetching: aguarda idOrganizacao hidratar antes de chamar as APIs,
-    // caso contrário /config/preferencias/usuario e afins retornam 400.
     if (!idOrganizacao) return
 
     pedidoConfigApi.listarStatus()
       .then(res => {
-        if (res.data.length > 0) {
-          const sorted = res.data.sort((a, b) => a.ordem - b.ordem)
-          const abasApi: GTAbaTipo[] = [
-            { valor: 'todos', label: t('pedido.status.todos') },
-            ...sorted.map((s: PedidoStatusConfig) => ({
-              valor: s.nome,
-              label: s.rotulo,
-              cor: s.cor,
-            })),
-          ]
-          setAbas(abasApi)
-          // Sincronizar localStorage para focus handler e outros consumers
-          const map: Record<string, { label: string; cor: string }> = {}
-          for (const s of sorted) map[s.nome] = { label: s.rotulo, cor: s.cor }
-          try { localStorage.setItem(PEDIDO_STATUS_STORAGE_KEY, JSON.stringify(map)) } catch { /* quota */ }
-        }
+        if (res.data.length === 0) return
+        const sorted = res.data.sort((a, b) => a.ordem - b.ordem)
+        const abasApi: GTAbaTipo[] = [
+          { valor: 'todos', label: t('pedido.status.todos') },
+          ...sorted.map((s: PedidoStatusConfig) => ({
+            valor: s.nome,
+            label: s.rotulo,
+            cor: s.cor,
+          })),
+        ]
+        setAbas(abasApi)
+        setStatusOpts(abasApi.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label })))
+        const map: Record<string, { label: string; cor: string }> = {}
+        for (const s of sorted) map[s.nome] = { label: s.rotulo, cor: s.cor }
+        try { localStorage.setItem(PEDIDO_STATUS_STORAGE_KEY, JSON.stringify(map)) } catch { /* quota */ }
       })
       .catch(() => {
-        // Fallback: usar dados do localStorage ou ABAS_PADRAO
-        if (!abasLocal || abasLocal.length <= 1) return
-        setAbas(abasLocal)
+        if (abasLocal && abasLocal.length > 1) setAbas(abasLocal)
       })
+  }, [idOrganizacao, t])
 
-    // Carregar preferências e colunas customizadas em paralelo para mesclar corretamente
-    Promise.all([
-      pedidoConfigApi.obterPreferenciaUsuarioColunaPedido().catch(() => ({ data: null })),
-      colunasUsuarioApi.listar().catch(() => [] as ColunaUsuario[]),
-    ]).then(([prefsResp, lista]) => {
+  // ── Colunas customizadas do usuário (sem recarregar abas de status) ─────────
+  useEffect(() => {
+    if (!idOrganizacao) return
+
+    colunasUsuarioApi.listar().catch(() => [] as ColunaUsuario[]).then((lista) => {
+      colunasUsuarioListaRef.current = lista
       setColunasUsuario(lista)
 
-      const prefs = prefsResp?.data ?? null
-      const savedVisible: string[] = prefs?.colunas_visiveis && prefs.colunas_visiveis.length > 0
-        ? prefs.colunas_visiveis
-        : COLUNAS_PADRAO_VISIVEIS
-
-      // Colunas customizadas ativas que ainda não estão nas preferências salvas
-      // (criadas após o último save de prefs) → adicionar como visíveis por padrão
-      const activeCustomKeys = lista
-        .filter(c => c.ativo && ((c.escopo || 'ambos') === 'pedido' || (c.escopo || 'ambos') === 'ambos'))
-        .map(c => c.chave)
-      const savedSet = new Set(savedVisible)
-      const novas = activeCustomKeys.filter(k => !savedSet.has(k))
-
-      // Migração de prefs salvas → padrão atual via helpers de `migracaoColunas`.
-      // Refactor D12 (2026-05-13): lógica antes inline aqui (40+ linhas duplicadas)
-      // foi extraída para shared/migracaoColunas.ts com cobertura unitária.
-      //
-      // Caso 1: id_workspace NÃO está nas prefs → inserir (entrega 2026-05-13).
-      //         Tenta inserir após tipo_operacao; fallback para numero_pedido; fallback no início.
-      // Caso 2: id_workspace JÁ está, mas em posição antiga (antes de tipo_operacao) → mover.
-      const passoInserir = inserirColunaAposAncora(
-        savedVisible,
-        'id_workspace',
-        ['tipo_operacao', 'numero_pedido'],
-      )
-      const passoMover = moverColunaParaAposAncora(
-        passoInserir.resultado,
-        'id_workspace',
-        'tipo_operacao',
-      )
-      // Caso 3: descricao_item NÃO está nas prefs → inserir após ncm (entrega 2026-05-14).
-      const passoDescItem = inserirColunaAposAncora(
-        passoMover.resultado,
-        'descricao_item',
-        ['ncm'],
-      )
-      // Caso 4: moeda_pedido NÃO está nas prefs → inserir após ncm/descricao_item (entrega 2026-05-15).
-      const passoMoeda = inserirColunaAposAncora(
-        passoDescItem.resultado,
-        'moeda_pedido',
-        ['descricao_item', 'ncm'],
-      )
-      // Caso 5: unidade_comercializada_pedido NÃO está nas prefs → inserir após quantidade_pronta_itens_pedido_total (entrega 2026-05-15).
-      const passoUnidade = inserirColunaAposAncora(
-        passoMoeda.resultado,
-        'unidade_comercializada_pedido',
-        ['quantidade_pronta_itens_pedido_total', 'valor_total_pedido', 'quantidade_total_pedido'],
-      )
-      // Caso 6: bloco logística (porto → país → aeroporto) após incoterm — SSOT camposLogisticaPedido
-      const passoLogisticaInsert = inserirBlocoColunasFaltantes(
-        passoUnidade.resultado,
-        CAMPOS_LOGISTICA_PEDIDO,
-        'incoterm',
-      )
-      const passoLogisticaOrder = reordenarBlocoColunas(
-        passoLogisticaInsert.resultado,
-        CAMPOS_LOGISTICA_PEDIDO,
-      )
-      const visivelComMigracao = passoLogisticaOrder.resultado
-      const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
-        || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou
-      const novasBuiltin = [
-        ...(passoInserir.mudou ? ['id_workspace'] : []),
-        ...(passoDescItem.mudou ? ['descricao_item'] : []),
-        ...(passoMoeda.mudou ? ['moeda_pedido'] : []),
-        ...(passoUnidade.mudou ? ['unidade_comercializada_pedido'] : []),
-        ...(passoLogisticaInsert.mudou
-          ? CAMPOS_LOGISTICA_PEDIDO.filter(k => passoLogisticaInsert.resultado.includes(k) && !savedSet.has(k))
-          : []),
-      ]
-
-      const finalVisible = novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao
-        ? [...visivelComMigracao, ...novas]
-        : savedVisible
-
-      if (novas.length > 0 || novasBuiltin.length > 0 || mudouPosicao) {
-        // Persistir preferências com as novas colunas (ou reposicionamento) para
-        // que hide/show e a ordem funcionem corretamente em todos os dispositivos.
-        pedidoConfigApi.salvarPreferenciaUsuarioColunaPedido({ colunas_visiveis: finalVisible }).catch(() => {})
+      // Merge só DEPOIS da hidratação do painel. Se rodar antes (login/remount),
+      // `prev` ainda não tem config_json do banco → expande para ~140 e sobrescreve ocultações.
+      if (
+        painelListaAtualId
+        && painelListaAplicadoRef.current === painelListaAtualId
+      ) {
+        mesclarColunasManuaisNasPreferencias(lista)
       }
-
-      setPreferencias({ colunas_visiveis: finalVisible })
     })
-  }, [idOrganizacao]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [idOrganizacao, painelListaAtualId, mesclarColunasManuaisNasPreferencias, t])
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
   useEffect(() => {
@@ -5388,6 +6799,56 @@ export default function Pedidos() {
     valor: unknown,
     opts?: { replicar_em_itens?: boolean },
   ): Promise<Pedido> => {
+    if (campo === 'nome_exportador') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (comportamentoExportadorLista(pedidoAtual ?? {} as Pedido) === 'exportacao') {
+        return handleEditar(id, 'id_workspace', valor, { replicar_em_itens: true })
+      }
+      if (comportamentoExportadorLista(pedidoAtual ?? {} as Pedido) === 'importacao') {
+        const idFornecedor = String(valor ?? '').trim()
+        if (!idFornecedor) throw new Error(t('pedido.lista.erro.exportador_obrigatorio', 'Selecione um exportador'))
+        const nomeFornecedor = opcoesExportadoresImpLista.find((o) => o.valor === idFornecedor)?.label
+          ?? pedidoAtual?.nome_exportador
+          ?? ''
+        const resultados = await Promise.all([
+          pedidoVirtualApi.editarCampo(id, 'importacao_exportador_id', idFornecedor),
+          pedidoVirtualApi.editarCampo(id, 'nome_exportador', nomeFornecedor),
+        ])
+        const pedidoAtualizado = {
+          ...pedidoAtual,
+          ...resultados[resultados.length - 1],
+          importacao_exportador_id: idFornecedor,
+          nome_exportador: nomeFornecedor,
+        } as Pedido
+        setPedidos((prev) => prev.map((p) => (p.id === id ? pedidoAtualizado : p)))
+        return pedidoAtualizado
+      }
+    }
+    if (campo === 'nome_importador') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (comportamentoImportadorLista(pedidoAtual ?? {} as Pedido) === 'importacao') {
+        return handleEditar(id, 'id_workspace', valor, { replicar_em_itens: true })
+      }
+      if (comportamentoImportadorLista(pedidoAtual ?? {} as Pedido) === 'exportacao') {
+        const idFornecedor = String(valor ?? '').trim()
+        if (!idFornecedor) throw new Error(t('pedido.lista.erro.importador_obrigatorio', 'Selecione um importador'))
+        const nomeFornecedor = opcoesImportadoresExpLista.find((o) => o.valor === idFornecedor)?.label
+          ?? pedidoAtual.nome_importador
+          ?? ''
+        const resultados = await Promise.all([
+          pedidoVirtualApi.editarCampo(id, 'exportacao_importador_id', idFornecedor),
+          pedidoVirtualApi.editarCampo(id, 'nome_importador', nomeFornecedor),
+        ])
+        const pedidoAtualizado = {
+          ...pedidoAtual,
+          ...resultados[resultados.length - 1],
+          exportacao_importador_id: idFornecedor,
+          nome_importador: nomeFornecedor,
+        } as Pedido
+        setPedidos((prev) => prev.map((p) => (p.id === id ? pedidoAtualizado : p)))
+        return pedidoAtualizado
+      }
+    }
     // Coluna customizada do usuário — salva via endpoint próprio
     const colunaCustom = colunasUsuario.find(c => c.chave === campo)
     if (colunaCustom) {
@@ -5436,34 +6897,170 @@ export default function Pedidos() {
       if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
       const novoStatus = String(valor)
       const replicar = opts?.replicar_em_itens ?? false
+      const statusAnterior = pedidoAtual.status
+      const pedidoTemItens = pedidoPossuiItensNaLista(pedidoAtual as Record<string, unknown>)
+      const snapshotPersistente = pedidoAtual.status_itens_snapshot ?? statusAnterior
       const atualizado = {
         ...pedidoAtual,
         status: novoStatus as Pedido['status'],
+        status_itens_snapshot: replicar
+          ? null
+          : pedidoTemItens
+            ? snapshotPersistente
+            : pedidoAtual.status_itens_snapshot ?? null,
       } as Pedido
       await pedidoLoteApi.mudarStatusConfirmar([id], novoStatus).catch(err => {
         if (!import.meta.env.DEV) throw err
         // DEV: sem servidor → aplica localmente mesmo assim
       })
-      if (replicar && !STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
-        const itensCache = itensCarregadosRef.current.get(id)
-        if (itensCache && itensCache.length > 0) {
-          const itensAtualizados = itensCache.map(i => {
-            const enr = i as PedidoItemEnriquecido
-            if (!enr._p) return i
-            return { ...i, _p: { ...enr._p, status: novoStatus } } as PedidoItem
-          })
-          itensCarregadosRef.current.set(id, itensAtualizados)
-        }
+      let itensCache = itensCarregadosRef.current.get(id) ?? []
+      if (replicar && itensCache.length > 0) {
+        itensCache = itensCache.map(i => {
+          const enr = i as PedidoItemEnriquecido
+          if (!enr._p) return i
+          return { ...i, _p: { ...enr._p, status: novoStatus } } as PedidoItem
+        })
+        itensCarregadosRef.current.set(id, itensCache)
       }
+      const sinc = itensCache.length > 0
+        ? sincronizarItensPedido(itensCache, atualizado)
+        : {
+          itens: itensCache,
+          divergencias: {
+            ...calcularDivergencias(itensCache, atualizado),
+            status_divergente: !replicar && pedidoTemItens && statusAnterior !== novoStatus,
+          } as Partial<Pedido>,
+        }
       setPedidos(prev => prev.map(p => p.id === id
-        ? { ...atualizado, itens: itensCarregadosRef.current.get(id) ?? p.itens }
+        ? { ...atualizado, itens: sinc.itens, ...sinc.divergencias }
         : p
       ))
-      // filhosCache da TabelaVirtual é Map separado — força reload dos itens expandidos
-      if (replicar && !STATUS_SEM_ESPELHAMENTO.has(novoStatus)) {
+      if (replicar && itensCache.length > 0) {
         setResetFilhos(prev => prev + 1)
       }
-      return atualizado
+      return { ...atualizado, ...sinc.divergencias }
+    }
+    // Cobertura cambial — coluna no pedido (cobertura_cambial_pedido); PATCH no pai.
+    if (campo === 'cobertura_cambial' || campo === 'cobertura_cambial_pedido') {
+      const campoApi = 'cobertura_cambial'
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
+      const valorStr = valor == null || valor === '' ? null : String(valor)
+      if (!valorStr) {
+        throw new Error(t('pedido.lista.erro.cobertura_obrigatoria', 'Selecione uma cobertura cambial.'))
+      }
+      const replicar = opts?.replicar_em_itens ?? false
+      const updatedRaw = await pedidoVirtualApi.editarCampo(id, campoApi, valorStr, replicar)
+      let updatedPedido = {
+        ...updatedRaw,
+        cobertura_cambial: valorStr,
+        cobertura_cambial_valor_unico: valorStr,
+      } as Pedido
+      if (replicar && isPropagavel(campoApi)) {
+        const itensApi = updatedRaw.itens
+        const itensCache = itensCarregadosRef.current.get(id) ?? []
+        if (Array.isArray(itensApi) && itensApi.length > 0) {
+          const enriquecidos = itensApi.map(i => ({
+            ...i,
+            _p: montarContextoPaiItem(updatedPedido, i),
+          })) as PedidoItemEnriquecido[]
+          itensCarregadosRef.current.set(id, enriquecidos)
+          setResetFilhos(prev => prev + 1)
+        } else if (itensCache.length > 0) {
+          itensCarregadosRef.current.set(
+            id,
+            itensCache.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr)),
+          )
+          setResetFilhos(prev => prev + 1)
+        }
+      }
+      const itensAtuais = itensCarregadosRef.current.get(id) ?? []
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== id) return p
+        let itensFallback = itensAtuais.length > 0 ? itensAtuais : (p.itens ?? [])
+        if (replicar && isPropagavel(campoApi) && itensAtuais.length === 0 && itensFallback.length > 0) {
+          itensFallback = itensFallback.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr))
+        }
+        const sinc = itensFallback.length > 0
+          ? sincronizarItensPedido(itensFallback, updatedPedido)
+          : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
+        const divergencias = mesclarDivergenciasPreservandoCoberturaPedido(
+          updatedPedido as Record<string, unknown>,
+          sinc.divergencias as Record<string, unknown>,
+        )
+        if (sinc.itens.length > 0) {
+          return montarPedidoComItensCarregados(
+            { ...updatedPedido, ...divergencias },
+            sinc.itens,
+            divergencias as Partial<Pedido>,
+          )
+        }
+        return { ...updatedPedido, ...divergencias, itens: p.itens }
+      }))
+      return updatedPedido
+    }
+    // Moeda câmbio — coluna no pedido (moeda_cambio_pedido); PATCH no pai.
+    if (campo === 'moeda_cambio_pedido') {
+      const campoApi = 'moeda_cambio_pedido'
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error(t('pedido.lista.erro.pedido_nao_encontrado'))
+      const valorStr = extrairCodigoMoedaLista(valor)
+      if (!valorStr) {
+        throw new Error(t('pedido.lista.erro.moeda_cambio_obrigatoria', 'Selecione uma moeda do câmbio.'))
+      }
+      const replicar = opts?.replicar_em_itens ?? false
+      const updatedRaw = await pedidoVirtualApi.editarCampo(id, campoApi, valorStr, replicar)
+      const updatedPedido = {
+        ...updatedRaw,
+        moeda_cambio_pedido: valorStr,
+        moeda_cambio_pedido_valor_unico: valorStr,
+      } as Pedido
+      if (replicar && isPropagavel(campoApi)) {
+        const itensApi = Array.isArray(updatedRaw.itens) ? updatedRaw.itens : []
+        const itensCache = itensCarregadosRef.current.get(id) ?? []
+        const base = itensCache.length > 0 ? itensCache : itensApi
+        if (base.length > 0) {
+          const porId = new Map(itensApi.map(i => [i.id, i]))
+          const enriquecidos = base.map(item => {
+            const fromApi = porId.get(item.id)
+            const merged = aplicarPropagacaoPedidoNoItem(
+              fromApi ? { ...item, ...fromApi } : item,
+              campoApi,
+              valorStr,
+            )
+            return {
+              ...merged,
+              _p: montarContextoPaiItem(updatedPedido, merged),
+            }
+          }) as PedidoItemEnriquecido[]
+          itensCarregadosRef.current.set(id, enriquecidos)
+          setResetFilhos(prev => prev + 1)
+        }
+      }
+      const itensAtuais = itensCarregadosRef.current.get(id) ?? []
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== id) return p
+        let itensFallback = itensAtuais.length > 0 ? itensAtuais : (p.itens ?? [])
+        if (replicar && isPropagavel(campoApi) && itensAtuais.length === 0 && itensFallback.length > 0) {
+          itensFallback = itensFallback.map(i => aplicarPropagacaoPedidoNoItem(i, campoApi, valorStr))
+        }
+        const sinc = itensFallback.length > 0
+          ? sincronizarItensPedido(itensFallback, updatedPedido)
+          : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
+        const divergencias = mesclarDivergenciasPreservandoMoedaCambioPedido(
+          updatedPedido as Record<string, unknown>,
+          sinc.divergencias as Record<string, unknown>,
+        )
+        if (sinc.itens.length > 0) {
+          return montarPedidoComItensCarregados(
+            { ...updatedPedido, ...divergencias },
+            sinc.itens,
+            divergencias as Partial<Pedido>,
+          )
+        }
+        return { ...updatedPedido, ...divergencias, itens: p.itens }
+      }))
+      return updatedPedido
     }
     // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
     // PATCH directo nos itens. Lógica de propagação real fica no servidor para
@@ -5503,7 +7100,36 @@ export default function Pedidos() {
         return pedidoAtualizado
       }
 
-      // NCM / cobertura: edição no pai sempre propaga aos itens (comportamento legado).
+      // NCM na linha pai: sem checkbox → só valor canônico do pedido (itens intactos).
+      if (campo === 'ncm' && !replicar) {
+        const valorStr = String(valorEnviar ?? '')
+        let itensExistentes = itensCarregadosRef.current.get(id) ?? []
+        if (itensExistentes.length === 0 && (pedidoAtual.itens?.length ?? 0) > 0) {
+          itensExistentes = pedidoAtual.itens as PedidoItem[]
+        }
+        const pedidoComValor = {
+          ...pedidoAtual,
+          ncm: valorStr,
+          ncm_valor_unico: valorStr,
+        } as Pedido
+        const sinc = sincronizarItensPedido(itensExistentes, pedidoComValor)
+        const divergencias = mesclarDivergenciasPreservandoNcmPedido(
+          pedidoComValor as Record<string, unknown>,
+          sinc.divergencias as Record<string, unknown>,
+        )
+        const pedidoAtualizado = {
+          ...pedidoComValor,
+          ...divergencias,
+          itens: sinc.itens,
+        } as Pedido
+        if (itensExistentes.length > 0) {
+          itensCarregadosRef.current.set(id, sinc.itens)
+        }
+        setPedidos(prev => prev.map(p => (p.id === id ? pedidoAtualizado : p)))
+        return pedidoAtualizado
+      }
+
+      // NCM com checkbox OU cobertura: propaga PATCH em todos os itens.
       let itensGhost = itensCarregadosRef.current.get(id) ?? []
       if (itensGhost.length === 0) {
         itensGhost = (pedidoAtual.itens?.length ?? 0) > 0
@@ -5520,25 +7146,53 @@ export default function Pedidos() {
       const pedidoComValorCanonico = { ...pedidoAtual, [campo]: valorEnviar } as Pedido
       const { itens: itensSinc, divergencias } = sincronizarItensPedido(itensComValor, pedidoComValorCanonico)
       itensCarregadosRef.current.set(id, itensSinc)
-      const divMesclada = mesclarDivergenciasPreservandoDescricaoPedido(
-        pedidoComValorCanonico as Record<string, unknown>,
-        divergencias as Record<string, unknown>,
-      )
+      const divMesclada = campo === 'ncm'
+        ? mesclarDivergenciasPreservandoNcmPedido(
+          pedidoComValorCanonico as Record<string, unknown>,
+          divergencias as Record<string, unknown>,
+        )
+        : mesclarDivergenciasPreservandoDescricaoPedido(
+          pedidoComValorCanonico as Record<string, unknown>,
+          divergencias as Record<string, unknown>,
+        )
       const pedidoAtualizado = { ...pedidoComValorCanonico, ...divMesclada, itens: itensSinc } as Pedido
       setPedidos(prev => prev.map(p => (p.id === id ? pedidoAtualizado : p)))
       setResetFilhos(prev => prev + 1)
       return pedidoAtualizado
     }
     const pedidoAtual = pedidos.find(p => p.id === id)
+    if (
+      campo === 'quantidade_volumes_pedido'
+      && valor != null
+      && typeof valor === 'object'
+      && 'unit' in (valor as object)
+      && 'quantity' in (valor as object)
+    ) {
+      const { unit, quantity } = valor as { unit: string; quantity: number }
+      const qtdEnviar = Math.max(0, Math.round(Number(quantity) || 0))
+      const replicarVol = opts?.replicar_em_itens ?? false
+      const updatedQtdRaw = await pedidoVirtualApi.editarCampo(id, 'quantidade_volumes_pedido', qtdEnviar, replicarVol)
+      let resultado = { ...updatedQtdRaw, quantidade_volumes_pedido: qtdEnviar } as Pedido
+      const tipoAtual = pedidoAtual?.tipo_volume_pedido ?? null
+      if (unit && unit !== tipoAtual) {
+        const updatedTipoRaw = await pedidoVirtualApi.editarCampo(id, 'tipo_volume_pedido', unit, replicarVol)
+        resultado = { ...updatedTipoRaw, quantidade_volumes_pedido: qtdEnviar, tipo_volume_pedido: unit } as Pedido
+      } else if (unit) {
+        resultado = { ...resultado, tipo_volume_pedido: unit }
+      }
+      setPedidos(prev => prev.map(p => (p.id === id ? resultado : p)))
+      atualizarCacheItensContextoPai(id, resultado, itensCarregadosRef)
+      setResetFilhos(prev => prev + 1)
+      return resultado
+    }
     // GTValorMoeda { currency, amount } → campos moeda_*_pedido armazenam apenas o código ISO (String)
     // O overlay tipo='moeda' envia objeto composto; extraímos só `currency` para campos de código.
     const CAMPOS_MOEDA_CODIGO = new Set(['moeda_pedido', 'moeda_cambio_pedido'])
     const isMoedaObj = valor != null && typeof valor === 'object' && 'currency' in (valor as object)
     // GTValorUnidade { unit, quantity } → extrai quantity, aplica conversão para KG em campos de peso
-    const FATOR_PARA_KG_PAI: Record<string, number> = { KG: 1, G: 0.001, TON: 1000, KGBR: 1 }
     const CAMPOS_PESO_PAI = new Set(['peso_liquido_total_pedido', 'peso_bruto_total_pedido'])
     // apenasUnidade: true — grava só a sigla (string), não quantity
-    const CAMPOS_UNIDADE_CODIGO_PAI = new Set(['unidade_comercializada_pedido'])
+    const CAMPOS_UNIDADE_CODIGO_PAI = new Set(['unidade_comercializada_pedido', 'tipo_volume_pedido'])
     const isUnidadePai = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
     const valorEnviarPaiBruto: unknown = isMoedaObj && CAMPOS_MOEDA_CODIGO.has(campo)
       ? (valor as { currency: string }).currency
@@ -5547,7 +7201,7 @@ export default function Pedidos() {
         : isUnidadePai
           ? (() => {
               const { unit, quantity } = valor as { unit: string; quantity: number }
-              return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
+              return CAMPOS_PESO_PAI.has(campo) ? quantidadeExibicaoParaKg(quantity, unit, mapaFatorParaKg) : quantity
             })()
           : valor
     const valorEnviarPaiBrutoNorm = isCampoLogisticaPedido(campo)
@@ -5558,28 +7212,52 @@ export default function Pedidos() {
       : valorEnviarPaiBrutoNorm
     // replicar_em_itens vem do checkbox "Aplicar a todos os itens" no popover
     // do pai (Decisão UX 2026-05-13). Default false — comportamento divergente.
-    // Exceção: id_workspace SEMPRE replica — item não pode ter workspace distinto.
-    const replicar = campo === 'id_workspace'
+    // Exceção: id_workspace e tipo_operacao SEMPRE replicam — sem checkbox no popover.
+    const replicar = campo === 'id_workspace' || campo === 'tipo_operacao'
       ? true
       : (opts?.replicar_em_itens ?? false)
     const updatedPedidoRaw = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai, replicar)
-    const updatedPedido = {
+    const valorPedidoAposSave = campo.startsWith('data_')
+      ? ((updatedPedidoRaw as Record<string, unknown>)[campo] as string | null | undefined) ?? valorEnviarPai
+      : valorEnviarPai
+    let updatedPedido = {
       ...updatedPedidoRaw,
-      [campo]: valorEnviarPai,
+      [campo]: valorPedidoAposSave,
     } as Pedido
+    // Trocar workspace atualiza parte espelhada (IMP→importador, EXP→exportador).
+    if (campo === 'id_workspace') {
+      const pai = pedidos.find(p => p.id === id)
+      const tipo = tipoOperacaoLista(pai ?? {})
+      const idWs = String(valorEnviarPai ?? '').trim()
+      const nomeWs = nomeLegivelWorkspace(idWs, workspacesMap, workspaceOpcoesLista)
+      if (nomeWs !== '—') {
+        if (tipo === 'importacao') {
+          updatedPedido = { ...updatedPedido, nome_importador: nomeWs }
+        } else if (tipo === 'exportacao') {
+          updatedPedido = { ...updatedPedido, nome_exportador: nomeWs }
+        }
+      }
+    }
     // Quando replicou, o servidor atualizou os itens filhos via updateMany.
     // ATUALIZA o cache local de itens com o novo valor (em vez de só invalidar
     // — invalidar sozinho exige refetch ao expandir e mantém flag stale).
     // Decisão UX 2026-05-13: refletir imediatamente nos itens em memória.
     if (replicar && isPropagavel(campo)) {
-      const patchItens = (lista: PedidoItem[]) =>
-        lista.map(i => aplicarPropagacaoPedidoNoItem(i, campo, valorEnviarPai))
+      const itensApi = updatedPedidoRaw.itens
       const itensCache = itensCarregadosRef.current.get(id) ?? []
-      if (itensCache.length > 0) {
-        itensCarregadosRef.current.set(id, patchItens(itensCache))
+      if (Array.isArray(itensApi) && itensApi.length > 0) {
+        const enriquecidos = itensApi.map(i => ({
+          ...i,
+          _p: montarContextoPaiItem(updatedPedido, i),
+        })) as PedidoItemEnriquecido[]
+        itensCarregadosRef.current.set(id, enriquecidos)
         setResetFilhos(prev => prev + 1)
-      } else {
-        itensCarregadosRef.current.delete(id)
+      } else if (itensCache.length > 0) {
+        itensCarregadosRef.current.set(
+          id,
+          itensCache.map(i => aplicarPropagacaoPedidoNoItem(i, campo, valorEnviarPai)),
+        )
+        setResetFilhos(prev => prev + 1)
       }
     }
     // Recalcula flags de divergência com o novo valor do pai. Necessário pra
@@ -5597,10 +7275,13 @@ export default function Pedidos() {
       const sinc = itensFallback.length > 0
         ? sincronizarItensPedido(itensFallback, updatedPedido)
         : { itens: itensFallback, divergencias: {} as Partial<Pedido> }
-      return { ...updatedPedido, itens: sinc.itens.length > 0 ? sinc.itens : p.itens, ...sinc.divergencias }
+      if (sinc.itens.length > 0) {
+        return montarPedidoComItensCarregados(updatedPedido, sinc.itens, sinc.divergencias)
+      }
+      return { ...updatedPedido, itens: p.itens, ...sinc.divergencias }
     }))
     return updatedPedido
-  }, [pedidos, colunasUsuario])
+  }, [pedidos, colunasUsuario, opcoesImportadoresExpLista, opcoesExportadoresImpLista, workspacesMap, workspaceOpcoesLista, mapaFatorParaKg, t])
 
   // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
   // SSOT: pedidoDivergencias.ts (shared) + getAlertavelKeys() em columnAlertConfig.ts
@@ -5631,7 +7312,12 @@ export default function Pedidos() {
   }
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
-  const handleEditarFilho = useCallback(async (id: string, campo: string, valor: unknown): Promise<PedidoItem> => {
+  const handleEditarFilho = useCallback(async (
+    id: string,
+    campo: string,
+    valor: unknown,
+    opts?: { replicar_em_itens?: boolean },
+  ): Promise<PedidoItem> => {
     // Localiza o pedido pai via cache de itens carregados (p.itens é sempre [] na list view)
     let pedidoId: string | undefined
     for (const [pId, itensCache] of itensCarregadosRef.current) {
@@ -5644,6 +7330,39 @@ export default function Pedidos() {
 
     if (campo === 'id_workspace' || campo === 'company_id') {
       throw new Error(t('pedido.lista.erro.workspace_somente_pedido', 'Workspace é definido no pedido e aplica-se a todos os itens.'))
+    }
+
+    // Moeda câmbio item: col.key = moeda_cambio_pedido; mapa.campo = moeda_cambio_item_pedido (espelha moeda_pedido→moeda_item).
+    if (campo === 'moeda_cambio_pedido' || campo === 'moeda_cambio_item_pedido') {
+      const moedaCodigo = extrairCodigoMoedaLista(valor)
+      if (!moedaCodigo) throw new Error(t('pedido.lista.erro.moeda_cambio_obrigatoria', 'Selecione uma moeda do câmbio.'))
+      const itemAtualMc = getItensCache().find(i => i.id === id)
+      let atualizadoMcRaw: PedidoItem
+      try {
+        atualizadoMcRaw = await pedidoItemApi.editarCampo(pedido.id, id, 'moeda_cambio_item_pedido', moedaCodigo)
+      } catch {
+        atualizadoMcRaw = await pedidoItemApi.atualizar(
+          pedido.id,
+          id,
+          { moeda_cambio_item_pedido: moedaCodigo } as Partial<PedidoItem>,
+        )
+      }
+      const atualizadoMc = {
+        ...(itemAtualMc ?? {}),
+        ...atualizadoMcRaw,
+        moeda_cambio_item_pedido: moedaCodigo,
+      } as PedidoItem
+      const enriquecidoMc: PedidoItemEnriquecido = {
+        ...atualizadoMc,
+        _p: montarContextoPaiItem(pedido, atualizadoMc),
+      }
+      const { itens: itensAposMc, divergencias: divMc } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoMc : i),
+        pedido,
+      )
+      itensCarregadosRef.current.set(pedido.id, itensAposMc)
+      setPedidos(prev => prev.map(p => p.id !== pedido.id ? p : { ...p, ...divMc, itens: itensAposMc }))
+      return itensAposMc.find(i => i.id === id) ?? enriquecidoMc
     }
 
     if (isCampoLogisticaPedido(campo)) {
@@ -5666,6 +7385,14 @@ export default function Pedidos() {
       return itemAtual
     }
 
+    if (campo === 'nome_importador') {
+      throw new Error(t('pedido.coluna_filho.mapa_nome_importador.tooltip_bloqueado'))
+    }
+
+    if (campo === 'nome_exportador') {
+      throw new Error(t('pedido.coluna_filho.mapa_nome_exportador.tooltip_bloqueado_cond'))
+    }
+
     if (campo === 'status') {
       const novoStatus = String(valor)
       const item = getItensCache().find(i => i.id === id)
@@ -5676,62 +7403,25 @@ export default function Pedidos() {
       } as PedidoItem
       const itensCache = getItensCache().map(i => i.id === id ? itemAtualizado : i)
       itensCarregadosRef.current.set(pedido.id, itensCache)
-      setPedidos(prev => prev.map(p => p.id !== pedido.id ? p : { ...p, itens: itensCache }))
-      // atualizarFilhoNoCache (TabelaVirtual) atualiza só esta linha — sem setResetFilhos
-      return itemAtualizado
-    }
-
-    // Campos do pedido pai → atualiza o pedido, não o item
-    if (CAMPOS_PAI_TEXTO.has(campo)) {
-      const pedidoAtualizado = await pedidoApi.atualizar(pedido.id, { [campo]: valor as string } as Partial<Pedido>)
-        .catch(() => {
-          if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
-          throw new Error(t('pedido.lista.erro.editar_campo_pedido', { campo }))
-        })
-      // _p completo construído a partir do pedidoAtualizado (itens crus de pedidos.itens não têm _p)
-      const novoPaiP = {
-        id: pedidoAtualizado.id,
-        id_workspace: pedidoAtualizado.id_workspace ?? null,
-        tipo_operacao: pedidoAtualizado.tipo_operacao,
-        nome_exportador: pedidoAtualizado.nome_exportador ?? null,
-        nome_importador: pedidoAtualizado.nome_importador ?? null,
-        nome_fabricante: pedidoAtualizado.nome_fabricante ?? null,
-        referencia_importador: pedidoAtualizado.referencia_importador ?? null,
-        referencia_exportador: pedidoAtualizado.referencia_exportador ?? null,
-        referencia_fabricante: pedidoAtualizado.referencia_fabricante ?? null,
-        numero_proforma: pedidoAtualizado.numero_proforma ?? null,
-        numero_invoice: pedidoAtualizado.numero_invoice ?? null,
-        incoterm: pedidoAtualizado.incoterm ?? null,
-        condicao_pagamento: pedidoAtualizado.condicao_pagamento ?? null,
-        data_emissao_pedido: pedidoAtualizado.data_emissao_pedido ?? null,
-        status: pedidoAtualizado.status,
-        moeda_pedido: (pedidoAtualizado as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
-      }
-      // Atualiza o pedido e re-enriquece os itens com o _p correto
-      setPedidos(prev => prev.map(p => {
-        if (p.id !== pedido.id) return p
-        return {
-          ...p,
-          ...pedidoAtualizado,
-          itens: p.itens?.map(i => ({ ...i, _p: novoPaiP })),
-        }
-      }))
-      const item = getItensCache().find(i => i.id === id)!
-      return { ...item, _p: novoPaiP } as PedidoItem
+      const sinc = sincronizarItensPedido(itensCache, pedido)
+      itensCarregadosRef.current.set(pedido.id, sinc.itens)
+      setPedidos(prev => prev.map(p => p.id !== pedido.id
+        ? p
+        : { ...p, itens: sinc.itens, ...sinc.divergencias }
+      ))
+      const retorno = sinc.itens.find(i => i.id === id)
+      if (!retorno) throw new Error(t('pedido.lista.erro.pedido_item_nao_localizado'))
+      return retorno
     }
 
     // valor_total_item retorna GTValorMoeda { currency, amount } → salva amount + moeda_item no item (por item)
     if (campo === 'valor_total_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
-      const itemAtualMv = getItensCache().find(i => i.id === id)
       const atualizadoMv = await pedidoItemApi.atualizar(pedido.id, id, {
         valor_total_item: mv.amount,
         moeda_item: mv.currency,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualMv) return { ...itemAtualMv, valor_total_item: mv.amount, moeda_item: mv.currency } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_valor_total_item'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_valor_total_item')))
       const enriquecidoMv: PedidoItemEnriquecido = {
         ...atualizadoMv,
         _p: {
@@ -5796,18 +7486,82 @@ export default function Pedidos() {
       return enriquecidoMv
     }
 
+    // valor_total_cambio_item_pedido — espelha valor_total_item: salva amount + moeda câmbio do item.
+    if (campo === 'valor_total_cambio_item_pedido' || campo === 'valor_total_cambio_pedido') {
+      let amount: number
+      let moedaCambio: string | null = null
+      if (valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
+        const mv = valor as { currency?: string; amount?: unknown }
+        amount = Number(mv.amount)
+        moedaCambio = extrairCodigoMoedaLista(mv.currency) ?? null
+      } else {
+        amount = Number(valor)
+      }
+      if (!Number.isFinite(amount) || amount < 0) {
+        throw new Error(t('pedido.lista.erro.editar_valor_total_cambio_item', 'Valor total do câmbio inválido.'))
+      }
+      const atualizadoVtc = await pedidoItemApi.atualizar(pedido.id, id, {
+        valor_total_cambio_item_pedido: amount,
+        ...(moedaCambio ? { moeda_cambio_item_pedido: moedaCambio } : {}),
+      } as Partial<PedidoItem>)
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_valor_total_cambio_item', 'Erro ao salvar valor total do câmbio.')))
+      const enriquecidoVtc: PedidoItemEnriquecido = {
+        ...atualizadoVtc,
+        _p: {
+          id: pedido.id,
+          id_workspace: pedido.id_workspace ?? null,
+          tipo_operacao: pedido.tipo_operacao,
+          nome_exportador: pedido.nome_exportador ?? null,
+          nome_importador: pedido.nome_importador ?? null,
+          nome_fabricante: pedido.nome_fabricante ?? null,
+          referencia_importador: pedido.referencia_importador ?? null,
+          referencia_exportador: pedido.referencia_exportador ?? null,
+          referencia_fabricante: pedido.referencia_fabricante ?? null,
+          numero_proforma: pedido.numero_proforma ?? null,
+          numero_invoice: pedido.numero_invoice ?? null,
+          incoterm: pedido.incoterm ?? null,
+          condicao_pagamento: pedido.condicao_pagamento ?? null,
+          data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+          status: pedido.status,
+          moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+          moeda_cambio_pedido: pedido.moeda_cambio_pedido ?? null,
+        },
+      }
+      const { itens: itensAposEdicaoVtc, divergencias: divergenciasVtc } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoVtc : i),
+        pedido,
+      )
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoVtc)
+
+      const moedasCambioContrib = new Set(
+        itensAposEdicaoVtc
+          .filter(i => Number(i.valor_total_cambio_item_pedido ?? 0) > 0 && i.moeda_cambio_item_pedido)
+          .map(i => i.moeda_cambio_item_pedido as string)
+      )
+      const valorTotalCambioLocal = moedasCambioContrib.size > 1
+        ? null
+        : itensAposEdicaoVtc.reduce((s, i) => s + (Number(i.valor_total_cambio_item_pedido) || 0), 0)
+
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return {
+          ...p,
+          ...divergenciasVtc,
+          itens: itensAposEdicaoVtc,
+          valor_total_cambio_pedido: valorTotalCambioLocal,
+        }
+      }))
+      return enriquecidoVtc
+    }
+
     // moeda_pedido editado a partir de uma linha FILHO (tipo='select' → valor é string pura, ex: 'USD').
     // Salva no campo moeda_item do item (mapeamento: moeda_pedido → moeda_item).
     if (campo === 'moeda_pedido') {
       const moedaCodigo = String(valor)
-      const itemAtualMp = getItensCache().find(i => i.id === id)
       const atualizadoMp = await pedidoItemApi.atualizar(pedido.id, id, {
         moeda_item: moedaCodigo,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualMp) return { ...itemAtualMp, moeda_item: moedaCodigo } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_moeda_item'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_moeda_item')))
       const enriquecidoMp: PedidoItemEnriquecido = {
         ...atualizadoMp,
         _p: {
@@ -5849,14 +7603,10 @@ export default function Pedidos() {
     // Precisamos extrair apenas o currency e salvar no campo moeda_item.
     if (campo === 'moeda_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
-      const itemAtualMi = getItensCache().find(i => i.id === id)
       const atualizadoMi = await pedidoItemApi.atualizar(pedido.id, id, {
         moeda_item: mv.currency,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualMi) return { ...itemAtualMi, moeda_item: mv.currency } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_moeda_item_obj'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_moeda_item_obj')))
       const enriquecidoMi: PedidoItemEnriquecido = {
         ...atualizadoMi,
         _p: {
@@ -5894,18 +7644,87 @@ export default function Pedidos() {
       return enriquecidoMi
     }
 
+    if (campo === 'tipo_volume_item' && valor != null && typeof valor === 'object' && 'unit' in (valor as object)) {
+      const unit = (valor as { unit: string }).unit
+      let pedidoAtualizado = pedido
+      const tipoAtualPedido = pedido.tipo_volume_pedido ?? null
+      if (unit && unit !== tipoAtualPedido) {
+        const updatedTipoRaw = await pedidoVirtualApi.editarCampo(pedido.id, 'tipo_volume_pedido', unit)
+        pedidoAtualizado = { ...updatedTipoRaw, tipo_volume_pedido: unit } as Pedido
+      }
+      const atualizadoTv = await pedidoItemApi.editarCampo(pedido.id, id, 'tipo_volume_item', unit)
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_tipo_volume_item', 'Erro ao editar tipo de volume do item')))
+      const enriquecidoTv: PedidoItemEnriquecido = {
+        ...atualizadoTv,
+        _p: montarContextoPaiItem(pedidoAtualizado, atualizadoTv),
+      }
+      const { itens: itensAposEdicaoTv, divergencias: divergenciasTv } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoTv : i),
+        pedidoAtualizado,
+      )
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoTv)
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return { ...pedidoAtualizado, ...divergenciasTv, itens: itensAposEdicaoTv }
+      }))
+      setResetFilhos(prev => prev + 1)
+      return enriquecidoTv
+    }
+
+    if (
+      campo === 'quantidade_volumes_pedido'
+      && valor != null
+      && typeof valor === 'object'
+      && 'unit' in (valor as object)
+      && 'quantity' in (valor as object)
+    ) {
+      const { unit, quantity } = valor as { unit: string; quantity: number }
+      const qtdEnviar = Math.max(0, Math.round(Number(quantity) || 0))
+      const updatedQtdRaw = await pedidoVirtualApi.editarCampo(pedido.id, 'quantidade_volumes_pedido', qtdEnviar)
+      let pedidoAtualizado = { ...updatedQtdRaw, quantidade_volumes_pedido: qtdEnviar } as Pedido
+      const tipoAtualPedido = pedido.tipo_volume_pedido ?? null
+      if (unit && unit !== tipoAtualPedido) {
+        const updatedTipoRaw = await pedidoVirtualApi.editarCampo(pedido.id, 'tipo_volume_pedido', unit)
+        pedidoAtualizado = {
+          ...updatedTipoRaw,
+          quantidade_volumes_pedido: qtdEnviar,
+          tipo_volume_pedido: unit,
+        } as Pedido
+      } else if (unit) {
+        pedidoAtualizado = { ...pedidoAtualizado, tipo_volume_pedido: unit }
+      }
+      const itemAtualQv = getItensCache().find(i => i.id === id)
+      const tipoItemAtual = itemAtualQv?.tipo_volume_item ?? null
+      let atualizadoQv = itemAtualQv!
+      if (unit && unit !== tipoItemAtual) {
+        atualizadoQv = await pedidoItemApi.editarCampo(pedido.id, id, 'tipo_volume_item', unit)
+          .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_tipo_volume_item', 'Erro ao editar tipo de volume do item')))
+      }
+      const enriquecidoQv: PedidoItemEnriquecido = {
+        ...atualizadoQv,
+        _p: montarContextoPaiItem(pedidoAtualizado, atualizadoQv),
+      }
+      const { itens: itensAposEdicaoQv, divergencias: divergenciasQv } = sincronizarItensPedido(
+        getItensCache().map(i => i.id === id ? enriquecidoQv : i),
+        pedidoAtualizado,
+      )
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicaoQv)
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return { ...pedidoAtualizado, ...divergenciasQv, itens: itensAposEdicaoQv }
+      }))
+      setResetFilhos(prev => prev + 1)
+      return enriquecidoQv
+    }
+
     // unidade_comercializada_item: o editor tipo 'unidade' retorna
     // GTValorUnidade { unit, quantity }. Extraímos apenas o unit.
     if (campo === 'unidade_comercializada_item' && valor != null && typeof valor === 'object' && 'unit' in (valor as object)) {
       const uv = valor as { unit: string; quantity: number }
-      const itemAtualUi = getItensCache().find(i => i.id === id)
       const atualizadoUi = await pedidoItemApi.atualizar(pedido.id, id, {
         unidade_comercializada_item: uv.unit,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualUi) return { ...itemAtualUi, unidade_comercializada_item: uv.unit } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_unidade_item'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_unidade_item')))
       const enriquecidoUi: PedidoItemEnriquecido = {
         ...atualizadoUi,
         _p: {
@@ -5951,15 +7770,11 @@ export default function Pedidos() {
     // (catch DEV mascarava), resultando em "USD —" no front (NaN render).
     if (campo === 'valor_por_unidade_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
-      const itemAtualVu = getItensCache().find(i => i.id === id)
       const atualizadoVu = await pedidoItemApi.atualizar(pedido.id, id, {
         valor_por_unidade_item: mv.amount,
         moeda_item: mv.currency,
       } as Partial<PedidoItem>)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualVu) return { ...itemAtualVu, valor_por_unidade_item: mv.amount, moeda_item: mv.currency } as PedidoItem
-          throw new Error(t('pedido.lista.erro.editar_valor_unidade_item'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_valor_unidade_item')))
       const enriquecidoVu: PedidoItemEnriquecido = {
         ...atualizadoVu,
         _p: {
@@ -6019,8 +7834,8 @@ export default function Pedidos() {
       return enriquecidoVu
     }
 
-    // quantidade_pronta_total_item_pedido → endpoint dedicado PATCH /pronta
-    if (campo === 'quantidade_pronta_total_item_pedido') {
+    // quantidade_pronta_item → endpoint dedicado PATCH /pronta
+    if (campo === 'quantidade_pronta_item') {
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
       const qtd = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
       const novaUnidade = isUnidade ? (valor as { unit: string }).unit : undefined
@@ -6032,16 +7847,11 @@ export default function Pedidos() {
       // Mesmo padrão aplicado a peso/cubagem: unidade do item deve persistir.
       if (unidadeMudou) {
         await pedidoItemApi.atualizar(pedido.id, id, { unidade_comercializada_item: novaUnidade } as Partial<PedidoItem>)
-          .catch(() => {
-            if (!import.meta.env.DEV) throw new Error(t('pedido.lista.erro.atualizar_unidade_item'))
-          })
+          .catch((err) => relancarErroApi(err, t('pedido.lista.erro.atualizar_unidade_item')))
       }
 
       const atualizadoPronta = await pedidoItemApi.atualizarPronta(pedido.id, id, qtd)
-        .catch(() => {
-          if (import.meta.env.DEV && itemAtualPronta) return { ...itemAtualPronta, quantidade_pronta_total_item_pedido: qtd, unidade_comercializada_item: novaUnidade ?? itemAtualPronta.unidade_comercializada_item } as PedidoItem
-          throw new Error(t('pedido.lista.erro.atualizar_qtd_pronta'))
-        })
+        .catch((err) => relancarErroApi(err, t('pedido.lista.erro.atualizar_qtd_pronta')))
       // Garante que a unidade persistida via PUT acima esteja no objeto retornado
       // (atualizarPronta devolve apenas o item — pode não refletir a unidade nova).
       const itemComUnidade: PedidoItem = unidadeMudou && novaUnidade
@@ -6082,7 +7892,7 @@ export default function Pedidos() {
           ...p,
           ...divergenciasPronta,
           itens: itensAposEdicao,
-          quantidade_pronta_itens_pedido_total: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0),
+          quantidade_pronta_itens_pedido_total: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_pronta_item) || 0), 0),
         }
       }))
       return enriquecidoPronta
@@ -6167,14 +7977,8 @@ export default function Pedidos() {
       // Datas replicáveis — PATCH /itens/:id/campo (PUT strict não aceita data_*).
       if (campo.startsWith('data_')) {
         const isoData = normalizarDataISO(valor)
-        const itemAtualData = getItensCache().find(i => i.id === id)
         const atualizadoData = await pedidoItemApi.editarCampo(pedido.id, id, campo, isoData)
-          .catch(() => {
-            if (import.meta.env.DEV && itemAtualData) {
-              return { ...itemAtualData, [campo]: isoData } as PedidoItem
-            }
-            throw new Error(t('pedido.lista.erro.editar_campo', { campo }))
-          })
+          .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_campo', { campo })))
         const enriquecidoData: PedidoItemEnriquecido = {
           ...atualizadoData,
           _p: montarContextoPaiItem(pedido, atualizadoData),
@@ -6194,19 +7998,23 @@ export default function Pedidos() {
       // GTValorUnidade { unit, quantity } → extrai quantity para campos numéricos + salva unidade
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
       // Fatores de conversão para kg (todos os campos de peso são persistidos em kg)
-      const FATOR_PARA_KG: Record<string, number> = { 'KG': 1, 'G': 0.001, 'TON': 1000, 'KGBR': 1 }
       const CAMPOS_PESO_ITEM = new Set(['peso_liquido_unitario', 'peso_bruto_unitario'])
-      const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo)
+      const valorFinal: unknown = (
+        campo === 'valor_total_cambio_item_pedido' || campo === 'valor_total_cambio_pedido'
+      ) && valor != null && typeof valor === 'object' && 'currency' in (valor as object)
+        ? Number((valor as { amount?: unknown }).amount)
+        : CAMPOS_NUMERICOS_ITEM.has(campo)
         ? (() => {
             const qty = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
             if (CAMPOS_PESO_ITEM.has(campo) && isUnidade) {
               const unit = (valor as { unit: string }).unit
-              return qty * (FATOR_PARA_KG[unit] ?? 1)
+              return quantidadeExibicaoParaKg(qty, unit, mapaFatorParaKg)
             }
             return qty
           })()
         : valor
-      payload = { [campo]: valorFinal } as Partial<PedidoItem>
+      const chavePayload = campo === 'valor_total_cambio_pedido' ? 'valor_total_cambio_item_pedido' : campo
+      payload = { [chavePayload]: valorFinal } as Partial<PedidoItem>
       if (isUnidade && !CAMPOS_UNIDADE_FIXA_ITEM.has(campo)) {
         // Salva a unidade comercializada junto com a quantidade (apenas campos com unidade variável)
         ;(payload as Record<string, unknown>).unidade_comercializada_item = (valor as { unit: string }).unit
@@ -6230,14 +8038,8 @@ export default function Pedidos() {
       }
     }
 
-    const itemAtual = getItensCache().find(i => i.id === id)
     const atualizado = await pedidoItemApi.atualizar(pedido.id, id, payload)
-      .catch(() => {
-        if (import.meta.env.DEV) {
-          if (itemAtual) return { ...itemAtual, ...payload } as PedidoItem
-        }
-        throw new Error(t('pedido.lista.erro.editar_campo', { campo }))
-      })
+      .catch((err) => relancarErroApi(err, t('pedido.lista.erro.editar_campo', { campo })))
 
     // Persiste o total do pedido pai no servidor (fire-and-forget) quando um campo de peso muda
     if (campo === 'peso_liquido_unitario') {
@@ -6269,15 +8071,16 @@ export default function Pedidos() {
         ...divergencias,
         descricao_item: p.descricao_item,
         itens: itensAposEdicao,
-        quantidade_total_pedido: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
+        quantidade_total_pedido: somaQuantidadeTotalPedidoLocal(itensAposEdicao),
         quantidade_transferida_total:    itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido)    || 0), 0),
-        peso_liquido_total_pedido:       itensAposEdicao.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0), 0),
-        peso_bruto_total_pedido:         itensAposEdicao.reduce((s, i) => s + (Number(i.peso_bruto_unitario)  || 0), 0),
-        cubagem_total_pedido:            itensAposEdicao.reduce((s, i) => s + (Number(i.cubagem_unitaria)     || 0), 0),
+        peso_liquido_total_pedido:       somaPesoLiquidoItensLista(itensAposEdicao),
+        peso_bruto_total_pedido:         somaPesoBrutoItensLista(itensAposEdicao),
+        cubagem_total_pedido:            somaCubagemItensLista(itensAposEdicao),
+        valor_total_pedido:              somaValorTotalPedidoLocal(itensAposEdicao),
       }
     }))
     return itensAposEdicao.find(i => i.id === id) ?? enriquecido
-  }, [pedidos])
+  }, [pedidos, handleEditar, mapaFatorParaKg, t])
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   function montarPedidoComItensCarregados(
@@ -6289,11 +8092,11 @@ export default function Pedidos() {
       ...p,
       ...divergencias,
       itens: itensComAlertas,
-      quantidade_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_inicial_pedido) || 0), 0),
+      quantidade_total_pedido: somaQuantidadeTotalPedidoLocal(itensComAlertas),
       quantidade_transferida_total: itensComAlertas.reduce((s, i) => s + (Number(i.quantidade_transferida_pedido) || 0), 0),
-      peso_liquido_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0), 0),
-      peso_bruto_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.peso_bruto_unitario) || 0), 0),
-      cubagem_total_pedido: itensComAlertas.reduce((s, i) => s + (Number(i.cubagem_unitaria) || 0), 0),
+      peso_liquido_total_pedido: somaPesoLiquidoItensLista(itensComAlertas),
+      peso_bruto_total_pedido: somaPesoBrutoItensLista(itensComAlertas),
+      cubagem_total_pedido: somaCubagemItensLista(itensComAlertas),
     }
   }
 
@@ -6307,9 +8110,14 @@ export default function Pedidos() {
     // injeta o `_colunas_usuario` correto em cada item (GET /:id/itens + init),
     // então só preservamos o que veio da rede via spread `...item`.
     // Init e paginação já incluem itens no pedido. Só busca via API se não vieram carregados.
-    const rawItens = (pedido.itens?.length ?? 0) > 0
-      ? pedido.itens
-      : await pedidoItemApi.listar(pedido.id)
+    // Após "Aplicar a todos os itens", itensCarregadosRef já tem os valores
+    // propagados — priorizar o ref evita filhosCache vazio no resetCacheFilhos.
+    const itensEmRef = itensCarregadosRef.current.get(pedido.id)
+    const rawItens = (itensEmRef?.length ?? 0) > 0
+      ? itensEmRef
+      : (pedido.itens?.length ?? 0) > 0
+        ? pedido.itens
+        : await pedidoItemApi.listar(pedido.id)
     const itensEnriquecidos = rawItens.map(item => ({
       ...item,
       _p: montarContextoPaiItem(pedido, item),
@@ -6347,10 +8155,29 @@ export default function Pedidos() {
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
-    pedidoConfigApi.salvarPreferenciaUsuarioColunaPedido({
-      colunas_visiveis: prefs.colunas_visiveis,
-    }).catch(() => { /* silent — preferências ficam localmente */ })
-  }, [])
+    if (painelListaAtualId) {
+      persistirPainelAtual({
+        preferencias: prefs,
+        abaAtiva,
+        sortCampo,
+        sortDir,
+        busca,
+        filtrosAtivos,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      }, { imediato: true })
+    }
+  }, [
+    painelListaAtualId,
+    persistirPainelAtual,
+    abaAtiva,
+    sortCampo,
+    sortDir,
+    busca,
+    filtrosAtivos,
+    cardsVisiveis,
+    periodoCards,
+  ])
 
   // ── Ações em lote ─────────────────────────────────────────────────────────────
 
@@ -6541,12 +8368,26 @@ export default function Pedidos() {
         )
       })()}
 
-      {/* ── Tabela virtual ── */}
-      <div className="lp-tabela-wrapper">
+      {/* ── Tabela virtual (painéis + status na mesma faixa do chrome) ── */}
+      <div className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada">
+        <div className="lp-tabela-chrome">
+          <PedidosListaFaixaNavegacao
+            paineis={paineisLista}
+            painelAtualId={painelListaAtualId}
+            setPaineis={setPaineisLista}
+            setPainelAtualId={setPainelListaAtualId}
+            onTrocarPainel={handleTrocarPainelLista}
+            onCriarPainel={handleCriarPainelLista}
+            carregando={carregandoPaineisLista}
+            abas={abas}
+            abaAtiva={abaAtiva}
+            onMudarAba={handleMudarAba}
+          />
         <TabelaVirtualGlobal<Pedido, PedidoItem>
           imperativeRef={tabelaRef}
           dados={pedidosFiltrados}
           colunas={colunasComUsuario}
+          colunasSeletor={colunasSeletorLista}
           itemId={pedidoItemId}
 
           mapaColunasFilho={mapaColunasFilho}
@@ -6562,10 +8403,6 @@ export default function Pedidos() {
           onMudarPagina={handleMudarPagina}
           labelPai={[t('pedido.barra.label_pedido_one'), t('pedido.barra.label_pedido_other')]}
           totalFilhos={totalItensBanco}
-
-          abas={abas}
-          abaAtiva={abaAtiva}
-          onMudarAba={handleMudarAba}
 
           acoes={acoesPai}
           acoesExportacao={acoesExportacao}
@@ -6624,10 +8461,14 @@ export default function Pedidos() {
           permiteReplicacaoPaiEmItens={podeEditarLista ? (campo) => {
             const COLUNAS_SEM_REPLICACAO = new Set([
               'id_workspace', // replicação automática — sem checkbox
+              'tipo_operacao', // sempre replica — sem checkbox
+              'nome_importador', // IMP: workspace; EXP: fornecedor — sem checkbox
+              'nome_exportador', // EXP: workspace; IMP: fornecedor — sem checkbox
               'numero_pedido',
               'valor_total_pedido',
               'valor_por_unidade_item',
               'valor_total_cambio_pedido',
+              // moeda_cambio_pedido: AGORA replicável — mostra checkbox "Aplicar a todos os itens"
               'quantidade_total_pedido',
               'saldo_itens_do_pedido',
               'quantidade_transferida_total',
@@ -6638,8 +8479,8 @@ export default function Pedidos() {
             return !COLUNAS_SEM_REPLICACAO.has(campo)
           } : undefined}
           camposEditaveisFilhos={camposEditaveisFilhosComCustom}
-          onEditarFilho={podeEditarLista ? async (id: string, campo: string, valor: unknown) => {
-            const resultado = await handleEditarFilho(id, campo, valor)
+          onEditarFilho={podeEditarLista ? async (id: string, campo: string, valor: unknown, opts?: { replicar_em_itens?: boolean }) => {
+            const resultado = await handleEditarFilho(id, campo, valor, opts)
             for (const [pId, itensCache] of itensCarregadosRef.current) {
               if (itensCache.some(i => i.id === id)) {
                 setPedidoFocoId(prev => (prev === pId ? null : prev))
@@ -6717,6 +8558,7 @@ export default function Pedidos() {
 
           ariaLabel={t('pedido.lista.aria_lista_pedidos')}
         />
+        </div>
       </div>
 
       {/* ── Modal Criar Novo Pedido (wizard 2 passos) ── */}
@@ -6841,8 +8683,14 @@ export default function Pedidos() {
             for (const p of pedidos) {
               if (todosIds.has(p.id) && !idsPedidosSelecionados.has(p.id)) resultado.push(p)
             }
-            return resultado
+            // Hidrata itens do cache da lista (pedido.itens vem vazio na view virtual)
+            return resultado.map(p => ({
+              ...p,
+              itens: itensCarregadosRef.current.get(p.id) ?? p.itens ?? [],
+            }))
           })()}
+          itens={itensSelecionados}
+          todosPedidos={pedidos}
           itensSelecionadosIds={itensSelecionados.length > 0 ? itensSelecionados.map(i => i.id) : undefined}
           onFechar={() => setModalTransferirAberto(false)}
           onConcluido={() => {

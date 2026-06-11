@@ -5,7 +5,6 @@ import { useCarregarTipoUsuario } from './hooks/use-carregar-tipo-usuario'
 import { ConfiguradorRoute } from './routing/guards'
 import { NavigateComPrefixo } from './routing/NavigateComPrefixo'
 import { NavigateDestinoPosAutenticacao, TelaCarregandoPorteiro } from './routing/NavigateDestinoPosAutenticacao'
-import { RedirecionarConviteClerkTicket } from './routing/redirecionar-convite-clerk-ticket'
 import { useDestinoPosAutenticacao } from './hooks/use-destino-pos-autenticacao'
 import { ROTAS as ROTAS_POS_AUTH } from './routing/destino-pos-autenticacao'
 import { useServerHealth } from './hooks/use-server-health'
@@ -199,11 +198,11 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
     return <TelaCarregandoPorteiro />
   }
 
-  if (isSignedIn) {
-    return <NavigateDestinoPosAutenticacao replace />
-  }
-
-  return <RedirecionarConviteClerkTicket>{children}</RedirecionarConviteClerkTicket>
+  return isSignedIn ? (
+    <NavigateDestinoPosAutenticacao replace />
+  ) : (
+    <>{children}</>
+  )
 }
 
 /**
@@ -383,6 +382,11 @@ export default function App() {
         {/* Produtos — rotas canônicas (sem prefixo /produto/, ver
             documentos-tecnicos/arquitetura/rotas-convencao.md) */}
         <Route path="/simula-custo/*" element={<ProtectedRoute><ProductErrorBoundary name="SimulaCusto"><React.Suspense fallback={<ProductLoading />}><SimulaCustoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        {/* Acesso aos processos do workspace — lista/kanban geral + detalhe.
+            /acesso-processos          → lista geral (Lista/Kanban)
+            /acesso-processos/:id/...  → detalhe de um processo especifico */}
+        <Route path="/acesso-processos/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        {/* /processo/* mantido como redirect legado pra back-compat */}
         <Route path="/processo/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-frete-internacional/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
@@ -394,6 +398,7 @@ export default function App() {
         <Route path="/produto/simula-custo/*" element={<NavigateComPrefixo de="/produto/simula-custo" para="/simula-custo" />} />
         <Route path="/produto/processo/*" element={<NavigateComPrefixo de="/produto/processo" para="/processo" />} />
         <Route path="/produto/bid-frete/*" element={<NavigateComPrefixo de="/produto/bid-frete" para="/bid-frete" />} />
+        <Route path="/produto/bid-frete-internacional/*" element={<NavigateComPrefixo de="/produto/bid-frete-internacional" para="/bid-frete" />} />
         <Route path="/produto/bid-cambio/*" element={<NavigateComPrefixo de="/produto/bid-cambio" para="/bid-cambio" />} />
         <Route path="/produto/pedido/*" element={<NavigateComPrefixo de="/produto/pedido" para="/pedido" />} />
         <Route path="/produto/smart-read/*" element={<NavigateComPrefixo de="/produto/smart-read" para="/smart-read" />} />

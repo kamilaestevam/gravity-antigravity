@@ -20,14 +20,18 @@ vi.mock('@nucleo/modal-tabela-unidades', () => ({
 }))
 
 import {
+  buildMapaFatorParaKg,
   filtrarUnidadesPorCategorias,
+  formatarBadgeUnidadeCelula,
   formatarRotuloUnidade,
+  kgParaQuantidadeExibicao,
+  quantidadeExibicaoParaKg,
 } from '../../../servicos-global/produto/pedido/client/src/shared/useUnidadesPedido'
 
 const UNIDADES_FAKE = [
-  { codigo_unidade: 'KG',  nome_unidade: 'Quilograma',          tipo_unidade: 'peso' as const,        ativo_unidade: true },
-  { codigo_unidade: 'G',   nome_unidade: 'Grama',               tipo_unidade: 'peso' as const,        ativo_unidade: true },
-  { codigo_unidade: 'TON', nome_unidade: 'Tonelada',            tipo_unidade: 'peso' as const,        ativo_unidade: true },
+  { codigo_unidade: 'KG',  nome_unidade: 'Quilograma',          tipo_unidade: 'peso' as const,        ativo_unidade: true, fator_para_kg_unidade: 1 },
+  { codigo_unidade: 'G',   nome_unidade: 'Grama',               tipo_unidade: 'peso' as const,        ativo_unidade: true, fator_para_kg_unidade: 0.001 },
+  { codigo_unidade: 'TON', nome_unidade: 'Tonelada',            tipo_unidade: 'peso' as const,        ativo_unidade: true, fator_para_kg_unidade: 1000 },
   { codigo_unidade: 'CM',  nome_unidade: 'Centímetro',          tipo_unidade: 'comprimento' as const, ativo_unidade: true },
   { codigo_unidade: 'M',   nome_unidade: 'Metro',               tipo_unidade: 'comprimento' as const, ativo_unidade: true },
   { codigo_unidade: 'CM2', nome_unidade: 'Centímetro quadrado', tipo_unidade: 'area' as const,        ativo_unidade: true },
@@ -89,5 +93,34 @@ describe('filtrarUnidadesPorCategorias', () => {
     const r = filtrarUnidadesPorCategorias(UNIDADES_FAKE, ['peso', 'contagem'])
     expect(r).toHaveLength(5)
     expect(r.map((u) => u.sigla).sort()).toEqual(['G', 'KG', 'PC', 'TON', 'UN'])
+  })
+})
+
+describe('formatarBadgeUnidadeCelula', () => {
+  it('exibe siglas em maiúsculas', () => {
+    expect(formatarBadgeUnidadeCelula('kg')).toBe('KG')
+    expect(formatarBadgeUnidadeCelula('ton')).toBe('TON')
+  })
+
+  it('M3 vira M³ no badge', () => {
+    expect(formatarBadgeUnidadeCelula('m3')).toBe('M³')
+  })
+})
+
+describe('buildMapaFatorParaKg', () => {
+  it('mapa só com unidades peso que têm fator', () => {
+    expect(buildMapaFatorParaKg(UNIDADES_FAKE)).toEqual({ KG: 1, G: 0.001, TON: 1000 })
+  })
+})
+
+describe('conversão peso SSOT', () => {
+  const mapa = { KG: 1, G: 0.001, TON: 1000 }
+
+  it('quantidadeExibicaoParaKg: 1500 G → 1.5 KG', () => {
+    expect(quantidadeExibicaoParaKg(1500, 'G', mapa)).toBeCloseTo(1.5)
+  })
+
+  it('kgParaQuantidadeExibicao: 2.75 KG → 2750 G', () => {
+    expect(kgParaQuantidadeExibicao(2.75, 'G', mapa)).toBeCloseTo(2750)
   })
 })

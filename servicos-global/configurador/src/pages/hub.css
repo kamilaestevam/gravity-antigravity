@@ -119,6 +119,33 @@ body.light-theme .hb-topbar {
   color: rgba(129, 140, 248, 0.65);
 }
 
+/* Marca esquerda — paridade Store (hexágono + Gravity + módulo, sem badge) */
+.hb-topbar-marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.hb-topbar-marca__nome {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--hb-text, #f1f5f9);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+body.light-theme .hb-topbar-marca__nome {
+  color: #1e293b;
+}
+
+.hb-topbar--hub .hb-topbar-label {
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  color: rgba(148, 163, 184, 0.85);
+}
+
 .hb-topbar-right {
   display: flex;
   align-items: center;
@@ -780,6 +807,285 @@ body.light-theme .hb-prod-icon {
 .hb-etapa--cur  { background: var(--hb-accent); box-shadow: 0 0 5px var(--hb-accent); }
 .hb-etapa--pend { background: var(--hb-muted2); }
 
+/* ── Painel equilibrado Core (produtos + processos) ─────────────────────── */
+.hb-core-painel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.hb-core-produtos {
+  min-width: 0;
+}
+
+.hb-core-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* Processos — painel lateral compacto */
+.hb-proc-painel {
+  background: var(--hb-surface);
+  border: 1px solid var(--hb-border);
+  border-radius: 12px;
+  padding: 1rem 1.125rem;
+}
+
+.hb-proc-painel .hb-proc-hero-head {
+  margin-bottom: 0.75rem;
+}
+
+.hb-proc-painel .hb-proc-hero-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.375rem;
+}
+
+.hb-proc-painel .hb-proc-novo-btn {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+}
+
+.hb-proc-list--painel {
+  gap: 0.375rem;
+}
+
+.hb-proc-item--painel {
+  flex-direction: row;
+  align-items: center;
+  padding: 0.625rem 0.75rem;
+  gap: 0.625rem;
+}
+
+.hb-proc-item--painel:hover {
+  transform: translateX(3px);
+}
+
+.hb-proc-item--painel .hb-proc-num {
+  min-width: 88px;
+  font-size: 0.6875rem;
+}
+
+.hb-proc-item--painel .hb-proc-name {
+  font-size: 0.75rem;
+}
+
+.hb-proc-item--painel .hb-proc-sub {
+  font-size: 0.625rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hb-proc-plugins--inline {
+  margin-top: 0.25rem;
+  gap: 0.25rem;
+}
+
+.hb-proc-item--painel .hb-proc-plugin {
+  font-size: 0.5625rem;
+  padding: 0.1rem 0.375rem;
+}
+
+.hb-proc-item--painel .hb-proc-badge {
+  font-size: 0.5625rem;
+  padding: 0.15rem 0.45rem;
+  flex-shrink: 0;
+}
+
+.hb-proc-item--painel .hb-etapas {
+  display: none;
+}
+
+.hb-activity--painel {
+  background: var(--hb-surface);
+  border: 1px solid var(--hb-border);
+  border-radius: 12px;
+  padding: 1rem 1.125rem;
+}
+
+.hb-activity--painel .hb-activity-item {
+  padding: 0.5rem 0;
+}
+
+/* ── Process hero (legado / full-width) ─────────────────────────────────── */
+.hb-proc-hero {
+  background: var(--hb-surface);
+  border: 1px solid var(--hb-accent-b);
+  border-radius: var(--hb-radius);
+  padding: 1.25rem 1.5rem 1.5rem;
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.06), 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.hb-proc-hero-head {
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.hb-proc-hero-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.hb-proc-hero-desc {
+  font-size: 0.8125rem;
+  color: var(--hb-muted);
+  margin: 0.35rem 0 0;
+  max-width: 52ch;
+  line-height: 1.5;
+}
+
+.hb-proc-hero-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.hb-proc-novo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid var(--hb-accent-b);
+  background: var(--hb-accent-d);
+  color: #818cf8;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--hb-transition);
+}
+
+.hb-proc-novo-btn:hover {
+  background: rgba(99, 102, 241, 0.22);
+  transform: translateY(-1px);
+}
+
+.hb-proc-list--hero {
+  gap: 0.625rem;
+}
+
+.hb-proc-item--hero {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.hb-proc-item--hero:hover {
+  transform: translateY(-2px);
+}
+
+.hb-proc-item-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  width: 100%;
+}
+
+.hb-proc-item-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.hb-proc-item-top .hb-proc-num {
+  min-width: auto;
+  flex: 1;
+}
+
+.hb-proc-plugins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.hb-proc-plugin {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+}
+
+.hb-proc-plugin--ok {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.hb-proc-plugin--warn {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.hb-proc-plugin--pendente {
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--hb-muted);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.hb-etapas--hero {
+  align-self: flex-end;
+  gap: 4px;
+}
+
+.hb-etapas--hero .hb-etapa {
+  width: 8px;
+  height: 8px;
+}
+
+/* ── Faixa secundária: produtos (plugins) ───────────────────────────────── */
+.hb-two-col--secundaria {
+  margin-top: 0.25rem;
+}
+
+.hb-produtos-secundarios {
+  opacity: 0.95;
+}
+
+.hb-section-heading--muted {
+  font-size: 0.9375rem;
+  color: var(--hb-muted);
+  font-weight: 600;
+}
+
+.hb-products-grid--compact {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.625rem;
+}
+
+.hb-prod-card--compact {
+  padding: 0.875rem 1rem;
+}
+
+.hb-prod-card--compact .hb-prod-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hb-prod-zonas--compact .hb-prod-zone {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.hb-prod-zonas--compact .hb-prod-zone + .hb-prod-zone {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--hb-border);
+}
+
 /* ── Gabi strip ───────────────────────────────────────────────────────────── */
 .hb-gabi {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
@@ -870,6 +1176,7 @@ body.light-theme .hb-prod-icon {
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
   .hb-two-col { grid-template-columns: 1fr; }
+  .hb-core-painel { grid-template-columns: 1fr; }
   .hb-kpi-row { grid-template-columns: repeat(2, 1fr); }
 }
 

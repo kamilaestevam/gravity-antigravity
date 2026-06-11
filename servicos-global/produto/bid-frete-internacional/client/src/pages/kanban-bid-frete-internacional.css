@@ -160,3 +160,31 @@
   font-size: 0.67rem;
   color: var(--text-muted, #64748b);
 }
+
+/* Toggle lista/kanban — visão fornecedor */
+.vf-lista-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border-radius: var(--radius-md, 8px);
+  background: var(--bg-elevated, #334155);
+  flex-shrink: 0;
+}
+.vf-lista-toggle__btn {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  transition: all 0.15s;
+}
+.vf-lista-toggle__btn:hover {
+  color: var(--text-primary, #f1f5f9);
+}
+.vf-lista-toggle__btn--ativo {
+  background: var(--bg-surface, #1e293b);
+  color: var(--accent, #6366f1);
+}

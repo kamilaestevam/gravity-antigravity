@@ -59,12 +59,22 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   aeroporto_destino:         { tipo: 'alfanumerico' },
   data_emissao_pedido:       { tipo: 'alfanumerico' },
   referencia_fabricante:     { tipo: 'alfanumerico' },
-  cobertura_cambial:         { tipo: 'alfanumerico' },
-  condicao_pagamento: { tipo: 'alfanumerico' },
+  cobertura_cambial:              { tipo: 'alfanumerico' },
+  condicao_pagamento:             { tipo: 'alfanumerico' },
+  condicao_pagamento_siscomex:    { tipo: 'alfanumerico' },
+  unidade_comercializada_pedido: { tipo: 'alfanumerico' },
 
   // ── Exceções: editavel depende do tipo de operação ──────────────────────────
-  nome_exportador: { tipo: 'alfanumerico', editavelFn: (row) => row.tipo_operacao === 'importacao' },
-  nome_importador: { tipo: 'alfanumerico', editavelFn: (row) => row.tipo_operacao === 'exportacao' },
+  // IMP: fornecedores exportadores. EXP: lista workspaces (handler redireciona para id_workspace).
+  nome_exportador: {
+    tipo: 'alfanumerico',
+    editavelFn: (row) => row.tipo_operacao === 'importacao' || row.tipo_operacao === 'exportacao',
+  },
+  // IMP: coluna lista workspaces (handler redireciona para id_workspace). EXP: fornecedores importadores.
+  nome_importador: {
+    tipo: 'alfanumerico',
+    editavelFn: (row) => row.tipo_operacao === 'importacao' || row.tipo_operacao === 'exportacao',
+  },
 
   // ── Calculado — soma de itens, não editável ─────────────────────────────────
   valor_total_pedido:                   { tipo: 'calculado' },
@@ -76,6 +86,10 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   peso_liquido_total_pedido:            { tipo: 'calculado' },
   peso_bruto_total_pedido:              { tipo: 'calculado' },
   cubagem_total_pedido:                 { tipo: 'calculado' },
+  quantidade_volumes_pedido:            { tipo: 'calculado' },
+  moeda_cambio_pedido:                  { tipo: 'alfanumerico' },
+  taxa_cambio_estimada:                 { tipo: 'somente_leitura' },
+  valor_total_cambio_pedido:            { tipo: 'calculado' },
 
   // ── Saldo — derivado de calculados via fórmula ──────────────────────────────
   saldo_itens_do_pedido: { tipo: 'saldo' },
@@ -131,6 +145,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   data_meta_recebimento_original_proforma:        { tipo: 'alfanumerico' },
   // Documento Proforma
   data_proforma_invoice:                          { tipo: 'alfanumerico' },
+  data_documento_proforma:                        { tipo: 'alfanumerico' },
   // Invoice — Recebimento Rascunho
   data_prevista_recebimento_rascunho_invoice:    { tipo: 'alfanumerico' },
   data_confirmada_recebimento_rascunho_invoice:  { tipo: 'alfanumerico' },
@@ -149,13 +164,29 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   data_meta_recebimento_original_invoice:        { tipo: 'alfanumerico' },
   // Documento Invoice
   data_invoice:                                  { tipo: 'alfanumerico' },
+  data_documento_invoice:                        { tipo: 'alfanumerico' },
 }
 
 // ── Comportamento no nível ITEM (filho) ──────────────────────────────────────
 //
 // Regra: campos "calculado" no PEDIDO são editáveis no ITEM (cada item tem seu valor).
 // Campos "saldo" e "somente_leitura" nunca são editáveis em nenhum nível.
-// Exceções de tipo_operacao permanecem em colunasFilho por usar PedidoItemEnriquecido.
+// Exceções condicionais (nome_exportador, nome_importador) permanecem no mapa filho.
+
+const ALERTA_OVERRIDE: Record<string, boolean> = {
+  id_workspace: false, // replica automática do pedido — sem alerta de divergência
+  tipo_operacao: false, // replica do pedido — sem alerta de divergência
+  descricao_item: false, // ghost — várias descrições no pedido; sem alerta
+  ncm: false, // ghost — vários NCMs no mesmo pedido é normal; sem alerta
+  status: true, // pedido ≠ item ou item ≠ item → alerta na coluna Status
+  // Logística: valor único no Pedido — itens só espelham _p (sem divergência real)
+  porto_origem: false,
+  porto_destino: false,
+  local_de_origem: false,
+  local_de_destino: false,
+  aeroporto_origem: false,
+  aeroporto_destino: false,
+}
 
 const TIPO_DEFAULTS_ITEM: Record<TipoCampo, boolean> = {
   alfanumerico:    true,
@@ -166,6 +197,8 @@ const TIPO_DEFAULTS_ITEM: Record<TipoCampo, boolean> = {
 
 // Colunas que fogem ao padrão do tipo no nível item
 const ITEM_EDITAVEL_OVERRIDE: Record<string, boolean> = {
+  id_workspace:                 false, // exclusivo do pedido — replica para itens
+  tipo_operacao:                false, // exclusivo do pedido — replica para itens
   status:                       true,  // item herda status mas pode ser editado
   quantidade_transferida_total: false, // só muda via operação de transferência
   quantidade_cancelada_total_pedido: false, // só muda via cancelamento
@@ -176,6 +209,8 @@ const ITEM_EDITAVEL_OVERRIDE: Record<string, boolean> = {
   local_de_destino:             false,
   aeroporto_origem:             false,
   aeroporto_destino:            false,
+  // Câmbio: moeda câmbio é editável independente no item (mirror cobertura_cambial).
+  // Pedido e item têm valor próprio; alerta de divergência quando diferem.
 }
 
 // ── API pública ──────────────────────────────────────────────────────────────
@@ -197,6 +232,7 @@ export function isSomavel(key: string): boolean {
 
 /** True se a coluna pode ter alerta de divergência entre itens */
 export function hasAlerta(key: string): boolean {
+  if (key in ALERTA_OVERRIDE) return ALERTA_OVERRIDE[key]
   const cfg = COLUMN_CONFIG[key]
   if (!cfg) return false
   return TIPO_DEFAULTS[cfg.tipo].alerta

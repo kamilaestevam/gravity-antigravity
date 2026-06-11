@@ -19,6 +19,9 @@ import './tooltip.css'
 import type { TooltipProps } from './tipos.js'
 
 const DELAY_ESCONDER_INTERATIVO_MS = 120
+const MARGEM_VIEWPORT_PX = 12
+/** Metade da largura máxima do card (.tg-card max-width: 360px) */
+const MEIA_LARGURA_CARD_ESTIMADA_PX = 180
 
 function tooltipsGlobaisDesabilitados(): boolean {
   return typeof document !== 'undefined' && document.body.classList.contains('tooltips-disabled')
@@ -30,10 +33,18 @@ export function TooltipGlobal({
   children,
   interativo,
   posicaoPreferida = 'auto',
+  alinhamentoHorizontal = 'centro',
+  cursorBloqueado,
 }: TooltipProps) {
   const [show, setShow] = useState(false)
   const [bloqueado, setBloqueado] = useState(tooltipsGlobaisDesabilitados)
-  const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false })
+  const [pos, setPos] = useState({
+    top: 0,
+    bottom: 0,
+    left: 0,
+    usaBottom: false,
+    alinhamento: alinhamentoHorizontal,
+  })
   const ref        = useRef<HTMLSpanElement>(null)
   const cardRef    = useRef<HTMLDivElement>(null)
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -57,15 +68,41 @@ export function TooltipGlobal({
       } else {
         usaBottom = r.top > 80
       }
-      const pxLeft = Math.max(138, Math.min(r.left + r.width / 2, window.innerWidth - 138))
+      const centerX = r.left + r.width / 2
+      let pxLeft: number
+      if (alinhamentoHorizontal === 'inicio') {
+        pxLeft = r.left
+      } else if (alinhamentoHorizontal === 'fim') {
+        pxLeft = r.right
+      } else {
+        pxLeft = Math.max(
+          MARGEM_VIEWPORT_PX + MEIA_LARGURA_CARD_ESTIMADA_PX,
+          Math.min(centerX, window.innerWidth - MARGEM_VIEWPORT_PX - MEIA_LARGURA_CARD_ESTIMADA_PX),
+        )
+      }
       setPos({
         usaBottom,
         bottom: usaBottom ? window.innerHeight - r.top + 8 : 0,
         top: usaBottom ? 0 : r.bottom + 8,
         left: pxLeft,
+        alinhamento: alinhamentoHorizontal,
       })
     }
-  }, [posicaoPreferida])
+  }, [posicaoPreferida, alinhamentoHorizontal])
+
+  const ajustarPosComLarguraReal = useCallback(() => {
+    if (!cardRef.current) return
+    const card = cardRef.current.getBoundingClientRect()
+    let delta = 0
+    if (card.left < MARGEM_VIEWPORT_PX) {
+      delta = MARGEM_VIEWPORT_PX - card.left
+    } else if (card.right > window.innerWidth - MARGEM_VIEWPORT_PX) {
+      delta = window.innerWidth - MARGEM_VIEWPORT_PX - card.right
+    }
+    if (delta !== 0) {
+      setPos(prev => ({ ...prev, left: prev.left + delta }))
+    }
+  }, [])
 
   useEffect(() => {
     const sincronizar = () => {
@@ -104,6 +141,49 @@ export function TooltipGlobal({
 
   useEffect(() => () => limparTimerEsconder(), [limparTimerEsconder])
 
+  useEffect(() => {
+    if (!show) return
+    const id = requestAnimationFrame(() => {
+      ajustarPosComLarguraReal()
+    })
+    return () => cancelAnimationFrame(id)
+  }, [show, titulo, descricao, pos.left, pos.alinhamento, ajustarPosComLarguraReal])
+
+  /** Fecha tooltip órfã quando scroll virtualiza a célula ou mouseleave não dispara no trigger. */
+  useEffect(() => {
+    if (!show) return
+
+    const ocultarImediato = () => {
+      limparTimerEsconder()
+      setShow(false)
+    }
+
+    const ponteiroSobreAlvo = (x: number, y: number): boolean => {
+      const alvo = document.elementFromPoint(x, y)
+      if (!alvo) return false
+      if (ref.current?.contains(alvo)) return true
+      if (interativo && cardRef.current?.contains(alvo)) return true
+      return false
+    }
+
+    const onScroll = () => ocultarImediato()
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (ponteiroSobreAlvo(e.clientX, e.clientY)) {
+        limparTimerEsconder()
+        return
+      }
+      esconde()
+    }
+
+    document.addEventListener('scroll', onScroll, true)
+    document.addEventListener('pointermove', onPointerMove)
+    return () => {
+      document.removeEventListener('scroll', onScroll, true)
+      document.removeEventListener('pointermove', onPointerMove)
+    }
+  }, [show, interativo, esconde, limparTimerEsconder])
+
   return (
     <>
       <span
@@ -113,7 +193,8 @@ export function TooltipGlobal({
         onFocus={mostra}
         onBlur={esconde}
         onKeyDown={onKeyDown}
-        className="tg-trigger"
+        className={cursorBloqueado ? 'tg-trigger tg-trigger--bloqueado' : 'tg-trigger'}
+        style={cursorBloqueado ? { cursor: 'not-allowed' } : undefined}
         data-tg-mute={!descricao}
         aria-describedby={show ? tooltipId : undefined}
       >
@@ -127,6 +208,7 @@ export function TooltipGlobal({
           role="tooltip"
           className="tg-card"
           data-start={pos.usaBottom ? 'bottom' : 'top'}
+          data-align={pos.alinhamento}
           data-interativo={interativo ? 'true' : undefined}
           style={{
             bottom: pos.usaBottom ? pos.bottom : 'auto',

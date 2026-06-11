@@ -31,6 +31,8 @@ import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { dashboardPaineisRouter } from './routes/dashboard-paineis.js'
+import { listaPaineisBidFreteRouter } from './routes/lista-bid-frete-internacional-paineis.js'
+import { preferenciaEscopoWorkspacesBidFreteRouter } from './routes/preferencia-escopo-workspaces-bid-frete-internacional.js'
 import { startCronJobs } from './services/tarefas-agendadas.js'
 import { rateLimitPresets } from '../../../../servicos-plataforma/middleware/rateLimiter.js'
 import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
@@ -77,7 +79,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin)
   }
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-id-organizacao, x-id-usuario, x-correlation-id')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-chave-interna-servico, x-id-organizacao, x-id-usuario, x-id-workspace, x-correlation-id')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
   if (_req.method === 'OPTIONS') return res.sendStatus(204)
   next()
@@ -149,6 +151,8 @@ app.use('/api/v1/bid-frete-internacional/avaliacoes', avaliacoesRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardWidgetsRouter)
 app.use('/api/v1/bid-frete-internacional/dashboard', dashboardPaineisRouter)
+app.use('/api/v1/bid-frete-internacional/lista', listaPaineisBidFreteRouter)
+app.use('/api/v1/bid-frete-internacional/config', preferenciaEscopoWorkspacesBidFreteRouter)
 
 // --- 10. SPA Fallback ---
 app.get('*', (_req: Request, res: Response) => {
@@ -159,8 +163,11 @@ app.get('*', (_req: Request, res: Response) => {
 })
 
 // --- 11. Error Handler Global ---
-app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('[BidFrete] Erro:', err.message)
+app.use((err: Error & { statusCode?: number; code?: string; meta?: unknown }, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[BidFrete] Erro:', err.message, err.code ?? '', err.meta ?? '')
+  if (err.stack && process.env.NODE_ENV !== 'test') {
+    console.error('[BidFrete] Stack:', err.stack.split('\n').slice(0, 6).join('\n'))
+  }
   const status = err.statusCode ?? 500
   res.status(status).json({
     error: {
@@ -172,9 +179,18 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
 
 // --- 12. Inicializacao ---
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`[BidFrete] Servidor rodando na porta ${PORT} (local)`)
-    startCronJobs()
+  const bidServer = app.listen(PORT, () => {
+    console.log(`[BidFrete] Servidor rodando na porta ${PORT}${process.env.BID_FRETE_SIDECAR === '1' ? ' (sidecar)' : ''}`)
+    if (process.env.BID_FRETE_SIDECAR !== '1') {
+      startCronJobs()
+    }
+  })
+  bidServer.on('error', (err: NodeJS.ErrnoException) => {
+    if (process.env.BID_FRETE_SIDECAR === '1') {
+      console.error('[BidFrete] Falha ao escutar porta em modo sidecar (não derruba Configurador):', err.message)
+      return
+    }
+    throw err
   })
 }
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
 import {
@@ -34,8 +35,14 @@ import {
 import {
   TIPOS_FORNECEDOR_BID_FRETE,
   ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO,
+  fornecedorAtendeTipoOrganizacao,
+  papelInicialModalPorTipoOrganizacao,
   type TipoFornecedorOrganizacao,
 } from '../../../shared/index.js'
+import { carregarFornecedoresConviteAdmin, mapFornecedorConvite } from '../../shared/carregar-fornecedores-convite'
+import { CampoFornecedorEmpresaConvite } from '../../components/campo-fornecedor-empresa-convite'
+import { ModalEditarFornecedor, type PapelFlag } from '../configurador/ModalEditarFornecedor'
+import type { Fornecedor } from '@cadastros/shared/schemas'
 import { useShellStore } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { usePodeEditarUsuario } from '../../hooks/use-pode-editar-usuario'
@@ -154,9 +161,16 @@ export function UsuariosAdmin() {
   const [fIdOrganizacaoAlvo, setFIdOrganizacaoAlvo] = useState('')
   // Workspaces alvo do convite — só preenchido para PADRAO/FORNECEDOR (MASTER tem bypass).
   // Convenção do backend: 'all' = todos ATIVOs da org alvo; string[] = subset explícito.
-  const [fWorkspacesAlvo, setFWorkspacesAlvo]       = useState<'all' | string[]>([])
+  const [fWorkspacesAlvo, setFWorkspacesAlvo]       = useState<'all' | string[]>('all')
   const [fTipoFornecedorOrganizacao, setFTipoFornecedorOrganizacao] =
     useState<TipoFornecedorOrganizacao>('AGENTE_CARGA')
+  const [fIdFornecedor, setFIdFornecedor] = useState('')
+  const [fornecedoresConvite, setFornecedoresConvite] = useState<
+    Awaited<ReturnType<typeof carregarFornecedoresConviteAdmin>>
+  >([])
+  const [carregandoFornecedoresConvite, setCarregandoFornecedoresConvite] = useState(false)
+  const [convidando, setConvidando] = useState(false)
+  const [modalCadastroFornecedorConvite, setModalCadastroFornecedorConvite] = useState(false)
 
   // Organizações derivadas dos dados reais (usado em cards de estatística:
   // total, orgs com/sem usuários). Diferente de `orgsAdmin` (lista da API
@@ -171,6 +185,83 @@ export function UsuariosAdmin() {
   // Decisão dono 2026-05-12: para SUPER_ADMIN/ADMIN, filtrar pra mostrar
   // apenas orgs que hospedam colaboradores Gravity (auto-seleção se só 1).
   const [orgsAdmin, setOrgsAdmin] = useState<Array<{ id_organizacao: string; nome_organizacao: string; hospeda_colaboradores_gravity: boolean }>>([])
+
+  // Standard/Fornecedor: convite com todos os workspaces ativos por padrão (paridade Usuarios.tsx).
+  useEffect(() => {
+    if (fTipo === 'Standard' || fTipo === 'Fornecedor') {
+      setFWorkspacesAlvo((prev) => (prev === 'all' || (Array.isArray(prev) && prev.length > 0) ? prev : 'all'))
+    }
+  }, [fTipo])
+
+  useEffect(() => {
+    if (!showForm || fTipo !== 'Fornecedor' || !fIdOrganizacaoAlvo) {
+      setFornecedoresConvite([])
+      return
+    }
+    let cancelado = false
+    async function carregar() {
+      setCarregandoFornecedoresConvite(true)
+      try {
+        const itens = await carregarFornecedoresConviteAdmin(fIdOrganizacaoAlvo)
+        if (!cancelado) setFornecedoresConvite(itens.filter((f) => f.ativo_fornecedor))
+      } catch (err) {
+        if (!cancelado) {
+          addNotification({
+            type: 'error',
+            message: err instanceof Error ? err.message : t('admin.usuarios-globais.msg_erro_carregar_fornecedores', 'Falha ao carregar fornecedores.'),
+          })
+          setFornecedoresConvite([])
+        }
+      } finally {
+        if (!cancelado) setCarregandoFornecedoresConvite(false)
+      }
+    }
+    void carregar()
+    return () => { cancelado = true }
+  }, [showForm, fTipo, fIdOrganizacaoAlvo, addNotification, t])
+
+  const opcoesFornecedorConvite: SelectOpcao[] = useMemo(() => {
+    return fornecedoresConvite
+      .filter((f) => fornecedorAtendeTipoOrganizacao(f, fTipoFornecedorOrganizacao))
+      .map((f) => ({
+        valor: f.id_fornecedor,
+        rotulo: f.nome_fornecedor,
+        descricao: f.id_fornecedor,
+      }))
+  }, [fornecedoresConvite, fTipoFornecedorOrganizacao])
+
+  useEffect(() => {
+    if (!fIdFornecedor) return
+    const aindaValido = opcoesFornecedorConvite.some((o) => o.valor === fIdFornecedor)
+    if (!aindaValido) setFIdFornecedor('')
+  }, [fIdFornecedor, opcoesFornecedorConvite])
+
+  function aoFornecedorCriadoNoConvite(fornecedor: Fornecedor) {
+    const item = mapFornecedorConvite(fornecedor)
+    setFornecedoresConvite((prev) => [
+      item,
+      ...prev.filter((f) => f.id_fornecedor !== item.id_fornecedor),
+    ])
+    if (fornecedorAtendeTipoOrganizacao(item, fTipoFornecedorOrganizacao)) {
+      setFIdFornecedor(item.id_fornecedor)
+    } else {
+      addNotification({
+        type: 'warning',
+        message: t(
+          'admin.usuarios-globais.fornecedor_categoria_incompativel',
+          'Fornecedor cadastrado, mas o papel COMEX da categoria escolhida não está marcado nele.',
+        ),
+      })
+    }
+    setModalCadastroFornecedorConvite(false)
+    addNotification({
+      type: 'success',
+      message: t('admin.usuarios-globais.fornecedor_cadastrado', {
+        nome: fornecedor.nome_fornecedor,
+        defaultValue: `Fornecedor "${fornecedor.nome_fornecedor}" cadastrado no cartório.`,
+      }),
+    })
+  }
 
   // Carrega lista de orgs uma vez ao montar
   useEffect(() => {
@@ -360,7 +451,13 @@ export function UsuariosAdmin() {
   async function aoConvidarUsuario() {
     const nome  = fNome.trim()
     const email = fEmail.trim()
-    if (!nome || !email) return
+    if (!nome || !email) {
+      addNotification({
+        type: 'error',
+        message: t('admin.usuarios-globais.msg_campos_obrigatorios', 'Preencha nome e e-mail antes de convidar.'),
+      })
+      return
+    }
     if (!EMAIL_REGEX.test(email)) {
       addNotification({ type: 'error', message: t('admin.usuarios-globais.msg_email_invalido') })
       return
@@ -376,6 +473,13 @@ export function UsuariosAdmin() {
       addNotification({ type: 'error', message: t('admin.usuarios-globais.msg_categoria_fornecedor', 'Selecione a categoria do fornecedor (ex.: Agente de carga).') })
       return
     }
+    if (tipoBackend === 'FORNECEDOR' && !fIdFornecedor) {
+      addNotification({
+        type: 'error',
+        message: t('admin.usuarios-globais.msg_fornecedor_obrigatorio', 'Selecione o fornecedor (empresa) do cartório.'),
+      })
+      return
+    }
     let workspacesPayload: 'all' | string[] | undefined
     if (exigeWorkspaces) {
       if (fWorkspacesAlvo === 'all') {
@@ -387,6 +491,7 @@ export function UsuariosAdmin() {
         return
       }
     }
+    setConvidando(true)
     try {
       await adminUsuariosApi.convidar({
         id_organizacao_alvo: fIdOrganizacaoAlvo,
@@ -395,17 +500,33 @@ export function UsuariosAdmin() {
         tipo_usuario:  tipoBackend,
         workspaces_alvo: workspacesPayload,
         ...(tipoBackend === 'FORNECEDOR'
-          ? { tipo_fornecedor_organizacao: fTipoFornecedorOrganizacao }
+          ? {
+              tipo_fornecedor_organizacao: fTipoFornecedorOrganizacao,
+              id_fornecedor: fIdFornecedor,
+            }
           : {}),
       })
       // Refetch é a fonte da verdade — backend retorna id_organizacao real e
       // demais campos completos (UsuarioGlobalUI exige id_organizacao desde
       // 2026-05-05 para alimentar o lazy-load do editor de vínculos).
       await loadUsers()
-      addNotification({ type: 'success', message: t('admin.usuarios-globais.msg_usuario_adicionado', { nome: fNome.trim() }) })
-      setFNome(''); setFEmail(''); setFTipo('Standard'); setFIdOrganizacaoAlvo(''); setFWorkspacesAlvo([]); setFTipoFornecedorOrganizacao('AGENTE_CARGA'); setShowForm(false)
+      addNotification({
+        type: 'success',
+        message: t('admin.usuarios-globais.msg_usuario_adicionado', { nome }),
+      })
+      setFNome('')
+      setFEmail('')
+      setFTipo('Standard')
+      setFIdOrganizacaoAlvo('')
+      setFWorkspacesAlvo('all')
+      setFTipoFornecedorOrganizacao('AGENTE_CARGA')
+      setFIdFornecedor('')
+      setModalCadastroFornecedorConvite(false)
+      setShowForm(false)
     } catch (err) {
       addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.usuarios-globais.msg_erro_convidar') })
+    } finally {
+      setConvidando(false)
     }
   }
 
@@ -1108,6 +1229,11 @@ export function UsuariosAdmin() {
             mensagem: 'Categoria do fornecedor (COMEX)',
           },
           {
+            chave: 'fIdFornecedor',
+            ok: tipoBackendForm !== 'FORNECEDOR' || !!fIdFornecedor,
+            mensagem: 'Fornecedor (empresa) do cartório',
+          },
+          {
             chave: 'fWorkspaces',
             ok: !exigeWorkspacesForm || fWorkspacesAlvo === 'all' || (Array.isArray(fWorkspacesAlvo) && fWorkspacesAlvo.length > 0),
             mensagem: 'Workspaces vinculados (Standard/Fornecedor)',
@@ -1118,17 +1244,24 @@ export function UsuariosAdmin() {
         aberto={showForm}
         aoFechar={() => {
           setShowForm(false)
-          setFNome(''); setFEmail(''); setFTipo('Standard')
-          setFIdOrganizacaoAlvo(''); setFWorkspacesAlvo([]); setFTipoFornecedorOrganizacao('AGENTE_CARGA')
+          setFNome('')
+          setFEmail('')
+          setFTipo('Standard')
+          setFIdOrganizacaoAlvo('')
+          setFWorkspacesAlvo('all')
+          setFTipoFornecedorOrganizacao('AGENTE_CARGA')
+          setFIdFornecedor('')
+          setModalCadastroFornecedorConvite(false)
         }}
         aoSalvar={aoConvidarUsuario}
         icone={<User size={20} weight="duotone" />}
         titulo={t('admin.usuarios-globais.btn_convidar')}
         subtitulo={t('admin.usuarios-globais.modal_convidar_subtitulo')}
         tamanho="md"
-        altura="640px"
+        altura={fTipo === 'Fornecedor' ? '720px' : '640px'}
         dirty={!!(fNome || fEmail || fIdOrganizacaoAlvo)}
         podesSalvar={requisitosConviteAdmin.every(r => r.ok)}
+        carregando={convidando}
       >
         <BannerRequisitosContexto requisitos={requisitosConviteAdmin}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -1273,9 +1406,8 @@ export function UsuariosAdmin() {
                   aoMudarValor={(v) => {
                     const novoId = String(v)
                     setFIdOrganizacaoAlvo(novoId)
-                    // Reset workspaces ao trocar org (workspaces são por org)
                     setFWorkspacesAlvo([])
-                    // Dispara lazy load reusando o cache compartilhado com o editor de vínculos
+                    setFIdFornecedor('')
                     if (novoId) void carregarWorkspacesOrg(novoId)
                   }}
                   iconeEsquerda={<Buildings size={18} weight="duotone" />}
@@ -1286,8 +1418,32 @@ export function UsuariosAdmin() {
             )
           })()}
 
+          {fTipo === 'Fornecedor' && (
+            <CampoFornecedorEmpresaConvite
+              opcoes={opcoesFornecedorConvite}
+              valor={fIdFornecedor}
+              aoMudarValor={setFIdFornecedor}
+              carregando={carregandoFornecedoresConvite}
+              desabilitado={!fIdOrganizacaoAlvo}
+              onCadastrarNova={
+                fIdOrganizacaoAlvo ? () => setModalCadastroFornecedorConvite(true) : undefined
+              }
+              label={t('admin.usuarios-globais.fornecedor_empresa', 'Fornecedor (empresa)')}
+              placeholder={
+                !fIdOrganizacaoAlvo
+                  ? t('admin.usuarios-globais.fornecedor_empresa_aguarde_org', 'Selecione a organização alvo primeiro')
+                  : carregandoFornecedoresConvite
+                    ? t('admin.usuarios-globais.fornecedor_empresa_carregando', 'Carregando fornecedores...')
+                    : opcoesFornecedorConvite.length === 0
+                      ? t('admin.usuarios-globais.fornecedor_empresa_vazio', 'Nenhum compatível — use + Nova para cadastrar')
+                      : t('admin.usuarios-globais.fornecedor_empresa_placeholder', 'Ex.: TRANSDATA (BR-TRANSDATA-00007)')
+              }
+              invalido={!!fIdOrganizacaoAlvo && !fIdFornecedor}
+            />
+          )}
+
           {/* Workspaces — só para PADRAO/FORNECEDOR (MASTER/SAdmin/Admin têm bypass).
-              Lazy-load: lista aparece após seleção da org. Default = nenhum selecionado. */}
+              Lazy-load: lista aparece após seleção da org. Default = todos ativos. */}
           {exigeWorkspacesForm && fIdOrganizacaoAlvo && (
             <CampoGeralGlobal
               label="Workspaces vinculados"
@@ -1366,6 +1522,17 @@ export function UsuariosAdmin() {
       </ModalFormularioGlobal>
         )
       })()}
+
+      {modalCadastroFornecedorConvite && fIdOrganizacaoAlvo && createPortal(
+        <ModalEditarFornecedor
+          fornecedor={null}
+          idOrganizacao={fIdOrganizacaoAlvo}
+          aoFechar={() => setModalCadastroFornecedorConvite(false)}
+          aoSalvar={aoFornecedorCriadoNoConvite}
+          papelInicial={papelInicialModalPorTipoOrganizacao(fTipoFornecedorOrganizacao) as PapelFlag}
+        />,
+        document.body,
+      )}
 
     </PaginaGlobal>
   )

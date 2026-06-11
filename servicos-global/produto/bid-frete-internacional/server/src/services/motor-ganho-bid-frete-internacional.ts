@@ -11,12 +11,17 @@ export const motorGanho = {
    */
   async calcularMetricas(prisma: PrismaClient, filtros?: {
     id_workspace?: string
+    ids_workspaces?: string[]
     data_inicio?: Date
     data_fim?: Date
   }) {
     const where: Record<string, unknown> = { id_produto_gravity: 'bid-frete-internacional' }
 
-    if (filtros?.id_workspace) where.id_workspace = filtros.id_workspace
+    if (filtros?.ids_workspaces?.length) {
+      where.id_workspace = { in: filtros.ids_workspaces }
+    } else if (filtros?.id_workspace) {
+      where.id_workspace = filtros.id_workspace
+    }
     if (filtros?.data_inicio || filtros?.data_fim) {
       const dataCriacao: Record<string, unknown> = {}
       if (filtros.data_inicio) dataCriacao.gte = filtros.data_inicio

@@ -691,6 +691,22 @@ describe('DuplicarService.confirmar', () => {
       }),
     )
   })
+
+  it('U-SVC-42: lookup não filtra por id_workspace quando header ≠ pedido (multi-workspace)', async () => {
+    const pedidoOutroWs = criarPedidoMock({ id_workspace: 'ws-7' })
+    const db = criarDbMock({
+      pedidosResult: [pedidoOutroWs],
+      configResult: { duplicar_numero_auto: true, duplicar_copiar_datas: false, duplicar_status_inicial: 'copiar' },
+    })
+
+    await service.confirmar(
+      db as unknown as Record<string, unknown>, ORG_ID, 'ws-1', USER_ID, USER_NAME, payloadBase,
+    )
+
+    const where = db.pedido.findMany.mock.calls[0][0].where
+    expect(where).toMatchObject({ id_organizacao: ORG_ID })
+    expect(where).not.toHaveProperty('id_workspace')
+  })
 })
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -868,5 +884,42 @@ describe('DuplicarService.duplicarItens', () => {
 
     // Should have called update for renumbering (3 items total: it-001, novo, it-002)
     expect(db.pedidoItem.update).toHaveBeenCalled()
+  })
+
+  it('U-SVC-60: lookup não filtra por id_workspace quando header ≠ pedido (multi-workspace)', async () => {
+    const pedidoOutroWs = criarPedidoMock({ id_workspace: 'ws-7' })
+    const db = criarDbMock()
+    db.pedido.findFirst.mockResolvedValue(pedidoOutroWs)
+    db.pedidoItem.findMany
+      .mockResolvedValueOnce([criarItemMock({ id_workspace: 'ws-7' })])
+      .mockResolvedValueOnce([{ id_item: 'it-001', sequencia_item_pedido: 1 }])
+
+    await service.duplicarItens(
+      db as unknown as Record<string, unknown>, ORG_ID, 'ws-1', payloadBase,
+    )
+
+    const wherePedido = db.pedido.findFirst.mock.calls[0][0].where
+    expect(wherePedido).toMatchObject({ id_pedido: 'ped-001', id_organizacao: ORG_ID })
+    expect(wherePedido).not.toHaveProperty('id_workspace')
+
+    for (const call of db.pedidoItem.findMany.mock.calls) {
+      expect(call[0].where).not.toHaveProperty('id_workspace')
+    }
+  })
+
+  it('U-SVC-61: cópia herda id_workspace do pedido pai, não do header', async () => {
+    const pedidoOutroWs = criarPedidoMock({ id_workspace: 'ws-7' })
+    const db = criarDbMock()
+    db.pedido.findFirst.mockResolvedValue(pedidoOutroWs)
+    db.pedidoItem.findMany
+      .mockResolvedValueOnce([criarItemMock({ id_workspace: 'ws-7' })])
+      .mockResolvedValueOnce([{ id_item: 'it-001', sequencia_item_pedido: 1 }])
+
+    await service.duplicarItens(
+      db as unknown as Record<string, unknown>, ORG_ID, 'ws-1', payloadBase,
+    )
+
+    const createCall = db.pedidoItem.create.mock.calls[0][0]
+    expect(createCall.data.id_workspace).toBe('ws-7')
   })
 })

@@ -6,42 +6,42 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Package,
   CheckCircle,
-  SpinnerGap,
-  ArrowRight,
-  Info,
   MagnifyingGlass,
   Lightning,
   ArrowDown,
-  Bell,
-  Gear,
 } from '@phosphor-icons/react'
+import { PRODUCT_META, metaProdutoStore } from '../data/product-meta'
 import {
-  PRODUCT_META,
-  RELACAO_ENTRE_PRODUTOS_GRAVITY,
-  STACK_ORDER,
-  nomeExibicaoProdutoGravity,
-} from '../data/product-meta'
+  filtrarProdutosPublicadosStore,
+  storeAssinaturasRespostaSchema,
+  storeCatalogoRespostaApiSchema,
+} from '../schemas/store-catalogo-api'
+import {
+  classeSegmentoPuzzleStore,
+  contarStatusCatalogoStore,
+  resolverStatusProdutoStore,
+  type StatusExibicaoProdutoStore,
+} from '../data/status-produto-store'
+import { ordenarSlugsPuzzleStore } from '../data/store-puzzle-order'
+import { StorePuzzleRow } from '../components/store-puzzle-row'
+import { StorePuzzleCarousel } from '../components/store-puzzle-carousel'
+import {
+  StoreCardsRows,
+  filtrarCatalogoStoreBusca,
+  type StoreLinhaKey,
+} from '../components/store-cards-rows'
 import './hub-store.css'
 import './hub.css'
 import '../pages/configurador/workspace.css'
 import './selecionar-workspace.css'
-import { BotaoGlobal } from '@nucleo/botao-global'
-import { UsuarioGlobal } from '@nucleo/usuario-global'
-import { LogoGlobal } from '@nucleo/logo-global'
 import { LogoHub } from '@nucleo/logo-produtos'
-import {
-  LocalizadorGlobal,
-  useLocalizadorHistory,
-  buildEcosystemNodes,
-  type EcosystemNode,
-} from '@nucleo/localizador-global'
-import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
-import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync, useShellBodyClasses } from '@gravity/shell'
+import { useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
+import { ToastContainer, useShellStore, useOrganizacaoOverride, useMeSync, useShellBodyClasses, useLoadAllowedProducts } from '@gravity/shell'
+import { TopbarPaginaGravity } from '../components/topbar-pagina-gravity'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { podeComprarNoStore } from '../routing/route-policy'
 import { mapRole } from '../types/niveis-acesso'
-import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
 
 const API_URL = '/api/v1'
 
@@ -72,14 +72,14 @@ export function Store() {
   const [searchParams] = useSearchParams()
   const { user } = useUser()
   const { signOut } = useClerk()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification, currentUser } = useShellStore()
+  const { addNotification, currentUser } = useShellStore()
   const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
-  const isLight = currentTheme === 'light'
   const { gravityAdmin: isGravityAdmin, tipoUsuario: dbRole } = useCarregarTipoUsuario()
   // Popula currentUser.tipoUsuario no ShellStore (Pendência #4 — sem
   // isso o item "Trocar Organização" não aparece nesta tela).
   useMeSync()
+  useLoadAllowedProducts()
   const { podeAtivarOverride, overrideAtivo, limparOverride } = useOrganizacaoOverride()
   const [modalTrocarOrgAberto, setModalTrocarOrgAberto] = useState(false)
 
@@ -101,52 +101,66 @@ export function Store() {
   const [loading, setLoading] = useState(true)
   const [subscribing, setSubscribing] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [viewMode, setViewMode] = useState<'todos' | 'catalogo' | 'meus'>('todos')
-  const [emBreveOnly, setEmBreveOnly] = useState(false)
   const [category, setCategory] = useState<string>('todas')
+  const [viewMode, setViewMode] = useState<StoreLinhaKey>('assinar')
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [catRes, subRes] = await Promise.all([
-          fetch(`${API_URL}/produtos-gravity`),
-          fetch(`${API_URL}/organizacoes/me/assinaturas-produto-gravity`, {
-            headers: { Authorization: `Bearer ${await getToken()}` },
-          }).catch(() => null),
-        ])
-        if (catRes.ok) {
-          const catData = await catRes.json()
-          setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'ATIVO' || p.status === 'Ativo' || p.status === 'EM_BREVE'))
-        } else {
-          console.warn('[Store] GET /produtos-gravity falhou', catRes.status, catRes.statusText)
-          addNotification({ type: 'error', message: t('store.notif_erro_catalogo') })
+  const carregarCatalogo = React.useCallback(async () => {
+    try {
+      const [catRes, subRes] = await Promise.all([
+        fetch(`${API_URL}/produtos-gravity`, { cache: 'no-store' }),
+        fetch(`${API_URL}/organizacoes/me/assinaturas-produto-gravity`, {
+          cache: 'no-store',
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        }).catch(() => null),
+      ])
+      if (catRes.ok) {
+        const raw = await catRes.json()
+        const parsed = storeCatalogoRespostaApiSchema.parse(raw)
+        const publicados = filtrarProdutosPublicadosStore(parsed.products)
+        setCatalog(publicados as CatalogProduct[])
+        if (publicados.length === 0) {
+          console.warn('[Store] catálogo vazio após filtro ATIVO/EM_BREVE', raw)
         }
-        if (subRes?.ok) {
-          const subData = await subRes.json()
+      } else {
+        console.warn('[Store] GET /produtos-gravity falhou', catRes.status, catRes.statusText)
+        addNotification({ type: 'error', message: t('store.notif_erro_catalogo') })
+      }
+      if (subRes?.ok) {
+        try {
+          const subData = storeAssinaturasRespostaSchema.parse(await subRes.json())
           const map = new Map<string, SubscribedProduct>()
-          // Novo contrato: { assinaturas: [{ produto: { slug_produto_gravity }, configuracao: { ativo_configuracao_produto_gravity } }] }
-          const assinaturas = (subData.assinaturas ?? []) as Array<{
-            produto?: { slug_produto_gravity?: string }
-            configuracao?: { ativo_configuracao_produto_gravity?: boolean } | null
-          }>
-          for (const a of assinaturas) {
-            const slug = a.produto?.slug_produto_gravity
-            if (!slug) continue
+          for (const a of subData.assinaturas) {
+            const slug = a.produto.slug_produto_gravity
             map.set(slug, {
               product_key: slug,
               is_active: !!a.configuracao?.ativo_configuracao_produto_gravity,
             })
           }
           setSubscribed(map)
+        } catch (parseErr) {
+          console.warn('[Store] assinaturas com formato inesperado — contadores sem vínculo', parseErr)
         }
-      } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('store.notif_erro_catalogo') })
-      } finally {
-        setLoading(false)
       }
+    } catch (err) {
+      console.error('[Store] falha ao carregar catálogo/assinaturas', err)
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('store.notif_erro_catalogo') })
+    } finally {
+      setLoading(false)
     }
-    load()
-  }, [])
+  }, [getToken, addNotification, t])
+
+  useEffect(() => {
+    setLoading(true)
+    void carregarCatalogo()
+  }, [carregarCatalogo])
+
+  useEffect(() => {
+    const onVisivel = () => {
+      if (document.visibilityState === 'visible') void carregarCatalogo()
+    }
+    document.addEventListener('visibilitychange', onVisivel)
+    return () => document.removeEventListener('visibilitychange', onVisivel)
+  }, [carregarCatalogo])
 
   useEffect(() => {
     const slug = searchParams.get('produto')
@@ -199,20 +213,35 @@ export function Store() {
     }
   }
 
-  const getStatus = (slug: string): 'owned' | 'available' | 'soon' => {
-    // Status do catálogo (admin) é fonte da verdade. EM_BREVE prevalece sobre
-    // qualquer assinatura legada/interna — produto não-lançado nunca aparece
-    // como "ativo" na Store, mesmo que a org tenha uma linha em ProdutoGravityAssinatura.
-    const produto = catalog.find(p => p.slug === slug)
-    if (produto?.status === 'EM_BREVE') return 'soon'
-    if (subscribed.get(slug)?.is_active) return 'owned'
-    return 'available'
-  }
+  const statusProduto = (slug: string): StatusExibicaoProdutoStore =>
+    resolverStatusProdutoStore(slug, catalog, subscribed)
 
-  const ownedCount = useMemo(() => catalog.filter(p => getStatus(p.slug) === 'owned').length, [catalog, subscribed])
-  const totalCount = catalog.length
-  const emBreveCount = useMemo(() => catalog.filter(p => p.status === 'EM_BREVE').length, [catalog])
-  const catalogoCount = useMemo(() => catalog.filter(p => getStatus(p.slug) !== 'owned').length, [catalog, subscribed])
+  const puzzleSlugsOrdenados = useMemo(
+    () => ordenarSlugsPuzzleStore(catalog),
+    [catalog],
+  )
+
+  const puzzleLinhaAtivos = useMemo(
+    () =>
+      puzzleSlugsOrdenados.filter((slug) => {
+        const s = resolverStatusProdutoStore(slug, catalog, subscribed)
+        return s === 'contratado' || s === 'disponivel'
+      }),
+    [puzzleSlugsOrdenados, catalog, subscribed],
+  )
+
+  const contratadosNoPuzzle = useMemo(
+    () =>
+      puzzleLinhaAtivos.filter(
+        (slug) => resolverStatusProdutoStore(slug, catalog, subscribed) === 'contratado',
+      ).length,
+    [puzzleLinhaAtivos, catalog, subscribed],
+  )
+
+  const contagemStore = useMemo(
+    () => contarStatusCatalogoStore(catalog, subscribed),
+    [catalog, subscribed],
+  )
 
   // Delay determinístico por slug — cada card "owned" pulsa fora de sync (efeito aleatório estável)
   const pulseDelayFor = (slug: string): string => {
@@ -223,7 +252,7 @@ export function Store() {
   }
 
   const categoryFilters = useMemo(() => {
-    const cats = new Set(catalog.map(p => PRODUCT_META[p.slug]?.categoryFilter).filter(Boolean))
+    const cats = new Set(catalog.map(p => metaProdutoStore(p.slug)?.categoryFilter).filter(Boolean))
     return ['todas', ...Array.from(cats)]
   }, [catalog])
 
@@ -238,33 +267,62 @@ export function Store() {
     return map[key] ?? key
   }
 
-  // "Em Breve" só faz sentido em Catálogo — força reset ao trocar para Meus produtos
-  useEffect(() => {
-    if (viewMode === 'meus' && emBreveOnly) setEmBreveOnly(false)
-  }, [viewMode, emBreveOnly])
+  const catalogoFiltrado = useMemo(
+    () => filtrarCatalogoStoreBusca(catalog, search, category),
+    [catalog, search, category],
+  )
 
-  const filteredCatalog = useMemo(() => {
-    return catalog.filter(p => {
-      const meta = PRODUCT_META[p.slug]
-      const status = getStatus(p.slug)
-      const matchesSearch = !search ||
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.description ?? '').toLowerCase().includes(search.toLowerCase())
-      const matchesView =
-        viewMode === 'todos' ? true :
-        viewMode === 'meus' ? status === 'owned' :
-        status !== 'owned'
-      const matchesEmBreve = !emBreveOnly || status === 'soon'
-      const matchesCategory = category === 'todas' || meta?.categoryFilter === category
-      return matchesSearch && matchesView && matchesEmBreve && matchesCategory
-    })
-  }, [catalog, subscribed, search, viewMode, emBreveOnly, category])
+  const contagemLinhas = useMemo(() => {
+    let ativo = 0
+    let assinar = 0
+    let em_breve = 0
+    for (const p of catalogoFiltrado) {
+      const s = statusProduto(p.slug)
+      if (s === 'contratado') ativo++
+      else if (s === 'disponivel') assinar++
+      else if (s === 'em_breve') em_breve++
+    }
+    return {
+      todos: catalogoFiltrado.length,
+      ativo,
+      assinar,
+      em_breve,
+    }
+  }, [catalogoFiltrado, catalog, subscribed])
+
+  const irParaLinha = (linha: StoreLinhaKey) => {
+    setViewMode(linha)
+    document.getElementById(`store-linha-${linha}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  useEffect(() => {
+    const secoes: StoreLinhaKey[] = ['assinar', 'ativo', 'em_breve', 'todos']
+    const elementos = secoes
+      .map((k) => document.getElementById(`store-linha-${k}`))
+      .filter((el): el is HTMLElement => el != null)
+    if (elementos.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visivel = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (visivel?.target.id) {
+          const key = visivel.target.id.replace('store-linha-', '') as StoreLinhaKey
+          setViewMode(key)
+        }
+      },
+      { root: null, rootMargin: '-12% 0px -55% 0px', threshold: [0.08, 0.2, 0.4] },
+    )
+    for (const el of elementos) observer.observe(el)
+    return () => observer.disconnect()
+  }, [catalogoFiltrado.length, loading])
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
   const { history } = useLocalizadorHistory('store')
 
   const produtoNodes: EcosystemNode[] = catalog.map(p => {
-    const meta = PRODUCT_META[p.slug]
+    const meta = metaProdutoStore(p.slug)
     return {
       id:       p.slug,
       label:    p.name,
@@ -284,114 +342,55 @@ export function Store() {
   return (
     <div className="gs-root">
 
-      {/* Topbar fixada — sempre visível independente do scroll */}
-      <header className="hb-topbar">
-        <div className="hb-topbar-left">
-          <div className="hb-logo">
-            <LogoGlobal iconSize={22} iconColor="#818cf8" />
-          </div>
-          <div className="hb-topbar-div" />
-          <span className="hb-topbar-label">Store</span>
-        </div>
-
-        <div className="hb-topbar-right">
-          {/* Atalho para Hub */}
-          <button
-            className="hb-topbar-navlink"
-            type="button"
-            title={t('store.voltar_hub')}
-            onClick={() => navigate('/hub?select=1')}
-          >
-            <LogoHub size={13} color="#818cf8" />
-            Hub
-          </button>
-
-          <div className="hb-topbar-sep" />
-
-          {/* Busca — foca o campo de busca de módulos no corpo */}
-          <button
-            className="hb-topbar-btn"
-            type="button"
-            title={t('comum.buscar')}
-            onClick={() => {
-              const el = document.querySelector<HTMLInputElement>('.gs-search__input')
-              if (el) {
-                el.focus()
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-              }
-            }}
-          >
-            <MagnifyingGlass weight="bold" size={16} />
-          </button>
-
-          {/* Notificações — componente tenant self-contained */}
-          <Notificacoes />
-
-          {/* Toggle tooltips */}
-          <button
-            className="hb-topbar-btn"
-            type="button"
-            title={tooltipsDisabled ? t('shell.label_habilitar_dicas') : t('shell.label_desabilitar_dicas')}
-            onClick={toggleTooltips}
-            style={{ color: tooltipsDisabled ? 'var(--hb-muted)' : 'var(--hb-accent)' }}
-          >
-            <Info weight={tooltipsDisabled ? 'regular' : 'fill'} size={16} />
-          </button>
-
-          {/* Localizador — ecosistema */}
-          <LocalizadorGlobal
-            workspaceName={companyName}
-            iconOnly
-            currentProductId="store"
-            currentProductLabel="Store"
-            currentProductColor="#818cf8"
-            currentPageLabel="Store"
-            history={history}
-            nodes={ecosystemNodes}
-            onNavigate={(node) => {
-              if (node.type === 'hub')               navigate('/hub?select=1')
-              else if (node.type === 'core')         navigate('/core')
-              else if (node.type === 'configurador') navigate('/configurador')
-              else if (node.type === 'admin')        navigate('/admin/visao-geral')
-              else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
-            }}
-          />
-
-          {/* Seletor de idioma */}
-          <SeletorIdiomaGlobal iconOnly />
-
-          <div className="hb-topbar-sep" />
-
-          {/* Engrenagem — workspace */}
-          <button
-            className="hb-topbar-btn"
-            type="button"
-            title={t('workspace.layout.modulo_nome')}
-            onClick={() => navigate('/configurador')}
-          >
-            <Gear weight="duotone" size={16} />
-          </button>
-
-          <UsuarioGlobal
-            userName={userName}
-            userEmail={userEmail}
-            userInitials={userInitials}
-            userRole={userRoleLabel}
-            isLight={isLight}
-            onToggleTheme={toggleTheme}
-            onNavigateWorkspace={() => navigate('/configurador/organizacao')}
-            onNavigateMarketPlace={() => navigate('/store')}
-            onSignOut={() => signOut()}
-            isAdmin={isGravityAdmin}
-            onNavigateAdmin={() => navigate('/admin/visao-geral')}
-            temAcessoTrocarOrganizacao={podeAtivarOverride}
-            organizacaoOverrideAtiva={overrideAtivo}
-            aoTrocarOrganizacao={() => setModalTrocarOrgAberto(true)}
-            aoVoltarParaGravity={() => { limparOverride(); navigate('/hub') }}
-            compact
-          />
-        </div>
-      </header>
+      <TopbarPaginaGravity
+        rotuloTela="Store"
+        atalho={{
+          label: 'Hub',
+          title: t('store.voltar_hub'),
+          icon: <LogoHub size={13} color="#818cf8" />,
+          onClick: () => navigate('/hub?select=1'),
+        }}
+        onBuscar={() => {
+          const el = document.querySelector<HTMLInputElement>('.gs-search__input')
+          if (el) {
+            el.focus()
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }}
+        workspaceName={companyName}
+        localizador={{
+          currentProductId: 'store',
+          currentProductLabel: 'Store',
+          currentProductColor: '#818cf8',
+          currentPageLabel: 'Store',
+          history,
+          nodes: ecosystemNodes,
+          onNavigate: (node) => {
+            if (node.type === 'hub')               navigate('/hub?select=1')
+            else if (node.type === 'core')         navigate('/hub?select=1')
+            else if (node.type === 'hub-store')    navigate('/store')
+            else if (node.type === 'configurador') navigate('/configurador')
+            else if (node.type === 'admin')        navigate('/admin/visao-geral')
+            else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
+          },
+        }}
+        onAbrirConfigurador={() => navigate('/configurador')}
+        usuario={{
+          userName,
+          userEmail,
+          userInitials,
+          userRole: userRoleLabel,
+          onNavigateWorkspace: () => navigate('/configurador/organizacao'),
+          onNavigateMarketPlace: () => navigate('/store'),
+          onSignOut: () => signOut(),
+          isAdmin: isGravityAdmin,
+          onNavigateAdmin: () => navigate('/admin/visao-geral'),
+          temAcessoTrocarOrganizacao: podeAtivarOverride,
+          organizacaoOverrideAtiva: overrideAtivo,
+          aoTrocarOrganizacao: () => setModalTrocarOrgAberto(true),
+          aoVoltarParaGravity: () => { limparOverride(); navigate('/hub') },
+        }}
+      />
       <ModalTrocarOrganizacao
         aberto={modalTrocarOrgAberto}
         aoFechar={() => setModalTrocarOrgAberto(false)}
@@ -425,8 +424,8 @@ export function Store() {
                     <Package weight="duotone" size={20} />
                   </div>
                   <div>
-                    <div className="gs-stat__n">{totalCount}</div>
-                    <div className="gs-stat__l">{t('store.stat_modulos')}</div>
+                    <div className="gs-stat__n">{contagemStore.disponiveis}</div>
+                    <div className="gs-stat__l">{t('store.stat_disponiveis')}</div>
                   </div>
                 </div>
                 <div className="gs-stat">
@@ -434,8 +433,8 @@ export function Store() {
                     <CheckCircle weight="duotone" size={20} />
                   </div>
                   <div>
-                    <div className="gs-stat__n">{ownedCount}</div>
-                    <div className="gs-stat__l">{t('store.stat_ativos')}</div>
+                    <div className="gs-stat__n">{contagemStore.contratados}</div>
+                    <div className="gs-stat__l">{t('store.stat_contratados')}</div>
                   </div>
                 </div>
                 <div className="gs-stat">
@@ -443,15 +442,14 @@ export function Store() {
                     <Lightning weight="duotone" size={20} />
                   </div>
                   <div>
-                    <div className="gs-stat__n">{emBreveCount}</div>
+                    <div className="gs-stat__n">{contagemStore.em_breve}</div>
                     <div className="gs-stat__l">{t('store.stat_em_breve')}</div>
                   </div>
                 </div>
               </div>
 
               {/* ── MONTE O SEU GRAVITY — Puzzle Stack ───────────────────── */}
-              {catalog.length > 0 && (
-                <div className="gs-stack">
+              <div className="gs-stack">
                   <div className="gs-stack__head">
                     <div>
                       <h2 className="gs-stack__title">{t('store.stack_titulo')}</h2>
@@ -459,88 +457,44 @@ export function Store() {
                     </div>
                     <div className="gs-stack__meter">
                       <div className="gs-stack__meter-bar">
-                        {Array.from({ length: catalog.length }).map((_, i) => (
-                          <div key={i} className={`gs-stack__seg${i < ownedCount ? ' gs-stack__seg--on' : ''}`} />
+                        {puzzleLinhaAtivos.map((slug) => (
+                          <div
+                            key={slug}
+                            className={`gs-stack__seg${classeSegmentoPuzzleStore(statusProduto(slug))}`}
+                          />
                         ))}
                       </div>
                       <span className="gs-stack__meter-label">
-                        {ownedCount === 0
+                        {contratadosNoPuzzle === 0
                           ? t('store.stack_nenhum')
-                          : ownedCount === catalog.length
+                          : contratadosNoPuzzle === puzzleLinhaAtivos.length
                             ? t('store.stack_completo')
-                            : t('store.stack_parcial', { n: ownedCount, total: catalog.length })}
+                            : t('store.stack_parcial', {
+                                n: contratadosNoPuzzle,
+                                total: puzzleLinhaAtivos.length,
+                              })}
                       </span>
                     </div>
                   </div>
 
-                  {/* Peças de quebra-cabeça com SVG real */}
-                  <div className="gs-stack__pieces-scroll">
-                  <div className="gs-stack__pieces">
-                    {(() => {
-                      const validSlugs = STACK_ORDER.filter(s => catalog.find(p => p.slug === s))
-                      return validSlugs.map((slug, pieceIdx) => {
-                        const cp = catalog.find(p => p.slug === slug)!
-                        const meta = PRODUCT_META[slug]
-                        const isOwned = getStatus(slug) === 'owned'
-                        const isFirst = pieceIdx === 0
-                        const isLast = pieceIdx === validSlugs.length - 1
-                        // Primeira peça fica na frente para a aba cobrir a cavidade da próxima
-                        const zIdx = validSlugs.length - pieceIdx + 1
-
-                        // Dimensões: corpo W=120 H=90, aba estende 18px direita, cavidade indenta 18px esquerda
-                        // Mesma geometria garante que aba e cavidade tracem o MESMO arco — strokes coincidem em uma linha só
-                        const path = isFirst && isLast
-                          ? 'M 0,0 L 120,0 L 120,90 L 0,90 Z'
-                          : isFirst
-                          ? 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 Z'
-                          : isLast
-                          ? 'M 0,0 L 120,0 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
-                          : 'M 0,0 L 120,0 L 120,32 C 138,32 138,58 120,58 L 120,90 L 0,90 L 0,58 C 18,58 18,32 0,32 Z'
-
-                        const fill = isOwned ? (meta?.iconBg ?? 'rgba(99,102,241,0.18)') : 'rgba(255,255,255,0.025)'
-                        const stroke = isOwned ? (meta?.iconColor ?? '#818cf8') : 'rgba(255,255,255,0.09)'
-
-                        return (
-                          <div
-                            key={slug}
-                            className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isFirst ? '' : ' gs-piece--has-blank'}`}
-                            style={{ zIndex: zIdx, '--piece-color': meta?.iconColor ?? '#818cf8' } as React.CSSProperties}
-                            onClick={() => isOwned
-                              ? navigate(`/produto/${slug}`)
-                              : document.getElementById(`produto-${slug}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                            }
-                            title={nomeExibicaoProdutoGravity(slug, cp.name, t)}
-                          >
-                            {/* Shape SVG da peça */}
-                            <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg">
-                              <path d={path} fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinejoin="round" />
-                            </svg>
-                            {/* Conteúdo */}
-                            <div className={`gs-piece__body${isFirst ? '' : ' gs-piece__body--indent'}`}>
-                              <div className="gs-piece__icon">
-                                {meta?.icon ?? <Package weight="duotone" size={20} color="#818cf8" />}
-                              </div>
-                              <span className="gs-piece__name">
-                                {nomeExibicaoProdutoGravity(slug, cp.name, t)}
-                              </span>
-                              {isOwned && (
-                                <span className="gs-piece__check">
-                                  <CheckCircle weight="fill" size={11} color="#10b981" />
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })
-                    })()}
-                  </div>
+                  <div className="gs-stack__lanes">
+                    {puzzleLinhaAtivos.length > 0 && (
+                      <StorePuzzleCarousel className="gs-puzzle-carousel--ativos">
+                        <StorePuzzleRow
+                          embutido
+                          slugs={puzzleLinhaAtivos}
+                          catalog={catalog}
+                          statusDe={statusProduto}
+                          variante="ativos"
+                        />
+                      </StorePuzzleCarousel>
+                    )}
                   </div>
 
-                  {ownedCount === 0 && (
+                  {contratadosNoPuzzle === 0 && (
                     <p className="gs-stack__hint">{t('store.stack_hint')}</p>
                   )}
                 </div>
-              )}
 
               {/* Toolbar */}
               <div className="gs-toolbar">
@@ -555,53 +509,49 @@ export function Store() {
                   />
                 </div>
 
-                {/* Segmented: Todos | Catálogo | Meus produtos */}
-                <div className="gs-segmented" role="tablist" aria-label={t('store.view_aria')}>
+                <div className="gs-segmented gs-segmented--4" role="tablist" aria-label={t('store.view_aria')}>
                   <button
                     type="button"
                     role="tab"
                     aria-selected={viewMode === 'todos'}
                     className={`gs-segmented__btn${viewMode === 'todos' ? ' gs-segmented__btn--active' : ''}`}
-                    onClick={() => setViewMode('todos')}
+                    onClick={() => irParaLinha('todos')}
                   >
                     {t('store.filtro_todos')}
-                    <span className="gs-segmented__count">{totalCount}</span>
+                    <span className="gs-segmented__count">{contagemLinhas.todos}</span>
                   </button>
                   <button
                     type="button"
                     role="tab"
-                    aria-selected={viewMode === 'catalogo'}
-                    className={`gs-segmented__btn${viewMode === 'catalogo' ? ' gs-segmented__btn--active' : ''}`}
-                    onClick={() => setViewMode('catalogo')}
+                    aria-selected={viewMode === 'ativo'}
+                    className={`gs-segmented__btn${viewMode === 'ativo' ? ' gs-segmented__btn--active' : ''}`}
+                    onClick={() => irParaLinha('ativo')}
                   >
-                    {t('store.view_catalogo')}
-                    <span className="gs-segmented__count">{catalogoCount}</span>
+                    {t('store.filtro_ativo')}
+                    <span className="gs-segmented__count">{contagemLinhas.ativo}</span>
                   </button>
                   <button
                     type="button"
                     role="tab"
-                    aria-selected={viewMode === 'meus'}
-                    className={`gs-segmented__btn${viewMode === 'meus' ? ' gs-segmented__btn--active' : ''}`}
-                    onClick={() => setViewMode('meus')}
+                    aria-selected={viewMode === 'assinar'}
+                    className={`gs-segmented__btn gs-segmented__btn--assinar${viewMode === 'assinar' ? ' gs-segmented__btn--active' : ''}`}
+                    onClick={() => irParaLinha('assinar')}
                   >
-                    {t('store.view_meus')}
-                    <span className="gs-segmented__count">{ownedCount}</span>
+                    {t('store.filtro_assinar')}
+                    <span className="gs-segmented__count">{contagemLinhas.assinar}</span>
                   </button>
-                </div>
-
-                {/* Chip "Em Breve" — ativo em Todos e Catálogo (quando há itens) */}
-                {viewMode !== 'meus' && emBreveCount > 0 && (
                   <button
                     type="button"
-                    className={`gs-chip-soon${emBreveOnly ? ' gs-chip-soon--active' : ''}`}
-                    onClick={() => setEmBreveOnly(v => !v)}
-                    aria-pressed={emBreveOnly}
+                    role="tab"
+                    aria-selected={viewMode === 'em_breve'}
+                    className={`gs-segmented__btn gs-segmented__btn--soon${viewMode === 'em_breve' ? ' gs-segmented__btn--active' : ''}`}
+                    onClick={() => irParaLinha('em_breve')}
                   >
                     <Lightning weight="fill" size={12} />
                     {t('store.filtro_em_breve')}
-                    <span className="gs-chip-soon__count">{emBreveCount}</span>
+                    <span className="gs-segmented__count">{contagemLinhas.em_breve}</span>
                   </button>
-                )}
+                </div>
 
                 <div className="gs-toolbar__divider" aria-hidden="true" />
 
@@ -619,149 +569,19 @@ export function Store() {
                 </div>
 
                 <div className="gs-toolbar__count">
-                  {t('store.contagem_modulos', { count: filteredCatalog.length })}
+                  {t('store.contagem_produtos', { count: catalogoFiltrado.length })}
                 </div>
               </div>
 
-              {/* Label seção — dinâmico conforme view */}
-              {filteredCatalog.length > 0 && (
-                <div className="gs-section-label">
-                  <span>
-                    {viewMode === 'meus'
-                      ? t('store.secao_meus', { count: filteredCatalog.length })
-                      : emBreveOnly
-                        ? t('store.secao_em_breve', { count: filteredCatalog.length })
-                        : t('store.secao_disponiveis', { count: filteredCatalog.length })}
-                  </span>
-                </div>
-              )}
-
-              {/* Grid — módulos disponíveis */}
-              {filteredCatalog.length > 0 && (
-              <div className="gs-grid">
-
-                {filteredCatalog.map((p, idx) => {
-                  const meta = PRODUCT_META[p.slug]
-                  const status = getStatus(p.slug)
-                  const isOwned = status === 'owned'
-                  const isSoon = status === 'soon'
-                  const isSubscribing = subscribing === p.slug
-                  const delayClass = idx < 6 ? `hs-fade-up-d${Math.min(idx + 1, 4)}` : ''
-                  return (
-                    <div
-                      key={p.id}
-                      id={`produto-${p.slug}`}
-                      className={`gs-card hs-fade-up ${delayClass}${isOwned ? ' gs-card--owned' : ''}${isSoon ? ' gs-card--soon' : ''}${!isOwned && !isSoon ? ' gs-card--available' : ''}`}
-                      onClick={isOwned ? () => navigate(`/produto/${p.slug}`) : undefined}
-                      style={isOwned
-                        ? { cursor: 'pointer', ['--pulse-delay' as string]: pulseDelayFor(p.slug) } as React.CSSProperties
-                        : undefined}
-                    >
-                      <div className="gs-card__top">
-                        <div className="gs-card__icon" style={{ background: meta?.iconBg ?? 'rgba(99,102,241,0.12)' }}>
-                          {meta?.icon ?? <Package weight="duotone" size={28} color="#818cf8" />}
-                        </div>
-                        <div className="gs-card__badges">
-                          {isOwned ? (
-                            <span className="gs-badge gs-badge--owned">
-                              <CheckCircle weight="fill" size={11} /> {t('store.badge_ativo')}
-                            </span>
-                          ) : isSoon ? (
-                            <span className="gs-badge gs-badge--soon">
-                              <Lightning weight="fill" size={11} /> {t('store.badge_em_breve')}
-                            </span>
-                          ) : (
-                            <span className="gs-badge gs-badge--available">
-                              <span className="gs-badge__dot" /> {t('store.badge_disponivel')}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="gs-card__body">
-                        <h3 className="gs-card__name">
-                          {nomeExibicaoProdutoGravity(p.slug, p.name, t)}
-                        </h3>
-                        {meta?.categoryKey && (
-                          <span className="gs-card__category" style={{ color: meta.iconColor }}>
-                            {t(meta.categoryKey)}
-                          </span>
-                        )}
-                        <p className="gs-card__desc">
-                          {meta?.descKey ? t(meta.descKey) : (p.description ?? t('store.modulo_desc_fallback'))}
-                        </p>
-                        {meta?.tagKeys && (
-                          <div className="gs-card__tags">
-                            {meta.tagKeys.map(tk => (
-                              <span key={tk} className={`gs-tag${isSoon ? ' gs-tag--muted' : ''}`}>{t(tk)}</span>
-                            ))}
-                          </div>
-                        )}
-                        {/* Combina com */}
-                        {(RELACAO_ENTRE_PRODUTOS_GRAVITY[p.slug]?.length ?? 0) > 0 && (
-                          <div className="gs-card__combina">
-                            <span className="gs-card__combina-label">{t('store.combina_com')}</span>
-                            <div className="gs-card__combina-chips">
-                              {RELACAO_ENTRE_PRODUTOS_GRAVITY[p.slug].map(relSlug => {
-                                const relMeta = PRODUCT_META[relSlug]
-                                const relOwned = getStatus(relSlug) === 'owned'
-                                const relProduct = catalog.find(cp => cp.slug === relSlug)
-                                if (!relMeta || !relProduct) return null
-                                return (
-                                  <span
-                                    key={relSlug}
-                                    className={`gs-combina-chip${relOwned ? ' gs-combina-chip--owned' : ''}`}
-                                    style={{ color: relMeta.iconColor }}
-                                  >
-                                    {nomeExibicaoProdutoGravity(relSlug, relProduct.name, t)}
-                                  </span>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      <div className="gs-card__footer">
-                        <span />
-                        {isOwned ? (
-                          <BotaoGlobal
-                            variante="secundario"
-                            tamanho="pequeno"
-                            onClick={(e) => { e.stopPropagation(); navigate(`/produto/${p.slug}`) }}
-                          >
-                            {t('store.btn_acessar')}
-                          </BotaoGlobal>
-                        ) : isSoon ? (
-                          <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
-                            {t('store.btn_em_breve')}
-                          </BotaoGlobal>
-                        ) : podeContratar ? (
-                          <BotaoGlobal
-                            variante="primario"
-                            tamanho="pequeno"
-                            disabled={isSubscribing}
-                            onClick={(e) => { e.stopPropagation(); handleSubscribe(p.slug) }}
-                          >
-                            {isSubscribing
-                              ? <><SpinnerGap size={14} className="hs-spin" /> {t('store.btn_contratando')}</>
-                              : <>{t('store.btn_ativar')} <ArrowRight weight="bold" size={13} /></>
-                            }
-                          </BotaoGlobal>
-                        ) : (
-                          // Matriz Cadeia 1: PADRAO/FORNECEDOR vê o catálogo mas
-                          // jamais contrata. Fornecedor é potencial cliente —
-                          // mostra valor sem habilitar compra. Master/SAdmin/Admin
-                          // são os únicos que adquirem produtos para a org.
-                          <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
-                            {t('store.btn_ativar')}
-                          </BotaoGlobal>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-
-              </div>
-              )}
+              <StoreCardsRows
+                catalog={catalog}
+                catalogoFiltrado={catalogoFiltrado}
+                assinaturas={subscribed}
+                podeContratar={podeContratar}
+                subscribing={subscribing}
+                onSubscribe={handleSubscribe}
+                pulseDelayFor={pulseDelayFor}
+              />
 
               {/* Footer */}
               <div className="gs-footer">

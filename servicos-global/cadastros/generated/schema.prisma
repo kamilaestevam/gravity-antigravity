@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-17T20:44:49.257Z
+// Gerado em: 2026-06-08T02:07:21.455Z
 // Banco: gravity-cadastros-* (Railway)
 // Serviço: @gravity/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -45,68 +45,172 @@ datasource db {
 // - O Coordenador é o único autorizado a rodar a composição do schema
 //   consolidado (Mandamento 02).
 // - Booleans usam o adjetivo (ativo, pode_ser_*), sem prefixo is_/has_.
-// - DTO/ACL nas rotas preserva contrato público das schemas Zod
-//   (`shared/schemas/`) — `id_organizacao` continua sendo o nome
-//   exposto na API, mesmo que internamente seja `id_organizacao_empresa`.
+// - DTO/ACL nas rotas: API expõe `id_organizacao` (sem sufixo); banco usa
+//   `id_organizacao_cadastro_fornecedor`.
 // =====================================================================
 
 // ---------------------------------------------------------------------
-// Empresa — cartório de identidades COMEX (per-tenant)
-// ---------------------------------------------------------------------
-// Tipo da empresa é DERIVADO das flags pode_ser_*, NÃO é campo persistido.
-// Função utilitária: derivarTipoVisual(empresa) em server/src/utils.
+// Empresa — identidade 1:1 da organização (Cadastros §4.1)
+// Separada de Fornecedor (parceiros/contrapartes).
 // ---------------------------------------------------------------------
 model Empresa {
-  suid_empresa String @id
+  id_empresa String @id
 
-  // Identificação tenant — TODO field termina em _empresa (DDD ONDA 38)
-  id_organizacao_empresa String
-  id_produto_empresa     String?
-  id_usuario_empresa     String? // criador (Clerk user_id)
+  id_organizacao_empresa String @unique(map: "empresa_id_organizacao_empresa_key")
 
-  // Identificação fiscal/legal
-  nome_empresa     String
-  cnpj_empresa     String? // obrigatório se pais_empresa = BR
-  tin_empresa      String? // estrangeiros (opcional)
-  pais_empresa     String // ISO-2
-  estado_empresa   String?
-  cidade_empresa   String?
-  endereco_empresa String?
-  zipcode_empresa  String?
-  email_empresa    String?
-  telefone_empresa String?
-  whatsapp_empresa String?
+  nome_empresa               String
+  cnpj_empresa               String?
+  tin_empresa                String?
+  pais_empresa               String
+  estado_provincia_empresa   String?
+  cidade_empresa             String?
+  endereco_empresa           String?
+  cep_zipcode_empresa        String?
+  email_principal_empresa    String?
+  telefone_principal_empresa String?
+  whatsapp_principal_empresa String?
 
-  // Flags de papel (REGRA 5: sem is_/has_)
   pode_ser_importador_empresa                              Boolean @default(false)
   pode_ser_exportador_empresa                              Boolean @default(false)
   pode_ser_fabricante_empresa                              Boolean @default(false)
   pode_ser_agente_empresa                                  Boolean @default(false)
   pode_ser_despachante_empresa                             Boolean @default(false)
   pode_ser_armador_empresa                                 Boolean @default(false)
-  pode_ser_armazem_alfandegado_empresa                     Boolean @default(false)
-  pode_ser_transportadora_rodoviaria_nacional_empresa      Boolean @default(false)
   pode_ser_cia_aerea_empresa                               Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_nacional_empresa      Boolean @default(false)
   pode_ser_transportadora_rodoviaria_internacional_empresa Boolean @default(false)
+  pode_ser_armazem_alfandegado_empresa                     Boolean @default(false)
+  pode_ser_armazem_nacional_empresa                        Boolean @default(false)
+  pode_ser_banco_empresa                                   Boolean @default(false)
   pode_ser_seguradora_internacional_empresa                Boolean @default(false)
   pode_ser_seguradora_corretora_cambio_empresa             Boolean @default(false)
-  pode_ser_banco_empresa                                   Boolean @default(false)
-  pode_ser_armazem_nacional_empresa                        Boolean @default(false)
 
-  // Estado (REGRA 5)
-  ativo_empresa Boolean @default(true)
-
-  // Timestamps
+  ativo_empresa         Boolean  @default(true)
   criado_em_empresa     DateTime @default(now())
   atualizado_em_empresa DateTime @updatedAt
 
   @@unique([id_organizacao_empresa, cnpj_empresa], map: "emp_unq_org_cnpj")
   @@unique([id_organizacao_empresa, tin_empresa, pais_empresa], map: "emp_unq_org_tin_pais")
   @@index([id_organizacao_empresa], map: "emp_org_idx")
-  @@index([id_organizacao_empresa, id_produto_empresa], map: "emp_org_prd_idx")
-  @@index([id_organizacao_empresa, id_usuario_empresa], map: "emp_org_usr_idx")
   @@index([id_organizacao_empresa, nome_empresa], map: "emp_org_nome_idx")
   @@map("empresa")
+}
+
+// ---------------------------------------------------------------------
+// Fornecedor — cartório de identidades COMEX (per-tenant)
+// ---------------------------------------------------------------------
+// Dois regimes:
+// - Parceiro pedido (exportador Shenzhen): id_fornecedor por org cadastro.
+// - Prestador portal (agente CNPJ): um id_fornecedor, várias fornecedor_organizacao.
+//
+// Tipo visual DERIVADO das flags pode_ser_*, NÃO enum único no master.
+// ---------------------------------------------------------------------
+model Fornecedor {
+  id_fornecedor String @id
+
+  id_organizacao_cadastro_fornecedor String
+  id_produto_fornecedor              String?
+  id_usuario_cadastro_fornecedor     String?
+
+  nome_fornecedor               String
+  cnpj_fornecedor               String?
+  tin_fornecedor                String?
+  pais_fornecedor               String
+  estado_provincia_fornecedor   String?
+  cidade_fornecedor             String?
+  endereco_fornecedor           String?
+  cep_zipcode_fornecedor        String?
+  email_principal_fornecedor    String?
+  telefone_principal_fornecedor String?
+  whatsapp_principal_fornecedor String?
+
+  pode_ser_importador_fornecedor                              Boolean @default(false)
+  pode_ser_exportador_fornecedor                              Boolean @default(false)
+  pode_ser_fabricante_fornecedor                              Boolean @default(false)
+  pode_ser_agente_fornecedor                                  Boolean @default(false)
+  pode_ser_despachante_fornecedor                             Boolean @default(false)
+  pode_ser_armador_fornecedor                                 Boolean @default(false)
+  pode_ser_armazem_alfandegado_fornecedor                     Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_nacional_fornecedor      Boolean @default(false)
+  pode_ser_cia_aerea_fornecedor                               Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_internacional_fornecedor Boolean @default(false)
+  pode_ser_seguradora_internacional_fornecedor                Boolean @default(false)
+  pode_ser_seguradora_corretora_cambio_fornecedor             Boolean @default(false)
+  pode_ser_banco_fornecedor                                   Boolean @default(false)
+  pode_ser_armazem_nacional_fornecedor                        Boolean @default(false)
+
+  ativo_fornecedor         Boolean  @default(true)
+  criado_em_fornecedor     DateTime @default(now())
+  atualizado_em_fornecedor DateTime @updatedAt
+
+  fornecedores_organizacao FornecedorOrganizacao[]
+
+  @@unique([id_organizacao_cadastro_fornecedor, cnpj_fornecedor], map: "forn_unq_org_cnpj")
+  @@unique([id_organizacao_cadastro_fornecedor, tin_fornecedor, pais_fornecedor], map: "forn_unq_org_tin_pais")
+  @@index([id_organizacao_cadastro_fornecedor], map: "forn_org_idx")
+  @@index([id_organizacao_cadastro_fornecedor, id_produto_fornecedor], map: "forn_org_prd_idx")
+  @@index([id_organizacao_cadastro_fornecedor, id_usuario_cadastro_fornecedor], map: "forn_org_usr_idx")
+  @@index([id_organizacao_cadastro_fornecedor, nome_fornecedor], map: "forn_org_nome_idx")
+  @@map("fornecedor")
+}
+
+// ---------------------------------------------------------------------
+// FornecedorOrganizacao — vínculo fornecedor ↔ organização cliente (SSOT)
+// ---------------------------------------------------------------------
+// SSOT Cadastros para todos os produtos Gravity. Substitui
+// configurador.fornecedor_organizacao (remoção no Configurador = passo 02).
+//
+// id_fornecedor → fornecedor.id_fornecedor (cartório).
+// id_usuario    = Configurador.usuario.id_usuario (FK lógica). NÃO há id_fornecedor em usuario.
+// Sem snapshot nesta tabela — dados vivos via FK; snapshot δ no Pedido/contrato.
+// Mesmo id_fornecedor pode ter várias id_organizacao (troca de crachá portal).
+// ---------------------------------------------------------------------
+
+enum TipoFornecedorOrganizacao {
+  AGENTE_CARGA
+  DESPACHANTE_ADUANEIRO
+  ARMADOR
+  CIA_AEREA
+  TRANSPORTADORA_RODOVIARIA_NACIONAL
+  TRANSPORTADORA_RODOVIARIA_INTERNACIONAL
+  ARMAZEM_ALFANDEGADO
+  ARMAZEM_NACIONAL
+  BANCO
+  SEGURADORA_INTERNACIONAL
+  CORRETORA_CAMBIO
+  FABRICANTE
+}
+
+enum StatusFornecedorOrganizacao {
+  ATIVO
+  INATIVO
+  PENDENTE_APROVACAO
+}
+
+model FornecedorOrganizacao {
+  id_fornecedor_organizacao String @id @default(cuid())
+
+  id_fornecedor  String
+  // Organização Gravity cliente que habilita/contrata o fornecedor
+  id_organizacao String
+
+  tipo_fornecedor_organizacao   TipoFornecedorOrganizacao
+  status_fornecedor_organizacao StatusFornecedorOrganizacao @default(ATIVO)
+
+  // Usuário FORNECEDOR habilitado (Configurador.usuario.id_usuario) — cross-DB
+  id_usuario String?
+
+  data_criacao_fornecedor_organizacao     DateTime @default(now())
+  data_atualizacao_fornecedor_organizacao DateTime @updatedAt
+
+  fornecedor Fornecedor @relation(fields: [id_fornecedor], references: [id_fornecedor], onDelete: Restrict)
+
+  @@unique([id_fornecedor, id_organizacao, tipo_fornecedor_organizacao], map: "fornecedor_organizacao_forn_org_tipo_unq")
+  @@index([id_organizacao], map: "fornecedor_organizacao_org_idx")
+  @@index([id_organizacao, id_fornecedor], map: "fornecedor_organizacao_org_forn_idx")
+  @@index([id_organizacao, id_usuario], map: "fornecedor_organizacao_org_usr_idx")
+  @@index([id_fornecedor], map: "fornecedor_organizacao_forn_idx")
+  @@map("fornecedor_organizacao")
 }
 
 // ---------------------------------------------------------------------
@@ -180,6 +284,177 @@ model Incoterm {
   ativo_incoterm     Boolean @default(true)
 
   @@map("incoterm")
+}
+
+// ---------------------------------------------------------------------
+// Porto — catálogo global de portos marítimos/fluviais (UN/LOCODE).
+// Fonte: UNECE UN/LOCODE (datahub.io), ~6.000 portos ativos.
+// Critério de inclusão: Function contém "1" (port) ou "8" (inland water).
+// Atualizado 2x/ano pelo UN (via seed script manual).
+// Catálogo global — sem id_organizacao.
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+
+model Porto {
+  id_porto String @id @default(cuid())
+
+  // UN/LOCODE — identificação única internacional
+  codigo_unlocode_porto String @unique // ex: "BRSSZ", "USNYC", "CNSHA"
+  codigo_pais_porto     String // ISO alpha-2 (BR, US, CN)
+  codigo_local_porto    String // 3 chars UNLOCODE (SSZ, NYC, SHA)
+
+  // Nomes
+  nome_porto       String // Santos, New York, Shanghai
+  nome_ascii_porto String // sem diacríticos (busca)
+
+  // Localização
+  subdivisao_porto String? // UF/estado/província (SP, NY, SH)
+  latitude_porto   Float?
+  longitude_porto  Float?
+
+  // IATA (quando porto coincide com localidade de aeroporto)
+  codigo_iata_porto String?
+
+  // Estado
+  ativo_porto Boolean @default(true)
+
+  @@index([codigo_pais_porto], map: "porto_pais_idx")
+  @@index([nome_porto], map: "porto_nome_idx")
+  @@index([nome_ascii_porto], map: "porto_nome_ascii_idx")
+  @@index([ativo_porto], map: "porto_ativo_idx")
+  @@map("porto")
+}
+
+// ---------------------------------------------------------------------
+// Aeroporto — catálogo global de aeroportos (UN/LOCODE + IATA).
+// Fonte: UNECE UN/LOCODE (datahub.io), ~4.000 aeroportos ativos.
+// Critério de inclusão: Function contém "4" (airport).
+// Atualizado 2x/ano pelo UN (via seed script manual).
+// Catálogo global — sem id_organizacao.
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+
+model Aeroporto {
+  id_aeroporto String @id @default(cuid())
+
+  // UN/LOCODE — identificação única internacional
+  codigo_unlocode_aeroporto String @unique // ex: "BRGRU", "USJFK", "CNPVG"
+  codigo_pais_aeroporto     String // ISO alpha-2 (BR, US, CN)
+  codigo_local_aeroporto    String // 3 chars UNLOCODE (GRU, JFK, PVG)
+
+  // Nomes
+  nome_aeroporto       String // Guarulhos, John F. Kennedy, Pudong
+  nome_ascii_aeroporto String // sem diacríticos (busca)
+
+  // Localização
+  subdivisao_aeroporto String? // UF/estado/província (SP, NY, SH)
+  latitude_aeroporto   Float?
+  longitude_aeroporto  Float?
+
+  // IATA — código de 3 letras do aeroporto (fundamental para aéreo)
+  codigo_iata_aeroporto String? @unique // GRU, JFK, PVG
+
+  // Estado
+  ativo_aeroporto Boolean @default(true)
+
+  @@index([codigo_pais_aeroporto], map: "aeroporto_pais_idx")
+  @@index([nome_aeroporto], map: "aeroporto_nome_idx")
+  @@index([nome_ascii_aeroporto], map: "aeroporto_nome_ascii_idx")
+  @@index([ativo_aeroporto], map: "aeroporto_ativo_idx")
+  @@map("aeroporto")
+}
+
+// ---------------------------------------------------------------------
+// TaxaOrigemDestino — catálogo global de taxas logísticas (origem/destino/frete).
+// Cadastros guarda definição; valores ficam no BID (taxa_*_bid_frete_internacional).
+// ---------------------------------------------------------------------
+
+model TaxaOrigemDestino {
+  id_taxa_origem_destino String @id @default(cuid())
+
+  nome_taxa_origem_destino      String
+  descricao_taxa_origem_destino String?
+  tipo_taxa_origem_destino      String // ORIGEM | DESTINO | FRETE
+  codigo_taxa_origem_destino    String? @unique
+  ativo_taxa_origem_destino     Boolean @default(true)
+
+  data_criacao_taxa_origem_destino     DateTime @default(now())
+  data_atualizacao_taxa_origem_destino DateTime @updatedAt
+
+  @@index([tipo_taxa_origem_destino], map: "taxa_origem_destino_tipo_idx")
+  @@index([ativo_taxa_origem_destino], map: "taxa_origem_destino_ativo_idx")
+  @@index([nome_taxa_origem_destino], map: "taxa_origem_destino_nome_idx")
+  @@map("taxa_origem_destino")
+}
+
+// ---------------------------------------------------------------------
+// Volume — tipos de embalagem COMEX / NF-e / Siscomex (exceto código 22 → container).
+// Catálogo global — sem id_organizacao. SSOT para tipo_volume_pedido / tipo_volume_item.
+// ---------------------------------------------------------------------
+
+model Volume {
+  codigo_volume             String  @id
+  nome_volume               String
+  nome_volume_ingles        String?
+  codigo_siscomex_volume    String?
+  codigo_unece_rec21_volume String?
+  texto_especie_nfe_volume  String
+  categoria_volume          String
+  eh_unidade_carga_volume   Boolean @default(false)
+  ativo_volume              Boolean @default(true)
+
+  @@index([ativo_volume], map: "volume_ativo_idx")
+  @@index([categoria_volume], map: "volume_categoria_idx")
+  @@map("volume")
+}
+
+// ---------------------------------------------------------------------
+// Container — catálogo global / fonte única da verdade (ISO 6346).
+// Cada registro = um tipo+tamanho de container existente no mundo.
+// ~25 tipos práticos. Catálogo global — sem id_organizacao.
+// Produtos fazem snapshot deste catálogo nas suas tabelas filhas:
+//   - BID Frete:     container_dados_bid_frete   (snapshot catálogo)
+//   - Processo:      container_processo           (snapshot + operacional)
+//   - NF Importação: container_nf_importacao      (snapshot + operacional)
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+
+model Container {
+  id_container String @id @default(cuid())
+
+  // Tipo funcional (enum)
+  tipo_container ContainerTipo
+
+  // Tamanho
+  tamanho_container String // "20'" | "40'" | "40'HC" | "45'"
+
+  // ISO 6346 — código de 4 caracteres
+  codigo_iso_container String? @unique // ex: "22G0", "45R1", "42U1"
+
+  // Armador proprietário do container
+  armador_dono_container String? // ex: "MSC", "Maersk", "Hapag-Lloyd", "CMA CGM"
+
+  // Estado
+  ativo_container Boolean @default(true)
+
+  @@index([tipo_container], map: "container_tipo_idx")
+  @@index([tamanho_container], map: "container_tamanho_idx")
+  @@index([ativo_container], map: "container_ativo_idx")
+  @@map("container")
+}
+
+// ---------------------------------------------------------------------
+// Enum ContainerTipo — tipos funcionais ISO 6346 + Siscomex Tabela EF.
+// Cobre 99% do frete marítimo prático.
+// ---------------------------------------------------------------------
+enum ContainerTipo {
+  DRY
+  REEFER
+  OPEN_TOP
+  FLAT_RACK
+  TANK
+  BULK
+  PLATAFORMA
 }
 
 // ---------------------------------------------------------------------
@@ -345,68 +620,4 @@ model OPEHistoricoStatus {
   @@index([id_organizacao_ope_historico_status, id_produto_ope_historico_status], map: "ohs_org_prd_idx")
   @@index([id_organizacao_ope_historico_status, id_usuario_ope_historico_status], map: "ohs_org_usr_idx")
   @@map("ope_historico_status")
-}
-
-// ---------------------------------------------------------------------
-// ExportadorQuandoImportacao — contraparte estrangeira (fornecedor)
-// quando a operação é de importação.
-// Entidade independente de Empresa — cada registro é um exportador
-// específico vinculado à organização e workspace do importador.
-// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
-// ---------------------------------------------------------------------
-model ExportadorQuandoImportacao {
-  id_exportador_quando_importacao String @id @default(cuid())
-
-  // Identificação tenant + workspace
-  id_organizacao_exportador String
-  id_workspace_exportador   String
-
-  // Dados cadastrais
-  nome_exportador             String
-  endereco_exportador         String?
-  cidade_exportador           String?
-  estado_provincia_exportador String?
-  pais_exportador             String // ISO-2
-  zipcode_exportador          String?
-
-  // Timestamps
-  criado_em_exportador     DateTime @default(now())
-  atualizado_em_exportador DateTime @updatedAt
-
-  @@index([id_organizacao_exportador], map: "exportador_quando_importacao_org_idx")
-  @@index([id_organizacao_exportador, id_workspace_exportador], map: "exportador_quando_importacao_org_ws_idx")
-  @@index([id_organizacao_exportador, nome_exportador], map: "exportador_quando_importacao_org_nome_idx")
-  @@map("exportador_quando_importacao")
-}
-
-// ---------------------------------------------------------------------
-// ImportadorQuandoExportacao — contraparte estrangeira (comprador)
-// quando a operação é de exportação.
-// Entidade independente de Empresa — cada registro é um importador
-// específico vinculado à organização e workspace do exportador.
-// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
-// ---------------------------------------------------------------------
-model ImportadorQuandoExportacao {
-  id_importador_quando_exportacao String @id @default(cuid())
-
-  // Identificação tenant + workspace
-  id_organizacao_importador String
-  id_workspace_importador   String
-
-  // Dados cadastrais
-  nome_importador             String
-  endereco_importador         String?
-  cidade_importador           String?
-  estado_provincia_importador String?
-  pais_importador             String // ISO-2
-  zipcode_importador          String?
-
-  // Timestamps
-  criado_em_importador     DateTime @default(now())
-  atualizado_em_importador DateTime @updatedAt
-
-  @@index([id_organizacao_importador], map: "importador_quando_exportacao_org_idx")
-  @@index([id_organizacao_importador, id_workspace_importador], map: "importador_quando_exportacao_org_ws_idx")
-  @@index([id_organizacao_importador, nome_importador], map: "importador_quando_exportacao_org_nome_idx")
-  @@map("importador_quando_exportacao")
 }

@@ -230,10 +230,12 @@ model Moeda {
 }
 
 model Unidade {
-  codigo_unidade String  @id   // KG, UN, M, L
-  nome_unidade   String
-  tipo_unidade   String        // peso, quantidade, comprimento, volume
-  ativo_unidade  Boolean @default(true)
+  codigo_unidade        String   @id   // KG, UN, M, L
+  nome_unidade          String
+  tipo_unidade          String         // peso, quantidade, comprimento, volume
+  ativo_unidade         Boolean  @default(true)
+  /// Multiplicador qty na unidade → KG canônico (só tipo_unidade=peso). SSOT conversão Pedido.
+  fator_para_kg_unidade Float?
 
   @@map("unidade")
 }
@@ -252,6 +254,23 @@ model Incoterm {
   ativo_incoterm     Boolean @default(true)
 
   @@map("incoterm")
+}
+
+// ---------------------------------------------------------------------
+// CambioSiscomex — catálogo global Portal Único / BACEN (cobertura cambial
+// e modalidade de pagamento). SSOT para dropdowns do produto Pedido.
+// Fonte: Tabelas Aduaneiras RFB + API Integra Comex (dadosCambiais).
+// ---------------------------------------------------------------------
+model CambioSiscomex {
+  codigo_cambio_siscomex      String  @id
+  tipo_cambio_siscomex        String  // cobertura_cambial | modalidade_pagamento
+  nome_cambio_siscomex        String
+  descricao_cambio_siscomex   String?
+  ordem_cambio_siscomex       Int     @default(0)
+  ativo_cambio_siscomex       Boolean @default(true)
+
+  @@index([tipo_cambio_siscomex], map: "cambio_siscomex_tipo_idx")
+  @@map("cambio_siscomex")
 }
 
 // ---------------------------------------------------------------------
@@ -353,6 +372,27 @@ model TaxaOrigemDestino {
   @@index([ativo_taxa_origem_destino], map: "taxa_origem_destino_ativo_idx")
   @@index([nome_taxa_origem_destino], map: "taxa_origem_destino_nome_idx")
   @@map("taxa_origem_destino")
+}
+
+// ---------------------------------------------------------------------
+// Volume — tipos de embalagem COMEX / NF-e / Siscomex (exceto código 22 → container).
+// Catálogo global — sem id_organizacao. SSOT para tipo_volume_pedido / tipo_volume_item.
+// ---------------------------------------------------------------------
+
+model Volume {
+  codigo_volume              String   @id
+  nome_volume                String
+  nome_volume_ingles         String?
+  codigo_siscomex_volume     String?
+  codigo_unece_rec21_volume  String?
+  texto_especie_nfe_volume   String
+  categoria_volume           String
+  eh_unidade_carga_volume    Boolean  @default(false)
+  ativo_volume               Boolean  @default(true)
+
+  @@index([ativo_volume],      map: "volume_ativo_idx")
+  @@index([categoria_volume],  map: "volume_categoria_idx")
+  @@map("volume")
 }
 
 // ---------------------------------------------------------------------

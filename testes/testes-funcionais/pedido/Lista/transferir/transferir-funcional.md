@@ -1,6 +1,6 @@
 # Plano de Teste Funcional — Transferir Pedido
 
-> **ID:** TST-FUN-PEDIDO-TRANSFERIR-000001
+> **ID:** TST-FUN-PEDIDO-000036
 > **Produto:** Pedido
 > **Feature:** Transferência de itens entre pedidos
 > **Tipo:** Funcional (Supertest + Zod real + Prisma mockado)

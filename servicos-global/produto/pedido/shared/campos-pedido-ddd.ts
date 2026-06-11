@@ -65,7 +65,7 @@ export interface CampoPedidoDDD {
    * no momento da geracao do template, via chamada S2S ao Cadastros.
    * Valores possiveis: 'moeda' | 'unidade'. O templateHandler resolve.
    */
-  dropdownDinamico?: 'moeda' | 'unidade'
+  dropdownDinamico?: 'moeda' | 'unidade' | 'volume' | 'cambio_siscomex_cobertura' | 'cambio_siscomex_modalidade'
   /**
    * Aliases legados em EN/PT-BR variantes (P4.1) — usados pelo mapearComIA
    * APENAS quando nenhum match exato pelo `rotulo` ou pelo `campo` for
@@ -148,9 +148,12 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
   { campo: 'valor_total_pedido',                           rotulo: 'Valor Total do Pedido',                  tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['total amount', 'po total', 'order total'] },
   { campo: 'quantidade_total_pedido',                      rotulo: 'Quantidade Total do Pedido',             tipo: 'numero', nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['total quantity', 'total qty'] },
   { campo: 'unidade_comercializada_pedido',                rotulo: 'Unidade Comercializada do Pedido',       tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', dropdownDinamico: 'unidade', aliasesLegados: ['unit', 'uom', 'unit of measure', 'unidade comercializada', 'unidade'] },
-  { campo: 'condicao_pagamento_pedido',                    rotulo: 'Condicao de Pagamento',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['payment terms', 'pay terms'] },
+  { campo: 'condicao_pagamento_pedido',                    rotulo: 'Condicao de Pagamento — Comercial',      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', aliasesLegados: ['payment terms', 'pay terms'] },
+  { campo: 'condicao_pagamento_siscomex_pedido',           rotulo: 'Condicao de Pagamento — Siscomex',       tipo: 'select', nivel: 'pedido', grupo: 'Comercial', dropdownDinamico: 'cambio_siscomex_modalidade' },
+  { campo: 'tipo_volume_pedido',                           rotulo: 'Tipo Volume Pedido',                     tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial', dropdownDinamico: 'volume' },
   { campo: 'quantidade_volumes_pedido',                    rotulo: 'Qtd. de Volumes',                        tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
-  { campo: 'cobertura_cambial_pedido',                     rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'tipo_volume_item',                             rotulo: 'Tipo Volume Item',                       tipo: 'texto',  nivel: 'item',   grupo: 'Comercial', dropdownDinamico: 'volume' },
+  { campo: 'cobertura_cambial_pedido',                     rotulo: 'Cobertura Cambial',                      tipo: 'select', nivel: 'pedido', grupo: 'Comercial', dropdownDinamico: 'cambio_siscomex_cobertura' },
 
   // Cambio
   { campo: 'valor_total_cambio_pedido',                    rotulo: 'Valor Total Cambio',                     tipo: 'numero', nivel: 'pedido', grupo: 'Cambio' },
@@ -247,8 +250,6 @@ export const CAMPOS_PEDIDO_DDD: CampoPedidoDDD[] = [
 //   - 26 campos do schema adicionados (cobertura ~100% dos preenchiveis).
 //
 // Debitos conhecidos (nao corrigidos por decisao de produto):
-//   - quantidade_pronta_total_item: schema tem `quantidade_pronta_item`. Mantido
-//     com "total" por requisito de UI. Parser precisara de alias ou schema deve adicionar.
 //   - data_embarque_item_pedido: nao existe no schema. Mantido como placeholder
 //     conceitual. Parser nao vai gravar; OU schema deve adicionar a coluna.
 
@@ -264,8 +265,7 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'quantidade_inicial_item',                      rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades', prioridade: 'critica',   obrigatorio: true, aliasesLegados: ['qty', 'quantity', 'qtd', 'qtde', 'quantidade', 'ordered qty', 'order qty', 'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'zmenge', 'menge'] },
   { campo: 'quantidade_atual_item',                        rotulo: 'Qtd. Atual',                             tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'quantidade_transferida_item',                  rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  // DEBITO: schema tem `quantidade_pronta_item`. Mantido com "total" por decisao de produto (alinha com UI).
-  { campo: 'quantidade_pronta_total_item',                 rotulo: 'Qtd. Pronta Total',                      tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_pronta_item',                       rotulo: 'Qtd. Pronta Total',                      tipo: 'numero', nivel: 'item', grupo: 'Quantidades', aliasesLegados: ['quantidade_pronta_total_item', 'quantidade_pronta_total_item_pedido', 'quantidade_pronta_pedido'] },
   { campo: 'quantidade_cancelada_item',                    rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'casas_decimais_quantidade_item',               rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
@@ -276,7 +276,8 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'casas_decimais_valor_item',                    rotulo: 'Casas Decimais — Valor',                 tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
 
   // Cambio
-  { campo: 'cobertura_cambial_item',                       rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'item', grupo: 'Cambio' },
+  { campo: 'cobertura_cambial_item',                       rotulo: 'Cobertura Cambial',                      tipo: 'select', nivel: 'item', grupo: 'Cambio', dropdownDinamico: 'cambio_siscomex_cobertura' },
+  { campo: 'condicao_pagamento_siscomex_item',             rotulo: 'Condicao de Pagamento — Siscomex',       tipo: 'select', nivel: 'item', grupo: 'Comercial', dropdownDinamico: 'cambio_siscomex_modalidade' },
 
   // Partes (snapshot por item — pode divergir do Pedido pai)
   { campo: 'nome_exportador_item',                         rotulo: 'Exportador (Item)',                      tipo: 'texto',  nivel: 'item', grupo: 'Partes' },
@@ -287,10 +288,12 @@ export const CAMPOS_ITEM_DDD: CampoPedidoDDD[] = [
   { campo: 'referencia_importador_item',                   rotulo: 'Referencia Importador (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
   { campo: 'referencia_exportador_item',                   rotulo: 'Referencia Exportador (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
   { campo: 'referencia_fabricante_item',                   rotulo: 'Referencia Fabricante (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'numero_proforma_item',                         rotulo: 'No Proforma (Item)',                     tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
+  { campo: 'numero_invoice_item',                          rotulo: 'No Invoice (Item)',                      tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
 
   // Comercial
   { campo: 'incoterm_item',                                rotulo: 'Incoterm (Item)',                        tipo: 'texto',  nivel: 'item', grupo: 'Comercial', prioridade: 'principal' },
-  { campo: 'condicao_pagamento_item',                      rotulo: 'Condicao de Pagamento (Item)',           tipo: 'texto',  nivel: 'item', grupo: 'Comercial' },
+  { campo: 'condicao_pagamento_item',                      rotulo: 'Condicao de Pagamento — Comercial (Item)', tipo: 'texto',  nivel: 'item', grupo: 'Comercial' },
 
   // Fisico
   { campo: 'peso_liquido_unitario_item',                   rotulo: 'Peso Liquido Unitario',                  tipo: 'numero', nivel: 'item', grupo: 'Fisico', prioridade: 'principal', aliasesLegados: ['net weight unitary', 'unit net weight', 'peso liquido', 'znetgw'] },

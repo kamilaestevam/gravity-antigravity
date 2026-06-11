@@ -1,9 +1,9 @@
 /**
  * aplicar-migrations-pedido.ts — Aplica migrations pendentes do Pedido (public + tenant_*).
  *
- * 1. Aplica migration logística (20260525150000) via pg em TODOS os schemas com tabela pedido.
- * 2. prisma migrate deploy (public / _prisma_migrations global).
- * 3. migrate-all-tenants (demais migrations pendentes por tenant).
+ * 1. Logística + DDL críticos (id_processo, lista_painel) em tenant_* — não depende de migrate deploy.
+ * 2. prisma migrate deploy (public) — falha P3009 não aborta o restante.
+ * 3. migrate-all-tenants — demais migrations por schema.
  */
 import { execSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
@@ -11,6 +11,11 @@ import { readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Client } from 'pg'
+import {
+  aplicarIdProcessoEmSchemasComPedido,
+  aplicarListaPainelEmSchemasComPedido,
+  listarSchemasComTabelaPedido,
+} from './aplicar-migration-ddl-schemas-pedido.js'
 
 const REPO_ROOT = resolve(import.meta.dirname, '../..')
 const PEDIDO_SCHEMA = 'servicos-global/produto/pedido/prisma/schema.prisma'
@@ -53,13 +58,13 @@ async function aplicarLogisticaEmTodosSchemas(pedidoUrl: string): Promise<void> 
   await client.connect()
 
   try {
-    const { rows } = await client.query<{ table_schema: string }>(`
-      SELECT DISTINCT table_schema
-      FROM information_schema.tables
-      WHERE table_name = 'pedido'
-        AND table_type = 'BASE TABLE'
-      ORDER BY table_schema
-    `)
+    const configuradorUrl =
+      process.env.CONFIGURADOR_DATABASE_URL ?? process.env.DATABASE_URL
+    const schemaNames = await listarSchemasComTabelaPedido(
+      client,
+      configuradorUrl ?? undefined,
+    )
+    const rows = schemaNames.map(table_schema => ({ table_schema }))
 
     if (rows.length === 0) {
       console.warn(
@@ -134,36 +139,58 @@ export async function aplicarMigrationsPedido(): Promise<void> {
     `[migrations-pedido] Configurador: ${configuradorUrl ? mascararUrl(configuradorUrl) : 'AUSENTE'}`,
   )
 
-  console.log('[migrations-pedido] Passo 1/3 — logística em todos os schemas com pedido...')
+  console.log('[migrations-pedido] Passo 1/5 — logística em todos os schemas com pedido...')
   await aplicarLogisticaEmTodosSchemas(pedidoUrl)
 
-  console.log('[migrations-pedido] Passo 2/3 — compose + prisma migrate deploy (public)...')
+  console.log('[migrations-pedido] Passo 2/5 — id_processo (nullable, sem backfill)...')
+  await aplicarIdProcessoEmSchemasComPedido(pedidoUrl, configuradorUrl ?? undefined)
+
+  console.log('[migrations-pedido] Passo 3/5 — lista_painel_usuario_global...')
+  await aplicarListaPainelEmSchemasComPedido(pedidoUrl, configuradorUrl ?? undefined)
+
   execSync('npx tsx scripts/ativamente/compose-pedido-schema.ts', {
     cwd: REPO_ROOT,
     stdio: 'inherit',
   })
-  execSync(`npx prisma migrate deploy --schema=${PEDIDO_SCHEMA}`, {
-    cwd: REPO_ROOT,
-    stdio: 'inherit',
-    env: { ...process.env, DATABASE_URL: pedidoUrl },
-  })
+
+  console.log('[migrations-pedido] Passo 4/5 — prisma migrate deploy (public, best-effort)...')
+  try {
+    execSync(`npx prisma migrate deploy --schema=${PEDIDO_SCHEMA}`, {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+      env: { ...process.env, DATABASE_URL: pedidoUrl },
+    })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.warn('[migrations-pedido] migrate deploy falhou (continua):', msg.split('\n')[0] ?? msg)
+    if (msg.includes('P3009')) {
+      console.warn(
+        '[migrations-pedido] P3009 em public — DDL em tenant_* já aplicado nos passos 2–3; migrate-all-tenants segue.',
+      )
+    }
+  }
 
   if (!configuradorUrl) {
-    console.warn('[migrations-pedido] Passo 3/3 skip — sem URL do Configurador para migrate-all-tenants.')
-    console.log('[migrations-pedido] Concluido (logística + public).')
+    console.warn('[migrations-pedido] Passo 5/5 skip — sem URL do Configurador para migrate-all-tenants.')
+    console.log('[migrations-pedido] Concluido (logística + id_processo + lista_painel).')
     return
   }
 
-  console.log('[migrations-pedido] Passo 3/3 — migrate-all-tenants...')
-  execSync('npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido', {
-    cwd: REPO_ROOT,
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      DATABASE_URL: pedidoUrl,
-      CONFIGURADOR_DATABASE_URL: configuradorUrl,
-    },
-  })
+  console.log('[migrations-pedido] Passo 5/5 — migrate-all-tenants...')
+  try {
+    execSync('npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido', {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        DATABASE_URL: pedidoUrl,
+        CONFIGURADOR_DATABASE_URL: configuradorUrl,
+      },
+    })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.warn('[migrations-pedido] migrate-all-tenants falhou:', msg.split('\n')[0] ?? msg)
+  }
 
   console.log('[migrations-pedido] Concluido.')
 }

@@ -1,0 +1,112 @@
+/**
+ * ConectorFilhoLista — tag + chevron pedido / tag item na coluna expand das linhas filhas.
+ */
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import type { FilhoLinhaLista } from '../../shared/lista/mockListaHierarquica'
+import { itensDoPedido } from '../../shared/lista/mockListaHierarquica'
+import { rotuloItemLista } from '../../shared/lista/rotuloItemLista'
+import { rotuloPedidoLista } from '../../shared/lista/rotuloPedidoLista'
+
+function IconeChevron() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+      <path
+        d="M4 2L8 6L4 10"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export interface ConectorFilhoListaProps {
+  filho: FilhoLinhaLista
+  pedidosExpandidos: ReadonlySet<string>
+  onTogglePedido: (id_pedido: string) => void
+}
+
+export function ConectorFilhoLista({
+  filho,
+  pedidosExpandidos,
+  onTogglePedido,
+}: ConectorFilhoListaProps) {
+  const { t } = useTranslation()
+
+  if (filho.camada === 'item') {
+    const seq = filho.item.sequencia_item
+    const rotulo = rotuloItemLista(seq)
+    const titulo = seq != null && seq > 0
+      ? t('processo.lista.tag_item_titulo', { n: seq })
+      : t('processo.lista.tag_item_titulo_fallback')
+    return (
+      <div className="pl-conector-item-slot">
+        <TooltipGlobal titulo={titulo} descricao={t('processo.lista.tag_item_desc')}>
+          <span className="pl-camada pl-camada--item pl-conector-item-tag" aria-label={titulo}>
+            {rotulo}
+          </span>
+        </TooltipGlobal>
+      </div>
+    )
+  }
+
+  const id_pedido = filho.pedido.id
+  const qtd_itens = itensDoPedido(id_pedido).length
+  const rotuloPedido = rotuloPedidoLista(filho.sequencia_pedido)
+  const expandido = pedidosExpandidos.has(id_pedido)
+
+  const pararPropagacao = (e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation()
+  }
+
+  return (
+    <div
+      className="pl-conector-pedido-slot"
+      onClick={pararPropagacao}
+      onMouseDown={pararPropagacao}
+      onPointerDown={pararPropagacao}
+    >
+      <TooltipGlobal
+        titulo={
+          filho.sequencia_pedido != null && filho.sequencia_pedido > 0
+            ? t('processo.lista.tag_pedido_titulo', { n: filho.sequencia_pedido })
+            : t('processo.lista.tag_pedido_titulo_fallback')
+        }
+        descricao={t('processo.lista.tag_pedido_desc')}
+      >
+        <span
+          className="pl-camada pl-camada--pedido pl-conector-pedido-tag"
+          aria-label={
+            filho.sequencia_pedido != null && filho.sequencia_pedido > 0
+              ? t('processo.lista.tag_pedido_titulo', { n: filho.sequencia_pedido })
+              : t('processo.lista.tag_pedido_titulo_fallback')
+          }
+        >
+          {rotuloPedido}
+        </span>
+      </TooltipGlobal>
+      {qtd_itens > 0 ? (
+        <button
+          type="button"
+          className="gtv-chevron-btn pl-pedido-chevron pl-conector-pedido"
+          aria-expanded={expandido}
+          aria-label={expandido ? 'Retrair itens do pedido' : 'Expandir itens do pedido'}
+          onClick={(e) => {
+            e.stopPropagation()
+            onTogglePedido(id_pedido)
+          }}
+          onMouseDown={pararPropagacao}
+        >
+          <span className={`gtv-chevron-icon${expandido ? ' gtv-chevron-icon--aberto' : ''}`}>
+            <IconeChevron />
+          </span>
+        </button>
+      ) : (
+        <span className="gtv-conector pl-conector-vazio" aria-hidden="true">•</span>
+      )}
+    </div>
+  )
+}

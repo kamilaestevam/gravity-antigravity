@@ -93,6 +93,12 @@ const CENARIOS_IRREVERSIVEIS = new Set<CenarioTransfer>([
   'transfer_intercompany',
 ])
 
+/** Cancelamento ou troca de part# — não movimentam saldo transferido (QTR-08). */
+const CENARIOS_SEM_DATA_TRANSFERENCIA_SALDO = new Set<CenarioTransfer>([
+  'reducao_simples',
+  'substituicao_pura',
+])
+
 // ── Serviço ───────────────────────────────────────────────────────────────────
 
 export class TransferirService {
@@ -252,13 +258,29 @@ export class TransferirService {
       // Reduzir quantidade do item de origem (para todos os cenários exceto substituicao_pura)
       if (payload.cenario !== 'substituicao_pura') {
         const novaQty = Number(itemOrigem.quantidade_atual_item) - payload.quantidade_origem
+        const dadosOrigem: Record<string, number | Date> = { quantidade_atual_item: novaQty }
+        if (payload.cenario === 'reducao_simples') {
+          dadosOrigem.quantidade_cancelada_item =
+            Number(itemOrigem.quantidade_cancelada_item) + payload.quantidade_origem
+        } else {
+          dadosOrigem.quantidade_transferida_item =
+            Number(itemOrigem.quantidade_transferida_item) + payload.quantidade_origem
+        }
+        const dataTransferenciaSaldo = this.dataTransferenciaSaldoParaCenario(payload.cenario)
+        if (dataTransferenciaSaldo) {
+          dadosOrigem.data_transferencia_saldo_item = dataTransferenciaSaldo
+        }
         await tx.pedidoItem.update({
           where: { id_item: itemOrigem.id_item as string },
-          data: {
-            quantidade_atual_item: novaQty,
-            quantidade_transferida_item: Number(itemOrigem.quantidade_transferida_item) + payload.quantidade_origem,
-          },
+          data: dadosOrigem,
         })
+
+        if (dataTransferenciaSaldo) {
+          await tx.pedido.update({
+            where: { id_pedido: payload.pedido_id },
+            data: { data_transferencia_saldo_pedido: dataTransferenciaSaldo },
+          })
+        }
 
         // Avaliar encerramento por configuração
         const resultado = await this.avaliarEncerramentoPedido(id_organizacao, payload.pedido_id, tx)
@@ -397,6 +419,12 @@ export class TransferirService {
   }
 
   // ── Privados ──────────────────────────────────────────────────────────────────
+
+  /** Data da operação quando há transferência de saldo (paralelo a data_consolidacao_pedido). */
+  private dataTransferenciaSaldoParaCenario(cenario: CenarioTransfer): Date | null {
+    if (CENARIOS_SEM_DATA_TRANSFERENCIA_SALDO.has(cenario)) return null
+    return new Date()
+  }
 
   private async validarQuantidade(disponivel: number, solicitada: number): Promise<void> {
     if (solicitada <= 0) throw new AppError('Quantidade deve ser maior que zero', 422, 'INVALID_QTY')

@@ -5,6 +5,6 @@ export interface SelecaoExcluirProps {
   titulo: string
   descricao: string | ReactNode
   nomeItem?: string
-  aoConfirmar: () => void
+  aoConfirmar: () => void | Promise<void>
   aoCancelar: () => void
 }

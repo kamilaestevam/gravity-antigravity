@@ -205,7 +205,22 @@ Frontend agora atualiza cada item no cache com o novo valor após `replicar=true
 
 ---
 
-## 9. Histórico
+## 9. Exceções — colunas com regra própria na Lista
+
+Alguns campos **não** seguem o padrão «checkbox opcional + alerta se divergir». SSOT de regras: [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](./LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md).
+
+| Campo | Checkbox no popover (linha pai) | Sem checkbox | Alerta âmbar | Edição no item |
+|-------|--------------------------------|--------------|--------------|----------------|
+| **Campos propagáveis** (Incoterm, datas, …) | ✅ Sim | Só atualiza pai; itens intactos | ✅ Se diverge | ✅ Conforme `columnBehaviorConfig` |
+| **`id_workspace`** | ❌ Oculto | **Sempre** replica para todos os itens | ❌ Nunca | ❌ Célula travada |
+| **`tipo_operacao`** | ❌ Oculto | **Sempre** replica para todos os itens | ❌ Nunca | ❌ Célula travada |
+| **`status`** | ✅ Sim | Só atualiza pai (API lote); itens mantêm status anterior na UI | ✅ Se pedido≠item ou item≠item | ✅ UI (`_p.status`; persistência item = dívida P0) |
+
+Implementação técnica das exceções: [`LISTA-EDITAR-SALVAR-TECNICO.md`](./LISTA-EDITAR-SALVAR-TECNICO.md).
+
+---
+
+## 10. Histórico
 
 - **2026-05-13** — Entrega inicial (commit `8568d412`) + 4 fixes:
   - `c7695527` log diag frontend
@@ -219,3 +234,4 @@ Frontend agora atualiza cada item no cache com o novo valor após `replicar=true
   - Whitelist: 22 → 57 campos
   - Testes: 26 → 32 (cobertura das 35 novas entries)
 - Aprovação: Coordenador + Líder Técnico + QA + dono visual.
+- **2026-06-03** — Documentadas exceções `tipo_operacao` e `status` na Lista (§9); cross-link para `LISTA-EDITAR-SALVAR-*`.

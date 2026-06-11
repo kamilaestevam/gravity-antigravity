@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config'
 import path from 'node:path'
+import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -13,7 +14,7 @@ const resolveTsFromJs = {
       const baseTsx = path.resolve(path.dirname(importer), source.replace(/\.js$/, '.tsx'))
       const baseTs = path.resolve(path.dirname(importer), source.replace(/\.js$/, '.ts'))
       try {
-        require('node:fs').statSync(baseTsx)
+        fs.statSync(baseTsx)
         return baseTsx
       } catch {
         return baseTs

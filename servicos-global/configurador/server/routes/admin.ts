@@ -30,10 +30,37 @@ import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-orga
 
 const log = logger.child({ module: 'admin-routes' })
 import { spawn } from 'child_process'
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, renameSync, createWriteStream } from 'fs'
-import { join, resolve } from 'path'
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, renameSync, createWriteStream, statSync, createReadStream } from 'fs'
+import {
+  coletarArtefatosEmt,
+  enrichirLogEmt,
+  specFileDoRegistry,
+  resolverCaminhoPrintSeguro,
+  buscarLogTestePorId,
+} from '../lib/emt-artifacts.js'
+import { RUN_TESTES_TIMEOUT_MS } from '../lib/emt-run-timeout.js'
+import { join, resolve, dirname } from 'path'
+import {
+  adaptarTextoCasoParaAmbiente,
+  GRAVITY_PROD_UI_URL_PADRAO,
+  resolverAmbienteExecucao,
+  type AmbienteTesteUi,
+} from '../lib/ambiente-teste-execucao.js'
+import { extrairCasosDoPlano } from '../lib/extrair-casos-plano.js'
+import { appendTestLogEntries, listDailyTestLogFiles, testLogsDir } from '../lib/test-log-persist.js'
+import {
+  listarTestesDoBanco,
+  buscarTesteComoLogLegado,
+  buscarTestePorId,
+  entradaJsonLegadaParaApi,
+  persistirEntradasTeste,
+  atualizarCampoTeste,
+  type TesteApiRegistro,
+  type PersistTesteContexto,
+} from '../lib/teste-persist.js'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { analyzeTestFailure, getMetrics as getGeminiMetrics } from '../lib/gemini-test-analyzer.js'
+import { readSpecFileContent } from '../lib/test-spec-content.js'
 import { generateTestPlan, expandTestPlan } from '../lib/agente-plano-teste.js'
 import { generateAndSaveSpec } from '../lib/gerador-specs.js'
 import { generateTestidMapping } from '../lib/extrator-testids.js'
@@ -44,6 +71,20 @@ import { securityAudit } from '../../../servicos-plataforma/historico-global/ser
 import { getBillingProvider } from '../lib/billing/index.js'
 import { deployLogService } from '../services/deploy-log-service.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
+import {
+  configuradorRoot,
+  raizRepositorioGravity,
+  registryPlanosTestePath,
+  resolverArquivoPlanoTeste,
+} from '../lib/raiz-repositorio-gravity.js'
+import {
+  caminhoManifestoEmtTeste,
+  gravarMarkerExecucaoTeste,
+  montarRespostaStatusExecucoesTeste,
+  processarExecucoesOrfasTeste,
+  removerMarkerExecucaoTeste,
+  validarNovaExecucaoTeste,
+} from '../lib/execucao-teste-markers.js'
 
 export const adminRouter = Router()
 
@@ -1013,13 +1054,15 @@ adminRouter.delete('/registros-deploy/:id_deploy', async (req, res, next) => {
  */
 adminRouter.get('/planos-teste', (req, res, next) => {
   try {
-    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'test-plans-registry.json')
     let planos: Array<{ id: string; escopo: string; tipo: string }> = []
     try {
-      const raw = JSON.parse(readFileSync(registryPath, 'utf-8')) as { planos?: typeof planos }
+      const raw = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as { planos?: typeof planos }
       planos = Array.isArray(raw.planos) ? raw.planos : []
-    } catch {
-      // Registry ainda não existe — retorna vazio
+    } catch (err) {
+      log.warn(
+        { registryPlanosTestePath, err: err instanceof Error ? err.message : String(err) },
+        'Registry de planos de teste indisponível — retornando vazio',
+      )
     }
 
     const escopo = req.query.escopo as string | undefined
@@ -1034,169 +1077,229 @@ adminRouter.get('/planos-teste', (req, res, next) => {
 })
 
 /**
+ * GET /api/v1/admin/planos-teste/:id_plano_teste/casos
+ * Lista casos/passos/prints do plano a partir do arquivo planoFile (md ou json).
+ * Query opcional: ?ambiente=Local|Staging|Producao — adapta textos de localhost para o ambiente.
+ */
+adminRouter.get('/planos-teste/:id_plano_teste/casos', (req, res, next) => {
+  try {
+    if (!existsSync(registryPlanosTestePath)) {
+      throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const registry = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as {
+      planos: Array<Record<string, unknown> & { id: string; planoFile?: string }>
+    }
+    const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
+    if (!entry?.planoFile) {
+      throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
+    }
+
+    const resolvedPath = resolverArquivoPlanoTeste(entry.planoFile)
+    if (!resolvedPath) {
+      throw new AppError('Arquivo do plano não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const conteudo = readFileSync(resolvedPath, 'utf-8')
+    const casosBrutos = extrairCasosDoPlano(conteudo, entry.planoFile)
+
+    const ambienteQuery = req.query.ambiente as string | undefined
+    const ambienteUi: AmbienteTesteUi | undefined =
+      ambienteQuery === 'Local' || ambienteQuery === 'Staging' || ambienteQuery === 'Producao'
+        ? ambienteQuery
+        : undefined
+    const ambienteExecucao = resolverAmbienteExecucao(ambienteUi)
+    const casos = casosBrutos.map(c => ({
+      ...c,
+      titulo: adaptarTextoCasoParaAmbiente(c.titulo, ambienteExecucao),
+      detalhe: adaptarTextoCasoParaAmbiente(c.detalhe, ambienteExecucao),
+      acao: c.acao ? adaptarTextoCasoParaAmbiente(c.acao, ambienteExecucao) : undefined,
+      aprovadoQuando: c.aprovadoQuando
+        ? adaptarTextoCasoParaAmbiente(c.aprovadoQuando, ambienteExecucao)
+        : undefined,
+    }))
+
+    res.json({
+      plano: entry,
+      casos,
+      total: casos.length,
+      planoFile: entry.planoFile,
+      ambienteExecucao,
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+const PatchPlanoTesteSchema = z.object({
+  id: z.string().min(8).max(120).regex(/^TST-[A-Z0-9][A-Z0-9-]*$/).optional(),
+  titulo: z.string().min(3).max(240).trim().optional(),
+}).refine(
+  data => data.id !== undefined || data.titulo !== undefined,
+  { message: 'Informe id e/ou titulo para atualizar' },
+)
+
+/**
+ * PATCH /api/v1/admin/planos-teste/:id_plano_teste
+ * Atualiza id (nome do plano) e/ou titulo exibido no registry JSON.
+ */
+adminRouter.patch('/planos-teste/:id_plano_teste', (req, res, next) => {
+  try {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
+      throw new AppError('Somente Super Admin pode editar planos de teste', 403, 'FORBIDDEN')
+    }
+
+    const parsed = PatchPlanoTesteSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    if (!existsSync(registryPlanosTestePath)) {
+      throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const registry = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as {
+      planos: Array<Record<string, unknown> & { id: string; modulo?: string; tela?: string }>
+    }
+    const idx = registry.planos.findIndex(p => p.id === req.params.id_plano_teste)
+    if (idx < 0) {
+      throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
+    }
+
+    const entry = registry.planos[idx]
+    const idAnterior = entry.id
+
+    if (parsed.data.id && parsed.data.id !== idAnterior) {
+      if (registry.planos.some(p => p.id === parsed.data.id)) {
+        throw new AppError(`ID ${parsed.data.id} já existe no registry`, 409, 'CONFLICT')
+      }
+      entry.id = parsed.data.id
+    }
+
+    if (parsed.data.titulo) {
+      entry.modulo = parsed.data.titulo
+      if ('tela' in entry) {
+        entry.tela = parsed.data.titulo
+      }
+    }
+
+    entry.propriedade_dono = true
+    entry.editado_pelo_dono_em = new Date().toISOString()
+
+    writeFileSync(registryPlanosTestePath, `${JSON.stringify(registry, null, 2)}\n`, 'utf-8')
+
+    res.json({ plano: entry, id_anterior: idAnterior })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/v1/admin/testes
  * Lista testes (model Teste) — lê da tabela `teste` se existir;
  * fallback: lê todos os arquivos JSON em data/test-logs/
  */
 adminRouter.get('/testes', async (_req, res, next) => {
   try {
-    // Recovery: se há um run órfão (servidor reiniciou durante execução), processa
-    processOrphanedRun()
+    processarExecucoesOrfasTeste()
+    const byId = new Map<string, TesteApiRegistro>()
 
-    const byId = new Map<string, Record<string, unknown>>()
+    try {
+      for (const log of await listarTestesDoBanco(500)) {
+        byId.set(log.id_teste, enrichirLogEmtApi(log))
+      }
+    } catch { /* migration pendente */ }
 
-    // 1. Lê arquivos JSON em data/test-logs/ (fonte primária — run-tests escreve aqui)
     try {
       const dir = join(process.cwd(), 'data', 'test-logs')
       if (existsSync(dir)) {
-        const files = readdirSync(dir)
-          .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-'))
-          .sort()
-          .reverse()
-
-        for (const file of files.slice(0, 7)) { // até 7 dias de histórico
+        for (const file of listDailyTestLogFiles(7)) {
           try {
             const content = JSON.parse(readFileSync(join(dir, file), 'utf-8'))
             if (Array.isArray(content)) {
               for (const entry of content) {
-                if (entry && typeof entry === 'object' && typeof (entry as { id?: unknown }).id === 'string') {
-                  byId.set((entry as { id: string }).id, entry as Record<string, unknown>)
+                if (entry && typeof entry === 'object') {
+                  const legado = entradaJsonLegadaParaApi(entry as Record<string, unknown>)
+                  if (!byId.has(legado.id_teste)) byId.set(legado.id_teste, enrichirLogEmtApi(legado))
                 }
               }
             }
-          } catch { /* arquivo inválido — ignora */ }
+          } catch { /* ignora */ }
         }
       }
-    } catch { /* diretório não existe */ }
+    } catch { /* ok */ }
 
-    // 2. Merge com banco (complementa, não substitui — id é único)
-    try {
-      const dbLogs = await (prisma as any).testLog?.findMany?.({
-        orderBy: { created_at: 'desc' },
-        take: 500,
-      }) ?? []
-      for (const log of dbLogs) {
-        if (log && typeof log.id === 'string' && !byId.has(log.id)) {
-          byId.set(log.id, log)
-        }
-      }
-    } catch {
-      // Tabela não existe — ok
-    }
-
-    // 3. Ordena por created_at DESC (mais recentes primeiro), com id DESC como
-    //    tiebreaker — IDs são da forma "${Date.now()}-${i}", então id DESC dentro
-    //    do mesmo created_at coloca o último teste do batch no topo.
-    //    Sem tiebreaker, todas as 300+ entradas de um run em lote ficavam na
-    //    ordem alfabética do nome do teste (ordem de execução do Playwright).
     const logs = Array.from(byId.values()).sort((a, b) => {
-      const ta = String(a.created_at ?? '')
-      const tb = String(b.created_at ?? '')
-      const cmp = tb.localeCompare(ta)
+      const cmp = b.data_criacao_teste.localeCompare(a.data_criacao_teste)
       if (cmp !== 0) return cmp
-      const ida = String(a.id ?? '')
-      const idb = String(b.id ?? '')
-      return idb.localeCompare(ida, undefined, { numeric: true })
+      return b.id_teste.localeCompare(a.id_teste, undefined, { numeric: true })
     })
-
     res.json({ logs })
   } catch (err) {
     next(err)
   }
 })
 
+function enrichirLogEmtApi(reg: TesteApiRegistro): TesteApiRegistro {
+  const enriched = enrichirLogEmt(
+    {
+      id: reg.id_teste,
+      created_at: reg.data_criacao_teste,
+      type: reg.tipo_teste,
+      module: reg.modulo_teste,
+      test_name: reg.nome_teste,
+      result: reg.resultado_teste,
+      emt_pasta: reg.pasta_emt_teste,
+      success_log: reg.log_sucesso_teste,
+      error_log: reg.log_erro_teste,
+      emt_prints: reg.lista_prints_emt_teste,
+      id_execucao_teste: reg.id_execucao_teste,
+    },
+    specFileDoRegistry(reg.modulo_teste),
+  )
+  return {
+    ...reg,
+    pasta_emt_teste: typeof enriched.emt_pasta === 'string' && enriched.emt_pasta.length > 0
+      ? enriched.emt_pasta : reg.pasta_emt_teste,
+    log_sucesso_teste: typeof enriched.success_log === 'string' && enriched.success_log.length > 0
+      ? enriched.success_log : reg.log_sucesso_teste,
+    lista_prints_emt_teste: Array.isArray(enriched.emt_prints)
+      ? enriched.emt_prints.filter((p): p is string => typeof p === 'string')
+      : reg.lista_prints_emt_teste,
+  }
+}
+
 // ── Constantes para run-tests ─────────────────────────────────────────────────
-const monorepoRoot = resolve(process.cwd(), '..', '..')
-const testLogsDir = join(process.cwd(), 'data', 'test-logs')
-const RUN_MARKER_PATH = join(testLogsDir, '_current-run.json')
+const TSX_CLI = resolve(raizRepositorioGravity, 'node_modules/tsx/dist/cli.mjs')
+const EMT_RUNNER_ENTRY = join(configuradorRoot, 'server/lib/emt-background-runner.ts')
 
-/** Timeout máximo de um run completo (30 min). Suite completo com browser leva ~20 min. */
-const RUN_TESTS_TIMEOUT_MS = 30 * 60 * 1000
+/** @see RUN_TESTES_TIMEOUT_MS em emt-run-timeout.ts (padrão 90 min; override GRAVITY_TEST_RUN_TIMEOUT_MS) */
 
-// ── Status de run persistido em arquivo (sobrevive a restart do servidor) ─────
-interface RunMarker {
-  status: 'running' | 'completed'
-  pid: number
-  started_at: string
-  runId: string
-}
+function spawnEmtRunnerDetached(
+  id_execucao_teste: string,
+  planos: RegistryPlanoRun[],
+  env: Record<string, string>,
+  data_inicio_execucao_teste: string,
+  debugLog: (msg: string) => void,
+): number {
+  const manifestPath = caminhoManifestoEmtTeste(id_execucao_teste)
+  writeFileSync(manifestPath, JSON.stringify({
+    planos,
+    env: { ...env, EMT_RUN_ID: id_execucao_teste },
+    started_at: data_inicio_execucao_teste,
+  }, null, 2))
 
-function readRunMarker(): RunMarker | null {
-  try {
-    if (!existsSync(RUN_MARKER_PATH)) return null
-    return JSON.parse(readFileSync(RUN_MARKER_PATH, 'utf-8')) as RunMarker
-  } catch { return null }
-}
-
-function writeRunMarker(marker: RunMarker): void {
-  mkdirSync(testLogsDir, { recursive: true })
-  const tmpPath = RUN_MARKER_PATH + '.tmp'
-  writeFileSync(tmpPath, JSON.stringify(marker, null, 2))
-  renameSync(tmpPath, RUN_MARKER_PATH)
-}
-
-function clearRunMarker(): void {
-  try { unlinkSync(RUN_MARKER_PATH) } catch { /* já não existe */ }
-}
-
-function isProcessAlive(pid: number): boolean {
-  try { process.kill(pid, 0); return true } catch { return false }
-}
-
-function isRunActive(): boolean {
-  const marker = readRunMarker()
-  if (!marker) return false
-  if (marker.status !== 'running') return false
-  return isProcessAlive(marker.pid)
-}
-
-function processOrphanedRun(): void {
-  const marker = readRunMarker()
-  if (!marker) return
-  if (marker.status === 'running' && isProcessAlive(marker.pid)) return
-
-  const stdoutPath = join(testLogsDir, `playwright-run-${marker.runId}.json`)
-  if (!existsSync(stdoutPath)) {
-    clearRunMarker()
-    return
-  }
-
-  const entries: TestLogEntry[] = []
-  const created_at = marker.started_at
-  try {
-    const raw = readFileSync(stdoutPath, 'utf-8').trim()
-    if (raw) {
-      const parsed = JSON.parse(raw) as { suites?: unknown[] }
-      for (const suite of (parsed.suites ?? [])) {
-        walkSuite(suite as Parameters<typeof walkSuite>[0], entries)
-      }
-    }
-  } catch {
-    entries.push({
-      type: 'E2E', module: 'playwright/recovery',
-      test_name: 'Recovery de run órfão',
-      result: 'ERRO',
-      duration: '0ms',
-      error_log: 'Run não produziu JSON válido (servidor reiniciou durante execução)',
-      ai_analysis: null,
-    })
-  }
-
-  if (entries.length > 0) {
-    const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)
-    let existing: unknown[] = []
-    try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
-    const novosLogs = entries.map((e, i) => ({
-      id: `${Date.now()}-${i}`,
-      created_at,
-      ...e,
-    }))
-    writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
-  }
-
-  try { unlinkSync(stdoutPath) } catch { /* ok */ }
-  try { unlinkSync(stdoutPath.replace('.json', '.stderr.log')) } catch { /* ok */ }
-  clearRunMarker()
+  const proc = spawn(process.execPath, [TSX_CLI, EMT_RUNNER_ENTRY, id_execucao_teste], {
+    cwd: process.cwd(),
+    env: process.env,
+    detached: true,
+    stdio: 'ignore',
+    windowsHide: true,
+  })
+  proc.unref()
+  const pid = proc.pid ?? 0
+  debugLog(`EMT detached spawn pid=${pid} id_execucao_teste=${id_execucao_teste}`)
+  return pid
 }
 
 /**
@@ -1212,27 +1315,70 @@ function processOrphanedRun(): void {
  * nos ambientes de teste locais/CI. Em dev, o test runner usa o .env.test
  * separado do monorepo, que tem chaves dummy (ex: sk_test_dummy_vitest).
  */
-function buildSafeTestEnv(): Record<string, string> {
+const AMBIENTE_TESTE_PARA_ENV: Record<'Local' | 'Staging' | 'Producao', string> = {
+  Local:    'local',
+  Staging:  'staging',
+  Producao: 'producao',
+}
+
+function buildSafeTestEnv(ambienteUi?: 'Local' | 'Staging' | 'Producao'): Record<string, string> {
   const safeKeys = [
-    // Runtime
     'PATH', 'HOME', 'USER', 'USERNAME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'SYSTEMROOT',
     'NODE_ENV', 'TEMP', 'TMP', 'TZ', 'LANG', 'LC_ALL',
-    // Windows-specific (sem isso o cmd.exe não resolve npx.cmd e o spawn trava
-    // até timeout sem produzir stdout/stderr — bug observado em 03/05/2026):
     'PATHEXT', 'COMSPEC', 'WINDIR', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramData',
-    // Playwright-specific
     'PLAYWRIGHT_BROWSERS_PATH', 'PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD', 'DEBUG',
-    // Portas dos serviços em dev (sem credentials)
     'PORT', 'VITE_PORT',
+  ]
+  const e2eKeys = [
+    'PLAYWRIGHT_BASE_URL', 'BASE_URL',
+    'GRAVITY_PROD_UI_URL', 'GRAVITY_STAGING_UI_URL', 'GRAVITY_TEST_AMBIENTE',
+    'E2E_CLERK_USER_EMAIL', 'E2E_EMAIL', 'E2E_CLERK_USER_PASSWORD', 'E2E_PASSWORD',
+    'CLERK_SECRET_KEY', 'CLERK_PROD_SECRET_KEY',
+    'CLERK_PUBLISHABLE_KEY', 'CLERK_PROD_PUBLISHABLE_KEY',
+    'VITE_CLERK_PUBLISHABLE_KEY', 'VITE_CLERK_PROD_PUBLISHABLE_KEY',
+    'ID_WORKSPACE_TESTE',
   ]
   const env: Record<string, string> = {}
   for (const key of safeKeys) {
     const value = process.env[key]
     if (value !== undefined) env[key] = value
   }
+  for (const key of e2eKeys) {
+    const value = process.env[key]
+    if (value !== undefined) env[key] = value
+  }
   env.CI = '1'
+
+  if (ambienteUi) {
+    env.GRAVITY_TEST_AMBIENTE = AMBIENTE_TESTE_PARA_ENV[ambienteUi]
+    if (!env.PLAYWRIGHT_BASE_URL) {
+      if (ambienteUi === 'Producao') {
+        env.PLAYWRIGHT_BASE_URL = process.env.GRAVITY_PROD_UI_URL ?? GRAVITY_PROD_UI_URL_PADRAO
+      } else if (ambienteUi === 'Staging') {
+        env.PLAYWRIGHT_BASE_URL = process.env.GRAVITY_STAGING_UI_URL ?? 'https://staging.gravity.com.br'
+      } else {
+        env.PLAYWRIGHT_BASE_URL = 'http://localhost:8000'
+      }
+    }
+
+    // Produção: @clerk/testing precisa das chaves live — senão busca o e-mail no Clerk dev.
+    if (ambienteUi === 'Producao') {
+      const prodSecret = process.env.CLERK_PROD_SECRET_KEY?.trim()
+      const prodPk =
+        process.env.CLERK_PROD_PUBLISHABLE_KEY?.trim()
+        ?? process.env.VITE_CLERK_PROD_PUBLISHABLE_KEY?.trim()
+      if (prodSecret) env.CLERK_SECRET_KEY = prodSecret
+      if (prodPk) {
+        env.CLERK_PUBLISHABLE_KEY = prodPk
+        env.VITE_CLERK_PUBLISHABLE_KEY = prodPk
+      }
+    }
+  }
+
   return env
 }
+
+type RegistryPlanoRun = { id: string; specFile?: string; tipo?: string }
 
 /**
  * POST /api/v1/admin/testes/disparar
@@ -1243,21 +1389,15 @@ function buildSafeTestEnv(): Record<string, string> {
 const RunTestsSchema = z.object({
   modulos: z.array(z.string().max(100)).optional(),
   planos:  z.array(z.string().max(100)).optional(),
+  ambiente: z.enum(['Local', 'Staging', 'Producao']).optional(),
 })
 
 adminRouter.post('/testes/disparar', async (req, res, next) => {
   try {
-    // Só SUPER_ADMIN pode disparar run — é operação destrutiva que spawn
-    // Playwright consumindo CPU/memória por até 15 min, faz CRUD de verdade
-    // nos bancos de teste e pode disparar webhooks externos. ADMIN (CFO,
-    // suporte, etc) não precisa desse poder. Mesmo padrão do endpoint
-    // POST /admin/usuarios/:id_usuario/promover.
+    // Só SUPER_ADMIN — spawn pesado (RUN_TESTES_TIMEOUT_MS), CRUD em bancos de teste.
+    // ADMIN (CFO, suporte) não precisa desse poder. Mesmo padrão de promover usuário.
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Somente Super Admin pode disparar runs de teste', 403, 'FORBIDDEN')
-    }
-
-    if (isRunActive()) {
-      throw new AppError('Já existe um run em andamento', 409, 'CONFLICT')
     }
 
     const parsed = RunTestsSchema.safeParse(req.body)
@@ -1265,32 +1405,27 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const { modulos, planos } = parsed.data
+    const { modulos, planos, ambiente } = parsed.data
+    const testEnv = buildSafeTestEnv(ambiente)
     let specArgs: string[] = []
     let projectArgs: string[] = []
     const planosSemSpec: string[] = []
-    /** Projects do Playwright derivados do path dos specs selecionados. */
+    const planosEmtResolvidos: RegistryPlanoRun[] = []
     const projectsDerivados = new Set<string>()
 
     if (Array.isArray(planos) && planos.length > 0) {
-      // Modo por plano: resolve spec files do registry.
-      // Path correto: testes/test-plans-registry.json (NÃO testes/testes-e2e/...).
-      // Formato: { planos: [{ id, specFile, ... }] } — não array direto.
-      const registryPath2 = resolve(monorepoRoot, 'testes', 'test-plans-registry.json')
-      let registryPlanos: Array<{ id: string; specFile?: string }> = []
+      let registryPlanos: RegistryPlanoRun[] = []
       try {
-        const raw = JSON.parse(readFileSync(registryPath2, 'utf-8')) as { planos?: typeof registryPlanos }
+        const raw = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as { planos?: RegistryPlanoRun[] }
         registryPlanos = Array.isArray(raw.planos) ? raw.planos : []
       } catch (err) {
         throw new AppError(
-          `Registry não encontrado em ${registryPath2}: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
+          `Registry não encontrado em ${registryPlanosTestePath}: ${err instanceof Error ? err.message : 'erro desconhecido'}`,
           500,
           'REGISTRY_READ_ERROR',
         )
       }
 
-      // Para cada plano selecionado, resolve o specFile e verifica que o arquivo existe.
-      // Mandamento 08: erro alto, sem fallback silencioso.
       for (const planId of planos) {
         const entry = registryPlanos.find(p => p.id === planId)
         if (!entry) {
@@ -1301,32 +1436,38 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
           planosSemSpec.push(`${planId} (sem campo specFile no registry)`)
           continue
         }
-        const specPath = resolve(monorepoRoot, entry.specFile)
+        const specPath = resolve(raizRepositorioGravity, entry.specFile)
         if (!existsSync(specPath)) {
-          planosSemSpec.push(`${planId} (specFile ${entry.specFile} não existe — gerar via POST /admin/planos-teste/${planId}/gerar-spec)`)
+          planosSemSpec.push(`${planId} (specFile ${entry.specFile} não existe)`)
           continue
         }
-        specArgs.push(entry.specFile)
 
-        // Deriva o --project do Playwright a partir do path:
-        //   testes/testes-e2e/{projeto}/...  ->  --project={projeto}
-        // Sem --project, Playwright tenta rodar o spec contra TODOS os 16
-        // projects da config, marca todos como `skipped` silenciosamente, e a
-        // tabela de Histórico não recebe entradas. Causa raiz do bug 03/05/2026.
+        const isEmt = entry.tipo === 'EMT' || entry.specFile.includes('testes-em-tela/')
+        if (isEmt) {
+          planosEmtResolvidos.push(entry)
+          continue
+        }
+
+        specArgs.push(entry.specFile)
         const matchProjeto = entry.specFile.match(/^testes\/testes-e2e\/([^/]+)\//)
         if (matchProjeto) {
           projectsDerivados.add(matchProjeto[1])
         }
       }
 
-      // Adiciona --project para cada projeto distinto detectado nos specs.
       if (projectsDerivados.size > 0) {
         projectArgs = Array.from(projectsDerivados).flatMap(p => ['--project', p])
       }
 
-      if (planosSemSpec.length > 0 && specArgs.length === 0) {
-        // Nenhum plano selecionado tem spec executável. Bloqueia o run com erro
-        // explícito — antes engolíamos o erro e Playwright rodava todos os specs.
+      if (planosEmtResolvidos.length > 0 && specArgs.length > 0) {
+        throw new AppError(
+          'Selecione apenas planos E2E ou apenas EMT (em tela) por execução — runners diferentes.',
+          400,
+          'MIXED_RUNNER_TYPES',
+        )
+      }
+
+      if (planosSemSpec.length > 0 && specArgs.length === 0 && planosEmtResolvidos.length === 0) {
         throw new AppError(
           `Nenhum plano selecionado tem spec executável:\n  • ${planosSemSpec.join('\n  • ')}`,
           400,
@@ -1335,9 +1476,27 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       }
     } else if (Array.isArray(modulos) && modulos.length > 0) {
       projectArgs = modulos.flatMap((m: string) => ['--project', m])
+    } else {
+      throw new AppError(
+        'Selecione ao menos um plano ou módulo para executar.',
+        400,
+        'EMPTY_RUN',
+      )
     }
 
-    // Audit trail: início do run — quem disparou, com quais planos/módulos
+    const runnerExecucao = planosEmtResolvidos.length > 0 ? 'EMT' as const : 'E2E' as const
+    const listaPlanosExecucao = planosEmtResolvidos.length > 0
+      ? planosEmtResolvidos.map(p => p.id)
+      : (planos ?? [])
+    const validacao = validarNovaExecucaoTeste({
+      runner_execucao_teste: runnerExecucao,
+      lista_planos_execucao_teste: listaPlanosExecucao,
+      lista_modulos_execucao_teste: modulos ?? [],
+    })
+    if (!validacao.ok) {
+      throw new AppError(validacao.mensagem, 409, validacao.codigo)
+    }
+
     AuditService.log({
       id_organizacao: req.auth.id_organizacao,
       tipo_ator_historico_log: 'USUARIO',
@@ -1347,16 +1506,13 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       modulo_historico_log: 'admin',
       tipo_recurso_historico_log: 'TestRun',
       acao_historico_log: 'INICIAR_EXECUCAO_TESTES',
-      detalhe_acao_historico_log: `Run iniciado — ${planos?.length ?? 0} plano(s), ${modulos?.length ?? 0} módulo(s)`,
-      estado_posterior_historico_log: { planos: planos ?? [], modulos: modulos ?? [], specArgs, projectArgs },
+      detalhe_acao_historico_log: `Run iniciado — ${planos?.length ?? 0} plano(s), ambiente=${ambiente ?? 'Local'}, EMT=${planosEmtResolvidos.length}, E2E=${specArgs.length}`,
+      estado_posterior_historico_log: { planos: planos ?? [], modulos: modulos ?? [], ambiente: ambiente ?? 'Local', specArgs, projectArgs, emt: planosEmtResolvidos.map(p => p.id) },
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
-    const runId = String(Date.now())
+    const id_execucao_teste = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
     mkdirSync(testLogsDir, { recursive: true })
-
-    const stdoutPath = join(testLogsDir, `playwright-run-${runId}.json`)
-    const stderrPath = join(testLogsDir, `playwright-run-${runId}.stderr.log`)
     const debugPath = join(testLogsDir, '_debug-spawn.log')
     const debugLog = (msg: string) => {
       try {
@@ -1365,8 +1521,35 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     }
 
     debugLog('=== NEW RUN ===')
-    debugLog(`runId=${runId}`)
-    debugLog(`cwd=${monorepoRoot}`)
+    debugLog(`id_execucao_teste=${id_execucao_teste} ambiente=${ambiente ?? 'Local'}`)
+
+    const data_inicio_execucao_teste = new Date().toISOString()
+    const markerBase = {
+      status_execucao_teste: 'rodando' as const,
+      data_inicio_execucao_teste,
+      id_execucao_teste,
+      ambiente_teste: ambiente ?? 'Local',
+      disparado_por_teste: req.auth.id_usuario,
+      gatilho_teste: 'manual' as const,
+      lista_planos_execucao_teste: listaPlanosExecucao,
+      lista_modulos_execucao_teste: modulos ?? [],
+    }
+
+    if (planosEmtResolvidos.length > 0) {
+      debugLog(`cmd=EMT detached (${planosEmtResolvidos.length} scripts)`)
+      const childPid = spawnEmtRunnerDetached(id_execucao_teste, planosEmtResolvidos, testEnv, data_inicio_execucao_teste, debugLog)
+      gravarMarkerExecucaoTeste({
+        ...markerBase,
+        pid_execucao_teste: childPid,
+        runner_execucao_teste: 'EMT',
+      })
+      res.json({ started: true, id_execucao_teste })
+      return
+    }
+
+    const stdoutPath = join(testLogsDir, `playwright-run-${id_execucao_teste}.json`)
+    const stderrPath = join(testLogsDir, `playwright-run-${id_execucao_teste}.stderr.log`)
+    debugLog(`cwd=${raizRepositorioGravity}`)
     debugLog(`cmd=npx playwright test ${specArgs.join(' ')} ${projectArgs.join(' ')} --reporter=json`)
     debugLog(`specArgs=${JSON.stringify(specArgs)}`)
     debugLog(`projectArgs=${JSON.stringify(projectArgs)}`)
@@ -1379,19 +1562,23 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       'npx',
       ['playwright', 'test', ...specArgs, ...projectArgs, '--reporter=json'],
       {
-        cwd:        monorepoRoot,
-        env:        buildSafeTestEnv(),
+        cwd:        raizRepositorioGravity,
+        env:        testEnv,
         shell:      true,
         windowsHide: true,
-        timeout:    RUN_TESTS_TIMEOUT_MS,
+        timeout:    RUN_TESTES_TIMEOUT_MS,
       }
     )
 
     const pid = proc.pid ?? 0
     debugLog(`spawn pid=${pid}`)
 
-    writeRunMarker({ status: 'running', pid, started_at: new Date().toISOString(), runId })
-    res.json({ started: true })
+    gravarMarkerExecucaoTeste({
+      ...markerBase,
+      pid_execucao_teste: pid,
+      runner_execucao_teste: 'E2E',
+    })
+    res.json({ started: true, id_execucao_teste })
 
     // Stdout/stderr → arquivo em disco (sobrevive a restart do servidor)
     proc.stdout?.pipe(stdoutStream)
@@ -1409,7 +1596,6 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
       stderrStream.end()
 
       const entries: TestLogEntry[] = []
-      const created_at = new Date().toISOString()
 
       try {
         const raw = readFileSync(stdoutPath, 'utf-8').trim()
@@ -1467,33 +1653,25 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
             error_log: `Processo matado após timeout. stderr: ${stderrContent.slice(0, 400)}`,
             ai_analysis: {
               erroResumo: 'Processo Playwright matado por timeout',
-              motivo: `O run excedeu o timeout máximo de ${RUN_TESTS_TIMEOUT_MS / 60000} minutos e foi encerrado com SIGTERM. O JSON de saída ficou incompleto e não pôde ser parseado.`,
-              sugestaoCorrecao: 'Rodar um subconjunto menor de testes, ou aumentar o timeout em admin.ts (RUN_TESTS_TIMEOUT_MS).',
+              motivo: `O run excedeu o timeout máximo de ${RUN_TESTES_TIMEOUT_MS / 60000} minutos e foi encerrado com SIGTERM. O JSON de saída ficou incompleto e não pôde ser parseado.`,
+              sugestaoCorrecao: 'Rodar um subconjunto menor de testes, ou definir GRAVITY_TEST_RUN_TIMEOUT_MS (ms) no cfg-back.',
               arquivo: 'servicos-global/configurador/server/routes/admin.ts',
             },
           })
         }
       }
 
-      const filePath = join(testLogsDir, `${created_at.slice(0, 10)}.json`)
-      let existing: unknown[] = []
-      try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
-      const novosLogs = entries.map((e, i) => ({
-        id: `${Date.now()}-${i}`,
-        created_at,
-        ...e,
-      }))
-      try {
-        writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
-        debugLog(`WROTE ${novosLogs.length} entries to ${filePath}`)
-      } catch (writeErr) {
-        debugLog(`WRITE FAILED: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`)
-      }
+      void appendTestLogEntries(entries, debugLog, data_inicio_execucao_teste, {
+        id_execucao_teste,
+        ambiente_teste: ambiente ?? 'Local',
+        disparado_por_teste: req.auth.id_usuario,
+        gatilho_teste: 'manual',
+      })
 
       // Limpa arquivos intermediários e marker
       try { unlinkSync(stdoutPath) } catch { /* ok */ }
       try { unlinkSync(stderrPath) } catch { /* ok */ }
-      clearRunMarker()
+      removerMarkerExecucaoTeste(id_execucao_teste)
 
       // Audit trail: fim do run
       const aprovados = entries.filter(e => e.result === 'APROVADO').length
@@ -1517,26 +1695,61 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     })
 
   } catch (err) {
-    clearRunMarker()
     next(err)
   }
 })
 
 /**
  * GET /api/v1/admin/testes/status
- * Verifica se há um run em andamento.
- * Usa arquivo _current-run.json + verificação de PID (sobrevive a restart).
+ * Lista execuções de teste em andamento (suporta runs simultâneos).
  */
 adminRouter.get('/testes/status', (_req, res) => {
-  const marker = readRunMarker()
-  if (!marker || marker.status !== 'running') {
-    return res.json({ running: false })
+  res.json(montarRespostaStatusExecucoesTeste())
+})
+
+/**
+ * GET /api/v1/admin/testes/emt-print/:id_log/:nome_arquivo
+ * Serve screenshot PNG de um run EMT (requer SUPER_ADMIN + log válido).
+ */
+adminRouter.get('/testes/emt-print/:id_log/:nome_arquivo', async (req, res, next) => {
+  try {
+    if (!['SUPER_ADMIN', 'ADMIN'].includes(req.auth.tipo_usuario)) {
+      throw new AppError('Acesso restrito a administradores Gravity', 403, 'FORBIDDEN')
+    }
+    const idLog = req.params.id_log
+    const nomeArquivo = decodeURIComponent(req.params.nome_arquivo)
+    const dbLog = await buscarTestePorId(idLog)
+    const logEntry = dbLog
+      ? {
+          type: dbLog.tipo_teste,
+          module: dbLog.modulo_teste,
+          emt_pasta: dbLog.pasta_emt_teste,
+          created_at: dbLog.data_criacao_teste,
+          id_execucao_teste: dbLog.id_execucao_teste,
+        }
+      : buscarLogTestePorId(idLog, testLogsDir)
+    if (!logEntry || logEntry.type !== 'EMT') {
+      throw new AppError('Log EMT não encontrado', 404, 'NOT_FOUND')
+    }
+    let emtPasta = String(logEntry.emt_pasta ?? '')
+    if (!emtPasta) {
+      const spec = specFileDoRegistry(String(logEntry.module ?? ''))
+      const createdMs = new Date(String(logEntry.created_at ?? Date.now())).getTime()
+      const runId = typeof logEntry.id_execucao_teste === 'string' ? logEntry.id_execucao_teste : undefined
+      const artefatos = spec ? coletarArtefatosEmt(spec, createdMs, 0, '', runId) : null
+      if (!artefatos?.emt_pasta) {
+        throw new AppError('Pasta de artefatos EMT não encontrada', 404, 'NOT_FOUND')
+      }
+      emtPasta = artefatos.emt_pasta
+    }
+    const abs = resolverCaminhoPrintSeguro(emtPasta, nomeArquivo)
+    if (!abs) throw new AppError('Print não encontrado', 404, 'NOT_FOUND')
+    res.setHeader('Content-Type', 'image/png')
+    res.setHeader('Cache-Control', 'private, max-age=3600')
+    createReadStream(abs).pipe(res)
+  } catch (err) {
+    next(err)
   }
-  if (!isProcessAlive(marker.pid)) {
-    processOrphanedRun()
-    return res.json({ running: false })
-  }
-  res.json({ running: true })
 })
 
 /**
@@ -1576,42 +1789,24 @@ adminRouter.post('/testes', async (req, res, next) => {
 
     const { entries } = parse.data
     const created_at = new Date().toISOString()
-    let salvouNoBanco = false
+    const { salvouNoBanco } = await persistirEntradasTeste(entries, {
+      ambiente_teste: 'Local',
+      gatilho_teste: 'ci',
+      disparado_por_teste: req.auth.id_usuario,
+      data_criacao_teste: created_at,
+    })
 
-    // Tenta salvar no banco (requer migração futura com modelo Testes)
-    try {
-      if ((prisma as any).testLog?.createMany) {
-        await (prisma as any).testLog.createMany({
-          data: entries.map(e => ({
-            type:      e.type,
-            module:    e.module,
-            test_name: e.test_name,
-            result:    e.result,
-            duration:  e.duration,
-            error_log: e.error_log ?? null,
-            created_at,
-          })),
-        })
-        salvouNoBanco = true
-      }
-    } catch {
-      // Tabela não existe ainda — fallback para arquivo JSON
-    }
-
-    // Fallback: persiste em arquivo JSON local (lido pela mesma GET /test-logs via merge futuro)
     if (!salvouNoBanco) {
-      const { writeFileSync, readFileSync, mkdirSync } = await import('fs')
-      const { join } = await import('path')
       const dir = join(process.cwd(), 'data', 'test-logs')
       mkdirSync(dir, { recursive: true })
       const filePath = join(dir, `${created_at.slice(0, 10)}.json`)
       let existing: unknown[] = []
-      try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo arquivo */ }
+      try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
       const novosLogs = entries.map((e, i) => ({
         id: `${Date.now()}-${i}`,
         created_at,
         ...e,
-        error_log:   e.error_log ?? null,
+        error_log: e.error_log ?? null,
         ai_analysis: e.ai_analysis ?? null,
       }))
       writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
@@ -1973,13 +2168,11 @@ adminRouter.post('/planos-teste/:id_plano_teste/expandir', async (req, res, next
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    // Carrega plano existente do registry
-    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'test-plans-registry.json')
-    if (!existsSync(registryPath)) {
+    if (!existsSync(registryPlanosTestePath)) {
       throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
     }
 
-    const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
+    const registry = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as {
       planos: Array<{ id: string; planoFile: string }>
     }
     const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
@@ -1987,8 +2180,8 @@ adminRouter.post('/planos-teste/:id_plano_teste/expandir', async (req, res, next
       throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
     }
 
-    const planPath = resolve(process.cwd(), '..', '..', 'testes', entry.planoFile)
-    if (!existsSync(planPath)) {
+    const planPath = resolverArquivoPlanoTeste(entry.planoFile)
+    if (!planPath) {
       throw new AppError('Arquivo do plano não encontrado', 404, 'NOT_FOUND')
     }
 
@@ -2025,12 +2218,11 @@ adminRouter.post('/planos-teste/:id_plano_teste/gerar-spec', async (req, res, ne
       throw new AppError('Apenas Super Admin pode gerar specs', 403, 'FORBIDDEN')
     }
 
-    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'test-plans-registry.json')
-    if (!existsSync(registryPath)) {
+    if (!existsSync(registryPlanosTestePath)) {
       throw new AppError('Registry não encontrado', 404, 'NOT_FOUND')
     }
 
-    const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
+    const registry = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as {
       planos: Array<{ id: string; planoFile: string }>
     }
     const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
@@ -2038,7 +2230,10 @@ adminRouter.post('/planos-teste/:id_plano_teste/gerar-spec', async (req, res, ne
       throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
     }
 
-    const planPath = resolve(process.cwd(), '..', '..', 'testes', entry.planoFile)
+    const planPath = resolverArquivoPlanoTeste(entry.planoFile)
+    if (!planPath) {
+      throw new AppError('Arquivo do plano não encontrado', 404, 'NOT_FOUND')
+    }
     const plan = JSON.parse(readFileSync(planPath, 'utf-8'))
     const specPath = generateAndSaveSpec(plan)
 
@@ -2091,7 +2286,7 @@ adminRouter.post('/testes/:id_teste/reanalisar', async (req, res, next) => {
       throw new AppError('Apenas Super Admin pode reanalizar', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id_teste)
+    const logEntry = await findLogEntryAsync(req.params.id_teste)
     if (!logEntry) {
       throw new AppError('Teste não encontrado', 404, 'NOT_FOUND')
     }
@@ -2141,7 +2336,7 @@ adminRouter.post('/testes/:id_teste/aplicar-correcao', async (req, res, next) =>
       throw new AppError('Apenas Super Admin pode aplicar correções', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id_teste)
+    const logEntry = await findLogEntryAsync(req.params.id_teste)
     if (!logEntry) {
       throw new AppError('Teste não encontrado', 404, 'NOT_FOUND')
     }
@@ -2157,7 +2352,7 @@ adminRouter.post('/testes/:id_teste/aplicar-correcao', async (req, res, next) =>
       new: string
     }
 
-    const filePath = resolve(monorepoRoot, diff.arquivo)
+    const filePath = resolve(raizRepositorioGravity, diff.arquivo)
     if (!existsSync(filePath)) {
       throw new AppError(`Arquivo não encontrado: ${diff.arquivo}`, 404, 'FILE_NOT_FOUND')
     }
@@ -2207,7 +2402,7 @@ adminRouter.post('/testes/:id_teste/rejeitar', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Motivo é obrigatório', 400, 'VALIDATION_ERROR')
     }
 
-    const logEntry = findLogEntry(req.params.id_teste)
+    const logEntry = await findLogEntryAsync(req.params.id_teste)
     if (!logEntry) {
       throw new AppError('Teste não encontrado', 404, 'NOT_FOUND')
     }
@@ -2241,16 +2436,12 @@ adminRouter.post('/testes/:id_teste/rejeitar', async (req, res, next) => {
 
 // ─── Helpers para manipular log entries em arquivos JSON ─────────────────────
 
-function findLogEntry(id: string): Record<string, unknown> | null {
+async function findLogEntryAsync(id: string): Promise<Record<string, unknown> | null> {
+  const db = await buscarTesteComoLogLegado(id)
+  if (db) return db
   const dir = join(process.cwd(), 'data', 'test-logs')
   if (!existsSync(dir)) return null
-
-  const files = readdirSync(dir)
-    .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-') && !f.startsWith('_'))
-    .sort()
-    .reverse()
-
-  for (const file of files.slice(0, 14)) {
+  for (const file of listDailyTestLogFiles(14)) {
     try {
       const content = JSON.parse(readFileSync(join(dir, file), 'utf-8'))
       if (Array.isArray(content)) {
@@ -2263,19 +2454,17 @@ function findLogEntry(id: string): Record<string, unknown> | null {
 }
 
 function updateLogEntryAnalysis(id: string, analysis: Record<string, unknown>): void {
-  updateLogEntryField(id, 'ai_analysis', analysis)
+  void atualizarCampoTeste(id, 'analise_ia_teste', analysis).then(ok => {
+    if (!ok) updateLogEntryField(id, 'ai_analysis', analysis)
+  })
 }
 
 function updateLogEntryField(id: string, field: string, value: unknown): void {
+  if (field === 'ai_analysis') void atualizarCampoTeste(id, 'analise_ia_teste', value)
   const dir = join(process.cwd(), 'data', 'test-logs')
   if (!existsSync(dir)) return
 
-  const files = readdirSync(dir)
-    .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-') && !f.startsWith('_'))
-    .sort()
-    .reverse()
-
-  for (const file of files.slice(0, 14)) {
+  for (const file of listDailyTestLogFiles(14)) {
     const filePath = join(dir, file)
     try {
       const content = JSON.parse(readFileSync(filePath, 'utf-8'))
@@ -2289,24 +2478,6 @@ function updateLogEntryField(id: string, field: string, value: unknown): void {
       }
     } catch { /* skip */ }
   }
-}
-
-function readSpecFileContent(logEntry: Record<string, unknown>): string {
-  const module = String(logEntry.module ?? '')
-  const testName = String(logEntry.test_name ?? '')
-
-  // Tenta localizar o spec no diretório de testes
-  const possiblePaths = [
-    resolve(monorepoRoot, 'testes', 'testes-e2e', module, `${testName}.spec.ts`),
-    resolve(monorepoRoot, 'testes', 'testes-e2e', module.toLowerCase(), `${testName}.spec.ts`),
-  ]
-
-  for (const p of possiblePaths) {
-    if (existsSync(p)) {
-      return readFileSync(p, 'utf-8')
-    }
-  }
-  return ''
 }
 
 // ─── Agendamentos de Teste (CRUD) — model TesteAgendamento ──────────────────

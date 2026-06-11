@@ -5,8 +5,12 @@ function getCadastrosUrl(): string {
 }
 
 function getInternalServiceKey(): string {
-  const key = process.env.CHAVE_INTERNA_SERVICO
-  if (key?.trim()) return key
+  const key = process.env.CHAVE_INTERNA_SERVICO?.trim()
+  if (key) return key
+  // Sidecar no site-usegravity: mesma chave que o proxy do Configurador injeta nas requisições.
+  if (process.env.BID_FRETE_SIDECAR === '1') {
+    return process.env.VITE_CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
+  }
   if (process.env.NODE_ENV !== 'production') {
     return process.env.VITE_CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
   }

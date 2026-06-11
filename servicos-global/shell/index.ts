@@ -35,10 +35,14 @@ export type { OrganizacaoAdminOpcao, BuscarOrganizacoesAdminOpts } from './utils
 export { useUserPreferences } from './hooks/useUserPreferences'
 export { useShellBodyClasses } from './hooks/useShellBodyClasses'
 export { useMeSync }           from './hooks/useMeSync'
+export { resolverNomeExibicaoUsuario } from './utils/resolver-nome-exibicao-usuario'
 export { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 export { useOrganizacaoOverride } from './hooks/useOrganizacaoOverride'
 export type { UsoOrganizacaoOverride } from './hooks/useOrganizacaoOverride'
-export { useProdutosSwitcher, EVENTO_PRODUTOS_WORKSPACE_ATUALIZADOS } from './hooks/useProdutosSwitcher'
+export { useProdutosSwitcher, EVENTO_PRODUTOS_WORKSPACE_ATUALIZADOS, montarListaProdutosSwitcherInicial } from './hooks/useProdutosSwitcher'
+export { rotaTemSeletorProdutosProcesso, ROTA_PROCESSO_COM_SWITCHER } from './utils/rota-processo-com-switcher'
+export { resolverNavegacaoTrocarProduto, SLUG_ATALHO_PROCESSOS, ROTA_ATALHO_PROCESSOS } from './utils/navegacao-trocar-produto'
+export { produtosWorkspaceResponseSchema } from './schemas/produtos-workspace-response.schema'
 export {
   resolverRotaProdutoGravity,
   resolverSlugMetaProduto,

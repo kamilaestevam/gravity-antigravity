@@ -4,44 +4,105 @@
 
 ---
 
-## Formato Obrigatório
+## Formato Obrigatório — legado (UNI, CON, FUN, CRO, E2E, PEN)
 
 ```
 TST-{TIPO}-{ESCOPO}-{NNNNNN}
 ```
 
-### Componentes
+| Parte | Valores |
+|---|---|
+| `TST` | fixo — **Teste** |
+| `{TIPO}` | `UNI`, `CON`, `FUN`, `CRO`, `E2E`, `PEN` |
+| `{ESCOPO}` | sigla do produto/serviço (`PEDIDO`, `CONFIG`, `ADMIN`, …) |
+| `{NNNNNN}` | 6 dígitos sequenciais |
 
-| Parte | Tamanho | Valores válidos |
-|---|---|---|
-| `TST` | fixo | sempre `TST` |
-| `{TIPO}` | 3 letras | `UNI`, `CON`, `FUN`, `CRO`, `E2E`, `PEN` |
-| `{ESCOPO}` | 5-6 letras | `LOGIN`, `CONFIG`, `ADMIN`, `HUB`, `CORE`, `MARKET`, `TENANT`, `DBASE`, `PEDIDO`, `NFIMP`, `LPCO`, `BIDFRT`, `BIDCAM`, `SIMCUS`, `FINCOM`, `PROCSO` |
-| `{NNNNNN}` | 6 dígitos | sequencial com zero-padding |
-
-### Regex de validação
 ```
-^TST-(UNI|CON|FUN|CRO|E2E|PEN)-(LOGIN|CONFIG|ADMIN|HUB|CORE|MARKET|TENANT|DBASE|PEDIDO|NFIMP|LPCO|BIDFRT|BIDCAM|SIMCUS|FINCOM|PROCSO)-\d{6}$
+^TST-(UNI|CON|FUN|CRO|E2E|PEN)-(LOGIN|CONFIG|ADMIN|HUB|CORE|MARKET|TENANT|DBASE|PEDIDO|NFIMP|LPCO|BIDFRT|BIDCAM|SIMCUS|FINCOM|PROCSO|MBOTO)-\d{6}$
 ```
 
 ---
 
-## Regra 1 — Numeração reseta por combinação `tipo+escopo`
+## Formato Obrigatório — EMT (Em Tela) — **a partir de 2026-06-06**
 
-Cada combinação tipo+escopo tem sua própria sequência. Exemplos válidos coexistindo:
+IDs de teste em tela são **legíveis** e espelham produto → área → o que o teste faz:
 
 ```
-TST-E2E-CONFIG-000001     ✅ (E2E #1 do Configurador)
-TST-E2E-PEDIDO-000001     ✅ (E2E #1 do Pedido — sequência separada)
-TST-UNI-CONFIG-000001     ✅ (Unitário #1 do Configurador — sequência separada)
-TST-FUN-CONFIG-000001     ✅
+TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNNNNN}
+```
+
+| Parte | Significado | Exemplos |
+|---|---|---|
+| `TST` | Teste (fixo) | `TST` |
+| `EMT` | Tipo **Em Tela** | `EMT` |
+| `{LOCAL}` | Produto ou módulo raiz | `PEDIDO`, `BID-FRETE`, `CONFIGURADOR`, `ADMIN`, `LOGIN` |
+| `{AREA}` | Sub-local da UI | `LISTA`, `KANBAN`, `DASHBOARD`, `INSIGHTS`, `CONFIGURACOES` |
+| `{RESUMO}` | Resumo kebab do escopo do teste | `EDITAR-SALVAR`, `CONFIG-STATUS`, `STATUS-REFLEXO` |
+| `{NNNNNN}` | Sequencial **global** (6 dígitos — único em todo o catálogo) | `000045`, `000046` |
+
+**Exemplo canônico:**
+```
+TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045
+```
+
+**Onde cada parte também aparece:**
+- `{LOCAL}` + `{AREA}` → pasta `testes/testes-em-tela/<local>/<area>/` e campo `sublocal` no registry (`lista/editar-salvar`)
+- `{RESUMO}` → título humano no campo `modulo` do registry (ex.: "Edição e Salvar pedidos e itens")
+- ID completo → campo `id` em `test-plans-registry.json`
+
+**Regex EMT (sugestão CI):**
+```
+^TST-EMT-[A-Z0-9]+(-[A-Z0-9]+){2,}-\d{6}$
+```
+
+> Planos EMT antigos no formato `TST-EMT-PEDIDO-CONFIG-STATUS-001` permanecem válidos até renomeação explícita no registry (Regra 2).
+
+---
+
+## Formato Descritivo — tipos legado (UNI, FUN, CRO, E2E) — **paridade EMT**
+
+Alguns domínios transversais usam IDs **descritivos legíveis** mesmo nos tipos legado (não só EMT). O escopo real fica no campo `escopo` do registry; o ID carrega o tema.
+
+```
+TST-{TIPO}-{TEMA-DESCRITIVO}-{NNNNNN}
+```
+
+**Famílias descritivas registradas** (lista fechada — adicionar um regex em `scripts/ativamente/validate-test-ids.ts` → `DESCRIPTIVE_REGEXES` antes de usar uma nova):
+
+| Família | Regex | Escopo real (campo `escopo`) |
+|---------|-------|------------------------------|
+| `MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY` | `^TST-(UNI\|FUN\|CRO\|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}$` | CONFIG |
+| `PEDIDO-USUARIO-FALTA-ORGANIZACAO` | `^TST-(UNI\|FUN\|CRO\|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}$` | PEDIDO / CONFIG |
+
+**Exemplos:**
+```
+TST-EMT-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000084   (em tela)
+TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085   (unitário — escopo real CONFIG/PEDIDO no registry)
+TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000087   (funcional)
+```
+
+> **Para adicionar uma nova família descritiva:** (1) adicionar o regex em `DESCRIPTIVE_REGEXES` no validador, (2) registrar a família nesta tabela, (3) só então criar os IDs. O CI valida via `idValido()` que delega a `matchDescriptive()`.
+
+---
+
+## Regra 1 — Sequência global única (todo o catálogo)
+
+O sufixo `{NNNNNN}` é **único em todo o `test-plans-registry.json`** — independente de tipo ou escopo.
+
+```
+TST-UNI-PEDIDO-000001        ✅ (plano #1 do catálogo)
+TST-E2E-ADMIN-000019         ✅ (plano #19)
+TST-FUN-ADMIN-000020         ✅ (plano #20 — outro tipo, outro número)
+TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  ✅ (plano #45 — EMT também)
 ```
 
 **Errado:**
 ```
-TST-E2E-CONFIG-000001     ✅
-TST-E2E-CONFIG-000001     ❌ (duplicado!)
+TST-E2E-ADMIN-000019     ✅
+TST-FUN-ADMIN-000019     ❌ (mesmo sufixo em dois planos)
 ```
+
+Próximo plano = `max(sufixo global) + 1` (`generatePlanId` / `proximaSequenciaGlobal`).
 
 ---
 
@@ -53,9 +114,9 @@ Refactor de arquivo não muda o ID. Renomear `.spec.ts` não muda o ID. Mover de
 
 **Exemplo:**
 ```
-TST-E2E-CONFIG-000001 — criado 2026-04-15 com nome "organizacao.spec.ts"
+TST-E2E-CONFIG-000013 — criado 2026-04-15 com nome "organizacao.spec.ts"
                      ↓ (refactor 2026-08-20)
-TST-E2E-CONFIG-000001 — agora se chama "organizacao-edicao.spec.ts"
+TST-E2E-CONFIG-000013 — agora se chama "organizacao-edicao.spec.ts"
                        MAS o ID continua o mesmo
 ```
 
@@ -64,7 +125,7 @@ TST-E2E-CONFIG-000001 — agora se chama "organizacao-edicao.spec.ts"
 ## Regra 3 — Numeração com zero-pad (6 dígitos)
 
 ```
-TST-E2E-CONFIG-000001    ✅
+TST-E2E-CONFIG-000013    ✅
 TST-E2E-CONFIG-000042    ✅
 TST-E2E-CONFIG-001234    ✅
 ```
@@ -78,24 +139,15 @@ TST-E2E-CONFIG-00001     ❌ (5 dígitos)
 
 ---
 
-## Regra 4 — Sublocal NÃO entra no ID
+## Regra 4 — Sublocal no ID
 
-Sublocais (Organização, Workspaces, Dashboard, etc.) ficam **no metadata do registry**, não no ID. Razões:
+**EMT (2026-06-06+):** `{LOCAL}` e `{AREA}` **fazem parte do ID** (`TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`). O caminho de pasta e `sublocal` no registry devem **alinhar** com esses segmentos.
 
-- IDs precisam caber em colunas, logs, URLs
-- Sublocais podem ser renomeados sem invalidar IDs
-- Filtros por sublocal acontecem no backend lendo o registry
+**Demais tipos (UNI, FUN, E2E, …):** sublocal continua **só no metadata** do registry, não no ID.
 
-**Errado:**
 ```
-TST-E2E-CONFIG-ORGANIZACAO-000001   ❌ (sublocal no ID)
-TST-E2E-CONFIG-ORG-000001           ❌
-```
-
-**Certo:**
-```
-TST-E2E-CONFIG-000001               ✅
-  + metadata.sublocal: "Organização"
+TST-E2E-CONFIG-000013               ✅  + metadata.sublocal: "organizacao"
+TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045  ✅  + sublocal: "lista/editar-salvar"
 ```
 
 ---
@@ -109,7 +161,7 @@ testes/testes-e2e/<escopo>/<sublocal-kebab>/TST-{TIPO}-{ESCOPO}-{NNNNNN}.spec.ts
 
 Exemplos:
 ```
-testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts
+testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000013.spec.ts
 testes/testes-funcionais/admin/visao-geral/TST-FUN-ADMIN-000005.test.ts
 testes/testes-cross-tenant/pedido/dashboard/TST-CRO-PEDIDO-000002.test.ts
 ```
@@ -120,16 +172,16 @@ testes/testes-cross-tenant/pedido/dashboard/TST-CRO-PEDIDO-000002.test.ts
 
 ## Regra 6 — IDs reservados nunca são reusados
 
-Se um teste é deletado, seu ID **não pode ser reusado**. Próximo teste daquela combinação tipo+escopo continua a sequência.
+Se um teste é deletado, seu ID **não pode ser reusado**. O próximo plano usa o próximo sufixo **global** (não reaproveita o deletado).
 
 **Exemplo:**
 ```
-TST-E2E-CONFIG-000001  → deletado em 2026-05-10
-TST-E2E-CONFIG-000002  ✅ (existe)
-TST-E2E-CONFIG-000003  ✅ (próximo a criar — não pula pro 000001)
+TST-E2E-CONFIG-000013  → deletado em 2026-05-10
+… planos até 000072 existem …
+TST-UNI-PEDIDO-000073  ✅ (próximo a criar — não reutiliza 000007)
 ```
 
-O registry mantém um campo `deletados: ["TST-E2E-CONFIG-000001"]` pra rastreabilidade histórica.
+O registry mantém um campo `deletados: ["TST-E2E-CONFIG-000013"]` pra rastreabilidade histórica.
 
 ---
 
@@ -143,6 +195,7 @@ O registry mantém um campo `deletados: ["TST-E2E-CONFIG-000001"]` pra rastreabi
 | `CRO` | Cross-tenant | Vitest + 2 tenants |
 | `E2E` | End-to-end | Playwright |
 | `PEN` | Pentest | OWASP ZAP |
+| `EMT` | Em Tela (visual + prints) | Playwright + `testes-em-tela/` |
 
 **Não inventar siglas novas.** Se um novo tipo for criado, atualizar este documento + agent-policy + CI primeiro.
 
@@ -169,7 +222,11 @@ O registry mantém um campo `deletados: ["TST-E2E-CONFIG-000001"]` pra rastreabi
 | `FINCOM` | Produto Financeiro Comex | `produto/financeiro-comex/` |
 | `PROCSO` | Produto Processo | `produto/processo/` |
 
-**Total: 16 escopos.** PETSHOP foi removido (produto não existe).
+| `MBOTO` | Transversal — menu-botoes / seletor universal de visualizações | `testes/*/menu-botoes/seletor-universal-visoes/` |
+
+**Total: 17 escopos.** PETSHOP foi removido (produto não existe).
+
+**Híbrido MBOTO:** IDs usam escopo `MBOTO`; variantes por produto ficam em `matriz-produtos.json` (`produto_slug`).
 
 **Para adicionar um novo escopo:**
 1. Atualizar este documento
@@ -206,15 +263,33 @@ Quando um agente IA gera um teste novo:
 
 Se o agente não seguir essas 4 etapas, o PR é rejeitado pelo CI.
 
+**Novos planos (jun/2026+):** a numeração é **automática** — `generatePlanId()` em `servicos-global/configurador/server/lib/agente-plano-teste.ts` lê o registry e devolve o próximo `TST-{TIPO}-{ESCOPO}-{NNNNNN}`; EMT segue a família `TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNN}` com o próximo `{NNN}` da mesma família. O agente não escolhe número à mão.
+
+---
+
+## Regra 11 — Legados: numeração só ao revisar o plano
+
+**Não** renomear todos os planos antigos de uma vez. Planos legados podem ter `-001` em vez de `-000001`, formato EMT antigo (`TST-EMT-LOGIN-PORTEIRO-SIGNUP-000041`) ou ID híbrido (`TST-UNI-PEDIDO-000029`).
+
+**Política vigente:** ao abrir/revisar um plano legado, corrigir **somente a numeração sequencial** naquele plano — alinhar ID no `.md`, spec/runner, `test-plans-registry.json` e referências no **mesmo commit**. Fora de revisão ativa, o ID legado permanece (Regra 2).
+
+| Situação | O que fazer |
+|---|---|
+| Plano **novo** | Numeração automática (Regra 10) |
+| Plano **legado** em revisão | Ajustar sequência manualmente, plano a plano |
+| Plano legado intocado | Manter ID atual até a próxima revisão |
+
+**Migração em lote (2026-06-07):** 32 IDs do registry normalizados via `scripts/ativamente/migrate-legacy-test-ids.ts` (híbridos → `TST-{TIPO}-{ESCOPO}-{000001..N}`; EMT antigo → formato legível). Histórico de execução EMT em `test-logs/` não foi alterado.
+
 ---
 
 ## Exemplos completos
 
 | ID | Tipo | Escopo | Significado |
 |---|---|---|---|
-| `TST-E2E-CONFIG-000001` | E2E | Configurador | Primeiro E2E do Config (tela Organização) |
+| `TST-E2E-CONFIG-000013` | E2E | Configurador | Primeiro E2E do Config (tela Organização) |
 | `TST-UNI-CORE-000042` | Unitário | Núcleo Global | Unitário 42 do CORE (componente Tabela) |
-| `TST-FUN-PEDIDO-000007` | Funcional | Pedido | Funcional 7 do Pedido (rota /api/pedidos) |
+| `TST-FUN-PEDIDO-000062` | Funcional | Pedido | Funcional 7 do Pedido (rota /api/pedidos) |
 | `TST-CRO-NFIMP-000003` | Cross-tenant | NF Imp | Cross-tenant 3 (isolamento de NFs entre tenants) |
 | `TST-PEN-LOGIN-000001` | Pentest | Login | Primeiro pentest do Login (brute-force) |
 | `TST-CON-CONFIG-000015` | Contract | Configurador | Contract 15 (schema da rota /api/users) |

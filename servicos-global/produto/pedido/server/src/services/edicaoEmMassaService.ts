@@ -23,6 +23,7 @@ import { obterWorkspaces, type WorkspaceLookupItem } from '@gravity/resolver-org
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
 import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem.js'
+import { normalizarChaveCampoPedido } from '../../../shared/migracaoChavesCampoPedido.js'
 
 // Workaround Prisma 5.22: TransactionClient (Omit em classe genérica) perde delegates
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
@@ -302,6 +303,16 @@ export class AppError extends Error {
   }
 }
 
+function normalizarPayloadEdicaoMassa(payload: EdicaoMassaPayload): EdicaoMassaPayload {
+  return {
+    ...payload,
+    campos: payload.campos.map(c => ({
+      ...c,
+      campo: normalizarChaveCampoPedido(c.campo),
+    })),
+  }
+}
+
 // ── Serviço ───────────────────────────────────────────────────────────────────
 
 export class EdicaoEmMassaService {
@@ -312,6 +323,7 @@ export class EdicaoEmMassaService {
     db: PrismaClient,
     payload: EdicaoMassaPayload,
   ): Promise<EdicaoMassaPreview> {
+    payload = normalizarPayloadEdicaoMassa(payload)
     this.validarCamposEditaveis(payload.campos)
 
     const pedidos = await db.pedido.findMany({
@@ -500,6 +512,7 @@ export class EdicaoEmMassaService {
     db: PrismaClient,
     payload: EdicaoMassaPayload,
   ): Promise<EdicaoMassaResultado> {
+    payload = normalizarPayloadEdicaoMassa(payload)
     this.validarCamposEditaveis(payload.campos)
 
     const pedidos = await db.pedido.findMany({

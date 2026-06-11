@@ -9,18 +9,24 @@ import {
   isSomavel,
   type TipoCampo,
 } from './columnBehaviorConfig'
+import { isCampoLogisticaPedido } from '../../../shared/camposLogisticaPedido'
 
 export type NivelColunaLista = 'pai' | 'item'
 
 export type RegraTooltipId =
   | 'pai_editavel_replicar_alerta'
   | 'pai_ghost_descricao'
+  | 'item_ghost_descricao'
   | 'pai_ghost_ncm'
   | 'pai_ghost_cobertura'
+  | 'pai_valor_item_bloqueado'
+  | 'pai_moeda_pedido'
+  | 'pai_unidade_comercializada'
   | 'pai_calculado_valor'
   | 'pai_calculado_quantidade'
   | 'pai_calculado_peso'
   | 'pai_calculado_cubagem'
+  | 'pai_calculado_volumes'
   | 'pai_saldo_formula'
   | 'pai_somente_leitura'
   | 'pai_moeda_cambio'
@@ -28,12 +34,17 @@ export type RegraTooltipId =
   | 'pai_coluna_personalizada'
   | 'pai_cond_exportador'
   | 'pai_cond_importador'
+  | 'pai_importador'
   | 'pai_workspace'
   | 'pai_status'
   | 'pai_numero_pedido'
   | 'pai_numero_pedido_item'
   | 'pai_tipo_operacao'
+  | 'pai_logistica'
+  | 'item_logistica'
   | 'dinamico_valor_total'
+  | 'dinamico_valor_total_cambio'
+  | 'dinamico_valor_unitario_item'
   | 'dinamico_qtd_inicial'
   | 'dinamico_qtd_pronta'
   | 'dinamico_saldo'
@@ -47,6 +58,7 @@ export type RegraTooltipId =
   | 'item_editavel_valor_total'
   | 'item_editavel_qtd_pronta'
   | 'item_editavel_ghost'
+  | 'item_ghost_ncm'
   | 'item_nao_editavel_saldo'
   | 'item_nao_editavel_transferencia'
   | 'item_nao_editavel_cancelamento'
@@ -61,10 +73,7 @@ const GHOST_NCM = new Set(['ncm'])
 const GHOST_COBERTURA = new Set(['cobertura_cambial'])
 
 const CALCULADO_VALOR = new Set([
-  'valor_total_pedido',
-  'moeda_pedido',
   'moeda_item',
-  'valor_por_unidade_item',
 ])
 const CALCULADO_QTD = new Set([
   'quantidade_total_pedido',
@@ -72,13 +81,11 @@ const CALCULADO_QTD = new Set([
   'quantidade_transferida_total',
   'quantidade_cancelada_total_pedido',
   'unidade_comercializada_pedido',
-  'quantidade_volumes_pedido',
 ])
 const CALCULADO_PESO = new Set(['peso_liquido_total_pedido', 'peso_bruto_total_pedido'])
 const CALCULADO_CUBAGEM = new Set(['cubagem_total_pedido'])
 
-const MOEDA_CAMBIO = new Set([
-  'moeda_cambio_pedido',
+const MOEDA_CAMBIO_DERIVADO = new Set([
   'taxa_cambio_estimada',
   'valor_total_cambio_pedido',
   'contrato_cambio_id_pedido',
@@ -93,6 +100,7 @@ const ITEM_NAO_EDITAVEL = new Set([
 
 /** Colunas com rótulo dinâmico Pedido/Item quando há itens expandidos. */
 export const CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM = new Set([
+  'valor_por_unidade_item',
   'valor_total_pedido',
   'quantidade_total_pedido',
   'quantidade_pronta_itens_pedido_total',
@@ -102,9 +110,11 @@ export const CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM = new Set([
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
+  'valor_total_cambio_pedido',
 ])
 
 const REGRA_DINAMICA_POR_CHAVE: Record<string, RegraTooltipId> = {
+  valor_por_unidade_item: 'dinamico_valor_unitario_item',
   valor_total_pedido: 'dinamico_valor_total',
   quantidade_total_pedido: 'dinamico_qtd_inicial',
   quantidade_pronta_itens_pedido_total: 'dinamico_qtd_pronta',
@@ -114,6 +124,7 @@ const REGRA_DINAMICA_POR_CHAVE: Record<string, RegraTooltipId> = {
   peso_liquido_total_pedido: 'dinamico_peso_liquido',
   peso_bruto_total_pedido: 'dinamico_peso_bruto',
   cubagem_total_pedido: 'dinamico_cubagem',
+  valor_total_cambio_pedido: 'dinamico_valor_total_cambio',
 }
 
 function isCampoData(key: string): boolean {
@@ -156,27 +167,53 @@ function regraPorTipo(tipo: TipoCampo, nivel: NivelColunaLista): RegraTooltipId 
   return 'pai_somente_leitura'
 }
 
+export type OpcoesClassificarRegraTooltipColuna = {
+  modoDinamicoPedidoItem?: boolean
+  /** Coluna criada pelo usuário (chave fora do COLUMN_CONFIG). */
+  colunaPersonalizada?: boolean
+}
+
 export function classificarRegraTooltipColuna(
   key: string,
   nivel: NivelColunaLista,
-  opts?: { modoDinamicoPedidoItem?: boolean },
+  opts?: OpcoesClassificarRegraTooltipColuna,
 ): RegraTooltipId {
+  if (opts?.colunaPersonalizada) {
+    return 'pai_coluna_personalizada'
+  }
+
   if (opts?.modoDinamicoPedidoItem && CHAVES_COLUNA_DINAMICA_PEDIDO_ITEM.has(key)) {
     return REGRA_DINAMICA_POR_CHAVE[key] ?? 'generico'
   }
 
+  if (isCampoLogisticaPedido(key)) {
+    return nivel === 'item' ? 'item_logistica' : 'pai_logistica'
+  }
+
   if (nivel === 'item') {
+    if (key === 'peso_liquido_total_pedido') return 'dinamico_peso_liquido'
+    if (key === 'peso_bruto_total_pedido') return 'dinamico_peso_bruto'
+    if (key === 'cubagem_total_pedido') return 'dinamico_cubagem'
     if (key === 'numero_pedido') return 'item_part_number'
+    if (key === 'tipo_operacao' || key === 'id_workspace') return 'item_nao_editavel_padrao'
     if (key === 'saldo_itens_do_pedido') return 'item_nao_editavel_saldo'
     if (ITEM_NAO_EDITAVEL.has(key) || key.includes('transferida')) return 'item_nao_editavel_transferencia'
     if (key.includes('cancelada')) return 'item_nao_editavel_cancelamento'
     if (key === 'nome_exportador') return 'item_cond_exportador'
     if (key === 'nome_importador') return 'item_cond_importador'
-    if (GHOST_DESCRICAO.has(key) || GHOST_NCM.has(key) || GHOST_COBERTURA.has(key)) return 'item_editavel_ghost'
+    if (GHOST_DESCRICAO.has(key)) return 'item_ghost_descricao'
+    if (GHOST_NCM.has(key)) return 'item_ghost_ncm'
+    if (GHOST_COBERTURA.has(key)) return 'item_editavel_padrao'
+    if (key === 'valor_por_unidade_item') return 'item_editavel_padrao'
     if (key === 'valor_total_pedido' || key === 'valor_item') return 'item_editavel_valor_total'
     if (key === 'quantidade_pronta_itens_pedido_total') return 'item_editavel_qtd_pronta'
     if (key === 'quantidade_total_pedido') return 'item_editavel_quantidade_inicial'
+    if (key === 'quantidade_volumes_pedido') return 'item_editavel_padrao'
+    if (key === 'tipo_volume_pedido') return 'item_editavel_padrao'
+    if (key === 'unidade_comercializada_pedido') return 'item_editavel_padrao'
+    if (key === 'moeda_cambio_pedido') return 'item_editavel_padrao'
     if (isCampoData(key)) return 'pai_editavel_replicar_alerta'
+    if (isCampoAnexo(key)) return 'pai_anexo'
     if (getEditavelItem(key)) return 'item_editavel_padrao'
     const tipoItem = getTipoCampo(key)
     if (tipoItem) return regraPorTipo(tipoItem, 'item')
@@ -189,14 +226,28 @@ export function classificarRegraTooltipColuna(
   if (key === 'status') return 'pai_status'
   if (key === 'id_workspace') return 'pai_workspace'
   if (key === 'nome_exportador') return 'pai_cond_exportador'
-  if (key === 'nome_importador') return 'pai_cond_importador'
+  if (key === 'nome_importador') return 'pai_importador'
   if (GHOST_DESCRICAO.has(key)) return 'pai_ghost_descricao'
   if (GHOST_NCM.has(key)) return 'pai_ghost_ncm'
-  if (GHOST_COBERTURA.has(key)) return 'pai_ghost_cobertura'
+  if (GHOST_COBERTURA.has(key)) return 'pai_editavel_replicar_alerta'
+  if (key === 'valor_por_unidade_item') return 'dinamico_valor_unitario_item'
+  if (key === 'valor_total_pedido') {
+    if (opts?.modoDinamicoPedidoItem) return 'dinamico_valor_total'
+    return 'pai_calculado_valor'
+  }
+  if (key === 'valor_total_cambio_pedido') {
+    if (opts?.modoDinamicoPedidoItem) return 'dinamico_valor_total_cambio'
+    return 'pai_moeda_cambio'
+  }
+  if (key === 'moeda_pedido') return 'pai_moeda_pedido'
+  if (key === 'unidade_comercializada_pedido') return 'pai_unidade_comercializada'
+  if (key === 'tipo_volume_pedido') return 'pai_editavel_replicar_alerta'
+  if (key === 'quantidade_volumes_pedido') return 'pai_editavel_replicar_alerta'
   if (CALCULADO_VALOR.has(key)) return 'pai_calculado_valor'
   if (CALCULADO_PESO.has(key)) return 'pai_calculado_peso'
   if (CALCULADO_CUBAGEM.has(key)) return 'pai_calculado_cubagem'
-  if (MOEDA_CAMBIO.has(key)) return 'pai_moeda_cambio'
+  if (key === 'moeda_cambio_pedido') return 'pai_moeda_cambio'
+  if (MOEDA_CAMBIO_DERIVADO.has(key)) return 'pai_moeda_cambio'
   if (isCampoAnexo(key)) return 'pai_anexo'
   if (isCampoSomenteLeituraCadastro(key)) return 'pai_somente_leitura'
   if (CALCULADO_QTD.has(key) || isSomavel(key)) return 'pai_calculado_quantidade'

@@ -1,5 +1,5 @@
 {
-  "id": "TST-E2E-CONFIG-000001",
+  "id": "TST-E2E-CONFIG-000013",
   "versao": "1.0",
   "geradoEm": "2026-04-15T18:30:00Z",
   "geradoPor": "agente-plano-teste",
@@ -11,7 +11,7 @@
   "rota": "/workspace/organizacao",
 
   "componenteFilePath": "servicos-global/configurador/src/pages/Organizacao.tsx",
-  "specFilePath": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts",
+  "specFilePath": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000013.spec.ts",
   "mapeamentoFilePath": "testes/testes-e2e/configurador/_mapeamentos/organizacao.testids.json",
 
   "ambientes": ["Local", "Staging", "Producao"],

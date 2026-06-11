@@ -26,12 +26,17 @@ const mockFornecedor = {
   nome_fornecedor_bid_frete_internacional: 'Maersk Test',
   tipo_fornecedor_bid_frete_internacional: 'ARMADOR',
   email_fornecedor_bid_frete_internacional: 'test@maersk.com',
+  id_usuario: 'user_gravity_1',
   id_clerk_usuario: 'user_clerk_1',
 }
 
 const mockPrisma = {
   fornecedorBidFreteInternacional: {
     findFirst: vi.fn(async () => mockFornecedor),
+    update: vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({
+      ...mockFornecedor,
+      ...data,
+    })),
   },
   disparoCotacaoBidFreteInternacional: {
     count: vi.fn(async () => 2),
@@ -98,7 +103,9 @@ function criarApp() {
   const app = express()
   app.use(express.json())
   app.use((req: Request, _res: Response, next: NextFunction) => {
-    ;(req as Request & { prisma: typeof mockPrisma }).prisma = mockPrisma
+    const r = req as Request & { prisma: typeof mockPrisma; tenantId?: string }
+    r.prisma = mockPrisma
+    r.tenantId = (req.headers['x-id-organizacao'] as string) ?? 'org_1'
     next()
   })
   app.use('/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional', visaoFornecedorBidFreteInternacionalRouter)
@@ -110,7 +117,8 @@ describe('visao-fornecedor-bid-frete-internacional routes', () => {
     const app = criarApp()
     const res = await request(app)
       .get('/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/dashboard')
-      .set('x-id-usuario', 'user_clerk_1')
+      .set('x-id-usuario', 'user_gravity_1')
+      .set('x-id-organizacao', 'org_1')
 
     expect(res.status).toBe(200)
     expect(res.body.visao_fornecedor_bid_frete_internacional).toBeDefined()
@@ -130,10 +138,33 @@ describe('visao-fornecedor-bid-frete-internacional routes', () => {
     const app = criarApp()
     const res = await request(app)
       .get('/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes')
-      .set('x-id-usuario', 'user_clerk_1')
+      .set('x-id-usuario', 'user_gravity_1')
+      .set('x-id-organizacao', 'org_1')
 
     expect(res.status).toBe(200)
     expect(res.body.visao_fornecedor_bid_frete_internacional.disparos_cotacao_bid_frete_internacional).toEqual([])
+  })
+
+  it('resolver fornecedor aceita id_usuario ou id_clerk_usuario no header x-id-usuario', async () => {
+    const app = criarApp()
+    mockPrisma.fornecedorBidFreteInternacional.findFirst.mockClear()
+
+    await request(app)
+      .get('/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/cotacoes-pendentes')
+      .set('x-id-usuario', 'user_gravity_cuid')
+      .set('x-id-organizacao', 'org_1')
+
+    expect(mockPrisma.fornecedorBidFreteInternacional.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          id_organizacao: 'org_1',
+          OR: [
+            { id_usuario: 'user_gravity_cuid' },
+            { id_clerk_usuario: 'user_gravity_cuid' },
+          ],
+        }),
+      }),
+    )
   })
 
   const payloadTabela = {

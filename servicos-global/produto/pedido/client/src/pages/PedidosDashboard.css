@@ -1,3 +1,42 @@
+/* Toolbar do dashboard — mesmo chrome da Lista (lp-tabela-chrome) */
+.pedido-dashboard-toolbar-wrapper.lp-tabela-wrapper {
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: auto;
+}
+
+.pedido-dashboard-toolbar-wrapper .lp-tabela-chrome.pedido-dashboard-chrome {
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: auto;
+  overflow: visible;
+}
+
+.pedido-dashboard-chrome .lp-faixa-navegacao {
+  flex-shrink: 0;
+}
+
+.pedido-dashboard-chrome .pedido-dashboard-menu {
+  flex: 0 0 auto;
+  gap: 0;
+  min-height: auto;
+  overflow: visible;
+}
+
+/* Anula gtv-container flex:1 1 0 + height:100% (colapsa toolbar no dashboard) */
+.pedido-dashboard-toolbar-wrapper .pedido-dashboard-toolbar-card.gtv-container,
+.pedido-dashboard-toolbar-wrapper.lp-tabela-wrapper--faixa-unificada
+  .lp-tabela-chrome.pedido-dashboard-chrome
+  > .pedido-dashboard-menu
+  > .gtv-container {
+  border: none;
+  border-radius: 0;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: unset;
+  overflow: visible;
+}
+
 /* ── Animação de destaque de widget recém-adicionado ── */
 
 @keyframes wc-highlight-ring {
@@ -20,6 +59,27 @@
 
 .dp-gabi-empty-pulse {
   animation: gabiEmptyGlow 2.2s ease-in-out infinite;
+}
+
+/* ── GABI no grid nativo (DashboardPainelContainer + ⋮) ── */
+
+.dp-gabi-painel-host {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+.dp-gabi-painel-host > div {
+  height: 100%;
+  min-height: 0;
+}
+
+.dp-gabi-card--embedded {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  padding: 0.65rem 0.85rem 0.85rem;
 }
 
 /* ── GABI AI Insights — idêntico ao Hub (SelecionarWorkspace) ── */

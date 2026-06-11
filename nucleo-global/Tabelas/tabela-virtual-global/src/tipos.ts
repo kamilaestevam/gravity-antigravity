@@ -50,6 +50,15 @@ export interface GTColuna<T = unknown> {
   tipo?: GTTipo
   align?: GTAlign
   tooltipTitulo?: string
+  /** Título do tooltip em células de linha filho (item), quando diferente do pedido/cabeçalho. */
+  tooltipTituloItem?: string
+  /**
+   * Nível da linha para tooltip de célula (SSOT do produto).
+   * Quando definido, substitui o flag `isFilho` da renderização em título e descrição base.
+   */
+  tooltipNivelCelula?: (item: T) => 'pedido' | 'item'
+  /** Título do tooltip por célula (pedido vs item). Prioridade sobre tooltipTitulo/tooltipTituloItem. */
+  tooltipTituloCelula?: (item: T) => string | undefined
   tooltipDescricao?: string | React.ReactNode
   /** Regra/descrição ao passar o mouse na célula de linha filho (quando diferente do pedido). */
   tooltipDescricaoItem?: string | React.ReactNode
@@ -57,6 +66,8 @@ export interface GTColuna<T = unknown> {
   tooltipDescricaoCelula?: (item: T) => string | React.ReactNode | undefined
   /** Se true, o tooltip permanece aberto enquanto o mouse está sobre ele (permite clicar em links/botões dentro). */
   tooltipInterativo?: boolean
+  /** Quando true, `render` já inclui TooltipGlobal — o núcleo não aplica wrapTooltipRegraCelula na linha pai. */
+  tooltipInline?: boolean
   /** Função de renderização customizada */
   render?: (valor: unknown, item: T) => ReactNode
   /** Coluna oculta por padrão */
@@ -69,6 +80,8 @@ export interface GTColuna<T = unknown> {
   sortavel?: boolean
   /** Permite edição inline (sobrepõe camposEditaveis da prop raiz). Função recebe a linha e retorna se editável — quando false, bloqueia mesmo que a coluna esteja em camposEditaveis */
   editavel?: boolean | ((item: T) => boolean)
+  /** Célula clicável sem edição inline (ex.: anexo por ícone). Não aplica cursor bloqueado da GTV. */
+  celulaInterativa?: boolean
   /**
    * Modo visual opcional (calculado). Texto muted em coluna 100% não editável (pai + filho)
    * é aplicado automaticamente pela GTV — não é necessário setar `somente_leitura` manualmente.
@@ -81,6 +94,10 @@ export interface GTColuna<T = unknown> {
    * Quando definido, o popover exibe uma lista selecionável em vez de um input de texto.
    */
   opcoes?: { valor: string; label: string }[]
+  /** Opções dinâmicas por linha (tem prioridade sobre `opcoes` estático). */
+  getOpcoes?: (item: T) => { valor: string; label: string }[]
+  /** Link auxiliar no popover de edição (ex.: abrir Cadastros para editar contraparte). */
+  linkPopoverEdicao?: (item: T) => { label: string; href: string } | undefined
   /** Grupo de agrupamento exibido no gerenciador de colunas */
   grupo?: string
   /** Códigos ISO 4217 disponíveis no seletor (ativo quando tipo='moeda') */
@@ -95,6 +112,15 @@ export interface GTColuna<T = unknown> {
    * representam só a unidade (ex: unidade_comercializada_pedido).
    */
   apenasUnidade?: boolean
+  /**
+   * Quando true (e tipo='moeda'), o popover exibe a moeda como badge fixo —
+   * só o valor numérico é editável (moeda câmbio/comercial em outra coluna).
+   */
+  apenasValorMoeda?: boolean
+  /** Rótulo do trigger do seletor de unidade no popover (ex.: só o nome, sem código). */
+  rotuloUnidadeSelecionada?: (unit: string) => string
+  /** Formata GTValorUnidade na célula enquanto o popover está aberto. */
+  formatarValorUnidade?: (valor: GTValorUnidade) => string
   /**
    * Extrai o valor composto para edição inline (ex: { currency, amount }).
    * Quando omitido, usa item[col.key] diretamente.
@@ -199,6 +225,13 @@ export interface GTAbaTipo {
 export interface GTPreferencias {
   /** Keys das colunas visíveis, na ordem exibida */
   colunas_visiveis: string[]
+  /** Larguras persistidas por coluna (key → px) */
+  colunas_largura?: Record<string, number>
+  /**
+   * Keys de colunas manuais (criadas pelo usuário) já apresentadas ao menos uma vez.
+   * Usado para não re-exibir colunas que o usuário ocultou de propósito.
+   */
+  colunas_manuais_conhecidas?: string[]
 }
 
 // ─── Linha virtual interna ─────────────────────────────────────────────────────
@@ -216,6 +249,10 @@ export interface GTMapaColunasFilho<C = unknown> {
   editavel?: boolean | ((item: C) => boolean)
   /** Tooltip exibido quando a célula filho está bloqueada */
   tooltipBloqueado?: string | ((item: C) => string | undefined)
+  /** Título do tooltip de regra na linha filho (prioridade sobre tooltipTitulo da coluna pai). */
+  tooltipTitulo?: string | ((item: C) => string)
+  /** Quando true, `render` já inclui TooltipGlobal — o núcleo não aplica wrapTooltipRegraCelula. */
+  tooltipInline?: boolean
   /** Campo do item filho usado no inline edit (default: usa o key da coluna pai) */
   campo?: string
   /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */
@@ -226,6 +263,14 @@ export interface GTMapaColunasFilho<C = unknown> {
   casasDecimais?: number
   /** Unidades disponíveis no seletor (ativo quando tipo='unidade') */
   unidades?: GTUnidadeOpcao[]
+  /** Rótulo do trigger do seletor de unidade no popover (ex.: só o nome, sem código). */
+  rotuloUnidadeSelecionada?: (unit: string) => string
+  /** Formata GTValorUnidade na célula enquanto o popover está aberto. */
+  formatarValorUnidade?: (valor: GTValorUnidade) => string
+  /** Aviso de impacto cruzado exibido no popover de edição (ex.: moeda ↔ valor). */
+  avisoImpacto?: string
+  /** Popover moeda: só valor editável; moeda exibida como badge (não altera moeda do item). */
+  apenasValorMoeda?: boolean
 }
 
 // ─── Handle imperativo ────────────────────────────────────────────────────────
@@ -258,6 +303,13 @@ export interface GTVirtualHandle {
   recolherTodos: () => void
   /** Rola até a célula pai indicada (sem abrir edição) */
   rolarParaCelula: (id: string, campo: string) => void
+}
+
+/** Contexto do conector customizado na expand cell do pai */
+export interface GTConectorPaiContext {
+  expandido: boolean
+  carregando: boolean
+  onToggle: () => void
 }
 
 // ─── Props principais ──────────────────────────────────────────────────────────
@@ -348,6 +400,10 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   acoesFilho?: (item: C) => GTAcaoLinha[]
   /** Conteúdo do conector hierárquico na expand cell do filho (padrão: └) */
   renderConectorFilho?: (item: C) => ReactNode
+  /** Conteúdo da expand cell do pai (padrão: chevron TVG) */
+  renderConectorPai?: (item: T, ctx: GTConectorPaiContext) => ReactNode
+  /** Largura da coluna expand no grid (padrão: 40px) */
+  larguraColunaExpand?: string
 
   // ── Busca, filtros e ordenação ─────────────────────────────────────────────
   onBuscar?: (termo: string) => void
@@ -409,9 +465,10 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   /**
    * Chamado ao confirmar edição de linha filha. Deve retornar o filho atualizado.
    *
-   * Linhas filho não recebem `opts` — só o pai tem opção de replicar.
+   * Linhas filho intermediárias (ex: pedido na lista 3 camadas) podem receber
+   * `opts.replicar_em_itens` quando o checkbox de replicação estiver visível.
    */
-  onEditarFilho?: (id: string, campo: string, valor: unknown) => Promise<C>
+  onEditarFilho?: (id: string, campo: string, valor: unknown, opts?: { replicar_em_itens?: boolean }) => Promise<C>
 
   // ── Callbacks de feedback (pai + filho) ────────────────────────────────────
   /** Chamado após qualquer edição inline salva com sucesso */
@@ -424,6 +481,11 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   onSalvarPreferencias?: (prefs: GTPreferencias) => void
   /** Keys na sequência padrão — usadas pelo botão "Restaurar padrão" no gerenciador de colunas */
   colunasPadrao?: string[]
+  /**
+   * Config explícita do seletor Colunas (inclui `manual` para a aba "Manuais").
+   * Quando omitido, deriva de `colunas` via colunaParaSeletor no núcleo.
+   */
+  colunasSeletor?: Array<{ key: string; label: string; naoOcultavel?: boolean; manual?: boolean }>
 
   // ── Handle imperativo ─────────────────────────────────────────────────────
   /**
@@ -469,7 +531,12 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   permiteReplicacaoPaiEmItens?: (campo: string) => boolean
 
   /**
-   * Tooltip exibido ao passar o mouse em células que SERIAM editáveis mas
+   * Lista 3 camadas: quando retorna true, linha filho intermediária (ex: pedido)
+   * exibe checkbox "Aplicar a todos os itens" no popover de edição.
+   */
+  permiteReplicacaoFilhoEmSubfilhos?: (filho: C, campo: string) => boolean
+
+  /**
    * o usuário não tem permissão (onEditar/onEditarFilho ausente).
    * Ex: 'Sem permissão para editar'
    */

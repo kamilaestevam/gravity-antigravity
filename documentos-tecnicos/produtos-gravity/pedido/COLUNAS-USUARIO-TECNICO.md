@@ -1,19 +1,22 @@
 # Colunas do Usuário — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Abril 2026
+> **Última atualização:** 2026-06-09 — fluxo de exclusão com `ModalConfirmarExcluirGlobal`
 
 ---
 
 ## Estrutura de Arquivos
 
 ```
-produto/pedido/
+servicos-global/produto/pedido/
 ├── client/src/
+│   ├── pages/
+│   │   └── Configuracoes.tsx              ← Aba Colunas → Personalizadas (lista + exclusão)
 │   ├── components/
 │   │   └── ConfiguracaoColunas/
-│   │       ├── GerenciadorColunas.tsx     ← Tela de gerenciar colunas (em Configurações)
+│   │       ├── GerenciadorColunas.tsx     ← Variante legada/alternativa de gerenciamento
 │   │       ├── GerenciadorColunas.css
 │   │       ├── ModalNovaColuna.tsx        ← Modal criar/editar coluna
 │   │       └── ModalNovaColuna.css
@@ -217,24 +220,46 @@ model ValorColunaUsuarioPedido {
 
 ---
 
-## Frontend — GerenciadorColunas.tsx
+## Frontend — Colunas Personalizadas (`Configuracoes.tsx`)
 
-Tela em Configurações do Produto:
+Tela em **Configurações do Produto** → sidebar **Colunas** → **Personalizadas** (`/pedido/configuracoes`):
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│  Colunas Customizadas                  [+ Nova Coluna]│
+│  Colunas Personalizadas                [+ Nova Coluna] │
 ├──────────────────────────────────────────────────────┤
-│  ⠿  Margem %        Percentual  Pedido   Todos   ✏🗑  │
-│  ⠿  Prioridade      Select      Ambos    Todos   ✏🗑  │
-│  ⠿  Ref. Interna    Texto       Item     Privado ✏🗑  │
-│  ⠿  Tipo Doc        Tipo Doc    Pedido   Roles   ✏🗑  │
+│  ⠿  Margem %        Percentual  Pedido   Ativo  ✏ X │
+│  ⠿  Prioridade      Select      Ambos    Ativo  ✏ X │
+│  ⠿  Ref. Interna    Texto       Item     Ativo  ✏ X │
 └──────────────────────────────────────────────────────┘
 ```
 
-- Drag-and-drop para reordenar (usando `onReordenar`)
-- Botão editar → abre `ModalNovaColuna` preenchido
-- Botão excluir → confirma e faz soft delete
+- Drag-and-drop para reordenar (`pendingColunas` → `colunasUsuarioApi.reordenar`)
+- Botão editar (✏) → painel inline de propriedades da coluna
+- Botão excluir (X) → abre `ModalConfirmarExcluirGlobal` (não exclui imediatamente)
+
+### Fluxo de exclusão (2026-06-09)
+
+```
+Usuário clica X
+  → solicitarExcluirColunaPersonalizada(id)
+  → ModalConfirmarExcluirGlobal
+       titulo:  pedido.config.colunas.personalizadas.modal_excluir_titulo
+       descricao: "... Os valores existentes serão preservados."
+       nomeItem: nome da coluna
+  → Usuário clica Excluir
+       → botão entra em loading ("Excluindo...")
+       → excluirColunaPersonalizadaConfirmada()
+            → colunasUsuarioApi.excluir(id)
+            → colunasUsuarioApi.listar() + atualiza estado
+            → addNotification (sucesso ou erro)
+            → em erro: throw (modal permanece aberto, botão "Falhou")
+       → sucesso: flash "Excluído" → modal fecha (~1,2s)
+```
+
+**Componente do núcleo:** `@nucleo/modal-confirmar-excluir-global` — ver `PREVISAO_VISUAL.md` no pacote.
+
+> **Variante alternativa:** `GerenciadorColunas.tsx` usa o mesmo modal com o mesmo contrato (`handleExcluirConfirmado`).
 
 ---
 
@@ -301,3 +326,42 @@ testes/unitarios/pedido/colunasUsuarioService.test.ts
   ├── salvar valores — upsert correto
   └── cross-tenant — coluna de outro tenant não retornada
 ```
+
+---
+
+## Busca da Lista (2026-06-10)
+
+A busca textual da Lista de Pedidos cobre as colunas do usuário em **nome** e **conteúdo**.
+
+**Fonte única:** `servicos-global/produto/processos-core/src/services/filtro-busca-pedido.ts`
+(`montarCondicoesBuscaPedido`) — consumida por:
+
+| Rota | Uso |
+|------|-----|
+| `GET /api/v1/pedidos` | `where.AND = [{ OR: condicoes }]` (AND para não colidir com o OR do keyset/cursor) |
+| `GET /api/v1/pedidos/lista/kpis` | `where.OR = condicoes` (cards batem com a lista filtrada) |
+| `GET /api/v1/pedidos/inicializacao` | `where.AND = [{ OR: condicoes }]` |
+
+**Famílias de match:**
+1. Campos fixos do Pedido (número, referências, proforma, invoice)
+2. Nomes das partes via `PedidoSnapshotEmpresa.nome_empresa`
+3. Colunas do usuário:
+   - **conteúdo** — `valor_coluna_usuario_pedido contains termo` (vínculo `pedido` ou `item`;
+     match em item promove o pedido pai via `itens_pedido: { some: ... }`)
+   - **nome** — termo contido no nome da coluna → pedidos com a coluna **preenchida**
+
+**Regras:**
+- Visibilidade respeitada (mesma regra do `ColunasUsuarioService.listar`): coluna `privado`
+  só conta para o criador; `roles` só para tipos permitidos — sem isso a busca vazaria
+  existência de dado privado.
+- Teto de 5.000 vínculos coletados por busca (proteção de SLA contra termos de 1 letra).
+- Colunas tipo `formula` não têm valor persistido — resultado de fórmula não é buscável
+  no servidor (limitação conhecida).
+- O filtro client-side da página (`Pedidos.tsx`, busca global) espelha as mesmas condições
+  sobre `_colunas_usuario` — obrigatório manter os dois em sincronia (Mand. 07).
+
+**Pendência (Coordenador):** índice trigram para sustentar o ILIKE no volume —
+`CREATE EXTENSION IF NOT EXISTS pg_trgm;` +
+`CREATE INDEX CONCURRENTLY idx_valor_coluna_usuario_pedido_valor_trgm ON valor_coluna_usuario_pedido USING gin (valor_coluna_usuario_pedido gin_trgm_ops);`
+
+**Testes:** `servicos-global/produto/pedido/server/src/routes/filtro-busca-pedido.test.ts`

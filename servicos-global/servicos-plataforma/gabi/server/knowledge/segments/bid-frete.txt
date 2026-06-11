@@ -388,3 +388,28 @@ Ordem dos campos no type espelha ordem lógica (não afeta banco):
 
 - [ ] Unitário: `snapshot-proposta-bid-frete.test.ts`
 - [ ] Funcional: assert create proposta persiste `id_bid` quando cotação vinculada a BID
+
+---
+
+## Escopo multi-workspace (menu lateral) — Jun 2026
+
+### O que o usuário vê
+
+- Menu lateral com **checkboxes** por workspace + **Selecionar tudo** / **Desmarcar tudo** (igual Pedido).
+- Preferência salva no backend e reaplicada no próximo login.
+
+### "Sumiu a empresa" — resposta padrão Gabi
+
+Quando o usuário diz que **empresas/filiais desapareceram** do menu do BID Frete Internacional:
+
+1. Workspaces **desabilitados** (`status_workspace` ≠ ATIVO) **não aparecem** no seletor — isso é regra de segurança, não exclusão de dados.
+2. Cotações da filial inativa **continuam no banco**; só deixam de ser listadas enquanto o workspace estiver inativo ou fora do escopo selecionado.
+3. Orientar: Configurador → Workspaces → reativar filial, ou selecionar outras filiais ativas no menu lateral.
+
+### API
+
+- Preferência: `GET/PUT /api/v1/bid-frete-internacional/config/escopo-workspaces`
+- Filtro de listagens: query `ids_workspaces` (CSV)
+
+Doc técnico: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`
+

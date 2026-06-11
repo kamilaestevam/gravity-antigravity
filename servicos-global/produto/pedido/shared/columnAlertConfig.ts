@@ -19,15 +19,13 @@
  *   - Servidor (~68 campos): base autoritativa
  *   - Cliente (8 campos omitidos do servidor): nome_exportador, nome_importador,
  *     nome_fabricante, referencia_importador, referencia_exportador,
- *     referencia_fabricante, incoterm, condicao_pagamento_pedido
+ *     referencia_fabricante, incoterm, condicao_pagamento
  */
 
 const CAMPOS_ALERTAVEIS = new Set([
-  // Workspace — divergência calculada em pedidoDivergencias.ts (item.company_id vs pai.id_workspace)
-  'id_workspace',
-
-  // Tipo de operação — alerta quando itens divergem do pedido (importação vs exportação)
-  'tipo_operacao',
+  // id_workspace — exclusão intencional: pedido replica SEMPRE; item não edita; sem alerta.
+  // tipo_operacao — exclusão intencional: pedido replica para todos os itens; sem alerta de divergência.
+  // status — divergência calculada em pedidoDivergencias.ts via `_p.status` (sem campo no PedidoItem).
 
   // Identificadores de documentos (3)
   'numero_proforma',
@@ -42,7 +40,8 @@ const CAMPOS_ALERTAVEIS = new Set([
   'referencia_exportador',
   'referencia_fabricante',
   'incoterm',
-  'condicao_pagamento_pedido',
+  'condicao_pagamento',
+  'condicao_pagamento_siscomex',
 
   // Homogeneidade de moeda/unidade (Onda A8 — 2025-05-11):
   // Quando itens divergem em moeda/unidade, o pai não soma os agregados
@@ -51,6 +50,7 @@ const CAMPOS_ALERTAVEIS = new Set([
   // "⚠ Moedas/Unidades divergentes entre itens" via padrão `_divergente`.
   'moeda_item',
   'unidade_comercializada_item',
+  'tipo_volume_item',
 
   // Datas — pedido pronto (3)
   'data_prevista_pedido_pronto',

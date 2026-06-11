@@ -113,7 +113,7 @@ export function aggregateKpis(
   }
 
   const pedidosSemCobertura = new Set(
-    itens.filter((i) => i.cobertura_cambial_item === 'sem_cobertura').map((i) => String(i.id_pedido)),
+    itens.filter((i) => i.cobertura_cambial_item === 'SEM_COBERTURA' || i.cobertura_cambial_item === 'sem_cobertura').map((i) => String(i.id_pedido)),
   )
   let cobertura_pendente = 0
   for (const p of pedidos) {
@@ -122,7 +122,7 @@ export function aggregateKpis(
     }
   }
 
-  const itens_sem_cobertura = itens.filter((i) => i.cobertura_cambial_item === 'sem_cobertura').length
+  const itens_sem_cobertura = itens.filter((i) => i.cobertura_cambial_item === 'SEM_COBERTURA' || i.cobertura_cambial_item === 'sem_cobertura').length
   let qtd_inicial_total = 0
   let qtd_atual_total = 0
   let qtd_transferida_total = 0

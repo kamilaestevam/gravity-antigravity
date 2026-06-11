@@ -9,6 +9,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
@@ -34,6 +35,7 @@ import {
   Bell,
 } from '@phosphor-icons/react'
 import { pedidoApi, pedidoVirtualApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
+import { QUERY_KEYS, usePedidoStatus } from '../shared/queries'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import type { Pedido, PedidoStatus, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
@@ -430,52 +432,65 @@ export default function PedidosKanban() {
     return sessionStorage.getItem('gravity_company_id') ?? ''
   }, [])
   const workspacesSelecionados = idsWorkspacesEscopo
-  const [pedidos, setPedidos]           = useState<Pedido[]>([])
-  const [statusConfig, setStatusConfig] = useState<PedidoStatusConfig[]>([])
+  const queryClient = useQueryClient()
   const [preferencias, setPreferencias] = useState<KanbanPreferencias | null>(null)
-  const [loading, setLoading]           = useState(true)
   const [busca, setBusca]               = useState('')
   const [modalPedido, setModalPedido]   = useState<Pedido | null>(null)
   const { trackFilter } = useTrackBehavior()
 
-  const carregar = useCallback(() => {
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(workspacesSelecionados, workspaceAtivo),
+    [workspacesSelecionados, workspaceAtivo],
+  )
+
+  const pedidosQueryKey = useMemo(
+    () => QUERY_KEYS.pedidos({ limit: 1000, idsWorkspacesFiltro }),
+    [idsWorkspacesFiltro],
+  )
+
+  const {
+    data: pedidosRes,
+    isLoading: carregandoPedidos,
+    refetch: refetchPedidos,
+  } = useQuery({
+    queryKey: pedidosQueryKey,
+    queryFn: () => pedidoVirtualApi.listar({ limit: 1000, idsWorkspacesFiltro }),
+    enabled: escopoHidratado && workspacesSelecionados.length > 0,
+    staleTime: 30_000,
+  })
+
+  const { data: statusApiRes, isLoading: carregandoStatus } = usePedidoStatus()
+
+  const statusConfig = statusApiRes?.data ?? []
+
+  const pedidos = pedidosRes?.data ?? []
+  const loading = !escopoHidratado
+    || (workspacesSelecionados.length > 0 && carregandoPedidos)
+    || carregandoStatus
+
+  const recarregarKanban = useCallback(() => {
+    void refetchPedidos()
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.status() })
+    void kanbanConfigApi.obterPreferencias()
+      .then(res => setPreferencias(res.data))
+      .catch(() => {})
+  }, [refetchPedidos, queryClient])
+
+  useEffect(() => {
     if (!escopoHidratado) return
-    if (workspacesSelecionados.length === 0) {
-      setPedidos([])
-      setLoading(false)
-      return
-    }
-
-    setLoading(true)
-    const idsWorkspacesFiltro = resolverIdsWorkspacesParaApi(workspacesSelecionados, workspaceAtivo)
-
-    Promise.all([
-      pedidoVirtualApi.listar({ limit: 1000, idsWorkspacesFiltro }),
-      pedidoConfigApi.listarStatus().catch((err: unknown) => {
-        console.error('[KANBAN] Falha ao carregar status config:', err instanceof Error ? err.message : err)
-        return { data: [] as PedidoStatusConfig[] }
-      }),
-      kanbanConfigApi.obterPreferencias().catch(() => ({ data: null })),
-    ])
-      .then(([pedidosRes, statusRes, prefRes]) => {
-        setPedidos(pedidosRes.data)
-        setStatusConfig(statusRes.data)
-        setPreferencias(prefRes.data)
-      })
-      .catch(() => setPedidos([]))
-      .finally(() => setLoading(false))
-  }, [escopoHidratado, workspacesSelecionados, workspaceAtivo])
-
-  useEffect(() => { carregar() }, [carregar])
+    void kanbanConfigApi.obterPreferencias()
+      .then(res => setPreferencias(res.data))
+      .catch(() => {})
+  }, [escopoHidratado])
 
   useEffect(() => {
     const handleAtualizado = (e: Event) => {
       const { origem } = (e as CustomEvent<{ origem: string }>).detail
-      if (origem !== 'kanban') carregar()
+      if (origem !== 'kanban') recarregarKanban()
     }
     window.addEventListener('pedido:atualizado', handleAtualizado)
     return () => window.removeEventListener('pedido:atualizado', handleAtualizado)
-  }, [carregar])
+  }, [recarregarKanban])
 
   useEffect(() => {
     const handlePrefsAtualizadas = () => {

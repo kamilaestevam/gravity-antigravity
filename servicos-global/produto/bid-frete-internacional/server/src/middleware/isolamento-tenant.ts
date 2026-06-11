@@ -7,8 +7,13 @@
  */
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '../generated/client/index.js'
+import { resolverUrlBancoBidFreteInternacional } from '../lib/url-banco-bid-frete-internacional.js'
 
-const basePrisma = new PrismaClient()
+const basePrisma = new PrismaClient({
+  datasources: {
+    db: { url: resolverUrlBancoBidFreteInternacional() },
+  },
+})
 
 type QueryArgs = {
   where?: Record<string, unknown>
@@ -68,6 +73,10 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
           return query(args)
         },
         async aggregate({ args, query }: QueryCtx) {
+          args.where = { ...args.where, id_organizacao: tenantId }
+          return query(args)
+        },
+        async groupBy({ args, query }: QueryCtx) {
           args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },

@@ -57,7 +57,11 @@ export const motorComparativo = {
   /**
    * Gera ranking completo das respostas de uma cotacao
    */
-  async ranquear(prisma: PrismaClient, id_cotacao_bid_frete_internacional: string): Promise<{
+  async ranquear(
+    prisma: PrismaClient,
+    id_cotacao_bid_frete_internacional: string,
+    opcoes: { persistir_classificacao?: boolean } = {},
+  ): Promise<{
     ranking: RankedResponse[]
     saving: { vs_target: number | null; vs_media: number | null; percentual: number | null }
     cotacao: CotacaoRow
@@ -114,7 +118,21 @@ export const motorComparativo = {
 
     // Montar ranking
     const ranking: RankedResponse[] = responses.map((_r: ResponseRow) => {
-      const r = _r as any
+      const r = _r as ResponseRow & {
+        fornecedor?: {
+          id_fornecedor_bid_frete_internacional?: string
+          nome_fornecedor_bid_frete_internacional?: string
+          tipo_fornecedor_bid_frete_internacional?: string
+          email_fornecedor_bid_frete_internacional?: string
+        } | null
+      }
+      if (!r.fornecedor?.id_fornecedor_bid_frete_internacional) {
+        throw new AppError(
+          `Proposta ${r.id_proposta_bid_frete_internacional} sem fornecedor vinculado`,
+          422,
+          'PROPOSTA_SEM_FORNECEDOR',
+        )
+      }
       const rankPreco = byPreco.findIndex((x: ResponseRow) => x.id_proposta_bid_frete_internacional === r.id_proposta_bid_frete_internacional) + 1
       const rankTransit = byTransit.findIndex((x: ResponseRow) => x.id_proposta_bid_frete_internacional === r.id_proposta_bid_frete_internacional) + 1
       const rankAvaliacao = byAvaliacao.findIndex((x: ResponseRow) => x.id_proposta_bid_frete_internacional === r.id_proposta_bid_frete_internacional) + 1
@@ -171,20 +189,24 @@ export const motorComparativo = {
         : mediaPreco > 0 ? ((mediaPreco - melhorPreco) / mediaPreco) * 100 : null,
     }
 
-    // Atualizar rankings no banco
-    for (const r of ranking) {
-      await (prisma as any).propostaBidFreteInternacional.update({
-        where: { id_proposta_bid_frete_internacional: r.id },
-        data: {
-          classificacao_valor_proposta_bid_frete_internacional: r.classificacao_valor_proposta_bid_frete_internacional,
-          classificacao_transito_proposta_bid_frete_internacional: r.classificacao_transito_proposta_bid_frete_internacional,
-          classificacao_avaliacao_proposta_bid_frete_internacional: r.classificacao_avaliacao_proposta_bid_frete_internacional,
-          status_proposta_bid_frete_internacional: r.tags.includes('MELHOR_PRECO') ? 'MELHOR_PRECO'
-            : r.tags.includes('MELHOR_TRANSIT') ? 'MELHOR_TRANSIT'
-            : r.tags.includes('MELHOR_AVALIACAO') ? 'MELHOR_AVALIACAO'
-            : 'EM_ANALISE',
-        },
-      })
+    // Persistir classificação só quando solicitado (aprovação/análise), não em cada GET
+    if (opcoes.persistir_classificacao) {
+      await Promise.all(
+        ranking.map((r) =>
+          (prisma as any).propostaBidFreteInternacional.update({
+            where: { id_proposta_bid_frete_internacional: r.id },
+            data: {
+              classificacao_valor_proposta_bid_frete_internacional: r.classificacao_valor_proposta_bid_frete_internacional,
+              classificacao_transito_proposta_bid_frete_internacional: r.classificacao_transito_proposta_bid_frete_internacional,
+              classificacao_avaliacao_proposta_bid_frete_internacional: r.classificacao_avaliacao_proposta_bid_frete_internacional,
+              status_proposta_bid_frete_internacional: r.tags.includes('MELHOR_PRECO') ? 'MELHOR_PRECO'
+                : r.tags.includes('MELHOR_TRANSIT') ? 'MELHOR_TRANSIT'
+                : r.tags.includes('MELHOR_AVALIACAO') ? 'MELHOR_AVALIACAO'
+                : 'EM_ANALISE',
+            },
+          }),
+        ),
+      )
     }
 
     return { ranking, saving, cotacao }

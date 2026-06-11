@@ -14,7 +14,7 @@
  *   - Máximo 200MB total por pedido
  *   - Máximo 50 arquivos por pedido
  *   - Apenas extensões permitidas
- *   - Excluir: só quem fez upload ou admin do tenant
+ *   - Excluir: exige pedido:lista:editar (exigirPorMetodo no index.ts)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -266,10 +266,7 @@ anexosRouter.delete('/:id_anexo_pedido', async (req: Request, res: Response, nex
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenantId = ctx.idOrganizacao
-      const userId   = ctx.idUsuario ?? ''
-      const userRoles = ctx.tiposUsuario ?? []
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const { id_anexo_pedido: id } = paramParse.data
 
@@ -281,14 +278,9 @@ anexosRouter.delete('/:id_anexo_pedido', async (req: Request, res: Response, nex
         throw new AppError('Anexo não encontrado', 404, 'NOT_FOUND')
       }
 
-      const typedAnexo = anexo as { chave_storage_anexo_pedido: string; enviado_por_anexo_pedido: string }
+      const typedAnexo = anexo as { chave_storage_anexo_pedido: string }
 
-      const isAdmin = userRoles.includes('admin') || userRoles.includes('ADMIN')
-      const isOwner = typedAnexo.enviado_por_anexo_pedido === userId
-
-      if (!isOwner && !isAdmin) {
-        throw new AppError('Sem permissão para excluir este anexo', 403, 'FORBIDDEN')
-      }
+      // Autorização: exigirPorMetodo('lista') já exige pedido:lista:editar no DELETE.
 
       removerArquivoLocal(typedAnexo.chave_storage_anexo_pedido)
 

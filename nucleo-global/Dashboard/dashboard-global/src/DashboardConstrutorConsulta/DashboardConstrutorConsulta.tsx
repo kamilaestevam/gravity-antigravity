@@ -22,18 +22,27 @@ import {
   SlidersHorizontal,
   Eye,
   MagnifyingGlass,
+  X,
   Warning,
   ChartPieSlice,
 } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { buildDefaultPeriodOptions, type PeriodOption } from '../DashboardBarraFerramentas/DashboardBarraFerramentas.js'
+import { PeriodoCampoFormulario } from '../periodoCampoFormulario.js'
 import type { CatalogField, ChartType, WidgetQuerySpec, FieldQuerySpec, FieldUnitType } from '../tipos.js'
-import { unitBadgeLabel, wouldExceedUnitLimit } from '../utils/axisUtils.js'
+import { unitBadgeLabel } from '../utils/axisUtils.js'
+import './dashboard-construtor-consulta.css'
 
 export interface QueryBuilderProps {
   aberto: boolean
   availableFields: CatalogField[]
   onSave: (spec: WidgetQuerySpec, title: string, chartType: ChartType) => void
   onCancel: () => void
+  /** Mesmas opções da barra do dashboard (Tudo, 7d, custom, etc.). Padrão: opções núcleo sem Tudo. */
+  periodOptions?: PeriodOption[]
+  /** Período inicial ao criar widget (ex.: slicer global do painel). */
+  periodoInicial?: string
   initialWidget?: {
     id: string
     title: string
@@ -52,8 +61,8 @@ function buildPassos(t: (k: string) => string) {
   ]
 }
 
-const MAX_FIELDS = 5
-const MAX_UNIT_TYPES = 2
+/** Um widget = um campo de métrica por vez */
+const MAX_FIELDS = 1
 
 // ── Tipos de gráfico ──────────────────────────────────────────────────────────
 
@@ -78,17 +87,6 @@ function buildChartOptions(t: (k: string) => string): ChartTypeOption[] {
     { type: 'TABLE',          label: t('nucleo.dashboard.chart.tabela'),       icon: <Table size={22} /> },
     { type: 'FUNNEL',         label: t('nucleo.dashboard.chart.funil'),        icon: <Funnel size={22} /> },
     { type: 'GAUGE',          label: t('nucleo.dashboard.chart.gauge'),        icon: <Gauge size={22} />,               maxFields: 1 },
-  ]
-}
-
-function buildPeriodOptions(t: (k: string) => string) {
-  return [
-    { value: '7d',            label: t('nucleo.dashboard.periodo.7_dias') },
-    { value: '30d',           label: t('nucleo.dashboard.periodo.30_dias') },
-    { value: '90d',           label: t('nucleo.dashboard.periodo.90_dias') },
-    { value: '12m',           label: t('nucleo.dashboard.periodo.12_meses') },
-    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual') },
-    { value: 'current_year',  label: t('nucleo.dashboard.periodo.ano_atual') },
   ]
 }
 
@@ -134,22 +132,12 @@ function isChartTypeAvailable(
 interface Step1Props {
   fields: CatalogField[]
   selected: string[]
-  chartType: ChartType
   onToggle: (key: string) => void
 }
 
-function Step1Fields({ fields, selected, chartType, onToggle }: Step1Props) {
+function Step1Fields({ fields, selected, onToggle }: Step1Props) {
   const { t } = useTranslation()
-  const CHART_OPTIONS = useMemo(() => buildChartOptions(t), [t])
   const [query, setQuery] = useState('')
-
-  const selectedFields = useMemo(
-    () => fields.filter(f => selected.includes(f.key)),
-    [fields, selected],
-  )
-
-  const currentUnitTypes = useMemo(() => getUnitTypes(selectedFields), [selectedFields])
-  const mixedUnits = currentUnitTypes.length > 1
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
@@ -168,91 +156,83 @@ function Step1Fields({ fields, selected, chartType, onToggle }: Step1Props) {
     return map
   }, [filtered])
 
-  function getFieldState(field: CatalogField): {
-    blocked: boolean
-    reason?: string
-  } {
-    const isSelected = selected.includes(field.key)
-    if (isSelected) return { blocked: false }
-    if (selected.length >= MAX_FIELDS) return { blocked: true, reason: t('nucleo.dashboard.construtor.bloqueio_max_campos', { count: MAX_FIELDS }) }
-
-    // Verifica limite de tipos de unidade
-    const fieldUnit = getFieldUnit(field)
-    if (wouldExceedUnitLimit(currentUnitTypes, fieldUnit)) {
-      return { blocked: true, reason: t('nucleo.dashboard.construtor.bloqueio_max_unidades', { count: MAX_UNIT_TYPES }) }
-    }
-
-    // Restrição de DISTRIBUTION: mesma unidade
-    const chartOpt = CHART_OPTIONS.find(o => o.type === chartType)
-    if (chartOpt?.requiresSameUnit && selectedFields.length > 0) {
-      const firstUnit = getFieldUnit(selectedFields[0])
-      if (fieldUnit !== firstUnit) {
-        return { blocked: true, reason: t('nucleo.dashboard.construtor.bloqueio_distribuicao_unidade') }
-      }
-    }
-
-    return { blocked: false }
-  }
-
   return (
-    <div style={s1.wrap}>
-      <p style={s1.hint}>{t('nucleo.dashboard.construtor.hint_selecione', { max: MAX_FIELDS })}</p>
+    <div className="dq-construtor dq-construtor--campos">
+      <p className="dq-construtor__hint">
+        {t('nucleo.dashboard.construtor.hint_selecione_um', { defaultValue: 'Selecione um campo para o widget.' })}
+      </p>
 
-      {mixedUnits && (
-        <div style={s1.warningBox}>
-          <Warning size={13} weight="fill" color="var(--warning)" />
-          <span>{t('nucleo.dashboard.construtor.warning_eixo_duplo')}</span>
-        </div>
-      )}
+      <div className="dq-construtor__corpo">
+        <div className="dq-secao">
+          <span className="dq-secao-titulo">
+            {t('nucleo.dashboard.construtor.secao_campos', { defaultValue: 'Campos' })}
+          </span>
 
-      <div style={s1.searchWrap}>
-        <MagnifyingGlass size={14} color="var(--text-muted)" />
-        <input
-          style={s1.searchInput}
-          type="text"
-          placeholder={t('nucleo.dashboard.construtor.buscar_campo_placeholder')}
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          aria-label={t('nucleo.dashboard.construtor.buscar_campo_aria')}
-        />
-      </div>
-
-      <div style={s1.fieldList}>
-        {Array.from(grouped.entries()).map(([productId, productFields]) => (
-          <div key={productId} style={{ marginBottom: 'var(--space-3)' }}>
-            <div style={s1.productBadge}>{productId.toUpperCase()}</div>
-            {productFields.map(field => {
-              const isChecked = selected.includes(field.key)
-              const { blocked, reason } = getFieldState(field)
-              const unitLabel = unitBadgeLabel(field.type)
-              return (
-                <label
-                  key={field.key}
-                  title={blocked ? reason : undefined}
-                  style={{
-                    ...s1.fieldRow,
-                    opacity: blocked ? 0.4 : 1,
-                    cursor: blocked ? 'not-allowed' : 'pointer',
-                  }}
+          <CampoGeralGlobal>
+            <div className="dq-input-wrap dq-input-wrap--icone">
+              <MagnifyingGlass size={14} className="dq-input-wrap__icone" aria-hidden />
+              <input
+                type="text"
+                placeholder={t('nucleo.dashboard.construtor.buscar_campo_placeholder', {
+                  defaultValue: 'Buscar campo...',
+                })}
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                aria-label={t('nucleo.dashboard.construtor.buscar_campo_aria')}
+              />
+              {query.trim() !== '' && (
+                <button
+                  type="button"
+                  className="dq-input-wrap__clear"
+                  onClick={() => setQuery('')}
+                  aria-label={t('tabela.limpar_busca', { defaultValue: 'Limpar busca' })}
                 >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    disabled={blocked}
-                    onChange={() => onToggle(field.key)}
-                    style={{ accentColor: 'var(--accent)', cursor: 'inherit' }}
-                  />
-                  <span style={s1.fieldLabel}>{field.label}</span>
-                  <span style={s1.unitBadge}>{unitLabel}</span>
-                  <span style={s1.fieldType}>{field.type}</span>
-                </label>
-              )
-            })}
+                  <X size={10} weight="bold" aria-hidden />
+                </button>
+              )}
+            </div>
+          </CampoGeralGlobal>
+
+          <div className="dq-campos-lista">
+            {filtered.length === 0 ? (
+              <p className="dq-campos-vazio">{t('nucleo.dashboard.construtor.nenhum_campo')}</p>
+            ) : (
+              Array.from(grouped.entries()).map(([productId, productFields]) => (
+                <div key={productId} className="dq-campos-grupo">
+                  <span className="dq-grupo-titulo">{productId.toUpperCase()}</span>
+                  {productFields.map(field => {
+                  const isChecked = selected.includes(field.key)
+                  const unitLabel = unitBadgeLabel(field.type)
+                  const rowClass = [
+                    'dq-campo-linha',
+                    isChecked ? 'dq-campo-linha--selecionado' : '',
+                  ].filter(Boolean).join(' ')
+                  return (
+                    <label
+                      key={field.key}
+                      className={rowClass}
+                    >
+                      <input
+                        type="radio"
+                        name="dq-campo-widget"
+                        className="dq-campo-linha__radio"
+                        checked={isChecked}
+                        onChange={() => onToggle(field.key)}
+                        tabIndex={-1}
+                      />
+                        <span className="dq-campo-linha__nome">{field.label}</span>
+                        <span className="dq-campos__meta">
+                          <span className="dq-campos__badge-unidade">{unitLabel}</span>
+                          <span className="dq-campos__badge-tipo">{field.type}</span>
+                        </span>
+                      </label>
+                    )
+                  })}
+                </div>
+              ))
+            )}
           </div>
-        ))}
-        {filtered.length === 0 && (
-          <p style={s1.emptySearch}>{t('nucleo.dashboard.construtor.nenhum_campo')}</p>
-        )}
+        </div>
       </div>
     </div>
   )
@@ -266,17 +246,17 @@ interface Step2Props {
   fieldOps: Record<string, string>
   period: string
   title: string
+  periodOptions: PeriodOption[]
   onFieldOp: (key: string, op: string) => void
   onPeriod: (v: string) => void
   onTitle: (v: string) => void
 }
 
 function Step2Config({
-  fields, selectedKeys, fieldOps, period, title,
+  fields, selectedKeys, fieldOps, period, title, periodOptions,
   onFieldOp, onPeriod, onTitle,
 }: Step2Props) {
   const { t } = useTranslation()
-  const PERIOD_OPTIONS = useMemo(() => buildPeriodOptions(t), [t])
   const selectedFields = fields.filter(f => selectedKeys.includes(f.key))
 
   // Verifica se todas as operações são iguais e há só uma opção por campo → colapsar
@@ -297,74 +277,86 @@ function Step2Config({
   const collapsed = allSameOp && allAutoFill && selectedFields.length > 1
 
   return (
-    <div style={s2.wrap}>
-      <p style={s2.hint}>{t('nucleo.dashboard.construtor.step2_hint')}</p>
+    <div className="dq-construtor dq-construtor--operacao">
+      <p className="dq-construtor__hint">{t('nucleo.dashboard.construtor.step2_hint')}</p>
 
-      <div style={s2.formGroup}>
-        <label style={s2.label} htmlFor="qb-title">{t('nucleo.dashboard.construtor.titulo_widget')}</label>
-        <input
-          id="qb-title"
-          style={s2.input}
-          type="text"
-          placeholder={t('nucleo.dashboard.construtor.titulo_widget_placeholder')}
-          value={title}
-          onChange={e => onTitle(e.target.value)}
-          maxLength={80}
-        />
-      </div>
-
-      {collapsed ? (
-        <div style={s2.formGroup}>
-          <label style={s2.label}>{t('nucleo.dashboard.construtor.operacao_todos')}</label>
-          <div style={s2.collapsedOp}>
-            {selectedFields[0].aggregations[0]}
-            <span style={s2.collapsedNote}>{t('nucleo.dashboard.construtor.auto_preenchido_nota')}</span>
-          </div>
-        </div>
-      ) : (
-        <div style={s2.formGroup}>
-          <label style={s2.label}>{t('nucleo.dashboard.construtor.operacao_por_campo')}</label>
-          <div style={s2.fieldOpList}>
-            {selectedFields.map(field => {
-              const avail = field.aggregations
-              const currentOp = avail.length === 1 ? avail[0] : (fieldOps[field.key] ?? avail[0])
-              const unitLabel = unitBadgeLabel(field.type)
-              return (
-                <div key={field.key} style={s2.fieldOpRow}>
-                  <span style={s2.fieldOpLabel}>
-                    {field.label}
-                    <span style={s2.unitBadge}>{unitLabel}</span>
-                  </span>
-                  {avail.length === 1 ? (
-                    <span style={s2.fixedOp}>{avail[0]}</span>
-                  ) : (
-                    <select
-                      style={s2.select}
-                      value={currentOp}
-                      onChange={e => onFieldOp(field.key, e.target.value)}
-                    >
-                      {avail.map(a => <option key={a} value={a}>{a}</option>)}
-                    </select>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      <div style={s2.formGroup}>
-        <label style={s2.label} htmlFor="qb-period">{t('nucleo.dashboard.construtor.periodo')}</label>
-        <select
-          id="qb-period"
-          style={s2.select}
-          value={period}
-          onChange={e => onPeriod(e.target.value)}
+      <div className="dq-construtor__corpo">
+        <div className="dq-secao">
+          <span className="dq-secao-titulo">
+            {t('nucleo.dashboard.construtor.secao_configuracao', { defaultValue: 'Configuração' })}
+          </span>
+          <div className="dq-form__stack">
+        <CampoGeralGlobal
+          label={t('nucleo.dashboard.construtor.titulo_widget')}
+          htmlFor="qb-title"
+          obrigatorio
+          vazio={!title.trim()}
         >
-          {PERIOD_OPTIONS.map(p => (
-            <option key={p.value} value={p.value}>{p.label}</option>
-          ))}
-        </select>
+          <input
+            id="qb-title"
+            type="text"
+            placeholder={t('nucleo.dashboard.construtor.titulo_widget_placeholder')}
+            value={title}
+            onChange={e => onTitle(e.target.value)}
+            maxLength={80}
+            autoComplete="off"
+          />
+        </CampoGeralGlobal>
+
+        {collapsed ? (
+          <div className="dq-form__grupo">
+            <span className="dq-form__label">{t('nucleo.dashboard.construtor.operacao_todos')}</span>
+            <div className="dq-op__colapsado">
+              <span className="dq-op__fixa">{selectedFields[0].aggregations[0]}</span>
+              <span className="dq-op__colapsado-nota">{t('nucleo.dashboard.construtor.auto_preenchido_nota')}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="dq-form__grupo">
+            <span className="dq-form__label">{t('nucleo.dashboard.construtor.operacao_por_campo')}</span>
+            <div className="dq-op__lista">
+              {selectedFields.map(field => {
+                const avail = field.aggregations
+                const currentOp = avail.length === 1 ? avail[0] : (fieldOps[field.key] ?? avail[0])
+                const unitLabel = unitBadgeLabel(field.type)
+                return (
+                  <div key={field.key} className="dq-op__linha">
+                    <span className="dq-op__campo">
+                      <span>{field.label}</span>
+                      <span className="dq-campos__badge-unidade">{unitLabel}</span>
+                    </span>
+                    {avail.length === 1 ? (
+                      <span className="dq-op__fixa">{avail[0]}</span>
+                    ) : (
+                      <div className="dq-op__pill-grupo" role="group" aria-label={field.label}>
+                        {avail.map(op => (
+                          <button
+                            key={op}
+                            type="button"
+                            className={`dq-op__pill${currentOp === op ? ' dq-op__pill--ativa' : ''}`}
+                            onClick={() => onFieldOp(field.key, op)}
+                          >
+                            {op}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        <CampoGeralGlobal label={t('nucleo.dashboard.construtor.periodo')}>
+          <PeriodoCampoFormulario
+            value={period}
+            options={periodOptions}
+            onChange={onPeriod}
+          />
+        </CampoGeralGlobal>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -384,43 +376,53 @@ function Step3Visualization({ chartType, selectedFields, onSelect }: Step3Props)
   const mixedUnits = hasMixedUnits(selectedFields)
 
   return (
-    <div style={s3.wrap}>
-      <p style={s3.hint}>{t('nucleo.dashboard.construtor.step3_hint')}</p>
+    <div className="dq-construtor dq-construtor--visualizar">
+      <p className="dq-construtor__hint">{t('nucleo.dashboard.construtor.step3_hint')}</p>
 
       {mixedUnits && (
-        <div style={s3.dualAxisBadge}>
-          <Warning size={12} weight="fill" color="var(--warning)" />
-          {t('nucleo.dashboard.construtor.eixo_duplo_ativado')}
+        <div className="dq-construtor__alert" role="status">
+          <Warning size={14} weight="fill" color="var(--warning)" aria-hidden />
+          <span>{t('nucleo.dashboard.construtor.eixo_duplo_ativado')}</span>
         </div>
       )}
 
-      <div style={s3.chartGrid}>
+      <div className="dq-construtor__corpo">
+        <div className="dq-secao dq-secao--visualizar">
+          <div className="dq-chart__grid">
         {CHART_OPTIONS.map(opt => {
           const { available, reason } = isChartTypeAvailable(opt, selectedFields, t)
           const isSelected = chartType === opt.type
+          const cardClass = [
+            'dq-chart__card',
+            isSelected ? 'dq-chart__card--selecionado' : '',
+          ].filter(Boolean).join(' ')
           return (
             <button
               key={opt.type}
-              style={{
-                ...s3.chartOption,
-                ...(isSelected  ? s3.chartOptionSelected  : {}),
-                ...(!available  ? s3.chartOptionDisabled  : {}),
-              }}
+              type="button"
+              className={cardClass}
               onClick={() => available && onSelect(opt.type)}
               disabled={!available}
               aria-pressed={isSelected}
               title={!available ? reason : opt.label}
             >
-              <span style={{ color: isSelected ? 'var(--accent)' : available ? 'var(--text-secondary)' : 'var(--text-muted)' }}>
-                {opt.icon}
+              <span className="dq-chart__card-inner">
+                <span
+                  className="dq-chart__icone"
+                  style={{ color: isSelected ? 'var(--accent)' : available ? 'var(--text-secondary)' : 'var(--text-muted)' }}
+                >
+                  {opt.icon}
+                </span>
+                <span className="dq-chart__rotulo">{opt.label}</span>
+                {!available && reason && (
+                  <span className="dq-chart__motivo">{reason}</span>
+                )}
               </span>
-              <span style={s3.chartLabel}>{opt.label}</span>
-              {!available && reason && (
-                <span style={s3.disabledReason}>{reason}</span>
-              )}
             </button>
           )
         })}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -433,23 +435,31 @@ export function DashboardConstrutorConsulta({
   availableFields,
   onSave,
   onCancel,
+  periodOptions,
+  periodoInicial = '30d',
   initialWidget,
 }: QueryBuilderProps) {
   const { t } = useTranslation()
   const PASSOS = useMemo(() => buildPassos(t), [t])
+  const resolvedPeriodOptions = useMemo(
+    () => periodOptions ?? buildDefaultPeriodOptions(t),
+    [periodOptions, t],
+  )
   const isEdit = !!initialWidget
 
   const [step,        setStep]       = useState<1 | 2 | 3>(1)
   const [selectedKeys, setSelected]  = useState<string[]>([])
   const [fieldOps,    setFieldOps]   = useState<Record<string, string>>({})
-  const [period,      setPeriod]     = useState('30d')
+  const [period,      setPeriod]     = useState(periodoInicial)
   const [title,       setTitle]      = useState('')
   const [chartType,   setChartType]  = useState<ChartType>('BAR')
 
   useEffect(() => {
     if (aberto && initialWidget) {
-      const keys = initialWidget.query_spec.fields.map(f => f.key)
-      const ops  = Object.fromEntries(initialWidget.query_spec.fields.map(f => [f.key, f.operation]))
+      const keys = initialWidget.query_spec.fields.map(f => f.key).slice(0, MAX_FIELDS)
+      const ops  = Object.fromEntries(
+        initialWidget.query_spec.fields.slice(0, MAX_FIELDS).map(f => [f.key, f.operation]),
+      )
       setSelected(keys)
       setFieldOps(ops)
       setPeriod(initialWidget.query_spec.filters.period ?? '30d')
@@ -461,17 +471,14 @@ export function DashboardConstrutorConsulta({
       setStep(1)
       setSelected([])
       setFieldOps({})
-      setPeriod('30d')
+      setPeriod(periodoInicial)
       setTitle('')
       setChartType('BAR')
     }
-  }, [aberto, initialWidget])
+  }, [aberto, initialWidget, periodoInicial])
 
   function toggleField(key: string) {
-    setSelected((prev: string[]) => {
-      if (prev.includes(key)) return prev.filter((k: string) => k !== key)
-      return [...prev, key]
-    })
+    setSelected((prev: string[]) => (prev[0] === key ? [] : [key]))
   }
 
   function handleFieldOp(key: string, op: string) {
@@ -518,13 +525,12 @@ export function DashboardConstrutorConsulta({
       onVoltar={() => step > 1 && setStep((step - 1) as 1 | 2 | 3)}
       onFechar={onCancel}
       tamanho="md"
-      altura="560px"
+      altura="600px"
     >
       {step === 1 && (
         <Step1Fields
           fields={availableFields}
           selected={selectedKeys}
-          chartType={chartType}
           onToggle={toggleField}
         />
       )}
@@ -535,6 +541,7 @@ export function DashboardConstrutorConsulta({
           fieldOps={fieldOps}
           period={period}
           title={title}
+          periodOptions={resolvedPeriodOptions}
           onFieldOp={handleFieldOp}
           onPeriod={setPeriod}
           onTitle={setTitle}
@@ -550,117 +557,3 @@ export function DashboardConstrutorConsulta({
     </ModalPassoPassoGlobal>
   )
 }
-
-// ── Estilos Passo 1 ───────────────────────────────────────────────────────────
-
-const s1 = {
-  wrap: { display: 'flex', flexDirection: 'column' as const, gap: 'var(--space-3)' },
-  hint: { fontSize: '13px', color: 'var(--text-secondary)', margin: 0 },
-  warningBox: {
-    display: 'flex', alignItems: 'center', gap: '6px',
-    fontSize: '12px', color: 'var(--warning)',
-    background: 'rgba(245,158,11,0.08)',
-    border: '1px solid rgba(245,158,11,0.2)',
-    borderRadius: 'var(--radius-md)', padding: '6px 10px',
-  },
-  searchWrap: {
-    display: 'flex', alignItems: 'center', gap: 'var(--space-2)',
-    background: 'var(--bg-surface)', border: '1px solid var(--border-default)',
-    borderRadius: 'var(--radius-md)', padding: '6px 10px',
-  },
-  searchInput: { flex: 1, background: 'none', border: 'none', outline: 'none', color: 'var(--text-primary)', fontSize: '13px' },
-  fieldList: { display: 'flex', flexDirection: 'column' as const, gap: 'var(--space-2)' },
-  productBadge: {
-    fontSize: '11px', fontWeight: 600, padding: '2px 8px',
-    borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-accent)',
-    color: 'var(--accent)', display: 'inline-block', marginBottom: '6px',
-    textTransform: 'uppercase' as const, letterSpacing: '0.04em',
-  },
-  fieldRow: {
-    display: 'flex', alignItems: 'center', gap: 'var(--space-2)',
-    padding: '6px 8px', borderRadius: 'var(--radius-md)',
-    background: 'var(--bg-surface)', marginBottom: '4px',
-  },
-  fieldLabel: { flex: 1, fontSize: '13px', color: 'var(--text-primary)' },
-  unitBadge: {
-    fontSize: '10px', fontWeight: 700, color: 'var(--accent)',
-    background: 'var(--accent-dim)', border: '1px solid var(--border-accent)',
-    borderRadius: 'var(--radius-sm)', padding: '1px 5px', minWidth: '20px', textAlign: 'center' as const,
-  },
-  fieldType: { fontSize: '11px', color: 'var(--text-muted)', background: 'var(--bg-elevated)', padding: '1px 5px', borderRadius: 'var(--radius-sm)' },
-  emptySearch: { fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' as const, margin: 'var(--space-4) 0' },
-} as const
-
-// ── Estilos Passo 2 ───────────────────────────────────────────────────────────
-
-const s2 = {
-  wrap: { display: 'flex', flexDirection: 'column' as const, gap: 'var(--space-3)' },
-  hint: { fontSize: '13px', color: 'var(--text-secondary)', margin: 0 },
-  formGroup: { display: 'flex', flexDirection: 'column' as const, gap: 'var(--space-2)' },
-  label: { fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)' },
-  input: {
-    background: 'var(--bg-surface)', border: '1px solid var(--border-default)',
-    borderRadius: 'var(--radius-md)', color: 'var(--text-primary)',
-    fontSize: '13px', padding: '8px 12px', outline: 'none',
-  },
-  select: {
-    background: 'var(--bg-surface)', border: '1px solid var(--border-default)',
-    borderRadius: 'var(--radius-md)', color: 'var(--text-primary)',
-    fontSize: '13px', padding: '8px 12px', outline: 'none', cursor: 'pointer',
-  },
-  collapsedOp: {
-    fontSize: '13px', color: 'var(--text-primary)', padding: '8px 12px',
-    background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)',
-    border: '1px solid var(--border-default)', display: 'flex', alignItems: 'center', gap: '8px',
-  },
-  collapsedNote: { fontSize: '11px', color: 'var(--text-muted)' },
-  fieldOpList: { display: 'flex', flexDirection: 'column' as const, gap: '6px' },
-  fieldOpRow: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px',
-    padding: '8px 12px', background: 'var(--bg-surface)',
-    border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)',
-  },
-  fieldOpLabel: { flex: 1, fontSize: '13px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' },
-  unitBadge: {
-    fontSize: '10px', fontWeight: 700, color: 'var(--accent)',
-    background: 'var(--accent-dim)', border: '1px solid var(--border-accent)',
-    borderRadius: 'var(--radius-sm)', padding: '1px 5px',
-  },
-  fixedOp: {
-    fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)',
-    background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)', padding: '4px 10px',
-  },
-} as const
-
-// ── Estilos Passo 3 ───────────────────────────────────────────────────────────
-
-const s3 = {
-  wrap: { display: 'flex', flexDirection: 'column' as const, gap: 'var(--space-3)' },
-  hint: { fontSize: '13px', color: 'var(--text-secondary)', margin: 0 },
-  dualAxisBadge: {
-    display: 'inline-flex', alignItems: 'center', gap: '6px',
-    fontSize: '11px', fontWeight: 600, color: 'var(--warning)',
-    background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)',
-    borderRadius: 'var(--radius-md)', padding: '4px 10px',
-  },
-  chartGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2)' },
-  chartOption: {
-    display: 'flex', flexDirection: 'column' as const, alignItems: 'center',
-    justifyContent: 'center', gap: '6px', padding: 'var(--space-3)',
-    background: 'var(--bg-surface)', border: '1px solid var(--border-default)',
-    borderRadius: 'var(--radius-md)', cursor: 'pointer', position: 'relative' as const,
-    transition: 'var(--transition-fast)',
-  },
-  chartOptionSelected: {
-    background: 'var(--accent-dim)', border: '2px solid var(--accent)',
-  } as React.CSSProperties,
-  chartOptionDisabled: {
-    opacity: 0.35, cursor: 'not-allowed',
-  } as React.CSSProperties,
-  chartLabel: { fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500, textAlign: 'center' as const },
-  disabledReason: {
-    fontSize: '9px', color: 'var(--text-muted)', textAlign: 'center' as const,
-    position: 'absolute' as const, bottom: '4px', left: '4px', right: '4px',
-    lineHeight: 1.2,
-  },
-} as const

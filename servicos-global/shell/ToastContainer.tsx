@@ -44,7 +44,7 @@ export function ToastContainer() {
           key={notif.id}
           className={`shell-toast shell-toast--${notif.type}`}
           role="alert"
-          aria-label={notif.message}
+          aria-label={String(notif.message)}
         >
           <span
             className={`shell-toast__icon shell-toast__icon--${notif.type}`}

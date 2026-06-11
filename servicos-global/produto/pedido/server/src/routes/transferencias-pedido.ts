@@ -220,9 +220,14 @@ transferirHistoricoRouter.get('/', async (req: Request, res: Response, next: Nex
 // ── Error handler local ───────────────────────────────────────────────────────
 
 function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
-  if (err instanceof AppError) {
-    return res.status(err.statusCode).json({
-      error: { code: err.code, message: err.message },
+  // Existem múltiplas classes AppError no monorepo (transferirService,
+  // processos-core/saldo-pedido, resolver-organizacao). `instanceof` só
+  // reconhece a local — checar por shape garante que erros de negócio
+  // (422/404/409) cheguem ao usuário com a mensagem real, nunca 500 genérico.
+  const e = err as Error & { statusCode?: unknown; code?: unknown }
+  if (err.name === 'AppError' && typeof e.statusCode === 'number') {
+    return res.status(e.statusCode).json({
+      error: { code: typeof e.code === 'string' ? e.code : 'BAD_REQUEST', message: err.message },
     })
   }
   console.error('[Transferir]', err.message)

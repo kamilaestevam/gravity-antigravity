@@ -10,7 +10,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../lib/errors.js'
-import { seedStatusPadrao } from '../services/seedStatusPadrao.js'
+import { seedStatusPadrao, garantirStatusCanonicos } from '../services/seedStatusPadrao.js'
 
 const router = Router()
 
@@ -27,7 +27,6 @@ const EditarStatusSchema = z.object({
   rotulo_status_cotacao_bid_frete: z.string().min(1).max(100).optional(),
   cor_status_cotacao_bid_frete: z.string().min(4).max(9).optional(),
   icone_status_cotacao_bid_frete: z.string().max(50).nullable().optional(),
-  gerenciado_sistema_status_cotacao_bid_frete: z.boolean().optional(),
 })
 
 const ReordenarStatusSchema = z.object({
@@ -47,6 +46,8 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
     if (count === 0) {
       await seedStatusPadrao(req.prisma, idOrganizacao)
+    } else {
+      await garantirStatusCanonicos(req.prisma, idOrganizacao)
     }
 
     const statusList = await (req.prisma as any).statusCotacaoBidFrete.findMany({
@@ -162,7 +163,7 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
   }
 })
 
-// --- DELETE /:id — Excluir status (todos editáveis pelo usuário) ---
+// --- DELETE /:id — Excluir status (apenas não-sistema) ---
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const idOrganizacao = req.headers['x-id-organizacao'] as string
@@ -172,6 +173,10 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       where: { id_status_cotacao_bid_frete: req.params.id, id_organizacao: idOrganizacao },
     })
     if (!existing) throw new AppError('Status nao encontrado', 404, 'NOT_FOUND')
+
+    if (existing.gerenciado_sistema_status_cotacao_bid_frete) {
+      throw new AppError('Status gerenciado pelo sistema nao pode ser excluido', 400, 'SYSTEM_STATUS')
+    }
 
     await (req.prisma as any).statusCotacaoBidFrete.delete({
       where: { id_status_cotacao_bid_frete: req.params.id },

@@ -1,0 +1,112 @@
+/* BidFreteVisualizacaoTabs — pills compactas; distâncias via bid-frete-page-shell.css */
+
+/* Paridade PedidosVisualizacaoTabs (.pvt-tabs) — altura compacta */
+.bft-tabs {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  margin: 0;
+  background: var(--ws-surface, #1e293b);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 9999px;
+}
+
+.bft-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ws-muted, #94a3b8);
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.bft-tab svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.bft-tab:hover {
+  color: var(--ws-text, #f1f5f9);
+  background: rgba(167, 139, 250, 0.08);
+}
+
+.bft-tab--active {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+.bft-tab--active:hover {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+/* Toolbar abaixo do título (MenuTopoGlobal) — paridade pg-toolbar-wrapper / Processo */
+.bid-frete-vis-toolbar {
+  position: relative;
+  z-index: 30;
+  flex-shrink: 0;
+  background: var(--ws-bg-body, #0f172a);
+  padding: var(--bid-frete-page-pt) var(--bid-frete-page-px) var(--bid-frete-visualizacao-tabs-mb);
+  box-sizing: border-box;
+}
+
+body.light-theme .bid-frete-vis-toolbar {
+  background: var(--ws-bg-body, #f8fafc);
+}
+
+.bid-frete-visualizacao-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+/* Paridade Pedido: padding só no conteúdo da aba, não no wrapper multi-view (evita 4rem lateral). */
+.bid-frete-visualizacao-layout .bid-frete-multi-view {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.bid-frete-visualizacao-layout .bid-frete-page-shell,
+.bid-frete-visualizacao-layout .pg-container.bid-frete-page-shell,
+.bid-frete-visualizacao-layout .bf-lista-page,
+.bid-frete-visualizacao-layout .bf-cotacoes,
+.bid-frete-visualizacao-layout .bfd-dashboard {
+  padding-top: 0;
+  padding-left: var(--bid-frete-page-px);
+  padding-right: var(--bid-frete-page-px);
+  padding-bottom: var(--bid-frete-page-pb);
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Paridade Pedido: padding lateral vem de configuracoes.css; só zera o topo (tabs já têm pt). */
+.bid-frete-visualizacao-layout .cfg-page {
+  padding-top: 0;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.bid-frete-visualizacao-layout .pg-container.bid-frete-page-shell .pg-contexto-row.pg-no-header {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.bid-frete-visualizacao-layout .lp-tabela-wrapper .gtv-toolbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}

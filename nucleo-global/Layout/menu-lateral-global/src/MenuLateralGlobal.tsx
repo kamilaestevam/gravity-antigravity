@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { SidebarSimple, CaretDown, Check, Plus, Gear, Square, CheckSquare } from '@phosphor-icons/react'
+import { SidebarSimple, CaretDown, Check, Plus, Gear, Square, CheckSquare, ArrowRight } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { LogoModoBadgeVisaoFornecedor } from './LogoModoBadgeVisaoFornecedor'
 import './menu-lateral.css'
+
+export type ModuleModoVariant = 'visao_fornecedor'
 
 export interface WorkspaceItem {
   id: string
@@ -16,6 +19,10 @@ export interface ProductSwitcherItem {
   name: string
   color: string
   icon: React.ReactNode
+  /** 'produto' = troca de contexto (padrão); 'acao' = atalho/visão transversal (não é produto). */
+  kind?: 'produto' | 'acao'
+  /** Descrição curta exibida abaixo do nome (usada por itens 'acao'). */
+  sublabel?: string
 }
 
 export interface NavItem {
@@ -40,6 +47,15 @@ export interface MenuLateralGlobalProps {
   tenantPlan: string
   navItems: NavItem[]
   moduleName?: string
+  /** Badge de modo no logo (ex.: visão fornecedor com ícones Eye + Handshake) */
+  moduleModoVariant?: ModuleModoVariant
+  /** Rótulo curto no badge (ex.: Fornecedor) */
+  moduleModoBadgeLabel?: string
+  /** Descrição completa para aria (ex.: Visão fornecedor) */
+  moduleModoAriaLabel?: string
+  /** Tooltip ao passar o mouse no badge */
+  moduleModoTooltipTitulo?: string
+  moduleModoTooltipDescricao?: string
   moduleColor?: string
   moduleIcon?: React.ReactNode
   /** Lista de workspaces disponíveis para troca */
@@ -81,11 +97,27 @@ export interface MenuLateralGlobalProps {
   onToggleCollapse?: () => void
 }
 
+function resolverRotuloTenantSidebar(tenantName: string, tenantPlan: string) {
+  const plano = tenantPlan.trim()
+  const nome = tenantName.trim()
+  const planoRedundante =
+    !plano || plano.localeCompare(nome, undefined, { sensitivity: 'accent' }) === 0
+  return {
+    planoRedundante,
+    descricaoTooltip: planoRedundante ? nome : `${nome} · ${plano}`,
+  }
+}
+
 export function MenuLateralGlobal({
   tenantName,
   tenantPlan,
   navItems,
   moduleName = 'Configurador',
+  moduleModoVariant,
+  moduleModoBadgeLabel = 'Visão Fornecedor',
+  moduleModoAriaLabel,
+  moduleModoTooltipTitulo,
+  moduleModoTooltipDescricao,
   moduleColor = '#818cf8',
   moduleIcon,
   workspaces = [],
@@ -120,9 +152,29 @@ export function MenuLateralGlobal({
     (produtoAtualSlug &&
       (produtoSlugEquivalente(produtoAtualSlug, 'bid-frete') ||
         produtoSlugEquivalente(produtoAtualSlug, 'bid-frete-internacional'))) ||
-      moduleName === 'BID Frete Internacional',
+      /^bid frete internacional$/i.test(moduleName),
   )
-  const logoNameClass = logoNomeCompacto ? 'mlg-logo-name mlg-logo-name--compact' : 'mlg-logo-name'
+  const logoTituloPar = logoNomeCompacto ? 'mlg-logo-titulo-par' : ''
+  const logoNameClass = logoNomeCompacto
+    ? `mlg-logo-name mlg-logo-name--compact ${logoTituloPar}`.trim()
+    : 'mlg-logo-name'
+  const modoAria = moduleModoAriaLabel ?? moduleModoBadgeLabel
+  const logoTooltip = moduleModoVariant && modoAria ? `${moduleName} — ${modoAria}` : moduleName
+  const tenantRotulo = resolverRotuloTenantSidebar(tenantName, tenantPlan)
+
+  const logoModoBadge = moduleModoVariant === 'visao_fornecedor' ? (
+    <LogoModoBadgeVisaoFornecedor
+      label={moduleModoBadgeLabel}
+      ariaLabel={modoAria}
+      textoClassName={logoTituloPar || logoNameClass}
+      tooltipTitulo={moduleModoTooltipTitulo ?? modoAria}
+      tooltipDescricao={
+        moduleModoTooltipDescricao
+        ?? 'Área para responder cotações, enviar propostas e acompanhar seu desempenho'
+      }
+    />
+  ) : null
+
   const wsRef = useRef<HTMLDivElement>(null)
   const prodRef = useRef<HTMLDivElement>(null)
   const tenantBtnRef = useRef<HTMLButtonElement>(null)
@@ -158,7 +210,13 @@ export function MenuLateralGlobal({
     ws.plan ? `${ws.name} · ${ws.plan}` : ws.name
 
   const isCollapsed = controlledIsCollapsed !== undefined ? controlledIsCollapsed : internalCollapsed
-  
+
+  const logoIconNode = (
+    <div className="mlg-logo-icon" style={{ color: moduleColor }}>
+      {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
+    </div>
+  )
+
   const toggleCollapse = () => {
     if (onToggleCollapse) {
       onToggleCollapse()
@@ -315,11 +373,9 @@ export function MenuLateralGlobal({
       {/* ── Logo + seletor de produto ── */}
       <div className="mlg-logo-wrapper" ref={prodRef}>
         {isCollapsed ? (
-          <TooltipGlobal descricao={moduleName}>
+          <TooltipGlobal descricao={logoTooltip}>
             <div className="mlg-logo-area mlg-logo-area--collapsed">
-              <div className="mlg-logo-icon" style={{ color: moduleColor }}>
-                {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
-              </div>
+              {logoIconNode}
             </div>
           </TooltipGlobal>
         ) : exibirSeletorProduto ? (
@@ -332,26 +388,30 @@ export function MenuLateralGlobal({
             aria-haspopup="listbox"
             aria-label={`Produto: ${moduleName}. Trocar produto`}
           >
-            <div className="mlg-logo-icon" style={{ color: moduleColor }}>
-              {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
-            </div>
+            {logoIconNode}
             <div className="mlg-logo-info">
-              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>{moduleName}</span>
+              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>
+                {moduleName}
+              </span>
               <span className="mlg-logo-gravity">by Gravity</span>
             </div>
             <CaretDown className={`mlg-logo-chevron ${prodOpen ? 'open' : ''}`} size={13} weight="bold" />
           </button>
         ) : (
           <div className="mlg-logo-area">
-            <div className="mlg-logo-icon" style={{ color: moduleColor }}>
-              {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
-            </div>
+            {logoIconNode}
             <div className="mlg-logo-info">
-              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>{moduleName}</span>
+              <span className={logoNameClass} style={{ color: moduleColor }} title={moduleName}>
+                {moduleName}
+              </span>
               <span className="mlg-logo-gravity">by Gravity</span>
             </div>
           </div>
         )}
+
+        {logoModoBadge && !isCollapsed ? (
+          <div className="mlg-logo-modo-row">{logoModoBadge}</div>
+        ) : null}
 
         {prodOpen && !isCollapsed && exibirSeletorProduto && (
           <div className="mlg-ws-dropdown mlg-prod-dropdown" role="listbox">
@@ -368,36 +428,49 @@ export function MenuLateralGlobal({
               </div>
             )}
             <div className="mlg-ws-dropdown__list">
-              {filteredProdutos.map(prod => {
+              {filteredProdutos.map((prod, index) => {
+                const isAcao = prod.kind === 'acao'
                 const isCurrent = produtoAtualSlug
                   ? produtoSlugEquivalente(prod.slug, produtoAtualSlug)
-                  : prod.name === moduleName
+                  : !isAcao && prod.name === moduleName
+                // Divisor antes do primeiro item 'acao' — separa produtos de visões transversais.
+                const mostrarDivisor =
+                  isAcao && filteredProdutos[index - 1]?.kind !== 'acao'
                 return (
-                  <button
-                    key={prod.slug}
-                    type="button"
-                    className={`mlg-ws-item ${isCurrent ? 'mlg-ws-item--current' : ''}`}
-                    role="option"
-                    aria-selected={isCurrent}
-                    onClick={() => {
-                      if (!isCurrent) onSwitchProduct?.(prod.slug)
-                      setProdOpen(false)
-                    }}
-                  >
-                    <div
-                      className="mlg-prod-item-icon"
-                      style={{ color: prod.color }}
-                      aria-hidden
+                  <React.Fragment key={prod.slug}>
+                    {mostrarDivisor && <div className="mlg-prod-divider" role="separator" />}
+                    <button
+                      type="button"
+                      className={`mlg-ws-item ${isCurrent ? 'mlg-ws-item--current' : ''} ${isAcao ? 'mlg-ws-item--acao' : ''}`}
+                      role="option"
+                      aria-selected={isCurrent}
+                      onClick={() => {
+                        if (!isCurrent) onSwitchProduct?.(prod.slug)
+                        setProdOpen(false)
+                      }}
                     >
-                      {prod.icon}
-                    </div>
-                    <div className="mlg-ws-item-info">
-                      <span className="mlg-ws-item-name">{prod.name}</span>
-                    </div>
-                    {isCurrent && (
-                      <Check size={13} weight="bold" style={{ color: prod.color, flexShrink: 0 }} />
-                    )}
-                  </button>
+                      <div
+                        className="mlg-prod-item-icon"
+                        style={{ color: prod.color }}
+                        aria-hidden
+                      >
+                        {prod.icon}
+                      </div>
+                      <div className="mlg-ws-item-info">
+                        <span className="mlg-ws-item-name">{prod.name}</span>
+                        {prod.sublabel && (
+                          <TooltipGlobal descricao={prod.sublabel}>
+                            <span className="mlg-ws-item-sub">{prod.sublabel}</span>
+                          </TooltipGlobal>
+                        )}
+                      </div>
+                      {isCurrent ? (
+                        <Check size={13} weight="bold" style={{ color: prod.color, flexShrink: 0 }} />
+                      ) : isAcao ? (
+                        <ArrowRight size={13} weight="bold" className="mlg-ws-item-arrow" style={{ flexShrink: 0 }} />
+                      ) : null}
+                    </button>
+                  </React.Fragment>
                 )
               })}
             </div>
@@ -408,7 +481,7 @@ export function MenuLateralGlobal({
       {/* ── Workspace switcher ── */}
       <div className="mlg-tenant-wrapper" ref={wsRef}>
         {isCollapsed ? (
-          <TooltipGlobal descricao={`${tenantName} · ${tenantPlan}`}>
+          <TooltipGlobal descricao={tenantRotulo.descricaoTooltip}>
             <div className="mlg-tenant">
               <div className="mlg-tenant-avatar" style={{ color: moduleColor, borderColor: `${moduleColor}40`, backgroundColor: `${moduleColor}2e` }}>
                 {tenantName.charAt(0)}
@@ -430,11 +503,13 @@ export function MenuLateralGlobal({
             <div className="mlg-tenant-info">
               <TooltipGlobal
                 titulo={dropdownWorkspaceTooltipTitulo}
-                descricao={tenantPlan ? `${tenantName} · ${tenantPlan}` : tenantName}
+                descricao={tenantRotulo.descricaoTooltip}
               >
                 <span className="mlg-tenant-name">{tenantName}</span>
               </TooltipGlobal>
-              <span className="mlg-tenant-plan">{tenantPlan}</span>
+              {!tenantRotulo.planoRedundante && (
+                <span className="mlg-tenant-plan">{tenantPlan}</span>
+              )}
             </div>
             <CaretDown className={`mlg-tenant-chevron ${wsOpen ? 'open' : ''}`} size={13} weight="bold" />
           </button>

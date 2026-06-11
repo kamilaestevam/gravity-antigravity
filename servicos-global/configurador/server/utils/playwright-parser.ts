@@ -26,6 +26,9 @@ export interface TestLogEntry {
   duration:  string
   error_log:   string | null
   ai_analysis: AiAnalysis | null
+  success_log?: string | null
+  emt_pasta?: string | null
+  emt_prints?: string[]
 }
 
 // Mapa de status Playwright → resultado Gravity

@@ -29,6 +29,11 @@ export function usuarioTemBypassPermissoesUi(tipo_usuario: TipoUsuarioBypass | n
   return temBypassPermissao({ tipo_usuario })
 }
 
+/** Processo/Dossiê é infraestrutura do Core — nunca entra na grade de produtos. */
+export function ehSlugInfraProcessoCore(slug: string): boolean {
+  return slug === 'processo' || slug === 'processos'
+}
+
 interface PermissoesResponse {
   permissoes: Array<{ permissao_usuario: string }>
 }
@@ -68,6 +73,10 @@ export function expandirCardsProdutosCore(
   for (const p of products.filter(prod => prod.is_active)) {
     const slug = p.catalog?.slug ?? p.product_key
 
+    if (ehSlugInfraProcessoCore(slug)) {
+      continue
+    }
+
     if (ehSlugProdutoBidFrete(slug)) {
       const temOperacional = bypassPermissoes
         || (permissoes != null && usuarioTemPermissaoGranularProduto(permissoes, slug))
@@ -80,7 +89,7 @@ export function expandirCardsProdutosCore(
           produto: p,
           slug,
           nome: nomeExibicaoProdutoGravity(slug, p.catalog?.name ?? p.product_key, t),
-          rota: `/produto/${slug}`,
+          rota: '/bid-frete',
           variant: 'bid_operacional',
         })
       }

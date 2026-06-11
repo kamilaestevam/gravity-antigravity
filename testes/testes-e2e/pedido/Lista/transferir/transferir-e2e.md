@@ -1,6 +1,6 @@
 # Plano de Teste E2E — Transferir Pedido
 
-> **ID:** TST-E2E-PEDIDO-TRANSFERIR-000001
+> **ID:** TST-E2E-PEDIDO-000037
 > **Produto:** Pedido
 > **Feature:** Transferência de itens entre pedidos
 > **Tipo:** E2E (Playwright, scaffold com describe.skip)
@@ -41,5 +41,5 @@ Testa os fluxos de transferência end-to-end via interface do usuário:
 ```
 testes/testes-e2e/pedido/Lista/transferir/
 ├── transferir-e2e.md                          ← este plano
-└── TST-E2E-PEDIDO-TRANSFERIR-001.spec.ts      ← scaffold com describe.skip
+└── TST-E2E-PEDIDO-000037.spec.ts      ← scaffold com describe.skip
 ```

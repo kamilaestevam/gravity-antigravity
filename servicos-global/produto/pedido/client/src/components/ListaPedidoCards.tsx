@@ -20,7 +20,7 @@ import {
   type CardComputedStats,
 } from '../shared/listaCardStats'
 import { useListaCardKpis } from '../shared/useListaCardKpis'
-import { resolverIdsWorkspacesParaApi } from '../shared/useEscopoWorkspacesPedido'
+import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import { useConfigRegras } from '../shared/queries'
 import type { CardPeriodoCodigo } from '../shared/lista-card-schemas'
 export interface ListaPedidoCardsProps {
@@ -63,6 +63,7 @@ export function ListaPedidoCards({
     [cardsUsuario],
   )
   const hoje = useMemo(() => new Date().toISOString().slice(0, 10), [])
+  const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
 
   const idsWorkspacesFiltro = resolverIdsWorkspacesParaApi(workspacesSelecionados, workspaceAtivo)
 
@@ -71,7 +72,7 @@ export function ListaPedidoCards({
     status: abaAtiva !== 'todos' ? abaAtiva : undefined,
     busca,
     idsWorkspacesFiltro,
-    enabled: !temFiltroColunaCliente,
+    enabled: escopoHidratado && !temFiltroColunaCliente,
   })
 
   const { data: regrasConfig } = useConfigRegras()
@@ -237,7 +238,7 @@ export function ListaPedidoCards({
                 valor={fmtMoedaCard(cardStats.coberturaPend)}
                 variante="erro"
                 subtexto={t('pedido.sem_cobertura')}
-                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidosBase.filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura')).length}</strong></p>}
+                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidosBase.filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'SEM_COBERTURA' || i.cobertura_cambial === 'sem_cobertura')).length}</strong></p>}
               />
             )
           }

@@ -14,7 +14,14 @@ import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global
 import type { Pedido, PedidoItem, ColunaUsuario } from '../../shared/types'
 import { fmtQuantidade, fmtData, classeMoedaBadge } from '../../shared/types'
 import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
+import { valorTotalItemParaLista } from '../../shared/valorTotalItemLista'
 import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel, type OpcoesUnidadesColunas } from './ColunasPai'
+import { rotuloCambioSiscomex } from '../../shared/useCambioSiscomexPedido'
+import {
+  formatarBadgeUnidadeCelula,
+  kgParaQuantidadeExibicao,
+} from '../../shared/useUnidadesPedido'
+import { METADADOS_COLUNA_ANEXO_LISTA, renderCelulaAnexoLista } from '../../shared/renderCelulaAnexoLista'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
 export { _regrasAlertasRef }
@@ -35,7 +42,7 @@ export function buildFormulaContexto(row: Pedido): Record<string, number | null>
     quantidade_total_pedido:              n(r.quantidade_inicial_pedido),
     quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_pedido),
     quantidade_transferida_total:         n(r.quantidade_transferida_pedido),
-    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_total_item_pedido),
+    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_item),
     saldo_itens_do_pedido:                n(r.quantidade_atual_pedido),
     valor_total:                          n(r.valor_total_item),
     peso_liquido_total_pedido:            n(r.peso_liquido_unitario),
@@ -148,7 +155,7 @@ export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedid
 // ── Colunas filha (PedidoItem) ────────────────────────────────────────────────
 
 export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): GTColuna<PedidoItem>[] {
-  const { unidadesPeso, unidadesCubagem } = opcoes
+  const { unidadesPeso, unidadesCubagem, modalidadePagamentoOpcoes = [] } = opcoes
   return [
   {
     key: 'part_number',
@@ -264,7 +271,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     ),
   },
   {
-    key: 'quantidade_pronta_total_item_pedido',
+    key: 'quantidade_pronta_item',
     label: t('pedido.item.qtd_pronta'),
     tipo: 'numero',
     align: 'right',
@@ -273,7 +280,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     tooltipDescricao: t('pedido.item.qtd_pronta_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta_total_item_pedido, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_pronta_item, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -369,7 +376,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
-          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} kg`
+          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} ${formatarBadgeUnidadeCelula(row.peso_liquido_unidade_item ?? 'KG')}`
           : '—'}
       </span>
     ),
@@ -385,7 +392,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
-          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} kg`
+          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} ${formatarBadgeUnidadeCelula(row.peso_bruto_unidade_item ?? 'KG')}`
           : '—'}
       </span>
     ),
@@ -401,7 +408,7 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
-          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} m³`
+          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} ${formatarBadgeUnidadeCelula(row.cubagem_unidade_item ?? 'M3')}`
           : '—'}
       </span>
     ),
@@ -517,10 +524,17 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
     key: 'anexo_lpco',
     label: t('pedido.item.anexo_lpco'),
     tipo: 'texto',
+    ...METADADOS_COLUNA_ANEXO_LISTA,
     grupo: t('pedido.item_grupo.duimp_fiscal'),
     tooltipTitulo: t('pedido.item.anexo_lpco_tooltip'),
     tooltipDescricao: t('pedido.item.anexo_lpco_desc'),
-    render: (_val: unknown, row: PedidoItem) => <span>{row.anexo_lpco ? '📎' : '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) =>
+      renderCelulaAnexoLista({
+        vinculo: 'item',
+        vinculo_id: row.id,
+        chaveColuna: 'anexo_lpco',
+        colunaNome: t('pedido.item.anexo_lpco'),
+      }),
   },
   // ── Datas do item ────────────────────────────────────────────────────────────
   {
@@ -1517,13 +1531,33 @@ export function buildColunasFilho(t: TFunction, opcoes: OpcoesUnidadesColunas): 
   },
   {
     key: 'condicao_pagamento',
-    label: 'Cond. Pagamento',
+    label: 'Cond. Pagamento — Comercial',
     tipo: 'texto',
     filtravel: true,
     grupo: t('pedido.item_grupo.quantidades'),
-    tooltipTitulo: 'Condição de Pagamento',
-    tooltipDescricao: 'Condição de pagamento acordada para o item',
+    tooltipTitulo: 'Condição de Pagamento — Comercial',
+    tooltipDescricao: 'Condição de pagamento negociada para o item (texto livre)',
     render: (_val: unknown, row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento, 'condicao_pagamento'),
+  },
+  {
+    key: 'condicao_pagamento_siscomex',
+    label: t('pedido.coluna_pai.condicao_pagamento_siscomex_pedido'),
+    tipo: 'select',
+    opcoes: modalidadePagamentoOpcoes,
+    filtravel: true,
+    editavel: true,
+    campo: 'condicao_pagamento_siscomex',
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: t('pedido.coluna_pai.condicao_pagamento_siscomex_item_titulo'),
+    tooltipDescricao: 'Código oficial de modalidade de pagamento para LI/DI',
+    getValorEditar: (row: PedidoItem) => row.condicao_pagamento_siscomex ?? '',
+    render: (_val: unknown, row: PedidoItem) => {
+      const codigo = row.condicao_pagamento_siscomex
+      const rotulo = codigo
+        ? (modalidadePagamentoOpcoes.find(o => o.valor === codigo)?.label ?? codigo)
+        : null
+      return renderDescricaoTruncada(rotulo, 'condicao_pagamento_siscomex')
+    },
   },
   {
     key: 'casas_decimais_quantidade_item',
@@ -1586,11 +1620,16 @@ type PedidoItemEnriquecido = PedidoItem & {
   }
 }
 
-// Fator de conversão reversa: KG armazenado → unidade de exibição
-const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KGBR: 1 }
-
 export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<string, GTMapaColunasFilho<PedidoItem>> {
-  const { unidadesPeso, unidadesCubagem } = opcoes
+  const {
+    unidadesPeso,
+    unidadesCubagem,
+    mapaFatorParaKg,
+    coberturaCambialOpcoes = [],
+    modalidadePagamentoOpcoes = [],
+  } = opcoes
+  const opcoesCobertura = coberturaCambialOpcoes.map(o => ({ valor: o.valor, label: o.label }))
+  const opcoesSiscomex = modalidadePagamentoOpcoes.map(o => ({ valor: o.valor, label: o.label }))
   return {
   // ── Número do pedido → Part Number do item ────────────────────────────────
   numero_pedido: {
@@ -1611,8 +1650,9 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   },
   // ── Colunas herdadas do pedido pai ────────────────────────────────────────
   tipo_operacao: {
+    editavel: false,
+    tooltipBloqueado: 'Tipo de operação é do pedido — altere na linha do pedido',
     render: (row: PedidoItem) => {
-      // Usar tipo_operacao_item do próprio item; fallback para pai se null
       const tipoItem = (row as Record<string, unknown>).tipo_operacao_item as string | null
       const p = (row as PedidoItemEnriquecido)._p
       const tipo = tipoItem ?? p?.tipo_operacao ?? null
@@ -1643,11 +1683,8 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     },
   },
   nome_importador: {
-    editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
-    tooltipBloqueado: (row: PedidoItem) =>
-      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao'
-        ? 'Importador definido automaticamente pelo workspace — não editável em Importação'
-        : undefined,
+    editavel: false,
+    tooltipBloqueado: 'Importador é do pedido — altere na linha do pedido',
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
@@ -1673,18 +1710,12 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   numero_proforma: {
     editavel: true,
     campo: 'numero_proforma',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.numero_proforma ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.numero_proforma, 'Nº Proforma'),
   },
   numero_invoice: {
     editavel: true,
     campo: 'numero_invoice',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.numero_invoice ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => renderDescricaoTruncada(row.numero_invoice, 'Nº Invoice'),
   },
   incoterm: {
     editavel: true,
@@ -1715,12 +1746,29 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   cobertura_cambial: {
     editavel: true,
     campo: 'cobertura_cambial',
-    render: (row: PedidoItem) => renderDescricaoTruncada(row.cobertura_cambial, 'cobertura_cambial'),
+    opcoes: opcoesCobertura,
+    getValorEditar: (row: PedidoItem) => row.cobertura_cambial ?? '',
+    render: (row: PedidoItem) => {
+      const rotulo = rotuloCambioSiscomex(row.cobertura_cambial, coberturaCambialOpcoes)
+      if (rotulo === '—') return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      return renderDescricaoTruncada(rotulo, 'cobertura_cambial')
+    },
   },
   condicao_pagamento: {
     editavel: true,
     campo: 'condicao_pagamento',
     render: (row: PedidoItem) => renderDescricaoTruncada(row.condicao_pagamento, 'condicao_pagamento'),
+  },
+  condicao_pagamento_siscomex: {
+    editavel: true,
+    campo: 'condicao_pagamento_siscomex',
+    opcoes: opcoesSiscomex,
+    getValorEditar: (row: PedidoItem) => row.condicao_pagamento_siscomex ?? '',
+    render: (row: PedidoItem) => {
+      const rotulo = rotuloCambioSiscomex(row.condicao_pagamento_siscomex, modalidadePagamentoOpcoes)
+      if (rotulo === '—') return <span style={{ color: 'var(--text-muted)' }}>{'—'}</span>
+      return renderDescricaoTruncada(rotulo, 'condicao_pagamento_siscomex')
+    },
   },
   data_emissao_pedido: {
     editavel: true,
@@ -1771,18 +1819,18 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
-      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+      return { unit, quantity: kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg) }
     },
     render: (row: PedidoItem) => {
       const unit = row.peso_liquido_unidade_item ?? 'KG'
       const kg = Number(row.peso_liquido_unitario ?? 0)
-      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      const display = kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg)
       return (
         <span className="gtv-celula-moeda">
           {row.peso_liquido_unitario != null
             ? fmtQuantidade(display, getCasas('peso_liquido_unitario', 3))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -1795,18 +1843,18 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     getValorEditar: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
-      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+      return { unit, quantity: kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg) }
     },
     render: (row: PedidoItem) => {
       const unit = row.peso_bruto_unidade_item ?? 'KG'
       const kg = Number(row.peso_bruto_unitario ?? 0)
-      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      const display = kgParaQuantidadeExibicao(kg, unit, mapaFatorParaKg)
       return (
         <span className="gtv-celula-moeda">
           {row.peso_bruto_unitario != null
             ? fmtQuantidade(display, getCasas('peso_bruto_unitario', 3))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -1827,7 +1875,7 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
           {row.cubagem_unitaria != null
             ? fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))
             : '—'}
-          <span className="gtv-celula-unidade-badge">{unit.toLowerCase().replace('m3', 'm³')}</span>
+          <span className="gtv-celula-unidade-badge">{formatarBadgeUnidadeCelula(unit)}</span>
         </span>
       )
     },
@@ -1879,15 +1927,15 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
     casasDecimais: 2,
     getValorEditar: (row: PedidoItem) => ({
       currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
-      amount: row.valor_total_item ?? 0,
+      amount: valorTotalItemParaLista(row) ?? 0,
     }),
     render: (row: PedidoItem) => {
       const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
-      const num = Number(row.valor_total_item)
+      const num = valorTotalItemParaLista(row)
       return (
         <span className="gtv-celula-moeda">
           <span className={classeMoedaBadge(moeda)}>{moeda}</span>
-          {row.valor_total_item != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+          {num != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
     },
@@ -1948,17 +1996,17 @@ export function buildMapaColunasFilho(opcoes: OpcoesUnidadesColunas): Record<str
   },
   quantidade_pronta_itens_pedido_total: {
     editavel: true,
-    campo: 'quantidade_pronta_total_item_pedido',
+    campo: 'quantidade_pronta_item',
     casasDecimais: getCasas('quantidade_item', 0),
     getValorEditar: (row: PedidoItem) => ({
       unit: (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN',
-      quantity: Number(row.quantidade_pronta_total_item_pedido ?? 0),
+      quantity: Number(row.quantidade_pronta_item ?? 0),
     }),
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       return (
         <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {fmtQuantidade(row.quantidade_pronta_total_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+          {fmtQuantidade(row.quantidade_pronta_item ?? 0, getCasas('quantidade_item', 0))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
       )

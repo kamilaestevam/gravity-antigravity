@@ -1,0 +1,46 @@
+/**
+ * DashboardGrid — interação de layout por widget (mover / redimensionar via menu).
+ */
+
+.db-grid.db-grid--layout-interacao .react-grid-item.react-draggable {
+  cursor: default;
+}
+
+.db-grid .react-grid-item .db-no-drag,
+.db-grid .react-grid-item .db-no-drag button {
+  cursor: pointer !important;
+  pointer-events: auto;
+}
+
+.db-grid .react-grid-item .db-drag-handle {
+  cursor: grab !important;
+}
+
+.db-grid .react-grid-item .db-drag-handle:active {
+  cursor: grabbing !important;
+}
+
+/* Alças de resize mais visíveis no widget em modo redimensionar */
+.db-grid.db-grid--layout-interacao .react-grid-item > .react-resizable-handle {
+  opacity: 1;
+  z-index: 30;
+}
+
+.db-grid.db-grid--layout-interacao .react-grid-item > .react-resizable-handle-se {
+  width: 18px;
+  height: 18px;
+  right: 2px;
+  bottom: 2px;
+}
+
+.db-grid.db-grid--layout-interacao .react-grid-item > .react-resizable-handle-se::after {
+  content: '';
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--accent, #6366f1);
+  border-bottom: 2px solid var(--accent, #6366f1);
+}
+

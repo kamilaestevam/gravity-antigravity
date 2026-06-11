@@ -47,7 +47,13 @@ import type {
   TransferPreview,
   TransferResultado,
 } from '../shared/types'
-import { pedidoTransferirApi, pedidoApi } from '../shared/api'
+import { pedidoTransferirApi, pedidoVirtualApi } from '../shared/api'
+import { montarDestinosConfirmarTransferir } from '../shared/transferirConfirmarDestinos'
+import {
+  inicializarItensQuantidadesTransferir,
+  montarItensComPedidoParaTransferir,
+} from '../shared/montarItensComPedidoTransferir'
+import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import { fmtQuantidade } from '../shared/types'
 
 // ── Definição de Cenários ─────────────────────────────────────────────────────
@@ -92,6 +98,10 @@ const CENARIOS: CenarioInfo[] = [
 
 interface ModalTransferirPedidoProps {
   pedidos: Pedido[]
+  /** Itens selecionados na lista (fonte primária — pedido.itens costuma vir vazio). */
+  itens?: PedidoItem[]
+  /** Catálogo completo de pedidos da tela — resolve pedido pai por item.pedido_id. */
+  todosPedidos?: Pedido[]
   /** IDs dos itens que o usuário selecionou explicitamente na lista.
    *  Se fornecido, apenas esses itens vêm pré-selecionados.
    *  Se ausente/vazio, todos os itens de todos os pedidos são pré-selecionados. */
@@ -539,9 +549,23 @@ function PreviewImpacto({ preview, indice, total }: PreviewImpactoProps) {
 
 // ── NOMES_PASSOS — definido dentro do componente via useMemo([t]) ─────────────
 
-export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar, onConcluido }: ModalTransferirPedidoProps) {
+export function ModalTransferirPedido({
+  pedidos,
+  itens,
+  todosPedidos,
+  itensSelecionadosIds,
+  onFechar,
+  onConcluido,
+}: ModalTransferirPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo ?? '')
+  const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo),
+    [idsWorkspacesEscopo, idWorkspaceAtivo],
+  )
 
   const NOMES_PASSOS = useMemo<Record<Passo, string>>(() => ({
     1: t('pedido.modal_transf.passo_cenario'),
@@ -552,16 +576,11 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
   }), [t])
   const pedido = pedidos[0]
 
-  // ── Multi-pedido: todos os itens de todos os pedidos selecionados ────────────
-  const itensComPedido = useMemo<ItemComPedido[]>(() => {
-    const resultado: ItemComPedido[] = []
-    for (const p of pedidos) {
-      for (const item of p.itens) {
-        resultado.push({ item, pedido: p })
-      }
-    }
-    return resultado
-  }, [pedidos])
+  // ── Multi-pedido: itens da seleção (store) ou itens já carregados no pai ─────
+  const itensComPedido = useMemo<ItemComPedido[]>(
+    () => montarItensComPedidoParaTransferir(pedidos, itens, todosPedidos),
+    [pedidos, itens, todosPedidos],
+  )
 
   const multiPedido = pedidos.length > 1
 
@@ -578,28 +597,12 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
   const [cenario, setCenario] = useState<CenarioTransfer | null>(null)
 
   // ── Multi-item: mapa itemId → quantidade ────────────────────────────────────
-  const [itensQuantidades, setItensQuantidades] = useState<Map<string, number>>(() => {
-    const mapa = new Map<string, number>()
-    // Se o usuário selecionou itens específicos, apenas esses vêm pré-selecionados.
-    // Se selecionou pedidos inteiros (sem itens específicos), todos os itens são pré-selecionados.
-    if (itensSelecionadosIds && itensSelecionadosIds.length > 0) {
-      const idsSet = new Set(itensSelecionadosIds)
-      for (const p of pedidos) {
-        for (const item of p.itens) {
-          if (idsSet.has(item.id)) {
-            mapa.set(item.id, 0)
-          }
-        }
-      }
-    } else {
-      for (const p of pedidos) {
-        for (const item of p.itens) {
-          mapa.set(item.id, 0)
-        }
-      }
-    }
-    return mapa
-  })
+  const [itensQuantidades, setItensQuantidades] = useState<Map<string, number>>(() =>
+    inicializarItensQuantidadesTransferir(
+      montarItensComPedidoParaTransferir(pedidos, itens, todosPedidos),
+      itensSelecionadosIds,
+    ),
+  )
 
   // Compat: primeiro item selecionado (para preview/destinos que usam single-item)
   const primeiroItemId = useMemo(() => {
@@ -637,7 +640,7 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
   // com cenário split_pedido_existente. Filtra pela mesma tipo_operacao_pedido
   // do pedido de origem e remove o próprio pedido da lista.
   useEffect(() => {
-    if (passo !== 3 || cenario !== 'split_pedido_existente' || !pedido) return
+    if (passo !== 3 || cenario !== 'split_pedido_existente' || !pedido || !escopoHidratado) return
     const tipo = pedido.tipo_operacao
     if (!tipo) {
       setErroPedidosDestino(t('pedido.modal_transf.erro_carregar_pedidos'))
@@ -646,8 +649,12 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
     setCarregandoPedidosDestino(true)
     setErroPedidosDestino(null)
     const idsOrigem = new Set(pedidos.map(p => p.id))
-    pedidoApi.listar({ tipo_operacao: tipo, limit: '500' })
-      .then((res: { data: Pedido[]; total: number }) => {
+    pedidoVirtualApi.listar({
+      tipo_operacao: tipo,
+      limit: 500,
+      idsWorkspacesFiltro,
+    })
+      .then(res => {
         const lista = res.data ?? []
         setPedidosDestinoDisponiveis(lista.filter(p => !idsOrigem.has(p.id)))
       })
@@ -656,7 +663,7 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
         setErroPedidosDestino(err instanceof Error ? err.message : t('pedido.modal_transf.erro_carregar_pedidos'))
       })
       .finally(() => setCarregandoPedidosDestino(false))
-  }, [passo, cenario, pedido, pedidos, t])
+  }, [passo, cenario, pedido, pedidos, escopoHidratado, idsWorkspacesFiltro, t])
 
   // ── Handlers multi-item ─────────────────────────────────────────────────────
 
@@ -807,6 +814,8 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
     const itensArray = Array.from(itensQuantidades.entries())
     let ultimoResultado: TransferResultado | null = null
     let numeroPedidoCriado = numeroPedidoNovo.trim() || undefined
+    /** Id do pedido novo criado pelo 1º item — reutilizado por todos os demais. */
+    let idPedidoDestinoCriado: string | undefined
 
     try {
       for (let idx = 0; idx < itensArray.length; idx++) {
@@ -819,19 +828,21 @@ export function ModalTransferirPedido({ pedidos, itensSelecionadosIds, onFechar,
           pedido_id: pedidoDoItem.id,
           item_id: itemIdAtual,
           quantidade_origem: qty,
-          destinos: cenario === 'reducao_simples' ? [] : destinos.map(d => ({
-            ...d,
-            quantidade: qty,
-            // Após o primeiro item criar o pedido novo, os demais vão para o mesmo pedido
-            ...(idx > 0 && cenario === 'split_novo_pedido' && ultimoResultado?.pedidos_criados[0]
-              ? { tipo: 'existente' as const, pedido_id: ultimoResultado.pedidos_criados[0] }
-              : {}),
-          })),
+          destinos: montarDestinosConfirmarTransferir(
+            cenario,
+            destinos,
+            qty,
+            idx,
+            idPedidoDestinoCriado,
+          ),
           numero_pedido_novo: idx === 0 ? numeroPedidoCriado : undefined,
         }
 
         const res = await pedidoTransferirApi.confirmar(payload)
         ultimoResultado = res
+        if (cenario === 'split_novo_pedido' && res.pedidos_criados[0]) {
+          idPedidoDestinoCriado ??= res.pedidos_criados[0]
+        }
       }
 
       setResultado(ultimoResultado)

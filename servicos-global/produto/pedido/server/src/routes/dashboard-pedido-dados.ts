@@ -19,7 +19,7 @@
  *   model PedidoItem → db.pedidoItem  → campos: quantidade_inicial_pedido,
  *                                               quantidade_atual_pedido,
  *                                               quantidade_transferida_pedido,
- *                                               quantidade_pronta_pedido,
+ *                                               quantidade_pronta_item,
  *                                               valor_total_item
  *
  * Status reais: 'rascunho' | 'aberto' | 'transferencia' | 'consolidado' | 'cancelado'
@@ -114,7 +114,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.error('[DashboardData/kpis]', err)
-    res.status(500).json({ error: 'Erro ao agregar KPIs' })
+    if (!res.headersSent) res.status(500).json({ error: 'Erro ao agregar KPIs' })
   }
 })
 
@@ -142,7 +142,7 @@ dashboardDataRouter.get('/bundle', async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.error('[DashboardData/bundle]', err)
-    res.status(500).json({ error: 'Erro ao montar bundle do dashboard' })
+    if (!res.headersSent) res.status(500).json({ error: 'Erro ao montar bundle do dashboard' })
   }
 })
 
@@ -174,7 +174,7 @@ dashboardDataRouter.get('/tendencia', async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.error('[DashboardData/trend]', err)
-    res.status(500).json({ error: 'Erro ao calcular série temporal' })
+    if (!res.headersSent) res.status(500).json({ error: 'Erro ao calcular série temporal' })
   }
 })
 
@@ -215,7 +215,7 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
     res.json({ period, role, insights })
   } catch (err) {
     console.error('[DashboardData/insights]', err)
-    res.status(500).json({ error: 'Erro ao gerar insights' })
+    if (!res.headersSent) res.status(500).json({ error: 'Erro ao gerar insights' })
   }
 })
 
@@ -327,6 +327,6 @@ dashboardDataRouter.get('/distribuicao', async (req: Request, res: Response) => 
     })
   } catch (err) {
     console.error('[DashboardData/distribution]', err)
-    res.status(500).json({ error: 'Erro ao calcular distribuição' })
+    if (!res.headersSent) res.status(500).json({ error: 'Erro ao calcular distribuição' })
   }
 })

@@ -210,10 +210,14 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
 
     let opcoesMoeda: string[] = []
     let opcoesUnidade: string[] = []
+    let opcoesCoberturaCambial: string[] = []
+    let opcoesModalidadePagamento: string[] = []
     try {
-      const [resMoedas, resUnidades] = await Promise.all([
+      const [resMoedas, resUnidades, resCobertura, resModalidade] = await Promise.all([
         fetch(`${cadastrosBaseUrl}/api/v1/cadastros/moedas?apenas_ativas=true`, { headers: headersS2S }),
         fetch(`${cadastrosBaseUrl}/api/v1/cadastros/unidades?apenas_ativas=true`, { headers: headersS2S }),
+        fetch(`${cadastrosBaseUrl}/api/v1/cadastros/cambio-siscomex?tipo=cobertura_cambial&apenas_ativos=true`, { headers: headersS2S }),
+        fetch(`${cadastrosBaseUrl}/api/v1/cadastros/cambio-siscomex?tipo=modalidade_pagamento&apenas_ativos=true`, { headers: headersS2S }),
       ])
       if (resMoedas.ok) {
         const json = await resMoedas.json() as { itens: { codigo_moeda: string; nome_moeda: string }[] }
@@ -227,8 +231,20 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       } else {
         console.warn(`[templateHandler] Cadastros /unidades respondeu ${resUnidades.status} — dropdown de unidade omitido`)
       }
+      if (resCobertura.ok) {
+        const json = await resCobertura.json() as { itens: { codigo_cambio_siscomex: string; nome_cambio_siscomex: string }[] }
+        opcoesCoberturaCambial = json.itens.map(i => `${i.codigo_cambio_siscomex} — ${i.nome_cambio_siscomex}`)
+      } else {
+        console.warn(`[templateHandler] Cadastros /cambio-siscomex (cobertura) respondeu ${resCobertura.status} — dropdown omitido`)
+      }
+      if (resModalidade.ok) {
+        const json = await resModalidade.json() as { itens: { codigo_cambio_siscomex: string; nome_cambio_siscomex: string }[] }
+        opcoesModalidadePagamento = json.itens.map(i => `${i.codigo_cambio_siscomex} — ${i.nome_cambio_siscomex}`)
+      } else {
+        console.warn(`[templateHandler] Cadastros /cambio-siscomex (modalidade) respondeu ${resModalidade.status} — dropdown omitido`)
+      }
     } catch (err) {
-      console.warn('[templateHandler] Cadastros offline — template gerado sem dropdowns de moeda/unidade', err instanceof Error ? err.message : err)
+      console.warn('[templateHandler] Cadastros offline — template gerado sem dropdowns dinâmicos', err instanceof Error ? err.message : err)
     }
 
     // ─── P7.1 — Reordenacao GLOBAL por prioridade + secao OPE no final ─────────
@@ -425,11 +441,15 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
     // (Excel limita formulae inline a ~255 chars; moedas ISO 4217 excedem).
     const temMoedas   = opcoesMoeda.length > 0
     const temUnidades = opcoesUnidade.length > 0
-    if (temMoedas || temUnidades) {
+    const temCobertura = opcoesCoberturaCambial.length > 0
+    const temModalidade = opcoesModalidadePagamento.length > 0
+    if (temMoedas || temUnidades || temCobertura || temModalidade) {
       const wsListas = wb.addWorksheet('_Listas', { state: 'veryHidden' })
       let colListaAtual = 1
       let rangeMoeda   = ''
       let rangeUnidade = ''
+      let rangeCobertura = ''
+      let rangeModalidade = ''
       if (temMoedas) {
         opcoesMoeda.forEach((cod, i) => { wsListas.getCell(i + 1, colListaAtual).value = cod })
         const colLetra = wsListas.getColumn(colListaAtual).letter
@@ -440,13 +460,37 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
         opcoesUnidade.forEach((cod, i) => { wsListas.getCell(i + 1, colListaAtual).value = cod })
         const colLetra = wsListas.getColumn(colListaAtual).letter
         rangeUnidade = `'_Listas'!$${colLetra}$1:$${colLetra}$${opcoesUnidade.length}`
+        colListaAtual++
+      }
+      if (temCobertura) {
+        opcoesCoberturaCambial.forEach((cod, i) => { wsListas.getCell(i + 1, colListaAtual).value = cod })
+        const colLetra = wsListas.getColumn(colListaAtual).letter
+        rangeCobertura = `'_Listas'!$${colLetra}$1:$${colLetra}$${opcoesCoberturaCambial.length}`
+        colListaAtual++
+      }
+      if (temModalidade) {
+        opcoesModalidadePagamento.forEach((cod, i) => { wsListas.getCell(i + 1, colListaAtual).value = cod })
+        const colLetra = wsListas.getColumn(colListaAtual).letter
+        rangeModalidade = `'_Listas'!$${colLetra}$1:$${colLetra}$${opcoesModalidadePagamento.length}`
       }
       camposOrdenados.forEach((c, idx) => {
         if (!c.dropdownDinamico) return
-        const ref = c.dropdownDinamico === 'moeda' ? rangeMoeda : rangeUnidade
+        const refMap: Record<string, string> = {
+          moeda: rangeMoeda,
+          unidade: rangeUnidade,
+          cambio_siscomex_cobertura: rangeCobertura,
+          cambio_siscomex_modalidade: rangeModalidade,
+        }
+        const labelMap: Record<string, string> = {
+          moeda: 'moeda',
+          unidade: 'unidade',
+          cambio_siscomex_cobertura: 'cobertura cambial',
+          cambio_siscomex_modalidade: 'modalidade de pagamento',
+        }
+        const ref = refMap[c.dropdownDinamico]
         if (!ref) return
         const colLetter = ws.getColumn(idx + 1).letter
-        const label     = c.dropdownDinamico === 'moeda' ? 'moeda' : 'unidade'
+        const label = labelMap[c.dropdownDinamico] ?? c.dropdownDinamico
         for (let row = PRIMEIRA_LINHA_DADOS_TEMPLATE; row <= ULTIMA_LINHA_DADOS_TEMPLATE; row++) {
           ws.getCell(`${colLetter}${row}`).dataValidation = {
             type:             'list',
@@ -506,7 +550,7 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       'quantidade_inicial_item',
       'quantidade_atual_item',
       'quantidade_transferida_item',
-      'quantidade_pronta_total_item',
+      'quantidade_pronta_item',
       'quantidade_cancelada_item',
       'valor_por_unidade_item',
       'nome_exportador_item',

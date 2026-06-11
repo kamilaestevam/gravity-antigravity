@@ -2,7 +2,6 @@ import React, { Suspense } from 'react'
 import './shell.css'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
-import { ContextualSidebar } from './ContextualSidebar'
 import { ProductSidebar } from './ProductSidebar'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -13,12 +12,14 @@ import { useShellStore } from './store'
 import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 import { useMeSync } from './hooks/useMeSync'
 import { BannerOrganizacaoOverride } from './BannerOrganizacaoOverride'
+import { isRotaDetalheProcesso } from './is-rota-detalhe-processo'
 
 interface LayoutProps {
   children: React.ReactNode
   navItems?: { to: string; label: string; icon: React.ReactNode }[]
   moduleName?: string
   moduleColor?: string
+  moduleIcon?: React.ReactNode
   tenantName?: string
   tenantPlan?: string
 }
@@ -38,6 +39,7 @@ export function Layout({
   navItems,
   moduleName,
   moduleColor,
+  moduleIcon,
   tenantName,
   tenantPlan
 }: LayoutProps) {
@@ -46,8 +48,14 @@ export function Layout({
   const location = useLocation()
   
   // Detecção de contexto de navegação
-  const isProcessoRoute = location.pathname.startsWith('/processo/')
   const isProdutoRoute  = location.pathname.startsWith('/produto/')
+  // Rotas workspace-level de Processo (/acesso-processos/lista, /kanban) usam
+  // o shell padrao — sidebar global expandido — e escondem a marca Gravity
+  // do header (que sobrepoe o CabecalhoGlobal). Detalhe recolhe o trilho via ProcessoLayout.
+  const isAcessoProcessosRoute = location.pathname.startsWith('/acesso-processos')
+  const isProcessoWorkspaceLista =
+    /^\/(?:acesso-processos|processo)\/(?:lista|kanban)\/?$/.test(location.pathname)
+  const isProcessoDetalheRoute = isRotaDetalheProcesso(location.pathname)
 
   // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
   useMeSync()
@@ -117,23 +125,23 @@ export function Layout({
   const overrideAtivo = organizacaoOverride !== null
   const classeOverride = overrideAtivo ? ' layout--override-ativo' : ''
 
-  // Processo: trilho global + menu do processo viram uma superficie continua
-  // (sem gap do .shell-main, sem costura entre trilho e p2-sidebar).
-  const classeProcesso = isProcessoRoute ? ' layout--processo' : ''
+  // Detalhe: trilho global recolhido (ProcessoLayout) + p2-sidebar colados.
+  const classeProcesso = isProcessoDetalheRoute ? ' layout--processo' : ''
+  // Esconde marca Gravity no header para lista/kanban workspace e detalhe do processo.
+  const classeOcultaMarca =
+    isAcessoProcessosRoute || isProcessoWorkspaceLista || isProcessoDetalheRoute
+      ? ' layout--oculta-marca-header'
+      : ''
 
   return (
-    <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}${classeOverride}${classeProcesso}`}>
+    <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}${classeOverride}${classeProcesso}${classeOcultaMarca}`}>
       {overrideAtivo && <BannerOrganizacaoOverride />}
-      {isProcessoRoute ? (
-        <ContextualSidebar
-          tenantName={tenantName ?? nomeWsAtivo}
-          tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}
-        />
-      ) : isProdutoRoute ? (
+      {isProdutoRoute ? (
         <ProductSidebar
           navItems={navItems}
           moduleName={moduleName}
           moduleColor={moduleColor}
+          moduleIcon={moduleIcon}
           tenantName={tenantName ?? nomeWsAtivo}
           tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}
         />
@@ -142,6 +150,7 @@ export function Layout({
           navItems={navItems}
           moduleName={moduleName}
           moduleColor={moduleColor}
+          moduleIcon={moduleIcon}
           tenantName={tenantName ?? nomeWsAtivo}
           tenantPlan={tenantPlan ?? currentUser.nomeOrganizacao ?? ''}
         />

@@ -11,6 +11,9 @@ COPY . .
 # Install all dependencies including devDependencies (needed for build tools + tsx)
 RUN npm ci --include=dev
 
+# EMT no Admin dispara Playwright headless dentro do container (npx tsx testes/testes-em-tela/...)
+RUN npx playwright install --with-deps chromium
+
 # Build workspace packages required by sidecars (symlink resolves to packages/)
 # rm -rf dist: bust Docker layer cache — stale dist caused CUID v1-only regex in prod
 RUN cd packages/resolver-organizacao && rm -rf dist && npx tsup
@@ -20,6 +23,8 @@ RUN npx prisma generate --schema=configurador/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/cadastros/prisma/schema.prisma
 RUN npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
+RUN node servicos-global/produto/processo/server/scripts/compose-schema.js \
+    && npx prisma generate --schema=servicos-global/produto/processo/prisma/schema.prisma
 RUN node servicos-global/produto/bid-frete-internacional/prisma/compose-schema.js \
     && npx prisma generate --schema=servicos-global/produto/bid-frete-internacional/prisma/schema.prisma
 

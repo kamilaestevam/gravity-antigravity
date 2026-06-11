@@ -33,7 +33,7 @@ import {
   Handshake,
 } from '@phosphor-icons/react'
 import { ehSlugProdutoBidFrete } from '../../shared/index.js'
-import { iconeOficialBidFreteInternacional } from '../data/product-meta'
+import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { HubBotao } from '../components/HubBotao'
@@ -46,6 +46,7 @@ import { produtosWorkspaceApi } from '../services/api-client'
 import { temBypassPermissao } from '../../shared/index.js'
 import {
   expandirCardsProdutosCore,
+  ehSlugInfraProcessoCore,
   carregarPermissoesUsuarioWorkspace,
   type VarianteCardProdutoCore,
 } from '../shared/entrada-produtos-core'
@@ -179,20 +180,20 @@ export function Core() {
       label: t('shell.menu.meu_espaco'),
       icon: <House weight="duotone" size={18} />,
       children: [
-        { to: '/core', label: t('shell.menu.dashboard'), icon: <House weight="duotone" size={18} /> },
+        { to: '/core', label: t('hub.seus_processos', 'Seus processos'), icon: <Folders weight="duotone" size={18} /> },
         { to: '/core/atividades', label: t('shell.menu.minhas_atividades'), icon: <ListChecks weight="duotone" size={18} /> },
         { to: '/core/email', label: t('shell.menu.email'), icon: <Envelope weight="duotone" size={18} /> },
         { to: '/core/whatsapp', label: t('shell.menu.whatsapp'), icon: <WhatsappLogo weight="duotone" size={18} /> },
       ],
     })
 
-    const navMeusProdutos = produtosAtivos.filter(p => p.variant !== 'bid_fornecedor')
+    const navMeusProdutos = produtosAtivos.filter(p => p.variant !== 'bid_fornecedor' && !ehSlugInfraProcessoCore(p.slug))
     const navComoFornecedor = produtosAtivos.filter(p => p.variant === 'bid_fornecedor')
 
     if (produtosAtivos.length > 0) {
       if (navMeusProdutos.length > 0) {
         items.push({
-          label: t('shell.menu.produtos_gravity'),
+          label: t('hub.produtos_workspace', 'Produtos do workspace'),
           sectionDivider: true,
           icon: <ShoppingBagOpen weight="duotone" size={18} />,
         })
@@ -200,9 +201,7 @@ export function Core() {
           items.push({
             to: prod.rota,
             label: prod.nome,
-            icon: ehSlugProdutoBidFrete(prod.slug)
-              ? iconeOficialBidFreteInternacional(18)
-              : <Package weight="duotone" size={18} />,
+            icon: iconeOficialProdutoGravity(prod.slug, 18),
           })
         }
       }
@@ -217,7 +216,7 @@ export function Core() {
           items.push({
             to: prod.rota,
             label: prod.nome,
-            icon: iconeOficialBidFreteInternacional(18),
+            icon: iconeOficialProdutoGravity(prod.slug, 18),
           })
         }
       }
@@ -236,13 +235,6 @@ export function Core() {
 
     // Divisor
     items.push({ label: '', sectionDivider: true, icon: null })
-
-    // Processo
-    items.push({
-      to: '/processo',
-      label: t('shell.processo_prefixo'),
-      icon: <Folders weight="duotone" size={18} />,
-    })
 
     // Notificações
     items.push({

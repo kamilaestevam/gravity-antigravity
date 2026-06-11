@@ -43,6 +43,8 @@ export const unidadeSchema = z.object({
   nome_unidade: z.string().min(1, 'nome_unidade obrigatório'),
   tipo_unidade: tipoUnidadeEnum,
   ativo_unidade: z.boolean(),
+  /** Multiplicador qty na unidade → KG (só peso). Null em demais categorias. */
+  fator_para_kg_unidade: z.coerce.number().nullable().optional(),
 })
 
 export const criarUnidadeSchema = unidadeSchema.extend({

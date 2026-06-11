@@ -1,6 +1,6 @@
 # Sistema de Testes — Arquitetura Técnica
 
-> Documentação completa do **sistema de testes automatizado do Gravity**. Cobre os 6 tipos de teste, os 16 escopos, os 3 ambientes, o cron diário, a integração Gemini, a UI Admin/Testes, e os endpoints de backend. **Esta é a fonte de verdade técnica.** Para regras e convenções, ver `documentos-tecnicos/testes/regras/`.
+> Documentação completa do **sistema de testes automatizado do Gravity**. Cobre os 6 tipos de teste, os **17 escopos**, os 3 ambientes, o cron diário, a integração Gemini, a UI Admin/Testes, e os endpoints de backend. **Esta é a fonte de verdade técnica.** Para regras e convenções, ver `documentos-tecnicos/testes/regras/`.
 
 ---
 
@@ -10,17 +10,18 @@
 ┌────────────────────────────────────────────────────────────────────┐
 │                      ADMIN / TESTES (UI)                          │
 │  LogTestes.tsx  │  ModalExecutarTestes  │  ModalAgendamentoTestes │
+│  Abas: Em Execução · Executados · Plano de Teste        │
 └─────────────────────────────┬──────────────────────────────────────┘
                               │ HTTP
                               ▼
 ┌────────────────────────────────────────────────────────────────────┐
 │              CONFIGURADOR SERVER (porta 8005)                     │
-│  GET  /admin/test-plans              ← lê test-plans-registry.json │
-│  POST /admin/test-plans/generate     ← agente-plano-teste          │
-│  POST /admin/run-tests               ← spawn Playwright            │
-│  GET  /admin/test-logs               ← lê data/test-logs/*.json    │
-│  POST /admin/test-logs/:id/reanalyze ← Gemini analyzer             │
-│  POST /admin/test-schedule           ← persiste agendamento        │
+│  GET  /admin/planos-teste            ← registry + casos           │
+│  POST /admin/testes/disparar         ← spawn E2E ou EMT (N runs)  │
+│  GET  /admin/testes/status           ← execucoes_teste[] ativas   │
+│  GET  /admin/testes                  ← histórico (model Teste)    │
+│  POST /admin/testes/:id/reanalisar   ← Gemini analyzer            │
+│  GET/POST /admin/agendamentos-teste  ← cron interno               │
 └─────────────────────────────┬──────────────────────────────────────┘
                               │
        ┌──────────────────────┼──────────────────────┐
@@ -35,9 +36,11 @@
        │
        ▼
 ┌─────────────────────────────────────────────┐
-│ data/test-logs/AAAA-MM-DD.json (fallback)  │
-│ test-results/screenshots, traces            │
-│ playwright-report/index.html                │
+│ data/test-logs/AAAA-MM-DD.json (fallback legado)                 │
+│ data/test-logs/runs/run-<id_execucao_teste>.json (markers ativos)│
+│ data/test-logs/emt-resultado-teste-<id>.json (saída runner EMT)  │
+│ test-results/screenshots, traces                                  │
+│ playwright-report/index.html                                      │
 └─────────────────────────────────────────────┘
 
        ▲
@@ -64,7 +67,7 @@
 
 ---
 
-## Os 16 Escopos
+## Os 17 Escopos
 
 | Sigla | Escopo | Onde mora no código |
 |---|---|---|
@@ -84,6 +87,7 @@
 | `SIMCUS` | Produto SimulaCusto | `produto/simula-custo/` |
 | `FINCOM` | Produto Financeiro Comex | `produto/financeiro-comex/` |
 | `PROCSO` | Produto Processo | `produto/processo/` |
+| `MBOTO` | Transversal — seletor universal de visualizações | `testes/*/menu-botoes/seletor-universal-visoes/` (ver [seletor universal](../../arquitetura/seletor-universal-visualizacoes.md)) |
 
 ---
 
@@ -105,6 +109,7 @@ ESCOPO → SUBLOCAL → TELA → PLANO DE TESTE
 | HUB | Acessar Workspace, Dashboard Hub |
 | CORE | Botões, Campos, Modais, Tabelas, Layout, Mensageria, Tooltip |
 | PEDIDO | Dashboard, Lista, Configurador, Importação, Edição em Massa |
+| MBOTO | `menu-botoes/seletor-universal-visoes` — SLA 1s troca de aba (Pedido, BID, Processo) |
 | (cada produto) | Dashboard, Lista, Configurador, ... |
 
 ---
@@ -170,7 +175,7 @@ TST-{TIPO}-{ESCOPO}-{NNNNNN}
 - ID **não muda** após criação — refactors preservam o ID
 
 ### Exemplos válidos
-- `TST-E2E-CONFIG-000001` — primeiro E2E do Configurador
+- `TST-E2E-CONFIG-000013` — primeiro E2E do Configurador
 - `TST-UNI-CORE-000042` — unitário 42 do CORE
 - `TST-CRO-PEDIDO-000001` — primeiro cross-tenant do Pedido
 
@@ -196,29 +201,49 @@ Plano vira entrada em testes/test-plans-registry.json
 ```
 
 ### 2. Execução (manual ou cron)
+
 ```
-Trigger: humano clica "Rodar" OU cron diário dispara
+Trigger: humano clica "Rodar" OU cron dispara (gatilho_teste = cron)
   ↓
-POST /admin/run-tests com lista de plano IDs
+POST /admin/testes/disparar { planos: [...], ambiente? }
   ↓
-Backend resolve IDs → spec files via registry
+validarNovaExecucaoTeste:
+  - limite global (LIMITE_EXECUCOES_SIMULTANEAS_TESTE, default 3)
+  - mesmo plano não pode rodar 2x (PLANO_EM_EXECUCAO)
   ↓
-spawn('npx', ['playwright', 'test', ...specs, '--reporter=json'])
+Grava marker em data/test-logs/runs/run-<id_execucao_teste>.json
   ↓
-Playwright executa specs, tira screenshot por teste
+Runner E2E: spawn playwright → stdout em playwright-run-<id>.json
+Runner EMT: spawn detached emt-background-runner.ts
   ↓
-Saída JSON parseada por playwright-parser.ts → entries
+Ao concluir: appendTestLogEntries → model Teste (+ fallback JSON diário)
   ↓
-Para cada entry REPROVADO/ERRO:
-  ↓
-  analyzeTestFailure() → Gemini Flash → AiAnalysis
-  ↓
-  Validação: codigoDiff existe literalmente nos arquivos? → ok ou rebaixa
-  ↓
-Persiste tudo em data/test-logs/AAAA-MM-DD.json
-  ↓
-Frontend faz polling de /admin/test-logs → atualiza tabela
+Remove marker do run; frontend polling em GET /admin/testes/status
 ```
+
+**Execuções simultâneas (2026-06):** vários runs podem estar ativos ao mesmo tempo (até o limite). A UI **Admin › Testes** separa **Em Execução** (markers ativos), **Executados** (histórico) e **Plano de Teste** (catálogo de planos do registry). Cada run tem `id_execucao_teste` único e `gatilho_teste` (`manual` | `cron` | `ci`).
+
+### 2b. Execução EMT (teste em tela)
+
+```
+POST /admin/testes/disparar { planos: [TST-EMT-...], ambiente }
+  ↓
+Marker + emt-manifest-<id_execucao_teste>.json (planos + env)
+  ↓
+Runner filho detached (EMT_RUN_ID = id_execucao_teste)
+  ↓
+npx tsx run-*.ts → grava em resultado-teste/<runId>/*.png + RESULTADO.txt
+  ↓
+Ao terminar: emt-resultado-teste-<id_execucao_teste>.json
+  ↓
+coletarArtefatosEmt(script, runId) → emt_pasta + emt_prints só dessa subpasta
+  ↓
+Persiste em model Teste / data/test-logs (campo emt_pasta obrigatório)
+```
+
+**Organização:** `documentos-tecnicos/testes/regras/07-organizacao-plano-resultado-por-escopo.md`  
+**Anti-padrão:** pasta `YYYY-MM-DD-*` compartilhada na raiz do escopo — mistura prints entre runs.  
+**Legado:** `_current-run.json` e `emt-result-<id>.json` são migrados/lidos automaticamente se existirem.
 
 ### 3. Triagem (humano)
 ```
@@ -244,16 +269,32 @@ Humano decide:
 
 ## Backend — Endpoints
 
-### Já existentes (não tocar)
+### Admin › Testes (implementados — prefixo `/api/v1/admin`)
+
 | Rota | Função |
 |---|---|
-| `GET /admin/test-plans` | Lista planos do registry |
-| `POST /admin/run-tests` | Dispara Playwright em background |
-| `GET /admin/run-tests/status` | `{ running: bool }` |
-| `GET /admin/test-logs` | Lista logs do dia (até 7 dias) |
-| `POST /admin/test-logs` | Ingestão externa (CI envia resultados) |
+| `GET /admin/testes` | Lista histórico (model `Teste` + fallback JSON 7 dias) |
+| `POST /admin/testes/disparar` | Dispara E2E ou EMT em background; retorna `{ started, id_execucao_teste }` |
+| `GET /admin/testes/status` | `{ execucoes_teste[], limite_execucoes_simultaneas_teste, quantidade_execucoes_ativas_teste }` |
+| `POST /admin/testes/:id_teste/reanalisar` | Re-análise Gemini |
+| `POST /admin/testes/:id_teste/aplicar-correcao` | Aplica diff sugerido |
+| `POST /admin/testes/:id_teste/rejeitar` | Marca análise como ruim |
+| `GET /admin/planos-teste` | Lista planos do registry |
+| `GET/POST/PATCH/DELETE /admin/agendamentos-teste` | CRUD agendamento cron |
 
-### A criar (ondas do Dream Team)
+**Contrato `GET /admin/testes/status` (Zod bilateral no front):** cada item em `execucoes_teste` expõe `id_execucao_teste`, `data_inicio_execucao_teste`, `runner_execucao_teste` (`EMT`|`E2E`), `ambiente_teste`, `gatilho_teste`, `lista_planos_execucao_teste`, `lista_modulos_execucao_teste`.
+
+**Env:** `LIMITE_EXECUCOES_SIMULTANEAS_TESTE` (default `3`, máx. `20`).
+
+### Legado / referência histórica (não usar em código novo)
+
+| Rota antiga | Substituída por |
+|---|---|
+| `POST /admin/run-tests` | `POST /admin/testes/disparar` |
+| `GET /admin/run-tests/status` `{ running: bool }` | `GET /admin/testes/status` (array) |
+| `GET /admin/test-logs` | `GET /admin/testes` |
+
+### A criar ou expandir (ondas do Dream Team)
 | Rota | Função | Onda |
 |---|---|---|
 | `POST /admin/test-plans/generate` | Chama agente-plano-teste | 2 |
@@ -323,7 +364,7 @@ model TestSchedule {
 ### `TestPlan`
 ```prisma
 model TestPlan {
-  id                  String   @id            // TST-E2E-CONFIG-000001
+  id                  String   @id            // TST-E2E-CONFIG-000013
   tenant_id           String                   // sempre "platform"
   versao              String
   tipo                String
@@ -374,9 +415,9 @@ schedule = "0 3 * * *"   # 03:00 UTC todo dia
 ```
 
 O container `test-runner-cron`:
-1. Lê `TestSchedule` ativo via API do Configurador
-2. Se há agendamento ativo pra hoje, dispara `POST /admin/run-tests` com os IDs filtrados
-3. Espera completar (polling em `/admin/run-tests/status`)
+1. Lê agendamento ativo via `GET /admin/agendamentos-teste`
+2. Se há schedule para o minuto atual, dispara `POST /admin/testes/disparar` com os planos filtrados
+3. Espera completar (polling em `GET /admin/testes/status` até `quantidade_execucoes_ativas_teste === 0`)
 4. Encerra (Railway cobra só o tempo de execução)
 
 ### Setup alternativo: GitHub Actions
@@ -394,9 +435,9 @@ jobs:
       - run: npm ci
       - run: npx playwright install
       - run: |
-          curl -X POST $CONFIGURADOR_URL/admin/run-tests \
-            -H "x-internal-key: $INTERNAL_KEY" \
-            -d '{"escopos":["CONFIG","ADMIN","PEDIDO"]}'
+          curl -X POST $CONFIGURADOR_URL/api/v1/admin/testes/disparar \
+            -H "Authorization: Bearer $TOKEN" \
+            -d '{"planos":["TST-E2E-CONFIG-000001"],"ambiente":"Staging"}'
 ```
 
 ---
@@ -437,13 +478,51 @@ GEMINI_PRO_FALLBACK=true      # escala pro Pro se Flash der baixa confiança
 
 ---
 
-## Frontend — Mudanças no LogTestes
+## Camada `testes/infra/admin/` — lógica compartilhada da UI Admin/Testes
 
-### Já existe
-- Tabela com cards (Aprovados/Reprovados/Erros)
-- Botão "Rodar Todos os Testes"
-- Botão "Agendamento ativo"
-- Expansão de linha com erro bruto + análise heurística
+O painel **Admin › Testes** vive no Configurador (`servicos-global/configurador/src/pages/admin/`), mas a **lógica pura** que não depende de React ou HTTP fica em `testes/infra/admin/`.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  UI (Configurador)                                          │
+│  ModalTestesExecutar.tsx · LogTestes.tsx · modais de plano  │
+│  → fetch APIs · estado React · i18n · @nucleo/*             │
+└────────────────────────────┬────────────────────────────────┘
+                             │ import @testes/infra/admin/*
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│  DOMÍNIO (testes/infra/admin/)                              │
+│  Contratos Zod · localStorage · rótulos · deduplicação      │
+└────────────────────────────┬────────────────────────────────┘
+                             │ Vitest
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│  testes/testes-unitarios/configurador/*.test.ts             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Módulo | Arquivo | Responsabilidade |
+|--------|---------|------------------|
+| Favoritos de execução manual | `testes/infra/admin/testes-favoritos-admin.ts` | Persiste produto, ambiente, tipos e planos por `id_usuario`; snapshot `planos_resumo` para exibir título/descrição completos no card |
+
+Detalhes operacionais: [`testes/infra/admin/README.md`](../../../testes/infra/admin/README.md).
+
+**Regra:** novo helper de Admin/Testes sem JSX → `testes/infra/admin/` + teste unitário + doc; não criar `utils/` solto no Configurador.
+
+---
+
+## Frontend — Admin › Testes (`LogTestes.tsx`)
+
+### Implementado (2026-06)
+- Cards de passos (7d / 30d) e erros
+- Abas **Em Execução**, **Executados** e **Plano de Teste**
+  - Em Execução / Executados: colunas DATA/HORA, TIPO, LOCAL, O QUE FOI TESTADO, PASSOS, RESULTADO, DURAÇÃO
+  - Plano de Teste: lista todo o registry (`GET /admin/planos-teste`) com colunas ID, ESCOPO, TELA, DATA, PASSOS, COBERTURA, STATUS; clique na linha abre `ModalDetalhePlanoTeste`
+- Coluna de data escalável: as **3 datas mais recentes** aparecem por extenso e as demais ficam compactas (só a data) com ícone de visualizar + tooltip com data/hora completa — vale para Executados (`dataHora`) e Plano de Teste (`criadoEm`)
+- Botão **Rodar** abre modal mesmo com runs ativos (bloqueia só no limite global)
+- Polling `GET /admin/testes/status` enquanto há execuções ativas; toast ao concluir
+- Expansão de linha EMT (prints, RESULTADO.txt) + análise IA Gemini
+- Modal agendamento + favoritos de planos (`testes/infra/admin/`)
 
 ### A adicionar (Ondas 3-4)
 - **Badge de tipo** (UNI/CON/FUN/CRO/E2E/PEN) com cor distinta
@@ -457,7 +536,7 @@ GEMINI_PRO_FALLBACK=true      # escala pro Pro se Flash der baixa confiança
   - Botão "Reanalizar"
   - Botão "Rejeitar análise"
   - Commit suspeito (se REGRESSAO_RECENTE)
-- **Tela "Planos de Teste"**: listagem dos planos, filtros, botão "Gerar plano para tela X"
+- **Aba "Plano de Teste"**: filtros e botão "Gerar plano para tela X" (a listagem básica já está na aba)
 - **Tela "Métricas Gemini"**: custo do mês, cache hit rate, distribuição de categoria/confiança
 
 ---

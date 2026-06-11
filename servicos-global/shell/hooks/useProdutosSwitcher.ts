@@ -7,43 +7,41 @@
  *
  * REGRA 06 — resposta validada com Zod antes de uso.
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react'
-import { z } from 'zod'
-import { cloneElement } from 'react'
+import { cloneElement, createElement } from 'react'
+import { Folders } from '@phosphor-icons/react'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { useShellStore } from '../store'
 import {
-  resolverRotaProdutoGravity,
   resolverSlugMetaProduto,
   slugsProdutoEquivalentes,
 } from '../utils/resolver-rota-produto'
+import { produtosWorkspaceResponseSchema } from '../schemas/produtos-workspace-response.schema'
+import {
+  SLUG_ATALHO_PROCESSOS,
+  resolverNavegacaoTrocarProduto,
+} from '../utils/navegacao-trocar-produto'
 import type { ProductSwitcherItem } from '@nucleo/menu-lateral-global'
+
+export { produtosWorkspaceResponseSchema } from '../schemas/produtos-workspace-response.schema'
 
 const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
 
 /** Dispare após alterar assinatura/habilitação de produto no Configurador. */
 export const EVENTO_PRODUTOS_WORKSPACE_ATUALIZADOS = 'gravity:produtos-workspace-atualizados'
 
-const produtoWorkspaceCatalogoSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  slug: z.string(),
-  description: z.string(),
-  status: z.string(),
-}).nullable()
+/** Ordem fixa do seletor de produtos (slug normalizado por resolverSlugMetaProduto). */
+const ORDEM_PRODUTOS_SWITCHER = ['pedido', 'bid-frete', 'bid-cambio']
 
-const produtoWorkspaceItemSchema = z.object({
-  id: z.string(),
-  product_key: z.string(),
-  is_active: z.boolean(),
-  activated_at: z.union([z.string(), z.date()]),
-  catalog: produtoWorkspaceCatalogoSchema,
-})
-
-const produtosWorkspaceResponseSchema = z.object({
-  products: z.array(produtoWorkspaceItemSchema),
-})
+function ordenarProdutosSwitcher(a: ProductSwitcherItem, b: ProductSwitcherItem): number {
+  const ia = ORDEM_PRODUTOS_SWITCHER.indexOf(resolverSlugMetaProduto(a.slug))
+  const ib = ORDEM_PRODUTOS_SWITCHER.indexOf(resolverSlugMetaProduto(b.slug))
+  const pa = ia === -1 ? Number.MAX_SAFE_INTEGER : ia
+  const pb = ib === -1 ? Number.MAX_SAFE_INTEGER : ib
+  if (pa !== pb) return pa - pb
+  return a.name.localeCompare(b.name, 'pt-BR')
+}
 
 function montarItemProduto(slug: string, nome?: string): ProductSwitcherItem {
   const meta = getProdutoMeta(resolverSlugMetaProduto(slug))
@@ -67,13 +65,60 @@ function garantirProdutoAtualNaLista(
   return [montarItemProduto(produtoAtualSlug, nomeProdutoAtual), ...itens]
 }
 
-export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?: string) {
+/**
+ * Atalho "Processos" — não é um produto, é uma visão transversal de todos eles.
+ * Ícone agregador (Folders, igual ao "Ver todos os processos" do Hub) e kind 'acao'
+ * para o seletor renderizar separado, com seta de navegação em vez de check.
+ */
+function montarAtalhoProcessos(): ProductSwitcherItem {
+  const meta = getProdutoMeta(SLUG_ATALHO_PROCESSOS)
+  return {
+    slug: SLUG_ATALHO_PROCESSOS,
+    name: 'Processos',
+    color: meta.color,
+    icon: createElement(Folders, { weight: 'duotone', size: 22 }),
+    kind: 'acao',
+    sublabel: 'Visão unificada dos Produtos Gravity',
+  }
+}
+
+/** Adiciona o atalho "Processos" sempre por último (não é um produto, é um link para o Hub). */
+function adicionarAtalhoProcessos(itens: ProductSwitcherItem[]): ProductSwitcherItem[] {
+  const semProcessos = itens.filter(p => p.slug !== SLUG_ATALHO_PROCESSOS)
+  return [...semProcessos, montarAtalhoProcessos()]
+}
+
+/** Lista mínima síncrona — evita sumir o chevron do seletor enquanto a API responde. */
+export function montarListaProdutosSwitcherInicial(
+  produtoAtualSlug: string,
+  nomeProdutoAtual?: string,
+): ProductSwitcherItem[] {
+  return adicionarAtalhoProcessos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual))
+}
+
+export interface UseProdutosSwitcherOptions {
+  /** Quando false, não busca API nem expõe seletor (ex.: Sidebar fora de /acesso-processos). */
+  enabled?: boolean
+}
+
+export function useProdutosSwitcher(
+  produtoAtualSlug: string,
+  nomeProdutoAtual?: string,
+  options?: UseProdutosSwitcherOptions,
+) {
+  const enabled = options?.enabled ?? true
   const { getToken } = useAuth()
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const meStatus = useShellStore(s => s.meStatus)
 
-  const [produtos, setProdutos] = useState<ProductSwitcherItem[]>([])
-  const [carregando, setCarregando] = useState(true)
+  const [produtos, setProdutos] = useState<ProductSwitcherItem[]>(() =>
+    enabled
+      ? montarListaProdutosSwitcherInicial(produtoAtualSlug, nomeProdutoAtual)
+      : [],
+  )
+  const [carregando, setCarregando] = useState(enabled)
+  const produtosRef = useRef(produtos)
+  produtosRef.current = produtos
 
   const idWorkspace =
     idWorkspaceAtivo ??
@@ -82,18 +127,23 @@ export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?:
       : null)
 
   const carregar = useCallback(async () => {
-    if (meStatus !== 'success' || !idWorkspace) {
+    if (!enabled) {
       setCarregando(false)
-      setProdutos([])
       return
     }
 
-    setCarregando(true)
+    if (meStatus !== 'success' || !idWorkspace) {
+      setCarregando(false)
+      return
+    }
+
+    const primeiraCarga = produtosRef.current.length === 0
+    if (primeiraCarga) setCarregando(true)
     try {
       const token = await getToken()
       if (!token) {
         console.warn('[useProdutosSwitcher] JWT ausente — não foi possível listar produtos')
-        setProdutos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual))
+        setProdutos(adicionarAtalhoProcessos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual)))
         return
       }
 
@@ -105,7 +155,7 @@ export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?:
 
       if (!res.ok) {
         console.warn('[useProdutosSwitcher] API retornou', res.status)
-        setProdutos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual))
+        setProdutos(adicionarAtalhoProcessos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual)))
         return
       }
 
@@ -115,24 +165,25 @@ export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?:
       const itens: ProductSwitcherItem[] = parsed.products
         .filter(p => p.is_active)
         .map(p => montarItemProduto(p.product_key, p.catalog?.name ?? p.product_key))
-        .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+        .sort(ordenarProdutosSwitcher)
 
-      setProdutos(garantirProdutoAtualNaLista(itens, produtoAtualSlug, nomeProdutoAtual))
+      setProdutos(adicionarAtalhoProcessos(garantirProdutoAtualNaLista(itens, produtoAtualSlug, nomeProdutoAtual)))
     } catch (err) {
       console.warn('[useProdutosSwitcher] Falha ao carregar produtos acessíveis:', err)
-      setProdutos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual))
+      setProdutos(adicionarAtalhoProcessos(garantirProdutoAtualNaLista([], produtoAtualSlug, nomeProdutoAtual)))
     } finally {
       setCarregando(false)
     }
-  }, [getToken, idWorkspace, meStatus, produtoAtualSlug, nomeProdutoAtual])
+  }, [enabled, getToken, idWorkspace, meStatus, produtoAtualSlug, nomeProdutoAtual])
 
   useEffect(() => {
+    if (!enabled) return
     void carregar()
-  }, [carregar])
+  }, [carregar, enabled])
 
   // Recarrega ao voltar à aba (ex.: suspendeu produto no Configurador em outra aba).
   useEffect(() => {
-    if (meStatus !== 'success' || !idWorkspace) return
+    if (!enabled || meStatus !== 'success' || !idWorkspace) return
 
     const aoFocar = () => { void carregar() }
     const aoVisibilidade = () => {
@@ -148,18 +199,20 @@ export function useProdutosSwitcher(produtoAtualSlug: string, nomeProdutoAtual?:
       document.removeEventListener('visibilitychange', aoVisibilidade)
       window.removeEventListener(EVENTO_PRODUTOS_WORKSPACE_ATUALIZADOS, aoFocar)
     }
-  }, [carregar, meStatus, idWorkspace])
+  }, [carregar, enabled, meStatus, idWorkspace])
 
   const trocarProduto = useCallback(
     (slug: string) => {
-      if (slugsProdutoEquivalentes(slug, produtoAtualSlug)) return
-      window.location.href = resolverRotaProdutoGravity(slug)
+      const destino = resolverNavegacaoTrocarProduto(slug, produtoAtualSlug)
+      if (destino.tipo === 'redirect') {
+        window.location.href = destino.href
+      }
     },
     [produtoAtualSlug],
   )
 
-  // Mantém o seletor visível com 1 produto (lista atualizada após suspensão).
-  const exibirSeletor = !carregando && produtos.length >= 1
+  // Mantém o seletor visível com 1+ produto — inclusive durante refresh da API.
+  const exibirSeletor = produtos.length >= 1
 
   return {
     produtos,

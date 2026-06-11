@@ -9,6 +9,8 @@ import {
 } from '../lib/acesso-resposta-disparo-bid-frete-internacional.js'
 import { validarPropostaEnvioModalidadeCotacaoBidFreteInternacional } from '../lib/validar-proposta-envio-modalidade-cotacao-bid-frete-internacional.js'
 import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
+import { persistirTaxasProposta, type TaxaInputProposta } from '../lib/persistir-taxas-proposta.js'
+import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
 import { notificacoesIntegration, historicoIntegration, atividadesIntegration } from './integracoes-tenant.js'
 
 export interface DadosPropostaDisparo {
@@ -164,6 +166,8 @@ export async function enviarPropostaDisparoBidFreteInternacional(
       },
     })
 
+    await posRespostaFornecedorSincronizarCotacao(prisma, disparo, valorTotal, opcoes)
+
     return proposta
   }
 
@@ -200,60 +204,68 @@ export async function enviarPropostaDisparoBidFreteInternacional(
     },
   })
 
-  const totalRequests = await (prisma as any).disparoCotacaoBidFreteInternacional.count({
-    where: { id_cotacao_bid_frete_internacional: disparo.id_cotacao_bid_frete_internacional },
-  })
-  const totalRespondidos = await (prisma as any).disparoCotacaoBidFreteInternacional.count({
-    where: {
-      id_cotacao_bid_frete_internacional: disparo.id_cotacao_bid_frete_internacional,
-      status_disparo_cotacao_bid_frete_internacional: 'RESPONDIDO',
-    },
-  })
-
-  const cotacao = disparo.cotacao
-
-  if (cotacao) {
-    if (totalRespondidos >= totalRequests) {
-      await (prisma as any).cotacaoBidFreteInternacional.update({
-        where: { id_cotacao_bid_frete_internacional: disparo.id_cotacao_bid_frete_internacional },
-        data: { status_cotacao_bid_frete_internacional: 'AGUARDANDO_APROVACAO' },
-      })
-      if (opcoes.tenantId) {
-        atividadesIntegration.aguardandoAprovacao(opcoes.tenantId, cotacao.id_usuario, {
-          numero_cotacao_bid_frete_internacional: cotacao.numero_cotacao_bid_frete_internacional,
-          total_respostas: totalRespondidos,
-        })
-      }
-    } else {
-      await (prisma as any).cotacaoBidFreteInternacional.update({
-        where: { id_cotacao_bid_frete_internacional: disparo.id_cotacao_bid_frete_internacional },
-        data: { status_cotacao_bid_frete_internacional: 'EM_COTACAO' },
-      })
-    }
-
-    if (opcoes.tenantId) {
-      const fornecedor = await (prisma as any).fornecedorBidFreteInternacional.findFirst({
-        where: { id_fornecedor_bid_frete_internacional: disparo.id_fornecedor_bid_frete_internacional },
-        select: { nome_fornecedor_bid_frete_internacional: true },
-      })
-      notificacoesIntegration.fornecedorRespondeu(opcoes.tenantId, cotacao.id_usuario, {
-        cotacao_numero: cotacao.numero_cotacao_bid_frete_internacional,
-        fornecedor_nome: fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor',
-        id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-      })
-      historicoIntegration.fornecedorRespondeu(
-        opcoes.tenantId,
-        fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor',
-        {
-          id: cotacao.id_cotacao_bid_frete_internacional,
-          numero_cotacao_bid_frete_internacional: cotacao.numero_cotacao_bid_frete_internacional,
-        },
-        valorTotal,
-      )
-    }
-  }
+  await posRespostaFornecedorSincronizarCotacao(prisma, disparo, valorTotal, opcoes)
 
   return proposta
+}
+
+async function posRespostaFornecedorSincronizarCotacao(
+  prisma: PrismaClient,
+  disparo: {
+    id_cotacao_bid_frete_internacional: string
+    id_fornecedor_bid_frete_internacional: string
+    cotacao?: {
+      id_cotacao_bid_frete_internacional: string
+      id_usuario: string
+      numero_cotacao_bid_frete_internacional: string
+      status_cotacao_bid_frete_internacional?: string | null
+    } | null
+  },
+  valorTotal: number,
+  opcoes: OpcoesEnvioProposta,
+): Promise<void> {
+  const cotacao = disparo.cotacao
+  if (!cotacao) return
+
+  const proximoStatus = await sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional(
+    prisma,
+    disparo.id_cotacao_bid_frete_internacional,
+    cotacao.status_cotacao_bid_frete_internacional,
+  )
+
+  if (proximoStatus === 'AGUARDANDO_APROVACAO' && opcoes.tenantId) {
+    const totalRespondidos = await (prisma as any).disparoCotacaoBidFreteInternacional.count({
+      where: {
+        id_cotacao_bid_frete_internacional: disparo.id_cotacao_bid_frete_internacional,
+        status_disparo_cotacao_bid_frete_internacional: 'RESPONDIDO',
+      },
+    })
+    atividadesIntegration.aguardandoAprovacao(opcoes.tenantId, cotacao.id_usuario, {
+      numero_cotacao_bid_frete_internacional: cotacao.numero_cotacao_bid_frete_internacional,
+      total_respostas: totalRespondidos,
+    })
+  }
+
+  if (opcoes.tenantId) {
+    const fornecedor = await (prisma as any).fornecedorBidFreteInternacional.findFirst({
+      where: { id_fornecedor_bid_frete_internacional: disparo.id_fornecedor_bid_frete_internacional },
+      select: { nome_fornecedor_bid_frete_internacional: true },
+    })
+    notificacoesIntegration.fornecedorRespondeu(opcoes.tenantId, cotacao.id_usuario, {
+      cotacao_numero: cotacao.numero_cotacao_bid_frete_internacional,
+      fornecedor_nome: fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor',
+      id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+    })
+    historicoIntegration.fornecedorRespondeu(
+      opcoes.tenantId,
+      fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor',
+      {
+        id: cotacao.id_cotacao_bid_frete_internacional,
+        numero_cotacao_bid_frete_internacional: cotacao.numero_cotacao_bid_frete_internacional,
+      },
+      valorTotal,
+    )
+  }
 }
 
 function mensagemErroCodigoBloqueio(codigo: string): string {

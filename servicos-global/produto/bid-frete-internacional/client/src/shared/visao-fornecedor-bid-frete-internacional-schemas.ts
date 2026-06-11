@@ -27,10 +27,27 @@ export const visaoFornecedorBidFreteInternacionalDashboardResponseSchema = z.obj
       cotacoes_pendentes_visao_fornecedor_bid_frete_internacional: z.number(),
       propostas_enviadas_visao_fornecedor_bid_frete_internacional: z.number(),
       propostas_aprovadas_visao_fornecedor_bid_frete_internacional: z.number(),
+      propostas_em_analise_visao_fornecedor_bid_frete_internacional: z.number(),
+      propostas_reprovadas_visao_fornecedor_bid_frete_internacional: z.number(),
       disparos_recebidos_visao_fornecedor_bid_frete_internacional: z.number(),
       taxa_resposta_visao_fornecedor_bid_frete_internacional: z.string(),
       taxa_aprovacao_visao_fornecedor_bid_frete_internacional: z.string(),
     }),
+    funil_visao_fornecedor_bid_frete_internacional: z.array(
+      z.object({
+        rotulo_funil_visao_fornecedor_bid_frete_internacional: z.string(),
+        quantidade_funil_visao_fornecedor_bid_frete_internacional: z.number(),
+        cor_funil_visao_fornecedor_bid_frete_internacional: z.string(),
+      }),
+    ),
+    alertas_visao_fornecedor_bid_frete_internacional: z.array(
+      z.object({
+        rotulo_alerta_visao_fornecedor_bid_frete_internacional: z.string(),
+        quantidade_alerta_visao_fornecedor_bid_frete_internacional: z.number(),
+        tom_alerta_visao_fornecedor_bid_frete_internacional: z.enum(['amber', 'rose', 'emerald', 'blue']),
+        rota_alerta_visao_fornecedor_bid_frete_internacional: z.string(),
+      }),
+    ),
     classificacao_bid_frete_internacional: classificacaoBidFreteInternacionalSchema,
   }),
 })
@@ -170,6 +187,21 @@ export function mapDesempenhoVisaoFornecedorFromServer(
   }
 }
 
+export type EtapaFunilVisaoFornecedorBidFreteInternacional = {
+  /** Código do status (enum) — chave estável para React; opcional em respostas legadas */
+  codigo_status?: string
+  rotulo: string
+  quantidade: number
+  cor: string
+}
+
+export type AlertaVisaoFornecedorBidFreteInternacional = {
+  rotulo: string
+  quantidade: number
+  tom: 'amber' | 'rose' | 'emerald' | 'blue'
+  rota: string
+}
+
 export function mapDashboardMetricasFromServer(
   metricas: MetricasVisaoFornecedorBidFreteInternacional,
   classificacao: z.infer<typeof classificacaoBidFreteInternacionalSchema>,
@@ -178,8 +210,49 @@ export function mapDashboardMetricasFromServer(
     pendentes: metricas.cotacoes_pendentes_visao_fornecedor_bid_frete_internacional,
     propostas_enviadas: metricas.propostas_enviadas_visao_fornecedor_bid_frete_internacional,
     propostas_aprovadas: metricas.propostas_aprovadas_visao_fornecedor_bid_frete_internacional,
+    propostas_em_analise: metricas.propostas_em_analise_visao_fornecedor_bid_frete_internacional,
+    propostas_reprovadas: metricas.propostas_reprovadas_visao_fornecedor_bid_frete_internacional,
+    disparos_recebidos: metricas.disparos_recebidos_visao_fornecedor_bid_frete_internacional,
     taxa_resposta: Number(metricas.taxa_resposta_visao_fornecedor_bid_frete_internacional),
+    taxa_aprovacao: Number(metricas.taxa_aprovacao_visao_fornecedor_bid_frete_internacional),
     nota_global_classificacao_bid_frete_internacional:
       classificacao?.nota_global_classificacao_bid_frete_internacional ?? 0,
+  }
+}
+
+export function mapFunilVisaoFornecedorFromServer(
+  funil: VisaoFornecedorBidFreteInternacionalDashboard['funil_visao_fornecedor_bid_frete_internacional'],
+): EtapaFunilVisaoFornecedorBidFreteInternacional[] {
+  return funil.map((etapa) => ({
+    rotulo: etapa.rotulo_funil_visao_fornecedor_bid_frete_internacional,
+    quantidade: etapa.quantidade_funil_visao_fornecedor_bid_frete_internacional,
+    cor: etapa.cor_funil_visao_fornecedor_bid_frete_internacional,
+  }))
+}
+
+export function mapAlertasVisaoFornecedorFromServer(
+  alertas: VisaoFornecedorBidFreteInternacionalDashboard['alertas_visao_fornecedor_bid_frete_internacional'],
+): AlertaVisaoFornecedorBidFreteInternacional[] {
+  return alertas.map((alerta) => ({
+    rotulo: alerta.rotulo_alerta_visao_fornecedor_bid_frete_internacional,
+    quantidade: alerta.quantidade_alerta_visao_fornecedor_bid_frete_internacional,
+    tom: alerta.tom_alerta_visao_fornecedor_bid_frete_internacional,
+    rota: alerta.rota_alerta_visao_fornecedor_bid_frete_internacional,
+  }))
+}
+
+export function mapDashboardVisaoFornecedorFromServer(
+  visao: VisaoFornecedorBidFreteInternacionalDashboard,
+  fornecedor: { id_fornecedor_bid_frete_internacional: string; nome_fornecedor_bid_frete_internacional: string; tipo_fornecedor_bid_frete_internacional: string },
+) {
+  return {
+    fornecedor,
+    metricas: visao.metricas_visao_fornecedor_bid_frete_internacional,
+    kpis: mapDashboardMetricasFromServer(
+      visao.metricas_visao_fornecedor_bid_frete_internacional,
+      visao.classificacao_bid_frete_internacional,
+    ),
+    funil: mapFunilVisaoFornecedorFromServer(visao.funil_visao_fornecedor_bid_frete_internacional),
+    alertas: mapAlertasVisaoFornecedorFromServer(visao.alertas_visao_fornecedor_bid_frete_internacional),
   }
 }

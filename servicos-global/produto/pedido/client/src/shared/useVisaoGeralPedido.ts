@@ -10,10 +10,24 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useShellStore } from '@gravity/shell'
 import { usePedidos } from './queries'
-import { workspacesDisponiveisApi } from './api'
+import { pedidoVisaoGeralApi, workspacesDisponiveisApi } from './api'
+import { cadastrosApi } from './cadastrosApi'
 import type { Pedido } from './types'
-import { buildVisaoGeralMapa, type VisaoGeralMapaData } from './visaoGeralMapaPedido'
+import { buildVisaoGeralMapa, type VisaoGeralMapaData, type FornecedorMapaGeo } from './visaoGeralMapaPedido'
+
+const KPIS_VAZIOS: VisaoGeralKpis = {
+  andamento_count: 0,
+  andamento_valor: 0,
+  concluido_count: 0,
+  concluido_valor: 0,
+  valor_total: 0,
+  ticket_medio: 0,
+  taxa_atraso_pct: 0,
+  atrasados_count: 0,
+}
 import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from './useEscopoWorkspacesPedido'
+import { usePainelInsightsAtivo } from '../components/pedidos-visualizacao-context'
+import { ESCOPO_MINIMO_PARA_AGREGADO_SERVIDOR } from '../../../shared/visaoGeralResumoAggregate.js'
 
 const BUCKET_CONCLUIDO = new Set(['aprovado', 'transferencia', 'consolidado'])
 const BUCKET_CANCELADO = new Set(['cancelado'])
@@ -109,7 +123,7 @@ export function filtrarPedidosAlertaVisaoGeral(
   }
 }
 
-export type { VisaoGeralMapaData, VisaoGeralMapPin, VisaoGeralRotaDetalhe } from './visaoGeralMapaPedido'
+export type { VisaoGeralMapaData, VisaoGeralMapPin, VisaoGeralRotaDetalhe, FornecedorMapaGeo } from './visaoGeralMapaPedido'
 
 function diasEntre(data: string | null | undefined, base: Date): number | null {
   if (!data) return null
@@ -134,22 +148,47 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const painelInsightsAtivo = usePainelInsightsAtivo()
+  const usarAgregadoServidor = idsWorkspacesEscopo.length >= ESCOPO_MINIMO_PARA_AGREGADO_SERVIDOR
+
   const idsWorkspacesFiltro = useMemo(
     () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
     [idsWorkspacesEscopo, idWorkspaceAtivo],
   )
 
-  const { data, isLoading } = usePedidos(
+  const { data: agregadoServidor, isLoading: carregandoAgregado } = useQuery({
+    queryKey: ['visao-geral-agregado', idsWorkspacesFiltro],
+    queryFn: () => pedidoVisaoGeralApi.agregado(idsWorkspacesFiltro),
+    enabled: escopoHidratado && usarAgregadoServidor,
+    staleTime: 60_000,
+  })
+
+  const precisaPedidosClient = !usarAgregadoServidor || painelInsightsAtivo
+
+  const { data, isLoading: carregandoPedidos } = usePedidos(
     { limit: 1000, idsWorkspacesFiltro },
-    { enabled: escopoHidratado },
+    { enabled: escopoHidratado && precisaPedidosClient },
   )
   const { data: workspaces = [] } = useQuery({
     queryKey: ['workspaces-disponiveis'],
     queryFn: () => workspacesDisponiveisApi.listar(),
     staleTime: 5 * 60_000,
   })
+  const { data: fornecedoresData } = useQuery({
+    queryKey: ['cadastros-fornecedores-visao-geral'],
+    queryFn: () => cadastrosApi.listarFornecedores(undefined, 500),
+    staleTime: 5 * 60_000,
+  })
   const pedidos = data?.data ?? []
-  const total = data?.total ?? pedidos.length
+  const total = usarAgregadoServidor
+    ? (agregadoServidor?.total ?? pedidos.length)
+    : (data?.total ?? pedidos.length)
+  const isLoading = usarAgregadoServidor
+    ? (
+      (!agregadoServidor && carregandoAgregado && pedidos.length === 0)
+      || (painelInsightsAtivo && carregandoPedidos && pedidos.length === 0)
+    )
+    : carregandoPedidos
 
   const nomesWorkspacePorId = useMemo(() => {
     const map = new Map<string, string>()
@@ -159,7 +198,64 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
     return map
   }, [workspaces])
 
+  const fornecedoresPorId = useMemo(() => {
+    const map = new Map<string, FornecedorMapaGeo>()
+    for (const f of fornecedoresData?.itens ?? []) {
+      map.set(f.id_fornecedor, {
+        paisIso: f.pais_fornecedor,
+        nome: f.nome_fornecedor,
+      })
+    }
+    return map
+  }, [fornecedoresData])
+
   return useMemo<VisaoGeralPedido>(() => {
+    const estadoVazio: VisaoGeralPedido = {
+      loading: isLoading,
+      total: 0,
+      kpis: KPIS_VAZIOS,
+      aprovacao: { percentual_em_tempo: 0, percentual_atraso: 0, nao_respondidas: 0 },
+      mensal: [],
+      modal: [],
+      funil: [],
+      incoterms: [],
+      alertas: [],
+      moedas: [],
+      sparkAndamento: [],
+      sparkConcluido: [],
+      maiorPedido: null,
+      mapa: buildVisaoGeralMapa([], nomesWorkspacePorId, fornecedoresPorId),
+      pedidos: [],
+    }
+
+    if (usarAgregadoServidor && agregadoServidor) {
+      const mapa = pedidos.length > 0
+        ? buildVisaoGeralMapa(pedidos, nomesWorkspacePorId, fornecedoresPorId)
+        : buildVisaoGeralMapa([], nomesWorkspacePorId, fornecedoresPorId)
+
+      return {
+        loading: isLoading,
+        total: agregadoServidor.total,
+        kpis: agregadoServidor.kpis,
+        aprovacao: agregadoServidor.aprovacao,
+        mensal: agregadoServidor.mensal,
+        modal: agregadoServidor.modal,
+        funil: agregadoServidor.funil,
+        incoterms: agregadoServidor.incoterms,
+        alertas: agregadoServidor.alertas as VisaoGeralAlerta[],
+        moedas: agregadoServidor.moedas,
+        sparkAndamento: agregadoServidor.sparkAndamento,
+        sparkConcluido: agregadoServidor.sparkConcluido,
+        maiorPedido: agregadoServidor.maiorPedido,
+        mapa,
+        pedidos,
+      }
+    }
+
+    if (pedidos.length === 0) {
+      return estadoVazio
+    }
+
     const hoje = new Date()
 
     const concluidos = pedidos.filter(p => BUCKET_CONCLUIDO.has(p.status))
@@ -276,7 +372,7 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       }
     }
 
-    const mapa = buildVisaoGeralMapa(pedidos, nomesWorkspacePorId)
+    const mapa = buildVisaoGeralMapa(pedidos, nomesWorkspacePorId, fornecedoresPorId)
 
     return {
       loading: isLoading,
@@ -295,5 +391,13 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
       mapa,
       pedidos,
     }
-  }, [pedidos, total, isLoading, nomesWorkspacePorId])
+  }, [
+    pedidos,
+    total,
+    isLoading,
+    nomesWorkspacePorId,
+    fornecedoresPorId,
+    usarAgregadoServidor,
+    agregadoServidor,
+  ])
 }

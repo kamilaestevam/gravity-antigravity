@@ -11,6 +11,10 @@ import {
   dashboardDistributionResponseSchema,
   dashboardInsightsResponseSchema,
 } from './dashboard-schemas.js'
+import {
+  visaoGeralAgregadoResponseSchema,
+  type VisaoGeralAgregadoPayload,
+} from './visao-geral-schemas.js'
 import type {
   Pedido,
   PedidoItem,
@@ -58,6 +62,13 @@ import type {
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 import { smartImportPreviewSchema } from '../../../shared/smart-import-schemas.js'
+import {
+  listaPainelDeletarResponseSchema,
+  listaPainelItemResponseSchema,
+  listaPainelListResponseSchema,
+  listaPainelReordenarResponseSchema,
+  type ListaPainel,
+} from '../../../shared/listaPainelApiSchema.js'
 
 let context = { idOrganizacao: '', userId: '', userName: '', idWorkspace: '' }
 
@@ -143,15 +154,29 @@ export function setApiContext(ctx: { idOrganizacao: string; userId: string; user
 }
 
 export function getApiContext(): { idOrganizacao: string; userId: string; userName: string } {
+  // Consumido para montar headers/payloads de request (GABI quota, cadastro
+  // rápido de fornecedor). NUNCA lsGet() aqui — mesmo motivo do `request`:
+  // localStorage defasado contamina x-id-organizacao entre sessões/orgs.
   return {
-    idOrganizacao: context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || '',
+    idOrganizacao: context.idOrganizacao || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || '',
     userId:   context.userId,
     userName: context.userName,
   }
 }
 
+/** Mand. 08 — propaga mensagem real da API; nunca simula sucesso em DEV. */
+export function relancarErroApi(err: unknown, mensagemPadrao: string): never {
+  throw new Error(err instanceof Error && err.message ? err.message : mensagemPadrao)
+}
+
 export async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  // Fonte única do tenant é o store (getDynamicTenantId) — NUNCA lsGet() aqui.
+  // localStorage sobrevive a logout/troca de org e contamina x-id-organizacao na
+  // janela sem-JWT (Clerk ainda hidratando), resolvendo a org errada → 404
+  // "Organização não encontrada". lsGet só hidrata o injectTenantGetter, validado
+  // contra o store live. Sem org no store → header vazio → backend responde 401
+  // honesto em vez de servir dados de outra organização (Mand. 08 + isolamento).
+  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
   const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''
   const token = await getAuthToken()
 
@@ -204,6 +229,58 @@ export async function request<T>(endpoint: string, options?: RequestInit): Promi
   }
 }
 
+/** GET binário (download) com os mesmos headers de auth que `request`. */
+async function requestBlob(endpoint: string, options?: RequestInit): Promise<Blob> {
+  // Fonte única do tenant é o store (getDynamicTenantId) — NUNCA lsGet() aqui.
+  // localStorage sobrevive a logout/troca de org e contamina x-id-organizacao na
+  // janela sem-JWT (Clerk ainda hidratando), resolvendo a org errada → 404
+  // "Organização não encontrada". lsGet só hidrata o injectTenantGetter, validado
+  // contra o store live. Sem org no store → header vazio → backend responde 401
+  // honesto em vez de servir dados de outra organização (Mand. 08 + isolamento).
+  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''
+  const token = await getAuthToken()
+
+  const response = await fetch(endpoint, {
+    ...options,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      'x-id-organizacao': idOrganizacao,
+      'x-id-usuario':   context.userId,
+      'x-nome-usuario': context.userName,
+      ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
+      'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
+      ...options?.headers,
+    },
+  })
+  if (!response.ok) {
+    const raw = await response.json().catch(() => null)
+    const msg = raw?.error?.message ?? raw?.erro?.mensagem ?? `HTTP ${response.status}`
+    throw new Error(typeof msg === 'string' ? msg : `HTTP ${response.status}`)
+  }
+  return response.blob()
+}
+
+async function buildMultipartAuthHeaders(): Promise<Record<string, string>> {
+  // Fonte única do tenant é o store (getDynamicTenantId) — NUNCA lsGet() aqui.
+  // localStorage sobrevive a logout/troca de org e contamina x-id-organizacao na
+  // janela sem-JWT (Clerk ainda hidratando), resolvendo a org errada → 404
+  // "Organização não encontrada". lsGet só hidrata o injectTenantGetter, validado
+  // contra o store live. Sem org no store → header vazio → backend responde 401
+  // honesto em vez de servir dados de outra organização (Mand. 08 + isolamento).
+  const idOrganizacao = getDynamicTenantId() || context.idOrganizacao || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  const idWorkspace   = getDynamicWorkspaceId() || context.idWorkspace || ''
+  const token = await getAuthToken()
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    'x-id-organizacao': idOrganizacao,
+    'x-id-usuario':   context.userId,
+    'x-nome-usuario': context.userName,
+    ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
+    'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
+  }
+}
+
 // ── Pedidos ───────────────────────────────────────────────────────────────────
 
 /** Codifica IDs legados que contêm '/' (ex: pedi_id_1234/26) para uso em URLs */
@@ -242,11 +319,11 @@ export const workspacesDisponiveisApi = {
       .filter((w): w is Record<string, unknown> => typeof w === 'object' && w !== null)
       .map((w) => ({
         id_workspace:    String(w.id_workspace ?? w.id ?? ''),
-        nome_workspace:  String(w.nome_workspace ?? ''),
+        nome_workspace:  String(w.nome_workspace ?? w.nome ?? '').trim(),
         cnpj_workspace:  w.cnpj_workspace == null ? null : String(w.cnpj_workspace),
         status_workspace: String(w.status_workspace ?? 'ATIVO'),
       }))
-      .filter((w) => w.id_workspace && w.nome_workspace)
+      .filter((w) => Boolean(w.id_workspace))
   },
 }
 
@@ -295,10 +372,15 @@ export const pedidoItemApi = {
   listar: (pedidoId: string) =>
     request<PedidoItem[]>(`/api/v1/pedidos/${pid(pedidoId)}/itens`),
 
-  adicionar: (pedidoId: string, data: Partial<PedidoItem>) =>
+  adicionar: (
+    pedidoId: string,
+    data: Partial<PedidoItem>,
+    opts?: { idWorkspace?: string },
+  ) =>
     request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens`, {
       method: 'POST',
       body: JSON.stringify(data),
+      headers: opts?.idWorkspace ? { 'x-id-workspace': opts.idWorkspace } : undefined,
     }).then(item => {
       // Em dev: sincroniza mock para que listar() fallback reflita o item real
       if (import.meta.env.DEV) {
@@ -332,7 +414,7 @@ export const pedidoItemApi = {
   atualizarPronta: (pedidoId: string, itemId: string, quantidade: number) =>
     request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}/pronta`, {
       method: 'PATCH',
-      body: JSON.stringify({ quantidade_pronta_total_item_pedido: quantidade }),
+      body: JSON.stringify({ quantidade_pronta_item: quantidade }),
     }),
 
   reordenar: (pedidoId: string, ids: string[]) =>
@@ -342,7 +424,26 @@ export const pedidoItemApi = {
     }),
 }
 
+// ── Visão Geral (agregado server-side) ────────────────────────────────────────
+
+export const pedidoVisaoGeralApi = {
+  agregado: async (idsWorkspacesFiltro: string[]): Promise<VisaoGeralAgregadoPayload> => {
+    const params = new URLSearchParams()
+    if (idsWorkspacesFiltro.length) {
+      params.set('ids_workspaces', idsWorkspacesFiltro.join(','))
+    }
+    const qs = params.toString()
+    const raw = await request<unknown>(`/api/v1/pedidos/visao-geral/agregado${qs ? `?${qs}` : ''}`)
+    return visaoGeralAgregadoResponseSchema.parse(raw).data
+  },
+}
+
 // ── Cursor pagination + inline edit ───────────────────────────────────────────
+
+/** Chave da coluna na lista → nome aceito pelo PATCH /pedidos/:id/campo (legado backend). */
+const CAMPO_PATCH_PEDIDO_ALIAS: Record<string, string> = {
+  data_documento_proforma: 'data_proforma_invoice',
+}
 
 export const pedidoVirtualApi = {
   /**
@@ -359,6 +460,7 @@ export const pedidoVirtualApi = {
     dir?: 'asc' | 'desc'
     limit?: number
     status?: string
+    tipo_operacao?: string
     busca?: string
     /** Filtro multi-workspace (lista de IDs). Vence sobre o header x-id-workspace. */
     idsWorkspacesFiltro?: string[]
@@ -370,6 +472,7 @@ export const pedidoVirtualApi = {
     if (params.dir)              q.set('dir', params.dir)
     if (params.limit)            q.set('limit', String(params.limit))
     if (params.status)           q.set('status', params.status)
+    if (params.tipo_operacao)    q.set('tipo_operacao', params.tipo_operacao)
     if (params.busca)            q.set('busca', params.busca)
     if (params.idsWorkspacesFiltro && params.idsWorkspacesFiltro.length > 0) {
       q.set('ids_workspaces', params.idsWorkspacesFiltro.join(','))
@@ -394,15 +497,16 @@ export const pedidoVirtualApi = {
    *  pedido na mesma transação backend. Decisão UX 2026-05-13.
    */
   editarCampo: (id: string, campo: string, valor: unknown, replicar_em_itens = false) => {
+    const campoApi = CAMPO_PATCH_PEDIDO_ALIAS[campo] ?? campo
     // Log diagnóstico — facilita debug de erros que ficam mascarados pela
     // mensagem default "Erro ao salvar" e que não aparecem claramente no
     // Network (ex: requests muito rápidos, filtros do DevTools).
     // eslint-disable-next-line no-console
-    console.log('[pedidoVirtualApi.editarCampo] →', { id, campo, valor, replicar_em_itens })
+    console.log('[pedidoVirtualApi.editarCampo] →', { id, campo, campoApi, valor, replicar_em_itens })
     return request<Pedido>(`/api/v1/pedidos/${pid(id)}/campo`, {
       method: 'PATCH',
       body: JSON.stringify({
-        campo,
+        campo: campoApi,
         valor: valor === undefined ? null : valor,
         replicar_em_itens,
       }),
@@ -415,6 +519,7 @@ export const pedidoVirtualApi = {
       console.error('[pedidoVirtualApi.editarCampo] ← ERRO', {
         id,
         campo,
+        campoApi,
         valor,
         replicar_em_itens,
         mensagem: err instanceof Error ? err.message : String(err),
@@ -1650,16 +1755,13 @@ export const anexosApi = {
     if (descricao) form.append('descricao', descricao)
     if (categoria) form.append('categoria', categoria)
     // Não enviar Content-Type — o browser define boundary automaticamente para multipart
-    return fetch('/api/v1/pedidos/anexos', {
-      method: 'POST',
-      headers: {
-        'x-id-organizacao': context.idOrganizacao,
-        'x-id-usuario': context.userId,
-        'x-nome-usuario': context.userName,
-        'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
-      },
-      body: form,
-    }).then(async res => {
+    return buildMultipartAuthHeaders().then(headers =>
+      fetch('/api/v1/pedidos/anexos', {
+        method: 'POST',
+        headers,
+        body: form,
+      }),
+    ).then(async res => {
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: { message: 'Erro desconhecido' } }))
         throw new Error(err.error?.message || `HTTP ${res.status}`)
@@ -1672,17 +1774,7 @@ export const anexosApi = {
   },
 
   download: (id: string) =>
-    fetch(`/api/v1/pedidos/anexos/${id}/download`, {
-      headers: {
-        'x-id-organizacao': context.idOrganizacao,
-        'x-id-usuario': context.userId,
-        'x-nome-usuario': context.userName,
-        'x-chave-interna-servico': import.meta.env.VITE_CHAVE_INTERNA_SERVICO || '',
-      },
-    }).then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      return res.blob()
-    }),
+    requestBlob(`/api/v1/pedidos/anexos/${id}/download`),
 
   excluir: (id: string) =>
     request<void>(`/api/v1/pedidos/anexos/${id}`, { method: 'DELETE' }).catch(err => {
@@ -2174,10 +2266,52 @@ export interface DashboardPainel {
   updated_at:   string
 }
 
+// ── Lista Painéis ─────────────────────────────────────────────────────────────
+
+export type { ListaPainel }
+
+export const paineisListaApi = {
+  listar: (): Promise<{ data: ListaPainel[] }> =>
+    request<unknown>('/api/v1/pedidos/lista/paineis').then(raw =>
+      listaPainelListResponseSchema.parse(raw)),
+
+  criar: (nome: string, configJson?: string): Promise<{ data: ListaPainel }> =>
+    request<unknown>('/api/v1/pedidos/lista/paineis', {
+      method: 'POST',
+      body: JSON.stringify({
+        nome,
+        ...(configJson ? { config_json: configJson } : {}),
+      }),
+    }).then(raw => {
+      const parsed = listaPainelItemResponseSchema.safeParse(raw)
+      if (!parsed.success) {
+        console.warn('[paineisListaApi.criar] resposta fora do contrato Zod', parsed.error.flatten(), raw)
+        throw new Error('Resposta inválida ao criar painel da lista')
+      }
+      return parsed.data
+    }),
+
+  atualizar: (id: string, patch: Partial<Pick<ListaPainel, 'nome' | 'is_visivel' | 'config_json'>>): Promise<{ data: ListaPainel }> =>
+    request<unknown>(`/api/v1/pedidos/lista/paineis/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(patch),
+    }).then(raw => listaPainelItemResponseSchema.parse(raw)),
+
+  reordenar: (ids: string[]): Promise<{ data: { reordenado: true } }> =>
+    request<unknown>('/api/v1/pedidos/lista/paineis/reordenar', {
+      method: 'PUT',
+      body: JSON.stringify({ ids }),
+    }).then(raw => listaPainelReordenarResponseSchema.parse(raw)),
+
+  deletar: (id: string): Promise<{ data: { deletado: true } }> =>
+    request<unknown>(`/api/v1/pedidos/lista/paineis/${id}`, {
+      method: 'DELETE',
+    }).then(raw => listaPainelDeletarResponseSchema.parse(raw)),
+}
+
 export const paineisDashboardApi = {
   listar: (): Promise<{ data: DashboardPainel[] }> =>
-    request<{ data: DashboardPainel[] }>('/api/v1/pedidos/dashboard/paineis')
-      .catch(() => ({ data: [] })),
+    request<{ data: DashboardPainel[] }>('/api/v1/pedidos/dashboard/paineis'),
 
   criar: (nome: string): Promise<{ data: DashboardPainel }> =>
     request<{ data: DashboardPainel }>('/api/v1/pedidos/dashboard/paineis', {

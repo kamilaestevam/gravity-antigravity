@@ -535,6 +535,17 @@ test('modal de criação aberto', async ({ page }) => {
 - Não usar seletores CSS frágeis — preferir `data-testid`
 - O QA é o único que executa testes E2E em staging
 
+### Seletor universal (escopo MBOTO)
+
+Pasta canônica: `testes/testes-e2e/menu-botoes/seletor-universal-visoes/`
+
+- IDs: `TST-E2E-MBOTO-000055` … `000006`
+- Helper SLA 1s: `helpers/sla-1s.ts` (`clicarAbaEMedir`, `assertSla1s`)
+- Fixtures de URL: `testes/_fixtures/seletor-universal-visoes/data-seed.ts` (local, gitignored — espelhar URLs no spec se necessário)
+- Execução staging: definir `PLAYWRIGHT_BASE_URL` + flags por produto (`PLAYWRIGHT_PEDIDO_AUTH=1`, `PLAYWRIGHT_BID_AUTH=1`, `PLAYWRIGHT_PROCESSO_AUTH=1`, `PLAYWRIGHT_PEDIDO_T2=1` para stress)
+
+Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md)
+
 ---
 
 ## Contract Tests — Zod

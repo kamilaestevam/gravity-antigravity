@@ -15,7 +15,8 @@
                              "react-dom":  "^18.0.0"
                          },
     "dependencies":  {
-                            "@nucleo/campo-geral-global":  "*"
+                            "@nucleo/campo-geral-global":  "*",
+                            "@phosphor-icons/react":  "^2.0.0"
                         },
     "devDependencies":  {
                             "@types/react":  "^18.0.0",

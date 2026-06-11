@@ -67,6 +67,23 @@ interface SignUpDadosConvite {
   lastName?: string | null
 }
 
+type SignUpClerk = NonNullable<ReturnType<typeof useSignUp>['signUp']>
+
+/** Cache ≠ signUp ativo — só considera pronto após create(ticket) ou sessão Clerk válida. */
+function signUpProntoParaConvite(ticket: string, signUp: SignUpClerk | null | undefined): boolean {
+  if (!signUp) return false
+  if (ticketsConviteComSucesso.has(ticket)) return true
+  const { email } = normalizarDadosConvite(signUp)
+  if (!email) return false
+  const status = signUp.status
+  if (status === 'missing_requirements' || status === 'complete') return true
+  const comSessaoClerk = Boolean(
+    (signUp as SignUpClerk & { id?: string | null }).id
+    || signUp.createdSessionId,
+  )
+  return comSessaoClerk
+}
+
 /**
  * Tickets Clerk são single-use. Problemas que queimavam o ticket antes do cadastro:
  * 1) React StrictMode (dev) remonta o componente
@@ -119,13 +136,38 @@ function gravarCacheConvite(ticket: string, email: string, nome: string): void {
   }
 }
 
+function limparCacheConvite(ticket: string): void {
+  try {
+    sessionStorage.removeItem(chaveCacheConvite(ticket))
+  } catch {
+    /* noop */
+  }
+}
+
+function ticketRevogado(err: unknown): boolean {
+  const erroClerk = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> }
+  const codigo = erroClerk?.errors?.[0]?.code
+  const msgOriginal = erroClerk?.errors?.[0]?.longMessage
+    ?? erroClerk?.errors?.[0]?.message
+    ?? (err instanceof Error ? err.message : '')
+  return (
+    codigo === 'invitation_revoked'
+    || msgOriginal.toLowerCase().includes('invitation was revoked')
+    || msgOriginal.toLowerCase().includes('invitation revoked')
+  )
+}
+
 function ticketInvalido(err: unknown): boolean {
   const erroClerk = err as { errors?: Array<{ code?: string; longMessage?: string; message?: string }> }
   const codigo = erroClerk?.errors?.[0]?.code
   const msgOriginal = erroClerk?.errors?.[0]?.longMessage
     ?? erroClerk?.errors?.[0]?.message
     ?? (err instanceof Error ? err.message : '')
-  return codigo === 'form_param_nil' || msgOriginal.toLowerCase().includes('ticket is invalid')
+  return (
+    ticketRevogado(err)
+    || codigo === 'form_param_nil'
+    || msgOriginal.toLowerCase().includes('ticket is invalid')
+  )
 }
 
 function preencherFormularioDoConvite(
@@ -149,27 +191,14 @@ function mesclarDadosSignUp(
   }
 }
 
-function conviteJaProcessadoComDados(ticket: string, signUpAtual: SignUpDadosConvite | null | undefined): boolean {
-  if (ticketsConviteComSucesso.has(ticket)) return true
-  const cache = lerCacheConvite(ticket)
-  if (cache?.email) return true
-  const { email } = normalizarDadosConvite(signUpAtual ?? {})
-  return !!email
+function conviteJaProcessadoComDados(ticket: string, signUpAtual: SignUpClerk | null | undefined): boolean {
+  return signUpProntoParaConvite(ticket, signUpAtual)
 }
 
 function processarTicketConvite(
-  signUp: NonNullable<ReturnType<typeof useSignUp>['signUp']>,
+  signUp: SignUpClerk,
   ticket: string,
 ): Promise<SignUpDadosConvite> {
-  const cachePersistido = lerCacheConvite(ticket)
-  if (cachePersistido?.email) {
-    return Promise.resolve({
-      emailAddress: cachePersistido.email,
-      firstName: cachePersistido.nome.split(/\s+/)[0] ?? '',
-      lastName: cachePersistido.nome.split(/\s+/).slice(1).join(' '),
-    })
-  }
-
   if (ticketsConviteInvalidos.has(ticket)) {
     return Promise.reject(new Error('ticket is invalid'))
   }
@@ -177,20 +206,12 @@ function processarTicketConvite(
   const emCache = promessasTicketConvite.get(ticket)
   if (emCache) return emCache
 
-  const { email: emailExistente } = normalizarDadosConvite(signUp)
-  // Ticket já consumido nesta sessão — NUNCA chamar create de novo (StrictMode remount).
-  if (ticketsConviteComSucesso.has(ticket)) {
+  if (signUpProntoParaConvite(ticket, signUp)) {
     const resolvida = Promise.resolve(mesclarDadosSignUp(signUp, signUp))
-    promessasTicketConvite.set(ticket, resolvida)
-    return resolvida
-  }
-
-  if (emailExistente) {
-    const resolvida = Promise.resolve(signUp)
     promessasTicketConvite.set(ticket, resolvida)
     ticketsConviteComSucesso.add(ticket)
     const { email, nome } = normalizarDadosConvite(signUp)
-    gravarCacheConvite(ticket, email, nome)
+    if (email) gravarCacheConvite(ticket, email, nome)
     return resolvida
   }
 
@@ -211,6 +232,7 @@ function processarTicketConvite(
     .catch((err: unknown) => {
       if (ticketInvalido(err)) {
         ticketsConviteInvalidos.add(ticket)
+        limparCacheConvite(ticket)
       } else {
         promessasTicketConvite.delete(ticket)
       }
@@ -234,13 +256,20 @@ function traduzirErroTicket(err: unknown): string {
   if (codigo === 'form_param_nil' || msgOriginal.toLowerCase().includes('ticket is invalid')) {
     return 'O convite é inválido ou já foi utilizado. Solicite um novo convite ao administrador.'
   }
+  if (ticketRevogado(err)) {
+    return 'Este convite foi cancelado ou substituído por um mais recente. Peça ao administrador para reenviar o convite e use o link do e-mail mais novo.'
+  }
+  if (
+    codigo === 'authorization_invalid'
+    || msgOriginal.toLowerCase().includes('sign up is forbidden')
+  ) {
+    return 'Não foi possível concluir o cadastro com este convite. Abra novamente o link do e-mail (completo, com o ticket) ou solicite um novo convite.'
+  }
   if (codigo === 'form_identifier_not_found') {
     return 'Conta não encontrada. Verifique se o link do convite está correto.'
   }
   return msgOriginal || 'Convite inválido ou expirado.'
 }
-
-type SignUpClerk = NonNullable<ReturnType<typeof useSignUp>['signUp']>
 
 type ResultadoSignUpClerk = {
   status: string
@@ -362,6 +391,14 @@ export function CadastroContinuarPage() {
         processamentoTicketRef.current = null
       }
       setProcessandoTicket(false)
+      const signUpPos = signUpRef.current
+      if (
+        signUpPos
+        && !signUpProntoParaConvite(ticketAtual, signUpPos)
+        && !ticketsConviteInvalidos.has(ticketAtual)
+      ) {
+        setErro((prev) => prev ?? 'Não foi possível validar o convite. Recarregue a página ou peça um reenvio ao administrador.')
+      }
     }
   }, [aplicarDadosConvite])
 
@@ -379,11 +416,15 @@ export function CadastroContinuarPage() {
   useEffect(() => {
     if (!isLoaded || !ticket || !signUp) return
 
+    if (ticketsConviteInvalidos.has(ticket)) {
+      setErro(traduzirErroTicket(new Error('ticket is invalid')))
+      return
+    }
+
     const cache = lerCacheConvite(ticket)
     if (cache) {
       setEmailConvite(cache.email)
       if (cache.nome) setNome(cache.nome)
-      return
     }
 
     if (conviteJaProcessadoComDados(ticket, signUpRef.current)) {
@@ -430,8 +471,12 @@ export function CadastroContinuarPage() {
     { chave: 'termos',   ok: aceiteTermos,   mensagem: 'Aceite dos Termos de Uso e Política de Privacidade' },
   ]
 
-  const podeEnviar = requisitos.every((r) => r.ok) && !enviando && isLoaded && isSignInLoaded
-    && !processandoTicket && (!isInvitation || !!emailConvite)
+  const conviteValidado = !isInvitation || (
+    !!ticket && !!signUp && signUpProntoParaConvite(ticket, signUp)
+  )
+
+  const podeEnviar = requisitos.every((r) => r.ok) && !enviando && isLoaded
+    && !processandoTicket && conviteValidado
 
   // Clerk Captcha pode concluir o signUp sem disparar onSubmit — guardar credenciais cedo.
   useEffect(() => {
@@ -563,12 +608,30 @@ export function CadastroContinuarPage() {
       gravarLoginPendenteConvite({ email: emailCadastroInicial, senha })
     }
 
-    if (isInvitation && !emailConvite && ticket) {
+    if (isInvitation && ticket) {
       await executarProcessamentoTicket(ticket)
+      const signUpPosTicket = signUpRef.current
       const cachePosProcesso = lerCacheConvite(ticket)
-      const emailPosProcesso = cachePosProcesso?.email
-        ?? normalizarDadosConvite(signUpRef.current ?? {}).email
-      if (!emailPosProcesso) return
+      const emailPosProcesso = emailCadastroInicial
+        || cachePosProcesso?.email
+        || normalizarDadosConvite(signUpPosTicket ?? {}).email
+      if (!emailPosProcesso) {
+        setErro('Não foi possível validar o convite. Abra novamente o link do e-mail ou solicite um novo convite.')
+        return
+      }
+      if (!signUpPosTicket) {
+        setErro('Não foi possível iniciar o cadastro com este convite. Solicite um novo convite ao administrador.')
+        return
+      }
+      if (
+        signUpPosTicket.status !== 'missing_requirements'
+        && signUpPosTicket.status !== 'complete'
+      ) {
+        setErro(
+          'O convite ainda não foi validado pelo Clerk. Aguarde alguns segundos e tente novamente, ou solicite um novo convite.',
+        )
+        return
+      }
     }
 
     setEnviando(true)
@@ -744,6 +807,62 @@ export function CadastroContinuarPage() {
             {t('cadastro.continuar.subtitulo', 'Complete seu cadastro para acessar a plataforma.')}
           </p>
         </div>
+
+        {processandoTicket && (
+          <div
+            role="status"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem 1rem',
+              marginBottom: '1rem',
+              borderRadius: '8px',
+              background: 'rgba(129,140,248,0.08)',
+              border: '1px solid rgba(129,140,248,0.2)',
+              fontSize: '0.8125rem',
+              color: '#c7d2fe',
+            }}
+          >
+            <CircleNotch size={16} weight="bold" className="cadastro-spinner" />
+            Validando convite…
+          </div>
+        )}
+
+        {isInvitation && isLoaded && !processandoTicket && conviteValidado && (
+          <div
+            role="status"
+            style={{
+              padding: '0.75rem 1rem',
+              marginBottom: '1rem',
+              borderRadius: '8px',
+              background: 'rgba(34,197,94,0.08)',
+              border: '1px solid rgba(34,197,94,0.25)',
+              fontSize: '0.8125rem',
+              color: '#86efac',
+            }}
+          >
+            Convite validado para <strong style={{ color: '#fff' }}>{emailConvite}</strong>.
+            Defina sua senha para concluir.
+          </div>
+        )}
+
+        {isInvitation && isLoaded && !processandoTicket && !conviteValidado && !erro && (
+          <div
+            role="alert"
+            style={{
+              padding: '0.75rem 1rem',
+              marginBottom: '1rem',
+              borderRadius: '8px',
+              background: 'rgba(248,113,113,0.08)',
+              border: '1px solid rgba(248,113,113,0.25)',
+              fontSize: '0.8125rem',
+              color: '#fca5a5',
+            }}
+          >
+            Aguardando validação do convite… Se nada mudar em alguns segundos, recarregue a página ou peça reenvio do convite.
+          </div>
+        )}
 
         {/* Botão Google OAuth + Divisor
             Decisão dono 2026-05-12 — Opção A: esconder ambos quando o usuário
@@ -948,8 +1067,8 @@ export function CadastroContinuarPage() {
           {/* Clerk CAPTCHA — exigido em algumas instâncias dev/prod */}
           <div id="clerk-captcha" />
 
-          {/* Checklist de requisitos */}
-          {senha.length > 0 && (
+          {/* Checklist de requisitos — visível no convite para deixar claro o que falta */}
+          {(senha.length > 0 || isInvitation) && (
             <div className="signup-requisitos">
               {requisitos.map((r) => (
                 <div key={r.chave} className={`signup-requisito ${r.ok ? 'signup-requisito--ok' : 'signup-requisito--pendente'}`}>
@@ -985,13 +1104,15 @@ export function CadastroContinuarPage() {
             blocoCompleto
             centralizado
             disabled={etapaCadastro === 'verificacao_email' ? enviando || !codigoVerificacao.trim() : !podeEnviar}
-            carregando={enviando}
+            carregando={enviando || processandoTicket}
           >
             {enviando
               ? t('cadastro.continuar.criando', 'Criando conta…')
-              : etapaCadastro === 'verificacao_email'
-                ? 'Verificar e entrar'
-                : t('cadastro.continuar.submit', 'Criar conta')}
+              : processandoTicket
+                ? 'Validando convite…'
+                : etapaCadastro === 'verificacao_email'
+                  ? 'Verificar e entrar'
+                  : t('cadastro.continuar.submit', 'Criar conta')}
           </BotaoGlobal>
         </form>
 

@@ -20,9 +20,11 @@ import {
 } from '../../shared/tipo-fornecedor-organizacao.js'
 import {
   type CadastrosRequestContext,
+  atualizarVinculoFornecedorOrganizacao,
   buscarFornecedorPorEmailNaOrganizacao,
   criarFornecedor,
   criarVinculoFornecedorOrganizacao,
+  listarVinculosFornecedorOrganizacaoPorOrganizacao,
   listarVinculosFornecedorPorUsuario,
   obterFornecedorPorIdNaOrganizacao,
 } from './cadastros-client.js'
@@ -140,6 +142,64 @@ async function resolverFornecedorConvite(args: {
   return fornecedor.id_fornecedor
 }
 
+/** CONVIDADO = id_clerk_usuario pending_* (mesma regra da listagem de usuários). */
+async function usuarioEstaConvidado(id_usuario: string, id_organizacao: string): Promise<boolean> {
+  const usuario = await prisma.usuario.findFirst({
+    where: { id_usuario, id_organizacao },
+    select: { id_clerk_usuario: true },
+  })
+  return usuario?.id_clerk_usuario?.startsWith('pending_') ?? false
+}
+
+/**
+ * Vínculo fornecedor+org+tipo pode já existir no cartório (sem id_usuario ou com
+ * convite pendente antigo). Garante que o usuário convidado fique associado —
+ * sem bloquear o convite nem lançar erro para usuário ativo já vinculado.
+ */
+async function associarUsuarioAoVinculoExistente(args: {
+  id_fornecedor: string
+  id_organizacao: string
+  tipo_fornecedor_organizacao: TipoFornecedorOrganizacao
+  id_usuario: string
+  correlation_id?: string
+}): Promise<void> {
+  const ctx = ctxCadastros(args.id_organizacao, args.correlation_id)
+  const vinculosOrg = await listarVinculosFornecedorOrganizacaoPorOrganizacao(ctx)
+  const existente = vinculosOrg.find(
+    (v) =>
+      v.id_fornecedor === args.id_fornecedor
+      && v.id_organizacao === args.id_organizacao
+      && v.tipo_fornecedor_organizacao === args.tipo_fornecedor_organizacao,
+  )
+  if (!existente) return
+  if (existente.id_usuario === args.id_usuario) return
+
+  const podeReatribuir =
+    !existente.id_usuario
+    || await usuarioEstaConvidado(existente.id_usuario, args.id_organizacao)
+
+  if (!podeReatribuir) {
+    log.warn('prestador.vinculo_ocupado_usuario_ativo', {
+      id_fornecedor: args.id_fornecedor,
+      id_organizacao: args.id_organizacao,
+      id_usuario_ocupante: existente.id_usuario,
+      id_usuario_novo: args.id_usuario,
+    })
+    return
+  }
+
+  await atualizarVinculoFornecedorOrganizacao(
+    existente.id_fornecedor_organizacao,
+    { id_usuario: args.id_usuario },
+    ctx,
+  )
+  log.info('prestador.vinculo_usuario_associado', {
+    id_fornecedor_organizacao: existente.id_fornecedor_organizacao,
+    id_usuario: args.id_usuario,
+    substituiu_convite_pendente: !!existente.id_usuario,
+  })
+}
+
 async function garantirVinculo(args: {
   id_fornecedor: string
   id_organizacao: string
@@ -157,6 +217,20 @@ async function garantirVinculo(args: {
   )
   if (jaExiste) return 'existente'
 
+  // Cartório pode ter linha pré-cadastrada (id_usuario null) — associa antes do POST.
+  await associarUsuarioAoVinculoExistente(args)
+  const vinculosAposAssociar = await listarVinculosFornecedorPorUsuario(args.id_usuario, ctx)
+  if (
+    vinculosAposAssociar.some(
+      (v) =>
+        v.id_organizacao === args.id_organizacao
+        && v.tipo_fornecedor_organizacao === args.tipo_fornecedor_organizacao
+        && v.id_fornecedor === args.id_fornecedor,
+    )
+  ) {
+    return 'existente'
+  }
+
   try {
     await criarVinculoFornecedorOrganizacao(
       {
@@ -171,25 +245,69 @@ async function garantirVinculo(args: {
     return 'criado'
   } catch (err) {
     if (err instanceof AppError && err.code === 'VINCULO_DUPLICADO') {
+      await associarUsuarioAoVinculoExistente(args)
       return 'existente'
     }
     throw err
   }
 }
 
-/** Best-effort — espelha id_usuario Gravity (+ Clerk opcional) no BID via id_fornecedor Cadastros. */
+export interface VinculoFornecedorAtivoResumo {
+  id_fornecedor: string
+  id_organizacao: string
+}
+
+/**
+ * Passo 01 do convite FORNECEDOR — exige vínculo ATIVO no Cadastros antes de
+ * conceder `visao_fornecedor:cotar` (autorização sem identidade = lista BID quebrada).
+ */
+export async function exigirVinculosCadastrosFornecedorAtivos(args: {
+  id_usuario: string
+  id_organizacao: string
+  correlation_id?: string
+}): Promise<VinculoFornecedorAtivoResumo[]> {
+  const ctx = ctxCadastros(args.id_organizacao, args.correlation_id)
+  const vinculos = await listarVinculosFornecedorPorUsuario(args.id_usuario, ctx)
+  const ativos = vinculos.filter(
+    (v) =>
+      v.id_organizacao === args.id_organizacao
+      && v.status_fornecedor_organizacao === 'ATIVO',
+  )
+  if (ativos.length === 0) {
+    throw new AppError(
+      'Fornecedor não provisionado no Cadastros. Conclua o convite com empresa antes de habilitar cotar.',
+      422,
+      'FORNECEDOR_NAO_PROVISIONADO',
+    )
+  }
+  return ativos.map((v) => ({
+    id_fornecedor: v.id_fornecedor,
+    id_organizacao: v.id_organizacao,
+  }))
+}
+
+/** Espelha id_usuario Gravity (+ Clerk opcional) no BID via id_fornecedor Cadastros. */
 export async function sincronizarUsuarioBidFreteFornecedor(args: {
   id_organizacao_cliente: string
   id_fornecedor: string
   id_usuario: string
   id_clerk_usuario?: string | null
   correlation_id?: string
+  /** Quando true, falha de sync propaga erro (ex.: PUT permissoes com cotar). */
+  obrigatorio?: boolean
 }): Promise<void> {
   if (!args.id_fornecedor?.trim() || !args.id_usuario?.trim()) return
 
   const baseUrl = process.env.BID_FRETE_INTERNATIONAL_SERVICE_URL ?? 'http://127.0.0.1:8023'
   const chave = process.env.CHAVE_INTERNA_SERVICO
   if (!chave) {
+    if (args.obrigatorio) {
+      throw new AppError(
+        'Serviço BID indisponível (CHAVE_INTERNA_SERVICO ausente)',
+        503,
+        'BID_SYNC_INDISPONIVEL',
+      )
+    }
     log.warn('bid.sync_usuario.skip', { reason: 'CHAVE_INTERNA_SERVICO ausente' })
     return
   }
@@ -215,9 +333,25 @@ export async function sincronizarUsuarioBidFreteFornecedor(args: {
       },
     )
     if (!res.ok) {
+      if (args.obrigatorio) {
+        throw new AppError(
+          'Falha ao vincular fornecedor no BID Frete Internacional',
+          res.status >= 500 ? 502 : 422,
+          'BID_SYNC_FALHOU',
+        )
+      }
       log.warn('bid.sync_usuario.falhou', { status: res.status, id_fornecedor: args.id_fornecedor })
     }
   } catch (err) {
+    if (args.obrigatorio && err instanceof AppError) throw err
+    if (args.obrigatorio) {
+      const detalhe = err instanceof Error ? err.message : String(err)
+      throw new AppError(
+        `Falha ao vincular fornecedor no BID Frete Internacional: ${detalhe}`,
+        502,
+        'BID_SYNC_FALHOU',
+      )
+    }
     log.warn('bid.sync_usuario.erro', {
       id_fornecedor: args.id_fornecedor,
       error: err instanceof Error ? err.message : String(err),
@@ -294,13 +428,14 @@ export async function provisionarPrestadorFornecedor(
   }
 
   if (args.id_organizacao_cliente) {
-    sincronizarUsuarioBidFreteFornecedor({
+    await sincronizarUsuarioBidFreteFornecedor({
       id_organizacao_cliente: args.id_organizacao_cliente,
       id_fornecedor: idFornecedor,
       id_usuario: args.id_usuario,
       id_clerk_usuario: args.id_clerk_usuario,
       correlation_id: args.correlation_id,
-    }).catch(() => { /* best-effort */ })
+      obrigatorio: true,
+    })
   }
 
   log.info('prestador.provisionado', {
@@ -335,11 +470,20 @@ export async function aposClerkVinculadoPrestadorFornecedor(args: {
   const vinculos = await listarVinculosFornecedorPorUsuario(args.id_usuario, ctx)
   for (const vinculo of vinculos) {
     if (vinculo.id_organizacao !== args.id_organizacao) continue
-    await sincronizarUsuarioBidFreteFornecedor({
-      id_organizacao_cliente: args.id_organizacao,
-      id_fornecedor: vinculo.id_fornecedor,
-      id_usuario: args.id_usuario,
-      id_clerk_usuario: args.id_clerk_usuario,
-    })
+    try {
+      await sincronizarUsuarioBidFreteFornecedor({
+        id_organizacao_cliente: args.id_organizacao,
+        id_fornecedor: vinculo.id_fornecedor,
+        id_usuario: args.id_usuario,
+        id_clerk_usuario: args.id_clerk_usuario,
+        obrigatorio: true,
+      })
+    } catch (err) {
+      log.warn('bid.sync_pos_login.falhou', {
+        id_usuario: args.id_usuario,
+        id_fornecedor: vinculo.id_fornecedor,
+        error: err instanceof Error ? err.message : String(err),
+      })
+    }
   }
 }

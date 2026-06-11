@@ -17,12 +17,14 @@ import { empresasRouter } from './routes/empresas.js'
 import { moedasRouter } from './routes/moedas.js'
 import { unidadesRouter } from './routes/unidades.js'
 import { incotermsRouter } from './routes/incoterms.js'
+import { cambioSiscomexRouter } from './routes/cambio-siscomex.js'
 import { ncmRouter } from './routes/ncm.js'
 import { opeRouter } from './routes/ope.js'
 import { paisesRouter } from './routes/paises.js'
 import { portosRouter } from './routes/portos.js'
 import { aeroportosRouter } from './routes/aeroportos.js'
 import { containersRouter } from './routes/containers.js'
+import { volumesRouter } from './routes/volumes.js'
 import { taxasOrigemDestinoRouter } from './routes/taxas-origem-destino.js'
 import { adminNcmSyncRouter } from './routes/adminNcmSync.js'
 import { adminCertificadosRouter } from './routes/adminCertificados.js'
@@ -53,12 +55,14 @@ app.use('/api/v1/fornecedores', fornecedoresRouter)
 app.use('/api/v1/cadastros/moedas', moedasRouter)
 app.use('/api/v1/cadastros/unidades', unidadesRouter)
 app.use('/api/v1/cadastros/incoterms', incotermsRouter)
+app.use('/api/v1/cadastros/cambio-siscomex', cambioSiscomexRouter)
 app.use('/api/v1/cadastros/ncm', ncmRouter)
 app.use('/api/v1/cadastros/operacoes-comex', opeRouter)
 app.use('/api/v1/cadastros/paises', paisesRouter)
 app.use('/api/v1/cadastros/portos', portosRouter)
 app.use('/api/v1/cadastros/aeroportos', aeroportosRouter)
 app.use('/api/v1/cadastros/containers', containersRouter)
+app.use('/api/v1/cadastros/volumes', volumesRouter)
 app.use('/api/v1/cadastros/taxas-origem-destino', taxasOrigemDestinoRouter)
 app.use('/api/v1/cadastros/fornecedores-organizacao', fornecedorOrganizacaoRouter)
 

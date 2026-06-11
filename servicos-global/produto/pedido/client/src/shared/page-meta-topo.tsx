@@ -28,7 +28,7 @@ const IMPORTAR_META_BASE = {
 function metaFromRoute(routeKey: string, t: TFunction): PageMetaTopo {
   const map: Record<string, PageMetaTopo> = {
     'pedidos/visao-geral': {
-      label:     t('pedido.nav.visao_geral'),
+      label:     t('pedido.nav.insights'),
       icone:     <ChartPieSlice weight="duotone" size={22} />,
       subtitulo: t('pedido.visao_geral.header.subtitulo'),
     },

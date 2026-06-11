@@ -26,45 +26,15 @@ import {
   ESTILO_BADGE_OPERACAO_EXPORTACAO,
   ESTILO_BADGE_OPERACAO_IMPORTACAO,
 } from './colunas-lista-bid-frete-internacional'
+import {
+  EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
+  lerStatusCotacaoConfigBidFreteInternacional,
+} from '../shared/status-config-bid-frete-internacional'
 import './kanban-bid-frete-internacional.css'
 
 interface CotacoesKanbanProps {
   cotacoes: Cotacao[]
   onRefresh: () => void
-}
-
-interface StatusConfig {
-  id: string
-  nome: string
-  rotulo: string
-  cor: string
-  ordem: number
-  is_sistema: boolean
-}
-
-const STATUS_CONFIG_KEY = 'bid-frete:config:status'
-
-const STATUS_CANONICOS: StatusConfig[] = [
-  { id: 'rascunho', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#94a3b8', ordem: 1, is_sistema: true },
-  { id: 'enviada_fornecedores', nome: 'ENVIADA_FORNECEDORES', rotulo: 'Enviada ao fornecedor', cor: '#60a5fa', ordem: 2, is_sistema: true },
-  { id: 'em_cotacao', nome: 'EM_COTACAO', rotulo: 'Em cotação', cor: '#fbbf24', ordem: 3, is_sistema: true },
-  { id: 'aguardando_aprovacao', nome: 'AGUARDANDO_APROVACAO', rotulo: 'Aprovação pendente', cor: '#818cf8', ordem: 4, is_sistema: true },
-  { id: 'aprovada', nome: 'APROVADA', rotulo: 'Aprovada', cor: '#10b981', ordem: 5, is_sistema: false },
-  { id: 'reprovada', nome: 'REPROVADA', rotulo: 'Reprovada', cor: '#ef4444', ordem: 6, is_sistema: false },
-  { id: 'cancelada', nome: 'CANCELADA', rotulo: 'Cancelada', cor: '#6b7280', ordem: 7, is_sistema: false },
-  { id: 'falta_informacao', nome: 'FALTA_INFORMACAO', rotulo: 'Falta de informação', cor: '#fb7185', ordem: 8, is_sistema: false },
-  { id: 'expirada', nome: 'EXPIRADA', rotulo: 'Expirada', cor: '#d1d5db', ordem: 9, is_sistema: false },
-]
-
-function lerStatusConfig(): StatusConfig[] {
-  try {
-    const raw = localStorage.getItem(STATUS_CONFIG_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
-    }
-  } catch { /* storage indisponível */ }
-  return STATUS_CANONICOS
 }
 
 interface CotacaoKanbanItem extends KanbanItem {
@@ -149,7 +119,7 @@ const STATUS_ICONS: Partial<Record<StatusCotacao, React.ReactElement>> = {
 }
 
 /** Card Kanban — mesma estrutura e classes do Pedido (`CardPedido` / `kbp-card`). */
-function CardCotacao({ cotacao, cardConfig }: { cotacao: Cotacao; cardConfig: KanbanCardConfigBidFrete }) {
+export function CardCotacaoKanbanBidFrete({ cotacao, cardConfig }: { cotacao: Cotacao; cardConfig: KanbanCardConfigBidFrete }) {
   const { t } = useTranslation()
   const campos = cardConfig.campos
   const isVisivel = (campo: string) => campos.find(c => c.campo === campo)?.visivel ?? false
@@ -261,15 +231,17 @@ export default function CotacoesKanban({ cotacoes, onRefresh }: CotacoesKanbanPr
     })
   }, [cotacoes])
 
-  const [statusConfig, setStatusConfig] = useState<StatusConfig[]>(lerStatusConfig)
+  const [statusConfig, setStatusConfig] = useState(lerStatusCotacaoConfigBidFreteInternacional)
 
   useEffect(() => {
-    const handleStorage = () => setStatusConfig(lerStatusConfig())
-    window.addEventListener('storage', handleStorage)
-    window.addEventListener('focus', handleStorage)
+    const atualizar = () => setStatusConfig(lerStatusCotacaoConfigBidFreteInternacional())
+    window.addEventListener('storage', atualizar)
+    window.addEventListener('focus', atualizar)
+    window.addEventListener(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL, atualizar)
     return () => {
-      window.removeEventListener('storage', handleStorage)
-      window.removeEventListener('focus', handleStorage)
+      window.removeEventListener('storage', atualizar)
+      window.removeEventListener('focus', atualizar)
+      window.removeEventListener(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL, atualizar)
     }
   }, [])
 
@@ -351,7 +323,7 @@ export default function CotacoesKanban({ cotacoes, onRefresh }: CotacoesKanbanPr
       <KanbanGlobal<CotacaoKanbanItem>
         colunas={kanbanCols}
         itens={itensFiltrados}
-        renderCard={(item) => <CardCotacao cotacao={item.cotacao} cardConfig={cardConfig} />}
+        renderCard={(item) => <CardCotacaoKanbanBidFrete cotacao={item.cotacao} cardConfig={cardConfig} />}
         onMoverItem={handleMoverCotacao}
         onCardClick={(item) => navigate(`/bid-frete/cotacoes/${item.cotacao.id_cotacao_bid_frete_internacional}`)}
         skeletonCount={4}

@@ -20,6 +20,7 @@ import type { TransferPayload } from './transferirService.js'
 
 const TENANT = 'tenant-abc'
 const USER   = 'user-001'
+const NOME_USUARIO = 'Usuario Teste'
 
 // ── Helpers de fixture ────────────────────────────────────────────────────────
 
@@ -44,7 +45,7 @@ function criarItemPrisma(overrides: Record<string, unknown> = {}) {
     valor_por_unidade_item: 10,
     valor_total_item: 1110,
     casas_decimais_valor_item: 2,
-    cobertura_cambial_item: 'com_cobertura',
+    cobertura_cambial_item: 'ATE_180_DIAS',
     dados_extras_importacao_item: null,
     data_criacao_item: new Date(),
     data_atualizacao_item: new Date(),
@@ -104,6 +105,7 @@ function criarMockDb(pedidoBase = criarPedidoPrisma()) {
   const pedidoTransferenciaCreate = vi.fn().mockResolvedValue({ id: 'hist-001' })
   const pedidoTransferenciaFindFirst = vi.fn().mockResolvedValue(null)
   const pedidoTransferenciaUpdate = vi.fn().mockResolvedValue({})
+  const statusPedidoFindFirst = vi.fn().mockResolvedValue({ id_pedido_status: 'status-aberto' })
 
   // Audit trail migrado para auditLog() do historico-global (fire-and-forget HTTP, não precisa mock aqui)
 
@@ -111,13 +113,50 @@ function criarMockDb(pedidoBase = criarPedidoPrisma()) {
     pedido: { create: pedidoCreate, findFirst: pedidoFindFirst, update: pedidoUpdate },
     pedidoItem: { create: itemCreate, update: itemUpdate, findMany: itemFindMany, delete: itemDelete, findFirst: itemFindFirst },
     pedidoTransferencia: { create: pedidoTransferenciaCreate, findFirst: pedidoTransferenciaFindFirst, update: pedidoTransferenciaUpdate },
+    statusPedido: { findFirst: statusPedidoFindFirst },
   }
 
+  const queryRaw = vi.fn().mockImplementation((strings: TemplateStringsArray) => {
+    const sql = strings.join('')
+    if (sql.includes('"public"."pedido"') && sql.includes('FOR UPDATE')) {
+      return Promise.resolve([{
+        id_pedido: pedidoBase.id_pedido,
+        id_organizacao: pedidoBase.id_organizacao,
+        casas_decimais_valor_pedido: pedidoBase.casas_decimais_valor_pedido,
+        casas_decimais_quantidade_pedido: pedidoBase.casas_decimais_quantidade_pedido,
+        casas_decimais_peso_pedido: 2,
+        casas_decimais_cubagem_pedido: 2,
+      }])
+    }
+    if (sql.includes('"public"."pedido_item"')) {
+      return Promise.resolve(
+        pedidoBase.itens_pedido.map((i: Record<string, unknown>) => ({
+          valor_total_item: i.valor_total_item,
+          quantidade_inicial_item: i.quantidade_inicial_item,
+          peso_liquido_unitario_item: 0,
+          peso_bruto_unitario_item: 0,
+          cubagem_unitaria_item: 0,
+          moeda_item: i.moeda_item,
+          unidade_comercializada_item: i.unidade_comercializada_item,
+        })),
+      )
+    }
+    return Promise.resolve([])
+  })
+
+  // confirmar usa `db` direto como tx (sem $transaction aninhado) — espelhar txBase no root
   const db = {
-    pedido: { findFirst: pedidoFindFirst },
-    pedidoItem: { findFirst: itemFindFirst },
-    pedidoTransferencia: { findFirst: pedidoTransferenciaFindFirst, findMany: vi.fn().mockResolvedValue([]) },
+    ...txBase,
+    pedido: { ...txBase.pedido, findFirst: pedidoFindFirst },
+    pedidoItem: { ...txBase.pedidoItem, findFirst: itemFindFirst },
+    pedidoTransferencia: {
+      ...txBase.pedidoTransferencia,
+      findFirst: pedidoTransferenciaFindFirst,
+      findMany: vi.fn().mockResolvedValue([]),
+    },
+    statusPedido: txBase.statusPedido,
     $transaction: vi.fn().mockImplementation(async (fn: (tx: typeof txBase) => Promise<unknown>) => fn(txBase)),
+    $queryRaw: queryRaw,
   }
 
   return { db: db as unknown as PrismaClient, txBase, mocks: { pedidoCreate, pedidoFindFirst, pedidoUpdate, itemCreate, itemUpdate, itemFindMany, itemDelete, pedidoTransferenciaCreate } }
@@ -215,7 +254,7 @@ describe('TransferirService.confirmar — reducao_simples', () => {
     const service = new TransferirService()
     const payload = criarPayload({ cenario: 'reducao_simples', quantidade_origem: 110 })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     // Deve ter atualizado o item de origem com novaQty = 111 - 110 = 1
     expect(mocks.itemUpdate).toHaveBeenCalledWith(
@@ -226,24 +265,39 @@ describe('TransferirService.confirmar — reducao_simples', () => {
     )
   })
 
-  it('incrementa quantidade_transferida_item', async () => {
+  it('incrementa quantidade_cancelada_item (não transferida)', async () => {
     const { db, mocks } = criarMockDb()
     const service = new TransferirService()
 
-    await service.confirmar(TENANT, USER, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 110 }), db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 110 }), db)
 
-    expect(mocks.itemUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ quantidade_transferida_item: 110 }),
-      }),
+    const updateCall = mocks.itemUpdate.mock.calls[0]?.[0] as { data: Record<string, number> }
+    expect(updateCall.data).toMatchObject({
+      quantidade_atual_item: 1,
+      quantidade_cancelada_item: 110,
+    })
+    expect(updateCall.data).not.toHaveProperty('quantidade_transferida_item')
+    expect(updateCall.data).not.toHaveProperty('data_transferencia_saldo_item')
+  })
+
+  it('não atualiza data_transferencia_saldo na reducao_simples', async () => {
+    const { db, mocks } = criarMockDb()
+    const service = new TransferirService()
+
+    await service.confirmar(TENANT, USER, NOME_USUARIO, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 10 }), db)
+
+    type PedidoUpdateArg = { data: Record<string, unknown> }
+    const updateComData = (mocks.pedidoUpdate.mock.calls as PedidoUpdateArg[][]).find(
+      c => c[0].data?.data_transferencia_saldo_pedido !== undefined,
     )
+    expect(updateComData).toBeUndefined()
   })
 
   it('não cria pedido novo nem item destino', async () => {
     const { db, mocks } = criarMockDb()
     const service = new TransferirService()
 
-    await service.confirmar(TENANT, USER, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 10 }), db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 10 }), db)
 
     expect(mocks.pedidoCreate).not.toHaveBeenCalled()
     expect(mocks.itemCreate).not.toHaveBeenCalled()
@@ -253,7 +307,7 @@ describe('TransferirService.confirmar — reducao_simples', () => {
     const { db } = criarMockDb()
     const service = new TransferirService()
 
-    const result = await service.confirmar(TENANT, USER, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 10 }), db)
+    const result = await service.confirmar(TENANT, USER, NOME_USUARIO, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 10 }), db)
 
     expect(result.pedido_origem_id).toBe('pedi_id_0000001-26')
     expect(result.pedidos_criados).toHaveLength(0)
@@ -264,7 +318,7 @@ describe('TransferirService.confirmar — reducao_simples', () => {
     const service = new TransferirService()
 
     await expect(
-      service.confirmar(TENANT, USER, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 0 }), db),
+      service.confirmar(TENANT, USER, NOME_USUARIO, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 0 }), db),
     ).rejects.toThrow('Quantidade deve ser maior que zero')
   })
 
@@ -273,7 +327,7 @@ describe('TransferirService.confirmar — reducao_simples', () => {
     const service = new TransferirService()
 
     await expect(
-      service.confirmar(TENANT, USER, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 999 }), db),
+      service.confirmar(TENANT, USER, NOME_USUARIO, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 999 }), db),
     ).rejects.toThrow('excede a disponível')
   })
 
@@ -283,7 +337,7 @@ describe('TransferirService.confirmar — reducao_simples', () => {
     const service = new TransferirService()
 
     await expect(
-      service.confirmar(TENANT, USER, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 10 }), db),
+      service.confirmar(TENANT, USER, NOME_USUARIO, criarPayload({ cenario: 'reducao_simples', quantidade_origem: 10 }), db),
     ).rejects.toThrow('Pedido de origem não encontrado')
   })
 })
@@ -301,7 +355,7 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
       destinos: [{ tipo: 'novo', quantidade: 100 }],
     })
 
-    const result = await service.confirmar(TENANT, USER, payload, db)
+    const result = await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     expect(mocks.pedidoCreate).toHaveBeenCalledOnce()
     const chamada = mocks.pedidoCreate.mock.calls[0][0].data
@@ -321,7 +375,7 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
       destinos: [{ tipo: 'novo', quantidade: 100 }],
     })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     expect(mocks.itemCreate).toHaveBeenCalledOnce()
     const itemData = mocks.itemCreate.mock.calls[0][0].data
@@ -341,7 +395,7 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
       destinos: [{ tipo: 'novo', quantidade: 50 }],
     })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     expect(mocks.pedidoCreate.mock.calls[0][0].data.numero_pedido).toBe('CUSTOM-NUM')
   })
@@ -355,7 +409,7 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
       destinos: [{ tipo: 'novo', quantidade: 50 }],
     })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     expect(mocks.pedidoCreate.mock.calls[0][0].data.numero_pedido).toMatch(/^PO-TRANS-/)
   })
@@ -369,7 +423,7 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
       destinos: [{ tipo: 'novo', quantidade: 100 }],
     })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     // itemUpdate chamado para a origem (111 - 100 = 11)
     type UpdateArg = { where: { id_item: string }; data: Record<string, unknown> }
@@ -389,13 +443,41 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
       destinos: [{ tipo: 'novo', quantidade: 50 }],
     })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     const pedidoData = mocks.pedidoCreate.mock.calls[0][0].data
     expect(pedidoData.nome_exportador).toBeUndefined()
     expect(pedidoData.nome_fabricante).toBeUndefined()
     expect(pedidoData.quantidade_total_pedido).toBeUndefined()
     expect(pedidoData.quantidade_transferida_total).toBeUndefined()
+  })
+
+  it('atualiza data_transferencia_saldo_pedido e data_transferencia_saldo_item na origem', async () => {
+    const { db, txBase, mocks } = criarMockDb()
+    txBase.pedido.findFirst
+      .mockResolvedValueOnce(criarPedidoPrisma())
+      .mockResolvedValueOnce(criarPedidoPrisma({ id: 'pedi_destino', numero_pedido: 'PO-DEST', itens_pedido: [] }))
+
+    const service = new TransferirService()
+    const payload = criarPayload({
+      cenario: 'split_pedido_existente',
+      quantidade_origem: 50,
+      destinos: [{ tipo: 'existente', pedido_id: 'pedi_destino', quantidade: 50 }],
+    })
+
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
+
+    type UpdateArg = { where: { id_item: string }; data: Record<string, unknown> }
+    const updateOrigemCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
+      c => c[0].where.id_item === 'pite_id_0000001-26',
+    )
+    expect(updateOrigemCall?.[0].data.data_transferencia_saldo_item).toBeInstanceOf(Date)
+
+    type PedidoUpdateArg = { where: { id_pedido: string }; data: Record<string, unknown> }
+    const updatePedidoCall = (mocks.pedidoUpdate.mock.calls as PedidoUpdateArg[][]).find(
+      c => c[0].data?.data_transferencia_saldo_pedido instanceof Date,
+    )
+    expect(updatePedidoCall?.[0].where.id_pedido).toBe('pedi_id_0000001-26')
   })
 })
 
@@ -416,7 +498,7 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
       destinos: [{ tipo: 'existente', pedido_id: 'pedi_destino', quantidade: 50 }],
     })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     expect(mocks.itemCreate).toHaveBeenCalledOnce()
     const itemData = mocks.itemCreate.mock.calls[0][0].data
@@ -445,7 +527,7 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
       destinos: [{ tipo: 'existente', pedido_id: 'pedi_destino', quantidade: 50 }],
     })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     // Não deve criar novo item — deve atualizar o existente
     expect(mocks.itemCreate).not.toHaveBeenCalled()
@@ -470,7 +552,7 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
       destinos: [{ tipo: 'existente', pedido_id: 'pedi_inexistente', quantidade: 50 }],
     })
 
-    await expect(service.confirmar(TENANT, USER, payload, db)).rejects.toThrow('não encontrado')
+    await expect(service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)).rejects.toThrow('não encontrado')
   })
 })
 
@@ -486,7 +568,7 @@ describe('TransferirService.confirmar — substituicao_pura', () => {
       destinos: [{ tipo: 'mesmo', quantidade: 111, part_number: 'PART-002-NOVO' }],
     })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     type UpdateArg = { where: { id_item: string }; data: Record<string, unknown> }
     const updateCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
@@ -504,7 +586,7 @@ describe('TransferirService.confirmar — substituicao_pura', () => {
       destinos: [{ tipo: 'mesmo', quantidade: 111, part_number: 'PART-002' }],
     })
 
-    await service.confirmar(TENANT, USER, payload, db)
+    await service.confirmar(TENANT, USER, NOME_USUARIO, payload, db)
 
     // O update de qty (com quantidade_atual_item) não deve ter sido chamado
     type UpdateArg = { where: { id_item: string }; data: Record<string, unknown> }

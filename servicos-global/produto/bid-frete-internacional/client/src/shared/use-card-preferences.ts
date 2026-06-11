@@ -41,11 +41,25 @@ export const CARDS_CATALOGO: CardDefinicao[] = [
 
 export const CARDS_PADRAO = ['total_cotacoes', 'valor_total_frete', 'propostas_recebidas']
 
-const STORAGE_KEY = 'bid-frete:config:cards'
-const PERIOD_KEY = 'bid-frete:config:cards-periodo'
-const CUSTOM_CATALOG_KEY = 'bid-frete:config:cards-catalogo-custom'
-const STORAGE_VERSION_KEY = 'bid-frete:config:cards-prefs-version'
-const SYNC_EVENT = 'bid-frete:cards-updated'
+export type EscopoCardsBidFrete = 'operacional' | 'fornecedor'
+
+function chavesCardsEscopo(escopo: EscopoCardsBidFrete) {
+  const sufixo = escopo === 'fornecedor' ? ':fornecedor' : ''
+  return {
+    storage: `bid-frete${sufixo}:config:cards`,
+    period: `bid-frete${sufixo}:config:cards-periodo`,
+    customCatalog: `bid-frete${sufixo}:config:cards-catalogo-custom`,
+    version: `bid-frete${sufixo}:config:cards-prefs-version`,
+    syncEvent: `bid-frete${sufixo}:cards-updated`,
+  }
+}
+
+const CHAVES_OPERACIONAL = chavesCardsEscopo('operacional')
+const STORAGE_KEY = CHAVES_OPERACIONAL.storage
+const PERIOD_KEY = CHAVES_OPERACIONAL.period
+const CUSTOM_CATALOG_KEY = CHAVES_OPERACIONAL.customCatalog
+const STORAGE_VERSION_KEY = CHAVES_OPERACIONAL.version
+const SYNC_EVENT = CHAVES_OPERACIONAL.syncEvent
 const CURRENT_PREFS_VERSION = 2
 const DEFAULT_PERIODO: CardPeriodoCodigo = '30d'
 
@@ -61,9 +75,10 @@ const LEGACY_FALLBACK_CARD_IDS = [
 
 export const DEFAULT_CARD_PREFERENCIAS: CardPreferencia[] = CARDS_PADRAO.map(id => ({ id, visible: true }))
 
-export function carregarCardsCustomizados(): CardDefinicao[] {
+export function carregarCardsCustomizados(escopo: EscopoCardsBidFrete = 'operacional'): CardDefinicao[] {
+  const { customCatalog } = chavesCardsEscopo(escopo)
   try {
-    const raw = localStorage.getItem(CUSTOM_CATALOG_KEY)
+    const raw = localStorage.getItem(customCatalog)
     if (!raw) return []
     const parsed = JSON.parse(raw) as unknown
     if (!Array.isArray(parsed)) return []
@@ -79,19 +94,20 @@ export function carregarCardsCustomizados(): CardDefinicao[] {
   }
 }
 
-export function listarCardsCatalogo(): CardDefinicao[] {
-  return [...CARDS_CATALOGO, ...carregarCardsCustomizados()]
+export function listarCardsCatalogo(escopo: EscopoCardsBidFrete = 'operacional'): CardDefinicao[] {
+  return [...CARDS_CATALOGO, ...carregarCardsCustomizados(escopo)]
 }
 
-export function registrarCardCustomizado(def: CardDefinicao): void {
-  const custom = carregarCardsCustomizados()
+export function registrarCardCustomizado(def: CardDefinicao, escopo: EscopoCardsBidFrete = 'operacional'): void {
+  const { customCatalog, syncEvent } = chavesCardsEscopo(escopo)
+  const custom = carregarCardsCustomizados(escopo)
   if (custom.some(c => c.id === def.id)) return
-  localStorage.setItem(CUSTOM_CATALOG_KEY, JSON.stringify([...custom, def]))
-  window.dispatchEvent(new CustomEvent(SYNC_EVENT))
+  localStorage.setItem(customCatalog, JSON.stringify([...custom, def]))
+  window.dispatchEvent(new CustomEvent(syncEvent))
 }
 
-function cardExiste(id: string): boolean {
-  return listarCardsCatalogo().some(c => c.id === id)
+function cardExiste(id: string, escopo: EscopoCardsBidFrete): boolean {
+  return listarCardsCatalogo(escopo).some(c => c.id === id)
 }
 
 function isLegacyFallbackPrefs(salvas: CardPreferencia[]): boolean {
@@ -101,20 +117,21 @@ function isLegacyFallbackPrefs(salvas: CardPreferencia[]): boolean {
   return ids === legacyIds && salvas.every(p => p.visible)
 }
 
-export function carregarPreferenciasCardsBidFrete(): CardPreferencia[] {
+export function carregarPreferenciasCardsBidFrete(escopo: EscopoCardsBidFrete = 'operacional'): CardPreferencia[] {
+  const chaves = chavesCardsEscopo(escopo)
   try {
-    const version = Number(localStorage.getItem(STORAGE_VERSION_KEY) ?? '1')
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const version = Number(localStorage.getItem(chaves.version) ?? '1')
+    const raw = localStorage.getItem(chaves.storage)
 
     if (version < CURRENT_PREFS_VERSION) {
-      localStorage.setItem(STORAGE_VERSION_KEY, String(CURRENT_PREFS_VERSION))
+      localStorage.setItem(chaves.version, String(CURRENT_PREFS_VERSION))
       if (!raw) {
-        salvarPreferenciasCardsBidFrete(DEFAULT_CARD_PREFERENCIAS)
+        salvarPreferenciasCardsBidFrete(DEFAULT_CARD_PREFERENCIAS, escopo)
         return DEFAULT_CARD_PREFERENCIAS
       }
       const salvas = JSON.parse(raw) as CardPreferencia[]
       if (Array.isArray(salvas) && isLegacyFallbackPrefs(salvas)) {
-        salvarPreferenciasCardsBidFrete(DEFAULT_CARD_PREFERENCIAS)
+        salvarPreferenciasCardsBidFrete(DEFAULT_CARD_PREFERENCIAS, escopo)
         return DEFAULT_CARD_PREFERENCIAS
       }
     }
@@ -122,84 +139,88 @@ export function carregarPreferenciasCardsBidFrete(): CardPreferencia[] {
     if (!raw) return DEFAULT_CARD_PREFERENCIAS
     const salvas = JSON.parse(raw) as CardPreferencia[]
     if (!Array.isArray(salvas)) return DEFAULT_CARD_PREFERENCIAS
-    const validas = salvas.filter(p => p && typeof p.id === 'string' && cardExiste(p.id))
+    const validas = salvas.filter(p => p && typeof p.id === 'string' && cardExiste(p.id, escopo))
     return validas.length > 0 ? validas : DEFAULT_CARD_PREFERENCIAS
   } catch {
     return DEFAULT_CARD_PREFERENCIAS
   }
 }
 
-export function carregarPeriodoCardsBidFrete(): CardPeriodoCodigo {
+export function carregarPeriodoCardsBidFrete(escopo: EscopoCardsBidFrete = 'operacional'): CardPeriodoCodigo {
+  const { period } = chavesCardsEscopo(escopo)
   try {
-    const raw = localStorage.getItem(PERIOD_KEY) as CardPeriodoCodigo | null
+    const raw = localStorage.getItem(period) as CardPeriodoCodigo | null
     if (raw && CARD_PERIODOS.some(p => p.id === raw)) return raw
   } catch { /* ignore */ }
   return DEFAULT_PERIODO
 }
 
-export function salvarPreferenciasCardsBidFrete(next: CardPreferencia[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-  window.dispatchEvent(new CustomEvent(SYNC_EVENT))
+export function salvarPreferenciasCardsBidFrete(next: CardPreferencia[], escopo: EscopoCardsBidFrete = 'operacional') {
+  const { storage, syncEvent } = chavesCardsEscopo(escopo)
+  localStorage.setItem(storage, JSON.stringify(next))
+  window.dispatchEvent(new CustomEvent(syncEvent))
 }
 
-export function salvarPeriodoCardsBidFrete(periodo: CardPeriodoCodigo) {
-  localStorage.setItem(PERIOD_KEY, periodo)
-  window.dispatchEvent(new CustomEvent(SYNC_EVENT))
+export function salvarPeriodoCardsBidFrete(periodo: CardPeriodoCodigo, escopo: EscopoCardsBidFrete = 'operacional') {
+  const { period, syncEvent } = chavesCardsEscopo(escopo)
+  localStorage.setItem(period, periodo)
+  window.dispatchEvent(new CustomEvent(syncEvent))
 }
 
-export function useCardPreferencesBidFrete() {
-  const [prefs, setPrefs] = useState<CardPreferencia[]>(carregarPreferenciasCardsBidFrete)
-  const [periodo, setPeriodoState] = useState<CardPeriodoCodigo>(carregarPeriodoCardsBidFrete)
-  const [catalogo, setCatalogo] = useState<CardDefinicao[]>(() => listarCardsCatalogo())
+export function useCardPreferencesBidFrete(escopo: EscopoCardsBidFrete = 'operacional') {
+  const chaves = chavesCardsEscopo(escopo)
+  const [prefs, setPrefs] = useState<CardPreferencia[]>(() => carregarPreferenciasCardsBidFrete(escopo))
+  const [periodo, setPeriodoState] = useState<CardPeriodoCodigo>(() => carregarPeriodoCardsBidFrete(escopo))
+  const [catalogo, setCatalogo] = useState<CardDefinicao[]>(() => listarCardsCatalogo(escopo))
 
   useEffect(() => {
     function onSync() {
-      setPrefs(carregarPreferenciasCardsBidFrete())
-      setPeriodoState(carregarPeriodoCardsBidFrete())
-      setCatalogo(listarCardsCatalogo())
+      setPrefs(carregarPreferenciasCardsBidFrete(escopo))
+      setPeriodoState(carregarPeriodoCardsBidFrete(escopo))
+      setCatalogo(listarCardsCatalogo(escopo))
     }
-    window.addEventListener(SYNC_EVENT, onSync)
+    window.addEventListener(chaves.syncEvent, onSync)
     window.addEventListener('storage', onSync)
     return () => {
-      window.removeEventListener(SYNC_EVENT, onSync)
+      window.removeEventListener(chaves.syncEvent, onSync)
       window.removeEventListener('storage', onSync)
     }
-  }, [])
+  }, [escopo, chaves.syncEvent])
 
   const persistir = useCallback((next: CardPreferencia[]) => {
     setPrefs(next)
-    salvarPreferenciasCardsBidFrete(next)
-  }, [])
+    salvarPreferenciasCardsBidFrete(next, escopo)
+  }, [escopo])
 
   const setPeriodo = useCallback((next: CardPeriodoCodigo) => {
     setPeriodoState(next)
-    salvarPeriodoCardsBidFrete(next)
-  }, [])
+    salvarPeriodoCardsBidFrete(next, escopo)
+  }, [escopo])
 
   const adicionar = useCallback((id: string) => {
     setPrefs(prev => {
       if (prev.some(p => p.id === id)) return prev
       const next = [...prev, { id, visible: true }]
-      salvarPreferenciasCardsBidFrete(next)
+      salvarPreferenciasCardsBidFrete(next, escopo)
       return next
     })
-  }, [])
+  }, [escopo])
 
   const remover = useCallback((id: string) => {
     setPrefs(prev => {
       const next = prev.filter(p => p.id !== id)
-      salvarPreferenciasCardsBidFrete(next)
+      salvarPreferenciasCardsBidFrete(next, escopo)
       return next
     })
-  }, [])
+  }, [escopo])
 
   const toggle = useCallback((id: string) => {
     setPrefs(prev => {
       const next = prev.map(p => (p.id === id ? { ...p, visible: !p.visible } : p))
-      salvarPreferenciasCardsBidFrete(next)
+      salvarPreferenciasCardsBidFrete(next, escopo)
       return next
     })
-  }, [])
+  }, [escopo])
 
   const reordenar = useCallback((novaOrdem: CardPreferencia[]) => {
     persistir(novaOrdem)
@@ -208,8 +229,8 @@ export function useCardPreferencesBidFrete() {
   const resetar = useCallback(() => {
     persistir(DEFAULT_CARD_PREFERENCIAS)
     setPeriodo(DEFAULT_PERIODO)
-    localStorage.setItem(STORAGE_VERSION_KEY, String(CURRENT_PREFS_VERSION))
-  }, [persistir, setPeriodo])
+    localStorage.setItem(chaves.version, String(CURRENT_PREFS_VERSION))
+  }, [persistir, setPeriodo, chaves.version])
 
   return {
     prefs,

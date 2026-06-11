@@ -1,3 +1,5 @@
+import { normalizarChaveCampoPedido } from '../../../shared/migracaoChavesCampoPedido.js'
+
 /**
  * mapeamentoMemoriaService.ts — Persistencia de mapeamentos de importacao por tenant
  *
@@ -39,7 +41,13 @@ export class MapeamentoMemoriaService {
         },
       })
       if (!registro) return null
-      return JSON.parse(registro.mapeamento as string) as ColunaMapeadaBackend[]
+      const bruto = JSON.parse(registro.mapeamento as string) as ColunaMapeadaBackend[]
+      return bruto.map(m => ({
+        ...m,
+        campo_sistema: m.campo_sistema
+          ? normalizarChaveCampoPedido(m.campo_sistema)
+          : m.campo_sistema,
+      }))
     } catch {
       // Tabela pode nao existir ainda em dev
       return null

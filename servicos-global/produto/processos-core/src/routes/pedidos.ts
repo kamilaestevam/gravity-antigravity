@@ -27,7 +27,7 @@ import { Router } from 'express'
 import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import type { PrismaClient } from '@prisma/client'
-import { withOrganizacao, type ContextoOrganizacao, obterWorkspacesHabilitadosDoUsuario } from '@gravity/resolver-organizacao'
+import { withOrganizacao, type ContextoOrganizacao, obterWorkspacesHabilitadosDoUsuario, obterWorkspaces } from '@gravity/resolver-organizacao'
 import { saldoPedido, AppError } from '../services/saldo-pedido.js'
 import {
   parsearFormula,
@@ -44,6 +44,11 @@ import {
 } from '../../../pedido/shared/mapaPropagacaoPedidoItem.js'
 import { superficiarCamposJsonPedido } from '../../../pedido/shared/camposJsonPedidoLista.js'
 import {
+  resolverNomeImportadorLista,
+  resolverNomeExportadorLista,
+  pareceIdInternoGravity,
+} from '../../../pedido/shared/resolverNomeImportadorLista.js'
+import {
   buscarIdentidadesComexPorSuids,
   buscarMoedaPorCodigo,
   buscarNcmPorCodigo,
@@ -51,6 +56,7 @@ import {
   buscarUnidadePorCodigo,
   type CadastrosRequestContext,
 } from '../services/cadastrosClient.js'
+import { montarCondicoesBuscaPedido } from '../services/filtro-busca-pedido.js'
 import { validarUnidadesItem } from '../services/validarUnidadesItem.js'
 import { validarIncotermPedidoItem } from '../services/validarIncotermPedidoItem.js'
 import { validarLogisticaPedidoCampo } from '../services/validarLogisticaPedidoCampo.js'
@@ -71,6 +77,7 @@ import {
   campoItemAfetaAgregado,
 } from '../services/recalcularAgregadosPedido.js'
 import { LIMITE_ABSOLUTO_DECIMAL_18_6 } from '../services/decimalPedido.js'
+import { calcularValorTotalItemPedido } from '../services/valorTotalItemPedido.js'
 // FASE 06E (Frente 1, completa): OPE agora vem via `suid_ope` no payload.
 // montarSnapshotOpe é plugado no fluxo POST quando suid_ope está presente.
 // SnapshotOpeData usado no array de snapshots tipados.
@@ -93,6 +100,7 @@ const criarItemSchema = z.object({
   descricao_item:                 z.string().optional().nullable().default(''),
   quantidade_inicial_item:        z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().default(0),
   unidade_comercializada_item:    z.string().optional().nullable(),
+  tipo_volume_item:               z.string().optional().nullable(),
   moeda_item:                     z.string().optional(),  // propagado de moeda_pedido se ausente
   valor_por_unidade_item:         z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().nullable(),
   valor_total_item:               z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().nullable(),
@@ -125,7 +133,9 @@ const criarPedidoObjectSchema = z.object({
   casas_decimais_valor_pedido:      z.number().int().default(2),
   casas_decimais_quantidade_pedido: z.number().int().default(2),
   unidade_comercializada_pedido:    z.string().optional().nullable(),
+  tipo_volume_pedido:               z.string().optional().nullable(),
   condicao_pagamento_pedido:        z.string().optional().nullable(),
+  condicao_pagamento_siscomex_pedido: z.string().optional().nullable(),
   data_emissao_pedido:              z.string().datetime().optional(),
   detalhes_operacionais_pedido:     z.any().optional().nullable(),
   itens:                            z.array(criarItemSchema).optional().default([]),
@@ -208,9 +218,14 @@ export const atualizarItemSchema = z.object({
   ncm: z.string().min(1).optional(),
   descricao_item: z.string().min(1).optional(),
   unidade_comercializada_item: z.string().optional().nullable(),
+  tipo_volume_item: z.string().optional().nullable(),
   moeda_item: z.string().optional(),
+  moeda_cambio_pedido: z.string().optional().nullable(),
+  moeda_cambio_item_pedido: z.string().optional().nullable(),
   valor_por_unidade_item: z.number().optional().nullable(),
   valor_total_item: z.number().optional().nullable(),
+  valor_total_cambio_pedido: z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().nullable(),
+  valor_total_cambio_item_pedido: z.number().min(0).max(LIMITE_ABSOLUTO_DECIMAL_18_6).optional().nullable(),
   quantidade_inicial_pedido: z.number().min(0).optional(),
   cobertura_cambial: z.string().optional(),
   nome_exportador: z.string().optional().nullable(),
@@ -219,8 +234,11 @@ export const atualizarItemSchema = z.object({
   referencia_importador: z.string().optional().nullable(),
   referencia_exportador: z.string().optional().nullable(),
   referencia_fabricante: z.string().optional().nullable(),
+  numero_proforma: z.string().optional().nullable(),
+  numero_invoice: z.string().optional().nullable(),
   incoterm: z.string().optional().nullable(),
   condicao_pagamento: z.string().optional().nullable(),
+  condicao_pagamento_siscomex: z.string().optional().nullable(),
   data_emissao_pedido: z.string().optional().nullable(),
   // Dados físicos unitários — sigla validada cruzada com cadastros.unidade
   // (categoria=peso para peso_*; categorias=comprimento|area|volume para cubagem).
@@ -237,9 +255,34 @@ const cancelarQuantidadeSchema = z.object({
   quantidade: z.number().positive(),
 })
 
-const atualizarProntaSchema = z.object({
-  quantidade_pronta_pedido: z.number().min(0),
-})
+const atualizarProntaSchema = z
+  .object({
+    quantidade_pronta_item: z.number().min(0).optional(),
+    /** @deprecated — aceito na leitura para rollout / clientes antigos */
+    quantidade_pronta_pedido: z.number().min(0).optional(),
+    /** @deprecated — aceito na leitura para rollout / clientes antigos */
+    quantidade_pronta_total_item_pedido: z.number().min(0).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const temValor =
+      data.quantidade_pronta_item != null
+      || data.quantidade_pronta_pedido != null
+      || data.quantidade_pronta_total_item_pedido != null
+    if (!temValor) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'quantidade_pronta_item é obrigatória',
+        path: ['quantidade_pronta_item'],
+      })
+    }
+  })
+  .transform((data) => ({
+    quantidade_pronta_item:
+      data.quantidade_pronta_item
+      ?? data.quantidade_pronta_pedido
+      ?? data.quantidade_pronta_total_item_pedido
+      ?? 0,
+  }))
 
 const statusTransicaoSchema = z.object({
   status: z.string().min(1).max(100).regex(/^[a-z0-9_]+$/, 'Nome de status inválido'),
@@ -304,11 +347,12 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     tipo_operacao_item:          item.tipo_operacao_item,
     tipo_operacao:               item.tipo_operacao_item,
     unidade_comercializada_item: item.unidade_comercializada_item,
+    tipo_volume_item:            item.tipo_volume_item,
 
     // Decimal → number (quantidades)
     quantidade_inicial_pedido:     num(item.quantidade_inicial_item),
     quantidade_atual_pedido:       num(item.quantidade_atual_item),
-    quantidade_pronta_pedido:      num(item.quantidade_pronta_item),
+    quantidade_pronta_item:      num(item.quantidade_pronta_item),
     quantidade_transferida_pedido: num(item.quantidade_transferida_item),
     quantidade_cancelada_pedido:   num(item.quantidade_cancelada_item),
 
@@ -321,14 +365,19 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
 
     casas_decimais_valor_item: item.casas_decimais_valor_item,
     cobertura_cambial:         item.cobertura_cambial_item,
+    moeda_cambio_item_pedido:         item.moeda_cambio_item_pedido,
+    valor_total_cambio_item_pedido:   num(item.valor_total_cambio_item_pedido, null),
     nome_exportador:           item.nome_exportador_item,
     nome_importador:           item.nome_importador_item,
     nome_fabricante:           item.nome_fabricante_item,
     referencia_importador:     item.referencia_importador_item,
     referencia_exportador:     item.referencia_exportador_item,
     referencia_fabricante:     item.referencia_fabricante_item,
+    numero_proforma:           item.numero_proforma_item,
+    numero_invoice:            item.numero_invoice_item,
     incoterm:                  item.incoterm_item,
-    condicao_pagamento_pedido: item.condicao_pagamento_item,
+    condicao_pagamento:        item.condicao_pagamento_item,
+    condicao_pagamento_siscomex: item.condicao_pagamento_siscomex_item,
     data_emissao_pedido:       item.data_emissao_item,
     data_embarque_item:        normDate(item.data_embarque_item),
 
@@ -437,6 +486,8 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     fabricante_id:            pedido.id_fabricante_pedido        ?? pedido.id_fabricante        ?? pedido.fabricante_id,
     incoterm:                 pedido.incoterm_pedido      ?? pedido.incoterm,
     condicao_pagamento:       pedido.condicao_pagamento_pedido ?? pedido.condicao_pagamento,
+    condicao_pagamento_siscomex: pedido.condicao_pagamento_siscomex_pedido ?? pedido.condicao_pagamento_siscomex,
+    cobertura_cambial:        pedido.cobertura_cambial_pedido ?? pedido.cobertura_cambial,
     numero_proforma:          pedido.numero_proforma_pedido    ?? pedido.numero_proforma,
     numero_invoice:           pedido.numero_invoice_pedido     ?? pedido.numero_invoice,
     referencia_importador:    pedido.referencia_importador_pedido ?? pedido.referencia_importador,
@@ -506,8 +557,22 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     itens,
     ...jsonSuperficie,
     // Nomes das contrapartes: snapshot → detalhes → extras import → item único.
-    nome_exportador: resolveNomeParte('exportador', 'nome_exportador', 'nome_exportador'),
-    nome_importador: resolveNomeParte('importador', 'nome_importador', 'nome_importador'),
+    nome_exportador: resolverNomeExportadorLista({
+      tipo_operacao_pedido: pedido.tipo_operacao_pedido ?? pedido.tipo_operacao,
+      id_workspace: pedido.id_workspace ?? pedido.company_id,
+      nomeSnapshotImportador: findNome('exportador'),
+      nomeDetalhes: det.nome_exportador as string | null | undefined,
+      nomeExtras: jsonSuperficie.nome_exportador,
+      nomeItemUnico: agregarValorUnicoItens(itens, 'nome_exportador'),
+    }),
+    nome_importador: resolverNomeImportadorLista({
+      tipo_operacao_pedido: pedido.tipo_operacao_pedido ?? pedido.tipo_operacao,
+      id_workspace: pedido.id_workspace ?? pedido.company_id,
+      nomeSnapshotImportador: findNome('importador'),
+      nomeDetalhes: det.nome_importador as string | null | undefined,
+      nomeExtras: jsonSuperficie.nome_importador,
+      nomeItemUnico: agregarValorUnicoItens(itens, 'nome_importador'),
+    }),
     nome_fabricante: resolveNomeParte('fabricante', 'nome_fabricante', 'nome_fabricante'),
     // CNPJ exportador: detalhes legado ou extras do Smart Import
     cnpj_exportador: (det.cnpj_exportador as string | null | undefined)
@@ -515,7 +580,7 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
       ?? null,
     // Virtual: somatório de quantidade_pronta dos itens (não persistido no Pedido)
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
-      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_pedido ?? 0), 0)
+      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_item ?? 0), 0)
       : (pedido.quantidade_pronta_itens_pedido_total ?? null),
     // Virtual: somatório de quantidade_transferida dos itens (não persistido no Pedido)
     quantidade_transferida_total: Array.isArray(itens)
@@ -525,10 +590,8 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     quantidade_cancelada_total_pedido: Array.isArray(itens)
       ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_cancelada_pedido ?? 0), 0)
       : (pedido.quantidade_cancelada_total_pedido ?? null),
-    // Virtuais: agregação de NCM por pedido seguindo o padrão renderAgregado
-    // do front (ColunasPai.tsx). `ncm_valor_unico` populado quando todos os
-    // itens compartilham o mesmo NCM; `ncm_divergente=true` quando há mais
-    // de um NCM distinto (front mostra "⚠ N NCMs"); contagem para o badge.
+    // Virtuais: agregação de NCM — valor único quando todos os itens coincidem;
+    // vários NCMs no mesmo pedido é normal (sem alerta de divergência na UI).
     ...(() => {
       if (!Array.isArray(itens)) {
         return {
@@ -542,7 +605,7 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
       )
       return {
         ncm_valor_unico:      ncmsUnicos.size === 1 ? [...ncmsUnicos][0] : null,
-        ncm_divergente:       ncmsUnicos.size > 1,
+        ncm_divergente:       false,
         ncms_distintos_count: ncmsUnicos.size,
       }
     })(),
@@ -562,7 +625,198 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
         descricao_item_valor_unico: descUnicas.size === 1 ? [...descUnicas][0] : null,
       }
     })(),
+    // Cobertura cambial — canônico no pedido; agregado dos itens quando todos coincidem.
+    ...(() => {
+      const canonico = (pedido.cobertura_cambial_pedido ?? pedido.cobertura_cambial) as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          cobertura_cambial_valor_unico: canonicoStr
+            ?? (pedido as { cobertura_cambial_valor_unico?: string | null }).cobertura_cambial_valor_unico
+            ?? null,
+          cobertura_cambial_divergente: (pedido as { cobertura_cambial_divergente?: boolean | null }).cobertura_cambial_divergente ?? false,
+        }
+      }
+      const coberturasItens = itens
+        .map((i: PedidoItemRaw) => i.cobertura_cambial as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const coberturasUnicas = new Set(coberturasItens)
+      let divergente = coberturasUnicas.size > 1
+      if (!divergente && canonicoStr && coberturasItens.length > 0) {
+        divergente = coberturasItens.some((v) => v !== canonicoStr)
+      }
+      return {
+        cobertura_cambial_valor_unico: canonicoStr
+          ?? (coberturasUnicas.size === 1 ? [...coberturasUnicas][0] : null),
+        cobertura_cambial_divergente: divergente,
+      }
+    })(),
+    // Moeda câmbio — canônico no pedido; agregado dos itens quando todos coincidem.
+    ...(() => {
+      const canonico = pedido.moeda_cambio_pedido as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          moeda_cambio_pedido_valor_unico: canonicoStr
+            ?? (pedido as { moeda_cambio_pedido_valor_unico?: string | null }).moeda_cambio_pedido_valor_unico
+            ?? null,
+          moeda_cambio_pedido_divergente: (pedido as { moeda_cambio_pedido_divergente?: boolean | null }).moeda_cambio_pedido_divergente ?? false,
+        }
+      }
+      const moedasItens = itens
+        .map((i: PedidoItemRaw) => i.moeda_cambio_item_pedido as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const moedasUnicas = new Set(moedasItens)
+      let divergente = moedasUnicas.size > 1
+      if (!divergente && canonicoStr && moedasItens.length > 0) {
+        divergente = moedasItens.some((v) => v !== canonicoStr)
+      }
+      return {
+        moeda_cambio_pedido_valor_unico: canonicoStr
+          ?? (moedasUnicas.size === 1 ? [...moedasUnicas][0] : null),
+        moeda_cambio_pedido_divergente: divergente,
+      }
+    })(),
+    // Condição de pagamento — Comercial (texto livre; contrato JSON: condicao_pagamento).
+    ...(() => {
+      const canonico = (pedido.condicao_pagamento_pedido ?? pedido.condicao_pagamento) as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          condicao_pagamento_divergente:
+            (pedido as { condicao_pagamento_divergente?: boolean | null }).condicao_pagamento_divergente ?? false,
+        }
+      }
+      const valoresItens = itens
+        .map((i: PedidoItemRaw) => i.condicao_pagamento as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const valoresUnicos = new Set(valoresItens)
+      let divergente = valoresUnicos.size > 1
+      if (!divergente && canonicoStr && valoresItens.length > 0) {
+        divergente = valoresItens.some((v) => v !== canonicoStr)
+      }
+      return { condicao_pagamento_divergente: divergente }
+    })(),
+    // Modalidade Siscomex — códigos 10–52.
+    ...(() => {
+      const canonico = (pedido.condicao_pagamento_siscomex_pedido ?? pedido.condicao_pagamento_siscomex) as string | null | undefined
+      const canonicoStr = canonico != null && String(canonico).trim() !== '' ? String(canonico) : null
+      if (!Array.isArray(itens)) {
+        return {
+          condicao_pagamento_siscomex_divergente:
+            (pedido as { condicao_pagamento_siscomex_divergente?: boolean | null }).condicao_pagamento_siscomex_divergente ?? false,
+        }
+      }
+      const valoresItens = itens
+        .map((i: PedidoItemRaw) => i.condicao_pagamento_siscomex as string | null | undefined)
+        .filter((x): x is string => !!x && x.trim().length > 0)
+      const valoresUnicos = new Set(valoresItens)
+      let divergente = valoresUnicos.size > 1
+      if (!divergente && canonicoStr && valoresItens.length > 0) {
+        divergente = valoresItens.some((v) => v !== canonicoStr)
+      }
+      return { condicao_pagamento_siscomex_divergente: divergente }
+    })(),
   }
+}
+
+/** Lista: resolve nome legível do workspace para pedidos IMP com nome_importador corrompido (CUID). */
+async function enriquecerNomeImportadorImpLista(pedidos: PedidoRaw[]): Promise<PedidoRaw[]> {
+  const idsWs = [
+    ...new Set(
+      pedidos
+        .filter((p) => (p.tipo_operacao_pedido ?? p.tipo_operacao) === 'importacao')
+        .map((p) => String(p.id_workspace ?? p.company_id ?? '').trim())
+        .filter(Boolean),
+    ),
+  ]
+  if (idsWs.length === 0) return pedidos
+
+  let nomePorId = new Map<string, string>()
+  try {
+    const wsList = await obterWorkspaces({
+      configuradorBaseUrl: process.env.CONFIGURATOR_URL ?? '',
+      chaveInterna:        process.env.CHAVE_INTERNA_SERVICO ?? '',
+      ids:                 idsWs,
+    })
+    nomePorId = new Map(
+      wsList
+        .filter((w) => w.nomeWorkspace?.trim())
+        .map((w) => [w.idWorkspace, w.nomeWorkspace.trim()]),
+    )
+  } catch (err) {
+    console.warn(JSON.stringify({
+      event: 'PEDIDO_LISTA_ENRIQUECER_IMPORTADOR_FAIL',
+      workspaces: idsWs.length,
+      erro: err instanceof Error ? err.message : String(err),
+    }))
+    return pedidos
+  }
+
+  return pedidos.map((p) => {
+    const tipo = p.tipo_operacao_pedido ?? p.tipo_operacao
+    if (tipo !== 'importacao') return p
+    const idWs = String(p.id_workspace ?? p.company_id ?? '').trim()
+    if (!idWs) return p
+    const nomeWs = nomePorId.get(idWs)
+    if (!nomeWs) return p
+    const atual = p.nome_importador as string | null | undefined
+    const corrupto = !atual || pareceIdInternoGravity(atual) || atual.trim() === idWs
+    if (!corrupto) return p
+    return { ...p, nome_importador: nomeWs }
+  })
+}
+
+/** Lista: resolve nome legível do workspace para pedidos EXP com nome_exportador corrompido (CUID). */
+async function enriquecerNomeExportadorExpLista(pedidos: PedidoRaw[]): Promise<PedidoRaw[]> {
+  const idsWs = [
+    ...new Set(
+      pedidos
+        .filter((p) => (p.tipo_operacao_pedido ?? p.tipo_operacao) === 'exportacao')
+        .map((p) => String(p.id_workspace ?? p.company_id ?? '').trim())
+        .filter(Boolean),
+    ),
+  ]
+  if (idsWs.length === 0) return pedidos
+
+  let nomePorId = new Map<string, string>()
+  try {
+    const wsList = await obterWorkspaces({
+      configuradorBaseUrl: process.env.CONFIGURATOR_URL ?? '',
+      chaveInterna:        process.env.CHAVE_INTERNA_SERVICO ?? '',
+      ids:                 idsWs,
+    })
+    nomePorId = new Map(
+      wsList
+        .filter((w) => w.nomeWorkspace?.trim())
+        .map((w) => [w.idWorkspace, w.nomeWorkspace.trim()]),
+    )
+  } catch (err) {
+    console.warn(JSON.stringify({
+      event: 'PEDIDO_LISTA_ENRIQUECER_EXPORTADOR_FAIL',
+      workspaces: idsWs.length,
+      erro: err instanceof Error ? err.message : String(err),
+    }))
+    return pedidos
+  }
+
+  return pedidos.map((p) => {
+    const tipo = p.tipo_operacao_pedido ?? p.tipo_operacao
+    if (tipo !== 'exportacao') return p
+    const idWs = String(p.id_workspace ?? p.company_id ?? '').trim()
+    if (!idWs) return p
+    const nomeWs = nomePorId.get(idWs)
+    if (!nomeWs) return p
+    const atual = p.nome_exportador as string | null | undefined
+    const corrupto = !atual || pareceIdInternoGravity(atual) || atual.trim() === idWs
+    if (!corrupto) return p
+    return { ...p, nome_exportador: nomeWs }
+  })
+}
+
+async function enriquecerNomesPartesListaPedidos(pedidos: PedidoRaw[]): Promise<PedidoRaw[]> {
+  const comImportador = await enriquecerNomeImportadorImpLista(pedidos)
+  return enriquecerNomeExportadorExpLista(comImportador)
 }
 
 // ── Helper: injeta _colunas_usuario nos registros retornados ─────────────────
@@ -769,6 +1023,58 @@ async function validarMultiWorkspace(
   return { valido: true }
 }
 
+/** Garante que o usuário pode operar no workspace do pedido (Mand. 08 — falha alta). */
+async function assertAcessoWorkspacePedido(
+  ctx: ContextoOrganizacao,
+  idWorkspacePedido: string,
+): Promise<void> {
+  const validacao = await validarMultiWorkspace(ctx, [idWorkspacePedido])
+  if (!validacao.valido) {
+    throw new AppError(
+      403,
+      `${validacao.bloqueados.length} workspace(s) não autorizado(s) para este usuário`,
+    )
+  }
+}
+
+/**
+ * Resolve pedido por id_pedido + org (sem filtrar pelo header x-id-workspace).
+ * Usado em rotas por ID quando a Lista pode exibir pedidos de vários workspaces.
+ */
+type PedidoDbLeitura = {
+  pedido: {
+    findFirst: (args: Record<string, unknown>) => Promise<Record<string, unknown> | null>
+  }
+}
+
+async function buscarPedidoPorIdComAcessoWorkspace(
+  db: PedidoDbLeitura,
+  ctx: ContextoOrganizacao,
+  idPedido: string,
+  include?: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const pedido = await db.pedido.findFirst({
+    where: {
+      id_pedido: idPedido,
+      id_organizacao: ctx.idOrganizacao,
+      data_exclusao_pedido: null,
+    },
+    ...(include ? { include } : {}),
+  })
+
+  if (!pedido) {
+    throw new AppError(404, 'Pedido nao encontrado')
+  }
+
+  const idWorkspacePedido = String(pedido.id_workspace ?? '').trim()
+  if (!idWorkspacePedido) {
+    throw new AppError(500, 'Pedido sem id_workspace — dado inconsistente no banco')
+  }
+
+  await assertAcessoWorkspacePedido(ctx, idWorkspacePedido)
+  return pedido as Record<string, unknown>
+}
+
 // ── Helper: tagear pedidos com indicadores de transferência ──────────────────
 // Consulta PedidoTransferencia uma única vez para todo o lote (evita N+1).
 // Popula campos virtuais `enviou_transferencia` e `recebeu_transferencia`.
@@ -877,7 +1183,13 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       }
       if (tipo_operacao) where.tipo_operacao_pedido = tipo_operacao
       if (busca) {
-        where.numero_pedido = { contains: busca as string, mode: 'insensitive' }
+        // Busca ampla: campos fixos + nomes das partes + colunas do usuário
+        // (nome e conteúdo). Em AND para não colidir com o OR do keyset abaixo.
+        const condicoesBusca = await montarCondicoesBuscaPedido(
+          db, busca as string, idOrganizacao,
+          { idUsuario: ctx.idUsuario, tiposUsuario: ctx.tiposUsuario },
+        )
+        where.AND = [{ OR: condicoesBusca }]
       }
 
       // ── Cursor pagination ──
@@ -941,7 +1253,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         // embarcados também. Fix 2026-05-13.
         const registrosComColunas = await injetarColunasPedidoEItens(db, registros, idOrganizacao)
         const mapped = registrosComColunas.map(mapPedido).filter(Boolean) as PedidoRaw[]
-        const comTransferencias = await tagTransferencias(db, mapped, idOrganizacao)
+        const mappedEnriquecido = await enriquecerNomesPartesListaPedidos(mapped)
+        const comTransferencias = await tagTransferencias(db, mappedEnriquecido, idOrganizacao)
         return res.json({ data: comTransferencias, nextCursor: cursor_proximo, hasMore: tem_mais })
       }
 
@@ -1019,7 +1332,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       // Mesma injeção 2-níveis do branch cursor — fecha o gap da Kanban (fix 2026-05-13).
       const dataComColunas = await injetarColunasPedidoEItens(db, data, idOrganizacao)
       const mapped = dataComColunas.map(mapPedido).filter(Boolean) as PedidoRaw[]
-      const comTransferencias = await tagTransferencias(db, mapped, idOrganizacao)
+      const mappedEnriquecido = await enriquecerNomesPartesListaPedidos(mapped)
+      const comTransferencias = await tagTransferencias(db, mappedEnriquecido, idOrganizacao)
       res.json({ data: comTransferencias, total, totalItens, page: pageNum, limit: limitNum })
     })
   } catch (err) {
@@ -1223,16 +1537,10 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
-      const pedido = await db.pedido.findFirst({
-        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
-        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+      const pedido = await buscarPedidoPorIdComAcessoWorkspace(db, ctx, req.params.id, {
+        itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
       })
-
-      if (!pedido) {
-        throw new AppError(404, 'Pedido nao encontrado')
-      }
 
       // Injeção em 2 níveis (Mand. 09 — leitura espelha a escrita):
       //  1) o próprio Pedido recebe `_colunas_usuario` do escopo='pedido'
@@ -1257,25 +1565,16 @@ pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFu
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
-      // Garante que o pedido existe e pertence à organização (e ao workspace, se vier
-      // no header) antes de expor itens. Nomes legados `id`/`tenant_id`/`company_id`
-      // causavam `Unknown argument 'id'` no Prisma → 500 → frontend mostrava itens vazios.
-      const pedido = await db.pedido.findFirst({
+      const pedido = await buscarPedidoPorIdComAcessoWorkspace(db, ctx, req.params.id)
+      const idWorkspacePedido = String(pedido.id_workspace)
+
+      const itens = await db.pedidoItem.findMany({
         where: {
           id_pedido: req.params.id,
           id_organizacao: tenant_id,
-          ...(company_id && company_id !== tenant_id ? { id_workspace: company_id } : {}),
+          id_workspace: idWorkspacePedido,
         },
-        select: { id_pedido: true },
-      })
-      if (!pedido) {
-        throw new AppError(404, 'Pedido nao encontrado')
-      }
-
-      const itens = await db.pedidoItem.findMany({
-        where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
         orderBy: { sequencia_item_pedido: 'asc' },
       })
 
@@ -1809,12 +2108,15 @@ const CAMPOS_EDITAVEIS = new Set([
   'aeroporto_origem',
   'aeroporto_destino',
   'moeda_pedido',
+  'moeda_cambio_pedido',
   'condicao_pagamento',
+  'condicao_pagamento_siscomex',
   'importacao_exportador_id',
   'exportacao_importador_id',
   'data_emissao_pedido',
   'campos_custom',
   'unidade_comercializada_pedido',
+  'tipo_volume_pedido',
   'status',
   // Datas (43)
   'data_prevista_pedido_pronto',
@@ -1847,6 +2149,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'data_confirmada_recebimento_original_proforma',
   'data_meta_recebimento_original_proforma',
   'data_proforma_invoice',
+  'data_documento_proforma',
   'data_prevista_recebimento_rascunho_invoice',
   'data_confirmada_recebimento_rascunho_invoice',
   'data_meta_recebimento_rascunho_invoice',
@@ -1895,7 +2198,9 @@ const CAMPOS_EDITAVEIS = new Set([
   'anexo_proforma',
   'anexo_invoice',
   // Outros (3)
+  'cobertura_cambial',
   'cobertura_cambial_pedido',
+  'moeda_cambio_pedido',
   'quantidade_volumes_pedido',
   'quantidade_transferida_total',
 ])
@@ -2058,6 +2363,8 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         referencia_fabricante:   'referencia_fabricante_pedido',
         incoterm:                'incoterm_pedido',
         condicao_pagamento:      'condicao_pagamento_pedido',
+        condicao_pagamento_siscomex: 'condicao_pagamento_siscomex_pedido',
+        cobertura_cambial:       'cobertura_cambial_pedido',
         status:                  'status_pedido',
         // ─── BLOCO 3: datas Proforma (prevista/confirmada → previsao/confirmacao + _pedido) ───
         data_prevista_recebimento_rascunho_proforma:      'data_previsao_recebimento_rascunho_proforma_pedido',
@@ -2087,6 +2394,7 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         data_meta_recebimento_original_invoice:        'data_meta_recebimento_original_invoice_pedido',
         // ─── BLOCO 5: datas documento ───
         data_proforma_invoice:   'data_documento_proforma_pedido',
+        data_documento_proforma: 'data_documento_proforma_pedido',
         data_invoice:            'data_documento_invoice_pedido',
         // campos_custom é tratado em branch próprio
       }
@@ -2130,10 +2438,60 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
         dadosUpdate = { [colunaPrisma]: valorFinal }
       }
 
+      // Trocar workspace sincroniza parte espelhada em detalhes_operacionais:
+      // IMP → nome_importador | EXP → nome_exportador (Smart Import pode ter gravado CUID).
+      if (campo === 'id_workspace' || campo === 'company_id') {
+        const tipoOp = pedido.tipo_operacao_pedido
+        const campoParte = tipoOp === 'importacao'
+          ? 'nome_importador'
+          : tipoOp === 'exportacao'
+            ? 'nome_exportador'
+            : null
+        if (campoParte) {
+          const idWsNovo = String(
+            (dadosUpdate.id_workspace as string | undefined)
+            ?? valor
+            ?? '',
+          ).trim()
+          if (idWsNovo) {
+            const detAtual = (typeof pedido.detalhes_operacionais_pedido === 'object' && pedido.detalhes_operacionais_pedido !== null)
+              ? pedido.detalhes_operacionais_pedido as Record<string, unknown>
+              : {}
+            let nomeWs: string | null = null
+            try {
+              const wsList = await obterWorkspaces({
+                configuradorBaseUrl: process.env.CONFIGURATOR_URL ?? '',
+                chaveInterna:        process.env.CHAVE_INTERNA_SERVICO ?? '',
+                ids:                 [idWsNovo],
+              })
+              nomeWs = wsList.find((w) => w.idWorkspace === idWsNovo)?.nomeWorkspace?.trim() ?? null
+            } catch (err) {
+              console.warn(JSON.stringify({
+                event: 'PEDIDO_SYNC_NOME_PARTE_WS_LOOKUP_FAIL',
+                id_pedido: req.params.id_pedido,
+                id_workspace: idWsNovo,
+                campo_parte: campoParte,
+                erro: err instanceof Error ? err.message : String(err),
+              }))
+            }
+            dadosUpdate = {
+              ...dadosUpdate,
+              detalhes_operacionais_pedido: {
+                ...detAtual,
+                [campoParte]: nomeWs,
+              },
+            }
+          }
+        }
+      }
+
       const updated = await db.pedido.update({
         where: { id_pedido: req.params.id_pedido },
         data: dadosUpdate,
-        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: {
+          itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+          snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
+        },
       })
 
       // Replicação pai → todos os itens (decisão UX 2026-05-13).
@@ -2177,7 +2535,12 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
           // Mesma conversão de data ISO-8601 aplicada ao pai (acima): se o
           // campoItem é DateTime, string YYYY-MM-DD → Date object.
           const ehDataItem = campoItem.startsWith('data_')
-          let valorItem: unknown = valor === undefined ? null : valor
+          const colunaPrismaPedido = ALIAS_LEGADO_PARA_PRISMA[campo] ?? campo
+          let valorItem: unknown = dadosUpdate[colunaPrismaPedido] ?? (valor === undefined ? null : valor)
+          if (typeof valorItem === 'string' && (campoPedido === 'moeda_cambio_pedido' || campoPedido === 'moeda_pedido')) {
+            const sep = valorItem.indexOf(' — ')
+            if (sep > 0) valorItem = valorItem.slice(0, sep).trim()
+          }
           if (ehDataItem && typeof valorItem === 'string' && valorItem !== '') {
             const d = new Date(valorItem)
             if (!isNaN(d.getTime())) valorItem = d
@@ -2206,7 +2569,10 @@ pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, nex
       const pedidoResposta = deveReplicarItens
         ? await db.pedido.findUnique({
             where: { id_pedido: req.params.id_pedido },
-            include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+            include: {
+              itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
+              snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true, suid_empresa: true } },
+            },
           })
         : updated
 
@@ -2324,6 +2690,7 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
               valor_total_item: item.valor_total_item,
               casas_decimais_valor_item: item.casas_decimais_valor_item,
               cobertura_cambial_item: item.cobertura_cambial_item,
+              moeda_cambio_item_pedido: item.moeda_cambio_item_pedido,
             })),
           },
           snapshots_empresa_pedido: snapshotsOriginais.length
@@ -2397,25 +2764,22 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const idOrganizacao = ctx.idOrganizacao
-      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
-      const pedido = await db.pedido.findFirst({
-        where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
-        include: {
-          snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true } },
-        },
+      const pedido = await buscarPedidoPorIdComAcessoWorkspace(db, ctx, req.params.id_pedido, {
+        snapshots_empresa_pedido: { select: { papel: true, nome_empresa: true } },
       })
-
-      if (!pedido) {
-        throw new AppError(404, 'Pedido nao encontrado')
-      }
+      const idWorkspacePedido = String(pedido.id_workspace)
 
       if (!['rascunho', 'aberto'].includes(pedido.status_pedido)) {
         throw new AppError(400, 'Itens so podem ser adicionados em pedidos Rascunho ou Aberto')
       }
 
       const itemCount = await db.pedidoItem.count({
-        where: { id_pedido: req.params.id_pedido, id_organizacao: idOrganizacao, id_workspace: idWorkspace },
+        where: {
+          id_pedido: req.params.id_pedido,
+          id_organizacao: idOrganizacao,
+          id_workspace: idWorkspacePedido,
+        },
       })
 
       const propagacaoPedido = construirCamposPropagadosParaItem(pedido as Record<string, unknown>)
@@ -2438,7 +2802,7 @@ pedidosRouter.post('/:id_pedido/itens', async (req: Request, res: Response, next
       const itemData: Record<string, unknown> = {
         id_item:                        gerarId('pite'),
         id_organizacao:                 idOrganizacao,
-        id_workspace:                   idWorkspace,
+        id_workspace:                   idWorkspacePedido,
         id_pedido:                      req.params.id_pedido,
         ...camposHerdados,
         sequencia_item_pedido:          result.data.sequencia_item_pedido ?? (itemCount + 1),
@@ -2496,20 +2860,28 @@ const publicToDddItem: Record<string, string> = {
   ncm:                         'ncm_item',
   descricao_item:              'descricao_item',
   unidade_comercializada_item: 'unidade_comercializada_item',
+  tipo_volume_item:            'tipo_volume_item',
   moeda_item:                  'moeda_item',
   valor_por_unidade_item:      'valor_por_unidade_item',
   valor_total_item:            'valor_total_item',
+  valor_total_cambio_pedido:   'valor_total_cambio_item_pedido',
+  valor_total_cambio_item_pedido: 'valor_total_cambio_item_pedido',
   quantidade_inicial_pedido:   'quantidade_inicial_item',
   quantidade_atual_pedido:     'quantidade_atual_item',
   cobertura_cambial:           'cobertura_cambial_item',
+  moeda_cambio_pedido:         'moeda_cambio_item_pedido',
+  moeda_cambio_item_pedido:    'moeda_cambio_item_pedido',
   nome_exportador:             'nome_exportador_item',
   nome_importador:             'nome_importador_item',
   nome_fabricante:             'nome_fabricante_item',
   referencia_importador:       'referencia_importador_item',
   referencia_exportador:       'referencia_exportador_item',
   referencia_fabricante:       'referencia_fabricante_item',
+  numero_proforma:             'numero_proforma_item',
+  numero_invoice:              'numero_invoice_item',
   incoterm:                    'incoterm_item',
   condicao_pagamento:          'condicao_pagamento_item',
+  condicao_pagamento_siscomex: 'condicao_pagamento_siscomex_item',
   data_emissao_pedido:         'data_emissao_item',
   peso_liquido_unitario:       'peso_liquido_unitario_item',
   peso_liquido_unidade_item:   'peso_liquido_unidade_item',
@@ -2573,6 +2945,29 @@ pedidosRouter.put('/:id_pedido/itens/:id_item', async (req: Request, res: Respon
         prismaData.quantidade_atual_item = Math.max(0, novoAtual)
       }
 
+      // Fórmula item (lista usa PUT): unit × qtd. inicial → valor_total_item.
+      // Override manual preservado quando o payload inclui valor_total_item.
+      const editouUnitOuQtd =
+        result.data.quantidade_inicial_pedido !== undefined
+        || result.data.valor_por_unidade_item !== undefined
+      const editouTotalManual = result.data.valor_total_item !== undefined
+      if (editouUnitOuQtd && !editouTotalManual) {
+        const casasCfg = await db.pedidoCasasDecimais.findUnique({
+          where: { id_organizacao: idOrganizacao },
+        })
+        const qtdInicial = result.data.quantidade_inicial_pedido !== undefined
+          ? result.data.quantidade_inicial_pedido
+          : Number(item.quantidade_inicial_item ?? 0)
+        const valorUnit = result.data.valor_por_unidade_item !== undefined
+          ? Number(result.data.valor_por_unidade_item ?? 0)
+          : Number(item.valor_por_unidade_item ?? 0)
+        prismaData.valor_total_item = calcularValorTotalItemPedido(
+          valorUnit,
+          qtdInicial,
+          casasCfg?.valor_total_pedido,
+        )
+      }
+
       // Recalc condicional: só dispara se algum campo do payload afeta agregado.
       // withOrganizacao já garante atomicidade via $transaction — `db` é o
       // TransactionClient, NÃO criar $transaction aninhada (Prisma proíbe).
@@ -2601,7 +2996,7 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'cobertura_cambial', 'ncm', 'descricao_item', 'part_number',
-  'incoterm', 'condicao_pagamento', 'data_emissao_pedido',
+  'incoterm', 'condicao_pagamento', 'condicao_pagamento_siscomex', 'data_emissao_pedido',
   'numero_proforma', 'numero_invoice', 'data_consolidacao_pedido',
   // Datas (43)
   'data_prevista_pedido_pronto',
@@ -2681,9 +3076,14 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'anexo_pedido',
   'anexo_proforma',
   'anexo_invoice',
-  // Outros (2)
+  // Outros
   'cobertura_cambial_pedido',
-  'quantidade_volumes_pedido',
+  'condicao_pagamento_siscomex_pedido',
+  'tipo_volume_item',
+  'moeda_item',
+  'moeda_cambio_pedido',
+  'moeda_cambio_item_pedido',
+  'unidade_comercializada_item',
 ])
 
 // Campos numéricos editáveis inline que disparam cascata:
@@ -2745,6 +3145,13 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res
             if (isNaN(d.getTime())) throw new AppError(400, `Data invalida para "${campo}": "${valorFinalItem}". Esperado YYYY-MM-DD.`)
             valorFinalItem = d
           }
+        } else if (
+          campoDdd === 'moeda_cambio_item_pedido'
+          && typeof valorFinalItem === 'string'
+          && valorFinalItem !== ''
+        ) {
+          const sep = valorFinalItem.indexOf(' — ')
+          if (sep > 0) valorFinalItem = valorFinalItem.slice(0, sep).trim()
         }
         const updated = await db.pedidoItem.update({
           where: { id_item: req.params.id_item },
@@ -2821,9 +3228,8 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/campo', async (req: Request, res
         )
       }
 
-      // valor_total_item usa as casas decimais configuradas
-      const fator = Math.pow(10, casasValor)
-      const valor_total_novo = Math.round(unit_novo * A_novo * fator) / fator
+      // valor_total_item = unit × qtd. inicial (casas decimais configuradas)
+      const valor_total_novo = calcularValorTotalItemPedido(unit_novo, A_novo, casasValor)
 
       // withOrganizacao já garante atomicidade — `db` é TransactionClient.
       // Aqui o campo SEMPRE afeta agregado (CAMPOS_EDITAVEIS_ITEM_NUMERICOS =
@@ -2924,13 +3330,12 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/pronta', async (req: Request, re
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const idOrganizacao = ctx.idOrganizacao
-      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
       const saldo = await saldoPedido.atualizarPronta(db, {
         pedido_item_id: req.params.id_item,
-        quantidade_pronta: result.data.quantidade_pronta_pedido,
+        id_pedido: req.params.id_pedido,
+        quantidade_pronta: result.data.quantidade_pronta_item,
         id_organizacao: idOrganizacao,
-        id_workspace: idWorkspace,
       })
 
       res.json(mapItem(saldo as unknown as PedidoItemRaw))

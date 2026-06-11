@@ -1,44 +1,30 @@
 /**
- * followup.ts — Routes for FollowUp (timeline events)
- * GET /processo/:processoId  — List followups with filters
- * POST /                     — Create new followup entry
- *
- * Skill: antigravity-criar-produto (Passo 7)
+ * follow-ups-processo.ts — Timeline de follow-ups
  */
-
 import { Router, Request, Response } from 'express'
-import { z } from 'zod'
+import type { PrismaClient } from '../../../generated/index.js'
+import { createFollowUpBodySchema } from '../contracts/processo-schemas.js'
 
 export const followUpRouter = Router()
 
-const CreateFollowUpSchema = z.object({
-  processo_id: z.string().min(1),
-  titulo: z.string().min(1),
-  descricao: z.string().optional(),
-  tipo: z.enum(['info', 'desvio', 'atualizacao', 'documento']).optional(),
-  categoria: z.enum(['exportador', 'logistica', 'despachante', 'financeiro', 'sistema']).optional(),
-  usuario_nome: z.string().optional(),
-  product_id: z.string().optional(),
-})
+const PRODUTO_ID = 'processo'
 
-/**
- * GET /api/v1/processos/:id_processo/follow-ups
- * Lista follow-ups de um processo com filtros opcionais.
- */
-followUpRouter.get('/processos/:id_processo/follow-ups', async (req: Request, res: Response) => {
+type ReqComPrisma = Request & { prisma?: PrismaClient }
+
+followUpRouter.get('/processos/:id_processo/follow-ups', async (req: ReqComPrisma, res: Response) => {
   try {
-    const prisma = (req as any).prisma
+    const prisma = req.prisma!
     const { id_processo } = req.params
-    const tipo = req.query.tipo as string | undefined
-    const categoria = req.query.categoria as string | undefined
+    const tipo = req.query.tipo_follow_up_processo as string | undefined
+    const categoria = req.query.categoria_follow_up_processo as string | undefined
 
-    const where: Record<string, unknown> = { processo_id: id_processo }
-    if (tipo) where.tipo = tipo
-    if (categoria) where.categoria = categoria
+    const where: Record<string, unknown> = { id_processo }
+    if (tipo) where.tipo_follow_up_processo = tipo
+    if (categoria) where.categoria_follow_up_processo = categoria
 
-    const data = await prisma.processoFollowup.findMany({
+    const data = await prisma.followUpProcesso.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      orderBy: { data_criacao_follow_up_processo: 'desc' },
     })
 
     res.json({ success: true, data })
@@ -48,26 +34,23 @@ followUpRouter.get('/processos/:id_processo/follow-ups', async (req: Request, re
   }
 })
 
-/**
- * POST /api/v1/follow-ups-processo
- * Cria nova entrada de follow-up.
- */
-followUpRouter.post('/follow-ups-processo', async (req: Request, res: Response) => {
-  const parsed = CreateFollowUpSchema.safeParse(req.body)
-
+followUpRouter.post('/follow-ups-processo', async (req: ReqComPrisma, res: Response) => {
+  const parsed = createFollowUpBodySchema.safeParse(req.body)
   if (!parsed.success) {
     return res.status(400).json({ error: 'Payload invalido', detalhes: parsed.error.flatten() })
   }
 
   try {
-    const prisma = (req as any).prisma
-    const userId = req.headers['x-id-usuario'] as string | undefined
+    const prisma = req.prisma!
+    const idUsuario = req.headers['x-id-usuario'] as string | undefined
 
-    const followUp = await prisma.processoFollowup.create({
+    const followUp = await prisma.followUpProcesso.create({
       data: {
         ...parsed.data,
-        usuario_id: userId,
-        user_id: userId,
+        id_organizacao: req.headers['x-id-organizacao'] as string,
+        id_produto_gravity: PRODUTO_ID,
+        id_usuario: idUsuario ?? null,
+        id_usuario_registro_follow_up_processo: idUsuario ?? null,
       },
     })
 

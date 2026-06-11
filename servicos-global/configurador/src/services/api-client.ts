@@ -125,6 +125,23 @@ export async function apiFetch(url: string, options: RequestInit = {}): Promise<
   })
 }
 
+/** fetch autenticado sem Content-Type fixo — para blob/imagem/arquivo binário */
+export async function apiFetchBlob(url: string, options: RequestInit = {}): Promise<Response> {
+  const { headers: extraHeaders, ...restOptions } = options
+  const authHeaders: Record<string, string> = {}
+  const token = await getAuthToken()
+  if (token) authHeaders['Authorization'] = `Bearer ${token}`
+
+  return fetch(url, {
+    headers: {
+      ...authHeaders,
+      ...injetarHeaderOverride(),
+      ...(extraHeaders as Record<string, string>),
+    },
+    ...restOptions,
+  })
+}
+
 // ─── Tipos de resposta ──────────────────────────────────────────────────────
 
 export interface ProductApi {
@@ -376,6 +393,8 @@ export const convidarUsuarioResponseSchema = z.object({
     email_usuario: z.string().email(),
     tipo_usuario: tipoUsuarioEnum,
     acesso_workspaces_futuros: z.boolean(),
+    /** Empresa fornecedora (Cadastros) — preenchido quando tipo FORNECEDOR. */
+    nome_fornecedor: z.string().nullable().optional(),
     /** Sempre 'CONVIDADO' no momento do convite — transição para 'ATIVO'
      *  ocorre no primeiro login (via fallback requireAuth.ts). */
     status_usuario: z.enum(['ATIVO', 'CONVIDADO']).optional().default('CONVIDADO'),
@@ -926,16 +945,45 @@ export const adminDeploysApi = {
 //   - adminMetricasLlmApi     → model LLMMetricas      (recurso /metricas-llm)
 
 export interface TesteApi {
-  id: string
-  created_at: string
-  type: string
-  module: string
-  test_name: string
-  result: string
-  duration: string
-  error_log: string | null
-  ai_analysis: Record<string, unknown> | null
+  id_teste: string
+  data_criacao_teste: string
+  tipo_teste: string
+  escopo_teste: string
+  sublocal_teste?: string | null
+  modulo_teste: string
+  nome_teste: string
+  id_plano_teste?: string | null
+  resultado_teste: string
+  duracao_teste: string
+  quantidade_passos_teste: number
+  log_erro_teste: string | null
+  log_sucesso_teste?: string | null
+  pasta_emt_teste?: string | null
+  lista_prints_emt_teste?: string[]
+  analise_ia_teste: Record<string, unknown> | null
+  ambiente_teste?: string
+  id_execucao_teste?: string | null
 }
+
+const execucaoTesteStatusSchema = z.object({
+  id_execucao_teste: z.string(),
+  data_inicio_execucao_teste: z.string(),
+  runner_execucao_teste: z.enum(['EMT', 'E2E']).nullable(),
+  ambiente_teste: z.string(),
+  gatilho_teste: z.enum(['manual', 'cron', 'ci']),
+  lista_planos_execucao_teste: z.array(z.string()),
+  lista_modulos_execucao_teste: z.array(z.string()),
+  disparado_por_teste: z.string().nullable(),
+})
+
+export const statusExecucoesTesteResponseSchema = z.object({
+  execucoes_teste: z.array(execucaoTesteStatusSchema),
+  limite_execucoes_simultaneas_teste: z.number().int().positive(),
+  quantidade_execucoes_ativas_teste: z.number().int().nonnegative(),
+})
+
+export type ExecucaoTesteStatusApi = z.infer<typeof execucaoTesteStatusSchema>
+export type StatusExecucoesTesteResponse = z.infer<typeof statusExecucoesTesteResponseSchema>
 
 /** Plano de teste — espelha colunas do model TestePlano + atalhos do registry. */
 export interface PlanoTesteApi {
@@ -945,6 +993,7 @@ export interface PlanoTesteApi {
   sublocal: string           // sublocal_plano_teste
   modulo?: string
   tela?: string
+  rota?: string
   criticidade?: string       // criticidade_plano_teste
   planoFile?: string
   specFile?: string
@@ -963,15 +1012,16 @@ export const adminTestesApi = {
     return request<{ logs: TesteApi[] }>('/v1/admin/testes')
   },
   /** POST /api/v1/admin/testes/disparar */
-  async disparar(opts?: { planos?: string[]; modulos?: string[] }) {
-    return request<{ started: boolean }>('/v1/admin/testes/disparar', {
+  async disparar(opts?: { planos?: string[]; modulos?: string[]; ambiente?: 'Local' | 'Staging' | 'Producao' }) {
+    return request<{ started: boolean; id_execucao_teste?: string }>('/v1/admin/testes/disparar', {
       method: 'POST',
       body: JSON.stringify(opts ?? {}),
     })
   },
   /** GET /api/v1/admin/testes/status */
-  async status() {
-    return request<{ running: boolean }>('/v1/admin/testes/status')
+  async status(): Promise<StatusExecucoesTesteResponse> {
+    const raw = await request<unknown>('/v1/admin/testes/status')
+    return statusExecucoesTesteResponseSchema.parse(raw)
   },
   /** POST /api/v1/admin/testes/:id_teste/reanalisar */
   async reanalisar(id_teste: string) {
@@ -1026,11 +1076,46 @@ export const adminAgendamentosTesteApi = {
 
 // ─── Admin: Planos de Teste (model TestePlano) ──────────────────────────────
 
+export interface CasoPlanoTesteApi {
+  ordem: string
+  titulo: string
+  detalhe: string
+  acao?: string
+  aprovadoQuando?: string
+  secao?: string
+}
+
+export interface AmbienteExecucaoApi {
+  ambiente: 'Local' | 'Staging' | 'Producao'
+  rotulo: string
+  uiUrl: string
+  apiUrl: string
+  nota: string
+}
+
 export const adminPlanosTesteApi = {
   /** GET /api/v1/admin/planos-teste?escopo=X */
   async listar(escopo?: string) {
     const qs = escopo ? `?escopo=${encodeURIComponent(escopo)}` : ''
     return request<{ planos: PlanoTesteApi[] }>(`/v1/admin/planos-teste${qs}`)
+  },
+  /** PATCH /api/v1/admin/planos-teste/:id — renomeia id e/ou titulo no registry */
+  async atualizar(id_plano_teste: string, data: { id?: string; titulo?: string }) {
+    return request<{ plano: PlanoTesteApi; id_anterior: string }>(
+      `/v1/admin/planos-teste/${encodeURIComponent(id_plano_teste)}`,
+      { method: 'PATCH', body: JSON.stringify(data) },
+    )
+  },
+  /** GET /api/v1/admin/planos-teste/:id/casos — prints/passos do plano */
+  async casos(id_plano_teste: string, ambiente?: 'Local' | 'Staging' | 'Producao') {
+    const qs = ambiente ? `?ambiente=${encodeURIComponent(ambiente)}` : ''
+    return request<{
+      plano: PlanoTesteApi
+      casos: CasoPlanoTesteApi[]
+      total: number
+      planoFile: string
+      ambienteExecucao: AmbienteExecucaoApi
+    }>(`/v1/admin/planos-teste/${encodeURIComponent(id_plano_teste)}/casos${qs}`)
   },
   /** POST /api/v1/admin/planos-teste/gerar */
   async gerar(data: {

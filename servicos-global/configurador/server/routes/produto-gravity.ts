@@ -8,6 +8,7 @@ import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { AppError } from '../lib/appError.js'
+import { produtoGravityCatalogoServico } from '../services/produto-gravity-catalogo-service.js'
 
 export const productsRouter = Router()
 
@@ -17,36 +18,22 @@ export const productsRouter = Router()
  */
 productsRouter.get('/', async (_req, res) => {
   try {
-    const rows = await prisma.produtoGravity.findMany({
-      where: { status_produto_gravity: { in: ['ATIVO', 'EM_BREVE'] as any[] }, data_remocao_produto_gravity: null },
-      select: {
-        id_produto_gravity: true,
-        nome_produto_gravity: true,
-        slug_produto_gravity: true,
-        descricao_produto_gravity: true,
-        status_produto_gravity: true,
-        preco_unitario_produto_gravity: true,
-        moeda_unitario_produto_gravity: true,
-        modulo_backend_produto_gravity: true,
-        tipo_cobranca_produto_gravity: true,
-      },
-      orderBy: { nome_produto_gravity: 'asc' }
-    })
-    // DTO: ProdutoGravity rename → contrato legado público
+    const rows = await produtoGravityCatalogoServico.listarPublico()
+    // Mesmo serviço/DTO do Admin — contrato legado público da Store
     res.json({
-      products: rows.map(p => ({
-        id: p.id_produto_gravity,
-        name: p.nome_produto_gravity,
-        slug: p.slug_produto_gravity,
-        description: p.descricao_produto_gravity,
-        status: p.status_produto_gravity,
-        unit_price: p.preco_unitario_produto_gravity,
-        unit_currency: p.moeda_unitario_produto_gravity,
-        backend_module: p.modulo_backend_produto_gravity,
-        billing_type: p.tipo_cobranca_produto_gravity,
-        type_billing: p.tipo_cobranca_produto_gravity ?? null,
-        currency: p.moeda_unitario_produto_gravity ?? 'BRL',
-      }))
+      products: rows.map((p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        description: p.description,
+        status: p.status,
+        unit_price: p.unit_price,
+        unit_currency: p.unit_currency,
+        backend_module: p.backend_module,
+        billing_type: p.billing_type,
+        type_billing: p.billing_type ?? null,
+        currency: p.unit_currency ?? 'BRL',
+      })),
     })
   } catch {
     res.json({ products: [] })

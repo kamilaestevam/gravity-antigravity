@@ -23,11 +23,16 @@
 produto/pedido/
 ├── client/src/
 │   ├── components/
+│   │   ├── ConfiguracaoColunas/
+│   │   │   ├── CelulaAnexosColuna.tsx   ← Célula ícone + painel na Lista (colunas anexo)
+│   │   │   └── CelulaAnexosColuna.css
 │   │   ├── PainelAnexos.tsx           ← Componente de anexos (usado no Drawer)
 │   │   ├── PainelAnexos.css
 │   │   ├── ModalGerarPdf.tsx          ← Modal seleção de template + preview
 │   │   └── ModalGerarPdf.css
 │   └── shared/
+│       ├── anexoColunaLista.ts        ← SSOT chaves/metadados anexo na lista
+│       ├── renderCelulaAnexoLista.tsx ← Render + mapa filho GTV
 │       ├── types.ts                   ← Tipos de Anexo, Template, PDF
 │       └── api.ts                     ← anexosApi, pdfApi
 └── server/src/

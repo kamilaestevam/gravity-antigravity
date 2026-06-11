@@ -757,9 +757,13 @@ model Teste {
   id_agendamento_teste String? // FK opcional para agendamento_teste
   resultado_teste      String // APROVADO | REPROVADO | ERRO
   duracao_teste        String
-  log_erro_teste       String?  @db.Text
-  analise_ia_teste     Json? // AiAnalysis schema do gemini-test-analyzer
-  screenshot_teste     String? // path do PNG capturado pela fixture
+  log_erro_teste           String?  @db.Text
+  log_sucesso_teste        String?  @db.Text // log EMT completo (RESULTADO.txt ou stdout)
+  pasta_emt_teste          String? // caminho relativo resultado-teste/<runId>/
+  lista_prints_emt_teste   Json? // string[] — nomes dos PNG na pasta EMT
+  quantidade_passos_teste  Int      @default(1) // passos do run (EMT: ✓/✗/EMT_ROW; demais: 1)
+  analise_ia_teste         Json? // AiAnalysis schema do gemini-test-analyzer
+  screenshot_teste         String? // path do PNG capturado pela fixture
   ambiente_teste       String   @default("Local") // Local | Staging | Producao
   id_execucao_teste    String? // agrupa logs do mesmo run
   disparado_por_teste  String? // userId que disparou (manual) ou "cron" (automático)

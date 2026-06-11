@@ -830,7 +830,7 @@ export function ListaPropostasDetalheCotacao({
     fecharModalAprovar()
   }
 
-  if (carregandoRanking) {
+  if (carregandoRanking && propostasRanking.length === 0) {
     return (
       <div className="dc-prop-loading">
         <Ranking weight="duotone" size={28} className="dc-prop-loading-icon" />

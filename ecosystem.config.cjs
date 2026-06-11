@@ -1,6 +1,6 @@
 // ecosystem.config.cjs — PM2 local dev orchestration for Gravity
 //
-// 14 processos independentes via PM2 (substitui concurrently -k):
+// 15 processos independentes via PM2 (substitui concurrently -k):
 //   - cada serviço reinicia sozinho sem derrubar os outros
 //   - PORT explícito em cada entry evita conflito de herança de variável
 //   - backoff exponencial evita loops de crash em falha de banco
@@ -9,7 +9,8 @@
 // com windowsHide: true para evitar dezenas de janelas de terminal visíveis.
 //
 // Uso:
-//   npx pm2 start ecosystem.config.cjs   — inicia todos os 14 serviços
+//   npx pm2 start ecosystem.config.cjs   — inicia todos os 15 serviços
+//   npm run servidores                   — diagnóstico + sobe os que estiverem fora
 //   npx pm2 stop ecosystem.config.cjs     — para todos
 //   npx pm2 restart ecosystem.config.cjs  — reinicia todos
 //   npx pm2 status                        — lista status + restarts
@@ -57,7 +58,19 @@ module.exports = {
   apps: [
 
     // ── Configurador ─────────────────────────────────────────────────────────
-    svc('cfg-back', 'servicos-global/configurador', 8005, ENV_SERVICO, 'server/index.ts'),
+    // GRAVITY_DEV_PM2=1: cfg-back não embute sidecars (Pedido/Cadastros/BID…);
+    // processos PM2 abaixo já escutam nas portas 8030/8031/8023/8026/8016.
+    // Produção (Railway/start-site.sh) não define esta variável — sidecars embutidos.
+    {
+      ...svc('cfg-back', 'servicos-global/configurador', 8005, ENV_SERVICO, 'server/index.ts'),
+      env: {
+        PORT: '8005',
+        NODE_ENV: 'development',
+        PM2_DEV_ENTRY: 'server/index.ts',
+        PM2_DEV_ENV_FILES: ENV_SERVICO.join('|'),
+        GRAVITY_DEV_PM2: '1',
+      },
+    },
 
     {
       // Vite direto — PM2 controla o processo real (sem cmd→npm→vite no Windows)
@@ -79,6 +92,7 @@ module.exports = {
     // ── Serviços de plataforma independentes ─────────────────────────────────
     svc('cockpit', 'servicos-global/servicos-plataforma/api-cockpit', 8016, ENV_PLATAFORMA, 'server/src/index.ts'),
     svc('conector-erp', 'servicos-global/servicos-plataforma/conector-erp', 8017, ENV_PLATAFORMA, 'server/index.ts'),
+    svc('taxas-moeda', 'servicos-global/servicos-plataforma/taxas-moeda', 8032, ENV_PLATAFORMA, 'server/src/index.ts'),
 
     // ── Produtos ─────────────────────────────────────────────────────────────
     svc('sc-back', 'servicos-global/produto/simula-custo', 8020, ENV_PLATAFORMA, 'server/src/index.ts'),
@@ -88,7 +102,17 @@ module.exports = {
     svc('lpco', 'servicos-global/produto/lpco', 8027, ENV_PLATAFORMA, 'server/src/index.ts'),
     svc('nf-importacao', 'servicos-global/produto/nf-importacao', 8028, ENV_PLATAFORMA, 'server/src/index.ts'),
     svc('fin-comex', 'servicos-global/produto/financeiro-comex', 8029, ENV_PLATAFORMA, 'server/src/index.ts'),
-    svc('pedido', 'servicos-global/produto/pedido', 8030, ENV_PLATAFORMA, 'server/src/index.ts'),
+    // PM2_DEV_NO_WATCH: editar .tsx do client não reinicia o backend (Vite já faz HMR).
+    {
+      ...svc('pedido', 'servicos-global/produto/pedido', 8030, ENV_PLATAFORMA, 'server/src/index.ts'),
+      env: {
+        PORT: '8030',
+        NODE_ENV: 'development',
+        PM2_DEV_ENTRY: 'server/src/index.ts',
+        PM2_DEV_ENV_FILES: ENV_PLATAFORMA.join('|'),
+        PM2_DEV_NO_WATCH: '1',
+      },
+    },
     svc('smart-read', 'servicos-global/produto/smart-read', 8033, ENV_PLATAFORMA, 'server/src/index.ts'),
 
     // ── Cadastros ─────────────────────────────────────────────────────────────

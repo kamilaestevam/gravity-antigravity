@@ -23,7 +23,7 @@ import { join, dirname } from 'path'
 interface GravityFixtures {
   /** Page com captura automática de erros e screenshot no final */
   page: Page
-  /** ID do plano de teste (extraído do título do describe — TST-E2E-CONFIG-000001) */
+  /** ID do plano de teste (extraído do título do describe — TST-E2E-CONFIG-000013) */
   planId: string
   /** Erros JS capturados durante o teste (pageerror) */
   jsErrors: string[]
@@ -43,7 +43,7 @@ export const test = base.extend<GravityFixtures>({
   },
 
   planId: async ({}, use, testInfo) => {
-    // Extrai o ID do título do describe: "TST-E2E-CONFIG-000001 — ..."
+    // Extrai o ID do título do describe: "TST-E2E-CONFIG-000013 — ..."
     const match = testInfo.titlePath[0]?.match(/TST-(UNI|CON|FUN|CRO|E2E|PEN)-([A-Z]+)-(\d{6})/)
     const id = match ? match[0] : 'TST-UNKNOWN-000000'
     await use(id)

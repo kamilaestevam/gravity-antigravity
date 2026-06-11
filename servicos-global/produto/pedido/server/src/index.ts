@@ -62,7 +62,10 @@ import { saldoFormulaRouter } from './routes/saldo-formula-pedido.js'
 import { initRouter } from './routes/inicializacao-pedido.js'
 import { internalCadastrosChangedRouter } from './routes/internal-cadastros-changed.js'
 import { listaPedidoKpisRouter } from './routes/lista-pedido-kpis.js'
+import { listaPaineisRouter } from './routes/lista-pedido-paineis.js'
+import { visaoGeralAgregadoRouter } from './routes/visao-geral-agregado.js'
 import { invalidarCacheDashboardAoMutarPedido } from './middleware/invalidar-cache-dashboard-pedido.js'
+// processos-core pedidos router — reinicie `npm run dev` após alterar rotas do core.
 import { pedidosRouter } from '../../../processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../processos-core/src/routes/pedidos-config.js'
 import { importacaoRouter } from '../../../processos-core/src/routes/importacao.js'
@@ -70,6 +73,7 @@ import { apiObservability } from '../../../../../servicos-global/servicos-plataf
 import { openapiRouter } from './routes/openapi-pedido.js'
 import { createProductAuditPlugin } from '../../../../../servicos-global/servicos-plataforma/historico-global/src/product-audit-plugin.js'
 import {
+  conectarPrismaPedidoComRetry,
   obterClientePrismaPedido,
   validarClientePrismaPedido,
 } from './cliente-prisma-pedido.js'
@@ -109,11 +113,6 @@ app.use(cors({
 // Smart Import /confirmar envia até 1000 linhas no JSON — default 2mb estoura (413).
 app.use(express.json({ limit: LIMITE_BODY_JSON_IMPORTACAO }))
 
-// ── 3. Healthcheck (sem auth) ────────────────────────────────────────────────
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'ok', service: 'pedido', port: PORT, ts: new Date().toISOString() })
-})
-
 // ── 4. Internal key validation (antes do tenant isolation) ───────────────────
 // Analytics tem sua própria autenticação via Bearer token (analyticsAuth middleware)
 app.use(requireInternalKey)
@@ -139,6 +138,24 @@ app.get('/api/v1/pedidos/importacoes-inteligentes/template', templateHandler)
 // do schema do Pedido em todos os caminhos (JWT, S2S e withOrganizacaoContext).
 const _prismaPedido = obterClientePrismaPedido()
 validarClientePrismaPedido(_prismaPedido)
+
+// ── 3. Healthcheck (sem auth) — inclui ping ao banco para o script servidores ─
+app.get('/health', async (_req: Request, res: Response) => {
+  let db: 'ok' | 'down' = 'ok'
+  try {
+    await _prismaPedido.$queryRaw`SELECT 1`
+  } catch {
+    db = 'down'
+  }
+  const ok = db === 'ok'
+  res.status(ok ? 200 : 503).json({
+    status: ok ? 'ok' : 'degraded',
+    service: 'pedido',
+    port: PORT,
+    db,
+    ts: new Date().toISOString(),
+  })
+})
 
 // Wrapper: chamadas S2S via api-cockpit enviam x-id-organizacao sem JWT Clerk.
 // Nesses casos, resolvemos o tenant pelo ID direto (mesma função que CRON/workers usam).
@@ -243,6 +260,7 @@ app.use('/api/v1/pedidos/inicializacao',               exigirPermissao('lista', 
 app.use('/api/v1/pedidos/dashboard/widgets',           exigirPorMetodo('dashboard'), dashboardWidgetsRouter)
 app.use('/api/v1/pedidos/dashboard',                   exigirPermissao('dashboard', 'ver'), dashboardPaineisRouter)
 app.use('/api/v1/pedidos/dashboard',                   exigirPermissao('dashboard', 'ver'), dashboardDataRouter)
+app.use('/api/v1/pedidos/visao-geral',                 exigirPermissao('dashboard', 'ver'), visaoGeralAgregadoRouter)
 app.use('/api/v1/pedidos/consolidacoes',               exigirPermissao('lista', 'editar'), consolidarRouter)
 app.use('/api/v1/pedidos/edicoes-em-massa',            exigirPermissao('lista', 'editar'), edicaoEmMassaRouter)
 // smartImportRouter aplica `exigirPermissao('lista','editar')` internamente.
@@ -280,6 +298,7 @@ app.post('/api/v1/pedidos/importar/confirmar',         exigirPermissao('lista', 
 app.post('/api/v1/pedidos/exportar',                   exigirPermissao('lista', 'editar'))
 app.use('/api/v1/pedidos',                             importacaoRouter)
 // CRUD principal — deve vir após os routers de sub-rotas estáticas
+app.use('/api/v1/pedidos/lista',                       exigirPermissao('lista', 'ver'), listaPaineisRouter)
 app.use('/api/v1/pedidos/lista',                       exigirPermissao('lista', 'ver'), listaPedidoKpisRouter)
 app.use('/api/v1/pedidos',                             exigirPorMetodo('lista'), pedidosRouter)
 // Parâmetros dinâmicos após todos os estáticos
@@ -316,7 +335,7 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
   // Garante message mesmo se err não for instância de Error
   const message = err.message || (err as unknown as { toString(): string }).toString?.() || 'Erro interno'
   if (status >= 500) console.error('[Pedido/Server]', message, err.stack)
-  res.status(status).json({ error: { message, code } })
+  if (!res.headersSent) res.status(status).json({ error: { message, code } })
 })
 
 // ── Start ─────────────────────────────────────────────────────────────────────
@@ -326,15 +345,26 @@ if (!process.env.CHAVE_INTERNA_SERVICO) {
   process.exit(1)
 }
 
-const server = app.listen(PORT, () => {
-  console.log(`[Pedido] Servidor rodando na porta ${PORT}`)
-  console.log(`[Pedido] Power BI endpoint: http://localhost:${PORT}/api/v1/pedidos/analytics`)
-  console.log(`[Pedido] Health: http://localhost:${PORT}/health`)
-})
-server.on('error', (err: NodeJS.ErrnoException) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`[Pedido] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+void (async () => {
+  try {
+    await conectarPrismaPedidoComRetry(_prismaPedido)
+    console.log('[Pedido] Conexão com banco estabelecida')
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`[Pedido] FATAL: banco indisponível após retries — ${msg}`)
     process.exit(1)
   }
-  throw err
-})
+
+  const server = app.listen(PORT, () => {
+    console.log(`[Pedido] Servidor rodando na porta ${PORT}`)
+    console.log(`[Pedido] Power BI endpoint: http://localhost:${PORT}/api/v1/pedidos/analytics`)
+    console.log(`[Pedido] Health: http://localhost:${PORT}/health`)
+  })
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`[Pedido] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+      process.exit(1)
+    }
+    throw err
+  })
+})()

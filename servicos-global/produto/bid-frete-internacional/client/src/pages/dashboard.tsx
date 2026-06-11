@@ -5,15 +5,12 @@
  * Gabi AI insights, e construtor de consultas global.
  */
 
-import React, { useMemo, useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
-import {
-  DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent,
-} from '@dnd-kit/core'
-import {
-  SortableContext, horizontalListSortingStrategy, useSortable, arrayMove,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  resolverIdsWorkspacesParaApi,
+  useEscopoWorkspacesBidFreteInternacional,
+} from '../shared/useEscopoWorkspacesBidFreteInternacional'
 import { useShellStore } from '@shell'
 import {
   DashboardGrid,
@@ -21,11 +18,11 @@ import {
   DashboardWidgetLinha,
   DashboardWidgetBarras,
   DashboardWidgetDistribuicao,
-  DashboardBarraFerramentas,
   DashboardPainelEditarModal,
   DashboardPainelSugestoes,
   DashboardValorKPI,
 } from '@nucleo/dashboard'
+import type { PeriodOption } from '@nucleo/dashboard'
 import type {
   DashboardWidgetConfig,
   WidgetResult,
@@ -44,16 +41,20 @@ import {
   Warning, UserCircleMinus, CheckCircle,
   ListNumbers, ArrowsLeftRight, Tag,
   CaretLeft, CaretRight, RocketLaunch,
-  DotsThree, PencilSimple, Trash, X, Timer, TrendUp,
+  Timer, TrendUp,
 } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 import './dashboard.css'
+import '../shared/lista-bid-frete-internacional-layout.css'
+import '../components/dashboard/BarraFerramentasDashboardBidFrete.css'
 import { DashboardConstrutorConsulta } from '@nucleo/query-builder-global'
+import { BarraFerramentasDashboardBidFrete } from '../components/dashboard/BarraFerramentasDashboardBidFrete'
+import { BidFreteDashboardFaixaPaineis } from '../components/BidFreteDashboardFaixaPaineis'
+import { useDashboardPainelBidFrete } from '../shared/useDashboardPainelBidFrete'
 
-import { useDashboardStore } from '../stores/dashboardStore'
-import { DASHBOARD_CATALOG, CATALOG_BY_KEY } from '../shared/dashboardCatalog'
-import { generateSuggestions } from '../shared/dashboardSuggestions'
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
-import { dashboardApi, paineisDashboardApi } from '../shared/api'
+import type { EnrichedCatalogField } from '@nucleo/dashboard'
+import { useBidFreteDashboardVisao } from '../shared/bid-frete-dashboard-visao-context'
 import type { DashboardKpis, DashboardTrendBucket, GabiInsightItem, DashboardPainel } from '../shared/api'
 import type { StatusCotacao } from '../shared/types'
 
@@ -65,17 +66,9 @@ const useTrackBehavior = () => {
   }
 }
 
-// ── Mapeamento de status para exibir labels e cores amigáveis ────────────────
-const STATUS_LABELS: Record<string, string> = {
-  RASCUNHO: 'Rascunho',
-  ENVIADA_FORNECEDORES: 'Enviada ao fornecedor',
-  EM_COTACAO: 'Em cotação',
-  AGUARDANDO_APROVACAO: 'Aprovação pendente',
-  APROVADA: 'Aprovada',
-  REPROVADA: 'Reprovada',
-  CANCELADA: 'Cancelada',
-  FALTA_INFORMACAO: 'Falta de informação',
-  EXPIRADA: 'Expirada',
+interface WidgetBuildDeps {
+  statusLabels: Record<string, string>
+  catalogByKey: Record<string, EnrichedCatalogField>
 }
 
 // ── Converte resposta da API em WidgetResult ──────────────────────────────────
@@ -84,7 +77,9 @@ function buildWidgetResult(
   kpis: DashboardKpis,
   trend: DashboardTrendBucket[],
   allDerived: DerivedMetric[],
+  deps: WidgetBuildDeps,
 ): WidgetResult {
+  const { statusLabels, catalogByKey } = deps
   const now = new Date().toISOString()
   const fields = widget.query_spec.fields
   const chartType = widget.chart_type
@@ -98,7 +93,7 @@ function buildWidgetResult(
         .map(([statusKey, val]) => {
           return {
             key: statusKey,
-            label: STATUS_LABELS[statusKey] ?? statusKey,
+            label: statusLabels[statusKey] ?? statusKey,
             value: Number(val),
             unit: 'number' as FieldUnitType,
           }
@@ -108,7 +103,7 @@ function buildWidgetResult(
     }
 
     const slices: WidgetDistributionSlice[] = fields.map(f => {
-      const catalog = CATALOG_BY_KEY[f.key]
+      const catalog = catalogByKey[f.key]
       const unit: FieldUnitType = catalog?.type === 'currency' ? 'currency'
         : catalog?.type === 'percentage' ? 'percentage' : 'number'
       return {
@@ -134,7 +129,7 @@ function buildWidgetResult(
 
     const unitTypes = [...new Set(
       fields.map(f => {
-        const cat = CATALOG_BY_KEY[f.key]
+        const cat = catalogByKey[f.key]
         return (cat?.type === 'currency' ? 'currency' : 'number') as FieldUnitType
       }),
     )]
@@ -209,105 +204,6 @@ function computeDelta(current: number, prev: number): {
   return { delta, percent, direction }
 }
 
-// ── Gerador de insights client-side com dados reais do BID Frete Internacional ──
-const fmtNum = (n: number) => new Intl.NumberFormat('pt-BR').format(Math.round(n))
-const fmtUSD = (n: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
-const fmtPct = (n: number) => `${n.toFixed(1)}%`
-
-function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): GabiInsightItem[] {
-  const items: GabiInsightItem[] = []
-
-  // 1. Alerta de rascunhos ativos
-  const rascunhosCount = Number(kpis.cotacoes_status?.['RASCUNHO'] ?? 0)
-  if (rascunhosCount > 0) {
-    items.push({
-      id: 'rascunhos_ativos',
-      variante: 'warn',
-      tag: 'Atenção · Rascunhos Pendentes',
-      texto: `${rascunhosCount} cotação${rascunhosCount > 1 ? 's' : ''} em rascunho. Finalize e envie para negociação de frete.`,
-      stat: { label: 'Em rascunho', valor: fmtNum(rascunhosCount) },
-      textoLink: 'Ver cotações',
-      rota: '/bid-frete/lista',
-    })
-  }
-
-  // 2. Operacional em cotação
-  if (kpis.cotacoes_andamento > 0) {
-    items.push({
-      id: 'cotacoes_andamento',
-      variante: 'default',
-      tag: 'Operacional · Em Cotação',
-      texto: `${kpis.cotacoes_andamento} rodada${kpis.cotacoes_andamento > 1 ? 's' : ''} de cotação de frete ativa${kpis.cotacoes_andamento > 1 ? 's' : ''} no mercado.`,
-      stat: kpis.valor_andamento_usd > 0
-        ? { label: 'Valor em cotação', valor: fmtUSD(kpis.valor_andamento_usd) }
-        : { label: 'Cotações ativas', valor: fmtNum(kpis.cotacoes_andamento) },
-      textoLink: 'Acompanhar BIDs',
-      rota: '/bid-frete/lista',
-    })
-  }
-
-  // 3. Economia de frete
-  if (kpis.saving_total > 0) {
-    items.push({
-      id: 'saving_total',
-      variante: 'default',
-      tag: 'Financeiro · Saving Acumulado',
-      texto: `Economia gerada (saving) nas negociações de frete acumulada em ${fmtUSD(kpis.saving_total)}.`,
-      stat: kpis.ganho_percentual_ganho_bid_frete_internacional > 0
-        ? { label: 'Redução média', valor: fmtPct(kpis.ganho_percentual_ganho_bid_frete_internacional) }
-        : { label: 'Total economizado', valor: fmtUSD(kpis.saving_total) },
-      textoLink: 'Ver comparativos',
-    })
-  }
-
-  // 4. Valor total aprovado
-  if (kpis.valor_aprovado_usd > 0) {
-    items.push({
-      id: 'valor_aprovado',
-      variante: 'default',
-      tag: 'Financeiro · Adjudicado',
-      texto: `Adjudicação de frete internacional totaliza ${fmtUSD(kpis.valor_aprovado_usd)} em propostas aprovadas.`,
-      stat: kpis.valor_medio_ganho_bid_frete_internacional > 0
-        ? { label: 'Ticket médio ganho', valor: fmtUSD(kpis.valor_medio_ganho_bid_frete_internacional) }
-        : undefined,
-      textoLink: 'Ver adjudicadas',
-    })
-  }
-
-  // 5. Comparativos
-  if (prev && prev.cotacoes_passadas > 0 && kpis.cotacoes_passadas > 0) {
-    const delta = kpis.cotacoes_passadas - prev.cotacoes_passadas
-    const pct = Math.abs((delta / prev.cotacoes_passadas) * 100)
-    if (Math.abs(delta) > 0) {
-      const crescendo = delta > 0
-      items.push({
-        id: 'tendencia_volume',
-        variante: 'default',
-        tag: `Tendência · BIDs Fechados`,
-        texto: `Volume de cotações adjudicadas ${crescendo ? 'cresceu' : 'caiu'} ${fmtPct(pct)} em relação ao período anterior.`,
-        stat: { label: 'Período anterior', valor: fmtNum(prev.cotacoes_passadas) },
-        textoLink: 'Explorar dados',
-      })
-    }
-  }
-
-  // Fallback
-  if (items.length === 0) {
-    items.push({
-      id: 'status_ok',
-      variante: 'default',
-      tag: 'Gabi AI · Tudo em dia',
-      texto: 'Nenhuma pendência crítica ou anomalia operacional identificada no período selecionado.',
-      stat: { label: 'Período', valor: kpis.period ?? '30d' },
-      textoLink: 'Ver cotações',
-      rota: '/bid-frete/lista',
-    })
-  }
-
-  return items
-}
-
 // ── Configuração visual por widget no BID Frete Internacional ────────────────
 const AMBER  = '#f59e0b'
 const DANGER = '#ef4444'
@@ -323,11 +219,6 @@ const WIDGET_VISUAL: Record<string, { accentColor?: string; icone?: ReactNode }>
   kpi_cotacoes_andamento:  { accentColor: BLUE,   icone: <ClipboardText  size={15} weight="duotone" /> },
   kpi_cotacoes_passadas:   { accentColor: GREEN,  icone: <CheckCircle    size={15} weight="duotone" /> },
   kpi_valor_aprovado:      { accentColor: VIOLET, icone: <Scales         size={15} weight="duotone" /> },
-}
-
-const WIDGET_NAV_ROUTE: Record<string, string> = {
-  kpi_cotacoes_andamento:  '/bid-frete/lista',
-  kpi_cotacoes_passadas:   '/bid-frete/lista',
 }
 
 const PERIOD_SEQUENCE = ['7d', '30d', '90d', '12m', 'current_year'] as const
@@ -726,28 +617,34 @@ const gabiEmptyStyles = {
 
 const sty = gabiEmptyStyles
 
-function SortableTabWrapper({ id, children }: { id: string; children: ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
-  return (
-    <div
-      ref={setNodeRef}
-      style={{
-        ...sty.painelTabWrap,
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-        cursor: isDragging ? 'grabbing' : undefined,
-      }}
-      {...attributes}
-      {...listeners}
-    >
-      {children}
-    </div>
-  )
-}
-
 // ── Componente Principal ──────────────────────────────────────────────────────
 export default function Dashboard() {
+  const { t } = useTranslation()
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
+  const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
+    [idsWorkspacesEscopo, idWorkspaceAtivo],
+  )
+
+  const visao = useBidFreteDashboardVisao()
+  const {
+    catalog,
+    catalogByKey,
+    dashboardApi,
+    paineisDashboardApi,
+    generateSuggestions,
+    buildClientInsights,
+    widgetNavRoute,
+    listaRoute,
+  } = visao
+  const useDashboardStoreHook = visao.useDashboardStore
+  const widgetBuildDeps = useMemo(
+    () => ({ statusLabels: visao.statusLabels, catalogByKey }),
+    [visao.statusLabels, catalogByKey],
+  )
+
   const {
     widgets, addWidget, removeWidget, updateWidget, updateLayout,
     slicers, setPeriod, setStatusFilter,
@@ -755,8 +652,8 @@ export default function Dashboard() {
     editMode, setEditMode,
     queryBuilderOpen, setQueryBuilderOpen,
     userDerivedMetrics,
-    paineis, painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
-  } = useDashboardStore()
+    painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
+  } = useDashboardStoreHook()
 
   const podeEditarDashboard = true // Hardcoded como true para o BID Frete Internacional
 
@@ -771,92 +668,59 @@ export default function Dashboard() {
   const [kpisData,     setKpisData]     = useState<DashboardKpis | null>(null)
   const [prevKpisData, setPrevKpisData] = useState<DashboardKpis | null>(null)
 
-  const [compactStatus, setCompactStatus] = useState(() => window.innerWidth < 1200)
-  useEffect(() => {
-    function handleResize() { setCompactStatus(window.innerWidth < 1200) }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
   const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
   const [loadingData,  setLoadingData]  = useState(true)
 
-  const [novoNomePainel, setNovoNomePainel] = useState('')
-  const [criandoPainel,  setCriandoPainel]  = useState(false)
-  const [renamingId,     setRenamingId]     = useState<string | null>(null)
-  const [renameValue,    setRenameValue]    = useState('')
-  const [menuPainelId,   setMenuPainelId]   = useState<string | null>(null)
-  const [deletingId,     setDeletingId]     = useState<string | null>(null)
-  const renameInFlightRef = useRef<string | null>(null)
+  const {
+    paineis: paineisDashboard,
+    painelAtualId: painelDashboardAtualId,
+    carregando: carregandoPaineis,
+    erroCarregar: erroCarregarPaineis,
+    carregarPaineis: recarregarPaineisDashboard,
+    setPaineis: setPaineisDashboard,
+    setPainelAtualId: setPainelDashboardAtualId,
+  } = useDashboardPainelBidFrete({
+    paineisDashboardApi,
+    setPaineisStore: setPaineis,
+    setPainelAtualStore: setPainelAtual,
+    painelAtualIdStore: painelAtualId,
+  })
 
-  const painelSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+  const handleTrocarPainel = useCallback((novoId: string) => {
+    if (novoId === painelDashboardAtualId) return
+    if (painelDashboardAtualId) salvarWidgetsPainelAtual(painelDashboardAtualId, widgets)
+    setPainelDashboardAtualId(novoId)
+  }, [painelDashboardAtualId, widgets, salvarWidgetsPainelAtual, setPainelDashboardAtualId])
 
-  // Fecha menu ao clicar fora
-  useEffect(() => {
-    if (!menuPainelId) return
-    const close = () => { setMenuPainelId(null); setDeletingId(null) }
-    document.addEventListener('click', close)
-    return () => document.removeEventListener('click', close)
-  }, [menuPainelId])
-
-  // Salva widgets do painel atual e troca de aba
-  const handleTrocarPainel = (novoId: string) => {
-    if (novoId === painelAtualId) return
-    if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
-    setPainelAtual(novoId)
-  }
-
-  // Renomeia painel
-  const handleRenomearPainel = (id: string, nome: string) => {
-    if (renameInFlightRef.current === id) return
-    renameInFlightRef.current = id
-    setRenamingId(null)
-    const trimmed = nome.trim()
-    if (!trimmed) { renameInFlightRef.current = null; return }
-    paineisDashboardApi.atualizar(id, { nome: trimmed })
-      .then(() => {
-        const fresh = useDashboardStore.getState().paineis
-        setPaineis(fresh.map(p => p.id === id ? { ...p, nome: trimmed } : p))
+  const handleCriarPainelDashboard = useCallback(async (nome: string): Promise<boolean> => {
+    try {
+      if (painelDashboardAtualId) salvarWidgetsPainelAtual(painelDashboardAtualId, widgets)
+      const { data } = await paineisDashboardApi.criar(nome)
+      salvarWidgetsPainelAtual(data.id, [])
+      setPaineisDashboard([...paineisDashboard, data])
+      setPainelDashboardAtualId(data.id)
+      addNotification({
+        type: 'success',
+        message: t('bid_frete_internacional.dashboard.painel_criado_sucesso', {
+          defaultValue: 'Painel "{{nome}}" criado.',
+          nome: data.nome,
+        }),
       })
-      .catch(() => {})
-      .finally(() => { renameInFlightRef.current = null })
-  }
-
-  // Deleta painel
-  const handleDeletarPainel = (id: string) => {
-    if (paineis.length <= 1) return
-    paineisDashboardApi.deletar(id)
-      .then(() => {
-        const fresh = useDashboardStore.getState().paineis
-        const atualizados = fresh.filter(p => p.id !== id)
-        setPaineis(atualizados)
-        if (painelAtualId === id) {
-          const proximo = atualizados.find(p => p.is_visivel)
-          if (proximo) setPainelAtual(proximo.id)
-        }
+      return true
+    } catch {
+      addNotification({
+        type: 'error',
+        message: t('bid_frete_internacional.dashboard.painel_criado_erro', {
+          defaultValue: 'Não foi possível salvar o painel.',
+        }),
       })
-      .catch(() => {})
-    setMenuPainelId(null)
-    setDeletingId(null)
-  }
-
-  // Reordena painéis
-  const handlePainelDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = paineis.findIndex(p => p.id === active.id)
-    const newIndex = paineis.findIndex(p => p.id === over.id)
-    if (oldIndex === -1 || newIndex === -1) return
-    const reordered = arrayMove(paineis, oldIndex, newIndex)
-    setPaineis(reordered)
-    paineisDashboardApi.reordenar(reordered.map(p => p.id)).catch(() => {})
-  }
-
-  // Carrega painéis ao montar
-  useEffect(() => {
-    paineisDashboardApi.listar().then(({ data }) => setPaineis(data)).catch(() => {})
-  }, [setPaineis])
+      return false
+    }
+  }, [
+    painelDashboardAtualId, widgets, paineisDashboard, salvarWidgetsPainelAtual,
+    setPaineisDashboard, setPainelDashboardAtualId, addNotification, t, paineisDashboardApi,
+  ])
 
   // Carrossel GABI
   const gabiCarouselRef = useRef<HTMLDivElement>(null)
@@ -882,8 +746,8 @@ export default function Dashboard() {
   )
 
   const fieldLabels = useMemo(
-    () => Object.fromEntries(DASHBOARD_CATALOG.map(f => [f.key, f.label])),
-    [],
+    () => Object.fromEntries(catalog.map(f => [f.key, f.label])),
+    [catalog],
   )
 
   const gridBottom = useMemo(
@@ -898,7 +762,7 @@ export default function Dashboard() {
       gridBottom,
       widgets.flatMap(w => w.query_spec.fields.map((f: { key: string }) => f.key)),
     ),
-    [widgets, allDerived, gridBottom],
+    [widgets, allDerived, gridBottom, generateSuggestions],
   )
 
   const triggerWidgetAddedFX = useCallback((widgetId: string, title: string) => {
@@ -926,6 +790,7 @@ export default function Dashboard() {
   }, [gabiPaused, loadingData, scrollGabi])
 
   useEffect(() => {
+    if (!escopoHidratado) return
     setLoadingData(true)
     const prevRange = getPrevDateRange(slicers.period)
 
@@ -937,9 +802,9 @@ export default function Dashboard() {
       : undefined
 
     Promise.all([
-      dashboardApi.kpis(slicers.period, customRange),
-      dashboardApi.kpis(slicers.period, prevRange),
-      dashboardApi.trend('12m', 'month'),
+      dashboardApi.kpis(slicers.period, customRange, idsWorkspacesFiltro),
+      dashboardApi.kpis(slicers.period, prevRange, idsWorkspacesFiltro),
+      dashboardApi.trend('12m', 'month', idsWorkspacesFiltro),
       dashboardApi.insights(slicers.period, customRange).catch(() => ({ period: '', role: '', insights: [] as GabiInsightItem[] })),
     ])
       .then(([kpis, prevKpis, trend, insightsRes]) => {
@@ -950,7 +815,7 @@ export default function Dashboard() {
       })
       .catch(err => console.error('[Dashboard] Erro ao carregar dados:', err))
       .finally(() => setLoadingData(false))
-  }, [slicers.period])
+  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, idsWorkspacesEscopo, dashboardApi])
 
   const activeWidgets = useMemo(() =>
     widgets.map(w => ({
@@ -1080,7 +945,7 @@ export default function Dashboard() {
     }
 
     const result = kpisData
-      ? buildWidgetResult(widget, kpisData, trendData, allDerived)
+      ? buildWidgetResult(widget, kpisData, trendData, allDerived, widgetBuildDeps)
       : { data: {}, chartType: widget.chart_type, partial: true, cached: false, computed_at: new Date().toISOString() }
     const fields = widget.query_spec.fields
     const isDerived = !!widget.config?.derivedMetricId
@@ -1125,11 +990,11 @@ export default function Dashboard() {
 
     // ── LINE / AREA ──────────────────────────────────────────────────────────
     if (chartType === 'LINE' || chartType === 'AREA') {
-      const catalogFields = fields.map(f => CATALOG_BY_KEY[f.key]).filter(Boolean)
+      const catalogFields = fields.map(f => catalogByKey[f.key]).filter(Boolean)
       const { assignments, dualAxis, leftUnit, rightUnit } = resolveAxisAssignment(catalogFields)
 
       const series: LineSeriesConfig[] = fields.map((f, i) => {
-        const cat = CATALOG_BY_KEY[f.key]
+        const cat = catalogByKey[f.key]
         const unit: FieldUnitType = cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number'
         const seriesPoints = result.series ?? []
         return {
@@ -1161,11 +1026,11 @@ export default function Dashboard() {
 
     // ── BAR / BAR_HORIZONTAL ─────────────────────────────────────────────────
     if (chartType === 'BAR' || chartType === 'BAR_HORIZONTAL') {
-      const catalogFields = fields.map(f => CATALOG_BY_KEY[f.key]).filter(Boolean)
+      const catalogFields = fields.map(f => catalogByKey[f.key]).filter(Boolean)
       const { assignments, dualAxis, leftUnit, rightUnit } = resolveAxisAssignment(catalogFields)
 
       const series: BarSeriesConfig[] = fields.map((f, i) => {
-        const cat = CATALOG_BY_KEY[f.key]
+        const cat = catalogByKey[f.key]
         const unit: FieldUnitType = cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number'
         const seriesPoints = result.series ?? []
         return {
@@ -1198,13 +1063,13 @@ export default function Dashboard() {
     // ── KPI_CARD ─────────────────────────────────────────────────────────────
     if (chartType === 'KPI_CARD') {
       const fieldKey = fields[0]?.key ?? 'value'
-      const cat = CATALOG_BY_KEY[fieldKey]
+      const cat = catalogByKey[fieldKey]
       const dm = widget.config?.derivedMetricId
         ? allDerived.find(m => m.id === widget.config!.derivedMetricId)
         : undefined
       const fieldType: FieldUnitType = dm?.fieldType ?? (cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number')
       const visual   = WIDGET_VISUAL[widget.id] ?? {}
-      const navRoute = WIDGET_NAV_ROUTE[widget.id]
+      const navRoute = widgetNavRoute[widget.id]
       const currentVal = Number(kpisData?.[fieldKey] ?? 0)
       const prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
       const deltaInfo  = computeDelta(currentVal, prevVal)
@@ -1289,44 +1154,72 @@ export default function Dashboard() {
     })
   )
 
+  const periodOptions = useMemo((): PeriodOption[] => [
+    { value: 'tudo', label: t('nucleo.dashboard.periodo.tudo', { defaultValue: 'Tudo' }) },
+    { value: '7d', label: t('nucleo.dashboard.periodo.ultimos_7_dias') },
+    { value: '30d', label: t('nucleo.dashboard.periodo.ultimos_30_dias') },
+    { value: '6m', label: t('nucleo.dashboard.periodo.ultimos_6_meses', { defaultValue: '6 meses' }) },
+    { value: '1a', label: t('nucleo.dashboard.periodo.ultimo_ano', { defaultValue: '1 ano' }) },
+    { value: '90d', label: t('nucleo.dashboard.periodo.ultimos_90_dias') },
+    { value: '12m', label: t('nucleo.dashboard.periodo.ultimos_12_meses') },
+    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual') },
+    { value: 'current_year', label: t('nucleo.dashboard.periodo.ano_atual') },
+    { value: 'custom', label: t('nucleo.dashboard.periodo.personalizado') },
+  ], [t])
+
+  const temWidgets = widgets.length > 0
+
   return (
-    <div className="bid-frete-page-shell" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: '1rem' }}>
+    <div className="bid-frete-page-shell bfd-dashboard" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: '1rem' }}>
 
-      {/* ── Onboarding Banner ── */}
-      <div style={onboardingBannerStyle}>
-        <div style={onboardingBannerContent}>
-          <span style={onboardingBannerTitle}>Este dashboard é seu.</span>
-          <span style={onboardingBannerText}>
-            Adicione KPIs de frete, monitore adjudicações, mova seções e crie widgets customizados.
-          </span>
-          <div style={onboardingBannerActions}>
-            <button
-              type="button"
-              style={onboardingBtnAccent}
-              onClick={() => setSuggestionsOpen(true)}
+      <div className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada bfd-dashboard-toolbar-wrapper">
+        <div className="lp-tabela-chrome bfd-dashboard-chrome">
+          <BidFreteDashboardFaixaPaineis
+            paineis={paineisDashboard}
+            painelAtualId={painelDashboardAtualId}
+            setPaineis={setPaineisDashboard}
+            setPainelAtualId={setPainelDashboardAtualId}
+            onTrocarPainel={handleTrocarPainel}
+            onCriarPainel={handleCriarPainelDashboard}
+            carregando={carregandoPaineis}
+          />
+          {erroCarregarPaineis && (
+            <div
+              role="alert"
+              className="bfd-dashboard-paineis-erro"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0.75rem',
+                padding: '0.5rem 0.75rem',
+                fontSize: '0.75rem',
+                color: 'var(--gtv-text, #f1f5f9)',
+                background: 'rgba(239,68,68,0.1)',
+                borderTop: '1px solid rgba(239,68,68,0.25)',
+              }}
             >
-              <RocketLaunch size={13} weight="fill" />
-              Explorar sugestões
-            </button>
-            <button
-              type="button"
-              style={onboardingBtnGhost}
-              onClick={() => { setEditMode(true); setQueryBuilderOpen(true) }}
-            >
-              Criar Dashboard →
-            </button>
-          </div>
-        </div>
-      </div>
+              <span>{erroCarregarPaineis}</span>
+              <button
+                type="button"
+                className="gtv-btn"
+                onClick={() => void recarregarPaineisDashboard()}
+              >
+                {t('comum.tentar_novamente', { defaultValue: 'Tentar novamente' })}
+              </button>
+            </div>
+          )}
 
-      <DashboardBarraFerramentas
+          <BarraFerramentasDashboardBidFrete
+        temWidgets={temWidgets}
+        onboarding={!temWidgets ? {
+          onExplorarSugestoes: () => setSuggestionsOpen(true),
+          onCriarDoZero: () => { setEditMode(true); setQueryBuilderOpen(true) },
+        } : undefined}
         slicers={slicers}
         onPeriodChange={setPeriod}
+        periodOptions={periodOptions}
         onStatusChange={setStatusFilter}
-        activeFilters={activeFilters}
-        onClearFilters={clearFilters}
-        editMode={editMode}
-        onEditModeChange={setEditMode}
         statusOptions={STATUS_OPTIONS}
         statusLabels={STATUS_LABELS_TOOLBAR}
         statusActiveColors={STATUS_ACTIVE_COLORS}
@@ -1345,145 +1238,15 @@ export default function Dashboard() {
           aguardando_aprovacao: kpisData.cotacoes_status['AGUARDANDO_APROVACAO'] ?? 0,
           aprovada:             kpisData.cotacoes_status['APROVADA'] ?? 0,
         } : undefined}
-        compactStatus={compactStatus}
-        onAddWidget={undefined}
-      />
-
-      {/* Seletor de Painéis */}
-      {paineis.length > 0 && (
-        <div style={sty.painelBar}>
-          <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
-            <SortableContext
-              items={paineis.filter(p => p.is_visivel).map(p => p.id)}
-              strategy={horizontalListSortingStrategy}
-            >
-              {paineis.filter(p => p.is_visivel).map(p => (
-                <SortableTabWrapper key={p.id} id={p.id}>
-                  {renamingId === p.id ? (
-                    <form
-                      style={sty.painelNovoForm}
-                      onSubmit={(e) => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
-                      onPointerDown={e => e.stopPropagation()}
-                    >
-                      <input
-                        autoFocus
-                        type="text"
-                        value={renameValue}
-                        onChange={e => setRenameValue(e.target.value)}
-                        onBlur={() => handleRenomearPainel(p.id, renameValue)}
-                        onKeyDown={e => { if (e.key === 'Escape') { setRenamingId(null); renameInFlightRef.current = null } }}
-                        style={sty.painelRenameInput}
-                        maxLength={60}
-                      />
-                    </form>
-                  ) : (
-                    <button
-                      type="button"
-                      style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
-                      onClick={() => handleTrocarPainel(p.id)}
-                      onDoubleClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome) }}
-                      onPointerDown={e => e.stopPropagation()}
-                    >
-                      <span style={sty.painelTabInner}>
-                        {p.nome}
-                        <span
-                          role="button"
-                          aria-label="Opções do painel"
-                          style={sty.painelMenuBtn}
-                          onPointerDown={e => e.stopPropagation()}
-                          onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id); setDeletingId(null) }}
-                        >
-                          <DotsThree size={14} weight="bold" />
-                        </span>
-                      </span>
-                    </button>
-                  )}
-
-                  {/* Dropdown Menu */}
-                  {menuPainelId === p.id && (
-                    <div style={sty.painelMenuDropdown} onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
-                      {deletingId === p.id ? (
-                        <div style={{ padding: '0.5rem 0.75rem' }}>
-                          <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
-                            Excluir <strong style={{ color: '#fff' }}>{p.nome}</strong>?
-                          </p>
-                          <div style={{ display: 'flex', gap: '0.4rem' }}>
-                            <button type="button" style={sty.painelNovoBtnOk} onClick={() => handleDeletarPainel(p.id)}>
-                              Confirmar
-                            </button>
-                            <button type="button" style={sty.painelNovoBtnCancel} onClick={() => setDeletingId(null)}>
-                              Cancelar
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            style={sty.painelMenuItem}
-                            onClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
-                          >
-                            <PencilSimple size={13} />
-                            Renomear
-                          </button>
-                          <button
-                            type="button"
-                            style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
-                            onClick={() => paineis.length > 1 && setDeletingId(p.id)}
-                            disabled={paineis.length <= 1}
-                            title={paineis.length <= 1 ? 'Não é possível excluir o único painel' : ''}
-                          >
-                            <Trash size={13} />
-                            Excluir
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </SortableTabWrapper>
-              ))}
-            </SortableContext>
-          </DndContext>
-
-          {/* Criar Novo Painel */}
-          {criandoPainel ? (
-            <form
-              style={sty.painelNovoForm}
-              onSubmit={(e) => {
-                e.preventDefault()
-                const nome = novoNomePainel.trim()
-                if (!nome) return
-                if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
-                paineisDashboardApi.criar(nome).then(({ data }) => {
-                  salvarWidgetsPainelAtual(data.id, [])
-                  setPaineis([...paineis, data])
-                  setPainelAtual(data.id)
-                  setNovoNomePainel('')
-                  setCriandoPainel(false)
-                }).catch(() => {})
-              }}
-            >
-              <input
-                autoFocus
-                type="text"
-                placeholder="Nome do painel"
-                value={novoNomePainel}
-                onChange={(e) => setNovoNomePainel(e.target.value)}
-                style={sty.painelNovoInput}
-                maxLength={60}
-              />
-              <button type="submit" style={sty.painelNovoBtnOk}>Criar</button>
-              <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>
-                <X size={11} />
-              </button>
-            </form>
-          ) : (
-            <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title="Novo painel">
-              +
-            </button>
-          )}
+        activeFilters={activeFilters}
+        onClearFilters={clearFilters}
+        onAbrirSugestoes={podeEditarDashboard ? () => setSuggestionsOpen(true) : undefined}
+        onCriarWidgetZero={podeEditarDashboard ? () => setQueryBuilderOpen(true) : undefined}
+        editMode={editMode}
+        onEditModeChange={setEditMode}
+          />
         </div>
-      )}
+      </div>
 
       <DashboardGrid
         widgets={activeWidgets}
@@ -1501,7 +1264,7 @@ export default function Dashboard() {
 
       <DashboardConstrutorConsulta
         aberto={queryBuilderOpen}
-        availableFields={DASHBOARD_CATALOG}
+        availableFields={catalog}
         onSave={handleQueryBuilderSave}
         onCancel={() => setQueryBuilderOpen(false)}
       />

@@ -181,16 +181,77 @@ function mapColunaPatch(patch: {
 
 // ── STATUS ────────────────────────────────────────────────────────────────────
 
+/** Slugs reservados pelo motor de pedidos — não editáveis nem excluíveis pelo tenant. */
+export const NOMES_STATUS_SISTEMA_PEDIDO = [
+  'rascunho',
+  'aberto',
+  'transferencia',
+  'consolidado',
+  'cancelado',
+] as const
+
+const SLUGS_STATUS_SISTEMA_PEDIDO = new Set<string>(NOMES_STATUS_SISTEMA_PEDIDO)
+
+function statusEhSistemaPedidoDb(nome: string, gerenciadoSistema: boolean): boolean {
+  return gerenciadoSistema || SLUGS_STATUS_SISTEMA_PEDIDO.has(nome)
+}
+
 /** Status padrão criados automaticamente para novos tenants */
 const STATUS_PADRAO = [
-  { nome: 'rascunho',      rotulo: 'Rascunho',     cor: '#94a3b8', ordem: 0, is_padrao: false, is_sistema: false },
-  { nome: 'aberto',        rotulo: 'Aberto',        cor: '#3b82f6', ordem: 1, is_padrao: true,  is_sistema: false },
+  { nome: 'rascunho',      rotulo: 'Rascunho',     cor: '#94a3b8', ordem: 0, is_padrao: false, is_sistema: true },
+  { nome: 'aberto',        rotulo: 'Aberto',        cor: '#3b82f6', ordem: 1, is_padrao: true,  is_sistema: true },
   { nome: 'em_andamento',  rotulo: 'Em Andamento',  cor: '#f97316', ordem: 2, is_padrao: false, is_sistema: false },
   { nome: 'aprovado',      rotulo: 'Aprovado',      cor: '#facc15', ordem: 3, is_padrao: false, is_sistema: false },
-  { nome: 'transferencia', rotulo: 'Transferido',   cor: '#2dd4bf', ordem: 4, is_padrao: false, is_sistema: false },
-  { nome: 'consolidado',   rotulo: 'Consolidado',   cor: '#a78bfa', ordem: 5, is_padrao: false, is_sistema: false },
-  { nome: 'cancelado',     rotulo: 'Cancelado',     cor: '#ef4444', ordem: 6, is_padrao: false, is_sistema: false },
+  { nome: 'transferencia', rotulo: 'Transferido',   cor: '#2dd4bf', ordem: 4, is_padrao: false, is_sistema: true },
+  { nome: 'consolidado',   rotulo: 'Consolidado',   cor: '#a78bfa', ordem: 5, is_padrao: false, is_sistema: true },
+  { nome: 'cancelado',     rotulo: 'Cancelado',     cor: '#ef4444', ordem: 6, is_padrao: false, is_sistema: true },
 ]
+
+interface DbComStatusPedido {
+  statusPedido: {
+    findMany: (args: Record<string, unknown>) => Promise<Array<{ nome_pedido_status: string }>>
+    createMany: (args: Record<string, unknown>) => Promise<unknown>
+    updateMany: (args: Record<string, unknown>) => Promise<unknown>
+  }
+}
+
+async function garantirStatusSistemaPedido(
+  db: DbComStatusPedido,
+  tenant_id: string,
+  company_id: string | undefined,
+): Promise<void> {
+  const existentes = await db.statusPedido.findMany({
+    where: { id_organizacao: tenant_id },
+    select: { nome_pedido_status: true },
+  }) as Array<{ nome_pedido_status: string }>
+
+  const nomesExistentes = new Set(existentes.map(e => e.nome_pedido_status))
+
+  const faltantes = STATUS_PADRAO.filter(s => s.is_sistema && !nomesExistentes.has(s.nome))
+  if (faltantes.length > 0) {
+    await db.statusPedido.createMany({
+      data: faltantes.map(s => ({
+        id_organizacao:                   tenant_id,
+        id_workspace:                     company_id ?? null,
+        nome_pedido_status:               s.nome,
+        rotulo_pedido_status:             s.rotulo,
+        cor_pedido_status:                s.cor,
+        ordem_pedido_status:              s.ordem,
+        padrao_pedido_status:             s.is_padrao,
+        gerenciado_sistema_pedido_status: true,
+      })),
+      skipDuplicates: true,
+    })
+  }
+
+  await db.statusPedido.updateMany({
+    where: {
+      id_organizacao: tenant_id,
+      nome_pedido_status: { in: [...NOMES_STATUS_SISTEMA_PEDIDO] },
+    },
+    data: { gerenciado_sistema_pedido_status: true },
+  })
+}
 
 // GET /status
 pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: NextFunction) => {
@@ -211,9 +272,6 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
       })
 
       // Auto-seed: se o tenant não tem nenhum status configurado, criar os padrões
-      // Usa createMany + skipDuplicates porque a unique constraint é
-      // (id_organizacao, nome_pedido_status) — sem id_workspace. Se outro
-      // workspace já semeou, skipDuplicates evita P2002.
       if (status.length === 0) {
         await db.statusPedido.createMany({
           data: STATUS_PADRAO.map(s => ({
@@ -228,14 +286,16 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
           })),
           skipDuplicates: true,
         })
-        const seeded = await db.statusPedido.findMany({
-          where: { id_organizacao: tenant_id },
-          orderBy: { ordem_pedido_status: 'asc' },
-        })
-        return res.json({ data: (seeded as PedidoStatusDB[]).map(mapStatus) })
       }
 
-      res.json({ data: (status as PedidoStatusDB[]).map(mapStatus) })
+      await garantirStatusSistemaPedido(db as DbComStatusPedido, tenant_id, company_id)
+
+      const atualizados = await db.statusPedido.findMany({
+        where: whereOrg,
+        orderBy: { ordem_pedido_status: 'asc' },
+      })
+
+      res.json({ data: (atualizados as PedidoStatusDB[]).map(mapStatus) })
     })
   } catch (err) {
     next(err)
@@ -262,6 +322,10 @@ pedidosConfigRouter.post('/status', async (req: Request, res: Response, next: Ne
       const count = await db.statusPedido.count({ where })
       if (count >= 20) {
         throw new AppError(400, 'Limite de 20 status por tenant atingido')
+      }
+
+      if (SLUGS_STATUS_SISTEMA_PEDIDO.has(result.data.nome)) {
+        throw new AppError(400, 'Nome reservado para status de sistema')
       }
 
       const novoStatus = await db.statusPedido.create({
@@ -328,12 +392,14 @@ pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next
       })
 
       // Upserts por nome (chave única id_organizacao + nome_pedido_status)
-      const ops = result.data.status.map(s =>
-        db.statusPedido.upsert({
+      const ops = result.data.status.map(s => {
+        const patchRotuloCor = SLUGS_STATUS_SISTEMA_PEDIDO.has(s.nome)
+          ? {}
+          : { rotulo_pedido_status: s.rotulo, cor_pedido_status: s.cor }
+        return db.statusPedido.upsert({
           where: { id_organizacao_nome_pedido_status: { id_organizacao: tenant_id, nome_pedido_status: s.nome } },
           update: {
-            rotulo_pedido_status: s.rotulo,
-            cor_pedido_status:    s.cor,
+            ...patchRotuloCor,
             ordem_pedido_status:  s.ordem,
             padrao_pedido_status: s.is_padrao ?? false,
           },
@@ -348,10 +414,10 @@ pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next
             gerenciado_sistema_pedido_status: s.is_sistema ?? false,
           },
         })
-      )
+      })
 
-      const idsParaDeletar = (atuais as Array<{ id_pedido_status: string; nome_pedido_status: string }>)
-        .filter(a => !nomesNovos.has(a.nome_pedido_status))
+      const idsParaDeletar = (atuais as Array<{ id_pedido_status: string; nome_pedido_status: string; gerenciado_sistema_pedido_status: boolean }>)
+        .filter(a => !nomesNovos.has(a.nome_pedido_status) && !statusEhSistemaPedidoDb(a.nome_pedido_status, a.gerenciado_sistema_pedido_status))
         .map(a => a.id_pedido_status)
 
       const deleteOp = idsParaDeletar.length > 0
@@ -389,6 +455,13 @@ pedidosConfigRouter.put('/status/:id', async (req: Request, res: Response, next:
         throw new AppError(404, 'Status nao encontrado')
       }
 
+      if (statusEhSistemaPedidoDb(
+        (existente as PedidoStatusDB).nome_pedido_status,
+        (existente as PedidoStatusDB).gerenciado_sistema_pedido_status,
+      )) {
+        throw new AppError(403, 'Status de sistema nao pode ser alterado')
+      }
+
       // Inclui id_organizacao no where para garantir isolamento atômico
       const updated = await db.statusPedido.update({
         where: { id_pedido_status: req.params.id, id_organizacao: tenant_id },
@@ -416,6 +489,13 @@ pedidosConfigRouter.delete('/status/:id', async (req: Request, res: Response, ne
 
       if (!existente) {
         throw new AppError(404, 'Status nao encontrado')
+      }
+
+      if (statusEhSistemaPedidoDb(
+        (existente as PedidoStatusDB).nome_pedido_status,
+        (existente as PedidoStatusDB).gerenciado_sistema_pedido_status,
+      )) {
+        throw new AppError(403, 'Status de sistema nao pode ser excluido')
       }
 
       // Inclui id_organizacao no where para garantir isolamento atômico

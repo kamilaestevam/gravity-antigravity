@@ -57,7 +57,7 @@ vi.mock('../lib/agente-plano-teste.js', () => ({
     coberturaPercentual: 90,
   }),
   expandTestPlan: vi.fn().mockResolvedValue({
-    id: 'TST-E2E-CONFIG-000001',
+    id: 'TST-E2E-CONFIG-000013',
     passos: [{ numero: 1 }, { numero: 2 }],
     coberturaPercentual: 95,
   }),

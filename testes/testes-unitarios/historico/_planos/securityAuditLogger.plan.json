@@ -1,5 +1,5 @@
 {
-  "id": "TST-UNIT-TENANT-SAL-001",
+  "id": "TST-UNI-TENANT-000004",
   "versao": "1.0",
   "geradoEm": "2026-04-20T00:00:00Z",
   "geradoPor": "agente-plano-teste-unitario",
@@ -28,14 +28,14 @@
     { "modulo": "../../../generated/index.js", "razao": "AcaoExecutadaPor/EventoStatus — valores controlados para verificar enums pós-Fase 2" }
   ],
   "casos": [
-    { "id": "TST-UNIT-TENANT-SAL-001", "metodo": "permissionChanged", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.USUARIO" },
-    { "id": "TST-UNIT-TENANT-SAL-002", "metodo": "rateLimitHit", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO" },
-    { "id": "TST-UNIT-TENANT-SAL-003", "metodo": "apiKeyUsed", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.API" },
-    { "id": "TST-UNIT-TENANT-SAL-004", "metodo": "webhookSignatureFailure", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO" },
-    { "id": "TST-UNIT-TENANT-SAL-005", "metodo": "crossTenantAttempt", "categoria": "edge", "descricao": "metadata.blocked=true → status=EventoStatus.FALHA" },
-    { "id": "TST-UNIT-TENANT-SAL-006", "metodo": "authFailure", "categoria": "edge", "descricao": "sem blocked → status=EventoStatus.SUCESSO" },
-    { "id": "TST-UNIT-TENANT-SAL-007", "metodo": "dataDeleted", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.USUARIO e module=admin" },
-    { "id": "TST-UNIT-TENANT-SAL-008", "metodo": "adminAccess", "categoria": "edge", "descricao": "sem CONFIGURADOR_URL → fetch não chamado" }
+    { "id": "TST-UNI-TENANT-000004", "metodo": "permissionChanged", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.USUARIO" },
+    { "id": "TST-UNI-TENANT-000004-002", "metodo": "rateLimitHit", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO" },
+    { "id": "TST-UNI-TENANT-000004-003", "metodo": "apiKeyUsed", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.API" },
+    { "id": "TST-UNI-TENANT-000004-004", "metodo": "webhookSignatureFailure", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO" },
+    { "id": "TST-UNI-TENANT-000004-005", "metodo": "crossTenantAttempt", "categoria": "edge", "descricao": "metadata.blocked=true → status=EventoStatus.FALHA" },
+    { "id": "TST-UNI-TENANT-000004-006", "metodo": "authFailure", "categoria": "edge", "descricao": "sem blocked → status=EventoStatus.SUCESSO" },
+    { "id": "TST-UNI-TENANT-000004-007", "metodo": "dataDeleted", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=AcaoExecutadaPor.USUARIO e module=admin" },
+    { "id": "TST-UNI-TENANT-000004-008", "metodo": "adminAccess", "categoria": "edge", "descricao": "sem CONFIGURADOR_URL → fetch não chamado" }
   ],
   "resumoExecutivo": "Cobre as 10 exportações do securityAudit. Foco em: (1) AcaoExecutadaPor correto por método (USER/INTEGRATION/API), (2) EventoStatus.FALHA quando metadata.blocked=true vs SUCCESS, (3) fetch não chamado quando CONFIGURADOR_URL vazio. Validação direta dos enums renomeados na Fase 2."
 }

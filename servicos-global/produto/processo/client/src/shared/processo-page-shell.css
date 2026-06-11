@@ -1,0 +1,445 @@
+/**
+
+ * Distância canônica e fill de altura — paridade BID Frete (bid-frete-page-shell.css).
+
+ * Usado em /acesso-processos/lista e /kanban (shell Layout + keep-alive).
+
+ */
+
+:root {
+
+  --pedido-page-pt: 1.5rem;
+
+  --pedido-page-px: 2rem;
+
+  --pedido-page-pb: 2rem;
+
+  --processo-visualizacao-tabs-mb: 1rem;
+
+  /* SSOT: PRODUTO_META.processo.color — cores-produto-gravity.ts */
+  --processo-product-color: #facc15;
+
+}
+
+
+
+/* shell-main: coluna flex sem padding (paridade tpg-main do BID Frete) */
+
+.layout--oculta-marca-header .shell-main,
+
+.layout--processo .shell-main {
+
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 0;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
+
+  padding: 0;
+
+}
+
+
+
+.layout--oculta-marca-header .shell-main > *,
+
+.layout--processo .shell-main > * {
+
+  flex: 1;
+
+  min-height: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  width: 100%;
+
+}
+
+
+
+/* Ponte flex através de Suspense/Routes até o ProcessoLayout */
+
+.layout--processo .shell-main .p2-shell {
+
+  flex: 1;
+
+  min-height: 0;
+
+  height: 100%;
+
+  width: 100%;
+
+  /* shell-main > * força column — ProcessoLayout é row (sidebar | main) */
+  flex-direction: row;
+
+}
+
+
+
+.proc-visualizacao-layout {
+
+  display: flex;
+
+  flex-direction: column;
+
+  flex: 1;
+
+  min-height: 0;
+
+  width: 100%;
+
+}
+
+
+
+.proc-visualizacao-layout .lp-page {
+
+  padding-top: 0;
+
+  flex: 1;
+
+  min-height: 0;
+
+  min-width: 0;
+
+}
+
+
+
+.proc-visualizacao-layout .lp-tabela-wrapper .gtv-toolbar {
+
+  padding-top: 0.5rem;
+
+  padding-bottom: 0.5rem;
+
+}
+
+
+
+.proc-visualizacao-layout .processo-dashboard-toolbar-wrapper {
+
+  flex: 0 0 auto;
+
+}
+
+
+
+/* Título da view — paridade MenuTopoGlobal (.mtg-left__page-header) */
+
+.proc-pagina-topo {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.5rem;
+
+  flex-shrink: 0;
+
+  padding: 1.5rem var(--pedido-page-px) 0;
+
+  background: var(--ws-bg-body, #0f172a);
+
+  box-sizing: border-box;
+
+}
+
+
+
+body.light-theme .proc-pagina-topo {
+
+  background: var(--ws-bg-body, #f8fafc);
+
+}
+
+
+
+.proc-pagina-topo__icone {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  color: var(--processo-product-color, #facc15);
+
+}
+
+
+
+.proc-pagina-topo__textos {
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  gap: 0;
+
+  min-width: 0;
+
+}
+
+
+
+.proc-pagina-topo__titulo {
+
+  font-family: 'Plus Jakarta Sans', sans-serif;
+
+  font-size: 1.25rem;
+
+  font-weight: 700;
+
+  color: var(--text-primary, #f1f5f9);
+
+  line-height: 1.1;
+
+  letter-spacing: -0.015em;
+
+  margin: 0;
+
+}
+
+
+
+.proc-pagina-topo__subtitulo {
+
+  font-family: 'Plus Jakarta Sans', sans-serif;
+
+  font-size: 0.8rem;
+
+  color: var(--ws-muted, var(--text-secondary, #94a3b8));
+
+  line-height: 1.5;
+
+  margin: 0;
+
+}
+
+
+
+/* Toolbar Lista | Kanban — paridade .bid-frete-vis-toolbar */
+
+.proc-vis-toolbar {
+
+  position: relative;
+
+  z-index: 30;
+
+  flex-shrink: 0;
+
+  background: var(--ws-bg-body, #0f172a);
+
+  padding: var(--pedido-page-pt) var(--pedido-page-px) var(--processo-visualizacao-tabs-mb);
+
+  box-sizing: border-box;
+
+}
+
+
+
+body.light-theme .proc-vis-toolbar {
+
+  background: var(--ws-bg-body, #f8fafc);
+
+}
+
+
+
+/* PaginaGlobal — lista hierárquica preenche altura restante (sem scroll duplo) */
+
+.processo-lista-page.pg-container,
+
+.processo-kanban-page.pg-container {
+
+  flex: 1;
+
+  min-height: 0;
+
+  height: 100%;
+
+  width: 100%;
+
+  padding-left: var(--pedido-page-px);
+
+  padding-right: var(--pedido-page-px);
+
+  padding-bottom: var(--pedido-page-pb);
+
+  box-sizing: border-box;
+
+}
+
+
+
+.processo-lista-page .pg-conteudo-area.pg-layout-lista,
+
+.processo-kanban-page .pg-conteudo-area.pg-layout-lista {
+
+  display: flex;
+
+  flex-direction: column;
+
+  flex: 1;
+
+  min-height: 0;
+
+  overflow: hidden;
+
+}
+
+
+
+.processo-lista-page .lp-page,
+
+.processo-kanban-page .lp-page {
+
+  flex: 1;
+
+  min-height: 0;
+
+  height: 100%;
+
+  padding: 0;
+
+  gap: 0;
+
+}
+
+
+
+/* Detalhe do processo (ProcessoLayout) — preenche shell-main e exibe Outlet */
+
+.layout--processo .p2-main {
+
+  flex: 1;
+
+  min-height: 0;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+
+
+
+.layout--processo .p2-content {
+
+  display: flex;
+
+  flex-direction: column;
+
+  flex: 1;
+
+  min-height: 0;
+
+  min-width: 0;
+
+}
+
+
+
+.layout--processo .p2-outlet-root {
+
+  flex: 1;
+
+  min-height: 0;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+
+
+
+.layout--processo .p2-outlet-root > * {
+
+  flex: 1;
+
+  min-height: 0;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  width: 100%;
+
+}
+
+
+
+.layout--processo .processo-detalhe-page.pg-container {
+
+  flex: 1 1 auto;
+
+  min-height: 0;
+
+  width: 100%;
+
+  overflow: visible;
+
+}
+
+
+
+.layout--processo .processo-detalhe-page .pg-conteudo-area {
+
+  display: flex;
+
+  flex-direction: column;
+
+  flex: 1;
+
+  min-height: 0;
+
+}
+
+
+
+/* CabecalhoGlobal no detalhe — fallback legível no tema escuro */
+
+.layout--processo .processo-detalhe-page .cg-header__title {
+
+  color: var(--ws-text, var(--text-primary, #f1f5f9));
+
+}
+
+
+
+/* ws-fade-up no ProcessoLayout.css inicia opacity:0 — filhos do detalhe ficam invisíveis */
+
+.layout--processo .p2-content .ws-fade-up,
+
+.layout--processo .p2-outlet-root .ws-fade-up,
+
+.layout--processo .processo-detalhe-page.ws-fade-up,
+
+.layout--processo .processo-detalhe-page .ws-fade-up {
+
+  opacity: 1;
+
+  animation: none;
+
+  transform: none;
+
+}
+
+

@@ -1,0 +1,151 @@
+/* PedidosVisualizacaoTabs — pills compactas; distâncias via pedido-page-shell.css */
+
+.pvt-tabs {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  margin-top: 0;
+  margin-bottom: var(--pedido-visualizacao-tabs-mb);
+  background: var(--ws-surface, #1e293b);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 9999px;
+}
+
+.pvt-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ws-muted, #94a3b8);
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pvt-tab svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.pvt-tab:hover {
+  color: var(--ws-text, #f1f5f9);
+  background: rgba(167, 139, 250, 0.08);
+}
+
+.pvt-tab--active {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+.pvt-tab--active:hover {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+button.pvt-tab {
+  border: none;
+  margin: 0;
+  padding: 0.25rem 0.625rem;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  box-shadow: none;
+}
+
+.pvt-tabs > .pvt-tab-wrap {
+  flex: 0 0 auto;
+}
+
+.pvt-tab__menu-btn {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.125rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  opacity: 0.55;
+  cursor: pointer;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.pvt-tab:hover .pvt-tab__menu-btn,
+.pvt-tab--active .pvt-tab__menu-btn {
+  opacity: 1;
+}
+
+.pvt-tab--add {
+  min-width: 1.75rem;
+  justify-content: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.pvt-tab--add svg:only-child {
+  margin: 0;
+}
+
+.pvt-tab-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.pedido-dashboard-paineis-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.pedido-dashboard-paineis-tabs {
+  margin-bottom: 0;
+}
+
+/* Abas bloqueadas (BloqueioPermissaoOpaco) permanecem na mesma linha das pills */
+.pvt-tabs .bloqueio-opaco-item {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.pedido-visualizacao-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.pedido-visualizacao-layout__tabs {
+  padding: var(--pedido-page-pt) var(--pedido-page-px) 0;
+  flex-shrink: 0;
+}
+
+.pedido-visualizacao-layout .lp-page,
+.pedido-visualizacao-layout .kbp-page,
+.pedido-visualizacao-layout .pedido-page-shell,
+.pedido-visualizacao-layout .bfd-dashboard,
+.pedido-visualizacao-layout .cfg-page {
+  padding-top: 0;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.pedido-visualizacao-layout .lp-tabela-wrapper .gtv-toolbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.pedido-visualizacao-layout .pedido-dashboard-toolbar-wrapper {
+  flex: 0 0 auto;
+}

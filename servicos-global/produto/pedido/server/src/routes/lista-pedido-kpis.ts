@@ -17,6 +17,7 @@ import {
   type RegrasAlertasConfig,
 } from '../../../shared/pedidoAlertasAggregate.js'
 import { mapItem } from '../../../../processos-core/src/routes/pedidos.js'
+import { montarCondicoesBuscaPedido } from '../../../../processos-core/src/services/filtro-busca-pedido.js'
 
 export const listaPedidoKpisRouter = Router()
 
@@ -59,7 +60,7 @@ function normalizarPedidoParaAlertas(
   itensMapped: Record<string, unknown>[],
 ): Record<string, unknown> {
   const prontaSoma = itensMapped.reduce(
-    (s, i) => s + (Number(i.quantidade_pronta_pedido) || 0),
+    (s, i) => s + (Number(i.quantidade_pronta_item) || 0),
     0,
   )
   return {
@@ -95,7 +96,10 @@ listaPedidoKpisRouter.get('/kpis', async (req: Request, res: Response) => {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { organizacao: { idOrganizacao: string } }).organizacao.idOrganizacao
+      const organizacao = (req as unknown as {
+        organizacao: { idOrganizacao: string; idUsuario: string; tiposUsuario: string[] }
+      }).organizacao
+      const tenant_id = organizacao.idOrganizacao
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const where: Record<string, any> = {
@@ -117,13 +121,13 @@ listaPedidoKpisRouter.get('/kpis', async (req: Request, res: Response) => {
       }
 
       if (busca) {
-        where.OR = [
-          { numero_pedido: { contains: busca, mode: 'insensitive' } },
-          { referencia_importador_pedido: { contains: busca, mode: 'insensitive' } },
-          { referencia_exportador_pedido: { contains: busca, mode: 'insensitive' } },
-          { numero_proforma_pedido: { contains: busca, mode: 'insensitive' } },
-          { numero_invoice_pedido: { contains: busca, mode: 'insensitive' } },
-        ]
+        // Mesmas condições da lista (GET /api/v1/pedidos) — campos fixos +
+        // nomes das partes + colunas do usuário (nome e conteúdo). Sem isso
+        // os cards de KPI divergem da lista filtrada.
+        where.OR = await montarCondicoesBuscaPedido(db, busca, tenant_id, {
+          idUsuario: organizacao.idUsuario,
+          tiposUsuario: organizacao.tiposUsuario,
+        })
       }
 
       const pedidoSelect = {
@@ -133,8 +137,7 @@ listaPedidoKpisRouter.get('/kpis', async (req: Request, res: Response) => {
         valor_total_pedido: true,
         quantidade_total_pedido: true,
         moeda_pedido: true,
-        quantidade_pronta_itens_pedido_total: true,
-        quantidade_cancelada_total_pedido: true,
+        // Virtuais (mapPedido): somatório nos itens — não existem no model Pedido
         unidade_comercializada_pedido: true,
         data_emissao_pedido: true,
         peso_liquido_total_pedido: true,
@@ -218,6 +221,6 @@ listaPedidoKpisRouter.get('/kpis', async (req: Request, res: Response) => {
     })
   } catch (err) {
     console.error('[ListaKpis]', err)
-    res.status(500).json({ error: 'Erro ao agregar KPIs da lista' })
+    if (!res.headersSent) res.status(500).json({ error: 'Erro ao agregar KPIs da lista' })
   }
 })

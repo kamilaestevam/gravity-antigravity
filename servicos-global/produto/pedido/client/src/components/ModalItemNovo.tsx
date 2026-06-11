@@ -19,7 +19,8 @@ import { CampoDecimalGlobal } from '@nucleo/campo-decimal-global'
 import { useMoedas } from '@nucleo/modal-tabela-moeda'
 import { useShellStore } from '@gravity/shell'
 import type { Pedido, PedidoItem } from '../shared/types'
-import { pedidoApi, pedidoItemApi } from '../shared/api'
+import { pedidoItemApi, pedidoVirtualApi } from '../shared/api'
+import { resolverIdsWorkspacesParaApi, useEscopoWorkspacesPedido } from '../shared/useEscopoWorkspacesPedido'
 import { getCasas } from './lista/ColunasPai'
 
 // Casas decimais padrão alinhadas com Configurações › Casas Decimais
@@ -156,6 +157,13 @@ export function ModalNovoItemPedido({
   onSalvo,
 }: ModalNovoItemPedidoProps) {
   const { addNotification } = useShellStore()
+  const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo ?? '')
+  const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
+  const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const idsWorkspacesFiltro = useMemo(
+    () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo),
+    [idsWorkspacesEscopo, idWorkspaceAtivo],
+  )
   const { t } = useTranslation()
 
   // P15: moedas via SSOT (banco Cadastros). Mapeia pra SelectOpcao do SelectGlobal.
@@ -178,25 +186,36 @@ export function ModalNovoItemPedido({
 
   const [passo, setPasso]                         = useState(modoContexto ? 1 : 1)
   const [pedidoSelecionadoId, setPedidoSelecionadoId] = useState<string>(pedidoIdProp ?? '')
+  const [pedidoWorkspaceSelecionadoId, setPedidoWorkspaceSelecionadoId] = useState<string>('')
   const [numeroPedido, setNumeroPedido]            = useState<string>(numeroPedidoProp ?? '')
   const [pedidos, setPedidos]                      = useState<Pedido[]>([])
   const [carregandoPedidos, setCarregandoPedidos]  = useState(false)
+  const [erroCarregarPedidos, setErroCarregarPedidos] = useState<string | null>(null)
   const [item, setItem]                            = useState<ItemForm>(ITEM_VAZIO)
   const [salvando, setSalvando]                    = useState(false)
   const [erro, setErro]                            = useState<string | null>(null)
 
-  // Carregar lista de pedidos editáveis para o seletor
+  // Carregar pedidos editáveis — mesmo escopo multi-workspace da Lista (SSOT).
   useEffect(() => {
-    if (!aberto || modoContexto) return
+    if (!aberto || modoContexto || !escopoHidratado) return
     setCarregandoPedidos(true)
-    pedidoApi.listar({ status: 'aberto,rascunho' })
-      .then(data => {
-        const lista = Array.isArray(data) ? data : (data as { data?: Pedido[] }).data ?? []
-        setPedidos(lista)
+    setErroCarregarPedidos(null)
+    pedidoVirtualApi.listar({
+      status: 'aberto,rascunho',
+      limit: 500,
+      idsWorkspacesFiltro,
+    })
+      .then(res => {
+        setPedidos(res.data ?? [])
       })
-      .catch(() => setPedidos([]))
+      .catch((err: unknown) => {
+        setPedidos([])
+        setErroCarregarPedidos(
+          err instanceof Error ? err.message : t('pedido.modal_transf.erro_carregar_pedidos'),
+        )
+      })
       .finally(() => setCarregandoPedidos(false))
-  }, [aberto, modoContexto])
+  }, [aberto, modoContexto, escopoHidratado, idsWorkspacesFiltro, t])
 
   // P16: reset garantido a cada abertura do modal (idempotente). Sem isso o
   // estado pode persistir de uma sessão anterior — usuário viu USD pré-selecionado
@@ -216,6 +235,7 @@ export function ModalNovoItemPedido({
     setPasso(1)
     setItem(ITEM_VAZIO)
     setPedidoSelecionadoId(pedidoIdProp ?? '')
+    setPedidoWorkspaceSelecionadoId('')
     setNumeroPedido(numeroPedidoProp ?? '')
     setErro(null)
     onFechar()
@@ -257,16 +277,23 @@ export function ModalNovoItemPedido({
       const pedidoAlvo = modoContexto ? pedidoIdProp! : pedidoSelecionadoId
       const qtd = parseFloat(item.quantidade_inicial_item) || 0
       const valorUnit = item.valor_por_unidade_item.trim() === '' ? null : (parseFloat(item.valor_por_unidade_item) || 0)
-      const resultado = await pedidoItemApi.adicionar(pedidoAlvo, {
-        part_number_item:        item.part_number_item,
-        ncm_item:                item.ncm_item,
-        descricao_item:          item.descricao_item,
-        quantidade_inicial_item: qtd,
-        moeda_item:              item.moeda_item,
-        valor_por_unidade_item:  valorUnit,
-        // valor_total_item: NÃO enviado — backend recalcula via
-        // recalcularAgregadosPedido (fonte única de verdade, Mandamento 08)
-      } as Partial<PedidoItem>)
+      const idWorkspaceAlvo = modoContexto
+        ? undefined
+        : (pedidoWorkspaceSelecionadoId.trim() || undefined)
+      const resultado = await pedidoItemApi.adicionar(
+        pedidoAlvo,
+        {
+          part_number_item:        item.part_number_item,
+          ncm_item:                item.ncm_item,
+          descricao_item:          item.descricao_item,
+          quantidade_inicial_item: qtd,
+          moeda_item:              item.moeda_item,
+          valor_por_unidade_item:  valorUnit,
+          // valor_total_item: NÃO enviado — backend recalcula via
+          // recalcularAgregadosPedido (fonte única de verdade, Mandamento 08)
+        } as Partial<PedidoItem>,
+        idWorkspaceAlvo ? { idWorkspace: idWorkspaceAlvo } : undefined,
+      )
       const pn = item.part_number_item.trim() || item.descricao_item.trim() || t('pedido.modal_item.item_padrao')
       addNotification({ type: 'success', message: t('pedido.modal_item.notif_adicionado', { item: pn }), duration: 4000 })
       onSalvo(resultado)
@@ -326,9 +353,15 @@ export function ModalNovoItemPedido({
               const id = String(v ?? '')
               setPedidoSelecionadoId(id)
               const found = pedidos.find(p => p.id === id)
-              if (found) setNumeroPedido(found.numero_pedido)
+              if (found) {
+                setNumeroPedido(found.numero_pedido)
+                setPedidoWorkspaceSelecionadoId(found.company_id ?? '')
+              } else {
+                setPedidoWorkspaceSelecionadoId('')
+              }
             }}
           />
+          {erroCarregarPedidos && <p style={s.erro}>{erroCarregarPedidos}</p>}
         </div>
       )}
 

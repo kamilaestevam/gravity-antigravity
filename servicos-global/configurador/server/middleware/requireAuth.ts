@@ -5,9 +5,8 @@
 import type { Request, Response, NextFunction } from 'express'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
-import { prisma } from '../lib/prisma.js'
 import { auditLog } from '../../../servicos-plataforma/historico-global/src/audit-client.js'
-import { aposClerkVinculadoPrestadorFornecedor } from '../services/prestador-fornecedor-vinculo-service.js'
+import { resolverUsuarioPorClerkSub } from '../services/usuario-clerk-resolver.js'
 
 // TTL do cache de usuário no requireAuth.
 // Configurável via env REQUIRE_AUTH_CACHE_TTL_MS — mitigação para kick-out
@@ -92,125 +91,13 @@ export async function requireAuth(
       return
     }
 
-    let user = await prisma.usuario.findFirst({
-      where: { id_clerk_usuario: verified.sub },
-      select: { id_usuario: true, id_organizacao: true, tipo_usuario: true, nome_usuario: true, status_usuario: true },
-    })
-
-    // Fallback: clerk_user_id não encontrado no banco — tenta vincular pelo email.
-    // Requer email primário verificado (defense-in-depth).
-    //
-    // 3 cenários (Mand. 08 — sem fallback silencioso):
-    //   • 0 candidatos → não vincula, segue para 401
-    //   • 1 candidato  → caminho rápido, vincula direto (99% dos casos)
-    //   • >1 candidato → AMBIGUIDADE cross-org (mesmo email convidado em
-    //                    múltiplas orgs). Plan B v6 — lazy disambiguation:
-    //                    consulta Clerk por invitations ACEITAS desse email
-    //                    e usa a mais recente para deterministicamente saber
-    //                    qual `pending_inv_*` virou este `user_*`.
-    if (!user) {
-      try {
-        const clerkUser = await clerkClient.users.getUser(verified.sub)
-        const primaryEmail = clerkUser.emailAddresses.find(
-          e => e.id === clerkUser.primaryEmailAddressId && e.verification?.status === 'verified'
-        )?.emailAddress
-
-        if (!primaryEmail) {
-          logAuthFailure(req, `EMAIL_FALLBACK_BLOCKED: email primário não verificado para clerk_user_id ${verified.sub}`)
-        }
-
-        if (primaryEmail) {
-          const candidates = await prisma.usuario.findMany({
-            where: { email_usuario: primaryEmail },
-            select: { id_usuario: true, id_organizacao: true, tipo_usuario: true, nome_usuario: true, status_usuario: true, id_clerk_usuario: true },
-          })
-
-          if (candidates.length === 1) {
-            // Caminho rápido — 99% dos casos
-            const only = candidates[0]
-            await prisma.usuario.update({
-              where: { id_usuario: only.id_usuario },
-              data: { id_clerk_usuario: verified.sub },
-            })
-            user = { id_usuario: only.id_usuario, id_organizacao: only.id_organizacao, tipo_usuario: only.tipo_usuario, nome_usuario: only.nome_usuario, status_usuario: only.status_usuario }
-            aposClerkVinculadoPrestadorFornecedor({
-              id_usuario: only.id_usuario,
-              id_clerk_usuario: verified.sub,
-              email_usuario: primaryEmail,
-              id_organizacao: only.id_organizacao,
-            }).catch(() => { /* best-effort */ })
-          } else if (candidates.length > 1) {
-            // Ambiguidade cross-org — log alto (Mand. 08) + tenta desambiguar
-            // pela invitation aceita no Clerk
-            // eslint-disable-next-line no-console
-            console.warn('[requireAuth] EMAIL_FALLBACK_AMBIGUO', {
-              candidates: candidates.length,
-            })
-
-            try {
-              // QA P1 fix: forçar limit=100 e tentar filtro server-side por email
-              // (Clerk Backend API aceita query `email_address[]`). Sem filtro
-              // server-side, a paginação default de 10 deixaria invitations
-              // antigas fora da consulta para emails de domínio com alto volume.
-              const acceptedList = await clerkClient.invitations.getInvitationList({
-                status: 'accepted',
-                limit: 100,
-              } as Parameters<typeof clerkClient.invitations.getInvitationList>[0])
-              const dataArr = Array.isArray(acceptedList) ? acceptedList : (acceptedList as { data?: unknown[] })?.data ?? []
-              const acceptedByEmail = (dataArr as { id: string; emailAddress: string; createdAt: number }[])
-                .filter(inv => inv.emailAddress === primaryEmail)
-                .sort((a, b) => b.createdAt - a.createdAt)
-
-              for (const inv of acceptedByEmail) {
-                const matched = candidates.find(c => c.id_clerk_usuario === `pending_${inv.id}`)
-                if (matched) {
-                  await prisma.usuario.update({
-                    where: { id_usuario: matched.id_usuario },
-                    data: { id_clerk_usuario: verified.sub },
-                  })
-                  user = {
-                    id_usuario: matched.id_usuario,
-                    id_organizacao: matched.id_organizacao,
-                    tipo_usuario: matched.tipo_usuario,
-                    nome_usuario: matched.nome_usuario,
-                    status_usuario: matched.status_usuario,
-                  }
-                  aposClerkVinculadoPrestadorFornecedor({
-                    id_usuario: matched.id_usuario,
-                    id_clerk_usuario: verified.sub,
-                    email_usuario: primaryEmail,
-                    id_organizacao: matched.id_organizacao,
-                  }).catch(() => { /* best-effort */ })
-                  // eslint-disable-next-line no-console
-                  console.log('[requireAuth] EMAIL_FALLBACK_DESAMBIGUADO_VIA_CLERK', {
-                    invitation_id: inv.id,
-                    id_usuario: matched.id_usuario,
-                    id_organizacao: matched.id_organizacao,
-                  })
-                  break
-                }
-              }
-
-              if (!user) {
-                // eslint-disable-next-line no-console
-                console.error('[requireAuth] FALHA_DESAMBIGUAR_VIA_CLERK', {
-                  candidates: candidates.length,
-                  invitations_aceitas: acceptedByEmail.length,
-                })
-              }
-            } catch (errClerk) {
-              // eslint-disable-next-line no-console
-              console.error('[requireAuth] CLERK_INVITATIONS_API_FALHOU', errClerk)
-            }
-          }
-        }
-      } catch {
-        // Falha ao consultar Clerk users.getUser — continua sem o fallback
-      }
-    }
+    // Lookup + self-heal unificados em usuario-clerk-resolver.ts (mesmo caminho
+    // que a rota interna do resolver SDK usa). Convidados com id_clerk_usuario
+    // 'pending_*' são religados pelo e-mail verificado do Clerk. Ver service.
+    const { usuario: user, motivo } = await resolverUsuarioPorClerkSub(verified.sub)
 
     if (!user) {
-      logAuthFailure(req, `Usuário não encontrado para clerk_user_id: ${verified.sub}`)
+      logAuthFailure(req, motivo ?? `Usuário não encontrado para clerk_user_id: ${verified.sub}`)
       throw new AppError('Usuário não encontrado no sistema', 401, 'UNAUTHORIZED')
     }
 

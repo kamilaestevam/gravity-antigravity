@@ -1,0 +1,424 @@
+/**
+ * Layout compartilhado — Visão geral operacional e visão fornecedor (bfd-dashboard).
+ */
+
+.bfd-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.015em;
+  color: #f1f5f9;
+}
+
+.bfd-dashboard--fornecedor .cg-card.bfd-kpi--destacado {
+  border: 1px solid rgba(251, 191, 36, 0.45) !important;
+  background: rgba(251, 191, 36, 0.08) !important;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.12);
+}
+
+.bfd-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.bfd-globe-row {
+  display: grid;
+  grid-template-columns: 2.15fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 0;
+}
+
+.bfd-globe-row--tres-colunas {
+  grid-template-columns: 1.6fr 0.9fr 1fr;
+}
+
+.bfd-globe-row .bfd-mapa-rankings-row {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.bfd-globe-row__coluna-direita {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.bfd-insights-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.25rem;
+}
+
+.bfd-charts-grid--fornecedor {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.bfd-charts-grid--fornecedor .bfd-card {
+  min-height: 280px;
+}
+
+.bfd-charts-grid--fornecedor .bfd-card > .bfd-taxa {
+  flex: 1;
+  width: 100%;
+  min-height: 11rem;
+}
+
+.bfd-acoes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.bfd-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bfd-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.bfd-card--accent-amber:hover {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(251, 191, 36, 0.18) !important;
+}
+
+.bfd-card--accent-indigo:hover {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(129, 140, 248, 0.18) !important;
+}
+
+.bfd-card--accent-rose:hover {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(248, 113, 113, 0.18) !important;
+}
+
+.bfd-card--accent-emerald:hover {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(52, 211, 153, 0.18) !important;
+}
+
+.bfd-card--accent-blue:hover {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25), 0 0 16px rgba(59, 130, 246, 0.18) !important;
+}
+
+.bfd-funil {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.bfd-funil__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.bfd-funil__label {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  min-width: 155px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+.bfd-funil__bar-wrap {
+  flex: 1;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bfd-funil__bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+
+.bfd-funil__count {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 24px;
+  text-align: right;
+}
+
+.bfd-funil__pct {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  min-width: 32px;
+  text-align: right;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+.bfd-alertas__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+  flex: 1;
+}
+
+.bfd-alertas__glow-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  padding: 0.65rem 0.8rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  min-height: 75px;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+}
+
+.bfd-alertas__glow-card:hover {
+  transform: translateY(-2px);
+}
+
+.bfd-alertas__glow-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.bfd-alertas__glow-count {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.bfd-alertas__glow-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  line-height: 1.2;
+  margin-top: 0.35rem;
+  letter-spacing: 0.01em;
+}
+
+.bfd-alertas__vazio {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  padding: 0.5rem 0;
+}
+
+.bfd-taxa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 2.5vw, 1.75rem);
+  margin: auto 0;
+  width: 100%;
+}
+
+.bfd-taxa__chart {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(7.75rem, 30%, 10.5rem);
+  max-width: min(10.5rem, 38vw);
+  aspect-ratio: 1;
+}
+
+.bfd-taxa__chart-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.bfd-taxa__chart-centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0 14%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.bfd-taxa__chart-pct {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.bfd-taxa__chart-rotulo {
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+}
+
+.bfd-taxa__legend {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.35rem, 1.2vh, 0.65rem);
+  flex: 1 1 auto;
+  min-width: 9rem;
+}
+
+.bfd-taxa__legend-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: clamp(0.78rem, 0.7vw + 0.68rem, 0.875rem);
+  color: #cbd5e1;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+.bfd-taxa__legend-row > span:last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.bfd-taxa__dot {
+  width: clamp(7px, 0.55rem, 9px);
+  height: clamp(7px, 0.55rem, 9px);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bfd-classificacao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: auto 0;
+  text-align: center;
+}
+
+.bfd-classificacao__nota {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.bfd-classificacao__stars {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.bfd-classificacao__meta {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.bfd-acao-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  border: none;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.bfd-acao-card__icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.bfd-acao-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+
+.bfd-acao-card__titulo {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.bfd-acao-card__desc {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+.bfd-acao-card__arrow {
+  color: #64748b;
+  flex-shrink: 0;
+  transition: transform 0.15s, color 0.15s;
+}
+
+.bfd-acao-card:hover .bfd-acao-card__arrow {
+  color: #fbbf24;
+  transform: translateX(3px);
+}
+
+@media (max-width: 1200px) {
+  .bfd-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bfd-globe-row,
+  .bfd-globe-row--tres-colunas,
+  .bfd-insights-grid,
+  .bfd-charts-grid--fornecedor,
+  .bfd-acoes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .bfd-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bfd-charts-grid--fornecedor .bfd-taxa__chart {
+    width: clamp(8rem, 38vw, 10.5rem);
+    max-width: 10.5rem;
+  }
+
+  .bfd-taxa__legend {
+    min-width: 0;
+  }
+}

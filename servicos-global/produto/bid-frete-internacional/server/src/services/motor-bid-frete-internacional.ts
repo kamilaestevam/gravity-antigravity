@@ -18,6 +18,7 @@ import {
   montarLinkRespostaDisparo,
 } from './motor-bid-disparo-utils.js'
 import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
+import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
@@ -258,6 +259,12 @@ export const motorBid = {
         data_resposta_disparo_cotacao_bid_frete_internacional: new Date(),
       },
     })
+
+    await sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional(
+      prisma,
+      cotacao.id_cotacao_bid_frete_internacional,
+      cotacao.status_cotacao_bid_frete_internacional,
+    )
 
     return proposta
   },

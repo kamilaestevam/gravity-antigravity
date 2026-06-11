@@ -2,6 +2,7 @@
 
 > Documentação técnica do skip automático `/hub → /core` e do escape hatch `?select=1`.
 > Skill associada: [`antigravity-configurador`](../../../skills/produtos-gravity/configurador/SKILL.md).
+> Gravity Store (catálogo `/store`): [`GRAVITY-STORE.md`](./GRAVITY-STORE.md).
 
 ---
 
@@ -15,7 +16,7 @@ Após autenticar no Clerk, o **porteiro SSOT** (`GET /api/v1/me`) envia o usuár
 Documentação completa do signup: [`FLUXO-SIGNUP-ONBOARDING.md`](./FLUXO-SIGNUP-ONBOARDING.md).  
 Plano de testes LOGIN: [`PLANO-LOGIN-PORTEIRO-SSOT.md`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md).
 
-Na rota `/hub`, `<SelecionarWorkspace />` decide se mantém o usuário ali ou redireciona para `/core` (skip pós-login) com base em 4 condições.
+Na rota `/hub`, `<SelecionarWorkspace />` é o **HUB unificado** (workspace + produtos + insights). Rotas legadas `/core` e `/core/*` redirecionam para `/hub`.
 
 ---
 
@@ -23,7 +24,7 @@ Na rota `/hub`, `<SelecionarWorkspace />` decide se mantém o usuário ali ou re
 
 | Cenário | Destino |
 |---|---|
-| Usuário **com** `id_workspace_preferido_usuario` salvo + outras 3 condições verdadeiras | Redirect automático para `/core` (skip dispara) |
+| Usuário **com** `id_workspace_preferido_usuario` salvo + outras 3 condições verdadeiras | Permanece em `/hub` com workspace preferido pré-selecionado (sessão hidratada) |
 | Usuário **sem** preferência salva | Permanece em `/hub` (mostra `<SelecionarWorkspace />`) |
 | Usuário **com** `?select=1` na URL | Permanece em `/hub` (escape hatch — força a tela de seleção mesmo com preferência) |
 | Usuário com `tipo_usuario = FORNECEDOR` | **Sempre** permanece em `/hub` (cross-organização exige escolha explícita) |
@@ -64,10 +65,10 @@ Na rota `/hub`, `<SelecionarWorkspace />` decide se mantém o usuário ali ou re
                     │
         ┌───────────┴───────────┐
         │                       │
-   TODAS true                 ANY false
+   (legado)                   ANY false / forceSelect
         │                       │
         ▼                       ▼
-[navigate('/core', replace)]  [renderiza tela /hub com cards de workspace]
+[permanece em /hub + WS pref.]  [renderiza HUB unificado]
 ```
 
 ---
@@ -289,11 +290,12 @@ Etapa 2 — `/recuperar-senha/redefinir` (`RecuperarSenhaRedefinirPage`):
 
 | Termo | Significado |
 |---|---|
-| **Skip pós-login** | Redirect automático `/hub → /core` quando 4 condições batem |
+| **Skip pós-login** | *(removido 2026-06)* — login com preferido fica em `/hub` com workspace ativo |
 | **Escape hatch** | Query param `?select=1` que desabilita o skip por requisição |
 | **Workspace preferido** | Valor de `id_workspace_preferido_usuario` no banco |
 | **`<SelecionarWorkspace>`** | Componente da rota `/hub` — mostra cards de workspace ou aplica o skip |
-| **`<Hub>`** | Componente da rota `/core` index — dashboard do workspace selecionado (não confundir com a tela `/hub`) |
+| **`<SelecionarWorkspace>`** | Componente da rota `/hub` — HUB unificado (ex-`/hub` + ex-`/core`) |
+| **`<Hub>` / `<Core>`** | *Deprecated* — arquivos legados; rotas `/core` redirecionam para `/hub` |
 
 ---
 

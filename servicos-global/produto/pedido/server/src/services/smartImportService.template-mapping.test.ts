@@ -151,7 +151,7 @@ describe('P4.3 — Integracao template <-> mapeador', () => {
     expect(mapa.get('Peso Liquido Total')).toBe('peso_liquido_total_pedido')
     expect(mapa.get('Peso Liquido Unitario')).toBe('peso_liquido_unitario_item')
     expect(mapa.get('Cubagem Total')).toBe('cubagem_total_pedido')
-    expect(mapa.get('Qtd. Pronta Total')).toBe('quantidade_pronta_total_item')
+    expect(mapa.get('Qtd. Pronta Total')).toBe('quantidade_pronta_item')
 
     // Bug #1d — Casas Decimais — Peso nao mapeia para peso_liquido_unitario
     expect(mapa.get('Casas Decimais — Peso')).toBe('casas_decimais_peso_item')

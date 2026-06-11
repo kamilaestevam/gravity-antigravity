@@ -129,6 +129,20 @@ Responda: *O que esse valor representa no contexto das linhas da tabela?*
 ✅ "Data em que a empresa foi cadastrada no sistema"
 ```
 
+### Exceção — Lista de Pedidos (hierarquia pedido → item)
+
+Na lista `/pedido/pedidos/lista`, **não** use só `TooltipGlobal` com `titulo` + `descricao` de 90 caracteres para explicar regras de edição. Use o componente dedicado **`TooltipRegrasColuna`** (pills + aviso amarelo opcional).
+
+| Contexto | Título | Conteúdo |
+|----------|--------|----------|
+| Cabeçalho / célula do **pedido** | `{Coluna} do Pedido` | Pills na ordem canônica (bloqueado → total → editável pedido → replicar → editável item → alerta → import/export) |
+| Célula do **item** | `{Coluna} do Item` | Pills reduzidas (bloqueado → editável item → alerta) |
+
+- **Pills:** texto curto, sem ponto final — mesma regra desta skill.
+- **Aviso amarelo** (`AvisoImpactoEdicao`): pode ultrapassar 90 caracteres; frase completa sobre impacto em outras colunas.
+- **SSOT:** [`LISTA-EDITAR-SALVAR-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-TECNICO.md) §6 (técnico) e [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md) §0 (negócio).
+- **Código:** `servicos-global/produto/pedido/client/src/shared/TooltipRegrasColuna.tsx`, `pillsTooltipColunaLista.ts`.
+
 ### Botão ou ação destrutiva
 Responda: *O que acontece imediatamente ao clicar? Há consequência?*
 

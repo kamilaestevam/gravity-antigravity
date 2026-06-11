@@ -1,6 +1,6 @@
 ---
 name: antigravity-teste-em-tela
-description: "Skill de teste visual com navegador. Quando ativada, o agente executa um passo a passo completo de teste — do login até o fluxo final — usando Playwright, e salva prints numerados de cada etapa em testes/testes-em-tela/{area}/{produto}/{YYYY-MM-DD-nome}/. Cada print documenta o estado exato da tela naquele momento."
+description: "Skill de teste visual com navegador. Quando ativada, o agente executa um passo a passo completo de teste — do login até o fluxo final — usando Playwright, e salva prints numerados de cada etapa em testes/testes-em-tela/<escopo>/plano-teste + resultado-teste/<runId>/. Cada execução tem pasta própria — prints nunca são compartilhados entre runs."
 ---
 
 # Gravity — Teste em Tela
@@ -12,6 +12,10 @@ consegue completar o fluxo**. São complementares, não substitutos.
 
 Esta skill define como o agente executa um teste visual completo:
 do zero ao fluxo finalizado, com print de cada estado significativo.
+
+> **Regra absoluta (2026-06-06):** Ver `documentos-tecnicos/testes/regras/07-organizacao-plano-resultado-por-escopo.md` — cada feature tem `plano-teste/` e `resultado-teste/<runId>/`. **Proibido** pasta datada compartilhada na raiz do escopo.
+
+> **ID EMT (2026-06-06):** `TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNNNNN}` — sufixo **global único** (6 dígitos). Ex.: `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`. Ver `documentos-tecnicos/testes/regras/01-convencao-ids.md`.
 
 ---
 
@@ -25,34 +29,34 @@ do zero ao fluxo finalizado, com print de cada estado significativo.
 
 ---
 
-## Estrutura de Pastas — Onde Salvar os Prints
+## Estrutura de Pastas — Onde Salvar Plano e Prints
 
 ```
-testes/
-  └── testes-em-tela/
-      ├── produto/
-      │   └── pedido/
-      │       └── YYYY-MM-DD-nome-do-teste/
-      │           ├── 01-descricao-do-estado.png
-      │           ├── 02-descricao-do-estado.png
-      │           └── ...
-      ├── servico/
-      │   └── gabi/
-      │       └── YYYY-MM-DD-nome-do-teste/
-      └── configurador/
-          └── YYYY-MM-DD-nome-do-teste/
+testes/testes-em-tela/
+└── <produto>/
+    └── <area>/
+        └── <feature>/
+            ├── plano-teste/
+            │   ├── plano-teste-em-tela.md
+            │   └── run-<feature>.ts
+            └── resultado-teste/
+                └── <runId>/              ← uma pasta por execução
+                    ├── 01-descricao.png
+                    ├── RESULTADO.txt
+                    └── ...
 ```
 
-### Convenção de nome da pasta
+### Exemplos reais
 
-```
-YYYY-MM-DD-[area-do-teste]
-```
+| Feature | Plano | Resultados |
+|---------|-------|------------|
+| Pedido › Lista › Editar-salvar | `testes-em-tela/pedido/lista/editar-salvar/plano-teste/` | `.../resultado-teste/<runId>/` |
+| Pedido › Config › Status | `testes-em-tela/pedido/configuracoes/status/plano-teste/` | `.../resultado-teste/<runId>/` |
 
-Exemplos:
-- `2026-04-10-modal-transferir`
-- `2026-04-10-dashboard-kpis`
-- `2026-04-10-kanban-edicao-inline`
+### `runId`
+
+- Disparo Admin: `EMT_RUN_ID` = `id_execucao_teste` retornado por `POST /admin/testes/disparar` (ex.: `1749581234567-x7k2m`)
+- Local: `npx tsx ...` sem env → `local-<timestamp>`
 
 ### Convenção de nome do print
 
@@ -61,17 +65,8 @@ NN-descricao-do-estado.png
 ```
 
 - `NN` começa em `01` e incrementa sequencialmente
-- Descrição em kebab-case, descritiva do que está visível
-- Nunca genérico (`screenshot-1.png`) — sempre descritivo (`01-login-preenchido.png`)
-
-Exemplos:
-```
-01-pagina-inicial-carregada.png
-02-modal-aberto.png
-03-formulario-preenchido.png
-04-erro-de-validacao.png
-05-confirmacao-de-sucesso.png
-```
+- Descrição em kebab-case
+- `99-erro.png` **somente** no `catch` de falha — nunca aparece em run APROVADO
 
 ---
 
@@ -79,135 +74,46 @@ Exemplos:
 
 ### ETAPA 0 — Preparação
 
-Antes de iniciar o teste:
-
-1. **Confirmar que o servidor está rodando** — verificar porta do produto na skill de ambiente
-2. **Identificar o fluxo a testar** — do primeiro clique até o estado final esperado
-3. **Criar a pasta de destino** para os prints com a data atual e nome descritivo
-4. **Definir os estados a capturar** — listar cada print planejado antes de executar
-
-```
-PLANO DO TESTE:
-  Produto: [nome]
-  Porta: [frontend:XXXX]
-  Fluxo: [descrição em 1 linha]
-  Prints planejados:
-    01 - [estado inicial]
-    02 - [após ação X]
-    03 - [após ação Y]
-    ...
-  Critério de sucesso: [o que deve estar visível no último print]
-```
+1. **Confirmar servidor** — porta do produto / `PLAYWRIGHT_BASE_URL`
+2. **Plano em** `plano-teste/plano-teste-em-tela.md`
+3. **Runner** usa `resolverPastaResultadoEmt(featureRoot, process.env.EMT_RUN_ID)` para `OUT`
+4. **Listar prints planejados** antes de executar
 
 ### ETAPA 1 — Execução com Playwright
 
-O agente usa Playwright para:
-- Navegar até a URL correta
-- Executar ações (clicar, preencher, selecionar)
-- Capturar prints em cada estado relevante
-- Validar elementos esperados (texto, botão, modal)
-
-#### Script padrão
-
 ```typescript
-import { chromium } from '@playwright/test'
-import * as path from 'path'
-import * as fs from 'fs'
+import { resolverPastaResultadoEmt } from '../../_lib/resolver-pasta-resultado-emt.js'
 
-const PASTA_PRINTS = path.join(
-  'testes', 'testes-em-tela', '[area]', '[produto]',
-  `${new Date().toISOString().split('T')[0]}-[nome-do-teste]`
-)
+const __dirRoot = dirname(fileURLToPath(import.meta.url))
+const OUT = resolverPastaResultadoEmt(__dirRoot, process.env.EMT_RUN_ID)
 
-async function testar() {
-  fs.mkdirSync(PASTA_PRINTS, { recursive: true })
-
-  const browser = await chromium.launch({ headless: false })
-  const page = await browser.newPage()
-  await page.setViewportSize({ width: 1440, height: 900 })
-
-  try {
-    // PASSO 1 — estado inicial
-    await page.goto('http://localhost:[PORTA]/[rota]')
-    await page.waitForLoadState('networkidle')
-    await page.screenshot({ path: `${PASTA_PRINTS}/01-pagina-carregada.png`, fullPage: false })
-
-    // PASSO 2 — ação
-    await page.click('[data-testid="botao-X"]')
-    await page.screenshot({ path: `${PASTA_PRINTS}/02-apos-clicar-X.png` })
-
-    // ... continuar para cada estado relevante
-
-  } finally {
-    await browser.close()
-  }
+async function screenshot(page: Page, nome: string) {
+  const path = `${OUT}/${nome}`
+  await page.screenshot({ path, fullPage: false })
 }
-
-testar().catch(console.error)
 ```
 
 ### ETAPA 2 — O que Sempre Fotografar
 
-Obrigatório capturar print de:
-
 | Momento | Exemplo de nome |
 |:--------|:----------------|
-| Página carregada (estado inicial) | `01-pagina-carregada.png` |
-| Após abrir modal/drawer | `02-modal-aberto.png` |
-| Formulário com dados preenchidos | `03-formulario-preenchido.png` |
-| Estado de loading/processando | `04-loading.png` |
-| Mensagem de erro (se houver) | `05-erro-validacao.png` |
-| Estado de sucesso | `06-sucesso.png` |
-| Estado final da tela após ação | `07-estado-final.png` |
+| Página carregada | `01-pagina-carregada.png` |
+| Após abrir modal | `02-modal-aberto.png` |
+| Sucesso | `06-sucesso.png` |
+| Erro (catch) | `99-erro.png` |
 
-**Opcional mas recomendado:**
-- Hover sobre elementos interativos
-- Estados de tabela vazia vs. com dados
-- Comparação antes/depois de uma ação
+### ETAPA 3 — Relatório
 
-### ETAPA 3 — Relatório Compacto
-
-Após salvar todos os prints, o agente reporta:
-
-```
-TESTE EM TELA — [nome do teste]
-Data: YYYY-MM-DD
-Produto: [nome] | Porta: [XXXX]
-Pasta: testes/testes-em-tela/[area]/[produto]/YYYY-MM-DD-[nome]/
-
-Prints salvos:
-  ✓ 01-pagina-carregada.png
-  ✓ 02-modal-aberto.png
-  ✓ 03-formulario-preenchido.png
-  ✓ 04-sucesso.png
-
-Resultado: PASSOU / FALHOU
-Observações: [anomalias visuais, comportamentos inesperados]
-```
+Gravar `RESULTADO.txt` em `resultado-teste/<runId>/` com checklist ✓/✗ e `Resultado: PASSOU|FALHOU`.
 
 ---
 
 ## Regras de Qualidade dos Prints
 
-- **Viewport fixo:** sempre `1440x900` — consistência entre testes
-- **Sem prints em branco:** aguardar `networkidle` antes de capturar
-- **Sem prints cortados:** usar `fullPage: false` para capturar a viewport visível
-- **Sem prints duplicados:** cada print deve mostrar um estado diferente do anterior
-- **Nomes descritivos:** o nome do arquivo deve dizer o que está na tela sem precisar abrir
-
----
-
-## Quando Playwright Não Está Disponível
-
-Se o Playwright não estiver instalado:
-
-```bash
-# Instalar no produto correto
-cd produto/[nome]/client
-npx playwright install chromium
-```
-
-Ou usar o script global se existir em `testes/testes-e2e/`.
+- **Viewport fixo:** `1440x900`
+- **Aguardar** `networkidle` antes de capturar
+- **Uma pasta por run** — nunca reutilizar PNG de execução anterior
+- **Nomes descritivos** — não `screenshot-1.png`
 
 ---
 
@@ -215,18 +121,15 @@ Ou usar o script global se existir em `testes/testes-e2e/`.
 
 | Skill | Relação |
 |:------|:--------|
-| `antigravity-testes` | Esta skill é o complemento visual; aquela cobre unitários/funcionais |
-| `antigravity-qa` | QA pode solicitar `/teste-em-tela` para validar entrega |
-| `antigravity-dream-team-ajustes` | Fase 7 pode incluir teste visual para verificação |
+| `antigravity-testes` | Coordenação dos tipos; § ONDE colocar |
+| `documentos-tecnicos/testes/regras/07-*` | SSOT da estrutura plano/resultado |
+| `antigravity-qa` | QA pode solicitar teste em tela |
 
 ---
 
 ## Como o Agente Ativa o Modo
 
-Não há slash command — o usuário ou o QA solicita explicitamente "fazer teste em tela de [fluxo]". O agente:
-
-1. Define o plano (estados a capturar)
-2. Confirma com o usuário (opcional para fluxos simples)
-3. Executa com Playwright
-4. Salva os prints na pasta correta
-5. Reporta o resultado com lista dos prints salvos
+1. Cria/atualiza plano em `plano-teste/`
+2. Runner grava em `resultado-teste/<runId>/`
+3. Registry (`test-plans-registry.json`) aponta `planoFile` e `specFile`
+4. Reporta resultado com lista de prints **da pasta do run**

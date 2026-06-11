@@ -66,7 +66,7 @@ Um **agente operacional** que:
 | **Configurador** | `servicos-global/configurador/server` | 8005 | Org, workspaces, usuarios, assinaturas, produtos ativos | Gerenciar workspaces, convidar usuarios, alterar patentes, ativar produtos |
 | **Admin** | `servicos-global/configurador/server` (rotas /admin) | 8005 | Organizacoes, produtos globais, seguranca, historico | Gerenciar orgs, produtos, usuarios globais (somente ADMIN/SUPER_ADMIN) |
 | **Hub** | `servicos-global/configurador/server` (rotas /hub, /core) | 8005 | Dashboard consolidado, processos recentes, KPIs cross-produto | Navegacao, resumo de atividade |
-| **Gravity Store** | `servicos-global/configurador/server` (rotas /catalogo-publico) | 8005 | Catalogo de produtos, precos, planos | Explorar produtos, comparar planos, solicitar ativacao |
+| **Gravity Store** | `servicos-global/configurador/server` (`GET /api/v1/produtos-gravity`) | 8005 | Catálogo publicado (ATIVO + EM_BREVE), assinaturas da org | Explorar produtos, comparar status contratado/disponível/em breve, orientar contratação |
 | **Core** | `servicos-global/configurador/server` (rotas /core) | 8005 | Resumo cross-produto, processos recentes | Visao consolidada |
 
 ### Produtos FORA de escopo (v1)
@@ -148,11 +148,14 @@ GABI responde: "Voce tem 7 pedidos atrasados. Quer que eu liste os detalhes?"
 
 ### 4.6 Catalogo de Tools — Gravity Store
 
+> SSOT da tela `/store`: [`GRAVITY-STORE.md`](../configurador/GRAVITY-STORE.md). Marketplace público usa rotas distintas (`/api/v1/catalogo/produtos`).
+
 | Tool ID | Metodo | Endpoint | Parametros | Descricao |
 |---------|--------|----------|------------|-----------|
-| `store.catalogo` | GET | `/api/v1/catalogo-publico` | — | Catalogo publico de produtos |
-| `store.detalhe_produto` | GET | `/api/v1/catalogo-publico/:slug` | slug | Detalhes de 1 produto |
-| `store.planos` | GET | `/api/v1/catalogo-publico/:slug/planos` | slug | Planos disponiveis |
+| `store.catalogo` | GET | `/api/v1/produtos-gravity` | — | Catálogo autenticado (ATIVO + EM_BREVE) — mesma fonte que Admin |
+| `store.assinaturas_org` | GET | `/api/v1/organizacoes/me/assinaturas` | — | Produtos já contratados pela organização |
+| `store.detalhe_produto` | GET | `/api/v1/produtos-gravity/:slug` | slug | Produto completo read-only (faixas, negociações da org) |
+| `store.assinar` | POST | `/api/v1/organizacoes/me/assinaturas/assinar-produto` | slug, id_workspace | Contratar produto (MASTER/ADMIN/SUPER_ADMIN) |
 
 ### 4.7 Implementacao no `connectors.ts`
 

@@ -30,12 +30,38 @@ const REGISTRY  = join(TESTES, 'test-plans-registry.json')
 const TIPOS_VALIDOS    = ['UNI', 'CON', 'FUN', 'CRO', 'E2E', 'PEN'] as const
 const ESCOPOS_VALIDOS  = [
   'LOGIN', 'CONFIG', 'ADMIN', 'HUB', 'CORE', 'MARKET', 'TENANT', 'DBASE',
-  'PEDIDO', 'NFIMP', 'LPCO', 'BIDFRT', 'BIDCAM', 'SIMCUS', 'FINCOM', 'PROCSO',
+  'PEDIDO', 'NFIMP', 'LPCO', 'BIDFRT', 'BIDCAM', 'SIMCUS', 'FINCOM', 'PROCSO', 'MBOTO', 'STORE',
 ] as const
 
 const ID_REGEX = new RegExp(
   `^TST-(${TIPOS_VALIDOS.join('|')})-(${ESCOPOS_VALIDOS.join('|')})-\\d{6}$`
 )
+
+const EMT_ID_REGEX = /^TST-EMT-[A-Z0-9]+(-[A-Z0-9]+){2,}-\d{6}$/
+
+/**
+ * IDs descritivos (paridade EMT) para tipos legado — o escopo real fica no campo
+ * `escopo` do registry (ex.: CONFIG), enquanto o ID carrega o tema legível.
+ * Cada domínio descritivo entra como um regex próprio nesta lista.
+ */
+const DESCRIPTIVE_REGEXES: readonly RegExp[] = [
+  /^TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}$/,
+  /^TST-(UNI|FUN|CRO|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}$/,
+]
+
+/** Retorna o regex descritivo que casa o ID, ou undefined. */
+function matchDescriptive(id: string): RegExp | undefined {
+  return DESCRIPTIVE_REGEXES.find((r) => r.test(id))
+}
+
+function idValido(id: string, tipo: string): boolean {
+  if (tipo === 'EMT') return EMT_ID_REGEX.test(id)
+  if (matchDescriptive(id)) {
+    const tipoFromId = id.match(/^TST-(UNI|FUN|CRO|E2E)-/)?.[1]
+    return tipoFromId === tipo
+  }
+  return ID_REGEX.test(id)
+}
 
 interface RegistryEntry {
   id:           string
@@ -67,21 +93,38 @@ try {
 const idsRegistry  = new Set<string>()
 const duplicatas   = new Set<string>()
 
+const idsDeletados = new Set<string>(
+  (registry.deletados ?? []).flatMap((d: string | { id?: string }) =>
+    typeof d === 'string' ? [d] : d.id ? [d.id] : []
+  )
+)
+
 for (const entry of registry.planos) {
   // 2a. Formato do ID
-  if (!ID_REGEX.test(entry.id)) {
-    errors.push(`Registry: ID "${entry.id}" não casa com o regex ${ID_REGEX}`)
+  if (!idValido(entry.id, entry.tipo)) {
+    errors.push(`Registry: ID "${entry.id}" não casa com a convenção (tipo=${entry.tipo})`)
   }
 
   // 2b. Coerência tipo/escopo do ID com os campos
-  const match = entry.id.match(/^TST-(\w+)-(\w+)-(\d+)$/)
-  if (match) {
-    const [, tipo, escopo] = match
-    if (tipo !== entry.tipo) {
-      errors.push(`Registry: ID "${entry.id}" diz tipo=${tipo} mas o campo é ${entry.tipo}`)
+  if (entry.tipo === 'EMT') {
+    if (!entry.id.startsWith('TST-EMT-')) {
+      errors.push(`Registry: ID EMT "${entry.id}" deve começar com TST-EMT-`)
     }
-    if (escopo !== entry.escopo) {
-      errors.push(`Registry: ID "${entry.id}" diz escopo=${escopo} mas o campo é ${entry.escopo}`)
+  } else if (matchDescriptive(entry.id)) {
+    const match = entry.id.match(/^TST-(UNI|FUN|CRO|E2E)-/)
+    if (match && match[1] !== entry.tipo) {
+      errors.push(`Registry: ID "${entry.id}" diz tipo=${match[1]} mas o campo é ${entry.tipo}`)
+    }
+  } else {
+    const match = entry.id.match(/^TST-(\w+)-(\w+)-(\d{6})$/)
+    if (match) {
+      const [, tipo, escopo] = match
+      if (tipo !== entry.tipo) {
+        errors.push(`Registry: ID "${entry.id}" diz tipo=${tipo} mas o campo é ${entry.tipo}`)
+      }
+      if (escopo !== entry.escopo) {
+        errors.push(`Registry: ID "${entry.id}" diz escopo=${escopo} mas o campo é ${entry.escopo}`)
+      }
     }
   }
 
@@ -92,7 +135,7 @@ for (const entry of registry.planos) {
   idsRegistry.add(entry.id)
 
   // 2d. ID deletado sendo reusado
-  if (registry.deletados?.includes(entry.id)) {
+  if (idsDeletados.has(entry.id)) {
     errors.push(`Registry: ID "${entry.id}" foi marcado como deletado mas está sendo reusado`)
   }
 
@@ -117,6 +160,20 @@ for (const dup of duplicatas) {
   errors.push(`Registry: ID "${dup}" duplicado em planos[]`)
 }
 
+const sequenciasGlobais = new Map<number, string>()
+for (const entry of registry.planos) {
+  const match = entry.id.match(/-(\d{6})$/)
+  if (!match) continue
+  const seq = Number(match[1])
+  if (sequenciasGlobais.has(seq)) {
+    errors.push(
+      `Registry: sufixo global ${String(seq).padStart(6, '0')} duplicado entre "${sequenciasGlobais.get(seq)}" e "${entry.id}"`
+    )
+  } else {
+    sequenciasGlobais.set(seq, entry.id)
+  }
+}
+
 // ─── 3. Varre arquivos do testes/ procurando IDs ──────────────────────────────
 function walk(dir: string, found: Map<string, string>): void {
   if (!existsSync(dir)) return
@@ -127,10 +184,13 @@ function walk(dir: string, found: Map<string, string>): void {
     if (stat.isDirectory()) {
       walk(path, found)
     } else if (/^TST-(UNI|CON|FUN|CRO|E2E|PEN)-/.test(name)) {
-      const idMatch = name.match(/TST-\w+-\w+-\d{6}/)
-      if (idMatch) {
-        const id = idMatch[0]
-        if (!ID_REGEX.test(id)) {
+      const idMatchDesc =
+        name.match(/TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}/) ??
+        name.match(/TST-(UNI|FUN|CRO|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}/)
+      const idMatchLegacy = name.match(/TST-\w+-\w+-\d{6}/)
+      const id = idMatchDesc?.[0] ?? idMatchLegacy?.[0]
+      if (id) {
+        if (!idValido(id, id.match(/^TST-(\w+)-/)?.[1] ?? '')) {
           errors.push(`Arquivo "${relative(ROOT, path)}": ID "${id}" não casa com o regex`)
         }
         if (found.has(id)) {

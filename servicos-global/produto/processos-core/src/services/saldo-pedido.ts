@@ -47,9 +47,9 @@ interface CancelarInput {
 
 interface AtualizarProntaInput {
   pedido_item_id: string
+  id_pedido: string
   quantidade_pronta: number
   id_organizacao: string
-  id_workspace: string
 }
 
 // Shape DDD — alinhado com colunas físicas de "pedido_item" (rename Onda 3 + rename de tabela 2026-05-07).
@@ -172,7 +172,7 @@ export const saldoPedido = {
    * Informativo — nao afeta a formula de saldo.
    */
   async atualizarPronta(prisma: PrismaClient, input: AtualizarProntaInput): Promise<SaldoResult> {
-    const { pedido_item_id, quantidade_pronta, id_organizacao, id_workspace } = input
+    const { pedido_item_id, id_pedido, quantidade_pronta, id_organizacao } = input
 
     if (quantidade_pronta < 0) {
       throw new AppError(400, 'Quantidade pronta nao pode ser negativa')
@@ -181,8 +181,9 @@ export const saldoPedido = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const db = prisma as any
 
+    // Alinhado ao PUT /itens/:id_item — isola por organizacao + pedido, nao pelo header x-id-workspace
     const item = await db.pedidoItem.findFirst({
-      where: { id_item: pedido_item_id, id_organizacao, id_workspace },
+      where: { id_item: pedido_item_id, id_pedido, id_organizacao },
     })
 
     if (!item) {

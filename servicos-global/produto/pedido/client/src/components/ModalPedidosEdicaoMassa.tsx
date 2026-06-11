@@ -29,6 +29,7 @@ import { useIncotermsPedido } from '../shared/useIncotermsPedido'
 import { useMoedasPedido } from '../shared/useMoedasPedido'
 import { useUnidadesPedido } from '../shared/useUnidadesPedido'
 import { useLogisticaCadastrosPedido } from '../shared/useLogisticaCadastrosPedido'
+import { useCambioSiscomexPedido } from '../shared/useCambioSiscomexPedido'
 import type {
   Pedido,
   CampoEdicaoMassa,
@@ -129,11 +130,10 @@ function construirCamposPedidoEditaveis(t: TFunc): DefinicaoCampo[] { return [
   { campo: 'unidade_comercializada_pedido', rotulo: t('pedido.massa_campos.unidade_comercializada_pedido'),                 tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
   { campo: 'incoterm_pedido', rotulo: t('pedido.massa_campos.incoterm_pedido'),                               tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
   { campo: 'quantidade_volumes_pedido', rotulo: t('pedido.massa_campos.quantidade_volumes_pedido'),                           tipo: 'numero', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'cobertura_cambial_item', rotulo: t('pedido.massa_campos.cobertura_cambial_item'),                      tipo: 'select', nivel: 'item',   grupo: t('pedido.modal_massa.grupo_comercial'),
-    opcoes: [
-      { valor: 'com_cobertura', rotulo: t('pedido.modal_massa.cobertura_com') },
-      { valor: 'sem_cobertura', rotulo: t('pedido.modal_massa.cobertura_sem') },
-    ] },
+  { campo: 'cobertura_cambial_item', rotulo: t('pedido.massa_campos.cobertura_cambial_item'),                      tipo: 'select', nivel: 'item',   grupo: t('pedido.modal_massa.grupo_comercial') },
+  { campo: 'cobertura_cambial_pedido', rotulo: t('pedido.massa_campos.cobertura_cambial_pedido'),                    tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
+  { campo: 'condicao_pagamento_siscomex_pedido', rotulo: t('pedido.massa_campos.condicao_pagamento_siscomex_pedido'), tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
+  { campo: 'condicao_pagamento_siscomex_item', rotulo: t('pedido.massa_campos.condicao_pagamento_siscomex_item'),     tipo: 'select', nivel: 'item',   grupo: t('pedido.modal_massa.grupo_comercial') },
   { campo: 'nome_exportador_item', rotulo: t('pedido.massa_campos.nome_exportador_item'),           tipo: 'texto',  nivel: 'item',   grupo: t('pedido.modal_massa.grupo_partes') },
   { campo: 'nome_importador_item', rotulo: t('pedido.massa_campos.nome_importador_item'),           tipo: 'texto',  nivel: 'item',   grupo: t('pedido.modal_massa.grupo_partes') },
   { campo: 'condicao_pagamento_pedido', rotulo: t('pedido.massa_campos.condicao_pagamento_pedido'),                        tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
@@ -266,6 +266,8 @@ function construirCamposItemEditaveis(t: TFunc): DefinicaoCampo[] { return [
   { campo: 'referencia_importador_item', rotulo: t('pedido.massa_campos.referencia_importador_item'),                  tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
   { campo: 'referencia_exportador_item', rotulo: t('pedido.massa_campos.referencia_exportador_item'),                  tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
   { campo: 'referencia_fabricante_item', rotulo: t('pedido.massa_campos.referencia_fabricante_item'),                  tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
+  { campo: 'numero_proforma_item', rotulo: t('pedido.massa_campos.numero_proforma_item'),                              tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
+  { campo: 'numero_invoice_item', rotulo: t('pedido.massa_campos.numero_invoice_item'),                                tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
 
   // Embalagem e documentos
   { campo: 'tipo_embalagem', rotulo: t('pedido.massa_campos.tipo_embalagem'),                         tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
@@ -417,6 +419,8 @@ function inputPlaceholder(campo: CampoEmEdicao, pedidos: Pedido[], t: TFunc): st
 
 interface OpcoesDinamicas {
   incoterms?: { valor: string; rotulo: string }[]
+  coberturaCambial?: { valor: string; rotulo: string }[]
+  modalidadePagamento?: { valor: string; rotulo: string }[]
   paises?: { valor: string; rotulo: string }[]
   paisesLogistica?: { valor: string; rotulo: string }[]
   portos?: { valor: string; rotulo: string }[]
@@ -437,6 +441,12 @@ function injetarOpcoesDinamicas(campos: DefinicaoCampo[], opcoes: OpcoesDinamica
   return campos.map(d => {
     if ((d.campo === 'incoterm_pedido' || d.campo === 'incoterm_item') && opcoes.incoterms?.length) {
       return { ...d, opcoes: opcoes.incoterms }
+    }
+    if ((d.campo === 'cobertura_cambial_pedido' || d.campo === 'cobertura_cambial_item') && opcoes.coberturaCambial?.length) {
+      return { ...d, opcoes: opcoes.coberturaCambial }
+    }
+    if ((d.campo === 'condicao_pagamento_siscomex_pedido' || d.campo === 'condicao_pagamento_siscomex_item') && opcoes.modalidadePagamento?.length) {
+      return { ...d, opcoes: opcoes.modalidadePagamento }
     }
     if (CAMPOS_PAIS.has(d.campo) && opcoes.paises?.length) {
       return { ...d, opcoes: opcoes.paises }
@@ -1013,6 +1023,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   const { addNotification } = useShellStore()
   const hasMixedTipos = useHasMixedTipos()
   const { incotermsOpcoes, loading: incotermLoading, erro: incotermErro } = useIncotermsPedido()
+  const { coberturaCambialOpcoes, modalidadePagamentoOpcoes } = useCambioSiscomexPedido()
   const { moedasOpcoes } = useMoedasPedido()
   const { unidadesComercializadas } = useUnidadesPedido()
   const {
@@ -1035,6 +1046,8 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   }, [])
   const opcoesDinamicas: OpcoesDinamicas = {
     incoterms: incotermsOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
+    coberturaCambial: coberturaCambialOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
+    modalidadePagamento: modalidadePagamentoOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
     paises: paisesOpcoes,
     paisesLogistica: paisesLogisticaOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),
     portos: portosOpcoes.map(o => ({ valor: o.valor, rotulo: o.label })),

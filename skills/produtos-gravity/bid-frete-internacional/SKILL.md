@@ -74,6 +74,15 @@ Agregação resumo BID: `client/src/shared/agregar-resumo-bid-frete-internaciona
 
 Query avulsas: `GET /cotacoes?apenas_avulsas=true` (sem `id_bid`).
 
+### Painéis da Lista (paridade Pedido)
+
+- Model: `ListaPainelUsuarioGlobal` (`id_produto_gravity = 'bid-frete-internacional'`)
+- API: `GET|POST|PATCH|DELETE /api/v1/bid-frete-internacional/lista/paineis`
+- Contrato `config_json`: `shared/listaPainelConfigSchema.ts` (Zod `.strict()`)
+- UI: `BidFreteListaPainelBar` + `useListaPainelBidFrete` em `lista-bid-frete-internacional.tsx`
+- Escopo de filiais: seletor lateral `modoWorkspace="multiplo"` (paridade Pedido) — preferência em `GET/PUT /config/escopo-workspaces`; painel Lista **não** guarda `ids_workspaces_escopo`
+- Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`
+
 ---
 
 ## Banco (SSOT)
@@ -145,11 +154,25 @@ Bancos Railway: `gravity-bid-frete-internacional-producao`, `gravity-bid-frete-i
 
 ---
 
+## Seletor universal (4 visualizações)
+
+Paridade com Pedido — layout route + keep-alive:
+
+- `BidFreteVisualizacaoLayout` + `BidFreteVisualizacaoTabs`
+- `BidFreteMultiView` (cliente e fornecedor — `modo` prop)
+- `bid-frete-prefetch.ts` (prefetch de chunk no hover)
+- `data-testid`: `seletor-visao-tab-*`, `seletor-visao-painel-*`
+
+Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · E2E: `TST-E2E-MBOTO-000057` (cliente), `000004` (fornecedor).
+
+---
+
 ## Testes
 
 - Unitários: `testes/testes-unitarios/bid-frete-internacional/` (60+ specs)
 - Funcionais: `testes/testes-funcionais/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
+- Seletor SLA 1s: `testes/testes-e2e/menu-botoes/seletor-universal-visoes/` (`MBOTO`)
 
 ---
 

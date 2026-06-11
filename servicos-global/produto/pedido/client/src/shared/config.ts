@@ -45,18 +45,11 @@ export const PRODUCT_CONFIG = {
     {
       id: 'meu-espaco', label: 'Meu Espaço', labelKey: 'pedido.nav.meu_espaco', icon: 'user-circle', source: 'tenant',
       children: [
-        { id: '/core/atividades', label: 'Minhas Atividades', labelKey: 'pedido.nav.minhas_atividades', icon: 'check-circle',  source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
-        { id: '/core/email',      label: 'Email',             labelKey: 'pedido.nav.email',             icon: 'envelope',      source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
-        { id: '/core/whatsapp',   label: 'WhatsApp',          labelKey: 'pedido.nav.whatsapp',          icon: 'whatsapp-logo', source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+        { id: '/hub', label: 'Minhas Atividades', labelKey: 'pedido.nav.minhas_atividades', icon: 'check-circle',  source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+        { id: '/hub', label: 'Email',             labelKey: 'pedido.nav.email',             icon: 'envelope',      source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+        { id: '/hub', label: 'WhatsApp',          labelKey: 'pedido.nav.whatsapp',          icon: 'whatsapp-logo', source: 'tenant', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
       ],
     },
-
-    // ── Pedidos ──────────────────────────────────────────────────────────────
-    { id: 'section-pedidos',                    label: 'Pedidos',    labelKey: 'pedido.nav.pedidos',       sectionDivider: true },
-    { id: '/pedido/pedidos/visao-geral', label: 'Visão Geral', labelKey: 'pedido.nav.visao_geral', icon: 'chart-pie-slice', source: 'product' },
-    { id: '/pedido/pedidos/dashboard',  label: 'Dashboard',  labelKey: 'pedido.nav.dashboard',     icon: 'chart-bar',               source: 'product' },
-    { id: '/pedido/pedidos/lista',      label: 'Lista',      labelKey: 'pedido.nav.lista',         icon: 'list-bullets',            source: 'product' },
-    { id: '/pedido/pedidos/kanban',     label: 'Kanban',     labelKey: 'pedido.nav.kanban',        icon: 'kanban',                  source: 'product' },
 
     // ── Servicos ──────────────────────────────────────────────────────────────
     // Historico: link externo para a tela centralizada do Configurador (SSOT da UI de auditoria).

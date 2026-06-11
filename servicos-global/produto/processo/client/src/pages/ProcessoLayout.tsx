@@ -9,9 +9,11 @@
  * - Responsividade e transicoes
  */
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Outlet, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
+import { useSearchParams, useNavigate, useLocation, useParams } from 'react-router-dom'
+import { ProcessoDetalheRotas } from './ProcessoDetalheRotas'
+import { resolverProcessoListaPorSlug } from '../shared/lista/rotaProcessoLista'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
@@ -32,27 +34,11 @@ import {
 } from '@phosphor-icons/react'
 import { getProcesso } from '../shared/api'
 import type { ProcessoDetail } from '../shared/types'
+import { ProcessoContext } from './processo-context'
 import './ProcessoLayout.css'
+import './workflow/Workflow.css'
 
-// ─── Context ────────────────────────────────────────────────────────────────
-
-interface ProcessoContextValue {
-  processo: ProcessoDetail | null
-  loading: boolean
-  error: string | null
-  refetch: () => void
-}
-
-export const ProcessoContext = createContext<ProcessoContextValue>({
-  processo: null,
-  loading: true,
-  error: null,
-  refetch: () => {},
-})
-
-export function useProcesso() {
-  return useContext(ProcessoContext)
-}
+export { ProcessoContext, useProcesso } from './processo-context'
 
 // ─── Mock Data (para preview sem backend) ───────────────────────────────────
 
@@ -163,56 +149,67 @@ interface NavCounts {
   pedidos: number
 }
 
+type ModoNavProcesso = 'plano-legado' | 'id-workspace' | 'lista-slug' | 'detalhe-legado'
+
 const buildNavSections = (
+  modo: ModoNavProcesso,
+  slugProcesso: string,
   processoId: string,
   idOrganizacao: string,
+  pathname: string,
   counts: NavCounts,
 ): NavSection[] => {
-  const qs = processoId ? `?id=${processoId}&idOrganizacao=${idOrganizacao}` : ''
-  // Prefixo do produto — todas as paginas vivem sob /processo/<rota>.
-  // Sem o prefixo o navigate jogava para localhost/<rota> e dava 404.
-  const base = '/processo'
+  const prefixo = pathname.includes('/acesso-processos/') ? '/acesso-processos' : '/processo'
+  const qs = processoId && idOrganizacao ? `?id=${processoId}&idOrganizacao=${idOrganizacao}` : ''
+  const base = modo === 'detalhe-legado'
+    ? `${prefixo}/detalhe`
+    : modo === 'lista-slug'
+      ? `${prefixo}/lista/${slugProcesso}`
+      : modo === 'id-workspace'
+        ? `${prefixo}/${processoId}`
+        : prefixo
+  const sufixo = modo === 'detalhe-legado' ? qs : ''
 
   return [
     {
       title: 'Acompanhamento',
       items: [
-        { id: 'workflow',       to: `${base}/workflow${qs}`,       label: 'Visão Geral',       icon: <FlowArrow weight="duotone" size={18} /> },
-        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${qs}`, label: 'Dados do Processo', icon: <GearSix   weight="duotone" size={18} /> },
-        { id: 'documentos',     to: `${base}/documentos${qs}`,     label: 'Documentos',        icon: <Folders   weight="duotone" size={18} /> },
+        { id: 'workflow',       to: `${base}/workflow${sufixo}`,       label: 'Visão Geral',       icon: <FlowArrow weight="duotone" size={18} /> },
+        { id: 'dados-tecnicos', to: `${base}/dados-tecnicos${sufixo}`, label: 'Dados do Processo', icon: <GearSix   weight="duotone" size={18} /> },
+        { id: 'documentos',     to: `${base}/documentos${sufixo}`,     label: 'Documentos',        icon: <Folders   weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Pedidos',
       items: [
-        { id: 'pedidos',   to: `${base}/pedidos${qs}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} />, count: counts.pedidos },
+        { id: 'pedidos',   to: `${base}/pedidos${sufixo}`,   label: 'Pedidos',   icon: <Package   weight="duotone" size={18} />, count: counts.pedidos },
       ],
     },
     {
       title: 'Despacho Aduaneiro',
       items: [
-        { id: 'duimp',       to: `${base}/duimp${qs}`,       label: 'DUIMP',       icon: <CloudArrowUp weight="duotone" size={18} /> },
-        { id: 'li',          to: `${base}/li${qs}`,          label: 'LPCO',        icon: <FileText     weight="duotone" size={18} /> },
+        { id: 'duimp',       to: `${base}/duimp${sufixo}`,       label: 'DUIMP',       icon: <CloudArrowUp weight="duotone" size={18} /> },
+        { id: 'li',          to: `${base}/li${sufixo}`,          label: 'LPCO',        icon: <FileText     weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Financeiro',
       items: [
-        { id: 'financeiro', to: `${base}/financeiro${qs}`, label: 'Financeiro', icon: <CurrencyDollar weight="duotone" size={18} /> },
-        { id: 'taxas',      to: `${base}/taxas${qs}`,      label: 'Taxas',      icon: <Receipt        weight="duotone" size={18} /> },
+        { id: 'financeiro', to: `${base}/financeiro${sufixo}`, label: 'Financeiro', icon: <CurrencyDollar weight="duotone" size={18} /> },
+        { id: 'taxas',      to: `${base}/taxas${sufixo}`,      label: 'Taxas',      icon: <Receipt        weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Comunicacao',
       items: [
-        { id: 'email', to: `${base}/email${qs}`, label: 'Email', icon: <Envelope    weight="duotone" size={18} /> },
-        { id: 'todo',  to: `${base}/todo${qs}`,  label: 'To Do', icon: <CheckSquare weight="duotone" size={18} /> },
+        { id: 'email', to: `${base}/email${sufixo}`, label: 'Email', icon: <Envelope    weight="duotone" size={18} /> },
+        { id: 'todo',  to: `${base}/todo${sufixo}`,  label: 'To Do', icon: <CheckSquare weight="duotone" size={18} /> },
       ],
     },
     {
       title: 'Configurações',
       items: [
-        { id: 'configuracoes', to: `${base}/configuracoes${qs}`, label: 'Configurações', icon: <GearSix weight="duotone" size={18} /> },
+        { id: 'configuracoes', to: `${base}/configuracoes${sufixo}`, label: 'Configurações', icon: <GearSix weight="duotone" size={18} /> },
       ],
     },
   ]
@@ -233,8 +230,19 @@ export default function ProcessoLayout() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const location = useLocation()
-  const processoId = searchParams.get('id') ?? ''
-  const idOrganizacao = searchParams.get('idOrganizacao') ?? ''
+  const { slug_processo: slugProcesso = '', id_processo: idProcessoParam = '' } = useParams<{
+    slug_processo: string
+    id_processo: string
+  }>()
+  const processoLista = useMemo(
+    () => (slugProcesso ? resolverProcessoListaPorSlug(slugProcesso) : undefined),
+    [slugProcesso],
+  )
+  const processoId = searchParams.get('id')
+    ?? processoLista?.id_processo
+    ?? idProcessoParam
+    ?? ''
+  const idOrganizacao = searchParams.get('idOrganizacao') ?? processoLista?.id_organizacao ?? ''
 
   const { currentTheme, tooltipsDisabled, setSidebarOpen } = useShellStore()
   const isLight = currentTheme === 'light'
@@ -257,25 +265,35 @@ export default function ProcessoLayout() {
     return () => setSidebarOpen(prevOpen)
   }, [setSidebarOpen])
 
+  const usaMockProcesso = useMemo(
+    () =>
+      !processoId
+      || !idOrganizacao
+      || idOrganizacao === 'org_mock'
+      || idOrganizacao === 'tenant-demo'
+      || processoId.startsWith('proc-')
+      || processoId.startsWith('core_id_')
+      || /^p\d+$/.test(processoId),
+    [processoId, idOrganizacao],
+  )
+
   const fetchProcesso = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      if (processoId && idOrganizacao) {
+      if (usaMockProcesso) {
+        await new Promise(r => setTimeout(r, 200))
+        setProcesso(MOCK_PROCESSO)
+      } else {
         const data = await getProcesso(idOrganizacao, processoId)
         setProcesso(data)
-      } else {
-        // Mock data para preview sem backend
-        await new Promise(r => setTimeout(r, 400))
-        setProcesso(MOCK_PROCESSO)
       }
     } catch {
-      // Fallback para mock se API falhar
       setProcesso(MOCK_PROCESSO)
     } finally {
       setLoading(false)
     }
-  }, [processoId, idOrganizacao])
+  }, [processoId, idOrganizacao, usaMockProcesso])
 
   useEffect(() => {
     fetchProcesso()
@@ -305,9 +323,23 @@ export default function ProcessoLayout() {
     [processo]
   )
 
+  const modoNav = useMemo((): ModoNavProcesso => {
+    if (/\/detalhe(?:\/|$)/.test(location.pathname)) return 'detalhe-legado'
+    if (slugProcesso) return 'lista-slug'
+    if (idProcessoParam) return 'id-workspace'
+    return 'plano-legado'
+  }, [location.pathname, slugProcesso, idProcessoParam])
+
   const navSections = useMemo(
-    () => buildNavSections(processoId, idOrganizacao, navCounts),
-    [processoId, idOrganizacao, navCounts]
+    () => buildNavSections(
+      modoNav,
+      slugProcesso,
+      processoId,
+      idOrganizacao,
+      location.pathname,
+      navCounts,
+    ),
+    [modoNav, slugProcesso, processoId, idOrganizacao, location.pathname, navCounts],
   )
 
 
@@ -399,9 +431,24 @@ export default function ProcessoLayout() {
               <div key={section.title} className="p2-nav-section">
                 <div className="p2-nav-section-title">{section.title}</div>
                 {section.items.map(item => {
-                  const isActive = location.pathname === item.to.split('?')[0] ||
-                    location.pathname === `/processo/${item.id}` ||
-                    location.pathname === `/${item.id}`
+                  const rotaItem = item.to.split('?')[0]
+                  const prefixoNav = location.pathname.includes('/acesso-processos/')
+                    ? '/acesso-processos'
+                    : '/processo'
+                  const isActive = location.pathname === rotaItem
+                    || location.pathname === rotaItem.replace('/processo/', '/acesso-processos/')
+                    || (item.id === 'workflow' && modoNav === 'lista-slug' && (
+                      location.pathname === `/processo/lista/${slugProcesso}`
+                      || location.pathname === `/acesso-processos/lista/${slugProcesso}`
+                    ))
+                    || (item.id === 'workflow' && modoNav === 'id-workspace' && (
+                      location.pathname === `${prefixoNav}/${processoId}`
+                      || location.pathname === `${prefixoNav}/${processoId}/`
+                    ))
+                    || (item.id === 'workflow' && modoNav === 'detalhe-legado' && (
+                      location.pathname === '/processo/detalhe'
+                      || location.pathname === '/acesso-processos/detalhe'
+                    ))
                   return (
                     <button
                       key={item.id}
@@ -443,9 +490,8 @@ export default function ProcessoLayout() {
             </div>
           )}
 
-          {/* Page content rendered by child routes */}
           <div className="p2-content">
-            <Outlet />
+            <ProcessoDetalheRotas />
           </div>
         </div>
 

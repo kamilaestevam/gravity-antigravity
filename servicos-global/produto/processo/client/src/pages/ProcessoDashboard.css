@@ -1,0 +1,51 @@
+/* Toolbar do dashboard Processo — mesmo chrome da Lista (lp-tabela-chrome) */
+.processo-dashboard-toolbar-wrapper.lp-tabela-wrapper {
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: auto;
+}
+
+.processo-dashboard-toolbar-wrapper .lp-tabela-chrome.processo-dashboard-chrome {
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: auto;
+  overflow: visible;
+}
+
+.processo-dashboard-chrome .lp-faixa-navegacao {
+  flex-shrink: 0;
+}
+
+.processo-dashboard-chrome .processo-dashboard-menu {
+  flex: 0 0 auto;
+  gap: 0;
+  min-height: auto;
+  overflow: visible;
+}
+
+.processo-dashboard-toolbar-wrapper .processo-dashboard-toolbar-card.gtv-container,
+.processo-dashboard-toolbar-wrapper.lp-tabela-wrapper--faixa-unificada
+  .lp-tabela-chrome.processo-dashboard-chrome
+  > .processo-dashboard-menu
+  > .gtv-container {
+  border: none;
+  border-radius: 0;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: unset;
+  overflow: visible;
+}
+
+.processo-dashboard-conteudo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.processo-dashboard-conteudo .proc-empty-state {
+  margin: 0;
+}

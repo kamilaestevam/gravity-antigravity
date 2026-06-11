@@ -85,7 +85,7 @@ export const TIPO_OP_PESO: Array<{ valor: 'importacao' | 'exportacao'; peso: num
 
 export const UNIDADES = ['PCS', 'PAR', 'UN', 'CX', 'KG', 'TON', 'M', 'M2', 'M3', 'L'] as const
 
-export const COBERTURAS = ['com_cobertura', 'sem_cobertura'] as const
+export const COBERTURAS = ['ATE_180_DIAS', 'SEM_COBERTURA'] as const
 
 export const CONDICOES_PAGAMENTO = [
   '30 days T/T',

@@ -118,6 +118,11 @@ export interface VisaoGeralModalGlobo {
   cor: string
 }
 
+export interface FornecedorMapaGeo {
+  paisIso: string
+  nome: string
+}
+
 export interface VisaoGeralMapaData {
   pins: VisaoGeralMapPin[]
   globeRoutes: VisaoGeralArcRoute[]
@@ -243,6 +248,98 @@ const PAIS_GEO: Record<string, GeoCoord> = {
   vn: { lat: 10.8231, lng: 106.6297, flag: '🇻🇳', label: 'Vietnã' },
   turquia: { lat: 41.0082, lng: 28.9784, flag: '🇹🇷', label: 'Turquia' },
   tr: { lat: 41.0082, lng: 28.9784, flag: '🇹🇷', label: 'Turquia' },
+  singapura: { lat: 1.3521, lng: 103.8198, flag: '🇸🇬', label: 'Singapura' },
+  sg: { lat: 1.3521, lng: 103.8198, flag: '🇸🇬', label: 'Singapura' },
+  australia: { lat: -33.8688, lng: 151.2093, flag: '🇦🇺', label: 'Austrália' },
+  au: { lat: -33.8688, lng: 151.2093, flag: '🇦🇺', label: 'Austrália' },
+  'hong kong': { lat: 22.3193, lng: 114.1694, flag: '🇭🇰', label: 'Hong Kong' },
+  hk: { lat: 22.3193, lng: 114.1694, flag: '🇭🇰', label: 'Hong Kong' },
+  malasia: { lat: 3.139, lng: 101.6869, flag: '🇲🇾', label: 'Malásia' },
+  my: { lat: 3.139, lng: 101.6869, flag: '🇲🇾', label: 'Malásia' },
+  tailandia: { lat: 13.7563, lng: 100.5018, flag: '🇹🇭', label: 'Tailândia' },
+  th: { lat: 13.7563, lng: 100.5018, flag: '🇹🇭', label: 'Tailândia' },
+  indonesia: { lat: -6.2088, lng: 106.8456, flag: '🇮🇩', label: 'Indonésia' },
+  id: { lat: -6.2088, lng: 106.8456, flag: '🇮🇩', label: 'Indonésia' },
+  filipinas: { lat: 14.5995, lng: 120.9842, flag: '🇵🇭', label: 'Filipinas' },
+  ph: { lat: 14.5995, lng: 120.9842, flag: '🇵🇭', label: 'Filipinas' },
+  polonia: { lat: 52.2297, lng: 21.0122, flag: '🇵🇱', label: 'Polônia' },
+  pl: { lat: 52.2297, lng: 21.0122, flag: '🇵🇱', label: 'Polônia' },
+  colombia: { lat: 4.711, lng: -74.0721, flag: '🇨🇴', label: 'Colômbia' },
+  co: { lat: 4.711, lng: -74.0721, flag: '🇨🇴', label: 'Colômbia' },
+  peru: { lat: -12.0464, lng: -77.0428, flag: '🇵🇪', label: 'Peru' },
+  pe: { lat: -12.0464, lng: -77.0428, flag: '🇵🇪', label: 'Peru' },
+  'emirados arabes unidos': { lat: 25.2048, lng: 55.2708, flag: '🇦🇪', label: 'Emirados Árabes Unidos' },
+  ae: { lat: 25.2048, lng: 55.2708, flag: '🇦🇪', label: 'Emirados Árabes Unidos' },
+  'arabia saudita': { lat: 24.7136, lng: 46.6753, flag: '🇸🇦', label: 'Arábia Saudita' },
+  sa: { lat: 24.7136, lng: 46.6753, flag: '🇸🇦', label: 'Arábia Saudita' },
+  'africa do sul': { lat: -26.2041, lng: 28.0473, flag: '🇿🇦', label: 'África do Sul' },
+  za: { lat: -26.2041, lng: 28.0473, flag: '🇿🇦', label: 'África do Sul' },
+  bangladesh: { lat: 23.8103, lng: 90.4125, flag: '🇧🇩', label: 'Bangladesh' },
+  bd: { lat: 23.8103, lng: 90.4125, flag: '🇧🇩', label: 'Bangladesh' },
+  paquistao: { lat: 24.8607, lng: 67.0011, flag: '🇵🇰', label: 'Paquistão' },
+  pk: { lat: 24.8607, lng: 67.0011, flag: '🇵🇰', label: 'Paquistão' },
+  israel: { lat: 32.0853, lng: 34.7818, flag: '🇮🇱', label: 'Israel' },
+  il: { lat: 32.0853, lng: 34.7818, flag: '🇮🇱', label: 'Israel' },
+  egito: { lat: 30.0444, lng: 31.2357, flag: '🇪🇬', label: 'Egito' },
+  eg: { lat: 30.0444, lng: 31.2357, flag: '🇪🇬', label: 'Egito' },
+  romenia: { lat: 44.4268, lng: 26.1025, flag: '🇷🇴', label: 'Romênia' },
+  ro: { lat: 44.4268, lng: 26.1025, flag: '🇷🇴', label: 'Romênia' },
+  suecia: { lat: 59.3293, lng: 18.0686, flag: '🇸🇪', label: 'Suécia' },
+  se: { lat: 59.3293, lng: 18.0686, flag: '🇸🇪', label: 'Suécia' },
+  noruega: { lat: 59.9139, lng: 10.7522, flag: '🇳🇴', label: 'Noruega' },
+  no: { lat: 59.9139, lng: 10.7522, flag: '🇳🇴', label: 'Noruega' },
+  austria: { lat: 48.2082, lng: 16.3738, flag: '🇦🇹', label: 'Áustria' },
+  at: { lat: 48.2082, lng: 16.3738, flag: '🇦🇹', label: 'Áustria' },
+  irlanda: { lat: 53.3498, lng: -6.2603, flag: '🇮🇪', label: 'Irlanda' },
+  ie: { lat: 53.3498, lng: -6.2603, flag: '🇮🇪', label: 'Irlanda' },
+  'nova zelandia': { lat: -36.8485, lng: 174.7633, flag: '🇳🇿', label: 'Nova Zelândia' },
+  nz: { lat: -36.8485, lng: 174.7633, flag: '🇳🇿', label: 'Nova Zelândia' },
+  albânia: { lat: 41.3275, lng: 19.8187, flag: '🇦🇱', label: 'Albânia' },
+  albania: { lat: 41.3275, lng: 19.8187, flag: '🇦🇱', label: 'Albânia' },
+  al: { lat: 41.3275, lng: 19.8187, flag: '🇦🇱', label: 'Albânia' },
+  'ilhas cayman': { lat: 19.3133, lng: -81.2546, flag: '🇰🇾', label: 'Ilhas Cayman' },
+  cayman: { lat: 19.3133, lng: -81.2546, flag: '🇰🇾', label: 'Ilhas Cayman' },
+  ky: { lat: 19.3133, lng: -81.2546, flag: '🇰🇾', label: 'Ilhas Cayman' },
+}
+
+/** UN/LOCODE → coordenada de porto (refina origem/destino marítimo). */
+const PORTO_UNLOCODE_GEO: Record<
+  string,
+  { lat: number; lng: number; country: string; label: string; iso: string }
+> = {
+  ARBUE: { lat: -34.6037, lng: -58.3816, country: 'Argentina', label: 'Buenos Aires', iso: 'AR' },
+  BRSSZ: { lat: -23.9608, lng: -46.3336, country: 'Brasil', label: 'Santos', iso: 'BR' },
+  BRITJ: { lat: -26.907, lng: -48.6619, country: 'Brasil', label: 'Itajaí', iso: 'BR' },
+  BRREC: { lat: -8.0476, lng: -34.877, country: 'Brasil', label: 'Recife', iso: 'BR' },
+  MXMEX: { lat: 19.4326, lng: -99.1332, country: 'México', label: 'México', iso: 'MX' },
+  CNSHA: { lat: 31.2304, lng: 121.4737, country: 'China', label: 'Shanghai', iso: 'CN' },
+  USMIA: { lat: 25.7617, lng: -80.1918, country: 'Estados Unidos', label: 'Miami', iso: 'US' },
+  DEHAM: { lat: 53.5511, lng: 9.9937, country: 'Alemanha', label: 'Hamburgo', iso: 'DE' },
+  NLRTM: { lat: 51.9244, lng: 4.4777, country: 'Holanda', label: 'Rotterdam', iso: 'NL' },
+}
+
+/** IATA → país/cidade para destinos aéreos sem `local_de_destino`. */
+const AEROPORTO_IATA_GEO: Record<string, { lat: number; lng: number; country: string; label: string; iso: string }> = {
+  GRU: { lat: -23.4543, lng: -46.5337, country: 'Brasil', label: 'Guarulhos', iso: 'BR' },
+  VCP: { lat: -23.0074, lng: -47.1345, country: 'Brasil', label: 'Campinas', iso: 'BR' },
+  REC: { lat: -8.0476, lng: -34.877, country: 'Brasil', label: 'Recife', iso: 'BR' },
+  MIA: { lat: 25.7959, lng: -80.287, country: 'Estados Unidos', label: 'Miami', iso: 'US' },
+  JFK: { lat: 40.6413, lng: -73.7781, country: 'Estados Unidos', label: 'Nova York', iso: 'US' },
+  LAX: { lat: 33.9416, lng: -118.4085, country: 'Estados Unidos', label: 'Los Angeles', iso: 'US' },
+  ORD: { lat: 41.9742, lng: -87.9073, country: 'Estados Unidos', label: 'Chicago', iso: 'US' },
+  FRA: { lat: 50.0379, lng: 8.5622, country: 'Alemanha', label: 'Frankfurt', iso: 'DE' },
+  AMS: { lat: 52.3105, lng: 4.7683, country: 'Holanda', label: 'Amsterdam', iso: 'NL' },
+  LHR: { lat: 51.47, lng: -0.4543, country: 'Reino Unido', label: 'Londres', iso: 'GB' },
+  CDG: { lat: 49.0097, lng: 2.5479, country: 'França', label: 'Paris', iso: 'FR' },
+  DXB: { lat: 25.2532, lng: 55.3657, country: 'Emirados Árabes Unidos', label: 'Dubai', iso: 'AE' },
+  HKG: { lat: 22.308, lng: 113.9185, country: 'Hong Kong', label: 'Hong Kong', iso: 'HK' },
+  SIN: { lat: 1.3644, lng: 103.9915, country: 'Singapura', label: 'Singapura', iso: 'SG' },
+  PVG: { lat: 31.1443, lng: 121.8083, country: 'China', label: 'Shanghai', iso: 'CN' },
+  NRT: { lat: 35.772, lng: 140.3929, country: 'Japão', label: 'Tóquio', iso: 'JP' },
+  EZE: { lat: -34.8222, lng: -58.5358, country: 'Argentina', label: 'Buenos Aires', iso: 'AR' },
+  SCL: { lat: -33.393, lng: -70.7858, country: 'Chile', label: 'Santiago', iso: 'CL' },
+  BOG: { lat: 4.7016, lng: -74.1469, country: 'Colômbia', label: 'Bogotá', iso: 'CO' },
+  LIM: { lat: -12.0219, lng: -77.1143, country: 'Peru', label: 'Lima', iso: 'PE' },
 }
 
 const CIDADE_GEO: Record<string, { lat: number; lng: number }> = {
@@ -283,6 +380,261 @@ function isBrasil(country: string): boolean {
   return n === 'brasil' || n === 'brazil' || n === 'br'
 }
 
+const PAIS_GEO_CHAVES_ORDENADAS = Object.keys(PAIS_GEO).sort((a, b) => b.length - a.length)
+
+/** Infere país a partir do nome do importador (ex.: "Argentina Importadora S.A." → Argentina). */
+function inferirPaisDoTexto(texto: string): string | null {
+  const norm = normTexto(texto)
+  if (!norm) return null
+  for (const key of PAIS_GEO_CHAVES_ORDENADAS) {
+    if (key.length < 3) continue
+    if (norm.includes(key)) return PAIS_GEO[key].label
+  }
+  return null
+}
+
+function keySuffixDePais(country: string): string {
+  const norm = normTexto(country)
+  for (const [key, geo] of Object.entries(PAIS_GEO)) {
+    if (key.length === 2 && normTexto(geo.label) === norm) return key
+  }
+  return norm
+}
+
+function geoPorIso(raw: string | null | undefined): GeoCoord | null {
+  if (!raw?.trim()) return null
+  const iso = normTexto(raw).slice(0, 2)
+  return PAIS_GEO[iso] ?? null
+}
+
+function isoDeUnLocode(codigo: string | null | undefined): string | null {
+  if (!codigo?.trim() || codigo.trim().length < 2) return null
+  const iso = codigo.trim().toUpperCase().slice(0, 2)
+  return geoPorIso(iso) ? iso : null
+}
+
+function normalizarCodigoLogistica(codigo: string | null | undefined): string {
+  return codigo?.trim().toUpperCase() ?? ''
+}
+
+function locPedidoDeIso(
+  isoRaw: string,
+  tipo: TipoOperacaoMapa,
+  parceiro: string,
+  keyPrefix: string,
+  labelOverride?: string | null,
+): LocPedido | null {
+  const geo = geoPorIso(isoRaw)
+  if (!geo) return null
+  const iso = normTexto(isoRaw).slice(0, 2)
+  return {
+    key: `${keyPrefix}|iso|${iso}`,
+    label: labelOverride?.trim() || geo.label,
+    country: geo.label,
+    cidade: null,
+    tipo,
+    parceiro,
+  }
+}
+
+function locPedidoDePorto(
+  codigoRaw: string | null | undefined,
+  tipo: TipoOperacaoMapa,
+  parceiro: string,
+  keyPrefix: string,
+): LocPedido | null {
+  const codigo = normalizarCodigoLogistica(codigoRaw)
+  if (!codigo) return null
+
+  const portoHit = PORTO_UNLOCODE_GEO[codigo]
+  if (portoHit) {
+    return {
+      key: `${keyPrefix}|porto|${codigo}`,
+      label: portoHit.label,
+      country: portoHit.country,
+      cidade: portoHit.label,
+      tipo,
+      parceiro,
+    }
+  }
+
+  const iso = isoDeUnLocode(codigo)
+  if (!iso) return null
+  const geo = geoPorIso(iso)
+  if (!geo) return null
+  return {
+    key: `${keyPrefix}|porto|${codigo}`,
+    label: codigo,
+    country: geo.label,
+    cidade: null,
+    tipo,
+    parceiro,
+  }
+}
+
+function locPedidoDeAeroporto(
+  iataRaw: string | null | undefined,
+  tipo: TipoOperacaoMapa,
+  parceiro: string,
+  keyPrefix: string,
+): LocPedido | null {
+  const iata = normalizarCodigoLogistica(iataRaw)
+  if (!iata) return null
+  const apt = AEROPORTO_IATA_GEO[iata]
+  if (!apt) return null
+  return {
+    key: `${keyPrefix}|apt|${iata}`,
+    label: `${apt.label} (${iata})`,
+    country: apt.country,
+    cidade: apt.label,
+    tipo,
+    parceiro,
+  }
+}
+
+function hubBrasilPorCodigo(hubKey: string): (typeof HUBS_BR_DESTINO)[number] {
+  return HUBS_BR_DESTINO.find(h => h.key === hubKey) ?? HUBS_BR_DESTINO[0]
+}
+
+/** Hub BR a partir de porto/aeroporto de origem (exportação) ou destino (importação). */
+function resolverHubBrasilPorLogistica(p: Pedido, sentido: 'origem' | 'destino'): (typeof HUBS_BR_DESTINO)[number] {
+  const porto = (sentido === 'origem' ? p.porto_origem : p.porto_destino)?.trim().toUpperCase() ?? ''
+  const aeroporto = (sentido === 'origem' ? p.aeroporto_origem : p.aeroporto_destino)?.trim().toUpperCase() ?? ''
+
+  if (porto.includes('ITJ') || porto.includes('NVT') || porto.startsWith('BRIT')) {
+    return hubBrasilPorCodigo('hub|br|iti')
+  }
+  if (porto.includes('REC') || porto.startsWith('BRRE') || aeroporto === 'REC') {
+    return hubBrasilPorCodigo('hub|br|rec')
+  }
+  if (
+    porto.includes('SSZ') ||
+    porto.includes('SANTOS') ||
+    porto.startsWith('BRSS') ||
+    aeroporto === 'GRU' ||
+    aeroporto === 'VCP'
+  ) {
+    return hubBrasilPorCodigo('hub|br|gru')
+  }
+
+  const seed = p.company_id ?? p.id
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) hash = (hash + seed.charCodeAt(i)) | 0
+  return HUBS_BR_DESTINO[Math.abs(hash) % HUBS_BR_DESTINO.length]
+}
+
+interface DestinoExportResolvido {
+  keySuffix: string
+  label: string
+  country: string
+  cidade: string | null
+}
+
+/** País destino: logística (lista) → cadastro importador → porto/aeroporto → heurística. */
+function resolverDestinoExportacao(
+  p: Pedido,
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+): DestinoExportResolvido {
+  const nomeImportador = p.nome_importador?.trim() || 'Destino não informado'
+
+  const isoDest = p.local_de_destino?.trim()
+  if (isoDest && !isBrasil(isoDest)) {
+    const geo = geoPorIso(isoDest)
+    if (geo) {
+      return {
+        keySuffix: keySuffixDePais(geo.label),
+        label: geo.label,
+        country: geo.label,
+        cidade: null,
+      }
+    }
+  }
+
+  const portoDest = p.porto_destino?.trim()
+  if (portoDest) {
+    const portoHit = PORTO_UNLOCODE_GEO[normalizarCodigoLogistica(portoDest)]
+    if (portoHit && !isBrasil(portoHit.country)) {
+      return {
+        keySuffix: normTexto(portoHit.iso),
+        label: portoHit.label,
+        country: portoHit.country,
+        cidade: portoHit.label,
+      }
+    }
+  }
+
+  const aptDest = p.aeroporto_destino?.trim().toUpperCase()
+  if (aptDest && AEROPORTO_IATA_GEO[aptDest]) {
+    const apt = AEROPORTO_IATA_GEO[aptDest]
+    if (!isBrasil(apt.country)) {
+      return {
+        keySuffix: normTexto(apt.iso),
+        label: `${apt.label} (${aptDest})`,
+        country: apt.country,
+        cidade: apt.label,
+      }
+    }
+  }
+
+  const idImportador = p.exportacao_importador_id?.trim()
+  if (idImportador) {
+    const forn = fornecedoresPorId.get(idImportador)
+    if (forn && !isBrasil(forn.paisIso)) {
+      const geo = geoPorIso(forn.paisIso)
+      if (geo) {
+        return {
+          keySuffix: keySuffixDePais(geo.label),
+          label: forn.nome || nomeImportador,
+          country: geo.label,
+          cidade: null,
+        }
+      }
+    }
+  }
+
+  if (portoDest) {
+    const iso = isoDeUnLocode(portoDest)
+    if (iso && !isBrasil(iso)) {
+      const geo = geoPorIso(iso)
+      if (geo) {
+        return {
+          keySuffix: normTexto(iso),
+          label: portoDest.toUpperCase(),
+          country: geo.label,
+          cidade: null,
+        }
+      }
+    }
+  }
+
+  if (aptDest && AEROPORTO_IATA_GEO[aptDest]) {
+    const apt = AEROPORTO_IATA_GEO[aptDest]
+    return {
+      keySuffix: normTexto(apt.iso),
+      label: `${apt.label} (${aptDest})`,
+      country: apt.country,
+      cidade: apt.label,
+    }
+  }
+
+  const inferido = inferirPaisDoTexto(nomeImportador)
+  if (inferido) {
+    return {
+      keySuffix: keySuffixDePais(inferido),
+      label: nomeImportador,
+      country: inferido,
+      cidade: null,
+    }
+  }
+
+  return {
+    keySuffix: normTexto(nomeImportador),
+    label: nomeImportador,
+    country: nomeImportador,
+    cidade: null,
+  }
+}
+
 function resolverGeo(pais: string, cidade: string | null): { geoLat: number | null; geoLng: number | null; flag: string; label: string; code: string } {
   const paisNorm = normTexto(pais)
   const cidadeNorm = normTexto(cidade)
@@ -319,19 +671,72 @@ function resolverGeo(pais: string, cidade: string | null): { geoLat: number | nu
   }
 }
 
-function locOrigem(p: Pedido): LocPedido | null {
+function locOrigem(
+  p: Pedido,
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+): LocPedido | null {
+  const parceiroImport = p.nome_exportador?.trim() ?? p.nome_fabricante?.trim() ?? '—'
+  const parceiroExport = p.nome_exportador?.trim() ?? '—'
+
   if (p.tipo_operacao === 'exportacao') {
+    const isoOrig = p.local_de_origem?.trim()
+    if (isoOrig && !isBrasil(isoOrig)) {
+      const deIso = locPedidoDeIso(isoOrig, 'exportacao', parceiroExport, 'orig-exp')
+      if (deIso) return deIso
+    }
+
+    const dePorto = locPedidoDePorto(p.porto_origem, 'exportacao', parceiroExport, 'orig-exp')
+    if (dePorto && isBrasil(dePorto.country)) {
+      const hub = resolverHubBrasilPorLogistica(p, 'origem')
+      return {
+        key: `orig-exp|${hub.key}`,
+        label: hub.label,
+        country: 'Brasil',
+        cidade: hub.label,
+        tipo: 'exportacao',
+        parceiro: parceiroExport,
+      }
+    }
+
+    const deApt = locPedidoDeAeroporto(p.aeroporto_origem, 'exportacao', parceiroExport, 'orig-exp')
+    if (deApt && isBrasil(deApt.country)) {
+      const hub = resolverHubBrasilPorLogistica(p, 'origem')
+      return {
+        key: `orig-exp|${hub.key}`,
+        label: hub.label,
+        country: 'Brasil',
+        cidade: hub.label,
+        tipo: 'exportacao',
+        parceiro: parceiroExport,
+      }
+    }
+
+    const hub = resolverHubBrasilPorLogistica(p, 'origem')
     return {
-      key: 'orig|brasil|',
-      label: 'Brasil',
+      key: `orig-exp|${hub.key}`,
+      label: hub.label,
       country: 'Brasil',
-      cidade: null,
+      cidade: hub.label,
       tipo: 'exportacao',
-      parceiro: p.nome_importador?.trim() ?? '—',
+      parceiro: parceiroExport,
     }
   }
 
-  const country =
+  const parceiro = parceiroImport
+
+  const dePorto = locPedidoDePorto(p.porto_origem, 'importacao', parceiro, 'orig')
+  if (dePorto && !isBrasil(dePorto.country)) return dePorto
+
+  const deApt = locPedidoDeAeroporto(p.aeroporto_origem, 'importacao', parceiro, 'orig')
+  if (deApt && !isBrasil(deApt.country)) return deApt
+
+  const isoOrig = p.local_de_origem?.trim()
+  if (isoOrig && !isBrasil(isoOrig)) {
+    const deIso = locPedidoDeIso(isoOrig, 'importacao', parceiro, 'orig')
+    if (deIso) return deIso
+  }
+
+  let country =
     p.pais_exportador?.trim() ||
     p.pais_fabricante?.trim() ||
     p.pais_ope?.trim() ||
@@ -341,6 +746,24 @@ function locOrigem(p: Pedido): LocPedido | null {
     p.cidade_fabricante?.trim() ||
     p.cidade_ope?.trim() ||
     null
+
+  if (!country) {
+    const idExportador = p.importacao_exportador_id?.trim()
+    if (idExportador) {
+      const forn = fornecedoresPorId.get(idExportador)
+      if (forn && !isBrasil(forn.paisIso)) {
+        const geo = geoPorIso(forn.paisIso)
+        if (geo) country = geo.label
+      }
+    }
+  }
+
+  if (!country && !cidade) {
+    const dePortoBr = locPedidoDePorto(p.porto_origem, 'importacao', parceiro, 'orig')
+    if (dePortoBr) return dePortoBr
+    return null
+  }
+
   const label =
     cidade ??
     p.nome_exportador?.trim() ??
@@ -355,12 +778,11 @@ function locOrigem(p: Pedido): LocPedido | null {
     country: country ?? label,
     cidade,
     tipo: 'importacao',
-    parceiro: p.nome_exportador?.trim() ?? p.nome_fabricante?.trim() ?? '—',
+    parceiro,
   }
 }
 
-function locDestinoImport(hubIndex: number): LocPedido {
-  const hub = HUBS_BR_DESTINO[hubIndex % HUBS_BR_DESTINO.length]
+function locDestinoImport(hub: (typeof HUBS_BR_DESTINO)[number]): LocPedido {
   return {
     key: hub.key,
     label: hub.label,
@@ -371,15 +793,18 @@ function locDestinoImport(hubIndex: number): LocPedido {
   }
 }
 
-function locDestinoExport(p: Pedido): LocPedido {
-  const nome = p.nome_importador?.trim() || 'Destino não informado'
+function locDestinoExport(
+  p: Pedido,
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo>,
+): LocPedido {
+  const destino = resolverDestinoExportacao(p, fornecedoresPorId)
   return {
-    key: `dest|ext|${normTexto(nome)}`,
-    label: nome,
-    country: nome,
-    cidade: null,
+    key: `dest|ext|${destino.keySuffix}`,
+    label: destino.label,
+    country: destino.country,
+    cidade: destino.cidade,
     tipo: 'exportacao',
-    parceiro: nome,
+    parceiro: p.nome_importador?.trim() ?? '—',
   }
 }
 
@@ -744,20 +1169,23 @@ function selecionarPinsOrigem(origensMap: Map<string, LocAgg>): LocAgg[] {
     if (loc.geoLat == null || loc.geoLng == null) continue
     if (isBrasil(loc.country)) {
       brasil.push(loc)
-    } else if (estrangeiras.length < 5) {
+    } else if (estrangeiras.length < 15) {
       estrangeiras.push(loc)
     }
   }
 
-  return [...estrangeiras, ...brasil.slice(0, 1)]
+  return [...estrangeiras, ...brasil.slice(0, 3)]
 }
 
 function selecionarPinsDestino(destinosMap: Map<string, LocAgg>, temImportacao: boolean): LocAgg[] {
+  const comGeo = [...destinosMap.values()]
+    .filter(l => l.geoLat != null && l.geoLng != null)
+    .sort((a, b) => b.count - a.count)
+
+  const destinosExport = comGeo.filter(l => l.tipoOperacao === 'exportacao')
+
   if (!temImportacao) {
-    return [...destinosMap.values()]
-      .filter(l => l.geoLat != null && l.geoLng != null)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3)
+    return destinosExport.slice(0, 10)
   }
 
   const hubs: LocAgg[] = []
@@ -768,75 +1196,111 @@ function selecionarPinsDestino(destinosMap: Map<string, LocAgg>, temImportacao: 
     }
   }
 
-  if (hubs.length > 0) return hubs
+  const hubsOuFallback = hubs.length > 0
+    ? hubs
+    : HUBS_BR_DESTINO.map(hub => ({
+        key: hub.key,
+        label: hub.label,
+        country: 'Brasil',
+        code: hub.code,
+        flag: hub.flag,
+        geoLat: hub.geoLat,
+        geoLng: hub.geoLng,
+        count: 0,
+        valorTotal: 0,
+        moeda: 'BRL',
+        parceiro: '—',
+        tipoOperacao: 'importacao' as const,
+      }))
 
-  return HUBS_BR_DESTINO.map(hub => ({
-    key: hub.key,
-    label: hub.label,
-    country: 'Brasil',
-    code: hub.code,
-    flag: hub.flag,
-    geoLat: hub.geoLat,
-    geoLng: hub.geoLng,
-    count: 0,
-    valorTotal: 0,
-    moeda: 'BRL',
-    parceiro: '—',
-    tipoOperacao: 'importacao' as const,
-  }))
+  const byKey = new Map<string, LocAgg>()
+  for (const hub of hubsOuFallback) byKey.set(hub.key, hub)
+  for (const dest of destinosExport.slice(0, 10)) byKey.set(dest.key, dest)
+
+  return [...byKey.values()]
 }
 
 function construirRotasGlobo(
-  origemPins: LocAgg[],
-  destPins: LocAgg[],
+  rotasMap: Map<string, RotaAggInterna>,
   pinByKey: Map<string, number>,
 ): VisaoGeralArcRoute[] {
-  const origensEstrangeiras = origemPins.filter(o => !isBrasil(o.country))
-  const destinosBr = destPins.filter(d => isBrasil(d.country))
   const routes: VisaoGeralArcRoute[] = []
-  let altura = 0.14
+  let alturaImport = 0.14
+  let alturaExport = 0.16
 
-  if (origensEstrangeiras.length > 0 && destinosBr.length > 0) {
-    origensEstrangeiras.forEach((orig, idx) => {
-      const dest = destinosBr[idx % destinosBr.length]
-      const fromId = pinByKey.get(orig.key)
-      const toId = pinByKey.get(dest.key)
-      if (!fromId || !toId || fromId === toId) return
+  const agregadas = [...rotasMap.values()].sort((a, b) => b.pedidos - a.pedidos)
+  const imports = agregadas.filter(r => r.tipoOperacao === 'importacao')
+  const exports = agregadas.filter(r => r.tipoOperacao === 'exportacao')
+  const interleaved: RotaAggInterna[] = []
+  const maxLen = Math.max(imports.length, exports.length)
 
+  for (let i = 0; i < maxLen && interleaved.length < 20; i++) {
+    if (i < imports.length) interleaved.push(imports[i])
+    if (i < exports.length && interleaved.length < 20) interleaved.push(exports[i])
+  }
+
+  for (const rota of interleaved) {
+    const fromId = pinByKey.get(rota.fromKey)
+    const toId = pinByKey.get(rota.toKey)
+    if (!fromId || !toId || fromId === toId) continue
+
+    if (rota.tipoOperacao === 'importacao') {
       routes.push({
         fromId,
         toId,
         color: 'rgba(245, 158, 11, 0.85)',
-        heightFactor: altura,
+        heightFactor: alturaImport,
         mode: 'importacao',
       })
-      altura = altura >= 0.24 ? 0.14 : altura + 0.03
-    })
-    return routes
-  }
-
-  const brOrigem = origemPins.find(o => isBrasil(o.country))
-  const extDest = destPins.find(d => !isBrasil(d.country))
-  if (brOrigem && extDest) {
-    const fromId = pinByKey.get(brOrigem.key)
-    const toId = pinByKey.get(extDest.key)
-    if (fromId && toId && fromId !== toId) {
+      alturaImport = alturaImport >= 0.24 ? 0.14 : alturaImport + 0.03
+    } else {
       routes.push({
         fromId,
         toId,
         color: 'rgba(167, 139, 250, 0.85)',
-        heightFactor: 0.16,
+        heightFactor: alturaExport,
         mode: 'exportacao',
       })
+      alturaExport = alturaExport >= 0.26 ? 0.16 : alturaExport + 0.03
     }
   }
 
   return routes
 }
 
+/** Garante pin para cada extremo das rotas mais relevantes (exportação não fica sem linha). */
+function enriquecerPinsDasRotas(
+  origemPins: LocAgg[],
+  destPins: LocAgg[],
+  origensMap: Map<string, LocAgg>,
+  destinosMap: Map<string, LocAgg>,
+  rotasMap: Map<string, RotaAggInterna>,
+): { origens: LocAgg[]; destinos: LocAgg[] } {
+  const origensByKey = new Map(origemPins.map(o => [o.key, o]))
+  const destinosByKey = new Map(destPins.map(d => [d.key, d]))
+
+  const rotas = [...rotasMap.values()].sort((a, b) => b.pedidos - a.pedidos).slice(0, 20)
+  for (const rota of rotas) {
+    const orig = origensMap.get(rota.fromKey)
+    if (orig?.geoLat != null && orig.geoLng != null && !origensByKey.has(orig.key)) {
+      origensByKey.set(orig.key, orig)
+    }
+    const dest = destinosMap.get(rota.toKey)
+    if (dest?.geoLat != null && dest.geoLng != null && !destinosByKey.has(dest.key)) {
+      destinosByKey.set(dest.key, dest)
+    }
+  }
+
+  return {
+    origens: [...origensByKey.values()],
+    destinos: [...destinosByKey.values()],
+  }
+}
+
 export function buildVisaoGeralMapa(
   pedidos: Pedido[],
   nomesWorkspacePorId: ReadonlyMap<string, string> = new Map(),
+  fornecedoresPorId: ReadonlyMap<string, FornecedorMapaGeo> = new Map(),
 ): VisaoGeralMapaData {
   if (pedidos.length === 0) return MAPA_VAZIO
 
@@ -846,7 +1310,6 @@ export function buildVisaoGeralMapa(
   const rotasMap = new Map<string, RotaAggInterna>()
 
   let valorGlobal = 0
-  let importIdx = 0
   const temImportacao = pedidos.some(p => p.tipo_operacao === 'importacao')
   const hojeIso = formatDataIso(new Date())
 
@@ -855,17 +1318,16 @@ export function buildVisaoGeralMapa(
     const moeda = p.moeda_pedido ?? 'BRL'
     valorGlobal += valor
 
-    const orig = locOrigem(p)
+    const orig = locOrigem(p, fornecedoresPorId)
     if (orig) acumularLoc(origensMap, orig, valor, moeda)
 
     let dest: LocPedido
     if (p.tipo_operacao === 'importacao') {
-      const hub = HUBS_BR_DESTINO[importIdx % HUBS_BR_DESTINO.length]
-      importIdx += 1
-      dest = locDestinoImport(importIdx - 1)
+      const hub = resolverHubBrasilPorLogistica(p, 'destino')
+      dest = locDestinoImport(hub)
       acumularHub(destinosMap, hub, valor, moeda)
     } else {
-      dest = locDestinoExport(p)
+      dest = locDestinoExport(p, fornecedoresPorId)
       acumularLoc(destinosMap, dest, valor, moeda)
     }
 
@@ -873,6 +1335,7 @@ export function buildVisaoGeralMapa(
     acumularCambio(cambioPorLoc, dest.key, p)
 
     if (!orig) continue
+    if (isBrasil(orig.country) && isBrasil(dest.country)) continue
 
     const idWorkspace = p.company_id?.trim() || 'sem-workspace'
     const nomeWorkspace = nomesWorkspacePorId.get(idWorkspace) ?? '—'
@@ -909,6 +1372,13 @@ export function buildVisaoGeralMapa(
 
   const origemPinCandidates = selecionarPinsOrigem(origensMap)
   const destPinCandidates = selecionarPinsDestino(destinosMap, temImportacao)
+  const { origens: origemPinsFinal, destinos: destPinsFinal } = enriquecerPinsDasRotas(
+    origemPinCandidates,
+    destPinCandidates,
+    origensMap,
+    destinosMap,
+    rotasMap,
+  )
 
   const pins: VisaoGeralMapPin[] = []
   const pinByKey = new Map<string, number>()
@@ -942,16 +1412,16 @@ export function buildVisaoGeralMapa(
     }
   }
 
-  for (const loc of origemPinCandidates) {
+  for (const loc of origemPinsFinal) {
     pins.push(montarPin(loc, 'origem'))
   }
 
-  for (const loc of destPinCandidates) {
+  for (const loc of destPinsFinal) {
     if (pinByKey.has(loc.key)) continue
     pins.push(montarPin(loc, 'destino'))
   }
 
-  const globeRoutes = construirRotasGlobo(origemPinCandidates, destPinCandidates, pinByKey)
+  const globeRoutes = construirRotasGlobo(rotasMap, pinByKey)
 
   const detalhesPorLocKey: Record<string, VisaoGeralDetalheLocal> = {}
   for (const loc of [...origensMap.values(), ...destinosMap.values()]) {

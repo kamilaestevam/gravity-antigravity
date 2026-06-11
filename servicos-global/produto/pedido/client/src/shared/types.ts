@@ -59,7 +59,7 @@ export interface PedidoItem {
   // Quantidades
   quantidade_inicial_pedido: number
   quantidade_atual_pedido: number
-  quantidade_pronta_total_item_pedido: number
+  quantidade_pronta_item: number
   quantidade_transferida_pedido: number
   quantidade_cancelada_pedido: number
   casas_decimais_quantidade_item: number
@@ -70,17 +70,22 @@ export interface PedidoItem {
   // Financeiro
   incoterm?: string | null
   condicao_pagamento?: string | null
+  condicao_pagamento_siscomex?: string | null
   moeda_item: string
   valor_total_item: number | null
   valor_por_unidade_item?: number | null
   casas_decimais_valor_item: number
   cobertura_cambial?: string
+  moeda_cambio_item_pedido?: string | null
+  valor_total_cambio_item_pedido?: number | null
   nome_exportador?: string | null
   nome_importador?: string | null
   nome_fabricante?: string | null
   referencia_importador?: string | null
   referencia_exportador?: string | null
   referencia_fabricante?: string | null
+  numero_proforma?: string | null
+  numero_invoice?: string | null
 
   // Pesos e cubagem — unidades vêm de cadastros.unidade (SSOT).
   // Defaults do backend (mapItem): 'KG' para peso, 'M3' para cubagem.
@@ -95,6 +100,7 @@ export interface PedidoItem {
 
   // Embalagem e documentos
   tipo_embalagem?: string | null
+  tipo_volume_item?: string | null
   numero_lpco?: string | null
   anexo_lpco?: string | null
   numero_certificado_origem?: string | null
@@ -340,6 +346,7 @@ export interface Pedido {
   quantidade_total_pedido: number | null
   casas_decimais_quantidade_pedido: number
   unidade_comercializada_pedido?: string | null
+  tipo_volume_pedido?: string | null
   quantidade_volumes_pedido?: number | null
 
   // Câmbio
@@ -368,20 +375,29 @@ export interface Pedido {
   // Divergência de itens — pré-computado pelo backend na list view
   // Elimina a necessidade de carregar itens no state apenas para exibir badges
   tipo_operacao_divergente?: boolean | null
+  status_divergente?: boolean | null
+  /** Ghost — status dos itens antes da última alteração só no pedido (sem replicar). */
+  status_itens_snapshot?: PedidoStatus | null
   ncm_divergente?: boolean | null
   ncm_valor_unico?: string | null
   /** Quando todos os itens têm a mesma descrição — exibido na linha pai (sem alerta). */
   descricao_item_valor_unico?: string | null
   referencia_importador_divergente?: boolean | null
   referencia_exportador_divergente?: boolean | null
+  numero_proforma_divergente?: boolean | null
+  numero_invoice_divergente?: boolean | null
   incoterm_divergente?: boolean | null
   condicao_pagamento_divergente?: boolean | null
+  condicao_pagamento_siscomex_divergente?: boolean | null
+  condicao_pagamento_siscomex?: string | null
   nome_exportador_divergente?: boolean | null
   nome_importador_divergente?: boolean | null
   nome_fabricante_divergente?: boolean | null
   referencia_fabricante_divergente?: boolean | null
   cobertura_cambial_divergente?: boolean | null
   cobertura_cambial_valor_unico?: string | null
+  moeda_cambio_pedido_divergente?: boolean | null
+  moeda_cambio_pedido_valor_unico?: string | null
   data_emissao_pedido_divergente?: boolean | null
   data_emissao_pedido_valor_unico?: string | null
   // Onda A8 — homogeneidade de moeda/unidade. Quando itens divergem,
@@ -389,6 +405,7 @@ export interface Pedido {
   // e estas flags ficam `true` (via `calcularDivergencias` em Pedidos.tsx).
   moeda_item_divergente?: boolean | null
   unidade_comercializada_item_divergente?: boolean | null
+  tipo_volume_item_divergente?: boolean | null
   /** Computado no client — algum item repete part_number no mesmo pedido */
   part_number_duplicado_no_pedido?: boolean | null
 
@@ -1011,6 +1028,8 @@ export interface ColunaUsuario {
   visibilidade: VisibilidadeColunaUsuario
   roles_permitidas?: string[]
   obrigatorio: boolean
+  /** Exibe ícone de alerta na linha do pedido quando valores dos itens divergem (escopo ambos). */
+  alerta_divergencia_itens?: boolean
   opcoes?: string[]
   descricao?: string
   valor_padrao?: string

@@ -1,0 +1,48 @@
+/* ProcessoVisualizacaoTabs — paridade BidFreteVisualizacaoTabs (.bft-tabs) / Pedido (.pvt-tabs) */
+
+.tpt-tabs {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  margin: 0;
+  background: var(--ws-surface, #1e293b);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 9999px;
+}
+
+.tpt-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ws-muted, #94a3b8);
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tpt-tab svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.tpt-tab:hover {
+  color: var(--ws-text, #f1f5f9);
+  background: rgba(167, 139, 250, 0.08);
+}
+
+.tpt-tab--active {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+.tpt-tab--active:hover {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}

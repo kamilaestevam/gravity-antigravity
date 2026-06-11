@@ -1,6 +1,6 @@
 # Plano de Testes Funcionais — Duplicar Pedido
 
-**ID:** TST-FUN-PEDIDO-DUPLICAR-001
+**ID:** TST-FUN-PEDIDO-000027
 **Data:** 2026-05-16
 **Versão:** 1.0
 **Criticidade:** alta

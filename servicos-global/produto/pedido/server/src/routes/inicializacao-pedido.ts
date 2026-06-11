@@ -20,7 +20,7 @@
  *   dir     — asc | desc (default: desc)
  *   limit   — 1–200 (default: 100)
  *   status  — filtrar por status
- *   busca   — busca por numero_pedido
+ *   busca   — busca ampla (campos fixos + nomes das partes + colunas do usuário)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -35,6 +35,7 @@ import {
   mapPedido,
   encodeCursor,
   injetarColunasPedidoEItens,
+  montarCondicoesBuscaPedido,
   CURSOR_SORT_FIELDS,
   type CursorSortField,
 } from '../pedidos-utils.js'
@@ -68,7 +69,13 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         where.status_pedido = statusList.length > 1 ? { in: statusList } : statusList[0]
       }
       if (busca) {
-        where.numero_pedido = { contains: busca as string, mode: 'insensitive' }
+        // Mesmas condições do GET /api/v1/pedidos — campos fixos + nomes das
+        // partes + colunas do usuário (nome e conteúdo).
+        const condicoesBusca = await montarCondicoesBuscaPedido(
+          db, busca as string, idOrganizacao,
+          { idUsuario, tiposUsuario: tiposUsuarioWorkspace },
+        )
+        where.AND = [{ OR: condicoesBusca }]
       }
 
       // Todas as queries em paralelo — nenhuma bloqueia a outra

@@ -1,3 +1,25 @@
+/* Toolbar do dashboard — mesmo chrome da Lista (lp-tabela-chrome) */
+.bfd-dashboard-toolbar-wrapper {
+  flex-shrink: 0;
+}
+
+.bfd-dashboard-chrome {
+  flex: 0 0 auto;
+  min-height: unset;
+}
+
+.bfd-dashboard-chrome .bid-frete-dashboard-menu {
+  gap: 0;
+}
+
+.bfd-dashboard-chrome .bid-frete-dashboard-toolbar-card.gtv-container {
+  border: none;
+  border-radius: 0;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: unset;
+}
+
 /* ── Animação de destaque de widget recém-adicionado ── */
 
 @keyframes wc-highlight-ring {

@@ -518,4 +518,5 @@ Use `/comando` para ativar papéis e fluxos específicos:
 - `/qa` — Ativar modo QA (revisão completa pós-entrega)
 - `/criar-produto` — Fluxo para criar novo produto
 - `/deploy` — Fluxo de deploy/migração
+- `/tooltip-pedido` — Consultor de tooltips da Lista de Pedidos (títulos, pills, conclusão por coluna)
 - `/skill [nome]` — Ler uma skill específica pelo nome

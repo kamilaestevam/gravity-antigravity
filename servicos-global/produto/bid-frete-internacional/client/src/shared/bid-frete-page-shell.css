@@ -6,6 +6,8 @@
   --bid-frete-page-pt: 1.5rem;
   --bid-frete-page-px: 2rem;
   --bid-frete-page-pb: 2rem;
+  /** Distância abaixo do seletor Insights|Lista|… — paridade Pedido / pg-toolbar */
+  --bid-frete-visualizacao-tabs-mb: 1rem;
 }
 
 .bid-frete-page-shell {
@@ -31,6 +33,53 @@
 .bid-frete-page-shell.dc-page.dc-cockpit.pg-container {
   width: 100%;
   max-width: none;
+}
+
+/* ─── Lista cliente + fornecedor — paridade Pedido .lp-page ─────────────── */
+.bf-lista-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bf-lista-page .lp-stats-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 0.5rem 0 1.5rem;
+  flex-shrink: 0;
+}
+
+.bf-lista-page .lp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.bf-lista-page .lp-tabela-wrapper {
+  flex: 1 1 auto;
+  min-height: clamp(20rem, 55vh, 40rem);
+}
+
+.bf-lista-page .lp-tabela-wrapper--faixa-unificada .lp-tabela-chrome > .gtv-container {
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto;
+  width: 100%;
+}
+
+.bf-lista-page .gtv-linha--expira-prestes {
+  box-shadow: inset 3px 0 0 rgba(248, 113, 113, 0.9);
+}
+
+.bf-lista-page .gtv-linha--expira-prestes:hover {
+  box-shadow: inset 3px 0 0 rgba(248, 113, 113, 1);
 }
 
 /* ─── Loading padrão de página — GravityLoader orbital ──────────────────── */

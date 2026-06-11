@@ -914,6 +914,28 @@
   cursor: not-allowed;
 }
 
+/* Célula bloqueada por regra de negócio (ex.: valor do item só no item, workspace no pedido) */
+.gtv-celula--bloqueada,
+.gtv-celula--bloqueada *,
+.gtv-celula--bloqueada .tg-trigger,
+.gtv-celula--bloqueada .tg-trigger--bloqueado {
+  cursor: not-allowed !important;
+}
+
+.gtv-celula--bloqueada:hover {
+  cursor: not-allowed !important;
+  outline: none;
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 4px;
+}
+
+.gtv-celula .tg-trigger.tg-trigger--bloqueado {
+  cursor: not-allowed !important;
+  flex: 1;
+  align-self: stretch;
+  min-width: 0;
+}
+
 /* Modo visual: somente leitura — texto muted, sem fundo na célula */
 .gtv-celula--somente-leitura {
   cursor: default;
@@ -1007,6 +1029,11 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
+/* Qtd + tipo de volume/unidade — dois controles lado a lado */
+.gtv-edit-popover--unidade-composta {
+  width: 420px;
+}
+
 /* Quando o popover está acima da célula (flip) */
 .gtv-edit-popover--flip {
   animation: gtv-popover-in-flip 0.14s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1091,6 +1118,15 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+}
+
+.gtv-edit-popover-body > .gtv-edit-custom-select {
+  width: 100%;
+}
+
+.gtv-edit-popover-body > .gtv-edit-custom-select .gtv-edit-custom-select-trigger {
+  width: 100%;
+  justify-content: space-between;
 }
 
 /* ── Modo lista de opções ────────────────────────────────────────────────────── */
@@ -1524,6 +1560,8 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   align-items: center;
   gap: 0.3rem;
   height: 2.125rem;
+  max-width: 100%;
+  min-width: 0;
   padding: 0 0.625rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1537,6 +1575,14 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   white-space: nowrap;
   transition: border-color 0.15s, background 0.15s;
   outline: none;
+}
+
+.gtv-edit-custom-select-trigger > span:first-child {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .gtv-edit-custom-select-trigger:hover:not(:disabled) {
@@ -1602,6 +1648,26 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   background: rgba(99, 102, 241, 0.18);
   color: var(--gtv-text, #e2e8f0);
   font-weight: 700;
+}
+
+.gtv-edit-custom-select-item-label {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gtv-edit-custom-select-item--vazio {
+  cursor: default;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Select de opções (incoterm, cobertura, Siscomex): lista expande além do trigger */
+.gtv-edit-opcoes-select-list {
+  width: max-content;
+  max-width: min(420px, calc(100vw - 16px));
 }
 
 .gtv-edit-custom-select-busca {
@@ -1689,6 +1755,11 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   background: rgba(99, 102, 241, 0.20);
   color: #818cf8;
   text-align: center;
+}
+.gtv-celula--center .gtv-celula-moeda {
+  display: flex;
+  width: 100%;
+  justify-content: center;
 }
 .gtv-celula-unidade-badge {
   flex-shrink: 0;

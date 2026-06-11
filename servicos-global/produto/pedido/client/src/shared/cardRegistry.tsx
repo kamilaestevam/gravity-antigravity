@@ -215,7 +215,7 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     subtexto: (t) => t('pedido.cards.cobertura_pendente.subtexto'),
     tooltip:  (t, pedidos) => row(
       t('pedido.cards.cobertura_pendente.row.aguardando_cobertura'),
-      pedidos.filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura')).length,
+      pedidos.filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'SEM_COBERTURA' || i.cobertura_cambial === 'sem_cobertura')).length,
     ),
   },
 
@@ -316,7 +316,7 @@ import { formulaParaChave } from './formulaUtils'
 const STATS_KEY_MAP: Record<string, keyof CardComputedStats> = {
   quantidade_total_pedido: 'qtdTotal',
   quantidade_atual_pedido: 'qtdAtualTotal',
-  quantidade_pronta_total_item_pedido: 'itensProntos',
+  quantidade_pronta_item: 'itensProntos',
   quantidade_transferida_pedido: 'qtdTransferida',
   quantidade_inicial_pedido: 'qtdInicial',
   valor_total_pedido: 'valorTotal',

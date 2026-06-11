@@ -89,7 +89,7 @@ export const BotaoGlobal = React.forwardRef<HTMLButtonElement, BotaoProps>(
         ref={ref}
         type={type}
         className={classes}
-        disabled={disabled || carregando}
+        disabled={(disabled ?? false) && !carregando}
         aria-busy={carregando || undefined}
         {...rest}
       >

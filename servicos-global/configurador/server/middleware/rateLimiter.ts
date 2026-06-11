@@ -12,6 +12,7 @@ interface RateLimiterOptions {
   message?: string
   keyGenerator?: (req: Request) => string
   onBlocked?: (key: string, req: Request) => void
+  skip?: (req: Request) => boolean
 }
 
 interface RateLimiterEntry {
@@ -40,6 +41,10 @@ export function createRateLimiter(options: RateLimiterOptions = {}) {
   if (cleanupInterval.unref) cleanupInterval.unref()
 
   return function rateLimiterMiddleware(req: Request, res: Response, next: NextFunction) {
+    if (options.skip?.(req)) {
+      next()
+      return
+    }
     const key = keyGenerator(req)
     const now = Date.now()
     let entry = store.get(key)
@@ -86,6 +91,12 @@ export const rateLimitPresets = {
   auth: () => createRateLimiter({ windowMs: 60_000, max: 10, message: 'Too many login attempts.', onBlocked: defaultOnBlocked }),
   webhook: () => createRateLimiter({ windowMs: 60_000, max: 100, onBlocked: defaultOnBlocked }),
   internal: () => createRateLimiter({ windowMs: 60_000, max: 200, onBlocked: defaultOnBlocked }),
-  admin: () => createRateLimiter({ windowMs: 60_000, max: 60, message: 'Admin rate limit exceeded.', onBlocked: defaultOnBlocked }),
+  admin: () => createRateLimiter({
+    windowMs: 60_000,
+    max: 60,
+    message: 'Admin rate limit exceeded.',
+    onBlocked: defaultOnBlocked,
+    skip: req => req.originalUrl.includes('/testes/emt-print/'),
+  }),
   read:  () => createRateLimiter({ windowMs: 60_000, max: 120, onBlocked: defaultOnBlocked }),
 }

@@ -151,8 +151,8 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       a.download = anexo.nome_arquivo
       a.click()
       URL.revokeObjectURL(url)
-    } catch {
-      setErro(t('pedido.anexos.erro_baixar'))
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : t('pedido.anexos.erro_baixar'))
     }
   }, [t])
 
@@ -163,8 +163,8 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
       if (previewUrl) URL.revokeObjectURL(previewUrl)
       setPreviewUrl(url)
       setPreviewAnexo(anexo)
-    } catch {
-      setErro(t('pedido.anexos.erro_preview'))
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : t('pedido.anexos.erro_preview'))
     }
   }, [previewUrl, t])
 
@@ -179,8 +179,8 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
     try {
       await anexosApi.excluir(anexo.id)
       setAnexos(prev => prev.filter(a => a.id !== anexo.id))
-    } catch {
-      setErro(t('pedido.anexos.erro_excluir'))
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : t('pedido.anexos.erro_excluir'))
     }
   }, [confirmarExcluirAnexo, t])
 

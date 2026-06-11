@@ -1,0 +1,27 @@
+{
+  "id": "TST-CRO-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000090",
+  "versao": "1.0",
+  "geradoEm": "2026-06-11T00:00:00Z",
+  "geradoPor": "pipeline-multi-agente",
+  "escopo": "PEDIDO",
+  "sublocal": "usuario/teste-organizacao",
+  "modulo": "isolamento cross-organizacao na resolucao por Clerk sub (self-heal nao cruza orgs)",
+  "tipoModulo": "service",
+  "arquivoFilePath": "servicos-global/configurador/server/services/usuario-clerk-resolver.ts",
+  "ambiente": "node",
+  "criticidade": "critica",
+  "coberturaMinima": 80,
+  "contexto": "Garante que o self-heal (Fase 2) NUNCA devolve a organizacao alheia quando o mesmo e-mail existe em 2 orgs.",
+  "categorias": [
+    { "nome": "isolamento", "min": 2, "total": 2 },
+    { "nome": "happy",      "min": 1, "total": 1 }
+  ],
+  "casos": [
+    { "id": "TST-CRO-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000090-001", "categoria": "isolamento", "descricao": "CRO-01 e-mail em 2 orgs -> invitation de B resolve org_B e nunca vaza org_A", "origem": "matriz-definitiva" },
+    { "id": "TST-CRO-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000090-002", "categoria": "isolamento", "descricao": "CRO-02 nenhuma invitation casa -> nao vincula a nenhuma org (sem palpite cross-org)", "origem": "matriz-definitiva" },
+    { "id": "TST-CRO-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000090-003", "categoria": "happy",      "descricao": "CRO-03 sub direto -> resolve sua org sem varrer outras orgs", "origem": "matriz-definitiva" }
+  ],
+  "specFile": "testes/testes-cross-organizacao/usuario/teste-organizacao/isolamento-resolver-organizacao.test.ts",
+  "status": "aprovado",
+  "ultimoResultado": "passou"
+}

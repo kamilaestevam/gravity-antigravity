@@ -31,12 +31,16 @@ npx tsx scripts/ativamente/compose-pedido-schema.ts
 npx prisma generate --schema=servicos-global/produto/pedido/prisma/schema.prisma
 node servicos-global/produto/bid-frete-internacional/prisma/compose-schema.js
 npx prisma generate --schema=servicos-global/produto/bid-frete-internacional/prisma/schema.prisma
+node servicos-global/produto/processo/server/scripts/compose-schema.js
+npx prisma generate --schema=servicos-global/produto/processo/prisma/schema.prisma
 
-# 2a. BID Frete Internacional — migrations (bid_* → cotacao_bid_frete_internacional SSOT)
+# 2a. BID Frete Internacional — migrations (baseline legado + bootstrap banco vazio)
 if [ -n "$BID_FRETE_INTERNATIONAL_DATABASE_URL" ]; then
   echo "[build-site] Applying BID Frete Internacional migrations..."
-  DATABASE_URL="$BID_FRETE_INTERNATIONAL_DATABASE_URL" \
-    npx prisma migrate deploy --schema=servicos-global/produto/bid-frete-internacional/prisma/schema.prisma
+  if ! npx tsx scripts/ativamente/aplicar-migrations-bid-frete-internacional.ts; then
+    echo "[build-site] ERRO: migrations BID Frete Internacional falharam — build abortado."
+    exit 1
+  fi
 else
   echo "[build-site] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — skip BID migrations"
 fi
@@ -56,6 +60,26 @@ if [ -n "$PEDIDO_DATABASE_URL" ]; then
     npx tsx scripts/ativamente/aplicar-migrations-pedido.ts
 else
   echo "[build-site] PEDIDO_DATABASE_URL ausente — skip Pedido migrations (roda no startup do servidor)"
+fi
+
+# 2d. Processo — migrations (schema public, isolamento por id_organizacao)
+if [ -n "$PROCESSO_DATABASE_URL" ]; then
+  echo "[build-site] Applying Processo migrations..."
+  DATABASE_URL="$PROCESSO_DATABASE_URL" \
+    npx prisma migrate deploy --schema=servicos-global/produto/processo/prisma/schema.prisma
+else
+  echo "[build-site] PROCESSO_DATABASE_URL ausente — skip Processo migrations"
+fi
+
+# 2e. Configurador — migrations (teste, organizacao, plano_teste, etc.)
+#     Sem isso o Prisma client gerado no build fica à frente do banco e a
+#     persistência do histórico de testes falha em silêncio (fallback JSON efêmero).
+if [ -n "${CONFIGURADOR_DATABASE_URL:-}" ] || [ -n "${DATABASE_URL:-}" ]; then
+  echo "[build-site] Applying Configurador migrations..."
+  CONFIGURADOR_DATABASE_URL="${CONFIGURADOR_DATABASE_URL:-$DATABASE_URL}" \
+    npx prisma migrate deploy --schema=configurador/prisma/schema.prisma
+else
+  echo "[build-site] CONFIGURADOR_DATABASE_URL ausente — skip Configurador migrations"
 fi
 
 # 2c. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but

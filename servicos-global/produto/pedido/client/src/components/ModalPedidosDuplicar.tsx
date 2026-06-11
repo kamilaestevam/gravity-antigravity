@@ -133,7 +133,7 @@ export function ModalDuplicarPedidos({ pedidos, itens = [], todosPedidos, onFech
 
   const itensComExecucao = useMemo(() => {
     return itensFiltrados.filter(it =>
-      Number(it.quantidade_pronta_total_item_pedido) > 0
+      Number(it.quantidade_pronta_item) > 0
       || Number(it.quantidade_transferida_pedido) > 0
       || Number(it.quantidade_cancelada_pedido) > 0
     )

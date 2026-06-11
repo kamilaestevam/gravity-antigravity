@@ -425,6 +425,64 @@ describe('recalcularAgregadosPedido — homogeneidade (Onda A8)', () => {
     const data = (updateCalls[0] as any).data
     expect(data.valor_total_pedido).toBe(250)        // só USD contribui → soma
   })
+
+  it('SOMA dos pesos excede Decimal(18,6) (itens individuais válidos) → agregados físicos null sem abortar', async () => {
+    // Cenário real DUPLIC0002 (2026-06-10): 3 itens com peso 100 × qty 6.588.745.545
+    // = 658,9 bi cada (individualmente < 10^12), mas soma = 1,98 tri → estoura.
+    // Antes: somarDecimal186 lançava AppError 422 e abortava a transferência
+    // inteira (e qualquer save de campo do pedido). Agora: agregado null.
+    const itemPesado = {
+      valor_total_item: 100,
+      quantidade_inicial_item: 6_588_745_545,
+      peso_liquido_unitario_item: 100,
+      peso_bruto_unitario_item: 100,
+      cubagem_unitaria_item: 100,
+      moeda_item: 'USD',
+      unidade_comercializada_item: 'UN',
+    }
+    const { tx, updateCalls } = fabricarTx({
+      pedido: PEDIDO_PADRAO,
+      itens: [itemPesado, itemPesado, itemPesado],
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await expect(recalcularAgregadosPedido(tx as any, PEDIDO_ID, ORG)).resolves.toBeUndefined()
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = (updateCalls[0] as any).data
+    expect(data.valor_total_pedido).toBe(300)               // soma de valor não é afetada
+    expect(data.quantidade_total_pedido).toBe(19_766_236_635) // qty soma OK (< 10^12)
+    expect(data.peso_liquido_total_pedido).toBeNull()       // soma estourou → null
+    expect(data.peso_bruto_total_pedido).toBeNull()
+    expect(data.cubagem_total_pedido).toBeNull()
+  })
+
+  it('qty × peso excede Decimal(18,6) → agregados físicos null sem abortar valor', async () => {
+    const { tx, updateCalls } = fabricarTx({
+      pedido: PEDIDO_PADRAO,
+      itens: [
+        {
+          valor_total_item: 60_012,
+          quantidade_inicial_item: 6_000_000_000,
+          peso_liquido_unitario_item: 200,
+          peso_bruto_unitario_item: 200,
+          cubagem_unitaria_item: 200,
+          moeda_item: 'USD',
+          unidade_comercializada_item: 'UN',
+        },
+      ],
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await recalcularAgregadosPedido(tx as any, PEDIDO_ID, ORG)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = (updateCalls[0] as any).data
+    expect(data.valor_total_pedido).toBe(60_012)
+    expect(data.peso_liquido_total_pedido).toBeNull()
+    expect(data.peso_bruto_total_pedido).toBeNull()
+    expect(data.cubagem_total_pedido).toBeNull()
+  })
 })
 
 // ─── campoItemAfetaAgregado ──────────────────────────────────────────────────

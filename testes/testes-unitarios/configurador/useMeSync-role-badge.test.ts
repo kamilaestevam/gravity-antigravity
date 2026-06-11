@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// TST-UNIT-CONFIG-MSYNC-001 — useMeSync + resolveRole (role-badge guard)
+// TST-UNI-CONFIG-000016 — useMeSync + resolveRole (role-badge guard)
 // Foco: casos NÃO cobertos pelos arquivos existentes (useMeSync.test.ts).
 // Casos críticos marcados com BUG DETECTION falharão com a implementação atual —
 // isso é intencional: eles sinalizam o bug do badge 'USUÁRIO'.

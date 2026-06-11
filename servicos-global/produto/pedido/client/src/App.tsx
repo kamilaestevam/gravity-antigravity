@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync, useShellBodyClasses } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { pedidoQueryClient } from './shared/pedido-query-client'
 import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
@@ -17,6 +18,8 @@ import { usePermissoesPedido, type SecaoPedido } from './shared/permissoes/usePe
 import { BloqueioPermissaoOpaco } from './shared/permissoes/BloqueioPermissaoOpaco'
 import { useEscopoWorkspacesPedido } from './shared/useEscopoWorkspacesPedido'
 import { urlCriarWorkspace, urlGerenciarWorkspaces } from './components/lista/urlsDeepLinkConfigurador'
+import { PedidosVisualizacaoLayout } from './components/PedidosVisualizacaoLayout'
+import { PedidosMultiView } from './components/PedidosMultiView'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 /**
@@ -51,13 +54,12 @@ injectWorkspaceGetter(() => {
   catch { return undefined }
 })
 
-// ── Lazy loading das telas ────────────────────────────────────────────────────
-const Pedidos          = lazy(() => import('./pages/Pedidos'))
-const PedidosKanban    = lazy(() => import('./pages/PedidosKanban'))
+// ── Lazy loading das telas (visualizações lazy em PedidosMultiView) ───────────
 const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
 const PedidoFormulario = lazy(() => import('./pages/PedidoFormulario'))
-const PedidosDashboard   = lazy(() => import('./pages/PedidosDashboard'))
-const PedidosVisaoGeral  = lazy(() => import('./pages/PedidosVisaoGeral'))
+
+/** Mesma referência de elemento → React preserva PedidosMultiView entre rotas. */
+const pedidosVisualizacoesElement = <PedidosMultiView />
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -113,14 +115,9 @@ function LoadingFallback() {
   )
 }
 
-// QueryClient único do produto Pedido — instanciado fora do componente
-// para sobreviver a re-renders. Stale 60s espelha a config recomendada
-// no comentário de usePermissoesPedido.ts.
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { staleTime: 60_000, refetchOnWindowFocus: true },
-  },
-})
+const queryClient = pedidoQueryClient
+
+export { pedidoQueryClient } from './shared/pedido-query-client'
 
 function AppInner() {
   useMeSync()
@@ -319,7 +316,6 @@ function AppInner() {
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
-      onNavigateCore={() => { window.location.href = '/core' }}
       onNavigateSettings={() => { navigate('/pedido/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{
@@ -361,26 +357,17 @@ function AppInner() {
               ('indeterminado') a rota renderiza children (otimista), e só bloqueia
               quando há negação definitiva. Evita flash de "Sem permissão" em
               usuário legítimo enquanto /me + query carregam. */}
-          <Route path="pedidos/lista"            element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('lista', 'ver') !== 'negado'} motivo="Sem permissão para ver a Lista de Pedidos" modo="bloqueio-tela">
-              <Pedidos />
-            </BloqueioPermissaoOpaco>
-          } />
-          <Route path="pedidos/visao-geral"        element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver a Visão Geral" modo="bloqueio-tela">
-              <PedidosVisaoGeral />
-            </BloqueioPermissaoOpaco>
-          } />
-          <Route path="pedidos/dashboard"        element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('dashboard', 'ver') !== 'negado'} motivo="Sem permissão para ver o Dashboard" modo="bloqueio-tela">
-              <PedidosDashboard />
-            </BloqueioPermissaoOpaco>
-          } />
-          <Route path="pedidos/kanban"           element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('kanban', 'ver') !== 'negado'} motivo="Sem permissão para ver o Kanban" modo="bloqueio-tela">
-              <PedidosKanban />
-            </BloqueioPermissaoOpaco>
-          } />
+          <Route element={<PedidosVisualizacaoLayout />}>
+            <Route path="pedidos/lista"       element={pedidosVisualizacoesElement} />
+            <Route path="pedidos/visao-geral" element={pedidosVisualizacoesElement} />
+            <Route path="pedidos/dashboard"   element={pedidosVisualizacoesElement} />
+            <Route path="pedidos/kanban"      element={pedidosVisualizacoesElement} />
+            <Route path="configuracoes"       element={
+              <BloqueioPermissaoOpaco pode={estadoPermissao('configuracao', 'ver') !== 'negado'} motivo="Sem permissão para ver Configurações" modo="bloqueio-tela">
+                <Configuracoes />
+              </BloqueioPermissaoOpaco>
+            } />
+          </Route>
           {/* Novo/Editar Pedido — entra com lista:ver (modo leitura quando faltar
               lista:editar; botões Salvar ficam opacos via gating local nas páginas). */}
           <Route path="pedidos/novo"             element={
@@ -393,11 +380,6 @@ function AppInner() {
               <PedidoFormulario />
             </BloqueioPermissaoOpaco>
           } />
-          <Route path="configuracoes"        element={
-            <BloqueioPermissaoOpaco pode={estadoPermissao('configuracao', 'ver') !== 'negado'} motivo="Sem permissão para ver Configurações" modo="bloqueio-tela">
-              <Configuracoes />
-            </BloqueioPermissaoOpaco>
-          } />
           <Route path="*"                    element={<Navigate to="/pedido/pedidos/visao-geral" replace />} />
         </Routes>
       </Suspense>
@@ -405,6 +387,7 @@ function AppInner() {
   )
 }
 
+/** Shell do Configurador envolve com QueryClientProvider; standalone usa App. */
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -413,5 +396,5 @@ export function App() {
   )
 }
 
-export { PRODUCT_CONFIG }
+export { AppInner, PRODUCT_CONFIG }
 export default App

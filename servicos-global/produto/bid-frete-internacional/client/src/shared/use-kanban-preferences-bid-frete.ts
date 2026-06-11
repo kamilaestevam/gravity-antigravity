@@ -5,9 +5,20 @@ import {
   normalizarCardConfigBidFrete,
 } from './kanban-bid-frete-card'
 
+export type EscopoKanbanBidFrete = 'operacional' | 'fornecedor'
+
 export const KANBAN_COLUNAS_OCULTAS_KEY = 'bid-frete:config:kanban-colunas-ocultas'
 export const KANBAN_CARD_CONFIG_KEY = 'bid-frete:config:kanban-card-config'
 export const KANBAN_CONFIG_SYNC_EVENT = 'bid-frete:kanban-config:atualizado'
+
+function chavesKanbanEscopo(escopo: EscopoKanbanBidFrete) {
+  const sufixo = escopo === 'fornecedor' ? ':fornecedor' : ''
+  return {
+    colunasOcultas: `bid-frete${sufixo}:config:kanban-colunas-ocultas`,
+    cardConfig: `bid-frete${sufixo}:config:kanban-card-config`,
+    syncEvent: `bid-frete${sufixo}:kanban-config:atualizado`,
+  }
+}
 
 function lerJson<T>(key: string, fallback: T): T {
   try {
@@ -19,41 +30,49 @@ function lerJson<T>(key: string, fallback: T): T {
   }
 }
 
-export function carregarColunasOcultasKanbanBidFrete(): string[] {
-  const salvas = lerJson<string[]>(KANBAN_COLUNAS_OCULTAS_KEY, [])
+export function carregarColunasOcultasKanbanBidFrete(escopo: EscopoKanbanBidFrete = 'operacional'): string[] {
+  const { colunasOcultas } = chavesKanbanEscopo(escopo)
+  const salvas = lerJson<string[]>(colunasOcultas, [])
   return Array.isArray(salvas) ? salvas.filter(id => typeof id === 'string') : []
 }
 
-export function carregarCardConfigKanbanBidFrete(): KanbanCardConfigBidFrete {
-  const salva = lerJson<unknown>(KANBAN_CARD_CONFIG_KEY, null)
+export function carregarCardConfigKanbanBidFrete(escopo: EscopoKanbanBidFrete = 'operacional'): KanbanCardConfigBidFrete {
+  const { cardConfig } = chavesKanbanEscopo(escopo)
+  const salva = lerJson<unknown>(cardConfig, null)
   if (salva == null) return KANBAN_BF_CARD_PADRAO
   return normalizarCardConfigBidFrete(salva)
 }
 
-export function notificarKanbanConfigBidFreteAtualizado(): void {
-  window.dispatchEvent(new CustomEvent(KANBAN_CONFIG_SYNC_EVENT))
+export function notificarKanbanConfigBidFreteAtualizado(escopo: EscopoKanbanBidFrete = 'operacional'): void {
+  const { syncEvent } = chavesKanbanEscopo(escopo)
+  window.dispatchEvent(new CustomEvent(syncEvent))
 }
 
-export function useKanbanPreferencesBidFrete() {
-  const [colunasOcultas, setColunasOcultas] = useState<string[]>(carregarColunasOcultasKanbanBidFrete)
-  const [cardConfig, setCardConfig] = useState<KanbanCardConfigBidFrete>(carregarCardConfigKanbanBidFrete)
+export function useKanbanPreferencesBidFrete(escopo: EscopoKanbanBidFrete = 'operacional') {
+  const chaves = chavesKanbanEscopo(escopo)
+  const [colunasOcultas, setColunasOcultas] = useState<string[]>(() =>
+    carregarColunasOcultasKanbanBidFrete(escopo),
+  )
+  const [cardConfig, setCardConfig] = useState<KanbanCardConfigBidFrete>(() =>
+    carregarCardConfigKanbanBidFrete(escopo),
+  )
 
   const recarregar = useCallback(() => {
-    setColunasOcultas(carregarColunasOcultasKanbanBidFrete())
-    setCardConfig(carregarCardConfigKanbanBidFrete())
-  }, [])
+    setColunasOcultas(carregarColunasOcultasKanbanBidFrete(escopo))
+    setCardConfig(carregarCardConfigKanbanBidFrete(escopo))
+  }, [escopo])
 
   useEffect(() => {
     const onSync = () => recarregar()
-    window.addEventListener(KANBAN_CONFIG_SYNC_EVENT, onSync)
+    window.addEventListener(chaves.syncEvent, onSync)
     window.addEventListener('storage', onSync)
     window.addEventListener('focus', onSync)
     return () => {
-      window.removeEventListener(KANBAN_CONFIG_SYNC_EVENT, onSync)
+      window.removeEventListener(chaves.syncEvent, onSync)
       window.removeEventListener('storage', onSync)
       window.removeEventListener('focus', onSync)
     }
-  }, [recarregar])
+  }, [recarregar, chaves.syncEvent])
 
   return { colunasOcultas, cardConfig }
 }

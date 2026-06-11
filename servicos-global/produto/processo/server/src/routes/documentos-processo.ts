@@ -1,43 +1,28 @@
 /**
- * documentos.ts — Routes for Documento (attachments)
- * GET /processo/:processoId  — List documents
- * POST /                     — Upload document metadata
- * DELETE /:id                — Remove document
- *
- * Skill: antigravity-criar-produto (Passo 7)
+ * documentos-processo.ts — Metadados de documentos anexos
  */
-
 import { Router, Request, Response } from 'express'
-import { z } from 'zod'
+import type { PrismaClient } from '../../../generated/index.js'
+import { createDocumentoBodySchema } from '../contracts/processo-schemas.js'
 
 export const documentosRouter = Router()
 
-const CreateDocumentoSchema = z.object({
-  processo_id: z.string().min(1),
-  nome: z.string().min(1),
-  tipo_arquivo: z.enum(['pdf', 'xlsx', 'xml', 'img']),
-  tamanho_bytes: z.number().int().nonnegative().optional(),
-  url: z.string().url(),
-  categoria: z.enum(['bl', 'po', 'di', 'li', 'nfe', 'outro']).optional(),
-  product_id: z.string().optional(),
-})
+const PRODUTO_ID = 'processo'
 
-/**
- * GET /api/v1/processos/:id_processo/documentos
- * Lista documentos de um processo.
- */
-documentosRouter.get('/processos/:id_processo/documentos', async (req: Request, res: Response) => {
+type ReqComPrisma = Request & { prisma?: PrismaClient }
+
+documentosRouter.get('/processos/:id_processo/documentos', async (req: ReqComPrisma, res: Response) => {
   try {
-    const prisma = (req as any).prisma
+    const prisma = req.prisma!
     const { id_processo } = req.params
-    const categoria = req.query.categoria as string | undefined
+    const categoria = req.query.categoria_documento_processo as string | undefined
 
-    const where: Record<string, unknown> = { processo_id: id_processo }
-    if (categoria) where.categoria = categoria
+    const where: Record<string, unknown> = { id_processo }
+    if (categoria) where.categoria_documento_processo = categoria
 
-    const data = await prisma.processoAnexos.findMany({
+    const data = await prisma.documentoProcesso.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      orderBy: { data_criacao_documento_processo: 'desc' },
     })
 
     res.json({ success: true, data })
@@ -47,25 +32,22 @@ documentosRouter.get('/processos/:id_processo/documentos', async (req: Request, 
   }
 })
 
-/**
- * POST /api/v1/documentos-processo
- * Registra metadados de um documento.
- */
-documentosRouter.post('/documentos-processo', async (req: Request, res: Response) => {
-  const parsed = CreateDocumentoSchema.safeParse(req.body)
-
+documentosRouter.post('/documentos-processo', async (req: ReqComPrisma, res: Response) => {
+  const parsed = createDocumentoBodySchema.safeParse(req.body)
   if (!parsed.success) {
     return res.status(400).json({ error: 'Payload invalido', detalhes: parsed.error.flatten() })
   }
 
   try {
-    const prisma = (req as any).prisma
-    const userId = req.headers['x-id-usuario'] as string | undefined
+    const prisma = req.prisma!
+    const idUsuario = req.headers['x-id-usuario'] as string | undefined
 
-    const documento = await prisma.processoAnexos.create({
+    const documento = await prisma.documentoProcesso.create({
       data: {
         ...parsed.data,
-        user_id: userId,
+        id_organizacao: req.headers['x-id-organizacao'] as string,
+        id_produto_gravity: PRODUTO_ID,
+        id_usuario: idUsuario ?? null,
       },
     })
 
@@ -76,22 +58,19 @@ documentosRouter.post('/documentos-processo', async (req: Request, res: Response
   }
 })
 
-/**
- * DELETE /api/v1/documentos-processo/:id_documento_processo
- * Remove documento.
- */
-documentosRouter.delete('/documentos-processo/:id_documento_processo', async (req: Request, res: Response) => {
+documentosRouter.delete('/documentos-processo/:id_documento_processo', async (req: ReqComPrisma, res: Response) => {
   try {
-    const prisma = (req as any).prisma
+    const prisma = req.prisma!
     const { id_documento_processo } = req.params
 
-    // Verifica se existe (tenant isolado)
-    const existing = await prisma.processoAnexos.findFirst({ where: { id: id_documento_processo } })
+    const existing = await prisma.documentoProcesso.findFirst({
+      where: { id_documento_processo },
+    })
     if (!existing) {
       return res.status(404).json({ error: 'Documento nao encontrado' })
     }
 
-    await prisma.processoAnexos.delete({ where: { id: id_documento_processo } })
+    await prisma.documentoProcesso.delete({ where: { id_documento_processo } })
 
     res.json({ success: true, message: 'Documento removido' })
   } catch (err: unknown) {

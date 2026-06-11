@@ -4,7 +4,10 @@
 
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'node:url'
+import { mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
+import { middlewareServirPrintEmt } from './lib/servir-print-emt.js'
+import { dirArtefatosEmtPersistente } from './lib/emt-artifacts.js'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 // Chaves globais (GEMINI_API_KEY, CHAVE_INTERNA_SERVICO) vêm do .env.local da raiz
@@ -58,6 +61,8 @@ import { prisma } from './lib/prisma.js'
 
 export const app = express()
 const PORT = Number(process.env.PORT ?? 8005)
+const monorepoRoot = resolve(__dir, '../../..')
+mkdirSync(dirArtefatosEmtPersistente(), { recursive: true })
 
 // ─── Trust proxy ────────────────────────────────────────────────────────────
 // Necessário em produção (Railway / load balancer): faz Express ler IP real
@@ -91,7 +96,7 @@ app.use(helmet({
       scriptSrcElem: ["'self'", "'unsafe-inline'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://*.clerk.com", "https://challenges.cloudflare.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://*.clerk.com", "https://img.clerk.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https://*.clerk.com", "https://img.clerk.com"],
       connectSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://*.clerk.com", "https://challenges.cloudflare.com", "https://servicodados.ibge.gov.br", "ws://localhost:*"],
       frameSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://accounts.usegravity.com.br", "https://challenges.cloudflare.com"],
       workerSrc: ["'self'", "blob:"],
@@ -129,6 +134,9 @@ app.get('/health', async (_req, res) => {
     timestamp: new Date().toISOString(),
   })
 })
+
+// ─── Prints EMT (dev + produção) — monorepo + data/emt-artifacts persistente ─
+app.use('/dev-emt-artifacts', middlewareServirPrintEmt)
 
 // ─── Rate Limiting (endpoints publicos e webhooks) ─────────────────────────
 app.use('/api/v1/webhooks', rateLimitPresets.webhook())
@@ -293,21 +301,47 @@ app.get('/api/v1/internal/sidecar-status', requireAuth, requireGravityAdmin, (_r
   res.json(_sidecarStatus)
 })
 
-app.use('/api/v1/bid-frete-internacional', (req, res) => {
-  const serviceUrl = process.env.BID_FRETE_SERVICE_URL || 'http://127.0.0.1:8023'
-  const targetUrl = `${serviceUrl}${req.originalUrl}`
+function reescreverUrlApiBidFreteLegado(originalUrl: string): string {
+  if (originalUrl.startsWith('/api/v1/bid-frete-internacional')) return originalUrl
+  let destino = originalUrl.replace(/^\/api\/v1\/bid-frete/, '/api/v1/bid-frete-internacional')
+  destino = destino.replace(
+    '/bid-frete-internacional/insights-alertas',
+    '/bid-frete-internacional/dashboard/insights-alertas',
+  )
+  destino = destino.replace(
+    '/bid-frete-internacional/mapa-cotacoes',
+    '/bid-frete-internacional/dashboard/mapa-cotacoes',
+  )
+  return destino
+}
+
+/** Sidecar BID Frete Internacional — mesmo processo que o Configurador (porta 8023). */
+const BID_FRETE_SIDECAR_LOCAL_URL = 'http://127.0.0.1:8023'
+
+/**
+ * URL usada pelo proxy browser → sidecar.
+ * Em site-usegravity (Railway) o BID roda como sidecar local; BID_FRETE_SERVICE_URL
+ * externo (serviço Railway morto ou URL pública do próprio site) causa 502
+ * "Application failed to respond" na UI de Insights.
+ */
+function resolverUrlProxyBidFreteInternacional(): string {
+  if (process.env.RAILWAY_ENVIRONMENT) {
+    return BID_FRETE_SIDECAR_LOCAL_URL
+  }
+  return process.env.BID_FRETE_SERVICE_URL || BID_FRETE_SIDECAR_LOCAL_URL
+}
+
+function proxyBidFreteInternacional(req: import('express').Request, res: import('express').Response, originalUrl: string) {
+  const serviceUrl = resolverUrlProxyBidFreteInternacional()
+  const targetUrl = `${serviceUrl}${originalUrl}`
   const host = serviceUrl.replace(/^https?:\/\//, '')
   const headers = { ...req.headers, host } as Record<string, any>
   const chaveInterna = process.env.CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
   headers['x-chave-interna-servico'] = chaveInterna
   headers['x-internal-key'] = chaveInterna
 
-  if (!headers['x-id-organizacao'] || headers['x-id-organizacao'] === '') {
-    headers['x-id-organizacao'] = 'org_dev_default'
-  }
-  if (!headers['x-id-usuario'] || headers['x-id-usuario'] === '') {
-    headers['x-id-usuario'] = 'user_dev_default'
-  }
+  // Não mascarar identidade ausente com org_dev_default (404 fornecedor silencioso).
+  // Browser autenticado deve enviar x-id-organizacao/x-id-usuario via shell (/me).
 
   let bodyBuf: Buffer | undefined
   if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
@@ -326,13 +360,30 @@ app.use('/api/v1/bid-frete-internacional', (req, res) => {
       method: req.method,
       url: req.originalUrl,
     })
-    if (!res.headersSent) res.status(502).json({ error: 'BID Frete Internacional service unavailable' })
+    if (!res.headersSent) {
+      res.status(502).json({
+        error: 'BID Frete Internacional service unavailable',
+        sidecar: _sidecarStatus['bid-frete'],
+      })
+    }
   })
   if (bodyBuf) {
     proxyReq.end(bodyBuf)
   } else {
     proxyReq.end()
   }
+}
+
+// ─── Proxy reverso: BID Frete Internacional sidecar (porta 8023) ─────────────
+// Em produção o BID roda como sidecar no mesmo processo (porta 8023).
+// O frontend chama `/api/v1/bid-frete-internacional/*` — proxy encaminha via localhost.
+app.use('/api/v1/bid-frete-internacional', (req, res) => {
+  proxyBidFreteInternacional(req, res, req.originalUrl)
+})
+
+// Compat: bundles antigos usavam /api/v1/bid-frete/* sem sufixo -internacional.
+app.use('/api/v1/bid-frete', (req, res) => {
+  proxyBidFreteInternacional(req, res, reescreverUrlApiBidFreteLegado(req.originalUrl))
 })
 
 app.use('/api/v1/pedidos', (req, res) => {
@@ -381,6 +432,46 @@ app.use('/api/v1/pedidos', (req, res) => {
   }
 })
 
+// ─── Proxy reverso: Processo sidecar (porta 8026) ───────────────────────────
+// Front Processo (embutido no Configurador) chama `/api/v1/processos/*`,
+// `/api/v1/processo-status/*` e `/api/v1/documentos-processo/*`.
+const _proxyProcesso = (req: express.Request, res: express.Response) => {
+  const targetUrl = `http://127.0.0.1:8026${req.originalUrl}`
+  const headers: Record<string, string | string[] | undefined> = { ...req.headers, host: '127.0.0.1:8026' }
+  headers['x-internal-key'] = process.env.CHAVE_INTERNA_SERVICO!
+  headers['x-chave-interna-servico'] = process.env.CHAVE_INTERNA_SERVICO!
+
+  let bodyBuf: Buffer | undefined
+  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+    bodyBuf = Buffer.from(JSON.stringify(req.body))
+    headers['content-length'] = String(bodyBuf.length)
+  }
+
+  const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
+    proxyRes.pipe(res)
+  })
+  proxyReq.on('error', (err) => {
+    console.error('[proxy-processo] erro ao conectar com sidecar', {
+      code: (err as NodeJS.ErrnoException).code,
+      message: err.message,
+      method: req.method,
+      url: req.originalUrl,
+    })
+    if (!res.headersSent) {
+      res.status(502).json({ error: 'Processo service unavailable', sidecar: _sidecarStatus['processo'] })
+    }
+  })
+  if (bodyBuf) {
+    proxyReq.end(bodyBuf)
+  } else {
+    req.pipe(proxyReq)
+  }
+}
+app.use('/api/v1/processos', _proxyProcesso)
+app.use('/api/v1/processo-status', _proxyProcesso)
+app.use('/api/v1/documentos-processo', _proxyProcesso)
+
 // ─── Proxy reverso: Cadastros sidecar (porta 8031) ──────────────────────────
 // O sidecar Cadastros expõe `/api/v1/empresas` (1:1 org), `/api/v1/fornecedores` (parceiros) e `/api/v1/cadastros/*`
 // (moedas, unidades, incoterms, ncm, operacoes-comex, paises...).
@@ -427,7 +518,21 @@ app.use('/api/v1/cadastros', _proxyCadastros)
 
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
 const clientDistDir = resolve(__dir, '../dist')
-app.use(express.static(clientDistDir))
+
+/** Assets com hash no nome — cache longo; index.html sempre revalidado (evita chunk/CSS stale pós-deploy). */
+app.use(
+  express.static(clientDistDir, {
+    index: false,
+    setHeaders(res, filePath) {
+      const normalizado = filePath.replace(/\\/g, '/')
+      if (normalizado.endsWith('/index.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+      } else if (normalizado.includes('/assets/')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+      }
+    },
+  }),
+)
 
 /**
  * Middleware de normalização de URL canônica
@@ -448,6 +553,9 @@ const REDIRECTS_PREFIXO_LEGACY: Array<{ de: string; para: string }> = [
   { de: '/produto/simula-custo', para: '/simula-custo' },
   { de: '/produto/processo', para: '/processo' },
   { de: '/produto/bid-frete', para: '/bid-frete' },
+  { de: '/produto/bid-frete-internacional', para: '/bid-frete' },
+  { de: '/bid-frete/visao-geral', para: '/bid-frete/insights' },
+  { de: '/bid-frete-internacional/visao-geral', para: '/bid-frete/insights' },
   { de: '/produto/bid-cambio', para: '/bid-cambio' },
 ]
 
@@ -475,6 +583,12 @@ app.get('*', (req, res, next) => {
     }
   }
 
+  // Chunk/CSS ausente — não devolver index.html (Vite interpreta como "Unable to preload CSS")
+  if (path.startsWith('/assets/')) {
+    return res.status(404).end()
+  }
+
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.sendFile(resolve(clientDistDir, 'index.html'))
 })
 
@@ -485,19 +599,29 @@ app.use(errorHandler)
 // ─── Start (apenas quando executado diretamente, não em testes) ──────────────
 
 if (process.env.NODE_ENV !== 'test') {
-  // Sidecars — cada um roda em porta fixa interna.
-  // Sequenciados para evitar race condition em process.env.PORT.
+  // Dev local com PM2 (ecosystem.config.cjs): processos separados nas portas dos sidecars.
+  // Produção/Railway: sidecars embutidos no mesmo processo (GRAVITY_DEV_PM2 ausente).
+  const devPm2 = process.env.GRAVITY_DEV_PM2 === '1'
+
   const portaOriginal = process.env.PORT
   const dbOriginal = process.env.DATABASE_URL
+  const listenPort = Number(portaOriginal ?? process.env.PORT ?? 8005)
+  const configuradorLoopbackUrl = `http://127.0.0.1:${listenPort}`
+
+  if (devPm2) {
+    console.log(
+      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8023/8026/8016)',
+    )
+  }
+
+  if (!devPm2) {
+  // Sidecars — cada um roda em porta fixa interna.
+  // Sequenciados para evitar race condition em process.env.PORT.
 
   // Sidecar 1: Cadastros (porta 8031)
   process.env.PORT = '8031'
   process.env.CADASTROS_SIDECAR = '1'
-  // O Cadastros faz chamadas S2S ao Configurador (ex: GET /da-organizacao).
-  // Sem CONFIGURADOR_BASE_URL ele cai no default localhost:8005 e o fetch
-  // falha em produção (Configurador roda na PORT real). Aponta para o
-  // próprio processo via loopback.
-  process.env.CONFIGURADOR_BASE_URL = `http://127.0.0.1:${PORT}`
+  // CONFIGURADOR_BASE_URL é definido após app.listen (Cadastros chama o Configurador em runtime).
   try {
     await import('../../cadastros/server/src/index.js')
     _sidecarStatus['cadastros'] = { ok: true }
@@ -515,7 +639,7 @@ if (process.env.NODE_ENV !== 'test') {
   if (process.env.PEDIDO_DATABASE_URL) {
     process.env.PORT = '8030'
     process.env.DATABASE_URL = process.env.PEDIDO_DATABASE_URL
-    process.env.CONFIGURATOR_URL = `http://127.0.0.1:${PORT}`
+    process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
     if (!process.env.ALLOWED_ORIGINS) {
       process.env.ALLOWED_ORIGINS = process.env.CANONICAL_DOMAIN
         ? `https://${process.env.CANONICAL_DOMAIN}`
@@ -541,7 +665,37 @@ if (process.env.NODE_ENV !== 'test') {
     console.warn('[configurador] PEDIDO_DATABASE_URL ausente — sidecar Pedido desativado')
   }
 
-  // Sidecar 3: API Cockpit (porta 8016)
+  // Sidecar 3: Processo (porta 8026)
+  // Migrations rodam em build-site.sh / start-site.sh quando PROCESSO_DATABASE_URL está definida.
+  if (process.env.PROCESSO_DATABASE_URL) {
+    process.env.PORT = '8026'
+    process.env.DATABASE_URL = process.env.PROCESSO_DATABASE_URL
+    process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
+    process.env.PROCESSO_SIDECAR = '1'
+    process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
+      ? `https://${process.env.CANONICAL_DOMAIN}`
+      : 'https://usegravity.com.br'
+    const _origExitProcesso = process.exit
+    process.exit = ((code?: number) => {
+      throw new Error(`[sidecar-guard] process.exit(${code}) bloqueado em modo sidecar Processo`)
+    }) as typeof process.exit
+    try {
+      await import('../../produto/processo/server/src/index.js')
+      _sidecarStatus['processo'] = { ok: true }
+      console.log('[configurador] Sidecar Processo iniciado na porta 8026')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['processo'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar Processo:', msg)
+    } finally {
+      process.exit = _origExitProcesso
+    }
+  } else {
+    _sidecarStatus['processo'] = { ok: false, error: 'PROCESSO_DATABASE_URL ausente' }
+    console.warn('[configurador] PROCESSO_DATABASE_URL ausente — sidecar Processo desativado')
+  }
+
+  // Sidecar 4: API Cockpit (porta 8016)
   // Health checks, tokens, webhooks, logs de requisição, monitoramento.
   // Usa CONFIGURADOR_DATABASE_URL (mesmas tabelas — fragment composto).
   process.env.PORT = '8016'
@@ -557,11 +711,81 @@ if (process.env.NODE_ENV !== 'test') {
   // Restaurar env vars originais
   process.env.PORT = portaOriginal
   process.env.DATABASE_URL = dbOriginal
+  } // fim !devPm2 — sidecars embutidos
 
-  const server = app.listen(PORT, async () => {
-    console.log(`[configurador] Servidor rodando na porta ${PORT}`)
+  async function aplicarMigrationsBidFreteDev(): Promise<void> {
+    if (process.env.NODE_ENV === 'production' || process.env.BID_SKIP_MIGRATIONS === '1') return
+    try {
+      const { execSync } = await import('node:child_process')
+      const repoRoot = resolve(__dir, '../../..')
+      console.log('[configurador] Dev — aplicando migrations BID Frete Internacional...')
+      execSync('npx tsx scripts/ativamente/aplicar-migrations-bid-frete-internacional.ts', {
+        cwd: repoRoot,
+        stdio: 'inherit',
+        env: process.env,
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn('[configurador] Migrations BID dev falharam — sidecar sobe mesmo assim:', msg)
+    }
+  }
 
-    // Sincronizar catálogo de produtos com a lista canônica a cada startup
+  async function iniciarSidecarBidFreteInternacional() {
+    if (!process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL) {
+      _sidecarStatus['bid-frete'] = { ok: false, error: 'BID_FRETE_INTERNATIONAL_DATABASE_URL ausente' }
+      console.warn('[configurador] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — sidecar BID Frete Internacional desativado')
+      return
+    }
+
+    await aplicarMigrationsBidFreteDev()
+
+    const plataformaBase = process.env.SERVIDOR_PLATAFORMA_URL ?? 'http://127.0.0.1:3001'
+    process.env.PORT = '8023'
+    process.env.DATABASE_URL = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL
+    process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
+    process.env.CADASTROS_SERVICE_URL = 'http://127.0.0.1:8031'
+    process.env.ATIVIDADES_SERVICE_URL = process.env.ATIVIDADES_SERVICE_URL ?? plataformaBase
+    process.env.NOTIFICACOES_SERVICE_URL = process.env.NOTIFICACOES_SERVICE_URL ?? plataformaBase
+    process.env.HISTORICO_SERVICE_URL = process.env.HISTORICO_SERVICE_URL ?? plataformaBase
+    process.env.GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
+    process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
+      ? `https://${process.env.CANONICAL_DOMAIN}`
+      : 'https://usegravity.com.br'
+    process.env.BID_FRETE_SIDECAR = '1'
+
+    const _origExitBid = process.exit
+    process.exit = ((code?: number) => {
+      throw new Error(`[sidecar-guard] process.exit(${code}) bloqueado em modo sidecar BID Frete`)
+    }) as typeof process.exit
+    try {
+      await import('../../produto/bid-frete-internacional/server/src/index.js')
+      _sidecarStatus['bid-frete'] = { ok: true }
+      console.log('[configurador] Sidecar BID Frete Internacional iniciado na porta 8023')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['bid-frete'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar BID Frete Internacional:', msg)
+    } finally {
+      process.exit = _origExitBid
+      if (portaOriginal !== undefined) process.env.PORT = portaOriginal
+      process.env.DATABASE_URL =
+        process.env.CONFIGURADOR_DATABASE_URL ?? dbOriginal ?? process.env.DATABASE_URL
+    }
+  }
+
+  const server = app.listen(listenPort, async () => {
+    console.log(`[configurador] Servidor rodando na porta ${listenPort}`)
+    process.env.CONFIGURADOR_BASE_URL = configuradorLoopbackUrl
+
+    if (!devPm2) {
+      void iniciarSidecarBidFreteInternacional().catch((err: unknown) => {
+        const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+        _sidecarStatus['bid-frete'] = { ok: false, error: msg }
+        console.error('[configurador] Sidecar BID (background) erro não tratado:', msg)
+      })
+    }
+
+    // Garantir produtos canônicos no catálogo (cria/atualiza nomes — nunca apaga cadastros do Admin)
     try {
       const { produtoGravityCatalogoServico } = await import('./services/produto-gravity-catalogo-service.js')
       await produtoGravityCatalogoServico.ensureMissingProducts()
@@ -606,7 +830,7 @@ if (process.env.NODE_ENV !== 'test') {
   })
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
-      console.error(`[configurador] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+      console.error(`[configurador] Porta ${listenPort} já em uso. Execute: npm run dev:reset`)
       process.exit(1)
     }
     throw err

@@ -23,39 +23,30 @@ rascunho → aberto → consolidado/transferido → cancelado.
 ## Localização na Arquitetura
 
 ```text
-servicos-global/pedido/
-├── prisma/
-│   ├── fragment.prisma           ← fonte da verdade (Mand. 02)
-│   └── schema.prisma             ← gerado por compose-pedido-schema.ts
+servicos-global/produto/pedido/
+├── shared/
+│   └── visaoGeralResumoAggregate.ts   ← agregação Insights (server + unit)
 ├── client/src/
-│   ├── pages/
-│   │   ├── Pedidos.tsx           ← lista hierárquica (TabelaVirtualGlobal)
-│   │   ├── PedidosKanban.tsx
-│   │   ├── PedidoFormulario.tsx
-│   │   └── Configuracoes.tsx
+│   ├── App.tsx                        ← rotas irmãs → <PedidosMultiView />
 │   ├── components/
-│   │   ├── ModalPedidoNovo.tsx
-│   │   ├── ModalPedidosEdicaoMassa.tsx     ← edição em massa
-│   │   ├── ModalPedidosConsolidar.tsx
-│   │   ├── ModalPedidoTransferir.tsx
-│   │   └── lista/                          ← ColunasPai, ColunasFilho
+│   │   ├── PedidosVisualizacaoLayout.tsx
+│   │   ├── PedidosVisualizacaoTabs.tsx
+│   │   ├── PedidosMultiView.tsx       ← keep-alive 4 visualizações
+│   │   ├── pedidos-visualizacao-context.tsx
+│   │   └── lista/ … modais …
+│   ├── pages/
+│   │   ├── PedidosVisaoGeral.tsx      ← Insights (lazy no MultiView)
+│   │   ├── Pedidos.tsx, PedidosDashboard.tsx, PedidosKanban.tsx
+│   │   └── Configuracoes.tsx
 │   └── shared/
-│       ├── types.ts              ← Pedido, PedidoItem, EdicaoMassa*
-│       └── api.ts                ← clients HTTP
-└── server/src/
-    ├── routes/
-    │   ├── edicoes-em-massa-pedido.ts
-    │   ├── consolidacoes-pedido.ts
-    │   ├── transferencias-pedido.ts
-    │   └── ...
-    ├── services/
-    │   ├── edicaoEmMassaService.ts
-    │   └── ...
-    └── shared/
-        └── bulkSchemas.ts        ← assertTiposHomogeneos, detectarTiposMistos
-
-scripts/ativamente/compose-pedido-schema.ts   ← compõe schema.prisma do fragment
+│       ├── pedidos-prefetch.ts
+│       ├── visao-geral-schemas.ts
+│       └── api.ts                     ← pedidoVisaoGeralApi.agregado
+└── server/src/routes/
+    └── visao-geral-agregado.ts        ← GET …/visao-geral/agregado
 ```
+
+**Seletor universal (pills):** [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · API agregada: [VISAO-GERAL-AGREGADO.md](../../../documentos-tecnicos/produtos-gravity/pedido/VISAO-GERAL-AGREGADO.md) · Testes: `TST-*-MBOTO-*`
 
 ---
 
@@ -157,13 +148,37 @@ Doc completo: [`EDICAO-EM-MASSA-TECNICO.md` §Auto-fill](../../../documentos-tec
 
 ## Parte 2 — Lista de Pedidos
 
-> A consolidar — atualizar quando este produto receber atenção dedicada.
+> Regras de negócio: [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md) (§0 tooltips + colunas especiais)  
+> Técnico: [`LISTA-EDITAR-SALVAR-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-TECNICO.md) (§6 tooltips — arquitetura)  
+> Checkbox genérico: [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/REPLICAR-PAI-EM-ITENS-TECNICO.md)
 
-Pontos-chave conhecidos:
-- `Pedidos.tsx` usa `TabelaVirtualGlobal` com 99 colunas pai (Pedido) e 165 colunas filho (PedidoItem)
-- `ColunasPai.tsx`/`ColunasFilho.tsx` definem o catálogo de colunas
-- `renderAgregado()` em `ColunasPai.tsx` é o padrão para valor + alerta de divergência (mostra valor do pedido + ícone laranja quando itens divergem — Issue resolvida 2026-05-12)
-- Coluna NCM usa `renderAgregado` para padronizar (era bug de ícone duplicado, corrigido 2026-05-12)
+### Infraestrutura
+
+- `Pedidos.tsx` + `TabelaVirtualGlobal` — 99 colunas pai, 165 colunas filho
+- `ColunasPai.tsx` / `ColunasFilho.tsx` — catálogo; `renderAgregado()` = valor + `⚠` divergência
+- SSOT comportamento: `columnBehaviorConfig.ts`, `columnAlertConfig.ts`, `pedidoDivergencias.ts`
+- **Tooltips de coluna:** `TooltipRegrasColuna.tsx`, `buildTooltipRegraLista.tsx` (`isLinhaItemLista`, `tooltipNivelCelula`), `pillsTooltipColunaLista.ts`, núcleo `tooltipCelulaResolver.ts` — SSOT único pedido/item para título e pills; ver doc §6 e `/tooltip-pedido`
+
+### Colunas com regra especial (editar-salvar inline)
+
+| Coluna | Pedido | Item | Checkbox replicar | Alerta divergência |
+|--------|--------|------|-------------------|-------------------|
+| **TIPO DE OPERAÇÃO** | Editável | Travado | ❌ (replica sempre) | ❌ |
+| **STATUS** | Editável | Editável (UI) | ✅ | ✅ (`status_divergente`) |
+| **Nº pedido / Part Number** | `numero_pedido` | `part_number` | N/A | PN duplicado no pedido |
+
+**TIPO DE OPERAÇÃO:** `replicar_em_itens` forçado `true` em `handleEditar`; item sem popover (`ITEM_EDITAVEL_OVERRIDE.tipo_operacao = false`).
+
+**STATUS:** regras 00–04 do dono; ghost `status_itens_snapshot` para alerta sem expandir; edição no item só em `_p.status` (persistência API = dívida P0).
+
+**Hooks:** `statusOpts` e `pedidos` declarados **antes** de `mapaColunasFilho` / `colunasComUsuario` (TDZ).
+
+### Busca da Lista (2026-06-10)
+
+- Fonte única do WHERE: `processos-core/src/services/filtro-busca-pedido.ts` (`montarCondicoesBuscaPedido`) — consumida por `GET /pedidos`, `GET /pedidos/lista/kpis` e `GET /pedidos/inicializacao`. **Nunca** reimplemente a condição de busca em uma rota.
+- Cobre campos fixos + `PedidoSnapshotEmpresa.nome_empresa` + **colunas do usuário por nome e conteúdo** (respeitando visibilidade `todos`/`roles`/`privado`).
+- O filtro client-side de `Pedidos.tsx` espelha as mesmas condições sobre `_colunas_usuario` (Mand. 07 — alterar um lado exige alterar o outro).
+- Detalhes: [`COLUNAS-USUARIO-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/COLUNAS-USUARIO-TECNICO.md) §Busca da Lista.
 
 ---
 
@@ -173,6 +188,7 @@ Pontos-chave conhecidos:
 
 - **Consolidar:** BLOQUEIA mistura importação+exportação (regra de negócio)
 - **Transferir:** AVISA mistura mas permite (cross-tenant possível)
+- **Lista — Qtd. Transferida:** coluna somente leitura; `reducao_simples` incrementa `quantidade_cancelada_item` (não transferida) — ver `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md` §8C e `TRANSFERIR-REGRAS-NEGOCIO.md`
 - Ambos usam `bulkSchemas.ts` — `detectarTiposMistos()` síncrono e `assertTiposHomogeneos()` (refinement Zod)
 
 ---
@@ -341,6 +357,7 @@ FORNECEDOR pode ser cross-organização (não exige org match). Mand. 04 NÃO se
 - **AP2**: fazer fetch quando `workspacesSelecionados.length === 0` — backend cairia no header e mostraria pedidos do ativo. Curto-circuito local força lista vazia.
 - **AP3**: repopular filtro automaticamente após "× Limpar" — quebra o modelo mental (usuário desmarcou de propósito). Init é UMA vez no mount.
 - **AP4**: hardcoded "consolidar quando há N+" no chip — usar `rotulofiltro` único (`<=2 nomes / 3+ contagem`). Vale para todos os filtros enum.
+- **AP5**: usar `localStorage` (`gravity:idOrganizacao`) como fonte do `x-id-organizacao` em request. A **fonte única do tenant é o store** (`getDynamicTenantId` / `getApiContext` lendo `currentUser.idOrganizacao`). `lsGet()` só hidrata o `injectTenantGetter` (validado contra o store live), NUNCA alimenta request direto. Motivo: o localStorage sobrevive a logout/troca de org/sessão e, na janela sem-JWT (Clerk hidratando), resolve a **org errada** → 404 "Organização não encontrada" intermitente. O logout limpa `gravity:idOrganizacao` + `gravity_id_organizacao` + `gravity_company_id` em `shell/hooks/useMeSync.ts`. Correção 2026-06-11.
 
 ### Documentos relacionados
 
@@ -438,7 +455,8 @@ Hardcoded strings que ficaram fora do escopo i18n porque a função/módulo onde
 | Parte | Status |
 |-------|--------|
 | 1 — Edição em Massa | ✅ Consolidada |
-| 2 — Lista de Pedidos | 🟡 Placeholder — a desenvolver |
+| 2 — Lista de Pedidos | 🟡 Em evolução — editar-salvar STATUS/TOP documentado 2026-06-03 |
+| 2.2 — Painéis da Lista | ✅ `ListaPainelUsuarioGlobal`, `/lista/paineis`, `PedidosListaPainelBar` — ver `documentos-tecnicos/produtos-gravity/pedido/PAINEL-LISTA-GLOSSARIO.md` |
 | 2.1 — Filtro Multi-Workspace | ✅ Consolidada (2026-05-13) |
 | 3 — Consolidar / Transferir | 🟡 Placeholder — regras de negócio em docs; transferir implementado |
 | 4 — Duplicar | ✅ Consolidada |
@@ -452,6 +470,7 @@ Hardcoded strings que ficaram fora do escopo i18n porque a função/módulo onde
 
 | Para | Consultar |
 |------|-----------|
+| Lista editar-salvar (STATUS, TOP, Nº) | [LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md](../../../documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md) |
 | Schema composition | [arquitetura/schema-composition](../../arquitetura/schema-composition/SKILL.md) |
 | Isolamento de org | [governanca/lei/isolamento-organizacao](../../governanca/lei/isolamento-organizacao/SKILL.md) |
 | DDD nomenclatura | [governanca/lei/ddd-nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md) |

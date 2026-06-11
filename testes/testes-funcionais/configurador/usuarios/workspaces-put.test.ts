@@ -1,5 +1,5 @@
 // @vitest-environment node
-// TST-FUN-CONFIG-WSUP-001 — PUT /api/v1/usuarios/:id_usuario/workspaces
+// TST-FUN-CONFIG-000006 — PUT /api/v1/usuarios/:id_usuario/workspaces
 // Plano: testes/testes-funcionais/configurador/_planos/users-workspaces-put.plan.json
 // Valida: substituição atômica, IDOR bloqueado, MASTER bloqueado,
 //         id_organizacao em toda query, audit trail, rollback em falha de transação,
@@ -112,8 +112,8 @@ function setupTransaction() {
   )
 }
 
-// ─── TST-FUN-CONFIG-WSUP-001..006 — Happy Path ───────────────────────────────
-describe('TST-FUN-CONFIG-WSUP-001..006 — PUT /api/v1/usuarios/:id_usuario/workspaces — Caminho Feliz', () => {
+// ─── TST-FUN-CONFIG-000006..006 — Happy Path ───────────────────────────────
+describe('TST-FUN-CONFIG-000006..006 — PUT /api/v1/usuarios/:id_usuario/workspaces — Caminho Feliz', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()

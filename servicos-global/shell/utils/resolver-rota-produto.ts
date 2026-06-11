@@ -7,7 +7,7 @@ const ROTA_CANONICA_POR_SLUG: Record<string, string> = {
   'bid-frete-internacional': '/bid-frete',
   'bid-frete': '/bid-frete',
   'pedidos-de-compra': '/pedido',
-  'smart-read': '/produto/smart-read',
+  'smart-read': '/smart-read',
 }
 
 /** Slug usado em getProdutoMeta (@nucleo/logo-produtos). */

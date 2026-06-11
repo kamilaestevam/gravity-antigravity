@@ -1,0 +1,10 @@
+{
+  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-plataforma.json"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "include": ["client/src/**/*", "server/src/**/*", "shared/**/*", "__tests__/**/*"],
+  "exclude": ["node_modules", "dist", "generated"]
+}

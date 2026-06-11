@@ -165,7 +165,7 @@ const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
   'simula-custo': { nome: 'SimulaCusto', rota: '/simula-custo' },
   'bid-frete': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
   'bid-cambio': { nome: 'BID Câmbio', rota: '/bid-cambio' },
-  'smart-read': { nome: 'Smart Read', rota: '/produto/smart-read' },
+  'smart-read': { nome: 'Smart Read', rota: '/smart-read' },
   'processo': { nome: 'Processo', rota: '/processo' },
 }
 

@@ -23,7 +23,6 @@ export interface ProductMenuItem {
 
 // Produtos mockados na Gravity Store (ainda não existem no catálogo real)
 const MOCKED_SLUGS = new Map<string, string>([
-  ['smart-read', 'Smart Read'],
   ['bid-frete-internacional', 'BID Frete Internacional'],
   ['bid-cambio', 'BID Câmbio'],
 ])
@@ -79,7 +78,9 @@ export function useProductMenu(): { products: ProductMenuItem[]; loading: boolea
             const raw = await catRes.json()
             const parsed = catalogoResponseSchema.parse(raw)
             for (const p of parsed.products) {
-              if (p.status === 'Ativo') {
+              // O catálogo serve o enum cru do Prisma ('ATIVO'); versões antigas
+              // serviam 'Ativo' — aceitar ambos (mesmo tratamento da Store).
+              if (p.status === 'Ativo' || p.status === 'ATIVO') {
                 catalogProducts.push({ slug: p.slug, name: p.name })
               }
             }

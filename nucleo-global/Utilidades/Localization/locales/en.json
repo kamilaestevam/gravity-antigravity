@@ -7889,6 +7889,37 @@
       }
     }
   },
+  "smart_read": {
+    "titulo": "Smart Read",
+    "subtitulo": "Intelligent reading of import and export documents",
+    "upload": {
+      "titulo": "Upload document",
+      "descricao": "Drag a document here or click to select",
+      "formatos": "PDF, JPG, PNG, XML, CSV or XLSX — up to 50MB",
+      "botao": "Select file"
+    },
+    "processando": {
+      "titulo": "Reading the document",
+      "descricao": "The AI is classifying and extracting the data — on average 15 to 40 seconds per document, depending on connection and file type."
+    },
+    "resultado": {
+      "titulo": "Reading result",
+      "arquivo": "File",
+      "campos_extraidos": "Extracted fields",
+      "sem_campos": "No fields were extracted from this document.",
+      "nova_leitura": "New reading"
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "erro": {
+      "upload": "Failed to upload the document",
+      "timeout": "Processing took longer than expected. Please try again shortly."
+    }
+  },
   "lpco": {
     "titulo": "LPCOs",
     "subtitulo": "Licenses, Permits, Certificates and Other Documents",

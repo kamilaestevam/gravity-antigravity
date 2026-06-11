@@ -89,6 +89,7 @@ module.exports = {
     svc('nf-importacao', 'servicos-global/produto/nf-importacao', 8028, ENV_PLATAFORMA, 'server/src/index.ts'),
     svc('fin-comex', 'servicos-global/produto/financeiro-comex', 8029, ENV_PLATAFORMA, 'server/src/index.ts'),
     svc('pedido', 'servicos-global/produto/pedido', 8030, ENV_PLATAFORMA, 'server/src/index.ts'),
+    svc('smart-read', 'servicos-global/produto/smart-read', 8033, ENV_PLATAFORMA, 'server/src/index.ts'),
 
     // ── Cadastros ─────────────────────────────────────────────────────────────
     svc('cadastros', 'servicos-global/cadastros', 8031, ENV_SERVICO, 'server/src/index.ts'),

@@ -7,7 +7,8 @@
     "nf-importacao",
     "financeiro-comex",
     "processo",
-    "lpco"
+    "lpco",
+    "smart-read"
   ],
   "services": {
     "_nota": "Todos os serviços de plataforma rodam em processo único na porta 3001 (super-servidor).",
@@ -257,6 +258,11 @@
     "processo": {
       "baseUrl": "http://localhost:8026",
       "pathPrefix": "/api/v1/processos"
+    },
+    "smart-read": {
+      "baseUrl": "http://localhost:8033",
+      "pathPrefix": "/api/v1/smart-read",
+      "note": "BFF/adapter para o Smart Read legado (dati/microservices, external-readings). Sem banco proprio. Upload: POST /leituras (multipart 'arquivo', 202). Polling: GET /leituras/:id_leitura. S2S: x-internal-key + x-id-organizacao."
     },
     "taxas-moeda": {
       "baseUrl": "http://localhost:8005",

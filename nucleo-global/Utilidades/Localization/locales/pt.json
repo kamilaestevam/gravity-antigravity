@@ -8179,6 +8179,37 @@
       }
     }
   },
+  "smart_read": {
+    "titulo": "Smart Read",
+    "subtitulo": "Leitura inteligente de documentos de importação e exportação",
+    "upload": {
+      "titulo": "Enviar documento",
+      "descricao": "Arraste um documento ou clique para selecionar",
+      "formatos": "PDF, JPG, PNG, XML, CSV ou XLSX — até 50MB",
+      "botao": "Selecionar arquivo"
+    },
+    "processando": {
+      "titulo": "Lendo o documento",
+      "descricao": "A IA está classificando e extraindo os dados — em média 15 a 40 segundos por documento, conforme a conexão e o tipo de arquivo."
+    },
+    "resultado": {
+      "titulo": "Resultado da leitura",
+      "arquivo": "Arquivo",
+      "campos_extraidos": "Campos extraídos",
+      "sem_campos": "Nenhum campo extraído deste documento.",
+      "nova_leitura": "Nova leitura"
+    },
+    "status": {
+      "pending": "Pendente",
+      "processing": "Processando",
+      "completed": "Concluído",
+      "failed": "Falhou"
+    },
+    "erro": {
+      "upload": "Falha ao enviar o documento",
+      "timeout": "O processamento demorou mais que o esperado. Tente novamente em instantes."
+    }
+  },
   "lpco": {
     "titulo": "LPCOs",
     "subtitulo": "Licenças, Permissões, Certificados e Outros Documentos",

@@ -28,8 +28,9 @@ import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 
-import { criarCotacao, getFornecedores } from '../shared/api'
+import { criarCotacaoComDisparo, getFornecedores } from '../shared/api'
 import { idBidDoQueryParam } from '../shared/novo-bid-frete-internacional-utils'
 import { formatarRotuloLocalLogistico } from '../shared/formatacao-local-logistico-bid-frete-internacional'
 import { rotuloContainerCadastro } from '../shared/cadastrosApi'
@@ -520,6 +521,20 @@ const NC_ESTILOS_CONTEUDO = `
 
         .nc-step-content {
           width: 100%;
+        }
+
+        /* Prazo para respostas — calendário global + hora lado a lado.
+           Campo de data com 18.75rem (300px) = largura padrão do painel do calendário (modoUnico) */
+        .nc-prazo-data-hora {
+          display: grid;
+          grid-template-columns: 18.75rem 9rem;
+          gap: 1rem;
+          align-items: end;
+        }
+        @media (max-width: 560px) {
+          .nc-prazo-data-hora {
+            grid-template-columns: 1fr;
+          }
         }
 
         .nc-section-title {
@@ -1681,7 +1696,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const proximoIdLinhaContainerRef = useRef(2)
 
   useEffect(() => {
-    if (step !== 4 || form.visibilidade_cotacao_bid_frete_internacional !== 'DIRECIONADA') return
+    // ABERTA também carrega: alimenta o preview de fornecedores elegíveis
+    if (step !== 4) return
     let cancelado = false
     setCarregandoFornecedores(true)
     getFornecedores({ limit: 200, status: 'ATIVO' })
@@ -1997,7 +2013,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             quantidade_volume_cotacao_bid_frete_internacional: form.quantidade_volume_cotacao_bid_frete_internacional,
           }
 
-      const cotacao = await criarCotacao({
+      const pretendiaDisparar = canaisDisparo.length > 0
+        && (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
+          || fornecedorIdsSelecionados.length > 0)
+
+      const { cotacao, disparo, disparo_erro } = await criarCotacaoComDisparo({
         tipo_operacao_cotacao_bid_frete_internacional: form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
         modal_cotacao_bid_frete_internacional: form.modal_cotacao_bid_frete_internacional as ModalFrete,
         modalidade_cotacao_bid_frete_internacional: form.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga,
@@ -2031,7 +2051,10 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           ? parseFloat(form.valor_meta_cotacao_bid_frete_internacional)
           : undefined,
         moeda_meta_cotacao_bid_frete_internacional: form.moeda_meta_cotacao_bid_frete_internacional,
-        data_limite_resposta_cotacao_bid_frete_internacional: form.data_limite_resposta_cotacao_bid_frete_internacional || undefined,
+        // Form guarda "YYYY-MM-DDTHH:mm" (sem timezone) — converter para ISO completo exigido pelo z.string().datetime() do backend
+        data_limite_resposta_cotacao_bid_frete_internacional: form.data_limite_resposta_cotacao_bid_frete_internacional
+          ? new Date(form.data_limite_resposta_cotacao_bid_frete_internacional).toISOString()
+          : undefined,
         id_bid_bid_frete_internacional: idBid ?? undefined,
         fornecedor_ids: form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA' ? fornecedorIdsSelecionados : undefined,
         disparar_ao_criar: canaisDisparo.length > 0
@@ -2039,6 +2062,14 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             || fornecedorIdsSelecionados.length > 0),
         canais_disparo: canaisDisparo,
       })
+      // REGRA 08 — disparo automático não pode falhar em silêncio
+      if (pretendiaDisparar) {
+        if (disparo_erro) {
+          alert(`Cotação criada, mas o disparo automático falhou: ${disparo_erro}`)
+        } else if (!disparo || disparo.disparos === 0) {
+          alert(`Cotação criada, mas nenhum disparo foi gerado${disparo?.message ? `: ${disparo.message}` : '. Verifique os fornecedores selecionados.'}`)
+        }
+      }
       setCotacaoId(cotacao.id_cotacao_bid_frete_internacional)
       setSucesso(true)
     } catch (err) {
@@ -2585,20 +2616,54 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       }
 
       // STEP 4 — Fornecedores
-      case 4:
+      case 4: {
+        // Valor no form: "YYYY-MM-DDTHH:mm" — separar data e hora para calendário global + campo de hora
+        const [prazoDataParte, prazoHoraParte = ''] =
+          form.data_limite_resposta_cotacao_bid_frete_internacional.split('T')
+        const prazoDataSelecionada = prazoDataParte ? new Date(`${prazoDataParte}T00:00:00`) : null
+
         return (
           <div className="nc-step-content">
             <section className="nc-cargo-subsecao" style={{ marginBottom: '1.5rem' }} aria-labelledby="nc-prazo-respostas">
               <h4 id="nc-prazo-respostas" className="nc-cargo-subsecao-title">{t('bidfrete.nova_cotacao.prazo_respostas')}</h4>
               <p className="nc-cargo-subsecao-hint">Opcional — define até quando os fornecedores podem enviar propostas.</p>
-              <Field label={t('bidfrete.nova_cotacao.prazo_respostas')}>
-                <input
-                  className="nc-input nc-input--date"
-                  type="datetime-local"
-                  value={form.data_limite_resposta_cotacao_bid_frete_internacional}
-                  onChange={e => set('data_limite_resposta_cotacao_bid_frete_internacional', e.target.value)}
-                />
-              </Field>
+              <div className="nc-prazo-data-hora">
+                <Field label={t('bidfrete.nova_cotacao.prazo_respostas')}>
+                  <CampoCalendarioGlobal
+                    modoUnico
+                    placeholder="DD/MM/AAAA"
+                    valor={{ inicio: prazoDataSelecionada, fim: prazoDataSelecionada }}
+                    aoMudarValor={({ inicio }) => {
+                      if (!inicio) {
+                        set('data_limite_resposta_cotacao_bid_frete_internacional', '')
+                        return
+                      }
+                      const yyyy = inicio.getFullYear()
+                      const mm = String(inicio.getMonth() + 1).padStart(2, '0')
+                      const dd = String(inicio.getDate()).padStart(2, '0')
+                      set(
+                        'data_limite_resposta_cotacao_bid_frete_internacional',
+                        `${yyyy}-${mm}-${dd}T${prazoHoraParte || '23:59'}`,
+                      )
+                    }}
+                  />
+                </Field>
+                <Field label="Hora">
+                  <input
+                    className="nc-input"
+                    type="time"
+                    value={prazoHoraParte}
+                    disabled={!prazoDataParte}
+                    onChange={e => {
+                      if (!prazoDataParte) return
+                      set(
+                        'data_limite_resposta_cotacao_bid_frete_internacional',
+                        `${prazoDataParte}T${e.target.value}`,
+                      )
+                    }}
+                  />
+                </Field>
+              </div>
             </section>
 
             <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.visibilidade')}</h3>
@@ -2661,6 +2726,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             </div>
           </div>
         )
+      }
 
       // STEP 5 — Resumo
       case 5: {

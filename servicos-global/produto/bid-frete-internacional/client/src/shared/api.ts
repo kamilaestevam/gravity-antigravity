@@ -714,7 +714,23 @@ export interface CriarCotacaoPayload extends Partial<Cotacao> {
   canais_disparo?: CanalDisparo[]
 }
 
+export interface ResultadoDisparoCriacaoCotacao {
+  disparos: number
+  enviados?: boolean
+  message?: string
+}
+
 export async function criarCotacao(input: CriarCotacaoPayload): Promise<Cotacao> {
+  const { cotacao } = await criarCotacaoComDisparo(input)
+  return cotacao
+}
+
+/** Variante que expõe o resultado do disparo automático (REGRA 08 — falha de disparo não pode ser silenciosa). */
+export async function criarCotacaoComDisparo(input: CriarCotacaoPayload): Promise<{
+  cotacao: Cotacao
+  disparo: ResultadoDisparoCriacaoCotacao | null
+  disparo_erro: string | null
+}> {
   const serverInput = mapCotacaoToServer(input)
   if (input.fornecedor_ids) serverInput.fornecedor_ids = input.fornecedor_ids
   if (input.disparar_ao_criar !== undefined) serverInput.disparar_ao_criar = input.disparar_ao_criar
@@ -724,8 +740,16 @@ export async function criarCotacao(input: CriarCotacaoPayload): Promise<Cotacao>
     headers: headers(),
     body: JSON.stringify(serverInput),
   })
-  const data = await handleResponse<{ cotacao: unknown }>(res)
-  return mapCotacaoFromServer(data.cotacao)
+  const data = await handleResponse<{
+    cotacao: unknown
+    disparo?: ResultadoDisparoCriacaoCotacao | null
+    disparo_erro?: string
+  }>(res)
+  return {
+    cotacao: mapCotacaoFromServer(data.cotacao),
+    disparo: data.disparo ?? null,
+    disparo_erro: data.disparo_erro ?? null,
+  }
 }
 
 export async function atualizarCotacao(id: string, input: Partial<Cotacao>): Promise<Cotacao> {

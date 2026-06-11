@@ -97,6 +97,37 @@ Workspaces com `status_workspace != 'ATIVO'` **não aparecem** no menu lateral (
 
 ---
 
+## "Minhas cotações sumiram / não carregam" — dúvida frequente de usuários
+
+> **Regra de ouro (para Gabi e suporte):** a Lista **nunca** busca "todas as cotações" — toda busca envia o filtro `ids_workspaces` resolvido a partir do escopo da sessão. Lista vazia quase sempre significa **escopo/contexto diferente**, não perda de dados. Cotações não são apagadas automaticamente em nenhum fluxo.
+
+### Por que a mesma conta pode ver resultados diferentes em duas janelas
+
+O escopo de workspaces é cacheado em `sessionStorage` **por janela do navegador**. Uma janela anônima (ou um navegador novo) começa com cache vazio e re-hidrata o escopo do zero — podendo resolver para um workspace diferente do da outra janela. Os KPIs do topo (Total de Cotações, Valor Total, Propostas) são calculados sobre **a mesma lista filtrada**, por isso zeram juntos de forma consistente — o que reforça a percepção (errada) de "perdi tudo".
+
+### Tabela de diagnóstico
+
+| Situação percebida | Causa provável | Verificação |
+|---|---|---|
+| "Minhas cotações não carregam" / lista vazia + KPIs zerados | Escopo de workspaces não inclui o workspace dono das cotações | Abrir o seletor de workspaces no menu lateral e marcar a filial correta (ou **Selecionar tudo**) |
+| "Em uma janela aparece, na outra não" (mesmo usuário) | Sessões com escopo diferente (cache por sessão) ou **ambientes diferentes** (produção vs QA = bancos distintos) | Conferir a URL das duas janelas; depois conferir o seletor de workspaces em cada uma |
+| "Sistema perdeu minhas cotações depois que troquei de workspace no Hub" | Workspace ativo mudou → escopo default re-hidratou para o novo workspace | Marcar o workspace anterior no seletor de escopo |
+| "Sumiu a empresa X" | Workspace desabilitado no Configurador (ver seção anterior) | Configurador → Workspaces → status ATIVO |
+| Lista vazia logo após criar cotação | Cotação criada no workspace ativo, que não está no escopo selecionado | Incluir o workspace ativo no escopo |
+
+### Roteiro de resposta da Gabi (ordem de verificação)
+
+1. **Tranquilizar:** "Suas cotações não foram apagadas — a lista mostra apenas as filiais (workspaces) selecionadas no momento."
+2. **Escopo:** pedir para abrir o seletor de workspaces no menu lateral do BID Frete e clicar em **Selecionar tudo**. Na grande maioria dos casos, isso resolve.
+3. **Workspace ativo:** se persiste, conferir no Hub qual workspace está ativo e se é o mesmo onde as cotações foram criadas (a coluna **Workspace** da lista identifica o dono de cada cotação).
+4. **Ambiente:** se o usuário compara duas janelas/links, conferir se ambas apontam para o mesmo ambiente (`usegravity.com.br`). Ambientes diferentes usam bancos diferentes.
+5. **Workspace inativo:** verificar Configurador → Workspaces → status ATIVO (seção anterior).
+6. Se nada acima resolver → abrir chamado para o suporte (não orientar o usuário a "recriar" cotações).
+
+A mesma lógica vale para o produto **Pedido** ("sistema perdeu meus pedidos") — ver `documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-REGRAS-NEGOCIO.md`.
+
+---
+
 ## Arquivos SSOT
 
 | Arquivo | Papel |

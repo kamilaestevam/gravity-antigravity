@@ -59,6 +59,32 @@ TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045
 
 ---
 
+## Formato Descritivo — tipos legado (UNI, FUN, CRO, E2E) — **paridade EMT**
+
+Alguns domínios transversais usam IDs **descritivos legíveis** mesmo nos tipos legado (não só EMT). O escopo real fica no campo `escopo` do registry; o ID carrega o tema.
+
+```
+TST-{TIPO}-{TEMA-DESCRITIVO}-{NNNNNN}
+```
+
+**Famílias descritivas registradas** (lista fechada — adicionar um regex em `scripts/ativamente/validate-test-ids.ts` → `DESCRIPTIVE_REGEXES` antes de usar uma nova):
+
+| Família | Regex | Escopo real (campo `escopo`) |
+|---------|-------|------------------------------|
+| `MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY` | `^TST-(UNI\|FUN\|CRO\|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}$` | CONFIG |
+| `PEDIDO-USUARIO-FALTA-ORGANIZACAO` | `^TST-(UNI\|FUN\|CRO\|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}$` | PEDIDO / CONFIG |
+
+**Exemplos:**
+```
+TST-EMT-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000084   (em tela)
+TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085   (unitário — escopo real CONFIG/PEDIDO no registry)
+TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000087   (funcional)
+```
+
+> **Para adicionar uma nova família descritiva:** (1) adicionar o regex em `DESCRIPTIVE_REGEXES` no validador, (2) registrar a família nesta tabela, (3) só então criar os IDs. O CI valida via `idValido()` que delega a `matchDescriptive()`.
+
+---
+
 ## Regra 1 — Sequência global única (todo o catálogo)
 
 O sufixo `{NNNNNN}` é **único em todo o `test-plans-registry.json`** — independente de tipo ou escopo.

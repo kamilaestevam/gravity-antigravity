@@ -1,0 +1,34 @@
+{
+  "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085",
+  "versao": "1.0",
+  "geradoEm": "2026-06-11T00:00:00Z",
+  "geradoPor": "pipeline-multi-agente",
+  "escopo": "CONFIG",
+  "sublocal": "usuario/teste-organizacao",
+  "modulo": "resolverUsuarioPorClerkSub (self-heal compartilhado requireAuth + rota interna)",
+  "tipoModulo": "service",
+  "arquivoFilePath": "servicos-global/configurador/server/services/usuario-clerk-resolver.ts",
+  "ambiente": "node",
+  "criticidade": "critica",
+  "coberturaMinima": 80,
+  "exportacoes": ["resolverUsuarioPorClerkSub"],
+  "contexto": "Fase 2 (commit 1b8b1749a) — 36/67 usuarios em prod com id_clerk_usuario='pending_*' davam 404 no Pedido. Self-heal extraido para service unico.",
+  "categorias": [
+    { "nome": "happy",      "min": 3, "total": 3 },
+    { "nome": "sad",        "min": 4, "total": 4 },
+    { "nome": "regression", "min": 1, "total": 1 }
+  ],
+  "casos": [
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085-001", "categoria": "happy",      "descricao": "UNI-01 acha por id_clerk_usuario direto e NAO chama o Clerk", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085-002", "categoria": "happy",      "descricao": "UNI-02 self-heal 1 candidato pelo email vincula + chama prestador + stripClerkId", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085-003", "categoria": "happy",      "descricao": "UNI-03 >1 candidato desambigua pelo pending_<inv.id> da invitation aceita", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085-004", "categoria": "sad",        "descricao": "UNI-04 email nao verificado -> null + EMAIL_FALLBACK_BLOCKED", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085-005", "categoria": "sad",        "descricao": "UNI-05 0 candidatos -> null + NENHUM_USUARIO_PARA_EMAIL", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085-006", "categoria": "sad",        "descricao": "UNI-06 getUser lanca -> null + CLERK_GETUSER_FALHOU", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085-007", "categoria": "sad",        "descricao": "UNI-07 invitations API falha -> null + CLERK_INVITATIONS_API_FALHOU", "origem": "matriz-definitiva" },
+    { "id": "TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085-008", "categoria": "regression", "descricao": "UNI-07b nenhum pending casa -> EMAIL_FALLBACK_AMBIGUO", "origem": "matriz-definitiva" }
+  ],
+  "specFile": "testes/testes-unitarios/usuario/teste-organizacao/usuario-clerk-resolver.test.ts",
+  "status": "aprovado",
+  "ultimoResultado": "passou"
+}

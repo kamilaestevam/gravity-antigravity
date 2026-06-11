@@ -576,7 +576,14 @@
 
 .lp-tabela-wrapper .gtv-celula--right.gtv-celula--bloqueada .tg-trigger,
 .lp-tabela-wrapper .gtv-celula--right.gtv-celula--bloqueada .tg-trigger--bloqueado {
-  justify-content: flex-end;
+  justify-content: center;
+}
+
+/* Badge qtd+unidade na linha do pedido (célula bloqueada) — centralizar como os itens */
+.lp-tabela-wrapper .gtv-celula--right .gtv-celula-moeda {
+  display: flex;
+  width: 100%;
+  justify-content: center;
 }
 
 .lp-tabela-wrapper .gtv-celula--left.gtv-celula--bloqueada .tg-trigger,

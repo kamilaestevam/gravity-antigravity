@@ -343,8 +343,8 @@ export const PRODUCT_CONFIG = {
 | PATCH | `/api/v1/pedidos/:id/status` | Transicao de status (Draft->Aberto, etc.) |
 | POST | `/api/v1/pedidos/:id/duplicar` | Duplicar pedido completo (single, usado por outros fluxos) |
 | POST | `/api/v1/pedidos/duplicacoes/preview` | Preview do modal de duplicar em massa |
-| POST | `/api/v1/pedidos/duplicacoes/confirmar` | Duplicar N pedidos (cascade dos itens) |
-| POST | `/api/v1/pedidos/duplicacoes/itens` | Duplicar M itens dentro de 1 pedido pai (sequência abaixo do original) |
+| POST | `/api/v1/pedidos/duplicacoes/confirmar` | Duplicar N pedidos (cascade dos itens). Pedido novo herda `id_workspace` do pedido pai — não usa header da sessão. |
+| POST | `/api/v1/pedidos/duplicacoes/itens` | Duplicar M itens dentro de 1 pedido pai (sequência abaixo do original). `id_workspace` = do pedido pai (fix 2026-06-11). |
 | POST | `/api/v1/pedidos/exclusoes/preview` | Preview de exclusão (permitidos/bloqueados por status) |
 | POST | `/api/v1/pedidos/exclusoes/confirmar` | Hard delete + audit trail |
 | POST | `/api/v1/pedidos/exclusoes/itens` | Remove itens; aplica `excluir_pedido_sem_item_permitido` |

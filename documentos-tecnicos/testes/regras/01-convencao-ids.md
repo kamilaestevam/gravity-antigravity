@@ -45,6 +45,12 @@ TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNNNNN}
 TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045
 ```
 
+**Variante feature-first** (quando `{RESUMO}` identifica a operação transversal antes do local):
+```
+TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081
+```
+Pasta e `sublocal` no registry continuam alinhados com `{LOCAL}/{AREA}` (`pedido/lista/edicao-em-massa`, `lista/edicao-em-massa`) — só a ordem dos segmentos no ID muda.
+
 **Onde cada parte também aparece:**
 - `{LOCAL}` + `{AREA}` → pasta `testes/testes-em-tela/<local>/<area>/` e campo `sublocal` no registry (`lista/editar-salvar`)
 - `{RESUMO}` → título humano no campo `modulo` do registry (ex.: "Edição e Salvar pedidos e itens")
@@ -73,12 +79,17 @@ TST-{TIPO}-{TEMA-DESCRITIVO}-{NNNNNN}
 |---------|-------|------------------------------|
 | `MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY` | `^TST-(UNI\|FUN\|CRO\|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}$` | CONFIG |
 | `PEDIDO-USUARIO-FALTA-ORGANIZACAO` | `^TST-(UNI\|FUN\|CRO\|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}$` | PEDIDO / CONFIG |
+| `DUPLICAR-LISTA-PEDIDO` | `^TST-(UNI\|FUN\|CRO\|E2E\|EMT)-DUPLICAR-LISTA-PEDIDO-\d{6}$` | PEDIDO |
+
+> **`DUPLICAR-LISTA-PEDIDO`:** regex em `DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX` (não em `DESCRIPTIVE_REGEXES`) porque inclui tipo `EMT`. Mesma regra de registro: validador → esta tabela → criar IDs.
 
 **Exemplos:**
 ```
 TST-EMT-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000084   (em tela)
 TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085   (unitário — escopo real CONFIG/PEDIDO no registry)
 TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000087   (funcional)
+TST-UNI-DUPLICAR-LISTA-PEDIDO-000026              (unitário duplicar lista)
+TST-EMT-DUPLICAR-LISTA-PEDIDO-000083              (em tela duplicar lista)
 ```
 
 > **Para adicionar uma nova família descritiva:** (1) adicionar o regex em `DESCRIPTIVE_REGEXES` no validador, (2) registrar a família nesta tabela, (3) só então criar os IDs. O CI valida via `idValido()` que delega a `matchDescriptive()`.
@@ -141,7 +152,7 @@ TST-E2E-CONFIG-00001     ❌ (5 dígitos)
 
 ## Regra 4 — Sublocal no ID
 
-**EMT (2026-06-06+):** `{LOCAL}` e `{AREA}` **fazem parte do ID** (`TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`). O caminho de pasta e `sublocal` no registry devem **alinhar** com esses segmentos.
+**EMT (2026-06-06+):** `{LOCAL}` e `{AREA}` **fazem parte do ID** (`TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`). O caminho de pasta e `sublocal` no registry devem **alinhar** com esses segmentos. Exceção documentada: variantes feature-first (`TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`) — pasta segue `pedido/lista/edicao-em-massa`.
 
 **Demais tipos (UNI, FUN, E2E, …):** sublocal continua **só no metadata** do registry, não no ID.
 

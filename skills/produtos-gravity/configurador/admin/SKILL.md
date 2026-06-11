@@ -210,6 +210,22 @@ Painel de controle de deploys de todos os serviços no Railway.
 
 ---
 
+## Tela 8 — Testes (execução manual)
+
+Painel interno para disparar planos do catálogo (`test-plans-registry.json`) em staging/produção.
+
+| Recurso | Detalhe |
+|:---|:---|
+| **Página** | `servicos-global/configurador/src/pages/admin/LogTestes.tsx` + `ModalTestesExecutar.tsx` |
+| **Aba Plano de Teste** | Markdown/JSON do plano no modal (parser ETAPAs) |
+| **Favoritos** | Model `TesteFavoritoUsuario` — persistência por `id_usuario` (máx. 20), substituiu `localStorage` em 2026-06-11 |
+| **API** | `GET/POST/DELETE /admin/testes-favoritos` — contrato Zod `testeFavoritoUsuarioSchema` |
+| **SSOT favoritos** | `testes/infra/admin/testes-favoritos-admin.ts` |
+
+> Doc: [`01-arquitetura-sistema-testes.md`](../../../documentos-tecnicos/testes/tecnico/01-arquitetura-sistema-testes.md) · [`testes/infra/admin/README.md`](../../../testes/infra/admin/README.md)
+
+---
+
 ## Tela 9 — Monitor de APIs (Tempo Real)
 
 Monitora dois tipos:

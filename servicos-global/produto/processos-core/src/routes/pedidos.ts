@@ -3330,13 +3330,12 @@ pedidosRouter.patch('/:id_pedido/itens/:id_item/pronta', async (req: Request, re
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const idOrganizacao = ctx.idOrganizacao
-      const idWorkspace   = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
       const saldo = await saldoPedido.atualizarPronta(db, {
         pedido_item_id: req.params.id_item,
+        id_pedido: req.params.id_pedido,
         quantidade_pronta: result.data.quantidade_pronta_item,
         id_organizacao: idOrganizacao,
-        id_workspace: idWorkspace,
       })
 
       res.json(mapItem(saldo as unknown as PedidoItemRaw))

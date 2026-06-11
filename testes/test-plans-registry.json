@@ -68,7 +68,19 @@
     "TST-UNI-PEDIDO-000026",
     "TST-FUN-PEDIDO-000027",
     "TST-E2E-PEDIDO-000028",
-    "TST-EMB-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY"
+    "TST-EMB-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY",
+    {
+      "arquivo": "testes/testes-unitarios/configurador/testes-favoritos-admin.test.ts",
+      "substituidoPor": "testes/testes-unitarios/admin/testes/aba-plano-de-teste/plano-de-teste/TST-UNI-PREFERENCIA-TESTE-USUARIO-ADMIN-000091.test.ts",
+      "data": "2026-06-11",
+      "motivo": "FONTE PRIMARIA escopo ADMIN/aba-plano-de-teste — pipeline /testes-criar (Preferencia de Teste do Usuario)"
+    },
+    {
+      "arquivo": "testes/testes-funcionais/configurador/admin/admin-testes-favoritos.test.ts",
+      "substituidoPor": "testes/testes-funcionais/admin/testes/aba-plano-de-teste/plano-de-teste/TST-FUN-PREFERENCIA-TESTE-USUARIO-ADMIN-000092.test.ts",
+      "data": "2026-06-11",
+      "motivo": "FONTE PRIMARIA escopo ADMIN/aba-plano-de-teste — pipeline /testes-criar (Preferencia de Teste do Usuario)"
+    }
   ],
   "planos": [
     {
@@ -1815,6 +1827,95 @@
       "criadoEm": "2026-06-11T00:00:00Z",
       "ultimaExecucao": "2026-06-11T00:00:00Z",
       "ultimoResultado": "passou"
+    },
+    {
+      "id": "TST-UNI-PREFERENCIA-TESTE-USUARIO-ADMIN-000091",
+      "tipo": "UNI",
+      "escopo": "ADMIN",
+      "sublocal": "admin/testes/aba-plano-de-teste",
+      "modulo": "Preferencia de Teste do Usuario (favoritos) — Zod, rotulos, snapshot, deduplicacao",
+      "criticidade": "media",
+      "planoFile": "testes-unitarios/admin/testes/aba-plano-de-teste/plano-de-teste/preferencia-teste-usuario-admin-unitario.md",
+      "specFile": "testes-unitarios/admin/testes/aba-plano-de-teste/plano-de-teste/TST-UNI-PREFERENCIA-TESTE-USUARIO-ADMIN-000091.test.ts",
+      "componenteFile": "testes/infra/admin/testes-favoritos-admin.ts",
+      "casosTotal": 11,
+      "coberturaPercentual": 80,
+      "status": "aprovado",
+      "criadoEm": "2026-06-11T17:30:00Z",
+      "ultimaExecucao": "2026-06-11T17:30:00Z",
+      "ultimoResultado": "passou"
+    },
+    {
+      "id": "TST-FUN-PREFERENCIA-TESTE-USUARIO-ADMIN-000092",
+      "tipo": "FUN",
+      "escopo": "ADMIN",
+      "sublocal": "admin/testes/aba-plano-de-teste",
+      "modulo": "Rotas GET/POST/DELETE /api/v1/admin/testes-favoritos (escopo id_usuario, dedup, limite, ownership)",
+      "criticidade": "alta",
+      "planoFile": "testes-funcionais/admin/testes/aba-plano-de-teste/plano-de-teste/preferencia-teste-usuario-admin-funcional.md",
+      "specFile": "testes-funcionais/admin/testes/aba-plano-de-teste/plano-de-teste/TST-FUN-PREFERENCIA-TESTE-USUARIO-ADMIN-000092.test.ts",
+      "componenteFile": "servicos-global/configurador/server/routes/admin.ts",
+      "casosTotal": 10,
+      "coberturaPercentual": 70,
+      "status": "aprovado",
+      "criadoEm": "2026-06-11T17:30:00Z",
+      "ultimaExecucao": "2026-06-11T17:30:00Z",
+      "ultimoResultado": "passou"
+    },
+    {
+      "id": "TST-E2E-PREFERENCIA-TESTE-USUARIO-ADMIN-000093",
+      "tipo": "E2E",
+      "escopo": "ADMIN",
+      "sublocal": "admin/testes/aba-plano-de-teste",
+      "modulo": "Fluxo favoritos no modal Rodar Testes — salvar, aplicar, excluir, persistencia",
+      "tela": "Admin > Testes > modal Rodar Testes > Testes Favoritos",
+      "rota": "/admin/testes",
+      "criticidade": "media",
+      "planoFile": "testes-e2e/admin/testes/aba-plano-de-teste/plano-de-teste/preferencia-teste-usuario-admin-e2e.md",
+      "specFile": "testes-e2e/admin/testes/aba-plano-de-teste/plano-de-teste/TST-E2E-PREFERENCIA-TESTE-USUARIO-ADMIN-000093.spec.ts",
+      "componenteFile": "servicos-global/configurador/src/pages/admin/ModalTestesExecutar.tsx",
+      "casosTotal": 5,
+      "coberturaPercentual": 0,
+      "status": "aguardando_aprovacao_dono",
+      "criadoEm": "2026-06-11T17:30:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": "pendente-ambiente"
+    },
+    {
+      "id": "TST-CRO-PREFERENCIA-TESTE-USUARIO-ADMIN-000094",
+      "tipo": "CRO",
+      "escopo": "ADMIN",
+      "sublocal": "admin/testes/aba-plano-de-teste",
+      "modulo": "Isolamento de favoritos por usuario/organizacao (um admin nao le/remove favorito de outro)",
+      "criticidade": "alta",
+      "planoFile": "testes-cross-organizacao/admin/testes/aba-plano-de-teste/plano-de-teste/preferencia-teste-usuario-admin-cross-org.md",
+      "specFile": "testes-cross-organizacao/admin/testes/aba-plano-de-teste/plano-de-teste/TST-CRO-PREFERENCIA-TESTE-USUARIO-ADMIN-000094.test.ts",
+      "componenteFile": "servicos-global/configurador/server/routes/admin.ts",
+      "casosTotal": 4,
+      "coberturaPercentual": 80,
+      "status": "aprovado",
+      "criadoEm": "2026-06-11T17:30:00Z",
+      "ultimaExecucao": "2026-06-11T17:30:00Z",
+      "ultimoResultado": "passou"
+    },
+    {
+      "id": "TST-EMT-PREFERENCIA-TESTE-USUARIO-ADMIN-000095",
+      "tipo": "EMT",
+      "escopo": "ADMIN",
+      "sublocal": "admin/testes/aba-plano-de-teste",
+      "modulo": "Preferencia de Teste do Usuario (favoritos) — salvar, aplicar, excluir, persistencia (prints)",
+      "tela": "Admin > Testes > modal Rodar Testes > Testes Favoritos",
+      "rota": "/admin/testes",
+      "criticidade": "media",
+      "planoFile": "testes-em-tela/admin/testes/aba-plano-de-teste/plano-de-teste/plano-teste-em-tela.md",
+      "specFile": "testes-em-tela/admin/testes/aba-plano-de-teste/plano-de-teste/run-preferencia-teste-usuario-admin.ts",
+      "componenteFile": "servicos-global/configurador/src/pages/admin/ModalTestesExecutar.tsx",
+      "casosTotal": 7,
+      "coberturaPercentual": 0,
+      "status": "aguardando_aprovacao_dono",
+      "criadoEm": "2026-06-11T17:30:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
     }
   ]
 }

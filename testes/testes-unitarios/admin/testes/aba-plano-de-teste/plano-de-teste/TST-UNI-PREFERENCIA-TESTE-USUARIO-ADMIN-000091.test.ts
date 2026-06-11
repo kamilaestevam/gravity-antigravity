@@ -1,3 +1,6 @@
+// TST-UNI-PREFERENCIA-TESTE-USUARIO-ADMIN-000091
+// Unitário do domínio puro de Preferência de Teste do Usuário (favoritos do modal "Rodar Testes").
+// Escopo: testes/infra/admin/testes-favoritos-admin.ts (contratos Zod, rótulos, snapshot, deduplicação).
 import { describe, expect, it } from 'vitest'
 import {
   chaveTesteFavoritoUsuario,
@@ -19,7 +22,7 @@ const favoritoBase: TesteFavoritoUsuario = {
   planos_ids_teste_favorito_usuario: ['TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045'],
 }
 
-describe('testes-favoritos-admin', () => {
+describe('TST-UNI-PREFERENCIA-TESTE-USUARIO-ADMIN-000091', () => {
   it('valida favorito contra o schema (paridade com a tabela)', () => {
     const parsed = testeFavoritoUsuarioSchema.safeParse({
       id_teste_favorito_usuario: 'cabc123',
@@ -37,6 +40,14 @@ describe('testes-favoritos-admin', () => {
     const parsed = testeFavoritoUsuarioSchema.safeParse({
       ...favoritoBase,
       tipos_teste_favorito_usuario: [],
+    })
+    expect(parsed.success).toBe(false)
+  })
+
+  it('rejeita produto fora do enum', () => {
+    const parsed = testeFavoritoUsuarioSchema.safeParse({
+      ...favoritoBase,
+      produto_teste_favorito_usuario: 'inexistente',
     })
     expect(parsed.success).toBe(false)
   })

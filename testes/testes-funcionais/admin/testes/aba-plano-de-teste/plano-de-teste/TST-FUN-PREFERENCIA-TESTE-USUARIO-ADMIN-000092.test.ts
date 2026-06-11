@@ -1,11 +1,13 @@
 // @vitest-environment node
-// TST-FUN-CONFIG-ATF-001..008 — /api/v1/admin/testes-favoritos
+// TST-FUN-PREFERENCIA-TESTE-USUARIO-ADMIN-000092 — /api/v1/admin/testes-favoritos
 // Persistência por usuário das combinações salvas no modal "Rodar Testes".
 // Substitui o localStorage — favoritos seguem o usuário entre dispositivos.
 //
 // Cobre:
 //   • GET → 200 + findMany escopado por id_usuario do autenticado
+//   • GET → 200 lista vazia
 //   • POST válido → 201 + create recebe id_usuario + campos DDD
+//   • POST sem planos_resumo → 201 (campo opcional)
 //   • POST duplicado (mesma combinação) → 409 FAVORITO_DUPLICADO
 //   • POST acima do limite (20) → 409 FAVORITO_LIMITE
 //   • POST sem tipos → 400 VALIDATION_ERROR
@@ -27,7 +29,7 @@ const {
   mockFavoritoDeleteMany: vi.fn(),
 }))
 
-vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   prisma: {
     testeFavoritoUsuario: {
       findMany:   mockFavoritoFindMany,
@@ -42,7 +44,7 @@ vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => (
   },
 }))
 
-vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
   requireAuth: (req: Record<string, unknown>, _res: unknown, next: () => void) => {
     req['auth'] = (globalThis as Record<string, unknown>)['__testAuth'] ?? {
       id_usuario:     'usr_default',
@@ -56,46 +58,46 @@ vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.
 }))
 
 // Mocks de dependências laterais carregadas pelo admin.ts
-vi.mock('../../../../servicos-global/configurador/server/lib/clerk.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/lib/clerk.js', () => ({
   clerkClient: { invitations: { createInvitation: vi.fn() } },
 }))
-vi.mock('../../../../servicos-global/configurador/server/lib/billing/index.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/lib/billing/index.js', () => ({
   getBillingProvider: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/configurador/server/services/organizacao-service.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/services/organizacao-service.js', () => ({
   proximoSubdominioDisponivel: vi.fn(),
   slugifySubdominio: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/configurador/server/services/deploy-log-service.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/services/deploy-log-service.js', () => ({
   deployLogService: { append: vi.fn(), list: vi.fn() },
 }))
-vi.mock('../../../../servicos-global/configurador/server/utils/playwright-parser.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/utils/playwright-parser.js', () => ({
   walkSuite: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/configurador/server/lib/gemini-test-analyzer.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/lib/gemini-test-analyzer.js', () => ({
   analyzeTestFailure: vi.fn(),
   getMetrics: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/configurador/server/lib/agente-plano-teste.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/lib/agente-plano-teste.js', () => ({
   generateTestPlan: vi.fn(),
   expandTestPlan: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/configurador/server/lib/gerador-specs.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/lib/gerador-specs.js', () => ({
   generateAndSaveSpec: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/configurador/server/lib/extrator-testids.js', () => ({
+vi.mock('../../../../../../servicos-global/configurador/server/lib/extrator-testids.js', () => ({
   generateTestidMapping: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/services/audit.service.js', () => ({
+vi.mock('../../../../../../servicos-global/servicos-plataforma/historico-global/server/services/audit.service.js', () => ({
   AuditService: { log: vi.fn().mockResolvedValue(undefined) },
 }))
-vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/middleware/audit.js', () => ({
+vi.mock('../../../../../../servicos-global/servicos-plataforma/historico-global/server/middleware/audit.js', () => ({
   auditMiddleware: () => (_req: unknown, _res: unknown, next: () => void) => next(),
 }))
-vi.mock('../../../../servicos-global/servicos-plataforma/generated/index.js', () => ({
+vi.mock('../../../../../../servicos-global/servicos-plataforma/generated/index.js', () => ({
   AcaoExecutadaPor: { USUARIO: 'USUARIO', SISTEMA: 'SISTEMA' },
 }))
-vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js', () => ({
+vi.mock('../../../../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js', () => ({
   securityAudit: {
     roleChanged:       vi.fn().mockResolvedValue(undefined),
     permissionChanged: vi.fn().mockResolvedValue(undefined),
@@ -104,8 +106,8 @@ vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server
 
 import express, { type Request, type Response, type NextFunction } from 'express'
 import request from 'supertest'
-import { adminRouter } from '../../../../servicos-global/configurador/server/routes/admin.js'
-import { AppError } from '../../../../servicos-global/configurador/server/lib/appError.js'
+import { adminRouter } from '../../../../../../servicos-global/configurador/server/routes/admin.js'
+import { AppError } from '../../../../../../servicos-global/configurador/server/lib/appError.js'
 
 const app = express()
 app.use(express.json())
@@ -161,7 +163,7 @@ beforeEach(() => {
   mockFavoritoFindMany.mockResolvedValue([])
 })
 
-describe('TST-FUN-CONFIG-ATF — /api/v1/admin/testes-favoritos', () => {
+describe('TST-FUN-PREFERENCIA-TESTE-USUARIO-ADMIN-000092 — /api/v1/admin/testes-favoritos', () => {
   it('1. GET → 200 + findMany escopado por id_usuario', async () => {
     mockFavoritoFindMany.mockResolvedValue([
       {
@@ -184,7 +186,13 @@ describe('TST-FUN-CONFIG-ATF — /api/v1/admin/testes-favoritos', () => {
     )
   })
 
-  it('2. POST válido → 201 + create recebe id_usuario + campos DDD', async () => {
+  it('2. GET → 200 lista vazia', async () => {
+    const res = await request(app).get('/api/v1/admin/testes-favoritos')
+    expect(res.status).toBe(200)
+    expect(res.body.favoritos).toEqual([])
+  })
+
+  it('3. POST válido → 201 + create recebe id_usuario + campos DDD', async () => {
     mockFavoritoCreate.mockResolvedValue({ id_teste_favorito_usuario: 'cfavNew', ...PAYLOAD_VALIDO })
 
     const res = await request(app).post('/api/v1/admin/testes-favoritos').send(PAYLOAD_VALIDO)
@@ -198,7 +206,18 @@ describe('TST-FUN-CONFIG-ATF — /api/v1/admin/testes-favoritos', () => {
     expect(createData.planos_ids_teste_favorito_usuario).toEqual(['TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045'])
   })
 
-  it('3. POST duplicado (mesma combinação) → 409 FAVORITO_DUPLICADO', async () => {
+  it('4. POST sem planos_resumo → 201 (campo opcional)', async () => {
+    mockFavoritoCreate.mockResolvedValue({ id_teste_favorito_usuario: 'cfavNew2' })
+    const { planos_resumo_teste_favorito_usuario, ...semResumo } = PAYLOAD_VALIDO
+    void planos_resumo_teste_favorito_usuario
+
+    const res = await request(app).post('/api/v1/admin/testes-favoritos').send(semResumo)
+
+    expect(res.status).toBe(201)
+    expect(mockFavoritoCreate).toHaveBeenCalledTimes(1)
+  })
+
+  it('5. POST duplicado (mesma combinação) → 409 FAVORITO_DUPLICADO', async () => {
     mockFavoritoFindMany.mockResolvedValue([
       {
         produto_teste_favorito_usuario: 'pedido',
@@ -215,7 +234,7 @@ describe('TST-FUN-CONFIG-ATF — /api/v1/admin/testes-favoritos', () => {
     expect(mockFavoritoCreate).not.toHaveBeenCalled()
   })
 
-  it('4. POST acima do limite (20) → 409 FAVORITO_LIMITE', async () => {
+  it('6. POST acima do limite (20) → 409 FAVORITO_LIMITE', async () => {
     const vinte = Array.from({ length: 20 }, (_, i) => ({
       produto_teste_favorito_usuario: 'admin',
       ambiente_teste_favorito_usuario: 'Local',
@@ -231,7 +250,7 @@ describe('TST-FUN-CONFIG-ATF — /api/v1/admin/testes-favoritos', () => {
     expect(mockFavoritoCreate).not.toHaveBeenCalled()
   })
 
-  it('5. POST sem tipos → 400 VALIDATION_ERROR', async () => {
+  it('7. POST sem tipos → 400 VALIDATION_ERROR', async () => {
     const res = await request(app)
       .post('/api/v1/admin/testes-favoritos')
       .send({ ...PAYLOAD_VALIDO, tipos_teste_favorito_usuario: [] })
@@ -241,7 +260,7 @@ describe('TST-FUN-CONFIG-ATF — /api/v1/admin/testes-favoritos', () => {
     expect(mockFavoritoCreate).not.toHaveBeenCalled()
   })
 
-  it('6. DELETE existente → 200 + deleteMany escopado por id_usuario', async () => {
+  it('8. DELETE existente → 200 + deleteMany escopado por id_usuario', async () => {
     mockFavoritoDeleteMany.mockResolvedValue({ count: 1 })
 
     const res = await request(app).delete('/api/v1/admin/testes-favoritos/cfav1')
@@ -253,7 +272,7 @@ describe('TST-FUN-CONFIG-ATF — /api/v1/admin/testes-favoritos', () => {
     })
   })
 
-  it('7. DELETE inexistente (ou de outro usuário) → 404 NOT_FOUND', async () => {
+  it('9. DELETE inexistente (ou de outro usuário) → 404 NOT_FOUND', async () => {
     mockFavoritoDeleteMany.mockResolvedValue({ count: 0 })
 
     const res = await request(app).delete('/api/v1/admin/testes-favoritos/inexistente')
@@ -262,7 +281,7 @@ describe('TST-FUN-CONFIG-ATF — /api/v1/admin/testes-favoritos', () => {
     expect(res.body.error.code).toBe('NOT_FOUND')
   })
 
-  it('8. PADRAO bloqueado por requireGravityAdmin → 403', async () => {
+  it('10. PADRAO bloqueado por requireGravityAdmin → 403', async () => {
     setAuth(ATOR_PADRAO)
 
     const res = await request(app).get('/api/v1/admin/testes-favoritos')

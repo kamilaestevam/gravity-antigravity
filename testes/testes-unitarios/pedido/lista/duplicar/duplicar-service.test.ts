@@ -906,4 +906,20 @@ describe('DuplicarService.duplicarItens', () => {
       expect(call[0].where).not.toHaveProperty('id_workspace')
     }
   })
+
+  it('U-SVC-61: cópia herda id_workspace do pedido pai, não do header', async () => {
+    const pedidoOutroWs = criarPedidoMock({ id_workspace: 'ws-7' })
+    const db = criarDbMock()
+    db.pedido.findFirst.mockResolvedValue(pedidoOutroWs)
+    db.pedidoItem.findMany
+      .mockResolvedValueOnce([criarItemMock({ id_workspace: 'ws-7' })])
+      .mockResolvedValueOnce([{ id_item: 'it-001', sequencia_item_pedido: 1 }])
+
+    await service.duplicarItens(
+      db as unknown as Record<string, unknown>, ORG_ID, 'ws-1', payloadBase,
+    )
+
+    const createCall = db.pedidoItem.create.mock.calls[0][0]
+    expect(createCall.data.id_workspace).toBe('ws-7')
+  })
 })

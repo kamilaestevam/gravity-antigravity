@@ -74,6 +74,17 @@ Agregação resumo BID: `client/src/shared/agregar-resumo-bid-frete-internaciona
 
 Query avulsas: `GET /cotacoes?apenas_avulsas=true` (sem `id_bid`).
 
+### Criação (menu Novo → Buscar Frete)
+
+O botão **Novo** da Lista abre "Buscar Frete" como submenu com 2 opções:
+
+| Opção | Fluxo |
+|-------|-------|
+| **Cotação Avulsa** | rota `/bid-frete/cotacoes/nova` (wizard `modal-nova-cotacao-bid-frete-internacional.tsx`) |
+| **BID** | `ModalNovoBidFreteInternacional` (`pages/modal-novo-bid-frete-internacional.tsx`) — referência interna opcional + vínculo **opcional** de avulsas existentes → `POST /bids-frete-internacional` → CTA "Criar cotação para o BID" |
+
+O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-internacional-utils.ts`): a cotação criada já nasce vinculada (`id_bid_bid_frete_internacional` no `POST /cotacoes`) e a tela de sucesso oferece "Adicionar outra cotação ao BID" (reset do wizard preservando o query param). API client: `criarBidFreteInternacional` em `shared/api.ts`. Testes: `testes/testes-unitarios/bid-frete-internacional/novo-bid-frete-internacional-utils.test.ts`.
+
 ### Painéis da Lista (paridade Pedido)
 
 - Model: `ListaPainelUsuarioGlobal` (`id_produto_gravity = 'bid-frete-internacional'`)

@@ -559,7 +559,7 @@ export const templateHandler = (_req: Request, res: Response, next: NextFunction
       'peso_liquido_unitario_item',
       'peso_bruto_unitario_item',
       'cubagem_unitaria_item',
-      'data_embarque_item_pedido',
+      'data_embarque_item',
     ])
     const colTipoLinha = ws.getColumn(1).letter
     camposOrdenados.forEach((c, idx) => {

@@ -1,71 +1,48 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-  adicionarTesteFavoritoAdmin,
-  chaveTesteFavoritoAdmin,
+  chaveTesteFavoritoUsuario,
   extrairDescricaoPlanoTeste,
   extrairTituloPlanoTeste,
-  lerTestesFavoritosAdmin,
   montarResumoPlanosFavorito,
   planosExibicaoFavorito,
   resolverOqueFoiTestadoLog,
   resolverOqueFoiTestadoPlano,
-  removerTesteFavoritoAdmin,
-  rotuloTesteFavoritoAdmin,
-  type TesteFavoritoAdmin,
+  rotuloTesteFavoritoUsuario,
+  testeFavoritoUsuarioSchema,
+  type TesteFavoritoUsuario,
 } from '@testes/infra/admin/testes-favoritos-admin'
 
-const ID_USUARIO = 'usr-teste-favoritos'
-
-const storage = new Map<string, string>()
-
-beforeEach(() => {
-  storage.clear()
-  vi.stubGlobal('localStorage', {
-    getItem: (key: string) => storage.get(key) ?? null,
-    setItem: (key: string, value: string) => { storage.set(key, value) },
-    removeItem: (key: string) => { storage.delete(key) },
-    clear: () => { storage.clear() },
-  })
-})
-
-const favoritoBase: TesteFavoritoAdmin = {
-  produto: 'pedido',
-  ambiente: 'Producao',
-  tipos: ['EMT'],
-  planos_ids: ['TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045'],
+const favoritoBase: TesteFavoritoUsuario = {
+  produto_teste_favorito_usuario: 'pedido',
+  ambiente_teste_favorito_usuario: 'Producao',
+  tipos_teste_favorito_usuario: ['EMT'],
+  planos_ids_teste_favorito_usuario: ['TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045'],
 }
 
-afterEach(() => {
-  storage.clear()
-  vi.unstubAllGlobals()
-})
-
 describe('testes-favoritos-admin', () => {
-  it('adiciona e lê favorito persistido', () => {
-    const res = adicionarTesteFavoritoAdmin(ID_USUARIO, favoritoBase)
-    expect(res.adicionado).toBe(true)
-    expect(lerTestesFavoritosAdmin(ID_USUARIO)).toHaveLength(1)
-  })
-
-  it('rejeita duplicata com mesma chave', () => {
-    adicionarTesteFavoritoAdmin(ID_USUARIO, favoritoBase)
-    const res = adicionarTesteFavoritoAdmin(ID_USUARIO, {
-      ...favoritoBase,
-      planos_ids: [...favoritoBase.planos_ids],
+  it('valida favorito contra o schema (paridade com a tabela)', () => {
+    const parsed = testeFavoritoUsuarioSchema.safeParse({
+      id_teste_favorito_usuario: 'cabc123',
+      produto_teste_favorito_usuario: 'admin',
+      ambiente_teste_favorito_usuario: 'Local',
+      tipos_teste_favorito_usuario: ['UNI'],
+      planos_ids_teste_favorito_usuario: ['TST-UNI-ADMIN-000021'],
+      planos_resumo_teste_favorito_usuario: null,
+      data_criacao_teste_favorito_usuario: '2026-06-11T17:00:00.000Z',
     })
-    expect(res.adicionado).toBe(false)
-    expect(res.motivo).toBe('duplicado')
+    expect(parsed.success).toBe(true)
   })
 
-  it('remove favorito por índice', () => {
-    adicionarTesteFavoritoAdmin(ID_USUARIO, favoritoBase)
-    const lista = removerTesteFavoritoAdmin(ID_USUARIO, 0)
-    expect(lista).toHaveLength(0)
-    expect(lerTestesFavoritosAdmin(ID_USUARIO)).toHaveLength(0)
+  it('rejeita favorito sem tipos', () => {
+    const parsed = testeFavoritoUsuarioSchema.safeParse({
+      ...favoritoBase,
+      tipos_teste_favorito_usuario: [],
+    })
+    expect(parsed.success).toBe(false)
   })
 
   it('monta rótulo legível', () => {
-    expect(rotuloTesteFavoritoAdmin(favoritoBase, 'Pedido')).toBe(
+    expect(rotuloTesteFavoritoUsuario(favoritoBase, 'Pedido')).toBe(
       'Pedido · Produção · EMT · 1 plano',
     )
   })
@@ -99,10 +76,10 @@ describe('testes-favoritos-admin', () => {
   })
 
   it('planosExibicaoFavorito prioriza planos_resumo persistido', () => {
-    const fav: TesteFavoritoAdmin = {
+    const fav: TesteFavoritoUsuario = {
       ...favoritoBase,
-      planos_resumo: [{
-        id: favoritoBase.planos_ids[0],
+      planos_resumo_teste_favorito_usuario: [{
+        id: favoritoBase.planos_ids_teste_favorito_usuario[0],
         titulo: 'Título completo do plano',
         descricao: 'lista/editar-salvar · 92 casos no registry',
         tipo: 'EMT',
@@ -111,6 +88,16 @@ describe('testes-favoritos-admin', () => {
     const exibicao = planosExibicaoFavorito(fav)
     expect(exibicao[0]?.titulo).toBe('Título completo do plano')
     expect(exibicao[0]?.descricao).toContain('lista/editar-salvar')
+  })
+
+  it('planosExibicaoFavorito trata planos_resumo nulo (coluna Json vazia)', () => {
+    const fav: TesteFavoritoUsuario = {
+      ...favoritoBase,
+      planos_resumo_teste_favorito_usuario: null,
+    }
+    const exibicao = planosExibicaoFavorito(fav)
+    expect(exibicao).toHaveLength(1)
+    expect(exibicao[0]?.id).toBe(favoritoBase.planos_ids_teste_favorito_usuario[0])
   })
 
   it('resolverOqueFoiTestadoPlano usa subtitulo (modulo) e cai no id se vazio', () => {
@@ -138,18 +125,18 @@ describe('testes-favoritos-admin', () => {
     )).toBe('Edição e Salvar pedidos e itens (NCM)')
   })
 
-  it('chave ignora ordem de tipos e planos', () => {
-    const a = chaveTesteFavoritoAdmin({
-      produto: 'admin',
-      ambiente: 'Local',
-      tipos: ['UNI', 'FUN'],
-      planos_ids: ['TST-A', 'TST-B'],
+  it('chave de deduplicação ignora ordem de tipos e planos', () => {
+    const a = chaveTesteFavoritoUsuario({
+      produto_teste_favorito_usuario: 'admin',
+      ambiente_teste_favorito_usuario: 'Local',
+      tipos_teste_favorito_usuario: ['UNI', 'FUN'],
+      planos_ids_teste_favorito_usuario: ['TST-A', 'TST-B'],
     })
-    const b = chaveTesteFavoritoAdmin({
-      produto: 'admin',
-      ambiente: 'Local',
-      tipos: ['FUN', 'UNI'],
-      planos_ids: ['TST-B', 'TST-A'],
+    const b = chaveTesteFavoritoUsuario({
+      produto_teste_favorito_usuario: 'admin',
+      ambiente_teste_favorito_usuario: 'Local',
+      tipos_teste_favorito_usuario: ['FUN', 'UNI'],
+      planos_ids_teste_favorito_usuario: ['TST-B', 'TST-A'],
     })
     expect(a).toBe(b)
   })

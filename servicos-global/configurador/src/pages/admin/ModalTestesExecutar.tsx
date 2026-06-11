@@ -28,20 +28,17 @@ import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-for
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { Play, CheckSquare, Square, Flask, Funnel, ListMagnifyingGlass, PencilSimple, Check, X, Star, Trash } from '@phosphor-icons/react'
-import { adminPlanosTesteApi, adminTestesApi, type PlanoTesteApi } from '../../services/api-client'
+import { adminPlanosTesteApi, adminTestesApi, adminTestesFavoritosApi, type PlanoTesteApi } from '../../services/api-client'
 import { useShellStore } from '@gravity/shell'
 import { ModalDetalhePlanoTeste } from './ModalDetalhePlanoTeste'
 import {
-  adicionarTesteFavoritoAdmin,
-  lerTestesFavoritosAdmin,
   montarResumoPlanosFavorito,
   planosExibicaoFavorito,
   tituloPlanoFavoritoExibicao,
-  removerTesteFavoritoAdmin,
-  rotuloTesteFavoritoAdmin,
+  rotuloTesteFavoritoUsuario,
   type AmbienteTesteFavorito,
   type ProdutoTesteFavorito,
-  type TesteFavoritoAdmin,
+  type TesteFavoritoUsuario,
   type TipoTesteFavorito,
 } from '@testes/infra/admin/testes-favoritos-admin'
 
@@ -147,8 +144,9 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   const [rascunhoNomePlano, setRascunhoNomePlano] = useState('')
   const [rascunhoTituloPlano, setRascunhoTituloPlano] = useState('')
   const [salvandoPlano, setSalvandoPlano] = useState(false)
-  const [favoritos, setFavoritos] = useState<TesteFavoritoAdmin[]>([])
-  const [favoritoPendente, setFavoritoPendente] = useState<TesteFavoritoAdmin | null>(null)
+  const [favoritos, setFavoritos] = useState<TesteFavoritoUsuario[]>([])
+  const [favoritoPendente, setFavoritoPendente] = useState<TesteFavoritoUsuario | null>(null)
+  const [salvandoFavorito, setSalvandoFavorito] = useState(false)
 
   const currentUser = useShellStore(s => s.currentUser)
   const idUsuario = currentUser.id?.trim() || null
@@ -159,8 +157,12 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
     setTiposAtivos(new Set())
     setPlanosSelecionados(new Set())
     setFavoritoPendente(null)
-    if (idUsuario) setFavoritos(lerTestesFavoritosAdmin(idUsuario))
-  }, [aberto, idUsuario])
+    let cancelado = false
+    adminTestesFavoritosApi.listar()
+      .then(lista => { if (!cancelado) setFavoritos(lista) })
+      .catch(() => { if (!cancelado) setFavoritos([]) })
+    return () => { cancelado = true }
+  }, [aberto])
 
   // Carrega planos quando o produto muda (sem pré-selecionar)
   useEffect(() => {
@@ -179,8 +181,8 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   // Aplica planos do favorito após carregar a lista do produto
   useEffect(() => {
     if (!favoritoPendente || carregandoPlanos) return
-    if (favoritoPendente.produto !== dadosManual.produto) return
-    const idsValidos = favoritoPendente.planos_ids.filter(id => planosDisponiveis.some(p => p.id === id))
+    if (favoritoPendente.produto_teste_favorito_usuario !== dadosManual.produto) return
+    const idsValidos = favoritoPendente.planos_ids_teste_favorito_usuario.filter(id => planosDisponiveis.some(p => p.id === id))
     setPlanosSelecionados(new Set(idsValidos))
     setFavoritoPendente(null)
   }, [favoritoPendente, carregandoPlanos, planosDisponiveis, dadosManual.produto])
@@ -296,7 +298,7 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   const addNotification = useShellStore((s) => s.addNotification)
   const [erroExecucao, setErroExecucao] = useState<string | null>(null)
 
-  function salvarFavoritoAtual() {
+  async function salvarFavoritoAtual() {
     if (!idUsuario) {
       addNotification({ type: 'warning', message: 'Faça login para salvar favoritos de teste' })
       return
@@ -305,40 +307,46 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
       addNotification({ type: 'warning', message: 'Marque ao menos um tipo de teste antes de favoritar' })
       return
     }
-    const favorito: TesteFavoritoAdmin = {
-      produto: dadosManual.produto as ProdutoTesteFavorito,
-      ambiente: dadosManual.ambiente as AmbienteTesteFavorito,
-      tipos: Array.from(tiposAtivos) as TipoTesteFavorito[],
-      planos_ids: [...idsElegiveis],
-      planos_resumo: montarResumoPlanosFavorito(idsElegiveis, planosDisponiveis),
+    setSalvandoFavorito(true)
+    try {
+      const novo = await adminTestesFavoritosApi.salvar({
+        produto_teste_favorito_usuario: dadosManual.produto as ProdutoTesteFavorito,
+        ambiente_teste_favorito_usuario: dadosManual.ambiente as AmbienteTesteFavorito,
+        tipos_teste_favorito_usuario: Array.from(tiposAtivos) as TipoTesteFavorito[],
+        planos_ids_teste_favorito_usuario: [...idsElegiveis],
+        planos_resumo_teste_favorito_usuario: montarResumoPlanosFavorito(idsElegiveis, planosDisponiveis),
+      })
+      setFavoritos(prev => [novo, ...prev])
+      addNotification({ type: 'success', message: 'Configuração salva em Testes Favoritos' })
+    } catch (err) {
+      const mensagem = err instanceof Error ? err.message : 'Não foi possível salvar o favorito'
+      addNotification({ type: 'error', message: mensagem })
+    } finally {
+      setSalvandoFavorito(false)
     }
-    const res = adicionarTesteFavoritoAdmin(idUsuario, favorito)
-    setFavoritos(res.favoritos)
-    if (!res.adicionado) {
-      if (res.motivo === 'duplicado') {
-        addNotification({ type: 'info', message: 'Esta configuração já está nos favoritos' })
-      } else if (res.motivo === 'limite') {
-        addNotification({ type: 'warning', message: 'Limite de favoritos atingido (máx. 20)' })
-      } else {
-        addNotification({ type: 'error', message: 'Não foi possível salvar o favorito' })
-      }
-      return
-    }
-    addNotification({ type: 'success', message: 'Configuração salva em Testes Favoritos' })
   }
 
-  function aplicarFavorito(favorito: TesteFavoritoAdmin) {
-    setDadosManual({ produto: favorito.produto, ambiente: favorito.ambiente })
-    setTiposAtivos(new Set(favorito.tipos as TipoTeste[]))
+  function aplicarFavorito(favorito: TesteFavoritoUsuario) {
+    setDadosManual({
+      produto: favorito.produto_teste_favorito_usuario,
+      ambiente: favorito.ambiente_teste_favorito_usuario,
+    })
+    setTiposAtivos(new Set(favorito.tipos_teste_favorito_usuario as TipoTeste[]))
     setPlanosSelecionados(new Set())
     setFavoritoPendente(favorito)
   }
 
-  function excluirFavorito(indice: number) {
-    if (!idUsuario) return
-    const lista = removerTesteFavoritoAdmin(idUsuario, indice)
-    setFavoritos(lista)
-    addNotification({ type: 'success', message: 'Favorito removido' })
+  async function excluirFavorito(favorito: TesteFavoritoUsuario) {
+    const id = favorito.id_teste_favorito_usuario
+    if (!id) return
+    try {
+      await adminTestesFavoritosApi.remover(id)
+      setFavoritos(prev => prev.filter(f => f.id_teste_favorito_usuario !== id))
+      addNotification({ type: 'success', message: 'Favorito removido' })
+    } catch (err) {
+      const mensagem = err instanceof Error ? err.message : 'Erro ao remover favorito'
+      addNotification({ type: 'error', message: mensagem })
+    }
   }
 
   async function handleExecutar() {
@@ -659,15 +667,18 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
               <button
                 type="button"
                 onClick={salvarFavoritoAtual}
+                disabled={salvandoFavorito}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
                   padding: '0.35rem 0.65rem', borderRadius: '8px', border: 'none',
                   background: 'rgba(251, 191, 36, 0.12)', color: '#fcd34d',
-                  fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer',
+                  fontSize: '0.7rem', fontWeight: 700,
+                  cursor: salvandoFavorito ? 'not-allowed' : 'pointer',
+                  opacity: salvandoFavorito ? 0.6 : 1,
                 }}
               >
                 <Star size={13} weight="bold" />
-                Salvar configuração atual
+                {salvandoFavorito ? 'Salvando…' : 'Salvar configuração atual'}
               </button>
             </div>
             {favoritos.length === 0 ? (
@@ -677,12 +688,13 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 {favoritos.map((fav, indice) => {
-                  const rotuloProduto = PRODUTOS.find(p => p.valor === fav.produto)?.rotulo ?? fav.produto
-                  const catalogoFav = fav.produto === dadosManual.produto ? planosDisponiveis : undefined
+                  const produtoFav = fav.produto_teste_favorito_usuario
+                  const rotuloProduto = PRODUTOS.find(p => p.valor === produtoFav)?.rotulo ?? produtoFav
+                  const catalogoFav = produtoFav === dadosManual.produto ? planosDisponiveis : undefined
                   const planosCard = planosExibicaoFavorito(fav, catalogoFav)
                   return (
                     <div
-                      key={`${fav.produto}-${fav.ambiente}-${indice}`}
+                      key={fav.id_teste_favorito_usuario ?? `${produtoFav}-${fav.ambiente_teste_favorito_usuario}-${indice}`}
                       style={{
                         display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
                         padding: '0.65rem 0.75rem', borderRadius: '8px',
@@ -701,7 +713,7 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
                         }}
                       >
                         <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', marginBottom: '0.4rem' }}>
-                          {rotuloTesteFavoritoAdmin(fav, rotuloProduto)}
+                          {rotuloTesteFavoritoUsuario(fav, rotuloProduto)}
                         </div>
                         {planosCard.map((plano, idxPlano) => {
                           const tituloExibicao = tituloPlanoFavoritoExibicao(plano)
@@ -751,7 +763,7 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
                       </button>
                       <button
                         type="button"
-                        onClick={() => excluirFavorito(indice)}
+                        onClick={() => excluirFavorito(fav)}
                         title="Remover favorito"
                         style={{
                           flexShrink: 0, background: 'none', border: 'none', padding: '0.15rem',

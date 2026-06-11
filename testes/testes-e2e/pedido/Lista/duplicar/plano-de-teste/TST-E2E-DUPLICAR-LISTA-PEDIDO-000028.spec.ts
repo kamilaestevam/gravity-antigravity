@@ -1,5 +1,5 @@
 /**
- * TST-E2E-PEDIDO-000028 — Duplicar Pedido (Feature Completa)
+ * TST-E2E-DUPLICAR-LISTA-PEDIDO-000028 — Duplicar Pedido (Feature Completa)
  * ----------------------------------------------------------------
  * Spec executavel Playwright traduzido do plano:
  *   testes/testes-e2e/pedido/Lista/duplicar/duplicar-e2e.md
@@ -18,8 +18,8 @@
  *   - Fluxo 11: Aviso de zeramento de saldo
  *
  * Pre-requisitos:
- *   - Backend pedido rodando em http://localhost:8030
- *   - Frontend pedido rodando em http://localhost:5179
+ *   - Stack local via proxy em http://localhost:8000 (npm run dev)
+ *   - Backend pedido acessível pelo proxy (/api/v1/pedidos)
  *   - Usuario com permissao `pedido:lista:editar` logado
  *   - Organizacao com pelo menos 3 pedidos (A, B, C) com itens
  *   - Pedido A: 3 itens com valores/pesos/referencias preenchidos
@@ -27,13 +27,13 @@
  *   - Pedido C: 1 item com qtd_pronta > 0
  *
  * Execucao:
- *   npx playwright test testes/testes-e2e/pedido/Lista/duplicar/TST-E2E-PEDIDO-000028.spec.ts
+ *   npx playwright test testes/testes-e2e/pedido/Lista/duplicar/plano-de-teste/TST-E2E-DUPLICAR-LISTA-PEDIDO-000028.spec.ts --project=pedido
  */
 
-import { test, expect } from '../../../../playwright.fixtures.js'
+import { test, expect } from '../../../../../playwright.fixtures.js'
 
-const BASE_URL = 'http://localhost:5179'
-const ROTA_PEDIDOS = '/workspace/pedido/lista'
+const BASE_UI = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8000'
+const LISTA_URL = `${BASE_UI}/pedido/pedidos/lista`
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -67,6 +67,24 @@ async function fecharModal(page: import('@playwright/test').Page) {
   await page.locator('[data-testid="modal-btn-fechar"]').click()
 }
 
+async function selecionarPedidoInteiroMaisItensDeOutro(
+  page: import('@playwright/test').Page,
+  indicePedidoInteiro: number,
+  indiceOutroPedido: number,
+  qtdItensAvulsos: number,
+): Promise<number> {
+  const rows = page.locator('[data-testid="tabela-pedido-row"]')
+  await rows.nth(indicePedidoInteiro).locator('[data-testid="checkbox-selecao"]').click()
+  await rows.nth(indiceOutroPedido).locator('[data-testid="btn-expandir"]').click()
+  const itens = page.locator('[data-testid="tabela-item-row"]')
+  const total = await itens.count()
+  const n = Math.min(qtdItensAvulsos, total)
+  for (let i = 0; i < n; i++) {
+    await itens.nth(i).locator('[data-testid="checkbox-selecao"]').click()
+  }
+  return n
+}
+
 async function aguardarResultado(page: import('@playwright/test').Page) {
   await expect(page.locator('[data-testid="duplicar-resultado"]')).toBeVisible({ timeout: 10000 })
 }
@@ -75,10 +93,10 @@ async function aguardarResultado(page: import('@playwright/test').Page) {
 // FLUXO 1 — Duplicar 1 Pedido (caminho feliz completo)
 // ══════════════════════════════════════════════════════════════════════════════
 
-test.describe('TST-E2E-PEDIDO-000028 — Duplicar Pedido', () => {
+test.describe('TST-E2E-DUPLICAR-LISTA-PEDIDO-000028 — Duplicar Pedido', () => {
 
   test.beforeEach(async ({ page }) => {
-    await page.goto(`${BASE_URL}${ROTA_PEDIDOS}`)
+    await page.goto(LISTA_URL)
     // Aguarda tabela carregar
     await expect(page.locator('[data-testid="tabela-pedido-row"]').first()).toBeVisible({ timeout: 15000 })
   })
@@ -346,6 +364,86 @@ test.describe('TST-E2E-PEDIDO-000028 — Duplicar Pedido', () => {
       } else {
         test.skip(true, 'Pedido com menos de 2 itens')
       }
+    })
+  })
+
+  // ── FLUXO 5: Duplicar Misto — 1 pedido inteiro + itens avulsos de outro ─────
+
+  test.describe('Fluxo 5 — Misto: pedido inteiro + itens de outro pedido', () => {
+
+    test('5-MST-01: selecionar 1 pedido + 2 itens avulsos de outro — passo 2 com 2 seções', async ({ page }) => {
+      const rows = page.locator('[data-testid="tabela-pedido-row"]')
+      if (await rows.count() < 2) {
+        test.skip(true, 'Precisa de pelo menos 2 pedidos')
+        return
+      }
+
+      const itensSelecionados = await selecionarPedidoInteiroMaisItensDeOutro(page, 0, 1, 2)
+      if (itensSelecionados < 2) {
+        test.skip(true, 'Segundo pedido precisa de pelo menos 2 itens')
+        return
+      }
+
+      await clicarDuplicar(page)
+      await avancarPasso(page)
+      await expect(page.locator('.modal-duplicar__secao')).toHaveCount(2)
+    })
+
+    test('5-MST-02: confirmar misto — resultado com pedido e itens criados', async ({ page }) => {
+      const rows = page.locator('[data-testid="tabela-pedido-row"]')
+      if (await rows.count() < 2) {
+        test.skip(true, 'Precisa de pelo menos 2 pedidos')
+        return
+      }
+
+      const itensSelecionados = await selecionarPedidoInteiroMaisItensDeOutro(page, 0, 1, 2)
+      if (itensSelecionados < 1) {
+        test.skip(true, 'Segundo pedido sem itens')
+        return
+      }
+
+      await clicarDuplicar(page)
+      await avancarPasso(page)
+      await confirmarDuplicacao(page)
+      await aguardarResultado(page)
+
+      const resultado = page.locator('[data-testid="duplicar-resultado"]')
+      await expect(resultado).toBeVisible()
+      await expect(resultado).toContainText(/pedido|item/i)
+    })
+
+    test('5-MST-03: após misto — novo pedido no topo e +itens no pedido avulso', async ({ page }) => {
+      const rows = page.locator('[data-testid="tabela-pedido-row"]')
+      const pedidosAntes = await rows.count()
+      if (pedidosAntes < 2) {
+        test.skip(true, 'Precisa de pelo menos 2 pedidos')
+        return
+      }
+
+      await rows.nth(1).locator('[data-testid="btn-expandir"]').click()
+      const itensAntes = await page.locator('[data-testid="tabela-item-row"]').count()
+      if (itensAntes < 1) {
+        test.skip(true, 'Segundo pedido sem itens')
+        return
+      }
+
+      const qtdAvulsos = Math.min(2, itensAntes)
+      await page.locator('[data-testid="tabela-pedido-row"]').nth(0).locator('[data-testid="checkbox-selecao"]').click()
+      for (let i = 0; i < qtdAvulsos; i++) {
+        await page.locator('[data-testid="tabela-item-row"]').nth(i).locator('[data-testid="checkbox-selecao"]').click()
+      }
+
+      await clicarDuplicar(page)
+      await avancarPasso(page)
+      await confirmarDuplicacao(page)
+      await aguardarResultado(page)
+      await fecharModal(page)
+
+      await expect(page.locator('[data-testid="tabela-pedido-row"]')).toHaveCount(pedidosAntes + 1)
+
+      await rows.nth(1).locator('[data-testid="btn-expandir"]').click()
+      const itensDepois = await page.locator('[data-testid="tabela-item-row"]').count()
+      expect(itensDepois).toBe(itensAntes + qtdAvulsos)
     })
   })
 

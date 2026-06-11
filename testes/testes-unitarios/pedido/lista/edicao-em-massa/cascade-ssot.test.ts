@@ -4,8 +4,10 @@
  * na edição em massa é um superset correto do SSOT + 4 exclusivos.
  *
  * O PARES_CASCADE_PEDIDO_ITEM é interno ao edicaoEmMassaService.ts (não exportado).
- * Aqui testamos o contrato: SSOT (59) + 3 exclusivos = 62, e os 3 exclusivos
+ * Aqui testamos o contrato: SSOT (64) + 3 exclusivos = 67, e os 3 exclusivos
  * não colidem com o SSOT.
+ * 2026-06-11: 63→64 — par moeda_cambio_pedido → moeda_cambio_item_pedido
+ * (rename DDD de moeda_cambio_item, commit 13c008a2c).
  */
 import { describe, it, expect } from 'vitest'
 import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../../../servicos-global/produto/pedido/shared/mapaPropagacaoPedidoItem'
@@ -17,8 +19,8 @@ const EXCLUSIVOS_EDICAO_MASSA: Record<string, string> = {
 }
 
 describe('Cascade composição — SSOT + exclusivos edição em massa', () => {
-  it('SSOT contém exatamente 63 pares', () => {
-    expect(Object.keys(MAPA_PROPAGACAO_PEDIDO_ITEM).length).toBe(63)
+  it('SSOT contém exatamente 64 pares', () => {
+    expect(Object.keys(MAPA_PROPAGACAO_PEDIDO_ITEM).length).toBe(64)
   })
 
   it('os 3 campos exclusivos da edição em massa NÃO existem no SSOT', () => {
@@ -27,9 +29,9 @@ describe('Cascade composição — SSOT + exclusivos edição em massa', () => {
     }
   })
 
-  it('composição SSOT + exclusivos resulta em 66 pares sem colisão', () => {
+  it('composição SSOT + exclusivos resulta em 67 pares sem colisão', () => {
     const composto = { ...MAPA_PROPAGACAO_PEDIDO_ITEM, ...EXCLUSIVOS_EDICAO_MASSA }
-    expect(Object.keys(composto).length).toBe(66)
+    expect(Object.keys(composto).length).toBe(67)
   })
 
   it('tipo_operacao_pedido mapeia para tipo_operacao_item no SSOT (lista + massa + create)', () => {

@@ -1,8 +1,9 @@
-# Plano de Testes Unitários — Duplicar Pedido
+# Plano de Testes Unitários — Duplicar Lista Pedido
 
-**ID:** TST-UNI-PEDIDO-000026
+**ID:** `TST-UNI-DUPLICAR-LISTA-PEDIDO-000026`
 **Data:** 2026-05-16
-**Versão:** 1.0
+**Versão:** 1.1
+**Data plano:** 2026-06-11 (v1.1 — casos multi-workspace pós PR #273/#276)
 **Criticidade:** alta
 **Cobertura mínima:** 70%
 **Ambiente:** `@vitest-environment node`
@@ -158,8 +159,9 @@ Plano de teste unitário para a feature de duplicação de pedidos. Cobre 3 cama
 
 | ID | Caso | Resultado Esperado |
 |----|------|-------------------|
-| U-SVC-38 | Duplicar com x-id-workspace no header | Clone herda workspace do header |
+| U-SVC-38 | Duplicar com x-id-workspace no header | Clone herda workspace do header (confirmar) |
 | U-SVC-39 | Duplicar sem x-id-workspace | Clone herda workspace do pedido original |
+| U-SVC-42 | Lookup confirmar não filtra por id_workspace quando header ≠ pedido | `findMany.where` só `id_organizacao` (regressão #273) |
 
 ### 8. DuplicarService.duplicarItens — Service (Prisma mockado)
 
@@ -167,29 +169,28 @@ Plano de teste unitário para a feature de duplicação de pedidos. Cobre 3 cama
 
 | ID | Caso | Resultado Esperado |
 |----|------|-------------------|
-| U-SVC-40 | Duplicar 1 item dentro do pedido | `criados.length = 1`, item criado no mesmo pedido_id |
-| U-SVC-41 | Duplicar 1 item com pedido inexistente | `throw AppError(404)` |
-| U-SVC-42 | Duplicar 1 item com item_id inexistente | `throw AppError(404)` |
-| U-SVC-43 | Item duplicado fica imediatamente abaixo do original (sequência) | Renumeração coloca cópia logo após original |
+| U-SVC-50 | Duplicar 1 item dentro do pedido | `criados.length = 1`, item criado no mesmo pedido_id |
+| U-SVC-51 | Duplicar 1 item com pedido inexistente | `throw AppError(404)` |
+| U-SVC-52 | Duplicar 1 item com item_id inexistente | `throw AppError(404)` |
+| U-SVC-53 | Item duplicado fica imediatamente abaixo do original (sequência) | Renumeração coloca cópia logo após original |
 
 **Cenário: múltiplos itens**
 
 | ID | Caso | Resultado Esperado |
 |----|------|-------------------|
-| U-SVC-44 | Duplicar 2 itens do mesmo pedido | `criados.length = 2` |
-| U-SVC-45 | Duplicar 3 itens, 1 pertence a outro pedido | `throw AppError(404)` (item não encontrado naquele pedido) |
-| U-SVC-46 | Duplicar itens com opções de zeramento aplicadas | Campos dos grupos desativados são null |
+| U-SVC-54 | Duplicar 2 itens do mesmo pedido | `criados.length = 2` |
+| U-SVC-55 | Duplicar 3 itens, 1 pertence a outro pedido | `throw AppError(404)` (item não encontrado naquele pedido) |
+| U-SVC-56 | Duplicar itens com opções de zeramento aplicadas | Campos dos grupos desativados são null |
 
 **Cenário: campos SEMPRE resetados nos itens duplicados**
 
 | ID | Caso | Resultado Esperado |
 |----|------|-------------------|
-| U-SVC-47 | id_item do clone é novo | `novoItem.id_item !== itemOriginal.id_item` |
-| U-SVC-48 | sequencia_item_pedido é reordenada (não null, não duplicada) | Sequência final é 1..N contíguo |
-| U-SVC-49 | quantidade_pronta_item = 0 no clone | Zerado independente do original |
-| U-SVC-50 | quantidade_transferida_item = 0 no clone | Zerado |
-| U-SVC-51 | quantidade_cancelada_item = 0 no clone | Zerado |
-| U-SVC-52 | quantidade_atual_item = quantidade_inicial_item do original | Saldo volta ao inicial |
+| U-SVC-57 | id_item do clone é novo | `novoItem.id_item !== itemOriginal.id_item` |
+| U-SVC-58 | sequencia_item_pedido é reordenada (não null, não duplicada) | Sequência final é 1..N contíguo |
+| U-SVC-59 | quantidade_pronta_item = 0 no clone | Zerado independente do original |
+| U-SVC-60 | Lookup duplicarItens não filtra por id_workspace | `where` só `id_organizacao` (regressão #273) |
+| U-SVC-61 | Cópia herda id_workspace do pedido pai, não do header | `create.data.id_workspace = pedido.id_workspace` (regressão #276) |
 
 ### 9. ModalDuplicarPedidos — Componente React (lógica)
 
@@ -245,11 +246,10 @@ Plano de teste unitário para a feature de duplicação de pedidos. Cobre 3 cama
 ## Estrutura de Arquivos Esperada
 
 ```
-testes/testes-unitarios/pedido/Lista/duplicar/
-├── duplicar-unitario.md          ← este plano
-├── duplicar-schemas.test.ts      ← Zod schemas (U-ZOD-01 a U-ZOD-26)
-├── duplicar-service.test.ts      ← DuplicarService (U-SVC-01 a U-SVC-52)
-└── modal-duplicar-logica.test.ts ← Componente React (U-UI-01 a U-UI-15)
+testes/testes-unitarios/pedido/lista/duplicar/plano-de-teste/
+├── TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-unitario.md
+├── TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-schemas.test.ts
+└── TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-service.test.ts
 
 testes/testes-unitarios/pedido/
 └── duplicar-opcoes-zeramento.test.ts ← existente (15 testes, preservar)

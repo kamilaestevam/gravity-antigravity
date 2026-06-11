@@ -4343,7 +4343,8 @@
       "grupo_datas_draft_proforma": "Fechas Borrador Proforma",
       "grupo_datas_draft_invoice": "Fechas Borrador Factura",
       "grupo_produto": "Producto",
-      "grupo_quantidades": "Cantidades"
+      "grupo_quantidades": "Cantidades",
+      "grupo_personalizadas": "Personalizadas"
     },
     "massa_campos": {
       "numero_pedido": "Número de Pedido",

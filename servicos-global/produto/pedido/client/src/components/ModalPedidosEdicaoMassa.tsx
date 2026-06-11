@@ -33,6 +33,7 @@ import { useCambioSiscomexPedido } from '../shared/useCambioSiscomexPedido'
 import type {
   Pedido,
   CampoEdicaoMassa,
+  ColunaUsuario,
   EdicaoMassaPayload,
   EdicaoMassaPreview,
   EdicaoMassaResultado,
@@ -40,8 +41,16 @@ import type {
   TipoCampoEdicao,
 } from '../shared/types'
 import { CAMPOS_BLOQUEADOS_PEDIDO, CAMPOS_BLOQUEADOS_ITEM } from '../shared/types'
-import { pedidoEdicaoMassaApi, pedidoConfigApi } from '../shared/api'
+import { pedidoEdicaoMassaApi, pedidoConfigApi, colunasUsuarioApi } from '../shared/api'
 import { cadastrosApi } from '../shared/cadastrosApi'
+import {
+  CAMPOS_EDICAO_MASSA_PEDIDO,
+  CAMPOS_EDICAO_MASSA_ITEM,
+  CAMPOS_DETALHES_OPERACIONAIS,
+  PREFIXO_COLUNA_USUARIO,
+  type CampoEdicaoMassaDef,
+} from '../../../shared/camposEdicaoMassa'
+import { kindUiDeCampo } from '../../../shared/kind-ui-pedido'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -73,211 +82,147 @@ interface DefinicaoCampo {
 
 type TFunc = (key: string, opts?: Record<string, unknown>) => string
 
-function construirCamposPedidoEditaveis(t: TFunc): DefinicaoCampo[] { return [
-  // Identificação
-  { campo: 'status_pedido', rotulo: t('pedido.massa_campos.status_pedido'),                                 tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_identifica_o') },
-  { campo: 'numero_pedido', rotulo: t('pedido.massa_campos.numero_pedido'),                       tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_identifica_o') },
-  { campo: 'tipo_operacao_pedido', rotulo: t('pedido.massa_campos.tipo_operacao_pedido'),                       tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_identifica_o'),
-    opcoes: [
+// ── Derivação do SSOT (Onda 3 — 2026-06-11) ──────────────────────────────────
+//
+// Os campos editáveis vêm de shared/camposEdicaoMassa.ts (derivado do DDD —
+// mesma fonte do backend). Regra de produto: se o campo é editável na lista,
+// é editável em massa — incluindo colunas criadas pelo usuário, que viajam
+// no payload como `coluna_usuario:<id>`.
+//
+// Rótulos: chave i18n `pedido.massa_campos.<campo>` com fallback no rótulo
+// DDD (campos novos ainda sem tradução exibem o rótulo do dicionário).
+
+const GRUPO_DDD_PARA_I18N: Record<string, string> = {
+  'Identificacao':        'grupo_identifica_o',
+  'Exportador':           'grupo_exportador',
+  'Importador':           'grupo_importador',
+  'Fabricante':           'grupo_fabricante',
+  'OPE':                  'grupo_ope',
+  'Comercial':            'grupo_comercial',
+  'Financeiro':           'grupo_comercial',
+  'Cambio':               'grupo_c_mbio',
+  'Fisico':               'grupo_f_sico',
+  'Logistica':            'grupo_log_stica',
+  'Documentos':           'grupo_documentos',
+  'Datas':                'grupo_datas',
+  'Datas Draft Pedido':   'grupo_datas_draft_pedido',
+  'Datas Draft Proforma': 'grupo_datas_draft_proforma',
+  'Datas Draft Invoice':  'grupo_datas_draft_invoice',
+  'Produto':              'grupo_produto',
+  'Quantidades':          'grupo_quantidades',
+  'Partes':               'grupo_partes',
+}
+
+// Selects com opções carregadas em runtime que o kindUiDeCampo classifica
+// como texto (país/porto/aeroporto/status) — ver injetarOpcoesDinamicas.
+const CAMPOS_SELECT_DINAMICO_EXTRA = new Set([
+  'pais_exportador', 'pais_fabricante', 'pais_ope',
+  'local_de_origem', 'local_de_destino',
+  'porto_origem', 'porto_destino',
+  'aeroporto_origem', 'aeroporto_destino',
+  'status_pedido',
+])
+
+/** Mapeia o KindUI (classificador granular do DDD) para o tipo de input do modal. */
+function tipoEdicaoDeCampoSsot(campo: string): TipoCampoEdicao {
+  if (CAMPOS_SELECT_DINAMICO_EXTRA.has(campo)) return 'select'
+  const kind = kindUiDeCampo(campo)
+  if (kind === 'ncm') return 'ncm'
+  if (kind === 'data') return 'data'
+  if (kind === 'inteiro' || kind.startsWith('decimal_')) return 'numero'
+  if (
+    kind === 'moeda_codigo' || kind === 'incoterm' || kind === 'unidade' ||
+    kind === 'tipo_operacao' || kind === 'cobertura_cambial' ||
+    kind === 'condicao_pagamento_siscomex' || kind === 'select_ssot'
+  ) return 'select'
+  return 'texto'
+}
+
+function definicaoDeCampoSsot(c: CampoEdicaoMassaDef, t: TFunc): DefinicaoCampo {
+  const grupoKey = GRUPO_DDD_PARA_I18N[c.grupo]
+  const def: DefinicaoCampo = {
+    campo: c.campo,
+    rotulo: t(`pedido.massa_campos.${c.campo}`, { defaultValue: c.rotulo }),
+    tipo: tipoEdicaoDeCampoSsot(c.campo),
+    nivel: c.nivel,
+    grupo: grupoKey ? t(`pedido.modal_massa.${grupoKey}`) : c.grupo,
+  }
+
+  // Opções traduzidas do tipo de operação; demais selects do SSOT usam o valor cru
+  if (c.campo === 'tipo_operacao_pedido' || c.campo === 'tipo_operacao_item') {
+    def.opcoes = [
       { valor: 'importacao', rotulo: t('pedido.modal_massa.tipo_op_importacao') },
       { valor: 'exportacao', rotulo: t('pedido.modal_massa.tipo_op_exportacao') },
-    ] },
+    ]
+  } else if (c.opcoesSelect?.length) {
+    def.opcoes = c.opcoesSelect.map(v => ({ valor: v, rotulo: v }))
+  }
 
-  // Exportador
-  // exportador_nome: editável somente em importacao (fornecedor estrangeiro)
-  { campo: 'nome_exportador', rotulo: t('pedido.massa_campos.nome_exportador'),                      tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador'),
-    visivel: (pedidos: Pedido[]) => pedidos.every(p => p.tipo_operacao === 'importacao') },
+  // nome_exportador: editável somente em importacao (fornecedor estrangeiro);
   // nome_importador: editável somente em exportacao (cliente estrangeiro)
-  { campo: 'nome_importador', rotulo: t('pedido.massa_campos.nome_importador'),                      tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_importador'),
-    visivel: (pedidos: Pedido[]) => pedidos.every(p => p.tipo_operacao === 'exportacao') },
-  { campo: 'endereco_exportador', rotulo: t('pedido.massa_campos.endereco_exportador'),                  tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'pais_exportador', rotulo: t('pedido.massa_campos.pais_exportador'),                      tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'estado_exportador', rotulo: t('pedido.massa_campos.estado_exportador'),                    tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'cidade_exportador', rotulo: t('pedido.massa_campos.cidade_exportador'),                    tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'zip_code_exportador', rotulo: t('pedido.massa_campos.zip_code_exportador'),                  tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'exportador_ou_fabricante', rotulo: t('pedido.massa_campos.exportador_ou_fabricante'),               tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'relacao_exportador_fabricante', rotulo: t('pedido.massa_campos.relacao_exportador_fabricante'),                tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'nome_contato_exportador', rotulo: t('pedido.massa_campos.nome_contato_exportador'),                 tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'email_contato_exportador', rotulo: t('pedido.massa_campos.email_contato_exportador'),                tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'whatsapp_contato_exportador', rotulo: t('pedido.massa_campos.whatsapp_contato_exportador'),             tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'cargo_contato_exportador', rotulo: t('pedido.massa_campos.cargo_contato_exportador'),                tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
-  { campo: 'departamento_contato_exportador', rotulo: t('pedido.massa_campos.departamento_contato_exportador'),               tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_exportador') },
+  if (c.campo === 'nome_exportador') {
+    def.visivel = (pedidos: Pedido[]) => pedidos.every(p => p.tipo_operacao === 'importacao')
+  }
+  if (c.campo === 'nome_importador') {
+    def.visivel = (pedidos: Pedido[]) => pedidos.every(p => p.tipo_operacao === 'exportacao')
+  }
 
-  // Fabricante
-  { campo: 'nome_fabricante', rotulo: t('pedido.massa_campos.nome_fabricante'),                      tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_fabricante') },
-  { campo: 'endereco_fabricante', rotulo: t('pedido.massa_campos.endereco_fabricante'),                  tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_fabricante') },
-  { campo: 'pais_fabricante', rotulo: t('pedido.massa_campos.pais_fabricante'),                      tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_fabricante') },
-  { campo: 'estado_fabricante', rotulo: t('pedido.massa_campos.estado_fabricante'),                    tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_fabricante') },
-  { campo: 'cidade_fabricante', rotulo: t('pedido.massa_campos.cidade_fabricante'),                    tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_fabricante') },
-  { campo: 'zip_code_fabricante', rotulo: t('pedido.massa_campos.zip_code_fabricante'),                  tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_fabricante') },
+  return def
+}
 
-  // OPE
-  { campo: 'codigo_ope', rotulo: t('pedido.massa_campos.codigo_ope'),                           tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'nome_ope', rotulo: t('pedido.massa_campos.nome_ope'),                             tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'endereco_ope', rotulo: t('pedido.massa_campos.endereco_ope'),                         tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'pais_ope', rotulo: t('pedido.massa_campos.pais_ope'),                             tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'estado_ope', rotulo: t('pedido.massa_campos.estado_ope'),                           tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'cidade_ope', rotulo: t('pedido.massa_campos.cidade_ope'),                           tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'zip_code_ope', rotulo: t('pedido.massa_campos.zip_code_ope'),                         tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'tin_ope', rotulo: t('pedido.massa_campos.tin_ope'),                              tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'email_ope', rotulo: t('pedido.massa_campos.email_ope'),                            tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'situacao_ope', rotulo: t('pedido.massa_campos.situacao_ope'),                         tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'versao_ope', rotulo: t('pedido.massa_campos.versao_ope'),                           tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
-  { campo: 'cnpj_raiz_empresa_responsavel', rotulo: t('pedido.massa_campos.cnpj_raiz_empresa_responsavel'),          tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_ope') },
+export function construirCamposPedidoEditaveis(t: TFunc): DefinicaoCampo[] {
+  return CAMPOS_EDICAO_MASSA_PEDIDO.map(c => definicaoDeCampoSsot(c, t))
+}
 
-  // Dados comerciais
-  { campo: 'moeda_pedido', rotulo: t('pedido.massa_campos.moeda_pedido'),                                  tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'unidade_comercializada_pedido', rotulo: t('pedido.massa_campos.unidade_comercializada_pedido'),                 tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'incoterm_pedido', rotulo: t('pedido.massa_campos.incoterm_pedido'),                               tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'quantidade_volumes_pedido', rotulo: t('pedido.massa_campos.quantidade_volumes_pedido'),                           tipo: 'numero', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'cobertura_cambial_item', rotulo: t('pedido.massa_campos.cobertura_cambial_item'),                      tipo: 'select', nivel: 'item',   grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'cobertura_cambial_pedido', rotulo: t('pedido.massa_campos.cobertura_cambial_pedido'),                    tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'condicao_pagamento_siscomex_pedido', rotulo: t('pedido.massa_campos.condicao_pagamento_siscomex_pedido'), tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'condicao_pagamento_siscomex_item', rotulo: t('pedido.massa_campos.condicao_pagamento_siscomex_item'),     tipo: 'select', nivel: 'item',   grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'nome_exportador_item', rotulo: t('pedido.massa_campos.nome_exportador_item'),           tipo: 'texto',  nivel: 'item',   grupo: t('pedido.modal_massa.grupo_partes') },
-  { campo: 'nome_importador_item', rotulo: t('pedido.massa_campos.nome_importador_item'),           tipo: 'texto',  nivel: 'item',   grupo: t('pedido.modal_massa.grupo_partes') },
-  { campo: 'condicao_pagamento_pedido', rotulo: t('pedido.massa_campos.condicao_pagamento_pedido'),                        tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_comercial') },
+export function construirCamposItemEditaveis(t: TFunc): DefinicaoCampo[] {
+  return CAMPOS_EDICAO_MASSA_ITEM.map(c => definicaoDeCampoSsot(c, t))
+}
 
-  // Câmbio
-  { campo: 'valor_total_cambio_pedido', rotulo: t('pedido.massa_campos.valor_total_cambio_pedido'),                     tipo: 'numero', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_c_mbio') },
-  { campo: 'moeda_cambio_pedido', rotulo: t('pedido.massa_campos.moeda_cambio_pedido'),                           tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_c_mbio') },
-  { campo: 'taxa_cambio_estimada_pedido', rotulo: t('pedido.massa_campos.taxa_cambio_estimada_pedido'),                   tipo: 'numero', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_c_mbio') },
-  { campo: 'contrato_cambio_id_pedido', rotulo: t('pedido.massa_campos.contrato_cambio_id_pedido'),                     tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_c_mbio') },
+/** Coluna criada pelo usuário → DefinicaoCampo (campo `coluna_usuario:<id>`). */
+function definicaoDeColunaUsuario(col: ColunaUsuario, nivel: 'pedido' | 'item', t: TFunc): DefinicaoCampo {
+  const tipo: TipoCampoEdicao =
+    col.tipo === 'numero' || col.tipo === 'percentual' ? 'numero'
+    : col.tipo === 'data' ? 'data'
+    : col.tipo === 'select' || col.tipo === 'checkbox' ? 'select'
+    : col.tipo === 'tipo_documento' && col.opcoes?.length ? 'select'
+    : 'texto'
+  return {
+    campo: `${PREFIXO_COLUNA_USUARIO}${col.id}`,
+    rotulo: col.nome,
+    tipo,
+    nivel,
+    grupo: t('pedido.modal_massa.grupo_personalizadas', { defaultValue: 'Personalizadas' }),
+    // Mesmos rótulos da edição inline da lista (Pedidos.tsx)
+    opcoes: col.tipo === 'select' || col.tipo === 'tipo_documento'
+      ? (col.opcoes ?? []).map(v => ({ valor: v, rotulo: v }))
+      : col.tipo === 'checkbox'
+        ? [
+            { valor: 'true',  rotulo: '✓ Sim' },
+            { valor: 'false', rotulo: '✗ Não' },
+          ]
+        : undefined,
+  }
+}
 
-  // Dados físicos — campos UNITÁRIOS por item (peso/cubagem total do pedido
-  // são agregados derivados, calculados server-side por
-  // `recalcularAgregadosPedido`. Editá-los direto causaria divergência com
-  // a soma real dos itens — bloqueado pelo backend desde Onda A3.)
-  { campo: 'peso_liquido_unitario_item', rotulo: t('pedido.massa_campos.peso_liquido_unitario_item'),                  tipo: 'numero', nivel: 'item',   grupo: t('pedido.modal_massa.grupo_f_sico') },
-  { campo: 'peso_bruto_unitario_item', rotulo: t('pedido.massa_campos.peso_bruto_unitario_item'),                    tipo: 'numero', nivel: 'item',   grupo: t('pedido.modal_massa.grupo_f_sico') },
-  { campo: 'cubagem_unitaria_item', rotulo: t('pedido.massa_campos.cubagem_unitaria_item'),                       tipo: 'numero', nivel: 'item',   grupo: t('pedido.modal_massa.grupo_f_sico') },
-
-  // Documentos
-  { campo: 'numero_proforma_pedido', rotulo: t('pedido.massa_campos.numero_proforma_pedido'),                            tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'numero_invoice_pedido', rotulo: t('pedido.massa_campos.numero_invoice_pedido'),                             tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'referencia_importador_pedido', rotulo: t('pedido.massa_campos.referencia_importador_pedido'),                  tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'referencia_exportador_pedido', rotulo: t('pedido.massa_campos.referencia_exportador_pedido'),                  tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'referencia_fabricante_pedido', rotulo: t('pedido.massa_campos.referencia_fabricante_pedido'),                  tipo: 'texto',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_documentos') },
-
-  // Portos / Logística
-  { campo: 'porto_origem', rotulo: t('pedido.massa_campos.porto_origem'),                           tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
-  { campo: 'porto_destino', rotulo: t('pedido.massa_campos.porto_destino'),                          tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
-  { campo: 'local_de_origem', rotulo: t('pedido.massa_campos.local_de_origem'),                      tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
-  { campo: 'local_de_destino', rotulo: t('pedido.massa_campos.local_de_destino'),                   tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
-  { campo: 'aeroporto_origem', rotulo: t('pedido.massa_campos.aeroporto_origem'),                  tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
-  { campo: 'aeroporto_destino', rotulo: t('pedido.massa_campos.aeroporto_destino'),                 tipo: 'select', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_log_stica') },
-
-  // Datas principais
-  { campo: 'data_emissao_pedido', rotulo: t('pedido.massa_campos.data_emissao_pedido'),                        tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_embarque_origem', rotulo: t('pedido.massa_campos.data_embarque_origem'),                       tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_prevista_pedido_pronto', rotulo: t('pedido.massa_campos.data_prevista_pedido_pronto'),          tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_confirmada_pedido_pronto', rotulo: t('pedido.massa_campos.data_confirmada_pedido_pronto'),        tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_meta_pedido_pronto', rotulo: t('pedido.massa_campos.data_meta_pedido_pronto'),              tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_prevista_inspecao_pedido', rotulo: t('pedido.massa_campos.data_prevista_inspecao_pedido'),               tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_confirmada_inspecao_pedido', rotulo: t('pedido.massa_campos.data_confirmada_inspecao_pedido'),             tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_meta_inspecao_pedido', rotulo: t('pedido.massa_campos.data_meta_inspecao_pedido'),                   tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_prevista_coleta_pedido', rotulo: t('pedido.massa_campos.data_prevista_coleta_pedido'),                 tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_confirmada_coleta_pedido', rotulo: t('pedido.massa_campos.data_confirmada_coleta_pedido'),               tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_meta_coleta_pedido', rotulo: t('pedido.massa_campos.data_meta_coleta_pedido'),                     tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_consolidacao_pedido', rotulo: t('pedido.massa_campos.data_consolidacao_pedido'),                      tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_transferencia_saldo_pedido', rotulo: t('pedido.massa_campos.data_transferencia_saldo_pedido'),               tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_documento_pedido', rotulo: t('pedido.massa_campos.data_documento_pedido'),                  tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_documento_proforma_pedido', rotulo: t('pedido.massa_campos.data_documento_proforma_pedido'),                tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-  { campo: 'data_documento_invoice_pedido', rotulo: t('pedido.massa_campos.data_documento_invoice_pedido'),                 tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas') },
-
-  // Datas — Draft Pedido
-  { campo: 'data_previsao_recebimento_rascunho_pedido', rotulo: t('pedido.massa_campos.data_previsao_recebimento_rascunho_pedido'),            tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_pedido') },
-  { campo: 'data_confirmacao_recebimento_rascunho_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_recebimento_rascunho_pedido'),             tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_pedido') },
-  { campo: 'data_meta_recebimento_rascunho_pedido', rotulo: t('pedido.massa_campos.data_meta_recebimento_rascunho_pedido'),             tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_pedido') },
-  { campo: 'data_previsao_aprovacao_rascunho_pedido', rotulo: t('pedido.massa_campos.data_previsao_aprovacao_rascunho_pedido'),         tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_pedido') },
-  { campo: 'data_confirmacao_aprovacao_rascunho_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_aprovacao_rascunho_pedido'),         tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_pedido') },
-  { campo: 'data_meta_aprovacao_rascunho_pedido', rotulo: t('pedido.massa_campos.data_meta_aprovacao_rascunho_pedido'),          tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_pedido') },
-
-  // Datas — Draft Proforma
-  { campo: 'data_previsao_recebimento_rascunho_proforma_pedido', rotulo: t('pedido.massa_campos.data_previsao_recebimento_rascunho_proforma_pedido'), tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_confirmacao_recebimento_rascunho_proforma_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_recebimento_rascunho_proforma_pedido'), tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_meta_recebimento_rascunho_proforma_pedido', rotulo: t('pedido.massa_campos.data_meta_recebimento_rascunho_proforma_pedido'), tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_previsao_aprovacao_rascunho_proforma_pedido', rotulo: t('pedido.massa_campos.data_previsao_aprovacao_rascunho_proforma_pedido'), tipo: 'data', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_confirmacao_aprovacao_rascunho_proforma_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_aprovacao_rascunho_proforma_pedido'), tipo: 'data', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_meta_aprovacao_rascunho_proforma_pedido', rotulo: t('pedido.massa_campos.data_meta_aprovacao_rascunho_proforma_pedido'),  tipo: 'data', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_previsao_envio_original_proforma_pedido', rotulo: t('pedido.massa_campos.data_previsao_envio_original_proforma_pedido'),  tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_confirmacao_envio_original_proforma_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_envio_original_proforma_pedido'), tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_meta_envio_original_proforma_pedido', rotulo: t('pedido.massa_campos.data_meta_envio_original_proforma_pedido'),   tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_previsao_recebimento_original_proforma_pedido', rotulo: t('pedido.massa_campos.data_previsao_recebimento_original_proforma_pedido'),tipo: 'data', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_confirmacao_recebimento_original_proforma_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_recebimento_original_proforma_pedido'),tipo:'data',nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_meta_recebimento_original_proforma_pedido', rotulo: t('pedido.massa_campos.data_meta_recebimento_original_proforma_pedido'),   tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-  { campo: 'data_proforma_invoice', rotulo: t('pedido.massa_campos.data_proforma_invoice'),                  tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_proforma') },
-
-  // Datas — Draft Invoice
-  { campo: 'data_previsao_recebimento_rascunho_invoice_pedido', rotulo: t('pedido.massa_campos.data_previsao_recebimento_rascunho_invoice_pedido'),  tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_confirmacao_recebimento_rascunho_invoice_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_recebimento_rascunho_invoice_pedido'),  tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_meta_recebimento_rascunho_invoice_pedido', rotulo: t('pedido.massa_campos.data_meta_recebimento_rascunho_invoice_pedido'),  tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_previsao_aprovacao_rascunho_invoice_pedido', rotulo: t('pedido.massa_campos.data_previsao_aprovacao_rascunho_invoice_pedido'),tipo: 'data', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_confirmacao_aprovacao_rascunho_invoice_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_aprovacao_rascunho_invoice_pedido'),tipo: 'data', nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_meta_aprovacao_rascunho_invoice_pedido', rotulo: t('pedido.massa_campos.data_meta_aprovacao_rascunho_invoice_pedido'),tipo: 'data',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_previsao_envio_original_invoice_pedido', rotulo: t('pedido.massa_campos.data_previsao_envio_original_invoice_pedido'),  tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_confirmacao_envio_original_invoice_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_envio_original_invoice_pedido'),  tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_meta_envio_original_invoice_pedido', rotulo: t('pedido.massa_campos.data_meta_envio_original_invoice_pedido'),   tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_previsao_recebimento_original_invoice_pedido', rotulo: t('pedido.massa_campos.data_previsao_recebimento_original_invoice_pedido'),tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_confirmacao_recebimento_original_invoice_pedido', rotulo: t('pedido.massa_campos.data_confirmacao_recebimento_original_invoice_pedido'),tipo:'data',  nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_meta_recebimento_original_invoice_pedido', rotulo: t('pedido.massa_campos.data_meta_recebimento_original_invoice_pedido'),  tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-  { campo: 'data_invoice', rotulo: t('pedido.massa_campos.data_invoice'),                           tipo: 'data',   nivel: 'pedido', grupo: t('pedido.modal_massa.grupo_datas_draft_invoice') },
-] }
-
-function construirCamposItemEditaveis(t: TFunc): DefinicaoCampo[] { return [
-  // Identificação do produto
-  { campo: 'part_number_item', rotulo: t('pedido.massa_campos.part_number_item'),                            tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'ncm_item', rotulo: t('pedido.massa_campos.ncm_item'),                                    tipo: 'ncm',    nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'descricao_item', rotulo: t('pedido.massa_campos.descricao_item'),                      tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'descricao_completa_item_pt', rotulo: t('pedido.massa_campos.descricao_completa_item_pt'),                     tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'descricao_completa_item_en', rotulo: t('pedido.massa_campos.descricao_completa_item_en'),                         tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'descricao_completa_item_es', rotulo: t('pedido.massa_campos.descricao_completa_item_es'),                         tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'descricao_completa_item_nf', rotulo: t('pedido.massa_campos.descricao_completa_item_nf'),                   tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'texto_posicao_ncm', rotulo: t('pedido.massa_campos.texto_posicao_ncm'),                      tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'grupo_item', rotulo: t('pedido.massa_campos.grupo_item'),                          tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'subgrupo_item', rotulo: t('pedido.massa_campos.subgrupo_item'),                       tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'campo_especial_item', rotulo: t('pedido.massa_campos.campo_especial_item'),                         tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'atributos_catalogo', rotulo: t('pedido.massa_campos.atributos_catalogo'),                     tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-  { campo: 'tipo_operacao_item', rotulo: t('pedido.massa_campos.tipo_operacao_item'),                tipo: 'select', nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto'),
-    opcoes: [
-      { valor: 'importacao', rotulo: t('pedido.modal_massa.tipo_op_importacao') },
-      { valor: 'exportacao', rotulo: t('pedido.modal_massa.tipo_op_exportacao') },
-    ] },
-  { campo: 'unidade_comercializada_item', rotulo: t('pedido.massa_campos.unidade_comercializada_item'),          tipo: 'select', nivel: 'item', grupo: t('pedido.modal_massa.grupo_produto') },
-
-  // Quantidades
-  { campo: 'quantidade_inicial_item', rotulo: t('pedido.massa_campos.quantidade_inicial_item'),                           tipo: 'numero', nivel: 'item', grupo: t('pedido.modal_massa.grupo_quantidades') },
-  { campo: 'quantidade_pronta_item', rotulo: t('pedido.massa_campos.quantidade_pronta_item'),                            tipo: 'numero', nivel: 'item', grupo: t('pedido.modal_massa.grupo_quantidades') },
-  { campo: 'quantidade_cancelada_item', rotulo: t('pedido.massa_campos.quantidade_cancelada_item'),                         tipo: 'numero', nivel: 'item', grupo: t('pedido.modal_massa.grupo_quantidades') },
-  { campo: 'casas_decimais_quantidade_item', rotulo: t('pedido.massa_campos.casas_decimais_quantidade_item'),                  tipo: 'numero', nivel: 'item', grupo: t('pedido.modal_massa.grupo_quantidades') },
-
-  // Financeiro / Comercial do Item
-  { campo: 'moeda_item', rotulo: t('pedido.massa_campos.moeda_item'),                           tipo: 'select', nivel: 'item', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'incoterm_item', rotulo: t('pedido.massa_campos.incoterm_item'),                        tipo: 'select', nivel: 'item', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'condicao_pagamento_item', rotulo: t('pedido.massa_campos.condicao_pagamento_item'),                 tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_comercial') },
-  { campo: 'data_emissao_item', rotulo: t('pedido.massa_campos.data_emissao_item'),                    tipo: 'data',   nivel: 'item', grupo: t('pedido.modal_massa.grupo_datas') },
-
-  // Pesos e cubagem
-  { campo: 'peso_liquido_unitario_item', rotulo: t('pedido.massa_campos.peso_liquido_unitario_item'),                  tipo: 'numero', nivel: 'item', grupo: t('pedido.modal_massa.grupo_f_sico') },
-  { campo: 'peso_bruto_unitario_item', rotulo: t('pedido.massa_campos.peso_bruto_unitario_item'),                    tipo: 'numero', nivel: 'item', grupo: t('pedido.modal_massa.grupo_f_sico') },
-  { campo: 'cubagem_unitaria_item', rotulo: t('pedido.massa_campos.cubagem_unitaria_item'),                       tipo: 'numero', nivel: 'item', grupo: t('pedido.modal_massa.grupo_f_sico') },
-
-  // Referências do item
-  { campo: 'referencia_importador_item', rotulo: t('pedido.massa_campos.referencia_importador_item'),                  tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'referencia_exportador_item', rotulo: t('pedido.massa_campos.referencia_exportador_item'),                  tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'referencia_fabricante_item', rotulo: t('pedido.massa_campos.referencia_fabricante_item'),                  tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'numero_proforma_item', rotulo: t('pedido.massa_campos.numero_proforma_item'),                              tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'numero_invoice_item', rotulo: t('pedido.massa_campos.numero_invoice_item'),                                tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
-
-  // Embalagem e documentos
-  { campo: 'tipo_embalagem', rotulo: t('pedido.massa_campos.tipo_embalagem'),                         tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'numero_lpco', rotulo: t('pedido.massa_campos.numero_lpco'),                                tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'numero_certificado_origem', rotulo: t('pedido.massa_campos.numero_certificado_origem'),                        tipo: 'texto',  nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
-  { campo: 'data_certificado_origem', rotulo: t('pedido.massa_campos.data_certificado_origem'),                      tipo: 'data',   nivel: 'item', grupo: t('pedido.modal_massa.grupo_documentos') },
-
-  // Datas do item
-  { campo: 'data_embarque_item', rotulo: t('pedido.massa_campos.data_embarque_item'),                   tipo: 'data',   nivel: 'item', grupo: t('pedido.modal_massa.grupo_datas') },
-] }
+/** Colunas de usuário disponíveis por aba (escopo pedido/item/ambos). */
+export function construirCamposColunaUsuario(
+  colunas: ColunaUsuario[],
+  nivel: 'pedido' | 'item' | 'combinado',
+  t: TFunc,
+): DefinicaoCampo[] {
+  const editaveis = colunas.filter(c => c.tipo !== 'formula') // fórmula é calculada
+  if (nivel === 'pedido') {
+    return editaveis.filter(c => c.escopo !== 'item').map(c => definicaoDeColunaUsuario(c, 'pedido', t))
+  }
+  if (nivel === 'item') {
+    return editaveis.filter(c => c.escopo !== 'pedido').map(c => definicaoDeColunaUsuario(c, 'item', t))
+  }
+  // Combinado: escopo pedido|ambos entram no nível pedido; escopo item no nível item
+  return [
+    ...editaveis.filter(c => c.escopo !== 'item').map(c => definicaoDeColunaUsuario(c, 'pedido', t)),
+    ...editaveis.filter(c => c.escopo === 'item').map(c => definicaoDeColunaUsuario(c, 'item', t)),
+  ]
+}
 
 const OPERACOES_POR_TIPO: Record<TipoCampoEdicao, OperacaoCampo[]> = {
   texto:   ['substituir'],
@@ -335,46 +280,9 @@ const OP_LABEL_KEYS: Record<OperacaoCampo, string> = {
 // numero_pedido removido em 2026-05-25 — duplicatas permitidas com confirmação.
 const CAMPOS_UNIQUE = new Set<string>([])
 
-// Campos que exigem processamento individual por pedido (merge JSON no backend)
-// Deve espelhar CAMPOS_DETALHES_OPERACIONAIS em edicaoEmMassaService.ts
-const CAMPOS_DETALHES_OPERACIONAIS_LENTO = new Set([
-  // Exportador
-  'nome_exportador',
-  'endereco_exportador',
-  'pais_exportador',
-  'estado_exportador',
-  'cidade_exportador',
-  'zip_code_exportador',
-  'exportador_ou_fabricante',
-  'relacao_exportador_fabricante',
-  'nome_contato_exportador',
-  'email_contato_exportador',
-  'whatsapp_contato_exportador',
-  'cargo_contato_exportador',
-  'departamento_contato_exportador',
-  // Importador
-  'nome_importador',
-  // Fabricante
-  'nome_fabricante',
-  'endereco_fabricante',
-  'pais_fabricante',
-  'estado_fabricante',
-  'cidade_fabricante',
-  'zip_code_fabricante',
-  // OPE
-  'codigo_ope',
-  'nome_ope',
-  'endereco_ope',
-  'pais_ope',
-  'estado_ope',
-  'cidade_ope',
-  'zip_code_ope',
-  'tin_ope',
-  'email_ope',
-  'situacao_ope',
-  'versao_ope',
-  'cnpj_raiz_empresa_responsavel',
-])
+// Campos que exigem processamento individual por pedido (merge JSON no backend).
+// SSOT compartilhado com o service — shared/camposEdicaoMassa.ts (Onda 3).
+const CAMPOS_DETALHES_OPERACIONAIS_LENTO = CAMPOS_DETALHES_OPERACIONAIS
 
 // ── Estado de um campo em edição ─────────────────────────────────────────────
 
@@ -473,15 +381,22 @@ function injetarOpcoesDinamicas(campos: DefinicaoCampo[], opcoes: OpcoesDinamica
   })
 }
 
-function camposParaNivel(nivel: NivelEdicao, pedidos: Pedido[] = [], opcoesDinamicas: OpcoesDinamicas = {}, t: TFunc): DefinicaoCampo[] {
+function camposParaNivel(
+  nivel: NivelEdicao,
+  pedidos: Pedido[] = [],
+  opcoesDinamicas: OpcoesDinamicas = {},
+  t: TFunc,
+  colunasUsuario: ColunaUsuario[] = [],
+): DefinicaoCampo[] {
   const filtrar = (lista: DefinicaoCampo[]) =>
     lista.filter(d => !d.visivel || d.visivel(pedidos))
   const injetar = (lista: DefinicaoCampo[]) => injetarOpcoesDinamicas(filtrar(lista), opcoesDinamicas)
   const camposPedido = construirCamposPedidoEditaveis(t)
   const camposItem = construirCamposItemEditaveis(t)
-  if (nivel === 'pedido')   return injetar(camposPedido)
-  if (nivel === 'item')     return injetar(camposItem)
-  return injetar([...camposPedido, ...camposItem])
+  const personalizadas = construirCamposColunaUsuario(colunasUsuario, nivel, t)
+  if (nivel === 'pedido')   return [...injetar(camposPedido), ...personalizadas]
+  if (nivel === 'item')     return [...injetar(camposItem), ...personalizadas]
+  return [...injetar([...camposPedido, ...camposItem]), ...personalizadas]
 }
 
 function estasBloqueado(campo: string, nivel: 'pedido' | 'item'): boolean {
@@ -1033,6 +948,8 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   } = useLogisticaCadastrosPedido()
   const [paisesOpcoes, setPaisesOpcoes] = useState<{ valor: string; rotulo: string }[]>([])
   const [statusOpcoes, setStatusOpcoes] = useState<{ valor: string; rotulo: string }[]>([])
+  // Colunas criadas pelo usuário (Onda 3) — editáveis em massa via EAV
+  const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>([])
   useEffect(() => {
     cadastrosApi.listarPaises()
       .then(r => setPaisesOpcoes(r.itens.map(p => ({
@@ -1042,6 +959,9 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
       .catch(() => {})
     pedidoConfigApi.listarStatus()
       .then(r => setStatusOpcoes(r.data.map(s => ({ valor: s.nome, rotulo: s.rotulo }))))
+      .catch(() => {})
+    colunasUsuarioApi.listar()
+      .then(setColunasUsuario)
       .catch(() => {})
   }, [])
   const opcoesDinamicas: OpcoesDinamicas = {
@@ -1074,7 +994,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
 
   // Inicializar com primeiro campo disponível
   useEffect(() => {
-    const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas, t)
+    const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas, t, colunasUsuario)
     if (disponiveis.length > 0) {
       setCampos([criarCampoVazio(disponiveis[0])])
     }
@@ -1143,18 +1063,18 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   // ── Handlers de campos ───────────────────────────────────────────────────────
 
   const handleAdicionarCampo = useCallback(() => {
-    const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas, t)
+    const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas, t, colunasUsuario)
     if (disponiveis.length > 0) {
       setCampos(prev => [...prev, criarCampoVazio(disponiveis[0])])
     }
-  }, [nivel])
+  }, [nivel, colunasUsuario])
 
   const handleRemoverCampo = useCallback((uid: string) => {
     setCampos(prev => prev.filter(c => c.uid !== uid))
   }, [])
 
   const handleMudarCampoDef = useCallback((uid: string, novoCampo: string) => {
-    const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas, t)
+    const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas, t, colunasUsuario)
     const def = disponiveis.find(d => d.campo === novoCampo)
     if (!def) return
     setCampos(prev => prev.map(c => {
@@ -1162,7 +1082,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
       const ops = OPERACOES_POR_TIPO[def.tipo]
       return { ...c, campo: def.campo, tipo: def.tipo, nivel: def.nivel, operacao: ops[0], valor: '' }
     }))
-  }, [nivel])
+  }, [nivel, colunasUsuario])
 
   const handleMudarOperacao = useCallback((uid: string, operacao: OperacaoCampo) => {
     setCampos(prev => prev.map(c => c.uid === uid ? { ...c, operacao } : c))
@@ -1236,7 +1156,7 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
   // ── Render helpers ────────────────────────────────────────────────────────────
 
   const camposValidos = campos.filter(c => c.valor.trim() !== '')
-  const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas, t)
+  const disponiveis = camposParaNivel(nivel, pedidos, opcoesDinamicas, t, colunasUsuario)
 
   // Algum campo está bloqueado por @@unique (substituir + >1 pedido)?
   // Se sim, bloqueia o botão de revisar/aplicar para falhar ruidoso.

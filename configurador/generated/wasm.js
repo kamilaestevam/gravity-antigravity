@@ -410,6 +410,10 @@ exports.Prisma.TesteScalarFieldEnum = {
   resultado_teste: 'resultado_teste',
   duracao_teste: 'duracao_teste',
   log_erro_teste: 'log_erro_teste',
+  log_sucesso_teste: 'log_sucesso_teste',
+  pasta_emt_teste: 'pasta_emt_teste',
+  lista_prints_emt_teste: 'lista_prints_emt_teste',
+  quantidade_passos_teste: 'quantidade_passos_teste',
   analise_ia_teste: 'analise_ia_teste',
   screenshot_teste: 'screenshot_teste',
   ambiente_teste: 'ambiente_teste',
@@ -461,6 +465,19 @@ exports.Prisma.TestePlanoScalarFieldEnum = {
   ultimo_resultado_plano_teste: 'ultimo_resultado_plano_teste',
   data_criacao_plano_teste: 'data_criacao_plano_teste',
   data_atualizacao_plano_teste: 'data_atualizacao_plano_teste'
+};
+
+exports.Prisma.TesteFavoritoUsuarioScalarFieldEnum = {
+  id_teste_favorito_usuario: 'id_teste_favorito_usuario',
+  id_organizacao_teste_favorito_usuario: 'id_organizacao_teste_favorito_usuario',
+  id_usuario: 'id_usuario',
+  produto_teste_favorito_usuario: 'produto_teste_favorito_usuario',
+  ambiente_teste_favorito_usuario: 'ambiente_teste_favorito_usuario',
+  tipos_teste_favorito_usuario: 'tipos_teste_favorito_usuario',
+  planos_ids_teste_favorito_usuario: 'planos_ids_teste_favorito_usuario',
+  planos_resumo_teste_favorito_usuario: 'planos_resumo_teste_favorito_usuario',
+  data_criacao_teste_favorito_usuario: 'data_criacao_teste_favorito_usuario',
+  data_atualizacao_teste_favorito_usuario: 'data_atualizacao_teste_favorito_usuario'
 };
 
 exports.Prisma.ProdutoGravityFaturaScalarFieldEnum = {
@@ -701,6 +718,7 @@ exports.Prisma.ModelName = {
   Teste: 'Teste',
   TesteAgendamento: 'TesteAgendamento',
   TestePlano: 'TestePlano',
+  TesteFavoritoUsuario: 'TesteFavoritoUsuario',
   ProdutoGravityFatura: 'ProdutoGravityFatura',
   ProdutoGravityFaturaItem: 'ProdutoGravityFaturaItem',
   ProdutoGravityFaturaDocumento: 'ProdutoGravityFaturaDocumento',

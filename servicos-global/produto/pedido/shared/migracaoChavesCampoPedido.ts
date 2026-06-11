@@ -10,6 +10,15 @@ export const CHAVES_CAMPO_PEDIDO_LEGADO_PARA_DDD: Readonly<Record<string, string
   quantidade_pronta_total_item_pedido: 'quantidade_pronta_item',
   quantidade_pronta_total_item:        'quantidade_pronta_item',
   quantidade_pronta_pedido:            'quantidade_pronta_item',
+  // Onda 1 (2026-06-11) — SSOT campos-pedido-ddd.ts alinhado aos nomes
+  // fisicos Prisma. Chaves antigas do SSOT viram legado.
+  porto_origem_pedido:                 'porto_origem',
+  porto_destino_pedido:                'porto_destino',
+  local_de_origem_pedido:              'local_de_origem',
+  local_de_destino_pedido:             'local_de_destino',
+  aeroporto_origem_pedido:             'aeroporto_origem',
+  aeroporto_destino_pedido:            'aeroporto_destino',
+  data_embarque_item_pedido:           'data_embarque_item',
 })
 
 export function normalizarChaveCampoPedido(chave: string): string {

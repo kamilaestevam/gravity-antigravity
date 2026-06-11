@@ -1,6 +1,6 @@
-# Plano de Testes E2E — Duplicar Pedido
+# Plano de Testes E2E — Duplicar Lista Pedido
 
-**ID:** TST-E2E-PEDIDO-000028
+**ID:** TST-E2E-DUPLICAR-LISTA-PEDIDO-000028
 **Data:** 2026-05-16
 **Versão:** 1.0
 **Criticidade:** alta
@@ -170,11 +170,11 @@ Plano de teste E2E completo para a feature de duplicacao de pedidos no produto P
 
 | Passo | Acao | Resultado Esperado | Screenshot |
 |-------|------|--------------------|------------|
-| 5.1 | Selecionar 1 pedido + 1 item de OUTRO pedido | Misto: checkbox de pedido + checkbox de item | 22_misto |
-| 5.2 | Clicar "Duplicar" | Modal com titulo misto "Duplicar 1 pedido e 1 item" | 23_modal_misto |
-| 5.3 | Passo 2 mostra DUAS secoes: "Pedidos" e "Itens" | Secao de pedidos + secao de itens separadas | 24_confirmar_misto |
-| 5.4 | Clicar "Duplicar" | Resultado misto: "1 pedido e 1 item duplicados" | 25_resultado_misto |
-| 5.5 | Verificar novo pedido na tabela + item duplicado no pedido pai | Ambos criados corretamente | |
+| 5.1 | Selecionar 1 pedido inteiro + 2 itens de OUTRO pedido | Misto: checkbox pedido + 2 checkboxes item | 22_misto |
+| 5.2 | Clicar "Duplicar" | Modal passo 1; título misto | 23_modal_misto |
+| 5.3 | Passo 2 | DUAS seções `.modal-duplicar__secao` (pedidos + itens avulsos) | 24_confirmar_misto |
+| 5.4 | Confirmar | Resultado: 1 pedido + N itens | 25_resultado_misto |
+| 5.5 | Fechar modal | Novo pedido no topo; +N itens no pedido avulso expandido | |
 
 ---
 

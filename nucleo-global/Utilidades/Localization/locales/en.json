@@ -155,7 +155,26 @@
       "incotermDdpResp": "Buyer only receives",
       "incotermFasTitle": "FAS — Free Alongside Ship",
       "incotermFasDesc": "Seller delivers alongside the ship",
-      "incotermFasResp": "Buyer pays loading + freight"
+      "incotermFasResp": "Buyer pays loading + freight",
+      "adicionar_outra_bid": "Add another quote to the BID",
+      "subtitulo_vinculada_bid": "Quote linked to BID — fill in the details to find the best freight options"
+    },
+    "novo_bid": {
+      "titulo": "New BID",
+      "titulo_sucesso": "BID created",
+      "subtitulo": "Group multiple quotes in a single bidding process.",
+      "subtitulo_sucesso": "Now add quotes to the group or return to the list.",
+      "referencia": "Internal reference (optional)",
+      "referencia_placeholder": "e.g. Q2 Tender / Project Alpha",
+      "vincular_avulsas": "Link existing standalone quotes (optional)",
+      "sem_avulsas": "No standalone quotes available in the current scope.",
+      "criar": "Create BID",
+      "criando": "Creating BID...",
+      "criar_cotacao": "Create quote for BID",
+      "voltar_lista": "Back to list",
+      "toast_sucesso": "BID {{numero}} created successfully.",
+      "erro_criar": "Error creating BID",
+      "erro_carregar_avulsas": "Error loading standalone quotes"
     },
     "dashboard": {
       "titulo": "Overview",
@@ -253,10 +272,15 @@
       "labelPai_other": "{{count}} quotes",
       "toolbar": {
         "novo": "New",
-        "buscarFrete": "Search freight",
+        "buscarFrete": "Search Freight",
+        "buscarFreteDesc": "Standalone quote or BID",
+        "cotacaoAvulsa": "Standalone Quote",
+        "cotacaoAvulsaDesc": "Quote freight with suppliers",
+        "bid": "BID",
+        "bidDesc": "Group of quotes for multiple suppliers",
         "criarCotacaoManual": "Create quote manually",
-        "importarPlanilha": "Import spreadsheet",
-        "subirPlanilha": "Upload spreadsheet"
+        "importarPlanilha": "Import Spreadsheet",
+        "subirPlanilha": "Upload data spreadsheet"
       },
       "abas": {
         "todas": "All",
@@ -5782,7 +5806,8 @@
       "grupo_datas_draft_proforma": "Proforma Draft Dates",
       "grupo_datas_draft_invoice": "Invoice Draft Dates",
       "grupo_produto": "Product",
-      "grupo_quantidades": "Quantities"
+      "grupo_quantidades": "Quantities",
+      "grupo_personalizadas": "Custom"
     },
     "massa_campos": {
       "numero_pedido": "Order Number",

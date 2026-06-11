@@ -78,7 +78,11 @@ export type KindUI =
 const OVERRIDES: Record<string, KindUI> = {
   // Selects de negocio (tipo='select' no SSOT — opcoesSelect populadas)
   tipo_linha:                  'tipo_linha',
+  // 'tipo_operacao' (sem sufixo) e' a chave de coluna da lista (contrato API);
+  // 'tipo_operacao_pedido'/'tipo_operacao_item' sao os nomes fisicos do SSOT.
   tipo_operacao:               'tipo_operacao',
+  tipo_operacao_pedido:        'tipo_operacao',
+  tipo_operacao_item:          'tipo_operacao',
   // Texto especial / "tipo enum semantico" — manter texto ate definir spec
   cobertura_cambial:           'cobertura_cambial',
   cobertura_cambial_pedido:    'cobertura_cambial',

@@ -156,6 +156,7 @@ model Usuario {
   preferred_company Workspace?         @relation("UserPreferredCompany", fields: [id_workspace_preferido_usuario], references: [id_workspace], onDelete: SetNull, map: "usuario_id_workspace_preferido_usuario_fkey")
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
+  testes_favoritos  TesteFavoritoUsuario[]
 
   // Email único por organização
   @@unique([id_organizacao, email_usuario], map: "usuario_id_organizacao_email_usuario_key")
@@ -839,6 +840,32 @@ model TestePlano {
   @@index([status_plano_teste], map: "plt_status_idx")
   @@index([sublocal_plano_teste], map: "plt_sublocal_idx")
   @@map("plano_teste")
+}
+
+// ---------------------------------------------------------------------------
+// TESTE FAVORITO USUARIO (combinações salvas no modal "Rodar Testes" do Admin)
+// Substitui a persistência localStorage por linha por usuário no banco —
+// favoritos seguem o usuário entre navegadores/máquinas/sessões.
+// ---------------------------------------------------------------------------
+
+model TesteFavoritoUsuario {
+  id_teste_favorito_usuario             String   @id @default(cuid())
+  id_organizacao_teste_favorito_usuario String   @default("platform")
+  id_usuario                            String // vínculo com o usuário dono do favorito
+  produto_teste_favorito_usuario        String // admin | configurador | pedido | bid-frete | ...
+  ambiente_teste_favorito_usuario       String   @default("Local") // Local | Staging | Producao
+  tipos_teste_favorito_usuario          String[] // UNI | FUN | E2E | CRO | EMT
+  planos_ids_teste_favorito_usuario     String[] // ids dos planos marcados
+  planos_resumo_teste_favorito_usuario  Json? // snapshot { id, titulo, descricao, tipo? } ao salvar
+  data_criacao_teste_favorito_usuario     DateTime @default(now())
+  data_atualizacao_teste_favorito_usuario DateTime @updatedAt
+
+  // Relações
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "teste_favorito_usuario_id_usuario_fkey")
+
+  @@index([id_usuario], map: "tfu_usuario_idx")
+  @@index([id_organizacao_teste_favorito_usuario], map: "tfu_org_idx")
+  @@map("teste_favorito_usuario")
 }
 
 // ---------------------------------------------------------------------------

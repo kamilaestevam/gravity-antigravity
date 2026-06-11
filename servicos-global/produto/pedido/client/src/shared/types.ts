@@ -783,36 +783,16 @@ export interface EdicaoMassaResultado {
   erros: { pedido_id: string; motivo: string }[]
 }
 
-/** Campos calculados do Pedido — nunca editáveis em massa nem aceitos no
- *  payload de criação/atualização. São derivados server-side por
- *  `recalcularAgregadosPedido` a partir dos itens. */
-export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
-  // Os 5 agregados oficiais (helper canônico)
-  'valor_total_pedido',
-  'quantidade_total_pedido',
-  'peso_liquido_total_pedido',
-  'peso_bruto_total_pedido',
-  'cubagem_total_pedido',
-  // Outros agregados/sistema
-  'quantidade_transferida_total',
-  'id',
-  'tenant_id',
-  'product_id',
-  'created_at',
-  'updated_at',
-  'deleted_at',
-])
-
-/** Campos calculados do PedidoItem — nunca editáveis em massa */
-export const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_total_item',
-  'quantidade_atual_pedido',
-  'id',
-  'tenant_id',
-  'pedido_id',
-  'created_at',
-  'updated_at',
-])
+/**
+ * Blocklists da edição em massa — SSOT em shared/camposEdicaoMassa.ts
+ * (Onda 2 — 2026-06-11). As listas locais antigas usavam nomes legados
+ * (tenant_id, created_at) que nunca batiam com os campos reais — proteção
+ * morta. Agora o client usa exatamente as mesmas listas do backend.
+ */
+export {
+  CAMPOS_BLOQUEADOS_PEDIDO,
+  CAMPOS_BLOQUEADOS_ITEM,
+} from '../../../shared/camposEdicaoMassa'
 
 // ── Smart Import ──────────────────────────────────────────────────────────────
 

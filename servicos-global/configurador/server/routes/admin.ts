@@ -2638,6 +2638,138 @@ adminRouter.delete('/agendamentos-teste/:id_agendamento_teste', async (req, res,
   }
 })
 
+// ─── Testes Favoritos (model TesteFavoritoUsuario, tabela `teste_favorito_usuario`) ──
+// Combinações salvas no modal "Rodar Testes", por usuário (req.auth.id_usuario).
+// Substitui a persistência localStorage — favoritos seguem o usuário entre dispositivos.
+
+const MAX_TESTES_FAVORITOS_USUARIO = 20
+
+const planoResumoTesteFavoritoSchema = z.object({
+  id: z.string().min(1),
+  titulo: z.string(),
+  descricao: z.string(),
+  tipo: z.enum(['UNI', 'FUN', 'E2E', 'CRO', 'EMT']).optional(),
+})
+
+const CriarTesteFavoritoUsuarioSchema = z.object({
+  produto_teste_favorito_usuario: z.enum([
+    'admin', 'configurador', 'pedido', 'bid-frete', 'bid-cambio', 'lpco', 'nf-importacao', 'simula-custo',
+  ]),
+  ambiente_teste_favorito_usuario: z.enum(['Local', 'Staging', 'Producao']),
+  tipos_teste_favorito_usuario: z.array(z.enum(['UNI', 'FUN', 'E2E', 'CRO', 'EMT'])).min(1),
+  planos_ids_teste_favorito_usuario: z.array(z.string().min(1)).default([]),
+  planos_resumo_teste_favorito_usuario: z.array(planoResumoTesteFavoritoSchema).optional(),
+})
+
+/** Colunas retornadas ao front — paridade nominal com a tabela. */
+const SELECT_TESTE_FAVORITO_USUARIO = {
+  id_teste_favorito_usuario: true,
+  produto_teste_favorito_usuario: true,
+  ambiente_teste_favorito_usuario: true,
+  tipos_teste_favorito_usuario: true,
+  planos_ids_teste_favorito_usuario: true,
+  planos_resumo_teste_favorito_usuario: true,
+  data_criacao_teste_favorito_usuario: true,
+} as const
+
+/** Chave de deduplicação — ignora ordem de tipos e planos. Espelha o front. */
+function chaveTesteFavoritoUsuario(f: {
+  produto_teste_favorito_usuario: string
+  ambiente_teste_favorito_usuario: string
+  tipos_teste_favorito_usuario: string[]
+  planos_ids_teste_favorito_usuario: string[]
+}): string {
+  const tipos = [...f.tipos_teste_favorito_usuario].sort().join(',')
+  const planos = [...f.planos_ids_teste_favorito_usuario].sort().join(',')
+  return `${f.produto_teste_favorito_usuario}|${f.ambiente_teste_favorito_usuario}|${tipos}|${planos}`
+}
+
+/**
+ * GET /api/v1/admin/testes-favoritos
+ * Lista os favoritos do usuário autenticado (mais recentes primeiro).
+ */
+adminRouter.get('/testes-favoritos', async (req, res, next) => {
+  try {
+    const favoritos = await prisma.testeFavoritoUsuario.findMany({
+      where: { id_usuario: req.auth.id_usuario },
+      orderBy: { data_criacao_teste_favorito_usuario: 'desc' },
+      select: SELECT_TESTE_FAVORITO_USUARIO,
+    })
+    res.json({ favoritos })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/v1/admin/testes-favoritos
+ * Salva uma combinação (produto + ambiente + tipos + planos) para o usuário.
+ */
+adminRouter.post('/testes-favoritos', async (req, res, next) => {
+  try {
+    const parsed = CriarTesteFavoritoUsuarioSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const existentes = await prisma.testeFavoritoUsuario.findMany({
+      where: { id_usuario: req.auth.id_usuario },
+      select: {
+        produto_teste_favorito_usuario: true,
+        ambiente_teste_favorito_usuario: true,
+        tipos_teste_favorito_usuario: true,
+        planos_ids_teste_favorito_usuario: true,
+      },
+    })
+
+    const chaveNova = chaveTesteFavoritoUsuario(parsed.data)
+    if (existentes.some(e => chaveTesteFavoritoUsuario(e) === chaveNova)) {
+      throw new AppError('Esta configuração já está nos favoritos', 409, 'FAVORITO_DUPLICADO')
+    }
+    if (existentes.length >= MAX_TESTES_FAVORITOS_USUARIO) {
+      throw new AppError('Limite de favoritos atingido (máx. 20)', 409, 'FAVORITO_LIMITE')
+    }
+
+    const favorito = await prisma.testeFavoritoUsuario.create({
+      data: {
+        id_usuario: req.auth.id_usuario,
+        produto_teste_favorito_usuario: parsed.data.produto_teste_favorito_usuario,
+        ambiente_teste_favorito_usuario: parsed.data.ambiente_teste_favorito_usuario,
+        tipos_teste_favorito_usuario: parsed.data.tipos_teste_favorito_usuario,
+        planos_ids_teste_favorito_usuario: parsed.data.planos_ids_teste_favorito_usuario,
+        planos_resumo_teste_favorito_usuario:
+          parsed.data.planos_resumo_teste_favorito_usuario as object[] | undefined,
+      },
+      select: SELECT_TESTE_FAVORITO_USUARIO,
+    })
+
+    res.status(201).json({ favorito })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * DELETE /api/v1/admin/testes-favoritos/:id_teste_favorito_usuario
+ * Remove um favorito do usuário (ownership garantido por id_usuario no where).
+ */
+adminRouter.delete('/testes-favoritos/:id_teste_favorito_usuario', async (req, res, next) => {
+  try {
+    const result = await prisma.testeFavoritoUsuario.deleteMany({
+      where: {
+        id_teste_favorito_usuario: req.params.id_teste_favorito_usuario,
+        id_usuario: req.auth.id_usuario,
+      },
+    })
+    if (result.count === 0) {
+      throw new AppError('Favorito não encontrado', 404, 'NOT_FOUND')
+    }
+    res.json({ deleted: true, id: req.params.id_teste_favorito_usuario })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ─── Métricas LLM ───────────────────────────────────────────────────────────
 
 /**

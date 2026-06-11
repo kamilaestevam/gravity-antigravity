@@ -27,7 +27,10 @@ const service = new EdicaoEmMassaService()
 
 const CampoSchema = z.object({
   campo: z.string().min(1),
-  tipo: z.enum(['texto', 'numero', 'data', 'select', 'usuario', 'ncm']),
+  // 'checkbox' | 'percentual' | 'tipo_documento' — tipos de colunas criadas
+  // pelo usuário (Onda 2). 'formula' fica de fora de propósito: coluna
+  // calculada é rejeitada já na validação de entrada.
+  tipo: z.enum(['texto', 'numero', 'data', 'select', 'usuario', 'ncm', 'checkbox', 'percentual', 'tipo_documento']),
   nivel: z.enum(['pedido', 'item']),
   operacao: z.enum(['substituir', 'somar', 'subtrair', 'percentual', 'avancar_dias', 'recuar_dias']),
   valor: z.union([z.string(), z.number()]),

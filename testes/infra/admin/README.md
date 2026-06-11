@@ -7,7 +7,7 @@
 
 | Camada | Pasta | Responsabilidade |
 |--------|-------|------------------|
-| **Domínio** | `testes/infra/admin/` | Contratos Zod, localStorage, rótulos, deduplicação, snapshots |
+| **Domínio** | `testes/infra/admin/` | Contratos Zod, mappers, rótulos, deduplicação, snapshots (persistência fica no banco, via API) |
 | **UI** | `configurador/.../ModalTestesExecutar.tsx` | Modal, abas, estilos, APIs, estado React, i18n |
 | **Testes** | `testes/testes-unitarios/configurador/` | Vitest das funções puras (sem browser real) |
 
@@ -20,7 +20,7 @@
 ## Import
 
 ```ts
-import { lerTestesFavoritosAdmin } from '@testes/infra/admin/testes-favoritos-admin'
+import { testeFavoritoUsuarioSchema, rotuloTesteFavoritoUsuario } from '@testes/infra/admin/testes-favoritos-admin'
 ```
 
 Alias configurado em `tsconfig.json` (raiz), `tsconfig.paths-servico.json` e `servicos-global/configurador/vite.config.ts`.
@@ -32,8 +32,16 @@ Alias configurado em `tsconfig.json` (raiz), `tsconfig.paths-servico.json` e `se
 3. **Teste unitário** — adicionar spec em `testes/testes-unitarios/configurador/` ou `testes/testes-unitarios/infra/admin/`.
 4. **Documentar** — atualizar `documentos-tecnicos/testes/tecnico/01-arquitetura-sistema-testes.md`.
 
-## Favoritos — chave localStorage
+## Favoritos — persistência no banco
 
-`admin:testes-favoritos:{id_usuario}` — máximo 20 entradas por usuário.
+Desde 2026-06-11 os favoritos vivem na tabela `teste_favorito_usuario` (model Prisma
+`TesteFavoritoUsuario`, banco do Configurador), escopados por `id_usuario` — máximo 20 por
+usuário (validado no backend). Substituiu o `localStorage`, que não acompanhava o usuário
+entre navegadores/máquinas/janelas anônimas.
 
-Favoritos salvos **antes** de `planos_resumo` exibem só o rótulo curto até o usuário re-salvar ou abrir com o mesmo produto (catálogo de planos carregado).
+- **Rotas:** `GET/POST/DELETE /api/v1/admin/testes-favoritos` (ver `server/routes/admin.ts`).
+- **Client:** `adminTestesFavoritosApi` em `configurador/src/services/api-client.ts`.
+- **Contrato Zod:** `testeFavoritoUsuarioSchema` (este módulo) — paridade nominal com as colunas.
+
+Favoritos salvos **antes** de `planos_resumo` exibem só o rótulo curto até o usuário re-salvar
+ou abrir com o mesmo produto (catálogo de planos carregado).

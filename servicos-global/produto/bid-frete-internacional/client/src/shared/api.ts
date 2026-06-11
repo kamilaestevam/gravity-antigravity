@@ -684,6 +684,23 @@ export async function getBidsFreteInternacional(idsWorkspacesFiltro?: string[]):
   return lista.map(mapBidFreteInternacionalFromServer)
 }
 
+export interface CriarBidFreteInternacionalPayload {
+  referencia_interna_bid_bid_frete_internacional?: string
+  ids_cotacao_bid_frete_internacional?: string[]
+}
+
+export async function criarBidFreteInternacional(
+  payload: CriarBidFreteInternacionalPayload,
+): Promise<BidFreteInternacional> {
+  const res = await fetch(`${API_BASE}/bid-frete-internacional/bids-frete-internacional`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify(payload),
+  })
+  const data = await handleResponse<{ bid_frete_internacional: unknown }>(res)
+  return mapBidFreteInternacionalFromServer(data.bid_frete_internacional)
+}
+
 export async function getStatusBidConfigFreteInternacional(): Promise<StatusBidConfigBidFreteInternacional[]> {
   const res = await fetch(`${API_BASE}/bid-frete-internacional/config/status-bid-frete-internacional`, { headers: headers() })
   const data = await handleResponse<{ status_bid_frete_internacional?: unknown[]; status?: unknown[] }>(res)

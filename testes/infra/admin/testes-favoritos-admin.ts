@@ -4,19 +4,22 @@
  * CAMADA DE DOMÍNIO — lógica pura do modal «Rodar Testes» (Admin).
  *
  * O que mora AQUI (testes/infra/admin/):
- * - Contratos Zod (TesteFavoritoAdmin, planos_resumo)
- * - Persistência localStorage (chave por id_usuario)
+ * - Contratos Zod (TesteFavoritoUsuario, planos_resumo) — espelham a tabela
+ *   `teste_favorito_usuario` (model Prisma TesteFavoritoUsuario no Configurador).
+ *   Paridade nominal absoluta: os campos usam EXATAMENTE os nomes das colunas.
  * - Helpers de rótulo, deduplicação, snapshot de planos ao salvar favorito
  * - Funções testáveis sem React, sem fetch, sem i18n
  *
- * O que NÃO mora aqui — fica no Configurador (UI):
- * - ModalTestesExecutar.tsx — layout, abas, pills, estilos, ícones
- * - Chamadas adminPlanosTesteApi / adminTestesApi
- * - Estado React (produto selecionado, planos marcados, loading)
- * - Tradução (useTranslation) e componentes @nucleo/*
+ * O que NÃO mora aqui:
+ * - Persistência: agora é no banco (tabela `teste_favorito_usuario`), via
+ *   `adminTestesFavoritosApi` em servicos-global/configurador/src/services/api-client.ts.
+ *   (até 2026-06-11 era localStorage por id_usuario — substituído para o favorito
+ *    seguir o usuário entre navegadores/máquinas/sessões).
+ * - ModalTestesExecutar.tsx — layout, abas, pills, estilos, ícones, estado React.
  *
  * Consumidores:
  * - servicos-global/configurador/src/pages/admin/ModalTestesExecutar.tsx
+ * - servicos-global/configurador/src/services/api-client.ts (importa o schema)
  * - testes/testes-unitarios/configurador/testes-favoritos-admin.test.ts
  *
  * Import: `@testes/infra/admin/testes-favoritos-admin`
@@ -41,27 +44,33 @@ export type ProdutoTesteFavorito = (typeof PRODUTOS_TESTE_FAVORITO)[number]
 export const TIPOS_TESTE_FAVORITO = ['UNI', 'FUN', 'E2E', 'CRO', 'EMT'] as const
 export type TipoTesteFavorito = (typeof TIPOS_TESTE_FAVORITO)[number]
 
-const MAX_FAVORITOS = 20
+/** Limite por usuário — espelhado no backend (POST /admin/testes-favoritos). */
+export const MAX_TESTES_FAVORITOS_USUARIO = 20
 
-const planoFavoritoResumoSchema = z.object({
+export const planoFavoritoResumoSchema = z.object({
   id: z.string().min(1),
-  titulo: z.string().min(1),
+  titulo: z.string(),
   descricao: z.string(),
   tipo: z.enum(TIPOS_TESTE_FAVORITO).optional(),
 })
 
-const testeFavoritoSchema = z.object({
-  produto: z.enum(PRODUTOS_TESTE_FAVORITO),
-  ambiente: z.enum(AMBIENTES_TESTE_FAVORITO),
-  tipos: z.array(z.enum(TIPOS_TESTE_FAVORITO)).min(1),
-  planos_ids: z.array(z.string().min(1)),
+/**
+ * Contrato de um favorito — espelha a tabela `teste_favorito_usuario`.
+ * `id_teste_favorito_usuario` e `data_criacao_teste_favorito_usuario` vêm do banco
+ * (ausentes ao montar um favorito novo antes de salvar).
+ */
+export const testeFavoritoUsuarioSchema = z.object({
+  id_teste_favorito_usuario: z.string().optional(),
+  produto_teste_favorito_usuario: z.enum(PRODUTOS_TESTE_FAVORITO),
+  ambiente_teste_favorito_usuario: z.enum(AMBIENTES_TESTE_FAVORITO),
+  tipos_teste_favorito_usuario: z.array(z.enum(TIPOS_TESTE_FAVORITO)).min(1),
+  planos_ids_teste_favorito_usuario: z.array(z.string().min(1)),
   /** Snapshot ao salvar — exibe título/descrição mesmo com outro produto selecionado. */
-  planos_resumo: z.array(planoFavoritoResumoSchema).optional(),
+  planos_resumo_teste_favorito_usuario: z.array(planoFavoritoResumoSchema).nullish(),
+  data_criacao_teste_favorito_usuario: z.string().optional(),
 })
 
-const listaFavoritosSchema = z.array(testeFavoritoSchema).max(MAX_FAVORITOS)
-
-export type TesteFavoritoAdmin = z.infer<typeof testeFavoritoSchema>
+export type TesteFavoritoUsuario = z.infer<typeof testeFavoritoUsuarioSchema>
 export type PlanoFavoritoResumo = z.infer<typeof planoFavoritoResumoSchema>
 
 export interface PlanoFavoritoResumoOrigem {
@@ -139,16 +148,17 @@ export function montarResumoPlanosFavorito(
 
 /** Resolve planos para exibição no card de favorito (snapshot → catálogo → fallback id). */
 export function planosExibicaoFavorito(
-  fav: TesteFavoritoAdmin,
+  fav: TesteFavoritoUsuario,
   planosCatalogo?: readonly PlanoFavoritoResumoOrigem[],
 ): PlanoFavoritoResumo[] {
-  if (fav.planos_resumo && fav.planos_resumo.length > 0) {
-    return fav.planos_resumo
+  const resumo = fav.planos_resumo_teste_favorito_usuario
+  if (resumo && resumo.length > 0) {
+    return resumo
   }
   if (planosCatalogo && planosCatalogo.length > 0) {
-    return montarResumoPlanosFavorito(fav.planos_ids, planosCatalogo)
+    return montarResumoPlanosFavorito(fav.planos_ids_teste_favorito_usuario, planosCatalogo)
   }
-  return fav.planos_ids.map(id => ({ id, titulo: '', descricao: '' }))
+  return fav.planos_ids_teste_favorito_usuario.map(id => ({ id, titulo: '', descricao: '' }))
 }
 
 /** Evita exibir o ID duas vezes quando não há título humano no snapshot. */
@@ -158,14 +168,16 @@ export function tituloPlanoFavoritoExibicao(plano: PlanoFavoritoResumo): string 
   return titulo
 }
 
-export function chaveTestesFavoritosAdmin(idUsuario: string): string {
-  return `admin:testes-favoritos:${idUsuario}`
-}
-
-export function chaveTesteFavoritoAdmin(fav: TesteFavoritoAdmin): string {
-  const tipos = [...fav.tipos].sort().join(',')
-  const planos = [...fav.planos_ids].sort().join(',')
-  return `${fav.produto}|${fav.ambiente}|${tipos}|${planos}`
+/** Chave de deduplicação — ignora ordem de tipos e planos. Espelhada no backend. */
+export function chaveTesteFavoritoUsuario(
+  fav: Pick<
+    TesteFavoritoUsuario,
+    'produto_teste_favorito_usuario' | 'ambiente_teste_favorito_usuario' | 'tipos_teste_favorito_usuario' | 'planos_ids_teste_favorito_usuario'
+  >,
+): string {
+  const tipos = [...fav.tipos_teste_favorito_usuario].sort().join(',')
+  const planos = [...fav.planos_ids_teste_favorito_usuario].sort().join(',')
+  return `${fav.produto_teste_favorito_usuario}|${fav.ambiente_teste_favorito_usuario}|${tipos}|${planos}`
 }
 
 export function rotuloAmbienteTesteFavorito(ambiente: AmbienteTesteFavorito): string {
@@ -173,14 +185,14 @@ export function rotuloAmbienteTesteFavorito(ambiente: AmbienteTesteFavorito): st
   return ambiente
 }
 
-export function rotuloTesteFavoritoAdmin(
-  fav: TesteFavoritoAdmin,
+export function rotuloTesteFavoritoUsuario(
+  fav: TesteFavoritoUsuario,
   rotuloProduto?: string,
 ): string {
-  const prod = rotuloProduto ?? fav.produto
-  const tipos = [...fav.tipos].join(', ')
-  const nPlanos = fav.planos_ids.length
-  return `${prod} · ${rotuloAmbienteTesteFavorito(fav.ambiente)} · ${tipos} · ${nPlanos} plano${nPlanos !== 1 ? 's' : ''}`
+  const prod = rotuloProduto ?? fav.produto_teste_favorito_usuario
+  const tipos = [...fav.tipos_teste_favorito_usuario].join(', ')
+  const nPlanos = fav.planos_ids_teste_favorito_usuario.length
+  return `${prod} · ${rotuloAmbienteTesteFavorito(fav.ambiente_teste_favorito_usuario)} · ${tipos} · ${nPlanos} plano${nPlanos !== 1 ? 's' : ''}`
 }
 
 export function filtrarPlanosFavoritoValidos(
@@ -189,61 +201,4 @@ export function filtrarPlanosFavoritoValidos(
 ): string[] {
   const disponiveis = new Set(planosDisponiveis.map(p => p.id))
   return planosIds.filter(id => disponiveis.has(id))
-}
-
-export function lerTestesFavoritosAdmin(idUsuario: string): TesteFavoritoAdmin[] {
-  if (!idUsuario) return []
-  try {
-    const raw = localStorage.getItem(chaveTestesFavoritosAdmin(idUsuario))
-    if (!raw) return []
-    const parsed: unknown = JSON.parse(raw)
-    const result = listaFavoritosSchema.safeParse(parsed)
-    return result.success ? result.data : []
-  } catch {
-    return []
-  }
-}
-
-function gravarTestesFavoritosAdmin(idUsuario: string, favoritos: TesteFavoritoAdmin[]): TesteFavoritoAdmin[] {
-  const validados = listaFavoritosSchema.safeParse(favoritos)
-  const lista = validados.success ? validados.data : []
-  try {
-    if (lista.length === 0) {
-      localStorage.removeItem(chaveTestesFavoritosAdmin(idUsuario))
-    } else {
-      localStorage.setItem(chaveTestesFavoritosAdmin(idUsuario), JSON.stringify(lista))
-    }
-  } catch {
-    /* quota / private mode */
-  }
-  return lista
-}
-
-export function adicionarTesteFavoritoAdmin(
-  idUsuario: string,
-  favorito: TesteFavoritoAdmin,
-): { favoritos: TesteFavoritoAdmin[]; adicionado: boolean; motivo?: 'duplicado' | 'limite' | 'invalido' } {
-  const parsed = testeFavoritoSchema.safeParse(favorito)
-  if (!parsed.success) {
-    return { favoritos: lerTestesFavoritosAdmin(idUsuario), adicionado: false, motivo: 'invalido' }
-  }
-
-  const atual = lerTestesFavoritosAdmin(idUsuario)
-  const chaveNova = chaveTesteFavoritoAdmin(parsed.data)
-  if (atual.some(f => chaveTesteFavoritoAdmin(f) === chaveNova)) {
-    return { favoritos: atual, adicionado: false, motivo: 'duplicado' }
-  }
-  if (atual.length >= MAX_FAVORITOS) {
-    return { favoritos: atual, adicionado: false, motivo: 'limite' }
-  }
-
-  const favoritos = gravarTestesFavoritosAdmin(idUsuario, [...atual, parsed.data])
-  return { favoritos, adicionado: true }
-}
-
-export function removerTesteFavoritoAdmin(idUsuario: string, indice: number): TesteFavoritoAdmin[] {
-  const atual = lerTestesFavoritosAdmin(idUsuario)
-  if (indice < 0 || indice >= atual.length) return atual
-  const next = atual.filter((_, i) => i !== indice)
-  return gravarTestesFavoritosAdmin(idUsuario, next)
 }

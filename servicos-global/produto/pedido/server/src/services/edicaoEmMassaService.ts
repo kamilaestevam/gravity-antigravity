@@ -2,111 +2,35 @@
  * edicaoEmMassaService.ts — Serviço de edição em massa de pedidos
  *
  * Responsabilidades:
- *   - Validar campos bloqueados (calculados — nunca editáveis)
+ *   - Validar campos contra o SSOT compartilhado (shared/camposEdicaoMassa.ts)
  *   - Calcular preview sem alterar banco
- *   - Aplicar edições em $transaction com recálculo de agregados
+ *   - Aplicar edições dentro da transação aberta por withOrganizacao
+ *   - Gravar colunas criadas pelo usuário (EAV — PedidoListaColunaUsuarioValor)
  *   - Registrar audit trail
  *
  * Regras:
  *   - id_organizacao obrigatório em todas as queries
  *   - Frontend envia nome exato da coluna do Prisma (DDD-puro, sem ACL)
- *   - Campos em CAMPOS_BLOQUEADOS_* são rejeitados com AppError 400
- *   - Campos em CAMPOS_DETALHES_OPERACIONAIS vivem como chaves no JSON
- *     `detalhes_operacionais_pedido` (não são colunas físicas do Pedido)
+ *   - Blocklist e campos JSON vêm do SSOT — nenhuma lista duplicada aqui
+ *   - Colunas de usuário viajam como `coluna_usuario:<id>` (validadas contra o banco)
  *   - Operações: substituir / somar / subtrair / percentual / avancar_dias / recuar_dias
  */
 
-// ── Campos calculados — nunca editáveis em massa ──────────────────────────────
-
-import { PrismaClient, Prisma } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import { obterWorkspaces, type WorkspaceLookupItem } from '@gravity/resolver-organizacao'
 import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 import { recalcularAgregadosPedido as recalcularAgregadosCanonico } from '../../../../processos-core/src/services/recalcularAgregadosPedido.js'
 import { MAPA_PROPAGACAO_PEDIDO_ITEM } from '../../../shared/mapaPropagacaoPedidoItem.js'
 import { normalizarChaveCampoPedido } from '../../../shared/migracaoChavesCampoPedido.js'
+import {
+  CAMPOS_DETALHES_OPERACIONAIS,
+  motivoBloqueioCampo,
+  ehCampoColunaUsuario,
+  idColunaUsuarioDeCampo,
+} from '../../../shared/camposEdicaoMassa.js'
 
 // Workaround Prisma 5.22: TransactionClient (Omit em classe genérica) perde delegates
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
-
-const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
-  // Agregados calculados pelo recalcularAgregadosPedido
-  'valor_total_pedido',
-  'quantidade_total_pedido',
-  'peso_liquido_total_pedido',
-  'peso_bruto_total_pedido',
-  'cubagem_total_pedido',
-  // Sistema / identidade
-  'id_pedido',
-  'id_organizacao',
-  'id_workspace',
-  'id_status_pedido',
-  'data_criacao_pedido',
-  'data_atualizacao_pedido',
-  'data_exclusao_pedido',
-  'data_consolidacao_pedido',
-  'ids_origem_consolidacao_pedido',
-])
-
-const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  // Calculados
-  'valor_total_item',
-  'quantidade_atual_item',
-  'quantidade_transferida_item', // saldoEngine — fluxo de transferência
-  // Sistema / identidade
-  'id_item',
-  'id_organizacao',
-  'id_workspace',
-  'id_pedido',
-  'data_criacao_item',
-  'data_atualizacao_item',
-  'data_exclusao_item',
-])
-
-// ── Campos armazenados em detalhes_operacionais_pedido — merge em JSON ─────────
-// Esses campos não são colunas do Pedido; vivem como chaves dentro do JSON
-// `detalhes_operacionais_pedido`. Incluem dados de Exportador, Importador,
-// Fabricante e OPE.
-
-const CAMPOS_DETALHES_OPERACIONAIS = new Set([
-  // Exportador
-  'nome_exportador',
-  'cnpj_exportador',   // auto-fill: workspace.cnpj_workspace em EXP
-  'endereco_exportador',
-  'pais_exportador',
-  'estado_exportador',
-  'cidade_exportador',
-  'zip_code_exportador',
-  'exportador_ou_fabricante',
-  'relacao_exportador_fabricante',
-  'nome_contato_exportador',
-  'email_contato_exportador',
-  'whatsapp_contato_exportador',
-  'cargo_contato_exportador',
-  'departamento_contato_exportador',
-  // Importador
-  'nome_importador',
-  'cnpj_importador',   // auto-fill: workspace.cnpj_workspace em IMP
-  // Fabricante
-  'nome_fabricante',
-  'endereco_fabricante',
-  'pais_fabricante',
-  'estado_fabricante',
-  'cidade_fabricante',
-  'zip_code_fabricante',
-  // OPE
-  'codigo_ope',
-  'nome_ope',
-  'endereco_ope',
-  'pais_ope',
-  'estado_ope',
-  'cidade_ope',
-  'zip_code_ope',
-  'tin_ope',
-  'email_ope',
-  'situacao_ope',
-  'versao_ope',
-  'cnpj_raiz_empresa_responsavel',
-])
 
 // ── Campos de quantidade — disparam recálculo de agregados ────────────────────
 
@@ -183,7 +107,47 @@ const AUTO_FILL_TIPO_OPERACAO: Record<'importacao' | 'exportacao', {
 // ── Tipos internos ────────────────────────────────────────────────────────────
 
 type TipoCampoEdicao = 'texto' | 'numero' | 'data' | 'select' | 'usuario' | 'ncm'
+  | 'checkbox' | 'percentual' | 'tipo_documento'
 type OperacaoCampo = 'substituir' | 'somar' | 'subtrair' | 'percentual' | 'avancar_dias' | 'recuar_dias'
+
+// ── Colunas criadas pelo usuário (EAV) ────────────────────────────────────────
+
+interface ColunaUsuarioMassa {
+  id: string
+  nome: string
+  tipo: string   // texto|numero|data|select|checkbox|percentual|tipo_documento|formula
+  escopo: string // pedido|item|ambos
+}
+
+/** Operações permitidas por tipo de coluna de usuário. */
+const OPERACOES_POR_TIPO_COLUNA_USUARIO: Record<string, ReadonlySet<OperacaoCampo>> = {
+  numero:         new Set(['substituir', 'somar', 'subtrair', 'percentual']),
+  percentual:     new Set(['substituir', 'somar', 'subtrair', 'percentual']),
+  data:           new Set(['substituir', 'avancar_dias', 'recuar_dias']),
+  texto:          new Set(['substituir']),
+  select:         new Set(['substituir']),
+  checkbox:       new Set(['substituir']),
+  tipo_documento: new Set(['substituir']),
+}
+
+/** Tipo de operação efetivo (para aplicarOperacao) de uma coluna de usuário. */
+function tipoEdicaoDeColunaUsuario(tipo: string): TipoCampoEdicao {
+  if (tipo === 'numero' || tipo === 'percentual') return 'numero'
+  if (tipo === 'data') return 'data'
+  return 'texto'
+}
+
+// Delegates mínimos do EAV de colunas de usuário (evita `any` explícito —
+// o PrismaClient composto do monorepo nem sempre expõe os tipos gerados aqui).
+interface DelegatesColunaUsuario {
+  pedidoListaColunaUsuario: {
+    findMany(args: Record<string, unknown>): Promise<Array<Record<string, unknown>>>
+  }
+  pedidoListaColunaUsuarioValor: {
+    findMany(args: Record<string, unknown>): Promise<Array<Record<string, unknown>>>
+    upsert(args: Record<string, unknown>): Promise<unknown>
+  }
+}
 
 interface CampoEdicaoMassa {
   campo: string
@@ -264,6 +228,9 @@ function rotuloCampo(coluna: string): string {
  * P2002 = violação de unique constraint.
  */
 function resolverMensagemErro(err: unknown): string {
+  // AppError carrega mensagem já legível (ex: workspace órfão) — repassar
+  if (err instanceof AppError) return err.message
+
   if (typeof err === 'object' && err !== null && 'code' in err) {
     const prismaErr = err as { code: string; meta?: { target?: string[] } }
     if (prismaErr.code === 'P2002') {
@@ -325,11 +292,17 @@ export class EdicaoEmMassaService {
   ): Promise<EdicaoMassaPreview> {
     payload = normalizarPayloadEdicaoMassa(payload)
     this.validarCamposEditaveis(payload.campos)
+    const colunasUsuario = await this.validarColunasUsuario(id_organizacao, db, payload.campos)
 
     const pedidos = await db.pedido.findMany({
       where: { id_organizacao: id_organizacao, id_pedido: { in: payload.pedido_ids } },
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
+
+    // Valores atuais das colunas de usuário (EAV) — para valores_distintos
+    const valoresColunaUsuario = await this.carregarValoresColunaUsuario(
+      id_organizacao, db, colunasUsuario, pedidos as Record<string, unknown>[],
+    )
 
     // Cascade Pedido → Item ativo apenas na aba "Combinado".
     const ehCombinado = payload.nivel === 'combinado'
@@ -384,12 +357,30 @@ export class EdicaoEmMassaService {
 
     const camposPreview = payload.campos.map(c => {
       const valores: string[] = []
-      const cascadePara = c.nivel === 'pedido' && ehCombinado
+      const cascadePara = c.nivel === 'pedido' && ehCombinado && !ehCampoColunaUsuario(c.campo)
         ? PARES_CASCADE_PEDIDO_ITEM[c.campo]
         : undefined
       let overridesSobrescritos = 0
+      const idColunaUsuario = idColunaUsuarioDeCampo(c.campo)
 
-      if (c.nivel === 'pedido') {
+      if (idColunaUsuario) {
+        // Coluna de usuário — valores atuais vêm do EAV
+        if (c.nivel === 'pedido') {
+          pedidos.forEach((p: Record<string, unknown>) => {
+            valores.push(valoresColunaUsuario.get(`${idColunaUsuario}:${p.id_pedido as string}`) ?? '')
+          })
+        } else {
+          pedidos.forEach((p: Record<string, unknown>) => {
+            const todosItens = (p.itens_pedido as Record<string, unknown>[]) ?? []
+            const itens = filtroItemIds
+              ? todosItens.filter(i => filtroItemIds.has(i.id_item as string))
+              : todosItens
+            itens.forEach(item => {
+              valores.push(valoresColunaUsuario.get(`${idColunaUsuario}:${item.id_item as string}`) ?? '')
+            })
+          })
+        }
+      } else if (c.nivel === 'pedido') {
         pedidos.forEach((p: Record<string, unknown>) => {
           const valor = CAMPOS_DETALHES_OPERACIONAIS.has(c.campo)
             ? ((p.detalhes_operacionais_pedido as Record<string, unknown> | null)?.[c.campo] ?? '')
@@ -514,6 +505,7 @@ export class EdicaoEmMassaService {
   ): Promise<EdicaoMassaResultado> {
     payload = normalizarPayloadEdicaoMassa(payload)
     this.validarCamposEditaveis(payload.campos)
+    const colunasUsuario = await this.validarColunasUsuario(id_organizacao, db, payload.campos)
 
     const pedidos = await db.pedido.findMany({
       where: { id_organizacao: id_organizacao, id_pedido: { in: payload.pedido_ids } },
@@ -524,8 +516,17 @@ export class EdicaoEmMassaService {
       throw new AppError('Nenhum pedido encontrado para edição', 404, 'NOT_FOUND')
     }
 
-    const camposPedido = payload.campos.filter(c => c.nivel === 'pedido')
-    const camposItem = payload.campos.filter(c => c.nivel === 'item')
+    // Colunas de usuário (EAV) ficam fora dos updates Prisma diretos
+    const camposPedido = payload.campos.filter(c => c.nivel === 'pedido' && !ehCampoColunaUsuario(c.campo))
+    const camposItem = payload.campos.filter(c => c.nivel === 'item' && !ehCampoColunaUsuario(c.campo))
+    const camposColunaUsuarioPedido = payload.campos.filter(c => c.nivel === 'pedido' && ehCampoColunaUsuario(c.campo))
+    const camposColunaUsuarioItem = payload.campos.filter(c => c.nivel === 'item' && ehCampoColunaUsuario(c.campo))
+
+    // Valores atuais do EAV — necessários para operações relativas (somar, dias)
+    const valoresColunaUsuario = (camposColunaUsuarioPedido.length > 0 || camposColunaUsuarioItem.length > 0)
+      ? await this.carregarValoresColunaUsuario(id_organizacao, db, colunasUsuario, pedidos as Record<string, unknown>[])
+      : new Map<string, string>()
+
     const erros: { pedido_id: string; motivo: string }[] = []
     let pedidosAtualizados = 0
     let itensAtualizados = 0
@@ -597,6 +598,8 @@ export class EdicaoEmMassaService {
       camposPedido.length > 0 &&
       camposItem.length === 0 &&
       camposCascade.length === 0 &&
+      camposColunaUsuarioPedido.length === 0 &&  // EAV exige upsert por pedido → slow path
+      camposColunaUsuarioItem.length === 0 &&
       novoTipo === null &&  // LT1 — auto-fill incompatível com fast path
       !filtroItemIds &&     // Seleção de itens específicos → slow path (não toca pedido)
       camposPedido.every(c => c.operacao === 'substituir' && !CAMPOS_DETALHES_OPERACIONAIS.has(c.campo))
@@ -608,7 +611,7 @@ export class EdicaoEmMassaService {
       }
       try {
         await db.pedido.updateMany({
-          where: { id_pedido: { in: pedidoIds } },
+          where: { id_organizacao: id_organizacao, id_pedido: { in: pedidoIds } },
           data: dadosUpdateMany,
         })
       } catch (err: unknown) {
@@ -661,11 +664,14 @@ export class EdicaoEmMassaService {
         const pedidoId = pedido.id_pedido as string
 
         try {
-          // Aplicar campos de nível pedido
           // Quando filtroItemIds está presente (seleção de itens específicos),
           // NÃO alterar campos do pedido — EXCETO se o pedido está em pedidoIdsCompleto
           // (caso misto: pedido explicitamente selecionado + itens avulsos de outros).
-          if (camposPedido.length > 0 && (!filtroItemIds || (pedidoIdsCompleto && pedidoIdsCompleto.has(pedidoId)))) {
+          const podeTocarPedido = !filtroItemIds || (pedidoIdsCompleto !== null && pedidoIdsCompleto.has(pedidoId))
+          let tocouPedido = false
+
+          // Aplicar campos de nível pedido
+          if (camposPedido.length > 0 && podeTocarPedido) {
             const dadosPedido: Record<string, unknown> = {}
             let detalhesUpdate: Record<string, unknown> | null = null
 
@@ -730,17 +736,32 @@ export class EdicaoEmMassaService {
             }
 
             await db.pedido.update({
-              where: { id_pedido: pedidoId },
+              where: { id_pedido: pedidoId, id_organizacao: id_organizacao },
               data: dadosPedido,
             })
             camposPedidoGravados += camposPedido.length + camposAutoFill.length
+            tocouPedido = true
+          }
+
+          // Colunas de usuário — nível pedido (upsert EAV, mesma transação)
+          if (camposColunaUsuarioPedido.length > 0 && podeTocarPedido) {
+            for (const c of camposColunaUsuarioPedido) {
+              const idCol = idColunaUsuarioDeCampo(c.campo) as string
+              const col = colunasUsuario.get(idCol) as ColunaUsuarioMassa
+              const atual = valoresColunaUsuario.get(`${idCol}:${pedidoId}`)
+              const novo = this.aplicarOperacao(atual, c.operacao, c.valor, tipoEdicaoDeColunaUsuario(col.tipo))
+              await this.upsertValorColunaUsuario(id_organizacao, db, idCol, 'pedido', pedidoId, String(novo ?? ''))
+              camposPedidoGravados++
+            }
+            tocouPedido = true
           }
 
           // Aplicar campos de nível item — frontend já envia nome DDD da coluna.
           // Inclui também cascade Pedido→Item (camposCascade) quando aba é Combinado.
           // **Auto-fill** também cascadeia para nome_*_item de cada item.
           const temAutoFillItem = novoTipo !== null
-          const temUpdateItem = camposItem.length > 0 || camposCascade.length > 0 || temAutoFillItem
+          const temUpdateItem = camposItem.length > 0 || camposCascade.length > 0
+            || camposColunaUsuarioItem.length > 0 || temAutoFillItem
           if (temUpdateItem) {
             const todosItens = (pedido.itens_pedido as Record<string, unknown>[]) ?? []
             // Filtrar por item_ids quando seleção é de itens específicos
@@ -778,15 +799,27 @@ export class EdicaoEmMassaService {
                   }
                 }
               }
-              if (Object.keys(dadosItem).length === 0) continue
-              const resultado = await db.pedidoItem.update({
-                where: { id_item: item.id_item as string },
-                data: dadosItem,
-              })
-              if (resultado) {
-                itensAtualizados++
+              let alterouEsteItem = false
+              if (Object.keys(dadosItem).length > 0) {
+                await db.pedidoItem.update({
+                  where: { id_item: item.id_item as string, id_organizacao: id_organizacao },
+                  data: dadosItem,
+                })
+                alterouEsteItem = true
                 camposItemGravados += Object.keys(dadosItem).length
               }
+              // Colunas de usuário — nível item (upsert EAV, mesma transação)
+              for (const c of camposColunaUsuarioItem) {
+                const idCol = idColunaUsuarioDeCampo(c.campo) as string
+                const col = colunasUsuario.get(idCol) as ColunaUsuarioMassa
+                const itemId = item.id_item as string
+                const atual = valoresColunaUsuario.get(`${idCol}:${itemId}`)
+                const novo = this.aplicarOperacao(atual, c.operacao, c.valor, tipoEdicaoDeColunaUsuario(col.tipo))
+                await this.upsertValorColunaUsuario(id_organizacao, db, idCol, 'item', itemId, String(novo ?? ''))
+                alterouEsteItem = true
+                camposItemGravados++
+              }
+              if (alterouEsteItem) itensAtualizados++
             }
           }
 
@@ -795,7 +828,7 @@ export class EdicaoEmMassaService {
             await this.recalcularAgregados(id_organizacao, pedidoId, db)
           }
 
-          if (camposPedido.length > 0 || temUpdateItem) pedidosAtualizados++
+          if (tocouPedido || temUpdateItem) pedidosAtualizados++
         } catch (err: unknown) {
           console.warn('[EdicaoEmMassa] Falha no pedido', pedidoId, err)
           erros.push({
@@ -911,23 +944,162 @@ export class EdicaoEmMassaService {
     await recalcularAgregadosCanonico(tx as any, pedidoId, id_organizacao)
   }
 
-  /** Valida que nenhum campo bloqueado está na lista — rejeita server-side */
+  /**
+   * Valida cada campo contra o SSOT (shared/camposEdicaoMassa.ts).
+   * Rejeita bloqueados E desconhecidos — Mand. 08, falha ruidosa.
+   * Colunas de usuário passam aqui; são validadas contra o banco em
+   * validarColunasUsuario().
+   */
   private validarCamposEditaveis(campos: CampoEdicaoMassa[]): void {
     for (const c of campos) {
-      if (c.nivel === 'pedido' && CAMPOS_BLOQUEADOS_PEDIDO.has(c.campo)) {
+      const motivo = motivoBloqueioCampo(c.campo, c.nivel)
+      if (motivo === 'bloqueado') {
         throw new AppError(
           `Campo "${c.campo}" é calculado e não pode ser editado em massa`,
           400,
           'CAMPO_BLOQUEADO',
         )
       }
-      if (c.nivel === 'item' && CAMPOS_BLOQUEADOS_ITEM.has(c.campo)) {
+      if (motivo === 'desconhecido') {
         throw new AppError(
-          `Campo "${c.campo}" é calculado e não pode ser editado em massa`,
+          `Campo "${c.campo}" não é reconhecido como campo editável em massa (nível ${c.nivel})`,
           400,
-          'CAMPO_BLOQUEADO',
+          'CAMPO_DESCONHECIDO',
         )
       }
     }
+  }
+
+  /**
+   * Valida colunas de usuário referenciadas no payload contra o banco:
+   * existência, ativo, escopo compatível com o nível e operação permitida
+   * pelo tipo. Colunas "formula" são calculadas — rejeitadas.
+   * Retorna Map id_coluna → metadados para uso na aplicação.
+   */
+  private async validarColunasUsuario(
+    id_organizacao: string,
+    db: PrismaClient,
+    campos: CampoEdicaoMassa[],
+  ): Promise<Map<string, ColunaUsuarioMassa>> {
+    const referencias = campos.filter(c => ehCampoColunaUsuario(c.campo))
+    if (referencias.length === 0) return new Map()
+
+    const ids = [...new Set(referencias.map(c => idColunaUsuarioDeCampo(c.campo) as string))]
+    const rows = await (db as unknown as DelegatesColunaUsuario).pedidoListaColunaUsuario.findMany({
+      where: {
+        id_organizacao: id_organizacao,
+        id_coluna_usuario_pedido: { in: ids },
+        ativo_coluna_usuario_pedido: true,
+      },
+    })
+
+    const mapa = new Map<string, ColunaUsuarioMassa>(rows.map(r => [
+      r.id_coluna_usuario_pedido as string,
+      {
+        id:     r.id_coluna_usuario_pedido as string,
+        nome:   r.nome_coluna_usuario_pedido as string,
+        tipo:   r.tipo_coluna_usuario_pedido as string,
+        escopo: r.escopo_coluna_usuario_pedido as string,
+      },
+    ]))
+
+    for (const c of referencias) {
+      const idCol = idColunaUsuarioDeCampo(c.campo) as string
+      const col = mapa.get(idCol)
+      if (!col) {
+        throw new AppError(
+          `Coluna de usuário "${idCol}" não encontrada ou inativa`,
+          400,
+          'COLUNA_USUARIO_NAO_ENCONTRADA',
+        )
+      }
+      if (col.tipo === 'formula') {
+        throw new AppError(
+          `Coluna "${col.nome}" é calculada (fórmula) e não pode ser editada em massa`,
+          400,
+          'CAMPO_BLOQUEADO',
+        )
+      }
+      const escopoCompativel = col.escopo === 'ambos' || col.escopo === c.nivel
+      if (!escopoCompativel) {
+        throw new AppError(
+          `Coluna "${col.nome}" tem escopo "${col.escopo}" e não aceita edição no nível ${c.nivel}`,
+          400,
+          'ESCOPO_INCOMPATIVEL',
+        )
+      }
+      const permitidas = OPERACOES_POR_TIPO_COLUNA_USUARIO[col.tipo] ?? OPERACOES_POR_TIPO_COLUNA_USUARIO.texto
+      if (!permitidas.has(c.operacao)) {
+        throw new AppError(
+          `Coluna "${col.nome}" (tipo ${col.tipo}) não aceita a operação "${c.operacao}"`,
+          400,
+          'OPERACAO_INCOMPATIVEL',
+        )
+      }
+    }
+
+    return mapa
+  }
+
+  /**
+   * Carrega valores atuais (EAV) das colunas de usuário para os pedidos e
+   * itens do batch. Chave do Map: `${id_coluna}:${id_vinculo}`.
+   */
+  private async carregarValoresColunaUsuario(
+    id_organizacao: string,
+    db: PrismaClient,
+    colunas: Map<string, ColunaUsuarioMassa>,
+    pedidos: Record<string, unknown>[],
+  ): Promise<Map<string, string>> {
+    if (colunas.size === 0) return new Map()
+
+    const vinculoIds: string[] = []
+    for (const p of pedidos) {
+      vinculoIds.push(p.id_pedido as string)
+      for (const item of (p.itens_pedido as Record<string, unknown>[]) ?? []) {
+        vinculoIds.push(item.id_item as string)
+      }
+    }
+
+    const registros = await (db as unknown as DelegatesColunaUsuario).pedidoListaColunaUsuarioValor.findMany({
+      where: {
+        id_organizacao: id_organizacao,
+        id_coluna_usuario_pedido: { in: [...colunas.keys()] },
+        id_vinculo_valor_coluna_usuario_pedido: { in: vinculoIds },
+      },
+    })
+
+    return new Map(registros.map(r => [
+      `${r.id_coluna_usuario_pedido as string}:${r.id_vinculo_valor_coluna_usuario_pedido as string}`,
+      r.valor_coluna_usuario_pedido as string,
+    ]))
+  }
+
+  /** Upsert de um valor de coluna de usuário (mesma transação do batch). */
+  private async upsertValorColunaUsuario(
+    id_organizacao: string,
+    db: PrismaClient,
+    idColuna: string,
+    vinculo: 'pedido' | 'item',
+    idVinculo: string,
+    valor: string,
+  ): Promise<void> {
+    await (db as unknown as DelegatesColunaUsuario).pedidoListaColunaUsuarioValor.upsert({
+      where: {
+        id_organizacao_id_coluna_usuario_pedido_id_vinculo_valor_coluna_usuario_pedido: {
+          id_organizacao:                         id_organizacao,
+          id_coluna_usuario_pedido:               idColuna,
+          id_vinculo_valor_coluna_usuario_pedido: idVinculo,
+        },
+      },
+      create: {
+        id_organizacao:                         id_organizacao,
+        id_coluna_usuario_pedido:               idColuna,
+        vinculo_valor_coluna_usuario_pedido:    vinculo,
+        id_vinculo_valor_coluna_usuario_pedido: idVinculo,
+        valor_coluna_usuario_pedido:            valor,
+      },
+      update: { valor_coluna_usuario_pedido: valor },
+    })
   }
 }

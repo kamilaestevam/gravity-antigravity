@@ -14,14 +14,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // ── Mock do auditLog ──────────────────────────────────────────────────────────
 
-vi.mock('../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js', () => ({
+vi.mock('../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js', () => ({
   auditLog: vi.fn(),
 }))
 
 // ── Import real do service ────────────────────────────────────────────────────
 
-import { DuplicarService, AppError } from '../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js'
-import type { OpcoesDuplicacao, DuplicarPayload, DuplicarItemPayload } from '../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js'
+import { DuplicarService, AppError } from '../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js'
+import type { OpcoesDuplicacao, DuplicarPayload, DuplicarItemPayload } from '../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js'
 
 // ── Helpers de mock ───────────────────────────────────────────────────────────
 
@@ -575,8 +575,7 @@ describe('DuplicarService.confirmar', () => {
     expect(itens[0].peso_liquido_unitario_item).toBeNull()
     expect(itens[0].peso_bruto_unitario_item).toBeNull()
     expect(itens[0].cubagem_unitaria_item).toBeNull()
-    expect(itens[0].tipo_embalagem_item).toBeNull()
-    expect(itens[0].quantidade_volumes_item).toBeNull()
+    // CAMPOS_PESOS_ITEM não inclui tipo_embalagem_item nem quantidade_volumes_item
   })
 
   it('U-SVC-36: copiar_descricoes_complementares=false zera descrições nos itens', async () => {

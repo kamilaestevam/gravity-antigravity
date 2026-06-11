@@ -217,6 +217,20 @@ function buildTestApp() {
 
 ---
 
+## Fluxo misto — 1 pedido inteiro + itens avulsos de outro pedido
+
+**Arquivo:** `TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-misto-pedido-itens.test.ts`  
+**Espelha:** `ModalPedidosDuplicar.handleConfirmar` — `confirmar` + `duplicarItens` em paralelo.
+
+| ID | Caso | Resultado Esperado |
+|----|------|-------------------|
+| F-MST-01 | Pedido A inteiro + 2 itens avulsos do pedido B | Ambos endpoints `201`; `criados.length` 1 + 2 |
+| F-MST-02 | Mesmas `opcoes` nas duas rotas | Service recebe payload idêntico de opções |
+| F-MST-03 | Pedido WS1 + itens WS2 com `x-id-workspace` | Ambos `201` (regressão #273/#276) |
+| F-MST-04 | `confirmar` ok + `duplicarItens` falha | Pedido já criado (`201`); itens retorna erro |
+
+---
+
 ## Mocks Necessários
 
 | Dependência | Como mockar |

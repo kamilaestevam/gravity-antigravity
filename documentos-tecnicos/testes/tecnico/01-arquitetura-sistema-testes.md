@@ -281,6 +281,11 @@ Humano decide:
 | `POST /admin/testes/:id_teste/rejeitar` | Marca análise como ruim |
 | `GET /admin/planos-teste` | Lista planos do registry |
 | `GET/POST/PATCH/DELETE /admin/agendamentos-teste` | CRUD agendamento cron |
+| `GET /admin/testes-favoritos` | Lista favoritos do usuário autenticado (model `TesteFavoritoUsuario`, escopo `id_usuario`) |
+| `POST /admin/testes-favoritos` | Salva combinação (produto + ambiente + tipos + planos); 409 `FAVORITO_DUPLICADO` / `FAVORITO_LIMITE` (máx. 20) |
+| `DELETE /admin/testes-favoritos/:id_teste_favorito_usuario` | Remove favorito (ownership por `id_usuario` no `where`) |
+
+**Contrato `*/admin/testes-favoritos` (Zod bilateral no front — `testeFavoritoUsuarioSchema`):** paridade nominal com a tabela `teste_favorito_usuario`. Campos: `id_teste_favorito_usuario`, `produto_teste_favorito_usuario`, `ambiente_teste_favorito_usuario`, `tipos_teste_favorito_usuario[]`, `planos_ids_teste_favorito_usuario[]`, `planos_resumo_teste_favorito_usuario` (Json snapshot), `data_criacao_teste_favorito_usuario`.
 
 **Contrato `GET /admin/testes/status` (Zod bilateral no front):** cada item em `execucoes_teste` expõe `id_execucao_teste`, `data_inicio_execucao_teste`, `runner_execucao_teste` (`EMT`|`E2E`), `ambiente_teste`, `gatilho_teste`, `lista_planos_execucao_teste`, `lista_modulos_execucao_teste`.
 
@@ -492,7 +497,7 @@ O painel **Admin › Testes** vive no Configurador (`servicos-global/configurado
                              ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  DOMÍNIO (testes/infra/admin/)                              │
-│  Contratos Zod · localStorage · rótulos · deduplicação      │
+│  Contratos Zod · mappers · rótulos · deduplicação           │
 └────────────────────────────┬────────────────────────────────┘
                              │ Vitest
                              ▼
@@ -503,7 +508,7 @@ O painel **Admin › Testes** vive no Configurador (`servicos-global/configurado
 
 | Módulo | Arquivo | Responsabilidade |
 |--------|---------|------------------|
-| Favoritos de execução manual | `testes/infra/admin/testes-favoritos-admin.ts` | Persiste produto, ambiente, tipos e planos por `id_usuario`; snapshot `planos_resumo` para exibir título/descrição completos no card |
+| Favoritos de execução manual | `testes/infra/admin/testes-favoritos-admin.ts` | Contratos Zod (espelham a tabela `teste_favorito_usuario`), rótulos, snapshot `planos_resumo` e deduplicação. **Persistência no banco** (model `TesteFavoritoUsuario`, escopo `id_usuario`) via `adminTestesFavoritosApi` — desde 2026-06-11 substituiu o `localStorage`, que não sobrevivia a troca de navegador/máquina/janela anônima |
 
 Detalhes operacionais: [`testes/infra/admin/README.md`](../../../testes/infra/admin/README.md).
 

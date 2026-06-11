@@ -13,6 +13,7 @@ import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 
 import CotacoesKanban from './kanban-bid-frete-internacional'
+import { ModalNovoBidFreteInternacional } from './modal-novo-bid-frete-internacional'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import {
   criarTituloCarregandoTopo,
@@ -33,6 +34,7 @@ import {
   Warning,
   Package,
   Plus,
+  Stack,
   CaretDown,
   CaretRight,
   SquaresFour,
@@ -842,8 +844,9 @@ export default function Cotacoes() {
 
   const novoDropdownRef = useRef<HTMLDivElement>(null)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
-  const [novoSubmenu, setNovoSubmenu] = useState<'painel' | null>(null)
+  const [novoSubmenu, setNovoSubmenu] = useState<'painel' | 'buscar-frete' | null>(null)
   const [novoNomePainelLista, setNovoNomePainelLista] = useState('')
+  const [modalNovoBidAberto, setModalNovoBidAberto] = useState(false)
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -864,7 +867,7 @@ export default function Cotacoes() {
         icone={<Plus size={14} weight="bold" />}
         onClick={() => setNovoDropdownAberto(prev => !prev)}
       >
-        Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
+        {t('bidfrete.cotacoes.toolbar.novo')} <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
       </BotaoGlobal>
 
       {novoDropdownAberto && (
@@ -874,22 +877,72 @@ export default function Cotacoes() {
           borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
           minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
         }}>
-          <button
-            type="button"
-            className="lp-dropdown-btn"
-            onClick={() => {
-              navigate('/bid-frete/cotacoes/nova')
-              setNovoDropdownAberto(false)
-            }}
+          <div
+            style={{ position: 'relative' }}
+            onMouseEnter={() => setNovoSubmenu('buscar-frete')}
+            onMouseLeave={() => setNovoSubmenu(prev => (prev === 'buscar-frete' ? null : prev))}
           >
-            <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
-              <Truck size={16} weight="duotone" />
-            </span>
-            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Buscar Frete</span>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Criar cotação manual</span>
-            </span>
-          </button>
+            <button
+              type="button"
+              className="lp-dropdown-btn"
+              style={{ width: '100%', background: novoSubmenu === 'buscar-frete' ? 'var(--bg-hover)' : undefined }}
+              onClick={() => setNovoSubmenu(prev => (prev === 'buscar-frete' ? null : 'buscar-frete'))}
+            >
+              <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                <Truck size={16} weight="duotone" />
+              </span>
+              <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left', flex: 1 }}>
+                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.buscarFrete')}</span>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.buscarFreteDesc')}</span>
+              </span>
+              <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, alignSelf: 'center' }} />
+            </button>
+
+            {novoSubmenu === 'buscar-frete' && (
+              <div style={{
+                position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
+                background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+              }}>
+                <button
+                  type="button"
+                  className="lp-dropdown-btn"
+                  onClick={() => {
+                    navigate('/bid-frete/cotacoes/nova')
+                    setNovoDropdownAberto(false)
+                    setNovoSubmenu(null)
+                  }}
+                >
+                  <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                    <Truck size={16} weight="duotone" />
+                  </span>
+                  <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.cotacaoAvulsa')}</span>
+                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.cotacaoAvulsaDesc')}</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  className="lp-dropdown-btn"
+                  onClick={() => {
+                    setModalNovoBidAberto(true)
+                    setNovoDropdownAberto(false)
+                    setNovoSubmenu(null)
+                  }}
+                >
+                  <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                    <Stack size={16} weight="duotone" />
+                  </span>
+                  <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.bid')}</span>
+                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.bidDesc')}</span>
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             type="button"
@@ -903,8 +956,8 @@ export default function Cotacoes() {
               <Upload size={16} weight="duotone" />
             </span>
             <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Importar de Planilha</span>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Subir planilha de dados</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.importarPlanilha')}</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.subirPlanilha')}</span>
             </span>
           </button>
 
@@ -1563,6 +1616,12 @@ export default function Cotacoes() {
 
         </>
       )}
+
+      <ModalNovoBidFreteInternacional
+        aberto={modalNovoBidAberto}
+        aoFechar={() => setModalNovoBidAberto(false)}
+        aoCriarBid={() => { void carregar() }}
+      />
 
       <style>{`
         /* Destaque: cotação com menos de 2h para expirar (config Tabela) — layout em bid-frete-page-shell.css */

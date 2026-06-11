@@ -78,8 +78,8 @@ function PreviewFornecedoresElegiveis({
       <button type="button" className="bf-preview-toggle" onClick={() => setGraficoAberto(v => !v)}>
         <Star weight="duotone" size={14} />
         {graficoAberto
-          ? t('bidfrete.disparo.ocultar_notas', 'Ocultar notas dos fornecedores')
-          : t('bidfrete.disparo.ver_notas', 'Ver notas dos fornecedores')}
+          ? t('bidfrete.disparo.ocultar_notas', 'Ocultar fornecedores e notas')
+          : t('bidfrete.disparo.ver_notas', 'Ver fornecedores e notas')}
       </button>
 
       {graficoAberto && (
@@ -118,6 +118,18 @@ export function SelecaoFornecedoresDisparo({
 }: SelecaoFornecedoresDisparoProps) {
   const { t } = useTranslation()
 
+  const idsFornecedores = fornecedores.map(f => f.id_fornecedor_bid_frete_internacional)
+  const todosFornecedoresSelecionados = fornecedores.length > 0
+    && idsFornecedores.every(id => selecionados.includes(id))
+
+  function toggleTodosFornecedores() {
+    if (todosFornecedoresSelecionados) {
+      onChangeSelecionados([])
+    } else {
+      onChangeSelecionados([...idsFornecedores])
+    }
+  }
+
   return (
     <div className="bf-disparo-selecao">
       <p className="bf-disparo-hint">
@@ -151,13 +163,24 @@ export function SelecaoFornecedoresDisparo({
       )}
 
       {visibilidade === 'DIRECIONADA' && (
-        <div className="bf-disparo-lista">
+        <div className="bf-disparo-lista-wrap">
           {carregando ? (
             <p className="bf-disparo-vazio">{t('comum.carregando')}</p>
           ) : fornecedores.length === 0 ? (
             <p className="bf-disparo-vazio">{t('bidfrete.disparo.sem_fornecedores', 'Nenhum fornecedor ativo cadastrado.')}</p>
           ) : (
-            fornecedores.map(f => {
+            <>
+              <button
+                type="button"
+                className="bf-disparo-selecionar-todos"
+                onClick={toggleTodosFornecedores}
+              >
+                {todosFornecedoresSelecionados
+                  ? t('bidfrete.disparo.desmarcar_todos', 'Desmarcar todos')
+                  : t('bidfrete.disparo.selecionar_todos', 'Selecionar todos')}
+              </button>
+              <div className="bf-disparo-lista">
+            {fornecedores.map(f => {
               const id = f.id_fornecedor_bid_frete_internacional
               const checked = selecionados.includes(id)
               return (
@@ -171,7 +194,9 @@ export function SelecaoFornecedoresDisparo({
                   <span className="bf-disparo-item-email">{f.email_fornecedor_bid_frete_internacional || '—'}</span>
                 </label>
               )
-            })
+            })}
+              </div>
+            </>
           )}
         </div>
       )}
@@ -182,6 +207,12 @@ export function SelecaoFornecedoresDisparo({
         .bf-disparo-canais { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; }
         .bf-disparo-canais-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted, #64748b); }
         .bf-disparo-canal { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.875rem; cursor: pointer; color: var(--text-primary, #f1f5f9); }
+        .bf-disparo-lista-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+        .bf-disparo-selecionar-todos {
+          background: none; border: none; color: #a78bfa; font-size: 0.625rem;
+          cursor: pointer; font-weight: 600; padding: 0; align-self: flex-start; font-family: inherit;
+        }
+        .bf-disparo-selecionar-todos:hover { text-decoration: underline; }
         .bf-disparo-lista { display: flex; flex-direction: column; gap: 0.5rem; max-height: 280px; overflow-y: auto; }
         .bf-disparo-item {
           display: grid; grid-template-columns: auto 1fr auto; gap: 0.75rem; align-items: center;

@@ -88,6 +88,8 @@ servicos-global/configurador/
 
 > **Skill dedicada:** toda a lógica de permissões está documentada em `antigravity-permissoes`. Leia-a antes de implementar qualquer tela de usuários, middleware de autorização ou lógica de acesso.
 
+> ⚠️ **Resolução de usuário por Clerk sub — fonte ÚNICA (2026-06-11).** Convidados ficam com `id_clerk_usuario = 'pending_<inv>'` até o primeiro login religar a linha ao sub real. Esse lookup + self-heal (busca por sub → fallback por e-mail verificado → vínculo) vive em **`server/services/usuario-clerk-resolver.ts`** e é usado por **dois** caminhos: `middleware/requireAuth.ts` (rota `/me`) e `routes/acesso.ts` (rota interna `/api/v1/internal/usuarios/:id_clerk_usuario`, consumida pelo SDK `@gravity/resolver-organizacao` em TODO produto). **Nunca** faça `findUnique({ where: { id_clerk_usuario } })` seco numa rota que resolve identidade — usuários `pending_` dariam 404 só nesse caminho enquanto o `/me` funciona (assimetria que quebrou o Pedido para 36/67 usuários em prod). Sempre use `resolverUsuarioPorClerkSub`.
+
 ### As Duas Cadeias
 
 O Gravity opera com dois sistemas complementares:
@@ -150,7 +152,7 @@ if (!productPermissions || productPermissions.length === 0) {
 | Conceito | Onde vive | Como o Configurador usa |
 |----------|-----------|-------------------------|
 | Empresa da **organização** (1:1) | Cadastros.`empresa` + espelho `Organizacao.suid_empresa_organizacao` | Saga onboarding: `POST /api/v1/empresas` via `cadastros-client` |
-| **Parceiros** COMEX | Cadastros.`fornecedor` | Tela `/configurador/empresas-e-parceiros` — `GET /fornecedores?escopo=parceiros`, CRUD `/fornecedores` |
+| **Fornecedores** COMEX | Cadastros.`fornecedor` | Tela `/configurador/fornecedores` — `GET /fornecedores?escopo=parceiros`, CRUD `/fornecedores`. Deep-links: `?criar=...` (novo) e `?id=...` (editar). Redirect legado: `/configurador/empresas-e-parceiros` → `/configurador/fornecedores` |
 
 **Proxy** (`server/index.ts`): `/api/v1/empresas` e `/api/v1/fornecedores` são rotas **separadas** (sem rewrite). Chave S2S injetada server-side no proxy.
 
@@ -263,7 +265,7 @@ Após sessão Clerk, **nunca** assumir destino `/hub` só por `isSignedIn`. O po
 
 **Defesa redundante:** OTP → `navigate('/trial')`; Hub `hub/init` 401 → `/trial`.
 
-**Testes (escopo LOGIN — FONTE PRIMARIA):** plano [`testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json) · specs em `testes/testes-unitarios/login/`, `testes/testes-funcionais/login/`, `testes/testes-e2e/login/`, `testes/testes-em-tela/login/` · registry `TST-UNI-LOGIN-000001` … `TST-EMT-LOGIN-000001`.
+**Testes (escopo LOGIN — FONTE PRIMARIA):** plano [`testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.json) · specs em `testes/testes-unitarios/login/`, `testes/testes-funcionais/login/`, `testes/testes-e2e/login/`, `testes/testes-em-tela/login/` · registry `TST-UNI-LOGIN-000038` … `TST-EMT-LOGIN-PORTEIRO-SIGNUP-000041`.
 
 ---
 
@@ -280,6 +282,26 @@ Ao clicar **Entrar no Workspace** com Pedido contratado, se o filtro salvo no Pe
 | Cross-tenant | IDs stale de outra org no mesmo browser = cache local enganoso, **não** vazamento de dados |
 
 Doc: [`FILTRO-MULTI-WORKSPACE-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-TECNICO.md) — seção "Persistência do escopo".
+
+---
+
+## Gravity Store — `/store` (PR #187)
+
+Catálogo autenticado para exploração e contratação de produtos Gravity adicionais.
+
+| Tópico | SSOT |
+|--------|------|
+| Doc canônico | [`GRAVITY-STORE.md`](../../../documentos-tecnicos/produtos-gravity/configurador/GRAVITY-STORE.md) |
+| Página | `src/pages/Store.tsx` + `hub-store.css` |
+| Catálogo API | `GET /api/v1/produtos-gravity` → `listarPublico()` (Admin `ProdutoGravity`) |
+| Status exibição | `src/data/status-produto-store.ts` |
+| Puzzle | Só `contratado` + `disponivel`; `em_breve` só nas faixas de carrossel |
+| UI | Toolbar Todos/Ativo/Assinar/Em breve + 4 faixas carrossel; cards `gs-card--store` |
+| Assinaturas | `Assinaturas.tsx` reutiliza mesma pele de card |
+| Contratação | `podeComprarNoStore()` — MASTER, SUPER_ADMIN, ADMIN |
+| Zod | `store-catalogo-api.ts` (Mandamento 06+09) |
+
+**Não confundir** com `GET /api/v1/catalogo/produtos` (Marketplace público, sem auth).
 
 ---
 
@@ -535,6 +557,7 @@ import { UpdateWorkspacesSchema } from '../../../../servicos-global/configurador
 - [ ] Fornecedor com múltiplas organizações vê a tela de seleção ao logar?
 - [ ] **Mandamento 01:** nenhuma rota de autorização lê `publicMetadata.role` do Clerk — sempre via Prisma/`/me`?
 - [ ] **Mandamento 06+09:** toda resposta validada com `meResponseSchema.parse()` no front (sem `z.any()`)?
+- [ ] **Gravity Store:** contadores e faixas batem com Admin (`GET /api/v1/produtos-gravity` + `status-produto-store.ts`)? Puzzle sem peças Em breve?
 
 --- skills/produtos-gravity/configurador/admin/SKILL.md ---
 # Gravity — Painel Admin (Interno)
@@ -744,6 +767,22 @@ Painel de controle de deploys de todos os serviços no Railway.
 
 ---
 
+## Tela 8 — Testes (execução manual)
+
+Painel interno para disparar planos do catálogo (`test-plans-registry.json`) em staging/produção.
+
+| Recurso | Detalhe |
+|:---|:---|
+| **Página** | `servicos-global/configurador/src/pages/admin/LogTestes.tsx` + `ModalTestesExecutar.tsx` |
+| **Aba Plano de Teste** | Markdown/JSON do plano no modal (parser ETAPAs) |
+| **Favoritos** | Model `TesteFavoritoUsuario` — persistência por `id_usuario` (máx. 20), substituiu `localStorage` em 2026-06-11 |
+| **API** | `GET/POST/DELETE /admin/testes-favoritos` — contrato Zod `testeFavoritoUsuarioSchema` |
+| **SSOT favoritos** | `testes/infra/admin/testes-favoritos-admin.ts` |
+
+> Doc: [`01-arquitetura-sistema-testes.md`](../../../documentos-tecnicos/testes/tecnico/01-arquitetura-sistema-testes.md) · [`testes/infra/admin/README.md`](../../../testes/infra/admin/README.md)
+
+---
+
 ## Tela 9 — Monitor de APIs (Tempo Real)
 
 Monitora dois tipos:
@@ -886,29 +925,29 @@ model GravityAdmin {
 
 ---
 
-## Empresas e Parceiros (Cross-Org)
+## Fornecedores (Cross-Org)
 
-Tela admin **read-only** que lista empresas/parceiros de TODAS as organizações da plataforma.
-Path: `/admin/empresas-e-parceiros`. Página: `EmpresasEParceirosAdmin.tsx`.
+Tela admin **read-only** que lista fornecedores COMEX de TODAS as organizações da plataforma.
+Path: `/admin/fornecedores`. Página: `FornecedoresAdmin.tsx`. Redirect legado: `/admin/empresas-e-parceiros`.
 
 ### Audiência
 SUPER_ADMIN e ADMIN Gravity. Bloqueada para qualquer outro `tipo_usuario` por `requireGravityAdmin`.
 
 ### Pipeline backend
-Frontend → `/api/v1/admin/empresas` (Configurador, porta 8005) → `requireAuth` → `requireGravityAdmin` → fetch S2S `/api/v1/admin/empresas` (Cadastros, porta 8031) → enrichment **batch** `IN(...)` em `Configurador.Organizacao` → audit log fire-and-forget em `AuditLogAdmin` → resposta.
+Frontend → `/api/v1/admin/fornecedores` (Configurador, porta 8005) → `requireAuth` → `requireGravityAdmin` → fetch S2S `/api/v1/admin/fornecedores` (Cadastros, porta 8031) → enrichment **batch** `IN(...)` em `Configurador.Organizacao` → audit log fire-and-forget em `AuditLogAdmin` → resposta.
 
 ### Garantias
 - **Read-only por design** — admin investiga, não modifica. Edição/criação/inativação cross-org está desabilitada na UI; mudanças continuam exclusivas da tela do workspace.
 - **Banner permanente** topo da tela: `CardBasicoGlobal variante="aviso"` explicando modo cross-org + audit log + read-only. Não dispensável.
 - **Modal volume > 500** sempre aparece (sem checkbox "não perguntar mais"), sugerindo filtrar por organização ou tipo de parceiro antes de continuar.
 - **Teto duro 200 por página** no Cadastros (clamp em servidor).
-- **Audit log persistente** em `audit_log_admin` — toda chamada grava `id_usuario`, `tipo_usuario`, `acao=admin.empresas.list`, `recurso=empresa`, `filtros_json`, `qtd_resultados`, `ip_origem`, `correlation_id`.
+- **Audit log persistente** em `audit_log_admin` — toda chamada grava `id_usuario`, `tipo_usuario`, `acao=admin.fornecedores.list`, `recurso=fornecedor`, `filtros_json`, `qtd_resultados`, `ip_origem`, `correlation_id`.
 - **Filtro por organização** via `SelectOrganizacaoAdminGlobal` (autocomplete com debounce 300ms) — input livre de UUID proibido.
 - **Coluna `nome_organizacao`** sticky-left, clique navega para `/admin/organizacoes/:id`.
-- **Falha alta (Mand. 08)** — se a Organizacao foi deletada do Configurador mas a empresa ainda existe no Cadastros, a coluna mostra `⟨organização removida⟩` (visível, nunca silencioso).
+- **Falha alta (Mand. 08)** — se a Organizacao foi deletada do Configurador mas o fornecedor ainda existe no Cadastros, a coluna mostra `⟨organização removida⟩` (visível, nunca silencioso).
 
 ### Roadmap Fase 2
-A Opção A (tab "Empresas e Parceiros" dentro de `OrganizacaoDetalheAdmin`, vista única-org) está documentada em `documentos-tecnicos/admin-cross-org-pattern.md` como follow-up. A Opção B (esta) entrega valor primeiro.
+A Opção A (tab "Fornecedores" dentro de `OrganizacaoDetalheAdmin`, vista única-org) está documentada em `documentos-tecnicos/admin-cross-org-pattern.md` como follow-up. A Opção B (esta) entrega valor primeiro.
 
 ### Skill relacionada
 - `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` (seção "Exceções permitidas") — autorização da rota Cadastros sem `extrairIdOrganizacao`.
@@ -1253,7 +1292,7 @@ export interface Pedido {
 
 ### 6.2 Colunas na tabela — ColunasPai.tsx (atualizado 2026-05-16)
 
-As colunas `nome_exportador` e `nome_importador` são **campos-link** (não editáveis inline). Renderizam como badges clicáveis que navegam ao Configurador ou à tela de Empresas e Parceiros.
+As colunas `nome_exportador` e `nome_importador` são **campos-link** (não editáveis inline). Renderizam como badges clicáveis que navegam ao Configurador ou à tela de Fornecedores.
 
 **Regra de renderização por tipo_operacao:**
 
@@ -1269,7 +1308,7 @@ As colunas `nome_exportador` e `nome_importador` são **campos-link** (não edit
 
 **Deep-links:**
 - Workspace → `urlEditarCnpjWorkspace()` (Configurador, modal de edição do workspace com "Voltar para Pedidos")
-- Contraparte → `urlVincularExportador()` / `urlVincularImportador()` (Configurador, tela Empresas e Parceiros)
+- Contraparte → `urlVincularExportador()` / `urlVincularImportador()` (Configurador, tela Fornecedores)
 
 **Fonte de dados:**
 - Workspace: `workspacesMap.get(row.id_workspace)?.nome` (carregado via `/api/v1/hub/init`)
@@ -1948,6 +1987,7 @@ Campos identificados como faltantes no schema atual de Pedido:
 
 > Documentação técnica do skip automático `/hub → /core` e do escape hatch `?select=1`.
 > Skill associada: [`antigravity-configurador`](../../../skills/produtos-gravity/configurador/SKILL.md).
+> Gravity Store (catálogo `/store`): [`GRAVITY-STORE.md`](./GRAVITY-STORE.md).
 
 ---
 
@@ -1961,7 +2001,7 @@ Após autenticar no Clerk, o **porteiro SSOT** (`GET /api/v1/me`) envia o usuár
 Documentação completa do signup: [`FLUXO-SIGNUP-ONBOARDING.md`](./FLUXO-SIGNUP-ONBOARDING.md).  
 Plano de testes LOGIN: [`PLANO-LOGIN-PORTEIRO-SSOT.md`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md).
 
-Na rota `/hub`, `<SelecionarWorkspace />` decide se mantém o usuário ali ou redireciona para `/core` (skip pós-login) com base em 4 condições.
+Na rota `/hub`, `<SelecionarWorkspace />` é o **HUB unificado** (workspace + produtos + insights). Rotas legadas `/core` e `/core/*` redirecionam para `/hub`.
 
 ---
 
@@ -1969,7 +2009,7 @@ Na rota `/hub`, `<SelecionarWorkspace />` decide se mantém o usuário ali ou re
 
 | Cenário | Destino |
 |---|---|
-| Usuário **com** `id_workspace_preferido_usuario` salvo + outras 3 condições verdadeiras | Redirect automático para `/core` (skip dispara) |
+| Usuário **com** `id_workspace_preferido_usuario` salvo + outras 3 condições verdadeiras | Permanece em `/hub` com workspace preferido pré-selecionado (sessão hidratada) |
 | Usuário **sem** preferência salva | Permanece em `/hub` (mostra `<SelecionarWorkspace />`) |
 | Usuário **com** `?select=1` na URL | Permanece em `/hub` (escape hatch — força a tela de seleção mesmo com preferência) |
 | Usuário com `tipo_usuario = FORNECEDOR` | **Sempre** permanece em `/hub` (cross-organização exige escolha explícita) |
@@ -2010,10 +2050,10 @@ Na rota `/hub`, `<SelecionarWorkspace />` decide se mantém o usuário ali ou re
                     │
         ┌───────────┴───────────┐
         │                       │
-   TODAS true                 ANY false
+   (legado)                   ANY false / forceSelect
         │                       │
         ▼                       ▼
-[navigate('/core', replace)]  [renderiza tela /hub com cards de workspace]
+[permanece em /hub + WS pref.]  [renderiza HUB unificado]
 ```
 
 ---
@@ -2235,11 +2275,12 @@ Etapa 2 — `/recuperar-senha/redefinir` (`RecuperarSenhaRedefinirPage`):
 
 | Termo | Significado |
 |---|---|
-| **Skip pós-login** | Redirect automático `/hub → /core` quando 4 condições batem |
+| **Skip pós-login** | *(removido 2026-06)* — login com preferido fica em `/hub` com workspace ativo |
 | **Escape hatch** | Query param `?select=1` que desabilita o skip por requisição |
 | **Workspace preferido** | Valor de `id_workspace_preferido_usuario` no banco |
 | **`<SelecionarWorkspace>`** | Componente da rota `/hub` — mostra cards de workspace ou aplica o skip |
-| **`<Hub>`** | Componente da rota `/core` index — dashboard do workspace selecionado (não confundir com a tela `/hub`) |
+| **`<SelecionarWorkspace>`** | Componente da rota `/hub` — HUB unificado (ex-`/hub` + ex-`/core`) |
+| **`<Hub>` / `<Core>`** | *Deprecated* — arquivos legados; rotas `/core` redirecionam para `/hub` |
 
 ---
 
@@ -2344,7 +2385,7 @@ Callbacks SSO em `App.tsx` repetem os mesmos valores em `<AuthenticateWithRedire
 |--------|------|
 | Unitário | `testes/testes-unitarios/login/porteiro-resolver.test.ts`, `use-destino-pos-autenticacao.test.ts` |
 | Funcional | `testes/testes-funcionais/login/porteiro-pos-autenticacao.test.ts` |
-| E2E | `testes/testes-e2e/login/TST-E2E-LOGIN-000001.spec.ts` (aguarda aprovação dono) |
+| E2E | `testes/testes-e2e/login/TST-E2E-LOGIN-000040.spec.ts` (aguarda aprovação dono) |
 | Em tela | `testes/testes-em-tela/login/2026-05-26-porteiro-signup/PLANO-EM-TELA.md` |
 
 ```bash
@@ -2352,7 +2393,7 @@ npx vitest run testes/testes-unitarios/login --config testes/testes-unitarios/lo
 npx vitest run testes/testes-funcionais/login --config testes/testes-funcionais/login/vitest.config.ts
 ```
 
-Registry: `TST-UNI-LOGIN-000001`, `TST-FUN-LOGIN-000001`, `TST-E2E-LOGIN-000001`, `TST-EMT-LOGIN-000001` em `testes/test-plans-registry.json`.
+Registry: `TST-UNI-LOGIN-000038`, `TST-FUN-LOGIN-000039`, `TST-E2E-LOGIN-000040`, `TST-EMT-LOGIN-PORTEIRO-SIGNUP-000041` em `testes/test-plans-registry.json`.
 
 ---
 
@@ -2366,3 +2407,216 @@ Registry: `TST-UNI-LOGIN-000001`, `TST-FUN-LOGIN-000001`, `TST-E2E-LOGIN-000001`
 ---
 
 **Última revisão:** 2026-05-25
+
+--- documentos-tecnicos/produtos-gravity/configurador/GRAVITY-STORE.md ---
+# Configurador — Gravity Store
+
+> Catálogo autenticado de produtos Gravity para exploração e contratação adicional pelo tenant.
+> Skill associada: [`antigravity-configurador`](../../../skills/produtos-gravity/configurador/SKILL.md).
+> Entregue em produção via PR #187 (2026-06).
+
+---
+
+## Visão geral
+
+| Item | Valor |
+|------|-------|
+| Rota FE | `/store` |
+| Página | `servicos-global/configurador/src/pages/Store.tsx` |
+| CSS | `servicos-global/configurador/src/pages/hub-store.css` |
+| Layout | `layout-centered` — container `.gs-store`, `max-width: 1280px` (ver [layout-e-margens.md](../../ux/criacao-telas/layout-e-margens.md)) |
+| Auth | `<ProtectedRoute>` — usuário autenticado com `organizacao` em `/api/v1/me` |
+
+A Gravity Store **não** é o catálogo público do Marketplace. São rotas distintas:
+
+| Consumidor | Endpoint | Auth |
+|------------|----------|------|
+| **Gravity Store** (`/store`) | `GET /api/v1/produtos-gravity` | Sessão Clerk (tenant logado) |
+| **Marketplace / prospecção** | `GET /api/v1/catalogo/produtos` | Sem auth |
+| **Admin** | `GET /api/v1/admin/produtos-gravity` | `gravity_admin` / cadeia admin |
+
+---
+
+## Fonte da verdade (SSOT)
+
+### Catálogo
+
+1. **Banco:** tabela `ProdutoGravity` (Admin).
+2. **Serviço:** `produtoGravityCatalogoServico.listarPublico()` — mesmo DTO do Admin, filtra publicados `ATIVO` + `EM_BREVE`.
+3. **Rota:** `GET /api/v1/produtos-gravity` → `server/routes/produto-gravity.ts`.
+4. **Contrato Zod (FE):** `storeCatalogoRespostaApiSchema` em `src/schemas/store-catalogo-api.ts`.
+
+Nome e descrição exibidos nos cards vêm **da API primeiro**; i18n (`product-meta`) só complementa quando o Admin não envia texto (`nomeExibicaoProdutoGravity`, `descricaoExibicaoProdutoGravity`).
+
+### Assinaturas da organização
+
+`GET /api/v1/organizacoes/me/assinaturas` — validado com `storeAssinaturasRespostaSchema`. Cruza `slug_produto_gravity` + `ativo_configuracao_produto_gravity` para saber o que está contratado.
+
+### Regras de status de exibição
+
+Implementação: `src/data/status-produto-store.ts`.
+
+| `StatusExibicaoProdutoStore` | Condição |
+|------------------------------|----------|
+| `contratado` | `status_produto_gravity = ATIVO` **e** assinatura ativa na org |
+| `disponivel` | `ATIVO` **sem** assinatura ativa — pronto para contratar |
+| `em_breve` | `status_produto_gravity = EM_BREVE` |
+| `fora_catalogo` | Slug fora do catálogo publicado — peça roadmap no puzzle, sem card |
+
+**Precedência:** status do Admin prevalece sobre assinatura legada. `EM_BREVE` nunca aparece como contratado ou disponível.
+
+Contadores dos cards superiores e da toolbar usam `contarStatusCatalogoStore()` — mesma regra.
+
+### Aliases de slug (puzzle ↔ banco)
+
+Alguns slugs do puzzle (`STACK_ORDER` em `product-meta.tsx`) divergem do slug gravado no Admin:
+
+| Puzzle / `PRODUCT_META` | Slug no banco |
+|-------------------------|---------------|
+| `smart-transito` | `smart-trnsito` |
+| `catalogo-produto` | `catlogo-de-produtos` |
+
+Mapeamento em `slugPuzzleParaCatalogo` / `slugCatalogoParaPuzzle` (`status-produto-store.ts`).
+
+---
+
+## Arquitetura da UI
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Topbar (Logo, Localizador, Usuário, Notificações)       │
+├─────────────────────────────────────────────────────────┤
+│ Cards de estatística (publicados / contratados / …)     │
+├─────────────────────────────────────────────────────────┤
+│ PUZZLE — só contratados + disponíveis (sem Em breve)    │
+│   StorePuzzleRow + StorePuzzleCarousel                  │
+├─────────────────────────────────────────────────────────┤
+│ Toolbar segmentada: Todos | Ativo | Assinar | Em breve  │
+│   (scroll suave → seção; IntersectionObserver sync)     │
+├─────────────────────────────────────────────────────────┤
+│ 4 faixas em carrossel (ordem fixa):                     │
+│   1. Assinar  2. Ativo  3. Em breve  4. Todos           │
+│   StoreCardsRows → StorePuzzleCarousel → StoreProductCard│
+└─────────────────────────────────────────────────────────┘
+```
+
+### Componentes
+
+| Arquivo | Papel |
+|---------|-------|
+| `store-puzzle-row.tsx` | Peças do puzzle (ícone, cor, status) |
+| `store-puzzle-carousel.tsx` | Carrossel horizontal reutilizável (setas quando overflow) |
+| `store-cards-rows.tsx` | Quatro faixas + filtro por linha (`LINHAS_STORE`) |
+| `store-product-card.tsx` | Card `gs-card--store` (altura fixa ~204px, tags no rodapé) |
+| `store-puzzle-order.ts` | Ordem do puzzle: `STACK_ORDER` + produtos novos do catálogo |
+
+### Toolbar e faixas
+
+| Segmento | `StoreLinhaKey` | Conteúdo |
+|----------|-----------------|----------|
+| Todos | `todos` | Catálogo filtrado (busca + categoria) |
+| Ativo | `ativo` | `contratado` |
+| Assinar | `assinar` | `disponivel` |
+| Em breve | `em_breve` | `em_breve` |
+
+Ordem visual das **faixas** (independente da ordem dos botões na toolbar): **Assinar → Ativo → Em breve → Todos**.
+
+Cada faixa tem `id="store-linha-{key}"` para scroll e observação de visibilidade.
+
+### Puzzle
+
+- Inclui apenas produtos com status `contratado` ou `disponivel`.
+- Produtos `em_breve` aparecem **somente** na faixa de carrossel correspondente.
+- Ordem: `ordenarSlugsPuzzleStore()` — `STACK_ORDER` primeiro, depois itens do catálogo ainda não listados.
+
+### Cards (`gs-card--store`)
+
+- Altura uniforme; descrição em até 2 linhas.
+- Tags de recurso (NCM, Impostos, etc.) no **rodapé** do card — sem bloco "Combina com".
+- Alinhamento à esquerda; carrossel não adiciona recuo extra nas setas.
+- Mesma classe reutilizada em **`Assinaturas.tsx`** (workspace `/configurador/assinaturas`).
+
+### Ícones e cores
+
+SSOT visual: `nucleo-global/Logo/produtos/src/visual-produto-gravity.tsx` + `icone-produto-gravity.tsx`, consumidos via `@nucleo/logo-produtos` e `metaProdutoStore()`.
+
+---
+
+## Permissão de contratação
+
+`podeComprarNoStore(tipo_usuario)` em `src/routing/route-policy.ts`:
+
+- **Pode contratar:** `MASTER`, `SUPER_ADMIN`, `ADMIN` (Cadeia 1).
+- **Vê catálogo, botão desabilitado:** `STANDARD`, `FORNECEDOR`.
+
+Contratação: `POST /api/v1/organizacoes/me/assinaturas/assinar-produto` (compartilhado com Assinaturas).
+
+---
+
+## Dívida técnica documentada (ainda no código, não no Admin)
+
+Estes metadados **não** vêm do Prisma/Admin hoje:
+
+| Metadado | Onde |
+|----------|------|
+| Ícones e cores por produto | `product-meta.tsx` + `visual-produto-gravity` |
+| Categorias de filtro (`frete`, `cambio`, …) | `product-meta.tsx` → `categoryFilter` |
+| Tags de recurso (`tagKeys`) | `product-meta.tsx` |
+| Ordem base do puzzle | `STACK_ORDER` em `product-meta.tsx` |
+| Relações "combina com" | `RELACAO_ENTRE_PRODUTOS_GRAVITY` (legado; UI removida) |
+
+Evolução futura: campos no Admin `ProdutoGravity` — alteração de schema somente via Coordenador.
+
+---
+
+## Operação e recuperação
+
+### Script de restauração
+
+`server/scripts/restaurar-produtos-gravity-apagados.ts` — recria slugs apagados por `ensureMissingProducts` legado (hard-delete). Idempotente.
+
+```bash
+cd servicos-global/configurador
+npx tsx --env-file=.env server/scripts/restaurar-produtos-gravity-apagados.ts        # dry-run
+npx tsx --env-file=.env server/scripts/restaurar-produtos-gravity-apagados.ts --apply
+```
+
+### Restart após mudança de rota
+
+```bash
+npx pm2 restart cfg-back cfg-front
+```
+
+---
+
+## Testes
+
+Escopo **STORE** — pasta `testes/**/gravity-store/` (registry `TST-*-STORE-*`).
+
+| Tipo | Pasta | Execução |
+|------|-------|----------|
+| Unitário | `testes/testes-unitarios/gravity-store/` | `npx vitest run --config testes/testes-unitarios/gravity-store/vitest.config.ts` |
+| Funcional | `testes/testes-funcionais/gravity-store/` | `npx vitest run --config testes/testes-funcionais/gravity-store/vitest.config.ts` |
+| Cross-org | `testes/testes-cross-organizacao/gravity-store/` | `npx vitest run --config testes/testes-cross-organizacao/gravity-store/vitest.config.ts` |
+| E2E | `testes/testes-e2e/gravity-store/` | Plano `TST-E2E-STORE-000070` (aguarda dono) |
+| Em tela | `testes/testes-em-tela/gravity-store/` | `npx tsx testes/testes-em-tela/gravity-store/run-gravity-store.ts` |
+
+| ID | Cobertura |
+|----|-----------|
+| `TST-UNI-STORE-000064` | Regras de status, aliases, contadores |
+| `TST-UNI-STORE-000065` | Alinhamento catálogo ↔ puzzle (13 produtos) |
+| `TST-UNI-STORE-000066` | Zod `store-catalogo-api.ts` |
+| `TST-UNI-STORE-000067` | Faixas carrossel `store-cards-rows.tsx` |
+| `TST-FUN-STORE-000068` | POST `assinar-produto` |
+| `TST-FUN-STORE-000069` | GET `/api/v1/produtos-gravity` |
+| `TST-CRO-STORE-000071` | Isolamento org (scaffold `it.todo`) |
+| `testes-unitarios/nucleo-global/logo-produtos/icone-produto-gravity.test.ts` | Ícones SSOT (`@nucleo/logo-produtos`) |
+
+---
+
+## Documentos relacionados
+
+- [FLUXO-POS-LOGIN.md](./FLUXO-POS-LOGIN.md) — navegação pós-auth; "Voltar ao Hub" a partir de `/store`
+- [layout-e-margens.md](../../ux/criacao-telas/layout-e-margens.md) — container `.gs-store`
+- [rotas-convencao.md](../../arquitetura/rotas-convencao.md) — convenção `/store`
+- [GABI-AGENTE-USUARIO.md](../gabi/GABI-AGENTE-USUARIO.md) — tools GABI para catálogo (seção 4.6)

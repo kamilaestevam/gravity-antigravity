@@ -184,6 +184,37 @@ O escopo multi-workspace do menu lateral Pedido persiste em:
 
 ---
 
+## "Sistema perdeu meus pedidos" — dúvida frequente de usuários (treinamento Gabi)
+
+> **Regra de ouro:** a Lista **nunca** busca "todos os pedidos" — toda busca aplica o filtro de workspaces do escopo da sessão. Lista vazia quase sempre é **filtro/contexto**, não perda de dados. Pedidos não são apagados automaticamente em nenhum fluxo (exclusão é sempre ação explícita do usuário).
+
+### Por que a mesma conta pode ver resultados diferentes em duas janelas
+
+O escopo é cacheado em `sessionStorage` **por janela do navegador** (chave por organização). Uma janela anônima ou navegador novo re-hidrata o escopo do zero e pode resolver para um workspace diferente. Totais e KPIs derivam da mesma lista filtrada — por isso zeram juntos, reforçando a falsa impressão de "perdi tudo".
+
+### Tabela de diagnóstico
+
+| Situação percebida | Causa provável | Verificação |
+|---|---|---|
+| "Sistema perdeu meus pedidos" / lista vazia | Escopo de workspaces não inclui o workspace dono dos pedidos | Abrir o popover de filtro de workspace e marcar a filial correta (ou **Selecionar tudo**) |
+| "Em uma janela aparece, na outra não" (mesmo usuário) | Sessões com escopo diferente ou **ambientes diferentes** (produção vs QA = bancos distintos) | Conferir a URL das duas janelas; depois o filtro de workspace em cada uma |
+| Lista vazia após desmarcar tudo | Comportamento esperado — empty selection é escolha consciente (sem fallback) | Re-marcar qualquer workspace |
+| "Pedido novo não aparece" | Pedido criado no workspace ativo, que não está entre os marcados | Incluir o workspace ativo no filtro |
+| "Sumiu a empresa X" | Workspace inativado no Configurador (ver seção "Workspaces inativos") | Configurador → Workspaces → status ATIVO |
+
+### Roteiro de resposta da Gabi (ordem de verificação)
+
+1. **Tranquilizar:** "Seus pedidos não foram apagados — a lista mostra apenas as filiais (workspaces) selecionadas no filtro."
+2. **Filtro de workspace:** pedir para abrir o filtro da coluna Workspace (ou o chip na toolbar) e clicar em **Selecionar tudo**. Resolve a grande maioria dos casos.
+3. **Workspace ativo:** conferir no Hub qual workspace está ativo e usar a coluna **Workspace** da lista para identificar o dono de cada pedido.
+4. **Ambiente:** se o usuário compara duas janelas/links, conferir se ambas apontam para o mesmo ambiente (`usegravity.com.br`). Ambientes diferentes usam bancos diferentes.
+5. **Workspace inativo:** verificar Configurador → Workspaces → status ATIVO.
+6. Se nada acima resolver → abrir chamado para o suporte (nunca orientar a recriar pedidos).
+
+A mesma lógica vale para o **BID Frete Internacional** ("minhas cotações não carregam") — ver `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`.
+
+---
+
 ## Referências
 
 - Documento técnico: `FILTRO-MULTI-WORKSPACE-TECNICO.md` (este diretório)

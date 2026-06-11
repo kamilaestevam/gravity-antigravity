@@ -1,5 +1,5 @@
 /**
- * TST-E2E-PEDIDO-000028 — Duplicar Pedido (Feature Completa)
+ * TST-E2E-DUPLICAR-LISTA-PEDIDO-000028 — Duplicar Pedido (Feature Completa)
  * ----------------------------------------------------------------
  * Spec executavel Playwright traduzido do plano:
  *   testes/testes-e2e/pedido/Lista/duplicar/duplicar-e2e.md
@@ -18,8 +18,8 @@
  *   - Fluxo 11: Aviso de zeramento de saldo
  *
  * Pre-requisitos:
- *   - Backend pedido rodando em http://localhost:8030
- *   - Frontend pedido rodando em http://localhost:5179
+ *   - Stack local via proxy em http://localhost:8000 (npm run dev)
+ *   - Backend pedido acessível pelo proxy (/api/v1/pedidos)
  *   - Usuario com permissao `pedido:lista:editar` logado
  *   - Organizacao com pelo menos 3 pedidos (A, B, C) com itens
  *   - Pedido A: 3 itens com valores/pesos/referencias preenchidos
@@ -27,13 +27,13 @@
  *   - Pedido C: 1 item com qtd_pronta > 0
  *
  * Execucao:
- *   npx playwright test testes/testes-e2e/pedido/Lista/duplicar/TST-E2E-PEDIDO-000028.spec.ts
+ *   npx playwright test testes/testes-e2e/pedido/Lista/duplicar/plano-de-teste/TST-E2E-DUPLICAR-LISTA-PEDIDO-000028.spec.ts --project=pedido
  */
 
-import { test, expect } from '../../../../playwright.fixtures.js'
+import { test, expect } from '../../../../../playwright.fixtures.js'
 
-const BASE_URL = 'http://localhost:5179'
-const ROTA_PEDIDOS = '/workspace/pedido/lista'
+const BASE_UI = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:8000'
+const LISTA_URL = `${BASE_UI}/pedido/pedidos/lista`
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -75,10 +75,10 @@ async function aguardarResultado(page: import('@playwright/test').Page) {
 // FLUXO 1 — Duplicar 1 Pedido (caminho feliz completo)
 // ══════════════════════════════════════════════════════════════════════════════
 
-test.describe('TST-E2E-PEDIDO-000028 — Duplicar Pedido', () => {
+test.describe('TST-E2E-DUPLICAR-LISTA-PEDIDO-000028 — Duplicar Pedido', () => {
 
   test.beforeEach(async ({ page }) => {
-    await page.goto(`${BASE_URL}${ROTA_PEDIDOS}`)
+    await page.goto(LISTA_URL)
     // Aguarda tabela carregar
     await expect(page.locator('[data-testid="tabela-pedido-row"]').first()).toBeVisible({ timeout: 15000 })
   })
@@ -346,6 +346,36 @@ test.describe('TST-E2E-PEDIDO-000028 — Duplicar Pedido', () => {
       } else {
         test.skip(true, 'Pedido com menos de 2 itens')
       }
+    })
+  })
+
+  // ── FLUXO 5: Duplicar Misto (Pedido + Item de Outro Pedido) ─────────────────
+
+  test.describe('Fluxo 5 — Duplicar Misto', () => {
+
+    test('5.1-5.4 Selecionar pedido + item de outro pedido e duplicar', async ({ page }) => {
+      const rows = page.locator('[data-testid="tabela-pedido-row"]')
+      const rowCount = await rows.count()
+      if (rowCount < 2) {
+        test.skip(true, 'Precisa de pelo menos 2 pedidos')
+        return
+      }
+
+      await selecionarPedido(page, 0)
+      await rows.nth(1).locator('[data-testid="btn-expandir"]').click()
+      const itensOutro = page.locator('[data-testid="tabela-item-row"]')
+      if (await itensOutro.count() < 1) {
+        test.skip(true, 'Segundo pedido sem itens')
+        return
+      }
+      await itensOutro.first().locator('[data-testid="checkbox-selecao"]').click()
+
+      await clicarDuplicar(page)
+      await expect(page.locator('[data-testid="modal-duplicar-pedidos"]')).toBeVisible()
+      await avancarPasso(page)
+      await confirmarDuplicacao(page)
+      await aguardarResultado(page)
+      await expect(page.locator('[data-testid="duplicar-resultado"]')).toBeVisible()
     })
   })
 

@@ -6,7 +6,7 @@ import request from 'supertest'
 /**
  * Testes Funcionais — POST /duplicacoes/itens
  *
- * Cobre: F-ITN-01 a F-ITN-36
+ * Cobre: F-ITN-01 a F-ITN-38
  * Estratégia: Supertest + Zod real + error handler real + Service mockado
  */
 
@@ -26,7 +26,7 @@ vi.mock('@gravity/resolver-organizacao', () => ({
   }),
 }))
 
-vi.mock('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js', () => ({
   DuplicarService: vi.fn().mockImplementation(() => ({
     preview: vi.fn(),
     confirmar: vi.fn(),
@@ -44,13 +44,13 @@ vi.mock('../../../../../servicos-global/produto/pedido/server/src/services/dupli
   },
 }))
 
-vi.mock('../../../../../servicos-global/produto/pedido/server/src/permissoes.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/server/src/permissoes.js', () => ({
   exigirPermissao: () => (_req: Request, _res: Response, next: NextFunction) => next(),
 }))
 
 // ── App de Teste ──────────────���──────────────────────────��────────────────────
 
-import { duplicacoesPedidoRouter, AppError } from '../../../../../servicos-global/produto/pedido/server/src/routes/duplicacoes-pedido.js'
+import { duplicacoesPedidoRouter, AppError } from '../../../../../../servicos-global/produto/pedido/server/src/routes/duplicacoes-pedido.js'
 
 let app: express.Application
 
@@ -241,7 +241,7 @@ describe('POST /duplicacoes/itens — Validação Zod', () => {
 
 describe('POST /duplicacoes/itens — Erros de Negócio', () => {
   it('F-ITN-34: Pedido não encontrado retorna 404', async () => {
-    const { AppError: AE } = await import('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
+    const { AppError: AE } = await import('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
     mockDuplicarItens.mockRejectedValue(new AE('Pedido não encontrado', 404, 'NOT_FOUND'))
 
     const res = await request(app)
@@ -253,7 +253,7 @@ describe('POST /duplicacoes/itens — Erros de Negócio', () => {
   })
 
   it('F-ITN-35: Item não pertence ao pedido retorna 404', async () => {
-    const { AppError: AE } = await import('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
+    const { AppError: AE } = await import('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
     mockDuplicarItens.mockRejectedValue(new AE('Um ou mais itens não encontrados', 404, 'NOT_FOUND'))
 
     const res = await request(app)
@@ -264,7 +264,7 @@ describe('POST /duplicacoes/itens — Erros de Negócio', () => {
   })
 
   it('F-ITN-36: 3 itens onde 1 não encontrado retorna 404', async () => {
-    const { AppError: AE } = await import('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
+    const { AppError: AE } = await import('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
     mockDuplicarItens.mockRejectedValue(new AE('Um ou mais itens não encontrados', 404, 'NOT_FOUND'))
 
     const res = await request(app)
@@ -274,3 +274,36 @@ describe('POST /duplicacoes/itens — Erros de Negócio', () => {
     expect(res.status).toBe(404)
   })
 })
+describe('POST /duplicacoes/itens — Multi-workspace', () => {
+  it('F-ITN-37: repassa x-id-workspace ao service', async () => {
+    mockDuplicarItens.mockResolvedValue({
+      criados: [{ original_id: 'it-001', novo_id: 'it-novo', id_pedido: 'ped-ws7' }],
+      erros: [],
+    })
+    const res = await request(app)
+      .post('/api/v1/pedidos/duplicacoes/itens')
+      .set('x-id-workspace', 'ws-1')
+      .send({ pedido_id: 'ped-ws7', item_ids: ['it-001'] })
+    expect(res.status).toBe(201)
+    expect(mockDuplicarItens).toHaveBeenCalledWith(
+      expect.anything(), 'org-001', 'ws-1',
+      expect.objectContaining({ pedido_id: 'ped-ws7' }),
+    )
+  })
+  it('F-ITN-38: aceita 201 quando pedido/item de outro workspace', async () => {
+    mockDuplicarItens.mockResolvedValue({
+      criados: [
+        { original_id: 'it-a', novo_id: 'it-a2', id_pedido: 'ped-ws7' },
+        { original_id: 'it-b', novo_id: 'it-b2', id_pedido: 'ped-ws7' },
+      ],
+      erros: [],
+    })
+    const res = await request(app)
+      .post('/api/v1/pedidos/duplicacoes/itens')
+      .set('x-id-workspace', 'ws-1')
+      .send({ pedido_id: 'ped-ws7', item_ids: ['it-a', 'it-b'] })
+    expect(res.status).toBe(201)
+    expect(res.body.criados).toHaveLength(2)
+  })
+})
+

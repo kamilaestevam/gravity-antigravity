@@ -597,11 +597,11 @@
       "sublocal": "lista/duplicar",
       "modulo": "Duplicar — schemas Zod + service (preview, confirmar, duplicarItens, opções, zeramento)",
       "criticidade": "alta",
-      "planoFile": "testes/testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-unitario.md",
-      "specFile": "testes/testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-schemas.test.ts",
+      "planoFile": "testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-unitario.md",
+      "specFile": "testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-schemas.test.ts",
       "specFiles": [
-        "testes/testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-schemas.test.ts",
-        "testes/testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-service.test.ts"
+        "testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-schemas.test.ts",
+        "testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-service.test.ts"
       ],
       "componenteFile": "servicos-global/produto/pedido/server/src/services/duplicarExcluirService.ts",
       "casosTotal": 78,
@@ -618,13 +618,13 @@
       "sublocal": "lista/duplicar",
       "modulo": "Duplicar — rotas preview/confirmar/itens, isolamento organização, validação Zod, multi-workspace",
       "criticidade": "alta",
-      "planoFile": "testes/testes-funcionais/pedido/lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-funcional.md",
-      "specFile": "testes/testes-funcionais/pedido/lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-preview.test.ts",
+      "planoFile": "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-funcional.md",
+      "specFile": "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-preview.test.ts",
       "specFiles": [
-        "testes/testes-funcionais/pedido/lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-preview.test.ts",
-        "testes/testes-funcionais/pedido/lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-confirmar.test.ts",
-        "testes/testes-funcionais/pedido/lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-itens.test.ts",
-        "testes/testes-funcionais/pedido/lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-isolamento-organizacao.test.ts"
+        "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-preview.test.ts",
+        "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-confirmar.test.ts",
+        "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-itens.test.ts",
+        "testes-funcionais/pedido/Lista/duplicar/plano-de-teste/TST-FUN-DUPLICAR-LISTA-PEDIDO-000027-isolamento-organizacao.test.ts"
       ],
       "componenteFile": "servicos-global/produto/pedido/server/src/routes/duplicacoes-pedido.ts",
       "casosTotal": 48,
@@ -646,8 +646,8 @@
         "Local",
         "Staging"
       ],
-      "planoFile": "testes/testes-e2e/pedido/lista/duplicar/plano-de-teste/TST-E2E-DUPLICAR-LISTA-PEDIDO-000028-e2e.md",
-      "specFile": "testes/testes-e2e/pedido/lista/duplicar/plano-de-teste/TST-E2E-DUPLICAR-LISTA-PEDIDO-000028.spec.ts",
+      "planoFile": "testes-e2e/pedido/Lista/duplicar/plano-de-teste/TST-E2E-DUPLICAR-LISTA-PEDIDO-000028-e2e.md",
+      "specFile": "testes-e2e/pedido/Lista/duplicar/plano-de-teste/TST-E2E-DUPLICAR-LISTA-PEDIDO-000028.spec.ts",
       "componenteFile": "servicos-global/produto/pedido/client/src/components/ModalPedidosDuplicar.tsx",
       "casosTotal": 12,
       "coberturaPercentual": 0,
@@ -663,11 +663,11 @@
       "sublocal": "lista/duplicar",
       "modulo": "Duplicar — isolamento cross-organização (preview, confirmar, itens)",
       "criticidade": "alta",
-      "planoFile": "testes/testes-cross-organizacao/pedido/lista/duplicar/plano-de-teste/TST-CRO-DUPLICAR-LISTA-PEDIDO-000082-cross-org.md",
-      "specFile": "testes/testes-cross-organizacao/pedido/lista/duplicar/plano-de-teste/TST-CRO-DUPLICAR-LISTA-PEDIDO-000082.test.ts",
+      "planoFile": "testes-cross-organizacao/pedido/lista/duplicar/plano-de-teste/TST-CRO-DUPLICAR-LISTA-PEDIDO-000082-cross-org.md",
+      "specFile": "testes-cross-organizacao/pedido/lista/duplicar/plano-de-teste/TST-CRO-DUPLICAR-LISTA-PEDIDO-000082.test.ts",
       "specFiles": [
-        "testes/testes-cross-organizacao/pedido/lista/duplicar/plano-de-teste/TST-CRO-DUPLICAR-LISTA-PEDIDO-000082.test.ts",
-        "testes/testes-cross-organizacao/pedido/lista/duplicar/plano-de-teste/TST-CRO-DUPLICAR-LISTA-PEDIDO-000082-routes.test.ts"
+        "testes-cross-organizacao/pedido/lista/duplicar/plano-de-teste/TST-CRO-DUPLICAR-LISTA-PEDIDO-000082.test.ts",
+        "testes-cross-organizacao/pedido/lista/duplicar/plano-de-teste/TST-CRO-DUPLICAR-LISTA-PEDIDO-000082-routes.test.ts"
       ],
       "componenteFile": "servicos-global/produto/pedido/server/src/services/duplicarExcluirService.ts",
       "casosTotal": 9,
@@ -684,8 +684,8 @@
       "sublocal": "lista/duplicar",
       "modulo": "Duplicar — wizard modal, multi-workspace #273/#276, persistência",
       "criticidade": "alta",
-      "planoFile": "testes/testes-em-tela/pedido/lista/duplicar/plano-de-teste/TST-EMT-DUPLICAR-LISTA-PEDIDO-000083-plano-teste-em-tela.md",
-      "specFile": "testes/testes-em-tela/pedido/lista/duplicar/plano-de-teste/run-TST-EMT-DUPLICAR-LISTA-PEDIDO-000083.ts",
+      "planoFile": "testes-em-tela/pedido/lista/duplicar/plano-de-teste/TST-EMT-DUPLICAR-LISTA-PEDIDO-000083-plano-teste-em-tela.md",
+      "specFile": "testes-em-tela/pedido/lista/duplicar/plano-de-teste/run-TST-EMT-DUPLICAR-LISTA-PEDIDO-000083.ts",
       "componenteFile": "servicos-global/produto/pedido/client/src/components/ModalPedidosDuplicar.tsx",
       "casosTotal": 25,
       "coberturaPercentual": 0,

@@ -28,7 +28,7 @@ vi.mock('@gravity/resolver-organizacao', () => ({
   }),
 }))
 
-vi.mock('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js', () => ({
   DuplicarService: vi.fn().mockImplementation(() => ({
     preview: mockPreview,
     confirmar: vi.fn(),
@@ -46,13 +46,13 @@ vi.mock('../../../../../servicos-global/produto/pedido/server/src/services/dupli
   },
 }))
 
-vi.mock('../../../../../servicos-global/produto/pedido/server/src/permissoes.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/server/src/permissoes.js', () => ({
   exigirPermissao: () => (_req: Request, _res: Response, next: NextFunction) => next(),
 }))
 
 // ── App de Teste ──────────────────────────────────────────────────────────────
 
-import { duplicacoesPedidoRouter, AppError } from '../../../../../servicos-global/produto/pedido/server/src/routes/duplicacoes-pedido.js'
+import { duplicacoesPedidoRouter, AppError } from '../../../../../../servicos-global/produto/pedido/server/src/routes/duplicacoes-pedido.js'
 
 let app: express.Application
 
@@ -180,7 +180,7 @@ describe('POST /duplicacoes/preview — Validação Zod', () => {
 
 describe('POST /duplicacoes/preview — Erros de Negócio', () => {
   it('F-PRV-09: Pedido não encontrado retorna 404', async () => {
-    const { AppError: AE } = await import('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
+    const { AppError: AE } = await import('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
     mockPreview.mockRejectedValue(new AE('Um ou mais pedidos não encontrados', 404, 'NOT_FOUND'))
 
     const res = await request(app)
@@ -192,7 +192,7 @@ describe('POST /duplicacoes/preview — Erros de Negócio', () => {
   })
 
   it('F-PRV-10: 2 ids onde 1 não existe retorna 404', async () => {
-    const { AppError: AE } = await import('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
+    const { AppError: AE } = await import('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
     mockPreview.mockRejectedValue(new AE('Um ou mais pedidos não encontrados', 404, 'NOT_FOUND'))
 
     const res = await request(app)

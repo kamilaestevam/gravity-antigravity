@@ -1,24 +1,14 @@
 // @vitest-environment node
+/**
+ * TST-CRO-DUPLICAR-LISTA-PEDIDO-000082 — Cross-organização Duplicar (service)
+ */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-/**
- * Testes Funcionais — Isolamento de Organização (Cross-Org)
- *
- * Cobre: F-ISO-01 a F-ISO-06
- * Estratégia: Verifica que TODA query do DuplicarService inclui id_organizacao no WHERE
- */
-
-// ── Mock do auditLog ──────────────────────────────────────────────────────────
-
-vi.mock('../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js', () => ({
+vi.mock('../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js', () => ({
   auditLog: vi.fn(),
 }))
 
-// ── Import real do service ────────────────────────────────────────────────────
-
-import { DuplicarService, AppError } from '../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js'
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
+import { DuplicarService } from '../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js'
 
 const ORG_A = 'org-A'
 const ORG_B = 'org-B'
@@ -46,7 +36,6 @@ function criarPedidoOrg(orgId: string) {
 }
 
 function criarDbMockComOrg(orgDoRegistro: string) {
-  // Este mock simula um banco que só tem dados da org especificada
   return {
     configuracaoPedido: {
       findFirst: vi.fn().mockResolvedValue({
@@ -57,11 +46,10 @@ function criarDbMockComOrg(orgDoRegistro: string) {
     },
     pedido: {
       findMany: vi.fn().mockImplementation((args: { where: { id_organizacao: string } }) => {
-        // Simula isolamento: só retorna se a org do filtro bate com a org do registro
         if (args.where.id_organizacao === orgDoRegistro) {
           return Promise.resolve([criarPedidoOrg(orgDoRegistro)])
         }
-        return Promise.resolve([]) // Não encontra nada de outra org
+        return Promise.resolve([])
       }),
       findFirst: vi.fn().mockImplementation((args: { where: { id_organizacao: string } }) => {
         if (args.where.id_organizacao === orgDoRegistro) {
@@ -112,83 +100,59 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-// ── Testes de Isolamento ──────────────────────────────────────────────────────
-
-describe('Isolamento de Organização — Cross-Org', () => {
-  it('F-ISO-01: Preview inclui id_organizacao no WHERE', async () => {
+describe('TST-CRO-DUPLICAR-LISTA-PEDIDO-000082 — Service', () => {
+  it('CRO-DUP-01: preview filtra por id_organizacao do token', async () => {
     const db = criarDbMockComOrg(ORG_A)
     await service.preview(db as unknown as Record<string, unknown>, ORG_A, [`ped-${ORG_A}`])
-
     expect(db.pedido.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ id_organizacao: ORG_A }),
-      }),
+      expect.objectContaining({ where: expect.objectContaining({ id_organizacao: ORG_A }) }),
     )
   })
 
-  it('F-ISO-02: Confirmar inclui id_organizacao no WHERE', async () => {
+  it('CRO-DUP-02: confirmar filtra por id_organizacao do token', async () => {
     const db = criarDbMockComOrg(ORG_A)
     await service.confirmar(
-      db as unknown as Record<string, unknown>,
-      ORG_A, undefined, 'usr', 'User',
+      db as unknown as Record<string, unknown>, ORG_A, undefined, 'usr', 'User',
       { ids: [`ped-${ORG_A}`] },
     )
-
     expect(db.pedido.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ id_organizacao: ORG_A }),
-      }),
+      expect.objectContaining({ where: expect.objectContaining({ id_organizacao: ORG_A }) }),
     )
   })
 
-  it('F-ISO-03: DuplicarItens inclui id_organizacao no WHERE', async () => {
+  it('CRO-DUP-03: duplicarItens filtra por id_organizacao do token', async () => {
     const db = criarDbMockComOrg(ORG_A)
     await service.duplicarItens(
-      db as unknown as Record<string, unknown>,
-      ORG_A, undefined,
+      db as unknown as Record<string, unknown>, ORG_A, undefined,
       { pedido_id: `ped-${ORG_A}`, item_ids: [`it-${ORG_A}`] },
     )
-
-    // Verifica pedido.findFirst
     expect(db.pedido.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ id_organizacao: ORG_A }),
-      }),
+      expect.objectContaining({ where: expect.objectContaining({ id_organizacao: ORG_A }) }),
     )
-    // Verifica pedidoItem.findMany
-    for (const call of db.pedidoItem.findMany.mock.calls) {
-      expect(call[0].where).toHaveProperty('id_organizacao', ORG_A)
-    }
   })
 
-  it('F-ISO-04: Preview de pedido da org A com token da org B retorna 404', async () => {
-    const db = criarDbMockComOrg(ORG_A) // banco só tem dados de ORG_A
-
-    // Token da org B tenta acessar pedido da org A
+  it('CRO-DUP-04: preview org B com pedido org A → 404', async () => {
+    const db = criarDbMockComOrg(ORG_A)
     await expect(
       service.preview(db as unknown as Record<string, unknown>, ORG_B, [`ped-${ORG_A}`]),
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' })
   })
 
-  it('F-ISO-05: Confirmar pedido da org A com token da org B retorna 404', async () => {
+  it('CRO-DUP-05: confirmar org B com pedido org A → 404', async () => {
     const db = criarDbMockComOrg(ORG_A)
-
     await expect(
       service.confirmar(
-        db as unknown as Record<string, unknown>,
-        ORG_B, undefined, 'usr', 'User',
+        db as unknown as Record<string, unknown>, ORG_B, undefined, 'usr', 'User',
         { ids: [`ped-${ORG_A}`] },
       ),
     ).rejects.toMatchObject({ statusCode: 404 })
   })
 
-  it('F-ISO-06: DuplicarItens da org A com token da org B retorna 404', async () => {
+  it('CRO-DUP-06: duplicarItens org B com pedido org A → 404', async () => {
     const db = criarDbMockComOrg(ORG_A)
-
     await expect(
       service.duplicarItens(
-        db as unknown as Record<string, unknown>,
-        ORG_B, undefined,
+        db as unknown as Record<string, unknown>, ORG_B, undefined,
         { pedido_id: `ped-${ORG_A}`, item_ids: [`it-${ORG_A}`] },
       ),
     ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' })

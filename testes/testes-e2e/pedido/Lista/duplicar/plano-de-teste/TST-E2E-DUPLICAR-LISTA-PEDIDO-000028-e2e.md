@@ -1,6 +1,6 @@
-# Plano de Testes E2E — Duplicar Pedido
+# Plano de Testes E2E — Duplicar Lista Pedido
 
-**ID:** TST-E2E-PEDIDO-000028
+**ID:** TST-E2E-DUPLICAR-LISTA-PEDIDO-000028
 **Data:** 2026-05-16
 **Versão:** 1.0
 **Criticidade:** alta

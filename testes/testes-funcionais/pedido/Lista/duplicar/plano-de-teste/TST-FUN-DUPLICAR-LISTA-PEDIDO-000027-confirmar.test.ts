@@ -6,7 +6,7 @@ import request from 'supertest'
 /**
  * Testes Funcionais — POST /duplicacoes/confirmar
  *
- * Cobre: F-CNF-01 a F-CNF-37
+ * Cobre: F-CNF-01 a F-CNF-38
  * Estratégia: Supertest + Zod real + error handler real + Service mockado
  */
 
@@ -27,7 +27,7 @@ vi.mock('@gravity/resolver-organizacao', () => ({
   }),
 }))
 
-vi.mock('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js', () => ({
   DuplicarService: vi.fn().mockImplementation(() => ({
     preview: vi.fn(),
     confirmar: mockConfirmar,
@@ -45,13 +45,13 @@ vi.mock('../../../../../servicos-global/produto/pedido/server/src/services/dupli
   },
 }))
 
-vi.mock('../../../../../servicos-global/produto/pedido/server/src/permissoes.js', () => ({
+vi.mock('../../../../../../servicos-global/produto/pedido/server/src/permissoes.js', () => ({
   exigirPermissao: () => (_req: Request, _res: Response, next: NextFunction) => next(),
 }))
 
 // ── App de Teste ───��──────────────────────────────────────────────────────────
 
-import { duplicacoesPedidoRouter, AppError } from '../../../../../servicos-global/produto/pedido/server/src/routes/duplicacoes-pedido.js'
+import { duplicacoesPedidoRouter, AppError } from '../../../../../../servicos-global/produto/pedido/server/src/routes/duplicacoes-pedido.js'
 
 let app: express.Application
 
@@ -283,7 +283,7 @@ describe('POST /duplicacoes/confirmar — Validação Zod', () => {
 
 describe('POST /duplicacoes/confirmar — Erros de Negócio', () => {
   it('F-CNF-35: Pedido não encontrado retorna 404', async () => {
-    const { AppError: AE } = await import('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
+    const { AppError: AE } = await import('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
     mockConfirmar.mockRejectedValue(new AE('Um ou mais pedidos não encontrados', 404, 'NOT_FOUND'))
 
     const res = await request(app)
@@ -295,7 +295,7 @@ describe('POST /duplicacoes/confirmar — Erros de Negócio', () => {
   })
 
   it('F-CNF-36: auto=false sem número fornecido retorna 400', async () => {
-    const { AppError: AE } = await import('../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
+    const { AppError: AE } = await import('../../../../../../servicos-global/produto/pedido/server/src/services/duplicarExcluirService.js')
     mockConfirmar.mockRejectedValue(new AE('Número do pedido não fornecido', 400, 'VALIDATION_ERROR'))
 
     const res = await request(app)

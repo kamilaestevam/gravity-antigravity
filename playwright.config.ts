@@ -88,7 +88,7 @@ export default defineConfig({
     {
       name:    'pedido',
       testDir: './testes/testes-e2e/pedido',
-      use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:5179' },
+      use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:8000' },
     },
     {
       name:    'nf-importacao',

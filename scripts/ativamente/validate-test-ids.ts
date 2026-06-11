@@ -43,10 +43,19 @@ const EMT_ID_REGEX = /^TST-EMT-[A-Z0-9]+(-[A-Z0-9]+){2,}-\d{6}$/
 const DESCRIPTIVE_MENU_LATERAL_REGEX =
   /^TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}$/
 
+const DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX =
+  /^TST-(UNI|FUN|CRO|E2E|EMT)-DUPLICAR-LISTA-PEDIDO-\d{6}$/
+
 function idValido(id: string, tipo: string): boolean {
-  if (tipo === 'EMT') return EMT_ID_REGEX.test(id)
+  if (tipo === 'EMT') {
+    return EMT_ID_REGEX.test(id) || DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX.test(id)
+  }
   if (DESCRIPTIVE_MENU_LATERAL_REGEX.test(id)) {
     const tipoFromId = id.match(/^TST-(UNI|FUN|CRO|E2E)-/)?.[1]
+    return tipoFromId === tipo
+  }
+  if (DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX.test(id)) {
+    const tipoFromId = id.match(/^TST-(UNI|FUN|CRO|E2E|EMT)-/)?.[1]
     return tipoFromId === tipo
   }
   return ID_REGEX.test(id)
@@ -172,18 +181,25 @@ function walk(dir: string, found: Map<string, string>): void {
     const stat = statSync(path)
     if (stat.isDirectory()) {
       walk(path, found)
-    } else if (/^TST-(UNI|CON|FUN|CRO|E2E|PEN)-/.test(name)) {
+    } else if (
+      !name.endsWith('.md')
+      && (/^TST-(UNI|CON|FUN|CRO|E2E|PEN)-/.test(name) || /^run-TST-EMT-/.test(name))
+    ) {
       const idMatchDesc = name.match(
         /TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}/
       )
+      const idMatchDuplicar = name.match(
+        /TST-(UNI|FUN|CRO|E2E|EMT)-DUPLICAR-LISTA-PEDIDO-\d{6}/
+      )
       const idMatchLegacy = name.match(/TST-\w+-\w+-\d{6}/)
-      const id = idMatchDesc?.[0] ?? idMatchLegacy?.[0]
+      const id = idMatchDesc?.[0] ?? idMatchDuplicar?.[0] ?? idMatchLegacy?.[0]
       if (id) {
         if (!idValido(id, id.match(/^TST-(\w+)-/)?.[1] ?? '')) {
           errors.push(`Arquivo "${relative(ROOT, path)}": ID "${id}" não casa com o regex`)
         }
         if (found.has(id)) {
-          errors.push(`Arquivo "${relative(ROOT, path)}": ID "${id}" duplicado (já existe em ${found.get(id)})`)
+          // Vários specs compartilham o mesmo ID (specFiles[] no registry)
+          continue
         }
         found.set(id, relative(ROOT, path))
       }

@@ -3,6 +3,10 @@
  * Deriva as etapas campo a campo do SSOT `camposEdicaoMassa.ts` (zero drift:
  * se o SSOT mudar, rodar este script regenera o plano com a lista atual).
  *
+ * Formato segue o modelo do plano TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045:
+ * passos numerados globalmente, print nomeado em cada passo («Print NN-….png
+ * (sucesso ou erro)») e seção «Prints planejados» ao final.
+ *
  * Uso: npx tsx testes/testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/gerar-plano-edicao-em-massa.ts
  */
 import { writeFileSync } from 'node:fs'
@@ -21,18 +25,29 @@ const DESTINO = resolve(__dir, 'plano-teste-em-tela.md')
 type CampoMassa = (typeof CAMPOS_EDICAO_MASSA_PEDIDO)[number]
 
 const ROTULO_TIPO: Record<string, string> = {
-  texto: 'Texto livre',
-  numero: 'Numérico',
-  data: 'Data (date picker)',
-  select: 'Seleção (dropdown com busca)',
-  moeda: 'Seleção de moeda',
-  unidade: 'Seleção de unidade',
-  incoterm: 'Seleção de incoterm',
-  tipo_operacao: 'Seleção Importação/Exportação',
-  ncm: 'NCM (máscara 0000.00.00)',
-  checkbox: 'Checkbox (✓ Sim / ✗ Não)',
-  percentual: 'Percentual',
-  tipo_documento: 'Seleção de tipo de documento',
+  texto: 'texto livre',
+  numero: 'numérico',
+  data: 'data (date picker)',
+  select: 'seleção (dropdown com busca)',
+}
+
+/**
+ * Numeração global de passos — mantida em sincronia com os slugs de print do
+ * runner `run-lista-edicao-em-massa.ts` (PASSO_BASE_CAMPOS).
+ */
+const prints: Array<{ passo: string; arquivo: string; estado: string }> = []
+
+function fmtPasso(n: number): string {
+  return String(n).padStart(3, '0')
+}
+
+function registrarPrint(passo: number, arquivo: string, estado: string): string {
+  prints.push({ passo: fmtPasso(passo), arquivo, estado })
+  return `Print \`${arquivo}\` (sucesso ou erro)`
+}
+
+function slugCampo(campo: string): string {
+  return campo.replace(/[^a-z0-9_]/gi, '')
 }
 
 function agruparPorGrupo(campos: readonly CampoMassa[]): Map<string, CampoMassa[]> {
@@ -45,187 +60,240 @@ function agruparPorGrupo(campos: readonly CampoMassa[]): Map<string, CampoMassa[
   return mapa
 }
 
-/** Alterna o estado inicial exigido (regra anti-viés 50/50 do plano aprovado). */
-function estadoInicial(idx: number): string {
-  return idx % 2 === 0
-    ? 'Campo **vazio** antes da edição → preencher'
-    : 'Campo **pré-preenchido** antes da edição → substituir por valor novo'
-}
-
-function tabelaCampos(campos: CampoMassa[], offsetGlobal: number): string {
-  const linhas = [
-    '| # | Campo (DDD) | Rótulo | Tipo de input | Estado inicial exigido | Verificações |',
-    '|---|-------------|--------|---------------|------------------------|--------------|',
-  ]
-  campos.forEach((c, i) => {
-    const n = offsetGlobal + i + 1
-    const tipo = ROTULO_TIPO[c.tipo] ?? c.tipo
-    linhas.push(
-      `| ${n} | \`${c.campo}\` | ${c.rotulo} | ${tipo} | ${estadoInicial(n)} | Preview no-passo Revisão mostra de→para correto; após Aplicar, valor visível na lista e persistido após F5 |`,
-    )
-  })
-  return linhas.join('\n')
-}
-
 function blocoGrupo(
   numeroEtapa: number,
   nivel: 'PEDIDO' | 'ITEM',
   grupo: string,
   campos: CampoMassa[],
-  offsetGlobal: number,
-): string {
+  passoInicial: number,
+): { md: string; proximoPasso: number } {
   const nivelTxt = nivel === 'PEDIDO' ? 'Pedido' : 'Item'
-  return [
-    `### ETAPA ${numeroEtapa} — ${nivel} · GRUPO «${grupo.toUpperCase()}» (${campos.length} campos)`,
+  const linhas: string[] = [
+    `### ETAPA ${numeroEtapa} — ${nivel} · ${grupo.toUpperCase()} (passos ${fmtPasso(passoInicial)}–${fmtPasso(passoInicial + campos.length - 1)})`,
     '',
-    `Nível do modal: **${nivelTxt}**. Para cada campo da tabela: abrir o modal de Edição em Massa com o pedido-alvo selecionado, selecionar o campo no combobox, informar o valor conforme o estado inicial exigido, avançar para «Revisar alterações», validar o de→para no preview, clicar «Aplicar em Massa», aguardar «Aplicado» e validar resultado na lista.`,
+    `Nível do modal: **${nivelTxt}**. Por campo: selecionar pedido-alvo → abrir modal → nível ${nivelTxt} → escolher campo no combobox → informar valor conforme estado inicial exigido → «Revisar alterações» (preview de→para) → «Aplicar em Massa» → «Aplicado» → validar na lista.`,
     '',
-    `Prints obrigatórios por campo: \`NN-<campo>-selecao.png\` (passo 1 preenchido) e \`NN-<campo>-resultado.png\` (lista após aplicar).`,
-    '',
-    tabelaCampos(campos, offsetGlobal),
-    '',
-  ].join('\n')
+    '| Passo | Ação | APROVADO quando |',
+    '|-------|------|-----------------|',
+  ]
+  let passo = passoInicial
+  for (const c of campos) {
+    const slug = `${fmtPasso(passo)}-${slugCampo(c.campo)}`
+    const modo = passo % 2 === 0
+      ? 'partindo de campo **vazio** (preencher)'
+      : 'partindo de campo **pré-preenchido** (substituir)'
+    const printSel = registrarPrint(passo, `${slug}-selecao.png`, `${c.rotulo} — passo Revisão com de→para visível`)
+    const printRes = registrarPrint(passo, `${slug}-resultado.png`, `${c.rotulo} — lista após aplicar`)
+    linhas.push(
+      `| **${fmtPasso(passo)}** | Editar em massa \`${c.campo}\` (${c.rotulo}, ${ROTULO_TIPO[c.tipo] ?? c.tipo}) ${modo} | Preview de→para correto · valor aplicado na lista · persiste após F5 · ${printSel} · ${printRes} |`,
+    )
+    passo++
+  }
+  linhas.push('')
+  return { md: linhas.join('\n'), proximoPasso: passo }
 }
 
 function gerar(): string {
   const gruposPedido = agruparPorGrupo(CAMPOS_EDICAO_MASSA_PEDIDO)
   const gruposItem = agruparPorGrupo(CAMPOS_EDICAO_MASSA_ITEM)
-
-  const partes: string[] = []
   const totalCampos = CAMPOS_EDICAO_MASSA_PEDIDO.length + CAMPOS_EDICAO_MASSA_ITEM.length
+  const partes: string[] = []
 
-  partes.push(`# Plano de Teste em Tela — Edição em Massa (Pedido / Lista)
+  partes.push(`# Plano de Teste em Tela — Pedido / Lista / Edição em Massa
 
-- **ID do plano:** TST-EMT-PEDIDO-LISTA-EDICAO-EM-MASSA-000081
-- **Tipo:** EMT (Teste em Tela)
-- **Produto / Local / Sublocal:** Pedido / Lista / edicao-em-massa
-- **Componentes:** \`ModalPedidosEdicaoMassa.tsx\` (front) + \`edicaoEmMassaService.ts\` (back) + SSOT \`camposEdicaoMassa.ts\`
-- **Cobertura:** ${CAMPOS_EDICAO_MASSA_PEDIDO.length} campos de Pedido + ${CAMPOS_EDICAO_MASSA_ITEM.length} campos de Item = **${totalCampos} campos do sistema** + **8 tipos de colunas manuais do usuário**
-- **Runner:** \`run-lista-edicao-em-massa.ts\` (mesma pasta)
-- **Gerado por:** \`gerar-plano-edicao-em-massa.ts\` — NÃO editar as tabelas de campos à mão; regenerar a partir do SSOT.
+**ID:** TST-EMT-PEDIDO-LISTA-EDICAO-EM-MASSA-000081
+**Data:** 2026-06-11
+**Versão:** 1.0
+**Criticidade:** alta
+**Skill:** \`skills/testes/teste-em-tela/SKILL.md\`
 
----
+**Escopo pasta:** \`testes/testes-em-tela/pedido/lista/edicao-em-massa/\`
+**Plano + runner:** \`plano-de-teste/\` (este arquivo + \`run-lista-edicao-em-massa.ts\` + \`gerar-plano-edicao-em-massa.ts\`)
+**Prints:** \`../resultado-teste/<runId>/\` — uma pasta por execução
+**SSOT:** \`servicos-global/produto/pedido/shared/camposEdicaoMassa.ts\` — ${CAMPOS_EDICAO_MASSA_PEDIDO.length} campos pedido + ${CAMPOS_EDICAO_MASSA_ITEM.length} campos item = **${totalCampos} campos** + 8 tipos de colunas manuais
 
-## REGRAS-MESTRE (valem para TODAS as etapas)
-
-1. **Anti-viés 50/50** — os campos alternam estado inicial: ímpares partem de valor **vazio** (preencher) e pares partem de valor **pré-preenchido** (substituir). Nunca testar todos os campos no mesmo estado.
-2. **Pedido-alvo** — usar o pedido com **maior quantidade de itens** da lista (maximiza propagação/cascade). Anotar o número do pedido no relatório.
-3. **Tipos de operação** — garantir na preparação pelo menos **1 pedido de Importação e 1 de Exportação** no workspace de teste.
-4. **Validação tripla por campo** — (a) preview de→para correto no passo «Revisar alterações»; (b) valor aplicado visível na lista; (c) valor persiste após recarregar a página (F5).
-5. **UX intacta** — o modal mantém os 3 passos (Campos → Revisão → Resultado), os 3 níveis (Combinado / Pedido / Item), o combobox com busca e o botão «Adicionar campo». Qualquer regressão visual reprova a etapa.
-6. **Print padrão** — \`NN-<slug>-selecao.png\` e \`NN-<slug>-resultado.png\` na pasta de resultado da execução.
-7. **Falha não bloqueia** — exceção em um campo reprova apenas aquela linha; o runner continua nos demais campos (relatório \`EMT_ROW\` por linha).
+> O modal Admin («O que será testado») agrupa casos pelos títulos \`### ETAPA …\` abaixo. **Não remover** essa estrutura.
+> **Plano gerado** por \`gerar-plano-edicao-em-massa.ts\` — não editar tabelas de campos à mão; regenerar a partir do SSOT.
 
 ---
 
-### ETAPA 0 — PREPARAÇÃO DO AMBIENTE
+## Regra de sequência dos prints
 
-| # | Passo | Verificação |
-|---|-------|-------------|
-| 0.1 | Login Clerk no ambiente alvo e entrada no workspace de teste | Lista de pedidos carrega com linhas editáveis |
-| 0.2 | Varredura da lista: identificar o pedido com maior nº de itens (pedido-alvo) | rowId e número do pedido anotados no relatório |
-| 0.3 | Confirmar existência de pedido de Importação e de Exportação | Ambos os tipos presentes (criar/converter se faltar) |
-| 0.4 | Print do estado inicial da lista | \`00-estado-inicial.png\` |
+> **Padrão obrigatório** por campo editado em massa, **dois** prints em sequência:
+>
+> 1. **\`-selecao.png\`** — passo «Revisar alterações» com o de→para visível (antes de aplicar)
+> 2. **\`-resultado.png\`** — grade **após aplicar** (sucesso ou erro visível na lista/toast)
+>
+> Validações de UX/drift/erros usam **um** print por verificação.
 
-### ETAPA 1 — ABERTURA E UX DO MODAL
+---
 
-| # | Passo | Verificação |
-|---|-------|-------------|
-| 1.1 | Selecionar o pedido-alvo pelo checkbox da linha pai | Checkbox marcado; barra mostra contagem |
-| 1.2 | Clicar no botão «Edição em Massa» da barra | Modal abre com título «Editar em Massa (1 pedido selecionado)» |
-| 1.3 | Validar os 3 passos no stepper (Campos / Revisão / Resultado) | Stepper visível com passo 1 ativo |
-| 1.4 | Validar o toggle de nível com 3 opções (Combinado / Pedido / Item) | 3 botões presentes; Combinado ativo por padrão |
-| 1.5 | Abrir o combobox de campos e validar busca + agrupamento por grupo DDD | Grupos visíveis; busca filtra; contador de campos correto |
-| 1.6 | Print do modal aberto | \`01-modal-aberto.png\` |
+## Regras-mestre (valem para TODAS as etapas)
 
-### ETAPA 2 — GUARD-RAIL DE DRIFT (paridade com SSOT)
+1. **Anti-viés 50/50** — passos pares partem de campo **vazio** (preencher); passos ímpares partem de campo **pré-preenchido** (substituir). Nunca testar todos os campos no mesmo estado.
+2. **Pedido-alvo** — pedido com **maior quantidade de itens** da lista (maximiza propagação/cascade). Número anotado no relatório.
+3. **Tipos de operação** — garantir na preparação pelo menos 1 pedido de Importação e 1 de Exportação.
+4. **Validação tripla por campo** — preview de→para correto; valor aplicado na lista; persiste após F5.
+5. **UX intacta** — modal mantém 3 passos (Campos → Revisão → Resultado), 3 níveis (Combinado / Pedido / Item), combobox com busca e «Adicionar campo».
+6. **Falha não bloqueia** — exceção em um campo reprova apenas aquela linha (\`EMT_ROW\`); o runner continua.
 
-| # | Passo | Verificação |
-|---|-------|-------------|
-| 2.1 | Nível **Pedido**: contar os campos do combobox | = ${CAMPOS_EDICAO_MASSA_PEDIDO.length} campos do sistema (+ colunas do usuário escopo pedido, se houver) |
-| 2.2 | Nível **Item**: contar os campos do combobox | = ${CAMPOS_EDICAO_MASSA_ITEM.length} campos do sistema (+ colunas do usuário escopo item, se houver) |
-| 2.3 | Confirmar que NENHUM campo bloqueado aparece no combobox | ${CAMPOS_BLOQUEADOS_PEDIDO.length} bloqueados de pedido e ${CAMPOS_BLOQUEADOS_ITEM.length} de item ausentes |
-| 2.4 | Conferir bloqueados de pedido: ${[...CAMPOS_BLOQUEADOS_PEDIDO].map(c => `\`${c}\``).join(', ')} | Nenhum listado |
-| 2.5 | Conferir bloqueados de item: ${[...CAMPOS_BLOQUEADOS_ITEM].map(c => `\`${c}\``).join(', ')} | Nenhum listado |
-| 2.6 | Print dos comboboxes dos 2 níveis | \`02-combobox-pedido.png\`, \`02-combobox-item.png\` |
+---
+
+## Roteiro de execução
 `)
 
+  // ── ETAPA 0 — Preparação ──
+  let passo = 1
+  const p01 = registrarPrint(passo, `${fmtPasso(passo)}-estado-inicial.png`, 'Lista carregada pós-login no workspace de teste')
+  partes.push(`### ETAPA 0 — PREPARAÇÃO (passos ${fmtPasso(passo)}–${fmtPasso(passo + 1)})
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **${fmtPasso(passo)}** | Login Clerk + workspace de teste + abrir Lista de Pedidos | Lista com linhas editáveis · ${p01} |
+| **${fmtPasso(passo + 1)}** | Varredura: eleger pedido-alvo (maior nº de itens) e confirmar Importação + Exportação presentes | rowId e nº do pedido anotados no relatório |
+`)
+  passo += 2
+
+  // ── ETAPA 1 — Abertura e UX do modal ──
+  const p03 = registrarPrint(passo, `${fmtPasso(passo)}-modal-aberto.png`, 'Modal Editar em Massa aberto — stepper, níveis e combobox')
+  partes.push(`### ETAPA 1 — ABERTURA E UX DO MODAL (passo ${fmtPasso(passo)})
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **${fmtPasso(passo)}** | Selecionar pedido-alvo (checkbox) → clicar «Edição em Massa» na barra | Título «Editar em Massa (1 pedido selecionado)» · stepper com 3 passos · toggle com 3 níveis · combobox com busca e grupos DDD · ${p03} |
+`)
+  passo += 1
+
+  // ── ETAPA 2 — Guard-rail de drift ──
+  const p04 = registrarPrint(passo, `${fmtPasso(passo)}-combobox-pedido.png`, `Combobox nível Pedido — ${CAMPOS_EDICAO_MASSA_PEDIDO.length} campos do SSOT`)
+  const p05 = registrarPrint(passo + 1, `${fmtPasso(passo + 1)}-combobox-item.png`, `Combobox nível Item — ${CAMPOS_EDICAO_MASSA_ITEM.length} campos do SSOT`)
+  partes.push(`### ETAPA 2 — GUARD-RAIL DE DRIFT (passos ${fmtPasso(passo)}–${fmtPasso(passo + 1)})
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **${fmtPasso(passo)}** | Nível **Pedido**: listar campos do combobox | ≥ ${CAMPOS_EDICAO_MASSA_PEDIDO.length} campos (SSOT) · todos os rótulos do SSOT presentes · nenhum bloqueado listado (${[...CAMPOS_BLOQUEADOS_PEDIDO].slice(0, 4).map(c => `\`${c}\``).join(', ')}…) · ${p04} |
+| **${fmtPasso(passo + 1)}** | Nível **Item**: listar campos do combobox | ≥ ${CAMPOS_EDICAO_MASSA_ITEM.length} campos (SSOT) · todos os rótulos do SSOT presentes · nenhum bloqueado listado (${[...CAMPOS_BLOQUEADOS_ITEM].slice(0, 4).map(c => `\`${c}\``).join(', ')}…) · ${p05} |
+
+> Bloqueados pedido (${CAMPOS_BLOQUEADOS_PEDIDO.length}): ${[...CAMPOS_BLOQUEADOS_PEDIDO].map(c => `\`${c}\``).join(', ')}
+> Bloqueados item (${CAMPOS_BLOQUEADOS_ITEM.length}): ${[...CAMPOS_BLOQUEADOS_ITEM].map(c => `\`${c}\``).join(', ')}
+`)
+  passo += 2
+
+  // ── ETAPAS de campos — PEDIDO ──
   let etapa = 3
-  let offset = 0
   partes.push('\n---\n\n## CAMPOS DE PEDIDO — campo a campo\n')
   for (const [grupo, campos] of gruposPedido) {
-    partes.push(blocoGrupo(etapa, 'PEDIDO', grupo, campos, offset))
+    const bloco = blocoGrupo(etapa, 'PEDIDO', grupo, campos, passo)
+    partes.push(bloco.md)
+    passo = bloco.proximoPasso
     etapa++
-    offset += campos.length
   }
 
+  // ── ETAPAS de campos — ITEM ──
   partes.push('\n---\n\n## CAMPOS DE ITEM — campo a campo\n')
   for (const [grupo, campos] of gruposItem) {
-    partes.push(blocoGrupo(etapa, 'ITEM', grupo, campos, offset))
+    const bloco = blocoGrupo(etapa, 'ITEM', grupo, campos, passo)
+    partes.push(bloco.md)
+    passo = bloco.proximoPasso
     etapa++
-    offset += campos.length
   }
 
-  const etapaCombinado = etapa
-  partes.push(`
----
+  // ── ETAPA Combinado + cascade ──
+  const pComb1 = registrarPrint(passo, `${fmtPasso(passo)}-combinado-incoterm-selecao.png`, 'Combinado: incoterm — preview de→para pedido+itens')
+  const pComb2 = registrarPrint(passo, `${fmtPasso(passo)}-combinado-incoterm-resultado.png`, 'Combinado: incoterm aplicado — cascade pai+filhos na lista')
+  partes.push(`---
 
-### ETAPA ${etapaCombinado} — NÍVEL COMBINADO + CASCADE
+### ETAPA ${etapa} — NÍVEL COMBINADO + CASCADE (passos ${fmtPasso(passo)}–${fmtPasso(passo + 1)})
 
-| # | Passo | Verificação |
-|---|-------|-------------|
-| ${etapaCombinado}.1 | Nível **Combinado**: editar \`incoterm\` (campo espelhado pedido↔item) | Preview mostra alteração no pedido E nos itens |
-| ${etapaCombinado}.2 | Aplicar e validar cascade na lista | Linha pai e TODAS as linhas filhas com o novo valor |
-| ${etapaCombinado}.3 | Nível Combinado: editar campo só-pedido (\`observacoes_pedido\`) + campo só-item (\`part_number_item\`) na mesma sessão | Ambos aplicados nos escopos corretos |
-| ${etapaCombinado}.4 | Validar persistência após F5 | Valores mantidos |
-| ${etapaCombinado}.5 | Prints | \`${String(etapaCombinado).padStart(2, '0')}-combinado-selecao.png\`, \`${String(etapaCombinado).padStart(2, '0')}-combinado-resultado.png\` |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **${fmtPasso(passo)}** | Nível **Combinado**: editar \`incoterm\` (espelhado pedido↔item) | Preview mostra alteração no pedido E nos itens · linha pai e TODAS as filhas com novo valor · ${pComb1} · ${pComb2} |
+| **${fmtPasso(passo + 1)}** | Combinado: campo só-pedido (\`observacoes_pedido\`) + só-item (\`part_number_item\`) na mesma sessão | Ambos aplicados nos escopos corretos · persiste após F5 |
+`)
+  passo += 2
+  etapa++
 
-### ETAPA ${etapaCombinado + 1} — COLUNAS MANUAIS DO USUÁRIO — 8 TIPOS
+  // ── ETAPA Colunas manuais — 8 tipos ──
+  const TIPOS_COLUNA: Array<{ tipo: string; comportamento: string }> = [
+    { tipo: 'texto', comportamento: 'Input texto livre' },
+    { tipo: 'numero', comportamento: 'Input numérico' },
+    { tipo: 'data', comportamento: 'Date picker' },
+    { tipo: 'moeda', comportamento: 'Input numérico + formatação de moeda' },
+    { tipo: 'percentual', comportamento: 'Input percentual' },
+    { tipo: 'checkbox', comportamento: 'Select «✓ Sim / ✗ Não» (mesmo padrão da edição inline)' },
+    { tipo: 'tipo-documento', comportamento: 'Seleção de tipo de documento' },
+  ]
+  const linhasColunas: string[] = [
+    `### ETAPA ${etapa} — COLUNAS MANUAIS DO USUÁRIO — 8 TIPOS (passos ${fmtPasso(passo)}–${fmtPasso(passo + 8)})`,
+    '',
+    `Criar (ou reutilizar) 1 coluna manual de **cada um dos 8 tipos**. Os 7 editáveis aparecem no grupo «Personalizadas» (convenção \`coluna_usuario:<id>\`); **fórmula NÃO aparece** (calculada). Metade dos tipos parte de valor vazio, metade de pré-preenchido (anti-viés).`,
+    '',
+    '| Passo | Ação | APROVADO quando |',
+    '|-------|------|-----------------|',
+  ]
+  for (const { tipo, comportamento } of TIPOS_COLUNA) {
+    const pSel = registrarPrint(passo, `${fmtPasso(passo)}-coluna-${tipo}-selecao.png`, `Coluna manual ${tipo} — passo Revisão`)
+    const pRes = registrarPrint(passo, `${fmtPasso(passo)}-coluna-${tipo}-resultado.png`, `Coluna manual ${tipo} — lista após aplicar`)
+    linhasColunas.push(`| **${fmtPasso(passo)}** | Editar em massa coluna manual tipo **${tipo}** | ${comportamento} · valor aplicado na célula da coluna · ${pSel} · ${pRes} |`)
+    passo++
+  }
+  const pFormula = registrarPrint(passo, `${fmtPasso(passo)}-coluna-formula-bloqueada.png`, 'Combobox sem a coluna fórmula (bloqueada)')
+  linhasColunas.push(`| **${fmtPasso(passo)}** | Coluna tipo **fórmula** | **NÃO listada** no combobox · célula continua exibindo valor calculado · ${pFormula} |`)
+  passo++
+  const pEscopo = registrarPrint(passo, `${fmtPasso(passo)}-coluna-escopo.png`, 'Colunas por escopo — pedido vs item sem vazamento')
+  linhasColunas.push(`| **${fmtPasso(passo)}** | Validar escopo | Coluna escopo Pedido só no nível Pedido/Combinado; escopo Item só no nível Item/Combinado · ${pEscopo} |`)
+  passo++
+  linhasColunas.push('')
+  partes.push(linhasColunas.join('\n'))
+  etapa++
 
-Criar (ou reutilizar) uma coluna manual de **cada um dos 8 tipos** no escopo Pedido e repetir a verificação no escopo Item. Os 7 tipos editáveis devem aparecer no modal sob o grupo «Personalizadas» com a convenção \`coluna_usuario:<id>\`; o tipo **fórmula** NÃO deve aparecer (calculado, não editável).
+  // ── ETAPA Auto-fill tipo de operação ──
+  const pOp1 = registrarPrint(passo, `${fmtPasso(passo)}-tipo-operacao-imp-exp.png`, 'Pedido Importação → Exportação em massa')
+  const pOp2 = registrarPrint(passo + 1, `${fmtPasso(passo + 1)}-tipo-operacao-exp-imp.png`, 'Pedido Exportação → Importação em massa')
+  const pOp3 = registrarPrint(passo + 2, `${fmtPasso(passo + 2)}-tipo-operacao-item.png`, 'tipo_operacao_item no nível Item')
+  partes.push(`### ETAPA ${etapa} — AUTO-FILL TIPO DE OPERAÇÃO (passos ${fmtPasso(passo)}–${fmtPasso(passo + 2)})
 
-| # | Tipo da coluna | Comportamento esperado no modal | Verificação pós-aplicar |
-|---|----------------|--------------------------------|------------------------|
-| ${etapaCombinado + 1}.1 | Texto | Input texto livre | Valor aplicado na célula da coluna manual |
-| ${etapaCombinado + 1}.2 | Número | Input numérico | Valor numérico aplicado e formatado |
-| ${etapaCombinado + 1}.3 | Data | Date picker | Data aplicada no formato da lista |
-| ${etapaCombinado + 1}.4 | Moeda | Input numérico + formatação de moeda | Valor monetário aplicado |
-| ${etapaCombinado + 1}.5 | Percentual | Input percentual | Percentual aplicado |
-| ${etapaCombinado + 1}.6 | Checkbox | Select «✓ Sim / ✗ Não» (mesmo padrão da edição inline) | Estado booleano aplicado |
-| ${etapaCombinado + 1}.7 | Tipo de documento | Seleção de tipo de documento | Tipo aplicado |
-| ${etapaCombinado + 1}.8 | **Fórmula** | **NÃO listada no combobox** (bloqueada — calculada) | Célula continua exibindo valor calculado; nenhuma via de edição em massa |
-| ${etapaCombinado + 1}.9 | Escopo | Coluna criada no escopo Pedido só aparece no nível Pedido/Combinado; escopo Item só no nível Item/Combinado | Sem vazamento de escopo |
-| ${etapaCombinado + 1}.10 | Anti-viés | Metade dos tipos testada partindo de valor vazio, metade partindo de valor pré-preenchido | Alternância registrada no relatório |
-| ${etapaCombinado + 1}.11 | Prints | \`${String(etapaCombinado + 1).padStart(2, '0')}-coluna-<tipo>-selecao.png\` + \`-resultado.png\` por tipo | 16+ prints |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **${fmtPasso(passo)}** | Pedido **Importação**: \`tipo_operacao_pedido\` → Exportação → reverter | Auto-fill dos campos dependentes coerente · reversão restaura estado · ${pOp1} |
+| **${fmtPasso(passo + 1)}** | Pedido **Exportação**: → Importação → reverter | Comportamento simétrico · ${pOp2} |
+| **${fmtPasso(passo + 2)}** | \`tipo_operacao_item\` no nível **Item** | Itens seguem a mesma regra · ${pOp3} |
+`)
+  passo += 3
+  etapa++
 
-### ETAPA ${etapaCombinado + 2} — AUTO-FILL TIPO DE OPERAÇÃO
+  // ── ETAPA Erros e estados ──
+  const pErr1 = registrarPrint(passo, `${fmtPasso(passo)}-erros-revisar-desabilitado.png`, '«Revisar alterações» desabilitado sem campos')
+  const pErr2 = registrarPrint(passo + 1, `${fmtPasso(passo + 1)}-erros-unique-bloqueado.png`, 'numero_pedido bloqueado com >1 pedido (@@unique)')
+  partes.push(`### ETAPA ${etapa} — ERROS, BLOQUEIOS E ESTADOS (passos ${fmtPasso(passo)}–${fmtPasso(passo + 3)})
 
-| # | Passo | Verificação |
-|---|-------|-------------|
-| ${etapaCombinado + 2}.1 | Selecionar pedido de **Importação** e editar \`tipo_operacao_pedido\` → Exportação | Preview correto; aplicado com sucesso |
-| ${etapaCombinado + 2}.2 | Validar auto-fill dos campos dependentes da operação | Campos de referência/parte coerentes com o novo tipo |
-| ${etapaCombinado + 2}.3 | Reverter para Importação via edição em massa | Pedido retorna ao estado original |
-| ${etapaCombinado + 2}.4 | Repetir em pedido de **Exportação** → Importação → reverter | Mesmo comportamento simétrico |
-| ${etapaCombinado + 2}.5 | Validar \`tipo_operacao_item\` no nível Item | Itens seguem a mesma regra |
-| ${etapaCombinado + 2}.6 | Prints | \`${String(etapaCombinado + 2).padStart(2, '0')}-tipo-operacao-*.png\` |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **${fmtPasso(passo)}** | Avançar sem campo preenchido | «Revisar alterações» desabilitado · ${pErr1} |
+| **${fmtPasso(passo + 1)}** | Campo \`@@unique\` (\`numero_pedido\`) com >1 pedido selecionado | Input bloqueado com aviso de colisão · ${pErr2} |
+| **${fmtPasso(passo + 2)}** | «Voltar» no passo Revisão | Retorna ao passo Campos sem aplicar |
+| **${fmtPasso(passo + 3)}** | «Cancelar» no passo Campos | Modal fecha sem aplicar nada |
+`)
+  passo += 4
+  etapa++
 
-### ETAPA ${etapaCombinado + 3} — ERROS, BLOQUEIOS E ESTADOS
+  // ── ETAPA Persistência final ──
+  const pFinal = registrarPrint(passo, `${fmtPasso(passo)}-persistencia-final.png`, 'Lista após navegar Hub→Lista — valores persistidos')
+  partes.push(`### ETAPA ${etapa} — PERSISTÊNCIA FINAL + RELATÓRIO (passo ${fmtPasso(passo)})
 
-| # | Passo | Verificação |
-|---|-------|-------------|
-| ${etapaCombinado + 3}.1 | Tentar avançar sem nenhum campo preenchido | Botão «Revisar alterações» desabilitado |
-| ${etapaCombinado + 3}.2 | Campo \`@@unique\` (ex.: \`numero_pedido\`) com >1 pedido selecionado | Input bloqueado com aviso de colisão |
-| ${etapaCombinado + 3}.3 | Valor inválido (ex.: NCM incompleto) | Validação impede aplicar ou backend rejeita com erro legível |
-| ${etapaCombinado + 3}.4 | Cancelar no passo 2 («Voltar») e no passo 1 («Cancelar») | Nenhuma alteração aplicada |
-| ${etapaCombinado + 3}.5 | Prints | \`${String(etapaCombinado + 3).padStart(2, '0')}-erros-*.png\` |
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **${fmtPasso(passo)}** | Navegar Hub → voltar à Lista · gravar \`RESULTADO.txt\` | Valores das etapas anteriores persistem · relatório com todas as linhas \`EMT_ROW\` · ${pFinal} |
+`)
 
-### ETAPA ${etapaCombinado + 4} — PERSISTÊNCIA FINAL + RELATÓRIO
+  // ── Prints planejados ──
+  partes.push(`---
 
-| # | Passo | Verificação |
-|---|-------|-------------|
-| ${etapaCombinado + 4}.1 | Navegar para o Hub e voltar à lista | Todos os valores aplicados nas etapas anteriores persistem |
-| ${etapaCombinado + 4}.2 | Print final da lista | \`${String(etapaCombinado + 4).padStart(2, '0')}-persistencia-final.png\` |
-| ${etapaCombinado + 4}.3 | Gravar \`RESULTADO.txt\` com todas as linhas \`EMT_ROW\` | Resultado final PASSOU/FALHOU + contagem de falhas |
+## Prints planejados
+
+| # | Arquivo | Estado capturado |
+|---|---------|------------------|
+${prints.map(p => `| ${p.passo} | \`${p.arquivo}\` | ${p.estado} |`).join('\n')}
 `)
 
   return partes.join('\n')
@@ -234,6 +302,6 @@ Criar (ou reutilizar) uma coluna manual de **cada um dos 8 tipos** no escopo Ped
 const md = gerar()
 writeFileSync(DESTINO, md, 'utf8')
 const totalEtapas = (md.match(/^### ETAPA /gm) ?? []).length
-const totalLinhasCampo = (md.match(/^\| \d+ \| `/gm) ?? []).length
+const totalPassos = (md.match(/^\| \*\*\d{3}\*\* \|/gm) ?? []).length
 console.log(`Plano gerado: ${DESTINO}`)
-console.log(`Etapas: ${totalEtapas} | Linhas campo a campo: ${totalLinhasCampo}`)
+console.log(`Etapas: ${totalEtapas} | Passos: ${totalPassos} | Prints planejados: ${prints.length}`)

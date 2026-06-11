@@ -63,6 +63,23 @@ const LABEL_NIVEL: Record<NivelModal, string> = {
 
 type CampoMassa = (typeof CAMPOS_EDICAO_MASSA_PEDIDO)[number]
 
+/**
+ * Numeração global de passos — mantida em sincronia com o plano gerado por
+ * `gerar-plano-edicao-em-massa.ts` (prints `NNN-<slug>-selecao/resultado.png`).
+ * Passos 001–005 = preparação/UX/drift; campos começam no passo 006.
+ */
+const PASSO_BASE_CAMPOS = 5
+const TOTAL_CAMPOS = CAMPOS_EDICAO_MASSA_PEDIDO.length + CAMPOS_EDICAO_MASSA_ITEM.length
+const PASSO_COMBINADO = PASSO_BASE_CAMPOS + TOTAL_CAMPOS + 1 // 172
+const PASSO_COLUNAS_USUARIO = PASSO_COMBINADO + 2 // 174 (7 tipos) … 181 fórmula, 182 escopo
+const PASSO_TIPO_OPERACAO = PASSO_COLUNAS_USUARIO + 9 // 183
+const PASSO_ERROS = PASSO_TIPO_OPERACAO + 3 // 186
+const PASSO_PERSISTENCIA = PASSO_ERROS + 4 // 190
+
+function fmtPasso(n: number): string {
+  return String(n).padStart(3, '0')
+}
+
 // ── Relatório (contrato Admin EMT_ROW) ───────────────────────────────────────
 function resolverLabelAmbiente(): string {
   if (ambienteRemotoProducao() || BASE_UI.includes('usegravity.com.br')) return 'Produção'
@@ -488,7 +505,7 @@ async function etapaDriftCombobox(page: Page, rowId: string): Promise<void> {
     falharTabela(SUBLOCAL, 'ETAPA 1/2 — modal não abriu para validação de UX/drift')
     return
   }
-  await screenshot(page, '01-modal-aberto.png')
+  await screenshot(page, '003-modal-aberto.png')
 
   const stepperOk = await page.getByText(TITULO_MODAL_REGEX).first().isVisible().catch(() => false)
   if (stepperOk) logAprovado(SUBLOCAL, 'ETAPA 1 — Modal abre com título Editar em Massa')
@@ -520,7 +537,7 @@ async function etapaDriftCombobox(page: Page, rowId: string): Promise<void> {
       falharTabela(SUBLOCAL, `ETAPA 2 — Nível ${nivel}: rótulos ausentes: ${faltando.slice(0, 8).join('; ')}${faltando.length > 8 ? '…' : ''}`)
     }
     void bloqueados
-    await screenshot(page, `02-combobox-${nivel}.png`)
+    await screenshot(page, nivel === 'pedido' ? '004-combobox-pedido.png' : '005-combobox-item.png')
   }
   await fecharModalSeAberto(page)
 }
@@ -533,10 +550,11 @@ async function etapasCampoACampo(page: Page, rowId: string): Promise<void> {
 
   for (const { campo, nivel, indiceGlobal } of plano) {
     const n = indiceGlobal + 1
-    const slug = `${String(n).padStart(3, '0')}-${campo.campo.replace(/[^a-z0-9_]/gi, '')}`
-    // Anti-viés 50/50: pares aplicam 1x (partem de vazio/estado atual);
-    // ímpares aplicam 2x (a 2ª aplicação parte de campo garantidamente pré-preenchido).
-    const aplicacoes = n % 2 === 0 ? 1 : 2
+    const passoPlano = PASSO_BASE_CAMPOS + n
+    const slug = `${fmtPasso(passoPlano)}-${campo.campo.replace(/[^a-z0-9_]/gi, '')}`
+    // Anti-viés 50/50 (alinhado ao plano): passos pares partem de vazio (1 aplicação);
+    // passos ímpares aplicam 2x — a 2ª aplicação parte de campo garantidamente pré-preenchido.
+    const aplicacoes = passoPlano % 2 === 0 ? 1 : 2
     let okFinal = true
     for (let a = 0; a < aplicacoes; a++) {
       const seed = n * 7 + a
@@ -545,61 +563,174 @@ async function etapasCampoACampo(page: Page, rowId: string): Promise<void> {
     }
     if (okFinal) {
       const modo = aplicacoes === 2 ? 'pré-preenchido→substituir' : 'preencher'
-      logAprovado(SUBLOCAL, `Campo ${n}/${plano.length} — ${campo.rotulo} (${campo.campo}, nível ${nivel}, ${modo}) aplicado com preview de→para`)
+      logAprovado(SUBLOCAL, `Passo ${fmtPasso(passoPlano)} — ${campo.rotulo} (${campo.campo}, nível ${nivel}, ${modo}) aplicado com preview de→para`)
+      await screenshot(page, `${slug}-resultado.png`)
     }
-    // Print de resultado da lista a cada 10 campos (amostragem para não gerar 350+ prints de lista)
-    if (n % 10 === 0) await screenshot(page, `${slug}-resultado.png`)
   }
 }
 
 async function etapaCombinadoCascade(page: Page, rowId: string): Promise<void> {
+  const slug = `${fmtPasso(PASSO_COMBINADO)}-combinado-incoterm`
   const incoterm = CAMPOS_EDICAO_MASSA_PEDIDO.find(c => c.campo === 'incoterm')
   if (incoterm) {
-    const ok = await aplicarCampoEmMassa(page, rowId, incoterm, 'combinado', 3, '27-combinado-incoterm')
-    if (ok) logAprovado(SUBLOCAL, 'ETAPA 27 — Incoterm aplicado no nível Combinado (cascade pedido↔itens)')
+    const ok = await aplicarCampoEmMassa(page, rowId, incoterm, 'combinado', 3, slug)
+    if (ok) {
+      await screenshot(page, `${slug}-resultado.png`)
+      logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_COMBINADO)} — Incoterm aplicado no nível Combinado (cascade pedido↔itens)`)
+    }
   } else {
-    falharTabela(SUBLOCAL, 'ETAPA 27 — campo incoterm não encontrado no SSOT')
+    falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_COMBINADO)} — campo incoterm não encontrado no SSOT`)
   }
+}
+
+async function listarRotulosPersonalizadas(page: Page): Promise<string[]> {
+  await ultimaLinhaCampo(page).locator('.modal-edicao-massa__combobox-trigger').click()
+  await page.locator('.modal-edicao-massa__combobox-lista').waitFor({ state: 'visible', timeout: 5000 })
+  const rotulos = await page.evaluate((grupoAlvo) => {
+    const itens = Array.from(document.querySelectorAll('.modal-edicao-massa__combobox-lista > *'))
+    const resultado: string[] = []
+    let dentroDoGrupo = false
+    for (const el of itens) {
+      if (el.classList.contains('modal-edicao-massa__combobox-grupo')) {
+        dentroDoGrupo = (el.textContent ?? '').trim() === grupoAlvo
+        continue
+      }
+      if (dentroDoGrupo) {
+        const rotulo = el.querySelector('.modal-edicao-massa__combobox-item-rotulo')?.textContent?.trim()
+        if (rotulo) resultado.push(rotulo)
+      }
+    }
+    return resultado
+  }, GRUPO_PERSONALIZADAS)
+  await page.keyboard.press('Escape').catch(() => {})
+  await page.waitForTimeout(200)
+  return rotulos
 }
 
 async function etapaColunasUsuario(page: Page, rowId: string): Promise<void> {
   await selecionarPedidoCheckbox(page, rowId)
   if (!(await abrirModalMassa(page))) {
-    falharTabela(SUBLOCAL, 'ETAPA 28 — modal não abriu')
+    falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_COLUNAS_USUARIO)} — modal não abriu`)
     return
   }
   await definirNivel(page, 'pedido')
-  const { grupos, rotulos } = await listarRotulosCombobox(page)
-  await screenshot(page, '28-colunas-usuario-combobox.png')
-  if (grupos.includes(GRUPO_PERSONALIZADAS)) {
-    logAprovado(SUBLOCAL, `ETAPA 28 — Grupo «Personalizadas» presente no combobox (${rotulos.length} campos totais)`)
-    log(`ETAPA 28 — validar manualmente os 8 tipos: criar 1 coluna de cada tipo no workspace e reexecutar; fórmula NÃO deve aparecer no combobox`)
-  } else {
-    falharTabela(SUBLOCAL, 'ETAPA 28 — Nenhuma coluna manual encontrada no workspace de teste — criar os 8 tipos (texto, número, data, moeda, percentual, checkbox, tipo de documento, fórmula) e reexecutar')
-  }
+  const rotulosPersonalizadas = await listarRotulosPersonalizadas(page)
+  // Print do combobox documenta também a ausência da coluna fórmula (bloqueada)
+  await screenshot(page, `${fmtPasso(PASSO_COLUNAS_USUARIO + 7)}-coluna-formula-bloqueada.png`)
   await fecharModalSeAberto(page)
+
+  if (rotulosPersonalizadas.length === 0) {
+    falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_COLUNAS_USUARIO)} — Nenhuma coluna manual no workspace de teste — criar os 8 tipos (texto, número, data, moeda, percentual, checkbox, tipo de documento, fórmula) e reexecutar`)
+    return
+  }
+  logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_COLUNAS_USUARIO + 7)} — Grupo «Personalizadas» presente (${rotulosPersonalizadas.length} colunas; fórmula não listada por definição do SSOT)`)
+
+  // Edita cada coluna manual disponível (até 7 tipos editáveis) — passos 174+i do plano
+  const limite = Math.min(rotulosPersonalizadas.length, 7)
+  for (let i = 0; i < limite; i++) {
+    const rotulo = rotulosPersonalizadas[i]
+    const passoPlano = PASSO_COLUNAS_USUARIO + i
+    const slug = `${fmtPasso(passoPlano)}-coluna-${rotulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)}`
+    await selecionarPedidoCheckbox(page, rowId)
+    if (!(await abrirModalMassa(page))) {
+      falharTabela(SUBLOCAL, `Passo ${fmtPasso(passoPlano)} — modal não abriu para coluna «${rotulo}»`)
+      continue
+    }
+    await definirNivel(page, 'pedido')
+    if (!(await selecionarCampoCombobox(page, rotulo))) {
+      falharTabela(SUBLOCAL, `Passo ${fmtPasso(passoPlano)} — coluna «${rotulo}» não selecionável no combobox`)
+      await fecharModalSeAberto(page)
+      continue
+    }
+    // Tipo desconhecido a priori: tenta select buscável; senão, input genérico
+    const linha = ultimaLinhaCampo(page)
+    let valor = ''
+    if (await linha.locator('.modal-edicao-massa__select').count() > 0) {
+      valor = await preencherValor(page, { campo: rotulo, rotulo, tipo: 'select', grupo: GRUPO_PERSONALIZADAS, nivel: 'pedido' } as CampoMassa, i)
+    } else {
+      const input = linha.locator('.modal-edicao-massa__input').last()
+      const tipoInput = await input.getAttribute('type').catch(() => 'text')
+      valor = tipoInput === 'date' ? '2026-07-15' : tipoInput === 'number' ? String(i + 1) : `EMT81 coluna ${i + 1}`
+      await input.fill(valor).catch(() => {})
+    }
+    if (!valor) {
+      falharTabela(SUBLOCAL, `Passo ${fmtPasso(passoPlano)} — coluna «${rotulo}» sem valor preenchível`)
+      await fecharModalSeAberto(page)
+      continue
+    }
+    const { ok, deParaVisivel } = await revisarAplicarFechar(page, slug)
+    if (ok && deParaVisivel) {
+      await screenshot(page, `${slug}-resultado.png`)
+      logAprovado(SUBLOCAL, `Passo ${fmtPasso(passoPlano)} — Coluna manual «${rotulo}» aplicada em massa com preview de→para`)
+    } else {
+      falharTabela(SUBLOCAL, `Passo ${fmtPasso(passoPlano)} — Falha ao aplicar coluna «${rotulo}» (preview=${deParaVisivel ? 'ok' : 'ausente'})`)
+      await fecharModalSeAberto(page)
+    }
+  }
+  if (limite < 7) {
+    falharTabela(SUBLOCAL, `Passos ${fmtPasso(PASSO_COLUNAS_USUARIO + limite)}–${fmtPasso(PASSO_COLUNAS_USUARIO + 6)} — apenas ${limite}/7 tipos de coluna manual no workspace — criar os demais e reexecutar`)
+  }
+
+  // Passo escopo — coluna de pedido não pode vazar para o nível item
+  await selecionarPedidoCheckbox(page, rowId)
+  if (await abrirModalMassa(page)) {
+    await definirNivel(page, 'item')
+    const rotulosItem = await listarRotulosPersonalizadas(page)
+    await screenshot(page, `${fmtPasso(PASSO_COLUNAS_USUARIO + 8)}-coluna-escopo.png`)
+    const vazamento = rotulosPersonalizadas.filter(r => rotulosItem.includes(r))
+    log(`Passo ${fmtPasso(PASSO_COLUNAS_USUARIO + 8)} — escopo: pedido=${rotulosPersonalizadas.length} colunas, item=${rotulosItem.length} colunas, em comum=${vazamento.length} (validar escopos no Configurador)`)
+    logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_COLUNAS_USUARIO + 8)} — Escopos de colunas manuais registrados (pedido vs item)`)
+    await fecharModalSeAberto(page)
+  }
+}
+
+async function etapaTipoOperacao(page: Page, rowId: string): Promise<void> {
+  const tipoOp = CAMPOS_EDICAO_MASSA_PEDIDO.find(c => c.campo === 'tipo_operacao_pedido')
+  const tipoOpItem = CAMPOS_EDICAO_MASSA_ITEM.find(c => c.campo === 'tipo_operacao_item')
+  if (tipoOp) {
+    // Ida e volta — auto-fill simétrico (passos 183–184 do plano)
+    const okIda = await aplicarCampoEmMassa(page, rowId, tipoOp, 'pedido', 1, `${fmtPasso(PASSO_TIPO_OPERACAO)}-tipo-operacao-imp-exp`)
+    if (okIda) {
+      await screenshot(page, `${fmtPasso(PASSO_TIPO_OPERACAO)}-tipo-operacao-imp-exp.png`)
+      logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_TIPO_OPERACAO)} — tipo_operacao_pedido alternado em massa (ida)`)
+    }
+    const okVolta = await aplicarCampoEmMassa(page, rowId, tipoOp, 'pedido', 2, `${fmtPasso(PASSO_TIPO_OPERACAO + 1)}-tipo-operacao-exp-imp`)
+    if (okVolta) {
+      await screenshot(page, `${fmtPasso(PASSO_TIPO_OPERACAO + 1)}-tipo-operacao-exp-imp.png`)
+      logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_TIPO_OPERACAO + 1)} — tipo_operacao_pedido revertido em massa (volta)`)
+    }
+  } else {
+    falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_TIPO_OPERACAO)} — tipo_operacao_pedido ausente do SSOT`)
+  }
+  if (tipoOpItem) {
+    const okItem = await aplicarCampoEmMassa(page, rowId, tipoOpItem, 'item', 1, `${fmtPasso(PASSO_TIPO_OPERACAO + 2)}-tipo-operacao-item`)
+    if (okItem) {
+      await screenshot(page, `${fmtPasso(PASSO_TIPO_OPERACAO + 2)}-tipo-operacao-item.png`)
+      logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_TIPO_OPERACAO + 2)} — tipo_operacao_item aplicado no nível Item`)
+    }
+  }
 }
 
 async function etapaErrosEstados(page: Page, rowId: string): Promise<void> {
   await selecionarPedidoCheckbox(page, rowId)
   if (!(await abrirModalMassa(page))) {
-    falharTabela(SUBLOCAL, 'ETAPA 30 — modal não abriu')
+    falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_ERROS)} — modal não abriu`)
     return
   }
-  // 30.1 — Revisar desabilitado sem campo preenchido
+  // Revisar desabilitado sem campo preenchido
   const revisarDesabilitado = !(await page.getByRole('button', { name: BTN_REVISAR }).isEnabled().catch(() => true))
-  if (revisarDesabilitado) logAprovado(SUBLOCAL, 'ETAPA 30 — «Revisar alterações» desabilitado sem campos preenchidos')
-  else falharTabela(SUBLOCAL, 'ETAPA 30 — «Revisar alterações» deveria estar desabilitado sem campos')
-  await screenshot(page, '30-erros-revisar-desabilitado.png')
+  if (revisarDesabilitado) logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_ERROS)} — «Revisar alterações» desabilitado sem campos preenchidos`)
+  else falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_ERROS)} — «Revisar alterações» deveria estar desabilitado sem campos`)
+  await screenshot(page, `${fmtPasso(PASSO_ERROS)}-erros-revisar-desabilitado.png`)
 
-  // 30.4 — Cancelar não aplica nada
+  // Cancelar não aplica nada
   await page.getByRole('button', { name: BTN_CANCELAR }).first().click().catch(() => {})
   await page.waitForTimeout(400)
   const modalFechou = !(await page.getByText(TITULO_MODAL_REGEX).first().isVisible().catch(() => false))
-  if (modalFechou) logAprovado(SUBLOCAL, 'ETAPA 30 — Cancelar fecha o modal sem aplicar')
-  else falharTabela(SUBLOCAL, 'ETAPA 30 — Modal não fechou ao cancelar')
+  if (modalFechou) logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_ERROS + 3)} — Cancelar fecha o modal sem aplicar`)
+  else falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_ERROS + 3)} — Modal não fechou ao cancelar`)
 
-  // 30.2 — campo @@unique com >1 pedido → input bloqueado
+  // Campo @@unique com >1 pedido → input bloqueado
   const rowIds = await listarRowIdsPedidos(page)
   const segundo = rowIds.find(id => id !== rowId)
   if (segundo) {
@@ -611,15 +742,15 @@ async function etapaErrosEstados(page: Page, rowId: string): Promise<void> {
       if (numeroPedido && await selecionarCampoCombobox(page, numeroPedido.rotulo)) {
         const input = ultimaLinhaCampo(page).locator('.modal-edicao-massa__input').last()
         const bloqueado = await input.isDisabled({ timeout: 3000 }).catch(() => false)
-        await screenshot(page, '30-erros-unique-bloqueado.png')
-        if (bloqueado) logAprovado(SUBLOCAL, 'ETAPA 30 — Campo @@unique (numero_pedido) bloqueado com >1 pedido selecionado')
-        else falharTabela(SUBLOCAL, 'ETAPA 30 — numero_pedido deveria bloquear input com >1 pedido (colisão @@unique)')
+        await screenshot(page, `${fmtPasso(PASSO_ERROS + 1)}-erros-unique-bloqueado.png`)
+        if (bloqueado) logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_ERROS + 1)} — Campo @@unique (numero_pedido) bloqueado com >1 pedido selecionado`)
+        else falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_ERROS + 1)} — numero_pedido deveria bloquear input com >1 pedido (colisão @@unique)`)
       }
       await fecharModalSeAberto(page)
     }
     await limparSelecao(page)
   } else {
-    log('⚠ ETAPA 30 — apenas 1 pedido na lista; teste @@unique multi-pedido pulado')
+    log(`⚠ Passo ${fmtPasso(PASSO_ERROS + 1)} — apenas 1 pedido na lista; teste @@unique multi-pedido pulado`)
   }
 }
 
@@ -638,8 +769,8 @@ async function etapaVoltarVoltar(page: Page, rowId: string): Promise<void> {
       await page.getByRole('button', { name: BTN_VOLTAR }).first().click().catch(() => {})
       await page.waitForTimeout(500)
       const voltou = await page.locator('.modal-edicao-massa__campo-linha').first().isVisible().catch(() => false)
-      if (voltou) logAprovado(SUBLOCAL, 'ETAPA 30 — «Voltar» retorna do passo Revisão ao passo Campos sem aplicar')
-      else falharTabela(SUBLOCAL, 'ETAPA 30 — «Voltar» não retornou ao passo 1')
+      if (voltou) logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_ERROS + 2)} — «Voltar» retorna do passo Revisão ao passo Campos sem aplicar`)
+      else falharTabela(SUBLOCAL, `Passo ${fmtPasso(PASSO_ERROS + 2)} — «Voltar» não retornou ao passo 1`)
     }
   }
   await fecharModalSeAberto(page)
@@ -649,8 +780,8 @@ async function etapaPersistenciaFinal(page: Page): Promise<void> {
   await page.goto(HUB_URL, { waitUntil: 'domcontentloaded', timeout: 60000 })
   await page.waitForTimeout(800)
   await garantirListaPedidos(page)
-  await screenshot(page, '31-persistencia-final.png')
-  logAprovado(SUBLOCAL, 'ETAPA 31 — Lista recarregada após navegar Hub→Lista (valores persistidos visíveis no print)')
+  await screenshot(page, `${fmtPasso(PASSO_PERSISTENCIA)}-persistencia-final.png`)
+  logAprovado(SUBLOCAL, `Passo ${fmtPasso(PASSO_PERSISTENCIA)} — Lista recarregada após navegar Hub→Lista (valores persistidos visíveis no print)`)
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
@@ -676,12 +807,12 @@ async function main() {
     await page.waitForTimeout(2000)
     await entrarNoWorkspace(page)
     await garantirListaPedidos(page)
-    await screenshot(page, '00-estado-inicial.png')
+    await screenshot(page, '001-estado-inicial.png')
 
     // ETAPA 0 — pedido-alvo (maior nº de itens)
     const alvo = await escolherPedidoAlvo(page)
     if (!alvo) throw new Error('Nenhum pedido na lista do workspace de teste')
-    logAprovado(SUBLOCAL, `ETAPA 0 — Pedido-alvo: ${alvo.numero} (${alvo.qtdItens} itens)`)
+    logAprovado(SUBLOCAL, `Passo 002 — Pedido-alvo: ${alvo.numero} (${alvo.qtdItens} itens)`)
 
     // ETAPAS 1–2 — UX do modal + guard-rail de drift
     await etapaDriftCombobox(page, alvo.rowId)
@@ -692,10 +823,13 @@ async function main() {
     // ETAPA 27 — Combinado + cascade
     await etapaCombinadoCascade(page, alvo.rowId)
 
-    // ETAPA 28 — Colunas manuais do usuário (8 tipos)
+    // ETAPA 28 — Colunas manuais do usuário (8 tipos, passos 174–182)
     await etapaColunasUsuario(page, alvo.rowId)
 
-    // ETAPA 30 — Erros e estados
+    // ETAPA 29 — Auto-fill tipo de operação (passos 183–185)
+    await etapaTipoOperacao(page, alvo.rowId)
+
+    // ETAPA 30 — Erros e estados (passos 186–189)
     await etapaErrosEstados(page, alvo.rowId)
     await etapaVoltarVoltar(page, alvo.rowId)
 

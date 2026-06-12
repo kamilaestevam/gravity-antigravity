@@ -2981,6 +2981,9 @@
     },
     "organizacao": {
       "titulo": "Organization",
+      "id_tooltip_titulo": "Organization ID",
+      "id_tooltip_desc": "Technical key of the organization. Click to copy.",
+      "id_copiado": "Organization ID copied.",
       "campo_nome": "Company Name",
       "campo_cnpj": "Tax ID",
       "campo_estado": "State",

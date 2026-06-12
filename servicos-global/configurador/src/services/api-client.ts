@@ -250,6 +250,10 @@ export interface OrganizacaoApi {
    *  modal de convite admin para filtrar orgs onde SUPER_ADMIN/ADMIN
    *  podem ser criados. Decisão dono 2026-05-12. */
   hospeda_colaboradores_gravity?: boolean
+  /** SUID da Empresa no Cadastros vinculada à org (ex: BR-GRAVITY-00001).
+   *  null = onboarding de Empresa incompleto. Coluna "ID Empresa" da
+   *  listagem admin — decisão dono 2026-06-12. */
+  suid_empresa_organizacao?: string | null
   data_criacao_organizacao: string
   _count?: { usuarios: number; workspaces: number }
   usuarios?: UsuarioOrgApi[]

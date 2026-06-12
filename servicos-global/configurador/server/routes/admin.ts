@@ -196,6 +196,10 @@ adminRouter.get('/organizacoes', async (req, res, next) => {
           // filtrar orgs onde SUPER_ADMIN/ADMIN podem ser criados (apenas as
           // que hospedam colaboradores Gravity). Veja UsuariosAdmin.tsx.
           hospeda_colaboradores_gravity: true,
+          // Coluna "ID Empresa" da listagem admin (decisão dono 2026-06-12):
+          // SUID da Empresa no Cadastros vinculada à org — diagnóstico rápido de
+          // vínculo org↔empresa sem abrir o banco (Mand. 09: front+back juntos).
+          suid_empresa_organizacao: true,
           data_criacao_organizacao: true,
           _count: { select: { users_organizacao: true, companies_organizacao: true } },
           companies_organizacao: {

@@ -579,6 +579,9 @@
     },
     "organizacao": {
       "titulo": "Organización",
+      "id_tooltip_titulo": "ID de la Organización",
+      "id_tooltip_desc": "Clave técnica de la organización. Haga clic para copiar.",
+      "id_copiado": "ID de la organización copiado.",
       "campo_nome": "Nombre de la Empresa",
       "campo_cnpj": "NIF / RUC",
       "campo_estado": "Estado / Provincia",

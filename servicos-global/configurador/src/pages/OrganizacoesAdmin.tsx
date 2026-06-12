@@ -277,6 +277,49 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       )
     },
     {
+      key: 'id_organizacao', label: 'ID Organização', tipo: 'texto',
+      tooltipTitulo: 'ID da Organização',
+      tooltipDescricao: 'Chave técnica da organização (Configurador). Clique para copiar.',
+      render: (_v, item) => (
+        <span
+          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
+          title="Clique para copiar"
+          onClick={ev => {
+            ev.stopPropagation()
+            void navigator.clipboard.writeText(item.id_organizacao)
+            addNotification({ type: 'success', message: 'ID da organização copiado.' })
+          }}
+        >
+          {item.id_organizacao}
+        </span>
+      )
+    },
+    {
+      key: 'suid_empresa_organizacao', label: 'ID Empresa', tipo: 'texto',
+      tooltipTitulo: 'ID da Empresa (Cadastros)',
+      tooltipDescricao: 'SUID da Empresa vinculada à org. Vazio = onboarding incompleto. Clique copia.',
+      render: (_v, item) => item.suid_empresa_organizacao ? (
+        <span
+          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
+          title="Clique para copiar"
+          onClick={ev => {
+            ev.stopPropagation()
+            void navigator.clipboard.writeText(item.suid_empresa_organizacao ?? '')
+            addNotification({ type: 'success', message: 'ID da empresa copiado.' })
+          }}
+        >
+          {item.suid_empresa_organizacao}
+        </span>
+      ) : (
+        // Mand. 08 — ausência é informação: org sem Empresa no Cadastros
+        // (onboarding incompleto) causa "Não foi possível carregar a empresa"
+        // no Novo Pedido. Sinalizar em vez de esconder.
+        <span style={{ fontSize: '0.6875rem', color: '#f59e0b', fontWeight: 600 }} title="Organização sem Empresa vinculada no Cadastros (onboarding incompleto)">
+          sem empresa
+        </span>
+      )
+    },
+    {
       key: 'subdominio_organizacao', label: 'Subdomínio', tipo: 'texto',
       tooltipTitulo: 'Roteamento DNS (Subdomain CNAME)',
       tooltipDescricao: 'Alias em uso pelo API Gateway para roteamento da organização.',

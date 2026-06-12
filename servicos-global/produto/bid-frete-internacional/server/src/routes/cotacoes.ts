@@ -108,7 +108,8 @@ const AtualizarStatusSchema = z.object({
 })
 
 // --- Gerar numero_cotacao_bid_frete_internacional sequencial ---
-function gerarNumeroCotacao(): string {
+// Exportado para reuso em duplicacoes-bid-frete-internacional.ts (mesmo formato).
+export function gerarNumeroCotacao(): string {
   const now = new Date()
   const date = now.toISOString().slice(0, 10).replace(/-/g, '')
   const seq = String(Math.floor(Math.random() * 9999)).padStart(4, '0')

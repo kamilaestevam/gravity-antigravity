@@ -22,7 +22,8 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
-import type { GTPreferencias, GTColuna, GTAbaTipo } from '@nucleo/tabela-virtual-global'
+import type { GTPreferencias, GTColuna, GTAbaTipo, GTVirtualHandle } from '@nucleo/tabela-virtual-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   FileText,
   Truck,
@@ -37,6 +38,10 @@ import {
   Stack,
   CaretDown,
   CaretRight,
+  CaretDoubleDown,
+  CaretDoubleUp,
+  Copy,
+  Trash,
   SquaresFour,
   Clock,
   Coins,
@@ -47,7 +52,14 @@ import {
   Target,
 } from '@phosphor-icons/react'
 
-import { getBidsFreteInternacional, getCotacoes, listarUsuariosOrganizacao, paineisListaBidFreteApi } from '../shared/api'
+import {
+  duplicacoesBidFreteApi,
+  getBidsFreteInternacional,
+  getCotacoes,
+  listarUsuariosOrganizacao,
+  paineisListaBidFreteApi,
+} from '../shared/api'
+import { ModalExcluirListaBidFreteInternacional } from './modal-excluir-lista-bid-frete-internacional'
 import {
   resolverIdsWorkspacesParaApi,
   useEscopoWorkspacesBidFreteInternacional,
@@ -343,6 +355,55 @@ export default function Cotacoes() {
   const [casasVersion, setCasasVersion] = useState(0)
   const [formatoDataVersion, setFormatoDataVersion] = useState(0)
 
+  // ─── Seleção (BID ou cotação) + Expandir/Recolher todos ───
+  const tabelaRef = useRef<GTVirtualHandle | null>(null)
+  const [temExpandido, setTemExpandido] = useState(false)
+  const [linhasPaiSelecionadas, setLinhasPaiSelecionadas] = useState<LinhaPaiLista[]>([])
+  const [cotacoesFilhasSelecionadas, setCotacoesFilhasSelecionadas] = useState<Cotacao[]>([])
+  const [resetSelecaoFilhos, setResetSelecaoFilhos] = useState(0)
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
+  const [duplicando, setDuplicando] = useState(false)
+
+  const handleExpandidosMudar = useCallback((count: number) => {
+    setTemExpandido(count > 0)
+  }, [])
+
+  // Propostas (filhas de cotação avulsa) não são selecionáveis — só cotações.
+  const handleSelecaoFilho = useCallback((itens: LinhaFilhaLista[]) => {
+    setCotacoesFilhasSelecionadas(itens.filter((i): i is Cotacao => !isLinhaProposta(i)))
+  }, [])
+
+  const bidsSelecionados = useMemo(
+    () => linhasPaiSelecionadas.filter(isLinhaBidGrupo),
+    [linhasPaiSelecionadas],
+  )
+
+  const cotacoesAvulsasSelecionadas = useMemo(
+    () => linhasPaiSelecionadas.filter((l): l is Cotacao => !isLinhaBidGrupo(l)),
+    [linhasPaiSelecionadas],
+  )
+
+  /**
+   * Cotações alvo das ações em lote: avulsas selecionadas + filhas selecionadas
+   * cujo BID pai NÃO está selecionado inteiro (o BID selecionado já carrega as
+   * suas filhas — evita duplicar/excluir duas vezes).
+   */
+  const cotacoesSelecionadasParaAcao = useMemo(() => {
+    const idsBids = new Set(bidsSelecionados.map(b => b.id_bid_bid_frete_internacional))
+    const mapa = new Map<string, Cotacao>()
+    for (const c of cotacoesAvulsasSelecionadas) {
+      mapa.set(c.id_cotacao_bid_frete_internacional, c)
+    }
+    for (const c of cotacoesFilhasSelecionadas) {
+      const idBid = c.id_bid_bid_frete_internacional
+      if (idBid && idsBids.has(idBid)) continue
+      mapa.set(c.id_cotacao_bid_frete_internacional, c)
+    }
+    return [...mapa.values()]
+  }, [bidsSelecionados, cotacoesAvulsasSelecionadas, cotacoesFilhasSelecionadas])
+
+  const totalSelecionados = bidsSelecionados.length + cotacoesSelecionadasParaAcao.length
+
   useEffect(() => {
     function syncTabelaConfig() {
       setTabelaConfig(carregarTabelaConfigBidFrete())
@@ -389,7 +450,8 @@ export default function Cotacoes() {
   }, [tabelaConfig.destacarAtrasados])
 
   const classNameLinhaFilho = useCallback((filha: LinhaFilhaLista) => {
-    if (isLinhaProposta(filha)) return undefined
+    // Propostas não são selecionáveis — classe oculta o checkbox da linha (CSS abaixo)
+    if (isLinhaProposta(filha)) return 'bf-linha-filha-proposta'
     if (!tabelaConfig.destacarAtrasados) return undefined
     return cotacaoPrestesAExpirar(filha, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
       ? 'gtv-linha--expira-prestes'
@@ -445,6 +507,66 @@ export default function Cotacoes() {
     if (meStatus !== 'success' || !currentUser.id || !currentUser.idOrganizacao || !escopoHidratado) return
     void carregar()
   }, [carregar, meStatus, currentUser.id, currentUser.idOrganizacao, escopoHidratado, idsWorkspacesEscopo])
+
+  // ─── Ações em lote: Duplicar e Excluir ───
+
+  const handleDuplicarSelecionados = useCallback(async () => {
+    if (duplicando) return
+    const idsBids = bidsSelecionados.map(b => b.id_bid_bid_frete_internacional)
+    const idsCotacoes = cotacoesSelecionadasParaAcao.map(c => c.id_cotacao_bid_frete_internacional)
+    if (idsBids.length === 0 && idsCotacoes.length === 0) return
+
+    setDuplicando(true)
+    try {
+      let totalBids = 0
+      let totalCotacoes = 0
+      if (idsBids.length > 0) {
+        totalBids = (await duplicacoesBidFreteApi.duplicarBids(idsBids)).total_duplicadas
+      }
+      if (idsCotacoes.length > 0) {
+        totalCotacoes = (await duplicacoesBidFreteApi.duplicarCotacoes(idsCotacoes)).total_duplicadas
+      }
+      const partes: string[] = []
+      if (totalBids > 0) partes.push(`${totalBids} BID${totalBids !== 1 ? 's' : ''}`)
+      if (totalCotacoes > 0) partes.push(`${totalCotacoes} cotaç${totalCotacoes !== 1 ? 'ões' : 'ão'}`)
+      addNotification({
+        type: 'success',
+        message: t('bidfrete.duplicar.toast_sucesso', {
+          defaultValue: 'Duplicado com sucesso: {{itens}} (em rascunho).',
+          itens: partes.join(' e '),
+        }),
+      })
+      await carregar()
+    } catch (e: unknown) {
+      addNotification({
+        type: 'error',
+        message: e instanceof Error
+          ? e.message
+          : t('bidfrete.duplicar.toast_erro', { defaultValue: 'Falha ao duplicar. Tente novamente.' }),
+      })
+    } finally {
+      setDuplicando(false)
+    }
+  }, [duplicando, bidsSelecionados, cotacoesSelecionadasParaAcao, addNotification, carregar, t])
+
+  const handleExcluidoLote = useCallback((totais: { bids: number; cotacoes: number }) => {
+    const partes: string[] = []
+    if (totais.bids > 0) partes.push(`${totais.bids} BID${totais.bids !== 1 ? 's' : ''}`)
+    if (totais.cotacoes > 0) partes.push(`${totais.cotacoes} cotaç${totais.cotacoes !== 1 ? 'ões' : 'ão'}`)
+    if (partes.length > 0) {
+      addNotification({
+        type: 'success',
+        message: t('bidfrete.excluir.toast_sucesso', {
+          defaultValue: 'Excluído com sucesso: {{itens}}.',
+          itens: partes.join(' e '),
+        }),
+      })
+    }
+    setLinhasPaiSelecionadas([])
+    setCotacoesFilhasSelecionadas([])
+    setResetSelecaoFilhos(v => v + 1)
+    void carregar()
+  }, [addNotification, carregar, t])
 
   // ─── Tabela Virtual: Preferências, Colunas e Edição ───
 
@@ -860,6 +982,30 @@ export default function Cotacoes() {
   }, [])
 
   const acoesBarra = useMemo(() => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+      {/* Expandir/Recolher todos — mesmo padrão da Lista de Pedidos */}
+      <TooltipGlobal
+        descricao={temExpandido
+          ? t('bidfrete.lista.recolher_todos', { defaultValue: 'Recolher todas as linhas' })
+          : t('bidfrete.lista.expandir_todos', { defaultValue: 'Expandir todas as linhas' })}
+      >
+        <button
+          type="button"
+          className="bf-btn-expandir-todos"
+          onClick={() => {
+            if (temExpandido) tabelaRef.current?.recolherTodos()
+            else void tabelaRef.current?.expandirTodos()
+          }}
+          aria-label={temExpandido
+            ? t('bidfrete.lista.recolher_todos', { defaultValue: 'Recolher todas as linhas' })
+            : t('bidfrete.lista.expandir_todos', { defaultValue: 'Expandir todas as linhas' })}
+        >
+          {temExpandido
+            ? <CaretDoubleUp size={14} weight="bold" />
+            : <CaretDoubleDown size={14} weight="bold" />}
+        </button>
+      </TooltipGlobal>
+
     <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
       <BotaoGlobal
         variante="primario"
@@ -1049,7 +1195,37 @@ export default function Cotacoes() {
         </div>
       )}
     </div>
-  ), [novoDropdownAberto, novoSubmenu, novoNomePainelLista, handleCriarPainelLista, navigate, t])
+
+      {/* Duplicar — cotação ou BID (cópia nasce em rascunho) */}
+      <BotaoGlobal
+        variante="secundario"
+        tamanho="pequeno"
+        icone={<Copy size={14} weight="duotone" />}
+        disabled={totalSelecionados === 0 || duplicando}
+        aria-label={t('bidfrete.lista.duplicar', { defaultValue: 'Duplicar selecionados' })}
+        onClick={() => void handleDuplicarSelecionados()}
+      >
+        {t('bidfrete.lista.duplicar_rotulo', { defaultValue: 'Duplicar' })}
+        {totalSelecionados > 0 ? ` (${totalSelecionados})` : ''}
+      </BotaoGlobal>
+
+      {/* Excluir — cotação ou BID (modal com preview de bloqueados) */}
+      <BotaoGlobal
+        variante="secundario"
+        tamanho="pequeno"
+        icone={<Trash size={14} weight="duotone" />}
+        disabled={totalSelecionados === 0}
+        aria-label={t('bidfrete.lista.excluir', { defaultValue: 'Excluir selecionados' })}
+        onClick={() => setModalExcluirAberto(true)}
+      >
+        {t('bidfrete.lista.excluir_rotulo', { defaultValue: 'Excluir' })}
+        {totalSelecionados > 0 ? ` (${totalSelecionados})` : ''}
+      </BotaoGlobal>
+    </div>
+  ), [
+    novoDropdownAberto, novoSubmenu, novoNomePainelLista, handleCriarPainelLista,
+    navigate, t, temExpandido, totalSelecionados, duplicando, handleDuplicarSelecionados,
+  ])
 
   const exportarCSVCotacoes = useCallback((formato: 'excel' | 'csv') => {
     const sep = formato === 'excel' ? ';' : ','
@@ -1566,6 +1742,13 @@ export default function Cotacoes() {
             mapaColunasFilho={mapaColunasFilho}
             onCarregarFilhos={handleCarregarFilhos}
             filhoId={idLinhaFilhaLista}
+
+            imperativeRef={tabelaRef}
+            onExpandidosMudar={handleExpandidosMudar}
+            onSelecaoMudar={setLinhasPaiSelecionadas}
+            selecionavelFilhos
+            onSelecaoFilho={handleSelecaoFilho}
+            resetSelecaoFilhos={resetSelecaoFilhos}
             
             itensPorPagina={tabelaConfig.linhasPorPagina}
             totalItens={linhasPaiFiltradas.length}
@@ -1623,8 +1806,40 @@ export default function Cotacoes() {
         aoCriarBid={() => { void carregar() }}
       />
 
+      <ModalExcluirListaBidFreteInternacional
+        aberto={modalExcluirAberto}
+        aoFechar={() => setModalExcluirAberto(false)}
+        idsBidsSelecionados={bidsSelecionados.map(b => b.id_bid_bid_frete_internacional)}
+        idsCotacoesSelecionadas={cotacoesSelecionadasParaAcao.map(c => c.id_cotacao_bid_frete_internacional)}
+        aoExcluido={handleExcluidoLote}
+      />
+
       <style>{`
         /* Destaque: cotação com menos de 2h para expirar (config Tabela) — layout em bid-frete-page-shell.css */
+
+        /* ── Expandir/Recolher todos (paridade Lista de Pedidos) ── */
+        .bf-btn-expandir-todos {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          background: transparent;
+          border: 1px solid rgba(148, 163, 184, 0.15);
+          border-radius: 8px;
+          color: var(--ws-muted, #94a3b8);
+          cursor: pointer;
+          transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .bf-btn-expandir-todos:hover {
+          background: var(--bg-hover, rgba(255,255,255,0.06));
+          color: var(--text-primary, #f1f5f9);
+        }
+
+        /* Propostas (filhas de cotação avulsa) não são selecionáveis */
+        .bf-linha-filha-proposta .gtv-checkbox--filho {
+          display: none;
+        }
 
         /* ── Dropdown "Novo" ── */
         .lp-dropdown-menu {

@@ -24,6 +24,8 @@ import { solicitacaoCotacaoBidFreteInternacionalRouter } from './routes/solicita
 import { configStatusRouter } from './routes/config-status.js'
 import { configStatusBidFreteInternacionalRouter } from './routes/config-status-bid-frete-internacional.js'
 import { bidsFreteInternacionalRouter } from './routes/bids-frete-internacional.js'
+import { duplicacoesBidFreteInternacionalRouter } from './routes/duplicacoes-bid-frete-internacional.js'
+import { exclusoesBidFreteInternacionalRouter } from './routes/exclusoes-bid-frete-internacional.js'
 import { comparativoRouter } from './routes/comparativo.js'
 import { visaoFornecedorBidFreteInternacionalRouter } from './routes/visao-fornecedor-bid-frete-internacional.js'
 import { visaoFornecedorBidFreteInternacionalPublicoRouter } from './routes/visao-fornecedor-bid-frete-internacional-publico.js'
@@ -139,6 +141,9 @@ app.use(createProductAuditPlugin({
 }))
 
 // --- 9. Rotas do Produto (protegidas) ---
+// Duplicações/exclusões em lote ANTES dos CRUDs — paths fixos têm precedência sobre /:id
+app.use('/api/v1/bid-frete-internacional', duplicacoesBidFreteInternacionalRouter)
+app.use('/api/v1/bid-frete-internacional', exclusoesBidFreteInternacionalRouter)
 app.use('/api/v1/bid-frete-internacional/cotacoes', cotacoesRouter)
 app.use('/api/v1/bid-frete-internacional/bids-frete-internacional', bidsFreteInternacionalRouter)
 app.use('/api/v1/bid-frete-internacional/fornecedores', fornecedoresRouter)

@@ -120,7 +120,15 @@ Pra cada PATCH/POST/PUT adicionado/modificado, validar:
 
 ## Como Dar Feedback
 
-### Categorias de Comentário
+### Formato obrigatório — tabela (comando `/code-review`)
+
+Todo achado do review é **uma linha** nesta tabela:
+
+| # | Deve ser alterado | Motivo | Onde | Opinião e consenso (Líder + Coordenador) |
+|:---:|:---|:---|:---|:---|
+| 1 | `[prefixo]` ação ou elogio | Regra, risco ou mandamento violado | Arquivo Ln / rota / módulo | **Líder:** … **Coordenador:** … **Consenso:** … |
+
+### Categorias de Comentário (prefixo na coluna «Deve ser alterado»)
 
 | Prefixo | Significado | Bloqueia merge? |
 |:---|:---|:---|
@@ -132,10 +140,11 @@ Pra cada PATCH/POST/PUT adicionado/modificado, validar:
 
 ### Regras de Feedback
 
-- Ser específico — apontar a linha, sugerir a alternativa
-- Explicar o porquê — "isso viola X porque Y"
-- Não reescrever — sugerir, não impor estilo pessoal
-- Reconhecer o bom — não só apontar problemas
+- **Deve ser alterado** — específico; sugerir alternativa, não reescrever o diff inteiro
+- **Motivo** — «isso viola X porque Y»; citar skill ou mandamento
+- **Onde** — arquivo + linha sempre que possível
+- **Opinião e consenso** — Líder (código, segurança, testes); Coordenador (contrato, DDD, ondas); **Consenso** fecha se merge pode seguir
+- Ordenar: blockers → must-fix → suggestions → questions → praise
 
 ---
 

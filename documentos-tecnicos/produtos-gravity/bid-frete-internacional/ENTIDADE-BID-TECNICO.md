@@ -91,13 +91,32 @@ Utils: `lista-bid-frete-internacional-utils.ts`
 
 - Linhas **BID** expandem para cotações filhas.
 - Cotações **avulsas** (`id_bid` null) aparecem no nível raiz.
-- Propostas: expand da cotação (3º nível quando implementado inline).
+- Propostas: expand da cotação avulsa (3º nível); **não selecionáveis**.
 
 Query backend: `apenas_avulsas=true` exclui cotações já vinculadas a um BID.
 
+**Ações em lote (PR #289, layout PR #294):** expandir/recolher todos, seleção pai+filhas, duplicar e excluir com preview. Detalhe: [LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md](./LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md).
+
 ---
 
-## 6. Migração de legado
+## 6. API — Duplicações e exclusões em lote
+
+Arquivos: `duplicacoes-bid-frete-internacional.ts`, `exclusoes-bid-frete-internacional.ts`
+
+| Método | Path |
+|--------|------|
+| POST | `/cotacoes/duplicacoes` |
+| POST | `/bids-frete-internacional/duplicacoes` |
+| POST | `/cotacoes/exclusoes/preview` |
+| POST | `/cotacoes/exclusoes/confirmar` |
+| POST | `/bids-frete-internacional/exclusoes/preview` |
+| POST | `/bids-frete-internacional/exclusoes/confirmar` |
+
+Prefixo: `/api/v1/bid-frete-internacional`. Padrão DDD: sub-recurso substantivado (`duplicacoes`, `exclusoes`).
+
+---
+
+## 7. Migração de legado
 
 Migration `20260529140000_add_bid_frete_internacional_entity`:
 
@@ -107,7 +126,7 @@ Migration `20260529140000_add_bid_frete_internacional_entity`:
 
 ---
 
-## 7. Anti-padrões
+## 8. Anti-padrões
 
 | ❌ Não fazer | ✅ Fazer |
 |-------------|----------|
@@ -117,9 +136,11 @@ Migration `20260529140000_add_bid_frete_internacional_entity`:
 
 ---
 
-## 8. Referências de código
+## 9. Referências de código
 
 - `prisma/fragment.prisma` — models `BidFreteInternacional`, FKs
 - `server/src/lib/snapshot-proposta-bid-frete.ts`
 - `server/src/services/motor-bid-frete-internacional.ts`
 - `testes/testes-unitarios/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts`
+- `testes/testes-funcionais/bid-frete-internacional/lista/duplicacoes-exclusoes-routes.test.ts`
+- `testes/testes-unitarios/bid-frete-internacional/lista/exclusao-regra-bloqueio-bid-frete-internacional.test.ts`

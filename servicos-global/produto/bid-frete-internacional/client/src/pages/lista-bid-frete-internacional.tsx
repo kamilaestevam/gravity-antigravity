@@ -404,6 +404,15 @@ export default function Cotacoes() {
 
   const totalSelecionados = bidsSelecionados.length + cotacoesSelecionadasParaAcao.length
 
+  const idsBidsParaExclusao = useMemo(
+    () => bidsSelecionados.map(b => b.id_bid_bid_frete_internacional),
+    [bidsSelecionados],
+  )
+  const idsCotacoesParaExclusao = useMemo(
+    () => cotacoesSelecionadasParaAcao.map(c => c.id_cotacao_bid_frete_internacional),
+    [cotacoesSelecionadasParaAcao],
+  )
+
   useEffect(() => {
     function syncTabelaConfig() {
       setTabelaConfig(carregarTabelaConfigBidFrete())
@@ -1847,13 +1856,15 @@ export default function Cotacoes() {
         aoCriarBid={() => { void carregar() }}
       />
 
-      <ModalExcluirListaBidFreteInternacional
-        aberto={modalExcluirAberto}
-        aoFechar={() => setModalExcluirAberto(false)}
-        idsBidsSelecionados={bidsSelecionados.map(b => b.id_bid_bid_frete_internacional)}
-        idsCotacoesSelecionadas={cotacoesSelecionadasParaAcao.map(c => c.id_cotacao_bid_frete_internacional)}
-        aoExcluido={handleExcluidoLote}
-      />
+      {modalExcluirAberto && totalSelecionados > 0 && (
+        <ModalExcluirListaBidFreteInternacional
+          aberto
+          aoFechar={() => setModalExcluirAberto(false)}
+          idsBidsSelecionados={idsBidsParaExclusao}
+          idsCotacoesSelecionadas={idsCotacoesParaExclusao}
+          aoExcluido={handleExcluidoLote}
+        />
+      )}
 
       <style>{`
         /* Destaque: cotação com menos de 2h para expirar (config Tabela) — layout em bid-frete-page-shell.css */

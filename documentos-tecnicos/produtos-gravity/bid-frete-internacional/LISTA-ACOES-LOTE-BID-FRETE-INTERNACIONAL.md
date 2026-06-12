@@ -1,6 +1,6 @@
 # Lista — Ações em lote (expandir, seleção, duplicar, excluir)
 
-> **Status:** Implementado (PR #289 + #294)  
+> **Status:** Implementado (PR #289 + #294 + #300 + #301)  
 > **Data:** 2026-06-12  
 > **Paridade UX:** Lista de Pedidos (`Pedidos.tsx` / `BarraAcoesPedido`)
 
@@ -92,6 +92,12 @@ Exportada para teste: `motivoBloqueioExclusaoCotacao`
 
 Itens bloqueados devem ser **cancelados**, não excluídos. O modal lista bloqueados com motivo antes de confirmar.
 
+### Modal exclusão — ciclo de vida (PR #301)
+
+Paridade `ModalPedidosExcluir`: o pai monta o modal só quando `modalExcluirAberto && totalSelecionados > 0`; o preview carrega **uma vez** na montagem (`useEffect` com deps `[]`). **Não** incluir `ids[]` nas deps do preview — arrays novos a cada render (ex.: `.map()` inline no JSX) causam loop loading ↔ tabela.
+
+Após confirmar com sucesso: `aoExcluido` roda quando o modal fecha (`totaisExclusaoPendenteRef`), depois do feedback do `BotaoGlobal` — evita recarregar a lista enquanto o modal ainda está visível.
+
 **Cascade:** disparos caem com a cotação (`onDelete: Cascade`). BID excluído remove filhas explicitamente antes do BID (FK cotação→BID é `SetNull`).
 
 ---
@@ -123,3 +129,5 @@ app.use('/api/v1/bid-frete-internacional', exclusoesBidFreteInternacionalRouter)
 - Precedente Pedido: `duplicacoes-pedido.ts`, `exclusoes-pedido.ts`
 - PR #289 — feature completa (backend + frontend + testes)
 - PR #294 — layout toolbar (ícones iguais Pedido)
+- PR #300 — modal excluir layout Solid Slate (paridade Pedido)
+- PR #301 — modal excluir anti-flicker (ciclo de vida documentado na §4)

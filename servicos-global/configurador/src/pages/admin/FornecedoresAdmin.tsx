@@ -30,6 +30,7 @@ import {
   type UsuarioVinculadoFornecedorAdmin,
 } from '@cadastros/shared/schemas'
 import { buscarOrganizacoesAdmin } from '@gravity/shell'
+import { CelulaIdCopiavel } from '../../shared/CelulaIdCopiavel'
 import { ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO } from '../../../shared/tipo-fornecedor-organizacao.js'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
@@ -195,6 +196,16 @@ export function FornecedoresAdmin(): JSX.Element {
         </button>
       ),
     },
+    {
+      // Decisão dono 2026-06-12 — IDs técnicos visíveis na UI (diagnóstico sem SQL),
+      // mesmo padrão das colunas ID do Admin > Organizações (PR #303).
+      key:   'id_fornecedor',
+      label: 'ID Fornecedor',
+      tipo:  'texto',
+      render: (_, linha) => (
+        <CelulaIdCopiavel valor={linha.id_fornecedor} mensagemCopiado="ID do fornecedor copiado." />
+      ),
+    },
     { key: 'nome_fornecedor', label: 'Fornecedor', tipo: 'texto' },
     {
       key:   'cnpj_fornecedor',
@@ -221,7 +232,10 @@ export function FornecedoresAdmin(): JSX.Element {
       ),
     },
     {
-      key:   'id_fornecedor',
+      // Key realocada de 'id_fornecedor' → 'pode_ser_agente_fornecedor' (2026-06-12):
+      // 'id_fornecedor' agora identifica a coluna ID Fornecedor acima. Esta coluna
+      // é derivada (render + getValorBruto), a key serve só como identificador.
+      key:   'pode_ser_agente_fornecedor',
       label: 'Papel COMEX',
       tipo:  'texto',
       render: (_, l) => derivarPapeisComex(l),

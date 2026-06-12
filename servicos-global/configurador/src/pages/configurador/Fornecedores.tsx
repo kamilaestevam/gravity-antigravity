@@ -37,6 +37,7 @@ import {
 } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { CelulaIdCopiavel } from '../../shared/CelulaIdCopiavel'
 import {
   listaFornecedoresSchema,
   fornecedorSchema,
@@ -372,6 +373,18 @@ export function Fornecedores() {
             <code style={{ fontSize: '0.625rem', color: 'var(--ws-muted)' }}>{item.id_fornecedor}</code>
           </span>
         </span>
+      ),
+    },
+    {
+      // Decisão dono 2026-06-12 — IDs técnicos visíveis na UI (diagnóstico sem SQL),
+      // mesmo padrão das colunas ID do Admin > Organizações (PR #303).
+      key: 'id_fornecedor',
+      label: 'ID Fornecedor',
+      tipo: 'texto',
+      tooltipTitulo: 'ID do Fornecedor (SUID)',
+      tooltipDescricao: 'Chave técnica no Cadastros. Clique para copiar.',
+      render: (_, item) => (
+        <CelulaIdCopiavel valor={item.id_fornecedor} mensagemCopiado="ID do fornecedor copiado." />
       ),
     },
     {

@@ -15,6 +15,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { CelulaIdCopiavel } from '../../shared/CelulaIdCopiavel'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import {
@@ -551,6 +552,20 @@ export function UsuariosAdmin() {
           </div>
           <span style={{ fontWeight: 600, minWidth: 0 }}>{item.nome_usuario}</span>
         </div>
+      )
+    },
+    {
+      // Decisão dono 2026-06-12 — IDs técnicos visíveis na UI (diagnóstico sem SQL),
+      // mesmo padrão das colunas ID do Admin > Organizações (PR #303).
+      key: 'id_usuario', label: t('admin.usuarios-globais.tabela.id_usuario'), tipo: 'texto',
+      tooltipTitulo: t('admin.usuarios-globais.tabela.id_usuario_tooltip'),
+      tooltipDescricao: t('admin.usuarios-globais.tabela.id_usuario_desc'),
+      render: (_, item) => (
+        <CelulaIdCopiavel
+          valor={item.id_usuario}
+          mensagemCopiado={t('admin.usuarios-globais.tabela.id_usuario_copiado')}
+          titulo={t('tabela.id_clique_copiar')}
+        />
       )
     },
     {

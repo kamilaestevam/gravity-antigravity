@@ -143,6 +143,9 @@ export function Organizacao() {
   const [dadosIniciaisLocal, setDadosIniciaisLocal] = useState<DadosOrganizacao>(dadosVazios)
   const [dados, setDados] = useState<DadosOrganizacao>(dadosVazios)
   const [carregando, setCarregando] = useState(true)
+  // ID técnico da organização — exibido no identity card (suporte/diagnóstico de
+  // vínculos org↔empresa entre ambientes). Somente leitura, clique copia.
+  const [idOrganizacao, setIdOrganizacao] = useState('')
 
   // ── Carregar dados reais da organização e workspaces da API ────────────────
   useEffect(() => {
@@ -190,6 +193,7 @@ export function Organizacao() {
           }
           setDadosIniciaisLocal(dadosApi)
           setDados(dadosApi)
+          setIdOrganizacao(o.id_organizacao)
         }
 
         if (workspacesRes.ok) {
@@ -343,6 +347,20 @@ export function Organizacao() {
             <p className="em-identity__sub">
               {dados.subdominio_organizacao}.usegravity.com.br
             </p>
+            {idOrganizacao && (
+              <TooltipGlobal titulo={t('workspace.organizacao.id_tooltip_titulo')} descricao={t('workspace.organizacao.id_tooltip_desc')}>
+                <p
+                  className="em-identity__sub"
+                  style={{ fontFamily: 'monospace', fontSize: '0.6875rem', opacity: 0.7, cursor: 'pointer', userSelect: 'all' }}
+                  onClick={() => {
+                    void navigator.clipboard.writeText(idOrganizacao)
+                    addNotification({ type: 'success', message: t('workspace.organizacao.id_copiado') })
+                  }}
+                >
+                  ID: {idOrganizacao}
+                </p>
+              </TooltipGlobal>
+            )}
           </div>
         </div>
       </div>

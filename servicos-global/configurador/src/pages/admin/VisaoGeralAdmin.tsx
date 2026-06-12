@@ -94,6 +94,10 @@ export function VisaoGeralAdmin() {
 
   const [salvando, setSalvando] = useState(false)
   const [carregando, setCarregando] = useState(true)
+  // IDs técnicos da org HQ — exibidos no card HQ Owner (decisão dono 2026-06-12,
+  // mesmo padrão clique-copia das colunas ID do Admin > Organizações).
+  const [idOrganizacao, setIdOrganizacao] = useState('')
+  const [suidEmpresa, setSuidEmpresa] = useState<string | null>(null)
 
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(dados.estado)
 
@@ -118,6 +122,8 @@ export function VisaoGeralAdmin() {
           setDados(loaded)
           setDadosIniciais(loaded)
           resetDirty(loaded)
+          setIdOrganizacao(c.id)
+          setSuidEmpresa(c.suid_empresa_organizacao ?? null)
         }
       } catch (err) {
         addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.visao-geral.msg_erro_carregar') })
@@ -185,6 +191,26 @@ export function VisaoGeralAdmin() {
             <p className="em-identity__sub">
               {dados.subdominio}.usegravity.com.br
             </p>
+            {/* Decisão dono 2026-06-12: card HQ mostra só o ID Empresa — o ID da
+                organização já aparece em Admin > Organizações e na tela Organização. */}
+            {idOrganizacao && (suidEmpresa ? (
+              <p
+                className="em-identity__sub"
+                style={{ fontFamily: 'monospace', fontSize: '0.6875rem', opacity: 0.7, cursor: 'pointer', userSelect: 'all' }}
+                title="ID da Empresa (SUID no Cadastros) — clique para copiar"
+                onClick={() => {
+                  void navigator.clipboard.writeText(suidEmpresa)
+                  addNotification({ type: 'success', message: 'ID da empresa copiado.' })
+                }}
+              >
+                ID Empresa: {suidEmpresa}
+              </p>
+            ) : (
+              // Mand. 08 — ausência é informação: org HQ sem Empresa no Cadastros.
+              <p className="em-identity__sub" style={{ fontSize: '0.6875rem', color: '#f59e0b', fontWeight: 600 }} title="Organização sem Empresa vinculada no Cadastros (onboarding incompleto)">
+                ID Empresa: sem empresa
+              </p>
+            ))}
           </div>
         </div>
       </div>

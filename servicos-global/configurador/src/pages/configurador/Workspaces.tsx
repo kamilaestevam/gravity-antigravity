@@ -7,6 +7,7 @@ import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { CelulaIdCopiavel } from '../../shared/CelulaIdCopiavel'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalEditarWorkspace } from './ModalEditarWorkspace'
 import { ModalExclusao } from './ModalConfirmarExclusao'
@@ -244,6 +245,20 @@ export function Workspaces() {
           </div>
           <span style={{ fontWeight: 600 }}>{item.nome_workspace}</span>
         </div>
+      )
+    },
+    {
+      // Decisão dono 2026-06-12 — IDs técnicos visíveis na UI (diagnóstico sem SQL),
+      // mesmo padrão das colunas ID do Admin > Organizações (PR #303).
+      key: 'id_workspace', label: t('workspace.workspaces.tabela.id_workspace'), tipo: 'texto',
+      tooltipTitulo: t('workspace.workspaces.tabela.id_workspace_tooltip'),
+      tooltipDescricao: t('workspace.workspaces.tabela.id_workspace_desc'),
+      render: (_v, item) => (
+        <CelulaIdCopiavel
+          valor={item.id_workspace}
+          mensagemCopiado={t('workspace.workspaces.tabela.id_workspace_copiado')}
+          titulo={t('tabela.id_clique_copiar')}
+        />
       )
     },
     {

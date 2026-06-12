@@ -191,19 +191,8 @@ export function VisaoGeralAdmin() {
             <p className="em-identity__sub">
               {dados.subdominio}.usegravity.com.br
             </p>
-            {idOrganizacao && (
-              <p
-                className="em-identity__sub"
-                style={{ fontFamily: 'monospace', fontSize: '0.6875rem', opacity: 0.7, cursor: 'pointer', userSelect: 'all' }}
-                title="ID da Organização — clique para copiar"
-                onClick={() => {
-                  void navigator.clipboard.writeText(idOrganizacao)
-                  addNotification({ type: 'success', message: 'ID da organização copiado.' })
-                }}
-              >
-                ID Organização: {idOrganizacao}
-              </p>
-            )}
+            {/* Decisão dono 2026-06-12: card HQ mostra só o ID Empresa — o ID da
+                organização já aparece em Admin > Organizações e na tela Organização. */}
             {idOrganizacao && (suidEmpresa ? (
               <p
                 className="em-identity__sub"

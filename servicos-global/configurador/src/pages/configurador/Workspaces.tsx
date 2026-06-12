@@ -247,6 +247,26 @@ export function Workspaces() {
       )
     },
     {
+      // Decisão dono 2026-06-12 — IDs técnicos visíveis na UI (diagnóstico sem SQL),
+      // mesmo padrão das colunas ID do Admin > Organizações (PR #303).
+      key: 'id_workspace', label: 'ID Workspace', tipo: 'texto',
+      tooltipTitulo: 'ID do Workspace',
+      tooltipDescricao: 'Chave técnica do workspace. Clique para copiar.',
+      render: (_v, item) => (
+        <span
+          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
+          title="Clique para copiar"
+          onClick={ev => {
+            ev.stopPropagation()
+            void navigator.clipboard.writeText(item.id_workspace)
+            addNotification({ type: 'success', message: 'ID do workspace copiado.' })
+          }}
+        >
+          {item.id_workspace}
+        </span>
+      )
+    },
+    {
       key: 'subdominio_workspace', label: t('workspace.workspaces.tabela.subdominio'), tipo: 'texto',
       tooltipTitulo: 'Subdomínio', tooltipDescricao: 'Endereço exclusivo deste workspace na plataforma',
       render: (_v, item) => (

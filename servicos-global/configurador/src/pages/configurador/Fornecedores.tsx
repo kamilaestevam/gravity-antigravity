@@ -375,6 +375,28 @@ export function Fornecedores() {
       ),
     },
     {
+      // Decisão dono 2026-06-12 — IDs técnicos visíveis na UI (diagnóstico sem SQL),
+      // mesmo padrão das colunas ID do Admin > Organizações (PR #303).
+      key: 'id_fornecedor',
+      label: 'ID Fornecedor',
+      tipo: 'texto',
+      tooltipTitulo: 'ID do Fornecedor (SUID)',
+      tooltipDescricao: 'Chave técnica no Cadastros. Clique para copiar.',
+      render: (_, item) => (
+        <span
+          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
+          title="Clique para copiar"
+          onClick={ev => {
+            ev.stopPropagation()
+            void navigator.clipboard.writeText(item.id_fornecedor)
+            addNotification({ type: 'success', message: 'ID do fornecedor copiado.' })
+          }}
+        >
+          {item.id_fornecedor}
+        </span>
+      ),
+    },
+    {
       key: 'cnpj_fornecedor',
       label: 'CNPJ / TIN',
       tipo: 'texto',

@@ -521,4 +521,5 @@ Use `/comando` para ativar papéis e fluxos específicos:
 - `/tooltip-pedido` — Consultor de tooltips da Lista de Pedidos (títulos, pills, conclusão por coluna)
 - `/testes-criar` — **Pipeline obrigatório dos 5 tipos de teste** (UNI, FUN, E2E, CRO, EMT): pastas, IDs do registry, ETAPAs e prints
 - `/code-review` — **Revisão técnica pré-merge** (Líder): checklist da skill, WIP vs escopo fechado, wiring de mutação, veredito estruturado
+- `/docs-skills` — **Fim de task:** roteia e atualiza `documentos-tecnicos/` e `skills/` no diretório exato; veredito Sim/Não + resumo em duas frases
 - `/skill [nome]` — Ler uma skill específica pelo nome

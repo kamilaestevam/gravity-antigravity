@@ -66,40 +66,47 @@ export function ModalExcluirListaBidFreteInternacional({
   const [erro, setErro] = useState<string | null>(null)
   const [preview, setPreview] = useState<PreviewCarregado | null>(null)
 
-  const carregarPreview = useCallback(async () => {
+  // Preview uma vez ao montar — paridade ModalPedidosExcluir (pai monta só com modal aberto).
+  // Não incluir ids[] nas deps: o pai passava .map() inline → nova referência a cada render → loop de loading.
+  useEffect(() => {
+    let cancelado = false
     setCarregandoPreview(true)
     setErro(null)
     setPreview(null)
-    try {
-      const [previewCotacoes, previewBids] = await Promise.all([
-        idsCotacoesSelecionadas.length > 0
-          ? exclusoesBidFreteApi.previewCotacoes(idsCotacoesSelecionadas)
-          : Promise.resolve({ permitidas: [], bloqueadas: [] }),
-        idsBidsSelecionados.length > 0
-          ? exclusoesBidFreteApi.previewBids(idsBidsSelecionados)
-          : Promise.resolve({ permitidos: [], bloqueados: [] }),
-      ])
-      setPreview({
-        cotacoesPermitidas: previewCotacoes.permitidas,
-        cotacoesBloqueadas: previewCotacoes.bloqueadas,
-        bidsPermitidos: previewBids.permitidos,
-        bidsBloqueados: previewBids.bloqueados,
-      })
-    } catch (e: unknown) {
-      setErro(e instanceof Error ? e.message : t('bidfrete.excluir.erro_preview', 'Falha ao verificar o que pode ser excluído.'))
-    } finally {
-      setCarregandoPreview(false)
-    }
-  }, [idsBidsSelecionados, idsCotacoesSelecionadas, t])
 
-  useEffect(() => {
-    if (!aberto) {
-      setFeedbackBotao(null)
-      setExcluindo(false)
-      return
+    Promise.all([
+      idsCotacoesSelecionadas.length > 0
+        ? exclusoesBidFreteApi.previewCotacoes(idsCotacoesSelecionadas)
+        : Promise.resolve({ permitidas: [], bloqueadas: [] }),
+      idsBidsSelecionados.length > 0
+        ? exclusoesBidFreteApi.previewBids(idsBidsSelecionados)
+        : Promise.resolve({ permitidos: [], bloqueados: [] }),
+    ])
+      .then(([previewCotacoes, previewBids]) => {
+        if (cancelado) return
+        setPreview({
+          cotacoesPermitidas: previewCotacoes.permitidas,
+          cotacoesBloqueadas: previewCotacoes.bloqueadas,
+          bidsPermitidos: previewBids.permitidos,
+          bidsBloqueados: previewBids.bloqueados,
+        })
+      })
+      .catch((e: unknown) => {
+        if (cancelado) return
+        setErro(
+          e instanceof Error
+            ? e.message
+            : t('bidfrete.excluir.erro_preview', 'Falha ao verificar o que pode ser excluído.'),
+        )
+      })
+      .finally(() => {
+        if (!cancelado) setCarregandoPreview(false)
+      })
+
+    return () => {
+      cancelado = true
     }
-    void carregarPreview()
-  }, [aberto, carregarPreview])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalPermitidos = preview
     ? preview.bidsPermitidos.length + preview.cotacoesPermitidas.length

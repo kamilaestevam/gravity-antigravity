@@ -1,22 +1,23 @@
 /**
  * modal-excluir-lista-bid-frete-internacional.tsx — Exclusão em lote com preview.
- * Aberto pelo botão Excluir da Lista quando há BIDs e/ou cotações selecionados.
+ * Layout e modelo alinhados a ModalPedidosExcluir (Lista de Pedidos).
  *
  * Regra de negócio (dono, 2026-06-11): exclusão definitiva só para itens em
  * RASCUNHO ou nunca enviados a fornecedor e sem propostas. O preview do servidor
  * lista os bloqueados com o motivo — aqui só exibimos e confirmamos.
  */
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle, Prohibit, Trash, Warning, X } from '@phosphor-icons/react'
-import { BotaoGlobal } from '@nucleo/botao-global'
+import { Spinner, Trash, Warning, X } from '@phosphor-icons/react'
+import { BotaoGlobal, type ResultadoAcao } from '@nucleo/botao-global'
 
 import {
   exclusoesBidFreteApi,
   type CotacaoPreviewExclusaoBidFrete,
   type BidPreviewExclusaoBidFrete,
 } from '../shared/api'
+import './modal-excluir-lista-bid-frete-internacional.css'
 
 export interface ModalExcluirListaBidFreteInternacionalProps {
   aberto: boolean
@@ -34,7 +35,13 @@ interface PreviewCarregado {
   bidsBloqueados: BidPreviewExclusaoBidFrete[]
 }
 
-function rotuloMotivoBloqueio(motivo: string | undefined, t: (k: string, d: string) => string): string {
+interface ItemBloqueadoExibicao {
+  id: string
+  numero: string
+  motivo: string
+}
+
+function rotuloMotivoBloqueio(motivo: string | undefined, t: (k: string, d?: string) => string): string {
   if (motivo === 'COM_PROPOSTAS') {
     return t('bidfrete.excluir.motivo_com_propostas', 'Já recebeu propostas')
   }
@@ -55,6 +62,7 @@ export function ModalExcluirListaBidFreteInternacional({
 
   const [carregandoPreview, setCarregandoPreview] = useState(false)
   const [excluindo, setExcluindo] = useState(false)
+  const [feedbackBotao, setFeedbackBotao] = useState<ResultadoAcao>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [preview, setPreview] = useState<PreviewCarregado | null>(null)
 
@@ -85,12 +93,64 @@ export function ModalExcluirListaBidFreteInternacional({
   }, [idsBidsSelecionados, idsCotacoesSelecionadas, t])
 
   useEffect(() => {
-    if (!aberto) return
+    if (!aberto) {
+      setFeedbackBotao(null)
+      setExcluindo(false)
+      return
+    }
     void carregarPreview()
   }, [aberto, carregarPreview])
 
+  const totalPermitidos = preview
+    ? preview.bidsPermitidos.length + preview.cotacoesPermitidas.length
+    : 0
+  const totalBloqueados = preview
+    ? preview.bidsBloqueados.length + preview.cotacoesBloqueadas.length
+    : 0
+
+  const podeExcluir = totalPermitidos > 0 && !carregandoPreview && !excluindo
+
+  const tituloContagem = useMemo(() => {
+    const partes: string[] = []
+    const totalBids = idsBidsSelecionados.length
+    const totalCotacoes = idsCotacoesSelecionadas.length
+    if (totalBids > 0) {
+      partes.push(t('bidfrete.excluir.contagem_bids', `${totalBids} BID${totalBids !== 1 ? 's' : ''}`))
+    }
+    if (totalCotacoes > 0) {
+      partes.push(t('bidfrete.excluir.contagem_cotacoes', `${totalCotacoes} cotaç${totalCotacoes !== 1 ? 'ões' : 'ão'}`))
+    }
+    return partes.join(t('bidfrete.excluir.contagem_separador', ' e '))
+  }, [idsBidsSelecionados.length, idsCotacoesSelecionadas.length, t])
+
+  const itensBloqueados = useMemo((): ItemBloqueadoExibicao[] => {
+    if (!preview) return []
+    const lista: ItemBloqueadoExibicao[] = []
+
+    for (const bid of preview.bidsBloqueados) {
+      const motivosFilhas = (bid.cotacoes_bloqueadas ?? [])
+        .map(c => `${c.numero_cotacao_bid_frete_internacional}: ${rotuloMotivoBloqueio(c.motivo_bloqueio, t)}`)
+        .join(' · ')
+      lista.push({
+        id: bid.id_bid_bid_frete_internacional,
+        numero: bid.numero_bid_bid_frete_internacional,
+        motivo: motivosFilhas || t('bidfrete.excluir.motivo_bid_bloqueado', 'BID com cotações que não podem ser excluídas'),
+      })
+    }
+
+    for (const cotacao of preview.cotacoesBloqueadas) {
+      lista.push({
+        id: cotacao.id_cotacao_bid_frete_internacional,
+        numero: cotacao.numero_cotacao_bid_frete_internacional,
+        motivo: rotuloMotivoBloqueio(cotacao.motivo_bloqueio, t),
+      })
+    }
+
+    return lista
+  }, [preview, t])
+
   const handleConfirmar = useCallback(async () => {
-    if (!preview || excluindo) return
+    if (!preview || !podeExcluir) return
     setExcluindo(true)
     setErro(null)
     try {
@@ -108,172 +168,203 @@ export function ModalExcluirListaBidFreteInternacional({
         )
         totalCotacoes = res.total_excluidas
       }
-      aoExcluido({ bids: totalBids, cotacoes: totalCotacoes })
-      aoFechar()
-    } catch (e: unknown) {
-      setErro(e instanceof Error ? e.message : t('bidfrete.excluir.erro_confirmar', 'Falha ao excluir. Tente novamente.'))
-    } finally {
+
       setExcluindo(false)
+      setFeedbackBotao('sucesso')
+      setTimeout(() => {
+        setFeedbackBotao(null)
+        aoExcluido({ bids: totalBids, cotacoes: totalCotacoes })
+        aoFechar()
+      }, 1200)
+    } catch (e: unknown) {
+      setExcluindo(false)
+      setFeedbackBotao('erro')
+      setErro(e instanceof Error ? e.message : t('bidfrete.excluir.erro_confirmar', 'Falha ao excluir. Tente novamente.'))
+      setTimeout(() => { setFeedbackBotao(null) }, 1500)
     }
-  }, [preview, excluindo, aoExcluido, aoFechar, t])
+  }, [preview, podeExcluir, aoExcluido, aoFechar, t])
 
   if (!aberto) return null
 
-  const totalPermitidos = preview
-    ? preview.bidsPermitidos.length + preview.cotacoesPermitidas.length
-    : 0
-  const totalBloqueados = preview
-    ? preview.bidsBloqueados.length + preview.cotacoesBloqueadas.length
-    : 0
-
   return (
-    <div className="bf-excluir-overlay" role="dialog" aria-modal="true" aria-labelledby="bf-excluir-titulo">
-      <div className="bf-excluir-modal">
-        <div className="bf-excluir-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-            <span className="bf-excluir-icone">
-              <Trash weight="duotone" size={18} />
-            </span>
-            <div>
-              <h2 id="bf-excluir-titulo">{t('bidfrete.excluir.titulo', 'Excluir selecionados')}</h2>
-              <p className="bf-excluir-subtitulo">
-                {t('bidfrete.excluir.subtitulo', 'Exclusão definitiva — apenas rascunhos ou itens nunca enviados podem ser excluídos.')}
-              </p>
+    <div className="modal-excluir__overlay" role="dialog" aria-modal="true" aria-labelledby="bf-excluir-titulo">
+      <div className="modal-excluir__container">
+        <div className="modal-excluir__header">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Trash size={20} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} aria-hidden="true" />
+              <h2 id="bf-excluir-titulo" className="modal-excluir__titulo">
+                {t('bidfrete.excluir.titulo', { defaultValue: 'Excluir {{contagem}}', contagem: tituloContagem })}
+              </h2>
             </div>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', lineHeight: 1.4 }}>
+              {t('bidfrete.excluir.subtitulo', 'Revise os registros antes de confirmar a exclusão')}
+            </p>
           </div>
-          <button type="button" className="bf-excluir-fechar" onClick={aoFechar} aria-label={t('comum.fechar', 'Fechar')}>
-            <X weight="bold" size={18} />
+          <button
+            type="button"
+            className="modal-excluir__fechar"
+            onClick={aoFechar}
+            disabled={excluindo}
+            aria-label={t('comum.fechar', 'Fechar')}
+          >
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
-        {carregandoPreview && (
-          <p className="bf-excluir-ajuda">{t('comum.carregando', 'Carregando...')}</p>
-        )}
+        <div className="modal-excluir__body">
+          {carregandoPreview && (
+            <div className="modal-excluir__carregando" aria-live="polite">
+              <Spinner size={24} className="modal-excluir__spinner" aria-hidden="true" />
+              <span>{t('bidfrete.excluir.verificando', 'Verificando o que pode ser excluído...')}</span>
+            </div>
+          )}
 
-        {!carregandoPreview && preview && (
-          <>
-            {totalPermitidos > 0 && (
-              <div className="bf-excluir-secao">
-                <div className="bf-excluir-secao-titulo bf-excluir-secao-titulo--ok">
-                  <CheckCircle weight="fill" size={15} />
-                  {t('bidfrete.excluir.serao_excluidos', 'Serão excluídos')} ({totalPermitidos})
+          {erro && !carregandoPreview && (
+            <div className="modal-excluir__erro" role="alert">
+              {erro}
+            </div>
+          )}
+
+          {!carregandoPreview && preview && (
+            <>
+              <div className="modal-excluir__aviso">
+                <Warning size={20} weight="fill" className="modal-excluir__aviso-icone" aria-hidden="true" />
+                <p className="modal-excluir__aviso-texto">
+                  <strong>{t('bidfrete.excluir.aviso_irreversivel', 'Esta ação é irreversível.')}</strong>{' '}
+                  {t(
+                    'bidfrete.excluir.aviso_regra',
+                    'Apenas rascunhos ou itens nunca enviados ao fornecedor podem ser excluídos permanentemente.',
+                  )}
+                </p>
+              </div>
+
+              {preview.bidsPermitidos.length > 0 && (
+                <div>
+                  <p className="modal-excluir__secao-titulo">
+                    {t('bidfrete.excluir.secao_bids_permitidos', {
+                      defaultValue: '{{count}} BID(s) serão excluídos',
+                      count: preview.bidsPermitidos.length,
+                    }).toUpperCase()}
+                  </p>
+                  <table className="modal-excluir__tabela" aria-label={t('bidfrete.excluir.tabela_bids_aria', 'BIDs que serão excluídos')}>
+                    <thead>
+                      <tr>
+                        <th className="modal-excluir__th">{t('bidfrete.excluir.col_numero', 'Número')}</th>
+                        <th className="modal-excluir__th">{t('bidfrete.excluir.col_cotacoes', 'Cotações')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {preview.bidsPermitidos.map(bid => (
+                        <tr key={bid.id_bid_bid_frete_internacional} className="modal-excluir__linha">
+                          <td className="modal-excluir__td modal-excluir__td--numero">
+                            {bid.numero_bid_bid_frete_internacional}
+                          </td>
+                          <td className="modal-excluir__td modal-excluir__td--itens">
+                            {t('bidfrete.excluir.celula_cotacoes', {
+                              defaultValue: '{{count}} cotação(ões)',
+                              count: bid.total_cotacoes,
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <ul className="bf-excluir-lista">
-                  {preview.bidsPermitidos.map(bid => (
-                    <li key={bid.id_bid_bid_frete_internacional}>
-                      <strong>{bid.numero_bid_bid_frete_internacional}</strong>
-                      {' · '}
-                      {t('bidfrete.excluir.bid_com_cotacoes', 'BID com {{total}} cotação(ões)', )
-                        .replace('{{total}}', String(bid.total_cotacoes))}
-                    </li>
-                  ))}
-                  {preview.cotacoesPermitidas.map(cotacao => (
-                    <li key={cotacao.id_cotacao_bid_frete_internacional}>
-                      <strong>{cotacao.numero_cotacao_bid_frete_internacional}</strong>
-                      {' · '}
-                      {cotacao.status_cotacao_bid_frete_internacional}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              )}
 
-            {totalBloqueados > 0 && (
-              <div className="bf-excluir-secao">
-                <div className="bf-excluir-secao-titulo bf-excluir-secao-titulo--bloqueado">
-                  <Prohibit weight="bold" size={15} />
-                  {t('bidfrete.excluir.bloqueados', 'Bloqueados — devem ser cancelados, não excluídos')} ({totalBloqueados})
+              {preview.cotacoesPermitidas.length > 0 && (
+                <div>
+                  <p className="modal-excluir__secao-titulo">
+                    {t('bidfrete.excluir.secao_cotacoes_permitidas', {
+                      defaultValue: '{{count}} cotação(ões) serão excluídas',
+                      count: preview.cotacoesPermitidas.length,
+                    }).toUpperCase()}
+                  </p>
+                  <table className="modal-excluir__tabela" aria-label={t('bidfrete.excluir.tabela_cotacoes_aria', 'Cotações que serão excluídas')}>
+                    <thead>
+                      <tr>
+                        <th className="modal-excluir__th">{t('bidfrete.excluir.col_numero', 'Número')}</th>
+                        <th className="modal-excluir__th">{t('bidfrete.excluir.col_status', 'Status')}</th>
+                        <th className="modal-excluir__th">{t('bidfrete.excluir.col_propostas', 'Propostas')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {preview.cotacoesPermitidas.map(cotacao => (
+                        <tr key={cotacao.id_cotacao_bid_frete_internacional} className="modal-excluir__linha">
+                          <td className="modal-excluir__td modal-excluir__td--numero">
+                            {cotacao.numero_cotacao_bid_frete_internacional}
+                          </td>
+                          <td className="modal-excluir__td modal-excluir__td--itens">
+                            {cotacao.status_cotacao_bid_frete_internacional}
+                          </td>
+                          <td className="modal-excluir__td modal-excluir__td--itens">
+                            {cotacao.total_propostas > 0
+                              ? t('bidfrete.excluir.celula_registros', {
+                                  defaultValue: '{{count}} registro(s)',
+                                  count: cotacao.total_propostas,
+                                })
+                              : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <ul className="bf-excluir-lista">
-                  {preview.bidsBloqueados.map(bid => (
-                    <li key={bid.id_bid_bid_frete_internacional}>
-                      <strong>{bid.numero_bid_bid_frete_internacional}</strong>
-                      {' · '}
-                      {(bid.cotacoes_bloqueadas ?? [])
-                        .map(c => `${c.numero_cotacao_bid_frete_internacional}: ${rotuloMotivoBloqueio(c.motivo_bloqueio, t)}`)
-                        .join(' · ')}
-                    </li>
-                  ))}
-                  {preview.cotacoesBloqueadas.map(cotacao => (
-                    <li key={cotacao.id_cotacao_bid_frete_internacional}>
-                      <strong>{cotacao.numero_cotacao_bid_frete_internacional}</strong>
-                      {' · '}
-                      {rotuloMotivoBloqueio(cotacao.motivo_bloqueio, t)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              )}
 
-            {totalPermitidos === 0 && (
-              <div className="bf-excluir-aviso">
-                <Warning weight="duotone" size={16} />
-                {t('bidfrete.excluir.nada_permitido', 'Nenhum item selecionado pode ser excluído. Cancele as cotações em andamento em vez de excluí-las.')}
-              </div>
-            )}
-          </>
-        )}
+              {totalBloqueados > 0 && (
+                <div>
+                  <p className="modal-excluir__secao-titulo">
+                    {t('bidfrete.excluir.secao_bloqueados', {
+                      defaultValue: '{{count}} bloqueado(s) — use cancelar em vez de excluir',
+                      count: totalBloqueados,
+                    }).toUpperCase()}
+                  </p>
+                  <ul className="modal-excluir__bloqueados">
+                    {itensBloqueados.map(item => (
+                      <li key={item.id} className="modal-excluir__item-bloqueado">
+                        <span className="modal-excluir__item-bloqueado-numero">{item.numero}</span>
+                        <span className="modal-excluir__item-bloqueado-motivo">{item.motivo}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-        {erro && <p className="bf-excluir-erro" role="alert">{erro}</p>}
+              {totalPermitidos === 0 && (
+                <div className="modal-excluir__erro" role="alert">
+                  {t(
+                    'bidfrete.excluir.nada_permitido',
+                    'Nenhum item selecionado pode ser excluído. Cancele as cotações em andamento em vez de excluí-las.',
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
-        <div className="bf-excluir-acoes">
-          <BotaoGlobal variante="secundario" tamanho="padrao" onClick={aoFechar} disabled={excluindo}>
+        <div className="modal-excluir__footer">
+          <BotaoGlobal variante="secundario" onClick={aoFechar} disabled={excluindo || feedbackBotao !== null}>
             {t('comum.cancelar', 'Cancelar')}
           </BotaoGlobal>
           <BotaoGlobal
             variante="perigo"
-            tamanho="padrao"
+            onClick={() => void handleConfirmar()}
+            disabled={!podeExcluir}
             carregando={excluindo}
             textoCarregando={t('bidfrete.excluir.excluindo', 'Excluindo...')}
-            disabled={carregandoPreview || !preview || totalPermitidos === 0}
-            onClick={() => void handleConfirmar()}
+            resultadoAcao={feedbackBotao}
+            icone={<Trash size={14} weight="bold" />}
           >
-            {t('bidfrete.excluir.confirmar', 'Excluir definitivamente')}
-            {totalPermitidos > 0 ? ` (${totalPermitidos})` : ''}
+            {feedbackBotao === 'sucesso'
+              ? t('bidfrete.excluir.botao_excluido', 'Excluído')
+              : feedbackBotao === 'erro'
+                ? t('bidfrete.excluir.botao_falhou', 'Falhou')
+                : t('bidfrete.excluir.botao_excluir', 'Excluir')}
           </BotaoGlobal>
         </div>
       </div>
-
-      <style>{`
-        .bf-excluir-overlay {
-          position: fixed; inset: 0; z-index: 1200; background: rgba(15, 23, 42, 0.72);
-          display: flex; align-items: center; justify-content: center; padding: 1rem;
-        }
-        .bf-excluir-modal {
-          width: min(560px, 100%); max-height: 90vh; overflow-y: auto;
-          background: var(--bg-surface, #334155); border-radius: 12px; padding: 1.5rem;
-          border: 1px solid var(--bg-elevated, #475569); display: flex; flex-direction: column; gap: 1rem;
-        }
-        .bf-excluir-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
-        .bf-excluir-header h2 { margin: 0; font-size: 1.125rem; color: var(--text-primary, #f1f5f9); }
-        .bf-excluir-subtitulo { margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--text-secondary, #94a3b8); }
-        .bf-excluir-icone {
-          display: inline-flex; align-items: center; justify-content: center;
-          width: 2rem; height: 2rem; border-radius: 0.5rem; background: rgba(239, 68, 68, 0.12); color: #f87171;
-        }
-        .bf-excluir-fechar { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.25rem; }
-        .bf-excluir-secao { display: flex; flex-direction: column; gap: 0.5rem; }
-        .bf-excluir-secao-titulo {
-          display: flex; align-items: center; gap: 0.375rem;
-          font-size: 0.8125rem; font-weight: 600;
-        }
-        .bf-excluir-secao-titulo--ok { color: #34d399; }
-        .bf-excluir-secao-titulo--bloqueado { color: #fbbf24; }
-        .bf-excluir-lista {
-          margin: 0; padding: 0.5rem; list-style: none; max-height: 200px; overflow-y: auto;
-          display: flex; flex-direction: column; gap: 0.375rem;
-          border: 1px solid var(--border-subtle, #475569); border-radius: 0.5rem;
-          font-size: 0.8125rem; color: var(--text-primary, #f1f5f9);
-        }
-        .bf-excluir-aviso {
-          display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem;
-          border-radius: 0.625rem; background: rgba(251, 191, 36, 0.08);
-          color: var(--text-primary, #f1f5f9); font-size: 0.8125rem;
-        }
-        .bf-excluir-ajuda { margin: 0; font-size: 0.8125rem; color: var(--text-secondary, #94a3b8); }
-        .bf-excluir-erro { margin: 0; font-size: 0.875rem; color: var(--danger, #ef4444); }
-        .bf-excluir-acoes { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.25rem; flex-wrap: wrap; }
-      `}</style>
     </div>
   )
 }

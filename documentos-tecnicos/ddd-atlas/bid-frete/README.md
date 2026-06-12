@@ -18,7 +18,7 @@
 | 7 | [`07-arquivos.md`](./07-arquivos.md) | Renomeacao de arquivos (kebab-case PT-BR) | 39 |
 | 8 | [`08-product-config.md`](./08-product-config.md) | PRODUCT_CONFIG e navegacao | 1 |
 | 9 | [`PLANO_REFATORACAO_CODIGO.md`](./PLANO_REFATORACAO_CODIGO.md) | Plano de refatoracao com ordem de execucao | — |
-| 10 | [`../../produtos-gravity/bid-frete-internacional/README.md`](../../produtos-gravity/bid-frete-internacional/README.md) | Entidade BID, snapshots, ordem de colunas (pos-DDD) | — |
+| 10 | [`../../produtos-gravity/bid-frete-internacional/README.md`](../../produtos-gravity/bid-frete-internacional/README.md) | Docs operacionais pos-DDD (BID, lista, modal Nova Cotacao, visao fornecedor) | — |
 
 ---
 

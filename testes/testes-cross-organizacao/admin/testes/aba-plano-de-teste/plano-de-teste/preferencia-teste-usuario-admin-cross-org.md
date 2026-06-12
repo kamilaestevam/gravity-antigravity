@@ -6,6 +6,8 @@
 **Rotas-alvo:** `GET/POST/DELETE /api/v1/admin/testes-favoritos`
 **Tipo:** [ ] Unitário | [ ] Funcional | [ ] E2E | [x] CRO | [ ] EMT
 
+> O modal Admin («O que será testado») agrupa os passos pelos títulos `### ETAPA …` abaixo. **Não remover** essa estrutura.
+
 ---
 
 ## Escopo e justificativa
@@ -16,12 +18,32 @@ isolamento aplicável é **cross-usuário**: dois admins Gravity de organizaçõ
 enxergar nem remover os favoritos um do outro. Os dois usuários do teste pertencem a organizações
 diferentes (`org_alpha` / `org_beta`), cobrindo também o recorte cross-organização.
 
-## Check-list de análise
+**Objetivo geral:** provar a fronteira de isolamento — nenhuma operação (leitura, escrita ou remoção) de um usuário pode tocar nos favoritos de outro, mesmo entre organizações diferentes.
 
-- [x] **C01** — usuário B (org_beta) não enxerga favorito criado por A (org_alpha) — GET escopado
-- [x] **C02** — usuário A continua enxergando o próprio favorito
-- [x] **C03** — usuário B NÃO remove favorito de A (DELETE `count: 0` → 404); registro de A intacto
-- [x] **C04** — POST de B grava com `id_usuario = usr_B` (nunca o de A)
+---
+
+## Roteiro de execução
+
+### ETAPA 1 — Isolamento de leitura (GET)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **C01** | Usuário A (`org_alpha`) cria um favorito; usuário B (`org_beta`) faz `GET /testes-favoritos` | Lista de B **não contém** o favorito de A — GET sempre escopado por `id_usuario` do autenticado |
+| **C02** | Usuário A faz `GET /testes-favoritos` | A continua enxergando o próprio favorito intacto — o isolamento não "esconde" o dado do dono |
+
+### ETAPA 2 — Isolamento de remoção (DELETE)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **C03** | Usuário B tenta `DELETE` no id do favorito de A | **404** (`deleteMany` com `{ id, id_usuario: usr_B }` → `count: 0`) e o registro de A permanece intacto no banco |
+
+### ETAPA 3 — Isolamento de escrita (POST)
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **C04** | Usuário B cria um favorito via `POST` | Registro gravado com `id_usuario = usr_B` (vindo do token, nunca do payload) — impossível plantar favorito em nome de A |
+
+---
 
 ## Como rodar
 
@@ -29,4 +51,4 @@ diferentes (`org_alpha` / `org_beta`), cobrindo também o recorte cross-organiza
 npx vitest run --config testes/testes-cross-organizacao/admin/vitest.config.ts TST-CRO-PREFERENCIA-TESTE-USUARIO-ADMIN-000094
 ```
 
-## 📊 Resultado: [ ] APROVADO | [ ] REPROVADO | [ ] RESSALVAS
+## 📊 Resultado: [x] APROVADO | [ ] REPROVADO | [ ] RESSALVAS

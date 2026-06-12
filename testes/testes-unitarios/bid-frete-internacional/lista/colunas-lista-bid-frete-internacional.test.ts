@@ -5,6 +5,7 @@ import {
   CHAVES_COLUNAS_COTACAO,
   CHAVES_COLUNAS_PADRAO_VISIVEIS,
   buildColunasCotacoes,
+  buildMapaColunasFilho,
   formatValorExportColuna,
   type OpcoesColunasLista,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/pages/colunas-lista-bid-frete-internacional'
@@ -154,6 +155,18 @@ describe('CAMPOS_EDITAVEIS_LISTA — edição inline', () => {
     const colOrigem = colunas.find(c => c.key === 'origem_nome_cotacao_bid_frete_internacional')
     expect(colOrigem?.opcoes).toHaveLength(2)
     expect(colOrigem?.getValorEditar?.(cotacaoBase())).toBe('BRSSZ')
+  })
+})
+
+describe('buildMapaColunasFilho — contrato GTMapaColunasFilho (render recebe só item)', () => {
+  it('render de origem não quebra ao expandir linha filha (cotacao)', () => {
+    const mapa = buildMapaColunasFilho(null, {
+      portosOpcoes: [{ valor: 'BRSSZ', label: 'BRSSZ — Santos' }],
+    })
+    const entrada = mapa.origem_nome_cotacao_bid_frete_internacional
+    expect(entrada).toBeDefined()
+    expect(() => entrada.render(cotacaoBase())).not.toThrow()
+    expect(entrada.getValorEditar?.(cotacaoBase())).toBe('BRSSZ')
   })
 })
 

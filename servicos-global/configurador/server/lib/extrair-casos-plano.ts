@@ -127,6 +127,65 @@ function extrairLinhasPrintsPlanejados(bloco: string): Array<{ ordem: string; ti
   return itens
 }
 
+/**
+ * Objetivo do plano para o modal Admin: parágrafo `**Objetivo geral:** …` ou,
+ * como fallback em planos legados, o primeiro parágrafo de `## Escopo`.
+ */
+export function extrairObjetivoDoPlano(conteudo: string): string | null {
+  const objetivo = conteudo.match(/\*\*Objetivo geral:\*\*\s*([\s\S]*?)(?=\n\s*\n|$)/)
+  if (objetivo) {
+    return objetivo[1].replace(/\s+/g, ' ').replace(/\*\*/g, '').trim() || null
+  }
+
+  const escopo = conteudo.match(/## (?:Escopo|Resumo Executivo|Objetivo)[^\n]*\n+([\s\S]*?)(?=\n\s*\n|\n#|$)/)
+  if (escopo) {
+    return escopo[1].replace(/\s+/g, ' ').replace(/\*\*/g, '').trim() || null
+  }
+
+  // Planos EMT legados: linha `> **Escopo:** …` no cabeçalho.
+  const escopoInline = conteudo.match(/\*\*Escopo:\*\*\s*([^\n]+)/)
+  if (escopoInline) {
+    return escopoInline[1].replace(/\*\*/g, '').replace(/^>\s*/, '').trim() || null
+  }
+
+  return null
+}
+
+/** Check-list `- [x] **U01** — descrição` (planos legados UNI/FUN/CRO/E2E). */
+function extrairLinhasChecklist(bloco: string): LinhaPassoEtapa[] {
+  const itens: LinhaPassoEtapa[] = []
+  const re = /^[-*]\s*\[[ xX]\]\s*(?:\*\*([^*]+)\*\*\s*[—–:-]?\s*)?(.+)$/
+
+  for (const raw of bloco.split('\n')) {
+    const m = raw.trim().match(re)
+    if (!m) continue
+    const ordem = (m[1] ?? String(itens.length + 1)).trim()
+    const detalhe = m[2].trim()
+
+    // `ação → resultado esperado` vira Ação / APROVADO quando no modal.
+    const sep = detalhe.match(/\s*(?:→|->)\s*/)
+    const seta = sep?.index ?? -1
+    if (sep && seta > 0) {
+      itens.push({
+        ordem,
+        detalhe,
+        acao: detalhe.slice(0, seta).trim(),
+        aprovadoQuando: detalhe.slice(seta + sep[0].length).trim(),
+      })
+    } else {
+      itens.push({ ordem, detalhe })
+    }
+  }
+
+  return itens
+}
+
+/** Primeira célula que parece código de caso (`U-ZOD-01`, `**06**`, `F03`) — filtra cabeçalhos e tabelas informativas. */
+function pareceOrdemCaso(ordem: string): boolean {
+  const limpo = ordem.replace(/[`*]/g, '').trim()
+  return limpo.length > 0 && limpo.length <= 24 && /\d/.test(limpo)
+}
+
 export function extrairCasosDoPlano(conteudo: string, planoFile: string): CasoPlanoTeste[] {
   if (planoFile.endsWith('.json')) {
     try {
@@ -224,6 +283,36 @@ export function extrairCasosDoPlano(conteudo: string, planoFile: string): CasoPl
           titulo: secao,
           detalhe: `${casosCount[1]} casos neste fluxo (ver plano completo)`,
           secao: 'Fluxos',
+        })
+      }
+    }
+  }
+
+  // Fallback genérico — planos legados sem ETAPA/Roteiro/FLUXO: check-lists
+  // (`- [x] **U01** — …`) e tabelas de casos (`| U-ZOD-01 | Caso | Resultado |`)
+  // agrupados pelo título `##`/`###` mais próximo.
+  if (casos.length === 0) {
+    const blocoRe = /(^|\n)#{2,3}\s+([^\n]+)\n([\s\S]*?)(?=\n#{2,3}\s|$)/g
+    let blocoMatch: RegExpExecArray | null
+    while ((blocoMatch = blocoRe.exec(conteudo)) !== null) {
+      const heading = blocoMatch[2].replace(/[#*`]/g, '').trim()
+      const relevante = /^\d+[.)]?\s/.test(heading)
+        || /caso|check|cen[aá]rio|valida|fluxo|snapshot/i.test(heading)
+      if (!relevante) continue
+
+      const linhas = [
+        ...extrairLinhasPassoEtapa(blocoMatch[3]),
+        ...extrairLinhasChecklist(blocoMatch[3]),
+      ]
+      for (const linha of linhas) {
+        if (!linha.detalhe || !pareceOrdemCaso(linha.ordem)) continue
+        casos.push({
+          ordem: linha.ordem,
+          titulo: heading,
+          detalhe: linha.detalhe,
+          acao: linha.acao,
+          aprovadoQuando: linha.aprovadoQuando,
+          secao: 'Roteiro',
         })
       }
     }

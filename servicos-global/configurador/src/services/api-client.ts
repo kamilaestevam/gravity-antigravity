@@ -1161,6 +1161,7 @@ export const adminPlanosTesteApi = {
     const qs = ambiente ? `?ambiente=${encodeURIComponent(ambiente)}` : ''
     return request<{
       plano: PlanoTesteApi
+      objetivo: string | null
       casos: CasoPlanoTesteApi[]
       total: number
       planoFile: string

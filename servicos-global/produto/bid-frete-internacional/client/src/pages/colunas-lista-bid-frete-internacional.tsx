@@ -1,5 +1,5 @@
 import React from 'react'
-import type { GTColuna, GTValorMoeda } from '@nucleo/tabela-virtual-global'
+import type { GTColuna, GTMapaColunasFilho, GTValorMoeda } from '@nucleo/tabela-virtual-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { Anchor, AirplaneTilt, Truck } from '@phosphor-icons/react'
 import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga, Visibilidade } from '../shared/types'
@@ -10,8 +10,8 @@ import {
   codigoOrigemParaEdicao,
 } from '../shared/lista-bid-frete-edicao-logistica'
 import { rotuloCadastroLista, type GTOpcaoCadastro } from '../shared/useCadastrosListaBidFrete'
-import type { LinhaPaiLista } from './lista-bid-frete-internacional-utils'
-import { isLinhaBidGrupo } from './lista-bid-frete-internacional-utils'
+import type { LinhaFilhaLista, LinhaPaiLista } from './lista-bid-frete-internacional-utils'
+import { isLinhaBidGrupo, isLinhaProposta } from './lista-bid-frete-internacional-utils'
 import {
   carregarCasasDecimaisBidFrete,
   STORAGE_KEY_CASAS_BID_FRETE,
@@ -1003,16 +1003,72 @@ export function buildColunasPaiLista(
   }))
 }
 
+function renderCelulaFilhoCotacao(
+  col: GTColuna<Cotacao>,
+  filha: Cotacao,
+): React.ReactNode {
+  const key = col.key as string
+  const val = (filha as Record<string, unknown>)[key]
+  if (col.render) return col.render(val, filha)
+  if (val == null || val === '') return '—'
+  if (typeof val === 'object') return '—'
+  return String(val)
+}
+
 export function buildMapaColunasFilho(
   t: unknown,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
-): Record<string, { key: keyof Cotacao; render?: GTColuna<Cotacao>['render'] }> {
+): Record<string, GTMapaColunasFilho<LinhaFilhaLista>> {
   const colunas = buildColunasCotacoes(t, opcoes, onAbrirCotacao)
-  const mapa: Record<string, { key: keyof Cotacao; render?: GTColuna<Cotacao>['render'] }> = {}
+  const mapa: Record<string, GTMapaColunasFilho<LinhaFilhaLista>> = {}
   for (const col of colunas) {
-    if (col.key) {
-      mapa[col.key as string] = { key: col.key as keyof Cotacao, render: col.render }
+    if (!col.key) continue
+    const key = col.key as string
+    mapa[key] = {
+      campo: key,
+      ...(col.opcoes ? { opcoes: col.opcoes } : {}),
+      ...(col.casasDecimais != null ? { casasDecimais: col.casasDecimais } : {}),
+      ...(col.moedas ? { moedas: col.moedas } : {}),
+      ...(col.unidades ? { unidades: col.unidades } : {}),
+      ...(col.apenasValorMoeda != null ? { apenasValorMoeda: col.apenasValorMoeda } : {}),
+      ...(col.rotuloUnidadeSelecionada
+        ? { rotuloUnidadeSelecionada: col.rotuloUnidadeSelecionada }
+        : {}),
+      ...(col.formatarValorUnidade ? { formatarValorUnidade: col.formatarValorUnidade } : {}),
+      ...(col.avisoImpacto ? { avisoImpacto: col.avisoImpacto } : {}),
+      editavel: (filha) => {
+        if (isLinhaProposta(filha)) return false
+        if (typeof col.editavel === 'function') return col.editavel(filha)
+        return col.editavel === true
+      },
+      ...(col.getValorEditar
+        ? {
+            getValorEditar: (filha) => {
+              if (isLinhaProposta(filha)) return undefined
+              return col.getValorEditar!(filha)
+            },
+          }
+        : {}),
+      ...(col.tooltipBloqueado
+        ? {
+            tooltipBloqueado: (filha) => {
+              if (isLinhaProposta(filha)) return undefined
+              return typeof col.tooltipBloqueado === 'function'
+                ? col.tooltipBloqueado(filha)
+                : col.tooltipBloqueado
+            },
+          }
+        : {}),
+      render: (filha) => {
+        if (isLinhaProposta(filha)) {
+          const val = (filha as Record<string, unknown>)[key]
+          if (val == null || val === '') return '—'
+          if (typeof val === 'object') return '—'
+          return String(val)
+        }
+        return renderCelulaFilhoCotacao(col, filha)
+      },
     }
   }
   return mapa

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Camera, CaretDown, Eye, ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
+import { Camera, CaretDown, Crosshair, Eye, ListChecks, Flask, FileText, Globe } from '@phosphor-icons/react'
 import { ModalOverlay } from '@nucleo/modal-global'
 import {
   adminPlanosTesteApi,
@@ -466,6 +466,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [casos, setCasos] = useState<CasoPlanoTesteApi[]>([])
+  const [objetivo, setObjetivo] = useState<string | null>(null)
   const [planoFile, setPlanoFile] = useState<string | null>(null)
   const [ambienteExecucao, setAmbienteExecucao] = useState<AmbienteExecucaoApi | null>(null)
   const [casoDetalhe, setCasoDetalhe] = useState<CasoPlanoTesteApi | null>(null)
@@ -473,6 +474,7 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
   useEffect(() => {
     if (!aberto || !plano) {
       setCasos([])
+      setObjetivo(null)
       setPlanoFile(null)
       setAmbienteExecucao(null)
       setErro(null)
@@ -485,11 +487,13 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
     adminPlanosTesteApi.casos(plano.id, ambiente)
       .then(res => {
         setCasos(res.casos)
+        setObjetivo(res.objetivo)
         setPlanoFile(res.planoFile)
         setAmbienteExecucao(res.ambienteExecucao)
       })
       .catch(err => {
         setCasos([])
+        setObjetivo(null)
         setPlanoFile(null)
         setAmbienteExecucao(null)
         setErro(err instanceof Error ? err.message : 'Erro ao carregar casos do plano')
@@ -596,10 +600,24 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
           </div>
         )}
 
-        {plano.specFile && (
-          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-            <FileText size={14} style={{ verticalAlign: 'middle', marginRight: 6 }} />
-            Script: <code style={{ color: '#94a3b8' }}>{plano.specFile}</code>
+        {objetivo && (
+          <div>
+            <div style={{
+              fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase',
+              letterSpacing: '0.08em', color: '#10b981',
+              display: 'flex', alignItems: 'center', gap: '0.4rem',
+              marginBottom: '0.5rem',
+            }}>
+              <Crosshair size={13} weight="fill" />
+              Objetivo
+            </div>
+            <div style={{
+              padding: '0.875rem 1rem', borderRadius: '10px',
+              background: 'rgba(16, 185, 129, 0.06)', border: '1px solid rgba(16, 185, 129, 0.25)',
+              fontSize: '0.82rem', color: '#cbd5e1', lineHeight: 1.55,
+            }}>
+              {objetivo}
+            </div>
           </div>
         )}
 
@@ -677,6 +695,25 @@ export function ModalDetalhePlanoTeste({ aberto, plano, ambiente, aoFechar }: Mo
                 </div>
               )
             })}
+          </div>
+        )}
+
+        {plano.specFile && (
+          <div style={{
+            padding: '0.75rem 1rem', borderRadius: '10px',
+            background: 'rgba(100, 116, 139, 0.08)', border: '1px solid rgba(100, 116, 139, 0.25)',
+            fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.55,
+          }}>
+            <div style={{ fontWeight: 700, color: '#cbd5e1', marginBottom: '0.25rem' }}>
+              <FileText size={14} style={{ verticalAlign: 'middle', marginRight: 6 }} />
+              Script de execução
+            </div>
+            <code style={{ color: '#a5b4fc', wordBreak: 'break-all' }}>{plano.specFile}</code>
+            <div style={{ marginTop: '0.35rem' }}>
+              É o arquivo que o runner executa ao rodar este plano — cada caso listado acima
+              está implementado como um teste dentro dele. Se um caso falhar, o resultado
+              aponta o caso pelo código (ex.: o número/ID da linha acima).
+            </div>
           </div>
         )}
       </div>

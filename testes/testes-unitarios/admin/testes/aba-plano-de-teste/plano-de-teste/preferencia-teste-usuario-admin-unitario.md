@@ -6,6 +6,8 @@
 **Código-alvo:** `testes/infra/admin/testes-favoritos-admin.ts`
 **Tipo:** [x] Unitário | [ ] Funcional | [ ] E2E | [ ] CRO | [ ] EMT
 
+> O modal Admin («O que será testado») agrupa os passos pelos títulos `### ETAPA …` abaixo. **Não remover** essa estrutura.
+
 ---
 
 ## Escopo
@@ -14,26 +16,44 @@ Lógica pura do domínio dos favoritos do modal "Rodar Testes" (sem React, sem f
 contratos Zod (espelham a tabela `teste_favorito_usuario`), rótulos, snapshot de planos e
 deduplicação. Persistência (banco/API) é coberta por FUN/CRO.
 
-## Check-list de análise
+**Objetivo geral:** garantir que o contrato Zod rejeite dados inválidos antes de chegarem ao banco, que os rótulos/resumos exibidos ao usuário sejam fiéis ao que foi salvo e que a chave de deduplicação impeça favoritos repetidos.
 
-### 1. Contrato Zod (`testeFavoritoUsuarioSchema`)
-- [x] **U01** — favorito completo válido (com id, data, planos_resumo nulo) passa
-- [x] **U02** — favorito sem tipos é rejeitado (`min(1)`)
-- [x] **U03** — produto fora do enum é rejeitado
+---
 
-### 2. Rótulo e exibição
-- [x] **U04** — `rotuloTesteFavoritoUsuario` monta `Produto · Ambiente(pt) · TIPOS · N plano(s)`
-- [x] **U05** — `extrairTitulo/DescricaoPlanoTeste` espelham a lista (módulo + sublocal + casos)
-- [x] **U06** — `planosExibicaoFavorito` prioriza `planos_resumo` persistido
-- [x] **U07** — `planosExibicaoFavorito` trata `planos_resumo` nulo (coluna Json vazia)
+## Roteiro de execução
 
-### 3. Snapshot e resolução
-- [x] **U08** — `montarResumoPlanosFavorito` gera `{id,titulo,descricao,tipo}`
-- [x] **U09** — `resolverOqueFoiTestadoPlano` usa módulo e cai no id se vazio
-- [x] **U10** — `resolverOqueFoiTestadoLog` resolve id legado via catálogo
+### ETAPA 1 — Contrato Zod (`testeFavoritoUsuarioSchema`)
 
-### 4. Deduplicação
-- [x] **U11** — `chaveTesteFavoritoUsuario` ignora ordem de tipos e planos
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **U01** | Validar favorito completo (com `id`, `data_criacao`, `planos_resumo: null`) contra o schema | `safeParse(...).success === true` — paridade campo a campo com a tabela `teste_favorito_usuario` |
+| **U02** | Validar favorito com `tipos_teste_favorito_usuario: []` | `success === false` — schema exige `min(1)`: favorito sem nenhum tipo de teste é inválido |
+| **U03** | Validar favorito com `produto_teste_favorito_usuario: 'inexistente'` | `success === false` — produto fora do enum de produtos Gravity é rejeitado |
+
+### ETAPA 2 — Rótulo e exibição
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **U04** | Montar rótulo via `rotuloTesteFavoritoUsuario(favorito, 'Pedido')` | Retorna exatamente `Pedido · Produção · EMT · 1 plano` (produto legível · ambiente em pt · tipos · contagem de planos) |
+| **U05** | Extrair título e descrição do plano via `extrairTituloPlanoTeste` / `extrairDescricaoPlanoTeste` | Título = `modulo` do registry; descrição = `sublocal · N casos no registry` — mesmo texto exibido na lista de planos |
+| **U06** | Chamar `planosExibicaoFavorito` com `planos_resumo` persistido | Exibe título/descrição do snapshot salvo no banco (não recalcula do catálogo atual) |
+| **U07** | Chamar `planosExibicaoFavorito` com `planos_resumo: null` (coluna Json vazia) | Não quebra: retorna 1 item por plano-id com fallback no próprio id |
+
+### ETAPA 3 — Snapshot e resolução
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **U08** | Gerar snapshot via `montarResumoPlanosFavorito(ids, catalogo)` | Cada item sai com `{ id, titulo, descricao, tipo }` corretos — é o que será gravado em `planos_resumo` |
+| **U09** | Resolver "o que foi testado" do plano via `resolverOqueFoiTestadoPlano` | Usa o `modulo` quando presente; se vazio, cai no `id` do plano (nunca string vazia) |
+| **U10** | Resolver "o que foi testado" de log legado via `resolverOqueFoiTestadoLog` | ID legado (`...-001`) é resolvido pelo catálogo para o `modulo` do plano atual |
+
+### ETAPA 4 — Deduplicação
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **U11** | Gerar `chaveTesteFavoritoUsuario` para dois favoritos com mesmos tipos/planos em ordens diferentes | As duas chaves são idênticas — ordem de `tipos` e `planos_ids` não cria favorito "novo" |
+
+---
 
 ## Como rodar
 
@@ -41,4 +61,4 @@ deduplicação. Persistência (banco/API) é coberta por FUN/CRO.
 npx vitest run --config testes/testes-unitarios/admin/vitest.config.ts TST-UNI-PREFERENCIA-TESTE-USUARIO-ADMIN-000091
 ```
 
-## 📊 Resultado: [ ] APROVADO | [ ] REPROVADO | [ ] RESSALVAS
+## 📊 Resultado: [x] APROVADO | [ ] REPROVADO | [ ] RESSALVAS

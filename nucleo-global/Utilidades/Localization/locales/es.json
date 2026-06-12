@@ -7152,6 +7152,37 @@
     "desc_produto": "Este producto está en desarrollo. Deja tu correo electrónico para ser notificado en el lanzamiento.",
     "btn_inscrever": "Inscribirse"
   },
+  "smart_read": {
+    "titulo": "Smart Read",
+    "subtitulo": "Lectura inteligente de documentos de importación y exportación",
+    "upload": {
+      "titulo": "Enviar documento",
+      "descricao": "Arrastra un documento o haz clic para seleccionar",
+      "formatos": "PDF, JPG, PNG, XML, CSV o XLSX — hasta 50MB",
+      "botao": "Seleccionar archivo"
+    },
+    "processando": {
+      "titulo": "Leyendo el documento",
+      "descricao": "La IA está clasificando y extrayendo los datos — en promedio de 15 a 40 segundos por documento, según la conexión y el tipo de archivo."
+    },
+    "resultado": {
+      "titulo": "Resultado de la lectura",
+      "arquivo": "Archivo",
+      "campos_extraidos": "Campos extraídos",
+      "sem_campos": "No se extrajeron campos de este documento.",
+      "nova_leitura": "Nueva lectura"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "processing": "Procesando",
+      "completed": "Completado",
+      "failed": "Falló"
+    },
+    "erro": {
+      "upload": "Error al enviar el documento",
+      "timeout": "El procesamiento tardó más de lo esperado. Inténtalo de nuevo en unos instantes."
+    }
+  },
   "lpco": {
     "titulo": "LPCOs",
     "subtitulo": "Licencias, Permisos, Certificados y Otros Documentos",

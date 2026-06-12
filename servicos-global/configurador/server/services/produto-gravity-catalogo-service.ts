@@ -614,4 +614,17 @@ const seedProducts: Prisma.ProdutoGravityUncheckedCreateInput[] = [
     modulo_backend_produto_gravity: 'nf-importacao',
     publico_alvo_produto_gravity: 'Importadores, despachantes aduaneiros e contadores',
   },
+  {
+    nome_produto_gravity: 'Smart Read',
+    slug_produto_gravity: 'smart-read',
+    descricao_produto_gravity: 'Leitura inteligente de documentos de importação e exportação com extração automática de dados via IA',
+    status_produto_gravity: 'ATIVO',
+    tipo_cobranca_produto_gravity: 'POR_DOCUMENTO',
+    possui_setup_produto_gravity: false,
+    preco_unitario_produto_gravity: 2.0,
+    preco_minimo_produto_gravity: 0,
+    tipo_limite_usuario_produto_gravity: 'ILIMITADO',
+    modulo_backend_produto_gravity: 'smart-read',
+    publico_alvo_produto_gravity: 'Importadores, exportadores, despachantes aduaneiros e agentes de carga',
+  },
 ]

@@ -308,6 +308,20 @@ export default defineConfig(({ command }) => {
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
+      // Smart Read — BFF/adapter para o Smart Read legado. Porta 8033.
+      '/api/v1/smart-read': {
+        target: 'http://localhost:8033',
+        changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
+          })
+        },
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
       // Cadastros (Fase 5 DDD) — serviço tenant com CRUD de Empresa, Moeda,
       // Unidade, NCM. Porta 8031 (8030 é do Pedido). Todas as chamadas levam
       // x-internal-key; o id_organizacao é injetado pelo frontend via header

@@ -113,6 +113,7 @@ module.exports = {
         PM2_DEV_NO_WATCH: '1',
       },
     },
+    svc('smart-read', 'servicos-global/produto/smart-read', 8033, ENV_PLATAFORMA, 'server/src/index.ts'),
 
     // ── Cadastros ─────────────────────────────────────────────────────────────
     svc('cadastros', 'servicos-global/cadastros', 8031, ENV_SERVICO, 'server/src/index.ts'),

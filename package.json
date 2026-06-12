@@ -44,6 +44,7 @@
     "servicos-global/produto/pedido/server",
     "servicos-global/produto/processo/client",
     "servicos-global/produto/processo/server",
+    "servicos-global/produto/smart-read",
     "servicos-global/produto/simula-custo",
     "servicos-global/produto/simula-custo/client",
     "servicos-global/produto/simula-custo/server",

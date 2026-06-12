@@ -91,6 +91,7 @@ const ProcessoApp = React.lazy(() => import('../../produto/processo/client/src/A
 const BidFreteApp = React.lazy(() => import('../../produto/bid-frete-internacional/client/src/App'))
 const BidCambioApp = React.lazy(() => import('../../produto/bid-cambio/client/src/App'))
 const PedidoApp = React.lazy(() => import('../../produto/pedido/client/src/App'))
+const SmartReadApp = React.lazy(() => import('../../produto/smart-read/client/src/App'))
 
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { ROTAS_PEDIDO, BASE_ROTA_PEDIDO } from '../../produto/pedido/client/src/shared/rotas'
@@ -391,6 +392,7 @@ export default function App() {
         <Route path="/bid-frete-internacional/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><GuardaRotaPedido /></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/smart-read/*" element={<ProtectedRoute><ProductErrorBoundary name="Smart Read"><React.Suspense fallback={<ProductLoading />}><SmartReadApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
 
         {/* Redirects legacy (90 dias após merge — Pendência #5) */}
         <Route path="/produto/simula-custo/*" element={<NavigateComPrefixo de="/produto/simula-custo" para="/simula-custo" />} />
@@ -399,6 +401,7 @@ export default function App() {
         <Route path="/produto/bid-frete-internacional/*" element={<NavigateComPrefixo de="/produto/bid-frete-internacional" para="/bid-frete" />} />
         <Route path="/produto/bid-cambio/*" element={<NavigateComPrefixo de="/produto/bid-cambio" para="/bid-cambio" />} />
         <Route path="/produto/pedido/*" element={<NavigateComPrefixo de="/produto/pedido" para="/pedido" />} />
+        <Route path="/produto/smart-read/*" element={<NavigateComPrefixo de="/produto/smart-read" para="/smart-read" />} />
 
         {/* Admin — área interna restrita — exclusivo gravity_admin */}
         <Route path="/admin" element={<AdminRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></AdminRoute>}>

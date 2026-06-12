@@ -40,7 +40,7 @@ import {
   CaretRight,
   CaretDoubleDown,
   CaretDoubleUp,
-  Copy,
+  StackPlus,
   Trash,
   SquaresFour,
   Clock,
@@ -1196,35 +1196,76 @@ export default function Cotacoes() {
       )}
     </div>
 
-      {/* Duplicar — cotação ou BID (cópia nasce em rascunho) */}
-      <BotaoGlobal
-        variante="secundario"
-        tamanho="pequeno"
-        icone={<Copy size={14} weight="duotone" />}
-        disabled={totalSelecionados === 0 || duplicando}
-        aria-label={t('bidfrete.lista.duplicar', { defaultValue: 'Duplicar selecionados' })}
-        onClick={() => void handleDuplicarSelecionados()}
+      {/* Duplicar — paridade Lista de Pedidos: ícone + tooltip (sem rótulo na barra) */}
+      <TooltipGlobal
+        titulo={(() => {
+          const labelBid = bidsSelecionados.length === 1
+            ? t('bidfrete.lista.label_bid_one', { defaultValue: 'BID' })
+            : t('bidfrete.lista.label_bid_other', { defaultValue: 'BIDs' })
+          const labelCotacao = cotacoesSelecionadasParaAcao.length === 1
+            ? t('bidfrete.lista.label_cotacao_one', { defaultValue: 'cotação' })
+            : t('bidfrete.lista.label_cotacao_other', { defaultValue: 'cotações' })
+          const rotulo = t('bidfrete.lista.duplicar', { defaultValue: 'Duplicar' })
+          if (bidsSelecionados.length > 0 && cotacoesSelecionadasParaAcao.length > 0) {
+            return `${rotulo} · ${bidsSelecionados.length} ${labelBid} + ${cotacoesSelecionadasParaAcao.length} ${labelCotacao}`
+          }
+          if (bidsSelecionados.length > 0) {
+            return `${rotulo} · ${bidsSelecionados.length} ${labelBid}`
+          }
+          if (cotacoesSelecionadasParaAcao.length > 0) {
+            return `${rotulo} · ${cotacoesSelecionadasParaAcao.length} ${labelCotacao}`
+          }
+          return rotulo
+        })()}
+        descricao={t('bidfrete.lista.duplicar_desc', { defaultValue: 'Duplicar BID ou cotação selecionados (cópia nasce em rascunho)' })}
       >
-        {t('bidfrete.lista.duplicar_rotulo', { defaultValue: 'Duplicar' })}
-        {totalSelecionados > 0 ? ` (${totalSelecionados})` : ''}
-      </BotaoGlobal>
+        <BotaoGlobal
+          variante="secundario"
+          tamanho="pequeno"
+          icone={<StackPlus size={14} weight="duotone" />}
+          aria-label={t('bidfrete.lista.duplicar', { defaultValue: 'Duplicar selecionados' })}
+          disabled={totalSelecionados === 0 || duplicando}
+          onClick={() => void handleDuplicarSelecionados()}
+        />
+      </TooltipGlobal>
 
-      {/* Excluir — cotação ou BID (modal com preview de bloqueados) */}
-      <BotaoGlobal
-        variante="secundario"
-        tamanho="pequeno"
-        icone={<Trash size={14} weight="duotone" />}
-        disabled={totalSelecionados === 0}
-        aria-label={t('bidfrete.lista.excluir', { defaultValue: 'Excluir selecionados' })}
-        onClick={() => setModalExcluirAberto(true)}
+      {/* Excluir — paridade Lista de Pedidos: ícone vermelho + tooltip */}
+      <TooltipGlobal
+        titulo={(() => {
+          const labelBid = bidsSelecionados.length === 1
+            ? t('bidfrete.lista.label_bid_one', { defaultValue: 'BID' })
+            : t('bidfrete.lista.label_bid_other', { defaultValue: 'BIDs' })
+          const labelCotacao = cotacoesSelecionadasParaAcao.length === 1
+            ? t('bidfrete.lista.label_cotacao_one', { defaultValue: 'cotação' })
+            : t('bidfrete.lista.label_cotacao_other', { defaultValue: 'cotações' })
+          const rotulo = t('bidfrete.lista.excluir', { defaultValue: 'Excluir' })
+          if (bidsSelecionados.length > 0 && cotacoesSelecionadasParaAcao.length > 0) {
+            return `${rotulo} · ${bidsSelecionados.length} ${labelBid} e ${cotacoesSelecionadasParaAcao.length} ${labelCotacao}`
+          }
+          if (bidsSelecionados.length > 0) {
+            return `${rotulo} · ${bidsSelecionados.length} ${labelBid}`
+          }
+          if (cotacoesSelecionadasParaAcao.length > 0) {
+            return `${rotulo} · ${cotacoesSelecionadasParaAcao.length} ${labelCotacao}`
+          }
+          return rotulo
+        })()}
+        descricao={t('bidfrete.lista.excluir_desc', { defaultValue: 'Excluir BID ou cotação selecionados (rascunho ou nunca enviados)' })}
       >
-        {t('bidfrete.lista.excluir_rotulo', { defaultValue: 'Excluir' })}
-        {totalSelecionados > 0 ? ` (${totalSelecionados})` : ''}
-      </BotaoGlobal>
+        <BotaoGlobal
+          variante="perigo"
+          tamanho="pequeno"
+          icone={<Trash size={14} weight="duotone" />}
+          aria-label={t('bidfrete.lista.excluir', { defaultValue: 'Excluir selecionados' })}
+          disabled={totalSelecionados === 0}
+          onClick={() => setModalExcluirAberto(true)}
+        />
+      </TooltipGlobal>
     </div>
   ), [
     novoDropdownAberto, novoSubmenu, novoNomePainelLista, handleCriarPainelLista,
     navigate, t, temExpandido, totalSelecionados, duplicando, handleDuplicarSelecionados,
+    bidsSelecionados.length, cotacoesSelecionadasParaAcao.length,
   ])
 
   const exportarCSVCotacoes = useCallback((formato: 'excel' | 'csv') => {

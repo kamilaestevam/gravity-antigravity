@@ -6,6 +6,8 @@
 **Rotas-alvo:** `GET/POST/DELETE /api/v1/admin/testes-favoritos` (`server/routes/admin.ts`)
 **Tipo:** [ ] Unitário | [x] Funcional | [ ] E2E | [ ] CRO | [ ] EMT
 
+> O modal Admin («O que será testado») agrupa os passos pelos títulos `### ETAPA …` abaixo. **Não remover** essa estrutura.
+
 ---
 
 ## Escopo
@@ -14,25 +16,43 @@ Rotas REST do recurso `testes-favoritos` (model `TesteFavoritoUsuario`), com Pri
 (`vi.hoisted`) e `requireAuth` mockado. Valida Zod, escopo por `id_usuario`, deduplicação,
 limite (20) e ownership no DELETE.
 
-## Check-list de análise
+**Objetivo geral:** garantir que a API só leia/grave/apague favoritos do usuário autenticado, rejeite payload inválido antes do banco e aplique as regras de negócio (duplicado → 409, limite de 20 → 409, ownership no DELETE → 404).
 
-### 1. Leitura (GET)
-- [x] **F01** — GET → 200 com `findMany({ where: { id_usuario } })`
-- [x] **F02** — GET → 200 lista vazia
+---
 
-### 2. Criação (POST) — persistência + validação
-- [x] **F03** — POST feliz → 201, `create.data` recebe `id_usuario` + todos os campos DDD
-- [x] **F04** — POST sem `planos_resumo` (opcional) → 201
-- [x] **F05** — POST combinação duplicada → 409 `FAVORITO_DUPLICADO`, sem `create`
-- [x] **F06** — POST 21º favorito → 409 `FAVORITO_LIMITE`, sem `create`
-- [x] **F07** — POST sem tipos → 400 `VALIDATION_ERROR`, sem `create`
+## Roteiro de execução
 
-### 3. Remoção (DELETE) — ownership
-- [x] **F08** — DELETE → 200, `deleteMany({ where: { id, id_usuario } })`
-- [x] **F09** — DELETE inexistente/de outro usuário (`count: 0`) → 404 `NOT_FOUND`
+### ETAPA 1 — Leitura (GET)
 
-### 4. Autorização
-- [x] **F10** — `PADRAO` bloqueado por `requireGravityAdmin` → 403, sem tocar o banco
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **F01** | `GET /api/v1/admin/testes-favoritos` com usuário autenticado que possui favoritos | **200** e o Prisma recebe `findMany({ where: { id_usuario } })` — lista sempre escopada ao usuário logado |
+| **F02** | `GET` com usuário sem nenhum favorito | **200** com lista vazia `[]` (nunca erro, nunca favoritos de terceiros) |
+
+### ETAPA 2 — Criação (POST) — persistência + validação
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **F03** | `POST` feliz com payload completo (produto, ambiente, tipos, planos, `planos_resumo`) | **201** e `create.data` recebe `id_usuario` do autenticado + todos os campos no padrão DDD (`*_teste_favorito_usuario`) |
+| **F04** | `POST` sem `planos_resumo` (campo opcional) | **201** — snapshot ausente não bloqueia a criação |
+| **F05** | `POST` de combinação já existente (mesmo produto/ambiente/tipos/planos) | **409** com código `FAVORITO_DUPLICADO` e `create` **não** é chamado |
+| **F06** | `POST` do 21º favorito do usuário | **409** com código `FAVORITO_LIMITE` e `create` **não** é chamado (teto de 20 por usuário) |
+| **F07** | `POST` com `tipos: []` (payload inválido) | **400** `VALIDATION_ERROR` barrado pelo Zod **antes** de qualquer acesso ao banco |
+
+### ETAPA 3 — Remoção (DELETE) — ownership
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **F08** | `DELETE /testes-favoritos/:id` de um favorito do próprio usuário | **200** e o Prisma recebe `deleteMany({ where: { id, id_usuario } })` — id sozinho nunca basta |
+| **F09** | `DELETE` de id inexistente ou pertencente a outro usuário (`count: 0`) | **404** `NOT_FOUND` — impossível apagar favorito alheio mesmo conhecendo o id |
+
+### ETAPA 4 — Autorização
+
+| Passo | Ação | APROVADO quando |
+|-------|------|-----------------|
+| **F10** | Qualquer rota chamada por usuário `PADRAO` (sem `gravity_admin`) | **403** barrado por `requireGravityAdmin`, sem nenhuma query no banco |
+
+---
 
 ## Como rodar
 
@@ -40,4 +60,4 @@ limite (20) e ownership no DELETE.
 npx vitest run --config testes/testes-funcionais/admin/vitest.config.ts TST-FUN-PREFERENCIA-TESTE-USUARIO-ADMIN-000092
 ```
 
-## 📊 Resultado: [ ] APROVADO | [ ] REPROVADO | [ ] RESSALVAS
+## 📊 Resultado: [x] APROVADO | [ ] REPROVADO | [ ] RESSALVAS

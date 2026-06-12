@@ -46,7 +46,7 @@ import {
   resolverAmbienteExecucao,
   type AmbienteTesteUi,
 } from '../lib/ambiente-teste-execucao.js'
-import { extrairCasosDoPlano } from '../lib/extrair-casos-plano.js'
+import { extrairCasosDoPlano, extrairObjetivoDoPlano } from '../lib/extrair-casos-plano.js'
 import { appendTestLogEntries, listDailyTestLogFiles, testLogsDir } from '../lib/test-log-persist.js'
 import {
   listarTestesDoBanco,
@@ -1121,6 +1121,7 @@ adminRouter.get('/planos-teste/:id_plano_teste/casos', (req, res, next) => {
 
     res.json({
       plano: entry,
+      objetivo: extrairObjetivoDoPlano(conteudo),
       casos,
       total: casos.length,
       planoFile: entry.planoFile,

@@ -174,7 +174,15 @@
       "voltar_lista": "Back to list",
       "toast_sucesso": "BID {{numero}} created successfully.",
       "erro_criar": "Error creating BID",
-      "erro_carregar_avulsas": "Error loading standalone quotes"
+      "erro_carregar_avulsas": "Error loading standalone quotes",
+      "importacao": "Import",
+      "importacao_desc": "Excel, CSV or XML",
+      "api": "API",
+      "api_desc": "Integration via Cockpit or ERP",
+      "smart_read": "Smart Read",
+      "smart_read_desc": "AI extracts data from documents",
+      "manual": "Manual",
+      "manual_desc": "Fill out form"
     },
     "dashboard": {
       "titulo": "Overview",
@@ -596,6 +604,10 @@
     },
     "importar": {
       "titulo": "Import Quotes in Bulk",
+      "titulo_bid": "Import BID via spreadsheet",
+      "subtitulo_upload_bid": "Create a BID and import multiple quotes at once",
+      "criando_bid": "Creating BID and quotes...",
+      "concluida_bid": "BID {{numero}} imported successfully",
       "vazio_arquivo": "No rows found in the file.",
       "buscar_placeholder": "Search row...",
       "col_destino": "Destination",

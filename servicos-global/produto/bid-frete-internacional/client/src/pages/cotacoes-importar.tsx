@@ -9,7 +9,7 @@
 import React, { useState, useCallback, useRef, useMemo } from 'react'
 import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -25,7 +25,7 @@ import {
   ArrowClockwise,
 } from '@phosphor-icons/react'
 
-import { criarCotacao } from '../shared/api'
+import { criarBidFreteInternacional, criarCotacao } from '../shared/api'
 import type { TipoOperacao, ModalFrete, Incoterm } from '../shared/types'
 import { INCOTERMS } from '../shared/types'
 
@@ -85,6 +85,7 @@ interface CreationResult {
   criadas: number
   erros: number
   detalhes: string[]
+  numero_bid_bid_frete_internacional?: string
 }
 
 // ─── Validation ─────────────────────────────────────────────────────────────
@@ -172,31 +173,35 @@ function parseCSV(content: string): ParsedRow[] {
 export default function ImportarBloco() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const contextoBid = searchParams.get('contexto') === 'bid'
 
   const [phase, setPhase] = useState<ImportPhase>('upload')
   const [fileName, setFileName] = useState('')
   const [rows, setRows] = useState<ValidatedRow[]>([])
   const [dragOver, setDragOver] = useState(false)
   const [result, setResult] = useState<CreationResult | null>(null)
+  const [referenciaBid, setReferenciaBid] = useState('')
 
   const validCount = rows.filter((r) => r.status === 'OK').length
   const errorCount = rows.filter((r) => r.status === 'Erro').length
 
   const subtituloImportar =
     phase === 'upload'
-      ? t('bidfrete.importar.subtitulo_upload')
+      ? (contextoBid ? t('bidfrete.importar.subtitulo_upload_bid') : t('bidfrete.importar.subtitulo_upload'))
       : phase === 'preview'
         ? `${fileName} — ${rows.length} ${t('bidfrete.importar.linhas_carregadas')}`
         : phase === 'creating'
-          ? t('bidfrete.importar.criando')
+          ? (contextoBid ? t('bidfrete.importar.criando_bid') : t('bidfrete.importar.criando'))
           : t('bidfrete.importar.concluida')
 
   useSincronizarTituloPaginaTopo(useMemo(() => ({
-    label:     t('bidfrete.importar.titulo'),
+    label:     contextoBid ? t('bidfrete.importar.titulo_bid') : t('bidfrete.importar.titulo'),
     icone:     <Upload weight="duotone" size={22} />,
     subtitulo: subtituloImportar,
-  }), [t, subtituloImportar]))
+  }), [contextoBid, t, subtituloImportar]))
 
   // ─── File handling ──────────────────────────────────────────────────────
 
@@ -252,10 +257,28 @@ export default function ImportarBloco() {
     let criadas = 0
     let erros = 0
     const detalhes: string[] = []
+    let idBid: string | undefined
+    let numeroBid: string | undefined
+
+    if (contextoBid) {
+      try {
+        const bid = await criarBidFreteInternacional({
+          referencia_interna_bid_bid_frete_internacional: referenciaBid.trim() || undefined,
+        })
+        idBid = bid.id_bid_bid_frete_internacional
+        numeroBid = bid.numero_bid_bid_frete_internacional
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : t('bidfrete.novo_bid.erro_criar')
+        setResult({ criadas: 0, erros: 1, detalhes: [msg] })
+        setPhase('done')
+        return
+      }
+    }
 
     for (const row of validRows) {
       try {
         await criarCotacao({
+          ...(idBid ? { id_bid_bid_frete_internacional: idBid } : {}),
           tipo_operacao_cotacao_bid_frete_internacional: row.tipo_operacao_cotacao_bid_frete_internacional.trim().toUpperCase() as TipoOperacao,
           modal_cotacao_bid_frete_internacional: row.modal_cotacao_bid_frete_internacional.trim().toUpperCase() as ModalFrete,
           origem_codigo_cotacao_bid_frete_internacional: row.origem_codigo_cotacao_bid_frete_internacional.trim(),
@@ -277,15 +300,21 @@ export default function ImportarBloco() {
       }
     }
 
-    setResult({ criadas, erros, detalhes })
+    setResult({
+      criadas,
+      erros,
+      detalhes,
+      ...(numeroBid ? { numero_bid_bid_frete_internacional: numeroBid } : {}),
+    })
     setPhase('done')
-  }, [rows])
+  }, [contextoBid, referenciaBid, rows, t])
 
   const handleReset = useCallback(() => {
     setPhase('upload')
     setFileName('')
     setRows([])
     setResult(null)
+    setReferenciaBid('')
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
 
@@ -556,6 +585,29 @@ export default function ImportarBloco() {
           {/* ─── Phase: Upload ──────────────────────────────────────────── */}
           {phase === 'upload' && (
             <>
+              {contextoBid && (
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                  <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-primary, #f1f5f9)' }}>
+                    {t('bidfrete.novo_bid.referencia')}
+                  </span>
+                  <input
+                    type="text"
+                    value={referenciaBid}
+                    onChange={e => setReferenciaBid(e.target.value)}
+                    placeholder={t('bidfrete.novo_bid.referencia_placeholder')}
+                    style={{
+                      width: '100%',
+                      padding: '0.625rem 0.75rem',
+                      borderRadius: '0.5rem',
+                      border: '1px solid var(--border-subtle, #475569)',
+                      background: 'var(--bg-elevated, #1e293b)',
+                      color: 'var(--text-primary, #f1f5f9)',
+                      font: 'inherit',
+                    }}
+                  />
+                </label>
+              )}
+
               {/* Drop zone */}
               <div
                 className={`importar-bloco-dropzone${dragOver ? ' drag-over' : ''}`}
@@ -755,7 +807,9 @@ export default function ImportarBloco() {
                   fontWeight: 700,
                   color: 'var(--text-primary, #f1f5f9)',
                 }}>
-                  {t('bidfrete.importar.concluida')}
+                  {result.numero_bid_bid_frete_internacional
+                    ? t('bidfrete.importar.concluida_bid', { numero: result.numero_bid_bid_frete_internacional })
+                    : t('bidfrete.importar.concluida')}
                 </p>
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
                   <span

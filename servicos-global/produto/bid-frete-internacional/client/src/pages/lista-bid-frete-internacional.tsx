@@ -26,11 +26,14 @@ import type { GTPreferencias, GTColuna, GTAbaTipo, GTVirtualHandle } from '@nucl
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   FileText,
-  Truck,
+  Globe,
   Eye,
   ListBullets,
   Kanban,
-  Upload,
+  UploadSimple,
+  PencilSimple,
+  ArrowsLeftRight,
+  Sparkle,
   ArrowCounterClockwise,
   Warning,
   Package,
@@ -975,7 +978,7 @@ export default function Cotacoes() {
 
   const novoDropdownRef = useRef<HTMLDivElement>(null)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
-  const [novoSubmenu, setNovoSubmenu] = useState<'painel' | 'buscar-frete' | null>(null)
+  const [novoSubmenu, setNovoSubmenu] = useState<'painel' | 'buscar-frete' | 'bid' | null>(null)
   const [novoNomePainelLista, setNovoNomePainelLista] = useState('')
   const [modalNovoBidAberto, setModalNovoBidAberto] = useState(false)
 
@@ -1035,16 +1038,16 @@ export default function Cotacoes() {
           <div
             style={{ position: 'relative' }}
             onMouseEnter={() => setNovoSubmenu('buscar-frete')}
-            onMouseLeave={() => setNovoSubmenu(prev => (prev === 'buscar-frete' ? null : prev))}
+            onMouseLeave={() => setNovoSubmenu(null)}
           >
             <button
               type="button"
               className="lp-dropdown-btn"
-              style={{ width: '100%', background: novoSubmenu === 'buscar-frete' ? 'var(--bg-hover)' : undefined }}
-              onClick={() => setNovoSubmenu(prev => (prev === 'buscar-frete' ? null : 'buscar-frete'))}
+              style={{ width: '100%', background: (novoSubmenu === 'buscar-frete' || novoSubmenu === 'bid') ? 'var(--bg-hover)' : undefined }}
+              onClick={() => setNovoSubmenu(prev => (prev === 'buscar-frete' || prev === 'bid' ? null : 'buscar-frete'))}
             >
               <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
-                <Truck size={16} weight="duotone" />
+                <Globe size={16} weight="duotone" />
               </span>
               <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left', flex: 1 }}>
                 <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.buscarFrete')}</span>
@@ -1053,13 +1056,13 @@ export default function Cotacoes() {
               <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, alignSelf: 'center' }} />
             </button>
 
-            {novoSubmenu === 'buscar-frete' && (
-              <div style={{
-                position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
-                background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
-                borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
-                minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
-              }}>
+            {(novoSubmenu === 'buscar-frete' || novoSubmenu === 'bid') && (
+              <div style={{ position: 'absolute', left: '100%', top: 0, paddingLeft: '8px', zIndex: 301 }}>
+                <div style={{
+                  background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                  borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                  minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+                }}>
                 <button
                   type="button"
                   className="lp-dropdown-btn"
@@ -1070,7 +1073,7 @@ export default function Cotacoes() {
                   }}
                 >
                   <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
-                    <Truck size={16} weight="duotone" />
+                    <FileText size={16} weight="duotone" />
                   </span>
                   <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
                     <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.cotacaoAvulsa')}</span>
@@ -1078,43 +1081,111 @@ export default function Cotacoes() {
                   </span>
                 </button>
 
-                <button
-                  type="button"
-                  className="lp-dropdown-btn"
-                  onClick={() => {
-                    setModalNovoBidAberto(true)
-                    setNovoDropdownAberto(false)
-                    setNovoSubmenu(null)
-                  }}
+                <div
+                  style={{ position: 'relative' }}
+                  onMouseEnter={() => setNovoSubmenu('bid')}
+                  onMouseLeave={() => setNovoSubmenu('buscar-frete')}
                 >
-                  <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
-                    <Stack size={16} weight="duotone" />
-                  </span>
-                  <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.bid')}</span>
-                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.bidDesc')}</span>
-                  </span>
-                </button>
+                  <button
+                    type="button"
+                    className="lp-dropdown-btn"
+                    style={{ width: '100%', background: novoSubmenu === 'bid' ? 'var(--bg-hover)' : undefined }}
+                  >
+                    <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                      <Stack size={16} weight="duotone" />
+                    </span>
+                    <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left', flex: 1 }}>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.bid')}</span>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.bidDesc')}</span>
+                    </span>
+                    <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, alignSelf: 'center' }} />
+                  </button>
+
+                  {novoSubmenu === 'bid' && (
+                    <div style={{ position: 'absolute', left: '100%', top: 0, paddingLeft: '8px', zIndex: 302 }}>
+                      <div style={{
+                        background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                        borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                        minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+                      }}>
+                      {([
+                        {
+                          icon: 'upload' as const,
+                          label: t('bidfrete.novo_bid.importacao'),
+                          desc: t('bidfrete.novo_bid.importacao_desc'),
+                          action: () => {
+                            navigate('/bid-frete/cotacoes/importar?contexto=bid')
+                            setNovoDropdownAberto(false)
+                            setNovoSubmenu(null)
+                          },
+                        },
+                        {
+                          icon: 'api' as const,
+                          label: t('bidfrete.novo_bid.api'),
+                          desc: t('bidfrete.novo_bid.api_desc'),
+                          badge: t('comum.em_breve'),
+                          disabled: true,
+                        },
+                        {
+                          icon: 'sparkle' as const,
+                          label: t('bidfrete.novo_bid.smart_read'),
+                          desc: t('bidfrete.novo_bid.smart_read_desc'),
+                          badge: t('comum.em_breve'),
+                          disabled: true,
+                        },
+                        {
+                          icon: 'pencil' as const,
+                          label: t('bidfrete.novo_bid.manual'),
+                          desc: t('bidfrete.novo_bid.manual_desc'),
+                          action: () => {
+                            setModalNovoBidAberto(true)
+                            setNovoDropdownAberto(false)
+                            setNovoSubmenu(null)
+                          },
+                        },
+                      ] as {
+                        icon: 'upload' | 'api' | 'sparkle' | 'pencil'
+                        label: string
+                        desc: string
+                        badge?: string
+                        disabled?: boolean
+                        action?: () => void
+                      }[]).map(item => (
+                        <button
+                          key={item.label}
+                          type="button"
+                          className="lp-dropdown-btn"
+                          disabled={item.disabled}
+                          style={item.disabled ? { opacity: 0.55, cursor: 'not-allowed' } : undefined}
+                          onClick={item.disabled ? undefined : item.action}
+                        >
+                          <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                            {item.icon === 'pencil' && <PencilSimple size={16} weight="duotone" />}
+                            {item.icon === 'sparkle' && <Sparkle size={16} weight="duotone" />}
+                            {item.icon === 'upload' && <UploadSimple size={16} weight="duotone" />}
+                            {item.icon === 'api' && <ArrowsLeftRight size={16} weight="duotone" />}
+                          </span>
+                          <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                              {item.label}
+                              {item.badge && (
+                                <span style={{ fontSize: '0.625rem', fontWeight: 600, padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                                  {item.badge}
+                                </span>
+                              )}
+                            </span>
+                            <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{item.desc}</span>
+                          </span>
+                        </button>
+                      ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                </div>
               </div>
             )}
           </div>
-
-          <button
-            type="button"
-            className="lp-dropdown-btn"
-            onClick={() => {
-              navigate('/bid-frete/cotacoes/importar')
-              setNovoDropdownAberto(false)
-            }}
-          >
-            <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
-              <Upload size={16} weight="duotone" />
-            </span>
-            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.importarPlanilha')}</span>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.subirPlanilha')}</span>
-            </span>
-          </button>
 
           <div style={{ height: 1, margin: '0.25rem 0.375rem', background: 'var(--border-subtle)' }} />
 
@@ -1140,13 +1211,13 @@ export default function Cotacoes() {
             </button>
 
             {novoSubmenu === 'painel' && (
-              <form
-                style={{
-                  position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
-                  background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
-                  borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
-                  minWidth: '220px', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.375rem',
-                }}
+              <div style={{ position: 'absolute', left: '100%', top: 0, paddingLeft: '8px', zIndex: 301 }}>
+                <form
+                  style={{
+                    background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                    borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                    minWidth: '220px', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.375rem',
+                  }}
                 onSubmit={e => {
                   e.preventDefault()
                   const nome = novoNomePainelLista.trim()
@@ -1199,6 +1270,7 @@ export default function Cotacoes() {
                   {t('bid_frete_internacional.lista.painel_criar', { defaultValue: 'Criar' })}
                 </button>
               </form>
+              </div>
             )}
           </div>
         </div>

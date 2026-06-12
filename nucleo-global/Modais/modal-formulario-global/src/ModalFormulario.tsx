@@ -105,7 +105,10 @@ export function ModalFormulario({
 
           <div className="botoes-footer-padrao">
             {!rodapeEsquerdo && (
-              <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
+              <StatusSalvarGlobal
+                status={carregando ? 'saving' : dirty ? 'dirty' : 'idle'}
+                hideOnIdle={!carregando}
+              />
             )}
             <BotaoCancelar
               dirty={dirty}

@@ -515,6 +515,7 @@ export function ModalEditarFornecedor({ fornecedor, idOrganizacao, aoFechar, aoS
       aberto={true}
       aoFechar={aoFechar}
       aoSalvar={handleSalvar}
+      carregando={enviando}
       icone={<Buildings size={20} weight="duotone" />}
       titulo={modoEdicao ? 'Editar Fornecedor' : 'Novo Fornecedor'}
       subtitulo={

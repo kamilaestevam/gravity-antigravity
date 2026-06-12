@@ -1,8 +1,8 @@
 # Modal Nova Cotação — BID Frete Internacional (Técnico)
 
-> **Status:** Implementado (passo Fornecedores completo em prod — 2026-06-12)  
-> **PRs:** #284, #288, #290  
-> **QA:** Aprovado (testes automatizados adiados — plano da tela virá no pipeline multi-agente)
+> **Status:** Implementado (passo Fornecedores — WIP UX pós-#302)  
+> **PRs:** #284, #288, #290, #302  
+> **QA:** Doc atualizada; testes automatizados no fechamento da tela
 
 ---
 
@@ -46,7 +46,7 @@
 | Valor DDD | Label UI | Comportamento de disparo |
 |-----------|----------|--------------------------|
 | `DIRECIONADA` | Direcionada — Escolher fornecedores | Apenas `fornecedor_ids` selecionados recebem disparo |
-| `ABERTA` | Aberta — Todos os fornecedores | Motor dispara para elegíveis (ativos + `aceita_cotacao_aberta_fornecedor_bid_frete_internacional`) |
+| `ABERTA` | Aberta — Todos os fornecedores | Elegíveis (ativos + aceita aberta); UI pode excluir; POST envia subset em `fornecedor_ids` |
 
 Campo: `visibilidade_cotacao_bid_frete_internacional`  
 Toggle anônima: `anonima_cotacao_bid_frete_internacional`
@@ -70,9 +70,13 @@ getFornecedores({ limit: 200, status: 'ATIVO' })
 
 Motivo: alimentar preview (Aberta) e lista de checkboxes (Direcionada).
 
+**Loading:** enquanto `carregando === true`, `GravityLoader` (`CarregandoFornecedoresDisparo`) abaixo dos canais — Aberta e Direcionada.
+
 ---
 
 ## 4. Componente `SelecaoFornecedoresDisparo`
+
+**Helpers exportados:** `fornecedoresElegiveisCotacaoAberta`, `idsFornecedoresDisparoCotacaoAberta`.
 
 **Props:**
 
@@ -84,38 +88,26 @@ Motivo: alimentar preview (Aberta) e lista de checkboxes (Direcionada).
 | `selecionados` | `string[]` | IDs selecionados (Direcionada) |
 | `onChangeSelecionados` | `(ids: string[]) => void` | Callback seleção |
 | `canais` / `onChangeCanais` | `CanalDisparo[]` | Canais de envio |
+| `excluidosDisparo` | `string[]` | IDs removidos manualmente (Aberta) |
+| `onExcluirFornecedorDisparo` | `(id) => void` | Excluir do disparo (Aberta) |
 
 ### 4.1 Visibilidade **DIRECIONADA**
 
-1. Link **Selecionar todos** / **Desmarcar todos** (`.bf-disparo-selecionar-todos`)
-   - Estilo alinhado ao modal Admin *Rodar Testes*: roxo `#a78bfa`, `0.625rem`, peso 600
-   - Marca/desmarca todos os `id_fornecedor_bid_frete_internacional` da lista
-2. Lista scrollável (max-height 280px) — checkbox + nome + e-mail por fornecedor
-3. **`BarrasNotasFornecedores`** abaixo da lista — toggle *Ver fornecedores e notas*
+1. Link **Selecionar todos** / **Desmarcar todos**
+2. Lista — checkbox + nome + **meta** (`tipo` ou `tipo · nota/5`) — não exibe e-mail sintético Cadastros
+3. **`BarrasNotasFornecedores`** com barras horizontais de nota
 
 ### 4.2 Visibilidade **ABERTA**
 
-Renderiza `PreviewFornecedoresElegiveis`:
+1. Cards preview (elegíveis − excluídos)
+2. Aviso se zero elegíveis ou `todos_excluidos`
+3. **`BarrasNotasFornecedores`:** nome + meta + lixeira Admin (`Trash` bold 16px, botão 28×28); sem barras horizontais
 
-1. Cards de preview:
-   - Total de **fornecedores elegíveis** (ativos + aceitam cotação aberta)
-   - Contagem por `tipo_fornecedor_bid_frete_internacional` (`TIPO_FORNECEDOR_LABELS`)
-2. Aviso ruidoso se `elegiveis.length === 0` — disparo não terá destinatários
-3. **`BarrasNotasFornecedores`** com conjunto filtrado (elegíveis only)
+Estado pai: `fornecedorIdsExcluidosDisparo` — reset ao trocar visibilidade.
 
 ### 4.3 `BarrasNotasFornecedores` (compartilhado)
 
-Toggle expandível reutilizado em Aberta e Direcionada:
-
-| Estado | Label i18n (default) |
-|--------|---------------------|
-| Fechado | `bidfrete.disparo.ver_notas` → **Ver fornecedores e notas** |
-| Aberto | `bidfrete.disparo.ocultar_notas` → **Ocultar fornecedores e notas** |
-
-- Ordenação: `nota_global_classificacao_bid_frete_internacional` decrescente
-- Barra: escala 0–5 (`width: (nota/5)*100%`)
-- `nota == null` → exibe `—` e barra vazia (comportamento esperado em seed sem classificação)
-- **Direcionada:** exibe notas de **todos** os fornecedores ativos da lista (não só selecionados) — apoia decisão de seleção
+Toggle *Ver/Ocultar fornecedores e notas*. Direcionada: barras 0–5 para todos ativos. Aberta com excluir: meta + lixeira.
 
 ---
 
@@ -141,8 +133,8 @@ export async function criarCotacaoComDisparo(input): Promise<{
   visibilidade_cotacao_bid_frete_internacional: 'ABERTA' | 'DIRECIONADA',
   anonima_cotacao_bid_frete_internacional: boolean,
   data_limite_resposta_cotacao_bid_frete_internacional?: string, // ISO
-  fornecedor_ids?: string[],           // só DIRECIONADA
-  disparar_ao_criar: boolean,
+  fornecedor_ids?: string[],           // DIRECIONADA: selecionados; ABERTA: elegíveis − excluídos UI
+  disparar_ao_criar: boolean,          // ABERTA: true se ids elegíveis restantes > 0
   canais_disparo: ('EMAIL' | 'WHATSAPP')[],
 }
 ```
@@ -164,6 +156,8 @@ Se `disparar_ao_criar` era intencional e:
 
 Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internacional.ts`.
 
+**ABERTA com `fornecedor_ids`:** `filtrarIdsFornecedoresElegiveisCotacaoAberta` no POST antes de `motorBid.disparar`. Sem `fornecedor_ids` → `dispararCotacaoAberta`.
+
 ---
 
 ## 6. Chaves i18n (defaults inline — pendente `pt.json`)
@@ -180,6 +174,9 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 | `bidfrete.disparo.total_elegiveis` | Fornecedores elegíveis |
 | `bidfrete.disparo.sem_elegiveis` | Nenhum fornecedor ativo aceita cotação aberta — o disparo não terá destinatários. |
 | `bidfrete.disparo.sem_fornecedores` | Nenhum fornecedor ativo cadastrado. |
+| `bidfrete.disparo.carregando_fornecedores` | Carregando fornecedores… |
+| `bidfrete.disparo.todos_excluidos` | Todos os fornecedores elegíveis foram excluídos… |
+| `bidfrete.disparo.excluir_fornecedor` | Excluir do disparo |
 
 ---
 
@@ -190,6 +187,7 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 | #284 | 2026-06-10 | Preview Aberta (cards + barras), calendário global no prazo, `criarCotacaoComDisparo`, feedback ruidoso disparo |
 | #288 | 2026-06-11 | Selecionar/Desmarcar todos (Direcionada), rótulo *Ver fornecedores e notas* |
 | #290 | 2026-06-12 | `BarrasNotasFornecedores` também na Direcionada (abaixo da lista) |
+| #302 | 2026-06-12 | GravityLoader, meta tipo/nota, excluir Aberta, POST subset + filtro server-side |
 
 ---
 
@@ -200,7 +198,7 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 | Zod parse na lista `getFornecedores` | Mandamento 06 |
 | Chaves i18n em `nucleo-global/Utilidades/Localization/locales/pt.json` | `skills/arquitetura/traducao` |
 | `aria-expanded` / `aria-controls` no toggle de notas | `skills/ux/acessibilidade` |
-| Plano de testes UNI/FUN/E2E da tela Nova Cotação | `skills/testes/multi-agente-plano-teste` |
+| Plano de testes UNI/FUN/E2E da tela Nova Cotação | Fechamento da tela — `skills/testes/multi-agente-plano-teste` |
 
 ---
 

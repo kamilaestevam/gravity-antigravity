@@ -122,6 +122,27 @@ function resolverIdWorkspace(req: Request): string | undefined {
   return id || undefined
 }
 
+/** Cotação aberta: intersect payload com fornecedores elegíveis (ATIVO + aceita aberta). */
+async function filtrarIdsFornecedoresElegiveisCotacaoAberta(
+  prisma: NonNullable<Request['prisma']>,
+  fornecedor_ids: string[],
+): Promise<string[]> {
+  const rows = await (prisma as {
+    fornecedorBidFreteInternacional: {
+      findMany: (args: unknown) => Promise<Array<{ id_fornecedor_bid_frete_internacional: string }>>
+    }
+  }).fornecedorBidFreteInternacional.findMany({
+    where: {
+      id_produto_gravity: 'bid-frete-internacional',
+      id_fornecedor_bid_frete_internacional: { in: fornecedor_ids },
+      status_fornecedor_bid_frete_internacional: 'ATIVO',
+      aceita_cotacao_aberta_fornecedor_bid_frete_internacional: true,
+    },
+    select: { id_fornecedor_bid_frete_internacional: true },
+  })
+  return rows.map(r => r.id_fornecedor_bid_frete_internacional)
+}
+
 // --- POST / — Criar cotacao ---
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -170,10 +191,11 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       try {
         if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
           if (fornecedor_ids !== undefined) {
-            if (fornecedor_ids.length > 0) {
+            const idsElegiveis = await filtrarIdsFornecedoresElegiveisCotacaoAberta(req.prisma!, fornecedor_ids)
+            if (idsElegiveis.length > 0) {
               disparo = await motorBid.disparar(req.prisma!, {
                 id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-                fornecedor_ids,
+                fornecedor_ids: idsElegiveis,
                 canais,
                 id_usuario: userId,
                 id_organizacao: tenantId,

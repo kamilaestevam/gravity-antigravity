@@ -12,6 +12,7 @@
 | Documento | Conteúdo |
 |-----------|----------|
 | [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) | Wizard Nova Cotação (5 passos), passo Fornecedores, disparo, preview e seleção |
+| [CATALOGO-AEROPORTOS-CADASTROS.md](./CATALOGO-AEROPORTOS-CADASTROS.md) | Cache aeroportos Cadastros (#302) — limites, proxy, consumidores |
 | [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) | Entidade BID opcional, hierarquia, FKs, snapshots, API CRUD |
 | [LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md](./LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md) | Lista: expandir/recolher, seleção, duplicar e excluir em lote (API + UX) |
 | [PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md](./PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) | Painéis persistidos da lista de cotações |
@@ -44,6 +45,7 @@
 | #289 | Lista: expandir/recolher, seleção, duplicar e excluir em lote |
 | #294 | Lista: botões Duplicar/Excluir só ícone (paridade Pedido) |
 | #300 | Modal excluir: layout paridade `ModalPedidosExcluir` (Solid Slate) |
+| #302 | Passo 4 WIP: loader, meta tipo/nota, excluir Aberta, catálogo aeroportos, filtro elegíveis POST |
 | #301 | Modal excluir: anti-flicker (preview 1× ao montar, montagem condicional no pai) |
 
 ## Entregas recentes (2026-05)

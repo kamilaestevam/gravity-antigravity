@@ -1221,25 +1221,33 @@ export const adminMetricasLlmApi = {
 
 // ─── Admin: Platform Config (Visão Geral) ───────────────────────────────────
 
-export interface PlatformConfigApi {
-  id: string
-  nome_organizacao: string
-  subdominio_organizacao: string
-  cnpj_organizacao: string | null
-  estado_organizacao: string | null
-  cidade_organizacao: string | null
-  segmento_organizacao: string | null
-  tipo_organizacao: string | null
+// Contrato Zod do GET/PUT /v1/admin/visao-geral (Mand. 06/09 — o schema É o
+// contrato). Convertido de interface TS no code-review do PR #303 ([suggestion]
+// aprovada pelo dono); o restante do api-client segue em interfaces — refactor
+// incremental, payload a payload, começando pelos tocados. z.object em modo
+// strip: campos extras aditivos do backend são ignorados sem quebrar; campos
+// conhecidos são validados de verdade (parse falha ruidoso em divergência).
+export const platformConfigApiSchema = z.object({
+  id: z.string(),
+  nome_organizacao: z.string(),
+  subdominio_organizacao: z.string(),
+  cnpj_organizacao: z.string().nullable(),
+  estado_organizacao: z.string().nullable(),
+  cidade_organizacao: z.string().nullable(),
+  segmento_organizacao: z.string().nullable(),
+  tipo_organizacao: z.string().nullable(),
   /** SUID da Empresa no Cadastros vinculada à org HQ (ex: BR-GRAVITY-00001).
-   *  null = onboarding de Empresa incompleto. Card HQ Owner da Visão Geral —
-   *  decisão dono 2026-06-12 (Mand. 09: contrato junto com o select). */
-  suid_empresa_organizacao?: string | null
-  data_criacao_organizacao: string
-}
+   *  null/ausente = onboarding de Empresa incompleto. Card HQ Owner da Visão
+   *  Geral — decisão dono 2026-06-12. */
+  suid_empresa_organizacao: z.string().nullable().optional(),
+  data_criacao_organizacao: z.union([z.string(), z.date()]),
+})
+export type PlatformConfigApi = z.infer<typeof platformConfigApiSchema>
 
 export const adminPlatformApi = {
   async getConfig() {
-    return request<{ config: PlatformConfigApi | null }>('/v1/admin/visao-geral')
+    const raw = await request<{ config: unknown | null }>('/v1/admin/visao-geral')
+    return { config: raw.config ? platformConfigApiSchema.parse(raw.config) : null }
   },
 
   async updateConfig(data: {
@@ -1250,10 +1258,11 @@ export const adminPlatformApi = {
     segmento_organizacao?: string
     tipo_organizacao?: string
   }) {
-    return request<{ config: PlatformConfigApi }>('/v1/admin/visao-geral', {
+    const raw = await request<{ config: unknown }>('/v1/admin/visao-geral', {
       method: 'PUT',
       body: JSON.stringify(data),
     })
+    return { config: platformConfigApiSchema.parse(raw.config) }
   },
 }
 

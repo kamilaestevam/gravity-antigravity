@@ -37,6 +37,7 @@ import {
 } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { CelulaIdCopiavel } from '../../shared/CelulaIdCopiavel'
 import {
   listaFornecedoresSchema,
   fornecedorSchema,
@@ -383,17 +384,7 @@ export function Fornecedores() {
       tooltipTitulo: 'ID do Fornecedor (SUID)',
       tooltipDescricao: 'Chave técnica no Cadastros. Clique para copiar.',
       render: (_, item) => (
-        <span
-          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
-          title="Clique para copiar"
-          onClick={ev => {
-            ev.stopPropagation()
-            void navigator.clipboard.writeText(item.id_fornecedor)
-            addNotification({ type: 'success', message: 'ID do fornecedor copiado.' })
-          }}
-        >
-          {item.id_fornecedor}
-        </span>
+        <CelulaIdCopiavel valor={item.id_fornecedor} mensagemCopiado="ID do fornecedor copiado." />
       ),
     },
     {

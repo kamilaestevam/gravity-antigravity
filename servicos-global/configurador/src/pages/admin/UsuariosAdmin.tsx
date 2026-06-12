@@ -15,6 +15,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { CelulaIdCopiavel } from '../../shared/CelulaIdCopiavel'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import {
@@ -556,21 +557,15 @@ export function UsuariosAdmin() {
     {
       // Decisão dono 2026-06-12 — IDs técnicos visíveis na UI (diagnóstico sem SQL),
       // mesmo padrão das colunas ID do Admin > Organizações (PR #303).
-      key: 'id_usuario', label: 'ID Usuário', tipo: 'texto',
-      tooltipTitulo: 'ID do Usuário',
-      tooltipDescricao: 'Chave técnica do usuário (Configurador). Clique para copiar.',
+      key: 'id_usuario', label: t('admin.usuarios-globais.tabela.id_usuario'), tipo: 'texto',
+      tooltipTitulo: t('admin.usuarios-globais.tabela.id_usuario_tooltip'),
+      tooltipDescricao: t('admin.usuarios-globais.tabela.id_usuario_desc'),
       render: (_, item) => (
-        <span
-          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
-          title="Clique para copiar"
-          onClick={ev => {
-            ev.stopPropagation()
-            void navigator.clipboard.writeText(item.id_usuario)
-            addNotification({ type: 'success', message: 'ID do usuário copiado.' })
-          }}
-        >
-          {item.id_usuario}
-        </span>
+        <CelulaIdCopiavel
+          valor={item.id_usuario}
+          mensagemCopiado={t('admin.usuarios-globais.tabela.id_usuario_copiado')}
+          titulo={t('tabela.id_clique_copiar')}
+        />
       )
     },
     {

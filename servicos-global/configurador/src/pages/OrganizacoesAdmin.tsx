@@ -18,6 +18,7 @@ import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { CelulaIdCopiavel } from '../shared/CelulaIdCopiavel'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalNovaOrganizacao'
@@ -281,17 +282,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       tooltipTitulo: 'ID da Organização',
       tooltipDescricao: 'Chave técnica da organização (Configurador). Clique para copiar.',
       render: (_v, item) => (
-        <span
-          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
-          title="Clique para copiar"
-          onClick={ev => {
-            ev.stopPropagation()
-            void navigator.clipboard.writeText(item.id_organizacao)
-            addNotification({ type: 'success', message: 'ID da organização copiado.' })
-          }}
-        >
-          {item.id_organizacao}
-        </span>
+        <CelulaIdCopiavel valor={item.id_organizacao} mensagemCopiado="ID da organização copiado." />
       )
     },
     {
@@ -299,17 +290,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       tooltipTitulo: 'ID da Empresa (Cadastros)',
       tooltipDescricao: 'SUID da Empresa vinculada à org. Vazio = onboarding incompleto. Clique copia.',
       render: (_v, item) => item.suid_empresa_organizacao ? (
-        <span
-          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
-          title="Clique para copiar"
-          onClick={ev => {
-            ev.stopPropagation()
-            void navigator.clipboard.writeText(item.suid_empresa_organizacao ?? '')
-            addNotification({ type: 'success', message: 'ID da empresa copiado.' })
-          }}
-        >
-          {item.suid_empresa_organizacao}
-        </span>
+        <CelulaIdCopiavel valor={item.suid_empresa_organizacao} mensagemCopiado="ID da empresa copiado." />
       ) : (
         // Mand. 08 — ausência é informação: org sem Empresa no Cadastros
         // (onboarding incompleto) causa "Não foi possível carregar a empresa"

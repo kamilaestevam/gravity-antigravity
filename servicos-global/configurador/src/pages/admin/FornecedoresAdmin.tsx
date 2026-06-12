@@ -29,7 +29,8 @@ import {
   type FornecedorAdmin,
   type UsuarioVinculadoFornecedorAdmin,
 } from '@cadastros/shared/schemas'
-import { buscarOrganizacoesAdmin, useShellStore } from '@gravity/shell'
+import { buscarOrganizacoesAdmin } from '@gravity/shell'
+import { CelulaIdCopiavel } from '../../shared/CelulaIdCopiavel'
 import { ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO } from '../../../shared/tipo-fornecedor-organizacao.js'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
@@ -75,7 +76,6 @@ function chaveCacheUsuarios(idFornecedor: string): string {
 export function FornecedoresAdmin(): JSX.Element {
   const { getToken } = useAuth()
   const navigate = useNavigate()
-  const addNotification = useShellStore((state) => state.addNotification)
 
   const [fornecedores, setFornecedores] = useState<FornecedorAdmin[]>([])
   const [carregando, setCarregando] = useState(false)
@@ -203,17 +203,7 @@ export function FornecedoresAdmin(): JSX.Element {
       label: 'ID Fornecedor',
       tipo:  'texto',
       render: (_, linha) => (
-        <span
-          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
-          title="Clique para copiar"
-          onClick={ev => {
-            ev.stopPropagation()
-            void navigator.clipboard.writeText(linha.id_fornecedor)
-            addNotification({ type: 'success', message: 'ID do fornecedor copiado.' })
-          }}
-        >
-          {linha.id_fornecedor}
-        </span>
+        <CelulaIdCopiavel valor={linha.id_fornecedor} mensagemCopiado="ID do fornecedor copiado." />
       ),
     },
     { key: 'nome_fornecedor', label: 'Fornecedor', tipo: 'texto' },
@@ -261,7 +251,7 @@ export function FornecedoresAdmin(): JSX.Element {
         </span>
       ),
     },
-  ], [navigate, addNotification])
+  ], [navigate])
 
   const colunasUsuariosVinculados: TabelaGlobalColuna<UsuarioVinculadoFornecedorAdmin>[] = useMemo(() => [
     {

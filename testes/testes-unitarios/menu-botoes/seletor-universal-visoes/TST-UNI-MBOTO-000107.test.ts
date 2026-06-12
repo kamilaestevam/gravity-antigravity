@@ -1,10 +1,10 @@
 /**
- * TST-UNI-MBOTO-000006 — helper SLA 1s (assertSla1s / SLA_MS)
+ * TST-UNI-MBOTO-000107 — helper SLA 1s (assertSla1s / SLA_MS)
  */
 import { describe, expect, it } from 'vitest'
 import { SLA_MS, assertSla1s, CICLO_ABAS_4, CICLO_ABAS_PROCESSO } from '../../../testes-e2e/menu-botoes/seletor-universal-visoes/helpers/sla-1s-core.js'
 
-describe('TST-UNI-MBOTO-000006 — SLA 1s helper', () => {
+describe('TST-UNI-MBOTO-000107 — SLA 1s helper', () => {
   it('SLA_MS é 1000', () => {
     expect(SLA_MS).toBe(1000)
   })

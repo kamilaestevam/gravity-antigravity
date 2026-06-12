@@ -2,6 +2,7 @@
  * Catálogos Cadastros para edição inline na lista BID Frete — paridade com Pedido (useLogisticaCadastrosPedido).
  */
 import { useEffect, useMemo, useState } from 'react'
+import { carregarCatalogoAeroportosCadastros } from '@nucleo/catalogo-aeroportos-cadastros'
 import {
   cadastrosApi,
   rotuloContainerCadastro,
@@ -81,16 +82,16 @@ export function useCadastrosListaBidFrete(): UseCadastrosListaBidFreteResult {
       setLoading(true)
       setErro(null)
       try {
-        const [paisesResp, portosResp, aeroportosResp, containersResp] = await Promise.all([
+        const [paisesResp, portosResp, aeroportosItens, containersResp] = await Promise.all([
           cadastrosApi.listarPaises(),
           cadastrosApi.listarPortos({ limit: 500 }),
-          cadastrosApi.listarAeroportos({ limit: 500 }),
+          carregarCatalogoAeroportosCadastros((p) => cadastrosApi.listarAeroportos(p)),
           cadastrosApi.listarContainers({ limit: 500 }),
         ])
         if (cancelado) return
         setPaises(paisesResp.itens)
         setPortos(portosResp.itens)
-        setAeroportos(aeroportosResp.itens)
+        setAeroportos(aeroportosItens)
         setContainers(containersResp.itens)
       } catch (err) {
         if (cancelado) return

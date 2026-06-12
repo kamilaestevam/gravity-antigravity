@@ -522,7 +522,7 @@ Detalhes operacionais: [`testes/infra/admin/README.md`](../../../testes/infra/ad
 - Cards de passos (7d / 30d) e erros
 - Abas **Em Execução**, **Executados** e **Plano de Teste**
   - Em Execução / Executados: colunas DATA/HORA, TIPO, LOCAL, O QUE FOI TESTADO, PASSOS, RESULTADO, DURAÇÃO
-  - Plano de Teste: lista todo o registry (`GET /admin/planos-teste`) com colunas ID, ESCOPO, TELA, DATA, PASSOS, COBERTURA, STATUS; clique na linha abre `ModalDetalhePlanoTeste`
+  - Plano de Teste: lista todo o registry (`GET /admin/planos-teste`) com colunas ID, ESCOPO, TELA, DATA, PASSOS, COBERTURA, STATUS; clique na linha abre `ModalDetalhePlanoTeste` — **layout Objetivo / O que será testado / Script:** ver [`tecnico/06-frontend-admin-testes.md`](06-frontend-admin-testes.md)
 - Coluna de data escalável: as **3 datas mais recentes** aparecem por extenso e as demais ficam compactas (só a data) com ícone de visualizar + tooltip com data/hora completa — vale para Executados (`dataHora`) e Plano de Teste (`criadoEm`)
 - Botão **Rodar** abre modal mesmo com runs ativos (bloqueia só no limite global)
 - Polling `GET /admin/testes/status` enquanto há execuções ativas; toast ao concluir

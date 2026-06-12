@@ -41,7 +41,7 @@ import {
   type LinhaContainerCotacao,
 } from '../shared/containers-cotacao-bid-frete-internacional'
 import { useAeroportosPorPais, useContainersCadastros, usePaisesCadastros, usePortosPorPais } from '../shared/useCadastrosLogistica'
-import { SelecaoFornecedoresDisparo } from './selecao-fornecedores-disparo-bid-frete-internacional'
+import { SelecaoFornecedoresDisparo, idsFornecedoresDisparoCotacaoAberta } from './selecao-fornecedores-disparo-bid-frete-internacional'
 import type {
   TipoOperacao,
   ModalFrete,
@@ -1692,6 +1692,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const [fornecedoresAtivos, setFornecedoresAtivos] = useState<Fornecedor[]>([])
   const [carregandoFornecedores, setCarregandoFornecedores] = useState(false)
   const [fornecedorIdsSelecionados, setFornecedorIdsSelecionados] = useState<string[]>([])
+  const [fornecedorIdsExcluidosDisparo, setFornecedorIdsExcluidosDisparo] = useState<string[]>([])
   const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>([])
   const proximoIdLinhaContainerRef = useRef(2)
 
@@ -1714,6 +1715,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }, [step, form.visibilidade_cotacao_bid_frete_internacional])
 
   useEffect(() => {
+    setFornecedorIdsExcluidosDisparo([])
     if (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
       setFornecedorIdsSelecionados([])
     }
@@ -2013,9 +2015,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             quantidade_volume_cotacao_bid_frete_internacional: form.quantidade_volume_cotacao_bid_frete_internacional,
           }
 
+      const idsDisparoAberta = idsFornecedoresDisparoCotacaoAberta(
+        fornecedoresAtivos,
+        fornecedorIdsExcluidosDisparo,
+      )
+
       const pretendiaDisparar = canaisDisparo.length > 0
         && (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
-          || fornecedorIdsSelecionados.length > 0)
+          ? idsDisparoAberta.length > 0
+          : fornecedorIdsSelecionados.length > 0)
 
       const { cotacao, disparo, disparo_erro } = await criarCotacaoComDisparo({
         tipo_operacao_cotacao_bid_frete_internacional: form.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
@@ -2056,10 +2064,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           ? new Date(form.data_limite_resposta_cotacao_bid_frete_internacional).toISOString()
           : undefined,
         id_bid_bid_frete_internacional: idBid ?? undefined,
-        fornecedor_ids: form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA' ? fornecedorIdsSelecionados : undefined,
+        fornecedor_ids: form.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA'
+          ? fornecedorIdsSelecionados
+          : form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
+            ? idsDisparoAberta
+            : undefined,
         disparar_ao_criar: canaisDisparo.length > 0
           && (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA'
-            || fornecedorIdsSelecionados.length > 0),
+            ? idsDisparoAberta.length > 0
+            : fornecedorIdsSelecionados.length > 0),
         canais_disparo: canaisDisparo,
       })
       // REGRA 08 — disparo automático não pode falhar em silêncio
@@ -2722,6 +2735,12 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 onChangeSelecionados={setFornecedorIdsSelecionados}
                 canais={canaisDisparo}
                 onChangeCanais={setCanaisDisparo}
+                excluidosDisparo={fornecedorIdsExcluidosDisparo}
+                onExcluirFornecedorDisparo={(id) => {
+                  setFornecedorIdsExcluidosDisparo(prev =>
+                    prev.includes(id) ? prev : [...prev, id],
+                  )
+                }}
               />
             </div>
           </div>

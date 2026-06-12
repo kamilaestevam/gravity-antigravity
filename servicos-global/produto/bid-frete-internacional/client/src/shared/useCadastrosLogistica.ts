@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { carregarCatalogoAeroportosCadastros } from '@nucleo/catalogo-aeroportos-cadastros'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import {
   cadastrosApi,
@@ -100,13 +101,12 @@ export function useAeroportosPorPais(codigoPais: string, ativo = true) {
     }
     let cancelado = false
     setCarregando(true)
-    cadastrosApi
-      .listarAeroportos({
-        ...(codigoPais ? { pais: codigoPais } : {}),
-        limit: 500,
-      })
-      .then((resp) => {
-        if (!cancelado) setAeroportos(resp.itens)
+    carregarCatalogoAeroportosCadastros(
+      (p) => cadastrosApi.listarAeroportos(p),
+      codigoPais,
+    )
+      .then((itens) => {
+        if (!cancelado) setAeroportos(itens)
       })
       .catch(() => {
         if (!cancelado) setAeroportos([])

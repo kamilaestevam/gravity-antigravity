@@ -7,6 +7,7 @@
  *   - aeroporto_* → cadastros.aeroporto (codigo_iata_aeroporto ou codigo_unlocode_aeroporto)
  */
 import { useEffect, useMemo, useState } from 'react'
+import { carregarCatalogoAeroportosCadastros } from '@nucleo/catalogo-aeroportos-cadastros'
 import { cadastrosApi, type AeroportoCadastro, type Pais, type PortoCadastro } from './cadastrosApi'
 
 export interface GTOpcaoCadastro {
@@ -68,15 +69,15 @@ export function useLogisticaCadastrosPedido(): UseLogisticaCadastrosPedidoResult
       setLoading(true)
       setErro(null)
       try {
-        const [paisesResp, portosResp, aeroportosResp] = await Promise.all([
+        const [paisesResp, portosResp, aeroportosItens] = await Promise.all([
           cadastrosApi.listarPaises(),
           cadastrosApi.listarPortos({ limit: 500 }),
-          cadastrosApi.listarAeroportos({ limit: 500 }),
+          carregarCatalogoAeroportosCadastros((p) => cadastrosApi.listarAeroportos(p)),
         ])
         if (cancelado) return
         setPaises(paisesResp.itens)
         setPortos(portosResp.itens)
-        setAeroportos(aeroportosResp.itens)
+        setAeroportos(aeroportosItens)
       } catch (err) {
         if (cancelado) return
         const msg = err instanceof Error ? err.message : String(err)

@@ -10,6 +10,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import type { PrismaClient } from '../generated/client/index.js'
 import { AppError } from '../lib/erros.js'
 import { historicoIntegration } from '../services/integracoes-tenant.js'
 import {
@@ -24,6 +25,13 @@ const router = Router()
 const DuplicacoesBidFreteInternacionalSchema = z.object({
   ids: z.array(z.string().min(1)).min(1).max(100),
 })
+
+function prismaCliente(req: Request): PrismaClient {
+  if (!req.prisma) {
+    throw new AppError('Cliente Prisma indisponivel', 500, 'INTERNAL_ERROR')
+  }
+  return req.prisma as PrismaClient
+}
 
 function resolverIdUsuario(req: Request): string {
   const userId = req.headers['x-id-usuario'] as string | undefined
@@ -94,7 +102,7 @@ router.post('/cotacoes/duplicacoes', async (req: Request, res: Response, next: N
     }
     const idUsuario = resolverIdUsuario(req)
 
-    const originais = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
+    const originais = await prismaCliente(req).cotacaoBidFreteInternacional.findMany({
       where: { id_cotacao_bid_frete_internacional: { in: parsed.data.ids } },
     })
     if (originais.length === 0) {
@@ -105,7 +113,7 @@ router.post('/cotacoes/duplicacoes', async (req: Request, res: Response, next: N
     for (const original of originais) {
       // Cotação filha de BID duplica dentro do mesmo BID; avulsa continua avulsa.
       const idBidDestino = (original.id_bid_bid_frete_internacional as string | null) ?? null
-      const copia = await (req.prisma as any).cotacaoBidFreteInternacional.create({
+      const copia = await prismaCliente(req).cotacaoBidFreteInternacional.create({
         data: montarDadosCopiaCotacao(original, idUsuario, idBidDestino),
       })
       duplicadas.push(copia)
@@ -150,7 +158,7 @@ router.post('/bids-frete-internacional/duplicacoes', async (req: Request, res: R
     }
     const idUsuario = resolverIdUsuario(req)
 
-    const originais = await (req.prisma as any).bidFreteInternacional.findMany({
+    const originais = await prismaCliente(req).bidFreteInternacional.findMany({
       where: { id_bid_bid_frete_internacional: { in: parsed.data.ids } },
       include: { cotacoes: true },
     })
@@ -160,7 +168,7 @@ router.post('/bids-frete-internacional/duplicacoes', async (req: Request, res: R
 
     const duplicados: unknown[] = []
     for (const original of originais) {
-      const novoBid = await (req.prisma as any).bidFreteInternacional.create({
+      const novoBid = await prismaCliente(req).bidFreteInternacional.create({
         data: {
           id_produto_gravity: 'bid-frete-internacional',
           id_usuario: idUsuario,
@@ -177,14 +185,14 @@ router.post('/bids-frete-internacional/duplicacoes', async (req: Request, res: R
       })
 
       for (const cotacao of original.cotacoes as Record<string, unknown>[]) {
-        await (req.prisma as any).cotacaoBidFreteInternacional.create({
+        await prismaCliente(req).cotacaoBidFreteInternacional.create({
           data: montarDadosCopiaCotacao(cotacao, idUsuario, novoBid.id_bid_bid_frete_internacional),
         })
       }
 
       await sincronizarResumoBid(req.prisma, novoBid.id_bid_bid_frete_internacional)
 
-      const completo = await (req.prisma as any).bidFreteInternacional.findFirst({
+      const completo = await prismaCliente(req).bidFreteInternacional.findFirst({
         where: { id_bid_bid_frete_internacional: novoBid.id_bid_bid_frete_internacional },
         include: { cotacoes: true },
       })

@@ -169,12 +169,26 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       const canais = canais_disparo.length > 0 ? canais_disparo : ['EMAIL']
       try {
         if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
-          disparo = await motorBid.dispararCotacaoAberta(req.prisma!, {
-            id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
-            canais,
-            id_usuario: userId,
-            id_organizacao: tenantId,
-          })
+          if (fornecedor_ids !== undefined) {
+            if (fornecedor_ids.length > 0) {
+              disparo = await motorBid.disparar(req.prisma!, {
+                id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+                fornecedor_ids,
+                canais,
+                id_usuario: userId,
+                id_organizacao: tenantId,
+              })
+            } else {
+              disparo = { disparos: 0, results: [], message: 'Nenhum fornecedor selecionado para disparo' }
+            }
+          } else {
+            disparo = await motorBid.dispararCotacaoAberta(req.prisma!, {
+              id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+              canais,
+              id_usuario: userId,
+              id_organizacao: tenantId,
+            })
+          }
         } else if (fornecedor_ids && fornecedor_ids.length > 0) {
           disparo = await motorBid.disparar(req.prisma!, {
             id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,

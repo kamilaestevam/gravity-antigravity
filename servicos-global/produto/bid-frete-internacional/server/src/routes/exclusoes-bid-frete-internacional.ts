@@ -13,6 +13,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import type { PrismaClient } from '../generated/client/index.js'
 import { AppError } from '../lib/erros.js'
 import { historicoIntegration } from '../services/integracoes-tenant.js'
 import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
@@ -60,6 +61,19 @@ function resolverTenantId(req: Request): string | undefined {
   return (req as Request & { tenantId?: string }).tenantId
 }
 
+function prismaCliente(req: Request): PrismaClient {
+  if (!req.prisma) {
+    throw new AppError('Cliente Prisma indisponivel', 500, 'INTERNAL_ERROR')
+  }
+  return req.prisma as PrismaClient
+}
+
+function assertTodosIdsEncontrados(ids: string[], encontrados: unknown[]): void {
+  if (encontrados.length !== ids.length) {
+    throw new AppError('Um ou mais registros não encontrados', 404, 'NOT_FOUND')
+  }
+}
+
 function parseIds(req: Request): string[] {
   const parsed = ExclusoesBidFreteInternacionalSchema.safeParse(req.body)
   if (!parsed.success) {
@@ -69,7 +83,7 @@ function parseIds(req: Request): string[] {
 }
 
 async function buscarCotacoesParaExclusao(req: Request, ids: string[]): Promise<CotacaoParaExclusao[]> {
-  return (req.prisma as any).cotacaoBidFreteInternacional.findMany({
+  const cotacoes = await prismaCliente(req).cotacaoBidFreteInternacional.findMany({
     where: { id_cotacao_bid_frete_internacional: { in: ids } },
     select: {
       id_cotacao_bid_frete_internacional: true,
@@ -79,6 +93,8 @@ async function buscarCotacoesParaExclusao(req: Request, ids: string[]): Promise<
       _count: { select: { propostas: true, disparos_cotacao: true } },
     },
   })
+  assertTodosIdsEncontrados(ids, cotacoes)
+  return cotacoes as CotacaoParaExclusao[]
 }
 
 function classificarCotacoes(cotacoes: CotacaoParaExclusao[]): {
@@ -142,7 +158,7 @@ router.post('/cotacoes/exclusoes/confirmar', async (req: Request, res: Response,
     const idsPermitidos = permitidas.map(c => c.id_cotacao_bid_frete_internacional)
     if (idsPermitidos.length > 0) {
       // Disparos caem por cascade (onDelete: Cascade); propostas inexistem nas permitidas.
-      await (req.prisma as any).cotacaoBidFreteInternacional.deleteMany({
+      await prismaCliente(req).cotacaoBidFreteInternacional.deleteMany({
         where: { id_cotacao_bid_frete_internacional: { in: idsPermitidos } },
       })
     }
@@ -188,7 +204,7 @@ interface BidParaExclusao {
 }
 
 async function buscarBidsParaExclusao(req: Request, ids: string[]): Promise<BidParaExclusao[]> {
-  return (req.prisma as any).bidFreteInternacional.findMany({
+  const bids = await prismaCliente(req).bidFreteInternacional.findMany({
     where: { id_bid_bid_frete_internacional: { in: ids } },
     select: {
       id_bid_bid_frete_internacional: true,
@@ -204,6 +220,8 @@ async function buscarBidsParaExclusao(req: Request, ids: string[]): Promise<BidP
       },
     },
   })
+  assertTodosIdsEncontrados(ids, bids)
+  return bids as BidParaExclusao[]
 }
 
 function classificarBids(bids: BidParaExclusao[]): {
@@ -259,14 +277,15 @@ router.post('/bids-frete-internacional/exclusoes/confirmar', async (req: Request
     const { permitidos, bloqueados } = classificarBids(bids)
 
     const idsExcluidos: string[] = []
+    const prisma = prismaCliente(req)
     for (const bid of permitidos) {
       // Cotação→BID é onDelete: SetNull — excluir as filhas explicitamente
       // antes do BID para não deixar cotações órfãs.
-      await (req.prisma as any).$transaction([
-        (req.prisma as any).cotacaoBidFreteInternacional.deleteMany({
+      await prisma.$transaction([
+        prisma.cotacaoBidFreteInternacional.deleteMany({
           where: { id_bid_bid_frete_internacional: bid.id_bid_bid_frete_internacional },
         }),
-        (req.prisma as any).bidFreteInternacional.delete({
+        prisma.bidFreteInternacional.delete({
           where: { id_bid_bid_frete_internacional: bid.id_bid_bid_frete_internacional },
         }),
       ])

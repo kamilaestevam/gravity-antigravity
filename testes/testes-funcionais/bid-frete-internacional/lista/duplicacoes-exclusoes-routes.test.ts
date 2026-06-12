@@ -341,6 +341,18 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes/exclusoes/preview', () =
     expect(motivos.c_com_propostas).toBe('COM_PROPOSTAS')
   })
 
+  it('deve retornar 404 quando algum id nao existir', async () => {
+    mockCotacoes.push(cotacaoBase('c_existente'))
+
+    const res = await request(app)
+      .post('/api/v1/bid-frete-internacional/cotacoes/exclusoes/preview')
+      .set(HEADERS)
+      .send({ ids: ['c_existente', 'c_inexistente'] })
+
+    expect(res.status).toBe(404)
+    expect(res.body.error).toHaveProperty('code', 'NOT_FOUND')
+  })
+
   it('RASCUNHO com propostas deve ser bloqueada (propostas tem precedencia)', async () => {
     mockCotacoes.push(cotacaoBase('c_x', { _count: { propostas: 1, disparos_cotacao: 0 } }))
 
@@ -379,6 +391,18 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes/exclusoes/confirmar', ()
     // c_bloq permanece no banco
     expect(mockCotacoes.map(c => c.id_cotacao_bid_frete_internacional)).toEqual(['c_bloq'])
     expect(mockRegistrar).toHaveBeenCalled()
+  })
+
+  it('deve retornar 404 quando algum id nao existir', async () => {
+    mockCotacoes.push(cotacaoBase('c_ok'))
+
+    const res = await request(app)
+      .post('/api/v1/bid-frete-internacional/cotacoes/exclusoes/confirmar')
+      .set(HEADERS)
+      .send({ ids: ['c_ok', 'c_fantasma'] })
+
+    expect(res.status).toBe(404)
+    expect(res.body.error).toHaveProperty('code', 'NOT_FOUND')
   })
 
   it('deve sincronizar resumo do BID quando cotacao filha e excluida', async () => {
@@ -422,6 +446,18 @@ describe('POST /api/v1/bid-frete-internacional/bids-frete-internacional/exclusoe
     expect(res.body.permitidos[0].id_bid_bid_frete_internacional).toBe('bid_ok')
     expect(res.body.bloqueados).toHaveLength(1)
     expect(res.body.bloqueados[0].cotacoes_bloqueadas[0].motivo_bloqueio).toBe('COM_PROPOSTAS')
+  })
+
+  it('preview: deve retornar 404 quando algum BID nao existir', async () => {
+    mockBids.push({ id_bid_bid_frete_internacional: 'bid_ok', numero_bid_bid_frete_internacional: 'BIDG-001' })
+
+    const res = await request(app)
+      .post('/api/v1/bid-frete-internacional/bids-frete-internacional/exclusoes/preview')
+      .set(HEADERS)
+      .send({ ids: ['bid_ok', 'bid_fantasma'] })
+
+    expect(res.status).toBe(404)
+    expect(res.body.error).toHaveProperty('code', 'NOT_FOUND')
   })
 
   it('confirmar: exclui BID permitido com as filhas e mantem o bloqueado', async () => {

@@ -7,7 +7,7 @@
  * lista os bloqueados com o motivo — aqui só exibimos e confirmamos.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Spinner, Trash, Warning, X } from '@phosphor-icons/react'
 import { BotaoGlobal, type ResultadoAcao } from '@nucleo/botao-global'
@@ -65,6 +65,35 @@ export function ModalExcluirListaBidFreteInternacional({
   const [feedbackBotao, setFeedbackBotao] = useState<ResultadoAcao>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [preview, setPreview] = useState<PreviewCarregado | null>(null)
+
+  const totaisExclusaoPendenteRef = useRef<{ bids: number; cotacoes: number } | null>(null)
+  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const limparFeedbackTimeout = useCallback(() => {
+    if (feedbackTimeoutRef.current != null) {
+      clearTimeout(feedbackTimeoutRef.current)
+      feedbackTimeoutRef.current = null
+    }
+  }, [])
+
+  const finalizarExclusaoSucesso = useCallback((totais: { bids: number; cotacoes: number }) => {
+    aoExcluido(totais)
+  }, [aoExcluido])
+
+  useEffect(() => {
+    if (aberto) return
+    limparFeedbackTimeout()
+    if (totaisExclusaoPendenteRef.current) {
+      const totais = totaisExclusaoPendenteRef.current
+      totaisExclusaoPendenteRef.current = null
+      setFeedbackBotao(null)
+      setExcluindo(false)
+      finalizarExclusaoSucesso(totais)
+      return
+    }
+    setFeedbackBotao(null)
+    setExcluindo(false)
+  }, [aberto, finalizarExclusaoSucesso, limparFeedbackTimeout])
 
   // Preview uma vez ao montar — paridade ModalPedidosExcluir (pai monta só com modal aberto).
   // Não incluir ids[] nas deps: o pai passava .map() inline → nova referência a cada render → loop de loading.
@@ -176,20 +205,25 @@ export function ModalExcluirListaBidFreteInternacional({
         totalCotacoes = res.total_excluidas
       }
 
+      totaisExclusaoPendenteRef.current = { bids: totalBids, cotacoes: totalCotacoes }
       setExcluindo(false)
       setFeedbackBotao('sucesso')
-      setTimeout(() => {
-        setFeedbackBotao(null)
-        aoExcluido({ bids: totalBids, cotacoes: totalCotacoes })
+      limparFeedbackTimeout()
+      feedbackTimeoutRef.current = setTimeout(() => {
+        feedbackTimeoutRef.current = null
         aoFechar()
       }, 1200)
     } catch (e: unknown) {
       setExcluindo(false)
       setFeedbackBotao('erro')
       setErro(e instanceof Error ? e.message : t('bidfrete.excluir.erro_confirmar', 'Falha ao excluir. Tente novamente.'))
-      setTimeout(() => { setFeedbackBotao(null) }, 1500)
+      limparFeedbackTimeout()
+      feedbackTimeoutRef.current = setTimeout(() => {
+        feedbackTimeoutRef.current = null
+        setFeedbackBotao(null)
+      }, 1500)
     }
-  }, [preview, podeExcluir, aoExcluido, aoFechar, t])
+  }, [preview, podeExcluir, aoFechar, limparFeedbackTimeout, t])
 
   if (!aberto) return null
 

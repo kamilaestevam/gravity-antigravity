@@ -336,10 +336,11 @@ export async function getPaises(q?: string): Promise<Pais[]> {
   return data.paises
 }
 
-export async function getAeroportos(q?: string, pais?: string): Promise<Aeroporto[]> {
+export async function getAeroportos(q?: string, pais?: string, limit?: number): Promise<Aeroporto[]> {
   const params = new URLSearchParams()
   if (q) params.set('q', q)
   if (pais) params.set('pais', pais)
+  if (limit) params.set('limit', String(limit))
   const query = params.toString() ? `?${params.toString()}` : ''
   const res = await fetch(`${API_BASE}/aeroportos${query}`)
   const data = await handleResponse<{ aeroportos: Aeroporto[] }>(res)

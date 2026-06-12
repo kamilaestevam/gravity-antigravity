@@ -1865,6 +1865,9 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
         cidade_organizacao: true,
         segmento_organizacao: true,
         tipo_organizacao: true,
+        // Card HQ Owner da Visão Geral exibe os IDs técnicos (decisão dono
+        // 2026-06-12, mesmo padrão das colunas ID do Admin > Organizações).
+        suid_empresa_organizacao: true,
         data_criacao_organizacao: true,
         subscriptions_organizacao: {
           take: 1,

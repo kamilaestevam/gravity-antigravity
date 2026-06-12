@@ -1230,6 +1230,10 @@ export interface PlatformConfigApi {
   cidade_organizacao: string | null
   segmento_organizacao: string | null
   tipo_organizacao: string | null
+  /** SUID da Empresa no Cadastros vinculada à org HQ (ex: BR-GRAVITY-00001).
+   *  null = onboarding de Empresa incompleto. Card HQ Owner da Visão Geral —
+   *  decisão dono 2026-06-12 (Mand. 09: contrato junto com o select). */
+  suid_empresa_organizacao?: string | null
   data_criacao_organizacao: string
 }
 

@@ -121,11 +121,16 @@ Geração de PDF do pedido usando templates configurados no Configurador. O usu�
 produto/pedido/
 ├── client/src/
 │   ├── components/
+│   │   ├── ConfiguracaoColunas/
+│   │   │   ├── CelulaAnexosColuna.tsx   ← Célula ícone + painel na Lista (colunas anexo)
+│   │   │   └── CelulaAnexosColuna.css
 │   │   ├── PainelAnexos.tsx           ← Componente de anexos (usado no Drawer)
 │   │   ├── PainelAnexos.css
 │   │   ├── ModalGerarPdf.tsx          ← Modal seleção de template + preview
 │   │   └── ModalGerarPdf.css
 │   └── shared/
+│       ├── anexoColunaLista.ts        ← SSOT chaves/metadados anexo na lista
+│       ├── renderCelulaAnexoLista.tsx ← Render + mapa filho GTV
 │       ├── types.ts                   ← Tipos de Anexo, Template, PDF
 │       └── api.ts                     ← anexosApi, pdfApi
 └── server/src/
@@ -449,7 +454,8 @@ Ao criar uma coluna, o usuário configura quem pode vê-la:
 ## Gerenciamento
 
 - Colunas são criadas/editadas/excluídas em **Configurações do Produto** (tela de settings do pedido)
-- Excluir uma coluna: dados existentes são **preservados** mas a coluna some da interface
+- Excluir uma coluna exige **confirmação no modal padrão do sistema** (`ModalConfirmarExcluirGlobal`); o botão Excluir exibe loading até a API responder; toast de sucesso ou erro após o resultado
+- Excluir uma coluna: dados existentes são **preservados** (soft delete) mas a coluna some da interface
 - Reativar uma coluna: dados voltam a aparecer
 - Ordenação das colunas: drag-and-drop na tela de configurações
 
@@ -468,19 +474,22 @@ Ao criar uma coluna, o usuário configura quem pode vê-la:
 # Colunas do Usuário — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
+> **Versão:** 1.1
 > **Data:** Abril 2026
+> **Última atualização:** 2026-06-09 — fluxo de exclusão com `ModalConfirmarExcluirGlobal`
 
 ---
 
 ## Estrutura de Arquivos
 
 ```
-produto/pedido/
+servicos-global/produto/pedido/
 ├── client/src/
+│   ├── pages/
+│   │   └── Configuracoes.tsx              ← Aba Colunas → Personalizadas (lista + exclusão)
 │   ├── components/
 │   │   └── ConfiguracaoColunas/
-│   │       ├── GerenciadorColunas.tsx     ← Tela de gerenciar colunas (em Configurações)
+│   │       ├── GerenciadorColunas.tsx     ← Variante legada/alternativa de gerenciamento
 │   │       ├── GerenciadorColunas.css
 │   │       ├── ModalNovaColuna.tsx        ← Modal criar/editar coluna
 │   │       └── ModalNovaColuna.css
@@ -684,24 +693,46 @@ model ValorColunaUsuarioPedido {
 
 ---
 
-## Frontend — GerenciadorColunas.tsx
+## Frontend — Colunas Personalizadas (`Configuracoes.tsx`)
 
-Tela em Configurações do Produto:
+Tela em **Configurações do Produto** → sidebar **Colunas** → **Personalizadas** (`/pedido/configuracoes`):
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│  Colunas Customizadas                  [+ Nova Coluna]│
+│  Colunas Personalizadas                [+ Nova Coluna] │
 ├──────────────────────────────────────────────────────┤
-│  ⠿  Margem %        Percentual  Pedido   Todos   ✏🗑  │
-│  ⠿  Prioridade      Select      Ambos    Todos   ✏🗑  │
-│  ⠿  Ref. Interna    Texto       Item     Privado ✏🗑  │
-│  ⠿  Tipo Doc        Tipo Doc    Pedido   Roles   ✏🗑  │
+│  ⠿  Margem %        Percentual  Pedido   Ativo  ✏ X │
+│  ⠿  Prioridade      Select      Ambos    Ativo  ✏ X │
+│  ⠿  Ref. Interna    Texto       Item     Ativo  ✏ X │
 └──────────────────────────────────────────────────────┘
 ```
 
-- Drag-and-drop para reordenar (usando `onReordenar`)
-- Botão editar → abre `ModalNovaColuna` preenchido
-- Botão excluir → confirma e faz soft delete
+- Drag-and-drop para reordenar (`pendingColunas` → `colunasUsuarioApi.reordenar`)
+- Botão editar (✏) → painel inline de propriedades da coluna
+- Botão excluir (X) → abre `ModalConfirmarExcluirGlobal` (não exclui imediatamente)
+
+### Fluxo de exclusão (2026-06-09)
+
+```
+Usuário clica X
+  → solicitarExcluirColunaPersonalizada(id)
+  → ModalConfirmarExcluirGlobal
+       titulo:  pedido.config.colunas.personalizadas.modal_excluir_titulo
+       descricao: "... Os valores existentes serão preservados."
+       nomeItem: nome da coluna
+  → Usuário clica Excluir
+       → botão entra em loading ("Excluindo...")
+       → excluirColunaPersonalizadaConfirmada()
+            → colunasUsuarioApi.excluir(id)
+            → colunasUsuarioApi.listar() + atualiza estado
+            → addNotification (sucesso ou erro)
+            → em erro: throw (modal permanece aberto, botão "Falhou")
+       → sucesso: flash "Excluído" → modal fecha (~1,2s)
+```
+
+**Componente do núcleo:** `@nucleo/modal-confirmar-excluir-global` — ver `PREVISAO_VISUAL.md` no pacote.
+
+> **Variante alternativa:** `GerenciadorColunas.tsx` usa o mesmo modal com o mesmo contrato (`handleExcluirConfirmado`).
 
 ---
 
@@ -768,6 +799,45 @@ testes/unitarios/pedido/colunasUsuarioService.test.ts
   ├── salvar valores — upsert correto
   └── cross-tenant — coluna de outro tenant não retornada
 ```
+
+---
+
+## Busca da Lista (2026-06-10)
+
+A busca textual da Lista de Pedidos cobre as colunas do usuário em **nome** e **conteúdo**.
+
+**Fonte única:** `servicos-global/produto/processos-core/src/services/filtro-busca-pedido.ts`
+(`montarCondicoesBuscaPedido`) — consumida por:
+
+| Rota | Uso |
+|------|-----|
+| `GET /api/v1/pedidos` | `where.AND = [{ OR: condicoes }]` (AND para não colidir com o OR do keyset/cursor) |
+| `GET /api/v1/pedidos/lista/kpis` | `where.OR = condicoes` (cards batem com a lista filtrada) |
+| `GET /api/v1/pedidos/inicializacao` | `where.AND = [{ OR: condicoes }]` |
+
+**Famílias de match:**
+1. Campos fixos do Pedido (número, referências, proforma, invoice)
+2. Nomes das partes via `PedidoSnapshotEmpresa.nome_empresa`
+3. Colunas do usuário:
+   - **conteúdo** — `valor_coluna_usuario_pedido contains termo` (vínculo `pedido` ou `item`;
+     match em item promove o pedido pai via `itens_pedido: { some: ... }`)
+   - **nome** — termo contido no nome da coluna → pedidos com a coluna **preenchida**
+
+**Regras:**
+- Visibilidade respeitada (mesma regra do `ColunasUsuarioService.listar`): coluna `privado`
+  só conta para o criador; `roles` só para tipos permitidos — sem isso a busca vazaria
+  existência de dado privado.
+- Teto de 5.000 vínculos coletados por busca (proteção de SLA contra termos de 1 letra).
+- Colunas tipo `formula` não têm valor persistido — resultado de fórmula não é buscável
+  no servidor (limitação conhecida).
+- O filtro client-side da página (`Pedidos.tsx`, busca global) espelha as mesmas condições
+  sobre `_colunas_usuario` — obrigatório manter os dois em sincronia (Mand. 07).
+
+**Pendência (Coordenador):** índice trigram para sustentar o ILIKE no volume —
+`CREATE EXTENSION IF NOT EXISTS pg_trgm;` +
+`CREATE INDEX CONCURRENTLY idx_valor_coluna_usuario_pedido_valor_trgm ON valor_coluna_usuario_pedido USING gin (valor_coluna_usuario_pedido gin_trgm_ops);`
+
+**Testes:** `servicos-global/produto/pedido/server/src/routes/filtro-busca-pedido.test.ts`
 
 --- documentos-tecnicos/produtos-gravity/pedido/DUPLICAR-EXCLUIR-REGRAS-NEGOCIO.md ---
 # Duplicar e Excluir Pedidos — Regras de Negócio
@@ -1224,13 +1294,32 @@ testes/testes-unitarios/nucleo-global/tabela-virtual-global/
 - **Skill do produto:** [`skills/produtos-gravity/pedido/SKILL.md`](../../../skills/produtos-gravity/pedido/SKILL.md) — Parte 4
 - **Skill nucleo-global:** [`skills/arquitetura/nucleo-global/SKILL.md`](../../../skills/arquitetura/nucleo-global/SKILL.md) — Tabelas hierárquicas
 
+### Modal de exclusão — qual usar
+
+| Cenário | Componente | Onde |
+|---------|------------|------|
+| Exclusão em lote (N pedidos e/ou itens avulsos, preview + tabela) | `ModalPedidosExcluir` | `Pedidos.tsx` — toolbar e dropdown da linha |
+| Exclusão de **registro único** (coluna personalizada, template PDF, anexo, workspace…) | `ModalConfirmarExcluirGlobal` | `@nucleo/modal-confirmar-excluir-global` |
+
+Ambos compartilham o mesmo layout visual (Solid Slate). O global **não** tem tabela de múltiplos itens — apenas seção "Registro" com `nomeItem`. Documentação visual: `nucleo-global/Modais/modal-confirmar-excluir-global/PREVISAO_VISUAL.md`.
+
 --- documentos-tecnicos/produtos-gravity/pedido/EDICAO-EM-MASSA-REGRAS-NEGOCIO.md ---
 # Edição em Massa — Regras de Negócio
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 1.0
-> **Data:** Abril 2026
-> **Status:** Definido — aguardando implementação
+> **Versão:** 2.0
+> **Data:** Junho 2026
+> **Status:** Implementado em produção
+
+---
+
+## Paridade lista ↔ massa (decisão 2026-06-10)
+
+**Regra:** todo campo editável inline na Lista de Pedidos deve aparecer no modal Editar em Massa — incluindo colunas criadas pelo usuário (EAV).
+
+**SSOT técnico:** `shared/camposEdicaoMassa.ts` deriva os campos de `campos-pedido-ddd.ts` com blocklist única. Colunas do usuário via `coluna_usuario:<id_coluna_usuario_pedido>`.
+
+**Validação:** teste `drift-lista-massa.test.ts` + plano EMT `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`.
 
 ---
 
@@ -1501,8 +1590,8 @@ Os enums Incoterm, Tipo de Operação e Cobertura Cambial **não aceitam digita�
 # Edição em Massa — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 2.0 (DDD-puro + Cascade Combinado)
-> **Última atualização:** 2026-05-12
+> **Versão:** 3.0 (SSOT `camposEdicaoMassa.ts` + colunas do usuário)
+> **Última atualização:** 2026-06-11
 > **Status:** Implementado em produção
 
 ---
@@ -1524,25 +1613,48 @@ Os enums Incoterm, Tipo de Operação e Cobertura Cambial **não aceitam digita�
 
 ```
 produto/pedido/
+├── shared/
+│   ├── campos-pedido-ddd.ts                         ← Dicionário DDD (Pedido + Item)
+│   └── camposEdicaoMassa.ts                         ← SSOT campos editáveis em massa (blocklist + derivação)
 ├── client/
 │   └── src/
 │       ├── components/
-│       │   ├── ModalPedidosEdicaoMassa.tsx          ← Modal principal
+│       │   ├── ModalPedidosEdicaoMassa.tsx          ← Modal (consome SSOT via types.ts)
 │       │   └── ModalPedidosEdicaoMassa.css
 │       ├── shared/
-│       │   ├── types.ts                              ← TipoCampoEdicao, EdicaoMassa*
+│       │   ├── types.ts                              ← re-export CampoEdicaoMassaDef do shared/
 │       │   └── api.ts                                ← pedidoEdicaoMassaApi
 │       └── pages/
 │           └── Pedidos.tsx                           ← Botão "Editar em Massa"
 └── server/
     └── src/
         ├── routes/
-        │   └── edicoes-em-massa-pedido.ts           ← Rotas REST
+        │   └── edicoes-em-massa-pedido.ts           ← Rotas REST + CAMPOS_UNIQUE_PEDIDO (Zod)
         ├── services/
-        │   └── edicaoEmMassaService.ts              ← Lógica + cascade
+        │   └── edicaoEmMassaService.ts              ← Lógica + cascade + colunas EAV
         └── shared/
             └── bulkSchemas.ts                        ← Zod compartilhado
 ```
+
+---
+
+## SSOT — campos editáveis (`shared/camposEdicaoMassa.ts`)
+
+**Regra de produto (2026-06-10):** se o campo é editável inline na Lista, deve ser editável em massa — incluindo colunas criadas pelo usuário.
+
+| Export | Função |
+|--------|--------|
+| `CAMPOS_EDICAO_MASSA_PEDIDO` | Deriva de `CAMPOS_PEDIDO_DDD` menos `CAMPOS_BLOQUEADOS_PEDIDO` + extras JSON |
+| `CAMPOS_EDICAO_MASSA_ITEM` | Deriva de `CAMPOS_ITEM_DDD` menos `CAMPOS_BLOQUEADOS_ITEM` |
+| `CAMPOS_BLOQUEADOS_*` | **Única blocklist** — agregados, identidade, audit, fluxos próprios |
+| `PREFIXO_COLUNA_USUARIO` | Transporte EAV: `coluna_usuario:<id_coluna_usuario_pedido>` |
+| `campoEditavelEmMassa()` | Validação server-side antes de preview/confirmar |
+
+**Consumidores:** `edicaoEmMassaService.ts`, `ModalPedidosEdicaoMassa.tsx` (via `types.ts`), testes `drift-lista-massa` e plano EMT `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`.
+
+**Colunas do usuário (EAV):** o modal injeta campos dinâmicos com os 8 tipos suportados na lista (`texto`, `numero`, `data`, `select`, `ncm`, `usuario`, `moeda`, `decimal`). O service faz upsert em `PedidoListaColunaUsuarioValor` por vínculo pedido/item.
+
+**Não duplicar listas de campo** no modal nem no service — alterações passam pelo SSOT + blocklist.
 
 ---
 
@@ -1635,7 +1747,7 @@ export interface EdicaoMassaResultado {
 | `id_workspace` | `company_id` |
 | `id_pedido` | `id` |
 
-A definição (`DefinicaoCampo`) em `ModalPedidosEdicaoMassa.tsx` tem `campo` com o nome DDD exato + `rotulo` com label canonical PT-BR (skill `ddd-nomenclatura` REGRA 9).
+O modal monta `DefinicaoCampo` a partir de `CAMPOS_EDICAO_MASSA_PEDIDO` / `CAMPOS_EDICAO_MASSA_ITEM` (`camposEdicaoMassa.ts`): `campo` com nome DDD exato + `rotulo` canonical PT-BR (skill `ddd-nomenclatura` REGRA 9).
 
 ---
 
@@ -1679,41 +1791,9 @@ Lista mantida em `CAMPOS_DETALHES_OPERACIONAIS` no service. O preview e o confir
 
 ## Campos bloqueados (calculados — nunca editáveis)
 
-```ts
-const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
-  // Agregados calculados pelo recalcularAgregadosPedido
-  'valor_total_pedido',
-  'quantidade_total_pedido',
-  'peso_liquido_total_pedido',
-  'peso_bruto_total_pedido',
-  'cubagem_total_pedido',
-  // Sistema / identidade
-  'id_pedido',
-  'id_organizacao',
-  'id_workspace',
-  'id_status_pedido',
-  'data_criacao_pedido',
-  'data_atualizacao_pedido',
-  'data_exclusao_pedido',
-  'data_consolidacao_pedido',
-  'ids_origem_consolidacao_pedido',
-])
+Blocklist única em `shared/camposEdicaoMassa.ts` → `CAMPOS_BLOQUEADOS_PEDIDO` e `CAMPOS_BLOQUEADOS_ITEM` (agregados, identidade, audit, consolidação, saldo).
 
-const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_total_item',
-  'quantidade_atual_item',
-  'quantidade_transferida_item',   // saldoEngine
-  'id_item',
-  'id_organizacao',
-  'id_workspace',
-  'id_pedido',
-  'data_criacao_item',
-  'data_atualizacao_item',
-  'data_exclusao_item',
-])
-```
-
-**Defesa em profundidade:** validação server-side rejeita campos bloqueados mesmo se o frontend tentar contornar. Cross-org attack mitigado — não é possível mudar `id_organizacao` via edição em massa.
+**Defesa em profundidade:** `campoEditavelEmMassa()` + `validarCamposEditaveis` no service rejeitam campos bloqueados mesmo se o frontend tentar contornar. Cross-org attack mitigado — não é possível mudar `id_organizacao` via edição em massa.
 
 ---
 
@@ -1907,7 +1987,7 @@ Outros 10 `@@unique` no schema do Pedido estão em models de sistema/config não
 
 ### Convenção para o futuro
 
-Ao expor novo campo `@@unique` em `CAMPOS_PEDIDO_EDITAVEIS` ou `CAMPOS_ITEM_EDITAVEIS`:
+Ao expor novo campo `@@unique` em `CAMPOS_EDICAO_MASSA_PEDIDO` ou `CAMPOS_EDICAO_MASSA_ITEM` (via SSOT — não adicionar lista paralela no modal):
 1. Adicionar a `CAMPOS_UNIQUE` no frontend
 2. Adicionar a `CAMPOS_UNIQUE_PEDIDO` no Zod custom do backend
 3. Sem isso, o usuário recebe erro confuso (P2002 ou 500)
@@ -2007,6 +2087,12 @@ server/src/services/edicaoEmMassaService.integration.test.ts  (11 integração �
 ---
 
 ## Histórico de versões
+
+- **v3.0 (2026-06-11)** — SSOT `camposEdicaoMassa.ts`
+  - Derivação automática a partir de `campos-pedido-ddd.ts` + blocklist única
+  - Paridade lista ↔ massa (inclui colunas EAV do usuário via `coluna_usuario:<id>`)
+  - Plano EMT `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081` (217 passos campo a campo)
+  - Teste `drift-lista-massa` impede regressão entre lista inline e modal
 
 - **v2.2 (2026-05-12)** — Auto-fill ao trocar `tipo_operacao_pedido` em massa
   - Endpoint novo `GET /api/v1/internal/workspaces?ids=...` (Configurador) — batch lookup S2S
@@ -2231,6 +2317,37 @@ O escopo multi-workspace do menu lateral Pedido persiste em:
 | Modal "Filtro de workspaces no Pedido" no Hub | Exibe **nomes** (`nome_workspace`), nunca CUID como label |
 
 **Importante:** isso corrige **metadado local enganoso** — não implica acesso a dados de outra organização (isolamento por schema/banco permanece).
+
+---
+
+## "Sistema perdeu meus pedidos" — dúvida frequente de usuários (treinamento Gabi)
+
+> **Regra de ouro:** a Lista **nunca** busca "todos os pedidos" — toda busca aplica o filtro de workspaces do escopo da sessão. Lista vazia quase sempre é **filtro/contexto**, não perda de dados. Pedidos não são apagados automaticamente em nenhum fluxo (exclusão é sempre ação explícita do usuário).
+
+### Por que a mesma conta pode ver resultados diferentes em duas janelas
+
+O escopo é cacheado em `sessionStorage` **por janela do navegador** (chave por organização). Uma janela anônima ou navegador novo re-hidrata o escopo do zero e pode resolver para um workspace diferente. Totais e KPIs derivam da mesma lista filtrada — por isso zeram juntos, reforçando a falsa impressão de "perdi tudo".
+
+### Tabela de diagnóstico
+
+| Situação percebida | Causa provável | Verificação |
+|---|---|---|
+| "Sistema perdeu meus pedidos" / lista vazia | Escopo de workspaces não inclui o workspace dono dos pedidos | Abrir o popover de filtro de workspace e marcar a filial correta (ou **Selecionar tudo**) |
+| "Em uma janela aparece, na outra não" (mesmo usuário) | Sessões com escopo diferente ou **ambientes diferentes** (produção vs QA = bancos distintos) | Conferir a URL das duas janelas; depois o filtro de workspace em cada uma |
+| Lista vazia após desmarcar tudo | Comportamento esperado — empty selection é escolha consciente (sem fallback) | Re-marcar qualquer workspace |
+| "Pedido novo não aparece" | Pedido criado no workspace ativo, que não está entre os marcados | Incluir o workspace ativo no filtro |
+| "Sumiu a empresa X" | Workspace inativado no Configurador (ver seção "Workspaces inativos") | Configurador → Workspaces → status ATIVO |
+
+### Roteiro de resposta da Gabi (ordem de verificação)
+
+1. **Tranquilizar:** "Seus pedidos não foram apagados — a lista mostra apenas as filiais (workspaces) selecionadas no filtro."
+2. **Filtro de workspace:** pedir para abrir o filtro da coluna Workspace (ou o chip na toolbar) e clicar em **Selecionar tudo**. Resolve a grande maioria dos casos.
+3. **Workspace ativo:** conferir no Hub qual workspace está ativo e usar a coluna **Workspace** da lista para identificar o dono de cada pedido.
+4. **Ambiente:** se o usuário compara duas janelas/links, conferir se ambas apontam para o mesmo ambiente (`usegravity.com.br`). Ambientes diferentes usam bancos diferentes.
+5. **Workspace inativo:** verificar Configurador → Workspaces → status ATIVO.
+6. Se nada acima resolver → abrir chamado para o suporte (nunca orientar a recriar pedidos).
+
+A mesma lógica vale para o **BID Frete Internacional** ("minhas cotações não carregam") — ver `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`.
 
 ---
 
@@ -2756,13 +2873,13 @@ O sistema resolve:
 - Gestao de pedidos COMEX e feita em planilhas ou ERPs limitados
 - Saldo de itens se perde quando ha fatiamento entre embarques
 - O legado DATI valida que a matematica de saldo funciona por anos de uso real
-- E o pilar central que conecta todos os outros produtos (SimulaCusto, BID Frete, BID Cambio, Processo)
+- E o pilar central que conecta todos os outros produtos (SimulaCusto, BID Frete Internacional, BID Cambio, Processo)
 
 ### O que esta no MVP
 
 | Area | Funcionalidades |
 |------|----------------|
-| Lista de Pedidos | Grid hierarquico virtualizado (TabelaVirtualGlobal), Pedido como pai (99 colunas), PedidoItem como filho (165 colunas), filtros, busca, exportacao, resize de colunas, overlay de edicao |
+| Lista de Pedidos | Grid hierarquico virtualizado (TabelaVirtualGlobal — windowing real desde 2026-06-11 via `useGTJanelaVirtual`: so as linhas do viewport+overscan sao montadas no DOM quando a pagina tem 80+ linhas), Pedido como pai (99 colunas), PedidoItem como filho (165 colunas), filtros, busca, exportacao, resize de colunas, overlay de edicao |
 | Gestao de Itens | Quantidade Inicial/Atual/Transferida/Pronta/Cancelada, unidade de medida, valores |
 | Entrada de Dados | Manual, importacao de arquivo (Excel, CSV, XML, TXT, JSON), integracao ERP via API Cockpit |
 | Ciclo de Vida | Draft -> Aberto -> Vinculado -> Liquidado |
@@ -3064,8 +3181,8 @@ export const PRODUCT_CONFIG = {
 | PATCH | `/api/v1/pedidos/:id/status` | Transicao de status (Draft->Aberto, etc.) |
 | POST | `/api/v1/pedidos/:id/duplicar` | Duplicar pedido completo (single, usado por outros fluxos) |
 | POST | `/api/v1/pedidos/duplicacoes/preview` | Preview do modal de duplicar em massa |
-| POST | `/api/v1/pedidos/duplicacoes/confirmar` | Duplicar N pedidos (cascade dos itens) |
-| POST | `/api/v1/pedidos/duplicacoes/itens` | Duplicar M itens dentro de 1 pedido pai (sequência abaixo do original) |
+| POST | `/api/v1/pedidos/duplicacoes/confirmar` | Duplicar N pedidos (cascade dos itens). Pedido novo herda `id_workspace` do pedido pai — não usa header da sessão. |
+| POST | `/api/v1/pedidos/duplicacoes/itens` | Duplicar M itens dentro de 1 pedido pai (sequência abaixo do original). `id_workspace` = do pedido pai (fix 2026-06-11). |
 | POST | `/api/v1/pedidos/exclusoes/preview` | Preview de exclusão (permitidos/bloqueados por status) |
 | POST | `/api/v1/pedidos/exclusoes/confirmar` | Hard delete + audit trail |
 | POST | `/api/v1/pedidos/exclusoes/itens` | Remove itens; aplica `excluir_pedido_sem_item_permitido` |
@@ -3500,6 +3617,1240 @@ DATABASE_URL=<url> node scripts/sob-demanda/aplicar-migration-cadastros-incoterm
 ## 10. Histórico
 
 - **2026-05-13** — Criação da tabela `cadastros.incoterm` + migration + 11 incoterms canônicos. Hook `useIncoterms()` em nucleo-global + `useIncotermsPedido()` no produto. Coluna `incoterm` migrada de `tipo: 'texto'` para `tipo: 'select'`. Validação cruzada nas rotas PUT do Pedido e PUT do Item. Deletadas 5 cópias hardcoded (kind-ui-pedido.ts, ModalPedidoNovo.tsx, CampoSmartImport.tsx; mantidas em seed.ts/auditarSeed.ts).
+
+--- documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md ---
+# Lista de Pedidos — Editar e Salvar (Regras de Negócio)
+
+> **Produto:** Pedido (COMEX)  
+> **Tela:** `/pedido/pedidos/lista` — edição inline na hierarquia **Pedido (pai) → PedidoItem (filho)**  
+> **Versão:** 1.0  
+> **Data:** 2026-06-03  
+> **Status:** Vigente — aprovado pelo dono (regras STATUS 00–04 e TIPO DE OPERAÇÃO 2026-06)
+
+**Doc técnico:** [`LISTA-EDITAR-SALVAR-TECNICO.md`](./LISTA-EDITAR-SALVAR-TECNICO.md)  
+**Replicação genérica (checkbox):** [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md)  
+**Testes EMT:** `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`
+
+---
+
+## Escopo deste documento
+
+Regras de produto para colunas com comportamento **especial** na Lista (diferente do padrão «checkbox replicar + alerta de divergência»):
+
+| Coluna | Foco |
+|--------|------|
+| **Nº PEDIDO / Nº ITEM** (identificadores) | Edição por nível; alerta de Part Number duplicado |
+| **WORKSPACE** | Exclusivo do pedido; replicação automática; item travado; sem alerta |
+| **TIPO DE OPERAÇÃO** | Exclusivo do pedido; replicação automática; item travado |
+| **STATUS** | Pedido e item editáveis; checkbox replicar; alerta âmbar de divergência |
+| **IMPORTADOR** (`nome_importador`) | Importação: espelhado com workspace; Exportação: vincular ou modal de troca |
+| **EXPORTADOR** (`nome_exportador`) | Exportação: espelhado com workspace; Importação: vincular ou popover de troca |
+| **REFERÊNCIA IMPORTADOR / EXPORTADOR** | Padrão Incoterm — pedido+item editáveis, checkbox replicar, alerta divergência |
+| **MOEDA CÂMBIO** (`moeda_cambio_pedido`) | Valor único no pedido; itens espelham; alerta moeda comercial divergente |
+| **ANEXOS** (`anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco` + custom `tipo === 'anexo'`) | Célula ícone + painel; vínculo individual por linha; tooltips dual editável pedido/item |
+
+Demais colunas propagáveis seguem [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md) (Incoterm, datas, referência fabricante, etc.).
+
+**Tooltips de coluna:** framework em [`LISTA-EDITAR-SALVAR-TECNICO.md` §6](./LISTA-EDITAR-SALVAR-TECNICO.md#6-tooltips-de-coluna-na-lista). As seções abaixo descrevem pills e alertas **por coluna**; títulos e matriz completas serão fechados campo a campo pelo dono.
+
+---
+
+## 0. Framework de tooltips (lista)
+
+> Vigente **2026-06-07**. Não substitui as regras de edição das seções 1–8 — define **como** a UI explica cada coluna no hover.
+
+### 01 — Tooltip linha pedido
+
+Aparece no **cabeçalho** da coluna e na **célula da linha do pedido**.
+
+| Elemento | Regra |
+|----------|--------|
+| **Título** | Sempre `{Nome da coluna} do Pedido` — ex.: *Moeda do Pedido*, *Valor Total do Pedido* |
+| **Pills** | Apenas as exigidas pela regra do campo, nesta ordem: (1) Bloqueado para edição → (2) Total/somatória → (3) Editável no pedido → (4) Aplicar em todos os itens → (5) Editável no item → (6) Alerta se divergirem → (7) Depende de importação/exportação |
+| **Aviso amarelo** | Opcional, abaixo das pills — quando editar o campo impacta outras colunas |
+
+### 02 — Tooltip linha item
+
+Aparece na **célula da linha do item** (pedido expandido).
+
+| Elemento | Regra |
+|----------|--------|
+| **Título** | Sempre `{Nome da coluna} do Item` — ex.: *Moeda do item* |
+| **Pills** | Apenas as exigidas, nesta ordem: (1) Bloqueado → (2) Editável no item → (3) Alerta se divergirem |
+| **Aviso amarelo** | Opcional — mesmo critério do pedido |
+
+### 03 — Avisos de impacto (ambos os níveis)
+
+Texto livre orientado ao operador — ex.: *«A alteração da moeda irá alterar também Valor Unitário do Item e Valor Total do Pedido/Item»*. Não substitui pill de alerta de divergência (âmbar na célula).
+
+### Mapeamento pill → linguagem do usuário
+
+| Pill (código) | Texto na UI |
+|---------------|-------------|
+| `bloqueado_edicao` / `somente_leitura` | Bloqueado para edição |
+| `valor_total_soma_mesma_moeda`, `calculado_pedido`, etc. | Total do xxx / somatória (conforme coluna) |
+| `editavel_pedido` | Editável no pedido |
+| `replica_itens` / `replica_itens_auto` | Aplicar em todos os itens |
+| `editavel_item` / `editavel_nos_itens` | Editável no item |
+| `alerta_divergencia` / `alerta_moeda_divergente` | Alerta se XX divergirem |
+| `cond_import_export` | Depende de importação ou exportação |
+| `espelhado_logistica_bidirecional` | Espelhado com itens e pedido |
+
+### Status da documentação por coluna
+
+| Coluna | Tooltips documentados neste arquivo | Alinhado ao framework 01/02 |
+|--------|-------------------------------------|------------------------------|
+| Moeda | ✅ MND-01…08 + tooltips §0 | ✅ |
+| Valor total (`valor_total_pedido`) | ✅ VLR-01…10 + tooltips §0 | ✅ |
+| Valor total câmbio (`valor_total_cambio_pedido`) | ✅ VTCC-01…10 + tooltips §0 | ✅ |
+| Moeda câmbio (`moeda_cambio_pedido`) | ✅ MCB-01…12 + tooltips §0 | ✅ |
+| Valor unitário (`valor_por_unidade_item`) | ✅ VUN-01…10 + tooltips §0 | ✅ |
+| Logística (LOG-06) | ✅ pills definidas | 🟡 títulos `{Coluna} do Pedido/Item` pendentes |
+| Anexos (`anexo_*`) | ✅ §8P ANX-01…10 | ✅ |
+| Demais seções 1–8 | Regras de edição + pills pontuais | 🟡 revisão campo a campo pelo dono |
+
+---
+
+## 1. Nº PEDIDO e Nº ITEM
+
+### Nº PEDIDO (linha pai)
+
+- Editável na linha do **pedido** quando o usuário tem `pedido:lista:editar`.
+- Persiste via API (`PUT /api/v1/pedidos/:id` ou fluxo inline equivalente).
+- Campo com `@@unique` por organização — **um pedido por vez** na edição inline (não é edição em massa).
+
+### Nº ITEM / Part Number (linha filho)
+
+- Editável na linha do **item** (`part_number` e identificadores de item).
+- Alteração no item **não** altera o número do pedido pai.
+- **Alerta âmbar** na coluna do pedido quando dois ou mais itens do mesmo pedido compartilham o mesmo Part Number (`part_number_duplicado_no_pedido`).
+
+---
+
+## 2. WORKSPACE
+
+> Decisão de produto **2026-06** — alinhada a TIPO DE OPERAÇÃO na replicação; **sem** alerta de divergência.
+
+| # | Regra |
+|---|--------|
+| **WS-01** | Somente a linha **pedido** edita workspace (`id_workspace`). |
+| **WS-02** | Linha **item** é **somente leitura** (igual TIPO DE OPERAÇÃO) — popover não abre. |
+| **WS-03** | Ao salvar no pedido, replica **automaticamente** para todos os itens (`replicar_em_itens` efetivo = `true`). |
+| **WS-04** | Popover **sem** checkbox «Aplicar a todos os itens». |
+| **WS-05** | **Sem** alerta âmbar — pedido e itens ficam sempre alinhados após edição. |
+| **WS-06** | Select **único**: opções = todos os workspaces **habilitados** ao usuário (`workspacesDisponiveis` / `/hub/init`), não só os já visíveis na página. |
+
+---
+
+## 3. TIPO DE OPERAÇÃO
+
+> Decisão de produto **2026-06** (validada em produção e EMT passos 06–12).
+
+| # | Regra |
+|---|--------|
+| **TOP-01** | Somente a linha **pedido** edita `tipo_operacao`. |
+| **TOP-02** | Ao salvar no pedido, o valor replica **automaticamente** para todos os itens (`replicar_em_itens` efetivo = `true` — sem escolha do usuário). |
+| **TOP-03** | O popover de edição no pedido **não** exibe o checkbox «Aplicar a todos os itens deste pedido». |
+| **TOP-04** | A célula **TIPO DE OPERAÇÃO** na linha **item** é **somente leitura** — clique não abre popover. |
+| **TOP-05** | **Sem** alerta âmbar de divergência entre pedido e itens (`tipo_operacao_divergente` / `ALERTA_OVERRIDE.tipo_operacao = false`). |
+
+### Comportamento esperado (operador)
+
+1. Usuário clica **TIPO DE OPERAÇÃO** no pedido → abre seletor Importação / Exportação.
+2. Confirma a troca → pedido **e todos os itens** exibem o novo tipo (expandidos ou ao expandir depois).
+3. Clicar no item na mesma coluna → nada acontece (célula travada).
+
+### O que não é
+
+- Não é campo «propagável opcional» como Incoterm (sem checkbox = divergir).
+- Não permite override por item na Lista (diferente da edição em massa aba **Item**, que tem `tipo_operacao_item`).
+
+---
+
+## 4. STATUS
+
+> Decisão de produto **2026-06** — regras **00–04** definidas pelo dono.
+
+| # | Regra |
+|---|--------|
+| **00** | **Todos** os status são replicáveis na UI — nativos (`rascunho`, `aberto`, …) **e** customizados (Configurações → Status). |
+| **01** | A coluna **STATUS** na linha **pedido** é **editável** (select com opções de `statusOpts` / abas configuradas). |
+| **02** | O popover no pedido exibe o checkbox **«Aplicar a todos os itens deste pedido»** (padrão `replicar_em_itens = false`). |
+| **03** | A coluna **STATUS** na linha **item** é **editável** (select com as mesmas opções). |
+| **04** | **Alerta âmbar** (`⚠`) quando: status do pedido ≠ status de algum item **ou** status entre itens difere (item ≠ item). Tooltip: *Status divergente entre pedido e itens*. |
+
+### Com checkbox desmarcado (só pedido)
+
+- O **pedido** persiste o novo status via `POST /api/v1/pedidos/alteracoes-status-lote/confirmar`.
+- Os **itens** mantêm o status anterior na sessão (via `_p.status` e, se ainda não expandidos, `status_itens_snapshot`).
+- O alerta âmbar aparece **mesmo sem expandir** o pedido antes da edição (desde que o pedido tenha itens — `quantidade_total_pedido`, `saldo_itens_do_pedido` ou `ncms_distintos_count` > 0).
+
+### Com checkbox marcado (replicar)
+
+- Pedido e itens em memória recebem o mesmo status.
+- Alerta de divergência some quando todos ficam homogêneos.
+
+### Edição no item
+
+- Altera `_p.status` na UI para exibir divergência e permitir cenários item-a-item.
+- **Dívida conhecida (P0):** alteração de status **só no item** ainda **não persiste** no banco — após F5 o item volta a refletir o status do pedido. Decisão de produto/API pendente.
+
+---
+
+## 4. NCM
+
+> Decisão de produto **2026-06** — vários NCMs no mesmo pedido é cenário normal (cada item com classificação própria).
+
+| # | Regra |
+|---|--------|
+| **NCM-01** | Campo **ghost** — persiste no banco no **item**; linha do pedido guarda valor canônico de sessão. |
+| **NCM-02** | Linha **pedido** e linha **item** editáveis. |
+| **NCM-03** | Popover no pedido exibe checkbox **«Aplicar a todos os itens deste pedido»** (default desmarcado). |
+| **NCM-04** | **Sem** checkbox: só a linha do pedido atualiza na sessão; itens **não** recebem PATCH. |
+| **NCM-05** | **Com** checkbox: PATCH do mesmo NCM em **todos** os itens. |
+| **NCM-06** | **Sem** alerta âmbar — vários NCMs no mesmo pedido é normal. |
+| **NCM-07** | Exibição no pedido: valor canônico da sessão; se vazio e todos os itens coincidem, mostra o NCM único; senão `—`. |
+
+---
+
+## 5. IMPORTADOR (`nome_importador`)
+
+> Decisão de produto **2026-06** — aprovada pelo dono.
+
+O importador exibido depende do **tipo de operação** do pedido (espelhado com Exportador na lógica inversa).
+
+### Importação (`tipo_operacao = importacao`)
+
+| # | Regra |
+|---|--------|
+| **IMP-01** | O importador é o **workspace** do pedido — exibe o nome do workspace, não um fornecedor do Cadastros. |
+| **IMP-02** | Tooltip: *Espelhado com o workspace* — **sem** link para Configurador ou Cadastros. |
+| **IMP-03** | Edição inline no pedido abre o **mesmo select de Workspace** (alterar workspace troca o importador). |
+| **IMP-04** | Linha **item** somente leitura — espelha o workspace do pedido. |
+
+### Exportação (`tipo_operacao = exportacao`)
+
+| # | Regra |
+|---|--------|
+| **EXP-01** | Importador = contraparte estrangeira vinculada via Cadastros (`exportacao_importador_id` + `nome_importador`). |
+| **EXP-02** | Célula **vazia** → link **«Vincular importador»** → tela Fornecedor no Configurador (fluxo existente com `retorno`). |
+| **EXP-03** | Célula **preenchida** → clique abre **modal** com lista de importadores da organização (`pode_ser_importador_fornecedor=true`). |
+| **EXP-04** | Modal permite **trocar** o importador sem sair da Lista; atalho → Configurador / Fornecedores. |
+| **EXP-05** | **Sem** checkbox «Aplicar a todos os itens» e **sem** alerta de divergência na coluna Importador. |
+| **EXP-06** | Linha **item** somente leitura — badge/link espelha o pedido; clique no badge abre o mesmo modal do pedido. |
+
+---
+
+## 5B. EXPORTADOR (`nome_exportador`)
+
+> Decisão de produto **2026-06** — espelho invertido do Importador (§5), aprovada pelo dono.
+
+O exportador exibido depende do **tipo de operação** do pedido.
+
+### Exportação (`tipo_operacao = exportacao`)
+
+| # | Regra |
+|---|--------|
+| **EXPE-01** | O exportador é o **workspace** do pedido — exibe o nome do workspace, não um fornecedor do Cadastros. |
+| **EXPE-02** | Tooltip: *Espelhado com o workspace* — **sem** link para Configurador ou Cadastros na célula preenchida. |
+| **EXPE-03** | Edição inline no pedido abre o **mesmo select de Workspace** (alterar workspace troca o exportador). |
+| **EXPE-04** | Linha **item** somente leitura — espelha o workspace do pedido. |
+
+### Importação (`tipo_operacao = importacao`)
+
+| # | Regra |
+|---|--------|
+| **IMPE-01** | Exportador = contraparte estrangeira vinculada via Cadastros (`importacao_exportador_id` + `nome_exportador`). |
+| **IMPE-02** | Célula **vazia** → link **«Vincular exportador»** no popover → tela Fornecedor no Configurador (fluxo existente com `retorno`). |
+| **IMPE-03** | Célula **preenchida** → clique abre **popover** com lista de exportadores da organização (`pode_ser_exportador_fornecedor=true`). |
+| **IMPE-04** | Popover permite **trocar** o exportador sem sair da Lista; atalho → Configurador / Fornecedores. |
+| **IMPE-05** | **Sem** checkbox «Aplicar a todos os itens» e **sem** alerta de divergência na coluna Exportador. |
+| **IMPE-06** | Linha **item** somente leitura — badge/link espelha o pedido; clique no badge abre o mesmo popover do pedido. |
+
+**EMT:** `run-lista-exportador-emt.ts` — ETAPA 6 EXPORTADOR em `plano-teste-em-tela.md`.
+
+---
+
+## 6. REFERÊNCIA IMPORTADOR e REFERÊNCIA EXPORTADOR
+
+> Decisão de produto **2026-06** — **mesmas regras** para ambas as colunas (padrão Incoterm).
+
+| # | Regra |
+|---|--------|
+| **REF-01** | Tipo `alfanumerico` — **sem** diferença entre Importação e Exportação. |
+| **REF-02** | Linha **pedido** editável; popover exibe checkbox **«Aplicar a todos os itens deste pedido»** (default desmarcado). |
+| **REF-03** | Linha **item** editável. |
+| **REF-04** | Sem checkbox: só o **pedido** persiste; itens **não** replicam. |
+| **REF-05** | Com checkbox: pedido **e todos** os itens recebem o mesmo valor (`referencia_*_pedido` → `referencia_*_item`). |
+| **REF-06** | Edição isolada no item altera só aquele item; pedido e demais itens permanecem. |
+| **REF-07** | **Alerta âmbar** na coluna do pedido quando valor do pedido ≠ valor de algum item — tooltip *Referências divergentes entre itens*. |
+| **REF-08** | Campos **não** estão em `COLUNAS_SEM_REPLICACAO` — replicação opcional via checkbox. |
+
+**EMT:** passos 13–16 (Importador) e 17–20 (Exportador) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+
+---
+
+## 7. INCOTERM
+
+> Padrão de referência para Ref. Importador/Exportador. Select validado em produção pelo dono (2026-06).
+
+| # | Regra |
+|---|--------|
+| **INC-01** | UI **select** padrão — opções de `cadastros.incoterm` (`useIncotermsPedido`); **não** input de texto livre. |
+| **INC-02** | Linha **pedido** e linha **item** editáveis. |
+| **INC-03** | Popover no pedido exibe checkbox **«Aplicar a todos os itens deste pedido»** (default desmarcado). |
+| **INC-04** | Sem checkbox: só o pedido persiste; itens não replicam. |
+| **INC-05** | Com checkbox: pedido e todos os itens = mesmo Incoterm (`incoterm_pedido` → `incoterm_item`). |
+| **INC-06** | Edição isolada no item altera só aquele item. |
+| **INC-07** | **Alerta âmbar** na coluna do pedido — tooltip *Incoterms divergentes entre itens*. |
+| **INC-08** | Sem diferença entre Importação e Exportação. |
+
+**EMT:** passos 21–24 em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+
+---
+
+## 8. MOEDA DO PEDIDO/ITEM (`moeda_pedido`)
+
+> Decisão de produto **2026-06-07** — padrão Incoterm (checkbox replicar) + aviso de impacto cruzado em Valor Unitário e Valor Total. Tooltips alinhados ao framework §0.
+
+| # | Regra |
+|---|--------|
+| **MND-01** | Label da coluna na grade: **Moeda do Pedido/Item** — títulos de tooltip separados por nível (§0). |
+| **MND-02** | Linha **pedido** editável — select de `cadastros.moeda` (`useMoedasPedido`). |
+| **MND-03** | Popover no pedido exibe checkbox **«Aplicar a todos os itens deste pedido»** (default desmarcado). |
+| **MND-04** | Linha **item** editável — persiste `moeda_item`. |
+| **MND-05** | Sem checkbox: só o **pedido** persiste; itens **não** replicam. |
+| **MND-06** | Com checkbox: pedido **e todos** os itens recebem a mesma moeda (`moeda_pedido` → `moeda_item`). |
+| **MND-07** | **Alerta âmbar** (`⚠`) na célula do **pedido** quando itens divergem (`moeda_item_divergente`) — tooltip *Moedas divergentes entre itens*. **Sem** pill `alerta_moeda_divergente` no tooltip (ícone na célula basta). |
+| **MND-08** | **Aviso amarelo** no tooltip **pedido e item** + popover de edição: *A alteração da moeda irá alterar também Valor Unitário do Item e Valor Total do Pedido/Item* (`aviso_impacto_moeda`). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Moeda do Pedido* (`moeda_pedido_titulo_linha_pedido`) | `editavel_pedido` → `replica_itens` → `editavel_item` |
+| **Item** | *Moeda do item* (`moeda_item_titulo`) | `editavel_item` |
+
+**Código:** `pai_moeda_pedido` · `PILLS_PEDIDO_MOEDA` / `PILLS_ITEM_MOEDA` · `tituloTooltipCelulaPorColuna` em `buildTooltipRegraLista.tsx`.
+
+---
+
+## 8A-UNIT. VALOR UNITÁRIO DO ITEM (`valor_por_unidade_item`)
+
+> Decisão de produto **2026-06-08** — coluna entre Moeda e Valor Total; pedido **bloqueado** (sem somatória); item editável via popover **moeda + valor**; recalcula `valor_total_item` (= unitário × Qtd. Inicial).
+
+| # | Regra |
+|---|--------|
+| **VUN-01** | Label na grade: **Valor Unitário do Item** — tooltip pedido: *Valor Unitário do Item - Linha Pedido*; item: *Valor Unitário do Item*. |
+| **VUN-02** | Linha **pedido** **bloqueada** — cursor `not-allowed`; exibe `—` ou alerta âmbar *Moedas divergentes entre itens* (`moeda_item_divergente`). |
+| **VUN-03** | Linha **item** **editável** — popover moeda + valor (`GTValorMoeda`); exibição badge moeda + valor (ex.: `GBP 100,00`). |
+| **VUN-04** | Tooltip **pedido**: `bloqueado_edicao` → `valor_unitario_sem_somatoria` → `alerta_moeda_divergente`. |
+| **VUN-05** | Tooltip **item**: `editavel_nos_itens` + aviso *«A alteração da moeda irá alterar também Moeda do Pedido/Item e Valor Total do Pedido/Item»*. |
+| **VUN-06** | **Sem** somatória no pedido — não agrega unitários dos itens. |
+| **VUN-07** | Salvar unitário no item recalcula **Valor Total do Item** (= unitário × Qtd. Inicial) na grade. |
+| **VUN-08** | Moedas divergentes entre itens → alerta âmbar na célula do **pedido** nesta coluna. |
+| **VUN-09** | Casas decimais de Config (`valor_por_unidade_item`). |
+| **VUN-10** | Persistência hub → lista (passo 71 EMT). |
+
+**Código:** `PILLS_PEDIDO_VALOR_UNITARIO_ITEM` / `PILLS_ITEM_VALOR_UNITARIO` · `dinamico_valor_unitario_item` · `gtv-celula-moeda`.
+
+**EMT:** passos 62–71 (ETAPA 21) · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8A. VALOR TOTAL DO PEDIDO/ITEM (`valor_total_pedido`)
+
+> Decisão de produto **2026-06-08** — coluna dinâmica pedido/item. Pedido **não editável**; item via popover **moeda + valor** (`.gtv-edit-moeda-valor`). Tooltips alinhados ao framework §0.
+
+| # | Regra |
+|---|--------|
+| **VLR-01** | Label na grade: **Valor Total do Pedido/Item** — títulos de tooltip: *Valor total do pedido* (pai) / *Valor Total do Item* (filho). |
+| **VLR-02** | Linha **pedido** **bloqueada** — cursor `not-allowed`; exibe soma dos `valor_total_item` na **mesma moeda** ou `—` se moedas divergirem. |
+| **VLR-03** | Linha **item** **editável** — popover moeda + valor; item vazio pode incluir valor e qualquer moeda e salvar. |
+| **VLR-04** | Valor preenchido do item = **Valor unitário do item × Qtd. Inicial do Item** (pill de fórmula na tooltip do item) — validado na **ETAPA 21** (passo 68). |
+| **VLR-05** | Ao abrir o popover em item preenchido, exibir **valor e moeda originais** antes da edição. |
+| **VLR-06** | Alterar valor/moeda no item persiste `valor_total_item` + `moeda_item` e recalcula agregado do pedido. |
+| **VLR-07** | **Alerta âmbar** na célula do **pedido** quando itens têm moedas divergentes no valor (`moeda_item_divergente`) — *Moedas divergentes entre itens*. |
+| **VLR-08** | **Aviso amarelo** no tooltip **pedido e item**: *A alteração da moeda aqui irá alterar também Moeda do Pedido/Item e Valor Unitário do Item* (`valor_total_item_impacto_moeda_edicao`). |
+| **VLR-09** | Alterar moeda no popover do item propaga impacto em `moeda_item`, `valor_por_unidade_item` e agregados (sincronização local pós-save). |
+| **VLR-10** | Sair da Lista e voltar — valores e moedas salvos nos itens **persistem** na grade (passo 81 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** (expandido) | *Valor total do pedido* | `bloqueado_edicao` → `valor_total_soma_mesma_moeda` → `editavel_nos_itens` → `alerta_moeda_divergente_entre_itens` |
+| **Item** | *Valor Total do Item* | `editavel_nos_itens` → `valor_total_item_formula` |
+| **Cabeçalho** (sem expandir) | *Valor Total do Pedido/Item* | `bloqueado_edicao` → `valor_total_soma_mesma_moeda` → `editavel_nos_itens` → `alerta_moeda_divergente_entre_itens` |
+
+**Código:** `PILLS_PEDIDO_VALOR_TOTAL` / `PILLS_ITEM_VALOR_TOTAL` · `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` · `enriquecerColunaBloqueadaInlinePedido` em `buildTooltipRegraLista.tsx`.
+
+**EMT:** passos 72–81 (ordem exata regras 01–08) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+
+---
+
+## 8A-C. VALOR TOTAL CÂMBIO DO PEDIDO/ITEM (`valor_total_cambio_pedido`)
+
+> Decisão de produto **2026-06-10** — coluna dinâmica pedido/item, espelho de **§8A** na dimensão **câmbio**. Pedido **não editável**; item via popover **moeda + valor** (`.gtv-edit-moeda-valor`, select `cadastros.moeda`). Persistência no item: `valor_total_cambio_item_pedido` (+ `moeda_cambio_item_pedido` quando o operador troca a moeda no popover). Coluna **Moeda Câmbio** (`§8N`) permanece o fluxo próprio (valor único no pedido, espelhamento visual).
+
+| # | Regra |
+|---|--------|
+| **VTCC-01** | Label na grade: **Valor Total Câmbio do Pedido/Item** — títulos de tooltip: *Valor total do câmbio* (pai) / *Valor Total Câmbio do Item* (filho). |
+| **VTCC-02** | Linha **pedido** **bloqueada** (`editavel: false` em `ColunasPai` + `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO`); exibe soma dos `valor_total_cambio_item_pedido` na **mesma moeda de câmbio** ou `—` se moedas de câmbio divergirem entre itens com valor. |
+| **VTCC-03** | Linha **item** **editável** — popover moeda + valor; item vazio pode incluir valor e qualquer moeda e salvar. |
+| **VTCC-04** | Badge na célula usa `moeda_cambio_item_pedido` do item, com fallback `_p.moeda_cambio_pedido`. |
+| **VTCC-05** | Ao abrir o popover em item preenchido, exibir **valor e moeda de câmbio originais** (`getValorEditar` em `buildMapaColunasFilho`). |
+| **VTCC-06** | Alterar valor no item persiste `valor_total_cambio_item_pedido` via `PUT /api/v1/pedidos/:id/itens/:id` (`pedidoItemApi.atualizar`). |
+| **VTCC-07** | Alterar **moeda** no popover do item persiste também `moeda_cambio_item_pedido` no mesmo PUT (espelha `valor_total_item` + `moeda_item`). |
+| **VTCC-08** | Após save, recalcula agregado local `valor_total_cambio_pedido` no pedido (soma ou `null` se moedas de câmbio divergem). |
+| **VTCC-09** | **Alerta âmbar** na célula do **pedido** quando itens têm moedas de câmbio divergentes com valor (`moeda_cambio_pedido_divergente`) — *Moedas de câmbio divergentes entre itens*. |
+| **VTCC-10** | **Aviso amarelo** no tooltip do **item** (e aviso de coluna no pai): *Alterar a moeda aqui também altera a Moeda Câmbio do item* (`valor_total_cambio_impacto_edicao`). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** (expandido) | *Valor total do câmbio* | `bloqueado_edicao` → `valor_total_soma_mesma_moeda` → `editavel_nos_itens` → `alerta_moeda_divergente_entre_itens` |
+| **Item** | *Valor Total Câmbio do Item* | `editavel_nos_itens` |
+| **Cabeçalho** (sem expandir) | *Valor Total Câmbio do Pedido/Item* | `bloqueado_edicao` → `valor_total_soma_mesma_moeda` → `editavel_nos_itens` → `alerta_moeda_divergente_entre_itens` |
+
+**Código:** `PILLS_PEDIDO_VALOR_TOTAL_CAMBIO` / `PILLS_ITEM_VALOR_TOTAL_CAMBIO` · `dinamico_valor_total_cambio` · `valorTotalCambioItemParaLista` · `enriquecerColunaBloqueadaInlinePedido` em `buildTooltipRegraLista.tsx`.
+
+**EMT:** pendente — coluna ainda sem ETAPA dedicada no plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8B. UNIDADE COMERCIALIZADA DO PEDIDO/ITEM (`unidade_comercializada_pedido`)
+
+> Decisão de produto **2026-06-08** — padrão Moeda/Incoterm (checkbox replicar) + aviso de impacto nas colunas de quantidade. Select de unidades via Cadastros (`useUnidadesPedido`).
+
+| # | Regra |
+|---|--------|
+| **UNC-01** | Label na grade: **Unidade Comercializada** — títulos de tooltip: *Unidade Comercializada do Pedido* (pai) / *Unidade Comercializada do Item* (filho). |
+| **UNC-02** | Campo **pedido vazio** (`—`) é **editável** — clicar abre popover de unidade. |
+| **UNC-03** | Hover na célula do **pedido** exibe tooltip (quando habilitada). |
+| **UNC-04** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `editavel_item` → `alerta_divergencia` + aviso *A alteração da unidade irá alterar também Qtd. Inicial, Qtd. Pronta, Qtd. Transferida, Saldo e Qtd. Cancelada* (`aviso_impacto_unidade_full`). |
+| **UNC-05** | Clicar na célula do **pedido** abre popover/modal com dropdown de unidades. |
+| **UNC-06** | Lista do dropdown = **fonte única** Cadastros/unidade (`useUnidadesPedido`). |
+| **UNC-07** | Selecionar unidade no **pedido** (vazio ou preenchido) persiste `unidade_comercializada_pedido`. Sem checkbox: só o pedido; com checkbox: pedido **e todos** os itens (`unidade_comercializada_pedido` → `unidade_comercializada_item`). |
+| **UNC-08** | Clicar na célula do **item** abre o mesmo popover (somente unidade, `apenasUnidade`). |
+| **UNC-09** | Lista do item = mesma fonte Cadastros; editar unidade no item persiste `unidade_comercializada_item`. |
+| **UNC-10** | Unidade **divergente** entre itens → **alerta âmbar** na célula do **pedido** (`unidade_comercializada_item_divergente`) — *Unidades divergentes entre itens*. |
+| **UNC-11** | Tooltip **item**: mesmas 4 pills do pedido + mesmo aviso de impacto (`aviso_impacto_unidade_full`). |
+| **UNC-12** | Sair da Lista e voltar — unidades salvas no pedido e nos itens **persistem** na grade (passo 82 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Unidade Comercializada do Pedido* | `editavel_pedido` → `replica_itens` → `editavel_item` → `alerta_divergencia` |
+| **Item** | *Unidade Comercializada do Item* | `editavel_pedido` → `replica_itens` → `editavel_item` → `alerta_divergencia` |
+
+**Código:** `pai_unidade_comercializada` · `PILLS_PEDIDO_UNIDADE` / `PILLS_ITEM_UNIDADE` · `tipo: 'unidade'` + `apenasUnidade: true` em `ColunasPai.tsx`.
+
+**EMT:** passos 72–82 (ordem regras 01–08 do dono) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+
+---
+
+## 8C. QTD. TRANSFERIDA DO PEDIDO/ITEM (`quantidade_transferida_total`)
+
+> Decisão de produto **2026-06-03** — coluna **somente leitura** na lista; alteração exclusiva via menu **Transferir**. Pedido = soma dos itens na mesma unidade comercializada (ou alerta de divergência). Fluxos split/redução: `documentos-tecnicos/produtos-gravity/pedido/TRANSFERIR-REGRAS-NEGOCIO.md`.
+
+| # | Regra |
+|---|--------|
+| **QTR-01** | Label na grade: **Qtd. Transferida do Pedido/Item** — títulos de tooltip: *Qtd. Transferida do Pedido* (pai) / *Qtd. Transferida do Item* (filho). |
+| **QTR-02** | Célula do **pedido** e do **item**: não editável na lista (`cursor: not-allowed`); popover de edição **não** abre ao clicar. |
+| **QTR-03** | Tooltip **pedido**: `calculado_pedido_qtd_transferida` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` + aviso *Para alterar os itens, clique em Transferir no menu principal*. |
+| **QTR-04** | Tooltip **item**: `somente_leitura` → `so_operacao` + **mesmo aviso** Transferir do pedido. |
+| **QTR-05** | Conteúdo do tooltip **item** = conteúdo do tooltip **pedido** (mesmas pills + aviso) quando ambos visíveis na mesma linha expandida. |
+| **QTR-06** | Unidades **divergentes** entre itens → pedido sem soma agregada (alerta visual *Unidades divergentes*), alinhado às demais colunas de quantidade. |
+| **QTR-07** | Cenários **Split** (novo/existente) incrementam `quantidade_transferida_item` na origem e destino conforme `TRANSFERIR-REGRAS-NEGOCIO.md`. |
+| **QTR-08** | Cenário **Redução simples** incrementa **`quantidade_cancelada_item`** (não `quantidade_transferida_item`) na origem — coluna Qtd. Transferida **permanece inalterada**. |
+| **QTR-09** | Após Transferir, persistência validada ao sair para o hub e voltar à lista (passos 106 / 124 / 134 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Qtd. Transferida do Pedido* | `calculado_pedido_qtd_transferida` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` |
+| **Item** | *Qtd. Transferida do Item* | `somente_leitura` → `so_operacao` |
+
+**Código:** `PILLS_PEDIDO_QTD_TRANSFERIDA` / `PILLS_ITEM_QTD_TRANSFERIDA` em `pillsTooltipColunaLista.ts` · `tipo: 'qtd_transferida'` em `ColunasPai.tsx`.
+
+**EMT:** passos 83–134 (ETAPAs 23–26) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8D. SALDO DO PEDIDO/ITEM (`saldo_itens_do_pedido`)
+
+> Decisão de produto **2026-06-08** — coluna **somente leitura**; pedido = soma dos saldos dos itens na **mesma unidade** (ou alerta *Unidades divergentes*); item = inicial − transferida − cancelada. Fórmula do pedido editável no Configurador.
+
+| # | Regra |
+|---|--------|
+| **SLD-01** | Label na grade: **Saldo do Pedido/Item** — títulos de tooltip: *Saldo do Pedido* (pai) / *Saldo do Item* (filho). |
+| **SLD-02** | Célula do **pedido** e do **item**: não editável na lista (`tipo: saldo`). |
+| **SLD-03** | Tooltip **pedido**: `calculado_pedido_saldo` → `bloqueado_edicao` → `alerta_unidade_comercializada_divergente` → `formula_config` → `casas_decimais_config` + link *Editar fórmula no Configurador*. |
+| **SLD-04** | Tooltip **item**: `somente_leitura` → `formula_config` + mesmo link ao Configurador. |
+| **SLD-05** | Unidades **divergentes** entre itens → célula do pedido sem soma (alerta visual *Unidades divergentes*). |
+| **SLD-06** | Saldo do item altera ao mudar Qtd. Inicial, Transferir ou Cancelar — **sem** aviso amarelo de impacto de unidade nesta coluna. |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Saldo do Pedido* | `calculado_pedido_saldo` → `bloqueado_edicao` → `alerta_unidade_comercializada_divergente` → `formula_config` → `casas_decimais_config` |
+| **Item** | *Saldo do Item* | `somente_leitura` → `formula_config` |
+| **Cabeçalho** (sem expandir) | *Saldo do Pedido/Item* | Mesmas pills pedido + item em bloco único (override `!dual`) |
+
+**Código:** `pai_saldo_formula` / `dinamico_saldo` · `PILLS_PEDIDO_SALDO` / `PILLS_ITEM_SALDO` · `tituloTooltipCelulaPorColuna` (`saldo_itens_do_pedido`).
+
+---
+
+## 8E. QTD. CANCELADA DO PEDIDO/ITEM (`quantidade_cancelada_total_pedido`)
+
+> Decisão de produto **2026-06-08** — coluna **somente leitura**; alteração via menu **Transferir** (redução simples incrementa `quantidade_cancelada_item`). Espelha §8C (Qtd. Transferida).
+
+| # | Regra |
+|---|--------|
+| **QCN-01** | Label na grade: **Qtd. Cancelada do Pedido/Item** — títulos: *Qtd. Cancelada do Pedido* (pai) / *Qtd. Cancelada do Item* (filho). |
+| **QCN-02** | Célula do **pedido** e do **item**: não editável na lista. |
+| **QCN-03** | Tooltip **pedido**: `calculado_pedido_qtd_cancelada` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` + aviso *Para cancelar os itens, selecione o(s) item(s) e clique em Transferir no menu principal. Escolha a opção Redução Simples*. |
+| **QCN-04** | Tooltip **item**: `somente_leitura` → `so_operacao` + **mesmo aviso** do pedido. |
+| **QCN-05** | Unidades **divergentes** → pedido sem soma agregada (*Unidades divergentes*). |
+| **QCN-06** | **Sem** aviso amarelo de impacto de unidade nesta coluna. |
+| **QCN-07** | Cenário **Redução simples** incrementa **`quantidade_cancelada_item`** na origem — **Qtd. Transferida** inalterada (ver QTR-08). |
+| **QCN-08** | Cenários **Split** (novo/existente) **não** incrementam Qtd. Cancelada — apenas Qtd. Transferida. |
+| **QCN-09** | Casas decimais da coluna configuráveis em **Pedido → Configurações → Casas decimais** (`quantidade_cancelada_total_pedido`). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Qtd. Cancelada do Pedido* | `calculado_pedido_qtd_cancelada` → `bloqueado_edicao` → `soma_mesma_unidade` → `alerta_unidade_comercializada_divergente` → `casas_decimais_config` |
+| **Item** | *Qtd. Cancelada do Item* | `somente_leitura` → `so_operacao` |
+| **Cabeçalho** (sem expandir) | *Qtd. Cancelada do Pedido/Item* | Override `!dual` (pedido + item) |
+
+**Código:** `dinamico_qtd_cancelada` · `PILLS_PEDIDO_QTD_CANCELADA` / item `somente_leitura` + `so_operacao` · aviso em `buildTooltipRegraLista.tsx` (`quantidade_cancelada_edicao_via_transferir`).
+
+**EMT:** passos 169–206 (ETAPAs 34–38) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8F. QTD. DE VOLUMES DO PEDIDO (`quantidade_volumes_pedido`)
+
+> Decisão de produto **2026-06-08** (revisada **2026-06-03**) — valor persiste no **Pedido**; na grade o **pedido** exibe o total formatado e **não** abre popover inline; **itens** editam via popover **quantidade inteira + select de tipo** (`cadastros.volume`). Alteração no item ou em **Edição em Massa** atualiza também **Tipo Volume Pedido/Item**.
+
+| # | Regra |
+|---|--------|
+| **VOL-01** | Label na grade: **Qtd. de Volumes do Pedido/Item** — tooltip pedido: *Qtd. Total de Volumes do Pedido*. |
+| **VOL-02** | Célula do **pedido**: bloqueada inline (`CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO`); clique **não** abre popover. |
+| **VOL-03** | Célula do **item**: editável — popover com **campo numérico** (inteiro) **e** **select** de tipo de volume. |
+| **VOL-04** | Tooltip **pedido**: `bloqueado_edicao` → `calculado_pedido_volumes` → `alerta_divergencia`. |
+| **VOL-05** | Tooltip **item**: `editavel_item`. |
+| **VOL-06** | Exibição: `formatarExibicaoQuantidadeVolume` — ex. `12 caixas de papelão` (qtd + nome pluralizado do tipo); qtd `0`/ausente com tipo → só o nome do tipo; sem tipo → `—`. |
+| **VOL-07** | Select do popover = **SSOT** `cadastros.volume` via `useVolumesPedido` (rótulo `codigo — nome`, ex. `05 — Caixa de Papelão`). |
+| **VOL-08** | Sem aviso amarelo no tooltip — pills «Aplicar em todos os itens» / «Editável no item» bastam; item não espelha pedido automaticamente. |
+| **VOL-09** | Edição em Massa no **pedido** (checkbox + campo `quantidade_volumes_pedido`) replica qtd/tipo para pedido e itens. |
+| **VOL-10** | Coluna **filtrável** e **ordenável**; rodapé soma dos pedidos visíveis (ETAPA 48 unifica grade/rodapé; ex-ETAPA 49). |
+| **VOL-11** | Mudança de qtd/tipo no item deve refletir na coluna **Tipo Volume Pedido/Item** (pedido + itens espelhados). |
+| **VOL-12** | Persistência validada hub → lista (passo 286 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Qtd. Total de Volumes do Pedido* | `bloqueado_edicao` → `calculado_pedido_volumes` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` |
+| **Cabeçalho** (sem expandir) | *Qtd. de Volumes do Pedido/Item* | Override `!dual` (pedido + item) |
+
+**Código:** `pai_calculado_volumes` · `PILLS_PEDIDO_VOLUMES` · `PILLS_ITEM_VOLUMES` · `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` · `formatarExibicaoQuantidadeVolume` · `useVolumesPedido`.
+
+**EMT:** passos 273–287 (ETAPA 48) · `validar-qtd-volumes-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8G. PESO LÍQUIDO TOTAL DO PEDIDO/ITEM (`peso_liquido_total_pedido` / `peso_liquido_unitario_item`)
+
+> Decisão de produto **2026-06-08** — pedido = soma dos itens na mesma unidade de peso (ou alerta *Unidades de peso líquido divergentes*); item editável via popover qty + unidade. Fonte de unidades: Cadastros `categoria=peso` (**G**, **KG**, **TON**).
+
+| # | Regra |
+|---|--------|
+| **PLQ-01** | Label na grade: **Peso Líquido Total do Pedido/Item** — tooltip pedido: *Peso Líquido Total do Pedido*; item: editável unitário. |
+| **PLQ-02** | Célula do **pedido**: não editável na lista (`editavel: false`, `cursor: not-allowed`). |
+| **PLQ-03** | Tooltip **pedido**: `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia`. |
+| **PLQ-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **PLQ-05** | Clicar no **item** abre popover com quantidade + select de unidade de peso. |
+| **PLQ-06** | Lista do select = Cadastros/unidade `categoria=peso` — EMT exige **G**, **KG** e **TON** visíveis (`G — Grama`, `KG — Quilograma`, `TON — Tonelada`). |
+| **PLQ-07** | Aviso amarelo no popover do item: *A alteração da unidade irá alterar também Peso Bruto Total* (`aviso_impacto_peso_bruto`). |
+| **PLQ-08** | Editar peso líquido no item persiste `peso_liquido_unitario_item` + `peso_liquido_unidade_item`; pedido recalcula `peso_liquido_total_pedido`. |
+| **PLQ-09** | Unidades de peso **divergentes** entre itens → pedido sem soma (alerta *Unidades de peso líquido divergentes*). |
+| **PLQ-10** | Formato: casas decimais de Config (`peso_liquido_total_pedido` / unitário); badge de unidade na célula do item; pedido exibe **KG** agregado. |
+| **PLQ-11** | Persistência validada ao sair para o hub e voltar à lista (passo 237 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Peso Líquido Total do Pedido* | `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` → `alerta_divergencia` |
+
+**Código:** `pai_calculado_peso` · `dinamico_peso_liquido` · `PILLS_PEDIDO_PESO_CUBAGEM` · `unidadesPeso` em `useUnidadesPedido` · `aviso_impacto_peso_bruto` em `ColunasPai.tsx`.
+
+**EMT:** passos 227–237 (ETAPA 44) · `validar-peso-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8H. PESO BRUTO TOTAL DO PEDIDO/ITEM (`peso_bruto_total_pedido` / `peso_bruto_unitario_item`)
+
+> Espelha §8G — pedido bloqueado (soma); item editável; unidades de peso do Cadastros; aviso cruzado com Peso Líquido.
+
+| # | Regra |
+|---|--------|
+| **PLB-01** | Label na grade: **Peso Bruto Total do Pedido/Item** — tooltip pedido: *Peso Bruto Total do Pedido*. |
+| **PLB-02** | Célula do **pedido**: não editável na lista. |
+| **PLB-03** | Tooltip **pedido**: `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia`. |
+| **PLB-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **PLB-05** | Clicar no **item** abre popover qty + select de unidade. |
+| **PLB-06** | Select lista **G**, **KG** e **TON** (mesma fonte Cadastros `categoria=peso`). |
+| **PLB-07** | Aviso amarelo: *A alteração da unidade irá alterar também Peso Líquido Total* (`aviso_impacto_peso_liquido`). |
+| **PLB-08** | Editar no item persiste `peso_bruto_unitario_item` + `peso_bruto_unidade_item`; pedido recalcula total. |
+| **PLB-09** | Unidades divergentes → alerta *Unidades de peso bruto divergentes* no pedido. |
+| **PLB-10** | Casas decimais de Config; badge de unidade no item; pedido em **KG**. |
+| **PLB-11** | Persistência hub → lista (passo 248 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Peso Bruto Total do Pedido* | `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` → `alerta_divergencia` |
+
+**Código:** `dinamico_peso_bruto` · `aviso_impacto_peso_liquido` em `ColunasPai.tsx`.
+
+**EMT:** passos 238–248 (ETAPA 45) · `validar-peso-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8I. CUBAGEM TOTAL DO PEDIDO/ITEM (`cubagem_total_pedido` / `cubagem_unitaria_item`)
+
+> Decisão de produto **2026-06-08** — pedido = soma dos itens na mesma unidade de cubagem (ou alerta *Unidades de cubagem divergentes*); item editável via popover qty + unidade. Fonte: Cadastros `categoria` ∈ comprimento \| area \| volume (**M3** obrigatório no EMT).
+
+| # | Regra |
+|---|--------|
+| **CUB-01** | Label na grade: **Cubagem Total do Pedido/Item** — tooltip pedido: *Cubagem Total do Pedido*. |
+| **CUB-02** | Célula do **pedido**: não editável na lista (`editavel: false`). |
+| **CUB-03** | Tooltip **pedido**: `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia`. |
+| **CUB-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **CUB-05** | Clicar no **item** abre popover qty + select de unidade de cubagem. |
+| **CUB-06** | Lista do select = Cadastros/unidade (comprimento \| area \| volume) — EMT exige **M3** (`M3 — …`) e ≥3 opções. |
+| **CUB-07** | **Sem** aviso amarelo de impacto cruzado nesta coluna (diferente de peso). |
+| **CUB-08** | Editar no item persiste `cubagem_unitaria_item` + `cubagem_unidade_item`; pedido recalcula `cubagem_total_pedido`. |
+| **CUB-09** | Unidades divergentes entre itens → pedido sem soma (*Unidades de cubagem divergentes*). |
+| **CUB-10** | Formato: casas decimais de Config; badge **M³** no pedido; item exibe unidade escolhida. |
+| **CUB-11** | Persistência hub → lista (passo 259 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Cubagem Total do Pedido* | `calculado_pedido` → `bloqueado_edicao` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` → `alerta_divergencia` |
+
+**Código:** `pai_calculado_cubagem` · `dinamico_cubagem` · `PILLS_PEDIDO_PESO_CUBAGEM` · `unidadesCubagem` em `useUnidadesPedido`.
+
+**EMT:** passos 249–259 (ETAPA 46) · `validar-cubagem-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8J. TIPO VOLUME PEDIDO/ITEM (`tipo_volume_pedido` / `tipo_volume_item`)
+
+> Decisão de produto **2026-06-03** — pedido e itens editáveis; popover **somente select** (`apenasUnidade`). **SSOT:** `cadastros.volume` via `useVolumesPedido`. Alteração de tipo atualiza exibição em **Qtd. de Volumes do Pedido** (pluralização/nome).
+
+| # | Regra |
+|---|--------|
+| **TVL-01** | Label na grade: **Tipo Volume Pedido/Item** — tooltip pedido: *Tipo de Volume do Pedido*. |
+| **TVL-02** | Célula do **pedido**: editável — popover com **apenas** select de tipo (sem campo numérico). |
+| **TVL-03** | Célula do **item**: editável — mesmo popover (select only), campo `tipo_volume_item`. |
+| **TVL-04** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `alerta_divergencia`. |
+| **TVL-05** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **TVL-06** | Select lista **todas** as opções ativas de `cadastros.volume` — formato `codigo — nome_volume` (ex. `01 — Tambor de Plástico` … `06 — Caixa de Isopor`); busca «Buscar…» funcional. |
+| **TVL-07** | Sem aviso amarelo no tooltip — acoplamento tipo↔qtd fica no popover de edição se necessário; não espelha pedido↔item sozinho. |
+| **TVL-08** | Checkbox «Aplicar em todos os itens» no **pedido** — marcado replica tipo em todos os itens; desmarcado altera só o pedido. |
+| **TVL-09** | Tipos **divergentes** entre itens → alerta âmbar *Tipos de volume divergentes entre itens* no pedido (`tipo_volume_item_divergente`). |
+| **TVL-10** | Exibição pedido: rótulo do tipo agregado ou alerta; item: `formatarNomeVolumeExibicao` (singular). |
+| **TVL-11** | Confirmar tipo diferente deve refletir na coluna **Qtd. de Volumes** (texto com novo tipo, mesmo qtd = 0). |
+| **TVL-12** | Persistência hub → lista (passo 272 EMT). |
+
+### Tooltips (framework §0)
+
+| Nível | Título | Pills (ordem canônica) |
+|-------|--------|--------------------------|
+| **Pedido** | *Tipo de Volume do Pedido* | `editavel_pedido` → `replica_itens` → `alerta_divergencia` |
+| **Item** | *(dinâmico Pedido/Item)* | `editavel_item` → `alerta_divergencia` |
+| **Cabeçalho** (sem expandir) | *Tipo Volume Pedido/Item* | Override `!dual` (pedido + item) |
+
+**Código:** `tipo_volume_pedido` em `ColunasPai.tsx` (`apenasUnidade: true`) · mapa filho `tipo_volume_pedido` · `useVolumesPedido` · `aviso_impacto_tipo_volume`.
+
+**EMT:** passos 260–272 (ETAPA 47) · `validar-tipo-volume-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8K. COBERTURA CAMBIAL DO PEDIDO (`cobertura_cambial`)
+
+> Decisão de produto **2026-06-03** — coluna dual pedido/item; select Cadastros; checkbox replicar no pedido; alerta de divergência entre itens.
+
+| # | Regra |
+|---|--------|
+| **COB-01** | Label na grade: **Cobertura Cambial do Pedido/Item** — tooltip: *Cobertura Cambial*. |
+| **COB-02** | Célula do **pedido** e do **item**: editáveis via popover **select**. |
+| **COB-03** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `alerta_divergencia`. |
+| **COB-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **COB-05** | Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»** (visível; desmarcado por padrão). |
+| **COB-06** | **Sem** checkbox: salva **somente** no pedido; itens permanecem com valor anterior. |
+| **COB-07** | **Com** checkbox marcado: replica a opção escolhida em **todos** os itens do pedido. |
+| **COB-08** | Select lista opções ativas de **`cadastros.cambio_siscomex`** (`tipo=cobertura_cambial`) — rótulo `codigo — nome`. |
+| **COB-09** | Coberturas **divergentes** entre itens → alerta âmbar *Coberturas cambiais divergentes entre itens* no pedido. |
+| **COB-10** | Edição em Massa (`cobertura_cambial_pedido`) replica para pedido e itens. |
+| **COB-11** | Coluna **filtrável**; **sem** aviso amarelo de impacto cruzado. |
+| **COB-12** | Persistência hub → lista (passo 301 EMT). |
+
+**Código:** `pai_ghost_cobertura` · `useCambioSiscomexPedido` · `cobertura_cambial_divergente` · `GHOST_COBERTURA`.
+
+**EMT:** passos 288–302 (ETAPA 49) · `validar-cobertura-cambial-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8L. CONDIÇÃO DE PAGAMENTO DO PEDIDO/ITEM — SISCOMEX (`condicao_pagamento_siscomex`)
+
+> Decisão de produto **2026-06-03** — coluna dual pedido/item; select Cadastros; checkbox replicar no pedido; alerta de divergência entre itens. Espelha Cobertura Cambial (§8K), com SSOT `modalidade_pagamento`.
+
+| # | Regra |
+|---|--------|
+| **CPS-01** | Label na grade: **Condição de Pagamento do Pedido/Item — Siscomex** — tooltip: *Modalidade de Pagamento — Siscomex*. |
+| **CPS-02** | Célula do **pedido** e do **item**: editáveis via popover **select**. |
+| **CPS-03** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `alerta_divergencia`. |
+| **CPS-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **CPS-05** | Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»** (visível; desmarcado por padrão). |
+| **CPS-06** | **Sem** checkbox: salva **somente** no pedido; itens permanecem com valor anterior. |
+| **CPS-07** | **Com** checkbox marcado: replica a modalidade escolhida em **todos** os itens do pedido. |
+| **CPS-08** | Select lista opções ativas de **`cadastros.cambio_siscomex`** (`tipo=modalidade_pagamento`) — rótulo `codigo — nome` (ex.: `21 — Pagamento à vista total ou preponderante — outros`). |
+| **CPS-09** | Modalidades **divergentes** entre itens → alerta âmbar *Modalidades Siscomex divergentes entre itens* no pedido (`condicao_pagamento_siscomex_divergente`). |
+| **CPS-10** | Edição em Massa (`condicao_pagamento_siscomex_pedido` / `_item`) replica para pedido e itens quando nível pedido. |
+| **CPS-11** | Coluna **filtrável**; **sem** aviso amarelo de impacto cruzado. |
+| **CPS-12** | Persistência hub → lista (passo 316 EMT). |
+
+**Código:** `condicao_pagamento_siscomex` · `useCambioSiscomexPedido` · `condicao_pagamento_siscomex_divergente` · `mapaPropagacaoPedidoItem`.
+
+**EMT:** passos 303–317 (ETAPA 50) · `validar-condicao-pagamento-siscomex-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+---
+
+## 8M. CONDIÇÃO DE PAGAMENTO DO PEDIDO/ITEM — COMERCIAL (`condicao_pagamento`)
+
+> Decisão de produto **2026-06-03** — coluna dual pedido/item; **texto livre** (sem Cadastros); checkbox replicar no pedido; alerta de divergência entre itens; truncamento na grade com ícone olho quando > 50 caracteres.
+
+| # | Regra |
+|---|--------|
+| **CPG-01** | Label na grade: **Condição de Pagamento do Pedido/Item — Comercial** — tooltip pedido: *Condição de Pagamento do Pedido — Comercial*; item: *Condição de Pagamento do Item — Comercial*. |
+| **CPG-02** | Célula do **pedido** e do **item**: editáveis via popover **texto livre** (alfanumérico). |
+| **CPG-03** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `alerta_divergencia`. |
+| **CPG-04** | Tooltip **item**: `editavel_item` → `alerta_divergencia`. |
+| **CPG-05** | Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»** (visível; desmarcado por padrão). |
+| **CPG-06** | **Sem** checkbox: salva **somente** no pedido; itens permanecem com valor anterior. |
+| **CPG-07** | **Com** checkbox marcado: replica o texto em **todos** os itens do pedido. |
+| **CPG-08** | Texto **> 50 caracteres** na grade: exibição truncada com reticências + ícone **olho**; hover/click revela texto completo. |
+| **CPG-09** | Condições **divergentes** entre itens → alerta âmbar *Condições de pagamento divergentes entre itens* no pedido (`condicao_pagamento_divergente`). |
+| **CPG-10** | Edição em Massa (`condicao_pagamento_pedido` / `condicao_pagamento_item`) replica para pedido e itens quando nível pedido. |
+| **CPG-11** | Popover (pedido e item) exibe **aviso amarelo** *«A edição aqui irá alterar a Condição de Pagamento do Pedido/Item»* (`aviso_impacto_condicao_pagamento`). |
+| **CPG-12** | Coluna **filtrável**; persistência hub → lista (passo 331 EMT). |
+
+**Código:** `condicao_pagamento` · `condicao_pagamento_pedido` / `condicao_pagamento_item` · `condicao_pagamento_divergente` · `mapaPropagacaoPedidoItem` · `renderDescricaoTruncada`.
+
+**EMT:** passos 318–332 (ETAPA 51) · `validar-condicao-pagamento-comercial-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+**Prefixos de valor no runner:** `CPG-EMT-SOLO-*` · `CPG-EMT-TODOS-*` · `CPG-EMT-ITEM-*` · `CPG-EMT-LONGO-*` (> 50 caracteres).
+
+---
+
+## 8N. MOEDA CÂMBIO (`moeda_cambio_pedido`)
+
+> Decisão de produto **2026-06-08** — valor **único no Pedido**; itens **espelham** `_p.moeda_cambio_pedido` na UI (badge ISO, ex.: `EUR` na captura do dono); select Cadastros; **sem** checkbox replicar; alerta âmbar quando `moeda_pedido` ≠ `moeda_item` em algum item.
+
+| # | Regra |
+|---|--------|
+| **MCB-01** | Label na grade: **Moeda Câmbio** — tooltip: *Moeda Câmbio*; coluna **filtrável** (ícone funil). |
+| **MCB-02** | Campo existe só no model **Pedido** (`moeda_cambio_pedido`); itens exibem o mesmo código via contexto `_p`. |
+| **MCB-03** | Célula exibe **badge** com sigla ISO (ex.: `EUR`, `USD`, `BRL`) — classe `gtv-celula-moeda`. |
+| **MCB-04** | Tooltip **pedido**: `editavel_pedido` → `editavel_item` → `alerta_moeda_divergente`. |
+| **MCB-05** | Tooltip **item**: `editavel_item`. |
+| **MCB-06** | Linha **pedido** e **item** editáveis via popover **select** (opções ativas de **`cadastros.moeda`**). |
+| **MCB-07** | Edição no **item** roteia PATCH para o **pedido**; após salvar, **pedido e todos os itens** exibem a **mesma** sigla (espelhamento). |
+| **MCB-08** | Popover **sem** checkbox «Aplicar a todos os itens» — valor é sempre do pedido. |
+| **MCB-09** | Popover exibe **aviso amarelo** *«Moeda de câmbio é exclusiva do pedido e não altera a moeda comercial dos itens»* (`aviso_impacto_moeda_cambio`). |
+| **MCB-10** | Alterar Moeda Câmbio **não** modifica colunas **Moeda do Pedido/Item** (`moeda_pedido` / `moeda_item`). |
+| **MCB-11** | Quando `moeda_pedido` ≠ `moeda_item` em algum item → alerta âmbar *Moedas divergentes entre itens* na célula do **pedido** (`moeda_cambio_divergente`); itens **sem** ícone na célula. |
+| **MCB-12** | Edição em Massa (`moeda_cambio_pedido`) e persistência hub → lista (passo 346 EMT). |
+
+**Código:** `moeda_cambio_pedido` · `calcularMoedaCambioDivergente` · `montarContextoPaiItem` · `classeMoedaBadge`.
+
+**EMT:** passos 333–347 (ETAPA 52) · `validar-moeda-cambio-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+**Valores no runner:** siglas do Cadastros (ex.: `EUR` · `USD` · `BRL`) — critério = salvou + espelhamento visual em pedido e itens.
+
+---
+
+## 8O. DATA DE TRANSFERÊNCIA DE SALDO (`data_transferencia_saldo_pedido`)
+
+> Decisão de produto **2026-06-08** — coluna dual pedido/item (`data_transferencia_saldo_pedido` → `data_transferencia_saldo_item`); **dupla origem**: alimentação **automática** ao transferir saldo **e** edição **manual** na lista; formato **DD/MM/AAAA** (ex.: `06/06/2026` na captura do dono).
+
+| # | Regra |
+|---|--------|
+| **DTS-01** | Label na grade: **Data de Transferência de Saldo** — tooltip: *Data de Transferência de Saldo*; coluna **filtrável** e **ordenável**. |
+| **DTS-02** | Célula do **pedido** e do **item**: editáveis via popover **data** (`tipo: periodo`). |
+| **DTS-03** | Tooltip **pedido**: `editavel_pedido` → `replica_itens` → `atualiza_transferencia_saldo` → `alerta_divergencia`. |
+| **DTS-04** | Tooltip **item**: `editavel_item` → `atualiza_transferencia_saldo` → `alerta_divergencia`. |
+| **DTS-05** | Popover do **pedido** exibe checkbox **«Aplicar a todos os itens deste pedido»** (visível; desmarcado por padrão). |
+| **DTS-06** | **Sem** checkbox: salva **somente** no pedido; itens permanecem com data anterior. |
+| **DTS-07** | **Com** checkbox marcado: replica a data em **todos** os itens (`mapaPropagacaoPedidoItem`). |
+| **DTS-08** | **Automático — Transferir:** ao confirmar split (`novo_pedido`, `pedido_existente`, `transfer_intercompany`, etc.), grava **data do dia** no **pedido de origem** (`data_transferencia_saldo_pedido`) e no **item de origem** (`data_transferencia_saldo_item`). |
+| **DTS-09** | **Automático — exceções:** `reducao_simples` e `substituicao_pura` **não** alteram esta coluna (QTR-08 / `CENARIOS_SEM_DATA_TRANSFERENCIA_SALDO`). |
+| **DTS-10** | Datas **divergentes** entre itens → alerta âmbar *Datas de transferência de saldo divergentes entre itens* no pedido (`data_transferencia_saldo_pedido_divergente`). |
+| **DTS-11** | Edição em Massa (`data_transferencia_saldo_pedido`, tipo `data`) replica para pedido e itens quando nível pedido. |
+| **DTS-12** | Pill `atualiza_transferencia_saldo` documenta a alimentação automática via menu **Transferir**. |
+| **DTS-13** | **Sem** aviso amarelo de impacto cruzado no popover (diferente de Tipo Volume / Moeda). |
+| **DTS-14** | Persistência hub → lista (passo 362 EMT). |
+
+**Código:** `criarColunaDataReplicavel` · `TransferirService.dataTransferenciaSaldoParaCenario` · `PILLS_PEDIDO_DATA_TRANSFERENCIA_SALDO` · `fmtData`.
+
+**EMT:** passos 348–363 (ETAPA 53) · `validar-data-transferencia-saldo-lista.ts` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+
+**Ordem runner:** passos 348–363 rodam **após** ETAPA 26 (Qtd. Transferida — Redução Simples, passo **134**), para validar alimentação automática pós-Transferir.
+
+**Datas no runner (manual):** `15/01/2026` · `20/02/2026` · `25/03/2026` · `06/06/2026` (massa / captura dono).
+
+---
+
+## 8P. ANEXOS NA LISTA (`anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco`)
+
+> Decisão de produto **2026-06-09** — colunas **não editáveis inline**; operador interage pelo **ícone de clipe** na célula. Cada linha (pedido **ou** item) possui anexos **individuais** (`vinculo` + `vinculo_id` da própria linha). Colunas customizadas `tipo === 'anexo'` seguem a mesma UX.
+
+| # | Regra |
+|---|--------|
+| **ANX-01** | Chaves padrão: `anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco` — SSOT em `anexoColunaLista.ts`. |
+| **ANX-02** | Célula exibe ícone de clipe; badge numérico quando há arquivos na **categoria** da coluna. |
+| **ANX-03** | Contagem carregada no **mount** da célula (`anexosApi.listar`) — operador vê quantidade **sem** abrir o painel. |
+| **ANX-04** | Clique abre painel flutuante (portal, 340px): listar, upload, download e exclusão por arquivo. |
+| **ANX-05** | Linha **pedido**: `vinculo = pedido`, `vinculo_id = pedido.id`. Linha **item**: `vinculo = item`, `vinculo_id = item.id`. |
+| **ANX-06** | Categoria do anexo = sufixo da chave (`pedido`, `proforma`, `invoice`, `lpco`) ou id da coluna customizada. |
+| **ANX-07** | **Sem** edição inline de texto; **sem** alerta âmbar de divergência entre linhas. |
+| **ANX-08** | Tooltip **pedido**: título `{Coluna} do Pedido` + pill `editavel_pedido` + descrição *«Clique no ícone…»* (`pedido.coluna_pai.{campo}_desc`). |
+| **ANX-09** | Tooltip **item**: título `{Coluna} do Item` + pill `editavel_item` + mesma descrição orientativa. |
+| **ANX-10** | Painel usa `BotaoGlobal` (Continuar anexando / Salvar); ícone vazio também abre seletor de arquivo. |
+
+### Tooltips (framework §0)
+
+| Nível | Pills | Descrição extra |
+|-------|-------|-----------------|
+| Pedido | `editavel_pedido` | `pedido.coluna_pai.anexo_*_desc` |
+| Item | `editavel_item` | Idem |
+
+**Código:** `anexoColunaLista.ts` · `renderCelulaAnexoLista.tsx` · `CelulaAnexosColuna.tsx` · `buildTooltipRegraLista.tsx` (`pai_anexo`).
+
+**Doc técnico:** [`LISTA-EDITAR-SALVAR-TECNICO.md` §6](./LISTA-EDITAR-SALVAR-TECNICO.md#6-tooltips-de-coluna-na-lista) · [`ANEXOS-GERAR-PDF-TECNICO.md`](./ANEXOS-GERAR-PDF-TECNICO.md).
+
+---
+
+## 9. Logística (Porto, País, Aeroporto)
+
+> Campos em `CAMPOS_LOGISTICA_PEDIDO` — valor **único no Pedido**; itens **espelham** `_p` na UI.
+
+| # | Regra |
+|---|--------|
+| **LOG-00** | EMT: o código escolhido (UN/LOCODE, ISO, IATA) pode ser **qualquer opção** do Cadastros — o critério é **salvou com sucesso** e pedido + itens exibem o **mesmo** valor espelhado. |
+| **LOG-01** | Campo existe só no model **Pedido** (sem coluna em `PedidoItem`). |
+| **LOG-02** | Linha **pedido** editável (select Cadastros). |
+| **LOG-03** | Linha **item** exibe o mesmo valor (**espelhado** com o pedido). |
+| **LOG-04** | Edição no **item** roteia PATCH para o **pedido**. |
+| **LOG-05** | **Sem** checkbox replicar e **sem** alerta de divergência. |
+| **LOG-06** | Tooltip **pedido**: «Editável no pedido» · «Editável no item» · «Espelhado com itens e pedido» (ordem canônica §0). **Item**: mesmas pills até revisão campo a campo. Título: `{Coluna} do Pedido` / `{Coluna} do Item` (ex.: *Porto de Origem do Pedido*). |
+
+---
+
+## 10. Resumo comparativo
+
+| Aspecto | Workspace | TIPO DE OPERAÇÃO | STATUS | Importador | Exportador | Ref. Imp./Exp. | Moeda | Valor total | Unidade com. | Logística | Incoterm |
+|---------|-----------|------------------|--------|------------|------------|----------------|-------|-------------|--------------|-----------|----------|
+| Edição no pedido | ✅ | ✅ | ✅ | ✅ (IMP: via workspace) | ✅ (EXP: via workspace) | ✅ | ✅ | ❌ bloqueado | ✅ select unidade | ✅ | ✅ |
+| Edição no item | ❌ travado | ❌ travado | ✅ | ❌ travado | ❌ travado | ✅ | ✅ | ✅ popover moeda+valor | ✅ select unidade | ✅ (roteia pedido) | ✅ |
+| Checkbox replicar no pedido | ❌ ausente | ❌ ausente | ✅ presente | ❌ ausente | ❌ ausente | ✅ presente | ✅ presente | ❌ ausente | ✅ presente | ❌ ausente | ✅ presente |
+| Replicação sem checkbox | ✅ sempre | ✅ sempre | ❌ não replica | — | — | ❌ não replica | ❌ não replica | — | ❌ não replica | Espelhado visual | ❌ não replica |
+| Alerta âmbar se diverge | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ (só célula) | ✅ (moeda no valor) | ✅ (unidades) | ❌ | ✅ |
+| Opções do select (pedido) | Workspaces habilitados | Importação / Exportação | Status nativos + custom | IMP: workspaces / EXP: fornecedores | EXP: workspaces / IMP: fornecedores | Texto livre | Cadastros moeda | — | Cadastros unidade | Cadastros | Incoterms cadastros |
+
+---
+
+## 11. Histórico
+
+| Data | Evento |
+|------|--------|
+| 2026-05-13 | Checkbox «Aplicar a todos os itens» — entrega genérica ([`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md)) |
+| 2026-06 | TIPO DE OPERAÇÃO — regras TOP-01…05; EMT aprovado (PR #199, runner #201) |
+| 2026-06-03 | STATUS — regras 00–04; fix alerta sem expandir (`status_itens_snapshot`); TDZ `statusOpts`/`pedidos` |
+| 2026-06-03 | WORKSPACE — WS-01…06; sem alerta; select com todos workspaces habilitados |
+| 2026-06-03 | IMPORTADOR — IMP-01…04 / EXP-01…06; modal seletor na exportação; IMP espelhado com workspace |
+| 2026-06-08 | EXPORTADOR — EXPE-01…04 / IMPE-01…06; espelho invertido do Importador; EMT `run-lista-exportador-emt.ts` |
+| 2026-06-06 | NCM — NCM-01…07; sem alerta de divergência (vários NCMs por pedido é normal) |
+| 2026-06-06 | REF. IMPORTADOR / EXPORTADOR — REF-01…08; EMT passos 13–20 (mesmas regras, padrão Incoterm) |
+| 2026-06-06 | LOGÍSTICA — LOG-01…06; tooltips espelhados (sem alerta/replicar) em Porto/País/Aeroporto |
+| 2026-06-03 | LOG-00 — EMT logística valida espelhamento, não código fixo (runner opção dinâmica) |
+| 2026-06-06 | INCOTERM — INC-01…08; EMT passos 21–24 (select Cadastros + checkbox + alerta divergência) |
+| 2026-06-07 | §0 Framework tooltips (linha pedido / linha item / avisos); LOG-06 alinhado a títulos `{Coluna} do Pedido/Item` |
+| 2026-06-07 | MOEDA — MND-01…08; tooltips pedido/item + aviso impacto; pills `editavel_pedido` → `replica_itens` → `editavel_item` / item `editavel_item` |
+| 2026-06-08 | VALOR UNITÁRIO — VUN-01…10; pedido bloqueado sem soma; item popover; EMT passos 62–71 (ETAPA 21) |
+| 2026-06-08 | VALOR TOTAL — VLR-01…10; pedido bloqueado + soma; item popover; pills `editavel_nos_itens`; EMT passos 72–81 (ETAPA 22) |
+| 2026-06-08 | UNIDADE COMERCIALIZADA — UNC-01…12; select Cadastros + checkbox; pills espelhadas pedido/item; EMT passos 72–82 |
+| 2026-06-03 | §8F revisada (VOL-01…12) + §8J TVL-01…12 — Tipo Volume + Qtd. Volumes; SSOT `cadastros.volume`; cruzamento 265/279; ETAPA 49 fundida na 48 |
+| 2026-06-03 | §8K COB-01…12 — Cobertura Cambial; checkbox replicar + alerta divergência; EMT passos 288–302 |
+| 2026-06-03 | §8L CPS-01…12 — Condição Pagamento Siscomex; SSOT `modalidade_pagamento`; EMT passos 303–317 |
+| 2026-06-08 | §8M CPG-01…12 — Condição Pagamento Comercial; texto livre + checkbox; EMT passos 318–332 |
+| 2026-06-08 | §8N MCB-01…12 — Moeda Câmbio; espelhamento pedido/itens + alerta moeda comercial divergente; EMT passos 333–347 |
+| 2026-06-08 | §8O DTS-01…14 — Data Transferência Saldo; automático (Transferir) + manual; EMT passos 348–363 (após passo 134) |
+| 2026-06-09 | §8P ANX-01…10 — Anexos na lista (ícone, vínculo por linha, tooltips dual, preload badge) |
+| 2026-06-10 | §8A-C VTCC-01…10 — Valor Total Câmbio; pedido bloqueado + soma; item popover moeda+valor; PUT item com `valor_total_cambio_item_pedido` |
+
+--- documentos-tecnicos/produtos-gravity/pedido/LISTA-EDITAR-SALVAR-TECNICO.md ---
+# Lista de Pedidos — Editar e Salvar (Técnico)
+
+> Implementação da edição inline na Lista: colunas **Nº PEDIDO/ITEM**, **TIPO DE OPERAÇÃO** e **STATUS**.  
+> **Regras de negócio:** [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](./LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md)
+
+**Status:** vigente 2026-06-03
+
+---
+
+## 1. SSOT de comportamento por coluna
+
+| Módulo | Papel |
+|--------|--------|
+| `pedido/client/src/shared/columnBehaviorConfig.ts` | `editavel` pai/filho; `ALERTA_OVERRIDE` |
+| `pedido/shared/columnAlertConfig.ts` | Campos alertáveis; exclusão explícita de `tipo_operacao` |
+| `pedido/shared/pedidoDivergencias.ts` | `calcularStatusDivergente`, inferência sem itens carregados |
+| `pedido/client/src/pages/Pedidos.tsx` | `handleEditar`, `handleEditarFilho`, `montarContextoPaiItem` |
+
+### Overrides em `columnBehaviorConfig.ts`
+
+```ts
+ALERTA_OVERRIDE = {
+  tipo_operacao: false,  // sem alerta — replica automática do pedido
+  status: true,          // pedido ≠ item ou item ≠ item
+}
+
+ITEM_EDITAVEL_OVERRIDE = {
+  tipo_operacao: false,  // item travado
+  status: true,          // item editável na UI
+}
+```
+
+### Alertas em `columnAlertConfig.ts`
+
+- `tipo_operacao` **fora** de `CAMPOS_ALERTAVEIS` — comentário documenta exclusão intencional.
+- `status` calculado em `pedidoDivergencias.ts` via `_p.status` (não há coluna `status` persistida em `PedidoItem` para divergência na lista).
+
+---
+
+## 2. TIPO DE OPERAÇÃO
+
+### Frontend (`Pedidos.tsx`)
+
+- `handleEditar` — ramo genérico de campos propagáveis força replicação:
+
+```ts
+const replicar = campo === 'id_workspace' || campo === 'tipo_operacao'
+  ? true
+  : (opts?.replicar_em_itens ?? false)
+```
+
+- `permiteReplicacaoPaiEmItens` no `TabelaVirtualGlobal` **não** inclui `tipo_operacao` → checkbox oculto no popover.
+- `buildMapaColunasFilho` / `mapaColunasFilho`: `tipo_operacao` com `editavel: false` e tooltip de bloqueio no item.
+- Após save: `aplicarPropagacaoPedidoNoItem` atualiza `tipo_operacao_item` no cache; `setResetFilhos` se itens já expandidos.
+
+### Backend
+
+- `PATCH /api/v1/pedidos/:id/campo` com `replicar_em_itens: true` (enviado pelo client).
+- Par no mapa: `tipo_operacao` → `tipo_operacao_item` (via `mapaPropagacaoPedidoItem` / edição em massa).
+
+### Testes
+
+- EMT: `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/` (passos 06–12).
+- Funcional: `F-PROP-09`, `F-EMT-TOP-*` em `editar-salvar-funcional.md`.
+
+---
+
+## 3. STATUS
+
+### Edição no pedido (`handleEditar`, `campo === 'status'`)
+
+1. `pedidoLoteApi.mudarStatusConfirmar([id], novoStatus)` — persiste status do pedido.
+2. `replicar = opts?.replicar_em_itens ?? false`.
+3. Se `replicar` e cache de itens carregado → atualiza `_p.status` em cada item.
+4. Se **não** replicar e pedido tem itens (`pedidoPossuiItensNaLista`):
+   - Ghost `status_itens_snapshot` = status anterior dos itens (preserva na expansão).
+   - `status_divergente: true` mesmo com cache vazio (`inferirStatusDivergenteSemItensCarregados`).
+5. Se cache com itens → `sincronizarItensPedido` → `calcularStatusDivergente`.
+
+### Edição no item (`handleEditarFilho`, `campo === 'status'`)
+
+- Atualiza apenas `_p.status` do item em `itensCarregadosRef`.
+- `sincronizarItensPedido` recalcula `status_divergente` no pedido pai.
+- **Sem chamada API** para persistir status por item (dívida P0).
+
+### Expansão de filhos (`handleCarregarFilhos` / `montarContextoPaiItem`)
+
+- `resolverStatusEfetivoItemAoCarregar(pedido)` define `_p.status` do item:
+  - Se `status_divergente` e existe `status_itens_snapshot` → usa snapshot (itens não «herdam» visualmente o status novo do pedido).
+  - Caso contrário → `pedido.status`.
+
+### Tipos ghost (`types.ts`)
+
+```ts
+status_divergente?: boolean | null        // virtual list view / recalculado
+status_itens_snapshot?: PedidoStatus | null  // ghost UI — não persiste no model Pedido
+```
+
+### Funções SSOT (`pedidoDivergencias.ts`)
+
+| Função | Uso |
+|--------|-----|
+| `lerStatusEfetivoItem` | Lê `_p.status` do item |
+| `calcularStatusDivergente` | Com itens no cache; se vazio delega inferência |
+| `pedidoPossuiItensNaLista` | `quantidade_total_pedido`, `saldo`, `ncms_distintos_count`, `itens.length` |
+| `inferirStatusDivergenteSemItensCarregados` | Alerta no pai sem expandir |
+| `resolverStatusEfetivoItemAoCarregar` | Status inicial do item ao expandir |
+
+### UI
+
+- Coluna pai: `renderAgregado` + `status_divergente` em `colunasComUsuario`.
+- Coluna filho: badge + `Warning` âmbar se item ≠ pedido ou itens distintos entre si.
+- i18n: `pedido.coluna_pai.status_divergente` (pt/en/es).
+
+### Opções de status
+
+- `statusOpts` — `useState` declarado **antes** de `mapaColunasFilho` e `colunasComUsuario` (evita TDZ).
+- Sincroniza com `localStorage` `pedido:status_config` no `focus` da janela.
+
+---
+
+## 4. Nº PEDIDO / Part Number
+
+| Coluna | Handler | API |
+|--------|---------|-----|
+| `numero_pedido` | `handleEditar` | `pedidoApi.atualizar` |
+| `part_number` (item) | `handleEditarFilho` | `pedidoItemApi` |
+
+- `marcarPartNumbersDuplicados` + `pedidoTemPartNumberDuplicado` em `sincronizarItensPedido`.
+- Flag `part_number_duplicado_no_pedido` na linha pai.
+
+---
+
+## 5. Ordem de declaração no componente `Pedidos`
+
+> Correção 2026-06-03 — erros de runtime «Cannot access X before initialization».
+
+Hooks que **devem** vir antes dos `useMemo` que os referenciam:
+
+1. `statusOpts` / `setStatusOpts`
+2. `pedidos` / `setPedidos`
+3. `mapaColunasFilho` (depende de `statusOpts`, `pedidos`)
+4. `colunasComUsuario` (depende de `statusOpts`, `pedidos`)
+
+---
+
+## 6. Tooltips de coluna na lista
+
+> Framework UX vigente desde **2026-06-07**. Regras por coluna são preenchidas progressivamente pelo dono; a infraestrutura já suporta os dois tipos abaixo.
+
+### Dois tipos de tooltip
+
+| Tipo | Onde | Título | Conteúdo |
+|------|------|--------|----------|
+| **Linha pedido** | Cabeçalho da coluna + célula da linha pai | `{Nome da coluna} do Pedido` (ex.: Moeda do Pedido) | Pills na ordem canônica (só as que a regra exigir) |
+| **Linha item** | Célula da linha filho (pedido expandido) | `{Nome da coluna} do Item` (ex.: Moeda do item) | Subconjunto menor de pills (ver abaixo) |
+
+**Aviso amarelo** (opcional, abaixo das pills): impacto de edição em outras colunas — ex. *«A alteração da moeda irá alterar também Valor Unitário do Item e Valor Total do Pedido/Item»* (`AvisoImpactoEdicao`, classe `.gtv-edit-aviso-impacto`).
+
+### Ordem canônica das pills
+
+**Pedido** (slots 1–7 — omitir os que não se aplicam):
+
+1. Bloqueado para edição  
+2. Total do xxx / somatória / sem somatória  
+3. Editável no pedido  
+4. Aplicar em todos os itens  
+5. Editável no item  
+6. Alerta se XX divergirem  
+7. Depende de importação ou exportação  
+
+**Item:**
+
+1. Bloqueado para edição  
+2. Editável no item  
+3. Alerta se XX divergirem  
+
+Implementação: `ORDEM_PILLS_PEDIDO`, `ORDEM_PILLS_ITEM` e `ordenarPillsCanonico()` em `pillsTooltipColunaLista.ts`. Máximo **7** pills por bloco (`MAX_PILLS_POR_BLOCO`).
+
+### Camadas de código
+
+| Arquivo | Papel |
+|---------|--------|
+| `pedido/client/src/shared/TooltipListaColuna.tsx` | SSOT visual da lista: `TooltipGlobal` + `TooltipRegrasColuna`; título via `tituloTooltipListaPorNivel` |
+| `pedido/client/src/shared/TooltipRegrasColuna.tsx` | Shell visual: ícone, cor, pills, `AvisoImpactoEdicao` |
+| `pedido/client/src/shared/buildTooltipRegraLista.tsx` | Orquestração: `enriquecerColunaComRegraTooltip`, `aplicarRenderTooltipInlineLista`, `wrapCelulaListaRegras` |
+| `pedido/client/src/shared/tituloTooltipLista.ts` | Títulos por nível; helpers `tituloTooltipPedidoAnexo`, `tituloTooltipItemAnexo`, `descricaoTooltipColunaAnexo` |
+| `pedido/client/src/shared/anexoColunaLista.ts` | SSOT chaves `anexo_*`, metadados GTV, `resolverIdVinculoAnexoLista` |
+| `pedido/client/src/shared/renderCelulaAnexoLista.tsx` | Render da célula anexo + `buildEntradasMapaAnexoLista` (mapa filho GTV) |
+| `pedido/client/src/components/ConfiguracaoColunas/CelulaAnexosColuna.tsx` | Ícone + badge de contagem + painel portal (upload/download/delete) |
+| `pedido/client/src/shared/pillsTooltipColunaLista.ts` | Vocabulário (`RegraPillId`), matriz por coluna, `obterPillsTooltipColuna`, `pillsParaNivelColuna` |
+| `pedido/client/src/shared/regrasTooltipColunaLista.ts` | Classificação da regra (`classificarRegraTooltipColuna`, `RegraTooltipId`) |
+| `pedido/client/src/components/lista/ColunasPai.tsx` | `enriquecerColunasComRegraTooltip` no catálogo pai; `avisoImpacto` por coluna |
+| `nucleo-global/Feedback/tooltip-global/src/tooltip.tsx` | Fecha tooltip órfã em scroll virtualizado / `mouseleave` perdido |
+| `nucleo-global/.../tooltipCelulaResolver.ts` | SSOT núcleo: `resolverNivelTooltipCelula`, `resolverTituloTooltipCelula`, `resolverTooltipRegraCelula` |
+| `nucleo-global/.../TabelaVirtualGlobal.tsx` | Respeita `mapa.tooltipInline === true` — não duplica wrap de tooltip no filho |
+
+### Fluxo na tabela
+
+1. `ColunasPai` / `ColunasFilho` definem `key`, `label`, `avisoImpacto` (quando houver).  
+2. `enriquecerColunasComRegraTooltip` injeta `tooltipNivelCelula`, `tooltipTituloCelula`, `tooltipDescricaoCelula`, `tooltipTituloItem`.  
+3. `tooltipCelulaResolver` no núcleo usa `tooltipNivelCelula` (quando presente) para **título e descrição base** — o flag `isFilho` da renderização é só fallback legado.  
+4. Conteúdo renderizado: **pills** → `descricaoExtra` (se houver) → **aviso amarelo** (`avisoImpactoAposPills`).
+
+**SSOT pedido vs item (2026-06-07):**
+
+| Camada | Contrato | Regra |
+|--------|----------|-------|
+| Pedido | `isLinhaItemLista(row)` em `buildTooltipRegraLista.tsx` | Sinais de item (`_p`, `pedido_id`, `part_number`, `moeda_item`) **antes** de `numero_pedido` |
+| Pedido | `tooltipNivelCelula` | Mesmo critério — injetado em colunas dual/piloto |
+| Pedido | `tooltipTituloCelula(row)` | Título por linha; **não** recebe `isFilho` |
+| Pedido | `tooltipDescricaoCelula(row)` | Pills por linha — mesmo critério que título |
+| Núcleo | `tooltipCelulaResolver.ts` | **`isFilhoRender === true` → nível item sempre**; `tooltipNivelCelula` só na linha pai |
+| Núcleo | `resolverTituloTooltipCelula` | Linha filha GTV + `tooltipTituloItem` → título de item (antes de qualquer callback) |
+| Núcleo | `wrapTooltipRegraCelula` | Rede de segurança: filho com título = `tooltipTitulo` → substitui por `tooltipTituloItem` |
+| UI | `TooltipGlobal.titulo` | Único lugar do título — `TooltipRegrasColuna` **não** repete título |
+
+**Anti-padrão:** título «Moeda do Pedido» + pill «Editável no item» — indica dessincronia entre `isFilho` da GTV e nível real da linha; corrigir com `tooltipNivelCelula` + `isLinhaItemLista`.
+
+### i18n
+
+- Pills: `pedido.lista.regras_pill.*`  
+- Descrições extras: `pedido.lista.regras_coluna.*`  
+- Títulos dedicados (piloto): `pedido.coluna_pai.{campo}_titulo_linha_pedido`, `pedido.coluna_pai.{campo}_titulo` / `*_item_titulo`  
+- Colunas anexo: `pedido.coluna_pai.{campo}_desc` → `descricaoExtra` abaixo das pills (ex.: *«Clique no ícone na célula…»*)  
+- Demais colunas: migração progressiva para o padrão `{Coluna} do Pedido` / `{Coluna} do Item`
+
+### Colunas anexo (`anexo_*` e custom `tipo === 'anexo'`)
+
+Colunas **não editáveis inline** — interação só pelo ícone (`CelulaAnexosColuna`). Tooltip montado **inline** pelo produto (`tooltipInline: true`); núcleo não envolve de novo.
+
+| Aspecto | Comportamento |
+|---------|----------------|
+| **Chaves padrão** | `anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco` (`CHAVES_COLUNA_ANEXO_PADRAO`) |
+| **Vínculo API** | Cada linha usa `vinculo` + `vinculo_id` próprios (`pedido.id` na linha pai; `item.id` na linha filho via `resolverIdVinculoAnexoLista`) |
+| **Categoria** | `categoriaAnexoPorChaveColuna` — sufixo após `anexo_`; colunas custom usam id da coluna usuário |
+| **Badge contagem** | `useEffect` no mount chama `anexosApi.listar` — contagem visível **sem** abrir o painel |
+| **Painel** | Portal 340px; rodapé `BotaoGlobal` (Continuar anexando + Salvar); sem `title` nativo no botão (só `aria-label`) |
+| **Regra tooltip** | `RegraTooltipId`: `pai_anexo` — pills `editavel_pedido` (pedido) / `editavel_item` (item); **dual** sempre |
+| **Pill legada** | `anexo` **não** é usada nas colunas padrão — substituída por editável pedido/item |
+
+### Colunas já alinhadas ao framework (piloto)
+
+| Coluna | Pedido | Item | Aviso amarelo |
+|--------|--------|------|----------------|
+| `moeda_pedido` | Editável no pedido → Aplicar em todos → Editável no item | Só Editável no item | Sim (`aviso_impacto_moeda`) |
+| `valor_total_pedido` | Bloqueado + soma mesma moeda + alerta moeda (+ editável nos itens no cabeçalho) | Editável nos itens + fórmula | Texto em `regras_coluna` |
+| `valor_por_unidade_item` | Bloqueado + sem somatória + alerta (+ editável nos itens no cabeçalho) | Editável nos itens | Sim pedido e item (`valor_unitario_item_impacto_moeda`) |
+| `anexo_pedido`, `anexo_proforma`, `anexo_invoice`, `anexo_lpco` | Editável no pedido | Editável no item | Não — `descricaoExtra` orienta uso do ícone |
+
+### Testes
+
+- Unitário: `testes/testes-unitarios/pedido/pills-tooltip-coluna-lista.test.ts` (matriz + ordem canônica)
+- Unitário: `testes/testes-unitarios/pedido/tooltip-titulo-celula-lista.test.ts` (`isLinhaItemLista`, títulos piloto)
+- Unitário: `testes/testes-unitarios/nucleo/tooltip-celula-resolver.test.ts` (SSOT núcleo: nível + título alinhados)
+
+### Status da migração
+
+- **Infraestrutura:** ✅ ordem canônica, limite 7, títulos por nível no núcleo, aviso amarelo  
+- **Matriz legada:** 🟡 demais colunas ainda usam pills anteriores — apenas reordenadas; dono define regra campo a campo em [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](./LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md)
+
+---
+
+## 7. VALOR TOTAL CÂMBIO (`valor_total_cambio_pedido`)
+
+> Regras de negócio: **§8A-C** em [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](./LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md). Entrega **2026-06-10** (PR #256).
+
+### Frontend — coluna pai (`ColunasPai.tsx`)
+
+- `key: 'valor_total_cambio_pedido'`, `tipo: 'moeda'`, `editavel: false`.
+- `renderAgregado` com alerta `moeda_cambio_pedido_divergente` (*Moedas de câmbio divergentes entre itens*).
+- `avisoImpacto`: i18n `valor_total_cambio_impacto_edicao`.
+
+### Frontend — coluna filho (`Pedidos.tsx` → `buildMapaColunasFilho`)
+
+- Entrada `valor_total_cambio_pedido`: `editavel: true`, `campo: 'valor_total_cambio_item_pedido'`.
+- `getValorEditar` / `render`: badge `moeda_cambio_item_pedido` (fallback `_p.moeda_cambio_pedido`); valor via `valorTotalCambioItemParaLista` (`valorTotalCambioItemLista.ts`).
+- Popover **moeda + valor** (sem `apenasValorMoeda`) — select de moedas ativas de Cadastros.
+
+### Frontend — persistência (`handleEditarFilho`)
+
+Ramo dedicado quando `campo === 'valor_total_cambio_item_pedido' || campo === 'valor_total_cambio_pedido'`:
+
+1. Extrai `amount` e `currency` do popover (`extrairCodigoMoedaLista`).
+2. `pedidoItemApi.atualizar` com `valor_total_cambio_item_pedido` e, se moeda alterada, `moeda_cambio_item_pedido`.
+3. `sincronizarItensPedido` + recálculo local de `valor_total_cambio_pedido` (soma se uma moeda de câmbio; `null` se divergem).
+
+`CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` inclui `valor_total_cambio_pedido` — linha pai não abre popover inline.
+
+### Backend (`processos-core/src/routes/pedidos.ts`)
+
+| Artefato | Campo |
+|----------|--------|
+| `atualizarItemSchema` | `valor_total_cambio_item_pedido`, `valor_total_cambio_pedido` (alias aceito no body) |
+| `mapItem` | `valor_total_cambio_item_pedido` |
+| `publicToDddItem` | `valor_total_cambio_pedido` → `valor_total_cambio_item_pedido` |
+
+Rota: `PUT /api/v1/pedidos/:id/itens/:itemId` (Zod `.strict()` — campo fora do schema retorna 400).
+
+### Tooltips e pills
+
+- Regra: `dinamico_valor_total_cambio` em `regrasTooltipColunaLista.ts`.
+- Pills: `PILLS_PEDIDO_VALOR_TOTAL_CAMBIO` / `PILLS_ITEM_VALOR_TOTAL_CAMBIO` em `pillsTooltipColunaLista.ts`.
+- Aviso item: `buildTooltipRegraLista.tsx` → `valor_total_cambio_impacto_edicao`.
+
+### Testes
+
+- Unitário: `testes/testes-unitarios/pedido/valor-total-cambio-item-lista.test.ts` (`valorTotalCambioItemParaLista`).
+- EMT: pendente (sem ETAPA no plano lista-editar-salvar).
+
+---
+
+## 8. Dívidas e melhorias
+
+| ID | Descrição | Prioridade |
+|----|-----------|------------|
+| **P0** | Persistir status editado no item (API + coluna ou contrato `_p`) | Produto pendente |
+| **P1** | ✅ Alerta status sem expandir — entregue via `status_itens_snapshot` | Fechado 2026-06-03 |
+| — | Testes unitários dedicados `calcularStatusDivergente` / inferência | Recomendado |
+| — | Atualizar `status-cascade.test.ts` / `status-sem-espelhamento.test.ts` (regra antiga) | Recomendado |
+
+---
+
+## 9. Histórico
+
+| Data | Alteração |
+|------|-----------|
+| 2026-06-03 | Doc criado; STATUS 00–04 + TOP 01–05; P1 snapshot; ordem hooks |
+| 2026-06 | Runner EMT tipo_operacao: coluna via `data-find-col-key`, poll 15s, case badge |
+| 2026-06-07 | Seção 6 — framework tooltips lista (pedido/item, pills, camadas, piloto moeda/valor) |
+| 2026-06-09 | Seção 6 — colunas anexo: tooltip inline, pills editável pedido/item, preload badge, `TooltipGlobal` órfã |
+| 2026-06-10 | Seção 7 — Valor Total Câmbio: `handleEditarFilho`, `atualizarItemSchema`, pills `PILLS_*_VALOR_TOTAL_CAMBIO` |
 
 --- documentos-tecnicos/produtos-gravity/pedido/NOVO-PEDIDO-REGRAS-NEGOCIO.md ---
 # Novo Pedido — Regras de Negócio
@@ -4147,6 +5498,357 @@ testes/funcionais/pedido/
     └── GET /mapeamento/:hash — retorna mapeamento salvo
 ```
 
+--- documentos-tecnicos/produtos-gravity/pedido/PAINEL-LISTA-CONTRATO.md ---
+# Painéis da Lista — Contrato técnico
+
+> **Versão:** 1.0  
+> **Data:** 2026-06-02  
+> **Status:** Aprovado para implementação (Fase 0 concluída com glossário)  
+> **Espelho de referência:** `DashboardPainelUsuarioGlobal` + `dashboard-pedido-paineis.ts`
+
+---
+
+## 1. Model Prisma (proposta — Coordenador aplica em `fragment.prisma`)
+
+```prisma
+/// Painéis da lista pessoais por usuário.
+/// "Global" no nome: product-agnostic; provisório no banco do produto até serviço compartilhado.
+model ListaPainelUsuarioGlobal {
+  id_lista_painel_usuario_global               String   @id @default(cuid())
+  id_organizacao                                String
+  id_usuario                                    String
+  id_produto_gravity                            String
+  nome_lista_painel_usuario_global              String
+  ordem_lista_painel_usuario_global             Int      @default(0)
+  visivel_lista_painel_usuario_global           Boolean  @default(true)
+  config_json_lista_painel_usuario_global       String   @default("{}") @db.Text
+  data_criacao_lista_painel_usuario_global      DateTime @default(now())
+  data_atualizacao_lista_painel_usuario_global DateTime @updatedAt
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_usuario, id_produto_gravity])
+  @@map("lista_painel_usuario_global")
+}
+```
+
+**Diferença em relação ao Dashboard:** `config_json_*` em vez de `widgets_json_*`; **`id_produto_gravity` obrigatório** (evita prefixo `bid_frete_` no CUID).
+
+---
+
+## 2. API REST (Pedido)
+
+Base: `/api/v1/pedidos/lista/paineis`
+
+| Método | Rota | Body | Resposta |
+|--------|------|------|----------|
+| GET | `/paineis` | — | `{ data: ListaPainel[] }` — bootstrap **Principal** se vazio |
+| POST | `/paineis` | `{ nome: string }` | `{ data: ListaPainel }` |
+| PUT | `/paineis/reordenar` | `{ ids: string[] }` | `{ data: { reordenado: true } }` |
+| PUT | `/paineis/:id_lista_painel_usuario_global` | patch | `{ data: ListaPainel }` |
+| DELETE | `/paineis/:id_lista_painel_usuario_global` | — | `{ data: { deletado: true } }` |
+
+**Patch permitido:** `nome`, `is_visivel`, `config_json` (string JSON validada no servidor).
+
+**Segurança:** `withOrganizacao`; filtrar por `id_usuario` do contexto; validar `id_produto_gravity` do produto Pedido; nunca aceitar `ids_workspaces` no painel no MVP.
+
+---
+
+## 3. Contrato JSON — `config_json` v1 (Zod bilateral)
+
+Arquivo sugerido: `servicos-global/produto/pedido/shared/listaPainelConfigSchema.ts` (ou `client/src/shared/lista-painel-schemas.ts` + reexport no server).
+
+```ts
+// versao obrigatória para evolução sem quebra silenciosa
+export const listaPainelConfigV1Schema = z.object({
+  versao: z.literal(1),
+  colunas_visiveis: z.array(z.string()),
+  colunas_largura: z.record(z.string(), z.number()).optional(),
+  aba_status_ativa: z.string(),
+  filtros_coluna: z.record(z.string(), filtroAtivoSerializadoSchema),
+  ordenacao: z.object({
+    campo: z.string(),
+    direcao: z.enum(['asc', 'desc']),
+  }),
+  busca: z.string().optional(),
+  cards_topo: z.object({
+    ids_visiveis: z.array(z.string()),
+    periodo: z.string().optional(),
+  }).optional(),
+})
+```
+
+**Serialização de filtro enum:** `Set<string>` → `string[]` no JSON.
+
+**Explicitamente proibido no v1:** `ids_workspaces_escopo` (fica no seletor lateral / `preferencia_usuario_coluna_pedido` meta global).
+
+---
+
+## 4. Migração de dados (painel Principal)
+
+1. No primeiro GET, se não houver painéis → criar **Principal** (`ordem: 0`).
+2. Ler `PreferenciaUsuarioColunaPedido` do usuário:
+   - `colunas_visiveis` + `colunas_largura` → `config_json` do Principal.
+   - `ids_workspaces_escopo` **permanece** na preferência global (não copiar para painel).
+3. Frontend passa a persistir colunas via `PUT` no painel ativo, não mais PUT direto só de colunas (compat: manter rota antiga até transição completa — decisão na implementação).
+
+---
+
+## 5. Frontend (Pedido)
+
+| Peça | Referência |
+|------|------------|
+| Barra de abas | `PedidosDashboard.tsx` (~L1758–1890) |
+| API client | `paineisDashboardApi` → `paineisListaApi` |
+| Estado | `painelListaAtualId`, `configByPainel` (Zustand opcional, espelho `dashboardStore`) |
+| Escopo filiais | **Somente** `useEscopoWorkspacesPedido` — inalterado |
+| Arquivo alvo | `Pedidos.tsx` ou extrair `PedidosListaPainelBar.tsx` |
+
+---
+
+## 6. Fases de implementação
+
+### Fase 0 — Contrato e planos (esta entrega)
+
+- [x] Glossário — `PAINEL-LISTA-GLOSSARIO.md`
+- [x] Contrato — este arquivo
+- [x] Pipeline — `PAINEL-LISTA-PLANO-ENTREGA.md`
+- [ ] Plano de testes multi-agente (QA) — ver `testes/.../painel-lista/`
+
+### Fase 1 — Pedido (MVP)
+
+- Schema + migration (Coordenador)
+- Rotas + Zod server
+- UI barra de painéis + persistência `config_json`
+- Testes unitários + funcionais + E2E executados
+
+### Fase 2 — BID Frete Internacional (**obrigatória após Fase 1**)
+
+- Mesmo model/tabela no banco do produto (ou tabela compartilhada com `id_produto_gravity`)
+- Rotas `/api/v1/bid-frete-internacional/lista/paineis`
+- Migrar `STORAGE_PREFS_INTL` localStorage → painel Principal
+- UI na lista cliente/fornecedor conforme rotas existentes
+- Planos de teste dedicados + regressão
+
+### Fase 3 — Núcleo compartilhado (opcional, pós Fase 2)
+
+- Componente `BarraPainelGlobal` em `nucleo-global` se duplicação for alta
+
+### Fase 4 — Escopo por painel (somente com aprovação do dono)
+
+- `ids_workspaces_escopo` em `config_json` v2
+
+---
+
+## 7. `contracts.json`
+
+Registrar todas as rotas da seção 2 antes do merge do PR.
+
+---
+
+## 8. Referências cruzadas
+
+- [PAINEL-LISTA-GLOSSARIO.md](./PAINEL-LISTA-GLOSSARIO.md)
+- [PAINEL-LISTA-PLANO-ENTREGA.md](./PAINEL-LISTA-PLANO-ENTREGA.md)
+- [COLUNAS-USUARIO-TECNICO.md](./COLUNAS-USUARIO-TECNICO.md)
+
+--- documentos-tecnicos/produtos-gravity/pedido/PAINEL-LISTA-GLOSSARIO.md ---
+# Painéis da Lista — Glossário
+
+> **Produto:** Pedido (COMEX) — Fase 1; BID Frete Internacional — Fase 2 obrigatória após Pedido  
+> **Versão:** 1.0  
+> **Data:** 2026-06-02  
+> **Status:** ✅ Implementado (2026-06-02) — aguarda migration DB, QA formal e teste do dono  
+> **Branch:** `melhoria/lista-todos-produtos-gravity/novos-workspaces`
+
+---
+
+## 1. Termos oficiais
+
+| Termo | Definição | Onde aparece na UI |
+|--------|-----------|-------------------|
+| **Workspace** | Filial / empresa da organização (`id_workspace`). Unidade de isolamento de dados de negócio. | Menu lateral: seletor com checkboxes, “Buscar workspace…”, “16 workspaces” |
+| **Seletor de Workspaces** | Controle do menu lateral (`modoWorkspace="multiplo"`). Define **quais filiais** entram nas consultas do produto. | Sidebar Pedido |
+| **Visualização** | Modo de tela do produto: Insights, Lista, Dashboard ou Kanban. | Abas abaixo do título (pills) |
+| **Painel** | Visão **pessoal salva** dentro de uma visualização (nome, ordem, configuração). Não é filial. | Abas no topo do Dashboard (“Principal”, “Painel A”…); futuro: mesmo padrão na Lista |
+| **Painel da Lista** | Painel cujo `config_json` guarda colunas, filtros, aba de status, ordenação e cards do topo — **não** guarda filiais no MVP. | Barra de abas acima da tabela em `/pedido/pedidos/lista` |
+| **Painel do Dashboard** | Painel cujo `widgets_json` guarda layout de widgets. | `/pedido/pedidos/dashboard` |
+| **Filtro local** | Refino dentro do escopo já definido pelo seletor (aba status, busca, filtro de coluna). | Toolbar da Lista |
+
+---
+
+## 2. Regra de ouro (Fase 1 — sem exceção de Painel)
+
+**O seletor de Workspaces do menu lateral é mandatório para o escopo de filiais** em Insights, Lista, Dashboard e Kanban do Pedido.
+
+- Trocar **Painel** (Dashboard ou Lista) → muda **como** se exibe; **não** muda filiais.
+- Trocar **seletor de Workspaces** → muda **quais pedidos** entram em **todas** as visualizações acima.
+- Implementação: `useEscopoWorkspacesPedido` → `resolverIdsWorkspacesParaApi` → query `ids_workspaces` ou contexto de sessão.
+
+**Não usar** a palavra “workspace” para painel da lista na documentação nem na UI — usar **Painel**.
+
+---
+
+## 3. O que cada camada controla
+
+```text
+Seletor de Workspaces (sidebar)
+    └── Quais id_workspace entram nos dados (global no produto)
+
+Visualização (Insights | Lista | Dashboard | Kanban)
+    └── Conjunto de componentes e rotas
+
+Painel (dentro de Lista ou Dashboard)
+    └── Configuração salva por usuário naquela visualização
+
+Filtro local (Lista)
+    └── Refino temporário ou persistido no config_json do Painel ativo
+```
+
+---
+
+## 4. Fase 2 de negócio (fora do MVP)
+
+**Escopo de filiais por Painel da Lista** (`ids_workspaces_escopo` dentro de `config_json`) só entra com decisão explícita do dono. Até lá, filiais vêm **somente** do seletor lateral.
+
+---
+
+## 5. Produtos
+
+| Produto | Painéis da Lista | Seletor multi-workspace |
+|---------|------------------|-------------------------|
+| Pedido | Fase 1 (este MVP) | Sim (`useEscopoWorkspacesPedido`) |
+| BID Frete Internacional | Fase 2 **obrigatória** após Pedido | A replicar (hoje prefs em localStorage) |
+| Demais | Backlog | Por produto |
+
+---
+
+## 6. Referências
+
+- [PAINEL-LISTA-CONTRATO.md](./PAINEL-LISTA-CONTRATO.md) — model, API, Zod, fases  
+- [PAINEL-LISTA-PLANO-ENTREGA.md](./PAINEL-LISTA-PLANO-ENTREGA.md) — pipeline QA, dono, docs, commit  
+- [FILTRO-MULTI-WORKSPACE-TECNICO.md](./FILTRO-MULTI-WORKSPACE-TECNICO.md) — seletor lateral (já em produção)  
+- Dashboard painéis: `DashboardPainelUsuarioGlobal`, rotas `/api/v1/pedidos/dashboard/paineis`
+
+--- documentos-tecnicos/produtos-gravity/pedido/PAINEL-LISTA-PLANO-ENTREGA.md ---
+# Painéis da Lista — Plano de entrega e gates
+
+> **Aprovado pelo dono:** 2026-06-02  
+> **Regra adicional:** após Pedido, **BID Frete Internacional é obrigatório** (não backlog opcional).  
+> **Commit / push / PR:** somente após todos os gates abaixo.
+
+---
+
+## Consenso fechado
+
+1. Seletor de Workspaces (sidebar) = única fonte de filiais (Pedido Fase 1).  
+2. Painel da Lista = visão salva (colunas, filtros, aba, ordenação, cards).  
+3. MVP = Pedido → em seguida BID Frete Internacional.  
+4. Fase “escopo por painel” = fora até nova decisão do dono.
+
+---
+
+## Pipeline de entrega (ordem obrigatória)
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ A. Implementação (Fase 1 Pedido → Fase 2 BID Frete Int.)   │
+└──────────────────────────────┬──────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ B. QA — planos de teste (multi-agente) + execução + APROVADO │
+└──────────────────────────────┬──────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ C. Dono — teste manual em ambiente local/staging + APROVADO  │
+└──────────────────────────────┬──────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ D. Atualizar documentos-tecnicos (status ✅, changelog)      │
+│ E. Atualizar skills (pedido + bid-frete-internacional)       │
+└──────────────────────────────┬──────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ F. Commit → Push → PR (somente aqui)                         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Detalhe dos gates
+
+| Gate | Responsável | Critério de saída |
+|------|-------------|-------------------|
+| **B0** Plano de testes (design) | QA (pipeline `multi-agente-plano-teste`) | Planos unitário + funcional + E2E registrados **antes** ou em paralelo à implementação; dono pode revisar escopo |
+| **A1** Fase 1 Pedido | Dev | Código + testes B0 executando verde local/CI |
+| **A2** Fase 2 BID Frete Int. | Dev | Paridade contrato + UI lista + migração localStorage |
+| **B** Aprovação QA | QA | Checklist 6 categorias (`skills/papeis/qa`) = **Aprovado** |
+| **C** Aprovação dono | Dono | Testou sidebar + painéis Lista (Pedido e BID Frete Int.) |
+| **D–E** Docs + skills | Dev/QA | `documentos-tecnicos` e `skills/produtos-gravity/*` atualizados no **mesmo PR** |
+| **F** Git | Dev | `commit` → `push` → `gh pr create` |
+
+**Proibido:** commit ou PR antes de **B + C + D + E**.
+
+---
+
+## Tasks por fase (checklist executável)
+
+### Fase 0 — Documentação
+
+- [x] `PAINEL-LISTA-GLOSSARIO.md`
+- [x] `PAINEL-LISTA-CONTRATO.md`
+- [x] `PAINEL-LISTA-PLANO-ENTREGA.md`
+- [x] Stubs de teste + `test-plans-registry.json`
+- [x] Teste unitário `lista-painel-config-schema.test.ts`
+
+### Fase 1 — Pedido ✅ implementado
+
+| ID | Task | Status |
+|----|------|--------|
+| 1.1 | `ListaPainelUsuarioGlobal` em `fragment.prisma` + compose | ✅ |
+| 1.2 | Rotas `/api/v1/pedidos/lista/paineis` | ✅ |
+| 1.3 | `listaPainelConfigV1Schema` (shared) | ✅ |
+| 1.4 | `PedidosListaPainelBar` + `useListaPainelPedido` | ✅ |
+| 1.5 | Escopo sidebar inalterado; persistência por painel | ✅ |
+| 1.6 | `contracts.json` | Pendente Coordenador |
+| 1.7 | Migration DB | Pendente deploy |
+
+### Fase 2 — BID Frete Internacional ✅ implementado (lista cliente)
+
+| ID | Task | Status |
+|----|------|--------|
+| 2.1 | Schema/rotas `/api/v1/bid-frete-internacional/lista/paineis` | ✅ |
+| 2.2 | Migração localStorage → painel Principal (client) | ✅ |
+| 2.3 | `BidFreteListaPainelBar` em `lista-bid-frete-internacional.tsx` | ✅ |
+| 2.4 | Lista fornecedor | Backlog |
+| 2.5 | Doc bid-frete | ✅ `PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md` |
+
+### Fase final — Antes do PR
+
+| ID | Task |
+|----|------|
+| F.1 | QA veredito **Aprovado** |
+| F.2 | Dono **Aprovado** após teste manual |
+| F.3 | Atualizar `skills/produtos-gravity/pedido/SKILL.md` (seção Painéis da Lista) |
+| F.4 | Atualizar skill BID Frete Internacional |
+| F.5 | Marcar docs técnicos status ✅ + datas |
+| F.6 | Commit, push, PR |
+
+---
+
+## Estimativa
+
+| Bloco | Dias (1 dev) |
+|-------|----------------|
+| Fase 1 Pedido | 7–11 |
+| Fase 2 BID Frete Int. | 5–8 |
+| QA + dono + docs | 2–4 |
+| **Total** | **~3–4 semanas** |
+
+---
+
+## Branch
+
+`melhoria/lista-todos-produtos-gravity/novos-workspaces`
+
 --- documentos-tecnicos/produtos-gravity/pedido/REPLICAR-PAI-EM-ITENS-TECNICO.md ---
 # Pedido — Replicar valor do Pai em todos os Itens (Técnico)
 
@@ -4355,7 +6057,22 @@ Frontend agora atualiza cada item no cache com o novo valor após `replicar=true
 
 ---
 
-## 9. Histórico
+## 9. Exceções — colunas com regra própria na Lista
+
+Alguns campos **não** seguem o padrão «checkbox opcional + alerta se divergir». SSOT de regras: [`LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`](./LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md).
+
+| Campo | Checkbox no popover (linha pai) | Sem checkbox | Alerta âmbar | Edição no item |
+|-------|--------------------------------|--------------|--------------|----------------|
+| **Campos propagáveis** (Incoterm, datas, …) | ✅ Sim | Só atualiza pai; itens intactos | ✅ Se diverge | ✅ Conforme `columnBehaviorConfig` |
+| **`id_workspace`** | ❌ Oculto | **Sempre** replica para todos os itens | ❌ Nunca | ❌ Célula travada |
+| **`tipo_operacao`** | ❌ Oculto | **Sempre** replica para todos os itens | ❌ Nunca | ❌ Célula travada |
+| **`status`** | ✅ Sim | Só atualiza pai (API lote); itens mantêm status anterior na UI | ✅ Se pedido≠item ou item≠item | ✅ UI (`_p.status`; persistência item = dívida P0) |
+
+Implementação técnica das exceções: [`LISTA-EDITAR-SALVAR-TECNICO.md`](./LISTA-EDITAR-SALVAR-TECNICO.md).
+
+---
+
+## 10. Histórico
 
 - **2026-05-13** — Entrega inicial (commit `8568d412`) + 4 fixes:
   - `c7695527` log diag frontend
@@ -4369,6 +6086,7 @@ Frontend agora atualiza cada item no cache com o novo valor após `replicar=true
   - Whitelist: 22 → 57 campos
   - Testes: 26 → 32 (cobertura das 35 novas entries)
 - Aprovação: Coordenador + Líder Técnico + QA + dono visual.
+- **2026-06-03** — Documentadas exceções `tipo_operacao` e `status` na Lista (§9); cross-link para `LISTA-EDITAR-SALVAR-*`.
 
 --- documentos-tecnicos/produtos-gravity/pedido/SELECAO-ITENS-TECNICO.md ---
 # Seleção e Ações em Itens (Linhas Filho) — Documento Técnico
@@ -5431,6 +7149,8 @@ O sistema foi desenhado para cobrir **todos os cenários de um só vez via confi
 | # | Cenário | Descrição + Exemplo | Part# muda? | Qty origem | Pedido destino | Qty destino | Cria novo pedido? | Origem encerra? | Destino logístico muda? | Data muda? | Reversível? |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | **Redução simples** | Quantidade entregue é menor e a diferença é cancelada. _Ex: PO-001 tinha 1.000 computadores, entregará 800 — os 200 são cancelados._ | Não | Reduz 200 | Nenhum | — | Não | Só se qty=0 + config | Não | Não | Não |
+
+> **Lista (grade):** na confirmação de `reducao_simples`, o backend incrementa **`quantidade_cancelada_item`** na origem — **não** `quantidade_transferida_item`. A coluna *Qtd. Transferida* na lista permanece inalterada; ver §8C QTR-08 em `LISTA-EDITAR-SALVAR-REGRAS-NEGOCIO.md`. Cenários split incrementam `quantidade_transferida_item` (QTR-07).
 | 2 | **Split → novo pedido** | Diferença sai do pedido original e vira um novo pedido. _Ex: PO-001 tinha 1.000, entregará 800 — os 200 viram PO-002 (novo)._ | Não | Reduz 200 | Novo criado | +200 | Sim | Só se qty=0 + config | Não | Não | Sim |
 | 3 | **Split → pedido existente** | Diferença vai para um pedido que já existe. _Ex: PO-001 tinha 1.000, entregará 800 — os 200 vão para PO-005 que já existia._ | Não | Reduz 200 | Existente | +200 | Não | Só se qty=0 + config | Não | Não | Sim |
 | 4 | **Multi-split** | Diferença é dividida entre múltiplos destinos (existentes ou novos). _Ex: PO-001 tinha 1.000 — 600 ficam, 300 vão para PO-005, 100 viram PO-006 (novo)._ | Não | Reduz 400 | Múltiplos | Cada um recebe sua parte | Opcional | Só se qty=0 + config | Não | Não | Sim |
@@ -6135,3 +7855,57 @@ Sem FK para `cadastros.unidade` — produtos não fazem FK física pra Cadastros
 
 - **2026-05-12** — Migration + ACL + mapItem + Zod + hook `useUnidadesPedido` + factory pattern em colunas. Decisão UX: cubagem 1D/2D/3D, formato `SIGLA — Nome` global em todos os dropdowns Gravity.
 - **Antes:** unidade de peso/cubagem era ignorada silenciosamente pela ACL (Zod aceitava, mas não persistia). Bug visível: usuário trocava unidade, "salvava", recarregava e voltava ao default.
+
+--- documentos-tecnicos/produtos-gravity/pedido/VISAO-GERAL-AGREGADO.md ---
+# Pedido — API agregada da Visão Geral (Insights)
+
+> Agregação **server-side** para o painel Insights com escopo multi-workspace amplo. Evita transferir até 1000 pedidos só para montar KPIs/funil no cliente.
+
+---
+
+## Endpoint
+
+```
+GET /api/v1/pedidos/visao-geral/agregado?ids_workspaces=ws1,ws2,...
+```
+
+| Aspecto | Detalhe |
+|---------|---------|
+| Implementação | `servicos-global/produto/pedido/server/src/routes/visao-geral-agregado.ts` |
+| Lógica pura | `servicos-global/produto/pedido/shared/visaoGeralResumoAggregate.ts` |
+| Isolamento | `withOrganizacao` + `clausulaFiltroWorkspacePedido` |
+| Limite | `LIMITE_PEDIDOS_VISAO_GERAL_AGREGADO` (1000) |
+| Resposta | `{ data: ResumoAgregado }` validado com Zod no servidor |
+
+---
+
+## Quando o front usa agregado
+
+`useVisaoGeralPedido.ts`:
+
+- Escopo com **≥ 4 workspaces** (`ESCOPO_MINIMO_PARA_AGREGADO_SERVIDOR`) → prioriza agregado.
+- Menos workspaces → pode montar no cliente com listagem existente.
+- Se agregado falhar → **fallback client-side** com pedidos já em cache (sem mascarar erro em autorização).
+
+Schemas bilaterais: `client/src/shared/visao-geral-schemas.ts` + parse em `api.ts` (`pedidoVisaoGeralApi.agregado`).
+
+---
+
+## Contrato (resumo)
+
+Campos principais em `data`: `total`, `kpis`, `aprovacao`, `mensal`, `modal`, `funil`, `incoterms`, `alertas`, `moedas`, `sparkAndamento`, `sparkConcluido`, `maiorPedido`.
+
+Testes:
+
+- Unitário: `testes/testes-unitarios/pedido/visao-geral-resumo-aggregate.test.ts`
+- Funcional MBOTO: `TST-FUN-MBOTO-000051`
+- k6 (opcional): `testes/_scripts/k6/seletor-universal-visoes.js` (threshold API 200 ms p95)
+
+---
+
+## SLA
+
+| Camada | Meta |
+|--------|------|
+| API agregado | ≤ 200 ms p95 ([sla-metas](../../../skills/governanca/lei/sla-metas/SKILL.md)) |
+| Troca até Insights interativo | ≤ 1000 ms ([seletor universal](../../arquitetura/seletor-universal-visualizacoes.md)) |

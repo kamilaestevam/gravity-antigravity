@@ -1,5 +1,134 @@
 === BID Frete Internacional (Cotacao de Frete) ===
 
+--- documentos-tecnicos/produtos-gravity/bid-frete-internacional/DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md ---
+# DDD — Visão Fornecedor BID Frete Internacional
+
+> **Identificador fixo:** `visao_fornecedor_bid_frete_internacional`  
+> Tudo exclusivo do fornecedor logado usa este namespace (API, SPA, i18n, types, schemas Zod).  
+> Entidades de domínio compartilhadas (`FornecedorBidFreteInternacional`, `DisparoCotacaoBidFreteInternacional`, `PropostaBidFreteInternacional`) **não** recebem o prefixo.
+
+---
+
+## API (autenticada)
+
+Prefixo: `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional`
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| GET | `/dashboard` | KPIs + classificação |
+| GET | `/cotacoes-pendentes` | Disparos aguardando proposta |
+| GET | `/propostas` | Histórico de propostas |
+| POST | `/responder/:id_disparo_cotacao_bid_frete_internacional` | Enviar proposta |
+| GET | `/desempenho` | Classificação + avaliações |
+| GET | `/cobranca` | Resumo monetização |
+| GET/POST/PUT/DELETE | `/tabelas-valor` | CRUD self-service (sem `:id_fornecedor` na URL) |
+
+Arquivo: `server/src/routes/visao-fornecedor-bid-frete-internacional.ts`
+
+Auth: `x-id-usuario` (Clerk) → lookup `fornecedor_bid_frete_internacional.id_clerk_usuario`.
+
+---
+
+## API (pública — token)
+
+Prefixo: `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico`
+
+| Método | Path |
+|--------|------|
+| GET | `/:token_resposta_disparo_cotacao_bid_frete_internacional` |
+| POST | `/:token_resposta_disparo_cotacao_bid_frete_internacional/responder` |
+
+Arquivo: `server/src/routes/visao-fornecedor-bid-frete-internacional-publico.ts`
+
+---
+
+## SPA (React Router)
+
+Base: `/visao-fornecedor-bid-frete-internacional`
+
+| Rota | Página |
+|------|--------|
+| `/dashboard` | `visao-fornecedor-bid-frete-internacional-dashboard.tsx` |
+| `/cotacoes-pendentes` | `...-cotacoes-pendentes.tsx` |
+| `/propostas` | `...-propostas.tsx` |
+| `/tabelas-valor` | `...-tabelas-valor.tsx` |
+| `/desempenho` | `...-desempenho.tsx` |
+| `/responder/:id_disparo_cotacao_bid_frete_internacional` | `...-responder-cotacao.tsx` |
+| `/publico/:token_resposta_disparo_cotacao_bid_frete_internacional` | `...-responder-publico.tsx` |
+
+Redirect legado: `/portal/*` → `/visao-fornecedor-bid-frete-internacional/dashboard`
+
+Nav dedicada: `PRODUCT_CONFIG.navigation_visao_fornecedor_bid_frete_internacional` (ativa quando URL contém `visao-fornecedor-bid-frete-internacional`).
+
+---
+
+## Contratos JSON (wrapper obrigatório)
+
+### Dashboard
+
+```json
+{
+  "visao_fornecedor_bid_frete_internacional": {
+    "fornecedor_bid_frete_internacional": { "id_fornecedor_bid_frete_internacional", "nome_fornecedor_bid_frete_internacional", "tipo_fornecedor_bid_frete_internacional" },
+    "metricas_visao_fornecedor_bid_frete_internacional": {
+      "cotacoes_pendentes_visao_fornecedor_bid_frete_internacional": 0,
+      "propostas_enviadas_visao_fornecedor_bid_frete_internacional": 0,
+      "propostas_aprovadas_visao_fornecedor_bid_frete_internacional": 0,
+      "disparos_recebidos_visao_fornecedor_bid_frete_internacional": 0,
+      "taxa_resposta_visao_fornecedor_bid_frete_internacional": "0",
+      "taxa_aprovacao_visao_fornecedor_bid_frete_internacional": "0"
+    },
+    "classificacao_bid_frete_internacional": { }
+  }
+}
+```
+
+### Público GET
+
+```json
+{
+  "visao_fornecedor_bid_frete_internacional_publico": {
+    "disparo_cotacao_bid_frete_internacional": { "cotacao": { }, "fornecedor": { } }
+  }
+}
+```
+
+Schema Zod front: `client/src/shared/visao-fornecedor-bid-frete-internacional-schemas.ts`
+
+---
+
+## i18n
+
+Namespace: `bidfrete.visao_fornecedor_bid_frete_internacional.*`  
+Público: `bidfrete.visao_fornecedor_bid_frete_internacional_publico.*`
+
+---
+
+## Link de e-mail (disparo)
+
+`motor-bid-disparo-utils.ts` →  
+`/produto/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/{token}`
+
+---
+
+## Termos proibidos na visão fornecedor
+
+| Legado | Canônico |
+|--------|----------|
+| `portal` | `visao_fornecedor_bid_frete_internacional` |
+| `bidRequest` | `disparo_cotacao_bid_frete_internacional` |
+| `respostas` | `propostas_bid_frete_internacional` |
+| `TabelaPreco` | `TabelaBidFreteInternacional` |
+| `rating` (payload) | `classificacao_bid_frete_internacional` |
+
+Campo Prisma `via_portal_proposta_bid_frete_internacional` permanece (flag histórica = proposta via visão fornecedor autenticada).
+
+---
+
+## Serviços compartilhados
+
+- `server/src/services/enviar-proposta-disparo-bid-frete-internacional.ts` — cria proposta + atualiza disparo/cotação (auth + público)
+
 --- documentos-tecnicos/produtos-gravity/bid-frete-internacional/ENTIDADE-BID-TECNICO.md ---
 # Entidade BID — BID Frete Internacional (Técnico)
 
@@ -127,6 +256,156 @@ Migration `20260529140000_add_bid_frete_internacional_entity`:
 - `server/src/services/motor-bid-frete-internacional.ts`
 - `testes/testes-unitarios/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts`
 
+--- documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md ---
+# Escopo Multi-Workspace — BID Frete Internacional
+
+> **Produto:** BID Frete Internacional  
+> **Versão:** 1.0  
+> **Data:** Junho 2026  
+> **Status:** Em produção (paridade com Pedido)
+
+---
+
+## Visão geral
+
+Usuários com acesso a múltiplas filiais (workspaces) podem selecionar **uma ou várias** no menu lateral do produto — com opção **Selecionar tudo** / **Desmarcar tudo** — e ver cotações, insights, lista, kanban e dashboard agregados nesse escopo.
+
+A preferência é **persistida no backend** (por `id_organizacao` + `id_usuario`) e replicada em `sessionStorage` como cache local.
+
+---
+
+## UI (menu lateral)
+
+| Prop `TelaProdutoGlobal` | Valor |
+|---|---|
+| `modoWorkspace` | `'multiplo'` |
+| `workspacesEscopoIds` | IDs selecionados (Zustand) |
+| `onAlternarWorkspaceEscopo` | Toggle checkbox por workspace |
+| `onDefinirEscopoWorkspaces` | Selecionar tudo / limpar |
+
+Comportamento idêntico ao Pedido (`MenuLateralGlobal`).
+
+---
+
+## Persistência (SSOT)
+
+| Camada | Onde | Contrato |
+|---|---|---|
+| Backend | `lista_painel_usuario_global` | Painel reservado `__meta_escopo_workspaces_v1__`, `config_json`: `{ "_v": 1, "ids_workspaces": string[] }` |
+| API | `GET/PUT /api/v1/bid-frete-internacional/config/escopo-workspaces` | `{ ids_workspaces_escopo: string[] }` |
+| Cliente (cache) | `sessionStorage` | `bid-frete-internacional:workspaces_escopo:{id_organizacao}` |
+
+**Sem migration:** reutiliza tabela existente; painel meta é `visivel_lista_painel_usuario_global = false` e **excluído** do `GET /lista/paineis`.
+
+---
+
+## Hidratação (`useEscopoWorkspacesBidFreteInternacional`)
+
+1. Backend (`obterEscopoWorkspaces`) ou fallback `sessionStorage` (chave por org).
+2. Filtro: `ids.filter(id => idsDisponiveis.has(id))` — descarta IDs stale ou workspace inacessível.
+3. Default: workspace ativo da sessão (`gravity_company_id`).
+
+---
+
+## Filtro nas APIs
+
+Query `ids_workspaces` (CSV), mesma semântica do Pedido:
+
+| Prioridade | Fonte |
+|---|---|
+| 1 | `?ids_workspaces=a,b,c` |
+| 2 | `?id_workspace=` (legado) |
+| 3 | Header `x-id-workspace` |
+| 4 | Sem filtro → org inteira |
+
+Rotas que consomem o filtro:
+
+- `GET /cotacoes`
+- `GET /bids-frete-internacional` (cotações aninhadas)
+- `GET /dashboard/kpis`, `/insights-alertas`, `/mapa-cotacoes`
+
+Helper server: `server/src/shared/workspace-filtro-bid-frete-internacional.ts`
+
+---
+
+## Autorização — 3 camadas (paridade Pedido)
+
+| Camada | Onde |
+|---|---|
+| 1 — UI | Menu lateral só lista workspaces de `/api/v1/me`; hidratação descarta IDs stale |
+| 2 — Backend | `validarMultiWorkspaceBidFreteInternacional` via S2S `GET /api/v1/internal/usuarios/:id/workspaces-habilitados` — IDs não habilitados → **403** `WORKSPACE_NAO_AUTORIZADO` |
+| 3 — Portão 3 | Header `x-id-workspace` permanece single; multi-seleção só via query `ids_workspaces` |
+
+Arquivo: `server/src/shared/validar-multi-workspace-bid-frete-internacional.ts`
+
+PUT `/config/escopo-workspaces` valida `ids_workspaces_escopo` na camada 2 antes de gravar.
+
+---
+
+## Workspaces desabilitados — dúvida frequente de usuários
+
+Workspaces com `status_workspace != 'ATIVO'` **não aparecem** no menu lateral (fonte: `/api/v1/me` / Hub).
+
+| Situação percebida | Explicação |
+|---|---|
+| "Sumiu a empresa X" | Workspace X foi **desabilitado** no Configurador — não é bug de dados |
+| Escopo salvo incluía workspace inativo | Na hidratação, IDs inativos são **descartados** silenciosamente |
+| Lista vazia com filtro antigo | Usuário pode ter só workspaces inativos no escopo salvo → reabrir menu e selecionar filiais ativas |
+
+**Gabi:** orientar usuário a verificar Configurador → Workspaces → status ATIVO; não implica perda de cotações (dados permanecem no banco).
+
+---
+
+## "Minhas cotações sumiram / não carregam" — dúvida frequente de usuários
+
+> **Regra de ouro (para Gabi e suporte):** a Lista **nunca** busca "todas as cotações" — toda busca envia o filtro `ids_workspaces` resolvido a partir do escopo da sessão. Lista vazia quase sempre significa **escopo/contexto diferente**, não perda de dados. Cotações não são apagadas automaticamente em nenhum fluxo.
+
+### Por que a mesma conta pode ver resultados diferentes em duas janelas
+
+O escopo de workspaces é cacheado em `sessionStorage` **por janela do navegador**. Uma janela anônima (ou um navegador novo) começa com cache vazio e re-hidrata o escopo do zero — podendo resolver para um workspace diferente do da outra janela. Os KPIs do topo (Total de Cotações, Valor Total, Propostas) são calculados sobre **a mesma lista filtrada**, por isso zeram juntos de forma consistente — o que reforça a percepção (errada) de "perdi tudo".
+
+### Tabela de diagnóstico
+
+| Situação percebida | Causa provável | Verificação |
+|---|---|---|
+| "Minhas cotações não carregam" / lista vazia + KPIs zerados | Escopo de workspaces não inclui o workspace dono das cotações | Abrir o seletor de workspaces no menu lateral e marcar a filial correta (ou **Selecionar tudo**) |
+| "Em uma janela aparece, na outra não" (mesmo usuário) | Sessões com escopo diferente (cache por sessão) ou **ambientes diferentes** (produção vs QA = bancos distintos) | Conferir a URL das duas janelas; depois conferir o seletor de workspaces em cada uma |
+| "Sistema perdeu minhas cotações depois que troquei de workspace no Hub" | Workspace ativo mudou → escopo default re-hidratou para o novo workspace | Marcar o workspace anterior no seletor de escopo |
+| "Sumiu a empresa X" | Workspace desabilitado no Configurador (ver seção anterior) | Configurador → Workspaces → status ATIVO |
+| Lista vazia logo após criar cotação | Cotação criada no workspace ativo, que não está no escopo selecionado | Incluir o workspace ativo no escopo |
+
+### Roteiro de resposta da Gabi (ordem de verificação)
+
+1. **Tranquilizar:** "Suas cotações não foram apagadas — a lista mostra apenas as filiais (workspaces) selecionadas no momento."
+2. **Escopo:** pedir para abrir o seletor de workspaces no menu lateral do BID Frete e clicar em **Selecionar tudo**. Na grande maioria dos casos, isso resolve.
+3. **Workspace ativo:** se persiste, conferir no Hub qual workspace está ativo e se é o mesmo onde as cotações foram criadas (a coluna **Workspace** da lista identifica o dono de cada cotação).
+4. **Ambiente:** se o usuário compara duas janelas/links, conferir se ambas apontam para o mesmo ambiente (`usegravity.com.br`). Ambientes diferentes usam bancos diferentes.
+5. **Workspace inativo:** verificar Configurador → Workspaces → status ATIVO (seção anterior).
+6. Se nada acima resolver → abrir chamado para o suporte (não orientar o usuário a "recriar" cotações).
+
+A mesma lógica vale para o produto **Pedido** ("sistema perdeu meus pedidos") — ver `documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-REGRAS-NEGOCIO.md`.
+
+---
+
+## Arquivos SSOT
+
+| Arquivo | Papel |
+|---|---|
+| `shared/preferenciasEscopoWorkspacesBidFreteInternacional.ts` | Schema meta + nome painel reservado |
+| `client/src/shared/useEscopoWorkspacesBidFreteInternacional.ts` | Zustand + sessionStorage |
+| `server/src/routes/preferencia-escopo-workspaces-bid-frete-internacional.ts` | GET/PUT preferência |
+| `server/src/shared/workspace-filtro-bid-frete-internacional.ts` | Query `ids_workspaces` → cláusula Prisma |
+| `server/src/shared/validar-multi-workspace-bid-frete-internacional.ts` | S2S Configurador — camada 2 |
+| `client/src/App.tsx` | Wiring `modoWorkspace="multiplo"` |
+| `skills/produtos-gravity/bid-frete-internacional/SKILL.md` | Referência vertical |
+
+---
+
+## Referências
+
+- Pedido (padrão): `documentos-tecnicos/produtos-gravity/pedido/FILTRO-MULTI-WORKSPACE-TECNICO.md`
+- Painéis Lista (escopo **não** vai em `config_json` do painel): `PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md`
+
 --- documentos-tecnicos/produtos-gravity/bid-frete-internacional/ORDEM-COLUNAS-BANCO-TECNICO.md ---
 # Ordem de Colunas no Banco — BID Frete Internacional
 
@@ -179,7 +458,7 @@ FKs de negócio relevantes ficam **no topo**, logo após a PK.
 | 3 | **`id_bid_bid_frete_internacional`** (snapshot) |
 | 4 | `id_organizacao` |
 | 5 | `id_workspace` (snapshot) |
-| … | demais campos |
+| … | demais campos (bloco prazos: `dias_transito` → `dias_free_time` → **`dias_prazo_pagamento`** → `validade`) |
 
 ### `ganho_bid_frete_internacional`
 
@@ -200,6 +479,8 @@ FKs de negócio relevantes ficam **no topo**, logo após a PK.
 |-----------|--------|
 | `20260530120000_reorder_colunas_bid_frete_internacional` | Backfill `id_bid` na proposta; reorder bid, cotação, proposta, ganho; recria FKs/índices |
 | `20260530130000_fixup_reorder_bid_ganho_colunas` | Corrige skip idempotente; reorder efetivo de `bid` e `ganho` |
+| `20260531120000_add_dias_prazo_pagamento_proposta_bid_frete_internacional` | Coluna `dias_prazo_pagamento_proposta_bid_frete_internacional` (Int?, entre free time e validade) |
+| `20260531130000_add_dias_prazo_pagamento_cotacao_bid_frete_internacional` | Coluna `dias_prazo_pagamento_cotacao_bid_frete_internacional` (Int?, entre moeda meta e visibilidade) |
 
 Função SQL temporária: `bfi_reorder_table_columns(table, column_order[])` — recria tabela, copia dados, dropa original. **Idempotente:** compara posição das N primeiras colunas desejadas.
 
@@ -242,6 +523,25 @@ LIMIT 6;
 
 Esperado: PK → `id_bid` → `id_organizacao` → `id_workspace`.
 
+--- documentos-tecnicos/produtos-gravity/bid-frete-internacional/PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md ---
+# Painéis da Lista — BID Frete Internacional
+
+> **Status:** Implementado (2026-06-02) — lista cliente  
+> **Contrato base:** [../pedido/PAINEL-LISTA-CONTRATO.md](../pedido/PAINEL-LISTA-CONTRATO.md)  
+> **id_produto_gravity:** `bid-frete-internacional`
+
+## API
+
+`/api/v1/bid-frete-internacional/lista/paineis`
+
+## Migração
+
+Na primeira carga, preferências em `localStorage` (`bid-frete-internacional:config:tabela_preferencias`) são copiadas para o painel **Principal** via PUT.
+
+## UI
+
+`BidFreteListaPainelBar` na visão lista de `lista-bid-frete-internacional.tsx`.
+
 --- documentos-tecnicos/produtos-gravity/bid-frete-internacional/README.md ---
 # BID Frete Internacional — Documentação Técnica
 
@@ -259,6 +559,7 @@ Esperado: PK → `id_bid` → `id_organizacao` → `id_workspace`.
 | [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) | Entidade BID opcional, hierarquia, FKs, snapshots, API CRUD |
 | [ORDEM-COLUNAS-BANCO-TECNICO.md](./ORDEM-COLUNAS-BANCO-TECNICO.md) | Convenção de ordem física no PostgreSQL (Railway UI), migrations |
 | [SNAPSHOT-PROPOSTA-TECNICO.md](./SNAPSHOT-PROPOSTA-TECNICO.md) | `id_workspace` + `id_bid` na proposta — quando e como preencher |
+| [DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) | Namespace `visao_fornecedor_bid_frete_internacional` — API, SPA, contratos, i18n |
 
 ---
 
@@ -388,28 +689,3 @@ Ordem dos campos no type espelha ordem lógica (não afeta banco):
 
 - [ ] Unitário: `snapshot-proposta-bid-frete.test.ts`
 - [ ] Funcional: assert create proposta persiste `id_bid` quando cotação vinculada a BID
-
----
-
-## Escopo multi-workspace (menu lateral) — Jun 2026
-
-### O que o usuário vê
-
-- Menu lateral com **checkboxes** por workspace + **Selecionar tudo** / **Desmarcar tudo** (igual Pedido).
-- Preferência salva no backend e reaplicada no próximo login.
-
-### "Sumiu a empresa" — resposta padrão Gabi
-
-Quando o usuário diz que **empresas/filiais desapareceram** do menu do BID Frete Internacional:
-
-1. Workspaces **desabilitados** (`status_workspace` ≠ ATIVO) **não aparecem** no seletor — isso é regra de segurança, não exclusão de dados.
-2. Cotações da filial inativa **continuam no banco**; só deixam de ser listadas enquanto o workspace estiver inativo ou fora do escopo selecionado.
-3. Orientar: Configurador → Workspaces → reativar filial, ou selecionar outras filiais ativas no menu lateral.
-
-### API
-
-- Preferência: `GET/PUT /api/v1/bid-frete-internacional/config/escopo-workspaces`
-- Filtro de listagens: query `ids_workspaces` (CSV)
-
-Doc técnico: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`
-

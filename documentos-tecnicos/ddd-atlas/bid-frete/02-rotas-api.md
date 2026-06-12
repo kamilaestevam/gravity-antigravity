@@ -235,4 +235,15 @@ Arquivo: `config-status-bid-frete-internacional.ts`
 |-------|-----------|
 | `apenas_avulsas=true` | Exclui cotações com `id_bid_bid_frete_internacional` preenchido |
 
-Documentacao detalhada: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ENTIDADE-BID-TECNICO.md`
+### Duplicações e exclusões em lote (PR #289)
+
+| Metodo | Rota DDD | Arquivo | Descricao |
+|--------|----------|---------|-----------|
+| POST | `/api/v1/bid-frete-internacional/cotacoes/duplicacoes` | `duplicacoes-bid-frete-internacional.ts` | Duplica cotações em lote |
+| POST | `/api/v1/bid-frete-internacional/bids-frete-internacional/duplicacoes` | idem | Duplica BIDs + cotações filhas |
+| POST | `/api/v1/bid-frete-internacional/cotacoes/exclusoes/preview` | `exclusoes-bid-frete-internacional.ts` | Preview exclusão cotações |
+| POST | `/api/v1/bid-frete-internacional/cotacoes/exclusoes/confirmar` | idem | Confirma exclusão cotações |
+| POST | `/api/v1/bid-frete-internacional/bids-frete-internacional/exclusoes/preview` | idem | Preview exclusão BIDs |
+| POST | `/api/v1/bid-frete-internacional/bids-frete-internacional/exclusoes/confirmar` | idem | Confirma exclusão BIDs |
+
+Documentacao detalhada: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md`, `ENTIDADE-BID-TECNICO.md`

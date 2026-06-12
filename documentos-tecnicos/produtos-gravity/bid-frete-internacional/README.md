@@ -13,6 +13,7 @@
 |-----------|----------|
 | [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) | Wizard Nova Cotação (5 passos), passo Fornecedores, disparo, preview e seleção |
 | [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) | Entidade BID opcional, hierarquia, FKs, snapshots, API CRUD |
+| [LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md](./LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md) | Lista: expandir/recolher, seleção, duplicar e excluir em lote (API + UX) |
 | [PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md](./PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) | Painéis persistidos da lista de cotações |
 | [ORDEM-COLUNAS-BANCO-TECNICO.md](./ORDEM-COLUNAS-BANCO-TECNICO.md) | Convenção de ordem física no PostgreSQL (Railway UI), migrations |
 | [SNAPSHOT-PROPOSTA-TECNICO.md](./SNAPSHOT-PROPOSTA-TECNICO.md) | `id_workspace` + `id_bid` na proposta — quando e como preencher |
@@ -41,6 +42,7 @@
 | #288 | Selecionar/Desmarcar todos (Direcionada), rótulo *Ver fornecedores e notas* |
 | #290 | Barras de nota na Direcionada (`BarrasNotasFornecedores` abaixo da lista) |
 | #289 | Lista: expandir/recolher, seleção, duplicar e excluir em lote |
+| #294 | Lista: botões Duplicar/Excluir só ícone (paridade Pedido) |
 
 ## Entregas recentes (2026-05)
 

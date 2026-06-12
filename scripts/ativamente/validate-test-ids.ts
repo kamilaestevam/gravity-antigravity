@@ -91,6 +91,19 @@ interface RegistryShape {
 const errors:   string[] = []
 const warnings: string[] = []
 
+/** planoFile/specFile são relativos a testes/ (sem prefixo testes/ duplicado). */
+function resolveArquivoEmTestes(relPath: string | undefined): string | null {
+  if (!relPath) return null
+  const normalized = relPath.replace(/\\/g, '/').replace(/^testes\//, '')
+  const candidates = [
+    join(TESTES, normalized),
+    join(TESTES, relPath),
+    join(ROOT, relPath),
+    join(ROOT, normalized),
+  ]
+  return candidates.find(p => existsSync(p)) ?? null
+}
+
 // ─── 1. Lê o registry ─────────────────────────────────────────────────────────
 let registry: RegistryShape
 try {
@@ -151,19 +164,13 @@ for (const entry of registry.planos) {
   }
 
   // 2e. Arquivo de spec existe (se declarado)
-  if (entry.specFile) {
-    const specPath = join(TESTES, entry.specFile)
-    if (!existsSync(specPath)) {
-      warnings.push(`Registry: spec "${entry.specFile}" do ID "${entry.id}" não existe ainda no disco`)
-    }
+  if (entry.specFile && !resolveArquivoEmTestes(entry.specFile)) {
+    warnings.push(`Registry: spec "${entry.specFile}" do ID "${entry.id}" não existe ainda no disco`)
   }
 
   // 2f. Arquivo de plano existe (se declarado)
-  if (entry.planoFile) {
-    const planoPath = join(TESTES, entry.planoFile)
-    if (!existsSync(planoPath)) {
-      errors.push(`Registry: plano "${entry.planoFile}" do ID "${entry.id}" não existe no disco`)
-    }
+  if (entry.planoFile && !resolveArquivoEmTestes(entry.planoFile)) {
+    errors.push(`Registry: plano "${entry.planoFile}" do ID "${entry.id}" não existe no disco`)
   }
 }
 
@@ -195,7 +202,7 @@ function walk(dir: string, found: Map<string, string>): void {
     if (stat.isDirectory()) {
       walk(path, found)
     } else if (
-      !name.endsWith('.md')
+      (name.endsWith('.test.ts') || name.endsWith('.spec.ts') || name.startsWith('run-TST-EMT-'))
       && (/^TST-(UNI|CON|FUN|CRO|E2E|PEN)-/.test(name) || /^run-TST-EMT-/.test(name))
     ) {
       const idMatchDesc =
@@ -228,7 +235,7 @@ walk(TESTES, idsArquivos)
 
 // ─── 4. Cruza registry × arquivos ─────────────────────────────────────────────
 for (const [id, path] of idsArquivos) {
-  if (!idsRegistry.has(id)) {
+  if (!idsRegistry.has(id) && !idsDeletados.has(id)) {
     errors.push(`Arquivo órfão: "${path}" tem ID "${id}" mas não está no registry`)
   }
 }

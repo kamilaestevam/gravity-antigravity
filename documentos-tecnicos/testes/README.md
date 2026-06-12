@@ -44,6 +44,7 @@ documentos-tecnicos/testes/
 | Entender por que a IA sugeriu X | [tecnico/03-integracao-gemini.md](tecnico/03-integracao-gemini.md) |
 | Configurar o cron diário | [tecnico/04-cron-externo.md](tecnico/04-cron-externo.md) |
 | Ver o exemplo do plano da Organização | `testes/_planos/configurador/organizacao.json` + [skills/testes/agente-plano-teste/exemplo-organizacao.md](../../skills/testes/agente-plano-teste/exemplo-organizacao.md) |
+| **Modal «Detalhe do plano» (Objetivo / casos / Script)** | [tecnico/06-frontend-admin-testes.md](tecnico/06-frontend-admin-testes.md) |
 | Mexer no analisador Gemini | [skills/testes/analista-erros-testes-gemini/SKILL.md](../../skills/testes/analista-erros-testes-gemini/SKILL.md) |
 | Criar/expandir um plano de teste | [skills/testes/agente-plano-teste/SKILL.md](../../skills/testes/agente-plano-teste/SKILL.md) |
 | Seletor universal (pills / SLA 1s) | [arquitetura/seletor-universal-visualizacoes.md](../arquitetura/seletor-universal-visualizacoes.md) + `TST-*-MBOTO-*` |

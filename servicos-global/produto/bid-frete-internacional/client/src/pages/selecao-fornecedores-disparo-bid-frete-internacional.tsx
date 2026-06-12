@@ -4,7 +4,9 @@
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Envelope, ChatCircle, UsersThree, Star } from '@phosphor-icons/react'
+import { Envelope, ChatCircle, UsersThree, Star, Trash } from '@phosphor-icons/react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { TIPO_FORNECEDOR_LABELS, type CanalDisparo, type Fornecedor, type TipoFornecedor, type Visibilidade } from '../shared/types'
 
 export interface SelecaoFornecedoresDisparoProps {
@@ -15,14 +17,64 @@ export interface SelecaoFornecedoresDisparoProps {
   onChangeSelecionados: (ids: string[]) => void
   canais: CanalDisparo[]
   onChangeCanais: (canais: CanalDisparo[]) => void
+  /** Cotação aberta: fornecedores removidos manualmente do disparo. */
+  excluidosDisparo?: string[]
+  onExcluirFornecedorDisparo?: (id_fornecedor_bid_frete_internacional: string) => void
+}
+
+/** Fornecedores ativos que aceitam cotação aberta (elegíveis ao disparo automático). */
+export function fornecedoresElegiveisCotacaoAberta(fornecedores: Fornecedor[]): Fornecedor[] {
+  return fornecedores.filter(
+    f => f.status_fornecedor_bid_frete_internacional === 'ATIVO'
+      && f.aceita_cotacao_aberta_fornecedor_bid_frete_internacional,
+  )
+}
+
+/** IDs elegíveis menos os excluídos pelo usuário na cotação aberta. */
+export function idsFornecedoresDisparoCotacaoAberta(
+  fornecedores: Fornecedor[],
+  excluidos: string[],
+): string[] {
+  return fornecedoresElegiveisCotacaoAberta(fornecedores)
+    .filter(f => !excluidos.includes(f.id_fornecedor_bid_frete_internacional))
+    .map(f => f.id_fornecedor_bid_frete_internacional)
+}
+
+function rotuloMetaFornecedorDisparo(f: Fornecedor): string {
+  const tipo = TIPO_FORNECEDOR_LABELS[f.tipo_fornecedor_bid_frete_internacional]
+    ?? f.tipo_fornecedor_bid_frete_internacional
+  const nota = f.nota_global_classificacao_bid_frete_internacional
+  if (nota != null) {
+    return `${tipo} · ${nota.toFixed(1)}/5`
+  }
+  return tipo
 }
 
 function toggleItem<T extends string>(lista: T[], item: T): T[] {
   return lista.includes(item) ? lista.filter(i => i !== item) : [...lista, item]
 }
 
+/** Spinner padrão da plataforma enquanto a lista de fornecedores carrega. */
+function CarregandoFornecedoresDisparo() {
+  const { t } = useTranslation()
+  return (
+    <div className="bf-disparo-carregando" role="status" aria-live="polite" aria-busy="true">
+      <GravityLoader
+        texto={t('bidfrete.disparo.carregando_fornecedores', 'Carregando fornecedores…')}
+        tamanho="sm"
+      />
+    </div>
+  )
+}
+
 /** Toggle expandível com barras de nota por fornecedor (Aberta e Direcionada). */
-function BarrasNotasFornecedores({ fornecedores }: { fornecedores: Fornecedor[] }) {
+function BarrasNotasFornecedores({
+  fornecedores,
+  onExcluirFornecedor,
+}: {
+  fornecedores: Fornecedor[]
+  onExcluirFornecedor?: (id_fornecedor_bid_frete_internacional: string) => void
+}) {
   const { t } = useTranslation()
   const [graficoAberto, setGraficoAberto] = React.useState(false)
 
@@ -31,6 +83,8 @@ function BarrasNotasFornecedores({ fornecedores }: { fornecedores: Fornecedor[] 
   const ordenadosPorNota = [...fornecedores].sort(
     (a, b) => (b.nota_global_classificacao_bid_frete_internacional ?? 0) - (a.nota_global_classificacao_bid_frete_internacional ?? 0),
   )
+
+  const comExcluir = onExcluirFornecedor != null
 
   return (
     <>
@@ -45,18 +99,42 @@ function BarrasNotasFornecedores({ fornecedores }: { fornecedores: Fornecedor[] 
         <div className="bf-preview-barras">
           {ordenadosPorNota.map(f => {
             const nota = f.nota_global_classificacao_bid_frete_internacional
+            const id = f.id_fornecedor_bid_frete_internacional
             return (
-              <div key={f.id_fornecedor_bid_frete_internacional} className="bf-preview-barra-linha">
+              <div
+                key={id}
+                className={`bf-preview-barra-linha${comExcluir ? ' bf-preview-barra-linha--com-excluir' : ''}`}
+              >
                 <span className="bf-preview-barra-nome" title={f.nome_fornecedor_bid_frete_internacional}>
                   {f.nome_fornecedor_bid_frete_internacional}
                 </span>
-                <div className="bf-preview-barra-track">
-                  <div
-                    className="bf-preview-barra-fill"
-                    style={{ width: `${((nota ?? 0) / 5) * 100}%` }}
-                  />
-                </div>
-                <span className="bf-preview-barra-nota">{nota != null ? `${nota.toFixed(1)}/5` : '—'}</span>
+                {comExcluir ? (
+                  <span className="bf-preview-barra-meta">{rotuloMetaFornecedorDisparo(f)}</span>
+                ) : (
+                  <>
+                    <div className="bf-preview-barra-track">
+                      <div
+                        className="bf-preview-barra-fill"
+                        style={{ width: `${((nota ?? 0) / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="bf-preview-barra-nota">{nota != null ? `${nota.toFixed(1)}/5` : '—'}</span>
+                  </>
+                )}
+                {comExcluir && (
+                  <TooltipGlobal
+                    descricao={t('bidfrete.disparo.excluir_fornecedor', 'Excluir do disparo')}
+                  >
+                    <button
+                      type="button"
+                      className="bf-disparo-btn-excluir"
+                      aria-label={t('bidfrete.disparo.excluir_fornecedor', 'Excluir do disparo')}
+                      onClick={() => onExcluirFornecedor(id)}
+                    >
+                      <Trash size={16} weight="bold" />
+                    </button>
+                  </TooltipGlobal>
+                )}
               </div>
             )
           })}
@@ -69,26 +147,33 @@ function BarrasNotasFornecedores({ fornecedores }: { fornecedores: Fornecedor[] 
 /** Preview de quem receberá a cotação aberta: totais por tipo + barras de nota. */
 function PreviewFornecedoresElegiveis({
   fornecedores,
-  carregando,
+  excluidosDisparo,
+  onExcluirFornecedorDisparo,
 }: {
   fornecedores: Fornecedor[]
-  carregando: boolean
+  excluidosDisparo: string[]
+  onExcluirFornecedorDisparo?: (id_fornecedor_bid_frete_internacional: string) => void
 }) {
   const { t } = useTranslation()
 
-  if (carregando) {
-    return <p className="bf-disparo-vazio">{t('comum.carregando')}</p>
+  const elegiveisBase = fornecedoresElegiveisCotacaoAberta(fornecedores)
+
+  if (elegiveisBase.length === 0) {
+    return (
+      <p className="bf-disparo-vazio">
+        {t('bidfrete.disparo.sem_elegiveis', 'Nenhum fornecedor ativo aceita cotação aberta — o disparo não terá destinatários.')}
+      </p>
+    )
   }
 
-  const elegiveis = fornecedores.filter(
-    f => f.status_fornecedor_bid_frete_internacional === 'ATIVO'
-      && f.aceita_cotacao_aberta_fornecedor_bid_frete_internacional,
+  const elegiveis = elegiveisBase.filter(
+    f => !excluidosDisparo.includes(f.id_fornecedor_bid_frete_internacional),
   )
 
   if (elegiveis.length === 0) {
     return (
       <p className="bf-disparo-vazio">
-        {t('bidfrete.disparo.sem_elegiveis', 'Nenhum fornecedor ativo aceita cotação aberta — o disparo não terá destinatários.')}
+        {t('bidfrete.disparo.todos_excluidos', 'Todos os fornecedores elegíveis foram excluídos — o disparo não terá destinatários.')}
       </p>
     )
   }
@@ -115,7 +200,10 @@ function PreviewFornecedoresElegiveis({
         ))}
       </div>
 
-      <BarrasNotasFornecedores fornecedores={elegiveis} />
+      <BarrasNotasFornecedores
+        fornecedores={elegiveis}
+        onExcluirFornecedor={onExcluirFornecedorDisparo}
+      />
     </div>
   )
 }
@@ -128,6 +216,8 @@ export function SelecaoFornecedoresDisparo({
   onChangeSelecionados,
   canais,
   onChangeCanais,
+  excluidosDisparo = [],
+  onExcluirFornecedorDisparo,
 }: SelecaoFornecedoresDisparoProps) {
   const { t } = useTranslation()
 
@@ -171,52 +261,66 @@ export function SelecaoFornecedoresDisparo({
         </label>
       </div>
 
-      {visibilidade === 'ABERTA' && (
-        <PreviewFornecedoresElegiveis fornecedores={fornecedores} carregando={carregando} />
-      )}
-
-      {visibilidade === 'DIRECIONADA' && (
-        <div className="bf-disparo-lista-wrap">
-          {carregando ? (
-            <p className="bf-disparo-vazio">{t('comum.carregando')}</p>
-          ) : fornecedores.length === 0 ? (
-            <p className="bf-disparo-vazio">{t('bidfrete.disparo.sem_fornecedores', 'Nenhum fornecedor ativo cadastrado.')}</p>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="bf-disparo-selecionar-todos"
-                onClick={toggleTodosFornecedores}
-              >
-                {todosFornecedoresSelecionados
-                  ? t('bidfrete.disparo.desmarcar_todos', 'Desmarcar todos')
-                  : t('bidfrete.disparo.selecionar_todos', 'Selecionar todos')}
-              </button>
-              <div className="bf-disparo-lista">
-            {fornecedores.map(f => {
-              const id = f.id_fornecedor_bid_frete_internacional
-              const checked = selecionados.includes(id)
-              return (
-                <label key={id} className={`bf-disparo-item ${checked ? 'bf-disparo-item--selected' : ''}`}>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => onChangeSelecionados(toggleItem(selecionados, id))}
-                  />
-                  <span className="bf-disparo-item-nome">{f.nome_fornecedor_bid_frete_internacional}</span>
-                  <span className="bf-disparo-item-email">{f.email_fornecedor_bid_frete_internacional || '—'}</span>
-                </label>
-              )
-            })}
-              </div>
-              <BarrasNotasFornecedores fornecedores={fornecedores} />
-            </>
+      {carregando ? (
+        <CarregandoFornecedoresDisparo />
+      ) : (
+        <>
+          {visibilidade === 'ABERTA' && (
+            <PreviewFornecedoresElegiveis
+              fornecedores={fornecedores}
+              excluidosDisparo={excluidosDisparo}
+              onExcluirFornecedorDisparo={onExcluirFornecedorDisparo}
+            />
           )}
-        </div>
+
+          {visibilidade === 'DIRECIONADA' && (
+            <div className="bf-disparo-lista-wrap">
+              {fornecedores.length === 0 ? (
+                <p className="bf-disparo-vazio">{t('bidfrete.disparo.sem_fornecedores', 'Nenhum fornecedor ativo cadastrado.')}</p>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className="bf-disparo-selecionar-todos"
+                    onClick={toggleTodosFornecedores}
+                  >
+                    {todosFornecedoresSelecionados
+                      ? t('bidfrete.disparo.desmarcar_todos', 'Desmarcar todos')
+                      : t('bidfrete.disparo.selecionar_todos', 'Selecionar todos')}
+                  </button>
+                  <div className="bf-disparo-lista">
+                    {fornecedores.map(f => {
+                      const id = f.id_fornecedor_bid_frete_internacional
+                      const checked = selecionados.includes(id)
+                      return (
+                        <label key={id} className={`bf-disparo-item ${checked ? 'bf-disparo-item--selected' : ''}`}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => onChangeSelecionados(toggleItem(selecionados, id))}
+                          />
+                          <span className="bf-disparo-item-nome">{f.nome_fornecedor_bid_frete_internacional}</span>
+                          <span className="bf-disparo-item-meta">{rotuloMetaFornecedorDisparo(f)}</span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                  <BarrasNotasFornecedores fornecedores={fornecedores} />
+                </>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       <style>{`
         .bf-disparo-selecao { display: flex; flex-direction: column; gap: 1rem; }
+        .bf-disparo-carregando {
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          min-height: 8rem; padding: 1.5rem 1rem; border-radius: 12px;
+          border: 1px dashed rgba(129, 140, 248, 0.28);
+          background: rgba(30, 41, 59, 0.45);
+        }
         .bf-disparo-hint { font-size: 0.875rem; color: var(--text-secondary, #94a3b8); margin: 0; line-height: 1.5; }
         .bf-disparo-canais { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; }
         .bf-disparo-canais-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted, #64748b); }
@@ -235,7 +339,7 @@ export function SelecaoFornecedoresDisparo({
         }
         .bf-disparo-item--selected { border-color: rgba(99,102,241,0.45); background: rgba(99,102,241,0.08); }
         .bf-disparo-item-nome { font-size: 0.875rem; font-weight: 600; color: var(--text-primary, #f1f5f9); }
-        .bf-disparo-item-email { font-size: 0.75rem; color: var(--text-muted, #64748b); font-family: 'DM Mono', monospace; }
+        .bf-disparo-item-meta { font-size: 0.75rem; color: var(--text-muted, #64748b); text-align: right; white-space: nowrap; }
         .bf-disparo-vazio { font-size: 0.875rem; color: var(--text-muted, #64748b); margin: 0; }
 
         /* ── Preview cotação aberta ── */
@@ -258,10 +362,23 @@ export function SelecaoFornecedoresDisparo({
         .bf-preview-toggle:hover { text-decoration: underline; }
         .bf-preview-barras { display: flex; flex-direction: column; gap: 0.45rem; max-height: 220px; overflow-y: auto; }
         .bf-preview-barra-linha { display: grid; grid-template-columns: minmax(120px, 200px) 1fr 48px; gap: 0.65rem; align-items: center; }
+        .bf-preview-barra-linha--com-excluir { grid-template-columns: minmax(120px, 1fr) auto auto; gap: 0.75rem; }
         .bf-preview-barra-nome { font-size: 0.8125rem; font-weight: 600; color: var(--text-primary, #f1f5f9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .bf-preview-barra-track { height: 8px; border-radius: 999px; background: rgba(71,85,105,0.45); overflow: hidden; }
         .bf-preview-barra-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #6366f1, #a78bfa); }
         .bf-preview-barra-nota { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary, #94a3b8); font-variant-numeric: tabular-nums; text-align: right; }
+        .bf-preview-barra-meta { font-size: 0.75rem; color: var(--text-muted, #64748b); text-align: right; white-space: nowrap; }
+        .bf-disparo-btn-excluir {
+          display: flex; align-items: center; justify-content: center;
+          width: 28px; height: 28px; border-radius: 50%;
+          background: transparent; border: 1px solid transparent;
+          color: #ef4444; cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+          padding: 0; font-family: inherit;
+        }
+        .bf-disparo-btn-excluir:hover {
+          background: rgba(239, 68, 68, 0.12);
+          border-color: rgba(239, 68, 68, 0.3);
+        }
       `}</style>
     </div>
   )

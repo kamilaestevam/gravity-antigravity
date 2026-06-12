@@ -310,7 +310,7 @@ export default function NovaCotacao() {
     if (form.modal === 'MARITIMO') {
       getPortos().then(setPortosLista).catch(() => {})
     } else if (form.modal === 'AEREO') {
-      getAeroportos().then(setAeroportosLista).catch(() => {})
+      getAeroportos(undefined, undefined, 10_000).then(setAeroportosLista).catch(() => {})
     }
   }, [form.modal])
 

@@ -54,6 +54,10 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     '@nucleo/Utilidades/localization/useLocale': path.resolve(nucleoRoot, 'Utilidades/Localization/useLocale.ts'),
     // audit-locais — explícito para evitar miss em vite cache durante hot-reload
     '@nucleo/audit-locais': path.resolve(nucleoRoot, 'Utilidades/audit-locais/src/index.ts'),
+    '@nucleo/catalogo-aeroportos-cadastros': path.resolve(
+      nucleoRoot,
+      'Utilidades/catalogo-aeroportos-cadastros/src/index.ts',
+    ),
 
     // Trio do histórico (Frente B 2026-05-05) — labels, formatador e diff
     // que alimentam `detalhe_acao_historico_log` na tela /workspace/historico-organizacao

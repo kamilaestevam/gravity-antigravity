@@ -182,6 +182,16 @@ export interface Cotacao {
   origem_codigo_cotacao_bid_frete_internacional: string
   origem_nome_cotacao_bid_frete_internacional: string
   origem_pais_cotacao_bid_frete_internacional: string
+  porto_origem_cotacao_bid_frete_internacional?: string | null
+  porto_destino_cotacao_bid_frete_internacional?: string | null
+  aeroporto_origem_cotacao_bid_frete_internacional?: string | null
+  aeroporto_destino_cotacao_bid_frete_internacional?: string | null
+  pais_origem_rodoviario_cotacao_bid_frete_internacional?: string | null
+  pais_destino_rodoviario_cotacao_bid_frete_internacional?: string | null
+  estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional?: string | null
+  estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional?: string | null
+  cidade_origem_rodoviario_cotacao_bid_frete_internacional?: string | null
+  cidade_destino_rodoviario_cotacao_bid_frete_internacional?: string | null
   destino_codigo_cotacao_bid_frete_internacional: string
   destino_nome_cotacao_bid_frete_internacional: string
   destino_pais_cotacao_bid_frete_internacional: string
@@ -190,18 +200,21 @@ export interface Cotacao {
   quantidade_volume_cotacao_bid_frete_internacional: number
   tipo_container_cotacao_bid_frete_internacional: string | null
   peso_kg_cotacao_bid_frete_internacional: number | null
+  peso_ton_cotacao_bid_frete_internacional: number | null
   cubagem_m3_cotacao_bid_frete_internacional: number | null
+  eh_carga_perigosa_cotacao_bid_frete_internacional?: boolean
+  numero_onu_cotacao_bid_frete_internacional?: string | null
+  nome_tecnico_embarque_cotacao_bid_frete_internacional?: string | null
+  classe_carga_perigosa_cotacao_bid_frete_internacional?: number | null
+  divisao_carga_perigosa_cotacao_bid_frete_internacional?: string | null
+  grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional?: string | null
+  observacoes_carga_perigosa_cotacao_bid_frete_internacional?: string | null
   incoterm_cotacao_bid_frete_internacional: string
   zipcode_origem_cotacao_bid_frete_internacional?: string | null
   zipcode_destino_cotacao_bid_frete_internacional: string | null
   endereco_origem_cotacao_bid_frete_internacional?: string | null
   endereco_destino_cotacao_bid_frete_internacional?: string | null
-  estado_provincia_origem_cotacao_bid_frete_internacional?: string | null
-  aeroporto_origem_cotacao_bid_frete_internacional?: string | null
-  estado_provincia_destino_cotacao_bid_frete_internacional?: string | null
-  aeroporto_destino_cotacao_bid_frete_internacional?: string | null
   hs_code_cotacao_bid_frete_internacional?: string | null
-  peso_ton_cotacao_bid_frete_internacional?: number | null
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima_cotacao_bid_frete_internacional: boolean
   nome_cliente_operacao_cotacao_bid_frete_internacional?: string | null

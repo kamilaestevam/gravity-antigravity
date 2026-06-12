@@ -3,16 +3,94 @@
  */
 import type { AeroportoCadastro, PortoCadastro } from './cadastrosApi'
 import type { Cotacao } from './types'
+import {
+  codigoAeroportoDestinoParaEdicao,
+  codigoAeroportoOrigemParaEdicao,
+  codigoPortoDestinoParaEdicao,
+  codigoPortoOrigemParaEdicao,
+  derivarSnapshotRotaCotacao,
+  prepararCamposRotaCotacaoPersistencia,
+} from './rota-cotacao-bid-frete-internacional'
 
-/** Código usado no select (UN/LOCODE ou IATA) — só campos persistidos em `cotacao_bid_frete_internacional`. */
+export {
+  codigoAeroportoDestinoParaEdicao,
+  codigoAeroportoOrigemParaEdicao,
+  codigoPortoDestinoParaEdicao,
+  codigoPortoOrigemParaEdicao,
+  derivarSnapshotRotaCotacao,
+}
+
 export function codigoOrigemParaEdicao(cotacao: Cotacao): string {
-  return cotacao.origem_codigo_cotacao_bid_frete_internacional?.trim() ?? ''
+  const modal = cotacao.modal_cotacao_bid_frete_internacional
+  if (modal === 'MARITIMO') return codigoPortoOrigemParaEdicao(cotacao)
+  if (modal === 'AEREO') return codigoAeroportoOrigemParaEdicao(cotacao)
+  return cotacao.pais_origem_rodoviario_cotacao_bid_frete_internacional?.trim() ?? ''
 }
 
 export function codigoDestinoParaEdicao(cotacao: Cotacao): string {
-  return cotacao.destino_codigo_cotacao_bid_frete_internacional?.trim() ?? ''
+  const modal = cotacao.modal_cotacao_bid_frete_internacional
+  if (modal === 'MARITIMO') return codigoPortoDestinoParaEdicao(cotacao)
+  if (modal === 'AEREO') return codigoAeroportoDestinoParaEdicao(cotacao)
+  return cotacao.pais_destino_rodoviario_cotacao_bid_frete_internacional?.trim() ?? ''
 }
 
+export function patchPortoOrigemPorCodigoCadastro(
+  cotacao: Cotacao,
+  codigo: string,
+  portos: PortoCadastro[],
+): Partial<Cotacao> {
+  return prepararCamposRotaCotacaoPersistencia(
+    {
+      ...cotacao,
+      porto_origem_cotacao_bid_frete_internacional: codigo,
+    },
+    { portos },
+  )
+}
+
+export function patchPortoDestinoPorCodigoCadastro(
+  cotacao: Cotacao,
+  codigo: string,
+  portos: PortoCadastro[],
+): Partial<Cotacao> {
+  return prepararCamposRotaCotacaoPersistencia(
+    {
+      ...cotacao,
+      porto_destino_cotacao_bid_frete_internacional: codigo,
+    },
+    { portos },
+  )
+}
+
+export function patchAeroportoOrigemPorCodigoCadastro(
+  cotacao: Cotacao,
+  iata: string,
+  aeroportos: AeroportoCadastro[],
+): Partial<Cotacao> {
+  return prepararCamposRotaCotacaoPersistencia(
+    {
+      ...cotacao,
+      aeroporto_origem_cotacao_bid_frete_internacional: iata,
+    },
+    { aeroportos },
+  )
+}
+
+export function patchAeroportoDestinoPorCodigoCadastro(
+  cotacao: Cotacao,
+  iata: string,
+  aeroportos: AeroportoCadastro[],
+): Partial<Cotacao> {
+  return prepararCamposRotaCotacaoPersistencia(
+    {
+      ...cotacao,
+      aeroporto_destino_cotacao_bid_frete_internacional: iata,
+    },
+    { aeroportos },
+  )
+}
+
+/** @deprecated use patchPortoOrigemPorCodigoCadastro / patchAeroportoOrigemPorCodigoCadastro */
 export function patchOrigemPorCodigoCadastro(
   cotacao: Cotacao,
   codigo: string,
@@ -20,35 +98,11 @@ export function patchOrigemPorCodigoCadastro(
   aeroportos: AeroportoCadastro[],
 ): Partial<Cotacao> {
   const modal = cotacao.modal_cotacao_bid_frete_internacional
-
-  if (modal === 'AEREO') {
-    const aeroporto = aeroportos.find(
-      a => a.codigo_iata_aeroporto === codigo || a.codigo_unlocode_aeroporto === codigo,
-    )
-    const codigoPersistido = aeroporto?.codigo_iata_aeroporto?.trim() || codigo
-    const nome = aeroporto
-      ? `${codigoPersistido} — ${aeroporto.nome_aeroporto}`
-      : codigo
-    return {
-      origem_codigo_cotacao_bid_frete_internacional: codigoPersistido,
-      origem_nome_cotacao_bid_frete_internacional: nome,
-      ...(aeroporto?.codigo_pais_aeroporto
-        ? { origem_pais_cotacao_bid_frete_internacional: aeroporto.codigo_pais_aeroporto }
-        : {}),
-    }
-  }
-
-  const porto = portos.find(p => p.codigo_unlocode_porto === codigo)
-  const nome = porto ? `${porto.codigo_unlocode_porto} — ${porto.nome_porto}` : codigo
-  return {
-    origem_codigo_cotacao_bid_frete_internacional: codigo,
-    origem_nome_cotacao_bid_frete_internacional: nome,
-    ...(porto?.codigo_pais_porto
-      ? { origem_pais_cotacao_bid_frete_internacional: porto.codigo_pais_porto }
-      : {}),
-  }
+  if (modal === 'AEREO') return patchAeroportoOrigemPorCodigoCadastro(cotacao, codigo, aeroportos)
+  return patchPortoOrigemPorCodigoCadastro(cotacao, codigo, portos)
 }
 
+/** @deprecated use patchPortoDestinoPorCodigoCadastro / patchAeroportoDestinoPorCodigoCadastro */
 export function patchDestinoPorCodigoCadastro(
   cotacao: Cotacao,
   codigo: string,
@@ -56,41 +110,21 @@ export function patchDestinoPorCodigoCadastro(
   aeroportos: AeroportoCadastro[],
 ): Partial<Cotacao> {
   const modal = cotacao.modal_cotacao_bid_frete_internacional
-
-  if (modal === 'AEREO') {
-    const aeroporto = aeroportos.find(
-      a => a.codigo_iata_aeroporto === codigo || a.codigo_unlocode_aeroporto === codigo,
-    )
-    const codigoPersistido = aeroporto?.codigo_iata_aeroporto?.trim() || codigo
-    const nome = aeroporto
-      ? `${codigoPersistido} — ${aeroporto.nome_aeroporto}`
-      : codigo
-    return {
-      destino_codigo_cotacao_bid_frete_internacional: codigoPersistido,
-      destino_nome_cotacao_bid_frete_internacional: nome,
-      ...(aeroporto?.codigo_pais_aeroporto
-        ? { destino_pais_cotacao_bid_frete_internacional: aeroporto.codigo_pais_aeroporto }
-        : {}),
-    }
-  }
-
-  const porto = portos.find(p => p.codigo_unlocode_porto === codigo)
-  const nome = porto ? `${porto.codigo_unlocode_porto} — ${porto.nome_porto}` : codigo
-  return {
-    destino_codigo_cotacao_bid_frete_internacional: codigo,
-    destino_nome_cotacao_bid_frete_internacional: nome,
-    ...(porto?.codigo_pais_porto
-      ? { destino_pais_cotacao_bid_frete_internacional: porto.codigo_pais_porto }
-      : {}),
-  }
+  if (modal === 'AEREO') return patchAeroportoDestinoPorCodigoCadastro(cotacao, codigo, aeroportos)
+  return patchPortoDestinoPorCodigoCadastro(cotacao, codigo, portos)
 }
 
-/** Campos de localização que salvam código de cadastro (select), não texto livre. */
 export const CAMPOS_LOCALIZACAO_CODIGO = new Set([
-  'origem_nome_cotacao_bid_frete_internacional',
-  'destino_nome_cotacao_bid_frete_internacional',
-  'origem_codigo_cotacao_bid_frete_internacional',
-  'destino_codigo_cotacao_bid_frete_internacional',
+  'porto_origem_cotacao_bid_frete_internacional',
+  'porto_destino_cotacao_bid_frete_internacional',
+  'aeroporto_origem_cotacao_bid_frete_internacional',
+  'aeroporto_destino_cotacao_bid_frete_internacional',
+  'pais_origem_rodoviario_cotacao_bid_frete_internacional',
+  'pais_destino_rodoviario_cotacao_bid_frete_internacional',
+  'estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional',
+  'estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional',
+  'cidade_origem_rodoviario_cotacao_bid_frete_internacional',
+  'cidade_destino_rodoviario_cotacao_bid_frete_internacional',
 ])
 
 export function ehCampoLocalizacaoCodigo(campo: string): boolean {
@@ -107,19 +141,39 @@ export function resolverPatchEdicaoLocalizacao(
   const codigo = String(codigoSelecionado ?? '').trim()
   if (!ehCampoLocalizacaoCodigo(campo)) return null
 
-  if (
-    campo === 'origem_nome_cotacao_bid_frete_internacional'
-    || campo === 'origem_codigo_cotacao_bid_frete_internacional'
-  ) {
-    return patchOrigemPorCodigoCadastro(cotacao, codigo, portos, aeroportos)
+  const parcial: Partial<Cotacao> = { [campo]: codigo || null }
+
+  if (campo.startsWith('pais_') || campo.startsWith('estado_') || campo.startsWith('cidade_')) {
+    return prepararCamposRotaCotacaoPersistencia({ ...cotacao, ...parcial })
   }
 
   if (
-    campo === 'destino_nome_cotacao_bid_frete_internacional'
-    || campo === 'destino_codigo_cotacao_bid_frete_internacional'
+    campo === 'porto_origem_cotacao_bid_frete_internacional'
+    || campo === 'aeroporto_origem_cotacao_bid_frete_internacional'
   ) {
-    return patchDestinoPorCodigoCadastro(cotacao, codigo, portos, aeroportos)
+    return cotacao.modal_cotacao_bid_frete_internacional === 'AEREO'
+      ? patchAeroportoOrigemPorCodigoCadastro(cotacao, codigo, aeroportos)
+      : patchPortoOrigemPorCodigoCadastro(cotacao, codigo, portos)
+  }
+
+  if (
+    campo === 'porto_destino_cotacao_bid_frete_internacional'
+    || campo === 'aeroporto_destino_cotacao_bid_frete_internacional'
+  ) {
+    return cotacao.modal_cotacao_bid_frete_internacional === 'AEREO'
+      ? patchAeroportoDestinoPorCodigoCadastro(cotacao, codigo, aeroportos)
+      : patchPortoDestinoPorCodigoCadastro(cotacao, codigo, portos)
   }
 
   return null
+}
+
+export function rotuloOrigemExibicaoLista(cotacao: Cotacao): string {
+  const snapshot = derivarSnapshotRotaCotacao(cotacao)
+  return snapshot.origem_nome_cotacao_bid_frete_internacional
+}
+
+export function rotuloDestinoExibicaoLista(cotacao: Cotacao): string {
+  const snapshot = derivarSnapshotRotaCotacao(cotacao)
+  return snapshot.destino_nome_cotacao_bid_frete_internacional
 }

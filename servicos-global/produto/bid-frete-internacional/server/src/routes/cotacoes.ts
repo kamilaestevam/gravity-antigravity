@@ -78,7 +78,60 @@ const CriarCotacaoSchemaBase = z.object({
   canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default([]),
 })
 
-const CriarCotacaoSchema = CriarCotacaoSchemaBase.superRefine((data, ctx) => {
+type DadosCotacaoBase = z.infer<typeof CriarCotacaoSchemaBase>
+
+const CAMPOS_ROTA_COTACAO = [
+  'modal_cotacao_bid_frete_internacional',
+  'porto_origem_cotacao_bid_frete_internacional',
+  'porto_destino_cotacao_bid_frete_internacional',
+  'aeroporto_origem_cotacao_bid_frete_internacional',
+  'aeroporto_destino_cotacao_bid_frete_internacional',
+  'pais_origem_rodoviario_cotacao_bid_frete_internacional',
+  'pais_destino_rodoviario_cotacao_bid_frete_internacional',
+  'estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional',
+  'estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional',
+  'cidade_origem_rodoviario_cotacao_bid_frete_internacional',
+  'cidade_destino_rodoviario_cotacao_bid_frete_internacional',
+  'origem_codigo_cotacao_bid_frete_internacional',
+  'origem_nome_cotacao_bid_frete_internacional',
+  'origem_pais_cotacao_bid_frete_internacional',
+  'destino_codigo_cotacao_bid_frete_internacional',
+  'destino_nome_cotacao_bid_frete_internacional',
+  'destino_pais_cotacao_bid_frete_internacional',
+] as const
+
+const CAMPOS_CARGA_PERIGOSA_COTACAO = [
+  'eh_carga_perigosa_cotacao_bid_frete_internacional',
+  'numero_onu_cotacao_bid_frete_internacional',
+  'nome_tecnico_embarque_cotacao_bid_frete_internacional',
+  'classe_carga_perigosa_cotacao_bid_frete_internacional',
+  'divisao_carga_perigosa_cotacao_bid_frete_internacional',
+  'grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional',
+  'observacoes_carga_perigosa_cotacao_bid_frete_internacional',
+] as const
+
+function corpoPatchTocaCampo(body: Record<string, unknown>, campos: readonly string[]): boolean {
+  return campos.some(campo => body[campo] !== undefined)
+}
+
+function executarRefinamentoCotacao(
+  data: DadosCotacaoBase,
+  refinamento: (payload: DadosCotacaoBase, ctx: z.RefinementCtx) => void,
+): z.ZodIssue[] {
+  const issues: z.ZodIssue[] = []
+  refinamento(data, {
+    addIssue: (issue) => {
+      issues.push({
+        code: 'custom',
+        path: issue.path ?? [],
+        message: issue.message ?? 'Validacao falhou',
+      })
+    },
+  } as z.RefinementCtx)
+  return issues
+}
+
+function refinamentoCargaPerigosa(data: DadosCotacaoBase, ctx: z.RefinementCtx): void {
   if (!data.eh_carga_perigosa_cotacao_bid_frete_internacional) return
   if (!data.numero_onu_cotacao_bid_frete_internacional?.trim()) {
     ctx.addIssue({ code: 'custom', message: 'numero_onu obrigatorio para carga perigosa', path: ['numero_onu_cotacao_bid_frete_internacional'] })
@@ -95,7 +148,9 @@ const CriarCotacaoSchema = CriarCotacaoSchemaBase.superRefine((data, ctx) => {
       ctx.addIssue({ code: 'custom', message: 'grupo_embalagem obrigatorio para carga perigosa', path: ['grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional'] })
     }
   }
-}).superRefine((data, ctx) => {
+}
+
+function refinamentoRota(data: DadosCotacaoBase, ctx: z.RefinementCtx): void {
   const preparado = prepararCamposRotaCotacaoPersistencia(data)
   if (!preparado.origem_codigo_cotacao_bid_frete_internacional) {
     ctx.addIssue({ code: 'custom', message: 'Origem obrigatoria para o modal selecionado', path: ['porto_origem_cotacao_bid_frete_internacional'] })
@@ -115,7 +170,30 @@ const CriarCotacaoSchema = CriarCotacaoSchemaBase.superRefine((data, ctx) => {
   if (!preparado.destino_pais_cotacao_bid_frete_internacional) {
     ctx.addIssue({ code: 'custom', message: 'Pais de destino obrigatorio', path: ['destino_pais_cotacao_bid_frete_internacional'] })
   }
-})
+}
+
+function assertRefinamentosCotacaoPatch(
+  merged: DadosCotacaoBase,
+  body: Record<string, unknown>,
+): void {
+  const issues: z.ZodIssue[] = []
+  if (corpoPatchTocaCampo(body, CAMPOS_CARGA_PERIGOSA_COTACAO)) {
+    issues.push(...executarRefinamentoCotacao(merged, refinamentoCargaPerigosa))
+  }
+  if (corpoPatchTocaCampo(body, CAMPOS_ROTA_COTACAO)) {
+    issues.push(...executarRefinamentoCotacao(merged, refinamentoRota))
+  }
+  if (issues.length === 0) return
+  throw new AppError(
+    `Dados invalidos: ${issues.map(i => `[${i.path.join('.')}] ${i.message}`).join('; ')}`,
+    400,
+    'VALIDATION_ERROR',
+  )
+}
+
+const CriarCotacaoSchema = CriarCotacaoSchemaBase
+  .superRefine(refinamentoCargaPerigosa)
+  .superRefine(refinamentoRota)
 
 const FiltrosCotacaoSchema = z.object({
   status: z.string().optional(),
@@ -473,6 +551,7 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
     const merged = { ...existing, ...parsed.data }
+    assertRefinamentosCotacaoPatch(merged as DadosCotacaoBase, parsed.data as Record<string, unknown>)
     const camposPersistencia = prepararCamposRotaCotacaoPersistencia(merged)
     const data: Record<string, unknown> = { ...parsed.data, ...camposPersistencia }
 

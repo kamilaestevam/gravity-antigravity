@@ -8,8 +8,6 @@ import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_
 import {
   codigoAeroportoDestinoParaEdicao,
   codigoAeroportoOrigemParaEdicao,
-  codigoDestinoParaEdicao,
-  codigoOrigemParaEdicao,
   codigoPortoDestinoParaEdicao,
   codigoPortoOrigemParaEdicao,
   rotuloDestinoExibicaoLista,

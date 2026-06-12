@@ -57,12 +57,31 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Naming segue convenções (camelCase, PascalCase, snake_case)?
 - [ ] Imports via aliases?
 
-### Testes
+### Testes — regra de fase (WIP vs escopo fechado)
 
-- [ ] Testes unitários presentes?
-- [ ] Testes funcionais para rotas?
-- [ ] Teste de cross-organizacao (se serviço da Organizacao)?
-- [ ] Cobertura ≥ 70%?
+> **Telas em desenvolvimento ativo:** testes **não são exigidos** no review de PRs intermediários — o dono concentra o pacote de testes **no fechamento** da tela/feature.
+> **Escopo já desenvolvido / fechado / merge para staging:** testes devem estar **100% conforme** `/testes-criar` e skills `skills/testes/` — ausência ou desvio = `[blocker]`.
+
+**Como o reviewer classifica o PR:**
+
+| Situação | Exigência de testes no review |
+|:---|:---|
+| Tela/feature ainda em construção (WIP explícito no PR ou acordado com o dono) | Não bloquear por ausência de testes; validar só código, segurança e wiring |
+| Escopo fechado, bugfix em código já em produção, ou merge para staging | Pacote completo obrigatório (checklist abaixo) |
+
+**Checklist — escopo fechado (referência: `/testes-criar`, `skills/testes/multi-agente-plano-teste/SKILL.md`, `skills/testes/SKILL.md`):**
+
+- [ ] Os **5 tipos** presentes quando aplicável: UNI, FUN, E2E, CRO, EMT — exceção só com justificativa na tabela de diagnóstico e aprovação do dono (sem UI → sem EMT; sem banco → sem CRO)
+- [ ] Pastas espelham o código: `testes/testes-{unitarios|funcionais|e2e|cross-organizacao|em-tela}/<produto>/<area>/<feature>/`
+- [ ] Planos em `plano-teste/` ou `plano-de-teste/` (legado Pedido) com `.plan.json` canônico por tipo
+- [ ] IDs `TST-*` registrados em `test-plans-registry.json` — `npm run validate:test-ids` verde
+- [ ] Regra **FONTE PRIMÁRIA**: planos multi-agente substituíram legados do mesmo escopo (sem coexistência)
+- [ ] Specs **fora** de `servicos-global/`, `produtos/` e `nucleo-global/` (tudo em `testes/`)
+- [ ] Resultados em `testes/<tipo>/resultados/` quando a execução já ocorreu
+- [ ] Cobertura: ≥ 80% `nucleo-global/`, ≥ 70% demais módulos, ≥ 90% `packages/resolver-organizacao/`
+- [ ] Teste cross-organizacao para serviços tenant (CRO ou `testes/security/cross-tenant-isolation.test.ts` quando transversal)
+- [ ] Plano E2E com **todas** as categorias obrigatórias (ou "não aplicável" justificado — nunca omitido)
+- [ ] Casos cobrem mutações, erros de validação, permissões e edge cases — não só happy path
 
 ### Wiring de cadeia completa em endpoints de mutação (pós-bug 2026-05-06)
 
@@ -74,9 +93,9 @@ Pra cada PATCH/POST/PUT adicionado/modificado, validar:
 - [ ] Tipo TS da entidade no frontend (e do api-client) tem o campo?
 - [ ] Schema Zod da **response** existe + frontend faz `.parse()` antes de usar?
 - [ ] Modal/form `useEffect` popula state com valor existente (não limpa ao abrir)?
-- [ ] Teste funcional cobre PATCH→GET confirmando persistência (não só status 200)?
+- [ ] **Escopo fechado:** teste funcional cobre PATCH→GET confirmando persistência (não só status 200)?
 
-> Faltar qualquer item = bug silencioso (UI mente sobre persistência). Esse foi exatamente o padrão do bug `/admin/organizacoes` em 2026-05-06: 5 campos cadastrais ignorados por meses porque a cadeia de 5 elos (Prisma → Zod request → rota → tipo TS → Zod response) tinha wiring incompleto.
+> Faltar qualquer item de wiring = bug silencioso (UI mente sobre persistência). Esse foi exatamente o padrão do bug `/admin/organizacoes` em 2026-05-06: 5 campos cadastrais ignorados por meses porque a cadeia de 5 elos (Prisma → Zod request → rota → tipo TS → Zod response) tinha wiring incompleto. O teste PATCH→GET só bloqueia merge quando o escopo está fechado — em WIP, o wiring ainda é `[must-fix]` se o campo não persiste.
 
 ---
 
@@ -144,6 +163,8 @@ PRs que podem ser auto-merged após CI verde:
 ## Checklist — Antes de Aprovar
 
 - [ ] Li todo o diff, não só os arquivos que conheço?
+- [ ] Classifiquei o PR como WIP ou escopo fechado e apliquei a regra de testes correta?
+- [ ] Se escopo fechado: pacote `/testes-criar` completo e `validate:test-ids` verde?
 - [ ] Testei localmente ou confio nos testes do CI?
 - [ ] Verifiquei se a skill relevante foi seguida?
 - [ ] Nenhum blocker pendente?

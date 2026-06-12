@@ -43,6 +43,8 @@
 | #290 | Barras de nota na Direcionada (`BarrasNotasFornecedores` abaixo da lista) |
 | #289 | Lista: expandir/recolher, seleção, duplicar e excluir em lote |
 | #294 | Lista: botões Duplicar/Excluir só ícone (paridade Pedido) |
+| #300 | Modal excluir: layout paridade `ModalPedidosExcluir` (Solid Slate) |
+| #301 | Modal excluir: anti-flicker (preview 1× ao montar, montagem condicional no pai) |
 
 ## Entregas recentes (2026-05)
 

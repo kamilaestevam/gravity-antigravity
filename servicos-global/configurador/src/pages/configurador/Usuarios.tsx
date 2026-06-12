@@ -811,6 +811,26 @@ export function Usuarios() {
       },
     },
     {
+      // Decisão dono 2026-06-12 — IDs técnicos visíveis na UI (diagnóstico sem SQL),
+      // mesmo padrão das colunas ID do Admin > Organizações (PR #303).
+      key: 'id_usuario', label: 'ID Usuário', tipo: 'texto',
+      tooltipTitulo: 'ID do Usuário',
+      tooltipDescricao: 'Chave técnica do usuário (Configurador). Clique para copiar.',
+      render: (_, item) => (
+        <span
+          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
+          title="Clique para copiar"
+          onClick={ev => {
+            ev.stopPropagation()
+            void navigator.clipboard.writeText(item.id_usuario)
+            addNotification({ type: 'success', message: 'ID do usuário copiado.' })
+          }}
+        >
+          {item.id_usuario}
+        </span>
+      ),
+    },
+    {
       key: 'email_usuario', label: t('workspace.users.tabela.email'), tipo: 'texto',
       tooltipTitulo: 'E-mail', tooltipDescricao: 'E-mail de acesso utilizado no login da plataforma',
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v as string}</span>,

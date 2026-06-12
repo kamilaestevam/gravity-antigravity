@@ -29,7 +29,7 @@ import {
   type FornecedorAdmin,
   type UsuarioVinculadoFornecedorAdmin,
 } from '@cadastros/shared/schemas'
-import { buscarOrganizacoesAdmin } from '@gravity/shell'
+import { buscarOrganizacoesAdmin, useShellStore } from '@gravity/shell'
 import { ROTULOS_TIPO_FORNECEDOR_ORGANIZACAO } from '../../../shared/tipo-fornecedor-organizacao.js'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
 
@@ -75,6 +75,7 @@ function chaveCacheUsuarios(idFornecedor: string): string {
 export function FornecedoresAdmin(): JSX.Element {
   const { getToken } = useAuth()
   const navigate = useNavigate()
+  const addNotification = useShellStore((state) => state.addNotification)
 
   const [fornecedores, setFornecedores] = useState<FornecedorAdmin[]>([])
   const [carregando, setCarregando] = useState(false)
@@ -195,6 +196,26 @@ export function FornecedoresAdmin(): JSX.Element {
         </button>
       ),
     },
+    {
+      // Decisão dono 2026-06-12 — IDs técnicos visíveis na UI (diagnóstico sem SQL),
+      // mesmo padrão das colunas ID do Admin > Organizações (PR #303).
+      key:   'id_fornecedor',
+      label: 'ID Fornecedor',
+      tipo:  'texto',
+      render: (_, linha) => (
+        <span
+          style={{ fontFamily: 'monospace', fontSize: '0.6875rem', color: 'var(--ws-muted)', cursor: 'pointer', userSelect: 'all' }}
+          title="Clique para copiar"
+          onClick={ev => {
+            ev.stopPropagation()
+            void navigator.clipboard.writeText(linha.id_fornecedor)
+            addNotification({ type: 'success', message: 'ID do fornecedor copiado.' })
+          }}
+        >
+          {linha.id_fornecedor}
+        </span>
+      ),
+    },
     { key: 'nome_fornecedor', label: 'Fornecedor', tipo: 'texto' },
     {
       key:   'cnpj_fornecedor',
@@ -221,7 +242,10 @@ export function FornecedoresAdmin(): JSX.Element {
       ),
     },
     {
-      key:   'id_fornecedor',
+      // Key realocada de 'id_fornecedor' → 'pode_ser_agente_fornecedor' (2026-06-12):
+      // 'id_fornecedor' agora identifica a coluna ID Fornecedor acima. Esta coluna
+      // é derivada (render + getValorBruto), a key serve só como identificador.
+      key:   'pode_ser_agente_fornecedor',
       label: 'Papel COMEX',
       tipo:  'texto',
       render: (_, l) => derivarPapeisComex(l),
@@ -237,7 +261,7 @@ export function FornecedoresAdmin(): JSX.Element {
         </span>
       ),
     },
-  ], [navigate])
+  ], [navigate, addNotification])
 
   const colunasUsuariosVinculados: TabelaGlobalColuna<UsuarioVinculadoFornecedorAdmin>[] = useMemo(() => [
     {

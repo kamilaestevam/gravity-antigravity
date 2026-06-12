@@ -10,7 +10,7 @@
 
 O agente **PARA** qualquer outra tarefa e executa as etapas **0 → 5 nesta ordem**, sem pular.
 
-Papel ativo: **Líder Técnico** (review pré-merge). QA pós-entrega continua em `/qa`.
+Papéis ativos: **Líder Técnico** (qualidade, segurança, wiring) + **Coordenador** (contrato, DDD, ondas) — consenso na coluna 4 da tabela. QA pós-entrega continua em `/qa`.
 
 **Escopo do review** (inferir da mensagem do dono; se ambíguo, perguntar uma vez):
 - `branch changes` — diff da branch atual vs base (padrão)
@@ -60,19 +60,22 @@ Percorrer **todas** as seções da skill e marcar PASS / FAIL / N/A:
 
 ---
 
-## ETAPA 4 — Feedback estruturado
+## ETAPA 4 — Feedback em tabela (formato obrigatório)
 
-Entregar comentários com prefixos da skill:
+Cada achado vira **uma linha** na tabela abaixo. Prefixos da skill vão no início da coluna **Deve ser alterado** (`[blocker]`, `[must-fix]`, `[suggestion]`, `[question]`, `[praise]`).
 
-| Prefixo | Uso |
-|:---|:---|
-| `[blocker]` | Segurança, arquitetura, escopo fechado sem testes |
-| `[must-fix]` | Bug ou violação de padrão |
-| `[suggestion]` | Melhoria opcional |
-| `[question]` | Dúvida de abordagem |
-| `[praise]` | Boa prática |
+| # | Deve ser alterado | Motivo | Onde | Opinião e consenso (Líder + Coordenador) |
+|:---:|:---|:---|:---|:---|
+| 1 | `[blocker]` … o que mudar | Por que viola regra/skill (Mandamento, ADR, skill) | `caminho/arquivo.ts` L42 ou módulo/rota | **Líder:** … **Coordenador:** … **Consenso:** Aprovar alteração / Bloquear merge / Ressalva |
+| 2 | … | … | … | … |
 
-Cada item: **arquivo + linha** (quando possível), **porquê**, **alternativa sugerida**.
+**Regras das colunas:**
+- **Deve ser alterado** — ação concreta; em `[praise]`, descrever a boa prática (não exige mudança).
+- **Motivo** — regra ou risco; citar skill, mandamento ou ADR quando aplicável.
+- **Onde** — arquivo + linha, ou rota/endpoint/módulo se o diff for amplo.
+- **Opinião e consenso** — duas linhas curtas (**Líder** = qualidade, segurança, wiring; **Coordenador** = contrato, DDD, ondas, schema); fechar com **Consenso** (alinhar os dois; se divergirem, Consenso = bloquear até alinhar).
+
+Ordenar linhas: `[blocker]` → `[must-fix]` → `[suggestion]` → `[question]` → `[praise]`. Se nenhum achado: uma linha com `[praise]` «Nenhum blocker identificado» ou «Diff limpo no escopo revisado».
 
 ---
 
@@ -85,15 +88,13 @@ Classificação: WIP | ESCOPO FECHADO
 Arquivos revisados: N
 
 ### Resumo
-- Blockers: N
-- Must-fix: N
-- Suggestions: N
+- Blockers: N | Must-fix: N | Suggestions: N
 
 ### Veredito
 APROVADO | APROVADO COM RESSALVAS | REPROVADO
 
-### Itens (ordenados: blockers → must-fix → suggestions → questions → praise)
-...
+### Tabela de achados
+[copiar tabela da ETAPA 4 — colunas: # | Deve ser alterado | Motivo | Onde | Opinião e consenso]
 ```
 
 **Regras de aprovação (skill):**

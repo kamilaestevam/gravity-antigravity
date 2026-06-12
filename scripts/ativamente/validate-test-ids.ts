@@ -59,15 +59,24 @@ function matchDescriptive(id: string): RegExp | undefined {
 const DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX =
   /^TST-(UNI|FUN|CRO|E2E|EMT)-DUPLICAR-LISTA-PEDIDO-\d{6}$/
 
+const DESCRIPTIVE_EDICAO_MASSA_LISTA_PEDIDO_REGEX =
+  /^TST-(UNI|FUN|CRO|E2E|EMT)-EDICAO-EM-MASSA-LISTA-PEDIDO-\d{6}$/
+
 function idValido(id: string, tipo: string): boolean {
   if (tipo === 'EMT') {
-    return EMT_ID_REGEX.test(id) || DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX.test(id)
+    return EMT_ID_REGEX.test(id)
+      || DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX.test(id)
+      || DESCRIPTIVE_EDICAO_MASSA_LISTA_PEDIDO_REGEX.test(id)
   }
   if (matchDescriptive(id)) {
     const tipoFromId = id.match(/^TST-(UNI|FUN|CRO|E2E)-/)?.[1]
     return tipoFromId === tipo
   }
   if (DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX.test(id)) {
+    const tipoFromId = id.match(/^TST-(UNI|FUN|CRO|E2E|EMT)-/)?.[1]
+    return tipoFromId === tipo
+  }
+  if (DESCRIPTIVE_EDICAO_MASSA_LISTA_PEDIDO_REGEX.test(id)) {
     const tipoFromId = id.match(/^TST-(UNI|FUN|CRO|E2E|EMT)-/)?.[1]
     return tipoFromId === tipo
   }

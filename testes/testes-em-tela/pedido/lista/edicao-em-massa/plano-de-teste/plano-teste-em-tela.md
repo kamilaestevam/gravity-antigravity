@@ -1,19 +1,42 @@
 # Plano de Teste em Tela — Pedido / Lista / Edição em Massa
 
-**ID:** TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081
-**Data:** 2026-06-11
-**Versão:** 1.1
+**ID:** TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112
+**Data:** 2026-06-12
+**Versão:** 1.2
 **Criticidade:** alta
 **Skill:** `skills/testes/teste-em-tela/SKILL.md`
 
 **Escopo pasta:** `testes/testes-em-tela/pedido/lista/edicao-em-massa/`
-**Plano + runner:** `plano-de-teste/` (este arquivo + `run-lista-edicao-em-massa.ts` + `gerar-plano-edicao-em-massa.ts` + `numeracao-passos-edicao-em-massa.ts`)
-**Prints:** `../resultado-teste/<runId>/` — uma pasta por execução
-**Regras de negócio:** `documentos-tecnicos/produtos-gravity/pedido/EDICAO-EM-MASSA-REGRAS-NEGOCIO.md` · técnico: `EDICAO-EM-MASSA-TECNICO.md` · colunas manuais: `COLUNAS-USUARIO-REGRAS-NEGOCIO.md`
-**SSOT:** `servicos-global/produto/pedido/shared/camposEdicaoMassa.ts` — 111 campos pedido + 55 campos item = **166 campos** + 8 tipos de colunas manuais
+**Plano + runner:** `plano-de-teste/` (este arquivo + `run-lista-edicao-em-massa.ts`)
+**Prints:** `../resultado-teste/<runId>/`
+**Ambiente Local:** UI `http://localhost:8000` · API pedido via proxy `:8030` · Clerk `sk_test`
+**Total passos no modal (roteiro):** ~166
+**Total itens no modal (roteiro + prints):** ~217
 
-> O modal Admin («O que será testado») agrupa casos pelos títulos `### ETAPA …` abaixo. **Não remover** essa estrutura.
-> **Plano gerado** por `gerar-plano-edicao-em-massa.ts` — não editar tabelas de campos à mão; regenerar a partir do SSOT.
+> O modal Admin («O que será testado») agrupa casos pelos títulos `### ETAPA …` abaixo.
+
+---
+
+## Objetivo
+
+Validar visualmente a edição em massa na Lista de Pedidos: modal 3 passos, 166 campos SSOT, preview de→para, persistência hub→lista, calendário e colunas manuais — stack **Local :8000**.
+
+---
+
+## Ambiente de execução
+
+| Campo | Valor |
+|-------|-------|
+| **Local** | `http://localhost:8000` |
+| **API** | `:8030` (pedido via proxy) |
+| **Auth** | `E2E_CLERK_USER_EMAIL` + `CLERK_SECRET_KEY` (`sk_test`) |
+| **Pré-requisito** | `npm run dev` com workspace de teste e pedidos na lista |
+
+```bash
+$env:PLAYWRIGHT_BASE_URL='http://localhost:8000'
+$env:E2E_CLERK_USER_EMAIL='dmmltda@gmail.com'
+npx tsx testes/testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/run-lista-edicao-em-massa.ts
+```
 
 ---
 

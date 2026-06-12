@@ -13,7 +13,7 @@
 
 **SSOT técnico:** `shared/camposEdicaoMassa.ts` deriva os campos de `campos-pedido-ddd.ts` com blocklist única. Colunas do usuário via `coluna_usuario:<id_coluna_usuario_pedido>`.
 
-**Validação:** teste `drift-lista-massa.test.ts` + plano EMT `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`.
+**Validação:** teste `drift-lista-massa.test.ts` + pacote EMT `TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112` (Local `:8000`).
 
 ---
 

@@ -1,35 +1,36 @@
 /**
- * ImportarBloco.tsx — Upload em lote de cotacoes via CSV/Excel
- * Sprint 2 — Importacao com preview, validacao e criacao em massa
- *
- * Skill: antigravity-design-system, antigravity-componentes
- * Phosphor icons (duotone), CSS vars, pill buttons, Plus Jakarta Sans + DM Mono
+ * cotacoes-importar.tsx — Importação em lote de cotações / BID via planilha
+ * Layout: wizard em página (paridade Pedido Smart Import / ModalPassoPassoGlobal)
  */
 
 import React, { useState, useCallback, useRef, useMemo } from 'react'
 import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { useSincronizarTituloPaginaTopo } from '../shared/useSincronizarTituloPaginaTopo'
+import { BotaoGlobal } from '@nucleo/botao-global'
+import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
+import { WizardImportacaoBidFreteInternacional } from '../components/importacao/wizard-importacao-bid-frete-internacional'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import {
-  Upload,
-  ArrowLeft,
+  UploadSimple,
   FileArrowUp,
+  FileXls,
   FileCsv,
   CheckCircle,
   XCircle,
   Warning,
-  Trash,
-  ArrowClockwise,
+  DownloadSimple,
 } from '@phosphor-icons/react'
 
-import { criarCotacao } from '../shared/api'
+import { criarBidFreteInternacional, criarCotacao } from '../shared/api'
 import type { TipoOperacao, ModalFrete, Incoterm } from '../shared/types'
 import { INCOTERMS } from '../shared/types'
+import './importar-bid-frete-internacional.css'
 
-// ─── Constants ──────────────────────────────────────────────────────────────
+const LIMITE_LINHAS = 500
+const TAMANHO_MAX_MB = 10
+const TAMANHO_MAX_BYTES = TAMANHO_MAX_MB * 1024 * 1024
 
 const EXPECTED_COLUMNS = [
   { key: 'tipo_operacao_cotacao_bid_frete_internacional', label: 'Tipo Operacao', example: 'IMPORTACAO ou EXPORTACAO' },
@@ -46,8 +47,6 @@ const EXPECTED_COLUMNS = [
 
 const VALID_TIPOS: TipoOperacao[] = ['IMPORTACAO', 'EXPORTACAO']
 const VALID_MODAIS: ModalFrete[] = ['MARITIMO', 'AEREO', 'RODOVIARIO']
-
-// ─── Types ──────────────────────────────────────────────────────────────────
 
 interface ParsedRow {
   tipo_operacao_cotacao_bid_frete_internacional: string
@@ -79,137 +78,188 @@ interface ValidatedRow {
   erros: string
 }
 
-type ImportPhase = 'upload' | 'preview' | 'creating' | 'done'
+type ImportPhase = 'upload' | 'mapeamento' | 'preview' | 'creating' | 'done'
 
 interface CreationResult {
   criadas: number
   erros: number
   detalhes: string[]
+  numero_bid_bid_frete_internacional?: string
 }
 
-// ─── Validation ─────────────────────────────────────────────────────────────
+interface ParseResult {
+  rows: ParsedRow[]
+  colunasDetectadas: Set<string>
+}
 
 function validateRow(row: ParsedRow): string[] {
   const erros: string[] = []
 
   if (!row.tipo_operacao_cotacao_bid_frete_internacional?.trim()) {
-    erros.push('tipo_operacao_cotacao_bid_frete_internacional obrigatorio')
+    erros.push('tipo_operacao obrigatorio')
   } else if (!VALID_TIPOS.includes(row.tipo_operacao_cotacao_bid_frete_internacional.trim().toUpperCase() as TipoOperacao)) {
-    erros.push('tipo_operacao_cotacao_bid_frete_internacional invalido (IMPORTACAO/EXPORTACAO)')
+    erros.push('tipo_operacao invalido')
   }
 
   if (!row.modal_cotacao_bid_frete_internacional?.trim()) {
-    erros.push('modal_cotacao_bid_frete_internacional obrigatorio')
+    erros.push('modal obrigatorio')
   } else if (!VALID_MODAIS.includes(row.modal_cotacao_bid_frete_internacional.trim().toUpperCase() as ModalFrete)) {
-    erros.push('modal_cotacao_bid_frete_internacional invalido (MARITIMO/AEREO/RODOVIARIO)')
+    erros.push('modal invalido')
   }
 
-  if (!row.origem_codigo_cotacao_bid_frete_internacional?.trim()) {
-    erros.push('origem_codigo_cotacao_bid_frete_internacional obrigatorio')
-  }
-
-  if (!row.destino_codigo_cotacao_bid_frete_internacional?.trim()) {
-    erros.push('destino_codigo_cotacao_bid_frete_internacional obrigatorio')
-  }
-
-  if (!row.descricao_mercadoria_cotacao_bid_frete_internacional?.trim()) {
-    erros.push('descricao obrigatoria')
-  }
+  if (!row.origem_codigo_cotacao_bid_frete_internacional?.trim()) erros.push('origem_codigo obrigatorio')
+  if (!row.destino_codigo_cotacao_bid_frete_internacional?.trim()) erros.push('destino_codigo obrigatorio')
+  if (!row.descricao_mercadoria_cotacao_bid_frete_internacional?.trim()) erros.push('mercadoria obrigatoria')
 
   if (!row.incoterm_cotacao_bid_frete_internacional?.trim()) {
-    erros.push('incoterm_cotacao_bid_frete_internacional obrigatorio')
+    erros.push('incoterm obrigatorio')
   } else if (!INCOTERMS.includes(row.incoterm_cotacao_bid_frete_internacional.trim().toUpperCase() as Incoterm)) {
-    erros.push('incoterm_cotacao_bid_frete_internacional invalido')
+    erros.push('incoterm invalido')
   }
 
   const qty = Number(row.quantidade_volume_cotacao_bid_frete_internacional)
   if (!row.quantidade_volume_cotacao_bid_frete_internacional?.trim() || isNaN(qty) || qty <= 0) {
-    erros.push('quantidade_volume_cotacao_bid_frete_internacional deve ser > 0')
+    erros.push('quantidade_volume invalida')
   }
 
   return erros
 }
 
-// ─── CSV Parsing ────────────────────────────────────────────────────────────
-
-function parseCSV(content: string): ParsedRow[] {
-  const lines = content.split(/\r?\n/).filter((l) => l.trim().length > 0)
-  if (lines.length < 2) return []
+function parseCSV(content: string): ParseResult {
+  const lines = content.split(/\r?\n/).filter(l => l.trim().length > 0)
+  if (lines.length < 2) return { rows: [], colunasDetectadas: new Set() }
 
   const delimiter = lines[0].includes(';') ? ';' : ','
-  const headerLine = lines[0].split(delimiter).map((h) => h.trim().toLowerCase().replace(/['"]/g, ''))
+  const headerLine = lines[0].split(delimiter).map(h => h.trim().toLowerCase().replace(/['"]/g, ''))
 
   const colMap: Record<string, number> = {}
-  EXPECTED_COLUMNS.forEach((col) => {
+  const colunasDetectadas = new Set<string>()
+
+  EXPECTED_COLUMNS.forEach(col => {
     const idx = headerLine.findIndex(
-      (h) => h === col.key || h === col.label.toLowerCase() || h.replace(/[_\s]/g, '') === col.key.replace(/[_\s]/g, ''),
+      h => h === col.key || h === col.label.toLowerCase() || h.replace(/[_\s]/g, '') === col.key.replace(/[_\s]/g, ''),
     )
-    if (idx >= 0) colMap[col.key] = idx
+    if (idx >= 0) {
+      colMap[col.key] = idx
+      colunasDetectadas.add(col.key)
+    }
   })
 
   const rows: ParsedRow[] = []
   for (let i = 1; i < lines.length; i++) {
-    const cells = lines[i].split(delimiter).map((c) => c.trim().replace(/^["']|["']$/g, ''))
+    const cells = lines[i].split(delimiter).map(c => c.trim().replace(/^["']|["']$/g, ''))
     rows.push({
-      tipo_operacao_cotacao_bid_frete_internacional: cells[colMap['tipo_operacao_cotacao_bid_frete_internacional'] ?? 0] ?? '',
-      modal_cotacao_bid_frete_internacional: cells[colMap['modal_cotacao_bid_frete_internacional'] ?? 1] ?? '',
-      origem_codigo_cotacao_bid_frete_internacional: cells[colMap['origem_codigo_cotacao_bid_frete_internacional'] ?? 2] ?? '',
-      origem_nome_cotacao_bid_frete_internacional: cells[colMap['origem_nome_cotacao_bid_frete_internacional'] ?? 3] ?? '',
-      destino_codigo_cotacao_bid_frete_internacional: cells[colMap['destino_codigo_cotacao_bid_frete_internacional'] ?? 4] ?? '',
-      destino_nome_cotacao_bid_frete_internacional: cells[colMap['destino_nome_cotacao_bid_frete_internacional'] ?? 5] ?? '',
-      descricao_mercadoria_cotacao_bid_frete_internacional: cells[colMap['descricao_mercadoria_cotacao_bid_frete_internacional'] ?? 6] ?? '',
-      incoterm_cotacao_bid_frete_internacional: cells[colMap['incoterm_cotacao_bid_frete_internacional'] ?? 7] ?? '',
-      quantidade_volume_cotacao_bid_frete_internacional: cells[colMap['quantidade_volume_cotacao_bid_frete_internacional'] ?? 8] ?? '',
-      ncm_cotacao_bid_frete_internacional: cells[colMap['ncm_cotacao_bid_frete_internacional'] ?? 9] ?? '',
+      tipo_operacao_cotacao_bid_frete_internacional: cells[colMap.tipo_operacao_cotacao_bid_frete_internacional ?? 0] ?? '',
+      modal_cotacao_bid_frete_internacional: cells[colMap.modal_cotacao_bid_frete_internacional ?? 1] ?? '',
+      origem_codigo_cotacao_bid_frete_internacional: cells[colMap.origem_codigo_cotacao_bid_frete_internacional ?? 2] ?? '',
+      origem_nome_cotacao_bid_frete_internacional: cells[colMap.origem_nome_cotacao_bid_frete_internacional ?? 3] ?? '',
+      destino_codigo_cotacao_bid_frete_internacional: cells[colMap.destino_codigo_cotacao_bid_frete_internacional ?? 4] ?? '',
+      destino_nome_cotacao_bid_frete_internacional: cells[colMap.destino_nome_cotacao_bid_frete_internacional ?? 5] ?? '',
+      descricao_mercadoria_cotacao_bid_frete_internacional: cells[colMap.descricao_mercadoria_cotacao_bid_frete_internacional ?? 6] ?? '',
+      incoterm_cotacao_bid_frete_internacional: cells[colMap.incoterm_cotacao_bid_frete_internacional ?? 7] ?? '',
+      quantidade_volume_cotacao_bid_frete_internacional: cells[colMap.quantidade_volume_cotacao_bid_frete_internacional ?? 8] ?? '',
+      ncm_cotacao_bid_frete_internacional: cells[colMap.ncm_cotacao_bid_frete_internacional ?? 9] ?? '',
     })
   }
 
-  return rows
+  return { rows, colunasDetectadas }
 }
 
-// ─── Component ──────────────────────────────────────────────────────────────
+function baixarTemplateModelo() {
+  const headers = EXPECTED_COLUMNS.map(c => c.key).join(';')
+  const exemplo = [
+    'IMPORTACAO', 'MARITIMO', 'BRSSZ', 'Santos', 'CNSHA', 'Shanghai',
+    'Pecas automotivas', 'FOB', '10', '8708.99.90',
+  ].join(';')
+  const csv = `${headers}\n${exemplo}\n`
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'template-importacao-bid-frete.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function faseParaPasso(fase: ImportPhase): number {
+  switch (fase) {
+    case 'upload': return 1
+    case 'mapeamento': return 2
+    case 'preview':
+    case 'creating': return 3
+    case 'done': return 4
+    default: return 1
+  }
+}
 
 export default function ImportarBloco() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const contextoBid = searchParams.get('contexto') === 'bid'
 
   const [phase, setPhase] = useState<ImportPhase>('upload')
   const [fileName, setFileName] = useState('')
   const [rows, setRows] = useState<ValidatedRow[]>([])
+  const [colunasDetectadas, setColunasDetectadas] = useState<Set<string>>(new Set())
   const [dragOver, setDragOver] = useState(false)
+  const [erroUpload, setErroUpload] = useState<string | null>(null)
   const [result, setResult] = useState<CreationResult | null>(null)
+  const [referenciaBid, setReferenciaBid] = useState('')
 
-  const validCount = rows.filter((r) => r.status === 'OK').length
-  const errorCount = rows.filter((r) => r.status === 'Erro').length
+  const passos = useMemo<PassoConfig[]>(() => [
+    { id: 1, label: t('bidfrete.importar.passo_upload') },
+    { id: 2, label: t('bidfrete.importar.passo_mapeamento') },
+    { id: 3, label: t('bidfrete.importar.passo_preview') },
+    { id: 4, label: t('bidfrete.importar.passo_resultado') },
+  ], [t])
 
-  const subtituloImportar =
-    phase === 'upload'
-      ? t('bidfrete.importar.subtitulo_upload')
-      : phase === 'preview'
-        ? `${fileName} — ${rows.length} ${t('bidfrete.importar.linhas_carregadas')}`
-        : phase === 'creating'
-          ? t('bidfrete.importar.criando')
-          : t('bidfrete.importar.concluida')
+  const passoAtual = faseParaPasso(phase)
+  const validCount = rows.filter(r => r.status === 'OK').length
+  const errorCount = rows.filter(r => r.status === 'Erro').length
 
-  useSincronizarTituloPaginaTopo(useMemo(() => ({
-    label:     t('bidfrete.importar.titulo'),
-    icone:     <Upload weight="duotone" size={22} />,
-    subtitulo: subtituloImportar,
-  }), [t, subtituloImportar]))
+  const subtituloImportar = useMemo(() => {
+    if (phase === 'upload') {
+      return contextoBid ? t('bidfrete.importar.subtitulo_upload_bid') : t('bidfrete.importar.subtitulo_upload')
+    }
+    if (phase === 'mapeamento') return t('bidfrete.importar.subtitulo_mapeamento')
+    if (phase === 'preview') return `${fileName} — ${rows.length} ${t('bidfrete.importar.linhas_carregadas')}`
+    if (phase === 'creating') return contextoBid ? t('bidfrete.importar.criando_bid') : t('bidfrete.importar.criando')
+    return t('bidfrete.importar.concluida')
+  }, [contextoBid, fileName, phase, rows.length, t])
 
-  // ─── File handling ──────────────────────────────────────────────────────
+  const passoIndex = passos.findIndex(p => p.id === passoAtual)
 
   const processFile = useCallback((file: File) => {
-    if (!file.name.match(/\.(csv|xlsx?)$/i)) {
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+    if (!['csv', 'xlsx', 'xls'].includes(ext)) {
+      setErroUpload(t('bidfrete.importar.erro_formato'))
+      return
+    }
+    if (file.size > TAMANHO_MAX_BYTES) {
+      setErroUpload(t('bidfrete.importar.erro_tamanho', { mb: TAMANHO_MAX_MB }))
       return
     }
 
+    setErroUpload(null)
     setFileName(file.name)
+
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = e => {
       const content = e.target?.result as string
-      const parsed = parseCSV(content)
+      const { rows: parsed, colunasDetectadas: detectadas } = parseCSV(content)
+
+      if (parsed.length === 0) {
+        setErroUpload(t('bidfrete.importar.vazio_arquivo'))
+        return
+      }
+      if (parsed.length > LIMITE_LINHAS) {
+        setErroUpload(t('bidfrete.importar.erro_limite_linhas', { max: LIMITE_LINHAS }))
+        return
+      }
+
       const validated: ValidatedRow[] = parsed.map((row, idx) => {
         const erros = validateRow(row)
         return {
@@ -220,42 +270,54 @@ export default function ImportarBloco() {
           erros: erros.join('; '),
         }
       })
+
+      setColunasDetectadas(detectadas)
       setRows(validated)
-      setPhase('preview')
+      setPhase('mapeamento')
     }
     reader.readAsText(file, 'utf-8')
-  }, [])
+  }, [t])
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault()
-      setDragOver(false)
-      const file = e.dataTransfer.files[0]
-      if (file) processFile(file)
-    },
-    [processFile],
-  )
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setDragOver(false)
+    const file = e.dataTransfer.files[0]
+    if (file) processFile(file)
+  }, [processFile])
 
-  const handleFileSelect = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (file) processFile(file)
-    },
-    [processFile],
-  )
-
-  // ─── Creation ─────────────────────────────────────────────────────────
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) processFile(file)
+  }, [processFile])
 
   const handleCreate = useCallback(async () => {
     setPhase('creating')
-    const validRows = rows.filter((r) => r.status === 'OK')
+    const validRows = rows.filter(r => r.status === 'OK')
     let criadas = 0
     let erros = 0
     const detalhes: string[] = []
+    let idBid: string | undefined
+    let numeroBid: string | undefined
+
+    if (contextoBid) {
+      try {
+        const bid = await criarBidFreteInternacional({
+          referencia_interna_bid_bid_frete_internacional: referenciaBid.trim() || undefined,
+        })
+        idBid = bid.id_bid_bid_frete_internacional
+        numeroBid = bid.numero_bid_bid_frete_internacional
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : t('bidfrete.novo_bid.erro_criar')
+        setResult({ criadas: 0, erros: 1, detalhes: [msg] })
+        setPhase('done')
+        return
+      }
+    }
 
     for (const row of validRows) {
       try {
         await criarCotacao({
+          ...(idBid ? { id_bid_bid_frete_internacional: idBid } : {}),
           tipo_operacao_cotacao_bid_frete_internacional: row.tipo_operacao_cotacao_bid_frete_internacional.trim().toUpperCase() as TipoOperacao,
           modal_cotacao_bid_frete_internacional: row.modal_cotacao_bid_frete_internacional.trim().toUpperCase() as ModalFrete,
           origem_codigo_cotacao_bid_frete_internacional: row.origem_codigo_cotacao_bid_frete_internacional.trim(),
@@ -272,26 +334,32 @@ export default function ImportarBloco() {
         criadas++
       } catch (err) {
         erros++
-        const msg = err instanceof Error ? err.message : 'Erro desconhecido'
-        detalhes.push(`Linha ${row.linha}: ${msg}`)
+        const msg = err instanceof Error ? err.message : t('bidfrete.importar.erro_desconhecido')
+        detalhes.push(t('bidfrete.importar.erro_linha', { linha: row.linha, msg }))
       }
     }
 
-    setResult({ criadas, erros, detalhes })
+    setResult({
+      criadas,
+      erros,
+      detalhes,
+      ...(numeroBid ? { numero_bid_bid_frete_internacional: numeroBid } : {}),
+    })
     setPhase('done')
-  }, [rows])
+  }, [contextoBid, referenciaBid, rows, t])
 
   const handleReset = useCallback(() => {
     setPhase('upload')
     setFileName('')
     setRows([])
+    setColunasDetectadas(new Set())
     setResult(null)
+    setErroUpload(null)
+    setReferenciaBid('')
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
 
-  // ─── Table columns ───────────────────────────────────────────────────
-
-  const colunas: TabelaGlobalColuna<any>[] = [
+  const colunas: TabelaGlobalColuna<ValidatedRow>[] = useMemo(() => [
     {
       key: 'linha',
       label: '#',
@@ -299,9 +367,7 @@ export default function ImportarBloco() {
       largura: 56,
       align: 'center',
       render: (v: unknown) => (
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.75rem' }}>
-          {String(v)}
-        </span>
+        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.75rem' }}>{String(v)}</span>
       ),
     },
     {
@@ -313,20 +379,12 @@ export default function ImportarBloco() {
       render: (v: unknown) => {
         const isOk = v === 'OK'
         return (
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              padding: '0.15rem 0.5rem',
-              borderRadius: '9999px',
-              fontSize: '0.7rem',
-              fontWeight: 700,
-              letterSpacing: '0.02em',
-              background: isOk ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-              color: isOk ? 'var(--success, #22c55e)' : 'var(--danger, #ef4444)',
-            }}
-          >
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+            padding: '0.15rem 0.5rem', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 700,
+            background: isOk ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
+            color: isOk ? 'var(--success, #22c55e)' : 'var(--danger, #ef4444)',
+          }}>
             {isOk ? <CheckCircle weight="duotone" size={13} /> : <XCircle weight="duotone" size={13} />}
             {String(v)}
           </span>
@@ -340,18 +398,14 @@ export default function ImportarBloco() {
       label: t('bidfrete.importar.col_origem'),
       tipo: 'texto',
       largura: 90,
-      render: (v: unknown) => (
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>
-      ),
+      render: (v: unknown) => <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>,
     },
     {
       key: 'destino_codigo_cotacao_bid_frete_internacional',
       label: t('bidfrete.importar.col_destino'),
       tipo: 'texto',
       largura: 90,
-      render: (v: unknown) => (
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>
-      ),
+      render: (v: unknown) => <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>,
     },
     { key: 'descricao_mercadoria_cotacao_bid_frete_internacional', label: t('bidfrete.importar.col_mercadoria'), tipo: 'texto' },
     {
@@ -361,9 +415,7 @@ export default function ImportarBloco() {
       largura: 80,
       align: 'center',
       render: (v: unknown) => (
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem', fontWeight: 600 }}>
-          {String(v).toUpperCase()}
-        </span>
+        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem', fontWeight: 600 }}>{String(v).toUpperCase()}</span>
       ),
     },
     {
@@ -372,9 +424,7 @@ export default function ImportarBloco() {
       tipo: 'numero',
       largura: 64,
       align: 'right',
-      render: (v: unknown) => (
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>
-      ),
+      render: (v: unknown) => <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>,
     },
     {
       key: 'erros',
@@ -384,460 +434,271 @@ export default function ImportarBloco() {
         const text = String(v)
         if (!text) return null
         return (
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              fontSize: '0.75rem',
-              color: 'var(--danger, #ef4444)',
-            }}
-          >
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--danger, #ef4444)' }}>
             <Warning weight="duotone" size={13} />
             {text}
           </span>
         )
       },
     },
-  ]
+  ], [t])
 
-  // ─── Render ───────────────────────────────────────────────────────────
+  const formatosIcones = useMemo(() => [
+    { label: 'Excel', icone: <FileXls size={28} weight="duotone" style={{ color: '#34d399' }} /> },
+    { label: 'CSV', icone: <FileCsv size={28} weight="duotone" style={{ color: '#60a5fa' }} /> },
+  ], [])
 
-  const acoesImportar = (
-    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-      {phase === 'preview' && (
-        <button
-          className="importar-bloco-pill-btn importar-bloco-pill-btn--danger"
-          type="button"
-          onClick={handleReset}
-        >
-          <Trash weight="duotone" size={14} /> {t('bidfrete.importar.limpar')}
-        </button>
-      )}
-      <button
-        className="importar-bloco-pill-btn importar-bloco-pill-btn--secondary"
-        type="button"
-        onClick={() => navigate('/bid-frete/lista')}
-      >
-        <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
-      </button>
+  const footerWizard = phase === 'creating' ? undefined : phase === 'done' && result ? (
+    <div className="bid-import-footer-direita" style={{ width: '100%' }}>
+      <BotaoGlobal variante="secundario" tamanho="medio" onClick={handleReset}>
+        {t('bidfrete.importar.nova_importacao')}
+      </BotaoGlobal>
+      <BotaoGlobal variante="primario" tamanho="medio" onClick={() => navigate('/bid-frete/lista')}>
+        {t('bidfrete.importar.ver_cotacoes')}
+      </BotaoGlobal>
     </div>
+  ) : (
+    <>
+      <BotaoGlobal variante="fantasma" tamanho="padrao" onClick={() => navigate('/bid-frete/lista')}>
+        {t('comum.cancelar')}
+      </BotaoGlobal>
+      <div className="bid-import-footer-direita">
+        <span className="bid-import-footer-indicador">
+          {passoIndex + 1} / {passos.length}
+        </span>
+        {(phase === 'mapeamento' || phase === 'preview') && (
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="medio"
+            onClick={() => setPhase(phase === 'preview' ? 'mapeamento' : 'upload')}
+          >
+            {t('comum.voltar')}
+          </BotaoGlobal>
+        )}
+        {phase === 'mapeamento' && (
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            onClick={() => setPhase('preview')}
+            disabled={rows.length === 0}
+          >
+            {t('comum.proximo')}
+          </BotaoGlobal>
+        )}
+        {phase === 'preview' && (
+          <BotaoGlobal
+            variante="primario"
+            tamanho="medio"
+            onClick={() => void handleCreate()}
+            disabled={validCount === 0}
+          >
+            {t('bidfrete.importar.criar_cotacoes', { count: validCount })}
+          </BotaoGlobal>
+        )}
+      </div>
+    </>
   )
 
   return (
-    <>
-      <style>{`
-        .importar-bloco-dropzone {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 1rem;
-          padding: 3rem 2rem;
-          border: 2px dashed var(--bg-elevated, #475569);
-          border-radius: var(--radius-lg, 12px);
-          background: var(--bg-surface, #1e293b);
-          cursor: pointer;
-          transition: border-color 0.2s, background 0.2s;
-          min-height: 220px;
-        }
-        .importar-bloco-dropzone:hover,
-        .importar-bloco-dropzone.drag-over {
-          border-color: var(--accent, #6366f1);
-          background: rgba(99, 102, 241, 0.05);
-        }
-        .importar-bloco-dropzone.drag-over {
-          border-style: solid;
-        }
+    <PaginaGlobal className="bid-frete-page-shell">
+      <WizardImportacaoBidFreteInternacional
+        titulo={contextoBid ? t('bidfrete.importar.titulo_bid') : t('bidfrete.importar.titulo')}
+        subtitulo={subtituloImportar}
+        icone={<UploadSimple size={20} weight="duotone" />}
+        passos={passos}
+        passoAtual={passoAtual}
+        onFechar={() => navigate('/bid-frete/lista')}
+        ocultarStepper={phase === 'done'}
+        footer={footerWizard}
+      >
+            {phase === 'upload' && (
+              <>
+                {contextoBid && (
+                  <label className="bid-import-referencia">
+                    <span>{t('bidfrete.novo_bid.referencia')}</span>
+                    <input
+                      type="text"
+                      value={referenciaBid}
+                      onChange={e => setReferenciaBid(e.target.value)}
+                      placeholder={t('bidfrete.novo_bid.referencia_placeholder')}
+                    />
+                  </label>
+                )}
 
-        .importar-bloco-pill-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 1.25rem;
-          border-radius: 9999px;
-          font-size: 0.875rem;
-          font-weight: 600;
-          cursor: pointer;
-          font-family: inherit;
-          transition: opacity 0.15s, transform 0.1s;
-          border: none;
-        }
-        .importar-bloco-pill-btn:hover:not(:disabled) {
-          opacity: 0.9;
-        }
-        .importar-bloco-pill-btn:active:not(:disabled) {
-          transform: scale(0.97);
-        }
-        .importar-bloco-pill-btn:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-        }
-
-        .importar-bloco-pill-btn--primary {
-          background: var(--accent, #6366f1);
-          color: #fff;
-        }
-        .importar-bloco-pill-btn--secondary {
-          background: var(--bg-surface, #334155);
-          color: var(--text-secondary, #94a3b8);
-          border: 1px solid var(--bg-elevated, #475569);
-        }
-        .importar-bloco-pill-btn--danger {
-          background: rgba(239, 68, 68, 0.15);
-          color: var(--danger, #ef4444);
-        }
-
-        .importar-bloco-counter-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.35rem;
-          padding: 0.3rem 0.75rem;
-          border-radius: 9999px;
-          font-size: 0.8rem;
-          font-weight: 700;
-          font-family: 'DM Mono', monospace;
-        }
-
-        .importar-bloco-cols-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 0.8rem;
-        }
-        .importar-bloco-cols-table th,
-        .importar-bloco-cols-table td {
-          padding: 0.5rem 0.75rem;
-          text-align: left;
-          border-bottom: 1px solid var(--bg-elevated, #334155);
-        }
-        .importar-bloco-cols-table th {
-          font-weight: 600;
-          color: var(--text-muted, #64748b);
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-        }
-        .importar-bloco-cols-table td:first-child {
-          font-family: 'DM Mono', monospace;
-          color: var(--accent, #6366f1);
-          font-weight: 500;
-        }
-        .importar-bloco-cols-table td:last-child {
-          color: var(--text-muted, #64748b);
-          font-style: italic;
-        }
-
-        .importar-bloco-result-card {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1.25rem;
-          padding: 2.5rem;
-          border-radius: var(--radius-lg, 12px);
-          background: var(--bg-surface, #1e293b);
-          border: 1px solid var(--bg-elevated, #334155);
-          text-align: center;
-          max-width: 480px;
-          margin: 0 auto;
-        }
-
-        .importar-bloco-spinner {
-          animation: importar-bloco-spin 0.8s linear infinite;
-        }
-        @keyframes importar-bloco-spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-
-      <PaginaGlobal className="bid-frete-page-shell">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {acoesImportar}
-
-          {/* ─── Phase: Upload ──────────────────────────────────────────── */}
-          {phase === 'upload' && (
-            <>
-              {/* Drop zone */}
-              <div
-                className={`importar-bloco-dropzone${dragOver ? ' drag-over' : ''}`}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <FileArrowUp
-                  weight="duotone"
-                  size={48}
-                  style={{ color: 'var(--accent, #6366f1)', opacity: 0.7 }}
-                />
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{
-                    fontSize: '0.95rem',
-                    fontWeight: 600,
-                    color: 'var(--text-primary, #f1f5f9)',
-                    margin: '0 0 0.35rem 0',
-                  }}>
-                    {t('bidfrete.importar.dropzone_titulo')}
-                  </p>
-                  <p style={{
-                    fontSize: '0.8rem',
-                    color: 'var(--text-muted, #64748b)',
-                    margin: 0,
-                  }}>
-                    {t('bidfrete.importar.dropzone_subtitulo')}
-                  </p>
-                </div>
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.35rem',
-                    padding: '0.35rem 1rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    background: 'var(--accent, #6366f1)',
-                    color: '#fff',
-                    marginTop: '0.25rem',
-                  }}
+                <div
+                  className={`bid-import-upload-area${dragOver ? ' bid-import-upload-area--drag-over' : ''}`}
+                  onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
                 >
-                  <FileCsv weight="duotone" size={16} /> {t('bidfrete.importar.selecionar_arquivo')}
-                </span>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv,.xlsx,.xls"
-                  onChange={handleFileSelect}
-                  style={{ display: 'none' }}
-                />
-              </div>
-
-              {/* Expected columns */}
-              <div style={{
-                background: 'var(--bg-surface, #1e293b)',
-                borderRadius: 'var(--radius-lg, 12px)',
-                border: '1px solid var(--bg-elevated, #334155)',
-                overflow: 'hidden',
-              }}>
-                <div style={{
-                  padding: '0.75rem 1rem',
-                  borderBottom: '1px solid var(--bg-elevated, #334155)',
-                }}>
-                  <p style={{
-                    margin: 0,
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    color: 'var(--text-primary, #f1f5f9)',
-                  }}>
-                    {t('bidfrete.importar.colunas_esperadas')}
-                  </p>
-                </div>
-                <table className="importar-bloco-cols-table">
-                  <thead>
-                    <tr>
-                      <th>{t('bidfrete.importar.th_coluna')}</th>
-                      <th>{t('bidfrete.importar.th_descricao')}</th>
-                      <th>{t('bidfrete.importar.th_exemplo')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {EXPECTED_COLUMNS.map((col) => (
-                      <tr key={col.key}>
-                        <td>{col.key}</td>
-                        <td style={{ color: 'var(--text-secondary, #94a3b8)' }}>{col.label}</td>
-                        <td>{col.example}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
-
-          {/* ─── Phase: Preview ─────────────────────────────────────────── */}
-          {phase === 'preview' && (
-            <>
-              {/* Counters + action bar */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '0.75rem',
-              }}>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <span
-                    className="importar-bloco-counter-badge"
-                    style={{
-                      background: 'rgba(34,197,94,0.15)',
-                      color: 'var(--success, #22c55e)',
-                    }}
-                  >
-                    <CheckCircle weight="duotone" size={15} />
-                    {validCount} valida{validCount !== 1 ? 's' : ''}
-                  </span>
-                  {errorCount > 0 && (
-                    <span
-                      className="importar-bloco-counter-badge"
-                      style={{
-                        background: 'rgba(239,68,68,0.15)',
-                        color: 'var(--danger, #ef4444)',
-                      }}
-                    >
-                      <XCircle weight="duotone" size={15} />
-                      {errorCount} com erro{errorCount !== 1 ? 's' : ''}
-                    </span>
-                  )}
-                  <span style={{
-                    fontSize: '0.8rem',
-                    color: 'var(--text-muted, #64748b)',
-                    marginLeft: '0.25rem',
-                  }}>
-                    {rows.length} linha{rows.length !== 1 ? 's' : ''} no total
-                  </span>
-                </div>
-
-                <button
-                  className="importar-bloco-pill-btn importar-bloco-pill-btn--primary"
-                  disabled={validCount === 0}
-                  onClick={handleCreate}
-                >
-                  <FileArrowUp weight="duotone" size={16} />
-                  {t('bidfrete.importar.criar_cotacoes', { count: validCount })}
-                </button>
-              </div>
-
-              {/* Preview table */}
-              <TabelaGlobal
-                idKey="id"
-                colunas={colunas}
-                dados={rows}
-                mensagemVazio={t('bidfrete.importar.vazio')}
-                tooltipBusca={t('bidfrete.importar.buscar_placeholder')}
-              />
-            </>
-          )}
-
-          {/* ─── Phase: Creating ────────────────────────────────────────── */}
-          {phase === 'creating' && (
-            <div className="importar-bloco-result-card">
-              <ConteudoCarregandoBidFreteInternacional />
-              <p style={{
-                margin: 0,
-                fontSize: '0.8rem',
-                color: 'var(--text-muted, #64748b)',
-              }}>
-                {t('bidfrete.importar.processando', { count: validCount })}
-              </p>
-            </div>
-          )}
-
-          {/* ─── Phase: Done ────────────────────────────────────────────── */}
-          {phase === 'done' && result && (
-            <div className="importar-bloco-result-card">
-              {result.erros === 0 ? (
-                <CheckCircle
-                  weight="duotone"
-                  size={48}
-                  style={{ color: 'var(--success, #22c55e)' }}
-                />
-              ) : (
-                <Warning
-                  weight="duotone"
-                  size={48}
-                  style={{ color: 'var(--warning, #f59e0b)' }}
-                />
-              )}
-
-              <div>
-                <p style={{
-                  margin: '0 0 0.5rem 0',
-                  fontSize: '1.1rem',
-                  fontWeight: 700,
-                  color: 'var(--text-primary, #f1f5f9)',
-                }}>
-                  {t('bidfrete.importar.concluida')}
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-                  <span
-                    className="importar-bloco-counter-badge"
-                    style={{
-                      background: 'rgba(34,197,94,0.15)',
-                      color: 'var(--success, #22c55e)',
-                    }}
-                  >
-                    <CheckCircle weight="duotone" size={14} />
-                    {result.criadas} criada{result.criadas !== 1 ? 's' : ''}
-                  </span>
-                  {result.erros > 0 && (
-                    <span
-                      className="importar-bloco-counter-badge"
-                      style={{
-                        background: 'rgba(239,68,68,0.15)',
-                        color: 'var(--danger, #ef4444)',
-                      }}
-                    >
-                      <XCircle weight="duotone" size={14} />
-                      {result.erros} erro{result.erros !== 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Error details */}
-              {result.detalhes.length > 0 && (
-                <div style={{
-                  width: '100%',
-                  background: 'rgba(239,68,68,0.08)',
-                  borderRadius: 'var(--radius-md, 8px)',
-                  padding: '0.75rem 1rem',
-                  textAlign: 'left',
-                }}>
-                  <p style={{
-                    margin: '0 0 0.5rem 0',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: 'var(--danger, #ef4444)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.04em',
-                  }}>
-                    Detalhes dos erros
-                  </p>
-                  {result.detalhes.map((d, i) => (
-                    <p
-                      key={i}
-                      style={{
-                        margin: '0 0 0.2rem 0',
-                        fontSize: '0.8rem',
-                        color: 'var(--text-secondary, #94a3b8)',
-                        fontFamily: "'DM Mono', monospace",
-                      }}
-                    >
-                      {d}
+                  <FileArrowUp size={48} weight="duotone" className="bid-import-upload-icone" aria-hidden />
+                  <div style={{ textAlign: 'center' }}>
+                    <p className="bid-import-upload-titulo">{t('pedido.importar.arrastar')}</p>
+                    <p className="bid-import-upload-sub">
+                      {t('pedido.importar.tamanho_maximo', { mb: TAMANHO_MAX_MB })}
+                      {' · '}
+                      {t('bidfrete.importar.limite_linhas', { max: LIMITE_LINHAS })}
                     </p>
-                  ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center' }}>
+                    {formatosIcones.map(({ label, icone }) => (
+                      <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', opacity: 0.75 }}>
+                        {icone}
+                        <span style={{ fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                          {label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <input ref={fileInputRef} type="file" accept=".csv,.xlsx,.xls" onChange={handleFileSelect} style={{ display: 'none' }} />
                 </div>
-              )}
 
-              {/* Action buttons */}
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                <button
-                  className="importar-bloco-pill-btn importar-bloco-pill-btn--secondary"
-                  onClick={handleReset}
-                >
-                  <ArrowClockwise weight="duotone" size={14} /> Nova importacao
-                </button>
-                <button
-                  className="importar-bloco-pill-btn importar-bloco-pill-btn--primary"
-                  onClick={() => navigate('/bid-frete/lista')}
-                >
-                  Ver cotacoes
-                </button>
+                {erroUpload && (
+                  <p role="alert" style={{ marginTop: '1rem', fontSize: '0.8125rem', color: 'var(--danger, #ef4444)' }}>
+                    {erroUpload}
+                  </p>
+                )}
+
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('pedido.importar.nao_sabe_formato')}</span>
+                  <button type="button" className="bid-import-template-link" onClick={baixarTemplateModelo}>
+                    <DownloadSimple size={16} weight="duotone" />
+                    {t('bidfrete.importar.baixar_template')}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {phase === 'mapeamento' && (
+              <>
+                <p style={{ margin: '0 0 1rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                  {t('bidfrete.importar.mapeamento_desc')}
+                </p>
+                <div style={{ overflow: 'auto', border: '1px solid var(--border-subtle)', borderRadius: '0.5rem' }}>
+                  <table className="bid-import-cols-table">
+                    <thead>
+                      <tr>
+                        <th>{t('bidfrete.importar.th_coluna')}</th>
+                        <th>{t('bidfrete.importar.th_descricao')}</th>
+                        <th>{t('bidfrete.importar.col_status_mapeamento')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {EXPECTED_COLUMNS.map(col => {
+                        const detectada = colunasDetectadas.has(col.key)
+                        const obrigatoria = col.key !== 'ncm_cotacao_bid_frete_internacional'
+                        return (
+                          <tr key={col.key}>
+                            <td>{col.key}</td>
+                            <td style={{ color: 'var(--text-secondary)' }}>{col.label}</td>
+                            <td>
+                              {detectada ? (
+                                <span style={{ color: 'var(--success, #22c55e)', fontSize: '0.8125rem', fontWeight: 600 }}>
+                                  {t('bidfrete.importar.coluna_detectada')}
+                                </span>
+                              ) : obrigatoria ? (
+                                <span style={{ color: 'var(--danger, #ef4444)', fontSize: '0.8125rem' }}>
+                                  {t('bidfrete.importar.coluna_ausente')}
+                                </span>
+                              ) : (
+                                <span style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}>—</span>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <p style={{ margin: '1rem 0 0', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                  {t('bidfrete.importar.linhas_total', { count: rows.length })}
+                  {' · '}
+                  {t('bidfrete.importar.validas', { count: validCount })}
+                  {errorCount > 0 && ` · ${t('bidfrete.importar.com_erros', { count: errorCount })}`}
+                </p>
+              </>
+            )}
+
+            {(phase === 'preview' || phase === 'creating') && (
+              <>
+                {phase === 'creating' ? (
+                  <div className="bid-import-result-card">
+                    <ConteudoCarregandoBidFreteInternacional />
+                    <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+                      {t('bidfrete.importar.processando', { count: validCount })}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                      <span className="bid-import-counter-badge" style={{ background: 'rgba(34,197,94,0.15)', color: 'var(--success, #22c55e)' }}>
+                        <CheckCircle weight="duotone" size={15} />
+                        {t('bidfrete.importar.validas', { count: validCount })}
+                      </span>
+                      {errorCount > 0 && (
+                        <span className="bid-import-counter-badge" style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--danger, #ef4444)' }}>
+                          <XCircle weight="duotone" size={15} />
+                          {t('bidfrete.importar.com_erros', { count: errorCount })}
+                        </span>
+                      )}
+                    </div>
+                    <TabelaGlobal
+                      idKey="id"
+                      colunas={colunas}
+                      dados={rows}
+                      mensagemVazio={t('bidfrete.importar.vazio')}
+                      tooltipBusca={t('bidfrete.importar.buscar_placeholder')}
+                    />
+                  </>
+                )}
+              </>
+            )}
+
+            {phase === 'done' && result && (
+              <div className="bid-import-result-card">
+                {result.erros === 0 ? (
+                  <CheckCircle weight="duotone" size={48} style={{ color: 'var(--success, #22c55e)' }} />
+                ) : (
+                  <Warning weight="duotone" size={48} style={{ color: 'var(--warning, #f59e0b)' }} />
+                )}
+                <div>
+                  <p style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {result.numero_bid_bid_frete_internacional
+                      ? t('bidfrete.importar.concluida_bid', { numero: result.numero_bid_bid_frete_internacional })
+                      : t('bidfrete.importar.concluida')}
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                    <span className="bid-import-counter-badge" style={{ background: 'rgba(34,197,94,0.15)', color: 'var(--success, #22c55e)' }}>
+                      <CheckCircle weight="duotone" size={14} />
+                      {t('bidfrete.importar.criadas', { count: result.criadas })}
+                    </span>
+                    {result.erros > 0 && (
+                      <span className="bid-import-counter-badge" style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--danger, #ef4444)' }}>
+                        <XCircle weight="duotone" size={14} />
+                        {t('bidfrete.importar.erros_count', { count: result.erros })}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {result.detalhes.length > 0 && (
+                  <div style={{ width: '100%', background: 'rgba(239,68,68,0.08)', borderRadius: '0.5rem', padding: '0.75rem 1rem', textAlign: 'left' }}>
+                    <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--danger, #ef4444)', textTransform: 'uppercase' }}>
+                      {t('bidfrete.importar.detalhes_erros')}
+                    </p>
+                    {result.detalhes.map((d, i) => (
+                      <p key={i} style={{ margin: '0 0 0.2rem', fontSize: '0.8rem', color: 'var(--text-secondary)', fontFamily: "'DM Mono', monospace" }}>
+                        {d}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-
-        </div>
-      </PaginaGlobal>
-    </>
+            )}
+      </WizardImportacaoBidFreteInternacional>
+    </PaginaGlobal>
   )
 }

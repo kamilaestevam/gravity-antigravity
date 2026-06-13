@@ -6,8 +6,12 @@ import type { Cotacao, StatusCotacao, ModalFrete, TipoOperacao, ModalidadeCarga,
 import { classeMoedaBadge } from '../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, MODAL_LABELS, OPERACAO_LABELS, MODALIDADE_LABELS, INCOTERMS } from '../shared/types'
 import {
-  codigoDestinoParaEdicao,
-  codigoOrigemParaEdicao,
+  codigoAeroportoDestinoParaEdicao,
+  codigoAeroportoOrigemParaEdicao,
+  codigoPortoDestinoParaEdicao,
+  codigoPortoOrigemParaEdicao,
+  rotuloDestinoExibicaoLista,
+  rotuloOrigemExibicaoLista,
 } from '../shared/lista-bid-frete-edicao-logistica'
 import { rotuloCadastroLista, type GTOpcaoCadastro } from '../shared/useCadastrosListaBidFrete'
 import type { LinhaFilhaLista, LinhaPaiLista } from './lista-bid-frete-internacional-utils'
@@ -346,28 +350,59 @@ function aplicarConfigEdicaoColuna(
         ...base,
         opcoes: [{ valor: 'bid-frete-internacional', label: 'BID Frete Internacional' }],
       }
-    case 'origem_nome_cotacao_bid_frete_internacional':
-    case 'origem_codigo_cotacao_bid_frete_internacional': {
+    case 'porto_origem_cotacao_bid_frete_internacional':
+    case 'porto_destino_cotacao_bid_frete_internacional':
+    case 'aeroporto_origem_cotacao_bid_frete_internacional':
+    case 'aeroporto_destino_cotacao_bid_frete_internacional': {
       const opcoesLoc = opcoesLocalizacaoLista(opcoes)
+      const ehOrigem = key.includes('origem')
+      const ehAereo = key.includes('aeroporto')
+      const getCodigo = (item: Cotacao) => (
+        ehOrigem
+          ? (ehAereo ? codigoAeroportoOrigemParaEdicao(item) : codigoPortoOrigemParaEdicao(item))
+          : (ehAereo ? codigoAeroportoDestinoParaEdicao(item) : codigoPortoDestinoParaEdicao(item))
+      )
       return {
         ...base,
         opcoes: opcoesLoc,
-        editavel: (item: Cotacao) =>
-          item.modal_cotacao_bid_frete_internacional !== 'RODOVIARIO' && !!opcoesLoc?.length,
-        getValorEditar: codigoOrigemParaEdicao,
+        editavel: (item: Cotacao) => {
+          if (item.modal_cotacao_bid_frete_internacional === 'RODOVIARIO') return false
+          if (ehAereo) return item.modal_cotacao_bid_frete_internacional === 'AEREO' && !!opcoesLoc?.length
+          return item.modal_cotacao_bid_frete_internacional === 'MARITIMO' && !!opcoesLoc?.length
+        },
+        getValorEditar: getCodigo,
         findDisplay: (item: Cotacao) => {
-          const rotulo = opcoesLoc
-            ? rotuloCadastroLista(codigoOrigemParaEdicao(item), opcoesLoc)
-            : ''
-          return rotulo || item.origem_nome_cotacao_bid_frete_internacional || ''
+          const rotulo = opcoesLoc ? rotuloCadastroLista(getCodigo(item), opcoesLoc) : ''
+          return rotulo || (ehOrigem ? rotuloOrigemExibicaoLista(item) : rotuloDestinoExibicaoLista(item))
         },
         render: (_val: unknown, item: Cotacao) =>
           renderRotuloLocalizacao(
             item,
             opcoesLoc,
-            codigoOrigemParaEdicao(item),
-            item.origem_nome_cotacao_bid_frete_internacional,
+            getCodigo(item),
+            ehOrigem ? rotuloOrigemExibicaoLista(item) : rotuloDestinoExibicaoLista(item),
           ),
+      }
+    }
+    case 'pais_origem_rodoviario_cotacao_bid_frete_internacional':
+    case 'pais_destino_rodoviario_cotacao_bid_frete_internacional':
+    case 'estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional':
+    case 'estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional':
+    case 'cidade_origem_rodoviario_cotacao_bid_frete_internacional':
+    case 'cidade_destino_rodoviario_cotacao_bid_frete_internacional':
+      return {
+        ...base,
+        editavel: (item: Cotacao) => item.modal_cotacao_bid_frete_internacional === 'RODOVIARIO',
+        render: renderTexto,
+      }
+    case 'origem_nome_cotacao_bid_frete_internacional':
+    case 'origem_codigo_cotacao_bid_frete_internacional': {
+      const opcoesLoc = opcoesLocalizacaoLista(opcoes)
+      return {
+        ...base,
+        editavel: () => false,
+        render: (_val: unknown, item: Cotacao) => rotuloOrigemExibicaoLista(item) || renderTexto(_val, item),
+        findDisplay: (item: Cotacao) => rotuloOrigemExibicaoLista(item),
       }
     }
     case 'destino_nome_cotacao_bid_frete_internacional':
@@ -375,23 +410,9 @@ function aplicarConfigEdicaoColuna(
       const opcoesLoc = opcoesLocalizacaoLista(opcoes)
       return {
         ...base,
-        opcoes: opcoesLoc,
-        editavel: (item: Cotacao) =>
-          item.modal_cotacao_bid_frete_internacional !== 'RODOVIARIO' && !!opcoesLoc?.length,
-        getValorEditar: codigoDestinoParaEdicao,
-        findDisplay: (item: Cotacao) => {
-          const rotulo = opcoesLoc
-            ? rotuloCadastroLista(codigoDestinoParaEdicao(item), opcoesLoc)
-            : ''
-          return rotulo || item.destino_nome_cotacao_bid_frete_internacional || ''
-        },
-        render: (_val: unknown, item: Cotacao) =>
-          renderRotuloLocalizacao(
-            item,
-            opcoesLoc,
-            codigoDestinoParaEdicao(item),
-            item.destino_nome_cotacao_bid_frete_internacional,
-          ),
+        editavel: () => false,
+        render: (_val: unknown, item: Cotacao) => rotuloDestinoExibicaoLista(item) || renderTexto(_val, item),
+        findDisplay: (item: Cotacao) => rotuloDestinoExibicaoLista(item),
       }
     }
     case 'origem_pais_cotacao_bid_frete_internacional':
@@ -757,8 +778,14 @@ function buildColunasCotacoesBase(
       },
     },
     {
-      key: 'origem_codigo_cotacao_bid_frete_internacional',
-      label: 'Código origem',
+      key: 'porto_origem_cotacao_bid_frete_internacional',
+      label: 'Porto origem',
+      tipo: 'texto',
+      render: renderTexto,
+    },
+    {
+      key: 'aeroporto_origem_cotacao_bid_frete_internacional',
+      label: 'Aeroporto origem',
       tipo: 'texto',
       render: renderTexto,
     },
@@ -766,7 +793,7 @@ function buildColunasCotacoesBase(
       key: 'origem_nome_cotacao_bid_frete_internacional',
       label: 'Origem',
       tipo: 'texto',
-      render: renderTexto,
+      render: (_val: unknown, item: Cotacao) => rotuloOrigemExibicaoLista(item),
     },
     {
       key: 'origem_pais_cotacao_bid_frete_internacional',
@@ -782,8 +809,14 @@ function buildColunasCotacoesBase(
       render: renderTexto,
     },
     {
-      key: 'destino_codigo_cotacao_bid_frete_internacional',
-      label: 'Código destino',
+      key: 'porto_destino_cotacao_bid_frete_internacional',
+      label: 'Porto destino',
+      tipo: 'texto',
+      render: renderTexto,
+    },
+    {
+      key: 'aeroporto_destino_cotacao_bid_frete_internacional',
+      label: 'Aeroporto destino',
       tipo: 'texto',
       render: renderTexto,
     },
@@ -791,7 +824,7 @@ function buildColunasCotacoesBase(
       key: 'destino_nome_cotacao_bid_frete_internacional',
       label: 'Destino',
       tipo: 'texto',
-      render: renderTexto,
+      render: (_val: unknown, item: Cotacao) => rotuloDestinoExibicaoLista(item),
     },
     {
       key: 'destino_pais_cotacao_bid_frete_internacional',

@@ -17,28 +17,44 @@ import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-inter
 import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
+import { prepararCamposRotaCotacaoPersistencia } from '../lib/rota-cotacao-bid-frete-internacional.js'
 
 const router = Router()
 
+const CamposRotaModalCotacaoSchema = z.object({
+  porto_origem_cotacao_bid_frete_internacional: z.string().optional(),
+  porto_destino_cotacao_bid_frete_internacional: z.string().optional(),
+  aeroporto_origem_cotacao_bid_frete_internacional: z.string().optional(),
+  aeroporto_destino_cotacao_bid_frete_internacional: z.string().optional(),
+  pais_origem_rodoviario_cotacao_bid_frete_internacional: z.string().optional(),
+  pais_destino_rodoviario_cotacao_bid_frete_internacional: z.string().optional(),
+  estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional: z.string().optional(),
+  estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional: z.string().optional(),
+  cidade_origem_rodoviario_cotacao_bid_frete_internacional: z.string().optional(),
+  cidade_destino_rodoviario_cotacao_bid_frete_internacional: z.string().optional(),
+  origem_codigo_cotacao_bid_frete_internacional: z.string().optional(),
+  origem_nome_cotacao_bid_frete_internacional: z.string().optional(),
+  origem_pais_cotacao_bid_frete_internacional: z.string().optional(),
+  destino_codigo_cotacao_bid_frete_internacional: z.string().optional(),
+  destino_nome_cotacao_bid_frete_internacional: z.string().optional(),
+  destino_pais_cotacao_bid_frete_internacional: z.string().optional(),
+})
+
 // --- Schemas de validacao ---
 
-const CriarCotacaoSchema = z.object({
+const CriarCotacaoSchemaBase = z.object({
   id_bid_bid_frete_internacional: z.string().optional(),
   referencia_interna_cotacao_bid_frete_internacional: z.string().optional(),
   tipo_operacao_cotacao_bid_frete_internacional: z.enum(['IMPORTACAO', 'EXPORTACAO']),
   modal_cotacao_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
   modalidade_cotacao_bid_frete_internacional: z.enum(['FCL', 'LCL', 'AEREO_GERAL', 'RODOVIARIO_FTL', 'RODOVIARIO_LTL']),
-  origem_codigo_cotacao_bid_frete_internacional: z.string().min(1),
-  origem_nome_cotacao_bid_frete_internacional: z.string().min(1),
-  origem_pais_cotacao_bid_frete_internacional: z.string().min(1),
-  destino_codigo_cotacao_bid_frete_internacional: z.string().min(1),
-  destino_nome_cotacao_bid_frete_internacional: z.string().min(1),
-  destino_pais_cotacao_bid_frete_internacional: z.string().min(1),
+}).merge(CamposRotaModalCotacaoSchema).extend({
   descricao_mercadoria_cotacao_bid_frete_internacional: z.string().min(1),
   ncm_cotacao_bid_frete_internacional: z.string().optional(),
   quantidade_volume_cotacao_bid_frete_internacional: z.number().int().positive().default(1),
   tipo_container_cotacao_bid_frete_internacional: z.string().optional(),
   peso_kg_cotacao_bid_frete_internacional: z.number().positive().optional(),
+  peso_ton_cotacao_bid_frete_internacional: z.number().positive().optional(),
   cubagem_m3_cotacao_bid_frete_internacional: z.number().positive().optional(),
   incoterm_cotacao_bid_frete_internacional: z.string().min(1),
   zipcode_origem_cotacao_bid_frete_internacional: z.string().optional(),
@@ -50,10 +66,134 @@ const CriarCotacaoSchema = z.object({
   visibilidade_cotacao_bid_frete_internacional: z.enum(['DIRECIONADA', 'ABERTA']).default('DIRECIONADA'),
   anonima_cotacao_bid_frete_internacional: z.boolean().default(false),
   data_limite_resposta_cotacao_bid_frete_internacional: z.string().datetime().optional(),
+  eh_carga_perigosa_cotacao_bid_frete_internacional: z.boolean().default(false),
+  numero_onu_cotacao_bid_frete_internacional: z.string().optional(),
+  nome_tecnico_embarque_cotacao_bid_frete_internacional: z.string().optional(),
+  classe_carga_perigosa_cotacao_bid_frete_internacional: z.number().int().min(1).max(9).optional(),
+  divisao_carga_perigosa_cotacao_bid_frete_internacional: z.string().optional(),
+  grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional: z.enum(['I', 'II', 'III']).optional(),
+  observacoes_carga_perigosa_cotacao_bid_frete_internacional: z.string().max(500).optional(),
   fornecedor_ids: z.array(z.string()).optional(),
   disparar_ao_criar: z.boolean().default(false),
   canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default([]),
 })
+
+type DadosCotacaoBase = z.infer<typeof CriarCotacaoSchemaBase>
+
+const CAMPOS_ROTA_COTACAO = [
+  'modal_cotacao_bid_frete_internacional',
+  'porto_origem_cotacao_bid_frete_internacional',
+  'porto_destino_cotacao_bid_frete_internacional',
+  'aeroporto_origem_cotacao_bid_frete_internacional',
+  'aeroporto_destino_cotacao_bid_frete_internacional',
+  'pais_origem_rodoviario_cotacao_bid_frete_internacional',
+  'pais_destino_rodoviario_cotacao_bid_frete_internacional',
+  'estado_provincia_origem_rodoviario_cotacao_bid_frete_internacional',
+  'estado_provincia_destino_rodoviario_cotacao_bid_frete_internacional',
+  'cidade_origem_rodoviario_cotacao_bid_frete_internacional',
+  'cidade_destino_rodoviario_cotacao_bid_frete_internacional',
+  'origem_codigo_cotacao_bid_frete_internacional',
+  'origem_nome_cotacao_bid_frete_internacional',
+  'origem_pais_cotacao_bid_frete_internacional',
+  'destino_codigo_cotacao_bid_frete_internacional',
+  'destino_nome_cotacao_bid_frete_internacional',
+  'destino_pais_cotacao_bid_frete_internacional',
+] as const
+
+const CAMPOS_CARGA_PERIGOSA_COTACAO = [
+  'eh_carga_perigosa_cotacao_bid_frete_internacional',
+  'numero_onu_cotacao_bid_frete_internacional',
+  'nome_tecnico_embarque_cotacao_bid_frete_internacional',
+  'classe_carga_perigosa_cotacao_bid_frete_internacional',
+  'divisao_carga_perigosa_cotacao_bid_frete_internacional',
+  'grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional',
+  'observacoes_carga_perigosa_cotacao_bid_frete_internacional',
+] as const
+
+function corpoPatchTocaCampo(body: Record<string, unknown>, campos: readonly string[]): boolean {
+  return campos.some(campo => body[campo] !== undefined)
+}
+
+function executarRefinamentoCotacao(
+  data: DadosCotacaoBase,
+  refinamento: (payload: DadosCotacaoBase, ctx: z.RefinementCtx) => void,
+): z.ZodIssue[] {
+  const issues: z.ZodIssue[] = []
+  refinamento(data, {
+    addIssue: (issue) => {
+      issues.push({
+        code: 'custom',
+        path: issue.path ?? [],
+        message: issue.message ?? 'Validacao falhou',
+      })
+    },
+  } as z.RefinementCtx)
+  return issues
+}
+
+function refinamentoCargaPerigosa(data: DadosCotacaoBase, ctx: z.RefinementCtx): void {
+  if (!data.eh_carga_perigosa_cotacao_bid_frete_internacional) return
+  if (!data.numero_onu_cotacao_bid_frete_internacional?.trim()) {
+    ctx.addIssue({ code: 'custom', message: 'numero_onu obrigatorio para carga perigosa', path: ['numero_onu_cotacao_bid_frete_internacional'] })
+  }
+  if (!data.nome_tecnico_embarque_cotacao_bid_frete_internacional?.trim()) {
+    ctx.addIssue({ code: 'custom', message: 'nome_tecnico_embarque obrigatorio para carga perigosa', path: ['nome_tecnico_embarque_cotacao_bid_frete_internacional'] })
+  }
+  if (data.classe_carga_perigosa_cotacao_bid_frete_internacional == null) {
+    ctx.addIssue({ code: 'custom', message: 'classe obrigatoria para carga perigosa', path: ['classe_carga_perigosa_cotacao_bid_frete_internacional'] })
+  }
+  if (!data.grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional && data.classe_carga_perigosa_cotacao_bid_frete_internacional != null) {
+    const semGrupo = [1, 2, 7].includes(data.classe_carga_perigosa_cotacao_bid_frete_internacional)
+    if (!semGrupo) {
+      ctx.addIssue({ code: 'custom', message: 'grupo_embalagem obrigatorio para carga perigosa', path: ['grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional'] })
+    }
+  }
+}
+
+function refinamentoRota(data: DadosCotacaoBase, ctx: z.RefinementCtx): void {
+  const preparado = prepararCamposRotaCotacaoPersistencia(data)
+  if (!preparado.origem_codigo_cotacao_bid_frete_internacional) {
+    ctx.addIssue({ code: 'custom', message: 'Origem obrigatoria para o modal selecionado', path: ['porto_origem_cotacao_bid_frete_internacional'] })
+  }
+  if (!preparado.destino_codigo_cotacao_bid_frete_internacional) {
+    ctx.addIssue({ code: 'custom', message: 'Destino obrigatorio para o modal selecionado', path: ['porto_destino_cotacao_bid_frete_internacional'] })
+  }
+  if (!preparado.origem_nome_cotacao_bid_frete_internacional) {
+    ctx.addIssue({ code: 'custom', message: 'Nome de origem obrigatorio', path: ['origem_nome_cotacao_bid_frete_internacional'] })
+  }
+  if (!preparado.destino_nome_cotacao_bid_frete_internacional) {
+    ctx.addIssue({ code: 'custom', message: 'Nome de destino obrigatorio', path: ['destino_nome_cotacao_bid_frete_internacional'] })
+  }
+  if (!preparado.origem_pais_cotacao_bid_frete_internacional) {
+    ctx.addIssue({ code: 'custom', message: 'Pais de origem obrigatorio', path: ['origem_pais_cotacao_bid_frete_internacional'] })
+  }
+  if (!preparado.destino_pais_cotacao_bid_frete_internacional) {
+    ctx.addIssue({ code: 'custom', message: 'Pais de destino obrigatorio', path: ['destino_pais_cotacao_bid_frete_internacional'] })
+  }
+}
+
+function assertRefinamentosCotacaoPatch(
+  merged: DadosCotacaoBase,
+  body: Record<string, unknown>,
+): void {
+  const issues: z.ZodIssue[] = []
+  if (corpoPatchTocaCampo(body, CAMPOS_CARGA_PERIGOSA_COTACAO)) {
+    issues.push(...executarRefinamentoCotacao(merged, refinamentoCargaPerigosa))
+  }
+  if (corpoPatchTocaCampo(body, CAMPOS_ROTA_COTACAO)) {
+    issues.push(...executarRefinamentoCotacao(merged, refinamentoRota))
+  }
+  if (issues.length === 0) return
+  throw new AppError(
+    `Dados invalidos: ${issues.map(i => `[${i.path.join('.')}] ${i.message}`).join('; ')}`,
+    400,
+    'VALIDATION_ERROR',
+  )
+}
+
+const CriarCotacaoSchema = CriarCotacaoSchemaBase
+  .superRefine(refinamentoCargaPerigosa)
+  .superRefine(refinamentoRota)
 
 const FiltrosCotacaoSchema = z.object({
   status: z.string().optional(),
@@ -73,7 +213,7 @@ const FiltrosCotacaoSchema = z.object({
 })
 
 /** Campos atualizáveis via PATCH /:id — whitelist evita 500 por campos só do formulário wizard. */
-const AtualizarCotacaoSchema = CriarCotacaoSchema.omit({
+const AtualizarCotacaoSchema = CriarCotacaoSchemaBase.omit({
   fornecedor_ids: true,
   disparar_ao_criar: true,
   canais_disparo: true,
@@ -158,10 +298,11 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const tenantId = req.tenantId
     const { fornecedor_ids, disparar_ao_criar, canais_disparo, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
+    const camposPersistencia = prepararCamposRotaCotacaoPersistencia(camposCotacao)
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
-        ...camposCotacao,
+        ...camposPersistencia,
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
         ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
@@ -409,7 +550,19 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
     const existing = await (req.prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
-    const data: Record<string, unknown> = { ...parsed.data }
+    const merged = { ...existing, ...parsed.data }
+    assertRefinamentosCotacaoPatch(merged as DadosCotacaoBase, parsed.data as Record<string, unknown>)
+    const camposPersistencia = prepararCamposRotaCotacaoPersistencia(merged)
+    const data: Record<string, unknown> = { ...parsed.data, ...camposPersistencia }
+
+    if (parsed.data.eh_carga_perigosa_cotacao_bid_frete_internacional === false) {
+      data.numero_onu_cotacao_bid_frete_internacional = null
+      data.nome_tecnico_embarque_cotacao_bid_frete_internacional = null
+      data.classe_carga_perigosa_cotacao_bid_frete_internacional = null
+      data.divisao_carga_perigosa_cotacao_bid_frete_internacional = null
+      data.grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional = null
+      data.observacoes_carga_perigosa_cotacao_bid_frete_internacional = null
+    }
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.update({
       where: { id_cotacao_bid_frete_internacional: req.params.id },

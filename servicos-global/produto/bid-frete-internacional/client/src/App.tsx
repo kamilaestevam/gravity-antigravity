@@ -147,13 +147,16 @@ export default function App() {
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const hidratadoEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
   const hidratarEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.hidratar)
-  const aplicarPreferenciaBackend = useEscopoWorkspacesBidFreteInternacional(s => s.aplicarPreferenciaBackend)
   const reiniciarHidratacaoEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.reiniciarHidratacao)
   const alternarWorkspaceEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.alternarWorkspace)
   const definirEscopoWorkspaces = useEscopoWorkspacesBidFreteInternacional(s => s.definirEscopo)
   const sinalAbrirMenuWorkspaces = useEscopoWorkspacesBidFreteInternacional(s => s.sinalAbrirMenuWorkspaces)
   const sessaoEscopoHidratadaRef = useRef<string | null>(null)
   const qtdWorkspaces = workspacesStore.length
+  const idsWorkspacesDisponiveisAssinatura = useMemo(
+    () => workspacesStore.map(ws => ws.id).join('\0'),
+    [workspacesStore],
+  )
 
   useEffect(() => {
     if (currentUser.id) {
@@ -173,22 +176,25 @@ export default function App() {
 
     reiniciarHidratacaoEscopo()
 
+    let cancelled = false
     const idsDisponiveis = workspacesStore.map(ws => ws.id)
 
-    // Default imediato — UI e APIs filtram antes do roundtrip backend (paridade Pedido)
-    hidratarEscopo(idsDisponiveis, idWorkspaceAtivo, null)
-    sessaoEscopoHidratadaRef.current = sessao
-
-    let cancelled = false
     void bidFreteConfigApi.obterEscopoWorkspaces()
       .then(res => {
         if (cancelled) return
         const idsSalvos = res.data?.ids_workspaces_escopo
-        if (idsSalvos !== undefined) {
-          aplicarPreferenciaBackend(idsDisponiveis, idWorkspaceAtivo, idsSalvos)
-        }
+        hidratarEscopo(
+          idsDisponiveis,
+          idWorkspaceAtivo,
+          idsSalvos !== undefined ? idsSalvos : null,
+        )
+        sessaoEscopoHidratadaRef.current = sessao
       })
-      .catch(() => { /* mantém escopo local */ })
+      .catch(() => {
+        if (cancelled) return
+        hidratarEscopo(idsDisponiveis, idWorkspaceAtivo, null)
+        sessaoEscopoHidratadaRef.current = sessao
+      })
 
     return () => { cancelled = true }
   }, [
@@ -197,9 +203,8 @@ export default function App() {
     currentUser?.idOrganizacao,
     currentUser?.id,
     hidratarEscopo,
-    aplicarPreferenciaBackend,
     reiniciarHidratacaoEscopo,
-    workspacesStore,
+    idsWorkspacesDisponiveisAssinatura,
   ])
 
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)

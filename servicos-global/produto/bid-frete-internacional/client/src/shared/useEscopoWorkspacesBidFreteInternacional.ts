@@ -33,6 +33,14 @@ interface EscopoWorkspacesBidFreteState {
   reiniciarHidratacao: () => void
 }
 
+function idsEscopoIguais(a: readonly string[], b: readonly string[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
 function resolverIdsEscopoPermitidos(
   idsDisponiveis: readonly string[],
   idWorkspacePreferido: string,
@@ -147,12 +155,13 @@ export const useEscopoWorkspacesBidFreteInternacional = create<EscopoWorkspacesB
   },
 
   hidratar: (idsDisponiveis, idWorkspacePreferido, idsPreferenciaBackend = null) => {
-    if (get().hidratado) return
     const ids = resolverIdsEscopoPermitidos(
       idsDisponiveis,
       idWorkspacePreferido,
       idsPreferenciaBackend,
     )
+    const { idsWorkspacesEscopo: atual, hidratado } = get()
+    if (hidratado && idsEscopoIguais(atual, ids)) return
     gravarSessionStorage(ids)
     set({ idsWorkspacesEscopo: ids, hidratado: true })
   },
@@ -168,12 +177,16 @@ export const useEscopoWorkspacesBidFreteInternacional = create<EscopoWorkspacesB
       idWorkspacePreferido,
       idsPreferenciaBackend,
     )
+    const { idsWorkspacesEscopo: atual, hidratado } = get()
+    if (hidratado && idsEscopoIguais(atual, ids)) return
     gravarSessionStorage(ids)
     set({ idsWorkspacesEscopo: ids, hidratado: true })
   },
 
   definirEscopo: (ids) => {
     const dedup = [...new Set(ids.filter(Boolean))]
+    const { idsWorkspacesEscopo: atual, hidratado } = get()
+    if (hidratado && idsEscopoIguais(atual, dedup)) return
     gravarSessionStorage(dedup)
     set({ idsWorkspacesEscopo: dedup, hidratado: true })
     persistirEscopoNoBackend(dedup)

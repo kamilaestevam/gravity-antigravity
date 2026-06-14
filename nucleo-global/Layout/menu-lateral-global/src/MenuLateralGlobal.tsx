@@ -288,7 +288,11 @@ export function MenuLateralGlobal({
           
           {!isCollapsed && (
             <div className={`mlg-submenu ${isExpanded ? 'open' : ''}`}>
-              {item.children?.map(child => renderNavItem(child, true))}
+              {item.children?.map(child => (
+                <React.Fragment key={child.to ?? child.label}>
+                  {renderNavItem(child, true)}
+                </React.Fragment>
+              ))}
             </div>
           )}
         </div>

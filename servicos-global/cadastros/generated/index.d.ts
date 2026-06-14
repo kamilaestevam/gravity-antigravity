@@ -69,6 +69,11 @@ export type Porto = $Result.DefaultSelection<Prisma.$PortoPayload>
  */
 export type Aeroporto = $Result.DefaultSelection<Prisma.$AeroportoPayload>
 /**
+ * Model MercadoriaPerigosa
+ * 
+ */
+export type MercadoriaPerigosa = $Result.DefaultSelection<Prisma.$MercadoriaPerigosaPayload>
+/**
  * Model TaxaOrigemDestino
  * 
  */
@@ -413,6 +418,16 @@ export class PrismaClient<
     * ```
     */
   get aeroporto(): Prisma.AeroportoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.mercadoriaPerigosa`: Exposes CRUD operations for the **MercadoriaPerigosa** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MercadoriaPerigosas
+    * const mercadoriaPerigosas = await prisma.mercadoriaPerigosa.findMany()
+    * ```
+    */
+  get mercadoriaPerigosa(): Prisma.MercadoriaPerigosaDelegate<ExtArgs>;
 
   /**
    * `prisma.taxaOrigemDestino`: Exposes CRUD operations for the **TaxaOrigemDestino** model.
@@ -944,6 +959,7 @@ export namespace Prisma {
     CambioSiscomex: 'CambioSiscomex',
     Porto: 'Porto',
     Aeroporto: 'Aeroporto',
+    MercadoriaPerigosa: 'MercadoriaPerigosa',
     TaxaOrigemDestino: 'TaxaOrigemDestino',
     Volume: 'Volume',
     Container: 'Container',
@@ -967,7 +983,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "cambioSiscomex" | "porto" | "aeroporto" | "taxaOrigemDestino" | "volume" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
+      modelProps: "empresa" | "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "cambioSiscomex" | "porto" | "aeroporto" | "mercadoriaPerigosa" | "taxaOrigemDestino" | "volume" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1668,6 +1684,76 @@ export namespace Prisma {
           count: {
             args: Prisma.AeroportoCountArgs<ExtArgs>
             result: $Utils.Optional<AeroportoCountAggregateOutputType> | number
+          }
+        }
+      }
+      MercadoriaPerigosa: {
+        payload: Prisma.$MercadoriaPerigosaPayload<ExtArgs>
+        fields: Prisma.MercadoriaPerigosaFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MercadoriaPerigosaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MercadoriaPerigosaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload>
+          }
+          findFirst: {
+            args: Prisma.MercadoriaPerigosaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MercadoriaPerigosaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload>
+          }
+          findMany: {
+            args: Prisma.MercadoriaPerigosaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload>[]
+          }
+          create: {
+            args: Prisma.MercadoriaPerigosaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload>
+          }
+          createMany: {
+            args: Prisma.MercadoriaPerigosaCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MercadoriaPerigosaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload>[]
+          }
+          delete: {
+            args: Prisma.MercadoriaPerigosaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload>
+          }
+          update: {
+            args: Prisma.MercadoriaPerigosaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload>
+          }
+          deleteMany: {
+            args: Prisma.MercadoriaPerigosaDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MercadoriaPerigosaUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.MercadoriaPerigosaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MercadoriaPerigosaPayload>
+          }
+          aggregate: {
+            args: Prisma.MercadoriaPerigosaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMercadoriaPerigosa>
+          }
+          groupBy: {
+            args: Prisma.MercadoriaPerigosaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MercadoriaPerigosaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MercadoriaPerigosaCountArgs<ExtArgs>
+            result: $Utils.Optional<MercadoriaPerigosaCountAggregateOutputType> | number
           }
         }
       }
@@ -12375,6 +12461,978 @@ export namespace Prisma {
 
 
   /**
+   * Model MercadoriaPerigosa
+   */
+
+  export type AggregateMercadoriaPerigosa = {
+    _count: MercadoriaPerigosaCountAggregateOutputType | null
+    _avg: MercadoriaPerigosaAvgAggregateOutputType | null
+    _sum: MercadoriaPerigosaSumAggregateOutputType | null
+    _min: MercadoriaPerigosaMinAggregateOutputType | null
+    _max: MercadoriaPerigosaMaxAggregateOutputType | null
+  }
+
+  export type MercadoriaPerigosaAvgAggregateOutputType = {
+    classe_mercadoria_perigosa: number | null
+  }
+
+  export type MercadoriaPerigosaSumAggregateOutputType = {
+    classe_mercadoria_perigosa: number | null
+  }
+
+  export type MercadoriaPerigosaMinAggregateOutputType = {
+    id_mercadoria_perigosa: string | null
+    numero_onu_mercadoria_perigosa: string | null
+    nome_tecnico_embarque_mercadoria_perigosa: string | null
+    nome_ascii_mercadoria_perigosa: string | null
+    nome_ingles_mercadoria_perigosa: string | null
+    classe_mercadoria_perigosa: number | null
+    divisao_mercadoria_perigosa: string | null
+    grupo_embalagem_mercadoria_perigosa: string | null
+    versao_fonte_mercadoria_perigosa: string | null
+    ativo_mercadoria_perigosa: boolean | null
+  }
+
+  export type MercadoriaPerigosaMaxAggregateOutputType = {
+    id_mercadoria_perigosa: string | null
+    numero_onu_mercadoria_perigosa: string | null
+    nome_tecnico_embarque_mercadoria_perigosa: string | null
+    nome_ascii_mercadoria_perigosa: string | null
+    nome_ingles_mercadoria_perigosa: string | null
+    classe_mercadoria_perigosa: number | null
+    divisao_mercadoria_perigosa: string | null
+    grupo_embalagem_mercadoria_perigosa: string | null
+    versao_fonte_mercadoria_perigosa: string | null
+    ativo_mercadoria_perigosa: boolean | null
+  }
+
+  export type MercadoriaPerigosaCountAggregateOutputType = {
+    id_mercadoria_perigosa: number
+    numero_onu_mercadoria_perigosa: number
+    nome_tecnico_embarque_mercadoria_perigosa: number
+    nome_ascii_mercadoria_perigosa: number
+    nome_ingles_mercadoria_perigosa: number
+    classe_mercadoria_perigosa: number
+    divisao_mercadoria_perigosa: number
+    grupo_embalagem_mercadoria_perigosa: number
+    versao_fonte_mercadoria_perigosa: number
+    ativo_mercadoria_perigosa: number
+    _all: number
+  }
+
+
+  export type MercadoriaPerigosaAvgAggregateInputType = {
+    classe_mercadoria_perigosa?: true
+  }
+
+  export type MercadoriaPerigosaSumAggregateInputType = {
+    classe_mercadoria_perigosa?: true
+  }
+
+  export type MercadoriaPerigosaMinAggregateInputType = {
+    id_mercadoria_perigosa?: true
+    numero_onu_mercadoria_perigosa?: true
+    nome_tecnico_embarque_mercadoria_perigosa?: true
+    nome_ascii_mercadoria_perigosa?: true
+    nome_ingles_mercadoria_perigosa?: true
+    classe_mercadoria_perigosa?: true
+    divisao_mercadoria_perigosa?: true
+    grupo_embalagem_mercadoria_perigosa?: true
+    versao_fonte_mercadoria_perigosa?: true
+    ativo_mercadoria_perigosa?: true
+  }
+
+  export type MercadoriaPerigosaMaxAggregateInputType = {
+    id_mercadoria_perigosa?: true
+    numero_onu_mercadoria_perigosa?: true
+    nome_tecnico_embarque_mercadoria_perigosa?: true
+    nome_ascii_mercadoria_perigosa?: true
+    nome_ingles_mercadoria_perigosa?: true
+    classe_mercadoria_perigosa?: true
+    divisao_mercadoria_perigosa?: true
+    grupo_embalagem_mercadoria_perigosa?: true
+    versao_fonte_mercadoria_perigosa?: true
+    ativo_mercadoria_perigosa?: true
+  }
+
+  export type MercadoriaPerigosaCountAggregateInputType = {
+    id_mercadoria_perigosa?: true
+    numero_onu_mercadoria_perigosa?: true
+    nome_tecnico_embarque_mercadoria_perigosa?: true
+    nome_ascii_mercadoria_perigosa?: true
+    nome_ingles_mercadoria_perigosa?: true
+    classe_mercadoria_perigosa?: true
+    divisao_mercadoria_perigosa?: true
+    grupo_embalagem_mercadoria_perigosa?: true
+    versao_fonte_mercadoria_perigosa?: true
+    ativo_mercadoria_perigosa?: true
+    _all?: true
+  }
+
+  export type MercadoriaPerigosaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MercadoriaPerigosa to aggregate.
+     */
+    where?: MercadoriaPerigosaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MercadoriaPerigosas to fetch.
+     */
+    orderBy?: MercadoriaPerigosaOrderByWithRelationInput | MercadoriaPerigosaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MercadoriaPerigosaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MercadoriaPerigosas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MercadoriaPerigosas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MercadoriaPerigosas
+    **/
+    _count?: true | MercadoriaPerigosaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MercadoriaPerigosaAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MercadoriaPerigosaSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MercadoriaPerigosaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MercadoriaPerigosaMaxAggregateInputType
+  }
+
+  export type GetMercadoriaPerigosaAggregateType<T extends MercadoriaPerigosaAggregateArgs> = {
+        [P in keyof T & keyof AggregateMercadoriaPerigosa]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMercadoriaPerigosa[P]>
+      : GetScalarType<T[P], AggregateMercadoriaPerigosa[P]>
+  }
+
+
+
+
+  export type MercadoriaPerigosaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MercadoriaPerigosaWhereInput
+    orderBy?: MercadoriaPerigosaOrderByWithAggregationInput | MercadoriaPerigosaOrderByWithAggregationInput[]
+    by: MercadoriaPerigosaScalarFieldEnum[] | MercadoriaPerigosaScalarFieldEnum
+    having?: MercadoriaPerigosaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MercadoriaPerigosaCountAggregateInputType | true
+    _avg?: MercadoriaPerigosaAvgAggregateInputType
+    _sum?: MercadoriaPerigosaSumAggregateInputType
+    _min?: MercadoriaPerigosaMinAggregateInputType
+    _max?: MercadoriaPerigosaMaxAggregateInputType
+  }
+
+  export type MercadoriaPerigosaGroupByOutputType = {
+    id_mercadoria_perigosa: string
+    numero_onu_mercadoria_perigosa: string
+    nome_tecnico_embarque_mercadoria_perigosa: string
+    nome_ascii_mercadoria_perigosa: string
+    nome_ingles_mercadoria_perigosa: string
+    classe_mercadoria_perigosa: number
+    divisao_mercadoria_perigosa: string | null
+    grupo_embalagem_mercadoria_perigosa: string | null
+    versao_fonte_mercadoria_perigosa: string
+    ativo_mercadoria_perigosa: boolean
+    _count: MercadoriaPerigosaCountAggregateOutputType | null
+    _avg: MercadoriaPerigosaAvgAggregateOutputType | null
+    _sum: MercadoriaPerigosaSumAggregateOutputType | null
+    _min: MercadoriaPerigosaMinAggregateOutputType | null
+    _max: MercadoriaPerigosaMaxAggregateOutputType | null
+  }
+
+  type GetMercadoriaPerigosaGroupByPayload<T extends MercadoriaPerigosaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MercadoriaPerigosaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MercadoriaPerigosaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MercadoriaPerigosaGroupByOutputType[P]>
+            : GetScalarType<T[P], MercadoriaPerigosaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MercadoriaPerigosaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_mercadoria_perigosa?: boolean
+    numero_onu_mercadoria_perigosa?: boolean
+    nome_tecnico_embarque_mercadoria_perigosa?: boolean
+    nome_ascii_mercadoria_perigosa?: boolean
+    nome_ingles_mercadoria_perigosa?: boolean
+    classe_mercadoria_perigosa?: boolean
+    divisao_mercadoria_perigosa?: boolean
+    grupo_embalagem_mercadoria_perigosa?: boolean
+    versao_fonte_mercadoria_perigosa?: boolean
+    ativo_mercadoria_perigosa?: boolean
+  }, ExtArgs["result"]["mercadoriaPerigosa"]>
+
+  export type MercadoriaPerigosaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_mercadoria_perigosa?: boolean
+    numero_onu_mercadoria_perigosa?: boolean
+    nome_tecnico_embarque_mercadoria_perigosa?: boolean
+    nome_ascii_mercadoria_perigosa?: boolean
+    nome_ingles_mercadoria_perigosa?: boolean
+    classe_mercadoria_perigosa?: boolean
+    divisao_mercadoria_perigosa?: boolean
+    grupo_embalagem_mercadoria_perigosa?: boolean
+    versao_fonte_mercadoria_perigosa?: boolean
+    ativo_mercadoria_perigosa?: boolean
+  }, ExtArgs["result"]["mercadoriaPerigosa"]>
+
+  export type MercadoriaPerigosaSelectScalar = {
+    id_mercadoria_perigosa?: boolean
+    numero_onu_mercadoria_perigosa?: boolean
+    nome_tecnico_embarque_mercadoria_perigosa?: boolean
+    nome_ascii_mercadoria_perigosa?: boolean
+    nome_ingles_mercadoria_perigosa?: boolean
+    classe_mercadoria_perigosa?: boolean
+    divisao_mercadoria_perigosa?: boolean
+    grupo_embalagem_mercadoria_perigosa?: boolean
+    versao_fonte_mercadoria_perigosa?: boolean
+    ativo_mercadoria_perigosa?: boolean
+  }
+
+
+  export type $MercadoriaPerigosaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MercadoriaPerigosa"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_mercadoria_perigosa: string
+      numero_onu_mercadoria_perigosa: string
+      nome_tecnico_embarque_mercadoria_perigosa: string
+      nome_ascii_mercadoria_perigosa: string
+      nome_ingles_mercadoria_perigosa: string
+      classe_mercadoria_perigosa: number
+      divisao_mercadoria_perigosa: string | null
+      grupo_embalagem_mercadoria_perigosa: string | null
+      versao_fonte_mercadoria_perigosa: string
+      ativo_mercadoria_perigosa: boolean
+    }, ExtArgs["result"]["mercadoriaPerigosa"]>
+    composites: {}
+  }
+
+  type MercadoriaPerigosaGetPayload<S extends boolean | null | undefined | MercadoriaPerigosaDefaultArgs> = $Result.GetResult<Prisma.$MercadoriaPerigosaPayload, S>
+
+  type MercadoriaPerigosaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<MercadoriaPerigosaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: MercadoriaPerigosaCountAggregateInputType | true
+    }
+
+  export interface MercadoriaPerigosaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MercadoriaPerigosa'], meta: { name: 'MercadoriaPerigosa' } }
+    /**
+     * Find zero or one MercadoriaPerigosa that matches the filter.
+     * @param {MercadoriaPerigosaFindUniqueArgs} args - Arguments to find a MercadoriaPerigosa
+     * @example
+     * // Get one MercadoriaPerigosa
+     * const mercadoriaPerigosa = await prisma.mercadoriaPerigosa.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MercadoriaPerigosaFindUniqueArgs>(args: SelectSubset<T, MercadoriaPerigosaFindUniqueArgs<ExtArgs>>): Prisma__MercadoriaPerigosaClient<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one MercadoriaPerigosa that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {MercadoriaPerigosaFindUniqueOrThrowArgs} args - Arguments to find a MercadoriaPerigosa
+     * @example
+     * // Get one MercadoriaPerigosa
+     * const mercadoriaPerigosa = await prisma.mercadoriaPerigosa.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MercadoriaPerigosaFindUniqueOrThrowArgs>(args: SelectSubset<T, MercadoriaPerigosaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MercadoriaPerigosaClient<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first MercadoriaPerigosa that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MercadoriaPerigosaFindFirstArgs} args - Arguments to find a MercadoriaPerigosa
+     * @example
+     * // Get one MercadoriaPerigosa
+     * const mercadoriaPerigosa = await prisma.mercadoriaPerigosa.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MercadoriaPerigosaFindFirstArgs>(args?: SelectSubset<T, MercadoriaPerigosaFindFirstArgs<ExtArgs>>): Prisma__MercadoriaPerigosaClient<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first MercadoriaPerigosa that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MercadoriaPerigosaFindFirstOrThrowArgs} args - Arguments to find a MercadoriaPerigosa
+     * @example
+     * // Get one MercadoriaPerigosa
+     * const mercadoriaPerigosa = await prisma.mercadoriaPerigosa.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MercadoriaPerigosaFindFirstOrThrowArgs>(args?: SelectSubset<T, MercadoriaPerigosaFindFirstOrThrowArgs<ExtArgs>>): Prisma__MercadoriaPerigosaClient<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more MercadoriaPerigosas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MercadoriaPerigosaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MercadoriaPerigosas
+     * const mercadoriaPerigosas = await prisma.mercadoriaPerigosa.findMany()
+     * 
+     * // Get first 10 MercadoriaPerigosas
+     * const mercadoriaPerigosas = await prisma.mercadoriaPerigosa.findMany({ take: 10 })
+     * 
+     * // Only select the `id_mercadoria_perigosa`
+     * const mercadoriaPerigosaWithId_mercadoria_perigosaOnly = await prisma.mercadoriaPerigosa.findMany({ select: { id_mercadoria_perigosa: true } })
+     * 
+     */
+    findMany<T extends MercadoriaPerigosaFindManyArgs>(args?: SelectSubset<T, MercadoriaPerigosaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a MercadoriaPerigosa.
+     * @param {MercadoriaPerigosaCreateArgs} args - Arguments to create a MercadoriaPerigosa.
+     * @example
+     * // Create one MercadoriaPerigosa
+     * const MercadoriaPerigosa = await prisma.mercadoriaPerigosa.create({
+     *   data: {
+     *     // ... data to create a MercadoriaPerigosa
+     *   }
+     * })
+     * 
+     */
+    create<T extends MercadoriaPerigosaCreateArgs>(args: SelectSubset<T, MercadoriaPerigosaCreateArgs<ExtArgs>>): Prisma__MercadoriaPerigosaClient<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many MercadoriaPerigosas.
+     * @param {MercadoriaPerigosaCreateManyArgs} args - Arguments to create many MercadoriaPerigosas.
+     * @example
+     * // Create many MercadoriaPerigosas
+     * const mercadoriaPerigosa = await prisma.mercadoriaPerigosa.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MercadoriaPerigosaCreateManyArgs>(args?: SelectSubset<T, MercadoriaPerigosaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MercadoriaPerigosas and returns the data saved in the database.
+     * @param {MercadoriaPerigosaCreateManyAndReturnArgs} args - Arguments to create many MercadoriaPerigosas.
+     * @example
+     * // Create many MercadoriaPerigosas
+     * const mercadoriaPerigosa = await prisma.mercadoriaPerigosa.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MercadoriaPerigosas and only return the `id_mercadoria_perigosa`
+     * const mercadoriaPerigosaWithId_mercadoria_perigosaOnly = await prisma.mercadoriaPerigosa.createManyAndReturn({ 
+     *   select: { id_mercadoria_perigosa: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MercadoriaPerigosaCreateManyAndReturnArgs>(args?: SelectSubset<T, MercadoriaPerigosaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a MercadoriaPerigosa.
+     * @param {MercadoriaPerigosaDeleteArgs} args - Arguments to delete one MercadoriaPerigosa.
+     * @example
+     * // Delete one MercadoriaPerigosa
+     * const MercadoriaPerigosa = await prisma.mercadoriaPerigosa.delete({
+     *   where: {
+     *     // ... filter to delete one MercadoriaPerigosa
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MercadoriaPerigosaDeleteArgs>(args: SelectSubset<T, MercadoriaPerigosaDeleteArgs<ExtArgs>>): Prisma__MercadoriaPerigosaClient<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one MercadoriaPerigosa.
+     * @param {MercadoriaPerigosaUpdateArgs} args - Arguments to update one MercadoriaPerigosa.
+     * @example
+     * // Update one MercadoriaPerigosa
+     * const mercadoriaPerigosa = await prisma.mercadoriaPerigosa.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MercadoriaPerigosaUpdateArgs>(args: SelectSubset<T, MercadoriaPerigosaUpdateArgs<ExtArgs>>): Prisma__MercadoriaPerigosaClient<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more MercadoriaPerigosas.
+     * @param {MercadoriaPerigosaDeleteManyArgs} args - Arguments to filter MercadoriaPerigosas to delete.
+     * @example
+     * // Delete a few MercadoriaPerigosas
+     * const { count } = await prisma.mercadoriaPerigosa.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MercadoriaPerigosaDeleteManyArgs>(args?: SelectSubset<T, MercadoriaPerigosaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MercadoriaPerigosas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MercadoriaPerigosaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MercadoriaPerigosas
+     * const mercadoriaPerigosa = await prisma.mercadoriaPerigosa.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MercadoriaPerigosaUpdateManyArgs>(args: SelectSubset<T, MercadoriaPerigosaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one MercadoriaPerigosa.
+     * @param {MercadoriaPerigosaUpsertArgs} args - Arguments to update or create a MercadoriaPerigosa.
+     * @example
+     * // Update or create a MercadoriaPerigosa
+     * const mercadoriaPerigosa = await prisma.mercadoriaPerigosa.upsert({
+     *   create: {
+     *     // ... data to create a MercadoriaPerigosa
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MercadoriaPerigosa we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MercadoriaPerigosaUpsertArgs>(args: SelectSubset<T, MercadoriaPerigosaUpsertArgs<ExtArgs>>): Prisma__MercadoriaPerigosaClient<$Result.GetResult<Prisma.$MercadoriaPerigosaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of MercadoriaPerigosas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MercadoriaPerigosaCountArgs} args - Arguments to filter MercadoriaPerigosas to count.
+     * @example
+     * // Count the number of MercadoriaPerigosas
+     * const count = await prisma.mercadoriaPerigosa.count({
+     *   where: {
+     *     // ... the filter for the MercadoriaPerigosas we want to count
+     *   }
+     * })
+    **/
+    count<T extends MercadoriaPerigosaCountArgs>(
+      args?: Subset<T, MercadoriaPerigosaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MercadoriaPerigosaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MercadoriaPerigosa.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MercadoriaPerigosaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MercadoriaPerigosaAggregateArgs>(args: Subset<T, MercadoriaPerigosaAggregateArgs>): Prisma.PrismaPromise<GetMercadoriaPerigosaAggregateType<T>>
+
+    /**
+     * Group by MercadoriaPerigosa.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MercadoriaPerigosaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MercadoriaPerigosaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MercadoriaPerigosaGroupByArgs['orderBy'] }
+        : { orderBy?: MercadoriaPerigosaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MercadoriaPerigosaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMercadoriaPerigosaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MercadoriaPerigosa model
+   */
+  readonly fields: MercadoriaPerigosaFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MercadoriaPerigosa.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MercadoriaPerigosaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MercadoriaPerigosa model
+   */ 
+  interface MercadoriaPerigosaFieldRefs {
+    readonly id_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'String'>
+    readonly numero_onu_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'String'>
+    readonly nome_tecnico_embarque_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'String'>
+    readonly nome_ascii_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'String'>
+    readonly nome_ingles_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'String'>
+    readonly classe_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'Int'>
+    readonly divisao_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'String'>
+    readonly grupo_embalagem_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'String'>
+    readonly versao_fonte_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'String'>
+    readonly ativo_mercadoria_perigosa: FieldRef<"MercadoriaPerigosa", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MercadoriaPerigosa findUnique
+   */
+  export type MercadoriaPerigosaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+    /**
+     * Filter, which MercadoriaPerigosa to fetch.
+     */
+    where: MercadoriaPerigosaWhereUniqueInput
+  }
+
+  /**
+   * MercadoriaPerigosa findUniqueOrThrow
+   */
+  export type MercadoriaPerigosaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+    /**
+     * Filter, which MercadoriaPerigosa to fetch.
+     */
+    where: MercadoriaPerigosaWhereUniqueInput
+  }
+
+  /**
+   * MercadoriaPerigosa findFirst
+   */
+  export type MercadoriaPerigosaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+    /**
+     * Filter, which MercadoriaPerigosa to fetch.
+     */
+    where?: MercadoriaPerigosaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MercadoriaPerigosas to fetch.
+     */
+    orderBy?: MercadoriaPerigosaOrderByWithRelationInput | MercadoriaPerigosaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MercadoriaPerigosas.
+     */
+    cursor?: MercadoriaPerigosaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MercadoriaPerigosas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MercadoriaPerigosas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MercadoriaPerigosas.
+     */
+    distinct?: MercadoriaPerigosaScalarFieldEnum | MercadoriaPerigosaScalarFieldEnum[]
+  }
+
+  /**
+   * MercadoriaPerigosa findFirstOrThrow
+   */
+  export type MercadoriaPerigosaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+    /**
+     * Filter, which MercadoriaPerigosa to fetch.
+     */
+    where?: MercadoriaPerigosaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MercadoriaPerigosas to fetch.
+     */
+    orderBy?: MercadoriaPerigosaOrderByWithRelationInput | MercadoriaPerigosaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MercadoriaPerigosas.
+     */
+    cursor?: MercadoriaPerigosaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MercadoriaPerigosas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MercadoriaPerigosas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MercadoriaPerigosas.
+     */
+    distinct?: MercadoriaPerigosaScalarFieldEnum | MercadoriaPerigosaScalarFieldEnum[]
+  }
+
+  /**
+   * MercadoriaPerigosa findMany
+   */
+  export type MercadoriaPerigosaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+    /**
+     * Filter, which MercadoriaPerigosas to fetch.
+     */
+    where?: MercadoriaPerigosaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MercadoriaPerigosas to fetch.
+     */
+    orderBy?: MercadoriaPerigosaOrderByWithRelationInput | MercadoriaPerigosaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MercadoriaPerigosas.
+     */
+    cursor?: MercadoriaPerigosaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MercadoriaPerigosas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MercadoriaPerigosas.
+     */
+    skip?: number
+    distinct?: MercadoriaPerigosaScalarFieldEnum | MercadoriaPerigosaScalarFieldEnum[]
+  }
+
+  /**
+   * MercadoriaPerigosa create
+   */
+  export type MercadoriaPerigosaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+    /**
+     * The data needed to create a MercadoriaPerigosa.
+     */
+    data: XOR<MercadoriaPerigosaCreateInput, MercadoriaPerigosaUncheckedCreateInput>
+  }
+
+  /**
+   * MercadoriaPerigosa createMany
+   */
+  export type MercadoriaPerigosaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MercadoriaPerigosas.
+     */
+    data: MercadoriaPerigosaCreateManyInput | MercadoriaPerigosaCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MercadoriaPerigosa createManyAndReturn
+   */
+  export type MercadoriaPerigosaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many MercadoriaPerigosas.
+     */
+    data: MercadoriaPerigosaCreateManyInput | MercadoriaPerigosaCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MercadoriaPerigosa update
+   */
+  export type MercadoriaPerigosaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+    /**
+     * The data needed to update a MercadoriaPerigosa.
+     */
+    data: XOR<MercadoriaPerigosaUpdateInput, MercadoriaPerigosaUncheckedUpdateInput>
+    /**
+     * Choose, which MercadoriaPerigosa to update.
+     */
+    where: MercadoriaPerigosaWhereUniqueInput
+  }
+
+  /**
+   * MercadoriaPerigosa updateMany
+   */
+  export type MercadoriaPerigosaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MercadoriaPerigosas.
+     */
+    data: XOR<MercadoriaPerigosaUpdateManyMutationInput, MercadoriaPerigosaUncheckedUpdateManyInput>
+    /**
+     * Filter which MercadoriaPerigosas to update
+     */
+    where?: MercadoriaPerigosaWhereInput
+  }
+
+  /**
+   * MercadoriaPerigosa upsert
+   */
+  export type MercadoriaPerigosaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+    /**
+     * The filter to search for the MercadoriaPerigosa to update in case it exists.
+     */
+    where: MercadoriaPerigosaWhereUniqueInput
+    /**
+     * In case the MercadoriaPerigosa found by the `where` argument doesn't exist, create a new MercadoriaPerigosa with this data.
+     */
+    create: XOR<MercadoriaPerigosaCreateInput, MercadoriaPerigosaUncheckedCreateInput>
+    /**
+     * In case the MercadoriaPerigosa was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MercadoriaPerigosaUpdateInput, MercadoriaPerigosaUncheckedUpdateInput>
+  }
+
+  /**
+   * MercadoriaPerigosa delete
+   */
+  export type MercadoriaPerigosaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+    /**
+     * Filter which MercadoriaPerigosa to delete.
+     */
+    where: MercadoriaPerigosaWhereUniqueInput
+  }
+
+  /**
+   * MercadoriaPerigosa deleteMany
+   */
+  export type MercadoriaPerigosaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MercadoriaPerigosas to delete
+     */
+    where?: MercadoriaPerigosaWhereInput
+  }
+
+  /**
+   * MercadoriaPerigosa without action
+   */
+  export type MercadoriaPerigosaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MercadoriaPerigosa
+     */
+    select?: MercadoriaPerigosaSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Model TaxaOrigemDestino
    */
 
@@ -20185,6 +21243,22 @@ export namespace Prisma {
   export type AeroportoScalarFieldEnum = (typeof AeroportoScalarFieldEnum)[keyof typeof AeroportoScalarFieldEnum]
 
 
+  export const MercadoriaPerigosaScalarFieldEnum: {
+    id_mercadoria_perigosa: 'id_mercadoria_perigosa',
+    numero_onu_mercadoria_perigosa: 'numero_onu_mercadoria_perigosa',
+    nome_tecnico_embarque_mercadoria_perigosa: 'nome_tecnico_embarque_mercadoria_perigosa',
+    nome_ascii_mercadoria_perigosa: 'nome_ascii_mercadoria_perigosa',
+    nome_ingles_mercadoria_perigosa: 'nome_ingles_mercadoria_perigosa',
+    classe_mercadoria_perigosa: 'classe_mercadoria_perigosa',
+    divisao_mercadoria_perigosa: 'divisao_mercadoria_perigosa',
+    grupo_embalagem_mercadoria_perigosa: 'grupo_embalagem_mercadoria_perigosa',
+    versao_fonte_mercadoria_perigosa: 'versao_fonte_mercadoria_perigosa',
+    ativo_mercadoria_perigosa: 'ativo_mercadoria_perigosa'
+  };
+
+  export type MercadoriaPerigosaScalarFieldEnum = (typeof MercadoriaPerigosaScalarFieldEnum)[keyof typeof MercadoriaPerigosaScalarFieldEnum]
+
+
   export const TaxaOrigemDestinoScalarFieldEnum: {
     id_taxa_origem_destino: 'id_taxa_origem_destino',
     nome_taxa_origem_destino: 'nome_taxa_origem_destino',
@@ -21415,6 +22489,86 @@ export namespace Prisma {
     longitude_aeroporto?: FloatNullableWithAggregatesFilter<"Aeroporto"> | number | null
     codigo_iata_aeroporto?: StringNullableWithAggregatesFilter<"Aeroporto"> | string | null
     ativo_aeroporto?: BoolWithAggregatesFilter<"Aeroporto"> | boolean
+  }
+
+  export type MercadoriaPerigosaWhereInput = {
+    AND?: MercadoriaPerigosaWhereInput | MercadoriaPerigosaWhereInput[]
+    OR?: MercadoriaPerigosaWhereInput[]
+    NOT?: MercadoriaPerigosaWhereInput | MercadoriaPerigosaWhereInput[]
+    id_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    numero_onu_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    nome_tecnico_embarque_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    nome_ascii_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    nome_ingles_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    classe_mercadoria_perigosa?: IntFilter<"MercadoriaPerigosa"> | number
+    divisao_mercadoria_perigosa?: StringNullableFilter<"MercadoriaPerigosa"> | string | null
+    grupo_embalagem_mercadoria_perigosa?: StringNullableFilter<"MercadoriaPerigosa"> | string | null
+    versao_fonte_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    ativo_mercadoria_perigosa?: BoolFilter<"MercadoriaPerigosa"> | boolean
+  }
+
+  export type MercadoriaPerigosaOrderByWithRelationInput = {
+    id_mercadoria_perigosa?: SortOrder
+    numero_onu_mercadoria_perigosa?: SortOrder
+    nome_tecnico_embarque_mercadoria_perigosa?: SortOrder
+    nome_ascii_mercadoria_perigosa?: SortOrder
+    nome_ingles_mercadoria_perigosa?: SortOrder
+    classe_mercadoria_perigosa?: SortOrder
+    divisao_mercadoria_perigosa?: SortOrderInput | SortOrder
+    grupo_embalagem_mercadoria_perigosa?: SortOrderInput | SortOrder
+    versao_fonte_mercadoria_perigosa?: SortOrder
+    ativo_mercadoria_perigosa?: SortOrder
+  }
+
+  export type MercadoriaPerigosaWhereUniqueInput = Prisma.AtLeast<{
+    id_mercadoria_perigosa?: string
+    numero_onu_mercadoria_perigosa_nome_ascii_mercadoria_perigosa_grupo_embalagem_mercadoria_perigosa?: MercadoriaPerigosaNumero_onu_mercadoria_perigosaNome_ascii_mercadoria_perigosaGrupo_embalagem_mercadoria_perigosaCompoundUniqueInput
+    AND?: MercadoriaPerigosaWhereInput | MercadoriaPerigosaWhereInput[]
+    OR?: MercadoriaPerigosaWhereInput[]
+    NOT?: MercadoriaPerigosaWhereInput | MercadoriaPerigosaWhereInput[]
+    numero_onu_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    nome_tecnico_embarque_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    nome_ascii_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    nome_ingles_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    classe_mercadoria_perigosa?: IntFilter<"MercadoriaPerigosa"> | number
+    divisao_mercadoria_perigosa?: StringNullableFilter<"MercadoriaPerigosa"> | string | null
+    grupo_embalagem_mercadoria_perigosa?: StringNullableFilter<"MercadoriaPerigosa"> | string | null
+    versao_fonte_mercadoria_perigosa?: StringFilter<"MercadoriaPerigosa"> | string
+    ativo_mercadoria_perigosa?: BoolFilter<"MercadoriaPerigosa"> | boolean
+  }, "id_mercadoria_perigosa" | "numero_onu_mercadoria_perigosa_nome_ascii_mercadoria_perigosa_grupo_embalagem_mercadoria_perigosa">
+
+  export type MercadoriaPerigosaOrderByWithAggregationInput = {
+    id_mercadoria_perigosa?: SortOrder
+    numero_onu_mercadoria_perigosa?: SortOrder
+    nome_tecnico_embarque_mercadoria_perigosa?: SortOrder
+    nome_ascii_mercadoria_perigosa?: SortOrder
+    nome_ingles_mercadoria_perigosa?: SortOrder
+    classe_mercadoria_perigosa?: SortOrder
+    divisao_mercadoria_perigosa?: SortOrderInput | SortOrder
+    grupo_embalagem_mercadoria_perigosa?: SortOrderInput | SortOrder
+    versao_fonte_mercadoria_perigosa?: SortOrder
+    ativo_mercadoria_perigosa?: SortOrder
+    _count?: MercadoriaPerigosaCountOrderByAggregateInput
+    _avg?: MercadoriaPerigosaAvgOrderByAggregateInput
+    _max?: MercadoriaPerigosaMaxOrderByAggregateInput
+    _min?: MercadoriaPerigosaMinOrderByAggregateInput
+    _sum?: MercadoriaPerigosaSumOrderByAggregateInput
+  }
+
+  export type MercadoriaPerigosaScalarWhereWithAggregatesInput = {
+    AND?: MercadoriaPerigosaScalarWhereWithAggregatesInput | MercadoriaPerigosaScalarWhereWithAggregatesInput[]
+    OR?: MercadoriaPerigosaScalarWhereWithAggregatesInput[]
+    NOT?: MercadoriaPerigosaScalarWhereWithAggregatesInput | MercadoriaPerigosaScalarWhereWithAggregatesInput[]
+    id_mercadoria_perigosa?: StringWithAggregatesFilter<"MercadoriaPerigosa"> | string
+    numero_onu_mercadoria_perigosa?: StringWithAggregatesFilter<"MercadoriaPerigosa"> | string
+    nome_tecnico_embarque_mercadoria_perigosa?: StringWithAggregatesFilter<"MercadoriaPerigosa"> | string
+    nome_ascii_mercadoria_perigosa?: StringWithAggregatesFilter<"MercadoriaPerigosa"> | string
+    nome_ingles_mercadoria_perigosa?: StringWithAggregatesFilter<"MercadoriaPerigosa"> | string
+    classe_mercadoria_perigosa?: IntWithAggregatesFilter<"MercadoriaPerigosa"> | number
+    divisao_mercadoria_perigosa?: StringNullableWithAggregatesFilter<"MercadoriaPerigosa"> | string | null
+    grupo_embalagem_mercadoria_perigosa?: StringNullableWithAggregatesFilter<"MercadoriaPerigosa"> | string | null
+    versao_fonte_mercadoria_perigosa?: StringWithAggregatesFilter<"MercadoriaPerigosa"> | string
+    ativo_mercadoria_perigosa?: BoolWithAggregatesFilter<"MercadoriaPerigosa"> | boolean
   }
 
   export type TaxaOrigemDestinoWhereInput = {
@@ -23135,6 +24289,97 @@ export namespace Prisma {
     ativo_aeroporto?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type MercadoriaPerigosaCreateInput = {
+    id_mercadoria_perigosa?: string
+    numero_onu_mercadoria_perigosa: string
+    nome_tecnico_embarque_mercadoria_perigosa: string
+    nome_ascii_mercadoria_perigosa: string
+    nome_ingles_mercadoria_perigosa: string
+    classe_mercadoria_perigosa: number
+    divisao_mercadoria_perigosa?: string | null
+    grupo_embalagem_mercadoria_perigosa?: string | null
+    versao_fonte_mercadoria_perigosa: string
+    ativo_mercadoria_perigosa?: boolean
+  }
+
+  export type MercadoriaPerigosaUncheckedCreateInput = {
+    id_mercadoria_perigosa?: string
+    numero_onu_mercadoria_perigosa: string
+    nome_tecnico_embarque_mercadoria_perigosa: string
+    nome_ascii_mercadoria_perigosa: string
+    nome_ingles_mercadoria_perigosa: string
+    classe_mercadoria_perigosa: number
+    divisao_mercadoria_perigosa?: string | null
+    grupo_embalagem_mercadoria_perigosa?: string | null
+    versao_fonte_mercadoria_perigosa: string
+    ativo_mercadoria_perigosa?: boolean
+  }
+
+  export type MercadoriaPerigosaUpdateInput = {
+    id_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    numero_onu_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_tecnico_embarque_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_ascii_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_ingles_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    classe_mercadoria_perigosa?: IntFieldUpdateOperationsInput | number
+    divisao_mercadoria_perigosa?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_embalagem_mercadoria_perigosa?: NullableStringFieldUpdateOperationsInput | string | null
+    versao_fonte_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    ativo_mercadoria_perigosa?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type MercadoriaPerigosaUncheckedUpdateInput = {
+    id_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    numero_onu_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_tecnico_embarque_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_ascii_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_ingles_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    classe_mercadoria_perigosa?: IntFieldUpdateOperationsInput | number
+    divisao_mercadoria_perigosa?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_embalagem_mercadoria_perigosa?: NullableStringFieldUpdateOperationsInput | string | null
+    versao_fonte_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    ativo_mercadoria_perigosa?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type MercadoriaPerigosaCreateManyInput = {
+    id_mercadoria_perigosa?: string
+    numero_onu_mercadoria_perigosa: string
+    nome_tecnico_embarque_mercadoria_perigosa: string
+    nome_ascii_mercadoria_perigosa: string
+    nome_ingles_mercadoria_perigosa: string
+    classe_mercadoria_perigosa: number
+    divisao_mercadoria_perigosa?: string | null
+    grupo_embalagem_mercadoria_perigosa?: string | null
+    versao_fonte_mercadoria_perigosa: string
+    ativo_mercadoria_perigosa?: boolean
+  }
+
+  export type MercadoriaPerigosaUpdateManyMutationInput = {
+    id_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    numero_onu_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_tecnico_embarque_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_ascii_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_ingles_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    classe_mercadoria_perigosa?: IntFieldUpdateOperationsInput | number
+    divisao_mercadoria_perigosa?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_embalagem_mercadoria_perigosa?: NullableStringFieldUpdateOperationsInput | string | null
+    versao_fonte_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    ativo_mercadoria_perigosa?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type MercadoriaPerigosaUncheckedUpdateManyInput = {
+    id_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    numero_onu_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_tecnico_embarque_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_ascii_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    nome_ingles_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    classe_mercadoria_perigosa?: IntFieldUpdateOperationsInput | number
+    divisao_mercadoria_perigosa?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_embalagem_mercadoria_perigosa?: NullableStringFieldUpdateOperationsInput | string | null
+    versao_fonte_mercadoria_perigosa?: StringFieldUpdateOperationsInput | string
+    ativo_mercadoria_perigosa?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type TaxaOrigemDestinoCreateInput = {
     id_taxa_origem_destino?: string
     nome_taxa_origem_destino: string
@@ -24618,6 +25863,59 @@ export namespace Prisma {
     longitude_aeroporto?: SortOrder
   }
 
+  export type MercadoriaPerigosaNumero_onu_mercadoria_perigosaNome_ascii_mercadoria_perigosaGrupo_embalagem_mercadoria_perigosaCompoundUniqueInput = {
+    numero_onu_mercadoria_perigosa: string
+    nome_ascii_mercadoria_perigosa: string
+    grupo_embalagem_mercadoria_perigosa: string
+  }
+
+  export type MercadoriaPerigosaCountOrderByAggregateInput = {
+    id_mercadoria_perigosa?: SortOrder
+    numero_onu_mercadoria_perigosa?: SortOrder
+    nome_tecnico_embarque_mercadoria_perigosa?: SortOrder
+    nome_ascii_mercadoria_perigosa?: SortOrder
+    nome_ingles_mercadoria_perigosa?: SortOrder
+    classe_mercadoria_perigosa?: SortOrder
+    divisao_mercadoria_perigosa?: SortOrder
+    grupo_embalagem_mercadoria_perigosa?: SortOrder
+    versao_fonte_mercadoria_perigosa?: SortOrder
+    ativo_mercadoria_perigosa?: SortOrder
+  }
+
+  export type MercadoriaPerigosaAvgOrderByAggregateInput = {
+    classe_mercadoria_perigosa?: SortOrder
+  }
+
+  export type MercadoriaPerigosaMaxOrderByAggregateInput = {
+    id_mercadoria_perigosa?: SortOrder
+    numero_onu_mercadoria_perigosa?: SortOrder
+    nome_tecnico_embarque_mercadoria_perigosa?: SortOrder
+    nome_ascii_mercadoria_perigosa?: SortOrder
+    nome_ingles_mercadoria_perigosa?: SortOrder
+    classe_mercadoria_perigosa?: SortOrder
+    divisao_mercadoria_perigosa?: SortOrder
+    grupo_embalagem_mercadoria_perigosa?: SortOrder
+    versao_fonte_mercadoria_perigosa?: SortOrder
+    ativo_mercadoria_perigosa?: SortOrder
+  }
+
+  export type MercadoriaPerigosaMinOrderByAggregateInput = {
+    id_mercadoria_perigosa?: SortOrder
+    numero_onu_mercadoria_perigosa?: SortOrder
+    nome_tecnico_embarque_mercadoria_perigosa?: SortOrder
+    nome_ascii_mercadoria_perigosa?: SortOrder
+    nome_ingles_mercadoria_perigosa?: SortOrder
+    classe_mercadoria_perigosa?: SortOrder
+    divisao_mercadoria_perigosa?: SortOrder
+    grupo_embalagem_mercadoria_perigosa?: SortOrder
+    versao_fonte_mercadoria_perigosa?: SortOrder
+    ativo_mercadoria_perigosa?: SortOrder
+  }
+
+  export type MercadoriaPerigosaSumOrderByAggregateInput = {
+    classe_mercadoria_perigosa?: SortOrder
+  }
+
   export type TaxaOrigemDestinoCountOrderByAggregateInput = {
     id_taxa_origem_destino?: SortOrder
     nome_taxa_origem_destino?: SortOrder
@@ -25808,6 +27106,10 @@ export namespace Prisma {
      * @deprecated Use AeroportoDefaultArgs instead
      */
     export type AeroportoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AeroportoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use MercadoriaPerigosaDefaultArgs instead
+     */
+    export type MercadoriaPerigosaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MercadoriaPerigosaDefaultArgs<ExtArgs>
     /**
      * @deprecated Use TaxaOrigemDestinoDefaultArgs instead
      */

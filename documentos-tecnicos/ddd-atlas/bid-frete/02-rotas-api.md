@@ -52,6 +52,7 @@ Convencoes de rota DDD:
 | 24 | POST | `/api/v1/bid-frete/portal/public/:token/responder` | `/api/v1/bid-frete-internacional/visao-fornecedor-bid-frete-internacional/publico/:token_resposta_disparo_cotacao_bid_frete_internacional/responder` | Visao Fornecedor Publico | `visao-fornecedor-bid-frete-internacional-publico.ts` | Enviar proposta via link publico |
 | 25 | GET | `/api/v1/bid-frete/master-data/portos` | `/api/v1/bid-frete-internacional/dados-mestre/portos` | Dados Mestre | `portos.ts` | Lista de portos/aeroportos |
 | 26 | GET | `/api/v1/bid-frete/master-data/moedas` | `/api/v1/bid-frete-internacional/dados-mestre/moedas` | Dados Mestre | `moedas.ts` | Lista de moedas disponiveis |
+| 27 | GET | — | `/api/v1/bid-frete-internacional/dados-mestre/mercadorias-perigosas` | Dados Mestre | `mercadorias-perigosas.ts` | Catálogo ONU (proxy Cadastros) — ver CARGA-PERIGOSA-TECNICO.md |
 
 ---
 

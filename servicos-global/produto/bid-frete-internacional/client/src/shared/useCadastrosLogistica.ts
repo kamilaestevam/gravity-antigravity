@@ -8,6 +8,8 @@ import {
   type ContainerCadastro,
   type PaisCadastro,
   type PortoCadastro,
+  type MercadoriaPerigosaCadastro,
+  rotuloMercadoriaPerigosaCadastro,
   type TaxaOrigemDestinoCadastro,
   type TipoTaxaOrigemDestino,
 } from './cadastrosApi'
@@ -215,4 +217,46 @@ export function useTaxasOrigemDestinoCadastros(tipo?: TipoTaxaOrigemDestino, ati
   [taxas])
 
   return { taxas, opcoes, carregando, erro }
+}
+
+export function useMercadoriasPerigosasCadastros(ativo = true) {
+  const [mercadorias, setMercadorias] = useState<MercadoriaPerigosaCadastro[]>([])
+  const [carregando, setCarregando] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!ativo) {
+      setMercadorias([])
+      return
+    }
+    let cancelado = false
+    setCarregando(true)
+    setErro(null)
+    cadastrosApi
+      .listarMercadoriasPerigosas({ limit: 500 })
+      .then((resp) => {
+        if (!cancelado) setMercadorias(resp.itens)
+      })
+      .catch((e: unknown) => {
+        if (!cancelado) {
+          setMercadorias([])
+          setErro(e instanceof Error ? e.message : 'Erro ao carregar mercadorias perigosas')
+        }
+      })
+      .finally(() => {
+        if (!cancelado) setCarregando(false)
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [ativo])
+
+  const opcoes = useMemo((): SelectOpcao[] =>
+    mercadorias.map((m) => ({
+      valor: m.id_mercadoria_perigosa,
+      rotulo: rotuloMercadoriaPerigosaCadastro(m),
+    })),
+  [mercadorias])
+
+  return { mercadorias, opcoes, carregando, erro }
 }

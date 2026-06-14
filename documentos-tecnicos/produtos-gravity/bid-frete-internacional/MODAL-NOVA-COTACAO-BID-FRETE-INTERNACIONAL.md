@@ -18,15 +18,17 @@
 **Rota frontend:** `/produto/bid-frete-internacional/cotacoes/nova`  
 **Shell:** `ModalPassoPassoGlobal` (`@nucleo/modal-passo-passo-global`)
 
+**Carga perigosa (DG):** ver [CARGA-PERIGOSA-TECNICO.md](./CARGA-PERIGOSA-TECNICO.md) — passo 1 (toggle) + passo 3 (combo ONU).
+
 ---
 
 ## 2. Wizard — 5 passos
 
 | # | Passo | Conteúdo principal |
 |---|-------|-------------------|
-| 1 | Modal e Operação | Tipo operação, modal frete, modalidade |
-| 2 | Origem e Destino | Porto/aeroporto, país, endereço extra quando aplicável |
-| 3 | Carga e Incoterm | Mercadoria, NCM, containers/volumes, incoterm + helper card |
+| 1 | Modal e Operação | Tipo operação, modal frete, modalidade, **toggle Carga perigosa** |
+| 2 | Origem e Destino | Porto/aeroporto/rodoviário por modal — ver [ROTA-COTACAO-POR-MODAL-TECNICO.md](./ROTA-COTACAO-POR-MODAL-TECNICO.md) |
+| 3 | Carga e Incoterm | Mercadoria, NCM, **classificação ONU (se DG)**, containers/volumes, incoterm + helper card |
 | 4 | **Fornecedores** | Prazo, visibilidade, anônima, canais, seleção/disparo — **este documento detalha** |
 | 5 | Resumo | Valor alvo, moeda, receipt visual da rota |
 

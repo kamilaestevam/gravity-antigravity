@@ -277,6 +277,19 @@ exports.Prisma.AeroportoScalarFieldEnum = {
   ativo_aeroporto: 'ativo_aeroporto'
 };
 
+exports.Prisma.MercadoriaPerigosaScalarFieldEnum = {
+  id_mercadoria_perigosa: 'id_mercadoria_perigosa',
+  numero_onu_mercadoria_perigosa: 'numero_onu_mercadoria_perigosa',
+  nome_tecnico_embarque_mercadoria_perigosa: 'nome_tecnico_embarque_mercadoria_perigosa',
+  nome_ascii_mercadoria_perigosa: 'nome_ascii_mercadoria_perigosa',
+  nome_ingles_mercadoria_perigosa: 'nome_ingles_mercadoria_perigosa',
+  classe_mercadoria_perigosa: 'classe_mercadoria_perigosa',
+  divisao_mercadoria_perigosa: 'divisao_mercadoria_perigosa',
+  grupo_embalagem_mercadoria_perigosa: 'grupo_embalagem_mercadoria_perigosa',
+  versao_fonte_mercadoria_perigosa: 'versao_fonte_mercadoria_perigosa',
+  ativo_mercadoria_perigosa: 'ativo_mercadoria_perigosa'
+};
+
 exports.Prisma.TaxaOrigemDestinoScalarFieldEnum = {
   id_taxa_origem_destino: 'id_taxa_origem_destino',
   nome_taxa_origem_destino: 'nome_taxa_origem_destino',
@@ -460,6 +473,7 @@ exports.Prisma.ModelName = {
   CambioSiscomex: 'CambioSiscomex',
   Porto: 'Porto',
   Aeroporto: 'Aeroporto',
+  MercadoriaPerigosa: 'MercadoriaPerigosa',
   TaxaOrigemDestino: 'TaxaOrigemDestino',
   Volume: 'Volume',
   Container: 'Container',

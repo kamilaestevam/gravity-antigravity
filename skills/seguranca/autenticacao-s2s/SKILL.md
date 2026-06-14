@@ -308,6 +308,17 @@ Catálogo dos endpoints que produtos chamam para validações de autorização. 
 | `GET /api/v1/internal/usuarios/:id/workspaces-habilitados?id_organizacao=X` | `obterWorkspacesHabilitadosDoUsuario` | Listas multi-workspace — quais workspaces o usuário pode acessar | `{ tipo_usuario, workspaces_habilitados: string[] }` |
 | `GET /api/v1/internal/workspaces?ids=a,b,c` | `obterWorkspaces` (batch lookup) | Snapshot de nome+CNPJ de workspaces para produtos | `{ workspaces: [{ id, nome, cnpj, id_organizacao }] }` |
 
+### ⚠️ Anti-padrão — NUNCA chamar endpoint S2S interno a partir do browser
+
+Endpoints `/api/v1/internal/*` exigem `x-chave-interna-servico` e são **serviço-a-serviço puro** — só backend chama backend. **É proibido o frontend (Shell, client de produto) chamar essas rotas**, porque:
+
+1. **Credencial vaza no bundle:** qualquer valor lido via `import.meta.env.VITE_*` é **embutido no JavaScript público**. Mandar a chave interna do browser = publicar o segredo S2S (qualquer um abre o "ver código-fonte" e lê).
+2. **IDOR por query param:** essas rotas recebem `id_organizacao`/`idOrganizacao` na URL e confiam nele. Do browser, um usuário troca o ID e lê dados de **outra** organização. A organização de uma chamada de frontend deve **sempre** ser derivada do JWT do usuário no servidor, nunca aceita por query param.
+
+**Correto:** o frontend chama uma rota **user-authenticated** (`requireAuth` + JWT do Clerk, igual `/api/v1/me`), e o **servidor** deriva a organização do token. Se o produto precisa do dado de uma rota interna, é o **backend do produto** que faz a chamada S2S (com a chave em variável de ambiente de servidor), nunca o client.
+
+> **Incidente de referência (PR #309, 2026-06-14):** o hook `servicos-global/shell/hooks/useLoadAllowedProducts.ts` chamava `GET /api/v1/internal/organizacao-produtos` direto do browser, com `VITE_CHAVE_INTERNA_SERVICO` no header e `idOrganizacao` por query param — chave exposta + IDOR. Ver `documentos-tecnicos/seguranca/chave-interna-s2s-no-browser-pr309.md`.
+
 ### Padrão de uso (`obterWorkspacesHabilitadosDoUsuario`)
 
 ```typescript

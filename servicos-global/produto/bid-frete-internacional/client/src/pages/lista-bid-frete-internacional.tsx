@@ -219,6 +219,11 @@ export default function Cotacoes() {
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
 
+  const idsEscopoAssinatura = useMemo(
+    () => idsWorkspacesEscopo.join('\0'),
+    [idsWorkspacesEscopo],
+  )
+
   const idsWorkspacesFiltro = useMemo(
     () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
     [idsWorkspacesEscopo, idWorkspaceAtivo],
@@ -515,10 +520,13 @@ export default function Cotacoes() {
     }
   }, [idsWorkspacesFiltro])
 
+  const carregarRef = useRef(carregar)
+  carregarRef.current = carregar
+
   useEffect(() => {
     if (meStatus !== 'success' || !currentUser.id || !currentUser.idOrganizacao || !escopoHidratado) return
-    void carregar()
-  }, [carregar, meStatus, currentUser.id, currentUser.idOrganizacao, escopoHidratado, idsWorkspacesEscopo])
+    void carregarRef.current()
+  }, [meStatus, currentUser.id, currentUser.idOrganizacao, escopoHidratado, idsEscopoAssinatura])
 
   // ─── Ações em lote: Duplicar e Excluir ───
 

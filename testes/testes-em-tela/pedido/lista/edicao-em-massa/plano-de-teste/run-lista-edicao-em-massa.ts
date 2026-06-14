@@ -1,6 +1,6 @@
 /**
  * Teste em tela — Lista Pedido: EDIÇÃO EM MASSA (campo a campo via SSOT)
- * Plano: TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081
+ * Plano: TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112
  *
  * Data-driven: itera CAMPOS_EDICAO_MASSA_PEDIDO/ITEM do SSOT `camposEdicaoMassa.ts`,
  * portanto novos campos do DDD entram no teste automaticamente (zero drift).
@@ -22,6 +22,7 @@ import {
   CAMPOS_BLOQUEADOS_ITEM,
 } from '../../../../../../servicos-global/produto/pedido/shared/camposEdicaoMassa.js'
 import { NUMERACAO, fmtPasso, slugCampo } from './numeracao-passos-edicao-em-massa.js'
+import { createRequire } from 'node:module'
 
 const __dirRoot = dirname(fileURLToPath(import.meta.url))
 const FEATURE_ROOT = resolverFeatureRootEmt(__dirRoot)
@@ -64,7 +65,19 @@ const LABEL_NIVEL: Record<NivelModal, string> = {
 
 type CampoMassa = (typeof CAMPOS_EDICAO_MASSA_PEDIDO)[number]
 
-// Numeração global de passos — SSOT compartilhado com o gerador do plano .md
+// O modal traduz rótulos via i18n (`pedido.massa_campos.<campo>`, fallback no
+// rótulo ASCII do SSOT). O runner replica a mesma regra para casar com a UI.
+const _require = createRequire(import.meta.url)
+const _ptLocale = _require(resolve(REPO_ROOT, 'nucleo-global/Utilidades/Localization/locales/pt.json')) as {
+  pedido?: { massa_campos?: Record<string, string> }
+}
+const MASSA_CAMPOS_PT: Record<string, string> = _ptLocale.pedido?.massa_campos ?? {}
+function rotuloUiDeCampo(campo: Pick<CampoMassa, 'campo' | 'rotulo'>): string {
+  return MASSA_CAMPOS_PT[campo.campo] ?? campo.rotulo
+}
+
+// Campos com visibilidade condicional por tipo de operação (mesma regra do modal).
+const CAMPOS_VISIBILIDADE_CONDICIONAL_RUNNER = new Set(['nome_exportador', 'nome_importador'])
 // (prints `NNN-<slug>-selecao/resultado.png` idênticos nos dois lados).
 const PASSO_COMBINADO = NUMERACAO.PASSO_COMBINADO
 const PASSO_COLUNAS_USUARIO = NUMERACAO.PASSO_COLUNAS_USUARIO
@@ -99,6 +112,26 @@ function logAprovado(sublocal: string, acao: string) {
 }
 function falharTabela(sublocal: string, acao: string) {
   falhar(emtRow(sublocal, acao, 'Reprovado'))
+}
+
+/** Clique com retry + force — overlays portaled interceptam cliques normais. */
+async function clickSeguro(
+  locator: Locator,
+  opts?: { force?: boolean; timeout?: number; tentativas?: number },
+): Promise<void> {
+  const { force = true, timeout = 15000, tentativas = 3 } = opts ?? {}
+  const page = locator.page()
+  for (let t = 0; t < tentativas; t++) {
+    try {
+      await fecharOverlaysPortaled(page)
+      await locator.scrollIntoViewIfNeeded().catch(() => {})
+      await locator.click({ force, timeout })
+      return
+    } catch (e) {
+      if (t === tentativas - 1) throw e
+      await page.waitForTimeout(400)
+    }
+  }
 }
 
 async function screenshot(page: Page, nome: string) {
@@ -213,7 +246,22 @@ async function entrarNoWorkspace(page: Page): Promise<void> {
 
 async function aguardarListaCarregada(page: Page): Promise<void> {
   await page.locator('.gtv-loader-wrapper[aria-busy="true"]').waitFor({ state: 'hidden', timeout: 120000 }).catch(() => {})
-  await page.locator('.gtv-linha--pai').first().waitFor({ state: 'visible', timeout: 60000 })
+  const visivel = await page.locator('.gtv-linha--pai').first().isVisible({ timeout: 60000 }).catch(() => false)
+  if (!visivel) {
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {})
+    await page.waitForLoadState('networkidle').catch(() => {})
+    await page.locator('.gtv-linha--pai').first().waitFor({ state: 'visible', timeout: 60000 })
+  }
+}
+
+/** Recupera a lista após falha (modal preso, app recarregou, seleção perdida). */
+async function recuperarListaAposFalha(page: Page, rowId?: string): Promise<void> {
+  await fecharModalSeAberto(page)
+  await limparSelecao(page).catch(() => {})
+  await page.goto(LISTA_URL, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {})
+  await page.waitForLoadState('networkidle').catch(() => {})
+  await aguardarListaCarregada(page).catch(() => {})
+  if (rowId) await garantirLinhaMontada(page, rowId).catch(() => {})
 }
 
 async function garantirListaPedidos(page: Page): Promise<void> {
@@ -235,6 +283,26 @@ function linhaPai(page: Page, rowId: string): Locator {
   return page.locator(`.gtv-linha--pai:has([data-gtv-rowid="${rowId}"])`).first()
 }
 
+/**
+ * A tabela é virtualizada (useGTJanelaVirtual): linhas fora da janela de
+ * scroll são desmontadas do DOM. Antes de interagir com uma linha, varre o
+ * container `.gtv-tabela-scroll` do topo ao fim até a linha montar.
+ */
+async function garantirLinhaMontada(page: Page, rowId: string): Promise<boolean> {
+  const existe = async () => (await page.locator(`[data-gtv-rowid="${rowId}"]`).count()) > 0
+  if (await existe()) return true
+  const passos = 30
+  for (let i = 0; i <= passos; i++) {
+    await page.evaluate((frac) => {
+      const el = document.querySelector('.gtv-tabela-scroll')
+      if (el) el.scrollTop = Math.max(0, (el.scrollHeight - el.clientHeight) * frac)
+    }, i / passos)
+    await page.waitForTimeout(120)
+    if (await existe()) return true
+  }
+  return false
+}
+
 async function listarRowIdsPedidos(page: Page): Promise<string[]> {
   return page.evaluate(() => {
     const cels = Array.from(document.querySelectorAll('.gtv-linha--pai [data-gtv-campo="numero_pedido"][data-gtv-rowid]'))
@@ -242,7 +310,8 @@ async function listarRowIdsPedidos(page: Page): Promise<string[]> {
   })
 }
 
-async function expandirPedidoRetornaQtd(page: Page, rowId: string): Promise<number> {
+async function expandirPedidoRetornaQtd(page: Page, rowId: string, recolherDepois = false): Promise<number> {
+  await garantirLinhaMontada(page, rowId)
   const pai = linhaPai(page, rowId)
   const chevron = pai.locator('.gtv-chevron-btn')
   if (await chevron.count() === 0) return 0
@@ -251,7 +320,7 @@ async function expandirPedidoRetornaQtd(page: Page, rowId: string): Promise<numb
     await chevron.click()
     await page.waitForTimeout(900)
   }
-  return page.evaluate((id) => {
+  const qtd = await page.evaluate((id) => {
     const pais = Array.from(document.querySelectorAll('.gtv-linha--pai'))
     const alvo = pais.find(p => p.querySelector(`[data-gtv-rowid="${id}"]`))
     if (!alvo) return 0
@@ -263,18 +332,29 @@ async function expandirPedidoRetornaQtd(page: Page, rowId: string): Promise<numb
     }
     return qtd
   }, rowId)
+  if (recolherDepois) {
+    const chevronDepois = linhaPai(page, rowId).locator('.gtv-chevron-btn')
+    if (await chevronDepois.count() > 0) {
+      await chevronDepois.click().catch(() => {})
+      await page.waitForTimeout(400)
+    }
+  }
+  return qtd
 }
 
 async function escolherPedidoAlvo(page: Page): Promise<{ rowId: string; numero: string; qtdItens: number } | null> {
   const rowIds = await listarRowIdsPedidos(page)
   let melhor: { rowId: string; qtdItens: number } | null = null
-  const limite = Math.min(rowIds.length, 10)
+  // Limita a 5 candidatos e recolhe após medir — expansões em série desestabilizam
+  // a janela virtual (linhas desmontam fora do viewport).
+  const limite = Math.min(rowIds.length, 5)
   for (let i = 0; i < limite; i++) {
     const id = rowIds[i]
-    const qtd = await expandirPedidoRetornaQtd(page, id).catch(() => 0)
+    const qtd = await expandirPedidoRetornaQtd(page, id, true).catch(() => 0)
     if (!melhor || qtd > melhor.qtdItens) melhor = { rowId: id, qtdItens: qtd }
   }
   if (!melhor) return null
+  await garantirLinhaMontada(page, melhor.rowId)
   const numero = await page.evaluate((id) => {
     const cel = document.querySelector(`[data-gtv-campo="numero_pedido"][data-gtv-rowid="${id}"]`)
     return (cel?.textContent ?? '').trim()
@@ -283,11 +363,18 @@ async function escolherPedidoAlvo(page: Page): Promise<{ rowId: string; numero: 
 }
 
 async function selecionarPedidoCheckbox(page: Page, rowId: string): Promise<void> {
+  let achou = await garantirLinhaMontada(page, rowId)
+  if (!achou) {
+    // App pode ter recarregado (instabilidade de serviços paralelos) — aguarda
+    // a lista voltar e tenta de novo.
+    await aguardarListaCarregada(page).catch(() => {})
+    achou = await garantirLinhaMontada(page, rowId)
+  }
   const pai = linhaPai(page, rowId)
   await pai.scrollIntoViewIfNeeded().catch(() => {})
   const check = pai.locator('input.gtv-checkbox').first()
   if (!(await check.isChecked().catch(() => false))) {
-    await check.click()
+    await clickSeguro(check)
     await page.waitForTimeout(300)
   }
 }
@@ -330,7 +417,8 @@ async function abrirModalMassa(page: Page): Promise<boolean> {
 
 // ── Interações dentro do modal ───────────────────────────────────────────────
 async function definirNivel(page: Page, nivel: NivelModal): Promise<void> {
-  await page.locator('.modal-edicao-massa__nivel-btn', { hasText: new RegExp(`^${LABEL_NIVEL[nivel]}$`, 'i') }).first().click()
+  const btn = page.locator('.modal-edicao-massa__nivel-btn', { hasText: new RegExp(`^${LABEL_NIVEL[nivel]}$`, 'i') }).first()
+  await clickSeguro(btn)
   await page.waitForTimeout(300)
 }
 
@@ -338,19 +426,39 @@ function ultimaLinhaCampo(page: Page): Locator {
   return page.locator('.modal-edicao-massa__campo-linha').last()
 }
 
+/** Normaliza rótulo para comparação: sem acentos, minúsculas, espaços únicos. */
+function normalizarRotulo(s: string): string {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim()
+}
+
 async function selecionarCampoCombobox(page: Page, rotulo: string): Promise<boolean> {
+  await fecharOverlaysPortaled(page)
   const linha = ultimaLinhaCampo(page)
-  await linha.locator('.modal-edicao-massa__combobox-trigger').click()
+  await linha.locator('.modal-edicao-massa__combobox-trigger').click({ force: true, timeout: 15000 })
   const busca = page.locator('.modal-edicao-massa__combobox-busca-input')
   await busca.waitFor({ state: 'visible', timeout: 5000 })
-  await busca.fill(rotulo)
-  await page.waitForTimeout(400)
-  const opcao = page.locator('.modal-edicao-massa__combobox-item-rotulo', { hasText: rotulo }).first()
-  if (!(await opcao.isVisible({ timeout: 3000 }).catch(() => false))) {
-    await page.keyboard.press('Escape').catch(() => {})
+  await page.waitForTimeout(300)
+  // O rótulo exibido vem do i18n (acentuado); o SSOT é ASCII. Seleciona por
+  // comparação sem acento, disparando mousedown (handler do item) via DOM.
+  // Nota: sem helper nomeado dentro do evaluate — o tsx/esbuild injeta __name
+  // que não existe no contexto do navegador.
+  const ok = await page.evaluate((alvoNorm) => {
+    const itens = Array.from(document.querySelectorAll('.modal-edicao-massa__combobox-item-rotulo'))
+    const textos = itens.map(i => (i.textContent ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim())
+    let idx = textos.findIndex(t => t === alvoNorm)
+    if (idx < 0) idx = textos.findIndex(t => t.startsWith(alvoNorm))
+    if (idx < 0) idx = textos.findIndex(t => t.includes(alvoNorm))
+    if (idx < 0) return false
+    const li = itens[idx].closest('li')
+    if (!li) return false
+    li.scrollIntoView({ block: 'nearest' })
+    li.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
+    return true
+  }, normalizarRotulo(rotulo))
+  if (!ok) {
+    await fecharDropdownCombobox(page)
     return false
   }
-  await opcao.click()
   await page.waitForTimeout(300)
   return true
 }
@@ -363,46 +471,88 @@ async function listarRotulosCombobox(page: Page): Promise<{ grupos: string[]; ro
     const rotulos = Array.from(document.querySelectorAll('.modal-edicao-massa__combobox-item-rotulo')).map(r => (r.textContent ?? '').trim())
     return { grupos, rotulos }
   })
-  await page.keyboard.press('Escape').catch(() => {})
-  await page.waitForTimeout(200)
+  await fecharDropdownCombobox(page)
   return dados
 }
 
-/** Preenche o valor da última linha de campo conforme o tipo do SSOT. */
+/** Fecha só o dropdown do combobox (Escape fecharia o modal inteiro): mousedown fora. */
+async function fecharDropdownCombobox(page: Page): Promise<void> {
+  await page.locator('.em-secao-titulo').first().dispatchEvent('mousedown').catch(() => {})
+  await page.waitForTimeout(200)
+}
+
+/**
+ * Preenche o valor da última linha de campo. A detecção do controle é guiada
+ * pelo DOM (não pelo tipo do SSOT): o modal renderiza select para países,
+ * portos, moedas, incoterm etc. mesmo quando o SSOT marca como texto.
+ */
 async function preencherValor(page: Page, campo: CampoMassa, seed: number): Promise<string> {
   const linha = ultimaLinhaCampo(page)
+  await fecharOverlaysPortaled(page)
 
-  if (campo.tipo === 'select') {
-    const trigger = linha.locator('.modal-edicao-massa__select').first()
-    await trigger.click()
+  // Variante 1: SelectBuscavelValor (campos com >10 opções)
+  const buscavel = linha.locator('.modal-edicao-massa__select').first()
+  if (await buscavel.count() > 0) {
+    await clickSeguro(buscavel)
     await page.waitForTimeout(400)
     const dropdown = page.locator('.modal-edicao-massa__select-buscavel-dropdown')
     const opcoes = dropdown.locator('li, [role="option"], button').filter({ hasNotText: /^$/ })
     const total = await opcoes.count()
-    if (total === 0) {
-      // fallback: select nativo
-      const nativo = linha.locator('select').first()
-      if (await nativo.count() > 0) {
-        const valores = await nativo.locator('option').allTextContents()
-        const idx = valores.length > 1 ? 1 : 0
-        await nativo.selectOption({ index: idx })
-        return valores[idx] ?? ''
-      }
-      return ''
-    }
+    if (total === 0) return ''
     const idx = Math.min(seed % total, total - 1)
     const texto = (await opcoes.nth(idx).textContent() ?? '').trim()
-    await opcoes.nth(idx).click()
+    await clickSeguro(opcoes.nth(idx))
     await page.waitForTimeout(300)
     return texto
   }
 
+  // Calendário do sistema (tipo data + operação substituir)
+  if (await linha.locator('.modal-edicao-massa__calendario').count() > 0) {
+    const dia = ((seed + 3) % 27) + 1
+    const mes = 6 + (seed % 2) // julho ou agosto — evita colisão na 2ª aplicação
+    const valor = `2026-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`
+    return (await preencherDataCalendario(page, linha, mes, 2026, dia)) ? valor : ''
+  }
+
+  // Variante 2: SelectGlobal compacto (≤10 opções) — célula de valor é o 3º
+  // filho da linha (1=combobox campo, 2=select operação)
+  const trigger = linha.locator(':scope > :nth-child(3) .sg-campo').first()
+  if (await trigger.count() > 0) {
+    // Opções dinâmicas (status, incoterm, moeda…) podem demorar a carregar —
+    // abre o dropdown e re-tenta até listar opções (máx ~12s).
+    for (let tent = 0; tent < 12; tent++) {
+      const desabilitado = await trigger.evaluate(el => el.classList.contains('sg-campo--desabilitado')).catch(() => false)
+      if (!desabilitado) {
+        await clickSeguro(trigger)
+        await page.waitForTimeout(400)
+        const opcoesSg = page.locator('.sg-opcao')
+        const totalSg = await opcoesSg.count()
+        if (totalSg > 0) {
+          const idxSg = Math.min(seed % totalSg, totalSg - 1)
+          const textoSg = (await opcoesSg.nth(idxSg).textContent() ?? '').trim()
+          await clickSeguro(opcoesSg.nth(idxSg))
+          await page.waitForTimeout(300)
+          return textoSg
+        }
+        // Dropdown vazio — fecha e tenta de novo após o carregamento
+        await trigger.click({ force: true }).catch(() => {})
+      }
+      await page.waitForTimeout(1000)
+    }
+    return ''
+  }
+
+  // Input nativo (texto, número, NCM, data tipo dias)
   const input = linha.locator('.modal-edicao-massa__input').last()
+  if (await input.count() === 0) return ''
+  const tipoInput = await input.getAttribute('type').catch(() => 'text')
   let valor: string
-  if (campo.tipo === 'data') {
-    valor = `2026-07-${String((seed % 27) + 1).padStart(2, '0')}`
-  } else if (campo.tipo === 'numero') {
+  if (tipoInput === 'number') {
     valor = String((seed % 9) + 1)
+  } else if (tipoInput === 'date') {
+    valor = `2026-07-${String((seed % 27) + 1).padStart(2, '0')}`
+  } else if (campo.tipo === 'ncm') {
+    valor = `8471.30.${String(10 + (seed % 80)).padStart(2, '0')}`
   } else {
     valor = `EMT81 ${campo.campo.slice(0, 24)} ${seed}`
   }
@@ -411,21 +561,119 @@ async function preencherValor(page: Page, campo: CampoMassa, seed: number): Prom
   return valor
 }
 
+/**
+ * Preenche campo de data via CampoCalendarioGlobal (modoUnico) — clica no
+ * trigger, seleciona mês/ano nos selects do painel e clica no dia.
+ * Retorna false se o trigger do calendário não existir na linha.
+ */
+async function preencherDataCalendario(
+  page: Page,
+  linha: Locator,
+  mesIndice: number, // 0-based (6 = julho)
+  ano: number,
+  dia: number,
+): Promise<boolean> {
+  for (let tentativa = 0; tentativa < 2; tentativa++) {
+    if (await preencherDataCalendarioOnce(page, linha, mesIndice, ano, dia)) return true
+    await fecharOverlaysPortaled(page)
+    await page.waitForTimeout(300)
+  }
+  return false
+}
+
+async function preencherDataCalendarioOnce(
+  page: Page,
+  linha: Locator,
+  mesIndice: number,
+  ano: number,
+  dia: number,
+): Promise<boolean> {
+  await fecharOverlaysPortaled(page)
+  const trigger = linha.locator('.modal-edicao-massa__calendario .sg-campo').first()
+  if (await trigger.count() === 0) return false
+  await trigger.scrollIntoViewIfNeeded().catch(() => {})
+  await clickSeguro(trigger)
+  const painel = page.locator('.ws-calendario-panel').last()
+  if (!(await painel.isVisible({ timeout: 8000 }).catch(() => false))) return false
+
+  const MESES_PT = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+  const selects = painel.locator('.ws-calendario-selectors .sg-campo')
+
+  async function selecionarNoSelect(indice: number, texto: RegExp): Promise<void> {
+    await fecharOverlaysPortaled(page)
+    if (!(await painel.isVisible({ timeout: 2000 }).catch(() => false))) {
+      await clickSeguro(trigger, { tentativas: 2 }).catch(() => {})
+      await painel.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {})
+    }
+    await clickSeguro(selects.nth(indice), { tentativas: 2 })
+    const opcao = page.locator('.sg-opcao').filter({ hasText: texto }).first()
+    if (await opcao.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await clickSeguro(opcao, { tentativas: 2 })
+    }
+    await fecharOverlaysPortaled(page)
+    await page.waitForTimeout(150)
+  }
+
+  await selecionarNoSelect(0, new RegExp(`^${MESES_PT[mesIndice]}$`, 'i'))
+  await selecionarNoSelect(1, new RegExp(`^${ano}$`))
+
+  const celulaDia = painel.locator('.ws-calendario-cell:not(.muted)')
+    .filter({ hasText: new RegExp(`^${dia}$`) })
+    .first()
+  await clickSeguro(celulaDia, { tentativas: 2 })
+  await painel.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {})
+  await fecharOverlaysPortaled(page)
+  await page.waitForTimeout(200)
+  return true
+}
+
+/** Fecha painéis portaled (calendário, selects) que interceptam cliques no modal. */
+async function fecharOverlaysPortaled(page: Page): Promise<void> {
+  const titulo = page.locator('.em-secao-titulo').first()
+  const painel = page.locator('.ws-calendario-panel')
+  if (await painel.isVisible({ timeout: 300 }).catch(() => false)) {
+    await titulo.click({ force: true }).catch(() => {})
+    await painel.waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {})
+  }
+  if (await page.locator('.sg-opcao').first().isVisible({ timeout: 200 }).catch(() => false)) {
+    await titulo.dispatchEvent('mousedown').catch(() => {})
+    await page.waitForTimeout(150)
+  }
+  if (await page.locator('.modal-edicao-massa__select-buscavel-dropdown').isVisible({ timeout: 200 }).catch(() => false)) {
+    await titulo.dispatchEvent('mousedown').catch(() => {})
+    await page.waitForTimeout(150)
+  }
+  await titulo.dispatchEvent('mousedown').catch(() => {})
+  await page.waitForTimeout(100)
+}
+
 async function revisarAplicarFechar(page: Page, slugPrint: string): Promise<{ ok: boolean; deParaVisivel: boolean }> {
   const btnRevisar = page.getByRole('button', { name: BTN_REVISAR })
-  if (!(await btnRevisar.isEnabled({ timeout: 5000 }).catch(() => false))) {
+  // Revisar fica desabilitado enquanto o preview calcula ("Calculando impacto…")
+  // — aguarda até 30s (campos como tipo_operacao consultam o Configurador).
+  let habilitado = false
+  for (let i = 0; i < 30 && !habilitado; i++) {
+    habilitado = await btnRevisar.isEnabled({ timeout: 1000 }).catch(() => false)
+    if (!habilitado) await page.waitForTimeout(500)
+  }
+  if (!habilitado) {
     return { ok: false, deParaVisivel: false }
   }
-  await btnRevisar.click()
-  const deParaVisivel = await page.locator('.modal-edicao-massa__depara').first()
+  await clickSeguro(btnRevisar)
+  // Passo Revisão: a barra de filtros (Todos/Com alteração/Sem efeito) + cards
+  // de→para são o indicador visual. `.modal-edicao-massa__depara` (por_pedido)
+  // só renderiza quando o backend envia o detalhamento por pedido.
+  const deParaVisivel = await page.locator('.em-filtro-bar').first()
     .isVisible({ timeout: 20000 }).catch(() => false)
+    || await page.locator('.modal-edicao-massa__depara').first()
+      .isVisible({ timeout: 2000 }).catch(() => false)
   await screenshot(page, `${slugPrint}-selecao.png`)
 
   const btnAplicar = page.getByRole('button', { name: BTN_APLICAR })
   if (!(await btnAplicar.isVisible({ timeout: 5000 }).catch(() => false))) {
     return { ok: false, deParaVisivel }
   }
-  await btnAplicar.click()
+  await clickSeguro(btnAplicar, { timeout: 30000 })
   const aplicado = await page.getByRole('button', { name: BTN_APLICADO }).first()
     .isVisible({ timeout: 30000 }).catch(() => false)
   const fechar = page.getByRole('button', { name: BTN_FECHAR }).first()
@@ -436,9 +684,10 @@ async function revisarAplicarFechar(page: Page, slugPrint: string): Promise<{ ok
 }
 
 async function fecharModalSeAberto(page: Page): Promise<void> {
+  await fecharOverlaysPortaled(page)
   const cancelar = page.getByRole('button', { name: BTN_CANCELAR }).first()
   if (await cancelar.isVisible({ timeout: 500 }).catch(() => false)) {
-    await cancelar.click()
+    await cancelar.click({ force: true })
     await page.waitForTimeout(400)
     return
   }
@@ -462,14 +711,27 @@ async function aplicarCampoEmMassa(
   slugPrint: string,
 ): Promise<boolean> {
   await selecionarPedidoCheckbox(page, rowId)
-  if (!(await abrirModalMassa(page))) {
+  let abriu = await abrirModalMassa(page)
+  if (!abriu) {
+    await recuperarListaAposFalha(page, rowId)
+    await selecionarPedidoCheckbox(page, rowId)
+    abriu = await abrirModalMassa(page)
+  }
+  if (!abriu) {
     falharTabela(SUBLOCAL, `${campo.campo} — modal não abriu`)
+    await recuperarListaAposFalha(page, rowId)
     return false
   }
   await definirNivel(page, nivel)
-  if (!(await selecionarCampoCombobox(page, campo.rotulo))) {
+  if (!(await selecionarCampoCombobox(page, rotuloUiDeCampo(campo)))) {
+    if (CAMPOS_VISIBILIDADE_CONDICIONAL_RUNNER.has(campo.campo)) {
+      logAprovado(SUBLOCAL, `${campo.campo} — SKIP (visibilidade condicional por tipo de operação do pedido-alvo)`)
+      await fecharModalSeAberto(page)
+      return true
+    }
     falharTabela(SUBLOCAL, `${campo.campo} — não listado no combobox (nível ${nivel})`)
     await fecharModalSeAberto(page)
+    await recuperarListaAposFalha(page, rowId)
     return false
   }
   const valor = await preencherValor(page, campo, seed)
@@ -494,7 +756,17 @@ async function aplicarCampoEmMassa(
 // ── Etapas ───────────────────────────────────────────────────────────────────
 async function etapaDriftCombobox(page: Page, rowId: string): Promise<void> {
   await selecionarPedidoCheckbox(page, rowId)
-  if (!(await abrirModalMassa(page))) {
+  let aberto = await abrirModalMassa(page)
+  // Reload do app no meio (serviços paralelos reiniciando) — tenta 1x de novo
+  if (aberto && !(await page.getByText(TITULO_MODAL_REGEX).first().isVisible({ timeout: 2000 }).catch(() => false))) {
+    aberto = false
+  }
+  if (!aberto) {
+    await garantirListaPedidos(page).catch(() => {})
+    await selecionarPedidoCheckbox(page, rowId)
+    aberto = await abrirModalMassa(page)
+  }
+  if (!aberto) {
     falharTabela(SUBLOCAL, 'ETAPA 1/2 — modal não abriu para validação de UX/drift')
     return
   }
@@ -508,6 +780,9 @@ async function etapaDriftCombobox(page: Page, rowId: string): Promise<void> {
   if (niveis.length === 3) logAprovado(SUBLOCAL, `ETAPA 1 — Toggle de nível com 3 opções (${niveis.join(' / ')})`)
   else falharTabela(SUBLOCAL, `ETAPA 1 — Toggle de nível esperava 3 opções, obteve ${niveis.length}`)
 
+  // nome_exportador/nome_importador têm visibilidade condicional por tipo de
+  // operação (visivel no modal) — fora da checagem de drift.
+  const CAMPOS_VISIBILIDADE_CONDICIONAL = new Set(['nome_exportador', 'nome_importador'])
   for (const { nivel, esperado, bloqueados } of [
     { nivel: 'pedido' as const, esperado: CAMPOS_EDICAO_MASSA_PEDIDO.length, bloqueados: CAMPOS_BLOQUEADOS_PEDIDO },
     { nivel: 'item' as const, esperado: CAMPOS_EDICAO_MASSA_ITEM.length, bloqueados: CAMPOS_BLOQUEADOS_ITEM },
@@ -516,16 +791,23 @@ async function etapaDriftCombobox(page: Page, rowId: string): Promise<void> {
     const { rotulos, grupos } = await listarRotulosCombobox(page)
     const ehPersonalizada = grupos.includes(GRUPO_PERSONALIZADAS)
     const qtdSistema = rotulos.length // colunas do usuário inflam — validamos piso
-    if (qtdSistema >= esperado) {
-      logAprovado(SUBLOCAL, `ETAPA 2 — Nível ${nivel}: ${qtdSistema} campos listados (≥ ${esperado} do SSOT${ehPersonalizada ? ' + Personalizadas' : ''})`)
-    } else {
-      falharTabela(SUBLOCAL, `ETAPA 2 — Nível ${nivel}: ${qtdSistema} campos < ${esperado} do SSOT (drift!)`)
-    }
     const ssotNivel = nivel === 'pedido' ? CAMPOS_EDICAO_MASSA_PEDIDO : CAMPOS_EDICAO_MASSA_ITEM
-    const rotulosSsot = new Set(ssotNivel.map(c => c.rotulo))
-    const faltando = [...rotulosSsot].filter(r => !rotulos.includes(r))
+    const condicionaisNivel = ssotNivel.filter(c => CAMPOS_VISIBILIDADE_CONDICIONAL.has(c.campo)).length
+    const piso = esperado - condicionaisNivel
+    if (qtdSistema >= piso) {
+      logAprovado(SUBLOCAL, `ETAPA 2 — Nível ${nivel}: ${qtdSistema} campos listados (≥ ${piso} do SSOT${condicionaisNivel ? ` − ${condicionaisNivel} condicionais por tipo` : ''}${ehPersonalizada ? ' + Personalizadas' : ''})`)
+    } else {
+      falharTabela(SUBLOCAL, `ETAPA 2 — Nível ${nivel}: ${qtdSistema} campos < ${piso} do SSOT (drift!)`)
+    }
+    // Comparação com o rótulo traduzido (mesma regra do modal: i18n com
+    // fallback no rótulo ASCII do SSOT), sem acento.
+    const rotulosUiNorm = new Set(rotulos.map(normalizarRotulo))
+    const faltando = ssotNivel
+      .filter(c => !CAMPOS_VISIBILIDADE_CONDICIONAL.has(c.campo))
+      .map(c => rotuloUiDeCampo(c))
+      .filter(r => !rotulosUiNorm.has(normalizarRotulo(r)))
     if (faltando.length === 0) {
-      logAprovado(SUBLOCAL, `ETAPA 2 — Nível ${nivel}: todos os ${esperado} rótulos do SSOT presentes`)
+      logAprovado(SUBLOCAL, `ETAPA 2 — Nível ${nivel}: todos os ${piso} rótulos do SSOT presentes`)
     } else {
       falharTabela(SUBLOCAL, `ETAPA 2 — Nível ${nivel}: rótulos ausentes: ${faltando.slice(0, 8).join('; ')}${faltando.length > 8 ? '…' : ''}`)
     }
@@ -556,7 +838,18 @@ async function etapasCampoACampo(page: Page, rowId: string): Promise<void> {
       let okFinal = true
       for (let a = 0; a < aplicacoes; a++) {
         const seed = passo * 7 + a
-        const ok = await aplicarCampoEmMassa(page, rowId, campo, nivelModal, seed, a === aplicacoes - 1 ? slug : `${slug}-pre`)
+        if (a > 0) {
+          await page.waitForTimeout(1000)
+          await fecharOverlaysPortaled(page).catch(() => {})
+        }
+        // Exceção em 1 campo não pode derrubar o run inteiro (166 campos)
+        let ok = false
+        try {
+          ok = await aplicarCampoEmMassa(page, rowId, campo, nivelModal, seed, a === aplicacoes - 1 ? slug : `${slug}-pre`)
+        } catch (e) {
+          falharTabela(SUBLOCAL, `Passo ${fmtPasso(passo)} — ${campo.campo}: exceção ${(e as Error).message.split('\n')[0].slice(0, 120)}`)
+          await recuperarListaAposFalha(page, rowId)
+        }
         if (!ok) { okFinal = false; break }
       }
       if (okFinal) {
@@ -607,8 +900,7 @@ async function listarRotulosPersonalizadas(page: Page): Promise<string[]> {
     }
     return resultado
   }, GRUPO_PERSONALIZADAS)
-  await page.keyboard.press('Escape').catch(() => {})
-  await page.waitForTimeout(200)
+  await fecharDropdownCombobox(page)
   return rotulos
 }
 
@@ -647,15 +939,17 @@ async function etapaColunasUsuario(page: Page, rowId: string): Promise<void> {
       await fecharModalSeAberto(page)
       continue
     }
-    // Tipo desconhecido a priori: tenta select buscável; senão, input genérico
+    // Tipo desconhecido a priori: tenta select buscável; calendário (data); senão input genérico
     const linha = ultimaLinhaCampo(page)
     let valor = ''
     if (await linha.locator('.modal-edicao-massa__select').count() > 0) {
       valor = await preencherValor(page, { campo: rotulo, rotulo, tipo: 'select', grupo: GRUPO_PERSONALIZADAS, nivel: 'pedido' } as CampoMassa, i)
+    } else if (await linha.locator('.modal-edicao-massa__calendario').count() > 0) {
+      valor = (await preencherDataCalendario(page, linha, 6, 2026, 15)) ? '2026-07-15' : ''
     } else {
       const input = linha.locator('.modal-edicao-massa__input').last()
       const tipoInput = await input.getAttribute('type').catch(() => 'text')
-      valor = tipoInput === 'date' ? '2026-07-15' : tipoInput === 'number' ? String(i + 1) : `EMT81 coluna ${i + 1}`
+      valor = tipoInput === 'number' ? String(i + 1) : `EMT81 coluna ${i + 1}`
       await input.fill(valor).catch(() => {})
     }
     if (!valor) {
@@ -754,7 +1048,7 @@ async function etapaErrosEstados(page: Page, rowId: string): Promise<void> {
     if (await abrirModalMassa(page)) {
       await definirNivel(page, 'pedido')
       const numeroPedido = CAMPOS_EDICAO_MASSA_PEDIDO.find(c => c.campo === 'numero_pedido')
-      if (numeroPedido && await selecionarCampoCombobox(page, numeroPedido.rotulo)) {
+      if (numeroPedido && await selecionarCampoCombobox(page, rotuloUiDeCampo(numeroPedido))) {
         const input = ultimaLinhaCampo(page).locator('.modal-edicao-massa__input').last()
         const bloqueado = await input.isDisabled({ timeout: 3000 }).catch(() => false)
         await screenshot(page, `${fmtPasso(PASSO_ERROS + 1)}-erros-unique-bloqueado.png`)
@@ -775,12 +1069,12 @@ async function etapaVoltarVoltar(page: Page, rowId: string): Promise<void> {
   if (!(await abrirModalMassa(page))) return
   await definirNivel(page, 'pedido')
   const obs = CAMPOS_EDICAO_MASSA_PEDIDO.find(c => c.campo === 'observacoes_pedido') ?? CAMPOS_EDICAO_MASSA_PEDIDO[0]
-  if (await selecionarCampoCombobox(page, obs.rotulo)) {
+  if (await selecionarCampoCombobox(page, rotuloUiDeCampo(obs))) {
     await preencherValor(page, obs, 99)
     const btnRevisar = page.getByRole('button', { name: BTN_REVISAR })
     if (await btnRevisar.isEnabled().catch(() => false)) {
       await btnRevisar.click()
-      await page.locator('.modal-edicao-massa__depara').first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {})
+      await page.locator('.em-filtro-bar').first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {})
       await page.getByRole('button', { name: BTN_VOLTAR }).first().click().catch(() => {})
       await page.waitForTimeout(500)
       const voltou = await page.locator('.modal-edicao-massa__campo-linha').first().isVisible().catch(() => false)
@@ -802,7 +1096,7 @@ async function etapaPersistenciaFinal(page: Page): Promise<void> {
 // ── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
   mkdirSync(OUT, { recursive: true })
-  log('TESTE EM TELA — lista-edicao-em-massa (TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081)')
+  log('TESTE EM TELA — lista-edicao-em-massa (TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112)')
   log(`Data: ${DATA} | Base: ${BASE_UI} | Ambiente: ${ambienteExec} | Clerk: ${clerkSecretPrefix}`)
   log(`Campos SSOT: ${CAMPOS_EDICAO_MASSA_PEDIDO.length} pedido + ${CAMPOS_EDICAO_MASSA_ITEM.length} item`)
   log(`Pasta: ${OUT}`)

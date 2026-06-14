@@ -47,7 +47,7 @@ TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045
 
 **Variante feature-first** (quando `{RESUMO}` identifica a operação transversal antes do local):
 ```
-TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081
+TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112
 ```
 Pasta e `sublocal` no registry continuam alinhados com `{LOCAL}/{AREA}` (`pedido/lista/edicao-em-massa`, `lista/edicao-em-massa`) — só a ordem dos segmentos no ID muda.
 
@@ -152,7 +152,7 @@ TST-E2E-CONFIG-00001     ❌ (5 dígitos)
 
 ## Regra 4 — Sublocal no ID
 
-**EMT (2026-06-06+):** `{LOCAL}` e `{AREA}` **fazem parte do ID** (`TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`). O caminho de pasta e `sublocal` no registry devem **alinhar** com esses segmentos. Exceção documentada: variantes feature-first (`TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`) — pasta segue `pedido/lista/edicao-em-massa`.
+**EMT (2026-06-06+):** `{LOCAL}` e `{AREA}` **fazem parte do ID** (`TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`). O caminho de pasta e `sublocal` no registry devem **alinhar** com esses segmentos. Exceção documentada: variantes feature-first (`TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112`) — pasta segue `pedido/lista/edicao-em-massa`.
 
 **Demais tipos (UNI, FUN, E2E, …):** sublocal continua **só no metadata** do registry, não no ID.
 

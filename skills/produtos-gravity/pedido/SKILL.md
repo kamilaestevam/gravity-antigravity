@@ -97,7 +97,9 @@ servicos-global/produto/pedido/
 
 **Regra:** editável na lista ⇒ editável em massa. Não manter listas paralelas no modal ou no service.
 
-**Teste EMT:** `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081` · drift: `drift-lista-massa.test.ts`
+**Teste EMT:** `TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112` · pacote 5 tipos `000108`–`000112` · drift: `drift-lista-massa.test.ts` · Local `:8000`
+
+**Datas no modal:** usar `CampoCalendarioGlobal` + `dateToIso()` — ver [`EDICAO-EM-MASSA-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/pedido/EDICAO-EM-MASSA-TECNICO.md) §Frontend.
 
 ### Campos `@@unique` — convenção crítica
 

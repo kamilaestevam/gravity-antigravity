@@ -587,33 +587,65 @@ export class EdicaoEmMassaService {
       : null
 
     // ── CAMINHO RÁPIDO (updateMany) ───────────────────────────────────────────
-    // Condição: todos os campos de pedido são "substituir" em campos diretos do
-    // schema (não estão em detalhes_operacionais), não há campos de item E não
-    // há cascade pendente (cascade exige update por item, então cai no slow).
-    // **Auto-fill ao trocar tipo_operacao_pedido também força slow path** (LT1):
-    // o auto-fill exige merge JSON em detalhes_operacionais_pedido + cascade item,
-    // incompatível com updateMany.
-    // Uma única query SQL atualiza todos os pedidos independente do volume.
-    const todosCamposPedidoSaoRapidos =
-      camposPedido.length > 0 &&
-      camposItem.length === 0 &&
-      camposCascade.length === 0 &&
+    // Condição: todas as operações são "substituir" em campos diretos do schema
+    // (pedido fora de detalhes_operacionais; item sem campo de quantidade que
+    // exija recálculo de agregados). Campos de item e cascade Pedido→Item são
+    // cobertos por UM updateMany de itens — o valor é constante para todos.
+    // **Auto-fill ao trocar tipo_operacao_pedido força slow path** (LT1):
+    // o auto-fill exige merge JSON em detalhes_operacionais_pedido + valor por
+    // workspace, incompatível com updateMany.
+    // No máximo 2 queries SQL independente do volume de pedidos/itens —
+    // essencial para grandes seleções (100+ pedidos) não estourarem o timeout
+    // da transação.
+    const todosCamposSaoRapidos =
+      (camposPedido.length > 0 || camposItem.length > 0) &&
       camposColunaUsuarioPedido.length === 0 &&  // EAV exige upsert por pedido → slow path
       camposColunaUsuarioItem.length === 0 &&
       novoTipo === null &&  // LT1 — auto-fill incompatível com fast path
-      !filtroItemIds &&     // Seleção de itens específicos → slow path (não toca pedido)
-      camposPedido.every(c => c.operacao === 'substituir' && !CAMPOS_DETALHES_OPERACIONAIS.has(c.campo))
+      !precisaRecalcularAgregados &&  // Recálculo é por pedido → slow path
+      camposPedido.every(c => c.operacao === 'substituir' && !CAMPOS_DETALHES_OPERACIONAIS.has(c.campo)) &&
+      camposItem.every(c => c.operacao === 'substituir')
 
-    if (todosCamposPedidoSaoRapidos) {
+    if (todosCamposSaoRapidos) {
+      // Com filtroItemIds (seleção de itens específicos / caso misto), campos
+      // de pedido aplicam apenas aos pedidos explicitamente selecionados
+      // (pedido_ids_completo) — mesma regra de podeTocarPedido do slow path.
+      const pedidoIdsAlvo = filtroItemIds
+        ? pedidoIds.filter(id => pedidoIdsCompleto !== null && pedidoIdsCompleto.has(id))
+        : pedidoIds
+      // Dados de item: campos item explícitos + cascade Pedido→Item.
+      // aplicarOperacao converte data 'YYYY-MM-DD' → ISO-8601 (Prisma DateTime).
+      const dadosItemMany: Record<string, unknown> = {}
+      for (const c of camposItem) {
+        dadosItemMany[c.campo] = this.aplicarOperacao(undefined, 'substituir', c.valor, c.tipo)
+      }
+      for (const { campoPedido, campoItem } of camposCascade) {
+        if (!(campoItem in dadosItemMany)) {
+          dadosItemMany[campoItem] = this.aplicarOperacao(undefined, 'substituir', campoPedido.valor, campoPedido.tipo)
+        }
+      }
+
       const dadosUpdateMany: Record<string, unknown> = {}
       for (const c of camposPedido) {
-        dadosUpdateMany[c.campo] = c.valor
+        dadosUpdateMany[c.campo] = this.aplicarOperacao(undefined, 'substituir', c.valor, c.tipo)
       }
       try {
-        await db.pedido.updateMany({
-          where: { id_organizacao: id_organizacao, id_pedido: { in: pedidoIds } },
-          data: dadosUpdateMany,
-        })
+        if (Object.keys(dadosUpdateMany).length > 0 && pedidoIdsAlvo.length > 0) {
+          await db.pedido.updateMany({
+            where: { id_organizacao: id_organizacao, id_pedido: { in: pedidoIdsAlvo } },
+            data: dadosUpdateMany,
+          })
+        }
+        if (Object.keys(dadosItemMany).length > 0) {
+          const resultadoItens = await db.pedidoItem.updateMany({
+            where: filtroItemIds
+              ? { id_organizacao: id_organizacao, id_item: { in: [...filtroItemIds] } }
+              : { id_organizacao: id_organizacao, id_pedido: { in: pedidoIds } },
+            data: dadosItemMany,
+          })
+          itensAtualizados = resultadoItens.count
+          camposItemGravados = resultadoItens.count * Object.keys(dadosItemMany).length
+        }
       } catch (err: unknown) {
         // Defesa em profundidade contra @@unique violation (P2002). O Zod
         // custom da rota já bloqueia campos unique + substituir + multi-seleção,
@@ -636,14 +668,59 @@ export class EdicaoEmMassaService {
         }
         throw err
       }
-      pedidosAtualizados = pedidos.length
-      camposPedidoGravados = pedidos.length * camposPedido.length
+
+      const temUpdatePedido = Object.keys(dadosUpdateMany).length > 0 && pedidoIdsAlvo.length > 0
+      const temUpdateItem = Object.keys(dadosItemMany).length > 0
+      const pedidosAfetados = new Set<string>()
+      if (temUpdatePedido) {
+        pedidoIdsAlvo.forEach(id => pedidosAfetados.add(id))
+      }
+      if (temUpdateItem) {
+        if (filtroItemIds) {
+          const itensAlvo = await db.pedidoItem.findMany({
+            where: { id_organizacao: id_organizacao, id_item: { in: [...filtroItemIds] } },
+            select: { id_pedido: true },
+          })
+          itensAlvo.forEach(i => pedidosAfetados.add(i.id_pedido))
+        } else {
+          pedidoIds.forEach(id => pedidosAfetados.add(id))
+        }
+      }
+      pedidosAtualizados = pedidosAfetados.size
+      camposPedidoGravados = temUpdatePedido ? pedidoIdsAlvo.length * camposPedido.length : 0
+
+      // Audit trail via historico-global (fire-and-forget) — apenas pedidos
+      // efetivamente alterados (paridade com contador pedidos_atualizados).
+      const camposPayloadRapido = payload.campos.map(c => c.campo)
+      for (const p of pedidos as Array<Record<string, unknown>>) {
+        const pedidoId = p.id_pedido as string
+        if (!pedidosAfetados.has(pedidoId)) continue
+        auditLog({
+          id_organizacao:               id_organizacao,
+          tipo_ator_historico_log:      'USUARIO',
+          id_ator_historico_log:        id_usuario,
+          nome_ator_historico_log:      nome_usuario,
+          modulo_historico_log:         'pedido',
+          tipo_recurso_historico_log:   'Pedido',
+          id_recurso_historico_log:     p.id_pedido as string,
+          acao_historico_log:           'EDITAR_EM_MASSA',
+          detalhe_acao_historico_log:   `Edicao em massa: ${camposPayloadRapido.join(', ')}`,
+          estado_posterior_historico_log: {
+            campos: payload.campos,
+            nivel: payload.nivel,
+            campos_auto_fill: [],
+          },
+        })
+      }
+
+      const camposAlteradosRapido = new Set<string>(camposPayloadRapido)
+      camposCascade.forEach(({ campoItem }) => camposAlteradosRapido.add(campoItem))
       return {
         pedidos_atualizados: pedidosAtualizados,
-        itens_atualizados: 0,
+        itens_atualizados: itensAtualizados,
         campos_pedido_alterados: camposPedidoGravados,
-        campos_item_alterados: 0,
-        campos_alterados: payload.campos.map(c => c.campo),
+        campos_item_alterados: camposItemGravados,
+        campos_alterados: [...camposAlteradosRapido],
         erros: [],
       }
     }
@@ -779,7 +856,8 @@ export class EdicaoEmMassaService {
               // prioridade sobre cascade se ambos tocarem o mesmo destino.
               for (const { campoPedido, campoItem } of camposCascade) {
                 if (!(campoItem in dadosItem)) {
-                  dadosItem[campoItem] = campoPedido.valor
+                  // aplicarOperacao converte data 'YYYY-MM-DD' → ISO-8601 (Prisma DateTime)
+                  dadosItem[campoItem] = this.aplicarOperacao(undefined, 'substituir', campoPedido.valor, campoPedido.tipo)
                 }
               }
               // Auto-fill cascade ao trocar tipo: nome do workspace nas colunas

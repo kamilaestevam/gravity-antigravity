@@ -1,8 +1,9 @@
 {
   "plano": "EDICAO-MASSA-COMPLETA",
+  "id_plano": "TST-E2E-EDICAO-EM-MASSA-LISTA-PEDIDO-000110",
   "produto": "pedido",
   "area": "Lista/edicao-em-massa",
-  "data": "2026-05-16",
+  "data": "2026-06-12",
   "criticidade": "alta",
   "pre_requisitos": [
     "Workspace com 5+ pedidos com 3-5 itens cada",

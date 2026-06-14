@@ -1,5 +1,5 @@
 /**
- * Numeração global de passos do plano EMT 000081 — SSOT compartilhado entre
+ * Numeração global de passos do plano EMT 000112 — SSOT compartilhado entre
  * `gerar-plano-edicao-em-massa.ts` (plano .md) e `run-lista-edicao-em-massa.ts`
  * (runner). Garante que o print de cada passo tem o mesmo número nos dois lados.
  *

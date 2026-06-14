@@ -1,8 +1,8 @@
 # Edição em Massa — Documento Técnico
 
 > **Produto:** Pedido (COMEX)
-> **Versão:** 3.0 (SSOT `camposEdicaoMassa.ts` + colunas do usuário)
-> **Última atualização:** 2026-06-11
+> **Versão:** 3.1 (SSOT + colunas usuário + pacote testes 108–112)
+> **Última atualização:** 2026-06-12
 > **Status:** Implementado em produção
 
 ---
@@ -61,7 +61,7 @@ produto/pedido/
 | `PREFIXO_COLUNA_USUARIO` | Transporte EAV: `coluna_usuario:<id_coluna_usuario_pedido>` |
 | `campoEditavelEmMassa()` | Validação server-side antes de preview/confirmar |
 
-**Consumidores:** `edicaoEmMassaService.ts`, `ModalPedidosEdicaoMassa.tsx` (via `types.ts`), testes `drift-lista-massa` e plano EMT `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081`.
+**Consumidores:** `edicaoEmMassaService.ts`, `ModalPedidosEdicaoMassa.tsx` (via `types.ts`), testes `drift-lista-massa` e pacote **108–112** (EMT `TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112`).
 
 **Colunas do usuário (EAV):** o modal injeta campos dinâmicos com os 8 tipos suportados na lista (`texto`, `numero`, `data`, `select`, `ncm`, `usuario`, `moeda`, `decimal`). O service faz upsert em `PedidoListaColunaUsuarioValor` por vínculo pedido/item.
 
@@ -242,8 +242,10 @@ const EdicaoMassaSchema = z.object({
 ### `POST /api/v1/pedidos/edicoes-em-massa/confirmar`
 
 **Caminho rápido** (`updateMany`):
-- Condições: todos campos são `substituir`, todos nivel='pedido', nenhum em `detalhes_operacionais_pedido`, sem cascade pendente
-- Uma única SQL atualiza todos os pedidos independente do volume
+- Condições: campos elegíveis (substituir, sem JSON merge, sem cascade/auto-fill de tipo operação); pode incluir `updateMany` em itens quando todos os campos são item-level substituir
+- **`pedidosAfetados`:** `Set` — contabiliza só pedidos efetivamente alterados (não `pedidos.length` cego)
+- Audit trail no fast path: apenas pedidos presentes em `pedidosAfetados`
+- Timeout rota `/confirmar`: **60s**
 
 **Caminho lento** (`$transaction`, timeout 60s):
 - Loop por pedido:
@@ -264,8 +266,8 @@ Passo 1 — Selecionar campos e valores
   ├── Combobox de campo (com busca por rotulo + grupo)
   ├── Select de operação (filtrada por TipoCampoEdicao)
   ├── Input de valor — RENDER POR TIPO:
-  │   ├── select  → <select> com opcoes[] da definição
-  │   ├── data    → <input type="date">
+  │   ├── select  → SelectGlobal / SelectBuscavelValor (listas dinâmicas)
+  │   ├── data    → `CampoCalendarioGlobal` (modoUnico) + `dateToIso()` — **nunca** `toISOString().split('T')[0]` (evita D−1 em fuso BR)
   │   ├── numero  → <input type="number">
   │   ├── ncm     → <input> com máscara 0000.00.00 + maxLength 10
   │   └── texto   → <input type="text">
@@ -444,44 +446,29 @@ preview: (payload) =>
 
 ## Testes
 
-```
-server/src/services/edicaoEmMassaService.test.ts  (18 unitários)
-  Fast path:
-    ├── atualiza pedido com nome DDD via updateMany
-  Slow path:
-    ├── atualiza item com nome DDD direto (sem ACL)
-    └── aplica operação somar usando valor atual da coluna DDD
-  detalhes_operacionais_pedido:
-    ├── grava chave JSON (nome_exportador)
-    └── grava chave OPE (codigo_ope)
-  Campos bloqueados:
-    ├── rejeita valor_total_pedido
-    ├── rejeita id_organizacao (cross-org)
-    └── rejeita quantidade_transferida_item (saldoEngine)
-  Preview:
-    ├── lê valor direto da coluna do pedido
-    ├── lê valor de detalhes_operacionais_pedido para chaves JSON
-    └── lê valor de coluna DDD do item
-  Cascade Combinado:
-    ├── NÃO faz cascade na aba Pedido (mesmo com campo cascadeável)
-    ├── faz cascade na aba Combinado para campo na whitelist
-    ├── NÃO faz cascade para campo fora da whitelist
-    ├── campo item explícito sobrescreve cascade do mesmo destino
-    ├── preview Combinado retorna campos_pedido_alterados e campos_item_alterados
-    ├── preview aba Pedido: itens_afetados=0
-    └── cascade JSON pedido → coluna item (nome_exportador → nome_exportador_item)
+Pacote **5 tipos** (Local `http://localhost:8000`, API pedido `:8030`) — registry `testes/test-plans-registry.json`:
 
-server/src/services/edicaoEmMassaService.integration.test.ts  (11 integração — banco real)
-  ├── preview lê quantidade_inicial_item direto da coluna DDD
-  ├── persiste quantidade_inicial_item via nome DDD
-  ├── persiste quantidade_pronta_item via nome DDD
-  ├── persiste quantidade_cancelada_item via nome DDD
-  ├── operação somar usa valor atual do banco
-  ├── retorna contadores reais
-  ├── recalcularAgregados atualiza quantidade_total_pedido
-  ├── UPDATE de item respeita id_organizacao (org isolation)
-  ├── rejeita campo bloqueado (quantidade_atual_item)
-  └── rejeita id_organizacao no payload (cross-org)
+| Tipo | ID | Pasta |
+|------|-----|-------|
+| UNI | `TST-UNI-EDICAO-EM-MASSA-LISTA-PEDIDO-000108` | `testes/testes-unitarios/pedido/lista/edicao-em-massa/plano-de-teste/` |
+| FUN | `TST-FUN-EDICAO-EM-MASSA-LISTA-PEDIDO-000109` | `testes/testes-funcionais/pedido/Lista/edicao-em-massa/plano-de-teste/` |
+| E2E | `TST-E2E-EDICAO-EM-MASSA-LISTA-PEDIDO-000110` | `testes/testes-e2e/pedido/Lista/edicao-em-massa/plano-de-teste/` |
+| CRO | `TST-CRO-EDICAO-EM-MASSA-LISTA-PEDIDO-000111` | `testes/testes-cross-organizacao/pedido/lista/edicao-em-massa/plano-de-teste/` |
+| EMT | `TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112` | `testes/testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/` |
+
+**Runner pacote local:** `run-pacote-edicao-em-massa-local.ts` (ordem UNI→FUN→CRO→E2E→EMT).
+
+**EMT 000112:** ~217 passos — 166 campos SSOT por categoria + ETAPA colunas manuais (8 tipos, 7 editáveis) + combinado + tipo operação + erros + persistência hub→lista. SSOT numeração: `numeracao-passos-edicao-em-massa.ts`.
+
+Legados deletados no registry: `000023`–`000025`, `000081` → substituídos por `000108`–`000112`.
+
+```
+drift-lista-massa.test.ts                           ← paridade lista ↔ SSOT massa
+TST-UNI-000108.test.ts                              ← operações, unique, dateToIso, fast path pedidosAfetados
+TST-FUN-000109/*.test.ts                            ← Zod preview/confirmar, fast path
+TST-CRO-000111.test.ts                              ← isolamento id_organizacao
+TST-E2E-000110.spec.ts                              ← smoke Playwright :8000
+run-lista-edicao-em-massa.ts                        ← EMT campo a campo :8000
 ```
 
 ---
@@ -499,10 +486,16 @@ server/src/services/edicaoEmMassaService.integration.test.ts  (11 integração �
 
 ## Histórico de versões
 
+- **v3.1 (2026-06-12)** — Estabilização massa + pacote testes 108–112
+  - Modal: `CampoCalendarioGlobal` + `dateToIso()` (anti D−1 UTC em fuso BR)
+  - Fast path: `pedidosAfetados` via `Set`; audit só pedidos tocados; timeout confirmar 60s
+  - Pacote 5 tipos Local `:8000`: UNI/FUN/CRO/E2E/EMT `000108`–`000112` (substitui `000081` e legados `023`–`025`)
+  - EMT: roteiro por categoria DDD, 166 campos + colunas manuais ETAPA 28
+
 - **v3.0 (2026-06-11)** — SSOT `camposEdicaoMassa.ts`
   - Derivação automática a partir de `campos-pedido-ddd.ts` + blocklist única
   - Paridade lista ↔ massa (inclui colunas EAV do usuário via `coluna_usuario:<id>`)
-  - Plano EMT `TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081` (217 passos campo a campo)
+  - Plano EMT `TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112` (217 passos campo a campo)
   - Teste `drift-lista-massa` impede regressão entre lista inline e modal
 
 - **v2.2 (2026-05-12)** — Auto-fill ao trocar `tipo_operacao_pedido` em massa

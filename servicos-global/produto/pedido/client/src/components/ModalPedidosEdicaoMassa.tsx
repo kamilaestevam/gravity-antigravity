@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info, PencilSimpleLine, Package, ListChecks, Funnel, CubeTransparent } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -22,6 +23,8 @@ import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 import type { ResultadoAcao } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
+import { dateToIso } from '@nucleo/tabela-virtual-global/edicao-periodo-popover-utils'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { useHasMixedTipos } from '../shared/state/selecaoStore'
@@ -425,8 +428,17 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
   const [indiceFocado, setIndiceFocado] = useState(0)
 
   const containerRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const listaRef = useRef<HTMLUListElement>(null)
+
+  // Posição do dropdown (renderizado via portal para escapar do overflow do modal)
+  const [posicaoDropdown, setPosicaoDropdown] = useState<{
+    top: number
+    left: number
+    width: number
+    maxHeight: number
+  } | null>(null)
 
   const defAtual = disponiveis.find(d => d.campo === valorAtual)
 
@@ -438,10 +450,13 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
         (d.grupo ?? '').toLowerCase().includes(busca.toLowerCase())
       )
 
-  // Fechar ao clicar fora
+  // Fechar ao clicar fora (considera trigger e dropdown portalado)
   useEffect(() => {
     const handleClickFora = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const alvo = e.target as Node
+      const dentroTrigger = containerRef.current?.contains(alvo) ?? false
+      const dentroDropdown = dropdownRef.current?.contains(alvo) ?? false
+      if (!dentroTrigger && !dentroDropdown) {
         setAberto(false)
         setBusca('')
       }
@@ -450,6 +465,38 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
       document.addEventListener('mousedown', handleClickFora)
     }
     return () => document.removeEventListener('mousedown', handleClickFora)
+  }, [aberto])
+
+  // Calcular posição do dropdown relativa ao trigger (portal usa position: fixed).
+  // Abre para cima quando não há espaço suficiente abaixo do trigger.
+  useEffect(() => {
+    if (!aberto) {
+      setPosicaoDropdown(null)
+      return
+    }
+    const MARGEM = 8
+    const ALTURA_MAX = 320
+    const calcular = () => {
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (!rect) return
+      const espacoAbaixo = window.innerHeight - rect.bottom - MARGEM
+      const espacoAcima = rect.top - MARGEM
+      const abreParaCima = espacoAbaixo < 200 && espacoAcima > espacoAbaixo
+      const maxHeight = Math.min(ALTURA_MAX, abreParaCima ? espacoAcima : espacoAbaixo)
+      setPosicaoDropdown({
+        top: abreParaCima ? Math.max(MARGEM, rect.top - 4 - maxHeight) : rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+        maxHeight,
+      })
+    }
+    calcular()
+    window.addEventListener('resize', calcular)
+    window.addEventListener('scroll', calcular, true)
+    return () => {
+      window.removeEventListener('resize', calcular)
+      window.removeEventListener('scroll', calcular, true)
+    }
   }, [aberto])
 
   // Scroll automático para item focado
@@ -554,9 +601,21 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
         />
       </button>
 
-      {/* Dropdown */}
-      {aberto && (
-        <div className="modal-edicao-massa__combobox-dropdown">
+      {/* Dropdown — renderizado via portal no body para não ser cortado pelo
+          overflow do corpo do modal. z-index acima do overlay do modal (9999). */}
+      {aberto && posicaoDropdown && createPortal(
+        <div
+          ref={dropdownRef}
+          className="modal-edicao-massa__combobox-dropdown modal-edicao-massa__combobox-dropdown--portal"
+          style={{
+            position: 'fixed',
+            top: posicaoDropdown.top,
+            left: posicaoDropdown.left,
+            width: posicaoDropdown.width,
+            maxHeight: posicaoDropdown.maxHeight,
+            zIndex: 10000,
+          }}
+        >
           {/* Busca */}
           <div className="modal-edicao-massa__combobox-busca">
             <MagnifyingGlass size={13} className="modal-edicao-massa__combobox-busca-icone" aria-hidden="true" />
@@ -630,7 +689,8 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
             {t('pedido.modal_massa.contador_campos', { count: filtrados.length })}
             {busca && ` ${t('pedido.modal_massa.para_termo', { termo: busca })}`}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
@@ -1232,10 +1292,11 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
                   onChange={handleMudarCampoDef}
                 />
 
-                {/* Seletor de operação */}
+                {/* Seletor de operação — bloqueado quando o tipo só admite 1 operação */}
                 <SelectGlobal
                   buscavel={false}
                   tamanho="compacto"
+                  desabilitado={ops.length === 1}
                   opcoes={ops.map(op => ({ valor: op, rotulo: t(OP_NOME_KEYS[op]) }))}
                   valor={campo.operacao}
                   aoMudarValor={v => v != null && handleMudarOperacao(campo.uid, v as OperacaoCampo)}
@@ -1288,12 +1349,26 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
                       aria-label={t('pedido.modal_massa.aria_valor_para', { campo: campo.campo })}
                       style={{ fontFamily: 'var(--font-mono, monospace)' }}
                     />
+                  ) : campo.tipo === 'data' && campo.operacao === 'substituir' ? (
+                    <CampoCalendarioGlobal
+                      modoUnico
+                      className="modal-edicao-massa__calendario"
+                      disabled={bloqueadoUnique}
+                      placeholder={bloqueadoUnique ? t('pedido.modal_massa.bloqueado_unique') : (placeholder || t('pedido.modal_massa.valor_placeholder'))}
+                      valor={campo.valor
+                        ? { inicio: new Date(`${campo.valor}T00:00:00`), fim: null }
+                        : { inicio: null, fim: null }
+                      }
+                      aoMudarValor={val => {
+                        const iso = val.inicio ? dateToIso(val.inicio) : ''
+                        handleMudarValor(campo.uid, iso)
+                      }}
+                      aria-label={t('pedido.modal_massa.aria_valor_para', { campo: campo.campo })}
+                    />
                   ) : (
                     <input
                       className="modal-edicao-massa__input"
-                      type={campo.tipo === 'data' && campo.operacao === 'substituir' ? 'date'
-                        : campo.tipo === 'numero' || campo.operacao !== 'substituir' ? 'number'
-                        : 'text'}
+                      type={campo.tipo === 'numero' || campo.operacao !== 'substituir' ? 'number' : 'text'}
                       value={campo.valor}
                       disabled={bloqueadoUnique}
                       onChange={e => handleMudarValor(campo.uid, e.target.value)}

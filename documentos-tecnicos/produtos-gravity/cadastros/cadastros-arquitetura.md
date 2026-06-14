@@ -62,6 +62,7 @@ Configurador cuida de auth (Clerk), Organizacao (CNPJ do tenant pagante), Worksp
 | 12 | Banner retroativo ao voltar status para editável | Usuário decide aplicar ou não |
 | 13 | OPE sincronizado de Portal Único (fonte da verdade) | Portal Único é fonte da verdade SISCOMEX |
 | 14 | Moedas, Unidades, NCM ficam em Cadastros | Compartilhados por múltiplos produtos |
+| 21 | Mercadoria perigosa (ONU) em Cadastros | Catálogo global; BID snapshot na cotação (não na proposta) — 2026-06 |
 | 15 | Anexos modelo X2 (Draft + Original separados) | Documentos distintos no fluxo COMEX |
 | 16 | Onboarding cria Empresa + Organizacao atomicamente | UX transparente, SUID definitivo no primeiro insert |
 | 17 | Cache Redis 5min para hidratação de Empresa | Performance, alivia Cadastros |
@@ -156,7 +157,25 @@ model NCM {
 
   @@map("ncm")
 }
+
+model MercadoriaPerigosa {
+  id_mercadoria_perigosa                    String   @id @default(cuid())
+  numero_onu_mercadoria_perigosa            String
+  nome_tecnico_embarque_mercadoria_perigosa String
+  nome_ascii_mercadoria_perigosa            String
+  nome_ingles_mercadoria_perigosa           String
+  classe_mercadoria_perigosa                Int
+  divisao_mercadoria_perigosa               String?
+  grupo_embalagem_mercadoria_perigosa       String?
+  versao_fonte_mercadoria_perigosa          String
+  ativo_mercadoria_perigosa                 Boolean  @default(true)
+
+  @@unique([numero_onu_mercadoria_perigosa, nome_ascii_mercadoria_perigosa, grupo_embalagem_mercadoria_perigosa])
+  @@map("mercadoria_perigosa")
+}
 ```
+
+> **Mercadoria perigosa (2026-06):** catálogo global ONU (Orange Book), sem `id_organizacao`. Consumido pelo BID Frete Internacional via proxy `dados-mestre/mercadorias-perigosas`; snapshot na cotação (7 colunas), não na proposta. Ver `documentos-tecnicos/produtos-gravity/bid-frete-internacional/CARGA-PERIGOSA-TECNICO.md`.
 
 ### 4.3 OPE — sincronizado de Portal Único
 

@@ -43,6 +43,24 @@ export interface ContainerCadastro {
   ativo_container: boolean
 }
 
+export interface MercadoriaPerigosaCadastro {
+  id_mercadoria_perigosa: string
+  numero_onu_mercadoria_perigosa: string
+  nome_tecnico_embarque_mercadoria_perigosa: string
+  nome_ascii_mercadoria_perigosa: string
+  nome_ingles_mercadoria_perigosa: string
+  classe_mercadoria_perigosa: number
+  divisao_mercadoria_perigosa?: string | null
+  grupo_embalagem_mercadoria_perigosa?: string | null
+  ativo_mercadoria_perigosa: boolean
+}
+
+export function rotuloMercadoriaPerigosaCadastro(m: MercadoriaPerigosaCadastro): string {
+  const pg = m.grupo_embalagem_mercadoria_perigosa ? `, PG ${m.grupo_embalagem_mercadoria_perigosa}` : ''
+  const div = m.divisao_mercadoria_perigosa ? `.${m.divisao_mercadoria_perigosa.split('.').pop()}` : ''
+  return `UN ${m.numero_onu_mercadoria_perigosa} — ${m.nome_tecnico_embarque_mercadoria_perigosa} (Cl. ${m.classe_mercadoria_perigosa}${div}${pg})`
+}
+
 export type TipoTaxaOrigemDestino = 'ORIGEM' | 'DESTINO' | 'FRETE'
 
 export interface TaxaOrigemDestinoCadastro {
@@ -171,6 +189,23 @@ const listaParceirosCadastrosSchema = z.object({
   total: z.number(),
 })
 
+const mercadoriaPerigosaCadastroSchema = z.object({
+  id_mercadoria_perigosa: z.string(),
+  numero_onu_mercadoria_perigosa: z.string(),
+  nome_tecnico_embarque_mercadoria_perigosa: z.string(),
+  nome_ascii_mercadoria_perigosa: z.string(),
+  nome_ingles_mercadoria_perigosa: z.string(),
+  classe_mercadoria_perigosa: z.number(),
+  divisao_mercadoria_perigosa: z.string().nullable().optional(),
+  grupo_embalagem_mercadoria_perigosa: z.string().nullable().optional(),
+  ativo_mercadoria_perigosa: z.boolean(),
+})
+
+const listaMercadoriasPerigosasBidSchema = z.object({
+  mercadorias_perigosas: z.array(mercadoriaPerigosaCadastroSchema),
+  total: z.number(),
+})
+
 async function requestCadastros<T>(url: string): Promise<T> {
   const res = await fetch(url, { headers: await authHeadersCadastros() })
   if (!res.ok) {
@@ -215,8 +250,11 @@ export const cadastrosApi = {
     request('/api/v1/cadastros/paises?apenas_ativos=true'),
 
   listarPortos: (params?: { q?: string; pais?: string; limit?: number }): Promise<{ itens: PortoCadastro[]; total: number }> => {
-    const search = new URLSearchParams({ apenas_ativos: 'true' })
-    if (params?.q) search.set('q', params.q)
+    const busca = params?.q?.trim()
+    const search = new URLSearchParams({
+      apenas_ativos: busca ? 'false' : 'true',
+    })
+    if (busca) search.set('q', busca)
     if (params?.pais) search.set('pais', params.pais)
     if (params?.limit) search.set('limit', String(params.limit))
     return request(`/api/v1/cadastros/portos?${search.toString()}`)
@@ -228,6 +266,20 @@ export const cadastrosApi = {
     if (params?.pais) search.set('pais', params.pais)
     if (params?.limit) search.set('limit', String(params.limit))
     return request(`/api/v1/cadastros/aeroportos?${search.toString()}`)
+  },
+
+  listarMercadoriasPerigosas: async (
+    params?: { q?: string; classe?: number; limit?: number },
+  ): Promise<{ itens: MercadoriaPerigosaCadastro[]; total: number }> => {
+    const search = new URLSearchParams()
+    if (params?.q) search.set('q', params.q)
+    if (params?.classe != null) search.set('classe', String(params.classe))
+    if (params?.limit) search.set('limit', String(params.limit))
+    const qs = search.toString()
+    const path = `/api/v1/bid-frete-internacional/dados-mestre/mercadorias-perigosas${qs ? `?${qs}` : ''}`
+    const raw = await requestPublicDadosMestreBidFrete<unknown>(path)
+    const parsed = listaMercadoriasPerigosasBidSchema.parse(raw)
+    return { itens: parsed.mercadorias_perigosas, total: parsed.total }
   },
 
   listarContainers: (params?: { q?: string; limit?: number }): Promise<{ itens: ContainerCadastro[]; total: number }> => {

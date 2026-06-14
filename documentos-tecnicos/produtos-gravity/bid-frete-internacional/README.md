@@ -12,6 +12,7 @@
 | Documento | Conteúdo |
 |-----------|----------|
 | [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) | Wizard Nova Cotação (5 passos), passo Fornecedores, disparo, preview e seleção |
+| [CARGA-PERIGOSA-TECNICO.md](./CARGA-PERIGOSA-TECNICO.md) | Catálogo ONU (Cadastros), 7 colunas na cotação, proxy, Zod, UX passos 1/3 |
 | [CATALOGO-AEROPORTOS-CADASTROS.md](./CATALOGO-AEROPORTOS-CADASTROS.md) | Cache aeroportos Cadastros (#302) — limites, proxy, consumidores |
 | [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) | Entidade BID opcional, hierarquia, FKs, snapshots, API CRUD |
 | [LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md](./LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md) | Lista: expandir/recolher, seleção, duplicar e excluir em lote (API + UX) |
@@ -39,6 +40,7 @@
 
 | PR / entrega | Escopo |
 |--------------|--------|
+| 2026-06 carga perigosa | Catálogo `mercadoria_perigosa` (Cadastros), 7 colunas DG na cotação, proxy `dados-mestre/mercadorias-perigosas`, modal passos 1/3 — ver [CARGA-PERIGOSA-TECNICO.md](./CARGA-PERIGOSA-TECNICO.md) |
 | #284 | Passo Fornecedores: preview Aberta, calendário prazo, `criarCotacaoComDisparo`, feedback ruidoso disparo |
 | #288 | Selecionar/Desmarcar todos (Direcionada), rótulo *Ver fornecedores e notas* |
 | #290 | Barras de nota na Direcionada (`BarrasNotasFornecedores` abaixo da lista) |

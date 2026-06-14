@@ -17,6 +17,7 @@ import { modaisRouter } from './routes/modais.js'
 import { moedasRouter } from './routes/moedas.js'
 import { paisesRouter } from './routes/paises.js'
 import { aeroportosRouter } from './routes/aeroportos.js'
+import { mercadoriasPerigosasRouter } from './routes/mercadorias-perigosas.js'
 import { taxasOrigemDestinoCadastroRouter } from './routes/taxas-origem-destino-cadastro.js'
 import { cotacoesRouter } from './routes/cotacoes.js'
 import { fornecedoresRouter } from './routes/fornecedores.js'
@@ -107,6 +108,7 @@ app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), moedasRouter)
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), paisesRouter)
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), aeroportosRouter)
+app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), mercadoriasPerigosasRouter)
 app.use('/api/v1/bid-frete-internacional/dados-mestre', rateLimitPresets.public(), taxasOrigemDestinoCadastroRouter)
 
 // --- 6. Visao Fornecedor publico — SEM internal key (usa token de resposta) ---

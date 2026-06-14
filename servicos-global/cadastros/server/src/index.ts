@@ -23,6 +23,7 @@ import { opeRouter } from './routes/ope.js'
 import { paisesRouter } from './routes/paises.js'
 import { portosRouter } from './routes/portos.js'
 import { aeroportosRouter } from './routes/aeroportos.js'
+import { mercadoriasPerigosasRouter } from './routes/mercadorias-perigosas.js'
 import { containersRouter } from './routes/containers.js'
 import { volumesRouter } from './routes/volumes.js'
 import { taxasOrigemDestinoRouter } from './routes/taxas-origem-destino.js'
@@ -61,6 +62,7 @@ app.use('/api/v1/cadastros/operacoes-comex', opeRouter)
 app.use('/api/v1/cadastros/paises', paisesRouter)
 app.use('/api/v1/cadastros/portos', portosRouter)
 app.use('/api/v1/cadastros/aeroportos', aeroportosRouter)
+app.use('/api/v1/cadastros/mercadorias-perigosas', mercadoriasPerigosasRouter)
 app.use('/api/v1/cadastros/containers', containersRouter)
 app.use('/api/v1/cadastros/volumes', volumesRouter)
 app.use('/api/v1/cadastros/taxas-origem-destino', taxasOrigemDestinoRouter)

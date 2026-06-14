@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-06-08T19:50:55.352Z
+// Gerado em: 2026-06-12T21:14:02.350Z
 // Banco: gravity-cadastros-* (Railway)
 // Serviço: @gravity/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -308,8 +308,10 @@ model CambioSiscomex {
 
 // ---------------------------------------------------------------------
 // Porto — catálogo global de portos marítimos/fluviais (UN/LOCODE).
-// Fonte: UNECE UN/LOCODE (datahub.io), ~6.000 portos ativos.
+// Fonte: UNECE UN/LOCODE (datahub.io), importação completa (~17k) via seed-unlocode-portos.ts.
 // Critério de inclusão: Function contém "1" (port) ou "8" (inland water).
+// Camadas: ativo_porto=true (~270 operacionais COMEX — canônicos + AA Américas);
+//          ativo_porto=false (catálogo extenso — busca por código com apenas_ativos=false).
 // Atualizado 2x/ano pelo UN (via seed script manual).
 // Catálogo global — sem id_organizacao.
 // Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
@@ -382,6 +384,37 @@ model Aeroporto {
   @@index([nome_ascii_aeroporto],            map: "aeroporto_nome_ascii_idx")
   @@index([ativo_aeroporto],                 map: "aeroporto_ativo_idx")
   @@map("aeroporto")
+}
+
+// ---------------------------------------------------------------------
+// MercadoriaPerigosa — catálogo global ONU (Orange Book ST/SG/AC.10/1).
+// Fonte: lista de mercadorias perigosas ONU; seed manual / atualização bienal.
+// PK natural: numero ONU + nome ascii + grupo embalagem.
+// Catálogo global — sem id_organizacao.
+// Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md
+// ---------------------------------------------------------------------
+
+model MercadoriaPerigosa {
+  id_mercadoria_perigosa                    String   @id @default(cuid())
+
+  numero_onu_mercadoria_perigosa            String              // "1203"
+  nome_tecnico_embarque_mercadoria_perigosa String              // GASOLINA
+  nome_ascii_mercadoria_perigosa            String
+  nome_ingles_mercadoria_perigosa           String              // GASOLINE
+
+  classe_mercadoria_perigosa                Int                 // 1–9
+  divisao_mercadoria_perigosa               String?             // "2.1"
+  grupo_embalagem_mercadoria_perigosa       String?             // I | II | III
+
+  versao_fonte_mercadoria_perigosa          String              // "2025"
+  ativo_mercadoria_perigosa                 Boolean  @default(true)
+
+  @@unique([numero_onu_mercadoria_perigosa, nome_ascii_mercadoria_perigosa, grupo_embalagem_mercadoria_perigosa])
+  @@index([numero_onu_mercadoria_perigosa],     map: "mercadoria_perigosa_onu_idx")
+  @@index([nome_ascii_mercadoria_perigosa],     map: "mercadoria_perigosa_nome_ascii_idx")
+  @@index([classe_mercadoria_perigosa],         map: "mercadoria_perigosa_classe_idx")
+  @@index([ativo_mercadoria_perigosa],          map: "mercadoria_perigosa_ativo_idx")
+  @@map("mercadoria_perigosa")
 }
 
 // ---------------------------------------------------------------------

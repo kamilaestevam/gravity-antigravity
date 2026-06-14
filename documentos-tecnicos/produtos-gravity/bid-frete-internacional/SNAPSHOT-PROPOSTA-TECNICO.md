@@ -78,7 +78,15 @@ FK: `proposta → bid_frete_internacional` ON DELETE SET NULL.
 
 ---
 
-## 5. Frontend
+## 5. Carga perigosa (DG) — fora do snapshot da proposta
+
+Campos DG (`eh_carga_perigosa_*`, `numero_onu_*`, classe, divisão, PG, observações) vivem **somente** em `cotacao_bid_frete_internacional`. A proposta **não** duplica esses campos — o prestador e relatórios leem via `id_cotacao_bid_frete_internacional`.
+
+Ver: [CARGA-PERIGOSA-TECNICO.md](./CARGA-PERIGOSA-TECNICO.md)
+
+---
+
+## 6. Frontend
 
 Tipo `PropostaBidFreteInternacional` em `client/src/shared/types.ts`:
 
@@ -92,7 +100,7 @@ Ordem dos campos no type espelha ordem lógica (não afeta banco):
 
 ---
 
-## 6. Testes pendentes (débito QA)
+## 7. Testes pendentes (débito QA)
 
 - [ ] Unitário: `snapshot-proposta-bid-frete.test.ts`
 - [ ] Funcional: assert create proposta persiste `id_bid` quando cotação vinculada a BID

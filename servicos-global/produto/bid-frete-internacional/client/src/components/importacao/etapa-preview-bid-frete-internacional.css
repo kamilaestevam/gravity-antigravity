@@ -1,0 +1,177 @@
+/**
+ * Preview BID — paridade Pedido Smart Import (cards + filtros)
+ */
+
+@import './etapa-mapeamento-bid-frete-internacional.css';
+
+.smart-import__contador {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #94a3b8);
+  border-bottom: 1px solid var(--border-subtle, #334155);
+  margin-bottom: 1rem;
+}
+
+.smart-import__contador strong {
+  color: var(--text-primary, #f1f5f9);
+}
+
+.smart-import__filtros {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.smart-import__filtro-btn--ativo {
+  background: var(--ws-accent, #6366f1);
+  border-color: var(--ws-accent, #6366f1);
+  color: #fff;
+}
+
+.smart-import__cards-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.smart-import__card-pedido {
+  border: 1px solid var(--border-subtle, #334155);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: var(--bg-surface, #1e293b);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.smart-import__card-pedido--selecionado {
+  border-color: var(--ws-accent, #6366f1);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.smart-import__card-pedido--desmarcado {
+  opacity: 0.72;
+}
+
+.smart-import__card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.smart-import__numero-pedido-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.smart-import__numero-pedido {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ws-accent, #818cf8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.smart-import__status-ok { color: #34d399; }
+.smart-import__status-aviso { color: #f59e0b; }
+.smart-import__status-erro { color: #ef4444; }
+
+.smart-import__expandir-campos {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0 0;
+  transition: color 0.15s;
+}
+
+.smart-import__expandir-campos:hover {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.smart-import__campos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+  margin-top: 0.375rem;
+}
+
+@media (max-width: 720px) {
+  .smart-import__campos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.smart-import__campo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.smart-import__campo-label {
+  font-size: 0.6875rem;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.smart-import__campo-valor {
+  font-size: 0.8125rem;
+  color: var(--text-primary, #f1f5f9);
+  word-break: break-word;
+}
+
+.bid-import-preview-badge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.bid-import-preview-badge--ok {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.bid-import-preview-badge--aviso {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.bid-import-preview-badge--erro {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.bid-import-preview-alertas {
+  margin: 0.375rem 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.bid-import-preview-alertas li {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  margin-bottom: 0.25rem;
+}
+
+.bid-import-preview-alerta--erro { color: #ef4444; }
+.bid-import-preview-alerta--aviso { color: #f59e0b; }

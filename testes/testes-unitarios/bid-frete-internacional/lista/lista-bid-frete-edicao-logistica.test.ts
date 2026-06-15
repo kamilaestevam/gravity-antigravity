@@ -53,7 +53,7 @@ describe('lista-bid-frete-edicao-logistica', () => {
     expect(codigoOrigemParaEdicao(c)).toBe('EZE')
   })
 
-  it('patchOrigemPorCodigoCadastro em AEREO grava IATA sem campo aeroporto_*', () => {
+  it('patchOrigemPorCodigoCadastro em AEREO grava IATA e snapshot de origem', () => {
     const patch = patchOrigemPorCodigoCadastro(
       cotacaoBase({ modal_cotacao_bid_frete_internacional: 'AEREO' }),
       'EZE',
@@ -66,7 +66,7 @@ describe('lista-bid-frete-edicao-logistica', () => {
         ativo_aeroporto: true,
       }],
     )
-    expect(patch).not.toHaveProperty('aeroporto_origem_cotacao_bid_frete_internacional')
+    expect(patch.aeroporto_origem_cotacao_bid_frete_internacional).toBe('EZE')
     expect(patch.origem_codigo_cotacao_bid_frete_internacional).toBe('EZE')
     expect(patch.origem_nome_cotacao_bid_frete_internacional).toContain('Ezeiza')
   })
@@ -83,12 +83,12 @@ describe('lista-bid-frete-edicao-logistica', () => {
     expect(patch.origem_pais_cotacao_bid_frete_internacional).toBe('AR')
   })
 
-  it('resolverPatchEdicaoLocalizacao retorna patch para origem_nome', () => {
+  it('resolverPatchEdicaoLocalizacao retorna patch para porto_origem', () => {
     const patch = resolverPatchEdicaoLocalizacao(
       cotacaoBase(),
-      'origem_nome_cotacao_bid_frete_internacional',
+      'porto_origem_cotacao_bid_frete_internacional',
       'ARBUE',
-      [{ codigo_unlocode_porto: 'ARBUE', nome_porto: 'Buenos Aires', ativo_porto: true }],
+      [{ codigo_unlocode_porto: 'ARBUE', nome_porto: 'Buenos Aires', codigo_pais_porto: 'AR', ativo_porto: true }],
       [],
     )
     expect(patch?.origem_codigo_cotacao_bid_frete_internacional).toBe('ARBUE')

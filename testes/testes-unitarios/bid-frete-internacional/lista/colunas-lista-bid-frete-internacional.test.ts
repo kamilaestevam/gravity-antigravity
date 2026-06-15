@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
+  ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
+} from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/ordem-colunas-lista-bid-frete-internacional'
+import {
   CAMPOS_EDITAVEIS_LISTA,
   CAMPOS_NAO_EDITAVEIS_LISTA,
   CHAVES_COLUNAS_COTACAO,
@@ -67,18 +71,38 @@ describe('CHAVES_COLUNAS — visibilidade padrão', () => {
     expect(CHAVES_COLUNAS_COTACAO).toContain('id_cotacao_bid_frete_internacional')
   })
 
-  it('CHAVES_COLUNAS_PADRAO_VISIVEIS oculta id_cotacao_bid_frete_internacional', () => {
+  it('CHAVES_COLUNAS_PADRAO_VISIVEIS oculta colunas técnicas (ID, Produto, Usuário)', () => {
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).not.toContain('id_cotacao_bid_frete_internacional')
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).not.toContain('id_produto_gravity')
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).not.toContain('id_usuario')
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('numero_cotacao_bid_frete_internacional')
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('id_organizacao')
     expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('id_workspace')
-    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toContain('id_usuario')
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toHaveLength(41)
   })
 
-  it('coluna ID interna está marcada como oculta em buildColunasCotacoes', () => {
+  it('CHAVES_COLUNAS_COTACAO segue ordem canônica da lista (41 exibidas + 3 ocultas)', () => {
+    expect(CHAVES_COLUNAS_COTACAO).toEqual(ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL)
+    expect(CHAVES_COLUNAS_PADRAO_VISIVEIS).toEqual(CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA)
+  })
+
+  it('ordem padrão visível: Status e Operação após Nº da cotação; Porto destino antes de origem', () => {
+    const keys = CHAVES_COLUNAS_PADRAO_VISIVEIS
+    expect(keys.indexOf('status_cotacao_bid_frete_internacional')).toBe(1)
+    expect(keys.indexOf('tipo_operacao_cotacao_bid_frete_internacional')).toBe(2)
+    expect(keys.indexOf('porto_destino_cotacao_bid_frete_internacional')).toBeLessThan(
+      keys.indexOf('porto_origem_cotacao_bid_frete_internacional'),
+    )
+    expect(keys.indexOf('moeda_meta_cotacao_bid_frete_internacional')).toBeLessThan(
+      keys.indexOf('valor_meta_cotacao_bid_frete_internacional'),
+    )
+  })
+
+  it('colunas técnicas estão marcadas como oculta em buildColunasCotacoes', () => {
     const colunas = buildColunasCotacoes(null)
-    const colId = colunas.find(c => c.key === 'id_cotacao_bid_frete_internacional')
-    expect(colId?.oculta).toBe(true)
+    expect(colunas.find(c => c.key === 'id_cotacao_bid_frete_internacional')?.oculta).toBe(true)
+    expect(colunas.find(c => c.key === 'id_produto_gravity')?.oculta).toBe(true)
+    expect(colunas.find(c => c.key === 'id_usuario')?.oculta).toBe(true)
   })
 
   it('coluna id_produto_gravity exibe label Produto Gravity', () => {
@@ -101,14 +125,14 @@ describe('CHAVES_COLUNAS — visibilidade padrão', () => {
     }
   })
 
-  it('colunas rota destino incluem pais e endereco apos destino nome', () => {
+  it('colunas rota destino: endereco e pais apos destino nome (ordem padrao lista)', () => {
     const colunas = buildColunasCotacoes(null)
     const keys = colunas.map(c => c.key)
     const idxDestino = keys.indexOf('destino_nome_cotacao_bid_frete_internacional')
-    const idxPais = keys.indexOf('destino_pais_cotacao_bid_frete_internacional')
     const idxEndereco = keys.indexOf('endereco_destino_cotacao_bid_frete_internacional')
-    expect(idxPais).toBeGreaterThan(idxDestino)
-    expect(idxEndereco).toBe(idxPais + 1)
+    const idxPais = keys.indexOf('destino_pais_cotacao_bid_frete_internacional')
+    expect(idxEndereco).toBe(idxDestino + 1)
+    expect(idxPais).toBe(idxEndereco + 1)
   })
 
   it('CHAVES_COLUNAS_PADRAO_VISIVEIS inclui pais e endereco destino', () => {
@@ -155,14 +179,19 @@ describe('CAMPOS_EDITAVEIS_LISTA — edição inline', () => {
     expect(colunas.find(c => c.key === 'visibilidade_cotacao_bid_frete_internacional')?.opcoes).toHaveLength(2)
   })
 
-  it('coluna Origem usa opcoes de cadastro (select) e getValorEditar por código', () => {
+  it('coluna Origem é somente leitura na lista (logística via porto/aeroporto)', () => {
     const colunas = buildColunasCotacoes(null, {
       portosOpcoes: [{ valor: 'ARBUE', label: 'ARBUE — Buenos Aires' }],
       aeroportosOpcoes: [{ valor: 'GRU', label: 'GRU — Guarulhos' }],
     })
     const colOrigem = colunas.find(c => c.key === 'origem_nome_cotacao_bid_frete_internacional')
-    expect(colOrigem?.opcoes).toHaveLength(2)
-    expect(colOrigem?.getValorEditar?.(cotacaoBase())).toBe('BRSSZ')
+    expect(colOrigem).toBeDefined()
+    expect(colOrigem?.opcoes).toBeUndefined()
+    expect(typeof colOrigem?.editavel === 'function'
+      ? colOrigem.editavel(cotacaoBase())
+      : colOrigem?.editavel).toBe(false)
+    const colPortoOrigem = colunas.find(c => c.key === 'porto_origem_cotacao_bid_frete_internacional')
+    expect(colPortoOrigem?.opcoes).toHaveLength(2)
   })
 })
 
@@ -174,7 +203,7 @@ describe('buildMapaColunasFilho — contrato GTMapaColunasFilho (render recebe s
     const entrada = mapa.origem_nome_cotacao_bid_frete_internacional
     expect(entrada).toBeDefined()
     expect(() => entrada.render(cotacaoBase())).not.toThrow()
-    expect(entrada.getValorEditar?.(cotacaoBase())).toBe('BRSSZ')
+    expect(entrada.getValorEditar).toBeUndefined()
   })
 })
 

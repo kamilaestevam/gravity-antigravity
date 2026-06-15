@@ -9,8 +9,10 @@ import { extrairCodigoDeRotuloImportacao } from './rotulo-cadastro-importacao-bi
 import {
   prepararCamposRotaCotacaoPersistencia,
   type CamposRotaModalCotacao,
+  type ContextoCatalogoRota,
   type ModalRotaCotacao,
 } from './rota-cotacao-bid-frete-internacional'
+import { resolverModalidadeImportacaoBidFreteInternacional, type ModalidadeCargaImportacaoBid } from './resolver-modalidade-importacao-bid-frete-internacional'
 import type { LinhaImportacaoBidFreteInternacional } from './tipos-importacao-bid-frete-internacional'
 
 function trim(val: string | undefined | null): string {
@@ -59,6 +61,7 @@ export interface PayloadCriacaoCotacaoImportacaoBidFreteInternacional {
   id_bid_bid_frete_internacional?: string
   tipo_operacao_cotacao_bid_frete_internacional: string
   modal_cotacao_bid_frete_internacional: ModalRotaCotacao
+  modalidade_cotacao_bid_frete_internacional: ModalidadeCargaImportacaoBid | ''
   porto_origem_cotacao_bid_frete_internacional?: string
   porto_destino_cotacao_bid_frete_internacional?: string
   aeroporto_origem_cotacao_bid_frete_internacional?: string
@@ -82,14 +85,17 @@ export interface PayloadCriacaoCotacaoImportacaoBidFreteInternacional {
 export function montarPayloadCriacaoCotacaoImportacaoBidFreteInternacional(
   row: LinhaImportacaoBidFreteInternacional,
   idBid?: string,
+  ctx: ContextoCatalogoRota = {},
 ): PayloadCriacaoCotacaoImportacaoBidFreteInternacional {
   const camposRota = linhaImportacaoParaCamposRotaModal(row)
-  const rota = prepararCamposRotaCotacaoPersistencia(camposRota)
+  const rota = prepararCamposRotaCotacaoPersistencia(camposRota, ctx)
+  const modalidade = resolverModalidadeImportacaoBidFreteInternacional(row)
 
   return {
     ...(idBid ? { id_bid_bid_frete_internacional: idBid } : {}),
     tipo_operacao_cotacao_bid_frete_internacional: trim(row.tipo_operacao_cotacao_bid_frete_internacional).toUpperCase(),
     modal_cotacao_bid_frete_internacional: rota.modal_cotacao_bid_frete_internacional,
+    modalidade_cotacao_bid_frete_internacional: modalidade ?? '',
     porto_origem_cotacao_bid_frete_internacional: trim(rota.porto_origem_cotacao_bid_frete_internacional) || undefined,
     porto_destino_cotacao_bid_frete_internacional: trim(rota.porto_destino_cotacao_bid_frete_internacional) || undefined,
     aeroporto_origem_cotacao_bid_frete_internacional: trim(rota.aeroporto_origem_cotacao_bid_frete_internacional) || undefined,

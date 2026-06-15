@@ -12,6 +12,12 @@
       "dashboard": "Dashboard",
       "kanban": "Kanban"
     },
+    "lista": {
+      "label_bid_one": "bid",
+      "label_bid_other": "bids",
+      "label_cotacao_one": "quote",
+      "label_cotacao_other": "quotes"
+    },
     "nova_cotacao": {
       "tipo_operacao_cotacao_bid_frete_internacional": "Operation Type",
       "modalidade_cotacao_bid_frete_internacional": "Modality",

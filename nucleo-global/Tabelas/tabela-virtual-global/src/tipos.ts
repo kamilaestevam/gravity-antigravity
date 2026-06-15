@@ -365,8 +365,15 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * o rodapé exibe "X pedidos Y itens · página N de N".
    */
   labelPai?: [string, string]
+  /** Rótulo singular/plural para filhos no rodapé (default: item/itens). */
+  labelFilho?: [string, string]
   /** Contagem de registros filhos (ex: total de itens de pedido) exibida no rodapé. */
   totalFilhos?: number
+  /**
+   * Contagem exibida no 1º segmento do rodapé quando difere de `totalItens` (paginação).
+   * Ex.: BID Frete — bids no rodapé, linhas pai na paginação.
+   */
+  totalRodapePai?: number
 
   // ── Abas de status ─────────────────────────────────────────────────────────
   abas?: GTAbaTipo[]

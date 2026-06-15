@@ -64,7 +64,7 @@
 
 .bf-lista-page .lp-tabela-wrapper {
   flex: 1 1 auto;
-  min-height: clamp(20rem, 55vh, 40rem);
+  min-height: 620px;
 }
 
 .bf-lista-page .lp-tabela-wrapper--faixa-unificada .lp-tabela-chrome > .gtv-container {

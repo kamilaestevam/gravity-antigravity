@@ -230,6 +230,31 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
     [cotacoesFiltradas],
   )
 
+  const linhasPaiPagina = useMemo(() => {
+    const inicio = (paginaLista - 1) * tabelaConfig.linhasPorPagina
+    return linhasPaiFiltradas.slice(inicio, inicio + tabelaConfig.linhasPorPagina)
+  }, [linhasPaiFiltradas, paginaLista, tabelaConfig.linhasPorPagina])
+
+  const labelBidPaginacao = useMemo(
+    (): [string, string] => [
+      t('bidfrete.lista.label_bid_one', 'bid'),
+      t('bidfrete.lista.label_bid_other', 'bids'),
+    ],
+    [t],
+  )
+
+  const labelCotacaoPaginacao = useMemo(
+    (): [string, string] => [
+      t('bidfrete.lista.label_cotacao_one', 'cotação'),
+      t('bidfrete.lista.label_cotacao_other', 'cotações'),
+    ],
+    [t],
+  )
+
+  useEffect(() => {
+    setPaginaLista(1)
+  }, [filtroTab, busca, tabelaConfig.linhasPorPagina])
+
   const cotacoesParaKpi = useMemo(
     () => filtrarCotacoesPorPeriodoCards(cotacoesFiltradas, periodoCards),
     [cotacoesFiltradas, periodoCards],
@@ -418,16 +443,19 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
                 </div>
               )}
               <TabelaVirtualGlobal<LinhaPaiLista, Cotacao>
-                dados={linhasPaiFiltradas}
+                dados={linhasPaiPagina}
                 colunas={colunasTabela}
                 itemId={idLinhaPaiLista}
                 onCarregarFilhos={handleCarregarFilhos}
                 itensPorPagina={tabelaConfig.linhasPorPagina}
                 totalItens={linhasPaiFiltradas.length}
+                totalRodapePai={0}
+                totalFilhos={cotacoesFiltradas.length}
                 paginaAtual={paginaLista}
                 onMudarPagina={setPaginaLista}
                 classNameLinhaPai={classNameLinhaPai}
-                labelPai={['registro', 'registros']}
+                labelPai={labelBidPaginacao}
+                labelFilho={labelCotacaoPaginacao}
                 acoes={acoes}
                 acoesExportacao={acoesExportacao}
                 acoesBarra={acoesBarra}

@@ -1817,7 +1817,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   paginaAtual,
   onMudarPagina,
   labelPai,
+  labelFilho = ['item', 'itens'],
   totalFilhos,
+  totalRodapePai,
   abas,
   abaAtiva,
   onMudarAba,
@@ -2941,7 +2943,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [janelaVirtual.ativo, assinaturaColunas, colsCongeladas])
 
   const totalEfetivo = modoExterno ? totalItens : dados.length
-  const totalPaginas = Math.ceil(totalEfetivo / itensPorPagina)
+  const totalPaginas = Math.max(1, Math.ceil(totalEfetivo / itensPorPagina))
+  const contagemPaiRodape = totalRodapePai ?? totalEfetivo
+  const exibirRodapePaginacao =
+    !carregando && (totalPaginas > 1 || (labelPai != null && totalFilhos !== undefined))
 
   const mudarPagina = useCallback((pagina: number) => {
     if (modoExterno) {
@@ -4308,7 +4313,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       )}
 
       {/* Rodapé de paginação */}
-      {!carregando && totalPaginas > 1 && (
+      {exibirRodapePaginacao && (
         <div className="gtv-paginacao" role="navigation" aria-label="Paginação">
           <span className="gtv-paginacao-info">
             {modoLocalizar && termoBusca
@@ -4318,10 +4323,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   return `${label} · página ${paginaEfetiva} de ${totalPaginas}`
                 })()
               : labelPai && totalFilhos !== undefined
-                ? `${totalEfetivo} ${totalEfetivo === 1 ? labelPai[0] : labelPai[1]} · ${totalFilhos} ${totalFilhos === 1 ? 'item' : 'itens'} · página ${paginaEfetiva} de ${totalPaginas}`
+                ? `${contagemPaiRodape} ${contagemPaiRodape === 1 ? labelPai[0] : labelPai[1]} · ${totalFilhos} ${totalFilhos === 1 ? labelFilho[0] : labelFilho[1]} · página ${paginaEfetiva} de ${totalPaginas}`
                 : `${totalEfetivo} ${totalEfetivo === 1 ? 'item' : 'itens'} · página ${paginaEfetiva} de ${totalPaginas}`
             }
           </span>
+          {totalPaginas > 1 && (
           <div className="gtv-paginacao-controles">
             <button className="gtv-pag-btn" disabled={paginaEfetiva === 1} onClick={() => mudarPagina(1)} aria-label="Primeira página">«</button>
             <button className="gtv-pag-btn" disabled={paginaEfetiva === 1} onClick={() => mudarPagina(paginaEfetiva - 1)} aria-label="Página anterior">‹</button>
@@ -4348,6 +4354,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             <button className="gtv-pag-btn" disabled={paginaEfetiva === totalPaginas} onClick={() => mudarPagina(paginaEfetiva + 1)} aria-label="Próxima página">›</button>
             <button className="gtv-pag-btn" disabled={paginaEfetiva === totalPaginas} onClick={() => mudarPagina(totalPaginas)} aria-label="Última página">»</button>
           </div>
+          )}
         </div>
       )}
 

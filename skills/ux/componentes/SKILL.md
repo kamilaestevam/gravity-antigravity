@@ -11,6 +11,8 @@ Antes de criar qualquer componente novo, consultar este catálogo. Se a necessid
 
 > **Regra:** nunca criar um componente que já existe no `nucleo-global` ou nos serviços de organização. Duplicação é proibida.
 
+> ⚠️ **REGRA ABSOLUTA:** Ver [`skills/governanca/lei/agent-policy/SKILL.md`](../../governanca/lei/agent-policy/SKILL.md) — seção **Componentes compartilhados (`nucleo-global`)**. Alterar `TabelaVirtualGlobal`, `TabelaGlobal` ou qualquer export do núcleo **sem autorização explícita do dono** é proibido. Preferir props/callbacks já existentes no produto vertical (ex.: `renderConectorPai` no BID Frete).
+
 ---
 
 ## Decisão Rápida — Por Tipo de Necessidade

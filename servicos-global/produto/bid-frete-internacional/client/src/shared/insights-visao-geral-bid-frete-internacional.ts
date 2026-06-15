@@ -104,3 +104,46 @@ export function mapInsightsAlertasFromServer(
 ): CalendarioAlerta[] {
   return raw.alertas
 }
+
+export const insightsGraficosResponseSchema = z.object({
+  total_cotacoes: z.number(),
+  cotacoes_por_mes: z.array(
+    z.object({
+      mes: z.string(),
+      chave_mes: z.string(),
+      aprovadas: z.number(),
+      andamento: z.number(),
+      recusadas: z.number(),
+    }),
+  ),
+  distribuicao_modal: z.array(
+    z.object({
+      modal_cotacao_bid_frete_internacional: z.string(),
+      count: z.number(),
+      pct: z.number(),
+      cor: z.string(),
+    }),
+  ),
+  top_incoterms: z.array(
+    z.object({
+      incoterm_cotacao_bid_frete_internacional: z.string(),
+      count: z.number(),
+      pct: z.number(),
+    }),
+  ),
+  melhor_cotacao_mes: z
+    .object({
+      numero_cotacao_bid_frete_internacional: z.string(),
+      origem: z.string(),
+      destino: z.string(),
+      modal_cotacao_bid_frete_internacional: z.string(),
+      saving_pct: z.number(),
+      ganho_valor_cotacao_bid_frete_internacional: z.number(),
+      valor_aprovado_ganho_bid_frete_internacional: z.number(),
+      fornecedor: z.string(),
+      transit_time: z.number().nullable(),
+    })
+    .nullable(),
+})
+
+export type InsightsGraficosBidFreteInternacionalCliente = z.infer<typeof insightsGraficosResponseSchema>

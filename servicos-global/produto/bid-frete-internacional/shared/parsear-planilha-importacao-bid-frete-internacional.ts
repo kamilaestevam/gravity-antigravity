@@ -31,7 +31,7 @@ function splitCsvLine(line: string, delimiter: string): string[] {
 }
 
 function linhaVazia(cells: string[]): boolean {
-  return cells.every(c => c.trim().length === 0)
+  return cells.every(c => (c ?? '').trim().length === 0)
 }
 
 export function parseCsvBruto(content: string): {
@@ -105,7 +105,8 @@ function parseCsvModoGravity(content: string): ResultadoParseImportacaoBidFreteI
     const idx = headerNorm.findIndex(h => {
       const keyNorm = normalizarNomeCampoImportacaoBidFreteInternacional(meta.campo)
       const rotuloNorm = normalizarNomeCampoImportacaoBidFreteInternacional(meta.rotulo)
-      return h === keyNorm || h === rotuloNorm || h.replace(/\s/g, '') === keyNorm.replace(/\s/g, '')
+      const hNorm = h ?? ''
+      return hNorm === keyNorm || hNorm === rotuloNorm || hNorm.replace(/\s/g, '') === keyNorm.replace(/\s/g, '')
     })
     if (idx >= 0) {
       colMap[meta.campo] = idx
@@ -135,7 +136,7 @@ function parseCsvModoGravity(content: string): ResultadoParseImportacaoBidFreteI
       row[meta.campo] = bruta[cab] ?? ''
     }
     return row
-  })
+  }).filter(r => !linhaVaziaImportacao(r))
 
   return {
     linhas,

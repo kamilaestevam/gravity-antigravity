@@ -40,6 +40,7 @@
 
 | PR / entrega | Escopo |
 |--------------|--------|
+| AGT-000264 (2026-06-15) | Lista: chevron só em BID (COT avulsa sem expand); `filtrarBidsParaLista` + enrich; fix cotações sumidas ao vincular subset — ver [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) §5 e [LISTA-ACOES-LOTE](./LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md) |
 | 2026-06 carga perigosa | Catálogo `mercadoria_perigosa` (Cadastros), 7 colunas DG na cotação, proxy `dados-mestre/mercadorias-perigosas`, modal passos 1/3 — ver [CARGA-PERIGOSA-TECNICO.md](./CARGA-PERIGOSA-TECNICO.md) |
 | #284 | Passo Fornecedores: preview Aberta, calendário prazo, `criarCotacaoComDisparo`, feedback ruidoso disparo |
 | #288 | Selecionar/Desmarcar todos (Direcionada), rótulo *Ver fornecedores e notas* |

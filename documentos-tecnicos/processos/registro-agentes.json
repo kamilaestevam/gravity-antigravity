@@ -10,6 +10,21 @@
     "total_historico": 263,
     "nota": "Contagem retroativa de agent-transcripts antes do registro sequencial via /novo-agente"
   },
-  "proximo_numero": 264,
-  "entradas": []
+  "proximo_numero": 265,
+  "entradas": [
+    {
+      "referencia": "AGT-000264",
+      "numero": 264,
+      "titulo_canonico": "IMP-BIDFRT-LISTA-MEL-OCULTAR-EXPAND-COT",
+      "titulo_exibicao": "IMP [BID Frete] MEL — Ocultar expand cotação avulsa",
+      "tipo_sessao": "IMP",
+      "local": "BIDFRT",
+      "area": "LISTA",
+      "tipo_entrega": "MEL",
+      "resumo": "OCULTAR-EXPAND-COT",
+      "data_registro": "2026-06-15T00:00:00.000Z",
+      "tipo": "conversa_principal",
+      "id_transcript": null
+    }
+  ]
 }

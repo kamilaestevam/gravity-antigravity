@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 264,
+  "proximo_numero": 266,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -97,6 +97,40 @@
       "tempo_liquido_horas": 0.06,
       "tokens_estimados_total": 5489,
       "arquivo_ficha": "registros/TASK-000005.json"
+    },
+    {
+      "referencia": "TASK-000264",
+      "ordinal": 6,
+      "titulo_canonico": "BIDFRT-INSIGHTS-BUG-NAO-ESPELHA-LISTA",
+      "titulo_exibicao": "[BID Frete] INSIGHTS | BUG — Insights não espelham dados da lista",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": "INSIGHTS",
+      "tipo_entrega": "BUG",
+      "resumo": "NAO-ESPELHA-LISTA",
+      "data_criacao": "2026-06-15T12:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000264.json"
+    },
+    {
+      "referencia": "TASK-000265",
+      "ordinal": 7,
+      "titulo_canonico": "BIDFRT-DASHBOARD-BUG-NAO-ESPELHA-LISTA",
+      "titulo_exibicao": "[BID Frete] DASHBOARD | BUG — Dashboard não espelha dados da lista",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": "DASHBOARD",
+      "tipo_entrega": "BUG",
+      "resumo": "NAO-ESPELHA-LISTA",
+      "data_criacao": "2026-06-15T18:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000265.json"
     }
   ]
 }

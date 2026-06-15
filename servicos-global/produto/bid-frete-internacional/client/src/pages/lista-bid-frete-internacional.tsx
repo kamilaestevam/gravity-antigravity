@@ -22,13 +22,7 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
-import type {
-  GTPreferencias,
-  GTColuna,
-  GTAbaTipo,
-  GTVirtualHandle,
-  GTConectorPaiContext,
-} from '@nucleo/tabela-virtual-global'
+import type { GTPreferencias, GTColuna, GTAbaTipo, GTVirtualHandle } from '@nucleo/tabela-virtual-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   FileText,
@@ -128,6 +122,7 @@ import {
 } from './colunas-lista-bid-frete-internacional'
 import {
   montarLinhasPaiListaComFallback,
+  filtrarBidsParaLista,
   idLinhaPaiLista,
   idLinhaFilhaLista,
   isLinhaBidGrupo,
@@ -138,6 +133,7 @@ import {
   type LinhaPaiLista,
   type LinhaFilhaLista,
 } from './lista-bid-frete-internacional-utils'
+import { renderConectorPaiListaBidFreteInternacional } from './conector-pai-lista-bid-frete-internacional'
 import {
   EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
   lerStatusCotacaoConfigBidFreteInternacional,
@@ -901,22 +897,10 @@ export default function Cotacoes() {
     [cotacoesAvulsas, filtrarCotacaoItem],
   )
 
-  const bidsFiltrados = useMemo(() => {
-    const term = busca.trim().toLowerCase()
-    return bidsFreteInternacional
-      .map(bid => {
-        const cotacoesFilhas = (bid.cotacoes ?? []).filter(filtrarCotacaoItem)
-        if (cotacoesFilhas.length === 0) {
-          if (!term) return null
-          const matchBid =
-            bid.numero_bid_bid_frete_internacional.toLowerCase().includes(term) ||
-            (bid.referencia_interna_bid_bid_frete_internacional ?? '').toLowerCase().includes(term)
-          if (!matchBid) return null
-        }
-        return { ...bid, cotacoes: cotacoesFilhas.length > 0 ? cotacoesFilhas : (bid.cotacoes ?? []) }
-      })
-      .filter((b): b is BidFreteInternacional => b != null)
-  }, [bidsFreteInternacional, filtrarCotacaoItem, busca])
+  const bidsFiltrados = useMemo(
+    () => filtrarBidsParaLista(bidsFreteInternacional, filtrarCotacaoItem, busca),
+    [bidsFreteInternacional, filtrarCotacaoItem, busca],
+  )
 
   const linhasPaiFiltradas = useMemo(
     () => montarLinhasPaiListaComFallback(
@@ -946,38 +930,11 @@ export default function Cotacoes() {
     return []
   }, [])
 
-  const renderConectorPai = useCallback((item: LinhaPaiLista, ctx: GTConectorPaiContext) => {
-    if (!isLinhaBidGrupo(item)) return null
-
-    if (ctx.carregando) {
-      return <span className="gtv-spinner" aria-label="Carregando filhos..." />
-    }
-
-    return (
-      <button
-        type="button"
-        className="gtv-chevron-btn"
-        aria-expanded={ctx.expandido}
-        aria-label={ctx.expandido ? 'Colapsar cotações do BID' : 'Expandir cotações do BID'}
-        onClick={e => {
-          e.stopPropagation()
-          ctx.onToggle()
-        }}
-      >
-        <span className={`gtv-chevron-icon${ctx.expandido ? ' gtv-chevron-icon--aberto' : ''}`}>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path
-              d="M4 2L8 6L4 10"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-      </button>
-    )
-  }, [])
+  const renderConectorPai = useCallback(
+    (item: LinhaPaiLista, ctx: Parameters<typeof renderConectorPaiListaBidFreteInternacional>[1]) =>
+      renderConectorPaiListaBidFreteInternacional(item, ctx),
+    [],
+  )
 
   const handleReordenarCotacoes = useCallback((ids: string[]) => {
     const mapa = new Map(linhasPaiFiltradas.map(l => [idLinhaPaiLista(l), l]))

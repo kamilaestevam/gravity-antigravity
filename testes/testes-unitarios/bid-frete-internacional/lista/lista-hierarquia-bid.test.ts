@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   montarLinhasPaiLista,
   montarLinhasPaiListaComFallback,
+  enriquecerBidsComCotacoesDoPlano,
+  filtrarBidsParaLista,
   isLinhaBidGrupo,
   propostasFilhasDaCotacaoAvulsa,
   cotacaoPrestesAExpirar,
@@ -87,6 +89,71 @@ describe('montarLinhasPaiLista', () => {
     if (!isLinhaBidGrupo(linhas[0])) {
       expect(linhas[0].id_cotacao_bid_frete_internacional).toBe('c-bid')
     }
+  })
+
+  it('enriquece BID com cotações do plano quando include aninhado veio vazio', () => {
+    const vinculada = cotacaoBase({
+      id_cotacao_bid_frete_internacional: 'c1',
+      numero_cotacao_bid_frete_internacional: 'COT-1',
+      id_bid_bid_frete_internacional: 'bid-1',
+    })
+    const linhas = montarLinhasPaiListaComFallback(
+      [bidBase({ id_bid_bid_frete_internacional: 'bid-1', cotacoes: [] })],
+      [],
+      [vinculada],
+    )
+    expect(linhas).toHaveLength(1)
+    expect(isLinhaBidGrupo(linhas[0])).toBe(true)
+    if (isLinhaBidGrupo(linhas[0])) {
+      expect(linhas[0].quantidade_cotacoes).toBe(1)
+    }
+  })
+
+  it('filtrarBidsParaLista mantém BID sem filhas quando não há busca', () => {
+    const bids = filtrarBidsParaLista(
+      [bidBase({ id_bid_bid_frete_internacional: 'bid-vazio', cotacoes: [] })],
+      () => true,
+      '',
+    )
+    expect(bids).toHaveLength(1)
+  })
+
+  it('filtrarBidsParaLista oculta BID quando aba exclui todas as filhas do include', () => {
+    const cotacaoRascunho = cotacaoBase({
+      id_cotacao_bid_frete_internacional: 'c1',
+      numero_cotacao_bid_frete_internacional: 'COT-1',
+      id_bid_bid_frete_internacional: 'bid-1',
+      status_cotacao_bid_frete_internacional: 'RASCUNHO',
+    })
+    const bids = filtrarBidsParaLista(
+      [bidBase({ id_bid_bid_frete_internacional: 'bid-1', cotacoes: [cotacaoRascunho] })],
+      c => c.status_cotacao_bid_frete_internacional === 'ENVIADA_FORNECEDORES',
+      '',
+    )
+    expect(bids).toHaveLength(0)
+  })
+
+  it('filtrarBidsParaLista mantém BID na busca pelo número mesmo sem filhas visíveis', () => {
+    const bids = filtrarBidsParaLista(
+      [bidBase({ id_bid_bid_frete_internacional: 'bid-1', numero_bid_bid_frete_internacional: 'BID-20260615-0001', cotacoes: [] })],
+      () => false,
+      'BID-20260615',
+    )
+    expect(bids).toHaveLength(1)
+    expect(bids[0].cotacoes).toHaveLength(0)
+  })
+
+  it('enriquecerBidsComCotacoesDoPlano deduplica por id de cotação', () => {
+    const cot = cotacaoBase({
+      id_cotacao_bid_frete_internacional: 'c1',
+      numero_cotacao_bid_frete_internacional: 'COT-1',
+      id_bid_bid_frete_internacional: 'bid-1',
+    })
+    const [enriquecido] = enriquecerBidsComCotacoesDoPlano(
+      [bidBase({ id_bid_bid_frete_internacional: 'bid-1', cotacoes: [cot] })],
+      [cot],
+    )
+    expect(enriquecido.cotacoes).toHaveLength(1)
   })
 
   it('monta linha BID a partir da entidade bid_frete_internacional', () => {

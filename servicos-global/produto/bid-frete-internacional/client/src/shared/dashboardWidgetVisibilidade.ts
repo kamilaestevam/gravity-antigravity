@@ -81,3 +81,22 @@ export function ordenarWidgetsPorPadrao(
     return sa - sb
   })
 }
+
+/** Índice visual no grid (y principal, x desempate) — usado após drag/resize. */
+export function indicePosicaoGridWidget(widget: DashboardWidgetConfig): number {
+  return widget.position.y * 1000 + widget.position.x
+}
+
+/** Recalcula ordem_painel a partir das posições x/y após mover/redimensionar no grid. */
+export function sincronizarOrdemPainelPorPosicaoGrid(
+  widgets: DashboardWidgetConfig[],
+): DashboardWidgetConfig[] {
+  const sorted = [...widgets].sort(
+    (a, b) => indicePosicaoGridWidget(a) - indicePosicaoGridWidget(b),
+  )
+  const ordemPorId = new Map(sorted.map((w, i) => [w.id, i]))
+  return widgets.map(w => ({
+    ...w,
+    config: { ...w.config, [WIDGET_CONFIG_ORDEM_PAINEL]: ordemPorId.get(w.id) ?? 0 },
+  }))
+}

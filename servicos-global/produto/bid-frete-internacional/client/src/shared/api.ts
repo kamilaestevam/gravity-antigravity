@@ -44,8 +44,10 @@ import {
 import {
   dashboardKpisResponseSchema,
   insightsAlertasResponseSchema,
+  insightsGraficosResponseSchema,
   mapDashboardKpisFromServer,
   mapInsightsAlertasFromServer,
+  type InsightsGraficosBidFreteInternacionalCliente,
 } from './insights-visao-geral-bid-frete-internacional'
 import type { DadosMapaBidFrete } from './componentes/visao-geral-mapa-bid-frete'
 import type {
@@ -618,6 +620,17 @@ export async function getDashboardMapaCotacoesVisaoGeral(idsWorkspacesFiltro?: s
   return mapMapaCotacoesVisaoGeralFromServer(
     visaoGeralBidFreteInternacionalMapaCotacoesResponseSchema.parse(raw),
   )
+}
+
+export async function getDashboardInsightsGraficos(
+  idsWorkspacesFiltro?: string[],
+): Promise<InsightsGraficosBidFreteInternacionalCliente> {
+  const res = await fetch(
+    urlComEscopoWorkspaces(`${API_BASE}/bid-frete-internacional/dashboard/insights-graficos`, idsWorkspacesFiltro),
+    { headers: headers() },
+  )
+  const raw = await handleResponse<unknown>(res)
+  return insightsGraficosResponseSchema.parse(raw)
 }
 
 export async function getDashboardCalendario(): Promise<CalendarioAlerta[]> {

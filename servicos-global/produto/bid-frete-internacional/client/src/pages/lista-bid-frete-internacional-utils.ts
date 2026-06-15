@@ -165,6 +165,75 @@ export function montarLinhasPaiLista(
 }
 
 /**
+ * Mescla cotações do fetch plano (`GET /cotacoes`) nos BIDs quando o include aninhado
+ * veio vazio (ex.: filtro de workspace no servidor) — evita BID sem filhas e cotação “sumida”.
+ */
+export function enriquecerBidsComCotacoesDoPlano(
+  bids: BidFreteInternacional[],
+  cotacoesPlano: Cotacao[],
+): BidFreteInternacional[] {
+  const porBid = new Map<string, Map<string, Cotacao>>()
+  for (const c of cotacoesPlano) {
+    const idBid = c.id_bid_bid_frete_internacional
+    if (!idBid) continue
+    let mapa = porBid.get(idBid)
+    if (!mapa) {
+      mapa = new Map()
+      porBid.set(idBid, mapa)
+    }
+    mapa.set(c.id_cotacao_bid_frete_internacional, c)
+  }
+
+  return bids.map(bid => {
+    const extras = porBid.get(bid.id_bid_bid_frete_internacional)
+    if (!extras) return bid
+    const merged = new Map<string, Cotacao>()
+    for (const c of bid.cotacoes ?? []) {
+      merged.set(c.id_cotacao_bid_frete_internacional, c)
+    }
+    for (const c of extras.values()) {
+      merged.set(c.id_cotacao_bid_frete_internacional, c)
+    }
+    return { ...bid, cotacoes: [...merged.values()] }
+  })
+}
+
+/** Filtra BIDs para a lista — mantém BID com include vazio; oculta quando aba exclui todas as filhas. */
+export function filtrarBidsParaLista(
+  bids: BidFreteInternacional[],
+  filtrarCotacao: (c: Cotacao) => boolean,
+  termoBusca: string,
+): BidFreteInternacional[] {
+  const term = termoBusca.trim().toLowerCase()
+  return bids
+    .map(bid => {
+      const todasFilhas = bid.cotacoes ?? []
+      const cotacoesFilhas = todasFilhas.filter(filtrarCotacao)
+
+      if (cotacoesFilhas.length > 0) {
+        return { ...bid, cotacoes: cotacoesFilhas }
+      }
+
+      if (term) {
+        const matchBid =
+          bid.numero_bid_bid_frete_internacional.toLowerCase().includes(term) ||
+          (bid.referencia_interna_bid_bid_frete_internacional ?? '').toLowerCase().includes(term)
+        if (!matchBid) return null
+        return { ...bid, cotacoes: [] }
+      }
+
+      // Include aninhado vazio — manter BID; enriquecimento ocorre em montarLinhasPaiListaComFallback.
+      if (todasFilhas.length === 0) {
+        return { ...bid, cotacoes: [] }
+      }
+
+      // Aba/status excluiu todas as filhas do include — não exibir BID nesta aba.
+      return null
+    })
+    .filter((b): b is BidFreteInternacional => b != null)
+}
+
+/**
  * Hierarquia BID + avulsas; se cotações do fetch plano não aparecerem (ex.: API de BIDs falhou),
  * inclui as faltantes como linhas planas para não deixar a tabela vazia com KPI preenchido.
  */
@@ -173,11 +242,15 @@ export function montarLinhasPaiListaComFallback(
   cotacoesAvulsas: Cotacao[],
   cotacoesPlanoFallback: Cotacao[],
 ): LinhaPaiLista[] {
-  const hierarquia = montarLinhasPaiLista(bids, cotacoesAvulsas)
+  const bidsEnriquecidos = enriquecerBidsComCotacoesDoPlano(bids, cotacoesPlanoFallback)
+  const idsBid = new Set(bidsEnriquecidos.map(b => b.id_bid_bid_frete_internacional))
+  const hierarquia = montarLinhasPaiLista(bidsEnriquecidos, cotacoesAvulsas)
   const idsPresentes = idsCotacaoNasLinhasPai(hierarquia)
-  const faltantes = cotacoesPlanoFallback.filter(
-    c => !idsPresentes.has(c.id_cotacao_bid_frete_internacional),
-  )
+  const faltantes = cotacoesPlanoFallback.filter(c => {
+    if (idsPresentes.has(c.id_cotacao_bid_frete_internacional)) return false
+    if (c.id_bid_bid_frete_internacional && idsBid.has(c.id_bid_bid_frete_internacional)) return false
+    return true
+  })
   if (faltantes.length === 0) return hierarquia
   return ordenarLinhasPaiPorDataCriacao([...hierarquia, ...faltantes])
 }

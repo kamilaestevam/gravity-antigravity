@@ -87,13 +87,36 @@ Serviço auxiliar: `agregar-resumo-bid-frete-internacional.ts` — KPIs agregado
 ## 5. Lista (frontend)
 
 Arquivo: `client/src/pages/lista-bid-frete-internacional.tsx`  
-Utils: `lista-bid-frete-internacional-utils.ts`
+Utils: `lista-bid-frete-internacional-utils.ts`  
+Conector expand: `conector-pai-lista-bid-frete-internacional.tsx`
 
-- Linhas **BID** expandem para cotações filhas.
-- Cotações **avulsas** (`id_bid` null) aparecem no nível raiz.
-- Propostas: expand da cotação avulsa (3º nível); **não selecionáveis**.
+### Hierarquia na grid
 
-Query backend: `apenas_avulsas=true` exclui cotações já vinculadas a um BID.
+| Tipo linha | `_tipo_linha` / critério | Expand (chevron) | Filhas |
+|------------|--------------------------|------------------|--------|
+| **BID** (grupo) | `bid` — `isLinhaBidGrupo()` | Sim — `renderConectorPai` | Cotações vinculadas |
+| **COT** (avulsa) | cotação com `id_bid` null | **Não** — conector retorna `null` | Propostas (3º nível, só avulsa) |
+
+- Cotações **avulsas** aparecem no nível raiz; **não** exibem ícone `>` na coluna expand (sem subcamada de cotações).
+- Linhas **BID** exibem chevron (`gtv-chevron-btn`) e expandem para cotações filhas via `handleCarregarFilhos` → `pai.cotacoes`.
+- Propostas (filhas de cotação avulsa): expand no 3º nível; **não selecionáveis** (`bf-linha-filha-proposta`).
+
+Query backend: `GET /cotacoes?apenas_avulsas=true` exclui cotações já vinculadas a um BID da lista plana de avulsas.
+
+### Montagem e filtros (utils)
+
+| Função | Papel |
+|--------|-------|
+| `montarLinhasPaiLista` | BIDs (`buildLinhaBidGrupo`) + avulsas, ordenados por data |
+| `enriquecerBidsComCotacoesDoPlano` | Mescla cotações de `GET /cotacoes` nos BIDs quando o include aninhado veio vazio (ex.: filtro de workspace no servidor) |
+| `filtrarBidsParaLista` | Aplica filtro de aba/busca às filhas; três casos: (1) filhas passam → BID com subset; (2) include vazio → mantém BID (`cotacoes: []`) para enriquecimento posterior; (3) include tem filhas mas aba exclui todas → **oculta** BID (não devolve `todasFilhas` cruas) |
+| `montarLinhasPaiListaComFallback` | Enriquece BIDs + evita duplicar cotações vinculadas como linhas planas quando o BID pai já está na hierarquia |
+
+**Expandir todos** (toolbar): itera só linhas BID (`isLinhaBidGrupo`) via `tabelaRef.expandir(id)` — COT avulsa não entra no loop.
+
+### Núcleo intocável
+
+Comportamento de chevron condicional **não** altera `TabelaVirtualGlobal`. Implementação exclusiva do produto via prop `renderConectorPai`. Regra absoluta: `skills/governanca/lei/agent-policy/SKILL.md` (§ componentes compartilhados).
 
 **Ações em lote (PR #289, layout PR #294):** expandir/recolher todos, seleção pai+filhas, duplicar e excluir com preview. Detalhe: [LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md](./LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md).
 

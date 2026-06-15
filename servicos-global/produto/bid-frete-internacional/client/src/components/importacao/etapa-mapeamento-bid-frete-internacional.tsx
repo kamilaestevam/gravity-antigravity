@@ -307,7 +307,7 @@ export function EtapaMapeamentoBidFreteInternacional({
                     {!ehObrigatorio && ehEssencial && (
                       <Star size={11} weight="fill" style={{ color: '#f59e0b', marginRight: '0.375rem', verticalAlign: '-1px' }} aria-hidden="true" />
                     )}
-                    {col.coluna_arquivo.replace(/^\*+\s+/, '')}
+                    {(col.coluna_arquivo ?? '').replace(/^\*+\s+/, '')}
                   </td>
                   <td style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', maxWidth: 180, whiteSpace: 'nowrap' }}>
                     {colunaEditando === indexOriginal ? (

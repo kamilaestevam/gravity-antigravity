@@ -75,6 +75,24 @@ import { prisma } from '../../bid-frete/server/prisma'
 // (se precisar de algo novo no núcleo, solicitar ao agente 1A)
 ```
 
+### Regra absoluta — componentes compartilhados (`nucleo-global`)
+
+**PROIBIDO** alterar qualquer arquivo em `nucleo-global/` — incluindo `TabelaVirtualGlobal`, `TabelaGlobal`, templates de página, hooks e utilitários exportados — **sem autorização explícita do dono do projeto na conversa atual.**
+
+Motivo: um diff no núcleo afeta **Pedido, Processo, BID Frete, Cadastros** e demais produtos ao mesmo tempo. Regressão silenciosa em produto que o agente não está testando.
+
+| Situação | O que fazer |
+|:---|:---|
+| Falta prop/comportamento novo no componente global | **Parar.** Descrever a necessidade. Escalar **Líder + Coordenador**. Aguardar **duas confirmações explícitas** do dono antes de editar `nucleo-global/`. |
+| Workaround só no produto vertical | Usar API **já existente** do componente (`renderConectorPai`, `classNameLinhaPai`, callbacks, CSS scoped no produto). |
+| Agente da Onda 3+ propõe “só uma linha no núcleo” | **Rejeitar** até autorização do dono — exceção não existe. |
+
+Checklist antes de tocar em `nucleo-global/`:
+
+- [ ] Dono autorizou explicitamente nesta conversa?
+- [ ] Líder e Coordenador revisaram impacto cross-produto?
+- [ ] Plano de teste inclui **Pedido** (lista hierárquica) e pelo menos mais um consumidor da tabela?
+
 ---
 
 ## Regras de Comunicação entre Serviços

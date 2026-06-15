@@ -149,6 +149,7 @@ import {
   calcularValoresUnicosPorCampoBidFrete,
   cotacaoPassaFiltrosColuna,
   detectarTipoColunaBidFrete,
+  resolverValoresUnicosPopoverBidFrete,
   getLabelsFiltroInversoBidFrete,
   mapColunaUsuarioBidFreteParaGTColuna,
   type ColunaUsuarioBidFreteLista,
@@ -2221,7 +2222,11 @@ export default function Cotacoes() {
                 label={col.label}
                 tipo={detectarTipoColunaBidFrete(col)}
                 filtroAtual={filtrosAtivosLista[String(col.key)]}
-                valoresUnicos={valoresUnicosPorCampo[String(col.key)] ?? []}
+                valoresUnicos={resolverValoresUnicosPopoverBidFrete(
+                  col,
+                  valoresUnicosPorCampo,
+                  colunasPersonalizadasPorChave,
+                )}
                 onAplicar={handleAplicarFiltroColuna}
                 onLimpar={handleLimparFiltroColuna}
                 onOrdenar={handleOrdenarFiltroColuna}

@@ -48,7 +48,7 @@ const bidFreteVisualizacoesFornecedorElement = <BidFreteMultiView modo="forneced
 const ModalNovaCotacaoBidFreteInternacional = lazy(
   () => import('./pages/modal-nova-cotacao-bid-frete-internacional'),
 )
-const CotacoesImportar = lazy(() => import('./pages/cotacoes-importar'))
+const CotacoesImportar = lazy(() => import('./pages/importar-bid-frete-internacional'))
 const DetalheCotacao = lazy(() => import('./pages/cotacao-detalhe'))
 const Comparativo = lazy(() => import('./pages/comparativo'))
 const Fornecedores = lazy(() => import('./pages/fornecedores-lista'))

@@ -21,6 +21,7 @@ import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
+import { registrarExecucaoAgendamentoTaxaMoeda } from '../lib/taxas-moeda-agendamento-store.js'
 
 export const taxasMoedaRouter = Router()
 
@@ -217,9 +218,14 @@ taxasMoedaRouter.post('/sync', requireAuth, requireConfiguradorMutation, async (
     }
   }
 
+  const totalOk = resultados.filter(r => r.status === 'ok').length
+  if (totalOk > 0) {
+    await registrarExecucaoAgendamentoTaxaMoeda('ptax')
+  }
+
   res.json({
     sincronizado_em: new Date().toISOString(),
-    total_ok: resultados.filter(r => r.status === 'ok').length,
+    total_ok: totalOk,
     total_erro: resultados.filter(r => r.status === 'erro').length,
     resultados,
   })

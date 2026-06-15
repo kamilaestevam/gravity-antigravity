@@ -35,6 +35,21 @@ export const FILTRO_TIPO_OVERRIDES_BID_FRETE: Record<string, FiltroTipo> = {
   cubagem_m3_cotacao_bid_frete_internacional: 'numero',
 }
 
+/** Só colunas de texto longo usam Buscar… livre; IDs/números e portos mantêm lista de valores. */
+export const CHAVES_FILTRO_TEXTO_LIVRE_BID_FRETE = new Set<string>([
+  'descricao_mercadoria_cotacao_bid_frete_internacional',
+  'endereco_origem_cotacao_bid_frete_internacional',
+  'endereco_destino_cotacao_bid_frete_internacional',
+  'observacoes_carga_perigosa_cotacao_bid_frete_internacional',
+  'motivo_reprovacao_cotacao_bid_frete_internacional',
+  'motivo_cancelamento_cotacao_bid_frete_internacional',
+  'nome_tecnico_embarque_cotacao_bid_frete_internacional',
+  'nome_cliente_operacao_cotacao_bid_frete_internacional',
+])
+
+export const CHAVE_NUMERO_COTACAO_LISTA_BID_FRETE =
+  'numero_cotacao_bid_frete_internacional'
+
 export function detectarTipoColunaBidFrete(col: GTColuna<Cotacao>): FiltroTipo {
   if (col.opcoes && col.opcoes.length > 0) return 'enum'
   return detectarTipoColunaCore(col, FILTRO_TIPO_OVERRIDES_BID_FRETE)
@@ -49,14 +64,8 @@ export function deveUsarFiltroTextoLivreBidFrete(
   if (!key) return false
   if (FILTRO_TIPO_OVERRIDES_BID_FRETE[key] === 'enum') return false
   if (col.opcoes && col.opcoes.length > 0) return false
-
-  const custom = colunasPersonalizadasPorChave?.get(key)
-  if (custom) {
-    if (custom.tipo === 'select' || custom.tipo === 'checkbox') return false
-    return custom.tipo === 'texto' || custom.tipo === 'data'
-  }
-
-  return detectarTipoColunaBidFrete(col) === 'texto'
+  if (colunasPersonalizadasPorChave?.has(key)) return false
+  return CHAVES_FILTRO_TEXTO_LIVRE_BID_FRETE.has(key)
 }
 
 export function resolverValoresUnicosPopoverBidFrete(
@@ -114,6 +123,30 @@ export function getLabelsFiltroInversoBidFrete(
   return Object.fromEntries(Object.entries(map).map(([raw, label]) => [label, raw]))
 }
 
+/** Label canônica para lista de filtro enum — evita RASCUNHO + Rascunho duplicados. */
+export function resolverLabelFiltroBidFrete(
+  campo: string,
+  raw: string,
+  ctx: LabelsFiltroBidFreteContext = {},
+): string {
+  const trimmed = raw.trim()
+  if (!trimmed) return ''
+  const labelMap = getLabelsFiltroBidFrete(campo, ctx)
+  if (Object.keys(labelMap).length === 0) return trimmed
+  if (trimmed in labelMap) return labelMap[trimmed]
+  const upper = trimmed
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toUpperCase()
+  if (upper in labelMap) return labelMap[upper]
+  const lower = trimmed.toLowerCase()
+  for (const [key, label] of Object.entries(labelMap)) {
+    if (label.toLowerCase() === lower) return label
+    if (key.toLowerCase() === lower) return label
+  }
+  return trimmed
+}
+
 export function obterValorRawColunaCotacao(
   cotacao: Cotacao,
   campo: string,
@@ -132,11 +165,18 @@ export function obterValorExibicaoFiltroColuna(
   cotacao: Cotacao,
   col: GTColuna<Cotacao>,
   opcoes: OpcoesColunasLista = {},
+  ctx: LabelsFiltroBidFreteContext = {},
 ): string {
   const campo = String(col.key)
   if (col.findDisplay) {
     const display = col.findDisplay(cotacao)
-    if (display != null && display !== '' && display !== '—') return String(display)
+    if (display != null && display !== '' && display !== '—') {
+      const asString = String(display)
+      if (FILTRO_TIPO_OVERRIDES_BID_FRETE[campo] === 'enum') {
+        return resolverLabelFiltroBidFrete(campo, asString, ctx)
+      }
+      return asString
+    }
   }
   if (
     campo === 'id_organizacao' ||
@@ -149,7 +189,11 @@ export function obterValorExibicaoFiltroColuna(
   const raw = obterValorRawColunaCotacao(cotacao, campo)
   if (col.tipo === 'periodo' && raw) return fmtData(String(raw))
   if (raw == null || raw === '') return ''
-  return String(raw).trim()
+  const rawStr = String(raw).trim()
+  if (FILTRO_TIPO_OVERRIDES_BID_FRETE[campo] === 'enum') {
+    return resolverLabelFiltroBidFrete(campo, rawStr, ctx)
+  }
+  return rawStr
 }
 
 export function cotacaoPassaFiltrosColuna(
@@ -166,7 +210,7 @@ export function cotacaoPassaFiltrosColuna(
       obterValorRawColunaCotacao(cotacao, campo, colunasPersonalizadasPorChave) ?? '',
     )
     const strVal = col
-      ? obterValorExibicaoFiltroColuna(cotacao, col, opcoes)
+      ? obterValorExibicaoFiltroColuna(cotacao, col, opcoes, ctx)
       : rawVal
 
     if (filtro.tipo === 'texto') {
@@ -194,6 +238,7 @@ export function calcularValoresUnicosPorCampoBidFrete(
   opcoes: OpcoesColunasLista,
   ctx: LabelsFiltroBidFreteContext = {},
   colunasPersonalizadasPorChave?: Map<string, ColunaUsuarioBidFreteLista>,
+  numerosBidLista?: string[],
 ): Record<string, string[]> {
   const result: Record<string, string[]> = {}
 
@@ -222,13 +267,21 @@ export function calcularValoresUnicosPorCampoBidFrete(
     const labelMap = getLabelsFiltroBidFrete(key, ctx)
     const vals = new Set<string>()
     for (const cotacao of cotacoes) {
-      const display = obterValorExibicaoFiltroColuna(cotacao, col, opcoes)
-      if (!display || display === '—') continue
-      vals.add(display)
       const raw = String(
         obterValorRawColunaCotacao(cotacao, key, colunasPersonalizadasPorChave) ?? '',
       ).trim()
-      if (raw && labelMap[raw]) vals.add(labelMap[raw])
+      if (!raw || raw === 'undefined' || raw === 'null') continue
+      if (Object.keys(labelMap).length > 0) {
+        vals.add(resolverLabelFiltroBidFrete(key, raw, ctx))
+      } else {
+        vals.add(obterValorExibicaoFiltroColuna(cotacao, col, opcoes, ctx) || raw)
+      }
+    }
+    if (key === CHAVE_NUMERO_COTACAO_LISTA_BID_FRETE && numerosBidLista?.length) {
+      for (const numero of numerosBidLista) {
+        const n = numero.trim()
+        if (n) vals.add(n)
+      }
     }
     if (vals.size > 0) result[key] = Array.from(vals).sort()
   }

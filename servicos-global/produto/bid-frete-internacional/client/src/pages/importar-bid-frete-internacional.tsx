@@ -36,11 +36,13 @@ import {
   calcularScoreEssenciaisBid,
   camposEssenciaisAusentes,
   conflitosMapeamentoBid,
+  podePularMapeamentoImportacaoBid,
 } from '../../../shared/mapear-colunas-importacao-bid-frete-internacional'
 import {
   aplicarMapeamentoImportacaoBid,
 } from '../../../shared/parsear-planilha-importacao-bid-frete-internacional'
 import { analisarArquivoImportacaoBidFreteInternacional } from '../shared/analisar-importacao-bid-frete-internacional'
+import { baixarTemplateImportacaoBidFreteInternacional } from '../shared/baixar-template-importacao-bid-frete-internacional'
 import { carregarContextoCatalogoRotaImportacaoBid } from '../shared/carregar-contexto-catalogo-importacao-bid-frete-internacional'
 import type { ContextoCatalogoRota } from '../../../shared/rota-cotacao-bid-frete-internacional'
 import type {
@@ -75,7 +77,9 @@ function linhasParaPreview(
   return montarLinhasPreviewImportacaoBid(linhas, ctx)
 }
 
-const URL_TEMPLATE_IMPORTACAO_BID = '/api/v1/bid-frete-internacional/importacao/template'
+function linhasSelecionaveisPreview(linhas: LinhaPreviewImportacaoBid[]): Set<number> {
+  return new Set(linhas.filter(r => r.status !== 'erro').map(r => r.linha_arquivo))
+}
 
 function faseParaPasso(fase: ImportPhase): number {
   switch (fase) {
@@ -112,6 +116,8 @@ export default function ImportarBidFreteInternacional() {
   const [referenciaBid, setReferenciaBid] = useState('')
   const [linhasSelecionadas, setLinhasSelecionadas] = useState<Set<number>>(new Set())
   const [ctxCatalogo, setCtxCatalogo] = useState<ContextoCatalogoRota>({})
+  const [pulouMapeamento, setPulouMapeamento] = useState(false)
+  const [baixandoTemplate, setBaixandoTemplate] = useState(false)
 
   useEffect(() => {
     let ativo = true
@@ -147,13 +153,20 @@ export default function ImportarBidFreteInternacional() {
 
   const subtituloImportar = useMemo(() => {
     if (phase === 'upload') {
-      return contextoBid ? t('bidfrete.importar.subtitulo_upload_bid') : t('bidfrete.importar.subtitulo_upload')
+      if (contextoBid) return t('bidfrete.importar.subtitulo_upload_bid')
+      return modoPlanilha === 'gravity'
+        ? t('bidfrete.importar.subtitulo_upload_gravity')
+        : t('bidfrete.importar.subtitulo_upload_forwarder')
     }
     if (phase === 'mapeamento') return t('bidfrete.importar.subtitulo_mapeamento')
     if (phase === 'preview') return `${fileName} — ${rows.length} ${t('bidfrete.importar.linhas_carregadas')}`
     if (phase === 'creating') return contextoBid ? t('bidfrete.importar.criando_bid') : t('bidfrete.importar.criando')
     return t('bidfrete.importar.concluida')
-  }, [contextoBid, fileName, phase, rows.length, t])
+  }, [contextoBid, fileName, modoPlanilha, phase, rows.length, t])
+
+  const rotuloModoPlanilha = modoPlanilha === 'gravity'
+    ? t('bidfrete.importar.modo_gravity_titulo')
+    : t('bidfrete.importar.modo_usuario_titulo')
 
   const passoIndex = passos.findIndex(p => p.id === passoAtual)
   const essenciaisAusentes = useMemo(() => camposEssenciaisAusentes(mapeamento), [mapeamento])
@@ -164,6 +177,7 @@ export default function ImportarBidFreteInternacional() {
 
   const handleMapeamentoChange = useCallback((novo: ColunaMapeadaBidFreteInternacional[]) => {
     setMapeamento(novo)
+    setPulouMapeamento(false)
     setConfiancaGlobal(calcularConfiancaGlobalMapeamento(novo))
     setScoreEssenciais(calcularScoreEssenciaisBid(novo))
     const linhas = aplicarMapeamentoImportacaoBid(linhasBrutas, novo)
@@ -205,11 +219,27 @@ export default function ImportarBidFreteInternacional() {
       }
 
       setLinhasBrutas(resultado.linhas_brutas)
-      setMapeamento(resultado.mapeamento as ColunaMapeadaBidFreteInternacional[])
+      const mapeamentoAtual = resultado.mapeamento as ColunaMapeadaBidFreteInternacional[]
+      setMapeamento(mapeamentoAtual)
       setConfiancaGlobal(resultado.confianca_global)
       setScoreEssenciais(resultado.score_essenciais)
-      setRows(linhasParaPreview(resultado.linhas as LinhaImportacaoBidFreteInternacional[], ctxCatalogo))
-      setPhase('mapeamento')
+      const preview = linhasParaPreview(
+        resultado.linhas as LinhaImportacaoBidFreteInternacional[],
+        ctxCatalogo,
+      )
+      setRows(preview)
+      const pularMapeamento = podePularMapeamentoImportacaoBid(
+        modoPlanilha,
+        mapeamentoAtual,
+        resultado.linhas.length,
+      )
+      setPulouMapeamento(pularMapeamento)
+      if (pularMapeamento) {
+        setLinhasSelecionadas(linhasSelecionaveisPreview(preview))
+        setPhase('preview')
+      } else {
+        setPhase('mapeamento')
+      }
     }).catch(err => {
       const msg = err instanceof Error ? err.message : t('bidfrete.importar.erro_formato')
       setErroUpload(msg)
@@ -291,9 +321,33 @@ export default function ImportarBidFreteInternacional() {
     setLinhasSelecionadas(new Set())
     setConfiancaGlobal(0)
     setScoreEssenciais(0)
+    setPulouMapeamento(false)
     setErroUpload(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
+
+  const handleModoPlanilhaChange = useCallback((modo: ModoPlanilhaImportacaoBidFreteInternacional) => {
+    if (modo === modoPlanilha) return
+    setModoPlanilha(modo)
+    if (fileName || phase !== 'upload') {
+      handleTrocarArquivo()
+    } else {
+      setErroUpload(null)
+    }
+  }, [fileName, handleTrocarArquivo, modoPlanilha, phase])
+
+  const handleBaixarTemplate = useCallback(async () => {
+    setBaixandoTemplate(true)
+    setErroUpload(null)
+    try {
+      await baixarTemplateImportacaoBidFreteInternacional()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : t('bidfrete.importar.erro_template')
+      setErroUpload(msg)
+    } finally {
+      setBaixandoTemplate(false)
+    }
+  }, [t])
 
   const handleReset = useCallback(() => {
     setPhase('upload')
@@ -308,6 +362,7 @@ export default function ImportarBidFreteInternacional() {
     setResult(null)
     setErroUpload(null)
     setReferenciaBid('')
+    setPulouMapeamento(false)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
 
@@ -339,7 +394,11 @@ export default function ImportarBidFreteInternacional() {
           </BotaoGlobal>
         )}
         {phase === 'preview' && (
-          <BotaoGlobal variante="secundario" tamanho="medio" onClick={() => setPhase('mapeamento')}>
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="medio"
+            onClick={() => setPhase(pulouMapeamento ? 'upload' : 'mapeamento')}
+          >
             {t('comum.voltar')}
           </BotaoGlobal>
         )}
@@ -404,7 +463,7 @@ export default function ImportarBidFreteInternacional() {
                   <button
                     type="button"
                     className={`bid-import-modo-btn${modoPlanilha === 'gravity' ? ' bid-import-modo-btn--ativo' : ''}`}
-                    onClick={() => setModoPlanilha('gravity')}
+                    onClick={() => handleModoPlanilhaChange('gravity')}
                     aria-pressed={modoPlanilha === 'gravity'}
                   >
                     <Table size={22} weight="duotone" />
@@ -414,7 +473,7 @@ export default function ImportarBidFreteInternacional() {
                   <button
                     type="button"
                     className={`bid-import-modo-btn${modoPlanilha === 'usuario' ? ' bid-import-modo-btn--ativo' : ''}`}
-                    onClick={() => setModoPlanilha('usuario')}
+                    onClick={() => handleModoPlanilhaChange('usuario')}
                     aria-pressed={modoPlanilha === 'usuario'}
                   >
                     <Sparkle size={22} weight="duotone" />
@@ -469,21 +528,36 @@ export default function ImportarBidFreteInternacional() {
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('pedido.importar.nao_sabe_formato')}</span>
-                  <a
-                    href={URL_TEMPLATE_IMPORTACAO_BID}
-                    download="template-importacao-bid-frete.xlsx"
-                    className="bid-import-template-link"
-                  >
-                    <DownloadSimple size={16} weight="duotone" />
-                    {t('bidfrete.importar.baixar_template')}
-                  </a>
+                  {modoPlanilha === 'gravity' ? (
+                    <>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('pedido.importar.nao_sabe_formato')}</span>
+                      <button
+                        type="button"
+                        className="bid-import-template-link"
+                        onClick={() => void handleBaixarTemplate()}
+                        disabled={baixandoTemplate}
+                      >
+                        <DownloadSimple size={16} weight="duotone" />
+                        {baixandoTemplate
+                          ? t('bidfrete.importar.baixando_template')
+                          : t('bidfrete.importar.baixar_template')}
+                      </button>
+                    </>
+                  ) : (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', maxWidth: 420 }}>
+                      {t('bidfrete.importar.modo_usuario_upload_dica')}
+                    </span>
+                  )}
                 </div>
               </>
             )}
 
             {phase === 'mapeamento' && (
               <>
+                <div className="bid-import-modo-ativo">
+                  <span className="bid-import-modo-ativo__rotulo">{t('bidfrete.importar.modo_ativo')}</span>
+                  <span className="bid-import-modo-ativo__valor">{rotuloModoPlanilha}</span>
+                </div>
                 {confiancaGlobal > 0 && confiancaGlobal < 60 && modoPlanilha === 'usuario' && (
                   <div className="bid-import-aviso-confianca">
                     {t('pedido.smart_import.aviso_confianca', { pct: confiancaGlobal })}
@@ -523,14 +597,34 @@ export default function ImportarBidFreteInternacional() {
                     </p>
                   </div>
                 ) : (
-                  <EtapaPreviewBidFreteInternacional
-                    linhas={rows}
-                    linhasSelecionadas={linhasSelecionadas}
-                    nomeArquivo={fileName}
-                    parser={parserArquivo}
-                    contextoBid={contextoBid}
-                    onSelecaoChange={setLinhasSelecionadas}
-                  />
+                  <>
+                    <div className="bid-import-preview-toolbar">
+                      <div className="bid-import-modo-ativo">
+                        <span className="bid-import-modo-ativo__rotulo">{t('bidfrete.importar.modo_ativo')}</span>
+                        <span className="bid-import-modo-ativo__valor">{rotuloModoPlanilha}</span>
+                      </div>
+                      {pulouMapeamento && (
+                        <button
+                          type="button"
+                          className="smart-import__filtro-btn"
+                          onClick={() => {
+                            setPulouMapeamento(false)
+                            setPhase('mapeamento')
+                          }}
+                        >
+                          {t('bidfrete.importar.revisar_mapeamento')}
+                        </button>
+                      )}
+                    </div>
+                    <EtapaPreviewBidFreteInternacional
+                      linhas={rows}
+                      linhasSelecionadas={linhasSelecionadas}
+                      nomeArquivo={fileName}
+                      parser={parserArquivo}
+                      contextoBid={contextoBid}
+                      onSelecaoChange={setLinhasSelecionadas}
+                    />
+                  </>
                 )}
               </>
             )}

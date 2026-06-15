@@ -21,6 +21,10 @@ import {
 import { KanbanFornecedorConteudo } from './kanban-fornecedor-conteudo'
 import { BidFreteListaFaixaNavegacao } from '../../components/BidFreteListaFaixaNavegacao'
 import '../../shared/lista-bid-frete-internacional-layout.css'
+import {
+  estiloChromeTabelaListaBidFreteInternacional,
+  estiloWrapperTabelaListaBidFreteInternacional,
+} from '../../shared/altura-tabela-lista-bid-frete-internacional'
 import { useSincronizarTituloPaginaTopo } from '../../shared/useSincronizarTituloPaginaTopo'
 import {
   criarTituloCarregandoTopo,
@@ -411,8 +415,11 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
           )}
 
           {visao === 'lista' ? (
-            <div className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada">
-            <div className="lp-tabela-chrome">
+            <div
+              className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada"
+              style={estiloWrapperTabelaListaBidFreteInternacional}
+            >
+            <div className="lp-tabela-chrome" style={estiloChromeTabelaListaBidFreteInternacional}>
               <BidFreteListaFaixaNavegacao
                 exibirLinhaPaineis={false}
                 abas={abas}

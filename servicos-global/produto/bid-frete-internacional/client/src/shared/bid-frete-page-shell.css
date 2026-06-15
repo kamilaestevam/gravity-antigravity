@@ -62,11 +62,6 @@
   min-width: 0;
 }
 
-.bf-lista-page .lp-tabela-wrapper {
-  flex: 1 1 auto;
-  min-height: 620px;
-}
-
 .bf-lista-page .lp-tabela-wrapper--faixa-unificada .lp-tabela-chrome > .gtv-container {
   flex: 1 1 0;
   min-height: 0;

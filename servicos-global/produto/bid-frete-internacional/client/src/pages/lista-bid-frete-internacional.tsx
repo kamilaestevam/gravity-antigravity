@@ -104,6 +104,10 @@ import {
 } from '../shared/use-card-preferences'
 import { BidFreteListaFaixaNavegacao } from '../components/BidFreteListaFaixaNavegacao'
 import '../shared/lista-bid-frete-internacional-layout.css'
+import {
+  estiloChromeTabelaListaBidFreteInternacional,
+  estiloWrapperTabelaListaBidFreteInternacional,
+} from '../shared/altura-tabela-lista-bid-frete-internacional'
 import { useListaPainelBidFrete } from '../shared/useListaPainelBidFrete'
 import {
   configListaPainelPadraoV1,
@@ -2185,8 +2189,11 @@ export default function Cotacoes() {
 
       {/* Conteúdo da Visão */}
       {visao === 'lista' ? (
-        <div className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada">
-        <div className="lp-tabela-chrome">
+        <div
+          className="lp-tabela-wrapper lp-tabela-wrapper--faixa-unificada"
+          style={estiloWrapperTabelaListaBidFreteInternacional}
+        >
+        <div className="lp-tabela-chrome" style={estiloChromeTabelaListaBidFreteInternacional}>
           <BidFreteListaFaixaNavegacao
             paineis={paineisLista}
             painelAtualId={painelListaAtualId}

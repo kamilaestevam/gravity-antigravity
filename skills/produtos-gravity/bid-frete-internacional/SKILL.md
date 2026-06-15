@@ -119,15 +119,30 @@ Modelo: `servicos-global/produto/pedido/client/src/pages/PedidosDashboard.tsx`.
 | Visibilidade/ordem | `client/src/shared/dashboardWidgetVisibilidade.ts` |
 | Período por widget | `client/src/shared/dashboardPeriodoUtil.ts` |
 | Permissões UX | `client/src/shared/permissoes/usePermissoesBidFreteInternacional.ts` — chave `bid-frete-internacional:dashboard:editar` |
+| React Query | `client/src/shared/bid-frete-query-client.ts` + `QueryClientProvider` em `App.tsx` (paridade Pedido) |
 | Toolbar | `client/src/components/dashboard/BarraFerramentasDashboardBidFrete.tsx` |
 
 **UX (menu ⋮ por widget):** Editar, Excluir, Mover, Mudar tamanho, Concluir — via `@nucleo/dashboard` (`DashboardPainelContainer`, `layoutInteracao` no `DashboardGrid`). Sem botão global «Reorganizar».
 
 **Persistência:** Zustand + painéis (`DashboardPainelUsuarioGlobal`, API `paineisDashboardApi`).
 
-**Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/dashboard/dashboard-widget-visibilidade.test.ts`
+**Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/dashboard/dashboard-widget-visibilidade.test.ts`, `dashboard/gabi-insights-bid-frete.test.ts`
 
-### Insights — Visão Geral (aba `/bid-frete/insights` — TASK-000264)
+#### GABI Fase 1 (carrossel `GABI_INSIGHTS`)
+
+Paridade conceitual: `servicos-global/produto/pedido/server/src/services/gabiInsightsService.ts`.
+
+| Peça | Caminho |
+|------|---------|
+| Rota | `GET /api/v1/bid-frete-internacional/dashboard/insights` |
+| Motor | `server/src/services/gabi-insights-bid-frete-internacional.ts` |
+| SSOT KPIs | `server/src/lib/agregar-kpis-dashboard-bid-frete-internacional.ts` |
+| Zod resposta | `client/src/shared/dashboard-gabi-schemas.ts` |
+| Client fetch | `dashboardApi.insights` em `shared/api.ts` |
+
+Ranking por `role` (`x-user-role` ou query `role`). Fallback client: `dashboard-operacional-insights.ts` + `console.warn` se a rota falhar. Visão fornecedor permanece client-side (`dashboard-fornecedor-api.ts`).
+
+**Não confundir** com a aba Insights (`visao-geral.tsx`) — doc em `INSIGHTS-VISAO-GERAL-TECNICO.md`.
 
 Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISAO-GERAL-TECNICO.md`
 
@@ -142,7 +157,7 @@ Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISA
 
 **Regra:** contagem e rótulo dos cards KPI seguem Configurações › Visão Geral (`bid-frete:dashboard-top-kpi-status`), não hardcode «Em andamento». Drill-down de alertas propaga `data_referencia` do dia navegado.
 
-**Separado do Dashboard:** GABI operacional (`GET /dashboard/insights`) e widgets em `dashboard.tsx` — escopo TASK-000265.
+**Separado do Dashboard:** rota `/dashboard/insights` (GABI widget) vs aba `/insights` — TASK-000265 vs TASK-000264.
 
 ---
 
@@ -232,6 +247,7 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 
 - Unitários: `testes/testes-unitarios/bid-frete-internacional/` (60+ specs)
 - Dashboard ordem/visibilidade: `dashboard/dashboard-widget-visibilidade.test.ts`
+- Dashboard GABI Fase 1: `dashboard/gabi-insights-bid-frete.test.ts`
 - Insights: `insights/agregar-insights-graficos.test.ts`, `insights/montar-insights-detalhe.test.ts`, `insights/taxas-cambio-insights.test.ts`, `insights/insights-status-funil.test.ts`
 - Funcionais: `testes/testes-funcionais/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`

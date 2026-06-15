@@ -41,6 +41,8 @@
 
 | PR / entrega | Escopo |
 |--------------|--------|
+| GABI Dashboard Fase 1 (2026-06-15) | `GET /dashboard/insights`, motor server, Zod client, fallback client — ver [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) §5.1 |
+| QueryClient BID Frete (2026-06-15) | `bid-frete-query-client.ts` + `QueryClientProvider` em `App.tsx` (perm. dashboard) |
 | TASK-000264 Insights (2026-06-15) | Dados reais, KPIs↔Config, `data_referencia` drill-down, Zod query server — ver [INSIGHTS-VISAO-GERAL-TECNICO.md](./INSIGHTS-VISAO-GERAL-TECNICO.md) |
 | Dashboard paridade Pedido (2026-06-15) | Menu ⋮ por widget, `layoutInteracao`, permissões `dashboard:editar`, ordem pós-drag — ver [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) §5.1 |
 | AGT-000264 (2026-06-15) | Lista: chevron só em BID (COT avulsa sem expand); `filtrarBidsParaLista` + enrich — ver [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) §5 e [LISTA-ACOES-LOTE](./LISTA-ACOES-LOTE-BID-FRETE-INTERNACIONAL.md) |

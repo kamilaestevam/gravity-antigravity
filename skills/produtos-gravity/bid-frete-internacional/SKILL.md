@@ -84,8 +84,24 @@ Query avulsas: `GET /cotacoes?apenas_avulsas=true` (sem `id_bid`).
 
 - **Expandir todos:** só BIDs — ver `lista-bid-frete-internacional.tsx`.
 - **Filtro aba/busca:** `filtrarBidsParaLista` + `enriquecerBidsComCotacoesDoPlano` + `montarLinhasPaiListaComFallback` — doc em [ENTIDADE-BID-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/ENTIDADE-BID-TECNICO.md) §5.
-- **Núcleo:** não alterar `TabelaVirtualGlobal`; usar props existentes. Regra absoluta → [agent-policy](../../governanca/lei/agent-policy/SKILL.md) § componentes compartilhados.
+- **Núcleo:** preferir props existentes; extensões opt-in documentadas em `tipos.ts` (`labelFilho`, `totalRodapePai`). Regra absoluta → [agent-policy](../../governanca/lei/agent-policy/SKILL.md) § componentes compartilhados.
 - **Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts` (13 casos).
+
+### Rodapé e paginação (paridade Pedido — 2026-06)
+
+Modelo: Lista de Pedidos — `{total pai} pedidos · {total filhos} itens · página N de M` + « ‹ 1 2 3 › ».
+
+| Peça | Caminho / valor |
+|------|-----------------|
+| Lista cliente | `lista-bid-frete-internacional.tsx` — `linhasPaiPagina`, `paginaLista`, props GTV |
+| Lista fornecedor | `lista-visao-fornecedor-bid-frete-internacional.tsx` — sem segmento “bids” no rodapé |
+| Linhas/página | `tabelaConfig.linhasPorPagina` — `shared/tabela-config-bid-frete.ts` (`bid-frete:config:tabela`) |
+| i18n rodapé | `bidfrete.lista.label_bid_*`, `label_cotacao_*` |
+| Altura grid (WIP) | `bid-frete-page-shell.css` — `min-height: 620px` até layout flex fechar |
+
+**Regra:** 1º segmento = linhas pai paginadas (`totalItens`), 2º = cotações filtradas (`totalFilhos`). Paginação **client-side** (dataset já carregado).
+
+Doc: [PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Rodapé e paginação
 
 ### Criação (menu Novo → Buscar Frete)
 
@@ -97,6 +113,26 @@ O botão **Novo** da Lista abre "Buscar Frete" como submenu com 2 opções:
 | **BID** | `ModalNovoBidFreteInternacional` (`pages/modal-novo-bid-frete-internacional.tsx`) — referência interna opcional + vínculo **opcional** de avulsas existentes → `POST /bids-frete-internacional` → CTA "Criar cotação para o BID" |
 
 O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-internacional-utils.ts`): a cotação criada já nasce vinculada (`id_bid_bid_frete_internacional` no `POST /cotacoes`) e a tela de sucesso oferece "Adicionar outra cotação ao BID" (reset do wizard preservando o query param). API client: `criarBidFreteInternacional` em `shared/api.ts`. Testes: `testes/testes-unitarios/bid-frete-internacional/novo-bid-frete-internacional-utils.test.ts`.
+
+- Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`
+
+### Filtros de coluna (paridade Pedido — TASK-000269)
+
+Todas as colunas visíveis têm filtro ▾ no header (`FiltroPopoverColuna` / `FiltroChips` do núcleo). Estado `filtrosAtivosLista` em `lista-bid-frete-internacional.tsx`; lógica em `shared/filtros-coluna-lista-bid-frete-internacional.ts`.
+
+| Peça | Caminho |
+|------|---------|
+| Filtro client-side | `cotacaoPassaFiltrosColuna`, `calcularValoresUnicosPorCampoBidFrete` |
+| Colunas fixas `filtravel` | `colunas-lista-bid-frete-internacional.ts` |
+| Colunas manuais | `mapColunaUsuarioBidFreteParaGTColuna` — `filtravel: true` explícito (mesmo com `oculta: true`) |
+| Definição colunas | `bid-frete:config:colunas-personalizadas` + evento `EVENTO_COLUNAS_PERSONALIZADAS_BID_FRETE_ATUALIZADO` |
+| Valores por cotação (WIP) | `bid-frete:config:valores-colunas-usuario` → `_colunas_usuario[col.id]` via `valores-colunas-usuario-bid-frete-internacional.ts` |
+
+**Paridade Pedido:** valores em `_colunas_usuario` keyed por `col.id`, não `row[chave]`. API `colunas-usuario/valores` ainda não existe neste produto — localStorage até backend.
+
+**Testes UNI:** `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
+
+Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md` § Filtros de coluna
 
 ### Painéis da Lista (paridade Pedido)
 
@@ -251,6 +287,7 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 - Insights: `insights/agregar-insights-graficos.test.ts`, `insights/montar-insights-detalhe.test.ts`, `insights/taxas-cambio-insights.test.ts`, `insights/insights-status-funil.test.ts`
 - Funcionais: `testes/testes-funcionais/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
+- Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
 - Seletor SLA 1s: `testes/testes-e2e/menu-botoes/seletor-universal-visoes/` (`MBOTO`)
 
 ---

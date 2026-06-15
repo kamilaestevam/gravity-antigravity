@@ -30,7 +30,6 @@ import type { TipoOperacao, Incoterm } from '../shared/types'
 import { montarPayloadCriacaoCotacaoImportacaoBidFreteInternacional } from '../../../shared/montar-payload-criacao-cotacao-importacao-bid-frete-internacional'
 import { INCOTERMS } from '../shared/types'
 import {
-  CAMPOS_IMPORTACAO_BID_FRETE_INTERNACIONAL,
   rotuloCampoImportacaoBid,
 } from '../../../shared/campos-importacao-bid-frete-internacional'
 import {
@@ -545,70 +544,20 @@ export default function ImportarBidFreteInternacional() {
 
             {phase === 'mapeamento' && (
               <>
-                {modoPlanilha === 'gravity' ? (
-                  <>
-                    <p style={{ margin: '0 0 1rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                      {t('bidfrete.importar.mapeamento_desc')}
-                    </p>
-                    {essenciaisAusentes.length > 0 && (
-                      <p role="alert" style={{ margin: '0 0 1rem', fontSize: '0.8125rem', color: 'var(--danger, #ef4444)' }}>
-                        {t('bidfrete.importar.erro_campos_essenciais')}: {essenciaisAusentes.map(rotuloCampoImportacaoBid).join(', ')}
-                      </p>
-                    )}
-                    <div style={{ overflow: 'auto', border: '1px solid var(--border-subtle)', borderRadius: '0.5rem' }}>
-                      <table className="bid-import-cols-table">
-                        <thead>
-                          <tr>
-                            <th>{t('bidfrete.importar.th_coluna')}</th>
-                            <th>{t('bidfrete.importar.th_descricao')}</th>
-                            <th>{t('bidfrete.importar.col_status_mapeamento')}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {CAMPOS_IMPORTACAO_BID_FRETE_INTERNACIONAL.map(col => {
-                            const detectada = mapeamento.some(m => m.campo_sistema === col.campo && m.confianca >= 70)
-                            return (
-                              <tr key={col.campo}>
-                                <td>{col.campo}</td>
-                                <td style={{ color: 'var(--text-secondary)' }}>{col.rotulo}</td>
-                                <td>
-                                  {detectada ? (
-                                    <span style={{ color: 'var(--success, #22c55e)', fontSize: '0.8125rem', fontWeight: 600 }}>
-                                      {t('bidfrete.importar.coluna_detectada')}
-                                    </span>
-                                  ) : col.obrigatorio ? (
-                                    <span style={{ color: 'var(--danger, #ef4444)', fontSize: '0.8125rem' }}>
-                                      {t('bidfrete.importar.coluna_ausente')}
-                                    </span>
-                                  ) : (
-                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}>—</span>
-                                  )}
-                                </td>
-                              </tr>
-                            )
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {confiancaGlobal > 0 && confiancaGlobal < 60 && (
-                      <div className="bid-import-aviso-confianca">
-                        {t('pedido.smart_import.aviso_confianca', { pct: confiancaGlobal })}
-                      </div>
-                    )}
-                    <EtapaMapeamentoBidFreteInternacional
-                      mapeamento={mapeamento}
-                      linhasBrutas={linhasBrutas}
-                      nomeArquivo={fileName}
-                      parser={parserArquivo}
-                      totalCotacoes={rows.length}
-                      onMapeamentoChange={handleMapeamentoChange}
-                      onTrocarArquivo={handleTrocarArquivo}
-                    />
-                  </>
+                {confiancaGlobal > 0 && confiancaGlobal < 60 && modoPlanilha === 'usuario' && (
+                  <div className="bid-import-aviso-confianca">
+                    {t('pedido.smart_import.aviso_confianca', { pct: confiancaGlobal })}
+                  </div>
                 )}
+                <EtapaMapeamentoBidFreteInternacional
+                  mapeamento={mapeamento}
+                  linhasBrutas={linhasBrutas}
+                  nomeArquivo={fileName}
+                  parser={parserArquivo}
+                  totalCotacoes={rows.length}
+                  onMapeamentoChange={handleMapeamentoChange}
+                  onTrocarArquivo={handleTrocarArquivo}
+                />
                 {conflitosMapeamento.length > 0 && (
                   <p role="alert" style={{ margin: '1rem 0 0', fontSize: '0.8125rem', color: 'var(--danger, #ef4444)' }}>
                     {t('bidfrete.importar.conflitos_mapeamento')}: {conflitosMapeamento.map(rotuloCampoImportacaoBid).join(', ')}

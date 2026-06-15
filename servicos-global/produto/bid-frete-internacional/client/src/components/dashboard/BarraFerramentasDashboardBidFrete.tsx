@@ -5,7 +5,7 @@
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { X, RocketLaunch, CalendarBlank, Check, DotsSixVertical } from '@phosphor-icons/react'
+import { X, RocketLaunch, CalendarBlank } from '@phosphor-icons/react'
 import { PeriodDropdown } from '@nucleo/dashboard'
 import type { PeriodOption } from '@nucleo/dashboard'
 import type { ActiveFilter, GlobalSlicers, DashboardWidgetConfig } from '@nucleo/dashboard'
@@ -45,8 +45,6 @@ export interface BarraFerramentasDashboardBidFreteProps {
     onSelecionarTodos: () => void
     onRestaurarPadrao: () => void
   }
-  editMode?: boolean
-  onEditModeChange?: (next: boolean) => void
 }
 
 export function BarraFerramentasDashboardBidFrete({
@@ -65,8 +63,6 @@ export function BarraFerramentasDashboardBidFrete({
   onAbrirSugestoes,
   onCriarWidgetZero,
   widgetsSeletor,
-  editMode = false,
-  onEditModeChange,
 }: BarraFerramentasDashboardBidFreteProps) {
   const { t } = useTranslation()
   const temRodape = activeFilters.length > 0
@@ -162,20 +158,6 @@ export function BarraFerramentasDashboardBidFrete({
           </div>
 
           <div className="gtv-toolbar-direita bid-frete-dashboard-toolbar__direita">
-            {onEditModeChange != null && (
-              <button
-                type="button"
-                className={`gtv-btn bid-frete-dashboard-menu__btn${editMode ? ' bid-frete-dashboard-menu__btn--ativo' : ''}`}
-                onClick={() => onEditModeChange(!editMode)}
-                data-testid="btn-reorganizar"
-                title={editMode ? undefined : t('nucleo.dashboard.barra.arraste_widgets_tooltip')}
-              >
-                {editMode
-                  ? <><Check size={14} weight="bold" /> {t('nucleo.dashboard.barra.concluir')}</>
-                  : <><DotsSixVertical size={14} weight="bold" /> {t('nucleo.dashboard.barra.reorganizar')}</>
-                }
-              </button>
-            )}
             {mostrarOnboarding && (
               <div className="bid-frete-dashboard-menu__acoes-onboarding">
                 <button

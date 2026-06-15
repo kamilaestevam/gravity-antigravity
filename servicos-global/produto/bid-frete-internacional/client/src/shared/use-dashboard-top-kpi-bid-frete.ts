@@ -48,6 +48,13 @@ function salvar(next: Record<BidFreteDashboardTopKpiWidgetId, BidFreteDashboardT
   window.dispatchEvent(new CustomEvent(SYNC_EVENT))
 }
 
+export function lerDashboardTopKpiStatusBidFreteInternacional(): Record<
+  BidFreteDashboardTopKpiWidgetId,
+  BidFreteDashboardTopKpiStatusSlug
+> {
+  return carregar()
+}
+
 export function useDashboardTopKpiBidFrete() {
   const [mapa, setMapa] = useState<Record<BidFreteDashboardTopKpiWidgetId, BidFreteDashboardTopKpiStatusSlug>>(carregar)
 

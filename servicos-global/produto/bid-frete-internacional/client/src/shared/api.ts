@@ -49,6 +49,15 @@ import {
   mapInsightsAlertasFromServer,
   type InsightsGraficosBidFreteInternacionalCliente,
 } from './insights-visao-geral-bid-frete-internacional'
+import {
+  insightsDetalheResponseSchema,
+  type ContextoDialogoInsights,
+  type CotacaoInsightsDetalheCliente,
+} from './insights-detalhe-bid-frete-internacional'
+import {
+  dashboardInsightsResponseSchema,
+  type DashboardInsightsResponseParsed,
+} from './dashboard-gabi-schemas'
 import type { DadosMapaBidFrete } from './componentes/visao-geral-mapa-bid-frete'
 import type {
   AlertaVisaoFornecedorBidFreteInternacional,
@@ -591,22 +600,48 @@ function urlComEscopoWorkspaces(basePath: string, idsWorkspacesFiltro?: string[]
   return qs ? `${basePath}?${qs}` : basePath
 }
 
-export async function getDashboardKpis(idsWorkspacesFiltro?: string[]): Promise<
-  DashboardKPIs & { tempo_medio_resposta_dias: number | null; cotacoes_aprovadas: number }
+export async function getDashboardKpis(
+  idsWorkspacesFiltro?: string[],
+  opcoes?: { status_slug_kpi_andamento?: string },
+): Promise<
+  DashboardKPIs & {
+    tempo_medio_resposta_dias: number | null
+    cotacoes_aprovadas: number
+    distribuicao_modal_andamento: Array<{ modal_cotacao_bid_frete_internacional: string; count: number }>
+    total_cotacoes_com_saving: number
+    total_saving_vs_media: number
+  }
 > {
-  const res = await fetch(
-    urlComEscopoWorkspaces(`${API_BASE}/bid-frete-internacional/dashboard/kpis`, idsWorkspacesFiltro),
-    { headers: headers() },
+  const params = new URLSearchParams()
+  if (opcoes?.status_slug_kpi_andamento) {
+    params.set('status_slug_kpi_andamento', opcoes.status_slug_kpi_andamento)
+  }
+  const base = urlComEscopoWorkspaces(
+    `${API_BASE}/bid-frete-internacional/dashboard/kpis`,
+    idsWorkspacesFiltro,
   )
+  const separador = base.includes('?') ? '&' : '?'
+  const qs = params.toString()
+  const url = qs ? `${base}${separador}${qs}` : base
+  const res = await fetch(url, { headers: headers() })
   const raw = await handleResponse<unknown>(res)
   return mapDashboardKpisFromServer(dashboardKpisResponseSchema.parse(raw))
 }
 
-export async function getDashboardInsightsAlertas(idsWorkspacesFiltro?: string[]): Promise<CalendarioAlerta[]> {
-  const res = await fetch(
-    urlComEscopoWorkspaces(`${API_BASE}/bid-frete-internacional/dashboard/insights-alertas`, idsWorkspacesFiltro),
-    { headers: headers() },
+export async function getDashboardInsightsAlertas(
+  idsWorkspacesFiltro?: string[],
+  dataReferencia?: string,
+): Promise<CalendarioAlerta[]> {
+  const params = new URLSearchParams()
+  if (dataReferencia) params.set('data_referencia', dataReferencia)
+  const base = urlComEscopoWorkspaces(
+    `${API_BASE}/bid-frete-internacional/dashboard/insights-alertas`,
+    idsWorkspacesFiltro,
   )
+  const separador = base.includes('?') ? '&' : '?'
+  const qs = params.toString()
+  const url = qs ? `${base}${separador}${qs}` : base
+  const res = await fetch(url, { headers: headers() })
   const raw = await handleResponse<unknown>(res)
   return mapInsightsAlertasFromServer(insightsAlertasResponseSchema.parse(raw))
 }
@@ -631,6 +666,35 @@ export async function getDashboardInsightsGraficos(
   )
   const raw = await handleResponse<unknown>(res)
   return insightsGraficosResponseSchema.parse(raw)
+}
+
+export async function getDashboardInsightsDetalhe(
+  contexto: ContextoDialogoInsights,
+  idsWorkspacesFiltro?: string[],
+  dataReferencia?: string,
+): Promise<{ total: number; cotacoes: CotacaoInsightsDetalheCliente[] }> {
+  const params = new URLSearchParams()
+  if (contexto.tipo === 'rota') {
+    params.set('contexto', 'rota')
+    if (contexto.codigo_origem) params.set('codigo_origem', contexto.codigo_origem)
+    if (contexto.codigo_destino) params.set('codigo_destino', contexto.codigo_destino)
+    if (contexto.modal_cotacao_bid_frete_internacional) {
+      params.set('modal_cotacao_bid_frete_internacional', contexto.modal_cotacao_bid_frete_internacional)
+    }
+  } else {
+    params.set('contexto', contexto.tipo)
+  }
+  if (dataReferencia) params.set('data_referencia', dataReferencia)
+
+  const base = urlComEscopoWorkspaces(
+    `${API_BASE}/bid-frete-internacional/dashboard/insights-detalhe`,
+    idsWorkspacesFiltro,
+  )
+  const separador = base.includes('?') ? '&' : '?'
+  const res = await fetch(`${base}${separador}${params}`, { headers: headers() })
+  const raw = await handleResponse<unknown>(res)
+  const parsed = insightsDetalheResponseSchema.parse(raw)
+  return { total: parsed.total, cotacoes: parsed.cotacoes }
 }
 
 export async function getDashboardCalendario(): Promise<CalendarioAlerta[]> {
@@ -1538,8 +1602,26 @@ export const dashboardApi = {
     return { period, granularity, value }
   },
 
-  insights: async (period: string, range?: { from: string; to: string }): Promise<{ period: string; role: string; insights: GabiInsightItem[] }> => {
-    return { period, role: '', insights: [] }
+  insights: async (
+    period: string,
+    range?: { from: string; to: string },
+    idsWorkspacesFiltro?: string[],
+  ): Promise<DashboardInsightsResponseParsed> => {
+    const params = new URLSearchParams({ period })
+    if (range) {
+      params.set('data_inicio', range.from)
+      params.set('data_fim', range.to)
+    }
+    if (idsWorkspacesFiltro?.length) {
+      params.set('ids_workspaces', idsWorkspacesFiltro.join(','))
+    }
+    const qs = params.toString()
+    const url = qs
+      ? `${API_BASE}/bid-frete-internacional/dashboard/insights?${qs}`
+      : `${API_BASE}/bid-frete-internacional/dashboard/insights`
+    const res = await fetch(url, { headers: headers() })
+    const raw = await handleResponse<unknown>(res)
+    return dashboardInsightsResponseSchema.parse(raw)
   },
 
   ncmStatus: async () => {

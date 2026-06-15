@@ -53,6 +53,7 @@ import { BidFreteDashboardFaixaPaineis } from '../components/BidFreteDashboardFa
 import { useDashboardPainelBidFrete } from '../shared/useDashboardPainelBidFrete'
 import { widgetEstaVisivel, ordenarWidgetsLista } from '../shared/dashboardWidgetVisibilidade'
 import { rotuloPeriodoDashboard, widgetUsaPeriodoProprio } from '../shared/dashboardPeriodoUtil'
+import { usePermissoesBidFreteInternacional } from '../shared/permissoes/usePermissoesBidFreteInternacional'
 
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
 import type { EnrichedCatalogField } from '@nucleo/dashboard'
@@ -661,7 +662,8 @@ export default function Dashboard() {
     painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
   } = useDashboardStoreHook()
 
-  const podeEditarDashboard = true // Hardcoded como true para o BID Frete Internacional
+  const { podeEditar } = usePermissoesBidFreteInternacional()
+  const podeEditarDashboard = podeEditar('dashboard')
 
   const navigate = useNavigate()
   const { trackWidget, trackInsight } = useTrackBehavior()
@@ -860,7 +862,10 @@ export default function Dashboard() {
       dashboardApi.kpis(slicers.period, customRangeGlobal, idsWorkspacesFiltro),
       dashboardApi.kpis(slicers.period, prevRange, idsWorkspacesFiltro),
       dashboardApi.trend('12m', 'month', idsWorkspacesFiltro),
-      dashboardApi.insights(slicers.period, customRangeGlobal).catch(() => ({ period: '', role: '', insights: [] as GabiInsightItem[] })),
+      dashboardApi.insights(slicers.period, customRangeGlobal, idsWorkspacesFiltro).catch(err => {
+        console.warn('[Dashboard] GET /dashboard/insights falhou; fallback client-side GABI', err)
+        return null
+      }),
       Promise.all(
         extraPeriodos.map(async (period) => {
           const kpis = await dashboardApi.kpis(period, resolverCustomRange(period), idsWorkspacesFiltro)
@@ -872,7 +877,7 @@ export default function Dashboard() {
         setKpisData(kpis)
         setPrevKpisData(prevKpis)
         setTrendData(trend.value)
-        setInsightsData(insightsRes.insights)
+        setInsightsData(insightsRes?.insights ?? [])
         const mapa: Record<string, DashboardKpis> = { [slicers.period]: kpis }
         for (const [period, dados] of extras) mapa[period] = dados
         setKpisPorPeriodo(mapa)

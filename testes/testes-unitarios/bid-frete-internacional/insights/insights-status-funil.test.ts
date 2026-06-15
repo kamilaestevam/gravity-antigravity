@@ -2,8 +2,11 @@ import { describe, expect, it, beforeEach, afterEach } from 'vitest'
 import {
   CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL,
   STATUS_COTACAO_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
+  contagemStatusNoFunilBidFreteInternacional,
   lerStatusCotacaoConfigBidFreteInternacional,
   montarEtapasFunilInsightsBidFreteInternacional,
+  resolverCorStatusConfigBidFreteInternacional,
+  resolverRotuloStatusConfigBidFreteInternacional,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/status-config-bid-frete-internacional'
 
 describe('lerStatusCotacaoConfigBidFreteInternacional', () => {
@@ -84,5 +87,28 @@ describe('montarEtapasFunilInsightsBidFreteInternacional', () => {
     expect(etapas).toEqual([
       { codigo_status: 'CANCELADA', rotulo: 'Cancelada', quantidade: 4, cor: '#94a3b8' },
     ])
+  })
+})
+
+describe('KPI Insights — contagem e rótulo por Configurações', () => {
+  const funil = [
+    { status: 'RASCUNHO', count: 5 },
+    { status: 'EM_COTACAO', count: 3 },
+    { status: 'APROVADA', count: 2 },
+  ]
+  const config = [
+    { id: 'a', nome: 'RASCUNHO', rotulo: 'Rascunho', cor: '#0f0', ordem: 1, is_sistema: true },
+    { id: 'b', nome: 'APROVADA', rotulo: 'Ganhas', cor: '#00f', ordem: 2, is_sistema: false },
+  ]
+
+  it('conta status configurado no funil', () => {
+    expect(contagemStatusNoFunilBidFreteInternacional(funil, 'RASCUNHO')).toBe(5)
+    expect(contagemStatusNoFunilBidFreteInternacional(funil, 'EXPIRADA')).toBe(0)
+  })
+
+  it('resolve rótulo e cor da config para o card KPI', () => {
+    expect(resolverRotuloStatusConfigBidFreteInternacional(config, 'RASCUNHO', 'Em andamento')).toBe('Rascunho')
+    expect(resolverCorStatusConfigBidFreteInternacional(config, 'APROVADA', '#34d399')).toBe('#00f')
+    expect(resolverRotuloStatusConfigBidFreteInternacional(config, 'DESCONHECIDO', 'Fallback')).toBe('Fallback')
   })
 })

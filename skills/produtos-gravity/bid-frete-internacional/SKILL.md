@@ -107,6 +107,43 @@ O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-
 - Escopo de filiais: seletor lateral `modoWorkspace="multiplo"` (paridade Pedido) — preferência em `GET/PUT /config/escopo-workspaces`; painel Lista **não** guarda `ids_workspaces_escopo`
 - Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`
 
+### Dashboard configurável (paridade Pedido — 2026-06)
+
+Modelo: `servicos-global/produto/pedido/client/src/pages/PedidosDashboard.tsx`.
+
+| Peça | Caminho |
+|------|---------|
+| Página | `client/src/pages/dashboard.tsx` |
+| Store operacional | `client/src/stores/dashboardStore.ts` |
+| Store fornecedor | `client/src/stores/dashboardStoreFornecedor.ts` |
+| Visibilidade/ordem | `client/src/shared/dashboardWidgetVisibilidade.ts` |
+| Período por widget | `client/src/shared/dashboardPeriodoUtil.ts` |
+| Permissões UX | `client/src/shared/permissoes/usePermissoesBidFreteInternacional.ts` — chave `bid-frete-internacional:dashboard:editar` |
+| Toolbar | `client/src/components/dashboard/BarraFerramentasDashboardBidFrete.tsx` |
+
+**UX (menu ⋮ por widget):** Editar, Excluir, Mover, Mudar tamanho, Concluir — via `@nucleo/dashboard` (`DashboardPainelContainer`, `layoutInteracao` no `DashboardGrid`). Sem botão global «Reorganizar».
+
+**Persistência:** Zustand + painéis (`DashboardPainelUsuarioGlobal`, API `paineisDashboardApi`).
+
+**Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/dashboard/dashboard-widget-visibilidade.test.ts`
+
+### Insights — Visão Geral (aba `/bid-frete/insights` — TASK-000264)
+
+Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISAO-GERAL-TECNICO.md`
+
+| Peça | Caminho |
+|------|---------|
+| Página | `client/src/pages/visao-geral.tsx` |
+| KPIs ↔ Config | `use-dashboard-top-kpi-bid-frete.ts` + `status-config-bid-frete-internacional.ts` |
+| API + Zod client | `client/src/shared/api.ts`, `insights-visao-geral-bid-frete-internacional.ts`, `insights-detalhe-bid-frete-internacional.ts` |
+| Agregação server | `agregar-kpis-dashboard-bid-frete-internacional.ts`, `agregar-insights-graficos-bid-frete-internacional.ts` |
+| Query Zod server | `server/src/shared/dashboard-queries-zod-bid-frete-internacional.ts` |
+| Drill-down modal | `dialogo-detalhe-insights-bid-frete-internacional.tsx` |
+
+**Regra:** contagem e rótulo dos cards KPI seguem Configurações › Visão Geral (`bid-frete:dashboard-top-kpi-status`), não hardcode «Em andamento». Drill-down de alertas propaga `data_referencia` do dia navegado.
+
+**Separado do Dashboard:** GABI operacional (`GET /dashboard/insights`) e widgets em `dashboard.tsx` — escopo TASK-000265.
+
 ---
 
 ## Banco (SSOT)
@@ -194,6 +231,8 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 ## Testes
 
 - Unitários: `testes/testes-unitarios/bid-frete-internacional/` (60+ specs)
+- Dashboard ordem/visibilidade: `dashboard/dashboard-widget-visibilidade.test.ts`
+- Insights: `insights/agregar-insights-graficos.test.ts`, `insights/montar-insights-detalhe.test.ts`, `insights/taxas-cambio-insights.test.ts`, `insights/insights-status-funil.test.ts`
 - Funcionais: `testes/testes-funcionais/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
 - Seletor SLA 1s: `testes/testes-e2e/menu-botoes/seletor-universal-visoes/` (`MBOTO`)

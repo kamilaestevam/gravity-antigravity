@@ -20,14 +20,19 @@ export const taxasMoedaAtuaisResponseSchema = z.object({
 
 export const taxasMoedaHistoricoResponseSchema = z.object({
   moeda: z.string(),
-  dados: z.array(
+  historico: z.array(
     z.object({
-      data: z.string(),
-      compra: z.number(),
-      venda: z.number(),
+      data_cotacao: z.union([z.string(), z.date()]),
+      venda: z.union([z.number(), z.string()]),
+      compra: z.union([z.number(), z.string()]).optional(),
     }),
   ),
 })
+
+export type TaxasMoedaHistoricoInsights = {
+  moeda: string
+  dados: Array<{ data: string; venda: number; compra: number }>
+}
 
 export type CotacaoPtaxInsights = {
   codigo: string
@@ -133,17 +138,101 @@ export function montarCotacoesPtaxHistoricoInsights(
   }]
 }
 
-export function montarCotacoesPtaxFuturoInsights(
-  base: CotacaoPtaxInsights[],
+export function resolverIndiceMesFocus(dias: number): number {
+  if (dias <= 30) return 0
+  if (dias <= 90) return 2
+  if (dias <= 180) return 5
+  return 11
+}
+
+export function montarCotacoesPtaxFuturoPorMoeda(
+  baseAtual: CotacaoPtaxInsights[],
+  previsoesPorMoeda: Record<string, Array<{ valor_mediano_previsao_taxa_futura_moeda: number }>>,
+  dias: number,
+  moedas: string[] = ['USD', 'EUR', 'CNY'],
+): CotacaoPtaxInsights[] {
+  const indiceMes = resolverIndiceMesFocus(dias)
+  const resultado: CotacaoPtaxInsights[] = []
+
+  for (const codigo of moedas) {
+    const base = baseAtual.find(m => m.codigo === codigo)
+    const previsoes = previsoesPorMoeda[codigo] ?? []
+    const previsao = previsoes[Math.min(indiceMes, previsoes.length - 1)]
+    if (!base || !previsao || previsao.valor_mediano_previsao_taxa_futura_moeda <= 0) continue
+
+    const valorFuturo = previsao.valor_mediano_previsao_taxa_futura_moeda
+    const variacao =
+      base.valor_brl > 0
+        ? Math.round(((valorFuturo - base.valor_brl) / base.valor_brl) * 1000) / 10
+        : 0
+
+    resultado.push({
+      ...base,
+      referencia: codigo === 'USD',
+      valor_brl: Math.round(valorFuturo * 100) / 100,
+      variacao,
+    })
+  }
+
+  return resultado
+}
+
+/** @deprecated Preferir montarCotacoesPtaxFuturoPorMoeda com fetch por moeda */
+export function montarCotacoesPtaxFuturoFromFocus(
+  baseAtual: CotacaoPtaxInsights[],
+  previsoesUsd: Array<{ valor_mediano_previsao_taxa_futura_moeda: number }>,
   dias: number,
 ): CotacaoPtaxInsights[] {
-  const fatorDias = dias === 30 ? 1 : dias === 90 ? 3 : dias === 180 ? 6 : 12
-  const fatorAcrescimo = 1 + 0.0075 * fatorDias
-  return base.map(m => ({
-    ...m,
-    valor_brl: Math.round(m.valor_brl * fatorAcrescimo * 100) / 100,
-    variacao: Math.round(0.45 * fatorDias * 10) / 10,
-  }))
+  const indiceMes =
+    dias <= 30 ? 0 : dias <= 90 ? 2 : dias <= 180 ? 5 : 11
+  const previsao = previsoesUsd[Math.min(indiceMes, previsoesUsd.length - 1)]
+  if (!previsao) return []
+
+  const usdAtual = baseAtual.find(m => m.codigo === 'USD')?.valor_brl ?? 0
+  const usdFuturo = previsao.valor_mediano_previsao_taxa_futura_moeda
+  if (usdFuturo <= 0) return []
+
+  return baseAtual.map(m => {
+    if (m.codigo === 'USD') {
+      const variacao =
+        usdAtual > 0 ? Math.round(((usdFuturo - usdAtual) / usdAtual) * 1000) / 10 : 0
+      return {
+        ...m,
+        valor_brl: Math.round(usdFuturo * 100) / 100,
+        variacao,
+      }
+    }
+    const ratio = usdAtual > 0 ? usdFuturo / usdAtual : 1
+    const valor = Math.round(m.valor_brl * ratio * 100) / 100
+    const variacao =
+      m.valor_brl > 0 ? Math.round(((valor - m.valor_brl) / m.valor_brl) * 1000) / 10 : 0
+    return { ...m, valor_brl: valor, variacao }
+  })
+}
+
+export async function buscarTaxasMoedaHistoricoInsights(
+  moeda: string,
+  dias: number,
+): Promise<TaxasMoedaHistoricoInsights> {
+  const params = new URLSearchParams({ moeda, dias: String(dias) })
+  const res = await fetch(`/api/v1/taxas-moeda/historico?${params}`, { credentials: 'include' })
+  if (!res.ok) {
+    throw new Error(`Falha ao carregar histórico PTAX (${res.status})`)
+  }
+  const raw: unknown = await res.json()
+  const parsed = taxasMoedaHistoricoResponseSchema.parse(raw)
+  const dados = parsed.historico.map(row => {
+    const data =
+      typeof row.data_cotacao === 'string'
+        ? row.data_cotacao.slice(0, 10)
+        : row.data_cotacao.toISOString().slice(0, 10)
+    return {
+      data,
+      venda: numeroCampo(row.venda),
+      compra: numeroCampo(row.compra ?? row.venda),
+    }
+  })
+  return { moeda: parsed.moeda, dados }
 }
 
 export function calcularVariacaoPtaxDiaAnterior(
@@ -185,6 +274,34 @@ export function montarSpreadMedioInsights(
   }))
 }
 
+export const previsaoTaxaFuturaMoedaResponseSchema = z.object({
+  data: z.array(
+    z.object({
+      moeda_previsao_taxa_futura_moeda: z.string(),
+      mes_previsao_taxa_futura_moeda: z.string(),
+      valor_mediano_previsao_taxa_futura_moeda: z.number(),
+      valor_medio_previsao_taxa_futura_moeda: z.number(),
+      fonte_previsao_taxa_futura_moeda: z.string(),
+    }),
+  ),
+  moeda: z.string(),
+  meses: z.number(),
+  total: z.number(),
+})
+
+export async function buscarPrevisoesTaxaFuturaInsights(
+  moeda: string,
+  meses: number,
+): Promise<z.infer<typeof previsaoTaxaFuturaMoedaResponseSchema>> {
+  const params = new URLSearchParams({ moeda, meses: String(meses) })
+  const res = await fetch(`/api/v1/previsoes-taxa-futura-moeda?${params}`, { credentials: 'include' })
+  if (!res.ok) {
+    throw new Error(`Falha ao carregar previsões Focus (${res.status})`)
+  }
+  const raw: unknown = await res.json()
+  return previsaoTaxaFuturaMoedaResponseSchema.parse(raw)
+}
+
 export async function buscarTaxasMoedaAtuaisInsights(): Promise<
   z.infer<typeof taxasMoedaAtuaisResponseSchema>
 > {
@@ -194,17 +311,4 @@ export async function buscarTaxasMoedaAtuaisInsights(): Promise<
   }
   const raw: unknown = await res.json()
   return taxasMoedaAtuaisResponseSchema.parse(raw)
-}
-
-export async function buscarTaxasMoedaHistoricoInsights(
-  moeda: string,
-  dias: number,
-): Promise<z.infer<typeof taxasMoedaHistoricoResponseSchema>> {
-  const params = new URLSearchParams({ moeda, dias: String(dias) })
-  const res = await fetch(`/api/v1/taxas-moeda/historico?${params}`, { credentials: 'include' })
-  if (!res.ok) {
-    throw new Error(`Falha ao carregar histórico PTAX (${res.status})`)
-  }
-  const raw: unknown = await res.json()
-  return taxasMoedaHistoricoResponseSchema.parse(raw)
 }

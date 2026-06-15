@@ -740,6 +740,28 @@ model PrevisaoTaxaFuturaMoeda {
 }
 
 // ---------------------------------------------------------------------------
+// TAXA MOEDA SYNC AGENDAMENTO
+// Configuração dos jobs automáticos PTAX (→ cambio) e Focus (→ previsao_taxa_futura_moeda).
+// Tabela global — sem id_organizacao. Dois registros fixos: id = 'ptax' | 'focus'.
+// Espelha o padrão NcmSyncAgendamento (Cadastros), com paridade Admin › Taxas de Moeda.
+// ---------------------------------------------------------------------------
+
+model TaxaMoedaSyncAgendamento {
+  id_taxa_moeda_sync_agendamento              String    @id
+  ativo_taxa_moeda_sync_agendamento           Boolean   @default(false)
+  frequencia_taxa_moeda_sync_agendamento      String    @default("Manual") // Manual | Diario | Semanal
+  hora_taxa_moeda_sync_agendamento            Int       @default(0)
+  minuto_taxa_moeda_sync_agendamento          Int       @default(0)
+  alertas_taxa_moeda_sync_agendamento         Json      @default("[]")
+  ultima_execucao_taxa_moeda_sync_agendamento DateTime?
+  data_criacao_taxa_moeda_sync_agendamento    DateTime  @default(now())
+  data_atualizacao_taxa_moeda_sync_agendamento DateTime @updatedAt
+
+  @@index([ativo_taxa_moeda_sync_agendamento], map: "tmsa_ativo_idx")
+  @@map("taxa_moeda_sync_agendamento")
+}
+
+// ---------------------------------------------------------------------------
 // SISTEMA DE TESTES — Testes, TestSchedule, TestPlan
 // ---------------------------------------------------------------------------
 // Tabelas que suportam o sistema de testes automatizado do Admin/Testes.

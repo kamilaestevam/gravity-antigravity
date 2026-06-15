@@ -1,0 +1,45 @@
+name: Migrate Configurador Produção
+
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate-configurador-producao:
+    name: prisma migrate deploy — gravity-configurador-producao
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm install
+
+      - name: prisma generate (Configurador)
+        run: npx prisma generate --schema=configurador/prisma/schema.prisma
+        env:
+          CONFIGURADOR_DATABASE_URL: postgresql://localhost:5432/configurador_ci
+
+      - name: prisma migrate deploy — PROD Configurador
+        run: npx prisma migrate deploy --schema=configurador/prisma/schema.prisma
+        env:
+          DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+          CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+
+      - name: Verificar tabela taxa_moeda_sync_agendamento
+        run: |
+          npx tsx -e "
+          import pg from 'pg';
+          const c = new pg.Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+          await c.connect();
+          const t = await c.query(\"SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename='taxa_moeda_sync_agendamento'\");
+          const rows = await c.query('SELECT id_taxa_moeda_sync_agendamento FROM taxa_moeda_sync_agendamento ORDER BY 1');
+          console.log('tabela:', t.rows[0]?.tablename ?? 'AUSENTE');
+          console.log('registros:', rows.rows.map(r => r.id_taxa_moeda_sync_agendamento).join(', ') || '(vazio)');
+          if (!t.rows.length) process.exit(1);
+          await c.end();
+          "
+        env:
+          DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}

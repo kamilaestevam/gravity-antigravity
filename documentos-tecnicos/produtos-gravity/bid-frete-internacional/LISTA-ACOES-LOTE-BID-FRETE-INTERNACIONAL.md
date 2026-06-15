@@ -12,7 +12,7 @@ Quatro capacidades na visão **Lista** (`lista-bid-frete-internacional.tsx`), vi
 
 | # | Ação | Onde | Backend |
 |---|------|------|---------|
-| 1 | Expandir / Recolher todos | Toolbar (ícone `CaretDoubleDown` / `CaretDoubleUp`) | — (client via `imperativeRef`) |
+| 1 | Expandir / Recolher todos | Toolbar (ícone `CaretDoubleDown` / `CaretDoubleUp`) | — (client via `imperativeRef`; **só linhas BID**) |
 | 2 | Seleção BID ou cotação | Checkbox pai + filhas | — |
 | 3 | Duplicar | Toolbar (ícone `StackPlus` + tooltip) | `POST .../duplicacoes` |
 | 4 | Excluir | Toolbar (ícone `Trash` vermelho + tooltip) + modal preview | `POST .../exclusoes/preview` + `confirmar` |
@@ -27,10 +27,22 @@ Quatro capacidades na visão **Lista** (`lista-bid-frete-internacional.tsx`), vi
 
 | Arquivo | Papel |
 |---------|-------|
-| `client/src/pages/lista-bid-frete-internacional.tsx` | Toolbar, seleção, handlers duplicar/excluir |
+| `client/src/pages/lista-bid-frete-internacional.tsx` | Toolbar, seleção, handlers duplicar/excluir, wiring TVG |
+| `client/src/pages/conector-pai-lista-bid-frete-internacional.tsx` | `renderConectorPai`: chevron **só** em linha BID; COT avulsa retorna `null` |
 | `client/src/pages/modal-excluir-lista-bid-frete-internacional.tsx` | Modal exclusão com preview permitidos × bloqueados |
-| `client/src/pages/lista-bid-frete-internacional-utils.ts` | Hierarquia BID → cotações → propostas |
+| `client/src/pages/lista-bid-frete-internacional-utils.ts` | Hierarquia, `filtrarBidsParaLista`, `enriquecerBidsComCotacoesDoPlano`, fallback |
 | `client/src/shared/api.ts` | `duplicacoesBidFreteApi`, `exclusoesBidFreteApi` + schemas Zod |
+
+### Expand por tipo de linha (2026-06-15)
+
+| Linha | Chevron na coluna expand | Filhas ao expandir |
+|-------|--------------------------|-------------------|
+| BID (grupo, `_tipo_linha: 'bid'`) | Sim | Cotações do BID |
+| COT avulsa (`id_bid` null) | **Não** | Propostas (3º nível; expand da cotação, não do conector pai) |
+
+- **Expandir todos:** percorre apenas BIDs (`isLinhaBidGrupo`); cotações avulsas não recebem toggle em massa.
+- **Filtro por aba:** `filtrarBidsParaLista` oculta BID quando todas as filhas do include são excluídas pela aba; mantém BID com include vazio para enriquecimento via `GET /cotacoes` (evita cotações “sumidas” após vincular subset a um BID).
+- **Núcleo:** sem diff em `nucleo-global/` — ver `agent-policy` § componentes compartilhados.
 
 ### Seleção
 
@@ -119,6 +131,7 @@ app.use('/api/v1/bid-frete-internacional', exclusoesBidFreteInternacionalRouter)
 |------|---------|
 | Funcional (13) | `testes/testes-funcionais/bid-frete-internacional/lista/duplicacoes-exclusoes-routes.test.ts` |
 | Unitário (6) | `testes/testes-unitarios/bid-frete-internacional/lista/exclusao-regra-bloqueio-bid-frete-internacional.test.ts` |
+| Unitário (13) | `testes/testes-unitarios/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts` — enrich, filtro aba, fallback, `isLinhaBidGrupo` |
 
 > Plano completo da tela (UNI/FUN/E2E/EMT) será fechado quando a lista estiver finalizada — estes testes cobrem apenas duplicação/exclusão em lote.
 

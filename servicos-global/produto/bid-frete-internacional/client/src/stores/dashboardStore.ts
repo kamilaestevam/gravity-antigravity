@@ -6,6 +6,14 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { DashboardWidgetConfig, DerivedMetric, ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
 import type { DashboardPainel } from '../shared/api'
+import {
+  WIDGET_CONFIG_IS_VISIVEL,
+  WIDGET_CONFIG_ORDEM_PAINEL,
+  ordenarWidgetsPorPadrao,
+  reordenarWidgetsLista,
+  reflowPosicoesWidgets,
+  sincronizarOrdemPainelPorPosicaoGrid,
+} from '../shared/dashboardWidgetVisibilidade'
 
 interface DashboardState {
   widgets: DashboardWidgetConfig[]
@@ -14,6 +22,10 @@ interface DashboardState {
   removeWidget: (widgetId: string) => void
   updateWidget: (widgetId: string, patch: Partial<DashboardWidgetConfig>) => void
   updateLayout: (updates: Array<{ id: string; position: DashboardWidgetConfig['position'] }>) => void
+  toggleWidgetVisibilidade: (widgetId: string) => void
+  reordenarWidgets: (fromId: string, toId: string) => void
+  selecionarTodosWidgetsVisiveis: () => void
+  restaurarVisibilidadePadraoWidgets: () => void
 
   activeFilters: ActiveFilter[]
   addFilter: (filter: ActiveFilter) => void
@@ -28,6 +40,10 @@ interface DashboardState {
   userDerivedMetrics: DerivedMetric[]
   addDerivedMetric: (metric: DerivedMetric) => void
   removeDerivedMetric: (metricId: string) => void
+
+  widgetLayoutInteracao: { widgetId: string; modo: 'moving' | 'resizing' } | null
+  setWidgetLayoutInteracao: (interacao: { widgetId: string; modo: 'moving' | 'resizing' } | null) => void
+  clearWidgetLayoutInteracao: () => void
 
   editMode: boolean
   setEditMode: (v: boolean) => void
@@ -169,12 +185,42 @@ export const useDashboardStore = create<DashboardState>()(
       updateWidget: (id, patch) => set(s => ({
         widgets: s.widgets.map(w => w.id === id ? { ...w, ...patch } : w),
       })),
-      updateLayout: (updates) => set(s => ({
-        widgets: s.widgets.map(w => {
+      updateLayout: (updates) => set(s => {
+        const comPosicoes = s.widgets.map(w => {
           const upd = updates.find(u => u.id === w.id)
           return upd ? { ...w, position: upd.position } : w
+        })
+        return { widgets: sincronizarOrdemPainelPorPosicaoGrid(comPosicoes) }
+      }),
+
+      toggleWidgetVisibilidade: (widgetId) => set(s => ({
+        widgets: s.widgets.map(w => {
+          if (w.id !== widgetId) return w
+          const visivel = w.config?.[WIDGET_CONFIG_IS_VISIVEL] !== false
+          return { ...w, config: { ...w.config, [WIDGET_CONFIG_IS_VISIVEL]: !visivel } }
         }),
       })),
+
+      reordenarWidgets: (fromId, toId) => set(s => ({
+        widgets: reordenarWidgetsLista(s.widgets, fromId, toId),
+      })),
+
+      selecionarTodosWidgetsVisiveis: () => set(s => ({
+        widgets: s.widgets.map(w => ({
+          ...w,
+          config: { ...w.config, [WIDGET_CONFIG_IS_VISIVEL]: true },
+        })),
+      })),
+
+      restaurarVisibilidadePadraoWidgets: () => set(s => {
+        const idsPadrao = DEFAULT_WIDGETS.map(w => w.id)
+        const sorted = ordenarWidgetsPorPadrao(s.widgets, idsPadrao)
+        const comVisibilidade = sorted.map((w, i) => ({
+          ...w,
+          config: { ...w.config, [WIDGET_CONFIG_IS_VISIVEL]: true, [WIDGET_CONFIG_ORDEM_PAINEL]: i },
+        }))
+        return { widgets: reflowPosicoesWidgets(comVisibilidade) }
+      }),
 
       activeFilters: [],
       addFilter: (filter) => set(s => ({
@@ -203,7 +249,11 @@ export const useDashboardStore = create<DashboardState>()(
         userDerivedMetrics: s.userDerivedMetrics.filter(m => m.id !== id),
       })),
 
-      editMode: true,
+      widgetLayoutInteracao: null,
+      setWidgetLayoutInteracao: (widgetLayoutInteracao) => set({ widgetLayoutInteracao }),
+      clearWidgetLayoutInteracao: () => set({ widgetLayoutInteracao: null }),
+
+      editMode: false,
       setEditMode: (editMode) => set({ editMode }),
       queryBuilderOpen: false,
       setQueryBuilderOpen: (queryBuilderOpen) => set({ queryBuilderOpen }),

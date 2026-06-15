@@ -47,12 +47,25 @@ import {
   CalendarBlank,
 } from '@phosphor-icons/react'
 
-import { DEMO_MENSAL, DEMO_MODAL, DEMO_MELHOR_COTACAO, DEMO_INCOTERMS } from '../shared/demo-data'
 import {
   getDashboardInsightsAlertas,
+  getDashboardInsightsGraficos,
   getDashboardKpis,
   getDashboardMapaCotacoesVisaoGeral,
 } from '../shared/api'
+import type { InsightsGraficosBidFreteInternacionalCliente } from '../shared/insights-visao-geral-bid-frete-internacional'
+import {
+  buscarTaxasMoedaAtuaisInsights,
+  buscarTaxasMoedaHistoricoInsights,
+  calcularVariacaoPtaxDiaAnterior,
+  lerTaxasCambioConfigBidFreteInternacional,
+  montarCotacoesPtaxFuturoInsights,
+  montarCotacoesPtaxHistoricoInsights,
+  montarCotacoesPtaxInsights,
+  montarSpreadMedioInsights,
+  type CotacaoPtaxInsights,
+  type SpreadMoedaInsights,
+} from '../shared/taxas-cambio-insights-bid-frete-internacional'
 import {
   resolverIdsWorkspacesParaApi,
   useEscopoWorkspacesBidFreteInternacional,
@@ -78,23 +91,31 @@ import '../shared/bid-frete-visao-geral-mapa.css'
 const fmtMoeda = (v: number) =>
   new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v)
 
-const MODAL_ICONS: Record<string, React.ReactNode> = {
-  MARITIMO: <Anchor weight="duotone" size={16} />,
-  AEREO: <AirplaneTilt weight="duotone" size={16} />,
-  RODOVIARIO: <Truck weight="duotone" size={16} />,
+type MesGraficoInsights = InsightsGraficosBidFreteInternacionalCliente['cotacoes_por_mes'][number]
+type ModalGraficoInsights = InsightsGraficosBidFreteInternacionalCliente['distribuicao_modal'][number]
+
+function PainelSemDadosInsights({ mensagem }: { mensagem: string }) {
+  return (
+    <p style={{ margin: '1.5rem 0', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
+      {mensagem}
+    </p>
+  )
 }
 
-function GraficoBarrasMensal() {
+function GraficoBarrasMensal({ dados }: { dados: MesGraficoInsights[] }) {
   const W = 520
   const H = 280
   const pad = { top: 35, right: 20, bottom: 40, left: 40 }
   const innerW = W - pad.left - pad.right
   const innerH = H - pad.top - pad.bottom
-  const barW = innerW / DEMO_MENSAL.length
-  
-  // Dynamic maxVal calculated from the tallest total, leaving 10% elegant spacing at the top
-  const maxMonthlyTotal = Math.max(...DEMO_MENSAL.map(d => d.aprovadas + d.andamento + d.recusadas))
-  const maxVal = maxMonthlyTotal > 0 ? maxMonthlyTotal * 1.1 : 100
+  const barW = dados.length > 0 ? innerW / dados.length : innerW
+
+  const totais = dados.map(d => d.aprovadas + d.andamento + d.recusadas)
+  const maxMonthlyTotal = Math.max(...totais, 0)
+  if (maxMonthlyTotal === 0) {
+    return <PainelSemDadosInsights mensagem="Nenhuma cotação nos últimos 6 meses para os workspaces selecionados." />
+  }
+  const maxVal = maxMonthlyTotal * 1.1
 
   // Y-axis grid ticks (from 0 = top/max to 1 = bottom/zero)
   const gridTicks = [0, 0.25, 0.5, 0.75, 1]
@@ -156,15 +177,15 @@ function GraficoBarrasMensal() {
         )
       })}
 
-      {DEMO_MENSAL.map((d, i) => {
+      {dados.map((d, i) => {
         const total = d.aprovadas + d.andamento + d.recusadas
         const w = barW * 0.45
         const x = pad.left + i * barW + (barW - w) / 2
         const fullH = (total / maxVal) * innerH
 
-        const hAprov = (d.aprovadas / total) * fullH
-        const hAnd = (d.andamento / total) * fullH
-        const hRec = (d.recusadas / total) * fullH
+        const hAprov = total > 0 ? (d.aprovadas / total) * fullH : 0
+        const hAnd = total > 0 ? (d.andamento / total) * fullH : 0
+        const hRec = total > 0 ? (d.recusadas / total) * fullH : 0
         
         const yTop = pad.top + innerH - fullH
 
@@ -243,8 +264,17 @@ function GraficoBarrasMensal() {
 
 // ─── Donut Modal (SVG + progress bars) ──────────────────────────────────────
 
-function GraficoDonutModal() {
-  const total = DEMO_MODAL.reduce((s, m) => s + m.count, 0)
+const MODAL_ICONS: Record<string, React.ReactNode> = {
+  MARITIMO: <Anchor weight="duotone" size={16} />,
+  AEREO: <AirplaneTilt weight="duotone" size={16} />,
+  RODOVIARIO: <Truck weight="duotone" size={16} />,
+}
+
+function GraficoDonutModal({ dados }: { dados: ModalGraficoInsights[] }) {
+  const total = dados.reduce((s, m) => s + m.count, 0)
+  if (total === 0) {
+    return <PainelSemDadosInsights mensagem="Nenhuma cotação para distribuir por modal." />
+  }
   const cx = 80
   const cy = 80
   const r = 58
@@ -252,7 +282,7 @@ function GraficoDonutModal() {
   const circ = 2 * Math.PI * r
 
   let offset = 0
-  const arcs = DEMO_MODAL.map(m => {
+  const arcs = dados.map(m => {
     const pct = m.count / total
     const dashLen = pct * circ
     const arc = { ...m, dashLen, dashOffset: -offset }
@@ -281,7 +311,7 @@ function GraficoDonutModal() {
         <text x={cx} y={cy + 14} textAnchor="middle" fill="#cbd5e1" fontSize="10" fontWeight="600" style={{ letterSpacing: '0.04em' }}>cotações</text>
       </svg>
       <div className="bfd-donut__legend">
-        {DEMO_MODAL.map(m => (
+        {dados.map(m => (
           <div key={m.modal_cotacao_bid_frete_internacional} className="bfd-donut__legend-row">
             <span className="bfd-donut__legend-icon" style={{ color: m.cor }}>{MODAL_ICONS[m.modal_cotacao_bid_frete_internacional]}</span>
             <span className="bfd-donut__legend-label">{MODAL_LABELS[m.modal_cotacao_bid_frete_internacional as keyof typeof MODAL_LABELS] ?? m.modal_cotacao_bid_frete_internacional}</span>
@@ -373,27 +403,34 @@ export default function VisaoGeral() {
   const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
   const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<CalendarioAlerta | (RouteDetail & { tipo: 'route' }) | null>(null)
   const [kpis, setKpis] = useState<KpisInsightsVisaoGeral | null>(null)
+  const [graficos, setGraficos] = useState<InsightsGraficosBidFreteInternacionalCliente | null>(null)
   const [alertas, setAlertas] = useState<CalendarioAlerta[]>([])
   const [dadosMapa, setDadosMapa] = useState<DadosMapaBidFrete>({ pins: [], routes: [] })
   const [carregando, setCarregando] = useState(true)
   const [erroCarregamento, setErroCarregamento] = useState<string | null>(null)
+  const [cotacoesPtax, setCotacoesPtax] = useState<CotacaoPtaxInsights[]>([])
+  const [spreadsMoeda, setSpreadsMoeda] = useState<SpreadMoedaInsights[]>([])
+  const [erroPtax, setErroPtax] = useState<string | null>(null)
   const statusCotacaoConfig = useStatusCotacaoConfigBidFreteInternacional()
 
   const carregarInsights = useCallback(async () => {
     setCarregando(true)
     setErroCarregamento(null)
     try {
-      const [kpisData, alertasData, mapaData] = await Promise.all([
+      const [kpisData, alertasData, mapaData, graficosData] = await Promise.all([
         getDashboardKpis(idsWorkspacesFiltro),
         getDashboardInsightsAlertas(idsWorkspacesFiltro),
         getDashboardMapaCotacoesVisaoGeral(idsWorkspacesFiltro),
+        getDashboardInsightsGraficos(idsWorkspacesFiltro),
       ])
       setKpis(kpisData)
       setAlertas(alertasData)
       setDadosMapa(mapaData)
+      setGraficos(graficosData)
     } catch (err) {
       console.error('[BidFrete Insights] falha ao carregar', err)
       setKpis(null)
+      setGraficos(null)
       setAlertas([])
       setDadosMapa({ pins: [], routes: [] })
       setErroCarregamento(
@@ -409,10 +446,48 @@ export default function VisaoGeral() {
     void carregarInsights()
   }, [carregarInsights, escopoHidratado, versaoEscopo])
 
-  // Interactive exchange rate & spread states (DDD nomenclature, PT-BR without accents)
+  // Câmbio PTAX (BACEN via Configurador) + spread (config taxa-cambio do produto)
   const [cambioModo, setCambioModo] = useState<'hoje' | 'historico' | 'futuro'>('hoje')
-  const [dataSelecionada, setDataSelecionada] = useState<string>('2026-05-22')
+  const [dataSelecionada, setDataSelecionada] = useState<string>(() => new Date().toISOString().slice(0, 10))
   const [futuroDias, setFuturoDias] = useState<number>(30)
+
+  const atualizarPtaxSpread = useCallback(async () => {
+    setErroPtax(null)
+    try {
+      const taxasAplicadas = lerTaxasCambioConfigBidFreteInternacional()
+      if (cambioModo === 'historico') {
+        const [usd, eur, cny] = await Promise.all([
+          buscarTaxasMoedaHistoricoInsights('USD', 90),
+          buscarTaxasMoedaHistoricoInsights('EUR', 90),
+          buscarTaxasMoedaHistoricoInsights('CNY', 90),
+        ])
+        setCotacoesPtax([
+          ...montarCotacoesPtaxHistoricoInsights(usd.dados, dataSelecionada, 'USD'),
+          ...montarCotacoesPtaxHistoricoInsights(eur.dados, dataSelecionada, 'EUR'),
+          ...montarCotacoesPtaxHistoricoInsights(cny.dados, dataSelecionada, 'CNY'),
+        ])
+        setSpreadsMoeda([])
+        return
+      }
+
+      const atuais = await buscarTaxasMoedaAtuaisInsights()
+      const base = montarCotacoesPtaxInsights(atuais.por_moeda).map(m => ({
+        ...m,
+        variacao: calcularVariacaoPtaxDiaAnterior(atuais.por_moeda, m.codigo),
+      }))
+      setCotacoesPtax(cambioModo === 'futuro' ? montarCotacoesPtaxFuturoInsights(base, futuroDias) : base)
+      setSpreadsMoeda(montarSpreadMedioInsights(atuais.por_moeda, taxasAplicadas))
+    } catch (err) {
+      setErroPtax(err instanceof Error ? err.message : 'Falha ao carregar PTAX')
+      setCotacoesPtax([])
+      setSpreadsMoeda([])
+    }
+  }, [cambioModo, dataSelecionada, futuroDias])
+
+  useEffect(() => {
+    if (!escopoHidratado) return
+    void atualizarPtaxSpread()
+  }, [atualizarPtaxSpread, escopoHidratado])
 
   const etapasFunil = useMemo(
     () =>
@@ -423,52 +498,15 @@ export default function VisaoGeral() {
     [statusCotacaoConfig, kpis?.funil],
   )
 
-  // PTAX currency simulation
-  const obterCotacoes = useMemo(() => {
-    const moedasBase = [
-      { codigo: 'USD', nome: 'Dólar', referencia: true, valor_brl: 5.12, variacao: -0.32 },
-      { codigo: 'EUR', nome: 'Euro', referencia: false, valor_brl: 5.68, variacao: 0.15 },
-      { codigo: 'CNY', nome: 'Yuan', referencia: false, valor_brl: 0.71, variacao: -0.08 },
-    ]
-
-    if (cambioModo === 'hoje') {
-      return moedasBase
-    }
-
-    if (cambioModo === 'historico') {
-      let hash = 0
-      for (let i = 0; i < dataSelecionada.length; i++) {
-        hash = dataSelecionada.charCodeAt(i) + ((hash << 5) - hash)
-      }
-      const fator = (hash % 120) / 1000
-      const variacaoBase = (hash % 300) / 100 - 1.5
-      return [
-        { codigo: 'USD', nome: 'Dólar', referencia: true, valor_brl: +(5.12 * (1 + fator)).toFixed(2), variacao: +variacaoBase.toFixed(2) },
-        { codigo: 'EUR', nome: 'Euro', referencia: false, valor_brl: +(5.68 * (1 + fator * 1.05)).toFixed(2), variacao: +(variacaoBase * 1.1).toFixed(2) },
-        { codigo: 'CNY', nome: 'Yuan', referencia: false, valor_brl: +(0.71 * (1 + fator * 0.95)).toFixed(2), variacao: +(variacaoBase * 0.85).toFixed(2) },
-      ]
-    }
-
-    if (cambioModo === 'futuro') {
-      const fatorDias = futuroDias === 30 ? 1 : futuroDias === 90 ? 3 : futuroDias === 180 ? 6 : 12
-      const fatorAcrescimo = 1 + (0.0075 * fatorDias)
-      return [
-        { codigo: 'USD', nome: 'Dólar', referencia: true, valor_brl: +(5.12 * fatorAcrescimo).toFixed(2), variacao: +(0.45 * fatorDias).toFixed(2) },
-        { codigo: 'EUR', nome: 'Euro', referencia: false, valor_brl: +(5.68 * fatorAcrescimo * 1.01).toFixed(2), variacao: +(0.52 * fatorDias).toFixed(2) },
-        { codigo: 'CNY', nome: 'Yuan', referencia: false, valor_brl: +(0.71 * fatorAcrescimo * 0.99).toFixed(2), variacao: +(0.38 * fatorDias).toFixed(2) },
-      ]
-    }
-
-    return moedasBase
-  }, [cambioModo, dataSelecionada, futuroDias])
-  const andamentoSpark = [12, 14, 18, 15, 20, 22, 25]
-  const savingSpark = [15, 18, 16, 21, 19, 23, 24]
+  const totalCotacoesEscopo = graficos?.total_cotacoes
+    ?? kpis?.funil?.reduce((acc, f) => acc + f.count, 0)
+    ?? 0
 
   if (carregando) {
     return <ConteudoCarregandoBidFreteInternacional />
   }
 
-  if (erroCarregamento || !kpis) {
+  if (erroCarregamento || !kpis || !graficos) {
     return (
       <div
         style={{
@@ -818,8 +856,7 @@ export default function VisaoGeral() {
           titulo="Em andamento"
           icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
           valor={String(kpis.cotacoes_andamento)}
-          tendencia={{ valor: '+3/sem', direcao: 'up' }}
-          subtexto={`USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
+          subtexto={`${totalCotacoesEscopo} no escopo · USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
           variante="padrao"
           tooltip={
             <>
@@ -846,7 +883,6 @@ export default function VisaoGeral() {
           titulo="Aprovadas"
           icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
           valor={String(kpis.cotacoes_aprovadas)}
-          tendencia={{ valor: '', direcao: 'up' }}
           subtexto={`USD ${fmtMoeda(kpis.valor_aprovado_usd)} total`}
           variante="padrao"
           tooltip={
@@ -860,12 +896,16 @@ export default function VisaoGeral() {
                 <strong>{kpis.cotacoes_aprovadas}</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Taxa de conversão</span>
-                <strong style={{ color: '#60a5fa' }}>78.4%</strong>
+                <span>Total no escopo</span>
+                <strong>{totalCotacoesEscopo}</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Parceiros atendidos</span>
-                <strong>14 armadores</strong>
+                <span>Taxa de conversão</span>
+                <strong style={{ color: '#60a5fa' }}>
+                  {totalCotacoesEscopo > 0
+                    ? `${Math.round((kpis.cotacoes_aprovadas / totalCotacoesEscopo) * 1000) / 10}%`
+                    : '—'}
+                </strong>
               </div>
             </>
           }
@@ -874,7 +914,6 @@ export default function VisaoGeral() {
           titulo="Saving Médio"
           icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
           valor={`${kpis.savings.media_saving_percentual}%`}
-          tendencia={{ valor: '+2.3pp', direcao: 'up' }}
           subtexto={`USD ${fmtMoeda(kpis.savings.total_saving_usd)} acumulado`}
           variante="padrao"
           tooltip={
@@ -1070,7 +1109,7 @@ export default function VisaoGeral() {
             </div>
             <span className="bfd-chart__subtitle">Últimos 6 meses</span>
           </div>
-          <GraficoBarrasMensal />
+          <GraficoBarrasMensal dados={graficos.cotacoes_por_mes} />
           <div className="bfd-chart__legend">
             <span><span className="bfd-chart__legend-dot" style={{ background: '#60a5fa' }} /> Aprovadas</span>
             <span><span className="bfd-chart__legend-dot" style={{ background: '#8b5cf6' }} /> Em andamento</span>
@@ -1086,7 +1125,7 @@ export default function VisaoGeral() {
             </div>
             <p className="cg-card__label" style={{ margin: 0 }}>Distribuição por Modal</p>
           </div>
-          <GraficoDonutModal />
+          <GraficoDonutModal dados={graficos.distribuicao_modal} />
         </div>
 
         {/* Câmbio PTAX (BACEN) */}
@@ -1138,7 +1177,7 @@ export default function VisaoGeral() {
                 <input
                   type="date"
                   value={dataSelecionada}
-                  max="2026-05-22"
+                  max={new Date().toISOString().slice(0, 10)}
                   onChange={(e) => setDataSelecionada(e.target.value)}
                   style={{
                     background: 'rgba(255, 255, 255, 0.04)',
@@ -1190,7 +1229,11 @@ export default function VisaoGeral() {
 
           {/* Exchange Rates List */}
           <div className="bfd-cambio" style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', margin: cambioModo === 'hoje' ? 'auto 0' : '0' }}>
-            {obterCotacoes.map(m => (
+            {erroPtax ? (
+              <PainelSemDadosInsights mensagem={erroPtax} />
+            ) : cotacoesPtax.length === 0 ? (
+              <PainelSemDadosInsights mensagem="PTAX indisponível. Sincronize em Configurador › Taxas de Moeda." />
+            ) : cotacoesPtax.map(m => (
               <div key={m.codigo} className="bfd-cambio__row" style={{ padding: '0.55rem 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <span className="bfd-cambio__code" style={{ fontSize: '0.82rem', fontWeight: 700, color: '#ffffff', minWidth: '40px' }}>{m.codigo}</span>
                 <span className="bfd-cambio__val" style={{ fontSize: '0.82rem', color: '#cbd5e1', flex: 1, fontWeight: 600, paddingLeft: '0.5rem' }}>R$ {m.valor_brl.toFixed(2).replace('.', ',')}</span>
@@ -1224,21 +1267,21 @@ export default function VisaoGeral() {
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', margin: 'auto 0' }}>
-            {[
-              { moeda: 'USD', valor: '1,85%', pct: 60, cor: '#3b82f6' },
-              { moeda: 'EUR', valor: '2,10%', pct: 75, cor: '#8b5cf6' },
-              { moeda: 'CNY', valor: '1,45%', pct: 45, cor: '#fbbf24' },
-            ].map(item => (
+            {spreadsMoeda.length === 0 ? (
+              <PainelSemDadosInsights mensagem="Configure taxas em BID Frete › Configurações › Taxa de Câmbio para calcular o spread." />
+            ) : spreadsMoeda.map(item => (
               <div key={item.moeda} style={{ display: 'flex', flexDirection: 'column', gap: '0.3' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#ffffff' }}>{item.moeda}</span>
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#60a5fa' }}>{item.valor}</span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#60a5fa' }}>
+                    {item.valor_pct.toFixed(2).replace('.', ',')}%
+                  </span>
                 </div>
                 <div style={{ height: '6px', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '3px', overflow: 'hidden', position: 'relative' }}>
                   <div
                     style={{
                       height: '100%',
-                      width: `${item.pct}%`,
+                      width: `${item.pct_barra}%`,
                       background: `linear-gradient(90deg, #3b82f6 0%, ${item.cor} 100%)`,
                       boxShadow: `0 0 6px ${item.cor}60`,
                       borderRadius: '3px',
@@ -1252,7 +1295,7 @@ export default function VisaoGeral() {
 
           <div style={{ marginTop: 'auto', paddingTop: '0.5rem' }}>
             <p style={{ fontSize: '0.65rem', color: '#94a3b8', margin: 0, lineHeight: 1.4 }}>
-              Média aplicada pelos fornecedores sobre as cotações ativas dos últimos 30 dias.
+              Spread = diferença entre taxa configurada no produto e PTAX (BACEN) de hoje.
             </p>
           </div>
         </div>
@@ -1268,16 +1311,18 @@ export default function VisaoGeral() {
             </div>
             <p className="cg-card__label" style={{ margin: 0 }}>Melhor Cotação do Mês</p>
           </div>
+          {graficos.melhor_cotacao_mes ? (
           <div className="bfd-best">
             <div className="bfd-best__route" style={{ margin: '0.35rem 0 0.75rem' }}>
               <div className="bfd-best__port">
-                <div className="bfd-best__port-flag">🇨🇳</div>
-                <div className="bfd-best__port-code">Shanghai (CNSHA)</div>
+                <div className="bfd-best__port-code">{graficos.melhor_cotacao_mes.origem}</div>
               </div>
               
               <div className="bfd-best__arrow" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0 0.5rem' }}>
                 <span className="bfd-best__arrow-tt" style={{ fontSize: '0.68rem', color: '#94a3b8', letterSpacing: '0.02em', marginBottom: '4px', fontWeight: 500 }}>
-                  {DEMO_MELHOR_COTACAO.transit_time} dias
+                  {graficos.melhor_cotacao_mes.transit_time != null
+                    ? `${graficos.melhor_cotacao_mes.transit_time} dias`
+                    : '—'}
                 </span>
                 <svg width="100%" height="20" viewBox="0 0 160 20" style={{ overflow: 'visible' }}>
                   <line x1="0" y1="10" x2="160" y2="10" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="4,4" />
@@ -1290,20 +1335,22 @@ export default function VisaoGeral() {
               </div>
 
               <div className="bfd-best__port">
-                <div className="bfd-best__port-flag">🇧🇷</div>
-                <div className="bfd-best__port-code">Santos (BRSSZ)</div>
+                <div className="bfd-best__port-code">{graficos.melhor_cotacao_mes.destino}</div>
               </div>
             </div>
             <div className="bfd-best__saving">
               <span className="bfd-best__saving-badge">
-                <TrendUp size={12} /> {DEMO_MELHOR_COTACAO.saving_pct}% saving
+                <TrendUp size={12} /> {graficos.melhor_cotacao_mes.saving_pct}% saving
               </span>
-              <span className="bfd-best__saving-val">USD {fmtMoeda(DEMO_MELHOR_COTACAO.ganho_valor_cotacao_bid_frete_internacional)}</span>
+              <span className="bfd-best__saving-val">USD {fmtMoeda(graficos.melhor_cotacao_mes.ganho_valor_cotacao_bid_frete_internacional)}</span>
             </div>
             <div className="bfd-best__meta">
-              {DEMO_MELHOR_COTACAO.numero_cotacao_bid_frete_internacional} | {DEMO_MELHOR_COTACAO.fornecedor} | USD {fmtMoeda(DEMO_MELHOR_COTACAO.valor_aprovado_ganho_bid_frete_internacional)}
+              {graficos.melhor_cotacao_mes.numero_cotacao_bid_frete_internacional} | {graficos.melhor_cotacao_mes.fornecedor} | USD {fmtMoeda(graficos.melhor_cotacao_mes.valor_aprovado_ganho_bid_frete_internacional)}
             </div>
           </div>
+          ) : (
+            <PainelSemDadosInsights mensagem="Nenhuma cotação aprovada neste mês no escopo selecionado." />
+          )}
         </div>
 
         {/* Top Incoterms */}
@@ -1315,7 +1362,9 @@ export default function VisaoGeral() {
             <p className="cg-card__label" style={{ margin: 0 }}>Top Incoterms</p>
           </div>
           <div className="bfd-incoterms">
-            {DEMO_INCOTERMS.map(inc => (
+            {graficos.top_incoterms.length === 0 ? (
+              <PainelSemDadosInsights mensagem="Nenhum incoterm registrado nas cotações do escopo." />
+            ) : graficos.top_incoterms.map(inc => (
               <div key={inc.incoterm_cotacao_bid_frete_internacional} className="bfd-incoterms__row" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', padding: '0.4rem 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                   <span className="bfd-incoterms__code">{inc.incoterm_cotacao_bid_frete_internacional}</span>

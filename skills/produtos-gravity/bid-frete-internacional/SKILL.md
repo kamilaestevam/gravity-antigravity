@@ -70,9 +70,22 @@ Migrations: `20260530120000_reorder_colunas_*` + `20260530130000_fixup_reorder_b
 | BID | BID → Cotações → (propostas no expand da cotação filha) |
 
 Utils: `client/src/pages/lista-bid-frete-internacional-utils.ts`  
+Conector expand: `client/src/pages/conector-pai-lista-bid-frete-internacional.tsx` (`renderConectorPaiListaBidFreteInternacional`)  
 Agregação resumo BID: `client/src/shared/agregar-resumo-bid-frete-internacional.ts`
 
 Query avulsas: `GET /cotacoes?apenas_avulsas=true` (sem `id_bid`).
+
+### Chevron e filtros da hierarquia (AGT-000264)
+
+| Linha | Expand na coluna pai | Implementação |
+|-------|----------------------|---------------|
+| BID (`isLinhaBidGrupo`) | Sim | `renderConectorPai` → chevron `gtv-chevron-btn`; filhas = `cotacoes` do grupo |
+| COT avulsa | Não | Conector retorna `null`; propostas no 3º nível só na avulsa |
+
+- **Expandir todos:** só BIDs — ver `lista-bid-frete-internacional.tsx`.
+- **Filtro aba/busca:** `filtrarBidsParaLista` + `enriquecerBidsComCotacoesDoPlano` + `montarLinhasPaiListaComFallback` — doc em [ENTIDADE-BID-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/ENTIDADE-BID-TECNICO.md) §5.
+- **Núcleo:** não alterar `TabelaVirtualGlobal`; usar props existentes. Regra absoluta → [agent-policy](../../governanca/lei/agent-policy/SKILL.md) § componentes compartilhados.
+- **Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts` (13 casos).
 
 ### Criação (menu Novo → Buscar Frete)
 

@@ -15,8 +15,8 @@ export interface CampoImportacaoBidMeta {
 }
 
 /** Normaliza cabeçalho de planilha para comparação (paridade Smart Import Pedido). */
-export function normalizarNomeCampoImportacaoBidFreteInternacional(s: string): string {
-  return s
+export function normalizarNomeCampoImportacaoBidFreteInternacional(s: string | null | undefined): string {
+  return String(s ?? '')
     .replace(/^\*+\s+/, '')
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -334,14 +334,14 @@ export function detectarLinhaCabecalhoImportacaoBid(rows: readonly (readonly str
 
   for (let i = 0; i < Math.min(5, rows.length); i++) {
     const row = rows[i]
-    if (!row.some(c => c.trim().length > 0)) continue
+    if (!row.some(c => (c ?? '').trim().length > 0)) continue
 
-    const firstCell = row[0]?.trim() ?? ''
+    const firstCell = (row[0] ?? '').trim()
     if (/^(essencial|detalhes|ope|opcional)/i.test(firstCell)) continue
 
     let score = 0
     for (const cell of row) {
-      const norm = normalizarNomeCampoImportacaoBidFreteInternacional(cell)
+      const norm = normalizarNomeCampoImportacaoBidFreteInternacional(cell ?? '')
       if (CAMPO_BID_POR_ROTULO.has(norm) || CAMPO_BID_POR_NOME_INTERNO.has(norm)) {
         score++
       }

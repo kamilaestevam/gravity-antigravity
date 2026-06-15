@@ -11,6 +11,7 @@ import {
   montarMapaCotacoesVisaoGeralBidFreteInternacional,
   STATUS_MAPA_VISAO_GERAL,
 } from '../lib/mapa-cotacoes-visao-geral-bid-frete-internacional.js'
+import { agregarInsightsGraficosBidFreteInternacional } from '../lib/agregar-insights-graficos-bid-frete-internacional.js'
 import { clausulaFiltroWorkspaceBidFrete, parseIdsWorkspacesQuery } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 
@@ -278,7 +279,7 @@ router.get('/insights-alertas', async (req: Request, res: Response, next: NextFu
       (req.prisma as any).cotacaoBidFreteInternacional.count({
         where: {
           id_produto_gravity: 'bid-frete-internacional',
-          status_cotacao_bid_frete_internacional: { notIn: ['RASCUNHO', 'CANCELADA'] },
+          status_cotacao_bid_frete_internacional: { not: 'CANCELADA' },
           data_criacao_cotacao_bid_frete_internacional: { gte: seteDiasAtras },
           ...filtroWorkspace,
         },
@@ -293,6 +294,72 @@ router.get('/insights-alertas', async (req: Request, res: Response, next: NextFu
         { tipo: 'nova', label: 'Novas cotações (7 dias)', count: novasSeteDias, cor: 'green' },
       ],
     })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// GET /insights-graficos — gráficos inferiores da visão Insights (cliente)
+router.get('/insights-graficos', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await assertWorkspacesAutorizadosNoRequest(req)
+    const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
+    const agora = new Date()
+    const seisMesesAtras = new Date(Date.UTC(agora.getUTCFullYear(), agora.getUTCMonth() - 5, 1))
+
+    const cotacoes = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
+      where: {
+        id_produto_gravity: 'bid-frete-internacional',
+        data_criacao_cotacao_bid_frete_internacional: { gte: seisMesesAtras },
+        ...filtroWorkspace,
+      },
+      select: {
+        status_cotacao_bid_frete_internacional: true,
+        modal_cotacao_bid_frete_internacional: true,
+        incoterm_cotacao_bid_frete_internacional: true,
+        data_criacao_cotacao_bid_frete_internacional: true,
+        data_aprovacao_cotacao_bid_frete_internacional: true,
+        numero_cotacao_bid_frete_internacional: true,
+        origem_nome_cotacao_bid_frete_internacional: true,
+        origem_codigo_cotacao_bid_frete_internacional: true,
+        destino_nome_cotacao_bid_frete_internacional: true,
+        destino_codigo_cotacao_bid_frete_internacional: true,
+        ganho_valor_cotacao_bid_frete_internacional: true,
+        ganho_percentual_cotacao_bid_frete_internacional: true,
+        propostas: {
+          where: { status_proposta_bid_frete_internacional: 'APROVADA' },
+          orderBy: { valor_total_proposta_bid_frete_internacional: 'asc' },
+          take: 1,
+          select: {
+            valor_total_proposta_bid_frete_internacional: true,
+            dias_transito_proposta_bid_frete_internacional: true,
+            fornecedor: {
+              select: { nome_fornecedor_bid_frete_internacional: true },
+            },
+          },
+        },
+      },
+    })
+
+    type Row = (typeof cotacoes)[number]
+    const normalizadas = (cotacoes as Row[]).map(c => ({
+      status_cotacao_bid_frete_internacional: c.status_cotacao_bid_frete_internacional,
+      modal_cotacao_bid_frete_internacional: c.modal_cotacao_bid_frete_internacional,
+      incoterm_cotacao_bid_frete_internacional: c.incoterm_cotacao_bid_frete_internacional,
+      data_criacao_cotacao_bid_frete_internacional: c.data_criacao_cotacao_bid_frete_internacional,
+      data_aprovacao_cotacao_bid_frete_internacional: c.data_aprovacao_cotacao_bid_frete_internacional,
+      numero_cotacao_bid_frete_internacional: c.numero_cotacao_bid_frete_internacional,
+      origem_nome_cotacao_bid_frete_internacional: c.origem_nome_cotacao_bid_frete_internacional,
+      origem_codigo_cotacao_bid_frete_internacional: c.origem_codigo_cotacao_bid_frete_internacional,
+      destino_nome_cotacao_bid_frete_internacional: c.destino_nome_cotacao_bid_frete_internacional,
+      destino_codigo_cotacao_bid_frete_internacional: c.destino_codigo_cotacao_bid_frete_internacional,
+      ganho_valor_cotacao_bid_frete_internacional: c.ganho_valor_cotacao_bid_frete_internacional,
+      ganho_percentual_cotacao_bid_frete_internacional: c.ganho_percentual_cotacao_bid_frete_internacional,
+      fornecedor_vencedor: null,
+      proposta_aprovada: c.propostas[0] ?? null,
+    }))
+
+    res.json(agregarInsightsGraficosBidFreteInternacional(normalizadas, agora))
   } catch (err) {
     next(err)
   }

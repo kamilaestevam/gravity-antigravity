@@ -5,6 +5,7 @@
 import { montarMapaCotacoesVisaoFornecedorBidFreteInternacional } from './mapa-cotacoes-visao-fornecedor-bid-frete-internacional.js'
 
 export const STATUS_MAPA_VISAO_GERAL = [
+  'RASCUNHO',
   'ENVIADA_FORNECEDORES',
   'EM_COTACAO',
   'AGUARDANDO_APROVACAO',

@@ -51,6 +51,8 @@ import { DashboardConstrutorConsulta } from '@nucleo/query-builder-global'
 import { BarraFerramentasDashboardBidFrete } from '../components/dashboard/BarraFerramentasDashboardBidFrete'
 import { BidFreteDashboardFaixaPaineis } from '../components/BidFreteDashboardFaixaPaineis'
 import { useDashboardPainelBidFrete } from '../shared/useDashboardPainelBidFrete'
+import { widgetEstaVisivel, ordenarWidgetsLista } from '../shared/dashboardWidgetVisibilidade'
+import { rotuloPeriodoDashboard, widgetUsaPeriodoProprio } from '../shared/dashboardPeriodoUtil'
 
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
 import type { EnrichedCatalogField } from '@nucleo/dashboard'
@@ -219,6 +221,7 @@ const WIDGET_VISUAL: Record<string, { accentColor?: string; icone?: ReactNode }>
   kpi_cotacoes_andamento:  { accentColor: BLUE,   icone: <ClipboardText  size={15} weight="duotone" /> },
   kpi_cotacoes_passadas:   { accentColor: GREEN,  icone: <CheckCircle    size={15} weight="duotone" /> },
   kpi_valor_aprovado:      { accentColor: VIOLET, icone: <Scales         size={15} weight="duotone" /> },
+  gabi_insights:           { accentColor: VIOLET, icone: <RocketLaunch   size={15} weight="duotone" /> },
 }
 
 const PERIOD_SEQUENCE = ['7d', '30d', '90d', '12m', 'current_year'] as const
@@ -648,9 +651,11 @@ export default function Dashboard() {
 
   const {
     widgets, addWidget, removeWidget, updateWidget, updateLayout,
+    toggleWidgetVisibilidade, reordenarWidgets,
+    selecionarTodosWidgetsVisiveis, restaurarVisibilidadePadraoWidgets,
     slicers, setPeriod, setStatusFilter,
     activeFilters, clearFilters,
-    editMode, setEditMode,
+    widgetLayoutInteracao, setWidgetLayoutInteracao, clearWidgetLayoutInteracao,
     queryBuilderOpen, setQueryBuilderOpen,
     userDerivedMetrics,
     painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
@@ -668,6 +673,7 @@ export default function Dashboard() {
 
   const [kpisData,     setKpisData]     = useState<DashboardKpis | null>(null)
   const [prevKpisData, setPrevKpisData] = useState<DashboardKpis | null>(null)
+  const [kpisPorPeriodo, setKpisPorPeriodo] = useState<Record<string, DashboardKpis>>({})
 
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
   const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
@@ -722,6 +728,53 @@ export default function Dashboard() {
     painelDashboardAtualId, widgets, paineisDashboard, salvarWidgetsPainelAtual,
     setPaineisDashboard, setPainelDashboardAtualId, addNotification, t, paineisDashboardApi,
   ])
+
+  useEffect(() => {
+    if (painelDashboardAtualId) salvarWidgetsPainelAtual(painelDashboardAtualId, widgets)
+  }, [widgets, painelDashboardAtualId, salvarWidgetsPainelAtual])
+
+  const periodosWidgets = useMemo(() => {
+    const set = new Set<string>([slicers.period])
+    for (const w of widgets) {
+      if (w.config?.periodLocked === true && w.query_spec.filters.period) {
+        set.add(w.query_spec.filters.period)
+      } else if (w.query_spec.filters.period === '12m') {
+        set.add('12m')
+      }
+    }
+    return [...set]
+  }, [widgets, slicers.period])
+
+  const resolverCustomRange = useCallback((period: string) => {
+    if (!period.startsWith('custom:')) return undefined
+    const [, s, e] = period.split(':')
+    return s && e ? { from: `${s}T00:00:00.000Z`, to: `${e}T23:59:59.999Z` } : undefined
+  }, [])
+
+  const handlePeriodChange = useCallback((period: string) => {
+    setPeriod(period)
+  }, [setPeriod])
+
+  const handleClearWidgetPeriod = useCallback((widgetId: string) => {
+    const alvo = widgets.find(w => w.id === widgetId)
+    if (!alvo) return
+    updateWidget(widgetId, {
+      query_spec: {
+        ...alvo.query_spec,
+        filters: { ...alvo.query_spec.filters, period: slicers.period },
+      },
+      config: { ...alvo.config, periodLocked: false },
+    })
+  }, [updateWidget, widgets, slicers.period])
+
+  const handleClearFiltersComPeriodo = useCallback(() => {
+    clearFilters()
+    handlePeriodChange('30d')
+    setStatusFilter([])
+    for (const w of widgets) {
+      if (w.config?.periodLocked) handleClearWidgetPeriod(w.id)
+    }
+  }, [clearFilters, handlePeriodChange, setStatusFilter, widgets, handleClearWidgetPeriod])
 
   // Carrossel GABI
   const gabiCarouselRef = useRef<HTMLDivElement>(null)
@@ -793,144 +846,242 @@ export default function Dashboard() {
   useEffect(() => {
     if (!escopoHidratado) return
     setLoadingData(true)
-    const prevRange = getPrevDateRange(slicers.period)
+    setKpisData(null)
+    setPrevKpisData(null)
+    setTrendData([])
+    setKpisPorPeriodo({})
+    setInsightsData([])
 
-    const customRange = slicers.period.startsWith('custom:')
-      ? (() => {
-          const [, s, e] = slicers.period.split(':')
-          return s && e ? { from: `${s}T00:00:00.000Z`, to: `${e}T23:59:59.999Z` } : undefined
-        })()
-      : undefined
+    const prevRange = getPrevDateRange(slicers.period)
+    const customRangeGlobal = resolverCustomRange(slicers.period)
+    const extraPeriodos = periodosWidgets.filter(p => p !== slicers.period)
 
     Promise.all([
-      dashboardApi.kpis(slicers.period, customRange, idsWorkspacesFiltro),
+      dashboardApi.kpis(slicers.period, customRangeGlobal, idsWorkspacesFiltro),
       dashboardApi.kpis(slicers.period, prevRange, idsWorkspacesFiltro),
       dashboardApi.trend('12m', 'month', idsWorkspacesFiltro),
-      dashboardApi.insights(slicers.period, customRange).catch(() => ({ period: '', role: '', insights: [] as GabiInsightItem[] })),
+      dashboardApi.insights(slicers.period, customRangeGlobal).catch(() => ({ period: '', role: '', insights: [] as GabiInsightItem[] })),
+      Promise.all(
+        extraPeriodos.map(async (period) => {
+          const kpis = await dashboardApi.kpis(period, resolverCustomRange(period), idsWorkspacesFiltro)
+          return [period, kpis] as const
+        }),
+      ),
     ])
-      .then(([kpis, prevKpis, trend, insightsRes]) => {
+      .then(([kpis, prevKpis, trend, insightsRes, extras]) => {
         setKpisData(kpis)
         setPrevKpisData(prevKpis)
         setTrendData(trend.value)
         setInsightsData(insightsRes.insights)
+        const mapa: Record<string, DashboardKpis> = { [slicers.period]: kpis }
+        for (const [period, dados] of extras) mapa[period] = dados
+        setKpisPorPeriodo(mapa)
       })
       .catch(err => console.error('[Dashboard] Erro ao carregar dados:', err))
       .finally(() => setLoadingData(false))
-  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, versaoEscopo, dashboardApi])
+  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, versaoEscopo, dashboardApi, periodosWidgets, resolverCustomRange])
+
+  const periodOptions = useMemo((): PeriodOption[] => [
+    { value: 'tudo', label: t('nucleo.dashboard.periodo.tudo', { defaultValue: 'Tudo' }) },
+    { value: '7d', label: t('nucleo.dashboard.periodo.ultimos_7_dias') },
+    { value: '30d', label: t('nucleo.dashboard.periodo.ultimos_30_dias') },
+    { value: '6m', label: t('nucleo.dashboard.periodo.ultimos_6_meses', { defaultValue: '6 meses' }) },
+    { value: '1a', label: t('nucleo.dashboard.periodo.ultimo_ano', { defaultValue: '1 ano' }) },
+    { value: '90d', label: t('nucleo.dashboard.periodo.ultimos_90_dias') },
+    { value: '12m', label: t('nucleo.dashboard.periodo.ultimos_12_meses') },
+    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual') },
+    { value: 'current_year', label: t('nucleo.dashboard.periodo.ano_atual') },
+    { value: 'custom', label: t('nucleo.dashboard.periodo.personalizado') },
+  ], [t])
 
   const activeWidgets = useMemo(() =>
-    widgets.map(w => ({
-      ...w,
-      query_spec: {
-        ...w.query_spec,
-        filters: w.query_spec.filters.period === '12m'
+    ordenarWidgetsLista(widgets)
+      .filter(widgetEstaVisivel)
+      .map(w => {
+        const locked = w.config?.periodLocked === true
+        const filters = locked
           ? w.query_spec.filters
-          : { ...w.query_spec.filters, period: slicers.period },
-      },
-    })), [widgets, slicers.period],
+          : w.query_spec.filters.period === '12m'
+            ? w.query_spec.filters
+            : { ...w.query_spec.filters, period: slicers.period }
+        return {
+          ...w,
+          query_spec: { ...w.query_spec, filters },
+        }
+      }), [widgets, slicers.period],
   )
+
+  const buildPainelWidgetProps = useCallback((widget: DashboardWidgetConfig) => {
+    const chartType = widget.chart_type
+    const widgetPeriod = widget.query_spec.filters.period
+    const locked = widget.config?.periodLocked === true
+    const periodoProprio = widgetUsaPeriodoProprio(widgetPeriod, slicers.period, locked)
+    const periodoRotuloWidget = periodoProprio
+      ? rotuloPeriodoDashboard(widgetPeriod, periodOptions, t('nucleo.dashboard.periodo.personalizado'))
+      : undefined
+
+    const layoutModo = widgetLayoutInteracao?.widgetId === widget.id
+      ? widgetLayoutInteracao.modo
+      : null
+
+    const periodoProps = chartType === 'SECTION_LABEL' || chartType === 'GABI_INSIGHTS'
+      ? {}
+      : periodoProprio
+        ? {
+            periodoFiltroRotulo: periodoRotuloWidget,
+            onLimparPeriodoWidget: podeEditarDashboard
+              ? () => handleClearWidgetPeriod(widget.id)
+              : undefined,
+          }
+        : {}
+
+    const menuProps = podeEditarDashboard
+      ? {
+          habilitarMenuOpcoes: true,
+          layoutModo,
+          onEdit: (w: DashboardWidgetConfig) => {
+            const stored = widgets.find(x => x.id === w.id) ?? w
+            setEditingWidget(stored)
+            setEditModalOpen(true)
+          },
+          onRemove: removeWidget,
+          onMover: () => setWidgetLayoutInteracao({ widgetId: widget.id, modo: 'moving' }),
+          onRedimensionar: () => setWidgetLayoutInteracao({ widgetId: widget.id, modo: 'resizing' }),
+          onConcluirLayout: clearWidgetLayoutInteracao,
+        }
+      : {}
+
+    return { ...periodoProps, ...menuProps }
+  }, [
+    widgets,
+    slicers.period,
+    periodOptions,
+    t,
+    widgetLayoutInteracao,
+    podeEditarDashboard,
+    handleClearWidgetPeriod,
+    removeWidget,
+    setWidgetLayoutInteracao,
+    clearWidgetLayoutInteracao,
+  ])
 
   const renderWidget = useCallback((widget: DashboardWidgetConfig) => {
     const chartType = widget.chart_type
+    const widgetPeriod = widget.query_spec.filters.period
+    const kpisWidget = (kpisPorPeriodo[widgetPeriod] ?? kpisData) as DashboardKpis | null
+    const painelProps = buildPainelWidgetProps(widget)
+    const emInteracaoLayout = widgetLayoutInteracao?.widgetId === widget.id
 
-    // ── GABI_INSIGHTS ────────────────────────────────────────────────────────
+    // ── GABI_INSIGHTS — menu ⋮ mover / tamanho / excluir (paridade Pedido) ──
     if (chartType === 'GABI_INSIGHTS') {
       const insights = insightsData.length > 0
         ? insightsData
         : kpisData
           ? buildClientInsights(kpisData, prevKpisData)
           : []
+      const gabiVisual = WIDGET_VISUAL.gabi_insights ?? {}
+      const gabiResult: WidgetResult = {
+        data: {},
+        chartType: 'GABI_INSIGHTS',
+        partial: false,
+        cached: false,
+        computed_at: new Date().toISOString(),
+      }
+      const controlesCarrossel = (
+        <div className="dp-gabi-header-right db-no-drag">
+          <button
+            className="dp-gabi-nav-btn"
+            type="button"
+            onClick={() => scrollGabi('left')}
+            aria-label={t('bid_frete_internacional.dashboard.gabi_insight_anterior', { defaultValue: 'Insight anterior' })}
+          >
+            <CaretLeft size={12} weight="bold" />
+          </button>
+          <button
+            className="dp-gabi-nav-btn"
+            type="button"
+            onClick={() => scrollGabi('right')}
+            aria-label={t('bid_frete_internacional.dashboard.gabi_proximo_insight', { defaultValue: 'Próximo insight' })}
+          >
+            <CaretRight size={12} weight="bold" />
+          </button>
+          <span className="dp-gabi-live-badge">
+            <span className="dp-gabi-live-dot" />
+            {t('bid_frete_internacional.dashboard.gabi_ao_vivo', { defaultValue: 'ao vivo' })}
+          </span>
+        </div>
+      )
 
       return (
-        <div
-          key={widget.id}
-          className="dp-gabi-card"
-          onMouseEnter={() => setGabiPaused(true)}
-          onMouseLeave={() => setGabiPaused(false)}
-        >
-          <div className="dp-gabi-watermark" aria-hidden="true">
-            <RocketLaunch size={120} weight="fill" />
-          </div>
-          <div className="dp-gabi-main">
-            <div className="dp-gabi-top-row">
-              <div className="dp-gabi-header">
-                <div className="dp-gabi-avatar">
-                  <RocketLaunch weight="fill" size={13} color="#fff" />
-                </div>
-                <span className="dp-gabi-label">Gabi AI · Insights</span>
+        <div key={widget.id} className="dp-gabi-painel-host">
+          <DashboardPainelContainer
+            widget={widget}
+            result={gabiResult}
+            loading={loadingData}
+            error={null}
+            accentColor={gabiVisual.accentColor}
+            icone={gabiVisual.icone}
+            periodoControle={controlesCarrossel}
+            {...painelProps}
+          >
+            <div
+              className="dp-gabi-card dp-gabi-card--embedded"
+              onMouseEnter={() => setGabiPaused(true)}
+              onMouseLeave={() => setGabiPaused(false)}
+            >
+              <div className="dp-gabi-watermark" aria-hidden="true">
+                <RocketLaunch size={120} weight="fill" />
               </div>
-              <div className="dp-gabi-header-right">
-                <button
-                  className="dp-gabi-nav-btn"
-                  type="button"
-                  onClick={() => scrollGabi('left')}
-                  aria-label="Insight anterior"
-                >
-                  <CaretLeft size={12} weight="bold" />
-                </button>
-                <button
-                  className="dp-gabi-nav-btn"
-                  type="button"
-                  onClick={() => scrollGabi('right')}
-                  aria-label="Próximo insight"
-                >
-                  <CaretRight size={12} weight="bold" />
-                </button>
-                <span className="dp-gabi-live-badge">
-                  <span className="dp-gabi-live-dot" />
-                  ao vivo
-                </span>
-              </div>
-            </div>
-
-            <div className="dp-gabi-track" ref={gabiCarouselRef}>
-              {loadingData
-                ? [0, 1, 2].map(i => (
-                    <div key={i} className="dp-gabi-insight-card dp-gabi-insight-card--skeleton">
-                      <div className="dp-gabi-skeleton-line dp-gabi-skeleton-line--short" />
-                      <div className="dp-gabi-skeleton-line" />
-                      <div className="dp-gabi-skeleton-line" />
-                    </div>
-                  ))
-                : insights.map(ins => (
-                    <div
-                      key={ins.id}
-                      className={`dp-gabi-insight-card${ins.variante === 'warn' ? ' dp-gabi-insight-card--warn' : ''}`}
-                    >
-                      <div className={`dp-gabi-insight-tag${ins.variante === 'warn' ? ' dp-gabi-insight-tag--warn' : ''}`}>
-                        {ins.variante === 'warn'
-                          ? <Warning size={10} weight="fill" />
-                          : <RocketLaunch size={10} weight="fill" />}
-                        {ins.tag}
-                      </div>
-                      <p className="dp-gabi-insight-text">{ins.texto}</p>
-                      {(ins.stat || ins.textoLink) && (
-                        <div className="dp-gabi-insight-bottom">
-                          {ins.stat && (
-                            <div className="dp-gabi-insight-stat">
-                              <span className="dp-gabi-insight-stat-label">{ins.stat.label}</span>
-                              <span className="dp-gabi-insight-stat-value">{ins.stat.valor}</span>
+              <div className="dp-gabi-main">
+                <div className="dp-gabi-track" ref={gabiCarouselRef}>
+                  {loadingData
+                    ? [0, 1, 2, 3].map(i => (
+                        <div key={i} className="dp-gabi-insight-card dp-gabi-insight-card--skeleton">
+                          <div className="dp-gabi-skeleton-line dp-gabi-skeleton-line--short" />
+                          <div className="dp-gabi-skeleton-line" />
+                          <div className="dp-gabi-skeleton-line" />
+                        </div>
+                      ))
+                    : insights.map(ins => (
+                        <div
+                          key={ins.id}
+                          className={`dp-gabi-insight-card${ins.variante === 'warn' ? ' dp-gabi-insight-card--warn' : ''}`}
+                        >
+                          <div className={`dp-gabi-insight-tag${ins.variante === 'warn' ? ' dp-gabi-insight-tag--warn' : ''}`}>
+                            {ins.variante === 'warn'
+                              ? <Warning size={10} weight="fill" />
+                              : <RocketLaunch size={10} weight="fill" />}
+                            {ins.tag}
+                          </div>
+                          <p className="dp-gabi-insight-text">{ins.texto}</p>
+                          {(ins.stat || ins.textoLink) && (
+                            <div className="dp-gabi-insight-bottom">
+                              {ins.stat && (
+                                <div className="dp-gabi-insight-stat">
+                                  <span className="dp-gabi-insight-stat-label">{ins.stat.label}</span>
+                                  <span className="dp-gabi-insight-stat-value">{ins.stat.valor}</span>
+                                </div>
+                              )}
+                              {ins.textoLink && (
+                                <button
+                                  className="dp-gabi-insight-link"
+                                  type="button"
+                                  onClick={() => {
+                                    trackInsight(ins.id)
+                                    if (ins.rota) window.location.href = ins.rota
+                                  }}
+                                >
+                                  {ins.textoLink} <CaretRight size={10} />
+                                </button>
+                              )}
                             </div>
                           )}
-                          {ins.textoLink && (
-                            <button
-                              className="dp-gabi-insight-link"
-                              type="button"
-                              onClick={() => {
-                                trackInsight(ins.id)
-                                if (ins.rota) window.location.href = ins.rota
-                              }}
-                            >
-                              {ins.textoLink} <CaretRight size={10} />
-                            </button>
-                          )}
                         </div>
-                      )}
-                    </div>
-                  ))
-              }
+                      ))}
+                </div>
+              </div>
             </div>
-          </div>
+          </DashboardPainelContainer>
         </div>
       )
     }
@@ -945,14 +1096,14 @@ export default function Dashboard() {
       )
     }
 
-    const result = kpisData
-      ? buildWidgetResult(widget, kpisData, trendData, allDerived, widgetBuildDeps)
+    const result = kpisWidget
+      ? buildWidgetResult(widget, kpisWidget, trendData, allDerived, widgetBuildDeps)
       : { data: {}, chartType: widget.chart_type, partial: true, cached: false, computed_at: new Date().toISOString() }
     const fields = widget.query_spec.fields
     const isDerived = !!widget.config?.derivedMetricId
 
     // ── Estado vazio ─────────────────────────────────────────────────────────
-    if (!loadingData && kpisData && isResultEmpty(result, isDerived)) {
+    if (!loadingData && kpisWidget && isResultEmpty(result, isDerived)) {
       return (
         <DashboardPainelContainer
           key={widget.id}
@@ -960,16 +1111,18 @@ export default function Dashboard() {
           result={result}
           loading={false}
           error={null}
-          editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelProps}
         >
           <WidgetEmptyGabi
             widget={widget}
             fieldNames={fields.map((f: { key: string }) => fieldLabels[f.key] ?? f.key)}
             currentPeriod={slicers.period}
-            onExpandPeriod={setPeriod}
-            onEdit={() => { setEditingWidget(widget); setEditModalOpen(true) }}
+            onExpandPeriod={handlePeriodChange}
+            onEdit={() => {
+              const stored = widgets.find(x => x.id === widget.id) ?? widget
+              setEditingWidget(stored)
+              setEditModalOpen(true)
+            }}
             onRemove={() => removeWidget(widget.id)}
           />
         </DashboardPainelContainer>
@@ -980,9 +1133,7 @@ export default function Dashboard() {
     if (chartType === 'DISTRIBUTION') {
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
-          editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelProps}
         >
           <DashboardWidgetDistribuicao slices={result.slices ?? []} />
         </DashboardPainelContainer>
@@ -1010,9 +1161,7 @@ export default function Dashboard() {
 
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
-          editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelProps}
         >
           <DashboardWidgetLinha
             series={series}
@@ -1046,9 +1195,7 @@ export default function Dashboard() {
 
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
-          editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelProps}
         >
           <DashboardWidgetBarras
             series={series}
@@ -1071,20 +1218,18 @@ export default function Dashboard() {
       const fieldType: FieldUnitType = dm?.fieldType ?? (cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number')
       const visual   = WIDGET_VISUAL[widget.id] ?? {}
       const navRoute = widgetNavRoute[widget.id]
-      const currentVal = Number(kpisData?.[fieldKey] ?? 0)
+      const currentVal = Number(kpisWidget?.[fieldKey] ?? 0)
       const prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
       const deltaInfo  = computeDelta(currentVal, prevVal)
       return (
         <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
-          editMode={editMode}
-          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-          onRemove={removeWidget}
+          {...painelProps}
           accentColor={visual.accentColor}
           icone={visual.icone}
           clickable={!!navRoute}
           onClick={() => {
             trackWidget(widget.id)
-            if (navRoute && !editMode) navigate(navRoute)
+            if (navRoute && !emInteracaoLayout) navigate(navRoute)
           }}
         >
           <DashboardValorKPI
@@ -1103,14 +1248,36 @@ export default function Dashboard() {
     const fieldKey = fields[0]?.key ?? 'value'
     return (
       <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
-        editMode={editMode}
-        onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
-        onRemove={removeWidget}
+        {...painelProps}
       >
         <DashboardValorKPI data={result.data} fieldKey={fieldKey} fieldType="number" />
       </DashboardPainelContainer>
     )
-  }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels])
+  }, [
+    buildPainelWidgetProps,
+    widgetLayoutInteracao,
+    kpisPorPeriodo,
+    kpisData,
+    prevKpisData,
+    trendData,
+    loadingData,
+    insightsData,
+    buildClientInsights,
+    allDerived,
+    widgetBuildDeps,
+    catalogByKey,
+    fieldLabels,
+    widgets,
+    slicers.period,
+    handlePeriodChange,
+    removeWidget,
+    widgetNavRoute,
+    navigate,
+    trackWidget,
+    trackInsight,
+    scrollGabi,
+    t,
+  ])
 
   function handleQueryBuilderSave(spec: WidgetQuerySpec, title: string, chartType: ChartType) {
     const id = `custom_${Date.now()}`
@@ -1155,18 +1322,10 @@ export default function Dashboard() {
     })
   )
 
-  const periodOptions = useMemo((): PeriodOption[] => [
-    { value: 'tudo', label: t('nucleo.dashboard.periodo.tudo', { defaultValue: 'Tudo' }) },
-    { value: '7d', label: t('nucleo.dashboard.periodo.ultimos_7_dias') },
-    { value: '30d', label: t('nucleo.dashboard.periodo.ultimos_30_dias') },
-    { value: '6m', label: t('nucleo.dashboard.periodo.ultimos_6_meses', { defaultValue: '6 meses' }) },
-    { value: '1a', label: t('nucleo.dashboard.periodo.ultimo_ano', { defaultValue: '1 ano' }) },
-    { value: '90d', label: t('nucleo.dashboard.periodo.ultimos_90_dias') },
-    { value: '12m', label: t('nucleo.dashboard.periodo.ultimos_12_meses') },
-    { value: 'current_month', label: t('nucleo.dashboard.periodo.mes_atual') },
-    { value: 'current_year', label: t('nucleo.dashboard.periodo.ano_atual') },
-    { value: 'custom', label: t('nucleo.dashboard.periodo.personalizado') },
-  ], [t])
+  const getWidgetLabel = useCallback(
+    (widget: DashboardWidgetConfig) => widget.title,
+    [],
+  )
 
   const temWidgets = widgets.length > 0
 
@@ -1215,10 +1374,10 @@ export default function Dashboard() {
         temWidgets={temWidgets}
         onboarding={!temWidgets ? {
           onExplorarSugestoes: () => setSuggestionsOpen(true),
-          onCriarDoZero: () => { setEditMode(true); setQueryBuilderOpen(true) },
+          onCriarDoZero: () => setQueryBuilderOpen(true),
         } : undefined}
         slicers={slicers}
-        onPeriodChange={setPeriod}
+        onPeriodChange={handlePeriodChange}
         periodOptions={periodOptions}
         onStatusChange={setStatusFilter}
         statusOptions={STATUS_OPTIONS}
@@ -1240,11 +1399,17 @@ export default function Dashboard() {
           aprovada:             kpisData.cotacoes_status['APROVADA'] ?? 0,
         } : undefined}
         activeFilters={activeFilters}
-        onClearFilters={clearFilters}
+        onClearFilters={handleClearFiltersComPeriodo}
         onAbrirSugestoes={podeEditarDashboard ? () => setSuggestionsOpen(true) : undefined}
         onCriarWidgetZero={podeEditarDashboard ? () => setQueryBuilderOpen(true) : undefined}
-        editMode={editMode}
-        onEditModeChange={setEditMode}
+        widgetsSeletor={temWidgets ? {
+          widgets,
+          getWidgetLabel,
+          onToggleVisibilidade: toggleWidgetVisibilidade,
+          onReordenar: reordenarWidgets,
+          onSelecionarTodos: selecionarTodosWidgetsVisiveis,
+          onRestaurarPadrao: restaurarVisibilidadePadraoWidgets,
+        } : undefined}
           />
         </div>
       </div>
@@ -1252,9 +1417,9 @@ export default function Dashboard() {
       <DashboardGrid
         widgets={activeWidgets}
         renderWidget={renderWidget}
-        editMode={editMode}
+        layoutInteracao={widgetLayoutInteracao}
         onLayoutChange={(layouts) => {
-          if (!editMode) return
+          if (!useDashboardStoreHook.getState().widgetLayoutInteracao) return
           const lg = layouts.lg ?? []
           updateLayout(lg.map((item) => ({
             id: item.i,
@@ -1266,6 +1431,8 @@ export default function Dashboard() {
       <DashboardConstrutorConsulta
         aberto={queryBuilderOpen}
         availableFields={catalog}
+        periodOptions={periodOptions}
+        periodoInicial={slicers.period}
         onSave={handleQueryBuilderSave}
         onCancel={() => setQueryBuilderOpen(false)}
       />
@@ -1276,6 +1443,7 @@ export default function Dashboard() {
         onFechar={() => { setEditModalOpen(false); setEditingWidget(null) }}
         onSalvar={(patch) => { if (editingWidget) updateWidget(editingWidget.id, patch) }}
         fieldLabels={fieldLabels}
+        periodOptions={periodOptions}
       />
 
       {suggestionsOpen && (
@@ -1284,7 +1452,7 @@ export default function Dashboard() {
           derivedMetrics={allDerived}
           onAdd={handleAddWidgetFromSuggestions}
           onClose={() => setSuggestionsOpen(false)}
-          onCreateCustom={() => { setEditMode(true); setQueryBuilderOpen(true) }}
+          onCreateCustom={() => setQueryBuilderOpen(true)}
         />
       )}
     </div>

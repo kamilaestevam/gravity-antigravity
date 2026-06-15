@@ -612,7 +612,7 @@ if (process.env.NODE_ENV !== 'test') {
 
   if (devPm2) {
     console.log(
-      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8023/8026/8016)',
+      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8032/8023/8026/8016)',
     )
   }
 
@@ -710,9 +710,24 @@ if (process.env.NODE_ENV !== 'test') {
     console.error('[configurador] Falha ao iniciar sidecar API Cockpit:', err)
   }
 
+  // Sidecar 5: Taxas Moeda / PTAX BCB (porta 8032)
+  // Fonte primária S2S consumida pelo sync PTAX (manual + cron).
+  process.env.PORT = '8032'
+  process.env.TAXAS_MOEDA_SIDECAR = '1'
+  try {
+    await import('../../servicos-plataforma/taxas-moeda/server/src/index.js')
+    _sidecarStatus['taxas-moeda'] = { ok: true }
+    console.log('[configurador] Sidecar Taxas Moeda (PTAX BCB) iniciado na porta 8032')
+  } catch (err) {
+    const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+    _sidecarStatus['taxas-moeda'] = { ok: false, error: msg }
+    console.error('[configurador] Falha ao iniciar sidecar Taxas Moeda:', err)
+  }
+
   // Restaurar env vars originais
   process.env.PORT = portaOriginal
   process.env.DATABASE_URL = dbOriginal
+  process.env.TAXAS_MOEDA_URL = process.env.TAXAS_MOEDA_URL ?? 'http://127.0.0.1:8032'
   } // fim !devPm2 — sidecars embutidos
 
   async function aplicarMigrationsBidFreteDev(): Promise<void> {

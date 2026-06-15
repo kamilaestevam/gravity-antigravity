@@ -303,10 +303,15 @@ export function TaxasMoeda() {
         const totalErro = json.total_erro ?? 0
 
         if (totalOk === 0) {
-          const detalhe = json.resultados?.[0]?.detalhe ?? 'serviço taxas-moeda offline'
+          const primeiroErro = json.resultados?.find((r: { status?: string }) => r.status === 'erro')
+          const detalhe =
+            (typeof primeiroErro?.detalhe === 'string' && primeiroErro.detalhe.trim())
+            || (typeof json.error?.message === 'string' && json.error.message.trim())
+            || (!res.ok ? `HTTP ${res.status}` : '')
+            || 'serviço taxas-moeda offline (porta 8032)'
           addNotification({
             type: 'error',
-            message: `Não foi possível sincronizar (${detalhe})`,
+            message: `Não foi possível sincronizar PTAX: ${detalhe}`,
             duration: 6000,
           })
         } else {

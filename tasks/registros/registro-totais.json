@@ -1,0 +1,39 @@
+{
+  "versao": 2,
+  "data_atualizacao": "2026-06-15T00:00:00.000Z",
+  "nota": "Recalcular sempre em /novo-agente, /encerrar-agente ou edição de TASK-*.json.",
+  "total_tasks": {
+    "fichas_registradas": 5,
+    "sessoes_cursor_legado_sem_ficha": 258,
+    "sessoes_cursor_total": 263,
+    "proximo_numero": 264
+  },
+  "total_periodo": {
+    "data_inicio": "2026-04-24T18:58:26.000Z",
+    "data_fim": "2026-05-21T11:27:11.000Z",
+    "dias_corridos": 27,
+    "descricao": "Da TASK-000001 (mais antiga fichada) até TASK-000005 (última fichada)"
+  },
+  "total_tokens": {
+    "entrada": 12420,
+    "saida": 25022,
+    "total": 37442
+  },
+  "total_horas": {
+    "liquido": 2.16,
+    "bruto": 2.57,
+    "agente": 1.49,
+    "dono": 0.67,
+    "duracao": 2.14
+  },
+  "estatisticas_checklist": {
+    "teste_local": { "sim": 0, "nao": 0, "nao_aplicavel": 5 },
+    "code_review": { "sim": 0, "nao": 0, "nao_aplicavel": 5 },
+    "doc_skill": { "sim": 1, "nao": 0, "nao_aplicavel": 4 },
+    "qa": { "sim": 0, "nao": 1, "nao_aplicavel": 4 },
+    "pr": { "sim": 0, "nao": 1, "nao_aplicavel": 4 },
+    "deploy": { "sim": 0, "nao": 1, "nao_aplicavel": 4 },
+    "teste_producao": { "sim": 0, "nao": 1, "nao_aplicavel": 4 }
+  },
+  "total_alertas_registrados": 4
+}

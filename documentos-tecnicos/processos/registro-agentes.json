@@ -1,0 +1,15 @@
+{
+  "versao": 2,
+  "formato_referencia": "AGT-{NNNNNN}",
+  "formato_titulo": "{TIPO_SESSAO}-{LOCAL}(-{AREA})?-{TIPO_ENTREGA}-{RESUMO}",
+  "convencao": "documentos-tecnicos/processos/convencao-titulos-agente.md",
+  "baseline": {
+    "data": "2026-06-15",
+    "conversas_principais": 236,
+    "subagentes": 27,
+    "total_historico": 263,
+    "nota": "Contagem retroativa de agent-transcripts antes do registro sequencial via /novo-agente"
+  },
+  "proximo_numero": 264,
+  "entradas": []
+}

@@ -57,9 +57,17 @@ Abra um **chat novo** no Cursor e envie **somente** (ou com atalho de classifica
 /novo-agente
 ```
 
-**Regra:** o agente **para tudo**, classifica, grava `TASK-NNNNNN`, pede **rename** — **só depois** executa seu pedido técnico.
+**Regra:** o agente **para tudo**, classifica, grava `TASK-NNNNNN`, comunica **um** `titulo_exibicao` — **só depois** executa seu pedido técnico (após «continuar»).
 
-Se colocar pedido + `/novo-agente` na mesma mensagem → registro **primeiro**, código **depois** da confirmação.
+Se colocar pedido + `/novo-agente` na mesma mensagem → registro **primeiro**, código **depois** de «continuar».
+
+**Rename no sidebar:** o agente **não consegue** renomear a conversa no Cursor (sem API). Duas opções:
+
+1. **Auto-título** — na **primeira mensagem** do chat novo, inclua o título legível:
+   ```
+   /novo-agente BIDFRT LISTA MEL OCULTAR-EXPAND-COT — [BID Frete] LISTA | MEL — Ocultar expand cotação avulsa
+   ```
+2. **Manual** — clique direito no chat → Renomear → cole o `titulo_exibicao` que o agente informar.
 
 **Atalho** (se já souber a classificação):
 
@@ -67,8 +75,6 @@ Se colocar pedido + `/novo-agente` na mesma mensagem → registro **primeiro**, 
 /novo-agente BIDFRT LISTA BUG ERRO-ABERTURA-COTACAO
 /novo-agente ADMIN TESTES LISTA MEL REGISTRY-PLANOS
 ```
-
-**Depois:** renomeie a conversa no Cursor com o `titulo_exibicao` que o agente informar.
 
 ---
 

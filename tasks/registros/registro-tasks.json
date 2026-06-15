@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 267,
+  "proximo_numero": 269,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -148,6 +148,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000266.json"
+    },
+    {
+      "referencia": "TASK-000268",
+      "ordinal": 9,
+      "titulo_canonico": "BIDFRT-LISTA-MEL-CENTRALIZAR-COLUNAS-TABELA",
+      "titulo_exibicao": "TASK-000268 | [BID Frete] Lista | MEL — Centralizar dados de todas as colunas da tabela",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": "LISTA",
+      "tipo_entrega": "MEL",
+      "resumo": "CENTRALIZAR-COLUNAS-TABELA",
+      "data_criacao": "2026-06-15T22:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000268.json"
     }
   ]
 }

@@ -674,7 +674,7 @@ function buildColunasCotacoesBase(
               border: 'none',
               padding: 0,
               cursor: 'pointer',
-              textAlign: 'left',
+              textAlign: 'center',
               textDecoration: 'underline',
               textDecorationColor: 'rgba(99, 102, 241, 0.35)',
             }}
@@ -761,7 +761,7 @@ function buildColunasCotacoesBase(
       render: (val: unknown) => {
         const modal = val as ModalFrete
         return (
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}>
             {RenderModalIcon(modal)}
             {MODAL_LABELS[modal] ?? modal}
           </span>
@@ -871,14 +871,14 @@ function buildColunasCotacoesBase(
       key: 'peso_kg_cotacao_bid_frete_internacional',
       label: 'Peso (kg)',
       tipo: 'numero',
-      align: 'right',
+      align: 'center',
       render: (val: unknown) => renderNumero(val, getCasas('peso_kg_cotacao_bid_frete_internacional', 2)),
     },
     {
       key: 'cubagem_m3_cotacao_bid_frete_internacional',
       label: 'Volume (m³)',
       tipo: 'numero',
-      align: 'right',
+      align: 'center',
       render: (val: unknown) => renderNumero(val, getCasas('cubagem_m3_cotacao_bid_frete_internacional', 3)),
     },
     {
@@ -986,7 +986,7 @@ export function buildColunasCotacoes(
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
   return buildColunasCotacoesBase(t, opcoes, onAbrirCotacao).map(col =>
-    aplicarConfigEdicaoColuna(col, opcoes),
+    aplicarConfigEdicaoColuna({ ...col, align: 'center' }, opcoes),
   )
 }
 

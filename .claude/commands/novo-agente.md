@@ -9,7 +9,7 @@
 
 ## REGRA ZERO — BLOQUEIO ABSOLUTO (primeira coisa, sempre)
 
-Se a mensagem contém **`/novo-agente`**, o agente **NÃO PODE** — nesta mesma resposta nem antes do veredito da ETAPA 6:
+Se a mensagem contém **`/novo-agente`**, o agente **NÃO PODE** — nesta mesma resposta nem antes do veredito da ETAPA 4:
 
 ❌ Ler arquivos de código do produto  
 ❌ Grep / busca no codebase  
@@ -44,13 +44,15 @@ Se a mensagem contém **`/novo-agente`**, o agente **NÃO PODE** — nesta mesma
 
 **Referência:** `TASK-{NNNNNN}` (não usar `AGT-`).
 
-**Exibição (`titulo_exibicao` — único título a comunicar):**
+**Exibição (`titulo_exibicao` — único título copiável para o sidebar):**
 
 ```
-[{Área legível}] {Vis?} | {TIPO} — {resumo humano}
+TASK-{NNNNNN} | [{Área legível}] {Vis?} | {TIPO} — {resumo humano}
 ```
 
-Exemplo: `[BID Frete] LISTA | MEL — Remover expandir linha COT`
+Exemplo: `TASK-000266 | [Admin] Taxas Moeda | NOV — Agendamento cotação atual e futura`
+
+Gravar o mesmo valor em `titulo_exibicao` na ficha JSON e no índice.
 
 ---
 
@@ -63,13 +65,13 @@ O agente **NÃO TEM** ferramenta para renomear a conversa no sidebar. **Não fin
 | **Cursor (auto)** | Título deriva da **primeira mensagem** do chat — inclua `titulo_exibicao` nela quando possível |
 | **Dono (manual)** | Clique direito no chat → Renomear → colar o `titulo_exibicao` |
 
-**Atalho recomendado (chat novo, auto-título):**
+**Atalho recomendado (chat novo, auto-título na primeira mensagem):**
 
 ```
-/novo-agente BIDFRT LISTA MEL OCULTAR-EXPAND-COT — [BID Frete] LISTA | MEL — Ocultar expand cotação avulsa
+/novo-agente ADMIN TAXAS-MOEDA NOV AGENDAMENTO-COTACAO — TASK-000266 | [Admin] Taxas Moeda | NOV — Agendamento cotação atual e futura
 ```
 
-**Proibido na resposta:** `AGT-`, `IMP-`, `TIPO_SESSAO`, título canônico duplicado, blocos «Citação», «Markdown» ou «Para renomear use…». **Um** `titulo_exibicao` + `TASK-NNNNNN`.
+**Proibido na resposta:** `AGT-`, `IMP-`, `TIPO_SESSAO`, blocos alternativos (citação, markdown). **Um** veredito ETAPA 4 completo + **um** `titulo_exibicao` copiável.
 
 Legado `documentos-tecnicos/processos/convencao-titulos-agente.md` — **não usar**.
 
@@ -91,7 +93,7 @@ Legado `documentos-tecnicos/processos/convencao-titulos-agente.md` — **não us
 
 ---
 
-## Fluxo (0 → 6 — ordem fixa)
+## Fluxo (0 → 5 — ordem fixa)
 
 ### ETAPA 0 — Ler registry
 
@@ -119,36 +121,52 @@ Legado `documentos-tecnicos/processos/convencao-titulos-agente.md` — **não us
 
 Todo campo codificado deve ter par `campo` + `campo_descricao` (ver `TASK-000001.json`).
 
+Montar também `resumo_detalhado` (parágrafo do pedido/escopo — o que será feito nesta task).
+
 ### ETAPA 3 — Gravar ficha
 
 1. Criar `tasks/registros/TASK-{NNNNNN}.json` (`status: ABR`, `data_criacao` UTC)
 2. Atualizar `registro-tasks.json` (`entradas[]`, incrementar `proximo_numero`)
 3. **Não** recalcular `registro-totais.json` na abertura (só no `/encerrar-agente`)
 
-### ETAPA 4 — Comunicar título (agente não renomeia)
+### ETAPA 4 — Veredito de abertura (OBRIGATÓRIO — formato fixo, completo)
 
-Entregar **uma linha** copiável (sem variantes):
-
-```
-Título da conversa (copie ou renomeie no sidebar): [BID Frete] LISTA | MEL — Ocultar expand cotação avulsa
-```
-
-Se o chat acabou de abrir e a primeira mensagem **não** tinha o título → instruir: «Clique direito no chat → Renomear → cole acima.»
-
-### ETAPA 5 — Veredito (formato fixo — única saída antes de trabalhar)
+**Única saída** antes de trabalhar. **Proibido** resumir só em `Classificação: ADMIN-…` — entregar **todos** os campos abaixo (espelham a ficha gravada).
 
 ```
 ## Task registrada
 
-**Referência:** TASK-000264
-**Classificação:** BIDFRT-LISTA-MEL-OCULTAR-EXPAND-COT
-**Título da conversa:** [BID Frete] LISTA | MEL — Ocultar expand cotação avulsa
-**Próximo número:** TASK-000265
+**Referência:** TASK-000266
+**Próximo número:** TASK-000267
 
-Diga **continuar** para eu executar seu pedido (rename manual é opcional — o agente não consegue aplicar).
+### Classificação completa
+
+| Campo | Sigla | Descrição |
+|:---|:---|:---|
+| Canônico | `ADMIN-TAXAS-MOEDA-NOV-AGENDAMENTO-COTACAO-ATUAL-FUTURA` | Nome máquina (titulo_canonico) |
+| Área | `ADMIN` | Painel Admin Gravity (configurador/admin) — telas internas de gestão da plataforma |
+| Subárea | `TAXAS-MOEDA` | Módulo Taxas de Moeda — cotações PTAX e projeções BACEN Focus |
+| Visualização | — | Não aplicável — tela admin com abas, não é LISTA/KANBAN/DASHBOARD/INSIGHTS |
+| Tipo entrega | `NOV` | Nova funcionalidade — controle de agendamento com execução automática |
+| Resumo | `AGENDAMENTO-COTACAO-ATUAL-FUTURA` | Agendamento funcional para sincronizar PTAX e Focus |
+
+### Escopo registrado
+
+{resumo_detalhado — parágrafo completo do que será feito, copiado da ficha}
+
+**Copiar como nome da conversa:** TASK-000266 | [Admin] Taxas Moeda | NOV — Agendamento cotação atual e futura
+
+Diga **continuar** para eu executar seu pedido.
 ```
 
-### ETAPA 6 — Só após confirmação
+**Regras do veredito:**
+
+- Cada linha da tabela = valor real gravado na ficha + `*_descricao` correspondente
+- Se `subarea` ou `visualizacao` for `null` → coluna Sigla: `—` e Descrição explica por quê
+- `Escopo registrado` = `resumo_detalhado` (não omitir)
+- Uma linha copiável com prefixo `TASK-{NNNNNN}`
+
+### ETAPA 5 — Só após «continuar»
 
 Aí sim: ler skills, código, executar o pedido técnico.
 
@@ -157,9 +175,12 @@ Aí sim: ler skills, código, executar o pedido técnico.
 ## Proibido
 
 - Pular registro quando `/novo-agente` foi invocado
-- Codar ou explorar repo antes do veredito ETAPA 5
+- Codar ou explorar repo antes do veredito ETAPA 4
+- Veredito incompleto (só `Classificação:` canônica, sem tabela + escopo + descrições)
+- Omitir `resumo_detalhado` no bloco **Escopo registrado**
 - Usar `AGT-` ou `TIPO_SESSAO` (ANA, PLN, IMP…)
 - Gravar em `documentos-tecnicos/processos/registro-agentes.json` (legado — usar `tasks/registros/`)
 - Fingir que renomeou a conversa ou pedir «confirme o rename»
 - Listar formatos alternativos (AGT, IMP, citação, markdown)
 - Consultar `convencao-titulos-agente.md` ou `registro-agentes.json` (legado)
+- `titulo_exibicao` sem prefixo `TASK-{NNNNNN}`

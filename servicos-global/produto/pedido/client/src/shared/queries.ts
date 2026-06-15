@@ -42,6 +42,8 @@ export interface PedidosParams {
   busca?:  string
   cursor?: string
   idsWorkspacesFiltro?: string[]
+  /** Apenas para invalidar cache React Query quando o escopo muda. */
+  versaoEscopo?: number
 }
 
 export function usePedidos(
@@ -50,7 +52,10 @@ export function usePedidos(
 ) {
   return useQuery({
     queryKey: QUERY_KEYS.pedidos(params),
-    queryFn: () => pedidoVirtualApi.listar(params),
+    queryFn: () => {
+      const { versaoEscopo: _versao, ...apiParams } = params
+      return pedidoVirtualApi.listar(apiParams)
+    },
     staleTime: 30_000,
     ...options,
   })

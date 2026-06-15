@@ -148,6 +148,7 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const versaoEscopo = useEscopoWorkspacesPedido(s => s.versaoEscopo)
   const painelInsightsAtivo = usePainelInsightsAtivo()
   const usarAgregadoServidor = idsWorkspacesEscopo.length >= ESCOPO_MINIMO_PARA_AGREGADO_SERVIDOR
 
@@ -157,7 +158,7 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
   )
 
   const { data: agregadoServidor, isLoading: carregandoAgregado } = useQuery({
-    queryKey: ['visao-geral-agregado', idsWorkspacesFiltro],
+    queryKey: ['visao-geral-agregado', idsWorkspacesFiltro, versaoEscopo],
     queryFn: () => pedidoVisaoGeralApi.agregado(idsWorkspacesFiltro),
     enabled: escopoHidratado && usarAgregadoServidor,
     staleTime: 60_000,
@@ -166,7 +167,7 @@ export function useVisaoGeralPedido(): VisaoGeralPedido {
   const precisaPedidosClient = !usarAgregadoServidor || painelInsightsAtivo
 
   const { data, isLoading: carregandoPedidos } = usePedidos(
-    { limit: 1000, idsWorkspacesFiltro },
+    { limit: 1000, idsWorkspacesFiltro, versaoEscopo },
     { enabled: escopoHidratado && precisaPedidosClient },
   )
   const { data: workspaces = [] } = useQuery({

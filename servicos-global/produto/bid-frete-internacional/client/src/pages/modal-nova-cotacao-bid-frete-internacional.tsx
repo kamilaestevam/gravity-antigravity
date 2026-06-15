@@ -48,6 +48,10 @@ import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 
 import { criarCotacaoComDisparo, getFornecedores } from '../shared/api'
 import { idBidDoQueryParam } from '../shared/novo-bid-frete-internacional-utils'
+import {
+  ROTA_LISTA_BID_FRETE_INTERNACIONAL,
+  rotaDetalheCotacaoBidFreteInternacional,
+} from '../shared/rotas-bid-frete-internacional'
 import { formatarRotuloLocalLogistico } from '../shared/formatacao-local-logistico-bid-frete-internacional'
 import { rotuloContainerCadastro } from '../shared/cadastrosApi'
 import {
@@ -1793,8 +1797,6 @@ const NC_ESTILOS_CONTEUDO = `
         }
 `
 
-const ROTA_LISTA = '/bid-frete/lista'
-
 /** Padrão Pedido (ModalPedidosConsolidar) — banner de resultado no wizard */
 const ESTILOS_RESULTADO = {
   passo: {
@@ -3361,7 +3363,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }
 
   // ─── Sucesso ──────────────────────────────────────────────────────────
-  const handleFechar = () => navigate(ROTA_LISTA)
+  const handleFechar = () => navigate(ROTA_LISTA_BID_FRETE_INTERNACIONAL)
 
   const handleNovaCotacaoMesmoBid = () => {
     setForm(INITIAL_FORM)
@@ -3409,7 +3411,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 <BotaoGlobal
                   variante="primario"
                   tamanho="padrao"
-                  onClick={() => navigate(`${ROTA_LISTA}/${cotacaoId}`)}
+                  onClick={() => navigate(rotaDetalheCotacaoBidFreteInternacional(cotacaoId))}
                 >
                   {t('bidfrete.nova_cotacao.ver_detalhes')}
                 </BotaoGlobal>

@@ -22,17 +22,35 @@ function linhaParaCells(row: { values?: unknown[] }): string[] {
   return valores.slice(1).map(celulaParaTexto)
 }
 
-export async function lerArquivoImportacaoComoCsv(file: File): Promise<string> {
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+function validarMagicBytesExcel(buffer: BufferLike, ext: string): void {
+  if (ext !== 'xlsx') return
+  const view = buffer instanceof Buffer
+    ? buffer.subarray(0, 4)
+    : new Uint8Array(buffer.slice(0, 4))
+  const ehZip = view[0] === 0x50 && view[1] === 0x4B
+  if (!ehZip) {
+    throw new Error('Arquivo Excel inválido — confira se baixou o template .xlsx corretamente')
+  }
+}
 
-  if (ext === 'csv') {
-    return file.text()
+type BufferLike = ArrayBuffer | Buffer
+
+export async function lerBufferImportacaoComoCsv(
+  input: BufferLike,
+  ext: string,
+): Promise<string> {
+  const extNorm = ext.toLowerCase()
+
+  if (extNorm === 'csv') {
+    if (input instanceof Buffer) return input.toString('utf-8')
+    return new TextDecoder('utf-8').decode(input)
   }
 
-  if (ext === 'xlsx' || ext === 'xls') {
+  if (extNorm === 'xlsx' || extNorm === 'xls') {
+    validarMagicBytesExcel(input, extNorm)
     const ExcelJS = (await import('exceljs')).default
     const wb = new ExcelJS.Workbook()
-    await wb.xlsx.load(await file.arrayBuffer())
+    await wb.xlsx.load(input as ArrayBuffer)
     const ws = wb.getWorksheet('Cotações') ?? wb.worksheets[0]
     if (!ws) return ''
 
@@ -60,4 +78,9 @@ export async function lerArquivoImportacaoComoCsv(file: File): Promise<string> {
   }
 
   throw new Error('Formato não suportado')
+}
+
+export async function lerArquivoImportacaoComoCsv(file: File): Promise<string> {
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+  return lerBufferImportacaoComoCsv(await file.arrayBuffer(), ext)
 }

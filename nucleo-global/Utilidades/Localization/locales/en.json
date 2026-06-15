@@ -627,7 +627,7 @@
       "conflitos_mapeamento": "Multiple columns mapped to the same field",
       "erro_campos_essenciais": "Required fields not mapped",
       "limite_linhas": "Maximum: {{max}} rows",
-      "erro_formato": "Unsupported format. Use CSV or Excel.",
+      "erro_formato": "Could not read the file. Use Excel (.xlsx) or CSV.",
       "erro_tamanho": "File exceeds {{mb}}MB.",
       "erro_limite_linhas": "File exceeds the {{max}} row limit.",
       "vazio_arquivo": "No rows found in the file.",

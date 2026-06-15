@@ -363,6 +363,7 @@ export default function VisaoGeral() {
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
+  const versaoEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.versaoEscopo)
   const idsWorkspacesFiltro = useMemo(
     () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
     [idsWorkspacesEscopo, idWorkspaceAtivo],
@@ -406,7 +407,7 @@ export default function VisaoGeral() {
   useEffect(() => {
     if (!escopoHidratado) return
     void carregarInsights()
-  }, [carregarInsights, escopoHidratado, idsWorkspacesEscopo])
+  }, [carregarInsights, escopoHidratado, versaoEscopo])
 
   // Interactive exchange rate & spread states (DDD nomenclature, PT-BR without accents)
   const [cambioModo, setCambioModo] = useState<'hoje' | 'historico' | 'futuro'>('hoje')

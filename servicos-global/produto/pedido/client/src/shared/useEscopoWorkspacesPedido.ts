@@ -15,6 +15,8 @@ function chaveSessionEscopo(idOrganizacao: string | null | undefined): string {
 
 interface EscopoWorkspacesPedidoState {
   idsWorkspacesEscopo: string[]
+  /** Incrementa a cada alteração efetiva do escopo — sinal confiável para recarregar views. */
+  versaoEscopo: number
   hidratado: boolean
   /** Incrementa a cada pedido de abertura do menu lateral de workspaces. */
   sinalAbrirMenuWorkspaces: number
@@ -115,17 +117,41 @@ if (typeof window !== 'undefined') {
   })
 }
 
+function idsEscopoIguais(a: readonly string[], b: readonly string[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
+function aplicarEscopoNoStore(
+  set: (partial: Partial<EscopoWorkspacesPedidoState>) => void,
+  get: () => EscopoWorkspacesPedidoState,
+  ids: string[],
+  incrementarVersao: boolean,
+): void {
+  const { idsWorkspacesEscopo: atual, hidratado } = get()
+  if (hidratado && idsEscopoIguais(atual, ids)) return
+  gravarSessionStorage(ids)
+  set({
+    idsWorkspacesEscopo: ids,
+    hidratado: true,
+    ...(incrementarVersao ? { versaoEscopo: get().versaoEscopo + 1 } : {}),
+  })
+}
+
 export const useEscopoWorkspacesPedido = create<EscopoWorkspacesPedidoState>((set, get) => ({
   idsWorkspacesEscopo: [],
+  versaoEscopo: 0,
   hidratado: false,
   sinalAbrirMenuWorkspaces: 0,
 
   reiniciarHidratacao: () => {
-    set({ hidratado: false, idsWorkspacesEscopo: [] })
+    set({ hidratado: false, idsWorkspacesEscopo: [], versaoEscopo: 0 })
   },
 
   hidratar: (idsDisponiveis, idWorkspacePreferido, idsPreferenciaBackend = null) => {
-    if (get().hidratado) return
     const permitidos = new Set(idsDisponiveis)
     const backend = idsPreferenciaBackend ?? undefined
     const fallbackLocal = backend === undefined ? lerSessionStorage() : null
@@ -136,15 +162,16 @@ export const useEscopoWorkspacesPedido = create<EscopoWorkspacesPedidoState>((se
     if (ids.length === 0 && idsDisponiveis.length > 0) {
       ids = [idsDisponiveis[0]]
     }
-    gravarSessionStorage(ids)
-    set({ idsWorkspacesEscopo: ids, hidratado: true })
+    aplicarEscopoNoStore(set, get, ids, false)
   },
 
   definirEscopo: (ids) => {
     const dedup = [...new Set(ids.filter(Boolean))]
-    gravarSessionStorage(dedup)
-    set({ idsWorkspacesEscopo: dedup, hidratado: true })
-    persistirEscopoNoBackend(dedup)
+    const antes = get().versaoEscopo
+    aplicarEscopoNoStore(set, get, dedup, true)
+    if (get().versaoEscopo !== antes) {
+      persistirEscopoNoBackend(dedup)
+    }
   },
 
   alternarWorkspace: (id) => {

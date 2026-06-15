@@ -5113,6 +5113,7 @@ export default function Pedidos() {
   // ── Escopo multi-workspace (menu lateral — SSOT do produto) ─────────────────
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const versaoEscopo = useEscopoWorkspacesPedido(s => s.versaoEscopo)
   const workspaceAtivo = useShellStore(s => s.idWorkspaceAtivo ?? '')
   const pedirAbrirMenuWorkspaces = useEscopoWorkspacesPedido(s => s.pedirAbrirMenuWorkspaces)
   const workspacesSelecionados = idsWorkspacesEscopo
@@ -5132,6 +5133,7 @@ export default function Pedidos() {
   const painelListaAplicadoRef = useRef<string | null>(null)
   /** Evita 2º carregarInicial do efeito de escopo antes do painel hidratar (causava flash → zero). */
   const escopoListaInicialDisparadoRef = useRef(false)
+  const versaoEscopoAnteriorRef = useRef(0)
   /** Carga do painel adiada até escopo de workspaces ter ao menos uma filial. */
   const painelSnapshotPendenteRef = useRef<SnapshotAplicarListaPainel | null>(null)
   /** Cache da última listagem de colunas manuais — merge só após hidratação do painel. */
@@ -5140,6 +5142,7 @@ export default function Pedidos() {
   useEffect(() => {
     painelListaAplicadoRef.current = null
     escopoListaInicialDisparadoRef.current = false
+    versaoEscopoAnteriorRef.current = 0
     painelSnapshotPendenteRef.current = null
   }, [idOrganizacao])
 
@@ -6255,6 +6258,17 @@ export default function Pedidos() {
     if (!idOrganizacao || !escopoHidratado) return
     if (carregandoPaineisLista) return
 
+    const escopoAlteradoPeloUsuario = versaoEscopo > versaoEscopoAnteriorRef.current
+    versaoEscopoAnteriorRef.current = versaoEscopo
+
+    if (escopoAlteradoPeloUsuario) {
+      setPedidos([])
+      setTotal(0)
+      setTotalItensBanco(0)
+      void carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
+      return
+    }
+
     if (!escopoListaInicialDisparadoRef.current) {
       if (painelListaAtualId && painelListaAplicadoRef.current !== painelListaAtualId) return
       if (painelListaAtualId) return
@@ -6263,7 +6277,7 @@ export default function Pedidos() {
 
     void carregarInicial(abaAtiva, sortCampo, sortDir, busca, 1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workspacesSelecionados, escopoHidratado, idOrganizacao, carregandoPaineisLista])
+  }, [versaoEscopo, escopoHidratado, idOrganizacao, carregandoPaineisLista])
 
   // Sincroniza com mudanças feitas em outras views (Kanban, Dashboard)
   useEffect(() => {

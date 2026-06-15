@@ -6,6 +6,12 @@ import type { Request, Response, NextFunction } from 'express'
 import { gerarBufferTemplateXlsxGravity } from '../../../shared/gerar-template-xlsx-importacao-bid-frete-internacional.js'
 import { formatarRotuloCodigoNomeImportacao } from '../../../shared/rotulo-cadastro-importacao-bid-frete-internacional.js'
 import {
+  listaAeroportosCadastroResponseSchema,
+  listaContainersCadastroResponseSchema,
+  listaPaisesCadastroResponseSchema,
+  listaPortosCadastroResponseSchema,
+} from '../../../shared/schemas-cadastros-template-importacao-bid-frete-internacional.js'
+import {
   MOEDAS_PADRAO_TEMPLATE_BID,
   listasCadastrosPadraoTemplateBid,
   type ListasCadastrosTemplateBid,
@@ -50,16 +56,16 @@ async function carregarListasCadastrosS2S(): Promise<ListasCadastrosTemplateBid>
     ])
 
     const paises = resPaises.ok
-      ? ((await resPaises.json()) as { itens: { codigo_pais_iso_alpha2: string; nome_pais_portugues: string }[] }).itens
+      ? listaPaisesCadastroResponseSchema.parse(await resPaises.json()).itens
       : []
     const portos = resPortos.ok
-      ? ((await resPortos.json()) as { itens: { codigo_unlocode_porto: string; nome_porto: string }[] }).itens
+      ? listaPortosCadastroResponseSchema.parse(await resPortos.json()).itens
       : []
     const aeroportos = resAeroportos.ok
-      ? ((await resAeroportos.json()) as { itens: { codigo_iata_aeroporto?: string | null; codigo_unlocode_aeroporto: string; nome_aeroporto: string }[] }).itens
+      ? listaAeroportosCadastroResponseSchema.parse(await resAeroportos.json()).itens
       : []
     const containers = resContainers.ok
-      ? ((await resContainers.json()) as { itens: { codigo_iso_container: string | null; tipo_container: string; tamanho_container: string; armador_dono_container: string | null }[] }).itens
+      ? listaContainersCadastroResponseSchema.parse(await resContainers.json()).itens
       : []
 
     return {

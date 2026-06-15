@@ -67,12 +67,12 @@ export function ListaPedidoCards({
 
   const idsWorkspacesFiltro = resolverIdsWorkspacesParaApi(workspacesSelecionados, workspaceAtivo)
 
-  const { kpis } = useListaCardKpis({
+  const { kpis, carregando: carregandoKpis } = useListaCardKpis({
     period: periodo,
     status: abaAtiva !== 'todos' ? abaAtiva : undefined,
     busca,
     idsWorkspacesFiltro,
-    enabled: escopoHidratado && !temFiltroColunaCliente,
+    enabled: escopoHidratado && !temFiltroColunaCliente && workspacesSelecionados.length > 0,
   })
 
   const { data: regrasConfig } = useConfigRegras()
@@ -97,24 +97,32 @@ export function ListaPedidoCards({
   )
 
   const cardStats: CardComputedStats = useMemo(() => {
-    if (temFiltroColunaCliente || !kpis) {
-      const totalLocal = temFiltroColunaCliente ? pedidosFiltrados.length : total
-      const itensLocal = temFiltroColunaCliente
-        ? pedidosFiltrados.flatMap(p => p.itens ?? []) as PedidoItem[]
-        : todosItens
-      return computeCardStats(
-        pedidosBase,
-        itensLocal,
-        totalLocal,
-        hoje,
-        temFiltroColunaCliente ? itensLocal.length : totalItensBanco,
-        taxasVenda,
-        regrasAlertas,
-      )
+    const totalLocal = temFiltroColunaCliente ? pedidosFiltrados.length : total
+    const itensLocal = temFiltroColunaCliente
+      ? pedidosFiltrados.flatMap(p => p.itens ?? []) as PedidoItem[]
+      : todosItens
+    const statsLocais = () => computeCardStats(
+      pedidosBase,
+      itensLocal,
+      totalLocal,
+      hoje,
+      temFiltroColunaCliente ? itensLocal.length : totalItensBanco,
+      taxasVenda,
+      regrasAlertas,
+    )
+
+    if (temFiltroColunaCliente || carregandoKpis || !kpis) {
+      return statsLocais()
     }
+
+    // Lista vazia após troca de escopo — prioriza estado da tabela sobre KPI stale
+    if (totalLocal === 0 && pedidosBase.length === 0) {
+      return statsLocais()
+    }
+
     return kpisApiToCardStats(kpis)
   }, [
-    temFiltroColunaCliente, kpis, pedidosBase, pedidosFiltrados, total,
+    temFiltroColunaCliente, carregandoKpis, kpis, pedidosBase, pedidosFiltrados, total,
     todosItens, hoje, totalItensBanco, taxasVenda, regrasAlertas,
   ])
 

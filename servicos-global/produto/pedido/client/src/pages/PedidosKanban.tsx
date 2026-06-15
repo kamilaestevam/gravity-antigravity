@@ -427,6 +427,7 @@ export default function PedidosKanban() {
   const podeEditarKanban = podeEditar('kanban')
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const versaoEscopo = useEscopoWorkspacesPedido(s => s.versaoEscopo)
   const workspaceAtivo = useMemo(() => {
     if (typeof sessionStorage === 'undefined') return ''
     return sessionStorage.getItem('gravity_company_id') ?? ''
@@ -444,8 +445,8 @@ export default function PedidosKanban() {
   )
 
   const pedidosQueryKey = useMemo(
-    () => QUERY_KEYS.pedidos({ limit: 1000, idsWorkspacesFiltro }),
-    [idsWorkspacesFiltro],
+    () => QUERY_KEYS.pedidos({ limit: 1000, idsWorkspacesFiltro, versaoEscopo }),
+    [idsWorkspacesFiltro, versaoEscopo],
   )
 
   const {

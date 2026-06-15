@@ -1615,7 +1615,7 @@
       "conflitos_mapeamento": "Hay columnas mapeadas al mismo campo",
       "erro_campos_essenciais": "Campos esenciales no mapeados",
       "limite_linhas": "Máximo: {{max}} líneas",
-      "erro_formato": "Formato no soportado. Use CSV o Excel.",
+      "erro_formato": "No se pudo leer el archivo. Use Excel (.xlsx) o CSV.",
       "erro_tamanho": "El archivo supera {{mb}}MB.",
       "erro_limite_linhas": "El archivo supera el límite de {{max}} líneas.",
       "vazio_arquivo": "Ninguna línea encontrada en el archivo.",

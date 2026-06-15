@@ -9,6 +9,7 @@ import {
 import type {
   CampoImportacaoBidFreteInternacional,
   ColunaMapeadaBidFreteInternacional,
+  ModoPlanilhaImportacaoBidFreteInternacional,
   NivelConfiancaMapeamento,
 } from './tipos-importacao-bid-frete-internacional'
 
@@ -244,4 +245,17 @@ export function conflitosMapeamentoBid(
   }
 
   return [...conflitos]
+}
+
+/** Planilha Gravity reconhecida — pula etapa de mapeamento (paridade BID avulso × BID conjunto). */
+export function podePularMapeamentoImportacaoBid(
+  modo: ModoPlanilhaImportacaoBidFreteInternacional,
+  mapeamento: ColunaMapeadaBidFreteInternacional[],
+  totalLinhas: number,
+): boolean {
+  if (modo !== 'gravity') return false
+  if (totalLinhas <= 0) return false
+  if (camposEssenciaisAusentes(mapeamento).length > 0) return false
+  if (conflitosMapeamentoBid(mapeamento).length > 0) return false
+  return calcularScoreEssenciaisBid(mapeamento) >= 1
 }

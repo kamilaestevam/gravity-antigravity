@@ -51,13 +51,15 @@ tasks/
 
 ### 1. Iniciar task (nova conversa)
 
-Abra um **chat novo** no Cursor e envie:
+Abra um **chat novo** no Cursor e envie **somente** (ou com atalho de classificação):
 
 ```
 /novo-agente
 ```
 
-O agente pergunta o objetivo, classifica (área, subárea, visualização, tipo) e aloca `TASK-NNNNNN`.
+**Regra:** o agente **para tudo**, classifica, grava `TASK-NNNNNN`, pede **rename** — **só depois** executa seu pedido técnico.
+
+Se colocar pedido + `/novo-agente` na mesma mensagem → registro **primeiro**, código **depois** da confirmação.
 
 **Atalho** (se já souber a classificação):
 

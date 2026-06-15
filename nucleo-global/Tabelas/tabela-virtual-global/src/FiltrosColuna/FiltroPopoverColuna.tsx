@@ -297,16 +297,14 @@ export function FiltroPopoverColuna({
         <button type="button" className="gtv-col-acao-btn gtv-col-acao-btn--reset" onClick={limpar}>
           {t.limparFiltro}
         </button>
-        {(tipo === 'texto' || tipo === 'numero') && (
-          <button
-            type="button"
-            className="gtv-btn gtv-btn--ativo"
-            style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
-            onClick={aplicar}
-          >
-            {t.aplicar}
-          </button>
-        )}
+        <button
+          type="button"
+          className="gtv-btn gtv-btn--ativo"
+          style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+          onClick={aplicar}
+        >
+          {t.aplicar}
+        </button>
       </div>
     </div>
   )

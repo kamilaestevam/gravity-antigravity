@@ -103,6 +103,10 @@ Modelo: Lista de Pedidos — `{total pai} pedidos · {total filhos} itens · pá
 
 Doc: [PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Rodapé e paginação
 
+### Filtros de coluna (paridade Pedido — TASK-000269)
+
+Ícone ▾ em todas colunas visíveis; lógica em `shared/filtros-coluna-lista-bid-frete-internacional.ts`. Colunas manuais: `filtravel: true` + `_colunas_usuario[col.id]` (`valores-colunas-usuario-bid-frete-internacional.ts`, localStorage WIP). Teste: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`.
+
 ### Criação (menu Novo → Buscar Frete)
 
 O botão **Novo** da Lista abre "Buscar Frete" como submenu com 2 opções:
@@ -287,6 +291,7 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 - Insights: `insights/agregar-insights-graficos.test.ts`, `insights/montar-insights-detalhe.test.ts`, `insights/taxas-cambio-insights.test.ts`, `insights/insights-status-funil.test.ts`
 - Funcionais: `testes/testes-funcionais/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
+- Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
 - Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
 - Seletor SLA 1s: `testes/testes-e2e/menu-botoes/seletor-universal-visoes/` (`MBOTO`)
 

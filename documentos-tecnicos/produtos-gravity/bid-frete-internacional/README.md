@@ -41,6 +41,7 @@
 
 | PR / entrega | Escopo |
 |--------------|--------|
+| TASK-000269 (2026-06-15) | Lista: filtros ▾ em todas colunas (paridade Pedido), colunas manuais com `filtravel` + `_colunas_usuario` (localStorage WIP) — ver [PAINEL-LISTA](./PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Filtros |
 | GABI Dashboard Fase 1 (2026-06-15) | `GET /dashboard/insights`, motor server, Zod client, fallback client — ver [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) §5.1 |
 | QueryClient BID Frete (2026-06-15) | `bid-frete-query-client.ts` + `QueryClientProvider` em `App.tsx` (perm. dashboard) |
 | TASK-000264 Insights (2026-06-15) | Dados reais, KPIs↔Config, `data_referencia` drill-down, Zod query server — ver [INSIGHTS-VISAO-GERAL-TECNICO.md](./INSIGHTS-VISAO-GERAL-TECNICO.md) |

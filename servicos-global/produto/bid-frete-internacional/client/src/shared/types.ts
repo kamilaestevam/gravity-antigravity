@@ -233,6 +233,8 @@ export interface Cotacao {
   motivo_cancelamento_cotacao_bid_frete_internacional?: string | null
   disparo_cotacao_bid_frete_internacional?: DisparoCotacaoBidFreteInternacional[]
   propostas_bid_frete_internacional?: PropostaBidFreteInternacional[]
+  /** Valores de colunas criadas pelo usuário (paridade Pedido — keyed por col.id). */
+  _colunas_usuario?: Record<string, string>
   historico_aprovado?: Array<{
     id_cotacao_bid_frete_internacional: string
     numero_cotacao_bid_frete_internacional: string

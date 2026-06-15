@@ -70,6 +70,22 @@ Todas as colunas visíveis na grid exibem ícone ▾ no header (`FiltroPopoverCo
 | Peça | Caminho |
 |------|---------|
 | Estado / wiring | `lista-bid-frete-internacional.tsx` — `filtrosAtivosLista`, `onFiltroColuna`, `filtrosAtivosKeys` |
+| Lógica filtro | `shared/filtros-coluna-lista-bid-frete-internacional.ts` |
+| Colunas fixas | `pages/colunas-lista-bid-frete-internacional.ts` — `garantirFiltravelColunaLista` |
+
+**Colunas manuais:** `mapColunaUsuarioBidFreteParaGTColuna` com `filtravel: true` explícito; valores em `_colunas_usuario[col.id]` via `bid-frete:config:valores-colunas-usuario` (localStorage WIP até API Pedido).
+
+**Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
+
+---
+
+## Filtros de coluna (paridade Pedido — TASK-000269)
+
+Todas as colunas visíveis na grid exibem ícone ▾ no header (`FiltroPopoverColuna` + `FiltroChips` do `@nucleo/tabela-virtual-global`). Filtros são **client-side** sobre o dataset já carregado na lista.
+
+| Peça | Caminho |
+|------|---------|
+| Estado / wiring | `lista-bid-frete-internacional.tsx` — `filtrosAtivosLista`, `onFiltroColuna`, `filtrosAtivosKeys` |
 | Lógica filtro | `shared/filtros-coluna-lista-bid-frete-internacional.ts` — `cotacaoPassaFiltrosColuna`, `calcularValoresUnicosPorCampoBidFrete` |
 | Colunas fixas | `pages/colunas-lista-bid-frete-internacional.ts` — `garantirFiltravelColunaLista` |
 | Persistência painel | `config_json` do painel inclui `filtrosAtivos` (via `useListaPainelBidFrete`) |

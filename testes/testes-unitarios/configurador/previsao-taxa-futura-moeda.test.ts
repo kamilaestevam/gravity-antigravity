@@ -84,6 +84,7 @@ const payloadFocusValido: PayloadFocusItem = {
   Minimo: 4.85,
   Maximo: 5.20,
   numeroRespondentes: 50,
+  baseCalculo: 0,
 }
 
 // ---------------------------------------------------------------------------
@@ -284,20 +285,37 @@ describe('buscarFocusUSD', () => {
     expect(url).not.toContain('ExpectativasMercadoMensais')
   })
 
-  it('passa filtro Indicador=Câmbio + baseCalculo=0 (agregacao geral) + formato JSON', async () => {
-    mockAxiosGet.mockResolvedValueOnce({ data: { value: [] } })
-    await buscarFocusUSD(4)
+  it('nao envia $filter/$orderby (Olinda retorna 400) — filtra Câmbio + baseCalculo=0 no servidor', async () => {
+    mockAxiosGet.mockResolvedValueOnce({
+      data: {
+        value: [
+          payloadFocusValido,
+          { ...payloadFocusValido, baseCalculo: 1, Mediana: 9.99 },
+          { ...payloadFocusValido, Indicador: 'IPCA', baseCalculo: 0, Mediana: 4.0 },
+        ],
+      },
+    })
+    const result = await buscarFocusUSD(4)
     const [, opts] = mockAxiosGet.mock.calls[0]
-    expect(opts.params.$filter).toBe(`Indicador eq 'Câmbio' and baseCalculo eq 0`)
     expect(opts.params.$format).toBe('json')
-    expect(opts.params.$orderby).toBe('Data desc')
+    expect(opts.params.$filter).toBeUndefined()
+    expect(opts.params.$orderby).toBeUndefined()
+    expect(result).toHaveLength(1)
+    expect(result[0].Mediana).toBe(5.02)
   })
 
-  it('sobreamostragem: $top = meses * 10 (varias projecoes por mes-alvo)', async () => {
+  it('sobreamostragem: $top = max(meses * 40, 500)', async () => {
     mockAxiosGet.mockResolvedValueOnce({ data: { value: [] } })
     await buscarFocusUSD(4)
     const [, opts] = mockAxiosGet.mock.calls[0]
-    expect(opts.params.$top).toBe(40)
+    expect(opts.params.$top).toBe(500)
+  })
+
+  it('sobreamostragem: meses altos aumentam $top', async () => {
+    mockAxiosGet.mockResolvedValueOnce({ data: { value: [] } })
+    await buscarFocusUSD(20)
+    const [, opts] = mockAxiosGet.mock.calls[0]
+    expect(opts.params.$top).toBe(800)
   })
 
   it('timeout configurado em 15s', async () => {

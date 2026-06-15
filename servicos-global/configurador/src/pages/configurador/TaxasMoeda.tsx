@@ -16,6 +16,9 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+import { ModalTaxasMoedaAgendamento } from './ModalTaxasMoedaAgendamento'
+import { adminTaxasMoedaAgendamentoApi } from '../../services/api-client'
+import { taxaMoedaAgendamentoResponseSchema } from '../../shared/taxas-moeda-agendamento-schema'
 
 // ---------------------------------------------------------------------------
 // Tipos — Cotação Atual (PTAX)
@@ -116,6 +119,12 @@ function fmtData(iso: string | null | undefined): string {
   return new Date(iso).toLocaleDateString('pt-BR')
 }
 
+/** Data de publicação BACEN (campo date-only gravado em UTC) — evita −1 dia no fuso BR. */
+function fmtDataPublicacaoFocus(iso: string | null | undefined): string {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+}
+
 function fmtDataHora(iso: string | null | undefined): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
@@ -175,6 +184,29 @@ export function TaxasMoeda() {
   const [carregando, setCarregando] = useState(true)
   const [carregandoPrevisao, setCarregandoPrevisao] = useState(false)
   const [ultimaSync, setUltimaSync] = useState<string | null>(null)
+  const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
+  const [agendamentoPtaxAtivo, setAgendamentoPtaxAtivo] = useState(false)
+  const [agendamentoFocusAtivo, setAgendamentoFocusAtivo] = useState(false)
+
+  const agendamentoAtivo = abaAtiva === 'atual' ? agendamentoPtaxAtivo : agendamentoFocusAtivo
+  const tipoAgendamentoAtual = abaAtiva === 'atual' ? 'ptax' as const : 'focus' as const
+
+  const carregarStatusAgendamentos = useCallback(async () => {
+    try {
+      const [ptaxRaw, focusRaw] = await Promise.all([
+        adminTaxasMoedaAgendamentoApi.obter('ptax'),
+        adminTaxasMoedaAgendamentoApi.obter('focus'),
+      ])
+      const ptax = taxaMoedaAgendamentoResponseSchema.parse(ptaxRaw)
+      const focus = taxaMoedaAgendamentoResponseSchema.parse(focusRaw)
+      setAgendamentoPtaxAtivo(ptax.ativo)
+      setAgendamentoFocusAtivo(focus.ativo)
+    } catch (err) {
+      console.warn('[TaxasMoeda] Falha ao carregar status do agendamento PTAX/Focus', err)
+      setAgendamentoPtaxAtivo(false)
+      setAgendamentoFocusAtivo(false)
+    }
+  }, [])
 
   // ── Buscar cotações atuais (PTAX) ────────────────────────────────────────
 
@@ -237,6 +269,7 @@ export function TaxasMoeda() {
   }, [])
 
   useEffect(() => { buscarTaxas() }, [buscarTaxas])
+  useEffect(() => { void carregarStatusAgendamentos() }, [carregarStatusAgendamentos])
   useEffect(() => {
     if (abaAtiva === 'futura') buscarPrevisoes()
   }, [abaAtiva, buscarPrevisoes])
@@ -457,12 +490,12 @@ export function TaxasMoeda() {
     },
     {
       key: 'data_previsao',
-      label: 'Atualizado em',
+      label: 'Publicado pelo Focus em',
       tipo: 'periodo',
       getValorBruto: (row) => row.data_previsao.split('T')[0],
       render: (_, row) => (
         <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-          {fmtData(row.data_previsao)}
+          {fmtDataPublicacaoFocus(row.data_previsao)}
         </span>
       ),
     },
@@ -691,21 +724,21 @@ export function TaxasMoeda() {
                 }
               />
               <CardBasicoGlobal
-                titulo="Atualização Focus"
+                titulo="Publicação Focus"
                 icone={<Clock weight="duotone" size={16} />}
-                valor={dataUltimaProjecao ? fmtData(dataUltimaProjecao) : '—'}
+                valor={dataUltimaProjecao ? fmtDataPublicacaoFocus(dataUltimaProjecao) : '—'}
                 subtexto={
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '2px' }}>
                     <PillPeriodo>Fonte</PillPeriodo>
-                    <span>BACEN/Focus</span>
+                    <span>BACEN/Focus — data da rodada publicada</span>
                   </span>
                 }
                 tooltip={
                   <>
-                    <p className="cg-tooltip__title">BACEN FOCUS · ATUALIZAÇÃO</p>
+                    <p className="cg-tooltip__title">BACEN FOCUS · PUBLICAÇÃO</p>
                     <div className="cg-tooltip__row">
-                      <span>Última publicação</span>
-                      <strong>{dataUltimaProjecao ? fmtData(dataUltimaProjecao) : '—'}</strong>
+                      <span>Última publicação (BACEN)</span>
+                      <strong>{dataUltimaProjecao ? fmtDataPublicacaoFocus(dataUltimaProjecao) : '—'}</strong>
                     </div>
                     <div className="cg-tooltip__row">
                       <span>Cron</span>
@@ -751,6 +784,33 @@ export function TaxasMoeda() {
                   </span>
                 </TooltipGlobal>
               )}
+              <TooltipGlobal conteudo="Configurar sincronização automática (modelo Admin › Testes)">
+                <button
+                  type="button"
+                  onClick={() => setModalAgendamentoAberto(true)}
+                  aria-label="Agendamento"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                    height: '2.5rem', padding: '0 1rem', borderRadius: '8px',
+                    background: agendamentoAtivo ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
+                    border: `1px solid ${agendamentoAtivo ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'}`,
+                    color: agendamentoAtivo ? '#10b981' : '#818cf8',
+                    fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+                    animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none',
+                  }}
+                >
+                  <Clock size={15} weight={agendamentoAtivo ? 'fill' : 'regular'} />
+                  Agendamento
+                  <span style={{
+                    fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px',
+                    background: agendamentoAtivo ? 'rgba(16,185,129,0.2)' : 'rgba(100,116,139,0.2)',
+                    color: agendamentoAtivo ? '#10b981' : '#64748b',
+                    letterSpacing: '0.05em', textTransform: 'uppercase',
+                  }}>
+                    {agendamentoAtivo ? 'Ativo' : 'Inativo'}
+                  </span>
+                </button>
+              </TooltipGlobal>
               <BotaoGlobal
                 variante="primario"
                 tamanho="pequeno"
@@ -835,6 +895,19 @@ export function TaxasMoeda() {
           </div>
         )}
       </PaginaGlobal>
+
+      <ModalTaxasMoedaAgendamento
+        aberto={modalAgendamentoAberto}
+        tipo={tipoAgendamentoAtual}
+        aoFechar={() => {
+          setModalAgendamentoAberto(false)
+          void carregarStatusAgendamentos()
+        }}
+        aoMudarStatus={(ativo) => {
+          if (tipoAgendamentoAtual === 'ptax') setAgendamentoPtaxAtivo(ativo)
+          else setAgendamentoFocusAtivo(ativo)
+        }}
+      />
     </>
   )
 }

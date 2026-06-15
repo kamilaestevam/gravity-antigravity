@@ -397,6 +397,18 @@ exports.Prisma.PrevisaoTaxaFuturaMoedaScalarFieldEnum = {
   data_atualizacao_previsao_taxa_futura_moeda: 'data_atualizacao_previsao_taxa_futura_moeda'
 };
 
+exports.Prisma.TaxaMoedaSyncAgendamentoScalarFieldEnum = {
+  id_taxa_moeda_sync_agendamento: 'id_taxa_moeda_sync_agendamento',
+  ativo_taxa_moeda_sync_agendamento: 'ativo_taxa_moeda_sync_agendamento',
+  frequencia_taxa_moeda_sync_agendamento: 'frequencia_taxa_moeda_sync_agendamento',
+  hora_taxa_moeda_sync_agendamento: 'hora_taxa_moeda_sync_agendamento',
+  minuto_taxa_moeda_sync_agendamento: 'minuto_taxa_moeda_sync_agendamento',
+  alertas_taxa_moeda_sync_agendamento: 'alertas_taxa_moeda_sync_agendamento',
+  ultima_execucao_taxa_moeda_sync_agendamento: 'ultima_execucao_taxa_moeda_sync_agendamento',
+  data_criacao_taxa_moeda_sync_agendamento: 'data_criacao_taxa_moeda_sync_agendamento',
+  data_atualizacao_taxa_moeda_sync_agendamento: 'data_atualizacao_taxa_moeda_sync_agendamento'
+};
+
 exports.Prisma.TesteScalarFieldEnum = {
   id_teste: 'id_teste',
   id_organizacao: 'id_organizacao',
@@ -715,6 +727,7 @@ exports.Prisma.ModelName = {
   ServicoGravity: 'ServicoGravity',
   Cambio: 'Cambio',
   PrevisaoTaxaFuturaMoeda: 'PrevisaoTaxaFuturaMoeda',
+  TaxaMoedaSyncAgendamento: 'TaxaMoedaSyncAgendamento',
   Teste: 'Teste',
   TesteAgendamento: 'TesteAgendamento',
   TestePlano: 'TestePlano',

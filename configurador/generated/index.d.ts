@@ -104,6 +104,11 @@ export type Cambio = $Result.DefaultSelection<Prisma.$CambioPayload>
  */
 export type PrevisaoTaxaFuturaMoeda = $Result.DefaultSelection<Prisma.$PrevisaoTaxaFuturaMoedaPayload>
 /**
+ * Model TaxaMoedaSyncAgendamento
+ * 
+ */
+export type TaxaMoedaSyncAgendamento = $Result.DefaultSelection<Prisma.$TaxaMoedaSyncAgendamentoPayload>
+/**
  * Model Teste
  * 
  */
@@ -652,6 +657,16 @@ export class PrismaClient<
     * ```
     */
   get previsaoTaxaFuturaMoeda(): Prisma.PrevisaoTaxaFuturaMoedaDelegate<ExtArgs>;
+
+  /**
+   * `prisma.taxaMoedaSyncAgendamento`: Exposes CRUD operations for the **TaxaMoedaSyncAgendamento** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TaxaMoedaSyncAgendamentos
+    * const taxaMoedaSyncAgendamentos = await prisma.taxaMoedaSyncAgendamento.findMany()
+    * ```
+    */
+  get taxaMoedaSyncAgendamento(): Prisma.TaxaMoedaSyncAgendamentoDelegate<ExtArgs>;
 
   /**
    * `prisma.teste`: Exposes CRUD operations for the **Teste** model.
@@ -1221,6 +1236,7 @@ export namespace Prisma {
     ServicoGravity: 'ServicoGravity',
     Cambio: 'Cambio',
     PrevisaoTaxaFuturaMoeda: 'PrevisaoTaxaFuturaMoeda',
+    TaxaMoedaSyncAgendamento: 'TaxaMoedaSyncAgendamento',
     Teste: 'Teste',
     TesteAgendamento: 'TesteAgendamento',
     TestePlano: 'TestePlano',
@@ -1247,7 +1263,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "previsaoTaxaFuturaMoeda" | "teste" | "testeAgendamento" | "testePlano" | "testeFavoritoUsuario" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas" | "gabiLimiteMonetarioGlobal" | "gabiAlertaEmitidoGlobal" | "auditLogAdmin"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "previsaoTaxaFuturaMoeda" | "taxaMoedaSyncAgendamento" | "teste" | "testeAgendamento" | "testePlano" | "testeFavoritoUsuario" | "produtoGravityFatura" | "produtoGravityFaturaItem" | "produtoGravityFaturaDocumento" | "lLMMetricas" | "gabiLimiteMonetarioGlobal" | "gabiAlertaEmitidoGlobal" | "auditLogAdmin"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2508,6 +2524,76 @@ export namespace Prisma {
           count: {
             args: Prisma.PrevisaoTaxaFuturaMoedaCountArgs<ExtArgs>
             result: $Utils.Optional<PrevisaoTaxaFuturaMoedaCountAggregateOutputType> | number
+          }
+        }
+      }
+      TaxaMoedaSyncAgendamento: {
+        payload: Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>
+        fields: Prisma.TaxaMoedaSyncAgendamentoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TaxaMoedaSyncAgendamentoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TaxaMoedaSyncAgendamentoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload>
+          }
+          findFirst: {
+            args: Prisma.TaxaMoedaSyncAgendamentoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TaxaMoedaSyncAgendamentoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload>
+          }
+          findMany: {
+            args: Prisma.TaxaMoedaSyncAgendamentoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload>[]
+          }
+          create: {
+            args: Prisma.TaxaMoedaSyncAgendamentoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload>
+          }
+          createMany: {
+            args: Prisma.TaxaMoedaSyncAgendamentoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TaxaMoedaSyncAgendamentoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload>[]
+          }
+          delete: {
+            args: Prisma.TaxaMoedaSyncAgendamentoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload>
+          }
+          update: {
+            args: Prisma.TaxaMoedaSyncAgendamentoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload>
+          }
+          deleteMany: {
+            args: Prisma.TaxaMoedaSyncAgendamentoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TaxaMoedaSyncAgendamentoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TaxaMoedaSyncAgendamentoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaMoedaSyncAgendamentoPayload>
+          }
+          aggregate: {
+            args: Prisma.TaxaMoedaSyncAgendamentoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTaxaMoedaSyncAgendamento>
+          }
+          groupBy: {
+            args: Prisma.TaxaMoedaSyncAgendamentoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TaxaMoedaSyncAgendamentoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TaxaMoedaSyncAgendamentoCountArgs<ExtArgs>
+            result: $Utils.Optional<TaxaMoedaSyncAgendamentoCountAggregateOutputType> | number
           }
         }
       }
@@ -22611,6 +22697,966 @@ export namespace Prisma {
 
 
   /**
+   * Model TaxaMoedaSyncAgendamento
+   */
+
+  export type AggregateTaxaMoedaSyncAgendamento = {
+    _count: TaxaMoedaSyncAgendamentoCountAggregateOutputType | null
+    _avg: TaxaMoedaSyncAgendamentoAvgAggregateOutputType | null
+    _sum: TaxaMoedaSyncAgendamentoSumAggregateOutputType | null
+    _min: TaxaMoedaSyncAgendamentoMinAggregateOutputType | null
+    _max: TaxaMoedaSyncAgendamentoMaxAggregateOutputType | null
+  }
+
+  export type TaxaMoedaSyncAgendamentoAvgAggregateOutputType = {
+    hora_taxa_moeda_sync_agendamento: number | null
+    minuto_taxa_moeda_sync_agendamento: number | null
+  }
+
+  export type TaxaMoedaSyncAgendamentoSumAggregateOutputType = {
+    hora_taxa_moeda_sync_agendamento: number | null
+    minuto_taxa_moeda_sync_agendamento: number | null
+  }
+
+  export type TaxaMoedaSyncAgendamentoMinAggregateOutputType = {
+    id_taxa_moeda_sync_agendamento: string | null
+    ativo_taxa_moeda_sync_agendamento: boolean | null
+    frequencia_taxa_moeda_sync_agendamento: string | null
+    hora_taxa_moeda_sync_agendamento: number | null
+    minuto_taxa_moeda_sync_agendamento: number | null
+    ultima_execucao_taxa_moeda_sync_agendamento: Date | null
+    data_criacao_taxa_moeda_sync_agendamento: Date | null
+    data_atualizacao_taxa_moeda_sync_agendamento: Date | null
+  }
+
+  export type TaxaMoedaSyncAgendamentoMaxAggregateOutputType = {
+    id_taxa_moeda_sync_agendamento: string | null
+    ativo_taxa_moeda_sync_agendamento: boolean | null
+    frequencia_taxa_moeda_sync_agendamento: string | null
+    hora_taxa_moeda_sync_agendamento: number | null
+    minuto_taxa_moeda_sync_agendamento: number | null
+    ultima_execucao_taxa_moeda_sync_agendamento: Date | null
+    data_criacao_taxa_moeda_sync_agendamento: Date | null
+    data_atualizacao_taxa_moeda_sync_agendamento: Date | null
+  }
+
+  export type TaxaMoedaSyncAgendamentoCountAggregateOutputType = {
+    id_taxa_moeda_sync_agendamento: number
+    ativo_taxa_moeda_sync_agendamento: number
+    frequencia_taxa_moeda_sync_agendamento: number
+    hora_taxa_moeda_sync_agendamento: number
+    minuto_taxa_moeda_sync_agendamento: number
+    alertas_taxa_moeda_sync_agendamento: number
+    ultima_execucao_taxa_moeda_sync_agendamento: number
+    data_criacao_taxa_moeda_sync_agendamento: number
+    data_atualizacao_taxa_moeda_sync_agendamento: number
+    _all: number
+  }
+
+
+  export type TaxaMoedaSyncAgendamentoAvgAggregateInputType = {
+    hora_taxa_moeda_sync_agendamento?: true
+    minuto_taxa_moeda_sync_agendamento?: true
+  }
+
+  export type TaxaMoedaSyncAgendamentoSumAggregateInputType = {
+    hora_taxa_moeda_sync_agendamento?: true
+    minuto_taxa_moeda_sync_agendamento?: true
+  }
+
+  export type TaxaMoedaSyncAgendamentoMinAggregateInputType = {
+    id_taxa_moeda_sync_agendamento?: true
+    ativo_taxa_moeda_sync_agendamento?: true
+    frequencia_taxa_moeda_sync_agendamento?: true
+    hora_taxa_moeda_sync_agendamento?: true
+    minuto_taxa_moeda_sync_agendamento?: true
+    ultima_execucao_taxa_moeda_sync_agendamento?: true
+    data_criacao_taxa_moeda_sync_agendamento?: true
+    data_atualizacao_taxa_moeda_sync_agendamento?: true
+  }
+
+  export type TaxaMoedaSyncAgendamentoMaxAggregateInputType = {
+    id_taxa_moeda_sync_agendamento?: true
+    ativo_taxa_moeda_sync_agendamento?: true
+    frequencia_taxa_moeda_sync_agendamento?: true
+    hora_taxa_moeda_sync_agendamento?: true
+    minuto_taxa_moeda_sync_agendamento?: true
+    ultima_execucao_taxa_moeda_sync_agendamento?: true
+    data_criacao_taxa_moeda_sync_agendamento?: true
+    data_atualizacao_taxa_moeda_sync_agendamento?: true
+  }
+
+  export type TaxaMoedaSyncAgendamentoCountAggregateInputType = {
+    id_taxa_moeda_sync_agendamento?: true
+    ativo_taxa_moeda_sync_agendamento?: true
+    frequencia_taxa_moeda_sync_agendamento?: true
+    hora_taxa_moeda_sync_agendamento?: true
+    minuto_taxa_moeda_sync_agendamento?: true
+    alertas_taxa_moeda_sync_agendamento?: true
+    ultima_execucao_taxa_moeda_sync_agendamento?: true
+    data_criacao_taxa_moeda_sync_agendamento?: true
+    data_atualizacao_taxa_moeda_sync_agendamento?: true
+    _all?: true
+  }
+
+  export type TaxaMoedaSyncAgendamentoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TaxaMoedaSyncAgendamento to aggregate.
+     */
+    where?: TaxaMoedaSyncAgendamentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaMoedaSyncAgendamentos to fetch.
+     */
+    orderBy?: TaxaMoedaSyncAgendamentoOrderByWithRelationInput | TaxaMoedaSyncAgendamentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TaxaMoedaSyncAgendamentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaMoedaSyncAgendamentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaMoedaSyncAgendamentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TaxaMoedaSyncAgendamentos
+    **/
+    _count?: true | TaxaMoedaSyncAgendamentoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TaxaMoedaSyncAgendamentoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TaxaMoedaSyncAgendamentoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TaxaMoedaSyncAgendamentoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TaxaMoedaSyncAgendamentoMaxAggregateInputType
+  }
+
+  export type GetTaxaMoedaSyncAgendamentoAggregateType<T extends TaxaMoedaSyncAgendamentoAggregateArgs> = {
+        [P in keyof T & keyof AggregateTaxaMoedaSyncAgendamento]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTaxaMoedaSyncAgendamento[P]>
+      : GetScalarType<T[P], AggregateTaxaMoedaSyncAgendamento[P]>
+  }
+
+
+
+
+  export type TaxaMoedaSyncAgendamentoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TaxaMoedaSyncAgendamentoWhereInput
+    orderBy?: TaxaMoedaSyncAgendamentoOrderByWithAggregationInput | TaxaMoedaSyncAgendamentoOrderByWithAggregationInput[]
+    by: TaxaMoedaSyncAgendamentoScalarFieldEnum[] | TaxaMoedaSyncAgendamentoScalarFieldEnum
+    having?: TaxaMoedaSyncAgendamentoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TaxaMoedaSyncAgendamentoCountAggregateInputType | true
+    _avg?: TaxaMoedaSyncAgendamentoAvgAggregateInputType
+    _sum?: TaxaMoedaSyncAgendamentoSumAggregateInputType
+    _min?: TaxaMoedaSyncAgendamentoMinAggregateInputType
+    _max?: TaxaMoedaSyncAgendamentoMaxAggregateInputType
+  }
+
+  export type TaxaMoedaSyncAgendamentoGroupByOutputType = {
+    id_taxa_moeda_sync_agendamento: string
+    ativo_taxa_moeda_sync_agendamento: boolean
+    frequencia_taxa_moeda_sync_agendamento: string
+    hora_taxa_moeda_sync_agendamento: number
+    minuto_taxa_moeda_sync_agendamento: number
+    alertas_taxa_moeda_sync_agendamento: JsonValue
+    ultima_execucao_taxa_moeda_sync_agendamento: Date | null
+    data_criacao_taxa_moeda_sync_agendamento: Date
+    data_atualizacao_taxa_moeda_sync_agendamento: Date
+    _count: TaxaMoedaSyncAgendamentoCountAggregateOutputType | null
+    _avg: TaxaMoedaSyncAgendamentoAvgAggregateOutputType | null
+    _sum: TaxaMoedaSyncAgendamentoSumAggregateOutputType | null
+    _min: TaxaMoedaSyncAgendamentoMinAggregateOutputType | null
+    _max: TaxaMoedaSyncAgendamentoMaxAggregateOutputType | null
+  }
+
+  type GetTaxaMoedaSyncAgendamentoGroupByPayload<T extends TaxaMoedaSyncAgendamentoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TaxaMoedaSyncAgendamentoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TaxaMoedaSyncAgendamentoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TaxaMoedaSyncAgendamentoGroupByOutputType[P]>
+            : GetScalarType<T[P], TaxaMoedaSyncAgendamentoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TaxaMoedaSyncAgendamentoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_taxa_moeda_sync_agendamento?: boolean
+    ativo_taxa_moeda_sync_agendamento?: boolean
+    frequencia_taxa_moeda_sync_agendamento?: boolean
+    hora_taxa_moeda_sync_agendamento?: boolean
+    minuto_taxa_moeda_sync_agendamento?: boolean
+    alertas_taxa_moeda_sync_agendamento?: boolean
+    ultima_execucao_taxa_moeda_sync_agendamento?: boolean
+    data_criacao_taxa_moeda_sync_agendamento?: boolean
+    data_atualizacao_taxa_moeda_sync_agendamento?: boolean
+  }, ExtArgs["result"]["taxaMoedaSyncAgendamento"]>
+
+  export type TaxaMoedaSyncAgendamentoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_taxa_moeda_sync_agendamento?: boolean
+    ativo_taxa_moeda_sync_agendamento?: boolean
+    frequencia_taxa_moeda_sync_agendamento?: boolean
+    hora_taxa_moeda_sync_agendamento?: boolean
+    minuto_taxa_moeda_sync_agendamento?: boolean
+    alertas_taxa_moeda_sync_agendamento?: boolean
+    ultima_execucao_taxa_moeda_sync_agendamento?: boolean
+    data_criacao_taxa_moeda_sync_agendamento?: boolean
+    data_atualizacao_taxa_moeda_sync_agendamento?: boolean
+  }, ExtArgs["result"]["taxaMoedaSyncAgendamento"]>
+
+  export type TaxaMoedaSyncAgendamentoSelectScalar = {
+    id_taxa_moeda_sync_agendamento?: boolean
+    ativo_taxa_moeda_sync_agendamento?: boolean
+    frequencia_taxa_moeda_sync_agendamento?: boolean
+    hora_taxa_moeda_sync_agendamento?: boolean
+    minuto_taxa_moeda_sync_agendamento?: boolean
+    alertas_taxa_moeda_sync_agendamento?: boolean
+    ultima_execucao_taxa_moeda_sync_agendamento?: boolean
+    data_criacao_taxa_moeda_sync_agendamento?: boolean
+    data_atualizacao_taxa_moeda_sync_agendamento?: boolean
+  }
+
+
+  export type $TaxaMoedaSyncAgendamentoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TaxaMoedaSyncAgendamento"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id_taxa_moeda_sync_agendamento: string
+      ativo_taxa_moeda_sync_agendamento: boolean
+      frequencia_taxa_moeda_sync_agendamento: string
+      hora_taxa_moeda_sync_agendamento: number
+      minuto_taxa_moeda_sync_agendamento: number
+      alertas_taxa_moeda_sync_agendamento: Prisma.JsonValue
+      ultima_execucao_taxa_moeda_sync_agendamento: Date | null
+      data_criacao_taxa_moeda_sync_agendamento: Date
+      data_atualizacao_taxa_moeda_sync_agendamento: Date
+    }, ExtArgs["result"]["taxaMoedaSyncAgendamento"]>
+    composites: {}
+  }
+
+  type TaxaMoedaSyncAgendamentoGetPayload<S extends boolean | null | undefined | TaxaMoedaSyncAgendamentoDefaultArgs> = $Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload, S>
+
+  type TaxaMoedaSyncAgendamentoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TaxaMoedaSyncAgendamentoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: TaxaMoedaSyncAgendamentoCountAggregateInputType | true
+    }
+
+  export interface TaxaMoedaSyncAgendamentoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TaxaMoedaSyncAgendamento'], meta: { name: 'TaxaMoedaSyncAgendamento' } }
+    /**
+     * Find zero or one TaxaMoedaSyncAgendamento that matches the filter.
+     * @param {TaxaMoedaSyncAgendamentoFindUniqueArgs} args - Arguments to find a TaxaMoedaSyncAgendamento
+     * @example
+     * // Get one TaxaMoedaSyncAgendamento
+     * const taxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TaxaMoedaSyncAgendamentoFindUniqueArgs>(args: SelectSubset<T, TaxaMoedaSyncAgendamentoFindUniqueArgs<ExtArgs>>): Prisma__TaxaMoedaSyncAgendamentoClient<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one TaxaMoedaSyncAgendamento that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {TaxaMoedaSyncAgendamentoFindUniqueOrThrowArgs} args - Arguments to find a TaxaMoedaSyncAgendamento
+     * @example
+     * // Get one TaxaMoedaSyncAgendamento
+     * const taxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TaxaMoedaSyncAgendamentoFindUniqueOrThrowArgs>(args: SelectSubset<T, TaxaMoedaSyncAgendamentoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TaxaMoedaSyncAgendamentoClient<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first TaxaMoedaSyncAgendamento that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaMoedaSyncAgendamentoFindFirstArgs} args - Arguments to find a TaxaMoedaSyncAgendamento
+     * @example
+     * // Get one TaxaMoedaSyncAgendamento
+     * const taxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TaxaMoedaSyncAgendamentoFindFirstArgs>(args?: SelectSubset<T, TaxaMoedaSyncAgendamentoFindFirstArgs<ExtArgs>>): Prisma__TaxaMoedaSyncAgendamentoClient<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first TaxaMoedaSyncAgendamento that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaMoedaSyncAgendamentoFindFirstOrThrowArgs} args - Arguments to find a TaxaMoedaSyncAgendamento
+     * @example
+     * // Get one TaxaMoedaSyncAgendamento
+     * const taxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TaxaMoedaSyncAgendamentoFindFirstOrThrowArgs>(args?: SelectSubset<T, TaxaMoedaSyncAgendamentoFindFirstOrThrowArgs<ExtArgs>>): Prisma__TaxaMoedaSyncAgendamentoClient<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more TaxaMoedaSyncAgendamentos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaMoedaSyncAgendamentoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TaxaMoedaSyncAgendamentos
+     * const taxaMoedaSyncAgendamentos = await prisma.taxaMoedaSyncAgendamento.findMany()
+     * 
+     * // Get first 10 TaxaMoedaSyncAgendamentos
+     * const taxaMoedaSyncAgendamentos = await prisma.taxaMoedaSyncAgendamento.findMany({ take: 10 })
+     * 
+     * // Only select the `id_taxa_moeda_sync_agendamento`
+     * const taxaMoedaSyncAgendamentoWithId_taxa_moeda_sync_agendamentoOnly = await prisma.taxaMoedaSyncAgendamento.findMany({ select: { id_taxa_moeda_sync_agendamento: true } })
+     * 
+     */
+    findMany<T extends TaxaMoedaSyncAgendamentoFindManyArgs>(args?: SelectSubset<T, TaxaMoedaSyncAgendamentoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a TaxaMoedaSyncAgendamento.
+     * @param {TaxaMoedaSyncAgendamentoCreateArgs} args - Arguments to create a TaxaMoedaSyncAgendamento.
+     * @example
+     * // Create one TaxaMoedaSyncAgendamento
+     * const TaxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.create({
+     *   data: {
+     *     // ... data to create a TaxaMoedaSyncAgendamento
+     *   }
+     * })
+     * 
+     */
+    create<T extends TaxaMoedaSyncAgendamentoCreateArgs>(args: SelectSubset<T, TaxaMoedaSyncAgendamentoCreateArgs<ExtArgs>>): Prisma__TaxaMoedaSyncAgendamentoClient<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many TaxaMoedaSyncAgendamentos.
+     * @param {TaxaMoedaSyncAgendamentoCreateManyArgs} args - Arguments to create many TaxaMoedaSyncAgendamentos.
+     * @example
+     * // Create many TaxaMoedaSyncAgendamentos
+     * const taxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TaxaMoedaSyncAgendamentoCreateManyArgs>(args?: SelectSubset<T, TaxaMoedaSyncAgendamentoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TaxaMoedaSyncAgendamentos and returns the data saved in the database.
+     * @param {TaxaMoedaSyncAgendamentoCreateManyAndReturnArgs} args - Arguments to create many TaxaMoedaSyncAgendamentos.
+     * @example
+     * // Create many TaxaMoedaSyncAgendamentos
+     * const taxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TaxaMoedaSyncAgendamentos and only return the `id_taxa_moeda_sync_agendamento`
+     * const taxaMoedaSyncAgendamentoWithId_taxa_moeda_sync_agendamentoOnly = await prisma.taxaMoedaSyncAgendamento.createManyAndReturn({ 
+     *   select: { id_taxa_moeda_sync_agendamento: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TaxaMoedaSyncAgendamentoCreateManyAndReturnArgs>(args?: SelectSubset<T, TaxaMoedaSyncAgendamentoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a TaxaMoedaSyncAgendamento.
+     * @param {TaxaMoedaSyncAgendamentoDeleteArgs} args - Arguments to delete one TaxaMoedaSyncAgendamento.
+     * @example
+     * // Delete one TaxaMoedaSyncAgendamento
+     * const TaxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.delete({
+     *   where: {
+     *     // ... filter to delete one TaxaMoedaSyncAgendamento
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TaxaMoedaSyncAgendamentoDeleteArgs>(args: SelectSubset<T, TaxaMoedaSyncAgendamentoDeleteArgs<ExtArgs>>): Prisma__TaxaMoedaSyncAgendamentoClient<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one TaxaMoedaSyncAgendamento.
+     * @param {TaxaMoedaSyncAgendamentoUpdateArgs} args - Arguments to update one TaxaMoedaSyncAgendamento.
+     * @example
+     * // Update one TaxaMoedaSyncAgendamento
+     * const taxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TaxaMoedaSyncAgendamentoUpdateArgs>(args: SelectSubset<T, TaxaMoedaSyncAgendamentoUpdateArgs<ExtArgs>>): Prisma__TaxaMoedaSyncAgendamentoClient<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more TaxaMoedaSyncAgendamentos.
+     * @param {TaxaMoedaSyncAgendamentoDeleteManyArgs} args - Arguments to filter TaxaMoedaSyncAgendamentos to delete.
+     * @example
+     * // Delete a few TaxaMoedaSyncAgendamentos
+     * const { count } = await prisma.taxaMoedaSyncAgendamento.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TaxaMoedaSyncAgendamentoDeleteManyArgs>(args?: SelectSubset<T, TaxaMoedaSyncAgendamentoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TaxaMoedaSyncAgendamentos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaMoedaSyncAgendamentoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TaxaMoedaSyncAgendamentos
+     * const taxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TaxaMoedaSyncAgendamentoUpdateManyArgs>(args: SelectSubset<T, TaxaMoedaSyncAgendamentoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TaxaMoedaSyncAgendamento.
+     * @param {TaxaMoedaSyncAgendamentoUpsertArgs} args - Arguments to update or create a TaxaMoedaSyncAgendamento.
+     * @example
+     * // Update or create a TaxaMoedaSyncAgendamento
+     * const taxaMoedaSyncAgendamento = await prisma.taxaMoedaSyncAgendamento.upsert({
+     *   create: {
+     *     // ... data to create a TaxaMoedaSyncAgendamento
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TaxaMoedaSyncAgendamento we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TaxaMoedaSyncAgendamentoUpsertArgs>(args: SelectSubset<T, TaxaMoedaSyncAgendamentoUpsertArgs<ExtArgs>>): Prisma__TaxaMoedaSyncAgendamentoClient<$Result.GetResult<Prisma.$TaxaMoedaSyncAgendamentoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of TaxaMoedaSyncAgendamentos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaMoedaSyncAgendamentoCountArgs} args - Arguments to filter TaxaMoedaSyncAgendamentos to count.
+     * @example
+     * // Count the number of TaxaMoedaSyncAgendamentos
+     * const count = await prisma.taxaMoedaSyncAgendamento.count({
+     *   where: {
+     *     // ... the filter for the TaxaMoedaSyncAgendamentos we want to count
+     *   }
+     * })
+    **/
+    count<T extends TaxaMoedaSyncAgendamentoCountArgs>(
+      args?: Subset<T, TaxaMoedaSyncAgendamentoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TaxaMoedaSyncAgendamentoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TaxaMoedaSyncAgendamento.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaMoedaSyncAgendamentoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TaxaMoedaSyncAgendamentoAggregateArgs>(args: Subset<T, TaxaMoedaSyncAgendamentoAggregateArgs>): Prisma.PrismaPromise<GetTaxaMoedaSyncAgendamentoAggregateType<T>>
+
+    /**
+     * Group by TaxaMoedaSyncAgendamento.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaMoedaSyncAgendamentoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TaxaMoedaSyncAgendamentoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TaxaMoedaSyncAgendamentoGroupByArgs['orderBy'] }
+        : { orderBy?: TaxaMoedaSyncAgendamentoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TaxaMoedaSyncAgendamentoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTaxaMoedaSyncAgendamentoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TaxaMoedaSyncAgendamento model
+   */
+  readonly fields: TaxaMoedaSyncAgendamentoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TaxaMoedaSyncAgendamento.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TaxaMoedaSyncAgendamentoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TaxaMoedaSyncAgendamento model
+   */ 
+  interface TaxaMoedaSyncAgendamentoFieldRefs {
+    readonly id_taxa_moeda_sync_agendamento: FieldRef<"TaxaMoedaSyncAgendamento", 'String'>
+    readonly ativo_taxa_moeda_sync_agendamento: FieldRef<"TaxaMoedaSyncAgendamento", 'Boolean'>
+    readonly frequencia_taxa_moeda_sync_agendamento: FieldRef<"TaxaMoedaSyncAgendamento", 'String'>
+    readonly hora_taxa_moeda_sync_agendamento: FieldRef<"TaxaMoedaSyncAgendamento", 'Int'>
+    readonly minuto_taxa_moeda_sync_agendamento: FieldRef<"TaxaMoedaSyncAgendamento", 'Int'>
+    readonly alertas_taxa_moeda_sync_agendamento: FieldRef<"TaxaMoedaSyncAgendamento", 'Json'>
+    readonly ultima_execucao_taxa_moeda_sync_agendamento: FieldRef<"TaxaMoedaSyncAgendamento", 'DateTime'>
+    readonly data_criacao_taxa_moeda_sync_agendamento: FieldRef<"TaxaMoedaSyncAgendamento", 'DateTime'>
+    readonly data_atualizacao_taxa_moeda_sync_agendamento: FieldRef<"TaxaMoedaSyncAgendamento", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TaxaMoedaSyncAgendamento findUnique
+   */
+  export type TaxaMoedaSyncAgendamentoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaMoedaSyncAgendamento to fetch.
+     */
+    where: TaxaMoedaSyncAgendamentoWhereUniqueInput
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento findUniqueOrThrow
+   */
+  export type TaxaMoedaSyncAgendamentoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaMoedaSyncAgendamento to fetch.
+     */
+    where: TaxaMoedaSyncAgendamentoWhereUniqueInput
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento findFirst
+   */
+  export type TaxaMoedaSyncAgendamentoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaMoedaSyncAgendamento to fetch.
+     */
+    where?: TaxaMoedaSyncAgendamentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaMoedaSyncAgendamentos to fetch.
+     */
+    orderBy?: TaxaMoedaSyncAgendamentoOrderByWithRelationInput | TaxaMoedaSyncAgendamentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TaxaMoedaSyncAgendamentos.
+     */
+    cursor?: TaxaMoedaSyncAgendamentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaMoedaSyncAgendamentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaMoedaSyncAgendamentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TaxaMoedaSyncAgendamentos.
+     */
+    distinct?: TaxaMoedaSyncAgendamentoScalarFieldEnum | TaxaMoedaSyncAgendamentoScalarFieldEnum[]
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento findFirstOrThrow
+   */
+  export type TaxaMoedaSyncAgendamentoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaMoedaSyncAgendamento to fetch.
+     */
+    where?: TaxaMoedaSyncAgendamentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaMoedaSyncAgendamentos to fetch.
+     */
+    orderBy?: TaxaMoedaSyncAgendamentoOrderByWithRelationInput | TaxaMoedaSyncAgendamentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TaxaMoedaSyncAgendamentos.
+     */
+    cursor?: TaxaMoedaSyncAgendamentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaMoedaSyncAgendamentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaMoedaSyncAgendamentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TaxaMoedaSyncAgendamentos.
+     */
+    distinct?: TaxaMoedaSyncAgendamentoScalarFieldEnum | TaxaMoedaSyncAgendamentoScalarFieldEnum[]
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento findMany
+   */
+  export type TaxaMoedaSyncAgendamentoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaMoedaSyncAgendamentos to fetch.
+     */
+    where?: TaxaMoedaSyncAgendamentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaMoedaSyncAgendamentos to fetch.
+     */
+    orderBy?: TaxaMoedaSyncAgendamentoOrderByWithRelationInput | TaxaMoedaSyncAgendamentoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TaxaMoedaSyncAgendamentos.
+     */
+    cursor?: TaxaMoedaSyncAgendamentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaMoedaSyncAgendamentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaMoedaSyncAgendamentos.
+     */
+    skip?: number
+    distinct?: TaxaMoedaSyncAgendamentoScalarFieldEnum | TaxaMoedaSyncAgendamentoScalarFieldEnum[]
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento create
+   */
+  export type TaxaMoedaSyncAgendamentoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a TaxaMoedaSyncAgendamento.
+     */
+    data: XOR<TaxaMoedaSyncAgendamentoCreateInput, TaxaMoedaSyncAgendamentoUncheckedCreateInput>
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento createMany
+   */
+  export type TaxaMoedaSyncAgendamentoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TaxaMoedaSyncAgendamentos.
+     */
+    data: TaxaMoedaSyncAgendamentoCreateManyInput | TaxaMoedaSyncAgendamentoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento createManyAndReturn
+   */
+  export type TaxaMoedaSyncAgendamentoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many TaxaMoedaSyncAgendamentos.
+     */
+    data: TaxaMoedaSyncAgendamentoCreateManyInput | TaxaMoedaSyncAgendamentoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento update
+   */
+  export type TaxaMoedaSyncAgendamentoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a TaxaMoedaSyncAgendamento.
+     */
+    data: XOR<TaxaMoedaSyncAgendamentoUpdateInput, TaxaMoedaSyncAgendamentoUncheckedUpdateInput>
+    /**
+     * Choose, which TaxaMoedaSyncAgendamento to update.
+     */
+    where: TaxaMoedaSyncAgendamentoWhereUniqueInput
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento updateMany
+   */
+  export type TaxaMoedaSyncAgendamentoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TaxaMoedaSyncAgendamentos.
+     */
+    data: XOR<TaxaMoedaSyncAgendamentoUpdateManyMutationInput, TaxaMoedaSyncAgendamentoUncheckedUpdateManyInput>
+    /**
+     * Filter which TaxaMoedaSyncAgendamentos to update
+     */
+    where?: TaxaMoedaSyncAgendamentoWhereInput
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento upsert
+   */
+  export type TaxaMoedaSyncAgendamentoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the TaxaMoedaSyncAgendamento to update in case it exists.
+     */
+    where: TaxaMoedaSyncAgendamentoWhereUniqueInput
+    /**
+     * In case the TaxaMoedaSyncAgendamento found by the `where` argument doesn't exist, create a new TaxaMoedaSyncAgendamento with this data.
+     */
+    create: XOR<TaxaMoedaSyncAgendamentoCreateInput, TaxaMoedaSyncAgendamentoUncheckedCreateInput>
+    /**
+     * In case the TaxaMoedaSyncAgendamento was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TaxaMoedaSyncAgendamentoUpdateInput, TaxaMoedaSyncAgendamentoUncheckedUpdateInput>
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento delete
+   */
+  export type TaxaMoedaSyncAgendamentoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+    /**
+     * Filter which TaxaMoedaSyncAgendamento to delete.
+     */
+    where: TaxaMoedaSyncAgendamentoWhereUniqueInput
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento deleteMany
+   */
+  export type TaxaMoedaSyncAgendamentoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TaxaMoedaSyncAgendamentos to delete
+     */
+    where?: TaxaMoedaSyncAgendamentoWhereInput
+  }
+
+  /**
+   * TaxaMoedaSyncAgendamento without action
+   */
+  export type TaxaMoedaSyncAgendamentoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaMoedaSyncAgendamento
+     */
+    select?: TaxaMoedaSyncAgendamentoSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Model Teste
    */
 
@@ -34434,6 +35480,21 @@ export namespace Prisma {
   export type PrevisaoTaxaFuturaMoedaScalarFieldEnum = (typeof PrevisaoTaxaFuturaMoedaScalarFieldEnum)[keyof typeof PrevisaoTaxaFuturaMoedaScalarFieldEnum]
 
 
+  export const TaxaMoedaSyncAgendamentoScalarFieldEnum: {
+    id_taxa_moeda_sync_agendamento: 'id_taxa_moeda_sync_agendamento',
+    ativo_taxa_moeda_sync_agendamento: 'ativo_taxa_moeda_sync_agendamento',
+    frequencia_taxa_moeda_sync_agendamento: 'frequencia_taxa_moeda_sync_agendamento',
+    hora_taxa_moeda_sync_agendamento: 'hora_taxa_moeda_sync_agendamento',
+    minuto_taxa_moeda_sync_agendamento: 'minuto_taxa_moeda_sync_agendamento',
+    alertas_taxa_moeda_sync_agendamento: 'alertas_taxa_moeda_sync_agendamento',
+    ultima_execucao_taxa_moeda_sync_agendamento: 'ultima_execucao_taxa_moeda_sync_agendamento',
+    data_criacao_taxa_moeda_sync_agendamento: 'data_criacao_taxa_moeda_sync_agendamento',
+    data_atualizacao_taxa_moeda_sync_agendamento: 'data_atualizacao_taxa_moeda_sync_agendamento'
+  };
+
+  export type TaxaMoedaSyncAgendamentoScalarFieldEnum = (typeof TaxaMoedaSyncAgendamentoScalarFieldEnum)[keyof typeof TaxaMoedaSyncAgendamentoScalarFieldEnum]
+
+
   export const TesteScalarFieldEnum: {
     id_teste: 'id_teste',
     id_organizacao: 'id_organizacao',
@@ -36683,6 +37744,80 @@ export namespace Prisma {
     data_previsao_taxa_futura_moeda?: DateTimeWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
     data_criacao_previsao_taxa_futura_moeda?: DateTimeWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
     data_atualizacao_previsao_taxa_futura_moeda?: DateTimeWithAggregatesFilter<"PrevisaoTaxaFuturaMoeda"> | Date | string
+  }
+
+  export type TaxaMoedaSyncAgendamentoWhereInput = {
+    AND?: TaxaMoedaSyncAgendamentoWhereInput | TaxaMoedaSyncAgendamentoWhereInput[]
+    OR?: TaxaMoedaSyncAgendamentoWhereInput[]
+    NOT?: TaxaMoedaSyncAgendamentoWhereInput | TaxaMoedaSyncAgendamentoWhereInput[]
+    id_taxa_moeda_sync_agendamento?: StringFilter<"TaxaMoedaSyncAgendamento"> | string
+    ativo_taxa_moeda_sync_agendamento?: BoolFilter<"TaxaMoedaSyncAgendamento"> | boolean
+    frequencia_taxa_moeda_sync_agendamento?: StringFilter<"TaxaMoedaSyncAgendamento"> | string
+    hora_taxa_moeda_sync_agendamento?: IntFilter<"TaxaMoedaSyncAgendamento"> | number
+    minuto_taxa_moeda_sync_agendamento?: IntFilter<"TaxaMoedaSyncAgendamento"> | number
+    alertas_taxa_moeda_sync_agendamento?: JsonFilter<"TaxaMoedaSyncAgendamento">
+    ultima_execucao_taxa_moeda_sync_agendamento?: DateTimeNullableFilter<"TaxaMoedaSyncAgendamento"> | Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: DateTimeFilter<"TaxaMoedaSyncAgendamento"> | Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: DateTimeFilter<"TaxaMoedaSyncAgendamento"> | Date | string
+  }
+
+  export type TaxaMoedaSyncAgendamentoOrderByWithRelationInput = {
+    id_taxa_moeda_sync_agendamento?: SortOrder
+    ativo_taxa_moeda_sync_agendamento?: SortOrder
+    frequencia_taxa_moeda_sync_agendamento?: SortOrder
+    hora_taxa_moeda_sync_agendamento?: SortOrder
+    minuto_taxa_moeda_sync_agendamento?: SortOrder
+    alertas_taxa_moeda_sync_agendamento?: SortOrder
+    ultima_execucao_taxa_moeda_sync_agendamento?: SortOrderInput | SortOrder
+    data_criacao_taxa_moeda_sync_agendamento?: SortOrder
+    data_atualizacao_taxa_moeda_sync_agendamento?: SortOrder
+  }
+
+  export type TaxaMoedaSyncAgendamentoWhereUniqueInput = Prisma.AtLeast<{
+    id_taxa_moeda_sync_agendamento?: string
+    AND?: TaxaMoedaSyncAgendamentoWhereInput | TaxaMoedaSyncAgendamentoWhereInput[]
+    OR?: TaxaMoedaSyncAgendamentoWhereInput[]
+    NOT?: TaxaMoedaSyncAgendamentoWhereInput | TaxaMoedaSyncAgendamentoWhereInput[]
+    ativo_taxa_moeda_sync_agendamento?: BoolFilter<"TaxaMoedaSyncAgendamento"> | boolean
+    frequencia_taxa_moeda_sync_agendamento?: StringFilter<"TaxaMoedaSyncAgendamento"> | string
+    hora_taxa_moeda_sync_agendamento?: IntFilter<"TaxaMoedaSyncAgendamento"> | number
+    minuto_taxa_moeda_sync_agendamento?: IntFilter<"TaxaMoedaSyncAgendamento"> | number
+    alertas_taxa_moeda_sync_agendamento?: JsonFilter<"TaxaMoedaSyncAgendamento">
+    ultima_execucao_taxa_moeda_sync_agendamento?: DateTimeNullableFilter<"TaxaMoedaSyncAgendamento"> | Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: DateTimeFilter<"TaxaMoedaSyncAgendamento"> | Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: DateTimeFilter<"TaxaMoedaSyncAgendamento"> | Date | string
+  }, "id_taxa_moeda_sync_agendamento">
+
+  export type TaxaMoedaSyncAgendamentoOrderByWithAggregationInput = {
+    id_taxa_moeda_sync_agendamento?: SortOrder
+    ativo_taxa_moeda_sync_agendamento?: SortOrder
+    frequencia_taxa_moeda_sync_agendamento?: SortOrder
+    hora_taxa_moeda_sync_agendamento?: SortOrder
+    minuto_taxa_moeda_sync_agendamento?: SortOrder
+    alertas_taxa_moeda_sync_agendamento?: SortOrder
+    ultima_execucao_taxa_moeda_sync_agendamento?: SortOrderInput | SortOrder
+    data_criacao_taxa_moeda_sync_agendamento?: SortOrder
+    data_atualizacao_taxa_moeda_sync_agendamento?: SortOrder
+    _count?: TaxaMoedaSyncAgendamentoCountOrderByAggregateInput
+    _avg?: TaxaMoedaSyncAgendamentoAvgOrderByAggregateInput
+    _max?: TaxaMoedaSyncAgendamentoMaxOrderByAggregateInput
+    _min?: TaxaMoedaSyncAgendamentoMinOrderByAggregateInput
+    _sum?: TaxaMoedaSyncAgendamentoSumOrderByAggregateInput
+  }
+
+  export type TaxaMoedaSyncAgendamentoScalarWhereWithAggregatesInput = {
+    AND?: TaxaMoedaSyncAgendamentoScalarWhereWithAggregatesInput | TaxaMoedaSyncAgendamentoScalarWhereWithAggregatesInput[]
+    OR?: TaxaMoedaSyncAgendamentoScalarWhereWithAggregatesInput[]
+    NOT?: TaxaMoedaSyncAgendamentoScalarWhereWithAggregatesInput | TaxaMoedaSyncAgendamentoScalarWhereWithAggregatesInput[]
+    id_taxa_moeda_sync_agendamento?: StringWithAggregatesFilter<"TaxaMoedaSyncAgendamento"> | string
+    ativo_taxa_moeda_sync_agendamento?: BoolWithAggregatesFilter<"TaxaMoedaSyncAgendamento"> | boolean
+    frequencia_taxa_moeda_sync_agendamento?: StringWithAggregatesFilter<"TaxaMoedaSyncAgendamento"> | string
+    hora_taxa_moeda_sync_agendamento?: IntWithAggregatesFilter<"TaxaMoedaSyncAgendamento"> | number
+    minuto_taxa_moeda_sync_agendamento?: IntWithAggregatesFilter<"TaxaMoedaSyncAgendamento"> | number
+    alertas_taxa_moeda_sync_agendamento?: JsonWithAggregatesFilter<"TaxaMoedaSyncAgendamento">
+    ultima_execucao_taxa_moeda_sync_agendamento?: DateTimeNullableWithAggregatesFilter<"TaxaMoedaSyncAgendamento"> | Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: DateTimeWithAggregatesFilter<"TaxaMoedaSyncAgendamento"> | Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: DateTimeWithAggregatesFilter<"TaxaMoedaSyncAgendamento"> | Date | string
   }
 
   export type TesteWhereInput = {
@@ -39736,6 +40871,90 @@ export namespace Prisma {
     data_atualizacao_previsao_taxa_futura_moeda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TaxaMoedaSyncAgendamentoCreateInput = {
+    id_taxa_moeda_sync_agendamento: string
+    ativo_taxa_moeda_sync_agendamento?: boolean
+    frequencia_taxa_moeda_sync_agendamento?: string
+    hora_taxa_moeda_sync_agendamento?: number
+    minuto_taxa_moeda_sync_agendamento?: number
+    alertas_taxa_moeda_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_taxa_moeda_sync_agendamento?: Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: Date | string
+  }
+
+  export type TaxaMoedaSyncAgendamentoUncheckedCreateInput = {
+    id_taxa_moeda_sync_agendamento: string
+    ativo_taxa_moeda_sync_agendamento?: boolean
+    frequencia_taxa_moeda_sync_agendamento?: string
+    hora_taxa_moeda_sync_agendamento?: number
+    minuto_taxa_moeda_sync_agendamento?: number
+    alertas_taxa_moeda_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_taxa_moeda_sync_agendamento?: Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: Date | string
+  }
+
+  export type TaxaMoedaSyncAgendamentoUpdateInput = {
+    id_taxa_moeda_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    ativo_taxa_moeda_sync_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_taxa_moeda_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    hora_taxa_moeda_sync_agendamento?: IntFieldUpdateOperationsInput | number
+    minuto_taxa_moeda_sync_agendamento?: IntFieldUpdateOperationsInput | number
+    alertas_taxa_moeda_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_taxa_moeda_sync_agendamento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaMoedaSyncAgendamentoUncheckedUpdateInput = {
+    id_taxa_moeda_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    ativo_taxa_moeda_sync_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_taxa_moeda_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    hora_taxa_moeda_sync_agendamento?: IntFieldUpdateOperationsInput | number
+    minuto_taxa_moeda_sync_agendamento?: IntFieldUpdateOperationsInput | number
+    alertas_taxa_moeda_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_taxa_moeda_sync_agendamento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaMoedaSyncAgendamentoCreateManyInput = {
+    id_taxa_moeda_sync_agendamento: string
+    ativo_taxa_moeda_sync_agendamento?: boolean
+    frequencia_taxa_moeda_sync_agendamento?: string
+    hora_taxa_moeda_sync_agendamento?: number
+    minuto_taxa_moeda_sync_agendamento?: number
+    alertas_taxa_moeda_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_taxa_moeda_sync_agendamento?: Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: Date | string
+  }
+
+  export type TaxaMoedaSyncAgendamentoUpdateManyMutationInput = {
+    id_taxa_moeda_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    ativo_taxa_moeda_sync_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_taxa_moeda_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    hora_taxa_moeda_sync_agendamento?: IntFieldUpdateOperationsInput | number
+    minuto_taxa_moeda_sync_agendamento?: IntFieldUpdateOperationsInput | number
+    alertas_taxa_moeda_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_taxa_moeda_sync_agendamento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaMoedaSyncAgendamentoUncheckedUpdateManyInput = {
+    id_taxa_moeda_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    ativo_taxa_moeda_sync_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_taxa_moeda_sync_agendamento?: StringFieldUpdateOperationsInput | string
+    hora_taxa_moeda_sync_agendamento?: IntFieldUpdateOperationsInput | number
+    minuto_taxa_moeda_sync_agendamento?: IntFieldUpdateOperationsInput | number
+    alertas_taxa_moeda_sync_agendamento?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_taxa_moeda_sync_agendamento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_taxa_moeda_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_taxa_moeda_sync_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TesteCreateInput = {
     id_teste?: string
     id_organizacao?: string
@@ -42610,6 +43829,50 @@ export namespace Prisma {
     valor_medio_previsao_taxa_futura_moeda?: SortOrder
     valor_minimo_previsao_taxa_futura_moeda?: SortOrder
     valor_maximo_previsao_taxa_futura_moeda?: SortOrder
+  }
+
+  export type TaxaMoedaSyncAgendamentoCountOrderByAggregateInput = {
+    id_taxa_moeda_sync_agendamento?: SortOrder
+    ativo_taxa_moeda_sync_agendamento?: SortOrder
+    frequencia_taxa_moeda_sync_agendamento?: SortOrder
+    hora_taxa_moeda_sync_agendamento?: SortOrder
+    minuto_taxa_moeda_sync_agendamento?: SortOrder
+    alertas_taxa_moeda_sync_agendamento?: SortOrder
+    ultima_execucao_taxa_moeda_sync_agendamento?: SortOrder
+    data_criacao_taxa_moeda_sync_agendamento?: SortOrder
+    data_atualizacao_taxa_moeda_sync_agendamento?: SortOrder
+  }
+
+  export type TaxaMoedaSyncAgendamentoAvgOrderByAggregateInput = {
+    hora_taxa_moeda_sync_agendamento?: SortOrder
+    minuto_taxa_moeda_sync_agendamento?: SortOrder
+  }
+
+  export type TaxaMoedaSyncAgendamentoMaxOrderByAggregateInput = {
+    id_taxa_moeda_sync_agendamento?: SortOrder
+    ativo_taxa_moeda_sync_agendamento?: SortOrder
+    frequencia_taxa_moeda_sync_agendamento?: SortOrder
+    hora_taxa_moeda_sync_agendamento?: SortOrder
+    minuto_taxa_moeda_sync_agendamento?: SortOrder
+    ultima_execucao_taxa_moeda_sync_agendamento?: SortOrder
+    data_criacao_taxa_moeda_sync_agendamento?: SortOrder
+    data_atualizacao_taxa_moeda_sync_agendamento?: SortOrder
+  }
+
+  export type TaxaMoedaSyncAgendamentoMinOrderByAggregateInput = {
+    id_taxa_moeda_sync_agendamento?: SortOrder
+    ativo_taxa_moeda_sync_agendamento?: SortOrder
+    frequencia_taxa_moeda_sync_agendamento?: SortOrder
+    hora_taxa_moeda_sync_agendamento?: SortOrder
+    minuto_taxa_moeda_sync_agendamento?: SortOrder
+    ultima_execucao_taxa_moeda_sync_agendamento?: SortOrder
+    data_criacao_taxa_moeda_sync_agendamento?: SortOrder
+    data_atualizacao_taxa_moeda_sync_agendamento?: SortOrder
+  }
+
+  export type TaxaMoedaSyncAgendamentoSumOrderByAggregateInput = {
+    hora_taxa_moeda_sync_agendamento?: SortOrder
+    minuto_taxa_moeda_sync_agendamento?: SortOrder
   }
 
   export type TesteAgendamentoNullableRelationFilter = {
@@ -50542,6 +51805,10 @@ export namespace Prisma {
      * @deprecated Use PrevisaoTaxaFuturaMoedaDefaultArgs instead
      */
     export type PrevisaoTaxaFuturaMoedaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PrevisaoTaxaFuturaMoedaDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TaxaMoedaSyncAgendamentoDefaultArgs instead
+     */
+    export type TaxaMoedaSyncAgendamentoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TaxaMoedaSyncAgendamentoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use TesteDefaultArgs instead
      */

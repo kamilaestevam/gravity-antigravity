@@ -26,6 +26,7 @@ import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
+import { registrarExecucaoAgendamentoTaxaMoeda } from '../lib/taxas-moeda-agendamento-store.js'
 
 export const previsaoTaxaFuturaMoedaRouter = Router()
 
@@ -79,6 +80,7 @@ export interface PayloadFocusItem {
   Minimo: number
   Maximo: number
   numeroRespondentes: number
+  baseCalculo?: number         // 0 = agregacao geral · 1 = Top 5
 }
 
 // ----------------------------------------------------------------------------
@@ -87,22 +89,20 @@ export interface PayloadFocusItem {
 
 export async function buscarFocusUSD(meses: number = 12): Promise<PayloadFocusItem[]> {
   // ATENCAO: endpoint correto e "ExpectativaMercadoMensais" (singular, sem "s").
-  // O nome popular do produto BACEN e "Expectativas de Mercado" (plural), mas o
-  // EntitySet OData e singular. Confirmado via $metadata em 2026-05-23.
+  // Olinda (2026-06): $filter e $orderby neste EntitySet retornam HTTP 400 —
+  // buscamos lote maior e filtramos/ordenamos no servidor Gravity.
   const url = `${BACEN_FOCUS_URL}/ExpectativaMercadoMensais`
   const params = {
-    // Sobreamostragem: cada DataReferencia tem varias projecoes (datas diferentes)
-    $top: meses * 10,
-    // baseCalculo=0 e a agregacao geral (todas as instituicoes respondentes).
-    // baseCalculo=1 e a base "Top 5". Sem o filtro, ambas chegam e o dedup
-    // escolhe arbitrariamente — fixamos em 0 para consistencia.
-    $filter: `Indicador eq 'Câmbio' and baseCalculo eq 0`,
-    $orderby: 'Data desc',
+    $top: Math.max(meses * 40, 500),
     $format: 'json',
   }
 
   const { data } = await axios.get(url, { params, timeout: 15_000 })
-  const items: PayloadFocusItem[] = data?.value ?? []
+  const bruto: PayloadFocusItem[] = data?.value ?? []
+
+  const items = bruto.filter(
+    item => item.Indicador === 'Câmbio' && item.baseCalculo === 0,
+  )
 
   // Deduplicar: pegar so a projecao MAIS RECENTE (maior Data) por DataReferencia
   const porMesAlvo = new Map<string, PayloadFocusItem>()
@@ -276,6 +276,7 @@ previsaoTaxaFuturaMoedaRouter.post(
           await persistirPrevisao('USD', item)
         }
         resultados.push({ moeda: 'USD', status: 'ok', total: items.length })
+        await registrarExecucaoAgendamentoTaxaMoeda('focus')
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro desconhecido'

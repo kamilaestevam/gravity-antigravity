@@ -345,12 +345,29 @@ GET  /api/v1/taxas-moeda/historico  [público]
 Frontend (telas e hook do Pedido)
 ```
 
+### Agendamento automático (Admin › Taxas de Moeda)
+
+Configuração dos crons PTAX/Focus **não** fica em `cambio` nem em `previsao_taxa_futura_moeda` — tabela dedicada `taxa_moeda_sync_agendamento` (2 registros: `ptax`, `focus`).
+
+```
+Admin UI (ModalTaxasMoedaAgendamento)
+    │ GET/PUT /api/v1/admin/taxas-moeda/agendamento/:tipo
+    ▼
+taxa_moeda_sync_agendamento (Configurador DB)
+    │ lidos pelos workers a cada 30s
+    ├─ taxasMoedaSyncWorker → POST sync PTAX → prisma.cambio
+    └─ previsao-taxa-futura-moeda-sync-worker → sync Focus → prisma.previsaoTaxaFuturaMoeda
+```
+
+> Doc: [`documentos-tecnicos/produtos-gravity/configurador/TAXAS-MOEDA-AGENDAMENTO-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/configurador/TAXAS-MOEDA-AGENDAMENTO-TECNICO.md)
+
 ### Anti-padrões — NÃO fazer
 
 - ❌ Frontend chamar Camada 1 diretamente (path `/api/v1/internal/*` é S2S; vai retornar 403)
 - ❌ Configurador rotear `/api/v1/taxas-moeda` direto pra Camada 1 (shapes incompatíveis: Camada 1 retorna `{moeda, compra, venda}` por chamada; frontend espera `{por_moeda: {...}}` agregado)
 - ❌ Apagar Camada 2 e fazer frontend chamar Camada 1 (perde a feature de "todos boletins persistidos do dia")
 - ❌ Reusar mesmo path entre as duas camadas (foi corrigido em 2026-05-08 — antes ambas usavam `/api/v1/taxas-moeda`)
+- ❌ Colocar config de agendamento PTAX/Focus como coluna em `cambio` ou `previsao_taxa_futura_moeda` (usar `taxa_moeda_sync_agendamento`)
 
 ---
 

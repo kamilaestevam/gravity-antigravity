@@ -1128,6 +1128,40 @@ export const adminAgendamentosTesteApi = {
   },
 }
 
+// ─── Admin: Agendamento Taxas de Moeda (PTAX / Focus) ───────────────────────
+
+export type TipoAgendamentoTaxaMoedaApi = 'ptax' | 'focus'
+
+export interface TaxaMoedaAgendamentoConfigApi {
+  tipo: TipoAgendamentoTaxaMoedaApi
+  ativo: boolean
+  frequencia: 'Manual' | 'Diario' | 'Semanal'
+  hora: number
+  minuto: number
+  alertas: Array<{ id: string; nome: string; contato: string; condicao: string; canal: string }>
+  ultima_execucao: string | null
+  atualizado_em: string
+  horarios_ptax_brt?: number[]
+}
+
+export const adminTaxasMoedaAgendamentoApi = {
+  async obter(tipo: TipoAgendamentoTaxaMoedaApi) {
+    return request<TaxaMoedaAgendamentoConfigApi>(`/v1/admin/taxas-moeda/agendamento/${tipo}`)
+  },
+  async salvar(tipo: TipoAgendamentoTaxaMoedaApi, data: {
+    ativo: boolean
+    frequencia: 'Manual' | 'Diario' | 'Semanal'
+    hora: number
+    minuto: number
+    alertas: TaxaMoedaAgendamentoConfigApi['alertas']
+  }) {
+    return request<TaxaMoedaAgendamentoConfigApi>(`/v1/admin/taxas-moeda/agendamento/${tipo}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  },
+}
+
 // ─── Admin: Planos de Teste (model TestePlano) ──────────────────────────────
 
 export interface CasoPlanoTesteApi {

@@ -226,6 +226,23 @@ Painel interno para disparar planos do catálogo (`test-plans-registry.json`) em
 
 ---
 
+## Admin › Taxas de Moeda — Agendamento PTAX / Focus
+
+Configuração dos crons de sync BCB (PTAX → `cambio`, Focus → `previsao_taxa_futura_moeda`), espelhando o modal de Admin › Testes.
+
+| Recurso | Detalhe |
+|:---|:---|
+| **Página** | `TaxasMoeda.tsx` + `ModalTaxasMoedaAgendamento.tsx` (abas Cotação Atual / Futura) |
+| **API** | `GET/PUT /api/v1/admin/taxas-moeda/agendamento/:tipo` (`ptax` \| `focus`) |
+| **Auth** | GET/PUT: `requireGravityAdmin` · PUT: somente `SUPER_ADMIN` |
+| **Persistência** | Tabela `taxa_moeda_sync_agendamento` (2 linhas fixas) — **não** coluna em `cambio` / `previsao_*` |
+| **Workers** | `taxasMoedaSyncWorker.ts`, `previsao-taxa-futura-moeda-sync-worker.ts` |
+| **Schema Zod bilateral** | `taxaMoedaAgendamentoResponseSchema` (FE + store) |
+
+> Doc técnica: [`TAXAS-MOEDA-AGENDAMENTO-TECNICO.md`](../../../documentos-tecnicos/produtos-gravity/configurador/TAXAS-MOEDA-AGENDAMENTO-TECNICO.md)
+
+---
+
 ## Tela 9 — Monitor de APIs (Tempo Real)
 
 Monitora dois tipos:

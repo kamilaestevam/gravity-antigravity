@@ -1,0 +1,20 @@
+{
+  "ptax": {
+    "ativo": true,
+    "frequencia": "Diario",
+    "hora": 10,
+    "minuto": 3,
+    "alertas": [],
+    "ultima_execucao": null,
+    "atualizado_em": "2026-06-15T17:24:35.856Z"
+  },
+  "focus": {
+    "ativo": true,
+    "frequencia": "Diario",
+    "hora": 22,
+    "minuto": 0,
+    "alertas": [],
+    "ultima_execucao": null,
+    "atualizado_em": "2026-06-15T18:31:18.293Z"
+  }
+}

@@ -21,7 +21,11 @@ import {
 } from '../shared/pagina-carregando-bid-frete-internacional'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
+import {
+  TabelaVirtualGlobal,
+  FiltroChips,
+  FiltroPopoverColuna,
+} from '@nucleo/tabela-virtual-global'
 import type { GTPreferencias, GTColuna, GTAbaTipo, GTVirtualHandle } from '@nucleo/tabela-virtual-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
@@ -53,6 +57,7 @@ import {
   ClipboardText,
   Gauge,
   Target,
+  X,
 } from '@phosphor-icons/react'
 
 import {
@@ -107,9 +112,9 @@ import {
 } from '../../../shared/listaPainelConfigSchema'
 import { useCadastrosListaBidFrete } from '../shared/useCadastrosListaBidFrete'
 import {
-  buildColunasPaiLista,
+  buildColunasPaiListaDeColunasCotacao,
   buildColunasCotacoes,
-  buildMapaColunasFilho,
+  buildMapaColunasFilhoDeColunas,
   CAMPOS_EDITAVEIS_LISTA,
   CHAVES_COLUNAS_COTACAO,
   CHAVES_COLUNAS_PADRAO_VISIVEIS,
@@ -139,6 +144,23 @@ import {
   lerStatusCotacaoConfigBidFreteInternacional,
   type StatusCotacaoConfigBidFreteInternacional,
 } from '../shared/status-config-bid-frete-internacional'
+import type { FiltroAtivo, FiltrosAtivosMap } from '../components/lista/filtros'
+import {
+  calcularValoresUnicosPorCampoBidFrete,
+  cotacaoPassaFiltrosColuna,
+  detectarTipoColunaBidFrete,
+  getLabelsFiltroInversoBidFrete,
+  mapColunaUsuarioBidFreteParaGTColuna,
+  type ColunaUsuarioBidFreteLista,
+} from '../shared/filtros-coluna-lista-bid-frete-internacional'
+import {
+  EVENTO_COLUNAS_PERSONALIZADAS_BID_FRETE_ATUALIZADO,
+  lerColunasPersonalizadasListaBidFrete,
+} from '../shared/colunas-personalizadas-lista-bid-frete-internacional'
+import {
+  enriquecerCotacoesComColunasUsuario,
+  salvarValorColunaUsuarioBidFrete,
+} from '../shared/valores-colunas-usuario-bid-frete-internacional'
 
 /** Gera abas dinâmicas a partir da lista de status config */
 function gerarAbasDinamicas(
@@ -486,21 +508,26 @@ export default function Cotacoes() {
       const erros: string[] = []
 
       if (resTodas.status === 'fulfilled') {
-        setCotacoes(resTodas.value.cotacoes)
+        setCotacoes(enriquecerCotacoesComColunasUsuario(resTodas.value.cotacoes))
       } else {
         setCotacoes([])
         erros.push(resTodas.reason instanceof Error ? resTodas.reason.message : 'Falha ao carregar cotações')
       }
 
       if (resAvulsas.status === 'fulfilled') {
-        setCotacoesAvulsas(resAvulsas.value.cotacoes)
+        setCotacoesAvulsas(enriquecerCotacoesComColunasUsuario(resAvulsas.value.cotacoes))
       } else {
         setCotacoesAvulsas([])
         erros.push(resAvulsas.reason instanceof Error ? resAvulsas.reason.message : 'Falha ao carregar cotações avulsas')
       }
 
       if (resBids.status === 'fulfilled') {
-        setBidsFreteInternacional(resBids.value)
+        setBidsFreteInternacional(
+          resBids.value.map(bid => ({
+            ...bid,
+            cotacoes: enriquecerCotacoesComColunasUsuario(bid.cotacoes ?? []),
+          })),
+        )
       } else {
         setBidsFreteInternacional([])
         erros.push(resBids.reason instanceof Error ? resBids.reason.message : 'Falha ao carregar BIDs (camada 2)')
@@ -590,7 +617,41 @@ export default function Cotacoes() {
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(undefined)
   const sortCampoLista = 'numero_cotacao_bid_frete_internacional'
   const sortDirLista = 'desc' as const
-  const filtrosAtivosLista = useMemo(() => ({}), [])
+  const [filtrosAtivosLista, setFiltrosAtivosLista] = useState<FiltrosAtivosMap>({})
+  const filtrosAtivosKeys = useMemo(
+    () => new Set(Object.keys(filtrosAtivosLista)),
+    [filtrosAtivosLista],
+  )
+  const [popoverFiltroAberto, setPopoverFiltroAberto] = useState<string | null>(null)
+  const [popoverFiltroPos, setPopoverFiltroPos] = useState({ top: 0, left: 0 })
+  const [colunasPersonalizadas, setColunasPersonalizadas] = useState<ColunaUsuarioBidFreteLista[]>(
+    () => lerColunasPersonalizadasListaBidFrete(),
+  )
+
+  useEffect(() => {
+    const sync = () => setColunasPersonalizadas(lerColunasPersonalizadasListaBidFrete())
+    window.addEventListener('focus', sync)
+    window.addEventListener(EVENTO_COLUNAS_PERSONALIZADAS_BID_FRETE_ATUALIZADO, sync)
+    return () => {
+      window.removeEventListener('focus', sync)
+      window.removeEventListener(EVENTO_COLUNAS_PERSONALIZADAS_BID_FRETE_ATUALIZADO, sync)
+    }
+  }, [])
+
+  useEffect(() => {
+    const chavesNovas = colunasPersonalizadas
+      .filter(c => c.escopo === 'pedido' || c.escopo === 'ambos' || !c.escopo)
+      .map(c => c.chave)
+    if (!chavesNovas.length) return
+    setPreferencias(prev => {
+      if (!prev?.colunas_visiveis?.length) return prev
+      const visiveis = prev.colunas_visiveis
+      const set = new Set(visiveis)
+      const novas = chavesNovas.filter(k => !set.has(k))
+      if (!novas.length) return prev
+      return { ...prev, colunas_visiveis: [...visiveis, ...novas] }
+    })
+  }, [colunasPersonalizadas])
 
   const {
     paineis: paineisLista,
@@ -631,7 +692,7 @@ export default function Cotacoes() {
     setSortCampo: () => {},
     setSortDir: () => {},
     setBusca,
-    setFiltrosAtivos: () => {},
+    setFiltrosAtivos: setFiltrosAtivosLista,
     setCardsTopoDoPainel: aplicarCardsTopoDoPainel,
     onPainelHidratado: (id: string) => {
       painelListaAplicadoRef.current = id
@@ -785,18 +846,128 @@ export default function Cotacoes() {
     navigate(`/bid-frete/cotacoes/${item.id_cotacao_bid_frete_internacional}`)
   }, [navigate])
 
-  const colunasTabela = useMemo(
-    () => buildColunasPaiLista(t, opcoesColunasLista, abrirDetalheCotacao),
-    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
-  )
-  const mapaColunasFilho = useMemo(
-    () => buildMapaColunasFilho(t, opcoesColunasLista, abrirDetalheCotacao),
-    [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
-  )
-  const colunasFilhoExport = useMemo(
+  const colunasCotacaoBase = useMemo(
     () => buildColunasCotacoes(t, opcoesColunasLista, abrirDetalheCotacao),
     [t, opcoesColunasLista, abrirDetalheCotacao, casasVersion, formatoDataVersion],
   )
+
+  const colunasManuaisKeys = useMemo(
+    () => new Set(colunasPersonalizadas.map(c => c.chave)),
+    [colunasPersonalizadas],
+  )
+
+  const colunasPersonalizadasPorChave = useMemo(
+    () => new Map(colunasPersonalizadas.map(c => [c.chave, c])),
+    [colunasPersonalizadas],
+  )
+
+  const cotacoesParaFiltroColuna = useMemo(() => {
+    const ids = new Set<string>()
+    const out: Cotacao[] = []
+    const incluir = (c: Cotacao) => {
+      const id = c.id_cotacao_bid_frete_internacional
+      if (ids.has(id)) return
+      ids.add(id)
+      out.push(c)
+    }
+    cotacoes.forEach(incluir)
+    cotacoesAvulsas.forEach(incluir)
+    for (const bid of bidsFreteInternacional) {
+      (bid.cotacoes ?? []).forEach(incluir)
+    }
+    return out
+  }, [cotacoes, cotacoesAvulsas, bidsFreteInternacional])
+
+  const colunasCotacaoComUsuario = useMemo(() => {
+    const custom = colunasPersonalizadas
+      .filter(c => c.escopo === 'pedido' || c.escopo === 'ambos' || !c.escopo)
+      .map(mapColunaUsuarioBidFreteParaGTColuna)
+    const baseKeys = new Set(colunasCotacaoBase.map(c => String(c.key)))
+    const novas = custom.filter(c => !baseKeys.has(String(c.key)))
+    return [...colunasCotacaoBase, ...novas]
+  }, [colunasCotacaoBase, colunasPersonalizadas])
+
+  const colunasTabela = useMemo(
+    () => buildColunasPaiListaDeColunasCotacao(colunasCotacaoComUsuario),
+    [colunasCotacaoComUsuario],
+  )
+  const mapaColunasFilho = useMemo(
+    () => buildMapaColunasFilhoDeColunas(colunasCotacaoComUsuario),
+    [colunasCotacaoComUsuario],
+  )
+  const colunasFilhoExport = colunasCotacaoComUsuario
+
+  const colunasSeletorLista = useMemo(
+    () => colunasCotacaoComUsuario.map(c => ({
+      key: String(c.key),
+      label: c.label,
+      naoOcultavel: c.naoOcultavel,
+      manual: colunasManuaisKeys.has(String(c.key)),
+    })),
+    [colunasCotacaoComUsuario, colunasManuaisKeys],
+  )
+
+  const colunasPorCampoMap = useMemo(() => {
+    const map = new Map<string, GTColuna<Cotacao>>()
+    for (const col of colunasCotacaoComUsuario) {
+      if (col.key) map.set(String(col.key), col)
+    }
+    return map
+  }, [colunasCotacaoComUsuario])
+
+  const labelsFiltroCtx = useMemo(
+    () => ({ statusOpcoes: opcoesColunasLista.statusOpcoes }),
+    [opcoesColunasLista.statusOpcoes],
+  )
+
+  const valoresUnicosPorCampo = useMemo(
+    () => calcularValoresUnicosPorCampoBidFrete(
+      cotacoesParaFiltroColuna,
+      colunasCotacaoComUsuario,
+      opcoesColunasLista,
+      labelsFiltroCtx,
+      colunasPersonalizadasPorChave,
+    ),
+    [
+      cotacoesParaFiltroColuna,
+      colunasCotacaoComUsuario,
+      opcoesColunasLista,
+      labelsFiltroCtx,
+      colunasPersonalizadasPorChave,
+    ],
+  )
+
+  const handleAplicarFiltroColuna = useCallback((campo: string, filtro: FiltroAtivo) => {
+    setFiltrosAtivosLista(prev => ({ ...prev, [campo]: filtro }))
+  }, [])
+
+  const handleLimparFiltroColuna = useCallback((campo: string) => {
+    setFiltrosAtivosLista(prev => {
+      const novo = { ...prev }
+      delete novo[campo]
+      return novo
+    })
+  }, [])
+
+  const handleLimparTodosFiltrosColuna = useCallback(() => {
+    setFiltrosAtivosLista({})
+    setBusca('')
+  }, [])
+
+  const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
+    setPopoverFiltroAberto(prev => prev === key ? null : key)
+    const rect = anchor.getBoundingClientRect()
+    const page = anchor.closest('.bf-lista-page') as HTMLElement | null
+    const offset = page ? page.getBoundingClientRect() : { top: 0, left: 0 }
+    const maxW = page ? page.clientWidth : window.innerWidth
+    const adjustedLeft = rect.left - offset.left
+    const left = Math.max(0, Math.min(adjustedLeft, maxW - 292))
+    setPopoverFiltroPos({ top: rect.bottom + 4 - offset.top, left })
+  }, [])
+
+  const handleOrdenarFiltroColuna = useCallback((_campo: string, _dir: 'asc' | 'desc') => {
+    /* ordenação fixa na lista */
+  }, [])
 
   const resolverCotacaoPorId = useCallback((id: string): Cotacao | null => {
     const avulsa = cotacoesAvulsas.find(c => c.id_cotacao_bid_frete_internacional === id)
@@ -821,6 +992,27 @@ export default function Cotacoes() {
     const atual = resolverCotacaoPorId(id)
     if (!atual) throw new Error('Cotação não encontrada')
 
+    const colunaManual = colunasPersonalizadasPorChave.get(campo)
+    if (colunaManual) {
+      const valorStr = String(valor ?? '')
+      salvarValorColunaUsuarioBidFrete(id, colunaManual.id, valorStr)
+      const cotacaoSalva: Cotacao = {
+        ...atual,
+        _colunas_usuario: {
+          ...atual._colunas_usuario,
+          [colunaManual.id]: valorStr,
+        },
+      }
+      patchCotacaoNoEstadoListaBidFrete(
+        cotacaoSalva,
+        setCotacoes,
+        setCotacoesAvulsas,
+        setBidsFreteInternacional,
+      )
+      publicarCotacaoAtualizadaBidFrete(cotacaoSalva)
+      return cotacaoSalva
+    }
+
     const cotacaoSalva = await salvarCampoCotacaoBidFreteInternacional({
       id,
       campo,
@@ -838,7 +1030,7 @@ export default function Cotacoes() {
     )
     publicarCotacaoAtualizadaBidFrete(cotacaoSalva)
     return cotacaoSalva
-  }, [resolverCotacaoPorId, portosCadastro, aeroportosCadastro])
+  }, [resolverCotacaoPorId, portosCadastro, aeroportosCadastro, colunasPersonalizadasPorChave])
 
   useEffect(() => {
     return inscreverCotacaoAtualizadaBidFrete((cotacao) => {
@@ -877,15 +1069,35 @@ export default function Cotacoes() {
     }
     if (busca.trim()) {
       const term = busca.toLowerCase()
-      return (
-        c.numero_cotacao_bid_frete_internacional.toLowerCase().includes(term) ||
-        (c.referencia_interna_cotacao_bid_frete_internacional ?? '').toLowerCase().includes(term) ||
-        c.origem_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term) ||
-        c.destino_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term)
+      if (
+        !c.numero_cotacao_bid_frete_internacional.toLowerCase().includes(term) &&
+        !(c.referencia_interna_cotacao_bid_frete_internacional ?? '').toLowerCase().includes(term) &&
+        !c.origem_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term) &&
+        !c.destino_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term)
+      ) {
+        return false
+      }
+    }
+    if (Object.keys(filtrosAtivosLista).length > 0) {
+      return cotacaoPassaFiltrosColuna(
+        c,
+        filtrosAtivosLista,
+        colunasPorCampoMap,
+        opcoesColunasLista,
+        labelsFiltroCtx,
+        colunasPersonalizadasPorChave,
       )
     }
     return true
-  }, [filtroTab, busca])
+  }, [
+    filtroTab,
+    busca,
+    filtrosAtivosLista,
+    colunasPorCampoMap,
+    opcoesColunasLista,
+    labelsFiltroCtx,
+    colunasPersonalizadasPorChave,
+  ])
 
   const cotacoesFiltradas = useMemo(
     () => cotacoes.filter(filtrarCotacaoItem),
@@ -1019,7 +1231,7 @@ export default function Cotacoes() {
   }, [])
 
   const acoesBarra = useMemo(() => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
       {/* Expandir/Recolher todos — mesmo padrão da Lista de Pedidos */}
       <TooltipGlobal
         descricao={temExpandido
@@ -1049,6 +1261,31 @@ export default function Cotacoes() {
             : <CaretDoubleDown size={14} weight="bold" />}
         </button>
       </TooltipGlobal>
+
+      {(Object.keys(filtrosAtivosLista).length > 0 || busca.trim()) && (
+        <FiltroChips
+          colunas={colunasCotacaoComUsuario}
+          filtrosAtivos={filtrosAtivosLista}
+          onLimparFiltro={handleLimparFiltroColuna}
+          onLimparTodos={handleLimparTodosFiltrosColuna}
+          onEditarFiltro={onFiltroColuna}
+          thresholdConsolidar={2}
+          prefixo={busca.trim() ? (
+            <span className="fc-chip">
+              <span className="fc-chip-label">{t('bidfrete.lista.chip_busca', { defaultValue: 'Busca' })}:</span>
+              <span className="fc-chip-valor">{busca}</span>
+              <button
+                type="button"
+                className="fc-chip-remove"
+                onClick={() => setBusca('')}
+                aria-label={t('bidfrete.lista.remover_busca', { defaultValue: 'Remover busca' })}
+              >
+                <X size={10} weight="bold" />
+              </button>
+            </span>
+          ) : null}
+        />
+      )}
 
     <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
       <BotaoGlobal
@@ -1463,6 +1700,8 @@ export default function Cotacoes() {
     novoDropdownAberto, novoSubmenu, novoNomePainelLista, handleCriarPainelLista,
     navigate, t, temExpandido, totalSelecionados, duplicando, handleDuplicarSelecionados,
     bidsSelecionados.length, cotacoesSelecionadasParaAcao.length, linhasPaiFiltradas,
+    filtrosAtivosLista, busca, colunasCotacaoComUsuario, handleLimparFiltroColuna,
+    handleLimparTodosFiltrosColuna, onFiltroColuna,
   ])
 
   const exportarCSVCotacoes = useCallback((formato: 'excel' | 'csv') => {
@@ -1973,9 +2212,29 @@ export default function Cotacoes() {
               </button>
             </div>
           )}
+          {popoverFiltroAberto && (() => {
+            const col = colunasCotacaoComUsuario.find(c => c.key === popoverFiltroAberto)
+            if (!col?.key) return null
+            return (
+              <FiltroPopoverColuna
+                campo={String(col.key)}
+                label={col.label}
+                tipo={detectarTipoColunaBidFrete(col)}
+                filtroAtual={filtrosAtivosLista[String(col.key)]}
+                valoresUnicos={valoresUnicosPorCampo[String(col.key)] ?? []}
+                onAplicar={handleAplicarFiltroColuna}
+                onLimpar={handleLimparFiltroColuna}
+                onOrdenar={handleOrdenarFiltroColuna}
+                onFechar={() => setPopoverFiltroAberto(null)}
+                anchorPos={popoverFiltroPos}
+                labelInverso={getLabelsFiltroInversoBidFrete(String(col.key), labelsFiltroCtx)}
+              />
+            )
+          })()}
           <TabelaVirtualGlobal<LinhaPaiLista, LinhaFilhaLista>
             dados={linhasPaiPagina}
             colunas={colunasTabela}
+            colunasSeletor={colunasSeletorLista}
             itemId={idLinhaPaiLista}
             mapaColunasFilho={mapaColunasFilho}
             onCarregarFilhos={handleCarregarFilhos}
@@ -2007,6 +2266,8 @@ export default function Cotacoes() {
             
             onBuscar={setBusca}
             modoLocalizar={true}
+            onFiltroColuna={onFiltroColuna}
+            filtrosAtivosKeys={filtrosAtivosKeys}
             placeholderBusca="Buscar por processo, referência, origem ou destino..."
             
             camposEditaveis={CAMPOS_EDITAVEIS_LISTA}
@@ -2025,7 +2286,13 @@ export default function Cotacoes() {
             
             emptyIcon={<Package size={40} weight="duotone" style={{ color: 'var(--text-muted)' }} />}
             emptyTitle={t('bidfrete.cotacoes.vazio')}
-            emptyDescription="Nenhuma cotação encontrada com os filtros selecionados."
+            emptyDescription={
+              busca.trim() || Object.keys(filtrosAtivosLista).length > 0
+                ? t('bidfrete.cotacoes.vazio_filtros', {
+                    defaultValue: 'Nenhuma cotação encontrada com os filtros selecionados.',
+                  })
+                : t('bidfrete.cotacoes.vazio_desc', { defaultValue: 'Nenhuma cotação encontrada.' })
+            }
             
             ariaLabel="Lista de Cotações"
           />

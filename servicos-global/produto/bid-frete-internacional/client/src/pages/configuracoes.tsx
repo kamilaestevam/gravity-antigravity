@@ -94,6 +94,10 @@ import {
   CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL,
   EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL,
 } from '../shared/status-config-bid-frete-internacional'
+import {
+  STORAGE_COLUNAS_PERSONALIZADAS_BID_FRETE,
+  publicarColunasPersonalizadasBidFreteAtualizadas,
+} from '../shared/colunas-personalizadas-lista-bid-frete-internacional'
 import './configuracoes.css'
 
 // ─── Tipos e Interfaces Locais ───────────────────────────────────────────────────
@@ -796,6 +800,9 @@ export default function Configuracoes() {
         window.dispatchEvent(
           new CustomEvent(EVENTO_STATUS_COTACAO_CONFIG_ATUALIZADO_BID_FRETE_INTERNACIONAL),
         )
+      }
+      if (storageKey === STORAGE_COLUNAS_PERSONALIZADAS_BID_FRETE) {
+        publicarColunasPersonalizadasBidFreteAtualizadas()
       }
       addNotification({ type: 'success', message: 'Configurações salvas com sucesso!' })
     }

@@ -980,23 +980,28 @@ function buildColunasCotacoesBase(
   ]
 }
 
+function garantirFiltravelColunaLista(col: GTColuna<Cotacao>): GTColuna<Cotacao> {
+  if (col.oculta) return col
+  return { ...col, filtravel: true }
+}
+
 export function buildColunasCotacoes(
   t: unknown,
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
   return buildColunasCotacoesBase(t, opcoes, onAbrirCotacao).map(col =>
-    aplicarConfigEdicaoColuna({ ...col, align: 'center' }, opcoes),
+    aplicarConfigEdicaoColuna(
+      garantirFiltravelColunaLista({ ...col, align: 'center' }),
+      opcoes,
+    ),
   )
 }
 
 /** Colunas da linha pai (cotação avulsa ou BID agrupado). */
-export function buildColunasPaiLista(
-  t: unknown,
-  opcoes: OpcoesColunasLista = {},
-  onAbrirCotacao?: (cotacao: Cotacao) => void,
+export function buildColunasPaiListaDeColunasCotacao(
+  colunasCotacao: GTColuna<Cotacao>[],
 ): GTColuna<LinhaPaiLista>[] {
-  const colunasCotacao = buildColunasCotacoes(t, opcoes, onAbrirCotacao)
   const tooltipBid =
     'Expanda o BID e edite cada cotação na linha filha.'
 
@@ -1036,6 +1041,17 @@ export function buildColunasPaiLista(
   }))
 }
 
+/** Colunas da linha pai (cotação avulsa ou BID agrupado). */
+export function buildColunasPaiLista(
+  t: unknown,
+  opcoes: OpcoesColunasLista = {},
+  onAbrirCotacao?: (cotacao: Cotacao) => void,
+): GTColuna<LinhaPaiLista>[] {
+  return buildColunasPaiListaDeColunasCotacao(
+    buildColunasCotacoes(t, opcoes, onAbrirCotacao),
+  )
+}
+
 function renderCelulaFilhoCotacao(
   col: GTColuna<Cotacao>,
   filha: Cotacao,
@@ -1048,12 +1064,9 @@ function renderCelulaFilhoCotacao(
   return String(val)
 }
 
-export function buildMapaColunasFilho(
-  t: unknown,
-  opcoes: OpcoesColunasLista = {},
-  onAbrirCotacao?: (cotacao: Cotacao) => void,
+export function buildMapaColunasFilhoDeColunas(
+  colunas: GTColuna<Cotacao>[],
 ): Record<string, GTMapaColunasFilho<LinhaFilhaLista>> {
-  const colunas = buildColunasCotacoes(t, opcoes, onAbrirCotacao)
   const mapa: Record<string, GTMapaColunasFilho<LinhaFilhaLista>> = {}
   for (const col of colunas) {
     if (!col.key) continue
@@ -1105,6 +1118,14 @@ export function buildMapaColunasFilho(
     }
   }
   return mapa
+}
+
+export function buildMapaColunasFilho(
+  t: unknown,
+  opcoes: OpcoesColunasLista = {},
+  onAbrirCotacao?: (cotacao: Cotacao) => void,
+): Record<string, GTMapaColunasFilho<LinhaFilhaLista>> {
+  return buildMapaColunasFilhoDeColunas(buildColunasCotacoes(t, opcoes, onAbrirCotacao))
 }
 
 const COLUNAS_COTACAO_BASE = buildColunasCotacoesBase(null)

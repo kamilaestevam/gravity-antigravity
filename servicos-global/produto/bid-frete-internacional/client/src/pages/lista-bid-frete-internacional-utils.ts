@@ -1,7 +1,7 @@
 /**
- * Utilitários da lista — hierarquia BID (pai) → cotações (filhas) | avulsa → propostas.
+ * Utilitários da lista — hierarquia BID (pai) → cotações (filhas).
  * BID = entidade bid_frete_internacional com N cotações vinculadas via id_bid.
- * Cotação avulsa = id_bid null; expandir mostra propostas.
+ * Cotação avulsa = id_bid null; linha plana sem expandir na lista.
  */
 
 import type { BidFreteInternacional, Cotacao, PropostaBidFreteInternacional, StatusBid, StatusCotacao } from '../shared/types'

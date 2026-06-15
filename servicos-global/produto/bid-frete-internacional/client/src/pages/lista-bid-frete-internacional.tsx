@@ -22,7 +22,13 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
-import type { GTPreferencias, GTColuna, GTAbaTipo, GTVirtualHandle } from '@nucleo/tabela-virtual-global'
+import type {
+  GTPreferencias,
+  GTColuna,
+  GTAbaTipo,
+  GTVirtualHandle,
+  GTConectorPaiContext,
+} from '@nucleo/tabela-virtual-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   FileText,
@@ -127,7 +133,6 @@ import {
   isLinhaBidGrupo,
   isLinhaProposta,
   cotacaoDaLinhaPai,
-  propostasFilhasDaCotacaoAvulsa,
   cotacaoPrestesAExpirar,
   linhaPaiPrestesAExpirar,
   type LinhaPaiLista,
@@ -938,7 +943,40 @@ export default function Cotacoes() {
 
   const handleCarregarFilhos = useCallback(async (pai: LinhaPaiLista): Promise<LinhaFilhaLista[]> => {
     if (isLinhaBidGrupo(pai)) return pai.cotacoes
-    return propostasFilhasDaCotacaoAvulsa(pai)
+    return []
+  }, [])
+
+  const renderConectorPai = useCallback((item: LinhaPaiLista, ctx: GTConectorPaiContext) => {
+    if (!isLinhaBidGrupo(item)) return null
+
+    if (ctx.carregando) {
+      return <span className="gtv-spinner" aria-label="Carregando filhos..." />
+    }
+
+    return (
+      <button
+        type="button"
+        className="gtv-chevron-btn"
+        aria-expanded={ctx.expandido}
+        aria-label={ctx.expandido ? 'Colapsar cotações do BID' : 'Expandir cotações do BID'}
+        onClick={e => {
+          e.stopPropagation()
+          ctx.onToggle()
+        }}
+      >
+        <span className={`gtv-chevron-icon${ctx.expandido ? ' gtv-chevron-icon--aberto' : ''}`}>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path
+              d="M4 2L8 6L4 10"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      </button>
+    )
   }, [])
 
   const handleReordenarCotacoes = useCallback((ids: string[]) => {
@@ -1009,8 +1047,15 @@ export default function Cotacoes() {
           type="button"
           className="bf-btn-expandir-todos"
           onClick={() => {
-            if (temExpandido) tabelaRef.current?.recolherTodos()
-            else void tabelaRef.current?.expandirTodos()
+            if (temExpandido) {
+              tabelaRef.current?.recolherTodos()
+              return
+            }
+            for (const linha of linhasPaiFiltradas) {
+              if (isLinhaBidGrupo(linha)) {
+                tabelaRef.current?.expandir(idLinhaPaiLista(linha))
+              }
+            }
           }}
           aria-label={temExpandido
             ? t('bidfrete.lista.recolher_todos', { defaultValue: 'Recolher todas as linhas' })
@@ -1350,7 +1395,7 @@ export default function Cotacoes() {
   ), [
     novoDropdownAberto, novoSubmenu, novoNomePainelLista, handleCriarPainelLista,
     navigate, t, temExpandido, totalSelecionados, duplicando, handleDuplicarSelecionados,
-    bidsSelecionados.length, cotacoesSelecionadasParaAcao.length,
+    bidsSelecionados.length, cotacoesSelecionadasParaAcao.length, linhasPaiFiltradas,
   ])
 
   const exportarCSVCotacoes = useCallback((formato: 'excel' | 'csv') => {
@@ -1867,6 +1912,7 @@ export default function Cotacoes() {
             itemId={idLinhaPaiLista}
             mapaColunasFilho={mapaColunasFilho}
             onCarregarFilhos={handleCarregarFilhos}
+            renderConectorPai={renderConectorPai}
             filhoId={idLinhaFilhaLista}
 
             imperativeRef={tabelaRef}

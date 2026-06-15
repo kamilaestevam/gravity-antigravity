@@ -48,6 +48,7 @@ export interface GTColuna<T = unknown> {
   labelColor?: string
   /** Tipo do dado — define o modo de filtro */
   tipo?: GTTipo
+  /** Alinhamento horizontal da célula e cabeçalho. Padrão: `center` quando omitido. */
   align?: GTAlign
   tooltipTitulo?: string
   /** Título do tooltip em células de linha filho (item), quando diferente do pedido/cabeçalho. */

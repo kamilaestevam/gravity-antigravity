@@ -93,6 +93,14 @@ describe('CHAVES_COLUNAS — visibilidade padrão', () => {
     expect(colRef?.label).toBe('Referência Interna')
   })
 
+  it('buildColunasCotacoes centraliza align em todas as colunas (TASK-000268)', () => {
+    const colunas = buildColunasCotacoes(null)
+    expect(colunas.length).toBeGreaterThan(0)
+    for (const col of colunas) {
+      expect(col.align, `coluna ${col.key}`).toBe('center')
+    }
+  })
+
   it('colunas rota destino incluem pais e endereco apos destino nome', () => {
     const colunas = buildColunasCotacoes(null)
     const keys = colunas.map(c => c.key)

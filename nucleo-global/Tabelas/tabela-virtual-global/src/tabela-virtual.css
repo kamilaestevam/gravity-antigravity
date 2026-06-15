@@ -665,6 +665,16 @@
 
 .gtv-th--center { justify-content: center; }
 .gtv-th--right  { justify-content: flex-end; }
+.gtv-th--left   { justify-content: flex-start; }
+
+.gtv-th--center .gtv-th-label {
+  text-align: center;
+}
+
+.gtv-th--center .tg-trigger {
+  justify-content: center;
+  text-align: center;
+}
 
 
 .gtv-th--sort {
@@ -887,6 +897,7 @@
   background: rgba(129, 140, 248, 0.12);
 }
 
+.gtv-celula--left   { justify-content: flex-start; text-align: left; }
 .gtv-celula--center { justify-content: center; text-align: center; }
 .gtv-celula--right  { justify-content: flex-end; text-align: right; }
 
@@ -1798,6 +1809,7 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   white-space: nowrap;
   min-width: 0;
   width: 100%;
+  text-align: inherit;
 }
 
 /* TooltipGlobal dentro de célula: cresce para preencher a célula sem colapsar */
@@ -1807,6 +1819,7 @@ body.light-theme .gtv-th--somente-leitura .gtv-th-label {
   overflow: hidden;
   display: inline-flex;
   align-items: center;
+  justify-content: inherit;
 }
 
 /* Oculta o ícone ⓘ do TooltipGlobal nas células (muito denso para tabela) */

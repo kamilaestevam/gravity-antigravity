@@ -1,6 +1,6 @@
 # /novo-agente — Registrar task (OBRIGATÓRIO antes de qualquer trabalho)
 
-> **SSOT:** espelho de `.cursor/commands/novo-agente.md` — alterar nos dois lugares.
+> **SSOT:** espelho de `.claude/commands/novo-agente.md` — alterar nos dois lugares.
 > **Guia:** `tasks/README.md`
 > **Registry:** `tasks/registros/registro-tasks.json`
 > **Fichas:** `tasks/registros/TASK-{NNNNNN}.json`
@@ -18,13 +18,13 @@ Se a mensagem contém **`/novo-agente`**, o agente **NÃO PODE** — nesta mesma
 ❌ Responder o pedido técnico do dono (bug, feature, análise)  
 ❌ Ler skills de produto (pedido, bid-frete, UX…)  
 
-✅ **Só** pode: ler `tasks/registros/registro-tasks.json`, `tasks/README.md`, perguntar classificação, gravar ficha, entregar veredito e pedir rename.
+✅ **Só** pode: ler `tasks/registros/registro-tasks.json`, `tasks/README.md`, perguntar classificação, gravar ficha, entregar veredito e **comunicar** `titulo_exibicao` (ver LIMITAÇÃO — agente não renomeia no sidebar).
 
 **Se o dono colocou `/novo-agente` + pedido técnico na mesma mensagem:**
 
-> «Primeiro registro a task (abaixo). **Renomeie a conversa** com o título indicado. Depois me confirme ou peça para continuar — aí executo seu pedido.»
+> «Primeiro registro a task (abaixo). Cole o título no sidebar se quiser (clique direito → Renomear). Diga **continuar** — aí executo seu pedido.»
 
-**Não avance para o trabalho até o dono confirmar o rename ou pedir para continuar.**
+**Não avance para o trabalho até o dono pedir para continuar.**
 
 ---
 
@@ -44,13 +44,34 @@ Se a mensagem contém **`/novo-agente`**, o agente **NÃO PODE** — nesta mesma
 
 **Referência:** `TASK-{NNNNNN}` (não usar `AGT-`).
 
-**Exibição (rename no Cursor):**
+**Exibição (`titulo_exibicao` — único título a comunicar):**
 
 ```
 [{Área legível}] {Vis?} | {TIPO} — {resumo humano}
 ```
 
 Exemplo: `[BID Frete] LISTA | MEL — Remover expandir linha COT`
+
+---
+
+## LIMITAÇÃO — rename no Cursor (ler antes da ETAPA 4)
+
+O agente **NÃO TEM** ferramenta para renomear a conversa no sidebar. **Não finja** que renomeou; **não** peça confirmação de rename como se pudesse verificar.
+
+| Quem | Como |
+|:---|:---|
+| **Cursor (auto)** | Título deriva da **primeira mensagem** do chat — inclua `titulo_exibicao` nela quando possível |
+| **Dono (manual)** | Clique direito no chat → Renomear → colar o `titulo_exibicao` |
+
+**Atalho recomendado (chat novo, auto-título):**
+
+```
+/novo-agente BIDFRT LISTA MEL OCULTAR-EXPAND-COT — [BID Frete] LISTA | MEL — Ocultar expand cotação avulsa
+```
+
+**Proibido na resposta:** `AGT-`, `IMP-`, `TIPO_SESSAO`, título canônico duplicado, blocos «Citação», «Markdown» ou «Para renomear use…». **Um** `titulo_exibicao` + `TASK-NNNNNN`.
+
+Legado `documentos-tecnicos/processos/convencao-titulos-agente.md` — **não usar**.
 
 ---
 
@@ -104,26 +125,27 @@ Todo campo codificado deve ter par `campo` + `campo_descricao` (ver `TASK-000001
 2. Atualizar `registro-tasks.json` (`entradas[]`, incrementar `proximo_numero`)
 3. **Não** recalcular `registro-totais.json` na abertura (só no `/encerrar-agente`)
 
-### ETAPA 4 — Rename (OBRIGATÓRIO informar)
+### ETAPA 4 — Comunicar título (agente não renomeia)
 
-Entregar em destaque:
+Entregar **uma linha** copiável (sem variantes):
 
 ```
-⚠️ RENOMEIE ESTA CONVERSA AGORA:
-[{Área}] {Vis?} | {TIPO} — {resumo}
+Título da conversa (copie ou renomeie no sidebar): [BID Frete] LISTA | MEL — Ocultar expand cotação avulsa
 ```
+
+Se o chat acabou de abrir e a primeira mensagem **não** tinha o título → instruir: «Clique direito no chat → Renomear → cole acima.»
 
 ### ETAPA 5 — Veredito (formato fixo — única saída antes de trabalhar)
 
 ```
-## Task registrada — aguardando rename
+## Task registrada
 
 **Referência:** TASK-000264
-**Título canônico:** BIDFRT-LISTA-MEL-REMOVER-EXPANDIR-LINHA-COT
-**Rename obrigatório:** [BID Frete] LISTA | MEL — Remover expandir linha COT
+**Classificação:** BIDFRT-LISTA-MEL-OCULTAR-EXPAND-COT
+**Título da conversa:** [BID Frete] LISTA | MEL — Ocultar expand cotação avulsa
 **Próximo número:** TASK-000265
 
-Confirme o rename (ou diga "continuar") para eu executar seu pedido.
+Diga **continuar** para eu executar seu pedido (rename manual é opcional — o agente não consegue aplicar).
 ```
 
 ### ETAPA 6 — Só após confirmação
@@ -138,4 +160,6 @@ Aí sim: ler skills, código, executar o pedido técnico.
 - Codar ou explorar repo antes do veredito ETAPA 5
 - Usar `AGT-` ou `TIPO_SESSAO` (ANA, PLN, IMP…)
 - Gravar em `documentos-tecnicos/processos/registro-agentes.json` (legado — usar `tasks/registros/`)
-- Omitir instrução de rename
+- Fingir que renomeou a conversa ou pedir «confirme o rename»
+- Listar formatos alternativos (AGT, IMP, citação, markdown)
+- Consultar `convencao-titulos-agente.md` ou `registro-agentes.json` (legado)

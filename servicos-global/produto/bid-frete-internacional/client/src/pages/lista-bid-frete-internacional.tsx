@@ -911,7 +911,33 @@ export default function Cotacoes() {
     [bidsFiltrados, cotacoesAvulsasFiltradas, cotacoesFiltradas],
   )
 
+  const totalBidsFiltrados = bidsFiltrados.length
   const totalCotacoesFiltradas = cotacoesFiltradas.length
+
+  const linhasPaiPagina = useMemo(() => {
+    const inicio = (paginaLista - 1) * tabelaConfig.linhasPorPagina
+    return linhasPaiFiltradas.slice(inicio, inicio + tabelaConfig.linhasPorPagina)
+  }, [linhasPaiFiltradas, paginaLista, tabelaConfig.linhasPorPagina])
+
+  const labelBidPaginacao = useMemo(
+    (): [string, string] => [
+      t('bidfrete.lista.label_bid_one', 'bid'),
+      t('bidfrete.lista.label_bid_other', 'bids'),
+    ],
+    [t],
+  )
+
+  const labelCotacaoPaginacao = useMemo(
+    (): [string, string] => [
+      t('bidfrete.lista.label_cotacao_one', 'cotação'),
+      t('bidfrete.lista.label_cotacao_other', 'cotações'),
+    ],
+    [t],
+  )
+
+  useEffect(() => {
+    setPaginaLista(1)
+  }, [filtroTab, busca])
 
   const cotacoesParaKpi = useMemo(
     () => filtrarCotacoesPorPeriodoCards(cotacoesFiltradas, periodoCards),
@@ -977,7 +1003,7 @@ export default function Cotacoes() {
 
   const novoDropdownRef = useRef<HTMLDivElement>(null)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
-  const [novoSubmenu, setNovoSubmenu] = useState<'painel' | 'buscar-frete' | 'bid' | null>(null)
+  const [novoSubmenu, setNovoSubmenu] = useState<'painel' | 'buscar-frete' | 'avulsa' | 'bid' | null>(null)
   const [novoNomePainelLista, setNovoNomePainelLista] = useState('')
   const [modalNovoBidAberto, setModalNovoBidAberto] = useState(false)
 
@@ -1049,8 +1075,8 @@ export default function Cotacoes() {
             <button
               type="button"
               className="lp-dropdown-btn"
-              style={{ width: '100%', background: (novoSubmenu === 'buscar-frete' || novoSubmenu === 'bid') ? 'var(--bg-hover)' : undefined }}
-              onClick={() => setNovoSubmenu(prev => (prev === 'buscar-frete' || prev === 'bid' ? null : 'buscar-frete'))}
+              style={{ width: '100%', background: (novoSubmenu === 'buscar-frete' || novoSubmenu === 'avulsa' || novoSubmenu === 'bid') ? 'var(--bg-hover)' : undefined }}
+              onClick={() => setNovoSubmenu(prev => (prev === 'buscar-frete' || prev === 'avulsa' || prev === 'bid' ? null : 'buscar-frete'))}
             >
               <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
                 <Globe size={16} weight="duotone" />
@@ -1062,30 +1088,114 @@ export default function Cotacoes() {
               <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, alignSelf: 'center' }} />
             </button>
 
-            {(novoSubmenu === 'buscar-frete' || novoSubmenu === 'bid') && (
+            {(novoSubmenu === 'buscar-frete' || novoSubmenu === 'avulsa' || novoSubmenu === 'bid') && (
               <div style={{ position: 'absolute', left: '100%', top: 0, paddingLeft: '8px', zIndex: 301 }}>
                 <div style={{
                   background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
                   borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
                   minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
                 }}>
-                <button
-                  type="button"
-                  className="lp-dropdown-btn"
-                  onClick={() => {
-                    navigate('/bid-frete/cotacoes/nova')
-                    setNovoDropdownAberto(false)
-                    setNovoSubmenu(null)
-                  }}
+                <div
+                  style={{ position: 'relative' }}
+                  onMouseEnter={() => setNovoSubmenu('avulsa')}
+                  onMouseLeave={() => setNovoSubmenu('buscar-frete')}
                 >
-                  <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
-                    <FileText size={16} weight="duotone" />
-                  </span>
-                  <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left' }}>
-                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.cotacaoAvulsa')}</span>
-                    <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.cotacaoAvulsaDesc')}</span>
-                  </span>
-                </button>
+                  <button
+                    type="button"
+                    className="lp-dropdown-btn"
+                    style={{ width: '100%', background: novoSubmenu === 'avulsa' ? 'var(--bg-hover)' : undefined }}
+                  >
+                    <span style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                      <FileText size={16} weight="duotone" />
+                    </span>
+                    <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem', textAlign: 'left', flex: 1 }}>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('bidfrete.cotacoes.toolbar.cotacaoAvulsa')}</span>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{t('bidfrete.cotacoes.toolbar.cotacaoAvulsaDesc')}</span>
+                    </span>
+                    <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, alignSelf: 'center' }} />
+                  </button>
+
+                  {novoSubmenu === 'avulsa' && (
+                    <div style={{ position: 'absolute', left: '100%', top: 0, paddingLeft: '8px', zIndex: 302 }}>
+                      <div style={{
+                        background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                        borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                        minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+                      }}>
+                      {([
+                        {
+                          icon: 'upload' as const,
+                          label: t('bidfrete.novo_bid.importacao'),
+                          desc: t('bidfrete.novo_bid.importacao_desc'),
+                          action: () => {
+                            navigate('/bid-frete/cotacoes/importar')
+                            setNovoDropdownAberto(false)
+                            setNovoSubmenu(null)
+                          },
+                        },
+                        {
+                          icon: 'api' as const,
+                          label: t('bidfrete.novo_bid.api'),
+                          desc: t('bidfrete.novo_bid.api_desc'),
+                          badge: t('comum.em_breve'),
+                          disabled: true,
+                        },
+                        {
+                          icon: 'sparkle' as const,
+                          label: t('bidfrete.novo_bid.smart_read'),
+                          desc: t('bidfrete.novo_bid.smart_read_desc'),
+                          badge: t('comum.em_breve'),
+                          disabled: true,
+                        },
+                        {
+                          icon: 'pencil' as const,
+                          label: t('bidfrete.novo_bid.manual'),
+                          desc: t('bidfrete.novo_bid.manual_desc'),
+                          action: () => {
+                            navigate('/bid-frete/cotacoes/nova')
+                            setNovoDropdownAberto(false)
+                            setNovoSubmenu(null)
+                          },
+                        },
+                      ] as {
+                        icon: 'upload' | 'api' | 'sparkle' | 'pencil'
+                        label: string
+                        desc: string
+                        badge?: string
+                        disabled?: boolean
+                        action?: () => void
+                      }[]).map(item => (
+                        <button
+                          key={item.label}
+                          type="button"
+                          className="lp-dropdown-btn"
+                          disabled={item.disabled}
+                          style={item.disabled ? { opacity: 0.55, cursor: 'not-allowed' } : undefined}
+                          onClick={item.disabled ? undefined : item.action}
+                        >
+                          <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                            {item.icon === 'pencil' && <PencilSimple size={16} weight="duotone" />}
+                            {item.icon === 'sparkle' && <Sparkle size={16} weight="duotone" />}
+                            {item.icon === 'upload' && <UploadSimple size={16} weight="duotone" />}
+                            {item.icon === 'api' && <ArrowsLeftRight size={16} weight="duotone" />}
+                          </span>
+                          <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                              {item.label}
+                              {item.badge && (
+                                <span style={{ fontSize: '0.625rem', fontWeight: 600, padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                                  {item.badge}
+                                </span>
+                              )}
+                            </span>
+                            <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{item.desc}</span>
+                          </span>
+                        </button>
+                      ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <div
                   style={{ position: 'relative' }}
@@ -1864,7 +1974,7 @@ export default function Cotacoes() {
             </div>
           )}
           <TabelaVirtualGlobal<LinhaPaiLista, LinhaFilhaLista>
-            dados={linhasPaiFiltradas}
+            dados={linhasPaiPagina}
             colunas={colunasTabela}
             itemId={idLinhaPaiLista}
             mapaColunasFilho={mapaColunasFilho}
@@ -1881,12 +1991,14 @@ export default function Cotacoes() {
             
             itensPorPagina={tabelaConfig.linhasPorPagina}
             totalItens={linhasPaiFiltradas.length}
+            totalRodapePai={totalBidsFiltrados}
             totalFilhos={totalCotacoesFiltradas}
             paginaAtual={paginaLista}
             onMudarPagina={setPaginaLista}
             classNameLinhaPai={classNameLinhaPai}
             classNameLinhaFilho={classNameLinhaFilho}
-            labelPai={['registro', 'registros']}
+            labelPai={labelBidPaginacao}
+            labelFilho={labelCotacaoPaginacao}
             
             acoes={acoes}
             acoesFilho={acoesFilho}

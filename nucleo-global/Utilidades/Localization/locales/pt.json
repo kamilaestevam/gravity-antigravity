@@ -2255,6 +2255,12 @@
       "dashboard": "Dashboard",
       "kanban": "Kanban"
     },
+    "lista": {
+      "label_bid_one": "bid",
+      "label_bid_other": "bids",
+      "label_cotacao_one": "cotação",
+      "label_cotacao_other": "cotações"
+    },
     "dashboard": {
       "titulo": "Visão Geral",
       "cotacoes_andamento": "Cotações em andamento",

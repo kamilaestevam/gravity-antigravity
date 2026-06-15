@@ -176,7 +176,7 @@ function gerarAbasDinamicas(
 // ─── Colunas padrão = todas as colunas escalares do banco ───
 
 /** Incrementar quando adicionar colunas ao schema — força reset das prefs salvas. */
-const VERSAO_COLUNAS_LISTA = 4
+const VERSAO_COLUNAS_LISTA = 5
 const STORAGE_COLUNAS_VERSAO = 'bid-frete-internacional:config:tabela_colunas_versao'
 const STORAGE_PREFS_INTL = 'bid-frete-internacional:config:tabela_preferencias'
 const STORAGE_PREFS_LEGADO = 'bid-frete:config:tabela_preferencias'
@@ -2268,7 +2268,7 @@ export default function Cotacoes() {
             modoLocalizar={true}
             onFiltroColuna={onFiltroColuna}
             filtrosAtivosKeys={filtrosAtivosKeys}
-            placeholderBusca="Buscar por processo, referência, origem ou destino..."
+            placeholderBusca="Buscar"
             
             camposEditaveis={CAMPOS_EDITAVEIS_LISTA}
             camposEditaveisFilhos={CAMPOS_EDITAVEIS_LISTA}

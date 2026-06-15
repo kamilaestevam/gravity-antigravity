@@ -3,7 +3,7 @@
  * Layout: wizard em página (paridade Pedido Smart Import / ModalPassoPassoGlobal)
  */
 
-import React, { useState, useCallback, useRef, useMemo } from 'react'
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -12,7 +12,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { WizardImportacaoBidFreteInternacional } from '../components/importacao/wizard-importacao-bid-frete-internacional'
 import { EtapaMapeamentoBidFreteInternacional } from '../components/importacao/etapa-mapeamento-bid-frete-internacional'
-import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
+import { EtapaPreviewBidFreteInternacional } from '../components/importacao/etapa-preview-bid-frete-internacional'
 import {
   UploadSimple,
   FileArrowUp,
@@ -26,9 +26,8 @@ import {
 } from '@phosphor-icons/react'
 
 import { criarBidFreteInternacional, criarCotacao } from '../shared/api'
-import type { TipoOperacao, Incoterm } from '../shared/types'
+import type { TipoOperacao, ModalidadeCarga } from '../shared/types'
 import { montarPayloadCriacaoCotacaoImportacaoBidFreteInternacional } from '../../../shared/montar-payload-criacao-cotacao-importacao-bid-frete-internacional'
-import { INCOTERMS } from '../shared/types'
 import {
   rotuloCampoImportacaoBid,
 } from '../../../shared/campos-importacao-bid-frete-internacional'
@@ -42,6 +41,8 @@ import {
   aplicarMapeamentoImportacaoBid,
 } from '../../../shared/parsear-planilha-importacao-bid-frete-internacional'
 import { analisarArquivoImportacaoBidFreteInternacional } from '../shared/analisar-importacao-bid-frete-internacional'
+import { carregarContextoCatalogoRotaImportacaoBid } from '../shared/carregar-contexto-catalogo-importacao-bid-frete-internacional'
+import type { ContextoCatalogoRota } from '../../../shared/rota-cotacao-bid-frete-internacional'
 import type {
   ColunaMapeadaBidFreteInternacional,
   LinhaImportacaoBidFreteInternacional,
@@ -53,14 +54,10 @@ const LIMITE_LINHAS = 500
 const TAMANHO_MAX_MB = 10
 const TAMANHO_MAX_BYTES = TAMANHO_MAX_MB * 1024 * 1024
 
-import { validarLinhaImportacaoBidFreteInternacional } from '../../../shared/validar-linha-importacao-bid-frete-internacional'
-
-interface ValidatedRow extends LinhaImportacaoBidFreteInternacional {
-  id: number
-  linha: number
-  status: 'OK' | 'Erro'
-  erros: string
-}
+import {
+  montarLinhasPreviewImportacaoBid,
+  type LinhaPreviewImportacaoBid,
+} from '../../../shared/validar-preview-importacao-bid-frete-internacional'
 
 type ImportPhase = 'upload' | 'mapeamento' | 'preview' | 'creating' | 'done'
 
@@ -71,24 +68,14 @@ interface CreationResult {
   numero_bid_bid_frete_internacional?: string
 }
 
-function validateRow(row: LinhaImportacaoBidFreteInternacional): string[] {
-  return validarLinhaImportacaoBidFreteInternacional(row)
+function linhasParaPreview(
+  linhas: LinhaImportacaoBidFreteInternacional[],
+  ctx: ContextoCatalogoRota,
+): LinhaPreviewImportacaoBid[] {
+  return montarLinhasPreviewImportacaoBid(linhas, ctx)
 }
 
 const URL_TEMPLATE_IMPORTACAO_BID = '/api/v1/bid-frete-internacional/importacao/template'
-
-function linhasParaValidadas(linhas: LinhaImportacaoBidFreteInternacional[]): ValidatedRow[] {
-  return linhas.map((row, idx) => {
-    const erros = validateRow(row)
-    return {
-      id: idx + 1,
-      linha: idx + 1,
-      status: erros.length === 0 ? 'OK' : 'Erro',
-      ...row,
-      erros: erros.join('; '),
-    }
-  })
-}
 
 function faseParaPasso(fase: ImportPhase): number {
   switch (fase) {
@@ -112,7 +99,7 @@ export default function ImportarBidFreteInternacional() {
   const [phase, setPhase] = useState<ImportPhase>('upload')
   const [modoPlanilha, setModoPlanilha] = useState<ModoPlanilhaImportacaoBidFreteInternacional>('gravity')
   const [fileName, setFileName] = useState('')
-  const [rows, setRows] = useState<ValidatedRow[]>([])
+  const [rows, setRows] = useState<LinhaPreviewImportacaoBid[]>([])
   const [mapeamento, setMapeamento] = useState<ColunaMapeadaBidFreteInternacional[]>([])
   const [linhasBrutas, setLinhasBrutas] = useState<Record<string, string>[]>([])
   const [parserArquivo, setParserArquivo] = useState('csv')
@@ -123,6 +110,28 @@ export default function ImportarBidFreteInternacional() {
   const [analisandoArquivo, setAnalisandoArquivo] = useState(false)
   const [result, setResult] = useState<CreationResult | null>(null)
   const [referenciaBid, setReferenciaBid] = useState('')
+  const [linhasSelecionadas, setLinhasSelecionadas] = useState<Set<number>>(new Set())
+  const [ctxCatalogo, setCtxCatalogo] = useState<ContextoCatalogoRota>({})
+
+  useEffect(() => {
+    let ativo = true
+    void carregarContextoCatalogoRotaImportacaoBid()
+      .then(ctx => {
+        if (ativo) setCtxCatalogo(ctx)
+      })
+      .catch(() => {
+        if (ativo) setCtxCatalogo({})
+      })
+    return () => {
+      ativo = false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (linhasBrutas.length === 0 || mapeamento.length === 0) return
+    const linhas = aplicarMapeamentoImportacaoBid(linhasBrutas, mapeamento)
+    setRows(linhasParaPreview(linhas, ctxCatalogo))
+  }, [ctxCatalogo, linhasBrutas, mapeamento])
 
   const passos = useMemo<PassoConfig[]>(() => [
     { id: 1, label: t('bidfrete.importar.passo_upload') },
@@ -132,8 +141,9 @@ export default function ImportarBidFreteInternacional() {
   ], [t])
 
   const passoAtual = faseParaPasso(phase)
-  const validCount = rows.filter(r => r.status === 'OK').length
-  const errorCount = rows.filter(r => r.status === 'Erro').length
+  const validCount = rows.filter(r => r.status === 'ok').length
+  const errorCount = rows.filter(r => r.status === 'erro').length
+  const selecionadasCount = linhasSelecionadas.size
 
   const subtituloImportar = useMemo(() => {
     if (phase === 'upload') {
@@ -157,8 +167,16 @@ export default function ImportarBidFreteInternacional() {
     setConfiancaGlobal(calcularConfiancaGlobalMapeamento(novo))
     setScoreEssenciais(calcularScoreEssenciaisBid(novo))
     const linhas = aplicarMapeamentoImportacaoBid(linhasBrutas, novo)
-    setRows(linhasParaValidadas(linhas))
-  }, [linhasBrutas])
+    setRows(linhasParaPreview(linhas, ctxCatalogo))
+  }, [ctxCatalogo, linhasBrutas])
+
+  const handleIrParaPreview = useCallback(() => {
+    const validas = new Set(
+      rows.filter(r => r.status !== 'erro').map(r => r.linha_arquivo),
+    )
+    setLinhasSelecionadas(validas)
+    setPhase('preview')
+  }, [rows])
 
   const processFile = useCallback((file: File) => {
     const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
@@ -190,7 +208,7 @@ export default function ImportarBidFreteInternacional() {
       setMapeamento(resultado.mapeamento as ColunaMapeadaBidFreteInternacional[])
       setConfiancaGlobal(resultado.confianca_global)
       setScoreEssenciais(resultado.score_essenciais)
-      setRows(linhasParaValidadas(resultado.linhas as LinhaImportacaoBidFreteInternacional[]))
+      setRows(linhasParaPreview(resultado.linhas as LinhaImportacaoBidFreteInternacional[], ctxCatalogo))
       setPhase('mapeamento')
     }).catch(err => {
       const msg = err instanceof Error ? err.message : t('bidfrete.importar.erro_formato')
@@ -198,7 +216,7 @@ export default function ImportarBidFreteInternacional() {
     }).finally(() => {
       setAnalisandoArquivo(false)
     })
-  }, [modoPlanilha, t])
+  }, [ctxCatalogo, modoPlanilha, t])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -214,7 +232,9 @@ export default function ImportarBidFreteInternacional() {
 
   const handleCreate = useCallback(async () => {
     setPhase('creating')
-    const validRows = rows.filter(r => r.status === 'OK')
+    const linhasParaCriar = rows.filter(
+      r => linhasSelecionadas.has(r.linha_arquivo) && r.status !== 'erro',
+    )
     let criadas = 0
     let erros = 0
     const detalhes: string[] = []
@@ -236,18 +256,20 @@ export default function ImportarBidFreteInternacional() {
       }
     }
 
-    for (const row of validRows) {
+    for (const row of linhasParaCriar) {
       try {
-        const payload = montarPayloadCriacaoCotacaoImportacaoBidFreteInternacional(row, idBid)
+        const payload = montarPayloadCriacaoCotacaoImportacaoBidFreteInternacional(row.dados, idBid, ctxCatalogo)
         await criarCotacao({
           ...payload,
           tipo_operacao_cotacao_bid_frete_internacional: payload.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
+          modalidade_cotacao_bid_frete_internacional: payload.modalidade_cotacao_bid_frete_internacional as ModalidadeCarga,
+          modal_cotacao_bid_frete_internacional: payload.modal_cotacao_bid_frete_internacional,
         })
         criadas++
       } catch (err) {
         erros++
         const msg = err instanceof Error ? err.message : t('bidfrete.importar.erro_desconhecido')
-        detalhes.push(t('bidfrete.importar.erro_linha', { linha: row.linha, msg }))
+        detalhes.push(t('bidfrete.importar.erro_linha', { linha: row.linha_arquivo, msg }))
       }
     }
 
@@ -258,7 +280,7 @@ export default function ImportarBidFreteInternacional() {
       ...(numeroBid ? { numero_bid_bid_frete_internacional: numeroBid } : {}),
     })
     setPhase('done')
-  }, [contextoBid, referenciaBid, rows, t])
+  }, [contextoBid, ctxCatalogo, linhasSelecionadas, referenciaBid, rows, t])
 
   const handleTrocarArquivo = useCallback(() => {
     setPhase('upload')
@@ -266,6 +288,7 @@ export default function ImportarBidFreteInternacional() {
     setRows([])
     setMapeamento([])
     setLinhasBrutas([])
+    setLinhasSelecionadas(new Set())
     setConfiancaGlobal(0)
     setScoreEssenciais(0)
     setErroUpload(null)
@@ -278,6 +301,7 @@ export default function ImportarBidFreteInternacional() {
     setRows([])
     setMapeamento([])
     setLinhasBrutas([])
+    setLinhasSelecionadas(new Set())
     setParserArquivo('csv')
     setConfiancaGlobal(0)
     setScoreEssenciais(0)
@@ -286,90 +310,6 @@ export default function ImportarBidFreteInternacional() {
     setReferenciaBid('')
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [])
-
-  const colunas: TabelaGlobalColuna<ValidatedRow>[] = useMemo(() => [
-    {
-      key: 'linha',
-      label: '#',
-      tipo: 'numero',
-      largura: 56,
-      align: 'center',
-      render: (v: unknown) => (
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.75rem' }}>{String(v)}</span>
-      ),
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      tipo: 'texto',
-      largura: 90,
-      align: 'center',
-      render: (v: unknown) => {
-        const isOk = v === 'OK'
-        return (
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-            padding: '0.15rem 0.5rem', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 700,
-            background: isOk ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-            color: isOk ? 'var(--success, #22c55e)' : 'var(--danger, #ef4444)',
-          }}>
-            {isOk ? <CheckCircle weight="duotone" size={13} /> : <XCircle weight="duotone" size={13} />}
-            {String(v)}
-          </span>
-        )
-      },
-    },
-    { key: 'tipo_operacao_cotacao_bid_frete_internacional', label: t('bidfrete.importar.col_tipo'), tipo: 'texto', largura: 110 },
-    { key: 'modal_cotacao_bid_frete_internacional', label: t('bidfrete.importar.col_modal'), tipo: 'texto', largura: 100 },
-    {
-      key: 'origem_codigo_cotacao_bid_frete_internacional',
-      label: t('bidfrete.importar.col_origem'),
-      tipo: 'texto',
-      largura: 90,
-      render: (v: unknown) => <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>,
-    },
-    {
-      key: 'destino_codigo_cotacao_bid_frete_internacional',
-      label: t('bidfrete.importar.col_destino'),
-      tipo: 'texto',
-      largura: 90,
-      render: (v: unknown) => <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>,
-    },
-    { key: 'descricao_mercadoria_cotacao_bid_frete_internacional', label: t('bidfrete.importar.col_mercadoria'), tipo: 'texto' },
-    {
-      key: 'incoterm_cotacao_bid_frete_internacional',
-      label: t('bidfrete.importar.col_incoterm'),
-      tipo: 'texto',
-      largura: 80,
-      align: 'center',
-      render: (v: unknown) => (
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem', fontWeight: 600 }}>{String(v).toUpperCase()}</span>
-      ),
-    },
-    {
-      key: 'quantidade_volume_cotacao_bid_frete_internacional',
-      label: t('bidfrete.importar.col_qtd'),
-      tipo: 'numero',
-      largura: 64,
-      align: 'right',
-      render: (v: unknown) => <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>,
-    },
-    {
-      key: 'erros',
-      label: t('bidfrete.importar.col_erros'),
-      tipo: 'texto',
-      render: (v: unknown) => {
-        const text = String(v)
-        if (!text) return null
-        return (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--danger, #ef4444)' }}>
-            <Warning weight="duotone" size={13} />
-            {text}
-          </span>
-        )
-      },
-    },
-  ], [t])
 
   const formatosIcones = useMemo(() => [
     { label: 'Excel', icone: <FileXls size={28} weight="duotone" style={{ color: '#34d399' }} /> },
@@ -407,7 +347,7 @@ export default function ImportarBidFreteInternacional() {
           <BotaoGlobal
             variante="primario"
             tamanho="medio"
-            onClick={() => setPhase('preview')}
+            onClick={handleIrParaPreview}
             disabled={!podeAvancarMapeamento}
             title={
               conflitosMapeamento.length > 0
@@ -425,9 +365,9 @@ export default function ImportarBidFreteInternacional() {
             variante="primario"
             tamanho="medio"
             onClick={() => void handleCreate()}
-            disabled={validCount === 0}
+            disabled={selecionadasCount === 0}
           >
-            {t('bidfrete.importar.criar_cotacoes', { count: validCount })}
+            {t('bidfrete.importar.criar_cotacoes', { count: selecionadasCount })}
           </BotaoGlobal>
         )}
       </div>
@@ -579,31 +519,18 @@ export default function ImportarBidFreteInternacional() {
                   <div className="bid-import-result-card">
                     <ConteudoCarregandoBidFreteInternacional />
                     <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                      {t('bidfrete.importar.processando', { count: validCount })}
+                      {t('bidfrete.importar.processando', { count: selecionadasCount })}
                     </p>
                   </div>
                 ) : (
-                  <>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                      <span className="bid-import-counter-badge" style={{ background: 'rgba(34,197,94,0.15)', color: 'var(--success, #22c55e)' }}>
-                        <CheckCircle weight="duotone" size={15} />
-                        {t('bidfrete.importar.validas', { count: validCount })}
-                      </span>
-                      {errorCount > 0 && (
-                        <span className="bid-import-counter-badge" style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--danger, #ef4444)' }}>
-                          <XCircle weight="duotone" size={15} />
-                          {t('bidfrete.importar.com_erros', { count: errorCount })}
-                        </span>
-                      )}
-                    </div>
-                    <TabelaGlobal
-                      idKey="id"
-                      colunas={colunas}
-                      dados={rows}
-                      mensagemVazio={t('bidfrete.importar.vazio')}
-                      tooltipBusca={t('bidfrete.importar.buscar_placeholder')}
-                    />
-                  </>
+                  <EtapaPreviewBidFreteInternacional
+                    linhas={rows}
+                    linhasSelecionadas={linhasSelecionadas}
+                    nomeArquivo={fileName}
+                    parser={parserArquivo}
+                    contextoBid={contextoBid}
+                    onSelecaoChange={setLinhasSelecionadas}
+                  />
                 )}
               </>
             )}

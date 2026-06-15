@@ -1,7 +1,7 @@
 {
   "referencia": "TASK-000264",
   "ordinal": 6,
-  "id_transcript": "209150ea-0186-47e0-a29b-a285064c55f3",
+  "id_transcript": "4937f293-756b-45f9-b5de-e588010afb10",
   "titulo_canonico": "BIDFRT-INSIGHTS-BUG-NAO-ESPELHA-LISTA",
   "titulo_exibicao": "[BID Frete] INSIGHTS | BUG — Insights não espelham dados da lista",
   "status": "RES",
@@ -16,40 +16,49 @@
   "tipo_entrega_descricao": "Correção ou diagnóstico de comportamento incorreto — dados visíveis na Lista não aparecem nos Insights",
   "resumo": "NAO-ESPELHA-LISTA",
   "resumo_descricao": "Investigar por que Insights mostra zeros/vazio enquanto Lista exibe cotações e BIDs na mesma seleção de workspaces",
-  "resumo_detalhado": "Dono reporta que a fonte única de dados já foi implementada e não deve ser alterada. Na mesma seleção de workspaces (ex.: 2 workspaces), a aba Lista exibe várias cotações e BIDs (6 linhas, total 5 no card), mas a aba Insights mostra KPIs zerados, rankings vazios e apenas o funil com 5 rascunhos. Objetivo: entender a causa da divergência sem refatorar a arquitetura de fonte única.",
+  "resumo_detalhado": "Dono reporta que a fonte única de dados já foi implementada e não deve ser alterada. Na mesma seleção de workspaces (ex.: 2 workspaces), a aba Lista exibe várias cotações e BIDs, mas a aba Insights mostrava KPIs zerados e divergentes do funil. Entrega: dados reais na visão Insights, KPIs alinhados a Configurações (dashboard-top-kpi), drill-down com data_referencia, Zod/AppError nas rotas insights-*.",
   "data_criacao": "2026-06-15T12:00:00.000Z",
-  "data_encerramento": "2026-06-15T21:00:00.000Z",
-  "duracao_horas": 3.0,
-  "tempo_bruto_horas": 9.0,
-  "tempo_agente_horas": 2.5,
-  "tempo_dono_horas": 0.5,
-  "tempo_liquido_horas": 3.0,
-  "tokens_estimados_entrada": 30000,
-  "tokens_estimados_saida": 60000,
-  "tokens_estimados_total": 90000,
-  "mensagens_usuario": 12,
-  "mensagens_agente": 28,
-  "fases_concluidas": ["DIAGNOSTICO", "IMPLEMENTACAO", "CODE_REVIEW", "DOC_SKILL", "QA", "PR", "DEPLOY"],
+  "data_encerramento": "2026-06-15T23:45:00.000Z",
+  "duracao_horas": 4.5,
+  "tempo_bruto_horas": 11.75,
+  "tempo_agente_horas": 3.5,
+  "tempo_dono_horas": 1.0,
+  "tempo_liquido_horas": 4.5,
+  "tokens_estimados_entrada": 45000,
+  "tokens_estimados_saida": 90000,
+  "tokens_estimados_total": 135000,
+  "mensagens_usuario": 18,
+  "mensagens_agente": 35,
+  "fases_concluidas": ["DIAGNOSTICO", "IMPLEMENTACAO", "CODE_REVIEW", "DOC_SKILL", "PR", "DEPLOY"],
   "checklist_encerramento": {
-    "teste_local": { "valor": "sim", "descricao": "Testes locais executados (unitário, funcional, em tela)" },
+    "teste_local": { "valor": "nao", "descricao": "Testes locais executados (unitário, funcional, em tela)" },
     "code_review": { "valor": "sim", "descricao": "Code review executado (/code-review)" },
     "doc_skill": { "valor": "sim", "descricao": "Documentos técnicos e/ou skills atualizados (/docs-skills)" },
-    "qa": { "valor": "sim", "descricao": "QA pós-entrega executado (/qa)" },
+    "qa": { "valor": "nao", "descricao": "QA pós-entrega executado (/qa)" },
     "pr": { "valor": "sim", "descricao": "Pull request aberto ou merge solicitado" },
     "deploy": { "valor": "sim", "descricao": "Deploy ou migration executado (/deploy)" },
     "teste_producao": { "valor": "nao", "descricao": "Validado em produção ou staging real" }
   },
   "checklist_alertas": [
     {
+      "item": "teste_local",
+      "mensagem": "Pacote /testes-criar completo pendente (WIP) — apenas UNI parcial (insights, montar-detalhe)."
+    },
+    {
+      "item": "qa",
+      "mensagem": "QA não executado — invocar /qa antes de considerar task fechada."
+    },
+    {
       "item": "teste_producao",
-      "mensagem": "Deploy em produção confirmado (PR #320), mas smoke funcional manual na tela (Insights vs Lista) não registrado pelo dono."
+      "mensagem": "Deploy PR #323 confirmado ativo; smoke manual Insights vs Lista não registrado pelo dono."
     }
   ],
   "entregas": [
-    "PR #320 — fix/bid-frete-lista-hierarquia-insights (merge + deploy usegravity.com.br)",
-    "AGT-000264 — lista: chevron só BID, filtrarBidsParaLista, enrich, conector pai",
-    "Insights: agregar-insights-graficos, taxas-cambio-insights, visao-geral alinhada",
-    "32 testes UNI (lista 13 + insights 19)",
-    "Docs: ENTIDADE-BID-TECNICO §5, LISTA-ACOES-LOTE, skill bid-frete-internacional"
+    "PR #320 — lista hierarquia + insights inicial (merge anterior)",
+    "PR #323 — fix/bid-frete-insights-task-264 (merge + deploy ACTIVE)",
+    "Insights: APIs reais, KPIs↔Config (useDashboardTopKpi + funil), valor USD por status",
+    "Must-fix: data_referencia drill-down, Zod query server, AppError",
+    "Docs: INSIGHTS-VISAO-GERAL-TECNICO.md + skill bid-frete-internacional § Insights",
+    "Testes UNI: montar-insights-detalhe, insights-status-funil, taxas-cambio, agregar-graficos"
   ]
 }

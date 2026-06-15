@@ -2,8 +2,17 @@
  * SSOT — campos de rota por modal e derivação do snapshot legado
  * (origem_codigo/nome, destino_codigo/nome, origem_pais, destino_pais).
  */
+import {
+  ehCodigoIata,
+  ehCodigoUnlocode,
+  paisDeCodigoUnlocode,
+  resolverAeroportoNoCatalogoImportacao,
+  resolverPortoNoCatalogoImportacao,
+} from './resolver-cadastro-rota-importacao-bid-frete-internacional'
 
 export type ModalRotaCotacao = 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
+
+export { ehCodigoUnlocode, ehCodigoIata } from './resolver-cadastro-rota-importacao-bid-frete-internacional'
 
 /** ISO alpha-2 — América Latina e Caribe (filtro Cadastros/Pais). */
 export const CODIGOS_ISO_PAIS_AMERICA_LATINA = new Set([
@@ -89,21 +98,62 @@ export function nomeRodoviarioSnapshot(
   return c || e || ''
 }
 
-function rotuloPorto(codigo: string, portos: CatalogoPortoRota[]): { codigo: string; nome: string; pais: string } {
-  const porto = portos.find(p => p.codigo_unlocode_porto === codigo)
-  const nome = porto ? `${codigo} — ${porto.nome_porto}` : codigo
-  const pais = trim(porto?.codigo_pais_porto) || (codigo.length >= 2 ? codigo.slice(0, 2).toUpperCase() : '')
-  return { codigo, nome, pais }
+function rotuloPorto(
+  valorBruto: string,
+  portos: CatalogoPortoRota[],
+): { codigo: string; nome: string; pais: string } {
+  const bruto = trim(valorBruto)
+  if (!bruto) return { codigo: '', nome: '', pais: '' }
+
+  const { porto } = resolverPortoNoCatalogoImportacao(bruto, portos)
+  if (porto) {
+    const codigo = porto.codigo_unlocode_porto
+    return {
+      codigo,
+      nome: `${codigo} — ${porto.nome_porto}`,
+      pais: trim(porto.codigo_pais_porto) || paisDeCodigoUnlocode(codigo),
+    }
+  }
+
+  const codigo = trim(valorBruto).toUpperCase()
+  if (ehCodigoUnlocode(codigo)) {
+    return {
+      codigo,
+      nome: codigo,
+      pais: paisDeCodigoUnlocode(codigo),
+    }
+  }
+
+  return { codigo: bruto, nome: bruto, pais: '' }
 }
 
-function rotuloAeroporto(iata: string, aeroportos: CatalogoAeroportoRota[]): { codigo: string; nome: string; pais: string } {
-  const aeroporto = aeroportos.find(
-    a => trim(a.codigo_iata_aeroporto) === iata || a.codigo_unlocode_aeroporto === iata,
-  )
-  const codigo = trim(aeroporto?.codigo_iata_aeroporto) || iata
-  const nome = aeroporto ? `${codigo} — ${aeroporto.nome_aeroporto}` : codigo
-  const pais = trim(aeroporto?.codigo_pais_aeroporto) || (codigo.length >= 2 ? codigo.slice(0, 2).toUpperCase() : '')
-  return { codigo, nome, pais }
+function rotuloAeroporto(
+  valorBruto: string,
+  aeroportos: CatalogoAeroportoRota[],
+): { codigo: string; nome: string; pais: string } {
+  const bruto = trim(valorBruto)
+  if (!bruto) return { codigo: '', nome: '', pais: '' }
+
+  const { aeroporto } = resolverAeroportoNoCatalogoImportacao(bruto, aeroportos)
+  if (aeroporto) {
+    const codigo = trim(aeroporto.codigo_iata_aeroporto) || aeroporto.codigo_unlocode_aeroporto
+    return {
+      codigo,
+      nome: `${codigo} — ${aeroporto.nome_aeroporto}`,
+      pais: trim(aeroporto.codigo_pais_aeroporto) || paisDeCodigoUnlocode(codigo),
+    }
+  }
+
+  const codigo = trim(valorBruto).toUpperCase()
+  if (ehCodigoIata(codigo) || ehCodigoUnlocode(codigo)) {
+    return {
+      codigo,
+      nome: codigo,
+      pais: paisDeCodigoUnlocode(codigo),
+    }
+  }
+
+  return { codigo: bruto, nome: bruto, pais: '' }
 }
 
 function derivarOrigem(
@@ -113,6 +163,7 @@ function derivarOrigem(
   const modal = input.modal_cotacao_bid_frete_internacional
   const portos = ctx.portos ?? []
   const aeroportos = ctx.aeroportos ?? []
+  const paisExplicito = trim(input.origem_pais_cotacao_bid_frete_internacional)
 
   if (modal === 'MARITIMO') {
     const codigo = trim(input.porto_origem_cotacao_bid_frete_internacional)
@@ -121,7 +172,7 @@ function derivarOrigem(
       return {
         origem_codigo_cotacao_bid_frete_internacional: r.codigo,
         origem_nome_cotacao_bid_frete_internacional: r.nome,
-        origem_pais_cotacao_bid_frete_internacional: r.pais,
+        origem_pais_cotacao_bid_frete_internacional: r.pais || paisExplicito,
       }
     }
   }
@@ -133,7 +184,7 @@ function derivarOrigem(
       return {
         origem_codigo_cotacao_bid_frete_internacional: r.codigo,
         origem_nome_cotacao_bid_frete_internacional: r.nome,
-        origem_pais_cotacao_bid_frete_internacional: r.pais,
+        origem_pais_cotacao_bid_frete_internacional: r.pais || paisExplicito,
       }
     }
   }
@@ -165,6 +216,7 @@ function derivarDestino(
   const modal = input.modal_cotacao_bid_frete_internacional
   const portos = ctx.portos ?? []
   const aeroportos = ctx.aeroportos ?? []
+  const paisExplicito = trim(input.destino_pais_cotacao_bid_frete_internacional)
 
   if (modal === 'MARITIMO') {
     const codigo = trim(input.porto_destino_cotacao_bid_frete_internacional)
@@ -173,7 +225,7 @@ function derivarDestino(
       return {
         destino_codigo_cotacao_bid_frete_internacional: r.codigo,
         destino_nome_cotacao_bid_frete_internacional: r.nome,
-        destino_pais_cotacao_bid_frete_internacional: r.pais,
+        destino_pais_cotacao_bid_frete_internacional: r.pais || paisExplicito,
       }
     }
   }
@@ -185,7 +237,7 @@ function derivarDestino(
       return {
         destino_codigo_cotacao_bid_frete_internacional: r.codigo,
         destino_nome_cotacao_bid_frete_internacional: r.nome,
-        destino_pais_cotacao_bid_frete_internacional: r.pais,
+        destino_pais_cotacao_bid_frete_internacional: r.pais || paisExplicito,
       }
     }
   }
@@ -226,7 +278,44 @@ export function prepararCamposRotaCotacaoPersistencia<T extends CamposRotaModalC
   ctx: ContextoCatalogoRota = {},
 ): T & SnapshotRotaDerivado {
   const snapshot = derivarSnapshotRotaCotacao(input, ctx)
-  return { ...input, ...snapshot }
+  const modal = input.modal_cotacao_bid_frete_internacional
+  const patch: Partial<CamposRotaModalCotacao> = {}
+
+  if (modal === 'MARITIMO') {
+    const rawOrigem = trim(input.porto_origem_cotacao_bid_frete_internacional)
+    if (rawOrigem) {
+      const codigoResolvido = snapshot.origem_codigo_cotacao_bid_frete_internacional
+      if (codigoResolvido && codigoResolvido !== rawOrigem && ehCodigoUnlocode(codigoResolvido)) {
+        patch.porto_origem_cotacao_bid_frete_internacional = codigoResolvido
+      }
+    }
+    const rawDestino = trim(input.porto_destino_cotacao_bid_frete_internacional)
+    if (rawDestino) {
+      const codigoResolvido = snapshot.destino_codigo_cotacao_bid_frete_internacional
+      if (codigoResolvido && codigoResolvido !== rawDestino && ehCodigoUnlocode(codigoResolvido)) {
+        patch.porto_destino_cotacao_bid_frete_internacional = codigoResolvido
+      }
+    }
+  }
+
+  if (modal === 'AEREO') {
+    const rawOrigem = trim(input.aeroporto_origem_cotacao_bid_frete_internacional)
+    if (rawOrigem) {
+      const codigoResolvido = snapshot.origem_codigo_cotacao_bid_frete_internacional
+      if (codigoResolvido && codigoResolvido !== rawOrigem && (ehCodigoIata(codigoResolvido) || ehCodigoUnlocode(codigoResolvido))) {
+        patch.aeroporto_origem_cotacao_bid_frete_internacional = codigoResolvido
+      }
+    }
+    const rawDestino = trim(input.aeroporto_destino_cotacao_bid_frete_internacional)
+    if (rawDestino) {
+      const codigoResolvido = snapshot.destino_codigo_cotacao_bid_frete_internacional
+      if (codigoResolvido && codigoResolvido !== rawDestino && (ehCodigoIata(codigoResolvido) || ehCodigoUnlocode(codigoResolvido))) {
+        patch.aeroporto_destino_cotacao_bid_frete_internacional = codigoResolvido
+      }
+    }
+  }
+
+  return { ...input, ...patch, ...snapshot }
 }
 
 /** Campos de snapshot legado — não editáveis diretamente no front. */

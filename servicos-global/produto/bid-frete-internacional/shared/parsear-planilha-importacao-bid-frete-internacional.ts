@@ -82,7 +82,9 @@ export function aplicarMapeamentoImportacaoBid(
       }
     }
     return row
-  }).filter(r => !linhaVaziaImportacao(r))
+  })
+    .filter(r => !linhaVaziaImportacao(r))
+    .map(normalizarLinhaImportacaoBid)
 }
 
 function parseCsvModoGravity(content: string): ResultadoParseImportacaoBidFreteInternacional {

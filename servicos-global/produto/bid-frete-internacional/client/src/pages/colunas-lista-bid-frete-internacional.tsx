@@ -28,6 +28,10 @@ import {
   TextoTruncadoComTooltip,
 } from '../shared/texto-truncado-com-tooltip-bid-frete-internacional'
 import { CAMPOS_NAO_EDITAVEIS_COTACAO as CAMPOS_NAO_EDITAVEIS_LISTA } from '../shared/salvar-campo-cotacao-bid-frete-internacional'
+import {
+  CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
+  ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
+} from '../shared/ordem-colunas-lista-bid-frete-internacional'
 
 export { CAMPOS_NAO_EDITAVEIS_LISTA }
 
@@ -702,6 +706,7 @@ function buildColunasCotacoesBase(
       key: 'id_produto_gravity',
       label: 'Produto Gravity',
       tipo: 'texto',
+      oculta: true,
       render: (val: unknown) => renderProduto(val),
       findDisplay: (item: Cotacao) => {
         const label = renderProduto(item.id_produto_gravity)
@@ -712,6 +717,7 @@ function buildColunasCotacoesBase(
       key: 'id_usuario',
       label: 'Usuário',
       tipo: 'texto',
+      oculta: true,
       render: (val: unknown, item: Cotacao) => renderNomeUsuario(val, opcoes, item),
       findDisplay: (item: Cotacao) => textoUsuario(item.id_usuario, opcoes, item) || '—',
     },
@@ -980,6 +986,38 @@ function buildColunasCotacoesBase(
   ]
 }
 
+function ordenarColunasListaPorOrdemCanonica(
+  colunas: GTColuna<Cotacao>[],
+  ordem: readonly string[],
+): GTColuna<Cotacao>[] {
+  const porChave = new Map(colunas.map(c => [String(c.key), c]))
+  const ordenadas: GTColuna<Cotacao>[] = []
+  const usadas = new Set<string>()
+  for (const key of ordem) {
+    const col = porChave.get(key)
+    if (col) {
+      ordenadas.push(col)
+      usadas.add(key)
+    }
+  }
+  for (const col of colunas) {
+    const key = String(col.key)
+    if (!usadas.has(key)) ordenadas.push(col)
+  }
+  return ordenadas
+}
+
+function buildColunasCotacoesBaseOrdenadas(
+  t: unknown,
+  opcoes: OpcoesColunasLista = {},
+  onAbrirCotacao?: (cotacao: Cotacao) => void,
+): GTColuna<Cotacao>[] {
+  return ordenarColunasListaPorOrdemCanonica(
+    buildColunasCotacoesBase(t, opcoes, onAbrirCotacao),
+    ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
+  )
+}
+
 function garantirFiltravelColunaLista(col: GTColuna<Cotacao>): GTColuna<Cotacao> {
   if (col.oculta) return col
   return { ...col, filtravel: true }
@@ -990,7 +1028,7 @@ export function buildColunasCotacoes(
   opcoes: OpcoesColunasLista = {},
   onAbrirCotacao?: (cotacao: Cotacao) => void,
 ): GTColuna<Cotacao>[] {
-  return buildColunasCotacoesBase(t, opcoes, onAbrirCotacao).map(col =>
+  return buildColunasCotacoesBaseOrdenadas(t, opcoes, onAbrirCotacao).map(col =>
     aplicarConfigEdicaoColuna(
       garantirFiltravelColunaLista({ ...col, align: 'center' }),
       opcoes,
@@ -1128,7 +1166,7 @@ export function buildMapaColunasFilho(
   return buildMapaColunasFilhoDeColunas(buildColunasCotacoes(t, opcoes, onAbrirCotacao))
 }
 
-const COLUNAS_COTACAO_BASE = buildColunasCotacoesBase(null)
+const COLUNAS_COTACAO_BASE = buildColunasCotacoesBaseOrdenadas(null)
 
 export const CHAVES_COLUNAS_COTACAO = COLUNAS_COTACAO_BASE
   .map(c => c.key)
@@ -1139,8 +1177,5 @@ export const CAMPOS_EDITAVEIS_LISTA = CHAVES_COLUNAS_COTACAO.filter(
   k => !CAMPOS_NAO_EDITAVEIS_LISTA.has(k),
 )
 
-/** Colunas visíveis por padrão (exclui técnicas como ID interno). */
-export const CHAVES_COLUNAS_PADRAO_VISIVEIS = COLUNAS_COTACAO_BASE
-  .filter(c => !c.oculta)
-  .map(c => c.key)
-  .filter((k): k is string => typeof k === 'string')
+/** Colunas visíveis por padrão — ordem e visibilidade SSOT em ordem-colunas-lista. */
+export const CHAVES_COLUNAS_PADRAO_VISIVEIS = [...CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA]

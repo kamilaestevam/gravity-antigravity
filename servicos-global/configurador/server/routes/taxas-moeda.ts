@@ -34,6 +34,25 @@ type Moeda = typeof MOEDAS_SUPORTADAS[number]
 // Helpers
 // ---------------------------------------------------------------------------
 
+function extrairMensagemErroAxios(err: unknown): string {
+  if (axios.isAxiosError(err)) {
+    const data = err.response?.data as { message?: string; error?: string | { message?: string } } | undefined
+    const dataMsg =
+      (typeof data?.message === 'string' && data.message) ||
+      (typeof data?.error === 'string' && data.error) ||
+      (typeof data?.error === 'object' && data.error?.message) ||
+      null
+    if (dataMsg?.trim()) return dataMsg.trim()
+    if (err.code === 'ECONNREFUSED') {
+      return `serviço taxas-moeda indisponível em ${TAXAS_MOEDA_URL}`
+    }
+    if (err.message?.trim()) return err.message.trim()
+    return `falha HTTP ${err.response?.status ?? 'desconhecido'}`
+  }
+  if (err instanceof Error && err.message.trim()) return err.message.trim()
+  return 'Erro desconhecido'
+}
+
 /** Classifica o boletim pelo horário retornado pelo BCB */
 export function classificarBoletim(hora: string | null | undefined): string {
   if (!hora) return 'Fechamento'
@@ -202,7 +221,8 @@ taxasMoedaRouter.post('/sync', requireAuth, requireConfiguradorMutation, async (
       })
 
       if (!data.compra || !data.venda || !data.data) {
-        resultados.push({ moeda, boletim: '—', status: 'erro', detalhe: 'PTAX indisponível no BCB' })
+        const aviso = typeof data.aviso === 'string' && data.aviso.trim() ? data.aviso.trim() : 'PTAX indisponível no BCB'
+        resultados.push({ moeda, boletim: '—', status: 'erro', detalhe: aviso })
         continue
       }
 
@@ -213,14 +233,17 @@ taxasMoedaRouter.post('/sync', requireAuth, requireConfiguradorMutation, async (
 
       resultados.push({ moeda, boletim, status: 'ok' })
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro desconhecido'
-      resultados.push({ moeda, boletim: '—', status: 'erro', detalhe: msg })
+      resultados.push({ moeda, boletim: '—', status: 'erro', detalhe: extrairMensagemErroAxios(err) })
     }
   }
 
   const totalOk = resultados.filter(r => r.status === 'ok').length
   if (totalOk > 0) {
-    await registrarExecucaoAgendamentoTaxaMoeda('ptax')
+    try {
+      await registrarExecucaoAgendamentoTaxaMoeda('ptax')
+    } catch (regErr) {
+      console.warn('[TaxasMoeda] Sync OK mas falha ao registrar ultima_execucao do agendamento PTAX:', regErr)
+    }
   }
 
   res.json({

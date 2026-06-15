@@ -921,6 +921,13 @@ export default function Cotacoes() {
     [opcoesColunasLista.statusOpcoes],
   )
 
+  const numerosBidParaFiltroColuna = useMemo(
+    () => bidsFreteInternacional
+      .map(b => b.numero_bid_bid_frete_internacional)
+      .filter((n): n is string => Boolean(n?.trim())),
+    [bidsFreteInternacional],
+  )
+
   const valoresUnicosPorCampo = useMemo(
     () => calcularValoresUnicosPorCampoBidFrete(
       cotacoesParaFiltroColuna,
@@ -928,6 +935,7 @@ export default function Cotacoes() {
       opcoesColunasLista,
       labelsFiltroCtx,
       colunasPersonalizadasPorChave,
+      numerosBidParaFiltroColuna,
     ),
     [
       cotacoesParaFiltroColuna,
@@ -935,6 +943,7 @@ export default function Cotacoes() {
       opcoesColunasLista,
       labelsFiltroCtx,
       colunasPersonalizadasPorChave,
+      numerosBidParaFiltroColuna,
     ],
   )
 

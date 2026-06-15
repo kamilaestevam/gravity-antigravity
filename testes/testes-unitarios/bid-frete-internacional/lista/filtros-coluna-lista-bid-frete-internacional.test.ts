@@ -3,8 +3,10 @@ import type { Cotacao } from '../../../../servicos-global/produto/bid-frete-inte
 import { buildColunasCotacoes } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/pages/colunas-lista-bid-frete-internacional'
 import {
   cotacaoPassaFiltrosColuna,
+  calcularValoresUnicosPorCampoBidFrete,
   deveUsarFiltroTextoLivreBidFrete,
   mapColunaUsuarioBidFreteParaGTColuna,
+  resolverLabelFiltroBidFrete,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/filtros-coluna-lista-bid-frete-internacional'
 
 function cotacaoBase(partial: Partial<Cotacao> = {}): Cotacao {
@@ -58,13 +60,61 @@ describe('filtros-coluna-lista-bid-frete-internacional', () => {
     expect(col.filtravel).toBe(true)
   })
 
-  it('deveUsarFiltroTextoLivreBidFrete para número da cotação', () => {
+  it('deveUsarFiltroTextoLivreBidFrete não inclui número da cotação', () => {
     const colunas = buildColunasCotacoes(null)
     const col = colunas.find(
       c => c.key === 'numero_cotacao_bid_frete_internacional',
     )
     expect(col).toBeDefined()
-    expect(deveUsarFiltroTextoLivreBidFrete(col!)).toBe(true)
+    expect(deveUsarFiltroTextoLivreBidFrete(col!)).toBe(false)
+  })
+
+  it('resolverLabelFiltroBidFrete unifica enum maiúsculo e label', () => {
+    expect(
+      resolverLabelFiltroBidFrete('status_cotacao_bid_frete_internacional', 'RASCUNHO'),
+    ).toBe('Rascunho')
+    expect(
+      resolverLabelFiltroBidFrete('status_cotacao_bid_frete_internacional', 'Rascunho'),
+    ).toBe('Rascunho')
+    expect(
+      resolverLabelFiltroBidFrete('tipo_operacao_cotacao_bid_frete_internacional', 'IMPORTACAO'),
+    ).toBe('Importação')
+    expect(
+      resolverLabelFiltroBidFrete('modal_cotacao_bid_frete_internacional', 'MARITIMO'),
+    ).toBe('Marítimo')
+  })
+
+  it('calcularValoresUnicosPorCampoBidFrete inclui números de BID na coluna cotação', () => {
+    const colunas = buildColunasCotacoes(null)
+    const cotacao = cotacaoBase()
+    const result = calcularValoresUnicosPorCampoBidFrete(
+      [cotacao],
+      colunas,
+      {},
+      {},
+      undefined,
+      ['BID-20260615-9999'],
+    )
+    expect(result.numero_cotacao_bid_frete_internacional).toContain('BID-20260528-0001')
+    expect(result.numero_cotacao_bid_frete_internacional).toContain('BID-20260615-9999')
+  })
+
+  it('calcularValoresUnicosPorCampoBidFrete não duplica status por casing', () => {
+    const colunas = buildColunasCotacoes(null)
+    const result = calcularValoresUnicosPorCampoBidFrete(
+      [
+        cotacaoBase({ status_cotacao_bid_frete_internacional: 'RASCUNHO' }),
+        cotacaoBase({
+          id_cotacao_bid_frete_internacional: 'cot-2',
+          numero_cotacao_bid_frete_internacional: 'BID-20260528-0002',
+          status_cotacao_bid_frete_internacional: 'RASCUNHO',
+        }),
+      ],
+      colunas,
+      {},
+    )
+    const statusVals = result.status_cotacao_bid_frete_internacional ?? []
+    expect(statusVals.filter(v => v.toLowerCase() === 'rascunho').length).toBe(1)
   })
 
   it('cotacaoPassaFiltrosColuna filtra coluna manual via _colunas_usuario', () => {

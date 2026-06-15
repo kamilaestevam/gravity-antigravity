@@ -3,6 +3,7 @@ import type { Cotacao } from '../../../../servicos-global/produto/bid-frete-inte
 import { buildColunasCotacoes } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/pages/colunas-lista-bid-frete-internacional'
 import {
   cotacaoPassaFiltrosColuna,
+  deveUsarFiltroTextoLivreBidFrete,
   mapColunaUsuarioBidFreteParaGTColuna,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/filtros-coluna-lista-bid-frete-internacional'
 
@@ -55,6 +56,15 @@ describe('filtros-coluna-lista-bid-frete-internacional', () => {
       tipo: 'texto',
     })
     expect(col.filtravel).toBe(true)
+  })
+
+  it('deveUsarFiltroTextoLivreBidFrete para número da cotação', () => {
+    const colunas = buildColunasCotacoes(null)
+    const col = colunas.find(
+      c => c.key === 'numero_cotacao_bid_frete_internacional',
+    )
+    expect(col).toBeDefined()
+    expect(deveUsarFiltroTextoLivreBidFrete(col!)).toBe(true)
   })
 
   it('cotacaoPassaFiltrosColuna filtra coluna manual via _colunas_usuario', () => {

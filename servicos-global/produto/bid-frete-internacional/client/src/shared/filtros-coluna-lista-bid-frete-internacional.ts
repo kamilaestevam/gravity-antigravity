@@ -40,6 +40,35 @@ export function detectarTipoColunaBidFrete(col: GTColuna<Cotacao>): FiltroTipo {
   return detectarTipoColunaCore(col, FILTRO_TIPO_OVERRIDES_BID_FRETE)
 }
 
+/** Colunas texto usam campo Buscar… (substring), não lista de checkboxes. */
+export function deveUsarFiltroTextoLivreBidFrete(
+  col: GTColuna<Cotacao>,
+  colunasPersonalizadasPorChave?: Map<string, ColunaUsuarioBidFreteLista>,
+): boolean {
+  const key = String(col.key ?? '')
+  if (!key) return false
+  if (FILTRO_TIPO_OVERRIDES_BID_FRETE[key] === 'enum') return false
+  if (col.opcoes && col.opcoes.length > 0) return false
+
+  const custom = colunasPersonalizadasPorChave?.get(key)
+  if (custom) {
+    if (custom.tipo === 'select' || custom.tipo === 'checkbox') return false
+    return custom.tipo === 'texto' || custom.tipo === 'data'
+  }
+
+  return detectarTipoColunaBidFrete(col) === 'texto'
+}
+
+export function resolverValoresUnicosPopoverBidFrete(
+  col: GTColuna<Cotacao>,
+  valoresUnicosPorCampo: Record<string, string[]>,
+  colunasPersonalizadasPorChave?: Map<string, ColunaUsuarioBidFreteLista>,
+): string[] {
+  const key = String(col.key ?? '')
+  if (!key || deveUsarFiltroTextoLivreBidFrete(col, colunasPersonalizadasPorChave)) return []
+  return valoresUnicosPorCampo[key] ?? []
+}
+
 export interface LabelsFiltroBidFreteContext {
   statusOpcoes?: Array<{ valor: string; label: string }>
 }
@@ -172,6 +201,7 @@ export function calcularValoresUnicosPorCampoBidFrete(
     if (!col.filtravel || !col.key) continue
     const key = String(col.key)
     if (detectarTipoColunaBidFrete(col) === 'numero') continue
+    if (deveUsarFiltroTextoLivreBidFrete(col, colunasPersonalizadasPorChave)) continue
 
     if (key === 'id_workspace' && opcoes.workspacesMap) {
       const nomes = [...opcoes.workspacesMap.values()].map(w => w.nome).filter(Boolean)

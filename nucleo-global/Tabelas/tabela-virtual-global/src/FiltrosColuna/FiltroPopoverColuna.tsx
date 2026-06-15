@@ -172,7 +172,7 @@ export function FiltroPopoverColuna({
       {(tipo === 'enum' || (tipo === 'texto' && valoresUnicos.length > 0)) && (
         <div style={{ padding: '0.375rem 0.5rem' }}>
           <div className="fc-popover-section-title">{t.filtrarPor}</div>
-          {valoresUnicos.length > 6 && (
+          {valoresUnicos.length > 0 && (
             <div className="fc-popover-busca gtv-col-busca" style={{ borderRadius: '6px', margin: '0.25rem 0' }}>
               <input
                 type="text"

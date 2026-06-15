@@ -134,8 +134,22 @@ Arquivo: `client/src/pages/dashboard.tsx` · Stores: `dashboardStore.ts` / `dash
 | Período por widget | Chip + `periodLocked` — helpers em `dashboardPeriodoUtil.ts` |
 | Permissão editar | `usePermissoesBidFreteInternacional` → `podeEditar('dashboard')` (Configurador) |
 | Ordem pós-drag | `sincronizarOrdemPainelPorPosicaoGrid` — `ordem_painel` derivada de `y/x` do grid |
+| React Query (perm.) | `App.tsx` envolve `AppInner` com `QueryClientProvider` (`bid-frete-query-client.ts`) — obrigatório para `usePermissoesBidFreteInternacional` |
 
-GABI Insights: widget `GABI_INSIGHTS` dentro de `DashboardPainelContainer` (mesmo menu ⋮).
+### GABI Fase 1 (carrossel widget `GABI_INSIGHTS`)
+
+| Peça | Caminho |
+|------|---------|
+| Rota | `GET /api/v1/bid-frete-internacional/dashboard/insights` |
+| Motor server | `server/src/services/gabi-insights-bid-frete-internacional.ts` |
+| SSOT KPIs | `server/src/lib/agregar-kpis-dashboard-bid-frete-internacional.ts` (compartilhado com `/kpis`) |
+| Período anterior | `server/src/lib/periodo-dashboard-bid-frete-internacional.ts` |
+| Zod client | `client/src/shared/dashboard-gabi-schemas.ts` → `dashboardApi.insights` |
+| Fallback | Se a API falhar: `buildClientInsightsOperacional` + `console.warn` (Mand. 08) |
+
+Query: `period`, `data_inicio`/`data_fim` (ou `from`/`to`), `ids_workspaces`, `role` ou header `x-user-role`. Resposta: `{ period, role, insights[] }` — mínimo 2 cards; ranking por role (`operador` \| `gerente` \| `diretor` \| `admin` \| `default`).
+
+**Separado da aba Insights** (`visao-geral.tsx`) — ver [INSIGHTS-VISAO-GERAL-TECNICO.md](./INSIGHTS-VISAO-GERAL-TECNICO.md).
 
 Skill: `skills/produtos-gravity/bid-frete-internacional/SKILL.md` § Dashboard.
 

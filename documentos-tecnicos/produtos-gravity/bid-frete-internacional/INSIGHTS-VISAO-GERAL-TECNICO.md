@@ -16,6 +16,7 @@ Arquivo: `server/src/routes/dashboard.ts` · prefixo `/api/v1/bid-frete-internac
 | GET | `/insights-alertas` | Pills de alertas (navegação por dia) |
 | GET | `/insights-graficos` | Gráficos mensal, modal, incoterms, melhor cotação |
 | GET | `/insights-detalhe` | Drill-down modal (alertas + rotas do mapa) |
+| GET | `/insights` | GABI Fase 1 — carrossel do **Dashboard** (`gabi-insights-bid-frete-internacional.ts`); **não** é a aba Insights |
 | GET | `/mapa-cotacoes` | Globo / rotas operacionais |
 
 Todas exigem `assertWorkspacesAutorizadosNoRequest` + query `ids_workspaces` quando escopo múltiplo.

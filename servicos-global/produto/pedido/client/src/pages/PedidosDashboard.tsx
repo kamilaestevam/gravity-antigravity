@@ -774,6 +774,7 @@ export default function PedidosDashboard() {
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesPedido(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesPedido(s => s.hidratado)
+  const versaoEscopo = useEscopoWorkspacesPedido(s => s.versaoEscopo)
   const idsWorkspacesFiltro = useMemo(
     () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
     [idsWorkspacesEscopo, idWorkspaceAtivo],
@@ -1005,7 +1006,15 @@ export default function PedidosDashboard() {
 
   useEffect(() => {
     if (!escopoHidratado) return
+
     setLoadingData(true)
+    setKpisData(null)
+    setPrevKpisData(null)
+    setTrendData([])
+    setDistribuicaoGlobal([])
+    setKpisPorPeriodo({})
+    setInsightsData([])
+
     const customRangeGlobal = resolverCustomRange(slicers.period)
 
     const extraPeriodos = periodosWidgets.filter(p => p !== slicers.period)
@@ -1031,15 +1040,16 @@ export default function PedidosDashboard() {
       })
       .catch(err => console.error('[Dashboard] Erro ao carregar dados:', err))
       .finally(() => setLoadingData(false))
-  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, periodosWidgets, resolverCustomRange])
+  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, versaoEscopo, periodosWidgets, resolverCustomRange])
 
   useEffect(() => {
     if (!escopoHidratado) return
+    setInsightsData([])
     const customRangeGlobal = resolverCustomRange(slicers.period)
     dashboardApi.insights(slicers.period, customRangeGlobal, idsWorkspacesFiltro)
       .then(insightsRes => setInsightsData(insightsRes.insights))
       .catch(() => setInsightsData([]))
-  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, resolverCustomRange])
+  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, versaoEscopo, resolverCustomRange])
 
   const activeWidgets = useMemo(() =>
     ordenarWidgetsLista(widgets)

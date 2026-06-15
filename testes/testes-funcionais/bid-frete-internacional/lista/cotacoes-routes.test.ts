@@ -264,6 +264,13 @@ describe('PATCH /api/v1/bid-frete-internacional/cotacoes/:id', () => {
       id_cotacao_bid_frete_internacional: 'cotacao_em_cotacao',
       tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO',
       status_cotacao_bid_frete_internacional: 'EM_COTACAO',
+      modal_cotacao_bid_frete_internacional: 'AEREO',
+      origem_codigo_cotacao_bid_frete_internacional: 'GRU',
+      origem_nome_cotacao_bid_frete_internacional: 'GRU — Guarulhos',
+      origem_pais_cotacao_bid_frete_internacional: 'BR',
+      destino_codigo_cotacao_bid_frete_internacional: 'MIA',
+      destino_nome_cotacao_bid_frete_internacional: 'MIA — Miami',
+      destino_pais_cotacao_bid_frete_internacional: 'US',
     })
   })
 

@@ -5,6 +5,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { listaCardKpisSchema, type CardPeriodoCodigo, type ListaCardKpis } from './lista-card-schemas'
 import { request } from './api'
+import { useEscopoWorkspacesPedido } from './useEscopoWorkspacesPedido'
 
 export interface ListaCardKpisParams {
   period: CardPeriodoCodigo
@@ -19,6 +20,7 @@ export function useListaCardKpis(params: ListaCardKpisParams) {
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const seqRef = useRef(0)
+  const versaoEscopo = useEscopoWorkspacesPedido(s => s.versaoEscopo)
 
   const {
     period,
@@ -29,7 +31,12 @@ export function useListaCardKpis(params: ListaCardKpisParams) {
   } = params
 
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled) {
+      setKpis(null)
+      setCarregando(false)
+      setErro(null)
+      return
+    }
 
     const seq = ++seqRef.current
     const q = new URLSearchParams()
@@ -38,6 +45,8 @@ export function useListaCardKpis(params: ListaCardKpisParams) {
     if (busca?.trim()) q.set('busca', busca.trim())
     if (idsWorkspacesFiltro?.length) q.set('ids_workspaces', idsWorkspacesFiltro.join(','))
 
+    // Limpa KPIs stale imediatamente — evita cards desincronizados da tabela vazia
+    setKpis(null)
     setCarregando(true)
     setErro(null)
 
@@ -54,7 +63,7 @@ export function useListaCardKpis(params: ListaCardKpisParams) {
       .finally(() => {
         if (seq === seqRef.current) setCarregando(false)
       })
-  }, [period, status, busca, idsWorkspacesFiltro?.join(','), enabled])
+  }, [period, status, busca, idsWorkspacesFiltro?.join(','), enabled, versaoEscopo])
 
   return { kpis, carregando, erro }
 }

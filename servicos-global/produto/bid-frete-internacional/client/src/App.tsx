@@ -7,7 +7,7 @@
 
 import React, { lazy, Suspense, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Routes, Route, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigate, useSearchParams, useParams } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
 import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
@@ -29,7 +29,11 @@ import {
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { injectTenantGetter, injectUserGetter, injectWorkspaceGetter } from './shared/api'
-import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from './shared/rotas-bid-frete-internacional'
+import {
+  ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL,
+  rotaBidFreteInternacional,
+  rotaDetalheCotacaoBidFreteInternacional,
+} from './shared/rotas-bid-frete-internacional'
 import { resolverPageMetaTopo } from './shared/page-meta-topo'
 import { PaginaCarregandoBidFreteInternacional } from './shared/pagina-carregando-bid-frete-internacional'
 import './shared/bid-frete-page-shell.css'
@@ -125,7 +129,14 @@ function RedirectCotacoesVisaoLegado() {
   const [searchParams] = useSearchParams()
   const visao = searchParams.get('visao')
   const destino = visao === 'kanban' ? 'kanban' : 'lista'
-  return <Navigate to={destino} replace />
+  return <Navigate to={rotaBidFreteInternacional(destino)} replace />
+}
+
+/** Redirect legado: /lista/:id_cotacao → /cotacoes/:id_cotacao (rota canônica do detalhe). */
+function RedirectListaDetalheCotacao() {
+  const { id_cotacao } = useParams<{ id_cotacao: string }>()
+  if (!id_cotacao) return <Navigate to={rotaBidFreteInternacional('lista')} replace />
+  return <Navigate to={rotaDetalheCotacaoBidFreteInternacional(id_cotacao)} replace />
 }
 
 export default function App() {
@@ -178,6 +189,9 @@ export default function App() {
 
     let cancelled = false
     const idsDisponiveis = workspacesStore.map(ws => ws.id)
+
+    // Default imediato (sessionStorage) — sidebar e APIs filtram antes do GET backend
+    hidratarEscopo(idsDisponiveis, idWorkspaceAtivo, null)
 
     void bidFreteConfigApi.obterEscopoWorkspaces()
       .then(res => {
@@ -380,8 +394,8 @@ export default function App() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"              element={<Navigate to="insights" replace />} />
-          <Route path="visao-geral"    element={<Navigate to="insights" replace />} />
+          <Route path="/"              element={<Navigate to={rotaBidFreteInternacional('insights')} replace />} />
+          <Route path="visao-geral"    element={<Navigate to={rotaBidFreteInternacional('insights')} replace />} />
           <Route element={<BidFreteVisualizacaoLayout modo="cliente" />}>
             <Route path="insights"     element={bidFreteVisualizacoesClienteElement} />
             <Route path="dashboard"   element={bidFreteVisualizacoesClienteElement} />
@@ -389,6 +403,7 @@ export default function App() {
             <Route path="kanban"      element={bidFreteVisualizacoesClienteElement} />
             <Route path="configuracoes" element={<Configuracoes />} />
           </Route>
+          <Route path="lista/:id_cotacao" element={<RedirectListaDetalheCotacao />} />
           <Route path="cotacoes"       element={<RedirectCotacoesVisaoLegado />} />
           <Route path="cotacoes/nova" element={<ModalNovaCotacaoBidFreteInternacional />} />
           <Route path="cotacoes/importar" element={<CotacoesImportar />} />
@@ -414,7 +429,7 @@ export default function App() {
           {/* Redirects legado portal → visão fornecedor */}
           <Route path="portal/*" element={<Navigate to={ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL.dashboard} replace />} />
 
-          <Route path="*" element={<Navigate to="insights" replace />} />
+          <Route path="*" element={<Navigate to={rotaBidFreteInternacional('insights')} replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoComOrganizacaoOverride>

@@ -26,7 +26,8 @@ import {
 } from '@phosphor-icons/react'
 
 import { criarBidFreteInternacional, criarCotacao } from '../shared/api'
-import type { TipoOperacao, ModalFrete, Incoterm } from '../shared/types'
+import type { TipoOperacao, Incoterm } from '../shared/types'
+import { montarPayloadCriacaoCotacaoImportacaoBidFreteInternacional } from '../../../shared/montar-payload-criacao-cotacao-importacao-bid-frete-internacional'
 import { INCOTERMS } from '../shared/types'
 import {
   CAMPOS_IMPORTACAO_BID_FRETE_INTERNACIONAL,
@@ -40,10 +41,8 @@ import {
 } from '../../../shared/mapear-colunas-importacao-bid-frete-internacional'
 import {
   aplicarMapeamentoImportacaoBid,
-  parseCsvBruto,
-  parsearPlanilhaImportacaoBidFreteInternacional,
 } from '../../../shared/parsear-planilha-importacao-bid-frete-internacional'
-import { lerArquivoImportacaoComoCsv } from '../../../shared/ler-arquivo-importacao-bid-frete-internacional'
+import { analisarArquivoImportacaoBidFreteInternacional } from '../shared/analisar-importacao-bid-frete-internacional'
 import type {
   ColunaMapeadaBidFreteInternacional,
   LinhaImportacaoBidFreteInternacional,
@@ -122,6 +121,7 @@ export default function ImportarBidFreteInternacional() {
   const [scoreEssenciais, setScoreEssenciais] = useState(0)
   const [dragOver, setDragOver] = useState(false)
   const [erroUpload, setErroUpload] = useState<string | null>(null)
+  const [analisandoArquivo, setAnalisandoArquivo] = useState(false)
   const [result, setResult] = useState<CreationResult | null>(null)
   const [referenciaBid, setReferenciaBid] = useState('')
 
@@ -175,11 +175,9 @@ export default function ImportarBidFreteInternacional() {
     setErroUpload(null)
     setFileName(file.name)
     setParserArquivo(ext)
+    setAnalisandoArquivo(true)
 
-    void lerArquivoImportacaoComoCsv(file).then(content => {
-      const { linhasBrutas: brutas } = parseCsvBruto(content)
-      const resultado = parsearPlanilhaImportacaoBidFreteInternacional(content, modoPlanilha)
-
+    void analisarArquivoImportacaoBidFreteInternacional(file, modoPlanilha).then(resultado => {
       if (resultado.linhas.length === 0) {
         setErroUpload(t('bidfrete.importar.vazio_arquivo'))
         return
@@ -189,14 +187,17 @@ export default function ImportarBidFreteInternacional() {
         return
       }
 
-      setLinhasBrutas(brutas)
-      setMapeamento(resultado.mapeamento)
+      setLinhasBrutas(resultado.linhas_brutas)
+      setMapeamento(resultado.mapeamento as ColunaMapeadaBidFreteInternacional[])
       setConfiancaGlobal(resultado.confianca_global)
       setScoreEssenciais(resultado.score_essenciais)
-      setRows(linhasParaValidadas(resultado.linhas))
+      setRows(linhasParaValidadas(resultado.linhas as LinhaImportacaoBidFreteInternacional[]))
       setPhase('mapeamento')
-    }).catch(() => {
-      setErroUpload(t('bidfrete.importar.erro_formato'))
+    }).catch(err => {
+      const msg = err instanceof Error ? err.message : t('bidfrete.importar.erro_formato')
+      setErroUpload(msg)
+    }).finally(() => {
+      setAnalisandoArquivo(false)
     })
   }, [modoPlanilha, t])
 
@@ -238,20 +239,10 @@ export default function ImportarBidFreteInternacional() {
 
     for (const row of validRows) {
       try {
+        const payload = montarPayloadCriacaoCotacaoImportacaoBidFreteInternacional(row, idBid)
         await criarCotacao({
-          ...(idBid ? { id_bid_bid_frete_internacional: idBid } : {}),
-          tipo_operacao_cotacao_bid_frete_internacional: row.tipo_operacao_cotacao_bid_frete_internacional.trim().toUpperCase() as TipoOperacao,
-          modal_cotacao_bid_frete_internacional: row.modal_cotacao_bid_frete_internacional.trim().toUpperCase() as ModalFrete,
-          origem_codigo_cotacao_bid_frete_internacional: row.origem_codigo_cotacao_bid_frete_internacional.trim(),
-          origem_nome_cotacao_bid_frete_internacional: row.origem_nome_cotacao_bid_frete_internacional.trim() || row.origem_codigo_cotacao_bid_frete_internacional.trim(),
-          origem_pais_cotacao_bid_frete_internacional: '',
-          destino_codigo_cotacao_bid_frete_internacional: row.destino_codigo_cotacao_bid_frete_internacional.trim(),
-          destino_nome_cotacao_bid_frete_internacional: row.destino_nome_cotacao_bid_frete_internacional.trim() || row.destino_codigo_cotacao_bid_frete_internacional.trim(),
-          destino_pais_cotacao_bid_frete_internacional: '',
-          descricao_mercadoria_cotacao_bid_frete_internacional: row.descricao_mercadoria_cotacao_bid_frete_internacional.trim(),
-          incoterm_cotacao_bid_frete_internacional: row.incoterm_cotacao_bid_frete_internacional.trim().toUpperCase(),
-          quantidade_volume_cotacao_bid_frete_internacional: Number(row.quantidade_volume_cotacao_bid_frete_internacional),
-          ncm_cotacao_bid_frete_internacional: row.ncm_cotacao_bid_frete_internacional?.trim() || null,
+          ...payload,
+          tipo_operacao_cotacao_bid_frete_internacional: payload.tipo_operacao_cotacao_bid_frete_internacional as TipoOperacao,
         })
         criadas++
       } catch (err) {
@@ -494,15 +485,20 @@ export default function ImportarBidFreteInternacional() {
                 </div>
 
                 <div
-                  className={`bid-import-upload-area${dragOver ? ' bid-import-upload-area--drag-over' : ''}`}
-                  onDragOver={e => { e.preventDefault(); setDragOver(true) }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
+                  className={`bid-import-upload-area${dragOver ? ' bid-import-upload-area--drag-over' : ''}${analisandoArquivo ? ' bid-import-upload-area--loading' : ''}`}
+                  onDragOver={analisandoArquivo ? undefined : e => { e.preventDefault(); setDragOver(true) }}
+                  onDragLeave={analisandoArquivo ? undefined : () => setDragOver(false)}
+                  onDrop={analisandoArquivo ? undefined : handleDrop}
+                  onClick={analisandoArquivo ? undefined : () => fileInputRef.current?.click()}
                   role="button"
-                  tabIndex={0}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
+                  tabIndex={analisandoArquivo ? -1 : 0}
+                  aria-busy={analisandoArquivo}
+                  onKeyDown={analisandoArquivo ? undefined : e => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
                 >
+                  {analisandoArquivo ? (
+                    <ConteudoCarregandoBidFreteInternacional />
+                  ) : (
+                    <>
                   <FileArrowUp size={48} weight="duotone" className="bid-import-upload-icone" aria-hidden />
                   <div style={{ textAlign: 'center' }}>
                     <p className="bid-import-upload-titulo">{t('pedido.importar.arrastar')}</p>
@@ -523,6 +519,8 @@ export default function ImportarBidFreteInternacional() {
                     ))}
                   </div>
                   <input ref={fileInputRef} type="file" accept=".csv,.xlsx,.xls" onChange={handleFileSelect} style={{ display: 'none' }} />
+                    </>
+                  )}
                 </div>
 
                 {erroUpload && (

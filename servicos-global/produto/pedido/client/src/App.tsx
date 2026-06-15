@@ -183,6 +183,10 @@ function AppInner() {
   const sinalAbrirMenuWorkspaces = useEscopoWorkspacesPedido(s => s.sinalAbrirMenuWorkspaces)
   const sessaoEscopoHidratadaRef = useRef<string | null>(null)
   const qtdWorkspaces = workspacesStore.length
+  const idsWorkspacesDisponiveisAssinatura = useMemo(
+    () => workspacesStore.map(ws => ws.id).join('\0'),
+    [workspacesStore],
+  )
 
   useEffect(() => {
     if (currentUser.id) {
@@ -204,6 +208,8 @@ function AppInner() {
 
     let cancelled = false
     const idsDisponiveis = workspacesStore.map(ws => ws.id)
+
+    hidratarEscopo(idsDisponiveis, idWorkspaceAtivo, null)
 
     void pedidoConfigApi.obterPreferenciaUsuarioColunaPedido()
       .then(res => {
@@ -230,7 +236,7 @@ function AppInner() {
     currentUser?.id,
     hidratarEscopo,
     reiniciarHidratacaoEscopo,
-    workspacesStore,
+    idsWorkspacesDisponiveisAssinatura,
   ])
 
   const { history, visitedIds, addEntry } = useLocalizadorHistory(PRODUCT_ID)

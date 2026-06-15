@@ -12,6 +12,16 @@ export function rotaBidFreteInternacional(segmento = ''): string {
   return limpo ? `${PREFIXO_URL_BID_FRETE_INTERNACIONAL}/${limpo}` : PREFIXO_URL_BID_FRETE_INTERNACIONAL
 }
 
+/** Lista de cotações (visualização tabela/kanban). */
+export const ROTA_LISTA_BID_FRETE_INTERNACIONAL = rotaBidFreteInternacional('lista')
+
+/** Detalhe/cockpit de uma cotação — rota canônica `/bid-frete/cotacoes/:id`. */
+export function rotaDetalheCotacaoBidFreteInternacional(
+  id_cotacao_bid_frete_internacional: string,
+): string {
+  return rotaBidFreteInternacional(`cotacoes/${id_cotacao_bid_frete_internacional}`)
+}
+
 export const ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL = {
   dashboard: `${BASE_VISAO_FORNECEDOR}/dashboard`,
   paineisDashboard: `${BASE_VISAO_FORNECEDOR}/paineis-dashboard`,

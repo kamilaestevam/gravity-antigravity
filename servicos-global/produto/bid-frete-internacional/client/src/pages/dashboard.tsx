@@ -623,6 +623,7 @@ export default function Dashboard() {
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
+  const versaoEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.versaoEscopo)
   const idsWorkspacesFiltro = useMemo(
     () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
     [idsWorkspacesEscopo, idWorkspaceAtivo],
@@ -815,7 +816,7 @@ export default function Dashboard() {
       })
       .catch(err => console.error('[Dashboard] Erro ao carregar dados:', err))
       .finally(() => setLoadingData(false))
-  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, idsWorkspacesEscopo, dashboardApi])
+  }, [slicers.period, escopoHidratado, idsWorkspacesFiltro, versaoEscopo, dashboardApi])
 
   const activeWidgets = useMemo(() =>
     widgets.map(w => ({

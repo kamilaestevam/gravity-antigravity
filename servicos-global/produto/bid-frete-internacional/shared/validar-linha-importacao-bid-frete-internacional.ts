@@ -5,6 +5,8 @@ import {
   resolverCodigoDestinoImportacao,
   resolverCodigoOrigemImportacao,
 } from './campos-importacao-bid-frete-internacional'
+import { linhaImportacaoParaCamposRotaModal } from './montar-payload-criacao-cotacao-importacao-bid-frete-internacional'
+import { prepararCamposRotaCotacaoPersistencia } from './rota-cotacao-bid-frete-internacional'
 import type { LinhaImportacaoBidFreteInternacional } from './tipos-importacao-bid-frete-internacional'
 
 const VALID_TIPOS = ['IMPORTACAO', 'EXPORTACAO'] as const
@@ -61,6 +63,20 @@ export function validarLinhaImportacaoBidFreteInternacional(
       if (!temOrigem) erros.push('origem rodoviaria obrigatoria')
       if (!temDestino) erros.push('destino rodoviario obrigatorio')
     }
+  }
+
+  const rota = prepararCamposRotaCotacaoPersistencia(linhaImportacaoParaCamposRotaModal(row))
+  if (!rota.origem_codigo_cotacao_bid_frete_internacional) {
+    erros.push('origem obrigatoria')
+  }
+  if (!rota.destino_codigo_cotacao_bid_frete_internacional) {
+    erros.push('destino obrigatorio')
+  }
+  if (!rota.origem_pais_cotacao_bid_frete_internacional) {
+    erros.push('origem_pais obrigatorio')
+  }
+  if (!rota.destino_pais_cotacao_bid_frete_internacional) {
+    erros.push('destino_pais obrigatorio')
   }
 
   return erros

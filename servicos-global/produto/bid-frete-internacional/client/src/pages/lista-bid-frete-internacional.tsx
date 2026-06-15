@@ -218,11 +218,7 @@ export default function Cotacoes() {
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
-
-  const idsEscopoAssinatura = useMemo(
-    () => idsWorkspacesEscopo.join('\0'),
-    [idsWorkspacesEscopo],
-  )
+  const versaoEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.versaoEscopo)
 
   const idsWorkspacesFiltro = useMemo(
     () => resolverIdsWorkspacesParaApi(idsWorkspacesEscopo, idWorkspaceAtivo ?? ''),
@@ -526,7 +522,7 @@ export default function Cotacoes() {
   useEffect(() => {
     if (meStatus !== 'success' || !currentUser.id || !currentUser.idOrganizacao || !escopoHidratado) return
     void carregarRef.current()
-  }, [meStatus, currentUser.id, currentUser.idOrganizacao, escopoHidratado, idsEscopoAssinatura])
+  }, [meStatus, currentUser.id, currentUser.idOrganizacao, escopoHidratado, versaoEscopo])
 
   // ─── Ações em lote: Duplicar e Excluir ───
 

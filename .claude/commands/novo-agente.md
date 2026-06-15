@@ -1,133 +1,141 @@
-# /novo-agente — Registrar referência sequencial do agente
+# /novo-agente — Registrar task (OBRIGATÓRIO antes de qualquer trabalho)
 
 > **SSOT:** espelho de `.cursor/commands/novo-agente.md` — alterar nos dois lugares.
-> **Registry:** `documentos-tecnicos/processos/registro-agentes.json`
-> **Convenção de título:** `documentos-tecnicos/processos/convencao-titulos-agente.md`
-> **Este comando existe porque conversas e subagentes não tinham referência humana sequencial para rastrear, citar e auditar sessões.**
+> **Guia:** `tasks/README.md`
+> **Registry:** `tasks/registros/registro-tasks.json`
+> **Fichas:** `tasks/registros/TASK-{NNNNNN}.json`
 
 ---
 
-## Quando invocado
+## REGRA ZERO — BLOQUEIO ABSOLUTO (primeira coisa, sempre)
 
-Ao **abrir ou iniciar** uma conversa nova (ou quando o dono pedir referência), o agente **PARA** e executa as etapas **0 → 5 nesta ordem**, sem pular.
+Se a mensagem contém **`/novo-agente`**, o agente **NÃO PODE** — nesta mesma resposta nem antes do veredito da ETAPA 6:
 
-**Entrada do dono (recomendada na mesma mensagem):**
+❌ Ler arquivos de código do produto  
+❌ Grep / busca no codebase  
+❌ Escrever ou editar código  
+❌ Disparar subagentes (Explore, etc.)  
+❌ Responder o pedido técnico do dono (bug, feature, análise)  
+❌ Ler skills de produto (pedido, bid-frete, UX…)  
 
-```
-/novo-agente {TIPO_SESSAO} {LOCAL} [{AREA}] {TIPO_ENTREGA} {RESUMO...}
-```
+✅ **Só** pode: ler `tasks/registros/registro-tasks.json`, `tasks/README.md`, perguntar classificação, gravar ficha, entregar veredito e pedir rename.
 
-Exemplos:
+**Se o dono colocou `/novo-agente` + pedido técnico na mesma mensagem:**
 
-```
-/novo-agente ANA BIDFRT BUG ERRO-ABERTURA-COTACAO
-/novo-agente ANA BIDFRT LISTA BUG ERRO-ABERTURA-COTACAO
-/novo-agente PLN PEDIDO NOV FILTRO-MULTI-WORKSPACE
-```
+> «Primeiro registro a task (abaixo). **Renomeie a conversa** com o título indicado. Depois me confirme ou peça para continuar — aí executo seu pedido.»
 
-Se faltar segmento obrigatório → perguntar **uma vez** com a lista fechada (ver convenção).
-
----
-
-## ETAPA 0 — Skills e convenção (ler antes de registrar)
-
-1. `skills/governanca/lei/agent-policy/SKILL.md`
-2. `documentos-tecnicos/processos/convencao-titulos-agente.md`
+**Não avance para o trabalho até o dono confirmar o rename ou pedir para continuar.**
 
 ---
 
-## ETAPA 1 — Ler o registry (obrigatório)
+## Formato canônico (v2 — sem TIPO_SESSAO)
 
-1. Ler `documentos-tecnicos/processos/registro-agentes.json`
-2. Validar que `proximo_numero` é inteiro ≥ 264
-3. Se o arquivo não existir ou estiver corrompido → **parar** e avisar o dono (não inventar número)
+```
+{AREA}(-{SUBAREA})?(-{VIS})?-{TIPO_ENTREGA}-{RESUMO}
+```
+
+| Parte | Obrigatório | Exemplos |
+|:---|:---:|:---|
+| `AREA` | Sim | `BIDFRT`, `PEDIDO`, `CONFIG`, `CORE`, … |
+| `SUBAREA` | Não | `COTACOES`, `ADMIN-TESTES` |
+| `VIS` | Não | `LISTA`, `KANBAN`, `DASHBOARD`, `INSIGHTS` |
+| `TIPO_ENTREGA` | Sim | `BUG`, `MEL`, `NOV`, `REF`, `AUD`, `CFG`, `DUV` |
+| `RESUMO` | Sim | `REMOVER-EXPANDIR-LINHA-COT` |
+
+**Referência:** `TASK-{NNNNNN}` (não usar `AGT-`).
+
+**Exibição (rename no Cursor):**
+
+```
+[{Área legível}] {Vis?} | {TIPO} — {resumo humano}
+```
+
+Exemplo: `[BID Frete] LISTA | MEL — Remover expandir linha COT`
 
 ---
 
-## ETAPA 2 — Montar e validar o título canônico
+## Tabelas fechadas (classificação)
 
-1. Montar string: `{TIPO_SESSAO}-{LOCAL}(-{AREA})?-{TIPO_ENTREGA}-{RESUMO}`
-2. Validar contra tabelas fechadas da convenção (LOCAL = mesma tabela TST)
-3. Se inválido → corrigir com o dono ou **parar** (não gravar título fora do padrão)
+### AREA
 
-**Título de exibição** (opcional, derivado):
+`LOGIN` · `ONBOARDING` · `ADMIN` · `CONFIG` · `PEDIDO` · `BIDFRT` · `BIDCAM` · `PROCSO` · `FINCOM` · `OUTROS`
 
-```
-{TIPO_SESSAO} [{LOCAL legível}] {TIPO_ENTREGA} — {resumo humano 3–8 palavras}
-```
+### VIS (opcional)
 
----
+`INSIGHTS` · `LISTA` · `KANBAN` · `DASHBOARD`
 
-## ETAPA 3 — Alocar e persistir
+### TIPO_ENTREGA
 
-1. `numero_atual` ← `proximo_numero`
-2. `referencia` ← `AGT-` + 6 dígitos (ex.: `264` → `AGT-000264`)
-3. Incrementar `proximo_numero` em **+1**
-4. Acrescentar em `entradas`:
-
-```json
-{
-  "referencia": "AGT-000264",
-  "numero": 264,
-  "titulo_canonico": "ANA-BIDFRT-BUG-ERRO-ABERTURA-COTACAO",
-  "titulo_exibicao": "ANA [BID Frete] BUG — Erro abertura cotação",
-  "tipo_sessao": "ANA",
-  "local": "BIDFRT",
-  "area": null,
-  "tipo_entrega": "BUG",
-  "resumo": "ERRO-ABERTURA-COTACAO",
-  "data_registro": "<ISO-8601 UTC>",
-  "tipo": "conversa_principal",
-  "id_transcript": null
-}
-```
-
-5. **Gravar** o JSON atualizado
-
-**Regra:** cada invocação consome **exatamente um** número. Nunca reutilizar.
+`BUG` · `MEL` · `NOV` · `REF` · `AUD` · `CFG` · `DUV`
 
 ---
 
-## ETAPA 4 — Título (se pendente)
+## Fluxo (0 → 6 — ordem fixa)
 
-Se segmentos obrigatórios faltarem, perguntar **uma vez**:
+### ETAPA 0 — Ler registry
 
-> «Monte o título: `{TIPO_SESSAO}` + `{LOCAL}` + `{TIPO_ENTREGA}` + `{RESUMO}` — ex.: `ANA BIDFRT BUG ERRO-ABERTURA-COTACAO`»
+1. Ler `tasks/registros/registro-tasks.json`
+2. `proximo_numero` → alocar `TASK-{NNNNNN}`
 
-Tabelas rápidas:
+### ETAPA 1 — Perguntar (se faltou na mensagem)
 
-- **TIPO_SESSAO:** `ANA` `PLN` `IMP` `RSP` `REV` `DOC` `TST` `OPS` `GOV`
-- **TIPO_ENTREGA:** `BUG` `MEL` `NOV` `REF` `AUD` `CFG` `DUV`
-- **LOCAL:** ver convenção (paridade TST: `BIDFRT`, `BIDCAM`, `PEDIDO`, `CONFIG`, `LOGIN`, …)
+**Uma pergunta por vez** ou bloco único se o dono preferir resposta única:
 
----
+1. «**O que você quer fazer nesta task?**» (texto livre)
+2. Classificar **AREA** — confirmar com o dono
+3. «Tem **subárea**?» (ou pular)
+4. «Qual **visualização**?» LISTA / KANBAN / … (ou pular)
+5. «É **BUG, MEL, NOV**…?»
+6. Derivar **RESUMO** kebab — confirmar
 
-## ETAPA 5 — Veredito final (formato fixo)
+**Atalho** (pula perguntas se válido):
 
 ```
-## Novo agente registrado
-
-**Referência:** AGT-000264
-**Título canônico:** ANA-BIDFRT-BUG-ERRO-ABERTURA-COTACAO
-**Exibição:** ANA [BID Frete] BUG — Erro abertura cotação
-**Próximo número:** AGT-000265
-
-Citação: AGT-000264 | ANA-BIDFRT-BUG-ERRO-ABERTURA-COTACAO
-Markdown: [ANA BID-FRETE bug cotação](AGT-000264)
+/novo-agente BIDFRT LISTA MEL REMOVER-EXPANDIR-LINHA-COT
 ```
 
-**Regras de uso:**
+### ETAPA 2 — Montar títulos + `*_descricao`
 
-- Commits/docs: `AGT-NNNNNN | {titulo_canonico}`
-- Subagentes: `AGT-000264 › subagente Explore` (não consomem número)
-- Sessão que gera teste: cruzar `AGT-… → TST-…` no mesmo commit/doc
-- Legado 1–263: sem título canônico; a partir de 264 o padrão é obrigatório
+Todo campo codificado deve ter par `campo` + `campo_descricao` (ver `TASK-000001.json`).
+
+### ETAPA 3 — Gravar ficha
+
+1. Criar `tasks/registros/TASK-{NNNNNN}.json` (`status: ABR`, `data_criacao` UTC)
+2. Atualizar `registro-tasks.json` (`entradas[]`, incrementar `proximo_numero`)
+3. **Não** recalcular `registro-totais.json` na abertura (só no `/encerrar-agente`)
+
+### ETAPA 4 — Rename (OBRIGATÓRIO informar)
+
+Entregar em destaque:
+
+```
+⚠️ RENOMEIE ESTA CONVERSA AGORA:
+[{Área}] {Vis?} | {TIPO} — {resumo}
+```
+
+### ETAPA 5 — Veredito (formato fixo — única saída antes de trabalhar)
+
+```
+## Task registrada — aguardando rename
+
+**Referência:** TASK-000264
+**Título canônico:** BIDFRT-LISTA-MEL-REMOVER-EXPANDIR-LINHA-COT
+**Rename obrigatório:** [BID Frete] LISTA | MEL — Remover expandir linha COT
+**Próximo número:** TASK-000265
+
+Confirme o rename (ou diga "continuar") para eu executar seu pedido.
+```
+
+### ETAPA 6 — Só após confirmação
+
+Aí sim: ler skills, código, executar o pedido técnico.
 
 ---
 
 ## Proibido
 
-- Emitir referência sem ler/atualizar `registro-agentes.json`
-- Título fora da convenção (siglas inventadas, `[BID-F]` no canônico, minúsculas no RESUMO)
-- Pular incremento ou reutilizar número
-- Registry paralelo em outro caminho
+- Pular registro quando `/novo-agente` foi invocado
+- Codar ou explorar repo antes do veredito ETAPA 5
+- Usar `AGT-` ou `TIPO_SESSAO` (ANA, PLN, IMP…)
+- Gravar em `documentos-tecnicos/processos/registro-agentes.json` (legado — usar `tasks/registros/`)
+- Omitir instrução de rename

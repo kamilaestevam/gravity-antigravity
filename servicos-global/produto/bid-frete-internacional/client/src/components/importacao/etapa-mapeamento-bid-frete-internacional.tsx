@@ -3,6 +3,7 @@
  * Paridade visual com EtapaMapeamento do Pedido Smart Import
  */
 
+import './etapa-mapeamento-bid-frete-internacional.css'
 import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {

@@ -8,6 +8,8 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate, useSearchParams, useParams } from 'react-router-dom'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { bidFreteQueryClient } from './shared/bid-frete-query-client'
 import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { useAuth, useClerk } from '@clerk/clerk-react'
 import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
@@ -139,7 +141,11 @@ function RedirectListaDetalheCotacao() {
   return <Navigate to={rotaDetalheCotacaoBidFreteInternacional(id_cotacao)} replace />
 }
 
-export default function App() {
+const queryClient = bidFreteQueryClient
+
+export { bidFreteQueryClient } from './shared/bid-frete-query-client'
+
+function AppInner() {
   useMeSync()
   const { t } = useTranslation()
   const { getToken } = useAuth()
@@ -436,4 +442,13 @@ export default function App() {
   )
 }
 
-export { PRODUCT_CONFIG }
+/** Shell do Configurador carrega AppInner; standalone usa App com QueryClientProvider. */
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppInner />
+    </QueryClientProvider>
+  )
+}
+
+export { AppInner, PRODUCT_CONFIG }

@@ -55,17 +55,23 @@ import {
 } from '../shared/api'
 import type { InsightsGraficosBidFreteInternacionalCliente } from '../shared/insights-visao-geral-bid-frete-internacional'
 import {
+  buscarPrevisoesTaxaFuturaInsights,
   buscarTaxasMoedaAtuaisInsights,
   buscarTaxasMoedaHistoricoInsights,
   calcularVariacaoPtaxDiaAnterior,
   lerTaxasCambioConfigBidFreteInternacional,
-  montarCotacoesPtaxFuturoInsights,
+  montarCotacoesPtaxFuturoPorMoeda,
   montarCotacoesPtaxHistoricoInsights,
   montarCotacoesPtaxInsights,
   montarSpreadMedioInsights,
   type CotacaoPtaxInsights,
   type SpreadMoedaInsights,
 } from '../shared/taxas-cambio-insights-bid-frete-internacional'
+import { DialogoDetalheInsightsBidFreteInternacional } from '../shared/dialogo-detalhe-insights-bid-frete-internacional'
+import {
+  extrairCodigoPortoInsights,
+  type ContextoDialogoInsights,
+} from '../shared/insights-detalhe-bid-frete-internacional'
 import {
   resolverIdsWorkspacesParaApi,
   useEscopoWorkspacesBidFreteInternacional,
@@ -74,12 +80,15 @@ import { MODAL_LABELS, CalendarioAlerta } from '../shared/types'
 import type { DashboardKPIs } from '../shared/types'
 import {
   montarEtapasFunilInsightsBidFreteInternacional,
+  contagemStatusNoFunilBidFreteInternacional,
+  resolverCorStatusConfigBidFreteInternacional,
+  resolverRotuloStatusConfigBidFreteInternacional,
   useStatusCotacaoConfigBidFreteInternacional,
 } from '../shared/status-config-bid-frete-internacional'
+import { useDashboardTopKpiBidFrete } from '../shared/use-dashboard-top-kpi-bid-frete'
 import {
   VisaoGeralMapaBidFrete as VisaoGeralMapa,
   type DadosMapaBidFrete,
-  type RouteDetailBidFrete as RouteDetail,
 } from '../shared/componentes/visao-geral-mapa-bid-frete'
 import { BidFreteFunilBarras } from '../shared/componentes/visao-geral-bid-frete-ui'
 import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
@@ -387,6 +396,16 @@ function TaxaAprovacao({
 type KpisInsightsVisaoGeral = DashboardKPIs & {
   tempo_medio_resposta_dias: number | null
   cotacoes_aprovadas: number
+  distribuicao_modal_andamento: Array<{ modal_cotacao_bid_frete_internacional: string; count: number }>
+  total_cotacoes_com_saving: number
+  total_saving_vs_media: number
+}
+
+function contagemModalAndamento(
+  distribuicao: KpisInsightsVisaoGeral['distribuicao_modal_andamento'],
+  modal: string,
+): number {
+  return distribuicao.find(d => d.modal_cotacao_bid_frete_internacional === modal)?.count ?? 0
 }
 
 export default function VisaoGeral() {
@@ -400,8 +419,7 @@ export default function VisaoGeral() {
   )
 
   const [isDialogoCompletoOpen, setIsDialogoCompletoOpen] = useState(false)
-  const [alertModalTab, setAlertModalTab] = useState<'geral' | 'itens' | 'propostas' | 'historico'>('geral')
-  const [selectedAlertContextCompleto, setSelectedAlertContextCompleto] = useState<CalendarioAlerta | (RouteDetail & { tipo: 'route' }) | null>(null)
+  const [contextoDialogo, setContextoDialogo] = useState<ContextoDialogoInsights | null>(null)
   const [kpis, setKpis] = useState<KpisInsightsVisaoGeral | null>(null)
   const [graficos, setGraficos] = useState<InsightsGraficosBidFreteInternacionalCliente | null>(null)
   const [alertas, setAlertas] = useState<CalendarioAlerta[]>([])
@@ -412,14 +430,22 @@ export default function VisaoGeral() {
   const [spreadsMoeda, setSpreadsMoeda] = useState<SpreadMoedaInsights[]>([])
   const [erroPtax, setErroPtax] = useState<string | null>(null)
   const statusCotacaoConfig = useStatusCotacaoConfigBidFreteInternacional()
+  const { mapa: dashboardTopKpiMapa } = useDashboardTopKpiBidFrete()
+
+  const [dataReferenciaAlertas, setDataReferenciaAlertas] = useState<string>(() =>
+    new Date().toISOString().slice(0, 10),
+  )
+  const dataReferenciaAlertasAnterior = useRef(dataReferenciaAlertas)
 
   const carregarInsights = useCallback(async () => {
     setCarregando(true)
     setErroCarregamento(null)
     try {
       const [kpisData, alertasData, mapaData, graficosData] = await Promise.all([
-        getDashboardKpis(idsWorkspacesFiltro),
-        getDashboardInsightsAlertas(idsWorkspacesFiltro),
+        getDashboardKpis(idsWorkspacesFiltro, {
+          status_slug_kpi_andamento: dashboardTopKpiMapa.kpi_cotacoes_andamento,
+        }),
+        getDashboardInsightsAlertas(idsWorkspacesFiltro, dataReferenciaAlertas),
         getDashboardMapaCotacoesVisaoGeral(idsWorkspacesFiltro),
         getDashboardInsightsGraficos(idsWorkspacesFiltro),
       ])
@@ -439,12 +465,24 @@ export default function VisaoGeral() {
     } finally {
       setCarregando(false)
     }
-  }, [idsWorkspacesFiltro])
+  }, [idsWorkspacesFiltro, dataReferenciaAlertas, dashboardTopKpiMapa.kpi_cotacoes_andamento])
 
   useEffect(() => {
     if (!escopoHidratado) return
     void carregarInsights()
   }, [carregarInsights, escopoHidratado, versaoEscopo])
+
+  useEffect(() => {
+    if (!escopoHidratado) return
+    if (dataReferenciaAlertasAnterior.current === dataReferenciaAlertas) return
+    dataReferenciaAlertasAnterior.current = dataReferenciaAlertas
+    void getDashboardInsightsAlertas(idsWorkspacesFiltro, dataReferenciaAlertas)
+      .then(setAlertas)
+      .catch(err => {
+        console.error('[BidFrete Insights] falha ao carregar alertas', err)
+        setAlertas([])
+      })
+  }, [dataReferenciaAlertas, escopoHidratado, idsWorkspacesFiltro])
 
   // Câmbio PTAX (BACEN via Configurador) + spread (config taxa-cambio do produto)
   const [cambioModo, setCambioModo] = useState<'hoje' | 'historico' | 'futuro'>('hoje')
@@ -475,7 +513,30 @@ export default function VisaoGeral() {
         ...m,
         variacao: calcularVariacaoPtaxDiaAnterior(atuais.por_moeda, m.codigo),
       }))
-      setCotacoesPtax(cambioModo === 'futuro' ? montarCotacoesPtaxFuturoInsights(base, futuroDias) : base)
+      if (cambioModo === 'futuro') {
+        const meses = futuroDias >= 360 ? 12 : futuroDias >= 180 ? 6 : 4
+        const moedasFuturo = ['USD', 'EUR', 'CNY'] as const
+        const respostas = await Promise.all(
+          moedasFuturo.map(moeda => buscarPrevisoesTaxaFuturaInsights(moeda, meses).catch(() => null)),
+        )
+        const previsoesPorMoeda: Record<string, Array<{ valor_mediano_previsao_taxa_futura_moeda: number }>> = {}
+        for (let i = 0; i < moedasFuturo.length; i++) {
+          const moeda = moedasFuturo[i]
+          const resposta = respostas[i]
+          if (resposta?.data?.length) previsoesPorMoeda[moeda] = resposta.data
+        }
+        const futuro = montarCotacoesPtaxFuturoPorMoeda(base, previsoesPorMoeda, futuroDias)
+        if (futuro.length === 0) {
+          setErroPtax(
+            'Previsões Focus indisponíveis. Sincronize em Admin › Taxas de Moeda › Cotação Futura (BACEN publica USD; demais moedas só aparecem se houver série no banco).',
+          )
+          setCotacoesPtax([])
+        } else {
+          setCotacoesPtax(futuro)
+        }
+      } else {
+        setCotacoesPtax(base)
+      }
       setSpreadsMoeda(montarSpreadMedioInsights(atuais.por_moeda, taxasAplicadas))
     } catch (err) {
       setErroPtax(err instanceof Error ? err.message : 'Falha ao carregar PTAX')
@@ -498,9 +559,42 @@ export default function VisaoGeral() {
     [statusCotacaoConfig, kpis?.funil],
   )
 
+  const kpiCardAndamento = useMemo(() => {
+    const slug = dashboardTopKpiMapa.kpi_cotacoes_andamento
+    return {
+      slug,
+      rotulo: resolverRotuloStatusConfigBidFreteInternacional(statusCotacaoConfig, slug, 'Em andamento'),
+      cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, slug, '#fb923c'),
+      count: contagemStatusNoFunilBidFreteInternacional(kpis?.funil ?? [], slug),
+    }
+  }, [dashboardTopKpiMapa.kpi_cotacoes_andamento, statusCotacaoConfig, kpis?.funil])
+
+  const kpiCardAprovadas = useMemo(() => {
+    const slug = dashboardTopKpiMapa.kpi_cotacoes_aprovadas
+    return {
+      slug,
+      rotulo: resolverRotuloStatusConfigBidFreteInternacional(statusCotacaoConfig, slug, 'Aprovadas'),
+      cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, slug, '#34d399'),
+      count: contagemStatusNoFunilBidFreteInternacional(kpis?.funil ?? [], slug),
+    }
+  }, [dashboardTopKpiMapa.kpi_cotacoes_aprovadas, statusCotacaoConfig, kpis?.funil])
+
   const totalCotacoesEscopo = graficos?.total_cotacoes
     ?? kpis?.funil?.reduce((acc, f) => acc + f.count, 0)
     ?? 0
+
+  const labelDataAlertas = useMemo(() => {
+    const hoje = new Date().toISOString().slice(0, 10)
+    if (dataReferenciaAlertas === hoje) return 'Hoje'
+    const d = new Date(`${dataReferenciaAlertas}T12:00:00`)
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+  }, [dataReferenciaAlertas])
+
+  const deslocarDiaAlertas = (delta: number) => {
+    const d = new Date(`${dataReferenciaAlertas}T12:00:00`)
+    d.setDate(d.getDate() + delta)
+    setDataReferenciaAlertas(d.toISOString().slice(0, 10))
+  }
 
   if (carregando) {
     return <ConteudoCarregandoBidFreteInternacional />
@@ -853,9 +947,9 @@ export default function VisaoGeral() {
       {/* KPIs Grid (5 columns now) */}
       <div className="bfd-kpi-grid">
         <CardBasicoGlobal
-          titulo="Em andamento"
-          icone={<Clock weight="duotone" size={16} style={{ color: '#fb923c' }} />}
-          valor={String(kpis.cotacoes_andamento)}
+          titulo={kpiCardAndamento.rotulo}
+          icone={<Clock weight="duotone" size={16} style={{ color: kpiCardAndamento.cor }} />}
+          valor={String(kpiCardAndamento.count)}
           subtexto={`${totalCotacoesEscopo} no escopo · USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
           variante="padrao"
           tooltip={
@@ -865,24 +959,28 @@ export default function VisaoGeral() {
                 <strong>USD {fmtMoeda(kpis.valor_andamento_usd)}</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Cotações ativas</span>
-                <strong>{kpis.cotacoes_andamento}</strong>
+                <span>{kpiCardAndamento.rotulo}</span>
+                <strong>{kpiCardAndamento.count}</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Marítimo (Estimado)</span>
-                <strong style={{ color: '#34d399' }}>{Math.round(kpis.cotacoes_andamento * 0.6)}</strong>
+                <span>Marítimo</span>
+                <strong style={{ color: '#34d399' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'MARITIMO')}</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Aéreo (Estimado)</span>
-                <strong style={{ color: '#a78bfa' }}>{Math.round(kpis.cotacoes_andamento * 0.4)}</strong>
+                <span>Aéreo</span>
+                <strong style={{ color: '#a78bfa' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'AEREO')}</strong>
+              </div>
+              <div className="cg-tooltip__row">
+                <span>Rodoviário</span>
+                <strong style={{ color: '#fbbf24' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'RODOVIARIO')}</strong>
               </div>
             </>
           }
         />
         <CardBasicoGlobal
-          titulo="Aprovadas"
-          icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
-          valor={String(kpis.cotacoes_aprovadas)}
+          titulo={kpiCardAprovadas.rotulo}
+          icone={<CheckCircle weight="duotone" size={16} style={{ color: kpiCardAprovadas.cor }} />}
+          valor={String(kpiCardAprovadas.count)}
           subtexto={`USD ${fmtMoeda(kpis.valor_aprovado_usd)} total`}
           variante="padrao"
           tooltip={
@@ -892,8 +990,8 @@ export default function VisaoGeral() {
                 <strong>USD {fmtMoeda(kpis.valor_aprovado_usd)}</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Total aprovado</span>
-                <strong>{kpis.cotacoes_aprovadas}</strong>
+                <span>{kpiCardAprovadas.rotulo}</span>
+                <strong>{kpiCardAprovadas.count}</strong>
               </div>
               <div className="cg-tooltip__row">
                 <span>Total no escopo</span>
@@ -903,7 +1001,7 @@ export default function VisaoGeral() {
                 <span>Taxa de conversão</span>
                 <strong style={{ color: '#60a5fa' }}>
                   {totalCotacoesEscopo > 0
-                    ? `${Math.round((kpis.cotacoes_aprovadas / totalCotacoesEscopo) * 1000) / 10}%`
+                    ? `${Math.round((kpiCardAprovadas.count / totalCotacoesEscopo) * 1000) / 10}%`
                     : '—'}
                 </strong>
               </div>
@@ -927,12 +1025,12 @@ export default function VisaoGeral() {
                 <strong style={{ color: '#34d399' }}>{kpis.savings.media_saving_percentual}%</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Benchmark target</span>
-                <strong>12.0%</strong>
+                <span>Cotações com saving</span>
+                <strong>{kpis.total_cotacoes_com_saving}</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Performance vs target</span>
-                <strong style={{ color: '#34d399' }}>+{(kpis.savings.media_saving_percentual - 12).toFixed(1)} pp</strong>
+                <span>Saving vs média de mercado</span>
+                <strong style={{ color: '#34d399' }}>USD {fmtMoeda(kpis.total_saving_vs_media)}</strong>
               </div>
             </>
           }
@@ -977,11 +1075,16 @@ export default function VisaoGeral() {
           painelRankingsExterno
           exibirPainelLateralMapa
           onOpenCompleto={(route) => {
-            setSelectedAlertContextCompleto({
-              tipo: 'route',
-              ...route
+            setContextoDialogo({
+              tipo: 'rota',
+              label: 'Detalhes da Rota',
+              codigo_origem: route.codigo_origem ?? extrairCodigoPortoInsights(route.fromPort),
+              codigo_destino: route.codigo_destino ?? extrairCodigoPortoInsights(route.toPort),
+              modal_cotacao_bid_frete_internacional: route.mode,
+              fromPort: route.fromPort,
+              toPort: route.toPort,
+              mode: route.mode,
             })
-            setAlertModalTab('geral')
             setIsDialogoCompletoOpen(true)
           }}
         />
@@ -998,9 +1101,23 @@ export default function VisaoGeral() {
                 <p className="cg-card__label" style={{ margin: 0 }}>Alertas</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255, 255, 255, 0.04)', padding: '2px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretLeft size={12} /></button>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', padding: '0 4px', letterSpacing: '0.02em' }}>Hoje</span>
-                <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}><CaretRight size={12} /></button>
+                <button
+                  type="button"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}
+                  onClick={() => deslocarDiaAlertas(-1)}
+                  aria-label="Dia anterior"
+                >
+                  <CaretLeft size={12} />
+                </button>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1', padding: '0 4px', letterSpacing: '0.02em' }}>{labelDataAlertas}</span>
+                <button
+                  type="button"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 6px', color: '#94a3b8', borderRadius: '12px', transition: 'all 0.2s' }}
+                  onClick={() => deslocarDiaAlertas(1)}
+                  aria-label="Próximo dia"
+                >
+                  <CaretRight size={12} />
+                </button>
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.65rem', flex: 1 }}>
@@ -1036,8 +1153,13 @@ export default function VisaoGeral() {
                     key={i}
                     className="bfd-alertas__glow-card"
                     onClick={() => {
-                      setSelectedAlertContextCompleto(a)
-                      setAlertModalTab('geral')
+                      if (
+                        a.tipo !== 'vence_hoje'
+                        && a.tipo !== 'resposta'
+                        && a.tipo !== 'aprovacao'
+                        && a.tipo !== 'nova'
+                      ) return
+                      setContextoDialogo({ tipo: a.tipo, label: a.label, cor: a.cor })
                       setIsDialogoCompletoOpen(true)
                     }}
                     style={{
@@ -1395,330 +1517,14 @@ export default function VisaoGeral() {
         </div>
       </div>
 
-      <div className="bfd-footer">
-        ⚙ Dados demonstrativos — conecte o backend para dados reais
-      </div>
+      <DialogoDetalheInsightsBidFreteInternacional
+        aberto={isDialogoCompletoOpen}
+        contexto={contextoDialogo}
+        idsWorkspacesFiltro={idsWorkspacesFiltro}
+        dataReferencia={dataReferenciaAlertas}
+        onFechar={() => setIsDialogoCompletoOpen(false)}
+      />
 
-      {/* Tabbed Quotation Modal Overlay */}
-      {isDialogoCompletoOpen && selectedAlertContextCompleto && (() => {
-         const context = selectedAlertContextCompleto;
-         // Generate mock data for the selected alert type
-         let modalTitle = 'Detalhes da Cotação';
-         let quoteId = 'COT-2026-F401';
-         let origin = 'Shanghai (CNSHA)';
-         let destination = 'Santos (BRSSZ)';
-         let goods = 'Componentes Eletrônicos Premium e Placas de Circuito';
-         let weight = '12.450 Kg';
-         let volume = '38.5 m³';
-         let incoterm = 'FOB';
-         let value = 'USD 8.048,00';
-         let category = 'Marítimo (FCL 40\' HC)';
-         let proposals = [
-           { fornecedor: 'Pacific Cargo (E96)', valor: 'USD 7.950,00', transit: '32 dias', status: 'Melhor Preço', cor: '#34d399' },
-           { fornecedor: 'DHL Global Forwarding', valor: 'USD 8.200,00', transit: '28 dias', status: 'Em Análise', cor: '#60a5fa' }
-         ];
-         let history = [
-           { data: '21/05/2026 12:00', texto: 'Alerta gerado: Prazo de resposta se encerra hoje', autor: 'Sistema' },
-           { data: '15/05/2026 10:20', texto: 'Disparada para 6 fornecedores no portal', autor: 'Daniel' },
-           { data: '15/05/2026 10:14', texto: 'Cotação criada e homologada', autor: 'Daniel' }
-         ];
-
-         const dotColor = context.tipo === 'route'
-           ? ((context as RouteDetail).mode === 'AEREO' ? '#a78bfa' : '#34d399')
-           : ((context as CalendarioAlerta).cor === 'red' ? '#f87171' : (context as CalendarioAlerta).cor === 'orange' ? '#fbbf24' : (context as CalendarioAlerta).cor === 'green' ? '#34d399' : '#60a5fa');
-
-         if (context.tipo === 'route') {
-           const route = context as RouteDetail;
-           modalTitle = 'Detalhes da Rota Ativa';
-           quoteId = 'COT-2026-R' + Math.floor(100 + Math.random() * 900);
-           origin = route.fromPort;
-           destination = route.toPort;
-           goods = 'Componentes de Alta Tecnologia e Cargas Premium';
-           weight = '14.800 Kg';
-           volume = '32.4 m³';
-           incoterm = route.mode === 'AEREO' ? 'FCA' : 'FOB';
-           value = 'USD ' + fmtMoeda(route.bestPrice);
-           category = route.mode === 'AEREO' ? "Aéreo (Geral)" : "Marítimo (FCL 40' HC)";
-           proposals = [
-             { fornecedor: route.supplier, valor: 'USD ' + fmtMoeda(route.bestPrice), transit: route.transitTime + ' dias', status: 'Melhor Preço', cor: route.mode === 'AEREO' ? '#a78bfa' : '#34d399' },
-             { fornecedor: 'Apex Global forwarders', valor: 'USD ' + fmtMoeda(route.bestPrice * 1.08), transit: (route.transitTime + 3) + ' dias', status: 'Em Análise', cor: '#60a5fa' }
-           ];
-           history = [
-             { data: '21/05/2026 10:00', texto: 'Melhor proposta validada de ' + route.supplier, autor: 'Sistema' },
-             { data: '18/05/2026 14:30', texto: 'Resposta de Apex Global forwarders recebida', autor: 'Portal' },
-             { data: '15/05/2026 09:00', texto: 'Cotação disparada para 4 fornecedores homologados', autor: 'Daniel' }
-           ];
-         } else if (context.tipo === 'resposta') {
-           modalTitle = 'Respostas Pendentes';
-           quoteId = 'COT-2026-A228';
-           origin = 'Frankfurt (FRA)';
-           destination = 'Guarulhos (GRU)';
-           goods = 'Peças Automotivas e Motores de Alta Performance';
-           weight = '4.200 Kg';
-           volume = '12.8 m³';
-           incoterm = 'FCA';
-           value = 'EUR 14.200,00';
-           category = 'Aéreo (Geral)';
-           proposals = [
-             { fornecedor: 'Lufthansa Cargo', valor: 'EUR 13.800,00', transit: '4 dias', status: 'Melhor Transit', cor: '#a78bfa' },
-             { fornecedor: 'Kuehne + Nagel', valor: 'Pendente', transit: '—', status: 'Aguardando', cor: '#fbbf24' }
-           ];
-           history = [
-             { data: '21/05/2026 09:30', texto: 'Resposta pendente de Kuehne + Nagel notificada', autor: 'Sistema' },
-             { data: '20/05/2026 14:00', texto: 'Resposta recebida de Lufthansa Cargo', autor: 'Portal' },
-             { data: '19/05/2026 14:15', texto: 'Disparada via e-mail e portal', autor: 'Daniel' }
-           ];
-         } else if (context.tipo === 'aprovacao') {
-           modalTitle = 'Aguardando Aprovação';
-           quoteId = 'COT-2026-M892';
-           origin = 'Miami (MIA)';
-           destination = 'Itajaí (BRSSZ)';
-           goods = 'Equipamentos Médicos e Ultrassons de Alta Precisão';
-           weight = '1.850 Kg';
-           volume = '6.2 m³';
-           incoterm = 'EXW';
-           value = 'USD 6.800,00';
-           category = 'Marítimo (LCL)';
-           proposals = [
-             { fornecedor: 'Panalpina', valor: 'USD 6.250,00', transit: '22 dias', status: 'Aprovada', cor: '#34d399' },
-             { fornecedor: 'Expeditors', valor: 'USD 6.400,00', transit: '24 dias', status: 'Reprovada', cor: '#f87171' }
-           ];
-           history = [
-             { data: '21/05/2026 10:00', texto: 'Enviada para aprovação do Diretor de Comex', autor: 'Daniel' },
-             { data: '16/05/2026 15:45', texto: 'Proposta consolidada de Panalpina selecionada', autor: 'Sistema' },
-             { data: '14/05/2026 11:30', texto: 'Criada e disparada para 4 fornecedores', autor: 'Daniel' }
-           ];
-         } else if (context.tipo === 'nova') {
-           modalTitle = 'Novas Cotações (7 dias)';
-           quoteId = 'COT-2026-R115';
-           origin = 'Buenos Aires (BUE)';
-           destination = 'São Paulo (SPO)';
-           goods = 'Fios de Cobre e Condutores Elétricos Industriais';
-           weight = '24.000 Kg';
-           volume = '44.0 m³';
-           incoterm = 'DDP';
-           value = 'BRL 28.000,00';
-           category = 'Rodoviário (FTL)';
-           proposals = [
-             { fornecedor: 'Mercosul Transportes', valor: 'BRL 26.500,00', transit: '5 dias', status: 'Melhor Preço', cor: '#34d399' }
-           ];
-           history = [
-             { data: '21/05/2026 10:00', texto: 'Validada e publicada no portal', autor: 'Daniel' },
-             { data: '20/05/2026 08:00', texto: 'Cotação rascunhada', autor: 'Daniel' }
-           ];
-         }
-
-         return (
-            <div className="bfd-dialogo-overlay" style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(15, 23, 42, 0.75)',
-              backdropFilter: 'blur(8px)',
-              zIndex: 9999,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              animation: 'fadeIn 0.25s ease-out'
-            }} onClick={() => setIsDialogoCompletoOpen(false)}>
-              <style>{`
-                @keyframes fadeIn {
-                  from { opacity: 0; }
-                  to { opacity: 1; }
-                }
-                @keyframes scaleIn {
-                  from { transform: scale(0.95); opacity: 0; }
-                  to { transform: scale(1); opacity: 1; }
-                }
-              `}</style>
-              <div className="bfd-dialogo-card" style={{
-                background: 'rgba(30, 41, 59, 0.85)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
-                borderRadius: '16px',
-                width: '100%',
-                maxWidth: '750px',
-                maxHeight: '90vh',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-                animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
-              }} onClick={e => e.stopPropagation()}>
-                {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <div>
-                    <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ color: dotColor }}>●</span>
-                      {modalTitle}
-                    </h2>
-                    <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>Referência: {quoteId}</p>
-                  </div>
-                  <button style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', transition: 'all 0.2s' }}
-                    onClick={() => setIsDialogoCompletoOpen(false)}
-                  >✕</button>
-                </div>
-
-                {/* Tabs */}
-                <div style={{ display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)', padding: '0 1rem' }}>
-                  {['geral', 'itens', 'propostas', 'historico'].map(t => {
-                    const isActive = alertModalTab === t;
-                    const labels = { geral: 'Geral', itens: 'Itens', propostas: 'Propostas', historico: 'Histórico' };
-                    return (
-                      <button key={t} style={{
-                        background: 'none',
-                        border: 'none',
-                        borderBottom: isActive ? '2px solid #3b82f6' : '2px solid transparent',
-                        color: isActive ? '#3b82f6' : '#94a3b8',
-                        padding: '0.85rem 1rem',
-                        fontSize: '0.88rem',
-                        fontWeight: isActive ? 700 : 500,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                      }} onClick={() => setAlertModalTab(t as any)}>{labels[t as keyof typeof labels]}</button>
-                    )
-                  })}
-                </div>
-
-                {/* Body */}
-                <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', minHeight: '300px' }}>
-                  {alertModalTab === 'geral' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
-                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Origem</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{origin}</div>
-                      </div>
-                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Destino</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{destination}</div>
-                      </div>
-                      <div className="modal_completo_cotação_bid_frete_iternacional-field" style={{ gridColumn: 'span 2' }}>
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Mercadoria / Descrição</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{goods}</div>
-                      </div>
-                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Peso Total</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{weight}</div>
-                      </div>
-                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Cubagem (M³)</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{volume}</div>
-                      </div>
-                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Incoterm</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{incoterm}</div>
-                      </div>
-                      <div className="modal_completo_cotação_bid_frete_iternacional-field">
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Valor Limite / Estimado</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{value}</div>
-                      </div>
-                      <div className="modal_completo_cotação_bid_frete_iternacional-field" style={{ gridColumn: 'span 2' }}>
-                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem' }}>Modalidade</label>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '0.6rem 0.8rem', fontSize: '0.9rem', color: '#f1f5f9' }}>{category}</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {alertModalTab === 'itens' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      <div style={{ display: 'flex', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 0.75rem', borderRadius: '4px', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.78rem', fontWeight: 700, color: '#94a3b8' }}>
-                        <div style={{ flex: 1 }}>Código</div>
-                        <div style={{ flex: 2 }}>Descrição</div>
-                        <div style={{ flex: 1, textAlign: 'right' }}>Qtd</div>
-                        <div style={{ flex: 1, textAlign: 'right' }}>Peso (Kg)</div>
-                      </div>
-                      <div style={{ display: 'flex', padding: '0.75rem', borderRadius: '6px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.03)', fontSize: '0.85rem' }}>
-                        <div style={{ flex: 1, color: '#60a5fa', fontWeight: 600 }}>ITM-01</div>
-                        <div style={{ flex: 2, color: '#cbd5e1' }}>{goods}</div>
-                        <div style={{ flex: 1, textAlign: 'right', color: '#ffffff' }}>1.000 un</div>
-                        <div style={{ flex: 1, textAlign: 'right', color: '#ffffff' }}>{weight}</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {alertModalTab === 'propostas' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                      {proposals.map((p, idx) => (
-                        <div key={idx} style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          padding: '1rem',
-                          background: 'rgba(255, 255, 255, 0.02)',
-                          border: '1px solid rgba(255, 255, 255, 0.05)',
-                          borderRadius: '8px',
-                          transition: 'all 0.2s'
-                        }}>
-                          <div>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ffffff', display: 'block' }}>{p.fornecedor}</span>
-                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Transit time: {p.transit}</span>
-                          </div>
-                          <div style={{ textAlign: 'right' }}>
-                            <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#60a5fa', display: 'block' }}>{p.valor}</span>
-                            <span style={{ display: 'inline-block', fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: p.cor + '22', color: p.cor }}>{p.status}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {alertModalTab === 'historico' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingLeft: '1rem', borderLeft: '2px solid rgba(255, 255, 255, 0.05)', position: 'relative' }}>
-                      {history.map((h, idx) => (
-                        <div key={idx} style={{ position: 'relative' }}>
-                          <span style={{
-                            position: 'absolute',
-                            left: '-1.45rem',
-                            top: '4px',
-                            width: '10px',
-                            height: '10px',
-                            borderRadius: '50%',
-                            background: '#3b82f6',
-                            boxShadow: '0 0 8px #3b82f6'
-                          }} />
-                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', fontWeight: 600 }}>{h.data} • por {h.autor}</span>
-                          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.2rem', display: 'block' }}>{h.texto}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', padding: '1rem 1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(15, 23, 42, 0.2)' }}>
-                  <button style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '8px',
-                    color: '#f1f5f9',
-                    padding: '0.5rem 1rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                    onClick={() => setIsDialogoCompletoOpen(false)}
-                  >Fechar</button>
-                  <button style={{
-                    background: '#2563eb',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#ffffff',
-                    padding: '0.5rem 1rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)'
-                  }}
-                    onClick={() => alert('Operação atualizada com sucesso!')}
-                  >Salvar</button>
-                </div>
-              </div>
-            </div>
-         )
-      })()}
     </div>
   )
 }

@@ -105,6 +105,29 @@ export function montarEtapasFunilInsightsBidFreteInternacional(
   return etapas
 }
 
+export function contagemStatusNoFunilBidFreteInternacional(
+  funil: Array<{ status: string; count: number }>,
+  statusSlug: string,
+): number {
+  return funil.find(f => f.status === statusSlug)?.count ?? 0
+}
+
+export function resolverRotuloStatusConfigBidFreteInternacional(
+  statusConfig: StatusCotacaoConfigBidFreteInternacional[],
+  statusSlug: string,
+  fallback: string,
+): string {
+  return statusConfig.find(s => s.nome === statusSlug)?.rotulo ?? fallback
+}
+
+export function resolverCorStatusConfigBidFreteInternacional(
+  statusConfig: StatusCotacaoConfigBidFreteInternacional[],
+  statusSlug: string,
+  fallback: string,
+): string {
+  return statusConfig.find(s => s.nome === statusSlug)?.cor ?? fallback
+}
+
 export function useStatusCotacaoConfigBidFreteInternacional(): StatusCotacaoConfigBidFreteInternacional[] {
   const [statusConfig, setStatusConfig] = useState(() => lerStatusCotacaoConfigBidFreteInternacional())
 

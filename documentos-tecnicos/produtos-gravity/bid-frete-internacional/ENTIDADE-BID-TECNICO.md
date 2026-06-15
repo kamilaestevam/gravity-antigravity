@@ -122,6 +122,25 @@ Comportamento de chevron condicional **não** altera `TabelaVirtualGlobal`. Impl
 
 ---
 
+## 5.1 Dashboard configurável (paridade Pedido)
+
+Arquivo: `client/src/pages/dashboard.tsx` · Stores: `dashboardStore.ts` / `dashboardStoreFornecedor.ts`
+
+| Comportamento | Implementação |
+|---------------|---------------|
+| Menu ⋮ por widget | `buildPainelWidgetProps` → `habilitarMenuOpcoes`, `onMover` / `onRedimensionar` / `onConcluirLayout` |
+| Drag/resize | `widgetLayoutInteracao` + `DashboardGrid` (`@nucleo/dashboard`) — **sem** `editMode` global |
+| Seletor de widgets | Toolbar `widgetsSeletor` — visibilidade e reordenação (`dashboardWidgetVisibilidade.ts`) |
+| Período por widget | Chip + `periodLocked` — helpers em `dashboardPeriodoUtil.ts` |
+| Permissão editar | `usePermissoesBidFreteInternacional` → `podeEditar('dashboard')` (Configurador) |
+| Ordem pós-drag | `sincronizarOrdemPainelPorPosicaoGrid` — `ordem_painel` derivada de `y/x` do grid |
+
+GABI Insights: widget `GABI_INSIGHTS` dentro de `DashboardPainelContainer` (mesmo menu ⋮).
+
+Skill: `skills/produtos-gravity/bid-frete-internacional/SKILL.md` § Dashboard.
+
+---
+
 ## 6. API — Duplicações e exclusões em lote
 
 Arquivos: `duplicacoes-bid-frete-internacional.ts`, `exclusoes-bid-frete-internacional.ts`

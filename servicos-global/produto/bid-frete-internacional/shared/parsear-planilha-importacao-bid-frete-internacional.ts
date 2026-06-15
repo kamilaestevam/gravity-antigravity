@@ -122,7 +122,7 @@ function parseCsvModoGravity(content: string): ResultadoParseImportacaoBidFreteI
       campo_sistema: campo,
       confianca: campo ? 99 : 0,
       nivel: campo ? 'auto' : 'ignorado',
-      inferido_por: campo ? 'nome_interno' : 'alias',
+      inferido_por: campo ? 'rotulo' : 'alias',
       valor_exemplo: exemplo,
     }
   })

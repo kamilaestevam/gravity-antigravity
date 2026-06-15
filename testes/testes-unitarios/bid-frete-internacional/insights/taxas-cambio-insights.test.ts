@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   calcularVariacaoPtaxDiaAnterior,
+  montarCotacoesPtaxFuturoPorMoeda,
   montarCotacoesPtaxInsights,
   montarSpreadMedioInsights,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/taxas-cambio-insights-bid-frete-internacional'
@@ -28,6 +29,24 @@ describe('calcularVariacaoPtaxDiaAnterior', () => {
       CNY: [],
     }, 'USD')
     expect(variacao).toBe(2)
+  })
+})
+describe('montarCotacoesPtaxFuturoPorMoeda', () => {
+  it('usa previsão Focus por moeda sem escalar USD em EUR', () => {
+    const base = montarCotacoesPtaxInsights({
+      USD: [{ moeda: 'USD', compra: 5, venda: 5, data_cotacao: '2026-06-15' }],
+      EUR: [{ moeda: 'EUR', compra: 5.5, venda: 5.5, data_cotacao: '2026-06-15' }],
+    })
+    const futuro = montarCotacoesPtaxFuturoPorMoeda(
+      base,
+      {
+        USD: [{ valor_mediano_previsao_taxa_futura_moeda: 5.5 }],
+        EUR: [{ valor_mediano_previsao_taxa_futura_moeda: 6.1 }],
+      },
+      30,
+    )
+    expect(futuro.find(m => m.codigo === 'USD')?.valor_brl).toBe(5.5)
+    expect(futuro.find(m => m.codigo === 'EUR')?.valor_brl).toBe(6.1)
   })
 })
 

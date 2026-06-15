@@ -33,6 +33,7 @@ export const dashboardKpisResponseSchema = z.object({
   savings: z.object({
     total_saving_usd: z.number().optional(),
     total_saving_vs_target: z.number().optional(),
+    total_saving_vs_media: z.number().optional(),
     media_saving_percentual: z.number().optional(),
     total_valor_aprovado: z.number().optional(),
     total_cotacoes_aprovadas_classificacao_bid_frete_internacional: z.number().optional(),
@@ -43,9 +44,18 @@ export const dashboardKpisResponseSchema = z.object({
       count: z.number(),
     }),
   ),
+  distribuicao_modal_andamento: z
+    .array(
+      z.object({
+        modal_cotacao_bid_frete_internacional: z.string(),
+        count: z.number(),
+      }),
+    )
+    .optional(),
 })
 
 export const insightsAlertasResponseSchema = z.object({
+  data_referencia: z.string().optional(),
   alertas: z.array(
     z.object({
       tipo: z.string(),
@@ -58,7 +68,13 @@ export const insightsAlertasResponseSchema = z.object({
 
 export function mapDashboardKpisFromServer(
   raw: z.infer<typeof dashboardKpisResponseSchema>,
-): DashboardKPIs & { tempo_medio_resposta_dias: number | null; cotacoes_aprovadas: number } {
+): DashboardKPIs & {
+  tempo_medio_resposta_dias: number | null
+  cotacoes_aprovadas: number
+  distribuicao_modal_andamento: Array<{ modal_cotacao_bid_frete_internacional: string; count: number }>
+  total_cotacoes_com_saving: number
+  total_saving_vs_media: number
+} {
   const savingUsd =
     raw.savings.total_saving_usd ??
     raw.savings.total_saving_vs_target ??
@@ -96,6 +112,10 @@ export function mapDashboardKpisFromServer(
     fornecedores_cadastrados: 0,
     fornecedores_por_tipo: [],
     moedas: [],
+    distribuicao_modal_andamento: raw.distribuicao_modal_andamento ?? [],
+    total_cotacoes_com_saving:
+      raw.savings.total_cotacoes_aprovadas_classificacao_bid_frete_internacional ?? 0,
+    total_saving_vs_media: raw.savings.total_saving_vs_media ?? 0,
   }
 }
 

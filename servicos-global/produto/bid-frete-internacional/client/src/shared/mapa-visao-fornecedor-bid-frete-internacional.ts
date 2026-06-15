@@ -30,8 +30,9 @@ export const visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema = z.
           tipo_operacao_cotacao_bid_frete_internacional: tipoOperacaoMapaSchema.optional(),
           quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
           melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
-          dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
-        }),
+      dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
+      dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable().optional(),
+    }),
       ),
     }),
   }),
@@ -110,6 +111,8 @@ export function mapMapaCotacoesVisaoFornecedorFromServer(
         tipo_operacao_cotacao_bid_frete_internacional:
           rota.tipo_operacao_cotacao_bid_frete_internacional ?? undefined,
         transitTime: rota.dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional ?? undefined,
+        marketTransitTime:
+          rota.dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional ?? undefined,
         quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional:
           rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional,
         melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional:

@@ -12,6 +12,7 @@ import {
   ordenarWidgetsPorPadrao,
   reordenarWidgetsLista,
   reflowPosicoesWidgets,
+  sincronizarOrdemPainelPorPosicaoGrid,
 } from '../shared/dashboardWidgetVisibilidade'
 
 interface DashboardState {
@@ -174,18 +175,13 @@ export const useDashboardStoreFornecedor = create<DashboardState>()(
       updateWidget: (widgetId, patch) => set(s => ({
         widgets: s.widgets.map(w => (w.id === widgetId ? { ...w, ...patch } : w)),
       })),
-      updateLayout: (updates) => set(s => ({
-        widgets: s.widgets.map(w => {
+      updateLayout: (updates) => set(s => {
+        const comPosicoes = s.widgets.map(w => {
           const upd = updates.find(u => u.id === w.id)
-          const next = upd ? { ...w, position: upd.position } : w
-          if (!upd) return next
-          const ordem = s.widgets.findIndex(x => x.id === w.id)
-          return {
-            ...next,
-            config: { ...next.config, [WIDGET_CONFIG_ORDEM_PAINEL]: ordem },
-          }
-        }),
-      })),
+          return upd ? { ...w, position: upd.position } : w
+        })
+        return { widgets: sincronizarOrdemPainelPorPosicaoGrid(comPosicoes) }
+      }),
 
       toggleWidgetVisibilidade: (widgetId) => set(s => ({
         widgets: s.widgets.map(w => {

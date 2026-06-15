@@ -63,7 +63,7 @@ Rotas que consomem o filtro:
 
 - `GET /cotacoes`
 - `GET /bids-frete-internacional` (cotações aninhadas)
-- `GET /dashboard/kpis`, `/insights-alertas`, `/mapa-cotacoes`
+- `GET /dashboard/kpis`, `/insights`, `/insights-alertas`, `/insights-graficos`, `/insights-detalhe`, `/mapa-cotacoes`
 
 Helper server: `server/src/shared/workspace-filtro-bid-frete-internacional.ts`
 

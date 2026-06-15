@@ -6,14 +6,34 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { motorGanho } from '../services/motor-ganho-bid-frete-internacional.js'
+import { agregarKpisDashboardBidFreteInternacional } from '../lib/agregar-kpis-dashboard-bid-frete-internacional.js'
+import {
+  intervaloPeriodoAnteriorDashboard,
+  intervaloPeriodoAnteriorPorDatas,
+} from '../lib/periodo-dashboard-bid-frete-internacional.js'
+import {
+  generateInsightsBidFreteInternacional,
+  normalizeRoleBidFrete,
+  toKpiSnapshotBidFrete,
+} from '../services/gabi-insights-bid-frete-internacional.js'
 import {
   montarMapaCotacoesVisaoGeralBidFreteInternacional,
   STATUS_MAPA_VISAO_GERAL,
 } from '../lib/mapa-cotacoes-visao-geral-bid-frete-internacional.js'
 import { agregarInsightsGraficosBidFreteInternacional } from '../lib/agregar-insights-graficos-bid-frete-internacional.js'
+import {
+  mapearCotacaoInsightsDetalhe,
+  montarWhereInsightsDetalheBidFreteInternacional,
+} from '../lib/montar-insights-detalhe-bid-frete-internacional.js'
 import { clausulaFiltroWorkspaceBidFrete, parseIdsWorkspacesQuery } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
+import { AppError } from '../lib/erros.js'
+import {
+  dashboardKpisQuerySchema,
+  insightsAlertasQuerySchema,
+  insightsDetalheQuerySchema,
+  parseDataReferenciaInsights,
+} from '../shared/dashboard-queries-zod-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -34,146 +54,65 @@ const STATUS_ANDAMENTO = [
 async function handleKpis(req: Request, res: Response, next: NextFunction) {
   try {
     await assertWorkspacesAutorizadosNoRequest(req)
-    const { data_inicio, data_fim } = req.query as { data_inicio?: string; data_fim?: string }
-    const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
-
-    // Cotacoes em andamento
-    const cotacoesAndamento = await (req.prisma as any).cotacaoBidFreteInternacional.count({
-      where: {
-        id_produto_gravity: 'bid-frete-internacional',
-        status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO', 'FALTA_INFORMACAO'] },
-        ...(filtroWorkspace),
-      },
-    })
-
-    // Total de cotacoes passadas
-    const cotacoesPassadas = await (req.prisma as any).cotacaoBidFreteInternacional.count({
-      where: {
-        id_produto_gravity: 'bid-frete-internacional',
-        status_cotacao_bid_frete_internacional: { in: ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA'] },
-        ...(filtroWorkspace),
-      },
-    })
-
-    // Valores totais das cotacoes em andamento
-    const valoresAndamento = await (req.prisma as any).propostaBidFreteInternacional.aggregate({
-      where: {
-        id_produto_gravity: 'bid-frete-internacional',
-        cotacao: {
-          status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO'] },
-          ...(filtroWorkspace),
-        },
-      },
-      _sum: { valor_total_proposta_bid_frete_internacional: true },
-    })
-
-    // Valores totais das cotacoes passadas (aprovadas)
-    const valoresPassadas = await (req.prisma as any).propostaBidFreteInternacional.aggregate({
-      where: {
-        id_produto_gravity: 'bid-frete-internacional',
-        status_proposta_bid_frete_internacional: 'APROVADA',
-        ...(Object.keys(filtroWorkspace).length > 0 ? { cotacao: filtroWorkspace } : {}),
-      },
-      _sum: { valor_total_proposta_bid_frete_internacional: true },
-    })
-
-    // Cotacoes aprovadas por timing
-    const cotacoesAprovadas = await (req.prisma as any).cotacaoBidFreteInternacional.findMany({
-      where: {
-        id_produto_gravity: 'bid-frete-internacional',
-        status_cotacao_bid_frete_internacional: 'APROVADA',
-        ...(filtroWorkspace),
-      },
-      select: { data_aprovacao_cotacao_bid_frete_internacional: true, data_limite_resposta_cotacao_bid_frete_internacional: true },
-    })
-
-    type AprovadaRow = { data_aprovacao_cotacao_bid_frete_internacional: Date; data_limite_resposta_cotacao_bid_frete_internacional: Date | null }
-    const emTempo = (cotacoesAprovadas as AprovadaRow[]).filter((c) =>
-      !c.data_limite_resposta_cotacao_bid_frete_internacional || new Date(c.data_aprovacao_cotacao_bid_frete_internacional) <= new Date(c.data_limite_resposta_cotacao_bid_frete_internacional)
-    ).length
-    const fora = cotacoesAprovadas.length - emTempo
-
-    const idsWorkspaces = parseIdsWorkspacesQuery(req)
-    const idWorkspaceUnico =
-      !idsWorkspaces?.length && typeof filtroWorkspace.id_workspace === 'string'
-        ? filtroWorkspace.id_workspace
-        : undefined
-
-    // Savings
-    const savings = await motorGanho.calcularMetricas(req.prisma!, {
-      ...(idsWorkspaces?.length ? { ids_workspaces: idsWorkspaces } : {}),
-      ...(idWorkspaceUnico ? { id_workspace: idWorkspaceUnico } : {}),
-      data_inicio: data_inicio ? new Date(data_inicio) : undefined,
-      data_fim: data_fim ? new Date(data_fim) : undefined,
-    })
-
-    // Funil de status
-    const funil = await (req.prisma as any).cotacaoBidFreteInternacional.groupBy({
-      by: ['status_cotacao_bid_frete_internacional'],
-      where: { id_produto_gravity: 'bid-frete-internacional', ...filtroWorkspace },
-      _count: true,
-    })
-
-    const funilMapped = (
-      funil as Array<{ status_cotacao_bid_frete_internacional: string; _count: number | { _all?: number } }>
-    ).map((f) => ({
-      status: f.status_cotacao_bid_frete_internacional,
-      count: extrairCountGroupBy(f),
-    }))
-    const cotacoesAprovadasCount =
-      funilMapped.find((f) => f.status === 'APROVADA')?.count ?? cotacoesAprovadas.length
-
-    const disparosComResposta = await (req.prisma as any).disparoCotacaoBidFreteInternacional.findMany({
-      where: {
-        id_produto_gravity: 'bid-frete-internacional',
-        data_envio_disparo_cotacao_bid_frete_internacional: { not: null },
-        data_resposta_disparo_cotacao_bid_frete_internacional: { not: null },
-        ...(Object.keys(filtroWorkspace).length > 0 ? { cotacao: filtroWorkspace } : {}),
-      },
-      select: {
-        data_envio_disparo_cotacao_bid_frete_internacional: true,
-        data_resposta_disparo_cotacao_bid_frete_internacional: true,
-      },
-      take: 500,
-    })
-
-    type DisparoRespostaRow = {
-      data_envio_disparo_cotacao_bid_frete_internacional: Date
-      data_resposta_disparo_cotacao_bid_frete_internacional: Date
+    const parsed = dashboardKpisQuerySchema.safeParse(req.query)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Query inválida',
+        400,
+        'VALIDATION_ERROR',
+      )
     }
-    const diasResposta = (disparosComResposta as DisparoRespostaRow[])
-      .map((d) => {
-        const envio = new Date(d.data_envio_disparo_cotacao_bid_frete_internacional).getTime()
-        const resposta = new Date(d.data_resposta_disparo_cotacao_bid_frete_internacional).getTime()
-        return (resposta - envio) / (1000 * 60 * 60 * 24)
-      })
-      .filter((d) => Number.isFinite(d) && d >= 0)
-
-    const tempo_medio_resposta_dias =
-      diasResposta.length > 0
-        ? Math.round((diasResposta.reduce((a, b) => a + b, 0) / diasResposta.length) * 10) / 10
-        : null
-
-    res.json({
-      cotacoes_andamento: cotacoesAndamento,
-      cotacoes_passadas: cotacoesPassadas,
-      cotacoes_aprovadas: cotacoesAprovadasCount,
-      valor_andamento_usd: valoresAndamento._sum?.valor_total_proposta_bid_frete_internacional ?? 0,
-      valor_aprovado_usd: valoresPassadas._sum?.valor_total_proposta_bid_frete_internacional ?? 0,
-      tempo_medio_resposta_dias,
-      aprovacao: {
-        total: cotacoesAprovadas.length,
-        em_tempo: emTempo,
-        fora_prazo: fora,
-        percentual_em_tempo: cotacoesAprovadas.length > 0 ? (emTempo / cotacoesAprovadas.length * 100).toFixed(1) : '0',
-      },
-      savings,
-      funil: funilMapped,
+    const { data_inicio, data_fim, status_slug_kpi_andamento } = parsed.data
+    const payload = await agregarKpisDashboardBidFreteInternacional(req, {
+      data_inicio,
+      data_fim,
+      status_slug_kpi_andamento,
     })
+    res.json(payload)
   } catch (err) {
     next(err)
   }
 }
+
+// GET /insights — GABI Fase 1 (templates determinísticos ranqueados por role)
+router.get('/insights', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await assertWorkspacesAutorizadosNoRequest(req)
+    const period = (req.query.period as string) ?? '30d'
+    const rawRole =
+      (req.headers['x-user-role'] as string | undefined)
+      ?? (req.query.role as string | undefined)
+    const role = normalizeRoleBidFrete(rawRole)
+
+    const data_inicio =
+      (req.query.from as string | undefined)
+      ?? (req.query.data_inicio as string | undefined)
+    const data_fim =
+      (req.query.to as string | undefined)
+      ?? (req.query.data_fim as string | undefined)
+
+    const kpisRaw = await agregarKpisDashboardBidFreteInternacional(req, {
+      data_inicio,
+      data_fim,
+    })
+    const kpis = toKpiSnapshotBidFrete(period, kpisRaw)
+
+    const prevRange = data_inicio && data_fim
+      ? intervaloPeriodoAnteriorPorDatas(data_inicio, data_fim)
+      : intervaloPeriodoAnteriorDashboard(period)
+
+    const prevRaw = await agregarKpisDashboardBidFreteInternacional(req, {
+      data_inicio: prevRange.from,
+      data_fim: prevRange.to,
+    })
+    const prevKpis = toKpiSnapshotBidFrete(period, prevRaw)
+
+    const insights = generateInsightsBidFreteInternacional(kpis, role, prevKpis)
+    res.json({ period, role, insights })
+  } catch (err) {
+    next(err)
+  }
+})
 
 router.get('/', handleKpis)
 router.get('/kpis', handleKpis)
@@ -245,20 +184,29 @@ router.get('/calendario', async (req: Request, res: Response, next: NextFunction
 router.get('/insights-alertas', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await assertWorkspacesAutorizadosNoRequest(req)
+    const parsedQuery = insightsAlertasQuerySchema.safeParse(req.query)
+    if (!parsedQuery.success) {
+      throw new AppError(
+        parsedQuery.error.errors[0]?.message ?? 'Query inválida',
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
     const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
+    const referencia = parseDataReferenciaInsights(parsedQuery.data.data_referencia)
 
-    const inicioHoje = new Date()
-    inicioHoje.setHours(0, 0, 0, 0)
-    const fimHoje = new Date()
-    fimHoje.setHours(23, 59, 59, 999)
-    const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    const inicioDia = new Date(referencia)
+    inicioDia.setHours(0, 0, 0, 0)
+    const fimDia = new Date(referencia)
+    fimDia.setHours(23, 59, 59, 999)
+    const seteDiasAtras = new Date(referencia.getTime() - 7 * 24 * 60 * 60 * 1000)
 
     const [venceHoje, respostasPendentes, aguardandoAprovacao, novasSeteDias] = await Promise.all([
       (req.prisma as any).cotacaoBidFreteInternacional.count({
         where: {
           id_produto_gravity: 'bid-frete-internacional',
           status_cotacao_bid_frete_internacional: { in: [...STATUS_ANDAMENTO] },
-          data_limite_resposta_cotacao_bid_frete_internacional: { gte: inicioHoje, lte: fimHoje },
+          data_limite_resposta_cotacao_bid_frete_internacional: { gte: inicioDia, lte: fimDia },
           ...filtroWorkspace,
         },
       }),
@@ -276,6 +224,8 @@ router.get('/insights-alertas', async (req: Request, res: Response, next: NextFu
           ...filtroWorkspace,
         },
       }),
+      // Card "Novas cotações (7 dias)": inclui RASCUNHO (alinhado ao funil Insights e à Lista).
+      // Exclui apenas CANCELADA — ver agregar-insights-graficos (bucket andamento).
       (req.prisma as any).cotacaoBidFreteInternacional.count({
         where: {
           id_produto_gravity: 'bid-frete-internacional',
@@ -287,6 +237,7 @@ router.get('/insights-alertas', async (req: Request, res: Response, next: NextFu
     ])
 
     res.json({
+      data_referencia: inicioDia.toISOString().slice(0, 10),
       alertas: [
         { tipo: 'vence_hoje', label: 'Cotações vencem hoje', count: venceHoje, cor: 'red' },
         { tipo: 'resposta', label: 'Respostas pendentes', count: respostasPendentes, cor: 'orange' },
@@ -360,6 +311,103 @@ router.get('/insights-graficos', async (req: Request, res: Response, next: NextF
     }))
 
     res.json(agregarInsightsGraficosBidFreteInternacional(normalizadas, agora))
+  } catch (err) {
+    next(err)
+  }
+})
+
+// GET /insights-detalhe — cotações para drill-down de alertas/rotas (Insights cliente)
+router.get('/insights-detalhe', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await assertWorkspacesAutorizadosNoRequest(req)
+    const parsedQuery = insightsDetalheQuerySchema.safeParse(req.query)
+    if (!parsedQuery.success) {
+      throw new AppError(
+        parsedQuery.error.errors[0]?.message ?? 'Query inválida',
+        400,
+        'VALIDATION_ERROR',
+      )
+    }
+    const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
+    const {
+      contexto,
+      codigo_origem,
+      codigo_destino,
+      modal_cotacao_bid_frete_internacional,
+      limit,
+      data_referencia,
+    } = parsedQuery.data
+
+    const limite = limit ?? 20
+    const where = montarWhereInsightsDetalheBidFreteInternacional(
+      contexto,
+      filtroWorkspace,
+      {
+        codigo_origem,
+        codigo_destino,
+        modal_cotacao_bid_frete_internacional,
+        data_referencia,
+      },
+    )
+
+    const [total, cotacoes] = await Promise.all([
+      (req.prisma as any).cotacaoBidFreteInternacional.count({ where }),
+      (req.prisma as any).cotacaoBidFreteInternacional.findMany({
+        where,
+        orderBy: { data_criacao_cotacao_bid_frete_internacional: 'desc' },
+        take: limite,
+        select: {
+          id_cotacao_bid_frete_internacional: true,
+          numero_cotacao_bid_frete_internacional: true,
+          status_cotacao_bid_frete_internacional: true,
+          origem_nome_cotacao_bid_frete_internacional: true,
+          origem_codigo_cotacao_bid_frete_internacional: true,
+          destino_nome_cotacao_bid_frete_internacional: true,
+          destino_codigo_cotacao_bid_frete_internacional: true,
+          descricao_mercadoria_cotacao_bid_frete_internacional: true,
+          ncm_cotacao_bid_frete_internacional: true,
+          quantidade_volume_cotacao_bid_frete_internacional: true,
+          peso_kg_cotacao_bid_frete_internacional: true,
+          cubagem_m3_cotacao_bid_frete_internacional: true,
+          incoterm_cotacao_bid_frete_internacional: true,
+          modal_cotacao_bid_frete_internacional: true,
+          modalidade_cotacao_bid_frete_internacional: true,
+          valor_meta_cotacao_bid_frete_internacional: true,
+          moeda_meta_cotacao_bid_frete_internacional: true,
+          data_criacao_cotacao_bid_frete_internacional: true,
+          data_limite_resposta_cotacao_bid_frete_internacional: true,
+          data_aprovacao_cotacao_bid_frete_internacional: true,
+          propostas: {
+            orderBy: { valor_total_proposta_bid_frete_internacional: 'asc' },
+            select: {
+              valor_total_proposta_bid_frete_internacional: true,
+              moeda_proposta_bid_frete_internacional: true,
+              dias_transito_proposta_bid_frete_internacional: true,
+              status_proposta_bid_frete_internacional: true,
+              data_criacao_proposta_bid_frete_internacional: true,
+              fornecedor: {
+                select: { nome_fornecedor_bid_frete_internacional: true },
+              },
+            },
+          },
+          disparo_cotacao_bid_frete_internacional: {
+            select: {
+              data_envio_disparo_cotacao_bid_frete_internacional: true,
+              data_resposta_disparo_cotacao_bid_frete_internacional: true,
+              fornecedor: {
+                select: { nome_fornecedor_bid_frete_internacional: true },
+              },
+            },
+          },
+        },
+      }),
+    ])
+
+    res.json({
+      contexto,
+      total,
+      cotacoes: (cotacoes as Parameters<typeof mapearCotacaoInsightsDetalhe>[0][]).map(mapearCotacaoInsightsDetalhe),
+    })
   } catch (err) {
     next(err)
   }

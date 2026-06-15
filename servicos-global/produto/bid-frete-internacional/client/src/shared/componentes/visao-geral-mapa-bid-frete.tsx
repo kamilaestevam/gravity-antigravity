@@ -789,6 +789,9 @@ export interface RouteDetailBidFrete {
   saving: number
   transitTime: number
   supplier: string
+  codigo_origem?: string
+  codigo_destino?: string
+  marketTransitTime?: number
 }
 
 const PORT_CONNECTIONS: Record<number, RouteDetailBidFrete[]> = {
@@ -964,6 +967,9 @@ export function VisaoGeralMapaBidFrete({
         saving: 0,
         transitTime: rota.transitTime ?? 0,
         supplier: fromPin.supplier,
+        codigo_origem: fromPin.portCode,
+        codigo_destino: toPin.portCode,
+        marketTransitTime: rota.marketTransitTime,
       }
 
       if (!mapa[rota.fromId]) mapa[rota.fromId] = []
@@ -2669,11 +2675,24 @@ export function VisaoGeralMapaBidFrete({
                             </div>
                           </div>
 
-                          {/* Visual Transit Time Comparison Bar (Benchmark vs Client) */}
+                          {(() => {
+                            const tEmpresa = route.transitTime ?? 0
+                            const tMercado = route.marketTransitTime ?? null
+                            const temBenchmark = tMercado != null && tMercado > 0 && tEmpresa > 0
+                            if (!temBenchmark) {
+                              return (
+                                <div style={{ marginTop: '0.75rem', fontSize: '0.68rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                                  Benchmark de trânsito indisponível — aguardando propostas na rota.
+                                </div>
+                              )
+                            }
+                            const diff = tMercado - tEmpresa
+                            const pct = Math.round((diff / tMercado) * 100)
+                            return (
                           <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', fontWeight: 600 }}>
                               <span style={{ color: '#94a3b8' }}>Benchmarking Transit Time</span>
-                              <span style={{ color: isAir ? '#c084fc' : '#34d399' }}>Sua Empresa: {route.transitTime}d vs Mercado: {route.transitTime + 3}d</span>
+                              <span style={{ color: isAir ? '#c084fc' : '#34d399' }}>Sua Empresa: {tEmpresa}d vs Mercado: {tMercado}d</span>
                             </div>
                             <div style={{ height: '4px', background: 'rgba(255, 255, 255, 0.06)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
                               <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '100%', background: 'rgba(255,255,255,0.12)' }} />
@@ -2683,7 +2702,7 @@ export function VisaoGeralMapaBidFrete({
                                   left: 0,
                                   top: 0,
                                   height: '100%',
-                                  width: `${(route.transitTime / (route.transitTime + 3)) * 100}%`,
+                                  width: `${Math.min(100, (tEmpresa / tMercado) * 100)}%`,
                                   background: isAir ? 'linear-gradient(90deg, #8b5cf6, #c084fc)' : 'linear-gradient(90deg, #10b981, #34d399)',
                                   boxShadow: `0 0 4px ${isAir ? '#c084fc' : '#34d399'}60`,
                                   borderRadius: '2px',
@@ -2691,9 +2710,15 @@ export function VisaoGeralMapaBidFrete({
                               />
                             </div>
                             <div style={{ fontSize: '0.62rem', color: '#94a3b8', textAlign: 'right', fontStyle: 'italic' }}>
-                              Ganho de eficiência de +{(((route.transitTime + 3) - route.transitTime) / (route.transitTime + 3) * 100).toFixed(0)}% (+3 dias mais rápido que a média geral)
+                              {diff > 0
+                                ? `+${pct}% (${diff} dia(s) mais rápido que a média das propostas)`
+                                : diff < 0
+                                  ? `${pct}% (${Math.abs(diff)} dia(s) acima da média das propostas)`
+                                  : 'Igual à média das propostas na rota'}
                             </div>
                           </div>
+                            )
+                          })()}
                           
                           <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
                             <span>Forn. Líder: <strong>{route.supplier}</strong></span>

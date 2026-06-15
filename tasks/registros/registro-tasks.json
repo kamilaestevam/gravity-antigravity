@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 266,
+  "proximo_numero": 267,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -103,16 +103,16 @@
       "ordinal": 6,
       "titulo_canonico": "BIDFRT-INSIGHTS-BUG-NAO-ESPELHA-LISTA",
       "titulo_exibicao": "[BID Frete] INSIGHTS | BUG — Insights não espelham dados da lista",
-      "status": "ABR",
+      "status": "RES",
       "area": "BIDFRT",
       "subarea": null,
       "visualizacao": "INSIGHTS",
       "tipo_entrega": "BUG",
       "resumo": "NAO-ESPELHA-LISTA",
       "data_criacao": "2026-06-15T12:00:00.000Z",
-      "data_encerramento": null,
-      "tempo_liquido_horas": null,
-      "tokens_estimados_total": null,
+      "data_encerramento": "2026-06-15T21:00:00.000Z",
+      "tempo_liquido_horas": 3.0,
+      "tokens_estimados_total": 90000,
       "arquivo_ficha": "registros/TASK-000264.json"
     },
     {
@@ -120,17 +120,34 @@
       "ordinal": 7,
       "titulo_canonico": "BIDFRT-DASHBOARD-BUG-NAO-ESPELHA-LISTA",
       "titulo_exibicao": "[BID Frete] DASHBOARD | BUG — Dashboard não espelha dados da lista",
-      "status": "ABR",
+      "status": "RES",
       "area": "BIDFRT",
       "subarea": null,
       "visualizacao": "DASHBOARD",
       "tipo_entrega": "BUG",
       "resumo": "NAO-ESPELHA-LISTA",
-      "data_criacao": "2026-06-15T18:00:00.000Z",
+      "data_criacao": "2026-06-15T14:00:00.000Z",
+      "data_encerramento": "2026-06-15T21:00:00.000Z",
+      "tempo_liquido_horas": 2.0,
+      "tokens_estimados_total": 40000,
+      "arquivo_ficha": "registros/TASK-000265.json"
+    },
+    {
+      "referencia": "TASK-000266",
+      "ordinal": 8,
+      "titulo_canonico": "ADMIN-TAXAS-MOEDA-NOV-AGENDAMENTO-COTACAO-ATUAL-FUTURA",
+      "titulo_exibicao": "[Admin] Taxas Moeda | NOV — Agendamento cotação atual e futura",
+      "status": "ABR",
+      "area": "ADMIN",
+      "subarea": "TAXAS-MOEDA",
+      "visualizacao": null,
+      "tipo_entrega": "NOV",
+      "resumo": "AGENDAMENTO-COTACAO-ATUAL-FUTURA",
+      "data_criacao": "2026-06-15T20:00:00.000Z",
       "data_encerramento": null,
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
-      "arquivo_ficha": "registros/TASK-000265.json"
+      "arquivo_ficha": "registros/TASK-000266.json"
     }
   ]
 }

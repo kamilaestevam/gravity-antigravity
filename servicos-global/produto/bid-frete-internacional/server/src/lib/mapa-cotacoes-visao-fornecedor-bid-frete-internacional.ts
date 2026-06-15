@@ -39,7 +39,10 @@ export type RotaMapaVisaoFornecedorBidFreteInternacional = {
   tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO' | 'EXPORTACAO' | null
   quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: number
   melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: number | null
+  /** Média das melhores propostas por cotação na rota (sua operação). */
   dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: number | null
+  /** Média de todas as propostas recebidas na rota (benchmark de mercado). */
+  dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: number | null
 }
 
 type DisparoComCotacao = {
@@ -278,6 +281,7 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
       quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: rota.quantidade,
       melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: melhorValor,
       dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: diasMedio,
+      dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: null,
     })
   }
 

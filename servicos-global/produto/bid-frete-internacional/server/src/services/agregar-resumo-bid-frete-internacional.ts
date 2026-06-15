@@ -1,7 +1,9 @@
 export {
-  agregarResumoBidFreteInternacional,
   gerarNumeroBidFreteInternacional,
-} from '../../../client/src/shared/agregar-resumo-bid-frete-internacional.js'
+  gerarNumeroCotacaoFreteInternacional,
+} from '../../../shared/numeracao-bid-frete-internacional.js'
+
+export { agregarResumoBidFreteInternacional } from '../../../client/src/shared/agregar-resumo-bid-frete-internacional.js'
 
 import { agregarResumoBidFreteInternacional } from '../../../client/src/shared/agregar-resumo-bid-frete-internacional.js'
 

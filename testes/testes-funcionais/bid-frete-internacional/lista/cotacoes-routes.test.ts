@@ -149,7 +149,7 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes', () => {
     expect(res.body.cotacao).toHaveProperty('modal_cotacao_bid_frete_internacional', 'MARITIMO')
     expect(res.body.cotacao).toHaveProperty('status_cotacao_bid_frete_internacional', 'RASCUNHO')
     expect(res.body.cotacao).toHaveProperty('numero_cotacao_bid_frete_internacional')
-    expect(res.body.cotacao.numero_cotacao_bid_frete_internacional).toContain('BID-')
+    expect(res.body.cotacao.numero_cotacao_bid_frete_internacional).toContain('COT-')
   })
 
   it('deve retornar 400 se campo obrigatorio origem_codigo estiver ausente', async () => {

@@ -13,6 +13,7 @@ import { z } from 'zod'
 import { AppError } from '../lib/erros.js'
 import { atividadesIntegration, historicoIntegration } from '../services/integracoes-tenant.js'
 import { motorBid } from '../services/motor-bid-frete-internacional.js'
+import { gerarNumeroCotacaoFreteInternacional } from '../../../shared/numeracao-bid-frete-internacional.js'
 import { sincronizarResumoBid } from '../services/agregar-resumo-bid-frete-internacional.js'
 import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
@@ -247,13 +248,10 @@ const AtualizarStatusSchema = z.object({
   motivo_cancelamento_cotacao_bid_frete_internacional: z.string().optional(),
 })
 
-// --- Gerar numero_cotacao_bid_frete_internacional sequencial ---
+// --- Gerar numero_cotacao_bid_frete_internacional (prefixo COT-) ---
 // Exportado para reuso em duplicacoes-bid-frete-internacional.ts (mesmo formato).
 export function gerarNumeroCotacao(): string {
-  const now = new Date()
-  const date = now.toISOString().slice(0, 10).replace(/-/g, '')
-  const seq = String(Math.floor(Math.random() * 9999)).padStart(4, '0')
-  return `BID-${date}-${seq}`
+  return gerarNumeroCotacaoFreteInternacional()
 }
 
 function resolverIdWorkspace(req: Request): string | undefined {

@@ -36,6 +36,7 @@ import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { dashboardPaineisRouter } from './routes/dashboard-paineis.js'
 import { listaPaineisBidFreteRouter } from './routes/lista-bid-frete-internacional-paineis.js'
 import { preferenciaEscopoWorkspacesBidFreteRouter } from './routes/preferencia-escopo-workspaces-bid-frete-internacional.js'
+import { templateImportacaoBidHandler } from './routes/importacao-template-bid-frete-internacional.js'
 import { startCronJobs } from './services/tarefas-agendadas.js'
 import { rateLimitPresets } from '../../../../servicos-plataforma/middleware/rateLimiter.js'
 import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
@@ -120,6 +121,9 @@ app.use(
 
 // --- 7. requireInternalKey — protege todas as rotas abaixo ---
 app.use(requireInternalKey)
+
+// Download planilha modelo — link <a download> (proxy injeta chave interna)
+app.get('/api/v1/bid-frete-internacional/importacao/template', templateImportacaoBidHandler)
 
 // --- 8. Tenant Isolation — injeta req.prisma com filtro por id_organizacao ---
 app.use(tenantIsolationMiddleware)

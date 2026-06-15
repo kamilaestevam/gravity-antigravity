@@ -31,7 +31,7 @@ const ROUTE_LABELS: Record<string, string> = {
   'lista':                'Lista',
   'kanban':               'Kanban',
   'cotacoes':             'Cotações',
-  'cotacoes/nova':        'Nova Cotação',
+  'cotacoes/nova':        'Nova Cotação de Frete Internacional',
   'cotacoes/importar':    'Importar Cotações',
   'fornecedores':         'Fornecedores',
   'configuracoes':        'Configurações',

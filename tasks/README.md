@@ -63,11 +63,11 @@ Se colocar pedido + `/novo-agente` na mesma mensagem → registro **primeiro**, 
 
 **Rename no sidebar:** o agente **não consegue** renomear a conversa no Cursor (sem API). Duas opções:
 
-1. **Auto-título** — na **primeira mensagem** do chat novo, inclua o título legível:
+1. **Auto-título** — na **primeira mensagem** do chat novo, inclua o título legível com número:
    ```
-   /novo-agente BIDFRT LISTA MEL OCULTAR-EXPAND-COT — [BID Frete] LISTA | MEL — Ocultar expand cotação avulsa
+   /novo-agente ADMIN TAXAS-MOEDA NOV AGENDAMENTO — TASK-000266 | [Admin] Taxas Moeda | NOV — Agendamento cotação
    ```
-2. **Manual** — clique direito no chat → Renomear → cole o `titulo_exibicao` que o agente informar.
+2. **Manual** — clique direito no chat → Renomear → cole a linha **Copiar como nome da conversa** do veredito.
 
 **Atalho** (se já souber a classificação):
 
@@ -75,6 +75,8 @@ Se colocar pedido + `/novo-agente` na mesma mensagem → registro **primeiro**, 
 /novo-agente BIDFRT LISTA BUG ERRO-ABERTURA-COTACAO
 /novo-agente ADMIN TESTES LISTA MEL REGISTRY-PLANOS
 ```
+
+**Veredito de abertura (obrigatório):** após gravar a ficha, o agente entrega tabela **Classificação completa** (canônico, área, subárea, visualização, tipo, resumo — cada um com descrição), bloco **Escopo registrado** (`resumo_detalhado`) e linha **Copiar como nome da conversa** com `TASK-NNNNNN | …`. Não basta uma linha `Classificação: ADMIN-…`.
 
 ---
 
@@ -195,7 +197,7 @@ gh pr create --title "feat(tasks): registro de sessões agente" --body "## Summa
 | `ordinal` | Ordem entre as fichadas (1, 2, 3…) |
 | `id_transcript` | UUID da conversa no Cursor (rastreio local) |
 | `titulo_canonico` | Nome máquina: `{AREA}-{TIPO}-{RESUMO}` |
-| `titulo_exibicao` | Nome humano para renomear a conversa |
+| `titulo_exibicao` | Nome para renomear a conversa: `TASK-NNNNNN \| [Área] … \| TIPO — resumo` |
 | `resumo` | Palavras-chave curtas (kebab UPPER) |
 | `resumo_descricao` | Frase curta do objetivo |
 | `resumo_detalhado` | Parágrafo completo do que aconteceu |

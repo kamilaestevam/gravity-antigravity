@@ -11,7 +11,7 @@ import { coletarArtefatosEmt, prepararEntradaEmtParaPersistencia } from './emt-a
 import type { TestLogEntry } from '../utils/playwright-parser.js'
 
 import { RUN_TESTES_TIMEOUT_MS } from './emt-run-timeout.js'
-import { raizRepositorioGravity } from './raiz-repositorio-gravity.js'
+import { raizRepositorioGravity, relPathArquivoTesteNoMonorepo } from './raiz-repositorio-gravity.js'
 import { testLogsDir } from './test-log-persist.js'
 import { caminhoManifestoEmtTeste, caminhoResultadoEmtTeste } from './execucao-teste-markers.js'
 
@@ -112,9 +112,10 @@ async function main(): Promise<void> {
   try {
     for (const plano of manifest.planos) {
       if (!plano.specFile) continue
-      debugLog(`EMT ${plano.id} → node tsx ${plano.specFile}`)
-      const { code, stdout, stderr, durationMs, startedAtMs } = await runTsxScript(plano.specFile, manifest.env)
-      const artefatos = coletarArtefatosEmt(plano.specFile, startedAtMs, code, stdout, runId)
+      const scriptRel = relPathArquivoTesteNoMonorepo(plano.specFile) ?? plano.specFile
+      debugLog(`EMT ${plano.id} → node tsx ${scriptRel}`)
+      const { code, stdout, stderr, durationMs, startedAtMs } = await runTsxScript(scriptRel, manifest.env)
+      const artefatos = coletarArtefatosEmt(scriptRel, startedAtMs, code, stdout, runId)
       const entryBruto = {
         type: 'EMT',
         module: plano.id,

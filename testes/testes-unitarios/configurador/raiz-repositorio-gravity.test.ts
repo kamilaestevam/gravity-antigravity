@@ -5,6 +5,8 @@ import {
   raizRepositorioGravity,
   registryPlanosTestePath,
   resolverArquivoPlanoTeste,
+  resolverArquivoEmTestes,
+  relPathArquivoTesteNoMonorepo,
 } from '../../../servicos-global/configurador/server/lib/raiz-repositorio-gravity.js'
 
 describe('raiz-repositorio-gravity', () => {
@@ -26,5 +28,20 @@ describe('raiz-repositorio-gravity', () => {
     const path = resolverArquivoPlanoTeste('testes/testes-unitarios/pedido/pedido-divergencias-referencia.test.ts')
     expect(path).not.toBeNull()
     expect(existsSync(path!)).toBe(true)
+  })
+
+  it('resolverArquivoEmTestes — SSOT testes/ sem prefixo duplicado (EMT 000095)', () => {
+    const rel = 'testes-em-tela/admin/testes/aba-plano-de-teste/plano-de-teste/run-preferencia-teste-usuario-admin.ts'
+    const abs = resolverArquivoEmTestes(rel)
+    expect(abs).not.toBeNull()
+    expect(relPathArquivoTesteNoMonorepo(rel)).toBe(
+      'testes/testes-em-tela/admin/testes/aba-plano-de-teste/plano-de-teste/run-preferencia-teste-usuario-admin.ts',
+    )
+  })
+
+  it('resolverArquivoEmTestes — aceita legado com prefixo testes/', () => {
+    const rel = 'testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts'
+    expect(resolverArquivoEmTestes(rel)).not.toBeNull()
+    expect(relPathArquivoTesteNoMonorepo(rel)).toBe(rel)
   })
 })

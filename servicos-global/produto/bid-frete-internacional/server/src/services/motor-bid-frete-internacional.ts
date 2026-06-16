@@ -51,8 +51,8 @@ interface DispararBidOptions {
   canais: CanalDisparoMotor[]
   id_usuario: string
   id_organizacao: string
-  /** E-mail escolhido no modal de disparo (Cadastros SSOT). */
-  emails_por_fornecedor?: Record<string, string>
+  /** E-mails escolhidos no modal de disparo (Cadastros SSOT). */
+  emails_por_fornecedor?: Record<string, string[]>
 }
 
 interface DispararCotacaoAbertaOptions {
@@ -152,23 +152,27 @@ export const motorBid = {
         try {
           let idMensagem: string | null = null
           if (canal_disparo_cotacao_bid_frete_internacional === 'EMAIL') {
-            const emailOverride = emails_por_fornecedor?.[idFornecedor]?.trim().toLowerCase()
-            const emails = emailOverride
-              ? [emailOverride]
+            const overrideEmails = emails_por_fornecedor?.[idFornecedor]
+              ?.map(e => e.trim().toLowerCase())
+              .filter(e => e.length > 0)
+            const emails = overrideEmails && overrideEmails.length > 0
+              ? [...new Set(overrideEmails)]
               : resolverEmailsDisparoBidFrete(espelhoDisparo, cadastrosDisparo)
             if (emails.length === 0) {
               throw new Error(
                 `Fornecedor ${fornecedor.nome_fornecedor_bid_frete_internacional ?? ''} sem e-mail cadastrado`,
               )
             }
-            idMensagem = await this.dispararEmail(
-              cotacao,
-              fornecedor,
-              token,
-              id_organizacao,
-              id_usuario,
-              emails[0],
-            )
+            for (const email of emails) {
+              idMensagem = await this.dispararEmail(
+                cotacao,
+                fornecedor,
+                token,
+                id_organizacao,
+                id_usuario,
+                email,
+              )
+            }
           } else if (canal_disparo_cotacao_bid_frete_internacional === 'WHATSAPP') {
             const whatsapps = resolverWhatsappsDisparoBidFrete(espelhoDisparo, cadastrosDisparo)
             if (whatsapps.length === 0) {

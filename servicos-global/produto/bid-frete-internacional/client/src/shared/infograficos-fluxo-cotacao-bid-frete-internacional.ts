@@ -7,6 +7,7 @@ import type {
   DisparoCotacaoBidFreteInternacional,
   PropostaRankingBidFreteInternacional,
   StatusCotacao,
+  Cotacao,
 } from './types'
 
 export interface ResumoMelhorPropostaFluxo {
@@ -94,6 +95,8 @@ export function montarConteudoAvisoGraficosInsights(
   quantidadeDisparosEnviados: number,
   t: TFunction,
 ): ConteudoAvisoGraficosInsights | null {
+  if (status === 'APROVADA') return null
+
   if (quantidadePropostas >= 2) return null
 
   if (quantidadePropostas === 1) {
@@ -796,4 +799,48 @@ export function indiceFluxoPorStatus(status: StatusCotacao): number {
     EXPIRADA: 2,
   }
   return mapa[status] ?? 0
+}
+
+export function formatarMoedaInsightsBidFrete(valor: number, moeda: string): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: moeda || 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(valor)
+}
+
+/** Nome do agente/fornecedor ganhador da cotação aprovada. */
+export function resolverNomeGanhadorCotacao(
+  cotacao: Cotacao,
+  propostasRanking: PropostaRankingBidFreteInternacional[],
+): string | null {
+  const propostaRankingAprovada = propostasRanking.find(
+    (p) => p.status_proposta_bid_frete_internacional === 'APROVADA',
+  )
+  if (propostaRankingAprovada) {
+    return nomeFornecedorProposta(propostaRankingAprovada)
+  }
+
+  const propostas = cotacao.propostas_bid_frete_internacional ?? []
+  const propostaAprovada = propostas.find((p) => p.status_proposta_bid_frete_internacional === 'APROVADA')
+  if (propostaAprovada?.fornecedor?.nome_fornecedor_bid_frete_internacional) {
+    return propostaAprovada.fornecedor.nome_fornecedor_bid_frete_internacional
+  }
+
+  const idVencedor = cotacao.id_fornecedor_vencedor_cotacao_bid_frete_internacional
+  if (idVencedor) {
+    const porProposta = propostas.find((p) => p.id_fornecedor_bid_frete_internacional === idVencedor)
+    if (porProposta?.fornecedor?.nome_fornecedor_bid_frete_internacional) {
+      return porProposta.fornecedor.nome_fornecedor_bid_frete_internacional
+    }
+    const disparo = cotacao.disparo_cotacao_bid_frete_internacional?.find(
+      (d) => d.id_fornecedor_bid_frete_internacional === idVencedor,
+    )
+    if (disparo?.fornecedor?.nome_fornecedor_bid_frete_internacional) {
+      return disparo.fornecedor.nome_fornecedor_bid_frete_internacional
+    }
+  }
+
+  return null
 }

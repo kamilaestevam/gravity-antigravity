@@ -525,6 +525,12 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
     propostas_bid_frete_internacional: propostas,
     bid_bid_frete_internacional: bidMapeado,
     historico_aprovado: raw.historico_aprovado as Cotacao['historico_aprovado'],
+    id_usuario_aprovacao_ganho_bid_frete_internacional:
+      (raw.id_usuario_aprovacao_ganho_bid_frete_internacional as string | null | undefined) ?? null,
+    nome_usuario_aprovacao_ganho_bid_frete_internacional:
+      (raw.nome_usuario_aprovacao_ganho_bid_frete_internacional as string | null | undefined) ?? null,
+    nome_usuario_solicitante_bid_frete_internacional:
+      (raw.nome_usuario_solicitante_bid_frete_internacional as string | null | undefined) ?? null,
   }
 }
 
@@ -536,6 +542,9 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'data_atualizacao_cotacao_bid_frete_internacional',
   'valor_aprovado_ganho_bid_frete_internacional',
   'moeda_aprovada',
+  'id_usuario_aprovacao_ganho_bid_frete_internacional',
+  'nome_usuario_aprovacao_ganho_bid_frete_internacional',
+  'nome_usuario_solicitante_bid_frete_internacional',
   'disparo_cotacao_bid_frete_internacional',
   'propostas_bid_frete_internacional',
   'bid_bid_frete_internacional',
@@ -789,7 +798,7 @@ export interface CriarCotacaoPayload extends Partial<Cotacao> {
   fornecedor_ids?: string[]
   disparar_ao_criar?: boolean
   canais_disparo?: CanalDisparo[]
-  emails_por_fornecedor?: Record<string, string>
+  emails_por_fornecedor?: Record<string, string[]>
 }
 
 export interface ResultadoDisparoCriacaoCotacao {
@@ -1020,7 +1029,7 @@ export async function dispararCotacaoBidFreteInternacional(
   id_cotacao_bid_frete_internacional: string,
   fornecedor_ids: string[],
   canais: CanalDisparo[],
-  emails_por_fornecedor?: Record<string, string>,
+  emails_por_fornecedor?: Record<string, string[]>,
 ): Promise<DisparoResultadoBidFreteInternacional> {
   const res = await fetch(`${SOLICITACAO_COTACAO_BASE}/disparar`, {
     method: 'POST',
@@ -1663,6 +1672,11 @@ export const dashboardApi = {
 
 const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
 
+function urlUsuariosOrganizacaoConfigurador(): string {
+  if (CONFIGURADOR_URL) return `${CONFIGURADOR_URL}/api/v1/usuarios`
+  return '/api/v1/usuarios'
+}
+
 const listarUsuariosOrganizacaoResponseSchema = z.object({
   usuarios: z.array(z.object({
     id_usuario: z.string(),
@@ -1677,7 +1691,7 @@ export async function listarUsuariosOrganizacao(
   const token = await getToken()
   if (!token) return []
 
-  const res = await fetch(`${CONFIGURADOR_URL}/api/v1/usuarios`, {
+  const res = await fetch(urlUsuariosOrganizacaoConfigurador(), {
     headers: { Authorization: `Bearer ${token}` },
   })
   if (!res.ok) {

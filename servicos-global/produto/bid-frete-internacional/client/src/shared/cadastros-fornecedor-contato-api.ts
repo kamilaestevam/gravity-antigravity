@@ -71,18 +71,16 @@ export function extrairEmailsContatoFornecedor(fornecedor: z.infer<typeof fornec
   return []
 }
 
-export async function adicionarEmailFornecedorCadastros(
+export async function sincronizarEmailsFornecedorCadastros(
   id_fornecedor: string,
-  email_novo: string,
+  emails_novos: string[],
 ): Promise<string[]> {
   const atual = await buscarFornecedorCadastrosContatos(id_fornecedor)
-  const email = email_novo.trim().toLowerCase()
-  const existentes = extrairEmailsContatoFornecedor(atual)
-  if (existentes.includes(email)) return existentes
-
   const contatosAtuais = atual.contatos_fornecedor ?? []
   const outros = contatosAtuais.filter(c => c.tipo_canal_fornecedor_contato !== 'EMAIL')
-  const emailsOrdenados = [...existentes, email]
+  const emailsOrdenados = [...new Set(
+    emails_novos.map(e => e.trim().toLowerCase()).filter(e => e.length > 0),
+  )]
   const contatosEmail = emailsOrdenados.map((valor, idx) => ({
     tipo_canal_fornecedor_contato: 'EMAIL' as const,
     valor_fornecedor_contato: valor,
@@ -103,10 +101,50 @@ export async function adicionarEmailFornecedorCadastros(
     method: 'PUT',
     headers: headersCadastros(),
     body: JSON.stringify({
-      email_fornecedor: emailsOrdenados[0],
+      email_fornecedor: emailsOrdenados[0] ?? null,
       contatos_fornecedor,
     }),
   })
   const atualizado = fornecedorCadastrosSchema.parse(await handleJson<unknown>(res))
   return extrairEmailsContatoFornecedor(atualizado)
+}
+
+export async function adicionarEmailFornecedorCadastros(
+  id_fornecedor: string,
+  email_novo: string,
+): Promise<string[]> {
+  const atual = await buscarFornecedorCadastrosContatos(id_fornecedor)
+  const email = email_novo.trim().toLowerCase()
+  const existentes = extrairEmailsContatoFornecedor(atual)
+  if (existentes.includes(email)) return existentes
+  return sincronizarEmailsFornecedorCadastros(id_fornecedor, [...existentes, email])
+}
+
+export async function editarEmailFornecedorCadastros(
+  id_fornecedor: string,
+  email_anterior: string,
+  email_novo: string,
+): Promise<string[]> {
+  const atual = await buscarFornecedorCadastrosContatos(id_fornecedor)
+  const anterior = email_anterior.trim().toLowerCase()
+  const novo = email_novo.trim().toLowerCase()
+  const existentes = extrairEmailsContatoFornecedor(atual)
+  if (!existentes.includes(anterior)) {
+    throw new Error('E-mail não encontrado neste fornecedor')
+  }
+  if (novo !== anterior && existentes.includes(novo)) {
+    throw new Error('Este e-mail já está cadastrado')
+  }
+  const atualizados = existentes.map(e => (e === anterior ? novo : e))
+  return sincronizarEmailsFornecedorCadastros(id_fornecedor, atualizados)
+}
+
+export async function excluirEmailFornecedorCadastros(
+  id_fornecedor: string,
+  email_remover: string,
+): Promise<string[]> {
+  const atual = await buscarFornecedorCadastrosContatos(id_fornecedor)
+  const alvo = email_remover.trim().toLowerCase()
+  const existentes = extrairEmailsContatoFornecedor(atual).filter(e => e !== alvo)
+  return sincronizarEmailsFornecedorCadastros(id_fornecedor, existentes)
 }

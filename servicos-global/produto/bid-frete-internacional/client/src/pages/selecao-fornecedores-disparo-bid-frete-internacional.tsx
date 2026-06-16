@@ -2,9 +2,9 @@
  * Seleção de fornecedores e canais para disparo de cotação.
  */
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Envelope, ChatCircle, UsersThree, Star, Trash, CheckCircle, WarningCircle } from '@phosphor-icons/react'
+import { Envelope, ChatCircle, UsersThree, Star, Trash, CheckCircle, WarningCircle, CaretDown } from '@phosphor-icons/react'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { TIPO_FORNECEDOR_LABELS, type CanalDisparo, type Fornecedor, type TipoFornecedor, type Visibilidade } from '../shared/types'
@@ -27,8 +27,8 @@ export interface SelecaoFornecedoresDisparoProps {
   /** Cotação aberta: fornecedores removidos manualmente do disparo. */
   excluidosDisparo?: string[]
   onExcluirFornecedorDisparo?: (id_fornecedor_bid_frete_internacional: string) => void
-  emailsPorFornecedor?: Record<string, string>
-  onEmailFornecedorChange?: (id_fornecedor: string, email: string) => void
+  emailsPorFornecedor?: Record<string, string[]>
+  onEmailFornecedorChange?: (id_fornecedor: string, emails: string[]) => void
   onContatosFornecedorAtualizados?: () => void
 }
 
@@ -75,12 +75,16 @@ function LinhaContatoFornecedorDisparo({
   emailsPorFornecedor,
   onEmailFornecedorChange,
   onContatosFornecedorAtualizados,
+  variantEmail = 'popover',
+  exibirBadge = true,
 }: {
   fornecedor: Fornecedor
   canais: CanalDisparo[]
-  emailsPorFornecedor?: Record<string, string>
-  onEmailFornecedorChange?: (id_fornecedor: string, email: string) => void
+  emailsPorFornecedor?: Record<string, string[]>
+  onEmailFornecedorChange?: (id_fornecedor: string, emails: string[]) => void
   onContatosFornecedorAtualizados?: () => void
+  variantEmail?: 'popover' | 'expandido'
+  exibirBadge?: boolean
 }) {
   if (canais.length === 0) return null
   const id = fornecedor.id_fornecedor_bid_frete_internacional
@@ -89,15 +93,154 @@ function LinhaContatoFornecedorDisparo({
       {canais.includes('EMAIL') && (
         <ContatoEmailFornecedorDisparo
           fornecedor={fornecedor}
-          emailSelecionado={emailsPorFornecedor?.[id]}
-          onEmailSelecionado={onEmailFornecedorChange}
+          emailsSelecionados={emailsPorFornecedor?.[id]}
+          onEmailsSelecionados={onEmailFornecedorChange}
           onContatosAtualizados={onContatosFornecedorAtualizados}
+          variant={variantEmail}
+          exibirBadge={exibirBadge}
         />
       )}
       {canais.includes('WHATSAPP') && (
         <BadgeContatoFornecedor fornecedor={fornecedor} canais={['WHATSAPP']} />
       )}
     </span>
+  )
+}
+
+function ItemFornecedorDisparoExpandivel({
+  fornecedor,
+  canais,
+  emailsPorFornecedor,
+  onEmailFornecedorChange,
+  onContatosFornecedorAtualizados,
+  checked,
+  onToggleChecked,
+  mostrarCheckbox = false,
+  metaExtra,
+  acaoDireita,
+  compacto = false,
+}: {
+  fornecedor: Fornecedor
+  canais: CanalDisparo[]
+  emailsPorFornecedor?: Record<string, string[]>
+  onEmailFornecedorChange?: (id_fornecedor: string, emails: string[]) => void
+  onContatosFornecedorAtualizados?: () => void
+  checked?: boolean
+  onToggleChecked?: () => void
+  mostrarCheckbox?: boolean
+  metaExtra?: React.ReactNode
+  acaoDireita?: React.ReactNode
+  compacto?: boolean
+}) {
+  const { t } = useTranslation()
+  const [expandido, setExpandido] = useState(false)
+  const exibirPainelEmail = canais.includes('EMAIL')
+
+  return (
+    <div className={`bf-disparo-item${compacto ? ' bf-disparo-item--compacto' : ''}${mostrarCheckbox && checked ? ' bf-disparo-item--selected' : ''}`}>
+      <div className={`bf-disparo-item-linha${compacto ? ' bf-disparo-item-linha--compacta' : ''}`}>
+        {mostrarCheckbox && onToggleChecked != null && (
+          <label className="bf-disparo-item-check">
+            <input type="checkbox" checked={!!checked} onChange={onToggleChecked} />
+          </label>
+        )}
+        <span className="bf-disparo-item-corpo">
+          <span className={`bf-disparo-item-nome${compacto ? ' bf-disparo-item-nome--compacto' : ''}`}>
+            {fornecedor.nome_fornecedor_bid_frete_internacional}
+          </span>
+          {canais.length > 0 && !expandido && (
+            <span className="bf-disparo-item-contatos">
+              {canais.includes('EMAIL') && (
+                <BadgeContatoFornecedor fornecedor={fornecedor} canais={['EMAIL']} />
+              )}
+              {canais.includes('WHATSAPP') && (
+                <BadgeContatoFornecedor fornecedor={fornecedor} canais={['WHATSAPP']} />
+              )}
+            </span>
+          )}
+          {canais.length > 0 && expandido && !exibirPainelEmail && (
+            <LinhaContatoFornecedorDisparo
+              fornecedor={fornecedor}
+              canais={canais}
+              emailsPorFornecedor={emailsPorFornecedor}
+              onEmailFornecedorChange={onEmailFornecedorChange}
+              onContatosFornecedorAtualizados={onContatosFornecedorAtualizados}
+              variantEmail="expandido"
+              exibirBadge={false}
+            />
+          )}
+        </span>
+        {metaExtra}
+        {acaoDireita}
+        {exibirPainelEmail && (
+          <button
+            type="button"
+            className={`bf-disparo-item-expandir${expandido ? ' bf-disparo-item-expandir--aberto' : ''}`}
+            aria-expanded={expandido}
+            aria-label={expandido
+              ? t('bidfrete.disparo.ocultar_emails', 'Ocultar e-mails')
+              : t('bidfrete.disparo.expandir_emails', 'Expandir e-mails')}
+            onClick={() => setExpandido(v => !v)}
+          >
+            <CaretDown size={14} weight="bold" />
+          </button>
+        )}
+      </div>
+      {expandido && exibirPainelEmail && (
+        <div className="bf-disparo-item-painel">
+          <LinhaContatoFornecedorDisparo
+            fornecedor={fornecedor}
+            canais={['EMAIL']}
+            emailsPorFornecedor={emailsPorFornecedor}
+            onEmailFornecedorChange={onEmailFornecedorChange}
+            onContatosFornecedorAtualizados={onContatosFornecedorAtualizados}
+            variantEmail="expandido"
+            exibirBadge={false}
+          />
+          {canais.includes('WHATSAPP') && (
+            <div className="bf-disparo-item-painel-extra">
+              <BadgeContatoFornecedor fornecedor={fornecedor} canais={['WHATSAPP']} />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ItemFornecedorDisparoDirecionada({
+  fornecedor,
+  checked,
+  canais,
+  selecionados,
+  onChangeSelecionados,
+  emailsPorFornecedor,
+  onEmailFornecedorChange,
+  onContatosFornecedorAtualizados,
+}: {
+  fornecedor: Fornecedor
+  checked: boolean
+  canais: CanalDisparo[]
+  selecionados: string[]
+  onChangeSelecionados: (ids: string[]) => void
+  emailsPorFornecedor?: Record<string, string[]>
+  onEmailFornecedorChange?: (id_fornecedor: string, emails: string[]) => void
+  onContatosFornecedorAtualizados?: () => void
+}) {
+  const id = fornecedor.id_fornecedor_bid_frete_internacional
+
+  return (
+    <ItemFornecedorDisparoExpandivel
+      fornecedor={fornecedor}
+      canais={canais}
+      emailsPorFornecedor={emailsPorFornecedor}
+      onEmailFornecedorChange={onEmailFornecedorChange}
+      onContatosFornecedorAtualizados={onContatosFornecedorAtualizados}
+      mostrarCheckbox
+      checked={checked}
+      onToggleChecked={() => onChangeSelecionados(toggleItem(selecionados, id))}
+      metaExtra={<span className="bf-disparo-item-meta">{rotuloMetaFornecedorDisparo(fornecedor)}</span>}
+    />
   )
 }
 function BadgeContatoFornecedor({ fornecedor, canais }: { fornecedor: Fornecedor; canais: CanalDisparo[] }) {
@@ -204,18 +347,10 @@ function CarregandoFornecedoresDisparo() {
 /** Toggle expandível com barras de nota por fornecedor (Aberta e Direcionada). */
 function BarrasNotasFornecedores({
   fornecedores,
-  canais,
   onExcluirFornecedor,
-  emailsPorFornecedor,
-  onEmailFornecedorChange,
-  onContatosFornecedorAtualizados,
 }: {
   fornecedores: Fornecedor[]
-  canais: CanalDisparo[]
   onExcluirFornecedor?: (id_fornecedor_bid_frete_internacional: string) => void
-  emailsPorFornecedor?: Record<string, string>
-  onEmailFornecedorChange?: (id_fornecedor: string, email: string) => void
-  onContatosFornecedorAtualizados?: () => void
 }) {
   const { t } = useTranslation()
   const [graficoAberto, setGraficoAberto] = React.useState(false)
@@ -250,26 +385,13 @@ function BarrasNotasFornecedores({
                 <span className="bf-preview-barra-nome" title={f.nome_fornecedor_bid_frete_internacional}>
                   {f.nome_fornecedor_bid_frete_internacional}
                 </span>
-                <LinhaContatoFornecedorDisparo
-                  fornecedor={f}
-                  canais={canais}
-                  emailsPorFornecedor={emailsPorFornecedor}
-                  onEmailFornecedorChange={onEmailFornecedorChange}
-                  onContatosFornecedorAtualizados={onContatosFornecedorAtualizados}
-                />
-                {comExcluir ? (
-                  <span className="bf-preview-barra-meta">{rotuloMetaFornecedorDisparo(f)}</span>
-                ) : (
-                  <>
-                    <div className="bf-preview-barra-track">
-                      <div
-                        className="bf-preview-barra-fill"
-                        style={{ width: `${((nota ?? 0) / 5) * 100}%` }}
-                      />
-                    </div>
-                    <span className="bf-preview-barra-nota">{nota != null ? `${nota.toFixed(1)}/5` : '—'}</span>
-                  </>
-                )}
+                <div className="bf-preview-barra-track">
+                  <div
+                    className="bf-preview-barra-fill"
+                    style={{ width: `${((nota ?? 0) / 5) * 100}%` }}
+                  />
+                </div>
+                <span className="bf-preview-barra-nota">{nota != null ? `${nota.toFixed(1)}/5` : '—'}</span>
                 {comExcluir && (
                   <TooltipGlobal
                     descricao={t('bidfrete.disparo.excluir_fornecedor', 'Excluir do disparo')}
@@ -278,7 +400,7 @@ function BarrasNotasFornecedores({
                       type="button"
                       className="bf-disparo-btn-excluir"
                       aria-label={t('bidfrete.disparo.excluir_fornecedor', 'Excluir do disparo')}
-                      onClick={() => onExcluirFornecedor(id)}
+                      onClick={() => onExcluirFornecedor!(id)}
                     >
                       <Trash size={16} weight="bold" />
                     </button>
@@ -307,8 +429,8 @@ function PreviewFornecedoresElegiveis({
   canais: CanalDisparo[]
   excluidosDisparo: string[]
   onExcluirFornecedorDisparo?: (id_fornecedor_bid_frete_internacional: string) => void
-  emailsPorFornecedor?: Record<string, string>
-  onEmailFornecedorChange?: (id_fornecedor: string, email: string) => void
+  emailsPorFornecedor?: Record<string, string[]>
+  onEmailFornecedorChange?: (id_fornecedor: string, emails: string[]) => void
   onContatosFornecedorAtualizados?: () => void
 }) {
   const { t } = useTranslation()
@@ -359,12 +481,36 @@ function PreviewFornecedoresElegiveis({
 
       <BarrasNotasFornecedores
         fornecedores={elegiveis}
-        canais={canais}
         onExcluirFornecedor={onExcluirFornecedorDisparo}
-        emailsPorFornecedor={emailsPorFornecedor}
-        onEmailFornecedorChange={onEmailFornecedorChange}
-        onContatosFornecedorAtualizados={onContatosFornecedorAtualizados}
       />
+
+      {canais.length > 0 && (
+        <div className="bf-disparo-lista bf-disparo-lista--elegiveis">
+          {elegiveis.map(f => (
+            <ItemFornecedorDisparoExpandivel
+              key={f.id_fornecedor_bid_frete_internacional}
+              fornecedor={f}
+              canais={canais}
+              emailsPorFornecedor={emailsPorFornecedor}
+              onEmailFornecedorChange={onEmailFornecedorChange}
+              onContatosFornecedorAtualizados={onContatosFornecedorAtualizados}
+              metaExtra={<span className="bf-disparo-item-meta">{rotuloMetaFornecedorDisparo(f)}</span>}
+              acaoDireita={onExcluirFornecedorDisparo ? (
+                <TooltipGlobal descricao={t('bidfrete.disparo.excluir_fornecedor', 'Excluir do disparo')}>
+                  <button
+                    type="button"
+                    className="bf-disparo-btn-excluir"
+                    aria-label={t('bidfrete.disparo.excluir_fornecedor', 'Excluir do disparo')}
+                    onClick={() => onExcluirFornecedorDisparo(f.id_fornecedor_bid_frete_internacional)}
+                  >
+                    <Trash size={16} weight="bold" />
+                  </button>
+                </TooltipGlobal>
+              ) : undefined}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -466,40 +612,21 @@ export function SelecaoFornecedoresDisparo({
                       : t('bidfrete.disparo.selecionar_todos', 'Selecionar todos')}
                   </button>
                   <div className="bf-disparo-lista">
-                    {fornecedores.map(f => {
-                      const id = f.id_fornecedor_bid_frete_internacional
-                      const checked = selecionados.includes(id)
-                      return (
-                        <label key={id} className={`bf-disparo-item ${checked ? 'bf-disparo-item--selected' : ''}`}>
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => onChangeSelecionados(toggleItem(selecionados, id))}
-                          />
-                          <span className="bf-disparo-item-corpo">
-                            <span className="bf-disparo-item-nome">{f.nome_fornecedor_bid_frete_internacional}</span>
-                            {canais.length > 0 && (
-                              <LinhaContatoFornecedorDisparo
-                                fornecedor={f}
-                                canais={canais}
-                                emailsPorFornecedor={emailsPorFornecedor}
-                                onEmailFornecedorChange={onEmailFornecedorChange}
-                                onContatosFornecedorAtualizados={onContatosFornecedorAtualizados}
-                              />
-                            )}
-                          </span>
-                          <span className="bf-disparo-item-meta">{rotuloMetaFornecedorDisparo(f)}</span>
-                        </label>
-                      )
-                    })}
+                    {fornecedores.map(f => (
+                      <ItemFornecedorDisparoDirecionada
+                        key={f.id_fornecedor_bid_frete_internacional}
+                        fornecedor={f}
+                        checked={selecionados.includes(f.id_fornecedor_bid_frete_internacional)}
+                        canais={canais}
+                        selecionados={selecionados}
+                        onChangeSelecionados={onChangeSelecionados}
+                        emailsPorFornecedor={emailsPorFornecedor}
+                        onEmailFornecedorChange={onEmailFornecedorChange}
+                        onContatosFornecedorAtualizados={onContatosFornecedorAtualizados}
+                      />
+                    ))}
                   </div>
-                  <BarrasNotasFornecedores
-                    fornecedores={fornecedores}
-                    canais={canais}
-                    emailsPorFornecedor={emailsPorFornecedor}
-                    onEmailFornecedorChange={onEmailFornecedorChange}
-                    onContatosFornecedorAtualizados={onContatosFornecedorAtualizados}
-                  />
+                  <BarrasNotasFornecedores fornecedores={fornecedores} />
                 </>
               )}
             </div>
@@ -531,10 +658,34 @@ export function SelecaoFornecedoresDisparo({
         .bf-disparo-selecionar-todos:hover { text-decoration: underline; }
         .bf-disparo-lista { display: flex; flex-direction: column; gap: 0.5rem; max-height: 280px; overflow-y: auto; }
         .bf-disparo-item {
-          display: grid; grid-template-columns: auto 1fr auto; gap: 0.75rem; align-items: start;
+          display: flex; flex-direction: column; gap: 0;
           padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid var(--bg-elevated, #475569);
-          cursor: pointer; background: var(--bg-base, #1e293b);
+          background: var(--bg-base, #1e293b);
         }
+        .bf-disparo-item-linha {
+          display: grid; grid-template-columns: auto 1fr auto auto; gap: 0.75rem; align-items: start;
+        }
+        .bf-disparo-item-check { display: flex; align-items: center; padding-top: 0.1rem; cursor: pointer; }
+        .bf-disparo-item-check input { cursor: pointer; }
+        .bf-disparo-item-expandir {
+          display: inline-flex; align-items: center; justify-content: center;
+          width: 28px; height: 28px; margin-top: 0.05rem; border-radius: 6px;
+          border: 1px solid rgba(129, 140, 248, 0.3); background: rgba(99, 102, 241, 0.08);
+          color: #a5b4fc; cursor: pointer; padding: 0; flex-shrink: 0; transition: transform 0.18s ease, background 0.18s ease;
+        }
+        .bf-disparo-item-expandir:hover { background: rgba(99, 102, 241, 0.18); }
+        .bf-disparo-item-expandir--aberto { transform: rotate(180deg); }
+        .bf-disparo-item-painel {
+          margin-top: 0.65rem; padding-top: 0.65rem; border-top: 1px solid rgba(71, 85, 105, 0.45);
+        }
+        .bf-disparo-item-painel-extra { margin-top: 0.5rem; }
+        .bf-disparo-item--compacto { padding: 0.5rem 0.65rem; }
+        .bf-disparo-item-linha--compacta { grid-template-columns: 1fr auto auto auto; }
+        .bf-disparo-item-nome--compacto { font-size: 0.8125rem; }
+        .bf-preview-barra-nota-wrap {
+          display: grid; grid-template-columns: 1fr auto; gap: 0.65rem; align-items: center; min-width: 120px;
+        }
+        .bf-disparo-lista--elegiveis { max-height: 240px; margin-top: 0.25rem; }
         .bf-disparo-item-corpo { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
         .bf-disparo-item-contatos { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
         .bf-disparo-item--selected { border-color: rgba(99,102,241,0.45); background: rgba(99,102,241,0.08); }
@@ -584,8 +735,9 @@ export function SelecaoFornecedoresDisparo({
         .bf-preview-toggle:hover { text-decoration: underline; }
         .bf-preview-barras { display: flex; flex-direction: column; gap: 0.45rem; max-height: 220px; overflow-y: auto; }
         .bf-preview-barra-linha { display: grid; grid-template-columns: minmax(120px, 200px) 1fr 48px; gap: 0.65rem; align-items: center; }
-        .bf-preview-barra-linha--com-excluir { grid-template-columns: minmax(120px, 1fr) auto auto; gap: 0.75rem; }
+        .bf-preview-barra-linha--com-excluir { grid-template-columns: minmax(120px, 1fr) auto 48px auto; gap: 0.75rem; }
         .bf-preview-barra-nome { font-size: 0.8125rem; font-weight: 600; color: var(--text-primary, #f1f5f9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .bf-disparo-lista--elegiveis { max-height: 240px; margin-top: 0.25rem; }
         .bf-preview-barra-track { height: 8px; border-radius: 999px; background: rgba(71,85,105,0.45); overflow: hidden; }
         .bf-preview-barra-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #6366f1, #a78bfa); }
         .bf-preview-barra-nota { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary, #94a3b8); font-variant-numeric: tabular-nums; text-align: right; }

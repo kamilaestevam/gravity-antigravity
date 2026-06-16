@@ -101,9 +101,6 @@ import { formatarDataBidFrete } from '../shared/formato-data-bid-frete'
 const dataHoraBR = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'
 
-const usd = (val: number | null) =>
-  val != null ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD' }).format(val) : '—'
-
 // ─── Badge de Status ─────────────────────────────────────────────────────────
 
 const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
@@ -785,17 +782,6 @@ export default function DetalheCotacao() {
             </div>
           )}
 
-          {cotacao.valor_aprovado_ganho_bid_frete_internacional != null && (
-            <div className="dc-aprovado">
-              <CheckCircle weight="fill" size={20} style={{ color: 'var(--success)' }} />
-              <span>{t('bidfrete.detalhe_cotacao.aprovado')}: <strong>{cotacao.moeda_aprovada ?? 'USD'} {cotacao.valor_aprovado_ganho_bid_frete_internacional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></span>
-              {cotacao.ganho_valor_cotacao_bid_frete_internacional != null && (
-                <span style={{ color: 'var(--success)', fontWeight: 700 }}>
-                  Saving: {usd(cotacao.ganho_valor_cotacao_bid_frete_internacional)} ({cotacao.ganho_percentual_cotacao_bid_frete_internacional?.toFixed(1)}%)
-                </span>
-              )}
-            </div>
-          )}
         </div>
         </>
       )}
@@ -1395,8 +1381,8 @@ export default function DetalheCotacao() {
         }
         .dc-info-mono { font-family: 'DM Mono', monospace; }
 
-        /* ── Target / Aprovado ── */
-        .dc-target, .dc-aprovado {
+        /* ── Target ── */
+        .dc-target {
           margin-top: 0;
           padding: 1rem 1.25rem;
           background: linear-gradient(135deg, rgba(51, 65, 85, 0.5) 0%, rgba(15, 23, 42, 0.9) 100%);
@@ -1414,11 +1400,6 @@ export default function DetalheCotacao() {
           font-family: 'DM Mono', monospace;
           font-weight: 700;
           color: var(--text-primary, #f1f5f9);
-        }
-        .dc-aprovado {
-          border: 1px solid rgba(34, 197, 94, 0.4);
-          background: linear-gradient(135deg, rgba(34, 197, 94, 0.18) 0%, rgba(15, 23, 42, 0.92) 100%);
-          box-shadow: 0 4px 20px rgba(34, 197, 94, 0.12);
         }
 
         /* ── Propostas (Respostas) ── */

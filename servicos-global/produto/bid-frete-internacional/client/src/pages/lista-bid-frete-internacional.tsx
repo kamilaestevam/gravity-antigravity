@@ -52,7 +52,6 @@ import {
   SquaresFour,
   Clock,
   Coins,
-  DownloadSimple,
   CurrencyDollar,
   ClipboardText,
   Gauge,
@@ -109,6 +108,7 @@ import {
   estiloWrapperTabelaListaBidFreteInternacional,
 } from '../shared/altura-tabela-lista-bid-frete-internacional'
 import { useListaPainelBidFrete } from '../shared/useListaPainelBidFrete'
+import { montarAcoesExportacaoListaBidFrete } from '../shared/acoes-exportacao-lista-bid-frete-internacional'
 import {
   configListaPainelPadraoV1,
   parsearConfigListaPainelSeguro,
@@ -1676,76 +1676,49 @@ export default function Cotacoes() {
     handleLimparTodosFiltrosColuna, onFiltroColuna,
   ])
 
-  const exportarCSVCotacoes = useCallback((formato: 'excel' | 'csv') => {
-    const sep = formato === 'excel' ? ';' : ','
-    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
-    
-    const colunasExport = colunasFilhoExport.filter(c => {
-      if (!c.key) return false
-      if (preferencias?.colunas_visiveis) {
-        return preferencias.colunas_visiveis.includes(c.key as string)
-      }
-      return COLUNAS_PADRAO_VISIVEIS.includes(c.key as string)
-    })
+  const formatValorExportCotacaoLista = useCallback((key: string, row: Cotacao): string => {
+    const val = row[key as keyof Cotacao]
 
-    const cabecalho = colunasExport.map(c => escape(c.label)).join(sep)
-    
-    const linhas = cotacoesFiltradas.map(row => {
-      return colunasExport.map(c => {
-        const key = c.key as string
-        const val = row[c.key as keyof Cotacao]
+    if (
+      key === 'id_organizacao' ||
+      key === 'id_usuario' ||
+      key === 'id_workspace' ||
+      key === 'id_produto_gravity'
+    ) {
+      return formatValorExportColuna(key, row, opcoesColunasLista)
+    }
 
-        if (
-          key === 'id_organizacao' ||
-          key === 'id_usuario' ||
-          key === 'id_workspace' ||
-          key === 'id_produto_gravity'
-        ) {
-          return escape(formatValorExportColuna(key, row, opcoesColunasLista))
-        }
+    if (val == null) return ''
+    if (
+      key === 'data_criacao_cotacao_bid_frete_internacional' ||
+      key === 'data_limite_resposta_cotacao_bid_frete_internacional' ||
+      key === 'data_atualizacao_cotacao_bid_frete_internacional' ||
+      key === 'data_aprovacao_cotacao_bid_frete_internacional' ||
+      key === 'data_cancelamento_cotacao_bid_frete_internacional'
+    ) {
+      return fmtData(val as string)
+    }
+    if (
+      key === 'ganho_valor_cotacao_bid_frete_internacional' ||
+      key === 'valor_meta_cotacao_bid_frete_internacional'
+    ) {
+      return val != null ? String(val) : ''
+    }
+    return String(val)
+  }, [opcoesColunasLista])
 
-        if (val == null) return escape('')
-        if (
-          key === 'data_criacao_cotacao_bid_frete_internacional' ||
-          key === 'data_limite_resposta_cotacao_bid_frete_internacional' ||
-          key === 'data_atualizacao_cotacao_bid_frete_internacional' ||
-          key === 'data_aprovacao_cotacao_bid_frete_internacional' ||
-          key === 'data_cancelamento_cotacao_bid_frete_internacional'
-        ) {
-          return escape(fmtData(val as string))
-        }
-        if (
-          key === 'ganho_valor_cotacao_bid_frete_internacional' ||
-          key === 'valor_meta_cotacao_bid_frete_internacional'
-        ) {
-          return escape(val != null ? String(val) : '')
-        }
-        return escape(String(val))
-      }).join(sep)
-    })
-
-    const conteudo = [cabecalho, ...linhas].join('\n')
-    const blob = new Blob(['\uFEFF' + conteudo], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `cotacoes_${formato === 'excel' ? 'excel' : 'csv'}_${new Date().toISOString().slice(0,10)}.csv`
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 5000)
-  }, [cotacoesFiltradas, colunasFilhoExport, preferencias, opcoesColunasLista])
-
-  const acoesExportacao = useMemo(() => [
-    {
-      label: 'Excel (.xlsx)',
-      icone: <DownloadSimple size={15} weight="duotone" />,
-      onClick: () => exportarCSVCotacoes('excel'),
-    },
-    {
-      label: 'CSV',
-      icone: <DownloadSimple size={15} weight="duotone" />,
-      onClick: () => exportarCSVCotacoes('csv'),
-    },
-  ], [exportarCSVCotacoes])
+  const acoesExportacao = useMemo(
+    () => montarAcoesExportacaoListaBidFrete({
+      colunas: colunasFilhoExport,
+      preferencias,
+      colunasPadrao: COLUNAS_PADRAO_VISIVEIS,
+      dados: cotacoesFiltradas,
+      formatValorExport: formatValorExportCotacaoLista,
+      nomeArquivo: 'cotacoes',
+      titulo: t('bidfrete.cotacoes.export_titulo', 'Cotações BID Frete Internacional'),
+    }),
+    [colunasFilhoExport, preferencias, cotacoesFiltradas, formatValorExportCotacaoLista, t],
+  )
 
   // ─── KPI Metrics ───
 
@@ -2248,7 +2221,8 @@ export default function Cotacoes() {
             onFiltroColuna={onFiltroColuna}
             filtrosAtivosKeys={filtrosAtivosKeys}
             placeholderBusca="Buscar"
-            
+            distribuirLarguraColunas
+
             camposEditaveis={CAMPOS_EDITAVEIS_LISTA}
             camposEditaveisFilhos={CAMPOS_EDITAVEIS_LISTA}
             onEditar={handleEditar}

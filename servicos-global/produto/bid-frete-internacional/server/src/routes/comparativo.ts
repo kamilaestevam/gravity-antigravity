@@ -9,6 +9,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { motorComparativo } from '../services/motor-comparativo-bid-frete-internacional.js'
 import { AppError } from '../lib/erros.js'
+import { resolverNomeUsuarioOrganizacaoBidFreteInternacional } from '../lib/resolver-nome-usuario-organizacao-bid-frete-internacional.js'
 import { notificacoesIntegration, historicoIntegration, gabiIntegration } from '../services/integracoes-tenant.js'
 
 const router = Router()
@@ -60,7 +61,18 @@ router.post('/:cotacaoId/aprovar', async (req: Request, res: Response, next: Nex
       historicoIntegration.cotacaoAprovada(tenantId, userId, { id: req.params.cotacaoId, numero_cotacao_bid_frete_internacional: req.params.cotacaoId }, id_proposta_bid_frete_internacional, 0)
     }
 
-    res.json({ cotacao })
+    const nome_usuario_aprovacao_ganho_bid_frete_internacional =
+      cotacao?.id_organizacao
+        ? await resolverNomeUsuarioOrganizacaoBidFreteInternacional(cotacao.id_organizacao, userId)
+        : null
+
+    res.json({
+      cotacao: {
+        ...cotacao,
+        id_usuario_aprovacao_ganho_bid_frete_internacional: userId,
+        nome_usuario_aprovacao_ganho_bid_frete_internacional,
+      },
+    })
   } catch (err) {
     next(err)
   }

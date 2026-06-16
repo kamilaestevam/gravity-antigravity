@@ -11,6 +11,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../lib/erros.js'
+import { resolverNomeUsuarioOrganizacaoBidFreteInternacional } from '../lib/resolver-nome-usuario-organizacao-bid-frete-internacional.js'
 import { atividadesIntegration, historicoIntegration } from '../services/integracoes-tenant.js'
 import { motorBid } from '../services/motor-bid-frete-internacional.js'
 import { gerarNumeroCotacaoFreteInternacional } from '../../../shared/numeracao-bid-frete-internacional.js'
@@ -77,7 +78,7 @@ const CriarCotacaoSchemaBase = z.object({
   fornecedor_ids: z.array(z.string()).optional(),
   disparar_ao_criar: z.boolean().default(false),
   canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default(['EMAIL']),
-  emails_por_fornecedor: z.record(z.string(), z.string().email()).optional(),
+  emails_por_fornecedor: z.record(z.string(), z.array(z.string().email())).optional(),
 })
 
 type DadosCotacaoBase = z.infer<typeof CriarCotacaoSchemaBase>
@@ -525,10 +526,30 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
       },
     })
 
+    let id_usuario_aprovacao_ganho_bid_frete_internacional: string | null = null
+    let nome_usuario_aprovacao_ganho_bid_frete_internacional: string | null = null
+    if (cotacao.status_cotacao_bid_frete_internacional === 'APROVADA') {
+      const ganhoAprovacao = await (req.prisma as any).ganhoBidFreteInternacional.findFirst({
+        where: { id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional },
+        orderBy: { data_criacao_ganho_bid_frete_internacional: 'desc' },
+        select: { id_usuario: true },
+      })
+      id_usuario_aprovacao_ganho_bid_frete_internacional = ganhoAprovacao?.id_usuario ?? null
+      if (id_usuario_aprovacao_ganho_bid_frete_internacional) {
+        nome_usuario_aprovacao_ganho_bid_frete_internacional =
+          await resolverNomeUsuarioOrganizacaoBidFreteInternacional(
+            cotacao.id_organizacao,
+            id_usuario_aprovacao_ganho_bid_frete_internacional,
+          )
+      }
+    }
+
     res.json({
       cotacao: {
         ...cotacao,
         historico_aprovado: historicoAprovado,
+        id_usuario_aprovacao_ganho_bid_frete_internacional,
+        nome_usuario_aprovacao_ganho_bid_frete_internacional,
       },
     })
   } catch (err) {

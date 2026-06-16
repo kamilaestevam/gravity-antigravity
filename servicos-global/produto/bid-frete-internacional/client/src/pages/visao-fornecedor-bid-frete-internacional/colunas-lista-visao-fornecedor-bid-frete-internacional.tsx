@@ -5,6 +5,7 @@ import { Anchor, AirplaneTilt, Van } from '@phosphor-icons/react'
 import type { Cotacao, ModalFrete, ModalidadeCarga } from '../../shared/types'
 import { MODAL_LABELS, MODALIDADE_LABELS } from '../../shared/types'
 import { formatarDataBidFrete } from '../../shared/formato-data-bid-frete'
+import { garantirFiltravelColunaBidFrete } from '../../shared/filtros-coluna-lista-bid-frete-internacional'
 import type { LinhaPaiLista } from '../lista-bid-frete-internacional-utils'
 import type { StatusKanbanFornecedorBidFreteInternacional } from '../../shared/kanban-fornecedor-bid-frete-internacional'
 
@@ -52,6 +53,16 @@ function primeiraProposta(cotacao: Cotacao) {
   return cotacao.propostas_bid_frete_internacional?.[0]
 }
 
+function textoSolicitanteListaFornecedor(row: Cotacao, t: TFunction): string {
+  if (row.anonima_cotacao_bid_frete_internacional) {
+    return t(
+      'bidfrete.visao_fornecedor_bid_frete_internacional.lista.solicitante_oculto',
+      'Oculto',
+    )
+  }
+  return row.nome_usuario_solicitante_bid_frete_internacional?.trim() || '—'
+}
+
 function renderBadgeFunil(t: TFunction, status: unknown): React.ReactNode {
   const chave = status as StatusKanbanFornecedorBidFreteInternacional
   const cfg = STATUS_FUNIL_BADGE[chave]
@@ -85,16 +96,7 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
         <button
           type="button"
           onClick={() => onAbrir?.(row)}
-          style={{
-            fontFamily: 'DM Mono, monospace',
-            fontSize: '0.8125rem',
-            color: 'var(--accent, #6366f1)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-            textAlign: 'left',
-          }}
+          className="bf-lista-link-cotacao"
         >
           {String(val ?? '—')}
         </button>
@@ -105,6 +107,13 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
       label: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.col_referencia', 'Referência'),
       tipo: 'texto',
       largura: 120,
+    },
+    {
+      key: 'data_criacao_cotacao_bid_frete_internacional',
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.col_data_cotacao', 'Data cotação'),
+      tipo: 'periodo',
+      largura: 120,
+      render: (val: unknown) => (val ? formatarDataBidFrete(String(val)) : '—'),
     },
     {
       key: 'origem_nome_cotacao_bid_frete_internacional',
@@ -155,6 +164,17 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
       render: (val: unknown) => (val ? formatarDataBidFrete(String(val)) : '—'),
     },
     {
+      key: 'nome_usuario_solicitante_bid_frete_internacional',
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.col_solicitante', 'Solicitante'),
+      tipo: 'texto',
+      largura: 160,
+      render: (_val: unknown, row: Cotacao) => textoSolicitanteListaFornecedor(row, t),
+      findDisplay: (row: Cotacao) => {
+        const texto = textoSolicitanteListaFornecedor(row, t)
+        return texto === '—' ? '' : texto
+      },
+    },
+    {
       key: 'valor_total_proposta_bid_frete_internacional',
       label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_valor_total', 'Valor proposta'),
       tipo: 'numero',
@@ -164,7 +184,7 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
         const proposta = primeiraProposta(row)
         if (!proposta) return '—'
         return (
-          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', fontWeight: 600 }}>
+          <span className="bf-lista-valor-numerico">
             {proposta.moeda_proposta_bid_frete_internacional}{' '}
             {fmtMoeda(proposta.valor_total_proposta_bid_frete_internacional)}
           </span>
@@ -181,7 +201,7 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
         const dias = primeiraProposta(row)?.dias_transito_proposta_bid_frete_internacional
         if (dias == null) return '—'
         return (
-          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>
+          <span className="bf-lista-valor-numerico">
             {t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.dias', { val: dias })}
           </span>
         )
@@ -198,6 +218,14 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
       },
     },
   ]
+}
+
+/** Colunas planas da lista fornecedor — com filtro ▾ (paridade lista comprador). */
+export function buildColunasListaFornecedor(
+  t: TFunction,
+  onAbrirCotacao?: (cotacao: Cotacao) => void,
+): GTColuna<Cotacao>[] {
+  return buildColunasBase(t, onAbrirCotacao).map(garantirFiltravelColunaBidFrete)
 }
 
 export function buildColunasPaiListaFornecedor(
@@ -228,17 +256,20 @@ export const CHAVES_COLUNAS_LISTA_FORNECEDOR = COLUNAS_BASE
 
 export const CHAVES_COLUNAS_PADRAO_VISIVEIS_FORNECEDOR: string[] = [
   'numero_cotacao_bid_frete_internacional',
+  'data_criacao_cotacao_bid_frete_internacional',
   'origem_nome_cotacao_bid_frete_internacional',
   'destino_nome_cotacao_bid_frete_internacional',
   'modal_cotacao_bid_frete_internacional',
   'status_cotacao_bid_frete_internacional',
   'data_limite_resposta_cotacao_bid_frete_internacional',
+  'nome_usuario_solicitante_bid_frete_internacional',
   'valor_total_proposta_bid_frete_internacional',
 ]
 
 export function formatValorExportColunaFornecedor(
   key: string,
   row: Cotacao,
+  t?: TFunction,
 ): string {
   if (key === 'valor_total_proposta_bid_frete_internacional') {
     const p = primeiraProposta(row)
@@ -255,6 +286,19 @@ export function formatValorExportColunaFornecedor(
   }
   if (key === 'status_cotacao_bid_frete_internacional') {
     return String(row.status_cotacao_bid_frete_internacional ?? '')
+  }
+  if (key === 'data_criacao_cotacao_bid_frete_internacional') {
+    const val = row.data_criacao_cotacao_bid_frete_internacional
+    return val ? formatarDataBidFrete(val) : ''
+  }
+  if (key === 'data_limite_resposta_cotacao_bid_frete_internacional') {
+    const val = row.data_limite_resposta_cotacao_bid_frete_internacional
+    return val ? formatarDataBidFrete(val) : ''
+  }
+  if (key === 'nome_usuario_solicitante_bid_frete_internacional') {
+    const fn = t ?? (((k: string, d?: string) => d ?? k) as TFunction)
+    const texto = textoSolicitanteListaFornecedor(row, fn)
+    return texto === '—' ? '' : texto
   }
   const val = row[key as keyof Cotacao]
   if (val == null) return ''

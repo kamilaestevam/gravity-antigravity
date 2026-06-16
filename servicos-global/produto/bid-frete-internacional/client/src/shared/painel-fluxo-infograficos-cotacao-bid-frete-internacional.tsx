@@ -2,8 +2,10 @@
  * Painel compacto: linha do tempo resumida + infográficos das propostas.
  */
 
-import React, { useMemo, useState, type CSSProperties } from 'react'
+import React, { useMemo, useState, useEffect, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '@clerk/clerk-react'
+import { useShellStore } from '@gravity/shell'
 import {
   CheckCircle,
   Clock,
@@ -27,6 +29,8 @@ import {
   formatarHorasResposta,
   indiceFluxoPorStatus,
   montarConteudoAvisoGraficosInsights,
+  formatarMoedaInsightsBidFrete,
+  resolverNomeGanhadorCotacao,
 } from './infograficos-fluxo-cotacao-bid-frete-internacional'
 import {
   calcularDatasEtapasFluxoTimeline,
@@ -52,6 +56,7 @@ import type {
   PropostaRankingBidFreteInternacional,
 } from './types'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { listarUsuariosOrganizacao, getApiContext } from './api'
 import { ModalAprovarPropostaBidFreteInternacional } from './modal-aprovar-proposta-bid-frete-internacional'
 import {
   cotacaoPermiteAcoesResposta,
@@ -355,6 +360,122 @@ function CelulaMetricaComparativo({
           preencherSlot
         />
       </div>
+    </div>
+  )
+}
+
+function FaixaResumoAprovacaoInsightsCotacao({
+  cotacao,
+  propostasRanking,
+  t,
+}: {
+  cotacao: Cotacao
+  propostasRanking: PropostaRankingBidFreteInternacional[]
+  t: TFunction
+}) {
+  const { getToken } = useAuth()
+  const currentUser = useShellStore((s) => s.currentUser)
+  const [nomeQuemAprovou, setNomeQuemAprovou] = useState<string | null>(null)
+
+  const valor = cotacao.valor_aprovado_ganho_bid_frete_internacional
+  const idUsuarioAprovacao = cotacao.id_usuario_aprovacao_ganho_bid_frete_internacional
+  const nomeAprovacaoServidor = cotacao.nome_usuario_aprovacao_ganho_bid_frete_internacional
+  const { userId: idUsuarioLogado, userName: nomeUsuarioLogado } = getApiContext()
+
+  useEffect(() => {
+    if (nomeAprovacaoServidor) {
+      setNomeQuemAprovou(nomeAprovacaoServidor)
+      return
+    }
+    if (!idUsuarioAprovacao) {
+      setNomeQuemAprovou(null)
+      return
+    }
+    if (idUsuarioLogado === idUsuarioAprovacao && nomeUsuarioLogado) {
+      setNomeQuemAprovou(nomeUsuarioLogado)
+      return
+    }
+    if (currentUser?.id === idUsuarioAprovacao && currentUser.name) {
+      setNomeQuemAprovou(currentUser.name)
+      return
+    }
+
+    let cancelado = false
+    void (async () => {
+      const usuarios = await listarUsuariosOrganizacao(getToken)
+      if (cancelado) return
+      const encontrado = usuarios.find((u) => u.id_usuario === idUsuarioAprovacao)
+      setNomeQuemAprovou(encontrado?.nome_usuario ?? null)
+    })()
+
+    return () => {
+      cancelado = true
+    }
+  }, [
+    currentUser?.id,
+    currentUser?.name,
+    getToken,
+    idUsuarioAprovacao,
+    idUsuarioLogado,
+    nomeAprovacaoServidor,
+    nomeUsuarioLogado,
+  ])
+
+  if (valor == null) return null
+
+  const moeda = cotacao.moeda_aprovada ?? 'USD'
+  const valorFormatado = formatarMoedaInsightsBidFrete(valor, moeda)
+  const nomeGanhador = resolverNomeGanhadorCotacao(cotacao, propostasRanking)
+  const dataAprovacao = formatarDataBidFrete(cotacao.data_aprovacao_cotacao_bid_frete_internacional)
+  const vazio = t('bidfrete.detalhe_cotacao.faixa_aprovacao_vazio', '—')
+  const quemAprovou =
+    nomeAprovacaoServidor ??
+    nomeQuemAprovou ??
+    (idUsuarioAprovacao && idUsuarioLogado === idUsuarioAprovacao ? nomeUsuarioLogado : null) ??
+    vazio
+
+  const itens = [
+    {
+      rotulo: t('bidfrete.detalhe_cotacao.faixa_aprovacao_valor', 'Valor aprovado'),
+      valor: valorFormatado,
+      destaque: true,
+    },
+    {
+      rotulo: t('bidfrete.detalhe_cotacao.faixa_aprovacao_data', 'Data da aprovação'),
+      valor: cotacao.data_aprovacao_cotacao_bid_frete_internacional ? dataAprovacao : vazio,
+      destaque: false,
+    },
+    {
+      rotulo: t('bidfrete.detalhe_cotacao.faixa_aprovacao_ganhador', 'Ganhador'),
+      valor: nomeGanhador ?? vazio,
+      destaque: false,
+    },
+    {
+      rotulo: t('bidfrete.detalhe_cotacao.faixa_aprovacao_quem', 'Quem aprovou'),
+      valor: quemAprovou,
+      destaque: false,
+    },
+  ]
+
+  return (
+    <div className="dc-smart-faixa-aprovada" role="status" aria-live="polite">
+      <div className="dc-smart-faixa-aprovada-cabecalho">
+        <CheckCircle weight="fill" size={20} className="dc-smart-faixa-aprovada-icone" aria-hidden />
+        <span className="dc-smart-faixa-aprovada-titulo">
+          {t('bidfrete.detalhe_cotacao.aprovado', 'Aprovada')}
+        </span>
+      </div>
+      <dl className="dc-smart-faixa-aprovada-grid">
+        {itens.map((item) => (
+          <div
+            key={item.rotulo}
+            className={`dc-smart-faixa-aprovada-item${item.destaque ? ' dc-smart-faixa-aprovada-item--destaque' : ''}`}
+          >
+            <dt className="dc-smart-faixa-aprovada-label">{item.rotulo}</dt>
+            <dd className="dc-smart-faixa-aprovada-valor">{item.valor}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   )
 }
@@ -932,13 +1053,21 @@ export function InsightsGridFluxoCotacao({
           {t('bidfrete.detalhe_cotacao.cockpit_painel_titulo', 'Painel de Insights Inteligente')}
         </h2>
       </div>
-      <AvisoGraficosInsightsCotacao
-        status={status_cotacao_bid_frete_internacional}
-        info={info}
-        smart={smart}
-        quantidadePropostas={propostas.length}
-        t={t}
-      />
+      {status_cotacao_bid_frete_internacional === 'APROVADA' && cotacao != null ? (
+        <FaixaResumoAprovacaoInsightsCotacao
+          cotacao={cotacao}
+          propostasRanking={propostasRanking}
+          t={t}
+        />
+      ) : (
+        <AvisoGraficosInsightsCotacao
+          status={status_cotacao_bid_frete_internacional}
+          info={info}
+          smart={smart}
+          quantidadePropostas={propostas.length}
+          t={t}
+        />
+      )}
       <div className="dc-smart-insights-grid">
         <CardMelhorPropostaSmart
           info={info}

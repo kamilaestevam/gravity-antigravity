@@ -32,7 +32,15 @@ import { deserializarFiltrosLista, serializarFiltrosLista } from './lista-painel
 
 import { migrarOrdemColunasPainelListaBidFrete } from './preferencias-colunas-lista-bid-frete-internacional'
 
+import { normalizarColunasVisiveisListaBidFrete } from './ordem-colunas-lista-bid-frete-internacional'
+
 import type { FiltrosAtivosMap } from '../components/lista/filtros'
+
+export interface OpcoesListaPainelBidFrete {
+  chavesCatalogoColunas?: readonly string[]
+  colunasPadraoVisiveis?: readonly string[]
+  storagePainelOrdemColunas?: string
+}
 
 
 
@@ -162,7 +170,10 @@ function mensagemErroPersistirPainel(err: unknown): string {
 
 
 
-export function useListaPainelBidFrete() {
+export function useListaPainelBidFrete(opcoes?: OpcoesListaPainelBidFrete) {
+
+  const opcoesRef = useRef(opcoes)
+  opcoesRef.current = opcoes
 
   const idOrganizacao = useShellStore(
 
@@ -324,12 +335,12 @@ export function useListaPainelBidFrete() {
 
 
 
+    const opcoesAtuais = opcoesRef.current
     const colunasMigradas = migrarOrdemColunasPainelListaBidFrete(
-
       painel.id,
-
       config.colunas_visiveis,
-
+      opcoesAtuais?.chavesCatalogoColunas,
+      opcoesAtuais?.storagePainelOrdemColunas,
     )
 
     if (colunasMigradas) {
@@ -346,16 +357,19 @@ export function useListaPainelBidFrete() {
 
 
 
+    const colunasVisiveisPainel = config.colunas_visiveis.length > 0
+      ? (opcoesAtuais?.chavesCatalogoColunas
+        ? normalizarColunasVisiveisListaBidFrete(
+          config.colunas_visiveis,
+          opcoesAtuais.chavesCatalogoColunas,
+          opcoesAtuais.colunasPadraoVisiveis,
+        )
+        : config.colunas_visiveis)
+      : (opcoesAtuais?.colunasPadraoVisiveis ? [...opcoesAtuais.colunasPadraoVisiveis] : [])
+
     const prefs: GTPreferencias = {
-
-      ...(config.colunas_visiveis.length > 0
-
-        ? { colunas_visiveis: config.colunas_visiveis }
-
-        : {}),
-
+      ...(colunasVisiveisPainel.length > 0 ? { colunas_visiveis: colunasVisiveisPainel } : {}),
       ...(config.colunas_largura ? { colunas_largura: config.colunas_largura } : {}),
-
     }
 
     callbacks.setPreferencias(Object.keys(prefs).length > 0 ? prefs : undefined)

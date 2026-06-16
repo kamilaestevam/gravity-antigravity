@@ -38,7 +38,7 @@ export function ModalEnviarCotacaoBidFreteInternacional({
   const [canais, setCanais] = useState<CanalDisparo[]>(['EMAIL'])
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
-  const [emailsPorFornecedor, setEmailsPorFornecedor] = useState<Record<string, string>>({})
+  const [emailsPorFornecedor, setEmailsPorFornecedor] = useState<Record<string, string[]>>({})
 
   const carregarFornecedores = useCallback(async () => {
     setCarregandoFornecedores(true)
@@ -145,8 +145,8 @@ export function ModalEnviarCotacaoBidFreteInternacional({
           canais={canais}
           onChangeCanais={setCanais}
           emailsPorFornecedor={emailsPorFornecedor}
-          onEmailFornecedorChange={(id_fornecedor, email) => {
-            setEmailsPorFornecedor(prev => ({ ...prev, [id_fornecedor]: email }))
+          onEmailFornecedorChange={(id_fornecedor, emails) => {
+            setEmailsPorFornecedor(prev => ({ ...prev, [id_fornecedor]: emails }))
           }}
           onContatosFornecedorAtualizados={() => void carregarFornecedores()}
         />

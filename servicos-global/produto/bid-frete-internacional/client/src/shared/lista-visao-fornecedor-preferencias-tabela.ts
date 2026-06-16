@@ -7,6 +7,8 @@ import {
 export const VERSAO_COLUNAS_LISTA_FORNECEDOR = 2
 export const STORAGE_COLUNAS_VERSAO_FORNECEDOR = 'bid-frete-internacional:fornecedor:config:tabela_colunas_versao'
 export const STORAGE_PREFS_TABELA_FORNECEDOR = 'bid-frete-internacional:fornecedor:config:tabela_preferencias'
+export const STORAGE_PAINEL_ORDEM_COLUNAS_FORNECEDOR =
+  'bid-frete-internacional:fornecedor:config:paineis_ordem_colunas_v'
 
 export const COLUNAS_PADRAO_VISIVEIS_FORNECEDOR = CHAVES_COLUNAS_PADRAO_VISIVEIS_FORNECEDOR
 

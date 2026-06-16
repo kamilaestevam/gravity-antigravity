@@ -46,6 +46,7 @@ import { useShellStore } from '@gravity/shell'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 import { criarCotacaoComDisparo, getFornecedores } from '../shared/api'
 import { formatarFeedbackDisparoBidFrete, type FeedbackDisparoFormatado } from '../shared/formatar-resultado-disparo-bid-frete-internacional'
@@ -92,8 +93,6 @@ const STEPS = [
   { id: 5, label: 'Resumo',           icone: <FileText weight="duotone" size={16} /> },
 ]
 
-const INCOTERMS_APENAS_MARITIMOS = new Set(['FAS', 'FOB', 'CFR', 'CIF'])
-
 const INCOTERM_GRUPOS: Array<{ titulo: string; itens: readonly string[] }> = [
   { titulo: 'Grupo E — Saída do vendedor', itens: ['EXW', 'FCA'] },
   { titulo: 'Grupo F — Principal não pago (marítimo)', itens: ['FAS', 'FOB'] },
@@ -101,9 +100,11 @@ const INCOTERM_GRUPOS: Array<{ titulo: string; itens: readonly string[] }> = [
   { titulo: 'Grupo D — Entrega no destino', itens: ['DAP', 'DPU', 'DDP'] },
 ]
 
-function incotermHabilitadoParaModal(inc: string, modal: ModalFrete | ''): boolean {
-  return modal === 'MARITIMO' || !INCOTERMS_APENAS_MARITIMOS.has(inc)
-}
+const INCOTERM_TODOS = INCOTERM_GRUPOS.flatMap((grupo) => grupo.itens)
+
+const GRUPO_POR_INCOTERM: Record<string, string> = Object.fromEntries(
+  INCOTERM_GRUPOS.flatMap((grupo) => grupo.itens.map((inc) => [inc, grupo.titulo])),
+)
 
 // ─── UF Brasil ──────────────────────────────────────────────────────────────
 const UFS_BRASIL = [
@@ -477,6 +478,62 @@ const INCOTERM_EXPLANATIONS: Record<string, { title: string; desc: string; respo
     desc: 'O vendedor paga custos, frete internacional e contrata seguro marítimo até o porto de destino designado. Riscos transferem no embarque.',
     responsabilidade: 'Exclusivo para marítimo. Frete e seguro básico com o vendedor; riscos com o comprador.'
   }
+}
+
+function tooltipIncotermNovaCotacao(
+  inc: string,
+): { titulo: React.ReactNode; descricao: React.ReactNode; interativo: boolean } {
+  const grupo = GRUPO_POR_INCOTERM[inc] ?? ''
+  const ex = INCOTERM_EXPLANATIONS[inc]
+
+  if (!ex) {
+    return { titulo: inc, descricao: grupo, interativo: false }
+  }
+
+  return {
+    titulo: ex.title,
+    descricao: (
+      <>
+        <p><strong>Grupo:</strong> {grupo}</p>
+        <p>{ex.desc}</p>
+        <p><strong>Responsabilidade:</strong> {ex.responsabilidade}</p>
+      </>
+    ),
+    interativo: true,
+  }
+}
+
+function BotaoIncotermNovaCotacao({
+  inc,
+  selecionado,
+  onSelecionar,
+}: {
+  inc: string
+  selecionado: boolean
+  onSelecionar: (inc: string) => void
+}) {
+  const tt = tooltipIncotermNovaCotacao(inc)
+
+  return (
+    <TooltipGlobal
+      titulo={tt.titulo}
+      descricao={tt.descricao}
+      interativo={tt.interativo}
+      posicaoPreferida="abaixo"
+    >
+      <button
+        type="button"
+        aria-pressed={selecionado}
+        className={[
+          'nc-incoterm-btn',
+          selecionado ? 'nc-incoterm-btn--selected' : '',
+        ].filter(Boolean).join(' ')}
+        onClick={() => onSelecionar(inc)}
+      >
+        {inc}
+      </button>
+    </TooltipGlobal>
+  )
 }
 
 // ─── Premium Option Button ──────────────────────────────────────────────────
@@ -875,10 +932,16 @@ const NC_ESTILOS_CONTEUDO = `
           display: grid;
           grid-template-columns: minmax(0, 1.4fr) 8.5rem;
           gap: 1.25rem;
-          align-items: start;
+          align-items: end;
         }
         .nc-cargo-subsecao-grid-quantidade--embalagem {
           grid-template-columns: minmax(0, 1.2fr) 8.5rem;
+        }
+        .nc-cargo-subsecao-grid-quantidade .nc-field-label {
+          min-height: 1.125rem;
+        }
+        .nc-cargo-subsecao-grid-quantidade .nc-field > .sg-wrapper-inner {
+          width: 100%;
         }
         .nc-linhas-container-header {
           display: flex;
@@ -1337,24 +1400,15 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--text-muted, #64748b);
         }
 
-        /* ── Incoterms (agrupados) ── */
-        .nc-incoterm-grupos {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-        .nc-incoterm-grupo-titulo {
-          margin: 0 0 0.5rem;
-          font-size: 0.6875rem;
-          font-weight: 700;
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-          color: var(--text-secondary-light, #94a3b8);
-        }
+        /* ── Incoterms (linha única + tooltip por termo) ── */
         .nc-incoterm-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(4.25rem, 1fr));
+          display: flex;
+          flex-wrap: wrap;
           gap: 0.5rem;
+          align-items: stretch;
+        }
+        .nc-incoterm-grid .tg-trigger {
+          display: inline-flex;
         }
         .nc-incoterm-btn {
           padding: 0.5rem 0.35rem;
@@ -1370,7 +1424,7 @@ const NC_ESTILOS_CONTEUDO = `
           cursor: pointer;
           transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, opacity 0.18s ease;
         }
-        .nc-incoterm-btn:hover:not(:disabled) {
+        .nc-incoterm-btn:hover {
           border-color: var(--nc-accent);
           color: var(--text-primary, #f1f5f9);
         }
@@ -1380,9 +1434,11 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--nc-accent);
           box-shadow: 0 0 0 1px color-mix(in srgb, var(--nc-accent) 35%, transparent);
         }
-        .nc-incoterm-btn--desabilitado {
-          opacity: 0.35;
-          cursor: not-allowed;
+
+        .nc-incoterm-stack {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
         }
 
         .nc-incoterm-helper-card {
@@ -1390,7 +1446,7 @@ const NC_ESTILOS_CONTEUDO = `
           border: 1px solid var(--nc-accent-border);
           border-radius: 10px;
           padding: 1.25rem 1.5rem;
-          margin-top: 0.25rem;
+          margin-top: 0;
         }
         .nc-helper-header {
           display: flex;
@@ -1853,7 +1909,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const [fornecedorIdsSelecionados, setFornecedorIdsSelecionados] = useState<string[]>([])
   const [fornecedorIdsExcluidosDisparo, setFornecedorIdsExcluidosDisparo] = useState<string[]>([])
   const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>(['EMAIL'])
-  const [emailsPorFornecedorDisparo, setEmailsPorFornecedorDisparo] = useState<Record<string, string>>({})
+  const [emailsPorFornecedorDisparo, setEmailsPorFornecedorDisparo] = useState<Record<string, string[]>>({})
   const proximoIdLinhaContainerRef = useRef(2)
 
   useEffect(() => {
@@ -2134,12 +2190,6 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       ),
     }))
   }
-
-  useEffect(() => {
-    const inc = form.incoterm_cotacao_bid_frete_internacional
-    if (!inc || incotermHabilitadoParaModal(inc, modal)) return
-    set('incoterm_cotacao_bid_frete_internacional', '')
-  }, [modal, form.incoterm_cotacao_bid_frete_internacional])
 
   const aoMudarNcm = (codigo: string, descricao?: string) => {
     set('ncm_cotacao_bid_frete_internacional', codigo)
@@ -3003,7 +3053,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       />
                     </Field>
 
-                    <Field label={t('bidfrete.nova_cotacao.quantidade')} required icone={<Hash {...ICONE_FIELD} />}>
+                    <Field label="QUANTIDADE" required icone={<Hash {...ICONE_FIELD} />}>
                       <div className="nc-input-group">
                         <input
                           className="nc-input nc-input--with-suffix"
@@ -3066,52 +3116,36 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               </NcSubsecaoTitle>
               <p className="nc-cargo-subsecao-hint">
                 Escolha quem assume frete e risco até o destino.
-                {modal !== 'MARITIMO' && (
-                  <> Termos exclusivos de transporte marítimo (FAS, FOB, CFR, CIF) ficam indisponíveis para o modal <strong>{MODAL_LABELS[modal as ModalFrete] ?? modal}</strong>.</>
-                )}
               </p>
-              <div className="nc-incoterm-grupos">
-                {INCOTERM_GRUPOS.map(grupo => (
-                  <div key={grupo.titulo}>
-                    <p className="nc-incoterm-grupo-titulo">{grupo.titulo}</p>
-                    <div className="nc-incoterm-grid" role="group" aria-label={grupo.titulo}>
-                      {grupo.itens.map(inc => {
-                        const habilitado = incotermHabilitadoParaModal(inc, modal)
-                        const selecionado = form.incoterm_cotacao_bid_frete_internacional === inc
-                        return (
-                          <button
-                            key={inc}
-                            type="button"
-                            disabled={!habilitado}
-                            title={habilitado ? undefined : 'Disponível apenas para modal Marítimo'}
-                            className={[
-                              'nc-incoterm-btn',
-                              selecionado ? 'nc-incoterm-btn--selected' : '',
-                              !habilitado ? 'nc-incoterm-btn--desabilitado' : '',
-                            ].filter(Boolean).join(' ')}
-                            onClick={() => habilitado && set('incoterm_cotacao_bid_frete_internacional', inc)}
-                          >
-                            {inc}
-                          </button>
-                        )
-                      })}
+              <div className="nc-incoterm-stack">
+                <div
+                  className="nc-incoterm-grid"
+                  role="group"
+                  aria-label={t('bidfrete.nova_cotacao.incoterm')}
+                >
+                  {INCOTERM_TODOS.map((inc) => (
+                    <BotaoIncotermNovaCotacao
+                      key={inc}
+                      inc={inc}
+                      selecionado={form.incoterm_cotacao_bid_frete_internacional === inc}
+                      onSelecionar={(codigo) => set('incoterm_cotacao_bid_frete_internacional', codigo)}
+                    />
+                  ))}
+                </div>
+                {form.incoterm_cotacao_bid_frete_internacional && INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional] && (
+                  <div className="nc-incoterm-helper-card nc-fade-in">
+                    <div className="nc-helper-header">
+                      <Scales size={20} weight="duotone" className="nc-helper-icon" />
+                      <h4>{INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional].title}</h4>
+                    </div>
+                    <p className="nc-helper-desc">{INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional].desc}</p>
+                    <div className="nc-helper-footer">
+                      <strong>Responsabilidade:</strong>{' '}
+                      {INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional].responsabilidade}
                     </div>
                   </div>
-                ))}
+                )}
               </div>
-              {form.incoterm_cotacao_bid_frete_internacional && INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional] && (
-                <div className="nc-incoterm-helper-card nc-fade-in">
-                  <div className="nc-helper-header">
-                    <Scales size={20} weight="duotone" className="nc-helper-icon" />
-                    <h4>{INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional].title}</h4>
-                  </div>
-                  <p className="nc-helper-desc">{INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional].desc}</p>
-                  <div className="nc-helper-footer">
-                    <strong>Responsabilidade:</strong>{' '}
-                    {INCOTERM_EXPLANATIONS[form.incoterm_cotacao_bid_frete_internacional].responsabilidade}
-                  </div>
-                </div>
-              )}
             </section>
           </div>
         )
@@ -3237,8 +3271,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                   )
                 }}
                 emailsPorFornecedor={emailsPorFornecedorDisparo}
-                onEmailFornecedorChange={(id_fornecedor, email) => {
-                  setEmailsPorFornecedorDisparo(prev => ({ ...prev, [id_fornecedor]: email }))
+                onEmailFornecedorChange={(id_fornecedor, emails) => {
+                  setEmailsPorFornecedorDisparo(prev => ({ ...prev, [id_fornecedor]: emails }))
                 }}
                 onContatosFornecedorAtualizados={() => {
                   getFornecedores({ limit: 200, status: 'ATIVO' })

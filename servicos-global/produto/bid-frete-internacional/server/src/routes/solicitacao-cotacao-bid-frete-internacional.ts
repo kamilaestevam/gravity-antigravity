@@ -16,7 +16,7 @@ const DispararSchema = z.object({
   id_cotacao_bid_frete_internacional: z.string().min(1),
   fornecedor_ids: z.array(z.string()).min(1),
   canais: z.array(z.enum(['EMAIL', 'WHATSAPP'])).min(1),
-  emails_por_fornecedor: z.record(z.string(), z.string().email()).optional(),
+  emails_por_fornecedor: z.record(z.string(), z.array(z.string().email())).optional(),
 })
 
 const CotacaoAbertaSchema = z.object({

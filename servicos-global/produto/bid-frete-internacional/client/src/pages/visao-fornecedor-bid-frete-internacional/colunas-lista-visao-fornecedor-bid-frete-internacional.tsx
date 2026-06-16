@@ -5,6 +5,7 @@ import { Anchor, AirplaneTilt, Van } from '@phosphor-icons/react'
 import type { Cotacao, ModalFrete, ModalidadeCarga } from '../../shared/types'
 import { MODAL_LABELS, MODALIDADE_LABELS } from '../../shared/types'
 import { formatarDataBidFrete } from '../../shared/formato-data-bid-frete'
+import { garantirFiltravelColunaBidFrete } from '../../shared/filtros-coluna-lista-bid-frete-internacional'
 import type { LinhaPaiLista } from '../lista-bid-frete-internacional-utils'
 import type { StatusKanbanFornecedorBidFreteInternacional } from '../../shared/kanban-fornecedor-bid-frete-internacional'
 
@@ -85,16 +86,7 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
         <button
           type="button"
           onClick={() => onAbrir?.(row)}
-          style={{
-            fontFamily: 'DM Mono, monospace',
-            fontSize: '0.8125rem',
-            color: 'var(--accent, #6366f1)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-            textAlign: 'left',
-          }}
+          className="bf-lista-link-cotacao"
         >
           {String(val ?? '—')}
         </button>
@@ -164,7 +156,7 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
         const proposta = primeiraProposta(row)
         if (!proposta) return '—'
         return (
-          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', fontWeight: 600 }}>
+          <span className="bf-lista-valor-numerico">
             {proposta.moeda_proposta_bid_frete_internacional}{' '}
             {fmtMoeda(proposta.valor_total_proposta_bid_frete_internacional)}
           </span>
@@ -181,7 +173,7 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
         const dias = primeiraProposta(row)?.dias_transito_proposta_bid_frete_internacional
         if (dias == null) return '—'
         return (
-          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>
+          <span className="bf-lista-valor-numerico">
             {t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.dias', { val: dias })}
           </span>
         )
@@ -198,6 +190,14 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
       },
     },
   ]
+}
+
+/** Colunas planas da lista fornecedor — com filtro ▾ (paridade lista comprador). */
+export function buildColunasListaFornecedor(
+  t: TFunction,
+  onAbrirCotacao?: (cotacao: Cotacao) => void,
+): GTColuna<Cotacao>[] {
+  return buildColunasBase(t, onAbrirCotacao).map(garantirFiltravelColunaBidFrete)
 }
 
 export function buildColunasPaiListaFornecedor(

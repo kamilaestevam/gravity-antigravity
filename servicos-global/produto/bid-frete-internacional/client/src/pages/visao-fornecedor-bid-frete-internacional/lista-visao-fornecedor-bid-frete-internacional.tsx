@@ -2,12 +2,19 @@
  * Lista + Kanban — Visão fornecedor (paridade com lista-bid-frete-internacional operacional).
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
-import type { GTPreferencias } from '@nucleo/tabela-virtual-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import {
+  FiltroChips,
+  FiltroPopoverColuna,
+  TabelaVirtualGlobal,
+} from '@nucleo/tabela-virtual-global'
+import type { GTColuna, GTPreferencias } from '@nucleo/tabela-virtual-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   ClipboardText,
   CurrencyDollar,
@@ -16,6 +23,8 @@ import {
   Kanban,
   ListBullets,
   Package,
+  Trash,
+  X,
 } from '@phosphor-icons/react'
 
 import { KanbanFornecedorConteudo } from './kanban-fornecedor-conteudo'
@@ -31,14 +40,30 @@ import {
   ConteudoCarregandoBidFreteInternacional,
 } from '../../shared/pagina-carregando-bid-frete-internacional'
 import { useShellStore } from '@gravity/shell'
-import { getVisaoFornecedorBidFreteInternacionalCotacoesPendentes } from '../../shared/api'
+import { getVisaoFornecedorBidFreteInternacionalCotacoesPendentes, paineisListaBidFreteApi } from '../../shared/api'
 import type { Cotacao, DisparoCotacaoBidFreteInternacional } from '../../shared/types'
 import {
   disparosParaListaFornecedor,
   navegarOportunidadeFornecedor,
   type FunilPorCotacaoMap,
 } from '../../shared/lista-visao-fornecedor-bid-frete-dados'
-import { gerarAbasListaFornecedor } from '../../shared/lista-visao-fornecedor-bid-frete-abas'
+import {
+  gerarAbasListaFornecedor,
+  gerarOpcoesStatusFiltroListaFornecedor,
+} from '../../shared/lista-visao-fornecedor-bid-frete-abas'
+import {
+  lerIdsOportunidadesOcultasFornecedor,
+  ocultarOportunidadesFornecedor,
+} from '../../shared/lista-visao-fornecedor-ocultas-bid-frete-internacional'
+import type { FiltroAtivo, FiltrosAtivosMap } from '../../components/lista/filtros'
+import {
+  calcularValoresUnicosPorCampoBidFrete,
+  cotacaoPassaFiltrosColuna,
+  detectarTipoColunaBidFrete,
+  getLabelsFiltroInversoBidFrete,
+  resolverValoresUnicosPopoverBidFrete,
+} from '../../shared/filtros-coluna-lista-bid-frete-internacional'
+import type { OpcoesColunasLista } from '../colunas-lista-bid-frete-internacional'
 import {
   COLUNAS_PADRAO_VISIVEIS_FORNECEDOR,
   lerPreferenciasTabelaFornecedor,
@@ -47,7 +72,7 @@ import {
 import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../shared/rotas-bid-frete-internacional'
 import { calcularStatsListaFornecedor } from '../../shared/lista-visao-fornecedor-bid-frete-kpi-metrics'
 import { filtrarCotacoesPorPeriodoCards } from '../../shared/lista-bid-frete-card-periodo'
-import { useCardPreferencesBidFrete } from '../../shared/use-card-preferences'
+import { useCardPreferencesBidFrete, CARD_PERIODOS, type CardPeriodoCodigo } from '../../shared/use-card-preferences'
 import {
   carregarTabelaConfigBidFrete,
   HORAS_LIMITE_DESTAQUE_EXPIRACAO,
@@ -55,20 +80,18 @@ import {
 } from '../../shared/tabela-config-bid-frete'
 import { SYNC_EVENT_FORMATO_DATA_BID_FRETE } from '../../shared/formato-data-bid-frete'
 import {
-  buildColunasPaiListaFornecedor,
   buildColunasExportListaFornecedor,
+  buildColunasListaFornecedor,
   formatValorExportColunaFornecedor,
 } from './colunas-lista-visao-fornecedor-bid-frete-internacional'
-import {
-  montarLinhasPaiLista,
-  idLinhaPaiLista,
-  isLinhaBidGrupo,
-  cotacaoDaLinhaPai,
-  cotacaoPrestesAExpirar,
-  linhaPaiPrestesAExpirar,
-  type LinhaPaiLista,
-} from '../lista-bid-frete-internacional-utils'
+import { cotacaoPrestesAExpirar } from '../lista-bid-frete-internacional-utils'
 import { fmtQuantidade } from '../colunas-lista-bid-frete-internacional'
+import { useListaPainelFornecedorBidFrete } from '../../shared/useListaPainelFornecedorBidFrete'
+import {
+  configListaPainelPadraoV1,
+  parsearConfigListaPainelSeguro,
+  serializarConfigListaPainel,
+} from '../../../../shared/listaPainelConfigSchema'
 import '../kanban-bid-frete-internacional.css'
 
 function ToggleVisaoListaKanbanFornecedor({
@@ -111,6 +134,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
   const navigate = useNavigate()
   const location = useLocation()
   const meStatus = useShellStore(s => s.meStatus)
+  const addNotification = useShellStore(s => s.addNotification)
   const idUsuario = useShellStore(s => s.currentUser.id)
   const idOrganizacao = useShellStore(s => s.currentUser.idOrganizacao)
   const visao: 'lista' | 'kanban' = location.pathname.includes('/kanban') ? 'kanban' : 'lista'
@@ -125,14 +149,180 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
   const [filtroTab, setFiltroTab] = useState<string>('TODAS')
+  const [filtrosAtivosLista, setFiltrosAtivosLista] = useState<FiltrosAtivosMap>({})
+  const filtrosAtivosKeys = useMemo(
+    () => new Set(Object.keys(filtrosAtivosLista)),
+    [filtrosAtivosLista],
+  )
+  const [popoverFiltroAberto, setPopoverFiltroAberto] = useState<string | null>(null)
+  const [popoverFiltroPos, setPopoverFiltroPos] = useState({ top: 0, left: 0 })
+  const [selecionados, setSelecionados] = useState<Cotacao[]>([])
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
+  const [idsOcultos, setIdsOcultos] = useState(() => lerIdsOportunidadesOcultasFornecedor())
+
+  const opcoesColunasLista = useMemo(
+    (): OpcoesColunasLista => ({
+      statusOpcoes: gerarOpcoesStatusFiltroListaFornecedor(t),
+    }),
+    [t],
+  )
 
   const abas = useMemo(() => gerarAbasListaFornecedor(t), [t])
-  const { visiveis: cardsVisiveis, periodo: periodoCards } = useCardPreferencesBidFrete('fornecedor')
+  const {
+    visiveis: cardsVisiveis,
+    periodo: periodoCards,
+    setPeriodo: setPeriodoCards,
+    persistir: persistirCardPrefs,
+    prefs: cardPrefs,
+  } = useCardPreferencesBidFrete('fornecedor')
 
   const [tabelaConfig, setTabelaConfig] = useState(carregarTabelaConfigBidFrete)
   const [paginaLista, setPaginaLista] = useState(1)
   const [formatoDataVersion, setFormatoDataVersion] = useState(0)
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(() => lerPreferenciasTabelaFornecedor())
+
+  const {
+    paineis: paineisLista,
+    setPaineis: setPaineisLista,
+    painelAtualId: painelListaAtualId,
+    setPainelAtualId: setPainelListaAtualId,
+    painelAtual: painelListaAtual,
+    carregando: carregandoPaineisLista,
+    aplicarConfigDoPainel,
+    persistirPainelAtual,
+    persistirPainelAtualImediato,
+    trocarPainel: trocarPainelLista,
+    criarPainel: criarPainelLista,
+  } = useListaPainelFornecedorBidFrete()
+  const painelListaAplicadoRef = useRef<string | null>(null)
+  const migrouLocalStoragePainelRef = useRef(false)
+
+  const aplicarCardsTopoDoPainel = useCallback((
+    cardsTopo: { ids_visiveis: string[]; periodo?: string } | undefined,
+  ) => {
+    if (!cardsTopo) return
+    const periodosValidos = CARD_PERIODOS.map(p => p.id)
+    if (cardsTopo.periodo && periodosValidos.includes(cardsTopo.periodo as CardPeriodoCodigo)) {
+      setPeriodoCards(cardsTopo.periodo as CardPeriodoCodigo)
+    }
+    if (cardsTopo.ids_visiveis.length > 0) {
+      const visiveisSet = new Set(cardsTopo.ids_visiveis)
+      const algumIdValido = cardPrefs.some(p => visiveisSet.has(p.id))
+      if (algumIdValido) {
+        persistirCardPrefs(cardPrefs.map(p => ({ ...p, visible: visiveisSet.has(p.id) })))
+      }
+    }
+  }, [cardPrefs, persistirCardPrefs, setPeriodoCards])
+
+  const listaPainelCallbacks = useMemo(() => ({
+    setPreferencias,
+    setAbaAtiva: setFiltroTab,
+    setSortCampo: () => {},
+    setSortDir: () => {},
+    setBusca,
+    setFiltrosAtivos: setFiltrosAtivosLista,
+    setCardsTopoDoPainel: aplicarCardsTopoDoPainel,
+    onPainelHidratado: (id: string) => {
+      painelListaAplicadoRef.current = id
+    },
+  }), [aplicarCardsTopoDoPainel])
+
+  useEffect(() => {
+    if (!painelListaAtual || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current === painelListaAtual.id) return
+    aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
+
+    if (!migrouLocalStoragePainelRef.current) {
+      const prefsLocal = lerPreferenciasTabelaFornecedor()
+      const configAtual = parsearConfigListaPainelSeguro(
+        painelListaAtual.config_json,
+        configListaPainelPadraoV1(),
+        { id_painel: painelListaAtual.id, origem: 'lista-fornecedor.migracaoLocalStorage' },
+      )
+      if (prefsLocal?.colunas_visiveis?.length && configAtual.colunas_visiveis.length === 0) {
+        const merged = configListaPainelPadraoV1({
+          ...configAtual,
+          colunas_visiveis: prefsLocal.colunas_visiveis,
+          colunas_largura: prefsLocal.colunas_largura as Record<string, number> | undefined,
+        })
+        void paineisListaBidFreteApi.atualizar(painelListaAtual.id, {
+          config_json: serializarConfigListaPainel(merged),
+        })
+        setPreferencias({
+          colunas_visiveis: merged.colunas_visiveis,
+          colunas_largura: merged.colunas_largura,
+        })
+      } else if (configAtual.colunas_visiveis.length === 0) {
+        const merged = configListaPainelPadraoV1({
+          ...configAtual,
+          colunas_visiveis: COLUNAS_PADRAO_VISIVEIS_FORNECEDOR,
+        })
+        void paineisListaBidFreteApi.atualizar(painelListaAtual.id, {
+          config_json: serializarConfigListaPainel(merged),
+        })
+        setPreferencias({ colunas_visiveis: merged.colunas_visiveis })
+      }
+      migrouLocalStoragePainelRef.current = true
+    }
+  }, [painelListaAtual, carregandoPaineisLista, aplicarConfigDoPainel, listaPainelCallbacks])
+
+  const estadoListaParaPainel = useCallback(() => ({
+    preferencias,
+    abaAtiva: filtroTab,
+    sortCampo: 'numero_cotacao_bid_frete_internacional',
+    sortDir: 'desc' as const,
+    busca,
+    filtrosAtivos: filtrosAtivosLista,
+    cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+    periodoCards,
+  }), [preferencias, filtroTab, busca, filtrosAtivosLista, cardsVisiveis, periodoCards])
+
+  const handleTrocarPainelLista = useCallback((id: string) => {
+    painelListaAplicadoRef.current = null
+    void trocarPainelLista(id, estadoListaParaPainel(), listaPainelCallbacks)
+  }, [trocarPainelLista, estadoListaParaPainel, listaPainelCallbacks])
+
+  const handleCriarPainelLista = useCallback(async (nome: string): Promise<boolean> => {
+    painelListaAplicadoRef.current = null
+    try {
+      const criado = await criarPainelLista(nome, estadoListaParaPainel(), listaPainelCallbacks)
+      if (!criado) {
+        addNotification({
+          type: 'error',
+          message: t('bid_frete_internacional.lista.painel_criado_erro', {
+            defaultValue: 'Não foi possível salvar o painel.',
+          }),
+        })
+        return false
+      }
+      addNotification({
+        type: 'success',
+        message: t('bid_frete_internacional.lista.painel_criado_sucesso', {
+          defaultValue: 'Painel "{{nome}}" criado.',
+          nome: criado.nome,
+        }),
+      })
+      return true
+    } catch (err) {
+      const detalhe = err instanceof Error ? err.message : ''
+      addNotification({
+        type: 'error',
+        message: detalhe
+          ? `${t('bid_frete_internacional.lista.painel_criado_erro', { defaultValue: 'Não foi possível salvar o painel.' })} ${detalhe}`
+          : t('bid_frete_internacional.lista.painel_criado_erro', { defaultValue: 'Não foi possível salvar o painel.' }),
+      })
+      return false
+    }
+  }, [criarPainelLista, estadoListaParaPainel, listaPainelCallbacks, addNotification, t])
+
+  useEffect(() => {
+    if (!painelListaAtualId || carregandoPaineisLista) return
+    if (painelListaAplicadoRef.current !== painelListaAtualId) return
+    persistirPainelAtual(estadoListaParaPainel())
+  }, [
+    preferencias, filtroTab, busca, painelListaAtualId, carregandoPaineisLista,
+    persistirPainelAtual, estadoListaParaPainel, cardsVisiveis, periodoCards, filtrosAtivosLista,
+  ])
 
   useEffect(() => {
     function syncTabelaConfig() {
@@ -191,7 +381,22 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
     salvarPreferenciasTabelaFornecedor(prefs)
-  }, [])
+    if (painelListaAtualId) {
+      persistirPainelAtualImediato({
+        preferencias: prefs,
+        abaAtiva: filtroTab,
+        sortCampo: 'numero_cotacao_bid_frete_internacional',
+        sortDir: 'desc',
+        busca,
+        filtrosAtivos: filtrosAtivosLista,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      })
+    }
+  }, [
+    painelListaAtualId, persistirPainelAtualImediato, filtroTab, busca,
+    cardsVisiveis, periodoCards, filtrosAtivosLista,
+  ])
 
   const abrirOportunidade = useCallback((item: Cotacao) => {
     const disparo = disparoPorCotacaoId.get(item.id_cotacao_bid_frete_internacional)
@@ -201,7 +406,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
   }, [navigate, disparoPorCotacaoId])
 
   const colunasTabela = useMemo(
-    () => buildColunasPaiListaFornecedor(t, abrirOportunidade),
+    () => buildColunasListaFornecedor(t, abrirOportunidade),
     [t, abrirOportunidade, formatoDataVersion],
   )
   const colunasExport = useMemo(
@@ -209,43 +414,118 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
     [t, formatoDataVersion],
   )
 
+  const colunasPorCampoMap = useMemo(() => {
+    const map = new Map<string, GTColuna<Cotacao>>()
+    for (const col of colunasTabela) {
+      if (col.key) map.set(String(col.key), col)
+    }
+    return map
+  }, [colunasTabela])
+
+  const colunasSeletorLista = useMemo(
+    () => colunasTabela.map(c => ({
+      key: String(c.key),
+      label: c.label,
+      naoOcultavel: c.naoOcultavel,
+    })),
+    [colunasTabela],
+  )
+
+  const labelsFiltroCtx = useMemo(
+    () => ({ statusOpcoes: opcoesColunasLista.statusOpcoes }),
+    [opcoesColunasLista.statusOpcoes],
+  )
+
+  const cotacoesVisiveis = useMemo(
+    () => cotacoes.filter(c => !idsOcultos.has(c.id_cotacao_bid_frete_internacional)),
+    [cotacoes, idsOcultos],
+  )
+
+  const valoresUnicosPorCampo = useMemo(
+    () => calcularValoresUnicosPorCampoBidFrete(
+      cotacoesVisiveis,
+      colunasTabela,
+      opcoesColunasLista,
+      labelsFiltroCtx,
+    ),
+    [cotacoesVisiveis, colunasTabela, opcoesColunasLista, labelsFiltroCtx],
+  )
+
+  const handleAplicarFiltroColuna = useCallback((campo: string, filtro: FiltroAtivo) => {
+    setFiltrosAtivosLista(prev => ({ ...prev, [campo]: filtro }))
+  }, [])
+
+  const handleLimparFiltroColuna = useCallback((campo: string) => {
+    setFiltrosAtivosLista(prev => {
+      const novo = { ...prev }
+      delete novo[campo]
+      return novo
+    })
+  }, [])
+
+  const handleLimparTodosFiltrosColuna = useCallback(() => {
+    setFiltrosAtivosLista({})
+    setBusca('')
+  }, [])
+
+  const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
+    setPopoverFiltroAberto(prev => prev === key ? null : key)
+    const rect = anchor.getBoundingClientRect()
+    const page = anchor.closest('.bf-lista-page') as HTMLElement | null
+    const offset = page ? page.getBoundingClientRect() : { top: 0, left: 0 }
+    const maxW = page ? page.clientWidth : window.innerWidth
+    const adjustedLeft = rect.left - offset.left
+    const left = Math.max(0, Math.min(adjustedLeft, maxW - 292))
+    setPopoverFiltroPos({ top: rect.bottom + 4 - offset.top, left })
+  }, [])
+
+  const handleOrdenarFiltroColuna = useCallback((_campo: string, _dir: 'asc' | 'desc') => {
+    /* ordenação fixa na lista fornecedor */
+  }, [])
+
   const filtrarCotacaoItem = useCallback((c: Cotacao): boolean => {
-    const funil = funilPorCotacaoId.get(c.id_cotacao_bid_frete_internacional)
-    if (filtroTab !== 'TODAS' && funil !== filtroTab) return false
+    if (filtroTab !== 'TODAS' && c.status_cotacao_bid_frete_internacional !== filtroTab) {
+      return false
+    }
     if (busca.trim()) {
       const term = busca.toLowerCase()
-      return (
-        c.numero_cotacao_bid_frete_internacional.toLowerCase().includes(term)
-        || (c.referencia_interna_cotacao_bid_frete_internacional ?? '').toLowerCase().includes(term)
-        || c.origem_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term)
-        || c.destino_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term)
+      if (
+        !c.numero_cotacao_bid_frete_internacional.toLowerCase().includes(term)
+        && !(c.referencia_interna_cotacao_bid_frete_internacional ?? '').toLowerCase().includes(term)
+        && !c.origem_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term)
+        && !c.destino_nome_cotacao_bid_frete_internacional.toLowerCase().includes(term)
+      ) {
+        return false
+      }
+    }
+    if (Object.keys(filtrosAtivosLista).length > 0) {
+      return cotacaoPassaFiltrosColuna(
+        c,
+        filtrosAtivosLista,
+        colunasPorCampoMap,
+        opcoesColunasLista,
+        labelsFiltroCtx,
       )
     }
     return true
-  }, [filtroTab, busca, funilPorCotacaoId])
+  }, [
+    filtroTab,
+    busca,
+    filtrosAtivosLista,
+    colunasPorCampoMap,
+    opcoesColunasLista,
+    labelsFiltroCtx,
+  ])
 
   const cotacoesFiltradas = useMemo(
-    () => cotacoes.filter(filtrarCotacaoItem),
-    [cotacoes, filtrarCotacaoItem],
+    () => cotacoesVisiveis.filter(filtrarCotacaoItem),
+    [cotacoesVisiveis, filtrarCotacaoItem],
   )
 
-  const linhasPaiFiltradas = useMemo(
-    () => montarLinhasPaiLista([], cotacoesFiltradas),
-    [cotacoesFiltradas],
-  )
-
-  const linhasPaiPagina = useMemo(() => {
+  const cotacoesPagina = useMemo(() => {
     const inicio = (paginaLista - 1) * tabelaConfig.linhasPorPagina
-    return linhasPaiFiltradas.slice(inicio, inicio + tabelaConfig.linhasPorPagina)
-  }, [linhasPaiFiltradas, paginaLista, tabelaConfig.linhasPorPagina])
-
-  const labelBidPaginacao = useMemo(
-    (): [string, string] => [
-      t('bidfrete.lista.label_bid_one', 'bid'),
-      t('bidfrete.lista.label_bid_other', 'bids'),
-    ],
-    [t],
-  )
+    return cotacoesFiltradas.slice(inicio, inicio + tabelaConfig.linhasPorPagina)
+  }, [cotacoesFiltradas, paginaLista, tabelaConfig.linhasPorPagina])
 
   const labelCotacaoPaginacao = useMemo(
     (): [string, string] => [
@@ -257,7 +537,21 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
 
   useEffect(() => {
     setPaginaLista(1)
-  }, [filtroTab, busca, tabelaConfig.linhasPorPagina])
+  }, [filtroTab, busca, tabelaConfig.linhasPorPagina, filtrosAtivosLista])
+
+  const handleConfirmarExcluir = useCallback(() => {
+    const ids = selecionados.map(c => c.id_cotacao_bid_frete_internacional)
+    ocultarOportunidadesFornecedor(ids)
+    setIdsOcultos(lerIdsOportunidadesOcultasFornecedor())
+    setSelecionados([])
+    addNotification({
+      type: 'success',
+      message: t(
+        'bidfrete.visao_fornecedor_bid_frete_internacional.lista.excluir_sucesso',
+        'Oportunidade(s) removida(s) da sua lista.',
+      ),
+    })
+  }, [selecionados, addNotification, t])
 
   const cotacoesParaKpi = useMemo(
     () => filtrarCotacoesPorPeriodoCards(cotacoesFiltradas, periodoCards),
@@ -269,25 +563,28 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
     [cotacoesParaKpi, funilPorCotacaoId],
   )
 
-  const classNameLinhaPai = useCallback((linha: LinhaPaiLista) => {
+  const classNameLinha = useCallback((linha: Cotacao) => {
     if (!tabelaConfig.destacarAtrasados) return undefined
-    return linhaPaiPrestesAExpirar(linha, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
+    return cotacaoPrestesAExpirar(linha, HORAS_LIMITE_DESTAQUE_EXPIRACAO)
       ? 'gtv-linha--expira-prestes'
       : undefined
   }, [tabelaConfig.destacarAtrasados])
-
-  const handleCarregarFilhos = useCallback(async (): Promise<never[]> => [], [])
 
   const acoes = useMemo(() => [
     {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
       tooltip: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.acao_abrir', 'Abrir'),
-      onClick: (item: LinhaPaiLista) => {
-        const cotacao = cotacaoDaLinhaPai(item)
-        if (cotacao) abrirOportunidade(cotacao)
+      onClick: (item: Cotacao) => abrirOportunidade(item),
+    },
+    {
+      id: 'excluir',
+      icone: <Trash weight="duotone" size={16} />,
+      tooltip: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.acao_excluir', 'Remover da lista'),
+      onClick: (item: Cotacao) => {
+        setSelecionados([item])
+        setModalExcluirAberto(true)
       },
-      visivel: (item: LinhaPaiLista) => !isLinhaBidGrupo(item),
     },
   ], [abrirOportunidade, t])
 
@@ -341,7 +638,59 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
     />
   )
 
-  const acoesBarra = useMemo(() => toggleVisao, [toggleVisao])
+  const acoesBarra = useMemo(() => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
+      {(Object.keys(filtrosAtivosLista).length > 0 || busca.trim()) && (
+        <FiltroChips
+          colunas={colunasTabela}
+          filtrosAtivos={filtrosAtivosLista}
+          onLimparFiltro={handleLimparFiltroColuna}
+          onLimparTodos={handleLimparTodosFiltrosColuna}
+          onEditarFiltro={onFiltroColuna}
+          thresholdConsolidar={2}
+          prefixo={busca.trim() ? (
+            <span className="fc-chip">
+              <span className="fc-chip-label">{t('bidfrete.lista.chip_busca', { defaultValue: 'Busca' })}:</span>
+              <span className="fc-chip-valor">{busca}</span>
+              <button
+                type="button"
+                className="fc-chip-remove"
+                onClick={() => setBusca('')}
+                aria-label={t('bidfrete.lista.remover_busca', { defaultValue: 'Remover busca' })}
+              >
+                <X size={10} weight="bold" />
+              </button>
+            </span>
+          ) : null}
+        />
+      )}
+
+      <TooltipGlobal
+        titulo={selecionados.length > 0
+          ? t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.excluir_selecionados', {
+              defaultValue: 'Remover {{n}} oportunidade(s) da lista',
+              n: selecionados.length,
+            })
+          : t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.excluir', 'Remover da lista')}
+        descricao={t(
+          'bidfrete.visao_fornecedor_bid_frete_internacional.lista.excluir_desc',
+          'Remove as oportunidades selecionadas apenas da sua visualização.',
+        )}
+      >
+        <BotaoGlobal
+          variante="perigo"
+          tamanho="pequeno"
+          icone={<Trash size={14} weight="duotone" />}
+          aria-label={t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.excluir', 'Remover da lista')}
+          disabled={selecionados.length === 0}
+          onClick={() => setModalExcluirAberto(true)}
+        />
+      </TooltipGlobal>
+    </div>
+  ), [
+    filtrosAtivosLista, busca, colunasTabela, handleLimparFiltroColuna,
+    handleLimparTodosFiltrosColuna, onFiltroColuna, selecionados.length, t,
+  ])
 
   const renderCard = useCallback((id: string) => {
     switch (id) {
@@ -421,7 +770,13 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
             >
             <div className="lp-tabela-chrome" style={estiloChromeTabelaListaBidFreteInternacional}>
               <BidFreteListaFaixaNavegacao
-                exibirLinhaPaineis={false}
+                paineis={paineisLista}
+                painelAtualId={painelListaAtualId}
+                setPaineis={setPaineisLista}
+                setPainelAtualId={setPainelListaAtualId}
+                onTrocarPainel={handleTrocarPainelLista}
+                onCriarPainel={handleCriarPainelLista}
+                carregando={carregandoPaineisLista}
                 abas={abas}
                 abaAtiva={filtroTab}
                 onMudarAba={setFiltroTab}
@@ -449,38 +804,65 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
                   </button>
                 </div>
               )}
-              <TabelaVirtualGlobal<LinhaPaiLista, Cotacao>
-                dados={linhasPaiPagina}
+              {popoverFiltroAberto && (() => {
+                const col = colunasTabela.find(c => c.key === popoverFiltroAberto)
+                if (!col?.key) return null
+                return (
+                  <FiltroPopoverColuna
+                    campo={String(col.key)}
+                    label={col.label}
+                    tipo={detectarTipoColunaBidFrete(col)}
+                    filtroAtual={filtrosAtivosLista[String(col.key)]}
+                    valoresUnicos={resolverValoresUnicosPopoverBidFrete(
+                      col,
+                      valoresUnicosPorCampo,
+                    )}
+                    onAplicar={handleAplicarFiltroColuna}
+                    onLimpar={handleLimparFiltroColuna}
+                    onOrdenar={handleOrdenarFiltroColuna}
+                    onFechar={() => setPopoverFiltroAberto(null)}
+                    anchorPos={popoverFiltroPos}
+                    labelInverso={getLabelsFiltroInversoBidFrete(String(col.key), labelsFiltroCtx)}
+                  />
+                )
+              })()}
+              <TabelaVirtualGlobal<Cotacao, never>
+                dados={cotacoesPagina}
                 colunas={colunasTabela}
-                itemId={idLinhaPaiLista}
-                onCarregarFilhos={handleCarregarFilhos}
+                colunasSeletor={colunasSeletorLista}
+                itemId={(c) => c.id_cotacao_bid_frete_internacional}
+                onSelecaoMudar={setSelecionados}
                 itensPorPagina={tabelaConfig.linhasPorPagina}
-                totalItens={linhasPaiFiltradas.length}
-                totalRodapePai={0}
-                totalFilhos={cotacoesFiltradas.length}
+                totalItens={cotacoesFiltradas.length}
                 paginaAtual={paginaLista}
                 onMudarPagina={setPaginaLista}
-                classNameLinhaPai={classNameLinhaPai}
-                labelPai={labelBidPaginacao}
-                labelFilho={labelCotacaoPaginacao}
+                classNameLinhaPai={classNameLinha}
+                labelPai={labelCotacaoPaginacao}
+                totalRodapePai={cotacoesFiltradas.length}
                 acoes={acoes}
                 acoesExportacao={acoesExportacao}
                 acoesBarra={acoesBarra}
                 onBuscar={setBusca}
                 modoLocalizar
-                placeholderBusca={t(
-                  'bidfrete.visao_fornecedor_bid_frete_internacional.lista.buscar',
-                  'Buscar por processo, referência, origem ou destino...',
-                )}
+                onFiltroColuna={onFiltroColuna}
+                filtrosAtivosKeys={filtrosAtivosKeys}
+                placeholderBusca="Buscar"
                 preferencias={preferencias}
                 onSalvarPreferencias={handleSalvarPreferencias}
                 colunasPadrao={COLUNAS_PADRAO_VISIVEIS_FORNECEDOR}
                 emptyIcon={<Package size={40} weight="duotone" style={{ color: 'var(--text-muted)' }} />}
                 emptyTitle={t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.vazio', 'Nenhuma oportunidade encontrada')}
-                emptyDescription={t(
-                  'bidfrete.visao_fornecedor_bid_frete_internacional.lista.vazio_desc',
-                  'Nenhuma oportunidade encontrada com os filtros selecionados.',
-                )}
+                emptyDescription={
+                  busca.trim() || Object.keys(filtrosAtivosLista).length > 0
+                    ? t(
+                        'bidfrete.visao_fornecedor_bid_frete_internacional.lista.vazio_desc',
+                        'Nenhuma oportunidade encontrada com os filtros selecionados.',
+                      )
+                    : t(
+                        'bidfrete.visao_fornecedor_bid_frete_internacional.lista.vazio_sem_filtro',
+                        'Nenhuma oportunidade no seu funil.',
+                      )
+                }
                 ariaLabel={t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.aria', 'Lista de oportunidades')}
               />
             </div>
@@ -489,6 +871,29 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
             <KanbanFornecedorConteudo disparos={disparos} toolbarInicio={toggleVisao} />
           )}
         </>
+      )}
+
+      {modalExcluirAberto && selecionados.length > 0 && (
+        <ModalConfirmarExcluirGlobal
+          aberto
+          titulo={t(
+            'bidfrete.visao_fornecedor_bid_frete_internacional.lista.modal_excluir_titulo',
+            'Remover da lista?',
+          )}
+          descricao={t(
+            'bidfrete.visao_fornecedor_bid_frete_internacional.lista.modal_excluir_desc',
+            'As oportunidades selecionadas serão ocultadas da sua lista. Você pode continuar acessando convites pendentes pelo Kanban.',
+          )}
+          nomeItem={selecionados.length === 1
+            ? selecionados[0].numero_cotacao_bid_frete_internacional
+            : t(
+                'bidfrete.visao_fornecedor_bid_frete_internacional.lista.modal_excluir_n_itens',
+                '{{n}} oportunidades',
+                { n: selecionados.length },
+              )}
+          aoConfirmar={handleConfirmarExcluir}
+          aoCancelar={() => setModalExcluirAberto(false)}
+        />
       )}
 
       <style>{`

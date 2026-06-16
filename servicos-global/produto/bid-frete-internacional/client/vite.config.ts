@@ -45,6 +45,10 @@ export default defineConfig({
         target: 'http://localhost:8005',
         changeOrigin: true,
       },
+      '/api/v1/usuarios': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
       '/api/v1/cadastros': {
         target: 'http://localhost:8031',
         changeOrigin: true,

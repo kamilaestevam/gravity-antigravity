@@ -500,3 +500,21 @@
   flex: 1 1 auto;
   min-height: 0;
 }
+
+/* Lista fornecedor — tipografia padrão do sistema (sem DM Mono). */
+.bf-lista-page .bf-lista-link-cotacao {
+  font: inherit;
+  font-size: inherit;
+  color: var(--accent, #6366f1);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.bf-lista-page .bf-lista-valor-numerico {
+  font: inherit;
+  font-size: inherit;
+  font-weight: 600;
+}

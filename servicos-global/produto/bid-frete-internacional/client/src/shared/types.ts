@@ -228,6 +228,10 @@ export interface Cotacao {
   data_criacao_cotacao_bid_frete_internacional: string
   data_atualizacao_cotacao_bid_frete_internacional: string
   data_aprovacao_cotacao_bid_frete_internacional?: string | null
+  /** Preenchido pelo GET /cotacoes/:id quando status APROVADA (registro de ganho). */
+  id_usuario_aprovacao_ganho_bid_frete_internacional?: string | null
+  nome_usuario_aprovacao_ganho_bid_frete_internacional?: string | null
+  id_fornecedor_vencedor_cotacao_bid_frete_internacional?: string | null
   data_cancelamento_cotacao_bid_frete_internacional?: string | null
   motivo_reprovacao_cotacao_bid_frete_internacional?: string | null
   motivo_cancelamento_cotacao_bid_frete_internacional?: string | null

@@ -25,4 +25,8 @@ describe('aviso gráficos insights — cockpit cotação', () => {
     const aviso = montarConteudoAvisoGraficosInsights('EM_COTACAO', 1, 4, t)
     expect(aviso?.variante).toBe('comparativo_parcial')
   })
+
+  it('não exibe aviso quando status APROVADA', () => {
+    expect(montarConteudoAvisoGraficosInsights('APROVADA', 1, 4, t)).toBeNull()
+  })
 })

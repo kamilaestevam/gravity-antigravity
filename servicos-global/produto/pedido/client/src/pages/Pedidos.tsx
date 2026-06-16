@@ -6025,7 +6025,11 @@ export default function Pedidos() {
     })
   }, [workspacesSelecionados, carregarInicial, aplicarSnapshotPainelNaUi])
 
-  const mesclarColunasManuaisNasPreferencias = useCallback((lista: ColunaUsuario[]) => {
+  const mesclarColunasManuaisNasPreferencias = useCallback((
+    lista: ColunaUsuario[],
+    opcoes?: { preservarOrdemSalva?: boolean },
+  ) => {
+    const preservarOrdemSalva = opcoes?.preservarOrdemSalva ?? false
     const activeCustomKeys = lista
       .filter(c => c.ativo && ((c.escopo || 'ambos') === 'pedido' || (c.escopo || 'ambos') === 'ambos'))
       .map(c => c.chave)
@@ -6045,38 +6049,46 @@ export default function Pedidos() {
         'id_workspace',
         ['tipo_operacao', 'numero_pedido'],
       )
-      const passoMover = moverColunaParaAposAncora(
-        passoInserir.resultado,
-        'id_workspace',
-        'tipo_operacao',
-      )
-      const passoDescItem = inserirColunaAposAncora(
-        passoMover.resultado,
-        'descricao_item',
-        ['ncm'],
-      )
-      const passoMoeda = inserirColunaAposAncora(
-        passoDescItem.resultado,
-        'moeda_pedido',
-        ['descricao_item', 'ncm'],
-      )
+      let atual = passoInserir.resultado
+      let mudouPosicao = passoInserir.mudou
+
+      if (!preservarOrdemSalva) {
+        const passoMover = moverColunaParaAposAncora(atual, 'id_workspace', 'tipo_operacao')
+        atual = passoMover.resultado
+        mudouPosicao = mudouPosicao || passoMover.mudou
+      }
+
+      const passoDescItem = inserirColunaAposAncora(atual, 'descricao_item', ['ncm'])
+      atual = passoDescItem.resultado
+      mudouPosicao = mudouPosicao || passoDescItem.mudou
+
+      const passoMoeda = inserirColunaAposAncora(atual, 'moeda_pedido', ['descricao_item', 'ncm'])
+      atual = passoMoeda.resultado
+      mudouPosicao = mudouPosicao || passoMoeda.mudou
+
       const passoUnidade = inserirColunaAposAncora(
-        passoMoeda.resultado,
+        atual,
         'unidade_comercializada_pedido',
         ['quantidade_pronta_itens_pedido_total', 'valor_total_pedido', 'quantidade_total_pedido'],
       )
+      atual = passoUnidade.resultado
+      mudouPosicao = mudouPosicao || passoUnidade.mudou
+
       const passoLogisticaInsert = inserirBlocoColunasFaltantes(
-        passoUnidade.resultado,
+        atual,
         CAMPOS_LOGISTICA_PEDIDO,
         'incoterm',
       )
-      const passoLogisticaOrder = reordenarBlocoColunas(
-        passoLogisticaInsert.resultado,
-        CAMPOS_LOGISTICA_PEDIDO,
-      )
-      const visivelComMigracao = passoLogisticaOrder.resultado
-      const mudouPosicao = passoMover.mudou || passoDescItem.mudou || passoMoeda.mudou || passoUnidade.mudou
-        || passoLogisticaInsert.mudou || passoLogisticaOrder.mudou
+      atual = passoLogisticaInsert.resultado
+      mudouPosicao = mudouPosicao || passoLogisticaInsert.mudou
+
+      if (!preservarOrdemSalva) {
+        const passoLogisticaOrder = reordenarBlocoColunas(atual, CAMPOS_LOGISTICA_PEDIDO)
+        atual = passoLogisticaOrder.resultado
+        mudouPosicao = mudouPosicao || passoLogisticaOrder.mudou
+      }
+
+      const visivelComMigracao = atual
       const novasBuiltin = [
         ...(passoInserir.mudou ? ['id_workspace'] : []),
         ...(passoDescItem.mudou ? ['descricao_item'] : []),
@@ -6113,7 +6125,7 @@ export default function Pedidos() {
     onPainelHidratado: (id: string) => {
       painelListaAplicadoRef.current = id
       if (colunasUsuarioListaRef.current.length > 0) {
-        mesclarColunasManuaisNasPreferencias(colunasUsuarioListaRef.current)
+        mesclarColunasManuaisNasPreferencias(colunasUsuarioListaRef.current, { preservarOrdemSalva: true })
       }
     },
   }), [executarCargaComSnapshotPainel, aplicarCardsTopoDoPainel, mesclarColunasManuaisNasPreferencias])
@@ -6709,7 +6721,7 @@ export default function Pedidos() {
         painelListaAtualId
         && painelListaAplicadoRef.current === painelListaAtualId
       ) {
-        mesclarColunasManuaisNasPreferencias(lista)
+        mesclarColunasManuaisNasPreferencias(lista, { preservarOrdemSalva: true })
       }
     })
   }, [idOrganizacao, painelListaAtualId, mesclarColunasManuaisNasPreferencias, t])

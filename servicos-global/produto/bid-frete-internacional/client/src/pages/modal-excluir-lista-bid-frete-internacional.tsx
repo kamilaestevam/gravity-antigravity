@@ -66,7 +66,6 @@ export function ModalExcluirListaBidFreteInternacional({
   const [erro, setErro] = useState<string | null>(null)
   const [preview, setPreview] = useState<PreviewCarregado | null>(null)
 
-  const totaisExclusaoPendenteRef = useRef<{ bids: number; cotacoes: number } | null>(null)
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const limparFeedbackTimeout = useCallback(() => {
@@ -76,24 +75,12 @@ export function ModalExcluirListaBidFreteInternacional({
     }
   }, [])
 
-  const finalizarExclusaoSucesso = useCallback((totais: { bids: number; cotacoes: number }) => {
-    aoExcluido(totais)
-  }, [aoExcluido])
-
   useEffect(() => {
     if (aberto) return
     limparFeedbackTimeout()
-    if (totaisExclusaoPendenteRef.current) {
-      const totais = totaisExclusaoPendenteRef.current
-      totaisExclusaoPendenteRef.current = null
-      setFeedbackBotao(null)
-      setExcluindo(false)
-      finalizarExclusaoSucesso(totais)
-      return
-    }
     setFeedbackBotao(null)
     setExcluindo(false)
-  }, [aberto, finalizarExclusaoSucesso, limparFeedbackTimeout])
+  }, [aberto, limparFeedbackTimeout])
 
   // Preview uma vez ao montar — paridade ModalPedidosExcluir (pai monta só com modal aberto).
   // Não incluir ids[] nas deps: o pai passava .map() inline → nova referência a cada render → loop de loading.
@@ -205,12 +192,13 @@ export function ModalExcluirListaBidFreteInternacional({
         totalCotacoes = res.total_excluidas
       }
 
-      totaisExclusaoPendenteRef.current = { bids: totalBids, cotacoes: totalCotacoes }
+      const totais = { bids: totalBids, cotacoes: totalCotacoes }
       setExcluindo(false)
       setFeedbackBotao('sucesso')
       limparFeedbackTimeout()
       feedbackTimeoutRef.current = setTimeout(() => {
         feedbackTimeoutRef.current = null
+        aoExcluido(totais)
         aoFechar()
       }, 1200)
     } catch (e: unknown) {
@@ -223,7 +211,7 @@ export function ModalExcluirListaBidFreteInternacional({
         setFeedbackBotao(null)
       }, 1500)
     }
-  }, [preview, podeExcluir, aoFechar, limparFeedbackTimeout, t])
+  }, [preview, podeExcluir, aoExcluido, aoFechar, limparFeedbackTimeout, t])
 
   if (!aberto) return null
 

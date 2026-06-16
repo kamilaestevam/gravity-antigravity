@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 270,
+  "proximo_numero": 276,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -182,6 +182,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000269.json"
+    },
+    {
+      "referencia": "TASK-000275",
+      "ordinal": 11,
+      "titulo_canonico": "BIDFRT-LISTA-BUG-EXCLUSAO-NAO-ATUALIZA-TELA",
+      "titulo_exibicao": "TASK-000275 | [BID Frete] Lista | BUG — Exclusão não remove linhas da tela até recarregar",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": "LISTA",
+      "tipo_entrega": "BUG",
+      "resumo": "EXCLUSAO-NAO-ATUALIZA-TELA",
+      "data_criacao": "2026-06-16T18:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000275.json"
     }
   ]
 }

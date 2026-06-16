@@ -201,6 +201,37 @@ Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISA
 
 ---
 
+## Disparo — contatos multi destinatário (PR #338)
+
+Cadastros é SSOT; BID resolve ao vivo no motor de disparo.
+
+| Peça | Caminho |
+|------|---------|
+| Resolver EMAIL/WA | `server/src/services/resolver-contatos-disparo-bid-frete-internacional.ts` |
+| Fetch Cadastros S2S | `server/src/services/buscar-fornecedor-cadastros-disparo.ts` |
+| Motor | `server/src/services/motor-bid-frete-internacional.ts` |
+| UI seleção | `client/src/pages/selecao-fornecedores-disparo-bid-frete-internacional.tsx` |
+| Chip e-mail preview | `client/src/pages/contato-email-fornecedor-disparo-bid-frete-internacional.tsx` |
+
+**Regra:** preferir `contatos_fornecedor[]` (canal `EMAIL`); fallback `email_fornecedor` → espelho BID. Excluir `@interno.gravity.local`. Um envio Resend por endereço válido.
+
+**Testes UNI:** `resolver-contatos-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
+
+Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §5.5 · Cadastros: [EMPRESA-FORNECEDOR-OPERACAO.md](../../../documentos-tecnicos/produtos-gravity/cadastros/EMPRESA-FORNECEDOR-OPERACAO.md) § Contatos
+
+---
+
+## Detalhe da cotação — scroll (PR #338)
+
+| Peça | Caminho |
+|------|---------|
+| Página | `client/src/pages/cotacao-detalhe.tsx` |
+| CSS cockpit | `client/src/pages/cotacao-detalhe-cockpit.css` — modo expandido com scroll interno na aba |
+
+Modo *Visão geral*: scroll único em `.tpg-main`. Abas Propostas / Disparos / Dados gerais: preenchem viewport com scroll interno.
+
+---
+
 ## Banco (SSOT)
 
 | Tabela | Model Prisma |

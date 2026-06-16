@@ -41,6 +41,7 @@
 
 | PR / entrega | Escopo |
 |--------------|--------|
+| #338 (2026-06-15) | Detalhe cotação: scroll vertical restaurado (`cotacao-detalhe-cockpit.css`); disparo multi-e-mail/WhatsApp via Cadastros `contatos_fornecedor`; modal fornecedor Configurador com abas — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §5.5 |
 | TASK-000269 (2026-06-15) | Lista: filtros ▾ em todas colunas (paridade Pedido), colunas manuais com `filtravel` + `_colunas_usuario` (localStorage WIP) — ver [PAINEL-LISTA](./PAINEL-LISTA-BID-FRETE-INTERNACIONAL.md) § Filtros |
 | GABI Dashboard Fase 1 (2026-06-15) | `GET /dashboard/insights`, motor server, Zod client, fallback client — ver [ENTIDADE-BID-TECNICO.md](./ENTIDADE-BID-TECNICO.md) §5.1 |
 | QueryClient BID Frete (2026-06-15) | `bid-frete-query-client.ts` + `QueryClientProvider` em `App.tsx` (perm. dashboard) |

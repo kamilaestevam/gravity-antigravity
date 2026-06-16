@@ -629,6 +629,38 @@ if (process.env.NODE_ENV !== 'test') {
   }
 
   if (!devPm2) {
+  // Migrations plataforma (api-cockpit, gabi) — redundante com start-site.sh; garante tabelas antes dos sidecars
+  async function aplicarMigrationsPlataformaBoot(): Promise<void> {
+    const orgUrl = process.env.ORGANIZACAO_DATABASE_URL
+    if (!orgUrl) {
+      console.error('[configurador] ORGANIZACAO_DATABASE_URL ausente — migrations plataforma ignoradas (api-cockpit/GABI quebrados)')
+      return
+    }
+    try {
+      const { execSync } = await import('node:child_process')
+      const repoRoot = resolve(__dir, '../../..')
+      console.log('[configurador] Aplicando migrations servicos-plataforma no boot...')
+      execSync('npx tsx scripts/ativamente/compose-plataforma-schema.ts', {
+        cwd: repoRoot,
+        stdio: 'inherit',
+        env: process.env,
+      })
+      execSync(
+        'npx prisma migrate deploy --schema=servicos-global/servicos-plataforma/prisma/schema.prisma',
+        {
+          cwd: repoRoot,
+          stdio: 'inherit',
+          env: { ...process.env, ORGANIZACAO_DATABASE_URL: orgUrl },
+        },
+      )
+      console.log('[configurador] Migrations servicos-plataforma OK')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[configurador] ERRO migrations servicos-plataforma no boot:', msg)
+    }
+  }
+  await aplicarMigrationsPlataformaBoot()
+
   // Sidecars — cada um roda em porta fixa interna.
   // Sequenciados para evitar race condition em process.env.PORT.
 

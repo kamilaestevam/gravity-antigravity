@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useMemo } from 'react'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { STATUS_LABELS, type StatusCotacao } from './types'
 
 export interface EdicaoStatusCampoCotacaoBidFreteInternacionalProps {
@@ -20,6 +21,11 @@ export function EdicaoStatusCampoCotacaoBidFreteInternacional({
   salvando,
   onConfirmar,
 }: EdicaoStatusCampoCotacaoBidFreteInternacionalProps) {
+  const opcoes = useMemo(
+    () => OPCOES_STATUS.map(({ valor: v, rotulo }) => ({ valor: v, rotulo })),
+    [],
+  )
+
   if (!permiteEditar) {
     return (
       <span className="cdado-texto">
@@ -29,18 +35,21 @@ export function EdicaoStatusCampoCotacaoBidFreteInternacional({
   }
 
   return (
-    <select
-      className="dc-campo-espelho-select"
-      value={valor}
-      disabled={salvando}
-      aria-label={label}
-      onChange={(e) => void onConfirmar(e.target.value as StatusCotacao)}
-    >
-      {OPCOES_STATUS.map((op) => (
-        <option key={op.valor} value={op.valor}>
-          {op.rotulo}
-        </option>
-      ))}
-    </select>
+    <div className="dc-campo-status-select">
+      <SelectGlobal
+        opcoes={opcoes}
+        valor={valor}
+        aoMudarValor={(v) => {
+          if (v == null || salvando) return
+          const novo = String(v) as StatusCotacao
+          if (novo !== valor) void onConfirmar(novo)
+        }}
+        buscavel
+        desabilitado={salvando}
+        carregando={salvando}
+        aria-label={label}
+        tamanho="compacto"
+      />
+    </div>
   )
 }

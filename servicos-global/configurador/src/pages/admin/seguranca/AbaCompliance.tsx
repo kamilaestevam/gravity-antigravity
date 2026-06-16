@@ -142,7 +142,7 @@ export function AbaCompliance() {
   return (
     <div>
       {/* KPI Cards OWASP */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+      <div className="cg-kpi-row">
         <TooltipGlobal titulo="Score OWASP" descricao="Percentual de itens OWASP Top 10 em conformidade">
           <CardBasicoGlobal
             titulo="Score OWASP"

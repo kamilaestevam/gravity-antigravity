@@ -69,10 +69,10 @@ else
   echo "[start-site] AVISO: CONFIGURADOR_DATABASE_URL ausente — migrations Configurador ignoradas."
 fi
 
-# Storage persistente de prints EMT (montar volume Railway em EMT_ARTIFACTS_DIR)
+# Storage persistente de prints EMT — OBRIGATÓRIO volume Railway montado aqui (senão prints somem a cada deploy)
 export EMT_ARTIFACTS_DIR="${EMT_ARTIFACTS_DIR:-/app/data/emt-artifacts}"
 mkdir -p "$EMT_ARTIFACTS_DIR"
-echo "[start-site] EMT artifacts dir: $EMT_ARTIFACTS_DIR"
+echo "[start-site] EMT artifacts dir: $EMT_ARTIFACTS_DIR (monte volume Railway neste path)"
 
 # Storage persistente de anexos do Pedido (montar volume Railway em PEDIDO_ANEXOS_UPLOAD_DIR se necessário)
 export PEDIDO_ANEXOS_UPLOAD_DIR="${PEDIDO_ANEXOS_UPLOAD_DIR:-/app/data/pedido-anexos}"

@@ -64,6 +64,16 @@
   background: var(--bg-base);
 }
 
+/* Especificidade > .mg-body do modal-sem-sessoes (padding-top: 0) */
+.mg-body.modal-body {
+  padding: 1.5rem;
+}
+
+/* Modais com abas pill — 24px entre abas e primeiro campo */
+.mg-dialog:has(.mg-nav-abas) > .mg-body.modal-body {
+  padding-top: 1.5rem;
+}
+
 .modal-footer {
   display: flex;
   align-items: center;
@@ -217,9 +227,9 @@ body.light-theme .btn-primary { color: #fff; }
 
 /* ─── Abas Pill (Configurador) ──────────────────────────────────────────────── */
 .mg-nav-abas.mg-tabs-pill-wrap {
-  /* top: 7px → distância linha divisória → topo da pill ~12px (decisão UX 2026-05-05) */
-  /* bottom: 0.5rem (8px) → distância pill → conteúdo (somado ao padding-top do .mg-body) */
-  padding: 7px 1.5rem 0.5rem 1.5rem;
+  /* 24px abaixo da linha do cabeçalho = margin-bottom 1.5rem no .ws-modal-cabecalho (sem padding-top aqui) */
+  /* 24px acima do 1º label = padding-top 1.5rem no .mg-body (sem padding-bottom aqui) */
+  padding: 0 1.5rem;
   background: var(--bg-base);
 }
 

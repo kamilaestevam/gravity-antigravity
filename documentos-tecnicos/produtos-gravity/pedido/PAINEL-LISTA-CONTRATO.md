@@ -103,6 +103,23 @@ export const listaPainelConfigV1Schema = z.object({
 | Escopo filiais | **Somente** `useEscopoWorkspacesPedido` — inalterado |
 | Arquivo alvo | `Pedidos.tsx` ou extrair `PedidosListaPainelBar.tsx` |
 
+### 5.1 Persistência no cliente (`useListaPainelPedido`)
+
+Helper puro: `servicos-global/produto/pedido/shared/persistenciaListaPainel.ts` (`podePersistirPainelLista`).
+
+| Gatilho | Chamada | Comportamento |
+|---------|---------|---------------|
+| Reordenar colunas / sort / toggle visível | `persistirPainelAtual(..., { imediato: true, acaoUsuario: true })` | PUT imediato; **não** exige `painelHidratadoId === painelAtualId` |
+| Debounce pós-edição (filtros, busca, etc.) | `persistirPainelAtual(..., { imediato: false })` | Aguarda hidratação (`painelHidratadoId === id`) antes do PUT |
+| Durante `aplicandoConfig` | qualquer persistência | Enfileira em `persistenciaPendenteAposConfigRef`; flush ao terminar aplicação |
+| Falha no PUT | — | Toast via `addNotification` + `mensagemErroPersistirPainel()` (sem engolir erro) |
+
+**Regra:** ações explícitas do usuário em colunas/ordenação usam `acaoUsuario: true` para evitar perda silenciosa entre o load da lista e a hidratação do painel ativo (regressão TASK-000281).
+
+**BID Frete:** mesma semântica em `useListaPainelBidFrete`; helper espelhado em `bid-frete-internacional/shared/persistenciaListaPainel.ts` (sem import cross-produto).
+
+**Teste funcional:** `testes/testes-funcionais/pedido/painel-lista/persistencia-lista-painel.test.ts` — PUT `config_json` → GET confirma `colunas_visiveis` e `ordenacao`.
+
 ---
 
 ## 6. Fases de implementação

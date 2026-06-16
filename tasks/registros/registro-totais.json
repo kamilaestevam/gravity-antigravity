@@ -1,14 +1,14 @@
 {
   "versao": 2,
-  "data_atualizacao": "2026-06-16T23:45:00.000Z",
+  "data_atualizacao": "2026-06-16T12:00:00.000Z",
   "nota": "Recalcular sempre em /novo-agente, /encerrar-agente ou edição de TASK-*.json.",
   "total_tasks": {
-    "fichas_registradas": 19,
+    "fichas_registradas": 20,
     "fichas_resolvidas": 11,
-    "fichas_abertas": 8,
+    "fichas_abertas": 9,
     "sessoes_cursor_legado_sem_ficha": 256,
     "sessoes_cursor_total": 263,
-    "proximo_numero": 278
+    "proximo_numero": 282
   },
   "total_periodo": {
     "data_inicio": "2026-04-24T18:58:26.000Z",

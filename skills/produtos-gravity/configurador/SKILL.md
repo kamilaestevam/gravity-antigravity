@@ -156,7 +156,9 @@ if (!productPermissions || productPermissions.length === 0) {
 | Conceito | Onde vive | Como o Configurador usa |
 |----------|-----------|-------------------------|
 | Empresa da **organização** (1:1) | Cadastros.`empresa` + espelho `Organizacao.suid_empresa_organizacao` | Saga onboarding: `POST /api/v1/empresas` via `cadastros-client` |
-| **Fornecedores** COMEX | Cadastros.`fornecedor` | Tela `/configurador/fornecedores` — `GET /fornecedores?escopo=parceiros`, CRUD `/fornecedores`. Deep-links: `?criar=...` (novo) e `?id=...` (editar). Redirect legado: `/configurador/empresas-e-parceiros` → `/configurador/fornecedores` |
+| **Fornecedores** COMEX | Cadastros.`fornecedor` + `fornecedor_contato` | Tela `/configurador/fornecedores` — `GET /fornecedores?escopo=parceiros`, CRUD `/fornecedores`. Modal `ModalEditarFornecedor.tsx`: abas **Dados Gerais** \| **Contatos do Fornecedor** (`ModalFormularioAbasGlobal`). Payload DDD: `email_fornecedor`, `telefone_fornecedor`, `whatsapp_fornecedor`, `contatos_fornecedor[]` (Zod bilateral com Cadastros). Deep-links: `?criar=...` (novo) e `?id=...` (editar). Redirect legado: `/configurador/empresas-e-parceiros` → `/configurador/fornecedores` |
+
+**Contatos (PR #338):** chips via `@nucleo/lista-valores-contato-global`; Cadastros persiste N contatos por canal. Doc: [EMPRESA-FORNECEDOR-OPERACAO.md](../../../documentos-tecnicos/produtos-gravity/cadastros/EMPRESA-FORNECEDOR-OPERACAO.md) § Contatos do fornecedor.
 
 **Proxy** (`server/index.ts`): `/api/v1/empresas` e `/api/v1/fornecedores` são rotas **separadas** (sem rewrite). Chave S2S injetada server-side no proxy.
 

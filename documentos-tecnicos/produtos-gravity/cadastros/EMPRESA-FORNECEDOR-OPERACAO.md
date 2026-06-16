@@ -83,6 +83,35 @@ O client `@tenant/cadastros` expõe `fornecedores` e `empresas` separados — **
 
 ---
 
+## Contatos do fornecedor (DDD — PR #338)
+
+Migration `20260615120000_rename_contato_fornecedor_ddd` renomeia campos legados na tabela `fornecedor`:
+
+| ❌ Legado | ✅ DDD |
+|----------|--------|
+| `email_principal_fornecedor` | `email_fornecedor` |
+| `telefone_principal_fornecedor` | `telefone_fornecedor` |
+| `whatsapp_principal_fornecedor` | `whatsapp_fornecedor` |
+
+Migration `20260615220000_add_fornecedor_contato` cria **`fornecedor_contato`** (N contatos por fornecedor):
+
+| Campo | Tipo |
+|-------|------|
+| `tipo_canal_fornecedor_contato` | `EMAIL` \| `WHATSAPP` \| `TELEFONE` |
+| `valor_fornecedor_contato` | string |
+| `principal_fornecedor_contato` | boolean |
+| `ordem_fornecedor_contato` | int |
+
+**Schemas Zod:** `shared/schemas/fornecedor.schema.ts` + `fornecedor-contato.schema.ts`  
+**Service:** `server/src/services/fornecedor-contato.service.ts` — sincroniza array `contatos_fornecedor` no POST/PATCH  
+**UI Configurador:** `ModalEditarFornecedor.tsx` — abas *Dados Gerais* \| *Contatos do Fornecedor* (`ModalFormularioAbasGlobal` + `ListaValoresContatoGlobal`)
+
+**Deploy:** após merge, `npx prisma migrate deploy` no Cadastros + `prisma generate` + reiniciar serviço (8031).
+
+**Consumidores:** BID Frete disparo (`resolver-contatos-disparo-bid-frete-internacional.ts`) lê `contatos_fornecedor` ao vivo via S2S; espelho BID mantém apenas e-mail principal legado.
+
+---
+
 ## Pedido — consumo (atualizado 27/05/2026)
 
 - **Empresa-da-org:** `GET /api/v1/empresas/da-organizacao` + `empresaSchema` (client e `cadastrosClient.obterEmpresaDaOrganizacao`)

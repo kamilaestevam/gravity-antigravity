@@ -160,6 +160,32 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 
 **ABERTA com `fornecedor_ids`:** `filtrarIdsFornecedoresElegiveisCotacaoAberta` no POST antes de `motorBid.disparar`. Sem `fornecedor_ids` → `dispararCotacaoAberta`.
 
+### 5.5 Resolução de contatos (multi destinatário — PR #338)
+
+**SSOT de contatos:** Cadastros (`fornecedor` + `fornecedor_contato`). O espelho BID guarda e-mail principal legado; demais canais vêm ao vivo no disparo.
+
+| Peça | Caminho |
+|------|---------|
+| Resolver e-mails/WhatsApp | `server/src/services/resolver-contatos-disparo-bid-frete-internacional.ts` |
+| Busca Cadastros S2S | `server/src/services/buscar-fornecedor-cadastros-disparo.ts` |
+| Garantir espelho BID | `server/src/services/garantir-fornecedores-espelho-disparo-bid-frete-internacional.ts` |
+| UI e-mails por fornecedor | `client/src/pages/contato-email-fornecedor-disparo-bid-frete-internacional.tsx` |
+| Shared (client + server) | `shared/contato-disparo-bid-frete-internacional.ts`, `shared/formatar-resultado-disparo-bid-frete-internacional.ts` |
+
+**Ordem de resolução (EMAIL):**
+
+1. Todos os registros `contatos_fornecedor` com `tipo_canal_fornecedor_contato = EMAIL` (principal primeiro, depois `ordem_fornecedor_contato`; dedupe case-insensitive)
+2. Fallback `email_fornecedor` (Cadastros)
+3. Fallback `email_fornecedor_bid_frete_internacional` (espelho BID)
+
+**Filtro:** exclui `@interno.gravity.local` e strings vazias (REGRA 08 — disparo sem destinatário falha alto na UI).
+
+**Motor:** `motor-bid-frete-internacional.ts` envia **1 e-mail por endereço** resolvido quando canal `EMAIL` está marcado; resultado agregado em `formatar-resultado-disparo-bid-frete-internacional`.
+
+**Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/resolver-contatos-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
+
+**Cadastros / Configurador:** contrato `email_fornecedor` + `contatos_fornecedor[]` — ver [EMPRESA-FORNECEDOR-OPERACAO.md](../cadastros/EMPRESA-FORNECEDOR-OPERACAO.md) § Contatos do fornecedor.
+
 ---
 
 ## 6. Chaves i18n (defaults inline — pendente `pt.json`)
@@ -190,6 +216,7 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 | #288 | 2026-06-11 | Selecionar/Desmarcar todos (Direcionada), rótulo *Ver fornecedores e notas* |
 | #290 | 2026-06-12 | `BarrasNotasFornecedores` também na Direcionada (abaixo da lista) |
 | #302 | 2026-06-12 | GravityLoader, meta tipo/nota, excluir Aberta, POST subset + filtro server-side |
+| #338 | 2026-06-15 | Multi-e-mail/WhatsApp no disparo; resolução Cadastros `fornecedor_contato`; feedback agregado por fornecedor |
 
 ---
 

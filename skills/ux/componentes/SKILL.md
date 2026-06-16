@@ -28,6 +28,8 @@ Antes de criar qualquer componente novo, consultar este catálogo. Se a necessid
 | Agrupar conteúdo com título | **SecaoGlobal** (composição) |
 | Tabela com filtros, busca, paginação, CRUD | **TabelaGlobal** |
 | Modal com abas, header, footer | **ModalGlobal** |
+| Formulário modal com abas pill (2+ seções) | **ModalFormularioAbasGlobal** |
+| Lista de e-mails/telefones/WhatsApp com chips | **ListaValoresContatoGlobal** |
 | Confirmação antes de ação destrutiva | **ConfirmarGlobal** |
 | Select com busca e múltipla seleção | **CaixaSelectGlobal** |
 | Tooltip ou dica contextual | **DicaGlobal** |
@@ -151,6 +153,42 @@ import { ModalGlobal, type ModalConfig } from '@nucleo/modal-global'
 - Para confirmações simples — usar `ConfirmarGlobal`
 - Para alertas sem input — usar toast via `Shell`
 - Para conteúdo que cabe inline — não usar modal
+
+---
+
+### ModalFormularioAbasGlobal
+
+**Quando usar:** formulários de criação/edição com **2 ou mais seções** em abas pill (ex.: Configurador › Fornecedores — Dados Gerais | Contatos).
+
+```typescript
+import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
+```
+
+**Espaçamento (2026-06):** 24px entre linha divisória do cabeçalho e abas; 24px entre abas e primeiro campo (`modal.css` + `ModalFormularioAbas.tsx`). Evitar padding extra em `.cg-header` no workspace do Configurador.
+
+**Quando NÃO usar:**
+- Formulário de uma única seção — `ModalFormularioGlobal`
+- Wizard multi-passo — `ModalPassoPassoGlobal`
+
+**Referência:** `servicos-global/configurador/src/pages/configurador/ModalEditarFornecedor.tsx`
+
+---
+
+### ListaValoresContatoGlobal
+
+**Quando usar:** campos com **múltiplos valores** do mesmo canal (e-mails, telefones E.164, WhatsApp E.164) — entrada + chip removível.
+
+```typescript
+import { ListaValoresContatoGlobal } from '@nucleo/lista-valores-contato-global'
+```
+
+**Contrato típico:** arrays `emails` / `telefones` / `whatsapps` no estado do formulário → `montarContatosFornecedorPayload` (Cadastros Zod) no submit.
+
+**Quando NÃO usar:**
+- Valor único obrigatório sem lista — input simples ou `CaixaSelectGlobal`
+- Contatos que não são canal de comunicação — outro componente de lista
+
+**Referência:** aba *Contatos do Fornecedor* em `ModalEditarFornecedor.tsx`
 
 ---
 

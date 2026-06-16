@@ -36,6 +36,7 @@ import {
   enrichirLogEmt,
   specFileDoRegistry,
   resolverCaminhoPrintSeguro,
+  garantirArtefatoPrintEmt,
   buscarLogTestePorId,
 } from '../lib/emt-artifacts.js'
 import { RUN_TESTES_TIMEOUT_MS } from '../lib/emt-run-timeout.js'
@@ -1747,8 +1748,16 @@ adminRouter.get('/testes/emt-print/:id_log/:nome_arquivo', async (req, res, next
       }
       emtPasta = artefatos.emt_pasta
     }
-    const abs = resolverCaminhoPrintSeguro(emtPasta, nomeArquivo)
-    if (!abs) throw new AppError('Print não encontrado', 404, 'NOT_FOUND')
+    const abs = garantirArtefatoPrintEmt(emtPasta, nomeArquivo)
+    if (!abs) {
+      log.warn({
+        id_log: idLog,
+        emt_pasta: emtPasta,
+        nome_arquivo: nomeArquivo,
+        emt_artifacts_dir: process.env.EMT_ARTIFACTS_DIR ?? '(default cwd/data/emt-artifacts)',
+      }, 'Print EMT indisponível — verifique volume Railway em /app/data/emt-artifacts')
+      throw new AppError('Print não encontrado', 404, 'NOT_FOUND')
+    }
     res.setHeader('Content-Type', 'image/png')
     res.setHeader('Cache-Control', 'private, max-age=3600')
     createReadStream(abs).pipe(res)

@@ -51,13 +51,18 @@ export function resolverPastaEmtAbsoluta(emtPastaRel: string): string | null {
 export function espelharArtefatosEmtPersistente(emtPastaRelMonorepo: string): string | null {
   if (!emtPastaRelMonorepo.startsWith('testes/testes-em-tela/')) return null
   const origem = resolve(raizRepositorioGravity, emtPastaRelMonorepo)
-  if (!existsSync(origem)) return null
+  if (!existsSync(origem)) {
+    console.warn(`[emt-artifacts] espelhar: origem inexistente ${emtPastaRelMonorepo}`)
+    return null
+  }
 
   const destino = resolve(dirArtefatosEmtPersistente(), emtPastaRelMonorepo)
   mkdirSync(dirname(destino), { recursive: true })
   try {
     cpSync(origem, destino, { recursive: true, force: true })
-  } catch {
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.warn(`[emt-artifacts] espelhar falhou ${emtPastaRelMonorepo}: ${msg}`)
     return null
   }
 
@@ -302,6 +307,30 @@ export function resolverCaminhoPrintSeguro(
   if (!rel || rel.startsWith('..') || rel.includes('..')) return null
   if (!existsSync(abs)) return null
   return abs
+}
+
+/** Resolve PNG — se ausente no destino persistido, tenta espelhar do monorepo (lazy heal). */
+export function garantirArtefatoPrintEmt(
+  emtPastaRel: string,
+  nomeArquivo: string,
+): string | null {
+  const direto = resolverCaminhoPrintSeguro(emtPastaRel, nomeArquivo)
+  if (direto) return direto
+
+  const monorepoRel = emtPastaRel.startsWith(PREFIXO_EMT_PERSISTENTE)
+    ? emtPastaRel.slice(PREFIXO_EMT_PERSISTENTE.length)
+    : emtPastaRel.startsWith('testes/testes-em-tela/')
+      ? emtPastaRel
+      : null
+  if (!monorepoRel?.includes('/resultado-teste/')) return null
+
+  const pastaPersistente = espelharArtefatosEmtPersistente(monorepoRel)
+  if (pastaPersistente) {
+    const espelhado = resolverCaminhoPrintSeguro(pastaPersistente, nomeArquivo)
+    if (espelhado) return espelhado
+  }
+
+  return resolverCaminhoPrintSeguro(monorepoRel, nomeArquivo)
 }
 
 export function buscarLogTestePorId(

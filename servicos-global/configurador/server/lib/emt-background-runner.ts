@@ -7,7 +7,7 @@
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs'
 import { join, resolve } from 'path'
-import { coletarArtefatosEmt } from './emt-artifacts.js'
+import { coletarArtefatosEmt, prepararEntradaEmtParaPersistencia } from './emt-artifacts.js'
 import type { TestLogEntry } from '../utils/playwright-parser.js'
 
 import { RUN_TESTES_TIMEOUT_MS } from './emt-run-timeout.js'
@@ -115,7 +115,7 @@ async function main(): Promise<void> {
       debugLog(`EMT ${plano.id} → node tsx ${plano.specFile}`)
       const { code, stdout, stderr, durationMs, startedAtMs } = await runTsxScript(plano.specFile, manifest.env)
       const artefatos = coletarArtefatosEmt(plano.specFile, startedAtMs, code, stdout, runId)
-      entries.push({
+      const entryBruto = {
         type: 'EMT',
         module: plano.id,
         test_name: resolverOqueFoiTestadoPlano(plano),
@@ -126,7 +126,8 @@ async function main(): Promise<void> {
         emt_pasta: artefatos.emt_pasta,
         emt_prints: artefatos.emt_prints,
         ai_analysis: null,
-      } as TestLogEntry)
+      } as TestLogEntry
+      entries.push(prepararEntradaEmtParaPersistencia(entryBruto))
     }
 
     writeFileSync(resultPath, JSON.stringify({ entries, completed_at: new Date().toISOString() }, null, 2))

@@ -82,6 +82,17 @@ else
   echo "[build-site] CONFIGURADOR_DATABASE_URL ausente — skip Configurador migrations"
 fi
 
+# 2f. Organização (servicos-plataforma) — api-cockpit, gabi, historico, etc.
+if [ -n "${ORGANIZACAO_DATABASE_URL:-}" ]; then
+  echo "[build-site] Composing servicos-plataforma schema..."
+  npx tsx scripts/ativamente/compose-plataforma-schema.ts
+  echo "[build-site] Applying servicos-plataforma migrations..."
+  ORGANIZACAO_DATABASE_URL="$ORGANIZACAO_DATABASE_URL" \
+    npx prisma migrate deploy --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
+else
+  echo "[build-site] ORGANIZACAO_DATABASE_URL ausente — skip servicos-plataforma migrations"
+fi
+
 # 2c. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but
 #     @prisma/client at root does require('.prisma/client') from root.
 #     Other services use custom output="../generated" so root is free.

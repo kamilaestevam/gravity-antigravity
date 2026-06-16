@@ -5,7 +5,7 @@
 import { getBoss } from '../../../servicos-plataforma/historico-global/server/queue/pg-boss.js'
 
 const GABI_QUOTA_RESET_QUEUE = 'gabi:quota:reset'
-const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://localhost:8015'
+const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
 
 export async function startGabiQuotaResetWorker(): Promise<void> {
   const boss = getBoss()

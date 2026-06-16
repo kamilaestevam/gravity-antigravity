@@ -494,6 +494,11 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * Quando omitido, deriva de `colunas` via colunaParaSeletor no núcleo.
    */
   colunasSeletor?: Array<{ key: string; label: string; naoOcultavel?: boolean; manual?: boolean }>
+  /**
+   * Quando true, colunas de dados usam minmax(max-content, 1fr) para distribuir
+   * o espaço horizontal restante (listas com poucas colunas visíveis).
+   */
+  distribuirLarguraColunas?: boolean
 
   // ── Handle imperativo ─────────────────────────────────────────────────────
   /**

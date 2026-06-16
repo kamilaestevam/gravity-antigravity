@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 288,
+  "proximo_numero": 289,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -386,6 +386,23 @@
       "tempo_liquido_horas": 1.0,
       "tokens_estimados_total": 45000,
       "arquivo_ficha": "registros/TASK-000287.json"
+    },
+    {
+      "referencia": "TASK-000288",
+      "ordinal": 21,
+      "titulo_canonico": "BIDFRT-PAINEL-LISTA-LISTA-BUG-NOME-ABA-PADRAO-NAO-SALVA",
+      "titulo_exibicao": "TASK-000288 | [Bid Frete] Lista | BUG — Nome da aba Padrão não salva ao editar",
+      "status": "RES",
+      "area": "BIDFRT",
+      "subarea": "PAINEL-LISTA",
+      "visualizacao": "LISTA",
+      "tipo_entrega": "BUG",
+      "resumo": "NOME-ABA-PADRAO-NAO-SALVA",
+      "data_criacao": "2026-06-16T15:00:00.000Z",
+      "data_encerramento": "2026-06-16T23:35:00.000Z",
+      "tempo_liquido_horas": 1.7,
+      "tokens_estimados_total": 50000,
+      "arquivo_ficha": "registros/TASK-000288.json"
     }
   ]
 }

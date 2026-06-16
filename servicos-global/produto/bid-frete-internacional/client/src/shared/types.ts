@@ -218,6 +218,8 @@ export interface Cotacao {
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima_cotacao_bid_frete_internacional: boolean
   nome_cliente_operacao_cotacao_bid_frete_internacional?: string | null
+  /** Preenchido na visão fornecedor quando a cotação não é anônima. */
+  nome_usuario_solicitante_bid_frete_internacional?: string | null
   valor_meta_cotacao_bid_frete_internacional: number | null
   moeda_meta_cotacao_bid_frete_internacional: string | null
   data_limite_resposta_cotacao_bid_frete_internacional: string | null

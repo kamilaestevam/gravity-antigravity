@@ -1882,6 +1882,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   renderIndicadorLinhaFilho,
   classNameLinhaPai,
   classNameLinhaFilho,
+  distribuirLarguraColunas = false,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
   const itemId = useCallback(
@@ -2105,10 +2106,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     if (arrastavelPai) cols.push('28px')
     if (temSelecao) cols.push('40px')
     if (onCarregarFilhos) cols.push(larguraColunaExpand)
-    cols.push(...colunasFiltradas.map(() => 'max-content'))
+    const trilhaColunaDados = distribuirLarguraColunas ? 'minmax(max-content, 1fr)' : 'max-content'
+    cols.push(...colunasFiltradas.map(() => trilhaColunaDados))
     if (acoes && acoes.length > 0) cols.push('max-content')
     return cols.join(' ')
-  }, [temIndicador, arrastavelPai, temSelecao, onCarregarFilhos, larguraColunaExpand, colunasFiltradas, acoes])
+  }, [temIndicador, arrastavelPai, temSelecao, onCarregarFilhos, larguraColunaExpand, colunasFiltradas, acoes, distribuirLarguraColunas])
 
 
   // ── Seleção ───────────────────────────────────────────────────────────────────

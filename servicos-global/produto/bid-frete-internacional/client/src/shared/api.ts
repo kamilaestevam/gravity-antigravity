@@ -529,6 +529,8 @@ export function mapCotacaoFromServer(rawUnknown: unknown): Cotacao {
       (raw.id_usuario_aprovacao_ganho_bid_frete_internacional as string | null | undefined) ?? null,
     nome_usuario_aprovacao_ganho_bid_frete_internacional:
       (raw.nome_usuario_aprovacao_ganho_bid_frete_internacional as string | null | undefined) ?? null,
+    nome_usuario_solicitante_bid_frete_internacional:
+      (raw.nome_usuario_solicitante_bid_frete_internacional as string | null | undefined) ?? null,
   }
 }
 
@@ -542,6 +544,7 @@ const CAMPOS_COTACAO_APENAS_CLIENTE = [
   'moeda_aprovada',
   'id_usuario_aprovacao_ganho_bid_frete_internacional',
   'nome_usuario_aprovacao_ganho_bid_frete_internacional',
+  'nome_usuario_solicitante_bid_frete_internacional',
   'disparo_cotacao_bid_frete_internacional',
   'propostas_bid_frete_internacional',
   'bid_bid_frete_internacional',

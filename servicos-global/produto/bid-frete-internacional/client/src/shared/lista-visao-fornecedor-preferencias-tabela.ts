@@ -4,7 +4,7 @@ import {
   CHAVES_COLUNAS_PADRAO_VISIVEIS_FORNECEDOR,
 } from '../pages/visao-fornecedor-bid-frete-internacional/colunas-lista-visao-fornecedor-bid-frete-internacional'
 
-export const VERSAO_COLUNAS_LISTA_FORNECEDOR = 2
+export const VERSAO_COLUNAS_LISTA_FORNECEDOR = 3
 export const STORAGE_COLUNAS_VERSAO_FORNECEDOR = 'bid-frete-internacional:fornecedor:config:tabela_colunas_versao'
 export const STORAGE_PREFS_TABELA_FORNECEDOR = 'bid-frete-internacional:fornecedor:config:tabela_preferencias'
 export const STORAGE_PAINEL_ORDEM_COLUNAS_FORNECEDOR =

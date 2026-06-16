@@ -18,7 +18,6 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   ClipboardText,
   CurrencyDollar,
-  DownloadSimple,
   Eye,
   Kanban,
   ListBullets,
@@ -71,6 +70,7 @@ import {
 } from '../../shared/lista-visao-fornecedor-preferencias-tabela'
 import { ROTAS_VISAO_FORNECEDOR_BID_FRETE_INTERNACIONAL } from '../../shared/rotas-bid-frete-internacional'
 import { calcularStatsListaFornecedor } from '../../shared/lista-visao-fornecedor-bid-frete-kpi-metrics'
+import { montarAcoesExportacaoListaBidFrete } from '../../shared/acoes-exportacao-lista-bid-frete-internacional'
 import { filtrarCotacoesPorPeriodoCards } from '../../shared/lista-bid-frete-card-periodo'
 import { useCardPreferencesBidFrete, CARD_PERIODOS, type CardPeriodoCodigo } from '../../shared/use-card-preferences'
 import {
@@ -588,46 +588,21 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
     },
   ], [abrirOportunidade, t])
 
-  const exportarCSVCotacoes = useCallback((formato: 'excel' | 'csv') => {
-    const sep = formato === 'excel' ? ';' : ','
-    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
-
-    const colunasExportVisiveis = colunasExport.filter(c => {
-      if (!c.key) return false
-      if (preferencias?.colunas_visiveis) {
-        return preferencias.colunas_visiveis.includes(c.key as string)
-      }
-      return COLUNAS_PADRAO_VISIVEIS_FORNECEDOR.includes(c.key as string)
-    })
-
-    const cabecalho = colunasExportVisiveis.map(c => escape(c.label)).join(sep)
-    const linhas = cotacoesFiltradas.map(row => colunasExportVisiveis.map(c => {
-      const key = c.key as string
-      return escape(formatValorExportColunaFornecedor(key, row))
-    }).join(sep))
-
-    const conteudo = [cabecalho, ...linhas].join('\n')
-    const blob = new Blob(['\uFEFF' + conteudo], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `oportunidades_fornecedor_${formato === 'excel' ? 'excel' : 'csv'}_${new Date().toISOString().slice(0, 10)}.csv`
-    a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 5000)
-  }, [cotacoesFiltradas, colunasExport, preferencias])
-
-  const acoesExportacao = useMemo(() => [
-    {
-      label: 'Excel (.xlsx)',
-      icone: <DownloadSimple size={15} weight="duotone" />,
-      onClick: () => exportarCSVCotacoes('excel'),
-    },
-    {
-      label: 'CSV',
-      icone: <DownloadSimple size={15} weight="duotone" />,
-      onClick: () => exportarCSVCotacoes('csv'),
-    },
-  ], [exportarCSVCotacoes])
+  const acoesExportacao = useMemo(
+    () => montarAcoesExportacaoListaBidFrete({
+      colunas: colunasExport,
+      preferencias,
+      colunasPadrao: COLUNAS_PADRAO_VISIVEIS_FORNECEDOR,
+      dados: cotacoesFiltradas,
+      formatValorExport: (key, row) => formatValorExportColunaFornecedor(key, row, t),
+      nomeArquivo: 'oportunidades_fornecedor',
+      titulo: t(
+        'bidfrete.visao_fornecedor_bid_frete_internacional.lista.export_titulo',
+        'Oportunidades — Visão Fornecedor',
+      ),
+    }),
+    [colunasExport, preferencias, cotacoesFiltradas, t],
+  )
 
   const toggleVisao = (
     <ToggleVisaoListaKanbanFornecedor
@@ -847,6 +822,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
                 onFiltroColuna={onFiltroColuna}
                 filtrosAtivosKeys={filtrosAtivosKeys}
                 placeholderBusca="Buscar"
+                distribuirLarguraColunas
                 preferencias={preferencias}
                 onSalvarPreferencias={handleSalvarPreferencias}
                 colunasPadrao={COLUNAS_PADRAO_VISIVEIS_FORNECEDOR}

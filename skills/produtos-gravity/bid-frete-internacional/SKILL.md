@@ -230,6 +230,19 @@ Doc: [MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md](../../../documentos-tecnico
 
 Modo *Visão geral*: scroll único em `.tpg-main`. Abas Propostas / Disparos / Dados gerais: preenchem viewport com scroll interno.
 
+### Faixa de aprovação no Painel de Insights (TASK-000286)
+
+Quando `status_cotacao_bid_frete_internacional === 'APROVADA'`:
+
+| Comportamento | Detalhe |
+|---------------|---------|
+| Substitui aviso comparativo | `FaixaResumoAprovacaoInsightsCotacao` no topo do cockpit |
+| Colunas | Valor aprovado · Data da aprovação · Ganhador · Quem aprovou |
+| Sem duplicata | Barra legada `dc-aprovado` na Visão geral **removida** |
+| API | GET `/cotacoes/:id` e POST `/comparativo/:id/aprovar` enriquecem `id_usuario_aprovacao_ganho_bid_frete_internacional` + `nome_usuario_aprovacao_ganho_bid_frete_internacional` |
+
+Doc: [COTACAO-DETALHE-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/COTACAO-DETALHE-COCKPIT-TECNICO.md)
+
 ---
 
 ## Banco (SSOT)
@@ -320,6 +333,7 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 - Dashboard ordem/visibilidade: `dashboard/dashboard-widget-visibilidade.test.ts`
 - Dashboard GABI Fase 1: `dashboard/gabi-insights-bid-frete.test.ts`
 - Insights: `insights/agregar-insights-graficos.test.ts`, `insights/montar-insights-detalhe.test.ts`, `insights/taxas-cambio-insights.test.ts`, `insights/insights-status-funil.test.ts`
+- Cockpit faixa aprovação: `aviso-graficos-insights-cotacao.test.ts`
 - Funcionais: `testes/testes-funcionais/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
 - Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`

@@ -133,6 +133,19 @@ Localizacao: `servicos-global/produto/bid-frete/server/src/routes/`
 |-------------|-----------|------|
 | `response_id` | `id_proposta_bid_frete_internacional` | String |
 
+**Response `cotacao` — campos computados (2026-06, não persistidos no Prisma):**
+
+| Campo | Tipo | Origem |
+|-------|------|--------|
+| `id_usuario_aprovacao_ganho_bid_frete_internacional` | String | Header `x-id-usuario` do aprovador |
+| `nome_usuario_aprovacao_ganho_bid_frete_internacional` | String \| null | S2S Configurador (`resolver-nome-usuario-organizacao-bid-frete-internacional.ts`) |
+
+### GET `/api/v1/bid-frete-internacional/cotacoes/:id_cotacao` (rota #4)
+
+Quando `status_cotacao_bid_frete_internacional === 'APROVADA'`, a resposta inclui os mesmos campos computados acima (`id_usuario` do último `ganho_bid_frete_internacional` + nome resolvido).
+
+Doc UX: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/COTACAO-DETALHE-COCKPIT-TECNICO.md`
+
 ### POST `/api/v1/bid-frete-internacional/comparativo/:id_cotacao/reprovar` (rota #13)
 
 **Request body:**

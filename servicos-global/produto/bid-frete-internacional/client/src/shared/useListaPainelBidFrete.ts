@@ -18,6 +18,8 @@ import {
 
   parsearConfigListaPainelSeguro,
 
+  serializarConfigListaPainel,
+
   type ListaPainelConfigV1,
 
 } from '../../../shared/listaPainelConfigSchema'
@@ -27,6 +29,8 @@ import { podePersistirPainelLista } from '../../../shared/persistenciaListaPaine
 import { paineisListaBidFreteApi, type ListaPainel } from './api'
 
 import { deserializarFiltrosLista, serializarFiltrosLista } from './lista-painel-filtros'
+
+import { migrarOrdemColunasPainelListaBidFrete } from './preferencias-colunas-lista-bid-frete-internacional'
 
 import type { FiltrosAtivosMap } from '../components/lista/filtros'
 
@@ -315,6 +319,28 @@ export function useListaPainelBidFrete() {
         origem: 'useListaPainelBidFrete.aplicarConfigDoPainel',
 
       })
+
+    }
+
+
+
+    const colunasMigradas = migrarOrdemColunasPainelListaBidFrete(
+
+      painel.id,
+
+      config.colunas_visiveis,
+
+    )
+
+    if (colunasMigradas) {
+
+      config = { ...config, colunas_visiveis: colunasMigradas }
+
+      const configJson = serializarConfigListaPainel(config)
+
+      void paineisListaBidFreteApi.atualizar(painel.id, { config_json: configJson })
+
+      setPaineis(prev => prev.map(p => (p.id === painel.id ? { ...p, config_json: configJson } : p)))
 
     }
 

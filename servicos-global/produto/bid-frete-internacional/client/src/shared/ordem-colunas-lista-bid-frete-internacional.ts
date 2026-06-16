@@ -60,3 +60,50 @@ export const ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL: readonly string[] = [
   ...CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
   ...CHAVES_COLUNAS_OCULTAS_PADRAO_LISTA,
 ]
+
+/**
+ * Reordena colunas visíveis salvas pelo usuário para a ordem canônica da lista.
+ * Preserva quais colunas estão visíveis; colunas custom (fora do catálogo) vão ao final.
+ * Se prefs inválidas ou legado, retorna o conjunto padrão visível.
+ */
+export function normalizarColunasVisiveisListaBidFrete(
+  colunasVisiveis: readonly string[],
+  chavesCatalogo: readonly string[] = ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
+  colunasPadraoVisiveis: readonly string[] = CHAVES_COLUNAS_PADRAO_VISIVEIS_LISTA,
+): string[] {
+  const catalogoSet = new Set(chavesCatalogo)
+  const validas = colunasVisiveis
+    .filter(k => catalogoSet.has(k))
+    .filter(k => k !== 'id_cotacao_bid_frete_internacional')
+
+  const hasIntlCore = validas.includes('numero_cotacao_bid_frete_internacional')
+  if (!hasIntlCore || validas.length < 3) {
+    return [...colunasPadraoVisiveis]
+  }
+
+  const faltantes = colunasPadraoVisiveis.filter(k => !validas.includes(k))
+  const visiveisSet = new Set([...validas, ...faltantes])
+
+  const ordenadas: string[] = []
+  const usadas = new Set<string>()
+  for (const key of chavesCatalogo) {
+    if (visiveisSet.has(key)) {
+      ordenadas.push(key)
+      usadas.add(key)
+    }
+  }
+  for (const key of validas) {
+    if (!usadas.has(key)) ordenadas.push(key)
+  }
+  return ordenadas
+}
+
+export function ordemColunasVisiveisDivergeDaCanonica(
+  colunasVisiveis: readonly string[],
+  chavesCatalogo: readonly string[] = ORDEM_COLUNAS_LISTA_BID_FRETE_INTERNACIONAL,
+): boolean {
+  if (colunasVisiveis.length === 0) return false
+  const normalizadas = normalizarColunasVisiveisListaBidFrete(colunasVisiveis, chavesCatalogo)
+  return normalizadas.some((key, idx) => key !== colunasVisiveis[idx])
+    || normalizadas.length !== colunasVisiveis.length
+}

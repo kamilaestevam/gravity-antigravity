@@ -166,6 +166,10 @@ import {
   enriquecerCotacoesComColunasUsuario,
   salvarValorColunaUsuarioBidFrete,
 } from '../shared/valores-colunas-usuario-bid-frete-internacional'
+import {
+  lerPreferenciasTabelaListaBidFrete,
+  migrarPreferenciasColunasListaBidFreteSeNecessario,
+} from '../shared/preferencias-colunas-lista-bid-frete-internacional'
 
 /** Gera abas dinâmicas a partir da lista de status config */
 function gerarAbasDinamicas(
@@ -180,57 +184,10 @@ function gerarAbasDinamicas(
 
 // ─── Colunas padrão = todas as colunas escalares do banco ───
 
-/** Incrementar quando adicionar colunas ao schema — força reset das prefs salvas. */
-const VERSAO_COLUNAS_LISTA = 5
-const STORAGE_COLUNAS_VERSAO = 'bid-frete-internacional:config:tabela_colunas_versao'
-const STORAGE_PREFS_INTL = 'bid-frete-internacional:config:tabela_preferencias'
-const STORAGE_PREFS_LEGADO = 'bid-frete:config:tabela_preferencias'
-
 const COLUNAS_PADRAO_VISIVEIS = CHAVES_COLUNAS_PADRAO_VISIVEIS
 
-function migrarPreferenciasColunasSeNecessario(): void {
-  try {
-    const versaoSalva = Number(localStorage.getItem(STORAGE_COLUNAS_VERSAO) ?? '1')
-    if (versaoSalva >= VERSAO_COLUNAS_LISTA) return
-    localStorage.removeItem(STORAGE_PREFS_INTL)
-    localStorage.removeItem(STORAGE_PREFS_LEGADO)
-    localStorage.setItem(STORAGE_COLUNAS_VERSAO, String(VERSAO_COLUNAS_LISTA))
-  } catch { /* storage indisponível */ }
-}
-
 function lerPreferenciasTabela(): GTPreferencias | undefined {
-  migrarPreferenciasColunasSeNecessario()
-  try {
-    let raw = localStorage.getItem(STORAGE_PREFS_INTL)
-    if (!raw) {
-      raw = localStorage.getItem(STORAGE_PREFS_LEGADO)
-    }
-    if (!raw) return undefined
-    const parsed = JSON.parse(raw) as GTPreferencias
-    if (!parsed || !Array.isArray(parsed.colunas_visiveis)) {
-      return undefined
-    }
-
-    const colunasValidas = parsed.colunas_visiveis
-      .filter(k => CHAVES_COLUNAS_COTACAO.includes(k))
-      .filter(k => k !== 'id_cotacao_bid_frete_internacional')
-    const faltantes = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => !colunasValidas.includes(k))
-
-    const hasIntlCore = colunasValidas.includes('numero_cotacao_bid_frete_internacional')
-    if (!hasIntlCore || colunasValidas.length < 3) {
-      return undefined
-    }
-
-    const visiveisSet = new Set([...colunasValidas, ...faltantes])
-    const colunasVisiveis = CHAVES_COLUNAS_PADRAO_VISIVEIS.filter(k => visiveisSet.has(k))
-
-    return {
-      ...parsed,
-      colunas_visiveis: colunasVisiveis,
-    }
-  } catch {
-    return undefined
-  }
+  return lerPreferenciasTabelaListaBidFrete(CHAVES_COLUNAS_COTACAO)
 }
 
 export default function Cotacoes() {
@@ -710,6 +667,7 @@ export default function Cotacoes() {
     aplicarConfigDoPainel(painelListaAtual, listaPainelCallbacks)
 
     if (!migrouLocalStoragePainelRef.current) {
+      migrarPreferenciasColunasListaBidFreteSeNecessario()
       const prefsLocal = lerPreferenciasTabela()
       const configAtual = parsearConfigListaPainelSeguro(
         painelListaAtual.config_json,

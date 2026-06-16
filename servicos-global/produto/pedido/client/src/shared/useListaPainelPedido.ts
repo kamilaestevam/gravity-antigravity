@@ -52,6 +52,8 @@ export interface SnapshotAplicarListaPainel {
 export interface PersistirPainelOpcoes {
   /** Grava na API sem debounce — uso em toggle de colunas e demais prefs críticas. */
   imediato?: boolean
+  /** Reordenar colunas, sort, toggle — persiste mesmo antes da hidratação do painel. */
+  acaoUsuario?: boolean
 }
 
 function estadoParaConfig(estado: EstadoListaParaPainel): ListaPainelConfigV1 {
@@ -78,11 +80,19 @@ function estadoParaConfig(estado: EstadoListaParaPainel): ListaPainelConfigV1 {
   })
 }
 
+function mensagemErroPersistirPainel(err: unknown): string {
+  const detalhe = err instanceof Error ? err.message.trim() : ''
+  return detalhe
+    ? `Não foi possível salvar o painel. ${detalhe}`
+    : 'Não foi possível salvar o painel da lista.'
+}
+
 export function useListaPainelPedido() {
   const idOrganizacao = useShellStore(
     s => s.currentUser.idOrganizacao ?? (import.meta.env.VITE_DEV_ID_ORGANIZACAO as string | undefined) ?? '',
   )
   const idUsuario = useShellStore(s => s.currentUser.id ?? '')
+  const addNotification = useShellStore(s => s.addNotification)
   const podeCarregar = Boolean(idOrganizacao && idUsuario)
 
   const [paineis, setPaineis] = useState<ListaPainel[]>([])
@@ -93,6 +103,7 @@ export function useListaPainelPedido() {
   const estadoRef = useRef<EstadoListaParaPainel | null>(null)
   const aplicandoConfigRef = useRef(false)
   const painelHidratadoIdRef = useRef<string | null>(null)
+  const persistenciaPendenteAposConfigRef = useRef<EstadoListaParaPainel | null>(null)
   const cargaPaineisSeqRef = useRef(0)
 
   useEffect(() => {
@@ -128,6 +139,14 @@ export function useListaPainelPedido() {
     }
     void carregarPaineis()
   }, [podeCarregar, carregarPaineis])
+
+  const executarPersistencia = useCallback((id: string, estado: EstadoListaParaPainel) => {
+    const configJson = JSON.stringify(estadoParaConfig(estado))
+    paineisListaApi.atualizar(id, { config_json: configJson }).catch(err => {
+      console.warn('[useListaPainelPedido] falha ao persistir painel', id, err)
+      addNotification({ type: 'error', message: mensagemErroPersistirPainel(err) })
+    })
+  }, [addNotification])
 
   const aplicarConfigDoPainel = useCallback((
     painel: ListaPainel,
@@ -170,15 +189,13 @@ export function useListaPainelPedido() {
       aplicandoConfigRef.current = false
       painelHidratadoIdRef.current = painel.id
       callbacks.onPainelHidratado?.(painel.id)
+      const pendente = persistenciaPendenteAposConfigRef.current
+      if (pendente && painelAtualIdRef.current === painel.id) {
+        persistenciaPendenteAposConfigRef.current = null
+        executarPersistencia(painel.id, pendente)
+      }
     })
-  }, [])
-
-  const executarPersistencia = useCallback((id: string, estado: EstadoListaParaPainel) => {
-    const configJson = JSON.stringify(estadoParaConfig(estado))
-    paineisListaApi.atualizar(id, { config_json: configJson }).catch(err => {
-      console.warn('[useListaPainelPedido] falha ao persistir painel', id, err)
-    })
-  }, [])
+  }, [executarPersistencia])
 
   const persistirPainelAtual = useCallback((
     estado: EstadoListaParaPainel,
@@ -186,7 +203,25 @@ export function useListaPainelPedido() {
   ) => {
     estadoRef.current = estado
     const id = painelAtualIdRef.current
-    if (!podePersistirPainelLista(id, aplicandoConfigRef.current, painelHidratadoIdRef.current)) return
+    const opcoesPersistencia = opcoes?.acaoUsuario ? { acaoUsuario: true as const } : undefined
+
+    if (!id) return
+
+    if (aplicandoConfigRef.current) {
+      if (opcoes?.acaoUsuario) {
+        persistenciaPendenteAposConfigRef.current = estado
+      }
+      return
+    }
+
+    if (!podePersistirPainelLista(
+      id,
+      aplicandoConfigRef.current,
+      painelHidratadoIdRef.current,
+      opcoesPersistencia,
+    )) {
+      return
+    }
 
     if (persistTimerRef.current) {
       clearTimeout(persistTimerRef.current)
@@ -203,7 +238,13 @@ export function useListaPainelPedido() {
       const idAtual = painelAtualIdRef.current
       const estadoAtual = estadoRef.current
       if (!idAtual || !estadoAtual) return
-      if (!podePersistirPainelLista(idAtual, aplicandoConfigRef.current, painelHidratadoIdRef.current)) return
+      if (!podePersistirPainelLista(
+        idAtual,
+        aplicandoConfigRef.current,
+        painelHidratadoIdRef.current,
+      )) {
+        return
+      }
       executarPersistencia(idAtual, estadoAtual)
     }, 400)
   }, [executarPersistencia])
@@ -232,6 +273,7 @@ export function useListaPainelPedido() {
       const configJson = JSON.stringify(estadoParaConfig(estadoAtual))
       await paineisListaApi.atualizar(idAnterior, { config_json: configJson }).catch(err => {
         console.warn('[useListaPainelPedido] falha ao salvar painel anterior', idAnterior, err)
+        addNotification({ type: 'error', message: mensagemErroPersistirPainel(err) })
       })
     }
 
@@ -243,7 +285,7 @@ export function useListaPainelPedido() {
 
     setPainelAtualId(id)
     aplicarConfigDoPainel(proximo, callbacks)
-  }, [paineis, aplicarConfigDoPainel])
+  }, [paineis, aplicarConfigDoPainel, addNotification])
 
   const criarPainel = useCallback(async (
     nome: string,

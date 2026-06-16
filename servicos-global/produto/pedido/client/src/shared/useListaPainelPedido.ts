@@ -142,10 +142,16 @@ export function useListaPainelPedido() {
 
   const executarPersistencia = useCallback((id: string, estado: EstadoListaParaPainel) => {
     const configJson = JSON.stringify(estadoParaConfig(estado))
-    paineisListaApi.atualizar(id, { config_json: configJson }).catch(err => {
-      console.warn('[useListaPainelPedido] falha ao persistir painel', id, err)
-      addNotification({ type: 'error', message: mensagemErroPersistirPainel(err) })
-    })
+    void paineisListaApi.atualizar(id, { config_json: configJson })
+      .then(() => {
+        setPaineis(prev => prev.map(p => (
+          p.id === id ? { ...p, config_json: configJson } : p
+        )))
+      })
+      .catch(err => {
+        console.warn('[useListaPainelPedido] falha ao persistir painel', id, err)
+        addNotification({ type: 'error', message: mensagemErroPersistirPainel(err) })
+      })
   }, [addNotification])
 
   const aplicarConfigDoPainel = useCallback((

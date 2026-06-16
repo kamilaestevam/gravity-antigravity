@@ -122,7 +122,7 @@ jobs:
           npx prisma migrate deploy \
             --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
         env:
-          DATABASE_URL: ${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}
+          ORGANIZACAO_DATABASE_URL: ${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}
 
       - name: Aplicar migrations — Pedido DB (Staging)
         if: steps.flags.outputs.migrations_aplicadas == 'true'
@@ -203,9 +203,9 @@ jobs:
       - name: "Verificar paridade — Tenant DB (T vs P)"
         run: |
           echo "Verificando paridade de migrations no Tenant DB..."
-          STAGING_STATUS=$(DATABASE_URL=$STAGING_TENANT_URL npx prisma migrate status \
+          STAGING_STATUS=$(ORGANIZACAO_DATABASE_URL=$STAGING_TENANT_URL npx prisma migrate status \
             --schema=servicos-global/servicos-plataforma/prisma/schema.prisma 2>&1)
-          PROD_STATUS=$(DATABASE_URL=$PROD_ORGANIZACAO_URL npx prisma migrate status \
+          PROD_STATUS=$(ORGANIZACAO_DATABASE_URL=$PROD_ORGANIZACAO_URL npx prisma migrate status \
             --schema=servicos-global/servicos-plataforma/prisma/schema.prisma 2>&1)
 
           STAGING_MIGS=$(echo "$STAGING_STATUS" | grep -c "migration name" || echo "0")
@@ -272,10 +272,11 @@ jobs:
       - name: Aplicar migrations — Tenant DB (Produção)
         if: steps.flags.outputs.migrations_aplicadas == 'true'
         run: |
+          npx tsx scripts/ativamente/compose-plataforma-schema.ts
           npx prisma migrate deploy \
             --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
         env:
-          DATABASE_URL: ${{ secrets.PROD_ORGANIZACAO_DATABASE_URL }}
+          ORGANIZACAO_DATABASE_URL: ${{ secrets.PROD_ORGANIZACAO_DATABASE_URL }}
 
       - name: Aplicar migrations — Pedido DB (Produção)
         if: steps.flags.outputs.migrations_aplicadas == 'true'

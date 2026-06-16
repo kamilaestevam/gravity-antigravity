@@ -16,6 +16,18 @@ dotenv.config({ path: resolve(__dir, '../../../.env.local') })
 // ATENÇÃO: __dir aponta para server/ — por isso '../.env' e não '.env'
 dotenv.config({ path: resolve(__dir, '../.env') })
 
+// Banco servicos-plataforma (api-cockpit, gabi, historico) — alias comum no Railway
+if (!process.env.ORGANIZACAO_DATABASE_URL) {
+  const orgDb =
+    process.env.SERVICOS_PLATAFORMA_DATABASE_URL ??
+    process.env.TENANT_DATABASE_URL ??
+    ''
+  if (orgDb) {
+    process.env.ORGANIZACAO_DATABASE_URL = orgDb
+    console.log('[configurador] ORGANIZACAO_DATABASE_URL derivada de alias de ambiente')
+  }
+}
+
 // Fail-fast: validar env vars criticas antes de qualquer import
 const requiredEnvVars = ['CONFIGURADOR_DATABASE_URL', 'CLERK_SECRET_KEY', 'CHAVE_INTERNA_SERVICO'] as const
 for (const envVar of requiredEnvVars) {
@@ -756,8 +768,9 @@ if (process.env.NODE_ENV !== 'test') {
   process.env.PORT = portaOriginal
   process.env.DATABASE_URL = dbOriginal
   process.env.TAXAS_MOEDA_URL = process.env.TAXAS_MOEDA_URL ?? 'http://127.0.0.1:8032'
-  process.env.API_COCKPIT_SERVICE_URL = process.env.API_COCKPIT_SERVICE_URL ?? 'http://127.0.0.1:8016'
-  process.env.GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
+  // Sidecars embutidos — sempre loopback; ignora URLs externas legadas no Railway
+  process.env.API_COCKPIT_SERVICE_URL = 'http://127.0.0.1:8016'
+  process.env.GABI_SERVICE_URL = 'http://127.0.0.1:8009'
   } // fim !devPm2 — sidecars embutidos
 
   async function aplicarMigrationsBidFreteDev(): Promise<void> {

@@ -56,3 +56,18 @@ export function rotuloExibicaoPainelLista(
     nomeSalvo,
   }
 }
+
+/** Input de rename — painéis genéricos (ex.: Principal → Padrão) começam vazios; placeholder = exibição. */
+export function valorInputRenomearPainelLista(
+  painel: Pick<ListaPainel, 'id' | 'nome' | 'ordem'>,
+  paineis: readonly Pick<ListaPainel, 'id' | 'nome' | 'ordem'>[],
+): string {
+  const { ehGenerico } = rotuloExibicaoPainelLista(painel, paineis)
+  return ehGenerico ? '' : painel.nome.trim()
+}
+
+export function deveSalvarRenomearPainelLista(nomeAtual: string, nomeDigitado: string): boolean {
+  const trimmed = nomeDigitado.trim()
+  if (!trimmed) return false
+  return trimmed !== nomeAtual.trim()
+}

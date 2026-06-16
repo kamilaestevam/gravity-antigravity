@@ -61,6 +61,8 @@ Na primeira carga, preferências em `localStorage` (`bid-frete-internacional:con
 
 `BidFreteListaPainelBar` na visão lista de `lista-bid-frete-internacional.tsx`.
 
+**Renomear aba Padrão:** ver [§5.2 do contrato Pedido](../pedido/PAINEL-LISTA-CONTRATO.md#52-rótulo-e-renomear-painel-task-000288) — banco `Principal`, UI `Padrão`, input vazio ao renomear.
+
 ---
 
 ## Filtros de coluna (paridade Pedido — TASK-000269)

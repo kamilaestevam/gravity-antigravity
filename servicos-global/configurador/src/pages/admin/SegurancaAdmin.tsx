@@ -905,7 +905,7 @@ export function SegurancaAdmin() {
                 <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--ws-text, #f1f5f9)', marginBottom: '0.75rem' }}>
                   Política de Rotação de Chaves (F-06)
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
+                <div className="cg-kpi-row" style={{ marginBottom: 0 }}>
                   {chavesComPolitica.map(s => (
                     <TooltipGlobal key={s.name} titulo={s.name} descricao={`${s.descricao}. Política: ${s.politica_dias} dias${s.proxima_rotacao ? `. Próxima: ${new Date(s.proxima_rotacao).toLocaleDateString('pt-BR')}` : ''}`}>
                       <CardBasicoGlobal titulo={s.descricao || s.name} valor={valorCard(s)} icone={<Key weight="fill" size={20} />} variante={s.status_rotacao === 'EXPIRADA' ? 'perigo' : s.status_rotacao === 'EXPIRANDO' ? 'aviso' : 'sucesso'} />

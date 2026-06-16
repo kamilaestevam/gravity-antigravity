@@ -5,6 +5,12 @@ set -euo pipefail
 
 echo "[start-site] Iniciando site-usegravity..."
 
+export ORGANIZACAO_DATABASE_URL="${ORGANIZACAO_DATABASE_URL:-${SERVICOS_PLATAFORMA_DATABASE_URL:-${TENANT_DATABASE_URL:-}}}"
+if [ -z "${ORGANIZACAO_DATABASE_URL:-}" ]; then
+  echo "[start-site] AVISO CRITICO: ORGANIZACAO_DATABASE_URL ausente — api-cockpit/GABI/migrations plataforma desativados."
+  echo "[start-site] Railway → site-usegravity → Variables → ORGANIZACAO_DATABASE_URL = DATABASE_URL do Postgres gravity-servicos-prod"
+fi
+
 if [ -n "${BID_FRETE_INTERNATIONAL_DATABASE_URL:-}" ]; then
   echo "[start-site] Aplicando migrations BID Frete Internacional (gravity-bid-frete-internacional-producao)..."
   if npx tsx scripts/ativamente/aplicar-migrations-bid-frete-internacional.ts; then

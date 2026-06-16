@@ -5,6 +5,7 @@
  * GET  /mapa-cotacoes
  * GET  /cotacoes-pendentes
  * GET  /propostas
+ * DELETE /propostas/:id_proposta_bid_frete_internacional
  * POST /responder/:id_disparo_cotacao_bid_frete_internacional
  * GET  /desempenho
  * GET  /cobranca
@@ -30,6 +31,7 @@ import {
 } from '../lib/enriquecer-disparo-resposta-fornecedor-bid-frete-internacional.js'
 import { resolverFornecedorLogado } from '../lib/resolver-fornecedor-logado-bid-frete-internacional.js'
 import { montarMapaCotacoesVisaoFornecedorBidFreteInternacional } from '../lib/mapa-cotacoes-visao-fornecedor-bid-frete-internacional.js'
+import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -66,6 +68,8 @@ const STATUS_PROPOSTA_EM_ANALISE = [
   'MELHOR_TRANSIT',
   'MELHOR_AVALIACAO',
 ] as const
+
+const STATUS_PROPOSTA_NAO_EXCLUIVEL = ['APROVADA', 'REPROVADA'] as const
 
 router.get('/dashboard', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -338,6 +342,87 @@ router.get('/propostas', async (req: Request, res: Response, next: NextFunction)
           total,
           paginas: Math.ceil(total / Number(limit)),
         },
+      },
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.delete('/propostas/:id_proposta_bid_frete_internacional', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const fornecedor = await resolverFornecedorLogado(req)
+    const proposta = await (req.prisma as any).propostaBidFreteInternacional.findFirst({
+      where: {
+        id_proposta_bid_frete_internacional: req.params.id_proposta_bid_frete_internacional,
+        id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
+      },
+      select: {
+        id_proposta_bid_frete_internacional: true,
+        id_disparo_cotacao_bid_frete_internacional: true,
+        id_cotacao_bid_frete_internacional: true,
+        status_proposta_bid_frete_internacional: true,
+        cotacao: {
+          select: { status_cotacao_bid_frete_internacional: true },
+        },
+      },
+    })
+
+    if (!proposta) {
+      throw new AppError('Proposta nao encontrada', 404, 'NOT_FOUND')
+    }
+
+    if (
+      STATUS_PROPOSTA_NAO_EXCLUIVEL.includes(
+        proposta.status_proposta_bid_frete_internacional as (typeof STATUS_PROPOSTA_NAO_EXCLUIVEL)[number],
+      )
+    ) {
+      throw new AppError(
+        'Nao e possivel excluir proposta aprovada ou reprovada',
+        400,
+        'INVALID_STATUS',
+      )
+    }
+
+    await (req.prisma as any).$transaction([
+      (req.prisma as any).propostaBidFreteInternacional.delete({
+        where: { id_proposta_bid_frete_internacional: proposta.id_proposta_bid_frete_internacional },
+      }),
+      (req.prisma as any).disparoCotacaoBidFreteInternacional.update({
+        where: { id_disparo_cotacao_bid_frete_internacional: proposta.id_disparo_cotacao_bid_frete_internacional },
+        data: {
+          status_disparo_cotacao_bid_frete_internacional: 'VISUALIZADO',
+          data_resposta_disparo_cotacao_bid_frete_internacional: null,
+        },
+      }),
+    ])
+
+    const totalRespondidos = await (req.prisma as any).disparoCotacaoBidFreteInternacional.count({
+      where: {
+        id_cotacao_bid_frete_internacional: proposta.id_cotacao_bid_frete_internacional,
+        status_disparo_cotacao_bid_frete_internacional: 'RESPONDIDO',
+      },
+    })
+
+    if (totalRespondidos === 0) {
+      const statusAtual = proposta.cotacao?.status_cotacao_bid_frete_internacional
+      if (statusAtual === 'AGUARDANDO_APROVACAO') {
+        await (req.prisma as any).cotacaoBidFreteInternacional.update({
+          where: { id_cotacao_bid_frete_internacional: proposta.id_cotacao_bid_frete_internacional },
+          data: { status_cotacao_bid_frete_internacional: 'EM_COTACAO' },
+        })
+      }
+    } else {
+      await sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional(
+        req.prisma!,
+        proposta.id_cotacao_bid_frete_internacional,
+        proposta.cotacao?.status_cotacao_bid_frete_internacional,
+      )
+    }
+
+    res.json({
+      visao_fornecedor_bid_frete_internacional: {
+        excluido_visao_fornecedor_bid_frete_internacional: true,
       },
     })
   } catch (err) {

@@ -35,7 +35,7 @@ import {
   ArrowLeft,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import {
@@ -160,9 +160,9 @@ function fornecedorParaForm(fornecedor: Fornecedor | null): FormState {
     cidade: fornecedor?.cidade_fornecedor ?? '',
     endereco: fornecedor?.endereco_fornecedor ?? '',
     zipcode: fornecedor?.cep_zipcode_fornecedor ?? '',
-    email: fornecedor?.email_principal_fornecedor ?? '',
-    telefone: fornecedor?.telefone_principal_fornecedor ?? '',
-    whatsapp: fornecedor?.whatsapp_principal_fornecedor ?? '',
+    email: fornecedor?.email_fornecedor ?? '',
+    telefone: fornecedor?.telefone_fornecedor ?? '',
+    whatsapp: fornecedor?.whatsapp_fornecedor ?? '',
     papeis: {
       pode_ser_importador: fornecedor?.pode_ser_importador_fornecedor ?? false,
       pode_ser_exportador: fornecedor?.pode_ser_exportador_fornecedor ?? false,
@@ -218,9 +218,9 @@ function formParaPayloadCriar(form: FormState, idOrganizacao: string): Record<st
     cidade_fornecedor:   form.cidade.trim() || null,
     endereco_fornecedor: form.endereco.trim() || null,
     cep_zipcode_fornecedor:  form.zipcode.trim() || null,
-    email_principal_fornecedor:    form.email.trim() || null,
-    telefone_principal_fornecedor: form.telefone.trim() || null,
-    whatsapp_principal_fornecedor: form.whatsapp.trim() || null,
+    email_fornecedor:    form.email.trim() || null,
+    telefone_fornecedor: form.telefone.trim() || null,
+    whatsapp_fornecedor: form.whatsapp.trim() || null,
     ...papeisParaPayload(form.papeis),
     ativo_fornecedor:    form.ativo,
   }
@@ -237,9 +237,9 @@ function formParaPayloadAtualizar(form: FormState): Record<string, unknown> {
     cidade_fornecedor:   form.cidade.trim() || null,
     endereco_fornecedor: form.endereco.trim() || null,
     cep_zipcode_fornecedor:  form.zipcode.trim() || null,
-    email_principal_fornecedor:    form.email.trim() || null,
-    telefone_principal_fornecedor: form.telefone.trim() || null,
-    whatsapp_principal_fornecedor: form.whatsapp.trim() || null,
+    email_fornecedor:    form.email.trim() || null,
+    telefone_fornecedor: form.telefone.trim() || null,
+    whatsapp_fornecedor: form.whatsapp.trim() || null,
     ...papeisParaPayload(form.papeis),
     ativo_fornecedor:    form.ativo,
   }
@@ -456,7 +456,7 @@ export function ModalEditarFornecedor({ fornecedor, idOrganizacao, aoFechar, aoS
         // Mapeia chaves do schema (sufixo _empresa) para chaves curtas usadas no
         // JSX/erro(): whatsapp_principal_fornecedor → whatsapp, etc. Sem isso o destaque
         // visual nunca casa e o usuario fica no escuro (ponto cego).
-        const SUFIXO = '_empresa'
+        const SUFIXO = '_fornecedor'
         const campos: Record<string, string> = {}
         for (const issue of pre.error.issues) {
           const raw = issue.path.join('.') || 'geral'
@@ -493,7 +493,16 @@ export function ModalEditarFornecedor({ fornecedor, idOrganizacao, aoFechar, aoS
         return
       }
       const raw = await res.json()
-      const salva = fornecedorSchema.parse(raw)
+      const parsed = fornecedorSchema.safeParse(raw)
+      if (!parsed.success) {
+        console.error('[ModalEditarFornecedor] resposta da API fora do contrato:', parsed.error.flatten(), raw)
+        addNotification({
+          type: 'error',
+          message: 'Resposta da API incompatível com o contrato de fornecedor. Detalhes no console (F12).',
+        })
+        return
+      }
+      const salva = parsed.data
       addNotification({
         type: 'success',
         message: modoEdicao ? `Fornecedor "${salva.nome_fornecedor}" atualizado.` : `Fornecedor "${salva.nome_fornecedor}" criado.`,
@@ -501,7 +510,8 @@ export function ModalEditarFornecedor({ fornecedor, idOrganizacao, aoFechar, aoS
       aoSalvar(salva)
     } catch (err) {
       console.error('[ModalEditarFornecedor] erro ao salvar:', err)
-      addNotification({ type: 'error', message: 'Erro inesperado ao salvar fornecedor.' })
+      const msg = err instanceof Error ? err.message : 'Erro inesperado ao salvar fornecedor.'
+      addNotification({ type: 'error', message: msg })
     } finally {
       setEnviando(false)
     }
@@ -510,176 +520,194 @@ export function ModalEditarFornecedor({ fornecedor, idOrganizacao, aoFechar, aoS
   const erro = (campo: string): string | undefined => erroCampos[campo]
   const corErro = '#f87171'
 
-  return (
-    <ModalFormularioGlobal
-      aberto={true}
-      aoFechar={aoFechar}
-      aoSalvar={handleSalvar}
-      carregando={enviando}
-      icone={<Buildings size={20} weight="duotone" />}
-      titulo={modoEdicao ? 'Editar Fornecedor' : 'Novo Fornecedor'}
-      subtitulo={
-        modoEdicao
-          ? `Ajuste os dados e papéis de ${fornecedor?.nome_fornecedor ?? ''}`
-          : 'Cadastre terceiros COMEX (importador, exportador, agente…). Em exportação, o importador pode atuar como cliente na operação.'
-      }
-      tamanho="lg"
-      altura="auto"
-      dirty={true}
-      podesSalvar={podeSalvar}
-      rodapeEsquerdo={urlRetorno ? (
-        <>
-          <style>{`
-            @keyframes ws-retorno-pulse {
-              0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
-              50% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
-            }
-          `}</style>
-          <button
-            type="button"
-            onClick={() => {
-              try { window.location.href = decodeURIComponent(urlRetorno) } catch { /* noop */ }
-            }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              padding: '0.35rem 0.85rem',
-              borderRadius: '9999px',
-              border: '1px solid rgba(99, 102, 241, 0.4)',
-              background: 'rgba(99, 102, 241, 0.12)',
-              color: '#a5b4fc',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              animation: 'ws-retorno-pulse 2s ease-in-out infinite',
-              transition: 'background 0.15s, color 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.25)'; e.currentTarget.style.color = '#c7d2fe' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.12)'; e.currentTarget.style.color = '#a5b4fc' }}
-          >
-            <ArrowLeft size={14} weight="bold" />
-            {rotuloUrlRetorno(urlRetorno)}
-          </button>
-        </>
-      ) : undefined}
-    >
-      <BannerRequisitosContexto requisitos={requisitos}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+  const botaoRetorno = urlRetorno ? (
+    <>
+      <style>{`
+        @keyframes ws-retorno-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+          50% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); }
+        }
+      `}</style>
+      <button
+        type="button"
+        onClick={() => {
+          try { window.location.href = decodeURIComponent(urlRetorno) } catch { /* noop */ }
+        }}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.4rem',
+          padding: '0.35rem 0.85rem',
+          borderRadius: '9999px',
+          border: '1px solid rgba(99, 102, 241, 0.4)',
+          background: 'rgba(99, 102, 241, 0.12)',
+          color: '#a5b4fc',
+          fontSize: '0.75rem',
+          fontWeight: 600,
+          cursor: 'pointer',
+          animation: 'ws-retorno-pulse 2s ease-in-out infinite',
+          transition: 'background 0.15s, color 0.15s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.25)'; e.currentTarget.style.color = '#c7d2fe' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.12)'; e.currentTarget.style.color = '#a5b4fc' }}
+      >
+        <ArrowLeft size={14} weight="bold" />
+        {rotuloUrlRetorno(urlRetorno)}
+      </button>
+    </>
+  ) : undefined
 
-        {/* ── Identificação ────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.875rem' }}>
-          <CampoGeralGlobal label="NOME DO FORNECEDOR" obrigatorio>
-            <div className="ws-input-icon-wrap">
-              <Buildings size={16} />
-              <input
-                value={form.nome_fornecedor}
-                onChange={(e) => setCampo('nome_fornecedor', e.target.value)}
-                placeholder="Ex: ACME Importadora Ltda"
-                style={{ width: '100%', borderColor: (erro('nome_fornecedor') || camposComRequisitoFaltando.has('nome_fornecedor')) ? corErro : undefined }}
+  const abas: AbaFormulario[] = [
+    {
+      id: 'dados-gerais',
+      rotulo: 'Dados Gerais',
+      conteudo: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.875rem' }}>
+            <CampoGeralGlobal label="NOME DO FORNECEDOR" obrigatorio>
+              <div className="ws-input-icon-wrap">
+                <Buildings size={16} />
+                <input
+                  value={form.nome_fornecedor}
+                  onChange={(e) => setCampo('nome_fornecedor', e.target.value)}
+                  placeholder="Ex: ACME Importadora Ltda"
+                  style={{ width: '100%', borderColor: (erro('nome_fornecedor') || camposComRequisitoFaltando.has('nome_fornecedor')) ? corErro : undefined }}
+                />
+              </div>
+              {erro('nome_fornecedor') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('nome_fornecedor')}</span>}
+            </CampoGeralGlobal>
+
+            <CampoGeralGlobal label="PAÍS" obrigatorio>
+              <SelectGlobal
+                iconeEsquerda={<MapPinLine size={16} />}
+                opcoes={opcoesPaises}
+                valor={form.pais || null}
+                aoMudarValor={(v) => {
+                  const novoPais = String(v ?? '')
+                  setForm((prev) => ({
+                    ...prev,
+                    pais: novoPais,
+                    cnpj: novoPais === 'BR' ? prev.cnpj : '',
+                    tin:  novoPais !== 'BR' ? prev.tin  : '',
+                  }))
+                }}
+                placeholder={carregandoPaises ? 'Carregando países...' : 'Selecione o país...'}
+                buscavel
+                carregando={carregandoPaises}
               />
-            </div>
-            {erro('nome_fornecedor') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('nome_fornecedor')}</span>}
+              {erro('pais') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('pais')}</span>}
+            </CampoGeralGlobal>
+          </div>
+
+          {ehBr ? (
+            <CampoGeralGlobal label="CNPJ">
+              <div className="ws-input-icon-wrap">
+                <IdentificationCard size={16} />
+                <input
+                  value={form.cnpj}
+                  onChange={(e) => setCampo('cnpj', formatarCNPJ(e.target.value))}
+                  placeholder="XX.XXX.XXX/XXXX-XX"
+                  style={{ width: '100%', borderColor: (erro('cnpj') || camposComRequisitoFaltando.has('cnpj')) ? corErro : undefined }}
+                />
+              </div>
+              {erro('cnpj') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('cnpj')}</span>}
+              {!erro('cnpj') && form.cnpj.trim().length > 0 && !validarCNPJ(form.cnpj) && (
+                <span style={{ color: corErro, fontSize: '0.75rem' }}>CNPJ inválido — verifique os dígitos</span>
+              )}
+            </CampoGeralGlobal>
+          ) : (
+            <CampoGeralGlobal label="TIN (documento estrangeiro)">
+              <div className="ws-input-icon-wrap">
+                <IdentificationCard size={16} />
+                <input
+                  value={form.tin}
+                  onChange={(e) => setCampo('tin', e.target.value)}
+                  placeholder="Ex: US-EIN-123456789"
+                  style={{ width: '100%', borderColor: erro('tin') ? corErro : undefined }}
+                />
+              </div>
+              {erro('tin') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('tin')}</span>}
+            </CampoGeralGlobal>
+          )}
+
+          <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.4fr 0.9fr', gap: '0.875rem' }}>
+            <CampoGeralGlobal label="ESTADO/UF">
+              <SelectGlobal
+                iconeEsquerda={<MapPin size={16} />}
+                opcoes={OPCOES_ESTADOS}
+                valor={form.estado || null}
+                aoMudarValor={(v) => {
+                  setForm((prev) => ({ ...prev, estado: String(v ?? ''), cidade: '' }))
+                }}
+                placeholder="Selecione..."
+                buscavel
+              />
+            </CampoGeralGlobal>
+            <CampoGeralGlobal label="CIDADE">
+              <SelectGlobal
+                iconeEsquerda={<MapPin size={16} />}
+                opcoes={cidades}
+                valor={form.cidade || null}
+                aoMudarValor={(v) => setCampo('cidade', String(v ?? ''))}
+                placeholder={form.estado ? 'Selecione a cidade' : 'Selecione o estado...'}
+                buscavel
+                desabilitado={!form.estado}
+                carregando={carregandoCidades}
+              />
+            </CampoGeralGlobal>
+            <CampoGeralGlobal label="CEP / ZIPCODE">
+              <input value={form.zipcode} onChange={(e) => setCampo('zipcode', formatarCEP(e.target.value))} placeholder="01000-000" style={{ width: '100%' }} />
+            </CampoGeralGlobal>
+          </div>
+
+          <CampoGeralGlobal label="ENDEREÇO">
+            <input
+              value={form.endereco}
+              onChange={(e) => setCampo('endereco', e.target.value)}
+              placeholder="Rua, número, complemento"
+              style={{ width: '100%' }}
+            />
           </CampoGeralGlobal>
 
-          <CampoGeralGlobal label="PAÍS" obrigatorio>
-            <SelectGlobal
-              iconeEsquerda={<MapPinLine size={16} />}
-              opcoes={opcoesPaises}
-              valor={form.pais || null}
-              aoMudarValor={(v) => {
-                const novoPais = String(v ?? '')
-                // Ao mudar de BR → estrangeiro, limpa CNPJ; ao mudar de
-                // estrangeiro → BR, limpa TIN. Coerência com regra do schema
-                // Zod (cnpj só com país=BR; tin só com país≠BR).
-                setForm((prev) => ({
-                  ...prev,
-                  pais: novoPais,
-                  cnpj: novoPais === 'BR' ? prev.cnpj : '',
-                  tin:  novoPais !== 'BR' ? prev.tin  : '',
-                }))
+          <div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '0.5rem',
               }}
-              placeholder={carregandoPaises ? 'Carregando países...' : 'Selecione o país...'}
-              buscavel
-              carregando={carregandoPaises}
-            />
-            {erro('pais') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('pais')}</span>}
-          </CampoGeralGlobal>
-        </div>
-
-        {ehBr ? (
-          <CampoGeralGlobal label="CNPJ">
-            <div className="ws-input-icon-wrap">
-              <IdentificationCard size={16} />
-              <input
-                value={form.cnpj}
-                onChange={(e) => setCampo('cnpj', formatarCNPJ(e.target.value))}
-                placeholder="XX.XXX.XXX/XXXX-XX"
-                style={{ width: '100%', borderColor: (erro('cnpj') || camposComRequisitoFaltando.has('cnpj')) ? corErro : undefined }}
-              />
+            >
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--ws-muted)' }}>
+                Papel no COMEX *
+              </span>
+              {!algumaFlagAtiva && (
+                <span style={{ fontSize: '0.75rem', color: corErro }}>
+                  marque ao menos um
+                </span>
+              )}
             </div>
-            {erro('cnpj') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('cnpj')}</span>}
-            {!erro('cnpj') && form.cnpj.trim().length > 0 && !validarCNPJ(form.cnpj) && (
-              <span style={{ color: corErro, fontSize: '0.75rem' }}>CNPJ inválido — verifique os dígitos</span>
-            )}
-          </CampoGeralGlobal>
-        ) : (
-          <CampoGeralGlobal label="TIN (documento estrangeiro)">
-            <div className="ws-input-icon-wrap">
-              <IdentificationCard size={16} />
-              <input
-                value={form.tin}
-                onChange={(e) => setCampo('tin', e.target.value)}
-                placeholder="Ex: US-EIN-123456789"
-                style={{ width: '100%', borderColor: erro('tin') ? corErro : undefined }}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+              {PAPEIS.map((p) => (
+                <PapelCheckbox
+                  key={p.chave}
+                  papel={p}
+                  marcado={form.papeis[p.chave]}
+                  onToggle={() => togglePapel(p.chave)}
+                />
+              ))}
             </div>
-            {erro('tin') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('tin')}</span>}
-          </CampoGeralGlobal>
-        )}
+          </div>
 
-        {/* ── Endereço ────────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.4fr 0.9fr', gap: '0.875rem' }}>
-          <CampoGeralGlobal label="ESTADO/UF">
-            <SelectGlobal
-              iconeEsquerda={<MapPin size={16} />}
-              opcoes={OPCOES_ESTADOS}
-              valor={form.estado || null}
-              aoMudarValor={(v) => {
-                setForm((prev) => ({ ...prev, estado: String(v ?? ''), cidade: '' }))
-              }}
-              placeholder="Selecione..."
-              buscavel
-            />
-          </CampoGeralGlobal>
-          <CampoGeralGlobal label="CIDADE">
-            <SelectGlobal
-              iconeEsquerda={<MapPin size={16} />}
-              opcoes={cidades}
-              valor={form.cidade || null}
-              aoMudarValor={(v) => setCampo('cidade', String(v ?? ''))}
-              placeholder={form.estado ? 'Selecione a cidade' : 'Selecione o estado...'}
-              buscavel
-              desabilitado={!form.estado}
-              carregando={carregandoCidades}
-            />
-          </CampoGeralGlobal>
-          <CampoGeralGlobal label="CEP / ZIPCODE">
-            <input value={form.zipcode} onChange={(e) => setCampo('zipcode', formatarCEP(e.target.value))} placeholder="01000-000" style={{ width: '100%' }} />
-          </CampoGeralGlobal>
+          <BannerRequisitosGlobal />
         </div>
-
-        <CampoGeralGlobal label="ENDEREÇO">
-          <input
-            value={form.endereco}
-            onChange={(e) => setCampo('endereco', e.target.value)}
-            placeholder="Rua, número, complemento"
-            style={{ width: '100%' }}
-          />
-        </CampoGeralGlobal>
-
-        {/* ── Contato ────────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
+      ),
+    },
+    {
+      id: 'contatos',
+      rotulo: 'Contatos do Fornecedor',
+      conteudo: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <CampoGeralGlobal label="E-MAIL">
             <div className="ws-input-icon-wrap">
               <EnvelopeSimple size={16} />
@@ -693,6 +721,7 @@ export function ModalEditarFornecedor({ fornecedor, idOrganizacao, aoFechar, aoS
             </div>
             {erro('email') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('email')}</span>}
           </CampoGeralGlobal>
+
           <CampoGeralGlobal label="TELEFONE">
             <div className="ws-input-icon-wrap">
               <Phone size={16} />
@@ -704,57 +733,46 @@ export function ModalEditarFornecedor({ fornecedor, idOrganizacao, aoFechar, aoS
               />
             </div>
           </CampoGeralGlobal>
-        </div>
 
-        <CampoGeralGlobal label="WHATSAPP (E.164)">
-          <div className="ws-input-icon-wrap">
-            <WhatsappLogo size={16} />
-            <input
-              value={form.whatsapp}
-              onChange={(e) => setCampo('whatsapp', e.target.value)}
-              placeholder="(00) 00000-0000"
-              style={{ width: '100%', borderColor: erro('whatsapp') ? corErro : undefined }}
-            />
-          </div>
-          {erro('whatsapp') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('whatsapp')}</span>}
-        </CampoGeralGlobal>
-
-        {/* ── Papéis operacionais ──────────────────────────────────── */}
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '0.5rem',
-            }}
-          >
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--ws-muted)' }}>
-              Papel no COMEX *
-            </span>
-            {!algumaFlagAtiva && (
-              <span style={{ fontSize: '0.75rem', color: corErro }}>
-                marque ao menos um
-              </span>
-            )}
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-            {PAPEIS.map((p) => (
-              <PapelCheckbox
-                key={p.chave}
-                papel={p}
-                marcado={form.papeis[p.chave]}
-                onToggle={() => togglePapel(p.chave)}
+          <CampoGeralGlobal label="WHATSAPP (E.164)">
+            <div className="ws-input-icon-wrap">
+              <WhatsappLogo size={16} />
+              <input
+                value={form.whatsapp}
+                onChange={(e) => setCampo('whatsapp', e.target.value)}
+                placeholder="(00) 00000-0000"
+                style={{ width: '100%', borderColor: erro('whatsapp') ? corErro : undefined }}
               />
-            ))}
-          </div>
+            </div>
+            {erro('whatsapp') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('whatsapp')}</span>}
+          </CampoGeralGlobal>
         </div>
+      ),
+    },
+  ]
 
-        {/* ── Banner de requisitos pendentes (componente global) ─────── */}
-        <BannerRequisitosGlobal />
-      </div>
-      </BannerRequisitosContexto>
-    </ModalFormularioGlobal>
+  return (
+    <BannerRequisitosContexto requisitos={requisitos}>
+      <ModalFormularioAbasGlobal
+        aberto={true}
+        aoFechar={aoFechar}
+        aoSalvar={handleSalvar}
+        carregando={enviando}
+        icone={<Buildings size={20} weight="duotone" />}
+        titulo={modoEdicao ? 'Editar Fornecedor' : 'Novo Fornecedor'}
+        subtitulo={
+          modoEdicao
+            ? `Ajuste os dados e papéis de ${fornecedor?.nome_fornecedor ?? ''}`
+            : 'Cadastre terceiros COMEX (importador, exportador, agente…). Em exportação, o importador pode atuar como cliente na operação.'
+        }
+        tamanho="lg"
+        altura="680px"
+        dirty={true}
+        podesSalvar={podeSalvar}
+        abas={abas}
+        footerExtraEsquerda={botaoRetorno}
+      />
+    </BannerRequisitosContexto>
   )
 }
 

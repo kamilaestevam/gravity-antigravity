@@ -6,6 +6,7 @@
  */
 
 export * from './fornecedor.schema.js'
+export * from './fornecedor-contato.schema.js'
 export * from './empresa.schema.js'
 export * from './identidade-comex.schema.js'
 export * from './moeda.schema.js'

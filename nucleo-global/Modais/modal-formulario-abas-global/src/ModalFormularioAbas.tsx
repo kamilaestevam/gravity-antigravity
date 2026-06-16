@@ -183,14 +183,29 @@ export function ModalFormularioAbas({
       className="ws-modal-cabecalho"
       style={{
         borderBottom: '1px solid var(--ws-accent-border)',
-        marginBottom: '0.4rem',
-        paddingBottom: '0.1rem',
-        paddingTop: '8px',
+        marginBottom: '1.5rem',
+        paddingTop: '1.5rem',
+        paddingBottom: '1rem',
+        paddingLeft: '1.5rem',
+        paddingRight: '3.5rem',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <div style={{ position: 'relative', top: '1px' }}>
-        <CabecalhoGlobal icone={icone} titulo={titulo} subtitulo={subtitulo || ''} />
-      </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .ws-modal-cabecalho .cg-header {
+          margin: 0 !important;
+          padding: 0 !important;
+          height: auto !important;
+          min-height: 0 !important;
+          background: transparent !important;
+          position: static !important;
+        }
+        .ws-modal-cabecalho .cg-header__title-block {
+          gap: 0.375rem !important;
+        }
+      `}} />
+      <CabecalhoGlobal icone={icone} titulo={titulo} subtitulo={subtitulo || ''} />
     </div>
   )
 

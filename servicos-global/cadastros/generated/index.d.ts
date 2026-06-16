@@ -24,6 +24,11 @@ export type Empresa = $Result.DefaultSelection<Prisma.$EmpresaPayload>
  */
 export type Fornecedor = $Result.DefaultSelection<Prisma.$FornecedorPayload>
 /**
+ * Model FornecedorContato
+ * 
+ */
+export type FornecedorContato = $Result.DefaultSelection<Prisma.$FornecedorContatoPayload>
+/**
  * Model FornecedorOrganizacao
  * 
  */
@@ -118,7 +123,16 @@ export type OPEHistoricoStatus = $Result.DefaultSelection<Prisma.$OPEHistoricoSt
  * Enums
  */
 export namespace $Enums {
-  export const TipoFornecedorOrganizacao: {
+  export const TipoCanalFornecedorContato: {
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP',
+  TELEFONE: 'TELEFONE'
+};
+
+export type TipoCanalFornecedorContato = (typeof TipoCanalFornecedorContato)[keyof typeof TipoCanalFornecedorContato]
+
+
+export const TipoFornecedorOrganizacao: {
   AGENTE_CARGA: 'AGENTE_CARGA',
   DESPACHANTE_ADUANEIRO: 'DESPACHANTE_ADUANEIRO',
   ARMADOR: 'ARMADOR',
@@ -175,6 +189,10 @@ export const NcmSyncOrigemSincronizacao: {
 export type NcmSyncOrigemSincronizacao = (typeof NcmSyncOrigemSincronizacao)[keyof typeof NcmSyncOrigemSincronizacao]
 
 }
+
+export type TipoCanalFornecedorContato = $Enums.TipoCanalFornecedorContato
+
+export const TipoCanalFornecedorContato: typeof $Enums.TipoCanalFornecedorContato
 
 export type TipoFornecedorOrganizacao = $Enums.TipoFornecedorOrganizacao
 
@@ -338,6 +356,16 @@ export class PrismaClient<
     * ```
     */
   get fornecedor(): Prisma.FornecedorDelegate<ExtArgs>;
+
+  /**
+   * `prisma.fornecedorContato`: Exposes CRUD operations for the **FornecedorContato** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FornecedorContatoes
+    * const fornecedorContatoes = await prisma.fornecedorContato.findMany()
+    * ```
+    */
+  get fornecedorContato(): Prisma.FornecedorContatoDelegate<ExtArgs>;
 
   /**
    * `prisma.fornecedorOrganizacao`: Exposes CRUD operations for the **FornecedorOrganizacao** model.
@@ -951,6 +979,7 @@ export namespace Prisma {
   export const ModelName: {
     Empresa: 'Empresa',
     Fornecedor: 'Fornecedor',
+    FornecedorContato: 'FornecedorContato',
     FornecedorOrganizacao: 'FornecedorOrganizacao',
     Pais: 'Pais',
     Moeda: 'Moeda',
@@ -983,7 +1012,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "fornecedor" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "cambioSiscomex" | "porto" | "aeroporto" | "mercadoriaPerigosa" | "taxaOrigemDestino" | "volume" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
+      modelProps: "empresa" | "fornecedor" | "fornecedorContato" | "fornecedorOrganizacao" | "pais" | "moeda" | "unidade" | "incoterm" | "cambioSiscomex" | "porto" | "aeroporto" | "mercadoriaPerigosa" | "taxaOrigemDestino" | "volume" | "container" | "ncmSync" | "ncmSyncLog" | "ncmSyncAgendamento" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1124,6 +1153,76 @@ export namespace Prisma {
           count: {
             args: Prisma.FornecedorCountArgs<ExtArgs>
             result: $Utils.Optional<FornecedorCountAggregateOutputType> | number
+          }
+        }
+      }
+      FornecedorContato: {
+        payload: Prisma.$FornecedorContatoPayload<ExtArgs>
+        fields: Prisma.FornecedorContatoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FornecedorContatoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FornecedorContatoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload>
+          }
+          findFirst: {
+            args: Prisma.FornecedorContatoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FornecedorContatoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload>
+          }
+          findMany: {
+            args: Prisma.FornecedorContatoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload>[]
+          }
+          create: {
+            args: Prisma.FornecedorContatoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload>
+          }
+          createMany: {
+            args: Prisma.FornecedorContatoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FornecedorContatoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload>[]
+          }
+          delete: {
+            args: Prisma.FornecedorContatoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload>
+          }
+          update: {
+            args: Prisma.FornecedorContatoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload>
+          }
+          deleteMany: {
+            args: Prisma.FornecedorContatoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FornecedorContatoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.FornecedorContatoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FornecedorContatoPayload>
+          }
+          aggregate: {
+            args: Prisma.FornecedorContatoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFornecedorContato>
+          }
+          groupBy: {
+            args: Prisma.FornecedorContatoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FornecedorContatoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FornecedorContatoCountArgs<ExtArgs>
+            result: $Utils.Optional<FornecedorContatoCountAggregateOutputType> | number
           }
         }
       }
@@ -2478,10 +2577,12 @@ export namespace Prisma {
    */
 
   export type FornecedorCountOutputType = {
+    contatos_fornecedor: number
     fornecedores_organizacao: number
   }
 
   export type FornecedorCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    contatos_fornecedor?: boolean | FornecedorCountOutputTypeCountContatos_fornecedorArgs
     fornecedores_organizacao?: boolean | FornecedorCountOutputTypeCountFornecedores_organizacaoArgs
   }
 
@@ -2494,6 +2595,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the FornecedorCountOutputType
      */
     select?: FornecedorCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * FornecedorCountOutputType without action
+   */
+  export type FornecedorCountOutputTypeCountContatos_fornecedorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FornecedorContatoWhereInput
   }
 
   /**
@@ -3709,9 +3817,9 @@ export namespace Prisma {
     cidade_fornecedor: string | null
     endereco_fornecedor: string | null
     cep_zipcode_fornecedor: string | null
-    email_principal_fornecedor: string | null
-    telefone_principal_fornecedor: string | null
-    whatsapp_principal_fornecedor: string | null
+    email_fornecedor: string | null
+    telefone_fornecedor: string | null
+    whatsapp_fornecedor: string | null
     pode_ser_importador_fornecedor: boolean | null
     pode_ser_exportador_fornecedor: boolean | null
     pode_ser_fabricante_fornecedor: boolean | null
@@ -3744,9 +3852,9 @@ export namespace Prisma {
     cidade_fornecedor: string | null
     endereco_fornecedor: string | null
     cep_zipcode_fornecedor: string | null
-    email_principal_fornecedor: string | null
-    telefone_principal_fornecedor: string | null
-    whatsapp_principal_fornecedor: string | null
+    email_fornecedor: string | null
+    telefone_fornecedor: string | null
+    whatsapp_fornecedor: string | null
     pode_ser_importador_fornecedor: boolean | null
     pode_ser_exportador_fornecedor: boolean | null
     pode_ser_fabricante_fornecedor: boolean | null
@@ -3779,9 +3887,9 @@ export namespace Prisma {
     cidade_fornecedor: number
     endereco_fornecedor: number
     cep_zipcode_fornecedor: number
-    email_principal_fornecedor: number
-    telefone_principal_fornecedor: number
-    whatsapp_principal_fornecedor: number
+    email_fornecedor: number
+    telefone_fornecedor: number
+    whatsapp_fornecedor: number
     pode_ser_importador_fornecedor: number
     pode_ser_exportador_fornecedor: number
     pode_ser_fabricante_fornecedor: number
@@ -3816,9 +3924,9 @@ export namespace Prisma {
     cidade_fornecedor?: true
     endereco_fornecedor?: true
     cep_zipcode_fornecedor?: true
-    email_principal_fornecedor?: true
-    telefone_principal_fornecedor?: true
-    whatsapp_principal_fornecedor?: true
+    email_fornecedor?: true
+    telefone_fornecedor?: true
+    whatsapp_fornecedor?: true
     pode_ser_importador_fornecedor?: true
     pode_ser_exportador_fornecedor?: true
     pode_ser_fabricante_fornecedor?: true
@@ -3851,9 +3959,9 @@ export namespace Prisma {
     cidade_fornecedor?: true
     endereco_fornecedor?: true
     cep_zipcode_fornecedor?: true
-    email_principal_fornecedor?: true
-    telefone_principal_fornecedor?: true
-    whatsapp_principal_fornecedor?: true
+    email_fornecedor?: true
+    telefone_fornecedor?: true
+    whatsapp_fornecedor?: true
     pode_ser_importador_fornecedor?: true
     pode_ser_exportador_fornecedor?: true
     pode_ser_fabricante_fornecedor?: true
@@ -3886,9 +3994,9 @@ export namespace Prisma {
     cidade_fornecedor?: true
     endereco_fornecedor?: true
     cep_zipcode_fornecedor?: true
-    email_principal_fornecedor?: true
-    telefone_principal_fornecedor?: true
-    whatsapp_principal_fornecedor?: true
+    email_fornecedor?: true
+    telefone_fornecedor?: true
+    whatsapp_fornecedor?: true
     pode_ser_importador_fornecedor?: true
     pode_ser_exportador_fornecedor?: true
     pode_ser_fabricante_fornecedor?: true
@@ -3994,9 +4102,9 @@ export namespace Prisma {
     cidade_fornecedor: string | null
     endereco_fornecedor: string | null
     cep_zipcode_fornecedor: string | null
-    email_principal_fornecedor: string | null
-    telefone_principal_fornecedor: string | null
-    whatsapp_principal_fornecedor: string | null
+    email_fornecedor: string | null
+    telefone_fornecedor: string | null
+    whatsapp_fornecedor: string | null
     pode_ser_importador_fornecedor: boolean
     pode_ser_exportador_fornecedor: boolean
     pode_ser_fabricante_fornecedor: boolean
@@ -4046,9 +4154,9 @@ export namespace Prisma {
     cidade_fornecedor?: boolean
     endereco_fornecedor?: boolean
     cep_zipcode_fornecedor?: boolean
-    email_principal_fornecedor?: boolean
-    telefone_principal_fornecedor?: boolean
-    whatsapp_principal_fornecedor?: boolean
+    email_fornecedor?: boolean
+    telefone_fornecedor?: boolean
+    whatsapp_fornecedor?: boolean
     pode_ser_importador_fornecedor?: boolean
     pode_ser_exportador_fornecedor?: boolean
     pode_ser_fabricante_fornecedor?: boolean
@@ -4066,6 +4174,7 @@ export namespace Prisma {
     ativo_fornecedor?: boolean
     criado_em_fornecedor?: boolean
     atualizado_em_fornecedor?: boolean
+    contatos_fornecedor?: boolean | Fornecedor$contatos_fornecedorArgs<ExtArgs>
     fornecedores_organizacao?: boolean | Fornecedor$fornecedores_organizacaoArgs<ExtArgs>
     _count?: boolean | FornecedorCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["fornecedor"]>
@@ -4083,9 +4192,9 @@ export namespace Prisma {
     cidade_fornecedor?: boolean
     endereco_fornecedor?: boolean
     cep_zipcode_fornecedor?: boolean
-    email_principal_fornecedor?: boolean
-    telefone_principal_fornecedor?: boolean
-    whatsapp_principal_fornecedor?: boolean
+    email_fornecedor?: boolean
+    telefone_fornecedor?: boolean
+    whatsapp_fornecedor?: boolean
     pode_ser_importador_fornecedor?: boolean
     pode_ser_exportador_fornecedor?: boolean
     pode_ser_fabricante_fornecedor?: boolean
@@ -4118,9 +4227,9 @@ export namespace Prisma {
     cidade_fornecedor?: boolean
     endereco_fornecedor?: boolean
     cep_zipcode_fornecedor?: boolean
-    email_principal_fornecedor?: boolean
-    telefone_principal_fornecedor?: boolean
-    whatsapp_principal_fornecedor?: boolean
+    email_fornecedor?: boolean
+    telefone_fornecedor?: boolean
+    whatsapp_fornecedor?: boolean
     pode_ser_importador_fornecedor?: boolean
     pode_ser_exportador_fornecedor?: boolean
     pode_ser_fabricante_fornecedor?: boolean
@@ -4141,6 +4250,7 @@ export namespace Prisma {
   }
 
   export type FornecedorInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    contatos_fornecedor?: boolean | Fornecedor$contatos_fornecedorArgs<ExtArgs>
     fornecedores_organizacao?: boolean | Fornecedor$fornecedores_organizacaoArgs<ExtArgs>
     _count?: boolean | FornecedorCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -4149,6 +4259,7 @@ export namespace Prisma {
   export type $FornecedorPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Fornecedor"
     objects: {
+      contatos_fornecedor: Prisma.$FornecedorContatoPayload<ExtArgs>[]
       fornecedores_organizacao: Prisma.$FornecedorOrganizacaoPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -4164,9 +4275,9 @@ export namespace Prisma {
       cidade_fornecedor: string | null
       endereco_fornecedor: string | null
       cep_zipcode_fornecedor: string | null
-      email_principal_fornecedor: string | null
-      telefone_principal_fornecedor: string | null
-      whatsapp_principal_fornecedor: string | null
+      email_fornecedor: string | null
+      telefone_fornecedor: string | null
+      whatsapp_fornecedor: string | null
       pode_ser_importador_fornecedor: boolean
       pode_ser_exportador_fornecedor: boolean
       pode_ser_fabricante_fornecedor: boolean
@@ -4548,6 +4659,7 @@ export namespace Prisma {
    */
   export interface Prisma__FornecedorClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    contatos_fornecedor<T extends Fornecedor$contatos_fornecedorArgs<ExtArgs> = {}>(args?: Subset<T, Fornecedor$contatos_fornecedorArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "findMany"> | Null>
     fornecedores_organizacao<T extends Fornecedor$fornecedores_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Fornecedor$fornecedores_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4590,9 +4702,9 @@ export namespace Prisma {
     readonly cidade_fornecedor: FieldRef<"Fornecedor", 'String'>
     readonly endereco_fornecedor: FieldRef<"Fornecedor", 'String'>
     readonly cep_zipcode_fornecedor: FieldRef<"Fornecedor", 'String'>
-    readonly email_principal_fornecedor: FieldRef<"Fornecedor", 'String'>
-    readonly telefone_principal_fornecedor: FieldRef<"Fornecedor", 'String'>
-    readonly whatsapp_principal_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly email_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly telefone_fornecedor: FieldRef<"Fornecedor", 'String'>
+    readonly whatsapp_fornecedor: FieldRef<"Fornecedor", 'String'>
     readonly pode_ser_importador_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
     readonly pode_ser_exportador_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
     readonly pode_ser_fabricante_fornecedor: FieldRef<"Fornecedor", 'Boolean'>
@@ -4924,6 +5036,26 @@ export namespace Prisma {
   }
 
   /**
+   * Fornecedor.contatos_fornecedor
+   */
+  export type Fornecedor$contatos_fornecedorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    where?: FornecedorContatoWhereInput
+    orderBy?: FornecedorContatoOrderByWithRelationInput | FornecedorContatoOrderByWithRelationInput[]
+    cursor?: FornecedorContatoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FornecedorContatoScalarFieldEnum | FornecedorContatoScalarFieldEnum[]
+  }
+
+  /**
    * Fornecedor.fornecedores_organizacao
    */
   export type Fornecedor$fornecedores_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4955,6 +5087,1021 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: FornecedorInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model FornecedorContato
+   */
+
+  export type AggregateFornecedorContato = {
+    _count: FornecedorContatoCountAggregateOutputType | null
+    _avg: FornecedorContatoAvgAggregateOutputType | null
+    _sum: FornecedorContatoSumAggregateOutputType | null
+    _min: FornecedorContatoMinAggregateOutputType | null
+    _max: FornecedorContatoMaxAggregateOutputType | null
+  }
+
+  export type FornecedorContatoAvgAggregateOutputType = {
+    ordem_fornecedor_contato: number | null
+  }
+
+  export type FornecedorContatoSumAggregateOutputType = {
+    ordem_fornecedor_contato: number | null
+  }
+
+  export type FornecedorContatoMinAggregateOutputType = {
+    id_fornecedor_contato: string | null
+    id_fornecedor: string | null
+    id_organizacao_cadastro_fornecedor_contato: string | null
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato | null
+    valor_fornecedor_contato: string | null
+    principal_fornecedor_contato: boolean | null
+    ordem_fornecedor_contato: number | null
+    criado_em_fornecedor_contato: Date | null
+    atualizado_em_fornecedor_contato: Date | null
+  }
+
+  export type FornecedorContatoMaxAggregateOutputType = {
+    id_fornecedor_contato: string | null
+    id_fornecedor: string | null
+    id_organizacao_cadastro_fornecedor_contato: string | null
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato | null
+    valor_fornecedor_contato: string | null
+    principal_fornecedor_contato: boolean | null
+    ordem_fornecedor_contato: number | null
+    criado_em_fornecedor_contato: Date | null
+    atualizado_em_fornecedor_contato: Date | null
+  }
+
+  export type FornecedorContatoCountAggregateOutputType = {
+    id_fornecedor_contato: number
+    id_fornecedor: number
+    id_organizacao_cadastro_fornecedor_contato: number
+    tipo_canal_fornecedor_contato: number
+    valor_fornecedor_contato: number
+    principal_fornecedor_contato: number
+    ordem_fornecedor_contato: number
+    criado_em_fornecedor_contato: number
+    atualizado_em_fornecedor_contato: number
+    _all: number
+  }
+
+
+  export type FornecedorContatoAvgAggregateInputType = {
+    ordem_fornecedor_contato?: true
+  }
+
+  export type FornecedorContatoSumAggregateInputType = {
+    ordem_fornecedor_contato?: true
+  }
+
+  export type FornecedorContatoMinAggregateInputType = {
+    id_fornecedor_contato?: true
+    id_fornecedor?: true
+    id_organizacao_cadastro_fornecedor_contato?: true
+    tipo_canal_fornecedor_contato?: true
+    valor_fornecedor_contato?: true
+    principal_fornecedor_contato?: true
+    ordem_fornecedor_contato?: true
+    criado_em_fornecedor_contato?: true
+    atualizado_em_fornecedor_contato?: true
+  }
+
+  export type FornecedorContatoMaxAggregateInputType = {
+    id_fornecedor_contato?: true
+    id_fornecedor?: true
+    id_organizacao_cadastro_fornecedor_contato?: true
+    tipo_canal_fornecedor_contato?: true
+    valor_fornecedor_contato?: true
+    principal_fornecedor_contato?: true
+    ordem_fornecedor_contato?: true
+    criado_em_fornecedor_contato?: true
+    atualizado_em_fornecedor_contato?: true
+  }
+
+  export type FornecedorContatoCountAggregateInputType = {
+    id_fornecedor_contato?: true
+    id_fornecedor?: true
+    id_organizacao_cadastro_fornecedor_contato?: true
+    tipo_canal_fornecedor_contato?: true
+    valor_fornecedor_contato?: true
+    principal_fornecedor_contato?: true
+    ordem_fornecedor_contato?: true
+    criado_em_fornecedor_contato?: true
+    atualizado_em_fornecedor_contato?: true
+    _all?: true
+  }
+
+  export type FornecedorContatoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FornecedorContato to aggregate.
+     */
+    where?: FornecedorContatoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorContatoes to fetch.
+     */
+    orderBy?: FornecedorContatoOrderByWithRelationInput | FornecedorContatoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FornecedorContatoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorContatoes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorContatoes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FornecedorContatoes
+    **/
+    _count?: true | FornecedorContatoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FornecedorContatoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FornecedorContatoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FornecedorContatoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FornecedorContatoMaxAggregateInputType
+  }
+
+  export type GetFornecedorContatoAggregateType<T extends FornecedorContatoAggregateArgs> = {
+        [P in keyof T & keyof AggregateFornecedorContato]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFornecedorContato[P]>
+      : GetScalarType<T[P], AggregateFornecedorContato[P]>
+  }
+
+
+
+
+  export type FornecedorContatoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FornecedorContatoWhereInput
+    orderBy?: FornecedorContatoOrderByWithAggregationInput | FornecedorContatoOrderByWithAggregationInput[]
+    by: FornecedorContatoScalarFieldEnum[] | FornecedorContatoScalarFieldEnum
+    having?: FornecedorContatoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FornecedorContatoCountAggregateInputType | true
+    _avg?: FornecedorContatoAvgAggregateInputType
+    _sum?: FornecedorContatoSumAggregateInputType
+    _min?: FornecedorContatoMinAggregateInputType
+    _max?: FornecedorContatoMaxAggregateInputType
+  }
+
+  export type FornecedorContatoGroupByOutputType = {
+    id_fornecedor_contato: string
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor_contato: string
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato: string
+    principal_fornecedor_contato: boolean
+    ordem_fornecedor_contato: number
+    criado_em_fornecedor_contato: Date
+    atualizado_em_fornecedor_contato: Date
+    _count: FornecedorContatoCountAggregateOutputType | null
+    _avg: FornecedorContatoAvgAggregateOutputType | null
+    _sum: FornecedorContatoSumAggregateOutputType | null
+    _min: FornecedorContatoMinAggregateOutputType | null
+    _max: FornecedorContatoMaxAggregateOutputType | null
+  }
+
+  type GetFornecedorContatoGroupByPayload<T extends FornecedorContatoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FornecedorContatoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FornecedorContatoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FornecedorContatoGroupByOutputType[P]>
+            : GetScalarType<T[P], FornecedorContatoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FornecedorContatoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_fornecedor_contato?: boolean
+    id_fornecedor?: boolean
+    id_organizacao_cadastro_fornecedor_contato?: boolean
+    tipo_canal_fornecedor_contato?: boolean
+    valor_fornecedor_contato?: boolean
+    principal_fornecedor_contato?: boolean
+    ordem_fornecedor_contato?: boolean
+    criado_em_fornecedor_contato?: boolean
+    atualizado_em_fornecedor_contato?: boolean
+    fornecedor?: boolean | FornecedorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fornecedorContato"]>
+
+  export type FornecedorContatoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_fornecedor_contato?: boolean
+    id_fornecedor?: boolean
+    id_organizacao_cadastro_fornecedor_contato?: boolean
+    tipo_canal_fornecedor_contato?: boolean
+    valor_fornecedor_contato?: boolean
+    principal_fornecedor_contato?: boolean
+    ordem_fornecedor_contato?: boolean
+    criado_em_fornecedor_contato?: boolean
+    atualizado_em_fornecedor_contato?: boolean
+    fornecedor?: boolean | FornecedorDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fornecedorContato"]>
+
+  export type FornecedorContatoSelectScalar = {
+    id_fornecedor_contato?: boolean
+    id_fornecedor?: boolean
+    id_organizacao_cadastro_fornecedor_contato?: boolean
+    tipo_canal_fornecedor_contato?: boolean
+    valor_fornecedor_contato?: boolean
+    principal_fornecedor_contato?: boolean
+    ordem_fornecedor_contato?: boolean
+    criado_em_fornecedor_contato?: boolean
+    atualizado_em_fornecedor_contato?: boolean
+  }
+
+  export type FornecedorContatoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fornecedor?: boolean | FornecedorDefaultArgs<ExtArgs>
+  }
+  export type FornecedorContatoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fornecedor?: boolean | FornecedorDefaultArgs<ExtArgs>
+  }
+
+  export type $FornecedorContatoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FornecedorContato"
+    objects: {
+      fornecedor: Prisma.$FornecedorPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id_fornecedor_contato: string
+      id_fornecedor: string
+      id_organizacao_cadastro_fornecedor_contato: string
+      tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato
+      valor_fornecedor_contato: string
+      principal_fornecedor_contato: boolean
+      ordem_fornecedor_contato: number
+      criado_em_fornecedor_contato: Date
+      atualizado_em_fornecedor_contato: Date
+    }, ExtArgs["result"]["fornecedorContato"]>
+    composites: {}
+  }
+
+  type FornecedorContatoGetPayload<S extends boolean | null | undefined | FornecedorContatoDefaultArgs> = $Result.GetResult<Prisma.$FornecedorContatoPayload, S>
+
+  type FornecedorContatoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<FornecedorContatoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: FornecedorContatoCountAggregateInputType | true
+    }
+
+  export interface FornecedorContatoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FornecedorContato'], meta: { name: 'FornecedorContato' } }
+    /**
+     * Find zero or one FornecedorContato that matches the filter.
+     * @param {FornecedorContatoFindUniqueArgs} args - Arguments to find a FornecedorContato
+     * @example
+     * // Get one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FornecedorContatoFindUniqueArgs>(args: SelectSubset<T, FornecedorContatoFindUniqueArgs<ExtArgs>>): Prisma__FornecedorContatoClient<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one FornecedorContato that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {FornecedorContatoFindUniqueOrThrowArgs} args - Arguments to find a FornecedorContato
+     * @example
+     * // Get one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FornecedorContatoFindUniqueOrThrowArgs>(args: SelectSubset<T, FornecedorContatoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FornecedorContatoClient<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first FornecedorContato that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoFindFirstArgs} args - Arguments to find a FornecedorContato
+     * @example
+     * // Get one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FornecedorContatoFindFirstArgs>(args?: SelectSubset<T, FornecedorContatoFindFirstArgs<ExtArgs>>): Prisma__FornecedorContatoClient<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first FornecedorContato that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoFindFirstOrThrowArgs} args - Arguments to find a FornecedorContato
+     * @example
+     * // Get one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FornecedorContatoFindFirstOrThrowArgs>(args?: SelectSubset<T, FornecedorContatoFindFirstOrThrowArgs<ExtArgs>>): Prisma__FornecedorContatoClient<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more FornecedorContatoes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FornecedorContatoes
+     * const fornecedorContatoes = await prisma.fornecedorContato.findMany()
+     * 
+     * // Get first 10 FornecedorContatoes
+     * const fornecedorContatoes = await prisma.fornecedorContato.findMany({ take: 10 })
+     * 
+     * // Only select the `id_fornecedor_contato`
+     * const fornecedorContatoWithId_fornecedor_contatoOnly = await prisma.fornecedorContato.findMany({ select: { id_fornecedor_contato: true } })
+     * 
+     */
+    findMany<T extends FornecedorContatoFindManyArgs>(args?: SelectSubset<T, FornecedorContatoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a FornecedorContato.
+     * @param {FornecedorContatoCreateArgs} args - Arguments to create a FornecedorContato.
+     * @example
+     * // Create one FornecedorContato
+     * const FornecedorContato = await prisma.fornecedorContato.create({
+     *   data: {
+     *     // ... data to create a FornecedorContato
+     *   }
+     * })
+     * 
+     */
+    create<T extends FornecedorContatoCreateArgs>(args: SelectSubset<T, FornecedorContatoCreateArgs<ExtArgs>>): Prisma__FornecedorContatoClient<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many FornecedorContatoes.
+     * @param {FornecedorContatoCreateManyArgs} args - Arguments to create many FornecedorContatoes.
+     * @example
+     * // Create many FornecedorContatoes
+     * const fornecedorContato = await prisma.fornecedorContato.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FornecedorContatoCreateManyArgs>(args?: SelectSubset<T, FornecedorContatoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FornecedorContatoes and returns the data saved in the database.
+     * @param {FornecedorContatoCreateManyAndReturnArgs} args - Arguments to create many FornecedorContatoes.
+     * @example
+     * // Create many FornecedorContatoes
+     * const fornecedorContato = await prisma.fornecedorContato.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FornecedorContatoes and only return the `id_fornecedor_contato`
+     * const fornecedorContatoWithId_fornecedor_contatoOnly = await prisma.fornecedorContato.createManyAndReturn({ 
+     *   select: { id_fornecedor_contato: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FornecedorContatoCreateManyAndReturnArgs>(args?: SelectSubset<T, FornecedorContatoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a FornecedorContato.
+     * @param {FornecedorContatoDeleteArgs} args - Arguments to delete one FornecedorContato.
+     * @example
+     * // Delete one FornecedorContato
+     * const FornecedorContato = await prisma.fornecedorContato.delete({
+     *   where: {
+     *     // ... filter to delete one FornecedorContato
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FornecedorContatoDeleteArgs>(args: SelectSubset<T, FornecedorContatoDeleteArgs<ExtArgs>>): Prisma__FornecedorContatoClient<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one FornecedorContato.
+     * @param {FornecedorContatoUpdateArgs} args - Arguments to update one FornecedorContato.
+     * @example
+     * // Update one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FornecedorContatoUpdateArgs>(args: SelectSubset<T, FornecedorContatoUpdateArgs<ExtArgs>>): Prisma__FornecedorContatoClient<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more FornecedorContatoes.
+     * @param {FornecedorContatoDeleteManyArgs} args - Arguments to filter FornecedorContatoes to delete.
+     * @example
+     * // Delete a few FornecedorContatoes
+     * const { count } = await prisma.fornecedorContato.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FornecedorContatoDeleteManyArgs>(args?: SelectSubset<T, FornecedorContatoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FornecedorContatoes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FornecedorContatoes
+     * const fornecedorContato = await prisma.fornecedorContato.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FornecedorContatoUpdateManyArgs>(args: SelectSubset<T, FornecedorContatoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one FornecedorContato.
+     * @param {FornecedorContatoUpsertArgs} args - Arguments to update or create a FornecedorContato.
+     * @example
+     * // Update or create a FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.upsert({
+     *   create: {
+     *     // ... data to create a FornecedorContato
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FornecedorContato we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FornecedorContatoUpsertArgs>(args: SelectSubset<T, FornecedorContatoUpsertArgs<ExtArgs>>): Prisma__FornecedorContatoClient<$Result.GetResult<Prisma.$FornecedorContatoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of FornecedorContatoes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoCountArgs} args - Arguments to filter FornecedorContatoes to count.
+     * @example
+     * // Count the number of FornecedorContatoes
+     * const count = await prisma.fornecedorContato.count({
+     *   where: {
+     *     // ... the filter for the FornecedorContatoes we want to count
+     *   }
+     * })
+    **/
+    count<T extends FornecedorContatoCountArgs>(
+      args?: Subset<T, FornecedorContatoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FornecedorContatoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FornecedorContato.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FornecedorContatoAggregateArgs>(args: Subset<T, FornecedorContatoAggregateArgs>): Prisma.PrismaPromise<GetFornecedorContatoAggregateType<T>>
+
+    /**
+     * Group by FornecedorContato.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FornecedorContatoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FornecedorContatoGroupByArgs['orderBy'] }
+        : { orderBy?: FornecedorContatoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FornecedorContatoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFornecedorContatoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FornecedorContato model
+   */
+  readonly fields: FornecedorContatoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FornecedorContato.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FornecedorContatoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    fornecedor<T extends FornecedorDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FornecedorDefaultArgs<ExtArgs>>): Prisma__FornecedorClient<$Result.GetResult<Prisma.$FornecedorPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FornecedorContato model
+   */ 
+  interface FornecedorContatoFieldRefs {
+    readonly id_fornecedor_contato: FieldRef<"FornecedorContato", 'String'>
+    readonly id_fornecedor: FieldRef<"FornecedorContato", 'String'>
+    readonly id_organizacao_cadastro_fornecedor_contato: FieldRef<"FornecedorContato", 'String'>
+    readonly tipo_canal_fornecedor_contato: FieldRef<"FornecedorContato", 'TipoCanalFornecedorContato'>
+    readonly valor_fornecedor_contato: FieldRef<"FornecedorContato", 'String'>
+    readonly principal_fornecedor_contato: FieldRef<"FornecedorContato", 'Boolean'>
+    readonly ordem_fornecedor_contato: FieldRef<"FornecedorContato", 'Int'>
+    readonly criado_em_fornecedor_contato: FieldRef<"FornecedorContato", 'DateTime'>
+    readonly atualizado_em_fornecedor_contato: FieldRef<"FornecedorContato", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FornecedorContato findUnique
+   */
+  export type FornecedorContatoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContato to fetch.
+     */
+    where: FornecedorContatoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorContato findUniqueOrThrow
+   */
+  export type FornecedorContatoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContato to fetch.
+     */
+    where: FornecedorContatoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorContato findFirst
+   */
+  export type FornecedorContatoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContato to fetch.
+     */
+    where?: FornecedorContatoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorContatoes to fetch.
+     */
+    orderBy?: FornecedorContatoOrderByWithRelationInput | FornecedorContatoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FornecedorContatoes.
+     */
+    cursor?: FornecedorContatoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorContatoes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorContatoes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FornecedorContatoes.
+     */
+    distinct?: FornecedorContatoScalarFieldEnum | FornecedorContatoScalarFieldEnum[]
+  }
+
+  /**
+   * FornecedorContato findFirstOrThrow
+   */
+  export type FornecedorContatoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContato to fetch.
+     */
+    where?: FornecedorContatoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorContatoes to fetch.
+     */
+    orderBy?: FornecedorContatoOrderByWithRelationInput | FornecedorContatoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FornecedorContatoes.
+     */
+    cursor?: FornecedorContatoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorContatoes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorContatoes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FornecedorContatoes.
+     */
+    distinct?: FornecedorContatoScalarFieldEnum | FornecedorContatoScalarFieldEnum[]
+  }
+
+  /**
+   * FornecedorContato findMany
+   */
+  export type FornecedorContatoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContatoes to fetch.
+     */
+    where?: FornecedorContatoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorContatoes to fetch.
+     */
+    orderBy?: FornecedorContatoOrderByWithRelationInput | FornecedorContatoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FornecedorContatoes.
+     */
+    cursor?: FornecedorContatoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorContatoes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorContatoes.
+     */
+    skip?: number
+    distinct?: FornecedorContatoScalarFieldEnum | FornecedorContatoScalarFieldEnum[]
+  }
+
+  /**
+   * FornecedorContato create
+   */
+  export type FornecedorContatoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FornecedorContato.
+     */
+    data: XOR<FornecedorContatoCreateInput, FornecedorContatoUncheckedCreateInput>
+  }
+
+  /**
+   * FornecedorContato createMany
+   */
+  export type FornecedorContatoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FornecedorContatoes.
+     */
+    data: FornecedorContatoCreateManyInput | FornecedorContatoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FornecedorContato createManyAndReturn
+   */
+  export type FornecedorContatoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many FornecedorContatoes.
+     */
+    data: FornecedorContatoCreateManyInput | FornecedorContatoCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FornecedorContato update
+   */
+  export type FornecedorContatoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FornecedorContato.
+     */
+    data: XOR<FornecedorContatoUpdateInput, FornecedorContatoUncheckedUpdateInput>
+    /**
+     * Choose, which FornecedorContato to update.
+     */
+    where: FornecedorContatoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorContato updateMany
+   */
+  export type FornecedorContatoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FornecedorContatoes.
+     */
+    data: XOR<FornecedorContatoUpdateManyMutationInput, FornecedorContatoUncheckedUpdateManyInput>
+    /**
+     * Filter which FornecedorContatoes to update
+     */
+    where?: FornecedorContatoWhereInput
+  }
+
+  /**
+   * FornecedorContato upsert
+   */
+  export type FornecedorContatoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FornecedorContato to update in case it exists.
+     */
+    where: FornecedorContatoWhereUniqueInput
+    /**
+     * In case the FornecedorContato found by the `where` argument doesn't exist, create a new FornecedorContato with this data.
+     */
+    create: XOR<FornecedorContatoCreateInput, FornecedorContatoUncheckedCreateInput>
+    /**
+     * In case the FornecedorContato was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FornecedorContatoUpdateInput, FornecedorContatoUncheckedUpdateInput>
+  }
+
+  /**
+   * FornecedorContato delete
+   */
+  export type FornecedorContatoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter which FornecedorContato to delete.
+     */
+    where: FornecedorContatoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorContato deleteMany
+   */
+  export type FornecedorContatoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FornecedorContatoes to delete
+     */
+    where?: FornecedorContatoWhereInput
+  }
+
+  /**
+   * FornecedorContato without action
+   */
+  export type FornecedorContatoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
   }
 
 
@@ -21107,9 +22254,9 @@ export namespace Prisma {
     cidade_fornecedor: 'cidade_fornecedor',
     endereco_fornecedor: 'endereco_fornecedor',
     cep_zipcode_fornecedor: 'cep_zipcode_fornecedor',
-    email_principal_fornecedor: 'email_principal_fornecedor',
-    telefone_principal_fornecedor: 'telefone_principal_fornecedor',
-    whatsapp_principal_fornecedor: 'whatsapp_principal_fornecedor',
+    email_fornecedor: 'email_fornecedor',
+    telefone_fornecedor: 'telefone_fornecedor',
+    whatsapp_fornecedor: 'whatsapp_fornecedor',
     pode_ser_importador_fornecedor: 'pode_ser_importador_fornecedor',
     pode_ser_exportador_fornecedor: 'pode_ser_exportador_fornecedor',
     pode_ser_fabricante_fornecedor: 'pode_ser_fabricante_fornecedor',
@@ -21130,6 +22277,21 @@ export namespace Prisma {
   };
 
   export type FornecedorScalarFieldEnum = (typeof FornecedorScalarFieldEnum)[keyof typeof FornecedorScalarFieldEnum]
+
+
+  export const FornecedorContatoScalarFieldEnum: {
+    id_fornecedor_contato: 'id_fornecedor_contato',
+    id_fornecedor: 'id_fornecedor',
+    id_organizacao_cadastro_fornecedor_contato: 'id_organizacao_cadastro_fornecedor_contato',
+    tipo_canal_fornecedor_contato: 'tipo_canal_fornecedor_contato',
+    valor_fornecedor_contato: 'valor_fornecedor_contato',
+    principal_fornecedor_contato: 'principal_fornecedor_contato',
+    ordem_fornecedor_contato: 'ordem_fornecedor_contato',
+    criado_em_fornecedor_contato: 'criado_em_fornecedor_contato',
+    atualizado_em_fornecedor_contato: 'atualizado_em_fornecedor_contato'
+  };
+
+  export type FornecedorContatoScalarFieldEnum = (typeof FornecedorContatoScalarFieldEnum)[keyof typeof FornecedorContatoScalarFieldEnum]
 
 
   export const FornecedorOrganizacaoScalarFieldEnum: {
@@ -21470,6 +22632,34 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'TipoCanalFornecedorContato'
+   */
+  export type EnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoCanalFornecedorContato'>
+    
+
+
+  /**
+   * Reference to a field of type 'TipoCanalFornecedorContato[]'
+   */
+  export type ListEnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoCanalFornecedorContato[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'TipoFornecedorOrganizacao'
    */
   export type EnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoFornecedorOrganizacao'>
@@ -21508,20 +22698,6 @@ export namespace Prisma {
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -21772,9 +22948,9 @@ export namespace Prisma {
     cidade_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
     endereco_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
     cep_zipcode_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
-    email_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
-    telefone_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
-    whatsapp_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    email_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    telefone_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    whatsapp_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
     pode_ser_importador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
     pode_ser_exportador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
     pode_ser_fabricante_fornecedor?: BoolFilter<"Fornecedor"> | boolean
@@ -21792,6 +22968,7 @@ export namespace Prisma {
     ativo_fornecedor?: BoolFilter<"Fornecedor"> | boolean
     criado_em_fornecedor?: DateTimeFilter<"Fornecedor"> | Date | string
     atualizado_em_fornecedor?: DateTimeFilter<"Fornecedor"> | Date | string
+    contatos_fornecedor?: FornecedorContatoListRelationFilter
     fornecedores_organizacao?: FornecedorOrganizacaoListRelationFilter
   }
 
@@ -21808,9 +22985,9 @@ export namespace Prisma {
     cidade_fornecedor?: SortOrderInput | SortOrder
     endereco_fornecedor?: SortOrderInput | SortOrder
     cep_zipcode_fornecedor?: SortOrderInput | SortOrder
-    email_principal_fornecedor?: SortOrderInput | SortOrder
-    telefone_principal_fornecedor?: SortOrderInput | SortOrder
-    whatsapp_principal_fornecedor?: SortOrderInput | SortOrder
+    email_fornecedor?: SortOrderInput | SortOrder
+    telefone_fornecedor?: SortOrderInput | SortOrder
+    whatsapp_fornecedor?: SortOrderInput | SortOrder
     pode_ser_importador_fornecedor?: SortOrder
     pode_ser_exportador_fornecedor?: SortOrder
     pode_ser_fabricante_fornecedor?: SortOrder
@@ -21828,6 +23005,7 @@ export namespace Prisma {
     ativo_fornecedor?: SortOrder
     criado_em_fornecedor?: SortOrder
     atualizado_em_fornecedor?: SortOrder
+    contatos_fornecedor?: FornecedorContatoOrderByRelationAggregateInput
     fornecedores_organizacao?: FornecedorOrganizacaoOrderByRelationAggregateInput
   }
 
@@ -21849,9 +23027,9 @@ export namespace Prisma {
     cidade_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
     endereco_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
     cep_zipcode_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
-    email_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
-    telefone_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
-    whatsapp_principal_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    email_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    telefone_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
+    whatsapp_fornecedor?: StringNullableFilter<"Fornecedor"> | string | null
     pode_ser_importador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
     pode_ser_exportador_fornecedor?: BoolFilter<"Fornecedor"> | boolean
     pode_ser_fabricante_fornecedor?: BoolFilter<"Fornecedor"> | boolean
@@ -21869,6 +23047,7 @@ export namespace Prisma {
     ativo_fornecedor?: BoolFilter<"Fornecedor"> | boolean
     criado_em_fornecedor?: DateTimeFilter<"Fornecedor"> | Date | string
     atualizado_em_fornecedor?: DateTimeFilter<"Fornecedor"> | Date | string
+    contatos_fornecedor?: FornecedorContatoListRelationFilter
     fornecedores_organizacao?: FornecedorOrganizacaoListRelationFilter
   }, "id_fornecedor" | "id_organizacao_cadastro_fornecedor_cnpj_fornecedor" | "id_organizacao_cadastro_fornecedor_tin_fornecedor_pais_fornecedor">
 
@@ -21885,9 +23064,9 @@ export namespace Prisma {
     cidade_fornecedor?: SortOrderInput | SortOrder
     endereco_fornecedor?: SortOrderInput | SortOrder
     cep_zipcode_fornecedor?: SortOrderInput | SortOrder
-    email_principal_fornecedor?: SortOrderInput | SortOrder
-    telefone_principal_fornecedor?: SortOrderInput | SortOrder
-    whatsapp_principal_fornecedor?: SortOrderInput | SortOrder
+    email_fornecedor?: SortOrderInput | SortOrder
+    telefone_fornecedor?: SortOrderInput | SortOrder
+    whatsapp_fornecedor?: SortOrderInput | SortOrder
     pode_ser_importador_fornecedor?: SortOrder
     pode_ser_exportador_fornecedor?: SortOrder
     pode_ser_fabricante_fornecedor?: SortOrder
@@ -21926,9 +23105,9 @@ export namespace Prisma {
     cidade_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
     endereco_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
     cep_zipcode_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
-    email_principal_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
-    telefone_principal_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
-    whatsapp_principal_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    email_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    telefone_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
+    whatsapp_fornecedor?: StringNullableWithAggregatesFilter<"Fornecedor"> | string | null
     pode_ser_importador_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
     pode_ser_exportador_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
     pode_ser_fabricante_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
@@ -21946,6 +23125,84 @@ export namespace Prisma {
     ativo_fornecedor?: BoolWithAggregatesFilter<"Fornecedor"> | boolean
     criado_em_fornecedor?: DateTimeWithAggregatesFilter<"Fornecedor"> | Date | string
     atualizado_em_fornecedor?: DateTimeWithAggregatesFilter<"Fornecedor"> | Date | string
+  }
+
+  export type FornecedorContatoWhereInput = {
+    AND?: FornecedorContatoWhereInput | FornecedorContatoWhereInput[]
+    OR?: FornecedorContatoWhereInput[]
+    NOT?: FornecedorContatoWhereInput | FornecedorContatoWhereInput[]
+    id_fornecedor_contato?: StringFilter<"FornecedorContato"> | string
+    id_fornecedor?: StringFilter<"FornecedorContato"> | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFilter<"FornecedorContato"> | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFilter<"FornecedorContato"> | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFilter<"FornecedorContato"> | string
+    principal_fornecedor_contato?: BoolFilter<"FornecedorContato"> | boolean
+    ordem_fornecedor_contato?: IntFilter<"FornecedorContato"> | number
+    criado_em_fornecedor_contato?: DateTimeFilter<"FornecedorContato"> | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFilter<"FornecedorContato"> | Date | string
+    fornecedor?: XOR<FornecedorRelationFilter, FornecedorWhereInput>
+  }
+
+  export type FornecedorContatoOrderByWithRelationInput = {
+    id_fornecedor_contato?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor_contato?: SortOrder
+    tipo_canal_fornecedor_contato?: SortOrder
+    valor_fornecedor_contato?: SortOrder
+    principal_fornecedor_contato?: SortOrder
+    ordem_fornecedor_contato?: SortOrder
+    criado_em_fornecedor_contato?: SortOrder
+    atualizado_em_fornecedor_contato?: SortOrder
+    fornecedor?: FornecedorOrderByWithRelationInput
+  }
+
+  export type FornecedorContatoWhereUniqueInput = Prisma.AtLeast<{
+    id_fornecedor_contato?: string
+    id_fornecedor_tipo_canal_fornecedor_contato_valor_fornecedor_contato?: FornecedorContatoId_fornecedorTipo_canal_fornecedor_contatoValor_fornecedor_contatoCompoundUniqueInput
+    AND?: FornecedorContatoWhereInput | FornecedorContatoWhereInput[]
+    OR?: FornecedorContatoWhereInput[]
+    NOT?: FornecedorContatoWhereInput | FornecedorContatoWhereInput[]
+    id_fornecedor?: StringFilter<"FornecedorContato"> | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFilter<"FornecedorContato"> | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFilter<"FornecedorContato"> | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFilter<"FornecedorContato"> | string
+    principal_fornecedor_contato?: BoolFilter<"FornecedorContato"> | boolean
+    ordem_fornecedor_contato?: IntFilter<"FornecedorContato"> | number
+    criado_em_fornecedor_contato?: DateTimeFilter<"FornecedorContato"> | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFilter<"FornecedorContato"> | Date | string
+    fornecedor?: XOR<FornecedorRelationFilter, FornecedorWhereInput>
+  }, "id_fornecedor_contato" | "id_fornecedor_tipo_canal_fornecedor_contato_valor_fornecedor_contato">
+
+  export type FornecedorContatoOrderByWithAggregationInput = {
+    id_fornecedor_contato?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor_contato?: SortOrder
+    tipo_canal_fornecedor_contato?: SortOrder
+    valor_fornecedor_contato?: SortOrder
+    principal_fornecedor_contato?: SortOrder
+    ordem_fornecedor_contato?: SortOrder
+    criado_em_fornecedor_contato?: SortOrder
+    atualizado_em_fornecedor_contato?: SortOrder
+    _count?: FornecedorContatoCountOrderByAggregateInput
+    _avg?: FornecedorContatoAvgOrderByAggregateInput
+    _max?: FornecedorContatoMaxOrderByAggregateInput
+    _min?: FornecedorContatoMinOrderByAggregateInput
+    _sum?: FornecedorContatoSumOrderByAggregateInput
+  }
+
+  export type FornecedorContatoScalarWhereWithAggregatesInput = {
+    AND?: FornecedorContatoScalarWhereWithAggregatesInput | FornecedorContatoScalarWhereWithAggregatesInput[]
+    OR?: FornecedorContatoScalarWhereWithAggregatesInput[]
+    NOT?: FornecedorContatoScalarWhereWithAggregatesInput | FornecedorContatoScalarWhereWithAggregatesInput[]
+    id_fornecedor_contato?: StringWithAggregatesFilter<"FornecedorContato"> | string
+    id_fornecedor?: StringWithAggregatesFilter<"FornecedorContato"> | string
+    id_organizacao_cadastro_fornecedor_contato?: StringWithAggregatesFilter<"FornecedorContato"> | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoWithAggregatesFilter<"FornecedorContato"> | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringWithAggregatesFilter<"FornecedorContato"> | string
+    principal_fornecedor_contato?: BoolWithAggregatesFilter<"FornecedorContato"> | boolean
+    ordem_fornecedor_contato?: IntWithAggregatesFilter<"FornecedorContato"> | number
+    criado_em_fornecedor_contato?: DateTimeWithAggregatesFilter<"FornecedorContato"> | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeWithAggregatesFilter<"FornecedorContato"> | Date | string
   }
 
   export type FornecedorOrganizacaoWhereInput = {
@@ -23445,9 +24702,9 @@ export namespace Prisma {
     cidade_fornecedor?: string | null
     endereco_fornecedor?: string | null
     cep_zipcode_fornecedor?: string | null
-    email_principal_fornecedor?: string | null
-    telefone_principal_fornecedor?: string | null
-    whatsapp_principal_fornecedor?: string | null
+    email_fornecedor?: string | null
+    telefone_fornecedor?: string | null
+    whatsapp_fornecedor?: string | null
     pode_ser_importador_fornecedor?: boolean
     pode_ser_exportador_fornecedor?: boolean
     pode_ser_fabricante_fornecedor?: boolean
@@ -23465,6 +24722,7 @@ export namespace Prisma {
     ativo_fornecedor?: boolean
     criado_em_fornecedor?: Date | string
     atualizado_em_fornecedor?: Date | string
+    contatos_fornecedor?: FornecedorContatoCreateNestedManyWithoutFornecedorInput
     fornecedores_organizacao?: FornecedorOrganizacaoCreateNestedManyWithoutFornecedorInput
   }
 
@@ -23481,9 +24739,9 @@ export namespace Prisma {
     cidade_fornecedor?: string | null
     endereco_fornecedor?: string | null
     cep_zipcode_fornecedor?: string | null
-    email_principal_fornecedor?: string | null
-    telefone_principal_fornecedor?: string | null
-    whatsapp_principal_fornecedor?: string | null
+    email_fornecedor?: string | null
+    telefone_fornecedor?: string | null
+    whatsapp_fornecedor?: string | null
     pode_ser_importador_fornecedor?: boolean
     pode_ser_exportador_fornecedor?: boolean
     pode_ser_fabricante_fornecedor?: boolean
@@ -23501,6 +24759,7 @@ export namespace Prisma {
     ativo_fornecedor?: boolean
     criado_em_fornecedor?: Date | string
     atualizado_em_fornecedor?: Date | string
+    contatos_fornecedor?: FornecedorContatoUncheckedCreateNestedManyWithoutFornecedorInput
     fornecedores_organizacao?: FornecedorOrganizacaoUncheckedCreateNestedManyWithoutFornecedorInput
   }
 
@@ -23517,9 +24776,9 @@ export namespace Prisma {
     cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
@@ -23537,6 +24796,7 @@ export namespace Prisma {
     ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
     atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    contatos_fornecedor?: FornecedorContatoUpdateManyWithoutFornecedorNestedInput
     fornecedores_organizacao?: FornecedorOrganizacaoUpdateManyWithoutFornecedorNestedInput
   }
 
@@ -23553,9 +24813,9 @@ export namespace Prisma {
     cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
@@ -23573,6 +24833,7 @@ export namespace Prisma {
     ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
     atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    contatos_fornecedor?: FornecedorContatoUncheckedUpdateManyWithoutFornecedorNestedInput
     fornecedores_organizacao?: FornecedorOrganizacaoUncheckedUpdateManyWithoutFornecedorNestedInput
   }
 
@@ -23589,9 +24850,9 @@ export namespace Prisma {
     cidade_fornecedor?: string | null
     endereco_fornecedor?: string | null
     cep_zipcode_fornecedor?: string | null
-    email_principal_fornecedor?: string | null
-    telefone_principal_fornecedor?: string | null
-    whatsapp_principal_fornecedor?: string | null
+    email_fornecedor?: string | null
+    telefone_fornecedor?: string | null
+    whatsapp_fornecedor?: string | null
     pode_ser_importador_fornecedor?: boolean
     pode_ser_exportador_fornecedor?: boolean
     pode_ser_fabricante_fornecedor?: boolean
@@ -23624,9 +24885,9 @@ export namespace Prisma {
     cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
@@ -23659,9 +24920,9 @@ export namespace Prisma {
     cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
@@ -23679,6 +24940,89 @@ export namespace Prisma {
     ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
     atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoCreateInput = {
+    id_fornecedor_contato: string
+    id_organizacao_cadastro_fornecedor_contato: string
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato: string
+    principal_fornecedor_contato?: boolean
+    ordem_fornecedor_contato?: number
+    criado_em_fornecedor_contato?: Date | string
+    atualizado_em_fornecedor_contato?: Date | string
+    fornecedor: FornecedorCreateNestedOneWithoutContatos_fornecedorInput
+  }
+
+  export type FornecedorContatoUncheckedCreateInput = {
+    id_fornecedor_contato: string
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor_contato: string
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato: string
+    principal_fornecedor_contato?: boolean
+    ordem_fornecedor_contato?: number
+    criado_em_fornecedor_contato?: Date | string
+    atualizado_em_fornecedor_contato?: Date | string
+  }
+
+  export type FornecedorContatoUpdateInput = {
+    id_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFieldUpdateOperationsInput | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    principal_fornecedor_contato?: BoolFieldUpdateOperationsInput | boolean
+    ordem_fornecedor_contato?: IntFieldUpdateOperationsInput | number
+    criado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContatos_fornecedorNestedInput
+  }
+
+  export type FornecedorContatoUncheckedUpdateInput = {
+    id_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFieldUpdateOperationsInput | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    principal_fornecedor_contato?: BoolFieldUpdateOperationsInput | boolean
+    ordem_fornecedor_contato?: IntFieldUpdateOperationsInput | number
+    criado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoCreateManyInput = {
+    id_fornecedor_contato: string
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor_contato: string
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato: string
+    principal_fornecedor_contato?: boolean
+    ordem_fornecedor_contato?: number
+    criado_em_fornecedor_contato?: Date | string
+    atualizado_em_fornecedor_contato?: Date | string
+  }
+
+  export type FornecedorContatoUpdateManyMutationInput = {
+    id_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFieldUpdateOperationsInput | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    principal_fornecedor_contato?: BoolFieldUpdateOperationsInput | boolean
+    ordem_fornecedor_contato?: IntFieldUpdateOperationsInput | number
+    criado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoUncheckedUpdateManyInput = {
+    id_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFieldUpdateOperationsInput | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    principal_fornecedor_contato?: BoolFieldUpdateOperationsInput | boolean
+    ordem_fornecedor_contato?: IntFieldUpdateOperationsInput | number
+    criado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FornecedorOrganizacaoCreateInput = {
@@ -25341,10 +26685,20 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type FornecedorContatoListRelationFilter = {
+    every?: FornecedorContatoWhereInput
+    some?: FornecedorContatoWhereInput
+    none?: FornecedorContatoWhereInput
+  }
+
   export type FornecedorOrganizacaoListRelationFilter = {
     every?: FornecedorOrganizacaoWhereInput
     some?: FornecedorOrganizacaoWhereInput
     none?: FornecedorOrganizacaoWhereInput
+  }
+
+  export type FornecedorContatoOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type FornecedorOrganizacaoOrderByRelationAggregateInput = {
@@ -25375,9 +26729,9 @@ export namespace Prisma {
     cidade_fornecedor?: SortOrder
     endereco_fornecedor?: SortOrder
     cep_zipcode_fornecedor?: SortOrder
-    email_principal_fornecedor?: SortOrder
-    telefone_principal_fornecedor?: SortOrder
-    whatsapp_principal_fornecedor?: SortOrder
+    email_fornecedor?: SortOrder
+    telefone_fornecedor?: SortOrder
+    whatsapp_fornecedor?: SortOrder
     pode_ser_importador_fornecedor?: SortOrder
     pode_ser_exportador_fornecedor?: SortOrder
     pode_ser_fabricante_fornecedor?: SortOrder
@@ -25410,9 +26764,9 @@ export namespace Prisma {
     cidade_fornecedor?: SortOrder
     endereco_fornecedor?: SortOrder
     cep_zipcode_fornecedor?: SortOrder
-    email_principal_fornecedor?: SortOrder
-    telefone_principal_fornecedor?: SortOrder
-    whatsapp_principal_fornecedor?: SortOrder
+    email_fornecedor?: SortOrder
+    telefone_fornecedor?: SortOrder
+    whatsapp_fornecedor?: SortOrder
     pode_ser_importador_fornecedor?: SortOrder
     pode_ser_exportador_fornecedor?: SortOrder
     pode_ser_fabricante_fornecedor?: SortOrder
@@ -25445,9 +26799,9 @@ export namespace Prisma {
     cidade_fornecedor?: SortOrder
     endereco_fornecedor?: SortOrder
     cep_zipcode_fornecedor?: SortOrder
-    email_principal_fornecedor?: SortOrder
-    telefone_principal_fornecedor?: SortOrder
-    whatsapp_principal_fornecedor?: SortOrder
+    email_fornecedor?: SortOrder
+    telefone_fornecedor?: SortOrder
+    whatsapp_fornecedor?: SortOrder
     pode_ser_importador_fornecedor?: SortOrder
     pode_ser_exportador_fornecedor?: SortOrder
     pode_ser_fabricante_fornecedor?: SortOrder
@@ -25467,6 +26821,105 @@ export namespace Prisma {
     atualizado_em_fornecedor?: SortOrder
   }
 
+  export type EnumTipoCanalFornecedorContatoFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCanalFornecedorContato | EnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCanalFornecedorContato[] | ListEnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCanalFornecedorContato[] | ListEnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCanalFornecedorContatoFilter<$PrismaModel> | $Enums.TipoCanalFornecedorContato
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type FornecedorRelationFilter = {
+    is?: FornecedorWhereInput
+    isNot?: FornecedorWhereInput
+  }
+
+  export type FornecedorContatoId_fornecedorTipo_canal_fornecedor_contatoValor_fornecedor_contatoCompoundUniqueInput = {
+    id_fornecedor: string
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato: string
+  }
+
+  export type FornecedorContatoCountOrderByAggregateInput = {
+    id_fornecedor_contato?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor_contato?: SortOrder
+    tipo_canal_fornecedor_contato?: SortOrder
+    valor_fornecedor_contato?: SortOrder
+    principal_fornecedor_contato?: SortOrder
+    ordem_fornecedor_contato?: SortOrder
+    criado_em_fornecedor_contato?: SortOrder
+    atualizado_em_fornecedor_contato?: SortOrder
+  }
+
+  export type FornecedorContatoAvgOrderByAggregateInput = {
+    ordem_fornecedor_contato?: SortOrder
+  }
+
+  export type FornecedorContatoMaxOrderByAggregateInput = {
+    id_fornecedor_contato?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor_contato?: SortOrder
+    tipo_canal_fornecedor_contato?: SortOrder
+    valor_fornecedor_contato?: SortOrder
+    principal_fornecedor_contato?: SortOrder
+    ordem_fornecedor_contato?: SortOrder
+    criado_em_fornecedor_contato?: SortOrder
+    atualizado_em_fornecedor_contato?: SortOrder
+  }
+
+  export type FornecedorContatoMinOrderByAggregateInput = {
+    id_fornecedor_contato?: SortOrder
+    id_fornecedor?: SortOrder
+    id_organizacao_cadastro_fornecedor_contato?: SortOrder
+    tipo_canal_fornecedor_contato?: SortOrder
+    valor_fornecedor_contato?: SortOrder
+    principal_fornecedor_contato?: SortOrder
+    ordem_fornecedor_contato?: SortOrder
+    criado_em_fornecedor_contato?: SortOrder
+    atualizado_em_fornecedor_contato?: SortOrder
+  }
+
+  export type FornecedorContatoSumOrderByAggregateInput = {
+    ordem_fornecedor_contato?: SortOrder
+  }
+
+  export type EnumTipoCanalFornecedorContatoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCanalFornecedorContato | EnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCanalFornecedorContato[] | ListEnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCanalFornecedorContato[] | ListEnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCanalFornecedorContatoWithAggregatesFilter<$PrismaModel> | $Enums.TipoCanalFornecedorContato
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTipoCanalFornecedorContatoFilter<$PrismaModel>
+    _max?: NestedEnumTipoCanalFornecedorContatoFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
   export type EnumTipoFornecedorOrganizacaoFilter<$PrismaModel = never> = {
     equals?: $Enums.TipoFornecedorOrganizacao | EnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
     in?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
@@ -25479,11 +26932,6 @@ export namespace Prisma {
     in?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
     notIn?: $Enums.StatusFornecedorOrganizacao[] | ListEnumStatusFornecedorOrganizacaoFieldRefInput<$PrismaModel>
     not?: NestedEnumStatusFornecedorOrganizacaoFilter<$PrismaModel> | $Enums.StatusFornecedorOrganizacao
-  }
-
-  export type FornecedorRelationFilter = {
-    is?: FornecedorWhereInput
-    isNot?: FornecedorWhereInput
   }
 
   export type FornecedorOrganizacaoId_fornecedorId_organizacaoTipo_fornecedor_organizacaoCompoundUniqueInput = {
@@ -25697,17 +27145,6 @@ export namespace Prisma {
     ativo_incoterm?: SortOrder
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type CambioSiscomexCountOrderByAggregateInput = {
     codigo_cambio_siscomex?: SortOrder
     tipo_cambio_siscomex?: SortOrder
@@ -25741,22 +27178,6 @@ export namespace Prisma {
 
   export type CambioSiscomexSumOrderByAggregateInput = {
     ordem_cambio_siscomex?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type PortoCountOrderByAggregateInput = {
@@ -26397,6 +27818,13 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type FornecedorContatoCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<FornecedorContatoCreateWithoutFornecedorInput, FornecedorContatoUncheckedCreateWithoutFornecedorInput> | FornecedorContatoCreateWithoutFornecedorInput[] | FornecedorContatoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorContatoCreateOrConnectWithoutFornecedorInput | FornecedorContatoCreateOrConnectWithoutFornecedorInput[]
+    createMany?: FornecedorContatoCreateManyFornecedorInputEnvelope
+    connect?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+  }
+
   export type FornecedorOrganizacaoCreateNestedManyWithoutFornecedorInput = {
     create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
     connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
@@ -26404,11 +27832,32 @@ export namespace Prisma {
     connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
   }
 
+  export type FornecedorContatoUncheckedCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<FornecedorContatoCreateWithoutFornecedorInput, FornecedorContatoUncheckedCreateWithoutFornecedorInput> | FornecedorContatoCreateWithoutFornecedorInput[] | FornecedorContatoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorContatoCreateOrConnectWithoutFornecedorInput | FornecedorContatoCreateOrConnectWithoutFornecedorInput[]
+    createMany?: FornecedorContatoCreateManyFornecedorInputEnvelope
+    connect?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+  }
+
   export type FornecedorOrganizacaoUncheckedCreateNestedManyWithoutFornecedorInput = {
     create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
     connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
     createMany?: FornecedorOrganizacaoCreateManyFornecedorInputEnvelope
     connect?: FornecedorOrganizacaoWhereUniqueInput | FornecedorOrganizacaoWhereUniqueInput[]
+  }
+
+  export type FornecedorContatoUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<FornecedorContatoCreateWithoutFornecedorInput, FornecedorContatoUncheckedCreateWithoutFornecedorInput> | FornecedorContatoCreateWithoutFornecedorInput[] | FornecedorContatoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorContatoCreateOrConnectWithoutFornecedorInput | FornecedorContatoCreateOrConnectWithoutFornecedorInput[]
+    upsert?: FornecedorContatoUpsertWithWhereUniqueWithoutFornecedorInput | FornecedorContatoUpsertWithWhereUniqueWithoutFornecedorInput[]
+    createMany?: FornecedorContatoCreateManyFornecedorInputEnvelope
+    set?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+    disconnect?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+    delete?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+    connect?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+    update?: FornecedorContatoUpdateWithWhereUniqueWithoutFornecedorInput | FornecedorContatoUpdateWithWhereUniqueWithoutFornecedorInput[]
+    updateMany?: FornecedorContatoUpdateManyWithWhereWithoutFornecedorInput | FornecedorContatoUpdateManyWithWhereWithoutFornecedorInput[]
+    deleteMany?: FornecedorContatoScalarWhereInput | FornecedorContatoScalarWhereInput[]
   }
 
   export type FornecedorOrganizacaoUpdateManyWithoutFornecedorNestedInput = {
@@ -26425,6 +27874,20 @@ export namespace Prisma {
     deleteMany?: FornecedorOrganizacaoScalarWhereInput | FornecedorOrganizacaoScalarWhereInput[]
   }
 
+  export type FornecedorContatoUncheckedUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<FornecedorContatoCreateWithoutFornecedorInput, FornecedorContatoUncheckedCreateWithoutFornecedorInput> | FornecedorContatoCreateWithoutFornecedorInput[] | FornecedorContatoUncheckedCreateWithoutFornecedorInput[]
+    connectOrCreate?: FornecedorContatoCreateOrConnectWithoutFornecedorInput | FornecedorContatoCreateOrConnectWithoutFornecedorInput[]
+    upsert?: FornecedorContatoUpsertWithWhereUniqueWithoutFornecedorInput | FornecedorContatoUpsertWithWhereUniqueWithoutFornecedorInput[]
+    createMany?: FornecedorContatoCreateManyFornecedorInputEnvelope
+    set?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+    disconnect?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+    delete?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+    connect?: FornecedorContatoWhereUniqueInput | FornecedorContatoWhereUniqueInput[]
+    update?: FornecedorContatoUpdateWithWhereUniqueWithoutFornecedorInput | FornecedorContatoUpdateWithWhereUniqueWithoutFornecedorInput[]
+    updateMany?: FornecedorContatoUpdateManyWithWhereWithoutFornecedorInput | FornecedorContatoUpdateManyWithWhereWithoutFornecedorInput[]
+    deleteMany?: FornecedorContatoScalarWhereInput | FornecedorContatoScalarWhereInput[]
+  }
+
   export type FornecedorOrganizacaoUncheckedUpdateManyWithoutFornecedorNestedInput = {
     create?: XOR<FornecedorOrganizacaoCreateWithoutFornecedorInput, FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput> | FornecedorOrganizacaoCreateWithoutFornecedorInput[] | FornecedorOrganizacaoUncheckedCreateWithoutFornecedorInput[]
     connectOrCreate?: FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput | FornecedorOrganizacaoCreateOrConnectWithoutFornecedorInput[]
@@ -26437,6 +27900,32 @@ export namespace Prisma {
     update?: FornecedorOrganizacaoUpdateWithWhereUniqueWithoutFornecedorInput | FornecedorOrganizacaoUpdateWithWhereUniqueWithoutFornecedorInput[]
     updateMany?: FornecedorOrganizacaoUpdateManyWithWhereWithoutFornecedorInput | FornecedorOrganizacaoUpdateManyWithWhereWithoutFornecedorInput[]
     deleteMany?: FornecedorOrganizacaoScalarWhereInput | FornecedorOrganizacaoScalarWhereInput[]
+  }
+
+  export type FornecedorCreateNestedOneWithoutContatos_fornecedorInput = {
+    create?: XOR<FornecedorCreateWithoutContatos_fornecedorInput, FornecedorUncheckedCreateWithoutContatos_fornecedorInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutContatos_fornecedorInput
+    connect?: FornecedorWhereUniqueInput
+  }
+
+  export type EnumTipoCanalFornecedorContatoFieldUpdateOperationsInput = {
+    set?: $Enums.TipoCanalFornecedorContato
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type FornecedorUpdateOneRequiredWithoutContatos_fornecedorNestedInput = {
+    create?: XOR<FornecedorCreateWithoutContatos_fornecedorInput, FornecedorUncheckedCreateWithoutContatos_fornecedorInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutContatos_fornecedorInput
+    upsert?: FornecedorUpsertWithoutContatos_fornecedorInput
+    connect?: FornecedorWhereUniqueInput
+    update?: XOR<XOR<FornecedorUpdateToOneWithWhereWithoutContatos_fornecedorInput, FornecedorUpdateWithoutContatos_fornecedorInput>, FornecedorUncheckedUpdateWithoutContatos_fornecedorInput>
   }
 
   export type FornecedorCreateNestedOneWithoutFornecedores_organizacaoInput = {
@@ -26463,14 +27952,6 @@ export namespace Prisma {
 
   export type NullableFloatFieldUpdateOperationsInput = {
     set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
     increment?: number
     decrement?: number
     multiply?: number
@@ -26615,6 +28096,50 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedEnumTipoCanalFornecedorContatoFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCanalFornecedorContato | EnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCanalFornecedorContato[] | ListEnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCanalFornecedorContato[] | ListEnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCanalFornecedorContatoFilter<$PrismaModel> | $Enums.TipoCanalFornecedorContato
+  }
+
+  export type NestedEnumTipoCanalFornecedorContatoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCanalFornecedorContato | EnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCanalFornecedorContato[] | ListEnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCanalFornecedorContato[] | ListEnumTipoCanalFornecedorContatoFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCanalFornecedorContatoWithAggregatesFilter<$PrismaModel> | $Enums.TipoCanalFornecedorContato
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTipoCanalFornecedorContatoFilter<$PrismaModel>
+    _max?: NestedEnumTipoCanalFornecedorContatoFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type NestedEnumTipoFornecedorOrganizacaoFilter<$PrismaModel = never> = {
     equals?: $Enums.TipoFornecedorOrganizacao | EnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
     in?: $Enums.TipoFornecedorOrganizacao[] | ListEnumTipoFornecedorOrganizacaoFieldRefInput<$PrismaModel>
@@ -26674,33 +28199,6 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type NestedEnumContainerTipoFilter<$PrismaModel = never> = {
@@ -26801,6 +28299,38 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type FornecedorContatoCreateWithoutFornecedorInput = {
+    id_fornecedor_contato: string
+    id_organizacao_cadastro_fornecedor_contato: string
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato: string
+    principal_fornecedor_contato?: boolean
+    ordem_fornecedor_contato?: number
+    criado_em_fornecedor_contato?: Date | string
+    atualizado_em_fornecedor_contato?: Date | string
+  }
+
+  export type FornecedorContatoUncheckedCreateWithoutFornecedorInput = {
+    id_fornecedor_contato: string
+    id_organizacao_cadastro_fornecedor_contato: string
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato: string
+    principal_fornecedor_contato?: boolean
+    ordem_fornecedor_contato?: number
+    criado_em_fornecedor_contato?: Date | string
+    atualizado_em_fornecedor_contato?: Date | string
+  }
+
+  export type FornecedorContatoCreateOrConnectWithoutFornecedorInput = {
+    where: FornecedorContatoWhereUniqueInput
+    create: XOR<FornecedorContatoCreateWithoutFornecedorInput, FornecedorContatoUncheckedCreateWithoutFornecedorInput>
+  }
+
+  export type FornecedorContatoCreateManyFornecedorInputEnvelope = {
+    data: FornecedorContatoCreateManyFornecedorInput | FornecedorContatoCreateManyFornecedorInput[]
+    skipDuplicates?: boolean
+  }
+
   export type FornecedorOrganizacaoCreateWithoutFornecedorInput = {
     id_fornecedor_organizacao?: string
     id_organizacao: string
@@ -26829,6 +28359,37 @@ export namespace Prisma {
   export type FornecedorOrganizacaoCreateManyFornecedorInputEnvelope = {
     data: FornecedorOrganizacaoCreateManyFornecedorInput | FornecedorOrganizacaoCreateManyFornecedorInput[]
     skipDuplicates?: boolean
+  }
+
+  export type FornecedorContatoUpsertWithWhereUniqueWithoutFornecedorInput = {
+    where: FornecedorContatoWhereUniqueInput
+    update: XOR<FornecedorContatoUpdateWithoutFornecedorInput, FornecedorContatoUncheckedUpdateWithoutFornecedorInput>
+    create: XOR<FornecedorContatoCreateWithoutFornecedorInput, FornecedorContatoUncheckedCreateWithoutFornecedorInput>
+  }
+
+  export type FornecedorContatoUpdateWithWhereUniqueWithoutFornecedorInput = {
+    where: FornecedorContatoWhereUniqueInput
+    data: XOR<FornecedorContatoUpdateWithoutFornecedorInput, FornecedorContatoUncheckedUpdateWithoutFornecedorInput>
+  }
+
+  export type FornecedorContatoUpdateManyWithWhereWithoutFornecedorInput = {
+    where: FornecedorContatoScalarWhereInput
+    data: XOR<FornecedorContatoUpdateManyMutationInput, FornecedorContatoUncheckedUpdateManyWithoutFornecedorInput>
+  }
+
+  export type FornecedorContatoScalarWhereInput = {
+    AND?: FornecedorContatoScalarWhereInput | FornecedorContatoScalarWhereInput[]
+    OR?: FornecedorContatoScalarWhereInput[]
+    NOT?: FornecedorContatoScalarWhereInput | FornecedorContatoScalarWhereInput[]
+    id_fornecedor_contato?: StringFilter<"FornecedorContato"> | string
+    id_fornecedor?: StringFilter<"FornecedorContato"> | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFilter<"FornecedorContato"> | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFilter<"FornecedorContato"> | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFilter<"FornecedorContato"> | string
+    principal_fornecedor_contato?: BoolFilter<"FornecedorContato"> | boolean
+    ordem_fornecedor_contato?: IntFilter<"FornecedorContato"> | number
+    criado_em_fornecedor_contato?: DateTimeFilter<"FornecedorContato"> | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFilter<"FornecedorContato"> | Date | string
   }
 
   export type FornecedorOrganizacaoUpsertWithWhereUniqueWithoutFornecedorInput = {
@@ -26861,7 +28422,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
   }
 
-  export type FornecedorCreateWithoutFornecedores_organizacaoInput = {
+  export type FornecedorCreateWithoutContatos_fornecedorInput = {
     id_fornecedor: string
     id_organizacao_cadastro_fornecedor: string
     id_produto_fornecedor?: string | null
@@ -26874,9 +28435,9 @@ export namespace Prisma {
     cidade_fornecedor?: string | null
     endereco_fornecedor?: string | null
     cep_zipcode_fornecedor?: string | null
-    email_principal_fornecedor?: string | null
-    telefone_principal_fornecedor?: string | null
-    whatsapp_principal_fornecedor?: string | null
+    email_fornecedor?: string | null
+    telefone_fornecedor?: string | null
+    whatsapp_fornecedor?: string | null
     pode_ser_importador_fornecedor?: boolean
     pode_ser_exportador_fornecedor?: boolean
     pode_ser_fabricante_fornecedor?: boolean
@@ -26894,6 +28455,167 @@ export namespace Prisma {
     ativo_fornecedor?: boolean
     criado_em_fornecedor?: Date | string
     atualizado_em_fornecedor?: Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoCreateNestedManyWithoutFornecedorInput
+  }
+
+  export type FornecedorUncheckedCreateWithoutContatos_fornecedorInput = {
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor: string
+    id_produto_fornecedor?: string | null
+    id_usuario_cadastro_fornecedor?: string | null
+    nome_fornecedor: string
+    cnpj_fornecedor?: string | null
+    tin_fornecedor?: string | null
+    pais_fornecedor: string
+    estado_provincia_fornecedor?: string | null
+    cidade_fornecedor?: string | null
+    endereco_fornecedor?: string | null
+    cep_zipcode_fornecedor?: string | null
+    email_fornecedor?: string | null
+    telefone_fornecedor?: string | null
+    whatsapp_fornecedor?: string | null
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: Date | string
+    atualizado_em_fornecedor?: Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoUncheckedCreateNestedManyWithoutFornecedorInput
+  }
+
+  export type FornecedorCreateOrConnectWithoutContatos_fornecedorInput = {
+    where: FornecedorWhereUniqueInput
+    create: XOR<FornecedorCreateWithoutContatos_fornecedorInput, FornecedorUncheckedCreateWithoutContatos_fornecedorInput>
+  }
+
+  export type FornecedorUpsertWithoutContatos_fornecedorInput = {
+    update: XOR<FornecedorUpdateWithoutContatos_fornecedorInput, FornecedorUncheckedUpdateWithoutContatos_fornecedorInput>
+    create: XOR<FornecedorCreateWithoutContatos_fornecedorInput, FornecedorUncheckedCreateWithoutContatos_fornecedorInput>
+    where?: FornecedorWhereInput
+  }
+
+  export type FornecedorUpdateToOneWithWhereWithoutContatos_fornecedorInput = {
+    where?: FornecedorWhereInput
+    data: XOR<FornecedorUpdateWithoutContatos_fornecedorInput, FornecedorUncheckedUpdateWithoutContatos_fornecedorInput>
+  }
+
+  export type FornecedorUpdateWithoutContatos_fornecedorInput = {
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_produto_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_cadastro_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_fornecedor?: StringFieldUpdateOperationsInput | string
+    cnpj_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_fornecedor?: StringFieldUpdateOperationsInput | string
+    estado_provincia_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoUpdateManyWithoutFornecedorNestedInput
+  }
+
+  export type FornecedorUncheckedUpdateWithoutContatos_fornecedorInput = {
+    id_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor?: StringFieldUpdateOperationsInput | string
+    id_produto_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_cadastro_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_fornecedor?: StringFieldUpdateOperationsInput | string
+    cnpj_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_fornecedor?: StringFieldUpdateOperationsInput | string
+    estado_provincia_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_alfandegado_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    fornecedores_organizacao?: FornecedorOrganizacaoUncheckedUpdateManyWithoutFornecedorNestedInput
+  }
+
+  export type FornecedorCreateWithoutFornecedores_organizacaoInput = {
+    id_fornecedor: string
+    id_organizacao_cadastro_fornecedor: string
+    id_produto_fornecedor?: string | null
+    id_usuario_cadastro_fornecedor?: string | null
+    nome_fornecedor: string
+    cnpj_fornecedor?: string | null
+    tin_fornecedor?: string | null
+    pais_fornecedor: string
+    estado_provincia_fornecedor?: string | null
+    cidade_fornecedor?: string | null
+    endereco_fornecedor?: string | null
+    cep_zipcode_fornecedor?: string | null
+    email_fornecedor?: string | null
+    telefone_fornecedor?: string | null
+    whatsapp_fornecedor?: string | null
+    pode_ser_importador_fornecedor?: boolean
+    pode_ser_exportador_fornecedor?: boolean
+    pode_ser_fabricante_fornecedor?: boolean
+    pode_ser_agente_fornecedor?: boolean
+    pode_ser_despachante_fornecedor?: boolean
+    pode_ser_armador_fornecedor?: boolean
+    pode_ser_armazem_alfandegado_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_fornecedor?: boolean
+    pode_ser_cia_aerea_fornecedor?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_fornecedor?: boolean
+    pode_ser_seguradora_internacional_fornecedor?: boolean
+    pode_ser_seguradora_corretora_cambio_fornecedor?: boolean
+    pode_ser_banco_fornecedor?: boolean
+    pode_ser_armazem_nacional_fornecedor?: boolean
+    ativo_fornecedor?: boolean
+    criado_em_fornecedor?: Date | string
+    atualizado_em_fornecedor?: Date | string
+    contatos_fornecedor?: FornecedorContatoCreateNestedManyWithoutFornecedorInput
   }
 
   export type FornecedorUncheckedCreateWithoutFornecedores_organizacaoInput = {
@@ -26909,9 +28631,9 @@ export namespace Prisma {
     cidade_fornecedor?: string | null
     endereco_fornecedor?: string | null
     cep_zipcode_fornecedor?: string | null
-    email_principal_fornecedor?: string | null
-    telefone_principal_fornecedor?: string | null
-    whatsapp_principal_fornecedor?: string | null
+    email_fornecedor?: string | null
+    telefone_fornecedor?: string | null
+    whatsapp_fornecedor?: string | null
     pode_ser_importador_fornecedor?: boolean
     pode_ser_exportador_fornecedor?: boolean
     pode_ser_fabricante_fornecedor?: boolean
@@ -26929,6 +28651,7 @@ export namespace Prisma {
     ativo_fornecedor?: boolean
     criado_em_fornecedor?: Date | string
     atualizado_em_fornecedor?: Date | string
+    contatos_fornecedor?: FornecedorContatoUncheckedCreateNestedManyWithoutFornecedorInput
   }
 
   export type FornecedorCreateOrConnectWithoutFornecedores_organizacaoInput = {
@@ -26960,9 +28683,9 @@ export namespace Prisma {
     cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
@@ -26980,6 +28703,7 @@ export namespace Prisma {
     ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
     atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    contatos_fornecedor?: FornecedorContatoUpdateManyWithoutFornecedorNestedInput
   }
 
   export type FornecedorUncheckedUpdateWithoutFornecedores_organizacaoInput = {
@@ -26995,9 +28719,9 @@ export namespace Prisma {
     cidade_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     endereco_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     cep_zipcode_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    email_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_principal_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    email_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_fornecedor?: NullableStringFieldUpdateOperationsInput | string | null
     pode_ser_importador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_exportador_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_fabricante_fornecedor?: BoolFieldUpdateOperationsInput | boolean
@@ -27015,6 +28739,18 @@ export namespace Prisma {
     ativo_fornecedor?: BoolFieldUpdateOperationsInput | boolean
     criado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
     atualizado_em_fornecedor?: DateTimeFieldUpdateOperationsInput | Date | string
+    contatos_fornecedor?: FornecedorContatoUncheckedUpdateManyWithoutFornecedorNestedInput
+  }
+
+  export type FornecedorContatoCreateManyFornecedorInput = {
+    id_fornecedor_contato: string
+    id_organizacao_cadastro_fornecedor_contato: string
+    tipo_canal_fornecedor_contato: $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato: string
+    principal_fornecedor_contato?: boolean
+    ordem_fornecedor_contato?: number
+    criado_em_fornecedor_contato?: Date | string
+    atualizado_em_fornecedor_contato?: Date | string
   }
 
   export type FornecedorOrganizacaoCreateManyFornecedorInput = {
@@ -27025,6 +28761,39 @@ export namespace Prisma {
     id_usuario?: string | null
     data_criacao_fornecedor_organizacao?: Date | string
     data_atualizacao_fornecedor_organizacao?: Date | string
+  }
+
+  export type FornecedorContatoUpdateWithoutFornecedorInput = {
+    id_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFieldUpdateOperationsInput | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    principal_fornecedor_contato?: BoolFieldUpdateOperationsInput | boolean
+    ordem_fornecedor_contato?: IntFieldUpdateOperationsInput | number
+    criado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoUncheckedUpdateWithoutFornecedorInput = {
+    id_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFieldUpdateOperationsInput | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    principal_fornecedor_contato?: BoolFieldUpdateOperationsInput | boolean
+    ordem_fornecedor_contato?: IntFieldUpdateOperationsInput | number
+    criado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoUncheckedUpdateManyWithoutFornecedorInput = {
+    id_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    id_organizacao_cadastro_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    tipo_canal_fornecedor_contato?: EnumTipoCanalFornecedorContatoFieldUpdateOperationsInput | $Enums.TipoCanalFornecedorContato
+    valor_fornecedor_contato?: StringFieldUpdateOperationsInput | string
+    principal_fornecedor_contato?: BoolFieldUpdateOperationsInput | boolean
+    ordem_fornecedor_contato?: IntFieldUpdateOperationsInput | number
+    criado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_fornecedor_contato?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FornecedorOrganizacaoUpdateWithoutFornecedorInput = {
@@ -27074,6 +28843,10 @@ export namespace Prisma {
      * @deprecated Use FornecedorDefaultArgs instead
      */
     export type FornecedorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FornecedorDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use FornecedorContatoDefaultArgs instead
+     */
+    export type FornecedorContatoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FornecedorContatoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use FornecedorOrganizacaoDefaultArgs instead
      */

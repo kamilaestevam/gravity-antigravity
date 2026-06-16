@@ -6,6 +6,10 @@ import { z } from 'zod'
 import { injetarHeaderOverride } from '@gravity/shell'
 import { tipoFornecedorOrganizacaoEnum } from '../../shared/tipo-fornecedor-organizacao.js'
 import {
+  criarGravityApiErrorDeCorpo,
+  type CorpoErroApiGravity,
+} from '../utils/gravity-api-error.js'
+import {
   testeFavoritoUsuarioSchema,
   type TesteFavoritoUsuario,
 } from '@testes/infra/admin/testes-favoritos-admin'
@@ -68,8 +72,8 @@ async function request<T>(
   })
 
   if (!res.ok) {
-    const body = await res.json().catch(() => ({ error: { message: res.statusText } }))
-    throw new Error(body?.error?.message ?? body?.message ?? `HTTP ${res.status}`)
+    const body = await res.json().catch(() => ({ error: { message: res.statusText } })) as CorpoErroApiGravity
+    throw criarGravityApiErrorDeCorpo(body, `HTTP ${res.status}`)
   }
 
   // 204 No Content / corpo vazio: não tentar parsear JSON (lança SyntaxError em delete bem-sucedido)

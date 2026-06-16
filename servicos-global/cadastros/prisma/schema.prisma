@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-06-12T21:14:02.350Z
+// Gerado em: 2026-06-16T11:49:41.702Z
 // Banco: gravity-cadastros-* (Railway)
 // Serviço: @gravity/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -121,9 +121,11 @@ model Fornecedor {
   cidade_fornecedor            String?
   endereco_fornecedor          String?
   cep_zipcode_fornecedor       String?
-  email_principal_fornecedor   String?
-  telefone_principal_fornecedor String?
-  whatsapp_principal_fornecedor String?
+  email_fornecedor    String?
+  telefone_fornecedor String?
+  whatsapp_fornecedor String?
+
+  contatos_fornecedor FornecedorContato[]
 
   pode_ser_importador_fornecedor                              Boolean @default(false)
   pode_ser_exportador_fornecedor                              Boolean @default(false)
@@ -153,6 +155,35 @@ model Fornecedor {
   @@index([id_organizacao_cadastro_fornecedor, id_usuario_cadastro_fornecedor],            map: "forn_org_usr_idx")
   @@index([id_organizacao_cadastro_fornecedor, nome_fornecedor],                           map: "forn_org_nome_idx")
   @@map("fornecedor")
+}
+
+enum TipoCanalFornecedorContato {
+  EMAIL
+  WHATSAPP
+  TELEFONE
+}
+
+model FornecedorContato {
+  id_fornecedor_contato String @id
+
+  id_fornecedor String
+  id_organizacao_cadastro_fornecedor_contato String
+
+  tipo_canal_fornecedor_contato TipoCanalFornecedorContato
+  valor_fornecedor_contato      String
+  principal_fornecedor_contato  Boolean @default(false)
+  ordem_fornecedor_contato      Int     @default(0)
+
+  criado_em_fornecedor_contato     DateTime @default(now())
+  atualizado_em_fornecedor_contato DateTime @updatedAt
+
+  fornecedor Fornecedor @relation(fields: [id_fornecedor], references: [id_fornecedor], onDelete: Cascade)
+
+  @@unique([id_fornecedor, tipo_canal_fornecedor_contato, valor_fornecedor_contato], map: "forn_contato_unq_forn_canal_valor")
+  @@index([id_organizacao_cadastro_fornecedor_contato], map: "forn_contato_org_idx")
+  @@index([id_organizacao_cadastro_fornecedor_contato, id_fornecedor], map: "forn_contato_org_forn_idx")
+  @@index([id_fornecedor], map: "forn_contato_forn_idx")
+  @@map("fornecedor_contato")
 }
 
 // ---------------------------------------------------------------------
@@ -308,10 +339,8 @@ model CambioSiscomex {
 
 // ---------------------------------------------------------------------
 // Porto — catálogo global de portos marítimos/fluviais (UN/LOCODE).
-// Fonte: UNECE UN/LOCODE (datahub.io), importação completa (~17k) via seed-unlocode-portos.ts.
+// Fonte: UNECE UN/LOCODE (datahub.io), ~6.000 portos ativos.
 // Critério de inclusão: Function contém "1" (port) ou "8" (inland water).
-// Camadas: ativo_porto=true (~270 operacionais COMEX — canônicos + AA Américas);
-//          ativo_porto=false (catálogo extenso — busca por código com apenas_ativos=false).
 // Atualizado 2x/ano pelo UN (via seed script manual).
 // Catálogo global — sem id_organizacao.
 // Lei: skills/governanca/lei/cadastros-snapshot-policy/SKILL.md

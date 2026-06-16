@@ -61,6 +61,15 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
 
   const dedupKey = randomUUID()
 
+  if (!process.env.RESEND_API_KEY?.trim()) {
+    return {
+      resendId: null,
+      dedupKey,
+      success: false,
+      error: 'RESEND_API_KEY não configurado',
+    }
+  }
+
   // Reply-To dinâmico para threading via inbound webhook
   let replyTo: string | undefined
   if (process.env.EMAIL_INBOUND_ADDRESS) {

@@ -88,9 +88,11 @@ model Fornecedor {
   cidade_fornecedor            String?
   endereco_fornecedor          String?
   cep_zipcode_fornecedor       String?
-  email_principal_fornecedor   String?
-  telefone_principal_fornecedor String?
-  whatsapp_principal_fornecedor String?
+  email_fornecedor    String?
+  telefone_fornecedor String?
+  whatsapp_fornecedor String?
+
+  contatos_fornecedor FornecedorContato[]
 
   pode_ser_importador_fornecedor                              Boolean @default(false)
   pode_ser_exportador_fornecedor                              Boolean @default(false)
@@ -120,6 +122,35 @@ model Fornecedor {
   @@index([id_organizacao_cadastro_fornecedor, id_usuario_cadastro_fornecedor],            map: "forn_org_usr_idx")
   @@index([id_organizacao_cadastro_fornecedor, nome_fornecedor],                           map: "forn_org_nome_idx")
   @@map("fornecedor")
+}
+
+enum TipoCanalFornecedorContato {
+  EMAIL
+  WHATSAPP
+  TELEFONE
+}
+
+model FornecedorContato {
+  id_fornecedor_contato String @id
+
+  id_fornecedor String
+  id_organizacao_cadastro_fornecedor_contato String
+
+  tipo_canal_fornecedor_contato TipoCanalFornecedorContato
+  valor_fornecedor_contato      String
+  principal_fornecedor_contato  Boolean @default(false)
+  ordem_fornecedor_contato      Int     @default(0)
+
+  criado_em_fornecedor_contato     DateTime @default(now())
+  atualizado_em_fornecedor_contato DateTime @updatedAt
+
+  fornecedor Fornecedor @relation(fields: [id_fornecedor], references: [id_fornecedor], onDelete: Cascade)
+
+  @@unique([id_fornecedor, tipo_canal_fornecedor_contato, valor_fornecedor_contato], map: "forn_contato_unq_forn_canal_valor")
+  @@index([id_organizacao_cadastro_fornecedor_contato], map: "forn_contato_org_idx")
+  @@index([id_organizacao_cadastro_fornecedor_contato, id_fornecedor], map: "forn_contato_org_forn_idx")
+  @@index([id_fornecedor], map: "forn_contato_forn_idx")
+  @@map("fornecedor_contato")
 }
 
 // ---------------------------------------------------------------------

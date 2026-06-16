@@ -16,6 +16,7 @@ const DispararSchema = z.object({
   id_cotacao_bid_frete_internacional: z.string().min(1),
   fornecedor_ids: z.array(z.string()).min(1),
   canais: z.array(z.enum(['EMAIL', 'WHATSAPP'])).min(1),
+  emails_por_fornecedor: z.record(z.string(), z.string().email()).optional(),
 })
 
 const CotacaoAbertaSchema = z.object({
@@ -38,6 +39,7 @@ router.post('/disparar', async (req: Request, res: Response, next: NextFunction)
       canais: parsed.data.canais,
       id_usuario: userId,
       id_organizacao: req.tenantId!,
+      emails_por_fornecedor: parsed.data.emails_por_fornecedor,
     })
 
     res.json(resultado)

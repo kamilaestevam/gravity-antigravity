@@ -80,10 +80,25 @@
 /* ── Corpo ── */
 
 .mnc-corpo {
+  --mnc-campo-altura: 28px;
+  --mnc-campo-padding-x: 10px;
+
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   padding: 0;
+}
+
+/* Altura padrão 28px — inputs de texto e SelectGlobal */
+.mnc-corpo .mnc-input,
+.mnc-corpo .sg-campo {
+  height: var(--mnc-campo-altura);
+  min-height: var(--mnc-campo-altura);
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: var(--mnc-campo-padding-x);
+  padding-right: var(--mnc-campo-padding-x);
+  line-height: 1;
 }
 
 .mnc-campo {
@@ -200,8 +215,6 @@
 
 /* Input texto com o mesmo visual do gatilho SelectGlobal (ex.: visibilidade) */
 .mnc-corpo .mnc-input--como-select {
-  min-height: 2.5rem;
-  padding: 0.5625rem 0.875rem;
   background: var(--ws-bg-body, #0f172a);
   border: 1.5px solid var(--ws-accent-border, var(--border-subtle));
   border-radius: var(--radius-md, 8px);
@@ -213,8 +226,24 @@
   box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
 }
 
-.mnc-corpo .mnc-input--como-select::placeholder {
+.mnc-corpo .mnc-input--como-select::placeholder,
+.mnc-corpo .mnc-input--opcao::placeholder {
   color: var(--ws-muted, var(--text-muted, #94a3b8));
+}
+
+.mnc-corpo .mnc-input--readonly {
+  border: 1.5px solid var(--ws-accent-border, var(--border-subtle));
+  border-radius: var(--radius-md, 8px);
+}
+
+.mnc-corpo .mnc-input--opcao {
+  background: var(--ws-bg-body, #0f172a);
+  border: 1.5px solid var(--ws-accent-border, var(--border-subtle));
+  border-radius: var(--radius-md, 8px);
+}
+
+.mnc-corpo .mnc-tokens__placeholder {
+  font-size: 12px;
 }
 
 .mnc-input:focus,
@@ -346,6 +375,25 @@
 }
 
 /* ── Tokens (editor pill-based de fórmula) ── */
+
+.mnc-corpo .mnc-tokens {
+  min-height: var(--mnc-campo-altura);
+  padding: 0 var(--mnc-campo-padding-x);
+  background: var(--ws-bg-body, #0f172a);
+  border: 1.5px solid var(--ws-accent-border, var(--border-subtle));
+  border-radius: var(--radius-md, 8px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  box-sizing: border-box;
+}
+
+.mnc-corpo .mnc-tokens:focus-within:not(.mnc-tokens--erro):not(.mnc-tokens--ok) {
+  border-color: var(--ws-accent, #818cf8);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+}
 
 .mnc-tokens {
   min-height: 2.5rem;
@@ -481,6 +529,16 @@
 
 /* ── Opções (select / tipo_documento) ── */
 
+.mnc-corpo .mnc-opcoes-lista {
+  min-height: var(--mnc-campo-altura);
+  padding: 0 var(--mnc-campo-padding-x);
+  align-items: center;
+  background: var(--ws-bg-body, #0f172a);
+  border: 1.5px solid var(--ws-accent-border, var(--border-subtle));
+  border-radius: var(--radius-md, 8px);
+  box-sizing: border-box;
+}
+
 .mnc-opcoes-lista {
   display: flex;
   flex-wrap: wrap;
@@ -525,6 +583,12 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+}
+
+.mnc-corpo .mnc-btn-add-opcao {
+  width: var(--mnc-campo-altura);
+  height: var(--mnc-campo-altura);
+  border-radius: var(--radius-md, 8px);
 }
 
 .mnc-btn-add-opcao {

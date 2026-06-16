@@ -33,6 +33,7 @@ import {
   ehSlugProdutoBidFrete,
   togglesGranularesPorProduto,
 } from '../../../shared/index.js'
+import { formatarErroSalvarPermissaoUsuario } from '../../utils/formatar-erro-salvar-permissao-usuario.js'
 
 /**
  * Item da lista de chamadas a `PUT /api/v1/usuarios/:id/permissoes` que o
@@ -47,6 +48,9 @@ export interface PermissaoSalvar {
   id_produto_gravity: string
   /** Strings completas no formato `<slug>:<secao>:<acao>`. */
   permissoes: string[]
+  /** Metadados para mensagens de erro legíveis (não enviados à API). */
+  nome_workspace?: string
+  nome_produto?: string
 }
 
 interface ModalEditarUsuarioProps {
@@ -374,9 +378,21 @@ interface AbaPermissoesProps {
   aplicarTodosRef: React.MutableRefObject<boolean>
   /** Standard/Fornecedor: checkbox "Aplicar a todos os workspaces" marcado ao abrir. */
   aplicarTodosInicial: boolean
+  /** Aviso preventivo antes de salvar «Pode cotar» sem Cadastros provisionado. */
+  avisoPreRequisitoVisaoFornecedor: string | null
 }
 
-function AvisoErroCarga({ mensagem, contexto, titulo }: { mensagem: string; contexto: string; titulo?: string }) {
+function AvisoErroCarga({
+  mensagem,
+  contexto,
+  titulo,
+  variant = 'carga',
+}: {
+  mensagem: string
+  contexto: string
+  titulo?: string
+  variant?: 'carga' | 'salvar'
+}) {
   return (
     <div style={{
       padding: '0.75rem 1rem', borderRadius: 8,
@@ -386,10 +402,19 @@ function AvisoErroCarga({ mensagem, contexto, titulo }: { mensagem: string; cont
       <span style={{ color: '#ef4444', fontSize: '1rem', lineHeight: 1, marginTop: 1 }}>⚠</span>
       <div>
         <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fca5a5', margin: 0 }}>
-          {titulo ?? `Falha ao carregar ${contexto}`}
+          {titulo ?? (variant === 'salvar' ? 'Não foi possível salvar' : `Falha ao carregar ${contexto}`)}
         </p>
-        <p style={{ fontSize: '0.6875rem', color: '#fda4af', margin: '0.125rem 0 0' }}>
-          {mensagem}. Feche e reabra o modal — não salve enquanto o aviso permanecer (risco de sobrescrita).
+        <p style={{
+          fontSize: '0.6875rem',
+          color: '#fda4af',
+          margin: '0.25rem 0 0',
+          whiteSpace: 'pre-line',
+          lineHeight: 1.45,
+        }}>
+          {mensagem}
+          {variant === 'carga'
+            ? '. Feche e reabra o modal — não salve enquanto o aviso permanecer (risco de sobrescrita).'
+            : ''}
         </p>
       </div>
     </div>
@@ -451,12 +476,13 @@ function CardEmBreve({ titulo, descricao, icone: Icone }: {
   )
 }
 
-const CardProdutoAtivo = React.memo(function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, onSelecionarTudoProduto, desabilitarEdicao = false }: {
+const CardProdutoAtivo = React.memo(function CardProdutoAtivo({ produto, permissoesDoWorkspace, onTogglePermissao, onSelecionarTudoProduto, desabilitarEdicao = false, avisoPreRequisitoVisaoFornecedor = null }: {
   produto: ProdutoWorkspaceItem
   permissoesDoWorkspace: Set<string>
   onTogglePermissao: (chave: string, marcada: boolean) => void
   onSelecionarTudoProduto: (slug: string, marcadas: boolean) => void
   desabilitarEdicao?: boolean
+  avisoPreRequisitoVisaoFornecedor?: string | null
 }) {
   const slug = produto.product_key
   const nome = produto.catalog?.name ?? slug
@@ -548,6 +574,22 @@ const CardProdutoAtivo = React.memo(function CardProdutoAtivo({ produto, permiss
             paddingTop: '1rem',
             borderTop: '1px solid rgba(129,140,248,0.15)',
           }}>
+            {avisoPreRequisitoVisaoFornecedor && (
+              <div style={{
+                marginBottom: '0.75rem',
+                padding: '0.75rem',
+                borderRadius: 8,
+                background: 'rgba(245,158,11,0.08)',
+                border: '1px solid rgba(245,158,11,0.35)',
+              }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fbbf24', margin: '0 0 0.35rem' }}>
+                  Antes de habilitar a visão fornecedor
+                </p>
+                <p style={{ fontSize: '0.6875rem', color: '#fcd34d', margin: 0, whiteSpace: 'pre-line', lineHeight: 1.45 }}>
+                  {avisoPreRequisitoVisaoFornecedor}
+                </p>
+              </div>
+            )}
             <p style={{
               fontSize: '0.6875rem',
               fontWeight: 800,
@@ -599,6 +641,7 @@ function AbaPermissoes({
   master, tipo, workspaceSelecionado, workspacesVinculados, produtos, permissoesDoWorkspace,
   carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar,
   onSelecionarWorkspace, onTogglePermissao, onSelecionarTudoProduto, aplicarTodosRef, aplicarTodosInicial,
+  avisoPreRequisitoVisaoFornecedor,
 }: AbaPermissoesProps & { tipo: NivelAcesso }) {
   const [aplicarTodos, setAplicarTodos] = useState(aplicarTodosInicial)
   useEffect(() => {
@@ -648,6 +691,7 @@ function AbaPermissoes({
           mensagem={erroSalvar}
           contexto="salvar permissões"
           titulo="Não foi possível salvar as permissões"
+          variant="salvar"
         />
       )}
 
@@ -743,6 +787,9 @@ function AbaPermissoes({
                 onTogglePermissao={onTogglePermissao}
                 onSelecionarTudoProduto={onSelecionarTudoProduto}
                 desabilitarEdicao={master}
+                avisoPreRequisitoVisaoFornecedor={
+                  ehSlugProdutoBidFrete(p.product_key) ? avisoPreRequisitoVisaoFornecedor : null
+                }
               />
             ))}
             {produtosEmBreve.map(p => (
@@ -1157,6 +1204,17 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
   // Count para a aba "Permissões" — só toggles granulares (exclui chaves de Portão 3)
   const countPermissoes = master ? '✶' : permissoesAtivasDoWs.filter(p => !ehPermissaoAcessoUsuarioProdutoGravity(p)).length
 
+  const avisoPreRequisitoVisaoFornecedor = useMemo(() => {
+    if (master || tipo !== 'Fornecedor') return null
+    if (usuario?.status_usuario === 'CONVIDADO') {
+      return 'Este usuário ainda está CONVIDADO. Peça para aceitar o convite e fazer login (status ATIVO) antes de habilitar «Pode cotar frete internacional».'
+    }
+    if (!usuario?.nome_fornecedor?.trim()) {
+      return 'Este fornecedor não tem empresa vinculada no Cadastros. Reconvide em Usuários → Convidar, selecionando tipo Fornecedor, categoria (ex.: Agente de carga) e a empresa do cartório em Configurador → Fornecedores.'
+    }
+    return null
+  }, [master, tipo, usuario?.status_usuario, usuario?.nome_fornecedor])
+
   const requisitos = useMemo<RequisitoSalvar[]>(() => [
     { chave: 'nome',  ok: !!nome.trim(),  mensagem: 'Nome do usuário' },
     { chave: 'email', ok: !!email.trim(), mensagem: 'E-mail do usuário' },
@@ -1226,6 +1284,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
             onSelecionarTudoProduto={handleSelecionarTudoProduto}
             aplicarTodosRef={aplicarTodosRef}
             aplicarTodosInicial={aplicarTodosInicial}
+            avisoPreRequisitoVisaoFornecedor={avisoPreRequisitoVisaoFornecedor}
           />
           <div style={{ padding: '0 1.5rem 1rem' }}>
             <BannerRequisitosGlobal />
@@ -1253,7 +1312,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
         </BannerRequisitosContexto>
       ),
     },
-  ], [nome, email, tipo, tiposPermitidos, master, aplicarTodosInicial, countPermissoes, totalToggles, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos, somenteLeitura])
+  ], [nome, email, tipo, tiposPermitidos, master, aplicarTodosInicial, countPermissoes, totalToggles, workspaceSelecionado, workspacesVinculados, produtosDoWsSelecionado, permissoesDoWorkspaceSet, carregandoProdutos, erroCargaPermissoes, erroCargaProdutos, erroSalvar, workspacesAtivos, workspaces, workspacesSalvos, carregandoWorkspaces, requisitos, somenteLeitura, avisoPreRequisitoVisaoFornecedor])
 
   // Dirty: comparar mapa atual de permissões com mapa carregado do backend
   // (set-based diff, ignora ordem). Para Master/SAdmin/Admin, ignora permissões
@@ -1380,6 +1439,8 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
               id_workspace,
               id_produto_gravity,
               permissoes: [...setNovo],
+              nome_workspace: workspaces.find((w) => w.id_workspace === id_workspace)?.nome_workspace,
+              nome_produto: produtosDoWs.find((p) => p.product_key === slug)?.catalog?.name ?? slug,
             })
           }
         }
@@ -1463,9 +1524,16 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, 
       setPermissoesOriginaisPorWorkspace(permissoesPorWorkspace)
       aoFechar()
     } catch (err) {
+      const msg = err instanceof Error && err.message.includes('O que fazer:')
+        ? err.message
+        : formatarErroSalvarPermissaoUsuario(err).modal
+      const toast = err instanceof Error && err.message.includes('O que fazer:')
+        ? err.message.split('\n')[0]
+        : formatarErroSalvarPermissaoUsuario(err).toast
+      setErroSalvar(msg)
       addNotification({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Falha ao salvar alterações do usuário.',
+        message: toast,
       })
       throw err
     }

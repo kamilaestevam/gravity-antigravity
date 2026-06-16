@@ -52,12 +52,16 @@ describe('provisionarPrestadorFornecedor — convite com id_fornecedor', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env.ID_ORGANIZACAO_GRAVITY = ORG_GRAVITY
+    process.env.CHAVE_INTERNA_SERVICO = 'chave-teste-unit'
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }))
     mockListarVinculosFornecedorPorUsuario.mockResolvedValue([])
     mockCriarVinculoFornecedorOrganizacao.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
     delete process.env.ID_ORGANIZACAO_GRAVITY
+    delete process.env.CHAVE_INTERNA_SERVICO
+    vi.unstubAllGlobals()
   })
 
   it('404 quando fornecedor não existe no cartório da org cliente', async () => {
@@ -179,7 +183,7 @@ describe('exigirVinculosCadastrosFornecedorAtivos', () => {
         id_usuario: ID_USUARIO,
         id_organizacao: ORG_CLIENTE,
       }),
-    ).rejects.toMatchObject({ statusCode: 422, code: 'FORNECEDOR_NAO_PROVISIONADO' })
+    ).rejects.toMatchObject({ statusCode: 422, code: 'FORNECEDOR_VINCULO_INATIVO' })
   })
 
   it('retorna vínculos ATIVO da org alvo', async () => {

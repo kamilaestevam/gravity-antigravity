@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { fornecedorContatoInputSchema, fornecedorContatoSchema } from './fornecedor-contato.schema.js'
 
 /**
  * Validações do Fornecedor (cartório COMEX) — contrato bilateral (Mandamento 09).
@@ -26,9 +27,10 @@ const fornecedorBaseSchema = z.object({
   cidade_fornecedor: z.string().nullable().optional(),
   endereco_fornecedor: z.string().nullable().optional(),
   cep_zipcode_fornecedor: z.string().nullable().optional(),
-  email_principal_fornecedor: z.string().email('email_principal_fornecedor inválido').nullable().optional(),
-  telefone_principal_fornecedor: z.string().nullable().optional(),
-  whatsapp_principal_fornecedor: z.string().regex(e164Regex, 'whatsapp_principal_fornecedor precisa estar no formato E.164').nullable().optional(),
+  email_fornecedor: z.string().email('email_fornecedor inválido').nullable().optional(),
+  telefone_fornecedor: z.string().nullable().optional(),
+  whatsapp_fornecedor: z.string().regex(e164Regex, 'whatsapp_fornecedor precisa estar no formato E.164').nullable().optional(),
+  contatos_fornecedor: z.array(fornecedorContatoInputSchema).optional(),
   pode_ser_importador_fornecedor: z.boolean().default(false),
   pode_ser_exportador_fornecedor: z.boolean().default(false),
   pode_ser_fabricante_fornecedor: z.boolean().default(false),
@@ -108,9 +110,10 @@ export const fornecedorSchema = z.object({
   cidade_fornecedor: z.string().nullable(),
   endereco_fornecedor: z.string().nullable(),
   cep_zipcode_fornecedor: z.string().nullable(),
-  email_principal_fornecedor: z.string().nullable(),
-  telefone_principal_fornecedor: z.string().nullable(),
-  whatsapp_principal_fornecedor: z.string().nullable(),
+  email_fornecedor: z.string().nullable(),
+  telefone_fornecedor: z.string().nullable(),
+  whatsapp_fornecedor: z.string().nullable(),
+  contatos_fornecedor: z.array(fornecedorContatoSchema).default([]),
   pode_ser_importador_fornecedor: z.boolean(),
   pode_ser_exportador_fornecedor: z.boolean(),
   pode_ser_fabricante_fornecedor: z.boolean(),

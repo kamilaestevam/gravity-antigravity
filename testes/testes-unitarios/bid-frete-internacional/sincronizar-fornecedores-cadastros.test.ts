@@ -43,6 +43,9 @@ describe('sincronizar-fornecedores-cadastros', () => {
     expect(
       resolverEmailFornecedorBidFrete(parceiroBase({ email_principal_fornecedor: 'Contato@Exemplo.com' })),
     ).toBe('contato@exemplo.com')
+    expect(
+      resolverEmailFornecedorBidFrete(parceiroBase({ email_fornecedor: 'Novo@Exemplo.com' })),
+    ).toBe('novo@exemplo.com')
   })
 
   it('materializa id_fornecedor do Cadastros como PK do BID', () => {

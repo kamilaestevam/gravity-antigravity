@@ -12,7 +12,9 @@ import {
   dispararCotacaoAbertaBidFreteInternacional,
   dispararCotacaoBidFreteInternacional,
   getFornecedores,
+  type DisparoResultadoBidFreteInternacional,
 } from '../shared/api'
+import { formatarFeedbackDisparoBidFrete } from '../shared/formatar-resultado-disparo-bid-frete-internacional'
 import { SelecaoFornecedoresDisparo } from './selecao-fornecedores-disparo-bid-frete-internacional'
 
 export interface ModalEnviarCotacaoBidFreteInternacionalProps {
@@ -36,6 +38,7 @@ export function ModalEnviarCotacaoBidFreteInternacional({
   const [canais, setCanais] = useState<CanalDisparo[]>(['EMAIL'])
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+  const [emailsPorFornecedor, setEmailsPorFornecedor] = useState<Record<string, string>>({})
 
   const carregarFornecedores = useCallback(async () => {
     setCarregandoFornecedores(true)
@@ -57,15 +60,35 @@ export function ModalEnviarCotacaoBidFreteInternacional({
     setErro(null)
     setCanais(['EMAIL'])
     setSelecionados([])
+    setEmailsPorFornecedor({})
+    void carregarFornecedores()
+  }, [aberto, carregarFornecedores])
+
+  useEffect(() => {
+    if (!aberto || carregandoFornecedores || fornecedores.length === 0) return
     if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'DIRECIONADA') {
-      void carregarFornecedores()
+      setSelecionados(fornecedores.map(f => f.id_fornecedor_bid_frete_internacional))
     }
-  }, [aberto, cotacao.visibilidade_cotacao_bid_frete_internacional, carregarFornecedores])
+  }, [aberto, carregandoFornecedores, fornecedores, cotacao.visibilidade_cotacao_bid_frete_internacional])
 
   const notificarErro = useCallback((msg: string) => {
     setErro(msg)
     addNotification({ type: 'error', message: msg, duration: 4000 })
   }, [addNotification])
+
+  const notificarResultadoDisparo = useCallback((resultado: DisparoResultadoBidFreteInternacional) => {
+    const feedback = formatarFeedbackDisparoBidFrete(resultado)
+    addNotification({
+      type: feedback.tipo === 'sucesso' ? 'success' : feedback.tipo === 'parcial' ? 'warning' : 'error',
+      message: `${feedback.titulo} — ${feedback.detalhe}`,
+      duration: feedback.tipo === 'erro' ? 8000 : 6000,
+    })
+    setErro(feedback.tipo === 'sucesso' ? null : `${feedback.titulo} — ${feedback.detalhe}`)
+    onEnviado()
+    if (feedback.tipo === 'sucesso') {
+      onFechar()
+    }
+  }, [addNotification, onEnviado, onFechar])
 
   const handleEnviar = async () => {
     if (canais.length === 0) {
@@ -84,18 +107,13 @@ export function ModalEnviarCotacaoBidFreteInternacional({
     setErro(null)
     try {
       const id = cotacao.id_cotacao_bid_frete_internacional
+      let resultado
       if (cotacao.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') {
-        await dispararCotacaoAbertaBidFreteInternacional(id, canais)
+        resultado = await dispararCotacaoAbertaBidFreteInternacional(id, canais)
       } else {
-        await dispararCotacaoBidFreteInternacional(id, selecionados, canais)
+        resultado = await dispararCotacaoBidFreteInternacional(id, selecionados, canais, emailsPorFornecedor)
       }
-      addNotification({
-        type: 'success',
-        message: t('bidfrete.disparo.toast_sucesso', 'Cotação enviada aos fornecedores com sucesso.'),
-        duration: 4000,
-      })
-      onEnviado()
-      onFechar()
+      notificarResultadoDisparo(resultado)
     } catch (e: unknown) {
       notificarErro(e instanceof Error ? e.message : t('bidfrete.disparo.erro_envio', 'Erro ao enviar cotação'))
     } finally {
@@ -126,6 +144,11 @@ export function ModalEnviarCotacaoBidFreteInternacional({
           onChangeSelecionados={setSelecionados}
           canais={canais}
           onChangeCanais={setCanais}
+          emailsPorFornecedor={emailsPorFornecedor}
+          onEmailFornecedorChange={(id_fornecedor, email) => {
+            setEmailsPorFornecedor(prev => ({ ...prev, [id_fornecedor]: email }))
+          }}
+          onContatosFornecedorAtualizados={() => void carregarFornecedores()}
         />
 
         {erro && <p className="bf-disparo-erro" role="alert">{erro}</p>}

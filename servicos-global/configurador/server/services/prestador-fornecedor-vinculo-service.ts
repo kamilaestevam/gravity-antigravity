@@ -28,6 +28,15 @@ import {
   listarVinculosFornecedorPorUsuario,
   obterFornecedorPorIdNaOrganizacao,
 } from './cadastros-client.js'
+import {
+  CODIGO_ERRO_BID_SYNC_INDISPONIVEL,
+  CODIGO_ERRO_FORNECEDOR_NAO_PROVISIONADO,
+  CODIGO_ERRO_FORNECEDOR_PENDENTE_APROVACAO,
+  CODIGO_ERRO_FORNECEDOR_VINCULO_INATIVO,
+  CODIGO_ERRO_FORNECEDOR_VINCULO_ORG_DIVERGENTE,
+  CODIGO_ERRO_BID_SYNC_FALHOU,
+  criarAppErrorVisaoFornecedorPermissao,
+} from '../../shared/mensagens-erro-visao-fornecedor-permissao.js'
 
 const log = logger.child({ module: 'prestador-fornecedor-vinculo' })
 
@@ -273,17 +282,29 @@ export async function exigirVinculosCadastrosFornecedorAtivos(args: {
       v.id_organizacao === args.id_organizacao
       && v.status_fornecedor_organizacao === 'ATIVO',
   )
-  if (ativos.length === 0) {
-    throw new AppError(
-      'Fornecedor não provisionado no Cadastros. Conclua o convite com empresa antes de habilitar cotar.',
-      422,
-      'FORNECEDOR_NAO_PROVISIONADO',
-    )
+  if (ativos.length > 0) {
+    return ativos.map((v) => ({
+      id_fornecedor: v.id_fornecedor,
+      id_organizacao: v.id_organizacao,
+    }))
   }
-  return ativos.map((v) => ({
-    id_fornecedor: v.id_fornecedor,
-    id_organizacao: v.id_organizacao,
-  }))
+
+  const naOrg = vinculos.filter((v) => v.id_organizacao === args.id_organizacao)
+  if (naOrg.some((v) => v.status_fornecedor_organizacao === 'PENDENTE_APROVACAO')) {
+    const cfg = criarAppErrorVisaoFornecedorPermissao(CODIGO_ERRO_FORNECEDOR_PENDENTE_APROVACAO)
+    throw new AppError(cfg.message, cfg.statusCode, cfg.code, cfg.details)
+  }
+  if (naOrg.some((v) => v.status_fornecedor_organizacao === 'INATIVO')) {
+    const cfg = criarAppErrorVisaoFornecedorPermissao(CODIGO_ERRO_FORNECEDOR_VINCULO_INATIVO)
+    throw new AppError(cfg.message, cfg.statusCode, cfg.code, cfg.details)
+  }
+  if (vinculos.length > 0) {
+    const cfg = criarAppErrorVisaoFornecedorPermissao(CODIGO_ERRO_FORNECEDOR_VINCULO_ORG_DIVERGENTE)
+    throw new AppError(cfg.message, cfg.statusCode, cfg.code, cfg.details)
+  }
+
+  const cfg = criarAppErrorVisaoFornecedorPermissao(CODIGO_ERRO_FORNECEDOR_NAO_PROVISIONADO)
+  throw new AppError(cfg.message, cfg.statusCode, cfg.code, cfg.details)
 }
 
 /** Espelha id_usuario Gravity (+ Clerk opcional) no BID via id_fornecedor Cadastros. */
@@ -302,11 +323,8 @@ export async function sincronizarUsuarioBidFreteFornecedor(args: {
   const chave = process.env.CHAVE_INTERNA_SERVICO
   if (!chave) {
     if (args.obrigatorio) {
-      throw new AppError(
-        'Serviço BID indisponível (CHAVE_INTERNA_SERVICO ausente)',
-        503,
-        'BID_SYNC_INDISPONIVEL',
-      )
+      const cfg = criarAppErrorVisaoFornecedorPermissao(CODIGO_ERRO_BID_SYNC_INDISPONIVEL)
+      throw new AppError(cfg.message, 503, cfg.code, cfg.details)
     }
     log.warn('bid.sync_usuario.skip', { reason: 'CHAVE_INTERNA_SERVICO ausente' })
     return
@@ -334,11 +352,8 @@ export async function sincronizarUsuarioBidFreteFornecedor(args: {
     )
     if (!res.ok) {
       if (args.obrigatorio) {
-        throw new AppError(
-          'Falha ao vincular fornecedor no BID Frete Internacional',
-          res.status >= 500 ? 502 : 422,
-          'BID_SYNC_FALHOU',
-        )
+        const cfg = criarAppErrorVisaoFornecedorPermissao(CODIGO_ERRO_BID_SYNC_FALHOU)
+        throw new AppError(cfg.message, res.status >= 500 ? 502 : 422, cfg.code, cfg.details)
       }
       log.warn('bid.sync_usuario.falhou', { status: res.status, id_fornecedor: args.id_fornecedor })
     }
@@ -346,10 +361,12 @@ export async function sincronizarUsuarioBidFreteFornecedor(args: {
     if (args.obrigatorio && err instanceof AppError) throw err
     if (args.obrigatorio) {
       const detalhe = err instanceof Error ? err.message : String(err)
+      const cfg = criarAppErrorVisaoFornecedorPermissao(CODIGO_ERRO_BID_SYNC_FALHOU)
       throw new AppError(
-        `Falha ao vincular fornecedor no BID Frete Internacional: ${detalhe}`,
+        `${cfg.message} (${detalhe})`,
         502,
-        'BID_SYNC_FALHOU',
+        cfg.code,
+        cfg.details,
       )
     }
     log.warn('bid.sync_usuario.erro', {

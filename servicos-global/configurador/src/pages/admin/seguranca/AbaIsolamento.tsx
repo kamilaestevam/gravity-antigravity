@@ -151,7 +151,7 @@ export function AbaIsolamento() {
   return (
     <div>
       {/* F-05: Dashboard de Isolamento de Tenant */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+      <div className="cg-kpi-row">
         <TooltipGlobal titulo="Schemas Ativos" descricao="Cada organização possui seu próprio schema isolado no banco">
           <CardBasicoGlobal titulo="Schemas Ativos" valor={metricas ? String(metricas.schemas_ativos) : '...'} icone={<Database weight="fill" size={20} />} variante="primario" />
         </TooltipGlobal>

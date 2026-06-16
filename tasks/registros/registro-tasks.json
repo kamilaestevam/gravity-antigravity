@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 280,
+  "proximo_numero": 281,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -284,6 +284,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000279.json"
+    },
+    {
+      "referencia": "TASK-000280",
+      "ordinal": 16,
+      "titulo_canonico": "ADMIN-SEGURANCA-BUG-CARDS-ABAS-LAYOUT",
+      "titulo_exibicao": "TASK-000280 | [Admin] Segurança | BUG — Cards espremidos nas abas Isolamento, Compliance e Infra & DR",
+      "status": "ABR",
+      "area": "ADMIN",
+      "subarea": "SEGURANCA",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "CARDS-ABAS-LAYOUT",
+      "data_criacao": "2026-06-17T15:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000280.json"
     }
   ]
 }

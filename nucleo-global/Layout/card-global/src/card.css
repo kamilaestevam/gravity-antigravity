@@ -397,6 +397,20 @@
   justify-content: center;
 }
 
+/* Linha de KPIs: grid + trigger do TooltipGlobal preenchendo a célula */
+.cg-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cg-kpi-row > .tg-trigger {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    CardGraficoGlobal — Gauge circular + legenda
    ═══════════════════════════════════════════════════════════════════════════ */

@@ -178,7 +178,7 @@ export function AbaInfra() {
         </h3>
       </TooltipGlobal>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+      <div className="cg-kpi-row">
         <TooltipGlobal titulo="Último Backup" descricao="Data e hora do backup automático mais recente do banco de dados">
           <CardBasicoGlobal
             titulo="Último Backup"

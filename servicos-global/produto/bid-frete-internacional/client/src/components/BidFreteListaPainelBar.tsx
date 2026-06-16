@@ -12,7 +12,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useTranslation } from 'react-i18next'
 import { DotsThree, PencilSimple, Trash, X } from '@phosphor-icons/react'
 import { paineisListaBidFreteApi, type ListaPainel } from '../shared/api'
-import { rotuloExibicaoPainelLista } from '../shared/rotulo-painel-lista-bid-frete-internacional'
+import { rotuloExibicaoPainelLista, valorInputRenomearPainelLista, deveSalvarRenomearPainelLista } from '../shared/rotulo-painel-lista-bid-frete-internacional'
 
 export interface PainelBarItem {
   id: string
@@ -156,18 +156,28 @@ export function BidFreteListaPainelBar<T extends PainelBarItem = ListaPainel>({
 
   const handleRenomearPainel = useCallback((id: string, nome: string) => {
     if (renameInFlightRef.current === id) return
-    renameInFlightRef.current = id
-    setRenamingId(null)
-    const trimmed = nome.trim()
-    if (!trimmed) {
-      renameInFlightRef.current = null
+    const painel = paineis.find(p => p.id === id)
+    if (!painel || !deveSalvarRenomearPainelLista(painel.nome, nome)) {
+      setRenamingId(null)
       return
     }
+    const trimmed = nome.trim()
+    renameInFlightRef.current = id
+    setRenamingId(null)
     painelApi.atualizar(id, { nome: trimmed })
-      .then(() => setPaineis(paineis.map(p => p.id === id ? { ...p, nome: trimmed } : p)))
-      .catch(() => {})
+      .then(res => setPaineis(prev => prev.map(p => p.id === id ? { ...p, nome: res.data.nome } : p)))
+      .catch(err => {
+        console.warn('[BidFreteListaPainelBar] falha ao renomear painel', id, err)
+      })
       .finally(() => { renameInFlightRef.current = null })
   }, [paineis, setPaineis, painelApi])
+
+  const abrirRenomearPainel = useCallback((painel: T) => {
+    setMenuPainelId(null)
+    setDeletingId(null)
+    setRenamingId(painel.id)
+    setRenameValue(valorInputRenomearPainelLista(painel, paineis))
+  }, [paineis])
 
   const handleDeletarPainel = useCallback((id: string) => {
     if (paineis.length <= 1) return
@@ -266,6 +276,7 @@ export function BidFreteListaPainelBar<T extends PainelBarItem = ListaPainel>({
                   <input
                     autoFocus
                     type="text"
+                    placeholder={ehGenerico ? exibicao : undefined}
                     value={renameValue}
                     onChange={e => setRenameValue(e.target.value)}
                     onBlur={() => handleRenomearPainel(p.id, renameValue)}
@@ -286,7 +297,7 @@ export function BidFreteListaPainelBar<T extends PainelBarItem = ListaPainel>({
                     data-testid={ativo ? testIdPainelAtual : `${testIdPrefixTab}-${p.id}`}
                     className="lp-painel-tab lp-painel-tab--rotulo"
                     onClick={() => onTrocarPainel(p.id)}
-                    onDoubleClick={() => { setRenamingId(p.id); setRenameValue(p.nome) }}
+                    onDoubleClick={() => abrirRenomearPainel(p)}
                     title={
                       ehGenerico
                         ? i18n('painel_nome_generico_dica', '{{exibicao}} (nome padrão — ⋮ para renomear)', { exibicao })
@@ -306,10 +317,7 @@ export function BidFreteListaPainelBar<T extends PainelBarItem = ListaPainel>({
                     onPointerDown={e => e.stopPropagation()}
                     onClick={e => {
                       e.stopPropagation()
-                      setMenuPainelId(null)
-                      setDeletingId(null)
-                      setRenamingId(p.id)
-                      setRenameValue(p.nome)
+                      abrirRenomearPainel(p)
                     }}
                     onContextMenu={e => {
                       e.preventDefault()
@@ -353,11 +361,7 @@ export function BidFreteListaPainelBar<T extends PainelBarItem = ListaPainel>({
                       <button
                         type="button"
                         style={sty.painelMenuItem}
-                        onClick={() => {
-                          setRenamingId(p.id)
-                          setRenameValue(p.nome)
-                          setMenuPainelId(null)
-                        }}
+                        onClick={() => abrirRenomearPainel(p)}
                       >
                         <PencilSimple size={13} />
                         {i18n('painel_renomear', 'Renomear')}

@@ -120,6 +120,19 @@ Helper puro: `servicos-global/produto/pedido/shared/persistenciaListaPainel.ts` 
 
 **Teste funcional:** `testes/testes-funcionais/pedido/painel-lista/persistencia-lista-painel.test.ts` — PUT `config_json` → GET confirma `colunas_visiveis` e `ordenacao`.
 
+### 5.2 Rótulo e renomear painel (TASK-000288)
+
+O painel bootstrap grava `nome_lista_painel_usuario_global: 'Principal'` no banco; a UI exibe **Padrão** para o primeiro painel genérico (`rotuloExibicaoPainelLista` em `rotuloPainelLista.ts` / espelho BID Frete).
+
+| Camada | Comportamento |
+|--------|---------------|
+| Exibição | Nomes genéricos (`Principal`, `Padrão`, `Painel N`, vazio) → rótulo localizado; nomes customizados → texto salvo |
+| Input de rename | Painel genérico: **vazio** + `placeholder` = exibição (`Padrão`); painel customizado: pré-preenche `nome` |
+| Salvar rename | `deveSalvarRenomearPainelLista` ignora vazio ou nome inalterado; PUT usa resposta da API para atualizar estado |
+| Componentes | `PedidosListaPainelBar`, `BidFreteListaPainelBar` |
+
+**Teste UNI:** `testes/testes-unitarios/pedido/rotulo-painel-lista.test.ts`
+
 ---
 
 ## 6. Fases de implementação

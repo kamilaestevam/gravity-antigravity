@@ -166,6 +166,17 @@ export function ModalNovaColunaUsuario({
   const [novaOpcao, setNovaOpcao]       = useState('')
   const [salvando, setSalvando]         = useState(false)
   const [erro, setErro]                 = useState<string | null>(null)
+  const [erroCampo, setErroCampo]       = useState<'nome' | 'opcoes' | 'formula' | 'geral' | null>(null)
+
+  const definirErro = useCallback((campo: NonNullable<typeof erroCampo>, mensagem: string) => {
+    setErroCampo(campo)
+    setErro(mensagem)
+  }, [])
+
+  const limparErro = useCallback(() => {
+    setErroCampo(null)
+    setErro(null)
+  }, [])
 
   // ── Estado: itens diferentes + pedido editável ──────────────────────────
   const [itensDiferentes, setItensDiferentes] = useState(() => {
@@ -392,11 +403,11 @@ export function ModalNovaColunaUsuario({
   const handleSalvar = useCallback(async () => {
     const nomeTrimmed = nome.trim()
     if (!nomeTrimmed) {
-      setErro(t('pedido.modal_col.erro_nome_obrigatorio'))
+      definirErro('nome', t('pedido.modal_col.erro_nome_obrigatorio'))
       return
     }
     if (tipoComOpcoes && opcoes.length === 0) {
-      setErro(t('pedido.modal_col.erro_sem_opcoes'))
+      definirErro('opcoes', t('pedido.modal_col.erro_sem_opcoes'))
       return
     }
 
@@ -405,23 +416,26 @@ export function ModalNovaColunaUsuario({
 
     if (tipoFormula) {
       if (!formulaAlias.trim()) {
-        setErro(t('pedido.modal_col.erro_formula_obrigatoria'))
+        definirErro('formula', t('pedido.modal_col.erro_formula_obrigatoria'))
         return
       }
       try {
         parsearFormula(formulaChave)
       } catch (err) {
-        setErro(err instanceof Error ? t('pedido.modal_col.erro_formula_invalida', { msg: err.message }) : t('pedido.modal_col.erro_formula_invalida_gen'))
+        definirErro(
+          'formula',
+          err instanceof Error ? t('pedido.modal_col.erro_formula_invalida', { msg: err.message }) : t('pedido.modal_col.erro_formula_invalida_gen'),
+        )
         return
       }
       if (formulaErro) {
-        setErro(formulaErro)
+        definirErro('formula', formulaErro)
         return
       }
     }
 
     setSalvando(true)
-    setErro(null)
+    limparErro()
 
     const basePayload = {
       nome: nomeTrimmed,
@@ -445,14 +459,14 @@ export function ModalNovaColunaUsuario({
       onFechar()
     } catch (err) {
       const msg = err instanceof Error ? err.message : t('pedido.modal_col.erro_salvar')
-      setErro(msg)
+      definirErro('geral', msg)
     } finally {
       setSalvando(false)
     }
   }, [
     nome, tipo, escopo, visibilidade, obrigatorio, alertaDivergenciaItens,
     descricao, opcoes, tipoComOpcoes, tipoFormula, formulaTokens,
-    formulaErro, isEdicao, colunaEdicao, onSalvo, onFechar,
+    formulaErro, isEdicao, colunaEdicao, onSalvo, onFechar, definirErro, limparErro, t,
   ])
 
   // ── Render ─────────────────────────────────────────────────────────────
@@ -472,14 +486,15 @@ export function ModalNovaColunaUsuario({
       carregando={salvando}
       textoSalvar={t('pedido.modal_col.salvar')}
       textoCancelar={t('pedido.modal_col.cancelar')}
-      footerExtraEsquerda={erro ? (
-        <p className="mnc-erro mnc-erro--inline" role="alert">{erro}</p>
-      ) : undefined}
       abas={[{
         id: 'form',
         rotulo: '',
         conteudo: (
         <div className="mnc-corpo">
+          {erroCampo === 'geral' && erro && (
+            <p className="mnc-erro mnc-erro--banner" role="alert">{erro}</p>
+          )}
+
           {/* Nome */}
           <div className="mnc-campo">
             <MncLabelSecao
@@ -491,16 +506,30 @@ export function ModalNovaColunaUsuario({
             </MncLabelSecao>
             <input
               id="mnc-nome"
-              className={['mnc-input', isEdicao ? 'mnc-input--readonly' : 'mnc-input--como-select'].filter(Boolean).join(' ')}
+              className={[
+                'mnc-input',
+                isEdicao ? 'mnc-input--readonly' : 'mnc-input--como-select',
+                erroCampo === 'nome' ? 'mnc-input--erro' : '',
+              ].filter(Boolean).join(' ')}
               type="text"
               value={nome}
-              onChange={e => !isEdicao && setNome(e.target.value)}
+              onChange={e => {
+                if (!isEdicao) {
+                  setNome(e.target.value)
+                  if (erroCampo === 'nome') limparErro()
+                }
+              }}
               readOnly={isEdicao}
               maxLength={60}
               placeholder={isEdicao ? undefined : t('pedido.modal_col.placeholder_nome')}
               autoFocus={!isEdicao}
               aria-readonly={isEdicao || undefined}
+              aria-invalid={erroCampo === 'nome' || undefined}
+              aria-describedby={erroCampo === 'nome' ? 'mnc-nome-erro' : undefined}
             />
+            {erroCampo === 'nome' && erro && (
+              <p id="mnc-nome-erro" className="mnc-erro-campo" role="alert">{erro}</p>
+            )}
           </div>
 
           {/* Tipo — Grid de Pills */}
@@ -552,7 +581,7 @@ export function ModalNovaColunaUsuario({
               {/* Área de tokens (pills) */}
               <div className={[
                 'mnc-tokens',
-                formulaErro ? 'mnc-tokens--erro' : '',
+                formulaErro || erroCampo === 'formula' ? 'mnc-tokens--erro' : '',
                 formulaValida && formulaTokens.length > 0 ? 'mnc-tokens--ok' : '',
               ].filter(Boolean).join(' ')}>
                 {formulaTokens.length === 0 ? (
@@ -576,6 +605,10 @@ export function ModalNovaColunaUsuario({
                   )
                 )}
               </div>
+
+              {erroCampo === 'formula' && erro && (
+                <p className="mnc-erro-campo" role="alert">{erro}</p>
+              )}
 
               {/* Operadores */}
               <div className="mnc-ops">
@@ -693,6 +726,9 @@ export function ModalNovaColunaUsuario({
                   <Plus size={14} weight="bold" />
                 </button>
               </div>
+              {erroCampo === 'opcoes' && erro && (
+                <p className="mnc-erro-campo" role="alert">{erro}</p>
+              )}
               <div className="mnc-opcoes-lista">
                 {opcoes.length > 0 ? opcoes.map(opcao => (
                   <span key={opcao} className="mnc-opcao-chip">

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs'
 import { resolve } from 'path'
-import { raizRepositorioGravity, registryPlanosTestePath } from './raiz-repositorio-gravity.js'
+import { raizRepositorioGravity, registryPlanosTestePath, resolverArquivoEmTestes } from './raiz-repositorio-gravity.js'
 
 /** Lê conteúdo do spec/runner associado a uma entrada de log de teste. */
 export function readSpecFileContent(logEntry: Record<string, unknown>): string {
@@ -11,8 +11,8 @@ export function readSpecFileContent(logEntry: Record<string, unknown>): string {
     const raw = JSON.parse(readFileSync(registryPlanosTestePath, 'utf-8')) as { planos?: Array<{ id: string; specFile?: string }> }
     const entry = raw.planos?.find(p => p.id === module || p.id === testName)
     if (entry?.specFile) {
-      const fromRegistry = resolve(raizRepositorioGravity, entry.specFile)
-      if (existsSync(fromRegistry)) {
+      const fromRegistry = resolverArquivoEmTestes(entry.specFile)
+      if (fromRegistry && existsSync(fromRegistry)) {
         return readFileSync(fromRegistry, 'utf-8')
       }
     }

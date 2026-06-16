@@ -6757,7 +6757,29 @@ export default function Pedidos() {
     setSortCampo(campo)
     setSortDir(dir)
     carregarInicial(abaAtiva, campo, dir, busca)
-  }, [carregarInicial, abaAtiva, busca])
+    if (painelListaAtualId) {
+      persistirPainelAtual({
+        preferencias,
+        abaAtiva,
+        sortCampo: campo,
+        sortDir: dir,
+        busca,
+        filtrosAtivos,
+        cardsVisiveisIds: cardsVisiveis.map(c => c.id),
+        periodoCards,
+      }, { imediato: true, acaoUsuario: true })
+    }
+  }, [
+    carregarInicial,
+    abaAtiva,
+    busca,
+    painelListaAtualId,
+    persistirPainelAtual,
+    preferencias,
+    filtrosAtivos,
+    cardsVisiveis,
+    periodoCards,
+  ])
 
   // ── Drag-and-drop: reordenar pedidos (client-side) ─────────────────────────
   const handleReordenarPedidos = useCallback((ids: string[]) => {
@@ -8179,7 +8201,7 @@ export default function Pedidos() {
         filtrosAtivos,
         cardsVisiveisIds: cardsVisiveis.map(c => c.id),
         periodoCards,
-      }, { imediato: true })
+      }, { imediato: true, acaoUsuario: true })
     }
   }, [
     painelListaAtualId,

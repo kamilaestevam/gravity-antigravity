@@ -624,6 +624,23 @@
   margin: 0;
 }
 
+.mnc-erro--banner {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mnc-erro-campo {
+  font-size: 0.75rem;
+  color: var(--color-danger, #f87171);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.mnc-corpo .mnc-input--erro {
+  border-color: var(--color-danger, #f87171);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-danger, #f87171) 20%, transparent);
+}
+
 .mnc-erro--inline {
   flex: 1;
   margin: 0;

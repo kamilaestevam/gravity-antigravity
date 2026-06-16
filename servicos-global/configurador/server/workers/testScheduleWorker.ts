@@ -9,7 +9,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { appendTestLogEntries } from '../lib/test-log-persist.js'
 import { RUN_TESTES_TIMEOUT_MS } from '../lib/emt-run-timeout.js'
-import { raizRepositorioGravity, registryPlanosTestePath } from '../lib/raiz-repositorio-gravity.js'
+import { raizRepositorioGravity, registryPlanosTestePath, resolverArquivoEmTestes } from '../lib/raiz-repositorio-gravity.js'
 
 // ─── Cron parser simplificado ────────────────────────────────────────────────
 
@@ -137,7 +137,8 @@ function dispatchRun(
       for (const planId of config.planos) {
         const entry = registry.planos.find(p => p.id === planId)
         if (entry?.specFile) {
-          args.push(resolve(raizRepositorioGravity, 'testes', entry.specFile))
+          const specAbs = resolverArquivoEmTestes(entry.specFile)
+          if (specAbs) args.push(specAbs)
         }
       }
     } catch { /* registry missing */ }

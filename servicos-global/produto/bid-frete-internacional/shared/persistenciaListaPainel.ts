@@ -1,6 +1,6 @@
 /**
- * Helpers puros de persistência dos painéis da Lista (Pedido).
- * Sem dependências React — testáveis unitariamente.
+ * Helpers puros de persistência dos painéis da Lista (BID Frete Internacional).
+ * Espelho de `pedido/shared/persistenciaListaPainel.ts` — sem import cross-produto.
  */
 
 export interface OpcoesPersistirPainelLista {

@@ -29,10 +29,17 @@
   box-sizing: border-box;
 }
 
-/* 3 blocos verticais: hero fixo · insights flex · rodapé ancorado (padrão lista BID) */
+/* Modo padrão (Visão geral): fluxo natural — scroll único em .tpg-main */
 .bid-frete-page-shell.dc-cockpit.pg-container {
   display: flex;
   flex-direction: column;
+  flex: 1 0 auto;
+  min-height: auto;
+  width: 100%;
+}
+
+/* Modo expandido (Propostas, Disparos, Dados gerais): preenche viewport, scroll interno */
+.bid-frete-page-shell.dc-cockpit.dc-cockpit--conteudo-expandido.pg-container {
   flex: 1;
   min-height: 0;
   height: 100%;
@@ -41,10 +48,17 @@
 .dc-cockpit.pg-container .pg-conteudo-area {
   display: flex;
   flex-direction: column;
+  flex: 1 0 auto;
+  min-height: auto;
+  overflow: visible;
+  gap: 0;
+  padding-bottom: var(--bid-frete-page-pb, 2rem);
+}
+
+.dc-cockpit.dc-cockpit--conteudo-expandido.pg-container .pg-conteudo-area {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  gap: 0;
   padding-bottom: 0;
 }
 
@@ -265,12 +279,12 @@
 }
 
 .dc-cockpit-rodape {
-  flex-shrink: 0;
-  margin-top: auto;
+  flex: 0 0 auto;
+  margin-top: 0;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  min-height: 0;
+  overflow: visible;
   padding-top: var(--bid-frete-page-pt, 1.5rem);
   transition:
     flex 0.42s cubic-bezier(0.4, 0, 0.2, 1),
@@ -294,10 +308,12 @@
 .dc-cockpit--conteudo-expandido .dc-cockpit-rodape {
   flex: 1 1 0;
   margin-top: 0;
+  min-height: 0;
   overflow: hidden;
 }
 
-.dc-cockpit--conteudo-expandido .dc-cockpit-rodape .dc-cockpit-main {
+.dc-cockpit--conteudo-expandido .dc-cockpit-rodape .dc-cockpit-main,
+.dc-cockpit--conteudo-expandido .dc-cockpit-rodape .dc-cockpit-workspace {
   flex: 1 1 auto;
   min-height: 0;
   max-height: none;
@@ -314,15 +330,14 @@
   }
 }
 
+.dc-cockpit-rodape .dc-cockpit-workspace,
 .dc-cockpit-rodape .dc-cockpit-main {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: min(50vh, 28rem);
-  overflow-y: auto;
+  flex: 0 0 auto;
+  overflow: visible;
 }
 
-/* Uma coluna de scroll: preenche a área abaixo do MenuTopoGlobal */
-.tpg-main:has(> .dc-cockpit.pg-container) {
+/* Modo expandido: scroll interno na aba (Propostas, Disparos, Dados gerais) */
+.tpg-main:has(> .dc-cockpit--conteudo-expandido.pg-container) {
   overflow: hidden;
 }
 
@@ -2454,16 +2469,17 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   gap: 1rem;
   align-items: stretch;
   width: 100%;
-  height: var(--dc-cockpit-dados-row-h);
+  height: auto;
+  min-height: var(--dc-cockpit-dados-row-h);
   min-width: 0;
 }
 
 .dc-cockpit-dados-row .dc-dados-layout {
   min-width: 0;
   width: 100%;
-  height: 100%;
-  max-height: 100%;
-  min-height: 0;
+  height: auto;
+  min-height: var(--dc-cockpit-dados-row-h);
+  max-height: none;
   align-items: stretch;
   align-content: stretch;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2989,10 +3005,11 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 .dc-cockpit .dc-dados-card {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  max-height: 100%;
+  height: auto;
+  min-height: var(--dc-cockpit-dados-row-h, min(21.5rem, 42vh));
+  max-height: none;
   align-self: stretch;
-  overflow: hidden;
+  overflow: visible;
   background: var(--dc-cockpit-card-bg);
   border: 1px solid var(--dc-cockpit-card-border);
   box-shadow: var(--dc-cockpit-card-shadow);
@@ -3001,7 +3018,7 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
 .dc-cockpit .dc-dados-card-body {
   flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 @media (max-width: 1100px) {

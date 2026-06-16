@@ -1,69 +1,69 @@
 {
   "versao": 2,
-  "data_atualizacao": "2026-06-16T23:45:00.000Z",
+  "data_atualizacao": "2026-06-17T17:30:00.000Z",
   "nota": "Recalcular sempre em /novo-agente, /encerrar-agente ou edição de TASK-*.json.",
   "total_tasks": {
-    "fichas_registradas": 19,
-    "fichas_resolvidas": 11,
-    "fichas_abertas": 8,
+    "fichas_registradas": 16,
+    "fichas_resolvidas": 12,
+    "fichas_abertas": 4,
     "sessoes_cursor_legado_sem_ficha": 256,
     "sessoes_cursor_total": 263,
-    "proximo_numero": 278
+    "proximo_numero": 280
   },
   "total_periodo": {
     "data_inicio": "2026-04-24T18:58:26.000Z",
-    "data_fim": "2026-06-16T23:45:00.000Z",
-    "dias_corridos": 54,
+    "data_fim": "2026-06-17T17:30:00.000Z",
+    "dias_corridos": 55,
     "descricao": "Da TASK-000001 (mais antiga fichada) até último encerramento"
   },
   "total_tokens": {
-    "entrada": 220420,
-    "saida": 357022,
-    "total": 577442
+    "entrada": 360420,
+    "saida": 402022,
+    "total": 762442
   },
   "total_horas": {
-    "liquido": 17.66,
-    "bruto": 31.02,
-    "agente": 14.19,
-    "dono": 3.47,
-    "duracao": 17.64
+    "liquido": 21.66,
+    "bruto": 48.52,
+    "agente": 17.39,
+    "dono": 4.27,
+    "duracao": 21.64
   },
   "estatisticas_checklist": {
     "teste_local": {
-      "sim": 3,
+      "sim": 4,
       "nao": 3,
       "nao_aplicavel": 5
     },
     "code_review": {
       "sim": 4,
-      "nao": 2,
+      "nao": 3,
       "nao_aplicavel": 5
     },
     "doc_skill": {
       "sim": 3,
-      "nao": 4,
+      "nao": 5,
       "nao_aplicavel": 4
     },
     "qa": {
       "sim": 1,
-      "nao": 6,
+      "nao": 7,
       "nao_aplicavel": 4
     },
     "pr": {
-      "sim": 6,
+      "sim": 7,
       "nao": 1,
       "nao_aplicavel": 4
     },
     "deploy": {
-      "sim": 6,
+      "sim": 7,
       "nao": 1,
       "nao_aplicavel": 4
     },
     "teste_producao": {
       "sim": 3,
-      "nao": 4,
+      "nao": 5,
       "nao_aplicavel": 4
     }
   },
-  "total_alertas_registrados": 22
+  "total_alertas_registrados": 26
 }

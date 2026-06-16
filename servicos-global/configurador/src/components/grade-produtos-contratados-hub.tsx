@@ -9,6 +9,7 @@ import {
   BarrasMeterPuzzleStackProdutos,
   pecasPuzzleStackProdutosGravity,
   PuzzleStackProdutosGravity,
+  type PecaPuzzleExtraHub,
 } from './puzzle-stack-produtos-gravity'
 import {
   filtrarCatalogoProdutosGravityStore,
@@ -40,6 +41,8 @@ export interface GradeProdutosContratadosHubProps {
   rotuloNoCabecalho?: boolean
   /** HUB: sessão de workspace + navegação direta ao módulo contratado. */
   onAbrirProdutoContratado?: (slug: string, rota: string) => void
+  /** HUB: peça extra visão fornecedor BID (perm `visao_fornecedor:cotar`). */
+  pecasExtras?: PecaPuzzleExtraHub[]
 }
 
 export function GradeProdutosContratadosHub({
@@ -49,6 +52,7 @@ export function GradeProdutosContratadosHub({
   onIrStore,
   rotuloNoCabecalho = false,
   onAbrirProdutoContratado,
+  pecasExtras = [],
 }: GradeProdutosContratadosHubProps) {
   const catalogoStore = useMemo(
     () => filtrarCatalogoProdutosGravityStore(catalogo),
@@ -70,8 +74,9 @@ export function GradeProdutosContratadosHub({
   )
 
   const temStack = slugsPuzzleStackProdutosGravity(catalogoMin).length > 0
+  const temExtras = pecasExtras.length > 0
 
-  if (!temStack) {
+  if (!temStack && !temExtras) {
     return (
       <div className="sw-hub-prod-vazio">
         <Package weight="duotone" size={32} color="var(--sw-text-2)" />
@@ -94,6 +99,7 @@ export function GradeProdutosContratadosHub({
       rotuloAbaixoTitulo={rotuloNoCabecalho}
       ocultarMeterNoStack={rotuloNoCabecalho}
       onAbrirProdutoContratado={onAbrirProdutoContratado}
+      pecasExtras={pecasExtras}
       className="gs-stack--hub-contratados"
     />
   )

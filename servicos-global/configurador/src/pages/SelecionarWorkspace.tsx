@@ -63,6 +63,7 @@ import {
   BarrasMeterProdutosContratadosHub,
   GradeProdutosContratadosHub,
 } from '../components/grade-produtos-contratados-hub'
+import type { PecaPuzzleExtraHub } from '../components/puzzle-stack-produtos-gravity'
 import { PreferenciasWorkspacesPorProdutoHub } from '../components/preferencias-workspaces-por-produto-hub'
 import { CardVitrineStoreHub } from '../components/card-vitrine-store-hub'
 import '../../../../nucleo-global/Campos/campo-geral-global/src/campo-geral.css'
@@ -79,6 +80,14 @@ import {
   resolverNomesWorkspacesEscopo,
   salvarSuprimirAvisoEscopoHubPedido,
 } from '../utils/pedido-escopo-hub'
+import { temBypassPermissao } from '../../shared/index.js'
+import {
+  buildPecaHubBidFreteFornecedor,
+  ehRotaEntradaVisaoFornecedorBidFrete,
+  resolverPrimeiroWorkspaceComCotarBidFrete,
+  SLUG_PECA_HUB_BID_FRETE_FORNECEDOR,
+  usuarioPodeCotarBidFreteEmAlgumWorkspace,
+} from '../shared/verificar-cotar-bid-frete-internacional'
 import './configurador/workspace.css'
 import './selecionar-workspace.css'
 import './hub-unificado.css'
@@ -417,6 +426,9 @@ export function SelecionarWorkspace() {
   // Fornecedor (SUPPLIER) nunca recebe valor aqui — backend força null.
   const [preferredId, setPreferredId] = useState<string | null>(null)
   const [escoposPorProduto, setEscoposPorProduto] = useState<Record<string, string[]>>({})
+  const [pecasExtrasHub, setPecasExtrasHub] = useState<PecaPuzzleExtraHub[]>([])
+  const [idWorkspaceEntradaFornecedorBid, setIdWorkspaceEntradaFornecedorBid] = useState<string | null>(null)
+  const verificacaoFornecedorBidRef = useRef(0)
 
   /* ── GABI insights ── */
   const [gabiInsights, setGabiInsights] = useState<GabiInsight[]>([])
@@ -486,6 +498,26 @@ export function SelecionarWorkspace() {
     [contratadosAtivos, t],
   )
 
+  const bidFreteContratadoAtivo = useMemo(
+    () => contratadosAtivos.some(
+      p => p.product_key === 'bid-frete' || p.product_key === 'bid-frete-internacional',
+    ),
+    [contratadosAtivos],
+  )
+
+  const idsWorkspacesVerificarCotarBid = useMemo(() => {
+    const ids = new Set<string>()
+    for (const key of ['bid-frete', 'bid-frete-internacional'] as const) {
+      for (const id of escoposPorProduto[key] ?? []) {
+        ids.add(id)
+      }
+    }
+    for (const ws of workspaces) {
+      ids.add(ws.id)
+    }
+    return [...ids]
+  }, [escoposPorProduto, workspaces])
+
   const saudacaoHub = getHubGreeting(
     (key, fallback) =>
       typeof fallback === 'string' ? t(key, fallback) : t(key, fallback as Record<string, unknown>),
@@ -525,21 +557,37 @@ export function SelecionarWorkspace() {
   }, [navigate])
 
   const abrirProdutoContratadoHub = useCallback((slug: string, rota?: string) => {
-    const escopoProduto = escoposPorProduto[slug]
+    const rotaDestino = rota ?? PRODUCT_ROUTE_MAP[slug]?.rota ?? `/produto/${slug}`
+    const ehFornecedor =
+      slug === SLUG_PECA_HUB_BID_FRETE_FORNECEDOR
+      || ehRotaEntradaVisaoFornecedorBidFrete(rotaDestino)
+
+    const escopoProduto = ehFornecedor
+      ? (escoposPorProduto['bid-frete'] ?? escoposPorProduto['bid-frete-internacional'])
+      : escoposPorProduto[slug]
+
     const wsId =
-      escopoProduto?.[0]
+      (ehFornecedor ? idWorkspaceEntradaFornecedorBid : null)
+      ?? escopoProduto?.[0]
       ?? sessionStorage.getItem('gravity_company_id')
       ?? selectedId
       ?? workspaces[0]?.id
       ?? undefined
+
     const ws = wsId ? workspaces.find(w => w.id === wsId) : undefined
     if (ws) {
       sessionStorage.setItem('gravity_company_id', ws.id)
       sessionStorage.setItem('gravity_company_name', ws.nome)
       setSelectedId(ws.id)
     }
-    navigate(rota ?? PRODUCT_ROUTE_MAP[slug]?.rota ?? `/produto/${slug}`)
-  }, [escoposPorProduto, selectedId, workspaces, navigate])
+
+    if (ehRotaEntradaVisaoFornecedorBidFrete(rotaDestino)) {
+      window.location.href = rotaDestino
+      return
+    }
+
+    navigate(rotaDestino)
+  }, [escoposPorProduto, selectedId, workspaces, navigate, idWorkspaceEntradaFornecedorBid])
 
   /* ── Carrega TUDO via endpoint agregado (1 chamada = 1 requireAuth) ── */
   useEffect(() => {
@@ -814,6 +862,65 @@ export function SelecionarWorkspace() {
     chavesProdutosContratados,
     contratadosAtivos,
     workspaces,
+  ])
+
+  /* ── Peça extra «Bid Frete Internacional - Fornecedor» (perm visao_fornecedor:cotar) ── */
+  useEffect(() => {
+    let cancelled = false
+    const requestId = ++verificacaoFornecedorBidRef.current
+
+    if (!roleReady || !bidFreteContratadoAtivo || idsWorkspacesVerificarCotarBid.length === 0) {
+      setPecasExtrasHub([])
+      setIdWorkspaceEntradaFornecedorBid(null)
+      return () => { cancelled = true }
+    }
+
+    async function carregarPecaFornecedorBid() {
+      try {
+        const bypass = temBypassPermissao({ tipo_usuario: dbRole })
+        let temCotar = bypass
+        let idWsEntrada: string | null = bypass ? (idsWorkspacesVerificarCotarBid[0] ?? null) : null
+
+        if (!bypass) {
+          temCotar = await usuarioPodeCotarBidFreteEmAlgumWorkspace(
+            getToken,
+            idsWorkspacesVerificarCotarBid,
+          )
+          if (temCotar) {
+            idWsEntrada = await resolverPrimeiroWorkspaceComCotarBidFrete(
+              getToken,
+              idsWorkspacesVerificarCotarBid,
+            )
+          }
+        }
+
+        if (cancelled || requestId !== verificacaoFornecedorBidRef.current) return
+
+        if (temCotar) {
+          setPecasExtrasHub([buildPecaHubBidFreteFornecedor(t)])
+          setIdWorkspaceEntradaFornecedorBid(idWsEntrada)
+        } else {
+          setPecasExtrasHub([])
+          setIdWorkspaceEntradaFornecedorBid(null)
+        }
+      } catch (err) {
+        console.warn('[Hub] Falha ao verificar visão fornecedor BID:', err)
+        if (!cancelled && requestId === verificacaoFornecedorBidRef.current) {
+          setPecasExtrasHub([])
+          setIdWorkspaceEntradaFornecedorBid(null)
+        }
+      }
+    }
+
+    void carregarPecaFornecedorBid()
+    return () => { cancelled = true }
+  }, [
+    roleReady,
+    dbRole,
+    bidFreteContratadoAtivo,
+    idsWorkspacesVerificarCotarBid,
+    getToken,
+    t,
   ])
 
   /* ── Menu lateral: navItems ── */
@@ -1264,6 +1371,7 @@ export function SelecionarWorkspace() {
                     t={t}
                     onIrStore={() => navigate('/store')}
                     onAbrirProdutoContratado={abrirProdutoContratadoHub}
+                    pecasExtras={pecasExtrasHub}
                   />
                 </section>
 

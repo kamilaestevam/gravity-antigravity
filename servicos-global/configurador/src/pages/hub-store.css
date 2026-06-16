@@ -1527,6 +1527,10 @@ body.light-theme .gs-puzzle-carousel__btn {
   z-index: 2;
 }
 
+.gs-piece--fornecedor.gs-piece--on .gs-piece__svg {
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.42));
+}
+
 .gs-piece__dot {
   position: absolute;
   top: 8px;

@@ -779,6 +779,23 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   cursor: default;
 }
 
+.sw-hub-panel--produtos .gs-piece__acesso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+  max-width: 88px;
+}
+
+.sw-hub-panel--produtos .gs-piece__acesso .gs-piece__name {
+  max-width: 88px;
+}
+
+.sw-hub-panel--produtos .gs-piece__acesso svg {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
 .sw-hub-prod-vazio {
   display: flex;
   flex-direction: column;

@@ -699,15 +699,23 @@ if (process.env.NODE_ENV !== 'test') {
 
   // Sidecar 4: API Cockpit (porta 8016)
   // Health checks, tokens, webhooks, logs de requisição, monitoramento.
-  // Usa CONFIGURADOR_DATABASE_URL (mesmas tabelas — fragment composto).
+  // Persiste em ORGANIZACAO_DATABASE_URL (fragment api-cockpit no schema plataforma).
   process.env.PORT = '8016'
-  process.env.DATABASE_URL = dbOriginal
+  if (process.env.ORGANIZACAO_DATABASE_URL) {
+    process.env.DATABASE_URL = process.env.ORGANIZACAO_DATABASE_URL
+  } else {
+    process.env.DATABASE_URL = dbOriginal
+    console.warn('[configurador] ORGANIZACAO_DATABASE_URL ausente — sidecar API Cockpit usará CONFIGURADOR DATABASE (tabelas api-cockpit podem faltar)')
+  }
   process.env.API_COCKPIT_SIDECAR = '1'
   try {
     await import('../../servicos-plataforma/api-cockpit/server/src/index.js')
+    _sidecarStatus['api-cockpit'] = { ok: true }
     console.log('[configurador] Sidecar API Cockpit iniciado na porta 8016')
   } catch (err) {
-    console.error('[configurador] Falha ao iniciar sidecar API Cockpit:', err)
+    const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+    _sidecarStatus['api-cockpit'] = { ok: false, error: msg }
+    console.error('[configurador] Falha ao iniciar sidecar API Cockpit:', msg)
   }
 
   // Sidecar 5: Taxas Moeda / PTAX BCB (porta 8032)
@@ -724,10 +732,32 @@ if (process.env.NODE_ENV !== 'test') {
     console.error('[configurador] Falha ao iniciar sidecar Taxas Moeda:', err)
   }
 
+  // Sidecar 6: GABI AI (porta 8009) — Monitor LLM admin e uso cross-org
+  if (process.env.ORGANIZACAO_DATABASE_URL) {
+    process.env.PORT = '8009'
+    process.env.DATABASE_URL = process.env.ORGANIZACAO_DATABASE_URL
+    process.env.CONFIGURADOR_URL = configuradorLoopbackUrl
+    process.env.GABI_SIDECAR = '1'
+    try {
+      await import('../../servicos-plataforma/gabi/server/index.js')
+      _sidecarStatus['gabi'] = { ok: true }
+      console.log('[configurador] Sidecar GABI iniciado na porta 8009')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['gabi'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar GABI:', msg)
+    }
+  } else {
+    _sidecarStatus['gabi'] = { ok: false, error: 'ORGANIZACAO_DATABASE_URL ausente' }
+    console.warn('[configurador] ORGANIZACAO_DATABASE_URL ausente — sidecar GABI desativado')
+  }
+
   // Restaurar env vars originais
   process.env.PORT = portaOriginal
   process.env.DATABASE_URL = dbOriginal
   process.env.TAXAS_MOEDA_URL = process.env.TAXAS_MOEDA_URL ?? 'http://127.0.0.1:8032'
+  process.env.API_COCKPIT_SERVICE_URL = process.env.API_COCKPIT_SERVICE_URL ?? 'http://127.0.0.1:8016'
+  process.env.GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
   } // fim !devPm2 — sidecars embutidos
 
   async function aplicarMigrationsBidFreteDev(): Promise<void> {

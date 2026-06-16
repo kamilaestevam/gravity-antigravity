@@ -29,8 +29,11 @@ import { rateLimitPresets } from '../middleware/rateLimiter.js'
 import { prisma } from '../lib/prisma.js'
 
 function getApiCockpitUrl(): string {
-  const url = process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016'
+  const url = process.env.API_COCKPIT_SERVICE_URL || 'http://127.0.0.1:8016'
   return url
+}
+function getGabiServiceUrl(): string {
+  return process.env.GABI_SERVICE_URL || 'http://127.0.0.1:8009'
 }
 function getChaveInterna(): string {
   const chave = process.env.CHAVE_INTERNA_SERVICO
@@ -603,7 +606,7 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
       ? '/api/v1/gabi/uso'
       : '/api/v1/gabi/admin/uso-global'
 
-    const url = new URL(`${process.env.GABI_SERVICE_URL || 'http://localhost:3001'}${path}`)
+    const url = new URL(`${getGabiServiceUrl()}${path}`)
     if (month) url.searchParams.set('month', month)
     if (id_organizacao) url.searchParams.set('id_organizacao', id_organizacao)
 
@@ -645,7 +648,7 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
 apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
   try {
     const id_organizacao = (req.query.id_organizacao as string) || ''
-    const url = new URL(`${process.env.GABI_SERVICE_URL || 'http://localhost:3001'}/api/v1/gabi/uso/historico`)
+    const url = new URL(`${getGabiServiceUrl()}/api/v1/gabi/uso/historico`)
     if (id_organizacao) url.searchParams.set('id_organizacao', id_organizacao)
 
     const response = await fetch(url.toString(), {
@@ -711,7 +714,7 @@ async function callGabi(
     signal: AbortSignal.timeout(8_000),
   }
   if (body !== undefined) init.body = JSON.stringify(body)
-  const r = await fetch(`${process.env.GABI_SERVICE_URL || 'http://localhost:3001'}${path}`, init)
+  const r = await fetch(`${getGabiServiceUrl()}${path}`, init)
   const text = await r.text()
   return { status: r.status, body: text ? JSON.parse(text) : null }
 }

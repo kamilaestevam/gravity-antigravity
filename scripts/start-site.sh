@@ -69,10 +69,27 @@ else
   echo "[start-site] AVISO: CONFIGURADOR_DATABASE_URL ausente — migrations Configurador ignoradas."
 fi
 
-# Storage persistente de prints EMT — OBRIGATÓRIO volume Railway montado aqui (senão prints somem a cada deploy)
+# Organização (servicos-plataforma) — api-cockpit, gabi, historico, notificacoes, etc.
+if [ -n "${ORGANIZACAO_DATABASE_URL:-}" ]; then
+  echo "[start-site] Compondo schema servicos-plataforma..."
+  npx tsx scripts/ativamente/compose-plataforma-schema.ts
+  echo "[start-site] Aplicando migrations servicos-plataforma (api-cockpit, gabi, ...)..."
+  if ORGANIZACAO_DATABASE_URL="$ORGANIZACAO_DATABASE_URL" \
+    npx prisma migrate deploy --schema=servicos-global/servicos-plataforma/prisma/schema.prisma; then
+    echo "[start-site] Migrations servicos-plataforma concluídas."
+  else
+    echo "[start-site] ERRO: migrations servicos-plataforma falharam — servidor sobe mesmo assim (ver logs acima)."
+    echo "[start-site] Admin API Cockpit (tokens/webhooks/consumo) pode retornar 500 até migrate deploy passar."
+  fi
+else
+  echo "[start-site] AVISO: ORGANIZACAO_DATABASE_URL ausente — migrations servicos-plataforma ignoradas."
+  echo "[start-site] Sidecars api-cockpit/GABI e Admin API Cockpit ficarão degradados até configurar a variável."
+fi
+
+# Storage persistente de prints EMT (montar volume Railway em EMT_ARTIFACTS_DIR)
 export EMT_ARTIFACTS_DIR="${EMT_ARTIFACTS_DIR:-/app/data/emt-artifacts}"
 mkdir -p "$EMT_ARTIFACTS_DIR"
-echo "[start-site] EMT artifacts dir: $EMT_ARTIFACTS_DIR (monte volume Railway neste path)"
+echo "[start-site] EMT artifacts dir: $EMT_ARTIFACTS_DIR"
 
 # Storage persistente de anexos do Pedido (montar volume Railway em PEDIDO_ANEXOS_UPLOAD_DIR se necessário)
 export PEDIDO_ANEXOS_UPLOAD_DIR="${PEDIDO_ANEXOS_UPLOAD_DIR:-/app/data/pedido-anexos}"

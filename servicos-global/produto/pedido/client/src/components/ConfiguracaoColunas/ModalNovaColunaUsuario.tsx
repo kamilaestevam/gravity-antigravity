@@ -561,7 +561,7 @@ export function ModalNovaColunaUsuario({
               ))}
             </div>
             {isEdicao && (
-              <p style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', margin: '0.25rem 0 0', fontSize: '10px', color: '#f59e0b' }}>
+              <p className="mnc-tipo-readonly-aviso">
                 <Warning size={13} weight="fill" style={{ flexShrink: 0 }} />
                 {t('pedido.modal_col.tipo_readonly', 'O tipo da coluna não pode ser alterado após a criação')}
               </p>
@@ -709,7 +709,7 @@ export function ModalNovaColunaUsuario({
               </MncLabelSecao>
               <div className="mnc-nova-opcao">
                 <input
-                  className="mnc-input mnc-input--opcao"
+                  className="mnc-input mnc-input--como-select mnc-input--opcao"
                   type="text"
                   value={novaOpcao}
                   onChange={e => setNovaOpcao(e.target.value)}
@@ -743,7 +743,7 @@ export function ModalNovaColunaUsuario({
                     </button>
                   </span>
                 )) : (
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', padding: '0.25rem 0.5rem' }}>
+                  <span className="mnc-opcoes-lista__vazio">
                     {t('pedido.modal_col.nenhuma_opcao')}
                   </span>
                 )}
@@ -797,7 +797,7 @@ export function ModalNovaColunaUsuario({
 
           {itensDiferentes && (
             <>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.5rem 0.625rem', background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--text-secondary, #94a3b8)' }}>
+              <div className="mnc-aviso-migracao" role="note">
                 <Warning size={14} weight="fill" style={{ color: '#f59e0b', flexShrink: 0, marginTop: '0.05rem' }} />
                 <span>{t('pedido.modal_col.dados_nao_migrados')}</span>
               </div>

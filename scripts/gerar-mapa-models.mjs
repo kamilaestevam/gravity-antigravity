@@ -23,7 +23,7 @@ const sources = [
   { local: 'Tenant', produto: 'whatsapp', file: 'servicos-global/tenant/whatsapp/prisma/fragment.prisma' },
   { local: 'Produto - Helpdesk (template)', produto: 'helpdesk', file: 'servicos-global/servicos-plataforma/helpdesk/prisma/fragment.prisma' },
   { local: 'Produto - bid-cambio', produto: 'bid-cambio', file: 'servicos-global/produto/bid-cambio/server/prisma/fragment.prisma' },
-  { local: 'Produto - bid-frete', produto: 'bid-frete', file: 'servicos-global/produto/bid-frete/server/prisma/fragment.prisma' },
+  { local: 'Produto - bid-frete-internacional', produto: 'bid-frete-internacional', file: 'servicos-global/produto/bid-frete-internacional/prisma/fragment.prisma' },
   { local: 'Produto - financeiro-comex', produto: 'financeiro-comex', file: 'servicos-global/produto/financeiro-comex/server/prisma/fragment.prisma' },
   { local: 'Produto - lpco', produto: 'lpco', file: 'servicos-global/produto/lpco/server/prisma/fragment.prisma' },
   { local: 'Produto - nf-importacao', produto: 'nf-importacao', file: 'servicos-global/produto/nf-importacao/server/prisma/fragment.prisma' },

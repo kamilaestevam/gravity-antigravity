@@ -1,6 +1,6 @@
 /**
  * index.ts — BID Frete Internacional Express Server
- * Localizacao canonica: servicos-global/produto/bid-frete/server/
+ * Localizacao canonica: servicos-global/produto/bid-frete-internacional/server/
  * Porta: 8023
  * Skill: antigravity-criar-produto (Passo 7 — 11 middlewares na ordem correta)
  */

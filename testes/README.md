@@ -85,7 +85,7 @@ testes/
 | `PEDIDO` | pedido/ | servicos-global/produto/pedido/ |
 | `NFIMP` | nf-importacao/ | servicos-global/produto/nf-importacao/ |
 | `LPCO` | lpco/ | servicos-global/produto/lpco/ |
-| `BIDFRT` | bid-frete/ | servicos-global/produto/bid-frete/ |
+| `BIDFRT` | bid-frete-internacional/ | servicos-global/produto/bid-frete-internacional/ |
 | `BIDCAM` | bid-cambio/ | servicos-global/produto/bid-cambio/ |
 | `SIMCUS` | simula-custo/ | servicos-global/produto/simula-custo/ |
 | `FINCOM` | financeiro-comex/ | servicos-global/produto/financeiro-comex/ |

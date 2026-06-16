@@ -1,7 +1,0 @@
-{
-  "extends": ["../../../../tsconfig.json", "../../../../tsconfig.paths-plataforma-client.json"],
-  "compilerOptions": {
-    "baseUrl": "."
-  },
-  "include": ["src"]
-}

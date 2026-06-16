@@ -184,6 +184,23 @@
       "arquivo_ficha": "registros/TASK-000269.json"
     },
     {
+      "referencia": "TASK-000272",
+      "ordinal": 11,
+      "titulo_canonico": "BIDFRT-REF-REMOVER-PASTA-LEGADO-BID-FRETE",
+      "titulo_exibicao": "TASK-000272 | [BID Frete] | REF — Remover pasta legado bid-frete",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": null,
+      "tipo_entrega": "REF",
+      "resumo": "REMOVER-PASTA-LEGADO-BID-FRETE",
+      "data_criacao": "2026-06-15T23:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000272.json"
+    },
+    {
       "referencia": "TASK-000275",
       "ordinal": 11,
       "titulo_canonico": "BIDFRT-LISTA-BUG-EXCLUSAO-NAO-ATUALIZA-TELA",

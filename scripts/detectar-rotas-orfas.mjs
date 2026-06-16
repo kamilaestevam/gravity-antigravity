@@ -23,7 +23,7 @@ const services = [
   { name: 'whatsapp', routeRoot: 'servicos-global/tenant/whatsapp/server/routes', prismaFile: 'servicos-global/tenant/whatsapp/prisma/fragment.prisma' },
   { name: 'historico-global', routeRoot: 'servicos-global/tenant/historico-global/server/routes', prismaFile: 'servicos-global/tenant/historico-global/prisma/fragment.prisma' },
   { name: 'bid-cambio', routeRoot: 'servicos-global/produto/bid-cambio/server/src/routes', prismaFile: 'servicos-global/produto/bid-cambio/server/prisma/fragment.prisma' },
-  { name: 'bid-frete', routeRoot: 'servicos-global/produto/bid-frete/server/src/routes', prismaFile: 'servicos-global/produto/bid-frete/server/prisma/fragment.prisma' },
+  { name: 'bid-frete-internacional', routeRoot: 'servicos-global/produto/bid-frete-internacional/server/src/routes', prismaFile: 'servicos-global/produto/bid-frete-internacional/prisma/fragment.prisma' },
   { name: 'financeiro-comex', routeRoot: 'servicos-global/produto/financeiro-comex/server/src/routes', prismaFile: 'servicos-global/produto/financeiro-comex/server/prisma/fragment.prisma' },
   { name: 'lpco', routeRoot: 'servicos-global/produto/lpco/server/src/routes', prismaFile: 'servicos-global/produto/lpco/server/prisma/fragment.prisma' },
   { name: 'nf-importacao', routeRoot: 'servicos-global/produto/nf-importacao/server/src/routes', prismaFile: 'servicos-global/produto/nf-importacao/server/prisma/fragment.prisma' },

@@ -36,6 +36,7 @@ export const CHAVES_FILTRO_TEXTO_LIVRE_BID_FRETE = new Set<string>([
   'motivo_cancelamento_cotacao_bid_frete_internacional',
   'nome_tecnico_embarque_cotacao_bid_frete_internacional',
   'nome_cliente_operacao_cotacao_bid_frete_internacional',
+  'nome_usuario_solicitante_bid_frete_internacional',
 ])
 
 export const CHAVE_NUMERO_COTACAO_LISTA_BID_FRETE =

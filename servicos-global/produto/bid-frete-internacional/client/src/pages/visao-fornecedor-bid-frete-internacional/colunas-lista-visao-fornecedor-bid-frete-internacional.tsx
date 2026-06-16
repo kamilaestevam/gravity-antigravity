@@ -8,6 +8,7 @@ import { formatarDataBidFrete } from '../../shared/formato-data-bid-frete'
 import { garantirFiltravelColunaBidFrete } from '../../shared/filtros-coluna-lista-bid-frete-internacional'
 import type { LinhaPaiLista } from '../lista-bid-frete-internacional-utils'
 import type { StatusKanbanFornecedorBidFreteInternacional } from '../../shared/kanban-fornecedor-bid-frete-internacional'
+import { CHAVES_COLUNAS_PADRAO_VISIVEIS_FORNECEDOR } from '../../shared/ordem-colunas-lista-fornecedor-bid-frete-internacional'
 
 const MODAL_ICON: Record<ModalFrete, React.ReactNode> = {
   MARITIMO: <Anchor weight="duotone" size={14} />,
@@ -116,6 +117,24 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
       render: (val: unknown) => (val ? formatarDataBidFrete(String(val)) : '—'),
     },
     {
+      key: 'data_limite_resposta_cotacao_bid_frete_internacional',
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.col_prazo', 'Prazo resposta'),
+      tipo: 'periodo',
+      largura: 120,
+      render: (val: unknown) => (val ? formatarDataBidFrete(String(val)) : '—'),
+    },
+    {
+      key: 'nome_usuario_solicitante_bid_frete_internacional',
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.col_solicitante', 'Solicitante'),
+      tipo: 'texto',
+      largura: 160,
+      render: (_val: unknown, row: Cotacao) => textoSolicitanteListaFornecedor(row, t),
+      findDisplay: (row: Cotacao) => {
+        const texto = textoSolicitanteListaFornecedor(row, t)
+        return texto === '—' ? '' : texto
+      },
+    },
+    {
       key: 'origem_nome_cotacao_bid_frete_internacional',
       label: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.col_origem', 'Origem'),
       tipo: 'texto',
@@ -157,26 +176,8 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
       render: (val: unknown) => renderBadgeFunil(t, val),
     },
     {
-      key: 'data_limite_resposta_cotacao_bid_frete_internacional',
-      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.col_prazo', 'Prazo resposta'),
-      tipo: 'periodo',
-      largura: 120,
-      render: (val: unknown) => (val ? formatarDataBidFrete(String(val)) : '—'),
-    },
-    {
-      key: 'nome_usuario_solicitante_bid_frete_internacional',
-      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.col_solicitante', 'Solicitante'),
-      tipo: 'texto',
-      largura: 160,
-      render: (_val: unknown, row: Cotacao) => textoSolicitanteListaFornecedor(row, t),
-      findDisplay: (row: Cotacao) => {
-        const texto = textoSolicitanteListaFornecedor(row, t)
-        return texto === '—' ? '' : texto
-      },
-    },
-    {
       key: 'valor_total_proposta_bid_frete_internacional',
-      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_valor_total', 'Valor proposta'),
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.lista.col_valor_total', 'Valor total'),
       tipo: 'numero',
       largura: 140,
       align: 'right',
@@ -250,21 +251,11 @@ export function buildColunasExportListaFornecedor(
 
 const COLUNAS_BASE = buildColunasBase(((k: string) => k) as TFunction)
 
+export { CHAVES_COLUNAS_PADRAO_VISIVEIS_FORNECEDOR } from '../../shared/ordem-colunas-lista-fornecedor-bid-frete-internacional'
+
 export const CHAVES_COLUNAS_LISTA_FORNECEDOR = COLUNAS_BASE
   .map(c => c.key)
   .filter((k): k is string => typeof k === 'string')
-
-export const CHAVES_COLUNAS_PADRAO_VISIVEIS_FORNECEDOR: string[] = [
-  'numero_cotacao_bid_frete_internacional',
-  'data_criacao_cotacao_bid_frete_internacional',
-  'origem_nome_cotacao_bid_frete_internacional',
-  'destino_nome_cotacao_bid_frete_internacional',
-  'modal_cotacao_bid_frete_internacional',
-  'status_cotacao_bid_frete_internacional',
-  'data_limite_resposta_cotacao_bid_frete_internacional',
-  'nome_usuario_solicitante_bid_frete_internacional',
-  'valor_total_proposta_bid_frete_internacional',
-]
 
 export function formatValorExportColunaFornecedor(
   key: string,

@@ -28,6 +28,12 @@ import { consultarImpacto } from '../services/preview-impacto.js'
 import { notificarMudancaEntidade } from '../services/notifyPedido.js'
 import { obterEmpresaDaOrganizacao } from '../services/empresa-org.service.js'
 import { empresaParaFornecedorCompatDto } from '../services/empresa-dto.js'
+import {
+  listarContatosFornecedor,
+  normalizarContatosPayload,
+  sincronizarContatosFornecedor,
+  toFornecedorContatoDto,
+} from '../services/fornecedor-contato.service.js'
 
 const router = Router()
 router.use(requireInternalKey)
@@ -48,9 +54,9 @@ function toFornecedorDto(e: PrismaFornecedor): Record<string, unknown> {
     cidade_fornecedor:                                            e.cidade_fornecedor,
     endereco_fornecedor:                                          e.endereco_fornecedor,
     cep_zipcode_fornecedor:                                           e.cep_zipcode_fornecedor,
-    email_principal_fornecedor:                                             e.email_principal_fornecedor,
-    telefone_principal_fornecedor:                                          e.telefone_principal_fornecedor,
-    whatsapp_principal_fornecedor:                                          e.whatsapp_principal_fornecedor,
+    email_fornecedor:                                                       e.email_fornecedor,
+    telefone_fornecedor:                                                    e.telefone_fornecedor,
+    whatsapp_fornecedor:                                                    e.whatsapp_fornecedor,
     pode_ser_importador_fornecedor:                               e.pode_ser_importador_fornecedor,
     pode_ser_exportador_fornecedor:                               e.pode_ser_exportador_fornecedor,
     pode_ser_fabricante_fornecedor:                               e.pode_ser_fabricante_fornecedor,
@@ -123,6 +129,8 @@ router.post('/', async (req, res, next) => {
       nome_fornecedor: dados.nome_fornecedor,
     }))
 
+    const contatosPayload = normalizarContatosPayload(dados)
+
     const criada = await prisma.fornecedor.create({
       data: {
         id_fornecedor,
@@ -135,9 +143,9 @@ router.post('/', async (req, res, next) => {
         cidade_fornecedor: dados.cidade_fornecedor ?? null,
         endereco_fornecedor: dados.endereco_fornecedor ?? null,
         cep_zipcode_fornecedor: dados.cep_zipcode_fornecedor ?? null,
-        email_principal_fornecedor: dados.email_principal_fornecedor ?? null,
-        telefone_principal_fornecedor: dados.telefone_principal_fornecedor ?? null,
-        whatsapp_principal_fornecedor: dados.whatsapp_principal_fornecedor ?? null,
+        email_fornecedor: dados.email_fornecedor ?? null,
+        telefone_fornecedor: dados.telefone_fornecedor ?? null,
+        whatsapp_fornecedor: dados.whatsapp_fornecedor ?? null,
         pode_ser_importador_fornecedor: dados.pode_ser_importador_fornecedor,
         pode_ser_exportador_fornecedor: dados.pode_ser_exportador_fornecedor,
         pode_ser_fabricante_fornecedor: dados.pode_ser_fabricante_fornecedor,
@@ -155,9 +163,22 @@ router.post('/', async (req, res, next) => {
         ativo_fornecedor: dados.ativo_fornecedor,
       },
     })
+
+    if (contatosPayload !== undefined) {
+      await sincronizarContatosFornecedor({
+        id_fornecedor: criada.id_fornecedor,
+        id_organizacao: dados.id_organizacao,
+        contatos: contatosPayload,
+      })
+    }
+
+    const contatos = await listarContatosFornecedor(criada.id_fornecedor)
     // Webhook fire-and-forget: notifica Pedido para reavaliar snapshots.
     void notificarMudancaEntidade('fornecedor', criada.id_fornecedor, criada.id_organizacao_cadastro_fornecedor)
-    res.status(201).json(toFornecedorDto(criada))
+    res.status(201).json({
+      ...toFornecedorDto(criada),
+      contatos_fornecedor: contatos.map(toFornecedorContatoDto),
+    })
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return next(AppError.conflito('Fornecedor duplicado (SUID, CNPJ ou TIN já existente para este tenant)'))
@@ -223,7 +244,12 @@ router.get('/', async (req, res, next) => {
       prisma.fornecedor.count({ where }),
     ])
 
-    res.status(200).json({ itens: itens.map(toFornecedorDto), total, pagina, por_pagina: porPagina })
+    res.status(200).json({
+      itens: itens.map((e) => ({ ...toFornecedorDto(e), contatos_fornecedor: [] })),
+      total,
+      pagina,
+      por_pagina: porPagina,
+    })
   } catch (err) {
     next(err)
   }
@@ -257,7 +283,11 @@ router.get('/:id_fornecedor', async (req, res, next) => {
       where: { id_fornecedor: req.params.id_fornecedor, id_organizacao_cadastro_fornecedor: idOrganizacao },
     })
     if (!fornecedor) throw AppError.naoEncontrado('Fornecedor')
-    res.status(200).json(toFornecedorDto(fornecedor))
+    const contatos = await listarContatosFornecedor(fornecedor.id_fornecedor)
+    res.status(200).json({
+      ...toFornecedorDto(fornecedor),
+      contatos_fornecedor: contatos.map(toFornecedorContatoDto),
+    })
   } catch (err) {
     next(err)
   }
@@ -306,9 +336,9 @@ router.put('/:id_fornecedor', async (req, res, next) => {
         ...(dados.cidade_fornecedor !== undefined ? { cidade_fornecedor: dados.cidade_fornecedor } : {}),
         ...(dados.endereco_fornecedor !== undefined ? { endereco_fornecedor: dados.endereco_fornecedor } : {}),
         ...(dados.cep_zipcode_fornecedor !== undefined ? { cep_zipcode_fornecedor: dados.cep_zipcode_fornecedor } : {}),
-        ...(dados.email_principal_fornecedor !== undefined ? { email_principal_fornecedor: dados.email_principal_fornecedor } : {}),
-        ...(dados.telefone_principal_fornecedor !== undefined ? { telefone_principal_fornecedor: dados.telefone_principal_fornecedor } : {}),
-        ...(dados.whatsapp_principal_fornecedor !== undefined ? { whatsapp_principal_fornecedor: dados.whatsapp_principal_fornecedor } : {}),
+        ...(dados.email_fornecedor !== undefined ? { email_fornecedor: dados.email_fornecedor } : {}),
+        ...(dados.telefone_fornecedor !== undefined ? { telefone_fornecedor: dados.telefone_fornecedor } : {}),
+        ...(dados.whatsapp_fornecedor !== undefined ? { whatsapp_fornecedor: dados.whatsapp_fornecedor } : {}),
         ...(dados.pode_ser_importador_fornecedor !== undefined ? { pode_ser_importador_fornecedor: dados.pode_ser_importador_fornecedor } : {}),
         ...(dados.pode_ser_exportador_fornecedor !== undefined ? { pode_ser_exportador_fornecedor: dados.pode_ser_exportador_fornecedor } : {}),
         ...(dados.pode_ser_fabricante_fornecedor !== undefined ? { pode_ser_fabricante_fornecedor: dados.pode_ser_fabricante_fornecedor } : {}),
@@ -326,9 +356,22 @@ router.put('/:id_fornecedor', async (req, res, next) => {
         ...(dados.ativo_fornecedor !== undefined ? { ativo_fornecedor: dados.ativo_fornecedor } : {}),
       },
     })
+    const contatosPayload = normalizarContatosPayload(dados)
+    if (contatosPayload !== undefined) {
+      await sincronizarContatosFornecedor({
+        id_fornecedor: atualizada.id_fornecedor,
+        id_organizacao: idOrganizacao,
+        contatos: contatosPayload,
+      })
+    }
+
+    const contatos = await listarContatosFornecedor(atualizada.id_fornecedor)
     // Webhook fire-and-forget: notifica Pedido para reavaliar snapshots.
     void notificarMudancaEntidade('fornecedor', atualizada.id_fornecedor, atualizada.id_organizacao_cadastro_fornecedor)
-    res.status(200).json(toFornecedorDto(atualizada))
+    res.status(200).json({
+      ...toFornecedorDto(atualizada),
+      contatos_fornecedor: contatos.map(toFornecedorContatoDto),
+    })
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return next(AppError.conflito('Atualização viola unicidade (CNPJ/TIN duplicado neste tenant)'))

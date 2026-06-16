@@ -16,6 +16,9 @@ export function extrairMensagemErroDisparo(
     if (err.code === 'ECONNREFUSED') {
       return `Serviço de e-mail indisponível em ${emailServiceUrl} (ECONNREFUSED)`
     }
+    if (err.code === 'ECONNABORTED' || err.code === 'ETIMEDOUT') {
+      return `Serviço de e-mail não respondeu a tempo (${emailServiceUrl}) — verifique se está rodando e se RESEND_API_KEY está configurada`
+    }
     return err.message?.trim() || 'Falha de rede ao chamar serviço de e-mail'
   }
   if (err instanceof Error) {

@@ -24,6 +24,7 @@ import {
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { getAcoesExportacaoPadrao } from '../../utils/export-helper'
+import { formatarErroSalvarPermissaoUsuario } from '../../utils/formatar-erro-salvar-permissao-usuario.js'
 import { ModalEditarUsuario } from '../configurador/ModalEditarUsuario'
 import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import {
@@ -1195,10 +1196,11 @@ export function UsuariosAdmin() {
                   permissoes: item.permissoes,
                 })
               } catch (errItem) {
-                const baseMsg = errItem instanceof Error ? errItem.message : 'falha desconhecida'
-                throw new Error(
-                  `Permissões do produto ${item.id_produto_gravity} no workspace ${item.id_workspace}: ${baseMsg}`,
-                )
+                const fmt = formatarErroSalvarPermissaoUsuario(errItem, {
+                  nomeWorkspace: item.nome_workspace,
+                  nomeProduto: item.nome_produto,
+                })
+                throw new Error(fmt.modal)
               }
             }
 
@@ -1217,10 +1219,7 @@ export function UsuariosAdmin() {
               setUsuarios(prev => prev.map(u => u.id_usuario === uEditado.id_usuario ? original : u))
             }
             try { await loadUsers() } catch { /* refetch best-effort */ }
-            addNotification({
-              type: 'error',
-              message: err instanceof Error ? err.message : t('admin.usuarios-globais.msg_erro_atualizar'),
-            })
+            throw err
           }
         }}
       />

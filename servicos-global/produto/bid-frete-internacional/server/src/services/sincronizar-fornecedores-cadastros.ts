@@ -11,8 +11,12 @@ export type FornecedorCadastrosFrete = {
   cnpj_fornecedor?: string | null
   pais_fornecedor: string
   cidade_fornecedor?: string | null
+  email_fornecedor?: string | null
+  /** @deprecated compat API legada — preferir email_fornecedor */
   email_principal_fornecedor?: string | null
+  telefone_fornecedor?: string | null
   telefone_principal_fornecedor?: string | null
+  whatsapp_fornecedor?: string | null
   whatsapp_principal_fornecedor?: string | null
   pode_ser_agente_fornecedor: boolean
   pode_ser_armador_fornecedor: boolean
@@ -20,6 +24,19 @@ export type FornecedorCadastrosFrete = {
   pode_ser_transportadora_rodoviaria_nacional_fornecedor: boolean
   pode_ser_transportadora_rodoviaria_internacional_fornecedor: boolean
   ativo_fornecedor: boolean
+}
+
+export function extrairEmailParceiroCadastros(fornecedor: FornecedorCadastrosFrete): string | null {
+  const email = (fornecedor.email_fornecedor ?? fornecedor.email_principal_fornecedor)?.trim()
+  return email ? email.toLowerCase() : null
+}
+
+export function extrairTelefoneParceiroCadastros(fornecedor: FornecedorCadastrosFrete): string | null {
+  return fornecedor.telefone_fornecedor ?? fornecedor.telefone_principal_fornecedor ?? null
+}
+
+export function extrairWhatsappParceiroCadastros(fornecedor: FornecedorCadastrosFrete): string | null {
+  return fornecedor.whatsapp_fornecedor ?? fornecedor.whatsapp_principal_fornecedor ?? null
 }
 
 type ListaFornecedoresCadastros = {
@@ -53,8 +70,8 @@ export function inferirTipoFornecedorBidFrete(fornecedor: FornecedorCadastrosFre
 }
 
 export function resolverEmailFornecedorBidFrete(fornecedor: FornecedorCadastrosFrete): string {
-  const email = fornecedor.email_principal_fornecedor?.trim()
-  if (email) return email.toLowerCase()
+  const email = extrairEmailParceiroCadastros(fornecedor)
+  if (email) return email
   return `cadastros+${fornecedor.id_fornecedor}@interno.gravity.local`
 }
 
@@ -66,8 +83,8 @@ export function mapCadastrosParaBidFornecedor(fornecedor: FornecedorCadastrosFre
     tipo_fornecedor_bid_frete_internacional: inferirTipoFornecedorBidFrete(fornecedor),
     cnpj_fornecedor_bid_frete_internacional: fornecedor.cnpj_fornecedor ?? null,
     email_fornecedor_bid_frete_internacional: resolverEmailFornecedorBidFrete(fornecedor),
-    telefone_fornecedor_bid_frete_internacional: fornecedor.telefone_principal_fornecedor ?? null,
-    whatsapp_fornecedor_bid_frete_internacional: fornecedor.whatsapp_principal_fornecedor ?? null,
+    telefone_fornecedor_bid_frete_internacional: extrairTelefoneParceiroCadastros(fornecedor),
+    whatsapp_fornecedor_bid_frete_internacional: extrairWhatsappParceiroCadastros(fornecedor),
     pais_fornecedor_bid_frete_internacional: fornecedor.pais_fornecedor,
     cidade_fornecedor_bid_frete_internacional: fornecedor.cidade_fornecedor ?? null,
     status_fornecedor_bid_frete_internacional: fornecedor.ativo_fornecedor ? 'ATIVO' : 'INATIVO',

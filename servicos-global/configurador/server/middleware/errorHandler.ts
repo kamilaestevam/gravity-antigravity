@@ -19,6 +19,7 @@ export function errorHandler(
       error: {
         code: appError.code || 'BAD_REQUEST',
         message: appError.message,
+        ...(appError.details?.length ? { details: appError.details } : {}),
         correlationId,
       },
     })

@@ -42,11 +42,13 @@ import {
 
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 
 import { criarCotacaoComDisparo, getFornecedores } from '../shared/api'
+import { formatarFeedbackDisparoBidFrete, type FeedbackDisparoFormatado } from '../shared/formatar-resultado-disparo-bid-frete-internacional'
 import { idBidDoQueryParam } from '../shared/novo-bid-frete-internacional-utils'
 import {
   ROTA_LISTA_BID_FRETE_INTERNACIONAL,
@@ -1837,18 +1839,21 @@ function limparHtmlNcm(texto: string): string {
 export default function ModalNovaCotacaoBidFreteInternacional() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const addNotification = useShellStore(s => s.addNotification)
   const [searchParams] = useSearchParams()
   const idBid = idBidDoQueryParam(searchParams.get('id_bid'))
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [salvando, setSalvando] = useState(false)
   const [sucesso, setSucesso] = useState(false)
+  const [feedbackDisparoCriacao, setFeedbackDisparoCriacao] = useState<FeedbackDisparoFormatado | null>(null)
   const [cotacaoId, setCotacaoId] = useState<string | null>(null)
   const [fornecedoresAtivos, setFornecedoresAtivos] = useState<Fornecedor[]>([])
   const [carregandoFornecedores, setCarregandoFornecedores] = useState(false)
   const [fornecedorIdsSelecionados, setFornecedorIdsSelecionados] = useState<string[]>([])
   const [fornecedorIdsExcluidosDisparo, setFornecedorIdsExcluidosDisparo] = useState<string[]>([])
-  const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>([])
+  const [canaisDisparo, setCanaisDisparo] = useState<CanalDisparo[]>(['EMAIL'])
+  const [emailsPorFornecedorDisparo, setEmailsPorFornecedorDisparo] = useState<Record<string, string>>({})
   const proximoIdLinhaContainerRef = useRef(2)
 
   useEffect(() => {
@@ -1875,6 +1880,22 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
       setFornecedorIdsSelecionados([])
     }
   }, [form.visibilidade_cotacao_bid_frete_internacional])
+
+  useEffect(() => {
+    if (step !== 4 || form.visibilidade_cotacao_bid_frete_internacional !== 'DIRECIONADA') return
+    if (carregandoFornecedores || fornecedoresAtivos.length === 0) return
+    if (fornecedorIdsSelecionados.length === 0) {
+      setFornecedorIdsSelecionados(
+        fornecedoresAtivos.map(f => f.id_fornecedor_bid_frete_internacional),
+      )
+    }
+  }, [
+    step,
+    form.visibilidade_cotacao_bid_frete_internacional,
+    carregandoFornecedores,
+    fornecedoresAtivos,
+    fornecedorIdsSelecionados.length,
+  ])
 
   const { paises: paisesCadastro, opcoes: opcoesPaises, carregando: carregandoPaises } = usePaisesCadastros()
   const opcoesPaisesLatam = React.useMemo(
@@ -2344,14 +2365,33 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
             ? idsDisparoAberta.length > 0
             : fornecedorIdsSelecionados.length > 0),
         canais_disparo: canaisDisparo,
+        emails_por_fornecedor: Object.keys(emailsPorFornecedorDisparo).length > 0
+          ? emailsPorFornecedorDisparo
+          : undefined,
       })
-      // REGRA 08 — disparo automático não pode falhar em silêncio
+      const feedback = formatarFeedbackDisparoBidFrete(
+        pretendiaDisparar ? disparo : null,
+        { disparoErro: disparo_erro },
+      )
       if (pretendiaDisparar) {
-        if (disparo_erro) {
-          alert(`Cotação criada, mas o disparo automático falhou: ${disparo_erro}`)
-        } else if (!disparo || disparo.disparos === 0) {
-          alert(`Cotação criada, mas nenhum disparo foi gerado${disparo?.message ? `: ${disparo.message}` : '. Verifique os fornecedores selecionados.'}`)
-        }
+        setFeedbackDisparoCriacao(feedback)
+        addNotification({
+          type: feedback.tipo === 'sucesso' ? 'success' : feedback.tipo === 'parcial' ? 'warning' : 'error',
+          message: `${feedback.titulo} — ${feedback.detalhe}`,
+          duration: feedback.tipo === 'erro' ? 8000 : 6000,
+        })
+      } else if (canaisDisparo.length === 0) {
+        setFeedbackDisparoCriacao({
+          tipo: 'erro',
+          titulo: 'Disparo não configurado',
+          detalhe: 'Marque ao menos um canal (E-mail) e selecione fornecedores no passo anterior.',
+        })
+      } else {
+        setFeedbackDisparoCriacao({
+          tipo: 'erro',
+          titulo: 'Disparo não realizado',
+          detalhe: 'Nenhum fornecedor selecionado para envio.',
+        })
       }
       setCotacaoId(cotacao.id_cotacao_bid_frete_internacional)
       setSucesso(true)
@@ -3196,6 +3236,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     prev.includes(id) ? prev : [...prev, id],
                   )
                 }}
+                emailsPorFornecedor={emailsPorFornecedorDisparo}
+                onEmailFornecedorChange={(id_fornecedor, email) => {
+                  setEmailsPorFornecedorDisparo(prev => ({ ...prev, [id_fornecedor]: email }))
+                }}
+                onContatosFornecedorAtualizados={() => {
+                  getFornecedores({ limit: 200, status: 'ATIVO' })
+                    .then(res => setFornecedoresAtivos(res.fornecedores))
+                    .catch(() => undefined)
+                }}
               />
             </div>
           </div>
@@ -3427,6 +3476,29 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 {t('bidfrete.nova_cotacao.criado_desc')}
               </p>
             </div>
+            {feedbackDisparoCriacao && (
+              <div
+                style={{
+                  ...ESTILOS_RESULTADO.resultadoBanner,
+                  marginTop: '0.75rem',
+                  borderColor: feedbackDisparoCriacao.tipo === 'sucesso'
+                    ? 'rgba(34, 197, 94, 0.35)'
+                    : feedbackDisparoCriacao.tipo === 'parcial'
+                      ? 'rgba(245, 158, 11, 0.35)'
+                      : 'rgba(239, 68, 68, 0.35)',
+                }}
+                role="status"
+              >
+                {feedbackDisparoCriacao.tipo === 'sucesso'
+                  ? <CheckCircle weight="fill" size={20} color="var(--success, #22c55e)" />
+                  : <Warning weight="fill" size={20} color={feedbackDisparoCriacao.tipo === 'parcial' ? '#f59e0b' : '#ef4444'} />}
+                <p style={ESTILOS_RESULTADO.resultadoBannerTexto}>
+                  <strong>{feedbackDisparoCriacao.titulo}</strong>
+                  {' — '}
+                  {feedbackDisparoCriacao.detalhe}
+                </p>
+              </div>
+            )}
           </div>
         </ModalPassoPassoGlobal>
         <style>{NC_ESTILOS_CONTEUDO}</style>

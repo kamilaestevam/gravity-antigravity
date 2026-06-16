@@ -31,9 +31,9 @@ function enrichFornecedor(f: PrismaFornecedor): Record<string, unknown> {
     estado_provincia_fornecedor: f.estado_provincia_fornecedor,
     cep_zipcode_fornecedor: f.cep_zipcode_fornecedor,
     endereco_fornecedor: f.endereco_fornecedor,
-    email_principal_fornecedor: f.email_principal_fornecedor,
-    telefone_principal_fornecedor: f.telefone_principal_fornecedor,
-    whatsapp_principal_fornecedor: f.whatsapp_principal_fornecedor,
+    email_fornecedor: f.email_fornecedor,
+    telefone_fornecedor: f.telefone_fornecedor,
+    whatsapp_fornecedor: f.whatsapp_fornecedor,
     ativo_fornecedor: f.ativo_fornecedor,
   }
 }

@@ -789,12 +789,23 @@ export interface CriarCotacaoPayload extends Partial<Cotacao> {
   fornecedor_ids?: string[]
   disparar_ao_criar?: boolean
   canais_disparo?: CanalDisparo[]
+  emails_por_fornecedor?: Record<string, string>
 }
 
 export interface ResultadoDisparoCriacaoCotacao {
   disparos: number
   enviados?: boolean
+  enviados_ok?: number
+  erros_envio?: number
   message?: string
+  results?: Array<{
+    id_fornecedor_bid_frete_internacional: string
+    nome_fornecedor_bid_frete_internacional?: string
+    canal_disparo_cotacao_bid_frete_internacional: string
+    id_disparo_cotacao_bid_frete_internacional: string
+    status_disparo_cotacao_bid_frete_internacional?: 'ENVIADO' | 'ERRO_ENVIO' | string
+    erro_envio_disparo_cotacao_bid_frete_internacional?: string | null
+  }>
 }
 
 export async function criarCotacao(input: CriarCotacaoPayload): Promise<Cotacao> {
@@ -812,6 +823,7 @@ export async function criarCotacaoComDisparo(input: CriarCotacaoPayload): Promis
   if (input.fornecedor_ids) serverInput.fornecedor_ids = input.fornecedor_ids
   if (input.disparar_ao_criar !== undefined) serverInput.disparar_ao_criar = input.disparar_ao_criar
   if (input.canais_disparo) serverInput.canais_disparo = input.canais_disparo
+  if (input.emails_por_fornecedor) serverInput.emails_por_fornecedor = input.emails_por_fornecedor
   const res = await fetch(`${API_BASE}/bid-frete-internacional/cotacoes`, {
     method: 'POST',
     headers: headers(),
@@ -989,11 +1001,16 @@ const SOLICITACAO_COTACAO_BASE = `${API_BASE}/bid-frete-internacional/solicitaca
 const disparoResultadoSchema = z.object({
   disparos: z.number(),
   enviados: z.boolean().optional(),
+  enviados_ok: z.number().optional(),
+  erros_envio: z.number().optional(),
   message: z.string().optional(),
   results: z.array(z.object({
     id_fornecedor_bid_frete_internacional: z.string(),
+    nome_fornecedor_bid_frete_internacional: z.string().optional(),
     canal_disparo_cotacao_bid_frete_internacional: z.string(),
     id_disparo_cotacao_bid_frete_internacional: z.string(),
+    status_disparo_cotacao_bid_frete_internacional: z.string().optional(),
+    erro_envio_disparo_cotacao_bid_frete_internacional: z.string().nullable().optional(),
   })).optional(),
 })
 
@@ -1003,11 +1020,20 @@ export async function dispararCotacaoBidFreteInternacional(
   id_cotacao_bid_frete_internacional: string,
   fornecedor_ids: string[],
   canais: CanalDisparo[],
+  emails_por_fornecedor?: Record<string, string>,
 ): Promise<DisparoResultadoBidFreteInternacional> {
   const res = await fetch(`${SOLICITACAO_COTACAO_BASE}/disparar`, {
     method: 'POST',
     headers: headers(),
-    body: JSON.stringify({ id_cotacao_bid_frete_internacional, fornecedor_ids, canais }),
+    body: JSON.stringify({
+      id_cotacao_bid_frete_internacional,
+      fornecedor_ids,
+      canais,
+      ...(emails_por_fornecedor && Object.keys(emails_por_fornecedor).length > 0
+        ? { emails_por_fornecedor }
+        : {}),
+    }),
+    signal: AbortSignal.timeout(120_000),
   })
   const raw = await handleResponse<unknown>(res)
   return disparoResultadoSchema.parse(raw)
@@ -1021,6 +1047,7 @@ export async function dispararCotacaoAbertaBidFreteInternacional(
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ id_cotacao_bid_frete_internacional, canais }),
+    signal: AbortSignal.timeout(120_000),
   })
   const raw = await handleResponse<unknown>(res)
   return disparoResultadoSchema.parse(raw)

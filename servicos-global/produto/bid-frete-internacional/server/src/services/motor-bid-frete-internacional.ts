@@ -19,14 +19,31 @@ import {
 } from './motor-bid-disparo-utils.js'
 import { snapshotPropostaFromCotacao } from '../lib/snapshot-proposta-bid-frete.js'
 import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
+import { buscarFornecedorCadastrosParaDisparo } from './buscar-fornecedor-cadastros-disparo.js'
+import { garantirFornecedoresEspelhoDisparoBidFrete } from './garantir-fornecedores-espelho-disparo-bid-frete-internacional.js'
+import {
+  resolverEmailsDisparoBidFrete,
+  resolverWhatsappsDisparoBidFrete,
+  type FornecedorEspelhoBidDisparo,
+} from './resolver-contatos-disparo-bid-frete-internacional.js'
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL ?? 'http://localhost:3001'
 const INTERNAL_KEY = process.env.CHAVE_INTERNA_SERVICO ?? ''
 const APP_URL = process.env.APP_URL ?? 'http://localhost:8000'
+const DISPARO_HTTP_TIMEOUT_MS = 30_000
 
 type CanalDisparoMotor = 'EMAIL' | 'WHATSAPP'
 type TipoFornecedorMotor = 'AGENTE_CARGA' | 'ARMADOR' | 'CIA_AEREA' | 'TRANSPORTADORA'
+
+function espelhoDisparoFromFornecedor(fornecedor: Record<string, unknown>): FornecedorEspelhoBidDisparo {
+  return {
+    id_fornecedor_bid_frete_internacional: String(fornecedor.id_fornecedor_bid_frete_internacional),
+    nome_fornecedor_bid_frete_internacional: fornecedor.nome_fornecedor_bid_frete_internacional as string | undefined,
+    email_fornecedor_bid_frete_internacional: fornecedor.email_fornecedor_bid_frete_internacional as string | undefined,
+    whatsapp_fornecedor_bid_frete_internacional: fornecedor.whatsapp_fornecedor_bid_frete_internacional as string | null | undefined,
+  }
+}
 
 interface DispararBidOptions {
   id_cotacao_bid_frete_internacional: string
@@ -34,6 +51,8 @@ interface DispararBidOptions {
   canais: CanalDisparoMotor[]
   id_usuario: string
   id_organizacao: string
+  /** E-mail escolhido no modal de disparo (Cadastros SSOT). */
+  emails_por_fornecedor?: Record<string, string>
 }
 
 interface DispararCotacaoAbertaOptions {
@@ -49,11 +68,20 @@ export const motorBid = {
    * Dispara BIDs para fornecedores selecionados
    */
   async disparar(prisma: PrismaClient, options: DispararBidOptions) {
-    const { id_cotacao_bid_frete_internacional, fornecedor_ids, canais, id_usuario, id_organizacao } = options
+    const {
+      id_cotacao_bid_frete_internacional,
+      fornecedor_ids,
+      canais,
+      id_usuario,
+      id_organizacao,
+      emails_por_fornecedor,
+    } = options
 
     // Buscar cotacao
     const cotacao = await (prisma as any).cotacaoBidFreteInternacional.findFirst({ where: { id_cotacao_bid_frete_internacional } })
     if (!cotacao) throw new Error('Cotacao nao encontrada')
+
+    await garantirFornecedoresEspelhoDisparoBidFrete(prisma, id_organizacao, fornecedor_ids)
 
     // Buscar fornecedores
     const fornecedores = await (prisma as any).fornecedorBidFreteInternacional.findMany({
@@ -63,25 +91,55 @@ export const motorBid = {
       },
     })
 
-    const results: Array<{ id_fornecedor_bid_frete_internacional: string; canal_disparo_cotacao_bid_frete_internacional: string; id_disparo_cotacao_bid_frete_internacional: string }> = []
+    if (fornecedores.length === 0) {
+      return {
+        disparos: 0,
+        enviados: false,
+        results: [],
+        message: 'Nenhum fornecedor ativo encontrado no espelho BID para os IDs selecionados',
+      }
+    }
+
+    const cadastrosPorFornecedor = new Map<string, Awaited<ReturnType<typeof buscarFornecedorCadastrosParaDisparo>>>()
+    await Promise.all(
+      (fornecedores as Array<{ id_fornecedor_bid_frete_internacional: string }>).map(async (f) => {
+        const cadastros = await buscarFornecedorCadastrosParaDisparo(
+          f.id_fornecedor_bid_frete_internacional,
+          id_organizacao,
+        )
+        cadastrosPorFornecedor.set(f.id_fornecedor_bid_frete_internacional, cadastros)
+      }),
+    )
+
+    const results: Array<{
+      id_fornecedor_bid_frete_internacional: string
+      nome_fornecedor_bid_frete_internacional: string
+      canal_disparo_cotacao_bid_frete_internacional: string
+      id_disparo_cotacao_bid_frete_internacional: string
+      status_disparo_cotacao_bid_frete_internacional: 'ENVIADO' | 'ERRO_ENVIO'
+      erro_envio_disparo_cotacao_bid_frete_internacional?: string
+    }> = []
     let algumDisparoEnviado = false
 
-    for (const fornecedor of fornecedores) {
-      // Verificar tabela de preco padrao (cotacao automatica)
+    const processarFornecedor = async (fornecedor: Record<string, unknown>) => {
+      const fornecedorResults: typeof results = []
+      let fornecedorEnviou = false
+      const espelhoDisparo = espelhoDisparoFromFornecedor(fornecedor)
+      const idFornecedor = String(fornecedor.id_fornecedor_bid_frete_internacional)
+      const cadastrosDisparo = cadastrosPorFornecedor.get(idFornecedor) ?? null
       const tabelaMatch = await this.verificarTabelaPadrao(prisma, cotacao, fornecedor)
 
       for (const canal_disparo_cotacao_bid_frete_internacional of canais) {
         const token = randomUUID()
-        const tokenExpira = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 dias
+        const tokenExpira = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
-        // Criar disparo de cotação
         const disparo_cotacao = await (prisma as any).disparoCotacaoBidFreteInternacional.create({
           data: {
             id_produto_gravity: 'bid-frete-internacional',
             id_usuario,
             id_organizacao,
             id_cotacao_bid_frete_internacional,
-            id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
+            id_fornecedor_bid_frete_internacional: idFornecedor,
             canal_disparo_cotacao_bid_frete_internacional,
             status_disparo_cotacao_bid_frete_internacional: 'PENDENTE',
             token_resposta_disparo_cotacao_bid_frete_internacional: token,
@@ -89,13 +147,36 @@ export const motorBid = {
           },
         })
 
-        // Disparar pelo canal correspondente
+        let statusDisparo: 'ENVIADO' | 'ERRO_ENVIO' = 'ENVIADO'
+        let erroDisparo: string | undefined
         try {
           let idMensagem: string | null = null
           if (canal_disparo_cotacao_bid_frete_internacional === 'EMAIL') {
-            idMensagem = await this.dispararEmail(cotacao, fornecedor, token, id_organizacao, id_usuario)
+            const emailOverride = emails_por_fornecedor?.[idFornecedor]?.trim().toLowerCase()
+            const emails = emailOverride
+              ? [emailOverride]
+              : resolverEmailsDisparoBidFrete(espelhoDisparo, cadastrosDisparo)
+            if (emails.length === 0) {
+              throw new Error(
+                `Fornecedor ${fornecedor.nome_fornecedor_bid_frete_internacional ?? ''} sem e-mail cadastrado`,
+              )
+            }
+            idMensagem = await this.dispararEmail(
+              cotacao,
+              fornecedor,
+              token,
+              id_organizacao,
+              id_usuario,
+              emails[0],
+            )
           } else if (canal_disparo_cotacao_bid_frete_internacional === 'WHATSAPP') {
-            await this.dispararWhatsApp(cotacao, fornecedor, token, id_organizacao)
+            const whatsapps = resolverWhatsappsDisparoBidFrete(espelhoDisparo, cadastrosDisparo)
+            if (whatsapps.length === 0) {
+              throw new Error(
+                `Fornecedor ${fornecedor.nome_fornecedor_bid_frete_internacional ?? ''} sem WhatsApp cadastrado`,
+              )
+            }
+            await this.dispararWhatsApp(cotacao, fornecedor, token, id_organizacao, whatsapps[0])
           }
 
           await (prisma as any).disparoCotacaoBidFreteInternacional.update({
@@ -106,9 +187,11 @@ export const motorBid = {
               ...(idMensagem ? { id_mensagem_disparo_cotacao_bid_frete_internacional: idMensagem } : {}),
             },
           })
-          algumDisparoEnviado = true
+          fornecedorEnviou = true
         } catch (err: unknown) {
+          statusDisparo = 'ERRO_ENVIO'
           const errorMessage = extrairMensagemErroDisparo(err, EMAIL_SERVICE_URL)
+          erroDisparo = errorMessage
           try {
             await (prisma as any).disparoCotacaoBidFreteInternacional.update({
               where: { id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional },
@@ -126,14 +209,16 @@ export const motorBid = {
           }
         }
 
-        results.push({
-          id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
+        fornecedorResults.push({
+          id_fornecedor_bid_frete_internacional: idFornecedor,
+          nome_fornecedor_bid_frete_internacional: String(fornecedor.nome_fornecedor_bid_frete_internacional ?? ''),
           canal_disparo_cotacao_bid_frete_internacional,
           id_disparo_cotacao_bid_frete_internacional: disparo_cotacao.id_disparo_cotacao_bid_frete_internacional,
+          status_disparo_cotacao_bid_frete_internacional: statusDisparo,
+          ...(erroDisparo ? { erro_envio_disparo_cotacao_bid_frete_internacional: erroDisparo } : {}),
         })
       }
 
-      // Se tem tabela padrao e cotacao automatica ativada, gerar resposta automatica
       if (tabelaMatch && fornecedor.cotacao_automatica_fornecedor_bid_frete_internacional) {
         try {
           await this.gerarPropostaAutomatica(prisma, cotacao, fornecedor, tabelaMatch)
@@ -142,6 +227,14 @@ export const motorBid = {
           console.error('[motor-bid] proposta automatica falhou:', errorMessage)
         }
       }
+
+      return { fornecedorResults, fornecedorEnviou }
+    }
+
+    const batches = await Promise.all(fornecedores.map(f => processarFornecedor(f as Record<string, unknown>)))
+    for (const batch of batches) {
+      results.push(...batch.fornecedorResults)
+      if (batch.fornecedorEnviou) algumDisparoEnviado = true
     }
 
     if (algumDisparoEnviado) {
@@ -151,7 +244,16 @@ export const motorBid = {
       })
     }
 
-    return { disparos: results.length, enviados: algumDisparoEnviado, results }
+    const enviadosOk = results.filter(r => r.status_disparo_cotacao_bid_frete_internacional === 'ENVIADO').length
+    const errosEnvio = results.filter(r => r.status_disparo_cotacao_bid_frete_internacional === 'ERRO_ENVIO').length
+
+    return {
+      disparos: results.length,
+      enviados: algumDisparoEnviado,
+      enviados_ok: enviadosOk,
+      erros_envio: errosEnvio,
+      results,
+    }
   },
 
   async dispararCotacaoAberta(prisma: PrismaClient, options: DispararCotacaoAbertaOptions) {
@@ -275,10 +377,11 @@ export const motorBid = {
     token: string,
     id_organizacao: string,
     id_usuario: string,
+    emailDestino: string,
   ): Promise<string | null> {
     const cotacao = _cotacao as Record<string, any>
     const fornecedor = _fornecedor as Record<string, any>
-    const email = fornecedor.email_fornecedor_bid_frete_internacional as string | undefined
+    const email = emailDestino.trim()
     if (!email) {
       throw new Error(`Fornecedor ${fornecedor.nome_fornecedor_bid_frete_internacional ?? ''} sem e-mail cadastrado`)
     }
@@ -317,6 +420,7 @@ export const motorBid = {
           'Content-Type': 'application/json',
         },
         validateStatus: () => true,
+        timeout: DISPARO_HTTP_TIMEOUT_MS,
       },
     )
 
@@ -335,10 +439,11 @@ export const motorBid = {
     _fornecedor: Record<string, unknown>,
     token: string,
     id_organizacao: string,
+    whatsappDestino: string,
   ) {
     const cotacao = _cotacao as Record<string, any>
     const fornecedor = _fornecedor as Record<string, any>
-    const whatsapp = fornecedor.whatsapp_fornecedor_bid_frete_internacional as string | undefined
+    const whatsapp = whatsappDestino.trim()
     if (!whatsapp) {
       throw new Error(`Fornecedor ${fornecedor.nome_fornecedor_bid_frete_internacional ?? ''} sem WhatsApp cadastrado`)
     }
@@ -365,6 +470,7 @@ export const motorBid = {
           'Content-Type': 'application/json',
         },
         validateStatus: () => true,
+        timeout: DISPARO_HTTP_TIMEOUT_MS,
       },
     )
 

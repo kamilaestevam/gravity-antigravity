@@ -168,9 +168,9 @@ exports.Prisma.FornecedorScalarFieldEnum = {
   cidade_fornecedor: 'cidade_fornecedor',
   endereco_fornecedor: 'endereco_fornecedor',
   cep_zipcode_fornecedor: 'cep_zipcode_fornecedor',
-  email_principal_fornecedor: 'email_principal_fornecedor',
-  telefone_principal_fornecedor: 'telefone_principal_fornecedor',
-  whatsapp_principal_fornecedor: 'whatsapp_principal_fornecedor',
+  email_fornecedor: 'email_fornecedor',
+  telefone_fornecedor: 'telefone_fornecedor',
+  whatsapp_fornecedor: 'whatsapp_fornecedor',
   pode_ser_importador_fornecedor: 'pode_ser_importador_fornecedor',
   pode_ser_exportador_fornecedor: 'pode_ser_exportador_fornecedor',
   pode_ser_fabricante_fornecedor: 'pode_ser_fabricante_fornecedor',
@@ -188,6 +188,18 @@ exports.Prisma.FornecedorScalarFieldEnum = {
   ativo_fornecedor: 'ativo_fornecedor',
   criado_em_fornecedor: 'criado_em_fornecedor',
   atualizado_em_fornecedor: 'atualizado_em_fornecedor'
+};
+
+exports.Prisma.FornecedorContatoScalarFieldEnum = {
+  id_fornecedor_contato: 'id_fornecedor_contato',
+  id_fornecedor: 'id_fornecedor',
+  id_organizacao_cadastro_fornecedor_contato: 'id_organizacao_cadastro_fornecedor_contato',
+  tipo_canal_fornecedor_contato: 'tipo_canal_fornecedor_contato',
+  valor_fornecedor_contato: 'valor_fornecedor_contato',
+  principal_fornecedor_contato: 'principal_fornecedor_contato',
+  ordem_fornecedor_contato: 'ordem_fornecedor_contato',
+  criado_em_fornecedor_contato: 'criado_em_fornecedor_contato',
+  atualizado_em_fornecedor_contato: 'atualizado_em_fornecedor_contato'
 };
 
 exports.Prisma.FornecedorOrganizacaoScalarFieldEnum = {
@@ -420,6 +432,12 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.TipoCanalFornecedorContato = exports.$Enums.TipoCanalFornecedorContato = {
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP',
+  TELEFONE: 'TELEFONE'
+};
+
 exports.TipoFornecedorOrganizacao = exports.$Enums.TipoFornecedorOrganizacao = {
   AGENTE_CARGA: 'AGENTE_CARGA',
   DESPACHANTE_ADUANEIRO: 'DESPACHANTE_ADUANEIRO',
@@ -465,6 +483,7 @@ exports.NcmSyncOrigemSincronizacao = exports.$Enums.NcmSyncOrigemSincronizacao =
 exports.Prisma.ModelName = {
   Empresa: 'Empresa',
   Fornecedor: 'Fornecedor',
+  FornecedorContato: 'FornecedorContato',
   FornecedorOrganizacao: 'FornecedorOrganizacao',
   Pais: 'Pais',
   Moeda: 'Moeda',

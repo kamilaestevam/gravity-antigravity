@@ -76,7 +76,8 @@ const CriarCotacaoSchemaBase = z.object({
   observacoes_carga_perigosa_cotacao_bid_frete_internacional: z.string().max(500).optional(),
   fornecedor_ids: z.array(z.string()).optional(),
   disparar_ao_criar: z.boolean().default(false),
-  canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default([]),
+  canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default(['EMAIL']),
+  emails_por_fornecedor: z.record(z.string(), z.string().email()).optional(),
 })
 
 type DadosCotacaoBase = z.infer<typeof CriarCotacaoSchemaBase>
@@ -294,7 +295,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     const idWorkspace = resolverIdWorkspace(req)
     const tenantId = req.tenantId
-    const { fornecedor_ids, disparar_ao_criar, canais_disparo, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
+    const { fornecedor_ids, disparar_ao_criar, canais_disparo, emails_por_fornecedor, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
     const camposPersistencia = prepararCamposRotaCotacaoPersistencia(camposCotacao)
 
@@ -338,6 +339,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
                 canais,
                 id_usuario: userId,
                 id_organizacao: tenantId,
+                emails_por_fornecedor,
               })
             } else {
               disparo = { disparos: 0, results: [], message: 'Nenhum fornecedor selecionado para disparo' }
@@ -357,6 +359,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
             canais,
             id_usuario: userId,
             id_organizacao: tenantId,
+            emails_por_fornecedor,
           })
         }
       } catch (disparoErr: unknown) {

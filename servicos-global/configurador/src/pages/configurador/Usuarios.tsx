@@ -22,6 +22,7 @@ import { useShellStore } from '@gravity/shell'
 import { ModalEditarUsuario } from './ModalEditarUsuario'
 import { type NivelAcesso, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import { extractCatchError } from '../../utils/extract-api-error'
+import { formatarErroSalvarPermissaoUsuario } from '../../utils/formatar-erro-salvar-permissao-usuario.js'
 import {
   usuariosApi,
   workspaceApi,
@@ -1543,13 +1544,11 @@ export function Usuarios() {
                   permissoes: item.permissoes,
                 })
               } catch (errItem) {
-                // Mand. 08 — enriquece a mensagem com o (workspace, produto) que falhou.
-                // Itens anteriores já foram persistidos: o catch externo dispara refetch
-                // para sincronizar UI com estado real.
-                const baseMsg = extractCatchError(errItem, 'falha desconhecida')
-                throw new Error(
-                  `Permissões do produto ${item.id_produto_gravity} no workspace ${item.id_workspace}: ${baseMsg}`,
-                )
+                const fmt = formatarErroSalvarPermissaoUsuario(errItem, {
+                  nomeWorkspace: item.nome_workspace,
+                  nomeProduto: item.nome_produto,
+                })
+                throw new Error(fmt.modal)
               }
             }
 
@@ -1575,10 +1574,6 @@ export function Usuarios() {
             } catch {
               // refetch é best-effort no catch — não mascara o erro original.
             }
-            addNotification({
-              type: 'error',
-              message: extractCatchError(err, 'Falha ao salvar alterações do usuário.'),
-            })
             throw err
           }
         }}

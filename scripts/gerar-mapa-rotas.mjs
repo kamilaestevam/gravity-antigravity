@@ -23,7 +23,7 @@ const serviceRoots = [
   { local: 'Tenant', produto: 'relatorios', root: 'servicos-global/tenant/relatorios/server' },
   { local: 'Tenant', produto: 'whatsapp', root: 'servicos-global/tenant/whatsapp/server' },
   { local: 'Produto', produto: 'bid-cambio', root: 'servicos-global/produto/bid-cambio/server' },
-  { local: 'Produto', produto: 'bid-frete', root: 'servicos-global/produto/bid-frete/server' },
+  { local: 'Produto', produto: 'bid-frete-internacional', root: 'servicos-global/produto/bid-frete-internacional/server' },
   { local: 'Produto', produto: 'financeiro-comex', root: 'servicos-global/produto/financeiro-comex/server' },
   { local: 'Produto', produto: 'lpco', root: 'servicos-global/produto/lpco/server' },
   { local: 'Produto', produto: 'nf-importacao', root: 'servicos-global/produto/nf-importacao/server' },

@@ -1,4 +1,4 @@
-// vite.config.ts — servicos-global/produto/bid-frete/client
+// vite.config.ts — servicos-global/produto/bid-frete-internacional/client
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'

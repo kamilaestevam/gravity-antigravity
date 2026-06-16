@@ -25,7 +25,7 @@ const scanRoots = [
   { local: 'Tenant', produto: 'relatorios', root: 'servicos-global/tenant/relatorios/src' },
   { local: 'Tenant', produto: 'whatsapp', root: 'servicos-global/tenant/whatsapp/src' },
   { local: 'Produto', produto: 'bid-cambio', root: 'servicos-global/produto/bid-cambio/client/src' },
-  { local: 'Produto', produto: 'bid-frete', root: 'servicos-global/produto/bid-frete/client/src' },
+  { local: 'Produto', produto: 'bid-frete-internacional', root: 'servicos-global/produto/bid-frete-internacional/client/src' },
   { local: 'Produto', produto: 'financeiro-comex', root: 'servicos-global/produto/financeiro-comex/client/src' },
   { local: 'Produto', produto: 'lpco', root: 'servicos-global/produto/lpco/client/src' },
   { local: 'Produto', produto: 'nf-importacao', root: 'servicos-global/produto/nf-importacao/client/src' },

@@ -141,7 +141,7 @@ const PRODUCT_MIGRATIONS: Record<string, string> = {
   pedido:           'servicos-global/produto/pedido/prisma/migrations',
   processo:         'servicos-global/produto/processo/prisma/migrations',
   'simula-custo':   'servicos-global/produto/simula-custo/prisma/migrations',
-  'bid-frete':      'servicos-global/produto/bid-frete/prisma/migrations',
+  'bid-frete':      'servicos-global/produto/bid-frete-internacional/prisma/migrations',
   'bid-cambio':     'servicos-global/produto/bid-cambio/prisma/migrations',
   'nf-importacao':  'servicos-global/produto/nf-importacao/prisma/migrations',
   lpco:             'servicos-global/produto/lpco/prisma/migrations',

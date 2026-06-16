@@ -210,8 +210,7 @@
   border-radius: 8px;
 }
 
-.dc-dados-gerais-processo .dc-campo-espelho-input,
-.dc-dados-gerais-processo .dc-campo-espelho-select {
+.dc-dados-gerais-processo .dc-campo-espelho-input {
   width: 100%;
   padding: 0.25rem 0.5rem;
   border: 1px solid rgba(167, 139, 250, 0.35);
@@ -223,13 +222,13 @@
   font-family: inherit;
 }
 
-.dc-dados-gerais-processo .dc-campo-espelho-select {
-  cursor: pointer;
-}
-
-.dc-dados-gerais-processo .dc-campo-espelho-input:focus,
-.dc-dados-gerais-processo .dc-campo-espelho-select:focus {
+.dc-dados-gerais-processo .dc-campo-espelho-input:focus {
   outline: 2px solid rgba(167, 139, 250, 0.45);
   outline-offset: 1px;
+}
+
+.dc-dados-gerais-processo .dc-campo-status-select {
+  width: 100%;
+  min-width: 0;
 }
 

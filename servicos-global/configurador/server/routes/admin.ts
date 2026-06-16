@@ -77,6 +77,7 @@ import {
   raizRepositorioGravity,
   registryPlanosTestePath,
   resolverArquivoPlanoTeste,
+  relPathArquivoTesteNoMonorepo,
 } from '../lib/raiz-repositorio-gravity.js'
 import {
   caminhoManifestoEmtTeste,
@@ -1442,19 +1443,19 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
           planosSemSpec.push(`${planId} (sem campo specFile no registry)`)
           continue
         }
-        const specPath = resolve(raizRepositorioGravity, entry.specFile)
-        if (!existsSync(specPath)) {
+        const specRelMonorepo = relPathArquivoTesteNoMonorepo(entry.specFile)
+        if (!specRelMonorepo) {
           planosSemSpec.push(`${planId} (specFile ${entry.specFile} não existe)`)
           continue
         }
 
         const isEmt = entry.tipo === 'EMT' || entry.specFile.includes('testes-em-tela/')
         if (isEmt) {
-          planosEmtResolvidos.push(entry)
+          planosEmtResolvidos.push({ ...entry, specFile: specRelMonorepo })
           continue
         }
 
-        specArgs.push(entry.specFile)
+        specArgs.push(specRelMonorepo)
         const matchProjeto = entry.specFile.match(/^testes\/testes-e2e\/([^/]+)\//)
         if (matchProjeto) {
           projectsDerivados.add(matchProjeto[1])

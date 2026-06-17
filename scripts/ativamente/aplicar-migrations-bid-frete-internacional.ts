@@ -188,6 +188,7 @@ async function bootstrapSchemaVazio(databaseUrl: string, client: Client): Promis
 /** Colunas canônicas mínimas — detecta drift pós-bootstrap (migrations registradas sem SQL). */
 const COLUNAS_CANONICAS_MINIMAS: Array<{ tabela: string; coluna: string }> = [
   { tabela: 'cotacao_bid_frete_internacional', coluna: 'id_cotacao_bid_frete_internacional' },
+  { tabela: 'cotacao_bid_frete_internacional', coluna: 'incluir_armazenagem_cotacao_bid_frete_internacional' },
   { tabela: 'ganho_bid_frete_internacional', coluna: 'id_ganho_bid_frete_internacional' },
   { tabela: 'ganho_bid_frete_internacional', coluna: 'valor_meta_ganho_bid_frete_internacional' },
   { tabela: 'proposta_bid_frete_internacional', coluna: 'id_proposta_bid_frete_internacional' },

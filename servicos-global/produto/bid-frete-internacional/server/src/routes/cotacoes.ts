@@ -297,6 +297,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     const idWorkspace = resolverIdWorkspace(req)
     const tenantId = req.tenantId
+    if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
     const { fornecedor_ids, disparar_ao_criar, canais_disparo, emails_por_fornecedor, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
     const camposPersistencia = prepararCamposRotaCotacaoPersistencia(camposCotacao)

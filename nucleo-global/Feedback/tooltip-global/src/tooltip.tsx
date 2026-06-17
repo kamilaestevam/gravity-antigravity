@@ -60,6 +60,10 @@ export function TooltipGlobal({
   const calcularPos = useCallback(() => {
     if (ref.current) {
       const r = ref.current.getBoundingClientRect()
+      const alturaEstimadaPx = interativo ? 220 : 72
+      const espacoAbaixo = window.innerHeight - r.bottom - MARGEM_VIEWPORT_PX
+      const espacoAcima = r.top - MARGEM_VIEWPORT_PX
+
       let usaBottom: boolean
       if (posicaoPreferida === 'abaixo') {
         usaBottom = false
@@ -68,6 +72,13 @@ export function TooltipGlobal({
       } else {
         usaBottom = r.top > 80
       }
+
+      if (!usaBottom && espacoAbaixo < alturaEstimadaPx && espacoAcima >= espacoAbaixo) {
+        usaBottom = true
+      } else if (usaBottom && espacoAcima < alturaEstimadaPx && espacoAbaixo > espacoAcima) {
+        usaBottom = false
+      }
+
       const centerX = r.left + r.width / 2
       let pxLeft: number
       if (alinhamentoHorizontal === 'inicio') {
@@ -88,20 +99,40 @@ export function TooltipGlobal({
         alinhamento: alinhamentoHorizontal,
       })
     }
-  }, [posicaoPreferida, alinhamentoHorizontal])
+  }, [posicaoPreferida, alinhamentoHorizontal, interativo])
 
   const ajustarPosComLarguraReal = useCallback(() => {
-    if (!cardRef.current) return
+    if (!cardRef.current || !ref.current) return
     const card = cardRef.current.getBoundingClientRect()
+    const trigger = ref.current.getBoundingClientRect()
     let delta = 0
     if (card.left < MARGEM_VIEWPORT_PX) {
       delta = MARGEM_VIEWPORT_PX - card.left
     } else if (card.right > window.innerWidth - MARGEM_VIEWPORT_PX) {
       delta = window.innerWidth - MARGEM_VIEWPORT_PX - card.right
     }
-    if (delta !== 0) {
-      setPos(prev => ({ ...prev, left: prev.left + delta }))
-    }
+
+    setPos(prev => {
+      let next = delta !== 0 ? { ...prev, left: prev.left + delta } : prev
+
+      if (card.bottom > window.innerHeight - MARGEM_VIEWPORT_PX) {
+        next = {
+          ...next,
+          usaBottom: true,
+          bottom: window.innerHeight - trigger.top + 8,
+          top: 0,
+        }
+      } else if (card.top < MARGEM_VIEWPORT_PX) {
+        next = {
+          ...next,
+          usaBottom: false,
+          top: trigger.bottom + 8,
+          bottom: 0,
+        }
+      }
+
+      return next
+    })
   }, [])
 
   useEffect(() => {

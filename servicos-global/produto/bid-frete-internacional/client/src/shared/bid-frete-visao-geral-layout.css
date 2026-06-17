@@ -229,6 +229,49 @@
   padding: 0.5rem 0;
 }
 
+/* Visão fornecedor — alertas compactos (não esticar cards na coluna do mapa) */
+.bfd-alertas--fornecedor {
+  flex: 0 0 auto;
+}
+
+.bfd-alertas--fornecedor .bfd-alertas__grid {
+  flex: none;
+  align-content: start;
+}
+
+.bfd-alertas--fornecedor .bfd-alertas__glow-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  column-gap: 0.5rem;
+  row-gap: 0;
+  justify-content: unset;
+  min-height: 0;
+  padding: 0.7rem 0.85rem;
+}
+
+.bfd-alertas--fornecedor .bfd-alertas__glow-card-top {
+  display: contents;
+}
+
+.bfd-alertas--fornecedor .bfd-alertas__glow-card-top svg {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.bfd-alertas--fornecedor .bfd-alertas__glow-count {
+  grid-column: 3;
+  grid-row: 1;
+  font-size: 1.1rem;
+}
+
+.bfd-alertas--fornecedor .bfd-alertas__glow-label {
+  grid-column: 2;
+  grid-row: 1;
+  margin-top: 0;
+  min-width: 0;
+}
+
 .bfd-taxa {
   display: flex;
   align-items: center;

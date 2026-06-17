@@ -229,8 +229,8 @@ export default function VisaoFornecedorBidFreteInternacionalDashboard() {
 
             <div className="bfd-globe-row__coluna-direita">
               <div
-                className="bfd-card bfd-alertas bfd-card--accent-rose"
-                style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}
+                className="bfd-card bfd-alertas bfd-alertas--fornecedor bfd-card--accent-rose"
+                style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}
               >
                 <BidFreteSecaoCabecalho
                   icone={iconesSecao.alertas}

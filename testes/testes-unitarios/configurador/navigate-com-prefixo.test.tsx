@@ -48,6 +48,7 @@ describe('NavigateComPrefixo', () => {
       expect(pares).toContain('/produto/processo -> /processo')
       expect(pares).toContain('/produto/bid-frete -> /bid-frete')
       expect(pares).toContain('/produto/bid-cambio -> /bid-cambio')
+      expect(pares).toContain('/produto/smart-read -> /smart-read')
     })
   })
 

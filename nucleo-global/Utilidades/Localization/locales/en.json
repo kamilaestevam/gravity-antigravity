@@ -1025,7 +1025,11 @@
         "col_transit_time": "Transit time",
         "col_validade": "Validity",
         "col_status": "Status",
-        "dias": "{{val}} days"
+        "dias": "{{val}} days",
+        "tooltip_excluir": "Delete proposal",
+        "excluir_bloqueado": "Approved or rejected proposals cannot be deleted",
+        "modal_excluir_titulo": "Delete proposal?",
+        "modal_excluir_desc": "The proposal will be removed and you can submit a new response for the quote."
       },
       "desempenho": {
         "subtitulo": "Your performance metrics and received reviews",

@@ -1,6 +1,6 @@
 /**
- * MinhasRespostas.tsx — Portal do Fornecedor: Historico de Respostas
- * Tabs de filtro + TabelaGlobal com status badges
+ * Minhas propostas — Portal do Fornecedor: histórico de propostas enviadas
+ * Tabs de filtro + TabelaGlobal com status badges e exclusão
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
@@ -11,7 +11,7 @@ import {
   criarTituloCarregandoTopo,
   ConteudoCarregandoBidFreteInternacional,
 } from '../../shared/pagina-carregando-bid-frete-internacional'
-import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import {
   PaperPlaneTilt,
   CheckCircle,
@@ -20,31 +20,25 @@ import {
   Anchor,
   AirplaneTilt,
   Van,
+  Trash,
 } from '@phosphor-icons/react'
 
-import { getVisaoFornecedorBidFreteInternacionalPropostas } from '../../shared/api'
-import type { PropostaBidFreteInternacional, ModalFrete } from '../../shared/types'
+import {
+  excluirVisaoFornecedorBidFreteInternacionalProposta,
+  getVisaoFornecedorBidFreteInternacionalPropostas,
+} from '../../shared/api'
+import type { ModalFrete, PropostaBidFreteInternacional } from '../../shared/types'
 import { MODAL_LABELS } from '../../shared/types'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 type FiltroTab = 'TODAS' | 'PENDENTES' | 'APROVADAS' | 'REPROVADAS'
 
-// Labels initialized in component since they need t()
 const TAB_KEYS: FiltroTab[] = ['TODAS', 'PENDENTES', 'APROVADAS', 'REPROVADAS']
 
-type CotacaoResumoPortal = {
-  numero_cotacao_bid_frete_internacional: string
-  origem_nome_tabela_bid_frete_internacional: string
-  destino_nome_tabela_bid_frete_internacional: string
-  modal_tabela_bid_frete_internacional: ModalFrete
-}
-
-type RespostaComCotacao = Omit<PropostaBidFreteInternacional, 'cotacao'> & {
-  cotacao?: CotacaoResumoPortal
-}
-
 type RespostaStatus = 'aprovada' | 'reprovada' | 'pendente'
+
+const STATUS_PROPOSTA_NAO_EXCLUIVEL = new Set(['APROVADA', 'REPROVADA'])
 
 function getRespostaStatus(r: PropostaBidFreteInternacional): RespostaStatus {
   if (r.status_proposta_bid_frete_internacional === 'APROVADA') return 'aprovada'
@@ -64,17 +58,30 @@ const MODAL_ICON_MAP: Record<ModalFrete, React.ReactNode> = {
   RODOVIARIO: <Van weight="duotone" size={14} />,
 }
 
-const fmtMoeda = (val: number) =>
-  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val)
+const fmtMoeda = (val: number) => {
+  if (!Number.isFinite(val)) return '—'
+  return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val)
+}
 
-const fmtData = (iso: string) =>
-  new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+const fmtData = (iso: string) => {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+function rotuloCotacao(row: PropostaBidFreteInternacional): string {
+  return (
+    row.cotacao?.numero_cotacao_bid_frete_internacional
+    ?? row.id_cotacao_bid_frete_internacional.slice(0, 8).toUpperCase()
+  )
+}
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function MinhasRespostas() {
   const { t } = useTranslation()
-  const [respostas, setRespostas] = useState<RespostaComCotacao[]>([])
+  const [respostas, setRespostas] = useState<PropostaBidFreteInternacional[]>([])
   const [carregando, setCarregando] = useState(true)
   const [filtro, setFiltro] = useState<FiltroTab>('TODAS')
 
@@ -89,7 +96,7 @@ export default function MinhasRespostas() {
     setCarregando(true)
     try {
       const data = await getVisaoFornecedorBidFreteInternacionalPropostas()
-      setRespostas(data as RespostaComCotacao[])
+      setRespostas(data)
     } catch {
       // silencioso
     } finally {
@@ -128,15 +135,24 @@ export default function MinhasRespostas() {
     }
   }, [carregando, t, respostas.length]))
 
-  const colunas: TabelaGlobalColuna<any>[] = [
+  const handleExcluir = useCallback(async (item: PropostaBidFreteInternacional) => {
+    try {
+      await excluirVisaoFornecedorBidFreteInternacionalProposta(item.id_proposta_bid_frete_internacional)
+      await carregar()
+    } catch {
+      // silencioso — toast futuro
+    }
+  }, [carregar])
+
+  const colunas: TabelaGlobalColuna<PropostaBidFreteInternacional>[] = useMemo(() => [
     {
       key: 'cotacao',
       label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_cotacao'),
       tipo: 'texto',
       largura: 140,
-      render: (_val: unknown, row: RespostaComCotacao) => (
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', color: 'var(--accent, #6366f1)' }}>
-          {row.cotacao?.numero_cotacao_bid_frete_internacional ?? row.id_cotacao_bid_frete_internacional.slice(0, 8).toUpperCase()}
+      render: (_val: unknown, row: PropostaBidFreteInternacional) => (
+        <span className="mr-cell mr-cell--mono mr-cell--cotacao">
+          {rotuloCotacao(row)}
         </span>
       ),
     },
@@ -145,78 +161,86 @@ export default function MinhasRespostas() {
       label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_rota'),
       tipo: 'texto',
       largura: 200,
-      render: (_val: unknown, row: RespostaComCotacao) => (
-        <span style={{ fontSize: '0.8125rem' }}>
-          {row.cotacao?.origem_nome_tabela_bid_frete_internacional ?? '—'} &rarr; {row.cotacao?.destino_nome_tabela_bid_frete_internacional ?? '—'}
-        </span>
-      ),
-    },
-    {
-      key: 'modal_tabela_bid_frete_internacional',
-      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_modal'),
-      tipo: 'texto',
-      largura: 120,
-      render: (_val: unknown, row: RespostaComCotacao) => {
-        const modal_tabela_bid_frete_internacional = row.cotacao?.modal_tabela_bid_frete_internacional
+      render: (_val: unknown, row: PropostaBidFreteInternacional) => {
+        const origem = row.cotacao?.origem_nome_cotacao_bid_frete_internacional
+        const destino = row.cotacao?.destino_nome_cotacao_bid_frete_internacional
+        if (!origem && !destino) {
+          return <span className="mr-cell">—</span>
+        }
         return (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8125rem' }}>
-            {modal_tabela_bid_frete_internacional ? MODAL_ICON_MAP[modal_tabela_bid_frete_internacional] : null}
-            {modal_tabela_bid_frete_internacional ? MODAL_LABELS[modal_tabela_bid_frete_internacional] : '—'}
+          <span className="mr-cell">
+            {origem ?? '—'} &rarr; {destino ?? '—'}
           </span>
         )
       },
     },
     {
-      key: 'valor_total_tabela_bid_frete_internacional',
+      key: 'modal_cotacao_bid_frete_internacional',
+      label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_modal'),
+      tipo: 'texto',
+      largura: 120,
+      render: (_val: unknown, row: PropostaBidFreteInternacional) => {
+        const modal = row.cotacao?.modal_cotacao_bid_frete_internacional
+        if (!modal) {
+          return <span className="mr-cell">—</span>
+        }
+        return (
+          <span className="mr-cell mr-cell--modal">
+            {MODAL_ICON_MAP[modal]}
+            {MODAL_LABELS[modal]}
+          </span>
+        )
+      },
+    },
+    {
+      key: 'valor_total_proposta_bid_frete_internacional',
       label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_valor_total'),
       tipo: 'numero',
       largura: 140,
       align: 'right',
-      render: (val: unknown, row: RespostaComCotacao) => (
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', fontWeight: 600 }}>
-          {row.moeda_proposta_bid_frete_internacional} {fmtMoeda(val as number)}
+      render: (_val: unknown, row: PropostaBidFreteInternacional) => (
+        <span className="mr-cell mr-cell--mono mr-cell--valor">
+          {row.moeda_proposta_bid_frete_internacional} {fmtMoeda(row.valor_total_proposta_bid_frete_internacional)}
         </span>
       ),
     },
     {
-      key: 'dias_transito_tabela_bid_frete_internacional',
+      key: 'dias_transito_proposta_bid_frete_internacional',
       label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_transit_time'),
       tipo: 'numero',
       largura: 110,
       align: 'center',
-      render: (val: unknown) => (
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>
-          {t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.dias', { val })}
-        </span>
-      ),
+      render: (_val: unknown, row: PropostaBidFreteInternacional) => {
+        const dias = row.dias_transito_proposta_bid_frete_internacional
+        if (!Number.isFinite(dias) || dias <= 0) {
+          return <span className="mr-cell mr-cell--mono">—</span>
+        }
+        return (
+          <span className="mr-cell mr-cell--mono">
+            {t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.dias', { val: dias })}
+          </span>
+        )
+      },
     },
     {
       key: 'validade_proposta_bid_frete_internacional',
       label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_validade'),
       tipo: 'periodo',
       largura: 110,
-      render: (val: unknown) => fmtData(val as string),
+      render: (val: unknown) => (
+        <span className="mr-cell">{fmtData(val as string)}</span>
+      ),
     },
     {
       key: 'status',
       label: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.col_status'),
       tipo: 'texto',
       largura: 120,
-      render: (_val: unknown, row: RespostaComCotacao) => {
+      render: (_val: unknown, row: PropostaBidFreteInternacional) => {
         const status = getRespostaStatus(row)
         const cfg = STATUS_MAP[status]
         return (
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.2rem 0.6rem',
-            borderRadius: '9999px',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            background: cfg.bg,
-            color: cfg.color,
-          }}>
+          <span className="mr-status-badge" style={{ background: cfg.bg, color: cfg.color }}>
             {status === 'aprovada' && <CheckCircle weight="fill" size={12} />}
             {status === 'reprovada' && <XCircle weight="fill" size={12} />}
             {status === 'pendente' && <ClockCountdown weight="fill" size={12} />}
@@ -225,15 +249,33 @@ export default function MinhasRespostas() {
         )
       },
     },
-  ]
+  ], [t])
+
+  const acoes: TabelaGlobalAcao<PropostaBidFreteInternacional>[] = useMemo(() => [
+    {
+      id: 'excluir',
+      icone: <Trash weight="duotone" size={16} />,
+      tooltip: (item) =>
+        STATUS_PROPOSTA_NAO_EXCLUIVEL.has(item.status_proposta_bid_frete_internacional)
+          ? t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.excluir_bloqueado')
+          : t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.tooltip_excluir'),
+      disabled: (item) => STATUS_PROPOSTA_NAO_EXCLUIVEL.has(item.status_proposta_bid_frete_internacional),
+      confirmarExclusao: {
+        titulo: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.modal_excluir_titulo'),
+        descricao: t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.modal_excluir_desc'),
+        nomeItem: (item) => rotuloCotacao(item),
+      },
+      onClick: handleExcluir,
+    },
+  ], [handleExcluir, t])
 
   return (
     <PaginaGlobal className="mr-page bid-frete-page-shell">
-      {/* Tabs */}
       <div className="mr-tabs">
         {TABS.map(tab => (
           <button
             key={tab.key}
+            type="button"
             className={`mr-tab ${filtro === tab.key ? 'mr-tab--ativo' : ''}`}
             onClick={() => setFiltro(tab.key)}
           >
@@ -251,6 +293,7 @@ export default function MinhasRespostas() {
         <TabelaGlobal
           dados={filtradas}
           colunas={colunas}
+          acoes={acoes}
           idKey="id_proposta_bid_frete_internacional"
           mensagemVazio={t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.vazio')}
           tooltipBusca={t('bidfrete.visao_fornecedor_bid_frete_internacional.propostas.buscar')}
@@ -258,8 +301,6 @@ export default function MinhasRespostas() {
       )}
 
       <style>{`
-        .mr-page { }
-
         .mr-tabs {
           display: flex;
           gap: 0.25rem;
@@ -275,13 +316,13 @@ export default function MinhasRespostas() {
           padding: 0.5rem 0.875rem;
           font-size: 0.8125rem;
           font-weight: 500;
+          font-family: inherit;
           color: var(--text-secondary, #94a3b8);
           background: none;
           border: none;
           border-bottom: 2px solid transparent;
           cursor: pointer;
-          transition: all 0.15s;
-          font-family: inherit;
+          transition: color 0.15s, border-color 0.15s;
           white-space: nowrap;
         }
         .mr-tab:hover { color: var(--text-primary, #f1f5f9); }
@@ -293,6 +334,7 @@ export default function MinhasRespostas() {
         .mr-tab-count {
           font-size: 0.6875rem;
           font-weight: 700;
+          font-family: inherit;
           background: var(--bg-elevated, #475569);
           color: var(--text-secondary, #94a3b8);
           padding: 0.1rem 0.45rem;
@@ -303,6 +345,38 @@ export default function MinhasRespostas() {
         .mr-tab-count--ativo {
           background: rgba(99,102,241,0.2);
           color: var(--accent, #6366f1);
+        }
+
+        .mr-cell {
+          font-size: 0.8125rem;
+          font-family: inherit;
+          color: var(--text-primary, #f1f5f9);
+        }
+        .mr-cell--mono {
+          font-family: 'DM Mono', ui-monospace, monospace;
+        }
+        .mr-cell--cotacao {
+          color: var(--accent, #6366f1);
+        }
+        .mr-cell--valor {
+          font-weight: 600;
+        }
+        .mr-cell--modal {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+        }
+
+        .mr-status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.2rem 0.6rem;
+          border-radius: 9999px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          font-family: inherit;
+          white-space: nowrap;
         }
       `}</style>
     </PaginaGlobal>

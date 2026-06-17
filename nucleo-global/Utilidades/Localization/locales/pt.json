@@ -3450,7 +3450,11 @@
         "col_transit_time": "Transit time",
         "col_validade": "Validade",
         "col_status": "Status",
-        "dias": "{{val}} dias"
+        "dias": "{{val}} dias",
+        "tooltip_excluir": "Excluir proposta",
+        "excluir_bloqueado": "Proposta aprovada ou reprovada não pode ser excluída",
+        "modal_excluir_titulo": "Excluir proposta?",
+        "modal_excluir_desc": "A proposta será removida e você poderá enviar uma nova resposta para a cotação."
       },
       "desempenho": {
         "subtitulo": "Suas métricas de performance e avaliações recebidas",

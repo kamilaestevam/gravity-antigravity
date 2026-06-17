@@ -1224,7 +1224,7 @@ export async function enviarVisaoFornecedorBidFreteInternacionalProposta(
 }
 
 export async function getVisaoFornecedorBidFreteInternacionalPropostas(): Promise<PropostaBidFreteInternacional[]> {
-  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/propostas`, { headers: headers() })
+  const res = await fetch(`${VISAO_FORNECEDOR_BASE}/propostas?limit=500`, { headers: headers() })
   const raw = await handleResponse<unknown>(res)
   const parsed = visaoFornecedorBidFreteInternacionalPropostasResponseSchema.parse(raw)
   return parsed.visao_fornecedor_bid_frete_internacional.propostas_bid_frete_internacional.map(
@@ -1304,6 +1304,19 @@ export async function excluirVisaoFornecedorBidFreteInternacionalTabelaValor(
     method: 'DELETE',
     headers: headers(),
   })
+  await handleResponse(res)
+}
+
+export async function excluirVisaoFornecedorBidFreteInternacionalProposta(
+  id_proposta_bid_frete_internacional: string,
+): Promise<void> {
+  const res = await fetch(
+    `${VISAO_FORNECEDOR_BASE}/propostas/${id_proposta_bid_frete_internacional}`,
+    {
+      method: 'DELETE',
+      headers: headers(),
+    },
+  )
   await handleResponse(res)
 }
 

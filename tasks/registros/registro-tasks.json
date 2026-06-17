@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 289,
+  "proximo_numero": 290,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -403,6 +403,23 @@
       "tempo_liquido_horas": 1.7,
       "tokens_estimados_total": 50000,
       "arquivo_ficha": "registros/TASK-000288.json"
+    },
+    {
+      "referencia": "TASK-000289",
+      "ordinal": 22,
+      "titulo_canonico": "BIDFRT-PROPOSTAS-LISTA-MEL-FUNCIONAL-TIPOGRAFIA-EXCLUSAO",
+      "titulo_exibicao": "TASK-000289 | [BID Frete] Propostas | MEL — Auditar Minhas propostas, tipografia e exclusão",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": "PROPOSTAS",
+      "visualizacao": "LISTA",
+      "tipo_entrega": "MEL",
+      "resumo": "FUNCIONAL-TIPOGRAFIA-EXCLUSAO",
+      "data_criacao": "2026-06-16T23:50:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000289.json"
     }
   ]
 }

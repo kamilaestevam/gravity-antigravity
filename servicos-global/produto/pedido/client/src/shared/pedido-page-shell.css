@@ -15,6 +15,20 @@
   padding: var(--pedido-page-pt) var(--pedido-page-px) var(--pedido-page-pb);
 }
 
+/* Loading padrão — Suspense fallback (MultiView + rotas lazy) */
+.pedido-view-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 50vh;
+  width: 100%;
+}
+
+.pedido-view-fallback .gl-container {
+  min-height: 0;
+}
+
 /* PaginaGlobal — título no top bar; ajustes de camadas internas */
 .pedido-page-shell.pg-container .pg-contexto-row.pg-no-header {
   margin-top: 0;

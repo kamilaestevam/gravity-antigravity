@@ -7,6 +7,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { pedidoQueryClient } from './shared/pedido-query-client'
 import { TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ChartPieSlice, ChartBar, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
@@ -108,9 +109,8 @@ const ECOSYSTEM_NODES: EcosystemNode[] = [
 
 function LoadingFallback() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '2rem' }}>
-      <div style={{ height: '1.5rem', width: '60%', background: 'var(--bg-surface)', borderRadius: '0.375rem' }} />
-      <div style={{ height: '20rem', width: '100%', background: 'var(--bg-surface)', borderRadius: '0.5rem' }} />
+    <div className="pedido-view-fallback" role="status" aria-live="polite" aria-busy="true">
+      <GravityLoader tamanho="md" />
     </div>
   )
 }

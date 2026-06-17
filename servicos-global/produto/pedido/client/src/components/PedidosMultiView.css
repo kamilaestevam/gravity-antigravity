@@ -17,24 +17,3 @@
 .pedido-view-panel--ativo {
   display: flex;
 }
-
-.pedido-view-fallback {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 2rem;
-}
-
-.pedido-view-fallback__bar {
-  height: 1.5rem;
-  width: 60%;
-  background: var(--bg-surface);
-  border-radius: 0.375rem;
-}
-
-.pedido-view-fallback__panel {
-  height: 20rem;
-  width: 100%;
-  background: var(--bg-surface);
-  border-radius: 0.5rem;
-}

@@ -6,10 +6,12 @@
  */
 
 import React, { Suspense, lazy, useEffect, useState } from 'react'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { usePedidosVisualizacao, type PedidoVisualizacaoId, testidPainelSeletor } from './pedidos-visualizacao-context'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
 import { BloqueioPermissaoOpaco } from '../shared/permissoes/BloqueioPermissaoOpaco'
 import './PedidosMultiView.css'
+import '../shared/pedido-page-shell.css'
 
 const PedidosVisaoGeral = lazy(() => import('../pages/PedidosVisaoGeral'))
 const Pedidos = lazy(() => import('../pages/Pedidos'))
@@ -18,9 +20,8 @@ const PedidosKanban = lazy(() => import('../pages/PedidosKanban'))
 
 function PainelFallback() {
   return (
-    <div className="pedido-view-fallback" aria-hidden>
-      <div className="pedido-view-fallback__bar" />
-      <div className="pedido-view-fallback__panel" />
+    <div className="pedido-view-fallback" role="status" aria-live="polite" aria-busy="true">
+      <GravityLoader tamanho="md" />
     </div>
   )
 }

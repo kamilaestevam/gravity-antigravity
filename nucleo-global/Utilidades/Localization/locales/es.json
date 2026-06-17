@@ -1814,8 +1814,8 @@
       "publico": {
         "carregando": "Cargando cotización...",
         "invalido_titulo": "Enlace Inválido o Expirado",
-        "invalido_desc": "Este enlace de cotización ya no es válido. Puede haber expirado o ya haber sido utilizado.",
-        "invalido_contato": "Póngase en contacto con el comprador para solicitar un nuevo enlace.",
+        "invalido_desc": "El plazo de este enlace finalizó o la propuesta ya fue enviada por aquí.",
+        "invalido_contato": "Solicite un nuevo enlace a la empresa que lo invitó a cotizar.",
         "obrigado_titulo": "Gracias por su propuesta",
         "obrigado_desc": "Su respuesta ha sido enviada con éxito y será analizada por el comprador. Se le notificará el resultado.",
         "campos_obrigatorios": "Rellene los campos obligatorios: Moneda, Valor del Flete, Transit Time, Validez, Plazo de pago y Free Time (cuando FCL)",

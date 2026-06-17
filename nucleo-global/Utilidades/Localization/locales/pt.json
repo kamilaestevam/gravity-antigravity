@@ -3241,8 +3241,8 @@
       "publico": {
         "carregando": "Carregando cotação...",
         "invalido_titulo": "Link Inválido ou Expirado",
-        "invalido_desc": "Este link de cotação não é mais válido. Ele pode ter expirado ou já ter sido utilizado.",
-        "invalido_contato": "Entre em contato com o comprador para solicitar um novo link.",
+        "invalido_desc": "O prazo deste link encerrou ou a proposta já foi enviada por aqui.",
+        "invalido_contato": "Peça um novo link à empresa que convidou você para cotar.",
         "obrigado_titulo": "Obrigado pela sua proposta",
         "obrigado_desc": "Sua resposta foi enviada com sucesso e será analisada pelo comprador. Você será notificado sobre o resultado.",
         "campos_obrigatorios": "Preencha os campos obrigatórios: Moeda, Valor Frete, Transit Time, Validade, Prazo de pagamento e Free Time (quando FCL)",
@@ -3561,8 +3561,8 @@
     "visao_fornecedor_bid_frete_internacional_publico": {
       "carregando": "Carregando cotação...",
       "invalido_titulo": "Link inválido ou expirado",
-      "invalido_desc": "Este link de cotação não é mais válido. Ele pode ter expirado ou já ter sido utilizado.",
-      "invalido_contato": "Entre em contato com o comprador para solicitar um novo link.",
+      "invalido_desc": "O prazo deste link encerrou ou a proposta já foi enviada por aqui.",
+      "invalido_contato": "Peça um novo link à empresa que convidou você para cotar.",
       "obrigado_titulo": "Obrigado pela sua proposta",
       "obrigado_desc": "Sua resposta foi enviada com sucesso e será analisada pelo comprador.",
       "campos_obrigatorios": "Preencha os campos obrigatórios: moeda, valor frete, transit time, validade, prazo de pagamento e free time (quando FCL)",

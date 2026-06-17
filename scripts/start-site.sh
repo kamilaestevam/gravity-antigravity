@@ -104,7 +104,9 @@ echo "[start-site] Pedido anexos upload dir: $PEDIDO_ANEXOS_UPLOAD_DIR"
 
 if [ -z "${SMART_READ_LEGADO_URL:-}" ] || [ -z "${SMART_READ_LEGADO_CHAVE_GRAVITY:-}" ]; then
   echo "[start-site] AVISO: SMART_READ_LEGADO_URL ou SMART_READ_LEGADO_CHAVE_GRAVITY ausente — uploads Smart Read falham."
-  echo "[start-site] Railway → site-usegravity → Variables → SMART_READ_LEGADO_* + SMART_READ_DE_PARA_ORGANIZACAO"
+  echo "[start-site] Railway → site-usegravity → Variables → SMART_READ_LEGADO_* + SMART_READ_ID_COMPANY_LEGADO_PADRAO"
+elif [ -z "${SMART_READ_ID_COMPANY_LEGADO_PADRAO:-}" ] && [ -z "${SMART_READ_DE_PARA_ORGANIZACAO:-}" ]; then
+  echo "[start-site] AVISO: SMART_READ_ID_COMPANY_LEGADO_PADRAO ausente — orgs com assinatura ATIVA precisam de company id legado."
 else
   echo "[start-site] Smart Read legado configurado (sidecar 8033)."
 fi

@@ -530,6 +530,71 @@ app.use('/api/v1/fornecedores', _proxyCadastros)
 app.use('/api/v1/empresas', _proxyCadastros)
 app.use('/api/v1/cadastros', _proxyCadastros)
 
+// ─── Proxy reverso: Smart Read sidecar (porta 8033) ───────────────────────────
+// BFF sem banco — upload multipart; timeout alinhado ao legado (10 min).
+const SMART_READ_SIDECAR_LOCAL_URL = 'http://127.0.0.1:8033'
+
+function resolverUrlProxySmartRead(): string {
+  if (process.env.RAILWAY_ENVIRONMENT) {
+    return SMART_READ_SIDECAR_LOCAL_URL
+  }
+  return process.env.SMART_READ_SERVICE_URL || SMART_READ_SIDECAR_LOCAL_URL
+}
+
+const _proxySmartRead = (req: express.Request, res: express.Response) => {
+  const serviceUrl = resolverUrlProxySmartRead()
+  const targetUrl = `${serviceUrl}${req.originalUrl}`
+  const host = serviceUrl.replace(/^https?:\/\//, '')
+  const headers: Record<string, string | string[] | undefined> = { ...req.headers, host }
+  const chaveInterna = process.env.CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
+  headers['x-chave-interna-servico'] = chaveInterna
+  headers['x-internal-key'] = chaveInterna
+
+  const proxyTimeoutMs = 660_000
+
+  let bodyBuf: Buffer | undefined
+  if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+    bodyBuf = Buffer.from(JSON.stringify(req.body))
+    headers['content-length'] = String(bodyBuf.length)
+  }
+
+  const proxyReq = httpRequest(targetUrl, { method: req.method, headers }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
+    proxyRes.pipe(res)
+  })
+  proxyReq.setTimeout(proxyTimeoutMs, () => {
+    proxyReq.destroy()
+    if (!res.headersSent) {
+      res.status(408).json({
+        error: {
+          code: 'HTTP_408',
+          message: 'Tempo limite excedido ao enviar documento. Tente novamente.',
+        },
+      })
+    }
+  })
+  proxyReq.on('error', (err) => {
+    console.error('[proxy-smart-read] erro ao conectar com sidecar', {
+      code: (err as NodeJS.ErrnoException).code,
+      message: err.message,
+      method: req.method,
+      url: req.originalUrl,
+    })
+    if (!res.headersSent) {
+      res.status(502).json({
+        error: 'Smart Read service unavailable',
+        sidecar: _sidecarStatus['smart-read'],
+      })
+    }
+  })
+  if (bodyBuf) {
+    proxyReq.end(bodyBuf)
+  } else {
+    req.pipe(proxyReq)
+  }
+}
+app.use('/api/v1/smart-read', _proxySmartRead)
+
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
 const clientDistDir = resolve(__dir, '../dist')
 
@@ -571,6 +636,7 @@ const REDIRECTS_PREFIXO_LEGACY: Array<{ de: string; para: string }> = [
   { de: '/bid-frete/visao-geral', para: '/bid-frete/insights' },
   { de: '/bid-frete-internacional/visao-geral', para: '/bid-frete/insights' },
   { de: '/produto/bid-cambio', para: '/bid-cambio' },
+  { de: '/produto/smart-read', para: '/smart-read' },
 ]
 
 app.get('*', (req, res, next) => {
@@ -624,7 +690,7 @@ if (process.env.NODE_ENV !== 'test') {
 
   if (devPm2) {
     console.log(
-      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8032/8023/8026/8016)',
+      '[configurador] GRAVITY_DEV_PM2=1 — sidecars embutidos desativados; proxies usam processos PM2 (8030/8031/8032/8023/8026/8016/8033)',
     )
   }
 
@@ -776,7 +842,33 @@ if (process.env.NODE_ENV !== 'test') {
     console.error('[configurador] Falha ao iniciar sidecar Taxas Moeda:', err)
   }
 
-  // Sidecar 6: GABI AI (porta 8009) — Monitor LLM admin e uso cross-org
+  // Sidecar 6: Smart Read BFF (porta 8033) — adapter legado dati; sem banco próprio
+  process.env.PORT = '8033'
+  process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
+  process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
+    ? `https://${process.env.CANONICAL_DOMAIN}`
+    : 'https://usegravity.com.br'
+  if (!process.env.SMART_READ_LEGADO_URL || !process.env.SMART_READ_LEGADO_CHAVE_GRAVITY) {
+    console.warn(
+      '[configurador] SMART_READ_LEGADO_URL / SMART_READ_LEGADO_CHAVE_GRAVITY ausente — sidecar sobe; uploads falham até configurar Variables no Railway',
+    )
+  }
+  try {
+    await import('../../produto/smart-read/server/src/index.js')
+    const envLegadoOk =
+      Boolean(process.env.SMART_READ_LEGADO_URL) &&
+      Boolean(process.env.SMART_READ_LEGADO_CHAVE_GRAVITY)
+    _sidecarStatus['smart-read'] = envLegadoOk
+      ? { ok: true }
+      : { ok: false, error: 'SMART_READ_LEGADO_URL ou SMART_READ_LEGADO_CHAVE_GRAVITY ausente' }
+    console.log('[configurador] Sidecar Smart Read iniciado na porta 8033')
+  } catch (err) {
+    const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+    _sidecarStatus['smart-read'] = { ok: false, error: msg }
+    console.error('[configurador] Falha ao iniciar sidecar Smart Read:', msg)
+  }
+
+  // Sidecar 7: GABI AI (porta 8009) — Monitor LLM admin e uso cross-org
   if (process.env.ORGANIZACAO_DATABASE_URL) {
     process.env.PORT = '8009'
     process.env.DATABASE_URL = process.env.ORGANIZACAO_DATABASE_URL

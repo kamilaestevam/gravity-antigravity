@@ -54,6 +54,8 @@ import { formatarFeedbackDisparoBidFrete, type FeedbackDisparoFormatado } from '
 import { idBidDoQueryParam } from '../shared/novo-bid-frete-internacional-utils'
 import {
   ROTA_LISTA_BID_FRETE_INTERNACIONAL,
+  buildRotaListaBidFreteComPainelAtivo,
+  idPainelListaBidFreteDoQueryParam,
   rotaDetalheCotacaoBidFreteInternacional,
 } from '../shared/rotas-bid-frete-internacional'
 import { formatarRotuloLocalLogistico } from '../shared/formatacao-local-logistico-bid-frete-internacional'
@@ -1942,6 +1944,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const addNotification = useShellStore(s => s.addNotification)
   const [searchParams] = useSearchParams()
   const idBid = idBidDoQueryParam(searchParams.get('id_bid'))
+  const idPainelLista = idPainelListaBidFreteDoQueryParam(searchParams.get('id_painel_lista'))
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [salvando, setSalvando] = useState(false)
@@ -3569,7 +3572,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }
 
   // ─── Sucesso ──────────────────────────────────────────────────────────
-  const handleFechar = () => navigate(ROTA_LISTA_BID_FRETE_INTERNACIONAL)
+  const handleFechar = () => {
+    navigate(
+      idPainelLista
+        ? buildRotaListaBidFreteComPainelAtivo(idPainelLista)
+        : ROTA_LISTA_BID_FRETE_INTERNACIONAL,
+    )
+  }
 
   const handleNovaCotacaoMesmoBid = () => {
     setForm(INITIAL_FORM)

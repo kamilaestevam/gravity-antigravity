@@ -15,6 +15,20 @@ export function rotaBidFreteInternacional(segmento = ''): string {
 /** Lista de cotações (visualização tabela/kanban). */
 export const ROTA_LISTA_BID_FRETE_INTERNACIONAL = rotaBidFreteInternacional('lista')
 
+/** Query param — painel ativo da lista ao sair/voltar do wizard Nova Cotação. */
+export const QUERY_ID_PAINEL_LISTA_BID_FRETE = 'id_painel_lista'
+
+export function idPainelListaBidFreteDoQueryParam(raw: string | null | undefined): string | null {
+  const id = raw?.trim()
+  return id ? id : null
+}
+
+export function buildRotaListaBidFreteComPainelAtivo(id_painel_lista: string): string {
+  const params = new URLSearchParams()
+  params.set(QUERY_ID_PAINEL_LISTA_BID_FRETE, id_painel_lista)
+  return `${ROTA_LISTA_BID_FRETE_INTERNACIONAL}?${params.toString()}`
+}
+
 /** Detalhe/cockpit de uma cotação — rota canônica `/bid-frete/cotacoes/:id`. */
 export function rotaDetalheCotacaoBidFreteInternacional(
   id_cotacao_bid_frete_internacional: string,

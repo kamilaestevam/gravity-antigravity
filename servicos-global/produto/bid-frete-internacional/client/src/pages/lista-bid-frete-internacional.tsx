@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 
@@ -108,6 +108,11 @@ import {
   estiloWrapperTabelaListaBidFreteInternacional,
 } from '../shared/altura-tabela-lista-bid-frete-internacional'
 import { useListaPainelBidFrete } from '../shared/useListaPainelBidFrete'
+import { buildRotaNovaCotacaoManual } from '../shared/novo-bid-frete-internacional-utils'
+import {
+  idPainelListaBidFreteDoQueryParam,
+  QUERY_ID_PAINEL_LISTA_BID_FRETE,
+} from '../shared/rotas-bid-frete-internacional'
 import { montarAcoesExportacaoListaBidFrete } from '../shared/acoes-exportacao-lista-bid-frete-internacional'
 import {
   configListaPainelPadraoV1,
@@ -194,6 +199,7 @@ export default function Cotacoes() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const addNotification = useShellStore(s => s.addNotification)
   const { getToken } = useAuth()
   const meStatus = useShellStore(s => s.meStatus)
@@ -630,6 +636,9 @@ export default function Cotacoes() {
   } = useListaPainelBidFrete()
   const painelListaAplicadoRef = useRef<string | null>(null)
   const migrouLocalStoragePainelRef = useRef(false)
+  const painelRestaurarAposNovaCotacaoRef = useRef<string | null>(
+    idPainelListaBidFreteDoQueryParam(searchParams.get(QUERY_ID_PAINEL_LISTA_BID_FRETE)),
+  )
 
   const aplicarCardsTopoDoPainel = useCallback((
     cardsTopo: { ids_visiveis: string[]; periodo?: string } | undefined,
@@ -717,6 +726,40 @@ export default function Cotacoes() {
   }, [
     trocarPainelLista, preferencias, filtroTab, busca, filtrosAtivosLista,
     cardsVisiveis, periodoCards, listaPainelCallbacks, sortCampoLista, sortDirLista,
+  ])
+
+  useEffect(() => {
+    const idRestaurar = painelRestaurarAposNovaCotacaoRef.current
+    if (!idRestaurar || carregandoPaineisLista || paineisLista.length === 0) return
+
+    const limparQueryPainel = () => {
+      painelRestaurarAposNovaCotacaoRef.current = null
+      if (!searchParams.has(QUERY_ID_PAINEL_LISTA_BID_FRETE)) return
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev)
+        next.delete(QUERY_ID_PAINEL_LISTA_BID_FRETE)
+        return next
+      }, { replace: true })
+    }
+
+    if (!paineisLista.some(p => p.id === idRestaurar)) {
+      limparQueryPainel()
+      return
+    }
+
+    if (painelListaAtualId === idRestaurar) {
+      limparQueryPainel()
+      return
+    }
+
+    handleTrocarPainelLista(idRestaurar)
+  }, [
+    carregandoPaineisLista,
+    paineisLista,
+    painelListaAtualId,
+    handleTrocarPainelLista,
+    searchParams,
+    setSearchParams,
   ])
 
   const estadoListaParaPainel = useCallback(() => ({
@@ -1361,7 +1404,7 @@ export default function Cotacoes() {
                           label: t('bidfrete.novo_bid.manual'),
                           desc: t('bidfrete.novo_bid.manual_desc'),
                           action: () => {
-                            navigate('/bid-frete/cotacoes/nova')
+                            navigate(buildRotaNovaCotacaoManual(painelListaAtualId))
                             setNovoDropdownAberto(false)
                             setNovoSubmenu(null)
                           },

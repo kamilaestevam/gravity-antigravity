@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 292,
+  "proximo_numero": 294,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -341,16 +341,16 @@
       "ordinal": 18,
       "titulo_canonico": "BIDFRT-COTACAO-MEL-ALINHAR-CAMPOS-QUANTIDADE-VOLUMES",
       "titulo_exibicao": "TASK-000282 | [BID Frete] Cotação | MEL — Alinhar campos Tipo e Quantidade de Volumes",
-      "status": "ABR",
+      "status": "RES",
       "area": "BIDFRT",
       "subarea": "COTACAO",
       "visualizacao": null,
       "tipo_entrega": "MEL",
       "resumo": "ALINHAR-CAMPOS-QUANTIDADE-VOLUMES",
       "data_criacao": "2026-06-17T18:00:00.000Z",
-      "data_encerramento": null,
-      "tempo_liquido_horas": null,
-      "tokens_estimados_total": null,
+      "data_encerramento": "2026-06-17T11:46:58.426Z",
+      "tempo_liquido_horas": 1.7,
+      "tokens_estimados_total": 75000,
       "arquivo_ficha": "registros/TASK-000282.json"
     },
     {
@@ -409,16 +409,16 @@
       "ordinal": 22,
       "titulo_canonico": "BIDFRT-PROPOSTAS-LISTA-MEL-FUNCIONAL-TIPOGRAFIA-EXCLUSAO",
       "titulo_exibicao": "TASK-000289 | [BID Frete] Propostas | MEL — Auditar Minhas propostas, tipografia e exclusão",
-      "status": "ABR",
+      "status": "RES",
       "area": "BIDFRT",
       "subarea": "PROPOSTAS",
       "visualizacao": "LISTA",
       "tipo_entrega": "MEL",
       "resumo": "FUNCIONAL-TIPOGRAFIA-EXCLUSAO",
       "data_criacao": "2026-06-16T23:50:00.000Z",
-      "data_encerramento": null,
-      "tempo_liquido_horas": null,
-      "tokens_estimados_total": null,
+      "data_encerramento": "2026-06-17T11:46:58.426Z",
+      "tempo_liquido_horas": 2.8,
+      "tokens_estimados_total": 95000,
       "arquivo_ficha": "registros/TASK-000289.json"
     },
     {
@@ -454,6 +454,40 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000291.json"
+    },
+    {
+      "referencia": "TASK-000292",
+      "ordinal": 25,
+      "titulo_canonico": "OUTROS-SMART-READ-DUV-VER-INTEGRACAO-PR-280",
+      "titulo_exibicao": "TASK-000292 | [Smart Read] | DUV — Como revisar integração entregue no PR #280",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": null,
+      "tipo_entrega": "DUV",
+      "resumo": "VER-INTEGRACAO-PR-280",
+      "data_criacao": "2026-06-17T23:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000292.json"
+    },
+    {
+      "referencia": "TASK-000293",
+      "ordinal": 26,
+      "titulo_canonico": "BIDFRT-PORTAL-AGENTE-INSIGHTS-BUG-ROTAS-VOLTA-MUNDO-LINHAS-ARTEFATO",
+      "titulo_exibicao": "TASK-000293 | [BID Frete] Portal Agente Insights | BUG — Linhas horizontais em rotas que dão volta ao mundo no mapa achatado",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": "PORTAL-AGENTE",
+      "visualizacao": "INSIGHTS",
+      "tipo_entrega": "BUG",
+      "resumo": "ROTAS-VOLTA-MUNDO-LINHAS-ARTEFATO",
+      "data_criacao": "2026-06-17T23:30:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000293.json"
     }
   ]
 }

@@ -26,6 +26,9 @@ import {
 } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import type { ModalFrete, ModalidadeCarga, PropostaBidFreteInternacional, TipoOperacao } from './types'
+import {
+  exigeArmazenagemFornecedorRespostaCotacao,
+} from './armazenagem-lcl-maritimo-bid-frete-internacional'
 import type { CodigoBloqueioRespostaDisparoBidFreteInternacional } from './visao-fornecedor-bid-frete-internacional-schemas'
 import { MODAL_LABELS } from './types'
 import {
@@ -33,6 +36,13 @@ import {
   type ContextoCabecalhoRespostaCotacao,
 } from './cabecalho-resposta-cotacao-bid-frete-internacional'
 import { SecaoTaxasLinhaPropostaBidFreteInternacional } from './secao-taxas-linha-proposta-bid-frete-internacional'
+import { SecaoPeriodosArmazenagemPropostaBidFreteInternacional } from './secao-periodos-armazenagem-proposta-bid-frete-internacional'
+import {
+  criarLinhaPeriodoArmazenagemVazia,
+  linhasPeriodoArmazenagemFromProposta,
+  periodosArmazenagemFormularioValidos,
+  type LinhaPeriodoArmazenagemFormBidFreteInternacional,
+} from './periodos-armazenagem-proposta-bid-frete-internacional'
 import { TabelaResumoPropostaBidFreteInternacional } from './resumo-composicao-total-frete-bid-frete-internacional'
 import {
   linhasFromPropostaTaxas,
@@ -73,6 +83,7 @@ export interface DetalhesCotacaoResposta {
   quantidade_volume_cotacao_bid_frete_internacional?: number
   peso_kg_cotacao_bid_frete_internacional?: number | null
   cubagem_m3_cotacao_bid_frete_internacional?: number | null
+  incluir_armazenagem_cotacao_bid_frete_internacional?: boolean
 }
 
 export interface EstadoFormularioRespostaCotacao {
@@ -87,6 +98,7 @@ export interface EstadoFormularioRespostaCotacao {
   transbordos_proposta_bid_frete_internacional: string
   escalas_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string
+  linhas_periodo_armazenagem: LinhaPeriodoArmazenagemFormBidFreteInternacional[]
 }
 
 export function estadoFormularioFromProposta(
@@ -125,6 +137,17 @@ export function estadoFormularioFromProposta(
     ),
     escalas_proposta_bid_frete_internacional: quantidadeEscalasTextoFromProposta(proposta),
     observacoes_proposta_bid_frete_internacional: proposta.observacoes_proposta_bid_frete_internacional ?? '',
+    linhas_periodo_armazenagem: linhasPeriodoArmazenagemFromProposta(
+      proposta.periodos_armazenagem_proposta_bid_frete_internacional,
+      {
+        dias_periodo_armazenagem_proposta_bid_frete_internacional:
+          (proposta as { dias_periodo_armazenagem_proposta_bid_frete_internacional?: number | null })
+            .dias_periodo_armazenagem_proposta_bid_frete_internacional,
+        valor_armazenagem_reais_proposta_bid_frete_internacional:
+          (proposta as { valor_armazenagem_reais_proposta_bid_frete_internacional?: number | null })
+            .valor_armazenagem_reais_proposta_bid_frete_internacional,
+      },
+    ),
   }
 }
 
@@ -207,6 +230,7 @@ export function camposLogisticaRespostaCotacaoValidos(
   form: EstadoFormularioRespostaCotacao,
   modal?: ModalFrete | null,
   modalidade?: ModalidadeCarga | null,
+  incluir_armazenagem_cotacao_bid_frete_internacional?: boolean | null,
 ): boolean {
   if (exibeCampoTransbordosRespostaCotacao(modal)) {
     const v = form.transbordos_proposta_bid_frete_internacional.trim()
@@ -224,6 +248,9 @@ export function camposLogisticaRespostaCotacaoValidos(
       return false
     }
   }
+  if (exigeArmazenagemFornecedorRespostaCotacao(incluir_armazenagem_cotacao_bid_frete_internacional)) {
+    if (!periodosArmazenagemFormularioValidos(form.linhas_periodo_armazenagem)) return false
+  }
   return true
 }
 
@@ -239,6 +266,7 @@ export const ESTADO_INICIAL_FORMULARIO_RESPOSTA: EstadoFormularioRespostaCotacao
   transbordos_proposta_bid_frete_internacional: '',
   escalas_proposta_bid_frete_internacional: '',
   observacoes_proposta_bid_frete_internacional: '',
+  linhas_periodo_armazenagem: [criarLinhaPeriodoArmazenagemVazia()],
 }
 
 function dataIsoParaCalendario(iso: string): { inicio: Date | null; fim: Date | null } {
@@ -349,9 +377,11 @@ export function FormPropostaRespostaCotacao({
   form,
   modalCotacao,
   modalidadeCotacao,
+  incluirArmazenagemCotacao = false,
   onChange,
   onLinhasOrigemChange,
   onLinhasDestinoChange,
+  onLinhasPeriodoArmazenagemChange,
   onSubmit,
   tituloSecao,
   rotulos,
@@ -363,9 +393,11 @@ export function FormPropostaRespostaCotacao({
   form: EstadoFormularioRespostaCotacao
   modalCotacao?: ModalFrete | null
   modalidadeCotacao?: ModalidadeCarga | null
+  incluirArmazenagemCotacao?: boolean
   onChange: (field: keyof EstadoFormularioRespostaCotacao, value: string) => void
   onLinhasOrigemChange: (linhas: LinhaTaxaPropostaBidFreteInternacional[]) => void
   onLinhasDestinoChange: (linhas: LinhaTaxaPropostaBidFreteInternacional[]) => void
+  onLinhasPeriodoArmazenagemChange: (linhas: LinhaPeriodoArmazenagemFormBidFreteInternacional[]) => void
   onSubmit: (e: React.FormEvent) => void
   tituloSecao: string
   rotulos: {
@@ -413,6 +445,17 @@ export function FormPropostaRespostaCotacao({
     placeholderValorFrete: string
     placeholderValidade: string
     placeholderObservacoes: string
+    armazenagem: string
+    adicionarPeriodoArmazenagem: string
+    diasPeriodoArmazenagem: string
+    tipoTarifaPeriodoArmazenagem: string
+    valorTarifaReais: string
+    valorTarifaPercentual: string
+    minimoReaisPeriodoArmazenagem: string
+    placeholderDiasPeriodoArmazenagem: string
+    placeholderValorReaisArmazenagem: string
+    placeholderValorPercentualArmazenagem: string
+    placeholderMinimoArmazenagem: string
   }
   erro: string
   enviando: boolean
@@ -443,6 +486,7 @@ export function FormPropostaRespostaCotacao({
   const mostrarTransbordos = exibeCampoTransbordosRespostaCotacao(modalCotacao)
   const mostrarEscalas = exibeCampoEscalasRespostaCotacao(modalCotacao)
   const freeTimeObrigatorio = exigeFreeTimeObrigatorioRespostaCotacao(modalidadeCotacao)
+  const mostrarArmazenagem = exigeArmazenagemFornecedorRespostaCotacao(incluirArmazenagemCotacao)
 
   const composicaoProposta = calcularComposicaoPropostaResposta({
     moeda_frete: form.moeda_proposta_bid_frete_internacional,
@@ -518,6 +562,26 @@ export function FormPropostaRespostaCotacao({
               moedaPadrao={form.moeda_proposta_bid_frete_internacional}
             />
           </div>
+
+          {mostrarArmazenagem && (
+            <div className="brc-field brc-field--wide">
+              <SecaoPeriodosArmazenagemPropostaBidFreteInternacional
+                titulo={rotulos.armazenagem}
+                rotuloAdicionarPeriodo={rotulos.adicionarPeriodoArmazenagem}
+                rotuloDias={rotulos.diasPeriodoArmazenagem}
+                rotuloTipoTarifa={rotulos.tipoTarifaPeriodoArmazenagem}
+                rotuloValorTarifa={rotulos.valorTarifaReais}
+                rotuloValorPercentual={rotulos.valorTarifaPercentual}
+                rotuloMinimoReais={rotulos.minimoReaisPeriodoArmazenagem}
+                placeholderDias={rotulos.placeholderDiasPeriodoArmazenagem}
+                placeholderValorReais={rotulos.placeholderValorReaisArmazenagem}
+                placeholderValorPercentual={rotulos.placeholderValorPercentualArmazenagem}
+                placeholderMinimo={rotulos.placeholderMinimoArmazenagem}
+                linhas={form.linhas_periodo_armazenagem}
+                onChange={onLinhasPeriodoArmazenagemChange}
+              />
+            </div>
+          )}
 
           <div className="brc-field brc-field--total">
             <div className="brc-total brc-total--geral" aria-live="polite">
@@ -1030,6 +1094,39 @@ export function criarRotulosFormularioResposta(
     }),
     placeholderObservacoes: t('bidfrete.portal.publico.placeholder_observacoes', {
       defaultValue: 'Informações adicionais, condições especiais, observações...',
+    }),
+    armazenagem: t('bidfrete.portal.responder.armazenagem', {
+      defaultValue: 'Armazenagem',
+    }),
+    adicionarPeriodoArmazenagem: t('bidfrete.portal.responder.armazenagem_adicionar_periodo', {
+      defaultValue: 'Adicionar período',
+    }),
+    diasPeriodoArmazenagem: t('bidfrete.portal.responder.armazenagem_dias', {
+      defaultValue: 'Dias',
+    }),
+    tipoTarifaPeriodoArmazenagem: t('bidfrete.portal.responder.armazenagem_tipo_tarifa', {
+      defaultValue: 'Tipo de tarifa',
+    }),
+    valorTarifaReais: t('bidfrete.portal.responder.armazenagem_valor_reais', {
+      defaultValue: 'Valor em R$',
+    }),
+    valorTarifaPercentual: t('bidfrete.portal.responder.armazenagem_valor_percentual', {
+      defaultValue: 'Percentual sobre mercadoria (%)',
+    }),
+    minimoReaisPeriodoArmazenagem: t('bidfrete.portal.responder.armazenagem_minimo_reais', {
+      defaultValue: 'Mínimo em R$',
+    }),
+    placeholderDiasPeriodoArmazenagem: t('bidfrete.portal.responder.armazenagem_placeholder_dias', {
+      defaultValue: 'Informar dias',
+    }),
+    placeholderValorReaisArmazenagem: t('bidfrete.portal.responder.armazenagem_placeholder_valor_reais', {
+      defaultValue: 'Informar valor em reais',
+    }),
+    placeholderValorPercentualArmazenagem: t('bidfrete.portal.responder.armazenagem_placeholder_percentual', {
+      defaultValue: 'Ex.: 2,5',
+    }),
+    placeholderMinimoArmazenagem: t('bidfrete.portal.responder.armazenagem_placeholder_minimo', {
+      defaultValue: 'Informar mínimo em R$',
     }),
     enviar: t(`${prefixo}.enviar`),
     enviando: t(`${prefixo}.enviando`),

@@ -207,6 +207,7 @@ export default function ResponderPublico() {
         form,
         cotacao?.modal_cotacao_bid_frete_internacional,
         cotacao?.modalidade_cotacao_bid_frete_internacional,
+        cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
       )
     ) {
 
@@ -227,6 +228,7 @@ export default function ResponderPublico() {
       const payload = montarPayloadPropostaRespostaBidFreteInternacional(
         form,
         cotacao?.modal_cotacao_bid_frete_internacional,
+        cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
       )
 
       await enviarPropostaPublicoApi(token, payload)
@@ -446,11 +448,17 @@ export default function ResponderPublico() {
 
             modalidadeCotacao={cotacao?.modalidade_cotacao_bid_frete_internacional}
 
+            incluirArmazenagemCotacao={cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional === true}
+
             onChange={handleChange}
 
             onLinhasOrigemChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_origem: linhas }))}
 
             onLinhasDestinoChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_destino: linhas }))}
+
+            onLinhasPeriodoArmazenagemChange={(linhas) =>
+              setForm((prev) => ({ ...prev, linhas_periodo_armazenagem: linhas }))
+            }
 
             onSubmit={handleSubmit}
 

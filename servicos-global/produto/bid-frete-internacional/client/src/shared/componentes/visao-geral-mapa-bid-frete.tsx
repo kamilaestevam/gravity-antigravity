@@ -10,6 +10,7 @@ import {
   filtrarDadosMapaInsightsBidFreteInternacional,
   type FiltroRankingsInsightsBidFrete,
 } from '../filtrar-dados-mapa-insights-bid-frete-internacional'
+import { splitScreenPathByDateline } from '../mapa-plano-rota-bid-frete-internacional'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   Anchor,
@@ -724,6 +725,64 @@ function resampleGeoPath(points: GeoPoint[], targetCount: number): GeoPoint[] {
   return out
 }
 
+/** Interpolação linear em coordenadas já unwrapped — evita slerpGeo renormalizar lng e criar saltos no mapa plano. */
+function lerpGeoPoint(a: GeoPoint, b: GeoPoint, t: number): GeoPoint {
+  return {
+    lat: a.lat + (b.lat - a.lat) * t,
+    lng: a.lng + (b.lng - a.lng) * t,
+  }
+}
+
+function resampleUnwrappedGeoPath(points: GeoPoint[], targetCount: number): GeoPoint[] {
+  if (points.length === 0) return []
+  if (points.length === 1) return [{ ...points[0] }]
+  const out: GeoPoint[] = []
+  for (let i = 0; i <= targetCount; i++) {
+    const fIdx = (i / targetCount) * (points.length - 1)
+    const idx = Math.floor(fIdx)
+    const next = Math.min(points.length - 1, idx + 1)
+    out.push(lerpGeoPoint(points[idx], points[next], fIdx - idx))
+  }
+  return out
+}
+
+type ScreenPoint = { sx: number; sy: number }
+
+type FlatMapRouteScreen = {
+  segments: ScreenPoint[][]
+  animationPath: ScreenPoint[]
+}
+
+function buildFlatMapRouteScreen(
+  fromLat: number,
+  fromLng: number,
+  toLat: number,
+  toLng: number,
+  mode: 'MARITIMO' | 'AEREO',
+  project: (lat: number, lng: number) => ScreenPoint,
+  segmentsCount: number,
+  worldW: number,
+): FlatMapRouteScreen {
+  const geoRaw =
+    mode === 'MARITIMO'
+      ? buildMaritimeGeoPath(fromLat, fromLng, toLat, toLng)
+      : sampleGreatCircleGeo(fromLat, fromLng, toLat, toLng, 48)
+
+  const geoPath = unwrapGeoPathForEquirectangular(geoRaw, fromLng)
+  const sampled = resampleUnwrappedGeoPath(geoPath, segmentsCount)
+  const pathPoints = sampled.map((p) => project(p.lat, p.lng))
+  pathPoints[0] = project(fromLat, fromLng)
+  pathPoints[segmentsCount] = project(toLat, toLng)
+
+  const segments = splitScreenPathByDateline(pathPoints, worldW)
+  const animationPath = segments.reduce(
+    (best, seg) => (seg.length > best.length ? seg : best),
+    segments[0] ?? pathPoints,
+  )
+
+  return { segments, animationPath }
+}
+
 // Arc Routes definition
 export interface ArcRouteBidFrete {
   fromId: number
@@ -1178,41 +1237,19 @@ export function VisaoGeralMapaBidFrete({
         const toPin = pinsAtivos.find(p => p.id === route.toId)
         if (!fromPin || !toPin) return
 
-        const a = project(fromPin.geoLat, fromPin.geoLng)
-        const b = project(toPin.geoLat, toPin.geoLng)
-
         const segmentsCount = 36
-        const pathPoints: { sx: number; sy: number }[] = []
-        const isMaritimeRoute = route.mode === 'MARITIMO'
+        const { segments: pathSegments, animationPath: pathPoints } = buildFlatMapRouteScreen(
+          fromPin.geoLat,
+          fromPin.geoLng,
+          toPin.geoLat,
+          toPin.geoLng,
+          route.mode,
+          project,
+          segmentsCount,
+          worldW,
+        )
 
-        if (isMaritimeRoute) {
-          const geoPath = unwrapGeoPathForEquirectangular(
-            buildMaritimeGeoPath(fromPin.geoLat, fromPin.geoLng, toPin.geoLat, toPin.geoLng),
-            fromPin.geoLng,
-          )
-          const sampled = resampleGeoPath(geoPath, segmentsCount)
-          for (const p of sampled) {
-            const { sx, sy } = project(p.lat, p.lng)
-            pathPoints.push({ sx, sy })
-          }
-        } else {
-          const mx = (a.sx + b.sx) / 2
-          const my = (a.sy + b.sy) / 2
-          const dist = Math.hypot(b.sx - a.sx, b.sy - a.sy)
-          const bow = Math.min(dist * 0.22, worldH * 0.35)
-          const ctrlX = mx
-          const ctrlY = my - bow
-          for (let j = 0; j <= segmentsCount; j++) {
-            const t = j / segmentsCount
-            const it = 1 - t
-            pathPoints.push({
-              sx: it * it * a.sx + 2 * it * t * ctrlX + t * t * b.sx,
-              sy: it * it * a.sy + 2 * it * t * ctrlY + t * t * b.sy,
-            })
-          }
-        }
-        pathPoints[0] = { sx: a.sx, sy: a.sy }
-        pathPoints[segmentsCount] = { sx: b.sx, sy: b.sy }
+        if (pathSegments.length === 0) return
 
         let routeStrokeColor = route.color
         if (mapaModo === 'transit') {
@@ -1228,13 +1265,22 @@ export function VisaoGeralMapaBidFrete({
         const isRouteDirectSource = currentHovered !== null && (route.fromId === currentHovered || route.toId === currentHovered)
         const dim = currentHovered !== null && !isRouteDirectSource
 
+        const strokeSegments = (draw: (pts: ScreenPoint[]) => void) => {
+          for (const seg of pathSegments) {
+            if (seg.length < 2) continue
+            draw(seg)
+          }
+        }
+
         ctx.strokeStyle = routeStrokeColor
         ctx.lineWidth = isRouteDirectSource ? 3.0 : 1.5
         ctx.globalAlpha = dim ? 0.06 : isRouteDirectSource ? 0.8 : 0.30
-        ctx.beginPath()
-        ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
-        for (let j = 1; j < pathPoints.length; j++) ctx.lineTo(pathPoints[j].sx, pathPoints[j].sy)
-        ctx.stroke()
+        strokeSegments((pts) => {
+          ctx.beginPath()
+          ctx.moveTo(pts[0].sx, pts[0].sy)
+          for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j].sx, pts[j].sy)
+          ctx.stroke()
+        })
         ctx.globalAlpha = 1
 
         if (dim) return
@@ -1250,13 +1296,16 @@ export function VisaoGeralMapaBidFrete({
           divider = isMaritime ? tClient * TRANSIT_MARCH_MULT_MARITIMO : tClient * TRANSIT_MARCH_MULT_AEREO
         }
         ctx.lineDashOffset = -(now / divider) % 100
-        ctx.beginPath()
-        ctx.moveTo(pathPoints[0].sx, pathPoints[0].sy)
-        for (let j = 1; j < pathPoints.length; j++) ctx.lineTo(pathPoints[j].sx, pathPoints[j].sy)
-        ctx.stroke()
+        strokeSegments((pts) => {
+          ctx.beginPath()
+          ctx.moveTo(pts[0].sx, pts[0].sy)
+          for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j].sx, pts[j].sy)
+          ctx.stroke()
+        })
         ctx.setLineDash([])
 
-        // Pulsos de carga (navio/avião) percorrendo a rota
+        // Pulsos de carga (navio/avião) percorrendo a rota — usa o maior segmento contínuo
+        const animSegmentsCount = Math.max(1, pathPoints.length - 1)
         let speed = isMaritime ? ANIM_FRAME_DIV_MARITIMO : ANIM_FRAME_DIV_AEREO
         if (mapaModo === 'transit') {
           const tClient = route.transitTime || 20
@@ -1264,9 +1313,9 @@ export function VisaoGeralMapaBidFrete({
         }
         ;[0.0, 0.5].forEach(offset => {
           const tPulse = (now / speed + routeIdx * 0.22 + offset) % 1.0
-          const rawIdx = tPulse * segmentsCount
+          const rawIdx = tPulse * animSegmentsCount
           const idx = Math.floor(rawIdx)
-          const nextIdx = Math.min(segmentsCount, idx + 1)
+          const nextIdx = Math.min(animSegmentsCount, idx + 1)
           const interp = rawIdx - idx
           const pc = pathPoints[idx]
           const pn = pathPoints[nextIdx]

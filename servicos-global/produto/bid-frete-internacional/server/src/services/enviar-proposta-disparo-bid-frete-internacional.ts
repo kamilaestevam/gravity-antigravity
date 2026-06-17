@@ -24,6 +24,13 @@ export interface DadosPropostaDisparo {
   transbordos_proposta_bid_frete_internacional: number
   escalas_proposta_bid_frete_internacional?: string
   observacoes_proposta_bid_frete_internacional?: string
+  periodos_armazenagem_proposta_bid_frete_internacional?: Array<{
+    ordem_periodo_armazenagem_proposta_bid_frete_internacional: number
+    dias_periodo_armazenagem_proposta_bid_frete_internacional: number
+    tipo_tarifa_periodo_armazenagem_proposta_bid_frete_internacional: 'REAIS' | 'PERCENTUAL_MERCADORIA'
+    valor_tarifa_periodo_armazenagem_proposta_bid_frete_internacional: number
+    minimo_reais_periodo_armazenagem_proposta_bid_frete_internacional: number
+  }> | null
   validade_proposta_bid_frete_internacional: string
   taxas?: Array<{
     tipo_taxa_bid_frete_internacional: 'origem' | 'destino' | 'frete'
@@ -92,6 +99,7 @@ export async function enviarPropostaDisparoBidFreteInternacional(
           status_cotacao_bid_frete_internacional: true,
           data_limite_resposta_cotacao_bid_frete_internacional: true,
           modalidade_cotacao_bid_frete_internacional: true,
+          incluir_armazenagem_cotacao_bid_frete_internacional: true,
         },
       },
     },
@@ -109,7 +117,10 @@ export async function enviarPropostaDisparoBidFreteInternacional(
 
   const erroModalidade = validarPropostaEnvioModalidadeCotacaoBidFreteInternacional(
     dados,
-    disparo.cotacao?.modalidade_cotacao_bid_frete_internacional as string | null | undefined,
+    disparo.cotacao as {
+      modalidade_cotacao_bid_frete_internacional?: string | null
+      incluir_armazenagem_cotacao_bid_frete_internacional?: boolean | null
+    } | null,
   )
   if (erroModalidade) {
     throw erroAcesso('VALIDATION_ERROR', erroModalidade, 400)

@@ -1,9 +1,13 @@
 import type { ModalFrete } from './types'
+import { exigeArmazenagemFornecedorRespostaCotacao } from './armazenagem-lcl-maritimo-bid-frete-internacional'
 import {
   exibeCampoEscalasRespostaCotacao,
   exibeCampoTransbordosRespostaCotacao,
   type EstadoFormularioRespostaCotacao,
 } from './formulario-resposta-cotacao-bid-frete-internacional'
+import {
+  linhasPeriodoArmazenagemParaPayload,
+} from './periodos-armazenagem-proposta-bid-frete-internacional'
 import {
   linhasParaPayloadTaxas,
   parseValorLinhaTaxa,
@@ -13,6 +17,7 @@ import {
 export function montarPayloadPropostaRespostaBidFreteInternacional(
   form: EstadoFormularioRespostaCotacao,
   modalCotacao?: ModalFrete | null,
+  incluir_armazenagem_cotacao_bid_frete_internacional?: boolean | null,
 ) {
   const valorFrete = parseValorLinhaTaxa(form.valor_frete_proposta_bid_frete_internacional)
   const taxasOrigem = somarLinhasTaxa(form.linhas_taxa_origem)
@@ -21,6 +26,13 @@ export function montarPayloadPropostaRespostaBidFreteInternacional(
     ...linhasParaPayloadTaxas(form.linhas_taxa_origem, 'origem'),
     ...linhasParaPayloadTaxas(form.linhas_taxa_destino, 'destino'),
   ]
+
+  const exigeArmazenagem = exigeArmazenagemFornecedorRespostaCotacao(
+    incluir_armazenagem_cotacao_bid_frete_internacional,
+  )
+  const periodosArmazenagem = exigeArmazenagem
+    ? linhasPeriodoArmazenagemParaPayload(form.linhas_periodo_armazenagem)
+    : null
 
   return {
     moeda_proposta_bid_frete_internacional: form.moeda_proposta_bid_frete_internacional,
@@ -44,6 +56,7 @@ export function montarPayloadPropostaRespostaBidFreteInternacional(
       ? String(parseInt(form.escalas_proposta_bid_frete_internacional, 10) || 0)
       : undefined,
     observacoes_proposta_bid_frete_internacional: form.observacoes_proposta_bid_frete_internacional || null,
+    periodos_armazenagem_proposta_bid_frete_internacional: periodosArmazenagem,
     taxas: taxasDetalhe,
   }
 }

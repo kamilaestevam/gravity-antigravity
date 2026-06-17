@@ -3,7 +3,7 @@
  * Rota exclusiva: /bid-frete/cotacoes/nova (App.tsx). Não montar overlay em outras telas.
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -38,6 +38,7 @@ import {
   NotePencil,
   ListNumbers,
   GitBranch,
+  Warehouse,
 } from '@phosphor-icons/react'
 
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
@@ -83,14 +84,35 @@ import {
   prepararCamposRotaCotacaoPersistencia,
 } from '../shared/rota-cotacao-bid-frete-internacional'
 import { useCidadesIbgeBidFreteInternacional } from '../shared/use-cidades-ibge-bid-frete-internacional'
+import {
+  ehMaritimoLclCotacaoBidFreteInternacional,
+  sequenciaPassosWizardNovaCotacao,
+  tipoPassoWizardNovaCotacao,
+  type TipoPassoWizardNovaCotacao,
+} from '../shared/armazenagem-lcl-maritimo-bid-frete-internacional'
 
-// ─── Passos do wizard ─────────────────────────────────────────────────────────
-const STEPS = [
-  { id: 1, label: 'Modal e Operação', icone: <Truck weight="duotone" size={16} /> },
-  { id: 2, label: 'Origem e Destino', icone: <MapPin weight="duotone" size={16} /> },
-  { id: 3, label: 'Carga e Incoterm', icone: <Package weight="duotone" size={16} /> },
-  { id: 4, label: 'Fornecedores',     icone: <Users weight="duotone" size={16} /> },
-  { id: 5, label: 'Resumo',           icone: <FileText weight="duotone" size={16} /> },
+// ─── Passos do wizard (rótulos base — montagem dinâmica no componente) ───────
+const ROTULOS_PASSO_WIZARD: Record<TipoPassoWizardNovaCotacao, string> = {
+  modal: 'Modal e Operação',
+  origem: 'Origem e Destino',
+  carga: 'Carga e Incoterm',
+  armazenagem: 'Armazenagem',
+  fornecedores: 'Fornecedores',
+  resumo: 'Resumo',
+}
+
+const ICONES_PASSO_WIZARD: Record<TipoPassoWizardNovaCotacao, React.ReactNode> = {
+  modal: <Truck weight="duotone" size={16} />,
+  origem: <MapPin weight="duotone" size={16} />,
+  carga: <Package weight="duotone" size={16} />,
+  armazenagem: <Warehouse weight="duotone" size={16} />,
+  fornecedores: <Users weight="duotone" size={16} />,
+  resumo: <FileText weight="duotone" size={16} />,
+}
+
+const OPCOES_INCLUIR_ARMAZENAGEM: SelectOpcao[] = [
+  { valor: 'sim', rotulo: 'Sim' },
+  { valor: 'nao', rotulo: 'Não' },
 ]
 
 const INCOTERM_GRUPOS: Array<{ titulo: string; itens: readonly string[] }> = [
@@ -284,6 +306,7 @@ function limparCamposQuantidadeAoMudarModalidade(
     tipo_container_cotacao_bid_frete_internacional: '',
     quantidade_volume_cotacao_bid_frete_internacional: 0,
     linhas_container_fcl_cotacao: [linhaContainerCotacaoVazia(1)],
+    opcao_incluir_armazenagem_cotacao: modalidade === 'LCL' ? '' : '',
   }))
 }
 
@@ -341,6 +364,8 @@ interface FormState {
   endereco_destino_cotacao_bid_frete_internacional: string
   zipcode_destino_cotacao_bid_frete_internacional: string
   data_limite_resposta_cotacao_bid_frete_internacional: string
+  /** Marítimo LCL — '' até o comprador escolher Sim/Não no passo Armazenagem */
+  opcao_incluir_armazenagem_cotacao: '' | 'sim' | 'nao'
   // Fornecedores
   visibilidade_cotacao_bid_frete_internacional: Visibilidade
   anonima_cotacao_bid_frete_internacional: boolean
@@ -392,6 +417,7 @@ const INITIAL_FORM: FormState = {
   endereco_destino_cotacao_bid_frete_internacional: '',
   zipcode_destino_cotacao_bid_frete_internacional: '',
   data_limite_resposta_cotacao_bid_frete_internacional: '',
+  opcao_incluir_armazenagem_cotacao: '',
   visibilidade_cotacao_bid_frete_internacional: 'DIRECIONADA',
   anonima_cotacao_bid_frete_internacional: false,
   valor_meta_cotacao_bid_frete_internacional: '',
@@ -1931,8 +1957,11 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const proximoIdLinhaContainerRef = useRef(2)
 
   useEffect(() => {
-    // ABERTA também carrega: alimenta o preview de fornecedores elegíveis
-    if (step !== 4) return
+    const passoFornecedores = sequenciaPassosWizardNovaCotacao(
+      form.modal_cotacao_bid_frete_internacional,
+      form.modalidade_cotacao_bid_frete_internacional,
+    ).indexOf('fornecedores') + 1
+    if (step !== passoFornecedores) return
     let cancelado = false
     setCarregandoFornecedores(true)
     getFornecedores({ limit: 200, status: 'ATIVO' })
@@ -1946,7 +1975,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         if (!cancelado) setCarregandoFornecedores(false)
       })
     return () => { cancelado = true }
-  }, [step, form.visibilidade_cotacao_bid_frete_internacional])
+  }, [step, form.visibilidade_cotacao_bid_frete_internacional, form.modal_cotacao_bid_frete_internacional, form.modalidade_cotacao_bid_frete_internacional])
 
   useEffect(() => {
     setFornecedorIdsExcluidosDisparo([])
@@ -2158,6 +2187,29 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   const modal = form.modal_cotacao_bid_frete_internacional
   const modalidade = modalidadeEfetivaNovaCotacao(form)
   const exigeContainerFcl = modal === 'MARITIMO' && modalidade === 'FCL'
+  const passosWizard = useMemo(
+    () =>
+      sequenciaPassosWizardNovaCotacao(modal, form.modalidade_cotacao_bid_frete_internacional).map(
+        (tipo, index) => ({
+          id: index + 1,
+          label: ROTULOS_PASSO_WIZARD[tipo],
+          icone: ICONES_PASSO_WIZARD[tipo],
+        }),
+      ),
+    [modal, form.modalidade_cotacao_bid_frete_internacional],
+  )
+  const totalPassos = passosWizard.length
+  const tipoPassoAtual = tipoPassoWizardNovaCotacao(
+    step,
+    modal,
+    form.modalidade_cotacao_bid_frete_internacional,
+  )
+
+  useEffect(() => {
+    if (step > totalPassos) {
+      setStep(totalPassos)
+    }
+  }, [step, totalPassos])
 
   const stepStatus = (passoId: number): 'pendente' | 'ativo' | 'feito' => {
     if (passoId < step) return 'feito'
@@ -2254,15 +2306,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }
 
   const canNext = (): boolean => {
-    switch (step) {
-      case 1: {
+    switch (tipoPassoAtual) {
+      case 'modal': {
         if (!form.tipo_operacao_cotacao_bid_frete_internacional || !form.modal_cotacao_bid_frete_internacional) {
           return false
         }
         if (form.modal_cotacao_bid_frete_internacional === 'AEREO') return true
         return !!form.modalidade_cotacao_bid_frete_internacional
       }
-      case 2: {
+      case 'origem': {
         const origemOk = modalExigePortoCotacao(modal)
           ? !!form.porto_origem_cotacao_bid_frete_internacional
           : modalExigeAeroportoCotacao(modal)
@@ -2281,7 +2333,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
               : true
         return origemOk && destinoOk
       }
-      case 3: {
+      case 'carga': {
         const base = !!form.descricao_mercadoria_cotacao_bid_frete_internacional
           && !!form.incoterm_cotacao_bid_frete_internacional
         const perigosaOk = !form.eh_carga_perigosa_cotacao_bid_frete_internacional
@@ -2311,10 +2363,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           && form.quantidade_volume_cotacao_bid_frete_internacional > 0
         )
       }
-      case 4:
+      case 'armazenagem':
+        return form.opcao_incluir_armazenagem_cotacao === 'sim'
+          || form.opcao_incluir_armazenagem_cotacao === 'nao'
+      case 'fornecedores':
         if (form.visibilidade_cotacao_bid_frete_internacional === 'ABERTA') return true
         return fornecedorIdsSelecionados.length > 0
-      case 5: return true
+      case 'resumo': return true
       default: return false
     }
   }
@@ -2406,6 +2461,12 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           : undefined,
         moeda_meta_cotacao_bid_frete_internacional: form.moeda_meta_cotacao_bid_frete_internacional,
         eh_carga_perigosa_cotacao_bid_frete_internacional: form.eh_carga_perigosa_cotacao_bid_frete_internacional,
+        incluir_armazenagem_cotacao_bid_frete_internacional: ehMaritimoLclCotacaoBidFreteInternacional(
+          form.modal_cotacao_bid_frete_internacional,
+          modalidadeEfetivaNovaCotacao(form),
+        )
+          ? form.opcao_incluir_armazenagem_cotacao === 'sim'
+          : false,
         ...(form.eh_carga_perigosa_cotacao_bid_frete_internacional
           ? {
               numero_onu_cotacao_bid_frete_internacional: form.numero_onu_cotacao_bid_frete_internacional,
@@ -2473,9 +2534,9 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
 
   // ─── Step Content ─────────────────────────────────────────────────────
   const renderStep = () => {
-    switch (step) {
-      // STEP 1 — Modal e Operação
-      case 1:
+    switch (tipoPassoAtual) {
+      // STEP — Modal e Operação
+      case 'modal':
         return (
           <div className="nc-step-content">
             <NcSectionTitle icone={<GlobeHemisphereWest {...ICONE_LABEL_SECAO} />} obrigatorio>
@@ -2507,6 +2568,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     ...prev,
                     modal_cotacao_bid_frete_internacional: 'MARITIMO',
                     modalidade_cotacao_bid_frete_internacional: '',
+                    opcao_incluir_armazenagem_cotacao: '',
                     ...limparCamposCargaPerigosa(),
                   }))
                 }}
@@ -2521,6 +2583,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     ...prev,
                     modal_cotacao_bid_frete_internacional: 'AEREO',
                     modalidade_cotacao_bid_frete_internacional: 'AEREO_GERAL',
+                    opcao_incluir_armazenagem_cotacao: '',
                     tipo_container_cotacao_bid_frete_internacional: '',
                     quantidade_volume_cotacao_bid_frete_internacional: 0,
                     linhas_container_fcl_cotacao: [linhaContainerCotacaoVazia(1)],
@@ -2538,6 +2601,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     ...prev,
                     modal_cotacao_bid_frete_internacional: 'RODOVIARIO',
                     modalidade_cotacao_bid_frete_internacional: '',
+                    opcao_incluir_armazenagem_cotacao: '',
                     ...limparCamposCargaPerigosa(),
                   }))
                 }}
@@ -2590,8 +2654,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           </div>
         )
 
-      // STEP 2 — Origem e Destino
-      case 2: {
+      // STEP — Origem e Destino
+      case 'origem': {
         const exibirExtrasOrigem = exibirCamposExtrasLocalizacao(form, 'origem')
         const exibirExtrasDestino = exibirCamposExtrasLocalizacao(form, 'destino')
         const exigePorto = modalExigePortoCotacao(modal)
@@ -2887,8 +2951,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         )
       }
 
-      // STEP 3 — Carga + Incoterm
-      case 3: {
+      // STEP — Carga + Incoterm
+      case 'carga': {
         const sufixoQtd = exigeContainerFcl
           ? 'ctn'
           : sufixoQuantidadeEmbalagem(form.tipo_container_cotacao_bid_frete_internacional)
@@ -3169,8 +3233,34 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         )
       }
 
-      // STEP 4 — Fornecedores
-      case 4: {
+      // STEP — Armazenagem (Marítimo LCL)
+      case 'armazenagem': {
+        return (
+          <div className="nc-step-content">
+            <NcSectionTitle icone={<Warehouse {...ICONE_LABEL_SECAO} />} obrigatorio>
+              Armazenagem
+            </NcSectionTitle>
+            <p className="nc-cargo-subsecao-hint">
+              Disponível para embarques Marítimo LCL. Informe se a cotação deve incluir armazenagem.
+            </p>
+            <Field label="Incluir armazenagem" icone={<Warehouse {...ICONE_FIELD} />} required>
+              <SelectGlobal
+                id="nc-incluir-armazenagem"
+                opcoes={OPCOES_INCLUIR_ARMAZENAGEM}
+                valor={form.opcao_incluir_armazenagem_cotacao || null}
+                aoMudarValor={(v) =>
+                  set('opcao_incluir_armazenagem_cotacao', v == null ? '' : String(v) as '' | 'sim' | 'nao')
+                }
+                placeholder="Selecionar"
+                posicao="auto"
+              />
+            </Field>
+          </div>
+        )
+      }
+
+      // STEP — Fornecedores
+      case 'fornecedores': {
         // Valor no form: "YYYY-MM-DDTHH:mm" — separar data e hora para calendário global + campo de hora
         const [prazoDataParte, prazoHoraParte = ''] =
           form.data_limite_resposta_cotacao_bid_frete_internacional.split('T')
@@ -3303,8 +3393,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         )
       }
 
-      // STEP 5 — Resumo
-      case 5: {
+      // STEP — Resumo
+      case 'resumo': {
         const rotaResumo = prepararCamposRotaCotacaoPersistencia(
           {
             modal_cotacao_bid_frete_internacional: modal as ModalFrete,
@@ -3423,6 +3513,21 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                       : ''}
                   </span>
                 </div>
+                {ehMaritimoLclCotacaoBidFreteInternacional(
+                  form.modal_cotacao_bid_frete_internacional,
+                  form.modalidade_cotacao_bid_frete_internacional,
+                ) && (
+                  <div className="nc-receipt-row">
+                    <span className="nc-receipt-label">Armazenagem</span>
+                    <span className="nc-receipt-value">
+                      {form.opcao_incluir_armazenagem_cotacao === 'sim'
+                        ? 'Incluir armazenagem'
+                        : form.opcao_incluir_armazenagem_cotacao === 'nao'
+                          ? 'Não incluir armazenagem'
+                          : '—'}
+                    </span>
+                  </div>
+                )}
                 {(exigeContainerFcl
                   ? form.linhas_container_fcl_cotacao.some((l) => l.tipo_container.trim())
                   : !!form.tipo_container_cotacao_bid_frete_internacional) && (
@@ -3477,7 +3582,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
   }
 
   const handleProximo = () => {
-    if (step < 5) setStep((s) => s + 1)
+    if (step < totalPassos) setStep((s) => s + 1)
     else void handleSubmit()
   }
 
@@ -3492,8 +3597,8 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
         <ModalPassoPassoGlobal
           titulo={t('bidfrete.nova_cotacao.criado_sucesso')}
           aberto
-          passos={STEPS}
-          passoAtual={5}
+          passos={passosWizard}
+          passoAtual={totalPassos}
           onProximo={handleFechar}
           onVoltar={handleFechar}
           onFechar={handleFechar}
@@ -3567,7 +3672,7 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
           ? t('bidfrete.nova_cotacao.subtitulo_vinculada_bid')
           : t('bidfrete.nova_cotacao.subtitulo')}
         aberto
-        passos={STEPS}
+        passos={passosWizard}
         passoAtual={step}
         onProximo={handleProximo}
         onVoltar={handleVoltar}

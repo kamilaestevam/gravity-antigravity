@@ -4,6 +4,8 @@
  * Alinhado com fragment.prisma — enums e campos.
  */
 
+import type { PeriodoArmazenagemPropostaBidFreteInternacional } from './periodos-armazenagem-proposta-bid-frete-internacional'
+
 // ─── Enums (espelham fragment.prisma) ────────────────────────────────────────
 
 export type TipoOperacao = 'IMPORTACAO' | 'EXPORTACAO'
@@ -209,6 +211,7 @@ export interface Cotacao {
   divisao_carga_perigosa_cotacao_bid_frete_internacional?: string | null
   grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional?: string | null
   observacoes_carga_perigosa_cotacao_bid_frete_internacional?: string | null
+  incluir_armazenagem_cotacao_bid_frete_internacional?: boolean
   incoterm_cotacao_bid_frete_internacional: string
   zipcode_origem_cotacao_bid_frete_internacional?: string | null
   zipcode_destino_cotacao_bid_frete_internacional: string | null
@@ -322,6 +325,7 @@ export interface PropostaBidFreteInternacional {
   dias_prazo_pagamento_proposta_bid_frete_internacional?: number | null
   validade_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string | null
+  periodos_armazenagem_proposta_bid_frete_internacional?: PeriodoArmazenagemPropostaBidFreteInternacional[] | null
   status_proposta_bid_frete_internacional: string
   classificacao_valor_proposta_bid_frete_internacional?: number | null
   classificacao_transito_proposta_bid_frete_internacional?: number | null

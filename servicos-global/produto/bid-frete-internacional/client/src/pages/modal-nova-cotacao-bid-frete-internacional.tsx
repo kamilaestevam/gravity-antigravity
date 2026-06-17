@@ -932,16 +932,31 @@ const NC_ESTILOS_CONTEUDO = `
           display: grid;
           grid-template-columns: minmax(0, 1.4fr) 8.5rem;
           gap: 1.25rem;
-          align-items: end;
+          align-items: start;
         }
         .nc-cargo-subsecao-grid-quantidade--embalagem {
           grid-template-columns: minmax(0, 1.2fr) 8.5rem;
         }
+        .nc-cargo-subsecao-grid-quantidade .nc-field {
+          display: grid;
+          grid-template-rows: auto minmax(2.5rem, auto);
+          gap: 0.5rem;
+          align-content: start;
+        }
         .nc-cargo-subsecao-grid-quantidade .nc-field-label {
           min-height: 1.125rem;
+          line-height: 1.125rem;
         }
         .nc-cargo-subsecao-grid-quantidade .nc-field > .sg-wrapper-inner {
           width: 100%;
+        }
+        .nc-cargo-subsecao-grid-quantidade .sg-campo,
+        .nc-cargo-subsecao-grid-quantidade .nc-input-group {
+          min-height: 2.5rem;
+          box-sizing: border-box;
+        }
+        .nc-cargo-subsecao-grid-quantidade .nc-input-group .nc-input {
+          height: 100%;
         }
         .nc-linhas-container-header {
           display: flex;
@@ -1400,18 +1415,21 @@ const NC_ESTILOS_CONTEUDO = `
           color: var(--text-muted, #64748b);
         }
 
-        /* ── Incoterms (linha única + tooltip por termo) ── */
+        /* ── Incoterms (linha única — todos lado a lado, tooltip por termo) ── */
         .nc-incoterm-grid {
           display: flex;
           flex-wrap: wrap;
           gap: 0.5rem;
           align-items: stretch;
+          width: 100%;
         }
         .nc-incoterm-grid .tg-trigger {
           display: inline-flex;
+          flex: 0 0 auto;
         }
         .nc-incoterm-btn {
           padding: 0.5rem 0.35rem;
+          min-width: 3.25rem;
           min-height: 2.5rem;
           background: var(--ws-bg-body, var(--bg-body, #0f172a));
           border: 1.5px solid var(--nc-accent-border);

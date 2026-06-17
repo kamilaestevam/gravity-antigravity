@@ -257,6 +257,9 @@ model CotacaoBidFreteInternacional {
   grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional String?
   observacoes_carga_perigosa_cotacao_bid_frete_internacional     String?
 
+  // Armazenagem (Marítimo LCL — comprador opta; fornecedor informa valor e período na proposta)
+  incluir_armazenagem_cotacao_bid_frete_internacional            Boolean  @default(false)
+
   // Termos
   incoterm_cotacao_bid_frete_internacional            String              // FOB, EXW, CIF, etc.
   zipcode_origem_cotacao_bid_frete_internacional     String?             // para EXW
@@ -372,6 +375,8 @@ model PropostaBidFreteInternacional {
   transbordos_proposta_bid_frete_internacional         Int               @default(0)
   escalas_proposta_bid_frete_internacional             String?           // descricao das escalas
   observacoes_proposta_bid_frete_internacional         String?
+  /** Períodos de armazenagem (Marítimo LCL + incluir armazenagem): dias, R$ ou % mercadoria, mínimo R$ */
+  periodos_armazenagem_proposta_bid_frete_internacional Json?
 
   // Status e ranking
   status_proposta_bid_frete_internacional              BidFreteInternacionalStatusProposta @default(RECEBIDA)

@@ -122,6 +122,7 @@ export default function ResponderCotacao() {
         form,
         cotacao?.modal_cotacao_bid_frete_internacional,
         cotacao?.modalidade_cotacao_bid_frete_internacional,
+        cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
       )
     ) {
       setErro(t('bidfrete.visao_fornecedor_bid_frete_internacional_publico.campos_obrigatorios'))
@@ -134,6 +135,7 @@ export default function ResponderCotacao() {
       const payload = montarPayloadPropostaRespostaBidFreteInternacional(
         form,
         cotacao?.modal_cotacao_bid_frete_internacional,
+        cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
       )
       await enviarVisaoFornecedorBidFreteInternacionalProposta(idDisparo, payload)
       setSucesso(true)
@@ -215,9 +217,13 @@ export default function ResponderCotacao() {
                 form={form}
                 modalCotacao={cotacao?.modal_cotacao_bid_frete_internacional}
                 modalidadeCotacao={cotacao?.modalidade_cotacao_bid_frete_internacional}
+                incluirArmazenagemCotacao={cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional === true}
                 onChange={handleChange}
                 onLinhasOrigemChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_origem: linhas }))}
                 onLinhasDestinoChange={(linhas) => setForm((prev) => ({ ...prev, linhas_taxa_destino: linhas }))}
+                onLinhasPeriodoArmazenagemChange={(linhas) =>
+                  setForm((prev) => ({ ...prev, linhas_periodo_armazenagem: linhas }))
+                }
                 onSubmit={handleSubmit}
                 tituloSecao={rotulos.proposta}
                 rotulos={rotulos}

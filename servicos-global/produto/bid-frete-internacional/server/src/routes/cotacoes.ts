@@ -75,6 +75,7 @@ const CriarCotacaoSchemaBase = z.object({
   divisao_carga_perigosa_cotacao_bid_frete_internacional: z.string().optional(),
   grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional: z.enum(['I', 'II', 'III']).optional(),
   observacoes_carga_perigosa_cotacao_bid_frete_internacional: z.string().max(500).optional(),
+  incluir_armazenagem_cotacao_bid_frete_internacional: z.boolean().default(false),
   fornecedor_ids: z.array(z.string()).optional(),
   disparar_ao_criar: z.boolean().default(false),
   canais_disparo: z.array(z.enum(['EMAIL', 'WHATSAPP'])).default(['EMAIL']),

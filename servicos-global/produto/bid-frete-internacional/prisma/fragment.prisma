@@ -375,7 +375,7 @@ model PropostaBidFreteInternacional {
   transbordos_proposta_bid_frete_internacional         Int               @default(0)
   escalas_proposta_bid_frete_internacional             String?           // descricao das escalas
   observacoes_proposta_bid_frete_internacional         String?
-  /** Períodos de armazenagem (Marítimo LCL + incluir armazenagem): dias, R$ ou % mercadoria, mínimo R$ */
+  // Períodos de armazenagem (Marítimo LCL + incluir armazenagem): dias, R$ ou % mercadoria, mínimo R$
   periodos_armazenagem_proposta_bid_frete_internacional Json?
 
   // Status e ranking

@@ -12,6 +12,7 @@ import {
   type CriarLeituraResposta,
   type Leitura,
 } from './schemas'
+import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
 
 let contexto = { idOrganizacao: '', idUsuario: '' }
 
@@ -49,8 +50,8 @@ function cabecalhosBase(): Record<string, string> {
 }
 
 async function lerErro(resposta: Response): Promise<string> {
-  const corpo = (await resposta.json().catch(() => null)) as { error?: { message?: string } } | null
-  return corpo?.error?.message || `HTTP ${resposta.status}`
+  const corpo: unknown = await resposta.json().catch(() => null)
+  return extrairMensagemErroCorpo(corpo) ?? `HTTP ${resposta.status}`
 }
 
 async function requisitar<T>(schema: z.ZodType<T>, endpoint: string, init?: RequestInit): Promise<T> {

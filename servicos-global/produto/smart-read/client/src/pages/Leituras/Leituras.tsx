@@ -15,6 +15,7 @@ import {
   FileText,
 } from '@phosphor-icons/react'
 import { smartReadApi } from '../../shared/api'
+import { mensagemDeExcecao } from '../../shared/extrair-mensagem-erro-api'
 import { type Leitura, type StatusLeitura } from '../../shared/schemas'
 import './Leituras.css'
 
@@ -163,7 +164,7 @@ export default function Leituras() {
         }
       } catch (excecao) {
         if (!ativo.current) return
-        setErro(excecao instanceof Error ? excecao.message : t('smart_read.erro.upload'))
+        setErro(mensagemDeExcecao(excecao, t('smart_read.erro.upload')))
         setEtapa('upload')
       }
     },

@@ -206,6 +206,22 @@ describe('POST /api/v1/bid-frete-internacional/cotacoes', () => {
     expect(res.status).toBe(201)
     expect(res.body.cotacao.endereco_destino_cotacao_bid_frete_internacional).toBe('Av. Brasil, 500')
   })
+
+  it('deve criar cotacao Maritimo LCL com armazenagem incluida', async () => {
+    const res = await request(app)
+      .post('/api/v1/bid-frete-internacional/cotacoes')
+      .set(HEADERS)
+      .send({
+        ...COTACAO_VALIDA,
+        modalidade_cotacao_bid_frete_internacional: 'LCL',
+        tipo_container_cotacao_bid_frete_internacional: 'UNIDADE',
+        incluir_armazenagem_cotacao_bid_frete_internacional: true,
+      })
+
+    expect(res.status).toBe(201)
+    expect(res.body.cotacao).toHaveProperty('modalidade_cotacao_bid_frete_internacional', 'LCL')
+    expect(res.body.cotacao).toHaveProperty('incluir_armazenagem_cotacao_bid_frete_internacional', true)
+  })
 })
 
 describe('GET /api/v1/bid-frete-internacional/cotacoes', () => {

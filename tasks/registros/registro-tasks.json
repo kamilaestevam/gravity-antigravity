@@ -507,8 +507,25 @@
       "arquivo_ficha": "registros/TASK-000294.json"
     },
     {
-      "referencia": "TASK-000297",
+      "referencia": "TASK-000296",
       "ordinal": 28,
+      "titulo_canonico": "BIDFRT-COTACAO-BUG-ERRO-PRISMA-CRIAR-COTACAO-RESUMO",
+      "titulo_exibicao": "TASK-000296 | [BID Frete] Cotação | BUG — Erro Prisma ao criar cotação no passo Resumo",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": "COTACAO",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "ERRO-PRISMA-CRIAR-COTACAO-RESUMO",
+      "data_criacao": "2026-06-18T12:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000296.json"
+    },
+    {
+      "referencia": "TASK-000297",
+      "ordinal": 29,
       "titulo_canonico": "BIDFRT-PAINEL-LISTA-LISTA-BUG-RETORNO-PAINEL-APOS-CRIAR-COTACAO",
       "titulo_exibicao": "TASK-000297 | [BID Frete] Lista | BUG — Após criar cotação volta ao painel errado",
       "status": "ABR",

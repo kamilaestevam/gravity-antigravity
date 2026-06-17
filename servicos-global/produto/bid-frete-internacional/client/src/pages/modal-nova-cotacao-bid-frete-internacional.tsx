@@ -519,7 +519,7 @@ function BotaoIncotermNovaCotacao({
       titulo={tt.titulo}
       descricao={tt.descricao}
       interativo={tt.interativo}
-      posicaoPreferida="abaixo"
+      posicaoPreferida="auto"
     >
       <button
         type="button"

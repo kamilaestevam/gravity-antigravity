@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 290,
+  "proximo_numero": 292,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -420,6 +420,40 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000289.json"
+    },
+    {
+      "referencia": "TASK-000290",
+      "ordinal": 23,
+      "titulo_canonico": "BIDFRT-COTACAO-NOV-ARMAZENAGEM-LCL-MARITIMO",
+      "titulo_exibicao": "TASK-000290 | [BID Frete] Cotação | NOV — Menu Armazenagem Marítimo LCL e campos obrigatórios no fornecedor",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": "COTACAO",
+      "visualizacao": null,
+      "tipo_entrega": "NOV",
+      "resumo": "ARMAZENAGEM-LCL-MARITIMO",
+      "data_criacao": "2026-06-17T20:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000290.json"
+    },
+    {
+      "referencia": "TASK-000291",
+      "ordinal": 24,
+      "titulo_canonico": "BIDFRT-PORTAL-AGENTE-BUG-CONTEUDO-OCULTO-100-ZOOM",
+      "titulo_exibicao": "TASK-000291 | [BID Frete] Portal Agente | BUG — Conteúdo oculto na tela Responder Cotação (100% zoom)",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": "PORTAL-AGENTE",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "CONTEUDO-OCULTO-100-ZOOM",
+      "data_criacao": "2026-06-17T22:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000291.json"
     }
   ]
 }

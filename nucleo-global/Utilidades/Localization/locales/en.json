@@ -832,8 +832,8 @@
       "publico": {
         "carregando": "Loading quote...",
         "invalido_titulo": "Invalid or Expired Link",
-        "invalido_desc": "This quote link is no longer valid. It may have expired or already been used.",
-        "invalido_contato": "Contact the buyer to request a new link.",
+        "invalido_desc": "This link's deadline has passed or a proposal was already submitted here.",
+        "invalido_contato": "Request a new link from the company that invited you to quote.",
         "obrigado_titulo": "Thank you for your proposal",
         "obrigado_desc": "Your response has been sent successfully and will be reviewed by the buyer. You will be notified of the result.",
         "campos_obrigatorios": "Please fill in required fields: Currency, Freight Value, Transit Time, Validity, Payment term, and Free Time (when FCL)",
@@ -1136,8 +1136,8 @@
     "visao_fornecedor_bid_frete_internacional_publico": {
       "carregando": "Loading quote...",
       "invalido_titulo": "Invalid or expired link",
-      "invalido_desc": "This quote link is no longer valid. It may have expired or already been used.",
-      "invalido_contato": "Contact the buyer to request a new link.",
+      "invalido_desc": "This link's deadline has passed or a proposal was already submitted here.",
+      "invalido_contato": "Request a new link from the company that invited you to quote.",
       "obrigado_titulo": "Thank you for your proposal",
       "obrigado_desc": "Your response was sent successfully and will be reviewed by the buyer.",
       "campos_obrigatorios": "Fill required fields: currency, freight value, transit time, validity, payment term and free time (when FCL)",

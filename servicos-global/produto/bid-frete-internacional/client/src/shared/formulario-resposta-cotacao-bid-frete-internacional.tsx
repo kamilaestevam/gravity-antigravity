@@ -2,7 +2,8 @@
  * UI compartilhada — formulário de resposta do fornecedor (público e logado).
  */
 
-import React from 'react'
+import React, { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -62,6 +63,44 @@ const PROP_LINK_MARKETPLACE = {
   target: '_blank',
   rel: 'noopener noreferrer',
 } as const
+
+function useTravaScrollPortalEstadoResposta(ativo: boolean) {
+  useEffect(() => {
+    if (!ativo) return
+
+    const html = document.documentElement
+    const body = document.body
+    const root = document.getElementById('root')
+    const anterior = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      rootOverflow: root?.style.overflow ?? '',
+      htmlHeight: html.style.height,
+      bodyHeight: body.style.height,
+      rootHeight: root?.style.height ?? '',
+    }
+
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
+    html.style.height = '100%'
+    body.style.height = '100%'
+    if (root) {
+      root.style.overflow = 'hidden'
+      root.style.height = '100%'
+    }
+
+    return () => {
+      html.style.overflow = anterior.htmlOverflow
+      body.style.overflow = anterior.bodyOverflow
+      html.style.height = anterior.htmlHeight
+      body.style.height = anterior.bodyHeight
+      if (root) {
+        root.style.overflow = anterior.rootOverflow
+        root.style.height = anterior.rootHeight
+      }
+    }
+  }, [ativo])
+}
 
 export const MODAL_ICONS_RESPOSTA: Record<ModalFrete, React.ReactNode> = {
   MARITIMO: <Anchor weight="duotone" size={16} />,
@@ -743,7 +782,7 @@ function FundoGravityRespostaPublica() {
   )
 }
 
-function MarcaLateralGravityRespostaPublica() {
+function MarcaLateralGravityRespostaPublica({ estiloMarca }: { estiloMarca?: React.CSSProperties }) {
   const { t } = useTranslation()
   const urlMarketplace = urlMarketplaceBidFreteInternacional()
 
@@ -771,7 +810,11 @@ function MarcaLateralGravityRespostaPublica() {
   ]
 
   return (
-    <aside className="brc-auth-marca-login" aria-label={t('bidfrete.resposta_publica.marca_aria')}>
+    <aside
+      className="brc-auth-marca-login"
+      style={estiloMarca}
+      aria-label={t('bidfrete.resposta_publica.marca_aria')}
+    >
       <div className="brc-auth-marca-conteudo">
         <a
           href={urlMarketplace}
@@ -818,16 +861,37 @@ function MarcaLateralGravityRespostaPublica() {
 
 export function ShellPaginaRespostaCotacao({
   modo,
+  layoutPainel = 'formulario',
   children,
 }: {
   modo: 'publico' | 'logado'
+  /** formulario = scroll no painel direito; estado = card compacto centralizado (invalido, sucesso, etc.) */
+  layoutPainel?: 'formulario' | 'estado'
   children: React.ReactNode
 }) {
+  useTravaScrollPortalEstadoResposta(modo === 'publico' && layoutPainel === 'estado')
+
   if (modo === 'logado') {
     return (
       <div className="brc-page brc-page--logado">
         <div className="brc-shell">{children}</div>
       </div>
+    )
+  }
+
+  if (layoutPainel === 'estado') {
+    return createPortal(
+      <div
+        className="brc-page brc-page--publico brc-auth-layout brc-auth-layout--estado brc-auth-portal-estado"
+        data-brc-layout-estado=""
+      >
+        <FundoGravityRespostaPublica />
+        <MarcaLateralGravityRespostaPublica />
+        <div className="brc-auth-painel-direito-estado">
+          <div className="brc-auth-estado-conteudo">{children}</div>
+        </div>
+      </div>,
+      document.body,
     )
   }
 

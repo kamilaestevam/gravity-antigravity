@@ -11,6 +11,15 @@ html:has(.brc-page--publico) body,
   overflow-y: auto;
 }
 
+/* Estados compactos (invalido/sucesso/etc.) — sem rolagem global nem gutter no meio da tela */
+html:has(.brc-auth-layout--estado),
+html:has(.brc-auth-layout--estado) body,
+#root:has(.brc-auth-layout--estado) {
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+
 .brc-page {
   --brc-accent: var(--accent, #6366f1);
   --brc-accent-hover: var(--accent-hover, #4f46e5);
@@ -244,6 +253,85 @@ a.brc-auth-feature:focus-visible {
   color: #94a3b8;
 }
 
+.brc-auth-layout--estado .brc-auth-marca-login {
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+
+.brc-auth-layout--estado .brc-card.brc-card--mensagem,
+.brc-auth-layout--estado .brc-mensagem-painel,
+.brc-auth-layout--estado .brc-mensagem-corpo {
+  overflow: visible;
+  max-height: none;
+}
+
+/* Estados compactos — portal no body + painéis fixos 55/45 (paridade /login) */
+.brc-auth-portal-estado {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: visible;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.brc-auth-portal-estado .brc-auth-fundo {
+  z-index: 0;
+}
+
+.brc-auth-layout--estado .brc-auth-marca-login {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 55% !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  overscroll-behavior: auto !important;
+  scrollbar-gutter: auto !important;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.brc-auth-layout--estado .brc-auth-painel-direito-estado {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 55% !important;
+  width: auto !important;
+  margin: 0 !important;
+  flex: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1.5rem;
+  overflow: visible !important;
+  overscroll-behavior: auto !important;
+  scrollbar-gutter: auto !important;
+  z-index: 3;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.brc-auth-estado-conteudo {
+  width: min(26rem, 100%);
+  margin: 0;
+  flex: 0 0 auto;
+  pointer-events: auto;
+  position: relative;
+  z-index: 3;
+  transform: translateX(-450px);
+}
+
+.brc-auth-layout--estado .brc-auth-estado-conteudo .brc-card--mensagem {
+  width: 100%;
+  overflow: visible;
+}
+
 /* Modal ancorado no topo; cresce para baixo com rolagem da página (mobile) ou painel direito (desktop) */
 .brc-auth-modal-wrap {
   position: relative;
@@ -256,7 +344,7 @@ a.brc-auth-feature:focus-visible {
 }
 
 @media (min-width: 901px) {
-  .brc-page--publico.brc-auth-layout {
+  .brc-page--publico.brc-auth-layout:not(.brc-auth-layout--estado) {
     display: flex;
     min-height: 100dvh;
     overflow: hidden;
@@ -336,7 +424,39 @@ a.brc-auth-feature:focus-visible {
 }
 
 @media (max-width: 900px) {
-  .brc-page--publico.brc-auth-layout {
+  .brc-auth-portal-estado {
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .brc-auth-layout--estado .brc-auth-marca-login {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: auto !important;
+  }
+
+  .brc-auth-layout--estado .brc-auth-painel-direito-estado {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    flex: 1;
+    min-height: 50dvh;
+    padding: 1.25rem 1rem 2rem;
+  }
+
+  .brc-page--publico.brc-auth-layout:not(.brc-auth-layout--estado) {
     display: flex;
     flex-direction: column;
     min-height: 100vh;

@@ -287,7 +287,7 @@ export default function ResponderPublico() {
 
     return (
 
-      <ShellPaginaRespostaCotacao modo="publico">
+      <ShellPaginaRespostaCotacao modo="publico" layoutPainel="estado">
 
         <EstadoMensagemRespostaCotacao variante="carregando" titulo="">
 
@@ -307,7 +307,7 @@ export default function ResponderPublico() {
 
     return (
 
-      <ShellPaginaRespostaCotacao modo="publico">
+      <ShellPaginaRespostaCotacao modo="publico" layoutPainel="estado">
 
         <EstadoMensagemRespostaCotacao
 
@@ -337,7 +337,7 @@ export default function ResponderPublico() {
 
     return (
 
-      <ShellPaginaRespostaCotacao modo="publico">
+      <ShellPaginaRespostaCotacao modo="publico" layoutPainel="estado">
 
         <EstadoMensagemRespostaCotacao
 
@@ -363,7 +363,7 @@ export default function ResponderPublico() {
 
     return (
 
-      <ShellPaginaRespostaCotacao modo="publico">
+      <ShellPaginaRespostaCotacao modo="publico" layoutPainel="estado">
 
         <EstadoMensagemRespostaCotacao
 

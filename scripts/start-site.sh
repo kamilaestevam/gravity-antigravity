@@ -102,5 +102,12 @@ export PEDIDO_ANEXOS_UPLOAD_DIR="${PEDIDO_ANEXOS_UPLOAD_DIR:-/app/data/pedido-an
 mkdir -p "$PEDIDO_ANEXOS_UPLOAD_DIR"
 echo "[start-site] Pedido anexos upload dir: $PEDIDO_ANEXOS_UPLOAD_DIR"
 
+if [ -z "${SMART_READ_LEGADO_URL:-}" ] || [ -z "${SMART_READ_LEGADO_CHAVE_GRAVITY:-}" ]; then
+  echo "[start-site] AVISO: SMART_READ_LEGADO_URL ou SMART_READ_LEGADO_CHAVE_GRAVITY ausente — uploads Smart Read falham."
+  echo "[start-site] Railway → site-usegravity → Variables → SMART_READ_LEGADO_* + SMART_READ_DE_PARA_ORGANIZACAO"
+else
+  echo "[start-site] Smart Read legado configurado (sidecar 8033)."
+fi
+
 echo "[start-site] Subindo Configurador + sidecars..."
 exec node servicos-global/configurador/dist/server.mjs

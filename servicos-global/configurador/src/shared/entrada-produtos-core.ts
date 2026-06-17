@@ -116,7 +116,7 @@ export function expandirCardsProdutosCore(
       produto: p,
       slug,
       nome: nomeExibicaoProdutoGravity(slug, p.catalog?.name ?? p.product_key, t),
-      rota: `/produto/${slug}`,
+      rota: slug === 'smart-read' ? '/smart-read' : `/produto/${slug}`,
       variant: 'padrao',
     })
   }

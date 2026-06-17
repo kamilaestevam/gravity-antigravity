@@ -28,7 +28,7 @@ const ROTAS_PRODUTO: Record<string, string> = {
   'bid-cambio': '/bid-cambio',
   pedido: '/pedido',
   processo: '/processo',
-  'smart-read': '/produto/smart-read',
+  'smart-read': '/smart-read',
 }
 
 function rotaProduto(slug: string): string {

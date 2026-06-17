@@ -135,7 +135,7 @@ export default function App() {
         onNavigate: (node: EcosystemNode) => {
           if (node.type === 'hub')               window.location.href = '/hub'
           else if (node.type === 'configurador') window.location.href = '/configurador'
-          else if (node.type === 'produto')      window.location.href = `/produto/${node.id}`
+          else if (node.type === 'produto')      window.location.href = '/smart-read'
         },
       }}
       usuario={{

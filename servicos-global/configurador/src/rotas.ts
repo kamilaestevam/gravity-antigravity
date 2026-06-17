@@ -129,4 +129,5 @@ export const REDIRECTS_LEGACY: ReadonlyArray<{ de: string; para: string }> = [
   { de: '/bid-frete/visao-geral', para: '/bid-frete/insights' },
   { de: '/bid-frete-internacional/visao-geral', para: '/bid-frete/insights' },
   { de: '/produto/bid-cambio', para: '/bid-cambio' },
+  { de: '/produto/smart-read', para: '/smart-read' },
 ]

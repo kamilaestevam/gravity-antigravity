@@ -11,6 +11,15 @@ html:has(.brc-page--publico) body,
   overflow-y: auto;
 }
 
+/* Formulario publico — scroll exclusivo no trilho direito (margem da viewport) */
+html:has(.brc-auth-layout--formulario),
+html:has(.brc-auth-layout--formulario) body,
+#root:has(.brc-auth-layout--formulario) {
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+
 /* Estados compactos (invalido/sucesso/etc.) — sem rolagem global nem gutter no meio da tela */
 html:has(.brc-auth-layout--estado),
 html:has(.brc-auth-layout--estado) body,
@@ -347,23 +356,58 @@ a.brc-auth-feature:focus-visible {
   .brc-page--publico.brc-auth-layout:not(.brc-auth-layout--estado) {
     display: flex;
     min-height: 100dvh;
-    overflow: hidden;
+    overflow: visible;
   }
 
-  .brc-auth-modal-wrap {
-    flex: 1 1 auto;
-    margin-left: 55%;
-    width: 45%;
-    max-width: none;
-    min-height: 0;
-    max-height: 100dvh;
-    overflow-x: hidden;
+  /* Trilho de scroll: inclui faixa do form deslocado (-423px); barra na margem direita */
+  .brc-auth-layout--formulario .brc-auth-scroll-rail {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: calc(55% - 423px);
+    z-index: 5;
+    overflow-x: clip;
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    scrollbar-gutter: stable;
+    scrollbar-gutter: auto;
     box-sizing: border-box;
     pointer-events: auto;
+  }
+
+  /* Marca esquerda: sem scroll nem gutter; fica atrás do form quando há sobreposição */
+  .brc-auth-layout--formulario .brc-auth-marca-login {
+    z-index: 1;
+    overflow: hidden !important;
+    scrollbar-gutter: auto !important;
+  }
+
+  /* Wrapper interno: posiciona o card; scroll fica no trilho externo */
+  .brc-auth-layout--formulario .brc-auth-modal-wrap {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 100%;
+    margin: 0;
+    padding: 2rem 0 3rem 1.5rem;
+    padding-left: calc(423px + 1.5rem);
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .brc-auth-layout--formulario .brc-auth-painel-form {
+    position: relative;
+    z-index: 5;
+    pointer-events: auto;
+    transform: translateX(-423px);
+  }
+
+  .brc-auth-layout--formulario .brc-auth-painel-form .brc-card {
+    position: relative;
+    z-index: 5;
   }
 }
 
@@ -494,6 +538,19 @@ a.brc-auth-feature:focus-visible {
 
   .brc-auth-modal-wrap {
     padding: 1.25rem 1rem 2rem;
+  }
+
+  .brc-auth-layout--formulario .brc-auth-scroll-rail {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    overflow: visible;
+  }
+
+  .brc-auth-layout--formulario .brc-auth-painel-form {
+    transform: none;
   }
 }
 

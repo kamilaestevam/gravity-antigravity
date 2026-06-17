@@ -896,12 +896,14 @@ export function ShellPaginaRespostaCotacao({
   }
 
   return (
-    <div className="brc-page brc-page--publico brc-auth-layout">
+    <div className="brc-page brc-page--publico brc-auth-layout brc-auth-layout--formulario">
       <FundoGravityRespostaPublica />
       <MarcaLateralGravityRespostaPublica />
-      <div className="brc-auth-modal-wrap">
-        <div className="brc-auth-painel-form">
-          <div className="brc-shell">{children}</div>
+      <div className="brc-auth-scroll-rail">
+        <div className="brc-auth-modal-wrap">
+          <div className="brc-auth-painel-form">
+            <div className="brc-shell">{children}</div>
+          </div>
         </div>
       </div>
     </div>

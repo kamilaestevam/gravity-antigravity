@@ -5,6 +5,7 @@
 
 import { z } from 'zod'
 import { AppError } from './app-error.js'
+import { extrairMensagemErroRespostaConfigurador } from './extrair-mensagem-erro-resposta.js'
 
 const VinculoLegadoRespostaSchema = z.object({
   id_company_smart_read_legado: z.string().min(1),
@@ -52,10 +53,11 @@ export async function resolverCompanyLegado(idOrganizacao: string): Promise<stri
   }
 
   if (!resposta.ok) {
-    let mensagem = `Configurador respondeu ${resposta.status} ao resolver vínculo Smart Read`
+    const fallback = `Configurador respondeu ${resposta.status} ao resolver vínculo Smart Read`
+    let mensagem = fallback
     try {
-      const corpo = (await resposta.json()) as { message?: string; error?: string }
-      mensagem = corpo.message ?? corpo.error ?? mensagem
+      const corpo: unknown = await resposta.json()
+      mensagem = extrairMensagemErroRespostaConfigurador(corpo, fallback)
     } catch {
       const texto = await resposta.text().catch(() => '')
       if (texto) mensagem = texto.slice(0, 300)

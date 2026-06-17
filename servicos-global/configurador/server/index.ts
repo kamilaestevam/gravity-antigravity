@@ -60,6 +60,7 @@ import { adminOrganizacaoProdutoGravityRouter } from './routes/admin-organizacao
 import { companyProductsRouter } from './routes/produto-gravity-workspace.js'
 import { serviceTokenRouter } from './routes/token-servico.js'
 import { gabiInternalRouter } from './routes/gabi-internal.js'
+import { smartReadVinculoInternalRouter } from './routes/smart-read-vinculo-internal.js'
 import { adminProductsRouter } from './routes/admin-produto-gravity.js'
 import { publicCatalogRouter } from './routes/catalogo-publico.js'
 import { hubRouter } from './routes/hub-init.js'
@@ -214,6 +215,7 @@ app.use('/api/v1/internal', serviceTokenRouter)
 app.use('/api/v1/internal/usuarios', workspacesHabilitadosInternalRouter)
 app.use('/api/v1/internal/permissoes', permissoesVerificarInternalRouter)
 app.use('/api/v1/internal/gabi', gabiInternalRouter)
+app.use('/api/v1/internal/smart-read', smartReadVinculoInternalRouter)
 
 // Pendência #4 — audit log de override de organização. Endpoint S2S chamado
 // pelo middleware do SDK `@gravity/resolver-organizacao` (fire-and-forget)

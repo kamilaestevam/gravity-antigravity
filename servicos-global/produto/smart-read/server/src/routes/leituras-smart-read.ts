@@ -45,7 +45,7 @@ router.post('/', upload.single('arquivo'), async (req: Request, res: Response, n
       throw new AppError('Arquivo obrigatorio (campo multipart "arquivo")', 400, 'ARQUIVO_AUSENTE')
     }
 
-    const companyId = resolverCompanyLegado(idOrganizacao)
+    const companyId = await resolverCompanyLegado(idOrganizacao)
     const idLeitura = await criarLeituraLegado(companyId)
     const idArquivo = await enviarArquivoLegado(companyId, idLeitura, {
       buffer: req.file.buffer,
@@ -69,7 +69,7 @@ router.get('/:id_leitura', async (req: Request, res: Response, next: NextFunctio
     const idOrganizacao = organizacaoDaRequisicao(req)
     const { id_leitura } = IdLeituraSchema.parse(req.params)
 
-    const companyId = resolverCompanyLegado(idOrganizacao)
+    const companyId = await resolverCompanyLegado(idOrganizacao)
     const leituraLegado = await obterLeituraLegado(companyId, id_leitura)
 
     res.json(LeituraSchema.parse(normalizarLeitura(leituraLegado)))

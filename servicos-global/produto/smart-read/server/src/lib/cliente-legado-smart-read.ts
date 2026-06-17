@@ -1,8 +1,7 @@
 /**
  * cliente-legado-smart-read.ts — Cliente HTTP do Smart Read legado (dati/microservices)
  * Fala com o ExternalApiReadingsController via flag x-gravity-api-key + x-company-id.
- * O de-para id_organizacao (Gravity) → company id (legado) vem de
- * SMART_READ_DE_PARA_ORGANIZACAO (JSON), até existir cadastro no Configurador.
+ * O vínculo id_organizacao → company id legado é resolvido via Configurador (S2S).
  */
 
 import { AppError } from './app-error.js'
@@ -32,24 +31,7 @@ function configuracaoLegado(): { urlBase: string; chaveGravity: string } {
   return { urlBase: urlBase.replace(/\/$/, ''), chaveGravity }
 }
 
-export function resolverCompanyLegado(idOrganizacao: string): string {
-  const mapaBruto = process.env.SMART_READ_DE_PARA_ORGANIZACAO ?? '{}'
-  let mapa: Record<string, string>
-  try {
-    mapa = JSON.parse(mapaBruto) as Record<string, string>
-  } catch {
-    throw new AppError('SMART_READ_DE_PARA_ORGANIZACAO invalido (JSON malformado)', 500, 'CONFIG_ERROR')
-  }
-  const companyId = mapa[idOrganizacao]
-  if (!companyId) {
-    throw new AppError(
-      `Organizacao ${idOrganizacao} sem vinculo com o Smart Read legado (de-para ausente)`,
-      422,
-      'ORGANIZACAO_SEM_VINCULO',
-    )
-  }
-  return companyId
-}
+export { resolverCompanyLegado } from './resolver-vinculo-smart-read-legado.js'
 
 function cabecalhosBase(companyId: string): Record<string, string> {
   const { chaveGravity } = configuracaoLegado()

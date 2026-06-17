@@ -29,6 +29,10 @@ import {
   StatusProdutoGravity,
   StatusAssinaturaProdutoGravity,
 } from '../../../../configurador/generated/index.js'
+import {
+  configuracaoInicialSmartReadLegado,
+  SLUG_PRODUTO_SMART_READ,
+} from '../lib/resolver-vinculo-smart-read-legado.js'
 
 export const assinaturaProdutoGravityRouter = Router()
 
@@ -163,6 +167,10 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, requireConf
     }
     const { slug_produto_gravity } = parsed.data
     const id_organizacao = req.auth.id_organizacao
+    const configuracaoInicialProduto =
+      slug_produto_gravity === SLUG_PRODUTO_SMART_READ
+        ? configuracaoInicialSmartReadLegado()
+        : {}
 
     // 1. Localiza produto no catálogo
     const produto = await prisma.produtoGravity.findFirst({
@@ -213,7 +221,7 @@ assinaturaProdutoGravityRouter.post('/assinar-produto', requireAuth, requireConf
         create: {
           id_organizacao_configuracao_produto_gravity: id_organizacao,
           chave_produto_configuracao_produto_gravity: slug_produto_gravity,
-          configuracao_config_produto_gravity: {},
+          configuracao_config_produto_gravity: configuracaoInicialProduto,
           ativo_configuracao_produto_gravity: true,
         },
         update: {

@@ -9,6 +9,7 @@ import {
   testidPainelSeletorBid,
 } from './bid-frete-visualizacao-context'
 import { BidFreteVisualizacaoTabs, type ModoVisualizacaoBidFrete } from './BidFreteVisualizacaoTabs'
+import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
 import './BidFreteVisualizacaoTabs.css'
 
 const VisaoGeralCliente = lazy(() => import('../pages/visao-geral'))
@@ -28,11 +29,7 @@ const VisaoFornecedorKanban = lazy(
 )
 
 function PainelFallback() {
-  return (
-    <div className="bid-frete-view-fallback" aria-hidden>
-      <div className="bid-frete-view-fallback__bar" />
-    </div>
-  )
+  return <ConteudoCarregandoBidFreteInternacional />
 }
 
 function Painel({

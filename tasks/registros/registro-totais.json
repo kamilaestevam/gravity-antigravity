@@ -1,69 +1,69 @@
 {
   "versao": 2,
-  "data_atualizacao": "2026-06-17T11:46:58.426Z",
+  "data_atualizacao": "2026-06-18T00:12:12.292Z",
   "nota": "Recalcular sempre em /novo-agente, /encerrar-agente ou edição de TASK-*.json.",
   "total_tasks": {
-    "fichas_registradas": 28,
-    "fichas_resolvidas": 15,
-    "fichas_abertas": 13,
-    "sessoes_cursor_legado_sem_ficha": 235,
+    "fichas_registradas": 38,
+    "fichas_resolvidas": 17,
+    "fichas_abertas": 21,
+    "sessoes_cursor_legado_sem_ficha": 225,
     "sessoes_cursor_total": 263,
-    "proximo_numero": 294
+    "proximo_numero": 300
   },
   "total_periodo": {
     "data_inicio": "2026-04-24T18:58:26.000Z",
-    "data_fim": "2026-06-18T02:15:00.000Z",
+    "data_fim": "2026-06-18T00:12:12.292Z",
     "dias_corridos": 55,
     "descricao": "Da TASK-000001 (mais antiga fichada) até último encerramento"
   },
   "total_tokens": {
-    "entrada": 459420,
-    "saida": 468022,
-    "total": 927442
+    "entrada": 524420,
+    "saida": 518022,
+    "total": 1042442
   },
   "total_horas": {
-    "liquido": 26.36,
-    "bruto": 71.8,
-    "agente": 21.740000000000002,
-    "dono": 4.62,
-    "duracao": 26.34
+    "liquido": 28.56,
+    "bruto": 74.0,
+    "agente": 23.54,
+    "dono": 5.02,
+    "duracao": 28.54
   },
   "estatisticas_checklist": {
     "teste_local": {
       "sim": 5,
-      "nao": 5,
+      "nao": 6,
       "nao_aplicavel": 5
     },
     "code_review": {
       "sim": 3,
-      "nao": 7,
+      "nao": 8,
       "nao_aplicavel": 5
     },
     "doc_skill": {
       "sim": 4,
-      "nao": 7,
+      "nao": 8,
       "nao_aplicavel": 4
     },
     "qa": {
       "sim": 1,
-      "nao": 10,
+      "nao": 11,
       "nao_aplicavel": 4
     },
     "pr": {
-      "sim": 10,
+      "sim": 11,
       "nao": 1,
       "nao_aplicavel": 4
     },
     "deploy": {
-      "sim": 10,
+      "sim": 11,
       "nao": 1,
       "nao_aplicavel": 4
     },
     "teste_producao": {
       "sim": 3,
-      "nao": 8,
+      "nao": 9,
       "nao_aplicavel": 4
     }
   },
-  "total_alertas_registrados": 39
+  "total_alertas_registrados": 44
 }

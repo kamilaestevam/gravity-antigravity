@@ -55,7 +55,7 @@ export function validarPropostaEnvioModalidadeCotacaoBidFreteInternacional(
       return 'Informe ao menos um periodo de armazenagem quando a cotacao inclui armazenagem'
     }
     if (!periodos.every(periodoArmazenagemValido)) {
-      return 'Cada periodo de armazenagem deve ter dias, tipo de tarifa (R$ ou %), valor e minimo em R$'
+      return 'Cada periodo de armazenagem deve ter dias, tipo de tarifa (R$ ou %) e valor. Minimo em R$ e opcional.'
     }
   }
 

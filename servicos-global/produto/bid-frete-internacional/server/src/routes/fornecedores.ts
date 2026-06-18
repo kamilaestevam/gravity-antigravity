@@ -24,6 +24,8 @@ import {
 } from '../services/sincronizar-fornecedores-cadastros.js'
 import { prisma as basePrisma } from '../middleware/isolamento-tenant.js'
 import { vincularUsuarioNoFornecedorBidFrete } from '../lib/resolver-fornecedor-logado-bid-frete-internacional.js'
+import { TabelaBidFreteInternacionalInputSchema } from '../../../shared/tabela-bid-frete-internacional-schema.js'
+import { prepararTabelaBidFreteInternacionalParaPersistencia } from '../lib/tabela-bid-frete-internacional-persistencia.js'
 
 const router = Router()
 
@@ -51,23 +53,7 @@ const VincularUsuarioFornecedorSchema = z.object({
   id_clerk_usuario: z.string().min(1).optional(),
 })
 
-const TabelaBidFreteInternacionalSchema = z.object({
-  origem_codigo_tabela_bid_frete_internacional: z.string().min(1),
-  origem_nome_tabela_bid_frete_internacional: z.string().min(1),
-  destino_codigo_tabela_bid_frete_internacional: z.string().min(1),
-  destino_nome_tabela_bid_frete_internacional: z.string().min(1),
-  modal_tabela_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
-  modalidade_tabela_bid_frete_internacional: z.enum(['FCL', 'LCL', 'AEREO_GERAL', 'RODOVIARIO_FTL', 'RODOVIARIO_LTL']),
-  moeda_tabela_bid_frete_internacional: z.string().default('USD'),
-  valor_frete_tabela_bid_frete_internacional: z.number().positive(),
-  taxas_origem_tabela_bid_frete_internacional: z.number().min(0).default(0),
-  taxas_destino_tabela_bid_frete_internacional: z.number().min(0).default(0),
-  valor_total_tabela_bid_frete_internacional: z.number().positive(),
-  dias_transito_tabela_bid_frete_internacional: z.number().int().positive(),
-  dias_free_time_tabela_bid_frete_internacional: z.number().int().optional(),
-  validade_inicio_tabela_bid_frete_internacional: z.string().datetime(),
-  validade_fim_tabela_bid_frete_internacional: z.string().datetime(),
-})
+const TabelaBidFreteInternacionalSchema = TabelaBidFreteInternacionalInputSchema
 
 // --- POST / — Cadastrar fornecedor ---
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
@@ -218,7 +204,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     let fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
       where: { id_fornecedor_bid_frete_internacional: req.params.id },
       include: {
-        tabelas_valor: { where: { ativa_tabela_valor_bid_frete_internacional: true }, orderBy: { origem_nome_tabela_valor_bid_frete_internacional: 'asc' } },
+        tabelas: { where: { ativa_tabela_bid_frete_internacional: true }, orderBy: { origem_nome_tabela_bid_frete_internacional: 'asc' } },
         avaliacoes: { orderBy: { data_criacao_avaliacao_bid_frete_internacional: 'desc' }, take: 10 },
         _count: { select: { disparos_cotacao: true, propostas: true, avaliacoes: true } },
       },
@@ -231,7 +217,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
         fornecedor = await (req.prisma as any).fornecedorBidFreteInternacional.findFirst({
           where: { id_fornecedor_bid_frete_internacional: req.params.id },
           include: {
-            tabelas_valor: { where: { ativa_tabela_valor_bid_frete_internacional: true }, orderBy: { origem_nome_tabela_valor_bid_frete_internacional: 'asc' } },
+            tabelas: { where: { ativa_tabela_bid_frete_internacional: true }, orderBy: { origem_nome_tabela_bid_frete_internacional: 'asc' } },
             avaliacoes: { orderBy: { data_criacao_avaliacao_bid_frete_internacional: 'desc' }, take: 10 },
             _count: { select: { disparos_cotacao: true, propostas: true, avaliacoes: true } },
           },
@@ -307,12 +293,10 @@ router.post('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response,
 
     const tabela = await (req.prisma as any).tabelaBidFreteInternacional.create({
       data: {
-        ...parsed.data,
+        ...prepararTabelaBidFreteInternacionalParaPersistencia(parsed.data),
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
         id_fornecedor_bid_frete_internacional: req.params.id_fornecedor,
-        validade_inicio_tabela_bid_frete_internacional: new Date(parsed.data.validade_inicio_tabela_bid_frete_internacional),
-        validade_fim_tabela_bid_frete_internacional: new Date(parsed.data.validade_fim_tabela_bid_frete_internacional),
       },
     })
 
@@ -338,9 +322,12 @@ router.get('/:id_fornecedor/tabelas-valor', async (req: Request, res: Response, 
 // PUT /:id_fornecedor/tabelas-valor/:id_tabela_bid_frete_internacional
 router.put('/:id_fornecedor/tabelas-valor/:id_tabela_bid_frete_internacional', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const parsed = TabelaBidFreteInternacionalSchema.partial().safeParse(req.body)
+    if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
+
     const tabela = await (req.prisma as any).tabelaBidFreteInternacional.update({
       where: { id_tabela_bid_frete_internacional: req.params.id_tabela_bid_frete_internacional },
-      data: req.body,
+      data: prepararTabelaBidFreteInternacionalParaPersistencia(parsed.data),
     })
     res.json({ tabela })
   } catch (err) {

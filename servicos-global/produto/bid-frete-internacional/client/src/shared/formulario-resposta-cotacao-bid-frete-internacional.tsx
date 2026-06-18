@@ -293,6 +293,45 @@ export function camposLogisticaRespostaCotacaoValidos(
   return true
 }
 
+/** Validação única antes do envio — mensagem específica só para armazenagem. */
+export function obterErroValidacaoFormularioRespostaCotacao(
+  form: EstadoFormularioRespostaCotacao,
+  opts: {
+    modal?: ModalFrete | null
+    modalidade?: ModalidadeCarga | null
+    incluirArmazenagem?: boolean | null
+    mensagemCamposObrigatorios: string
+    mensagemArmazenagemInvalida: string
+  },
+): string | null {
+  if (
+    !form.moeda_proposta_bid_frete_internacional.trim()
+    || !form.valor_frete_proposta_bid_frete_internacional.trim()
+    || !form.dias_transito_proposta_bid_frete_internacional.trim()
+    || !form.validade_proposta_bid_frete_internacional.trim()
+  ) {
+    return opts.mensagemCamposObrigatorios
+  }
+
+  if (
+    exigeArmazenagemFornecedorRespostaCotacao(opts.incluirArmazenagem)
+    && !periodosArmazenagemFormularioValidos(form.linhas_periodo_armazenagem)
+  ) {
+    return opts.mensagemArmazenagemInvalida
+  }
+
+  if (!camposLogisticaRespostaCotacaoValidos(
+    form,
+    opts.modal,
+    opts.modalidade,
+    opts.incluirArmazenagem,
+  )) {
+    return opts.mensagemCamposObrigatorios
+  }
+
+  return null
+}
+
 export const ESTADO_INICIAL_FORMULARIO_RESPOSTA: EstadoFormularioRespostaCotacao = {
   moeda_proposta_bid_frete_internacional: '',
   valor_frete_proposta_bid_frete_internacional: '',

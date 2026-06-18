@@ -277,3 +277,8 @@ body.light-theme .ws-calendario-cell.active {
   width: 100%;
   height: 100%;
 }
+
+.tg-trigger:has(> .sg-campo) {
+  display: block;
+  width: 100%;
+}

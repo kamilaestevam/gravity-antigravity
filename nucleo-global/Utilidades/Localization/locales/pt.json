@@ -3246,6 +3246,7 @@
         "obrigado_titulo": "Obrigado pela sua proposta",
         "obrigado_desc": "Sua resposta foi enviada com sucesso e será analisada pelo comprador. Você será notificado sobre o resultado.",
         "campos_obrigatorios": "Preencha os campos obrigatórios: Moeda, Valor Frete, Transit Time, Validade, Prazo de pagamento e Free Time (quando FCL)",
+        "armazenagem_invalida": "Preencha os períodos de armazenagem: dias, tipo de tarifa e valor. Mínimo em R$ é opcional.",
         "header_titulo": "BID Frete Internacional — Responder Cotação",
         "erro_envio": "Erro ao enviar resposta",
         "placeholder_observacoes": "Informações adicionais, condições especiais, observações...",
@@ -3464,6 +3465,8 @@
         "cat_confiabilidade": "Confiabilidade"
       },
       "tabelas_valor": {
+        "titulo": "Tabelas de valor",
+        "subtitulo": "{{count}} rota(s) cadastrada(s)",
         "nova_rota": "Nova rota",
         "editar_rota": "Editar rota",
         "campo_origem": "Origem",
@@ -3489,8 +3492,11 @@
         "col_total": "Total",
         "col_transit": "Transit",
         "col_validade": "Validade",
+        "dias": "{{val}} dias",
         "tooltip_editar": "Editar rota",
         "tooltip_excluir": "Excluir rota",
+        "modal_excluir_titulo": "Excluir rota?",
+        "modal_excluir_desc": "A rota será removida permanentemente da sua tabela de valor.",
         "placeholder_origem": "Ex: Santos (BRSSZ)",
         "placeholder_destino": "Ex: Shanghai (CNSHA)"
       },
@@ -3566,6 +3572,7 @@
       "obrigado_titulo": "Obrigado pela sua proposta",
       "obrigado_desc": "Sua resposta foi enviada com sucesso e será analisada pelo comprador.",
       "campos_obrigatorios": "Preencha os campos obrigatórios: moeda, valor frete, transit time, validade, prazo de pagamento e free time (quando FCL)",
+      "armazenagem_invalida": "Preencha os períodos de armazenagem: dias, tipo de tarifa e valor. Mínimo em R$ é opcional.",
       "header_titulo": "BID Frete Internacional — responder cotação",
       "erro_envio": "Erro ao enviar resposta",
       "placeholder_observacoes": "Informações adicionais, condições especiais, observações..."

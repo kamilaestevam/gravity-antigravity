@@ -63,7 +63,7 @@ function valorTarifaValido(
 
 function minimoReaisValido(valor: string): boolean {
   const v = valor.trim()
-  if (v === '') return false
+  if (v === '') return true
   const n = parseValorLinhaTaxa(v)
   return Number.isFinite(n) && n >= 0
 }

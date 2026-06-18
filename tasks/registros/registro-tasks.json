@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 299,
+  "proximo_numero": 300,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -542,19 +542,19 @@
     },
     {
       "referencia": "TASK-000298",
-      "ordinal": 29,
-      "titulo_canonico": "BIDFRT-COTACAO-BUG-ALTURA-CAMPO-DATA-PRAZO-RESPOSTAS",
-      "titulo_exibicao": "TASK-000298 | [BID Frete] Cotação | BUG — Altura desalinhada do campo data no prazo para respostas",
-      "status": "ABR",
+      "ordinal": 30,
+      "titulo_canonico": "BIDFRT-COTACAO-MEL-PADRONIZAR-TAMANHO-CAMPOS-CARGA-PERIGOSA",
+      "titulo_exibicao": "TASK-000298 | [BID Frete] Cotação | MEL — Padronizar tamanho dos campos da seção Carga Perigosa",
+      "status": "RES",
       "area": "BIDFRT",
       "subarea": "COTACAO",
       "visualizacao": null,
-      "tipo_entrega": "BUG",
-      "resumo": "ALTURA-CAMPO-DATA-PRAZO-RESPOSTAS",
-      "data_criacao": "2026-06-18T23:00:00.000Z",
-      "data_encerramento": null,
-      "tempo_liquido_horas": null,
-      "tokens_estimados_total": null,
+      "tipo_entrega": "MEL",
+      "resumo": "PADRONIZAR-TAMANHO-CAMPOS-CARGA-PERIGOSA",
+      "data_criacao": "2026-06-17T22:00:00.000Z",
+      "data_encerramento": "2026-06-18T00:12:12.292Z",
+      "tempo_liquido_horas": 2.2,
+      "tokens_estimados_total": 115000,
       "arquivo_ficha": "registros/TASK-000298.json"
     }
   ]

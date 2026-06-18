@@ -31,7 +31,7 @@ import {
   CabecalhoFormularioRespostaCotacao,
   estadoFormularioFromProposta,
   criarRotulosFormularioResposta,
-  camposLogisticaRespostaCotacaoValidos,
+  obterErroValidacaoFormularioRespostaCotacao,
   type DetalhesCotacaoResposta,
   type EstadoFormularioRespostaCotacao,
 } from '../../shared/formulario-resposta-cotacao-bid-frete-internacional'
@@ -113,19 +113,15 @@ export default function ResponderCotacao() {
     e.preventDefault()
     if (!idDisparo) return
 
-    if (
-      !form.moeda_proposta_bid_frete_internacional
-      || !form.valor_frete_proposta_bid_frete_internacional
-      || !form.dias_transito_proposta_bid_frete_internacional
-      || !form.validade_proposta_bid_frete_internacional
-      || !camposLogisticaRespostaCotacaoValidos(
-        form,
-        cotacao?.modal_cotacao_bid_frete_internacional,
-        cotacao?.modalidade_cotacao_bid_frete_internacional,
-        cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
-      )
-    ) {
-      setErro(t('bidfrete.visao_fornecedor_bid_frete_internacional_publico.campos_obrigatorios'))
+    const erroValidacao = obterErroValidacaoFormularioRespostaCotacao(form, {
+      modal: cotacao?.modal_cotacao_bid_frete_internacional,
+      modalidade: cotacao?.modalidade_cotacao_bid_frete_internacional,
+      incluirArmazenagem: cotacao?.incluir_armazenagem_cotacao_bid_frete_internacional,
+      mensagemCamposObrigatorios: t('bidfrete.visao_fornecedor_bid_frete_internacional_publico.campos_obrigatorios'),
+      mensagemArmazenagemInvalida: t('bidfrete.visao_fornecedor_bid_frete_internacional_publico.armazenagem_invalida'),
+    })
+    if (erroValidacao) {
+      setErro(erroValidacao)
       return
     }
 

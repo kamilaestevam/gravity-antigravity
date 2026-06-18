@@ -1039,6 +1039,8 @@
         "cat_confiabilidade": "Reliability"
       },
       "tabelas_valor": {
+        "titulo": "Rate tables",
+        "subtitulo": "{{count}} route(s) registered",
         "nova_rota": "New route",
         "editar_rota": "Edit route",
         "campo_origem": "Origin",
@@ -1064,8 +1066,11 @@
         "col_total": "Total",
         "col_transit": "Transit",
         "col_validade": "Validity",
+        "dias": "{{val}} days",
         "tooltip_editar": "Edit route",
         "tooltip_excluir": "Delete route",
+        "modal_excluir_titulo": "Delete route?",
+        "modal_excluir_desc": "The route will be permanently removed from your rate table.",
         "placeholder_origem": "e.g. Santos (BRSSZ)",
         "placeholder_destino": "e.g. Shanghai (CNSHA)"
       },

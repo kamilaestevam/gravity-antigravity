@@ -64,14 +64,14 @@ export function SecaoPeriodosArmazenagemPropostaBidFreteInternacional({
   return (
     <section className="brc-taxas-secao" aria-labelledby="brc-armazenagem-titulo">
       <h3 id="brc-armazenagem-titulo" className="brc-taxas-secao-titulo">{titulo}</h3>
-      <div className="brc-taxas-linhas">
+      <div className="brc-armazenagem-linhas">
         {linhas.map((linha, index) => {
           const ordem = index + 1
           const ehPercentual = linha.tipo_tarifa_periodo_armazenagem === 'PERCENTUAL_MERCADORIA'
           return (
             <div
               key={linha.id_linha_periodo_armazenagem}
-              className="brc-taxas-linha brc-armazenagem-linha"
+              className="brc-armazenagem-linha"
             >
               <div className="brc-armazenagem-linha-cabecalho">
                 <span className="brc-armazenagem-ordem">{rotuloOrdemPeriodoArmazenagem(ordem)}</span>
@@ -167,7 +167,6 @@ export function SecaoPeriodosArmazenagemPropostaBidFreteInternacional({
                 <div className="brc-field">
                   <label className="brc-label" htmlFor={`brc-arm-min-${linha.id_linha_periodo_armazenagem}`}>
                     {rotuloMinimoReais}
-                    <span className="brc-label-obrigatorio" aria-hidden>*</span>
                   </label>
                   <CampoValorMonetarioResposta
                     id={`brc-arm-min-${linha.id_linha_periodo_armazenagem}`}

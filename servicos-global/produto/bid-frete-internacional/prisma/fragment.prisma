@@ -480,26 +480,46 @@ model TabelaBidFreteInternacional {
 
   id_fornecedor_bid_frete_internacional   String
 
-  // Rota
-  origem_codigo_tabela_bid_frete_internacional   String
-  origem_nome_tabela_bid_frete_internacional     String
-  destino_codigo_tabela_bid_frete_internacional  String
-  destino_nome_tabela_bid_frete_internacional    String
+  // Operacao (paridade cotacao — chave de match com cotação)
   modal_tabela_bid_frete_internacional           BidFreteInternacionalModalidade
   modalidade_tabela_bid_frete_internacional      BidFreteInternacionalModalidadeCarga
 
-  // Valores
+  // Rota — marítimo (ref Cadastros/Porto — codigo_unlocode)
+  porto_origem_tabela_bid_frete_internacional        String?
+  porto_destino_tabela_bid_frete_internacional       String?
+  // Rota — aéreo (ref Cadastros/Aeroporto — codigo_iata)
+  aeroporto_origem_tabela_bid_frete_internacional    String?
+  aeroporto_destino_tabela_bid_frete_internacional   String?
+  endereco_origem_tabela_bid_frete_internacional     String?
+  endereco_destino_tabela_bid_frete_internacional   String?
+  // Rota — rodoviário (América Latina via Cadastros/Pais + UF/cidade)
+  pais_origem_rodoviario_tabela_bid_frete_internacional       String?
+  pais_destino_rodoviario_tabela_bid_frete_internacional      String?
+  estado_provincia_origem_rodoviario_tabela_bid_frete_internacional  String? @map("estado_provincia_origem_rodov_tabela_bid_frete_internacional")
+  estado_provincia_destino_rodoviario_tabela_bid_frete_internacional String? @map("estado_provincia_destino_rodov_tabela_bid_frete_internacional")
+  cidade_origem_rodoviario_tabela_bid_frete_internacional       String?
+  cidade_destino_rodoviario_tabela_bid_frete_internacional      String?
+  // Snapshot derivado (compatibilidade lista/motor — derivado na persistência)
+  origem_codigo_tabela_bid_frete_internacional   String
+  origem_nome_tabela_bid_frete_internacional     String
+  origem_pais_tabela_bid_frete_internacional     String
+  destino_codigo_tabela_bid_frete_internacional  String
+  destino_nome_tabela_bid_frete_internacional    String
+  destino_pais_tabela_bid_frete_internacional    String
+
+  // Valores (tarifário padrão — espelho proposta)
   moeda_tabela_bid_frete_internacional           String          @default("USD")
   valor_frete_tabela_bid_frete_internacional     Float
   taxas_origem_tabela_bid_frete_internacional    Float           @default(0)
   taxas_destino_tabela_bid_frete_internacional   Float           @default(0)
   valor_total_tabela_bid_frete_internacional     Float
 
-  // Prazos
+  // Prazos (paridade proposta)
   dias_transito_tabela_bid_frete_internacional Int
   dias_free_time_tabela_bid_frete_internacional    Int?
+  dias_prazo_pagamento_tabela_bid_frete_internacional Int?
 
-  // Validade
+  // Validade do tarifário
   validade_inicio_tabela_bid_frete_internacional DateTime
   validade_fim_tabela_bid_frete_internacional    DateTime
   ativa_tabela_bid_frete_internacional           Boolean         @default(true)
@@ -513,7 +533,7 @@ model TabelaBidFreteInternacional {
   @@index([id_organizacao, id_produto_gravity])
   @@index([id_organizacao, id_usuario])
   @@index([id_organizacao, id_fornecedor_bid_frete_internacional])
-  @@index([origem_codigo_tabela_bid_frete_internacional, destino_codigo_tabela_bid_frete_internacional, modal_tabela_bid_frete_internacional])
+  @@index([origem_codigo_tabela_bid_frete_internacional, destino_codigo_tabela_bid_frete_internacional, modal_tabela_bid_frete_internacional, modalidade_tabela_bid_frete_internacional])
   @@index([validade_fim_tabela_bid_frete_internacional])
   @@map("tabela_bid_frete_internacional")
 }

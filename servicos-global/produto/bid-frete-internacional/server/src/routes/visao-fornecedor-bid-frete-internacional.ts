@@ -32,26 +32,13 @@ import {
 import { resolverFornecedorLogado } from '../lib/resolver-fornecedor-logado-bid-frete-internacional.js'
 import { montarMapaCotacoesVisaoFornecedorBidFreteInternacional } from '../lib/mapa-cotacoes-visao-fornecedor-bid-frete-internacional.js'
 import { sincronizarStatusCotacaoAposRespostaFornecedorBidFreteInternacional } from '../lib/sincronizar-status-cotacao-apos-resposta-fornecedor-bid-frete-internacional.js'
+import { TabelaBidFreteInternacionalInputSchema } from '../../../shared/tabela-bid-frete-internacional-schema.js'
+import { prepararTabelaBidFreteInternacionalParaPersistencia } from '../lib/tabela-bid-frete-internacional-persistencia.js'
+import { prepararCamposRotaTabelaPersistencia } from '../lib/rota-tabela-bid-frete-internacional.js'
 
 const router = Router()
 
-const TabelaBidFreteInternacionalSchema = z.object({
-  origem_codigo_tabela_bid_frete_internacional: z.string().min(1),
-  origem_nome_tabela_bid_frete_internacional: z.string().min(1),
-  destino_codigo_tabela_bid_frete_internacional: z.string().min(1),
-  destino_nome_tabela_bid_frete_internacional: z.string().min(1),
-  modal_tabela_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']),
-  modalidade_tabela_bid_frete_internacional: z.enum(['FCL', 'LCL', 'AEREO_GERAL', 'RODOVIARIO_FTL', 'RODOVIARIO_LTL']),
-  moeda_tabela_bid_frete_internacional: z.string().default('USD'),
-  valor_frete_tabela_bid_frete_internacional: z.number().positive(),
-  taxas_origem_tabela_bid_frete_internacional: z.number().min(0).default(0),
-  taxas_destino_tabela_bid_frete_internacional: z.number().min(0).default(0),
-  valor_total_tabela_bid_frete_internacional: z.number().positive(),
-  dias_transito_tabela_bid_frete_internacional: z.number().int().positive(),
-  dias_free_time_tabela_bid_frete_internacional: z.number().int().optional(),
-  validade_inicio_tabela_bid_frete_internacional: z.string().datetime(),
-  validade_fim_tabela_bid_frete_internacional: z.string().datetime(),
-})
+const TabelaBidFreteInternacionalSchema = TabelaBidFreteInternacionalInputSchema
 
 function mapFornecedorResumo(fornecedor: Record<string, unknown>) {
   return {
@@ -531,13 +518,11 @@ router.post('/tabelas-valor', async (req: Request, res: Response, next: NextFunc
 
     const tabela = await (req.prisma as any).tabelaBidFreteInternacional.create({
       data: {
-        ...parsed.data,
+        ...prepararTabelaBidFreteInternacionalParaPersistencia(parsed.data),
         id_organizacao: fornecedor.id_organizacao,
         id_produto_gravity: 'bid-frete-internacional',
         id_usuario: userId,
         id_fornecedor_bid_frete_internacional: fornecedor.id_fornecedor_bid_frete_internacional,
-        validade_inicio_tabela_bid_frete_internacional: new Date(parsed.data.validade_inicio_tabela_bid_frete_internacional),
-        validade_fim_tabela_bid_frete_internacional: new Date(parsed.data.validade_fim_tabela_bid_frete_internacional),
       },
     })
 
@@ -557,14 +542,6 @@ router.put('/tabelas-valor/:id_tabela_bid_frete_internacional', async (req: Requ
     const parsed = TabelaBidFreteInternacionalSchema.partial().safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const data: Record<string, unknown> = { ...parsed.data }
-    if (parsed.data.validade_inicio_tabela_bid_frete_internacional) {
-      data.validade_inicio_tabela_bid_frete_internacional = new Date(parsed.data.validade_inicio_tabela_bid_frete_internacional)
-    }
-    if (parsed.data.validade_fim_tabela_bid_frete_internacional) {
-      data.validade_fim_tabela_bid_frete_internacional = new Date(parsed.data.validade_fim_tabela_bid_frete_internacional)
-    }
-
     const existente = await (req.prisma as any).tabelaBidFreteInternacional.findFirst({
       where: {
         id_tabela_bid_frete_internacional: req.params.id_tabela_bid_frete_internacional,
@@ -572,6 +549,39 @@ router.put('/tabelas-valor/:id_tabela_bid_frete_internacional', async (req: Requ
       },
     })
     if (!existente) throw new AppError('Tabela nao encontrada', 404)
+
+    const merged = { ...existente, ...parsed.data }
+    const comRota = prepararCamposRotaTabelaPersistencia({
+      modal_tabela_bid_frete_internacional: merged.modal_tabela_bid_frete_internacional,
+      porto_origem_tabela_bid_frete_internacional: merged.porto_origem_tabela_bid_frete_internacional,
+      porto_destino_tabela_bid_frete_internacional: merged.porto_destino_tabela_bid_frete_internacional,
+      aeroporto_origem_tabela_bid_frete_internacional: merged.aeroporto_origem_tabela_bid_frete_internacional,
+      aeroporto_destino_tabela_bid_frete_internacional: merged.aeroporto_destino_tabela_bid_frete_internacional,
+      endereco_origem_tabela_bid_frete_internacional: merged.endereco_origem_tabela_bid_frete_internacional,
+      endereco_destino_tabela_bid_frete_internacional: merged.endereco_destino_tabela_bid_frete_internacional,
+      pais_origem_rodoviario_tabela_bid_frete_internacional: merged.pais_origem_rodoviario_tabela_bid_frete_internacional,
+      pais_destino_rodoviario_tabela_bid_frete_internacional: merged.pais_destino_rodoviario_tabela_bid_frete_internacional,
+      estado_provincia_origem_rodoviario_tabela_bid_frete_internacional:
+        merged.estado_provincia_origem_rodoviario_tabela_bid_frete_internacional,
+      estado_provincia_destino_rodoviario_tabela_bid_frete_internacional:
+        merged.estado_provincia_destino_rodoviario_tabela_bid_frete_internacional,
+      cidade_origem_rodoviario_tabela_bid_frete_internacional: merged.cidade_origem_rodoviario_tabela_bid_frete_internacional,
+      cidade_destino_rodoviario_tabela_bid_frete_internacional: merged.cidade_destino_rodoviario_tabela_bid_frete_internacional,
+      origem_codigo_tabela_bid_frete_internacional: merged.origem_codigo_tabela_bid_frete_internacional,
+      origem_nome_tabela_bid_frete_internacional: merged.origem_nome_tabela_bid_frete_internacional,
+      origem_pais_tabela_bid_frete_internacional: merged.origem_pais_tabela_bid_frete_internacional,
+      destino_codigo_tabela_bid_frete_internacional: merged.destino_codigo_tabela_bid_frete_internacional,
+      destino_nome_tabela_bid_frete_internacional: merged.destino_nome_tabela_bid_frete_internacional,
+      destino_pais_tabela_bid_frete_internacional: merged.destino_pais_tabela_bid_frete_internacional,
+    })
+
+    const data: Record<string, unknown> = { ...parsed.data, ...comRota }
+    if (parsed.data.validade_inicio_tabela_bid_frete_internacional) {
+      data.validade_inicio_tabela_bid_frete_internacional = new Date(parsed.data.validade_inicio_tabela_bid_frete_internacional)
+    }
+    if (parsed.data.validade_fim_tabela_bid_frete_internacional) {
+      data.validade_fim_tabela_bid_frete_internacional = new Date(parsed.data.validade_fim_tabela_bid_frete_internacional)
+    }
 
     const tabela = await (req.prisma as any).tabelaBidFreteInternacional.update({
       where: { id_tabela_bid_frete_internacional: req.params.id_tabela_bid_frete_internacional },

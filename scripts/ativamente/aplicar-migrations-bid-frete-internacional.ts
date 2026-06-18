@@ -192,6 +192,8 @@ const COLUNAS_CANONICAS_MINIMAS: Array<{ tabela: string; coluna: string }> = [
   { tabela: 'ganho_bid_frete_internacional', coluna: 'id_ganho_bid_frete_internacional' },
   { tabela: 'ganho_bid_frete_internacional', coluna: 'valor_meta_ganho_bid_frete_internacional' },
   { tabela: 'proposta_bid_frete_internacional', coluna: 'id_proposta_bid_frete_internacional' },
+  { tabela: 'tabela_bid_frete_internacional', coluna: 'porto_origem_tabela_bid_frete_internacional' },
+  { tabela: 'tabela_bid_frete_internacional', coluna: 'dias_prazo_pagamento_tabela_bid_frete_internacional' },
 ]
 
 async function schemaDriftDetectado(client: Client): Promise<boolean> {

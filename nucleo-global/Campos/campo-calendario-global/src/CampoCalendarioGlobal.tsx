@@ -480,7 +480,7 @@ export function CampoCalendarioGlobal({
           <TooltipGlobal titulo={textoDisplay} descricao="">
             <div
               onClick={() => { if (!disabled) { calcularPosicao(); setIsOpen(v => !v) } }}
-              className={`sg-campo ${isOpen ? 'sg-campo--aberto' : ''} ${disabled ? 'sg-campo--desabilitado' : ''}`}
+              className={`sg-campo sg-campo--com-icone ${isOpen ? 'sg-campo--aberto' : ''} ${disabled ? 'sg-campo--desabilitado' : ''}`}
             >
               <span className="sg-icone-esquerda" aria-hidden="true">
                 <CalendarBlank size={16} />
@@ -519,7 +519,7 @@ export function CampoCalendarioGlobal({
         ) : (
           <div
             onClick={() => { if (!disabled) { calcularPosicao(); setIsOpen(v => !v) } }}
-            className={`sg-campo ${isOpen ? 'sg-campo--aberto' : ''} ${disabled ? 'sg-campo--desabilitado' : ''}`}
+            className={`sg-campo sg-campo--com-icone ${isOpen ? 'sg-campo--aberto' : ''} ${disabled ? 'sg-campo--desabilitado' : ''}`}
           >
             <span className="sg-icone-esquerda" aria-hidden="true">
               <CalendarBlank size={16} />

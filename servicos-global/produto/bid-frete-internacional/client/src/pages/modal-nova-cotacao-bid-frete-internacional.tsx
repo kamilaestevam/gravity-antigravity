@@ -956,6 +956,71 @@ const NC_ESTILOS_CONTEUDO = `
           gap: 1.25rem;
           align-items: start;
         }
+        .nc-cargo-perigosa-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1.25rem;
+          align-items: start;
+        }
+        .nc-cargo-perigosa-grid .nc-field {
+          display: grid;
+          grid-template-rows: auto 2.5rem;
+          gap: 0.5rem;
+          align-content: start;
+          min-width: 0;
+        }
+        .nc-cargo-perigosa-grid .nc-field-label {
+          min-height: 1.125rem;
+          line-height: 1.125rem;
+        }
+        .nc-cargo-perigosa-grid .nc-field > .sg-wrapper-inner,
+        .nc-cargo-perigosa-grid .nc-field > .nc-input {
+          height: 2.5rem;
+          min-height: 2.5rem;
+          max-height: 2.5rem;
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+        }
+        .nc-cargo-perigosa-grid .nc-field > .sg-wrapper-inner {
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .nc-cargo-perigosa-grid .sg-campo {
+          flex: 1 1 auto;
+          height: 2.5rem;
+          min-height: 2.5rem;
+          max-height: 2.5rem;
+          min-width: 0;
+          box-sizing: border-box;
+          overflow: hidden;
+          gap: 0.375rem;
+        }
+        .nc-cargo-perigosa-grid .sg-valor {
+          min-width: 0;
+          max-width: 100%;
+          overflow: hidden;
+        }
+        .nc-cargo-perigosa-grid .sg-valor-selecionado,
+        .nc-cargo-perigosa-grid .sg-placeholder {
+          display: block;
+          width: 100%;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .nc-cargo-perigosa-grid .sg-acoes {
+          flex-shrink: 0;
+        }
+        .nc-cargo-perigosa-grid .nc-input.nc-textarea {
+          resize: none;
+          overflow-y: auto;
+          padding-top: 0.5rem;
+          padding-bottom: 0.5rem;
+          line-height: 1.25;
+        }
         .nc-cargo-subsecao-grid-quantidade {
           display: grid;
           grid-template-columns: minmax(0, 1.4fr) 8.5rem;
@@ -1052,6 +1117,9 @@ const NC_ESTILOS_CONTEUDO = `
           .nc-cargo-subsecao-grid-identificacao .nc-cargo-descricao {
             grid-column: 1 / -1;
           }
+          .nc-cargo-perigosa-grid {
+            grid-template-columns: 1fr 1fr;
+          }
           .nc-cargo-subsecao-grid-quantidade,
           .nc-cargo-subsecao-grid-quantidade--embalagem {
             grid-template-columns: 1fr 1fr;
@@ -1059,6 +1127,7 @@ const NC_ESTILOS_CONTEUDO = `
         }
         @media (max-width: 560px) {
           .nc-cargo-subsecao-grid-identificacao,
+          .nc-cargo-perigosa-grid,
           .nc-cargo-subsecao-grid-quantidade,
           .nc-cargo-subsecao-grid-quantidade--embalagem,
           .nc-linha-container-row {
@@ -2308,6 +2377,22 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
     }))
   }
 
+  const renderizarMercadoriaPerigosaNoGatilho = (opcao: SelectOpcao | SelectOpcao[]) => {
+    const selecionada = Array.isArray(opcao) ? opcao[0] : opcao
+    if (!selecionada) return null
+    const mercadoria = mercadoriasPerigosasCadastro.find(
+      (m) => m.id_mercadoria_perigosa === String(selecionada.valor),
+    )
+    const textoGatilho = mercadoria
+      ? `UN ${mercadoria.numero_onu_mercadoria_perigosa}`
+      : selecionada.rotulo
+    return (
+      <span className="sg-valor-selecionado" title={selecionada.rotulo}>
+        {textoGatilho}
+      </span>
+    )
+  }
+
   const canNext = (): boolean => {
     switch (tipoPassoAtual) {
       case 'modal': {
@@ -3015,13 +3100,13 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                 Carga perigosa
               </NcSubsecaoTitle>
               <p className="nc-cargo-subsecao-hint">Marcado no passo 1 — informe a classificação ONU (IMDG / IATA DGR / ADR).</p>
-              <div className="nc-cargo-subsecao-grid-identificacao nc-cargo-perigosa-grid">
+              <div className="nc-cargo-perigosa-grid">
                   <Field label="NÚMERO ONU" required icone={<Warning {...ICONE_FIELD} />}>
                     <SelectGlobal
-                      iconeEsquerda={<Warning size={16} weight="duotone" />}
                       opcoes={opcoesMercadoriasPerigosas}
                       valor={form.id_mercadoria_perigosa_cotacao || null}
                       aoMudarValor={aoMudarMercadoriaPerigosa}
+                      renderizarValorSelecionado={renderizarMercadoriaPerigosaNoGatilho}
                       placeholder="Selecione UN + nome técnico..."
                       buscavel
                       carregando={carregandoMercadoriasPerigosas}
@@ -3041,15 +3126,15 @@ export default function ModalNovaCotacaoBidFreteInternacional() {
                     <input className="nc-input" readOnly value={form.grupo_embalagem_carga_perigosa_cotacao_bid_frete_internacional || '—'} />
                   </Field>
 
-                  <Field label="NOME TÉCNICO DE EMBARQUE" className="nc-cargo-descricao" icone={<TextAlignLeft {...ICONE_FIELD} />}>
+                  <Field label="NOME TÉCNICO DE EMBARQUE" icone={<TextAlignLeft {...ICONE_FIELD} />}>
                     <input className="nc-input" readOnly value={form.nome_tecnico_embarque_cotacao_bid_frete_internacional || '—'} />
                   </Field>
 
-                  <Field label="OBSERVAÇÕES DG" className="nc-cargo-descricao" icone={<NotePencil {...ICONE_FIELD} />}>
+                  <Field label="OBSERVAÇÕES DG" icone={<NotePencil {...ICONE_FIELD} />}>
                     <textarea
                       className="nc-input nc-textarea"
-                      rows={2}
-                      placeholder="Flash point, poluente marinho, restrição de modal..."
+                      rows={1}
+                      placeholder="Flash point, poluente marinho..."
                       value={form.observacoes_carga_perigosa_cotacao_bid_frete_internacional}
                       onChange={(e) => set('observacoes_carga_perigosa_cotacao_bid_frete_internacional', e.target.value)}
                     />

@@ -24,14 +24,18 @@
   --_sg-shadow:    0 0 0 1px rgba(129,140,248,.35), 0 16px 48px rgba(0,0,0,.65), 0 4px 16px rgba(0,0,0,.4);
 
   position: relative;
+  min-width: 0;
+  width: 100%;
 }
 
 /* ─── Campo gatilho ─────────────────────────────────────────────────────────── */
 .sg-campo {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.5rem;
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   background: var(--ws-bg-body, #0f172a);
   border: 1.5px solid var(--_sg-border);
@@ -40,8 +44,14 @@
   cursor: pointer;
   transition: border-color .18s ease, box-shadow .18s ease;
   min-height: 2.5rem;
+  overflow: hidden;
   user-select: none;
   font-family: inherit;
+}
+
+.sg-campo--com-icone {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding-left: 0.75rem;
 }
 
 .sg-campo:hover:not(.sg-campo--desabilitado):not(.sg-campo--carregando) {
@@ -100,23 +110,24 @@
   flex-shrink: 0;
 }
 
-.sg-campo--com-icone {
-  padding-left: 0.75rem; /* Ajuste opcional, dependendo do design atual */
-}
-
 /* ─── Valor e placeholder ────────────────────────────────────────────────────── */
 .sg-valor {
-  flex: 1;
   min-width: 0;
+  max-width: 100%;
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 
 .sg-placeholder {
   color: var(--_sg-muted);
   font-size: 0.875rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sg-loading {
@@ -126,6 +137,10 @@
 }
 
 .sg-valor-selecionado {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--_sg-text);
@@ -179,7 +194,6 @@
   align-items: center;
   gap: 0.25rem;
   flex-shrink: 0;
-  margin-left: auto;
 }
 
 .sg-btn-limpar {

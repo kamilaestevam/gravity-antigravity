@@ -736,7 +736,53 @@ const NC_ESTILOS_CONTEUDO = `
           display: grid;
           grid-template-columns: 18.75rem 9rem;
           gap: 1rem;
-          align-items: end;
+          align-items: start;
+        }
+        .nc-prazo-data-hora .nc-field {
+          display: grid;
+          grid-template-rows: auto 2.5rem;
+          gap: 0.5rem;
+          align-content: start;
+          min-width: 0;
+        }
+        .nc-prazo-data-hora .nc-field-label {
+          min-height: 1.125rem;
+          line-height: 1.125rem;
+        }
+        .nc-prazo-data-hora .nc-field > .cg-wrapper,
+        .nc-prazo-data-hora .nc-field > .nc-input {
+          height: 2.5rem;
+          min-height: 2.5rem;
+          max-height: 2.5rem;
+          width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+        }
+        .nc-prazo-data-hora .nc-field > .cg-wrapper {
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          gap: 0;
+        }
+        .nc-prazo-data-hora .nc-field > .cg-wrapper > div {
+          flex: 1 1 auto;
+          height: 2.5rem;
+          min-height: 2.5rem;
+          max-height: 2.5rem;
+          width: 100%;
+          min-width: 0;
+        }
+        .nc-prazo-data-hora .sg-campo {
+          height: 2.5rem;
+          min-height: 2.5rem;
+          max-height: 2.5rem;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .nc-prazo-data-hora .tg-trigger {
+          display: block;
+          width: 100%;
+          height: 2.5rem;
         }
         @media (max-width: 560px) {
           .nc-prazo-data-hora {

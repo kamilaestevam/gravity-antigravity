@@ -2024,6 +2024,13 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
       )
     }
 
+    // SUPER_ADMIN convidado pela gestora: âncora sempre na org Gravity-interna
+    // canônica (hospeda_colaboradores_gravity), independente do id enviado pelo front.
+    const idOrganizacaoAlvo =
+      parsed.data.tipo_usuario === 'SUPER_ADMIN'
+        ? await resolverIdOrganizacaoGravity()
+        : parsed.data.id_organizacao_alvo
+
     const resultado = await convidarUsuarioService({
       ator: {
         id_usuario: req.auth.id_usuario,
@@ -2033,7 +2040,7 @@ adminRouter.post('/usuarios/convidar', async (req, res, next) => {
         clerkUserId: req.auth.clerkUserId,
         ip: req.ip,
       },
-      id_organizacao_alvo: parsed.data.id_organizacao_alvo,
+      id_organizacao_alvo: idOrganizacaoAlvo,
       email_usuario: parsed.data.email_usuario,
       nome_usuario: parsed.data.nome_usuario,
       tipo_usuario: parsed.data.tipo_usuario,

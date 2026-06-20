@@ -80,6 +80,9 @@ TST-{TIPO}-{TEMA-DESCRITIVO}-{NNNNNN}
 | `MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY` | `^TST-(UNI\|FUN\|CRO\|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}$` | CONFIG |
 | `PEDIDO-USUARIO-FALTA-ORGANIZACAO` | `^TST-(UNI\|FUN\|CRO\|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}$` | PEDIDO / CONFIG |
 | `DUPLICAR-LISTA-PEDIDO` | `^TST-(UNI\|FUN\|CRO\|E2E\|EMT)-DUPLICAR-LISTA-PEDIDO-\d{6}$` | PEDIDO |
+| `PREFERENCIA-TESTE-USUARIO-ADMIN` | `^TST-(UNI\|FUN\|CRO\|E2E)-PREFERENCIA-TESTE-USUARIO-ADMIN-\d{6}$` | ADMIN |
+| `AGENDAMENTO-NCM-ADMIN` | `^TST-(UNI\|FUN\|CRO\|E2E)-AGENDAMENTO-NCM-ADMIN-\d{6}$` | ADMIN |
+| `CONVITE-SUPER-ADMIN-ADMIN` | `^TST-(UNI\|FUN\|CRO\|E2E)-CONVITE-SUPER-ADMIN-ADMIN-\d{6}$` | ADMIN |
 
 > **`DUPLICAR-LISTA-PEDIDO`:** regex em `DESCRIPTIVE_DUPLICAR_LISTA_PEDIDO_REGEX` (não em `DESCRIPTIVE_REGEXES`) porque inclui tipo `EMT`. Mesma regra de registro: validador → esta tabela → criar IDs.
 
@@ -90,6 +93,11 @@ TST-UNI-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000085   (unitário — escopo real CON
 TST-FUN-PEDIDO-USUARIO-FALTA-ORGANIZACAO-000087   (funcional)
 TST-UNI-DUPLICAR-LISTA-PEDIDO-000026              (unitário duplicar lista)
 TST-EMT-DUPLICAR-LISTA-PEDIDO-000083              (em tela duplicar lista)
+TST-UNI-CONVITE-SUPER-ADMIN-ADMIN-000116          (unitário — Zod convite admin)
+TST-FUN-CONVITE-SUPER-ADMIN-ADMIN-000117          (funcional — POST convidar)
+TST-E2E-CONVITE-SUPER-ADMIN-ADMIN-000118          (e2e — modal Super Admin)
+TST-CRO-CONVITE-SUPER-ADMIN-ADMIN-000119          (cross-org — override Gravity)
+TST-EMT-ADMIN-CONVITE-SUPER-ADMIN-ADMIN-000120    (em tela — prints convite)
 ```
 
 > **Para adicionar uma nova família descritiva:** (1) adicionar o regex em `DESCRIPTIVE_REGEXES` no validador, (2) registrar a família nesta tabela, (3) só então criar os IDs. O CI valida via `idValido()` que delega a `matchDescriptive()`.

@@ -406,7 +406,10 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
   )
 
   return (
-    <th style={{ width: col.largura, padding: '0.875rem 1rem', textAlign: col.align || 'center', whiteSpace: 'nowrap', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ffffff', borderBottom: '2px solid rgba(129,140,248,0.2)', background: '#1e293b', position: 'sticky', top: 0, zIndex: stickyLeft !== undefined ? 3 : 2, ...(stickyLeft !== undefined ? { left: stickyLeft } : {}), userSelect: 'none', verticalAlign: 'middle' }}>
+    <th style={{
+      width: col.largura,
+      minWidth: col.largura,
+      padding: '0.875rem 1rem', textAlign: col.align || 'center', whiteSpace: 'nowrap', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ffffff', borderBottom: '2px solid rgba(129,140,248,0.2)', background: '#1e293b', position: 'sticky', top: 0, zIndex: stickyLeft !== undefined ? 3 : 2, ...(stickyLeft !== undefined ? { left: stickyLeft } : {}), userSelect: 'none', verticalAlign: 'middle' }}>
       <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao || col.label}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'right' ? 'flex-end' : col.align === 'left' ? 'flex-start' : 'center' }}>
           {labelSpan}
@@ -1202,7 +1205,11 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                     )}
                     
                     {colunasVisiveis.map((col, cIdx) => (
-                      <td key={col.key} className="tg-td" style={{ textAlign: col.align || 'center', ...(cIdx < frozenColunas && stickyOffsets[cIdx] !== undefined ? { position: 'sticky', left: stickyOffsets[cIdx], zIndex: 1, background: selecionados.has(id) ? 'rgba(129,140,248,0.08)' : 'var(--ws-surface, #1e293b)' } : {}) }}>
+                      <td key={col.key} className="tg-td" style={{
+                        textAlign: col.align || 'center',
+                        ...(col.largura != null ? { width: col.largura, minWidth: col.largura } : {}),
+                        ...(cIdx < frozenColunas && stickyOffsets[cIdx] !== undefined ? { position: 'sticky', left: stickyOffsets[cIdx], zIndex: 1, background: selecionados.has(id) ? 'rgba(129,140,248,0.08)' : 'var(--ws-surface, #1e293b)' } : {}),
+                      }}>
                         {cIdx === 0 && temFilhos ? (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             {col.render ? col.render(item[col.key], item) : String(item[col.key] ?? '')}

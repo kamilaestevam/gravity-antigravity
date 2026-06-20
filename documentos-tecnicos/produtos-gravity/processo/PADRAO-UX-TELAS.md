@@ -365,10 +365,29 @@ Fora do padrão TOC/cards — aplica-se à **listagem de processos do workspace*
 
 ---
 
+## 13. Seletor de produtos Gravity (shell global)
+
+No Processo, o **trilho global** (`MenuLateralGlobal` via `servicos-global/shell/Sidebar.tsx`) exibe o dropdown de troca entre produtos no cabeçalho — mesmo padrão visual do Pedido (busca, lista de produtos contratados, atalho **Processos**).
+
+| Item | Padrão |
+|------|--------|
+| Gating de rota | `rotaTemSeletorProdutosProcesso()` — `servicos-global/shell/utils/rota-processo-com-switcher.ts` |
+| Workspace | `/acesso-processos/{lista\|kanban\|insights\|dashboard}` (prefixo legado `/processo/` também) |
+| Detalhe | Qualquer URL reconhecida por `isRotaDetalheProcesso()` — ex.: `/acesso-processos/lista/{slug}/dados-tecnicos`, `/acesso-processos/p1/workflow` |
+| Fonte de dados | `useProdutosSwitcher('processo', …)` → `GET /api/v1/workspaces/:id_workspace/produtos-gravity` |
+| UI | Props `produtos`, `produtoAtualSlug`, `onSwitchProduct` em `MenuLateralGlobal` |
+
+**Regra:** não desabilitar o seletor só porque o usuário entrou no detalhe — o analista precisa trocar de produto sem voltar à lista.
+
+**Testes:** `TST-UNI-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-000074` (rotas) · E2E `testes/testes-e2e/menu-botoes/seletor-produtos-gravity/`
+
+---
+
 ## Histórico
 
 | Data | Marco |
 |------|-------|
+| 2026-06-20 | Seletor de produtos habilitado também no detalhe do processo (TASK-000304) — paridade Pedido |
 | 2026-06-02 | Seletor workspace Lista \| Kanban documentado (paridade MBOTO / keep-alive) |
 | 2026-05-30 | Redesign inicial DadosTecnicos (TOC + edit-in-place + cards) |
 | 2026-05-31 | SelectGlobal substitui `<select>` nativo + borda indigo unificada com modal Convidar Usuário → **padrão consolidado** |

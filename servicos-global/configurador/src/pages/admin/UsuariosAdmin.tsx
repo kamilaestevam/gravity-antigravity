@@ -188,6 +188,19 @@ export function UsuariosAdmin() {
   // apenas orgs que hospedam colaboradores Gravity (auto-seleção se só 1).
   const [orgsAdmin, setOrgsAdmin] = useState<Array<{ id_organizacao: string; nome_organizacao: string; hospeda_colaboradores_gravity: boolean }>>([])
 
+  /** Org alvo do convite Super Admin — prioriza id do /me quando existe na lista admin;
+   *  senão primeira org Gravity (hospeda_colaboradores_gravity). Evita enviar id vazio ou
+   *  desincronizado de fIdOrganizacaoAlvo no submit (hotfix TASK-000302). */
+  const idOrganizacaoSuperAdminConvite = useMemo(() => {
+    if (fTipo !== 'Super Admin') return null
+    if (idOrganizacaoAtor) {
+      const orgDoAtor = orgsAdmin.find((o) => o.id_organizacao === idOrganizacaoAtor)
+      if (orgDoAtor) return orgDoAtor.id_organizacao
+    }
+    const orgGravity = orgsAdmin.find((o) => o.hospeda_colaboradores_gravity)
+    return orgGravity?.id_organizacao ?? idOrganizacaoAtor ?? null
+  }, [fTipo, idOrganizacaoAtor, orgsAdmin])
+
   // Standard/Fornecedor: convite com todos os workspaces ativos por padrão (paridade Usuarios.tsx).
   useEffect(() => {
     if (fTipo === 'Standard' || fTipo === 'Fornecedor') {
@@ -205,11 +218,11 @@ export function UsuariosAdmin() {
     const tipoAnterior = tipoConviteAnteriorRef.current
     tipoConviteAnteriorRef.current = fTipo
     if (fTipo === 'Super Admin') {
-      if (idOrganizacaoAtor) setFIdOrganizacaoAlvo(idOrganizacaoAtor)
+      if (idOrganizacaoSuperAdminConvite) setFIdOrganizacaoAlvo(idOrganizacaoSuperAdminConvite)
     } else if (tipoAnterior === 'Super Admin') {
       setFIdOrganizacaoAlvo('')
     }
-  }, [fTipo, idOrganizacaoAtor])
+  }, [fTipo, idOrganizacaoSuperAdminConvite])
 
   useEffect(() => {
     if (!showForm || fTipo !== 'Fornecedor' || !fIdOrganizacaoAlvo) {
@@ -480,11 +493,15 @@ export function UsuariosAdmin() {
       addNotification({ type: 'error', message: t('admin.usuarios-globais.msg_email_invalido') })
       return
     }
-    if (!fIdOrganizacaoAlvo) {
+    const tipoBackend = nivelToRole(fTipo)
+    const idOrganizacaoAlvoEnvio =
+      tipoBackend === 'SUPER_ADMIN'
+        ? (idOrganizacaoSuperAdminConvite ?? fIdOrganizacaoAlvo)
+        : fIdOrganizacaoAlvo
+    if (!idOrganizacaoAlvoEnvio) {
       addNotification({ type: 'error', message: t('admin.usuarios-globais.msg_org_obrigatoria', 'Selecione a organização alvo do convite') })
       return
     }
-    const tipoBackend = nivelToRole(fTipo)
     // Standard/Fornecedor exige workspaces (Mand. 08 — fail-closed)
     const exigeWorkspaces = tipoBackend === 'PADRAO' || tipoBackend === 'FORNECEDOR'
     if (tipoBackend === 'FORNECEDOR' && !fTipoFornecedorOrganizacao) {
@@ -512,11 +529,11 @@ export function UsuariosAdmin() {
     setConvidando(true)
     try {
       await adminUsuariosApi.convidar({
-        id_organizacao_alvo: fIdOrganizacaoAlvo,
+        id_organizacao_alvo: idOrganizacaoAlvoEnvio,
         email_usuario: email,
         nome_usuario:  nome,
         tipo_usuario:  tipoBackend,
-        workspaces_alvo: workspacesPayload,
+        ...(workspacesPayload !== undefined ? { workspaces_alvo: workspacesPayload } : {}),
         ...(tipoBackend === 'FORNECEDOR'
           ? {
               tipo_fornecedor_organizacao: fTipoFornecedorOrganizacao,
@@ -1249,10 +1266,14 @@ export function UsuariosAdmin() {
       {(() => {
         const tipoBackendForm = nivelToRole(fTipo)
         const exigeWorkspacesForm = tipoBackendForm === 'PADRAO' || tipoBackendForm === 'FORNECEDOR'
+        const idOrgConviteOk =
+          tipoBackendForm === 'SUPER_ADMIN'
+            ? !!idOrganizacaoSuperAdminConvite
+            : !!fIdOrganizacaoAlvo
         const requisitosConviteAdmin: RequisitoSalvar[] = [
           { chave: 'fNome',  ok: !!fNome.trim(),  mensagem: 'Nome completo' },
           { chave: 'fEmail', ok: !!fEmail.trim(), mensagem: 'E-mail de acesso' },
-          { chave: 'fOrg',   ok: !!fIdOrganizacaoAlvo, mensagem: 'Organização alvo' },
+          { chave: 'fOrg',   ok: idOrgConviteOk, mensagem: 'Organização alvo' },
           {
             chave: 'fCategoriaFornecedor',
             ok: tipoBackendForm !== 'FORNECEDOR' || !!fTipoFornecedorOrganizacao,
@@ -1382,8 +1403,9 @@ export function UsuariosAdmin() {
             // (idOrganizacao do /me) e exibe campo informativo, não obrigatório.
             // ADMIN e demais tipos seguem o fluxo abaixo, sem alteração.
             if (tipoBackendForm === 'SUPER_ADMIN') {
-              // Auto-vínculo e limpeza ficam no useEffect [fTipo, idOrganizacaoAtor].
-              const nomeOrgAtor = orgsAdmin.find(o => o.id_organizacao === idOrganizacaoAtor)?.nome_organizacao
+              // Auto-vínculo e limpeza ficam no useEffect [fTipo, idOrganizacaoSuperAdminConvite].
+              const idOrgSuperAdmin = idOrganizacaoSuperAdminConvite ?? fIdOrganizacaoAlvo
+              const nomeOrgAtor = orgsAdmin.find(o => o.id_organizacao === idOrgSuperAdmin)?.nome_organizacao
               return (
                 <CampoGeralGlobal
                   label={t('admin.usuarios-globais.tabela.organizacao')}

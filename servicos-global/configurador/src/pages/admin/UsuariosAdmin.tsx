@@ -540,10 +540,11 @@ export function UsuariosAdmin() {
             }
           : {}),
       })
-      // Refetch é a fonte da verdade — backend retorna id_organizacao real e
-      // demais campos completos (UsuarioGlobalUI exige id_organizacao desde
-      // 2026-05-05 para alimentar o lazy-load do editor de vínculos).
-      await loadUsers()
+      try {
+        await loadUsers()
+      } catch (reloadErr) {
+        console.warn('[UsuariosAdmin] Convite ok — refetch da lista falhou:', reloadErr)
+      }
       addNotification({
         type: 'success',
         message: t('admin.usuarios-globais.msg_usuario_adicionado', { nome }),
@@ -558,7 +559,10 @@ export function UsuariosAdmin() {
       setModalCadastroFornecedorConvite(false)
       setShowForm(false)
     } catch (err) {
-      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.usuarios-globais.msg_erro_convidar') })
+      addNotification({
+        type: 'error',
+        message: extractCatchError(err, t('admin.usuarios-globais.msg_erro_convidar', 'Falha ao convidar usuário')),
+      })
     } finally {
       setConvidando(false)
     }

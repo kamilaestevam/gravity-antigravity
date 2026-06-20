@@ -54,6 +54,7 @@ import {
   type EdicoesPorUsuario,
 } from '../../components/expandido-editor-vinculos'
 import { OrgBadge } from '../../components/org-badge'
+import { extractCatchError } from '../../utils/extract-api-error'
 
 /** Regex RFC 5322 simplificada para validação de email no frontend. */
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -202,6 +203,19 @@ export function UsuariosAdmin() {
     return orgsGravity[0]?.id_organizacao ?? null
   }, [fTipo, idOrganizacaoAtor, orgsAdmin])
 
+  /** Org alvo efetiva do convite Super Admin (UI + payload). Backend admin
+   *  sobrescreve via resolverIdOrganizacaoGravity quando disponível. */
+  const idOrganizacaoAlvoConviteSuperAdmin = useMemo(() => {
+    if (fTipo !== 'Super Admin') return null
+    return (
+      idOrganizacaoSuperAdminConvite
+      ?? fIdOrganizacaoAlvo
+      ?? orgsAdmin.find((o) => o.hospeda_colaboradores_gravity)?.id_organizacao
+      ?? idOrganizacaoAtor
+      ?? null
+    )
+  }, [fTipo, idOrganizacaoSuperAdminConvite, fIdOrganizacaoAlvo, orgsAdmin, idOrganizacaoAtor])
+
   // Standard/Fornecedor: convite com todos os workspaces ativos por padrão (paridade Usuarios.tsx).
   useEffect(() => {
     if (fTipo === 'Standard' || fTipo === 'Fornecedor') {
@@ -304,9 +318,20 @@ export function UsuariosAdmin() {
           hospeda_colaboradores_gravity: !!o.hospeda_colaboradores_gravity,
         })))
       })
-      .catch(() => { /* mantém vazio — UI mostra placeholder */ })
+      .catch((err) => {
+        if (!cancel) {
+          console.warn('[UsuariosAdmin] Falha ao carregar orgs para convite:', err)
+          addNotification({
+            type: 'error',
+            message: extractCatchError(
+              err,
+              t('admin.usuarios-globais.msg_erro_carregar_orgs', 'Falha ao carregar organizações para o convite.'),
+            ),
+          })
+        }
+      })
     return () => { cancel = true }
-  }, [])
+  }, [addNotification, t])
 
   // Carregar usuários da API (com suporte a retry manual)
   async function loadUsers() {
@@ -495,10 +520,15 @@ export function UsuariosAdmin() {
     const tipoBackend = nivelToRole(fTipo)
     const idOrganizacaoAlvoEnvio =
       tipoBackend === 'SUPER_ADMIN'
-        ? (idOrganizacaoSuperAdminConvite ?? fIdOrganizacaoAlvo)
+        ? (idOrganizacaoAlvoConviteSuperAdmin || idOrganizacaoAtor || fIdOrganizacaoAlvo)
         : fIdOrganizacaoAlvo
-    if (!idOrganizacaoAlvoEnvio) {
-      addNotification({ type: 'error', message: t('admin.usuarios-globais.msg_org_obrigatoria', 'Selecione a organização alvo do convite') })
+    if (!idOrganizacaoAlvoEnvio?.trim()) {
+      addNotification({
+        type: 'error',
+        message: tipoBackend === 'SUPER_ADMIN'
+          ? t('admin.usuarios-globais.msg_org_gravity_ausente', 'Organização Gravity interna não configurada (hospeda_colaboradores_gravity).')
+          : t('admin.usuarios-globais.msg_org_obrigatoria', 'Selecione a organização alvo do convite'),
+      })
       return
     }
     // Standard/Fornecedor exige workspaces (Mand. 08 — fail-closed)
@@ -527,8 +557,8 @@ export function UsuariosAdmin() {
     }
     setConvidando(true)
     try {
-      await adminUsuariosApi.convidar({
-        id_organizacao_alvo: idOrganizacaoAlvoEnvio,
+      const payloadConvite = {
+        id_organizacao_alvo: idOrganizacaoAlvoEnvio.trim(),
         email_usuario: email,
         nome_usuario:  nome,
         tipo_usuario:  tipoBackend,
@@ -539,7 +569,8 @@ export function UsuariosAdmin() {
               id_fornecedor: fIdFornecedor,
             }
           : {}),
-      })
+      }
+      await adminUsuariosApi.convidar(payloadConvite)
       try {
         await loadUsers()
       } catch (reloadErr) {
@@ -559,6 +590,7 @@ export function UsuariosAdmin() {
       setModalCadastroFornecedorConvite(false)
       setShowForm(false)
     } catch (err) {
+      console.error('[UsuariosAdmin] Falha ao convidar usuário:', err)
       addNotification({
         type: 'error',
         message: extractCatchError(err, t('admin.usuarios-globais.msg_erro_convidar', 'Falha ao convidar usuário')),
@@ -1269,15 +1301,16 @@ export function UsuariosAdmin() {
       {(() => {
         const tipoBackendForm = nivelToRole(fTipo)
         const exigeWorkspacesForm = tipoBackendForm === 'PADRAO' || tipoBackendForm === 'FORNECEDOR'
-        const idOrgAlvoSuperAdmin = idOrganizacaoSuperAdminConvite ?? fIdOrganizacaoAlvo
         const idOrgConviteOk =
           tipoBackendForm === 'SUPER_ADMIN'
-            ? orgsAdmin.some((o) => o.hospeda_colaboradores_gravity) || !!idOrgAlvoSuperAdmin
+            ? true
             : !!fIdOrganizacaoAlvo
         const requisitosConviteAdmin: RequisitoSalvar[] = [
           { chave: 'fNome',  ok: !!fNome.trim(),  mensagem: 'Nome completo' },
           { chave: 'fEmail', ok: !!fEmail.trim(), mensagem: 'E-mail de acesso' },
-          { chave: 'fOrg',   ok: idOrgConviteOk, mensagem: 'Organização alvo' },
+          ...(tipoBackendForm !== 'SUPER_ADMIN'
+            ? [{ chave: 'fOrg', ok: idOrgConviteOk, mensagem: 'Organização alvo' as const }]
+            : []),
           {
             chave: 'fCategoriaFornecedor',
             ok: tipoBackendForm !== 'FORNECEDOR' || !!fTipoFornecedorOrganizacao,
@@ -1294,9 +1327,11 @@ export function UsuariosAdmin() {
             mensagem: 'Workspaces vinculados (Standard/Fornecedor)',
           },
         ]
+        const podesSalvarConvite = requisitosConviteAdmin.every(r => r.ok)
         return (
       <ModalFormularioGlobal
         aberto={showForm}
+        modoCriacao
         aoFechar={() => {
           setShowForm(false)
           setFNome('')
@@ -1308,14 +1343,15 @@ export function UsuariosAdmin() {
           setFIdFornecedor('')
           setModalCadastroFornecedorConvite(false)
         }}
-        aoSalvar={aoConvidarUsuario}
+        aoSalvar={() => { void aoConvidarUsuario() }}
         icone={<User size={20} weight="duotone" />}
         titulo={t('admin.usuarios-globais.btn_convidar')}
         subtitulo={t('admin.usuarios-globais.modal_convidar_subtitulo')}
+        textoSalvar={t('admin.usuarios-globais.btn_convidar')}
         tamanho="md"
         altura={fTipo === 'Fornecedor' ? '720px' : '640px'}
         dirty={!!(fNome || fEmail || fIdOrganizacaoAlvo || (tipoBackendForm === 'SUPER_ADMIN' && orgsAdmin.some(o => o.hospeda_colaboradores_gravity)))}
-        podesSalvar={requisitosConviteAdmin.every(r => r.ok)}
+        podesSalvar={podesSalvarConvite}
         carregando={convidando}
       >
         <BannerRequisitosContexto requisitos={requisitosConviteAdmin}>
@@ -1405,8 +1441,10 @@ export function UsuariosAdmin() {
             // (Mand. 04); âncora administrativa na org Gravity-interna canônica.
             if (tipoBackendForm === 'SUPER_ADMIN') {
               // Auto-vínculo e limpeza ficam no useEffect [fTipo, idOrganizacaoSuperAdminConvite].
-              const idOrgSuperAdmin = idOrganizacaoSuperAdminConvite ?? fIdOrganizacaoAlvo
-              const nomeOrgAtor = orgsAdmin.find(o => o.id_organizacao === idOrgSuperAdmin)?.nome_organizacao
+              const idOrgSuperAdmin = idOrganizacaoAlvoConviteSuperAdmin ?? idOrganizacaoAtor
+              const nomeOrgAtor =
+                orgsAdmin.find(o => o.id_organizacao === idOrgSuperAdmin)?.nome_organizacao
+                ?? t('admin.usuarios-globais.org_gravity_resolvida_auto', 'Gravity — resolvida automaticamente')
               return (
                 <CampoGeralGlobal
                   label={t('admin.usuarios-globais.tabela.organizacao')}

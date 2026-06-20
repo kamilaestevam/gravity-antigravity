@@ -1,0 +1,110 @@
+import { useCallback, useEffect, useState } from 'react'
+import { smartReadApi } from './api'
+import {
+  deveUsarMockListaSmartReadClient,
+  listarTransacoesMockSmartRead,
+} from './dados-mock-lista-smart-read'
+import { mensagemDeExcecao } from './extrair-mensagem-erro-api'
+import type { TransacaoLeitura } from './schemas'
+
+export type SegmentoListaLeitura = 'envios' | 'transacoes-api'
+
+export function filtrarTransacoesPorSegmento(
+  transacoes: TransacaoLeitura[],
+  segmento: SegmentoListaLeitura,
+): TransacaoLeitura[] {
+  if (segmento === 'transacoes-api') {
+    return transacoes.filter((item) => item.origem_leitura === 'API')
+  }
+  return transacoes
+}
+
+function aplicarMockLista(termo: string) {
+  const mock = listarTransacoesMockSmartRead({ termo_busca: termo || undefined })
+  return {
+    transacoes: mock.transacoes,
+    total: mock.total,
+    metrica: mock.total,
+    usandoMock: true as const,
+  }
+}
+
+export function useTransacoesLeituraSmartRead() {
+  const [transacoes, setTransacoes] = useState<TransacaoLeitura[]>([])
+  const [total, setTotal] = useState(0)
+  const [pagina, setPagina] = useState(1)
+  const [termoBusca, setTermoBusca] = useState('')
+  const [termoAplicado, setTermoAplicado] = useState('')
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
+  const [metricaLeituras, setMetricaLeituras] = useState<number | null>(null)
+  const [usandoMock, setUsandoMock] = useState(false)
+
+  const carregar = useCallback(async () => {
+    setCarregando(true)
+    setErro(null)
+    setUsandoMock(false)
+
+    if (deveUsarMockListaSmartReadClient() && import.meta.env.VITE_SMART_READ_MOCK_DADOS === 'true') {
+      const mock = aplicarMockLista(termoAplicado)
+      setTransacoes(mock.transacoes)
+      setTotal(mock.total)
+      setMetricaLeituras(mock.metrica)
+      setUsandoMock(true)
+      setCarregando(false)
+      return
+    }
+
+    try {
+      const [lista, metrica] = await Promise.all([
+        smartReadApi.listarTransacoes({
+          pagina,
+          limite: 50,
+          termo_busca: termoAplicado || undefined,
+        }),
+        smartReadApi.obterMetricaLeitura('readings').catch(() => null),
+      ])
+      setTransacoes(lista.transacoes)
+      setTotal(lista.paginacao.total)
+      setMetricaLeituras(metrica?.valor ?? lista.paginacao.total)
+    } catch (exc) {
+      if (deveUsarMockListaSmartReadClient()) {
+        const mock = aplicarMockLista(termoAplicado)
+        setTransacoes(mock.transacoes)
+        setTotal(mock.total)
+        setMetricaLeituras(mock.metrica)
+        setUsandoMock(true)
+        setErro(null)
+      } else {
+        setErro(mensagemDeExcecao(exc))
+      }
+    } finally {
+      setCarregando(false)
+    }
+  }, [pagina, termoAplicado])
+
+  useEffect(() => {
+    void carregar()
+  }, [carregar])
+
+  function aplicarBusca(termo: string) {
+    setPagina(1)
+    setTermoAplicado(termo.trim())
+  }
+
+  return {
+    transacoes,
+    total,
+    pagina,
+    setPagina,
+    termoBusca,
+    setTermoBusca,
+    termoAplicado,
+    aplicarBusca,
+    carregando,
+    erro,
+    metricaLeituras,
+    usandoMock,
+    recarregar: carregar,
+  }
+}

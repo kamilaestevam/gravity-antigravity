@@ -35,3 +35,19 @@ export const CriarLeituraRespostaSchema = z.object({
   status_leitura: StatusLeituraEnum,
 })
 export type CriarLeituraResposta = z.infer<typeof CriarLeituraRespostaSchema>
+
+export const OrigemLeituraEnum = z.enum(['API', 'INTERFACE'])
+export type OrigemLeitura = z.infer<typeof OrigemLeituraEnum>
+
+export const TransacaoLeituraSchema = z.object({
+  id_leitura: z.string(),
+  nome_leitura: z.string().nullable(),
+  status_leitura: StatusLeituraEnum,
+  total_arquivos: z.number(),
+  media_acertos: z.number().nullable(),
+  data_envio: z.string().nullable(),
+  origem_leitura: OrigemLeituraEnum,
+  nome_arquivo: z.string().nullable(),
+  mensagem_erro: z.string().nullable(),
+})
+export type TransacaoLeitura = z.infer<typeof TransacaoLeituraSchema>

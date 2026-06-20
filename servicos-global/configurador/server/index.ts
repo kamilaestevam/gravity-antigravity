@@ -852,16 +852,20 @@ if (process.env.NODE_ENV !== 'test') {
     : 'https://usegravity.com.br'
   if (!process.env.SMART_READ_LEGADO_URL || !process.env.SMART_READ_LEGADO_CHAVE_GRAVITY) {
     console.warn(
-      '[configurador] SMART_READ_LEGADO_URL / SMART_READ_LEGADO_CHAVE_GRAVITY ausente — sidecar sobe; uploads falham até configurar Variables no Railway',
+      '[configurador] SMART_READ_LEGADO_URL / SMART_READ_LEGADO_CHAVE_GRAVITY ausente — sidecar usa mock legado em dev',
     )
   }
   try {
     await import('../../produto/smart-read/server/src/index.js')
+    const { deveUsarMockLegadoSmartRead } = await import(
+      '../../produto/smart-read/server/src/lib/cliente-legado-smart-read.js'
+    )
     const envLegadoOk =
-      Boolean(process.env.SMART_READ_LEGADO_URL) &&
-      Boolean(process.env.SMART_READ_LEGADO_CHAVE_GRAVITY)
+      (Boolean(process.env.SMART_READ_LEGADO_URL) &&
+        Boolean(process.env.SMART_READ_LEGADO_CHAVE_GRAVITY)) ||
+      deveUsarMockLegadoSmartRead()
     _sidecarStatus['smart-read'] = envLegadoOk
-      ? { ok: true }
+      ? { ok: true, ...(deveUsarMockLegadoSmartRead() ? { mock: true } : {}) }
       : { ok: false, error: 'SMART_READ_LEGADO_URL ou SMART_READ_LEGADO_CHAVE_GRAVITY ausente' }
     console.log('[configurador] Sidecar Smart Read iniciado na porta 8033')
   } catch (err) {

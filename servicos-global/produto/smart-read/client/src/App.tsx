@@ -1,11 +1,11 @@
 /**
  * App.tsx — Raiz da SPA Smart Read
  *
- * Mesmo padrão do BID Câmbio: <TelaProdutoComOrganizacaoOverride> do shell
- * (sidebar do produto, workspace, switcher) + rotas internas relativas.
+ * Mesmo padrão do BID Frete: <TelaProdutoComOrganizacaoOverride> + multi-view
+ * (Insights | Lista | Dashboard | Kanban) com default em /lista.
  */
 
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { lazy, Suspense, useEffect, useMemo } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useMeSync, TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import { useClerk } from '@clerk/clerk-react'
@@ -13,19 +13,21 @@ import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-g
 import { FileMagnifyingGlass, FileText } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG } from './shared/config'
 import { setApiContext } from './shared/api'
+import { rotaSmartRead } from './shared/rotas-smart-read'
+import { SmartReadVisualizacaoLayout } from './components/SmartReadVisualizacaoLayout'
+import { SmartReadMultiView } from './components/SmartReadMultiView'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
-const Leituras = lazy(() => import('./pages/Leituras'))
+const smartReadVisualizacoesElement = <SmartReadMultiView />
 
-// ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUCT_ID = 'smart-read'
 const PRODUCT_NAME = 'Smart Read'
 const PRODUCT_COLOR = PRODUCT_CONFIG.color
 
 const NAV_ITEMS: NavItem[] = [
   {
-    id: 'leituras',
-    to: 'leituras',
+    id: 'lista',
+    to: 'lista',
     label: 'Leituras',
     icon: <FileText weight="duotone" size={20} />,
   },
@@ -37,8 +39,35 @@ const ECOSYSTEM_NODES: EcosystemNode[] = [
   { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: 'leitura de documentos', color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
 ]
 
+const ROTULO_PAGINA: Record<string, string> = {
+  lista: 'Leituras',
+  insights: 'Insights',
+  dashboard: 'Dashboard',
+  kanban: 'Kanban',
+  leituras: 'Leituras',
+}
+
 const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string }> = {
-  'leituras': { icone: <FileMagnifyingGlass weight="duotone" size={22} />, subtitulo: 'Leitura inteligente de documentos COMEX' },
+  lista: {
+    icone: <FileText weight="duotone" size={22} />,
+    subtitulo: 'Envios, transações API e métricas de leitura',
+  },
+  insights: {
+    icone: <FileText weight="duotone" size={22} />,
+    subtitulo: 'Indicadores e KPIs de leitura de documentos',
+  },
+  dashboard: {
+    icone: <FileText weight="duotone" size={22} />,
+    subtitulo: 'Painéis configuráveis — em breve',
+  },
+  kanban: {
+    icone: <FileText weight="duotone" size={22} />,
+    subtitulo: 'Acompanhamento por status de leitura',
+  },
+  leituras: {
+    icone: <FileMagnifyingGlass weight="duotone" size={22} />,
+    subtitulo: 'Leitura inteligente de documentos COMEX',
+  },
 }
 
 function LoadingFallback() {
@@ -48,6 +77,11 @@ function LoadingFallback() {
       <div style={{ height: '20rem', width: '100%', background: 'var(--bg-surface)', borderRadius: '0.5rem' }} />
     </div>
   )
+}
+
+function resolverRouteKey(relSegments: string[]): string {
+  if (relSegments[0] === 'leituras') return 'leituras'
+  return relSegments[0] ?? 'lista'
 }
 
 export default function App() {
@@ -74,7 +108,12 @@ export default function App() {
   }, [currentUser?.idOrganizacao, currentUser?.id])
 
   useEffect(() => {
-    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? PRODUCT_NAME
+    const segments = location.pathname.split('/').filter(Boolean)
+    const productIdx = segments.findIndex(s => s === PRODUCT_ID)
+    const relSegments = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
+    const routeKey = resolverRouteKey(relSegments)
+    const pageLabel = ROTULO_PAGINA[routeKey] ?? PRODUCT_NAME
+
     addEntry({
       productId:    PRODUCT_ID,
       productLabel: PRODUCT_NAME,
@@ -88,8 +127,13 @@ export default function App() {
   const segments    = location.pathname.split('/').filter(Boolean)
   const productIdx  = segments.findIndex(s => s === PRODUCT_ID)
   const relSegments = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
-  const routeKey    = relSegments.join('/') || 'leituras'
-  const pageHeader  = ROUTE_HEADERS[routeKey]
+  const routeKey    = resolverRouteKey(relSegments)
+  const pageHeader  = ROUTE_HEADERS[routeKey] ?? ROUTE_HEADERS.lista
+
+  const currentPageLabel = useMemo(
+    () => ROTULO_PAGINA[routeKey] ?? 'Leituras',
+    [routeKey],
+  )
 
   const initials = currentUser.name
     ? currentUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -124,10 +168,10 @@ export default function App() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
-      onNavigateSettings={() => { navigate('/smart-read/leituras') }}
+      onNavigateSettings={() => { navigate(rotaSmartRead('lista')) }}
       localizador={{
         workspaceName:       nomeWorkspaceAtivo,
-        currentPageLabel:    'Leituras',
+        currentPageLabel:    currentPageLabel,
         currentPageIcon:     pageHeader?.icone,
         currentPageSubtitle: pageHeader?.subtitulo,
         history,
@@ -135,7 +179,7 @@ export default function App() {
         onNavigate: (node: EcosystemNode) => {
           if (node.type === 'hub')               window.location.href = '/hub'
           else if (node.type === 'configurador') window.location.href = '/configurador'
-          else if (node.type === 'produto')      window.location.href = '/smart-read'
+          else if (node.type === 'produto')      window.location.href = rotaSmartRead('lista')
         },
       }}
       usuario={{
@@ -155,9 +199,16 @@ export default function App() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"         element={<Navigate to="leituras" replace />} />
-          <Route path="leituras"  element={<Leituras />} />
-          <Route path="*"         element={<Navigate to="leituras" replace />} />
+          <Route path="/" element={<Navigate to={rotaSmartRead('lista')} replace />} />
+          <Route path="visao-geral" element={<Navigate to={rotaSmartRead('lista')} replace />} />
+          <Route path="leituras" element={<Navigate to={rotaSmartRead('lista')} replace />} />
+          <Route element={<SmartReadVisualizacaoLayout />}>
+            <Route path="insights"  element={smartReadVisualizacoesElement} />
+            <Route path="lista"     element={smartReadVisualizacoesElement} />
+            <Route path="dashboard" element={smartReadVisualizacoesElement} />
+            <Route path="kanban"    element={smartReadVisualizacoesElement} />
+          </Route>
+          <Route path="*" element={<Navigate to={rotaSmartRead('lista')} replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoComOrganizacaoOverride>

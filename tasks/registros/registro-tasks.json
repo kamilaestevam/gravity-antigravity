@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 300,
+  "proximo_numero": 303,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -556,6 +556,23 @@
       "tempo_liquido_horas": 2.2,
       "tokens_estimados_total": 115000,
       "arquivo_ficha": "registros/TASK-000298.json"
+    },
+    {
+      "referencia": "TASK-000302",
+      "ordinal": 31,
+      "titulo_canonico": "ADMIN-USUARIOS-GLOBAIS-BUG-ORGANIZACAO-OBRIGATORIA-SUPER-ADMIN",
+      "titulo_exibicao": "TASK-000302 | [Admin] Usuários Globais | BUG — Organização não deve ser obrigatória ao convidar Super Admin",
+      "status": "ABR",
+      "area": "ADMIN",
+      "subarea": "USUARIOS-GLOBAIS",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "ORGANIZACAO-OBRIGATORIA-SUPER-ADMIN",
+      "data_criacao": "2026-06-19T15:22:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000302.json"
     }
   ]
 }

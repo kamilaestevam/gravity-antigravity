@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
@@ -145,7 +145,7 @@ const OPCOES_CATEGORIA_FORNECEDOR_ADMIN: SelectOpcao[] = TIPOS_FORNECEDOR_BID_FR
 export function UsuariosAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
-  const { tipoUsuario: dbRole } = useCarregarTipoUsuario()
+  const { tipoUsuario: dbRole, idOrganizacao: idOrganizacaoAtor } = useCarregarTipoUsuario()
   const perfilLogado: NivelAcesso = mapRole(dbRole ?? '')
   const { user: clerkUser } = useUser()
 
@@ -194,6 +194,22 @@ export function UsuariosAdmin() {
       setFWorkspacesAlvo((prev) => (prev === 'all' || (Array.isArray(prev) && prev.length > 0) ? prev : 'all'))
     }
   }, [fTipo])
+
+  // Ajuste cirúrgico (TASK-000302) — APENAS SUPER ADMIN: a organização não é
+  // exigida (acesso global, Mand. 04). Ao entrar em Super Admin, vincula
+  // automaticamente à própria organização Gravity do ator (idOrganizacao do
+  // /me). Ao SAIR de Super Admin, limpa a org herdada do auto-vínculo para não
+  // deixá-la pré-selecionada nos demais tipos (Admin tem auto-seleção própria).
+  const tipoConviteAnteriorRef = useRef(fTipo)
+  useEffect(() => {
+    const tipoAnterior = tipoConviteAnteriorRef.current
+    tipoConviteAnteriorRef.current = fTipo
+    if (fTipo === 'Super Admin') {
+      if (idOrganizacaoAtor) setFIdOrganizacaoAlvo(idOrganizacaoAtor)
+    } else if (tipoAnterior === 'Super Admin') {
+      setFIdOrganizacaoAlvo('')
+    }
+  }, [fTipo, idOrganizacaoAtor])
 
   useEffect(() => {
     if (!showForm || fTipo !== 'Fornecedor' || !fIdOrganizacaoAlvo) {
@@ -1360,6 +1376,37 @@ export function UsuariosAdmin() {
                 — a org é só um vínculo administrativo).
               - MASTER/PADRAO/FORNECEDOR: mostra todas as orgs ATIVAS. */}
           {(() => {
+            // Ajuste cirúrgico (TASK-000302) — APENAS SUPER ADMIN: como Super
+            // Admin tem acesso global (Mand. 04), a organização não é exigida.
+            // Vincula automaticamente à própria organização Gravity do ator
+            // (idOrganizacao do /me) e exibe campo informativo, não obrigatório.
+            // ADMIN e demais tipos seguem o fluxo abaixo, sem alteração.
+            if (tipoBackendForm === 'SUPER_ADMIN') {
+              // Auto-vínculo e limpeza ficam no useEffect [fTipo, idOrganizacaoAtor].
+              const nomeOrgAtor = orgsAdmin.find(o => o.id_organizacao === idOrganizacaoAtor)?.nome_organizacao
+              return (
+                <CampoGeralGlobal
+                  label={t('admin.usuarios-globais.tabela.organizacao')}
+                  tooltipTitulo={t('admin.usuarios-globais.tabela.org_tooltip')}
+                  tooltipDescricao={t('admin.usuarios-globais.tabela.org_super_admin_auto_desc')}
+                >
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '0.625rem',
+                    padding: '0.75rem 1rem', borderRadius: 10,
+                    background: 'rgba(34,197,94,0.06)',
+                    border: '1px solid rgba(34,197,94,0.18)',
+                    color: '#e2e8f0', fontSize: '0.8125rem',
+                  }}>
+                    <Lightning size={16} weight="duotone" color="#22c55e" />
+                    <span style={{ fontWeight: 600 }}>{nomeOrgAtor ?? t('admin.usuarios-globais.tabela.organizacao')}</span>
+                    <span style={{ marginLeft: 'auto', fontSize: '0.6875rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      {t('admin.usuarios-globais.tabela.org_acesso_global_automatico')}
+                    </span>
+                  </div>
+                </CampoGeralGlobal>
+              )
+            }
+
             const isGravityInterno = tipoBackendForm === 'SUPER_ADMIN' || tipoBackendForm === 'ADMIN'
             const orgsFiltradas = isGravityInterno
               ? orgsAdmin.filter(o => o.hospeda_colaboradores_gravity)

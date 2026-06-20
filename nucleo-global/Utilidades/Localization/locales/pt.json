@@ -853,6 +853,8 @@
         "empresa": "Empresa",
         "org_tooltip": "Organização de Origem",
         "org_desc": "Empresa/organização à qual este usuário está vinculado.",
+        "org_super_admin_auto_desc": "Super Admin tem acesso global — vinculado automaticamente à organização Gravity, sem necessidade de selecionar.",
+        "org_acesso_global_automatico": "Acesso global (automático)",
         "tipo": "Tipo",
         "perfil_base": "Perfil Base",
         "perfil_desc": "Nível de permissão principal do usuário.",

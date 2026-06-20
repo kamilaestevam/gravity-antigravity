@@ -1269,9 +1269,10 @@ export function UsuariosAdmin() {
       {(() => {
         const tipoBackendForm = nivelToRole(fTipo)
         const exigeWorkspacesForm = tipoBackendForm === 'PADRAO' || tipoBackendForm === 'FORNECEDOR'
+        const idOrgAlvoSuperAdmin = idOrganizacaoSuperAdminConvite ?? fIdOrganizacaoAlvo
         const idOrgConviteOk =
           tipoBackendForm === 'SUPER_ADMIN'
-            ? !!idOrganizacaoSuperAdminConvite
+            ? orgsAdmin.some((o) => o.hospeda_colaboradores_gravity) || !!idOrgAlvoSuperAdmin
             : !!fIdOrganizacaoAlvo
         const requisitosConviteAdmin: RequisitoSalvar[] = [
           { chave: 'fNome',  ok: !!fNome.trim(),  mensagem: 'Nome completo' },
@@ -1313,7 +1314,7 @@ export function UsuariosAdmin() {
         subtitulo={t('admin.usuarios-globais.modal_convidar_subtitulo')}
         tamanho="md"
         altura={fTipo === 'Fornecedor' ? '720px' : '640px'}
-        dirty={!!(fNome || fEmail || fIdOrganizacaoAlvo)}
+        dirty={!!(fNome || fEmail || fIdOrganizacaoAlvo || (tipoBackendForm === 'SUPER_ADMIN' && orgsAdmin.some(o => o.hospeda_colaboradores_gravity)))}
         podesSalvar={requisitosConviteAdmin.every(r => r.ok)}
         carregando={convidando}
       >

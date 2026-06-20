@@ -49,6 +49,7 @@ const DESCRIPTIVE_REGEXES: readonly RegExp[] = [
   /^TST-(UNI|FUN|CRO|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}$/,
   /^TST-(UNI|FUN|CRO|E2E)-PREFERENCIA-TESTE-USUARIO-ADMIN-\d{6}$/,
   /^TST-(UNI|FUN|CRO|E2E)-AGENDAMENTO-NCM-ADMIN-\d{6}$/,
+  /^TST-(UNI|FUN|CRO|E2E)-CONVITE-SUPER-ADMIN-ADMIN-\d{6}$/,
 ]
 
 /** Retorna o regex descritivo que casa o ID, ou undefined. */
@@ -218,7 +219,8 @@ function walk(dir: string, found: Map<string, string>): void {
         name.match(/TST-(UNI|FUN|CRO|E2E)-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-\d{6}/) ??
         name.match(/TST-(UNI|FUN|CRO|E2E)-PEDIDO-USUARIO-FALTA-ORGANIZACAO-\d{6}/) ??
         name.match(/TST-(UNI|FUN|CRO|E2E)-PREFERENCIA-TESTE-USUARIO-ADMIN-\d{6}/) ??
-        name.match(/TST-(UNI|FUN|CRO|E2E)-AGENDAMENTO-NCM-ADMIN-\d{6}/)
+        name.match(/TST-(UNI|FUN|CRO|E2E)-AGENDAMENTO-NCM-ADMIN-\d{6}/) ??
+        name.match(/TST-(UNI|FUN|CRO|E2E)-CONVITE-SUPER-ADMIN-ADMIN-\d{6}/)
       const idMatchEmtDesc = name.match(/TST-EMT-[A-Z0-9]+(?:-[A-Z0-9]+)+-\d{6}/)
       const idMatchDuplicar = name.match(
         /TST-(UNI|FUN|CRO|E2E|EMT)-DUPLICAR-LISTA-PEDIDO-\d{6}/

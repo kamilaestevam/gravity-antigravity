@@ -423,7 +423,7 @@ export const convidarUsuarioInputSchema = z.object({
 })
 
 export const adminConvidarUsuarioInputSchema = convidarUsuarioInputSchema.extend({
-  id_organizacao_alvo: z.string(),
+  id_organizacao_alvo: z.string().min(1),
   tipo_usuario: tipoUsuarioEnum,
 })
 
@@ -745,19 +745,11 @@ export const adminUsuariosApi = {
    */
   async convidar(data: z.input<typeof adminConvidarUsuarioInputSchema>) {
     const payload = adminConvidarUsuarioInputSchema.parse(data)
-    return request<{
-      message: string
-      usuario: {
-        id_usuario: string
-        email_usuario: string
-        tipo_usuario: string
-        acesso_workspaces_futuros: boolean
-        workspaces_vinculados: number
-      }
-    }>(
+    const raw = await request<unknown>(
       '/v1/admin/usuarios/convidar',
       { method: 'POST', body: JSON.stringify(payload) }
     )
+    return convidarUsuarioResponseSchema.parse(raw)
   },
 }
 

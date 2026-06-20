@@ -646,6 +646,8 @@ export function UsuariosAdmin() {
       key: 'nome_fornecedor',
       label: t('admin.usuarios-globais.tabela.nome_empresa', 'Nome da Empresa'),
       tipo: 'texto',
+      largura: 168,
+      align: 'left',
       tooltipTitulo: t('admin.usuarios-globais.tabela.nome_empresa_tooltip', 'Nome da Empresa'),
       tooltipDescricao: t(
         'admin.usuarios-globais.tabela.nome_empresa_desc',
@@ -662,10 +664,13 @@ export function UsuariosAdmin() {
     },
     {
       key: 'tipo', label: t('admin.usuarios-globais.tabela.tipo'), tipo: 'texto',
+      largura: 118,
       tooltipTitulo: t('admin.usuarios-globais.tabela.perfil_base'), tooltipDescricao: t('admin.usuarios-globais.tabela.perfil_desc'),
       render: (v) => (
         <span style={{
-          padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700,
+          letterSpacing: '0.04em', whiteSpace: 'nowrap', lineHeight: 1.2,
           ...(v === 'Super Admin'
             ? { color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }
             : v === 'Admin'
@@ -680,6 +685,7 @@ export function UsuariosAdmin() {
     },
     {
       key: 'status', label: t('admin.usuarios-globais.tabela.status'), tipo: 'texto',
+      largura: 112,
       tooltipTitulo: t('admin.usuarios-globais.tabela.status_operacional'), tooltipDescricao: t('admin.usuarios-globais.tabela.status_desc'),
       render: (v) => {
         // Alinhado ao padrão da tela workspace/Usuarios.tsx (decisão dono

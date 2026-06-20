@@ -150,7 +150,13 @@ Decisão dono **2026-05-05**: a linha expandida da tabela usa o **padrão Assina
 }
 ```
 
-**Fluxo UI (`UsuariosAdmin.tsx`):**
+**Fluxo UI (`UsuariosAdmin.tsx`) — TASK-000302 (Super Admin):**
+1. Tipo **Super Admin**: campo Organização **não é obrigatório na UI** (Mand. 04 — acesso global); chip «Acesso global (automático)».
+2. Modal usa `modoCriacao` no `ModalFormulario` — botão Convidar habilita com `podesSalvar` (nome + e-mail), sem exigir `dirty`.
+3. Front envia `id_organizacao_alvo` best-effort; backend **sobrescreve** para SUPER_ADMIN via `resolverIdOrganizacaoGravity()` (`prestador-fornecedor-vinculo-service.ts` — org com `hospeda_colaboradores_gravity=true`).
+4. Demais tipos: select de org + workspaces conforme fluxo original abaixo.
+
+**Fluxo UI (`UsuariosAdmin.tsx`) — demais tipos:**
 1. `adminOrganizacoesApi.list({ limit: 200 })` carrega lista de orgs (CUID + nome)
 2. Select de organização — `SelectGlobal` com `buscavel` habilitado
 3. Ao escolher org, lazy-load workspaces via `adminOrganizacoesApi.listarWorkspaces(id)` (cache compartilhado com editor de vínculos)
@@ -170,6 +176,18 @@ Decisão dono **2026-05-05**: a linha expandida da tabela usa o **padrão Assina
 **Audit:** `id_organizacao = id_organizacao_alvo` + `metadata_ator_historico_log.id_organizacao_ator` + `metadata.cross_org: boolean`.
 
 **Documentação completa:** `documentos-tecnicos/arquitetura/convite-admin-cross-org.md`.
+
+**Pacote de testes (TASK-000302 — 5 tipos, registry `admin/usuarios/novos-usuarios`):**
+
+| Tipo | ID | Spec / runner |
+|------|-----|----------------|
+| UNI | `TST-UNI-CONVITE-SUPER-ADMIN-ADMIN-000116` | `testes-unitarios/admin/usuarios/novos-usuarios/plano-de-teste/` |
+| FUN | `TST-FUN-CONVITE-SUPER-ADMIN-ADMIN-000117` | idem |
+| E2E | `TST-E2E-CONVITE-SUPER-ADMIN-ADMIN-000118` | idem |
+| CRO | `TST-CRO-CONVITE-SUPER-ADMIN-ADMIN-000119` | idem |
+| EMT | `TST-EMT-ADMIN-CONVITE-SUPER-ADMIN-ADMIN-000120` | `run-TST-EMT-ADMIN-CONVITE-SUPER-ADMIN-ADMIN-000120.ts` |
+
+Validador: família descritiva `CONVITE-SUPER-ADMIN-ADMIN` em `scripts/ativamente/validate-test-ids.ts` → `DESCRIPTIVE_REGEXES`.
 
 ---
 

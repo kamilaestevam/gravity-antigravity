@@ -294,7 +294,7 @@ Lazy disambig chama Clerk API extra em ambiguidade. Em pior caso (email genéric
    - Padrão: discriminated union via prop `contexto`
    - Sub-componente: `<SeletorWorkspaces>` em `nucleo-global/Campos/seletor-workspaces-global/`
 
-3. **Testes funcionais** — entrega não inclui suite de testes funcionais para os 10 cenários da matriz QA. Deve ser feito em sessão dedicada.
+3. **Testes funcionais** — matriz QA original (2026-05-12) coberta parcialmente; **TASK-000302** adicionou pacote completo 5 tipos em `admin/usuarios/novos-usuarios` (IDs `000116`–`000120`). Demais cenários da matriz cross-org (FORNECEDOR em org cliente, etc.) permanecem follow-up.
 
 ### Médio prazo
 4. **Webhook `user.created` ativo** — hoje só log. Quando Clerk adicionar `invitation_id` no payload (ou aceitar `external_id` na invitation), webhook poderá fazer match deterministico imediatamente, eliminando dependência do fallback.
@@ -403,3 +403,45 @@ Não recomendado — `dmmltda+fornecedor71@gmail.com` e `daniel@godati.com.br` f
 - `servicos-global/configurador/server/middleware/requireAuth.ts:88-200`
 - `servicos-global/configurador/src/services/api-client.ts:660-700`
 - `servicos-global/configurador/src/pages/admin/UsuariosAdmin.tsx:140-200, 320-400, 800-1010`
+
+---
+
+## 🔧 TASK-000302 — Convite Super Admin (2026-06-20)
+
+> **Status:** Entregue (fix UI + backend override + pacote 5 tipos de teste)
+
+### Sintoma
+Super Admin em `/admin/usuarios` não conseguia convidar colega Super Admin: modal exigia organização alvo na UI (incorreto — Mand. 04), botão «Convidar Usuário» ficava inerte (`podesSalvar && dirty`), erros no `catch` sem import de `extractCatchError`, e backend sem import de `resolverIdOrganizacaoGravity`.
+
+### Correções
+
+| Camada | Mudança |
+|--------|---------|
+| **Backend** (`admin.ts`) | Para `tipo_usuario === 'SUPER_ADMIN'`, `id_organizacao_alvo = await resolverIdOrganizacaoGravity()` — ignora org errada do front. `AdminInviteSchema`: `id_organizacao_alvo: z.string().min(1)` (cuid2, não `.cuid()`). |
+| **Frontend** (`UsuariosAdmin.tsx`) | Super Admin: sem requisito `fOrg`; `modoCriacao` no modal; cadeia `idOrganizacaoAlvoConviteSuperAdmin` (org `hospeda_colaboradores_gravity`). |
+| **Núcleo** (`ModalFormulario.tsx`) | Prop `modoCriacao` — Salvar habilita com `podesSalvar` sem exigir `dirty`. |
+| **Contrato** (`api-client.ts`) | `adminConvidarUsuarioInputSchema` + `convidarUsuarioResponseSchema.parse` na resposta (Mand. 09). |
+
+### Fluxo Super Admin (resumo)
+
+```
+UI: tipo Super Admin → nome + e-mail → Convidar (sem select org)
+     ↓
+POST /api/v1/admin/usuarios/convidar { tipo_usuario: SUPER_ADMIN, id_organizacao_alvo: <best-effort> }
+     ↓
+Handler: resolverIdOrganizacaoGravity() → convidarUsuarioService({ id_organizacao_alvo: ORG_GRAVITY, ... })
+```
+
+### Pacote de testes (`admin/usuarios/novos-usuarios`)
+
+Pasta por tipo em `testes/testes-{unitarios|funcionais|e2e|cross-organizacao|em-tela}/admin/usuarios/novos-usuarios/plano-de-teste/`.
+
+| ID | Tipo | Foco |
+|----|------|------|
+| `TST-UNI-CONVITE-SUPER-ADMIN-ADMIN-000116` | UNI | Zod `adminConvidarUsuarioInputSchema` |
+| `TST-FUN-CONVITE-SUPER-ADMIN-ADMIN-000117` | FUN | POST convidar — override Gravity, 403 ADMIN, 400 validação |
+| `TST-E2E-CONVITE-SUPER-ADMIN-ADMIN-000118` | E2E | Playwright modal + POST 201 |
+| `TST-CRO-CONVITE-SUPER-ADMIN-ADMIN-000119` | CRO | Ator org A + payload org B → serviço usa ORG_GRAVITY; MASTER respeita payload |
+| `TST-EMT-ADMIN-CONVITE-SUPER-ADMIN-ADMIN-000120` | EMT | Runner + prints Clerk |
+
+Registry: `testes/test-plans-registry.json` · convenção descritiva em `documentos-tecnicos/testes/regras/01-convencao-ids.md` (família `CONVITE-SUPER-ADMIN-ADMIN`).

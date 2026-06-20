@@ -21,6 +21,11 @@ export interface ModalFormularioProps {
   textoSalvar?: string
   textoCancelar?: string
   carregando?: boolean
+  /**
+   * Fluxo de criação (ex.: convite) — habilita Salvar quando `podesSalvar`,
+   * sem exigir `dirty` (não há estado inicial para comparar).
+   */
+  modoCriacao?: boolean
   /** Conteúdo customizado no lado esquerdo do footer (ex: "Voltar para Pedidos") */
   rodapeEsquerdo?: React.ReactNode
 }
@@ -41,11 +46,16 @@ export function ModalFormulario({
   textoSalvar,
   textoCancelar,
   carregando = false,
+  modoCriacao = false,
   rodapeEsquerdo
 }: ModalFormularioProps) {
   const { t } = useTranslation()
   const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
   const resolvedTextoCancelar = textoCancelar ?? t('modal.cancelar')
+  const salvarHabilitado = modoCriacao
+    ? podesSalvar || carregando
+    : (podesSalvar && dirty) || carregando
+  const statusDirty = modoCriacao ? (podesSalvar || dirty) : dirty
   return (
     <ModalSemSessoesGlobal
       aberto={aberto}
@@ -106,17 +116,17 @@ export function ModalFormulario({
           <div className="botoes-footer-padrao">
             {!rodapeEsquerdo && (
               <StatusSalvarGlobal
-                status={carregando ? 'saving' : dirty ? 'dirty' : 'idle'}
+                status={carregando ? 'saving' : statusDirty ? 'dirty' : 'idle'}
                 hideOnIdle={!carregando}
               />
             )}
             <BotaoCancelar
-              dirty={dirty}
+              dirty={statusDirty}
               rotulo={resolvedTextoCancelar}
               onClick={aoFechar}
             />
             <BotaoSalvar
-              dirty={(podesSalvar && dirty) || carregando}
+              dirty={salvarHabilitado}
               carregando={carregando}
               rotulo={resolvedTextoSalvar}
               onClick={aoSalvar}

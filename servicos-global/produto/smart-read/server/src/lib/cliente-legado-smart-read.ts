@@ -6,11 +6,35 @@
 
 import { AppError } from './app-error.js'
 import {
+  criarLeituraMockLegado,
+  enviarArquivoMockLegado,
+  obterLeituraMockLegado,
+} from './mock-legado-smart-read.js'
+import {
   CriarLeituraLegadoRespostaSchema,
   EnviarArquivoLegadoRespostaSchema,
   LeituraLegadoSchema,
   type LeituraLegado,
 } from '../schemas/leitura-smart-read.js'
+
+let avisoMockLegadoEmitido = false
+
+/** Dev: mock quando SMART_READ_MOCK_LEGADO=1 ou legado não configurado. */
+export function deveUsarMockLegadoSmartRead(): boolean {
+  if (process.env.NODE_ENV === 'production') return false
+  if (process.env.SMART_READ_MOCK_LEGADO === '1') return true
+  const urlBase = process.env.SMART_READ_LEGADO_URL?.trim()
+  const chaveGravity = process.env.SMART_READ_LEGADO_CHAVE_GRAVITY?.trim()
+  return !urlBase || !chaveGravity
+}
+
+function registrarUsoMockLegado(): void {
+  if (avisoMockLegadoEmitido) return
+  avisoMockLegadoEmitido = true
+  console.warn(
+    '[smart-read] Modo mock legado ativo (dev). Defina SMART_READ_LEGADO_URL + SMART_READ_LEGADO_CHAVE_GRAVITY para QA real.',
+  )
+}
 
 const TIMEOUT_MS = 30_000
 // Upload multipart pode levar minutos em arquivos grandes/conexoes lentas.
@@ -69,6 +93,10 @@ async function chamarLegado(caminho: string, init: RequestInit, timeoutMs = TIME
 }
 
 export async function criarLeituraLegado(companyId: string): Promise<string> {
+  if (deveUsarMockLegadoSmartRead()) {
+    registrarUsoMockLegado()
+    return criarLeituraMockLegado()
+  }
   const corpo = await chamarLegado('', {
     method: 'POST',
     headers: { ...cabecalhosBase(companyId), 'x-smart-read-project-id': 'gravity' },
@@ -81,6 +109,10 @@ export async function enviarArquivoLegado(
   idLeitura: string,
   arquivo: { buffer: Buffer; nome: string; mimeType: string },
 ): Promise<string | null> {
+  if (deveUsarMockLegadoSmartRead()) {
+    registrarUsoMockLegado()
+    return enviarArquivoMockLegado(idLeitura, { nome: arquivo.nome, mimeType: arquivo.mimeType })
+  }
   const formulario = new FormData()
   formulario.append(
     'file',
@@ -100,6 +132,9 @@ export async function enviarArquivoLegado(
 }
 
 export async function obterLeituraLegado(companyId: string, idLeitura: string): Promise<LeituraLegado> {
+  if (deveUsarMockLegadoSmartRead()) {
+    return obterLeituraMockLegado(idLeitura)
+  }
   const corpo = await chamarLegado(`/${idLeitura}`, {
     method: 'GET',
     headers: cabecalhosBase(companyId),

@@ -1,0 +1,200 @@
+import type { Leitura, TransacaoLeitura } from '../../shared/schemas'
+import {
+  PARAMETROS_FINANCEIROS_SMART_READ,
+  resolverParametrosTempoDocumentoSmartRead,
+  type TipoDocumentoBaseSmartRead,
+} from './dados-base-produto-tempo-smart-read'
+import {
+  extrairDocumentosInsightsDeLeituras,
+  type DocumentoInsightsSmartRead,
+} from './extrair-dados-documento-leitura-smart-read'
+
+export type RankingEntidadeInsightsSmartRead = {
+  nome: string
+  documentos: number
+  media_acertos: number | null
+  campos_corretos: number
+  campos_errados: number
+}
+
+export type MetricasInsightsLeituraSmartRead = {
+  totalDocumentos: number
+  totalCampos: number
+  camposCorretos: number
+  camposErrados: number
+  taxaAcertoCampos: number | null
+  savingDigitaçãoMinutos: number
+  savingErrosMinutos: number
+  savingDigitaçãoCustoBrl: number
+  savingErrosCustoBrl: number
+  porTipoDocumento: { tipo: TipoDocumentoBaseSmartRead; rotulo: string; quantidade: number }[]
+  rankingsExportador: RankingEntidadeInsightsSmartRead[]
+  rankingsImportador: RankingEntidadeInsightsSmartRead[]
+  rankingsExportadorAcerto: RankingEntidadeInsightsSmartRead[]
+  rankingsImportadorAcerto: RankingEntidadeInsightsSmartRead[]
+  blAwb: {
+    bl: { documentos: number; mediaAcertos: number | null; camposCorretos: number; camposErrados: number }
+    awb: { documentos: number; mediaAcertos: number | null; camposCorretos: number; camposErrados: number }
+  }
+  documentos: DocumentoInsightsSmartRead[]
+  amostraLeituras: number
+}
+
+function mediaAccuracy(valores: (number | null)[]): number | null {
+  const nums = valores.filter((v): v is number => v != null && Number.isFinite(v))
+  if (nums.length === 0) return null
+  return nums.reduce((a, b) => a + b, 0) / nums.length
+}
+
+function montarRankingEntidade(
+  documentos: DocumentoInsightsSmartRead[],
+  campo: 'exportador' | 'importador',
+  ordem: 'acerto' | 'erro',
+): RankingEntidadeInsightsSmartRead[] {
+  const mapa = new Map<string, DocumentoInsightsSmartRead[]>()
+
+  for (const doc of documentos) {
+    const nome = doc[campo]
+    if (!nome) continue
+    const lista = mapa.get(nome) ?? []
+    lista.push(doc)
+    mapa.set(nome, lista)
+  }
+
+  const rankings = [...mapa.entries()].map(([nome, docs]) => ({
+    nome,
+    documentos: docs.length,
+    media_acertos: mediaAccuracy(docs.map((d) => d.accuracy)),
+    campos_corretos: docs.reduce((acc, d) => acc + d.campos_corretos, 0),
+    campos_errados: docs.reduce((acc, d) => acc + d.campos_errados, 0),
+  }))
+
+  rankings.sort((a, b) => {
+    if (ordem === 'acerto') {
+      return (b.media_acertos ?? 0) - (a.media_acertos ?? 0)
+    }
+    return b.campos_errados - a.campos_errados
+  })
+
+  return rankings.slice(0, 5)
+}
+
+function calcularSavingDocumento(doc: DocumentoInsightsSmartRead): {
+  digitação: number
+  erros: number
+} {
+  const params = resolverParametrosTempoDocumentoSmartRead(doc.tipo_normalizado)
+  const savingDigitação =
+    params.tempo_digitação_manual_minutos - params.tempo_digitação_smart_read_minutos
+
+  const errados = doc.campos_errados
+  const savingErros =
+    errados *
+    (params.tempo_correcao_erro_manual_minutos_por_campo -
+      params.tempo_correcao_erro_smart_read_minutos_por_campo)
+
+  return {
+    digitação: Math.max(0, savingDigitação),
+    erros: Math.max(0, savingErros),
+  }
+}
+
+function resumoBlAwb(documentos: DocumentoInsightsSmartRead[], tipo: 'bl' | 'awb') {
+  const filtrados = documentos.filter((d) => d.tipo_normalizado === tipo)
+  return {
+    documentos: filtrados.length,
+    mediaAcertos: mediaAccuracy(filtrados.map((d) => d.accuracy)),
+    camposCorretos: filtrados.reduce((acc, d) => acc + d.campos_corretos, 0),
+    camposErrados: filtrados.reduce((acc, d) => acc + d.campos_errados, 0),
+  }
+}
+
+const ROTULO_TIPO: Record<TipoDocumentoBaseSmartRead, string> = {
+  bl: 'Bill of Lading',
+  awb: 'AWB',
+  invoice: 'Invoice',
+  packing_list: 'Packing List',
+  proforma: 'Proforma',
+  pedido: 'Pedido',
+  outros: 'Outros',
+}
+
+export function calcularMetricasInsightsLeituraSmartRead(
+  leituras: Leitura[],
+  transacoes: TransacaoLeitura[],
+): MetricasInsightsLeituraSmartRead {
+  const documentos = extrairDocumentosInsightsDeLeituras(leituras)
+
+  const totalCampos = documentos.reduce((acc, d) => acc + d.total_campos, 0)
+  const camposCorretos = documentos.reduce((acc, d) => acc + d.campos_corretos, 0)
+  const camposErrados = documentos.reduce((acc, d) => acc + d.campos_errados, 0)
+  const taxaAcertoCampos =
+    camposCorretos + camposErrados > 0
+      ? camposCorretos / (camposCorretos + camposErrados)
+      : null
+
+  let savingDigitaçãoMinutos = 0
+  let savingErrosMinutos = 0
+  for (const doc of documentos) {
+    const saving = calcularSavingDocumento(doc)
+    savingDigitaçãoMinutos += saving.digitação
+    savingErrosMinutos += saving.erros
+  }
+
+  const custoHora =
+    PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
+    PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
+
+  const porTipoMapa = new Map<TipoDocumentoBaseSmartRead, number>()
+  for (const doc of documentos) {
+    porTipoMapa.set(doc.tipo_normalizado, (porTipoMapa.get(doc.tipo_normalizado) ?? 0) + 1)
+  }
+
+  const porTipoDocumento = [...porTipoMapa.entries()]
+    .map(([tipo, quantidade]) => ({
+      tipo,
+      rotulo: ROTULO_TIPO[tipo],
+      quantidade,
+    }))
+    .sort((a, b) => b.quantidade - a.quantidade)
+
+  return {
+    totalDocumentos: documentos.length,
+    totalCampos,
+    camposCorretos,
+    camposErrados,
+    taxaAcertoCampos,
+    savingDigitaçãoMinutos,
+    savingErrosMinutos,
+    savingDigitaçãoCustoBrl: (savingDigitaçãoMinutos / 60) * custoHora,
+    savingErrosCustoBrl: (savingErrosMinutos / 60) * custoHora,
+    porTipoDocumento,
+    rankingsExportador: montarRankingEntidade(documentos, 'exportador', 'erro'),
+    rankingsImportador: montarRankingEntidade(documentos, 'importador', 'erro'),
+    rankingsExportadorAcerto: montarRankingEntidade(documentos, 'exportador', 'acerto'),
+    rankingsImportadorAcerto: montarRankingEntidade(documentos, 'importador', 'acerto'),
+    blAwb: {
+      bl: resumoBlAwb(documentos, 'bl'),
+      awb: resumoBlAwb(documentos, 'awb'),
+    },
+    documentos,
+    amostraLeituras: transacoes.length,
+  }
+}
+
+export function formatarMinutosInsightsSmartRead(minutos: number): string {
+  if (minutos <= 0) return '0 min'
+  if (minutos < 1) return '< 1 min'
+  if (minutos < 60) return `${Math.round(minutos)} min`
+  const horas = Math.floor(minutos / 60)
+  const resto = Math.round(minutos % 60)
+  return resto > 0 ? `${horas}h ${resto}min` : `${horas}h`
+}
+
+export function formatarMoedaInsightsSmartRead(valor: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+  }).format(valor)
+}

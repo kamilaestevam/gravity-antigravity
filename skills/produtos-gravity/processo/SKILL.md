@@ -44,6 +44,8 @@ servicos-global/produto/processo/
 
 **Seletor workspace (2 abas):** [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · `TST-E2E-MBOTO-000059`.
 
+**Seletor de produtos Gravity (header do menu lateral):** paridade com Pedido — `useProdutosSwitcher` + `rotaTemSeletorProdutosProcesso` no shell (`servicos-global/shell/Sidebar.tsx`). Habilitado no workspace **e** no detalhe do processo (ex.: Dados do Processo). Doc: [PADRAO-UX-TELAS.md §13](../../../documentos-tecnicos/produtos-gravity/processo/PADRAO-UX-TELAS.md) · testes `TST-UNI-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-000074`.
+
 ---
 
 ## ⭐ PADRÃO UX OBRIGATÓRIO
@@ -172,3 +174,4 @@ Definidas em [App.tsx](../../../servicos-global/produto/processo/client/src/App.
 | 2026-05-30 | Redesign DadosTecnicos (TOC + edit-in-place + cards individuais) |
 | 2026-05-31 | SelectGlobal + borda indigo do sistema → padrão consolidado e documentado |
 | 2026-05-31 | Padrão de campos read-only (calculado/bloqueado/sistema) com ícone + tooltip + visual dessaturado |
+| 2026-06-20 | Seletor de produtos Gravity no detalhe — §13 PADRAO-UX-TELAS (TASK-000304) |

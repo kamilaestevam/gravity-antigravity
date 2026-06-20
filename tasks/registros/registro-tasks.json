@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 303,
+  "proximo_numero": 305,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -573,6 +573,40 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000302.json"
+    },
+    {
+      "referencia": "TASK-000303",
+      "ordinal": 32,
+      "titulo_canonico": "OUTROS-SMART-READ-INSIGHTS-MEL-EVOLUIR-INSIGHTS-ISOLADO-LISTA",
+      "titulo_exibicao": "TASK-000303 | [Smart Read] Insights | MEL — Evoluir insights sem impactar lista (agente paralelo)",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": "INSIGHTS",
+      "tipo_entrega": "MEL",
+      "resumo": "EVOLUIR-INSIGHTS-ISOLADO-LISTA",
+      "data_criacao": "2026-06-20T12:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000303.json"
+    },
+    {
+      "referencia": "TASK-000304",
+      "ordinal": 33,
+      "titulo_canonico": "PROCSO-SHELL-BUG-MENU-SELECAO-PRODUTOS-NAO-FUNCIONA",
+      "titulo_exibicao": "TASK-000304 | [Processo] | BUG — Menu padrão de seleção de produtos não funciona",
+      "status": "ABR",
+      "area": "PROCSO",
+      "subarea": "SHELL",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "MENU-SELECAO-PRODUTOS-NAO-FUNCIONA",
+      "data_criacao": "2026-06-20T18:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000304.json"
     }
   ]
 }

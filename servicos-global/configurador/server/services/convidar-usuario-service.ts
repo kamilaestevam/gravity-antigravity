@@ -33,6 +33,7 @@
 //     vai em metadata para rastreio cross-org)
 
 import { prisma } from '../lib/prisma.js'
+import { Prisma } from '../../../../configurador/generated/index.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { aoVincularUsuarioAoWorkspace } from './sincronizar-acesso-usuario-produtos-service.js'
@@ -301,14 +302,29 @@ export async function convidarUsuarioService(
     })
   } catch (dbErr) {
     // Banco falhou → revoga convite Clerk para não deixar invitation órfão.
-    // Não bloqueia o re-throw se a revogação também falhar (rastro só por log).
     try {
       await clerkClient.invitations.revokeInvitation(invitation.id)
     } catch {
       // Fire-and-forget — invitation órfão é detectável pela ausência
       // do usuário no banco (workflow de limpeza periódica resolve).
     }
-    throw dbErr
+    if (dbErr instanceof Prisma.PrismaClientKnownRequestError && dbErr.code === 'P2002') {
+      throw new AppError(
+        'Já existe um usuário com estes dados nesta organização',
+        409,
+        'CONFLICT',
+      )
+    }
+    log.error('convite.db_falhou', {
+      email_usuario,
+      id_organizacao_alvo,
+      error: dbErr instanceof Error ? dbErr.message : String(dbErr),
+    })
+    throw new AppError(
+      dbErr instanceof Error ? dbErr.message : 'Falha ao persistir usuário convidado',
+      503,
+      'DB_CONVITE_FALHOU',
+    )
   }
 
   // ─── Pós-transação (best-effort, fora do try/catch) ─────────────────────

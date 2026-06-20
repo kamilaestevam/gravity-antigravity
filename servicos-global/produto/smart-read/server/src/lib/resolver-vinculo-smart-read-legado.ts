@@ -11,6 +11,11 @@ const VinculoLegadoRespostaSchema = z.object({
   id_company_smart_read_legado: z.string().min(1),
 })
 
+function companyLegadoPadraoAmbiente(): string | null {
+  const padrao = process.env.SMART_READ_ID_COMPANY_LEGADO_PADRAO?.trim()
+  return padrao || null
+}
+
 function overrideLocalDePara(idOrganizacao: string): string | null {
   const bruto = process.env.SMART_READ_DE_PARA_ORGANIZACAO
   if (!bruto || bruto === '{}') return null
@@ -27,9 +32,12 @@ export async function resolverCompanyLegado(idOrganizacao: string): Promise<stri
   const override = overrideLocalDePara(idOrganizacao)
   if (override) return override
 
+  const padraoLocal = companyLegadoPadraoAmbiente()
+
   const baseUrl = process.env.CONFIGURATOR_URL?.replace(/\/$/, '')
   const chaveInterna = process.env.CHAVE_INTERNA_SERVICO
   if (!baseUrl || !chaveInterna) {
+    if (padraoLocal) return padraoLocal
     throw new AppError(
       'CONFIGURATOR_URL ou CHAVE_INTERNA_SERVICO ausente — impossível resolver vínculo Smart Read',
       500,
@@ -45,6 +53,7 @@ export async function resolverCompanyLegado(idOrganizacao: string): Promise<stri
       signal: AbortSignal.timeout(10_000),
     })
   } catch (erro) {
+    if (padraoLocal) return padraoLocal
     throw new AppError(
       `Configurador inacessível ao resolver vínculo Smart Read: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
       503,
@@ -53,6 +62,10 @@ export async function resolverCompanyLegado(idOrganizacao: string): Promise<stri
   }
 
   if (!resposta.ok) {
+    if (resposta.status === 422 && padraoLocal) {
+      return padraoLocal
+    }
+
     const fallback = `Configurador respondeu ${resposta.status} ao resolver vínculo Smart Read`
     let mensagem = fallback
     try {

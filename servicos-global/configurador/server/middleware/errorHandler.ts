@@ -40,10 +40,13 @@ export function errorHandler(
 
   // Erro genérico inesperado
   console.error('[errorHandler] Erro não tratado:', err)
+  const devMessage = process.env.NODE_ENV !== 'production' && err instanceof Error
+    ? err.message
+    : 'Erro interno do servidor'
   res.status(500).json({
     error: {
       code: 'INTERNAL_ERROR',
-      message: 'Erro interno do servidor',
+      message: devMessage,
       correlationId,
     },
   })

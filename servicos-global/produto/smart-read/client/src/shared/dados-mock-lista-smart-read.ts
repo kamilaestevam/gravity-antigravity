@@ -53,7 +53,7 @@ export const LEITURAS_MOCK_DETALHE: Record<string, Leitura> = {
         nome_arquivo: 'BL-original.pdf',
         status_arquivo: 'COMPLETED',
         resultado_extracao: [
-          { tipo_documento: 'Bill of Lading', dados: { accuracy: 0.96 } },
+          { tipo_documento: 'Bill of Lading', dados: { accuracy: 0.96, exportador: 'Asia Shipping LTDA', importador: 'Importadora Brasil SA' } },
         ],
       },
       {
@@ -61,9 +61,9 @@ export const LEITURAS_MOCK_DETALHE: Record<string, Leitura> = {
         nome_arquivo: 'packing-docs.pdf',
         status_arquivo: 'COMPLETED',
         resultado_extracao: [
-          { tipo_documento: 'Invoice', dados: { accuracy: 0.91 } },
-          { tipo_documento: 'Invoice', dados: { accuracy: 0.89 } },
-          { tipo_documento: 'Packing List', dados: { accuracy: 0.93 } },
+          { tipo_documento: 'Invoice', dados: { accuracy: 0.91, exportador: 'Shenzhen Export Co.', importador: 'Importadora Brasil SA' } },
+          { tipo_documento: 'Invoice', dados: { accuracy: 0.89, exportador: 'Guangzhou Trading', importador: 'Comercial Norte Ltda' } },
+          { tipo_documento: 'Packing List', dados: { accuracy: 0.93, exportador: 'Shenzhen Export Co.', importador: 'Importadora Brasil SA' } },
         ],
       },
     ],
@@ -80,8 +80,8 @@ export const LEITURAS_MOCK_DETALHE: Record<string, Leitura> = {
         nome_arquivo: 'invoice-set.pdf',
         status_arquivo: 'COMPLETED',
         resultado_extracao: [
-          { tipo_documento: 'Invoice', dados: { accuracy: 0.87 } },
-          { tipo_documento: 'AWB', dados: { accuracy: 0.9 } },
+          { tipo_documento: 'Invoice', dados: { accuracy: 0.87, exportador: 'Euro Exports GmbH', importador: 'Distribuidora Sul' } },
+          { tipo_documento: 'AWB', dados: { accuracy: 0.9, exportador: 'Lufthansa Cargo Hub', importador: 'Distribuidora Sul' } },
         ],
       },
     ],

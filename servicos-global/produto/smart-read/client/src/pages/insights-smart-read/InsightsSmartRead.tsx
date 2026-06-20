@@ -1,46 +1,52 @@
 /**
- * InsightsSmartRead — KPIs, funil de status e leituras recentes (escopo isolado da Lista)
+ * InsightsSmartRead — dashboard operacional (padrão BID Frete / bfd-dashboard)
  */
 
 import { useMemo } from 'react'
-import { CardsInsightsLeituraSmartRead } from '../../components/cards-insights-leitura-smart-read'
-import { PainelFunilStatusInsightsLeituraSmartRead } from '../../components/painel-funil-status-insights-leitura-smart-read'
-import { ListaRecentesInsightsLeituraSmartRead } from '../../components/lista-recentes-insights-leitura-smart-read'
-import { useTransacoesLeituraSmartRead } from '../../shared/use-transacoes-leitura-smart-read'
+import {
+  KpiGridInsightsLeituraSmartRead,
+  PainelBlAwbInsightsSmartRead,
+  PainelCamposAcertosInsightsSmartRead,
+  PainelRankingsEntidadeInsightsSmartRead,
+  PainelSavingDetalheInsightsSmartRead,
+  PainelTiposDocumentoInsightsSmartRead,
+} from '../../components/insights-smart-read-paineis'
 import { calcularMetricasInsightsLeituraSmartRead } from './calcular-metricas-insights-leitura-smart-read'
+import { useDadosInsightsLeituraSmartRead } from './use-dados-insights-leitura-smart-read'
 import '../../shared/smart-read-leituras.css'
 import './insights-smart-read.css'
 
 export default function InsightsSmartRead() {
-  const { transacoes, metricaLeituras, total, carregando, erro } =
-    useTransacoesLeituraSmartRead()
+  const { leiturasDetalhe, transacoes, carregando, erro } = useDadosInsightsLeituraSmartRead()
 
   const metricas = useMemo(
-    () => calcularMetricasInsightsLeituraSmartRead(transacoes),
-    [transacoes],
+    () => calcularMetricasInsightsLeituraSmartRead(leiturasDetalhe, transacoes),
+    [leiturasDetalhe, transacoes],
   )
 
+  if (carregando && leiturasDetalhe.length === 0 && transacoes.length === 0) {
+    return <div className="sr-insights-carregando">Carregando insights…</div>
+  }
+
   return (
-    <div className="sr-pagina sr-pagina--insights">
+    <div className="sr-insights-dashboard">
       {erro && (
         <div className="sr-erro" role="alert">
           {erro}
         </div>
       )}
 
-      <CardsInsightsLeituraSmartRead
-        totalLeituras={metricaLeituras ?? total}
-        totalPaginado={transacoes.length}
-        metricas={metricas}
-        carregando={carregando}
-      />
+      <KpiGridInsightsLeituraSmartRead metricas={metricas} carregando={carregando} />
 
-      <div className="sr-insights-corpo">
-        <PainelFunilStatusInsightsLeituraSmartRead
-          metricas={metricas}
-          amostraTotal={transacoes.length}
-        />
-        <ListaRecentesInsightsLeituraSmartRead recentes={metricas.recentes} />
+      <div className="sr-insights-linha-principal">
+        <PainelTiposDocumentoInsightsSmartRead metricas={metricas} />
+        <PainelCamposAcertosInsightsSmartRead metricas={metricas} />
+        <PainelBlAwbInsightsSmartRead metricas={metricas} />
+      </div>
+
+      <div className="sr-insights-linha-secundaria">
+        <PainelSavingDetalheInsightsSmartRead metricas={metricas} />
+        <PainelRankingsEntidadeInsightsSmartRead metricas={metricas} />
       </div>
     </div>
   )

@@ -1969,7 +1969,9 @@ adminRouter.post('/usuarios/:id_usuario/promover', async (_req, _res, next) => {
  * em `convidar-usuario-service.ts` — compartilhado com a rota regular.
  */
 const AdminInviteSchema = z.object({
-  id_organizacao_alvo: z.string().cuid(),
+  // min(1) em vez de .cuid(): id_organizacao pode ser cuid2 (@paralleldrive/cuid2) —
+  // Zod .cuid() só aceita cuid v1 (prefixo 'c'). Existência validada no service via Prisma.
+  id_organizacao_alvo: z.string().min(1),
   email_usuario: z.string().email().max(255),
   nome_usuario: z.string().min(1).max(200),
   tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),

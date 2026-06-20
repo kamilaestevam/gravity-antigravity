@@ -2277,6 +2277,8 @@
         "empresa": "Company",
         "org_tooltip": "Origin Organization",
         "org_desc": "Company/organization to which this user is linked.",
+        "org_super_admin_auto_desc": "Super Admin has global access — automatically linked to the Gravity organization, no selection needed.",
+        "org_acesso_global_automatico": "Global access (automatic)",
         "tipo": "Type",
         "perfil_base": "Base Profile",
         "perfil_desc": "User's main permission level.",

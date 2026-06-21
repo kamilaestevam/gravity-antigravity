@@ -4,6 +4,11 @@
 
 import type { Leitura } from '../../shared/schemas'
 import {
+  extrairParticipantesDeDadosLeitura,
+  resolverResponsavelAcertoDocumentoInsights,
+  type TipoParticipanteInsightsSmartRead,
+} from './mapear-participante-insights-smart-read'
+import {
   normalizarTipoDocumentoBaseSmartRead,
   resolverParametrosTempoDocumentoSmartRead,
   type TipoDocumentoBaseSmartRead,
@@ -48,6 +53,7 @@ export type DocumentoInsightsSmartRead = {
   accuracy: number | null
   exportador: string | null
   importador: string | null
+  responsavel_emissor: { tipo: TipoParticipanteInsightsSmartRead; nome: string } | null
 }
 
 function normalizarAccuracy(valor: unknown): number | null {
@@ -123,6 +129,8 @@ export function extrairDocumentosInsightsLeituraSmartRead(
         const tipoNormalizado = normalizarTipoDocumentoBaseSmartRead(tipoRotulo)
         const dados = item.dados ?? {}
         const contagem = resolverContagemCampos(dados, tipoNormalizado)
+        const participantes = extrairParticipantesDeDadosLeitura(dados)
+        const responsavel = resolverResponsavelAcertoDocumentoInsights(tipoNormalizado, participantes)
 
         documentos.push({
           id_documento: `${leitura.id_leitura}:${arquivo.id_arquivo}:${indice}`,
@@ -135,6 +143,7 @@ export function extrairDocumentosInsightsLeituraSmartRead(
           accuracy: contagem.accuracy,
           exportador: extrairTextoEntidade(dados, CHAVES_EXPORTADOR),
           importador: extrairTextoEntidade(dados, CHAVES_IMPORTADOR),
+          responsavel_emissor: responsavel,
         })
       })
     }

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { calcularMetricasInsightsLeituraSmartRead } from '../../../servicos-global/produto/smart-read/client/src/pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read.ts'
+import {
+  calcularMetricasInsightsLeituraSmartRead,
+  resolverRankingsParticipanteInsights,
+} from '../../../servicos-global/produto/smart-read/client/src/pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read.ts'
 import { LEITURAS_MOCK_DETALHE } from '../../../servicos-global/produto/smart-read/client/src/shared/dados-mock-lista-smart-read.ts'
 import type { TransacaoLeitura } from '../../../servicos-global/produto/smart-read/client/src/shared/schemas.ts'
 
@@ -47,5 +50,17 @@ describe('Smart Read — métricas Insights (dashboard)', () => {
     expect(metricas.blAwb.bl.documentos).toBeGreaterThanOrEqual(1)
     expect(metricas.blAwb.awb.documentos).toBeGreaterThanOrEqual(1)
     expect(metricas.rankingsExportador.length).toBeGreaterThan(0)
+    expect(metricas.rankingsPorParticipante.exportador.acertos.length).toBeGreaterThan(0)
+  })
+
+  it('resolverRankingsParticipanteInsights usa fallback legado sem rankingsPorParticipante', () => {
+    const leituras = [LEITURAS_MOCK_DETALHE['mock-leitura-bl-importacao']]
+    const metricas = calcularMetricasInsightsLeituraSmartRead(leituras, transacoes)
+    const legado = { ...metricas, rankingsPorParticipante: undefined } as typeof metricas
+
+    const { acertos, erros } = resolverRankingsParticipanteInsights(legado, 'exportador')
+
+    expect(acertos).toEqual(metricas.rankingsExportadorAcerto)
+    expect(erros).toEqual(metricas.rankingsExportador)
   })
 })

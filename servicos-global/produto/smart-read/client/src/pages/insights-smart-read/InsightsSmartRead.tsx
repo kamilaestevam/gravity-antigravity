@@ -5,8 +5,8 @@
 import { useMemo } from 'react'
 import {
   KpiGridInsightsLeituraSmartRead,
-  PainelBlAwbInsightsSmartRead,
   PainelCamposAcertosInsightsSmartRead,
+  PainelGraficoCamposPorDiaInsightsSmartRead,
   PainelRankingsEntidadeInsightsSmartRead,
   PainelSavingDetalheInsightsSmartRead,
   PainelTiposDocumentoInsightsSmartRead,
@@ -36,17 +36,31 @@ export default function InsightsSmartRead() {
         </div>
       )}
 
-      <KpiGridInsightsLeituraSmartRead metricas={metricas} carregando={carregando} />
+      <div className="sr-insights-grid">
+        <KpiGridInsightsLeituraSmartRead metricas={metricas} carregando={carregando} />
 
-      <div className="sr-insights-linha-principal">
-        <PainelTiposDocumentoInsightsSmartRead metricas={metricas} />
-        <PainelCamposAcertosInsightsSmartRead metricas={metricas} />
-        <PainelBlAwbInsightsSmartRead metricas={metricas} />
-      </div>
+        <PainelGraficoCamposPorDiaInsightsSmartRead
+          className="sr-insights-grid__grafico"
+          metricas={metricas}
+          transacoes={transacoes}
+        />
+        <PainelCamposAcertosInsightsSmartRead
+          className="sr-insights-grid__acertos"
+          metricas={metricas}
+        />
 
-      <div className="sr-insights-linha-secundaria">
-        <PainelSavingDetalheInsightsSmartRead metricas={metricas} />
-        <PainelRankingsEntidadeInsightsSmartRead metricas={metricas} />
+        <PainelTiposDocumentoInsightsSmartRead
+          className="sr-insights-grid__tipos"
+          metricas={metricas}
+        />
+        <PainelSavingDetalheInsightsSmartRead
+          className="sr-insights-grid__economia"
+          metricas={metricas}
+        />
+        <PainelRankingsEntidadeInsightsSmartRead
+          className="sr-insights-grid__rankings"
+          metricas={metricas}
+        />
       </div>
     </div>
   )

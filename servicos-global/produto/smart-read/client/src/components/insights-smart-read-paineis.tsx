@@ -1,21 +1,46 @@
-import { useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import {
+  ChartBar,
   ChartDonut,
+  ChartPie,
   Clock,
+  CurrencyDollar,
   Files,
   ListChecks,
   Timer,
   TrendUp,
+  UsersThree,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
+import { GraficoCamposPorDiaInsightsSmartRead } from './grafico-campos-por-dia-insights-smart-read'
+import {
+  FILTRO_PERIODO_PADRAO_CAMPOS_POR_DIA,
+  SeletorPeriodoCamposDiaInsightsSmartRead,
+} from './seletor-periodo-campos-dia-insights-smart-read'
+import { SeletorTipoParticipanteRankingInsightsSmartRead } from './seletor-tipo-participante-ranking-insights-smart-read'
+import { SeletorMetricaSerieTemporalInsightsSmartRead } from './seletor-metrica-serie-temporal-insights-smart-read'
 import { formatarPercentualLeitura } from '../shared/formatacao-leitura-smart-read'
+import type { TransacaoLeitura } from '../shared/schemas'
+import {
+  PARTICIPANTES_RANKING_INSIGHTS_SMART_READ,
+} from '../pages/insights-smart-read/mapear-participante-insights-smart-read'
+import {
+  montarSerieCamposPorDiaInsights,
+  rotuloPeriodoCamposPorDiaInsights,
+  serieTemporalTemDados,
+  METRICA_SERIE_TEMPORAL_PADRAO,
+  type FiltroPeriodoCamposPorDiaInsights,
+  type MetricaSerieTemporalInsightsSmartRead,
+} from '../pages/insights-smart-read/agrupar-campos-por-dia-insights-smart-read'
 import type {
   MetricasInsightsLeituraSmartRead,
   RankingEntidadeInsightsSmartRead,
+  TipoParticipanteRankingInsightsSmartRead,
 } from '../pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read'
 import {
   formatarMinutosInsightsSmartRead,
   formatarMoedaInsightsSmartRead,
+  resolverRankingsParticipanteInsights,
 } from '../pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read'
 
 type Props = {
@@ -23,22 +48,28 @@ type Props = {
   carregando?: boolean
 }
 
-type TipoFornecedorInsights = 'exportador' | 'importador'
+type CabecalhoPainelProps = {
+  icone: ReactNode
+  titulo: string
+  subtitulo: string
+  complemento?: ReactNode
+}
 
-function resolverRankingsFornecedor(
-  metricas: MetricasInsightsLeituraSmartRead,
-  tipo: TipoFornecedorInsights,
-): { acertos: RankingEntidadeInsightsSmartRead[]; erros: RankingEntidadeInsightsSmartRead[] } {
-  if (tipo === 'exportador') {
-    return {
-      acertos: metricas.rankingsExportadorAcerto,
-      erros: metricas.rankingsExportador,
-    }
-  }
-  return {
-    acertos: metricas.rankingsImportadorAcerto,
-    erros: metricas.rankingsImportador,
-  }
+function CabecalhoPainelInsightsSmartRead({ icone, titulo, subtitulo, complemento }: CabecalhoPainelProps) {
+  return (
+    <header
+      className={`sr-insights-card__cabecalho${complemento ? ' sr-insights-card__cabecalho--com-complemento' : ''}`}
+    >
+      <div className="sr-insights-card__cabecalho-texto">
+        <div className="cg-card__header">
+          <div className="cg-card__icon-wrap">{icone}</div>
+          <p className="cg-card__label">{titulo}</p>
+        </div>
+        <p className="sr-insights-card__subtitulo">{subtitulo}</p>
+      </div>
+      {complemento}
+    </header>
+  )
 }
 
 export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props) {
@@ -47,8 +78,9 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
   const savingTotalBrl = metricas.savingDigitaçãoCustoBrl + metricas.savingErrosCustoBrl
 
   return (
-    <div className="sr-insights-kpi-grid" aria-label="Indicadores principais Smart Read">
+    <>
       <CardBasicoGlobal
+        className="sr-insights-grid__kpi"
         titulo="DOCUMENTOS LIDOS"
         icone={<Files weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
         valor={carregando ? placeholder : metricas.totalDocumentos}
@@ -71,6 +103,7 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         }
       />
       <CardBasicoGlobal
+        className="sr-insights-grid__kpi"
         titulo="CAMPOS LIDOS"
         icone={<ListChecks weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
         valor={carregando ? placeholder : metricas.totalCampos}
@@ -101,6 +134,7 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         }
       />
       <CardBasicoGlobal
+        className="sr-insights-grid__kpi"
         titulo="SAVING DIGITAÇÃO"
         icone={<Timer weight="duotone" size={16} style={{ color: '#34d399' }} />}
         valor={carregando ? placeholder : formatarMinutosInsightsSmartRead(metricas.savingDigitaçãoMinutos)}
@@ -128,6 +162,7 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         }
       />
       <CardBasicoGlobal
+        className="sr-insights-grid__kpi"
         titulo="SAVING EM ERROS"
         icone={<TrendUp weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
         valor={carregando ? placeholder : formatarMinutosInsightsSmartRead(metricas.savingErrosMinutos)}
@@ -160,11 +195,71 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
           </>
         }
       />
-    </div>
+    </>
   )
 }
 
-export function PainelCamposAcertosInsightsSmartRead({ metricas }: { metricas: MetricasInsightsLeituraSmartRead }) {
+export function PainelGraficoCamposPorDiaInsightsSmartRead({
+  metricas,
+  transacoes,
+  className = '',
+}: {
+  metricas: MetricasInsightsLeituraSmartRead
+  transacoes: TransacaoLeitura[]
+  className?: string
+}) {
+  const [filtro, setFiltro] = useState<FiltroPeriodoCamposPorDiaInsights>(FILTRO_PERIODO_PADRAO_CAMPOS_POR_DIA)
+  const [metrica, setMetrica] = useState<MetricaSerieTemporalInsightsSmartRead>(METRICA_SERIE_TEMPORAL_PADRAO)
+
+  const serie = useMemo(
+    () => montarSerieCamposPorDiaInsights(metricas.documentos, transacoes, filtro),
+    [metricas.documentos, transacoes, filtro],
+  )
+
+  const rotuloPeriodo = rotuloPeriodoCamposPorDiaInsights(filtro)
+  const semDados = !serieTemporalTemDados(serie, metrica)
+  const porDocumentos = metrica === 'documentos'
+
+  return (
+    <section className={`sr-insights-card sr-insights-card--grafico-temporal ${className}`.trim()}>
+      <CabecalhoPainelInsightsSmartRead
+        icone={<ChartBar weight="duotone" size={16} style={{ color: '#3b82f6' }} />}
+        titulo="EVOLUÇÃO DIÁRIA"
+        subtitulo={
+          porDocumentos
+            ? 'Volume diário de documentos — sem edição e com edição'
+            : 'Volume diário de campos — acertos e erros (editados)'
+        }
+        complemento={
+          <div className="sr-insights-grafico-controles">
+            <SeletorMetricaSerieTemporalInsightsSmartRead metrica={metrica} onChangeMetrica={setMetrica} />
+            <SeletorPeriodoCamposDiaInsightsSmartRead
+              filtro={filtro}
+              onChangeFiltro={setFiltro}
+              rotuloPeriodo={rotuloPeriodo}
+              compacto
+            />
+          </div>
+        }
+      />
+      <div className="sr-insights-card__corpo">
+        {semDados ? (
+          <p className="sr-insights-vazio">Sem extrações no período selecionado.</p>
+        ) : (
+          <GraficoCamposPorDiaInsightsSmartRead serie={serie} metrica={metrica} />
+        )}
+      </div>
+    </section>
+  )
+}
+
+export function PainelCamposAcertosInsightsSmartRead({
+  metricas,
+  className = '',
+}: {
+  metricas: MetricasInsightsLeituraSmartRead
+  className?: string
+}) {
   const total = metricas.camposCorretos + metricas.camposErrados
   const pctCorretos = total > 0 ? (metricas.camposCorretos / total) * 100 : 0
   const pctErrados = total > 0 ? 100 - pctCorretos : 0
@@ -172,11 +267,15 @@ export function PainelCamposAcertosInsightsSmartRead({ metricas }: { metricas: M
   const offsetCorretos = circ - (pctCorretos / 100) * circ
 
   return (
-    <section className="sr-insights-card">
-      <h2 className="sr-insights-card__titulo">Campos lidos — corretos × errados</h2>
-      <p className="sr-insights-card__subtitulo">Distribuição na amostra de extrações concluídas</p>
+    <section className={`sr-insights-card sr-insights-card--campos-acertos ${className}`.trim()}>
+      <CabecalhoPainelInsightsSmartRead
+        icone={<ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />}
+        titulo="CAMPOS LIDOS — CORRETOS × ERRADOS"
+        subtitulo="Distribuição na amostra de extrações concluídas"
+      />
 
-      <div className="sr-insights-campos-resumo">
+      <div className="sr-insights-card__corpo">
+        <div className="sr-insights-campos-resumo">
         <div className="sr-insights-campos-box sr-insights-campos-box--ok">
           <p className="sr-insights-campos-box__rotulo">Corretos</p>
           <p className="sr-insights-campos-box__valor" style={{ color: '#34d399' }}>
@@ -224,18 +323,29 @@ export function PainelCamposAcertosInsightsSmartRead({ metricas }: { metricas: M
           </div>
         </div>
       )}
+      </div>
     </section>
   )
 }
 
-export function PainelTiposDocumentoInsightsSmartRead({ metricas }: { metricas: MetricasInsightsLeituraSmartRead }) {
+export function PainelTiposDocumentoInsightsSmartRead({
+  metricas,
+  className = '',
+}: {
+  metricas: MetricasInsightsLeituraSmartRead
+  className?: string
+}) {
   const max = Math.max(...metricas.porTipoDocumento.map((t) => t.quantidade), 1)
 
   return (
-    <section className="sr-insights-card">
-      <h2 className="sr-insights-card__titulo">Tipos de documento</h2>
-      <p className="sr-insights-card__subtitulo">Invoice, Packing List, BL, AWB e demais</p>
+    <section className={`sr-insights-card sr-insights-card--tipos ${className}`.trim()}>
+      <CabecalhoPainelInsightsSmartRead
+        icone={<Files weight="duotone" size={16} style={{ color: '#818cf8' }} />}
+        titulo="TIPOS DE DOCUMENTO"
+        subtitulo="Invoice, Packing List, BL, AWB e demais"
+      />
 
+      <div className="sr-insights-card__corpo">
       {metricas.porTipoDocumento.length === 0 ? (
         <p className="sr-insights-vazio">Nenhum documento extraído na amostra.</p>
       ) : (
@@ -259,32 +369,6 @@ export function PainelTiposDocumentoInsightsSmartRead({ metricas }: { metricas: 
           )
         })
       )}
-    </section>
-  )
-}
-
-export function PainelBlAwbInsightsSmartRead({ metricas }: { metricas: MetricasInsightsLeituraSmartRead }) {
-  const { bl, awb } = metricas.blAwb
-
-  return (
-    <section className="sr-insights-card">
-      <h2 className="sr-insights-card__titulo">BL e AWB</h2>
-      <p className="sr-insights-card__subtitulo">Performance de extração nos conhecimentos</p>
-      <div className="sr-insights-bl-awb-grid">
-        <div className="sr-insights-bl-awb-item">
-          <p className="sr-insights-campos-box__rotulo">Bill of Lading</p>
-          <p className="sr-insights-campos-box__valor">{bl.documentos}</p>
-          <p className="sr-insights-ranking-meta">
-            {formatarPercentualLeitura(bl.mediaAcertos)} acerto · {bl.camposCorretos}✓ {bl.camposErrados}✗
-          </p>
-        </div>
-        <div className="sr-insights-bl-awb-item">
-          <p className="sr-insights-campos-box__rotulo">AWB</p>
-          <p className="sr-insights-campos-box__valor">{awb.documentos}</p>
-          <p className="sr-insights-ranking-meta">
-            {formatarPercentualLeitura(awb.mediaAcertos)} acerto · {awb.camposCorretos}✓ {awb.camposErrados}✗
-          </p>
-        </div>
       </div>
     </section>
   )
@@ -292,48 +376,43 @@ export function PainelBlAwbInsightsSmartRead({ metricas }: { metricas: MetricasI
 
 export function PainelRankingsEntidadeInsightsSmartRead({
   metricas,
+  className = '',
 }: {
   metricas: MetricasInsightsLeituraSmartRead
+  className?: string
 }) {
-  const [tipoFornecedor, setTipoFornecedor] = useState<TipoFornecedorInsights>('exportador')
-  const { acertos, erros } = resolverRankingsFornecedor(metricas, tipoFornecedor)
-  const rotuloTipo = tipoFornecedor === 'exportador' ? 'Exportador' : 'Importador'
+  const [tipoParticipante, setTipoParticipante] = useState<TipoParticipanteRankingInsightsSmartRead>('exportador')
+  const definicao = PARTICIPANTES_RANKING_INSIGHTS_SMART_READ.find((p) => p.tipo === tipoParticipante)!
+  const { acertos, erros } = resolverRankingsParticipanteInsights(metricas, tipoParticipante)
 
   return (
-    <section className="sr-insights-card sr-insights-card--rankings">
-      <h2 className="sr-insights-card__titulo">Fornecedores na extração</h2>
-      <p className="sr-insights-card__subtitulo">
-        Top 5 maiores acertos e maiores erros por {rotuloTipo.toLowerCase()}
-      </p>
+    <section className={`sr-insights-card sr-insights-card--rankings ${className}`.trim()}>
+      <CabecalhoPainelInsightsSmartRead
+        icone={<UsersThree weight="duotone" size={16} style={{ color: '#f59e0b' }} />}
+        titulo="EMISSORES NA EXTRAÇÃO"
+        subtitulo={`Top 5 acertos e erros por ${definicao.rotulo.toLowerCase()} — responsável conforme tipo de documento`}
+      />
 
-      <div className="sr-insights-tabs" role="tablist" aria-label="Tipo de fornecedor">
-        {(['exportador', 'importador'] as const).map((tipo) => (
-          <button
-            key={tipo}
-            type="button"
-            role="tab"
-            aria-selected={tipoFornecedor === tipo}
-            className={`sr-insights-tab${tipoFornecedor === tipo ? ' sr-insights-tab--ativa' : ''}`}
-            onClick={() => setTipoFornecedor(tipo)}
-          >
-            {tipo === 'exportador' ? 'Exportadores' : 'Importadores'}
-          </button>
-        ))}
-      </div>
+      <div className="sr-insights-card__corpo">
+      <SeletorTipoParticipanteRankingInsightsSmartRead
+        tipoAtivo={tipoParticipante}
+        onChangeTipo={setTipoParticipante}
+      />
 
       <div className="sr-insights-rankings-duplo">
         <RankingColuna
           titulo="Maiores acertos"
           itens={acertos}
           metrica="acerto"
-          vazio={`Nenhum ${rotuloTipo.toLowerCase()} com acerto na amostra.`}
+          vazio={`Nenhum ${definicao.rotulo.toLowerCase()} com acerto na amostra.`}
         />
         <RankingColuna
           titulo="Maiores erros"
           itens={erros}
           metrica="erro"
-          vazio={`Nenhum ${rotuloTipo.toLowerCase()} com erro na amostra.`}
+          vazio={`Nenhum ${definicao.rotulo.toLowerCase()} com erro na amostra.`}
         />
+      </div>
       </div>
     </section>
   )
@@ -402,13 +481,21 @@ function RankingColuna({
   )
 }
 
-export function PainelSavingDetalheInsightsSmartRead({ metricas }: { metricas: MetricasInsightsLeituraSmartRead }) {
+export function PainelSavingDetalheInsightsSmartRead({
+  metricas,
+  className = '',
+}: {
+  metricas: MetricasInsightsLeituraSmartRead
+  className?: string
+}) {
   return (
-    <section className="sr-insights-card">
-      <h2 className="sr-insights-card__titulo">Economia estimada</h2>
-      <p className="sr-insights-card__subtitulo">
-        Tempos comparativos — base DOCS BASE PRODUTO (substituível)
-      </p>
+    <section className={`sr-insights-card sr-insights-card--saving ${className}`.trim()}>
+      <CabecalhoPainelInsightsSmartRead
+        icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#f59e0b' }} />}
+        titulo="ECONOMIA ESTIMADA"
+        subtitulo="Tempos comparativos — base DOCS BASE PRODUTO (substituível)"
+      />
+      <div className="sr-insights-card__corpo">
       <div className="sr-insights-campos-resumo">
         <div className="sr-insights-campos-box sr-insights-campos-box--ok">
           <p className="sr-insights-campos-box__rotulo">
@@ -432,6 +519,7 @@ export function PainelSavingDetalheInsightsSmartRead({ metricas }: { metricas: M
       <p className="sr-insights-nota-base">
         Estimativas com tempos médios por tipo de documento (base DOCS BASE PRODUTO).
       </p>
+      </div>
     </section>
   )
 }

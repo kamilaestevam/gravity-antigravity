@@ -151,10 +151,15 @@ Decisão dono **2026-05-05**: a linha expandida da tabela usa o **padrão Assina
 ```
 
 **Fluxo UI (`UsuariosAdmin.tsx`) — TASK-000302 (Super Admin):**
-1. Tipo **Super Admin**: campo Organização **não é obrigatório na UI** (Mand. 04 — acesso global); chip «Acesso global (automático)».
-2. Modal usa `modoCriacao` no `ModalFormulario` — botão Convidar habilita com `podesSalvar` (nome + e-mail), sem exigir `dirty`.
-3. Front envia `id_organizacao_alvo` best-effort; backend **sobrescreve** para SUPER_ADMIN via `resolverIdOrganizacaoGravity()` (`prestador-fornecedor-vinculo-service.ts` — org com `hospeda_colaboradores_gravity=true`).
+1. Tipo **Super Admin**: org Gravity **não é select manual** (Mand. 04 — acesso global); chip com nome da org interna ou aviso vermelho se ausente (**fail-fast PR #382**).
+2. Modal usa `modoCriacao` — botão Convidar habilita só com `podesSalvar` (nome + e-mail + org Gravity configurada na API).
+3. Front envia `id_organizacao_alvo` best-effort **sem fallback** `idOrganizacaoAtor`; backend **sobrescreve** via `resolverIdOrganizacaoGravity()` (`prestador-fornecedor-vinculo-service.ts`).
 4. Demais tipos: select de org + workspaces conforme fluxo original abaixo.
+
+**Org Gravity canônica (runtime):**
+- Boot prod: `scripts/ativamente/garantir-org-gravity-configurador.ts` em `start-site.sh` (PR #383) — idempotente após `prisma migrate deploy`.
+- Resolver: org ATIVA com `hospeda_colaboradores_gravity=true`, senão fallback `subdominio_organizacao = 'gravity'`, senão ENV `ID_ORGANIZACAO_GRAVITY`, senão 503 `ORG_GRAVITY_AUSENTE`.
+- SQL manual / ENV: ver `configurador/prisma/sql-manual/2026-06-20-producao-org-gravity-convite-super-admin.sql` e `.env.example`.
 
 **Fluxo UI (`UsuariosAdmin.tsx`) — demais tipos:**
 1. `adminOrganizacoesApi.list({ limit: 200 })` carrega lista de orgs (CUID + nome)
@@ -166,7 +171,7 @@ Decisão dono **2026-05-05**: a linha expandida da tabela usa o **padrão Assina
 **Regras de segurança** (validadas no service):
 - ADMIN é read-only — 403 `ADMIN_SOMENTE_LEITURA`
 - Org alvo existe e ATIVA — 404 `ORG_NOT_FOUND`
-- SUPER_ADMIN/ADMIN exige `hospeda_colaboradores_gravity=true` na **org ALVO** — 403 `TIPO_GRAVITY_EXIGE_ORG_GRAVITY`
+- SUPER_ADMIN/ADMIN exige org Gravity canônica na **org ALVO** — flag `hospeda_colaboradores_gravity=true` **ou** `subdominio_organizacao = 'gravity'` — 403 `TIPO_GRAVITY_EXIGE_ORG_GRAVITY`
 - Workspaces devem pertencer à org alvo — 403 `WORKSPACE_FORA_DA_ORG_ALVO`
 - Email duplicado na org alvo — 409 `CONFLICT`
 - Clerk recusa email duplicado — 409 `INVITATION_OR_USER_ALREADY_EXISTS`

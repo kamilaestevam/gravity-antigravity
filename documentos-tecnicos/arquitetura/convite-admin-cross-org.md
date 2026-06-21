@@ -408,29 +408,41 @@ Não recomendado — `dmmltda+fornecedor71@gmail.com` e `daniel@godati.com.br` f
 
 ## 🔧 TASK-000302 — Convite Super Admin (2026-06-20)
 
-> **Status:** Entregue (fix UI + backend override + pacote 5 tipos de teste)
+> **Status:** Entregue e validado em prod (`usegravity.com.br`, PRs #381 → #383, deploy 2026-06-20)
 
 ### Sintoma
-Super Admin em `/admin/usuarios` não conseguia convidar colega Super Admin: modal exigia organização alvo na UI (incorreto — Mand. 04), botão «Convidar Usuário» ficava inerte (`podesSalvar && dirty`), erros no `catch` sem import de `extractCatchError`, e backend sem import de `resolverIdOrganizacaoGravity`.
+Super Admin em `/admin/usuarios` não conseguia convidar colega Super Admin: modal exigia organização alvo na UI (incorreto — Mand. 04), botão «Convidar Usuário» ficava inerte (`podesSalvar && dirty`), erros no `catch` sem import de `extractCatchError`, backend sem import de `resolverIdOrganizacaoGravity`. **Prod (pós-#381):** toast `ORG_GRAVITY_AUSENTE` (503) — UI exibia «Gravity — resolvida automaticamente» enganoso.
 
-### Correções
+### Causa raiz prod
+Coluna `hospeda_colaboradores_gravity` só era aplicada via `configurador/prisma/sql-manual/` — **`prisma migrate deploy` no boot não marcava a org Gravity**. Runtime sem org ATIVA com flag → `resolverIdOrganizacaoGravity()` falhava.
 
-| Camada | Mudança |
-|--------|---------|
-| **Backend** (`admin.ts`) | Para `tipo_usuario === 'SUPER_ADMIN'`, `id_organizacao_alvo = await resolverIdOrganizacaoGravity()` — ignora org errada do front. `AdminInviteSchema`: `id_organizacao_alvo: z.string().min(1)` (cuid2, não `.cuid()`). |
-| **Frontend** (`UsuariosAdmin.tsx`) | Super Admin: sem requisito `fOrg`; `modoCriacao` no modal; cadeia `idOrganizacaoAlvoConviteSuperAdmin` (org `hospeda_colaboradores_gravity`). |
-| **Núcleo** (`ModalFormulario.tsx`) | Prop `modoCriacao` — Salvar habilita com `podesSalvar` sem exigir `dirty`. |
-| **Contrato** (`api-client.ts`) | `adminConvidarUsuarioInputSchema` + `convidarUsuarioResponseSchema.parse` na resposta (Mand. 09). |
+### Correções (entregas)
+
+| PR | Camada | Mudança |
+|----|--------|---------|
+| **#381** | Backend (`admin.ts`) | `tipo_usuario === 'SUPER_ADMIN'` → `id_organizacao_alvo = await resolverIdOrganizacaoGravity()`. `AdminInviteSchema`: `id_organizacao_alvo: z.string().min(1)`. |
+| **#381** | Frontend | `modoCriacao`, cadeia `idOrganizacaoAlvoConviteSuperAdmin`, Zod resposta convite. |
+| **#382** | Frontend fail-fast | Sem fallback `idOrganizacaoAtor`; banner vermelho + Salvar bloqueado se API não lista org Gravity; exibe nome real quando configurada. |
+| **#383** | Boot (`start-site.sh`) | Após migrations Configurador: `scripts/ativamente/garantir-org-gravity-configurador.ts` (idempotente — ADD COLUMN + UPDATE org `Gravity - Interno` ou `subdominio_organizacao = gravity`). |
+| **#383** | Resolver + service | `resolverIdOrganizacaoGravity()` fallback subdomínio `gravity`; `convidarUsuarioService` aceita org canônica por flag **ou** subdomínio `gravity`. |
+| **Ops** | SQL manual | `configurador/prisma/sql-manual/2026-06-20-producao-org-gravity-convite-super-admin.sql` · hotfix ENV `ID_ORGANIZACAO_GRAVITY` documentado em `servicos-global/configurador/.env.example`. |
 
 ### Fluxo Super Admin (resumo)
 
 ```
-UI: tipo Super Admin → nome + e-mail → Convidar (sem select org)
-     ↓
+UI: tipo Super Admin → nome + e-mail → Convidar
+     ↓ (fail-fast #382: exige org Gravity na lista adminOrganizacoesApi)
 POST /api/v1/admin/usuarios/convidar { tipo_usuario: SUPER_ADMIN, id_organizacao_alvo: <best-effort> }
      ↓
-Handler: resolverIdOrganizacaoGravity() → convidarUsuarioService({ id_organizacao_alvo: ORG_GRAVITY, ... })
+Handler: resolverIdOrganizacaoGravity()  ← flag true OU subdominio gravity (#383)
+     ↓
+convidarUsuarioService({ id_organizacao_alvo: ORG_GRAVITY, ... })
 ```
+
+### Verificação pós-deploy
+- Logs Railway boot: `[garantir-org-gravity] OK — N org(s)`
+- Convite Super Admin → **POST 201**
+- Sem org Gravity: modal vermelho (não «resolvida automaticamente»)
 
 ### Pacote de testes (`admin/usuarios/novos-usuarios`)
 

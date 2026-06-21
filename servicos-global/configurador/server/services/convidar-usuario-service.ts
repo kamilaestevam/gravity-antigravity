@@ -120,11 +120,18 @@ export async function convidarUsuarioService(
   // ─── 1. Org alvo existe e está ATIVA ────────────────────────────────────
   const orgAlvo = await prisma.organizacao.findUnique({
     where: { id_organizacao: id_organizacao_alvo },
-    select: { status_organizacao: true, hospeda_colaboradores_gravity: true },
+    select: {
+      status_organizacao: true,
+      hospeda_colaboradores_gravity: true,
+      subdominio_organizacao: true,
+    },
   })
   if (!orgAlvo || orgAlvo.status_organizacao !== 'ATIVO') {
     throw new AppError('Organização não encontrada ou inativa', 404, 'ORG_NOT_FOUND')
   }
+
+  const orgGravityCanonica =
+    orgAlvo.hospeda_colaboradores_gravity || orgAlvo.subdominio_organizacao === 'gravity'
 
   // ─── 2. Regra Gravity-interna — checada na ORG ALVO ─────────────────────
   // SUPER_ADMIN/ADMIN só podem ser criados em organizações que hospedam
@@ -132,7 +139,7 @@ export async function convidarUsuarioService(
   // na org do ATOR, o que estava errado quando o ator e o alvo são orgs
   // diferentes (fluxo SUPER_ADMIN cross-org).
   if (tipo_usuario === 'SUPER_ADMIN' || tipo_usuario === 'ADMIN') {
-    if (!orgAlvo.hospeda_colaboradores_gravity) {
+    if (!orgGravityCanonica) {
       throw new AppError(
         'SUPER_ADMIN/ADMIN só podem ser criados em organizações que hospedam colaboradores Gravity',
         403,

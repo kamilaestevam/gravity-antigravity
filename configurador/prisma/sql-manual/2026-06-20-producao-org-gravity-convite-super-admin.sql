@@ -9,11 +9,15 @@ FROM organizacao
 WHERE hospeda_colaboradores_gravity = true
    OR TRIM(nome_organizacao) ILIKE '%gravity%intern%';
 
--- 2) Marcar org interna (ajuste o WHERE se o nome em prod for diferente)
+-- 2) Marcar org interna (nome canônico ou subdomínio gravity)
 UPDATE organizacao
 SET nome_organizacao = TRIM(nome_organizacao),
     hospeda_colaboradores_gravity = true
-WHERE TRIM(nome_organizacao) = 'Gravity - Interno';
+WHERE status_organizacao = 'ATIVO'
+  AND (
+    TRIM(nome_organizacao) = 'Gravity - Interno'
+    OR subdominio_organizacao = 'gravity'
+  );
 
 -- 3) Conferência
 SELECT id_organizacao, nome_organizacao, hospeda_colaboradores_gravity, status_organizacao

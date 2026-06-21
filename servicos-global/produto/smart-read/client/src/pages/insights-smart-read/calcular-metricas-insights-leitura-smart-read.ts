@@ -8,6 +8,20 @@ import {
   extrairDocumentosInsightsDeLeituras,
   type DocumentoInsightsSmartRead,
 } from './extrair-dados-documento-leitura-smart-read'
+import {
+  PARTICIPANTES_RANKING_INSIGHTS_SMART_READ,
+  type TipoParticipanteInsightsSmartRead,
+} from './mapear-participante-insights-smart-read'
+
+export type TipoParticipanteRankingInsightsSmartRead = Exclude<
+  TipoParticipanteInsightsSmartRead,
+  'importador'
+>
+
+export type RankingsPorParticipanteInsightsSmartRead = Record<
+  TipoParticipanteRankingInsightsSmartRead,
+  { acertos: RankingEntidadeInsightsSmartRead[]; erros: RankingEntidadeInsightsSmartRead[] }
+>
 
 export type RankingEntidadeInsightsSmartRead = {
   nome: string
@@ -32,6 +46,7 @@ export type MetricasInsightsLeituraSmartRead = {
   rankingsImportador: RankingEntidadeInsightsSmartRead[]
   rankingsExportadorAcerto: RankingEntidadeInsightsSmartRead[]
   rankingsImportadorAcerto: RankingEntidadeInsightsSmartRead[]
+  rankingsPorParticipante: RankingsPorParticipanteInsightsSmartRead
   blAwb: {
     bl: { documentos: number; mediaAcertos: number | null; camposCorretos: number; camposErrados: number }
     awb: { documentos: number; mediaAcertos: number | null; camposCorretos: number; camposErrados: number }
@@ -77,6 +92,80 @@ function montarRankingEntidade(
   })
 
   return rankings.slice(0, 5)
+}
+
+function montarRankingResponsavelEmissor(
+  documentos: DocumentoInsightsSmartRead[],
+  tipoParticipante: TipoParticipanteInsightsSmartRead,
+  ordem: 'acerto' | 'erro',
+): RankingEntidadeInsightsSmartRead[] {
+  const mapa = new Map<string, DocumentoInsightsSmartRead[]>()
+
+  for (const doc of documentos) {
+    const responsavel = doc.responsavel_emissor
+    if (!responsavel || responsavel.tipo !== tipoParticipante) continue
+    const lista = mapa.get(responsavel.nome) ?? []
+    lista.push(doc)
+    mapa.set(responsavel.nome, lista)
+  }
+
+  const rankings = [...mapa.entries()].map(([nome, docs]) => ({
+    nome,
+    documentos: docs.length,
+    media_acertos: mediaAccuracy(docs.map((d) => d.accuracy)),
+    campos_corretos: docs.reduce((acc, d) => acc + d.campos_corretos, 0),
+    campos_errados: docs.reduce((acc, d) => acc + d.campos_errados, 0),
+  }))
+
+  rankings.sort((a, b) => {
+    if (ordem === 'acerto') {
+      return (b.media_acertos ?? 0) - (a.media_acertos ?? 0)
+    }
+    return b.campos_errados - a.campos_errados
+  })
+
+  return rankings.slice(0, 5)
+}
+
+function montarRankingsPorParticipante(
+  documentos: DocumentoInsightsSmartRead[],
+): RankingsPorParticipanteInsightsSmartRead {
+  const saida = {} as RankingsPorParticipanteInsightsSmartRead
+  for (const participante of PARTICIPANTES_RANKING_INSIGHTS_SMART_READ) {
+    saida[participante.tipo] = {
+      acertos: montarRankingResponsavelEmissor(documentos, participante.tipo, 'acerto'),
+      erros: montarRankingResponsavelEmissor(documentos, participante.tipo, 'erro'),
+    }
+  }
+  return saida
+}
+
+const RANKINGS_PARTICIPANTE_VAZIO: RankingsPorParticipanteInsightsSmartRead =
+  montarRankingsPorParticipante([])
+
+/** Resolve rankings por emissor — tolera metricas legadas sem rankingsPorParticipante. */
+export function resolverRankingsParticipanteInsights(
+  metricas: MetricasInsightsLeituraSmartRead,
+  tipo: TipoParticipanteRankingInsightsSmartRead,
+): { acertos: RankingEntidadeInsightsSmartRead[]; erros: RankingEntidadeInsightsSmartRead[] } {
+  const porTipo = metricas.rankingsPorParticipante?.[tipo]
+  if (porTipo) return porTipo
+
+  if (tipo === 'exportador') {
+    console.warn(
+      '[InsightsSmartRead] rankingsPorParticipante ausente — usando rankingsExportador legado',
+    )
+    return {
+      acertos: metricas.rankingsExportadorAcerto ?? [],
+      erros: metricas.rankingsExportador ?? [],
+    }
+  }
+
+  console.warn(
+    '[InsightsSmartRead] rankingsPorParticipante ausente — lista vazia para participante',
+    tipo,
+  )
+  return RANKINGS_PARTICIPANTE_VAZIO[tipo]
 }
 
 function calcularSavingDocumento(doc: DocumentoInsightsSmartRead): {
@@ -173,6 +262,7 @@ export function calcularMetricasInsightsLeituraSmartRead(
     rankingsImportador: montarRankingEntidade(documentos, 'importador', 'erro'),
     rankingsExportadorAcerto: montarRankingEntidade(documentos, 'exportador', 'acerto'),
     rankingsImportadorAcerto: montarRankingEntidade(documentos, 'importador', 'acerto'),
+    rankingsPorParticipante: montarRankingsPorParticipante(documentos),
     blAwb: {
       bl: resumoBlAwb(documentos, 'bl'),
       awb: resumoBlAwb(documentos, 'awb'),

@@ -37,7 +37,9 @@ import { AreaAnexarNovaLeituraSmartRead } from './area-anexar-nova-leitura-smart
 
 import { DashboardAnaliseNovaLeituraSmartRead } from './dashboard-analise-nova-leitura-smart-read'
 
-import { AreaConferenciaNovaLeituraSmartRead } from './area-conferencia-nova-leitura-smart-read'
+import { AreaConferenciaNovaLeituraSmartRead, type SelecaoDocumentoConferencia } from './area-conferencia-nova-leitura-smart-read'
+
+import { ModalCompararArquivoConferenciaSmartRead } from './modal-comparar-arquivo-conferencia-smart-read'
 
 import { AreaResultadoNovaLeituraSmartRead } from './area-resultado-nova-leitura-smart-read'
 
@@ -111,6 +113,10 @@ export function ModalNovaLeituraSmartRead({
 
   const [inicioAnalise, setInicioAnalise] = useState<number | null>(null)
 
+  const [conferenciaSelecao, setConferenciaSelecao] = useState<SelecaoDocumentoConferencia | null>(null)
+
+  const [compararAberto, setCompararAberto] = useState(false)
+
   const ativo = useRef(true)
   const urlsBlob = useRef<Map<string, string>>(new Map())
   const abertoAnteriorRef = useRef(false)
@@ -128,6 +134,8 @@ export function ModalNovaLeituraSmartRead({
       setNomeLeitura(gerarNomeLeitura())
       setEnviando(false)
       setInicioAnalise(null)
+      setConferenciaSelecao(null)
+      setCompararAberto(false)
       setArquivos(arquivosIniciais.map((arquivo) => criarArquivoLocalNovaLeitura(arquivo)))
     }
     abertoAnteriorRef.current = aberto
@@ -245,11 +253,16 @@ export function ModalNovaLeituraSmartRead({
 
 
 
-  const visualizarDocumento = useCallback((id: string, _indice: number) => {
+  const visualizarDocumento = useCallback((id: string, indice: number) => {
+
+    if (passo === 3) {
+      setConferenciaSelecao({ idArquivoLocal: id, indiceDocumento: indice })
+      return
+    }
 
     visualizarArquivo(id)
 
-  }, [visualizarArquivo])
+  }, [visualizarArquivo, passo])
 
 
 
@@ -524,11 +537,30 @@ export function ModalNovaLeituraSmartRead({
 
         )}
 
-        {passo === 3 && <AreaConferenciaNovaLeituraSmartRead arquivos={arquivos} />}
+        {passo === 3 && (
+          <AreaConferenciaNovaLeituraSmartRead
+            arquivos={arquivos}
+            selecao={conferenciaSelecao}
+            onSelecionarDocumento={setConferenciaSelecao}
+            onCompararArquivo={() => setCompararAberto(true)}
+          />
+        )}
 
         {passo === 4 && <AreaResultadoNovaLeituraSmartRead arquivos={arquivos} />}
 
       </div>
+
+      <ModalCompararArquivoConferenciaSmartRead
+        aberto={compararAberto && passo === 3}
+        arquivo={
+          arquivos.find((a) => a.id_arquivo_local === conferenciaSelecao?.idArquivoLocal) ?? null
+        }
+        indiceDocumento={conferenciaSelecao?.indiceDocumento ?? 0}
+        urlOriginal={
+          conferenciaSelecao ? obterUrlArquivo(conferenciaSelecao.idArquivoLocal) : null
+        }
+        onFechar={() => setCompararAberto(false)}
+      />
 
     </ModalPassoPassoGlobal>
 

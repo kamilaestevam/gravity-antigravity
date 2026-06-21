@@ -436,16 +436,6 @@ body.light-theme .sr-linha-documento {
   to { transform: rotate(360deg); }
 }
 
-.sr-insights-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
-}
-
-.sr-insights-grid .sr-cards-insights {
-  display: contents;
-}
-
 .sr-placeholder-pagina {
   padding: 3rem 1.5rem;
   text-align: center;

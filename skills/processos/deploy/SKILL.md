@@ -28,7 +28,9 @@ Nenhuma operação de deploy é feita sem seguir este documento. Nenhuma migrati
 |:---|:---|:---|:---|
 | `site-usegravity` | 8080 | `www.usegravity.com.br` | Dockerfile (Vite build + tsx loader) |
 
-> O `site-usegravity` serve o frontend Vite (SPA) e o backend Express do Configurador em um único container. O build usa `scripts/build-site.sh` (Custom Build Command) ou o `Dockerfile` na raiz.
+> O `site-usegravity` serve o frontend Vite (SPA) e o backend Express do Configurador em um único container. O build usa `scripts/build-site.sh` (Custom Build Command) ou o `Dockerfile` na raiz. **Start:** `scripts/start-site.sh` (`railway.toml`).
+
+> **Boot Configurador — org Gravity (TASK-000302):** após `prisma migrate deploy`, `start-site.sh` executa `scripts/ativamente/garantir-org-gravity-configurador.ts` (best-effort). Garante coluna `hospeda_colaboradores_gravity` e marca org `Gravity - Interno` / subdomínio `gravity`. Log esperado: `[garantir-org-gravity] OK`. Detalhe: `documentos-tecnicos/arquitetura/convite-admin-cross-org.md` § TASK-000302.
 
 ### Bancos de Dados
 

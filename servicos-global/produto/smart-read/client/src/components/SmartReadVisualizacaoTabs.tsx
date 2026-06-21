@@ -4,7 +4,7 @@
 
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { ChartPieSlice, ChartBar, ListBullets, Kanban } from '@phosphor-icons/react'
+import { ChartPieSlice, ListBullets } from '@phosphor-icons/react'
 import { rotaSmartRead, type SmartReadVisualizacaoId } from '../shared/rotas-smart-read'
 import { testidTabSeletorSmartRead } from './smart-read-visualizacao-context'
 import './SmartReadVisualizacaoTabs.css'
@@ -12,8 +12,6 @@ import './SmartReadVisualizacaoTabs.css'
 const TABS: { id: SmartReadVisualizacaoId; label: string; icone: React.ReactNode }[] = [
   { id: 'insights', label: 'Insights', icone: <ChartPieSlice weight="duotone" size={16} /> },
   { id: 'lista', label: 'Lista', icone: <ListBullets weight="duotone" size={16} /> },
-  { id: 'dashboard', label: 'Dashboard', icone: <ChartBar weight="duotone" size={16} /> },
-  { id: 'kanban', label: 'Kanban', icone: <Kanban weight="duotone" size={16} /> },
 ]
 
 export function SmartReadVisualizacaoTabs() {

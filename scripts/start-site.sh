@@ -71,6 +71,13 @@ if [ -n "${CONFIGURADOR_DATABASE_URL:-}" ]; then
     echo "[start-site] ERRO: migrations Configurador falharam — servidor sobe mesmo assim (ver logs acima)."
     echo "[start-site] Admin /testes-gerais pode não persistir histórico até migrate deploy passar."
   fi
+  echo "[start-site] Garantindo org Gravity interna (convite SUPER_ADMIN)..."
+  if CONFIGURADOR_DATABASE_URL="$CONFIGURADOR_DATABASE_URL" \
+    npx tsx scripts/ativamente/garantir-org-gravity-configurador.ts; then
+    echo "[start-site] Org Gravity interna OK."
+  else
+    echo "[start-site] AVISO: garantir-org-gravity falhou — convite SUPER_ADMIN pode retornar 503."
+  fi
 else
   echo "[start-site] AVISO: CONFIGURADOR_DATABASE_URL ausente — migrations Configurador ignoradas."
 fi

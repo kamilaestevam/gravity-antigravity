@@ -53,15 +53,31 @@ export async function resolverIdOrganizacaoGravity(): Promise<string> {
     orderBy: { data_criacao_organizacao: 'asc' },
     select: { id_organizacao: true },
   })
-  if (!org) {
-    throw new AppError(
-      'Organização Gravity não configurada (hospeda_colaboradores_gravity)',
-      503,
-      'ORG_GRAVITY_AUSENTE',
-    )
+  if (org) {
+    cacheIdOrganizacaoGravity = org.id_organizacao
+    return org.id_organizacao
   }
-  cacheIdOrganizacaoGravity = org.id_organizacao
-  return org.id_organizacao
+
+  // Fallback canônico: subdomínio gravity (Gravity - Interno) — prod sem flag marcada
+  const orgSubdominio = await prisma.organizacao.findFirst({
+    where: { subdominio_organizacao: 'gravity', status_organizacao: 'ATIVO' },
+    orderBy: { data_criacao_organizacao: 'asc' },
+    select: { id_organizacao: true, nome_organizacao: true },
+  })
+  if (orgSubdominio) {
+    log.warn(
+      { id_organizacao: orgSubdominio.id_organizacao, nome: orgSubdominio.nome_organizacao },
+      'ORG_GRAVITY: fallback subdominio_organizacao=gravity — marque hospeda_colaboradores_gravity ou defina ID_ORGANIZACAO_GRAVITY',
+    )
+    cacheIdOrganizacaoGravity = orgSubdominio.id_organizacao
+    return orgSubdominio.id_organizacao
+  }
+
+  throw new AppError(
+    'Organização Gravity não configurada (hospeda_colaboradores_gravity)',
+    503,
+    'ORG_GRAVITY_AUSENTE',
+  )
 }
 
 export interface ProvisionarPrestadorFornecedorArgs {

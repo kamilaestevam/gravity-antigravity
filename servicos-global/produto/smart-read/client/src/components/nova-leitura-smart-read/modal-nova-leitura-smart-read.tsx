@@ -24,12 +24,23 @@ import {
 
   criarArquivoLocalNovaLeitura,
 
+  criarArquivosLocaisDeLeitura,
+  consolidarLeituraDeArquivosLocais,
+  passoInicialLeituraSmartRead,
+
   todosArquivosAnaliseCompleta,
   todosArquivosProcessamentoFinalizado,
 
   type ArquivoLocalNovaLeitura,
 
 } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
+
+import {
+  lerEstadoLeituraSmartRead,
+  salvarEstadoLeituraSmartRead,
+} from '../../shared/persistencia-leitura-smart-read'
+
+import { obterLeituraMockSmartRead } from '../../shared/dados-mock-lista-smart-read'
 
 import { PainelLateralArquivosNovaLeituraSmartRead } from './painel-lateral-arquivos-nova-leitura-smart-read'
 
@@ -72,6 +83,9 @@ type Props = {
   aberto: boolean
 
   arquivosIniciais?: File[]
+
+  /** Quando informado, abre uma leitura existente no passo atual (modo "retomar"). */
+  idLeituraExistente?: string | null
 
   onFechar: () => void
 
@@ -116,6 +130,8 @@ export function ModalNovaLeituraSmartRead({
 
   arquivosIniciais = [],
 
+  idLeituraExistente = null,
+
   onFechar,
 
   onConcluido,
@@ -136,9 +152,14 @@ export function ModalNovaLeituraSmartRead({
 
   const [compararAberto, setCompararAberto] = useState(false)
 
+  const [camposEditados, setCamposEditados] = useState<Set<string>>(() => new Set())
+
+  const [tempoTotalMs, setTempoTotalMs] = useState(0)
+
   const ativo = useRef(true)
   const urlsBlob = useRef<Map<string, string>>(new Map())
   const abertoAnteriorRef = useRef(false)
+  const inicioSessaoRef = useRef<number>(Date.now())
 
   useEffect(() => {
     ativo.current = true
@@ -147,18 +168,54 @@ export function ModalNovaLeituraSmartRead({
     }
   }, [])
 
+  const hidratarLeituraExistente = useCallback(async (id: string) => {
+    try {
+      // Mock tem prioridade (dev/UI sem legado), espelhando a tabela; senão API real.
+      const mock = obterLeituraMockSmartRead(id)
+      const leitura = mock ?? (await smartReadApi.obterLeitura(id))
+      if (!ativo.current) return
+      // Estado salvo localmente (passo + edições) tem prioridade sobre o fetch.
+      const salvo = lerEstadoLeituraSmartRead(id)
+      if (import.meta.env.DEV) {
+        console.warn('[smart-read][persist] retomar', { id, temSalvo: !!salvo, passoSalvo: salvo?.passo })
+      }
+      const leituraEfetiva = salvo?.leitura ?? leitura
+      setNomeLeitura(leituraEfetiva.nome_leitura ?? salvo?.nome ?? 'Leitura')
+      setArquivos(criarArquivosLocaisDeLeitura(leituraEfetiva))
+      setPasso(salvo?.passo ?? passoInicialLeituraSmartRead(leitura.status_leitura))
+    } catch {
+      if (!ativo.current) return
+      setArquivos([])
+      setPasso(1)
+    }
+  }, [])
+
   useEffect(() => {
     if (aberto && !abertoAnteriorRef.current) {
-      setPasso(1)
-      setNomeLeitura(gerarNomeLeitura())
       setEnviando(false)
       setInicioAnalise(null)
       setConferenciaSelecao(null)
       setCompararAberto(false)
-      setArquivos(arquivosIniciais.map((arquivo) => criarArquivoLocalNovaLeitura(arquivo)))
+      setCamposEditados(new Set())
+      setTempoTotalMs(0)
+      inicioSessaoRef.current = Date.now()
+      if (idLeituraExistente) {
+        setArquivos([])
+        void hidratarLeituraExistente(idLeituraExistente)
+      } else {
+        setPasso(1)
+        setNomeLeitura(gerarNomeLeitura())
+        setArquivos(arquivosIniciais.map((arquivo) => criarArquivoLocalNovaLeitura(arquivo)))
+      }
     }
     abertoAnteriorRef.current = aberto
-  }, [aberto, arquivosIniciais])
+  }, [aberto, arquivosIniciais, idLeituraExistente, hidratarLeituraExistente])
+
+  useEffect(() => {
+    if (passo === 4) {
+      setTempoTotalMs((atual) => (atual === 0 ? Date.now() - inicioSessaoRef.current : atual))
+    }
+  }, [passo])
 
 
 
@@ -300,6 +357,11 @@ export function ModalNovaLeituraSmartRead({
           return { ...item, leitura }
         }),
       )
+      setCamposEditados((prev) => {
+        const next = new Set(prev)
+        next.add(`${selecao.idArquivoLocal}:${selecao.indiceDocumento}:${chave}`)
+        return next
+      })
     },
     [conferenciaSelecao],
   )
@@ -438,6 +500,26 @@ export function ModalNovaLeituraSmartRead({
 
 
   function handleFechar() {
+
+    // Salva o progresso (passo + edições) SE o documento foi lido e estamos no passo 2+.
+    const idLeitura = idLeituraExistente ?? arquivos.find((a) => a.id_leitura)?.id_leitura ?? null
+    const documentoLido = todosArquivosAnaliseCompleta(arquivos)
+    if (import.meta.env.DEV) {
+      console.warn('[smart-read][persist] fechar', {
+        idLeitura,
+        idLeituraExistente,
+        passo,
+        documentoLido,
+        totalArquivos: arquivos.length,
+      })
+    }
+    if (idLeitura && passo >= 2 && documentoLido) {
+      const leitura = consolidarLeituraDeArquivosLocais(arquivos)
+      if (leitura) {
+        salvarEstadoLeituraSmartRead(idLeitura, { passo, nome: nomeLeitura, leitura })
+        if (import.meta.env.DEV) console.warn('[smart-read][persist] SALVO', { idLeitura, passo })
+      }
+    }
 
     onFechar()
 
@@ -586,7 +668,13 @@ export function ModalNovaLeituraSmartRead({
           />
         )}
 
-        {passo === 4 && <AreaResultadoNovaLeituraSmartRead arquivos={arquivos} />}
+        {passo === 4 && (
+          <AreaResultadoNovaLeituraSmartRead
+            arquivos={arquivos}
+            camposEditados={camposEditados.size}
+            tempoTotalMs={tempoTotalMs}
+          />
+        )}
 
       </div>
 

@@ -10,13 +10,18 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import { useShellStore, ToastContainer, useMeSync, TelaProdutoComOrganizacaoOverride } from '@gravity/shell'
 import { useClerk } from '@clerk/clerk-react'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
-import { FileMagnifyingGlass, FileText } from '@phosphor-icons/react'
-import { PRODUCT_CONFIG } from './shared/config'
+import {
+  FileMagnifyingGlass, FileText, GearSix, UserCircle, CheckCircle,
+  Envelope, WhatsappLogo, ClockCounterClockwise, ListBullets,
+} from '@phosphor-icons/react'
+import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { setApiContext } from './shared/api'
 import { rotaSmartRead } from './shared/rotas-smart-read'
 import { SmartReadVisualizacaoLayout } from './components/SmartReadVisualizacaoLayout'
 import { SmartReadMultiView } from './components/SmartReadMultiView'
 import type { NavItem } from '@nucleo/tela-produto-global'
+
+const ConfiguracoesSmartRead = lazy(() => import('./pages/configuracoes-smart-read/ConfiguracoesSmartRead'))
 
 const smartReadVisualizacoesElement = <SmartReadMultiView />
 
@@ -24,14 +29,34 @@ const PRODUCT_ID = 'smart-read'
 const PRODUCT_NAME = 'Smart Read'
 const PRODUCT_COLOR = PRODUCT_CONFIG.color
 
-const NAV_ITEMS: NavItem[] = [
-  {
-    id: 'lista',
-    to: 'lista',
-    label: 'Leituras',
-    icon: <FileText weight="duotone" size={20} />,
-  },
-]
+const iconMap: Record<string, React.ReactNode> = {
+  'file-text':               <FileText              weight="duotone" size={20} />,
+  'gear-six':                <GearSix               weight="duotone" size={20} />,
+  'user-circle':             <UserCircle            weight="duotone" size={20} />,
+  'check-circle':            <CheckCircle           weight="duotone" size={20} />,
+  'envelope':                <Envelope              weight="duotone" size={20} />,
+  'whatsapp-logo':           <WhatsappLogo          weight="duotone" size={20} />,
+  'clock-counter-clockwise': <ClockCounterClockwise weight="duotone" size={20} />,
+}
+
+function mapNavItem(item: NavigationItem): NavItem {
+  if (item.sectionDivider) {
+    return { label: item.label, icon: null, sectionDivider: true as const }
+  }
+  return {
+    id:           item.id,
+    to:           item.id,
+    label:        item.label,
+    icon:         iconMap[item.icon ?? ''] ?? <ListBullets weight="duotone" size={20} />,
+    disabled:     item.disabled,
+    badge:        item.badge,
+    badgeVariant: item.badgeVariant,
+    external:     item.external,
+    children:     item.children?.map(mapNavItem),
+  }
+}
+
+const NAV_ITEMS: NavItem[] = PRODUCT_CONFIG.navigation.map(mapNavItem)
 
 const ECOSYSTEM_NODES: EcosystemNode[] = [
   { id: 'hub',          label: 'Hub',          sublabel: 'workspaces',            color: '#818cf8',     type: 'hub',          status: 'accessible' },
@@ -45,6 +70,7 @@ const ROTULO_PAGINA: Record<string, string> = {
   dashboard: 'Dashboard',
   kanban: 'Kanban',
   leituras: 'Leituras',
+  configuracoes: 'Configurações',
 }
 
 const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string }> = {
@@ -54,7 +80,7 @@ const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string 
   },
   insights: {
     icone: <FileText weight="duotone" size={22} />,
-    subtitulo: 'Indicadores e KPIs de leitura de documentos',
+    subtitulo: '',
   },
   dashboard: {
     icone: <FileText weight="duotone" size={22} />,
@@ -67,6 +93,10 @@ const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string 
   leituras: {
     icone: <FileMagnifyingGlass weight="duotone" size={22} />,
     subtitulo: 'Leitura inteligente de documentos COMEX',
+  },
+  configuracoes: {
+    icone: <GearSix weight="duotone" size={22} />,
+    subtitulo: 'Preferências e ajustes do Smart Read',
   },
 }
 
@@ -81,6 +111,7 @@ function LoadingFallback() {
 
 function resolverRouteKey(relSegments: string[]): string {
   if (relSegments[0] === 'leituras') return 'leituras'
+  if (relSegments[0] === 'configuracoes') return 'configuracoes'
   return relSegments[0] ?? 'lista'
 }
 
@@ -168,7 +199,7 @@ export default function App() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
-      onNavigateSettings={() => { navigate(rotaSmartRead('lista')) }}
+      onNavigateSettings={() => { navigate('/smart-read/configuracoes') }}
       localizador={{
         workspaceName:       nomeWorkspaceAtivo,
         currentPageLabel:    currentPageLabel,
@@ -208,6 +239,7 @@ export default function App() {
             <Route path="dashboard" element={smartReadVisualizacoesElement} />
             <Route path="kanban"    element={smartReadVisualizacoesElement} />
           </Route>
+          <Route path="configuracoes" element={<ConfiguracoesSmartRead />} />
           <Route path="*" element={<Navigate to={rotaSmartRead('lista')} replace />} />
         </Routes>
       </Suspense>

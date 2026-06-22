@@ -231,15 +231,16 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/" element={<Navigate to={rotaSmartRead('lista')} replace />} />
-          <Route path="visao-geral" element={<Navigate to={rotaSmartRead('lista')} replace />} />
-          <Route path="leituras" element={<Navigate to={rotaSmartRead('lista')} replace />} />
+          <Route path="/smart-read" element={<Navigate to={rotaSmartRead('lista')} replace />} />
+          <Route path="/smart-read/visao-geral" element={<Navigate to={rotaSmartRead('lista')} replace />} />
+          <Route path="/smart-read/leituras" element={<Navigate to={rotaSmartRead('lista')} replace />} />
           <Route element={<SmartReadVisualizacaoLayout />}>
-            <Route path="insights"  element={smartReadVisualizacoesElement} />
-            <Route path="lista"     element={smartReadVisualizacoesElement} />
-            <Route path="dashboard" element={smartReadVisualizacoesElement} />
-            <Route path="kanban"    element={smartReadVisualizacoesElement} />
+            <Route path="/smart-read/insights"  element={smartReadVisualizacoesElement} />
+            <Route path="/smart-read/lista"     element={smartReadVisualizacoesElement} />
+            <Route path="/smart-read/dashboard" element={smartReadVisualizacoesElement} />
+            <Route path="/smart-read/kanban"    element={smartReadVisualizacoesElement} />
           </Route>
-          <Route path="configuracoes" element={<ConfiguracoesSmartRead />} />
+          <Route path="/smart-read/configuracoes" element={<ConfiguracoesSmartRead />} />
           <Route path="*" element={<Navigate to={rotaSmartRead('lista')} replace />} />
         </Routes>
       </Suspense>

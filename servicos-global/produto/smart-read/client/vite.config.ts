@@ -9,6 +9,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const monorepoRoot = path.resolve(__dirname, '../../../..')
 
 export default defineConfig({
+  base: '/smart-read/',
+
   plugins: [react()],
 
   resolve: {

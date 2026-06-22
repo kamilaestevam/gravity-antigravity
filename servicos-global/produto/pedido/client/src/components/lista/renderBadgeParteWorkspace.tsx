@@ -6,16 +6,18 @@ import React from 'react'
 import { Buildings } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
+const COR_LINK_LISTA = 'var(--gtv-link, var(--accent, #6366f1))'
+
 const BADGE_STYLE: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: '0.3rem',
-  background: 'rgba(129, 140, 248, 0.12)',
-  border: '1px solid rgba(129, 140, 248, 0.28)',
+  background: 'color-mix(in srgb, var(--gtv-link, var(--accent, #6366f1)) 12%, transparent)',
+  border: '1px solid color-mix(in srgb, var(--gtv-link, var(--accent, #6366f1)) 28%, transparent)',
   borderRadius: '4px',
   padding: '2px 8px',
   fontSize: '0.78rem',
-  color: '#818cf8',
+  color: COR_LINK_LISTA,
   maxWidth: '100%',
 }
 
@@ -46,7 +48,7 @@ export function renderBadgeParteWorkspace(opts: {
         cursor: href && !somenteLeitura ? 'pointer' : 'default',
       }}
     >
-      <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
+      <Buildings size={12} weight="bold" style={{ flexShrink: 0, color: COR_LINK_LISTA }} />
       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {truncado ? `${nomeWorkspace.slice(0, 50)}…` : nomeWorkspace}
       </span>

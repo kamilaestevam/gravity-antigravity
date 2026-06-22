@@ -8,6 +8,7 @@ import { AppError } from './app-error.js'
 import {
   criarLeituraMockLegado,
   enviarArquivoMockLegado,
+  listarLeiturasMockLegado,
   obterLeituraMockLegado,
 } from './mock-legado-smart-read.js'
 import {
@@ -140,4 +141,27 @@ export async function obterLeituraLegado(companyId: string, idLeitura: string): 
     headers: cabecalhosBase(companyId),
   })
   return LeituraLegadoSchema.parse(corpo)
+}
+
+export async function listarLeiturasLegado(
+  companyId: string,
+  params: { pagina: number; limite: number; termo_busca?: string },
+): Promise<unknown> {
+  if (deveUsarMockLegadoSmartRead()) {
+    registrarUsoMockLegado()
+    return listarLeiturasMockLegado(params)
+  }
+  const paginaLegado = Math.max(0, params.pagina - 1)
+  const query = new URLSearchParams({
+    page: String(paginaLegado),
+    size: String(params.limite),
+  })
+  if (params.termo_busca) query.set('search', params.termo_busca)
+  return chamarLegado(`/list?${query.toString()}`, {
+    method: 'GET',
+    headers: {
+      ...cabecalhosBase(companyId),
+      'x-smart-read-project-id': 'gravity',
+    },
+  })
 }

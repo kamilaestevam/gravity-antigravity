@@ -49,14 +49,10 @@ export default function InsightsSmartRead() {
           metricas={metricas}
         />
 
-        <PainelTiposDocumentoInsightsSmartRead
-          className="sr-insights-grid__tipos"
-          metricas={metricas}
-        />
-        <PainelSavingDetalheInsightsSmartRead
-          className="sr-insights-grid__economia"
-          metricas={metricas}
-        />
+        <div className="sr-insights-grid__col-leve">
+          <PainelTiposDocumentoInsightsSmartRead metricas={metricas} />
+          <PainelSavingDetalheInsightsSmartRead metricas={metricas} />
+        </div>
         <PainelRankingsEntidadeInsightsSmartRead
           className="sr-insights-grid__rankings"
           metricas={metricas}

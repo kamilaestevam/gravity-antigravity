@@ -501,15 +501,8 @@
   min-height: 0;
 }
 
-/* Lista fornecedor — tipografia padrão do sistema (sem DM Mono). */
+/* Lista fornecedor — herda .gtv-celula-link (token --gtv-link). */
 .bf-lista-page .bf-lista-link-cotacao {
-  font: inherit;
-  font-size: inherit;
-  color: var(--accent, #6366f1);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
   text-align: left;
 }
 

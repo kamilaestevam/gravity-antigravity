@@ -2,7 +2,7 @@
  * index.ts — Smart Read Express Server (BFF/adapter para o Smart Read legado)
  * Localização canônica: servicos-global/produto/smart-read/server/
  * Porta: 8033
- * Sem banco próprio — todo estado vive no Smart Read legado (dati/microservices).
+ * Banco Gravity (progresso wizard, preferências) + legado dati (leituras/extração).
  */
 
 import dotenv from 'dotenv'
@@ -20,6 +20,8 @@ import helmet from 'helmet'
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit'
 import { requireInternalKey } from './middleware/require-internal-key.js'
 import { leiturasSmartReadRouter } from './routes/leituras-smart-read.js'
+import { listaPaineisSmartReadRouter } from './routes/lista-paineis-smart-read.js'
+import { isolamentoOrganizacaoSmartReadMiddleware } from './middleware/isolamento-organizacao-smart-read.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 8033
@@ -80,8 +82,10 @@ const apiLimiter = rateLimit({
 app.use('/api/', apiLimiter)
 
 app.use('/api/', requireInternalKey)
+app.use('/api/', isolamentoOrganizacaoSmartReadMiddleware)
 
 app.use('/api/v1/smart-read/leituras', leiturasSmartReadRouter)
+app.use('/api/v1/smart-read/lista/paineis', listaPaineisSmartReadRouter)
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(`[Smart-Read Error] ${err.message}`)

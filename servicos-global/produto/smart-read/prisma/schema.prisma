@@ -1,0 +1,80 @@
+// ──────────────────────────────────────────────────────────────────────────────
+// schema.prisma — ARQUIVO AUTO-GERADO
+// NÃO EDITAR MANUALMENTE. Edite schema.base.prisma ou fragment.prisma
+// Gerado por: node prisma/compose-schema.js
+// Banco: gravity-smart-read-* (Railway)
+// ──────────────────────────────────────────────────────────────────────────────
+
+// schema.base.prisma — Smart Read (Gravity)
+// Banco-alvo: gravity-smart-read-producao / gravity-smart-read-teste (Railway)
+// Combinado com fragment.prisma via `node prisma/compose-schema.js`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../server/src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Models do produto Smart Read — fragment.prisma
+
+
+// ─── Fragment: Smart Read ─────────────────────────────────────────────────────
+
+// fragment.prisma — Smart Read (Gravity)
+// Persistência local do produto: progresso do wizard, preferências de UI.
+// Leituras (documento/extração) permanecem no legado (dati) — referência via id_leitura_legado_progresso_leitura_smart_read.
+//
+// REGRA: todo model DEVE ter id_organizacao e os índices obrigatórios.
+// Skill: isolamento-organizacao, schema-composition, ddd-nomenclatura
+//
+// ⚠️ Não editar schema.prisma composto diretamente — migration via Coordenador.
+
+/// Progresso do wizard Nova Leitura por usuário (passo 2–4 + edições da conferência).
+/// Um registro por (organização, usuário, leitura legada).
+/// Lista: clique no nome → GET por id_leitura_legado_progresso_leitura_smart_read → abre no passo_atual salvo.
+model ProgressoLeituraSmartRead {
+  id_progresso_leitura_smart_read           String   @id @default(cuid())
+  id_organizacao                            String
+  id_produto_gravity                          String   @default("smart-read")
+  id_usuario                                String
+  id_workspace                              String?
+  id_leitura_legado_progresso_leitura_smart_read String
+  passo_atual_progresso_leitura_smart_read  Int
+  dados_sessao_progresso_leitura_smart_read Json
+  data_criacao_progresso_leitura_smart_read DateTime @default(now())
+  data_atualizacao_progresso_leitura_smart_read DateTime @updatedAt
+
+  @@unique([id_organizacao, id_usuario, id_leitura_legado_progresso_leitura_smart_read])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_leitura_legado_progresso_leitura_smart_read])
+  @@map("progresso_leitura_smart_read")
+}
+
+/// Painéis salvos da Lista do Smart Read (colunas visíveis, ordem, largura, filtros,
+/// aba ativa, ordenação) por usuário/produto. Mesmo padrão de Pedido/BID Frete;
+/// discriminado por id_produto_gravity = 'smart-read'. config_json validado por
+/// listaPainelConfigV1Schema (shared, contrato bilateral).
+model ListaPainelUsuarioGlobal {
+  id_lista_painel_usuario_global               String   @id @default(cuid())
+  id_organizacao                                String
+  id_usuario                                    String
+  id_produto_gravity                            String
+  nome_lista_painel_usuario_global              String
+  ordem_lista_painel_usuario_global             Int      @default(0)
+  visivel_lista_painel_usuario_global           Boolean  @default(true)
+  config_json_lista_painel_usuario_global       String   @default("{}") @db.Text
+  data_criacao_lista_painel_usuario_global      DateTime @default(now())
+  data_atualizacao_lista_painel_usuario_global  DateTime @updatedAt
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_usuario, id_produto_gravity])
+  @@map("lista_painel_usuario_global")
+}
+

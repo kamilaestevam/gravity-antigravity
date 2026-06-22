@@ -66,7 +66,6 @@ export default function ListaLeituraSmartRead() {
           onRecarregar={() => void dados.recarregar()}
           onPaginaChange={dados.setPagina}
           tituloPainel={segmento === 'transacoes-api' ? 'Transações API' : 'Envios'}
-          usandoMock={dados.usandoMock}
         />
       </div>
     </div>

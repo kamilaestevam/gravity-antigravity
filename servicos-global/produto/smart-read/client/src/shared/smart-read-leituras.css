@@ -1,14 +1,21 @@
 /* smart-read-leituras.css — estilos compartilhados Smart Read (lista, insights, cards) */
 
+:root {
+  --smart-read-page-pt: 1.5rem;
+  --smart-read-page-px: 2rem;
+  --smart-read-page-pb: 2rem;
+}
+
 .sr-pagina {
-  padding: 0 1.5rem 2rem;
+  padding: var(--smart-read-page-pt) var(--smart-read-page-px) var(--smart-read-page-pb);
   color: var(--ws-text, #f1f5f9);
 }
 
 .sr-pagina--lista {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  flex: 1;
+  gap: 1rem;
   min-height: 0;
 }
 
@@ -27,9 +34,16 @@
   width: 100%;
 }
 
+.sr-pagina--lista .sr-stats-row,
+.sr-pagina--lista .sr-toolbar-lista {
+  flex-shrink: 0;
+}
+
 .sr-tabela-wrapper {
   flex: 1;
-  min-height: 420px;
+  min-height: 0;
+  width: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -37,13 +51,22 @@
 .sr-tabela-wrapper .sr-painel--tabela {
   flex: 1;
   min-height: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
 .sr-tabela-wrapper .gtv-container {
-  flex: 1;
-  min-height: 360px;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.sr-tabela-wrapper .gtv-tabela-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
 }
 
 .sr-toolbar-lista {
@@ -52,12 +75,12 @@
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  padding: 0 1.5rem 1rem;
+  padding: 0;
 }
 
 .sr-toolbar-lista--segmentos {
   justify-content: flex-start;
-  padding-bottom: 0.75rem;
+  padding: 0;
 }
 
 .sr-painel--tabela {
@@ -373,6 +396,11 @@ body.light-theme .sr-linha-documento {
 .sr-nome-celula {
   display: block;
   font-weight: 500;
+}
+
+/* Paridade BID Frete/Pedido — token e classe vivem no GTV (.gtv-celula-link) */
+.sr-nome-link {
+  text-align: left;
 }
 
 .sr-erro-linha {

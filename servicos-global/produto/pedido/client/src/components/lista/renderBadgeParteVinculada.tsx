@@ -6,18 +6,31 @@ import React from 'react'
 import { LinkSimple, PencilSimpleLine } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
+const COR_LINK_LISTA = 'var(--gtv-link, var(--accent, #6366f1))'
+
 const BADGE_STYLE: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: '0.3rem',
   cursor: 'pointer',
-  background: 'rgba(129, 140, 248, 0.12)',
-  border: '1px solid rgba(129, 140, 248, 0.28)',
+  background: 'color-mix(in srgb, var(--gtv-link, var(--accent, #6366f1)) 12%, transparent)',
+  border: '1px solid color-mix(in srgb, var(--gtv-link, var(--accent, #6366f1)) 28%, transparent)',
   borderRadius: '4px',
   padding: '2px 8px',
   fontSize: '0.78rem',
-  color: '#818cf8',
+  color: COR_LINK_LISTA,
   maxWidth: '100%',
+}
+
+const ESTILO_LINK_LISTA_ACAO: React.CSSProperties = {
+  color: COR_LINK_LISTA,
+  cursor: 'pointer',
+  textDecoration: 'underline',
+  textDecorationStyle: 'dotted',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.25rem',
+  fontSize: '0.75rem',
 }
 
 export function renderBadgeParteVinculada(opts: {
@@ -54,7 +67,7 @@ export function renderBadgeParteVinculada(opts: {
         }}
         style={navegaExterno ? BADGE_STYLE : { ...BADGE_STYLE, cursor: 'inherit' }}
       >
-        <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
+        <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, color: COR_LINK_LISTA }} />
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nomeExibicao}</span>
       </span>
     </TooltipGlobal>
@@ -74,16 +87,7 @@ export function renderLinkVincularParte(opts: {
         tabIndex={0}
         onClick={(e) => { e.stopPropagation(); window.location.href = href }}
         onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-        style={{
-          color: '#818cf8',
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          textDecorationStyle: 'dotted',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.25rem',
-          fontSize: '0.75rem',
-        }}
+        style={ESTILO_LINK_LISTA_ACAO}
       >
         <PencilSimpleLine size={12} weight="bold" />
         {label}

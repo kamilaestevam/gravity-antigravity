@@ -1,0 +1,344 @@
+tipo_documento,caminho_legado,campo_gravity,label_tela,secao_tela,sinonimos_legado,arquivos_exemplo,valor_exemplo,status
+AWB,additionalFields.Assinado por,campo_adicional_assinado_por,Assinado por,Campos adicionais,,awb.pdf,SASKIA PÖSCHL,mapeado
+AWB,additionalFields.Número de Referência,campo_adicional_numero_de_referencia,Número de Referência,Campos adicionais,,awb.pdf,HAM-177682-AFE,mapeado
+AWB,additionalFields.Outras Taxas,campo_adicional_outras_taxas,Outras Taxas,Campos adicionais,,awb.pdf,"PICK UP 40,00 HANDLING ORI 35,00 COMPLIANCE F 12,50 FUEL-SURCHAR 15,00 AUTOMATED MA 10,50 SECURITY SUR 15,00 TERMINAL…",mapeado
+AWB,awbInfo.awbDate,awbinfo_awbdate,Awb Date,Outros,,awb.pdf,2018-06-29,pendente
+AWB,awbInfo.flight.flightDate,awbinfo_flight_flightdate,Flight Date,Outros,,awb.pdf,2018-06-30,pendente
+AWB,awbInfo.flight.flightNumber,awbinfo_flight_flightnumber,Flight Number,Outros,,awb.pdf,TP 561,pendente
+AWB,awbInfo.hawbNumber,awbinfo_hawbnumber,Hawb Number,Outros,,awb.pdf,,pendente
+AWB,awbInfo.mawbNumber,awbinfo_mawbnumber,Mawb Number,Outros,,awb.pdf,047-03379563,pendente
+AWB,awbInfo.shippedOnBoardDate,awbinfo_shippedonboarddate,Shipped On Board Date,Outros,,awb.pdf,,pendente
+AWB,cargoAgent.accountingInfo,cargoagent_accountinginfo,Accounting Info,Outros,,awb.pdf,PLEASE INFORM CONSIGNEE IMMEDIATELY UPON ARRIVAL BY PHONE OR FAX,pendente
+AWB,cargoAgent.iataCode,cargoagent_iatacode,Iata Code,Outros,,awb.pdf,DE/RA/00068-10,pendente
+AWB,cargoAgent.name,nome_outros,Nome (Outros),Outros,,awb.pdf,HELLMANN WORLDWIDE LOGISTICS,mapeado
+AWB,charges.internationalFreight.agentOtherCharges,charges_internationalfreight_agentothercharges,Agent Other Charges,Taxas,,awb.pdf,193.00,pendente
+AWB,charges.internationalFreight.airlineOtherCharges,charges_internationalfreight_airlineothercharges,Airline Other Charges,Taxas,,awb.pdf,,pendente
+AWB,charges.internationalFreight.basicFreightAmount,charges_internationalfreight_basicfreightamount,Basic Freight Amount,Taxas,,awb.pdf,200.00,pendente
+AWB,charges.internationalFreight.currency,charges_internationalfreight_currency,Currency,Taxas,,awb.pdf,EUR,pendente
+AWB,charges.internationalFreight.currencyConversionRates,charges_internationalfreight_currencyconversionrates,Currency Conversion Rates,Taxas,,awb.pdf,,pendente
+AWB,charges.internationalFreight.declaredValueFee,charges_internationalfreight_declaredvaluefee,Declared Value Fee,Taxas,,awb.pdf,,pendente
+AWB,charges.internationalFreight.destinationCharges,charges_internationalfreight_destinationcharges,Destination Charges,Taxas,,awb.pdf,,pendente
+AWB,charges.internationalFreight.freightTax,charges_internationalfreight_freighttax,Freight Tax,Taxas,,awb.pdf,,pendente
+AWB,charges.internationalFreight.paymentType,charges_internationalfreight_paymenttype,Payment Type,Taxas,,awb.pdf,Collect,pendente
+AWB,charges.internationalFreight.rate,charges_internationalfreight_rate,Rate,Taxas,,awb.pdf,0.000,pendente
+AWB,charges.internationalFreight.totalAmountToCollect,charges_internationalfreight_totalamounttocollect,Total Amount To Collect,Taxas,,awb.pdf,393.00,pendente
+AWB,charges.internationalFreight.totalFreightAmount,charges_internationalfreight_totalfreightamount,Total Freight Amount,Taxas,,awb.pdf,200.00,pendente
+AWB,declaredValues.customsValue,declaredvalues_customsvalue,Customs Value,Outros,,awb.pdf,NCV,pendente
+AWB,declaredValues.transportValue,declaredvalues_transportvalue,Transport Value,Outros,,awb.pdf,NVD,pendente
+AWB,exporter.address,endereco_exportador,Endereço (Exportador),Exportador,,awb.pdf,KOLLAUSTRASSE 105,mapeado
+AWB,exporter.city,cidade_exportador,Cidade (Exportador),Exportador,,awb.pdf,HAMBURG,mapeado
+AWB,exporter.country,pais_exportador,País (Exportador),Exportador,,awb.pdf,GERMANY,mapeado
+AWB,exporter.email,email_exportador,E-mail (Exportador),Exportador,,awb.pdf,,mapeado
+AWB,exporter.name,nome_exportador,Nome (Exportador),Exportador,,awb.pdf,DURAG GMBH,mapeado
+AWB,exporter.phone,telefone_exportador,Telefone (Exportador),Exportador,,awb.pdf,,mapeado
+AWB,exporter.state,estado_exportador,Estado / UF (Exportador),Exportador,,awb.pdf,,mapeado
+AWB,exporter.zipCode,cep_exportador,CEP / Código postal (Exportador),Exportador,,awb.pdf,22453,mapeado
+AWB,handlingInformation,handlinginformation,Handling Information,Outros,,awb.pdf,"1 (ONE) COLLI(S) SPX by KC DE/KC/01231-01 accepted by DE/RA/00068-10 MARKS: AS ADDRESSED, AS MENTIONED BELOW ATTACHED…",pendente
+AWB,importer.address,endereco_importador,Endereço (Importador),Importador,,awb.pdf,"RUA VINTE E DOIS DE AGOSTO, 66",mapeado
+AWB,importer.city,cidade_importador,Cidade (Importador),Importador,,awb.pdf,DIADEMA,mapeado
+AWB,importer.cnpj,cnpj_importador,CNPJ (Importador),Importador,,awb.pdf,02.403.413/0001-42,mapeado
+AWB,importer.country,pais_importador,País (Importador),Importador,,awb.pdf,BRAZIL,mapeado
+AWB,importer.email,email_importador,E-mail (Importador),Importador,,awb.pdf,,mapeado
+AWB,importer.name,nome_importador,Nome (Importador),Importador,,awb.pdf,DURAG SIENA DO BRASIL LTDA,mapeado
+AWB,importer.phone,telefone_importador,Telefone (Importador),Importador,,awb.pdf,,mapeado
+AWB,importer.state,estado_importador,Estado / UF (Importador),Importador,,awb.pdf,SP,mapeado
+AWB,importer.zipCode,cep_importador,CEP / Código postal (Importador),Importador,,awb.pdf,09941-530,mapeado
+AWB,isSigned,documento_assinado_documento,Documento assinado (Documento),Documento,,awb.pdf,true,mapeado
+AWB,observations,observacoes_observacoes,Observações (Observações),Observações,,awb.pdf,"INVOICE NO: 3104043786, 20180628 PO-01037/PD0548, DGT0037550 REF: 3102015999 HAM-2145 6304",mapeado
+AWB,route.destinationAirport,route_destinationairport,Destination Airport,Outros,,awb.pdf,GUARULHOS,pendente
+AWB,route.originAirport,route_originairport,Origin Airport,Outros,,awb.pdf,HAMBURG,pendente
+AWB,shipmentDetails.cargoDescription,shipmentdetails_cargodescription,Cargo Description,Embarque,,awb.pdf,1X D-LX 721 COMPACT FLAME MONITOR 350X BROCHURES NOT RESTRICTED 60x40x53xCMSx1 WOODEN PACKAGE: 1X NOT APPLICABLE,pendente
+AWB,shipmentDetails.tariffClass,shipmentdetails_tariffclass,Tariff Class,Embarque,,awb.pdf,M,pendente
+AWB,shipmentDetails.totalCubedWeight,shipmentdetails_totalcubedweight,Total Cubed Weight,Embarque,,awb.pdf,34.000,pendente
+AWB,shipmentDetails.totalGrossWeight,shipmentdetails_totalgrossweight,Total Gross Weight,Embarque,,awb.pdf,34.000,pendente
+AWB,shipmentDetails.totalPackages,shipmentdetails_totalpackages,Total Packages,Embarque,,awb.pdf,1,pendente
+BL,additionalFields.Agente de Entrega,campo_adicional_agente_de_entrega,Agente de Entrega,Campos adicionais,,BL.pdf,BLUE LINE AGENCIAMENTO DE CARGAS LTDA,mapeado
+BL,additionalFields.CNPJ Agente de Entrega,campo_adicional_cnpj_agente_de_entrega,CNPJ Agente de Entrega,Campos adicionais,,BL.pdf,05.376.052/0001-80,mapeado
+BL,additionalFields.Email Agente de Entrega,campo_adicional_email_agente_de_entrega,Email Agente de Entrega,Campos adicionais,,BL.pdf,IMPORT@BLUELINELOG.COM,mapeado
+BL,carrier.name,nome_transportadora,Nome (Transportadora),Transportadora,,BL.pdf,LANDSTAR GLOBAL LOGISTICS,mapeado
+BL,containerNumbers,numeros_container_containers,Números de container (Containers),Containers,,BL.pdf,HLBU2358024,mapeado
+BL,containers[].container_gross_weight,peso_bruto_container_containers,Peso bruto container (Containers),Containers,,BL.pdf,19587.809,mapeado
+BL,containers[].container_net_weight,peso_liquido_container_containers,Peso líquido container (Containers),Containers,,BL.pdf,,mapeado
+BL,containers[].container_number,numero_container_containers,Número do container (Containers),Containers,,BL.pdf,HLBU2358024,mapeado
+BL,containers[].container_seal,lacre_container_containers,Lacre (Containers),Containers,,BL.pdf,UL-4200593,mapeado
+BL,containers[].container_tare,containers[]_container_tare,Container Tare,Containers,,BL.pdf,,pendente
+BL,containers[].container_type,tipo_container_containers,Tipo do container (Containers),Containers,,BL.pdf,20 STANDARD DRY,mapeado
+BL,containers[].container_volume,volume_container_containers,Volume container (Containers),Containers,,BL.pdf,15.200,mapeado
+BL,containers[].dangerous_goods_class,classe_carga_perigosa_containers,Classe carga perigosa (Containers),Containers,,BL.pdf,,mapeado
+BL,containers[].dangerous_goods_indicator,indicador_carga_perigosa_containers,Carga perigosa (Containers),Containers,,BL.pdf,,mapeado
+BL,containers[].packaging[].quantity,quantidade_embalagem_containers,Quantidade embalagem (Containers),Containers,,BL.pdf,29,mapeado
+BL,containers[].packaging[].type,tipo_embalagem_containers,Tipo embalagem (Containers),Containers,,BL.pdf,PALLETS,mapeado
+BL,document.billOfLadingNumber,numero_bl_documento,Número do BL (Documento),Documento,,BL.pdf,GWW-375555,mapeado
+BL,document.bookingReference,referencia_booking_documento,Referência booking (Documento),Documento,,BL.pdf,GWW-375555,mapeado
+BL,document.date,data_documento,Data do documento (Documento),Documento,,BL.pdf,2024-10-24,mapeado
+BL,document.masterBillOfLadingNumber,numero_bl_master_documento,Número do BL master (Documento),Documento,,BL.pdf,,mapeado
+BL,document.number,numero_documento,Número do documento (Documento),Documento,,BL.pdf,GWW-375555,mapeado
+BL,document.shippedOnBoardDate,data_embarque_documento,Data shipped on board (Documento),Documento,,BL.pdf,2024-10-24,mapeado
+BL,document.type,tipo_documento,Tipo do documento (Documento),Documento,,BL.pdf,BILL OF LADING,mapeado
+BL,exporter.address,endereco_exportador,Endereço (Exportador),Exportador,,BL.pdf,"2580 FRONTAGE ROAD, PETERSBURG, VA 23805",mapeado
+BL,exporter.city,cidade_exportador,Cidade (Exportador),Exportador,,BL.pdf,PETERSBURG,mapeado
+BL,exporter.country,pais_exportador,País (Exportador),Exportador,,BL.pdf,UNITED STATES,mapeado
+BL,exporter.email,email_exportador,E-mail (Exportador),Exportador,,BL.pdf,,mapeado
+BL,exporter.name,nome_exportador,Nome (Exportador),Exportador,,BL.pdf,"AMSTED RAIL INTERNATIONAL, INC",mapeado
+BL,exporter.phone,telefone_exportador,Telefone (Exportador),Exportador,,BL.pdf,,mapeado
+BL,exporter.state_province,estado_exportador,Estado / UF (Exportador),Exportador,,BL.pdf,VA,mapeado
+BL,exporter.taxId,documento_fiscal_exportador,CNPJ / Tax ID (Exportador),Exportador,,BL.pdf,,mapeado
+BL,exporter.zip_code,cep_exportador,CEP / Código postal (Exportador),Exportador,,BL.pdf,23805,mapeado
+BL,freight.additional_charges[].Moeda,freight_additional_charges[]_moeda,Moeda,Outros,,BL.pdf,USD,pendente
+BL,freight.additional_charges[].Nome da Taxa,freight_additional_charges[]_nome da taxa,Nome Da Taxa,Outros,,BL.pdf,OVERWEIGHT,pendente
+BL,freight.additional_charges[].Valor,freight_additional_charges[]_valor,Valor,Outros,,BL.pdf,300.00,pendente
+BL,freight.basic_value,freight_basic_value,Basic Value,Outros,,BL.pdf,4504.00,pendente
+BL,freight.clauses[].clause,freight_clauses[]_clause,Clause,Outros,,BL.pdf,FREIGHT COLLECT,pendente
+BL,freight.currency,freight_currency,Currency,Outros,,BL.pdf,USD,pendente
+BL,freight.payment_terms,freight_payment_terms,Payment Terms,Outros,,BL.pdf,COLLECT,pendente
+BL,freight.total_value,freight_total_value,Total Value,Outros,,BL.pdf,4941.19,pendente
+BL,goods.bl_description,descricao_bl_mercadorias,Descrição BL (Mercadorias),Mercadorias,,BL.pdf,"20 STANDARD DRY S.L.A.C.
+29 PALLETS OF BEARINGS NON HAZ
+
+NCM: 8607
+
+wooden dunnage heat treated and certified
+
+ITN: X…",mapeado
+BL,goods.hs_code,hs_code_mercadorias,HS Code (Mercadorias),Mercadorias,,BL.pdf,,mapeado
+BL,goods.items[].description,descricao_item_mercadorias,Descrição item (Mercadorias),Mercadorias,,BL.pdf,BEARINGS NON HAZ,mapeado
+BL,goods.items[].gross_weight,peso_bruto_item_mercadorias,Peso bruto item (Mercadorias),Mercadorias,,BL.pdf,19587.809,mapeado
+BL,goods.items[].invoice,invoice_item_mercadorias,Invoice item (Mercadorias),Mercadorias,,BL.pdf,,mapeado
+BL,goods.items[].ncm,ncm_mercadorias,NCM (Mercadorias),Mercadorias,goods.ncm_code,BL.pdf,8607,mapeado
+BL,goods.items[].net_weight,peso_liquido_item_mercadorias,Peso líquido item (Mercadorias),Mercadorias,,BL.pdf,,mapeado
+BL,goods.items[].quantity,quantidade_item_mercadorias,Quantidade item (Mercadorias),Mercadorias,,BL.pdf,29 PALLETS,mapeado
+BL,goods.items[].shipper,shipper_item_mercadorias,Shipper item (Mercadorias),Mercadorias,,BL.pdf,,mapeado
+BL,goods.items[].volume,volume_item_mercadorias,Volume item (Mercadorias),Mercadorias,,BL.pdf,15.20,mapeado
+BL,goods.ncm_code,ncm_mercadorias,NCM (Mercadorias),Mercadorias,goods.items[].ncm,BL.pdf,8607,mapeado
+BL,goods.ncm_list[],goods_ncm_list[],Ncm List[],Mercadorias,,BL.pdf,8607,pendente
+BL,goods.package_unit,unidade_volume_mercadorias,Unidade de volume (Mercadorias),Mercadorias,,BL.pdf,PALLETS,mapeado
+BL,goods.packaging_summary[].total_quantity,quantidade_embalagem_resumo_mercadorias,Qtd embalagem (resumo) (Mercadorias),Mercadorias,,BL.pdf,29,mapeado
+BL,goods.packaging_summary[].type,tipo_embalagem_resumo_mercadorias,Tipo embalagem (resumo) (Mercadorias),Mercadorias,,BL.pdf,PALLETS,mapeado
+BL,goods.shipment_gross_weight,peso_bruto_total_mercadorias,Peso bruto total (Mercadorias),Mercadorias,,BL.pdf,19587.809,mapeado
+BL,goods.shipment_net_weight,peso_liquido_total_mercadorias,Peso líquido total (Mercadorias),Mercadorias,,BL.pdf,,mapeado
+BL,goods.total_packages,total_volumes_mercadorias,Total de volumes (Mercadorias),Mercadorias,,BL.pdf,29,mapeado
+BL,goods.total_shipment_volume,volume_total_mercadorias,Volume total (Mercadorias),Mercadorias,,BL.pdf,15.200,mapeado
+BL,goods.volume_unit,unidade_volume_cubico_mercadorias,Unidade cubagem (Mercadorias),Mercadorias,,BL.pdf,CBM,mapeado
+BL,importer.address,endereco_importador,Endereço (Importador),Importador,,BL.pdf,"R. DR PEDRO FERREIRA, 155-CONJ 1003 088301030 ITAJAI - SC",mapeado
+BL,importer.city,cidade_importador,Cidade (Importador),Importador,,BL.pdf,ITAJAI,mapeado
+BL,importer.cnpj,cnpj_importador,CNPJ (Importador),Importador,,BL.pdf,08.973.387/0002-55,mapeado
+BL,importer.country,pais_importador,País (Importador),Importador,,BL.pdf,BRAZIL,mapeado
+BL,importer.email,email_importador,E-mail (Importador),Importador,,BL.pdf,,mapeado
+BL,importer.name,nome_importador,Nome (Importador),Importador,,BL.pdf,DMM-IE IMPORTACAO & EXPORTACAO LTDA,mapeado
+BL,importer.phone,telefone_importador,Telefone (Importador),Importador,,BL.pdf,,mapeado
+BL,importer.state_province,estado_importador,Estado / UF (Importador),Importador,,BL.pdf,SC,mapeado
+BL,importer.zip_code,cep_importador,CEP / Código postal (Importador),Importador,,BL.pdf,088301030,mapeado
+BL,isSigned,documento_assinado_documento,Documento assinado (Documento),Documento,,BL.pdf,true,mapeado
+BL,notify_party.address,endereco_notify_party,Endereço (Notify party),Notify party,,BL.pdf,"RUA DOUTOR PEDRO FERREIRA, 1553. ANDAR, SALA 315, CENTRO, 88301-901 ITAJAI - SC BRAZIL",mapeado
+BL,notify_party.city,cidade_notify_party,Cidade (Notify party),Notify party,,BL.pdf,ITAJAI,mapeado
+BL,notify_party.cnpj,cnpj_notify_party,CNPJ (Notify party),Notify party,,BL.pdf,03-411.938/0002-73,mapeado
+BL,notify_party.country,pais_notify_party,País (Notify party),Notify party,,BL.pdf,BRAZIL,mapeado
+BL,notify_party.email,email_notify_party,E-mail (Notify party),Notify party,,BL.pdf,,mapeado
+BL,notify_party.name,nome_notify_party,Nome (Notify party),Notify party,,BL.pdf,AMSTED RAIL BRASIL EQUIPAMENTOS FERROVIARIOS LTDA.,mapeado
+BL,notify_party.phone,telefone_notify_party,Telefone (Notify party),Notify party,,BL.pdf,,mapeado
+BL,notify_party.state_province,estado_notify_party,Estado / UF (Notify party),Notify party,,BL.pdf,SC,mapeado
+BL,notify_party.zip_code,cep_notify_party,CEP / Código postal (Notify party),Notify party,,BL.pdf,88301-901,mapeado
+BL,observations,observacoes_observacoes,Observações (Observações),Observações,,BL.pdf,ITN: X20241017210508,mapeado
+BL,shipment.destination_state,estado_destino_embarque,Estado destino (Embarque),Embarque,,BL.pdf,SC,mapeado
+BL,shipment.marksAndNumbers,marcas_numeros_embarque,Marcas e números (Embarque),Embarque,,BL.pdf,HLBU2358024/Seal:UL-4200593,mapeado
+BL,shipment.origin_country,pais_origem_embarque_embarque,País origem embarque (Embarque),Embarque,,BL.pdf,UNITED STATES,mapeado
+BL,shipment.place_of_destination,local_destino_embarque,Local destino (Embarque),Embarque,,BL.pdf,,mapeado
+BL,shipment.place_of_origin,local_origem_embarque,Local origem (Embarque),Embarque,,BL.pdf,"PETERSBURG, VA",mapeado
+BL,shipment.port_of_destination,porto_destino_embarque,Porto destino (Embarque),Embarque,,BL.pdf,ITAPOA,mapeado
+BL,shipment.port_of_origin,porto_origem_embarque,Porto origem (Embarque),Embarque,,BL.pdf,"PHILADELPHIA, PA",mapeado
+BL,shipment.pre_carriage,shipment_pre_carriage,Pre Carriage,Embarque,,BL.pdf,,pendente
+BL,shipment.temperature,shipment_temperature,Temperature,Embarque,,BL.pdf,,pendente
+BL,shipment.vessel_name,nome_navio_embarque,Nome do navio (Embarque),Embarque,,BL.pdf,Monte Pascoal,mapeado
+BL,shipment.voyage_number,numero_viagem_embarque,Número da viagem (Embarque),Embarque,,BL.pdf,442S,mapeado
+BL,woodPackaging.hasWood,woodpackaging_haswood,Has Wood,Outros,,BL.pdf,Sim,pendente
+BL,woodPackaging.isTreatedCertified,woodpackaging_istreatedcertified,Is Treated Certified,Outros,,BL.pdf,Sim,pendente
+BL,woodPackaging.woodDescription,woodpackaging_wooddescription,Wood Description,Outros,,BL.pdf,wooden dunnage heat treated and certified,pendente
+FINANCIAL_DOCUMENT,Abatimentos,abatimentos,Abatimentos,Outros,,NF_Transportadora_Rodoviaria.pdf,0,pendente
+FINANCIAL_DOCUMENT,Acréscimos,acréscimos,AcréScimos,Outros,,NF_Transportadora_Rodoviaria.pdf,0,pendente
+FINANCIAL_DOCUMENT,Agência e Código do Beneficiário,agência e código do beneficiário,AgêNcia E CóDigo Do BeneficiáRio,Outros,,NF_Transportadora_Rodoviaria.pdf,8262-/97349-1,pendente
+FINANCIAL_DOCUMENT,Beneficiário,beneficiário,BeneficiáRio,Outros,,NF_Transportadora_Rodoviaria.pdf,SOMA LOG LTDA,pendente
+FINANCIAL_DOCUMENT,CNPJ do Beneficiário,cnpj do beneficiário,CNPJ Do BeneficiáRio,Outros,,NF_Transportadora_Rodoviaria.pdf,55.645.985/0001-02,pendente
+FINANCIAL_DOCUMENT,CNPJ do Cliente,cnpj do cliente,CNPJ Do Cliente,Outros,,NF_Transportadora_Rodoviaria.pdf,08.973.387/0002-55,pendente
+FINANCIAL_DOCUMENT,Carteira,carteira,Carteira,Outros,,NF_Transportadora_Rodoviaria.pdf,REG,pendente
+FINANCIAL_DOCUMENT,Cliente,cliente,Cliente,Outros,,NF_Transportadora_Rodoviaria.pdf,DMM-IE IMPORTACAO E EXPORTACAO LTDA.,pendente
+FINANCIAL_DOCUMENT,Data de Vencimento,data de vencimento,Data De Vencimento,Outros,,NF_Transportadora_Rodoviaria.pdf,2025-04-08,pendente
+FINANCIAL_DOCUMENT,Descontos,descontos,Descontos,Outros,,NF_Transportadora_Rodoviaria.pdf,0,pendente
+FINANCIAL_DOCUMENT,Emissão,emissão,EmissãO,Outros,,NF_Transportadora_Rodoviaria.pdf,2025-04-01,pendente
+FINANCIAL_DOCUMENT,Endereço do Beneficiário,endereço do beneficiário,EndereçO Do BeneficiáRio,Outros,,NF_Transportadora_Rodoviaria.pdf,"RUA ALFREDO EIKE JUNIOR, 655 - BARRA DO RIO - ITAJAI - SC",pendente
+FINANCIAL_DOCUMENT,Endereço do Cliente,endereço do cliente,EndereçO Do Cliente,Outros,,NF_Transportadora_Rodoviaria.pdf,"RUA DOUTOR PEDRO FERREIRA, 155 - Centro - ITAJAI/SC",pendente
+FINANCIAL_DOCUMENT,Fatura,fatura,Fatura,Outros,,NF_Transportadora_Rodoviaria.pdf,1149,pendente
+FINANCIAL_DOCUMENT,Instruções de Responsabilidade do Beneficiário,instruções de responsabilidade do beneficiário,InstruçõEs De Responsabilidade Do BeneficiáRio,Outros,,NF_Transportadora_Rodoviaria.pdf,"Após 08/04/2025, cobrar R$ 48,00 de multa por atraso. | Após 08/04/2025, cobrar R$ 1,60 de juros de mora por dia de a…",pendente
+FINANCIAL_DOCUMENT,Linha Digitável,linha digitável,Linha DigitáVel,Outros,,NF_Transportadora_Rodoviaria.pdf,34191.09008 00097.808265 29734.910002 8 10450000480000,pendente
+FINANCIAL_DOCUMENT,Moeda,moeda,Moeda,Outros,,NF_Transportadora_Rodoviaria.pdf,R$,pendente
+FINANCIAL_DOCUMENT,Nosso Número,nosso número,Nosso NúMero,Outros,,NF_Transportadora_Rodoviaria.pdf,10900000978-0,pendente
+FINANCIAL_DOCUMENT,Número do Documento,número do documento,NúMero Do Documento,Outros,,NF_Transportadora_Rodoviaria.pdf,7156,pendente
+FINANCIAL_DOCUMENT,Parcela,parcela,Parcela,Outros,,NF_Transportadora_Rodoviaria.pdf,01/01,pendente
+FINANCIAL_DOCUMENT,Valor Bruto,valor bruto,Valor Bruto,Outros,,NF_Transportadora_Rodoviaria.pdf,4800,pendente
+FINANCIAL_DOCUMENT,Valor Líquido,valor líquido,Valor LíQuido,Outros,,NF_Transportadora_Rodoviaria.pdf,4800,pendente
+FINANCIAL_DOCUMENT,Valor da Parcela,valor da parcela,Valor Da Parcela,Outros,,NF_Transportadora_Rodoviaria.pdf,4800,pendente
+FINANCIAL_DOCUMENT,isSigned,documento_assinado_documento,Documento assinado (Documento),Documento,,NF_Transportadora_Rodoviaria.pdf,false,mapeado
+FINANCIAL_DOCUMENT,itens[].Destinatário,itens[]_destinatário,DestinatáRio,Outros,,NF_Transportadora_Rodoviaria.pdf,TORAY DO BRASIL LTDA,pendente
+FINANCIAL_DOCUMENT,itens[].Emissão,itens[]_emissão,EmissãO,Outros,,NF_Transportadora_Rodoviaria.pdf,2025-03-31,pendente
+FINANCIAL_DOCUMENT,itens[].Filial,itens[]_filial,Filial,Outros,,NF_Transportadora_Rodoviaria.pdf,MTZ,pendente
+FINANCIAL_DOCUMENT,itens[].Número Controle,itens[]_número controle,NúMero Controle,Outros,,NF_Transportadora_Rodoviaria.pdf,DATI-14584/24,pendente
+FINANCIAL_DOCUMENT,itens[].Número NF,itens[]_número nf,NúMero NF,Outros,,NF_Transportadora_Rodoviaria.pdf,25/0676710-9,pendente
+FINANCIAL_DOCUMENT,itens[].Número,itens[]_número,NúMero,Outros,,NF_Transportadora_Rodoviaria.pdf,1992,pendente
+FINANCIAL_DOCUMENT,itens[].Peso,itens[]_peso,Peso,Outros,,NF_Transportadora_Rodoviaria.pdf,"24.480,00",pendente
+FINANCIAL_DOCUMENT,itens[].Remetente,itens[]_remetente,Remetente,Outros,,NF_Transportadora_Rodoviaria.pdf,DMM-IE IMPORTACAO,pendente
+FINANCIAL_DOCUMENT,itens[].Série,itens[]_série,SéRie,Outros,,NF_Transportadora_Rodoviaria.pdf,1,pendente
+FINANCIAL_DOCUMENT,itens[].Tipo,itens[]_tipo,Tipo,Outros,,NF_Transportadora_Rodoviaria.pdf,CT-e,pendente
+FINANCIAL_DOCUMENT,itens[].Valor NF,itens[]_valor nf,Valor NF,Outros,,NF_Transportadora_Rodoviaria.pdf,"229.309,70",pendente
+FINANCIAL_DOCUMENT,itens[].Valor,itens[]_valor,Valor,Outros,,NF_Transportadora_Rodoviaria.pdf,3300,pendente
+INVOICE,additionalFields.Contato Importador,campo_adicional_contato_importador,Contato Importador,Campos adicionais,,invoices_packings.pdf,Monica Moura,mapeado
+INVOICE,additionalFields.Código do Cliente,campo_adicional_codigo_do_cliente,Código do Cliente,Campos adicionais,,amostra-bl.pdf; invoices.pdf,0503SU20000,mapeado
+INVOICE,additionalFields.Data de Vencimento,campo_adicional_data_de_vencimento,Data de Vencimento,Campos adicionais,,Invoice-A443FF43-0011.pdf,2026-03-22,mapeado
+INVOICE,additionalFields.Fabricante,campo_adicional_fabricante,Fabricante,Campos adicionais,,Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf,"ZHEJIANG OURONG MACHINERY CO., LTD.",mapeado
+INVOICE,additionalFields.Ordem de Trabalho,campo_adicional_ordem_de_trabalho,Ordem de Trabalho,Campos adicionais,,amostra-bl.pdf; invoices.pdf,4O684,mapeado
+INVOICE,additionalFields.Porto de Entrega,campo_adicional_porto_de_entrega,Porto de Entrega,Campos adicionais,,Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf,"NAVEGANTES, BRAZIL",mapeado
+INVOICE,additionalFields.Subtotal,campo_adicional_subtotal,Subtotal,Campos adicionais,,Invoice-A443FF43-0011.pdf,696.43,mapeado
+INVOICE,additionalFields.Total de Paletes,campo_adicional_total_de_paletes,Total de Paletes,Campos adicionais,,INVOICE77.pdf,1,mapeado
+INVOICE,additionalFields.Vendedor Beneficiário,campo_adicional_vendedor_beneficiario,Vendedor Beneficiário,Campos adicionais,,invoices_packings.pdf,Classic Components Corp,mapeado
+INVOICE,bankingDetails.accountNumber,bankingdetails_accountnumber,Account Number,Dados bancários,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,7000160614,pendente
+INVOICE,bankingDetails.bankName,nome_banco_dados_bancarios,Nome do banco (Dados bancários),Dados bancários,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,BANCO BPM S.P.A.,mapeado
+INVOICE,bankingDetails.beneficiary,bankingdetails_beneficiary,Beneficiary,Dados bancários,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,Classic Components Corp,pendente
+INVOICE,bankingDetails.branchCode,bankingdetails_branchcode,Branch Code,Dados bancários,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,pendente
+INVOICE,bankingDetails.fullText,bankingdetails_fulltext,Full Text,Dados bancários,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"BANCO BPM S.P.A. SWIFT BAPPIT21AI6 VICOLO CONCORDIA, 7-9 BOLLATE MI IBAN:IT88H0503420100000000001975",pendente
+INVOICE,bankingDetails.iban,iban_dados_bancarios,IBAN (Dados bancários),Dados bancários,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,IT88H0503420100000000001975,mapeado
+INVOICE,bankingDetails.swift,swift_dados_bancarios,SWIFT (Dados bancários),Dados bancários,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,BAPPIT21AI6,mapeado
+INVOICE,containerNumbers,numeros_container_containers,Números de container (Containers),Containers,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,currency.exchangeRate,taxa_cambio_moeda,Taxa de câmbio (Moeda),Moeda,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,currency.type,moeda_moeda,Moeda (Moeda),Moeda,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,Eur,mapeado
+INVOICE,document.countryOfAcquisition,pais_aquisicao_documento,País de aquisição (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,Hong Kong,mapeado
+INVOICE,document.countryOfProvenance,pais_procedencia_documento,País de procedência (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,Hong Kong,mapeado
+INVOICE,document.documentDate,data_documento,Data do documento (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,2025-01-16,mapeado
+INVOICE,document.documentNumber,numero_documento,Número do documento (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,2250090,mapeado
+INVOICE,document.documentType,tipo_documento,Tipo do documento (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,Invoice,mapeado
+INVOICE,document.incoterm,incoterm_documento,Incoterm (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,EXW,mapeado
+INVOICE,document.incotermLocation,local_incoterm_documento,Local incoterm (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,EX WORKS,mapeado
+INVOICE,document.originCountry,pais_origem_documento,País de origem (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,ITALY,mapeado
+INVOICE,document.shippedOnBoardDate,data_embarque_documento,Data shipped on board (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,exporter.address,endereco_exportador,Endereço (Exportador),Exportador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"Via Tacito, 4 - 20094 Corsico (MI) Italia",mapeado
+INVOICE,exporter.city,cidade_exportador,Cidade (Exportador),Exportador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,Corsico,mapeado
+INVOICE,exporter.country,pais_exportador,País (Exportador),Exportador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,Italy,mapeado
+INVOICE,exporter.email,email_exportador,E-mail (Exportador),Exportador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,support@anthropic.com,mapeado
+INVOICE,exporter.name,nome_exportador,Nome (Exportador),Exportador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,PERONI POMPE SpA,mapeado
+INVOICE,exporter.phone,telefone_exportador,Telefone (Exportador),Exportador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,+39 02 489 40.1,mapeado
+INVOICE,exporter.state,estado_exportador,Estado / UF (Exportador),Exportador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,California,mapeado
+INVOICE,exporter.taxId,documento_fiscal_exportador,CNPJ / Tax ID (Exportador),Exportador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,IT 00745820159,mapeado
+INVOICE,exporter.zipCode,cep_exportador,CEP / Código postal (Exportador),Exportador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,20094,mapeado
+INVOICE,importer.address,endereco_importador,Endereço (Importador),Importador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,RUA MEXICO 3-18° ANDAR CENTRO 20031-144 RIO DE JANEIRO RJ BRASILEIRA,mapeado
+INVOICE,importer.city,cidade_importador,Cidade (Importador),Importador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,RIO DE JANEIRO,mapeado
+INVOICE,importer.country,pais_importador,País (Importador),Importador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,BRASIL,mapeado
+INVOICE,importer.email,email_importador,E-mail (Importador),Importador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,dmmltda@gmail.com,mapeado
+INVOICE,importer.name,nome_importador,Nome (Importador),Importador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,SUPERQUIP SERVICOS E EQUIPAMENTOS TECNICOS LTDA,mapeado
+INVOICE,importer.phone,telefone_importador,Telefone (Importador),Importador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,+55.21.22625355,mapeado
+INVOICE,importer.state,estado_importador,Estado / UF (Importador),Importador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,RJ,mapeado
+INVOICE,importer.taxId,documento_fiscal_importador,CNPJ / Tax ID (Importador),Importador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,CNPJ30712061/0001-42,mapeado
+INVOICE,importer.zipCode,cep_importador,CEP / Código postal (Importador),Importador,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,20031-144,mapeado
+INVOICE,isSigned,documento_assinado_documento,Documento assinado (Documento),Documento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,false,mapeado
+INVOICE,items[].descriptions.english,items[]_descriptions_english,English,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,EXTENSION,pendente
+INVOICE,items[].descriptions.portuguese,items[]_descriptions_portuguese,Portuguese,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,descPt,pendente
+INVOICE,items[].hsCode,hs_code_itens,HS Code (Itens),Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,hsCode,mapeado
+INVOICE,items[].itemCurrency,items[]_itemcurrency,Item Currency,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,Eur,pendente
+INVOICE,items[].itemQuantity,items[]_itemquantity,Item Quantity,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"3,00",pendente
+INVOICE,items[].itemTotalPriceWithCurrency,items[]_itemtotalpricewithcurrency,Item Total Price With Currency,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"879,00",pendente
+INVOICE,items[].itemUnitPriceWithCurrency,items[]_itemunitpricewithcurrency,Item Unit Price With Currency,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"293,000",pendente
+INVOICE,items[].manufacturer,items[]_manufacturer,Manufacturer,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,manufacturer,pendente
+INVOICE,items[].ncm,ncm_itens,NCM (Itens),Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,ncm,mapeado
+INVOICE,items[].originCountry,items[]_origincountry,Origin Country,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,country,pendente
+INVOICE,items[].partNumber,items[]_partnumber,Part Number,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,3100N025201DK19,pendente
+INVOICE,items[].poNumber,items[]_ponumber,Po Number,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,4513772304,pendente
+INVOICE,items[].volume.dimensions,items[]_volume_dimensions,Dimensions,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,dimensions,pendente
+INVOICE,items[].volume.packageType,items[]_volume_packagetype,Package Type,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,pkgType,pendente
+INVOICE,items[].volume.quantity,items[]_volume_quantity,Quantity,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,pkgQty,pendente
+INVOICE,items[].volume.size,items[]_volume_size,Size,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,pkgSize,pendente
+INVOICE,items[].weights.gross,items[]_weights_gross,Gross,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,wGross,pendente
+INVOICE,items[].weights.net,items[]_weights_net,Net,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,153.67,pendente
+INVOICE,items[].weights.unit,items[]_weights_unit,Unit,Itens,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,PZ,pendente
+INVOICE,items_quantity,items_quantity,Items Quantity,Outros,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,2,pendente
+INVOICE,observations,observacoes_observacoes,Observações (Observações),Observações,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,DEL. NO 157068 of 16/01/25 Our ref. 2819567 B | Your ref. order 28/10/24 003W/24 Our ref. order 4 24684 NI | GOODS OF…,mapeado
+INVOICE,packageSummary.commercialUnit,unidade_comercial_resumo_volumes,Unidade comercial (Resumo volumes),Resumo volumes,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,Boxes,mapeado
+INVOICE,packageSummary.totalCubicMeasurement,packagesummary_totalcubicmeasurement,Total Cubic Measurement,Resumo volumes,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"0,04 MC",pendente
+INVOICE,packageSummary.totalGrossWeight,peso_bruto_total_resumo_volumes,Peso bruto total (Resumo volumes),Resumo volumes,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"9,00 KG",mapeado
+INVOICE,packageSummary.totalNetWeight,peso_liquido_total_resumo_volumes,Peso líquido total (Resumo volumes),Resumo volumes,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"8,22 KG",mapeado
+INVOICE,packageSummary.totalPackages,total_volumes_resumo_volumes,Total de volumes (Resumo volumes),Resumo volumes,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"1,00",mapeado
+INVOICE,packageSummary.totalTareWeight,packagesummary_totaltareweight,Total Tare Weight,Resumo volumes,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,pendente
+INVOICE,payment.method,metodo_pagamento_pagamento,Método de pagamento (Pagamento),Pagamento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,payment.terms,condicao_pagamento_pagamento,Condição de pagamento (Pagamento),Pagamento,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,60 DAYS INVOICE DATE,mapeado
+INVOICE,shipment.airports.destination,shipment_airports_destination,Destination,Embarque,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,pendente
+INVOICE,shipment.airports.origin,shipment_airports_origin,Origin,Embarque,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,pendente
+INVOICE,shipment.carrier,transportadora_embarque,Transportadora (Embarque),Embarque,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,shipment.costs.freight,valor_frete_embarque,Frete (Embarque),Embarque,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,AS PER AWB/HBL,mapeado
+INVOICE,shipment.costs.insurance,valor_seguro_embarque,Seguro (Embarque),Embarque,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,shipment.modal,modal_transporte_embarque,Modal de transporte (Embarque),Embarque,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,shipment.ports.destination,porto_destino_embarque,Porto destino (Embarque),Embarque,shipment.ports.discharge,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,shipment.ports.discharge,porto_destino_embarque,Porto destino (Embarque),Embarque,shipment.ports.destination,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"NAVEGANTES, BRAZIL",mapeado
+INVOICE,shipment.ports.loading,porto_origem_embarque,Porto origem (Embarque),Embarque,shipment.ports.origin,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,"SHANGHAI,CHINA",mapeado
+INVOICE,shipment.ports.origin,porto_origem_embarque,Porto origem (Embarque),Embarque,shipment.ports.loading,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,shipment.vesselName,nome_navio_embarque,Nome do navio (Embarque),Embarque,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,mapeado
+INVOICE,values.discountsOrAdditions,values_discountsoradditions,Discounts Or Additions,Outros,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,pendente
+INVOICE,values.otherCharges,values_othercharges,Other Charges,Outros,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,,pendente
+INVOICE,values.totalDocumentValue,values_totaldocumentvalue,Total Document Value,Outros,,INVOICE77.pdf; Invoice-A443FF43-0011.pdf; Invoice_excel_para_PDF_dRZkfypVUmQx9Agjq1u2cpZTnOAaxEhHvqB55Apq_2_.pdf; amostra-bl.pdf; invoices.pdf; invoices_packings.pdf,3179.00,pendente
+PACKING_LIST,additionalFields.Contato Importador,campo_adicional_contato_importador,Contato Importador,Campos adicionais,,invoices_packings.pdf,Monica Moura,mapeado
+PACKING_LIST,additionalFields.Dimensões,campo_adicional_dimensoes,Dimensões,Campos adicionais,,INVOICE77.pdf,120*80*45cm(1),mapeado
+PACKING_LIST,additionalFields.Nota de Entrega,campo_adicional_nota_de_entrega,Nota de Entrega,Campos adicionais,,INVOICE77.pdf,PH10021643,mapeado
+PACKING_LIST,additionalFields.País de Aquisição,campo_adicional_pais_de_aquisicao,País de Aquisição,Campos adicionais,,INVOICE77.pdf,Hong Kong,mapeado
+PACKING_LIST,additionalFields.País de Procedência,campo_adicional_pais_de_procedencia,País de Procedência,Campos adicionais,,INVOICE77.pdf,Hong Kong,mapeado
+PACKING_LIST,additionalFields.Total de Paletes,campo_adicional_total_de_paletes,Total de Paletes,Campos adicionais,,INVOICE77.pdf,1,mapeado
+PACKING_LIST,additionalFields.Vendedor Beneficiário,campo_adicional_vendedor_beneficiario,Vendedor Beneficiário,Campos adicionais,,invoices_packings.pdf,Classic Components Corp,mapeado
+PACKING_LIST,containerNumbers,numeros_container_containers,Números de container (Containers),Containers,,INVOICE77.pdf; invoices_packings.pdf,,mapeado
+PACKING_LIST,document.date,data_documento,Data do documento (Documento),Documento,,INVOICE77.pdf; invoices_packings.pdf,2024-06-19,mapeado
+PACKING_LIST,document.incoterm,incoterm_documento,Incoterm (Documento),Documento,,INVOICE77.pdf; invoices_packings.pdf,EXW,mapeado
+PACKING_LIST,document.incotermLocation,local_incoterm_documento,Local incoterm (Documento),Documento,,INVOICE77.pdf; invoices_packings.pdf,HK,mapeado
+PACKING_LIST,document.number,numero_documento,Número do documento (Documento),Documento,,INVOICE77.pdf; invoices_packings.pdf,ISA-002036,mapeado
+PACKING_LIST,document.originCountry,pais_origem_documento,País de origem (Documento),Documento,,INVOICE77.pdf; invoices_packings.pdf,China,mapeado
+PACKING_LIST,document.shippedOnBoardDate,data_embarque_documento,Data shipped on board (Documento),Documento,,INVOICE77.pdf; invoices_packings.pdf,,mapeado
+PACKING_LIST,document.type,tipo_documento,Tipo do documento (Documento),Documento,,INVOICE77.pdf; invoices_packings.pdf,PACKING LIST,mapeado
+PACKING_LIST,exporter.address,endereco_exportador,Endereço (Exportador),Exportador,,INVOICE77.pdf; invoices_packings.pdf,"Uint 5, 21/F., Midas Plaza, No.1 Tai Yau Street, San Po Kong, Kowloon",mapeado
+PACKING_LIST,exporter.city,cidade_exportador,Cidade (Exportador),Exportador,,INVOICE77.pdf; invoices_packings.pdf,Kowloon,mapeado
+PACKING_LIST,exporter.country,pais_exportador,País (Exportador),Exportador,,INVOICE77.pdf; invoices_packings.pdf,Hong Kong,mapeado
+PACKING_LIST,exporter.email,email_exportador,E-mail (Exportador),Exportador,,INVOICE77.pdf; invoices_packings.pdf,,mapeado
+PACKING_LIST,exporter.name,nome_exportador,Nome (Exportador),Exportador,,INVOICE77.pdf; invoices_packings.pdf,"LUEN TAI P.C.B. FACTORY CO., LTD.",mapeado
+PACKING_LIST,exporter.phone,telefone_exportador,Telefone (Exportador),Exportador,,INVOICE77.pdf; invoices_packings.pdf,852 - 2321 8391,mapeado
+PACKING_LIST,exporter.state,estado_exportador,Estado / UF (Exportador),Exportador,,INVOICE77.pdf; invoices_packings.pdf,,mapeado
+PACKING_LIST,exporter.taxId,documento_fiscal_exportador,CNPJ / Tax ID (Exportador),Exportador,,INVOICE77.pdf; invoices_packings.pdf,,mapeado
+PACKING_LIST,exporter.zipCode,cep_exportador,CEP / Código postal (Exportador),Exportador,,INVOICE77.pdf; invoices_packings.pdf,,mapeado
+PACKING_LIST,importer.address,endereco_importador,Endereço (Importador),Importador,,INVOICE77.pdf; invoices_packings.pdf,"Av. Tefé, 3105 - Bairro Japiim",mapeado
+PACKING_LIST,importer.city,cidade_importador,Cidade (Importador),Importador,,INVOICE77.pdf; invoices_packings.pdf,Pato Branco,mapeado
+PACKING_LIST,importer.cnpj,cnpj_importador,CNPJ (Importador),Importador,,INVOICE77.pdf; invoices_packings.pdf,82.901.000/0015-22,mapeado
+PACKING_LIST,importer.country,pais_importador,País (Importador),Importador,,INVOICE77.pdf; invoices_packings.pdf,Brazil,mapeado
+PACKING_LIST,importer.email,email_importador,E-mail (Importador),Importador,,INVOICE77.pdf; invoices_packings.pdf,,mapeado
+PACKING_LIST,importer.name,nome_importador,Nome (Importador),Importador,,INVOICE77.pdf; invoices_packings.pdf,Intelbras S/A -Indústria de Telecomunicação Eletrônica Brasileira,mapeado
+PACKING_LIST,importer.phone,telefone_importador,Telefone (Importador),Importador,,INVOICE77.pdf; invoices_packings.pdf,41-3643-0947,mapeado
+PACKING_LIST,importer.state,estado_importador,Estado / UF (Importador),Importador,,INVOICE77.pdf; invoices_packings.pdf,PR,mapeado
+PACKING_LIST,importer.zipCode,cep_importador,CEP / Código postal (Importador),Importador,,INVOICE77.pdf,,mapeado
+PACKING_LIST,isSigned,documento_assinado_documento,Documento assinado (Documento),Documento,,INVOICE77.pdf; invoices_packings.pdf,false,mapeado
+PACKING_LIST,items[].additionalInformation,items[]_additionalinformation,Additional Information,Itens,,INVOICE77.pdf; invoices_packings.pdf,Mfg Date Code : 2100 | Country of Origin : Thailand | MSL Level : 1 | ROHS Compliant | Internal Lot No: 4426125,pendente
+PACKING_LIST,items[].hsCode,hs_code_itens,HS Code (Itens),Itens,,INVOICE77.pdf; invoices_packings.pdf,85423990,mapeado
+PACKING_LIST,items[].ncm,ncm_itens,NCM (Itens),Itens,,INVOICE77.pdf; invoices_packings.pdf,,mapeado
+PACKING_LIST,items[].package.totalCubicMeasurement,items[]_package_totalcubicmeasurement,Total Cubic Measurement,Itens,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,items[].package.totalTareWeight,items[]_package_totaltareweight,Total Tare Weight,Itens,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,items[].package.type,items[]_package_type,Type,Itens,,INVOICE77.pdf; invoices_packings.pdf,Carton,pendente
+PACKING_LIST,items[].package.unitGrossWeight,items[]_package_unitgrossweight,Unit Gross Weight,Itens,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,items[].package.unitNetWeight,items[]_package_unitnetweight,Unit Net Weight,Itens,,INVOICE77.pdf; invoices_packings.pdf,0.140,pendente
+PACKING_LIST,items[].package.unitQuantity,items[]_package_unitquantity,Unit Quantity,Itens,,INVOICE77.pdf; invoices_packings.pdf,450,pendente
+PACKING_LIST,items[].partNumber,items[]_partnumber,Part Number,Itens,,INVOICE77.pdf; invoices_packings.pdf,1080936,pendente
+PACKING_LIST,items[].productDescription,items[]_productdescription,Product Description,Itens,,INVOICE77.pdf; invoices_packings.pdf,Integrated Circuit - Power Management IC,pendente
+PACKING_LIST,items[].totalProductQuantity,items[]_totalproductquantity,Total Product Quantity,Itens,,INVOICE77.pdf; invoices_packings.pdf,9900,pendente
+PACKING_LIST,observations,observacoes_observacoes,Observações (Observações),Observações,,INVOICE77.pdf; invoices_packings.pdf,ATTN : Samantha Scheidt | Shipment does not contain solid wooden packing material | Freight cost AS PER AWB/HBL,mapeado
+PACKING_LIST,packageSummary.commercialUnit,unidade_comercial_resumo_volumes,Unidade comercial (Resumo volumes),Resumo volumes,,INVOICE77.pdf; invoices_packings.pdf,kgs,mapeado
+PACKING_LIST,packageSummary.totalCubicMeasurement,packagesummary_totalcubicmeasurement,Total Cubic Measurement,Resumo volumes,,INVOICE77.pdf; invoices_packings.pdf,0.432,pendente
+PACKING_LIST,packageSummary.totalGrossWeight,peso_bruto_total_resumo_volumes,Peso bruto total (Resumo volumes),Resumo volumes,,INVOICE77.pdf; invoices_packings.pdf,177.470,mapeado
+PACKING_LIST,packageSummary.totalNetWeight,peso_liquido_total_resumo_volumes,Peso líquido total (Resumo volumes),Resumo volumes,,INVOICE77.pdf; invoices_packings.pdf,153.670,mapeado
+PACKING_LIST,packageSummary.totalPackages,total_volumes_resumo_volumes,Total de volumes (Resumo volumes),Resumo volumes,,INVOICE77.pdf; invoices_packings.pdf,550,mapeado
+PACKING_LIST,packageSummary.totalTareWeight,packagesummary_totaltareweight,Total Tare Weight,Resumo volumes,,INVOICE77.pdf; invoices_packings.pdf,23.800,pendente
+PACKING_LIST,shipmentDetails.destination.airport,shipmentdetails_destination_airport,Airport,Embarque,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,shipmentDetails.destination.location,shipmentdetails_destination_location,Location,Embarque,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,shipmentDetails.destination.place,shipmentdetails_destination_place,Place,Embarque,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,shipmentDetails.destination.port,shipmentdetails_destination_port,Port,Embarque,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,shipmentDetails.origin.airport,shipmentdetails_origin_airport,Airport,Embarque,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,shipmentDetails.origin.location,shipmentdetails_origin_location,Location,Embarque,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,shipmentDetails.origin.place,shipmentdetails_origin_place,Place,Embarque,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,shipmentDetails.origin.port,shipmentdetails_origin_port,Port,Embarque,,INVOICE77.pdf; invoices_packings.pdf,,pendente
+PACKING_LIST,shipmentDetails.transportMode,modal_transporte_embarque,Modal de transporte (Embarque),Embarque,,INVOICE77.pdf; invoices_packings.pdf,By sea,mapeado
+PACKING_LIST,shipmentDetails.vesselName,shipmentdetails_vesselname,Vessel Name,Embarque,,INVOICE77.pdf; invoices_packings.pdf,,pendente

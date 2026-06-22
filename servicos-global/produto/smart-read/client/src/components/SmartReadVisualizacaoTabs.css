@@ -61,7 +61,9 @@ body.light-theme .smart-read-vis-toolbar {
   width: 100%;
 }
 
-.smart-read-multi-view {
+.smart-read-visualizacao-layout .smart-read-multi-view {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   min-height: 0;
   min-width: 0;
@@ -70,11 +72,24 @@ body.light-theme .smart-read-vis-toolbar {
 
 .smart-read-view-panel {
   display: none;
+  flex: 1;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
   width: 100%;
+}
+
+.smart-read-view-panel[hidden] {
+  display: none !important;
 }
 
 .smart-read-view-panel--ativo {
   display: flex;
+}
+
+.smart-read-view-panel--ativo > .sr-pagina,
+.smart-read-view-panel--ativo > .sr-pagina--lista {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
 }

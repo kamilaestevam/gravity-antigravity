@@ -116,6 +116,16 @@ describe('NavigateComPrefixo', () => {
         renderRedirect('/produto/simula-custo/resultado/abc', '/produto/simula-custo', '/simula-custo')
       ).toBe('/simula-custo/resultado/abc')
     })
+
+    it('/produto/smart-read -> /smart-read (raiz do produto)', () => {
+      expect(renderRedirect('/produto/smart-read', '/produto/smart-read', '/smart-read')).toBe('/smart-read')
+    })
+
+    it('/produto/smart-read/lista -> /smart-read/lista', () => {
+      expect(
+        renderRedirect('/produto/smart-read/lista', '/produto/smart-read', '/smart-read')
+      ).toBe('/smart-read/lista')
+    })
   })
 
   describe('defesa anti open-redirect', () => {

@@ -1,6 +1,8 @@
+import '../shared/bid-cambio-page-shell.css'
+
 export default function Lista() {
   return (
-    <div style={{ padding: '2rem' }}>
+    <div className="bcc-lista-page">
       <div style={{
         padding: '3rem',
         borderRadius: '0.75rem',

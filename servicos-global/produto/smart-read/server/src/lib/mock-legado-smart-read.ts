@@ -114,3 +114,20 @@ export function obterLeituraMockLegado(idLeitura: string): LeituraLegado {
   }
   return montarLeituraLegado(registro)
 }
+
+export function listarLeiturasMockLegado(params: {
+  pagina: number
+  limite: number
+  termo_busca?: string
+}): { items: LeituraLegado[]; total: number } {
+  const termo = params.termo_busca?.trim().toLowerCase()
+  const todos = [...leituras.values()]
+    .map(montarLeituraLegado)
+    .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))
+  const filtrados = termo
+    ? todos.filter((item) => (item.name ?? item._id).toLowerCase().includes(termo))
+    : todos
+  const inicio = (params.pagina - 1) * params.limite
+  const fatia = filtrados.slice(inicio, inicio + params.limite)
+  return { items: fatia, total: filtrados.length }
+}

@@ -36,6 +36,13 @@ export const CriarLeituraRespostaSchema = z.object({
 })
 export type CriarLeituraResposta = z.infer<typeof CriarLeituraRespostaSchema>
 
+export const EstadoProgressoLeituraSchema = z.object({
+  passo: z.number().int().min(2).max(4),
+  nome: z.string(),
+  leitura: LeituraSchema,
+})
+export type EstadoProgressoLeitura = z.infer<typeof EstadoProgressoLeituraSchema>
+
 export const OrigemLeituraEnum = z.enum(['API', 'INTERFACE'])
 export type OrigemLeitura = z.infer<typeof OrigemLeituraEnum>
 
@@ -51,3 +58,18 @@ export const TransacaoLeituraSchema = z.object({
   mensagem_erro: z.string().nullable(),
 })
 export type TransacaoLeitura = z.infer<typeof TransacaoLeituraSchema>
+
+export const ListarTransacoesRespostaSchema = z.object({
+  transacoes: z.array(TransacaoLeituraSchema),
+  paginacao: z.object({
+    pagina: z.number().int().min(1),
+    limite: z.number().int().min(1),
+    total: z.number().int().min(0),
+  }),
+})
+export type ListarTransacoesResposta = z.infer<typeof ListarTransacoesRespostaSchema>
+
+export const MetricaLeituraRespostaSchema = z.object({
+  valor: z.number(),
+})
+export type MetricaLeituraResposta = z.infer<typeof MetricaLeituraRespostaSchema>

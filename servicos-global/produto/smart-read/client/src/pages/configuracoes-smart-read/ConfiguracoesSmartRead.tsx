@@ -60,7 +60,7 @@ const ATIVOS_PADRAO: CardPref[] = [
 interface CardPref { id: string; visible: boolean }
 
 // ─── Colunas (nome + subtítulo + ações: editar / ocultar / excluir) ───────────
-interface ColunaPref { id: string; nome: string; tipo: string; visible: boolean; custom: boolean }
+interface ColunaPref { id: string; nome: string; tipo: string; visible: boolean }
 
 const PERIODOS = [
   { id: '7d',   label: '7 dias' },
@@ -113,7 +113,7 @@ export default function ConfiguracoesSmartRead() {
 
   function criarColuna() {
     const id = `custom-${seqColuna.current++}`
-    setColunas((prev) => [...prev, { id, nome: 'Nova coluna', tipo: 'Personalizada', visible: true, custom: true }])
+    setColunas((prev) => [...prev, { id, nome: 'Nova coluna', tipo: 'Personalizada', visible: true }])
     setEditandoColunaId(id)
   }
 
@@ -431,7 +431,7 @@ export default function ConfiguracoesSmartRead() {
                 <div className="cfg-secao__header">
                   <div>
                     <h2 className="cfg-secao__titulo">Colunas Personalizadas</h2>
-                    <p className="cfg-secao__desc">Adicione campos extras à tabela de leituras. As colunas criadas ficam disponíveis para todos os usuários.</p>
+                    <p className="cfg-secao__desc">Crie colunas extras para a tabela de leituras.</p>
                   </div>
                 </div>
 

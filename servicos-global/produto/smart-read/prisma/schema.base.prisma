@@ -1,0 +1,15 @@
+// schema.base.prisma — Smart Read (Gravity)
+// Banco-alvo: gravity-smart-read-producao / gravity-smart-read-teste (Railway)
+// Combinado com fragment.prisma via `node prisma/compose-schema.js`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../server/src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Models do produto Smart Read — fragment.prisma

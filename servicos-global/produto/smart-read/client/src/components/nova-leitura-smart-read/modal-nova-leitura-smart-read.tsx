@@ -36,11 +36,9 @@ import {
 } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 
 import {
-  lerEstadoLeituraSmartRead,
-  salvarEstadoLeituraSmartRead,
+  carregarProgressoLeituraSmartRead,
+  persistirProgressoLeituraSmartRead,
 } from '../../shared/persistencia-leitura-smart-read'
-
-import { obterLeituraMockSmartRead } from '../../shared/dados-mock-lista-smart-read'
 
 import { PainelLateralArquivosNovaLeituraSmartRead } from './painel-lateral-arquivos-nova-leitura-smart-read'
 
@@ -159,6 +157,7 @@ export function ModalNovaLeituraSmartRead({
   const ativo = useRef(true)
   const urlsBlob = useRef<Map<string, string>>(new Map())
   const abertoAnteriorRef = useRef(false)
+  const passoSalvoRef = useRef(0)
   const inicioSessaoRef = useRef<number>(Date.now())
 
   useEffect(() => {
@@ -170,12 +169,10 @@ export function ModalNovaLeituraSmartRead({
 
   const hidratarLeituraExistente = useCallback(async (id: string) => {
     try {
-      // Mock tem prioridade (dev/UI sem legado), espelhando a tabela; senão API real.
-      const mock = obterLeituraMockSmartRead(id)
-      const leitura = mock ?? (await smartReadApi.obterLeitura(id))
+      const leitura = await smartReadApi.obterLeitura(id)
       if (!ativo.current) return
       // Estado salvo localmente (passo + edições) tem prioridade sobre o fetch.
-      const salvo = lerEstadoLeituraSmartRead(id)
+      const salvo = await carregarProgressoLeituraSmartRead(id)
       if (import.meta.env.DEV) {
         console.warn('[smart-read][persist] retomar', { id, temSalvo: !!salvo, passoSalvo: salvo?.passo })
       }
@@ -192,6 +189,7 @@ export function ModalNovaLeituraSmartRead({
 
   useEffect(() => {
     if (aberto && !abertoAnteriorRef.current) {
+      passoSalvoRef.current = 0
       setEnviando(false)
       setInicioAnalise(null)
       setConferenciaSelecao(null)
@@ -244,6 +242,29 @@ export function ModalNovaLeituraSmartRead({
   )
   const processamentoComErro =
     processamentoFinalizado && !arquivos.some((item) => item.status_arquivo_local === 'completo')
+
+  const salvarProgressoAtual = useCallback(
+    async (passoAlvo: number = passo): Promise<boolean> => {
+      const idLeitura = idLeituraExistente ?? arquivos.find((a) => a.id_leitura)?.id_leitura ?? null
+      if (!idLeitura || passoAlvo < 2 || !todosArquivosAnaliseCompleta(arquivos)) return false
+      const leitura = consolidarLeituraDeArquivosLocais(arquivos)
+      if (!leitura) return false
+      if (import.meta.env.DEV) {
+        console.warn('[smart-read][persist] salvando', { idLeitura, passo: passoAlvo })
+      }
+      await persistirProgressoLeituraSmartRead(idLeitura, { passo: passoAlvo, nome: nomeLeitura, leitura })
+      passoSalvoRef.current = passoAlvo
+      if (import.meta.env.DEV) console.warn('[smart-read][persist] SALVO', { idLeitura, passo: passoAlvo })
+      return true
+    },
+    [arquivos, idLeituraExistente, nomeLeitura, passo],
+  )
+
+  // Salva quando a análise termina (passo 2) ou ao mudar de passo com documento lido.
+  useEffect(() => {
+    if (!aberto || passo < 2 || !analiseCompleta) return
+    void salvarProgressoAtual(passo)
+  }, [aberto, passo, analiseCompleta, salvarProgressoAtual])
 
 
 
@@ -499,30 +520,13 @@ export function ModalNovaLeituraSmartRead({
 
 
 
-  function handleFechar() {
-
-    // Salva o progresso (passo + edições) SE o documento foi lido e estamos no passo 2+.
-    const idLeitura = idLeituraExistente ?? arquivos.find((a) => a.id_leitura)?.id_leitura ?? null
-    const documentoLido = todosArquivosAnaliseCompleta(arquivos)
-    if (import.meta.env.DEV) {
-      console.warn('[smart-read][persist] fechar', {
-        idLeitura,
-        idLeituraExistente,
-        passo,
-        documentoLido,
-        totalArquivos: arquivos.length,
-      })
+  async function handleFechar() {
+    try {
+      await salvarProgressoAtual(passo)
+    } catch (erro) {
+      if (import.meta.env.DEV) console.error('[smart-read][persist] fechar falhou', erro)
     }
-    if (idLeitura && passo >= 2 && documentoLido) {
-      const leitura = consolidarLeituraDeArquivosLocais(arquivos)
-      if (leitura) {
-        salvarEstadoLeituraSmartRead(idLeitura, { passo, nome: nomeLeitura, leitura })
-        if (import.meta.env.DEV) console.warn('[smart-read][persist] SALVO', { idLeitura, passo })
-      }
-    }
-
     onFechar()
-
   }
 
 
@@ -537,7 +541,7 @@ export function ModalNovaLeituraSmartRead({
 
 
 
-  function handleContinuarPasso() {
+  async function handleContinuarPasso() {
 
     if (passo === 2 && !processamentoFinalizado) return
 
@@ -545,13 +549,15 @@ export function ModalNovaLeituraSmartRead({
 
       onConcluido?.()
 
-      handleFechar()
+      await handleFechar()
 
       return
 
     }
 
-    setPasso((p) => p + 1)
+    const proximo = passo + 1
+    await salvarProgressoAtual(proximo)
+    setPasso(proximo)
 
   }
 

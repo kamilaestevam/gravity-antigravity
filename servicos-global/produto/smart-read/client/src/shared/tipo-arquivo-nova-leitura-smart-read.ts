@@ -2,7 +2,7 @@
  * tipo-arquivo-nova-leitura-smart-read.ts — estado local dos arquivos no wizard
  */
 
-import type { Leitura } from './schemas'
+import type { Leitura, StatusLeitura } from './schemas'
 
 export type StatusArquivoLocalNovaLeitura =
   | 'anexado'
@@ -41,6 +41,52 @@ export function criarArquivoLocalNovaLeitura(arquivo: File): ArquivoLocalNovaLei
     mensagem_erro: null,
     expandido: false,
   }
+}
+
+/**
+ * Passo inicial ao retomar uma leitura existente, derivado do status:
+ * COMPLETED → 4 (Resultado); PROCESSING/PENDING/FAILED → 2 (Análise).
+ */
+export function passoInicialLeituraSmartRead(status: StatusLeitura): number {
+  return status === 'COMPLETED' ? 4 : 2
+}
+
+function statusArquivoLocalDeStatusLeitura(status: StatusLeitura): StatusArquivoLocalNovaLeitura {
+  if (status === 'COMPLETED') return 'completo'
+  if (status === 'FAILED') return 'erro'
+  return 'analisando'
+}
+
+/**
+ * Hidrata os arquivos locais do wizard a partir de uma leitura já existente
+ * (modo "retomar"). O blob original não está disponível na API, então usamos
+ * um File vazio apenas para preservar o nome — os dados extraídos vêm de `leitura`.
+ */
+export function criarArquivosLocaisDeLeitura(leitura: Leitura): ArquivoLocalNovaLeitura[] {
+  return leitura.arquivos.map((arquivo) => ({
+    id_arquivo_local: crypto.randomUUID(),
+    arquivo: new File([], arquivo.nome_arquivo ?? 'documento'),
+    status_arquivo_local: statusArquivoLocalDeStatusLeitura(arquivo.status_arquivo),
+    id_leitura: leitura.id_leitura,
+    id_arquivo: arquivo.id_arquivo,
+    leitura,
+    mensagem_erro: null,
+    expandido: true,
+  }))
+}
+
+/**
+ * Consolida a leitura editada a partir dos arquivos locais. As edições de
+ * Conferência ficam espalhadas em cada `item.leitura`, então reunimos o arquivo
+ * resolvido de cada item numa única Leitura — pronta para persistir/restaurar.
+ */
+export function consolidarLeituraDeArquivosLocais(itens: ArquivoLocalNovaLeitura[]): Leitura | null {
+  const base = itens.find((item) => item.leitura)?.leitura
+  if (!base) return null
+  const arquivos = itens
+    .map((item) => resolverArquivoApiLeitura(item))
+    .filter((arquivo): arquivo is Leitura['arquivos'][number] => arquivo !== null)
+  return { ...base, arquivos: arquivos.length > 0 ? arquivos : base.arquivos }
 }
 
 function resolverArquivoApiLeitura(item: ArquivoLocalNovaLeitura): Leitura['arquivos'][number] | null {

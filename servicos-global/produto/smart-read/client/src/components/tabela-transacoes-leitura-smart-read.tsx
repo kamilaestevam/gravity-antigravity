@@ -1,30 +1,49 @@
 /**
  * TabelaTransacoesLeituraSmartRead — lista hierárquica (leitura → documentos)
- * Padrão Pedido/BID: TabelaVirtualGlobal + barra Nova leitura / Excluir
+ * Padrão Pedido/BID: TabelaVirtualGlobal + colunas/filtros/export/painel persistido
  */
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '@nucleo/tabela-virtual-global/tabela-virtual.css'
 import { Trash } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
-import type { GTVirtualHandle } from '@nucleo/tabela-virtual-global'
+import {
+  FiltroPopoverColuna,
+  TabelaVirtualGlobal,
+} from '@nucleo/tabela-virtual-global'
+import type {
+  FiltroAtivo,
+  FiltrosAtivosMap,
+  GTColuna,
+  GTPreferencias,
+  GTVirtualHandle,
+} from '@nucleo/tabela-virtual-global'
 import { BotaoNovoListaSmartRead } from './botao-novo-lista-smart-read'
 import { ModalExcluirLeiturasSmartRead } from './modal-excluir-leituras-smart-read'
 import { ModalNovaLeituraSmartRead } from './nova-leitura-smart-read/modal-nova-leitura-smart-read'
+import { montarAcoesExportacaoListaSmartRead } from '../shared/acoes-exportacao-lista-smart-read'
 import {
-  COLUNAS_LISTA_LEITURA_SMART_READ,
-  MAPA_COLUNAS_DOCUMENTO_LEITURA,
+  COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ,
+  criarColunasListaLeituraSmartRead,
+  criarMapaColunasDocumentoLeitura,
+  formatarValorExportColunaLeituraSmartRead,
 } from '../shared/colunas-lista-leitura-smart-read'
+import {
+  filtrarTransacoesListaSmartRead,
+  valoresUnicosColunaTransacao,
+} from '../shared/filtrar-transacoes-lista-smart-read'
 import {
   montarDocumentosLeituraLista,
   type DocumentoLeituraLista,
 } from '../shared/montar-documentos-leitura-smart-read'
 import { smartReadApi } from '../shared/api'
-import { obterLeituraMockSmartRead } from '../shared/dados-mock-lista-smart-read'
 import type { TransacaoLeitura } from '../shared/schemas'
+import {
+  useListaPainelSmartRead,
+  type EstadoListaParaPainel,
+} from '../shared/use-lista-painel-smart-read'
 
 const ITENS_POR_PAGINA = 50
 
@@ -39,7 +58,12 @@ type Props = {
   onRecarregar: () => void
   onPaginaChange: (pagina: number) => void
   tituloPainel?: string
-  usandoMock?: boolean
+}
+
+function detectarTipoColunaListaSmartRead(col: GTColuna<TransacaoLeitura>): 'texto' | 'enum' | 'numero' {
+  if (col.tipo === 'numero') return 'numero'
+  if (col.key === 'status_leitura') return 'enum'
+  return 'texto'
 }
 
 export function TabelaTransacoesLeituraSmartRead({
@@ -53,29 +77,157 @@ export function TabelaTransacoesLeituraSmartRead({
   onRecarregar,
   onPaginaChange,
   tituloPainel = 'Envios',
-  usandoMock = false,
 }: Props) {
   const addNotification = useShellStore((s) => s.addNotification)
   const tabelaRef = useRef<GTVirtualHandle>(null)
+  const painelAplicadoRef = useRef<string | null>(null)
+
+  const {
+    painelAtual,
+    painelAtualId,
+    carregando: carregandoPaineis,
+    aplicarConfigDoPainel,
+    persistirPainelAtual,
+    persistirPainelAtualImediato,
+  } = useListaPainelSmartRead()
+
+  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(undefined)
+  const [filtrosAtivosLista, setFiltrosAtivosLista] = useState<FiltrosAtivosMap>({})
+  const [popoverFiltroAberto, setPopoverFiltroAberto] = useState<string | null>(null)
+  const [popoverFiltroPos, setPopoverFiltroPos] = useState<{ top: number; left: number } | null>(null)
 
   const [leiturasSelecionadas, setLeiturasSelecionadas] = useState<TransacaoLeitura[]>([])
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [excluindo, setExcluindo] = useState(false)
   const [modalNovaLeituraAberto, setModalNovaLeituraAberto] = useState(false)
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])
+  const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
+
+  const filtrosAtivosKeys = useMemo(
+    () => new Set(Object.keys(filtrosAtivosLista)),
+    [filtrosAtivosLista],
+  )
+
+  const montarEstadoPainel = useCallback((): EstadoListaParaPainel => ({
+    preferencias,
+    abaAtiva: 'envios',
+    sortCampo: 'data_envio',
+    sortDir: 'desc',
+    busca: termoBusca,
+    filtrosAtivos: filtrosAtivosLista,
+  }), [preferencias, termoBusca, filtrosAtivosLista])
+
+  useEffect(() => {
+    if (!painelAtual || carregandoPaineis) return
+    if (painelAplicadoRef.current === painelAtual.id) return
+    painelAplicadoRef.current = painelAtual.id
+    aplicarConfigDoPainel(painelAtual, {
+      setPreferencias,
+      setAbaAtiva: () => undefined,
+      setSortCampo: () => undefined,
+      setSortDir: () => undefined,
+      setBusca: (busca) => {
+        if (busca !== termoBusca) onBuscar(busca)
+      },
+      setFiltrosAtivos: setFiltrosAtivosLista,
+    })
+  }, [painelAtual, carregandoPaineis, aplicarConfigDoPainel, onBuscar, termoBusca])
+
+  useEffect(() => {
+    if (!painelAtualId || carregandoPaineis) return
+    persistirPainelAtual(montarEstadoPainel())
+  }, [painelAtualId, carregandoPaineis, montarEstadoPainel, persistirPainelAtual, filtrosAtivosLista, termoBusca])
 
   const itemId = useCallback((item: TransacaoLeitura) => item.id_leitura, [])
   const filhoId = useCallback((item: DocumentoLeituraLista) => item.id_documento_leitura, [])
 
-  const handleCarregarFilhos = useCallback(async (leitura: TransacaoLeitura) => {
-    const mock = obterLeituraMockSmartRead(leitura.id_leitura)
-    if (mock || usandoMock) {
-      const detalhe = mock ?? obterLeituraMockSmartRead('mock-leitura-bl-importacao')
-      if (detalhe) return montarDocumentosLeituraLista(detalhe)
+  const abrirLeituraExistente = useCallback((idLeitura: string) => {
+    setArquivosNovaLeitura([])
+    setIdLeituraExistente(idLeitura)
+    setModalNovaLeituraAberto(true)
+  }, [])
+
+  const colunas = useMemo(
+    () => criarColunasListaLeituraSmartRead((item) => abrirLeituraExistente(item.id_leitura)),
+    [abrirLeituraExistente],
+  )
+  const mapaColunasFilho = useMemo(
+    () => criarMapaColunasDocumentoLeitura((item) => abrirLeituraExistente(item.id_leitura)),
+    [abrirLeituraExistente],
+  )
+
+  const transacoesFiltradas = useMemo(
+    () => filtrarTransacoesListaSmartRead(transacoes, filtrosAtivosLista),
+    [transacoes, filtrosAtivosLista],
+  )
+
+  const totalArquivosRodape = useMemo(
+    () => transacoesFiltradas.reduce((soma, item) => soma + (item.total_arquivos ?? 0), 0),
+    [transacoesFiltradas],
+  )
+
+  const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
+    setPreferencias(prefs)
+    if (painelAtualId) {
+      persistirPainelAtualImediato({
+        preferencias: prefs,
+        abaAtiva: 'envios',
+        sortCampo: 'data_envio',
+        sortDir: 'desc',
+        busca: termoBusca,
+        filtrosAtivos: filtrosAtivosLista,
+      })
     }
+  }, [painelAtualId, persistirPainelAtualImediato, termoBusca, filtrosAtivosLista])
+
+  const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
+    const rect = anchor.getBoundingClientRect()
+    setPopoverFiltroPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX })
+    setPopoverFiltroAberto(key)
+  }, [])
+
+  const handleAplicarFiltroColuna = useCallback((campo: string, filtro: FiltroAtivo) => {
+    setFiltrosAtivosLista((prev) => ({ ...prev, [campo]: filtro }))
+    setPopoverFiltroAberto(null)
+    if (painelAtualId) {
+      persistirPainelAtualImediato({
+        ...montarEstadoPainel(),
+        filtrosAtivos: { ...filtrosAtivosLista, [campo]: filtro },
+      })
+    }
+  }, [painelAtualId, persistirPainelAtualImediato, montarEstadoPainel, filtrosAtivosLista])
+
+  const handleLimparFiltroColuna = useCallback((campo: string) => {
+    setFiltrosAtivosLista((prev) => {
+      const next = { ...prev }
+      delete next[campo]
+      return next
+    })
+    setPopoverFiltroAberto(null)
+    if (painelAtualId) {
+      const next = { ...filtrosAtivosLista }
+      delete next[campo]
+      persistirPainelAtualImediato({ ...montarEstadoPainel(), filtrosAtivos: next })
+    }
+  }, [painelAtualId, persistirPainelAtualImediato, montarEstadoPainel, filtrosAtivosLista])
+
+  const acoesExportacao = useMemo(
+    () => montarAcoesExportacaoListaSmartRead({
+      colunas,
+      preferencias,
+      colunasPadrao: [...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ],
+      dados: transacoesFiltradas,
+      formatValorExport: formatarValorExportColunaLeituraSmartRead,
+      nomeArquivo: 'smart-read-leituras',
+      titulo: `Lista ${tituloPainel} — Smart Read`,
+    }),
+    [colunas, preferencias, transacoesFiltradas, tituloPainel],
+  )
+
+  const handleCarregarFilhos = useCallback(async (leitura: TransacaoLeitura) => {
     const detalhe = await smartReadApi.obterLeitura(leitura.id_leitura)
     return montarDocumentosLeituraLista(detalhe)
-  }, [usandoMock])
+  }, [])
 
   const handleConfirmarExclusao = useCallback(async () => {
     if (leiturasSelecionadas.length === 0) return
@@ -111,6 +263,7 @@ export function TabelaTransacoesLeituraSmartRead({
   }, [addNotification, leiturasSelecionadas, onRecarregar])
 
   const abrirNovaLeitura = useCallback((arquivos: File[] = []) => {
+    setIdLeituraExistente(null)
     setArquivosNovaLeitura(arquivos)
     setModalNovaLeituraAberto(true)
   }, [])
@@ -142,6 +295,10 @@ export function TabelaTransacoesLeituraSmartRead({
     [abrirNovaLeitura, excluindo, leiturasSelecionadas.length],
   )
 
+  const colunaFiltroAberta = popoverFiltroAberto
+    ? colunas.find((c) => c.key === popoverFiltroAberto)
+    : undefined
+
   return (
     <section className="sr-painel sr-painel--tabela">
       {erro && (
@@ -150,35 +307,56 @@ export function TabelaTransacoesLeituraSmartRead({
         </div>
       )}
 
+      {popoverFiltroAberto && colunaFiltroAberta?.key && popoverFiltroPos && (
+        <FiltroPopoverColuna
+          campo={String(colunaFiltroAberta.key)}
+          label={colunaFiltroAberta.label}
+          tipo={detectarTipoColunaListaSmartRead(colunaFiltroAberta)}
+          filtroAtual={filtrosAtivosLista[String(colunaFiltroAberta.key)]}
+          valoresUnicos={valoresUnicosColunaTransacao(transacoes, String(colunaFiltroAberta.key))}
+          onAplicar={handleAplicarFiltroColuna}
+          onLimpar={handleLimparFiltroColuna}
+          onFechar={() => setPopoverFiltroAberto(null)}
+          anchorPos={popoverFiltroPos}
+        />
+      )}
+
       <TabelaVirtualGlobal<TransacaoLeitura, DocumentoLeituraLista>
         imperativeRef={tabelaRef}
-        dados={transacoes}
-        colunas={COLUNAS_LISTA_LEITURA_SMART_READ}
+        dados={transacoesFiltradas}
+        colunas={colunas}
         itemId={itemId}
-        mapaColunasFilho={MAPA_COLUNAS_DOCUMENTO_LEITURA}
+        mapaColunasFilho={mapaColunasFilho}
         onCarregarFilhos={handleCarregarFilhos}
         filhoId={filhoId}
-        labelPai={tituloPainel.toLowerCase()}
-        labelFilho={['documento', 'documentos']}
+        labelPai={['leitura', 'leituras']}
+        labelFilho={['arquivo', 'arquivos']}
         itensPorPagina={ITENS_POR_PAGINA}
-        totalItens={total}
+        totalItens={Object.keys(filtrosAtivosLista).length > 0 ? transacoesFiltradas.length : total}
+        totalFilhos={totalArquivosRodape}
         paginaAtual={pagina}
         onMudarPagina={onPaginaChange}
-        carregando={carregando}
+        carregando={carregando || carregandoPaineis}
         acoesBarra={acoesBarra}
+        acoesExportacao={acoesExportacao}
         onSelecaoMudar={setLeiturasSelecionadas}
         onBuscar={onBuscar}
+        onFiltroColuna={onFiltroColuna}
+        filtrosAtivosKeys={filtrosAtivosKeys}
+        preferencias={preferencias}
+        onSalvarPreferencias={handleSalvarPreferencias}
+        colunasPadrao={[...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ]}
         placeholderBusca="Localizar…"
         distribuirLarguraColunas
-        ariaLabel="Lista de envios Smart Read"
+        ariaLabel={`Lista de ${tituloPainel} Smart Read`}
         emptyTitle="Nenhum envio encontrado"
         emptyDescription={
-          termoBusca.trim()
-            ? 'Nenhuma leitura corresponde à busca.'
+          termoBusca.trim() || Object.keys(filtrosAtivosLista).length > 0
+            ? 'Nenhuma leitura corresponde à busca ou aos filtros.'
             : 'Envie a primeira leitura para começar.'
         }
         emptyAction={
-          !termoBusca.trim() ? (
+          !termoBusca.trim() && Object.keys(filtrosAtivosLista).length === 0 ? (
             <button type="button" className="sr-link-acao" onClick={() => abrirNovaLeitura()}>
               Enviar primeira leitura
             </button>
@@ -190,9 +368,11 @@ export function TabelaTransacoesLeituraSmartRead({
       <ModalNovaLeituraSmartRead
         aberto={modalNovaLeituraAberto}
         arquivosIniciais={arquivosNovaLeitura}
+        idLeituraExistente={idLeituraExistente}
         onFechar={() => {
           setModalNovaLeituraAberto(false)
           setArquivosNovaLeitura([])
+          setIdLeituraExistente(null)
         }}
         onConcluido={() => void onRecarregar()}
       />

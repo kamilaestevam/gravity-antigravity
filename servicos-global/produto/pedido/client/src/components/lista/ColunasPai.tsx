@@ -56,6 +56,34 @@ const STATUS_CORES_DEFAULT: Record<string, string> = {
   cancelado:     '#f87171',
 }
 
+/** Cor canônica de link em células de lista — paridade BID Frete / GTV (.gtv-celula-link) */
+const COR_LINK_LISTA = 'var(--gtv-link, var(--accent, #6366f1))'
+
+const ESTILO_LINK_LISTA_ACAO: React.CSSProperties = {
+  color: COR_LINK_LISTA,
+  cursor: 'pointer',
+  textDecoration: 'underline',
+  textDecorationStyle: 'dotted',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.25rem',
+  fontSize: '0.75rem',
+}
+
+const ESTILO_BADGE_PARTE_LINK: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.3rem',
+  cursor: 'pointer',
+  background: 'color-mix(in srgb, var(--gtv-link, var(--accent, #6366f1)) 12%, transparent)',
+  border: '1px solid color-mix(in srgb, var(--gtv-link, var(--accent, #6366f1)) 28%, transparent)',
+  borderRadius: '4px',
+  padding: '2px 8px',
+  fontSize: '0.78rem',
+  color: COR_LINK_LISTA,
+  maxWidth: '100%',
+}
+
 // ── Caches de parse — evitam JSON.parse repetido sem risco de dados stale ────
 // Ainda chamam localStorage.getItem (barato), mas só fazem JSON.parse
 // quando a string muda (caro). Funciona mesmo se o usuário salvar config
@@ -486,7 +514,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               tabIndex={0}
               onClick={(e) => { e.stopPropagation(); window.location.href = href }}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-              style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+              style={ESTILO_LINK_LISTA_ACAO}
             >
               <PencilSimpleLine size={12} weight="bold" />
               {t('pedido.coluna_pai.cadastrar_exportador')}
@@ -507,9 +535,9 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               tabIndex={0}
               onClick={(e) => { e.stopPropagation(); window.location.href = href }}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'rgba(129, 140, 248, 0.12)', border: '1px solid rgba(129, 140, 248, 0.28)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: '#818cf8', maxWidth: '100%' }}
+              style={ESTILO_BADGE_PARTE_LINK}
             >
-              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
+              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, color: COR_LINK_LISTA }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome}</span>
             </span>
           </TooltipGlobal>
@@ -523,7 +551,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
             tabIndex={0}
             onClick={(e) => { e.stopPropagation(); window.location.href = href }}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-            style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            style={ESTILO_LINK_LISTA_ACAO}
           >
             <PencilSimpleLine size={12} weight="bold" />
             {t('pedido.coluna_pai.vincular_exportador')}
@@ -571,7 +599,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               tabIndex={0}
               onClick={(e) => { e.stopPropagation(); window.location.href = href }}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-              style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+              style={ESTILO_LINK_LISTA_ACAO}
             >
               <PencilSimpleLine size={12} weight="bold" />
               {t('pedido.coluna_pai.cadastrar_importador')}
@@ -592,9 +620,9 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
               tabIndex={0}
               onClick={(e) => { e.stopPropagation(); window.location.href = href }}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', background: 'rgba(129, 140, 248, 0.12)', border: '1px solid rgba(129, 140, 248, 0.28)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem', color: '#818cf8', maxWidth: '100%' }}
+              style={ESTILO_BADGE_PARTE_LINK}
             >
-              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, color: '#818cf8' }} />
+              <LinkSimple size={12} weight="bold" style={{ flexShrink: 0, color: COR_LINK_LISTA }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome}</span>
             </span>
           </TooltipGlobal>
@@ -608,7 +636,7 @@ export function buildColunasPai(t: TFunction, opcoes: OpcoesUnidadesColunas): GT
             tabIndex={0}
             onClick={(e) => { e.stopPropagation(); window.location.href = href }}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); window.location.href = href } }}
-            style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+            style={ESTILO_LINK_LISTA_ACAO}
           >
             <PencilSimpleLine size={12} weight="bold" />
             {t('pedido.coluna_pai.vincular_importador')}

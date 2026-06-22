@@ -7,12 +7,26 @@
 
 import { z } from 'zod'
 import {
+  listaPainelDeletarResponseSchema,
+  listaPainelItemResponseSchema,
+  listaPainelListResponseSchema,
+  listaPainelReordenarResponseSchema,
+  type ListaPainel,
+} from '../../../shared/listaPainelApiSchema'
+import {
   CriarLeituraRespostaSchema,
+  EstadoProgressoLeituraSchema,
   LeituraSchema,
+  ListarTransacoesRespostaSchema,
+  MetricaLeituraRespostaSchema,
   type CriarLeituraResposta,
+  type EstadoProgressoLeitura,
   type Leitura,
+  type ListarTransacoesResposta,
 } from './schemas'
 import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
+
+export type { ListaPainel }
 
 let contexto = { idOrganizacao: '', idUsuario: '' }
 
@@ -24,6 +38,8 @@ function obterIdOrganizacao(): string {
   if (contexto.idOrganizacao) return contexto.idOrganizacao
   try {
     return (
+      sessionStorage.getItem('gravity_id_organizacao') ||
+      localStorage.getItem('gravity:idOrganizacao') ||
       sessionStorage.getItem('gravity_tenant_id') ||
       (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) ||
       ''
@@ -33,7 +49,24 @@ function obterIdOrganizacao(): string {
   }
 }
 
+function obterIdUsuario(): string {
+  if (contexto.idUsuario) return contexto.idUsuario
+  try {
+    return sessionStorage.getItem('gravity_id_usuario') || ''
+  } catch {
+    return ''
+  }
+}
+
 function cabecalhosBase(): Record<string, string> {
+  const idOrganizacao = obterIdOrganizacao()
+  const idUsuario = obterIdUsuario()
+  if (import.meta.env.DEV && (!idOrganizacao || !idUsuario)) {
+    console.error('[smart-read][api] x-id-organizacao ou x-id-usuario ausente — progresso não grava no banco', {
+      idOrganizacao,
+      idUsuario,
+    })
+  }
   const idWorkspace = (() => {
     try {
       return sessionStorage.getItem('gravity_company_id') || ''
@@ -43,7 +76,7 @@ function cabecalhosBase(): Record<string, string> {
   })()
   return {
     'x-id-organizacao': obterIdOrganizacao(),
-    'x-id-usuario': contexto.idUsuario,
+    'x-id-usuario': obterIdUsuario(),
     ...(idWorkspace ? { 'x-id-workspace': idWorkspace } : {}),
     'x-chave-interna-servico': (import.meta.env.VITE_CHAVE_INTERNA_SERVICO as string | undefined) || '',
   }
@@ -66,6 +99,26 @@ async function requisitar<T>(schema: z.ZodType<T>, endpoint: string, init?: Requ
 }
 
 export const smartReadApi = {
+  listarTransacoes(params: {
+    pagina: number
+    limite: number
+    termo_busca?: string
+  }): Promise<ListarTransacoesResposta> {
+    const query = new URLSearchParams({
+      pagina: String(params.pagina),
+      limite: String(params.limite),
+    })
+    if (params.termo_busca) query.set('termo_busca', params.termo_busca)
+    return requisitar(ListarTransacoesRespostaSchema, `/api/v1/smart-read/leituras?${query.toString()}`)
+  },
+
+  obterMetricaLeitura(tipo: 'readings'): Promise<{ valor: number }> {
+    return requisitar(
+      MetricaLeituraRespostaSchema,
+      `/api/v1/smart-read/leituras/metricas/${encodeURIComponent(tipo)}`,
+    )
+  },
+
   enviarLeitura(arquivo: File): Promise<CriarLeituraResposta> {
     const formulario = new FormData()
     formulario.append('arquivo', arquivo)
@@ -77,5 +130,116 @@ export const smartReadApi = {
 
   obterLeitura(idLeitura: string): Promise<Leitura> {
     return requisitar(LeituraSchema, `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}`)
+  },
+
+  async obterProgressoLeitura(idLeitura: string): Promise<EstadoProgressoLeitura | null> {
+    const resposta = await fetch(
+      `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/progresso`,
+      { headers: cabecalhosBase() },
+    )
+    if (resposta.status === 404) return null
+    if (!resposta.ok) {
+      throw new Error(await lerErro(resposta))
+    }
+    return EstadoProgressoLeituraSchema.parse(await resposta.json())
+  },
+
+  salvarProgressoLeitura(idLeitura: string, estado: EstadoProgressoLeitura): Promise<EstadoProgressoLeitura> {
+    return requisitar(
+      EstadoProgressoLeituraSchema,
+      `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/progresso`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(estado),
+      },
+    )
+  },
+
+  async excluirLeitura(idLeitura: string): Promise<void> {
+    const resposta = await fetch(`/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}`, {
+      method: 'DELETE',
+      headers: cabecalhosBase(),
+    })
+    if (!resposta.ok) {
+      throw new Error(await lerErro(resposta))
+    }
+  },
+}
+
+const BASE_LISTA_PAINEIS = '/api/v1/smart-read/lista/paineis'
+
+export const paineisListaSmartReadApi = {
+  listar(): Promise<{ data: ListaPainel[] }> {
+    return fetch(BASE_LISTA_PAINEIS, { headers: cabecalhosBase() })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(await lerErro(res))
+        return res.json()
+      })
+      .then((raw) => {
+        const parsed = listaPainelListResponseSchema.safeParse(raw)
+        if (!parsed.success) {
+          console.warn('[paineisListaSmartReadApi.listar] resposta fora do contrato Zod', parsed.error.flatten())
+          throw new Error('Resposta inválida ao listar painéis da lista')
+        }
+        return parsed.data
+      })
+  },
+
+  criar(nome: string, configJson?: string): Promise<{ data: ListaPainel }> {
+    return fetch(BASE_LISTA_PAINEIS, {
+      method: 'POST',
+      headers: { ...cabecalhosBase(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome,
+        ...(configJson ? { config_json: configJson } : {}),
+      }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(await lerErro(res))
+        return res.json()
+      })
+      .then((raw) => listaPainelItemResponseSchema.parse(raw))
+  },
+
+  atualizar(
+    id: string,
+    patch: Partial<Pick<ListaPainel, 'nome' | 'is_visivel' | 'config_json'>>,
+  ): Promise<{ data: ListaPainel }> {
+    return fetch(`${BASE_LISTA_PAINEIS}/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: { ...cabecalhosBase(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(await lerErro(res))
+        return res.json()
+      })
+      .then((raw) => listaPainelItemResponseSchema.parse(raw))
+  },
+
+  reordenar(ids: string[]): Promise<{ data: { reordenado: true } }> {
+    return fetch(`${BASE_LISTA_PAINEIS}/reordenar`, {
+      method: 'PUT',
+      headers: { ...cabecalhosBase(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(await lerErro(res))
+        return res.json()
+      })
+      .then((raw) => listaPainelReordenarResponseSchema.parse(raw))
+  },
+
+  deletar(id: string): Promise<{ data: { deletado: true } }> {
+    return fetch(`${BASE_LISTA_PAINEIS}/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: cabecalhosBase(),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(await lerErro(res))
+        return res.json()
+      })
+      .then((raw) => listaPainelDeletarResponseSchema.parse(raw))
   },
 }

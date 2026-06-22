@@ -5,14 +5,22 @@
   "type": "module",
   "main": "./client/src/index.ts",
   "types": "./client/src/index.ts",
+  "prisma": {
+    "schema": "./prisma/schema.prisma"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "dev": "tsx watch --env-file=../../../.env.local --env-file=.env server/src/index.ts",
+    "dev": "npm run prisma:compose && tsx watch --env-file=../../../.env.local --env-file=.env server/src/index.ts",
     "start": "node dist/server/src/index.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prisma:compose": "node prisma/compose-schema.js",
+    "prisma:generate": "node prisma/compose-schema.js && prisma generate --schema=prisma/schema.prisma",
+    "prisma:migrate:deploy": "prisma migrate deploy --schema=prisma/schema.prisma",
+    "prisma:validate": "npm run prisma:compose && prisma validate --schema=prisma/schema.prisma"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.0",
     "express": "^4.19.0",
@@ -21,6 +29,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "prisma": "^5.13.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/multer": "^2.1.0",

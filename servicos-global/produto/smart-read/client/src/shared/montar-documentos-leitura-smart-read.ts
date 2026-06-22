@@ -2,6 +2,7 @@
  * montar-documentos-leitura-smart-read.ts — segunda camada da lista (documentos lidos)
  */
 
+import { extrairValoresColunasDocumento } from './extrair-valores-colunas-documento-smart-read'
 import type { Leitura, StatusLeitura } from './schemas'
 
 export type DocumentoLeituraLista = {
@@ -12,6 +13,10 @@ export type DocumentoLeituraLista = {
   status_documento: StatusLeitura
   media_acertos: number | null
   data_envio: string | null
+  /** Tipo do documento extraído (BL, INVOICE, PACKING_LIST, AWB, FINANCIAL_DOCUMENT…). */
+  tipo_documento: string | null
+  /** Valores das colunas do catálogo (campo_gravity → valor texto) para este documento. */
+  valores_colunas: Record<string, string>
 }
 
 function extrairMediaAcertosDocumento(dados: Record<string, unknown>): number | null {
@@ -28,16 +33,18 @@ function rotuloComSufixo(base: string, indice: number, total: number): string {
 }
 
 export function montarDocumentosLeituraLista(leitura: Leitura): DocumentoLeituraLista[] {
-  const entradas: { chaveTipo: string; base: string; arquivo: Leitura['arquivos'][number]; indiceExtracao: number | null }[] = []
+  const entradas: { chaveTipo: string; base: string; tipoDocumento: string | null; arquivo: Leitura['arquivos'][number]; indiceExtracao: number | null }[] = []
 
   for (const arquivo of leitura.arquivos) {
     const extracao = arquivo.resultado_extracao
     if (extracao && extracao.length > 0) {
       extracao.forEach((item, indice) => {
-        const base = item.tipo_documento?.trim() || arquivo.nome_arquivo || 'Documento'
+        const tipoDocumento = item.tipo_documento?.trim() || null
+        const base = tipoDocumento || arquivo.nome_arquivo || 'Documento'
         entradas.push({
           chaveTipo: base.toLowerCase(),
           base,
+          tipoDocumento,
           arquivo,
           indiceExtracao: indice,
         })
@@ -47,6 +54,7 @@ export function montarDocumentosLeituraLista(leitura: Leitura): DocumentoLeitura
       entradas.push({
         chaveTipo: base.toLowerCase(),
         base,
+        tipoDocumento: null,
         arquivo,
         indiceExtracao: null,
       })
@@ -81,6 +89,8 @@ export function montarDocumentosLeituraLista(leitura: Leitura): DocumentoLeitura
       status_documento: entrada.arquivo.status_arquivo,
       media_acertos: dadosExtracao ? extrairMediaAcertosDocumento(dadosExtracao) : null,
       data_envio: null,
+      tipo_documento: entrada.tipoDocumento,
+      valores_colunas: dadosExtracao ? extrairValoresColunasDocumento(dadosExtracao) : {},
     }
   })
 }

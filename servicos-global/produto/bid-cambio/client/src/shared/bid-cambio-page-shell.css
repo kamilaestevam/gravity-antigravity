@@ -1,0 +1,24 @@
+/**
+ * Shell de página do BID Câmbio — paridade Pedido (.lp-page) / BID Frete (.bf-lista-page).
+ * Usar em Lista.tsx quando migrar para GTV.
+ */
+:root {
+  --bid-cambio-page-pt: 1.5rem;
+  --bid-cambio-page-px: 2rem;
+  --bid-cambio-page-pb: 2rem;
+}
+
+.bcc-lista-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+  flex: 1;
+  padding: var(--bid-cambio-page-pt) var(--bid-cambio-page-px) var(--bid-cambio-page-pb);
+  box-sizing: border-box;
+}
+
+.bcc-lista-page .lp-stats-row,
+.bcc-lista-page .bcc-lista-stats-row {
+  padding: 0;
+}

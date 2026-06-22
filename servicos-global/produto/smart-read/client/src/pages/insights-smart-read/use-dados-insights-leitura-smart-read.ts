@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { smartReadApi } from '../../shared/api'
-import {
-  deveUsarMockListaSmartReadClient,
-  obterLeituraMockSmartRead,
-} from '../../shared/dados-mock-lista-smart-read'
 import { mensagemDeExcecao } from '../../shared/extrair-mensagem-erro-api'
 import type { Leitura } from '../../shared/schemas'
 import { useTransacoesLeituraSmartRead } from '../../shared/use-transacoes-leitura-smart-read'
@@ -27,11 +23,6 @@ export function useDadosInsightsLeituraSmartRead() {
     try {
       const resultados: Leitura[] = []
       for (const id of ids) {
-        if (deveUsarMockListaSmartReadClient()) {
-          const mock = obterLeituraMockSmartRead(id)
-          if (mock) resultados.push(mock)
-          continue
-        }
         try {
           const leitura = await smartReadApi.obterLeitura(id)
           resultados.push(leitura)
@@ -41,16 +32,8 @@ export function useDadosInsightsLeituraSmartRead() {
       }
       setLeiturasDetalhe(resultados)
     } catch (exc) {
-      if (deveUsarMockListaSmartReadClient()) {
-        setLeiturasDetalhe(
-          ids
-            .map((id) => obterLeituraMockSmartRead(id))
-            .filter((item): item is Leitura => item != null),
-        )
-      } else {
-        setLeiturasDetalhe([])
-        console.warn('[SmartRead Insights] falha ao carregar detalhes', mensagemDeExcecao(exc))
-      }
+      setLeiturasDetalhe([])
+      console.warn('[SmartRead Insights] falha ao carregar detalhes', mensagemDeExcecao(exc))
     } finally {
       setCarregandoDetalhe(false)
     }

@@ -3,7 +3,7 @@ import {
   calcularMetricasInsightsLeituraSmartRead,
   resolverRankingsParticipanteInsights,
 } from '../../../servicos-global/produto/smart-read/client/src/pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read.ts'
-import { LEITURAS_MOCK_DETALHE } from '../../../servicos-global/produto/smart-read/client/src/shared/dados-mock-lista-smart-read.ts'
+import { LEITURAS_FIXTURE_INSIGHTS } from './fixtures/leituras-fixture-insights-smart-read.ts'
 import type { TransacaoLeitura } from '../../../servicos-global/produto/smart-read/client/src/shared/schemas.ts'
 
 const transacoes: TransacaoLeitura[] = [
@@ -34,8 +34,8 @@ const transacoes: TransacaoLeitura[] = [
 describe('Smart Read — métricas Insights (dashboard)', () => {
   it('calcula documentos, campos, savings e BL/AWB a partir das leituras detalhadas', () => {
     const leituras = [
-      LEITURAS_MOCK_DETALHE['mock-leitura-bl-importacao'],
-      LEITURAS_MOCK_DETALHE['mock-leitura-invoice-api'],
+      LEITURAS_FIXTURE_INSIGHTS['mock-leitura-bl-importacao'],
+      LEITURAS_FIXTURE_INSIGHTS['mock-leitura-invoice-api'],
     ]
 
     const metricas = calcularMetricasInsightsLeituraSmartRead(leituras, transacoes)
@@ -54,7 +54,7 @@ describe('Smart Read — métricas Insights (dashboard)', () => {
   })
 
   it('resolverRankingsParticipanteInsights usa fallback legado sem rankingsPorParticipante', () => {
-    const leituras = [LEITURAS_MOCK_DETALHE['mock-leitura-bl-importacao']]
+    const leituras = [LEITURAS_FIXTURE_INSIGHTS['mock-leitura-bl-importacao']]
     const metricas = calcularMetricasInsightsLeituraSmartRead(leituras, transacoes)
     const legado = { ...metricas, rankingsPorParticipante: undefined } as typeof metricas
 

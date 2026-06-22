@@ -13,6 +13,7 @@
   --gtv-border:       var(--ws-accent-border, rgba(129, 140, 248, 0.12));
   --gtv-border-solid: var(--color-border, #334155);
   --gtv-accent:       var(--accent, #818cf8);
+  --gtv-link:         var(--accent, #6366f1);
   --gtv-text:         var(--text-primary, #f1f5f9);
   --gtv-muted:        var(--text-muted, #94a3b8);
   --gtv-radius:       var(--radius-lg, 12px);
@@ -731,6 +732,44 @@
 
 .gtv-filtro-btn--ativo {
   color: var(--gtv-accent);
+}
+
+/* Cabeçalho com filtro: label + ícone agrupados (paridade Pedido/BID/Smart Read) */
+.gtv-th:has(.gtv-filtro-btn) .gtv-th-label,
+.gtv-th:has(.gtv-filtro-btn) .tg-trigger {
+  flex: 0 1 auto;
+  max-width: calc(100% - 1.25rem);
+}
+
+.gtv-th:has(.gtv-filtro-btn) .gtv-filtro-btn {
+  margin-left: 0;
+  flex-shrink: 0;
+}
+
+/* Link de célula — padrão lista Gravity (BID Frete / Pedido / Smart Read) */
+.gtv-celula-link {
+  font: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--gtv-link);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  text-align: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--gtv-link) 35%, transparent);
+}
+
+.gtv-celula-link:hover {
+  text-decoration-color: var(--gtv-link);
+}
+
+.gtv-celula-link:focus-visible {
+  outline: 2px solid var(--gtv-link);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
 }
 
 .gtv-sort-icon--idle {

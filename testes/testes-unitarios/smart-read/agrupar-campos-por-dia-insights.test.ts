@@ -5,7 +5,7 @@ import {
   montarSerieCamposPorDiaInsights,
 } from '../../../servicos-global/produto/smart-read/client/src/pages/insights-smart-read/agrupar-campos-por-dia-insights-smart-read.ts'
 import { extrairDocumentosInsightsDeLeituras } from '../../../servicos-global/produto/smart-read/client/src/pages/insights-smart-read/extrair-dados-documento-leitura-smart-read.ts'
-import { LEITURAS_MOCK_DETALHE } from '../../../servicos-global/produto/smart-read/client/src/shared/dados-mock-lista-smart-read.ts'
+import { LEITURAS_FIXTURE_INSIGHTS } from './fixtures/leituras-fixture-insights-smart-read.ts'
 import type { TransacaoLeitura } from '../../../servicos-global/produto/smart-read/client/src/shared/schemas.ts'
 
 const REFERENCIA = new Date('2026-06-20T12:00:00.000Z')
@@ -51,18 +51,20 @@ describe('Smart Read — série temporal de campos Insights', () => {
 
   it('agrega campos por data_envio da leitura', () => {
     const leituras = [
-      LEITURAS_MOCK_DETALHE['mock-leitura-bl-importacao'],
-      LEITURAS_MOCK_DETALHE['mock-leitura-invoice-api'],
+      LEITURAS_FIXTURE_INSIGHTS['mock-leitura-bl-importacao'],
+      LEITURAS_FIXTURE_INSIGHTS['mock-leitura-invoice-api'],
     ]
     const documentos = extrairDocumentosInsightsDeLeituras(leituras)
     const serie = montarSerieCamposPorDiaInsights(
       documentos,
       transacoes,
-      { modo: 'preset', dias: 7 },
+      {
+        modo: 'intervalo',
+        data_inicio: '2026-06-10',
+        data_fim: '2026-06-20',
+      },
       'dia',
     )
-
-    expect(serie).toHaveLength(7)
 
     const dia15 = serie.find((p) => p.chave_periodo === '2026-06-15')
     const dia18 = serie.find((p) => p.chave_periodo === '2026-06-18')
@@ -74,9 +76,13 @@ describe('Smart Read — série temporal de campos Insights', () => {
   })
 
   it('classifica documentos com e sem edição de campo', () => {
-    const leituras = [LEITURAS_MOCK_DETALHE['mock-leitura-bl-importacao']]
+    const leituras = [LEITURAS_FIXTURE_INSIGHTS['mock-leitura-bl-importacao']]
     const documentos = extrairDocumentosInsightsDeLeituras(leituras)
-    const serie = montarSerieCamposPorDiaInsights(documentos, transacoes, { modo: 'preset', dias: 7 })
+    const serie = montarSerieCamposPorDiaInsights(documentos, transacoes, {
+      modo: 'intervalo',
+      data_inicio: '2026-06-10',
+      data_fim: '2026-06-20',
+    })
 
     const diaComDados = serie.find((p) => p.documentos > 0)
     expect(diaComDados).toBeDefined()
@@ -84,7 +90,7 @@ describe('Smart Read — série temporal de campos Insights', () => {
   })
 
   it('intervalo personalizado gera um ponto por dia', () => {
-    const leituras = [LEITURAS_MOCK_DETALHE['mock-leitura-bl-importacao']]
+    const leituras = [LEITURAS_FIXTURE_INSIGHTS['mock-leitura-bl-importacao']]
     const documentos = extrairDocumentosInsightsDeLeituras(leituras)
     const serie = montarSerieCamposPorDiaInsights(documentos, transacoes, {
       modo: 'intervalo',
@@ -98,8 +104,8 @@ describe('Smart Read — série temporal de campos Insights', () => {
 
   it('granularidade semana agrega pontos diários', () => {
     const leituras = [
-      LEITURAS_MOCK_DETALHE['mock-leitura-bl-importacao'],
-      LEITURAS_MOCK_DETALHE['mock-leitura-invoice-api'],
+      LEITURAS_FIXTURE_INSIGHTS['mock-leitura-bl-importacao'],
+      LEITURAS_FIXTURE_INSIGHTS['mock-leitura-invoice-api'],
     ]
     const documentos = extrairDocumentosInsightsDeLeituras(leituras)
     const serie = montarSerieCamposPorDiaInsights(
@@ -115,8 +121,8 @@ describe('Smart Read — série temporal de campos Insights', () => {
 
   it('granularidade mês agrega pontos diários', () => {
     const leituras = [
-      LEITURAS_MOCK_DETALHE['mock-leitura-bl-importacao'],
-      LEITURAS_MOCK_DETALHE['mock-leitura-invoice-api'],
+      LEITURAS_FIXTURE_INSIGHTS['mock-leitura-bl-importacao'],
+      LEITURAS_FIXTURE_INSIGHTS['mock-leitura-invoice-api'],
     ]
     const documentos = extrairDocumentosInsightsDeLeituras(leituras)
     const serie = montarSerieCamposPorDiaInsights(

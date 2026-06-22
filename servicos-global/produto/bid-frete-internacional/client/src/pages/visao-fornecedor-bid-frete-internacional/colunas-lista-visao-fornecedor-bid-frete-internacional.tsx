@@ -97,7 +97,7 @@ function buildColunasBase(t: TFunction, onAbrir?: (cotacao: Cotacao) => void): G
         <button
           type="button"
           onClick={() => onAbrir?.(row)}
-          className="bf-lista-link-cotacao"
+          className="gtv-celula-link bf-lista-link-cotacao"
         >
           {String(val ?? '—')}
         </button>

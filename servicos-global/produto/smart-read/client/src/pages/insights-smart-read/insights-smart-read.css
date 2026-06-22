@@ -26,8 +26,7 @@
 .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__kpi,
 .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__grafico,
 .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__acertos,
-.sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__tipos,
-.sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__economia,
+.sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__col-leve,
 .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__rankings {
   min-width: 0;
 }
@@ -44,16 +43,29 @@
   grid-column: span 4;
 }
 
-.sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__tipos,
-.sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__economia,
+.sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__col-leve {
+  grid-column: span 5;
+}
+
 .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__rankings {
-  grid-column: span 4;
+  grid-column: span 7;
+}
+
+/* Coluna leve: empilha Tipos de Documento + Economia dividindo a altura da linha */
+.sr-insights-grid__col-leve {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sr-insights-gap);
+}
+
+.sr-insights-grid__col-leve > .sr-insights-card {
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__grafico,
 .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__acertos,
-.sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__tipos,
-.sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__economia,
+.sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__col-leve,
 .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__rankings {
   height: var(--sr-insights-linha-altura);
   min-height: var(--sr-insights-linha-altura);
@@ -72,13 +84,16 @@
 
   .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__grafico,
   .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__acertos,
-  .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__tipos,
-  .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__economia,
+  .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__col-leve,
   .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__rankings {
     grid-column: span 6;
     height: auto;
     min-height: 0;
     max-height: none;
+  }
+
+  .sr-insights-grid__col-leve > .sr-insights-card {
+    flex: 0 0 auto;
   }
 }
 
@@ -90,8 +105,7 @@
   .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__kpi,
   .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__grafico,
   .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__acertos,
-  .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__tipos,
-  .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__economia,
+  .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__col-leve,
   .sr-insights-dashboard > .sr-insights-grid > .sr-insights-grid__rankings {
     grid-column: span 1;
   }
@@ -694,6 +708,157 @@
   color: #94a3b8;
   min-width: 30px;
   text-align: right;
+}
+
+/* ---- Tooltip inteligente genérico (reutilizado em todos os gráficos) ---- */
+.sr-insights-tt {
+  position: absolute;
+  z-index: 30;
+  transform: translate(-50%, -100%);
+  min-width: 184px;
+  max-width: 240px;
+  padding: 0.7rem 0.8rem;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  animation: sr-insights-tooltip-in 0.12s ease-out;
+}
+
+.sr-insights-tt--abaixo {
+  transform: translate(-50%, 0);
+  animation-name: sr-insights-tooltip-in-abaixo;
+}
+
+.sr-insights-tt::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  transform: translateX(-50%) rotate(45deg);
+  background: rgba(15, 23, 42, 0.98);
+  border-right: 1px solid rgba(148, 163, 184, 0.18);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.sr-insights-tt--abaixo::after {
+  bottom: auto;
+  top: -5px;
+  border: none;
+  border-left: 1px solid rgba(148, 163, 184, 0.18);
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.sr-insights-tt__topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sr-insights-tt__titulo {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: 0.01em;
+}
+
+.sr-insights-tt__sub {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.sr-insights-tt__total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.sr-insights-tt__total strong {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.sr-insights-tt__total span {
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sr-insights-tt__barra {
+  display: flex;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.18);
+  margin-bottom: 0.6rem;
+}
+
+.sr-insights-tt__barra span {
+  display: block;
+  height: 100%;
+}
+
+.sr-insights-tt__linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  margin: 0;
+  padding: 0.18rem 0;
+}
+
+.sr-insights-tt__linha + .sr-insights-tt__linha {
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.sr-insights-tt__linha > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #cbd5e1;
+}
+
+.sr-insights-tt__linha > span i {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.sr-insights-tt__linha > strong {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.sr-insights-tt__linha > strong em {
+  font-style: normal;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #94a3b8;
+  min-width: 30px;
+  text-align: right;
+}
+
+/* Container relativo onde o tooltip genérico é ancorado */
+.sr-insights-tt-host {
+  position: relative;
 }
 
 .sr-insights-grafico-dia__wrap {

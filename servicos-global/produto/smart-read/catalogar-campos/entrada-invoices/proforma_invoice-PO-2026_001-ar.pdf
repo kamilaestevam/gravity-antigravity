@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="ar"><head>
+<meta charset="utf-8"><title>Proforma Invoice</title>
+<style>body{font-family:sans-serif;margin:40px;color:#1e293b}h1{color:#3b82f6}table{border-collapse:collapse;width:100%}td,th{border:1px solid #e2e8f0;padding:8px 12px;text-align:left}</style>
+</head><body>
+<h1>[MOCK] Proforma Invoice</h1>
+<p><strong>Idioma:</strong> AR &nbsp;&nbsp; <strong>Pedido:</strong> pedi_id_0000001/26</p>
+<p style="color:#94a3b8;font-size:12px">Este é um documento de demonstração gerado em ambiente de desenvolvimento.</p>
+<table><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>
+<tr><td>Tipo</td><td>Proforma Invoice</td></tr>
+<tr><td>Idioma</td><td>AR</td></tr>
+<tr><td>Pedido ID</td><td>pedi_id_0000001/26</td></tr>
+<tr><td>Salvar como anexo</td><td>Sim</td></tr>
+</tbody></table>
+</body></html>

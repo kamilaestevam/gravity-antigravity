@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { smartReadApi } from './api'
-import {
-  deveUsarMockListaSmartReadClient,
-  listarTransacoesMockSmartRead,
-} from './dados-mock-lista-smart-read'
 import { mensagemDeExcecao } from './extrair-mensagem-erro-api'
 import type { TransacaoLeitura } from './schemas'
 
@@ -19,16 +15,6 @@ export function filtrarTransacoesPorSegmento(
   return transacoes
 }
 
-function aplicarMockLista(termo: string) {
-  const mock = listarTransacoesMockSmartRead({ termo_busca: termo || undefined })
-  return {
-    transacoes: mock.transacoes,
-    total: mock.total,
-    metrica: mock.total,
-    usandoMock: true as const,
-  }
-}
-
 export function useTransacoesLeituraSmartRead() {
   const [transacoes, setTransacoes] = useState<TransacaoLeitura[]>([])
   const [total, setTotal] = useState(0)
@@ -38,22 +24,10 @@ export function useTransacoesLeituraSmartRead() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [metricaLeituras, setMetricaLeituras] = useState<number | null>(null)
-  const [usandoMock, setUsandoMock] = useState(false)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
     setErro(null)
-    setUsandoMock(false)
-
-    if (deveUsarMockListaSmartReadClient() && import.meta.env.VITE_SMART_READ_MOCK_DADOS === 'true') {
-      const mock = aplicarMockLista(termoAplicado)
-      setTransacoes(mock.transacoes)
-      setTotal(mock.total)
-      setMetricaLeituras(mock.metrica)
-      setUsandoMock(true)
-      setCarregando(false)
-      return
-    }
 
     try {
       const [lista, metrica] = await Promise.all([
@@ -68,16 +42,10 @@ export function useTransacoesLeituraSmartRead() {
       setTotal(lista.paginacao.total)
       setMetricaLeituras(metrica?.valor ?? lista.paginacao.total)
     } catch (exc) {
-      if (deveUsarMockListaSmartReadClient()) {
-        const mock = aplicarMockLista(termoAplicado)
-        setTransacoes(mock.transacoes)
-        setTotal(mock.total)
-        setMetricaLeituras(mock.metrica)
-        setUsandoMock(true)
-        setErro(null)
-      } else {
-        setErro(mensagemDeExcecao(exc))
-      }
+      setErro(mensagemDeExcecao(exc))
+      setTransacoes([])
+      setTotal(0)
+      setMetricaLeituras(null)
     } finally {
       setCarregando(false)
     }
@@ -104,7 +72,6 @@ export function useTransacoesLeituraSmartRead() {
     carregando,
     erro,
     metricaLeituras,
-    usandoMock,
     recarregar: carregar,
   }
 }

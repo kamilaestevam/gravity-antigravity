@@ -73,6 +73,37 @@ export const CriarLeituraRespostaSchema = z.object({
 })
 export type CriarLeituraResposta = z.infer<typeof CriarLeituraRespostaSchema>
 
+export const OrigemLeituraEnum = z.enum(['API', 'INTERFACE'])
+export type OrigemLeitura = z.infer<typeof OrigemLeituraEnum>
+
+export const TransacaoLeituraSchema = z.object({
+  id_leitura: z.string(),
+  nome_leitura: z.string().nullable(),
+  status_leitura: StatusLeituraEnum,
+  total_arquivos: z.number(),
+  media_acertos: z.number().nullable(),
+  data_envio: z.string().nullable(),
+  origem_leitura: OrigemLeituraEnum,
+  nome_arquivo: z.string().nullable(),
+  mensagem_erro: z.string().nullable(),
+})
+export type TransacaoLeitura = z.infer<typeof TransacaoLeituraSchema>
+
+export const ListarTransacoesRespostaSchema = z.object({
+  transacoes: z.array(TransacaoLeituraSchema),
+  paginacao: z.object({
+    pagina: z.number().int().min(1),
+    limite: z.number().int().min(1),
+    total: z.number().int().min(0),
+  }),
+})
+export type ListarTransacoesResposta = z.infer<typeof ListarTransacoesRespostaSchema>
+
+export const MetricaLeituraRespostaSchema = z.object({
+  valor: z.number(),
+})
+export type MetricaLeituraResposta = z.infer<typeof MetricaLeituraRespostaSchema>
+
 function mapearStatus(status: string | undefined): StatusLeitura {
   const normalizado = (status ?? '').toLowerCase()
   if (normalizado.includes('fail') || normalizado.includes('error')) return 'FAILED'

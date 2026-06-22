@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import '@nucleo/tabela-virtual-global/tabela-virtual.css'
 import {
   FileText,
   Search,
@@ -88,7 +89,10 @@ function buildColumns(t: (key: string) => string): ColumnDef[] {
   return [
     { key: 'referencia_processo_parcela_bid_cambio', label: t('bidcambio.coluna.dati'), visible: true, width: 120,
       render: (c) => (
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8125rem', color: 'var(--accent, #6366f1)', cursor: 'pointer', textDecoration: 'underline' }}>
+        <span
+          className="gtv-celula-link"
+          style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8125rem' }}
+        >
           {c.referencia_processo_parcela_bid_cambio}
         </span>
       ),

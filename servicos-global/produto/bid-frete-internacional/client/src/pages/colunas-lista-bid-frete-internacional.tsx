@@ -653,34 +653,19 @@ function buildColunasCotacoesBase(
       tipo: 'texto',
       render: (val: unknown, item: Cotacao) => {
         const numero = val as string
-        const estiloLink = {
-          fontFamily: 'DM Mono, monospace',
-          fontSize: '0.8125rem',
-          color: 'var(--accent, #6366f1)',
-          fontWeight: 600,
-        } as const
 
         if (!onAbrirCotacao) {
-          return <span style={estiloLink}>{numero}</span>
+          return <span className="gtv-celula-link bf-lista-link-cotacao">{numero}</span>
         }
 
         return (
           <button
             type="button"
             aria-label={`Abrir cotação ${numero}`}
+            className="gtv-celula-link bf-lista-link-cotacao"
             onClick={(e) => {
               e.stopPropagation()
               onAbrirCotacao(item)
-            }}
-            style={{
-              ...estiloLink,
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-              textAlign: 'center',
-              textDecoration: 'underline',
-              textDecorationColor: 'rgba(99, 102, 241, 0.35)',
             }}
           >
             {numero}
@@ -1056,12 +1041,10 @@ export function buildColunasPaiListaDeColunasCotacao(
       if (col.key === 'numero_cotacao_bid_frete_internacional' && isLinhaBidGrupo(item)) {
         return (
           <span style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
-            <span style={{
-              fontFamily: 'DM Mono, monospace',
-              fontSize: '0.8125rem',
-              color: 'var(--accent, #6366f1)',
-              fontWeight: 600,
-            }}>
+            <span
+              className="gtv-celula-link bf-lista-link-cotacao"
+              style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}
+            >
               {item.numero_cotacao_bid_frete_internacional}
             </span>
             <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>

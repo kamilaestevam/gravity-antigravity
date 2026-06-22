@@ -199,7 +199,7 @@ export default function App() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
-      onNavigateSettings={() => { navigate('/smart-read/configuracoes') }}
+      onNavigateSettings={() => { navigate(rotaSmartRead('configuracoes')) }}
       localizador={{
         workspaceName:       nomeWorkspaceAtivo,
         currentPageLabel:    currentPageLabel,

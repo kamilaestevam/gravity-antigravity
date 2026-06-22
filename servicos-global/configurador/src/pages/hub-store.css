@@ -1172,8 +1172,8 @@ body.light-theme .gs-card--store .gs-card__tags--rodape .gs-tag {
 }
 
 .gs-stack__seg--disponivel {
-  background: #818cf8;
-  box-shadow: 0 0 6px rgba(129,140,248,0.45);
+  background: rgba(129,140,248,0.25);
+  box-shadow: none;
 }
 
 .gs-stack__seg--em-breve {
@@ -1406,9 +1406,19 @@ body.light-theme .gs-puzzle-carousel__btn {
   filter: drop-shadow(0 0 12px rgba(16,185,129,0.65));
 }
 
-.gs-piece--disponivel .gs-piece__svg,
 .gs-piece--on .gs-piece__svg {
   filter: drop-shadow(0 0 10px var(--piece-color, #818cf8));
+}
+
+/* Disponível (não contratado): peça apagada/desaturada — sem brilho colorido,
+   para não parecer comprada. Cor + brilho + check ficam só no "contratado". */
+.gs-piece--disponivel {
+  filter: grayscale(0.55);
+  opacity: 0.7;
+}
+
+.gs-piece--disponivel .gs-piece__svg {
+  filter: none;
 }
 
 .gs-piece--em-breve .gs-piece__svg {

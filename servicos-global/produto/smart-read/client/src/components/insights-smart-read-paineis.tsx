@@ -18,7 +18,6 @@ import {
   SeletorPeriodoCamposDiaInsightsSmartRead,
 } from './seletor-periodo-campos-dia-insights-smart-read'
 import { SeletorTipoParticipanteRankingInsightsSmartRead } from './seletor-tipo-participante-ranking-insights-smart-read'
-import { SeletorMetricaSerieTemporalInsightsSmartRead } from './seletor-metrica-serie-temporal-insights-smart-read'
 import { formatarPercentualLeitura } from '../shared/formatacao-leitura-smart-read'
 import type { TransacaoLeitura } from '../shared/schemas'
 import {
@@ -51,11 +50,10 @@ type Props = {
 type CabecalhoPainelProps = {
   icone: ReactNode
   titulo: string
-  subtitulo: string
   complemento?: ReactNode
 }
 
-function CabecalhoPainelInsightsSmartRead({ icone, titulo, subtitulo, complemento }: CabecalhoPainelProps) {
+function CabecalhoPainelInsightsSmartRead({ icone, titulo, complemento }: CabecalhoPainelProps) {
   return (
     <header
       className={`sr-insights-card__cabecalho${complemento ? ' sr-insights-card__cabecalho--com-complemento' : ''}`}
@@ -65,7 +63,6 @@ function CabecalhoPainelInsightsSmartRead({ icone, titulo, subtitulo, complement
           <div className="cg-card__icon-wrap">{icone}</div>
           <p className="cg-card__label">{titulo}</p>
         </div>
-        <p className="sr-insights-card__subtitulo">{subtitulo}</p>
       </div>
       {complemento}
     </header>
@@ -84,7 +81,6 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         titulo="DOCUMENTOS LIDOS"
         icone={<Files weight="duotone" size={16} style={{ color: 'var(--ws-accent, #818cf8)' }} />}
         valor={carregando ? placeholder : metricas.totalDocumentos}
-        subtexto={`${metricas.amostraLeituras} leitura(s) na amostra`}
         tooltip={
           <>
             <p className="cg-tooltip__row">
@@ -107,11 +103,6 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         titulo="CAMPOS LIDOS"
         icone={<ListChecks weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
         valor={carregando ? placeholder : metricas.totalCampos}
-        subtexto={
-          carregando
-            ? 'Calculando…'
-            : `${metricas.camposCorretos} corretos · ${metricas.camposErrados} errados`
-        }
         tooltip={
           <>
             <p className="cg-tooltip__row">
@@ -139,11 +130,6 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         icone={<Timer weight="duotone" size={16} style={{ color: '#34d399' }} />}
         valor={carregando ? placeholder : formatarMinutosInsightsSmartRead(metricas.savingDigitaçãoMinutos)}
         variante="sucesso"
-        subtexto={
-          carregando
-            ? 'Base produto'
-            : `≈ ${formatarMoedaInsightsSmartRead(metricas.savingDigitaçãoCustoBrl)} estimados`
-        }
         tooltip={
           <>
             <p className="cg-tooltip__row">
@@ -166,11 +152,6 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         titulo="SAVING EM ERROS"
         icone={<TrendUp weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
         valor={carregando ? placeholder : formatarMinutosInsightsSmartRead(metricas.savingErrosMinutos)}
-        subtexto={
-          carregando
-            ? 'Base produto'
-            : `${metricas.camposErrados} campos · ${formatarMoedaInsightsSmartRead(metricas.savingErrosCustoBrl)}`
-        }
         tooltip={
           <>
             <p className="cg-tooltip__row">
@@ -209,7 +190,7 @@ export function PainelGraficoCamposPorDiaInsightsSmartRead({
   className?: string
 }) {
   const [filtro, setFiltro] = useState<FiltroPeriodoCamposPorDiaInsights>(FILTRO_PERIODO_PADRAO_CAMPOS_POR_DIA)
-  const [metrica, setMetrica] = useState<MetricaSerieTemporalInsightsSmartRead>(METRICA_SERIE_TEMPORAL_PADRAO)
+  const metrica = METRICA_SERIE_TEMPORAL_PADRAO
 
   const serie = useMemo(
     () => montarSerieCamposPorDiaInsights(metricas.documentos, transacoes, filtro),
@@ -218,21 +199,14 @@ export function PainelGraficoCamposPorDiaInsightsSmartRead({
 
   const rotuloPeriodo = rotuloPeriodoCamposPorDiaInsights(filtro)
   const semDados = !serieTemporalTemDados(serie, metrica)
-  const porDocumentos = metrica === 'documentos'
 
   return (
     <section className={`sr-insights-card sr-insights-card--grafico-temporal ${className}`.trim()}>
       <CabecalhoPainelInsightsSmartRead
         icone={<ChartBar weight="duotone" size={16} style={{ color: '#3b82f6' }} />}
         titulo="EVOLUÇÃO DIÁRIA"
-        subtitulo={
-          porDocumentos
-            ? 'Volume diário de documentos — sem edição e com edição'
-            : 'Volume diário de campos — acertos e erros (editados)'
-        }
         complemento={
           <div className="sr-insights-grafico-controles">
-            <SeletorMetricaSerieTemporalInsightsSmartRead metrica={metrica} onChangeMetrica={setMetrica} />
             <SeletorPeriodoCamposDiaInsightsSmartRead
               filtro={filtro}
               onChangeFiltro={setFiltro}
@@ -271,7 +245,6 @@ export function PainelCamposAcertosInsightsSmartRead({
       <CabecalhoPainelInsightsSmartRead
         icone={<ChartPie weight="duotone" size={16} style={{ color: '#34d399' }} />}
         titulo="CAMPOS LIDOS — CORRETOS × ERRADOS"
-        subtitulo="Distribuição na amostra de extrações concluídas"
       />
 
       <div className="sr-insights-card__corpo">
@@ -342,7 +315,6 @@ export function PainelTiposDocumentoInsightsSmartRead({
       <CabecalhoPainelInsightsSmartRead
         icone={<Files weight="duotone" size={16} style={{ color: '#818cf8' }} />}
         titulo="TIPOS DE DOCUMENTO"
-        subtitulo="Invoice, Packing List, BL, AWB e demais"
       />
 
       <div className="sr-insights-card__corpo">
@@ -389,8 +361,7 @@ export function PainelRankingsEntidadeInsightsSmartRead({
     <section className={`sr-insights-card sr-insights-card--rankings ${className}`.trim()}>
       <CabecalhoPainelInsightsSmartRead
         icone={<UsersThree weight="duotone" size={16} style={{ color: '#f59e0b' }} />}
-        titulo="EMISSORES NA EXTRAÇÃO"
-        subtitulo={`Top 5 acertos e erros por ${definicao.rotulo.toLowerCase()} — responsável conforme tipo de documento`}
+        titulo="RESULTADO POR TIPO DE FORNECEDOR"
       />
 
       <div className="sr-insights-card__corpo">
@@ -493,7 +464,6 @@ export function PainelSavingDetalheInsightsSmartRead({
       <CabecalhoPainelInsightsSmartRead
         icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#f59e0b' }} />}
         titulo="ECONOMIA ESTIMADA"
-        subtitulo="Tempos comparativos — base DOCS BASE PRODUTO (substituível)"
       />
       <div className="sr-insights-card__corpo">
       <div className="sr-insights-campos-resumo">
@@ -516,9 +486,6 @@ export function PainelSavingDetalheInsightsSmartRead({
           </p>
         </div>
       </div>
-      <p className="sr-insights-nota-base">
-        Estimativas com tempos médios por tipo de documento (base DOCS BASE PRODUTO).
-      </p>
       </div>
     </section>
   )

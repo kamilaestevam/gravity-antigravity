@@ -107,3 +107,29 @@ export function algumArquivoEmAnalise(itens: ArquivoLocalNovaLeitura[]): boolean
 export function contarDocumentosIdentificadosLote(itens: ArquivoLocalNovaLeitura[]): number {
   return itens.reduce((acc, item) => acc + contarDocumentosArquivoLocal(item), 0)
 }
+
+export function extrairDadosArquivoLocal(
+  item: ArquivoLocalNovaLeitura,
+  indiceDocumento = 0,
+): Record<string, unknown> | null {
+  const arquivoApi = resolverArquivoApiLeitura(item)
+  return arquivoApi?.resultado_extracao?.[indiceDocumento]?.dados ?? null
+}
+
+export function extrairDadosLeitura(
+  leitura: Leitura | null,
+  indiceArquivo = 0,
+  indiceDocumento = 0,
+): Record<string, unknown> | null {
+  const arquivo = leitura?.arquivos?.[indiceArquivo]
+  return arquivo?.resultado_extracao?.[indiceDocumento]?.dados ?? null
+}
+
+export function tipoDocumentoLeitura(
+  leitura: Leitura | null,
+  indiceArquivo = 0,
+  indiceDocumento = 0,
+): string | null {
+  const arquivo = leitura?.arquivos?.[indiceArquivo]
+  return arquivo?.resultado_extracao?.[indiceDocumento]?.tipo_documento ?? null
+}

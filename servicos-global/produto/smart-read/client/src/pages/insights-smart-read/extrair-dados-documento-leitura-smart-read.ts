@@ -107,8 +107,10 @@ function resolverContagemCampos(
   const total = Math.max(contadosExtracao, base.campos_medio)
   const accuracy = dados ? extrairAccuracy(dados) : null
 
+  // Sem accuracy não há evidência de erro de extração. Pela regra de negócio
+  // (campo não editado = acerto), os campos contam como corretos.
   if (accuracy == null) {
-    return { total, corretos: 0, errados: 0, accuracy: null }
+    return { total, corretos: total, errados: 0, accuracy: null }
   }
 
   const corretos = Math.round(total * accuracy)

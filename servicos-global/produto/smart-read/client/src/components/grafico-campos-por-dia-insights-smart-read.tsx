@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type {
   MetricaSerieTemporalInsightsSmartRead,
   PontoCamposPorDiaInsights,
@@ -16,7 +16,8 @@ type Props = {
 
 type HoverTooltip = {
   indice: number
-  xPx: number
+  cx: number
+  yTopo: number
 }
 
 const LARGURA_MINIMA_SLOT_DIA = 36
@@ -30,6 +31,11 @@ function larguraSlotDia(totalPontos: number): number {
 
 export function GraficoCamposPorDiaInsightsSmartRead({ serie, metrica = 'campos' }: Props) {
   const [hover, setHover] = useState<HoverTooltip | null>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [larguraEncaixe, setLarguraEncaixe] = useState(0)
+  const idBase = useId().replace(/:/g, '')
+  const gradAcertoId = `sr-grad-acerto-${idBase}`
+  const gradErroId = `sr-grad-erro-${idBase}`
 
   const maxTotal = useMemo(
     () => Math.max(...serie.map((p) => valorTotalPontoSerieTemporal(p, metrica)), 1),
@@ -39,34 +45,75 @@ export function GraficoCamposPorDiaInsightsSmartRead({ serie, metrica = 'campos'
   const porDocumentos = metrica === 'documentos'
   const rotuloAcerto = porDocumentos ? 'Sem edição' : 'Acertos'
   const rotuloErro = porDocumentos ? 'Com edição' : 'Erros (editados)'
-  const rotuloTotal = porDocumentos ? 'Documentos extraídos' : 'Campos extraídos'
 
   const porDia = true
   const usarRolagemHorizontal = serie.length > 14
   const larguraSlot = larguraSlotDia(serie.length)
   const rotulosInclinados = serie.length > 7
 
-  const pad = {
-    top: 24,
-    right: 16,
-    bottom: rotulosInclinados ? 56 : 28,
-    left: 36,
-  }
-  const alturaPlot = usarRolagemHorizontal ? 200 : 150
-  const W = Math.max(560, pad.left + pad.right + serie.length * larguraSlot)
-  const H = pad.top + alturaPlot + pad.bottom
-  const innerW = W - pad.left - pad.right
-  const innerH = H - pad.top - pad.bottom
-  const barW = innerW / Math.max(serie.length, 1)
-  const yRotuloEixo = pad.top + innerH + (rotulosInclinados ? 18 : 14)
+  const pad = useMemo(
+    () => ({
+      top: 24,
+      right: 16,
+      bottom: rotulosInclinados ? 56 : 28,
+      left: 36,
+    }),
+    [rotulosInclinados],
+  )
+
+  const larguraConteudoMinima = pad.left + pad.right + serie.length * larguraSlot
+
+  useLayoutEffect(() => {
+    if (usarRolagemHorizontal) {
+      setLarguraEncaixe(0)
+      return
+    }
+
+    const el = wrapRef.current
+    if (!el) return
+
+    const atualizarLargura = () => {
+      const largura = Math.round(el.getBoundingClientRect().width)
+      if (largura > 0) setLarguraEncaixe(largura)
+    }
+
+    atualizarLargura()
+    const observer = new ResizeObserver(atualizarLargura)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [usarRolagemHorizontal, serie.length, metrica])
+
+  const prontoEncaixe = usarRolagemHorizontal || larguraEncaixe > 0
+
+  // Ao abrir/trocar o período em modo rolagem, exibir sempre o dia mais recente (à direita).
+  useLayoutEffect(() => {
+    if (!usarRolagemHorizontal) return
+    const el = wrapRef.current
+    if (!el) return
+    el.scrollLeft = el.scrollWidth
+  }, [usarRolagemHorizontal, serie.length, metrica])
+
+  const { W, H, innerW, innerH, barW, yRotuloEixo } = useMemo(() => {
+    const alturaPlot = 200
+    const W = usarRolagemHorizontal
+      ? Math.max(560, larguraConteudoMinima)
+      : Math.max(larguraEncaixe, larguraConteudoMinima)
+    const H = pad.top + alturaPlot + pad.bottom
+    const innerW = W - pad.left - pad.right
+    const innerH = H - pad.top - pad.bottom
+    const barW = innerW / Math.max(serie.length, 1)
+    const yRotuloEixo = pad.top + innerH + (rotulosInclinados ? 18 : 14)
+
+    return { W, H, innerW, innerH, barW, yRotuloEixo }
+  }, [usarRolagemHorizontal, larguraConteudoMinima, larguraEncaixe, pad, rotulosInclinados, serie.length])
 
   const gridTicks = [0, 0.25, 0.5, 0.75, 1]
   const pontoHover = hover != null ? serie[hover.indice] : null
 
   const mostrarRotulo = () => true
 
-  function registrarHover(indice: number, xCentro: number) {
-    setHover({ indice, xPx: xCentro })
+  function registrarHover(indice: number, xCentro: number, yTopo: number) {
+    setHover({ indice, cx: xCentro, yTopo })
   }
 
   function renderRotuloEixo(x: number, w: number, rotulo: string, ativo: boolean) {
@@ -98,31 +145,29 @@ export function GraficoCamposPorDiaInsightsSmartRead({ serie, metrica = 'campos'
 
   return (
     <div className="sr-insights-grafico-dia">
-      <div className="sr-insights-grafico-dia__wrap">
+      <div
+        ref={wrapRef}
+        className={`sr-insights-grafico-dia__wrap${usarRolagemHorizontal ? '' : ' sr-insights-grafico-dia__wrap--encaixe'}`}
+      >
+        {!prontoEncaixe ? null : (
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          style={
-            usarRolagemHorizontal
-              ? { width: W, height: H, minWidth: W, flexShrink: 0 }
-              : { width: '100%', height: '100%', maxHeight: 230 }
-          }
+          width={W}
+          height={H}
+          style={{ width: W, height: H, minWidth: W, flexShrink: 0 }}
           className={`sr-insights-grafico-dia__svg${usarRolagemHorizontal ? ' sr-insights-grafico-dia__svg--rolagem' : ' sr-insights-grafico-dia__svg--encaixe'}`}
           role="img"
           aria-label={porDocumentos ? 'Documentos extraídos por período' : 'Campos extraídos por período'}
-          preserveAspectRatio={usarRolagemHorizontal ? 'xMinYMid meet' : 'xMidYMid meet'}
         >
           <defs>
-            <linearGradient id="sr-grad-acerto" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={gradAcertoId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#34d399" />
               <stop offset="100%" stopColor="#059669" />
             </linearGradient>
-            <linearGradient id="sr-grad-erro" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={gradErroId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#f87171" />
               <stop offset="100%" stopColor="#dc2626" />
             </linearGradient>
-            <filter id="sr-col-shadow" x="-20%" y="-10%" width="140%" height="130%">
-              <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#000" floodOpacity="0.3" />
-            </filter>
           </defs>
 
           {gridTicks.map((tick, idx) => {
@@ -160,7 +205,7 @@ export function GraficoCamposPorDiaInsightsSmartRead({ serie, metrica = 'campos'
                 <g
                   key={ponto.chave_periodo}
                   className={`sr-insights-grafico-dia__slot${ativo ? ' sr-insights-grafico-dia__slot--ativa' : ''}`}
-                  onMouseEnter={() => registrarHover(i, cx)}
+                  onMouseEnter={() => registrarHover(i, cx, pad.top + innerH)}
                   onMouseLeave={() => setHover(null)}
                 >
                   <rect x={x - 4} y={pad.top} width={w + 8} height={innerH} fill="transparent" />
@@ -175,7 +220,6 @@ export function GraficoCamposPorDiaInsightsSmartRead({ serie, metrica = 'campos'
                     />
                   )}
                   {mostrarRotulo() && renderRotuloEixo(x, w, ponto.rotulo_periodo, false)}
-                  <title>{`${ponto.rotulo_periodo}: 0 ${porDocumentos ? 'documentos' : 'campos'}`}</title>
                 </g>
               )
             }
@@ -198,57 +242,89 @@ export function GraficoCamposPorDiaInsightsSmartRead({ serie, metrica = 'campos'
               <g
                 key={ponto.chave_periodo}
                 className={`sr-insights-grafico-dia__bar${ativo ? ' sr-insights-grafico-dia__bar--ativa' : ''}`}
-                filter="url(#sr-col-shadow)"
-                onMouseEnter={() => registrarHover(i, cx)}
+                onMouseEnter={() => registrarHover(i, cx, yTop)}
                 onMouseLeave={() => setHover(null)}
               >
                 <rect x={x - 4} y={pad.top} width={w + 8} height={innerH} fill="transparent" />
                 {hAcertoDraw > 0 && (
-                  <rect x={x} y={yAcerto} width={w} height={hAcertoDraw} rx={hErroDraw > 0 ? 0 : 5} fill="url(#sr-grad-acerto)" />
+                  <rect
+                    x={x}
+                    y={yAcerto}
+                    width={w}
+                    height={hAcertoDraw}
+                    rx={hErroDraw > 0 ? 0 : 5}
+                    fill={`url(#${gradAcertoId})`}
+                  />
                 )}
-                {hErroDraw > 0 && botPath && <path d={botPath} fill="url(#sr-grad-erro)" />}
+                {hErroDraw > 0 && botPath && <path d={botPath} fill={`url(#${gradErroId})`} />}
                 <text x={cx} y={yTop - 8} textAnchor="middle" fill="#fff" fontSize="11" fontWeight="700">
                   {total}
                 </text>
                 {mostrarRotulo() && renderRotuloEixo(x, w, ponto.rotulo_periodo, true)}
-                <title>
-                  {`${ponto.rotulo_periodo}: ${total} ${porDocumentos ? 'documentos' : 'campos'} · ${acertos} ${porDocumentos ? 'sem edição' : 'acertos'} · ${erros} ${porDocumentos ? 'com edição' : 'erros'} · ${ponto.documentos} doc.`}
-                </title>
               </g>
             )
           })}
         </svg>
-
-        {pontoHover && hover && (
-          <div
-            className="sr-insights-grafico-dia__tooltip"
-            style={{
-              left: usarRolagemHorizontal ? hover.xPx : `${(hover.xPx / W) * 100}%`,
-            }}
-            role="tooltip"
-          >
-            <p className="sr-insights-grafico-dia__tooltip-dia">{pontoHover.rotulo_periodo}</p>
-            <p className="sr-insights-grafico-dia__tooltip-linha">
-              <span>{rotuloTotal}</span>
-              <strong>{valorTotalPontoSerieTemporal(pontoHover, metrica)}</strong>
-            </p>
-            <p className="sr-insights-grafico-dia__tooltip-linha">
-              <span>{rotuloAcerto}</span>
-              <strong style={{ color: '#34d399' }}>{valorAcertoPontoSerieTemporal(pontoHover, metrica)}</strong>
-            </p>
-            <p className="sr-insights-grafico-dia__tooltip-linha">
-              <span>{rotuloErro}</span>
-              <strong style={{ color: '#f87171' }}>{valorErroPontoSerieTemporal(pontoHover, metrica)}</strong>
-            </p>
-            {!porDocumentos && (
-              <p className="sr-insights-grafico-dia__tooltip-linha">
-                <span>Documentos</span>
-                <strong>{pontoHover.documentos}</strong>
-              </p>
-            )}
-          </div>
         )}
       </div>
+
+      {pontoHover && hover && prontoEncaixe && (() => {
+        const total = valorTotalPontoSerieTemporal(pontoHover, metrica)
+        const acertos = valorAcertoPontoSerieTemporal(pontoHover, metrica)
+        const erros = valorErroPontoSerieTemporal(pontoHover, metrica)
+        const pctAcerto = total > 0 ? (acertos / total) * 100 : 0
+        const pctErro = total > 0 ? (erros / total) * 100 : 0
+
+        const scrollLeft = wrapRef.current?.scrollLeft ?? 0
+        const clientW = wrapRef.current?.clientWidth ?? W
+        const leftBruto = hover.cx - scrollLeft
+        const left = Math.min(Math.max(leftBruto, 96), Math.max(96, clientW - 96))
+        const acima = hover.yTopo > 92
+
+        return (
+          <div
+            className={`sr-insights-grafico-dia__tooltip${acima ? '' : ' sr-insights-grafico-dia__tooltip--abaixo'}`}
+            style={{ left, top: acima ? hover.yTopo - 10 : hover.yTopo + 14 }}
+            role="tooltip"
+          >
+            <div className="sr-insights-grafico-dia__tooltip-topo">
+              <span className="sr-insights-grafico-dia__tooltip-dia">{pontoHover.rotulo_periodo}</span>
+              <span className="sr-insights-grafico-dia__tooltip-doc">
+                {pontoHover.documentos} {pontoHover.documentos === 1 ? 'documento' : 'documentos'}
+              </span>
+            </div>
+
+            <div className="sr-insights-grafico-dia__tooltip-total">
+              <strong>{total}</strong>
+              <span>{porDocumentos ? 'documentos' : 'campos lidos'}</span>
+            </div>
+
+            <div className="sr-insights-grafico-dia__tooltip-barra" aria-hidden>
+              <span style={{ width: `${pctAcerto}%`, background: '#34d399' }} />
+              <span style={{ width: `${pctErro}%`, background: '#f87171' }} />
+            </div>
+
+            <div className="sr-insights-grafico-dia__tooltip-linha">
+              <span>
+                <i style={{ background: '#34d399' }} /> {rotuloAcerto}
+              </span>
+              <strong>
+                {acertos}
+                <em>{pctAcerto.toFixed(0)}%</em>
+              </strong>
+            </div>
+            <div className="sr-insights-grafico-dia__tooltip-linha">
+              <span>
+                <i style={{ background: '#f87171' }} /> {rotuloErro}
+              </span>
+              <strong>
+                {erros}
+                <em>{pctErro.toFixed(0)}%</em>
+              </strong>
+            </div>
+          </div>
+        )
+      })()}
 
       <div className="sr-insights-grafico-dia__legenda">
         <span>

@@ -39,6 +39,7 @@ documentos-tecnicos/testes/
 | Entender o sistema todo | [tecnico/01-arquitetura-sistema-testes.md](tecnico/01-arquitetura-sistema-testes.md) |
 | Favoritos do modal «Rodar Testes» | [testes/infra/admin/README.md](../../testes/infra/admin/README.md) + `testes-favoritos-admin.ts` |
 | Convite Super Admin (Admin › Usuários) | [arquitetura/convite-admin-cross-org.md](../arquitetura/convite-admin-cross-org.md) · pacote `TST-*-CONVITE-SUPER-ADMIN-ADMIN-000116`–`000120` |
+| Cobertura RBAC (workspaces + permissões granulares) | [MATRIZ-COBERTURA-RBAC.md](../../testes/testes-unitarios/configurador/permissoes/rbac-workspaces-cobertura/MATRIZ-COBERTURA-RBAC.md) · pacote `TST-*-CONFIG-RBAC-WORKSPACES-000141`–`000145` (TASK-000305) |
 | Criar um teste novo | [regras/01-convencao-ids.md](regras/01-convencao-ids.md) + [regras/02-cobertura-obrigatoria.md](regras/02-cobertura-obrigatoria.md) |
 | Onde guardar plano e prints | [regras/07-organizacao-plano-resultado-por-escopo.md](regras/07-organizacao-plano-resultado-por-escopo.md) |
 | Adicionar uma tela nova | [regras/04-fluxo-criacao-tela-nova.md](regras/04-fluxo-criacao-tela-nova.md) |

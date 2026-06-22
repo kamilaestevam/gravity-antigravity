@@ -91,6 +91,25 @@ function gerarNomeLeitura(): string {
 
 
 
+/** Grava valor em dados[caminho] (ex.: "exporter.name"). Caminhos com array ([]) não são persistidos. */
+function definirValorPorCaminho(raiz: Record<string, unknown>, caminho: string, valor: string): boolean {
+  if (caminho.includes('[')) return false
+  const partes = caminho.split('.')
+  let alvo: Record<string, unknown> = raiz
+  for (let i = 0; i < partes.length - 1; i++) {
+    const parte = partes[i]
+    const atual = alvo[parte]
+    if (typeof atual !== 'object' || atual === null || Array.isArray(atual)) {
+      alvo[parte] = {}
+    }
+    alvo = alvo[parte] as Record<string, unknown>
+  }
+  alvo[partes[partes.length - 1]] = valor
+  return true
+}
+
+
+
 export function ModalNovaLeituraSmartRead({
 
   aberto,
@@ -263,6 +282,27 @@ export function ModalNovaLeituraSmartRead({
     visualizarArquivo(id)
 
   }, [visualizarArquivo, passo])
+
+
+
+  const editarCampoDocumentoAtual = useCallback(
+    (chave: string, valor: string) => {
+      const selecao = conferenciaSelecao
+      if (!selecao) return
+      setArquivos((prev) =>
+        prev.map((item) => {
+          if (item.id_arquivo_local !== selecao.idArquivoLocal || !item.leitura) return item
+          const leitura = structuredClone(item.leitura)
+          const arquivoApi =
+            leitura.arquivos.find((a) => a.id_arquivo === item.id_arquivo) ?? leitura.arquivos[0]
+          const extracao = arquivoApi?.resultado_extracao?.[selecao.indiceDocumento]
+          if (extracao?.dados) definirValorPorCaminho(extracao.dados, chave, valor)
+          return { ...item, leitura }
+        }),
+      )
+    },
+    [conferenciaSelecao],
+  )
 
 
 
@@ -556,10 +596,8 @@ export function ModalNovaLeituraSmartRead({
           arquivos.find((a) => a.id_arquivo_local === conferenciaSelecao?.idArquivoLocal) ?? null
         }
         indiceDocumento={conferenciaSelecao?.indiceDocumento ?? 0}
-        urlOriginal={
-          conferenciaSelecao ? obterUrlArquivo(conferenciaSelecao.idArquivoLocal) : null
-        }
         onFechar={() => setCompararAberto(false)}
+        onEditarCampoDocumentoAtual={editarCampoDocumentoAtual}
       />
 
     </ModalPassoPassoGlobal>

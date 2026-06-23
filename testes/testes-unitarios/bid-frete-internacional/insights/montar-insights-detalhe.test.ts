@@ -13,6 +13,18 @@ describe('montarWhereInsightsDetalheBidFreteInternacional', () => {
     expect(where.id_workspace).toBe('ws-1')
   })
 
+  it('filtra aprovação com slugs custom enviados pela config', () => {
+    const where = montarWhereInsightsDetalheBidFreteInternacional(
+      'aprovacao',
+      {},
+      undefined,
+      { status_slugs: ['AGUARDANDO_APROVACAO', 'COTACAO_RESPONDIDA'] },
+    )
+    expect(where.status_cotacao_bid_frete_internacional).toEqual({
+      in: ['AGUARDANDO_APROVACAO', 'COTACAO_RESPONDIDA'],
+    })
+  })
+
   it('filtra rota por origem, destino e modal', () => {
     const where = montarWhereInsightsDetalheBidFreteInternacional(
       'rota',

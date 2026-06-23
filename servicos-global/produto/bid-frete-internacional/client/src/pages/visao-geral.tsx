@@ -84,10 +84,12 @@ import { MODAL_LABELS, CalendarioAlerta } from '../shared/types'
 import type { DashboardKPIs } from '../shared/types'
 import {
   montarEtapasFunilInsightsBidFreteInternacional,
-  contagemStatusNoFunilBidFreteInternacional,
+  contagemAguardandoAprovacaoNoFunilBidFreteInternacional,
   contagemAguardandoRespostaNoFunilBidFreteInternacional,
   detalharAguardandoRespostaNoFunilBidFreteInternacional,
   resolverCorStatusConfigBidFreteInternacional,
+  resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional,
+  resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional,
   STATUS_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
   TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
   TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
@@ -452,6 +454,12 @@ export default function VisaoGeral() {
   const carregarInsights = useCallback(async () => {
     setCarregando(true)
     setErroCarregamento(null)
+    const slugsAguardandoResposta = resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional(
+      statusCotacaoConfig,
+    )
+    const slugsAguardandoAprovacao = resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional(
+      statusCotacaoConfig,
+    )
     try {
       const [kpisData, alertasData, mapaData, graficosData, detalheResposta, detalheAprovacao] = await Promise.all([
         getDashboardKpis(idsWorkspacesFiltro, {
@@ -464,13 +472,13 @@ export default function VisaoGeral() {
           { tipo: 'resposta', label: '', cor: '' },
           idsWorkspacesFiltro,
           undefined,
-          { limit: 50 },
+          { limit: 50, statusSlugs: slugsAguardandoResposta },
         ),
         getDashboardInsightsDetalhe(
           { tipo: 'aprovacao', label: '', cor: '' },
           idsWorkspacesFiltro,
           undefined,
-          { limit: 50 },
+          { limit: 50, statusSlugs: slugsAguardandoAprovacao },
         ),
       ])
       setKpis(kpisData)
@@ -497,7 +505,7 @@ export default function VisaoGeral() {
     } finally {
       setCarregando(false)
     }
-  }, [idsWorkspacesFiltro, dataReferenciaAlertas])
+  }, [idsWorkspacesFiltro, dataReferenciaAlertas, statusCotacaoConfig])
 
   useEffect(() => {
     if (!escopoHidratado) return
@@ -605,20 +613,21 @@ export default function VisaoGeral() {
 
   const kpiCardAguardandoAprovacao = useMemo(() => {
     const slug = STATUS_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL
+    const funil = kpis?.funil ?? []
     return {
       titulo: TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
       cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, slug, '#818cf8'),
-      count: contagemStatusNoFunilBidFreteInternacional(kpis?.funil ?? [], slug),
+      count: contagemAguardandoAprovacaoNoFunilBidFreteInternacional(funil, statusCotacaoConfig),
     }
   }, [statusCotacaoConfig, kpis?.funil])
 
   const kpiCardAguardandoResposta = useMemo(() => {
     const funil = kpis?.funil ?? []
-    const detalhe = detalharAguardandoRespostaNoFunilBidFreteInternacional(funil)
+    const detalhe = detalharAguardandoRespostaNoFunilBidFreteInternacional(funil, statusCotacaoConfig)
     return {
       titulo: TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
       cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, 'EM_COTACAO', '#fb923c'),
-      count: contagemAguardandoRespostaNoFunilBidFreteInternacional(funil),
+      count: contagemAguardandoRespostaNoFunilBidFreteInternacional(funil, statusCotacaoConfig),
       detalhe,
     }
   }, [statusCotacaoConfig, kpis?.funil])

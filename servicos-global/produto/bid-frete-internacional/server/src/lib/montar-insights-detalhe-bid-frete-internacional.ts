@@ -2,6 +2,11 @@
  * Monta where + DTO para drill-down de alertas/rotas na visão Insights.
  */
 
+import {
+  resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional,
+  SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
+} from '../../../shared/kpi-insights-status-cotacao-bid-frete-internacional.js'
+
 const STATUS_ANDAMENTO_ALERTA = [
   'ENVIADA_FORNECEDORES',
   'EM_COTACAO',
@@ -32,10 +37,16 @@ export type ParamsRotaInsightsDetalhe = {
   data_referencia?: string
 }
 
+export type OpcoesWhereInsightsDetalheBidFreteInternacional = {
+  /** Slugs da config (Configurações › Status Cotação) — enviados pelo cliente ou resolvidos no servidor. */
+  status_slugs?: string[]
+}
+
 export function montarWhereInsightsDetalheBidFreteInternacional(
   contexto: ContextoInsightsDetalhe,
   filtroWorkspace: Record<string, unknown>,
   paramsRota?: ParamsRotaInsightsDetalhe,
+  opcoes?: OpcoesWhereInsightsDetalheBidFreteInternacional,
 ): Record<string, unknown> {
   const base: Record<string, unknown> = {
     id_produto_gravity: 'bid-frete-internacional',
@@ -60,16 +71,24 @@ export function montarWhereInsightsDetalheBidFreteInternacional(
         status_cotacao_bid_frete_internacional: { in: [...STATUS_ANDAMENTO_ALERTA] },
         data_limite_resposta_cotacao_bid_frete_internacional: { gte: inicioDia, lte: fimDia },
       }
-    case 'resposta':
+    case 'resposta': {
+      const slugs = opcoes?.status_slugs?.length
+        ? opcoes.status_slugs
+        : [...SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL]
       return {
         ...base,
-        status_cotacao_bid_frete_internacional: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
+        status_cotacao_bid_frete_internacional: { in: slugs },
       }
-    case 'aprovacao':
+    }
+    case 'aprovacao': {
+      const slugs = opcoes?.status_slugs?.length
+        ? opcoes.status_slugs
+        : resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional([])
       return {
         ...base,
-        status_cotacao_bid_frete_internacional: 'AGUARDANDO_APROVACAO',
+        status_cotacao_bid_frete_internacional: { in: slugs },
       }
+    }
     case 'nova':
       return {
         ...base,

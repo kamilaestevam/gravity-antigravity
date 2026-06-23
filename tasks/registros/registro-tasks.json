@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 318,
+  "proximo_numero": 322,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -811,6 +811,40 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000317.json"
+    },
+    {
+      "referencia": "TASK-000320",
+      "ordinal": 47,
+      "titulo_canonico": "OUTROS-SMART-READ-MEL-CORRIGIR-LEITURAS-PARA-LISTA-INSIGHTS",
+      "titulo_exibicao": "TASK-000320 | [Smart Read] | MEL — Corrigir referência Leituras para Lista ou Insights",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "CORRIGIR-LEITURAS-PARA-LISTA-INSIGHTS",
+      "data_criacao": "2026-06-24T12:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000320.json"
+    },
+    {
+      "referencia": "TASK-000321",
+      "ordinal": 48,
+      "titulo_canonico": "OUTROS-SMART-READ-LISTA-MEL-ORDEM-CARD-PERFORMANCE-ACERTOS",
+      "titulo_exibicao": "TASK-000321 | [Smart Read] Lista | MEL — Performance de acertos como segundo card",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": "LISTA",
+      "tipo_entrega": "MEL",
+      "resumo": "ORDEM-CARD-PERFORMANCE-ACERTOS",
+      "data_criacao": "2026-06-24T14:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000321.json"
     }
   ]
 }

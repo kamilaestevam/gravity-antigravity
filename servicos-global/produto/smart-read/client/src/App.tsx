@@ -11,7 +11,7 @@ import { useShellStore, ToastContainer, useMeSync, TelaProdutoComOrganizacaoOver
 import { useClerk } from '@clerk/clerk-react'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import {
-  FileMagnifyingGlass, FileText, GearSix, UserCircle, CheckCircle,
+  FileText, GearSix, UserCircle, CheckCircle,
   Envelope, WhatsappLogo, ClockCounterClockwise, ListBullets,
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
@@ -31,6 +31,7 @@ const PRODUCT_COLOR = PRODUCT_CONFIG.color
 
 const iconMap: Record<string, React.ReactNode> = {
   'file-text':               <FileText              weight="duotone" size={20} />,
+  'list-bullets':            <ListBullets           weight="duotone" size={20} />,
   'gear-six':                <GearSix               weight="duotone" size={20} />,
   'user-circle':             <UserCircle            weight="duotone" size={20} />,
   'check-circle':            <CheckCircle           weight="duotone" size={20} />,
@@ -65,17 +66,16 @@ const ECOSYSTEM_NODES: EcosystemNode[] = [
 ]
 
 const ROTULO_PAGINA: Record<string, string> = {
-  lista: 'Leituras',
+  lista: 'Lista',
   insights: 'Insights',
   dashboard: 'Dashboard',
   kanban: 'Kanban',
-  leituras: 'Leituras',
   configuracoes: 'Configurações',
 }
 
 const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string }> = {
   lista: {
-    icone: <FileText weight="duotone" size={22} />,
+    icone: <ListBullets weight="duotone" size={22} />,
     subtitulo: 'Envios, transações API e métricas de leitura',
   },
   insights: {
@@ -89,10 +89,6 @@ const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string 
   kanban: {
     icone: <FileText weight="duotone" size={22} />,
     subtitulo: 'Acompanhamento por status de leitura',
-  },
-  leituras: {
-    icone: <FileMagnifyingGlass weight="duotone" size={22} />,
-    subtitulo: 'Leitura inteligente de documentos COMEX',
   },
   configuracoes: {
     icone: <GearSix weight="duotone" size={22} />,
@@ -110,9 +106,10 @@ function LoadingFallback() {
 }
 
 function resolverRouteKey(relSegments: string[]): string {
-  if (relSegments[0] === 'leituras') return 'leituras'
-  if (relSegments[0] === 'configuracoes') return 'configuracoes'
-  return relSegments[0] ?? 'lista'
+  const primeiro = relSegments[0]
+  if (primeiro === 'leituras' || primeiro === 'visao-geral') return 'lista'
+  if (primeiro === 'configuracoes') return 'configuracoes'
+  return primeiro ?? 'lista'
 }
 
 export default function App() {
@@ -162,7 +159,7 @@ export default function App() {
   const pageHeader  = ROUTE_HEADERS[routeKey] ?? ROUTE_HEADERS.lista
 
   const currentPageLabel = useMemo(
-    () => ROTULO_PAGINA[routeKey] ?? 'Leituras',
+    () => ROTULO_PAGINA[routeKey] ?? 'Lista',
     [routeKey],
   )
 

@@ -44,7 +44,7 @@ export const PRODUCT_CONFIG = {
 
     // ── Smart Read ──────────────────────────────────────────────────────────
     { id: 'section-smart-read',  label: 'Smart Read', sectionDivider: true },
-    { id: '/smart-read/lista',   label: 'Leituras',   icon: 'file-text', source: 'product' },
+    { id: '/smart-read/lista',   label: 'Lista',      icon: 'list-bullets', source: 'product' },
 
     // ── Serviços ──────────────────────────────────────────────────────────────
     // Histórico: link externo para a tela centralizada do Configurador (SSOT da UI de auditoria).

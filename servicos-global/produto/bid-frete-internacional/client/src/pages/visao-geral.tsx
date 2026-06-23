@@ -74,12 +74,10 @@ import { DialogoDetalheInsightsBidFreteInternacional } from '../shared/dialogo-d
 import {
   extrairCodigoPortoInsights,
   type ContextoDialogoInsights,
+  type CotacaoInsightsDetalheCliente,
 } from '../shared/insights-detalhe-bid-frete-internacional'
-import {
-  formatarDataEnvioTooltipAguardandoRespostaInsights,
-  formatarTempoAguardandoRespostaInsights,
-  ordenarCotacoesAguardandoRespostaInsights,
-} from '../shared/insights-kpi-aguardando-resposta-bid-frete-internacional'
+import { InsightsKpiTooltipListaBidFreteInternacional } from '../shared/insights-kpi-tooltip-lista-bid-frete-internacional'
+import { ordenarCotacoesTooltipKpiInsights } from '../shared/insights-kpi-aguardando-resposta-bid-frete-internacional'
 import {
   resolverIdsWorkspacesParaApi,
   useEscopoWorkspacesBidFreteInternacional,
@@ -436,6 +434,8 @@ export default function VisaoGeral() {
   const [kpis, setKpis] = useState<KpisInsightsVisaoGeral | null>(null)
   const [cotacoesAguardandoResposta, setCotacoesAguardandoResposta] = useState<CotacaoInsightsDetalheCliente[]>([])
   const [totalCotacoesAguardandoResposta, setTotalCotacoesAguardandoResposta] = useState(0)
+  const [cotacoesAguardandoAprovacao, setCotacoesAguardandoAprovacao] = useState<CotacaoInsightsDetalheCliente[]>([])
+  const [totalCotacoesAguardandoAprovacao, setTotalCotacoesAguardandoAprovacao] = useState(0)
   const [graficos, setGraficos] = useState<InsightsGraficosBidFreteInternacionalCliente | null>(null)
   const [alertas, setAlertas] = useState<CalendarioAlerta[]>([])
   const [dadosMapa, setDadosMapa] = useState<DadosMapaBidFrete>({ pins: [], routes: [] })
@@ -455,7 +455,7 @@ export default function VisaoGeral() {
     setCarregando(true)
     setErroCarregamento(null)
     try {
-      const [kpisData, alertasData, mapaData, graficosData, detalheResposta] = await Promise.all([
+      const [kpisData, alertasData, mapaData, graficosData, detalheResposta, detalheAprovacao] = await Promise.all([
         getDashboardKpis(idsWorkspacesFiltro, {
           status_slug_kpi_andamento: STATUS_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
         }),
@@ -468,6 +468,12 @@ export default function VisaoGeral() {
           undefined,
           { limit: 50 },
         ),
+        getDashboardInsightsDetalhe(
+          { tipo: 'aprovacao', label: '', cor: '' },
+          idsWorkspacesFiltro,
+          undefined,
+          { limit: 50 },
+        ),
       ])
       setKpis(kpisData)
       setAlertas(alertasData)
@@ -475,6 +481,8 @@ export default function VisaoGeral() {
       setGraficos(graficosData)
       setCotacoesAguardandoResposta(detalheResposta.cotacoes)
       setTotalCotacoesAguardandoResposta(detalheResposta.total)
+      setCotacoesAguardandoAprovacao(detalheAprovacao.cotacoes)
+      setTotalCotacoesAguardandoAprovacao(detalheAprovacao.total)
     } catch (err) {
       console.error('[BidFrete Insights] falha ao carregar', err)
       setKpis(null)
@@ -483,6 +491,8 @@ export default function VisaoGeral() {
       setDadosMapa({ pins: [], routes: [] })
       setCotacoesAguardandoResposta([])
       setTotalCotacoesAguardandoResposta(0)
+      setCotacoesAguardandoAprovacao([])
+      setTotalCotacoesAguardandoAprovacao(0)
       setErroCarregamento(
         err instanceof Error ? err.message : 'Falha ao carregar insights do BID Frete Internacional',
       )
@@ -604,8 +614,19 @@ export default function VisaoGeral() {
   }, [statusCotacaoConfig, kpis?.funil])
 
   const cotacoesAguardandoRespostaOrdenadas = useMemo(
-    () => ordenarCotacoesAguardandoRespostaInsights(cotacoesAguardandoResposta),
+    () => ordenarCotacoesTooltipKpiInsights(
+      cotacoesAguardandoResposta,
+      c => c.data_envio_disparo_cotacao_bid_frete_internacional,
+    ),
     [cotacoesAguardandoResposta],
+  )
+
+  const cotacoesAguardandoAprovacaoOrdenadas = useMemo(
+    () => ordenarCotacoesTooltipKpiInsights(
+      cotacoesAguardandoAprovacao,
+      c => c.data_primeira_resposta_cotacao_bid_frete_internacional,
+    ),
+    [cotacoesAguardandoAprovacao],
   )
 
   const totalCotacoesEscopo = graficos?.total_cotacoes
@@ -729,9 +750,13 @@ export default function VisaoGeral() {
 
         .bfd-kpi--novo-slot {
           display: flex;
-          align-items: center;
-          justify-content: center;
+          flex-direction: column;
+          justify-content: flex-end;
+          align-items: flex-end;
           min-height: 100%;
+        }
+        .bfd-kpi--novo-slot .bng-admin-wrapper {
+          flex-shrink: 0;
         }
 
         .bfd-kpi__header { display: flex; align-items: center; gap: 0.6rem; }
@@ -771,6 +796,10 @@ export default function VisaoGeral() {
           font-size: 0.72rem;
           line-height: 1.35;
         }
+        .bfd-kpi-tooltip-aguardando-resposta__head--duas-colunas,
+        .bfd-kpi-tooltip-aguardando-resposta__row--duas-colunas {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+        }
         .bfd-kpi-tooltip-aguardando-resposta__head {
           color: #94a3b8;
           font-weight: 700;
@@ -784,6 +813,17 @@ export default function VisaoGeral() {
           font-size: 0.7rem;
           color: #e2e8f0;
           word-break: break-word;
+        }
+        .bfd-kpi-tooltip-aguardando-resposta__link {
+          font-family: 'DM Mono', ui-monospace, monospace;
+          font-size: 0.7rem;
+          color: #60a5fa;
+          text-decoration: none;
+          word-break: break-word;
+        }
+        .bfd-kpi-tooltip-aguardando-resposta__link:hover {
+          color: #93c5fd;
+          text-decoration: underline;
         }
         .bfd-kpi-tooltip-aguardando-resposta__row span:nth-child(2) {
           color: #cbd5e1;
@@ -1014,7 +1054,7 @@ export default function VisaoGeral() {
         }
       `}</style>
 
-      {/* KPIs Grid (5 columns now) */}
+      {/* KPIs Grid (4 colunas) */}
       <div className="bfd-kpi-grid">
         <CardBasicoGlobal
           titulo={kpiCardAguardandoAprovacao.titulo}
@@ -1023,28 +1063,36 @@ export default function VisaoGeral() {
           subtexto={`${totalCotacoesEscopo} no escopo · USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
           variante="padrao"
           tooltip={
-            <>
-              <div className="cg-tooltip__row">
-                <span>Volume em aberto</span>
-                <strong>USD {fmtMoeda(kpis.valor_andamento_usd)}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>{kpiCardAguardandoAprovacao.titulo}</span>
-                <strong>{kpiCardAguardandoAprovacao.count}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Marítimo</span>
-                <strong style={{ color: '#34d399' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'MARITIMO')}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Aéreo</span>
-                <strong style={{ color: '#a78bfa' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'AEREO')}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Rodoviário</span>
-                <strong style={{ color: '#fbbf24' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'RODOVIARIO')}</strong>
-              </div>
-            </>
+            <InsightsKpiTooltipListaBidFreteInternacional
+              resumo={(
+                <>
+                  <div className="cg-tooltip__row">
+                    <span>Volume em aberto</span>
+                    <strong>USD {fmtMoeda(kpis.valor_andamento_usd)}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>{kpiCardAguardandoAprovacao.titulo}</span>
+                    <strong>{kpiCardAguardandoAprovacao.count}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Marítimo</span>
+                    <strong style={{ color: '#34d399' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'MARITIMO')}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Aéreo</span>
+                    <strong style={{ color: '#a78bfa' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'AEREO')}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Rodoviário</span>
+                    <strong style={{ color: '#fbbf24' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'RODOVIARIO')}</strong>
+                  </div>
+                </>
+              )}
+              cotacoes={cotacoesAguardandoAprovacaoOrdenadas}
+              total={totalCotacoesAguardandoAprovacao}
+              rotuloColunaData="Respondido"
+              resolverDataReferencia={c => c.data_primeira_resposta_cotacao_bid_frete_internacional}
+            />
           }
         />
         <CardBasicoGlobal
@@ -1054,97 +1102,40 @@ export default function VisaoGeral() {
           subtexto={`${kpiCardAguardandoResposta.detalhe.enviadaFornecedores} enviadas · ${kpiCardAguardandoResposta.detalhe.emCotacao} em cotação`}
           variante="padrao"
           tooltip={
-            <div className="bfd-kpi-tooltip-aguardando-resposta">
-              <div className="cg-tooltip__row">
-                <span>{kpiCardAguardandoResposta.titulo}</span>
-                <strong>{kpiCardAguardandoResposta.count}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Enviada ao fornecedor</span>
-                <strong>{kpiCardAguardandoResposta.detalhe.enviadaFornecedores}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Em cotação</span>
-                <strong style={{ color: '#34d399' }}>{kpiCardAguardandoResposta.detalhe.emCotacao}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Total no escopo</span>
-                <strong>{totalCotacoesEscopo}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Participação no escopo</span>
-                <strong style={{ color: '#60a5fa' }}>
-                  {totalCotacoesEscopo > 0
-                    ? `${Math.round((kpiCardAguardandoResposta.count / totalCotacoesEscopo) * 1000) / 10}%`
-                    : '—'}
-                </strong>
-              </div>
-              {cotacoesAguardandoRespostaOrdenadas.length > 0 && (
+            <InsightsKpiTooltipListaBidFreteInternacional
+              resumo={(
                 <>
-                  <div className="cg-tooltip__divider" style={{ margin: '0.65rem 0 0.45rem' }} />
-                  <div className="bfd-kpi-tooltip-aguardando-resposta__head">
-                    <span>Cotação</span>
-                    <span>Envio</span>
-                    <span>Aguardando</span>
+                  <div className="cg-tooltip__row">
+                    <span>{kpiCardAguardandoResposta.titulo}</span>
+                    <strong>{kpiCardAguardandoResposta.count}</strong>
                   </div>
-                  <div className="bfd-kpi-tooltip-aguardando-resposta__lista">
-                    {cotacoesAguardandoRespostaOrdenadas.map(cotacao => (
-                      <div
-                        key={cotacao.id_cotacao_bid_frete_internacional}
-                        className="bfd-kpi-tooltip-aguardando-resposta__row"
-                      >
-                        <span>{cotacao.numero_cotacao_bid_frete_internacional}</span>
-                        <span>
-                          {formatarDataEnvioTooltipAguardandoRespostaInsights(
-                            cotacao.data_envio_disparo_cotacao_bid_frete_internacional,
-                          )}
-                        </span>
-                        <strong>
-                          {formatarTempoAguardandoRespostaInsights(
-                            cotacao.data_envio_disparo_cotacao_bid_frete_internacional,
-                          )}
-                        </strong>
-                      </div>
-                    ))}
+                  <div className="cg-tooltip__row">
+                    <span>Enviada ao fornecedor</span>
+                    <strong>{kpiCardAguardandoResposta.detalhe.enviadaFornecedores}</strong>
                   </div>
-                  {totalCotacoesAguardandoResposta > cotacoesAguardandoRespostaOrdenadas.length && (() => {
-                    const restantes = totalCotacoesAguardandoResposta - cotacoesAguardandoRespostaOrdenadas.length
-                    return (
-                      <p className="bfd-kpi-tooltip-aguardando-resposta__mais">
-                        {`+${restantes} cota${restantes > 1 ? 'ões' : 'ção'} não exibida${restantes > 1 ? 's' : ''}`}
-                      </p>
-                    )
-                  })()}
+                  <div className="cg-tooltip__row">
+                    <span>Em cotação</span>
+                    <strong style={{ color: '#34d399' }}>{kpiCardAguardandoResposta.detalhe.emCotacao}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Total no escopo</span>
+                    <strong>{totalCotacoesEscopo}</strong>
+                  </div>
+                  <div className="cg-tooltip__row">
+                    <span>Participação no escopo</span>
+                    <strong style={{ color: '#60a5fa' }}>
+                      {totalCotacoesEscopo > 0
+                        ? `${Math.round((kpiCardAguardandoResposta.count / totalCotacoesEscopo) * 1000) / 10}%`
+                        : '—'}
+                    </strong>
+                  </div>
                 </>
               )}
-            </div>
-          }
-        />
-        <CardBasicoGlobal
-          titulo="Saving Médio"
-          icone={<Coins weight="duotone" size={16} style={{ color: '#34d399' }} />}
-          valor={`${kpis.savings.media_saving_percentual}%`}
-          subtexto={`USD ${fmtMoeda(kpis.savings.total_saving_usd)} acumulado`}
-          variante="padrao"
-          tooltip={
-            <>
-              <div className="cg-tooltip__row">
-                <span>Saving acumulado</span>
-                <strong>USD {fmtMoeda(kpis.savings.total_saving_usd)}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Saving percentual</span>
-                <strong style={{ color: '#34d399' }}>{kpis.savings.media_saving_percentual}%</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Cotações com saving</span>
-                <strong>{kpis.total_cotacoes_com_saving}</strong>
-              </div>
-              <div className="cg-tooltip__row">
-                <span>Saving vs média de mercado</span>
-                <strong style={{ color: '#34d399' }}>USD {fmtMoeda(kpis.total_saving_vs_media)}</strong>
-              </div>
-            </>
+              cotacoes={cotacoesAguardandoRespostaOrdenadas}
+              total={totalCotacoesAguardandoResposta}
+              rotuloColunaData="Envio"
+              resolverDataReferencia={c => c.data_envio_disparo_cotacao_bid_frete_internacional}
+            />
           }
         />
         <CardBasicoGlobal
@@ -1175,6 +1166,12 @@ export default function VisaoGeral() {
             </>
           }
         />
+        <div className="bfd-kpi bfd-kpi--novo-slot">
+          <BotaoNovoAdminGlobal
+            rotulo="Novo"
+            onClick={() => navigate(buildRotaNovaCotacaoManual())}
+          />
+        </div>
       </div>
 
       {/* Mapa full width + Rankings / Alertas / Funil na linha inferior */}

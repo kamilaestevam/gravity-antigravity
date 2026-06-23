@@ -93,13 +93,13 @@ Componente: `client/src/shared/componentes/visao-geral-mapa-bid-frete.tsx` · es
 |----------|---------------------|---------------|
 | Painel lateral de filtros | `.bfd-map-filtros-panel` | Título **Refinar mapa**; acordeão Operação, Modal, Origem, Destino, Status |
 | Rail compacto (recolhido) | `.bfd-map-filtros-rail` | Ícones dos filtros quando o painel está fechado |
-| Botão recolher/expandir | `.bfd-map-filtros-toggle` | Ícone `SidebarSimple`; flutua na borda direita do painel (`right: -13px`) |
+| Botão recolher/expandir | `.mlg-toggle-btn` (mesma classe do menu) | Ícone `SidebarSimple`; wrapper `.bfd-map-filtros-shell > .tg-trigger` absoluto no topo da borda |
 
 **Paridade obrigatória com o menu principal (`MenuLateralGlobal`):**
 
 | Regra | Menu principal | Refinar mapa |
 |-------|----------------|--------------|
-| Classe de referência | `.mlg-toggle-btn` em `nucleo-global/Layout/menu-lateral-global/src/menu-lateral.css` | `.bfd-map-filtros-toggle` — mesmas dimensões (26×26), posição flutuante e transição |
+| Classe de referência | `.mlg-toggle-btn` em `nucleo-global/Layout/menu-lateral-global/src/menu-lateral.css` | Mesma classe `.mlg-toggle-btn` — não usar estilo âmbar do card (`bfd-card--accent-amber`) |
 | Cor em repouso | `var(--ws-surface)` + borda `var(--mlg-accent-border)` | Igual; shell `.bfd-map-filtros-shell` injeta `--mlg-accent`, `--mlg-accent-border` e `--ws-accent-border` via `corOficialProdutoGravity('bid-frete-internacional')` (`#60a5fa`) |
 | Cor no hover | `var(--mlg-accent)` (cor do produto no sidebar) | Mesma variável no shell — **não** usar fallback genérico `#818cf8` fora do escopo do sidebar |
 | Tooltip | `TooltipGlobal` — ex.: «Recolher menu» / «Expandir menu» | `TooltipGlobal` — «Recolher Refinar mapa» / «Expandir Refinar mapa»; **proibido** `title` nativo (tooltip branco do browser) |
@@ -184,4 +184,5 @@ Campos de melhor proposta por rota: `id_cotacao_melhor_proposta_*`, `numero_cota
 - Usar `destino_nome` da cotação para geocodificar o mapa — **sempre** o código + Cadastros.
 - Gravar `origem_pais_cotacao` / `destino_pais_cotacao` sem ISO alpha-2 quando o terminal veio do dropdown Cadastros.
 - Toggle Refinar mapa com `title` nativo ou cor de hover `#818cf8` — replicar `MenuLateralGlobal` + `corOficialProdutoGravity` (§5.1).
+- `GET /insights-detalhe`: relação Prisma é `disparos_cotacao`, não `disparo_cotacao_bid_frete_internacional` (nome da tabela ≠ nome do campo no `select`).
 - Refatorar SSOT multi-workspace (`useEscopoWorkspacesBidFreteInternacional`) — fora do escopo TASK-000264.

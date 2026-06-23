@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatarDataEnvioTooltipAguardandoRespostaInsights,
+  formatarLinhaDataTempoTooltipKpiInsights,
   formatarTempoAguardandoRespostaInsights,
   ordenarCotacoesAguardandoRespostaInsights,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/insights-kpi-aguardando-resposta-bid-frete-internacional'
@@ -29,6 +30,7 @@ function cotacaoMinima(
     data_limite_resposta_cotacao_bid_frete_internacional: null,
     data_aprovacao_cotacao_bid_frete_internacional: null,
     data_envio_disparo_cotacao_bid_frete_internacional: null,
+    data_primeira_resposta_cotacao_bid_frete_internacional: null,
     propostas: [],
     historico: [],
     ...partial,
@@ -63,9 +65,15 @@ describe('ordenarCotacoesAguardandoRespostaInsights', () => {
 })
 
 describe('formatarDataEnvioTooltipAguardandoRespostaInsights', () => {
-  it('formata data em pt-BR', () => {
+  it('formata data compacta dd/mm/aa', () => {
     const texto = formatarDataEnvioTooltipAguardandoRespostaInsights('2026-06-01T10:00:00.000Z')
-    expect(texto).toMatch(/01/)
-    expect(texto).toMatch(/2026/)
+    expect(texto).toMatch(/01\/06\/26/)
+  })
+})
+
+describe('formatarLinhaDataTempoTooltipKpiInsights', () => {
+  it('combina data compacta e tempo decorrido', () => {
+    const agora = new Date('2026-06-10T12:00:00Z').getTime()
+    expect(formatarLinhaDataTempoTooltipKpiInsights('2026-06-09T12:00:00Z', agora)).toBe('09/06/26 · 1 d')
   })
 })

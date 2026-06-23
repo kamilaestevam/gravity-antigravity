@@ -336,6 +336,7 @@ router.get('/insights-detalhe', async (req: Request, res: Response, next: NextFu
       modal_cotacao_bid_frete_internacional,
       limit,
       data_referencia,
+      status_slugs,
     } = parsedQuery.data
 
     const limite = limit ?? 20
@@ -348,6 +349,7 @@ router.get('/insights-detalhe', async (req: Request, res: Response, next: NextFu
         modal_cotacao_bid_frete_internacional,
         data_referencia,
       },
+      { status_slugs },
     )
 
     const [total, cotacoes] = await Promise.all([

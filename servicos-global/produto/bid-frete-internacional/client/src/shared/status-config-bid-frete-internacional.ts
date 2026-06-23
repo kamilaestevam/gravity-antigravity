@@ -5,6 +5,13 @@
 
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
+import {
+  contagemSlugsNoFunilBidFreteInternacional,
+  detalharSlugsNoFunilBidFreteInternacional,
+  resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional,
+  resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional,
+  SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
+} from '../../../shared/kpi-insights-status-cotacao-bid-frete-internacional'
 import { STATUS_LABELS, type StatusCotacao } from './types'
 import type { EtapaFunilVisaoFornecedorBidFreteInternacional } from './visao-fornecedor-bid-frete-internacional-schemas'
 
@@ -122,29 +129,44 @@ export const STATUS_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL = 
 export const TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL =
   'Cotações aguardando resposta'
 
-export const STATUS_COTACAO_AGUARDANDO_RESPOSTA_INSIGHTS_BID_FRETE_INTERNACIONAL = [
-  'ENVIADA_FORNECEDORES',
-  'EM_COTACAO',
-] as const satisfies readonly StatusCotacao[]
+export const STATUS_COTACAO_AGUARDANDO_RESPOSTA_INSIGHTS_BID_FRETE_INTERNACIONAL =
+  SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL
+
+export function contagemAguardandoAprovacaoNoFunilBidFreteInternacional(
+  funil: Array<{ status: string; count: number }>,
+  statusConfig: StatusCotacaoConfigBidFreteInternacional[],
+): number {
+  return contagemSlugsNoFunilBidFreteInternacional(
+    funil,
+    resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional(statusConfig),
+  )
+}
 
 export function contagemAguardandoRespostaNoFunilBidFreteInternacional(
   funil: Array<{ status: string; count: number }>,
+  statusConfig: StatusCotacaoConfigBidFreteInternacional[] = [],
 ): number {
-  return STATUS_COTACAO_AGUARDANDO_RESPOSTA_INSIGHTS_BID_FRETE_INTERNACIONAL.reduce(
-    (acc, status) => acc + contagemStatusNoFunilBidFreteInternacional(funil, status),
-    0,
+  return contagemSlugsNoFunilBidFreteInternacional(
+    funil,
+    resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional(statusConfig),
   )
 }
 
 export function detalharAguardandoRespostaNoFunilBidFreteInternacional(
   funil: Array<{ status: string; count: number }>,
+  statusConfig: StatusCotacaoConfigBidFreteInternacional[] = [],
 ): { enviadaFornecedores: number; emCotacao: number; total: number } {
-  const enviadaFornecedores = contagemStatusNoFunilBidFreteInternacional(
-    funil,
-    'ENVIADA_FORNECEDORES',
-  )
-  const emCotacao = contagemStatusNoFunilBidFreteInternacional(funil, 'EM_COTACAO')
-  return { enviadaFornecedores, emCotacao, total: enviadaFornecedores + emCotacao }
+  const slugs = resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional(statusConfig)
+  const detalhe = detalharSlugsNoFunilBidFreteInternacional(funil, slugs)
+  const enviadaFornecedores = detalhe.ENVIADA_FORNECEDORES ?? 0
+  const emCotacao = detalhe.EM_COTACAO ?? 0
+  const total = contagemSlugsNoFunilBidFreteInternacional(funil, slugs)
+  return { enviadaFornecedores, emCotacao, total }
+}
+
+export {
+  resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional,
+  resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional,
 }
 
 export function resolverRotuloStatusConfigBidFreteInternacional(

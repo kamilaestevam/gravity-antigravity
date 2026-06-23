@@ -3,6 +3,7 @@ import {
   CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL,
   STATUS_COTACAO_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
   contagemStatusNoFunilBidFreteInternacional,
+  contagemAguardandoAprovacaoNoFunilBidFreteInternacional,
   contagemAguardandoRespostaNoFunilBidFreteInternacional,
   detalharAguardandoRespostaNoFunilBidFreteInternacional,
   lerStatusCotacaoConfigBidFreteInternacional,
@@ -118,8 +119,21 @@ describe('KPI Insights — contagem e rótulo por Configurações', () => {
 })
 
 describe('KPI Insights — cards fixos aguardando aprovação e resposta', () => {
+  const configComCustom = [
+    ...STATUS_COTACAO_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
+    {
+      id: 'status_custom',
+      nome: 'COTACAO_RESPONDIDA',
+      rotulo: 'Cotação respondida',
+      cor: '#818cf8',
+      ordem: 10,
+      is_sistema: false,
+    },
+  ]
+
   const funil = [
     { status: 'AGUARDANDO_APROVACAO', count: 4 },
+    { status: 'COTACAO_RESPONDIDA', count: 6 },
     { status: 'ENVIADA_FORNECEDORES', count: 7 },
     { status: 'EM_COTACAO', count: 3 },
     { status: 'RASCUNHO', count: 29 },
@@ -134,13 +148,14 @@ describe('KPI Insights — cards fixos aguardando aprovação e resposta', () =>
     )
   })
 
-  it('conta aguardando aprovação por status único', () => {
+  it('conta aguardando aprovação incluindo status custom da config', () => {
+    expect(contagemAguardandoAprovacaoNoFunilBidFreteInternacional(funil, configComCustom)).toBe(10)
     expect(contagemStatusNoFunilBidFreteInternacional(funil, 'AGUARDANDO_APROVACAO')).toBe(4)
   })
 
   it('soma enviadas e em cotação para aguardando resposta', () => {
-    expect(contagemAguardandoRespostaNoFunilBidFreteInternacional(funil)).toBe(10)
-    expect(detalharAguardandoRespostaNoFunilBidFreteInternacional(funil)).toEqual({
+    expect(contagemAguardandoRespostaNoFunilBidFreteInternacional(funil, configComCustom)).toBe(10)
+    expect(detalharAguardandoRespostaNoFunilBidFreteInternacional(funil, configComCustom)).toEqual({
       enviadaFornecedores: 7,
       emCotacao: 3,
       total: 10,
@@ -148,6 +163,6 @@ describe('KPI Insights — cards fixos aguardando aprovação e resposta', () =>
   })
 
   it('ignora rascunho no card aguardando resposta', () => {
-    expect(contagemAguardandoRespostaNoFunilBidFreteInternacional(funil)).not.toBe(29)
+    expect(contagemAguardandoRespostaNoFunilBidFreteInternacional(funil, configComCustom)).not.toBe(29)
   })
 })

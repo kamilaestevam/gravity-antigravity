@@ -37,6 +37,19 @@ export const insightsDetalheQuerySchema = z.object({
   modal_cotacao_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']).optional(),
   limit: z.coerce.number().int().min(1).max(50).optional(),
   data_referencia: dataReferenciaIsoSchema.optional(),
+  status_slugs: z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .transform((valor) => {
+      if (!valor) return undefined
+      const slugs = valor
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0 && s.length <= 50)
+      return slugs.length > 0 ? slugs : undefined
+    }),
 })
 
 export function parseDataReferenciaInsights(dataReferencia?: string): Date {

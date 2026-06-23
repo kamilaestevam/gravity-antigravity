@@ -33,6 +33,8 @@ node servicos-global/produto/bid-frete-internacional/prisma/compose-schema.js
 npx prisma generate --schema=servicos-global/produto/bid-frete-internacional/prisma/schema.prisma
 node servicos-global/produto/processo/server/scripts/compose-schema.js
 npx prisma generate --schema=servicos-global/produto/processo/prisma/schema.prisma
+node servicos-global/produto/smart-read/prisma/compose-schema.js
+npx prisma generate --schema=servicos-global/produto/smart-read/prisma/schema.prisma
 
 # 2a. BID Frete Internacional — migrations (baseline legado + bootstrap banco vazio)
 if [ -n "$BID_FRETE_INTERNATIONAL_DATABASE_URL" ]; then
@@ -69,6 +71,15 @@ if [ -n "$PROCESSO_DATABASE_URL" ]; then
     npx prisma migrate deploy --schema=servicos-global/produto/processo/prisma/schema.prisma
 else
   echo "[build-site] PROCESSO_DATABASE_URL ausente — skip Processo migrations"
+fi
+
+# 2g. Smart Read — migrations (progresso_leitura, lista_painel_usuario_global)
+if [ -n "${SMART_READ_DATABASE_URL:-}" ]; then
+  echo "[build-site] Applying Smart Read migrations..."
+  DATABASE_URL="$SMART_READ_DATABASE_URL" \
+    npx prisma migrate deploy --schema=servicos-global/produto/smart-read/prisma/schema.prisma
+else
+  echo "[build-site] SMART_READ_DATABASE_URL ausente — skip Smart Read migrations"
 fi
 
 # 2e. Configurador — migrations (teste, organizacao, plano_teste, etc.)

@@ -109,8 +109,24 @@ export PEDIDO_ANEXOS_UPLOAD_DIR="${PEDIDO_ANEXOS_UPLOAD_DIR:-/app/data/pedido-an
 mkdir -p "$PEDIDO_ANEXOS_UPLOAD_DIR"
 echo "[start-site] Pedido anexos upload dir: $PEDIDO_ANEXOS_UPLOAD_DIR"
 
+if [ -z "${SMART_READ_DATABASE_URL:-}" ]; then
+  echo "[start-site] AVISO: SMART_READ_DATABASE_URL ausente — sidecar Smart Read sobe sem painéis/progresso (503 nas rotas de banco)."
+  echo "[start-site] Railway → site-usegravity → Variables → SMART_READ_DATABASE_URL"
+  echo "[start-site] Valor: DATABASE_URL do PostgreSQL gravity-smart-read-producao."
+else
+  echo "[start-site] Aplicando migrations Smart Read..."
+  node servicos-global/produto/smart-read/prisma/compose-schema.js
+  if DATABASE_URL="$SMART_READ_DATABASE_URL" \
+    npx prisma migrate deploy --schema=servicos-global/produto/smart-read/prisma/schema.prisma; then
+    echo "[start-site] Migrations Smart Read concluídas."
+  else
+    echo "[start-site] ERRO: migrations Smart Read falharam — servidor sobe mesmo assim (ver logs acima)."
+    echo "[start-site] Sidecar Smart Read pode falhar até corrigir migrations ou SMART_READ_DATABASE_URL."
+  fi
+fi
+
 if [ -z "${SMART_READ_LEGADO_URL:-}" ] || [ -z "${SMART_READ_LEGADO_CHAVE_GRAVITY:-}" ]; then
-  echo "[start-site] AVISO: SMART_READ_LEGADO_URL ou SMART_READ_LEGADO_CHAVE_GRAVITY ausente — uploads Smart Read falham."
+  echo "[start-site] AVISO: SMART_READ_LEGADO_URL ou SMART_READ_LEGADO_CHAVE_GRAVITY ausente — listagem/upload Smart Read falham."
   echo "[start-site] Railway → site-usegravity → Variables → SMART_READ_LEGADO_* + SMART_READ_ID_COMPANY_LEGADO_PADRAO"
 elif [ -z "${SMART_READ_ID_COMPANY_LEGADO_PADRAO:-}" ] && [ -z "${SMART_READ_DE_PARA_ORGANIZACAO:-}" ]; then
   echo "[start-site] AVISO: SMART_READ_ID_COMPANY_LEGADO_PADRAO ausente — orgs com assinatura ATIVA precisam de company id legado."

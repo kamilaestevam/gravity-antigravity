@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   montarAlertaDivergenciaCadastrosMapa,
+  normalizarPaisIsoParaComparacao,
   validarConsistenciaLocalRotaCadastros,
 } from '../../../../servicos-global/produto/bid-frete-internacional/shared/divergencia-cadastros-rota-bid-frete-internacional'
 import {
@@ -20,6 +21,23 @@ describe('divergencia-cadastros-rota-bid-frete-internacional', () => {
     expect(alerta).toContain('País gravado (GR)')
     expect(alerta).toContain('Cadastros (US)')
     expect(alerta).toContain('Nome gravado (Athens)')
+  })
+
+  it('não alerta país quando cotação usa nome por extenso e código UN/LOCODE bate', () => {
+    const alerta = montarAlertaDivergenciaCadastrosMapa({
+      codigo: 'BRSSZ',
+      nomeCotacao: 'BRSSZ — Santos',
+      paisCotacao: 'Brasil',
+      nomeCadastros: 'Santos',
+      paisCadastros: 'BR',
+    })
+    expect(alerta).toBeNull()
+  })
+
+  it('inferir ISO do UN/LOCODE para comparação de país', () => {
+    expect(normalizarPaisIsoParaComparacao('Brasil', 'BRSSZ')).toBe('BR')
+    expect(normalizarPaisIsoParaComparacao('Holanda', 'NLRTM')).toBe('NL')
+    expect(normalizarPaisIsoParaComparacao('GR', 'ATH')).toBe('GR')
   })
 
   it('não alerta quando snapshot bate com Cadastros', () => {

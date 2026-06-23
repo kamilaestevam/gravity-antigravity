@@ -3,10 +3,14 @@ import {
   CHAVE_LOCAL_STORAGE_STATUS_COTACAO_BID_FRETE_INTERNACIONAL,
   STATUS_COTACAO_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL,
   contagemStatusNoFunilBidFreteInternacional,
+  contagemAguardandoRespostaNoFunilBidFreteInternacional,
+  detalharAguardandoRespostaNoFunilBidFreteInternacional,
   lerStatusCotacaoConfigBidFreteInternacional,
   montarEtapasFunilInsightsBidFreteInternacional,
   resolverCorStatusConfigBidFreteInternacional,
   resolverRotuloStatusConfigBidFreteInternacional,
+  TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
+  TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/status-config-bid-frete-internacional'
 
 describe('lerStatusCotacaoConfigBidFreteInternacional', () => {
@@ -110,5 +114,40 @@ describe('KPI Insights — contagem e rótulo por Configurações', () => {
     expect(resolverRotuloStatusConfigBidFreteInternacional(config, 'RASCUNHO', 'Em andamento')).toBe('Rascunho')
     expect(resolverCorStatusConfigBidFreteInternacional(config, 'APROVADA', '#34d399')).toBe('#00f')
     expect(resolverRotuloStatusConfigBidFreteInternacional(config, 'DESCONHECIDO', 'Fallback')).toBe('Fallback')
+  })
+})
+
+describe('KPI Insights — cards fixos aguardando aprovação e resposta', () => {
+  const funil = [
+    { status: 'AGUARDANDO_APROVACAO', count: 4 },
+    { status: 'ENVIADA_FORNECEDORES', count: 7 },
+    { status: 'EM_COTACAO', count: 3 },
+    { status: 'RASCUNHO', count: 29 },
+  ]
+
+  it('expõe títulos fixos dos dois primeiros cards', () => {
+    expect(TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL).toBe(
+      'Cotações aguardando aprovação',
+    )
+    expect(TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL).toBe(
+      'Cotações aguardando resposta',
+    )
+  })
+
+  it('conta aguardando aprovação por status único', () => {
+    expect(contagemStatusNoFunilBidFreteInternacional(funil, 'AGUARDANDO_APROVACAO')).toBe(4)
+  })
+
+  it('soma enviadas e em cotação para aguardando resposta', () => {
+    expect(contagemAguardandoRespostaNoFunilBidFreteInternacional(funil)).toBe(10)
+    expect(detalharAguardandoRespostaNoFunilBidFreteInternacional(funil)).toEqual({
+      enviadaFornecedores: 7,
+      emCotacao: 3,
+      total: 10,
+    })
+  })
+
+  it('ignora rascunho no card aguardando resposta', () => {
+    expect(contagemAguardandoRespostaNoFunilBidFreteInternacional(funil)).not.toBe(29)
   })
 })

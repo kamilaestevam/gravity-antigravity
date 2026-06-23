@@ -35,6 +35,7 @@ import {
   TrafficSign,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { corOficialProdutoGravity } from '@nucleo/logo-produtos'
 import {
   contarFiltrosMapaAtivos,
   FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS,
@@ -59,6 +60,14 @@ import {
 import { rotaDetalheCotacaoBidFreteInternacional } from '../rotas-bid-frete-internacional'
 import type { ArcRouteBidFrete } from '../mapa-bid-frete-internacional-tipos'
 import type { StatusCotacao } from '../types'
+
+const COR_ACCENT_TOGGLE_MAPA_BID_FRETE = corOficialProdutoGravity('bid-frete-internacional')
+const ESTILO_VARS_TOGGLE_MAPA_BID_FRETE: React.CSSProperties = {
+  '--mlg-accent': COR_ACCENT_TOGGLE_MAPA_BID_FRETE,
+  '--mlg-accent-border': `${COR_ACCENT_TOGGLE_MAPA_BID_FRETE}33`,
+  '--ws-accent-border': `${COR_ACCENT_TOGGLE_MAPA_BID_FRETE}33`,
+}
+
 // ─── Map Pin Data ──────────────────────────────────────────────────────────
 
 export interface MapPinBidFrete {
@@ -2794,6 +2803,7 @@ export function VisaoGeralMapaBidFrete({
     return (
       <div
         className={`bfd-map-filtros-shell${painelFiltrosMapaExpandido ? '' : ' bfd-map-filtros-shell--recolhido'}`}
+        style={ESTILO_VARS_TOGGLE_MAPA_BID_FRETE}
       >
         {painelFiltrosMapaExpandido ? (
         <aside
@@ -2973,16 +2983,19 @@ export function VisaoGeralMapaBidFrete({
         ) : (
           renderPainelFiltrosMapaRecolhido()
         )}
-        <button
-          type="button"
-          className="bfd-map-filtros-toggle"
-          onClick={() => setPainelFiltrosMapaExpandido((prev) => !prev)}
-          aria-expanded={painelFiltrosMapaExpandido}
-          aria-controls="bfd-map-filtros-panel-conteudo"
-          title={painelFiltrosMapaExpandido ? 'Recolher Refinar mapa' : 'Expandir Refinar mapa'}
+        <TooltipGlobal
+          descricao={painelFiltrosMapaExpandido ? 'Recolher Refinar mapa' : 'Expandir Refinar mapa'}
         >
-          <SidebarSimple weight={painelFiltrosMapaExpandido ? 'regular' : 'duotone'} size={16} />
-        </button>
+          <button
+            type="button"
+            className="bfd-map-filtros-toggle"
+            onClick={() => setPainelFiltrosMapaExpandido((prev) => !prev)}
+            aria-expanded={painelFiltrosMapaExpandido}
+            aria-controls="bfd-map-filtros-panel-conteudo"
+          >
+            <SidebarSimple weight={painelFiltrosMapaExpandido ? 'regular' : 'duotone'} size={16} />
+          </button>
+        </TooltipGlobal>
       </div>
     )
   }

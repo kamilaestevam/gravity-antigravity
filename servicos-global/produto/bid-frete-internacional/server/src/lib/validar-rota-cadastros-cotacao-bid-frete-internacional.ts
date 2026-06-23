@@ -6,6 +6,7 @@ import {
   validarConsistenciaLocalRotaCadastros,
   type LocalCadastrosResolvido,
 } from '../../../shared/divergencia-cadastros-rota-bid-frete-internacional.js'
+import { carregarContextoCatalogoRotaBidFreteInternacional } from './carregar-contexto-catalogo-rota-bid-frete-internacional.js'
 import {
   prepararCamposRotaCotacaoPersistencia,
   type CamposRotaModalCotacao,
@@ -27,11 +28,14 @@ function paraLocalResolvido(
 export async function validarRotaCotacaoContraCadastros(
   input: CamposRotaModalCotacao,
   idOrganizacao: string,
+  ctxPrecarregado?: Awaited<ReturnType<typeof carregarContextoCatalogoRotaBidFreteInternacional>>,
 ): Promise<ErroValidacaoRotaCadastros[]> {
   const modal = input.modal_cotacao_bid_frete_internacional
   if (modal === 'RODOVIARIO') return []
 
-  const preparado = prepararCamposRotaCotacaoPersistencia(input)
+  const ctx =
+    ctxPrecarregado ?? (await carregarContextoCatalogoRotaBidFreteInternacional(idOrganizacao))
+  const preparado = prepararCamposRotaCotacaoPersistencia(input, ctx)
   const erros: ErroValidacaoRotaCadastros[] = []
 
   const origemCodigo = preparado.origem_codigo_cotacao_bid_frete_internacional?.trim().toUpperCase() ?? ''

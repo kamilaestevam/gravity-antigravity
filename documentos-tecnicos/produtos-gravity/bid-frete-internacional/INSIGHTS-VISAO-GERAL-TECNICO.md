@@ -85,6 +85,31 @@ UI Config: `client/src/pages/configuracoes.tsx` → categoria `dashboard-kpi`.
 
 **PTAX:** BACEN via Configurador; spread de `bid-frete:config:taxa-cambio` (localStorage); previsão Focus por moeda (USD/EUR/CNY).
 
+### 5.1 Mapa global — painel Refinar mapa e toggles de recolher
+
+Componente: `client/src/shared/componentes/visao-geral-mapa-bid-frete.tsx` · estilos `client/src/shared/bid-frete-visao-geral-mapa.css`.
+
+| Elemento | Classe / componente | Comportamento |
+|----------|---------------------|---------------|
+| Painel lateral de filtros | `.bfd-map-filtros-panel` | Título **Refinar mapa**; acordeão Operação, Modal, Origem, Destino, Status |
+| Rail compacto (recolhido) | `.bfd-map-filtros-rail` | Ícones dos filtros quando o painel está fechado |
+| Botão recolher/expandir | `.bfd-map-filtros-toggle` | Ícone `SidebarSimple`; flutua na borda direita do painel (`right: -13px`) |
+
+**Paridade obrigatória com o menu principal (`MenuLateralGlobal`):**
+
+| Regra | Menu principal | Refinar mapa |
+|-------|----------------|--------------|
+| Classe de referência | `.mlg-toggle-btn` em `nucleo-global/Layout/menu-lateral-global/src/menu-lateral.css` | `.bfd-map-filtros-toggle` — mesmas dimensões (26×26), posição flutuante e transição |
+| Cor em repouso | `var(--ws-surface)` + borda `var(--mlg-accent-border)` | Igual; shell `.bfd-map-filtros-shell` injeta `--mlg-accent`, `--mlg-accent-border` e `--ws-accent-border` via `corOficialProdutoGravity('bid-frete-internacional')` (`#60a5fa`) |
+| Cor no hover | `var(--mlg-accent)` (cor do produto no sidebar) | Mesma variável no shell — **não** usar fallback genérico `#818cf8` fora do escopo do sidebar |
+| Tooltip | `TooltipGlobal` — ex.: «Recolher menu» / «Expandir menu» | `TooltipGlobal` — «Recolher Refinar mapa» / «Expandir Refinar mapa»; **proibido** `title` nativo (tooltip branco do browser) |
+
+**SSOT de cor do produto:** `nucleo-global/Logo/produtos/src/cores-produto-gravity.ts` → `corOficialProdutoGravity`. O sidebar define `--mlg-accent` inline em `MenuLateralGlobal` (`moduleColor={meta.color}`); o mapa replica no shell porque o botão fica na área de conteúdo, fora de `.mlg-sidebar`.
+
+**Testes de mapa (filtros):** `testes/testes-unitarios/bid-frete-internacional/insights/filtrar-mapa-insights.test.ts`.
+
+**Task:** TASK-000318 — alinhar cor do toggle e tooltip ao padrão do menu principal.
+
 ---
 
 ## 6. Testes UNI (Insights)
@@ -95,14 +120,68 @@ UI Config: `client/src/pages/configuracoes.tsx` → categoria `dashboard-kpi`.
 | `insights/taxas-cambio-insights.test.ts` | PTAX / spread |
 | `insights/montar-insights-detalhe.test.ts` | Where + DTO drill-down |
 | `insights/insights-status-funil.test.ts` | Funil + KPI por status config |
+| `insights/divergencia-cadastros-mapa.test.ts` | País ISO, alerta Athens+MMI, rótulos aeroporto/porto |
+| `insights/formatar-terminal-mapa.test.ts` | Rótulo documento mapa (prefixo BID/COT) |
+| `insights/filtrar-mapa-insights.test.ts` | Filtros do mapa Insights |
 
 Pacote completo `/testes-criar` pendente no fechamento da task (WIP).
 
 ---
 
-## 7. Anti-padrões
+## 7. Mapa — contrato API (`GET /mapa-cotacoes`)
+
+Agregação: `server/src/lib/mapa-cotacoes-visao-geral-bid-frete-internacional.ts` → `montarMapaCotacoesVisaoFornecedorBidFreteInternacional`.
+
+**Geolocalização:** coordenadas e país vêm **sempre do Cadastros** (`resolver-local-cadastros-bid-frete-internacional.ts`). Ordem de lookup depende do modal predominante do terminal: **AÉREO** → aeroporto primeiro; **MARÍTIMO** → porto primeiro.
+
+### Pin (`pinos_mapa_visao_fornecedor_bid_frete_internacional`)
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `codigo_local_mapa_visao_fornecedor_bid_frete_internacional` | string | IATA ou UN/LOCODE gravado na cotação |
+| `nome_local_mapa_visao_fornecedor_bid_frete_internacional` | string | **Nome do Cadastros** (rótulo do pin no mapa) |
+| `nome_cotacao_local_mapa_visao_fornecedor_bid_frete_internacional` | string | Nome gravado na cotação (pode divergir) |
+| `pais_codigo_mapa_visao_fornecedor_bid_frete_internacional` | string | ISO alpha-2 do Cadastros |
+| `alerta_divergencia_cadastros_mapa_visao_fornecedor_bid_frete_internacional` | string \| null | Aviso quando nome/país da cotação ≠ Cadastros (ex.: Athens + MMI) |
+| `latitude_mapa_visao_fornecedor_bid_frete_internacional` | number | Lat Cadastros |
+| `longitude_mapa_visao_fornecedor_bid_frete_internacional` | number | Lng Cadastros |
+| `melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional` | number \| null | Melhor proposta no terminal |
+| `quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional` | number | Cotações avulsas |
+| `quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional` | number | BIDs vinculados |
+
+### Rota (`rotas_mapa_visao_fornecedor_bid_frete_internacional`)
+
+Campos de melhor proposta por rota: `id_cotacao_melhor_proposta_*`, `numero_cotacao_melhor_proposta_*`, `numero_bid_melhor_proposta_*` (número já inclui prefixo `BID-` ou `COT-` — UI não duplica).
+
+**Zod client:** `mapa-visao-fornecedor-bid-frete-internacional.ts`, `mapa-visao-geral-bid-frete-internacional.ts`.
+
+**SSOT divergência:** `shared/divergencia-cadastros-rota-bid-frete-internacional.ts` — mesma regra no mapa (alerta) e na gravação (bloqueio).
+
+---
+
+## 8. Cotação — validação de rota contra Cadastros
+
+**Quando:** `POST /cotacoes` (sempre) e `PATCH /cotacoes/:id` (somente se body toca campos de rota).
+
+**Fluxo:** `prepararRotaComValidacaoCadastros` (`cotacoes.ts`) → `validar-rota-cadastros-cotacao-bid-frete-internacional.ts`:
+
+1. Carrega catálogo (`carregar-contexto-catalogo-rota-bid-frete-internacional.ts`)
+2. Deriva snapshot via `prepararCamposRotaCotacaoPersistencia(input, ctx)` — **mesmo ctx** usado na validação e na persistência
+3. Resolve terminal no Cadastros por código + modal
+4. Rejeita se código inexistente, nome incompatível ou **país ISO comparável** divergente
+
+**País na comparação:** `normalizarPaisIsoParaComparacao` — compara ISO alpha-2; inferência via UN/LOCODE do terminal (`BRSSZ` → `BR`). Nomes por extenso (`Brasil`) **não** geram falso positivo se o código UN/LOCODE bate com o Cadastros.
+
+**Modal rodoviário:** validação Cadastros ignorada (sem terminal IATA/UNLOCODE).
+
+---
+
+## 9. Anti-padrões
 
 - Hardcodar título «Em andamento» ou contar `cotacoes_andamento` do server sem olhar Config + funil.
 - Drill-down de alertas sem propagar `data_referencia` (desalinha pills vs modal).
 - `res.status(400).json` nas rotas Insights — usar `AppError`.
+- Usar `destino_nome` da cotação para geocodificar o mapa — **sempre** o código + Cadastros.
+- Gravar `origem_pais_cotacao` / `destino_pais_cotacao` sem ISO alpha-2 quando o terminal veio do dropdown Cadastros.
+- Toggle Refinar mapa com `title` nativo ou cor de hover `#818cf8` — replicar `MenuLateralGlobal` + `corOficialProdutoGravity` (§5.1).
 - Refatorar SSOT multi-workspace (`useEscopoWorkspacesBidFreteInternacional`) — fora do escopo TASK-000264.

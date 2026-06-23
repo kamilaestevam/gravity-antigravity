@@ -20,7 +20,7 @@
 | [ORDEM-COLUNAS-BANCO-TECNICO.md](./ORDEM-COLUNAS-BANCO-TECNICO.md) | Convenção de ordem física no PostgreSQL (Railway UI), migrations |
 | [SNAPSHOT-PROPOSTA-TECNICO.md](./SNAPSHOT-PROPOSTA-TECNICO.md) | `id_workspace` + `id_bid` na proposta — quando e como preencher |
 | [DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md](./DDD-VISAO-FORNECEDOR-BID-FRETE-INTERNACIONAL-TECNICO.md) | Namespace `visao_fornecedor_bid_frete_internacional` — API, SPA, contratos, i18n |
-| [INSIGHTS-VISAO-GERAL-TECNICO.md](./INSIGHTS-VISAO-GERAL-TECNICO.md) | Aba Insights: KPIs↔Config, rotas dashboard, drill-down, PTAX, Zod |
+| [INSIGHTS-VISAO-GERAL-TECNICO.md](./INSIGHTS-VISAO-GERAL-TECNICO.md) | Aba Insights: KPIs↔Config, rotas dashboard, drill-down, PTAX, mapa Cadastros, painel Refinar mapa, toggles, validação rota na gravação, Zod |
 | [COTACAO-DETALHE-COCKPIT-TECNICO.md](./COTACAO-DETALHE-COCKPIT-TECNICO.md) | Cockpit detalhe cotação: Painel de Insights, faixa `APROVADA`, aba Propostas (tabela completa + estimativa BRL), modal Aprovar |
 
 ---
@@ -42,6 +42,8 @@
 
 | PR / entrega | Escopo |
 |--------------|--------|
+| Mapa Insights + validação rota (2026-06-23) | Mapa geocodifica via Cadastros (não nome da cotação); alerta hover quando nome/país diverge (ex. Athens+MMI); `POST`/`PATCH` cotação valida rota contra catálogo — ver [INSIGHTS-VISAO-GERAL-TECNICO.md](./INSIGHTS-VISAO-GERAL-TECNICO.md) §7–9 |
+| TASK-000318 (2026-06-23) | Toggle Refinar mapa: cor e tooltip no padrão `MenuLateralGlobal` — ver [INSIGHTS-VISAO-GERAL-TECNICO.md](./INSIGHTS-VISAO-GERAL-TECNICO.md) §5.1 |
 | TASK-000313 (2026-06-23) | Aba Propostas (card combate) e modal Aprovar: tabela completa da composição (paridade portal agente) + estimativa `≈ R$` por moeda (taxa produto ou PTAX) — ver [COTACAO-DETALHE-COCKPIT-TECNICO.md](./COTACAO-DETALHE-COCKPIT-TECNICO.md) §5 |
 | TASK-000286 (2026-06-16) | Cockpit cotação `APROVADA`: faixa verde no Painel de Insights (valor, data, ganhador, quem aprovou); remove banner comparativo e barra legada em Visão geral — ver [COTACAO-DETALHE-COCKPIT-TECNICO.md](./COTACAO-DETALHE-COCKPIT-TECNICO.md) |
 | #338 (2026-06-15) | Detalhe cotação: scroll vertical restaurado (`cotacao-detalhe-cockpit.css`); disparo multi-e-mail/WhatsApp via Cadastros `contatos_fornecedor`; modal fornecedor Configurador com abas — ver [MODAL-NOVA-COTACAO](./MODAL-NOVA-COTACAO-BID-FRETE-INTERNACIONAL.md) §5.5 |

@@ -9,14 +9,14 @@
 
 Insights **não** tem API própria. O hook `use-dados-insights-leitura-smart-read.ts` consome:
 
-1. `GET /api/v1/smart-read/leituras` (lista de transações — merge legado + progresso + snapshot no BFF)
+1. `GET /api/v1/smart-read/leituras` (lista por **workspace** — merge legado + progresso + snapshot no BFF)
 2. `GET /api/v1/smart-read/leituras/:id` em **paralelo** (`Promise.allSettled`) para cada leitura `COMPLETED` ou `PROCESSING`
 
 **Onde está o banco real:** PDFs, fila OCR e JSON bruto (`processingResult` / `finalProcessingResult`) **permanecem no legado DATI** — não no Railway Gravity. O Postgres Gravity só guarda **cópia** (`snapshot_leitura_smart_read`) e sessão do wizard (`progresso_leitura_smart_read`). Ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md).
 
 ### Cadeia do detalhe (BFF)
 
-`GET /leituras/:id`: **snapshot Gravity** → **legado DATI** (SSOT) → **progresso** (só se legado falhar, mesmo `id_usuario`).
+`GET /leituras/:id`: **snapshot (workspace)** → **legado** (se vinculada ao workspace) → **progresso** (`catch`, `id_usuario` + workspace).
 
 ### Modo completo vs degradado (client)
 

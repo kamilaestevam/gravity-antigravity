@@ -1,5 +1,5 @@
 /**
- * Vincula leitura legada ao usuário Gravity (ownership para lista por usuário).
+ * Vincula leitura legada ao workspace Gravity (visibilidade na lista da filial).
  */
 import type { Prisma } from '../generated/client/index.js'
 import type { PrismaClient } from '../generated/client/index.js'
@@ -8,7 +8,7 @@ export async function registrarVinculoLeituraUsuarioSmartRead(params: {
   prisma: PrismaClient
   idOrganizacao: string
   idUsuario: string
-  idWorkspace: string | null
+  idWorkspace: string
   idLeitura: string
 }): Promise<void> {
   const { prisma, idOrganizacao, idUsuario, idWorkspace, idLeitura } = params
@@ -18,9 +18,17 @@ export async function registrarVinculoLeituraUsuarioSmartRead(params: {
       id_usuario: idUsuario,
       id_leitura_legado_progresso_leitura_smart_read: idLeitura,
     },
-    select: { id_progresso_leitura_smart_read: true },
+    select: { id_progresso_leitura_smart_read: true, id_workspace: true },
   })
-  if (existente) return
+  if (existente) {
+    if (!existente.id_workspace) {
+      await prisma.progressoLeituraSmartRead.update({
+        where: { id_progresso_leitura_smart_read: existente.id_progresso_leitura_smart_read },
+        data: { id_workspace: idWorkspace },
+      })
+    }
+    return
+  }
 
   const dadosSessao = {
     nome: '',

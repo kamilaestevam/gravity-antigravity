@@ -126,9 +126,28 @@
   position: fixed;
   z-index: 10000;
   opacity: 1;
-  pointer-events: none;
+  pointer-events: auto;
   transform: translateX(-50%);
   transition: none;
+}
+
+/* Ponte invisível card → tooltip (portal não é filho do card — evita sumir no vão) */
+.cg-card__tooltip--portal:not(.cg-card__tooltip--portal-top)::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  bottom: 100%;
+  height: 16px;
+}
+
+.cg-card__tooltip--portal-top::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  top: 100%;
+  height: 16px;
 }
 
 .cg-card__tooltip--portal-top {

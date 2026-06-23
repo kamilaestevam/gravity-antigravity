@@ -1,14 +1,6 @@
 /**
  * Base de tempos comparativos Smart Read (DOCS BASE PRODUTO).
- *
- * Fonte de referência no produto: arquivos
- * - smartread_bl_tempo_digitação_comparativa
- * - smartread_packinglist_tempo_digitação_comparativa
- * - smartread_pedido,proforma,invoice_tempo_digitação_comparativa
- * - smartread_financeiro_cálculo_venda_custo_markup
- *
- * Os valores abaixo são defaults embutidos até importar os JSON/planilhas reais
- * da pasta «DOCS BASE PRODUTO / SMART READ» do time de produto.
+ * SSOT compartilhado entre lista, insights e BFF.
  */
 
 export type TipoDocumentoBaseSmartRead =
@@ -74,7 +66,6 @@ export const OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ: { rotulo: string; te
   },
 ]
 
-/** Defaults derivados dos estudos comparativos de digitação (substituir via import futuro). */
 export const BASE_TEMPO_DOCUMENTO_SMART_READ: ParametrosTempoDocumentoSmartRead[] = [
   {
     tipo_documento: 'pedido',

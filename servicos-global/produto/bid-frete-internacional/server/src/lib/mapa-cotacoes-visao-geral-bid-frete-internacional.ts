@@ -16,6 +16,12 @@ export const STATUS_MAPA_VISAO_GERAL = [
 ] as const
 
 type CotacaoParaMapa = {
+  id_cotacao_bid_frete_internacional: string
+  numero_cotacao_bid_frete_internacional: string
+  id_bid_bid_frete_internacional: string | null
+  bid_bid_frete_internacional?: {
+    numero_bid_bid_frete_internacional: string
+  } | null
   origem_codigo_cotacao_bid_frete_internacional: string
   origem_nome_cotacao_bid_frete_internacional: string
   origem_pais_cotacao_bid_frete_internacional: string
@@ -93,6 +99,11 @@ export async function montarMapaCotacoesVisaoGeralBidFreteInternacional(
 
     return {
       cotacao: {
+        id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+        numero_cotacao_bid_frete_internacional: cotacao.numero_cotacao_bid_frete_internacional,
+        id_bid_bid_frete_internacional: cotacao.id_bid_bid_frete_internacional,
+        numero_bid_bid_frete_internacional:
+          cotacao.bid_bid_frete_internacional?.numero_bid_bid_frete_internacional ?? null,
         origem_codigo_cotacao_bid_frete_internacional: cotacao.origem_codigo_cotacao_bid_frete_internacional,
         origem_nome_cotacao_bid_frete_internacional: cotacao.origem_nome_cotacao_bid_frete_internacional,
         origem_pais_cotacao_bid_frete_internacional: cotacao.origem_pais_cotacao_bid_frete_internacional,

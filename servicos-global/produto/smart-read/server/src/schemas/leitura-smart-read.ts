@@ -76,6 +76,19 @@ export type CriarLeituraResposta = z.infer<typeof CriarLeituraRespostaSchema>
 export const OrigemLeituraEnum = z.enum(['API', 'INTERFACE'])
 export type OrigemLeitura = z.infer<typeof OrigemLeituraEnum>
 
+export const MetricasTransacaoLeituraSchema = z.object({
+  total_documentos: z.number().int().min(0),
+  total_campos_extraidos: z.number().int().min(0),
+  total_campos_corretos: z.number().int().min(0),
+  total_campos_errados: z.number().int().min(0),
+  tipos_documento: z.string().nullable(),
+  numeros_documento: z.string().nullable(),
+  tempo_extracao_ia_ms: z.number().int().min(0).nullable(),
+  tempo_processo_total_ms: z.number().int().min(0).nullable(),
+  saving_total_minutos: z.number().min(0).nullable(),
+  saving_total_brl: z.number().min(0).nullable(),
+})
+
 export const TransacaoLeituraSchema = z.object({
   id_leitura: z.string(),
   nome_leitura: z.string().nullable(),
@@ -86,7 +99,7 @@ export const TransacaoLeituraSchema = z.object({
   origem_leitura: OrigemLeituraEnum,
   nome_arquivo: z.string().nullable(),
   mensagem_erro: z.string().nullable(),
-})
+}).merge(MetricasTransacaoLeituraSchema)
 export type TransacaoLeitura = z.infer<typeof TransacaoLeituraSchema>
 
 export const ListarTransacoesRespostaSchema = z.object({

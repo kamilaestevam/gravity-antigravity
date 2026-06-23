@@ -20,6 +20,7 @@ import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 import { prepararCamposRotaCotacaoPersistencia } from '../lib/rota-cotacao-bid-frete-internacional.js'
+import { validarRotaCotacaoContraCadastros } from '../lib/validar-rota-cadastros-cotacao-bid-frete-internacional.js'
 
 const router = Router()
 
@@ -176,6 +177,19 @@ function refinamentoRota(data: DadosCotacaoBase, ctx: z.RefinementCtx): void {
   }
 }
 
+async function assertRotaConsistenteCadastros(
+  dados: DadosCotacaoBase,
+  idOrganizacao: string,
+): Promise<void> {
+  const erros = await validarRotaCotacaoContraCadastros(dados, idOrganizacao)
+  if (erros.length === 0) return
+  throw new AppError(
+    `Dados invalidos: ${erros.map((e) => `[${e.path}] ${e.message}`).join('; ')}`,
+    400,
+    'VALIDATION_ERROR',
+  )
+}
+
 function assertRefinamentosCotacaoPatch(
   merged: DadosCotacaoBase,
   body: Record<string, unknown>,
@@ -300,6 +314,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
     const { fornecedor_ids, disparar_ao_criar, canais_disparo, emails_por_fornecedor, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
+    await assertRotaConsistenteCadastros(camposCotacao, tenantId)
     const camposPersistencia = prepararCamposRotaCotacaoPersistencia(camposCotacao)
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
@@ -576,6 +591,11 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
 
     const merged = { ...existing, ...parsed.data }
     assertRefinamentosCotacaoPatch(merged as DadosCotacaoBase, parsed.data as Record<string, unknown>)
+    const tenantId = req.tenantId
+    if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
+    if (corpoPatchTocaCampo(parsed.data as Record<string, unknown>, CAMPOS_ROTA_COTACAO)) {
+      await assertRotaConsistenteCadastros(merged as DadosCotacaoBase, tenantId)
+    }
     const camposPersistencia = prepararCamposRotaCotacaoPersistencia(merged)
     const data: Record<string, unknown> = { ...parsed.data, ...camposPersistencia }
 

@@ -17,10 +17,13 @@ A lista **não** usa mais `dados-mock-lista-smart-read.ts` nem `VITE_SMART_READ_
 
 ### Fontes da lista (merge)
 
-1. **Primária:** legado dati `GET /import-control-center/external-readings/list` (via `cliente-legado-smart-read.ts`).
-2. **Complemento:** Postgres `progresso_leitura_smart_read` — leituras com progresso salvo (passo ≥ 2) quando o legado falha ou ainda não indexou.
+> **Arquitetura completa (legado DATI vs Gravity):** [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md).
 
-Se o legado retorna erro **e** não há progresso do usuário → lista vazia (`200`, `transacoes: []`). Não há fallback mock.
+1. **Primária (catálogo de ids):** legado dati `GET /import-control-center/external-readings/list` — leituras reais no **banco DATI**, não no Railway Gravity.
+2. **Complemento:** Postgres `progresso_leitura_smart_read` — wizard em andamento / nome customizado.
+3. **Snapshot (prevalece na linha):** Postgres `snapshot_leitura_smart_read` — cópia congelada da extração normalizada + métricas para Lista/Insights.
+
+Se o legado retorna erro **e** não há progresso nem snapshot do usuário → lista vazia (`200`, `transacoes: []`). Não há fallback mock.
 
 ---
 
@@ -33,7 +36,7 @@ Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-us
 | `GET` | `/api/v1/smart-read/leituras` | Lista paginada (`pagina`, `limite`, `termo_busca`) |
 | `GET` | `/api/v1/smart-read/leituras/metricas/readings` | Contagem para card «Leituras realizadas» |
 | `POST` | `/api/v1/smart-read/leituras` | Cria leitura no legado + upload (`multipart` campo `arquivo`) → `202` |
-| `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado normalizado (polling) |
+| `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado normalizado — cadeia: **snapshot Gravity** → **legado DATI (SSOT)** → **progresso** (só no `catch`, mesmo `id_usuario`); grava snapshot após legado se elegível |
 | `GET` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Progresso do wizard (`404` se ausente) |
 | `PATCH` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Salva passo 2–4 + sessão |
 | `DELETE` | `/api/v1/smart-read/leituras/:id_leitura` | `501` — legado sem exclusão |
@@ -123,7 +126,7 @@ Coluna `nome_leitura` em `colunas-lista-leitura-smart-read.tsx` abre `ModalNovaL
 
 | Variável (`.env.local` raiz) | Uso |
 |------------------------------|-----|
-| `SMART_READ_DATABASE_URL` | Postgres progresso |
+| `SMART_READ_DATABASE_URL` | Postgres **Gravity** (snapshot + progresso + painéis — **não** é o banco DATI) |
 | `SMART_READ_LEGADO_URL` | API dati QA |
 | `SMART_READ_LEGADO_CHAVE_GRAVITY` | Auth legado |
 | `SMART_READ_ID_COMPANY_LEGADO_PADRAO` | Company id padrão |

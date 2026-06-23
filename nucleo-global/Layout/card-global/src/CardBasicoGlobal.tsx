@@ -47,21 +47,40 @@ export function CardBasicoGlobal({
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
 
+const TOOLTIP_GAP_PX = 4
+const TOOLTIP_FECHAR_DELAY_MS = 280
+
   const atualizarPosTooltip = useCallback(() => {
     const el = cardRef.current
     if (!el) return
     const r = el.getBoundingClientRect()
     setTooltipPos({
       x: r.left + r.width / 2,
-      y: tooltipPosicao === 'top' ? r.top - 10 : r.bottom + 10,
+      y: tooltipPosicao === 'top' ? r.top - TOOLTIP_GAP_PX : r.bottom + TOOLTIP_GAP_PX,
     })
   }, [tooltipPosicao])
 
   const abrirTooltip = useCallback(() => {
     if (!tooltip || document.body.classList.contains('tooltips-disabled')) return
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current)
+      closeTimer.current = null
+    }
     atualizarPosTooltip()
     setShowTooltip(true)
   }, [tooltip, atualizarPosTooltip])
+
+  const agendarFecharTooltip = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    closeTimer.current = setTimeout(() => setShowTooltip(false), TOOLTIP_FECHAR_DELAY_MS)
+  }, [])
+
+  const manterTooltipAberto = useCallback(() => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current)
+      closeTimer.current = null
+    }
+  }, [])
 
   const fecharTooltip = useCallback(() => setShowTooltip(false), [])
 
@@ -96,6 +115,8 @@ export function CardBasicoGlobal({
           className={`cg-card__tooltip cg-card__tooltip--portal${tooltipPosicao === 'top' ? ' cg-card__tooltip--portal-top' : ''}`}
           style={{ left: tooltipPos.x, top: tooltipPos.y }}
           role="tooltip"
+          onMouseEnter={manterTooltipAberto}
+          onMouseLeave={agendarFecharTooltip}
         >
           <div className="cg-tooltip__header">
             {icone && <span className="cg-tooltip__header-icon">{icone}</span>}
@@ -119,7 +140,7 @@ export function CardBasicoGlobal({
       ref={cardRef}
       className={cls}
       onMouseEnter={abrirTooltip}
-      onMouseLeave={fecharTooltip}
+      onMouseLeave={agendarFecharTooltip}
     >
 
       {/* Cabeçalho: ícone + rótulo */}

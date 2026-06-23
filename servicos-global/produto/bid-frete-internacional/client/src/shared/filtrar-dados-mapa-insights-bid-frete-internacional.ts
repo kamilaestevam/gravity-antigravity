@@ -1,5 +1,5 @@
 /**
- * Filtros do mapa Insights — operação, modal e status de cotação.
+ * Filtros do mapa Insights — operação, modal, origem, destino e status de cotação.
  */
 
 import type {
@@ -21,6 +21,10 @@ export type FiltroRankingsInsightsBidFrete = FiltroOperacaoModalMapaInsights
 export type FiltrosMapaInsightsBidFreteInternacional = {
   operacaoModal: ReadonlySet<FiltroOperacaoModalMapaInsights>
   status: ReadonlySet<StatusCotacao>
+  /** Códigos de terminal (portCode) selecionados como origem */
+  codigos_origem: ReadonlySet<string>
+  /** Códigos de terminal (portCode) selecionados como destino */
+  codigos_destino: ReadonlySet<string>
 }
 
 export const FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS: ReadonlyArray<{
@@ -78,13 +82,90 @@ export const FILTROS_STATUS_MAPA_INSIGHTS: ReadonlyArray<{
 ]
 
 export function filtrosMapaInsightsVazios(): FiltrosMapaInsightsBidFreteInternacional {
-  return { operacaoModal: new Set(), status: new Set() }
+  return {
+    operacaoModal: new Set(),
+    status: new Set(),
+    codigos_origem: new Set(),
+    codigos_destino: new Set(),
+  }
+}
+
+export type DimensaoIgnoradaFiltroMapaInsights = 'codigos_origem' | 'codigos_destino'
+
+export function filtrosMapaInsightsIgnorandoDimensao(
+  filtros: FiltrosMapaInsightsBidFreteInternacional,
+  dimensao: DimensaoIgnoradaFiltroMapaInsights,
+): FiltrosMapaInsightsBidFreteInternacional {
+  if (dimensao === 'codigos_origem') {
+    return { ...filtros, codigos_origem: new Set() }
+  }
+  return { ...filtros, codigos_destino: new Set() }
 }
 
 export function contarFiltrosMapaAtivos(
   filtros: FiltrosMapaInsightsBidFreteInternacional,
 ): number {
-  return filtros.operacaoModal.size + filtros.status.size
+  return (
+    filtros.operacaoModal.size +
+    filtros.status.size +
+    filtros.codigos_origem.size +
+    filtros.codigos_destino.size
+  )
+}
+
+export function listarTerminaisOrigemMapaInsights(
+  pins: MapPinBidFrete[],
+  routes: ArcRouteBidFrete[],
+): MapPinBidFrete[] {
+  const pinPorId = new Map(pins.map((p) => [p.id, p]))
+  const codigosVistos = new Set<string>()
+  const terminais: MapPinBidFrete[] = []
+
+  for (const rota of routes) {
+    const pin = pinPorId.get(rota.fromId)
+    if (!pin || codigosVistos.has(pin.portCode)) continue
+    codigosVistos.add(pin.portCode)
+    terminais.push(pin)
+  }
+
+  return terminais.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+}
+
+export function listarTerminaisDestinoMapaInsights(
+  pins: MapPinBidFrete[],
+  routes: ArcRouteBidFrete[],
+): MapPinBidFrete[] {
+  const pinPorId = new Map(pins.map((p) => [p.id, p]))
+  const codigosVistos = new Set<string>()
+  const terminais: MapPinBidFrete[] = []
+
+  for (const rota of routes) {
+    const pin = pinPorId.get(rota.toId)
+    if (!pin || codigosVistos.has(pin.portCode)) continue
+    codigosVistos.add(pin.portCode)
+    terminais.push(pin)
+  }
+
+  return terminais.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+}
+
+/** Filtra terminais por um ou mais termos (espaço, vírgula ou ponto-e-vírgula). */
+export function filtrarTerminaisMapaInsightsPorBusca(
+  terminais: MapPinBidFrete[],
+  busca: string,
+): MapPinBidFrete[] {
+  const termos = busca
+    .trim()
+    .split(/[\s,;]+/)
+    .map((termo) => termo.trim().toLowerCase())
+    .filter(Boolean)
+
+  if (termos.length === 0) return terminais
+
+  return terminais.filter((terminal) => {
+    const texto = `${terminal.label} ${terminal.portCode} ${terminal.country}`.toLowerCase()
+    return termos.every((termo) => texto.includes(termo))
+  })
 }
 
 function codigoPaisPorto(portCode: string): string {
@@ -138,8 +219,28 @@ function rotaAtendeFiltrosStatus(
 ): boolean {
   if (filtrosStatus.size === 0) return true
   const statuses = rota.statuses_cotacao_bid_frete_internacional ?? []
-  if (statuses.length === 0) return false
+  if (statuses.length === 0) return true
   return statuses.some((status) => filtrosStatus.has(status))
+}
+
+function rotaAtendeFiltrosLocais(
+  rota: ArcRouteBidFrete,
+  pinPorId: Map<number, MapPinBidFrete>,
+  codigosOrigem: ReadonlySet<string>,
+  codigosDestino: ReadonlySet<string>,
+): boolean {
+  if (codigosOrigem.size === 0 && codigosDestino.size === 0) return true
+
+  const fromPin = pinPorId.get(rota.fromId)
+  const toPin = pinPorId.get(rota.toId)
+  if (!fromPin || !toPin) return false
+
+  const origemOk =
+    codigosOrigem.size === 0 || codigosOrigem.has(fromPin.portCode)
+  const destinoOk =
+    codigosDestino.size === 0 || codigosDestino.has(toPin.portCode)
+
+  return origemOk && destinoOk
 }
 
 export function filtrarDadosMapaInsightsBidFreteInternacional(
@@ -149,12 +250,19 @@ export function filtrarDadosMapaInsightsBidFreteInternacional(
 ): { pins: MapPinBidFrete[]; routes: ArcRouteBidFrete[] } {
   const filtrosNormalizados: FiltrosMapaInsightsBidFreteInternacional =
     filtros instanceof Set
-      ? { operacaoModal: filtros, status: new Set() }
+      ? {
+          operacaoModal: filtros,
+          status: new Set(),
+          codigos_origem: new Set(),
+          codigos_destino: new Set(),
+        }
       : filtros
 
   if (
     filtrosNormalizados.operacaoModal.size === 0 &&
-    filtrosNormalizados.status.size === 0
+    filtrosNormalizados.status.size === 0 &&
+    filtrosNormalizados.codigos_origem.size === 0 &&
+    filtrosNormalizados.codigos_destino.size === 0
   ) {
     return { pins, routes }
   }
@@ -163,7 +271,13 @@ export function filtrarDadosMapaInsightsBidFreteInternacional(
   const routesFiltradas = routes.filter(
     (rota) =>
       rotaAtendeFiltrosOperacaoModal(rota, pinPorId, filtrosNormalizados.operacaoModal) &&
-      rotaAtendeFiltrosStatus(rota, filtrosNormalizados.status),
+      rotaAtendeFiltrosStatus(rota, filtrosNormalizados.status) &&
+      rotaAtendeFiltrosLocais(
+        rota,
+        pinPorId,
+        filtrosNormalizados.codigos_origem,
+        filtrosNormalizados.codigos_destino,
+      ),
   )
 
   const pinIdsVisiveis = new Set<number>()

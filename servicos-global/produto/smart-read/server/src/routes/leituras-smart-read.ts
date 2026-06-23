@@ -16,6 +16,12 @@ import {
   resolverCompanyLegado,
 } from '../lib/cliente-legado-smart-read.js'
 import { montarListaTransacoesLeituraSmartRead } from '../lib/montar-lista-transacoes-leitura-smart-read.js'
+import { registrarVinculoLeituraUsuarioSmartRead } from '../lib/registrar-vinculo-leitura-usuario-smart-read.js'
+import {
+  obterLeituraDoProgresso,
+  obterLeituraDoSnapshot,
+  persistirSnapshotLeituraSmartRead,
+} from '../lib/snapshot-leitura-smart-read.js'
 import type { RequisicaoComPrismaSmartRead } from '../middleware/isolamento-organizacao-smart-read.js'
 import {
   CriarLeituraRespostaSchema,
@@ -49,24 +55,40 @@ function organizacaoDaRequisicao(req: Request): string {
   return idOrganizacao
 }
 
+function idUsuarioDaRequisicao(req: Request): string {
+  const idUsuario = req.headers['x-id-usuario']
+  if (!idUsuario || typeof idUsuario !== 'string') {
+    throw new AppError('Header x-id-usuario obrigatorio', 400, 'USUARIO_AUSENTE')
+  }
+  return idUsuario
+}
+
 function idUsuarioOpcional(req: Request): string | undefined {
   const idUsuario = req.headers['x-id-usuario']
   return typeof idUsuario === 'string' && idUsuario ? idUsuario : undefined
 }
 
+function idWorkspaceOpcional(req: Request): string | null {
+  const idWorkspace = req.headers['x-id-workspace']
+  return typeof idWorkspace === 'string' && idWorkspace ? idWorkspace : null
+}
+
 router.get('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
   try {
     const idOrganizacao = organizacaoDaRequisicao(req)
+    const idUsuario = idUsuarioDaRequisicao(req)
     const query = ListarLeiturasQuerySchema.parse(req.query)
     const companyId = await resolverCompanyLegado(idOrganizacao)
 
     const { transacoes, total } = await montarListaTransacoesLeituraSmartRead({
       companyId,
+      idOrganizacao,
       pagina: query.pagina,
       limite: query.limite,
       termo_busca: query.termo_busca,
       prisma: req.prisma,
-      idUsuario: idUsuarioOpcional(req),
+      idUsuario,
+      idWorkspace: idWorkspaceOpcional(req),
     })
 
     res.json(
@@ -92,13 +114,16 @@ router.get('/metricas/:tipo_metrica', async (req: Request, res: Response, next: 
       throw new AppError('Metrica nao suportada', 400, 'METRICA_INVALIDA')
     }
 
+    const idUsuario = idUsuarioDaRequisicao(req)
     const companyId = await resolverCompanyLegado(idOrganizacao)
     const { total } = await montarListaTransacoesLeituraSmartRead({
       companyId,
+      idOrganizacao,
       pagina: 1,
       limite: 100,
       prisma: (req as RequisicaoComPrismaSmartRead).prisma,
-      idUsuario: idUsuarioOpcional(req),
+      idUsuario,
+      idWorkspace: idWorkspaceOpcional(req),
     })
 
     res.json(MetricaLeituraRespostaSchema.parse({ valor: total }))
@@ -107,9 +132,10 @@ router.get('/metricas/:tipo_metrica', async (req: Request, res: Response, next: 
   }
 })
 
-router.post('/', upload.single('arquivo'), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
   try {
     const idOrganizacao = organizacaoDaRequisicao(req)
+    const idUsuario = idUsuarioDaRequisicao(req)
     if (!req.file) {
       throw new AppError('Arquivo obrigatorio (campo multipart "arquivo")', 400, 'ARQUIVO_AUSENTE')
     }
@@ -121,6 +147,16 @@ router.post('/', upload.single('arquivo'), async (req: Request, res: Response, n
       nome: req.file.originalname,
       mimeType: req.file.mimetype,
     })
+
+    if (req.prisma) {
+      await registrarVinculoLeituraUsuarioSmartRead({
+        prisma: req.prisma,
+        idOrganizacao,
+        idUsuario,
+        idWorkspace: idWorkspaceOpcional(req),
+        idLeitura,
+      })
+    }
 
     const resposta = CriarLeituraRespostaSchema.parse({
       id_leitura: idLeitura,
@@ -135,16 +171,56 @@ router.post('/', upload.single('arquivo'), async (req: Request, res: Response, n
 
 router.use('/:id_leitura/progresso', progressoLeituraSmartReadRouter)
 
-router.get('/:id_leitura', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
   try {
     const idOrganizacao = organizacaoDaRequisicao(req)
     const { id_leitura } = IdLeituraSchema.parse(req.params)
+    const idUsuario = idUsuarioDaRequisicao(req)
+
+    if (req.prisma) {
+      const doSnapshot = await obterLeituraDoSnapshot(req.prisma, id_leitura, idUsuario)
+      if (doSnapshot) {
+        res.json(LeituraSchema.parse(doSnapshot))
+        return
+      }
+    }
 
     const companyId = await resolverCompanyLegado(idOrganizacao)
     const leituraLegado = await obterLeituraLegado(companyId, id_leitura)
+    const leitura = normalizarLeitura(leituraLegado)
 
-    res.json(LeituraSchema.parse(normalizarLeitura(leituraLegado)))
+    if (req.prisma && idUsuario && req.idOrganizacao) {
+      void persistirSnapshotLeituraSmartRead({
+        prisma: req.prisma,
+        idOrganizacao: req.idOrganizacao,
+        idUsuario,
+        idWorkspace: idWorkspaceOpcional(req),
+        leitura,
+        motivo: 'extracao_concluida',
+        extras: {
+          data_envio: leituraLegado.createdAt ?? null,
+          created_at: leituraLegado.createdAt ?? null,
+          completed_at: leituraLegado.completedAt ?? null,
+        },
+      }).catch((erro) => {
+        console.warn('[smart-read][snapshot] falha ao persistir no GET leitura', erro)
+      })
+    }
+
+    res.json(LeituraSchema.parse(leitura))
   } catch (err) {
+    const idUsuarioCatch = idUsuarioOpcional(req)
+    if (req.prisma && idUsuarioCatch) {
+      const doProgresso = await obterLeituraDoProgresso(
+        req.prisma,
+        IdLeituraSchema.parse(req.params).id_leitura,
+        idUsuarioCatch,
+      )
+      if (doProgresso) {
+        res.json(LeituraSchema.parse(doProgresso))
+        return
+      }
+    }
     next(err)
   }
 })

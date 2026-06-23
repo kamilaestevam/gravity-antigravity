@@ -112,6 +112,26 @@
   flex-wrap: wrap;
 }
 
+.sr-btn-expandir-todos {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  color: var(--ws-muted, #94a3b8);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.sr-btn-expandir-todos:hover {
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--ws-text, #e2e8f0);
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
 .sr-dropdown-novo {
   position: relative;
   display: inline-block;

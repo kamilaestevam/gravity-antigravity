@@ -3,6 +3,8 @@
  */
 
 import { extrairValoresColunasDocumento } from './extrair-valores-colunas-documento-smart-read'
+import { normalizarTipoDocumentoBaseSmartRead } from '../../../shared/dados-base-produto-tempo-smart-read'
+import { extrairNumeroDocumentoLeituraSmartRead } from '../../../shared/metricas-transacao-leitura-smart-read'
 import type { Leitura, StatusLeitura } from './schemas'
 
 export type DocumentoLeituraLista = {
@@ -15,6 +17,8 @@ export type DocumentoLeituraLista = {
   data_envio: string | null
   /** Tipo do documento extraído (BL, INVOICE, PACKING_LIST, AWB, FINANCIAL_DOCUMENT…). */
   tipo_documento: string | null
+  /** Número do documento (BL, Invoice, AWB…) quando presente na extração. */
+  numero_documento: string | null
   /** Valores das colunas do catálogo (campo_gravity → valor texto) para este documento. */
   valores_colunas: Record<string, string>
 }
@@ -80,6 +84,7 @@ export function montarDocumentosLeituraLista(leitura: Leitura): DocumentoLeitura
       entrada.indiceExtracao != null
         ? entrada.arquivo.resultado_extracao?.[entrada.indiceExtracao]?.dados
         : undefined
+    const tipoNormalizado = normalizarTipoDocumentoBaseSmartRead(entrada.tipoDocumento)
 
     return {
       id_documento_leitura: `${leitura.id_leitura}:${entrada.arquivo.id_arquivo}:${sufixoId}`,
@@ -90,6 +95,9 @@ export function montarDocumentosLeituraLista(leitura: Leitura): DocumentoLeitura
       media_acertos: dadosExtracao ? extrairMediaAcertosDocumento(dadosExtracao) : null,
       data_envio: null,
       tipo_documento: entrada.tipoDocumento,
+      numero_documento: dadosExtracao
+        ? extrairNumeroDocumentoLeituraSmartRead(dadosExtracao, tipoNormalizado)
+        : null,
       valores_colunas: dadosExtracao ? extrairValoresColunasDocumento(dadosExtracao) : {},
     }
   })

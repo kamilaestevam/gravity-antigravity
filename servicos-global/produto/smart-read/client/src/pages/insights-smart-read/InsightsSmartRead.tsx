@@ -12,6 +12,7 @@ import {
   PainelTiposDocumentoInsightsSmartRead,
 } from '../../components/insights-smart-read-paineis'
 import { calcularMetricasInsightsLeituraSmartRead } from './calcular-metricas-insights-leitura-smart-read'
+import { ProvedorMetodologiaSavingInsightsSmartRead } from './metodologia-saving-insights-smart-read'
 import { useDadosInsightsLeituraSmartRead } from './use-dados-insights-leitura-smart-read'
 import '../../shared/smart-read-leituras.css'
 import './insights-smart-read.css'
@@ -29,6 +30,7 @@ export default function InsightsSmartRead() {
   }
 
   return (
+    <ProvedorMetodologiaSavingInsightsSmartRead>
     <div className="sr-insights-dashboard">
       {erro && (
         <div className="sr-erro" role="alert">
@@ -59,5 +61,6 @@ export default function InsightsSmartRead() {
         />
       </div>
     </div>
+    </ProvedorMetodologiaSavingInsightsSmartRead>
   )
 }

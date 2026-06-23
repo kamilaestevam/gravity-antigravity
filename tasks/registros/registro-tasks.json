@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 317,
+  "proximo_numero": 318,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -783,17 +783,34 @@
       "ordinal": 45,
       "titulo_canonico": "PROCSO-SHELL-MEL-ICONE-PRODUTO-CENTRALIZADO-MENU-CONTRAIDO",
       "titulo_exibicao": "TASK-000316 | [Processo] Shell | MEL — Centralizar ícone do produto com menus contraídos",
-      "status": "ABR",
+      "status": "RES",
       "area": "PROCSO",
       "subarea": "SHELL",
       "visualizacao": null,
       "tipo_entrega": "MEL",
       "resumo": "ICONE-PRODUTO-CENTRALIZADO-MENU-CONTRAIDO",
+      "data_criacao": "2026-06-23T18:45:00.000Z",
+      "data_encerramento": "2026-06-23T19:54:29.370Z",
+      "tempo_liquido_horas": 0.55,
+      "tokens_estimados_total": 55000,
+      "arquivo_ficha": "registros/TASK-000316.json"
+    },
+    {
+      "referencia": "TASK-000317",
+      "ordinal": 46,
+      "titulo_canonico": "OUTROS-SMART-READ-LISTA-MEL-COLUNAS-METRICAS-LEITURA",
+      "titulo_exibicao": "TASK-000317 | [Smart Read] Lista | MEL — Colunas de métricas da leitura (campos, saving, tempos)",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": "LISTA",
+      "tipo_entrega": "MEL",
+      "resumo": "COLUNAS-METRICAS-LEITURA",
       "data_criacao": "2026-06-23T22:00:00.000Z",
       "data_encerramento": null,
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
-      "arquivo_ficha": "registros/TASK-000316.json"
+      "arquivo_ficha": "registros/TASK-000317.json"
     }
   ]
 }

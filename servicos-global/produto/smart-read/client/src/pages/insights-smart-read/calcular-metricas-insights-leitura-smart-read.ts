@@ -208,11 +208,109 @@ const ROTULO_TIPO: Record<TipoDocumentoBaseSmartRead, string> = {
   outros: 'Outros',
 }
 
+const METRICAS_INSIGHTS_VAZIAS: Omit<MetricasInsightsLeituraSmartRead, 'amostraLeituras'> = {
+  totalDocumentos: 0,
+  totalCampos: 0,
+  camposCorretos: 0,
+  camposErrados: 0,
+  taxaAcertoCampos: null,
+  savingDigitaçãoMinutos: 0,
+  savingErrosMinutos: 0,
+  savingDigitaçãoCustoBrl: 0,
+  savingErrosCustoBrl: 0,
+  porTipoDocumento: [],
+  rankingsExportador: [],
+  rankingsImportador: [],
+  rankingsExportadorAcerto: [],
+  rankingsImportadorAcerto: [],
+  rankingsPorParticipante: Object.fromEntries(
+    PARTICIPANTES_RANKING_INSIGHTS_SMART_READ.filter((p) => p !== 'importador').map((p) => [
+      p,
+      { acertos: [], erros: [] },
+    ]),
+  ) as RankingsPorParticipanteInsightsSmartRead,
+  blAwb: {
+    bl: { documentos: 0, mediaAcertos: null, camposCorretos: 0, camposErrados: 0 },
+    awb: { documentos: 0, mediaAcertos: null, camposCorretos: 0, camposErrados: 0 },
+  },
+  documentos: [],
+}
+
+function porTipoDocumentoDeTransacoes(
+  transacoes: TransacaoLeitura[],
+): { tipo: TipoDocumentoBaseSmartRead; rotulo: string; quantidade: number }[] {
+  const mapa = new Map<string, number>()
+  for (const transacao of transacoes) {
+    if (transacao.total_documentos <= 0) continue
+    const partes = (transacao.tipos_documento ?? 'Outros')
+      .split('·')
+      .map((parte) => parte.trim())
+      .filter(Boolean)
+    if (partes.length === 0) {
+      mapa.set('Outros', (mapa.get('Outros') ?? 0) + transacao.total_documentos)
+      continue
+    }
+    const porParte = Math.max(1, Math.round(transacao.total_documentos / partes.length))
+    for (const parte of partes) {
+      mapa.set(parte, (mapa.get(parte) ?? 0) + porParte)
+    }
+  }
+  return [...mapa.entries()]
+    .map(([rotulo, quantidade]) => ({
+      tipo: 'outros' as const,
+      rotulo,
+      quantidade,
+    }))
+    .sort((a, b) => b.quantidade - a.quantidade)
+}
+
+function calcularMetricasInsightsDeTransacoes(
+  transacoes: TransacaoLeitura[],
+): MetricasInsightsLeituraSmartRead {
+  const elegiveis = transacoes.filter(
+    (t) =>
+      (t.status_leitura === 'COMPLETED' || t.status_leitura === 'PROCESSING') &&
+      t.total_campos_extraidos > 0,
+  )
+
+  if (elegiveis.length === 0) {
+    return { ...METRICAS_INSIGHTS_VAZIAS, amostraLeituras: transacoes.length }
+  }
+
+  const totalDocumentos = elegiveis.reduce((acc, t) => acc + t.total_documentos, 0)
+  const totalCampos = elegiveis.reduce((acc, t) => acc + t.total_campos_extraidos, 0)
+  const camposCorretos = elegiveis.reduce((acc, t) => acc + t.total_campos_corretos, 0)
+  const camposErrados = elegiveis.reduce((acc, t) => acc + t.total_campos_errados, 0)
+  const taxaAcertoCampos =
+    camposCorretos + camposErrados > 0
+      ? camposCorretos / (camposCorretos + camposErrados)
+      : null
+
+  const savingDigitaçãoMinutos = elegiveis.reduce((acc, t) => acc + (t.saving_total_minutos ?? 0), 0)
+  const savingDigitaçãoCustoBrl = elegiveis.reduce((acc, t) => acc + (t.saving_total_brl ?? 0), 0)
+
+  return {
+    ...METRICAS_INSIGHTS_VAZIAS,
+    totalDocumentos,
+    totalCampos,
+    camposCorretos,
+    camposErrados,
+    taxaAcertoCampos,
+    savingDigitaçãoMinutos,
+    savingDigitaçãoCustoBrl,
+    porTipoDocumento: porTipoDocumentoDeTransacoes(elegiveis),
+    amostraLeituras: transacoes.length,
+  }
+}
+
 export function calcularMetricasInsightsLeituraSmartRead(
   leituras: Leitura[],
   transacoes: TransacaoLeitura[],
 ): MetricasInsightsLeituraSmartRead {
   const documentos = extrairDocumentosInsightsDeLeituras(leituras)
+  if (documentos.length === 0) {
+    return calcularMetricasInsightsDeTransacoes(transacoes)
+  }
 
   const totalCampos = documentos.reduce((acc, d) => acc + d.total_campos, 0)
   const camposCorretos = documentos.reduce((acc, d) => acc + d.campos_corretos, 0)

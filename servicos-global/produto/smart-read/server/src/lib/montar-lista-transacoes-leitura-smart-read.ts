@@ -2,23 +2,67 @@
  * Monta lista de transacoes: legado (primario) + progresso Gravity (complemento).
  */
 import type { PrismaClient } from '../generated/client/index.js'
-import { listarLeiturasLegado, obterLeituraLegado } from './cliente-legado-smart-read.js'
+import { obterLeituraLegado, listarLeiturasLegado } from './cliente-legado-smart-read.js'
 import {
   extrairItensListaLegado,
-  extrairTotalListaLegado,
   normalizarTransacaoDeItemListaLegado,
   normalizarTransacaoDeLeitura,
 } from './normalizar-transacao-leitura-smart-read.js'
+import {
+  carregarSnapshotsPorIds,
+  transacaoDeRegistroSnapshot,
+} from './snapshot-leitura-smart-read.js'
 import { extrairDadosSessaoProgressoLeitura } from '../schemas/progresso-leitura-smart-read.js'
 import { normalizarLeitura, type TransacaoLeitura } from '../schemas/leitura-smart-read.js'
 
 export type ParametrosListaLeituras = {
   companyId: string
+  idOrganizacao: string
   pagina: number
   limite: number
   termo_busca?: string
   prisma?: PrismaClient
   idUsuario?: string
+  idWorkspace?: string | null
+}
+
+function transacaoPrecisaEnriquecerMetricas(transacao: TransacaoLeitura): boolean {
+  return transacao.total_documentos === 0 && transacao.status_leitura === 'COMPLETED'
+}
+
+function mesclarTransacaoComSnapshot(
+  transacao: TransacaoLeitura,
+  doSnapshot: TransacaoLeitura,
+): TransacaoLeitura {
+  return {
+    ...doSnapshot,
+    data_envio: transacao.data_envio ?? doSnapshot.data_envio,
+    origem_leitura: transacao.origem_leitura,
+    mensagem_erro: transacao.mensagem_erro ?? doSnapshot.mensagem_erro,
+  }
+}
+
+/** Métricas da página: 1 query batch no snapshot — sem N chamadas ao legado na lista. */
+async function aplicarMetricasDaPagina(
+  prisma: PrismaClient | undefined,
+  idUsuario: string | undefined,
+  paginado: TransacaoLeitura[],
+): Promise<TransacaoLeitura[]> {
+  const precisam = paginado.filter(transacaoPrecisaEnriquecerMetricas)
+  if (precisam.length === 0 || !prisma || !idUsuario) return paginado
+
+  const snapshotPorId = await carregarSnapshotsPorIds(
+    prisma,
+    precisam.map((item) => item.id_leitura),
+    idUsuario,
+  )
+  if (snapshotPorId.size === 0) return paginado
+
+  return paginado.map((transacao) => {
+    if (!transacaoPrecisaEnriquecerMetricas(transacao)) return transacao
+    const doSnapshot = snapshotPorId.get(transacao.id_leitura)
+    return doSnapshot ? mesclarTransacaoComSnapshot(transacao, doSnapshot) : transacao
+  })
 }
 
 function filtrarPorTermo(transacoes: TransacaoLeitura[], termo?: string): TransacaoLeitura[] {
@@ -28,6 +72,26 @@ function filtrarPorTermo(transacoes: TransacaoLeitura[], termo?: string): Transa
     const nome = (item.nome_leitura ?? item.nome_arquivo ?? item.id_leitura).toLowerCase()
     return nome.includes(busca)
   })
+}
+
+async function listarViaSnapshotGravity(
+  prisma: PrismaClient | undefined,
+  idUsuario: string | undefined,
+): Promise<TransacaoLeitura[]> {
+  if (!prisma || !idUsuario) return []
+
+  const registros = await prisma.snapshotLeituraSmartRead.findMany({
+    where: { id_usuario: idUsuario },
+    orderBy: { data_envio_snapshot_leitura_smart_read: 'desc' },
+    take: 200,
+  })
+
+  const transacoes: TransacaoLeitura[] = []
+  for (const registro of registros) {
+    const transacao = transacaoDeRegistroSnapshot(registro)
+    if (transacao) transacoes.push(transacao)
+  }
+  return transacoes
 }
 
 async function listarViaProgressoGravity(
@@ -62,6 +126,18 @@ async function listarViaProgressoGravity(
 export async function montarListaTransacoesLeituraSmartRead(
   params: ParametrosListaLeituras,
 ): Promise<{ transacoes: TransacaoLeitura[]; total: number }> {
+  if (!params.idUsuario) {
+    return { transacoes: [], total: 0 }
+  }
+
+  const viaProgresso = await listarViaProgressoGravity(params.prisma, params.idUsuario)
+  const viaSnapshot = await listarViaSnapshotGravity(params.prisma, params.idUsuario)
+
+  const idsLeituraDoUsuario = new Set<string>([
+    ...viaProgresso.map((item) => item.id_leitura),
+    ...viaSnapshot.map((item) => item.id_leitura),
+  ])
+
   let transacoesLegado: TransacaoLeitura[] = []
   let totalLegado = 0
   let legadoIndisponivel = false
@@ -73,8 +149,10 @@ export async function montarListaTransacoesLeituraSmartRead(
       termo_busca: params.termo_busca,
     })
     const itens = extrairItensListaLegado(bruto)
-    transacoesLegado = itens.map(normalizarTransacaoDeItemListaLegado)
-    totalLegado = extrairTotalListaLegado(bruto, transacoesLegado.length)
+    transacoesLegado = itens
+      .map(normalizarTransacaoDeItemListaLegado)
+      .filter((item) => idsLeituraDoUsuario.has(item.id_leitura))
+    totalLegado = transacoesLegado.length
   } catch (erro) {
     legadoIndisponivel = true
     console.warn(
@@ -83,10 +161,8 @@ export async function montarListaTransacoesLeituraSmartRead(
     )
   }
 
-  const viaProgresso = await listarViaProgressoGravity(params.prisma, params.idUsuario)
-
   const mapa = new Map<string, TransacaoLeitura>()
-  for (const item of [...transacoesLegado, ...viaProgresso]) {
+  for (const item of [...transacoesLegado, ...viaProgresso, ...viaSnapshot]) {
     mapa.set(item.id_leitura, item)
   }
 
@@ -95,11 +171,17 @@ export async function montarListaTransacoesLeituraSmartRead(
   )
   transacoes = filtrarPorTermo(transacoes, params.termo_busca)
 
-  const total = legadoIndisponivel && transacoesLegado.length === 0 ? transacoes.length : Math.max(totalLegado, transacoes.length)
+  const total =
+    legadoIndisponivel && transacoesLegado.length === 0
+      ? transacoes.length
+      : Math.max(totalLegado, transacoes.length, idsLeituraDoUsuario.size)
 
   const inicio = (params.pagina - 1) * params.limite
+  const paginado = transacoes.slice(inicio, inicio + params.limite)
+  const enriquecidas = await aplicarMetricasDaPagina(params.prisma, params.idUsuario, paginado)
+
   return {
-    transacoes: transacoes.slice(inicio, inicio + params.limite),
+    transacoes: enriquecidas,
     total,
   }
 }
@@ -115,6 +197,8 @@ export async function enriquecerTransacaoViaLegado(
     return normalizarTransacaoDeLeitura(leitura, {
       data_envio: base?.data_envio ?? legado.createdAt ?? null,
       origem_leitura: base?.origem_leitura,
+      created_at: legado.createdAt ?? base?.data_envio ?? null,
+      completed_at: legado.completedAt ?? null,
     })
   } catch {
     return base ?? normalizarTransacaoDeLeitura({

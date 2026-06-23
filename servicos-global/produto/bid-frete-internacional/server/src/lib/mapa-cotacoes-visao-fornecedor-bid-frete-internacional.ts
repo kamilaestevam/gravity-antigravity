@@ -3,32 +3,21 @@
  * Coordenadas resolvidas via Cadastros (porto ou aeroporto).
  */
 
-import { fetchCadastrosJson } from './cadastros-client.js'
-
-type PortoCadastros = {
-  codigo_unlocode_porto: string
-  nome_porto: string
-  codigo_pais_porto?: string | null
-  latitude_porto?: number | null
-  longitude_porto?: number | null
-}
-
-type AeroportoCadastros = {
-  codigo_unlocode_aeroporto: string
-  codigo_iata_aeroporto?: string | null
-  nome_aeroporto: string
-  codigo_pais_aeroporto?: string | null
-  latitude_aeroporto?: number | null
-  longitude_aeroporto?: number | null
-}
+import { montarAlertaDivergenciaCadastrosMapa } from '../../../shared/divergencia-cadastros-rota-bid-frete-internacional.js'
+import { resolverLocalCadastrosBidFreteInternacional } from './resolver-local-cadastros-bid-frete-internacional.js'
 
 export type PinoMapaVisaoFornecedorBidFreteInternacional = {
   codigo_local_mapa_visao_fornecedor_bid_frete_internacional: string
   nome_local_mapa_visao_fornecedor_bid_frete_internacional: string
+  nome_cotacao_local_mapa_visao_fornecedor_bid_frete_internacional: string
   pais_codigo_mapa_visao_fornecedor_bid_frete_internacional: string
+  alerta_divergencia_cadastros_mapa_visao_fornecedor_bid_frete_internacional: string | null
   latitude_mapa_visao_fornecedor_bid_frete_internacional: number
   longitude_mapa_visao_fornecedor_bid_frete_internacional: number
   quantidade_cotacoes_mapa_visao_fornecedor_bid_frete_internacional: number
+  quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional: number
+  quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional: number
+  melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: number | null
   modal_predominante_mapa_visao_fornecedor_bid_frete_internacional: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
 }
 
@@ -38,15 +27,22 @@ export type RotaMapaVisaoFornecedorBidFreteInternacional = {
   modal_mapa_visao_fornecedor_bid_frete_internacional: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
   tipo_operacao_cotacao_bid_frete_internacional: 'IMPORTACAO' | 'EXPORTACAO' | null
   quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: number
+  quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional: number
+  quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional: number
   melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: number | null
-  /** Média das melhores propostas por cotação na rota (sua operação). */
+  id_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional: string | null
+  numero_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional: string | null
+  numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional: string | null
   dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: number | null
-  /** Média de todas as propostas recebidas na rota (benchmark de mercado). */
   dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: number | null
 }
 
 type DisparoComCotacao = {
   cotacao: {
+    id_cotacao_bid_frete_internacional?: string
+    numero_cotacao_bid_frete_internacional?: string
+    id_bid_bid_frete_internacional?: string | null
+    numero_bid_bid_frete_internacional?: string | null
     origem_codigo_cotacao_bid_frete_internacional: string
     origem_nome_cotacao_bid_frete_internacional: string
     origem_pais_cotacao_bid_frete_internacional: string
@@ -64,10 +60,20 @@ type DisparoComCotacao = {
 
 type LocalAcumulado = {
   codigo: string
-  nome: string
-  pais: string
+  nomeCotacao: string
+  paisCotacao: string
   quantidade: number
+  quantidadeCotacoesAvulsas: number
+  quantidadeBids: number
+  valoresProposta: number[]
   modais: Record<string, number>
+}
+
+type MelhorPropostaRota = {
+  valor: number
+  id_cotacao_bid_frete_internacional: string
+  numero_cotacao_bid_frete_internacional: string
+  numero_bid_bid_frete_internacional: string | null
 }
 
 type RotaAcumulada = {
@@ -76,8 +82,11 @@ type RotaAcumulada = {
   modal: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
   tipo_operacao: 'IMPORTACAO' | 'EXPORTACAO' | null
   quantidade: number
+  quantidadeCotacoesAvulsas: number
+  quantidadeBids: number
   valoresProposta: number[]
   diasTransito: number[]
+  melhorProposta: MelhorPropostaRota | null
 }
 
 function normalizarTipoOperacao(tipo: string | undefined): 'IMPORTACAO' | 'EXPORTACAO' | null {
@@ -88,60 +97,6 @@ function normalizarTipoOperacao(tipo: string | undefined): 'IMPORTACAO' | 'EXPOR
 function normalizarModal(modal: string): 'MARITIMO' | 'AEREO' | 'RODOVIARIO' {
   if (modal === 'AEREO' || modal === 'RODOVIARIO') return modal
   return 'MARITIMO'
-}
-
-async function resolverCoordenadasLocal(
-  codigo: string,
-  idOrganizacao?: string,
-): Promise<{ latitude: number; longitude: number; pais: string } | null> {
-  const codigoUpper = codigo.trim().toUpperCase()
-  if (!codigoUpper) return null
-
-  try {
-    const porto = await fetchCadastrosJson<PortoCadastros>(
-      `/api/v1/cadastros/portos/${encodeURIComponent(codigoUpper)}`,
-      { apenas_ativos: 'true' },
-      { idOrganizacao },
-    )
-    if (
-      porto.latitude_porto != null &&
-      porto.longitude_porto != null &&
-      Number.isFinite(porto.latitude_porto) &&
-      Number.isFinite(porto.longitude_porto)
-    ) {
-      return {
-        latitude: porto.latitude_porto,
-        longitude: porto.longitude_porto,
-        pais: porto.codigo_pais_porto ?? '',
-      }
-    }
-  } catch {
-    /* tenta aeroporto */
-  }
-
-  try {
-    const aeroporto = await fetchCadastrosJson<AeroportoCadastros>(
-      `/api/v1/cadastros/aeroportos/${encodeURIComponent(codigoUpper)}`,
-      { apenas_ativos: 'true' },
-      { idOrganizacao },
-    )
-    if (
-      aeroporto.latitude_aeroporto != null &&
-      aeroporto.longitude_aeroporto != null &&
-      Number.isFinite(aeroporto.latitude_aeroporto) &&
-      Number.isFinite(aeroporto.longitude_aeroporto)
-    ) {
-      return {
-        latitude: aeroporto.latitude_aeroporto,
-        longitude: aeroporto.longitude_aeroporto,
-        pais: aeroporto.codigo_pais_aeroporto ?? '',
-      }
-    }
-  } catch {
-    return null
-  }
-
-  return null
 }
 
 function modalPredominante(modais: Record<string, number>): 'MARITIMO' | 'AEREO' | 'RODOVIARIO' {
@@ -171,21 +126,65 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
     nome: string,
     pais: string,
     modal: string,
+    opcoesLocal?: {
+      vinculadoBid?: boolean
+      valorProposta?: number | null
+    },
   ) => {
     const key = codigo.trim().toUpperCase()
     if (!key) return
     const atual = locais.get(key) ?? {
       codigo: key,
-      nome,
-      pais,
+      nomeCotacao: nome,
+      paisCotacao: pais,
       quantidade: 0,
+      quantidadeCotacoesAvulsas: 0,
+      quantidadeBids: 0,
+      valoresProposta: [],
       modais: {},
     }
     atual.quantidade += 1
+    if (opcoesLocal?.vinculadoBid) {
+      atual.quantidadeBids += 1
+    } else {
+      atual.quantidadeCotacoesAvulsas += 1
+    }
     atual.modais[modal] = (atual.modais[modal] ?? 0) + 1
-    if (!atual.nome && nome) atual.nome = nome
-    if (!atual.pais && pais) atual.pais = pais
+    const valor = opcoesLocal?.valorProposta
+    if (valor != null && Number.isFinite(valor) && valor > 0) {
+      atual.valoresProposta.push(valor)
+    }
+    if (!atual.nomeCotacao && nome) atual.nomeCotacao = nome
+    if (!atual.paisCotacao && pais) atual.paisCotacao = pais
     locais.set(key, atual)
+  }
+
+  const registrarMelhorPropostaRota = (
+    rotaAtual: RotaAcumulada,
+    disparo: DisparoComCotacao,
+    valor: number | null,
+  ) => {
+    const idCotacao = disparo.cotacao.id_cotacao_bid_frete_internacional
+    const numeroCotacao = disparo.cotacao.numero_cotacao_bid_frete_internacional
+    if (!idCotacao || !numeroCotacao) return
+
+    const valorEfetivo = valor != null && Number.isFinite(valor) && valor > 0 ? valor : null
+    const candidato: MelhorPropostaRota = {
+      valor: valorEfetivo ?? Number.POSITIVE_INFINITY,
+      id_cotacao_bid_frete_internacional: idCotacao,
+      numero_cotacao_bid_frete_internacional: numeroCotacao,
+      numero_bid_bid_frete_internacional:
+        disparo.cotacao.numero_bid_bid_frete_internacional?.trim() || null,
+    }
+
+    if (!rotaAtual.melhorProposta) {
+      rotaAtual.melhorProposta = candidato
+      return
+    }
+
+    if (valorEfetivo != null && valorEfetivo < rotaAtual.melhorProposta.valor) {
+      rotaAtual.melhorProposta = candidato
+    }
   }
 
   for (const disparo of disparos) {
@@ -193,17 +192,22 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
     if (!cotacao) continue
 
     const modal = normalizarModal(cotacao.modal_cotacao_bid_frete_internacional)
+    const vinculadoBid = Boolean(cotacao.id_bid_bid_frete_internacional?.trim())
+    const valorProposta = disparo.proposta?.valor_total_proposta_bid_frete_internacional ?? null
+
     registrarLocal(
       cotacao.origem_codigo_cotacao_bid_frete_internacional,
       cotacao.origem_nome_cotacao_bid_frete_internacional,
       cotacao.origem_pais_cotacao_bid_frete_internacional,
       modal,
+      { vinculadoBid, valorProposta },
     )
     registrarLocal(
       cotacao.destino_codigo_cotacao_bid_frete_internacional,
       cotacao.destino_nome_cotacao_bid_frete_internacional,
       cotacao.destino_pais_cotacao_bid_frete_internacional,
       modal,
+      { vinculadoBid, valorProposta },
     )
 
     const origem = cotacao.origem_codigo_cotacao_bid_frete_internacional.trim().toUpperCase()
@@ -220,14 +224,23 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
       modal,
       tipo_operacao: tipoOperacao,
       quantidade: 0,
+      quantidadeCotacoesAvulsas: 0,
+      quantidadeBids: 0,
       valoresProposta: [],
       diasTransito: [],
+      melhorProposta: null,
     }
     rotaAtual.quantidade += 1
-    const valor = disparo.proposta?.valor_total_proposta_bid_frete_internacional
+    if (vinculadoBid) {
+      rotaAtual.quantidadeBids += 1
+    } else {
+      rotaAtual.quantidadeCotacoesAvulsas += 1
+    }
+    const valor = disparo.proposta?.valor_total_proposta_bid_frete_internacional ?? null
     if (valor != null && Number.isFinite(valor)) {
       rotaAtual.valoresProposta.push(valor)
     }
+    registrarMelhorPropostaRota(rotaAtual, disparo, valor)
     const dias = disparo.proposta?.dias_transito_proposta_bid_frete_internacional
     if (dias != null && Number.isFinite(dias)) {
       rotaAtual.diasTransito.push(dias)
@@ -235,10 +248,17 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
     rotas.set(rotaKey, rotaAtual)
   }
 
-  const coordenadasPorCodigo = new Map<string, { latitude: number; longitude: number; pais: string }>()
+  const coordenadasPorCodigo = new Map<
+    string,
+    Awaited<ReturnType<typeof resolverLocalCadastrosBidFreteInternacional>>
+  >()
   await Promise.all(
-    [...locais.keys()].map(async (codigo) => {
-      const coords = await resolverCoordenadasLocal(codigo, opcoes?.id_organizacao)
+    [...locais.entries()].map(async ([codigo, local]) => {
+      const modal = modalPredominante(local.modais)
+      const coords = await resolverLocalCadastrosBidFreteInternacional(codigo, {
+        id_organizacao: opcoes?.id_organizacao,
+        modal,
+      })
       if (coords) coordenadasPorCodigo.set(codigo, coords)
     }),
   )
@@ -247,14 +267,29 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
   for (const local of locais.values()) {
     const coords = coordenadasPorCodigo.get(local.codigo)
     if (!coords) continue
+
+    const alerta = montarAlertaDivergenciaCadastrosMapa({
+      codigo: local.codigo,
+      nomeCotacao: local.nomeCotacao,
+      paisCotacao: local.paisCotacao,
+      nomeCadastros: coords.nome,
+      paisCadastros: coords.pais,
+    })
+
     pinos_mapa_visao_fornecedor_bid_frete_internacional.push({
       codigo_local_mapa_visao_fornecedor_bid_frete_internacional: local.codigo,
-      nome_local_mapa_visao_fornecedor_bid_frete_internacional: local.nome,
-      pais_codigo_mapa_visao_fornecedor_bid_frete_internacional:
-        local.pais || coords.pais,
+      nome_local_mapa_visao_fornecedor_bid_frete_internacional: coords.nome,
+      nome_cotacao_local_mapa_visao_fornecedor_bid_frete_internacional: local.nomeCotacao,
+      pais_codigo_mapa_visao_fornecedor_bid_frete_internacional: coords.pais,
+      alerta_divergencia_cadastros_mapa_visao_fornecedor_bid_frete_internacional: alerta,
       latitude_mapa_visao_fornecedor_bid_frete_internacional: coords.latitude,
       longitude_mapa_visao_fornecedor_bid_frete_internacional: coords.longitude,
       quantidade_cotacoes_mapa_visao_fornecedor_bid_frete_internacional: local.quantidade,
+      quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional:
+        local.quantidadeCotacoesAvulsas,
+      quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional: local.quantidadeBids,
+      melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional:
+        local.valoresProposta.length > 0 ? Math.min(...local.valoresProposta) : null,
       modal_predominante_mapa_visao_fornecedor_bid_frete_internacional: modalPredominante(local.modais),
     })
   }
@@ -279,7 +314,16 @@ export async function montarMapaCotacoesVisaoFornecedorBidFreteInternacional(
       modal_mapa_visao_fornecedor_bid_frete_internacional: rota.modal,
       tipo_operacao_cotacao_bid_frete_internacional: rota.tipo_operacao,
       quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: rota.quantidade,
+      quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional:
+        rota.quantidadeCotacoesAvulsas,
+      quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional: rota.quantidadeBids,
       melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: melhorValor,
+      id_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional:
+        rota.melhorProposta?.id_cotacao_bid_frete_internacional ?? null,
+      numero_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional:
+        rota.melhorProposta?.numero_cotacao_bid_frete_internacional ?? null,
+      numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional:
+        rota.melhorProposta?.numero_bid_bid_frete_internacional ?? null,
       dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: diasMedio,
       dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: null,
     })

@@ -3687,8 +3687,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
             const celulaInterativaFilho = col.celulaInterativa === true
             const celulaBloqueadaFilho = !celulaInterativaFilho
-              && editavelMapaDef && editavelMapaVal === false
-              && !!onEditarFilho && !semPermissaoFilho
+              && !semPermissaoFilho
+              && !colunaEditavelFilho
             const classeEditavel    = podeEditar
               ? ' gtv-celula--editavel'
               : (semPermissaoFilho

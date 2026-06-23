@@ -4,9 +4,11 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
+import { useNavigate } from 'react-router-dom'
 import { calcularRankingsMapaBidFreteInternacional } from '../calcular-rankings-mapa-bid-frete-internacional'
 import type { ItemRankingMapaBidFrete } from '../calcular-rankings-mapa-bid-frete-internacional'
 import {
+  CaretDown,
   Check,
   X,
   Anchor,
@@ -17,6 +19,7 @@ import {
   Export,
   Eye,
   EyeSlash,
+  Flag,
   Globe,
   MapTrifold,
   MapPin,
@@ -26,19 +29,35 @@ import {
   Plus,
   Clock,
   List,
+  MagnifyingGlass,
   Truck,
   SidebarSimple,
+  TrafficSign,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   contarFiltrosMapaAtivos,
   FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS,
   FILTROS_STATUS_MAPA_INSIGHTS,
   filtrarDadosMapaInsightsBidFreteInternacional,
+  filtrarTerminaisMapaInsightsPorBusca,
+  filtrosMapaInsightsIgnorandoDimensao,
   filtrosMapaInsightsVazios,
+  listarTerminaisDestinoMapaInsights,
+  listarTerminaisOrigemMapaInsights,
   type FiltroOperacaoModalMapaInsights,
   type FiltrosMapaInsightsBidFreteInternacional,
 } from '../filtrar-dados-mapa-insights-bid-frete-internacional'
 import { splitScreenPathByDateline } from '../mapa-plano-rota-bid-frete-internacional'
+import {
+  formatarRotaMapa,
+  formatarTerminalMapa,
+  rotuloContagemMapaInsights,
+  rotuloDocumentoMapaInsights,
+  rotuloMelhorPrecoMapa,
+} from '../formatar-terminal-mapa-bid-frete-internacional'
+import { rotaDetalheCotacaoBidFreteInternacional } from '../rotas-bid-frete-internacional'
+import type { ArcRouteBidFrete } from '../mapa-bid-frete-internacional-tipos'
 import type { StatusCotacao } from '../types'
 // ─── Map Pin Data ──────────────────────────────────────────────────────────
 
@@ -52,11 +71,15 @@ export interface MapPinBidFrete {
   geoLat: number // Latitude (-90 to +90)
   geoLng: number // Longitude (-180 to +180)
   activeBids: number
+  quantidadeCotacoesAvulsas?: number
+  quantidadeBids?: number
   bestPrice: number
   savingPct: number
   mode: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
   supplier: string
   flag: string
+  labelCotacao?: string
+  alertaDivergenciaCadastros?: string | null
 }
 
 const MAP_PINS: MapPinBidFrete[] = [
@@ -854,18 +877,25 @@ export interface RouteDetailBidFrete {
   toFlag: string
   mode: 'MARITIMO' | 'AEREO'
   bids: number
+  quantidadeCotacoes: number
+  quantidadeBids: number
   bestPrice: number
   saving: number
   transitTime: number
   supplier: string
   codigo_origem?: string
   codigo_destino?: string
+  codigo_origem_nome?: string
+  codigo_destino_nome?: string
   marketTransitTime?: number
+  id_cotacao_bid_frete_internacional?: string | null
+  numero_cotacao_bid_frete_internacional?: string | null
+  numero_bid_bid_frete_internacional?: string | null
 }
 
 const PORT_CONNECTIONS: Record<number, RouteDetailBidFrete[]> = {
   1: [
-    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Santos (BRSSZ)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 56, bestPrice: 12400, saving: 23.4, transitTime: 28, supplier: 'Pacific Cargo (E96)' },
+    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Santos (BRSSZ)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 56, quantidadeCotacoes: 56, quantidadeBids: 0, bestPrice: 12400, saving: 23.4, transitTime: 28, supplier: 'Pacific Cargo (E96)' },
     { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 84, bestPrice: 18200, saving: 19.1, transitTime: 3, supplier: 'Delta Cargo' },
     { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 32, bestPrice: 13100, saving: 20.5, transitTime: 30, supplier: 'EuroFreight Corp' }
   ],
@@ -953,6 +983,86 @@ export interface VisaoGeralMapaBidFreteProps {
   painelInferiorInsights?: React.ReactNode
 }
 
+const SECOES_FILTRO_MAPA_INSIGHTS = ['operacao', 'modal', 'origem', 'destino', 'status'] as const
+type SecaoFiltroMapaInsightsId = (typeof SECOES_FILTRO_MAPA_INSIGHTS)[number]
+
+interface SecaoFiltroMapaInsightsProps {
+  id: SecaoFiltroMapaInsightsId
+  titulo: string
+  icone: React.ReactNode
+  ativos: number
+  total: number
+  colapsada: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}
+
+function SecaoFiltroMapaInsights({
+  id,
+  titulo,
+  icone,
+  ativos,
+  total,
+  colapsada,
+  onToggle,
+  children,
+}: SecaoFiltroMapaInsightsProps) {
+  const semRestricao = ativos === 0
+  const pct = semRestricao ? 100 : total > 0 ? Math.round((ativos / total) * 100) : 0
+  const rotuloMeta = semRestricao ? 'Todos' : `${ativos}/${total}`
+
+  return (
+    <section
+      id={`bfd-map-filtro-secao-${id}`}
+      className={`bfd-map-filtro-secao ${colapsada ? 'bfd-map-filtro-secao--colapsada' : ''}${semRestricao ? '' : ' bfd-map-filtro-secao--restrita'}`}
+    >
+      <button
+        type="button"
+        className="bfd-map-filtro-secao__header"
+        onClick={onToggle}
+        aria-expanded={!colapsada}
+        aria-controls={`bfd-map-filtro-secao-${id}-corpo`}
+        title={
+          semRestricao
+            ? `${titulo}: sem restrição — exibe todos no mapa`
+            : `${titulo}: ${ativos} filtro(s) ativo(s) nesta seção`
+        }
+      >
+        <div className="bfd-map-filtro-secao__title">
+          <CaretDown
+            weight="bold"
+            size={12}
+            className={`bfd-map-filtro-secao__caret ${colapsada ? 'bfd-map-filtro-secao__caret--colapsado' : ''}`}
+          />
+          <span className="bfd-map-filtro-secao__icon">{icone}</span>
+          <h3>{titulo}</h3>
+        </div>
+        <div className="bfd-map-filtro-secao__meta">
+          <div className="bfd-map-filtro-secao__progress" aria-hidden>
+            <div
+              className={`bfd-map-filtro-secao__progress-fill${semRestricao ? ' bfd-map-filtro-secao__progress-fill--todos' : ''}`}
+              style={{
+                width: `${pct}%`,
+                background: semRestricao ? undefined : '#6366f1',
+              }}
+            />
+          </div>
+          <span
+            className={`bfd-map-filtro-secao__pill${semRestricao ? ' bfd-map-filtro-secao__pill--todos' : ''}`}
+          >
+            {rotuloMeta}
+          </span>
+        </div>
+      </button>
+      {!colapsada ? (
+        <div id={`bfd-map-filtro-secao-${id}-corpo`} className="bfd-map-filtro-secao__corpo">
+          {children}
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
 export function VisaoGeralMapaBidFrete({
   onOpenCompleto,
   titulo = 'Visão Geral Global de Cotações',
@@ -970,7 +1080,7 @@ export function VisaoGeralMapaBidFrete({
   const pinsBase = fonteDados === 'api' ? (dadosMapa?.pins ?? []) : MAP_PINS
   const rotasBase = fonteDados === 'api' ? (dadosMapa?.routes ?? []) : GLOBE_ROUTES
   const [filtrosMapaInsights, setFiltrosMapaInsights] =
-    useState<FiltrosMapaInsightsBidFreteInternacional>(filtrosMapaInsightsVazios)
+    useState<FiltrosMapaInsightsBidFreteInternacional>(() => filtrosMapaInsightsVazios())
 
   const alternarFiltroOperacaoModal = (filtro: FiltroOperacaoModalMapaInsights) => {
     setFiltrosMapaInsights((prev) => {
@@ -990,12 +1100,32 @@ export function VisaoGeralMapaBidFrete({
     })
   }
 
+  const alternarFiltroOrigemMapa = (codigoTerminal: string) => {
+    setFiltrosMapaInsights((prev) => {
+      const codigos_origem = new Set(prev.codigos_origem)
+      if (codigos_origem.has(codigoTerminal)) codigos_origem.delete(codigoTerminal)
+      else codigos_origem.add(codigoTerminal)
+      return { ...prev, codigos_origem }
+    })
+  }
+
+  const alternarFiltroDestinoMapa = (codigoTerminal: string) => {
+    setFiltrosMapaInsights((prev) => {
+      const codigos_destino = new Set(prev.codigos_destino)
+      if (codigos_destino.has(codigoTerminal)) codigos_destino.delete(codigoTerminal)
+      else codigos_destino.add(codigoTerminal)
+      return { ...prev, codigos_destino }
+    })
+  }
+
   const limparFiltrosMapaInsights = () => {
     setFiltrosMapaInsights(filtrosMapaInsightsVazios())
+    setBuscaLocaisOrigemMapa('')
+    setBuscaLocaisDestinoMapa('')
   }
 
   const { pins: pinsAtivos, routes: rotasAtivas } = useMemo(() => {
-    if (!painelRankingsExterno) {
+    if (fonteDados !== 'api') {
       return { pins: pinsBase, routes: rotasBase }
     }
     return filtrarDadosMapaInsightsBidFreteInternacional(
@@ -1003,7 +1133,7 @@ export function VisaoGeralMapaBidFrete({
       rotasBase,
       filtrosMapaInsights,
     )
-  }, [painelRankingsExterno, pinsBase, rotasBase, filtrosMapaInsights])
+  }, [fonteDados, pinsBase, rotasBase, filtrosMapaInsights])
 
   const mapaVazioApi = fonteDados === 'api' && pinsAtivos.length === 0
 
@@ -1017,6 +1147,30 @@ export function VisaoGeralMapaBidFrete({
   const listaRankingsInsights = useMemo(
     () => unificarRankingsLocalidades(listaOrigens, listaDestinos),
     [listaOrigens, listaDestinos],
+  )
+  const rotasContextoListaOrigem = useMemo(() => {
+    if (fonteDados !== 'api') return rotasBase
+    return filtrarDadosMapaInsightsBidFreteInternacional(
+      pinsBase,
+      rotasBase,
+      filtrosMapaInsightsIgnorandoDimensao(filtrosMapaInsights, 'codigos_origem'),
+    ).routes
+  }, [fonteDados, pinsBase, rotasBase, filtrosMapaInsights])
+  const rotasContextoListaDestino = useMemo(() => {
+    if (fonteDados !== 'api') return rotasBase
+    return filtrarDadosMapaInsightsBidFreteInternacional(
+      pinsBase,
+      rotasBase,
+      filtrosMapaInsightsIgnorandoDimensao(filtrosMapaInsights, 'codigos_destino'),
+    ).routes
+  }, [fonteDados, pinsBase, rotasBase, filtrosMapaInsights])
+  const terminaisOrigemMapa = useMemo(
+    () => listarTerminaisOrigemMapaInsights(pinsBase, rotasContextoListaOrigem),
+    [pinsBase, rotasContextoListaOrigem],
+  )
+  const terminaisDestinoMapa = useMemo(
+    () => listarTerminaisDestinoMapaInsights(pinsBase, rotasContextoListaDestino),
+    [pinsBase, rotasContextoListaDestino],
   )
   const totalFiltrosAtivos = contarFiltrosMapaAtivos(filtrosMapaInsights)
   const subtituloRankings =
@@ -1034,6 +1188,8 @@ export function VisaoGeralMapaBidFrete({
     exibirPainelLateralMapa && !painelRankingsSeparado && !painelRankingsExterno
   const painelLateralNoMapa = exibirPainelLateralMapa && !painelRankingsExterno
 
+  const navigate = useNavigate()
+
   const rotasDetalhePorPino = useMemo(() => {
     if (fonteDados !== 'api') return PORT_CONNECTIONS
     const mapa: Record<number, RouteDetailBidFrete[]> = {}
@@ -1043,19 +1199,33 @@ export function VisaoGeralMapaBidFrete({
       if (!fromPin || !toPin) continue
 
       const detalhe: RouteDetailBidFrete = {
-        fromPort: `${fromPin.label} (${fromPin.portCode})`,
+        fromPort: formatarTerminalMapa(fromPin.label, fromPin.portCode),
         fromFlag: fromPin.flag,
-        toPort: `${toPin.label} (${toPin.portCode})`,
+        toPort: formatarTerminalMapa(toPin.label, toPin.portCode),
         toFlag: toPin.flag,
         mode: rota.mode,
         bids: rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
+        quantidadeCotacoes:
+          rota.quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional ??
+          rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional ??
+          0,
+        quantidadeBids:
+          rota.quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
         bestPrice: rota.melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
         saving: 0,
         transitTime: rota.transitTime ?? 0,
         supplier: fromPin.supplier,
         codigo_origem: fromPin.portCode,
         codigo_destino: toPin.portCode,
+        codigo_origem_nome: fromPin.label,
+        codigo_destino_nome: toPin.label,
         marketTransitTime: rota.marketTransitTime,
+        id_cotacao_bid_frete_internacional:
+          rota.id_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? null,
+        numero_cotacao_bid_frete_internacional:
+          rota.numero_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? null,
+        numero_bid_bid_frete_internacional:
+          rota.numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? null,
       }
 
       if (!mapa[rota.fromId]) mapa[rota.fromId] = []
@@ -1067,10 +1237,58 @@ export function VisaoGeralMapaBidFrete({
         fromFlag: detalhe.toFlag,
         toPort: detalhe.fromPort,
         toFlag: detalhe.fromFlag,
+        codigo_origem: toPin.portCode,
+        codigo_destino: fromPin.portCode,
+        codigo_origem_nome: toPin.label,
+        codigo_destino_nome: fromPin.label,
       })
     }
     return mapa
   }, [fonteDados, rotasAtivas, pinsAtivos])
+
+  const resolverContextoHoverPin = (pin: MapPinBidFrete) => {
+    let melhorRota: ArcRouteBidFrete | null = null
+    let melhorPontuacao = Number.POSITIVE_INFINITY
+
+    for (const rota of rotasAtivas) {
+      if (rota.fromId !== pin.id && rota.toId !== pin.id) continue
+      const valor = rota.melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional
+      const pontuacao = valor != null && valor > 0 ? valor : Number.POSITIVE_INFINITY
+      if (!melhorRota || pontuacao < melhorPontuacao) {
+        melhorRota = rota
+        melhorPontuacao = pontuacao
+      }
+    }
+
+    if (melhorRota) {
+      const fromPin = pinsAtivos.find((item) => item.id === melhorRota?.fromId)
+      const toPin = pinsAtivos.find((item) => item.id === melhorRota?.toId)
+      if (fromPin && toPin) {
+        const documento = rotuloDocumentoMapaInsights({
+          numeroCotacao: melhorRota.numero_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional,
+          numeroBid: melhorRota.numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional,
+        })
+        return {
+          titulo: formatarRotaMapa(fromPin.label, fromPin.portCode, toPin.label, toPin.portCode),
+          subtitulo: documento ?? `${fromPin.portCode} → ${toPin.portCode}`,
+        }
+      }
+    }
+
+    return {
+      titulo: formatarTerminalMapa(pin.label, pin.portCode),
+      subtitulo: pin.country ? `${pin.portCode} • ${pin.country}` : pin.portCode,
+    }
+  }
+
+  const abrirCotacaoCompleta = (route: RouteDetailBidFrete) => {
+    setSelectedPinForDialogoResumido(null)
+    if (route.id_cotacao_bid_frete_internacional) {
+      navigate(rotaDetalheCotacaoBidFreteInternacional(route.id_cotacao_bid_frete_internacional))
+      return
+    }
+    onOpenCompleto?.(route)
+  }
   const descricaoMapaTransit =
     descricaoTransit ?? 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)'
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
@@ -1079,12 +1297,27 @@ export function VisaoGeralMapaBidFrete({
   const [mapaModo, setMapaModo] = useState<'bids' | 'transit'>('bids')
   const [vista, setVista] = useState<'globo' | 'mapa'>(vistaInicialMapa)
   const [painelFiltrosMapaExpandido, setPainelFiltrosMapaExpandido] = useState(true)
+  const [secoesFiltroMapaColapsadas, setSecoesFiltroMapaColapsadas] = useState<
+    Set<SecaoFiltroMapaInsightsId>
+  >(() => new Set(SECOES_FILTRO_MAPA_INSIGHTS))
+  const [buscaLocaisOrigemMapa, setBuscaLocaisOrigemMapa] = useState('')
+  const [buscaLocaisDestinoMapa, setBuscaLocaisDestinoMapa] = useState('')
   const [rotasAnimacaoVisiveis, setRotasAnimacaoVisiveis] = useState(true)
   const rotasAnimacaoVisiveisRef = useRef(true)
 
   useEffect(() => {
     rotasAnimacaoVisiveisRef.current = rotasAnimacaoVisiveis
   }, [rotasAnimacaoVisiveis])
+
+  useEffect(() => {
+    const idsVisiveis = new Set(pinsAtivos.map((pin) => pin.id))
+    if (hoveredPin != null && !idsVisiveis.has(hoveredPin)) {
+      setHoveredPin(null)
+    }
+    if (selectedPinForDialogoResumido != null && !idsVisiveis.has(selectedPinForDialogoResumido)) {
+      setSelectedPinForDialogoResumido(null)
+    }
+  }, [pinsAtivos, hoveredPin, selectedPinForDialogoResumido])
 
   const vistaRef = useRef<'globo' | 'mapa'>(vista)
   useEffect(() => {
@@ -2343,6 +2576,94 @@ export function VisaoGeralMapaBidFrete({
     )
   }
 
+  function renderListaLocaisFiltroMapa(
+    terminais: MapPinBidFrete[],
+    selecionados: ReadonlySet<string>,
+    onAlternar: (codigoTerminal: string) => void,
+    mensagemVazia: string,
+    busca: string,
+    onBuscaChange: (valor: string) => void,
+    idCampoBusca: string,
+  ) {
+    if (terminais.length === 0) {
+      return (
+        <p className="bfd-map-filtros-panel__lista-vazia">{mensagemVazia}</p>
+      )
+    }
+
+    const terminaisFiltrados = filtrarTerminaisMapaInsightsPorBusca(terminais, busca)
+    const buscaAtiva = busca.trim().length > 0
+
+    return (
+      <div className="bfd-map-filtros-panel__locais">
+        <div className="bfd-map-filtros-panel__local-busca">
+          <MagnifyingGlass
+            weight="duotone"
+            size={12}
+            className="bfd-map-filtros-panel__local-busca-icone"
+            aria-hidden
+          />
+          <input
+            id={idCampoBusca}
+            type="search"
+            className="bfd-map-filtros-panel__local-busca-input"
+            placeholder="Localizar"
+            value={busca}
+            onChange={(e) => onBuscaChange(e.target.value)}
+            aria-label="Localizar terminal por nome ou código"
+            autoComplete="off"
+          />
+          {buscaAtiva ? (
+            <button
+              type="button"
+              className="bfd-map-filtros-panel__local-busca-limpar"
+              onClick={() => onBuscaChange('')}
+              title="Limpar busca"
+              aria-label="Limpar busca"
+            >
+              <X size={11} weight="bold" />
+            </button>
+          ) : null}
+        </div>
+        {buscaAtiva ? (
+          <p className="bfd-map-filtros-panel__local-busca-resumo" aria-live="polite">
+            {terminaisFiltrados.length} de {terminais.length}
+          </p>
+        ) : null}
+        {terminaisFiltrados.length === 0 ? (
+          <p className="bfd-map-filtros-panel__lista-vazia">
+            Nenhum terminal corresponde à busca.
+          </p>
+        ) : (
+          <div className="bfd-map-filtros-panel__local-lista">
+            {terminaisFiltrados.map((terminal) => {
+              const ativo = selecionados.has(terminal.portCode)
+              return (
+                <button
+                  key={terminal.portCode}
+                  type="button"
+                  className={`bfd-map-filtros-panel__local-item ${ativo ? 'is-active' : ''}`}
+                  aria-pressed={ativo}
+                  title={`${terminal.label} (${terminal.portCode})`}
+                  onClick={() => onAlternar(terminal.portCode)}
+                >
+                  <span className="bfd-map-filtros-panel__local-flag" aria-hidden>
+                    {terminal.flag}
+                  </span>
+                  <span className="bfd-map-filtros-panel__local-texto">
+                    <span className="bfd-map-filtros-panel__local-nome">{terminal.label}</span>
+                    <span className="bfd-map-filtros-panel__local-codigo">{terminal.portCode}</span>
+                  </span>
+                  {ativo ? <Check size={14} weight="bold" className="bfd-map-filtros-panel__check" /> : null}
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   function renderPainelFiltrosMapaRecolhido() {
     const filtrosOperacao = FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.filter((f) => f.grupo === 'operacao')
     const filtrosModal = FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.filter((f) => f.grupo === 'modal')
@@ -2436,9 +2757,39 @@ export function VisaoGeralMapaBidFrete({
     )
   }
 
+  function alternarSecaoFiltroMapa(id: SecaoFiltroMapaInsightsId) {
+    setSecoesFiltroMapaColapsadas((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function alternarTodasSecoesFiltroMapa() {
+    setSecoesFiltroMapaColapsadas((prev) =>
+      prev.size === SECOES_FILTRO_MAPA_INSIGHTS.length
+        ? new Set()
+        : new Set(SECOES_FILTRO_MAPA_INSIGHTS),
+    )
+  }
+
   function renderPainelFiltrosMapaInsights() {
     const filtrosOperacao = FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.filter((f) => f.grupo === 'operacao')
     const filtrosModal = FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.filter((f) => f.grupo === 'modal')
+    const operacaoAtivos = filtrosOperacao.filter((f) =>
+      filtrosMapaInsights.operacaoModal.has(f.id),
+    ).length
+    const modalAtivos = filtrosModal.filter((f) => filtrosMapaInsights.operacaoModal.has(f.id)).length
+    const origemAtivos = filtrosMapaInsights.codigos_origem.size
+    const destinoAtivos = filtrosMapaInsights.codigos_destino.size
+    const statusAtivos = filtrosMapaInsights.status.size
+    const todasSecoesFiltroColapsadas =
+      secoesFiltroMapaColapsadas.size === SECOES_FILTRO_MAPA_INSIGHTS.length
+    const resumoMapaFiltrado =
+      totalFiltrosAtivos === 0
+        ? `Exibindo todos · ${pinsAtivos.length} terminais · ${rotasAtivas.length} rotas`
+        : `${pinsAtivos.length}/${pinsBase.length} terminais · ${rotasAtivas.length}/${rotasBase.length} rotas · ${totalFiltrosAtivos} filtro(s)`
 
     return (
       <div
@@ -2447,17 +2798,34 @@ export function VisaoGeralMapaBidFrete({
         {painelFiltrosMapaExpandido ? (
         <aside
           id="bfd-map-filtros-panel-conteudo"
-          className="bfd-map-filtros-panel"
+          className="bfd-map-filtros-panel bfd-map-filtros-panel--acordeao"
           aria-label="Filtros do mapa"
         >
         <div className="bfd-map-filtros-panel__topo">
           <div>
             <p className="bfd-map-filtros-panel__titulo">Refinar mapa</p>
-            <p className="bfd-map-filtros-panel__resumo">
-              {pinsAtivos.length} terminais · {rotasAtivas.length} rotas
-              {totalFiltrosAtivos > 0 ? ` · ${totalFiltrosAtivos} filtro(s)` : ''}
-            </p>
+            <p className="bfd-map-filtros-panel__resumo">{resumoMapaFiltrado}</p>
           </div>
+        </div>
+
+        <div className="bfd-map-filtros-panel__toolbar">
+          <button
+            type="button"
+            className="bfd-map-filtros-panel__toolbar-btn"
+            onClick={alternarTodasSecoesFiltroMapa}
+            title={
+              todasSecoesFiltroColapsadas
+                ? 'Expandir todas as seções'
+                : 'Recolher todas as seções'
+            }
+          >
+            <CaretDown
+              weight="bold"
+              size={12}
+              className={`bfd-map-filtro-secao__caret ${todasSecoesFiltroColapsadas ? 'bfd-map-filtro-secao__caret--colapsado' : ''}`}
+            />
+            {todasSecoesFiltroColapsadas ? 'Expandir todas' : 'Recolher todas'}
+          </button>
           {totalFiltrosAtivos > 0 ? (
             <button
               type="button"
@@ -2470,73 +2838,136 @@ export function VisaoGeralMapaBidFrete({
           ) : null}
         </div>
 
-        <div className="bfd-map-filtros-panel__secao">
-          <span className="bfd-map-filtros-panel__secao-titulo">Operação</span>
-          <div className="bfd-map-filtros-panel__operacao-grid">
-            {filtrosOperacao.map((filtro) => {
-              const ativo = filtrosMapaInsights.operacaoModal.has(filtro.id)
-              return (
-                <button
-                  key={filtro.id}
-                  type="button"
-                  className={`bfd-map-filtros-panel__operacao-card ${ativo ? 'is-active' : ''}`}
-                  aria-pressed={ativo}
-                  onClick={() => alternarFiltroOperacaoModal(filtro.id)}
-                >
-                  <span className="bfd-map-filtros-panel__operacao-icone">
+        <div className="bfd-map-filtros-acordeao">
+          <SecaoFiltroMapaInsights
+            id="operacao"
+            titulo="Operação"
+            icone={<Export size={16} weight="duotone" />}
+            ativos={operacaoAtivos}
+            total={filtrosOperacao.length}
+            colapsada={secoesFiltroMapaColapsadas.has('operacao')}
+            onToggle={() => alternarSecaoFiltroMapa('operacao')}
+          >
+            <div className="bfd-map-filtros-panel__operacao-grid">
+              {filtrosOperacao.map((filtro) => {
+                const ativo = filtrosMapaInsights.operacaoModal.has(filtro.id)
+                return (
+                  <button
+                    key={filtro.id}
+                    type="button"
+                    className={`bfd-map-filtros-panel__operacao-card ${ativo ? 'is-active' : ''}`}
+                    aria-pressed={ativo}
+                    onClick={() => alternarFiltroOperacaoModal(filtro.id)}
+                  >
+                    <span className="bfd-map-filtros-panel__operacao-icone">
+                      {ICONE_FILTRO_OPERACAO_MODAL[filtro.id]}
+                    </span>
+                    <span className="bfd-map-filtros-panel__operacao-label">{filtro.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </SecaoFiltroMapaInsights>
+
+          <SecaoFiltroMapaInsights
+            id="modal"
+            titulo="Modal"
+            icone={<Anchor size={16} weight="duotone" />}
+            ativos={modalAtivos}
+            total={filtrosModal.length}
+            colapsada={secoesFiltroMapaColapsadas.has('modal')}
+            onToggle={() => alternarSecaoFiltroMapa('modal')}
+          >
+            <div className="bfd-map-filtros-panel__modal-grid">
+              {filtrosModal.map((filtro) => {
+                const ativo = filtrosMapaInsights.operacaoModal.has(filtro.id)
+                return (
+                  <button
+                    key={filtro.id}
+                    type="button"
+                    className={`bfd-map-filtros-panel__modal-tile tab-${filtro.id.toLowerCase()} ${ativo ? 'is-active' : ''}`}
+                    aria-pressed={ativo}
+                    onClick={() => alternarFiltroOperacaoModal(filtro.id)}
+                  >
                     {ICONE_FILTRO_OPERACAO_MODAL[filtro.id]}
-                  </span>
-                  <span className="bfd-map-filtros-panel__operacao-label">{filtro.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
+                    <span>{filtro.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </SecaoFiltroMapaInsights>
 
-        <div className="bfd-map-filtros-panel__secao">
-          <span className="bfd-map-filtros-panel__secao-titulo">Modal</span>
-          <div className="bfd-map-filtros-panel__modal-grid">
-            {filtrosModal.map((filtro) => {
-              const ativo = filtrosMapaInsights.operacaoModal.has(filtro.id)
-              return (
-                <button
-                  key={filtro.id}
-                  type="button"
-                  className={`bfd-map-filtros-panel__modal-tile tab-${filtro.id.toLowerCase()} ${ativo ? 'is-active' : ''}`}
-                  aria-pressed={ativo}
-                  onClick={() => alternarFiltroOperacaoModal(filtro.id)}
-                >
-                  {ICONE_FILTRO_OPERACAO_MODAL[filtro.id]}
-                  <span>{filtro.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
+          <SecaoFiltroMapaInsights
+            id="origem"
+            titulo="Origem"
+            icone={<MapPin size={16} weight="duotone" />}
+            ativos={origemAtivos}
+            total={terminaisOrigemMapa.length}
+            colapsada={secoesFiltroMapaColapsadas.has('origem')}
+            onToggle={() => alternarSecaoFiltroMapa('origem')}
+          >
+            {renderListaLocaisFiltroMapa(
+              terminaisOrigemMapa,
+              filtrosMapaInsights.codigos_origem,
+              alternarFiltroOrigemMapa,
+              'Nenhum terminal de origem nas rotas atuais.',
+              buscaLocaisOrigemMapa,
+              setBuscaLocaisOrigemMapa,
+              'bfd-map-filtro-busca-origem',
+            )}
+          </SecaoFiltroMapaInsights>
 
-        <div className="bfd-map-filtros-panel__secao bfd-map-filtros-panel__secao--status">
-          <span className="bfd-map-filtros-panel__secao-titulo">Status</span>
-          <div className="bfd-map-filtros-panel__status-lista">
-            {FILTROS_STATUS_MAPA_INSIGHTS.map((filtro) => {
-              const ativo = filtrosMapaInsights.status.has(filtro.id)
-              return (
-                <button
-                  key={filtro.id}
-                  type="button"
-                  className={`bfd-map-filtros-panel__status-item ${ativo ? 'is-active' : ''}`}
-                  aria-pressed={ativo}
-                  onClick={() => alternarFiltroStatusMapa(filtro.id)}
-                >
-                  <span
-                    className="bfd-map-filtros-panel__status-dot"
-                    style={{ backgroundColor: filtro.cor, color: filtro.cor }}
-                  />
-                  <span className="bfd-map-filtros-panel__status-label">{filtro.label}</span>
-                  {ativo ? <Check size={14} weight="bold" className="bfd-map-filtros-panel__check" /> : null}
-                </button>
-              )
-            })}
-          </div>
+          <SecaoFiltroMapaInsights
+            id="destino"
+            titulo="Destino"
+            icone={<Flag size={16} weight="duotone" />}
+            ativos={destinoAtivos}
+            total={terminaisDestinoMapa.length}
+            colapsada={secoesFiltroMapaColapsadas.has('destino')}
+            onToggle={() => alternarSecaoFiltroMapa('destino')}
+          >
+            {renderListaLocaisFiltroMapa(
+              terminaisDestinoMapa,
+              filtrosMapaInsights.codigos_destino,
+              alternarFiltroDestinoMapa,
+              'Nenhum terminal de destino nas rotas atuais.',
+              buscaLocaisDestinoMapa,
+              setBuscaLocaisDestinoMapa,
+              'bfd-map-filtro-busca-destino',
+            )}
+          </SecaoFiltroMapaInsights>
+
+          <SecaoFiltroMapaInsights
+            id="status"
+            titulo="Status"
+            icone={<TrafficSign size={16} weight="duotone" />}
+            ativos={statusAtivos}
+            total={FILTROS_STATUS_MAPA_INSIGHTS.length}
+            colapsada={secoesFiltroMapaColapsadas.has('status')}
+            onToggle={() => alternarSecaoFiltroMapa('status')}
+          >
+            <div className="bfd-map-filtros-panel__status-lista">
+              {FILTROS_STATUS_MAPA_INSIGHTS.map((filtro) => {
+                const ativo = filtrosMapaInsights.status.has(filtro.id)
+                return (
+                  <button
+                    key={filtro.id}
+                    type="button"
+                    className={`bfd-map-filtros-panel__status-item ${ativo ? 'is-active' : ''}`}
+                    aria-pressed={ativo}
+                    onClick={() => alternarFiltroStatusMapa(filtro.id)}
+                  >
+                    <span
+                      className="bfd-map-filtros-panel__status-dot"
+                      style={{ backgroundColor: filtro.cor, color: filtro.cor }}
+                    />
+                    <span className="bfd-map-filtros-panel__status-label">{filtro.label}</span>
+                    {ativo ? <Check size={14} weight="bold" className="bfd-map-filtros-panel__check" /> : null}
+                  </button>
+                )
+              })}
+            </div>
+          </SecaoFiltroMapaInsights>
         </div>
         </aside>
         ) : (
@@ -2609,6 +3040,15 @@ export function VisaoGeralMapaBidFrete({
           const Icon = MODAL_ICONS_MAPA[pin.mode] || <Anchor size={12} />
           const tooltipAbaixo = pin.py < alturaFlipTooltip
           const fornecedorTooltip = pin.supplier.trim()
+          const contextoHover = resolverContextoHoverPin(pin)
+          const quantidadeCotacoesPin = pin.quantidadeCotacoesAvulsas ?? pin.activeBids
+          const quantidadeBidsPin = pin.quantidadeBids ?? 0
+          const rotuloRespostasPin = rotuloContagemMapaInsights({
+            quantidadeCotacoes: quantidadeCotacoesPin,
+            quantidadeBids: quantidadeBidsPin,
+          })
+          const rotuloPrecoPin = rotuloMelhorPrecoMapa(pin.bestPrice)
+          const bandeiraPin = pin.flag || pin.country
           return (
             <div
               key={pin.id}
@@ -2644,28 +3084,52 @@ export function VisaoGeralMapaBidFrete({
                 <span className="bfd-map-pin__icon-inner">{Icon}</span>
               </div>
               {isHovered && pin.opacity > 0.7 && (
+                <>
+                <div
+                  className={[
+                    'bfd-map-pin-hover-bridge',
+                    tooltipAbaixo ? 'bfd-map-pin-hover-bridge--abaixo' : 'bfd-map-pin-hover-bridge--acima',
+                  ].join(' ')}
+                  aria-hidden
+                />
                 <div
                   className={[
                     'bfd-map-tooltip',
                     tooltipAbaixo ? 'bfd-map-tooltip--abaixo' : '',
                   ].filter(Boolean).join(' ')}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    isRotationPausedRef.current = true
+                    setSelectedPinForDialogoResumido(pin.id)
+                  }}
                 >
                   <div className="bfd-map-tooltip__header">
-                    <span className="bfd-map-tooltip__flag">{pin.flag}</span>
+                    <span className="bfd-map-tooltip__flag" title={pin.country}>
+                      {bandeiraPin}
+                    </span>
                     <div className="bfd-map-tooltip__title-wrap">
-                      <span className="bfd-map-tooltip__title">{pin.label}</span>
-                      <span className="bfd-map-tooltip__subtitle">{pin.portCode} • {pin.country}</span>
+                      <span className="bfd-map-tooltip__title">{contextoHover.titulo}</span>
+                      <span className="bfd-map-tooltip__subtitle">{contextoHover.subtitulo}</span>
                     </div>
                   </div>
                   <div className="bfd-map-tooltip__body">
+                    {pin.alertaDivergenciaCadastros && (
+                      <div
+                        className="bfd-map-tooltip__alerta"
+                        role="status"
+                        title={pin.alertaDivergenciaCadastros}
+                      >
+                        {pin.alertaDivergenciaCadastros}
+                      </div>
+                    )}
                     <div className="bfd-map-tooltip__stat">
-                      <span className="bfd-map-tooltip__stat-label">Bids Ativos</span>
-                      <span className="bfd-map-tooltip__stat-val">{pin.activeBids} cotações</span>
+                      <span className="bfd-map-tooltip__stat-label">Respostas</span>
+                      <span className="bfd-map-tooltip__stat-val">{rotuloRespostasPin}</span>
                     </div>
                     <div className="bfd-map-tooltip__stat">
                       <span className="bfd-map-tooltip__stat-label">Melhor Preço</span>
                       <span className="bfd-map-tooltip__stat-val" style={{ color: '#ffffff' }}>
-                        USD {fmtMoeda(pin.bestPrice)}
+                        {rotuloPrecoPin}
                       </span>
                     </div>
                     {pin.savingPct > 0 && (
@@ -2689,6 +3153,7 @@ export function VisaoGeralMapaBidFrete({
                   </div>
                   <div className="bfd-map-tooltip__after" />
                 </div>
+                </>
               )}
             </div>
           )
@@ -2705,53 +3170,69 @@ export function VisaoGeralMapaBidFrete({
           posicao === 'interno' ? 'bfd-map-controls--interno' : 'bfd-map-controls--abaixo'
         }`}
       >
-        <button
-          type="button"
-          onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
-          title={vista === 'globo' ? 'Ver como Mapa' : 'Ver como Globo'}
-          className="bfd-map-control-btn"
+        <TooltipGlobal
+          descricao={vista === 'globo' ? 'Ver como mapa' : 'Ver como globo'}
+          posicaoPreferida="acima"
         >
-          {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
-        </button>
-        <button type="button" onClick={handleZoomIn} title="Aumentar Zoom" className="bfd-map-control-btn">
-          <Plus size={16} weight="bold" />
-        </button>
-        <button type="button" onClick={handleZoomOut} title="Diminuir Zoom" className="bfd-map-control-btn">
-          <Minus size={16} weight="bold" />
-        </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            setRotasAnimacaoVisiveis((prev) => !prev)
-          }}
-          title={rotasAnimacaoVisiveis ? 'Ocultar rotas, navios e aviões' : 'Exibir rotas, navios e aviões'}
-          aria-pressed={!rotasAnimacaoVisiveis}
-          className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
-        >
-          {rotasAnimacaoVisiveis ? (
-            <Eye size={16} weight="bold" />
-          ) : (
-            <EyeSlash size={16} weight="bold" />
-          )}
-        </button>
-        <button
-          type="button"
-          onClick={handleReset}
-          title={vista === 'mapa' ? 'Restaurar Mapa' : 'Restaurar Globo'}
-          className="bfd-map-control-btn"
-        >
-          <ArrowCounterClockwise size={16} weight="bold" />
-        </button>
-        {vista === 'globo' && (
           <button
             type="button"
-            onClick={toggleRotation}
-            title={isAutoRotating ? 'Pausar Rotação' : 'Iniciar Rotação'}
+            onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
             className="bfd-map-control-btn"
           >
-            {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+            {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
           </button>
+        </TooltipGlobal>
+        <TooltipGlobal descricao="Aumentar zoom" posicaoPreferida="acima">
+          <button type="button" onClick={handleZoomIn} className="bfd-map-control-btn">
+            <Plus size={16} weight="bold" />
+          </button>
+        </TooltipGlobal>
+        <TooltipGlobal descricao="Diminuir zoom" posicaoPreferida="acima">
+          <button type="button" onClick={handleZoomOut} className="bfd-map-control-btn">
+            <Minus size={16} weight="bold" />
+          </button>
+        </TooltipGlobal>
+        <TooltipGlobal
+          descricao={
+            rotasAnimacaoVisiveis
+              ? 'Ocultar rotas, navios e aviões'
+              : 'Exibir rotas, navios e aviões'
+          }
+          posicaoPreferida="acima"
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setRotasAnimacaoVisiveis((prev) => !prev)
+            }}
+            aria-pressed={!rotasAnimacaoVisiveis}
+            className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
+          >
+            {rotasAnimacaoVisiveis ? (
+              <Eye size={16} weight="bold" />
+            ) : (
+              <EyeSlash size={16} weight="bold" />
+            )}
+          </button>
+        </TooltipGlobal>
+        <TooltipGlobal
+          descricao={vista === 'mapa' ? 'Restaurar mapa' : 'Restaurar globo'}
+          posicaoPreferida="acima"
+        >
+          <button type="button" onClick={handleReset} className="bfd-map-control-btn">
+            <ArrowCounterClockwise size={16} weight="bold" />
+          </button>
+        </TooltipGlobal>
+        {vista === 'globo' && (
+          <TooltipGlobal
+            descricao={isAutoRotating ? 'Pausar rotação' : 'Iniciar rotação'}
+            posicaoPreferida="acima"
+          >
+            <button type="button" onClick={toggleRotation} className="bfd-map-control-btn">
+              {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+            </button>
+          </TooltipGlobal>
         )}
       </div>
     )
@@ -2944,8 +3425,12 @@ export function VisaoGeralMapaBidFrete({
                   <div className="dialogo-cotacao-resumida-bid-frete-internacional-title-group">
                     <span className="dialogo-cotacao-resumida-bid-frete-internacional-flag-large">{pin.flag}</span>
                     <div>
-                      <h2 className="dialogo-cotacao-resumida-bid-frete-internacional-title">Rotas Ativas: {pin.label}</h2>
-                      <span className="dialogo-cotacao-resumida-bid-frete-internacional-subtitle">{pin.portCode} • {pin.country}</span>
+                      <h2 className="dialogo-cotacao-resumida-bid-frete-internacional-title">
+                        Rotas Ativas: {formatarTerminalMapa(pin.label, pin.portCode)}
+                      </h2>
+                      <span className="dialogo-cotacao-resumida-bid-frete-internacional-subtitle">
+                        {pin.portCode} • {pin.country}
+                      </span>
                     </div>
                   </div>
                   <button className="dialogo-cotacao-resumida-bid-frete-internacional-close-btn" onClick={() => setSelectedPinForDialogoResumido(null)}>✕</button>
@@ -2963,6 +3448,18 @@ export function VisaoGeralMapaBidFrete({
                       const modeIcon = isAir ? <AirplaneTilt size={14} weight="bold" /> : <Anchor size={14} weight="bold" />
                       const badgeClass = isAir ? 'bfd-route-badge bfd-route-badge--aereo' : 'bfd-route-badge bfd-route-badge--maritimo'
                       const cardClass = isAir ? 'bfd-route-card bfd-route-card--aereo' : 'bfd-route-card bfd-route-card--maritimo'
+                      const rotuloRespostasRota = rotuloContagemMapaInsights({
+                        quantidadeCotacoes: route.quantidadeCotacoes ?? route.bids,
+                        quantidadeBids: route.quantidadeBids ?? 0,
+                      })
+                      const rotuloPrecoRota = rotuloMelhorPrecoMapa(route.bestPrice)
+                      const rotuloDocumentoRota = rotuloDocumentoMapaInsights({
+                        numeroCotacao: route.numero_cotacao_bid_frete_internacional,
+                        numeroBid: route.numero_bid_bid_frete_internacional,
+                      })
+                      const rotuloBotaoCotacao = rotuloDocumentoRota
+                        ? `Abrir ${rotuloDocumentoRota}`
+                        : 'Ver cotação completa'
                       
                       // High-quality loop motion path details
                       const pathD = "M 10,15 Q 120,-5 230,15"
@@ -3040,12 +3537,12 @@ export function VisaoGeralMapaBidFrete({
                           
                           <div className="bfd-route-stats">
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Bids Ativos</span>
-                              <span className="bfd-route-stat-value">{route.bids} bids</span>
+                              <span className="bfd-route-stat-label">Respostas</span>
+                              <span className="bfd-route-stat-value">{rotuloRespostasRota}</span>
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">Melhor Preço</span>
-                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>USD {fmtMoeda(route.bestPrice)}</span>
+                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>{rotuloPrecoRota}</span>
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">Saving</span>
@@ -3103,19 +3600,20 @@ export function VisaoGeralMapaBidFrete({
                           })()}
                           
                           <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
-                            {route.supplier.trim() ? (
-                              <span>Forn. Líder: <strong>{route.supplier}</strong></span>
-                            ) : (
-                              <span />
-                            )}
+                            <span>
+                              {rotuloDocumentoRota ? (
+                                <strong>{rotuloDocumentoRota}</strong>
+                              ) : route.supplier.trim() ? (
+                                <>Forn. Líder: <strong>{route.supplier}</strong></>
+                              ) : (
+                                <span />
+                              )}
+                            </span>
                             <button
                               className="bfd-route-btn-completo"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                setSelectedPinForDialogoResumido(null)
-                                if (onOpenCompleto) {
-                                  onOpenCompleto(route)
-                                }
+                                abrirCotacaoCompleta(route)
                               }}
                               style={{
                                 display: 'flex',
@@ -3145,7 +3643,7 @@ export function VisaoGeralMapaBidFrete({
                               }}
                             >
                               <Eye size={12} weight="bold" />
-                              <span>Ver Cotação Completa</span>
+                              <span>{rotuloBotaoCotacao}</span>
                               <ArrowRight size={10} weight="bold" style={{ marginLeft: '2px' }} />
                             </button>
                           </div>

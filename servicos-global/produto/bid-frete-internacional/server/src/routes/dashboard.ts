@@ -428,6 +428,14 @@ router.get('/mapa-cotacoes', async (req: Request, res: Response, next: NextFunct
         ...(filtroWorkspace),
       },
       select: {
+        id_cotacao_bid_frete_internacional: true,
+        numero_cotacao_bid_frete_internacional: true,
+        id_bid_bid_frete_internacional: true,
+        bid_bid_frete_internacional: {
+          select: {
+            numero_bid_bid_frete_internacional: true,
+          },
+        },
         origem_codigo_cotacao_bid_frete_internacional: true,
         origem_nome_cotacao_bid_frete_internacional: true,
         origem_pais_cotacao_bid_frete_internacional: true,

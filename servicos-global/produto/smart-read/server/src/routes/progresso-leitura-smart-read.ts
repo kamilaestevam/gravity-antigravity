@@ -6,6 +6,7 @@ import { Router, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { Prisma } from '../generated/client/index.js'
 import { AppError } from '../lib/app-error.js'
+import { persistirSnapshotLeituraSmartRead } from '../lib/snapshot-leitura-smart-read.js'
 import {
   EstadoProgressoLeituraSchema,
   extrairDadosSessaoProgressoLeitura,
@@ -120,6 +121,27 @@ router.patch('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next:
     }
 
     res.json(montarRespostaProgressoLeitura(registro.passo_atual_progresso_leitura_smart_read, dadosSalvos))
+
+    if (!req.idOrganizacao) {
+      throw new AppError('Header x-id-organizacao obrigatorio', 400, 'ORGANIZACAO_AUSENTE')
+    }
+
+    void persistirSnapshotLeituraSmartRead({
+      prisma,
+      idOrganizacao: req.idOrganizacao,
+      idUsuario,
+      idWorkspace,
+      leitura: corpo.leitura,
+      motivo: 'conferencia_usuario',
+      extras: {
+        data_envio: registro.data_criacao_progresso_leitura_smart_read.toISOString(),
+        origem_leitura: 'INTERFACE',
+        created_at: registro.data_criacao_progresso_leitura_smart_read.toISOString(),
+      },
+    }).catch((erro) => {
+      console.warn('[smart-read][snapshot] falha ao persistir na conferencia', erro)
+    })
+
     console.info('[smart-read][progresso] PATCH ok', {
       id_leitura,
       passo: corpo.passo,

@@ -581,6 +581,11 @@
   transition: left 0.3s ease, transform 0.3s ease;
 }
 
+.bfd-map-controls .tg-trigger {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
 .bfd-map-controls--abaixo {
   position: static;
   left: auto;

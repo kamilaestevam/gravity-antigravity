@@ -33,6 +33,7 @@ import {
   SidebarSimple,
   TrafficSign,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   contarFiltrosMapaAtivos,
   FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS,
@@ -3050,53 +3051,69 @@ export function VisaoGeralMapaBidFrete({
           posicao === 'interno' ? 'bfd-map-controls--interno' : 'bfd-map-controls--abaixo'
         }`}
       >
-        <button
-          type="button"
-          onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
-          title={vista === 'globo' ? 'Ver como Mapa' : 'Ver como Globo'}
-          className="bfd-map-control-btn"
+        <TooltipGlobal
+          descricao={vista === 'globo' ? 'Ver como mapa' : 'Ver como globo'}
+          posicaoPreferida="acima"
         >
-          {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
-        </button>
-        <button type="button" onClick={handleZoomIn} title="Aumentar Zoom" className="bfd-map-control-btn">
-          <Plus size={16} weight="bold" />
-        </button>
-        <button type="button" onClick={handleZoomOut} title="Diminuir Zoom" className="bfd-map-control-btn">
-          <Minus size={16} weight="bold" />
-        </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            setRotasAnimacaoVisiveis((prev) => !prev)
-          }}
-          title={rotasAnimacaoVisiveis ? 'Ocultar rotas, navios e aviões' : 'Exibir rotas, navios e aviões'}
-          aria-pressed={!rotasAnimacaoVisiveis}
-          className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
-        >
-          {rotasAnimacaoVisiveis ? (
-            <Eye size={16} weight="bold" />
-          ) : (
-            <EyeSlash size={16} weight="bold" />
-          )}
-        </button>
-        <button
-          type="button"
-          onClick={handleReset}
-          title={vista === 'mapa' ? 'Restaurar Mapa' : 'Restaurar Globo'}
-          className="bfd-map-control-btn"
-        >
-          <ArrowCounterClockwise size={16} weight="bold" />
-        </button>
-        {vista === 'globo' && (
           <button
             type="button"
-            onClick={toggleRotation}
-            title={isAutoRotating ? 'Pausar Rotação' : 'Iniciar Rotação'}
+            onClick={() => setVista(prev => (prev === 'globo' ? 'mapa' : 'globo'))}
             className="bfd-map-control-btn"
           >
-            {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+            {vista === 'globo' ? <MapTrifold size={16} weight="bold" /> : <Globe size={16} weight="bold" />}
           </button>
+        </TooltipGlobal>
+        <TooltipGlobal descricao="Aumentar zoom" posicaoPreferida="acima">
+          <button type="button" onClick={handleZoomIn} className="bfd-map-control-btn">
+            <Plus size={16} weight="bold" />
+          </button>
+        </TooltipGlobal>
+        <TooltipGlobal descricao="Diminuir zoom" posicaoPreferida="acima">
+          <button type="button" onClick={handleZoomOut} className="bfd-map-control-btn">
+            <Minus size={16} weight="bold" />
+          </button>
+        </TooltipGlobal>
+        <TooltipGlobal
+          descricao={
+            rotasAnimacaoVisiveis
+              ? 'Ocultar rotas, navios e aviões'
+              : 'Exibir rotas, navios e aviões'
+          }
+          posicaoPreferida="acima"
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setRotasAnimacaoVisiveis((prev) => !prev)
+            }}
+            aria-pressed={!rotasAnimacaoVisiveis}
+            className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
+          >
+            {rotasAnimacaoVisiveis ? (
+              <Eye size={16} weight="bold" />
+            ) : (
+              <EyeSlash size={16} weight="bold" />
+            )}
+          </button>
+        </TooltipGlobal>
+        <TooltipGlobal
+          descricao={vista === 'mapa' ? 'Restaurar mapa' : 'Restaurar globo'}
+          posicaoPreferida="acima"
+        >
+          <button type="button" onClick={handleReset} className="bfd-map-control-btn">
+            <ArrowCounterClockwise size={16} weight="bold" />
+          </button>
+        </TooltipGlobal>
+        {vista === 'globo' && (
+          <TooltipGlobal
+            descricao={isAutoRotating ? 'Pausar rotação' : 'Iniciar rotação'}
+            posicaoPreferida="acima"
+          >
+            <button type="button" onClick={toggleRotation} className="bfd-map-control-btn">
+              {isAutoRotating ? <Pause size={16} weight="bold" /> : <Play size={16} weight="bold" />}
+            </button>
+          </TooltipGlobal>
         )}
       </div>
     )

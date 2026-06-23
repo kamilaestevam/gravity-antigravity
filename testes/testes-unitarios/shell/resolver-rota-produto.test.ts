@@ -3,6 +3,7 @@ import {
   resolverRotaProdutoGravity,
   resolverSlugMetaProduto,
   slugsProdutoEquivalentes,
+  ROTA_ENTRADA_SMART_READ,
 } from '../../../servicos-global/shell/utils/resolver-rota-produto'
 
 describe('resolver-rota-produto', () => {
@@ -24,5 +25,10 @@ describe('resolver-rota-produto', () => {
   it('usa path padrão /{slug} para produtos sem alias', () => {
     expect(resolverRotaProdutoGravity('pedido')).toBe('/pedido')
     expect(resolverRotaProdutoGravity('simula-custo')).toBe('/simula-custo')
+  })
+
+  it('resolve Smart Read na entrada lista (evita 404 em /smart-read exato)', () => {
+    expect(ROTA_ENTRADA_SMART_READ).toBe('/smart-read/lista')
+    expect(resolverRotaProdutoGravity('smart-read')).toBe(ROTA_ENTRADA_SMART_READ)
   })
 })

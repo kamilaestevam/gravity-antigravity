@@ -6,6 +6,7 @@
 import type { TFunction } from 'i18next'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { resolverRotaProdutoGravity } from '@gravity/shell'
 import { ArrowRight, CaretLeft, CaretRight, CheckCircle, Package } from '@phosphor-icons/react'
 import { PRODUCT_META, nomeExibicaoProdutoGravity } from '../data/product-meta'
 import {
@@ -28,11 +29,13 @@ const ROTAS_PRODUTO: Record<string, string> = {
   'bid-cambio': '/bid-cambio',
   pedido: '/pedido',
   processo: '/processo',
-  'smart-read': '/smart-read',
 }
 
 function rotaProduto(slug: string): string {
-  return ROTAS_PRODUTO[slug] ?? `/produto/${slug}`
+  if (slug in ROTAS_PRODUTO) return ROTAS_PRODUTO[slug]!
+  const rotaCanonica = resolverRotaProdutoGravity(slug)
+  if (rotaCanonica !== `/${slug}`) return rotaCanonica
+  return `/produto/${slug}`
 }
 
 function pathPecaPuzzle(isFirst: boolean, isLast: boolean): string {

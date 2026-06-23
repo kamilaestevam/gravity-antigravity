@@ -84,6 +84,7 @@ A `{área}` vem **direto** após o domínio.
 | `/bid-frete-internacional` | Produto BID Frete Internacional |
 | `/simula-custo` | Produto Simulador de Custo |
 | `/processo` | Produto Processo |
+| `/smart-read` | Produto Smart Read (entrada padrão → `/smart-read/lista`) |
 | `/nf-importacao` | Produto NF Importação |
 | `/lpco` | Produto LPCO |
 | `/cadastros` | Produto Cadastros (compartilhado) |
@@ -162,6 +163,11 @@ A `{área}` vem **direto** após o domínio.
 | `/produto/bid-frete-internacional/*` | `/bid-frete-internacional/*` |
 | `/produto/simula-custo/*` | `/simula-custo/*` |
 | `/produto/processo/*` | `/processo/*` |
+| `/produto/smart-read/*` | `/smart-read/*` |
+
+**Entrada exata (sem sufixo):** `/smart-read` e `/produto/smart-read` redirecionam para `/smart-read/lista` (client + server 301). SSOT: `ROTA_ENTRADA_SMART_READ` em `shell/utils/resolver-rota-produto.ts`.
+
+**Produto embutido no configurador:** rotas internas no `App.tsx` do produto usam paths **relativos** (`lista`, `insights`, …), não `/smart-read/lista` absoluto — ver README em `produtos-gravity/smart-read/`.
 
 ### `/admin` (mantém raiz, valida sub-rotas)
 
@@ -339,6 +345,7 @@ Substituir:
 - `<Route path="/produto/bid-cambio/*">` → `<Route path="/bid-cambio/*">`
 - `<Route path="/produto/simula-custo/*">` → `<Route path="/simula-custo/*">`
 - `<Route path="/produto/processo/*">` → `<Route path="/processo/*">`
+- `<Route path="/produto/smart-read">` → redirect para `/smart-read/lista`; `<Route path="/produto/smart-read/*">` → `<Route path="/smart-read/*">`
 
 ### 2. Navegação interna no Configurador
 
@@ -394,6 +401,8 @@ Durante 90 dias, todas as URLs antigas respondem com 301 para a nova:
 <Route path="/produto/bid-cambio/*" element={<NavigateComPrefixo de="/produto/bid-cambio" para="/bid-cambio" />} />
 <Route path="/produto/simula-custo/*" element={<NavigateComPrefixo de="/produto/simula-custo" para="/simula-custo" />} />
 <Route path="/produto/processo/*" element={<NavigateComPrefixo de="/produto/processo" para="/processo" />} />
+<Route path="/produto/smart-read" element={<Navigate to={ROTA_ENTRADA_SMART_READ} replace />} />
+<Route path="/produto/smart-read/*" element={<NavigateComPrefixo de="/produto/smart-read" para="/smart-read" />} />
 ```
 
 **Prazo de remoção:** 90 dias após merge ou 0 hits em observabilidade (o que vier primeiro).

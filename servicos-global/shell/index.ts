@@ -44,6 +44,7 @@ export { rotaTemSeletorProdutosProcesso, ROTA_PROCESSO_COM_SWITCHER } from './ut
 export { resolverNavegacaoTrocarProduto, SLUG_ATALHO_PROCESSOS, ROTA_ATALHO_PROCESSOS } from './utils/navegacao-trocar-produto'
 export { produtosWorkspaceResponseSchema } from './schemas/produtos-workspace-response.schema'
 export {
+  ROTA_ENTRADA_SMART_READ,
   resolverRotaProdutoGravity,
   resolverSlugMetaProduto,
   slugsProdutoEquivalentes,

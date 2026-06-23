@@ -168,7 +168,10 @@ A faixa **Seus Produtos Gravity** do HUB unificado (`SelecionarWorkspace`) reuti
 | Escala das peças | `--gs-piece-scale: 1` (Store puzzle ativos também 1.0; HUB não usa mais `0.8`) |
 | Interior da peça | Preenchimento neutro (`--hub-puzzle-fill-interno` / `--hub-puzzle-fill-disponivel`); cor do produto só no **contorno** (`stroke`) quando `owned` |
 | Ícones | `iconeOficialProdutoGravity` via `@nucleo/logo-produtos` — **22px** fixos (`.gs-piece__icon svg`) |
-| Centralização óptica | `.gs-piece__stack` posicionado no centro da área plana; peças com cavidade usam `.gs-piece__body--indent` |
+| Centralização óptica | `.gs-piece__body` ancorado no quadrado **120×90px** (não no SVG 138px com aba); `.gs-piece__stack` centralizado nessa área |
+| Espaço subtítulo → puzzle | **4px** — `.gs-stack--hub-paridade-store .gs-stack__head { margin-bottom: 4px }` |
+| Contador do meter | Mesma tipografia do subtítulo (`.gs-stack__sub`): `0.8125rem`, peso normal, `--sw-text-2`, sem `text-transform: uppercase` |
+| Peça BID Fornecedor | Extra HUB (`pecasExtras`) inserida **logo após** `bid-frete` via `slugVisual` + `ordenarPecasPuzzleComExtrasHub`; factory `buildPecaHubBidFreteFornecedor` (`verificar-cotar-bid-frete-internacional.ts`); exibida só com permissão `visao_fornecedor:cotar` |
 | Carrossel | `PuzzleStackProdutosGravity` com `embutidoParidadeStore` — cabeçalho/meter no pai (`GradeProdutosContratadosHub`) |
 | Navegação contratado | `onAbrirProdutoContratado` no HUB; disponível sem assinatura → `/store` |
 
@@ -255,6 +258,7 @@ Escopo **STORE** — pasta `testes/**/gravity-store/` (registry `TST-*-STORE-*`)
 | PR / entrega | Escopo |
 |--------------|--------|
 | #404 (2026-06-23) | HUB `/hub`: puzzle **Seus Produtos Gravity** com paridade Store (`StorePuzzleCarousel`, escala 1.0, ícones 22px, contorno colorido) — ver § Reuso no HUB |
+| pós-#404 (2026-06-23) | Refinos HUB: espaço subtítulo→puzzle **4px**, contador alinhado ao subtítulo, **BID Fornecedor** ancorado após Bid Frete, centralização no quadrado 120px |
 
 ---
 

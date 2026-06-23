@@ -16,25 +16,30 @@ import type { TransacaoLeitura } from './schemas'
 /** Colunas da linha pai (leitura) visíveis por padrão — métricas da leitura, não campos extraídos do documento. */
 export const COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ = [
   'nome_leitura',
-  'status_leitura',
-  'total_arquivos',
-  'media_acertos',
-  'data_envio',
   'tipos_documento',
   'numeros_documento',
+  'status_leitura',
+  'total_arquivos',
   'total_documentos',
   'total_campos_extraidos',
   'total_campos_corretos',
   'total_campos_errados',
+  'media_acertos',
   'tempo_extracao_ia_ms',
   'tempo_processo_total_ms',
   'saving_total_minutos',
   'saving_total_brl',
+  'data_envio',
 ] as const
 
 export const CHAVES_COLUNAS_PAI_LISTA_LEITURA_SMART_READ = COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ
 
 const CHAVES_CATALOGO = new Set(CATALOGO_COLUNAS_DOCUMENTO_SMART_READ.map((c) => c.key))
+
+/** Lista Smart Read não tem edição inline — só o nome abre a leitura (link). */
+const COLUNA_SOMENTE_LEITURA = { editavel: false as const }
+const COLUNA_NOME_LINK = { editavel: false as const, celulaInterativa: true as const }
+const MAPA_FILHO_SOMENTE_LEITURA = { editavel: false as const }
 
 export function ehColunaCatalogoDocumentoSmartRead(key: string): boolean {
   return CHAVES_CATALOGO.has(key)
@@ -48,6 +53,7 @@ function criarColunasCatalogoDocumento(): GTColuna<TransacaoLeitura>[] {
     oculta: true,
     filtravel: false,
     sortavel: false,
+    editavel: false,
     render: () => '—',
     findDisplay: () => '',
   }))
@@ -57,6 +63,7 @@ function criarMapaColunasCatalogoDocumento(): Record<string, GTMapaColunasFilho<
   const mapa: Record<string, GTMapaColunasFilho<DocumentoLeituraLista>> = {}
   for (const cat of CATALOGO_COLUNAS_DOCUMENTO_SMART_READ) {
     mapa[cat.key] = {
+      editavel: false,
       render: (item) => item.valores_colunas[cat.key]?.trim() || '—',
       findDisplay: (item) => item.valores_colunas[cat.key] ?? '',
     }
@@ -78,6 +85,7 @@ export function criarColunasListaLeituraSmartRead(
       naoOcultavel: true,
       filtravel: true,
       sortavel: false,
+      ...COLUNA_NOME_LINK,
       render: (_valor, item) => (
         <button
           type="button"
@@ -93,10 +101,29 @@ export function criarColunasListaLeituraSmartRead(
       findDisplay: (item) => item.nome_leitura ?? item.nome_arquivo ?? item.id_leitura,
     },
     {
+      key: 'tipos_documento',
+      label: 'Tipo de documento',
+      filtravel: true,
+      sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
+      render: (_valor, item) => item.tipos_documento ?? '—',
+      findDisplay: (item) => item.tipos_documento ?? '',
+    },
+    {
+      key: 'numeros_documento',
+      label: 'Nº documento',
+      filtravel: true,
+      sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
+      render: () => '—',
+      findDisplay: () => '',
+    },
+    {
       key: 'status_leitura',
       label: 'Status',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => <PillStatusLeitura status={item.status_leitura} />,
       findDisplay: (item) => item.status_leitura,
     },
@@ -107,23 +134,8 @@ export function criarColunasListaLeituraSmartRead(
       align: 'center',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => item.total_arquivos,
-    },
-    {
-      key: 'media_acertos',
-      label: 'Média de acertos',
-      align: 'center',
-      sortavel: false,
-      render: (_valor, item) => formatarPercentualLeitura(item.media_acertos),
-      findDisplay: (item) => formatarPercentualLeitura(item.media_acertos),
-    },
-    {
-      key: 'data_envio',
-      label: 'Data de envio',
-      filtravel: true,
-      sortavel: false,
-      render: (_valor, item) => formatarDataLeitura(item.data_envio),
-      findDisplay: (item) => formatarDataLeitura(item.data_envio),
     },
     {
       key: 'total_documentos',
@@ -132,6 +144,7 @@ export function criarColunasListaLeituraSmartRead(
       align: 'center',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => item.total_documentos,
     },
     {
@@ -141,6 +154,7 @@ export function criarColunasListaLeituraSmartRead(
       align: 'center',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => item.total_campos_extraidos,
     },
     {
@@ -150,6 +164,7 @@ export function criarColunasListaLeituraSmartRead(
       align: 'center',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => item.total_campos_corretos,
     },
     {
@@ -159,23 +174,17 @@ export function criarColunasListaLeituraSmartRead(
       align: 'center',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => item.total_campos_errados,
     },
     {
-      key: 'tipos_documento',
-      label: 'Tipo de documento',
-      filtravel: true,
+      key: 'media_acertos',
+      label: 'Média de acertos',
+      align: 'center',
       sortavel: false,
-      render: (_valor, item) => item.tipos_documento ?? '—',
-      findDisplay: (item) => item.tipos_documento ?? '',
-    },
-    {
-      key: 'numeros_documento',
-      label: 'Nº documento',
-      filtravel: true,
-      sortavel: false,
-      render: () => '—',
-      findDisplay: () => '',
+      ...COLUNA_SOMENTE_LEITURA,
+      render: (_valor, item) => formatarPercentualLeitura(item.media_acertos),
+      findDisplay: (item) => formatarPercentualLeitura(item.media_acertos),
     },
     {
       key: 'tempo_extracao_ia_ms',
@@ -183,6 +192,7 @@ export function criarColunasListaLeituraSmartRead(
       align: 'center',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => formatarDuracaoMsLeitura(item.tempo_extracao_ia_ms),
       findDisplay: (item) => formatarDuracaoMsLeitura(item.tempo_extracao_ia_ms),
     },
@@ -192,6 +202,7 @@ export function criarColunasListaLeituraSmartRead(
       align: 'center',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => formatarDuracaoMsLeitura(item.tempo_processo_total_ms),
       findDisplay: (item) => formatarDuracaoMsLeitura(item.tempo_processo_total_ms),
     },
@@ -201,6 +212,7 @@ export function criarColunasListaLeituraSmartRead(
       align: 'center',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => formatarSavingHorasLeitura(item.saving_total_minutos),
       findDisplay: (item) => formatarSavingHorasLeitura(item.saving_total_minutos),
     },
@@ -210,8 +222,18 @@ export function criarColunasListaLeituraSmartRead(
       align: 'center',
       filtravel: true,
       sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
       render: (_valor, item) => formatarSavingValorLeitura(item.saving_total_brl),
       findDisplay: (item) => formatarSavingValorLeitura(item.saving_total_brl),
+    },
+    {
+      key: 'data_envio',
+      label: 'Data de envio',
+      filtravel: true,
+      sortavel: false,
+      ...COLUNA_SOMENTE_LEITURA,
+      render: (_valor, item) => formatarDataLeitura(item.data_envio),
+      findDisplay: (item) => formatarDataLeitura(item.data_envio),
     },
   ]
 
@@ -241,45 +263,59 @@ export function criarMapaColunasDocumentoLeitura(
       ),
     },
     status_leitura: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: (item) => <PillStatusLeitura status={item.status_documento} />,
     },
     total_arquivos: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: () => '—',
     },
     media_acertos: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: (item) => formatarPercentualLeitura(item.media_acertos),
     },
     data_envio: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: (item) => formatarDataLeitura(item.data_envio),
     },
     total_documentos: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: () => '—',
     },
     total_campos_extraidos: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: () => '—',
     },
     total_campos_corretos: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: () => '—',
     },
     total_campos_errados: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: () => '—',
     },
     tipos_documento: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: (item) => item.tipo_documento ?? '—',
     },
     numeros_documento: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: (item) => item.numero_documento ?? '—',
     },
     tempo_extracao_ia_ms: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: () => '—',
     },
     tempo_processo_total_ms: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: () => '—',
     },
     saving_total_minutos: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: () => '—',
     },
     saving_total_brl: {
+      ...MAPA_FILHO_SOMENTE_LEITURA,
       render: () => '—',
     },
     ...criarMapaColunasCatalogoDocumento(),

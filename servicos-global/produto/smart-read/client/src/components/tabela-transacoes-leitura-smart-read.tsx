@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '@nucleo/tabela-virtual-global/tabela-virtual.css'
-import { Trash } from '@phosphor-icons/react'
+import { Trash, CaretDoubleDown, CaretDoubleUp } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -102,6 +102,11 @@ export function TabelaTransacoesLeituraSmartRead({
   const [modalNovaLeituraAberto, setModalNovaLeituraAberto] = useState(false)
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])
   const [idLeituraExistente, setIdLeituraExistente] = useState<string | null>(null)
+  const [temExpandido, setTemExpandido] = useState(false)
+
+  const handleExpandidosMudar = useCallback((count: number) => {
+    setTemExpandido(count > 0)
+  }, [])
 
   const filtrosAtivosKeys = useMemo(
     () => new Set(Object.keys(filtrosAtivosLista)),
@@ -271,6 +276,24 @@ export function TabelaTransacoesLeituraSmartRead({
   const acoesBarra = useMemo(
     () => (
       <div className="sr-lista-acoes-barra">
+        <TooltipGlobal
+          descricao={temExpandido ? 'Recolher tudo' : 'Expandir tudo'}
+        >
+          <button
+            type="button"
+            className="sr-btn-expandir-todos"
+            onClick={() => {
+              if (temExpandido) tabelaRef.current?.recolherTodos()
+              else void tabelaRef.current?.expandirTodos()
+            }}
+            aria-label={temExpandido ? 'Recolher tudo' : 'Expandir tudo'}
+          >
+            {temExpandido
+              ? <CaretDoubleUp size={14} weight="bold" />
+              : <CaretDoubleDown size={14} weight="bold" />}
+          </button>
+        </TooltipGlobal>
+
         <BotaoNovoListaSmartRead onAbrirNovaLeitura={() => abrirNovaLeitura()} />
 
         <TooltipGlobal
@@ -292,7 +315,7 @@ export function TabelaTransacoesLeituraSmartRead({
         </TooltipGlobal>
       </div>
     ),
-    [abrirNovaLeitura, excluindo, leiturasSelecionadas.length],
+    [abrirNovaLeitura, excluindo, leiturasSelecionadas.length, temExpandido],
   )
 
   const colunaFiltroAberta = popoverFiltroAberto
@@ -328,6 +351,7 @@ export function TabelaTransacoesLeituraSmartRead({
         itemId={itemId}
         mapaColunasFilho={mapaColunasFilho}
         onCarregarFilhos={handleCarregarFilhos}
+        onExpandidosMudar={handleExpandidosMudar}
         filhoId={filhoId}
         labelPai={['leitura', 'leituras']}
         labelFilho={['arquivo', 'arquivos']}

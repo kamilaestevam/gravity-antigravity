@@ -12,7 +12,7 @@ import {
 } from '../schemas/leitura-smart-read.js'
 import { extrairDadosSessaoProgressoLeitura } from '../schemas/progresso-leitura-smart-read.js'
 import { clausulaWorkspaceLeituraSmartRead } from './escopo-workspace-leitura-smart-read.js'
-import { normalizarTransacaoDeLeitura } from './normalizar-transacao-leitura-smart-read.js'
+import { normalizarTransacaoDeLeitura, mesclarOrigemLeituraTransacao } from './normalizar-transacao-leitura-smart-read.js'
 
 export const VERSAO_CONTRATO_SNAPSHOT_LEITURA_SMART_READ = 1
 
@@ -82,9 +82,22 @@ export async function persistirSnapshotLeituraSmartRead(params: {
   const { prisma, idOrganizacao, idUsuario, idWorkspace, leitura, motivo, extras } = params
   if (!leituraElegivelParaSnapshot(leitura) && motivo !== 'conferencia_usuario') return
 
+  const existente = await prisma.snapshotLeituraSmartRead.findFirst({
+    where: {
+      id_leitura_legado_snapshot_leitura_smart_read: leitura.id_leitura,
+    },
+  })
+
+  const origemExistente = existente?.origem_leitura_snapshot_leitura_smart_read as OrigemLeitura | undefined
+  const origemInformada = extras?.origem_leitura
+  const origemPersistida =
+    origemExistente && origemInformada
+      ? mesclarOrigemLeituraTransacao(origemExistente, origemInformada)
+      : origemInformada ?? origemExistente
+
   const transacao = normalizarTransacaoDeLeitura(leitura, {
     data_envio: extras?.data_envio ?? null,
-    origem_leitura: extras?.origem_leitura,
+    origem_leitura: origemPersistida,
     created_at: extras?.created_at ?? extras?.data_envio ?? null,
     completed_at: extras?.completed_at ?? null,
   })
@@ -123,12 +136,6 @@ export async function persistirSnapshotLeituraSmartRead(params: {
     data_congelamento_snapshot_leitura_smart_read: new Date(),
     versao_contrato_snapshot_leitura_smart_read: VERSAO_CONTRATO_SNAPSHOT_LEITURA_SMART_READ,
   }
-
-  const existente = await prisma.snapshotLeituraSmartRead.findFirst({
-    where: {
-      id_leitura_legado_snapshot_leitura_smart_read: leitura.id_leitura,
-    },
-  })
 
   if (existente) {
     await prisma.snapshotLeituraSmartRead.update({

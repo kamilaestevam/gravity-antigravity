@@ -6,6 +6,7 @@ import { clausulaWorkspaceLeituraSmartRead } from './escopo-workspace-leitura-sm
 import { obterLeituraLegado, listarLeiturasLegado } from './cliente-legado-smart-read.js'
 import {
   extrairItensListaLegado,
+  mesclarTransacaoNaLista,
   normalizarTransacaoDeItemListaLegado,
   normalizarTransacaoDeLeitura,
 } from './normalizar-transacao-leitura-smart-read.js'
@@ -14,7 +15,7 @@ import {
   transacaoDeRegistroSnapshot,
 } from './snapshot-leitura-smart-read.js'
 import { extrairDadosSessaoProgressoLeitura } from '../schemas/progresso-leitura-smart-read.js'
-import { normalizarLeitura, type TransacaoLeitura } from '../schemas/leitura-smart-read.js'
+import { normalizarLeitura, type OrigemLeitura, type TransacaoLeitura } from '../schemas/leitura-smart-read.js'
 
 export type ParametrosListaLeituras = {
   companyId: string
@@ -22,6 +23,7 @@ export type ParametrosListaLeituras = {
   pagina: number
   limite: number
   termo_busca?: string
+  origem_leitura?: OrigemLeitura
   prisma?: PrismaClient
   /** Workspace ativo (lista compartilhada na filial — paridade Pedido/BID). */
   idWorkspace: string
@@ -73,6 +75,19 @@ function filtrarPorTermo(transacoes: TransacaoLeitura[], termo?: string): Transa
     const nome = (item.nome_leitura ?? item.nome_arquivo ?? item.id_leitura).toLowerCase()
     return nome.includes(busca)
   })
+}
+
+function filtrarPorOrigem(
+  transacoes: TransacaoLeitura[],
+  origem?: OrigemLeitura,
+): TransacaoLeitura[] {
+  if (!origem) return transacoes
+  return transacoes.filter((item) => item.origem_leitura === origem)
+}
+
+function inserirTransacaoNoMapa(mapa: Map<string, TransacaoLeitura>, item: TransacaoLeitura): void {
+  const existente = mapa.get(item.id_leitura)
+  mapa.set(item.id_leitura, existente ? mesclarTransacaoNaLista(existente, item) : item)
 }
 
 async function listarViaSnapshotGravity(
@@ -164,18 +179,22 @@ export async function montarListaTransacoesLeituraSmartRead(
 
   const mapa = new Map<string, TransacaoLeitura>()
   for (const item of [...transacoesLegado, ...viaProgresso, ...viaSnapshot]) {
-    mapa.set(item.id_leitura, item)
+    inserirTransacaoNoMapa(mapa, item)
   }
 
   let transacoes = [...mapa.values()].sort((a, b) =>
     (b.data_envio ?? '').localeCompare(a.data_envio ?? ''),
   )
   transacoes = filtrarPorTermo(transacoes, params.termo_busca)
+  transacoes = filtrarPorOrigem(transacoes, params.origem_leitura)
 
+  const totalFiltrado = transacoes.length
   const total =
-    legadoIndisponivel && transacoesLegado.length === 0
-      ? transacoes.length
-      : Math.max(totalLegado, transacoes.length, idsLeituraDoWorkspace.size)
+    params.origem_leitura != null
+      ? totalFiltrado
+      : legadoIndisponivel && transacoesLegado.length === 0
+        ? transacoes.length
+        : Math.max(totalLegado, transacoes.length, idsLeituraDoWorkspace.size)
 
   const inicio = (params.pagina - 1) * params.limite
   const paginado = transacoes.slice(inicio, inicio + params.limite)

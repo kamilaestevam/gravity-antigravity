@@ -3,14 +3,19 @@
  */
 
 import React from 'react'
-import { ChartLineUp, Clock, ChartDonut } from '@phosphor-icons/react'
+import { ChartLineUp, Timer, ChartDonut } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { formatarPercentualLeitura } from '../shared/formatacao-leitura-smart-read'
+import {
+  formatarPercentualLeitura,
+  formatarSavingHorasLeitura,
+  formatarSavingValorLeitura,
+} from '../shared/formatacao-leitura-smart-read'
 import type { TransacaoLeitura } from '../shared/schemas'
 import {
   usePreferenciasCardsSmartRead,
   type CardDefinicaoSmartRead,
 } from '../shared/use-preferencias-cards-smart-read'
+import { LinkMetodologiaSavingInsightsSmartRead } from '../pages/insights-smart-read/metodologia-saving-insights-smart-read'
 
 type Props = {
   transacoes: TransacaoLeitura[]
@@ -26,12 +31,38 @@ function calcularMediaAcertos(transacoes: TransacaoLeitura[]): number | null {
   return valores.reduce((acc, v) => acc + v, 0) / valores.length
 }
 
+function calcularSavingAgregado(transacoes: TransacaoLeitura[]): {
+  minutos: number | null
+  brl: number | null
+  camposErrados: number
+  leiturasComSaving: number
+} {
+  let minutos = 0
+  let brl = 0
+  let camposErrados = 0
+  let leiturasComSaving = 0
+
+  for (const transacao of transacoes) {
+    camposErrados += transacao.total_campos_errados
+    if (transacao.saving_total_minutos == null) continue
+    minutos += transacao.saving_total_minutos
+    brl += transacao.saving_total_brl ?? 0
+    leiturasComSaving += 1
+  }
+
+  return {
+    minutos: leiturasComSaving > 0 ? minutos : null,
+    brl: leiturasComSaving > 0 ? brl : null,
+    camposErrados,
+    leiturasComSaving,
+  }
+}
+
 function renderCard(
   card: CardDefinicaoSmartRead,
   props: Props,
 ): React.ReactNode {
   const { transacoes, totalLeituras, carregando } = props
-  const placeholder = carregando ? '…' : 'Em breve'
 
   if (card.id === 'leituras_realizadas') {
     const valor = carregando ? '…' : (totalLeituras ?? transacoes.length)
@@ -60,14 +91,42 @@ function renderCard(
   }
 
   if (card.id === 'recursos_reduzidos') {
+    const saving = calcularSavingAgregado(transacoes)
     return (
       <CardBasicoGlobal
         key={card.id}
         titulo={card.titulo.toUpperCase()}
-        icone={<Clock weight="duotone" size={16} style={{ color: '#818cf8' }} />}
-        valor={placeholder}
-        subtexto="Métrica em integração"
-        tooltip={<p className="cg-tooltip__row"><span>{card.descricao}</span></p>}
+        icone={<Timer weight="duotone" size={16} style={{ color: '#34d399' }} />}
+        valor={carregando ? '…' : formatarSavingHorasLeitura(saving.minutos)}
+        variante="sucesso"
+        subtexto={
+          carregando
+            ? '…'
+            : `${formatarSavingValorLeitura(saving.brl)} evitados · leituras visíveis`
+        }
+        tooltip={
+          <>
+            <p className="cg-tooltip__row">
+              <span>Tempo economizado</span>
+              <strong>{formatarSavingHorasLeitura(saving.minutos)}</strong>
+            </p>
+            <p className="cg-tooltip__row">
+              <span>Custo evitado (est.)</span>
+              <strong>{formatarSavingValorLeitura(saving.brl)}</strong>
+            </p>
+            <p className="cg-tooltip__row">
+              <span>Campos editados na conferência</span>
+              <strong>{saving.camposErrados}</strong>
+            </p>
+            <p className="cg-tooltip__row">
+              <span>Leituras com saving</span>
+              <strong>{saving.leiturasComSaving}</strong>
+            </p>
+            <p className="cg-tooltip__row cg-tooltip__row--link-only">
+              <LinkMetodologiaSavingInsightsSmartRead>Base de cálculo →</LinkMetodologiaSavingInsightsSmartRead>
+            </p>
+          </>
+        }
       />
     )
   }

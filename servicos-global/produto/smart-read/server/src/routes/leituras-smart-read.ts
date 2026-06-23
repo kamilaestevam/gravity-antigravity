@@ -16,6 +16,7 @@ import {
   resolverCompanyLegado,
 } from '../lib/cliente-legado-smart-read.js'
 import { montarListaTransacoesLeituraSmartRead } from '../lib/montar-lista-transacoes-leitura-smart-read.js'
+import { mapearOrigemLeitura } from '../lib/normalizar-transacao-leitura-smart-read.js'
 import {
   leituraVinculadaAoWorkspaceSmartRead,
   resolverIdWorkspaceLeituraSmartRead,
@@ -32,6 +33,7 @@ import {
   LeituraSchema,
   ListarTransacoesRespostaSchema,
   MetricaLeituraRespostaSchema,
+  OrigemLeituraEnum,
   normalizarLeitura,
 } from '../schemas/leitura-smart-read.js'
 import { progressoLeituraSmartReadRouter } from './progresso-leitura-smart-read.js'
@@ -49,6 +51,7 @@ const ListarLeiturasQuerySchema = z.object({
   pagina: z.coerce.number().int().min(1).default(1),
   limite: z.coerce.number().int().min(1).max(100).default(50),
   termo_busca: z.string().optional(),
+  origem_leitura: OrigemLeituraEnum.optional(),
 })
 
 function organizacaoDaRequisicao(req: Request): string {
@@ -86,6 +89,7 @@ router.get('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next: N
       pagina: query.pagina,
       limite: query.limite,
       termo_busca: query.termo_busca,
+      origem_leitura: query.origem_leitura,
       prisma: req.prisma,
       idWorkspace,
     })
@@ -207,6 +211,7 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
           data_envio: leituraLegado.createdAt ?? null,
           created_at: leituraLegado.createdAt ?? null,
           completed_at: leituraLegado.completedAt ?? null,
+          origem_leitura: mapearOrigemLeitura(leituraLegado.source ?? leituraLegado.origin),
         },
       }).catch((erro) => {
         console.warn('[smart-read][snapshot] falha ao persistir no GET leitura', erro)

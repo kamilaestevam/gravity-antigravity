@@ -373,14 +373,18 @@ export function TabelaTransacoesLeituraSmartRead({
         placeholderBusca="Localizar…"
         distribuirLarguraColunas
         ariaLabel={`Lista de ${tituloPainel} Smart Read`}
-        emptyTitle="Nenhum envio encontrado"
+        emptyTitle={
+          tituloPainel === 'Transações API' ? 'Nenhuma transação API encontrada' : 'Nenhum envio encontrado'
+        }
         emptyDescription={
           termoBusca.trim() || Object.keys(filtrosAtivosLista).length > 0
             ? 'Nenhuma leitura corresponde à busca ou aos filtros.'
-            : 'Envie a primeira leitura para começar.'
+            : tituloPainel === 'Transações API'
+              ? 'Envios feitos via API Cockpit aparecem aqui quando o legado marca source como API.'
+              : 'Envie a primeira leitura para começar.'
         }
         emptyAction={
-          !termoBusca.trim() && Object.keys(filtrosAtivosLista).length === 0 ? (
+          !termoBusca.trim() && Object.keys(filtrosAtivosLista).length === 0 && tituloPainel !== 'Transações API' ? (
             <button type="button" className="sr-link-acao" onClick={() => abrirNovaLeitura()}>
               Enviar primeira leitura
             </button>

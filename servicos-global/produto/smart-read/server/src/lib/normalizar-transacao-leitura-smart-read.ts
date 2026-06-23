@@ -43,10 +43,31 @@ export const ItemListaLeituraLegadoSchema = z.object({
 
 export type ItemListaLeituraLegado = z.infer<typeof ItemListaLeituraLegadoSchema>
 
-function mapearOrigemLeitura(valor: string | undefined): z.infer<typeof OrigemLeituraEnum> {
+export function mapearOrigemLeitura(valor: string | undefined): z.infer<typeof OrigemLeituraEnum> {
   const normalizado = (valor ?? '').toLowerCase()
   if (normalizado.includes('api') || normalizado === 'external') return 'API'
   return 'INTERFACE'
+}
+
+export function mesclarOrigemLeituraTransacao(
+  anterior: z.infer<typeof OrigemLeituraEnum>,
+  novo: z.infer<typeof OrigemLeituraEnum>,
+): z.infer<typeof OrigemLeituraEnum> {
+  return anterior === 'API' || novo === 'API' ? 'API' : novo
+}
+
+export function mesclarTransacaoNaLista(
+  anterior: TransacaoLeitura,
+  novo: TransacaoLeitura,
+): TransacaoLeitura {
+  return {
+    ...novo,
+    origem_leitura: mesclarOrigemLeituraTransacao(anterior.origem_leitura, novo.origem_leitura),
+    nome_leitura: novo.nome_leitura || anterior.nome_leitura,
+    data_envio: anterior.data_envio ?? novo.data_envio,
+    mensagem_erro: novo.mensagem_erro ?? anterior.mensagem_erro,
+    media_acertos: novo.media_acertos ?? anterior.media_acertos,
+  }
 }
 
 function extrairMediaAcertosLeitura(leitura: Leitura): number | null {

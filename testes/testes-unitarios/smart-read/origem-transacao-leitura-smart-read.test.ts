@@ -89,4 +89,25 @@ describe('mesclarTransacaoNaLista', () => {
     expect(mesclada.saving_total_minutos).toBeGreaterThan(0)
     expect(mesclada.saving_total_brl).toBeGreaterThan(0)
   })
+
+  it('estima saving quando API traz saving zerado mas há documentos concluídos', () => {
+    const legado = transacaoBase({
+      id_leitura: 'abc',
+      saving_total_minutos: 0,
+      saving_total_brl: 0,
+      total_documentos: 0,
+    })
+    const snapshot = transacaoBase({
+      id_leitura: 'abc',
+      saving_total_minutos: 0,
+      saving_total_brl: 0,
+      total_documentos: 1,
+      tipos_documento: 'AWB',
+    })
+
+    const mesclada = mesclarTransacaoNaLista(legado, snapshot)
+
+    expect(mesclada.saving_total_minutos).toBeGreaterThan(0)
+    expect(mesclada.saving_total_brl).toBeGreaterThan(0)
+  })
 })

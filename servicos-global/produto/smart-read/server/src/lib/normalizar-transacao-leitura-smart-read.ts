@@ -5,9 +5,9 @@
 import { z } from 'zod'
 import {
   calcularMetricasTransacaoLeituraSmartRead,
-  estimarSavingAgregadoLeituraSmartRead,
   metricasTransacaoLeituraVazias,
   resolverMediaAcertosTransacaoLeituraSmartRead,
+  resolverSavingTransacaoLeituraSmartRead,
 } from '../../../shared/metricas-transacao-leitura-smart-read.js'
 import {
   LeituraSchema,
@@ -65,11 +65,8 @@ export function complementarMetricasTransacaoLista(transacao: TransacaoLeitura):
     media_acertos: resolverMediaAcertosTransacaoLeituraSmartRead(transacao),
   }
 
-  if (resultado.saving_total_minutos == null && resultado.total_documentos > 0) {
-    const saving = estimarSavingAgregadoLeituraSmartRead(
-      resultado.total_documentos,
-      resultado.total_campos_errados,
-    )
+  const saving = resolverSavingTransacaoLeituraSmartRead(resultado)
+  if (saving) {
     resultado = {
       ...resultado,
       saving_total_minutos: saving.saving_total_minutos,

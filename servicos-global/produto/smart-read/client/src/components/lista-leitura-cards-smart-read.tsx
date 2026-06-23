@@ -11,8 +11,8 @@ import {
   formatarSavingValorLeitura,
 } from '../shared/formatacao-leitura-smart-read'
 import {
-  estimarSavingAgregadoLeituraSmartRead,
   resolverMediaAcertosTransacaoLeituraSmartRead,
+  resolverSavingTransacaoLeituraSmartRead,
 } from '../../../shared/metricas-transacao-leitura-smart-read'
 import type { TransacaoLeitura } from '../shared/schemas'
 import {
@@ -35,24 +35,6 @@ function calcularMediaAcertos(transacoes: TransacaoLeitura[]): number | null {
   return valores.reduce((acc, v) => acc + v, 0) / valores.length
 }
 
-function resolverSavingMinutosTransacao(transacao: TransacaoLeitura): number | null {
-  if (transacao.saving_total_minutos != null) return transacao.saving_total_minutos
-  if (transacao.total_documentos <= 0) return null
-  return estimarSavingAgregadoLeituraSmartRead(
-    transacao.total_documentos,
-    transacao.total_campos_errados,
-  ).saving_total_minutos
-}
-
-function resolverSavingBrlTransacao(transacao: TransacaoLeitura): number | null {
-  if (transacao.saving_total_brl != null) return transacao.saving_total_brl
-  if (transacao.total_documentos <= 0) return null
-  return estimarSavingAgregadoLeituraSmartRead(
-    transacao.total_documentos,
-    transacao.total_campos_errados,
-  ).saving_total_brl
-}
-
 function calcularSavingAgregado(transacoes: TransacaoLeitura[]): {
   minutos: number | null
   brl: number | null
@@ -66,10 +48,10 @@ function calcularSavingAgregado(transacoes: TransacaoLeitura[]): {
 
   for (const transacao of transacoes) {
     camposErrados += transacao.total_campos_errados
-    const minutosTransacao = resolverSavingMinutosTransacao(transacao)
-    if (minutosTransacao == null) continue
-    minutos += minutosTransacao
-    brl += resolverSavingBrlTransacao(transacao) ?? 0
+    const saving = resolverSavingTransacaoLeituraSmartRead(transacao)
+    if (!saving || saving.saving_total_minutos <= 0) continue
+    minutos += saving.saving_total_minutos
+    brl += saving.saving_total_brl
     leiturasComSaving += 1
   }
 

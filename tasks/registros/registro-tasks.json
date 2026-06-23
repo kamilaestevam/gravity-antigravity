@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 324,
+  "proximo_numero": 325,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -913,6 +913,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000323.json"
+    },
+    {
+      "referencia": "TASK-000324",
+      "ordinal": 53,
+      "titulo_canonico": "OUTROS-SMART-READ-LISTA-MEL-FAIXA-PAINEIS-PARIDADE-PEDIDO-BIDFRT",
+      "titulo_exibicao": "TASK-000324 | [Smart Read] Lista | MEL — Faixa PAINEIS na Lista (paridade Pedido/BID Frete)",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": "LISTA",
+      "tipo_entrega": "MEL",
+      "resumo": "FAIXA-PAINEIS-PARIDADE-PEDIDO-BIDFRT",
+      "data_criacao": "2026-06-24T23:30:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000324.json"
     }
   ]
 }

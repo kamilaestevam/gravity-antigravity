@@ -289,17 +289,81 @@ export function useListaPainelSmartRead() {
     void executarPersistencia(id, estado)
   }, [executarPersistencia])
 
+  const criarPainel = useCallback(async (
+    nome: string,
+    estadoAtual: EstadoListaParaPainel,
+    callbacks: AplicarConfigListaPainelCallbacks,
+  ) => {
+    const trimmed = nome.trim()
+    if (!trimmed) return null
+    try {
+      const configJson = JSON.stringify(estadoParaConfig(estadoAtual))
+      const { data } = await paineisListaSmartReadApi.criar(trimmed, configJson)
+      setPaineis((prev) => [...prev, data])
+      painelHidratadoIdRef.current = null
+      setPainelAtualId(data.id)
+      aplicarConfigDoPainel(data, callbacks)
+      return data
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn('[useListaPainelSmartRead] falha ao criar painel', msg, err)
+      throw err instanceof Error ? err : new Error(msg)
+    }
+  }, [aplicarConfigDoPainel])
+
+  const trocarPainel = useCallback(async (
+    id: string,
+    estadoAtual: EstadoListaParaPainel,
+    callbacks: AplicarConfigListaPainelCallbacks,
+  ) => {
+    if (persistTimerRef.current) {
+      clearTimeout(persistTimerRef.current)
+      persistTimerRef.current = null
+    }
+    const idAnterior = painelAtualIdRef.current
+    painelHidratadoIdRef.current = null
+
+    let paineisAtualizados = paineis
+    if (idAnterior && idAnterior !== id) {
+      const estadoSalvar = estadoRef.current ?? estadoAtual
+      const configJson = JSON.stringify(estadoParaConfig(estadoSalvar))
+      try {
+        await paineisListaSmartReadApi.atualizar(idAnterior, { config_json: configJson })
+        paineisAtualizados = paineis.map((p) => (
+          p.id === idAnterior ? { ...p, config_json: configJson } : p
+        ))
+        setPaineis(paineisAtualizados)
+      } catch (err) {
+        console.warn('[useListaPainelSmartRead] falha ao salvar painel anterior', idAnterior, err)
+        addNotification({ type: 'error', message: mensagemErroPersistirPainel(err) })
+      }
+    }
+
+    const proximo = paineisAtualizados.find((p) => p.id === id)
+    if (!proximo) {
+      console.warn('[useListaPainelSmartRead] painel não encontrado para troca', id)
+      return
+    }
+
+    setPainelAtualId(id)
+    aplicarConfigDoPainel(proximo, callbacks)
+  }, [paineis, aplicarConfigDoPainel, addNotification])
+
   const painelAtual = paineis.find((p) => p.id === painelAtualId) ?? null
 
   return {
     paineis,
+    setPaineis,
     painelAtualId,
+    setPainelAtualId,
     painelAtual,
     carregando,
     carregarPaineis,
     aplicarConfigDoPainel,
     persistirPainelAtual,
     persistirPainelAtualImediato,
+    trocarPainel,
+    criarPainel,
     aplicandoConfigRef,
     painelHidratadoIdRef,
   }

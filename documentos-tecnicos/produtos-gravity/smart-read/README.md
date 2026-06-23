@@ -26,6 +26,7 @@ O Smart Read replica o **mesmo model e contrato** de `ListaPainelUsuarioGlobal` 
 | API | `GET\|POST\|PUT\|DELETE /api/v1/smart-read/lista/paineis` |
 | Zod | `shared/listaPainelConfigSchema.ts`, `shared/listaPainelApiSchema.ts` |
 | Hook | `client/src/shared/use-lista-painel-smart-read.ts` |
+| UI faixa | `client/src/components/SmartReadListaPainelBar.tsx` + `client/src/shared/smart-read-lista-layout.css` |
 
 ---
 
@@ -109,4 +110,5 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | **PR #409** (merge 2026-06-23) | Insights: modal **Base de cálculo** (tempos do estudo + observações documento médio), KPI Saving em Erros = contagem de campos, fallback degradado, cadeia GET snapshot→legado→progresso — ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) §5–6 e [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) §4.6 |
 | **TASK-000317** / PR #409 | Lista: colunas de **métricas da leitura** (documentos, campos, saving, tempos) — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §12 |
 | **TASK-000321** | Lista: ordem dos KPI cards (Performance de acertos = 2º) + card **Recursos reduzidos** agregando saving das leituras visíveis — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §13 |
+| **TASK-000324** | Lista: faixa **Painéis** roxa no chrome da tabela (criar/trocar/renomear/reordenar/excluir) + segmento «Visão geral» / «Transações API» na faixa unificada — paridade Pedido/BID Frete — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §11 |
 | Refatoração Insights | Fonte única acerto/erro por edição do usuário; emissor responsável por tipo de documento; `dados_original` no contrato bilateral |

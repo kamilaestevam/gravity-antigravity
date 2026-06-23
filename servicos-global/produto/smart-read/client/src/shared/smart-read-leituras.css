@@ -48,6 +48,37 @@
   flex-direction: column;
 }
 
+.sr-tabela-wrapper--faixa-unificada {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sr-tabela-wrapper--faixa-unificada .sr-painel--tabela {
+  flex: 1;
+  min-height: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.sr-tabela-wrapper--faixa-unificada .lp-tabela-chrome {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.sr-tabela-wrapper--faixa-unificada .lp-tabela-chrome > .gtv-container {
+  flex: 1;
+  min-height: 0;
+}
+
+.sr-tabela-wrapper--faixa-unificada .lp-faixa-navegacao__status .sr-segmento-tabs {
+  flex: 1;
+  min-width: 0;
+  border-bottom: none;
+}
+
 .sr-tabela-wrapper .sr-painel--tabela {
   flex: 1;
   min-height: 0;

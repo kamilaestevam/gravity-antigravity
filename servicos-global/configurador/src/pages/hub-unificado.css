@@ -702,7 +702,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__head {
-  margin-bottom: 0.75rem;
+  margin-bottom: 4px;
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__head-actions {
@@ -710,6 +710,14 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
+}
+
+.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__meter-label {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--sw-text-2);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__lanes {

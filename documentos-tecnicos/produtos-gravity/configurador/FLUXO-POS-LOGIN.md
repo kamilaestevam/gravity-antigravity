@@ -16,7 +16,20 @@ Após autenticar no Clerk, o **porteiro SSOT** (`GET /api/v1/me`) envia o usuár
 Documentação completa do signup: [`FLUXO-SIGNUP-ONBOARDING.md`](./FLUXO-SIGNUP-ONBOARDING.md).  
 Plano de testes LOGIN: [`PLANO-LOGIN-PORTEIRO-SSOT.md`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md).
 
-Na rota `/hub`, `<SelecionarWorkspace />` é o **HUB unificado** (workspace + produtos + insights). Rotas legadas `/core` e `/core/*` redirecionam para `/hub`.
+Na rota `/hub`, `<SelecionarWorkspace />` é o **HUB unificado** (produtos contratados + operações + Store/Gabi). Rotas legadas `/core` e `/core/*` redirecionam para `/hub`.
+
+### Layout do HUB (PR #404)
+
+| Faixa | Conteúdo |
+|-------|----------|
+| Hero | Saudação, resumo operacional, status |
+| **Seus Produtos Gravity** | Largura total — puzzle com paridade visual da Gravity Store (`GradeProdutosContratadosHub` + `StorePuzzleCarousel`) |
+| Operações em andamento | KPIs + atalho processos |
+| Inferior | Gravity Store + Gabi |
+
+A faixa superior **não** exibe mais o painel **Workspaces** lado a lado com produtos (grid 2 colunas removido). Puzzle, meter e atalho **Gravity Store** ficam no cabeçalho único da seção de produtos.
+
+Detalhe visual e componentes: [GRAVITY-STORE.md](./GRAVITY-STORE.md) § Reuso no HUB.
 
 ---
 

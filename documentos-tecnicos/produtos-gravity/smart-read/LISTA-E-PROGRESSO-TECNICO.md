@@ -82,6 +82,18 @@ Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-us
 
 O legado costuma devolver nomes genéricos (`Leitura 01`). O nome escolhido no wizard **não** propaga ao legado — persiste só no Gravity.
 
+### Edição do nome no wizard (UX)
+
+| Regra | Implementação |
+|-------|----------------|
+| Padrão Gravity | `EdicaoTextoPopoverGlobal` (`@nucleo/tabela-virtual-global`) — **não** usar `window.prompt` |
+| Componente | `client/src/components/nova-leitura-smart-read/edicao-nome-leitura-nova-leitura-smart-read.tsx` |
+| Sidebar | `painel-lateral-arquivos-nova-leitura-smart-read.tsx` |
+| Disponibilidade | Editável em **qualquer passo** (1–4) |
+| Persistência | Passo ≥ 2 com análise concluída → `PATCH` imediato via `onConfirmarNome` no modal |
+
+**Removido (legado dati):** rótulos «Starter» e contador «Documentos X/100» no topo da sidebar — planos comerciais não existem mais no Gravity.
+
 ---
 
 ## 4. Quando o progresso grava
@@ -91,7 +103,7 @@ O legado costuma devolver nomes genéricos (`Leitura 01`). O nome escolhido no w
 | Upload (passo 1) | Não |
 | Análise concluída (passo 2) | Sim — `PATCH` automático |
 | Continuar / Voltar passo | Sim |
-| Renomear após análise | Sim — `PATCH` imediato |
+| Renomear (qualquer passo) | Sim no estado local; `PATCH` imediato se passo ≥ 2 e análise concluída |
 | Fechar modal | Sim + **recarrega lista** (`onFechar` → `onRecarregar`) |
 
 **Primário:** `PATCH` → tabela `progresso_leitura_smart_read` (Railway, `SMART_READ_DATABASE_URL`).  
@@ -138,3 +150,77 @@ Teste: `http://localhost:8000/smart-read/lista` (Configurador) + sidecar `8033`.
 | `testes/testes-unitarios/smart-read/fixtures/leituras-fixture-insights-smart-read.ts` | Fixture Insights (não runtime) |
 
 Pacote `/testes-criar` completo (FUN PATCH→GET nome, E2E link→retomar) — pendente no fechamento TASK-000308.
+
+---
+
+## 9. Layout da lista (paridade Pedido — TASK-000311 / PR #394)
+
+A área da tabela **preenche o viewport** abaixo dos cards e abas de segmento (padrão `.lp-page` do Pedido, não altura fixa em px).
+
+| Camada | Arquivo / classe |
+|--------|------------------|
+| Painel keep-alive | `SmartReadVisualizacaoTabs.css` → `.smart-read-view-panel--ativo` + filho `.sr-pagina--lista` com `flex: 1` |
+| Página lista | `ListaLeituraSmartRead.tsx` → `.sr-pagina--lista` |
+| Wrapper tabela | `.sr-tabela-wrapper` (`flex: 1; min-height: 0`) |
+| GTV | `.gtv-container` + `.gtv-tabela-scroll` (`flex: 1 1 0`) |
+
+**Referência visual:** mesma altura total que Pedido (`/pedido/pedidos/lista`) — tabela + toolbar + rodapé dentro do bloco, scroll interno nas linhas.
+
+---
+
+## 10. Contagem e paginação (rodapé GTV)
+
+Componente: `TabelaVirtualGlobal` em `tabela-transacoes-leitura-smart-read.tsx`.
+
+| Prop | Valor |
+|------|-------|
+| `labelPai` | `['leitura', 'leituras']` |
+| `labelFilho` | `['arquivo', 'arquivos']` |
+| `totalFilhos` | Soma de `total_arquivos` das leituras visíveis (página ou filtradas) |
+| `totalItens` | Total do BFF (`paginacao.total`) ou contagem pós-filtro client-side |
+| `itensPorPagina` | `50` |
+| `paginaAtual` / `onMudarPagina` | Server-side via `useTransacoesLeituraSmartRead` |
+
+Rodapé exibido mesmo com uma página quando `labelPai` + `totalFilhos` estão definidos (ex.: `6 leituras · 6 arquivos · página 1 de 1`). Controles `« ‹ 1 2 3 › »` aparecem quando `totalPaginas > 1`.
+
+---
+
+## 11. Painéis da lista + colunas/filtros/export (PR #394)
+
+### Painéis salvos (Postgres)
+
+Mesmo padrão de [PAINEL-LISTA-CONTRATO.md](../pedido/PAINEL-LISTA-CONTRATO.md): uma linha por aba em `lista_painel_usuario_global`, `config_json` v1 com colunas, filtros, ordenação, busca e `cards_topo`.
+
+| Método | Rota |
+|--------|------|
+| `GET` | `/api/v1/smart-read/lista/paineis` — bootstrap «Principal» se vazio |
+| `POST` | `/api/v1/smart-read/lista/paineis` |
+| `PUT` | `/api/v1/smart-read/lista/paineis/:id` |
+| `PUT` | `/api/v1/smart-read/lista/paineis/reordenar` |
+| `DELETE` | `/api/v1/smart-read/lista/paineis/:id` |
+
+| Camada | Arquivo |
+|--------|---------|
+| Rotas | `server/src/routes/lista-paineis-smart-read.ts` |
+| Hook | `client/src/shared/use-lista-painel-smart-read.ts` |
+| Persistência debounce | `shared/persistenciaListaPainel.ts` (`podePersistirPainelLista`) |
+| Config Zod | `shared/listaPainelConfigSchema.ts` |
+
+> **UI da faixa de abas roxas (Painéis):** hook e API prontos; wiring visual da barra (`*ListaPainelBar` + `*ListaFaixaNavegacao`) segue paridade Pedido/BID — ver TASK-000311 pendente de fechamento visual se ainda não estiver na branch de produção.
+
+### Colunas, filtros e exportação
+
+| Recurso | Arquivo principal |
+|---------|-------------------|
+| Catálogo de colunas (documento extraído) | `shared/catalogo-colunas-documento-smart-read.ts` |
+| Colunas GTV | `shared/colunas-lista-leitura-smart-read.tsx` |
+| Filtros por coluna | `shared/filtrar-transacoes-lista-smart-read.ts` + `FiltroPopoverColuna` |
+| Exportação | `shared/acoes-exportacao-lista-smart-read.tsx` |
+| Preferências → painel | `onSalvarPreferencias` → `useListaPainelSmartRead.persistirPainelAtual` |
+
+### Testes adicionais (PR #394)
+
+| Arquivo | Cobertura |
+|---------|-----------|
+| `testes/testes-unitarios/smart-read/extrair-valores-colunas-documento.test.ts` | Extração de valores para colunas dinâmicas |
+| `testes/testes-unitarios/smart-read/agregar-caminhos-campos-dados.test.ts` | Agregação de caminhos no BFF |

@@ -629,10 +629,7 @@ export function ModalNovaLeituraSmartRead({
 
           podeContinuar={podeContinuar}
 
-          onEditarNome={() => {
-            const novo = window.prompt('Nome da leitura', nomeLeitura)
-            if (!novo?.trim()) return
-            const nome = novo.trim()
+          onConfirmarNome={(nome) => {
             setNomeLeitura(nome)
             if (passo >= 2 && analiseCompleta) {
               void salvarProgressoAtual(passo, nome)

@@ -7,6 +7,10 @@ import {
   useSmartReadVisualizacao,
   testidPainelSeletorSmartRead,
 } from './smart-read-visualizacao-context'
+import {
+  AcoesToolbarVisualizacaoProvider,
+  useAcoesToolbarVisualizacao,
+} from './acoes-toolbar-visualizacao-smart-read'
 import type { SmartReadVisualizacaoId } from '../shared/rotas-smart-read'
 import { SmartReadVisualizacaoTabs } from './SmartReadVisualizacaoTabs'
 import './SmartReadVisualizacaoTabs.css'
@@ -33,6 +37,7 @@ function Painel({
 }) {
   const { painelAtivo } = useSmartReadVisualizacao()
   const ativo = painelAtivo(id)
+  const acoesToolbar = useAcoesToolbarVisualizacao()
 
   if (!montado) return null
 
@@ -47,6 +52,9 @@ function Painel({
       {ativo && (
         <div className="smart-read-vis-toolbar">
           <SmartReadVisualizacaoTabs />
+          {acoesToolbar ? (
+            <div className="smart-read-vis-toolbar__acoes">{acoesToolbar}</div>
+          ) : null}
         </div>
       )}
       <Suspense fallback={<PainelFallback />}>{children}</Suspense>
@@ -71,11 +79,13 @@ export function SmartReadMultiView() {
   }, [visualizacaoAtiva])
 
   return (
-    <div className="smart-read-multi-view">
-      <Painel id="insights" montado={visitados.has('insights')}><InsightsSmartRead /></Painel>
-      <Painel id="lista" montado={visitados.has('lista')}><ListaLeituraSmartRead /></Painel>
-      <Painel id="dashboard" montado={visitados.has('dashboard')}><DashboardSmartRead /></Painel>
-      <Painel id="kanban" montado={visitados.has('kanban')}><KanbanLeituraSmartRead /></Painel>
-    </div>
+    <AcoesToolbarVisualizacaoProvider>
+      <div className="smart-read-multi-view">
+        <Painel id="insights" montado={visitados.has('insights')}><InsightsSmartRead /></Painel>
+        <Painel id="lista" montado={visitados.has('lista')}><ListaLeituraSmartRead /></Painel>
+        <Painel id="dashboard" montado={visitados.has('dashboard')}><DashboardSmartRead /></Painel>
+        <Painel id="kanban" montado={visitados.has('kanban')}><KanbanLeituraSmartRead /></Painel>
+      </div>
+    </AcoesToolbarVisualizacaoProvider>
   )
 }

@@ -37,12 +37,36 @@
 }
 
 .bfd-globe-row--tres-colunas {
-  grid-template-columns: 1.6fr 0.9fr 1fr;
+  grid-template-columns: 1.55fr 0.78fr 0.95fr;
+  align-items: stretch;
+}
+
+.bfd-globe-row--tres-colunas > :first-child {
+  min-height: 0;
 }
 
 .bfd-globe-row .bfd-mapa-rankings-row {
   grid-column: 1;
   min-width: 0;
+}
+
+.bfd-insights-empilhado {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.bfd-insights-row-inferior {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.bfd-insights-row-inferior > .bfd-rankings-externo-card {
+  min-height: 320px;
 }
 
 .bfd-globe-row__coluna-direita {
@@ -444,6 +468,7 @@
 
   .bfd-globe-row,
   .bfd-globe-row--tres-colunas,
+  .bfd-insights-row-inferior,
   .bfd-insights-grid,
   .bfd-charts-grid--fornecedor,
   .bfd-acoes-grid {

@@ -1065,10 +1065,8 @@ export default function VisaoGeral() {
         />
       </div>
 
-      {/* Row 2: Globe Map + Right Column (Alertas on top, Funil de Cotações on bottom) */}
-      <div className="bfd-globe-row bfd-globe-row--tres-colunas">
-        {/* Global World Map Overview Section */}
-        <VisaoGeralMapa
+      {/* Mapa full width + Rankings / Alertas / Funil na linha inferior */}
+      <VisaoGeralMapa
           vistaInicialMapa="mapa"
           fonteDados="api"
           dadosMapa={dadosMapa}
@@ -1087,10 +1085,8 @@ export default function VisaoGeral() {
             })
             setIsDialogoCompletoOpen(true)
           }}
-        />
-
-        {/* Right Column Stacking Alertas + Funil */}
-        <div className="bfd-globe-row__coluna-direita">
+          painelInferiorInsights={(
+            <div className="bfd-globe-row__coluna-direita">
           {/* Alertas */}
           <div className="bfd-card bfd-alertas bfd-card--accent-rose" style={{ flex: 1, padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
@@ -1215,8 +1211,9 @@ export default function VisaoGeral() {
             </div>
             <BidFreteFunilBarras etapas={etapasFunil} rotuloEtapa={(rotulo) => rotulo} />
           </div>
-        </div>
-      </div>
+            </div>
+          )}
+        />
 
       {/* Charts Row */}
       <div className="bfd-charts-grid">

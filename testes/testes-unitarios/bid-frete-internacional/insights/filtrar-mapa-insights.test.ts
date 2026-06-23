@@ -109,4 +109,20 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
     )
     expect(resultado.routes).toHaveLength(1)
   })
+
+  it('filtra por status de cotação na rota', () => {
+    const rotaComStatus: ArcRouteBidFrete = {
+      ...rotaImportacao,
+      statuses_cotacao_bid_frete_internacional: ['RASCUNHO', 'EM_COTACAO'],
+    }
+    const rotaOutroStatus: ArcRouteBidFrete = {
+      ...rotaExportacaoAerea,
+      statuses_cotacao_bid_frete_internacional: ['APROVADA'],
+    }
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, [rotaComStatus, rotaOutroStatus], {
+      operacaoModal: new Set(),
+      status: new Set(['RASCUNHO']),
+    })
+    expect(resultado.routes).toEqual([rotaComStatus])
+  })
 })

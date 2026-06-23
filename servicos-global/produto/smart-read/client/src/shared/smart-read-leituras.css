@@ -69,6 +69,18 @@
   width: 100%;
 }
 
+/* Ícone de filtro colado ao título — escopo Smart Read (não afeta Pedido/BID) */
+.sr-tabela-wrapper .gtv-th:has(.gtv-filtro-btn) .gtv-th-label,
+.sr-tabela-wrapper .gtv-th:has(.gtv-filtro-btn) .tg-trigger {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.sr-tabela-wrapper .gtv-th:has(.gtv-filtro-btn) .gtv-filtro-btn {
+  margin-left: 0;
+  flex-shrink: 0;
+}
+
 .sr-toolbar-lista {
   display: flex;
   align-items: center;

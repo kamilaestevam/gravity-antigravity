@@ -68,9 +68,54 @@ Enriquecimento na resposta JSON; **não** enviar no `PATCH` (lista em `CAMPOS_CO
 
 ---
 
-## 5. Anti-padrões
+## 5. Aba Propostas — detalhamento completo da proposta (TASK-000313)
+
+Paridade visual com o portal do agente (`VALOR TOTAL DO FRETE`: Frete Base, Taxas Origem, Taxas Destino, Valor Total).
+
+| Contexto | Comportamento |
+|----------|---------------|
+| Card combate (`variante="combate"`) | Após `GradeColocacaoEixosCombate`, renderiza `TabelaResumoPropostaReadonlyBidFreteInternacional` |
+| 1 proposta na cotação | Tabela sempre visível |
+| 2+ propostas | Botão **Ver detalhamento completo** / **Recolher detalhamento** (`colapsavel={propostasTodas.length >= 2}`) |
+| Modal **Aprovar proposta** | Mesma tabela read-only substitui o grid legado de subtotais |
+
+### SSOT de UI
+
+| Peça | Caminho |
+|------|---------|
+| Tabela editável (portal agente) | `TabelaResumoPropostaBidFreteInternacional` em `resumo-composicao-total-frete-bid-frete-internacional.tsx` |
+| Wrapper read-only (comprador) | `tabela-resumo-proposta-readonly-bid-frete-internacional.tsx` |
+| Montagem de linhas a partir da proposta | `montarDadosTabelaResumoPropostaBidFreteInternacional` em `taxas-linha-proposta-bid-frete-internacional.ts` |
+| Wiring aba Propostas | `propostas-detalhe-cotacao-bid-frete-internacional.tsx` |
+| Modal aprovar | `modal-aprovar-proposta-bid-frete-internacional.tsx` |
+| CSS cockpit | `cotacao-detalhe-cockpit.css` — classes `.dc-prop-tabela-resumo*` |
+| CSS tabela (compartilhado portal) | `formulario-resposta-cotacao-bid-frete-internacional.css` — `.brc-tabela-resumo-estimado-brl*` |
+
+**Fonte de dados:** `taxas_origem[]` e `taxas_destino[]` já presentes na proposta enriquecida pelo ranking (`motor-comparativo-bid-frete-internacional.ts`). Não inventar linhas no client — usar o helper SSOT.
+
+### Estimativa em BRL (por moeda)
+
+Abaixo de cada valor monetário, linha secundária `≈ R$ …` quando há taxa disponível.
+
+| Prioridade | Fonte |
+|------------|-------|
+| 1 | Taxa manual do produto — `localStorage` `bid-frete:config:taxa-cambio` (`lerTaxasCambioConfigBidFreteInternacional`) |
+| 2 | PTAX venda — `GET /api/v1/taxas-moeda` via `buscarTaxasMoedaAtuaisInsights` |
+| Ausência de taxa | Omite a linha estimada (totais por coluna só somam moedas convertidas) |
+
+Conversão **por moeda de origem** (USD→BRL, EUR→BRL separados); totais em reais **não** implicam câmbio cruzado entre moedas estrangeiras.
+
+Helpers: `conversao-estimada-brl-proposta-bid-frete-internacional.ts`, `montarMapaTaxaParaBrl` em `taxas-cambio-insights-bid-frete-internacional.ts`.
+
+**Testes UNI:** `conversao-estimada-brl-proposta.test.ts`, `visao-fornecedor/taxas-linha-proposta-bid-frete-internacional.test.ts` (caso `montarDadosTabelaResumoPropostaBidFreteInternacional`).
+
+---
+
+## 6. Anti-padrões
 
 - Duplicar faixa de aprovação na aba Visão geral (`dc-aprovado`).
 - Exibir banner comparativo com 1 proposta quando status já é `APROVADA`.
 - Persistir `id_usuario_aprovacao_*` / `nome_usuario_aprovacao_*` no Prisma — são agregados de leitura.
 - Resolver «Quem aprovou» só no client sem enriquecer o GET (quebra para outros usuários da org).
+- Reimplementar grid de subtotais no modal Aprovar ou no card combate — usar `TabelaResumoPropostaReadonlyBidFreteInternacional`.
+- Converter moedas estrangeiras entre si ou somar USD+EUR num único total BRL sem conversão por coluna.

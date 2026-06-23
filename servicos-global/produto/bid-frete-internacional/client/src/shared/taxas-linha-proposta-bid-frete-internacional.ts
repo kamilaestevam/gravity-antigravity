@@ -425,3 +425,51 @@ export function linhasFromPropostaTaxas(
   }))
 }
 
+export interface DadosTabelaResumoPropostaBidFreteInternacional {
+  moedaFrete: string
+  valorFrete: string
+  linhasOrigem: LinhaTaxaPropostaBidFreteInternacional[]
+  linhasDestino: LinhaTaxaPropostaBidFreteInternacional[]
+  composicao: ComposicaoPorMoedaPropostaBidFreteInternacional[]
+}
+
+/** Monta props da tabela SSOT (portal agente → detalhe comprador / modal aprovar). */
+export function montarDadosTabelaResumoPropostaBidFreteInternacional(proposta: {
+  moeda_proposta_bid_frete_internacional: string
+  valor_frete_proposta_bid_frete_internacional: number
+  taxas_origem?: Array<{
+    id_taxa_origem_destino?: string | null
+    nome_taxa_origem_bid_frete_internacional?: string
+    valor_taxa_origem_bid_frete_internacional?: number
+    moeda_taxa_origem_bid_frete_internacional?: string
+  }>
+  taxas_destino?: Array<{
+    id_taxa_origem_destino?: string | null
+    nome_taxa_destino_bid_frete_internacional?: string
+    valor_taxa_destino_bid_frete_internacional?: number
+    moeda_taxa_destino_bid_frete_internacional?: string
+  }>
+}): DadosTabelaResumoPropostaBidFreteInternacional {
+  const moedaFrete = proposta.moeda_proposta_bid_frete_internacional
+  const valorFrete = String(proposta.valor_frete_proposta_bid_frete_internacional)
+  const linhasOrigem = proposta.taxas_origem?.length
+    ? linhasFromPropostaTaxas(proposta.taxas_origem, 'origem')
+    : []
+  const linhasDestino = proposta.taxas_destino?.length
+    ? linhasFromPropostaTaxas(proposta.taxas_destino, 'destino')
+    : []
+  const composicao = calcularComposicaoPropostaResposta({
+    moeda_frete: moedaFrete,
+    valor_frete: valorFrete,
+    linhas_taxa_origem: linhasOrigem,
+    linhas_taxa_destino: linhasDestino,
+  })
+
+  return {
+    moedaFrete,
+    valorFrete,
+    linhasOrigem,
+    linhasDestino,
+    composicao,
+  }
+}

@@ -43,6 +43,7 @@ import {
   subtotalTaxasOrigemTexto,
   type ItemTaxaExibicaoProposta,
 } from './exibir-taxas-proposta-bid-frete-internacional'
+import { TabelaResumoPropostaReadonlyBidFreteInternacional } from './tabela-resumo-proposta-readonly-bid-frete-internacional'
 
 interface OpcaoOrdenacaoResposta {
   key: CriterioOrdenacaoRespostaDetalhe
@@ -587,6 +588,11 @@ function CardProposta({
         <GradeColocacaoEixosCombate
           proposta={proposta}
           propostasTodas={propostasTodas}
+        />
+        <TabelaResumoPropostaReadonlyBidFreteInternacional
+          proposta={proposta}
+          colapsavel={propostasTodas.length >= 2}
+          expandidoInicial={propostasTodas.length < 2}
         />
         <RodapeAcoesProposta
           visivel={exibirAcoes}

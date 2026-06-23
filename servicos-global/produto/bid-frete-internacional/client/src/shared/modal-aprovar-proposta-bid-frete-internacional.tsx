@@ -11,10 +11,7 @@ import { useShellStore } from '@gravity/shell'
 import { aprovarResposta, BidFreteApiError } from './api'
 import { isPropostaRespostaDemonstracao } from './proposta-elegivel-aprovacao-bid-frete-internacional'
 import type { Cotacao, PropostaRankingBidFreteInternacional } from './types'
-import {
-  subtotalTaxasDestinoTexto,
-  subtotalTaxasOrigemTexto,
-} from './exibir-taxas-proposta-bid-frete-internacional'
+import { TabelaResumoPropostaReadonlyBidFreteInternacional } from './tabela-resumo-proposta-readonly-bid-frete-internacional'
 
 const formatMoeda = (val: number, currency: string) =>
   new Intl.NumberFormat('pt-BR', {
@@ -65,7 +62,6 @@ function ResumoCompletoProposta({
   proposta: PropostaRankingBidFreteInternacional
 }) {
   const { t } = useTranslation()
-  const moeda = proposta.moeda_proposta_bid_frete_internacional
   const dias = t('bidfrete.detalhe_cotacao.dias', 'dias')
 
   const transbordo =
@@ -92,27 +88,9 @@ function ResumoCompletoProposta({
 
   return (
     <div className="bf-aprovacao-grid">
-      <CampoResumoProposta
-        label={t('bidfrete.comparativo.modal_aprovar_campo_moeda', 'Moeda')}
-        value={moeda}
-      />
-      <CampoResumoProposta
-        label={t('bidfrete.detalhe_cotacao.resp_frete', 'Frete Básico')}
-        value={formatMoeda(proposta.valor_frete_proposta_bid_frete_internacional, moeda)}
-      />
-      <CampoResumoProposta
-        label={t('bidfrete.detalhe_cotacao.resp_taxas_origem', 'Taxas da Origem')}
-        value={subtotalTaxasOrigemTexto(proposta, moeda)}
-      />
-      <CampoResumoProposta
-        label={t('bidfrete.detalhe_cotacao.resp_taxas_destino', 'Taxas do Destino')}
-        value={subtotalTaxasDestinoTexto(proposta, moeda)}
-      />
-      <CampoResumoProposta
-        label={t('bidfrete.detalhe_cotacao.resp_frete_total', 'Frete Total')}
-        value={formatMoeda(proposta.valor_total_proposta_bid_frete_internacional, moeda)}
-        destaque
-        wide
+      <TabelaResumoPropostaReadonlyBidFreteInternacional
+        proposta={proposta}
+        className="bf-aprovacao-tabela-resumo"
       />
       <CampoResumoProposta
         label={t('bidfrete.comparativo.transit_time', 'Transit Time')}
@@ -567,6 +545,23 @@ const MODAL_APROVAR_PROPOSTA_RESUMO_STYLES = `
   }
   .bf-aprovacao-campo--wide {
     grid-column: 1 / -1;
+  }
+  .bf-aprovacao-tabela-resumo {
+    grid-column: 1 / -1;
+    margin-bottom: 0.25rem;
+  }
+  .bf-aprovacao-tabela-resumo .dc-prop-tabela-resumo-titulo {
+    margin: 0 0 0.65rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted, #94a3b8);
+  }
+  .bf-aprovacao-tabela-resumo .dc-prop-tabela-resumo-corpo {
+    padding: 0;
+    background: transparent;
+    border: none;
   }
   .bf-aprovacao-campo-label {
     font-size: 0.6875rem;

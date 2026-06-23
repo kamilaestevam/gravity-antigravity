@@ -243,6 +243,24 @@ Quando `status_cotacao_bid_frete_internacional === 'APROVADA'`:
 
 Doc: [COTACAO-DETALHE-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/COTACAO-DETALHE-COCKPIT-TECNICO.md)
 
+### Aba Propostas — tabela de composição + estimativa BRL (TASK-000313)
+
+Paridade com portal do agente no detalhe da cotação (comprador).
+
+| Peça | Caminho |
+|------|---------|
+| Tabela SSOT | `resumo-composicao-total-frete-bid-frete-internacional.tsx` — prop opcional `taxasConversaoBrl` |
+| Read-only comprador | `tabela-resumo-proposta-readonly-bid-frete-internacional.tsx` |
+| Dados da proposta | `montarDadosTabelaResumoPropostaBidFreteInternacional` (`taxas-linha-proposta-bid-frete-internacional.ts`) |
+| Conversão BRL | `conversao-estimada-brl-proposta-bid-frete-internacional.ts` + `montarMapaTaxaParaBrl` (`taxas-cambio-insights-bid-frete-internacional.ts`) |
+| Wiring | `propostas-detalhe-cotacao-bid-frete-internacional.tsx` (card combate), `modal-aprovar-proposta-bid-frete-internacional.tsx` |
+
+**UX:** 1 proposta → tabela aberta; 2+ → expandir/recolher. Estimativa em reais: taxa `bid-frete:config:taxa-cambio` (localStorage) ou PTAX venda; conversão **por moeda**, sem cruzamento FX.
+
+**Testes UNI:** `conversao-estimada-brl-proposta.test.ts`, `visao-fornecedor/taxas-linha-proposta-bid-frete-internacional.test.ts`
+
+Doc: [COTACAO-DETALHE-COCKPIT-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/COTACAO-DETALHE-COCKPIT-TECNICO.md) §5
+
 ---
 
 ## Banco (SSOT)
@@ -334,6 +352,7 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 - Dashboard GABI Fase 1: `dashboard/gabi-insights-bid-frete.test.ts`
 - Insights: `insights/agregar-insights-graficos.test.ts`, `insights/montar-insights-detalhe.test.ts`, `insights/taxas-cambio-insights.test.ts`, `insights/insights-status-funil.test.ts`
 - Cockpit faixa aprovação: `aviso-graficos-insights-cotacao.test.ts`
+- Proposta tabela + BRL estimado: `conversao-estimada-brl-proposta.test.ts`, `visao-fornecedor/taxas-linha-proposta-bid-frete-internacional.test.ts`
 - Funcionais: `testes/testes-funcionais/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
 - Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`

@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '@nucleo/tabela-virtual-global/tabela-virtual.css'
 import { Trash, CaretDoubleDown, CaretDoubleUp } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 import { useShellStore } from '@gravity/shell'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -21,6 +22,7 @@ import type {
   GTVirtualHandle,
 } from '@nucleo/tabela-virtual-global'
 import { BotaoNovoListaSmartRead } from './botao-novo-lista-smart-read'
+import { SmartReadListaPainelBar } from './SmartReadListaPainelBar'
 import { ModalExcluirLeiturasSmartRead } from './modal-excluir-leituras-smart-read'
 import { ModalNovaLeituraSmartRead } from './nova-leitura-smart-read/modal-nova-leitura-smart-read'
 import { montarAcoesExportacaoListaSmartRead } from '../shared/acoes-exportacao-lista-smart-read'
@@ -42,10 +44,18 @@ import { smartReadApi } from '../shared/api'
 import type { TransacaoLeitura } from '../shared/schemas'
 import {
   useListaPainelSmartRead,
+  type AplicarConfigListaPainelCallbacks,
   type EstadoListaParaPainel,
 } from '../shared/use-lista-painel-smart-read'
+import type { SegmentoListaLeitura } from '../shared/use-transacoes-leitura-smart-read'
+import '../shared/smart-read-lista-layout.css'
 
 const ITENS_POR_PAGINA = 50
+
+const SEGMENTOS_LISTA: { id: SegmentoListaLeitura; rotulo: string }[] = [
+  { id: 'envios', rotulo: 'Visão geral' },
+  { id: 'transacoes-api', rotulo: 'Transações API' },
+]
 
 type Props = {
   transacoes: TransacaoLeitura[]
@@ -58,6 +68,8 @@ type Props = {
   onRecarregar: () => void
   onPaginaChange: (pagina: number) => void
   tituloPainel?: string
+  segmento: SegmentoListaLeitura
+  onSegmentoChange: (segmento: SegmentoListaLeitura) => void
 }
 
 function detectarTipoColunaListaSmartRead(col: GTColuna<TransacaoLeitura>): 'texto' | 'enum' | 'numero' {
@@ -77,18 +89,26 @@ export function TabelaTransacoesLeituraSmartRead({
   onRecarregar,
   onPaginaChange,
   tituloPainel = 'Envios',
+  segmento,
+  onSegmentoChange,
 }: Props) {
+  const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
   const tabelaRef = useRef<GTVirtualHandle>(null)
   const painelAplicadoRef = useRef<string | null>(null)
 
   const {
+    paineis,
+    setPaineis,
     painelAtual,
     painelAtualId,
+    setPainelAtualId,
     carregando: carregandoPaineis,
     aplicarConfigDoPainel,
     persistirPainelAtual,
     persistirPainelAtualImediato,
+    criarPainel,
+    trocarPainel,
   } = useListaPainelSmartRead()
 
   const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>(undefined)
@@ -115,28 +135,67 @@ export function TabelaTransacoesLeituraSmartRead({
 
   const montarEstadoPainel = useCallback((): EstadoListaParaPainel => ({
     preferencias,
-    abaAtiva: 'envios',
+    abaAtiva: segmento,
     sortCampo: 'data_envio',
     sortDir: 'desc',
     busca: termoBusca,
     filtrosAtivos: filtrosAtivosLista,
-  }), [preferencias, termoBusca, filtrosAtivosLista])
+  }), [preferencias, termoBusca, filtrosAtivosLista, segmento])
+
+  const listaPainelCallbacks = useMemo((): AplicarConfigListaPainelCallbacks => ({
+    setPreferencias,
+    setAbaAtiva: () => undefined,
+    setSortCampo: () => undefined,
+    setSortDir: () => undefined,
+    setBusca: (busca) => {
+      if (busca !== termoBusca) onBuscar(busca)
+    },
+    setFiltrosAtivos: setFiltrosAtivosLista,
+  }), [onBuscar, termoBusca])
+
+  const handleTrocarPainelLista = useCallback((id: string) => {
+    painelAplicadoRef.current = null
+    void trocarPainel(id, montarEstadoPainel(), listaPainelCallbacks)
+  }, [trocarPainel, montarEstadoPainel, listaPainelCallbacks])
+
+  const handleCriarPainelLista = useCallback(async (nome: string): Promise<boolean> => {
+    painelAplicadoRef.current = null
+    try {
+      const criado = await criarPainel(nome, montarEstadoPainel(), listaPainelCallbacks)
+      if (!criado) {
+        addNotification({
+          type: 'error',
+          message: t('smart_read.lista.painel_criado_erro', {
+            defaultValue: 'Não foi possível salvar o painel.',
+          }),
+        })
+        return false
+      }
+      addNotification({
+        type: 'success',
+        message: t('smart_read.lista.painel_criado_sucesso', {
+          defaultValue: 'Painel "{{nome}}" criado.',
+          nome: criado.nome,
+        }),
+      })
+      return true
+    } catch {
+      addNotification({
+        type: 'error',
+        message: t('smart_read.lista.painel_criado_erro', {
+          defaultValue: 'Não foi possível salvar o painel.',
+        }),
+      })
+      return false
+    }
+  }, [criarPainel, montarEstadoPainel, listaPainelCallbacks, addNotification, t])
 
   useEffect(() => {
     if (!painelAtual || carregandoPaineis) return
     if (painelAplicadoRef.current === painelAtual.id) return
     painelAplicadoRef.current = painelAtual.id
-    aplicarConfigDoPainel(painelAtual, {
-      setPreferencias,
-      setAbaAtiva: () => undefined,
-      setSortCampo: () => undefined,
-      setSortDir: () => undefined,
-      setBusca: (busca) => {
-        if (busca !== termoBusca) onBuscar(busca)
-      },
-      setFiltrosAtivos: setFiltrosAtivosLista,
-    })
-  }, [painelAtual, carregandoPaineis, aplicarConfigDoPainel, onBuscar, termoBusca])
+    aplicarConfigDoPainel(painelAtual, listaPainelCallbacks)
+  }, [painelAtual, carregandoPaineis, aplicarConfigDoPainel, listaPainelCallbacks])
 
   useEffect(() => {
     if (!painelAtualId || carregandoPaineis) return
@@ -176,14 +235,14 @@ export function TabelaTransacoesLeituraSmartRead({
     if (painelAtualId) {
       persistirPainelAtualImediato({
         preferencias: prefs,
-        abaAtiva: 'envios',
+        abaAtiva: segmento,
         sortCampo: 'data_envio',
         sortDir: 'desc',
         busca: termoBusca,
         filtrosAtivos: filtrosAtivosLista,
       })
     }
-  }, [painelAtualId, persistirPainelAtualImediato, termoBusca, filtrosAtivosLista])
+  }, [painelAtualId, persistirPainelAtualImediato, termoBusca, filtrosAtivosLista, segmento])
 
   const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
     const rect = anchor.getBoundingClientRect()
@@ -344,6 +403,58 @@ export function TabelaTransacoesLeituraSmartRead({
         />
       )}
 
+      <div className="lp-tabela-chrome">
+        <nav
+          className="lp-faixa-navegacao"
+          aria-label={t('smart_read.lista.faixa_navegacao', {
+            defaultValue: 'Painéis e segmento da lista',
+          })}
+          data-testid="lista-faixa-navegacao"
+        >
+          <section
+            className="lp-faixa-navegacao__paineis"
+            aria-label={t('smart_read.lista.paineis_secao', { defaultValue: 'Painéis da lista' })}
+          >
+            <SmartReadListaPainelBar
+              paineis={paineis}
+              painelAtualId={painelAtualId}
+              setPaineis={setPaineis}
+              setPainelAtualId={setPainelAtualId}
+              onTrocarPainel={handleTrocarPainelLista}
+              onCriarPainel={handleCriarPainelLista}
+              carregando={carregandoPaineis}
+              variant="unificado"
+            />
+          </section>
+          <section
+            className="lp-faixa-navegacao__status"
+            aria-label={t('smart_read.lista.segmento_secao', { defaultValue: 'Segmento de envios' })}
+          >
+            <span
+              id="lista-faixa-segmento-label"
+              className="lp-faixa-navegacao__secao-label"
+              title={t('smart_read.lista.segmento_secao', { defaultValue: 'Segmento de envios' })}
+            >
+              {t('smart_read.lista.segmento_secao_curto', { defaultValue: 'Visão' })}
+            </span>
+            <div className="sr-segmento-tabs" role="tablist" aria-labelledby="lista-faixa-segmento-label">
+              {SEGMENTOS_LISTA.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={segmento === item.id}
+                  data-testid={`lista-segmento-tab-${item.id}`}
+                  className={`sr-segmento-tab${segmento === item.id ? ' sr-segmento-tab--ativa' : ''}`}
+                  onClick={() => onSegmentoChange(item.id)}
+                >
+                  {item.rotulo}
+                </button>
+              ))}
+            </div>
+          </section>
+        </nav>
+
       <TabelaVirtualGlobal<TransacaoLeitura, DocumentoLeituraLista>
         imperativeRef={tabelaRef}
         dados={transacoesFiltradas}
@@ -392,6 +503,7 @@ export function TabelaTransacoesLeituraSmartRead({
         }
         classNameLinhaFilho={() => 'sr-linha-documento'}
       />
+      </div>
 
       <ModalNovaLeituraSmartRead
         aberto={modalNovaLeituraAberto}

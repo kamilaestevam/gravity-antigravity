@@ -219,10 +219,25 @@ Mesmo padrão de [PAINEL-LISTA-CONTRATO.md](../pedido/PAINEL-LISTA-CONTRATO.md):
 |--------|---------|
 | Rotas | `server/src/routes/lista-paineis-smart-read.ts` |
 | Hook | `client/src/shared/use-lista-painel-smart-read.ts` |
+| UI faixa painéis | `client/src/components/SmartReadListaPainelBar.tsx` |
+| Layout faixa | `client/src/shared/smart-read-lista-layout.css` |
+| Rótulos painel | `client/src/shared/rotulo-painel-lista-smart-read.ts` |
 | Persistência debounce | `shared/persistenciaListaPainel.ts` (`podePersistirPainelLista`) |
 | Config Zod | `shared/listaPainelConfigSchema.ts` |
 
-> **UI da faixa de abas roxas (Painéis):** hook e API prontos; wiring visual da barra (`*ListaPainelBar` + `*ListaFaixaNavegacao`) segue paridade Pedido/BID — ver TASK-000311 pendente de fechamento visual se ainda não estiver na branch de produção.
+### UI da faixa (TASK-000324)
+
+Faixa unificada **Painéis + Visão** embutida no chrome da tabela (`lp-tabela-chrome`), paridade Pedido/BID Frete:
+
+| Elemento | Arquivo / classe |
+|----------|------------------|
+| Barra roxa de painéis | `SmartReadListaPainelBar` — drag, renomear, excluir, criar via `+` |
+| Faixa navegação | `lp-faixa-navegacao` + `lp-faixa-navegacao__paineis` / `__status` |
+| Segmento envios/API | Abas «Visão geral» / «Transações API» na linha inferior da faixa |
+| Wrapper página | `.sr-tabela-wrapper--faixa-unificada` em `ListaLeituraSmartRead.tsx` |
+| i18n | chaves `smart_read.lista.*` (defaultValue em PT no componente) |
+
+Handlers `handleCriarPainelLista` / `handleTrocarPainelLista` em `tabela-transacoes-leitura-smart-read.tsx` delegam a `useListaPainelSmartRead.criarPainel` / `trocarPainel` (salva config do painel anterior ao trocar).
 
 ### Colunas, filtros e exportação
 

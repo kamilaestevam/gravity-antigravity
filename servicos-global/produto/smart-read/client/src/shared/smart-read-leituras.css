@@ -73,12 +73,6 @@
   min-height: 0;
 }
 
-.sr-tabela-wrapper--faixa-unificada .lp-faixa-navegacao__status .sr-segmento-tabs {
-  flex: 1;
-  min-width: 0;
-  border-bottom: none;
-}
-
 .sr-tabela-wrapper .sr-painel--tabela {
   flex: 1;
   min-height: 0;

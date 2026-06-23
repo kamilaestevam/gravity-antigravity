@@ -52,11 +52,6 @@ import '../shared/smart-read-lista-layout.css'
 
 const ITENS_POR_PAGINA = 50
 
-const SEGMENTOS_LISTA: { id: SegmentoListaLeitura; rotulo: string }[] = [
-  { id: 'envios', rotulo: 'Visão geral' },
-  { id: 'transacoes-api', rotulo: 'Transações API' },
-]
-
 type Props = {
   transacoes: TransacaoLeitura[]
   total: number
@@ -68,8 +63,9 @@ type Props = {
   onRecarregar: () => void
   onPaginaChange: (pagina: number) => void
   tituloPainel?: string
-  segmento: SegmentoListaLeitura
-  onSegmentoChange: (segmento: SegmentoListaLeitura) => void
+  /** Segmento ativo — persistido no painel; UI das abas fica em ListaLeituraSmartRead */
+  segmento?: SegmentoListaLeitura
+  onSegmentoChange?: (segmento: SegmentoListaLeitura) => void
 }
 
 function detectarTipoColunaListaSmartRead(col: GTColuna<TransacaoLeitura>): 'texto' | 'enum' | 'numero' {
@@ -89,7 +85,7 @@ export function TabelaTransacoesLeituraSmartRead({
   onRecarregar,
   onPaginaChange,
   tituloPainel = 'Envios',
-  segmento,
+  segmento = 'envios',
   onSegmentoChange,
 }: Props) {
   const { t } = useTranslation()
@@ -144,14 +140,18 @@ export function TabelaTransacoesLeituraSmartRead({
 
   const listaPainelCallbacks = useMemo((): AplicarConfigListaPainelCallbacks => ({
     setPreferencias,
-    setAbaAtiva: () => undefined,
+    setAbaAtiva: (aba) => {
+      if (aba === 'envios' || aba === 'transacoes-api') {
+        onSegmentoChange?.(aba)
+      }
+    },
     setSortCampo: () => undefined,
     setSortDir: () => undefined,
     setBusca: (busca) => {
       if (busca !== termoBusca) onBuscar(busca)
     },
     setFiltrosAtivos: setFiltrosAtivosLista,
-  }), [onBuscar, termoBusca])
+  }), [onBuscar, onSegmentoChange, termoBusca])
 
   const handleTrocarPainelLista = useCallback((id: string) => {
     painelAplicadoRef.current = null
@@ -406,9 +406,7 @@ export function TabelaTransacoesLeituraSmartRead({
       <div className="lp-tabela-chrome">
         <nav
           className="lp-faixa-navegacao"
-          aria-label={t('smart_read.lista.faixa_navegacao', {
-            defaultValue: 'Painéis e segmento da lista',
-          })}
+          aria-label={t('smart_read.lista.paineis_secao', { defaultValue: 'Painéis da lista' })}
           data-testid="lista-faixa-navegacao"
         >
           <section
@@ -426,36 +424,9 @@ export function TabelaTransacoesLeituraSmartRead({
               variant="unificado"
             />
           </section>
-          <section
-            className="lp-faixa-navegacao__status"
-            aria-label={t('smart_read.lista.segmento_secao', { defaultValue: 'Segmento de envios' })}
-          >
-            <span
-              id="lista-faixa-segmento-label"
-              className="lp-faixa-navegacao__secao-label"
-              title={t('smart_read.lista.segmento_secao', { defaultValue: 'Segmento de envios' })}
-            >
-              {t('smart_read.lista.segmento_secao_curto', { defaultValue: 'Visão' })}
-            </span>
-            <div className="sr-segmento-tabs" role="tablist" aria-labelledby="lista-faixa-segmento-label">
-              {SEGMENTOS_LISTA.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={segmento === item.id}
-                  data-testid={`lista-segmento-tab-${item.id}`}
-                  className={`sr-segmento-tab${segmento === item.id ? ' sr-segmento-tab--ativa' : ''}`}
-                  onClick={() => onSegmentoChange(item.id)}
-                >
-                  {item.rotulo}
-                </button>
-              ))}
-            </div>
-          </section>
         </nav>
 
-      <TabelaVirtualGlobal<TransacaoLeitura, DocumentoLeituraLista>
+        <TabelaVirtualGlobal<TransacaoLeitura, DocumentoLeituraLista>
         imperativeRef={tabelaRef}
         dados={transacoesFiltradas}
         colunas={colunas}

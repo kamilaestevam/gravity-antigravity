@@ -13,6 +13,11 @@ import {
 } from '../../shared/use-transacoes-leitura-smart-read'
 import '../../shared/smart-read-leituras.css'
 
+const SEGMENTOS: { id: SegmentoListaLeitura; rotulo: string }[] = [
+  { id: 'envios', rotulo: 'Visão geral' },
+  { id: 'transacoes-api', rotulo: 'Transações API' },
+]
+
 export default function ListaLeituraSmartRead() {
   const [segmento, setSegmento] = useState<SegmentoListaLeitura>('envios')
   const dados = useTransacoesLeituraSmartRead(segmento)
@@ -30,6 +35,23 @@ export default function ListaLeituraSmartRead() {
         totalLeituras={dados.metricaLeituras ?? dados.total}
         carregando={dados.carregando}
       />
+
+      <div className="sr-toolbar-lista sr-toolbar-lista--segmentos">
+        <div className="sr-segmento-tabs" role="tablist" aria-label="Segmento de envios">
+          {SEGMENTOS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={segmento === item.id}
+              className={`sr-segmento-tab${segmento === item.id ? ' sr-segmento-tab--ativa' : ''}`}
+              onClick={() => setSegmento(item.id)}
+            >
+              {item.rotulo}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="sr-tabela-wrapper sr-tabela-wrapper--faixa-unificada">
         <TabelaTransacoesLeituraSmartRead

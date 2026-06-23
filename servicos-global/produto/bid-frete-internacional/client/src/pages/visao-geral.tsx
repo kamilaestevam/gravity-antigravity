@@ -6,8 +6,10 @@
  */
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
 import { CardBasicoGlobal } from '@nucleo/card-global'
+import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import {
   MagnifyingGlass,
   Export,
@@ -22,7 +24,6 @@ import {
   ArrowRight,
   CaretLeft,
   CaretRight,
-  Plus,
   Minus,
   ArrowCounterClockwise,
   Play,
@@ -37,7 +38,6 @@ import {
   Envelope,
   ChatText,
   Bell,
-  Coins,
   Funnel,
   ChartBar,
   ChartPie,
@@ -103,6 +103,7 @@ import {
 } from '../shared/componentes/visao-geral-mapa-bid-frete'
 import { BidFreteFunilBarras } from '../shared/componentes/visao-geral-bid-frete-ui'
 import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
+import { buildRotaNovaCotacaoManual } from '../shared/novo-bid-frete-internacional-utils'
 import '../shared/bid-frete-visao-geral-layout.css'
 import '../shared/bid-frete-visao-geral-mapa.css'
 
@@ -420,6 +421,7 @@ function contagemModalAndamento(
 }
 
 export default function VisaoGeral() {
+  const navigate = useNavigate()
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
@@ -725,19 +727,11 @@ export default function VisaoGeral() {
           box-shadow: 0 0 24px rgba(96, 165, 250, 0.25);
         }
 
-        .bfd-kpi--action {
-          cursor: pointer;
+        .bfd-kpi--novo-slot {
           display: flex;
-          flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 0.85rem;
-          text-align: center;
-        }
-        .bfd-kpi--action:hover {
-          transform: translateY(-5px) !important;
-          filter: brightness(1.1);
-          box-shadow: 0 10px 22px rgba(59, 130, 246, 0.25);
+          min-height: 100%;
         }
 
         .bfd-kpi__header { display: flex; align-items: center; gap: 0.6rem; }

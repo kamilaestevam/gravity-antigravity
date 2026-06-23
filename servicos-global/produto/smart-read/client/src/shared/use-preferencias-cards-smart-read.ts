@@ -23,14 +23,14 @@ export const CARDS_CATALOGO_SMART_READ: CardDefinicaoSmartRead[] = [
     descricao: 'Total de envios de leitura no período selecionado',
   },
   {
-    id: 'recursos_reduzidos',
-    titulo: 'Recursos reduzidos',
-    descricao: 'Economia estimada de tempo operacional com OCR/IA',
-  },
-  {
     id: 'performance_acertos',
     titulo: 'Performance de acertos',
     descricao: 'Média de acertos das leituras concluídas',
+  },
+  {
+    id: 'recursos_reduzidos',
+    titulo: 'Recursos reduzidos',
+    descricao: 'Economia estimada de tempo operacional com OCR/IA',
   },
 ]
 
@@ -44,6 +44,13 @@ const DEFAULT: CardPreferenciaSmartRead[] = CARDS_PADRAO_SMART_READ.map((id) => 
   visible: true,
 }))
 
+function ordenarPorCatalogo(prefs: CardPreferenciaSmartRead[]): CardPreferenciaSmartRead[] {
+  const ordem = new Map(CARDS_PADRAO_SMART_READ.map((id, index) => [id, index]))
+  return [...prefs].sort(
+    (a, b) => (ordem.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (ordem.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+  )
+}
+
 function carregar(): CardPreferenciaSmartRead[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -55,7 +62,7 @@ function carregar(): CardPreferenciaSmartRead[] {
     const faltantes = CARDS_PADRAO_SMART_READ.filter(
       (id) => !visiveis.some((p) => p.id === id),
     ).map((id) => ({ id, visible: true }))
-    return [...visiveis, ...faltantes]
+    return ordenarPorCatalogo([...visiveis, ...faltantes])
   } catch {
     return DEFAULT
   }

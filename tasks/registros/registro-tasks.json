@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 318,
+  "proximo_numero": 320,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -811,6 +811,40 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000317.json"
+    },
+    {
+      "referencia": "TASK-000318",
+      "ordinal": 47,
+      "titulo_canonico": "BIDFRT-INSIGHTS-MEL-COR-BOTAO-MENU-REFINAR-MAPA",
+      "titulo_exibicao": "TASK-000318 | [BID Frete] Insights | MEL — Cor do botão Recolher Refinar mapa igual ao menu principal",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": "INSIGHTS",
+      "tipo_entrega": "MEL",
+      "resumo": "COR-BOTAO-MENU-REFINAR-MAPA",
+      "data_criacao": "2026-06-23T23:30:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000318.json"
+    },
+    {
+      "referencia": "TASK-000319",
+      "ordinal": 48,
+      "titulo_canonico": "BIDFRT-INSIGHTS-MEL-CARDS-AGUARDANDO-APROVACAO-RESPOSTA",
+      "titulo_exibicao": "TASK-000319 | [BID Frete] Insights | MEL — Cards Cotações aguardando aprovação e aguardando resposta",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": "INSIGHTS",
+      "tipo_entrega": "MEL",
+      "resumo": "CARDS-AGUARDANDO-APROVACAO-RESPOSTA",
+      "data_criacao": "2026-06-24T00:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000319.json"
     }
   ]
 }

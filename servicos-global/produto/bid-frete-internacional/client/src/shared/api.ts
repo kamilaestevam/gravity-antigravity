@@ -699,6 +699,7 @@ export async function getDashboardInsightsDetalhe(
   contexto: ContextoDialogoInsights,
   idsWorkspacesFiltro?: string[],
   dataReferencia?: string,
+  opcoes?: { limit?: number },
 ): Promise<{ total: number; cotacoes: CotacaoInsightsDetalheCliente[] }> {
   const params = new URLSearchParams()
   if (contexto.tipo === 'rota') {
@@ -712,6 +713,7 @@ export async function getDashboardInsightsDetalhe(
     params.set('contexto', contexto.tipo)
   }
   if (dataReferencia) params.set('data_referencia', dataReferencia)
+  if (opcoes?.limit != null) params.set('limit', String(opcoes.limit))
 
   const base = urlComEscopoWorkspaces(
     `${API_BASE}/bid-frete-internacional/dashboard/insights-detalhe`,

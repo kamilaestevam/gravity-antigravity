@@ -197,6 +197,14 @@ Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISA
 
 **Regra:** contagem e rótulo dos cards KPI seguem Configurações › Visão Geral (`bid-frete:dashboard-top-kpi-status`), não hardcode «Em andamento». Drill-down de alertas propaga `data_referencia` do dia navegado.
 
+**Mapa (`GET /dashboard/mapa-cotacoes`):** pins e coordenadas vêm do **Cadastros** por código (IATA/UNLOCODE), não do nome gravado na cotação. Divergência nome/país → `alerta_divergencia_cadastros_*` no hover. SSOT: `shared/divergencia-cadastros-rota-bid-frete-internacional.ts` (mapa = alerta; gravação = bloqueio).
+
+**Validação rota na cotação:** `prepararRotaComValidacaoCadastros` em `cotacoes.ts` — catálogo portos/aeroportos + `prepararCamposRotaCotacaoPersistencia(input, ctx)` no `POST` e no `PATCH` quando body toca campos de rota. País comparado em ISO alpha-2 (`normalizarPaisIsoParaComparacao`).
+
+**Testes UNI (mapa/validação):** `insights/divergencia-cadastros-mapa.test.ts`, `insights/formatar-terminal-mapa.test.ts`, `insights/filtrar-mapa-insights.test.ts`
+
+Doc detalhado: [INSIGHTS-VISAO-GERAL-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISAO-GERAL-TECNICO.md) §7–9
+
 **Separado do Dashboard:** rota `/dashboard/insights` (GABI widget) vs aba `/insights` — TASK-000265 vs TASK-000264.
 
 ---
@@ -329,6 +337,8 @@ Bancos Railway: `gravity-bid-frete-internacional-producao`, `gravity-bid-frete-i
 - Colocar `id_workspace` longe de `id_organizacao` em novas tabelas/migrations.
 - Editar `schema.prisma` composto manualmente — só `fragment.prisma` + compose.
 - Confundir **status de cotação** (`status_cotacao_config_*`) com **status de BID** (`status_bid_config_*`).
+- Usar `destino_nome` da cotação para posicionar pin no mapa Insights — usar código + Cadastros (ver INSIGHTS §7).
+- Gravar rota de cotação sem validar contra catálogo Cadastros quando modal ≠ rodoviário — usar `prepararRotaComValidacaoCadastros`.
 
 ---
 
@@ -350,7 +360,7 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 - Unitários: `testes/testes-unitarios/bid-frete-internacional/` (60+ specs)
 - Dashboard ordem/visibilidade: `dashboard/dashboard-widget-visibilidade.test.ts`
 - Dashboard GABI Fase 1: `dashboard/gabi-insights-bid-frete.test.ts`
-- Insights: `insights/agregar-insights-graficos.test.ts`, `insights/montar-insights-detalhe.test.ts`, `insights/taxas-cambio-insights.test.ts`, `insights/insights-status-funil.test.ts`
+- Insights: `insights/agregar-insights-graficos.test.ts`, `insights/montar-insights-detalhe.test.ts`, `insights/taxas-cambio-insights.test.ts`, `insights/insights-status-funil.test.ts`, `insights/divergencia-cadastros-mapa.test.ts`, `insights/formatar-terminal-mapa.test.ts`, `insights/filtrar-mapa-insights.test.ts`
 - Cockpit faixa aprovação: `aviso-graficos-insights-cotacao.test.ts`
 - Proposta tabela + BRL estimado: `conversao-estimada-brl-proposta.test.ts`, `visao-fornecedor/taxas-linha-proposta-bid-frete-internacional.test.ts`
 - Funcionais: `testes/testes-funcionais/bid-frete-internacional/`

@@ -133,6 +133,7 @@ export type CotacaoInsightsDetalheDto = {
   data_criacao_cotacao_bid_frete_internacional: string
   data_limite_resposta_cotacao_bid_frete_internacional: string | null
   data_aprovacao_cotacao_bid_frete_internacional: string | null
+  data_envio_disparo_cotacao_bid_frete_internacional: string | null
   propostas: Array<{
     fornecedor: string
     valor: string
@@ -156,6 +157,18 @@ function fmtValor(moeda: string | null | undefined, valor: number | null | undef
   if (valor == null || !Number.isFinite(valor)) return '—'
   const codigo = moeda ?? 'USD'
   return `${codigo} ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
+function resolverPrimeiroEnvioDisparo(disparos: DisparoRow[]): Date | null {
+  let menor: number | null = null
+  for (const disparo of disparos) {
+    const envio = disparo.data_envio_disparo_cotacao_bid_frete_internacional
+    if (!envio) continue
+    const ts = new Date(envio).getTime()
+    if (!Number.isFinite(ts)) continue
+    if (menor == null || ts < menor) menor = ts
+  }
+  return menor != null ? new Date(menor) : null
 }
 
 function corStatusProposta(status: string): string {
@@ -264,6 +277,7 @@ export function mapearCotacaoInsightsDetalhe(row: {
   const propostasOrdenadas = [...row.propostas].sort(
     (a, b) => a.valor_total_proposta_bid_frete_internacional - b.valor_total_proposta_bid_frete_internacional,
   )
+  const primeiroEnvio = resolverPrimeiroEnvioDisparo(row.disparo_cotacao_bid_frete_internacional)
 
   return {
     id_cotacao_bid_frete_internacional: row.id_cotacao_bid_frete_internacional,
@@ -286,6 +300,7 @@ export function mapearCotacaoInsightsDetalhe(row: {
     data_criacao_cotacao_bid_frete_internacional: row.data_criacao_cotacao_bid_frete_internacional.toISOString(),
     data_limite_resposta_cotacao_bid_frete_internacional: row.data_limite_resposta_cotacao_bid_frete_internacional?.toISOString() ?? null,
     data_aprovacao_cotacao_bid_frete_internacional: row.data_aprovacao_cotacao_bid_frete_internacional?.toISOString() ?? null,
+    data_envio_disparo_cotacao_bid_frete_internacional: primeiroEnvio?.toISOString() ?? null,
     propostas: propostasOrdenadas.map((p, idx) => ({
       fornecedor: p.fornecedor?.nome_fornecedor_bid_frete_internacional ?? 'Fornecedor',
       valor: fmtValor(p.moeda_proposta_bid_frete_internacional, p.valor_total_proposta_bid_frete_internacional),

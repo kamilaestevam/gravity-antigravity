@@ -112,6 +112,41 @@ export function contagemStatusNoFunilBidFreteInternacional(
   return funil.find(f => f.status === statusSlug)?.count ?? 0
 }
 
+/** KPI Insights — card 1 (fixo). */
+export const TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL =
+  'Cotações aguardando aprovação'
+
+export const STATUS_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL = 'AGUARDANDO_APROVACAO'
+
+/** KPI Insights — card 2 (fixo): enviadas + em cotação. */
+export const TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL =
+  'Cotações aguardando resposta'
+
+export const STATUS_COTACAO_AGUARDANDO_RESPOSTA_INSIGHTS_BID_FRETE_INTERNACIONAL = [
+  'ENVIADA_FORNECEDORES',
+  'EM_COTACAO',
+] as const satisfies readonly StatusCotacao[]
+
+export function contagemAguardandoRespostaNoFunilBidFreteInternacional(
+  funil: Array<{ status: string; count: number }>,
+): number {
+  return STATUS_COTACAO_AGUARDANDO_RESPOSTA_INSIGHTS_BID_FRETE_INTERNACIONAL.reduce(
+    (acc, status) => acc + contagemStatusNoFunilBidFreteInternacional(funil, status),
+    0,
+  )
+}
+
+export function detalharAguardandoRespostaNoFunilBidFreteInternacional(
+  funil: Array<{ status: string; count: number }>,
+): { enviadaFornecedores: number; emCotacao: number; total: number } {
+  const enviadaFornecedores = contagemStatusNoFunilBidFreteInternacional(
+    funil,
+    'ENVIADA_FORNECEDORES',
+  )
+  const emCotacao = contagemStatusNoFunilBidFreteInternacional(funil, 'EM_COTACAO')
+  return { enviadaFornecedores, emCotacao, total: enviadaFornecedores + emCotacao }
+}
+
 export function resolverRotuloStatusConfigBidFreteInternacional(
   statusConfig: StatusCotacaoConfigBidFreteInternacional[],
   statusSlug: string,

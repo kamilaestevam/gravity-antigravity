@@ -659,7 +659,12 @@ app.get('*', (req, res, next) => {
   }
 
   // 2b. Entrada Smart Read (raiz) → lista — evita 404 quando path exato não casa com splat no client
-  if (path === '/smart-read' || path === '/produto/smart-read') {
+  if (
+    path === '/smart-read'
+    || path === '/produto/smart-read'
+    || path === '/smart-read-'
+    || path === '/produto/smart-read-'
+  ) {
     return res.redirect(301, ROTA_ENTRADA_SMART_READ + query)
   }
 

@@ -11,6 +11,7 @@
 | Documento | Conteúdo |
 |-----------|----------|
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor responsável, contrato BFF, rankings |
+| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista real, BFF leituras, progresso Postgres, nome do wizard, TASK-000308 |
 
 ---
 
@@ -46,7 +47,9 @@ O Smart Read roda **embutido** no configurador (`/smart-read/*`). Rotas internas
 | URL de entrada | Destino canônico | Onde |
 |----------------|------------------|------|
 | `/smart-read` | `/smart-read/lista` | `configurador/src/App.tsx` + server 301 |
+| `/smart-read-` | `/smart-read/lista` | typo/bookmark legado (hífen solto no final) |
 | `/produto/smart-read` | `/smart-read/lista` | `configurador/src/App.tsx` + server 301 |
+| `/produto/smart-read-` | `/smart-read/lista` | idem typo com prefixo legado |
 | `/produto/smart-read/*` | `/smart-read/*` | `NavigateComPrefixo` (legado 90 dias) |
 
 **SSOT da entrada:** `ROTA_ENTRADA_SMART_READ` em `servicos-global/shell/utils/resolver-rota-produto.ts` (exportada via `@gravity/shell`). Hub, Core e puzzle consomem `resolverRotaProdutoGravity('smart-read')`.
@@ -81,6 +84,7 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | Task / entrega | Escopo |
 |----------------|--------|
 | Hotfix rotas (2026-06) | Entrada `/smart-read` e `/produto/smart-read` → `/smart-read/lista`; rotas internas relativas no produto embutido |
+| TASK-000308 | Lista real (BFF + progresso Postgres), link nome→retomar wizard, nome customizado (sessao.nome), recarregar lista ao fechar modal — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) |
 | TASK-000307 | Menu lateral no padrão do sistema + tela de Configurações (estado local; PR #388) |
 | TASK-000306 | Ocultar abas Dashboard e Kanban do seletor (mantidas só Insights e Lista) |
 | TASK-000303 | Dashboard Insights (KPIs, savings, rankings) — ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) |

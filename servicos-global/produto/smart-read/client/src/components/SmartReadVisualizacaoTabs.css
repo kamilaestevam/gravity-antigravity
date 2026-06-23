@@ -43,10 +43,25 @@
 }
 
 .smart-read-vis-toolbar {
+  position: relative;
+  z-index: 30;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   background: var(--ws-bg-body, #0f172a);
   padding: 1rem 1.5rem 0.75rem;
   box-sizing: border-box;
+  overflow: visible;
+}
+
+.smart-read-vis-toolbar__acoes {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  overflow: visible;
 }
 
 body.light-theme .smart-read-vis-toolbar {

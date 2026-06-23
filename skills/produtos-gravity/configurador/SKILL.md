@@ -303,7 +303,7 @@ Faixa superior de `/hub` (`SelecionarWorkspace`) alinhada à Gravity Store.
 | Peças SVG | `src/components/puzzle-stack-produtos-gravity.tsx` (`escala="hub"`, `embutidoParidadeStore`) |
 | Carrossel | `store-puzzle-carousel.tsx` (reuso Store) |
 
-**UX:** faixa produtos em **largura total**; painel Workspaces removido da linha superior. Ícones SSOT `@nucleo/logo-produtos` a 22px; interior neutro + contorno na cor do produto; centralização óptica nas cavidades do puzzle.
+**UX:** faixa produtos em **largura total**; painel Workspaces removido da linha superior. Ícones SSOT `@nucleo/logo-produtos` a 22px; interior neutro + contorno na cor do produto; centralização no quadrado 120×90px; **4px** entre subtítulo e puzzle; contador do meter com tipografia do subtítulo; peça **BID Fornecedor** (`pecasExtras`, `slugVisual: 'bid-frete'`) imediatamente após Bid Frete Internacional quando `visao_fornecedor:cotar`.
 
 Doc: [`GRAVITY-STORE.md`](../../../documentos-tecnicos/produtos-gravity/configurador/GRAVITY-STORE.md) § Reuso no HUB · [`FLUXO-POS-LOGIN.md`](../../../documentos-tecnicos/produtos-gravity/configurador/FLUXO-POS-LOGIN.md) § Layout do HUB.
 

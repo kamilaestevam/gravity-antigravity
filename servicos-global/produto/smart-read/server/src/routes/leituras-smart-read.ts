@@ -16,6 +16,10 @@ import {
   resolverCompanyLegado,
 } from '../lib/cliente-legado-smart-read.js'
 import { montarListaTransacoesLeituraSmartRead } from '../lib/montar-lista-transacoes-leitura-smart-read.js'
+import {
+  leituraVinculadaAoWorkspaceSmartRead,
+  resolverIdWorkspaceLeituraSmartRead,
+} from '../lib/escopo-workspace-leitura-smart-read.js'
 import { registrarVinculoLeituraUsuarioSmartRead } from '../lib/registrar-vinculo-leitura-usuario-smart-read.js'
 import {
   obterLeituraDoProgresso,
@@ -68,15 +72,11 @@ function idUsuarioOpcional(req: Request): string | undefined {
   return typeof idUsuario === 'string' && idUsuario ? idUsuario : undefined
 }
 
-function idWorkspaceOpcional(req: Request): string | null {
-  const idWorkspace = req.headers['x-id-workspace']
-  return typeof idWorkspace === 'string' && idWorkspace ? idWorkspace : null
-}
-
 router.get('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
   try {
     const idOrganizacao = organizacaoDaRequisicao(req)
-    const idUsuario = idUsuarioDaRequisicao(req)
+    idUsuarioDaRequisicao(req)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
     const query = ListarLeiturasQuerySchema.parse(req.query)
     const companyId = await resolverCompanyLegado(idOrganizacao)
 
@@ -87,8 +87,7 @@ router.get('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next: N
       limite: query.limite,
       termo_busca: query.termo_busca,
       prisma: req.prisma,
-      idUsuario,
-      idWorkspace: idWorkspaceOpcional(req),
+      idWorkspace,
     })
 
     res.json(
@@ -115,6 +114,7 @@ router.get('/metricas/:tipo_metrica', async (req: Request, res: Response, next: 
     }
 
     const idUsuario = idUsuarioDaRequisicao(req)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
     const companyId = await resolverCompanyLegado(idOrganizacao)
     const { total } = await montarListaTransacoesLeituraSmartRead({
       companyId,
@@ -122,8 +122,7 @@ router.get('/metricas/:tipo_metrica', async (req: Request, res: Response, next: 
       pagina: 1,
       limite: 100,
       prisma: (req as RequisicaoComPrismaSmartRead).prisma,
-      idUsuario,
-      idWorkspace: idWorkspaceOpcional(req),
+      idWorkspace,
     })
 
     res.json(MetricaLeituraRespostaSchema.parse({ valor: total }))
@@ -136,6 +135,7 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
   try {
     const idOrganizacao = organizacaoDaRequisicao(req)
     const idUsuario = idUsuarioDaRequisicao(req)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
     if (!req.file) {
       throw new AppError('Arquivo obrigatorio (campo multipart "arquivo")', 400, 'ARQUIVO_AUSENTE')
     }
@@ -153,7 +153,7 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
         prisma: req.prisma,
         idOrganizacao,
         idUsuario,
-        idWorkspace: idWorkspaceOpcional(req),
+        idWorkspace,
         idLeitura,
       })
     }
@@ -176,12 +176,18 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
     const idOrganizacao = organizacaoDaRequisicao(req)
     const { id_leitura } = IdLeituraSchema.parse(req.params)
     const idUsuario = idUsuarioDaRequisicao(req)
+    const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
 
     if (req.prisma) {
-      const doSnapshot = await obterLeituraDoSnapshot(req.prisma, id_leitura, idUsuario)
+      const doSnapshot = await obterLeituraDoSnapshot(req.prisma, id_leitura, idWorkspace)
       if (doSnapshot) {
         res.json(LeituraSchema.parse(doSnapshot))
         return
+      }
+
+      const vinculada = await leituraVinculadaAoWorkspaceSmartRead(req.prisma, id_leitura, idWorkspace)
+      if (!vinculada) {
+        throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
       }
     }
 
@@ -194,7 +200,7 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
         prisma: req.prisma,
         idOrganizacao: req.idOrganizacao,
         idUsuario,
-        idWorkspace: idWorkspaceOpcional(req),
+        idWorkspace,
         leitura,
         motivo: 'extracao_concluida',
         extras: {
@@ -210,11 +216,17 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
     res.json(LeituraSchema.parse(leitura))
   } catch (err) {
     const idUsuarioCatch = idUsuarioOpcional(req)
-    if (req.prisma && idUsuarioCatch) {
+    const idOrganizacaoCatch = req.headers['x-id-organizacao']
+    const idWorkspaceCatch =
+      typeof idOrganizacaoCatch === 'string'
+        ? resolverIdWorkspaceLeituraSmartRead(req, idOrganizacaoCatch)
+        : ''
+    if (req.prisma && idUsuarioCatch && idWorkspaceCatch) {
       const doProgresso = await obterLeituraDoProgresso(
         req.prisma,
         IdLeituraSchema.parse(req.params).id_leitura,
         idUsuarioCatch,
+        idWorkspaceCatch,
       )
       if (doProgresso) {
         res.json(LeituraSchema.parse(doProgresso))

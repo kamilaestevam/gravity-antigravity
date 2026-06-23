@@ -2,6 +2,7 @@
  * Monta lista de transacoes: legado (primario) + progresso Gravity (complemento).
  */
 import type { PrismaClient } from '../generated/client/index.js'
+import { clausulaWorkspaceLeituraSmartRead } from './escopo-workspace-leitura-smart-read.js'
 import { obterLeituraLegado, listarLeiturasLegado } from './cliente-legado-smart-read.js'
 import {
   extrairItensListaLegado,
@@ -22,8 +23,8 @@ export type ParametrosListaLeituras = {
   limite: number
   termo_busca?: string
   prisma?: PrismaClient
-  idUsuario?: string
-  idWorkspace?: string | null
+  /** Workspace ativo (lista compartilhada na filial — paridade Pedido/BID). */
+  idWorkspace: string
 }
 
 function transacaoPrecisaEnriquecerMetricas(transacao: TransacaoLeitura): boolean {
@@ -45,16 +46,16 @@ function mesclarTransacaoComSnapshot(
 /** Métricas da página: 1 query batch no snapshot — sem N chamadas ao legado na lista. */
 async function aplicarMetricasDaPagina(
   prisma: PrismaClient | undefined,
-  idUsuario: string | undefined,
+  idWorkspace: string,
   paginado: TransacaoLeitura[],
 ): Promise<TransacaoLeitura[]> {
   const precisam = paginado.filter(transacaoPrecisaEnriquecerMetricas)
-  if (precisam.length === 0 || !prisma || !idUsuario) return paginado
+  if (precisam.length === 0 || !prisma || !idWorkspace) return paginado
 
   const snapshotPorId = await carregarSnapshotsPorIds(
     prisma,
     precisam.map((item) => item.id_leitura),
-    idUsuario,
+    idWorkspace,
   )
   if (snapshotPorId.size === 0) return paginado
 
@@ -76,12 +77,12 @@ function filtrarPorTermo(transacoes: TransacaoLeitura[], termo?: string): Transa
 
 async function listarViaSnapshotGravity(
   prisma: PrismaClient | undefined,
-  idUsuario: string | undefined,
+  idWorkspace: string,
 ): Promise<TransacaoLeitura[]> {
-  if (!prisma || !idUsuario) return []
+  if (!prisma || !idWorkspace) return []
 
   const registros = await prisma.snapshotLeituraSmartRead.findMany({
-    where: { id_usuario: idUsuario },
+    where: clausulaWorkspaceLeituraSmartRead(idWorkspace),
     orderBy: { data_envio_snapshot_leitura_smart_read: 'desc' },
     take: 200,
   })
@@ -96,12 +97,12 @@ async function listarViaSnapshotGravity(
 
 async function listarViaProgressoGravity(
   prisma: PrismaClient | undefined,
-  idUsuario: string | undefined,
+  idWorkspace: string,
 ): Promise<TransacaoLeitura[]> {
-  if (!prisma || !idUsuario) return []
+  if (!prisma || !idWorkspace) return []
 
   const registros = await prisma.progressoLeituraSmartRead.findMany({
-    where: { id_usuario: idUsuario },
+    where: clausulaWorkspaceLeituraSmartRead(idWorkspace),
     orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
     take: 200,
   })
@@ -126,14 +127,14 @@ async function listarViaProgressoGravity(
 export async function montarListaTransacoesLeituraSmartRead(
   params: ParametrosListaLeituras,
 ): Promise<{ transacoes: TransacaoLeitura[]; total: number }> {
-  if (!params.idUsuario) {
+  if (!params.idWorkspace) {
     return { transacoes: [], total: 0 }
   }
 
-  const viaProgresso = await listarViaProgressoGravity(params.prisma, params.idUsuario)
-  const viaSnapshot = await listarViaSnapshotGravity(params.prisma, params.idUsuario)
+  const viaProgresso = await listarViaProgressoGravity(params.prisma, params.idWorkspace)
+  const viaSnapshot = await listarViaSnapshotGravity(params.prisma, params.idWorkspace)
 
-  const idsLeituraDoUsuario = new Set<string>([
+  const idsLeituraDoWorkspace = new Set<string>([
     ...viaProgresso.map((item) => item.id_leitura),
     ...viaSnapshot.map((item) => item.id_leitura),
   ])
@@ -151,7 +152,7 @@ export async function montarListaTransacoesLeituraSmartRead(
     const itens = extrairItensListaLegado(bruto)
     transacoesLegado = itens
       .map(normalizarTransacaoDeItemListaLegado)
-      .filter((item) => idsLeituraDoUsuario.has(item.id_leitura))
+      .filter((item) => idsLeituraDoWorkspace.has(item.id_leitura))
     totalLegado = transacoesLegado.length
   } catch (erro) {
     legadoIndisponivel = true
@@ -174,11 +175,11 @@ export async function montarListaTransacoesLeituraSmartRead(
   const total =
     legadoIndisponivel && transacoesLegado.length === 0
       ? transacoes.length
-      : Math.max(totalLegado, transacoes.length, idsLeituraDoUsuario.size)
+      : Math.max(totalLegado, transacoes.length, idsLeituraDoWorkspace.size)
 
   const inicio = (params.pagina - 1) * params.limite
   const paginado = transacoes.slice(inicio, inicio + params.limite)
-  const enriquecidas = await aplicarMetricasDaPagina(params.prisma, params.idUsuario, paginado)
+  const enriquecidas = await aplicarMetricasDaPagina(params.prisma, params.idWorkspace, paginado)
 
   return {
     transacoes: enriquecidas,

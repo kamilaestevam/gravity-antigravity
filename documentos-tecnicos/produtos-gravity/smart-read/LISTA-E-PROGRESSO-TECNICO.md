@@ -20,25 +20,38 @@ A lista **não** usa mais `dados-mock-lista-smart-read.ts` nem `VITE_SMART_READ_
 > **Arquitetura completa (legado DATI vs Gravity):** [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md).
 
 1. **Primária (catálogo de ids):** legado dati `GET /import-control-center/external-readings/list` — leituras reais no **banco DATI**, não no Railway Gravity.
-2. **Complemento:** Postgres `progresso_leitura_smart_read` — wizard em andamento / nome customizado.
-3. **Snapshot (prevalece na linha):** Postgres `snapshot_leitura_smart_read` — cópia congelada da extração normalizada + métricas para Lista/Insights.
+2. **Complemento:** Postgres `progresso_leitura_smart_read` — wizard em andamento / nome customizado (**escopo `id_workspace` da filial ativa**).
+3. **Snapshot (prevalece na linha):** Postgres `snapshot_leitura_smart_read` — cópia congelada da extração normalizada + métricas para Lista/Insights (**mesmo escopo de workspace**).
 
-Se o legado retorna erro **e** não há progresso nem snapshot do usuário → lista vazia (`200`, `transacoes: []`). Não há fallback mock.
+O BFF intersecta ids do legado com ids vinculados ao **workspace ativo** (progresso ou snapshot). Se o legado retorna erro **e** não há progresso nem snapshot no workspace → lista vazia (`200`, `transacoes: []`). Não há fallback mock.
+
+### Escopo workspace vs progresso por usuário (paridade Pedido / BID)
+
+| Recurso | Escopo | Header / resolvedor |
+|---------|--------|---------------------|
+| **Lista** + métrica `readings` | **Workspace** — time da filial vê as mesmas leituras | `x-id-workspace`; fallback `x-id-organizacao` (`resolverIdWorkspaceLeituraSmartRead`) |
+| **Wizard** `GET`/`PATCH` `/progresso` | **Usuário** — retomar sessão individual | `x-id-usuario` (+ `id_workspace` gravado no registro) |
+| **POST** nova leitura | Grava vínculo com `id_workspace` resolvido (mesmo da lista) | `registrar-vinculo-leitura-usuario-smart-read.ts` |
+| **GET** `/leituras/:id` | Só legado se leitura vinculada ao workspace; senão `404` | `leituraVinculadaAoWorkspaceSmartRead` |
+
+Registros legados com `id_workspace` null continuam visíveis (`OR id_workspace IS NULL`) até backfill; novos POSTs sempre gravam workspace resolvido.
+
+Helper: `server/src/lib/escopo-workspace-leitura-smart-read.ts`.
 
 ---
 
 ## 2. Contrato BFF — rotas de leitura
 
-Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-usuario`; opcional `x-id-workspace`.
+Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-usuario`. Workspace: `x-id-workspace` (shell: `gravity_company_id`); se ausente, o BFF usa `x-id-organizacao` como workspace ativo (mesmo padrão Pedido).
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| `GET` | `/api/v1/smart-read/leituras` | Lista paginada (`pagina`, `limite`, `termo_busca`) |
-| `GET` | `/api/v1/smart-read/leituras/metricas/readings` | Contagem para card «Leituras realizadas» |
-| `POST` | `/api/v1/smart-read/leituras` | Cria leitura no legado + upload (`multipart` campo `arquivo`) → `202` |
-| `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado normalizado — cadeia: **snapshot Gravity** → **legado DATI (SSOT)** → **progresso** (só no `catch`, mesmo `id_usuario`); grava snapshot após legado se elegível |
-| `GET` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Progresso do wizard (`404` se ausente) |
-| `PATCH` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Salva passo 2–4 + sessão |
+| `GET` | `/api/v1/smart-read/leituras` | Lista paginada por **workspace** (`pagina`, `limite`, `termo_busca`) |
+| `GET` | `/api/v1/smart-read/leituras/metricas/readings` | Contagem para card «Leituras realizadas» (workspace) |
+| `POST` | `/api/v1/smart-read/leituras` | Cria leitura no legado + upload + vínculo workspace → `202` |
+| `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado — **snapshot (workspace)** → **legado** (se vinculada) → **progresso** (`catch`, `id_usuario` + workspace); grava snapshot após legado se elegível |
+| `GET` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Progresso do wizard por **usuário** (`404` se ausente) |
+| `PATCH` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Salva passo 2–4 + sessão (usuário) |
 | `DELETE` | `/api/v1/smart-read/leituras/:id_leitura` | `501` — legado sem exclusão |
 
 **Schemas Zod (bilateral — REGRA 07/09):**

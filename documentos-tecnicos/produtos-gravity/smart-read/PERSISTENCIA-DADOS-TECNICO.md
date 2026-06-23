@@ -88,7 +88,7 @@ Implementação BFF: `server/src/lib/snapshot-leitura-smart-read.ts`.
 ### 4.1 Nova leitura (upload)
 
 1. Client → `POST /api/v1/smart-read/leituras` (multipart).
-2. BFF → **cria leitura no legado** + envia arquivo (`criarLeituraLegado`, `enviarArquivoLegado`).
+2. BFF → **cria leitura no legado** + envia arquivo + **vínculo workspace** (`registrar-vinculo-leitura-usuario-smart-read.ts`, `id_workspace` = `resolverIdWorkspaceLeituraSmartRead`).
 3. Resposta `202` com `id_leitura` legado. **Nenhuma linha em `snapshot_leitura_smart_read` ainda.**
 
 ### 4.2 Wizard e conferência
@@ -99,9 +99,9 @@ Implementação BFF: `server/src/lib/snapshot-leitura-smart-read.ts`.
 
 ### 4.3 Lista
 
-1. `GET /leituras` monta merge: **legado** (primário) + **progresso** + **snapshots** (`montar-lista-transacoes-leitura-smart-read.ts`).
+1. `GET /leituras` monta merge por **workspace ativo** (`x-id-workspace`, fallback `x-id-organizacao`): intersecta legado com ids de **progresso** + **snapshots** da filial (`escopo-workspace-leitura-smart-read.ts`).
 2. Se o mesmo `id_leitura` existe no snapshot, a linha do snapshot **prevalece** (métricas já calculadas).
-3. Linhas `COMPLETED` sem métricas ainda são enriquecidas via legado; ao enriquecer, o BFF **grava snapshot**.
+3. Linhas `COMPLETED` sem métricas ainda são enriquecidas via batch snapshot; legado item-a-item só fora da lista paginada.
 
 ### 4.4 Insights
 
@@ -123,9 +123,10 @@ Ordem **fixa** em `server/src/routes/leituras-smart-read.ts`:
 
 | Passo | Fonte | Quando retorna |
 |-------|--------|----------------|
-| 1 | `snapshot_leitura_smart_read` | Linha existe no Postgres Gravity |
-| 2 | **Legado DATI** (`obterLeituraLegado`) | Snapshot ausente — **SSOT da extração**; ao sucesso, BFF grava snapshot se `id_usuario` presente |
-| 3 | `progresso_leitura_smart_read` | **Somente no `catch`** após falha do legado — sessão do wizard (`dados_sessao`) do **mesmo** `id_usuario` (header `x-id-usuario` obrigatório; sem usuário → não consulta progresso) |
+| 0 | **Vínculo workspace** | Antes do legado: `404` se leitura não está em progresso/snapshot do workspace ativo |
+| 1 | `snapshot_leitura_smart_read` | Linha no Postgres Gravity (filtro workspace + legado `id_workspace` null) |
+| 2 | **Legado DATI** (`obterLeituraLegado`) | Snapshot ausente e leitura vinculada — **SSOT da extração**; ao sucesso, BFF grava snapshot |
+| 3 | `progresso_leitura_smart_read` | **Somente no `catch`** após falha do legado — sessão do **mesmo** `id_usuario` e `id_workspace` |
 
 **Importante:** progresso **não** substitui legado no fluxo feliz — evita devolver sessão parcial do wizard quando o DATI já tem a leitura `COMPLETED`. Implementação: `obterLeituraDoProgresso` em `server/src/lib/snapshot-leitura-smart-read.ts`.
 

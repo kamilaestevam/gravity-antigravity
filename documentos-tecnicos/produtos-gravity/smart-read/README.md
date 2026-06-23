@@ -12,7 +12,7 @@
 |-----------|----------|
 | [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) | **Onde vive cada dado:** banco DATI = leituras reais (PDF, OCR, extração); Postgres Gravity = snapshot, progresso, painéis |
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor responsável, contrato BFF, rankings |
-| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista real, layout/paginação/painéis, BFF leituras, progresso Postgres, nome do wizard |
+| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista por workspace, layout/paginação/painéis, BFF leituras, progresso por usuário, nome do wizard |
 
 ---
 

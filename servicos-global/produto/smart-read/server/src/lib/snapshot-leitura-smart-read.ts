@@ -11,6 +11,7 @@ import {
   type TransacaoLeitura,
 } from '../schemas/leitura-smart-read.js'
 import { extrairDadosSessaoProgressoLeitura } from '../schemas/progresso-leitura-smart-read.js'
+import { clausulaWorkspaceLeituraSmartRead } from './escopo-workspace-leitura-smart-read.js'
 import { normalizarTransacaoDeLeitura } from './normalizar-transacao-leitura-smart-read.js'
 
 export const VERSAO_CONTRATO_SNAPSHOT_LEITURA_SMART_READ = 1
@@ -125,7 +126,6 @@ export async function persistirSnapshotLeituraSmartRead(params: {
 
   const existente = await prisma.snapshotLeituraSmartRead.findFirst({
     where: {
-      id_usuario: idUsuario,
       id_leitura_legado_snapshot_leitura_smart_read: leitura.id_leitura,
     },
   })
@@ -145,6 +145,7 @@ export async function obterLeituraDoProgresso(
   prisma: PrismaClient,
   idLeituraLegado: string,
   idUsuario: string,
+  idWorkspace?: string,
 ): Promise<Leitura | null> {
   if (!idUsuario) return null
 
@@ -152,6 +153,7 @@ export async function obterLeituraDoProgresso(
     where: {
       id_leitura_legado_progresso_leitura_smart_read: idLeituraLegado,
       id_usuario: idUsuario,
+      ...(idWorkspace ? { id_workspace: idWorkspace } : {}),
     },
     orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
   })
@@ -170,13 +172,13 @@ export async function obterLeituraDoProgresso(
 export async function obterLeituraDoSnapshot(
   prisma: PrismaClient,
   idLeituraLegado: string,
-  idUsuario: string,
+  idWorkspace: string,
 ): Promise<Leitura | null> {
-  if (!idUsuario) return null
+  if (!idWorkspace) return null
 
   const registro = await prisma.snapshotLeituraSmartRead.findFirst({
     where: {
-      id_usuario: idUsuario,
+      ...clausulaWorkspaceLeituraSmartRead(idWorkspace),
       id_leitura_legado_snapshot_leitura_smart_read: idLeituraLegado,
     },
   })
@@ -187,13 +189,13 @@ export async function obterLeituraDoSnapshot(
 export async function carregarSnapshotsPorIds(
   prisma: PrismaClient,
   idsLeitura: string[],
-  idUsuario: string,
+  idWorkspace: string,
 ): Promise<Map<string, TransacaoLeitura>> {
-  if (idsLeitura.length === 0 || !idUsuario) return new Map()
+  if (idsLeitura.length === 0 || !idWorkspace) return new Map()
 
   const registros = await prisma.snapshotLeituraSmartRead.findMany({
     where: {
-      id_usuario: idUsuario,
+      ...clausulaWorkspaceLeituraSmartRead(idWorkspace),
       id_leitura_legado_snapshot_leitura_smart_read: { in: idsLeitura },
     },
   })

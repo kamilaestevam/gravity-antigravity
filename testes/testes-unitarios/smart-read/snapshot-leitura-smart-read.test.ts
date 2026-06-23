@@ -49,18 +49,18 @@ describe('snapshot-leitura-smart-read', () => {
     expect(leitura?.id_leitura).toBe('leitura-teste-001')
   })
 
-  it('obterLeituraDoSnapshot filtra por id_usuario', async () => {
+  it('obterLeituraDoSnapshot filtra por id_workspace (inclui legado null)', async () => {
     const findFirst = vi.fn().mockResolvedValue(null)
     const prisma = { snapshotLeituraSmartRead: { findFirst } } as unknown as PrismaClient
 
     await expect(obterLeituraDoSnapshot(prisma, 'leitura-1', '')).resolves.toBeNull()
     expect(findFirst).not.toHaveBeenCalled()
 
-    await obterLeituraDoSnapshot(prisma, 'leitura-1', 'usr-abc')
+    await obterLeituraDoSnapshot(prisma, 'leitura-1', 'ws-abc')
     expect(findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
-          id_usuario: 'usr-abc',
+          OR: [{ id_workspace: 'ws-abc' }, { id_workspace: null }],
           id_leitura_legado_snapshot_leitura_smart_read: 'leitura-1',
         },
       }),

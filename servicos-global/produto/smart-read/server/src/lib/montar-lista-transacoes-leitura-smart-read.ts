@@ -33,7 +33,11 @@ export type ParametrosListaLeituras = {
 function transacaoPrecisaEnriquecerMetricas(transacao: TransacaoLeitura): boolean {
   if (transacao.status_leitura !== 'COMPLETED') return false
   if (transacao.total_documentos === 0) return true
-  return transacao.media_acertos == null || transacao.saving_total_minutos == null
+  return (
+    transacao.media_acertos == null ||
+    transacao.saving_total_minutos == null ||
+    transacao.saving_total_minutos <= 0
+  )
 }
 
 function mesclarTransacaoComSnapshot(

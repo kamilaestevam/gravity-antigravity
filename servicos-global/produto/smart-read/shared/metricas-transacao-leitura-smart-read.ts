@@ -136,6 +136,48 @@ export function estimarSavingAgregadoLeituraSmartRead(
   }
 }
 
+function inferirTipoDocumentoSavingLista(
+  tiposDocumento: string | null | undefined,
+): TipoDocumentoBaseSmartRead {
+  const rotulo = (tiposDocumento ?? '').split('·')[0]?.trim()
+  return normalizarTipoDocumentoBaseSmartRead(rotulo)
+}
+
+/** Saving efetivo da transação: valor persistido ou estimativa agregada (lista / snapshot). */
+export function resolverSavingTransacaoLeituraSmartRead(
+  transacao: Pick<
+    MetricasTransacaoLeituraSmartRead,
+    | 'saving_total_minutos'
+    | 'saving_total_brl'
+    | 'total_documentos'
+    | 'total_campos_errados'
+    | 'tipos_documento'
+  >,
+): Pick<MetricasTransacaoLeituraSmartRead, 'saving_total_minutos' | 'saving_total_brl'> | null {
+  if (transacao.saving_total_minutos != null && transacao.saving_total_minutos > 0) {
+    return {
+      saving_total_minutos: transacao.saving_total_minutos,
+      saving_total_brl: transacao.saving_total_brl ?? 0,
+    }
+  }
+
+  if (transacao.total_documentos <= 0) {
+    return null
+  }
+
+  const saving = estimarSavingAgregadoLeituraSmartRead(
+    transacao.total_documentos,
+    transacao.total_campos_errados,
+    inferirTipoDocumentoSavingLista(transacao.tipos_documento),
+  )
+
+  if (saving.saving_total_minutos <= 0) {
+    return null
+  }
+
+  return saving
+}
+
 function calcularSavingDocumento(
   tipo: TipoDocumentoBaseSmartRead,
   camposErrados: number,

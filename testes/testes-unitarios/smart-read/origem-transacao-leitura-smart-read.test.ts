@@ -12,7 +12,7 @@ function transacaoBase(parcial: Partial<TransacaoLeitura> & Pick<TransacaoLeitur
     nome_leitura: parcial.nome_leitura ?? 'Leitura teste',
     status_leitura: parcial.status_leitura ?? 'COMPLETED',
     total_arquivos: parcial.total_arquivos ?? 1,
-    media_acertos: parcial.media_acertos ?? 0.9,
+    media_acertos: 'media_acertos' in parcial ? parcial.media_acertos ?? null : 0.9,
     data_envio: parcial.data_envio ?? '2026-06-23T12:00:00.000Z',
     origem_leitura: parcial.origem_leitura ?? 'INTERFACE',
     nome_arquivo: parcial.nome_arquivo ?? 'doc.pdf',
@@ -25,8 +25,8 @@ function transacaoBase(parcial: Partial<TransacaoLeitura> & Pick<TransacaoLeitur
     numeros_documento: parcial.numeros_documento ?? 'INV-1',
     tempo_extracao_ia_ms: parcial.tempo_extracao_ia_ms ?? 1000,
     tempo_processo_total_ms: parcial.tempo_processo_total_ms ?? 2000,
-    saving_total_minutos: parcial.saving_total_minutos ?? 5,
-    saving_total_brl: parcial.saving_total_brl ?? 50,
+    saving_total_minutos: 'saving_total_minutos' in parcial ? parcial.saving_total_minutos ?? null : 5,
+    saving_total_brl: 'saving_total_brl' in parcial ? parcial.saving_total_brl ?? null : 50,
   }
 }
 
@@ -63,5 +63,30 @@ describe('mesclarTransacaoNaLista', () => {
 
     expect(mesclada.origem_leitura).toBe('API')
     expect(mesclada.total_campos_extraidos).toBe(20)
+  })
+
+  it('preserva saving e deriva media_acertos quando snapshot não traz accuracy', () => {
+    const legado = transacaoBase({
+      id_leitura: 'abc',
+      media_acertos: null,
+      saving_total_minutos: null,
+      total_documentos: 0,
+      total_campos_extraidos: 0,
+    })
+    const snapshot = transacaoBase({
+      id_leitura: 'abc',
+      media_acertos: null,
+      saving_total_minutos: null,
+      total_documentos: 2,
+      total_campos_extraidos: 100,
+      total_campos_corretos: 88,
+      total_campos_errados: 12,
+    })
+
+    const mesclada = mesclarTransacaoNaLista(legado, snapshot)
+
+    expect(mesclada.media_acertos).toBeCloseTo(0.88)
+    expect(mesclada.saving_total_minutos).toBeGreaterThan(0)
+    expect(mesclada.saving_total_brl).toBeGreaterThan(0)
   })
 })

@@ -6,6 +6,7 @@ import { clausulaWorkspaceLeituraSmartRead } from './escopo-workspace-leitura-sm
 import { obterLeituraLegado, listarLeiturasLegado } from './cliente-legado-smart-read.js'
 import {
   extrairItensListaLegado,
+  complementarMetricasTransacaoLista,
   mesclarTransacaoNaLista,
   normalizarTransacaoDeItemListaLegado,
   normalizarTransacaoDeLeitura,
@@ -30,7 +31,9 @@ export type ParametrosListaLeituras = {
 }
 
 function transacaoPrecisaEnriquecerMetricas(transacao: TransacaoLeitura): boolean {
-  return transacao.total_documentos === 0 && transacao.status_leitura === 'COMPLETED'
+  if (transacao.status_leitura !== 'COMPLETED') return false
+  if (transacao.total_documentos === 0) return true
+  return transacao.media_acertos == null || transacao.saving_total_minutos == null
 }
 
 function mesclarTransacaoComSnapshot(
@@ -87,7 +90,10 @@ function filtrarPorOrigem(
 
 function inserirTransacaoNoMapa(mapa: Map<string, TransacaoLeitura>, item: TransacaoLeitura): void {
   const existente = mapa.get(item.id_leitura)
-  mapa.set(item.id_leitura, existente ? mesclarTransacaoNaLista(existente, item) : item)
+  mapa.set(
+    item.id_leitura,
+    existente ? mesclarTransacaoNaLista(existente, item) : complementarMetricasTransacaoLista(item),
+  )
 }
 
 async function listarViaSnapshotGravity(
@@ -201,7 +207,7 @@ export async function montarListaTransacoesLeituraSmartRead(
   const enriquecidas = await aplicarMetricasDaPagina(params.prisma, params.idWorkspace, paginado)
 
   return {
-    transacoes: enriquecidas,
+    transacoes: enriquecidas.map(complementarMetricasTransacaoLista),
     total,
   }
 }

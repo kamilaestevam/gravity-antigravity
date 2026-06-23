@@ -101,6 +101,41 @@ function resolverContagemCampos(
   return { total, corretos, errados }
 }
 
+export function resolverMediaAcertosTransacaoLeituraSmartRead(
+  transacao: Pick<
+    MetricasTransacaoLeituraSmartRead,
+    'total_campos_extraidos' | 'total_campos_corretos'
+  > & { media_acertos?: number | null },
+): number | null {
+  if (transacao.media_acertos != null && Number.isFinite(transacao.media_acertos)) {
+    return transacao.media_acertos <= 1 ? transacao.media_acertos : transacao.media_acertos / 100
+  }
+  if (transacao.total_campos_extraidos > 0) {
+    return transacao.total_campos_corretos / transacao.total_campos_extraidos
+  }
+  return null
+}
+
+/** Estimativa de saving quando só há totais agregados (snapshot denormalizado / lista legado). */
+export function estimarSavingAgregadoLeituraSmartRead(
+  totalDocumentos: number,
+  camposErrados: number,
+  tipo: TipoDocumentoBaseSmartRead = 'outros',
+): Pick<MetricasTransacaoLeituraSmartRead, 'saving_total_minutos' | 'saving_total_brl'> {
+  if (totalDocumentos <= 0) {
+    return { saving_total_minutos: 0, saving_total_brl: 0 }
+  }
+  const saving = calcularSavingDocumento(tipo, camposErrados)
+  const savingTotalMinutos = saving.digitação * totalDocumentos + saving.erros
+  const custoHora =
+    PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
+    PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
+  return {
+    saving_total_minutos: savingTotalMinutos,
+    saving_total_brl: (savingTotalMinutos / 60) * custoHora,
+  }
+}
+
 function calcularSavingDocumento(
   tipo: TipoDocumentoBaseSmartRead,
   camposErrados: number,

@@ -373,6 +373,7 @@ export function TabelaTransacoesLeituraSmartRead({
           setModalNovaLeituraAberto(false)
           setArquivosNovaLeitura([])
           setIdLeituraExistente(null)
+          void onRecarregar()
         }}
         onConcluido={() => void onRecarregar()}
       />

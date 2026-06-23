@@ -40,6 +40,7 @@ export const cotacaoInsightsDetalheSchema = z.object({
   data_limite_resposta_cotacao_bid_frete_internacional: z.string().nullable(),
   data_aprovacao_cotacao_bid_frete_internacional: z.string().nullable(),
   data_envio_disparo_cotacao_bid_frete_internacional: z.string().nullable(),
+  data_primeira_resposta_cotacao_bid_frete_internacional: z.string().nullable(),
   propostas: z.array(propostaDetalheSchema),
   historico: z.array(historicoDetalheSchema),
 })

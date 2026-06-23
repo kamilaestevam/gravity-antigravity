@@ -390,7 +390,7 @@ router.get('/insights-detalhe', async (req: Request, res: Response, next: NextFu
               },
             },
           },
-          disparo_cotacao_bid_frete_internacional: {
+          disparos_cotacao: {
             select: {
               data_envio_disparo_cotacao_bid_frete_internacional: true,
               data_resposta_disparo_cotacao_bid_frete_internacional: true,
@@ -406,7 +406,16 @@ router.get('/insights-detalhe', async (req: Request, res: Response, next: NextFu
     res.json({
       contexto,
       total,
-      cotacoes: (cotacoes as Parameters<typeof mapearCotacaoInsightsDetalhe>[0][]).map(mapearCotacaoInsightsDetalhe),
+      cotacoes: cotacoes.map((c) => {
+        const row = c as Omit<Parameters<typeof mapearCotacaoInsightsDetalhe>[0], 'disparo_cotacao_bid_frete_internacional'> & {
+          disparos_cotacao: Parameters<typeof mapearCotacaoInsightsDetalhe>[0]['disparo_cotacao_bid_frete_internacional']
+        }
+        const { disparos_cotacao, ...rest } = row
+        return mapearCotacaoInsightsDetalhe({
+          ...rest,
+          disparo_cotacao_bid_frete_internacional: disparos_cotacao ?? [],
+        })
+      }),
     })
   } catch (err) {
     next(err)

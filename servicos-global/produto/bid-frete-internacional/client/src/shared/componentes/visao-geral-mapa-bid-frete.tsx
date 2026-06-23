@@ -2805,6 +2805,19 @@ export function VisaoGeralMapaBidFrete({
         className={`bfd-map-filtros-shell${painelFiltrosMapaExpandido ? '' : ' bfd-map-filtros-shell--recolhido'}`}
         style={ESTILO_VARS_TOGGLE_MAPA_BID_FRETE}
       >
+        <TooltipGlobal
+          descricao={painelFiltrosMapaExpandido ? 'Recolher Refinar mapa' : 'Expandir Refinar mapa'}
+        >
+          <button
+            type="button"
+            className="mlg-toggle-btn"
+            onClick={() => setPainelFiltrosMapaExpandido((prev) => !prev)}
+            aria-expanded={painelFiltrosMapaExpandido}
+            aria-controls="bfd-map-filtros-panel-conteudo"
+          >
+            <SidebarSimple weight={painelFiltrosMapaExpandido ? 'regular' : 'duotone'} size={16} />
+          </button>
+        </TooltipGlobal>
         {painelFiltrosMapaExpandido ? (
         <aside
           id="bfd-map-filtros-panel-conteudo"
@@ -2983,19 +2996,6 @@ export function VisaoGeralMapaBidFrete({
         ) : (
           renderPainelFiltrosMapaRecolhido()
         )}
-        <TooltipGlobal
-          descricao={painelFiltrosMapaExpandido ? 'Recolher Refinar mapa' : 'Expandir Refinar mapa'}
-        >
-          <button
-            type="button"
-            className="bfd-map-filtros-toggle"
-            onClick={() => setPainelFiltrosMapaExpandido((prev) => !prev)}
-            aria-expanded={painelFiltrosMapaExpandido}
-            aria-controls="bfd-map-filtros-panel-conteudo"
-          >
-            <SidebarSimple weight={painelFiltrosMapaExpandido ? 'regular' : 'duotone'} size={16} />
-          </button>
-        </TooltipGlobal>
       </div>
     )
   }

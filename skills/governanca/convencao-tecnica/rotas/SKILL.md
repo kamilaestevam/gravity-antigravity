@@ -36,7 +36,7 @@ A área vem **direto** após o domínio.
 
 ## Áreas por produto
 
-`/pedido`, `/bid-frete`, `/bid-cambio`, `/bid-frete-internacional`, `/simula-custo`, `/processo`, `/nf-importacao`, `/lpco`, `/cadastros`
+`/pedido`, `/bid-frete`, `/bid-cambio`, `/bid-frete-internacional`, `/simula-custo`, `/processo`, `/smart-read`, `/nf-importacao`, `/lpco`, `/cadastros`
 
 > Slug = `chaveProduto` do SDK `@gravity/resolver-organizacao`. Kebab-case PT-BR.
 
@@ -208,6 +208,7 @@ Apenas scroll dentro da mesma view ou OAuth implicit. Nunca para estado funciona
 | Filtros indo no path | Move para query |
 | Modal sem URL | Vira sub-rota |
 | `navigate('/workspace/...')` | Use `/configurador/...` |
+| Rotas absolutas `/smart-read/lista` no `App.tsx` do produto embutido | Use paths relativos (`lista`, `insights`) — entrada canônica via `ROTA_ENTRADA_SMART_READ` |
 | `window.location.href = '/configurador'` | Use `navigate('/configurador')` |
 | `?page=2` em vez de `?pagina=2` | Traduz |
 

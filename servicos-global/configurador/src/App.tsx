@@ -93,6 +93,7 @@ const BidCambioApp = React.lazy(() => import('../../produto/bid-cambio/client/sr
 const PedidoApp = React.lazy(() => import('../../produto/pedido/client/src/App'))
 const SmartReadApp = React.lazy(() => import('../../produto/smart-read/client/src/App'))
 
+import { ROTA_ENTRADA_SMART_READ } from '@gravity/shell'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { ROTAS_PEDIDO, BASE_ROTA_PEDIDO } from '../../produto/pedido/client/src/shared/rotas'
 
@@ -392,7 +393,7 @@ export default function App() {
         <Route path="/bid-frete-internacional/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete Internacional"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><GuardaRotaPedido /></ProductErrorBoundary></ProtectedRoute>} />
-        <Route path="/smart-read" element={<Navigate to="/smart-read/lista" replace />} />
+        <Route path="/smart-read" element={<Navigate to={ROTA_ENTRADA_SMART_READ} replace />} />
         <Route path="/smart-read/*" element={<ProtectedRoute><ProductErrorBoundary name="Smart Read"><React.Suspense fallback={<ProductLoading />}><SmartReadApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
 
         {/* Redirects legacy (90 dias após merge — Pendência #5) */}
@@ -402,7 +403,7 @@ export default function App() {
         <Route path="/produto/bid-frete-internacional/*" element={<NavigateComPrefixo de="/produto/bid-frete-internacional" para="/bid-frete" />} />
         <Route path="/produto/bid-cambio/*" element={<NavigateComPrefixo de="/produto/bid-cambio" para="/bid-cambio" />} />
         <Route path="/produto/pedido/*" element={<NavigateComPrefixo de="/produto/pedido" para="/pedido" />} />
-        <Route path="/produto/smart-read" element={<NavigateComPrefixo de="/produto/smart-read" para="/smart-read" />} />
+        <Route path="/produto/smart-read" element={<Navigate to={ROTA_ENTRADA_SMART_READ} replace />} />
         <Route path="/produto/smart-read/*" element={<NavigateComPrefixo de="/produto/smart-read" para="/smart-read" />} />
 
         {/* Admin — área interna restrita — exclusivo gravity_admin */}

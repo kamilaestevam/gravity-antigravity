@@ -3,6 +3,7 @@
  */
 
 import type { ProdutoWorkspaceItem } from '../services/api-client'
+import { resolverRotaProdutoGravity } from '@gravity/shell'
 import { nomeExibicaoProdutoGravity } from '../data/product-meta'
 import {
   ehSlugProdutoBidFrete,
@@ -116,7 +117,10 @@ export function expandirCardsProdutosCore(
       produto: p,
       slug,
       nome: nomeExibicaoProdutoGravity(slug, p.catalog?.name ?? p.product_key, t),
-      rota: slug === 'smart-read' ? '/smart-read' : `/produto/${slug}`,
+      rota: (() => {
+        const rotaCanonica = resolverRotaProdutoGravity(slug)
+        return rotaCanonica !== `/${slug}` ? rotaCanonica : `/produto/${slug}`
+      })(),
       variant: 'padrao',
     })
   }

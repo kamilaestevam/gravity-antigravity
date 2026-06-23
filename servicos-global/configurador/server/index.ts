@@ -8,6 +8,7 @@ import { mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { middlewareServirPrintEmt } from './lib/servir-print-emt.js'
 import { dirArtefatosEmtPersistente } from './lib/emt-artifacts.js'
+import { ROTA_ENTRADA_SMART_READ } from '../../shell/utils/resolver-rota-produto.js'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 // Chaves globais (GEMINI_API_KEY, CHAVE_INTERNA_SERVICO) vêm do .env.local da raiz
@@ -655,6 +656,11 @@ app.get('*', (req, res, next) => {
   // 2. Case-sensitivity → 301 minúsculas
   if (path !== path.toLowerCase()) {
     return res.redirect(301, path.toLowerCase() + query)
+  }
+
+  // 2b. Entrada Smart Read (raiz) → lista — evita 404 quando path exato não casa com splat no client
+  if (path === '/smart-read' || path === '/produto/smart-read') {
+    return res.redirect(301, ROTA_ENTRADA_SMART_READ + query)
   }
 
   // 3. Path legacy → 301 canônica preservando sufixo

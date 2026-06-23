@@ -55,6 +55,7 @@ import {
   useShellBodyClasses,
   useLoadAllowedProducts,
   resolverNomeExibicaoUsuario,
+  resolverRotaProdutoGravity,
 } from '@gravity/shell'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { ModalOverlay } from '@nucleo/modal-global'
@@ -261,7 +262,7 @@ const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
   'bid-frete': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
   'bid-frete-internacional': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
   'bid-cambio': { nome: 'BID Câmbio', rota: '/bid-cambio' },
-  'smart-read': { nome: 'Smart Read', rota: '/smart-read' },
+  'smart-read': { nome: 'Smart Read', rota: resolverRotaProdutoGravity('smart-read') },
   'processo': { nome: 'Processo', rota: '/processo' },
 }
 

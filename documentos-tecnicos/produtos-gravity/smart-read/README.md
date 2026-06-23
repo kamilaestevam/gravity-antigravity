@@ -39,6 +39,22 @@ Seletor em `client/src/components/SmartReadVisualizacaoTabs.tsx`.
 
 ---
 
+## Rotas de entrada (configurador)
+
+O Smart Read roda **embutido** no configurador (`/smart-read/*`). Rotas internas do produto (`lista`, `insights`, …) são **relativas** no `App.tsx` do Smart Read — mesmo padrão do BID Frete.
+
+| URL de entrada | Destino canônico | Onde |
+|----------------|------------------|------|
+| `/smart-read` | `/smart-read/lista` | `configurador/src/App.tsx` + server 301 |
+| `/produto/smart-read` | `/smart-read/lista` | `configurador/src/App.tsx` + server 301 |
+| `/produto/smart-read/*` | `/smart-read/*` | `NavigateComPrefixo` (legado 90 dias) |
+
+**SSOT da entrada:** `ROTA_ENTRADA_SMART_READ` em `servicos-global/shell/utils/resolver-rota-produto.ts` (exportada via `@gravity/shell`). Hub, Core e puzzle consomem `resolverRotaProdutoGravity('smart-read')`.
+
+**Não fazer:** rotas absolutas `/smart-read/lista` dentro do `Routes` do produto embutido — quebra match local e deixa a tela em branco.
+
+---
+
 ## Menu lateral (padrão do sistema)
 
 Configurado em `client/src/shared/config.ts` (`PRODUCT_CONFIG.navigation`) e mapeado para `MenuLateralGlobal` em `client/src/App.tsx`. Segue o padrão dos demais produtos (Pedido/BID):
@@ -64,6 +80,7 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 
 | Task / entrega | Escopo |
 |----------------|--------|
+| Hotfix rotas (2026-06) | Entrada `/smart-read` e `/produto/smart-read` → `/smart-read/lista`; rotas internas relativas no produto embutido |
 | TASK-000307 | Menu lateral no padrão do sistema + tela de Configurações (estado local; PR #388) |
 | TASK-000306 | Ocultar abas Dashboard e Kanban do seletor (mantidas só Insights e Lista) |
 | TASK-000303 | Dashboard Insights (KPIs, savings, rankings) — ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) |

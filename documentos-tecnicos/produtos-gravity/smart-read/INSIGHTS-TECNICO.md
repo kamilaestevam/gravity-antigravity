@@ -116,6 +116,7 @@ Normalização de tipo financeiro: `dados-base-produto-tempo-smart-read.ts` → 
 | Gráfico barras empilhadas (dia a dia) | `client/src/components/grafico-campos-por-dia-insights-smart-read.tsx` |
 | Seletor 7/30/60/90 + calendário | `client/src/components/seletor-periodo-campos-dia-insights-smart-read.tsx` |
 | Agregação diária | `agrupar-campos-por-dia-insights-smart-read.ts` — padrão **7 dias**, presets 7/30/60/90 ou intervalo customizado |
+| **Modal Base de cálculo** + link nos KPIs de saving | `metodologia-saving-insights-smart-read.tsx` (`ProvedorMetodologiaSavingInsightsSmartRead`) |
 | Layout / CSS (padrão BID Frete `bfd-dashboard`) | `client/src/pages/insights-smart-read/insights-smart-read.css` |
 | Hook de dados | `client/src/pages/insights-smart-read/use-dados-insights-leitura-smart-read.ts` |
 
@@ -123,16 +124,49 @@ Rankings: abas por tipo de emissor (`PARTICIPANTES_RANKING_INSIGHTS_SMART_READ` 
 
 Subtítulo da UI deixa explícito: acerto = inalterado; erro = editado; emissor conforme tipo de documento.
 
+### KPIs de saving — exibição vs detalhe
+
+| KPI | Valor no card | Detalhe (tooltip / painel Economia) |
+|-----|---------------|-------------------------------------|
+| **Saving Digitação** | Minutos economizados | Tempo manual − SR por tipo; link **Base de cálculo →** |
+| **Saving em Erros** | **Quantidade de campos errados** (`camposErrados`) | Minutos e custo no tooltip/subtítulo — não no número principal do card |
+
+Link **Base de cálculo →** abre modal (`ModalOverlay`) com metodologia completa. Tooltip do card usa `CardBasicoGlobal` com `pointer-events: auto` e ponte de hover (`nucleo-global/Layout/card-global`) para permitir clicar no link sem o tooltip sumir.
+
 ---
 
 ## 6. Savings (tempo / custo)
 
-Estimativas usam base embutida em `dados-base-produto-tempo-smart-read.ts` (substituível quando JSON DOCS BASE PRODUTO estiver disponível):
+Estimativas usam SSOT em `shared/dados-base-produto-tempo-smart-read.ts` (espelho client em `client/src/pages/insights-smart-read/dados-base-produto-tempo-smart-read.ts`):
 
-- **Saving digitação:** tempo manual − tempo Smart Read por tipo de documento
-- **Saving erros:** `campos_errados × (tempo correção manual − tempo correção Smart Read por campo)`
+- **Saving digitação:** `tempo_digitação_manual_minutos − tempo_digitação_smart_read_minutos` por tipo de documento
+- **Saving erros:** `campos_errados × (tempo_correcao_erro_manual − tempo_correcao_erro_smart_read por campo)`
+- **Custo evitado:** `minutos_economizados ÷ 60 × R$ 115/h` (`custo_hora_operador_brl` R$ 85 + `markup_venda` 1,35)
 
 Erros de saving dependem exclusivamente da contagem de campos editados (§2).
+
+### Modal «Base de cálculo»
+
+Componente: `metodologia-saving-insights-smart-read.tsx`. Seções:
+
+1. Como chegamos nos tempos manuais (estudo DOCS BASE PRODUTO)
+2. Fórmulas (digitação, erros, custo)
+3. Tabela **Tempos por tipo de documento** — ordem e rótulos em `LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ`; colunas SR/correção via `resolverParametrosTempoDocumentoSmartRead`
+4. **Observações — documento médio do estudo** — `OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ`
+
+| Tipo (exibição) | Digitação manual (estudo) | Parâmetro interno |
+|-----------------|---------------------------|-------------------|
+| Pedido | 16,10 min | `pedido` |
+| Proforma | 16,10 min | `proforma` |
+| Invoice | 16,10 min | `invoice` |
+| Packing List | 19,054 min | `packing_list` |
+| BL | 6,00 min | `bl` |
+| AWB | 6,00 min | `awb` |
+| Documentos Financeiros | 20,00 min | `outros` |
+
+**Documento médio (observações):** Invoice/Proforma/Pedido = 20 itens; Packing List = 10 linhas; Documentos Financeiros = 10 linhas; BL/AWB = cabeçalho (peso = contêineres, sem contagem de itens).
+
+> Valores editáveis no Configurador quando a tabela oficial for publicada. Até lá, alterar `BASE_TEMPO_DOCUMENTO_SMART_READ` no shared (lista + insights + BFF leem o mesmo arquivo).
 
 ---
 

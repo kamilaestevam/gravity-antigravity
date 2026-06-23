@@ -47,9 +47,12 @@ async function listarViaProgressoGravity(
     const sessao = extrairDadosSessaoProgressoLeitura(registro.dados_sessao_progresso_leitura_smart_read)
     if (sessao?.leitura) {
       transacoes.push(
-        normalizarTransacaoDeLeitura(sessao.leitura, {
-          data_envio: registro.data_criacao_progresso_leitura_smart_read.toISOString(),
-        }),
+        normalizarTransacaoDeLeitura(
+          { ...sessao.leitura, nome_leitura: sessao.nome || sessao.leitura.nome_leitura },
+          {
+            data_envio: registro.data_criacao_progresso_leitura_smart_read.toISOString(),
+          },
+        ),
       )
     }
   }

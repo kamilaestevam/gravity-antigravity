@@ -177,7 +177,7 @@ export function ModalNovaLeituraSmartRead({
         console.warn('[smart-read][persist] retomar', { id, temSalvo: !!salvo, passoSalvo: salvo?.passo })
       }
       const leituraEfetiva = salvo?.leitura ?? leitura
-      setNomeLeitura(leituraEfetiva.nome_leitura ?? salvo?.nome ?? 'Leitura')
+      setNomeLeitura(salvo?.nome ?? leituraEfetiva.nome_leitura ?? 'Leitura')
       setArquivos(criarArquivosLocaisDeLeitura(leituraEfetiva))
       setPasso(salvo?.passo ?? passoInicialLeituraSmartRead(leitura.status_leitura))
     } catch {
@@ -244,17 +244,19 @@ export function ModalNovaLeituraSmartRead({
     processamentoFinalizado && !arquivos.some((item) => item.status_arquivo_local === 'completo')
 
   const salvarProgressoAtual = useCallback(
-    async (passoAlvo: number = passo): Promise<boolean> => {
+    async (passoAlvo: number = passo, nomeOverride?: string): Promise<boolean> => {
       const idLeitura = idLeituraExistente ?? arquivos.find((a) => a.id_leitura)?.id_leitura ?? null
       if (!idLeitura || passoAlvo < 2 || !todosArquivosAnaliseCompleta(arquivos)) return false
-      const leitura = consolidarLeituraDeArquivosLocais(arquivos)
-      if (!leitura) return false
+      const leituraBase = consolidarLeituraDeArquivosLocais(arquivos)
+      if (!leituraBase) return false
+      const nomeEfetivo = (nomeOverride ?? nomeLeitura).trim() || nomeLeitura
+      const leitura = { ...leituraBase, nome_leitura: nomeEfetivo }
       if (import.meta.env.DEV) {
-        console.warn('[smart-read][persist] salvando', { idLeitura, passo: passoAlvo })
+        console.warn('[smart-read][persist] salvando', { idLeitura, passo: passoAlvo, nome: nomeEfetivo })
       }
-      await persistirProgressoLeituraSmartRead(idLeitura, { passo: passoAlvo, nome: nomeLeitura, leitura })
+      await persistirProgressoLeituraSmartRead(idLeitura, { passo: passoAlvo, nome: nomeEfetivo, leitura })
       passoSalvoRef.current = passoAlvo
-      if (import.meta.env.DEV) console.warn('[smart-read][persist] SALVO', { idLeitura, passo: passoAlvo })
+      if (import.meta.env.DEV) console.warn('[smart-read][persist] SALVO', { idLeitura, passo: passoAlvo, nome: nomeEfetivo })
       return true
     },
     [arquivos, idLeituraExistente, nomeLeitura, passo],
@@ -628,11 +630,13 @@ export function ModalNovaLeituraSmartRead({
           podeContinuar={podeContinuar}
 
           onEditarNome={() => {
-
             const novo = window.prompt('Nome da leitura', nomeLeitura)
-
-            if (novo?.trim()) setNomeLeitura(novo.trim())
-
+            if (!novo?.trim()) return
+            const nome = novo.trim()
+            setNomeLeitura(nome)
+            if (passo >= 2 && analiseCompleta) {
+              void salvarProgressoAtual(passo, nome)
+            }
           }}
 
           onRemoverArquivo={removerArquivo}

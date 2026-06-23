@@ -118,9 +118,9 @@ Erros de saving dependem exclusivamente da contagem de campos editados (§1).
 |---------|-----------|
 | `testes/testes-unitarios/smart-read/comparar-campos-edicao-leitura.test.ts` | Comparação original × final |
 | `testes/testes-unitarios/smart-read/responsavel-acerto-documento-insights.test.ts` | Regra emissor por tipo |
-| `testes/testes-unitarios/smart-read/calcular-metricas-insights-leitura.test.ts` | Pipeline métricas + mock |
+| `testes/testes-unitarios/smart-read/calcular-metricas-insights-leitura.test.ts` | Pipeline métricas + fixture |
 
-Mock detalhado: `client/src/shared/dados-mock-lista-smart-read.ts` (`LEITURAS_MOCK_DETALHE`) com pares `dados` / `dados_original`.
+Fixture de leituras para testes Insights: `testes/testes-unitarios/smart-read/fixtures/leituras-fixture-insights-smart-read.ts` (não usada em runtime).
 
 ---
 

@@ -749,9 +749,11 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   cursor: default;
 }
 
-/* Centralização no quadrado do puzzle (120×90) — ignora aba/cavidade do SVG */
-.sw-hub-panel--produtos .gs-piece__body {
-  position: relative;
+/* Conteúdo centralizado só no quadrado 120×90 (ignora aba direita de 18px no SVG) */
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__body {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 120px;
   height: 90px;
   padding: 0 !important;
@@ -759,7 +761,11 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   box-sizing: border-box;
 }
 
-.sw-hub-panel--produtos .gs-piece__stack {
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__body--indent {
+  padding-left: 0 !important;
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__stack {
   position: absolute;
   top: 50%;
   left: 50%;

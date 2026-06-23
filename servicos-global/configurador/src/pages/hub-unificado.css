@@ -749,36 +749,28 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   cursor: default;
 }
 
-/* Centralização óptica: stack no centro da área plana do puzzle */
+/* Centralização no quadrado do puzzle (120×90) — ignora aba/cavidade do SVG */
 .sw-hub-panel--produtos .gs-piece__body {
   position: relative;
   width: 120px;
   height: 90px;
   padding: 0 !important;
   display: block;
+  box-sizing: border-box;
 }
 
 .sw-hub-panel--produtos .gs-piece__stack {
   position: absolute;
   top: 50%;
+  left: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
   width: 92px;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   pointer-events: none;
-}
-
-.sw-hub-panel--produtos .gs-piece__body:not(.gs-piece__body--indent) .gs-piece__stack {
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.sw-hub-panel--produtos .gs-piece__body--indent .gs-piece__stack {
-  left: calc(18px + (120px - 18px) / 2);
-  transform: translate(-50%, -50%);
 }
 
 .sw-hub-panel--produtos .gs-piece__icon {

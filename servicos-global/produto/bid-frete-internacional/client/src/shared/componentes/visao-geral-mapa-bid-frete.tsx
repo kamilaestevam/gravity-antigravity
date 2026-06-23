@@ -16,6 +16,7 @@ import {
   DownloadSimple,
   Export,
   Eye,
+  EyeSlash,
   Globe,
   MapTrifold,
   MapPin,
@@ -1078,6 +1079,12 @@ export function VisaoGeralMapaBidFrete({
   const [mapaModo, setMapaModo] = useState<'bids' | 'transit'>('bids')
   const [vista, setVista] = useState<'globo' | 'mapa'>(vistaInicialMapa)
   const [painelFiltrosMapaExpandido, setPainelFiltrosMapaExpandido] = useState(true)
+  const [rotasAnimacaoVisiveis, setRotasAnimacaoVisiveis] = useState(true)
+  const rotasAnimacaoVisiveisRef = useRef(true)
+
+  useEffect(() => {
+    rotasAnimacaoVisiveisRef.current = rotasAnimacaoVisiveis
+  }, [rotasAnimacaoVisiveis])
 
   const vistaRef = useRef<'globo' | 'mapa'>(vista)
   useEffect(() => {
@@ -1259,6 +1266,7 @@ export function VisaoGeralMapaBidFrete({
 
       // Rotas (arco abaulado entre origem e destino)
       const currentHovered = hoveredPinRef.current
+      if (rotasAnimacaoVisiveisRef.current) {
       rotasAtivas.forEach((route, routeIdx) => {
         const fromPin = pinsAtivos.find(p => p.id === route.fromId)
         const toPin = pinsAtivos.find(p => p.id === route.toId)
@@ -1376,6 +1384,7 @@ export function VisaoGeralMapaBidFrete({
           ctx.restore()
         })
       })
+      }
 
       // Pinos (overlay HTML) — projeta e publica
       const offsetX = canvas.offsetLeft || 0
@@ -1574,7 +1583,7 @@ export function VisaoGeralMapaBidFrete({
       ctx.setLineDash([]) // Reset
       
       // 5. Draw 3D curved Logistics Arc Routes & cargo pulses
-      
+      if (rotasAnimacaoVisiveisRef.current) {
       rotasAtivas.forEach((route, routeIdx) => {
         const fromPin = pinsAtivos.find(p => p.id === route.fromId)
         const toPin = pinsAtivos.find(p => p.id === route.toId)
@@ -1871,6 +1880,7 @@ export function VisaoGeralMapaBidFrete({
           })
         }
       })
+      }
       
       // 6. Project and Slipped-In Map Pins Overlay Coordinates
       const offsetX = canvas.offsetLeft || 0
@@ -2708,6 +2718,22 @@ export function VisaoGeralMapaBidFrete({
         </button>
         <button type="button" onClick={handleZoomOut} title="Diminuir Zoom" className="bfd-map-control-btn">
           <Minus size={16} weight="bold" />
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            setRotasAnimacaoVisiveis((prev) => !prev)
+          }}
+          title={rotasAnimacaoVisiveis ? 'Ocultar rotas, navios e aviões' : 'Exibir rotas, navios e aviões'}
+          aria-pressed={!rotasAnimacaoVisiveis}
+          className={`bfd-map-control-btn${rotasAnimacaoVisiveis ? '' : ' bfd-map-control-btn--rotas-ocultas'}`}
+        >
+          {rotasAnimacaoVisiveis ? (
+            <Eye size={16} weight="bold" />
+          ) : (
+            <EyeSlash size={16} weight="bold" />
+          )}
         </button>
         <button
           type="button"

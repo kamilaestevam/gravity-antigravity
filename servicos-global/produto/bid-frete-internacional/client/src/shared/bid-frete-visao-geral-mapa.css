@@ -1261,6 +1261,12 @@
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
 }
+
+.bfd-map-control-btn--rotas-ocultas {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.12);
+}
 @media (max-width: 1023px) {
   .bfd-map-controls {
     left: 50%;

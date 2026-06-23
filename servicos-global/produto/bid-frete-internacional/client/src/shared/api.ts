@@ -97,6 +97,7 @@ import type {
   ModalFrete,
   ModalidadeCarga,
 } from './types'
+import { parsePeriodosArmazenagemPropostaFromServer } from './periodos-armazenagem-proposta-bid-frete-internacional'
 
 const API_BASE = '/api/v1'
 const LS_ORG_KEY = 'gravity:idOrganizacao'
@@ -343,6 +344,23 @@ export function mapPropostaBidFreteInternacionalFromServer(rawUnknown: unknown):
       (raw.validade_proposta_bid_frete_internacional ?? raw.validade) as string,
     observacoes_proposta_bid_frete_internacional:
       (raw.observacoes_proposta_bid_frete_internacional as string | null) ?? null,
+    periodos_armazenagem_proposta_bid_frete_internacional: parsePeriodosArmazenagemPropostaFromServer(
+      raw.periodos_armazenagem_proposta_bid_frete_internacional,
+    ),
+    ...(raw.dias_periodo_armazenagem_proposta_bid_frete_internacional != null
+      ? {
+          dias_periodo_armazenagem_proposta_bid_frete_internacional: Number(
+            raw.dias_periodo_armazenagem_proposta_bid_frete_internacional,
+          ),
+        }
+      : {}),
+    ...(raw.valor_armazenagem_reais_proposta_bid_frete_internacional != null
+      ? {
+          valor_armazenagem_reais_proposta_bid_frete_internacional: Number(
+            raw.valor_armazenagem_reais_proposta_bid_frete_internacional,
+          ),
+        }
+      : {}),
     status_proposta_bid_frete_internacional: raw.status_proposta_bid_frete_internacional as string,
     classificacao_valor_proposta_bid_frete_internacional:
       raw.classificacao_valor_proposta_bid_frete_internacional as number | null | undefined,

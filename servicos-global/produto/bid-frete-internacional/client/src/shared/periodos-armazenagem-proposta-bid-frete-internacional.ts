@@ -2,6 +2,8 @@
  * Períodos de armazenagem na proposta do fornecedor (Marítimo LCL + incluir armazenagem).
  * Cada período: X dias — R$ fixo OU % sobre mercadoria — mínimo R$.
  */
+import { z } from 'zod'
+import { formatarMoedaBidFrete } from './exibir-taxas-proposta-bid-frete-internacional'
 import { parseValorLinhaTaxa } from './taxas-linha-proposta-bid-frete-internacional'
 
 export type TipoTarifaPeriodoArmazenagemProposta =
@@ -152,3 +154,90 @@ export const OPCOES_TIPO_TARIFA_PERIODO_ARMAZENAGEM = [
   { valor: 'REAIS', rotulo: 'R$ fixo' },
   { valor: 'PERCENTUAL_MERCADORIA', rotulo: '% sobre mercadoria' },
 ] as const
+
+const periodoArmazenagemPropostaSchema = z.object({
+  ordem_periodo_armazenagem_proposta_bid_frete_internacional: z.number().int().positive(),
+  dias_periodo_armazenagem_proposta_bid_frete_internacional: z.number().int().positive(),
+  tipo_tarifa_periodo_armazenagem_proposta_bid_frete_internacional: z.enum([
+    'REAIS',
+    'PERCENTUAL_MERCADORIA',
+  ]),
+  valor_tarifa_periodo_armazenagem_proposta_bid_frete_internacional: z.number().positive(),
+  minimo_reais_periodo_armazenagem_proposta_bid_frete_internacional: z.number().min(0),
+})
+
+const periodosArmazenagemPropostaSchema = z.array(periodoArmazenagemPropostaSchema)
+
+/** Valida períodos vindos da API (JSON Prisma). */
+export function parsePeriodosArmazenagemPropostaFromServer(
+  raw: unknown,
+): PeriodoArmazenagemPropostaBidFreteInternacional[] | null {
+  if (raw == null) return null
+  const parsed = periodosArmazenagemPropostaSchema.safeParse(raw)
+  if (!parsed.success) {
+    console.warn(
+      '[parsePeriodosArmazenagemPropostaFromServer] payload inválido',
+      parsed.error.issues,
+    )
+    return null
+  }
+  return parsed.data
+}
+
+export function rotuloTipoTarifaPeriodoArmazenagem(
+  tipo: TipoTarifaPeriodoArmazenagemProposta,
+): string {
+  return OPCOES_TIPO_TARIFA_PERIODO_ARMAZENAGEM.find((o) => o.valor === tipo)?.rotulo ?? tipo
+}
+
+export function formatarValorTarifaPeriodoArmazenagem(
+  periodo: PeriodoArmazenagemPropostaBidFreteInternacional,
+): string {
+  if (periodo.tipo_tarifa_periodo_armazenagem_proposta_bid_frete_internacional === 'PERCENTUAL_MERCADORIA') {
+    const pct = periodo.valor_tarifa_periodo_armazenagem_proposta_bid_frete_internacional
+    return `${pct.toLocaleString('pt-BR', { maximumFractionDigits: 4 })}%`
+  }
+  return formatarMoedaBidFrete(
+    periodo.valor_tarifa_periodo_armazenagem_proposta_bid_frete_internacional,
+    'BRL',
+  )
+}
+
+export function formatarMinimoReaisPeriodoArmazenagem(
+  periodo: PeriodoArmazenagemPropostaBidFreteInternacional,
+): string | null {
+  const minimo = periodo.minimo_reais_periodo_armazenagem_proposta_bid_frete_internacional
+  if (!Number.isFinite(minimo) || minimo <= 0) return null
+  return formatarMoedaBidFrete(minimo, 'BRL')
+}
+
+/** Períodos ordenados para exibição read-only (JSON atual ou campos legados). */
+export function periodosArmazenagemExibicaoFromProposta(
+  proposta: {
+    periodos_armazenagem_proposta_bid_frete_internacional?: PeriodoArmazenagemPropostaBidFreteInternacional[] | null
+    dias_periodo_armazenagem_proposta_bid_frete_internacional?: number | null
+    valor_armazenagem_reais_proposta_bid_frete_internacional?: number | null
+  },
+): PeriodoArmazenagemPropostaBidFreteInternacional[] {
+  if (proposta.periodos_armazenagem_proposta_bid_frete_internacional?.length) {
+    return [...proposta.periodos_armazenagem_proposta_bid_frete_internacional].sort(
+      (a, b) =>
+        a.ordem_periodo_armazenagem_proposta_bid_frete_internacional
+        - b.ordem_periodo_armazenagem_proposta_bid_frete_internacional,
+    )
+  }
+
+  const diasLegado = proposta.dias_periodo_armazenagem_proposta_bid_frete_internacional
+  const valorLegado = proposta.valor_armazenagem_reais_proposta_bid_frete_internacional
+  if (diasLegado != null && valorLegado != null && diasLegado > 0 && valorLegado > 0) {
+    return [{
+      ordem_periodo_armazenagem_proposta_bid_frete_internacional: 1,
+      dias_periodo_armazenagem_proposta_bid_frete_internacional: diasLegado,
+      tipo_tarifa_periodo_armazenagem_proposta_bid_frete_internacional: 'REAIS',
+      valor_tarifa_periodo_armazenagem_proposta_bid_frete_internacional: valorLegado,
+      minimo_reais_periodo_armazenagem_proposta_bid_frete_internacional: valorLegado,
+    }]
+  }
+
+  return []
+}

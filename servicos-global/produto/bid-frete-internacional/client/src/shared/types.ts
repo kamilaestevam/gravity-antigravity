@@ -326,6 +326,9 @@ export interface PropostaBidFreteInternacional {
   validade_proposta_bid_frete_internacional: string
   observacoes_proposta_bid_frete_internacional: string | null
   periodos_armazenagem_proposta_bid_frete_internacional?: PeriodoArmazenagemPropostaBidFreteInternacional[] | null
+  /** Legado — migração armazenagem LCL (pré-JSON). */
+  dias_periodo_armazenagem_proposta_bid_frete_internacional?: number | null
+  valor_armazenagem_reais_proposta_bid_frete_internacional?: number | null
   status_proposta_bid_frete_internacional: string
   classificacao_valor_proposta_bid_frete_internacional?: number | null
   classificacao_transito_proposta_bid_frete_internacional?: number | null

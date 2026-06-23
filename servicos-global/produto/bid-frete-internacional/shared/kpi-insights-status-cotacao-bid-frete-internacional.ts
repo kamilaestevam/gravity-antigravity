@@ -29,7 +29,14 @@ export function ehStatusCotacaoCustomUsuarioBidFreteInternacional(nome: string):
   return !NOMES_STATUS_COTACAO_SISTEMA_BID_FRETE_INTERNACIONAL.has(nome)
 }
 
-/** Card 1 — aguardando aprovação: canônico + todos os status custom da config. */
+/** Slugs aceitos pelo Prisma (`BidFreteInternacionalStatusCotacao`) — custom da config UI não persistem no banco. */
+export function filtrarSlugsStatusCotacaoPersistidosBidFreteInternacional(
+  slugs: readonly string[],
+): string[] {
+  return slugs.filter((slug) => NOMES_STATUS_COTACAO_SISTEMA_BID_FRETE_INTERNACIONAL.has(slug))
+}
+
+/** Card 1 — aguardando aprovação: canônico + custom da config (contagem funil client; Prisma só canônicos). */
 export function resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional(
   statusConfig: StatusCotacaoConfigMinimoKpiInsightsBidFreteInternacional[],
 ): string[] {

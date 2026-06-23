@@ -9,6 +9,10 @@ import {
   testidPainelSeletorBid,
 } from './bid-frete-visualizacao-context'
 import { BidFreteVisualizacaoTabs, type ModoVisualizacaoBidFrete } from './BidFreteVisualizacaoTabs'
+import {
+  AcoesToolbarVisualizacaoProvider,
+  useAcoesToolbarVisualizacao,
+} from './acoes-toolbar-visualizacao-bid-frete-internacional'
 import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
 import './BidFreteVisualizacaoTabs.css'
 
@@ -47,6 +51,7 @@ function Painel({
 }) {
   const { painelAtivo } = useBidFreteVisualizacao()
   const ativo = painelAtivo(id)
+  const acoesToolbar = useAcoesToolbarVisualizacao()
 
   if (!montado) return null
 
@@ -64,6 +69,9 @@ function Painel({
       {embedTabs && (
         <div className="bid-frete-vis-toolbar">
           <BidFreteVisualizacaoTabs modo={modo} />
+          {ativo && acoesToolbar ? (
+            <div className="bid-frete-vis-toolbar__acoes">{acoesToolbar}</div>
+          ) : null}
         </div>
       )}
       <Suspense fallback={<PainelFallback />}>{children}</Suspense>
@@ -128,10 +136,12 @@ export function BidFreteMultiView({
   }, [visualizacaoAtiva])
 
   return (
-    <div className="bid-frete-multi-view">
-      {modo === 'fornecedor'
-        ? <PaineisFornecedor visitados={visitados} embedTabs={embedTabs} />
-        : <PaineisCliente visitados={visitados} embedTabs={embedTabs} />}
-    </div>
+    <AcoesToolbarVisualizacaoProvider>
+      <div className="bid-frete-multi-view">
+        {modo === 'fornecedor'
+          ? <PaineisFornecedor visitados={visitados} embedTabs={embedTabs} />
+          : <PaineisCliente visitados={visitados} embedTabs={embedTabs} />}
+      </div>
+    </AcoesToolbarVisualizacaoProvider>
   )
 }

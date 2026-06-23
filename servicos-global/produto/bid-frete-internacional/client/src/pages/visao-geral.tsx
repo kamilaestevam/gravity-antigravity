@@ -6,10 +6,8 @@
  */
 
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import {
   MagnifyingGlass,
   Export,
@@ -101,7 +99,8 @@ import {
 } from '../shared/componentes/visao-geral-mapa-bid-frete'
 import { BidFreteFunilBarras } from '../shared/componentes/visao-geral-bid-frete-ui'
 import { ConteudoCarregandoBidFreteInternacional } from '../shared/pagina-carregando-bid-frete-internacional'
-import { buildRotaNovaCotacaoManual } from '../shared/novo-bid-frete-internacional-utils'
+import { DropdownNovoBidFreteInternacional } from '../shared/dropdown-novo-bid-frete-internacional'
+import { useSincronizarAcoesToolbarVisualizacao } from '../components/acoes-toolbar-visualizacao-bid-frete-internacional'
 import '../shared/bid-frete-visao-geral-layout.css'
 import '../shared/bid-frete-visao-geral-mapa.css'
 
@@ -419,7 +418,6 @@ function contagemModalAndamento(
 }
 
 export default function VisaoGeral() {
-  const navigate = useNavigate()
   const idWorkspaceAtivo = useShellStore(s => s.idWorkspaceAtivo)
   const idsWorkspacesEscopo = useEscopoWorkspacesBidFreteInternacional(s => s.idsWorkspacesEscopo)
   const escopoHidratado = useEscopoWorkspacesBidFreteInternacional(s => s.hidratado)
@@ -505,6 +503,18 @@ export default function VisaoGeral() {
     if (!escopoHidratado) return
     void carregarInsights()
   }, [carregarInsights, escopoHidratado, versaoEscopo])
+
+  const acoesToolbarInsights = useMemo(
+    () => (
+      <DropdownNovoBidFreteInternacional
+        onBidCriado={() => { void carregarInsights() }}
+        alinharMenuDireita
+      />
+    ),
+    [carregarInsights],
+  )
+
+  useSincronizarAcoesToolbarVisualizacao('insights', acoesToolbarInsights)
 
   useEffect(() => {
     if (!escopoHidratado) return
@@ -726,7 +736,7 @@ export default function VisaoGeral() {
         .bfd-header__icon-btn:hover { background: rgba(255,255,255,0.12); color: #ffffff; }
 
         /* ── KPI Grid ────────────────────────────────────────────── */
-        .bfd-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+        .bfd-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
         .bfd-kpi {
           background: rgba(255,255,255,0.04); border-radius: 14px; padding: 1.5rem 1.75rem;
           border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; gap: 0.65rem;
@@ -746,17 +756,6 @@ export default function VisaoGeral() {
         .bfd-kpi--destacado:hover {
           background: rgba(96, 165, 250, 0.12) !important;
           box-shadow: 0 0 24px rgba(96, 165, 250, 0.25);
-        }
-
-        .bfd-kpi--novo-slot {
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-end;
-          align-items: flex-end;
-          min-height: 100%;
-        }
-        .bfd-kpi--novo-slot .bng-admin-wrapper {
-          flex-shrink: 0;
         }
 
         .bfd-kpi__header { display: flex; align-items: center; gap: 0.6rem; }
@@ -1054,7 +1053,7 @@ export default function VisaoGeral() {
         }
       `}</style>
 
-      {/* KPIs Grid (4 colunas) */}
+      {/* KPIs Grid */}
       <div className="bfd-kpi-grid">
         <CardBasicoGlobal
           titulo={kpiCardAguardandoAprovacao.titulo}
@@ -1166,12 +1165,6 @@ export default function VisaoGeral() {
             </>
           }
         />
-        <div className="bfd-kpi bfd-kpi--novo-slot">
-          <BotaoNovoAdminGlobal
-            rotulo="Novo"
-            onClick={() => navigate(buildRotaNovaCotacaoManual())}
-          />
-        </div>
       </div>
 
       {/* Mapa full width + Rankings / Alertas / Funil na linha inferior */}

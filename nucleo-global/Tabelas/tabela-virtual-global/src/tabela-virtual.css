@@ -734,18 +734,6 @@
   color: var(--gtv-accent);
 }
 
-/* Cabeçalho com filtro: label + ícone agrupados (paridade Pedido/BID/Smart Read) */
-.gtv-th:has(.gtv-filtro-btn) .gtv-th-label,
-.gtv-th:has(.gtv-filtro-btn) .tg-trigger {
-  flex: 0 1 auto;
-  max-width: calc(100% - 1.25rem);
-}
-
-.gtv-th:has(.gtv-filtro-btn) .gtv-filtro-btn {
-  margin-left: 0;
-  flex-shrink: 0;
-}
-
 /* Link de célula — padrão lista Gravity (BID Frete / Pedido / Smart Read) */
 .gtv-celula-link {
   font: inherit;

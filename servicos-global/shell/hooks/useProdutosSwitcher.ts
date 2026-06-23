@@ -44,13 +44,25 @@ function ordenarProdutosSwitcher(a: ProductSwitcherItem, b: ProductSwitcherItem)
 }
 
 function montarItemProduto(slug: string, nome?: string): ProductSwitcherItem {
-  const meta = getProdutoMeta(resolverSlugMetaProduto(slug))
+  const slugCanonico = resolverSlugMetaProduto(slug)
+  const meta = getProdutoMeta(slugCanonico)
   return {
-    slug,
-    name: nome ?? slug,
+    slug: slugCanonico,
+    name: nome ?? slugCanonico,
     color: meta.color,
     icon: cloneElement(meta.icon, { size: 22 }),
   }
+}
+
+function deduplicarProdutosSwitcher(itens: ProductSwitcherItem[]): ProductSwitcherItem[] {
+  const vistos = new Set<string>()
+  return itens.filter(p => {
+    if (p.kind === 'acao') return true
+    const chave = resolverSlugMetaProduto(p.slug)
+    if (vistos.has(chave)) return false
+    vistos.add(chave)
+    return true
+  })
 }
 
 /** Garante o produto aberto na lista (ex.: API já removeu após suspensão). */
@@ -162,10 +174,12 @@ export function useProdutosSwitcher(
       const raw = await res.json()
       const parsed = produtosWorkspaceResponseSchema.parse(raw)
 
-      const itens: ProductSwitcherItem[] = parsed.products
-        .filter(p => p.is_active)
-        .map(p => montarItemProduto(p.product_key, p.catalog?.name ?? p.product_key))
-        .sort(ordenarProdutosSwitcher)
+      const itens: ProductSwitcherItem[] = deduplicarProdutosSwitcher(
+        parsed.products
+          .filter(p => p.is_active)
+          .map(p => montarItemProduto(p.product_key, p.catalog?.name ?? p.product_key))
+          .sort(ordenarProdutosSwitcher),
+      )
 
       setProdutos(adicionarAtalhoProcessos(garantirProdutoAtualNaLista(itens, produtoAtualSlug, nomeProdutoAtual)))
     } catch (err) {

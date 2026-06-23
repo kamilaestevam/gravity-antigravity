@@ -31,4 +31,10 @@ describe('resolver-rota-produto', () => {
     expect(ROTA_ENTRADA_SMART_READ).toBe('/smart-read/lista')
     expect(resolverRotaProdutoGravity('smart-read')).toBe(ROTA_ENTRADA_SMART_READ)
   })
+
+  it('normaliza typo smart-read- (slug Admin com hífen solto)', () => {
+    expect(resolverSlugMetaProduto('smart-read-')).toBe('smart-read')
+    expect(resolverRotaProdutoGravity('smart-read-')).toBe(ROTA_ENTRADA_SMART_READ)
+    expect(slugsProdutoEquivalentes('smart-read', 'smart-read-')).toBe(true)
+  })
 })

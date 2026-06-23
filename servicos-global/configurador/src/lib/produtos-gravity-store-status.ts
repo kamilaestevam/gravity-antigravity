@@ -23,6 +23,7 @@ const STATUS_CATALOGO_VISIVEL = new Set(['ATIVO', 'Ativo', 'EM_BREVE'])
 export function slugCanonicoProdutoGravity(slug: string): string {
   if (slug === 'bid-frete-internacional') return 'bid-frete'
   if (slug === 'nf-import') return 'nf-importacao'
+  if (slug === 'smart-read-') return 'smart-read'
   return slug
 }
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   filtrarDadosMapaInsightsBidFreteInternacional,
+  filtrarTerminaisMapaInsightsPorBusca,
   inferirTipoOperacaoRotaMapa,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/filtrar-dados-mapa-insights-bid-frete-internacional'
 import type {
@@ -128,6 +129,16 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
     expect(resultado.routes).toEqual([rotaComStatus])
   })
 
+  it('mantém rota sem status quando filtro de status está ativo', () => {
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, [rotaImportacao], {
+      operacaoModal: new Set(),
+      status: new Set(['RASCUNHO']),
+      codigos_origem: new Set(),
+      codigos_destino: new Set(),
+    })
+    expect(resultado.routes).toEqual([rotaImportacao])
+  })
+
   it('filtra por terminal de origem', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
       operacaoModal: new Set(),
@@ -158,5 +169,16 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
       codigos_destino: new Set(['USNYC']),
     })
     expect(resultado.routes).toEqual([rotaExportacaoAerea])
+  })
+})
+
+describe('filtrarTerminaisMapaInsightsPorBusca', () => {
+  it('retorna todos quando busca está vazia', () => {
+    expect(filtrarTerminaisMapaInsightsPorBusca(pins, '')).toEqual(pins)
+  })
+
+  it('filtra por código ou nome com vários termos', () => {
+    expect(filtrarTerminaisMapaInsightsPorBusca(pins, 'cn sh')).toEqual([pins[0]])
+    expect(filtrarTerminaisMapaInsightsPorBusca(pins, 'BR,SSZ')).toEqual([pins[1]])
   })
 })

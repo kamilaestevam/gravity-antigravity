@@ -989,14 +989,47 @@
   border-radius: 12px;
   overflow-x: hidden;
   overflow-y: auto;
-  scrollbar-width: thin;
   transition: opacity 0.25s ease, width 0.25s ease, padding 0.25s ease, border-color 0.25s ease;
+}
+
+/* Scrollbar dark — painel Refinar mapa e listas internas (paridade .bfd-map-panel__list) */
+.bfd-map-filtros-panel,
+.bfd-map-filtros-panel__local-lista,
+.bfd-map-filtros-panel__status-lista {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-gutter: stable;
+}
+
+.bfd-map-filtros-panel::-webkit-scrollbar,
+.bfd-map-filtros-panel__local-lista::-webkit-scrollbar,
+.bfd-map-filtros-panel__status-lista::-webkit-scrollbar {
+  width: 4px;
+}
+
+.bfd-map-filtros-panel::-webkit-scrollbar-track,
+.bfd-map-filtros-panel__local-lista::-webkit-scrollbar-track,
+.bfd-map-filtros-panel__status-lista::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+.bfd-map-filtros-panel::-webkit-scrollbar-thumb,
+.bfd-map-filtros-panel__local-lista::-webkit-scrollbar-thumb,
+.bfd-map-filtros-panel__status-lista::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.bfd-map-filtros-panel::-webkit-scrollbar-thumb:hover,
+.bfd-map-filtros-panel__local-lista::-webkit-scrollbar-thumb:hover,
+.bfd-map-filtros-panel__status-lista::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .bfd-map-filtros-panel__topo {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
   gap: 0.75rem;
   padding-bottom: 0.6rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -1023,15 +1056,15 @@
   align-items: center;
   gap: 0.3rem;
   flex-shrink: 0;
-  padding: 0.28rem 0.5rem;
-  font-size: 0.64rem;
-  font-weight: 700;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.625rem;
+  font-weight: 600;
   color: #cbd5e1;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 9999px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .bfd-map-filtros-panel__limpar:hover {
@@ -1046,7 +1079,10 @@
 
 .bfd-map-filtros-panel__toolbar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   margin-top: -0.1rem;
 }
 
@@ -1080,6 +1116,7 @@
   flex-direction: column;
   gap: 0.45rem;
   min-height: 0;
+  padding-right: 0.2rem;
 }
 
 .bfd-map-filtro-secao {
@@ -1186,12 +1223,30 @@
   transition: width 0.25s ease-out;
 }
 
+.bfd-map-filtro-secao__progress-fill--todos {
+  background: rgba(148, 163, 184, 0.35);
+}
+
+.bfd-map-filtro-secao--restrita .bfd-map-filtro-secao__progress-fill {
+  background: #6366f1;
+}
+
 .bfd-map-filtro-secao__pill {
   font-size: 0.6rem;
   font-weight: 700;
   color: #94a3b8;
   min-width: 1.75rem;
   text-align: right;
+}
+
+.bfd-map-filtro-secao__pill--todos {
+  color: #64748b;
+  font-weight: 600;
+  min-width: auto;
+}
+
+.bfd-map-filtro-secao--restrita .bfd-map-filtro-secao__pill {
+  color: #c4b5fd;
 }
 
 .bfd-map-filtro-secao__corpo {
@@ -1326,8 +1381,7 @@
   gap: 0.22rem;
   overflow-y: auto;
   max-height: 9rem;
-  padding-right: 0.1rem;
-  scrollbar-width: thin;
+  padding-right: 0.45rem;
 }
 
 /* Insights: listas compactas com scroll interno */
@@ -1351,14 +1405,86 @@
   min-height: 0;
 }
 
+.bfd-map-filtros-panel__locais {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.bfd-map-filtros-panel__local-busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.bfd-map-filtros-panel__local-busca-icone {
+  position: absolute;
+  left: 0.5rem;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.bfd-map-filtros-panel__local-busca-input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.38rem 1.65rem 0.38rem 1.65rem;
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bfd-map-filtros-panel__local-busca-input::placeholder {
+  color: #64748b;
+}
+
+.bfd-map-filtros-panel__local-busca-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 1px #6366f1;
+}
+
+.bfd-map-filtros-panel__local-busca-limpar {
+  position: absolute;
+  right: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.bfd-map-filtros-panel__local-busca-limpar:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bfd-map-filtros-panel__local-busca-resumo {
+  margin: 0;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
 .bfd-map-filtros-panel__local-lista {
   display: flex;
   flex-direction: column;
   gap: 0.22rem;
   overflow-y: auto;
   max-height: 4.25rem;
-  padding-right: 0.1rem;
-  scrollbar-width: thin;
+  padding-right: 0.45rem;
 }
 
 .bfd-map-filtros-panel__lista-vazia {

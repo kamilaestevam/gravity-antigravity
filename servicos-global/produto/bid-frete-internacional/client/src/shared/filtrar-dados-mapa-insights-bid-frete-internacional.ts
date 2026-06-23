@@ -90,6 +90,18 @@ export function filtrosMapaInsightsVazios(): FiltrosMapaInsightsBidFreteInternac
   }
 }
 
+export type DimensaoIgnoradaFiltroMapaInsights = 'codigos_origem' | 'codigos_destino'
+
+export function filtrosMapaInsightsIgnorandoDimensao(
+  filtros: FiltrosMapaInsightsBidFreteInternacional,
+  dimensao: DimensaoIgnoradaFiltroMapaInsights,
+): FiltrosMapaInsightsBidFreteInternacional {
+  if (dimensao === 'codigos_origem') {
+    return { ...filtros, codigos_origem: new Set() }
+  }
+  return { ...filtros, codigos_destino: new Set() }
+}
+
 export function contarFiltrosMapaAtivos(
   filtros: FiltrosMapaInsightsBidFreteInternacional,
 ): number {
@@ -135,6 +147,25 @@ export function listarTerminaisDestinoMapaInsights(
   }
 
   return terminais.sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+}
+
+/** Filtra terminais por um ou mais termos (espaço, vírgula ou ponto-e-vírgula). */
+export function filtrarTerminaisMapaInsightsPorBusca(
+  terminais: MapPinBidFrete[],
+  busca: string,
+): MapPinBidFrete[] {
+  const termos = busca
+    .trim()
+    .split(/[\s,;]+/)
+    .map((termo) => termo.trim().toLowerCase())
+    .filter(Boolean)
+
+  if (termos.length === 0) return terminais
+
+  return terminais.filter((terminal) => {
+    const texto = `${terminal.label} ${terminal.portCode} ${terminal.country}`.toLowerCase()
+    return termos.every((termo) => texto.includes(termo))
+  })
 }
 
 function codigoPaisPorto(portCode: string): string {
@@ -188,7 +219,7 @@ function rotaAtendeFiltrosStatus(
 ): boolean {
   if (filtrosStatus.size === 0) return true
   const statuses = rota.statuses_cotacao_bid_frete_internacional ?? []
-  if (statuses.length === 0) return false
+  if (statuses.length === 0) return true
   return statuses.some((status) => filtrosStatus.has(status))
 }
 

@@ -41,6 +41,9 @@ import {
   formatarMoedaInsightsSmartRead,
   resolverRankingsParticipanteInsights,
 } from '../pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read'
+import {
+  LinkMetodologiaSavingInsightsSmartRead,
+} from '../pages/insights-smart-read/metodologia-saving-insights-smart-read'
 
 type Props = {
   metricas: MetricasInsightsLeituraSmartRead
@@ -140,9 +143,8 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
               <span>Custo evitado (est.)</span>
               <strong>{formatarMoedaInsightsSmartRead(metricas.savingDigitaçãoCustoBrl)}</strong>
             </p>
-            <p className="cg-tooltip__row">
-              <span>Base</span>
-              <strong>Manual vs Smart Read por tipo</strong>
+            <p className="cg-tooltip__row cg-tooltip__row--link-only">
+              <LinkMetodologiaSavingInsightsSmartRead>Base de cálculo →</LinkMetodologiaSavingInsightsSmartRead>
             </p>
           </>
         }
@@ -151,11 +153,11 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         className="sr-insights-grid__kpi"
         titulo="SAVING EM ERROS"
         icone={<TrendUp weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
-        valor={carregando ? placeholder : formatarMinutosInsightsSmartRead(metricas.savingErrosMinutos)}
+        valor={carregando ? placeholder : metricas.camposErrados}
         tooltip={
           <>
             <p className="cg-tooltip__row">
-              <span>Campos com erro</span>
+              <span>Campos editados na conferência</span>
               <strong>{metricas.camposErrados}</strong>
             </p>
             <p className="cg-tooltip__row">
@@ -172,6 +174,9 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
                 {formatarMinutosInsightsSmartRead(savingTotalMin)} ·{' '}
                 {formatarMoedaInsightsSmartRead(savingTotalBrl)}
               </strong>
+            </p>
+            <p className="cg-tooltip__row cg-tooltip__row--link-only">
+              <LinkMetodologiaSavingInsightsSmartRead>Base de cálculo →</LinkMetodologiaSavingInsightsSmartRead>
             </p>
           </>
         }
@@ -482,10 +487,17 @@ export function PainelSavingDetalheInsightsSmartRead({
             Correção de erros
           </p>
           <p className="sr-insights-campos-box__valor" style={{ color: '#a78bfa', fontSize: '1.25rem' }}>
-            {formatarMinutosInsightsSmartRead(metricas.savingErrosMinutos)}
+            {metricas.camposErrados}{' '}
+            <span className="sr-insights-campos-box__unidade">campos</span>
+          </p>
+          <p className="sr-insights-campos-box__detalhe">
+            {formatarMinutosInsightsSmartRead(metricas.savingErrosMinutos)} economizados
           </p>
         </div>
       </div>
+      <p className="sr-insights-economia-base-calculo">
+        <LinkMetodologiaSavingInsightsSmartRead>Base de cálculo →</LinkMetodologiaSavingInsightsSmartRead>
+      </p>
       </div>
     </section>
   )

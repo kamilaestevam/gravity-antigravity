@@ -1,0 +1,228 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  type MouseEvent,
+  type ReactNode,
+} from 'react'
+import { BookOpenText, Calculator, ClockCounterClockwise, Info, Table } from '@phosphor-icons/react'
+import { ModalOverlay } from '@nucleo/modal-global'
+import {
+  LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ,
+  OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ,
+  PARAMETROS_FINANCEIROS_SMART_READ,
+  resolverParametrosTempoDocumentoSmartRead,
+} from './dados-base-produto-tempo-smart-read'
+import { formatarMoedaInsightsSmartRead } from './calcular-metricas-insights-leitura-smart-read'
+
+type MetodologiaSavingContexto = {
+  abrir: () => void
+}
+
+const MetodologiaSavingContext = createContext<MetodologiaSavingContexto | null>(null)
+
+const SISTEMAS_ESTUDO_TEMPO_MANUAL =
+  'SAP S/4HANA e GTS, TOTVS Protheus, Datasul, Oracle GTM, Linx, Sankhya, ONESOURCE, Ecomex NSI, Bysoft, Ellas, CargoWise One, DATI Import, além de Mercante/Siscomex/DUIMP/DUE'
+
+function formatarMinutosTabela(valor: number): string {
+  return `${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 3 })} min`
+}
+
+function SecaoMetodologiaSaving({
+  icone,
+  titulo,
+  children,
+}: {
+  icone: ReactNode
+  titulo: string
+  children: ReactNode
+}) {
+  return (
+    <section className="sr-insights-metodologia-secao">
+      <header className="sr-insights-metodologia-secao__cabecalho">
+        <span className="sr-insights-metodologia-secao__icone" aria-hidden>
+          {icone}
+        </span>
+        <h3 className="sr-insights-metodologia-secao__titulo">{titulo}</h3>
+      </header>
+      <div className="sr-insights-metodologia-secao__corpo">{children}</div>
+    </section>
+  )
+}
+
+export function ConteudoMetodologiaSavingInsightsSmartRead() {
+  const custoHora =
+    PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
+    PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
+  const custoHoraRotulo = formatarMoedaInsightsSmartRead(custoHora)
+  const custoOperadorRotulo = formatarMoedaInsightsSmartRead(
+    PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl,
+  )
+
+  return (
+    <div className="sr-insights-metodologia-saving sr-insights-metodologia-saving--modal">
+      <p className="sr-insights-metodologia-saving__lead">
+        Comparamos o tempo estimado de digitação e correção <strong>manual</strong> com o fluxo{' '}
+        <strong>Smart Read</strong> por tipo de documento. Os campos editados na conferência entram
+        no saving de erros (mesma regra de acerto/erro dos rankings).
+      </p>
+
+      <SecaoMetodologiaSaving
+        icone={<ClockCounterClockwise weight="duotone" size={18} />}
+        titulo="Como chegamos nos tempos manuais"
+      >
+        <div className="sr-insights-metodologia-saving__destaque">
+          <p>
+            Cada tempo manual é o tempo médio para reincluir o documento à mão, levantado a partir
+            do estudo comparativo entre os sistemas usados no comércio exterior ({SISTEMAS_ESTUDO_TEMPO_MANUAL}
+            ).
+          </p>
+          <p>
+            O estudo soma o tempo campo a campo (número do documento, datas, portos, partes,
+            contêineres, itens com NCM/quantidade/valor) considerando um assistente de comércio
+            exterior com ~2 anos de experiência.
+          </p>
+          <p className="sr-insights-metodologia-saving__destaque-fecho">
+            O tempo <strong>Smart Read</strong> é o tempo de extração automática mais a conferência
+            humana dos campos.
+          </p>
+        </div>
+      </SecaoMetodologiaSaving>
+
+      <SecaoMetodologiaSaving
+        icone={<Calculator weight="duotone" size={18} />}
+        titulo="Fórmulas"
+      >
+        <ul className="sr-insights-metodologia-saving__formulas">
+          <li>
+            <span className="sr-insights-metodologia-saving__formula-nome">Saving digitação</span>
+            <span className="sr-insights-metodologia-saving__formula-expr">
+              tempo manual − tempo Smart Read (por documento, tabela abaixo)
+            </span>
+          </li>
+          <li>
+            <span className="sr-insights-metodologia-saving__formula-nome">Saving em erros (KPI)</span>
+            <span className="sr-insights-metodologia-saving__formula-expr">
+              quantidade de campos editados na conferência
+            </span>
+          </li>
+          <li>
+            <span className="sr-insights-metodologia-saving__formula-nome">Tempo saving erros</span>
+            <span className="sr-insights-metodologia-saving__formula-expr">
+              campos editados × (correção manual − correção Smart Read por campo)
+            </span>
+          </li>
+          <li>
+            <span className="sr-insights-metodologia-saving__formula-nome">Custo evitado</span>
+            <span className="sr-insights-metodologia-saving__formula-expr">
+              minutos economizados ÷ 60 × {custoHoraRotulo}/h (operador {custoOperadorRotulo}/h +
+              markup comercial {PARAMETROS_FINANCEIROS_SMART_READ.markup_venda})
+            </span>
+          </li>
+        </ul>
+      </SecaoMetodologiaSaving>
+
+      <SecaoMetodologiaSaving
+        icone={<Table weight="duotone" size={18} />}
+        titulo="Tempos por tipo de documento"
+      >
+        <div className="sr-insights-metodologia-saving__tabela-wrap">
+          <table className="sr-insights-metodologia-saving__tabela">
+            <thead>
+              <tr>
+                <th scope="col">Tipo</th>
+                <th scope="col">Digitação manual</th>
+                <th scope="col">Digitação SR</th>
+                <th scope="col">Correção/campo manual</th>
+                <th scope="col">Correção/campo SR</th>
+              </tr>
+            </thead>
+            <tbody>
+              {LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ.map((linha) => {
+                const params = resolverParametrosTempoDocumentoSmartRead(linha.tipo_parametro)
+                return (
+                  <tr key={linha.rotulo_exibicao}>
+                    <th scope="row">{linha.rotulo_exibicao}</th>
+                    <td>{formatarMinutosTabela(linha.tempo_digitação_manual_minutos)}</td>
+                    <td>{formatarMinutosTabela(params.tempo_digitação_smart_read_minutos)}</td>
+                    <td>
+                      {formatarMinutosTabela(params.tempo_correcao_erro_manual_minutos_por_campo)}
+                    </td>
+                    <td>
+                      {formatarMinutosTabela(params.tempo_correcao_erro_smart_read_minutos_por_campo)}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="sr-insights-metodologia-saving__tabela-nota">
+          Tempos de digitação manual calculados na tabela geral do estudo (seção 19 do estudo de BL),
+          com base nos documentos médios descritos abaixo.
+        </p>
+      </SecaoMetodologiaSaving>
+
+      <SecaoMetodologiaSaving
+        icone={<Info weight="duotone" size={18} />}
+        titulo="Observações — documento médio do estudo"
+      >
+        <ul className="sr-insights-metodologia-saving__observacoes">
+          {OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ.map((item) => (
+            <li key={item.rotulo}>
+              <strong>{item.rotulo}:</strong> {item.texto}
+            </li>
+          ))}
+        </ul>
+      </SecaoMetodologiaSaving>
+
+      <footer className="sr-insights-metodologia-saving__rodape">
+        <BookOpenText weight="duotone" size={16} className="sr-insights-metodologia-saving__rodape-icone" />
+        <p>
+          <strong>Fonte:</strong> DOCS BASE PRODUTO — estudos comparativos de tempo de digitação (BL,
+          Packing List, Pedido/Proforma/Invoice) embutidos no produto. Valores poderão ser editáveis
+          no Configurador quando a tabela oficial for publicada.
+        </p>
+      </footer>
+    </div>
+  )
+}
+
+export function ProvedorMetodologiaSavingInsightsSmartRead({ children }: { children: ReactNode }) {
+  const [aberto, setAberto] = useState(false)
+  const abrir = useCallback(() => setAberto(true), [])
+  const fechar = useCallback(() => setAberto(false), [])
+
+  return (
+    <MetodologiaSavingContext.Provider value={{ abrir }}>
+      {children}
+      <ModalOverlay
+        aberto={aberto}
+        aoFechar={fechar}
+        titulo="Base de cálculo"
+        subtitulo="Economia estimada — manual vs Smart Read"
+        tamanho="xl"
+        botoes={[{ rotulo: 'Fechar', variante: 'secondary', ao_clicar: fechar }]}
+      >
+        <ConteudoMetodologiaSavingInsightsSmartRead />
+      </ModalOverlay>
+    </MetodologiaSavingContext.Provider>
+  )
+}
+
+export function LinkMetodologiaSavingInsightsSmartRead({ children }: { children: ReactNode }) {
+  const contexto = useContext(MetodologiaSavingContext)
+
+  const aoClicar = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    contexto?.abrir()
+  }
+
+  return (
+    <a href="#" className="sr-insights-link-metodologia" onClick={aoClicar}>
+      {children}
+    </a>
+  )
+}

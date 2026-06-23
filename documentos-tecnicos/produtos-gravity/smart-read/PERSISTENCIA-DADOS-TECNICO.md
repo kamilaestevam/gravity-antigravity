@@ -7,7 +7,7 @@
 
 ## 1. Resumo em uma frase
 
-O **banco de verdade das leituras** (PDF, fila de processamento, extração bruta, `processingResult` / `finalProcessingResult`) continua no **legado DATI Smart Read** (microserviço `import-control-center` / `external-readings`). O **Postgres Gravity** (`SMART_READ_DATABASE_URL`) **não substitui** esse banco: guarda só **estado da UI Gravity** e **snapshots congelados** para Lista e Insights funcionarem sem depender do legado a cada clique.
+O **banco de verdade das leituras** — PDFs, fila de processamento, status (`PROCESSING` / `COMPLETED`), `processingResult` / `finalProcessingResult` e todo o histórico operacional — **fica no legado DATI Smart Read** (microserviço `import-control-center` / `external-readings`, tipicamente Mongo + storage do DATI). O **Postgres Gravity** (`SMART_READ_DATABASE_URL`, Railway `gravity-smart-read`) **não é** esse banco: é um **espelho operacional** da UI Gravity — snapshots congelados, progresso do wizard e preferências de lista — para Lista e Insights responderem rápido sem ir ao DATI a cada clique. **Se o DATI apagar uma leitura, o Gravity não recupera o PDF nem a extração bruta**; só o que foi copiado para `snapshot_leitura_smart_read` ou `progresso_leitura_smart_read` permanece no Railway.
 
 ---
 
@@ -50,7 +50,7 @@ flowchart LR
 | **Snapshot** da leitura (extração + métricas) | **Gravity** (`snapshot_leitura_smart_read`) | BFF ao concluir/conferir | Lista, Insights, `GET /leituras/:id` |
 | Painéis/colunas/filtros da lista | **Gravity** (`lista_painel_usuario_global`) | API `/lista/paineis` | Lista |
 
-**Não confundir:** `SMART_READ_DATABASE_URL` (Railway) **≠** banco do DATI. São instâncias separadas. O vínculo org Gravity → company legado é resolvido via Configurador (`resolverCompanyLegado`).
+**Não confundir:** `SMART_READ_DATABASE_URL` (Railway Postgres Gravity) **≠** banco do DATI. São instâncias separadas, em servidores diferentes. O vínculo org Gravity → company legado é resolvido via Configurador (`resolverCompanyLegado`). O Gravity **nunca** grava PDF nem substitui o motor OCR do DATI — apenas **lê** o legado via REST e **copia** JSON normalizado para o snapshot quando elegível.
 
 ---
 
@@ -93,8 +93,8 @@ Implementação BFF: `server/src/lib/snapshot-leitura-smart-read.ts`.
 
 ### 4.2 Wizard e conferência
 
-1. Client faz polling `GET /leituras/:id` → BFF lê **legado**, normaliza, retorna `LeituraSchema`.
-2. Ao avançar passos, `PATCH /progresso` grava em **`progresso_leitura_smart_read`**.
+1. Client faz polling `GET /leituras/:id` → BFF resolve na ordem abaixo (§4.6).
+2. Ao avançar passos, `PATCH /progresso` grava em **`progresso_leitura_smart_read`** (scoped por `id_usuario`).
 3. No mesmo `PATCH`, se a leitura tem dados de extração, BFF **upsert snapshot** (`motivo: conferencia_usuario`).
 
 ### 4.3 Lista
@@ -105,9 +105,10 @@ Implementação BFF: `server/src/lib/snapshot-leitura-smart-read.ts`.
 
 ### 4.4 Insights
 
-1. Hook `use-dados-insights-leitura-smart-read.ts` usa a **mesma lista** + `GET /leituras/:id` por transação.
-2. Após o primeiro snapshot, `GET /leituras/:id` **lê do Postgres** (não vai ao legado) enquanto o registro existir.
-3. Métricas de acerto/erro na UI Insights continuam pela regra de **campo editado** (ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) §1), não por `accuracy` do legado.
+1. Hook `use-dados-insights-leitura-smart-read.ts` consome a **mesma lista** (`GET /leituras`) e, em paralelo (`Promise.allSettled`), `GET /leituras/:id` por transação `COMPLETED`/`PROCESSING`.
+2. `GET /leituras/:id` segue a cadeia do §4.6 — após snapshot existir, Insights lê do **Postgres Gravity** sem chamar o DATI.
+3. **Modo degradado (client):** se nenhum detalhe vier (legado indisponível e sem snapshot), KPIs e gráfico de evolução usam métricas já presentes na linha da lista (`TransacaoLeitura`: `total_campos_*`, `saving_total_*`, `data_envio`). Rankings por participante e BL/AWB **exigem** `leiturasDetalhe` com `resultado_extracao` — ficam vazios nesse modo.
+4. Métricas de acerto/erro na UI Insights continuam pela regra de **campo editado** (ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) §2), não por `accuracy` do legado.
 
 ### 4.5 O legado continua obrigatório para
 
@@ -115,6 +116,18 @@ Implementação BFF: `server/src/lib/snapshot-leitura-smart-read.ts`.
 - Processamento assíncrono (IA)
 - Primeira leitura de uma leitura nova (até o snapshot existir)
 - Company id / vínculo organização (Configurador + `SMART_READ_LEGADO_*`)
+
+### 4.6 Cadeia `GET /leituras/:id` (BFF)
+
+Ordem **fixa** em `server/src/routes/leituras-smart-read.ts`:
+
+| Passo | Fonte | Quando retorna |
+|-------|--------|----------------|
+| 1 | `snapshot_leitura_smart_read` | Linha existe no Postgres Gravity |
+| 2 | **Legado DATI** (`obterLeituraLegado`) | Snapshot ausente — **SSOT da extração**; ao sucesso, BFF grava snapshot se `id_usuario` presente |
+| 3 | `progresso_leitura_smart_read` | **Somente no `catch`** após falha do legado — sessão do wizard (`dados_sessao`) do **mesmo** `id_usuario` (header `x-id-usuario` obrigatório; sem usuário → não consulta progresso) |
+
+**Importante:** progresso **não** substitui legado no fluxo feliz — evita devolver sessão parcial do wizard quando o DATI já tem a leitura `COMPLETED`. Implementação: `obterLeituraDoProgresso` em `server/src/lib/snapshot-leitura-smart-read.ts`.
 
 ---
 
@@ -143,8 +156,11 @@ Dev sem legado: `SMART_READ_MOCK_LEGADO=1` simula extração no BFF — snapshot
 
 | Arquivo | Cobertura |
 |---------|-----------|
-| `testes/testes-unitarios/smart-read/snapshot-leitura-smart-read.test.ts` | Elegibilidade e parse do JSON snapshot |
+| `testes/testes-unitarios/smart-read/snapshot-leitura-smart-read.test.ts` | Elegibilidade, parse JSON snapshot, `obterLeituraDoProgresso` (exige `id_usuario`) |
 | `testes/testes-unitarios/smart-read/progresso-leitura-smart-read.test.ts` | Sessão do wizard |
+| `testes/testes-unitarios/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | SSOT de `TransacaoLeitura` para testes Insights (path completo + fallback) |
+| `testes/testes-unitarios/smart-read/calcular-metricas-insights-leitura.test.ts` | Métricas completas + fallback por transação |
+| `testes/testes-unitarios/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
 
 ---
 

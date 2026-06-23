@@ -15,10 +15,18 @@ export const visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema = z.
         z.object({
           codigo_local_mapa_visao_fornecedor_bid_frete_internacional: z.string(),
           nome_local_mapa_visao_fornecedor_bid_frete_internacional: z.string(),
+          nome_cotacao_local_mapa_visao_fornecedor_bid_frete_internacional: z.string().optional(),
           pais_codigo_mapa_visao_fornecedor_bid_frete_internacional: z.string(),
+          alerta_divergencia_cadastros_mapa_visao_fornecedor_bid_frete_internacional: z
+            .string()
+            .nullable()
+            .optional(),
           latitude_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
           longitude_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
           quantidade_cotacoes_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+          quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional: z.number().optional(),
+          quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional: z.number().optional(),
+          melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable().optional(),
           modal_predominante_mapa_visao_fornecedor_bid_frete_internacional: modalMapaSchema,
         }),
       ),
@@ -28,8 +36,13 @@ export const visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema = z.
           codigo_destino_mapa_visao_fornecedor_bid_frete_internacional: z.string(),
           modal_mapa_visao_fornecedor_bid_frete_internacional: modalMapaSchema,
           tipo_operacao_cotacao_bid_frete_internacional: tipoOperacaoMapaSchema.optional(),
-          quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
-          melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
+      quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional: z.number(),
+      quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional: z.number().optional(),
+      quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional: z.number().optional(),
+      melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
+          id_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.string().nullable().optional(),
+          numero_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.string().nullable().optional(),
+          numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional: z.string().nullable().optional(),
       dias_transito_medio_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable(),
       dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional: z.number().nullable().optional(),
     }),
@@ -39,7 +52,8 @@ export const visaoFornecedorBidFreteInternacionalMapaCotacoesResponseSchema = z.
 })
 
 function emojiBandeiraPais(iso2: string): string {
-  const codigo = iso2.trim().toUpperCase()
+  const bruto = iso2.trim().toUpperCase()
+  const codigo = /^[A-Z]{2}$/.test(bruto) ? bruto : bruto.slice(0, 2)
   if (!/^[A-Z]{2}$/.test(codigo)) return ''
   return String.fromCodePoint(
     ...[...codigo].map((letra) => 0x1f1e6 + letra.charCodeAt(0) - 65),
@@ -74,17 +88,32 @@ export function mapMapaCotacoesVisaoFornecedorFromServer(
     const legacy = geoParaLegacyPercent(geoLat, geoLng)
     const pais = pino.pais_codigo_mapa_visao_fornecedor_bid_frete_internacional
 
+    const quantidadeCotacoesAvulsas =
+      pino.quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional ??
+      pino.quantidade_cotacoes_mapa_visao_fornecedor_bid_frete_internacional
+    const quantidadeBids =
+      pino.quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional ?? 0
+    const melhorValorPin =
+      pino.melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? 0
+
     return {
       id,
       label: pino.nome_local_mapa_visao_fornecedor_bid_frete_internacional,
+      labelCotacao:
+        pino.nome_cotacao_local_mapa_visao_fornecedor_bid_frete_internacional ??
+        pino.nome_local_mapa_visao_fornecedor_bid_frete_internacional,
       portCode: pino.codigo_local_mapa_visao_fornecedor_bid_frete_internacional,
       country: pais,
+      alertaDivergenciaCadastros:
+        pino.alerta_divergencia_cadastros_mapa_visao_fornecedor_bid_frete_internacional ?? null,
       lat: legacy.lat,
       lng: legacy.lng,
       geoLat,
       geoLng,
       activeBids: pino.quantidade_cotacoes_mapa_visao_fornecedor_bid_frete_internacional,
-      bestPrice: 0,
+      quantidadeCotacoesAvulsas,
+      quantidadeBids,
+      bestPrice: melhorValorPin,
       savingPct: 0,
       mode: pino.modal_predominante_mapa_visao_fornecedor_bid_frete_internacional,
       supplier: nomeFornecedor,
@@ -115,8 +144,18 @@ export function mapMapaCotacoesVisaoFornecedorFromServer(
           rota.dias_transito_medio_mercado_mapa_visao_fornecedor_bid_frete_internacional ?? undefined,
         quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional:
           rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional,
+        quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional:
+          rota.quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional,
+        quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional:
+          rota.quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional,
         melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional:
           rota.melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional,
+        id_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional:
+          rota.id_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? null,
+        numero_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional:
+          rota.numero_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? null,
+        numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional:
+          rota.numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? null,
       }
     })
     .filter((r): r is NonNullable<typeof r> => r != null)

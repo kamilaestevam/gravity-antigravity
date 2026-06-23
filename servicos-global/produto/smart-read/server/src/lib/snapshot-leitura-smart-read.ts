@@ -124,7 +124,10 @@ export async function persistirSnapshotLeituraSmartRead(params: {
   }
 
   const existente = await prisma.snapshotLeituraSmartRead.findFirst({
-    where: { id_leitura_legado_snapshot_leitura_smart_read: leitura.id_leitura },
+    where: {
+      id_usuario: idUsuario,
+      id_leitura_legado_snapshot_leitura_smart_read: leitura.id_leitura,
+    },
   })
 
   if (existente) {
@@ -141,12 +144,14 @@ export async function persistirSnapshotLeituraSmartRead(params: {
 export async function obterLeituraDoProgresso(
   prisma: PrismaClient,
   idLeituraLegado: string,
-  idUsuario?: string,
+  idUsuario: string,
 ): Promise<Leitura | null> {
+  if (!idUsuario) return null
+
   const registro = await prisma.progressoLeituraSmartRead.findFirst({
     where: {
       id_leitura_legado_progresso_leitura_smart_read: idLeituraLegado,
-      ...(idUsuario ? { id_usuario: idUsuario } : {}),
+      id_usuario: idUsuario,
     },
     orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
   })
@@ -165,9 +170,15 @@ export async function obterLeituraDoProgresso(
 export async function obterLeituraDoSnapshot(
   prisma: PrismaClient,
   idLeituraLegado: string,
+  idUsuario: string,
 ): Promise<Leitura | null> {
+  if (!idUsuario) return null
+
   const registro = await prisma.snapshotLeituraSmartRead.findFirst({
-    where: { id_leitura_legado_snapshot_leitura_smart_read: idLeituraLegado },
+    where: {
+      id_usuario: idUsuario,
+      id_leitura_legado_snapshot_leitura_smart_read: idLeituraLegado,
+    },
   })
   if (!registro) return null
   return leituraDeRegistroSnapshot(registro)
@@ -176,11 +187,13 @@ export async function obterLeituraDoSnapshot(
 export async function carregarSnapshotsPorIds(
   prisma: PrismaClient,
   idsLeitura: string[],
+  idUsuario: string,
 ): Promise<Map<string, TransacaoLeitura>> {
-  if (idsLeitura.length === 0) return new Map()
+  if (idsLeitura.length === 0 || !idUsuario) return new Map()
 
   const registros = await prisma.snapshotLeituraSmartRead.findMany({
     where: {
+      id_usuario: idUsuario,
       id_leitura_legado_snapshot_leitura_smart_read: { in: idsLeitura },
     },
   })

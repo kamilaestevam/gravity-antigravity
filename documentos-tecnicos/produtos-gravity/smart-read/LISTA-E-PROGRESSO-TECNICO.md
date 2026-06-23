@@ -36,7 +36,7 @@ Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-us
 | `GET` | `/api/v1/smart-read/leituras` | Lista paginada (`pagina`, `limite`, `termo_busca`) |
 | `GET` | `/api/v1/smart-read/leituras/metricas/readings` | Contagem para card «Leituras realizadas» |
 | `POST` | `/api/v1/smart-read/leituras` | Cria leitura no legado + upload (`multipart` campo `arquivo`) → `202` |
-| `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado normalizado — **lê snapshot Gravity se existir**, senão legado DATI (e grava snapshot se elegível) |
+| `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado normalizado — cadeia: **snapshot Gravity** → **legado DATI (SSOT)** → **progresso** (só no `catch`, mesmo `id_usuario`); grava snapshot após legado se elegível |
 | `GET` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Progresso do wizard (`404` se ausente) |
 | `PATCH` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Salva passo 2–4 + sessão |
 | `DELETE` | `/api/v1/smart-read/leituras/:id_leitura` | `501` — legado sem exclusão |

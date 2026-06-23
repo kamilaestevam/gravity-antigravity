@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
+import { useNavigate } from 'react-router-dom'
 import { calcularRankingsMapaBidFreteInternacional } from '../calcular-rankings-mapa-bid-frete-internacional'
 import type { ItemRankingMapaBidFrete } from '../calcular-rankings-mapa-bid-frete-internacional'
 import {
@@ -48,6 +49,15 @@ import {
   type FiltrosMapaInsightsBidFreteInternacional,
 } from '../filtrar-dados-mapa-insights-bid-frete-internacional'
 import { splitScreenPathByDateline } from '../mapa-plano-rota-bid-frete-internacional'
+import {
+  formatarRotaMapa,
+  formatarTerminalMapa,
+  rotuloContagemMapaInsights,
+  rotuloDocumentoMapaInsights,
+  rotuloMelhorPrecoMapa,
+} from '../formatar-terminal-mapa-bid-frete-internacional'
+import { rotaDetalheCotacaoBidFreteInternacional } from '../rotas-bid-frete-internacional'
+import type { ArcRouteBidFrete } from '../mapa-bid-frete-internacional-tipos'
 import type { StatusCotacao } from '../types'
 // ─── Map Pin Data ──────────────────────────────────────────────────────────
 
@@ -61,11 +71,15 @@ export interface MapPinBidFrete {
   geoLat: number // Latitude (-90 to +90)
   geoLng: number // Longitude (-180 to +180)
   activeBids: number
+  quantidadeCotacoesAvulsas?: number
+  quantidadeBids?: number
   bestPrice: number
   savingPct: number
   mode: 'MARITIMO' | 'AEREO' | 'RODOVIARIO'
   supplier: string
   flag: string
+  labelCotacao?: string
+  alertaDivergenciaCadastros?: string | null
 }
 
 const MAP_PINS: MapPinBidFrete[] = [
@@ -863,18 +877,25 @@ export interface RouteDetailBidFrete {
   toFlag: string
   mode: 'MARITIMO' | 'AEREO'
   bids: number
+  quantidadeCotacoes: number
+  quantidadeBids: number
   bestPrice: number
   saving: number
   transitTime: number
   supplier: string
   codigo_origem?: string
   codigo_destino?: string
+  codigo_origem_nome?: string
+  codigo_destino_nome?: string
   marketTransitTime?: number
+  id_cotacao_bid_frete_internacional?: string | null
+  numero_cotacao_bid_frete_internacional?: string | null
+  numero_bid_bid_frete_internacional?: string | null
 }
 
 const PORT_CONNECTIONS: Record<number, RouteDetailBidFrete[]> = {
   1: [
-    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Santos (BRSSZ)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 56, bestPrice: 12400, saving: 23.4, transitTime: 28, supplier: 'Pacific Cargo (E96)' },
+    { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Santos (BRSSZ)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 56, quantidadeCotacoes: 56, quantidadeBids: 0, bestPrice: 12400, saving: 23.4, transitTime: 28, supplier: 'Pacific Cargo (E96)' },
     { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Guarulhos (BRGRU)', toFlag: '🇧🇷', mode: 'AEREO', bids: 84, bestPrice: 18200, saving: 19.1, transitTime: 3, supplier: 'Delta Cargo' },
     { fromPort: 'Shanghai (CNSHA)', fromFlag: '🇨🇳', toPort: 'Itajaí (BRITI)', toFlag: '🇧🇷', mode: 'MARITIMO', bids: 32, bestPrice: 13100, saving: 20.5, transitTime: 30, supplier: 'EuroFreight Corp' }
   ],
@@ -1167,6 +1188,8 @@ export function VisaoGeralMapaBidFrete({
     exibirPainelLateralMapa && !painelRankingsSeparado && !painelRankingsExterno
   const painelLateralNoMapa = exibirPainelLateralMapa && !painelRankingsExterno
 
+  const navigate = useNavigate()
+
   const rotasDetalhePorPino = useMemo(() => {
     if (fonteDados !== 'api') return PORT_CONNECTIONS
     const mapa: Record<number, RouteDetailBidFrete[]> = {}
@@ -1176,19 +1199,33 @@ export function VisaoGeralMapaBidFrete({
       if (!fromPin || !toPin) continue
 
       const detalhe: RouteDetailBidFrete = {
-        fromPort: `${fromPin.label} (${fromPin.portCode})`,
+        fromPort: formatarTerminalMapa(fromPin.label, fromPin.portCode),
         fromFlag: fromPin.flag,
-        toPort: `${toPin.label} (${toPin.portCode})`,
+        toPort: formatarTerminalMapa(toPin.label, toPin.portCode),
         toFlag: toPin.flag,
         mode: rota.mode,
         bids: rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
+        quantidadeCotacoes:
+          rota.quantidade_cotacoes_avulsas_mapa_visao_fornecedor_bid_frete_internacional ??
+          rota.quantidade_disparos_mapa_visao_fornecedor_bid_frete_internacional ??
+          0,
+        quantidadeBids:
+          rota.quantidade_bids_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
         bestPrice: rota.melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? 0,
         saving: 0,
         transitTime: rota.transitTime ?? 0,
         supplier: fromPin.supplier,
         codigo_origem: fromPin.portCode,
         codigo_destino: toPin.portCode,
+        codigo_origem_nome: fromPin.label,
+        codigo_destino_nome: toPin.label,
         marketTransitTime: rota.marketTransitTime,
+        id_cotacao_bid_frete_internacional:
+          rota.id_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? null,
+        numero_cotacao_bid_frete_internacional:
+          rota.numero_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? null,
+        numero_bid_bid_frete_internacional:
+          rota.numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional ?? null,
       }
 
       if (!mapa[rota.fromId]) mapa[rota.fromId] = []
@@ -1200,10 +1237,58 @@ export function VisaoGeralMapaBidFrete({
         fromFlag: detalhe.toFlag,
         toPort: detalhe.fromPort,
         toFlag: detalhe.fromFlag,
+        codigo_origem: toPin.portCode,
+        codigo_destino: fromPin.portCode,
+        codigo_origem_nome: toPin.label,
+        codigo_destino_nome: fromPin.label,
       })
     }
     return mapa
   }, [fonteDados, rotasAtivas, pinsAtivos])
+
+  const resolverContextoHoverPin = (pin: MapPinBidFrete) => {
+    let melhorRota: ArcRouteBidFrete | null = null
+    let melhorPontuacao = Number.POSITIVE_INFINITY
+
+    for (const rota of rotasAtivas) {
+      if (rota.fromId !== pin.id && rota.toId !== pin.id) continue
+      const valor = rota.melhor_valor_proposta_mapa_visao_fornecedor_bid_frete_internacional
+      const pontuacao = valor != null && valor > 0 ? valor : Number.POSITIVE_INFINITY
+      if (!melhorRota || pontuacao < melhorPontuacao) {
+        melhorRota = rota
+        melhorPontuacao = pontuacao
+      }
+    }
+
+    if (melhorRota) {
+      const fromPin = pinsAtivos.find((item) => item.id === melhorRota?.fromId)
+      const toPin = pinsAtivos.find((item) => item.id === melhorRota?.toId)
+      if (fromPin && toPin) {
+        const documento = rotuloDocumentoMapaInsights({
+          numeroCotacao: melhorRota.numero_cotacao_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional,
+          numeroBid: melhorRota.numero_bid_melhor_proposta_mapa_visao_fornecedor_bid_frete_internacional,
+        })
+        return {
+          titulo: formatarRotaMapa(fromPin.label, fromPin.portCode, toPin.label, toPin.portCode),
+          subtitulo: documento ?? `${fromPin.portCode} → ${toPin.portCode}`,
+        }
+      }
+    }
+
+    return {
+      titulo: formatarTerminalMapa(pin.label, pin.portCode),
+      subtitulo: pin.country ? `${pin.portCode} • ${pin.country}` : pin.portCode,
+    }
+  }
+
+  const abrirCotacaoCompleta = (route: RouteDetailBidFrete) => {
+    setSelectedPinForDialogoResumido(null)
+    if (route.id_cotacao_bid_frete_internacional) {
+      navigate(rotaDetalheCotacaoBidFreteInternacional(route.id_cotacao_bid_frete_internacional))
+      return
+    }
+    onOpenCompleto?.(route)
+  }
   const descricaoMapaTransit =
     descricaoTransit ?? 'Benchmarking de Transit Time global (Sua Empresa vs. Média de Mercado)'
   const [activeTab, setActiveTab] = useState<'origens' | 'destinos' | 'modal_cotacao_bid_frete_internacional'>('origens')
@@ -2955,6 +3040,15 @@ export function VisaoGeralMapaBidFrete({
           const Icon = MODAL_ICONS_MAPA[pin.mode] || <Anchor size={12} />
           const tooltipAbaixo = pin.py < alturaFlipTooltip
           const fornecedorTooltip = pin.supplier.trim()
+          const contextoHover = resolverContextoHoverPin(pin)
+          const quantidadeCotacoesPin = pin.quantidadeCotacoesAvulsas ?? pin.activeBids
+          const quantidadeBidsPin = pin.quantidadeBids ?? 0
+          const rotuloRespostasPin = rotuloContagemMapaInsights({
+            quantidadeCotacoes: quantidadeCotacoesPin,
+            quantidadeBids: quantidadeBidsPin,
+          })
+          const rotuloPrecoPin = rotuloMelhorPrecoMapa(pin.bestPrice)
+          const bandeiraPin = pin.flag || pin.country
           return (
             <div
               key={pin.id}
@@ -2990,28 +3084,52 @@ export function VisaoGeralMapaBidFrete({
                 <span className="bfd-map-pin__icon-inner">{Icon}</span>
               </div>
               {isHovered && pin.opacity > 0.7 && (
+                <>
+                <div
+                  className={[
+                    'bfd-map-pin-hover-bridge',
+                    tooltipAbaixo ? 'bfd-map-pin-hover-bridge--abaixo' : 'bfd-map-pin-hover-bridge--acima',
+                  ].join(' ')}
+                  aria-hidden
+                />
                 <div
                   className={[
                     'bfd-map-tooltip',
                     tooltipAbaixo ? 'bfd-map-tooltip--abaixo' : '',
                   ].filter(Boolean).join(' ')}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    isRotationPausedRef.current = true
+                    setSelectedPinForDialogoResumido(pin.id)
+                  }}
                 >
                   <div className="bfd-map-tooltip__header">
-                    <span className="bfd-map-tooltip__flag">{pin.flag}</span>
+                    <span className="bfd-map-tooltip__flag" title={pin.country}>
+                      {bandeiraPin}
+                    </span>
                     <div className="bfd-map-tooltip__title-wrap">
-                      <span className="bfd-map-tooltip__title">{pin.label}</span>
-                      <span className="bfd-map-tooltip__subtitle">{pin.portCode} • {pin.country}</span>
+                      <span className="bfd-map-tooltip__title">{contextoHover.titulo}</span>
+                      <span className="bfd-map-tooltip__subtitle">{contextoHover.subtitulo}</span>
                     </div>
                   </div>
                   <div className="bfd-map-tooltip__body">
+                    {pin.alertaDivergenciaCadastros && (
+                      <div
+                        className="bfd-map-tooltip__alerta"
+                        role="status"
+                        title={pin.alertaDivergenciaCadastros}
+                      >
+                        {pin.alertaDivergenciaCadastros}
+                      </div>
+                    )}
                     <div className="bfd-map-tooltip__stat">
-                      <span className="bfd-map-tooltip__stat-label">Bids Ativos</span>
-                      <span className="bfd-map-tooltip__stat-val">{pin.activeBids} cotações</span>
+                      <span className="bfd-map-tooltip__stat-label">Respostas</span>
+                      <span className="bfd-map-tooltip__stat-val">{rotuloRespostasPin}</span>
                     </div>
                     <div className="bfd-map-tooltip__stat">
                       <span className="bfd-map-tooltip__stat-label">Melhor Preço</span>
                       <span className="bfd-map-tooltip__stat-val" style={{ color: '#ffffff' }}>
-                        USD {fmtMoeda(pin.bestPrice)}
+                        {rotuloPrecoPin}
                       </span>
                     </div>
                     {pin.savingPct > 0 && (
@@ -3035,6 +3153,7 @@ export function VisaoGeralMapaBidFrete({
                   </div>
                   <div className="bfd-map-tooltip__after" />
                 </div>
+                </>
               )}
             </div>
           )
@@ -3306,8 +3425,12 @@ export function VisaoGeralMapaBidFrete({
                   <div className="dialogo-cotacao-resumida-bid-frete-internacional-title-group">
                     <span className="dialogo-cotacao-resumida-bid-frete-internacional-flag-large">{pin.flag}</span>
                     <div>
-                      <h2 className="dialogo-cotacao-resumida-bid-frete-internacional-title">Rotas Ativas: {pin.label}</h2>
-                      <span className="dialogo-cotacao-resumida-bid-frete-internacional-subtitle">{pin.portCode} • {pin.country}</span>
+                      <h2 className="dialogo-cotacao-resumida-bid-frete-internacional-title">
+                        Rotas Ativas: {formatarTerminalMapa(pin.label, pin.portCode)}
+                      </h2>
+                      <span className="dialogo-cotacao-resumida-bid-frete-internacional-subtitle">
+                        {pin.portCode} • {pin.country}
+                      </span>
                     </div>
                   </div>
                   <button className="dialogo-cotacao-resumida-bid-frete-internacional-close-btn" onClick={() => setSelectedPinForDialogoResumido(null)}>✕</button>
@@ -3325,6 +3448,18 @@ export function VisaoGeralMapaBidFrete({
                       const modeIcon = isAir ? <AirplaneTilt size={14} weight="bold" /> : <Anchor size={14} weight="bold" />
                       const badgeClass = isAir ? 'bfd-route-badge bfd-route-badge--aereo' : 'bfd-route-badge bfd-route-badge--maritimo'
                       const cardClass = isAir ? 'bfd-route-card bfd-route-card--aereo' : 'bfd-route-card bfd-route-card--maritimo'
+                      const rotuloRespostasRota = rotuloContagemMapaInsights({
+                        quantidadeCotacoes: route.quantidadeCotacoes ?? route.bids,
+                        quantidadeBids: route.quantidadeBids ?? 0,
+                      })
+                      const rotuloPrecoRota = rotuloMelhorPrecoMapa(route.bestPrice)
+                      const rotuloDocumentoRota = rotuloDocumentoMapaInsights({
+                        numeroCotacao: route.numero_cotacao_bid_frete_internacional,
+                        numeroBid: route.numero_bid_bid_frete_internacional,
+                      })
+                      const rotuloBotaoCotacao = rotuloDocumentoRota
+                        ? `Abrir ${rotuloDocumentoRota}`
+                        : 'Ver cotação completa'
                       
                       // High-quality loop motion path details
                       const pathD = "M 10,15 Q 120,-5 230,15"
@@ -3402,12 +3537,12 @@ export function VisaoGeralMapaBidFrete({
                           
                           <div className="bfd-route-stats">
                             <div className="bfd-route-stat-item">
-                              <span className="bfd-route-stat-label">Bids Ativos</span>
-                              <span className="bfd-route-stat-value">{route.bids} bids</span>
+                              <span className="bfd-route-stat-label">Respostas</span>
+                              <span className="bfd-route-stat-value">{rotuloRespostasRota}</span>
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">Melhor Preço</span>
-                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>USD {fmtMoeda(route.bestPrice)}</span>
+                              <span className="bfd-route-stat-value" style={{ color: '#ffffff' }}>{rotuloPrecoRota}</span>
                             </div>
                             <div className="bfd-route-stat-item">
                               <span className="bfd-route-stat-label">Saving</span>
@@ -3465,19 +3600,20 @@ export function VisaoGeralMapaBidFrete({
                           })()}
                           
                           <div style={{ fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.04)', paddingTop: '0.5rem' }}>
-                            {route.supplier.trim() ? (
-                              <span>Forn. Líder: <strong>{route.supplier}</strong></span>
-                            ) : (
-                              <span />
-                            )}
+                            <span>
+                              {rotuloDocumentoRota ? (
+                                <strong>{rotuloDocumentoRota}</strong>
+                              ) : route.supplier.trim() ? (
+                                <>Forn. Líder: <strong>{route.supplier}</strong></>
+                              ) : (
+                                <span />
+                              )}
+                            </span>
                             <button
                               className="bfd-route-btn-completo"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                setSelectedPinForDialogoResumido(null)
-                                if (onOpenCompleto) {
-                                  onOpenCompleto(route)
-                                }
+                                abrirCotacaoCompleta(route)
                               }}
                               style={{
                                 display: 'flex',
@@ -3507,7 +3643,7 @@ export function VisaoGeralMapaBidFrete({
                               }}
                             >
                               <Eye size={12} weight="bold" />
-                              <span>Ver Cotação Completa</span>
+                              <span>{rotuloBotaoCotacao}</span>
                               <ArrowRight size={10} weight="bold" style={{ marginLeft: '2px' }} />
                             </button>
                           </div>

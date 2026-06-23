@@ -40,31 +40,65 @@ export const PARAMETROS_FINANCEIROS_SMART_READ: ParametrosFinanceirosSmartRead =
   markup_venda: 1.35,
 }
 
+/** Ordem e rótulos da tabela «Base de cálculo» (estudo DOCS BASE PRODUTO). */
+export const LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ: {
+  rotulo_exibicao: string
+  tempo_digitação_manual_minutos: number
+  tipo_parametro: TipoDocumentoBaseSmartRead
+}[] = [
+  { rotulo_exibicao: 'Pedido', tempo_digitação_manual_minutos: 16.1, tipo_parametro: 'pedido' },
+  { rotulo_exibicao: 'Proforma', tempo_digitação_manual_minutos: 16.1, tipo_parametro: 'proforma' },
+  { rotulo_exibicao: 'Invoice', tempo_digitação_manual_minutos: 16.1, tipo_parametro: 'invoice' },
+  {
+    rotulo_exibicao: 'Packing List',
+    tempo_digitação_manual_minutos: 19.054,
+    tipo_parametro: 'packing_list',
+  },
+  { rotulo_exibicao: 'BL', tempo_digitação_manual_minutos: 6, tipo_parametro: 'bl' },
+  { rotulo_exibicao: 'AWB', tempo_digitação_manual_minutos: 6, tipo_parametro: 'awb' },
+  {
+    rotulo_exibicao: 'Documentos Financeiros',
+    tempo_digitação_manual_minutos: 20,
+    tipo_parametro: 'outros',
+  },
+]
+
+export const OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ: { rotulo: string; texto: string }[] = [
+  { rotulo: 'Invoice / Proforma / Pedido', texto: '20 itens' },
+  { rotulo: 'Packing List', texto: '10 linhas' },
+  { rotulo: 'Documentos Financeiros', texto: '10 linhas' },
+  {
+    rotulo: 'BL / AWB',
+    texto:
+      'documento de cabeçalho (sem contagem de itens; o que pesa é a quantidade de contêineres)',
+  },
+]
+
 /** Defaults derivados dos estudos comparativos de digitação (substituir via import futuro). */
 export const BASE_TEMPO_DOCUMENTO_SMART_READ: ParametrosTempoDocumentoSmartRead[] = [
   {
-    tipo_documento: 'bl',
-    rotulo: 'Bill of Lading',
-    campos_medio: 86,
-    tempo_digitação_manual_minutos: 48,
-    tempo_digitação_smart_read_minutos: 9,
-    tempo_correcao_erro_manual_minutos_por_campo: 2.8,
-    tempo_correcao_erro_smart_read_minutos_por_campo: 0.75,
+    tipo_documento: 'pedido',
+    rotulo: 'Pedido',
+    campos_medio: 30,
+    tempo_digitação_manual_minutos: 16.1,
+    tempo_digitação_smart_read_minutos: 3.5,
+    tempo_correcao_erro_manual_minutos_por_campo: 1.7,
+    tempo_correcao_erro_smart_read_minutos_por_campo: 0.42,
   },
   {
-    tipo_documento: 'awb',
-    rotulo: 'AWB',
-    campos_medio: 54,
-    tempo_digitação_manual_minutos: 32,
-    tempo_digitação_smart_read_minutos: 6.5,
-    tempo_correcao_erro_manual_minutos_por_campo: 2.4,
-    tempo_correcao_erro_smart_read_minutos_por_campo: 0.65,
+    tipo_documento: 'proforma',
+    rotulo: 'Proforma',
+    campos_medio: 36,
+    tempo_digitação_manual_minutos: 16.1,
+    tempo_digitação_smart_read_minutos: 4.0,
+    tempo_correcao_erro_manual_minutos_por_campo: 1.9,
+    tempo_correcao_erro_smart_read_minutos_por_campo: 0.48,
   },
   {
     tipo_documento: 'invoice',
     rotulo: 'Invoice',
     campos_medio: 42,
-    tempo_digitação_manual_minutos: 24,
+    tempo_digitação_manual_minutos: 16.1,
     tempo_digitação_smart_read_minutos: 4.5,
     tempo_correcao_erro_manual_minutos_por_campo: 2.1,
     tempo_correcao_erro_smart_read_minutos_por_campo: 0.55,
@@ -73,34 +107,34 @@ export const BASE_TEMPO_DOCUMENTO_SMART_READ: ParametrosTempoDocumentoSmartRead[
     tipo_documento: 'packing_list',
     rotulo: 'Packing List',
     campos_medio: 46,
-    tempo_digitação_manual_minutos: 27,
+    tempo_digitação_manual_minutos: 19.054,
     tempo_digitação_smart_read_minutos: 5.2,
     tempo_correcao_erro_manual_minutos_por_campo: 2.0,
     tempo_correcao_erro_smart_read_minutos_por_campo: 0.5,
   },
   {
-    tipo_documento: 'proforma',
-    rotulo: 'Proforma',
-    campos_medio: 36,
-    tempo_digitação_manual_minutos: 21,
-    tempo_digitação_smart_read_minutos: 4.0,
-    tempo_correcao_erro_manual_minutos_por_campo: 1.9,
-    tempo_correcao_erro_smart_read_minutos_por_campo: 0.48,
+    tipo_documento: 'bl',
+    rotulo: 'Bill of Lading',
+    campos_medio: 86,
+    tempo_digitação_manual_minutos: 6,
+    tempo_digitação_smart_read_minutos: 9,
+    tempo_correcao_erro_manual_minutos_por_campo: 2.8,
+    tempo_correcao_erro_smart_read_minutos_por_campo: 0.75,
   },
   {
-    tipo_documento: 'pedido',
-    rotulo: 'Pedido',
-    campos_medio: 30,
-    tempo_digitação_manual_minutos: 18,
-    tempo_digitação_smart_read_minutos: 3.5,
-    tempo_correcao_erro_manual_minutos_por_campo: 1.7,
-    tempo_correcao_erro_smart_read_minutos_por_campo: 0.42,
+    tipo_documento: 'awb',
+    rotulo: 'AWB',
+    campos_medio: 54,
+    tempo_digitação_manual_minutos: 6,
+    tempo_digitação_smart_read_minutos: 6.5,
+    tempo_correcao_erro_manual_minutos_por_campo: 2.4,
+    tempo_correcao_erro_smart_read_minutos_por_campo: 0.65,
   },
   {
     tipo_documento: 'outros',
-    rotulo: 'Outros',
+    rotulo: 'Documentos Financeiros',
     campos_medio: 28,
-    tempo_digitação_manual_minutos: 16,
+    tempo_digitação_manual_minutos: 20,
     tempo_digitação_smart_read_minutos: 3.2,
     tempo_correcao_erro_manual_minutos_por_campo: 1.6,
     tempo_correcao_erro_smart_read_minutos_por_campo: 0.4,

@@ -85,10 +85,7 @@ function normalizarColunasVisiveis(colunas: string[]): string[] {
 
   const presentes = new Set(colunas)
   const faltando = padrao.filter((chave) => !presentes.has(chave))
-  if (faltando.length === 0) {
-    const extras = colunas.filter((chave) => !padrao.includes(chave as (typeof padrao)[number]))
-    return [...padrao, ...extras]
-  }
+  if (faltando.length === 0) return colunas
 
   const merged = [...colunas]
   for (const chave of faltando) {

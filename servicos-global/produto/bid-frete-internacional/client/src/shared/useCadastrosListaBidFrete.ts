@@ -12,6 +12,11 @@ import {
   type PortoCadastro,
 } from './cadastrosApi'
 
+import {
+  rotuloAeroportoCadastroLogistica,
+  rotuloPortoCadastroLogistica,
+} from '../../../shared/rotulo-cadastro-logistica-bid-frete-internacional'
+
 export interface GTOpcaoCadastro {
   valor: string
   label: string
@@ -38,7 +43,7 @@ function formatarPais(pais: PaisCadastro): GTOpcaoCadastro {
 function formatarPorto(porto: PortoCadastro): GTOpcaoCadastro {
   return {
     valor: porto.codigo_unlocode_porto,
-    label: `${porto.codigo_unlocode_porto} — ${porto.nome_porto}`,
+    label: rotuloPortoCadastroLogistica(porto),
   }
 }
 
@@ -46,7 +51,7 @@ function formatarAeroporto(aeroporto: AeroportoCadastro): GTOpcaoCadastro {
   const codigo = aeroporto.codigo_iata_aeroporto?.trim() || aeroporto.codigo_unlocode_aeroporto
   return {
     valor: codigo,
-    label: `${codigo} — ${aeroporto.nome_aeroporto}`,
+    label: rotuloAeroportoCadastroLogistica(aeroporto),
   }
 }
 

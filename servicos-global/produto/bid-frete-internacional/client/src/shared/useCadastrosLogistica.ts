@@ -13,7 +13,10 @@ import {
   type TaxaOrigemDestinoCadastro,
   type TipoTaxaOrigemDestino,
 } from './cadastrosApi'
-import { filtrarTaxasCatalogoNaoLegado } from './taxas-linha-proposta-bid-frete-internacional'
+import {
+  rotuloAeroportoCadastroLogistica,
+  rotuloPortoCadastroLogistica,
+} from '../../../shared/rotulo-cadastro-logistica-bid-frete-internacional'
 
 export function usePaisesCadastros() {
   const [paises, setPaises] = useState<PaisCadastro[]>([])
@@ -84,7 +87,7 @@ export function usePortosPorPais(codigoPais: string, ativo = true) {
   const opcoes = useMemo((): SelectOpcao[] =>
     portos.map((p) => ({
       valor: p.codigo_unlocode_porto,
-      rotulo: `${p.codigo_unlocode_porto} — ${p.nome_porto}`,
+      rotulo: rotuloPortoCadastroLogistica(p),
     })),
   [portos])
 
@@ -126,7 +129,7 @@ export function useAeroportosPorPais(codigoPais: string, ativo = true) {
       .filter((a) => a.codigo_iata_aeroporto)
       .map((a) => ({
         valor: a.codigo_iata_aeroporto as string,
-        rotulo: `${a.codigo_iata_aeroporto} — ${a.nome_aeroporto}`,
+        rotulo: rotuloAeroportoCadastroLogistica(a),
       })),
   [aeroportos])
 

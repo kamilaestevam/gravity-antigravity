@@ -5,6 +5,7 @@
 import { useMemo, useState } from 'react'
 import { ListaLeituraCardsSmartRead } from '../../components/lista-leitura-cards-smart-read'
 import { TabelaTransacoesLeituraSmartRead } from '../../components/tabela-transacoes-leitura-smart-read'
+import { ProvedorMetodologiaSavingInsightsSmartRead } from '../insights-smart-read/metodologia-saving-insights-smart-read'
 import {
   filtrarTransacoesPorSegmento,
   useTransacoesLeituraSmartRead,
@@ -19,7 +20,7 @@ const SEGMENTOS: { id: SegmentoListaLeitura; rotulo: string }[] = [
 
 export default function ListaLeituraSmartRead() {
   const [segmento, setSegmento] = useState<SegmentoListaLeitura>('envios')
-  const dados = useTransacoesLeituraSmartRead()
+  const dados = useTransacoesLeituraSmartRead(segmento)
 
   const transacoesFiltradas = useMemo(
     () => filtrarTransacoesPorSegmento(dados.transacoes, segmento),
@@ -27,6 +28,7 @@ export default function ListaLeituraSmartRead() {
   )
 
   return (
+    <ProvedorMetodologiaSavingInsightsSmartRead>
     <div className="sr-pagina sr-pagina--lista">
       <ListaLeituraCardsSmartRead
         transacoes={transacoesFiltradas}
@@ -54,7 +56,7 @@ export default function ListaLeituraSmartRead() {
       <div className="sr-tabela-wrapper">
         <TabelaTransacoesLeituraSmartRead
           transacoes={transacoesFiltradas}
-          total={segmento === 'envios' ? dados.total : transacoesFiltradas.length}
+          total={dados.total}
           pagina={dados.pagina}
           carregando={dados.carregando}
           erro={dados.erro}
@@ -69,5 +71,6 @@ export default function ListaLeituraSmartRead() {
         />
       </div>
     </div>
+    </ProvedorMetodologiaSavingInsightsSmartRead>
   )
 }

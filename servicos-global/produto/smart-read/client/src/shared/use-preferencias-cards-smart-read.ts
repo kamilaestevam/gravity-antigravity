@@ -30,7 +30,7 @@ export const CARDS_CATALOGO_SMART_READ: CardDefinicaoSmartRead[] = [
   {
     id: 'recursos_reduzidos',
     titulo: 'Recursos reduzidos',
-    descricao: 'Economia estimada de tempo operacional com OCR/IA',
+    descricao: 'Saving total (digitação + erros) das leituras visíveis — mesma base do Insights',
   },
 ]
 

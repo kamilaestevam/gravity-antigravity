@@ -103,12 +103,14 @@ export const smartReadApi = {
     pagina: number
     limite: number
     termo_busca?: string
+    origem_leitura?: 'API' | 'INTERFACE'
   }): Promise<ListarTransacoesResposta> {
     const query = new URLSearchParams({
       pagina: String(params.pagina),
       limite: String(params.limite),
     })
     if (params.termo_busca) query.set('termo_busca', params.termo_busca)
+    if (params.origem_leitura) query.set('origem_leitura', params.origem_leitura)
     return requisitar(ListarTransacoesRespostaSchema, `/api/v1/smart-read/leituras?${query.toString()}`)
   },
 

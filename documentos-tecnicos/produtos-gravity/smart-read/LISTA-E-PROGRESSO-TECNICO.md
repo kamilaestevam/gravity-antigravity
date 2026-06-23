@@ -261,3 +261,21 @@ Colunas agregadas **por leitura** (não são campos extraídos de um documento e
 | Saving (valor) | `saving_total_brl` | Idem + `PARAMETROS_FINANCEIROS_SMART_READ` |
 
 Métricas de saving na lista usam o mesmo SSOT de tempos que Insights (`shared/dados-base-produto-tempo-smart-read.ts`). Ordem padrão da lista: expandir tudo + cursor somente leitura (PR #409).
+
+---
+
+## 13. KPI cards no topo da lista (TASK-000321)
+
+Faixa acima das abas «Visão geral» / «Transações API». Componente: `client/src/components/lista-leitura-cards-smart-read.tsx`. Catálogo e ordem: `client/src/shared/use-preferencias-cards-smart-read.ts` (preferências em `localStorage` chave `smart-read:config:cards-v1`; ordem sempre segue o catálogo ao carregar).
+
+| Ordem | Card | Valor principal | Fonte dos dados |
+|------:|------|-----------------|-----------------|
+| 1 | Leituras realizadas | Contagem total | `GET /leituras/metricas/readings` ou `paginacao.total` |
+| 2 | Performance de acertos | Média % | Média de `media_acertos` das `TransacaoLeitura` visíveis na página |
+| 3 | Recursos reduzidos | Tempo economizado | Soma de `saving_total_minutos` / `saving_total_brl` das leituras visíveis |
+
+**Recursos reduzidos** reutiliza o SSOT de saving já calculado no BFF (`shared/metricas-transacao-leitura-smart-read.ts`) — mesma base dos KPIs de Insights e das colunas §12. Subtexto: custo evitado (est.) + «leituras visíveis». Tooltip: tempo, custo, campos editados na conferência, contagem de leituras com saving e link **Base de cálculo →**.
+
+A página Lista envolve o conteúdo em `ProvedorMetodologiaSavingInsightsSmartRead` (`ListaLeituraSmartRead.tsx`) para o modal de metodologia compartilhado com Insights (`metodologia-saving-insights-smart-read.tsx`).
+
+> **Não usar** placeholder «Em breve» neste card — se nenhuma leitura visível tiver `saving_total_minutos`, exibir `—` via `formatarSavingHorasLeitura` / `formatarSavingValorLeitura`.

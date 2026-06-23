@@ -12,7 +12,7 @@
 |-----------|----------|
 | [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) | **Onde vive cada dado:** banco DATI = leituras reais (PDF, OCR, extração); Postgres Gravity = snapshot, progresso, painéis |
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor responsável, contrato BFF, rankings |
-| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista por workspace, layout/paginação/painéis, BFF leituras, progresso por usuário, nome do wizard |
+| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista por workspace, layout/paginação/painéis, BFF leituras, progresso por usuário, nome do wizard, **KPI cards §13** |
 
 ---
 
@@ -108,4 +108,5 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | TASK-000303 | Dashboard Insights (KPIs, savings, rankings) — ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) |
 | **PR #409** (merge 2026-06-23) | Insights: modal **Base de cálculo** (tempos do estudo + observações documento médio), KPI Saving em Erros = contagem de campos, fallback degradado, cadeia GET snapshot→legado→progresso — ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) §5–6 e [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) §4.6 |
 | **TASK-000317** / PR #409 | Lista: colunas de **métricas da leitura** (documentos, campos, saving, tempos) — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §12 |
+| **TASK-000321** | Lista: ordem dos KPI cards (Performance de acertos = 2º) + card **Recursos reduzidos** agregando saving das leituras visíveis — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §13 |
 | Refatoração Insights | Fonte única acerto/erro por edição do usuário; emissor responsável por tipo de documento; `dados_original` no contrato bilateral |

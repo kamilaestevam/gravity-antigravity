@@ -35,6 +35,8 @@ export const LeituraLegadoSchema = z.object({
   processedFiles: z.number().optional(),
   createdAt: z.string().optional(),
   completedAt: z.string().nullable().optional(),
+  source: z.string().optional(),
+  origin: z.string().optional(),
   files: z.array(ArquivoLeituraLegadoSchema).optional(),
 })
 export type LeituraLegado = z.infer<typeof LeituraLegadoSchema>

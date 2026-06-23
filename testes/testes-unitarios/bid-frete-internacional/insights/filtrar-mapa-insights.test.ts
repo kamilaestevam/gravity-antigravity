@@ -122,7 +122,41 @@ describe('filtrarDadosMapaInsightsBidFreteInternacional', () => {
     const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, [rotaComStatus, rotaOutroStatus], {
       operacaoModal: new Set(),
       status: new Set(['RASCUNHO']),
+      codigos_origem: new Set(),
+      codigos_destino: new Set(),
     })
     expect(resultado.routes).toEqual([rotaComStatus])
+  })
+
+  it('filtra por terminal de origem', () => {
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
+      operacaoModal: new Set(),
+      status: new Set(),
+      codigos_origem: new Set(['CNSHA']),
+      codigos_destino: new Set(),
+    })
+    expect(resultado.routes).toEqual([rotaImportacao])
+    expect(resultado.pins.map((p) => p.portCode).sort()).toEqual(['BRSSZ', 'CNSHA'])
+  })
+
+  it('filtra por terminal de destino', () => {
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
+      operacaoModal: new Set(),
+      status: new Set(),
+      codigos_origem: new Set(),
+      codigos_destino: new Set(['USNYC']),
+    })
+    expect(resultado.routes).toEqual([rotaExportacaoAerea])
+    expect(resultado.pins.map((p) => p.portCode).sort()).toEqual(['BRSSZ', 'USNYC'])
+  })
+
+  it('combina filtro de origem e destino', () => {
+    const resultado = filtrarDadosMapaInsightsBidFreteInternacional(pins, routes, {
+      operacaoModal: new Set(),
+      status: new Set(),
+      codigos_origem: new Set(['BRSSZ']),
+      codigos_destino: new Set(['USNYC']),
+    })
+    expect(resultado.routes).toEqual([rotaExportacaoAerea])
   })
 })

@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom'
 import { calcularRankingsMapaBidFreteInternacional } from '../calcular-rankings-mapa-bid-frete-internacional'
 import type { ItemRankingMapaBidFrete } from '../calcular-rankings-mapa-bid-frete-internacional'
 import {
+  CaretDown,
   Check,
   X,
   Anchor,
@@ -17,6 +18,7 @@ import {
   Export,
   Eye,
   EyeSlash,
+  Flag,
   Globe,
   MapTrifold,
   MapPin,
@@ -28,6 +30,7 @@ import {
   List,
   Truck,
   SidebarSimple,
+  TrafficSign,
 } from '@phosphor-icons/react'
 import {
   contarFiltrosMapaAtivos,
@@ -35,6 +38,8 @@ import {
   FILTROS_STATUS_MAPA_INSIGHTS,
   filtrarDadosMapaInsightsBidFreteInternacional,
   filtrosMapaInsightsVazios,
+  listarTerminaisDestinoMapaInsights,
+  listarTerminaisOrigemMapaInsights,
   type FiltroOperacaoModalMapaInsights,
   type FiltrosMapaInsightsBidFreteInternacional,
 } from '../filtrar-dados-mapa-insights-bid-frete-internacional'
@@ -953,6 +958,78 @@ export interface VisaoGeralMapaBidFreteProps {
   painelInferiorInsights?: React.ReactNode
 }
 
+const SECOES_FILTRO_MAPA_INSIGHTS = ['operacao', 'modal', 'origem', 'destino', 'status'] as const
+type SecaoFiltroMapaInsightsId = (typeof SECOES_FILTRO_MAPA_INSIGHTS)[number]
+
+interface SecaoFiltroMapaInsightsProps {
+  id: SecaoFiltroMapaInsightsId
+  titulo: string
+  icone: React.ReactNode
+  ativos: number
+  total: number
+  colapsada: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}
+
+function SecaoFiltroMapaInsights({
+  id,
+  titulo,
+  icone,
+  ativos,
+  total,
+  colapsada,
+  onToggle,
+  children,
+}: SecaoFiltroMapaInsightsProps) {
+  const pct = total > 0 ? Math.round((ativos / total) * 100) : 0
+  const temAtivos = ativos > 0
+
+  return (
+    <section
+      id={`bfd-map-filtro-secao-${id}`}
+      className={`bfd-map-filtro-secao ${colapsada ? 'bfd-map-filtro-secao--colapsada' : ''}`}
+    >
+      <button
+        type="button"
+        className="bfd-map-filtro-secao__header"
+        onClick={onToggle}
+        aria-expanded={!colapsada}
+        aria-controls={`bfd-map-filtro-secao-${id}-corpo`}
+      >
+        <div className="bfd-map-filtro-secao__title">
+          <CaretDown
+            weight="bold"
+            size={12}
+            className={`bfd-map-filtro-secao__caret ${colapsada ? 'bfd-map-filtro-secao__caret--colapsado' : ''}`}
+          />
+          <span className="bfd-map-filtro-secao__icon">{icone}</span>
+          <h3>{titulo}</h3>
+        </div>
+        <div className="bfd-map-filtro-secao__meta">
+          <div className="bfd-map-filtro-secao__progress" aria-hidden>
+            <div
+              className="bfd-map-filtro-secao__progress-fill"
+              style={{
+                width: `${pct}%`,
+                background: temAtivos ? '#6366f1' : '#475569',
+              }}
+            />
+          </div>
+          <span className="bfd-map-filtro-secao__pill">
+            {ativos}/{total}
+          </span>
+        </div>
+      </button>
+      {!colapsada ? (
+        <div id={`bfd-map-filtro-secao-${id}-corpo`} className="bfd-map-filtro-secao__corpo">
+          {children}
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
 export function VisaoGeralMapaBidFrete({
   onOpenCompleto,
   titulo = 'Visão Geral Global de Cotações',
@@ -970,7 +1047,7 @@ export function VisaoGeralMapaBidFrete({
   const pinsBase = fonteDados === 'api' ? (dadosMapa?.pins ?? []) : MAP_PINS
   const rotasBase = fonteDados === 'api' ? (dadosMapa?.routes ?? []) : GLOBE_ROUTES
   const [filtrosMapaInsights, setFiltrosMapaInsights] =
-    useState<FiltrosMapaInsightsBidFreteInternacional>(filtrosMapaInsightsVazios)
+    useState<FiltrosMapaInsightsBidFreteInternacional>(() => filtrosMapaInsightsVazios())
 
   const alternarFiltroOperacaoModal = (filtro: FiltroOperacaoModalMapaInsights) => {
     setFiltrosMapaInsights((prev) => {
@@ -987,6 +1064,24 @@ export function VisaoGeralMapaBidFrete({
       if (statusSet.has(status)) statusSet.delete(status)
       else statusSet.add(status)
       return { ...prev, status: statusSet }
+    })
+  }
+
+  const alternarFiltroOrigemMapa = (codigoTerminal: string) => {
+    setFiltrosMapaInsights((prev) => {
+      const codigos_origem = new Set(prev.codigos_origem)
+      if (codigos_origem.has(codigoTerminal)) codigos_origem.delete(codigoTerminal)
+      else codigos_origem.add(codigoTerminal)
+      return { ...prev, codigos_origem }
+    })
+  }
+
+  const alternarFiltroDestinoMapa = (codigoTerminal: string) => {
+    setFiltrosMapaInsights((prev) => {
+      const codigos_destino = new Set(prev.codigos_destino)
+      if (codigos_destino.has(codigoTerminal)) codigos_destino.delete(codigoTerminal)
+      else codigos_destino.add(codigoTerminal)
+      return { ...prev, codigos_destino }
     })
   }
 
@@ -1017,6 +1112,14 @@ export function VisaoGeralMapaBidFrete({
   const listaRankingsInsights = useMemo(
     () => unificarRankingsLocalidades(listaOrigens, listaDestinos),
     [listaOrigens, listaDestinos],
+  )
+  const terminaisOrigemMapa = useMemo(
+    () => listarTerminaisOrigemMapaInsights(pinsBase, rotasBase),
+    [pinsBase, rotasBase],
+  )
+  const terminaisDestinoMapa = useMemo(
+    () => listarTerminaisDestinoMapaInsights(pinsBase, rotasBase),
+    [pinsBase, rotasBase],
   )
   const totalFiltrosAtivos = contarFiltrosMapaAtivos(filtrosMapaInsights)
   const subtituloRankings =
@@ -1079,6 +1182,9 @@ export function VisaoGeralMapaBidFrete({
   const [mapaModo, setMapaModo] = useState<'bids' | 'transit'>('bids')
   const [vista, setVista] = useState<'globo' | 'mapa'>(vistaInicialMapa)
   const [painelFiltrosMapaExpandido, setPainelFiltrosMapaExpandido] = useState(true)
+  const [secoesFiltroMapaColapsadas, setSecoesFiltroMapaColapsadas] = useState<
+    Set<SecaoFiltroMapaInsightsId>
+  >(() => new Set(SECOES_FILTRO_MAPA_INSIGHTS))
   const [rotasAnimacaoVisiveis, setRotasAnimacaoVisiveis] = useState(true)
   const rotasAnimacaoVisiveisRef = useRef(true)
 
@@ -2343,6 +2449,46 @@ export function VisaoGeralMapaBidFrete({
     )
   }
 
+  function renderListaLocaisFiltroMapa(
+    terminais: MapPinBidFrete[],
+    selecionados: ReadonlySet<string>,
+    onAlternar: (codigoTerminal: string) => void,
+    mensagemVazia: string,
+  ) {
+    if (terminais.length === 0) {
+      return (
+        <p className="bfd-map-filtros-panel__lista-vazia">{mensagemVazia}</p>
+      )
+    }
+
+    return (
+      <div className="bfd-map-filtros-panel__local-lista">
+        {terminais.map((terminal) => {
+          const ativo = selecionados.has(terminal.portCode)
+          return (
+            <button
+              key={terminal.portCode}
+              type="button"
+              className={`bfd-map-filtros-panel__local-item ${ativo ? 'is-active' : ''}`}
+              aria-pressed={ativo}
+              title={`${terminal.label} (${terminal.portCode})`}
+              onClick={() => onAlternar(terminal.portCode)}
+            >
+              <span className="bfd-map-filtros-panel__local-flag" aria-hidden>
+                {terminal.flag}
+              </span>
+              <span className="bfd-map-filtros-panel__local-texto">
+                <span className="bfd-map-filtros-panel__local-nome">{terminal.label}</span>
+                <span className="bfd-map-filtros-panel__local-codigo">{terminal.portCode}</span>
+              </span>
+              {ativo ? <Check size={14} weight="bold" className="bfd-map-filtros-panel__check" /> : null}
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
   function renderPainelFiltrosMapaRecolhido() {
     const filtrosOperacao = FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.filter((f) => f.grupo === 'operacao')
     const filtrosModal = FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.filter((f) => f.grupo === 'modal')
@@ -2436,9 +2582,35 @@ export function VisaoGeralMapaBidFrete({
     )
   }
 
+  function alternarSecaoFiltroMapa(id: SecaoFiltroMapaInsightsId) {
+    setSecoesFiltroMapaColapsadas((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function alternarTodasSecoesFiltroMapa() {
+    setSecoesFiltroMapaColapsadas((prev) =>
+      prev.size === SECOES_FILTRO_MAPA_INSIGHTS.length
+        ? new Set()
+        : new Set(SECOES_FILTRO_MAPA_INSIGHTS),
+    )
+  }
+
   function renderPainelFiltrosMapaInsights() {
     const filtrosOperacao = FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.filter((f) => f.grupo === 'operacao')
     const filtrosModal = FILTROS_OPERACAO_MODAL_MAPA_INSIGHTS.filter((f) => f.grupo === 'modal')
+    const operacaoAtivos = filtrosOperacao.filter((f) =>
+      filtrosMapaInsights.operacaoModal.has(f.id),
+    ).length
+    const modalAtivos = filtrosModal.filter((f) => filtrosMapaInsights.operacaoModal.has(f.id)).length
+    const origemAtivos = filtrosMapaInsights.codigos_origem.size
+    const destinoAtivos = filtrosMapaInsights.codigos_destino.size
+    const statusAtivos = filtrosMapaInsights.status.size
+    const todasSecoesFiltroColapsadas =
+      secoesFiltroMapaColapsadas.size === SECOES_FILTRO_MAPA_INSIGHTS.length
 
     return (
       <div
@@ -2447,7 +2619,7 @@ export function VisaoGeralMapaBidFrete({
         {painelFiltrosMapaExpandido ? (
         <aside
           id="bfd-map-filtros-panel-conteudo"
-          className="bfd-map-filtros-panel"
+          className="bfd-map-filtros-panel bfd-map-filtros-panel--acordeao"
           aria-label="Filtros do mapa"
         >
         <div className="bfd-map-filtros-panel__topo">
@@ -2470,73 +2642,150 @@ export function VisaoGeralMapaBidFrete({
           ) : null}
         </div>
 
-        <div className="bfd-map-filtros-panel__secao">
-          <span className="bfd-map-filtros-panel__secao-titulo">Operação</span>
-          <div className="bfd-map-filtros-panel__operacao-grid">
-            {filtrosOperacao.map((filtro) => {
-              const ativo = filtrosMapaInsights.operacaoModal.has(filtro.id)
-              return (
-                <button
-                  key={filtro.id}
-                  type="button"
-                  className={`bfd-map-filtros-panel__operacao-card ${ativo ? 'is-active' : ''}`}
-                  aria-pressed={ativo}
-                  onClick={() => alternarFiltroOperacaoModal(filtro.id)}
-                >
-                  <span className="bfd-map-filtros-panel__operacao-icone">
+        <div className="bfd-map-filtros-panel__toolbar">
+          <button
+            type="button"
+            className="bfd-map-filtros-panel__toolbar-btn"
+            onClick={alternarTodasSecoesFiltroMapa}
+            title={
+              todasSecoesFiltroColapsadas
+                ? 'Expandir todas as seções'
+                : 'Recolher todas as seções'
+            }
+          >
+            <CaretDown
+              weight="bold"
+              size={12}
+              className={`bfd-map-filtro-secao__caret ${todasSecoesFiltroColapsadas ? 'bfd-map-filtro-secao__caret--colapsado' : ''}`}
+            />
+            {todasSecoesFiltroColapsadas ? 'Expandir todas' : 'Recolher todas'}
+          </button>
+        </div>
+
+        <div className="bfd-map-filtros-acordeao">
+          <SecaoFiltroMapaInsights
+            id="operacao"
+            titulo="Operação"
+            icone={<Export size={16} weight="duotone" />}
+            ativos={operacaoAtivos}
+            total={filtrosOperacao.length}
+            colapsada={secoesFiltroMapaColapsadas.has('operacao')}
+            onToggle={() => alternarSecaoFiltroMapa('operacao')}
+          >
+            <div className="bfd-map-filtros-panel__operacao-grid">
+              {filtrosOperacao.map((filtro) => {
+                const ativo = filtrosMapaInsights.operacaoModal.has(filtro.id)
+                return (
+                  <button
+                    key={filtro.id}
+                    type="button"
+                    className={`bfd-map-filtros-panel__operacao-card ${ativo ? 'is-active' : ''}`}
+                    aria-pressed={ativo}
+                    onClick={() => alternarFiltroOperacaoModal(filtro.id)}
+                  >
+                    <span className="bfd-map-filtros-panel__operacao-icone">
+                      {ICONE_FILTRO_OPERACAO_MODAL[filtro.id]}
+                    </span>
+                    <span className="bfd-map-filtros-panel__operacao-label">{filtro.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </SecaoFiltroMapaInsights>
+
+          <SecaoFiltroMapaInsights
+            id="modal"
+            titulo="Modal"
+            icone={<Anchor size={16} weight="duotone" />}
+            ativos={modalAtivos}
+            total={filtrosModal.length}
+            colapsada={secoesFiltroMapaColapsadas.has('modal')}
+            onToggle={() => alternarSecaoFiltroMapa('modal')}
+          >
+            <div className="bfd-map-filtros-panel__modal-grid">
+              {filtrosModal.map((filtro) => {
+                const ativo = filtrosMapaInsights.operacaoModal.has(filtro.id)
+                return (
+                  <button
+                    key={filtro.id}
+                    type="button"
+                    className={`bfd-map-filtros-panel__modal-tile tab-${filtro.id.toLowerCase()} ${ativo ? 'is-active' : ''}`}
+                    aria-pressed={ativo}
+                    onClick={() => alternarFiltroOperacaoModal(filtro.id)}
+                  >
                     {ICONE_FILTRO_OPERACAO_MODAL[filtro.id]}
-                  </span>
-                  <span className="bfd-map-filtros-panel__operacao-label">{filtro.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
+                    <span>{filtro.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </SecaoFiltroMapaInsights>
 
-        <div className="bfd-map-filtros-panel__secao">
-          <span className="bfd-map-filtros-panel__secao-titulo">Modal</span>
-          <div className="bfd-map-filtros-panel__modal-grid">
-            {filtrosModal.map((filtro) => {
-              const ativo = filtrosMapaInsights.operacaoModal.has(filtro.id)
-              return (
-                <button
-                  key={filtro.id}
-                  type="button"
-                  className={`bfd-map-filtros-panel__modal-tile tab-${filtro.id.toLowerCase()} ${ativo ? 'is-active' : ''}`}
-                  aria-pressed={ativo}
-                  onClick={() => alternarFiltroOperacaoModal(filtro.id)}
-                >
-                  {ICONE_FILTRO_OPERACAO_MODAL[filtro.id]}
-                  <span>{filtro.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
+          <SecaoFiltroMapaInsights
+            id="origem"
+            titulo="Origem"
+            icone={<MapPin size={16} weight="duotone" />}
+            ativos={origemAtivos}
+            total={terminaisOrigemMapa.length}
+            colapsada={secoesFiltroMapaColapsadas.has('origem')}
+            onToggle={() => alternarSecaoFiltroMapa('origem')}
+          >
+            {renderListaLocaisFiltroMapa(
+              terminaisOrigemMapa,
+              filtrosMapaInsights.codigos_origem,
+              alternarFiltroOrigemMapa,
+              'Nenhum terminal de origem nas rotas atuais.',
+            )}
+          </SecaoFiltroMapaInsights>
 
-        <div className="bfd-map-filtros-panel__secao bfd-map-filtros-panel__secao--status">
-          <span className="bfd-map-filtros-panel__secao-titulo">Status</span>
-          <div className="bfd-map-filtros-panel__status-lista">
-            {FILTROS_STATUS_MAPA_INSIGHTS.map((filtro) => {
-              const ativo = filtrosMapaInsights.status.has(filtro.id)
-              return (
-                <button
-                  key={filtro.id}
-                  type="button"
-                  className={`bfd-map-filtros-panel__status-item ${ativo ? 'is-active' : ''}`}
-                  aria-pressed={ativo}
-                  onClick={() => alternarFiltroStatusMapa(filtro.id)}
-                >
-                  <span
-                    className="bfd-map-filtros-panel__status-dot"
-                    style={{ backgroundColor: filtro.cor, color: filtro.cor }}
-                  />
-                  <span className="bfd-map-filtros-panel__status-label">{filtro.label}</span>
-                  {ativo ? <Check size={14} weight="bold" className="bfd-map-filtros-panel__check" /> : null}
-                </button>
-              )
-            })}
-          </div>
+          <SecaoFiltroMapaInsights
+            id="destino"
+            titulo="Destino"
+            icone={<Flag size={16} weight="duotone" />}
+            ativos={destinoAtivos}
+            total={terminaisDestinoMapa.length}
+            colapsada={secoesFiltroMapaColapsadas.has('destino')}
+            onToggle={() => alternarSecaoFiltroMapa('destino')}
+          >
+            {renderListaLocaisFiltroMapa(
+              terminaisDestinoMapa,
+              filtrosMapaInsights.codigos_destino,
+              alternarFiltroDestinoMapa,
+              'Nenhum terminal de destino nas rotas atuais.',
+            )}
+          </SecaoFiltroMapaInsights>
+
+          <SecaoFiltroMapaInsights
+            id="status"
+            titulo="Status"
+            icone={<TrafficSign size={16} weight="duotone" />}
+            ativos={statusAtivos}
+            total={FILTROS_STATUS_MAPA_INSIGHTS.length}
+            colapsada={secoesFiltroMapaColapsadas.has('status')}
+            onToggle={() => alternarSecaoFiltroMapa('status')}
+          >
+            <div className="bfd-map-filtros-panel__status-lista">
+              {FILTROS_STATUS_MAPA_INSIGHTS.map((filtro) => {
+                const ativo = filtrosMapaInsights.status.has(filtro.id)
+                return (
+                  <button
+                    key={filtro.id}
+                    type="button"
+                    className={`bfd-map-filtros-panel__status-item ${ativo ? 'is-active' : ''}`}
+                    aria-pressed={ativo}
+                    onClick={() => alternarFiltroStatusMapa(filtro.id)}
+                  >
+                    <span
+                      className="bfd-map-filtros-panel__status-dot"
+                      style={{ backgroundColor: filtro.cor, color: filtro.cor }}
+                    />
+                    <span className="bfd-map-filtros-panel__status-label">{filtro.label}</span>
+                    {ativo ? <Check size={14} weight="bold" className="bfd-map-filtros-panel__check" /> : null}
+                  </button>
+                )
+              })}
+            </div>
+          </SecaoFiltroMapaInsights>
         </div>
         </aside>
         ) : (

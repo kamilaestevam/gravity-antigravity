@@ -61,11 +61,9 @@ import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
-  BarrasMeterProdutosContratadosHub,
   GradeProdutosContratadosHub,
 } from '../components/grade-produtos-contratados-hub'
 import type { PecaPuzzleExtraHub } from '../components/puzzle-stack-produtos-gravity'
-import { PreferenciasWorkspacesPorProdutoHub } from '../components/preferencias-workspaces-por-produto-hub'
 import { CardVitrineStoreHub } from '../components/card-vitrine-store-hub'
 import '../../../../nucleo-global/Campos/campo-geral-global/src/campo-geral.css'
 import {
@@ -486,17 +484,6 @@ export function SelecionarWorkspace() {
   const contratadosAtivos = useMemo(
     () => produtosContratados.filter(p => p.is_active),
     [produtosContratados],
-  )
-
-  const produtosContratadosHubLinha = useMemo(
-    () =>
-      contratadosAtivos.map((p) => ({
-        product_key: p.product_key,
-        nome: PRODUCT_NAME_KEYS[p.product_key]
-          ? t(PRODUCT_NAME_KEYS[p.product_key])
-          : p.nome,
-      })),
-    [contratadosAtivos, t],
   )
 
   const bidFreteContratadoAtivo = useMemo(
@@ -1328,39 +1315,7 @@ export function SelecionarWorkspace() {
                   className="sw-hub-panel sw-hub-panel--produtos"
                   aria-label={t('sw.produtos_contratados', 'Seus Produtos Gravity')}
                 >
-                  <div className="sw-hub-prod-head">
-                    <div className="sw-hub-prod-head-left">
-                      <div className="sw-hub-panel-label">
-                        {t('sw.produtos_contratados', 'Seus Produtos Gravity')}
-                      </div>
-                      <p className="sw-hub-store-desc">
-                        {t('sw.produtos_contratados_desc')}
-                      </p>
-                    </div>
-                    <div className="sw-hub-prod-head-right">
-                      <button
-                        type="button"
-                        className="sw-hub-link-pill"
-                        onClick={() => navigate('/store')}
-                      >
-                        <ShoppingBagOpen size={13} weight="duotone" aria-hidden />
-                        {t('sw.ver_catalogo', 'Gravity Store')}
-                        <ArrowRight size={12} weight="bold" className="sw-hub-link-pill__arrow" aria-hidden />
-                      </button>
-                      <BarrasMeterProdutosContratadosHub
-                        catalogo={catalogoProdutos}
-                        produtosContratados={produtosContratados.map(p => ({
-                          product_key: p.product_key,
-                          is_active: p.is_active,
-                          nome: PRODUCT_NAME_KEYS[p.product_key]
-                            ? t(PRODUCT_NAME_KEYS[p.product_key])
-                            : p.nome,
-                        }))}
-                      />
-                    </div>
-                  </div>
                   <GradeProdutosContratadosHub
-                    rotuloNoCabecalho
                     catalogo={catalogoProdutos}
                     produtosContratados={produtosContratados.map(p => ({
                       product_key: p.product_key,
@@ -1373,33 +1328,6 @@ export function SelecionarWorkspace() {
                     onIrStore={() => navigate('/store')}
                     onAbrirProdutoContratado={abrirProdutoContratadoHub}
                     pecasExtras={pecasExtrasHub}
-                  />
-                </section>
-
-                <section className="sw-hub-panel sw-hub-panel--ws" aria-label={t('sw.secao_workspaces', 'Workspaces')}>
-                  <div className="sw-hub-panel-label">{t('sw.secao_workspaces', 'Workspaces')}</div>
-                  <p className="sw-ws-por-produto-intro">
-                    {t(
-                      'sw.ws_pref_intro',
-                      'Preferência de filiais por produto — o que você define aqui é o que cada módulo usa ao abrir',
-                    )}
-                  </p>
-
-                  <PreferenciasWorkspacesPorProdutoHub
-                    produtos={produtosContratadosHubLinha}
-                    workspaces={workspaces}
-                    escoposPorProduto={escoposPorProduto}
-                    idOrganizacao={idOrganizacao}
-                    idUsuario={idUsuarioPrisma}
-                    getToken={getToken}
-                    onEscopoProdutoChange={(productKey, ids) => {
-                      setEscoposPorProduto(prev => ({ ...prev, [productKey]: ids }))
-                    }}
-                    onNotificacao={addNotification}
-                    getIconeProduto={getProdutoIcon}
-                    podeCriarWorkspace={podeMutarConfigurador(dbRole)}
-                    onCriarWorkspace={handleCriarWorkspace}
-                    t={(key, fallback) => t(key, fallback ?? key)}
                   />
                 </section>
               </div>

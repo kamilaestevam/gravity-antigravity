@@ -111,60 +111,34 @@
 }
 
 /*
- * SSOT — paridade de altura faixa superior HUB (Líder/Coordenador, 2026-06)
- * Seus Produtos Gravity | Workspaces: mesma altura fixa (--sw-hub-faixa-paridade-h).
- * Operações em andamento (sw-hub-row-ops) logo abaixo da faixa superior; Store + Gabi (sw-hub-row-gabi) na faixa inferior.
+ * Faixa superior HUB — Produtos Gravity em largura total (paridade Store).
  */
 .sw-hub-row-top {
-  /* ~cabeçalho + puzzle 72px (scale 0.8) / 3 linhas workspace — paridade protótipo Store */
-  --sw-hub-faixa-paridade-h: 228px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
   margin-bottom: 1rem;
   align-items: stretch;
 }
 
-.sw-hub-row-top > .sw-hub-panel--produtos,
-.sw-hub-row-top > .sw-hub-panel--ws {
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  min-height: var(--sw-hub-faixa-paridade-h);
-  height: var(--sw-hub-faixa-paridade-h);
-  max-height: var(--sw-hub-faixa-paridade-h);
-  overflow: hidden;
-}
-
 .sw-hub-row-top > .sw-hub-panel--produtos {
+  display: block;
+  box-sizing: border-box;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  overflow: visible;
   min-width: 0;
-}
-
-.sw-hub-row-top > .sw-hub-panel--ws {
-  min-width: 0;
-}
-
-@media (max-width: 1200px) {
-  .sw-hub-row-top {
-    grid-template-columns: 1fr;
-  }
-
-  .sw-hub-row-top > .sw-hub-panel--produtos,
-  .sw-hub-row-top > .sw-hub-panel--ws {
-    height: auto;
-    max-height: none;
-    min-height: var(--sw-hub-faixa-paridade-h);
-    overflow: visible;
-  }
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
 .sw-hub-panel--produtos > :last-child {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex: none;
+  display: block;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .sw-hub-panel--produtos .sw-hub-prod-vazio {
@@ -715,46 +689,39 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 .sw-hub-panel--produtos {
   container-type: inline-size;
   container-name: hub-produtos;
+  --hub-puzzle-fill-interno: rgba(16, 24, 40, 0.96);
+  --hub-puzzle-fill-disponivel: rgba(12, 18, 32, 0.94);
+  --gs-piece-scale: 1;
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-contratados {
-  display: flex;
-  flex-direction: column;
+.sw-hub-panel--produtos .gs-stack--hub-paridade-store {
   background: transparent;
   border: none;
   padding: 0;
   margin: 0;
-  margin-bottom: 0;
-  flex: 1;
-  min-height: 0;
-  justify-content: center;
 }
 
-.sw-hub-prod-head-meter.gs-stack__meter {
-  gap: 0.375rem;
-  align-self: stretch;
-  align-items: flex-start;
-  margin-top: 3px;
+.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__head {
+  margin-bottom: 0.75rem;
 }
 
-.sw-hub-prod-head-meter .gs-stack__meter-label {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--hub-proto-muted, var(--sw-text-3));
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Scroll horizontal — peças centralizadas verticalmente no card */
-.sw-hub-panel--produtos .gs-stack--hub-contratados .gs-stack__pieces-scroll {
-  flex: 1;
+.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__head-actions {
   display: flex;
-  align-items: center;
-  min-height: 0;
-  margin-top: 0;
-  padding: 0 4px;
-  overflow-x: auto;
-  overflow-y: visible;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__lanes {
+  padding: 0;
+}
+
+.sw-hub-panel--produtos .gs-stack--hub-contratados {
+  display: block;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-contratados .gs-stack__pieces {
@@ -762,38 +729,92 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   align-items: center;
   gap: 0;
   min-width: min-content;
+  position: relative;
 }
 
-/* Grudados: compensa folga do scale(0.8) + aba puzzle (18px × scale) */
 .sw-hub-panel--produtos .gs-stack--hub-contratados .gs-piece--has-blank {
-  margin-left: calc(
-    -1 * (138px * (1 - var(--gs-piece-scale, 0.8)) + 18px * var(--gs-piece-scale, 0.8))
-  );
+  margin-left: -18px;
 }
 
 .sw-hub-panel--produtos .gs-piece {
   cursor: pointer;
+  filter: none;
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__svg {
+  filter: none;
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-contratados .gs-piece--soon {
   cursor: default;
 }
 
-.sw-hub-panel--produtos .gs-piece__acesso {
+/* Centralização óptica: stack no centro da área plana do puzzle */
+.sw-hub-panel--produtos .gs-piece__body {
+  position: relative;
+  width: 120px;
+  height: 90px;
+  padding: 0 !important;
+  display: block;
+}
+
+.sw-hub-panel--produtos .gs-piece__stack {
+  position: absolute;
+  top: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.12rem;
-  max-width: 88px;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 92px;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
-.sw-hub-panel--produtos .gs-piece__acesso .gs-piece__name {
-  max-width: 88px;
+.sw-hub-panel--produtos .gs-piece__body:not(.gs-piece__body--indent) .gs-piece__stack {
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.sw-hub-panel--produtos .gs-piece__acesso svg {
+.sw-hub-panel--produtos .gs-piece__body--indent .gs-piece__stack {
+  left: calc(18px + (120px - 18px) / 2);
+  transform: translate(-50%, -50%);
+}
+
+.sw-hub-panel--produtos .gs-piece__icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
   flex-shrink: 0;
-  opacity: 0.9;
+  pointer-events: none;
+}
+
+.sw-hub-panel--produtos .gs-piece__icon svg {
+  width: 22px !important;
+  height: 22px !important;
+  max-width: 22px;
+  max-height: 22px;
+  display: block;
+}
+
+.sw-hub-panel--produtos .gs-piece__name {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  width: 100%;
+  max-width: 92px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.sw-hub-panel--produtos .gs-piece:hover .gs-piece__icon {
+  transform: none;
 }
 
 .sw-hub-prod-vazio {

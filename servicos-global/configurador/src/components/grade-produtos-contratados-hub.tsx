@@ -4,7 +4,8 @@
 
 import type { TFunction } from 'i18next'
 import React, { useMemo } from 'react'
-import { Package } from '@phosphor-icons/react'
+import { ArrowRight, Package, ShoppingBagOpen } from '@phosphor-icons/react'
+import { StorePuzzleCarousel } from './store-puzzle-carousel'
 import {
   BarrasMeterPuzzleStackProdutos,
   pecasPuzzleStackProdutosGravity,
@@ -13,6 +14,7 @@ import {
 } from './puzzle-stack-produtos-gravity'
 import {
   filtrarCatalogoProdutosGravityStore,
+  rotuloMeterStackProdutos,
   slugsPuzzleStackProdutosGravity,
   type CatalogoProdutoGravityMin,
   type AssinaturaProdutoGravityMin,
@@ -37,8 +39,6 @@ export interface GradeProdutosContratadosHubProps {
   produtosContratados: ProdutoContratadoHubItem[]
   t: TFunction
   onIrStore?: () => void
-  /** Contador exibido abaixo do título do painel (não duplicar no stack). */
-  rotuloNoCabecalho?: boolean
   /** HUB: sessão de workspace + navegação direta ao módulo contratado. */
   onAbrirProdutoContratado?: (slug: string, rota: string) => void
   /** HUB: peça extra visão fornecedor BID (perm `visao_fornecedor:cotar`). */
@@ -50,71 +50,9 @@ export function GradeProdutosContratadosHub({
   produtosContratados,
   t,
   onIrStore,
-  rotuloNoCabecalho = false,
   onAbrirProdutoContratado,
   pecasExtras = [],
 }: GradeProdutosContratadosHubProps) {
-  const catalogoStore = useMemo(
-    () => filtrarCatalogoProdutosGravityStore(catalogo),
-    [catalogo],
-  )
-
-  const catalogoMin: CatalogoProdutoGravityMin[] = useMemo(
-    () => catalogoStore.map(p => ({ slug: p.slug, name: p.name, status: p.status })),
-    [catalogoStore],
-  )
-
-  const assinaturas: AssinaturaProdutoGravityMin[] = useMemo(
-    () =>
-      produtosContratados.map(p => ({
-        product_key: p.product_key,
-        is_active: p.is_active,
-      })),
-    [produtosContratados],
-  )
-
-  const temStack = slugsPuzzleStackProdutosGravity(catalogoMin).length > 0
-  const temExtras = pecasExtras.length > 0
-
-  if (!temStack && !temExtras) {
-    return (
-      <div className="sw-hub-prod-vazio">
-        <Package weight="duotone" size={32} color="var(--sw-text-2)" />
-        <p>{t('sw.sem_produtos_contratados', 'Nenhum produto ativo neste workspace.')}</p>
-        {onIrStore && (
-          <button type="button" className="sw-hub-prod-vazio-link" onClick={onIrStore}>
-            {t('sw.ir_store_ativar', 'Ativar na Gravity Store')} →
-          </button>
-        )}
-      </div>
-    )
-  }
-
-  return (
-    <PuzzleStackProdutosGravity
-      catalogo={catalogoMin}
-      assinaturas={assinaturas}
-      t={t}
-      escala="full"
-      rotuloAbaixoTitulo={rotuloNoCabecalho}
-      ocultarMeterNoStack={rotuloNoCabecalho}
-      onAbrirProdutoContratado={onAbrirProdutoContratado}
-      pecasExtras={pecasExtras}
-      className="gs-stack--hub-contratados"
-    />
-  )
-}
-
-export interface BarrasMeterProdutosContratadosHubProps {
-  catalogo: ProdutoCatalogoHubItem[]
-  produtosContratados: ProdutoContratadoHubItem[]
-}
-
-/** Barrinhas de progresso do puzzle no cabeçalho do painel. */
-export function BarrasMeterProdutosContratadosHub({
-  catalogo,
-  produtosContratados,
-}: BarrasMeterProdutosContratadosHubProps) {
   const catalogoStore = useMemo(
     () => filtrarCatalogoProdutosGravityStore(catalogo),
     [catalogo],
@@ -139,7 +77,65 @@ export function BarrasMeterProdutosContratadosHub({
     [catalogoMin, assinaturas],
   )
 
+  const temStack = slugsPuzzleStackProdutosGravity(catalogoMin).length > 0
+  const temExtras = pecasExtras.length > 0
+  const ownedNoStack = pecas.filter(p => p.status === 'owned').length
+  const totalStack = pecas.length
+
+  if (!temStack && !temExtras) {
+    return (
+      <div className="sw-hub-prod-vazio">
+        <Package weight="duotone" size={32} color="var(--sw-text-2)" />
+        <p>{t('sw.sem_produtos_contratados', 'Nenhum produto ativo neste workspace.')}</p>
+        {onIrStore && (
+          <button type="button" className="sw-hub-prod-vazio-link" onClick={onIrStore}>
+            {t('sw.ir_store_ativar', 'Ativar na Gravity Store')} →
+          </button>
+        )}
+      </div>
+    )
+  }
+
   return (
-    <BarrasMeterPuzzleStackProdutos pecas={pecas} className="sw-hub-prod-head-meter" />
+    <div className="gs-stack gs-stack--puzzle gs-stack--hub-paridade-store">
+      <div className="gs-stack__head">
+        <div>
+          <h2 className="gs-stack__title">
+            {t('sw.produtos_contratados', 'Seus Produtos Gravity')}
+          </h2>
+          <p className="gs-stack__sub">{t('sw.produtos_contratados_desc')}</p>
+        </div>
+        <div className="gs-stack__head-actions">
+          {onIrStore && (
+            <button type="button" className="sw-hub-link-pill" onClick={onIrStore}>
+              <ShoppingBagOpen size={13} weight="duotone" aria-hidden />
+              {t('sw.ver_catalogo', 'Gravity Store')}
+              <ArrowRight size={12} weight="bold" className="sw-hub-link-pill__arrow" aria-hidden />
+            </button>
+          )}
+          <BarrasMeterPuzzleStackProdutos pecas={pecas}>
+            <span className="gs-stack__meter-label">
+              {rotuloMeterStackProdutos(ownedNoStack, totalStack, t)}
+            </span>
+          </BarrasMeterPuzzleStackProdutos>
+        </div>
+      </div>
+
+      <div className="gs-stack__lanes">
+        <StorePuzzleCarousel className="gs-puzzle-carousel--ativos">
+          <PuzzleStackProdutosGravity
+            catalogo={catalogoMin}
+            assinaturas={assinaturas}
+            t={t}
+            escala="hub"
+            embutidoParidadeStore
+            ocultarMeterNoStack
+            onAbrirProdutoContratado={onAbrirProdutoContratado}
+            pecasExtras={pecasExtras}
+            className="gs-stack--hub-contratados"
+          />
+        </StorePuzzleCarousel>
+      </div>
+    </div>
   )
 }

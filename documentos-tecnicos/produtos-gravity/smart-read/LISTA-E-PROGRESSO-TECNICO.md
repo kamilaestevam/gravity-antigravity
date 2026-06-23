@@ -227,3 +227,24 @@ Mesmo padrão de [PAINEL-LISTA-CONTRATO.md](../pedido/PAINEL-LISTA-CONTRATO.md):
 |---------|-----------|
 | `testes/testes-unitarios/smart-read/extrair-valores-colunas-documento.test.ts` | Extração de valores para colunas dinâmicas |
 | `testes/testes-unitarios/smart-read/agregar-caminhos-campos-dados.test.ts` | Agregação de caminhos no BFF |
+| `testes/testes-unitarios/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | SSOT transações Insights (fallback degradado) |
+
+---
+
+## 12. Colunas de métricas da leitura (TASK-000317 / PR #409)
+
+Colunas agregadas **por leitura** (não são campos extraídos de um documento específico). Visíveis por padrão em `COLUNAS_PADRAO_LEITURA_SMART_READ` (`colunas-lista-leitura-smart-read.tsx`).
+
+| Coluna | Campo `TransacaoLeitura` | Origem |
+|--------|--------------------------|--------|
+| Documentos | `total_documentos` | BFF / snapshot |
+| Campos extraídos | `total_campos` | BFF / snapshot |
+| Campos corretos | `campos_corretos` | BFF / snapshot |
+| Campos errados | `campos_errados` | BFF / snapshot |
+| Média de acertos | `media_acertos` | BFF / snapshot |
+| Tempo extração (IA) | `tempo_extracao_ia_segundos` | Legado / snapshot |
+| Tempo processo total | `tempo_processo_total_segundos` | Legado / snapshot |
+| Saving (horas) | `saving_total_minutos` | `metricas-transacao-leitura-smart-read.ts` (SSOT tempos §INSIGHTS) |
+| Saving (valor) | `saving_total_brl` | Idem + `PARAMETROS_FINANCEIROS_SMART_READ` |
+
+Métricas de saving na lista usam o mesmo SSOT de tempos que Insights (`shared/dados-base-produto-tempo-smart-read.ts`). Ordem padrão da lista: expandir tudo + cursor somente leitura (PR #409).

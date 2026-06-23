@@ -106,4 +106,6 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | TASK-000306 | Ocultar abas Dashboard e Kanban do seletor (mantidas só Insights e Lista) |
 | TASK-000318 | Snapshot de leitura no Postgres Gravity (`snapshot_leitura_smart_read`) — ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) |
 | TASK-000303 | Dashboard Insights (KPIs, savings, rankings) — ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) |
+| **PR #409** (merge 2026-06-23) | Insights: modal **Base de cálculo** (tempos do estudo + observações documento médio), KPI Saving em Erros = contagem de campos, fallback degradado, cadeia GET snapshot→legado→progresso — ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) §5–6 e [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) §4.6 |
+| **TASK-000317** / PR #409 | Lista: colunas de **métricas da leitura** (documentos, campos, saving, tempos) — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §12 |
 | Refatoração Insights | Fonte única acerto/erro por edição do usuário; emissor responsável por tipo de documento; `dados_original` no contrato bilateral |

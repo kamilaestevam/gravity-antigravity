@@ -2,6 +2,13 @@
  * Detecta divergência entre snapshot da cotação e Cadastros (mapa + validação de gravação).
  */
 
+import {
+  ehCodigoUnlocode,
+  paisDeCodigoUnlocode,
+} from './resolver-cadastro-rota-importacao-bid-frete-internacional'
+
+const REGEX_ISO_ALPHA2 = /^[A-Z]{2}$/
+
 export interface LocalCadastrosResolvido {
   codigo: string
   nome: string
@@ -10,6 +17,22 @@ export interface LocalCadastrosResolvido {
 
 function trim(val: string | null | undefined): string {
   return (val ?? '').trim()
+}
+
+/** Normaliza país para ISO alpha-2 quando possível — evita falso positivo `Brasil` vs `BR`. */
+export function normalizarPaisIsoParaComparacao(
+  paisBruto: string,
+  codigoTerminal: string,
+): string | null {
+  const pais = trim(paisBruto).toUpperCase()
+  const codigo = trim(codigoTerminal).toUpperCase()
+
+  if (REGEX_ISO_ALPHA2.test(pais)) return pais
+  if (ehCodigoUnlocode(codigo)) {
+    const inferido = trim(paisDeCodigoUnlocode(codigo)).toUpperCase()
+    if (REGEX_ISO_ALPHA2.test(inferido)) return inferido
+  }
+  return null
 }
 
 function normalizarTextoComparacao(valor: string): string {
@@ -59,11 +82,11 @@ export function montarAlertaDivergenciaCadastrosMapa(opcoes: {
   paisCadastros: string
 }): string | null {
   const alertas: string[] = []
-  const paisCotacao = trim(opcoes.paisCotacao).toUpperCase()
-  const paisCadastros = trim(opcoes.paisCadastros).toUpperCase()
+  const isoCotacao = normalizarPaisIsoParaComparacao(opcoes.paisCotacao, opcoes.codigo)
+  const isoCadastros = normalizarPaisIsoParaComparacao(opcoes.paisCadastros, opcoes.codigo)
 
-  if (paisCotacao && paisCadastros && paisCotacao !== paisCadastros) {
-    alertas.push(`País gravado (${paisCotacao}) difere do Cadastros (${paisCadastros})`)
+  if (isoCotacao && isoCadastros && isoCotacao !== isoCadastros) {
+    alertas.push(`País gravado (${isoCotacao}) difere do Cadastros (${isoCadastros})`)
   }
 
   const nomeCotacao = limparNomeTerminalParaComparacao(opcoes.nomeCotacao, opcoes.codigo)

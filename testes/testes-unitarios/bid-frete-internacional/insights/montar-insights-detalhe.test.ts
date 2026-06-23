@@ -85,4 +85,46 @@ describe('mapearCotacaoInsightsDetalhe', () => {
     expect(dto.propostas[0]?.fornecedor).toBe('Carrier A')
     expect(dto.historico.some(h => h.texto.includes('Cotação criada'))).toBe(true)
   })
+
+  it('expõe data do primeiro disparo enviado', () => {
+    const dto = mapearCotacaoInsightsDetalhe({
+      id_cotacao_bid_frete_internacional: 'c2',
+      numero_cotacao_bid_frete_internacional: 'COT-002',
+      status_cotacao_bid_frete_internacional: 'ENVIADA_FORNECEDORES',
+      origem_nome_cotacao_bid_frete_internacional: 'Shanghai',
+      origem_codigo_cotacao_bid_frete_internacional: 'CNSHA',
+      destino_nome_cotacao_bid_frete_internacional: 'Santos',
+      destino_codigo_cotacao_bid_frete_internacional: 'BRSSZ',
+      descricao_mercadoria_cotacao_bid_frete_internacional: 'Peças',
+      ncm_cotacao_bid_frete_internacional: null,
+      quantidade_volume_cotacao_bid_frete_internacional: 1,
+      peso_kg_cotacao_bid_frete_internacional: null,
+      cubagem_m3_cotacao_bid_frete_internacional: null,
+      incoterm_cotacao_bid_frete_internacional: 'FOB',
+      modal_cotacao_bid_frete_internacional: 'MARITIMO',
+      modalidade_cotacao_bid_frete_internacional: 'FCL',
+      valor_meta_cotacao_bid_frete_internacional: null,
+      moeda_meta_cotacao_bid_frete_internacional: null,
+      data_criacao_cotacao_bid_frete_internacional: new Date('2026-06-01T10:00:00Z'),
+      data_limite_resposta_cotacao_bid_frete_internacional: null,
+      data_aprovacao_cotacao_bid_frete_internacional: null,
+      propostas: [],
+      disparo_cotacao_bid_frete_internacional: [
+        {
+          data_envio_disparo_cotacao_bid_frete_internacional: new Date('2026-06-03T08:00:00Z'),
+          data_resposta_disparo_cotacao_bid_frete_internacional: null,
+          fornecedor: { nome_fornecedor_bid_frete_internacional: 'Carrier B' },
+        },
+        {
+          data_envio_disparo_cotacao_bid_frete_internacional: new Date('2026-06-02T08:00:00Z'),
+          data_resposta_disparo_cotacao_bid_frete_internacional: null,
+          fornecedor: { nome_fornecedor_bid_frete_internacional: 'Carrier A' },
+        },
+      ],
+    })
+
+    expect(dto.data_envio_disparo_cotacao_bid_frete_internacional).toBe(
+      new Date('2026-06-02T08:00:00Z').toISOString(),
+    )
+  })
 })

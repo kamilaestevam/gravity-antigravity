@@ -20,6 +20,7 @@ import { relancarSeSchemaDrift } from '../lib/prisma-erro-schema.js'
 import { clausulaFiltroWorkspaceBidFrete } from '../shared/workspace-filtro-bid-frete-internacional.js'
 import { assertWorkspacesAutorizadosNoRequest } from '../shared/validar-multi-workspace-bid-frete-internacional.js'
 import { prepararCamposRotaCotacaoPersistencia } from '../lib/rota-cotacao-bid-frete-internacional.js'
+import { carregarContextoCatalogoRotaBidFreteInternacional } from '../lib/carregar-contexto-catalogo-rota-bid-frete-internacional.js'
 import { validarRotaCotacaoContraCadastros } from '../lib/validar-rota-cadastros-cotacao-bid-frete-internacional.js'
 
 const router = Router()
@@ -177,17 +178,20 @@ function refinamentoRota(data: DadosCotacaoBase, ctx: z.RefinementCtx): void {
   }
 }
 
-async function assertRotaConsistenteCadastros(
+async function prepararRotaComValidacaoCadastros(
   dados: DadosCotacaoBase,
   idOrganizacao: string,
-): Promise<void> {
-  const erros = await validarRotaCotacaoContraCadastros(dados, idOrganizacao)
-  if (erros.length === 0) return
-  throw new AppError(
-    `Dados invalidos: ${erros.map((e) => `[${e.path}] ${e.message}`).join('; ')}`,
-    400,
-    'VALIDATION_ERROR',
-  )
+): Promise<ReturnType<typeof prepararCamposRotaCotacaoPersistencia>> {
+  const ctx = await carregarContextoCatalogoRotaBidFreteInternacional(idOrganizacao)
+  const erros = await validarRotaCotacaoContraCadastros(dados, idOrganizacao, ctx)
+  if (erros.length > 0) {
+    throw new AppError(
+      `Dados invalidos: ${erros.map((e) => `[${e.path}] ${e.message}`).join('; ')}`,
+      400,
+      'VALIDATION_ERROR',
+    )
+  }
+  return prepararCamposRotaCotacaoPersistencia(dados, ctx)
 }
 
 function assertRefinamentosCotacaoPatch(
@@ -314,8 +318,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
     const { fornecedor_ids, disparar_ao_criar, canais_disparo, emails_por_fornecedor, id_bid_bid_frete_internacional, ...cotacaoData } = parsed.data
     const { data_limite_resposta_cotacao_bid_frete_internacional: dataLimiteIso, ...camposCotacao } = cotacaoData
-    await assertRotaConsistenteCadastros(camposCotacao, tenantId)
-    const camposPersistencia = prepararCamposRotaCotacaoPersistencia(camposCotacao)
+    const camposPersistencia = await prepararRotaComValidacaoCadastros(camposCotacao, tenantId)
 
     const cotacao = await (req.prisma as any).cotacaoBidFreteInternacional.create({
       data: {
@@ -593,10 +596,10 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
     assertRefinamentosCotacaoPatch(merged as DadosCotacaoBase, parsed.data as Record<string, unknown>)
     const tenantId = req.tenantId
     if (!tenantId) throw new AppError('x-id-organizacao obrigatorio', 401, 'UNAUTHORIZED')
-    if (corpoPatchTocaCampo(parsed.data as Record<string, unknown>, CAMPOS_ROTA_COTACAO)) {
-      await assertRotaConsistenteCadastros(merged as DadosCotacaoBase, tenantId)
-    }
-    const camposPersistencia = prepararCamposRotaCotacaoPersistencia(merged)
+    const tocaRota = corpoPatchTocaCampo(parsed.data as Record<string, unknown>, CAMPOS_ROTA_COTACAO)
+    const camposPersistencia = tocaRota
+      ? await prepararRotaComValidacaoCadastros(merged as DadosCotacaoBase, tenantId)
+      : prepararCamposRotaCotacaoPersistencia(merged)
     const data: Record<string, unknown> = { ...parsed.data, ...camposPersistencia }
 
     if (parsed.data.eh_carga_perigosa_cotacao_bid_frete_internacional === false) {

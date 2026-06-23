@@ -19,8 +19,8 @@ const STORAGE_KEY = 'bid-frete:dashboard-top-kpi-status'
 const SYNC_EVENT = 'bid-frete:dashboard-top-kpi-updated'
 
 const DEFAULT_BY_WIDGET: Record<BidFreteDashboardTopKpiWidgetId, BidFreteDashboardTopKpiStatusSlug> = {
-  kpi_cotacoes_andamento: 'EM_COTACAO',
-  kpi_cotacoes_aprovadas: 'APROVADA',
+  kpi_cotacoes_andamento: 'AGUARDANDO_APROVACAO',
+  kpi_cotacoes_aprovadas: 'EM_COTACAO',
   kpi_valor_em_aberto: 'AGUARDANDO_APROVACAO',
   kpi_cotacoes_expiradas: 'EXPIRADA',
 }

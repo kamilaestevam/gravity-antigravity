@@ -104,6 +104,39 @@ function ultimaPtaxMoeda(
   return { venda: venda || compra, compra: compra || venda, data }
 }
 
+/** Mapa moeda → fator para BRL (taxa aplicada do produto ou PTAX venda). */
+export function montarMapaTaxaParaBrl(
+  porMoedaPtax: Record<string, z.infer<typeof taxaMoedaDtoSchema>[]>,
+  taxasAplicadas: Record<string, number>,
+  moedasExtras: string[] = [],
+): Record<string, number> {
+  const moedas = new Set<string>([
+    'BRL',
+    ...Object.keys(taxasAplicadas),
+    ...Object.keys(porMoedaPtax),
+    ...moedasExtras,
+  ])
+  const resultado: Record<string, number> = { BRL: 1 }
+
+  for (const bruto of moedas) {
+    const codigo = bruto.trim().toUpperCase()
+    if (!codigo || codigo === 'BRL') continue
+
+    const aplicada = taxasAplicadas[codigo]
+    if (Number.isFinite(aplicada) && aplicada > 0) {
+      resultado[codigo] = aplicada
+      continue
+    }
+
+    const ptax = ultimaPtaxMoeda(porMoedaPtax, codigo)
+    if (ptax && ptax.venda > 0) {
+      resultado[codigo] = ptax.venda
+    }
+  }
+
+  return resultado
+}
+
 export function montarCotacoesPtaxInsights(
   porMoeda: Record<string, z.infer<typeof taxaMoedaDtoSchema>[]>,
   moedas: string[] = ['USD', 'EUR', 'CNY'],

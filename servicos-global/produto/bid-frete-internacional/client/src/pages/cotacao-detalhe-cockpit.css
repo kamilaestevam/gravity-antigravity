@@ -2807,6 +2807,61 @@ body.light-theme .dc-smart-insights-grid > .dc-smart-card > .dc-smart-card-head 
   padding: 0 0.15rem 0.35rem;
 }
 
+.dc-cockpit-combat .dc-prop-tabela-resumo {
+  margin: 0.65rem 0.85rem 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.dc-cockpit-combat .dc-prop-tabela-resumo-titulo {
+  margin: 0 0 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.dc-cockpit-combat .dc-prop-tabela-resumo-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  margin: 0 0 0.55rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dc-cockpit-combat .dc-prop-tabela-resumo-toggle-titulo {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.dc-cockpit-combat .dc-prop-tabela-resumo-toggle-acao {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a5b4fc;
+}
+
+.dc-cockpit-combat .dc-prop-tabela-resumo-corpo {
+  margin-bottom: 0.35rem;
+}
+
+.dc-cockpit-combat .dc-prop-tabela-resumo-corpo.brc-total--geral {
+  padding: 0.65rem 0.7rem 0.55rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(129, 140, 248, 0.18);
+}
+
 .dc-cockpit-combat .dc-prop-colocacao-grade-head {
   margin: 0 0 0.5rem;
   font-size: 0.6875rem;

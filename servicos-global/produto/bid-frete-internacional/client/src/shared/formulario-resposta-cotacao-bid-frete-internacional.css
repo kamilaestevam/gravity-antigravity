@@ -1385,6 +1385,37 @@ select.brc-input {
   color: #e2e8f0;
 }
 
+.brc-tabela-resumo-item-valores {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.12rem;
+  align-self: flex-end;
+}
+
+.brc-tabela-resumo-estimado-brl {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #94a3b8;
+  line-height: 1.25;
+}
+
+.brc-tabela-resumo-estimado-brl--destaque {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: #a5b4fc;
+}
+
+.brc-tabela-resumo-total-valores {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
 .brc-tabela-resumo-subtotais {
   margin-top: 0.15rem;
   padding-top: 0.45rem;
@@ -1410,6 +1441,9 @@ select.brc-input {
 
 .brc-tabela-resumo-subtotal-chip {
   display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
   padding: 0.15rem 0.45rem;
   border-radius: 999px;
   font-size: 0.6875rem;

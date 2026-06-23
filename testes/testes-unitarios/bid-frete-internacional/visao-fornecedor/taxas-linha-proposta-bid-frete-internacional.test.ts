@@ -10,6 +10,7 @@ import {
   agruparValorTotalPropostaResposta,
   agruparValoresPorMoedaLinhas,
   calcularComposicaoPropostaResposta,
+  montarDadosTabelaResumoPropostaBidFreteInternacional,
 } from '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/taxas-linha-proposta-bid-frete-internacional'
 type TaxaCatalogoMin = {
   id_taxa_origem_destino: string
@@ -232,5 +233,38 @@ describe('taxas-linha-proposta-bid-frete-internacional', () => {
       valor_taxa_bid_frete_internacional: 12.5,
       moeda_taxa_bid_frete_internacional: 'USD',
     })
+  })
+
+  it('montarDadosTabelaResumoPropostaBidFreteInternacional espelha composição do agente', () => {
+    const dados = montarDadosTabelaResumoPropostaBidFreteInternacional({
+      moeda_proposta_bid_frete_internacional: 'USD',
+      valor_frete_proposta_bid_frete_internacional: 1000,
+      taxas_origem: [
+        {
+          nome_taxa_origem_bid_frete_internacional: 'Pick Up Cartage',
+          valor_taxa_origem_bid_frete_internacional: 100,
+          moeda_taxa_origem_bid_frete_internacional: 'USD',
+        },
+      ],
+      taxas_destino: [
+        {
+          nome_taxa_destino_bid_frete_internacional: 'Desconsolidação',
+          valor_taxa_destino_bid_frete_internacional: 100,
+          moeda_taxa_destino_bid_frete_internacional: 'USD',
+        },
+      ],
+    })
+
+    expect(dados.linhasOrigem).toHaveLength(1)
+    expect(dados.linhasDestino).toHaveLength(1)
+    expect(dados.composicao).toEqual([
+      {
+        moeda: 'USD',
+        frete_base: 1000,
+        taxas_origem: 100,
+        taxas_destino: 100,
+        total: 1200,
+      },
+    ])
   })
 })

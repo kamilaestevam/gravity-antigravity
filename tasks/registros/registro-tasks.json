@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 313,
+  "proximo_numero": 314,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -743,6 +743,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000312.json"
+    },
+    {
+      "referencia": "TASK-000313",
+      "ordinal": 42,
+      "titulo_canonico": "BIDFRT-INSIGHTS-MEL-MAPA-GLOBAL-FILTROS-MODAIS",
+      "titulo_exibicao": "TASK-000313 | [BID Frete] Insights | MEL — Mapa global: tamanho, filtros import/export/status e modais cotações",
+      "status": "ABR",
+      "area": "BIDFRT",
+      "subarea": null,
+      "visualizacao": "INSIGHTS",
+      "tipo_entrega": "MEL",
+      "resumo": "MAPA-GLOBAL-FILTROS-MODAIS",
+      "data_criacao": "2026-06-23T12:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000313.json"
     }
   ]
 }

@@ -101,6 +101,14 @@
   width: 100%;
 }
 
+/* TooltipGlobal usa .tg-trigger inline-flex — sem largura total o logo
+   recolhido fica deslocado à esquerda no rail de 72px. */
+.mlg-sidebar.collapsed .mlg-logo-wrapper > .tg-trigger {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
 .mlg-logo-icon {
   display: flex;
   align-items: center;

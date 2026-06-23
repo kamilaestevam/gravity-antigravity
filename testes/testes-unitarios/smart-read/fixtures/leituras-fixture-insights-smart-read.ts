@@ -18,7 +18,7 @@ export const LEITURAS_FIXTURE_INSIGHTS: Record<string, Leitura> = {
         resultado_extracao: [
           {
             tipo_documento: 'Bill of Lading',
-            dados: { accuracy: 0.96, exportador: 'Asia Shipping LTDA', importador: 'Importadora Brasil SA' },
+            dados: { accuracy: 0.96, exportador: 'Asia Shipping LTDA', importador: 'Importadora Brasil SA', document: { billOfLadingNumber: 'GWW-375555' } },
           },
         ],
       },
@@ -29,7 +29,7 @@ export const LEITURAS_FIXTURE_INSIGHTS: Record<string, Leitura> = {
         resultado_extracao: [
           {
             tipo_documento: 'Invoice',
-            dados: { accuracy: 0.91, exportador: 'Shenzhen Export Co.', importador: 'Importadora Brasil SA' },
+            dados: { accuracy: 0.91, exportador: 'Shenzhen Export Co.', importador: 'Importadora Brasil SA', document: { documentNumber: 'ISA-002036' } },
           },
           {
             tipo_documento: 'Invoice',

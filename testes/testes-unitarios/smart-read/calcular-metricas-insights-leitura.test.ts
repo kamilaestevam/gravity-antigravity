@@ -5,6 +5,7 @@ import {
 } from '../../../servicos-global/produto/smart-read/client/src/pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read.ts'
 import { LEITURAS_FIXTURE_INSIGHTS } from './fixtures/leituras-fixture-insights-smart-read.ts'
 import type { TransacaoLeitura } from '../../../servicos-global/produto/smart-read/client/src/shared/schemas.ts'
+import { metricasTransacaoLeituraVazias } from '../../../servicos-global/produto/smart-read/shared/metricas-transacao-leitura-smart-read.ts'
 
 const transacoes: TransacaoLeitura[] = [
   {
@@ -17,6 +18,7 @@ const transacoes: TransacaoLeitura[] = [
     origem_leitura: 'INTERFACE',
     nome_arquivo: 'pacote.pdf',
     mensagem_erro: null,
+    ...metricasTransacaoLeituraVazias(),
   },
   {
     id_leitura: 'mock-leitura-invoice-api',
@@ -28,6 +30,7 @@ const transacoes: TransacaoLeitura[] = [
     origem_leitura: 'API',
     nome_arquivo: 'invoices.zip',
     mensagem_erro: null,
+    ...metricasTransacaoLeituraVazias(),
   },
 ]
 

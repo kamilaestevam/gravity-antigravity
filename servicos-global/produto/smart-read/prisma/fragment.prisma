@@ -1,6 +1,6 @@
 // fragment.prisma — Smart Read (Gravity)
-// Persistência local do produto: progresso do wizard, preferências de UI.
-// Leituras (documento/extração) permanecem no legado (dati) — referência via id_leitura_legado_progresso_leitura_smart_read.
+// Persistência local do produto: progresso do wizard, preferências de UI, snapshot de leituras.
+// Extração bruta ainda processada no legado (dati); snapshot Gravity congela o contrato normalizado.
 //
 // REGRA: todo model DEVE ter id_organizacao e os índices obrigatórios.
 // Skill: isolamento-organizacao, schema-composition, ddd-nomenclatura
@@ -50,4 +50,41 @@ model ListaPainelUsuarioGlobal {
   @@index([id_organizacao, id_usuario])
   @@index([id_organizacao, id_usuario, id_produto_gravity])
   @@map("lista_painel_usuario_global")
+}
+
+/// Snapshot congelado da leitura após extração e/ou conferência do usuário.
+/// Fonte única Gravity para Lista e Insights — referência ao legado via id_leitura_legado.
+/// Um registro por (organização, leitura legada); re-snapshot na conferência atualiza a mesma linha.
+model SnapshotLeituraSmartRead {
+  id_snapshot_leitura_smart_read                         String   @id @default(cuid())
+  id_organizacao                                         String
+  id_produto_gravity                                     String   @default("smart-read")
+  id_usuario                                             String
+  id_workspace                                           String?
+  id_leitura_legado_snapshot_leitura_smart_read          String
+  nome_leitura_snapshot_leitura_smart_read               String?
+  status_leitura_snapshot_leitura_smart_read             String
+  origem_leitura_snapshot_leitura_smart_read             String
+  total_arquivos_snapshot_leitura_smart_read             Int      @default(0)
+  arquivos_processados_snapshot_leitura_smart_read       Int      @default(0)
+  nome_arquivo_snapshot_leitura_smart_read               String?
+  media_acertos_snapshot_leitura_smart_read              Float?
+  total_campos_snapshot_leitura_smart_read               Int      @default(0)
+  campos_corretos_snapshot_leitura_smart_read            Int      @default(0)
+  campos_errados_snapshot_leitura_smart_read             Int      @default(0)
+  data_envio_snapshot_leitura_smart_read                 DateTime?
+  mensagem_erro_snapshot_leitura_smart_read              String?
+  dados_extracao_snapshot_leitura_smart_read             Json
+  motivo_congelamento_snapshot_leitura_smart_read        String
+  data_congelamento_snapshot_leitura_smart_read          DateTime @default(now())
+  versao_contrato_snapshot_leitura_smart_read            Int      @default(1)
+  data_criacao_snapshot_leitura_smart_read               DateTime @default(now())
+  data_atualizacao_snapshot_leitura_smart_read           DateTime @updatedAt
+
+  @@unique([id_organizacao, id_leitura_legado_snapshot_leitura_smart_read])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, data_envio_snapshot_leitura_smart_read])
+  @@map("snapshot_leitura_smart_read")
 }

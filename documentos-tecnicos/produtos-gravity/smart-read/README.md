@@ -10,6 +10,7 @@
 
 | Documento | Conteúdo |
 |-----------|----------|
+| [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) | **Onde vive cada dado:** legado DATI (leituras reais) vs Postgres Gravity (snapshot, progresso, painéis) |
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor responsável, contrato BFF, rankings |
 | [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista real, layout/paginação/painéis, BFF leituras, progresso Postgres, nome do wizard |
 
@@ -103,5 +104,6 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | TASK-000308 | Lista real (BFF + progresso Postgres), link nome→retomar wizard, nome customizado (sessao.nome), recarregar lista ao fechar modal — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) |
 | TASK-000307 | Menu lateral no padrão do sistema + tela de Configurações (estado local; PR #388) |
 | TASK-000306 | Ocultar abas Dashboard e Kanban do seletor (mantidas só Insights e Lista) |
+| TASK-000318 | Snapshot de leitura no Postgres Gravity (`snapshot_leitura_smart_read`) — ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) |
 | TASK-000303 | Dashboard Insights (KPIs, savings, rankings) — ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) |
 | Refatoração Insights | Fonte única acerto/erro por edição do usuário; emissor responsável por tipo de documento; `dados_original` no contrato bilateral |

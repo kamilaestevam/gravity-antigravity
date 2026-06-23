@@ -4,6 +4,10 @@
  */
 import { z } from 'zod'
 import {
+  calcularMetricasTransacaoLeituraSmartRead,
+  metricasTransacaoLeituraVazias,
+} from '../../../shared/metricas-transacao-leitura-smart-read.js'
+import {
   LeituraSchema,
   OrigemLeituraEnum,
   StatusLeituraEnum,
@@ -21,6 +25,7 @@ export const ItemListaLeituraLegadoSchema = z.object({
   totalFiles: z.number().optional(),
   processedFiles: z.number().optional(),
   createdAt: z.string().optional(),
+  completedAt: z.string().nullable().optional(),
   averageAccuracy: z.number().optional(),
   accuracy: z.number().optional(),
   source: z.string().optional(),
@@ -63,12 +68,42 @@ function statusDeItemLista(item: ItemListaLeituraLegado): z.infer<typeof StatusL
   return leitura.status_leitura
 }
 
+function anexarMetricasTransacao(
+  base: Omit<TransacaoLeitura, keyof ReturnType<typeof metricasTransacaoLeituraVazias>>,
+  leitura: Leitura,
+  contextoTempo?: { created_at?: string | null; completed_at?: string | null },
+): TransacaoLeitura {
+  const metricas =
+    leitura.arquivos.some((arquivo) => (arquivo.resultado_extracao?.length ?? 0) > 0)
+      ? calcularMetricasTransacaoLeituraSmartRead(leitura, {
+          created_at: contextoTempo?.created_at ?? null,
+          completed_at: contextoTempo?.completed_at ?? null,
+        })
+      : {
+          ...metricasTransacaoLeituraVazias(),
+          tempo_processo_total_ms: calcularMetricasTransacaoLeituraSmartRead(leitura, {
+            created_at: contextoTempo?.created_at ?? null,
+            completed_at: contextoTempo?.completed_at ?? null,
+          }).tempo_processo_total_ms,
+        }
+
+  return TransacaoLeituraSchema.parse({
+    ...base,
+    ...metricas,
+  })
+}
+
 export function normalizarTransacaoDeLeitura(
   leitura: Leitura,
-  extras?: { data_envio?: string | null; origem_leitura?: z.infer<typeof OrigemLeituraEnum> },
+  extras?: {
+    data_envio?: string | null
+    origem_leitura?: z.infer<typeof OrigemLeituraEnum>
+    created_at?: string | null
+    completed_at?: string | null
+  },
 ): TransacaoLeitura {
   const primeiroArquivo = leitura.arquivos[0]
-  return TransacaoLeituraSchema.parse({
+  const base = {
     id_leitura: leitura.id_leitura,
     nome_leitura: leitura.nome_leitura,
     status_leitura: leitura.status_leitura,
@@ -78,6 +113,11 @@ export function normalizarTransacaoDeLeitura(
     origem_leitura: extras?.origem_leitura ?? 'INTERFACE',
     nome_arquivo: primeiroArquivo?.nome_arquivo ?? null,
     mensagem_erro: null,
+  }
+
+  return anexarMetricasTransacao(base, leitura, {
+    created_at: extras?.created_at ?? extras?.data_envio ?? null,
+    completed_at: extras?.completed_at ?? null,
   })
 }
 
@@ -91,7 +131,7 @@ export function normalizarTransacaoDeItemListaLegado(item: ItemListaLeituraLegad
         : mediaLista
       : extrairMediaAcertosLeitura(leitura)
 
-  return TransacaoLeituraSchema.parse({
+  const base = {
     id_leitura: item._id,
     nome_leitura: item.name ?? leitura.nome_leitura,
     status_leitura: statusDeItemLista(item),
@@ -101,6 +141,11 @@ export function normalizarTransacaoDeItemListaLegado(item: ItemListaLeituraLegad
     origem_leitura: mapearOrigemLeitura(item.source ?? item.origin),
     nome_arquivo: item.files?.[0]?.filename ?? leitura.arquivos[0]?.nome_arquivo ?? null,
     mensagem_erro: item.errorMessage ?? null,
+  }
+
+  return anexarMetricasTransacao(base, leitura, {
+    created_at: item.createdAt ?? null,
+    completed_at: item.completedAt ?? null,
   })
 }
 

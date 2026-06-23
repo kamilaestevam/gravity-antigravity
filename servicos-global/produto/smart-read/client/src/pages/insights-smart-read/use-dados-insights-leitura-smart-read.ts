@@ -21,16 +21,21 @@ export function useDadosInsightsLeituraSmartRead() {
 
     setCarregandoDetalhe(true)
     try {
-      const resultados: Leitura[] = []
-      for (const id of ids) {
-        try {
-          const leitura = await smartReadApi.obterLeitura(id)
-          resultados.push(leitura)
-        } catch {
-          // ignora leitura individual — insights usa amostra parcial
+      const resultados = await Promise.allSettled(ids.map((id) => smartReadApi.obterLeitura(id)))
+      const leituras: Leitura[] = []
+      const falhas: string[] = []
+      for (let i = 0; i < resultados.length; i++) {
+        const resultado = resultados[i]
+        if (resultado.status === 'fulfilled') {
+          leituras.push(resultado.value)
+        } else {
+          falhas.push(ids[i])
         }
       }
-      setLeiturasDetalhe(resultados)
+      if (falhas.length > 0) {
+        console.warn('[SmartRead Insights] detalhe indisponível para leituras', falhas)
+      }
+      setLeiturasDetalhe(leituras)
     } catch (exc) {
       setLeiturasDetalhe([])
       console.warn('[SmartRead Insights] falha ao carregar detalhes', mensagemDeExcecao(exc))

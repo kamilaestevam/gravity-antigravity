@@ -5,18 +5,31 @@ import {
 } from './catalogo-colunas-documento-smart-read'
 import {
   formatarDataLeitura,
+  formatarDuracaoMsLeitura,
   formatarPercentualLeitura,
+  formatarSavingHorasLeitura,
+  formatarSavingValorLeitura,
 } from './formatacao-leitura-smart-read'
 import type { DocumentoLeituraLista } from './montar-documentos-leitura-smart-read'
 import type { TransacaoLeitura } from './schemas'
 
-/** Colunas fixas da linha pai (leitura) — visíveis por padrão. */
+/** Colunas da linha pai (leitura) visíveis por padrão — métricas da leitura, não campos extraídos do documento. */
 export const COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ = [
   'nome_leitura',
   'status_leitura',
   'total_arquivos',
   'media_acertos',
   'data_envio',
+  'tipos_documento',
+  'numeros_documento',
+  'total_documentos',
+  'total_campos_extraidos',
+  'total_campos_corretos',
+  'total_campos_errados',
+  'tempo_extracao_ia_ms',
+  'tempo_processo_total_ms',
+  'saving_total_minutos',
+  'saving_total_brl',
 ] as const
 
 export const CHAVES_COLUNAS_PAI_LISTA_LEITURA_SMART_READ = COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ
@@ -112,6 +125,94 @@ export function criarColunasListaLeituraSmartRead(
       render: (_valor, item) => formatarDataLeitura(item.data_envio),
       findDisplay: (item) => formatarDataLeitura(item.data_envio),
     },
+    {
+      key: 'total_documentos',
+      label: 'Documentos',
+      tipo: 'numero' as GTTipo,
+      align: 'center',
+      filtravel: true,
+      sortavel: false,
+      render: (_valor, item) => item.total_documentos,
+    },
+    {
+      key: 'total_campos_extraidos',
+      label: 'Campos extraídos',
+      tipo: 'numero' as GTTipo,
+      align: 'center',
+      filtravel: true,
+      sortavel: false,
+      render: (_valor, item) => item.total_campos_extraidos,
+    },
+    {
+      key: 'total_campos_corretos',
+      label: 'Campos corretos',
+      tipo: 'numero' as GTTipo,
+      align: 'center',
+      filtravel: true,
+      sortavel: false,
+      render: (_valor, item) => item.total_campos_corretos,
+    },
+    {
+      key: 'total_campos_errados',
+      label: 'Campos errados',
+      tipo: 'numero' as GTTipo,
+      align: 'center',
+      filtravel: true,
+      sortavel: false,
+      render: (_valor, item) => item.total_campos_errados,
+    },
+    {
+      key: 'tipos_documento',
+      label: 'Tipo de documento',
+      filtravel: true,
+      sortavel: false,
+      render: (_valor, item) => item.tipos_documento ?? '—',
+      findDisplay: (item) => item.tipos_documento ?? '',
+    },
+    {
+      key: 'numeros_documento',
+      label: 'Nº documento',
+      filtravel: true,
+      sortavel: false,
+      render: () => '—',
+      findDisplay: () => '',
+    },
+    {
+      key: 'tempo_extracao_ia_ms',
+      label: 'Tempo extração (IA)',
+      align: 'center',
+      filtravel: true,
+      sortavel: false,
+      render: (_valor, item) => formatarDuracaoMsLeitura(item.tempo_extracao_ia_ms),
+      findDisplay: (item) => formatarDuracaoMsLeitura(item.tempo_extracao_ia_ms),
+    },
+    {
+      key: 'tempo_processo_total_ms',
+      label: 'Tempo processo total',
+      align: 'center',
+      filtravel: true,
+      sortavel: false,
+      render: (_valor, item) => formatarDuracaoMsLeitura(item.tempo_processo_total_ms),
+      findDisplay: (item) => formatarDuracaoMsLeitura(item.tempo_processo_total_ms),
+    },
+    {
+      key: 'saving_total_minutos',
+      label: 'Saving (horas)',
+      align: 'center',
+      filtravel: true,
+      sortavel: false,
+      render: (_valor, item) => formatarSavingHorasLeitura(item.saving_total_minutos),
+      findDisplay: (item) => formatarSavingHorasLeitura(item.saving_total_minutos),
+    },
+    {
+      key: 'saving_total_brl',
+      label: 'Saving (valor)',
+      align: 'center',
+      filtravel: true,
+      sortavel: false,
+      render: (_valor, item) => formatarSavingValorLeitura(item.saving_total_brl),
+      findDisplay: (item) => formatarSavingValorLeitura(item.saving_total_brl),
+    },
   ]
 
   return [...colunasPai, ...criarColunasCatalogoDocumento()]
@@ -151,6 +252,36 @@ export function criarMapaColunasDocumentoLeitura(
     data_envio: {
       render: (item) => formatarDataLeitura(item.data_envio),
     },
+    total_documentos: {
+      render: () => '—',
+    },
+    total_campos_extraidos: {
+      render: () => '—',
+    },
+    total_campos_corretos: {
+      render: () => '—',
+    },
+    total_campos_errados: {
+      render: () => '—',
+    },
+    tipos_documento: {
+      render: (item) => item.tipo_documento ?? '—',
+    },
+    numeros_documento: {
+      render: (item) => item.numero_documento ?? '—',
+    },
+    tempo_extracao_ia_ms: {
+      render: () => '—',
+    },
+    tempo_processo_total_ms: {
+      render: () => '—',
+    },
+    saving_total_minutos: {
+      render: () => '—',
+    },
+    saving_total_brl: {
+      render: () => '—',
+    },
     ...criarMapaColunasCatalogoDocumento(),
   }
 }
@@ -171,6 +302,26 @@ export function formatarValorExportColunaLeituraSmartRead(
       return formatarPercentualLeitura(item.media_acertos)
     case 'data_envio':
       return formatarDataLeitura(item.data_envio)
+    case 'total_documentos':
+      return String(item.total_documentos)
+    case 'total_campos_extraidos':
+      return String(item.total_campos_extraidos)
+    case 'total_campos_corretos':
+      return String(item.total_campos_corretos)
+    case 'total_campos_errados':
+      return String(item.total_campos_errados)
+    case 'tipos_documento':
+      return item.tipos_documento ?? ''
+    case 'numeros_documento':
+      return ''
+    case 'tempo_extracao_ia_ms':
+      return formatarDuracaoMsLeitura(item.tempo_extracao_ia_ms)
+    case 'tempo_processo_total_ms':
+      return formatarDuracaoMsLeitura(item.tempo_processo_total_ms)
+    case 'saving_total_minutos':
+      return formatarSavingHorasLeitura(item.saving_total_minutos)
+    case 'saving_total_brl':
+      return formatarSavingValorLeitura(item.saving_total_brl)
     default:
       return ''
   }

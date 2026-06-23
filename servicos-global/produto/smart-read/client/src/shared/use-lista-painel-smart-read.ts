@@ -68,8 +68,40 @@ function mensagemErroPersistirPainel(err: unknown): string {
 }
 
 function normalizarColunasVisiveis(colunas: string[]): string[] {
-  if (colunas.length === 0) return [...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ]
-  return colunas
+  const padrao = [...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ]
+  if (colunas.length === 0) return padrao
+
+  const legadoCincoColunas = new Set([
+    'nome_leitura',
+    'status_leitura',
+    'total_arquivos',
+    'media_acertos',
+    'data_envio',
+  ])
+  const painelSoLegado =
+    colunas.length === legadoCincoColunas.size &&
+    colunas.every((chave) => legadoCincoColunas.has(chave))
+  if (painelSoLegado) return padrao
+
+  const presentes = new Set(colunas)
+  const faltando = padrao.filter((chave) => !presentes.has(chave))
+  if (faltando.length === 0) return colunas
+
+  const merged = [...colunas]
+  for (const chave of faltando) {
+    const idxPadrao = padrao.indexOf(chave)
+    let inserirEm = merged.length
+    for (let i = idxPadrao - 1; i >= 0; i -= 1) {
+      const ancora = padrao[i]
+      const idxAncora = merged.indexOf(ancora)
+      if (idxAncora >= 0) {
+        inserirEm = idxAncora + 1
+        break
+      }
+    }
+    merged.splice(inserirEm, 0, chave)
+  }
+  return merged
 }
 
 export function useListaPainelSmartRead() {

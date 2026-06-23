@@ -6,7 +6,10 @@ import type { FiltroAtivo, FiltrosAtivosMap } from '@nucleo/tabela-virtual-globa
 import { CHAVES_COLUNAS_PAI_LISTA_LEITURA_SMART_READ } from './colunas-lista-leitura-smart-read'
 import {
   formatarDataLeitura,
+  formatarDuracaoMsLeitura,
   formatarPercentualLeitura,
+  formatarSavingHorasLeitura,
+  formatarSavingValorLeitura,
 } from './formatacao-leitura-smart-read'
 import type { TransacaoLeitura } from './schemas'
 
@@ -22,6 +25,26 @@ function valorTextoTransacao(item: TransacaoLeitura, campo: string): string {
       return formatarPercentualLeitura(item.media_acertos)
     case 'data_envio':
       return formatarDataLeitura(item.data_envio)
+    case 'total_documentos':
+      return String(item.total_documentos)
+    case 'total_campos_extraidos':
+      return String(item.total_campos_extraidos)
+    case 'total_campos_corretos':
+      return String(item.total_campos_corretos)
+    case 'total_campos_errados':
+      return String(item.total_campos_errados)
+    case 'tipos_documento':
+      return item.tipos_documento ?? ''
+    case 'numeros_documento':
+      return ''
+    case 'tempo_extracao_ia_ms':
+      return formatarDuracaoMsLeitura(item.tempo_extracao_ia_ms)
+    case 'tempo_processo_total_ms':
+      return formatarDuracaoMsLeitura(item.tempo_processo_total_ms)
+    case 'saving_total_minutos':
+      return formatarSavingHorasLeitura(item.saving_total_minutos)
+    case 'saving_total_brl':
+      return formatarSavingValorLeitura(item.saving_total_brl)
     default:
       return ''
   }

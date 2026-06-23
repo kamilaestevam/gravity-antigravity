@@ -7,6 +7,7 @@ import {
 import { extrairDocumentosInsightsDeLeituras } from '../../../servicos-global/produto/smart-read/client/src/pages/insights-smart-read/extrair-dados-documento-leitura-smart-read.ts'
 import { LEITURAS_FIXTURE_INSIGHTS } from './fixtures/leituras-fixture-insights-smart-read.ts'
 import type { TransacaoLeitura } from '../../../servicos-global/produto/smart-read/client/src/shared/schemas.ts'
+import { metricasTransacaoLeituraVazias } from '../../../servicos-global/produto/smart-read/shared/metricas-transacao-leitura-smart-read.ts'
 
 const REFERENCIA = new Date('2026-06-20T12:00:00.000Z')
 
@@ -27,6 +28,7 @@ const transacoes: TransacaoLeitura[] = [
     origem_leitura: 'INTERFACE',
     nome_arquivo: 'pacote.pdf',
     mensagem_erro: null,
+    ...metricasTransacaoLeituraVazias(),
   },
   {
     id_leitura: 'mock-leitura-invoice-api',
@@ -38,6 +40,7 @@ const transacoes: TransacaoLeitura[] = [
     origem_leitura: 'API',
     nome_arquivo: 'invoices.zip',
     mensagem_erro: null,
+    ...metricasTransacaoLeituraVazias(),
   },
 ]
 

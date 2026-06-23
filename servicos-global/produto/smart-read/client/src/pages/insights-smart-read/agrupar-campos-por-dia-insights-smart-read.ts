@@ -188,20 +188,54 @@ export function listarDatasExtracaoAmostra(
   return [...datas].sort()
 }
 
+function somarPontoDeTransacao(
+  acumulado: PontoCamposPorDiaInsights,
+  transacao: TransacaoLeitura,
+): PontoCamposPorDiaInsights {
+  const comErroLeitura = transacao.total_campos_errados > 0
+  return {
+    ...acumulado,
+    total_campos: acumulado.total_campos + transacao.total_campos_extraidos,
+    campos_corretos: acumulado.campos_corretos + transacao.total_campos_corretos,
+    campos_errados: acumulado.campos_errados + transacao.total_campos_errados,
+    documentos: acumulado.documentos + transacao.total_documentos,
+    documentos_sem_erro:
+      acumulado.documentos_sem_erro + (comErroLeitura ? 0 : transacao.total_documentos),
+    documentos_com_erro:
+      acumulado.documentos_com_erro + (comErroLeitura ? transacao.total_documentos : 0),
+  }
+}
+
 export function montarSerieCamposPorDiaInsights(
   documentos: DocumentoInsightsSmartRead[],
   transacoes: TransacaoLeitura[],
   janela: FiltroPeriodoCamposPorDiaInsights = FILTRO_PERIODO_PADRAO_CAMPOS_POR_DIA,
   granularidade: GranularidadeCamposPeriodoInsights = GRANULARIDADE_PADRAO_CAMPOS_PERIODO,
 ): PontoCamposPorDiaInsights[] {
-  const dataPorLeitura = mapaDataPorLeitura(transacoes)
   const mapaDiario = new Map<string, PontoCamposPorDiaInsights>()
 
-  for (const doc of documentos) {
-    const chaveDia = dataPorLeitura.get(doc.id_leitura)
-    if (!chaveDia) continue
-    const ponto = mapaDiario.get(chaveDia) ?? criarPontoVazioDia(chaveDia)
-    mapaDiario.set(chaveDia, somarPonto(ponto, doc))
+  if (documentos.length === 0) {
+    for (const transacao of transacoes) {
+      if (
+        transacao.status_leitura !== 'COMPLETED' &&
+        transacao.status_leitura !== 'PROCESSING'
+      ) {
+        continue
+      }
+      if (!transacao.data_envio || transacao.total_campos_extraidos <= 0) continue
+      const chaveDia = transacao.data_envio.slice(0, 10)
+      const ponto = mapaDiario.get(chaveDia) ?? criarPontoVazioDia(chaveDia)
+      mapaDiario.set(chaveDia, somarPontoDeTransacao(ponto, transacao))
+    }
+  } else {
+    const dataPorLeitura = mapaDataPorLeitura(transacoes)
+
+    for (const doc of documentos) {
+      const chaveDia = dataPorLeitura.get(doc.id_leitura)
+      if (!chaveDia) continue
+      const ponto = mapaDiario.get(chaveDia) ?? criarPontoVazioDia(chaveDia)
+      mapaDiario.set(chaveDia, somarPonto(ponto, doc))
+    }
   }
 
   const chaves = gerarChavesDiasPeriodoCamposInsights(janela)

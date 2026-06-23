@@ -21,7 +21,19 @@ describe('montarWhereInsightsDetalheBidFreteInternacional', () => {
       { status_slugs: ['AGUARDANDO_APROVACAO', 'COTACAO_RESPONDIDA'] },
     )
     expect(where.status_cotacao_bid_frete_internacional).toEqual({
-      in: ['AGUARDANDO_APROVACAO', 'COTACAO_RESPONDIDA'],
+      in: ['AGUARDANDO_APROVACAO'],
+    })
+  })
+
+  it('ignora slug custom inválido para Prisma (ex.: THALES)', () => {
+    const where = montarWhereInsightsDetalheBidFreteInternacional(
+      'aprovacao',
+      {},
+      undefined,
+      { status_slugs: ['AGUARDANDO_APROVACAO', 'THALES'] },
+    )
+    expect(where.status_cotacao_bid_frete_internacional).toEqual({
+      in: ['AGUARDANDO_APROVACAO'],
     })
   })
 

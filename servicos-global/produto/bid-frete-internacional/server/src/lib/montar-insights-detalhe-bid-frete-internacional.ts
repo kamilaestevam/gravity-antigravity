@@ -3,6 +3,7 @@
  */
 
 import {
+  filtrarSlugsStatusCotacaoPersistidosBidFreteInternacional,
   resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional,
   SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
 } from '../../../shared/kpi-insights-status-cotacao-bid-frete-internacional.js'
@@ -72,21 +73,27 @@ export function montarWhereInsightsDetalheBidFreteInternacional(
         data_limite_resposta_cotacao_bid_frete_internacional: { gte: inicioDia, lte: fimDia },
       }
     case 'resposta': {
-      const slugs = opcoes?.status_slugs?.length
+      const slugsBrutos = opcoes?.status_slugs?.length
         ? opcoes.status_slugs
         : [...SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL]
+      const slugs = filtrarSlugsStatusCotacaoPersistidosBidFreteInternacional(slugsBrutos)
       return {
         ...base,
-        status_cotacao_bid_frete_internacional: { in: slugs },
+        status_cotacao_bid_frete_internacional: {
+          in: slugs.length > 0 ? slugs : [...SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL],
+        },
       }
     }
     case 'aprovacao': {
-      const slugs = opcoes?.status_slugs?.length
+      const slugsBrutos = opcoes?.status_slugs?.length
         ? opcoes.status_slugs
         : resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional([])
+      const slugs = filtrarSlugsStatusCotacaoPersistidosBidFreteInternacional(slugsBrutos)
       return {
         ...base,
-        status_cotacao_bid_frete_internacional: { in: slugs },
+        status_cotacao_bid_frete_internacional: {
+          in: slugs.length > 0 ? slugs : ['AGUARDANDO_APROVACAO'],
+        },
       }
     }
     case 'nova':

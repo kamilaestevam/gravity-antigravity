@@ -5,7 +5,9 @@
 import { z } from 'zod'
 import {
   calcularMetricasTransacaoLeituraSmartRead,
+  estimarSavingAgregadoLeituraSmartRead,
   metricasTransacaoLeituraVazias,
+  resolverMediaAcertosTransacaoLeituraSmartRead,
 } from '../../../shared/metricas-transacao-leitura-smart-read.js'
 import {
   LeituraSchema,
@@ -28,6 +30,7 @@ export const ItemListaLeituraLegadoSchema = z.object({
   completedAt: z.string().nullable().optional(),
   averageAccuracy: z.number().optional(),
   accuracy: z.number().optional(),
+  average_accuracy: z.number().optional(),
   source: z.string().optional(),
   origin: z.string().optional(),
   errorMessage: z.string().nullable().optional(),
@@ -56,18 +59,51 @@ export function mesclarOrigemLeituraTransacao(
   return anterior === 'API' || novo === 'API' ? 'API' : novo
 }
 
+export function complementarMetricasTransacaoLista(transacao: TransacaoLeitura): TransacaoLeitura {
+  let resultado: TransacaoLeitura = {
+    ...transacao,
+    media_acertos: resolverMediaAcertosTransacaoLeituraSmartRead(transacao),
+  }
+
+  if (resultado.saving_total_minutos == null && resultado.total_documentos > 0) {
+    const saving = estimarSavingAgregadoLeituraSmartRead(
+      resultado.total_documentos,
+      resultado.total_campos_errados,
+    )
+    resultado = {
+      ...resultado,
+      saving_total_minutos: saving.saving_total_minutos,
+      saving_total_brl: saving.saving_total_brl,
+    }
+  }
+
+  return TransacaoLeituraSchema.parse(resultado)
+}
+
 export function mesclarTransacaoNaLista(
   anterior: TransacaoLeitura,
   novo: TransacaoLeitura,
 ): TransacaoLeitura {
-  return {
+  const mesclada = complementarMetricasTransacaoLista({
     ...novo,
+    total_documentos: Math.max(anterior.total_documentos, novo.total_documentos),
+    total_campos_extraidos: Math.max(anterior.total_campos_extraidos, novo.total_campos_extraidos),
+    total_campos_corretos: Math.max(anterior.total_campos_corretos, novo.total_campos_corretos),
+    total_campos_errados: Math.max(anterior.total_campos_errados, novo.total_campos_errados),
+    tipos_documento: novo.tipos_documento ?? anterior.tipos_documento,
+    numeros_documento: novo.numeros_documento ?? anterior.numeros_documento,
+    tempo_extracao_ia_ms: novo.tempo_extracao_ia_ms ?? anterior.tempo_extracao_ia_ms,
+    tempo_processo_total_ms: novo.tempo_processo_total_ms ?? anterior.tempo_processo_total_ms,
+    saving_total_minutos: novo.saving_total_minutos ?? anterior.saving_total_minutos,
+    saving_total_brl: novo.saving_total_brl ?? anterior.saving_total_brl,
     origem_leitura: mesclarOrigemLeituraTransacao(anterior.origem_leitura, novo.origem_leitura),
     nome_leitura: novo.nome_leitura || anterior.nome_leitura,
     data_envio: anterior.data_envio ?? novo.data_envio,
     mensagem_erro: novo.mensagem_erro ?? anterior.mensagem_erro,
     media_acertos: novo.media_acertos ?? anterior.media_acertos,
-  }
+  })
+
+  return complementarMetricasTransacaoLista(mesclada)
 }
 
 function extrairMediaAcertosLeitura(leitura: Leitura): number | null {
@@ -144,7 +180,7 @@ export function normalizarTransacaoDeLeitura(
 
 export function normalizarTransacaoDeItemListaLegado(item: ItemListaLeituraLegado): TransacaoLeitura {
   const leitura = normalizarLeitura(item as LeituraLegado)
-  const mediaLista = item.averageAccuracy ?? item.accuracy
+  const mediaLista = item.averageAccuracy ?? item.accuracy ?? item.average_accuracy
   const mediaNormalizada =
     typeof mediaLista === 'number'
       ? mediaLista > 1

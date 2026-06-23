@@ -541,6 +541,14 @@
 }
 
 .sr-insights-link-metodologia {
+  /* SSOT em smart-read-leituras.css — reforço quando só insights-smart-read.css carrega */
+  display: inline;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
   color: #34d399;
   font-weight: 600;
   font-size: 0.75rem;
@@ -678,15 +686,41 @@
 
 .sr-insights-metodologia-saving__tabela-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: 10px;
   border: 1px solid rgba(148, 163, 184, 0.14);
+  max-width: 100%;
 }
 
 .sr-insights-metodologia-saving--modal .sr-insights-metodologia-saving__tabela {
   width: 100%;
   font-size: 0.8125rem;
-  min-width: 36rem;
+  min-width: 0;
+  table-layout: fixed;
   border-collapse: collapse;
+}
+
+.sr-insights-metodologia-saving__th-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  line-height: 1.2;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sr-insights-metodologia-saving__tabela thead th:first-child .sr-insights-metodologia-saving__th-stack {
+  align-items: flex-start;
+}
+
+.sr-insights-metodologia-saving__th-stack-sub {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--text-muted, #64748b);
 }
 
 .sr-insights-metodologia-saving__tabela thead th {
@@ -694,17 +728,23 @@
   top: 0;
   z-index: 1;
   background: rgba(30, 41, 59, 0.98);
-  font-size: 0.6875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: var(--text-muted, #64748b);
-  padding: 0.625rem 0.75rem;
+  padding: 0.5rem 0.5rem;
   text-align: center;
+  vertical-align: bottom;
   border-bottom: 1px solid rgba(148, 163, 184, 0.18);
 }
 
 .sr-insights-metodologia-saving__tabela thead th:first-child {
   text-align: left;
+  width: 16%;
+}
+
+.sr-insights-metodologia-saving__tabela thead th:nth-child(2),
+.sr-insights-metodologia-saving__tabela thead th:nth-child(3),
+.sr-insights-metodologia-saving__tabela thead th:nth-child(4),
+.sr-insights-metodologia-saving__tabela thead th:nth-child(5) {
+  width: 21%;
 }
 
 .sr-insights-metodologia-saving__tabela tbody th {

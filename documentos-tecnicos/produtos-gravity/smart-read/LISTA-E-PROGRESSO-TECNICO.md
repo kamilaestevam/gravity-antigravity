@@ -286,11 +286,13 @@ Faixa acima das abas «Visão geral» / «Transações API». Componente: `clien
 | Ordem | Card | Valor principal | Fonte dos dados |
 |------:|------|-----------------|-----------------|
 | 1 | Leituras realizadas | Contagem total | `GET /leituras/metricas/readings` ou `paginacao.total` |
-| 2 | Performance de acertos | Média % | Média de `media_acertos` das `TransacaoLeitura` visíveis na página |
-| 3 | Recursos reduzidos | Tempo economizado | Soma de `saving_total_minutos` / `saving_total_brl` das leituras visíveis |
+| 2 | Performance de acertos | Média % | `resolverMediaAcertosTransacaoLeituraSmartRead` — `media_acertos` ou `campos_corretos ÷ campos_extraídos` |
+| 3 | Recursos reduzidos | Tempo economizado | `saving_total_*` ou `estimarSavingAgregadoLeituraSmartRead` quando o BFF só tem totais agregados |
 
 **Recursos reduzidos** reutiliza o SSOT de saving já calculado no BFF (`shared/metricas-transacao-leitura-smart-read.ts`) — mesma base dos KPIs de Insights e das colunas §12. Subtexto: custo evitado (est.) + «leituras visíveis». Tooltip: tempo, custo, campos editados na conferência, contagem de leituras com saving e link **Base de cálculo →**.
 
+**Fallback produção:** `complementarMetricasTransacaoLista` (BFF) e os cards (client) derivam `media_acertos` e saving quando o legado/snapshot traz colunas denormalizadas (`total_campos_*`, `media_acertos_snapshot`) mas o JSON de extração não inclui `accuracy`. `transacaoDeRegistroSnapshot` mescla colunas Postgres antes de recalcular.
+
 A página Lista envolve o conteúdo em `ProvedorMetodologiaSavingInsightsSmartRead` (`ListaLeituraSmartRead.tsx`) para o modal de metodologia compartilhado com Insights (`metodologia-saving-insights-smart-read.tsx`).
 
-> **Não usar** placeholder «Em breve» neste card — se nenhuma leitura visível tiver `saving_total_minutos`, exibir `—` via `formatarSavingHorasLeitura` / `formatarSavingValorLeitura`.
+> **Não usar** placeholder «Em breve» neste card — se nenhuma leitura visível tiver totais para estimar saving, exibir `—` via `formatarSavingHorasLeitura` / `formatarSavingValorLeitura`.

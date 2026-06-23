@@ -10,6 +10,10 @@ import {
   formatarSavingHorasLeitura,
   formatarSavingValorLeitura,
 } from '../shared/formatacao-leitura-smart-read'
+import {
+  estimarSavingAgregadoLeituraSmartRead,
+  resolverMediaAcertosTransacaoLeituraSmartRead,
+} from '../../../shared/metricas-transacao-leitura-smart-read'
 import type { TransacaoLeitura } from '../shared/schemas'
 import {
   usePreferenciasCardsSmartRead,
@@ -25,10 +29,28 @@ type Props = {
 
 function calcularMediaAcertos(transacoes: TransacaoLeitura[]): number | null {
   const valores = transacoes
-    .map((t) => t.media_acertos)
+    .map((t) => resolverMediaAcertosTransacaoLeituraSmartRead(t))
     .filter((v): v is number => v != null && Number.isFinite(v))
   if (valores.length === 0) return null
   return valores.reduce((acc, v) => acc + v, 0) / valores.length
+}
+
+function resolverSavingMinutosTransacao(transacao: TransacaoLeitura): number | null {
+  if (transacao.saving_total_minutos != null) return transacao.saving_total_minutos
+  if (transacao.total_documentos <= 0) return null
+  return estimarSavingAgregadoLeituraSmartRead(
+    transacao.total_documentos,
+    transacao.total_campos_errados,
+  ).saving_total_minutos
+}
+
+function resolverSavingBrlTransacao(transacao: TransacaoLeitura): number | null {
+  if (transacao.saving_total_brl != null) return transacao.saving_total_brl
+  if (transacao.total_documentos <= 0) return null
+  return estimarSavingAgregadoLeituraSmartRead(
+    transacao.total_documentos,
+    transacao.total_campos_errados,
+  ).saving_total_brl
 }
 
 function calcularSavingAgregado(transacoes: TransacaoLeitura[]): {
@@ -44,9 +66,10 @@ function calcularSavingAgregado(transacoes: TransacaoLeitura[]): {
 
   for (const transacao of transacoes) {
     camposErrados += transacao.total_campos_errados
-    if (transacao.saving_total_minutos == null) continue
-    minutos += transacao.saving_total_minutos
-    brl += transacao.saving_total_brl ?? 0
+    const minutosTransacao = resolverSavingMinutosTransacao(transacao)
+    if (minutosTransacao == null) continue
+    minutos += minutosTransacao
+    brl += resolverSavingBrlTransacao(transacao) ?? 0
     leiturasComSaving += 1
   }
 

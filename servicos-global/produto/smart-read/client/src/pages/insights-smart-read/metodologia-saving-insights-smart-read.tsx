@@ -132,10 +132,30 @@ export function ConteudoMetodologiaSavingInsightsSmartRead() {
             <thead>
               <tr>
                 <th scope="col">Tipo</th>
-                <th scope="col">Digitação manual</th>
-                <th scope="col">Digitação SR</th>
-                <th scope="col">Correção/campo manual</th>
-                <th scope="col">Correção/campo SR</th>
+                <th scope="col">
+                  <span className="sr-insights-metodologia-saving__th-stack">
+                    Digitação
+                    <span className="sr-insights-metodologia-saving__th-stack-sub">manual</span>
+                  </span>
+                </th>
+                <th scope="col">
+                  <span className="sr-insights-metodologia-saving__th-stack">
+                    Digitação
+                    <span className="sr-insights-metodologia-saving__th-stack-sub">Smart Read</span>
+                  </span>
+                </th>
+                <th scope="col">
+                  <span className="sr-insights-metodologia-saving__th-stack">
+                    Correção/campo
+                    <span className="sr-insights-metodologia-saving__th-stack-sub">manual</span>
+                  </span>
+                </th>
+                <th scope="col">
+                  <span className="sr-insights-metodologia-saving__th-stack">
+                    Correção/campo
+                    <span className="sr-insights-metodologia-saving__th-stack-sub">Smart Read</span>
+                  </span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -203,6 +223,7 @@ export function ProvedorMetodologiaSavingInsightsSmartRead({ children }: { child
         titulo="Base de cálculo"
         subtitulo="Economia estimada — manual vs Smart Read"
         tamanho="xl"
+        larguraMaxima="min(72rem, calc(100vw - 2rem))"
         botoes={[{ rotulo: 'Fechar', variante: 'secondary', ao_clicar: fechar }]}
       >
         <ConteudoMetodologiaSavingInsightsSmartRead />
@@ -214,15 +235,15 @@ export function ProvedorMetodologiaSavingInsightsSmartRead({ children }: { child
 export function LinkMetodologiaSavingInsightsSmartRead({ children }: { children: ReactNode }) {
   const contexto = useContext(MetodologiaSavingContext)
 
-  const aoClicar = (event: MouseEvent<HTMLAnchorElement>) => {
+  const aoClicar = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     event.stopPropagation()
     contexto?.abrir()
   }
 
   return (
-    <a href="#" className="sr-insights-link-metodologia" onClick={aoClicar}>
+    <button type="button" className="sr-insights-link-metodologia" onClick={aoClicar}>
       {children}
-    </a>
+    </button>
   )
 }

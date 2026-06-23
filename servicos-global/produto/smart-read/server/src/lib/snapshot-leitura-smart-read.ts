@@ -6,13 +6,14 @@ import type { PrismaClient } from '../generated/client/index.js'
 import { calcularMetricasTransacaoLeituraSmartRead } from '../../../shared/metricas-transacao-leitura-smart-read.js'
 import {
   LeituraSchema,
+  TransacaoLeituraSchema,
   type Leitura,
   type OrigemLeitura,
   type TransacaoLeitura,
 } from '../schemas/leitura-smart-read.js'
 import { extrairDadosSessaoProgressoLeitura } from '../schemas/progresso-leitura-smart-read.js'
 import { clausulaWorkspaceLeituraSmartRead } from './escopo-workspace-leitura-smart-read.js'
-import { normalizarTransacaoDeLeitura, mesclarOrigemLeituraTransacao } from './normalizar-transacao-leitura-smart-read.js'
+import { normalizarTransacaoDeLeitura, mesclarOrigemLeituraTransacao, complementarMetricasTransacaoLista } from './normalizar-transacao-leitura-smart-read.js'
 
 export const VERSAO_CONTRATO_SNAPSHOT_LEITURA_SMART_READ = 1
 
@@ -56,12 +57,40 @@ export function transacaoDeRegistroSnapshot(
   const leitura = leituraDeRegistroSnapshot(registro)
   if (!leitura) return null
 
-  return normalizarTransacaoDeLeitura(leitura, {
+  let transacao = normalizarTransacaoDeLeitura(leitura, {
     data_envio: registro.data_envio_snapshot_leitura_smart_read?.toISOString() ?? null,
     origem_leitura: registro.origem_leitura_snapshot_leitura_smart_read as OrigemLeitura,
     created_at: registro.data_envio_snapshot_leitura_smart_read?.toISOString() ?? null,
     completed_at: null,
   })
+
+  const totalCamposDb = registro.total_campos_snapshot_leitura_smart_read
+  const temColunasDenormalizadas =
+    totalCamposDb > 0 || registro.media_acertos_snapshot_leitura_smart_read != null
+
+  if (temColunasDenormalizadas) {
+    const totalDocumentos = Math.max(transacao.total_documentos, registro.total_arquivos_snapshot_leitura_smart_read)
+    transacao = TransacaoLeituraSchema.parse({
+      ...transacao,
+      total_documentos: totalDocumentos,
+      total_campos_extraidos: Math.max(transacao.total_campos_extraidos, totalCamposDb),
+      total_campos_corretos: Math.max(
+        transacao.total_campos_corretos,
+        registro.campos_corretos_snapshot_leitura_smart_read,
+      ),
+      total_campos_errados: Math.max(
+        transacao.total_campos_errados,
+        registro.campos_errados_snapshot_leitura_smart_read,
+      ),
+      media_acertos:
+        transacao.media_acertos ??
+        (registro.media_acertos_snapshot_leitura_smart_read != null
+          ? registro.media_acertos_snapshot_leitura_smart_read
+          : null),
+    })
+  }
+
+  return complementarMetricasTransacaoLista(transacao)
 }
 
 export function leituraElegivelParaSnapshot(leitura: Leitura): boolean {

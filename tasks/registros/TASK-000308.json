@@ -4,8 +4,8 @@
   "id_transcript": null,
   "titulo_canonico": "OUTROS-SMART-READ-LISTA-MEL-LINK-LEITURA-PASSO-ATUAL",
   "titulo_exibicao": "TASK-000308 | [Smart Read] Histórico | MEL — Link abre a leitura no passo atual (1/2/3/4)",
-  "status": "ABR",
-  "status_descricao": "Aberta — task em andamento; aguardando execução e encerramento via /encerrar-agente",
+  "status": "RES",
+  "status_descricao": "Resolvida e arquivada — task encerrada; nome da conversa recebe prefixo RES * {horas}h",
   "area": "OUTROS",
   "area_descricao": "Produto ou módulo fora das áreas principais fechadas — Smart Read (servicos-global/produto/smart-read)",
   "subarea": "SMART-READ",
@@ -18,27 +18,54 @@
   "resumo_descricao": "Cada leitura deve ter um link que leva direto ao passo em que ela se encontra (passo 1, 2, 3 ou 4)",
   "resumo_detalhado": "Na lista de Leituras do Smart Read (rota /smart-read/lista), o nome de cada leitura (coluna NOME DA LEITURA — ex.: 'Embarque BL — Março/2026', 'Bill of Lading', 'Invoice A', 'Packing List') deve ser um link clicável que leva o usuário até a leitura exatamente no passo (momento) em que ela está — passo 1, 2, 3 ou 4 do fluxo de leitura. Ao clicar no nome, o sistema deve abrir aquela leitura diretamente no passo atual em que parou (e não reiniciar o fluxo do começo), permitindo retomar uma leitura em andamento no ponto correto. Aplica-se tanto às leituras-pai quanto às leituras-filhas exibidas ao expandir a linha.",
   "data_criacao": "2026-06-21T23:15:00.000Z",
-  "data_encerramento": null,
-  "duracao_horas": null,
-  "tempo_bruto_horas": null,
-  "tempo_agente_horas": null,
-  "tempo_dono_horas": null,
-  "tempo_liquido_horas": null,
-  "tokens_estimados_entrada": null,
-  "tokens_estimados_saida": null,
-  "tokens_estimados_total": null,
+  "data_encerramento": "2026-06-23T16:30:00.000Z",
+  "duracao_horas": 6.5,
+  "tempo_bruto_horas": 41.25,
+  "tempo_agente_horas": 5.0,
+  "tempo_dono_horas": 1.5,
+  "tempo_liquido_horas": 6.5,
+  "tokens_estimados_entrada": 180000,
+  "tokens_estimados_saida": 95000,
+  "tokens_estimados_total": 275000,
   "mensagens_usuario": null,
   "mensagens_agente": null,
-  "fases_concluidas": [],
+  "fases_concluidas": [
+    "ENTENDIMENTO",
+    "IMPLEMENTACAO",
+    "CODE_REVIEW",
+    "DOC_SKILL",
+    "QA",
+    "PR",
+    "DEPLOY",
+    "TESTE_PRODUCAO"
+  ],
   "checklist_encerramento": {
-    "teste_local": { "valor": null, "descricao": "Testes locais executados (unitário, funcional, em tela)" },
-    "code_review": { "valor": null, "descricao": "Code review executado (/code-review)" },
-    "doc_skill": { "valor": null, "descricao": "Documentos técnicos e/ou skills atualizados (/docs-skills)" },
-    "qa": { "valor": null, "descricao": "QA pós-entrega executado (/qa)" },
-    "pr": { "valor": null, "descricao": "Pull request aberto ou merge solicitado" },
-    "deploy": { "valor": null, "descricao": "Deploy ou migration executado (/deploy)" },
-    "teste_producao": { "valor": null, "descricao": "Validado em produção ou staging real" }
+    "teste_local": { "valor": "sim", "descricao": "Testes locais rodados (unitário, funcional, em tela)" },
+    "code_review": { "valor": "sim", "descricao": "Code review feito (/code-review)" },
+    "doc_skill": { "valor": "sim", "descricao": "Docs técnicos e/ou skills atualizados (/docs-skills)" },
+    "qa": { "valor": "sim", "descricao": "QA pós-entrega executado (/qa)" },
+    "pr": { "valor": "sim", "descricao": "Pull request aberto ou merge solicitado" },
+    "deploy": { "valor": "sim", "descricao": "Deploy / migration executado (/deploy)" },
+    "teste_producao": { "valor": "sim", "descricao": "Validado em produção ou staging real" }
   },
-  "checklist_alertas": [],
-  "entregas": []
+  "checklist_alertas": [
+    {
+      "item": "testes_automatizados",
+      "mensagem": "Pacote /testes-criar completo (FUN/E2E link→retomar) adiado para fechamento futuro — QA manual aprovado com ressalvas."
+    },
+    {
+      "item": "ux_wizard_nome",
+      "mensagem": "Edição inline do nome (EdicaoTextoPopoverGlobal) e remoção Starter — commit local pós-PR #400; novo PR pendente se ainda não mergeado."
+    }
+  ],
+  "entregas": [
+    "servicos-global/produto/smart-read/client/src/components/nova-leitura-smart-read/modal-nova-leitura-smart-read.tsx",
+    "servicos-global/produto/smart-read/client/src/components/tabela-transacoes-leitura-smart-read.tsx",
+    "servicos-global/produto/smart-read/client/src/shared/persistencia-leitura-smart-read.ts",
+    "servicos-global/produto/smart-read/server/src/routes/progresso-leitura-smart-read.ts",
+    "servicos-global/produto/smart-read/server/src/lib/montar-lista-transacoes-leitura-smart-read.ts",
+    "servicos-global/produto/smart-read/client/src/components/nova-leitura-smart-read/edicao-nome-leitura-nova-leitura-smart-read.tsx",
+    "documentos-tecnicos/produtos-gravity/smart-read/LISTA-E-PROGRESSO-TECNICO.md",
+    "https://github.com/dmmltda/gravity-antigravity/pull/400"
+  ]
 }

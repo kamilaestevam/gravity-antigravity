@@ -148,6 +148,15 @@ export function mesclarPropostasComRanking(
         id_proposta_bid_frete_internacional: id,
         taxas_origem: base.taxas_origem?.length ? base.taxas_origem : r.taxas_origem,
         taxas_destino: base.taxas_destino?.length ? base.taxas_destino : r.taxas_destino,
+        periodos_armazenagem_proposta_bid_frete_internacional:
+          base.periodos_armazenagem_proposta_bid_frete_internacional
+          ?? r.periodos_armazenagem_proposta_bid_frete_internacional,
+        dias_periodo_armazenagem_proposta_bid_frete_internacional:
+          base.dias_periodo_armazenagem_proposta_bid_frete_internacional
+          ?? r.dias_periodo_armazenagem_proposta_bid_frete_internacional,
+        valor_armazenagem_reais_proposta_bid_frete_internacional:
+          base.valor_armazenagem_reais_proposta_bid_frete_internacional
+          ?? r.valor_armazenagem_reais_proposta_bid_frete_internacional,
       }
     })
     .filter((p): p is PropostaRankingBidFreteInternacional => p != null)

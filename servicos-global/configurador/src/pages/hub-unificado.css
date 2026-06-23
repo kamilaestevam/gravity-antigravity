@@ -702,7 +702,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__head {
-  margin-bottom: 0.75rem;
+  margin-bottom: 4px;
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__head-actions {
@@ -710,6 +710,14 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
+}
+
+.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__meter-label {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--sw-text-2);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__lanes {
@@ -749,36 +757,34 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   cursor: default;
 }
 
-/* Centralização óptica: stack no centro da área plana do puzzle */
-.sw-hub-panel--produtos .gs-piece__body {
-  position: relative;
+/* Conteúdo centralizado só no quadrado 120×90 (ignora aba direita de 18px no SVG) */
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__body {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 120px;
   height: 90px;
   padding: 0 !important;
   display: block;
+  box-sizing: border-box;
 }
 
-.sw-hub-panel--produtos .gs-piece__stack {
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__body--indent {
+  padding-left: 0 !important;
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__stack {
   position: absolute;
   top: 50%;
+  left: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
   width: 92px;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   pointer-events: none;
-}
-
-.sw-hub-panel--produtos .gs-piece__body:not(.gs-piece__body--indent) .gs-piece__stack {
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.sw-hub-panel--produtos .gs-piece__body--indent .gs-piece__stack {
-  left: calc(18px + (120px - 18px) / 2);
-  transform: translate(-50%, -50%);
 }
 
 .sw-hub-panel--produtos .gs-piece__icon {

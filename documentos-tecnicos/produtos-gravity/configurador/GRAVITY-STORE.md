@@ -131,6 +131,53 @@ SSOT visual: `nucleo-global/Logo/produtos/src/visual-produto-gravity.tsx` + `ico
 
 ---
 
+## Reuso no HUB (`/hub`) — paridade puzzle (PR #404)
+
+A faixa **Seus Produtos Gravity** do HUB unificado (`SelecionarWorkspace`) reutiliza o mesmo stack visual da Store — não duplicar markup/CSS de puzzle fora dos componentes abaixo.
+
+| Item | Valor |
+|------|-------|
+| Página | `src/pages/SelecionarWorkspace.tsx` |
+| CSS HUB | `src/pages/hub-unificado.css` |
+| Grade contratados | `src/components/grade-produtos-contratados-hub.tsx` |
+| Stack de peças | `src/components/puzzle-stack-produtos-gravity.tsx` |
+| Carrossel | `StorePuzzleCarousel` (`store-puzzle-carousel.tsx`) — **mesmo** da Store |
+| Classe layout | `gs-stack--hub-paridade-store` |
+
+### Layout da faixa superior (pós-#404)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ HERO (saudação + meta)                                       │
+├──────────────────────────────────────────────────────────────┤
+│ Seus Produtos Gravity — largura total (1 coluna)             │
+│   gs-stack__head: título + pill Gravity Store + meter barras │
+│   StorePuzzleCarousel → PuzzleStackProdutosGravity           │
+├──────────────────────────────────────────────────────────────┤
+│ Operações em andamento · Store + Gabi (faixas inferiores)    │
+└──────────────────────────────────────────────────────────────┘
+```
+
+- A faixa superior **não** divide mais 50/50 com painel **Workspaces** (`sw-hub-panel--ws` removido do JSX).
+- Preferências de workspace por produto continuam no componente `preferencias-workspaces-por-produto-hub.tsx` (reintroduzir em outra seção só com decisão de produto).
+
+### Regras visuais HUB (diferem da Store na peça SVG)
+
+| Regra | Implementação |
+|-------|----------------|
+| Escala das peças | `--gs-piece-scale: 1` (Store puzzle ativos também 1.0; HUB não usa mais `0.8`) |
+| Interior da peça | Preenchimento neutro (`--hub-puzzle-fill-interno` / `--hub-puzzle-fill-disponivel`); cor do produto só no **contorno** (`stroke`) quando `owned` |
+| Ícones | `iconeOficialProdutoGravity` via `@nucleo/logo-produtos` — **22px** fixos (`.gs-piece__icon svg`) |
+| Centralização óptica | `.gs-piece__stack` posicionado no centro da área plana; peças com cavidade usam `.gs-piece__body--indent` |
+| Carrossel | `PuzzleStackProdutosGravity` com `embutidoParidadeStore` — cabeçalho/meter no pai (`GradeProdutosContratadosHub`) |
+| Navegação contratado | `onAbrirProdutoContratado` no HUB; disponível sem assinatura → `/store` |
+
+Props relevantes em `PuzzleStackProdutosGravity`: `escala="hub"`, `embutidoParidadeStore`, `ocultarMeterNoStack`.
+
+Doc fluxo `/hub`: [FLUXO-POS-LOGIN.md](./FLUXO-POS-LOGIN.md).
+
+---
+
 ## Permissão de contratação
 
 `podeComprarNoStore(tipo_usuario)` em `src/routing/route-policy.ts`:
@@ -203,9 +250,17 @@ Escopo **STORE** — pasta `testes/**/gravity-store/` (registry `TST-*-STORE-*`)
 
 ---
 
+## Entregas recentes
+
+| PR / entrega | Escopo |
+|--------------|--------|
+| #404 (2026-06-23) | HUB `/hub`: puzzle **Seus Produtos Gravity** com paridade Store (`StorePuzzleCarousel`, escala 1.0, ícones 22px, contorno colorido) — ver § Reuso no HUB |
+
+---
+
 ## Documentos relacionados
 
-- [FLUXO-POS-LOGIN.md](./FLUXO-POS-LOGIN.md) — navegação pós-auth; "Voltar ao Hub" a partir de `/store`
+- [FLUXO-POS-LOGIN.md](./FLUXO-POS-LOGIN.md) — navegação pós-auth; layout do HUB unificado; "Voltar ao Hub" a partir de `/store`
 - [layout-e-margens.md](../../ux/criacao-telas/layout-e-margens.md) — container `.gs-store`
 - [rotas-convencao.md](../../arquitetura/rotas-convencao.md) — convenção `/store`
 - [GABI-AGENTE-USUARIO.md](../gabi/GABI-AGENTE-USUARIO.md) — tools GABI para catálogo (seção 4.6)

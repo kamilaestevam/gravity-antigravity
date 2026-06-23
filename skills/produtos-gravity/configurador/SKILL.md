@@ -291,6 +291,24 @@ Doc: [`FILTRO-MULTI-WORKSPACE-TECNICO.md`](../../../documentos-tecnicos/produtos
 
 ---
 
+## HUB — puzzle Seus Produtos Gravity (PR #404)
+
+Faixa superior de `/hub` (`SelecionarWorkspace`) alinhada à Gravity Store.
+
+| Peça | Caminho |
+|------|---------|
+| Página | `src/pages/SelecionarWorkspace.tsx` |
+| CSS | `src/pages/hub-unificado.css` |
+| Grade + cabeçalho | `src/components/grade-produtos-contratados-hub.tsx` |
+| Peças SVG | `src/components/puzzle-stack-produtos-gravity.tsx` (`escala="hub"`, `embutidoParidadeStore`) |
+| Carrossel | `store-puzzle-carousel.tsx` (reuso Store) |
+
+**UX:** faixa produtos em **largura total**; painel Workspaces removido da linha superior. Ícones SSOT `@nucleo/logo-produtos` a 22px; interior neutro + contorno na cor do produto; centralização óptica nas cavidades do puzzle.
+
+Doc: [`GRAVITY-STORE.md`](../../../documentos-tecnicos/produtos-gravity/configurador/GRAVITY-STORE.md) § Reuso no HUB · [`FLUXO-POS-LOGIN.md`](../../../documentos-tecnicos/produtos-gravity/configurador/FLUXO-POS-LOGIN.md) § Layout do HUB.
+
+---
+
 ## Gravity Store — `/store` (PR #187)
 
 Catálogo autenticado para exploração e contratação de produtos Gravity adicionais.
@@ -302,6 +320,7 @@ Catálogo autenticado para exploração e contratação de produtos Gravity adic
 | Catálogo API | `GET /api/v1/produtos-gravity` → `listarPublico()` (Admin `ProdutoGravity`) |
 | Status exibição | `src/data/status-produto-store.ts` |
 | Puzzle | Só `contratado` + `disponivel`; `em_breve` só nas faixas de carrossel |
+| Puzzle no HUB | Mesmo `StorePuzzleCarousel` + `puzzle-stack-produtos-gravity` — ver § HUB puzzle (PR #404) |
 | UI | Toolbar Todos/Ativo/Assinar/Em breve + 4 faixas carrossel; cards `gs-card--store` |
 | Assinaturas | `Assinaturas.tsx` reutiliza mesma pele de card |
 | Contratação | `podeComprarNoStore()` — MASTER, SUPER_ADMIN, ADMIN |

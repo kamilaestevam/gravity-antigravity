@@ -11,6 +11,7 @@ import {
   type RotulosTabelaResumoPropostaBidFreteInternacional,
 } from './resumo-composicao-total-frete-bid-frete-internacional'
 import { montarDadosTabelaResumoPropostaBidFreteInternacional } from './taxas-linha-proposta-bid-frete-internacional'
+import { SecaoPeriodosArmazenagemReadonlyPropostaBidFreteInternacional } from './secao-periodos-armazenagem-readonly-proposta-bid-frete-internacional'
 import {
   buscarTaxasMoedaAtuaisInsights,
   lerTaxasCambioConfigBidFreteInternacional,
@@ -183,6 +184,7 @@ export function TabelaResumoPropostaReadonlyBidFreteInternacional({
           <p className="brc-total-legenda brc-total-legenda--secundaria">
             {legendaEstimadoBrl}
           </p>
+          <SecaoPeriodosArmazenagemReadonlyPropostaBidFreteInternacional proposta={proposta} />
         </div>
       )}
     </section>

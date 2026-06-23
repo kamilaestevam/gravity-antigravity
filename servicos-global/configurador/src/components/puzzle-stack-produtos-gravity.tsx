@@ -100,6 +100,40 @@ export type PecaPuzzleExtraHub = {
   rota: string
 }
 
+type ItemPecaPuzzleRender =
+  | { tipo: 'produto'; peca: PecaPuzzleStackProduto }
+  | { tipo: 'extra'; pecaExtra: PecaPuzzleExtraHub }
+
+/** Insere peças extras no stack logo após o slug âncora (`slugVisual`). */
+function ordenarPecasPuzzleComExtrasHub(
+  pecas: PecaPuzzleStackProduto[],
+  pecasExtras: PecaPuzzleExtraHub[],
+): ItemPecaPuzzleRender[] {
+  const extrasPorAncora = new Map<string, PecaPuzzleExtraHub[]>()
+  for (const extra of pecasExtras) {
+    const lista = extrasPorAncora.get(extra.slugVisual) ?? []
+    lista.push(extra)
+    extrasPorAncora.set(extra.slugVisual, lista)
+  }
+
+  const resultado: ItemPecaPuzzleRender[] = []
+  for (const peca of pecas) {
+    resultado.push({ tipo: 'produto', peca })
+    const ancora = slugCanonicoProdutoGravity(peca.slug)
+    const extras = extrasPorAncora.get(ancora)
+    if (extras) {
+      for (const extra of extras) resultado.push({ tipo: 'extra', pecaExtra: extra })
+      extrasPorAncora.delete(ancora)
+    }
+  }
+
+  for (const extras of extrasPorAncora.values()) {
+    for (const extra of extras) resultado.push({ tipo: 'extra', pecaExtra: extra })
+  }
+
+  return resultado
+}
+
 export function pecasPuzzleStackProdutosGravity(
   catalogo: CatalogoProdutoGravityMin[],
   assinaturas: AssinaturaProdutoGravityMin[],
@@ -165,7 +199,7 @@ export interface PuzzleStackProdutosGravityProps {
   ocultarMeterNoStack?: boolean
   /** HUB: hidrata sessão do workspace e abre o produto (atalho direto). */
   onAbrirProdutoContratado?: (slug: string, rota: string) => void
-  /** HUB: peças extras (visão fornecedor BID) após o stack contratado. */
+  /** HUB: peças extras ancoradas via `slugVisual` (ex.: BID Fornecedor após bid-frete). */
   pecasExtras?: PecaPuzzleExtraHub[]
   /** HUB paridade Store: só a faixa de peças (cabeçalho/carrossel no pai). */
   embutidoParidadeStore?: boolean
@@ -208,9 +242,14 @@ export function PuzzleStackProdutosGravity({
     [catalogo, assinaturas],
   )
 
+  const pecasOrdenadas = useMemo(
+    () => ordenarPecasPuzzleComExtrasHub(pecas, pecasExtras),
+    [pecas, pecasExtras],
+  )
+
   const ownedNoStack = pecas.filter(p => p.status === 'owned').length
   const totalStack = pecas.length
-  const totalPecasVisiveis = totalStack + pecasExtras.length
+  const totalPecasVisiveis = pecasOrdenadas.length
 
   if (totalPecasVisiveis === 0) return null
 
@@ -218,14 +257,63 @@ export function PuzzleStackProdutosGravity({
 
   const conteudoPecas = (
     <div className="gs-stack__pieces">
-      {pecas.map((peca, pieceIdx) => {
+      {pecasOrdenadas.map((item, pieceIdx) => {
+        const isFirst = pieceIdx === 0
+        const isLast = pieceIdx === totalPecasVisiveis - 1
+        const zIdx = totalPecasVisiveis - pieceIdx + 1
+        const path = pathPecaPuzzle(isFirst, isLast)
+
+        if (item.tipo === 'extra') {
+          const pecaExtra = item.pecaExtra
+          const corFornecedor = '#f59e0b'
+          const { fill, stroke, strokeWidth } = escalaHub
+            ? { fill: FILL_PECA_HUB_INTERNO, stroke: corFornecedor, strokeWidth: 1.75 }
+            : {
+                fill: 'rgba(245,158,11,0.18)',
+                stroke: corFornecedor,
+                strokeWidth: 1.5,
+              }
+          const tituloPeca = `${t('sw.acessar', 'Acessar')} — ${pecaExtra.nome}`
+
+          return (
+            <div
+              key={pecaExtra.key}
+              className={`gs-piece gs-piece--on gs-piece--fornecedor${isFirst ? '' : ' gs-piece--has-blank'}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
+              style={{ zIndex: zIdx, '--piece-color': corFornecedor } as React.CSSProperties}
+              role="button"
+              tabIndex={0}
+              title={tituloPeca}
+              aria-label={tituloPeca}
+              onClick={() => abrirPecaExtra(pecaExtra)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  abrirPecaExtra(pecaExtra)
+                }
+              }}
+            >
+              <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg" aria-hidden="true">
+                <path d={path} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin="round" />
+              </svg>
+              <div className={classeCorpoPecaPuzzle(isFirst)}>
+                <div className="gs-piece__stack">
+                  <div className="gs-piece__icon gs-piece__icon--fornecedor">
+                    <Handshake weight="duotone" size={TAMANHO_ICONE_PECA_HUB} color={corFornecedor} />
+                  </div>
+                  <span className="gs-piece__name">{pecaExtra.nomeExibicao}</span>
+                </div>
+                <span className="gs-piece__check">
+                  <CheckCircle weight="fill" size={11} color={corFornecedor} />
+                </span>
+              </div>
+            </div>
+          )
+        }
+
+        const peca = item.peca
         const meta = PRODUCT_META[peca.slug]
         const isOwned = peca.status === 'owned'
         const isSoon = peca.status === 'soon'
-        const isFirst = pieceIdx === 0
-        const isLast = pieceIdx === pecas.length - 1
-        const zIdx = pecas.length - pieceIdx + 1
-        const path = pathPecaPuzzle(isFirst, isLast)
         const corProduto = meta?.iconColor ?? '#818cf8'
         const isHubNaoContratado = escalaHub && !isOwned
 
@@ -283,56 +371,6 @@ export function PuzzleStackProdutosGravity({
                   <CheckCircle weight="fill" size={11} color="#10b981" />
                 </span>
               )}
-            </div>
-          </div>
-        )
-      })}
-      {pecasExtras.map((pecaExtra, extraIdx) => {
-        const pieceIdx = pecas.length + extraIdx
-        const isFirst = pieceIdx === 0
-        const isLast = pieceIdx === totalPecasVisiveis - 1
-        const zIdx = totalPecasVisiveis - pieceIdx + 1
-        const path = pathPecaPuzzle(isFirst, isLast)
-        const corFornecedor = '#f59e0b'
-        const { fill, stroke, strokeWidth } = escalaHub
-          ? { fill: FILL_PECA_HUB_INTERNO, stroke: corFornecedor, strokeWidth: 1.75 }
-          : {
-              fill: 'rgba(245,158,11,0.18)',
-              stroke: corFornecedor,
-              strokeWidth: 1.5,
-            }
-        const tituloPeca = `${t('sw.acessar', 'Acessar')} — ${pecaExtra.nome}`
-
-        return (
-          <div
-            key={pecaExtra.key}
-            className={`gs-piece gs-piece--on gs-piece--fornecedor${isFirst ? '' : ' gs-piece--has-blank'}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
-            style={{ zIndex: zIdx, '--piece-color': corFornecedor } as React.CSSProperties}
-            role="button"
-            tabIndex={0}
-            title={tituloPeca}
-            aria-label={tituloPeca}
-            onClick={() => abrirPecaExtra(pecaExtra)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                abrirPecaExtra(pecaExtra)
-              }
-            }}
-          >
-            <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg" aria-hidden="true">
-              <path d={path} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin="round" />
-            </svg>
-            <div className={classeCorpoPecaPuzzle(isFirst)}>
-              <div className="gs-piece__stack">
-                <div className="gs-piece__icon gs-piece__icon--fornecedor">
-                  <Handshake weight="duotone" size={TAMANHO_ICONE_PECA_HUB} color={corFornecedor} />
-                </div>
-                <span className="gs-piece__name">{pecaExtra.nomeExibicao}</span>
-              </div>
-              <span className="gs-piece__check">
-                <CheckCircle weight="fill" size={11} color={corFornecedor} />
-              </span>
             </div>
           </div>
         )

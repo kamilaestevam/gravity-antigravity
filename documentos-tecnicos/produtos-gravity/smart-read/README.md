@@ -11,7 +11,20 @@
 | Documento | Conteúdo |
 |-----------|----------|
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor responsável, contrato BFF, rankings |
-| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista real, BFF leituras, progresso Postgres, nome do wizard, TASK-000308 |
+| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista real, layout/paginação/painéis, BFF leituras, progresso Postgres, nome do wizard |
+
+---
+
+## Painéis da lista (padrão Pedido/BID)
+
+O Smart Read replica o **mesmo model e contrato** de `ListaPainelUsuarioGlobal` (`lista_painel_usuario_global` no banco `gravity-smart-read`), com `id_produto_gravity = 'smart-read'`. SSOT do contrato transversal: [PAINEL-LISTA-CONTRATO.md](../pedido/PAINEL-LISTA-CONTRATO.md).
+
+| Camada | Caminho |
+|--------|---------|
+| Model | `prisma/fragment.prisma` → `ListaPainelUsuarioGlobal` |
+| API | `GET\|POST\|PUT\|DELETE /api/v1/smart-read/lista/paineis` |
+| Zod | `shared/listaPainelConfigSchema.ts`, `shared/listaPainelApiSchema.ts` |
+| Hook | `client/src/shared/use-lista-painel-smart-read.ts` |
 
 ---
 
@@ -83,6 +96,9 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 
 | Task / entrega | Escopo |
 |----------------|--------|
+| **PR #394** (merge 2026-06-22) | Lista com paridade Pedido/BID: altura flex até o rodapé, contagem/paginação no GTV, colunas/filtros/exportação, painéis persistidos em Postgres — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §9–11 |
+| TASK-000311 | Layout lista (viewport flex) + rodapé `N leituras · M arquivos · página X de Y` |
+| TASK-000310 | Colunas dinâmicas, filtros por coluna, seletor/arrastar colunas, exportação multi-formato |
 | Hotfix rotas (2026-06) | Entrada `/smart-read` e `/produto/smart-read` → `/smart-read/lista`; rotas internas relativas no produto embutido |
 | TASK-000308 | Lista real (BFF + progresso Postgres), link nome→retomar wizard, nome customizado (sessao.nome), recarregar lista ao fechar modal — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) |
 | TASK-000307 | Menu lateral no padrão do sistema + tela de Configurações (estado local; PR #388) |

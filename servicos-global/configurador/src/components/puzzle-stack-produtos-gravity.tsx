@@ -4,12 +4,16 @@
  */
 
 import type { TFunction } from 'i18next'
-import React, { useMemo } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { resolverRotaProdutoGravity } from '@gravity/shell'
-import { CheckCircle, Handshake, Package } from '@phosphor-icons/react'
+import { CheckCircle, Handshake, Lock, Package } from '@phosphor-icons/react'
 import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
-import { PRODUCT_META, nomeExibicaoProdutoGravity } from '../data/product-meta'
+import {
+  PRODUCT_META,
+  nomeExibicaoPecaPuzzleHub,
+  nomeExibicaoProdutoGravity,
+} from '../data/product-meta'
 import {
   mapaAssinaturaAtivaPorSlug,
   mapaCatalogoPorSlugCanonico,
@@ -254,13 +258,14 @@ export function PuzzleStackProdutosGravity({
   if (totalPecasVisiveis === 0) return null
 
   const escalaClass = escalaHub ? ' gs-stack--escala-hub' : ''
+  const classeBlankPeca = (isFirst: boolean) =>
+    !escalaHub && !isFirst ? ' gs-piece--has-blank' : ''
 
   const conteudoPecas = (
-    <div className="gs-stack__pieces">
+    <div className={`gs-stack__pieces${escalaHub ? ' gs-stack__pieces--hub-conectado' : ''}`}>
       {pecasOrdenadas.map((item, pieceIdx) => {
         const isFirst = pieceIdx === 0
         const isLast = pieceIdx === totalPecasVisiveis - 1
-        const zIdx = totalPecasVisiveis - pieceIdx + 1
         const path = pathPecaPuzzle(isFirst, isLast)
 
         if (item.tipo === 'extra') {
@@ -276,10 +281,10 @@ export function PuzzleStackProdutosGravity({
           const tituloPeca = `${t('sw.acessar', 'Acessar')} — ${pecaExtra.nome}`
 
           return (
-            <div
-              key={pecaExtra.key}
-              className={`gs-piece gs-piece--on gs-piece--fornecedor${isFirst ? '' : ' gs-piece--has-blank'}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
-              style={{ zIndex: zIdx, '--piece-color': corFornecedor } as React.CSSProperties}
+            <Fragment key={pecaExtra.key}>
+              <div
+                className={`gs-piece gs-piece--on gs-piece--fornecedor${classeBlankPeca(isFirst)}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
+              style={escalaHub ? ({ '--piece-color': corFornecedor } as React.CSSProperties) : ({ zIndex: totalPecasVisiveis - pieceIdx + 1, '--piece-color': corFornecedor } as React.CSSProperties)}
               role="button"
               tabIndex={0}
               title={tituloPeca}
@@ -307,6 +312,7 @@ export function PuzzleStackProdutosGravity({
                 </span>
               </div>
             </div>
+            </Fragment>
           )
         }
 
@@ -327,11 +333,17 @@ export function PuzzleStackProdutosGravity({
               strokeWidth: 1.5,
             }
 
-        const nomeExibicao = nomeExibicaoProdutoGravity(
-          peca.slug,
-          peca.nome,
-          t as (key: string, defaultValue?: string) => string,
-        )
+        const nomeExibicao = escalaHub
+          ? nomeExibicaoPecaPuzzleHub(
+              peca.slug,
+              peca.nome,
+              t as (key: string, defaultValue?: string) => string,
+            )
+          : nomeExibicaoProdutoGravity(
+              peca.slug,
+              peca.nome,
+              t as (key: string, defaultValue?: string) => string,
+            )
         const tituloPeca = isOwned
           ? `${t('sw.acessar', 'Acessar')} — ${nomeExibicao}`
           : isSoon
@@ -339,10 +351,14 @@ export function PuzzleStackProdutosGravity({
             : `${t('sw.assinar_na_store', 'Assinar na Store')} — ${nomeExibicao}`
 
         return (
-          <div
-            key={peca.slug}
-            className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isHubNaoContratado ? ' gs-piece--nao-contratado-hub' : ''}${isFirst ? '' : ' gs-piece--has-blank'}${isSoon ? ' gs-piece--soon' : ''}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
-            style={{ zIndex: zIdx, '--piece-color': corProduto } as React.CSSProperties}
+          <Fragment key={peca.slug}>
+            <div
+              className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isHubNaoContratado ? ' gs-piece--nao-contratado-hub' : ''}${classeBlankPeca(isFirst)}${isSoon ? ' gs-piece--soon' : ''}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
+            style={
+              escalaHub
+                ? ({ '--piece-color': corProduto } as React.CSSProperties)
+                : ({ zIndex: totalPecasVisiveis - pieceIdx + 1, '--piece-color': corProduto } as React.CSSProperties)
+            }
             role="button"
             tabIndex={isSoon ? -1 : 0}
             title={tituloPeca}
@@ -371,8 +387,14 @@ export function PuzzleStackProdutosGravity({
                   <CheckCircle weight="fill" size={11} color="#10b981" />
                 </span>
               )}
+              {isHubNaoContratado && (
+                <span className="gs-piece__lock" aria-hidden="true">
+                  <Lock weight="regular" size={12} />
+                </span>
+              )}
             </div>
           </div>
+          </Fragment>
         )
       })}
     </div>

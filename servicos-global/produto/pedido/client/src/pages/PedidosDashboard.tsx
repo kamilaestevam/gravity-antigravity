@@ -1470,7 +1470,6 @@ export default function PedidosDashboard() {
     fieldLabels,
     catalogByKey,
     t,
-    topKpiStatusMapa,
     statusConfig,
     distribuicaoGlobal,
     navigate,

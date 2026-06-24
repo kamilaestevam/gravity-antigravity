@@ -50,3 +50,20 @@ Testes:
 |--------|------|
 | API agregado | ≤ 200 ms p95 ([sla-metas](../../../skills/governanca/lei/sla-metas/SKILL.md)) |
 | Troca até Insights interativo | ≤ 1000 ms ([seletor universal](../../arquitetura/seletor-universal-visualizacoes.md)) |
+
+---
+
+## KPIs fixos do topo (Dashboard + Insights)
+
+> **TASK-000325 / PR #429** — removida a aba Configurações → «Visão Geral» que mapeava status arbitrários aos 4 cards. Não há mais `pedido:dashboard-top-kpi-status` em `localStorage`.
+
+| Card (widget id) | Status fixo (`status_pedido`) |
+|------------------|-------------------------------|
+| `kpi_total_pedidos` | `rascunho` |
+| `kpi_pedidos_abertos` | `aberto` |
+| `kpi_saldo_total` | `em_andamento` |
+| `kpi_valor_total` | `consolidado` |
+
+**SSOT:** `client/src/shared/useDashboardTopKpiStatus.ts` → `DASHBOARD_TOP_KPI_STATUS_MAPA`. Rótulo/cor vêm de `pedido:status_config`. Consumidores: `PedidosDashboard.tsx`, `PedidosVisaoGeral.tsx` (`visaoGeralTopKpi.ts`).
+
+**Hotfix pós-deploy:** PR #433 — `topKpiStatusMapa` órfão no array de deps de `useCallback` no Dashboard.

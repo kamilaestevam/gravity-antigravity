@@ -164,14 +164,14 @@ Plano E2E end-to-end: alterar status em Configurações e verificar reflexo em *
 | E-79 | Após editar `em_andamento`, pill reflete novo label | |
 | E-80 | F5 dashboard | Persistência visual |
 
-### FLUXO 11 — Config Dashboard KPI: mapear status
+### FLUXO 11 — KPIs fixos do topo (config removida — TASK-000325 / PR #429)
 
 | Passo | Ação | Resultado esperado |
 |-------|------|-------------------|
-| E-81 | Config → Visão Geral (dashboard-kpi) | 4 selects status |
-| E-82 | Card 01 → selecionar `qa_kanban_2026` | |
-| E-83 | Salvar | |
-| E-84 | Insights KPI card 01 | Contagem pedidos desse slug |
+| E-81 | Config → sidebar Visualizações | **Não** existe item «Visão Geral» (`dashboard-kpi`) |
+| E-82 | `/pedido/pedidos/dashboard` | 4 cards do topo carregam sem erro (`ReferenceError`) |
+| E-83 | Cards do topo | Contagens por status fixo: rascunho, aberto, em_andamento, consolidado (rótulos de `status_config`) |
+| E-84 | Insights → 4 cards do topo | Mesmo mapeamento fixo; sem persistência em `localStorage` |
 
 ### FLUXO 12 — Persistência cross-tela (smoke integrado)
 

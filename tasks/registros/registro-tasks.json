@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 330,
+  "proximo_numero": 331,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -932,6 +932,23 @@
       "arquivo_ficha": "registros/TASK-000324.json"
     },
     {
+      "referencia": "TASK-000325",
+      "ordinal": 55,
+      "titulo_canonico": "PEDIDO-DASHBOARD-MEL-REMOVER-CONFIG-MAPEAMENTO-KPIS-TOPO",
+      "titulo_exibicao": "TASK-000325 | [Pedido] Config | MEL — Remover config de mapeamento dos 4 KPIs do topo (Visão Geral/Dashboard)",
+      "status": "RES",
+      "area": "PEDIDO",
+      "subarea": "CONFIG",
+      "visualizacao": "DASHBOARD",
+      "tipo_entrega": "MEL",
+      "resumo": "REMOVER-CONFIG-MAPEAMENTO-KPIS-TOPO",
+      "data_criacao": "2026-06-23T12:00:00.000Z",
+      "data_encerramento": "2026-06-23T18:00:00.000Z",
+      "tempo_liquido_horas": 2.0,
+      "tokens_estimados_total": 165000,
+      "arquivo_ficha": "registros/TASK-000325.json"
+    },
+    {
       "referencia": "TASK-000329",
       "ordinal": 54,
       "titulo_canonico": "OUTROS-SMART-READ-MEL-DEFAULT-ABERTURA-INSIGHTS",
@@ -947,6 +964,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000329.json"
+    },
+    {
+      "referencia": "TASK-000330",
+      "ordinal": 55,
+      "titulo_canonico": "CONFIG-HUB-DASHBOARD-MEL-REMOVER-STATUS-ICON-DATA",
+      "titulo_exibicao": "TASK-000330 | [Configurador] Hub | MEL — Remover badge Sistema operacional e ícone ao lado da data",
+      "status": "RES",
+      "area": "CONFIG",
+      "subarea": "HUB",
+      "visualizacao": "DASHBOARD",
+      "tipo_entrega": "MEL",
+      "resumo": "REMOVER-STATUS-ICON-DATA",
+      "data_criacao": "2026-06-24T14:00:00.000Z",
+      "data_encerramento": "2026-06-24T18:30:00.000Z",
+      "tempo_liquido_horas": 1.25,
+      "tokens_estimados_total": 90000,
+      "arquivo_ficha": "registros/TASK-000330.json"
     }
   ]
 }

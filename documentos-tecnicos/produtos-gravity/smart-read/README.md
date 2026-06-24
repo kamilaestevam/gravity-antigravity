@@ -46,8 +46,8 @@ Seletor em `client/src/components/SmartReadVisualizacaoTabs.tsx`.
 
 | Aba | Rota | Estado | Visível |
 |-----|------|--------|---------|
-| Insights | `/smart-read/insights` | Implementado (cockpit operacional) | **Sim** |
-| Lista | `/smart-read/lista` | Implementado (default) | **Sim** |
+| Insights | `/smart-read/insights` | Implementado (cockpit operacional, **default**) | **Sim** |
+| Lista | `/smart-read/lista` | Implementado | **Sim** |
 | Dashboard | `/smart-read/dashboard` | Placeholder ("em breve") | **Oculto** |
 | Kanban | `/smart-read/kanban` | Implementado | **Oculto** |
 
@@ -61,10 +61,10 @@ O Smart Read roda **embutido** no configurador (`/smart-read/*`). Rotas internas
 
 | URL de entrada | Destino canônico | Onde |
 |----------------|------------------|------|
-| `/smart-read` | `/smart-read/lista` | `configurador/src/App.tsx` + server 301 |
-| `/smart-read-` | `/smart-read/lista` | typo/bookmark legado (hífen solto no final) |
-| `/produto/smart-read` | `/smart-read/lista` | `configurador/src/App.tsx` + server 301 |
-| `/produto/smart-read-` | `/smart-read/lista` | idem typo com prefixo legado |
+| `/smart-read` | `/smart-read/insights` | `configurador/src/App.tsx` + server 301 |
+| `/smart-read-` | `/smart-read/insights` | typo/bookmark legado (hífen solto no final) |
+| `/produto/smart-read` | `/smart-read/insights` | `configurador/src/App.tsx` + server 301 |
+| `/produto/smart-read-` | `/smart-read/insights` | idem typo com prefixo legado |
 | `/produto/smart-read/*` | `/smart-read/*` | `NavigateComPrefixo` (legado 90 dias) |
 
 **SSOT da entrada:** `ROTA_ENTRADA_SMART_READ` em `servicos-global/shell/utils/resolver-rota-produto.ts` (exportada via `@gravity/shell`). Hub, Core e puzzle consomem `resolverRotaProdutoGravity('smart-read')`.
@@ -80,7 +80,7 @@ Configurado em `client/src/shared/config.ts` (`PRODUCT_CONFIG.navigation`) e map
 | Grupo / item | Rota | Observação |
 |--------------|------|------------|
 | Meu Espaço → Minhas Atividades / Email / WhatsApp | `/hub` | Desabilitados (badge "Em Breve") |
-| Smart Read (divisor) → Leituras | `/smart-read/lista` | Default |
+| Smart Read (divisor) → Lista | `/smart-read/lista` | Acesso direto à lista (toggle Insights\|Lista no topo) |
 | Histórico | `/workspace/historico-organizacao?id_produto_historico_log=smart-read` | Link externo (tela centralizada do Configurador) |
 | Configurações | `/smart-read/configuracoes` | Ver abaixo |
 
@@ -101,7 +101,7 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | **PR #394** (merge 2026-06-22) | Lista com paridade Pedido/BID: altura flex até o rodapé, contagem/paginação no GTV, colunas/filtros/exportação, painéis persistidos em Postgres — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §9–11 |
 | TASK-000311 | Layout lista (viewport flex) + rodapé `N leituras · M arquivos · página X de Y` |
 | TASK-000310 | Colunas dinâmicas, filtros por coluna, seletor/arrastar colunas, exportação multi-formato |
-| Hotfix rotas (2026-06) | Entrada `/smart-read` e `/produto/smart-read` → `/smart-read/lista`; rotas internas relativas no produto embutido |
+| Hotfix rotas (2026-06) | Entrada `/smart-read` e `/produto/smart-read` → `/smart-read/insights`; rotas internas relativas no produto embutido |
 | TASK-000308 | Lista real (BFF + progresso Postgres), link nome→retomar wizard, nome customizado (sessao.nome), recarregar lista ao fechar modal — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) |
 | TASK-000307 | Menu lateral no padrão do sistema + tela de Configurações (estado local; PR #388) |
 | TASK-000306 | Ocultar abas Dashboard e Kanban do seletor (mantidas só Insights e Lista) |

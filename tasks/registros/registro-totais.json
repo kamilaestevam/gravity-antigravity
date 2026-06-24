@@ -1,10 +1,10 @@
 {
   "versao": 2,
-  "data_atualizacao": "2026-06-23T19:55:40.464Z",
+  "data_atualizacao": "2026-06-23T18:00:00.000Z",
   "nota": "Recalcular sempre em /novo-agente, /encerrar-agente ou edição de TASK-*.json.",
   "total_tasks": {
-    "fichas_registradas": 51,
-    "fichas_resolvidas": 26,
+    "fichas_registradas": 52,
+    "fichas_resolvidas": 27,
     "fichas_abertas": 25,
     "sessoes_cursor_legado_sem_ficha": 225,
     "sessoes_cursor_total": 263,
@@ -17,16 +17,16 @@
     "descricao": "Da TASK-000001 (mais antiga fichada) até último encerramento"
   },
   "total_tokens": {
-    "entrada": 1654420,
-    "saida": 1183022,
-    "total": 2837442
+    "entrada": 1774420,
+    "saida": 1228022,
+    "total": 3002442
   },
   "total_horas": {
-    "liquido": 63.91,
-    "bruto": 269.25,
-    "agente": 51.94,
-    "dono": 11.97,
-    "duracao": 63.46
+    "liquido": 65.91,
+    "bruto": 270.75,
+    "agente": 53.44,
+    "dono": 12.47,
+    "duracao": 65.46
   },
   "estatisticas_checklist": {
     "teste_local": {

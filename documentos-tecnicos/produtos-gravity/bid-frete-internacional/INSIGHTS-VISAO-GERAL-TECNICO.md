@@ -46,11 +46,29 @@ Todas exigem `assertWorkspacesAutorizadosNoRequest` + query `ids_workspaces` qua
 
 ---
 
-## 3. KPIs do topo (Insights)
+## 3. KPIs do topo
 
-> **TASK-000325 / PR #429:** removida a aba **Configurações → Visão Geral** (`dashboard-kpi`) do BID Frete. Constantes fixas em `use-dashboard-top-kpi-bid-frete.ts` — escopo **Dashboard operacional**, não a aba Insights.
+> **TASK-000325 / PR #429:** removida a aba **Configurações → Visão Geral** (`dashboard-kpi`). SSOT do **Dashboard operacional:** `BID_FRETE_DASHBOARD_TOP_KPI_STATUS_MAPA` em `use-dashboard-top-kpi-bid-frete.ts` (legado `bid-frete:dashboard-top-kpi-status` limpo no load). **Não confundir** com os cards da aba Insights (`visao-geral.tsx`).
 
-Os cards **Aguardando aprovação** e **Aguardando resposta** na aba Insights são **fixos** (sem config por usuário).
+### 3.1 Dashboard operacional (fixos — sem config)
+
+Os widgets numéricos **não** usam contagem fixa do server (`cotacoes_andamento` legado).
+
+| Fonte | Chave / arquivo |
+|-------|-----------------|
+| Mapeamento widget → status | `BID_FRETE_DASHBOARD_TOP_KPI_STATUS_MAPA` (código) |
+| Widget andamento | `kpi_cotacoes_andamento` → `AGUARDANDO_APROVACAO` |
+| Widget aprovadas | `kpi_cotacoes_aprovadas` → `EM_COTACAO` |
+| Widget valor em aberto | `kpi_valor_em_aberto` → `AGUARDANDO_APROVACAO` |
+| Widget expiradas | `kpi_cotacoes_expiradas` → `EXPIRADA` |
+| Contagem exibida | `funil` da API → `contagemStatusNoFunilBidFreteInternacional` |
+| Rótulo / cor | `status-config-bid-frete-internacional.ts` |
+| Volume USD card 1 | `valor_andamento_usd` — agregado no server pelo mesmo `status_slug_kpi_andamento` |
+| Modal no tooltip | `distribuicao_modal_andamento` — mesmo slug |
+
+### 3.2 Aba Insights (`visao-geral.tsx`)
+
+Os cards **Aguardando aprovação** e **Aguardando resposta** são **fixos** (sem config por usuário).
 
 | Card | Semântica operacional (server #427) | Fallback funil (status nativos) |
 |------|-------------------------------------|----------------------------------|

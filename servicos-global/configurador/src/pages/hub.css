@@ -252,32 +252,13 @@ body.light-theme .hb-topbar-marca__nome {
 .hb-hero-meta {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
   flex-shrink: 0;
 }
 
-.hb-status-badge {
+.hb-hero-date {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.875rem;
-  border-radius: 9999px;
-  border: 1px solid var(--hb-accent-b);
-  background: var(--hb-accent-d);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--hb-accent);
-}
-
-.hb-status-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--hb-accent);
-  box-shadow: 0 0 8px var(--hb-accent);
-  animation: hb-pulse 2s ease-in-out infinite;
-}
-
-.hb-hero-date {
+  gap: 0.35rem;
   font-size: 0.8125rem;
   color: var(--hb-muted);
   font-weight: 500;

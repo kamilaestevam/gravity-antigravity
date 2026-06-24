@@ -49,7 +49,9 @@ servicos-global/produto/pedido/
     └── visao-geral-agregado.ts        ← GET …/visao-geral/agregado
 ```
 
-**Seletor universal (pills):** [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · API agregada: [VISAO-GERAL-AGREGADO.md](../../../documentos-tecnicos/produtos-gravity/pedido/VISAO-GERAL-AGREGADO.md) · Testes: `TST-*-MBOTO-*`
+**Seletor universal (pills):** [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetura/seletor-universal-visualizacoes.md) · API agregada: [VISAO-GERAL-AGREGADO.md](../../../documentos-tecnicos/produtos-gravity/pedido/VISAO-GERAL-AGREGADO.md) (incl. § KPIs fixos do topo) · Testes: `TST-*-MBOTO-*`
+
+> **Config KPIs topo:** aba `dashboard-kpi` removida (TASK-000325). Mapeamento fixo em `useDashboardTopKpiStatus.ts` — ver doc acima.
 
 ---
 

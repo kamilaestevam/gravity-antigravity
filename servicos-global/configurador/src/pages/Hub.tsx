@@ -12,6 +12,7 @@ import {
   CheckCircle,
   WarningCircle,
   Info,
+  CalendarBlank,
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import './hub.css'
@@ -393,11 +394,10 @@ export function Hub() {
             </p>
           </div>
           <div className="hb-hero-meta">
-            <div className="hb-status-badge">
-              <div className="hb-status-dot" />
-              {t('hub.sistema_operacional', 'Sistema operacional')}
-            </div>
-            <span className="hb-hero-date">{formatDate()}</span>
+            <span className="hb-hero-date">
+              <CalendarBlank size={14} weight="duotone" aria-hidden="true" />
+              {formatDate()}
+            </span>
           </div>
         </div>
 

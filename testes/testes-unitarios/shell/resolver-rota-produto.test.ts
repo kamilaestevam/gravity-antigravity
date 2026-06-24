@@ -27,8 +27,8 @@ describe('resolver-rota-produto', () => {
     expect(resolverRotaProdutoGravity('simula-custo')).toBe('/simula-custo')
   })
 
-  it('resolve Smart Read na entrada lista (evita 404 em /smart-read exato)', () => {
-    expect(ROTA_ENTRADA_SMART_READ).toBe('/smart-read/lista')
+  it('resolve Smart Read na entrada insights (evita 404 em /smart-read exato)', () => {
+    expect(ROTA_ENTRADA_SMART_READ).toBe('/smart-read/insights')
     expect(resolverRotaProdutoGravity('smart-read')).toBe(ROTA_ENTRADA_SMART_READ)
   })
 

@@ -35,6 +35,7 @@ import {
   ClipboardText,
   Fire,
   Info,
+  CalendarBlank,
 } from '@phosphor-icons/react'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -1302,11 +1303,10 @@ export function SelecionarWorkspace() {
                   <p className="sw-hub-hero-sub">{linhaHeroResumo}</p>
                 </div>
                 <div className="sw-hub-hero-meta">
-                  <div className="sw-hub-status-pill">
-                    <span className="sw-hub-status-dot" aria-hidden="true" />
-                    {t('hub.sistema_operacional', 'Sistema operacional')}
-                  </div>
-                  <span>{formatHubDate(i18n.language)}</span>
+                  <span className="sw-hub-hero-date">
+                    <CalendarBlank size={14} weight="duotone" aria-hidden="true" />
+                    {formatHubDate(i18n.language)}
+                  </span>
                 </div>
               </section>
 

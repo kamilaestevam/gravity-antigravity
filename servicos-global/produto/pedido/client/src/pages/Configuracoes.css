@@ -1629,12 +1629,6 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
 
 .cfg-add-row-btn:hover { background: rgba(129,140,248,0.16); border-color: rgba(129,140,248,0.45); }
 
-.cfg-dashboard-kpi-select .sg-campo {
-  min-height: calc(2.5rem - 4px);
-  padding-top: calc(0.5625rem - 2px);
-  padding-bottom: calc(0.5625rem - 2px);
-}
-
 /* ── Checkboxes de lista ── */
 
 .cfg-check-lista {

@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useState,
   type MouseEvent,
   type ReactNode,
@@ -9,9 +10,14 @@ import {
 import { BookOpenText, Calculator, ClockCounterClockwise, Info, Table } from '@phosphor-icons/react'
 import { ModalOverlay } from '@nucleo/modal-global'
 import {
+  agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead,
+  type EntradaAgregacaoTempoExtracaoIaSmartRead,
+} from '../../../../shared/metricas-transacao-leitura-smart-read'
+import {
   LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ,
   OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ,
   PARAMETROS_FINANCEIROS_SMART_READ,
+  calcularMediasTabelaBaseCalculoSmartRead,
   resolverParametrosTempoDocumentoSmartRead,
 } from './dados-base-produto-tempo-smart-read'
 import { formatarMoedaInsightsSmartRead } from './calcular-metricas-insights-leitura-smart-read'
@@ -27,6 +33,22 @@ const SISTEMAS_ESTUDO_TEMPO_MANUAL =
 
 function formatarMinutosTabela(valor: number): string {
   return `${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 3 })} min`
+}
+
+function formatarSegundosMedidosTabela(segundos: number): string {
+  if (segundos < 10) {
+    return `${segundos.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} s`
+  }
+  return `${Math.round(segundos).toLocaleString('pt-BR')} s`
+}
+
+function formatarTempoSmartReadMedidoTabela(
+  agregado: ReturnType<typeof agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead>,
+  tipo: (typeof LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ)[number]['tipo_parametro'],
+): string {
+  const medido = agregado.por_tipo[tipo]
+  if (!medido) return '—'
+  return formatarSegundosMedidosTabela(medido.tempo_medio_segundos)
 }
 
 function SecaoMetodologiaSaving({
@@ -51,13 +73,22 @@ function SecaoMetodologiaSaving({
   )
 }
 
-export function ConteudoMetodologiaSavingInsightsSmartRead() {
+export function ConteudoMetodologiaSavingInsightsSmartRead({
+  transacoes = [],
+}: {
+  transacoes?: EntradaAgregacaoTempoExtracaoIaSmartRead[]
+}) {
   const custoHora =
     PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
     PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
   const custoHoraRotulo = formatarMoedaInsightsSmartRead(custoHora)
   const custoOperadorRotulo = formatarMoedaInsightsSmartRead(
     PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl,
+  )
+  const medias = calcularMediasTabelaBaseCalculoSmartRead()
+  const temposSmartReadMedidos = useMemo(
+    () => agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead(transacoes),
+    [transacoes],
   )
 
   return (
@@ -98,7 +129,7 @@ export function ConteudoMetodologiaSavingInsightsSmartRead() {
           <li>
             <span className="sr-insights-metodologia-saving__formula-nome">Saving digitação</span>
             <span className="sr-insights-metodologia-saving__formula-expr">
-              tempo manual − tempo Smart Read (por documento, tabela abaixo)
+              tempo manual − tempo real de extração IA (por documento; fallback da tabela se ausente)
             </span>
           </li>
           <li>
@@ -141,7 +172,7 @@ export function ConteudoMetodologiaSavingInsightsSmartRead() {
                 <th scope="col">
                   <span className="sr-insights-metodologia-saving__th-stack">
                     Digitação
-                    <span className="sr-insights-metodologia-saving__th-stack-sub">Smart Read</span>
+                    <span className="sr-insights-metodologia-saving__th-stack-sub">SR medido (s)</span>
                   </span>
                 </th>
                 <th scope="col">
@@ -165,7 +196,7 @@ export function ConteudoMetodologiaSavingInsightsSmartRead() {
                   <tr key={linha.rotulo_exibicao}>
                     <th scope="row">{linha.rotulo_exibicao}</th>
                     <td>{formatarMinutosTabela(linha.tempo_digitação_manual_minutos)}</td>
-                    <td>{formatarMinutosTabela(params.tempo_digitação_smart_read_minutos)}</td>
+                    <td>{formatarTempoSmartReadMedidoTabela(temposSmartReadMedidos, linha.tipo_parametro)}</td>
                     <td>
                       {formatarMinutosTabela(params.tempo_correcao_erro_manual_minutos_por_campo)}
                     </td>
@@ -175,12 +206,33 @@ export function ConteudoMetodologiaSavingInsightsSmartRead() {
                   </tr>
                 )
               })}
+              <tr className="sr-insights-metodologia-saving__tabela-linha-media">
+                <th scope="row">Média</th>
+                <td>{formatarMinutosTabela(medias.tempo_digitação_manual_minutos)}</td>
+                <td>
+                  {temposSmartReadMedidos.media_ponderada_segundos != null
+                    ? formatarSegundosMedidosTabela(temposSmartReadMedidos.media_ponderada_segundos)
+                    : '—'}
+                </td>
+                <td>
+                  {formatarMinutosTabela(medias.tempo_correcao_erro_manual_minutos_por_campo)}
+                </td>
+                <td>
+                  {formatarMinutosTabela(medias.tempo_correcao_erro_smart_read_minutos_por_campo)}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
         <p className="sr-insights-metodologia-saving__tabela-nota">
           Tempos de digitação manual calculados na tabela geral do estudo (seção 19 do estudo de BL),
-          com base nos documentos médios descritos abaixo.
+          com base nos documentos médios descritos abaixo. A coluna <strong>SR medido (s)</strong>{' '}
+          usa a média do tempo real de extração IA das leituras visíveis (
+          {temposSmartReadMedidos.documentos_amostra > 0
+            ? `${Math.round(temposSmartReadMedidos.documentos_amostra)} documento(s) na amostra`
+            : 'sem amostra nesta tela — exibe «—»'}
+          ). A linha <strong>Média</strong> na digitação manual e correções é aritmética dos tipos;
+          na coluna SR, média ponderada da amostra.
         </p>
       </SecaoMetodologiaSaving>
 
@@ -209,7 +261,13 @@ export function ConteudoMetodologiaSavingInsightsSmartRead() {
   )
 }
 
-export function ProvedorMetodologiaSavingInsightsSmartRead({ children }: { children: ReactNode }) {
+export function ProvedorMetodologiaSavingInsightsSmartRead({
+  children,
+  transacoes = [],
+}: {
+  children: ReactNode
+  transacoes?: EntradaAgregacaoTempoExtracaoIaSmartRead[]
+}) {
   const [aberto, setAberto] = useState(false)
   const abrir = useCallback(() => setAberto(true), [])
   const fechar = useCallback(() => setAberto(false), [])
@@ -226,7 +284,7 @@ export function ProvedorMetodologiaSavingInsightsSmartRead({ children }: { child
         larguraMaxima="min(72rem, calc(100vw - 2rem))"
         botoes={[{ rotulo: 'Fechar', variante: 'secondary', ao_clicar: fechar }]}
       >
-        <ConteudoMetodologiaSavingInsightsSmartRead />
+        <ConteudoMetodologiaSavingInsightsSmartRead transacoes={transacoes} />
       </ModalOverlay>
     </MetodologiaSavingContext.Provider>
   )

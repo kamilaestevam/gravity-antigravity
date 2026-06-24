@@ -1,0 +1,59 @@
+{
+  "referencia": "TASK-000325",
+  "ordinal": 55,
+  "id_transcript": null,
+  "titulo_canonico": "PEDIDO-DASHBOARD-MEL-REMOVER-CONFIG-MAPEAMENTO-KPIS-TOPO",
+  "titulo_exibicao": "TASK-000325 | [Pedido] Config | MEL — Remover config de mapeamento dos 4 KPIs do topo (Visão Geral/Dashboard)",
+  "status": "RES",
+  "status_descricao": "Resolvida — config removida Pedido + BID Frete; hotfix Dashboard pós-merge",
+  "area": "PEDIDO",
+  "area_descricao": "Produto Pedido (COMEX) — lista, dashboard, kanban, configurações",
+  "subarea": "CONFIG",
+  "subarea_descricao": "Tela Configurações do Pedido — personalização de visualizações",
+  "visualizacao": "DASHBOARD",
+  "visualizacao_descricao": "Afeta KPIs do topo na Visão Geral (Insights) e no Dashboard",
+  "tipo_entrega": "MEL",
+  "tipo_entrega_descricao": "Melhoria de UX — remover configuração que não agrega valor e simplificar KPIs fixos",
+  "resumo": "REMOVER-CONFIG-MAPEAMENTO-KPIS-TOPO",
+  "resumo_descricao": "Excluir seção que mapeia status arbitrários aos 4 cards fixos do painel",
+  "resumo_detalhado": "Removida a seção Configurações → Visão Geral que permitia remapear status aos 4 KPIs fixos (Pedido e BID Frete). Mapeamento passou a ser fixo em código (DASHBOARD_TOP_KPI_STATUS_MAPA / BID_FRETE_DASHBOARD_TOP_KPI_STATUS_MAPA) com limpeza de localStorage legado. Hotfix pós-deploy: referência órfã topKpiStatusMapa no deps do useCallback do Dashboard.",
+  "data_criacao": "2026-06-23T12:00:00.000Z",
+  "data_encerramento": "2026-06-23T18:00:00.000Z",
+  "duracao_horas": 2.0,
+  "tempo_bruto_horas": 1.5,
+  "tempo_agente_horas": 1.5,
+  "tempo_dono_horas": 0.5,
+  "tempo_liquido_horas": 2.0,
+  "tokens_estimados_entrada": 120000,
+  "tokens_estimados_saida": 45000,
+  "tokens_estimados_total": 165000,
+  "mensagens_usuario": null,
+  "mensagens_agente": null,
+  "fases_concluidas": ["ENTENDIMENTO", "IMPLEMENTACAO", "PR", "DEPLOY", "HOTFIX", "DOCUMENTACAO"],
+  "checklist_encerramento": {
+    "teste_local": { "valor": "sim", "descricao": "Smoke Dashboard local após hotfix" },
+    "code_review": { "valor": "nao", "descricao": "Code review executado (/code-review)" },
+    "doc_skill": { "valor": "sim", "descricao": "Documentos técnicos e E2E atualizados nesta entrega" },
+    "qa": { "valor": "nao", "descricao": "QA pós-entrega executado (/qa)" },
+    "pr": { "valor": "sim", "descricao": "PR #429 (merge), #433 (hotfix), docs nesta branch" },
+    "deploy": { "valor": "sim", "descricao": "PR #429 mergeado em produção" },
+    "teste_producao": { "valor": "sim", "descricao": "Dono validou deploy; bug topKpiStatusMapa corrigido em #433" }
+  },
+  "checklist_alertas": [
+    {
+      "item": "code_review",
+      "mensagem": "Code review formal não executado."
+    },
+    {
+      "item": "qa",
+      "mensagem": "QA formal (/qa) não executado — smoke manual apenas."
+    }
+  ],
+  "entregas": [
+    "PR #429 — remover config KPIs topo Pedido + BID Frete",
+    "PR #433 — hotfix ReferenceError topKpiStatusMapa no Dashboard",
+    "documentos-tecnicos/produtos-gravity/pedido/VISAO-GERAL-AGREGADO.md (§ KPIs fixos)",
+    "documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISAO-GERAL-TECNICO.md (nota config removida)",
+    "testes/testes-e2e/pedido/configuracao/status/status-e2e.md (FLUXO 11 atualizado)"
+  ]
+}

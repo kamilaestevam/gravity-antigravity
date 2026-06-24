@@ -35,30 +35,34 @@ Todas exigem `assertWorkspacesAutorizadosNoRequest` + query `ids_workspaces` qua
 
 | Camada | Arquivo | Responsabilidade |
 |--------|---------|------------------|
-| KPIs `/kpis` | `server/src/lib/agregar-kpis-dashboard-bid-frete-internacional.ts` | Funil, saving, tempo resposta, valor por status configurado |
+| KPIs `/kpis` | `server/src/lib/agregar-kpis-dashboard-bid-frete-internacional.ts` | Funil, saving, tempo resposta, KPIs Insights (`kpi_insights_*`, modais, volumes USD) |
+| Where operacional KPIs | `shared/where-kpi-insights-operacionais-bid-frete-internacional.ts` | SSOT Prisma para cards aguardando aprovação/resposta (#427) |
 | Gráficos | `server/src/lib/agregar-insights-graficos-bid-frete-internacional.ts` | Buckets mensal/modal/incoterms/melhor |
-| Drill-down | `server/src/lib/montar-insights-detalhe-bid-frete-internacional.ts` | `where` Prisma + DTO modal |
+| Drill-down | `server/src/lib/montar-insights-detalhe-bid-frete-internacional.ts` | `where` Prisma + DTO modal (`resposta`/`aprovacao` = where operacional) |
 | Mapa | `server/src/lib/mapa-cotacoes-visao-geral-bid-frete-internacional.ts` | Pins, rotas, `dias_transito_medio_mercado` |
+| Tooltip KPI (client) | `client/src/shared/insights-kpi-tooltip-resumo-bid-frete-internacional.tsx` | Bloco UX 10 (volume, contagem, modal) nos dois cards |
 
 **Dashboard operacional + GABI** usam o mesmo agregador `/kpis` e rota separada `GET /insights` (motor `gabi-insights-bid-frete-internacional.ts`) — ver skill § Dashboard; **não confundir** com a aba Insights (`visao-geral.tsx`).
 
 ---
 
-## 3. KPIs do topo ↔ Configurações
+## 3. KPIs do topo (fixos — sem config)
+
+> **TASK-000325 / PR #429:** removida a aba **Configurações → Visão Geral** (`dashboard-kpi`). SSOT: `BID_FRETE_DASHBOARD_TOP_KPI_STATUS_MAPA` em `use-dashboard-top-kpi-bid-frete.ts` (legado `bid-frete:dashboard-top-kpi-status` limpo no load).
 
 Os cards numéricos **não** usam contagem fixa do server (`cotacoes_andamento` legado).
 
 | Fonte | Chave / arquivo |
 |-------|-----------------|
-| Status por card | `use-dashboard-top-kpi-bid-frete.ts` → localStorage `bid-frete:dashboard-top-kpi-status` |
-| Widget andamento | `kpi_cotacoes_andamento` (default `EM_COTACAO`) |
-| Widget aprovadas | `kpi_cotacoes_aprovadas` (default `APROVADA`) |
+| Mapeamento widget → status | `BID_FRETE_DASHBOARD_TOP_KPI_STATUS_MAPA` (código) |
+| Widget andamento | `kpi_cotacoes_andamento` → `AGUARDANDO_APROVACAO` |
+| Widget aprovadas | `kpi_cotacoes_aprovadas` → `EM_COTACAO` |
+| Widget valor em aberto | `kpi_valor_em_aberto` → `AGUARDANDO_APROVACAO` |
+| Widget expiradas | `kpi_cotacoes_expiradas` → `EXPIRADA` |
 | Contagem exibida | `funil` da API → `contagemStatusNoFunilBidFreteInternacional` |
 | Rótulo / cor | `status-config-bid-frete-internacional.ts` |
 | Volume USD card 1 | `valor_andamento_usd` — agregado no server pelo mesmo `status_slug_kpi_andamento` |
 | Modal no tooltip | `distribuicao_modal_andamento` — mesmo slug |
-
-UI Config: `client/src/pages/configuracoes.tsx` → categoria `dashboard-kpi`.
 
 ---
 
@@ -119,7 +123,7 @@ Componente: `client/src/shared/componentes/visao-geral-mapa-bid-frete.tsx` · es
 | `insights/agregar-insights-graficos.test.ts` | Buckets gráficos |
 | `insights/taxas-cambio-insights.test.ts` | PTAX / spread |
 | `insights/montar-insights-detalhe.test.ts` | Where + DTO drill-down |
-| `insights/insights-status-funil.test.ts` | Funil + KPI por status config |
+| `insights/insights-status-funil.test.ts` | Funil + KPI por status config + `resolverContagemKpiInsights*` (`Math.max` API+funil) |
 | `insights/divergencia-cadastros-mapa.test.ts` | País ISO, alerta Athens+MMI, rótulos aeroporto/porto |
 | `insights/formatar-terminal-mapa.test.ts` | Rótulo documento mapa (prefixo BID/COT) |
 | `insights/filtrar-mapa-insights.test.ts` | Filtros do mapa Insights |
@@ -178,7 +182,8 @@ Campos de melhor proposta por rota: `id_cotacao_melhor_proposta_*`, `numero_cota
 
 ## 9. Anti-padrões
 
-- Hardcodar título «Em andamento» ou contar `cotacoes_andamento` do server sem olhar Config + funil.
+- Hardcodar título dos cards Insights ou contar só `kpi_insights_*` sem fallback funil (`Math.max` em `status-config`).
+- Enviar `statusSlugs` no client para `insights-detalhe` contexto `resposta`/`aprovacao` — server usa where operacional (#427).
 - Drill-down de alertas sem propagar `data_referencia` (desalinha pills vs modal).
 - `res.status(400).json` nas rotas Insights — usar `AppError`.
 - Usar `destino_nome` da cotação para geocodificar o mapa — **sempre** o código + Cadastros.

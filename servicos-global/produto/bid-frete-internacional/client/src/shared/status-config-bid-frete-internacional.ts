@@ -164,6 +164,49 @@ export function detalharAguardandoRespostaNoFunilBidFreteInternacional(
   return { enviadaFornecedores, emCotacao, total }
 }
 
+/**
+ * API operacional (#427) + funil (status nativos) — evita card 0 quando server não envia kpi_insights_*.
+ * Math.max é ponte até a regra operacional estabilizar em produção.
+ */
+export function resolverContagemKpiInsightsAguardandoAprovacaoBidFreteInternacional(
+  funil: Array<{ status: string; count: number }>,
+  statusConfig: StatusCotacaoConfigBidFreteInternacional[],
+  contagemApi?: number,
+): number {
+  const funilCount = contagemAguardandoAprovacaoNoFunilBidFreteInternacional(funil, statusConfig)
+  if (contagemApi == null) return funilCount
+  return Math.max(contagemApi, funilCount)
+}
+
+export function resolverContagemKpiInsightsAguardandoRespostaBidFreteInternacional(
+  funil: Array<{ status: string; count: number }>,
+  statusConfig: StatusCotacaoConfigBidFreteInternacional[] = [],
+  contagemApi?: number,
+): number {
+  const funilCount = contagemAguardandoRespostaNoFunilBidFreteInternacional(funil, statusConfig)
+  if (contagemApi == null) return funilCount
+  return Math.max(contagemApi, funilCount)
+}
+
+export function resolverDetalheKpiInsightsAguardandoRespostaBidFreteInternacional(
+  funil: Array<{ status: string; count: number }>,
+  statusConfig: StatusCotacaoConfigBidFreteInternacional[] = [],
+  detalheApi?: { enviada_fornecedores: number; em_cotacao: number },
+  contagemApi?: number,
+): { enviadaFornecedores: number; emCotacao: number; total: number } {
+  const funilDetalhe = detalharAguardandoRespostaNoFunilBidFreteInternacional(funil, statusConfig)
+  const enviadaFornecedores = detalheApi != null
+    ? Math.max(detalheApi.enviada_fornecedores, funilDetalhe.enviadaFornecedores)
+    : funilDetalhe.enviadaFornecedores
+  const emCotacao = detalheApi != null
+    ? Math.max(detalheApi.em_cotacao, funilDetalhe.emCotacao)
+    : funilDetalhe.emCotacao
+  const total = contagemApi != null
+    ? Math.max(contagemApi, funilDetalhe.total)
+    : funilDetalhe.total
+  return { enviadaFornecedores, emCotacao, total }
+}
+
 export {
   resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional,
   resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional,

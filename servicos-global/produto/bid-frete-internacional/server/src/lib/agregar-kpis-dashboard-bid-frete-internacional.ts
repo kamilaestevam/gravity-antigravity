@@ -24,6 +24,33 @@ function extrairCountGroupBy(row: { _count: number | { _all?: number } }): numbe
   return count._all ?? 0
 }
 
+type DistribuicaoModalKpiInsights = Array<{
+  modal_cotacao_bid_frete_internacional: string
+  count: number
+}>
+
+/** Evita groupBy com where OR complexo (causava 500 em /kpis). */
+async function agruparDistribuicaoModalCotacaoBidFreteInternacional(
+  prisma: { cotacaoBidFreteInternacional: { findMany: (args: unknown) => Promise<unknown> } },
+  where: Record<string, unknown>,
+): Promise<DistribuicaoModalKpiInsights> {
+  const cotacoes = (await prisma.cotacaoBidFreteInternacional.findMany({
+    where,
+    select: { modal_cotacao_bid_frete_internacional: true },
+  })) as Array<{ modal_cotacao_bid_frete_internacional: string }>
+
+  const contagem = new Map<string, number>()
+  for (const cotacao of cotacoes) {
+    const modal = cotacao.modal_cotacao_bid_frete_internacional
+    contagem.set(modal, (contagem.get(modal) ?? 0) + 1)
+  }
+
+  return [...contagem.entries()].map(([modal_cotacao_bid_frete_internacional, count]) => ({
+    modal_cotacao_bid_frete_internacional,
+    count,
+  }))
+}
+
 export type KpisDashboardBidFretePayload = {
   cotacoes_andamento: number
   cotacoes_passadas: number
@@ -46,6 +73,10 @@ export type KpisDashboardBidFretePayload = {
     enviada_fornecedores: number
     em_cotacao: number
   }
+  distribuicao_modal_aguardando_aprovacao: DistribuicaoModalKpiInsights
+  distribuicao_modal_aguardando_resposta: DistribuicaoModalKpiInsights
+  valor_aguardando_aprovacao_usd: number
+  valor_meta_aguardando_resposta_usd: number
 }
 
 export type OpcoesAgregarKpisDashboardBidFrete = {
@@ -213,17 +244,24 @@ export async function agregarKpisDashboardBidFreteInternacional(
     ...filtroWorkspace,
   }
 
+  const whereAguardandoAprovacao = montarWhereKpiInsightsAguardandoAprovacaoBidFreteInternacional(baseKpiInsights)
+  const whereAguardandoResposta = montarWhereKpiInsightsAguardandoRespostaBidFreteInternacional(baseKpiInsights)
+
   const [
     kpiInsightsAguardandoAprovacao,
     kpiInsightsAguardandoResposta,
     kpiInsightsAguardandoRespostaEnviada,
     kpiInsightsAguardandoRespostaEmCotacao,
+    distribuicao_modal_aguardando_aprovacao,
+    distribuicao_modal_aguardando_resposta,
+    valorAguardandoAprovacaoUsd,
+    valorMetaAguardandoRespostaUsd,
   ] = await Promise.all([
     (req.prisma as any).cotacaoBidFreteInternacional.count({
-      where: montarWhereKpiInsightsAguardandoAprovacaoBidFreteInternacional(baseKpiInsights),
+      where: whereAguardandoAprovacao,
     }),
     (req.prisma as any).cotacaoBidFreteInternacional.count({
-      where: montarWhereKpiInsightsAguardandoRespostaBidFreteInternacional(baseKpiInsights),
+      where: whereAguardandoResposta,
     }),
     (req.prisma as any).cotacaoBidFreteInternacional.count({
       where: montarWhereKpiInsightsAguardandoRespostaPorStatusBidFreteInternacional(
@@ -236,6 +274,24 @@ export async function agregarKpisDashboardBidFreteInternacional(
         baseKpiInsights,
         'EM_COTACAO',
       ),
+    }),
+    agruparDistribuicaoModalCotacaoBidFreteInternacional(req.prisma as any, whereAguardandoAprovacao),
+    agruparDistribuicaoModalCotacaoBidFreteInternacional(req.prisma as any, whereAguardandoResposta),
+    (req.prisma as any).propostaBidFreteInternacional.aggregate({
+      where: {
+        id_produto_gravity: 'bid-frete-internacional',
+        moeda_proposta_bid_frete_internacional: 'USD',
+        cotacao: whereAguardandoAprovacao,
+      },
+      _sum: { valor_total_proposta_bid_frete_internacional: true },
+    }),
+    (req.prisma as any).cotacaoBidFreteInternacional.aggregate({
+      where: {
+        ...whereAguardandoResposta,
+        moeda_meta_cotacao_bid_frete_internacional: 'USD',
+        valor_meta_cotacao_bid_frete_internacional: { not: null },
+      },
+      _sum: { valor_meta_cotacao_bid_frete_internacional: true },
     }),
   ])
 
@@ -262,5 +318,11 @@ export async function agregarKpisDashboardBidFreteInternacional(
       enviada_fornecedores: kpiInsightsAguardandoRespostaEnviada,
       em_cotacao: kpiInsightsAguardandoRespostaEmCotacao,
     },
+    distribuicao_modal_aguardando_aprovacao,
+    distribuicao_modal_aguardando_resposta,
+    valor_aguardando_aprovacao_usd:
+      valorAguardandoAprovacaoUsd._sum?.valor_total_proposta_bid_frete_internacional ?? 0,
+    valor_meta_aguardando_resposta_usd:
+      valorMetaAguardandoRespostaUsd._sum?.valor_meta_cotacao_bid_frete_internacional ?? 0,
   }
 }

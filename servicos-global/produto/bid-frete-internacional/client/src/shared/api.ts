@@ -47,6 +47,7 @@ import {
   insightsGraficosResponseSchema,
   mapDashboardKpisFromServer,
   mapInsightsAlertasFromServer,
+  type DashboardKpisInsightsBidFreteInternacionalCliente,
   type InsightsGraficosBidFreteInternacionalCliente,
 } from './insights-visao-geral-bid-frete-internacional'
 import {
@@ -630,15 +631,7 @@ function urlComEscopoWorkspaces(basePath: string, idsWorkspacesFiltro?: string[]
 export async function getDashboardKpis(
   idsWorkspacesFiltro?: string[],
   opcoes?: { status_slug_kpi_andamento?: string },
-): Promise<
-  DashboardKPIs & {
-    tempo_medio_resposta_dias: number | null
-    cotacoes_aprovadas: number
-    distribuicao_modal_andamento: Array<{ modal_cotacao_bid_frete_internacional: string; count: number }>
-    total_cotacoes_com_saving: number
-    total_saving_vs_media: number
-  }
-> {
+): Promise<DashboardKpisInsightsBidFreteInternacionalCliente> {
   const params = new URLSearchParams()
   if (opcoes?.status_slug_kpi_andamento) {
     params.set('status_slug_kpi_andamento', opcoes.status_slug_kpi_andamento)

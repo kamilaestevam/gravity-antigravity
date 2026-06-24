@@ -60,6 +60,24 @@ export const dashboardKpisResponseSchema = z.object({
       em_cotacao: z.number(),
     })
     .optional(),
+  distribuicao_modal_aguardando_aprovacao: z
+    .array(
+      z.object({
+        modal_cotacao_bid_frete_internacional: z.string(),
+        count: z.number(),
+      }),
+    )
+    .optional(),
+  distribuicao_modal_aguardando_resposta: z
+    .array(
+      z.object({
+        modal_cotacao_bid_frete_internacional: z.string(),
+        count: z.number(),
+      }),
+    )
+    .optional(),
+  valor_aguardando_aprovacao_usd: z.number().optional(),
+  valor_meta_aguardando_resposta_usd: z.number().optional(),
 })
 
 export const insightsAlertasResponseSchema = z.object({
@@ -74,18 +92,33 @@ export const insightsAlertasResponseSchema = z.object({
   ),
 })
 
-export function mapDashboardKpisFromServer(
-  raw: z.infer<typeof dashboardKpisResponseSchema>,
-): DashboardKPIs & {
+export type DashboardKpisInsightsBidFreteInternacionalCliente = DashboardKPIs & {
   tempo_medio_resposta_dias: number | null
   cotacoes_aprovadas: number
   distribuicao_modal_andamento: Array<{ modal_cotacao_bid_frete_internacional: string; count: number }>
   total_cotacoes_com_saving: number
   total_saving_vs_media: number
-  kpi_insights_aguardando_aprovacao: number
-  kpi_insights_aguardando_resposta: number
-  kpi_insights_aguardando_resposta_detalhe: { enviada_fornecedores: number; em_cotacao: number }
-} {
+  kpi_insights_aguardando_aprovacao?: number
+  kpi_insights_aguardando_resposta?: number
+  kpi_insights_aguardando_resposta_detalhe?: {
+    enviada_fornecedores: number
+    em_cotacao: number
+  }
+  distribuicao_modal_aguardando_aprovacao?: Array<{
+    modal_cotacao_bid_frete_internacional: string
+    count: number
+  }>
+  distribuicao_modal_aguardando_resposta?: Array<{
+    modal_cotacao_bid_frete_internacional: string
+    count: number
+  }>
+  valor_aguardando_aprovacao_usd?: number
+  valor_meta_aguardando_resposta_usd?: number
+}
+
+export function mapDashboardKpisFromServer(
+  raw: z.infer<typeof dashboardKpisResponseSchema>,
+): DashboardKpisInsightsBidFreteInternacionalCliente {
   const savingUsd =
     raw.savings.total_saving_usd ??
     raw.savings.total_saving_vs_target ??
@@ -127,12 +160,13 @@ export function mapDashboardKpisFromServer(
     total_cotacoes_com_saving:
       raw.savings.total_cotacoes_aprovadas_classificacao_bid_frete_internacional ?? 0,
     total_saving_vs_media: raw.savings.total_saving_vs_media ?? 0,
-    kpi_insights_aguardando_aprovacao: raw.kpi_insights_aguardando_aprovacao ?? 0,
-    kpi_insights_aguardando_resposta: raw.kpi_insights_aguardando_resposta ?? 0,
-    kpi_insights_aguardando_resposta_detalhe: raw.kpi_insights_aguardando_resposta_detalhe ?? {
-      enviada_fornecedores: 0,
-      em_cotacao: 0,
-    },
+    kpi_insights_aguardando_aprovacao: raw.kpi_insights_aguardando_aprovacao,
+    kpi_insights_aguardando_resposta: raw.kpi_insights_aguardando_resposta,
+    kpi_insights_aguardando_resposta_detalhe: raw.kpi_insights_aguardando_resposta_detalhe,
+    distribuicao_modal_aguardando_aprovacao: raw.distribuicao_modal_aguardando_aprovacao,
+    distribuicao_modal_aguardando_resposta: raw.distribuicao_modal_aguardando_resposta,
+    valor_aguardando_aprovacao_usd: raw.valor_aguardando_aprovacao_usd,
+    valor_meta_aguardando_resposta_usd: raw.valor_meta_aguardando_resposta_usd,
   }
 }
 

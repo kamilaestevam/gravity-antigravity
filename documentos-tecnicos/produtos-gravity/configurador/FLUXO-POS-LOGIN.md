@@ -16,7 +16,11 @@ Após autenticar no Clerk, o **porteiro SSOT** (`GET /api/v1/me`) envia o usuár
 Documentação completa do signup: [`FLUXO-SIGNUP-ONBOARDING.md`](./FLUXO-SIGNUP-ONBOARDING.md).  
 Plano de testes LOGIN: [`PLANO-LOGIN-PORTEIRO-SSOT.md`](../../../testes/testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md).
 
-Na rota `/hub`, `<SelecionarWorkspace />` é o **HUB unificado** (produtos contratados + operações + Store/Gabi). Rotas legadas `/core` e `/core/*` redirecionam para `/hub`.
+Na rota `/hub`, `<SelecionarWorkspace />` é o **HUB unificado** (produtos contratados + operações + Gravity Store). Rotas legadas `/core` e `/core/*` redirecionam para `/hub`.
+
+> **GABI no Hub (jun/2026):** painel de insights e widget flutuante estão **ocultos** no código (`EXIBIR_PAINEL_GABI_HUB` / `EXIBIR_WIDGET_GABI_GLOBAL` = `false`) até entrega futura do agente. Não documentar como disponível para o usuário.
+>
+> **Localizador no header do Hub (jun/2026):** botão «Onde estou» (`LocalizadorGlobal`) **oculto** (`EXIBIR_LOCALIZADOR_HEADER_HUB` = `false`) até o mapa do ecossistema estar pronto. Código preservado em `SelecionarWorkspace.tsx`.
 
 ### Layout do HUB (PR #404)
 
@@ -25,7 +29,7 @@ Na rota `/hub`, `<SelecionarWorkspace />` é o **HUB unificado** (produtos contr
 | Hero | Saudação, resumo operacional, status |
 | **Seus Produtos Gravity** | Largura total — puzzle com paridade visual da Gravity Store (`GradeProdutosContratadosHub` + `StorePuzzleCarousel`) |
 | Operações em andamento | KPIs + atalho processos |
-| Inferior | Gravity Store + Gabi |
+| Inferior | Gravity Store (painel GABI oculto — ver nota acima) |
 
 A faixa superior **não** exibe mais o painel **Workspaces** lado a lado com produtos (grid 2 colunas removido). Puzzle, meter e atalho **Gravity Store** ficam no cabeçalho único da seção de produtos.
 
@@ -121,7 +125,7 @@ Sem o parâmetro, qualquer botão "Voltar ao Hub" entraria em loop para usuário
 |---|---|
 | Botão "Voltar ao Hub" no header | `navigate('/hub?select=1')` ou `window.location.href = '/hub?select=1'` |
 | Item de menu na sidebar de produto | `to: '/hub?select=1'` |
-| Click no nó "hub" do `<LocalizadorGlobal>` | `navigate('/hub?select=1')` |
+| Click no nó "hub" do `<LocalizadorGlobal>` | `navigate('/hub?select=1')` *(Localizador oculto no header do `/hub` até `EXIBIR_LOCALIZADOR_HEADER_HUB` — ver nota acima)* |
 
 **Exceção:** `App.tsx > RootRedirect` (rota `/`) usa o porteiro → `/hub` **sem** `?select=1` quando o usuário já tem org — quem digita `/` espera "home". O skip é desejado neste caso.
 

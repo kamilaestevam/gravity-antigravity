@@ -292,6 +292,12 @@ function ServerHealthMonitor() {
   return null
 }
 
+/**
+ * Widget flutuante Gabi (ícone estrela) — desligado até o agente estar pronto para produção.
+ * Código preservado em GabiOnboardingWidget.tsx; reativar quando a entrega for validada.
+ */
+const EXIBIR_WIDGET_GABI_GLOBAL = false
+
 /** Gabi IA global — aparece em todas as telas autenticadas (lazy-loaded) */
 function GabiGlobal() {
   const { user } = useUser()
@@ -486,10 +492,12 @@ export default function App() {
         } />
       </Routes>
 
-      {/* Gabi IA — presente em todas as telas pos-login */}
-      <SignedIn>
-        <GabiGlobal />
-      </SignedIn>
+      {/* Gabi IA — widget global; ver EXIBIR_WIDGET_GABI_GLOBAL */}
+      {EXIBIR_WIDGET_GABI_GLOBAL && (
+        <SignedIn>
+          <GabiGlobal />
+        </SignedIn>
+      )}
     </div>
   )
 }

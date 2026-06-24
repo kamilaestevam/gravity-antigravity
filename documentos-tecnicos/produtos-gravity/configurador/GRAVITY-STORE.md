@@ -73,7 +73,7 @@ Mapeamento em `slugPuzzleParaCatalogo` / `slugCatalogoParaPuzzle` (`status-produ
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ Topbar (Logo, Localizador, Usuário, Notificações)       │
+│ Topbar (Logo, busca, notificações, idioma, usuário — Localizador oculto no Hub) │
 ├─────────────────────────────────────────────────────────┤
 │ Cards de estatística (publicados / contratados / …)     │
 ├─────────────────────────────────────────────────────────┤
@@ -154,7 +154,7 @@ A faixa **Seus Produtos Gravity** do HUB unificado (`SelecionarWorkspace`) reuti
 │   gs-stack__head: título + pill Gravity Store + meter barras │
 │   StorePuzzleCarousel → PuzzleStackProdutosGravity           │
 ├──────────────────────────────────────────────────────────────┤
-│ Operações em andamento · Store + Gabi (faixas inferiores)    │
+│ Operações em andamento · Gravity Store (faixa inferior; GABI oculta) │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -267,4 +267,4 @@ Escopo **STORE** — pasta `testes/**/gravity-store/` (registry `TST-*-STORE-*`)
 - [FLUXO-POS-LOGIN.md](./FLUXO-POS-LOGIN.md) — navegação pós-auth; layout do HUB unificado; "Voltar ao Hub" a partir de `/store`
 - [layout-e-margens.md](../../ux/criacao-telas/layout-e-margens.md) — container `.gs-store`
 - [rotas-convencao.md](../../arquitetura/rotas-convencao.md) — convenção `/store`
-- [GABI-AGENTE-USUARIO.md](../gabi/GABI-AGENTE-USUARIO.md) — tools GABI para catálogo (seção 4.6)
+- Painel GABI no Hub: **não exposto** até reativar `EXIBIR_PAINEL_GABI_HUB` em `SelecionarWorkspace.tsx` (código preservado).

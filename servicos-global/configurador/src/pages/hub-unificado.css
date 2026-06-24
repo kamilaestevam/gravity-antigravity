@@ -342,8 +342,17 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   padding: 0.5rem;
 }
 
+/* Painel GABI oculto (EXIBIR_PAINEL_GABI_HUB = false) — só Gravity Store na faixa */
+.sw-hub-row-gabi--apenas-store {
+  grid-template-columns: minmax(220px, 280px);
+}
+
 @media (max-width: 1200px) {
   .sw-hub-row-gabi {
+    grid-template-columns: 1fr;
+  }
+
+  .sw-hub-row-gabi--apenas-store {
     grid-template-columns: 1fr;
   }
 

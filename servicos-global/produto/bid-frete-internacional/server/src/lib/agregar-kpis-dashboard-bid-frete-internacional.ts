@@ -5,6 +5,11 @@
 import type { Request } from 'express'
 import { motorGanho } from '../services/motor-ganho-bid-frete-internacional.js'
 import { clausulaFiltroWorkspaceBidFrete, parseIdsWorkspacesQuery } from '../shared/workspace-filtro-bid-frete-internacional.js'
+import {
+  montarWhereKpiInsightsAguardandoAprovacaoBidFreteInternacional,
+  montarWhereKpiInsightsAguardandoRespostaBidFreteInternacional,
+  montarWhereKpiInsightsAguardandoRespostaPorStatusBidFreteInternacional,
+} from '../../../shared/where-kpi-insights-operacionais-bid-frete-internacional.js'
 
 const STATUS_ANDAMENTO = [
   'ENVIADA_FORNECEDORES',
@@ -35,6 +40,12 @@ export type KpisDashboardBidFretePayload = {
   savings: Awaited<ReturnType<typeof motorGanho.calcularMetricas>>
   funil: Array<{ status: string; count: number }>
   distribuicao_modal_andamento: Array<{ modal_cotacao_bid_frete_internacional: string; count: number }>
+  kpi_insights_aguardando_aprovacao: number
+  kpi_insights_aguardando_resposta: number
+  kpi_insights_aguardando_resposta_detalhe: {
+    enviada_fornecedores: number
+    em_cotacao: number
+  }
 }
 
 export type OpcoesAgregarKpisDashboardBidFrete = {
@@ -197,6 +208,37 @@ export async function agregarKpisDashboardBidFreteInternacional(
     count: extrairCountGroupBy(m),
   }))
 
+  const baseKpiInsights = {
+    id_produto_gravity: 'bid-frete-internacional',
+    ...filtroWorkspace,
+  }
+
+  const [
+    kpiInsightsAguardandoAprovacao,
+    kpiInsightsAguardandoResposta,
+    kpiInsightsAguardandoRespostaEnviada,
+    kpiInsightsAguardandoRespostaEmCotacao,
+  ] = await Promise.all([
+    (req.prisma as any).cotacaoBidFreteInternacional.count({
+      where: montarWhereKpiInsightsAguardandoAprovacaoBidFreteInternacional(baseKpiInsights),
+    }),
+    (req.prisma as any).cotacaoBidFreteInternacional.count({
+      where: montarWhereKpiInsightsAguardandoRespostaBidFreteInternacional(baseKpiInsights),
+    }),
+    (req.prisma as any).cotacaoBidFreteInternacional.count({
+      where: montarWhereKpiInsightsAguardandoRespostaPorStatusBidFreteInternacional(
+        baseKpiInsights,
+        'ENVIADA_FORNECEDORES',
+      ),
+    }),
+    (req.prisma as any).cotacaoBidFreteInternacional.count({
+      where: montarWhereKpiInsightsAguardandoRespostaPorStatusBidFreteInternacional(
+        baseKpiInsights,
+        'EM_COTACAO',
+      ),
+    }),
+  ])
+
   return {
     cotacoes_andamento: cotacoesAndamento,
     cotacoes_passadas: cotacoesPassadas,
@@ -214,5 +256,11 @@ export async function agregarKpisDashboardBidFreteInternacional(
     savings,
     funil: funilMapped,
     distribuicao_modal_andamento,
+    kpi_insights_aguardando_aprovacao: kpiInsightsAguardandoAprovacao,
+    kpi_insights_aguardando_resposta: kpiInsightsAguardandoResposta,
+    kpi_insights_aguardando_resposta_detalhe: {
+      enviada_fornecedores: kpiInsightsAguardandoRespostaEnviada,
+      em_cotacao: kpiInsightsAguardandoRespostaEmCotacao,
+    },
   }
 }

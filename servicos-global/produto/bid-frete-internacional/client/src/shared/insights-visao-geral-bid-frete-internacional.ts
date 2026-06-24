@@ -52,6 +52,14 @@ export const dashboardKpisResponseSchema = z.object({
       }),
     )
     .optional(),
+  kpi_insights_aguardando_aprovacao: z.number().optional(),
+  kpi_insights_aguardando_resposta: z.number().optional(),
+  kpi_insights_aguardando_resposta_detalhe: z
+    .object({
+      enviada_fornecedores: z.number(),
+      em_cotacao: z.number(),
+    })
+    .optional(),
 })
 
 export const insightsAlertasResponseSchema = z.object({
@@ -74,6 +82,9 @@ export function mapDashboardKpisFromServer(
   distribuicao_modal_andamento: Array<{ modal_cotacao_bid_frete_internacional: string; count: number }>
   total_cotacoes_com_saving: number
   total_saving_vs_media: number
+  kpi_insights_aguardando_aprovacao: number
+  kpi_insights_aguardando_resposta: number
+  kpi_insights_aguardando_resposta_detalhe: { enviada_fornecedores: number; em_cotacao: number }
 } {
   const savingUsd =
     raw.savings.total_saving_usd ??
@@ -116,6 +127,12 @@ export function mapDashboardKpisFromServer(
     total_cotacoes_com_saving:
       raw.savings.total_cotacoes_aprovadas_classificacao_bid_frete_internacional ?? 0,
     total_saving_vs_media: raw.savings.total_saving_vs_media ?? 0,
+    kpi_insights_aguardando_aprovacao: raw.kpi_insights_aguardando_aprovacao ?? 0,
+    kpi_insights_aguardando_resposta: raw.kpi_insights_aguardando_resposta ?? 0,
+    kpi_insights_aguardando_resposta_detalhe: raw.kpi_insights_aguardando_resposta_detalhe ?? {
+      enviada_fornecedores: 0,
+      em_cotacao: 0,
+    },
   }
 }
 

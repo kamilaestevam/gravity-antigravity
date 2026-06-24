@@ -84,12 +84,7 @@ import { MODAL_LABELS, CalendarioAlerta } from '../shared/types'
 import type { DashboardKPIs } from '../shared/types'
 import {
   montarEtapasFunilInsightsBidFreteInternacional,
-  contagemAguardandoAprovacaoNoFunilBidFreteInternacional,
-  contagemAguardandoRespostaNoFunilBidFreteInternacional,
-  detalharAguardandoRespostaNoFunilBidFreteInternacional,
   resolverCorStatusConfigBidFreteInternacional,
-  resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional,
-  resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional,
   STATUS_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
   TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
   TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
@@ -410,6 +405,12 @@ type KpisInsightsVisaoGeral = DashboardKPIs & {
   distribuicao_modal_andamento: Array<{ modal_cotacao_bid_frete_internacional: string; count: number }>
   total_cotacoes_com_saving: number
   total_saving_vs_media: number
+  kpi_insights_aguardando_aprovacao: number
+  kpi_insights_aguardando_resposta: number
+  kpi_insights_aguardando_resposta_detalhe: {
+    enviada_fornecedores: number
+    em_cotacao: number
+  }
 }
 
 function contagemModalAndamento(
@@ -454,12 +455,6 @@ export default function VisaoGeral() {
   const carregarInsights = useCallback(async () => {
     setCarregando(true)
     setErroCarregamento(null)
-    const slugsAguardandoResposta = resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional(
-      statusCotacaoConfig,
-    )
-    const slugsAguardandoAprovacao = resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional(
-      statusCotacaoConfig,
-    )
     try {
       const [kpisData, alertasData, mapaData, graficosData, detalheResposta, detalheAprovacao] = await Promise.all([
         getDashboardKpis(idsWorkspacesFiltro, {
@@ -472,13 +467,13 @@ export default function VisaoGeral() {
           { tipo: 'resposta', label: '', cor: '' },
           idsWorkspacesFiltro,
           undefined,
-          { limit: 50, statusSlugs: slugsAguardandoResposta },
+          { limit: 50 },
         ),
         getDashboardInsightsDetalhe(
           { tipo: 'aprovacao', label: '', cor: '' },
           idsWorkspacesFiltro,
           undefined,
-          { limit: 50, statusSlugs: slugsAguardandoAprovacao },
+          { limit: 50 },
         ),
       ])
       setKpis(kpisData)
@@ -505,7 +500,7 @@ export default function VisaoGeral() {
     } finally {
       setCarregando(false)
     }
-  }, [idsWorkspacesFiltro, dataReferenciaAlertas, statusCotacaoConfig])
+  }, [idsWorkspacesFiltro, dataReferenciaAlertas])
 
   useEffect(() => {
     if (!escopoHidratado) return
@@ -613,24 +608,27 @@ export default function VisaoGeral() {
 
   const kpiCardAguardandoAprovacao = useMemo(() => {
     const slug = STATUS_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL
-    const funil = kpis?.funil ?? []
     return {
       titulo: TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
       cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, slug, '#818cf8'),
-      count: contagemAguardandoAprovacaoNoFunilBidFreteInternacional(funil, statusCotacaoConfig),
+      count: kpis?.kpi_insights_aguardando_aprovacao ?? 0,
     }
-  }, [statusCotacaoConfig, kpis?.funil])
+  }, [statusCotacaoConfig, kpis?.kpi_insights_aguardando_aprovacao])
 
   const kpiCardAguardandoResposta = useMemo(() => {
-    const funil = kpis?.funil ?? []
-    const detalhe = detalharAguardandoRespostaNoFunilBidFreteInternacional(funil, statusCotacaoConfig)
+    const detalheApi = kpis?.kpi_insights_aguardando_resposta_detalhe
+    const detalhe = {
+      enviadaFornecedores: detalheApi?.enviada_fornecedores ?? 0,
+      emCotacao: detalheApi?.em_cotacao ?? 0,
+      total: kpis?.kpi_insights_aguardando_resposta ?? 0,
+    }
     return {
       titulo: TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
       cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, 'EM_COTACAO', '#fb923c'),
-      count: contagemAguardandoRespostaNoFunilBidFreteInternacional(funil, statusCotacaoConfig),
+      count: detalhe.total,
       detalhe,
     }
-  }, [statusCotacaoConfig, kpis?.funil])
+  }, [statusCotacaoConfig, kpis?.kpi_insights_aguardando_resposta, kpis?.kpi_insights_aguardando_resposta_detalhe])
 
   const cotacoesAguardandoRespostaOrdenadas = useMemo(
     () => ordenarCotacoesTooltipKpiInsights(

@@ -62,33 +62,16 @@
 
 .sw-hub-hero-meta {
   text-align: right;
-  font-size: 0.78rem;
-  color: var(--sw-text-2);
+  flex-shrink: 0;
 }
 
-.sw-hub-status-pill {
+.sw-hub-hero-date {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  margin-bottom: 0.35rem;
-}
-
-.sw-hub-status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #34d399;
-  animation: sw-hub-pulse 2s infinite;
-}
-
-@keyframes sw-hub-pulse {
-  50% { opacity: 0.5; }
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--sw-text-2);
 }
 
 /* ── Painéis ── */

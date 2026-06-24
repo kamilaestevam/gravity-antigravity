@@ -733,13 +733,6 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   max-width: 100px;
 }
 
-/* Select da aba Visão Geral — 4px abaixo do tamanho padrão */
-.cfg-dashboard-kpi-select .sg-campo {
-  min-height: calc(2.5rem - 4px);
-  padding-top: calc(0.5625rem - 2px);
-  padding-bottom: calc(0.5625rem - 2px);
-}
-
 /* ── Preview modal kanban ── */
 
 .cfg-modal-preview {

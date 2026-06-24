@@ -1,6 +1,6 @@
 /**
- * KPIs fixos do topo da Visão Geral — leem preferências de
- * pedido:dashboard-top-kpi-status + rótulos de pedido:status_config.
+ * KPIs fixos do topo da Visão Geral — mapeamento fixo em useDashboardTopKpiStatus
+ * + rótulos de pedido:status_config.
  */
 
 import { useEffect, useMemo, useState } from 'react'
@@ -14,7 +14,6 @@ import {
 
 const STATUS_CONFIG_KEY = 'pedido:status_config'
 const STATUS_CONFIG_SYNC_EVENT = 'pedido:status-config-updated'
-const DASHBOARD_KPI_SYNC_EVENT = 'pedido:dashboard-top-kpi-updated'
 
 export type MapaRotuloStatus = Record<string, { label: string; cor: string }>
 
@@ -45,11 +44,9 @@ export function useMapaRotulosStatusPedido(): MapaRotuloStatus {
   useEffect(() => {
     const bump = () => setTick(n => n + 1)
     window.addEventListener(STATUS_CONFIG_SYNC_EVENT, bump)
-    window.addEventListener(DASHBOARD_KPI_SYNC_EVENT, bump)
     window.addEventListener('storage', bump)
     return () => {
       window.removeEventListener(STATUS_CONFIG_SYNC_EVENT, bump)
-      window.removeEventListener(DASHBOARD_KPI_SYNC_EVENT, bump)
       window.removeEventListener('storage', bump)
     }
   }, [])

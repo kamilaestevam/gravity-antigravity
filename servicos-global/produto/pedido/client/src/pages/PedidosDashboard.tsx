@@ -68,8 +68,8 @@ import {
   salvarPeriodoCardsLista,
 } from '../shared/periodoPedidoSync'
 import {
+  DASHBOARD_TOP_KPI_STATUS_MAPA,
   DASHBOARD_TOP_KPI_WIDGET_IDS,
-  useDashboardTopKpiStatus,
   type DashboardTopKpiWidgetId,
 } from '../shared/useDashboardTopKpiStatus'
 import { contagemPorStatusSlug, mapaRotulosStatusConfig, rotuloStatusSlug } from '../shared/dashboardStatusKpi'
@@ -766,8 +766,6 @@ export default function PedidosDashboard() {
 
   const navigate = useNavigate()
   const { trackWidget, trackInsight } = useTrackBehavior()
-  const { mapa: topKpiStatusMapa } = useDashboardTopKpiStatus()
-
   const [distribuicaoGlobal, setDistribuicaoGlobal] = useState<DashboardDistributionGroup[]>([])
   const [kpisPorPeriodo, setKpisPorPeriodo] = useState<Record<string, DashboardKpis>>({})
 
@@ -1410,7 +1408,7 @@ export default function PedidosDashboard() {
       let prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
 
       if (isTopKpi && kpisWidget) {
-        const statusSlug = topKpiStatusMapa[widget.id as DashboardTopKpiWidgetId]
+        const statusSlug = DASHBOARD_TOP_KPI_STATUS_MAPA[widget.id as DashboardTopKpiWidgetId]
         const count = contagemPorStatusSlug(statusSlug, kpisWidget, distribuicaoGlobal)
         const tituloStatus = rotuloStatusSlug(statusSlug, statusConfig, t)
         const tituloExibicao = widgetTituloFoiCustomizado(widget)

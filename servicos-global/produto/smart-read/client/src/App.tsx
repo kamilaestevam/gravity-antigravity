@@ -2,7 +2,7 @@
  * App.tsx — Raiz da SPA Smart Read
  *
  * Mesmo padrão do BID Frete: <TelaProdutoComOrganizacaoOverride> + multi-view
- * (Insights | Lista | Dashboard | Kanban) com default em /lista.
+ * (Insights | Lista | Dashboard | Kanban) com default em /insights.
  */
 
 import React, { lazy, Suspense, useEffect, useMemo } from 'react'
@@ -107,9 +107,9 @@ function LoadingFallback() {
 
 function resolverRouteKey(relSegments: string[]): string {
   const primeiro = relSegments[0]
-  if (primeiro === 'leituras' || primeiro === 'visao-geral') return 'lista'
+  if (primeiro === 'leituras' || primeiro === 'visao-geral') return 'insights'
   if (primeiro === 'configuracoes') return 'configuracoes'
-  return primeiro ?? 'lista'
+  return primeiro ?? 'insights'
 }
 
 export default function App() {
@@ -207,7 +207,7 @@ export default function App() {
         onNavigate: (node: EcosystemNode) => {
           if (node.type === 'hub')               window.location.href = '/hub'
           else if (node.type === 'configurador') window.location.href = '/configurador'
-          else if (node.type === 'produto')      window.location.href = rotaSmartRead('lista')
+          else if (node.type === 'produto')      window.location.href = rotaSmartRead('insights')
         },
       }}
       usuario={{
@@ -227,9 +227,9 @@ export default function App() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<Navigate to={rotaSmartRead('lista')} replace />} />
-          <Route path="visao-geral" element={<Navigate to={rotaSmartRead('lista')} replace />} />
-          <Route path="leituras" element={<Navigate to={rotaSmartRead('lista')} replace />} />
+          <Route path="/" element={<Navigate to={rotaSmartRead('insights')} replace />} />
+          <Route path="visao-geral" element={<Navigate to={rotaSmartRead('insights')} replace />} />
+          <Route path="leituras" element={<Navigate to={rotaSmartRead('insights')} replace />} />
           <Route element={<SmartReadVisualizacaoLayout />}>
             <Route path="insights"  element={smartReadVisualizacoesElement} />
             <Route path="lista"     element={smartReadVisualizacoesElement} />
@@ -237,7 +237,7 @@ export default function App() {
             <Route path="kanban"    element={smartReadVisualizacoesElement} />
           </Route>
           <Route path="configuracoes" element={<ConfiguracoesSmartRead />} />
-          <Route path="*" element={<Navigate to={rotaSmartRead('lista')} replace />} />
+          <Route path="*" element={<Navigate to={rotaSmartRead('insights')} replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoComOrganizacaoOverride>

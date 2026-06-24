@@ -46,8 +46,8 @@ export const LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ: {
     tempo_digitação_manual_minutos: 19.054,
     tipo_parametro: 'packing_list',
   },
-  { rotulo_exibicao: 'BL', tempo_digitação_manual_minutos: 6, tipo_parametro: 'bl' },
-  { rotulo_exibicao: 'AWB', tempo_digitação_manual_minutos: 6, tipo_parametro: 'awb' },
+  { rotulo_exibicao: 'BL', tempo_digitação_manual_minutos: 12.1, tipo_parametro: 'bl' },
+  { rotulo_exibicao: 'AWB', tempo_digitação_manual_minutos: 9.02, tipo_parametro: 'awb' },
   {
     rotulo_exibicao: 'Documentos Financeiros',
     tempo_digitação_manual_minutos: 20,
@@ -107,7 +107,7 @@ export const BASE_TEMPO_DOCUMENTO_SMART_READ: ParametrosTempoDocumentoSmartRead[
     tipo_documento: 'bl',
     rotulo: 'Bill of Lading',
     campos_medio: 86,
-    tempo_digitação_manual_minutos: 6,
+    tempo_digitação_manual_minutos: 12.1,
     tempo_digitação_smart_read_minutos: 9,
     tempo_correcao_erro_manual_minutos_por_campo: 2.8,
     tempo_correcao_erro_smart_read_minutos_por_campo: 0.75,
@@ -116,7 +116,7 @@ export const BASE_TEMPO_DOCUMENTO_SMART_READ: ParametrosTempoDocumentoSmartRead[
     tipo_documento: 'awb',
     rotulo: 'AWB',
     campos_medio: 54,
-    tempo_digitação_manual_minutos: 6,
+    tempo_digitação_manual_minutos: 9.02,
     tempo_digitação_smart_read_minutos: 6.5,
     tempo_correcao_erro_manual_minutos_por_campo: 2.4,
     tempo_correcao_erro_smart_read_minutos_por_campo: 0.65,
@@ -166,4 +166,36 @@ export function resolverParametrosTempoDocumentoSmartRead(
     BASE_TEMPO_DOCUMENTO_SMART_READ.find((item) => item.tipo_documento === tipo) ??
     BASE_TEMPO_DOCUMENTO_SMART_READ.find((item) => item.tipo_documento === 'outros')!
   )
+}
+
+export type MediasTabelaBaseCalculoSmartRead = {
+  tempo_digitação_manual_minutos: number
+  tempo_digitação_smart_read_minutos: number
+  tempo_correcao_erro_manual_minutos_por_campo: number
+  tempo_correcao_erro_smart_read_minutos_por_campo: number
+}
+
+/** Médias aritméticas das linhas exibidas na tabela «Base de cálculo». */
+export function calcularMediasTabelaBaseCalculoSmartRead(): MediasTabelaBaseCalculoSmartRead {
+  const linhas = LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ
+  let somaManual = 0
+  let somaSmartRead = 0
+  let somaCorrecaoManual = 0
+  let somaCorrecaoSmartRead = 0
+
+  for (const linha of linhas) {
+    const params = resolverParametrosTempoDocumentoSmartRead(linha.tipo_parametro)
+    somaManual += linha.tempo_digitação_manual_minutos
+    somaSmartRead += params.tempo_digitação_smart_read_minutos
+    somaCorrecaoManual += params.tempo_correcao_erro_manual_minutos_por_campo
+    somaCorrecaoSmartRead += params.tempo_correcao_erro_smart_read_minutos_por_campo
+  }
+
+  const quantidade = linhas.length
+  return {
+    tempo_digitação_manual_minutos: somaManual / quantidade,
+    tempo_digitação_smart_read_minutos: somaSmartRead / quantidade,
+    tempo_correcao_erro_manual_minutos_por_campo: somaCorrecaoManual / quantidade,
+    tempo_correcao_erro_smart_read_minutos_por_campo: somaCorrecaoSmartRead / quantidade,
+  }
 }

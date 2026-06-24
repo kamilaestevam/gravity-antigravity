@@ -13,6 +13,7 @@ export const ArquivoLeituraSchema = z.object({
   id_arquivo: z.string(),
   nome_arquivo: z.string().nullable(),
   status_arquivo: StatusLeituraEnum,
+  tempo_extracao_ia_ms: z.number().int().min(0).nullable().optional(),
   resultado_extracao: z
     .array(z.object({ tipo_documento: z.string().nullable(), dados: z.record(z.string(), z.unknown()) }))
     .nullable(),

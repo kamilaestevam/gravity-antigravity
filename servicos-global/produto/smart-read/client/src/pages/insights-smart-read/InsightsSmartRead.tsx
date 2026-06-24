@@ -87,7 +87,7 @@ export default function InsightsSmartRead() {
   }
 
   return (
-    <ProvedorMetodologiaSavingInsightsSmartRead>
+    <ProvedorMetodologiaSavingInsightsSmartRead transacoes={transacoes}>
       <div className="sr-insights-dashboard">
         {erro && (
           <div className="sr-erro" role="alert">

@@ -21,6 +21,7 @@ export const ArquivoLeituraLegadoSchema = z.object({
   mimeType: z.string().optional(),
   size: z.number().optional(),
   processingStatus: z.string().optional(),
+  processingTimeMs: z.number().optional(),
   processingResult: z.array(ResultadoProcessamentoLegadoSchema).optional(),
   // Resultado corrigido pelo usuario no legado — tem precedencia quando existe
   // (mesma regra do frontend de referencia: finalProcessingResult ?? processingResult).
@@ -53,6 +54,7 @@ export const ArquivoLeituraSchema = z.object({
   id_arquivo: z.string(),
   nome_arquivo: z.string().nullable(),
   status_arquivo: StatusLeituraEnum,
+  tempo_extracao_ia_ms: z.number().int().min(0).nullable().optional(),
   resultado_extracao: z
     .array(z.object({ tipo_documento: z.string().nullable(), dados: z.record(z.string(), z.unknown()) }))
     .nullable(),
@@ -137,6 +139,15 @@ function mapearStatus(status: string | undefined): StatusLeitura {
   return 'PROCESSING'
 }
 
+function resolverTempoExtracaoArquivoLegadoMs(arquivo: {
+  processingTimeMs?: number
+}): number | null {
+  if (typeof arquivo.processingTimeMs === 'number' && arquivo.processingTimeMs >= 0) {
+    return Math.round(arquivo.processingTimeMs)
+  }
+  return null
+}
+
 export function normalizarLeitura(legado: LeituraLegado): Leitura {
   const arquivos = legado.files ?? []
   const statusArquivos = arquivos.map((arquivo) => mapearStatus(arquivo.processingStatus))
@@ -162,6 +173,7 @@ export function normalizarLeitura(legado: LeituraLegado): Leitura {
         id_arquivo: arquivo.fileReferenceId,
         nome_arquivo: arquivo.filename ?? null,
         status_arquivo: mapearStatus(arquivo.processingStatus),
+        tempo_extracao_ia_ms: resolverTempoExtracaoArquivoLegadoMs(arquivo),
         resultado_extracao: resultado
           ? resultado.map((item) => ({
               tipo_documento: item.fileType ?? null,

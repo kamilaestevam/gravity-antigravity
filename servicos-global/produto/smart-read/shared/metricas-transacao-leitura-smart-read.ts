@@ -11,6 +11,7 @@ import {
 export type LeituraMetricasEntrada = {
   id_leitura: string
   arquivos: Array<{
+    tempo_extracao_ia_ms?: number | null
     resultado_extracao: Array<{
       tipo_documento: string | null
       dados: Record<string, unknown>
@@ -116,16 +117,146 @@ export function resolverMediaAcertosTransacaoLeituraSmartRead(
   return null
 }
 
+const CHAVES_TEMPO_EXTRACAO_IA = [
+  'processingTimeMs',
+  'processing_time_ms',
+  'extractionTimeMs',
+  'extraction_time_ms',
+  'tempo_extracao_ia_ms',
+  'aiProcessingTimeMs',
+] as const
+
+/** Tempo de extração IA (ms) em metadados do documento legado, quando disponível. */
+export function extrairTempoExtracaoIaMsDeDados(
+  dados: Record<string, unknown> | undefined,
+): number | null {
+  if (!dados) return null
+  for (const chave of CHAVES_TEMPO_EXTRACAO_IA) {
+    const valor = dados[chave]
+    if (typeof valor === 'number' && Number.isFinite(valor) && valor >= 0) {
+      return Math.round(valor)
+    }
+  }
+  return null
+}
+
+/** Tempo Smart Read por documento a partir do total medido da leitura. */
+export function resolverTempoSmartReadMinutosPorDocumento(
+  tempoExtracaoIaMs: number | null | undefined,
+  totalDocumentos: number,
+): number | null {
+  if (tempoExtracaoIaMs == null || tempoExtracaoIaMs <= 0 || totalDocumentos <= 0) return null
+  return tempoExtracaoIaMs / 60000 / totalDocumentos
+}
+
+export type EntradaAgregacaoTempoExtracaoIaSmartRead = Pick<
+  MetricasTransacaoLeituraSmartRead,
+  'total_documentos' | 'tempo_extracao_ia_ms' | 'tipos_documento'
+>
+
+export type TempoExtracaoIaAgregadoTipoSmartRead = {
+  tempo_medio_segundos: number
+  documentos_amostra: number
+}
+
+export type AgregadoTempoExtracaoIaLeituraSmartRead = {
+  por_tipo: Partial<Record<TipoDocumentoBaseSmartRead, TempoExtracaoIaAgregadoTipoSmartRead>>
+  media_ponderada_segundos: number | null
+  documentos_amostra: number
+}
+
+/** Média de tempo real de extração IA (segundos) por tipo, a partir das leituras visíveis. */
+export function agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead(
+  transacoes: EntradaAgregacaoTempoExtracaoIaSmartRead[],
+): AgregadoTempoExtracaoIaLeituraSmartRead {
+  const acumulado = new Map<TipoDocumentoBaseSmartRead, { totalMs: number; documentos: number }>()
+  let totalMsGlobal = 0
+  let documentosGlobal = 0
+
+  for (const transacao of transacoes) {
+    const { total_documentos, tempo_extracao_ia_ms, tipos_documento } = transacao
+    if (total_documentos <= 0 || tempo_extracao_ia_ms == null || tempo_extracao_ia_ms <= 0) {
+      continue
+    }
+
+    const partes = (tipos_documento ?? '')
+      .split('·')
+      .map((parte) => parte.trim())
+      .filter(Boolean)
+    const tipos =
+      partes.length > 0
+        ? partes.map((parte) => normalizarTipoDocumentoBaseSmartRead(parte))
+        : [normalizarTipoDocumentoBaseSmartRead(null)]
+
+    const msPorTipo = tempo_extracao_ia_ms / tipos.length
+    const documentosPorTipo = total_documentos / tipos.length
+
+    for (const tipo of tipos) {
+      const anterior = acumulado.get(tipo) ?? { totalMs: 0, documentos: 0 }
+      acumulado.set(tipo, {
+        totalMs: anterior.totalMs + msPorTipo,
+        documentos: anterior.documentos + documentosPorTipo,
+      })
+      totalMsGlobal += msPorTipo
+      documentosGlobal += documentosPorTipo
+    }
+  }
+
+  const por_tipo: AgregadoTempoExtracaoIaLeituraSmartRead['por_tipo'] = {}
+  for (const [tipo, { totalMs, documentos }] of acumulado) {
+    if (documentos <= 0) continue
+    por_tipo[tipo] = {
+      tempo_medio_segundos: totalMs / documentos / 1000,
+      documentos_amostra: documentos,
+    }
+  }
+
+  return {
+    por_tipo,
+    media_ponderada_segundos:
+      documentosGlobal > 0 ? totalMsGlobal / documentosGlobal / 1000 : null,
+    documentos_amostra: documentosGlobal,
+  }
+}
+
+/** Saving de digitação + erros por documento (tempo SR medido ou fallback da base). */
+export function calcularSavingDocumentoSmartRead(
+  tipo: TipoDocumentoBaseSmartRead,
+  camposErrados: number,
+  tempoSmartReadMinutos: number | null = null,
+): { digitação: number; erros: number } {
+  const params = resolverParametrosTempoDocumentoSmartRead(tipo)
+  const tempoSr =
+    tempoSmartReadMinutos != null && Number.isFinite(tempoSmartReadMinutos) && tempoSmartReadMinutos >= 0
+      ? tempoSmartReadMinutos
+      : params.tempo_digitação_smart_read_minutos
+  const savingDigitação = params.tempo_digitação_manual_minutos - tempoSr
+  const savingErros =
+    camposErrados *
+    (params.tempo_correcao_erro_manual_minutos_por_campo -
+      params.tempo_correcao_erro_smart_read_minutos_por_campo)
+
+  return {
+    digitação: Math.max(0, savingDigitação),
+    erros: Math.max(0, savingErros),
+  }
+}
+
 /** Estimativa de saving quando só há totais agregados (snapshot denormalizado / lista legado). */
 export function estimarSavingAgregadoLeituraSmartRead(
   totalDocumentos: number,
   camposErrados: number,
   tipo: TipoDocumentoBaseSmartRead = 'outros',
+  tempoSmartReadMinutosPorDocumento: number | null = null,
 ): Pick<MetricasTransacaoLeituraSmartRead, 'saving_total_minutos' | 'saving_total_brl'> {
   if (totalDocumentos <= 0) {
     return { saving_total_minutos: 0, saving_total_brl: 0 }
   }
-  const saving = calcularSavingDocumento(tipo, camposErrados)
+  const saving = calcularSavingDocumentoSmartRead(
+    tipo,
+    camposErrados,
+    tempoSmartReadMinutosPorDocumento,
+  )
   const savingTotalMinutos = saving.digitação * totalDocumentos + saving.erros
   const custoHora =
     PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
@@ -152,6 +283,7 @@ export function resolverSavingTransacaoLeituraSmartRead(
     | 'total_documentos'
     | 'total_campos_errados'
     | 'tipos_documento'
+    | 'tempo_extracao_ia_ms'
   >,
 ): Pick<MetricasTransacaoLeituraSmartRead, 'saving_total_minutos' | 'saving_total_brl'> | null {
   if (transacao.saving_total_minutos != null && transacao.saving_total_minutos > 0) {
@@ -165,10 +297,15 @@ export function resolverSavingTransacaoLeituraSmartRead(
     return null
   }
 
+  const tempoSrPorDocumento = resolverTempoSmartReadMinutosPorDocumento(
+    transacao.tempo_extracao_ia_ms,
+    transacao.total_documentos,
+  )
   const saving = estimarSavingAgregadoLeituraSmartRead(
     transacao.total_documentos,
     transacao.total_campos_errados,
     inferirTipoDocumentoSavingLista(transacao.tipos_documento),
+    tempoSrPorDocumento,
   )
 
   if (saving.saving_total_minutos <= 0) {
@@ -176,24 +313,6 @@ export function resolverSavingTransacaoLeituraSmartRead(
   }
 
   return saving
-}
-
-function calcularSavingDocumento(
-  tipo: TipoDocumentoBaseSmartRead,
-  camposErrados: number,
-): { digitação: number; erros: number } {
-  const params = resolverParametrosTempoDocumentoSmartRead(tipo)
-  const savingDigitação =
-    params.tempo_digitação_manual_minutos - params.tempo_digitação_smart_read_minutos
-  const savingErros =
-    camposErrados *
-    (params.tempo_correcao_erro_manual_minutos_por_campo -
-      params.tempo_correcao_erro_smart_read_minutos_por_campo)
-
-  return {
-    digitação: Math.max(0, savingDigitação),
-    erros: Math.max(0, savingErros),
-  }
 }
 
 function textoCampo(valor: unknown): string | null {
@@ -320,6 +439,9 @@ export function calcularMetricasTransacaoLeituraSmartRead(
   const numerosVistos: string[] = []
 
   for (const arquivo of leitura.arquivos) {
+    const documentosNoArquivo = arquivo.resultado_extracao?.length ?? 0
+    const tempoArquivoMs = arquivo.tempo_extracao_ia_ms ?? null
+
     for (const item of arquivo.resultado_extracao ?? []) {
       documentos += 1
       const tipoNormalizado = normalizarTipoDocumentoBaseSmartRead(item.tipo_documento)
@@ -329,12 +451,27 @@ export function calcularMetricasTransacaoLeituraSmartRead(
       camposCorretos += contagem.corretos
       camposErrados += contagem.errados
 
-      const saving = calcularSavingDocumento(tipoNormalizado, contagem.errados)
+      const tempoDocMs =
+        extrairTempoExtracaoIaMsDeDados(dados) ??
+        (tempoArquivoMs != null && documentosNoArquivo > 0
+          ? Math.round(tempoArquivoMs / documentosNoArquivo)
+          : null)
+      const tempoDocMinutos = tempoDocMs != null ? tempoDocMs / 60000 : null
+
+      const saving = calcularSavingDocumentoSmartRead(
+        tipoNormalizado,
+        contagem.errados,
+        tempoDocMinutos,
+      )
       savingDigitaçãoMinutos += saving.digitação
       savingErrosMinutos += saving.erros
 
-      const params = resolverParametrosTempoDocumentoSmartRead(tipoNormalizado)
-      tempoExtracaoIaMs += Math.round(params.tempo_digitação_smart_read_minutos * 60 * 1000)
+      if (tempoDocMs != null) {
+        tempoExtracaoIaMs += tempoDocMs
+      } else {
+        const params = resolverParametrosTempoDocumentoSmartRead(tipoNormalizado)
+        tempoExtracaoIaMs += Math.round(params.tempo_digitação_smart_read_minutos * 60 * 1000)
+      }
 
       tiposVistos.set(tipoNormalizado, (tiposVistos.get(tipoNormalizado) ?? 0) + 1)
 

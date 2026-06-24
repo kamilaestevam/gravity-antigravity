@@ -4,7 +4,7 @@
  */
 
 /** Entrada padrão do Smart Read — `/smart-read` exato não casa com splat no configurador. */
-export const ROTA_ENTRADA_SMART_READ = '/smart-read/lista' as const
+export const ROTA_ENTRADA_SMART_READ = '/smart-read/insights' as const
 
 const ROTA_CANONICA_POR_SLUG: Record<string, string> = {
   'bid-frete-internacional': '/bid-frete',

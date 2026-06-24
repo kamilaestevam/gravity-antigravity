@@ -13,6 +13,7 @@ import {
   resolverParametrosTempoDocumentoSmartRead,
   type TipoDocumentoBaseSmartRead,
 } from './dados-base-produto-tempo-smart-read'
+import { extrairTempoExtracaoIaMsDeDados } from '../../../../shared/metricas-transacao-leitura-smart-read'
 
 const CHAVES_METADADO = new Set([
   'accuracy',
@@ -54,6 +55,7 @@ export type DocumentoInsightsSmartRead = {
   exportador: string | null
   importador: string | null
   responsavel_emissor: { tipo: TipoParticipanteInsightsSmartRead; nome: string } | null
+  tempo_extracao_ia_minutos: number | null
 }
 
 function normalizarAccuracy(valor: unknown): number | null {
@@ -133,6 +135,11 @@ export function extrairDocumentosInsightsLeituraSmartRead(
         const contagem = resolverContagemCampos(dados, tipoNormalizado)
         const participantes = extrairParticipantesDeDadosLeitura(dados)
         const responsavel = resolverResponsavelAcertoDocumentoInsights(tipoNormalizado, participantes)
+        const tempoDocMs =
+          extrairTempoExtracaoIaMsDeDados(dados) ??
+          (arquivo.tempo_extracao_ia_ms != null && extracao.length > 0
+            ? Math.round(arquivo.tempo_extracao_ia_ms / extracao.length)
+            : null)
 
         documentos.push({
           id_documento: `${leitura.id_leitura}:${arquivo.id_arquivo}:${indice}`,
@@ -146,6 +153,7 @@ export function extrairDocumentosInsightsLeituraSmartRead(
           exportador: extrairTextoEntidade(dados, CHAVES_EXPORTADOR),
           importador: extrairTextoEntidade(dados, CHAVES_IMPORTADOR),
           responsavel_emissor: responsavel,
+          tempo_extracao_ia_minutos: tempoDocMs != null ? tempoDocMs / 60000 : null,
         })
       })
     }

@@ -1,4 +1,5 @@
 import type { Leitura, TransacaoLeitura } from '../../shared/schemas'
+import { calcularSavingDocumentoSmartRead } from '../../../../shared/metricas-transacao-leitura-smart-read'
 import {
   PARAMETROS_FINANCEIROS_SMART_READ,
   resolverParametrosTempoDocumentoSmartRead,
@@ -172,20 +173,11 @@ function calcularSavingDocumento(doc: DocumentoInsightsSmartRead): {
   digitação: number
   erros: number
 } {
-  const params = resolverParametrosTempoDocumentoSmartRead(doc.tipo_normalizado)
-  const savingDigitação =
-    params.tempo_digitação_manual_minutos - params.tempo_digitação_smart_read_minutos
-
-  const errados = doc.campos_errados
-  const savingErros =
-    errados *
-    (params.tempo_correcao_erro_manual_minutos_por_campo -
-      params.tempo_correcao_erro_smart_read_minutos_por_campo)
-
-  return {
-    digitação: Math.max(0, savingDigitação),
-    erros: Math.max(0, savingErros),
-  }
+  return calcularSavingDocumentoSmartRead(
+    doc.tipo_normalizado,
+    doc.campos_errados,
+    doc.tempo_extracao_ia_minutos,
+  )
 }
 
 function resumoBlAwb(documentos: DocumentoInsightsSmartRead[], tipo: 'bl' | 'awb') {

@@ -61,6 +61,7 @@ function montarLeituraLegado(registro: LeituraMock): LeituraLegado {
         filename: arquivo.filename,
         mimeType: arquivo.mimeType,
         processingStatus: concluido ? 'completed' : 'processing',
+        processingTimeMs: concluido ? agora - arquivo.enviadoEm : undefined,
         processingResult: concluido
           ? tipos.map((tipo, indice) => ({
               id: `${arquivo.fileReferenceId}-${indice}`,

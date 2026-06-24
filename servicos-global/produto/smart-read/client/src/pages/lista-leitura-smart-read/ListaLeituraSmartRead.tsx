@@ -28,7 +28,7 @@ export default function ListaLeituraSmartRead() {
   )
 
   return (
-    <ProvedorMetodologiaSavingInsightsSmartRead>
+    <ProvedorMetodologiaSavingInsightsSmartRead transacoes={transacoesFiltradas}>
     <div className="sr-pagina sr-pagina--lista">
       <ListaLeituraCardsSmartRead
         transacoes={transacoesFiltradas}

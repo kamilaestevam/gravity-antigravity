@@ -128,7 +128,7 @@ Subtítulo da UI deixa explícito: acerto = inalterado; erro = editado; emissor 
 
 | KPI | Valor no card | Detalhe (tooltip / painel Economia) |
 |-----|---------------|-------------------------------------|
-| **Saving Digitação** | Minutos economizados | Tempo manual − SR por tipo; link **Base de cálculo →** |
+| **Saving Digitação** | Minutos economizados | Tempo manual − tempo real de extração IA; link **Base de cálculo →** |
 | **Saving em Erros** | **Quantidade de campos errados** (`camposErrados`) | Minutos e custo no tooltip/subtítulo — não no número principal do card |
 
 Link **Base de cálculo →** abre modal (`ModalOverlay`) com metodologia completa. Tooltip do card usa `CardBasicoGlobal` com `pointer-events: auto` e ponte de hover (`nucleo-global/Layout/card-global`) para permitir clicar no link sem o tooltip sumir.
@@ -137,21 +137,23 @@ Link **Base de cálculo →** abre modal (`ModalOverlay`) com metodologia comple
 
 ## 6. Savings (tempo / custo)
 
-Estimativas usam SSOT em `shared/dados-base-produto-tempo-smart-read.ts` (espelho client em `client/src/pages/insights-smart-read/dados-base-produto-tempo-smart-read.ts`):
+Estimativas usam SSOT em `shared/dados-base-produto-tempo-smart-read.ts` (reexport client: `client/src/pages/insights-smart-read/dados-base-produto-tempo-smart-read.ts`) e funções em `shared/metricas-transacao-leitura-smart-read.ts`:
 
-- **Saving digitação:** `tempo_digitação_manual_minutos − tempo_digitação_smart_read_minutos` por tipo de documento
+- **Saving digitação:** `tempo_digitação_manual_minutos − tempo_real_extração_ia_minutos` por documento (`tempo_extracao_ia_ms` da leitura/arquivo legado; fallback `tempo_digitação_smart_read_minutos` da base só se ausente)
 - **Saving erros:** `campos_errados × (tempo_correcao_erro_manual − tempo_correcao_erro_smart_read por campo)`
 - **Custo evitado:** `minutos_economizados ÷ 60 × R$ 115/h` (`custo_hora_operador_brl` R$ 85 + `markup_venda` 1,35)
+
+Funções SSOT: `resolverSavingTransacaoLeituraSmartRead`, `calcularSavingDocumentoSmartRead`, `agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead`, `calcularMediasTabelaBaseCalculoSmartRead`.
 
 Erros de saving dependem exclusivamente da contagem de campos editados (§2).
 
 ### Modal «Base de cálculo»
 
-Componente: `metodologia-saving-insights-smart-read.tsx`. Seções:
+Componente: `metodologia-saving-insights-smart-read.tsx`. `ProvedorMetodologiaSavingInsightsSmartRead` recebe `transacoes` (leituras visíveis). Seções:
 
 1. Como chegamos nos tempos manuais (estudo DOCS BASE PRODUTO)
-2. Fórmulas (digitação, erros, custo)
-3. Tabela **Tempos por tipo de documento** — ordem e rótulos em `LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ`; colunas SR/correção via `resolverParametrosTempoDocumentoSmartRead`
+2. Fórmulas (digitação com tempo real IA, erros, custo)
+3. Tabela **Tempos por tipo de documento** — coluna **SR medido (s)** via `agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead`; linha **Média**
 4. **Observações — documento médio do estudo** — `OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ`
 
 | Tipo (exibição) | Digitação manual (estudo) | Parâmetro interno |
@@ -160,8 +162,8 @@ Componente: `metodologia-saving-insights-smart-read.tsx`. Seções:
 | Proforma | 16,10 min | `proforma` |
 | Invoice | 16,10 min | `invoice` |
 | Packing List | 19,054 min | `packing_list` |
-| BL | 6,00 min | `bl` |
-| AWB | 6,00 min | `awb` |
+| BL | 12,10 min | `bl` |
+| AWB | 9,02 min | `awb` |
 | Documentos Financeiros | 20,00 min | `outros` |
 
 **Documento médio (observações):** Invoice/Proforma/Pedido = 20 itens; Packing List = 10 linhas; Documentos Financeiros = 10 linhas; BL/AWB = cabeçalho (peso = contêineres, sem contagem de itens).

@@ -769,6 +769,13 @@
   background: rgba(129, 140, 248, 0.06);
 }
 
+.sr-insights-metodologia-saving__tabela-linha-media th,
+.sr-insights-metodologia-saving__tabela-linha-media td {
+  font-weight: 600;
+  border-top: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.35);
+}
+
 .sr-insights-metodologia-saving__tabela td {
   text-align: center;
   font-variant-numeric: tabular-nums;

@@ -44,7 +44,8 @@ export const PRODUCT_CONFIG = {
 
     // ── Smart Read ──────────────────────────────────────────────────────────
     { id: 'section-smart-read',  label: 'Smart Read', sectionDivider: true },
-    { id: '/smart-read/lista',   label: 'Lista',      icon: 'list-bullets', source: 'product' },
+
+    // Lista/Insights: toggle no topo da tela (SmartReadVisualizacaoTabs) — não item do menu lateral.
 
     // ── Serviços ──────────────────────────────────────────────────────────────
     // Histórico: link externo para a tela centralizada do Configurador (SSOT da UI de auditoria).

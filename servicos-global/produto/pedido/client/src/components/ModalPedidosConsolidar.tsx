@@ -44,13 +44,7 @@ interface ModalConsolidarPedidosProps {
   conflito_tipo_operacao?: boolean
 }
 
-// ── Passos ────────────────────────────────────────────────────────────────────
-
-const PASSOS: PassoConfig[] = [
-  { id: 1, label: 'Configurar' },
-  { id: 2, label: 'Comparar' },
-  { id: 3, label: 'Confirmar' },
-]
+// ── Passos (rótulos via i18n no componente principal) ─────────────────────────
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -96,6 +90,7 @@ interface GrupoColapsavelProps {
 }
 
 function GrupoColapsavel({ grupo, camposEscolhidos, onMudarCampo, inicialmenteAberto = false }: GrupoColapsavelProps) {
+  const { t } = useTranslation()
   const [aberto, setAberto] = useState(inicialmenteAberto)
   const totalDivergentes = grupo.divergentes.length
   const iguaisComDado = grupo.iguais.filter(c => c.valor != null && c.valor !== '')
@@ -114,7 +109,7 @@ function GrupoColapsavel({ grupo, camposEscolhidos, onMudarCampo, inicialmenteAb
         <span style={estilos.grupoHeaderLeft}>
           {aberto ? <CaretDown size={14} weight="bold" /> : <CaretRight size={14} weight="bold" />}
           <span style={estilos.grupoNome}>{grupo.grupo}</span>
-          <span style={estilos.grupoContador}>({total} campos)</span>
+          <span style={estilos.grupoContador}>{t('pedido.modal_cons.grupo_campos', { count: total })}</span>
         </span>
         <span style={estilos.grupoHeaderRight}>
           {totalDivergentes > 0 && (
@@ -174,6 +169,7 @@ interface LinhaCampoComparacaoProps {
 }
 
 function LinhaCampoComparacao({ campo, valorEscolhido, onMudar }: LinhaCampoComparacaoProps) {
+  const { t } = useTranslation()
   const [tooltipVisivel, setTooltipVisivel] = useState(false)
 
   return (
@@ -192,7 +188,7 @@ function LinhaCampoComparacao({ campo, valorEscolhido, onMudar }: LinhaCampoComp
             const opt = campo.valores.find(vl => String(vl.valor) === String(v))
             onMudar(opt?.valor ?? (v != null ? String(v) : null))
           }}
-          aria-label={`Valor consolidado para ${campo.rotulo}`}
+          aria-label={t('pedido.modal_cons.aria_valor_consolidado', { campo: campo.rotulo })}
         />
       </div>
       <div style={estilos.linhaOrigens}>
@@ -205,7 +201,7 @@ function LinhaCampoComparacao({ campo, valorEscolhido, onMudar }: LinhaCampoComp
           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setTooltipVisivel(v => !v) }}
         >
           <Warning size={13} weight="fill" />
-          {campo.valores.length} origens
+          {t('pedido.modal_cons.badge_divergencia', { count: campo.valores.length })}
           {tooltipVisivel && (
             <span style={estilos.tooltip} role="tooltip">
               {campo.valores.map(v => (
@@ -224,6 +220,7 @@ function LinhaCampoComparacao({ campo, valorEscolhido, onMudar }: LinhaCampoComp
 // ── Sub-componente: Linha campo igual ─────────────────────────────────────────
 
 function LinhaCampoIgual({ campo }: { campo: CampoIgual }) {
+  const { t } = useTranslation()
   const temDado = campo.valor != null && campo.valor !== ''
   return (
     <div style={{ ...estilos.linhaComparacao, ...(temDado ? {} : { opacity: 0.5 }) }}>
@@ -233,12 +230,12 @@ function LinhaCampoIgual({ campo }: { campo: CampoIgual }) {
         {temDado ? (
           <span style={estilos.badgeIgual}>
             <CheckCircle size={13} weight="fill" />
-            igual
+            {t('pedido.modal_cons.badge_igual')}
           </span>
         ) : (
           <span style={estilos.badgeVazio}>
             <MinusCircle size={13} weight="fill" />
-            vazio
+            {t('pedido.modal_cons.badge_vazio')}
           </span>
         )}
       </div>
@@ -276,6 +273,13 @@ export function ModalConsolidarPedidos({
   const pedidoIdsParciais = [...new Set(itensSelecionados.map(i => i.pedido_id))].filter(id => !pedidoIdsInteiros.includes(id))
   const ids = [...pedidoIdsInteiros, ...pedidoIdsParciais]
   const conflito_tipo_operacao = conflitoProp || (preview?.conflito_tipo_operacao ?? false)
+  const totalPedidosConsolidar = pedidosSelecionados.length + pedidoIdsParciais.length
+
+  const passos = useMemo<PassoConfig[]>(() => [
+    { id: 1, label: t('pedido.modal_cons.passo_configurar') },
+    { id: 2, label: t('pedido.modal_cons.passo_comparar') },
+    { id: 3, label: t('pedido.modal_cons.passo_confirmar') },
+  ], [t])
 
   // Carregar preview ao abrir
   useEffect(() => {
@@ -296,14 +300,14 @@ export function ModalConsolidarPedidos({
       })
       .catch((err: unknown) => {
         if (cancelado) return
-        setErroPreview(err instanceof Error ? err.message : 'Erro ao carregar preview')
+        setErroPreview(err instanceof Error ? err.message : t('pedido.modal_cons.erro_preview'))
       })
       .finally(() => {
         if (!cancelado) setCarregandoPreview(false)
       })
 
     return () => { cancelado = true }
-  }, [])
+  }, [ids.join(','), t])
 
   const handleMudarCampo = useCallback((campo: string, valor: string | number | null) => {
     setCamposEscolhidos(prev => ({ ...prev, [campo]: valor }))
@@ -338,16 +342,16 @@ export function ModalConsolidarPedidos({
 
       try {
         await pedidoConsolidarApi.confirmar(payload)
-        addNotification({ type: 'success', message: `${ids.length} POs consolidadas em ${numeroPedido.trim()}.`, duration: 4000 })
+        addNotification({ type: 'success', message: t('pedido.modal_cons.notificacao_sucesso', { count: ids.length, numero: numeroPedido.trim() }), duration: 4000 })
         setConcluido(true)
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Erro ao consolidar pedidos'
-        addNotification({ type: 'error', message: `Falha: ${msg}`, duration: 4000 })
+        const msg = err instanceof Error ? err.message : t('pedido.modal_cons.erro_consolidar')
+        addNotification({ type: 'error', message: t('pedido.modal_cons.notificacao_falha', { msg }), duration: 4000 })
       } finally {
         setSalvando(false)
       }
     }
-  }, [passoAtual, preview, numeroPedido, camposEscolhidos, fundirItens, ids, onConcluido, pedidosSelecionados, addNotification])
+  }, [passoAtual, preview, numeroPedido, camposEscolhidos, fundirItens, ids, addNotification, t])
 
   const handleVoltar = useCallback(() => {
     if (passoAtual > 1) setPassoAtual(p => p - 1)
@@ -366,7 +370,7 @@ export function ModalConsolidarPedidos({
     if (carregandoPreview) {
       return (
         <div style={estilos.centrado}>
-          <GravityLoader texto="Analisando pedidos..." tamanho="sm" />
+          <GravityLoader texto={t('pedido.modal_cons.carregando')} tamanho="sm" />
         </div>
       )
     }
@@ -397,11 +401,11 @@ export function ModalConsolidarPedidos({
 
         {/* ── Seção 1 — Configuração ── */}
         <div className="cons-secao">
-          <span className="cons-secao-titulo">Configuração</span>
+          <span className="cons-secao-titulo">{t('pedido.modal_cons.secao_configuracao')}</span>
 
           {/* Número do pedido */}
           <CampoGeralGlobal
-            label="Número do Pedido Consolidado"
+            label={t('pedido.modal_cons.numero_label')}
             obrigatorio
             vazio={!numeroPedido.trim()}
           >
@@ -410,14 +414,14 @@ export function ModalConsolidarPedidos({
               type="text"
               value={numeroPedido}
               onChange={e => setNumeroPedido(e.target.value)}
-              placeholder="Ex: PO-CONS-2026/001"
+              placeholder={t('pedido.modal_cons.numero_placeholder')}
               aria-required="true"
               maxLength={100}
             />
           </CampoGeralGlobal>
           <span style={estilos.hintComIcone}>
             <Info size={14} weight="fill" style={{ flexShrink: 0, opacity: 0.6 }} />
-            Sugestão automática — você pode editar livremente.
+            {t('pedido.modal_cons.numero_hint')}
           </span>
 
           {/* Fundir itens */}
@@ -429,25 +433,25 @@ export function ModalConsolidarPedidos({
                 onChange={e => setFundirItens(e.target.checked)}
                 style={estilos.checkbox}
               />
-              <span>Fundir itens com mesmo Part Number (somar quantidades)</span>
+              <span>{t('pedido.modal_cons.fundir_part_number')}</span>
             </label>
           )}
         </div>
 
         {/* ── Seção 2 — Preview ── */}
         <div className="cons-secao">
-          <span className="cons-secao-titulo">Preview</span>
+          <span className="cons-secao-titulo">{t('pedido.modal_cons.secao_preview')}</span>
 
           {/* Cards de estatísticas */}
           <style>{`[data-cons-stats] > .tg-trigger { display: flex; width: 100%; } [data-cons-stats] > .tg-trigger > div { width: 100%; } [data-cons-stats] > .tg-trigger:hover > div { border-color: rgba(99, 102, 241, 0.25) !important; box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15) !important; background: rgba(15, 23, 42, 0.65) !important; }`}</style>
           <div data-cons-stats style={estilos.statsGrid}>
             <TooltipGlobal
-              titulo="Pedidos selecionados"
+              titulo={t('pedido.modal_cons.tooltip_pedidos_selecionados')}
               descricao={
                 <div style={estilos.tooltipRico}>
-                  <span style={estilos.tooltipCategoria}>Consolidação</span>
-                  <div style={estilos.tooltipLinha2}><span>Selecionados</span><span style={estilos.tooltipValor2}>{ids.length}</span></div>
-                  <div style={estilos.tooltipLinha2}><span>Resultado</span><span style={estilos.tooltipValor2}>1 pedido</span></div>
+                  <span style={estilos.tooltipCategoria}>{t('pedido.modal_cons.tooltip_categoria_consolidacao')}</span>
+                  <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_selecionados')}</span><span style={estilos.tooltipValor2}>{ids.length}</span></div>
+                  <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_resultado')}</span><span style={estilos.tooltipValor2}>{t('pedido.modal_cons.tooltip_um_pedido')}</span></div>
                 </div>
               }
             >
@@ -455,19 +459,19 @@ export function ModalConsolidarPedidos({
                 <Package size={20} weight="duotone" style={{ color: '#94a3b8' }} />
                 <div>
                   <span style={estilos.statValor}>{ids.length}</span>
-                  <span style={estilos.statLabel}>Pedidos</span>
+                  <span style={estilos.statLabel}>{t('pedido.modal_cons.stat_pedidos')}</span>
                 </div>
               </div>
             </TooltipGlobal>
             <TooltipGlobal
-              titulo="Total de itens"
+              titulo={t('pedido.modal_cons.tooltip_total_itens')}
               descricao={
                 <div style={estilos.tooltipRico}>
-                  <span style={estilos.tooltipCategoria}>Itens</span>
-                  <div style={estilos.tooltipLinha2}><span>Total agrupado</span><span style={estilos.tooltipValor2}>{preview.itens.length}</span></div>
-                  <div style={estilos.tooltipLinha2}><span>De pedidos</span><span style={estilos.tooltipValor2}>{ids.length}</span></div>
+                  <span style={estilos.tooltipCategoria}>{t('pedido.modal_cons.tooltip_categoria_itens')}</span>
+                  <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_total_agrupado')}</span><span style={estilos.tooltipValor2}>{preview.itens.length}</span></div>
+                  <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_de_pedidos')}</span><span style={estilos.tooltipValor2}>{ids.length}</span></div>
                   {preview.itens.some(i => i.pode_fundir) && (
-                    <div style={estilos.tooltipLinha2}><span>Fundíveis</span><span style={{ ...estilos.tooltipValor2, color: '#94a3b8' }}>{preview.itens.filter(i => i.pode_fundir).length}</span></div>
+                    <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_fundiveis')}</span><span style={{ ...estilos.tooltipValor2, color: '#94a3b8' }}>{preview.itens.filter(i => i.pode_fundir).length}</span></div>
                   )}
                 </div>
               }
@@ -476,7 +480,7 @@ export function ModalConsolidarPedidos({
                 <ListChecks size={20} weight="duotone" style={{ color: '#94a3b8' }} />
                 <div>
                   <span style={estilos.statValor}>{preview.itens.length}</span>
-                  <span style={estilos.statLabel}>Itens</span>
+                  <span style={estilos.statLabel}>{t('pedido.modal_cons.stat_itens')}</span>
                 </div>
               </div>
             </TooltipGlobal>
@@ -507,25 +511,25 @@ export function ModalConsolidarPedidos({
                 const info = preview.pedidos_info.find(pi => pi.id === pedidoId)
                 const itensSel = itensCountPorPedido.get(pedidoId) ?? 0
                 const totalOriginal = info?.total_itens ?? itensSel
-                const numero = info?.numero ?? `Pedido ${pedidoId.slice(0, 8)}`
+                const numero = info?.numero ?? t('pedido.modal_cons.pedido_fallback', { id: pedidoId.slice(0, 8) })
                 parciais.push({ numero, itensSel, itensTotal: totalOriginal })
               }
               return (
                 <>
                   {/* Card Pedidos Inteiros */}
                   <TooltipGlobal
-                    titulo="Pedidos inteiros"
+                    titulo={t('pedido.modal_cons.tooltip_pedidos_inteiros')}
                     descricao={
                       <div style={estilos.tooltipRico}>
-                        <span style={estilos.tooltipCategoria}>Todos os itens selecionados</span>
+                        <span style={estilos.tooltipCategoria}>{t('pedido.modal_cons.tooltip_todos_itens_selecionados')}</span>
                         {inteiros.map(p => (
                           <div key={p.numero} style={estilos.tooltipLinha2}>
                             <span>{p.numero}</span>
-                            <span style={estilos.tooltipValor2}>{p.itens} {p.itens === 1 ? 'item' : 'itens'}</span>
+                            <span style={estilos.tooltipValor2}>{t('pedido.modal_cons.item', { count: p.itens })}</span>
                           </div>
                         ))}
                         {inteiros.length === 0 && (
-                          <div style={{ fontSize: '0.75rem', color: '#475569' }}>Nenhum pedido inteiro</div>
+                          <div style={{ fontSize: '0.75rem', color: '#475569' }}>{t('pedido.modal_cons.tooltip_nenhum_inteiro')}</div>
                         )}
                       </div>
                     }
@@ -534,24 +538,24 @@ export function ModalConsolidarPedidos({
                       <Package size={20} weight="duotone" style={{ color: '#4ade80' }} />
                       <div>
                         <span style={estilos.statValor}>{inteiros.length}</span>
-                        <span style={estilos.statLabel}>Pedidos inteiros</span>
+                        <span style={estilos.statLabel}>{t('pedido.modal_cons.stat_pedidos_inteiros')}</span>
                       </div>
                     </div>
                   </TooltipGlobal>
                   {/* Card Pedidos Parciais */}
                   <TooltipGlobal
-                    titulo="Pedidos parciais"
+                    titulo={t('pedido.modal_cons.tooltip_pedidos_parciais')}
                     descricao={
                       <div style={estilos.tooltipRico}>
-                        <span style={estilos.tooltipCategoria}>Alguns itens selecionados</span>
+                        <span style={estilos.tooltipCategoria}>{t('pedido.modal_cons.tooltip_alguns_itens_selecionados')}</span>
                         {parciais.map(p => (
                           <div key={p.numero} style={estilos.tooltipLinha2}>
                             <span>{p.numero}</span>
-                            <span style={{ ...estilos.tooltipValor2, color: '#fbbf24' }}>{p.itensSel}/{p.itensTotal} itens</span>
+                            <span style={{ ...estilos.tooltipValor2, color: '#fbbf24' }}>{p.itensSel}/{p.itensTotal} {t('pedido.modal_cons.item', { count: p.itensTotal })}</span>
                           </div>
                         ))}
                         {parciais.length === 0 && (
-                          <div style={{ fontSize: '0.75rem', color: '#475569' }}>Nenhum pedido parcial</div>
+                          <div style={{ fontSize: '0.75rem', color: '#475569' }}>{t('pedido.modal_cons.tooltip_nenhum_parcial')}</div>
                         )}
                       </div>
                     }
@@ -560,7 +564,7 @@ export function ModalConsolidarPedidos({
                       <CubeTransparent size={20} weight="duotone" style={{ color: parciais.length > 0 ? '#fbbf24' : '#94a3b8' }} />
                       <div>
                         <span style={estilos.statValor}>{parciais.length}</span>
-                        <span style={estilos.statLabel}>Pedidos parciais</span>
+                        <span style={estilos.statLabel}>{t('pedido.modal_cons.stat_pedidos_parciais')}</span>
                       </div>
                     </div>
                   </TooltipGlobal>
@@ -568,12 +572,12 @@ export function ModalConsolidarPedidos({
               )
             })()}
             <TooltipGlobal
-              titulo="Campos divergentes"
+              titulo={t('pedido.modal_cons.tooltip_campos_divergentes')}
               descricao={
                 <div style={estilos.tooltipRico}>
-                  <span style={estilos.tooltipCategoria}>Análise</span>
-                  <div style={estilos.tooltipLinha2}><span>Divergentes</span><span style={{ ...estilos.tooltipValor2, color: totalDivergencias > 0 ? '#fbbf24' : '#4ade80' }}>{totalDivergencias}</span></div>
-                  <div style={estilos.tooltipLinha2}><span>Ação</span><span style={estilos.tooltipValor2}>{totalDivergencias > 0 ? 'Escolher valores' : 'Nenhuma'}</span></div>
+                  <span style={estilos.tooltipCategoria}>{t('pedido.modal_cons.tooltip_categoria_analise')}</span>
+                  <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_divergentes')}</span><span style={{ ...estilos.tooltipValor2, color: totalDivergencias > 0 ? '#fbbf24' : '#4ade80' }}>{totalDivergencias}</span></div>
+                  <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_acao')}</span><span style={estilos.tooltipValor2}>{totalDivergencias > 0 ? t('pedido.modal_cons.tooltip_escolher_valores') : t('pedido.modal_cons.tooltip_nenhuma')}</span></div>
                 </div>
               }
             >
@@ -581,18 +585,18 @@ export function ModalConsolidarPedidos({
                 <Warning size={20} weight="duotone" style={{ color: totalDivergencias > 0 ? '#fbbf24' : '#94a3b8' }} />
                 <div>
                   <span style={estilos.statValor}>{totalDivergencias}</span>
-                  <span style={estilos.statLabel}>Divergências</span>
+                  <span style={estilos.statLabel}>{t('pedido.modal_cons.stat_divergencias')}</span>
                 </div>
               </div>
             </TooltipGlobal>
             <TooltipGlobal
-              titulo="Campos iguais"
+              titulo={t('pedido.modal_cons.tooltip_campos_iguais')}
               descricao={
                 <div style={estilos.tooltipRico}>
-                  <span style={estilos.tooltipCategoria}>Campos</span>
-                  <div style={estilos.tooltipLinha2}><span>Iguais</span><span style={{ ...estilos.tooltipValor2, color: '#94a3b8' }}>{totalIguais}</span></div>
-                  <div style={estilos.tooltipLinha2}><span>Ação</span><span style={estilos.tooltipValor2}>Mantidos</span></div>
-                  <div style={estilos.tooltipLinha2}><span>Taxa de igualdade</span><span style={{ ...estilos.tooltipValor2, color: '#94a3b8' }}>{totalIguais + totalDivergencias > 0 ? Math.round((totalIguais / (totalIguais + totalDivergencias)) * 100) : 0}%</span></div>
+                  <span style={estilos.tooltipCategoria}>{t('pedido.modal_cons.tooltip_campos_iguais')}</span>
+                  <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_iguais')}</span><span style={{ ...estilos.tooltipValor2, color: '#94a3b8' }}>{totalIguais}</span></div>
+                  <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_acao')}</span><span style={estilos.tooltipValor2}>{t('pedido.modal_cons.tooltip_mantidos')}</span></div>
+                  <div style={estilos.tooltipLinha2}><span>{t('pedido.modal_cons.tooltip_taxa_igualdade')}</span><span style={{ ...estilos.tooltipValor2, color: '#94a3b8' }}>{totalIguais + totalDivergencias > 0 ? Math.round((totalIguais / (totalIguais + totalDivergencias)) * 100) : 0}%</span></div>
                 </div>
               }
             >
@@ -600,7 +604,7 @@ export function ModalConsolidarPedidos({
                 <CheckCircle size={20} weight="duotone" style={{ color: '#4ade80' }} />
                 <div>
                   <span style={estilos.statValor}>{totalIguais}</span>
-                  <span style={estilos.statLabel}>Campos iguais</span>
+                  <span style={estilos.statLabel}>{t('pedido.modal_cons.stat_campos_iguais')}</span>
                 </div>
               </div>
             </TooltipGlobal>
@@ -609,7 +613,7 @@ export function ModalConsolidarPedidos({
           {/* Valor total */}
           {preview.valor_total_soma > 0 && (
             <div style={estilos.valorTotalCard}>
-              <span style={estilos.valorTotalLabel}>Valor total consolidado</span>
+              <span style={estilos.valorTotalLabel}>{t('pedido.modal_cons.valor_total_consolidado')}</span>
               <span style={estilos.valorTotalValor}>{fmtMoeda(preview.valor_total_soma, preview.moeda)}</span>
             </div>
           )}
@@ -680,7 +684,7 @@ export function ModalConsolidarPedidos({
             onClick={() => setInfograficoPopover(prev => prev === 'ativas' ? null : 'ativas')}
           >
             <Stack size={14} weight="fill" style={{ color: infograficoPopover === 'ativas' ? '#a5b4fc' : '#818cf8' }} />
-            {totalColunasAtivas} Colunas ativas
+            {t('pedido.modal_cons.colunas_ativas', { count: totalColunasAtivas })}
           </button>
           <button
             type="button"
@@ -688,7 +692,7 @@ export function ModalConsolidarPedidos({
             onClick={() => setInfograficoPopover(prev => prev === 'dados' ? null : 'dados')}
           >
             <CheckCircle size={14} weight="fill" style={{ color: infograficoPopover === 'dados' ? '#4ade80' : 'var(--success, #22c55e)' }} />
-            {totalComDados} Com dados
+            {t('pedido.modal_cons.com_dados', { count: totalComDados })}
           </button>
           <button
             type="button"
@@ -696,7 +700,7 @@ export function ModalConsolidarPedidos({
             onClick={() => setInfograficoPopover(prev => prev === 'vazias' ? null : 'vazias')}
           >
             <MinusCircle size={14} weight="fill" style={{ color: '#475569' }} />
-            {totalVazias} Vazias
+            {t('pedido.modal_cons.vazias', { count: totalVazias })}
           </button>
         </div>
 
@@ -712,7 +716,7 @@ export function ModalConsolidarPedidos({
             style={{ ...estilos.legendaFiltro, ...(filtroCampos === 'todos' ? estilos.legendaFiltroAtivo : {}) }}
             onClick={() => setFiltroCampos('todos')}
           >
-            Todos
+            {t('pedido.modal_cons.filtro_todos')}
           </button>
           <button
             type="button"
@@ -720,7 +724,7 @@ export function ModalConsolidarPedidos({
             onClick={() => setFiltroCampos(f => f === 'divergentes' ? 'todos' : 'divergentes')}
           >
             <Warning size={14} weight="fill" style={{ color: filtroCampos === 'divergentes' ? '#fbbf24' : 'var(--warning, #f59e0b)' }} />
-            Divergentes
+            {t('pedido.modal_cons.filtro_divergentes')}
           </button>
           <button
             type="button"
@@ -728,7 +732,7 @@ export function ModalConsolidarPedidos({
             onClick={() => setFiltroCampos(f => f === 'iguais' ? 'todos' : 'iguais')}
           >
             <CheckCircle size={14} weight="fill" style={{ color: filtroCampos === 'iguais' ? '#4ade80' : 'var(--success, #22c55e)' }} />
-            Iguais
+            {t('pedido.modal_cons.filtro_iguais')}
           </button>
           <button
             type="button"
@@ -736,32 +740,34 @@ export function ModalConsolidarPedidos({
             onClick={() => setFiltroCampos(f => f === 'vazios' ? 'todos' : 'vazios')}
           >
             <MinusCircle size={14} weight="fill" style={{ color: '#475569' }} />
-            Vazios
+            {t('pedido.modal_cons.filtro_vazios')}
           </button>
         </div>
 
         {/* Filtro por pedido de origem — select buscável */}
         {preview.pedidos_info.length >= 2 && (
           <div style={estilos.filtroOrigemRow}>
-            <span style={estilos.filtroOrigemLabel}>Origem:</span>
+            <span style={estilos.filtroOrigemLabel}>{t('pedido.modal_cons.origem_label')}</span>
             <div style={estilos.filtroOrigemSelect}>
               <SelectGlobal
                 buscavel
                 tamanho="compacto"
-                placeholder="Filtrar por pedido de origem"
+                placeholder={t('pedido.modal_cons.filtro_origem_placeholder')}
                 opcoes={[
-                  { valor: '__todos__', rotulo: `Todos os pedidos (${preview.pedidos_info.length})` },
+                  { valor: '__todos__', rotulo: t('pedido.modal_cons.todos_pedidos', { count: preview.pedidos_info.length }) },
                   ...preview.pedidos_info.map(pi => {
                     const divCount = preview.campos_divergentes.filter(c => c.valores.some(v => v.pedido_id === pi.id)).length
                     return {
                       valor: pi.id,
-                      rotulo: divCount > 0 ? `${pi.numero}  ·  ${divCount} divergência${divCount !== 1 ? 's' : ''}` : pi.numero,
+                      rotulo: divCount > 0
+                        ? `${pi.numero}  ·  ${t('pedido.modal_cons.divergencia_count', { count: divCount })}`
+                        : pi.numero,
                     }
                   }),
                 ]}
                 valor={filtroPedidoOrigem ?? '__todos__'}
                 aoMudarValor={v => setFiltroPedidoOrigem(v === '__todos__' ? null : String(v))}
-                aria-label="Filtrar campos por pedido de origem"
+                aria-label={t('pedido.modal_cons.aria_filtrar_origem')}
               />
             </div>
           </div>
@@ -826,32 +832,36 @@ export function ModalConsolidarPedidos({
             <CheckCircle weight="fill" size={20} color="var(--success, #22c55e)" />
             <div>
               <p style={estilos.resultadoBannerTexto}>
-                {ids.length} pedidos consolidados em <strong>{numeroPedido}</strong> · {totalItens} {totalItens === 1 ? 'item' : 'itens'}
+                {t('pedido.modal_cons.resultado_banner', { pedidos: ids.length, numero: numeroPedido, itens: totalItens, count: totalItens })}
               </p>
             </div>
           </div>
 
           {/* Pedidos de origem — arquivados */}
           <div style={estilos.resultadoSecao}>
-            <p style={estilos.resultadoSecaoTitulo}>Pedidos de origem (arquivados)</p>
+            <p style={estilos.resultadoSecaoTitulo}>{t('pedido.modal_cons.pedidos_origem_arquivados_resultado')}</p>
             {pedidosSelecionados.map(p => (
               <div key={p.id} style={estilos.resultadoCard}>
                 <div style={estilos.resultadoCardTexto}>
                   <span style={estilos.resultadoCardNome}>{p.numero_pedido}</span>
-                  <span style={estilos.resultadoCardDetalhe}>inteiro · {preview.pedidos_info.find(pi => pi.id === p.id)?.total_itens ?? 0} itens</span>
+                  <span style={estilos.resultadoCardDetalhe}>
+                    {t('pedido.modal_cons.detalhe_inteiro', { count: preview.pedidos_info.find(pi => pi.id === p.id)?.total_itens ?? 0 })}
+                  </span>
                 </div>
                 <span style={estilos.resultadoOk}><CheckCircle size={14} weight="fill" /> OK</span>
               </div>
             ))}
             {pedidoIdsParciais.map(id => {
               const info = preview.pedidos_info.find(pi => pi.id === id)
-              const numero = info?.numero ?? id.slice(0, 8)
+              const numero = info?.numero ?? t('pedido.modal_cons.pedido_fallback', { id: id.slice(0, 8) })
               const itensSel = itensSelecionados.filter(i => i.pedido_id === id).length
               return (
                 <div key={id} style={estilos.resultadoCard}>
                   <div style={estilos.resultadoCardTexto}>
                     <span style={estilos.resultadoCardNome}>{numero}</span>
-                    <span style={estilos.resultadoCardDetalhe}>parcial · {itensSel} {itensSel === 1 ? 'item' : 'itens'}</span>
+                    <span style={estilos.resultadoCardDetalhe}>
+                      {t('pedido.modal_cons.detalhe_parcial', { count: itensSel })}
+                    </span>
                   </div>
                   <span style={estilos.resultadoOk}><CheckCircle size={14} weight="fill" /> OK</span>
                 </div>
@@ -862,7 +872,7 @@ export function ModalConsolidarPedidos({
           {/* Divergências resolvidas */}
           {totalDivergencias > 0 && (
             <div style={estilos.resultadoSecao}>
-              <p style={estilos.resultadoSecaoTitulo}>Campos divergentes resolvidos</p>
+              <p style={estilos.resultadoSecaoTitulo}>{t('pedido.modal_cons.campos_divergentes_resolvidos')}</p>
               {preview.campos_divergentes.map(campo => (
                 <div key={campo.campo} style={estilos.resultadoCard}>
                   <div style={estilos.resultadoCardTexto}>
@@ -884,10 +894,9 @@ export function ModalConsolidarPedidos({
         <div style={estilos.confirmacaoCard}>
           <GitMerge size={24} weight="duotone" style={{ color: 'var(--accent, #6366f1)' }} />
           <div style={estilos.confirmacaoTexto}>
-            <p style={estilos.confirmacaoTitulo}>Confirmar consolidação</p>
+            <p style={estilos.confirmacaoTitulo}>{t('pedido.modal_cons.confirmacao_titulo')}</p>
             <p style={estilos.confirmacaoDesc}>
-              {ids.length} pedidos serão unificados em <strong>{numeroPedido}</strong>.
-              Os pedidos originais serão arquivados (soft delete).
+              {t('pedido.modal_cons.confirmacao_desc', { count: ids.length, numero: numeroPedido })}
             </p>
           </div>
         </div>
@@ -896,7 +905,7 @@ export function ModalConsolidarPedidos({
         {totalDivergencias > 0 && (
           <div style={estilos.resumoEscolhas}>
             <span style={estilos.resumoEscolhasTitulo}>
-              Valores escolhidos para {totalDivergencias} campo{totalDivergencias !== 1 ? 's' : ''} divergente{totalDivergencias !== 1 ? 's' : ''}:
+              {t('pedido.modal_cons.resumo_escolhas', { count: totalDivergencias })}
             </span>
             <div style={estilos.resumoEscolhasLista}>
               {preview.campos_divergentes.map(campo => (
@@ -911,18 +920,18 @@ export function ModalConsolidarPedidos({
 
         {/* Pedidos que serão consolidados */}
         <div style={estilos.pedidosOrigem}>
-          <span style={estilos.pedidosOrigemTitulo}>Pedidos de origem (serão arquivados):</span>
+          <span style={estilos.pedidosOrigemTitulo}>{t('pedido.modal_cons.pedidos_origem_arquivados')}</span>
           <div style={estilos.pedidosOrigemLista}>
             {pedidosSelecionados.map(p => (
-              <span key={p.id} style={estilos.pedidoOrigemChip}>{p.numero_pedido} (inteiro)</span>
+              <span key={p.id} style={estilos.pedidoOrigemChip}>{p.numero_pedido} {t('pedido.modal_cons.chip_inteiro')}</span>
             ))}
             {pedidoIdsParciais.map(id => {
               const info = preview?.pedidos_info.find(pi => pi.id === id)
-              const numero = info?.numero ?? id.slice(0, 8)
+              const numero = info?.numero ?? t('pedido.modal_cons.pedido_fallback', { id: id.slice(0, 8) })
               const itensSel = itensSelecionados.filter(i => i.pedido_id === id).length
               return (
                 <span key={id} style={{ ...estilos.pedidoOrigemChip, borderColor: 'color-mix(in srgb, var(--warning) 30%, transparent)', background: 'color-mix(in srgb, var(--warning) 10%, transparent)' }}>
-                  {numero} (parcial · {itensSel} {itensSel === 1 ? 'item' : 'itens'})
+                  {numero} {t('pedido.modal_cons.chip_parcial', { count: itensSel })}
                 </span>
               )
             })}
@@ -1008,26 +1017,26 @@ export function ModalConsolidarPedidos({
       }
     `}</style>
     <ModalPassoPassoGlobal
-      titulo={`Consolidar ${pedidosSelecionados.length + pedidoIdsParciais.length} Pedidos`}
+      titulo={t('pedido.modal_cons.titulo', { count: totalPedidosConsolidar })}
       icone={<GitMerge size={22} weight="duotone" />}
-      subtitulo="Unifique pedidos selecionados em um único pedido consolidado"
+      subtitulo={t('pedido.modal_cons.subtitulo')}
       aberto={true}
-      passos={PASSOS}
+      passos={passos}
       passoAtual={passoAtual}
       onProximo={handleProximo}
       onVoltar={handleVoltar}
       onFechar={onFechar}
       podeAvancar={podeAvancar}
-      labelBotaoFinal="Consolidar"
-      labelProximo="Próximo"
+      labelBotaoFinal={t('pedido.modal_cons.consolidar')}
+      labelProximo={t('pedido.modal_cons.proximo')}
       tamanho="xl"
       carregando={salvando}
-      textoCarregando="Consolidando…"
+      textoCarregando={t('pedido.modal_cons.consolidando')}
       ocultarStepper={concluido}
       footerCustom={concluido ? (
         <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
           <BotaoGlobal variante="primario" tamanho="medio" onClick={onConcluido}>
-            Fechar
+            {t('pedido.modal_cons.fechar')}
           </BotaoGlobal>
         </div>
       ) : undefined}

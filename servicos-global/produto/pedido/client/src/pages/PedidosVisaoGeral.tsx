@@ -49,8 +49,10 @@ import {
 import { useVisaoGeralPedido, filtrarPedidosAlertaVisaoGeral } from '../shared/useVisaoGeralPedido'
 import type { VisaoGeralAlertaTipo } from '../shared/useVisaoGeralPedido'
 import type { Pedido } from '../shared/types'
-import { useDashboardTopKpiStatus } from '../shared/useDashboardTopKpiStatus'
-import type { DashboardTopKpiWidgetId } from '../shared/useDashboardTopKpiStatus'
+import {
+  DASHBOARD_TOP_KPI_STATUS_MAPA,
+  type DashboardTopKpiWidgetId,
+} from '../shared/useDashboardTopKpiStatus'
 import {
   calcularTopKpiCardsVisaoGeral,
   useMapaRotulosStatusPedido,
@@ -2530,12 +2532,11 @@ export default function VisaoGeral() {
   const navigate = useNavigate()
   const vg = useVisaoGeralPedido()
   const { alertas, pedidos, incoterms, moedas, maiorPedido, sparkAndamento, sparkConcluido } = vg
-  const { mapa: topKpiStatusMapa } = useDashboardTopKpiStatus()
   const rotulosStatus = useMapaRotulosStatusPedido()
 
   const topKpiCards = useMemo(
-    () => calcularTopKpiCardsVisaoGeral(pedidos, topKpiStatusMapa, rotulosStatus, t),
-    [pedidos, topKpiStatusMapa, rotulosStatus, t],
+    () => calcularTopKpiCardsVisaoGeral(pedidos, DASHBOARD_TOP_KPI_STATUS_MAPA, rotulosStatus, t),
+    [pedidos, rotulosStatus, t],
   )
 
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
@@ -4107,7 +4108,7 @@ export default function VisaoGeral() {
         }
 `}</style>
 
-      {/* KPIs Grid — status configuráveis em Configurações → Visão Geral */}
+      {/* KPIs Grid — 4 cards fixos (rascunho, aberto, em andamento, consolidado) */}
       <div className="bfd-kpi-grid">
         {topKpiCards.map((card, index) => {
           const tendencias = [

@@ -1,10 +1,7 @@
 /**
- * Preferências mínimas dos 4 KPIs fixos do topo do Dashboard (painel Principal).
- * O usuário escolhe qual status do configurador cada card representa.
- * Painéis customizados continuam independentes.
+ * KPIs fixos do topo do Dashboard e da Visão Geral (4 cards).
+ * Mapeamento status → slot é fixo no código (sem configuração por usuário).
  */
-
-import { useCallback, useEffect, useState } from 'react'
 
 export const DASHBOARD_TOP_KPI_WIDGET_IDS = [
   'kpi_total_pedidos',
@@ -23,75 +20,25 @@ export const DASHBOARD_TOP_KPI_STATUS_ESPECIAL = {
   atrasados: '__atrasados__',
 } as const
 
-const STORAGE_KEY = 'pedido:dashboard-top-kpi-status'
-const SYNC_EVENT = 'pedido:dashboard-top-kpi-updated'
-
-const DEFAULT_BY_WIDGET: Record<DashboardTopKpiWidgetId, DashboardTopKpiStatusSlug> = {
+/** Mapeamento fixo widget → status (fonte única para Dashboard e Visão Geral). */
+export const DASHBOARD_TOP_KPI_STATUS_MAPA: Record<DashboardTopKpiWidgetId, DashboardTopKpiStatusSlug> = {
   kpi_total_pedidos:   'rascunho',
   kpi_pedidos_abertos: 'aberto',
   kpi_saldo_total:     'em_andamento',
   kpi_valor_total:     'consolidado',
 }
 
-/** Converte slugs legados (__total__, __atrasados__) para status reais. */
-function normalizarSlugSalvo(slug: string): DashboardTopKpiStatusSlug {
-  if (slug === DASHBOARD_TOP_KPI_STATUS_ESPECIAL.total) return DEFAULT_BY_WIDGET.kpi_total_pedidos
-  if (slug === DASHBOARD_TOP_KPI_STATUS_ESPECIAL.atrasados) return DEFAULT_BY_WIDGET.kpi_pedidos_abertos
-  return slug.trim()
-}
+const LEGACY_STORAGE_KEY = 'pedido:dashboard-top-kpi-status'
 
-function carregar(): Record<DashboardTopKpiWidgetId, DashboardTopKpiStatusSlug> {
+/** Remove preferência legada de localStorage (configuração removida em TASK-000325). */
+export function limparPreferenciaLegadaDashboardTopKpi(): void {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return { ...DEFAULT_BY_WIDGET }
-    const parsed = JSON.parse(raw) as Partial<Record<DashboardTopKpiWidgetId, DashboardTopKpiStatusSlug>>
-    return {
-      ...DEFAULT_BY_WIDGET,
-      ...Object.fromEntries(
-        DASHBOARD_TOP_KPI_WIDGET_IDS
-          .filter(id => typeof parsed[id] === 'string' && parsed[id]!.trim())
-          .map(id => [id, normalizarSlugSalvo(parsed[id]!)]),
-      ),
-    } as Record<DashboardTopKpiWidgetId, DashboardTopKpiStatusSlug>
+    localStorage.removeItem(LEGACY_STORAGE_KEY)
   } catch {
-    return { ...DEFAULT_BY_WIDGET }
+    /* ignore */
   }
 }
 
-function salvar(next: Record<DashboardTopKpiWidgetId, DashboardTopKpiStatusSlug>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-  window.dispatchEvent(new CustomEvent(SYNC_EVENT))
-}
-
-export function useDashboardTopKpiStatus() {
-  const [mapa, setMapa] = useState<Record<DashboardTopKpiWidgetId, DashboardTopKpiStatusSlug>>(carregar)
-
-  useEffect(() => {
-    function onSync() { setMapa(carregar()) }
-    window.addEventListener(SYNC_EVENT, onSync)
-    window.addEventListener('storage', onSync)
-    return () => {
-      window.removeEventListener(SYNC_EVENT, onSync)
-      window.removeEventListener('storage', onSync)
-    }
-  }, [])
-
-  const persistirMapa = useCallback((next: Record<DashboardTopKpiWidgetId, DashboardTopKpiStatusSlug>) => {
-    setMapa(next)
-    salvar(next)
-  }, [])
-
-  const setStatusParaWidget = useCallback((widgetId: DashboardTopKpiWidgetId, statusSlug: DashboardTopKpiStatusSlug) => {
-    setMapa(prev => {
-      const next = { ...prev, [widgetId]: statusSlug }
-      salvar(next)
-      return next
-    })
-  }, [])
-
-  const resetar = useCallback(() => {
-    persistirMapa({ ...DEFAULT_BY_WIDGET })
-  }, [persistirMapa])
-
-  return { mapa, setStatusParaWidget, persistirMapa, resetar, defaults: DEFAULT_BY_WIDGET }
+if (typeof window !== 'undefined') {
+  limparPreferenciaLegadaDashboardTopKpi()
 }

@@ -3,10 +3,9 @@
  */
 
 import {
-  filtrarSlugsStatusCotacaoPersistidosBidFreteInternacional,
-  resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional,
-  SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
-} from '../../../shared/kpi-insights-status-cotacao-bid-frete-internacional.js'
+  montarWhereKpiInsightsAguardandoAprovacaoBidFreteInternacional,
+  montarWhereKpiInsightsAguardandoRespostaBidFreteInternacional,
+} from '../../../shared/where-kpi-insights-operacionais-bid-frete-internacional.js'
 
 const STATUS_ANDAMENTO_ALERTA = [
   'ENVIADA_FORNECEDORES',
@@ -72,30 +71,10 @@ export function montarWhereInsightsDetalheBidFreteInternacional(
         status_cotacao_bid_frete_internacional: { in: [...STATUS_ANDAMENTO_ALERTA] },
         data_limite_resposta_cotacao_bid_frete_internacional: { gte: inicioDia, lte: fimDia },
       }
-    case 'resposta': {
-      const slugsBrutos = opcoes?.status_slugs?.length
-        ? opcoes.status_slugs
-        : [...SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL]
-      const slugs = filtrarSlugsStatusCotacaoPersistidosBidFreteInternacional(slugsBrutos)
-      return {
-        ...base,
-        status_cotacao_bid_frete_internacional: {
-          in: slugs.length > 0 ? slugs : [...SLUGS_PADRAO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL],
-        },
-      }
-    }
-    case 'aprovacao': {
-      const slugsBrutos = opcoes?.status_slugs?.length
-        ? opcoes.status_slugs
-        : resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional([])
-      const slugs = filtrarSlugsStatusCotacaoPersistidosBidFreteInternacional(slugsBrutos)
-      return {
-        ...base,
-        status_cotacao_bid_frete_internacional: {
-          in: slugs.length > 0 ? slugs : ['AGUARDANDO_APROVACAO'],
-        },
-      }
-    }
+    case 'resposta':
+      return montarWhereKpiInsightsAguardandoRespostaBidFreteInternacional(base)
+    case 'aprovacao':
+      return montarWhereKpiInsightsAguardandoAprovacaoBidFreteInternacional(base)
     case 'nova':
       return {
         ...base,

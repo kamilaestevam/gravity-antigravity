@@ -75,21 +75,23 @@ import {
   type CotacaoInsightsDetalheCliente,
 } from '../shared/insights-detalhe-bid-frete-internacional'
 import { InsightsKpiTooltipListaBidFreteInternacional } from '../shared/insights-kpi-tooltip-lista-bid-frete-internacional'
+import {
+  InsightsKpiTooltipResumoBidFreteInternacional,
+  montarDistribuicaoModalFallbackDeCotacoesInsightsKpiBidFreteInternacional,
+} from '../shared/insights-kpi-tooltip-resumo-bid-frete-internacional'
 import { ordenarCotacoesTooltipKpiInsights } from '../shared/insights-kpi-aguardando-resposta-bid-frete-internacional'
+import type { DashboardKpisInsightsBidFreteInternacionalCliente } from '../shared/insights-visao-geral-bid-frete-internacional'
 import {
   resolverIdsWorkspacesParaApi,
   useEscopoWorkspacesBidFreteInternacional,
 } from '../shared/useEscopoWorkspacesBidFreteInternacional'
 import { MODAL_LABELS, CalendarioAlerta } from '../shared/types'
-import type { DashboardKPIs } from '../shared/types'
 import {
   montarEtapasFunilInsightsBidFreteInternacional,
-  contagemAguardandoAprovacaoNoFunilBidFreteInternacional,
-  contagemAguardandoRespostaNoFunilBidFreteInternacional,
-  detalharAguardandoRespostaNoFunilBidFreteInternacional,
+  resolverContagemKpiInsightsAguardandoAprovacaoBidFreteInternacional,
+  resolverContagemKpiInsightsAguardandoRespostaBidFreteInternacional,
   resolverCorStatusConfigBidFreteInternacional,
-  resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional,
-  resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional,
+  resolverDetalheKpiInsightsAguardandoRespostaBidFreteInternacional,
   STATUS_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
   TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
   TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
@@ -404,19 +406,34 @@ function TaxaAprovacao({
   )
 }
 
-type KpisInsightsVisaoGeral = DashboardKPIs & {
-  tempo_medio_resposta_dias: number | null
-  cotacoes_aprovadas: number
-  distribuicao_modal_andamento: Array<{ modal_cotacao_bid_frete_internacional: string; count: number }>
-  total_cotacoes_com_saving: number
-  total_saving_vs_media: number
+type KpisInsightsVisaoGeral = DashboardKpisInsightsBidFreteInternacionalCliente
+
+function resolverDistribuicaoModalTooltipKpiAprovacao(
+  kpis: KpisInsightsVisaoGeral,
+  cotacoes: CotacaoInsightsDetalheCliente[],
+) {
+  if (kpis.distribuicao_modal_aguardando_aprovacao?.length) {
+    return kpis.distribuicao_modal_aguardando_aprovacao
+  }
+  return montarDistribuicaoModalFallbackDeCotacoesInsightsKpiBidFreteInternacional(cotacoes)
 }
 
-function contagemModalAndamento(
-  distribuicao: KpisInsightsVisaoGeral['distribuicao_modal_andamento'],
-  modal: string,
-): number {
-  return distribuicao.find(d => d.modal_cotacao_bid_frete_internacional === modal)?.count ?? 0
+function resolverDistribuicaoModalTooltipKpiResposta(
+  kpis: KpisInsightsVisaoGeral,
+  cotacoes: CotacaoInsightsDetalheCliente[],
+) {
+  if (kpis.distribuicao_modal_aguardando_resposta?.length) {
+    return kpis.distribuicao_modal_aguardando_resposta
+  }
+  return montarDistribuicaoModalFallbackDeCotacoesInsightsKpiBidFreteInternacional(cotacoes)
+}
+
+function resolverValorUsdTooltipKpiAprovacao(kpis: KpisInsightsVisaoGeral): number {
+  return kpis.valor_aguardando_aprovacao_usd ?? kpis.valor_andamento_usd
+}
+
+function resolverValorMetaUsdTooltipKpiResposta(kpis: KpisInsightsVisaoGeral): number {
+  return kpis.valor_meta_aguardando_resposta_usd ?? 0
 }
 
 export default function VisaoGeral() {
@@ -454,12 +471,6 @@ export default function VisaoGeral() {
   const carregarInsights = useCallback(async () => {
     setCarregando(true)
     setErroCarregamento(null)
-    const slugsAguardandoResposta = resolverSlugsKpiInsightsAguardandoRespostaBidFreteInternacional(
-      statusCotacaoConfig,
-    )
-    const slugsAguardandoAprovacao = resolverSlugsKpiInsightsAguardandoAprovacaoBidFreteInternacional(
-      statusCotacaoConfig,
-    )
     try {
       const [kpisData, alertasData, mapaData, graficosData, detalheResposta, detalheAprovacao] = await Promise.all([
         getDashboardKpis(idsWorkspacesFiltro, {
@@ -472,13 +483,13 @@ export default function VisaoGeral() {
           { tipo: 'resposta', label: '', cor: '' },
           idsWorkspacesFiltro,
           undefined,
-          { limit: 50, statusSlugs: slugsAguardandoResposta },
+          { limit: 50 },
         ),
         getDashboardInsightsDetalhe(
           { tipo: 'aprovacao', label: '', cor: '' },
           idsWorkspacesFiltro,
           undefined,
-          { limit: 50, statusSlugs: slugsAguardandoAprovacao },
+          { limit: 50 },
         ),
       ])
       setKpis(kpisData)
@@ -505,7 +516,7 @@ export default function VisaoGeral() {
     } finally {
       setCarregando(false)
     }
-  }, [idsWorkspacesFiltro, dataReferenciaAlertas, statusCotacaoConfig])
+  }, [idsWorkspacesFiltro, dataReferenciaAlertas])
 
   useEffect(() => {
     if (!escopoHidratado) return
@@ -617,20 +628,38 @@ export default function VisaoGeral() {
     return {
       titulo: TITULO_KPI_INSIGHTS_AGUARDANDO_APROVACAO_BID_FRETE_INTERNACIONAL,
       cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, slug, '#818cf8'),
-      count: contagemAguardandoAprovacaoNoFunilBidFreteInternacional(funil, statusCotacaoConfig),
+      count: resolverContagemKpiInsightsAguardandoAprovacaoBidFreteInternacional(
+        funil,
+        statusCotacaoConfig,
+        kpis?.kpi_insights_aguardando_aprovacao,
+      ),
     }
-  }, [statusCotacaoConfig, kpis?.funil])
+  }, [statusCotacaoConfig, kpis?.funil, kpis?.kpi_insights_aguardando_aprovacao])
 
   const kpiCardAguardandoResposta = useMemo(() => {
     const funil = kpis?.funil ?? []
-    const detalhe = detalharAguardandoRespostaNoFunilBidFreteInternacional(funil, statusCotacaoConfig)
+    const detalhe = resolverDetalheKpiInsightsAguardandoRespostaBidFreteInternacional(
+      funil,
+      statusCotacaoConfig,
+      kpis?.kpi_insights_aguardando_resposta_detalhe,
+      kpis?.kpi_insights_aguardando_resposta,
+    )
     return {
       titulo: TITULO_KPI_INSIGHTS_AGUARDANDO_RESPOSTA_BID_FRETE_INTERNACIONAL,
       cor: resolverCorStatusConfigBidFreteInternacional(statusCotacaoConfig, 'EM_COTACAO', '#fb923c'),
-      count: contagemAguardandoRespostaNoFunilBidFreteInternacional(funil, statusCotacaoConfig),
+      count: resolverContagemKpiInsightsAguardandoRespostaBidFreteInternacional(
+        funil,
+        statusCotacaoConfig,
+        kpis?.kpi_insights_aguardando_resposta,
+      ),
       detalhe,
     }
-  }, [statusCotacaoConfig, kpis?.funil])
+  }, [
+    statusCotacaoConfig,
+    kpis?.funil,
+    kpis?.kpi_insights_aguardando_resposta,
+    kpis?.kpi_insights_aguardando_resposta_detalhe,
+  ])
 
   const cotacoesAguardandoRespostaOrdenadas = useMemo(
     () => ordenarCotacoesTooltipKpiInsights(
@@ -784,10 +813,10 @@ export default function VisaoGeral() {
         .bfd-kpi__progress-bg { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; width: 100%; }
         .bfd-kpi__progress-fill { height: 100%; background: #60a5fa; border-radius: 3px; }
 
-        .cg-card__tooltip--portal:has(.bfd-kpi-tooltip-aguardando-resposta) {
+        .cg-card__tooltip--portal:has(.bfd-kpi-tooltip-insights) {
           width: min(380px, 92vw);
         }
-        .bfd-kpi-tooltip-aguardando-resposta__lista {
+        .bfd-kpi-tooltip-insights__lista {
           display: flex;
           flex-direction: column;
           gap: 0.35rem;
@@ -795,8 +824,8 @@ export default function VisaoGeral() {
           overflow-y: auto;
           margin-top: 0.35rem;
         }
-        .bfd-kpi-tooltip-aguardando-resposta__head,
-        .bfd-kpi-tooltip-aguardando-resposta__row {
+        .bfd-kpi-tooltip-insights__head,
+        .bfd-kpi-tooltip-insights__row {
           display: grid;
           grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 0.75fr);
           gap: 0.5rem;
@@ -804,11 +833,11 @@ export default function VisaoGeral() {
           font-size: 0.72rem;
           line-height: 1.35;
         }
-        .bfd-kpi-tooltip-aguardando-resposta__head--duas-colunas,
-        .bfd-kpi-tooltip-aguardando-resposta__row--duas-colunas {
+        .bfd-kpi-tooltip-insights__head--duas-colunas,
+        .bfd-kpi-tooltip-insights__row--duas-colunas {
           grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
         }
-        .bfd-kpi-tooltip-aguardando-resposta__head {
+        .bfd-kpi-tooltip-insights__head {
           color: #94a3b8;
           font-weight: 700;
           text-transform: uppercase;
@@ -816,32 +845,32 @@ export default function VisaoGeral() {
           padding-bottom: 0.25rem;
           border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        .bfd-kpi-tooltip-aguardando-resposta__row span:first-child {
+        .bfd-kpi-tooltip-insights__row span:first-child {
           font-family: 'DM Mono', ui-monospace, monospace;
           font-size: 0.7rem;
           color: #e2e8f0;
           word-break: break-word;
         }
-        .bfd-kpi-tooltip-aguardando-resposta__link {
+        .bfd-kpi-tooltip-insights__link {
           font-family: 'DM Mono', ui-monospace, monospace;
           font-size: 0.7rem;
           color: #60a5fa;
           text-decoration: none;
           word-break: break-word;
         }
-        .bfd-kpi-tooltip-aguardando-resposta__link:hover {
+        .bfd-kpi-tooltip-insights__link:hover {
           color: #93c5fd;
           text-decoration: underline;
         }
-        .bfd-kpi-tooltip-aguardando-resposta__row span:nth-child(2) {
+        .bfd-kpi-tooltip-insights__row span:nth-child(2) {
           color: #cbd5e1;
         }
-        .bfd-kpi-tooltip-aguardando-resposta__row strong {
+        .bfd-kpi-tooltip-insights__row strong {
           color: #fbbf24;
           font-weight: 700;
           text-align: right;
         }
-        .bfd-kpi-tooltip-aguardando-resposta__mais {
+        .bfd-kpi-tooltip-insights__mais {
           margin-top: 0.35rem;
           font-size: 0.72rem;
           color: #94a3b8;
@@ -1068,33 +1097,18 @@ export default function VisaoGeral() {
           titulo={kpiCardAguardandoAprovacao.titulo}
           icone={<Warning weight="duotone" size={16} style={{ color: kpiCardAguardandoAprovacao.cor }} />}
           valor={String(kpiCardAguardandoAprovacao.count)}
-          subtexto={`${totalCotacoesEscopo} no escopo · USD ${fmtMoeda(kpis.valor_andamento_usd)} em aberto`}
+          subtexto={`${totalCotacoesEscopo} no escopo · USD ${fmtMoeda(resolverValorUsdTooltipKpiAprovacao(kpis))} em aberto`}
           variante="padrao"
           tooltip={
             <InsightsKpiTooltipListaBidFreteInternacional
               resumo={(
-                <>
-                  <div className="cg-tooltip__row">
-                    <span>Volume em aberto</span>
-                    <strong>USD {fmtMoeda(kpis.valor_andamento_usd)}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>{kpiCardAguardandoAprovacao.titulo}</span>
-                    <strong>{kpiCardAguardandoAprovacao.count}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Marítimo</span>
-                    <strong style={{ color: '#34d399' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'MARITIMO')}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Aéreo</span>
-                    <strong style={{ color: '#a78bfa' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'AEREO')}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Rodoviário</span>
-                    <strong style={{ color: '#fbbf24' }}>{contagemModalAndamento(kpis.distribuicao_modal_andamento, 'RODOVIARIO')}</strong>
-                  </div>
-                </>
+                <InsightsKpiTooltipResumoBidFreteInternacional
+                  volumeRotulo="Volume em aberto"
+                  volumeValor={`USD ${fmtMoeda(resolverValorUsdTooltipKpiAprovacao(kpis))}`}
+                  tituloContagem={kpiCardAguardandoAprovacao.titulo}
+                  contagem={kpiCardAguardandoAprovacao.count}
+                  distribuicaoModal={resolverDistribuicaoModalTooltipKpiAprovacao(kpis, cotacoesAguardandoAprovacaoOrdenadas)}
+                />
               )}
               cotacoes={cotacoesAguardandoAprovacaoOrdenadas}
               total={totalCotacoesAguardandoAprovacao}
@@ -1112,32 +1126,24 @@ export default function VisaoGeral() {
           tooltip={
             <InsightsKpiTooltipListaBidFreteInternacional
               resumo={(
-                <>
-                  <div className="cg-tooltip__row">
-                    <span>{kpiCardAguardandoResposta.titulo}</span>
-                    <strong>{kpiCardAguardandoResposta.count}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Enviada ao fornecedor</span>
-                    <strong>{kpiCardAguardandoResposta.detalhe.enviadaFornecedores}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Em cotação</span>
-                    <strong style={{ color: '#34d399' }}>{kpiCardAguardandoResposta.detalhe.emCotacao}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Total no escopo</span>
-                    <strong>{totalCotacoesEscopo}</strong>
-                  </div>
-                  <div className="cg-tooltip__row">
-                    <span>Participação no escopo</span>
-                    <strong style={{ color: '#60a5fa' }}>
-                      {totalCotacoesEscopo > 0
-                        ? `${Math.round((kpiCardAguardandoResposta.count / totalCotacoesEscopo) * 1000) / 10}%`
-                        : '—'}
-                    </strong>
-                  </div>
-                </>
+                <InsightsKpiTooltipResumoBidFreteInternacional
+                  volumeRotulo="Volume meta (USD)"
+                  volumeValor={`USD ${fmtMoeda(resolverValorMetaUsdTooltipKpiResposta(kpis))}`}
+                  tituloContagem={kpiCardAguardandoResposta.titulo}
+                  contagem={kpiCardAguardandoResposta.count}
+                  linhasExtras={[
+                    {
+                      rotulo: 'Enviada ao fornecedor',
+                      valor: kpiCardAguardandoResposta.detalhe.enviadaFornecedores,
+                    },
+                    {
+                      rotulo: 'Em cotação',
+                      valor: kpiCardAguardandoResposta.detalhe.emCotacao,
+                      cor: '#34d399',
+                    },
+                  ]}
+                  distribuicaoModal={resolverDistribuicaoModalTooltipKpiResposta(kpis, cotacoesAguardandoRespostaOrdenadas)}
+                />
               )}
               cotacoes={cotacoesAguardandoRespostaOrdenadas}
               total={totalCotacoesAguardandoResposta}

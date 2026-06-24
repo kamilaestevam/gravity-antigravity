@@ -46,11 +46,13 @@ Todas exigem `assertWorkspacesAutorizadosNoRequest` + query `ids_workspaces` qua
 
 ---
 
-## 3. KPIs do topo (fixos — sem config)
+## 3. KPIs do topo
 
-> **TASK-000325 / PR #429:** removida a aba **Configurações → Visão Geral** (`dashboard-kpi`). SSOT: `BID_FRETE_DASHBOARD_TOP_KPI_STATUS_MAPA` em `use-dashboard-top-kpi-bid-frete.ts` (legado `bid-frete:dashboard-top-kpi-status` limpo no load).
+> **TASK-000325 / PR #429:** removida a aba **Configurações → Visão Geral** (`dashboard-kpi`). SSOT do **Dashboard operacional:** `BID_FRETE_DASHBOARD_TOP_KPI_STATUS_MAPA` em `use-dashboard-top-kpi-bid-frete.ts` (legado `bid-frete:dashboard-top-kpi-status` limpo no load). **Não confundir** com os cards da aba Insights (`visao-geral.tsx`).
 
-Os cards numéricos **não** usam contagem fixa do server (`cotacoes_andamento` legado).
+### 3.1 Dashboard operacional (fixos — sem config)
+
+Os widgets numéricos **não** usam contagem fixa do server (`cotacoes_andamento` legado).
 
 | Fonte | Chave / arquivo |
 |-------|-----------------|
@@ -63,6 +65,33 @@ Os cards numéricos **não** usam contagem fixa do server (`cotacoes_andamento` 
 | Rótulo / cor | `status-config-bid-frete-internacional.ts` |
 | Volume USD card 1 | `valor_andamento_usd` — agregado no server pelo mesmo `status_slug_kpi_andamento` |
 | Modal no tooltip | `distribuicao_modal_andamento` — mesmo slug |
+
+### 3.2 Aba Insights (`visao-geral.tsx`)
+
+Os cards **Aguardando aprovação** e **Aguardando resposta** são **fixos** (sem config por usuário).
+
+| Card | Semântica operacional (server #427) | Fallback funil (status nativos) |
+|------|-------------------------------------|----------------------------------|
+| Aguardando aprovação | `kpi_insights_aguardando_aprovacao` — where `montarWhereKpiInsightsAguardandoAprovacao*` | `AGUARDANDO_APROVACAO` + custom da config |
+| Aguardando resposta | `kpi_insights_aguardando_resposta` — where `montarWhereKpiInsightsAguardandoResposta*` | `ENVIADA_FORNECEDORES` + `EM_COTACAO` + custom |
+
+**Contagem exibida:** `Math.max(api, funil)` via `resolverContagemKpiInsights*` em `status-config-bid-frete-internacional.ts` — ponte até a regra operacional estabilizar; quando a API não envia o campo, usa só o funil.
+
+**Campos extras em `GET /kpis` (Insights):**
+
+| Campo | Uso |
+|-------|-----|
+| `distribuicao_modal_aguardando_aprovacao` | Tooltip card 1 — Marítimo/Aéreo/Rodoviário |
+| `distribuicao_modal_aguardando_resposta` | Tooltip card 2 — modais |
+| `valor_aguardando_aprovacao_usd` | Volume em aberto (propostas USD) no card 1 |
+| `valor_meta_aguardando_resposta_usd` | Volume meta USD (`moeda_meta = 'USD'`) no card 2 |
+| `kpi_insights_aguardando_resposta_detalhe` | Breakdown enviada / em cotação |
+
+**Drill-down tooltips:** `GET /insights-detalhe` com `contexto=resposta|aprovacao` usa os mesmos where operacionais (sem `statusSlugs` do client).
+
+**Tooltip UX 10:** `InsightsKpiTooltipResumoBidFreteInternacional` + `InsightsKpiTooltipListaBidFreteInternacional` — volume, contagem, modal, lista de cotações (paridade nos dois cards).
+
+Rótulo / cor dos cards: `status-config-bid-frete-internacional.ts`.
 
 ---
 

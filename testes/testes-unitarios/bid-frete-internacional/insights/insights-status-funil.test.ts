@@ -6,6 +6,9 @@ import {
   contagemAguardandoAprovacaoNoFunilBidFreteInternacional,
   contagemAguardandoRespostaNoFunilBidFreteInternacional,
   detalharAguardandoRespostaNoFunilBidFreteInternacional,
+  resolverContagemKpiInsightsAguardandoAprovacaoBidFreteInternacional,
+  resolverContagemKpiInsightsAguardandoRespostaBidFreteInternacional,
+  resolverDetalheKpiInsightsAguardandoRespostaBidFreteInternacional,
   lerStatusCotacaoConfigBidFreteInternacional,
   montarEtapasFunilInsightsBidFreteInternacional,
   resolverCorStatusConfigBidFreteInternacional,
@@ -164,5 +167,53 @@ describe('KPI Insights — cards fixos aguardando aprovação e resposta', () =>
 
   it('ignora rascunho no card aguardando resposta', () => {
     expect(contagemAguardandoRespostaNoFunilBidFreteInternacional(funil, configComCustom)).not.toBe(29)
+  })
+})
+
+describe('KPI Insights — resolverContagem Math.max(api, funil)', () => {
+  const funil = [
+    { status: 'AGUARDANDO_APROVACAO', count: 4 },
+    { status: 'ENVIADA_FORNECEDORES', count: 7 },
+    { status: 'EM_COTACAO', count: 3 },
+  ]
+  const config = STATUS_COTACAO_CONFIG_PADRAO_BID_FRETE_INTERNACIONAL
+
+  it('usa funil quando API não envia contagem', () => {
+    expect(
+      resolverContagemKpiInsightsAguardandoAprovacaoBidFreteInternacional(funil, config),
+    ).toBe(4)
+    expect(
+      resolverContagemKpiInsightsAguardandoRespostaBidFreteInternacional(funil, config),
+    ).toBe(10)
+  })
+
+  it('usa Math.max quando API retorna 0 mas funil tem contagem', () => {
+    expect(
+      resolverContagemKpiInsightsAguardandoAprovacaoBidFreteInternacional(funil, config, 0),
+    ).toBe(4)
+    expect(
+      resolverContagemKpiInsightsAguardandoRespostaBidFreteInternacional(funil, config, 0),
+    ).toBe(10)
+  })
+
+  it('prefere API quando maior que funil', () => {
+    expect(
+      resolverContagemKpiInsightsAguardandoAprovacaoBidFreteInternacional(funil, config, 12),
+    ).toBe(12)
+  })
+
+  it('detalhe resposta combina API e funil com Math.max', () => {
+    expect(
+      resolverDetalheKpiInsightsAguardandoRespostaBidFreteInternacional(
+        funil,
+        config,
+        { enviada_fornecedores: 0, em_cotacao: 0 },
+        0,
+      ),
+    ).toEqual({
+      enviadaFornecedores: 7,
+      emCotacao: 3,
+      total: 10,
+    })
   })
 })

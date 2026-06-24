@@ -189,13 +189,17 @@ Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISA
 | Peça | Caminho |
 |------|---------|
 | Página | `client/src/pages/visao-geral.tsx` |
-| KPIs ↔ Config | `use-dashboard-top-kpi-bid-frete.ts` + `status-config-bid-frete-internacional.ts` |
+| Contagem cards 1–2 | `status-config-bid-frete-internacional.ts` → `resolverContagemKpiInsights*` (`Math.max` API + funil) |
+| Where operacional (shared) | `shared/where-kpi-insights-operacionais-bid-frete-internacional.ts` |
+| Tooltip KPI UX 10 | `insights-kpi-tooltip-resumo-bid-frete-internacional.tsx`, `insights-kpi-tooltip-lista-bid-frete-internacional.tsx` |
 | API + Zod client | `client/src/shared/api.ts`, `insights-visao-geral-bid-frete-internacional.ts`, `insights-detalhe-bid-frete-internacional.ts` |
 | Agregação server | `agregar-kpis-dashboard-bid-frete-internacional.ts`, `agregar-insights-graficos-bid-frete-internacional.ts` |
 | Query Zod server | `server/src/shared/dashboard-queries-zod-bid-frete-internacional.ts` |
-| Drill-down modal | `dialogo-detalhe-insights-bid-frete-internacional.tsx` |
+| Drill-down modal | `dialogo-detalhe-insights-bid-frete-internacional.tsx`, `montar-insights-detalhe-bid-frete-internacional.ts` |
 
-**Regra:** contagem e rótulo dos cards KPI seguem Configurações › Visão Geral (`bid-frete:dashboard-top-kpi-status`), não hardcode «Em andamento». Drill-down de alertas propaga `data_referencia` do dia navegado.
+**Regra:** cards **Aguardando aprovação** e **Aguardando resposta** são fixos na aba Insights; contagem = `Math.max(kpi_insights_*, funil)` até a regra operacional (#427) estabilizar. Drill-down de alertas propaga `data_referencia` do dia navegado. Detalhe `resposta`/`aprovacao` **não** envia `statusSlugs` — server usa where operacional.
+
+> Contrato completo `/kpis` e tooltips: `INSIGHTS-VISAO-GERAL-TECNICO.md` §3. Dashboard operacional (widgets configuráveis) usa `use-dashboard-top-kpi-bid-frete.ts` — escopo separado.
 
 **Mapa (`GET /dashboard/mapa-cotacoes`):** pins e coordenadas vêm do **Cadastros** por código (IATA/UNLOCODE), não do nome gravado na cotação. Divergência nome/país → `alerta_divergencia_cadastros_*` no hover. SSOT: `shared/divergencia-cadastros-rota-bid-frete-internacional.ts` (mapa = alerta; gravação = bloqueio).
 
@@ -203,7 +207,7 @@ Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISA
 
 **Testes UNI (mapa/validação):** `insights/divergencia-cadastros-mapa.test.ts`, `insights/formatar-terminal-mapa.test.ts`, `insights/filtrar-mapa-insights.test.ts`
 
-Doc detalhado: [INSIGHTS-VISAO-GERAL-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISAO-GERAL-TECNICO.md) §7–9
+Doc detalhado: [INSIGHTS-VISAO-GERAL-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/INSIGHTS-VISAO-GERAL-TECNICO.md) §3–9
 
 **Separado do Dashboard:** rota `/dashboard/insights` (GABI widget) vs aba `/insights` — TASK-000265 vs TASK-000264.
 

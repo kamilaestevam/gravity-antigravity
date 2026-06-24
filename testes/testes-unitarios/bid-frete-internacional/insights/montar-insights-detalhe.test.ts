@@ -5,36 +5,23 @@ import {
 } from '../../../../servicos-global/produto/bid-frete-internacional/server/src/lib/montar-insights-detalhe-bid-frete-internacional'
 
 describe('montarWhereInsightsDetalheBidFreteInternacional', () => {
-  it('filtra respostas pendentes pelos status corretos', () => {
+  it('filtra respostas pendentes pela regra operacional', () => {
     const where = montarWhereInsightsDetalheBidFreteInternacional('resposta', { id_workspace: 'ws-1' })
-    expect(where.status_cotacao_bid_frete_internacional).toEqual({
-      in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'],
-    })
+    expect(where.OR).toBeDefined()
     expect(where.id_workspace).toBe('ws-1')
   })
 
-  it('filtra aprovação com slugs custom enviados pela config', () => {
-    const where = montarWhereInsightsDetalheBidFreteInternacional(
-      'aprovacao',
-      {},
-      undefined,
-      { status_slugs: ['AGUARDANDO_APROVACAO', 'COTACAO_RESPONDIDA'] },
-    )
-    expect(where.status_cotacao_bid_frete_internacional).toEqual({
-      in: ['AGUARDANDO_APROVACAO'],
-    })
-  })
-
-  it('ignora slug custom inválido para Prisma (ex.: THALES)', () => {
-    const where = montarWhereInsightsDetalheBidFreteInternacional(
-      'aprovacao',
-      {},
-      undefined,
-      { status_slugs: ['AGUARDANDO_APROVACAO', 'THALES'] },
-    )
-    expect(where.status_cotacao_bid_frete_internacional).toEqual({
-      in: ['AGUARDANDO_APROVACAO'],
-    })
+  it('filtra aprovação pela regra operacional (não só slug fixo)', () => {
+    const where = montarWhereInsightsDetalheBidFreteInternacional('aprovacao', {})
+    expect(where.OR).toEqual([
+      { status_cotacao_bid_frete_internacional: 'AGUARDANDO_APROVACAO' },
+      {
+        status_cotacao_bid_frete_internacional: {
+          notIn: ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA', 'RASCUNHO'],
+        },
+        propostas: { some: {} },
+      },
+    ])
   })
 
   it('filtra rota por origem, destino e modal', () => {

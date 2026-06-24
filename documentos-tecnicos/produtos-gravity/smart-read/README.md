@@ -80,7 +80,7 @@ Configurado em `client/src/shared/config.ts` (`PRODUCT_CONFIG.navigation`) e map
 | Grupo / item | Rota | Observação |
 |--------------|------|------------|
 | Meu Espaço → Minhas Atividades / Email / WhatsApp | `/hub` | Desabilitados (badge "Em Breve") |
-| Smart Read (divisor) → Leituras | `/smart-read/lista` | Default |
+| Smart Read (divisor) | — | Sem item «Lista» no menu — visões **Insights \| Lista** no toggle do topo (`SmartReadVisualizacaoTabs`); rota default `/smart-read/lista` |
 | Histórico | `/workspace/historico-organizacao?id_produto_historico_log=smart-read` | Link externo (tela centralizada do Configurador) |
 | Configurações | `/smart-read/configuracoes` | Ver abaixo |
 
@@ -110,5 +110,7 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | **PR #409** (merge 2026-06-23) | Insights: modal **Base de cálculo** (tempos do estudo + observações documento médio), KPI Saving em Erros = contagem de campos, fallback degradado, cadeia GET snapshot→legado→progresso — ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) §5–6 e [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) §4.6 |
 | **TASK-000317** / PR #409 | Lista: colunas de **métricas da leitura** (documentos, campos, saving, tempos) — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §12 |
 | **TASK-000321** | Lista: ordem dos KPI cards (Performance de acertos = 2º) + card **Recursos reduzidos** agregando saving das leituras visíveis — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §13 |
+| **PR #413** (merge 2026-06-24) | Nomenclatura **Lista** no localizador (não «Leituras»); rotas legadas `/leituras` e `/visao-geral` redirecionam para `/lista` (TASK-000320) |
+| **PR #421** (merge 2026-06-24) | Hotfix UX Insights/Lista: dropdown **+ Novo** alinhado à direita, modal **Base de cálculo** com tabela legível, link verde `#34d399` em `smart-read-leituras.css` |
 | **TASK-000324** | Lista: faixa **Painéis** roxa no chrome da tabela (criar/trocar/renomear/reordenar/excluir) + segmento «Visão geral» / «Transações API» na faixa unificada — paridade Pedido/BID Frete — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §11 |
 | Refatoração Insights | Fonte única acerto/erro por edição do usuário; emissor responsável por tipo de documento; `dados_original` no contrato bilateral |

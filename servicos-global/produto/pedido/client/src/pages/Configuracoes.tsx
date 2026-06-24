@@ -6,25 +6,21 @@
  *  ├── Tabela             ← linhas por página, flags de exibição
  *  ├── Colunas            ← casas decimais + criar coluna personalizada
  *  ├── Status             ← criar / editar / reordenar / excluir status de pedido
- *  ├── Notificações       ← toggles de alertas
- *  ├── Exportação         ← formato padrão, flags de exportação
  *  ├── Numeração          ← prefixo, ano, sequência, reinício
- *  ├── Templates PDF      ← listar / criar / editar / excluir templates Handlebars
- *  ├── Regras             ← regras de negócio (duplicar, excluir, transferir, consolidar)
- *  └── Categorias Anexos  ← gerenciar categorias de anexo
+ *  └── Templates PDF      ← listar / criar / editar / excluir templates Handlebars
  */
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import {
-  SquaresFour, Table, Bell, DownloadSimple,
+  SquaresFour, Table,
   Eye, EyeSlash, Plus, X, DotsSixVertical,
   Package, CurrencyDollar, Scales, Warning, CheckCircle, Coins,
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
-  Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
+  Hash, Sliders, Trash, FloppyDisk, PencilSimple, Tag,
   Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare, MathOperations,
-  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown, Info, ChartBar,
+  Paperclip, CurrencyCircleDollar, CaretDown, Info, ChartBar,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -48,9 +44,7 @@ import { ICONE_CUSTOM_MAP } from '../shared/cardRegistry'
 import type { CardUsuario } from '../shared/types'
 import { ModalNovoCardUsuario } from '../components/ConfiguracaoCards/ModalNovoCardUsuario'
 import type { CardPeriodoCodigo } from '../shared/lista-card-schemas'
-import { TaxasMoedaResponseSchema, HistoricoTaxasResponseSchema, SyncTaxasResponseSchema, type BoletimCambio } from '../shared/useTaxasCambio'
-import { templatePedidoApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, obterSnapshotAtualizacaoPolicy, salvarSnapshotAtualizacaoPolicy, SNAPSHOT_ATUALIZACAO_DEFAULT, type TemplateLocal } from '../shared/api'
-import type { SnapshotAtualizacaoPolicy } from '../shared/types'
+import { templatePedidoApi, colunasUsuarioApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, type TemplateLocal } from '../shared/api'
 import { FORMATOS_DATA, setFormatoData, getFormatoData, type FormatoData } from '../shared/useFormatoData'
 
 const FMT_REGIAO_KEYS: Record<string, string> = {
@@ -77,7 +71,6 @@ import type {
 import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import { useShellStore } from '@gravity/shell'
 import { usePermissoesPedido } from '../shared/permissoes/usePermissoesPedido'
-import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
 import './Configuracoes.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
@@ -569,15 +562,17 @@ const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   { tipo: 'item',   id: 'status',            label: 'Status',         labelKey: 'pedido.config.sidebar.status',         icone: <Tag                  size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'numeracao',         label: 'Numeração',      labelKey: 'pedido.config.sidebar.numeracao',      icone: <Hash                 size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'templates-pdf',     label: 'Templates PDF',  labelKey: 'pedido.config.sidebar.templates_pdf',  icone: <FloppyDisk           size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'regras',            label: 'Regras',         labelKey: 'pedido.config.sidebar.regras',         icone: <Sliders              size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'categorias-anexos', label: 'Categ. Anexos',  labelKey: 'pedido.config.sidebar.categ_anexos',   icone: <Folder               size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'taxa-cambio',       label: 'Taxa de Câmbio', labelKey: 'pedido.config.sidebar.taxa_cambio',    icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'snapshot-cadastros',label: 'Cadastros',      labelKey: 'pedido.config.sidebar.snapshot_cadastros', icone: <ArrowsClockwise     size={15} weight="duotone" />, ativo: true },
-  // ── SISTEMA ────────────────────────────────────────────────────────────────
-  { tipo: 'grupo',  label: 'SISTEMA', labelKey: 'pedido.config.sidebar.grupo_sistema' },
-  { tipo: 'item',   id: 'notificacoes',      label: 'Notificações',   labelKey: 'pedido.config.sidebar.notificacoes',   icone: <Bell                 size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'exportacao',        label: 'Exportação',     labelKey: 'pedido.config.sidebar.exportacao',     icone: <DownloadSimple       size={15} weight="duotone" />, ativo: true },
 ]
+
+/** Seções removidas do menu (TASK-000332) — redireciona ?tab= legado para Cards. */
+const CATEGORIAS_CONFIG_REMOVIDAS = new Set([
+  'notificacoes',
+  'exportacao',
+  'regras',
+  'taxa-cambio',
+  'snapshot-cadastros',
+  'categorias-anexos',
+])
 
 type CategoriaId = string
 
@@ -588,23 +583,6 @@ interface TabelaConfig {
   destacarAtrasados: boolean
 }
 
-interface NotificacoesConfig {
-  pedidoAtrasado: boolean
-  novoPedido: boolean
-  itemTransferido: boolean
-  pedidoExcluido: boolean
-  importacaoConcluida: boolean
-}
-
-interface ExportacaoConfig {
-  formatoPadrao: 'csv' | 'xlsx' | 'pdf'
-  incluirColunasUsuario: boolean
-  incluirItens: boolean
-  apenasSelection: boolean
-  incluirCabecalho: boolean
-  separadorCsv: 'virgula' | 'ponto-virgula' | 'tab'
-}
-
 interface NumeracaoConfig {
   prefixo: string
   incluirAno: boolean
@@ -613,52 +591,6 @@ interface NumeracaoConfig {
   automaticoCriar: boolean
   automaticoDuplicar: boolean
   automaticoConsolidar: boolean
-}
-
-interface RegrasConfig {
-  duplicar: {
-    copiarDatas: boolean
-    numeracaoAutomatica: boolean
-    statusInicial: 'rascunho' | 'aberto' | 'em_andamento'
-    duplicarItens: boolean
-  }
-  duplicarItem: {
-    numeracaoAutomatica: boolean
-    copiarDatas: boolean
-    copiarDados: boolean
-  }
-  excluir: {
-    statusBloqueados: string[]
-    semItensPermitido: boolean
-    confirmarComPreview: boolean
-  }
-  transferir: {
-    encerrarOrigemZero: boolean
-    excluirItemOrigemZero: boolean
-    excluirPedidoOrigemZero: boolean
-    bloquearTransferenciaAcimaInicial: boolean
-  }
-  consolidar: {
-    avisosDivergentes: boolean
-    fundirPartNumber: boolean
-    usuarioEscolheDivergentes: boolean
-    numeroPedidoResultante: 'mais_antigo' | 'automatico' | 'mais_recente'
-  }
-  alertas: {
-    numeroDuplicado: boolean
-    valorTotalDivergente: boolean
-    quantidadeTotalDivergente: boolean
-    quantidadeProntaDivergente: boolean
-    pesoLiquidoDivergente: boolean
-    pesoBrutoDivergente: boolean
-    cubagemDivergente: boolean
-  }
-}
-
-interface CategoriaAnexo {
-  id: string
-  nome: string
-  sistema: boolean
 }
 
 // ─── Tipos para colunas personalizadas ───────────────────────────────────────
@@ -723,16 +655,6 @@ function carregarTabelaConfig(): TabelaConfig {
     if (raw) return { ...TABELA_CONFIG_PADRAO, ...JSON.parse(raw) as Partial<TabelaConfig> }
   } catch { /* ignore */ }
   return { ...TABELA_CONFIG_PADRAO }
-}
-
-const EXPORT_CONFIG_KEY = 'pedido:export_config'
-
-function carregarExportConfig(): ExportacaoConfig {
-  try {
-    const raw = localStorage.getItem(EXPORT_CONFIG_KEY)
-    if (raw) return JSON.parse(raw) as ExportacaoConfig
-  } catch { /* ignore */ }
-  return { formatoPadrao: 'xlsx', incluirColunasUsuario: true, incluirItens: true, apenasSelection: false, incluirCabecalho: true, separadorCsv: 'ponto-virgula' }
 }
 
 const CASAS_KEY     = 'pedido:casas_decimais'
@@ -924,7 +846,13 @@ export default function Configuracoes() {
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab') as CategoriaId | null
   const acaoParam = searchParams.get('acao')
-  const [categoria, setCategoria] = useState<CategoriaId>(tabParam ?? 'cards')
+  const tabInicial = tabParam && !CATEGORIAS_CONFIG_REMOVIDAS.has(tabParam) ? tabParam : 'cards'
+  const [categoria, setCategoria] = useState<CategoriaId>(tabInicial)
+
+  useEffect(() => {
+    if (!tabParam || CATEGORIAS_CONFIG_REMOVIDAS.has(tabParam)) return
+    setCategoria(tabParam)
+  }, [tabParam])
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     colunas: COLUNAS_FILHOS.includes(tabParam ?? ''),
     kanban:  KANBAN_FILHOS.includes(tabParam ?? ''),
@@ -1209,52 +1137,6 @@ export default function Configuracoes() {
 
   // Derivado — true quando fórmula difere do que está salvo no backend
   const saldoFormulaAlterada = tokensParaChaveFormula(saldoTokens) !== saldoFormulaSalva
-
-  // ── Snapshot — Política de Atualização ─────────────────────────────────────
-  const [snapPolicy,    setSnapPolicy]    = useState<SnapshotAtualizacaoPolicy>(SNAPSHOT_ATUALIZACAO_DEFAULT)
-  const [snapPolicyBase, setSnapPolicyBase] = useState<SnapshotAtualizacaoPolicy>(SNAPSHOT_ATUALIZACAO_DEFAULT)
-  const [snapPolicySalvando, setSnapPolicySalvando] = useState(false)
-
-  useEffect(() => {
-    let cancelado = false
-    obterSnapshotAtualizacaoPolicy()
-      .then(resp => {
-        if (cancelado) return
-        const valor = resp.data ?? SNAPSHOT_ATUALIZACAO_DEFAULT
-        setSnapPolicy(valor)
-        setSnapPolicyBase(valor)
-      })
-      .catch(() => { /* mantém default */ })
-    return () => { cancelado = true }
-  }, [])
-
-  const snapPolicyAlterada = useMemo(
-    () => JSON.stringify(snapPolicy) !== JSON.stringify(snapPolicyBase),
-    [snapPolicy, snapPolicyBase],
-  )
-
-  function toggleSnapPolicy(chave: keyof SnapshotAtualizacaoPolicy) {
-    setSnapPolicy(prev => ({ ...prev, [chave]: !prev[chave] }))
-  }
-
-  async function salvarSnapPolicy() {
-    setSnapPolicySalvando(true)
-    try {
-      const resp = await salvarSnapshotAtualizacaoPolicy(snapPolicy)
-      setSnapPolicyBase(resp.data)
-      setSnapPolicy(resp.data)
-      addNotification({ type: 'success', message: t('pedido.config.snapshot.msg_salvo') })
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : t('pedido.config.snapshot.erro_salvar')
-      addNotification({ type: 'error', message: msg })
-    } finally {
-      setSnapPolicySalvando(false)
-    }
-  }
-
-  function cancelarSnapPolicy() {
-    setSnapPolicy(snapPolicyBase)
-  }
 
   // FIX #4: constante fora do ciclo de render para não recriar callbacks a cada render
   const TIPOS_NUMERICOS_FORMULA: TipoColunaUsuario[] = useMemo(() => ['numero', 'percentual', 'formula'], [])
@@ -1771,26 +1653,6 @@ export default function Configuracoes() {
     setTabelaConfig({ ...TABELA_CONFIG_PADRAO })
   }
 
-  // ── Notificações state ──
-  const [notifConfig, setNotifConfig] = useState<NotificacoesConfig>({
-    pedidoAtrasado: true,
-    novoPedido: true,
-    itemTransferido: false,
-    pedidoExcluido: false,
-    importacaoConcluida: true,
-  })
-
-  // ── Exportação state ──
-  const [exportConfig, setExportConfig] = useState<ExportacaoConfig>(carregarExportConfig)
-
-  function atualizarExportConfig(updater: (prev: ExportacaoConfig) => ExportacaoConfig) {
-    setExportConfig(prev => {
-      const next = updater(prev)
-      localStorage.setItem(EXPORT_CONFIG_KEY, JSON.stringify(next))
-      return next
-    })
-  }
-
   // ── Numeração state ──
   const [numConfig, setNumConfig] = useState<NumeracaoConfig>({
     prefixo: 'PO-',
@@ -1896,190 +1758,6 @@ export default function Configuracoes() {
       // silencia em dev
     }
     setTemplates(prev => prev.filter(t => t.id !== id))
-  }
-
-  // ── Regras state ──
-  const LEGACY_EXCLUIR_WHITELIST_UI = [
-    'rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado',
-  ] as const
-
-  function migrarStatusBloqueadosUi(raw: string[] | undefined): string[] {
-    if (!raw?.length) return []
-    if (
-      raw.length === LEGACY_EXCLUIR_WHITELIST_UI.length &&
-      LEGACY_EXCLUIR_WHITELIST_UI.every((s) => raw.includes(s))
-    ) {
-      return []
-    }
-    return raw
-  }
-
-  const [regrasAlterados, setRegrasAlterados] = useState(false)
-  const regrasInicialRef = useRef<RegrasConfig | null>(null)
-
-  const [regrasConfig, setRegrasConfig] = useState<RegrasConfig>({
-    duplicar: {
-      copiarDatas: true,
-      numeracaoAutomatica: true,
-      statusInicial: 'rascunho',
-      duplicarItens: true,
-    },
-    duplicarItem: {
-      numeracaoAutomatica: true,
-      copiarDatas: true,
-      copiarDados: true,
-    },
-    excluir: {
-      statusBloqueados: [],
-      semItensPermitido: true,
-      confirmarComPreview: true,
-    },
-    transferir: {
-      encerrarOrigemZero: true,
-      excluirItemOrigemZero: true,
-      excluirPedidoOrigemZero: true,
-      bloquearTransferenciaAcimaInicial: true,
-    },
-    consolidar: {
-      avisosDivergentes: true,
-      fundirPartNumber: true,
-      usuarioEscolheDivergentes: true,
-      numeroPedidoResultante: 'automatico',
-    },
-    alertas: {
-      numeroDuplicado: true,
-      valorTotalDivergente: true,
-      quantidadeTotalDivergente: true,
-      quantidadeProntaDivergente: true,
-      pesoLiquidoDivergente: true,
-      pesoBrutoDivergente: true,
-      cubagemDivergente: true,
-    },
-  })
-
-  // Carrega regras do backend na montagem
-  useEffect(() => {
-    configRegrasApi.obter().then(backend => {
-      setRegrasConfig(prev => ({
-        ...prev,
-        duplicar: {
-          ...prev.duplicar,
-          numeracaoAutomatica: backend.duplicar_numero_auto,
-          copiarDatas: backend.duplicar_copiar_datas,
-          statusInicial: (backend.duplicar_status_inicial === 'rascunho' || backend.duplicar_status_inicial === 'aberto' || backend.duplicar_status_inicial === 'em_andamento')
-            ? backend.duplicar_status_inicial
-            : prev.duplicar.statusInicial,
-        },
-        excluir: {
-          ...prev.excluir,
-          statusBloqueados: migrarStatusBloqueadosUi(backend.excluir_status_permitidos),
-          semItensPermitido: backend.excluir_pedido_sem_item_permitido,
-          confirmarComPreview: backend.excluir_confirmar_com_preview,
-        },
-        alertas: {
-          ...prev.alertas,
-          numeroDuplicado: backend.alerta_numero_duplicado,
-          valorTotalDivergente: backend.alerta_valor_total_divergente ?? true,
-          quantidadeTotalDivergente: backend.alerta_quantidade_total_divergente ?? true,
-          quantidadeProntaDivergente: backend.alerta_quantidade_pronta_divergente ?? true,
-          pesoLiquidoDivergente: backend.alerta_peso_liquido_divergente ?? true,
-          pesoBrutoDivergente: backend.alerta_peso_bruto_divergente ?? true,
-          cubagemDivergente: backend.alerta_cubagem_divergente ?? true,
-        },
-      }))
-      regrasInicialRef.current = null // reset para próxima renderização detectar mudanças
-    }).catch(() => {
-      // fallback: tenta localStorage
-      try {
-        const raw = localStorage.getItem('pedido:regras_config')
-        if (raw) {
-          const salvo = JSON.parse(raw) as RegrasConfig
-          setRegrasConfig(salvo)
-        }
-      } catch { /* ignore */ }
-    })
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Detecta mudanças nas regras (pula a primeira renderização)
-  useEffect(() => {
-    if (regrasInicialRef.current === null) {
-      regrasInicialRef.current = regrasConfig
-      return
-    }
-    setRegrasAlterados(true)
-  }, [regrasConfig]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  async function salvarRegras() {
-    try {
-      await configRegrasApi.salvar({
-        duplicar_numero_auto: regrasConfig.duplicar.numeracaoAutomatica,
-        duplicar_copiar_datas: regrasConfig.duplicar.copiarDatas,
-        duplicar_status_inicial: regrasConfig.duplicar.statusInicial,
-        excluir_status_permitidos: regrasConfig.excluir.statusBloqueados,
-        excluir_pedido_sem_item_permitido: regrasConfig.excluir.semItensPermitido,
-        excluir_confirmar_com_preview: regrasConfig.excluir.confirmarComPreview,
-        alerta_numero_duplicado: regrasConfig.alertas.numeroDuplicado,
-        alerta_valor_total_divergente: regrasConfig.alertas.valorTotalDivergente,
-        alerta_quantidade_total_divergente: regrasConfig.alertas.quantidadeTotalDivergente,
-        alerta_quantidade_pronta_divergente: regrasConfig.alertas.quantidadeProntaDivergente,
-        alerta_peso_liquido_divergente: regrasConfig.alertas.pesoLiquidoDivergente,
-        alerta_peso_bruto_divergente: regrasConfig.alertas.pesoBrutoDivergente,
-        alerta_cubagem_divergente: regrasConfig.alertas.cubagemDivergente,
-      })
-      localStorage.setItem('pedido:regras_config', JSON.stringify(regrasConfig))
-      setRegrasAlterados(false)
-    } catch { /* silenciar erros */ }
-  }
-
-  function toggleStatusBloqueadoExcluir(statusNome: string) {
-    setRegrasConfig(prev => {
-      const atual = prev.excluir.statusBloqueados
-      const novo = atual.includes(statusNome)
-        ? atual.filter(s => s !== statusNome)
-        : [...atual, statusNome]
-      return { ...prev, excluir: { ...prev.excluir, statusBloqueados: novo } }
-    })
-  }
-
-  // ── Categorias Anexos state ──
-  const [categAnexos, setCategAnexos] = useState<CategoriaAnexo[]>([
-    { id: '1', nome: 'Invoice',      sistema: false },
-    { id: '2', nome: 'Packing List', sistema: false },
-    { id: '3', nome: 'BL',           sistema: false },
-    { id: '4', nome: 'PDF Gerado',   sistema: true  },
-  ])
-  const [categEditandoId, setCategEditandoId] = useState<string | null>(null)
-  const [categNomeEdit, setCategNomeEdit] = useState('')
-  const [categNovaNome, setCategNovaNome] = useState('')
-  const [categCriando, setCategCriando] = useState(false)
-
-  function iniciarEdicaoCateg(cat: CategoriaAnexo) {
-    setCategEditandoId(cat.id)
-    setCategNomeEdit(cat.nome)
-    setCategCriando(false)
-  }
-
-  function salvarEdicaoCateg() {
-    if (!categNomeEdit.trim() || !categEditandoId) return
-    setCategAnexos(prev => prev.map(c => c.id === categEditandoId ? { ...c, nome: categNomeEdit } : c))
-    setCategEditandoId(null)
-    setCategNomeEdit('')
-  }
-
-  function excluirCateg(id: string) {
-    setCategAnexos(prev => prev.filter(c => c.id !== id))
-  }
-
-  function adicionarCateg() {
-    if (!categNovaNome.trim()) return
-    const nova: CategoriaAnexo = {
-      id: String(Date.now()),
-      nome: categNovaNome.trim(),
-      sistema: false,
-    }
-    setCategAnexos(prev => [...prev, nova])
-    setCategNovaNome('')
-    setCategCriando(false)
   }
 
   // ── Kanban state ─────────────────────────────────────────────────────────
@@ -2286,97 +1964,6 @@ export default function Configuracoes() {
       .finally(() => setStatusLoading(false))
   }, [categoria, t])
 
-  // ── Taxa de Câmbio ────────────────────────────────────────────────────────
-  // Tipo BoletimCambio + schemas Zod centralizados em useTaxasCambio.ts
-  // (reuso pra evitar drift entre tela e hook do Pedidos.tsx).
-
-  const [taxasHoje, setTaxasHoje] = useState<BoletimCambio[]>([])
-  const [historicoTaxas, setHistoricoTaxas] = useState<BoletimCambio[]>([])
-  const [moedaHistoricoTaxa, setMoedaHistoricoTaxa] = useState('USD')
-  const [sincronizandoTaxa, setSincronizandoTaxa] = useState(false)
-  const [carregandoTaxa, setCarregandoTaxa] = useState(false)
-  const [ultimaSyncTaxa, setUltimaSyncTaxa] = useState<string | null>(null)
-  const [erroSyncTaxa, setErroSyncTaxa] = useState<string | null>(null)
-
-  const buscarTaxasAtuais = useCallback(async () => {
-    setCarregandoTaxa(true)
-    try {
-      const res = await fetch('/api/v1/taxas-moeda')
-      if (res.ok) {
-        const raw = await res.json()
-        const json = TaxasMoedaResponseSchema.parse(raw)
-        // Aplanar por_moeda → array flat ordenado por moeda + boletim
-        const flat: BoletimCambio[] = []
-        for (const registros of Object.values(json.por_moeda)) {
-          flat.push(...registros)
-        }
-        flat.sort((a, b) => {
-          const oi = MOEDAS_ORDEM.indexOf(a.moeda)
-          const oj = MOEDAS_ORDEM.indexOf(b.moeda)
-          const orderDiff = (oi === -1 ? 99 : oi) - (oj === -1 ? 99 : oj)
-          return orderDiff !== 0 ? orderDiff : a.boletim.localeCompare(b.boletim)
-        })
-        setTaxasHoje(flat)
-      }
-    } catch (err) {
-      // Mand. 08 — registra erro pra investigacao em prod (nao mascara)
-      console.warn('[Configuracoes/taxas-atuais] falha ao carregar:', err)
-    } finally { setCarregandoTaxa(false) }
-  }, [])
-
-  const buscarHistoricoTaxa = useCallback(async (moeda: string) => {
-    try {
-      const res = await fetch(`/api/v1/taxas-moeda/historico?moeda=${moeda}&dias=30`)
-      if (res.ok) {
-        const raw = await res.json()
-        const json = HistoricoTaxasResponseSchema.parse(raw)
-        setHistoricoTaxas(json.historico)
-      }
-    } catch (err) {
-      // Mand. 08 — registra erro; UX preservada com lista vazia
-      console.warn('[Configuracoes/taxas-historico] falha ao carregar:', err)
-      setHistoricoTaxas([])
-    }
-  }, [])
-
-  useEffect(() => {
-    if (categoria === 'taxa-cambio') buscarTaxasAtuais()
-  }, [categoria, buscarTaxasAtuais])
-
-  useEffect(() => {
-    if (categoria === 'taxa-cambio') buscarHistoricoTaxa(moedaHistoricoTaxa)
-  }, [categoria, moedaHistoricoTaxa, buscarHistoricoTaxa])
-
-  const sincronizarTaxas = async () => {
-    setSincronizandoTaxa(true); setErroSyncTaxa(null)
-    try {
-      const res = await fetch('/api/v1/taxas-moeda/sync', { method: 'POST' })
-      const raw = await res.json()
-      const json = SyncTaxasResponseSchema.parse(raw)
-      if (json.total_ok === 0) { setErroSyncTaxa(t('pedido.config.taxa_cambio.erro_sync_offline')) }
-      else { setUltimaSyncTaxa(new Date().toLocaleTimeString('pt-BR')); await buscarTaxasAtuais(); await buscarHistoricoTaxa(moedaHistoricoTaxa) }
-    } catch (err) {
-      // Mand. 08 — registra erro real (nao apenas mensagem generica) pra investigacao em prod
-      console.warn('[Configuracoes/taxas-sync] falha ao sincronizar:', err)
-      setErroSyncTaxa(t('pedido.config.taxa_cambio.erro_comunicacao'))
-    } finally { setSincronizandoTaxa(false) }
-  }
-
-  const MOEDAS_ORDEM = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD']
-  const MOEDAS_INFO: Record<string, string> = {
-    USD: t('pedido.config.taxa_cambio.moeda_usd'),
-    EUR: t('pedido.config.taxa_cambio.moeda_eur'),
-    GBP: t('pedido.config.taxa_cambio.moeda_gbp'),
-    CNY: t('pedido.config.taxa_cambio.moeda_cny'),
-    JPY: t('pedido.config.taxa_cambio.moeda_jpy'),
-    CHF: t('pedido.config.taxa_cambio.moeda_chf'),
-    CAD: t('pedido.config.taxa_cambio.moeda_cad'),
-  }
-  const BOLETIM_COR: Record<string, string> = { '1º Boletim': '#60a5fa', '2º Boletim': '#a78bfa', '3º Boletim': '#34d399', 'Fechamento': '#fbbf24' }
-
-  function fmtTaxa(v: number | null | undefined) { return v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 }) }
-  function fmtData(iso: string | null | undefined) { return iso ? new Date(iso).toLocaleDateString('pt-BR') : '—' }
-
   // ── Status (sortable) ──────────────────────────────────────────────────────
 
   const statusSensors = useSensors(useSensor(PointerSensor, {
@@ -2499,18 +2086,6 @@ export default function Configuracoes() {
       setStatusList(lista)
       setPendingStatusList(lista)
       sincronizarStatusLocal(lista)
-
-      if (deleted.length > 0) {
-        setRegrasConfig(prev => ({
-          ...prev,
-          excluir: {
-            ...prev.excluir,
-            statusBloqueados: prev.excluir.statusBloqueados.filter(
-              n => !deleted.some(d => d.nome === n),
-            ),
-          },
-        }))
-      }
 
       addNotification({ type: 'success', message: t('pedido.config.status.msg_salvo') })
     } catch (err) {
@@ -3330,135 +2905,6 @@ export default function Configuracoes() {
           </div>
         )}
 
-        {/* ════════════════════════ NOTIFICAÇÕES ════════════════════════ */}
-        {categoria === 'notificacoes' && (
-          <div className="cfg-cards-wrapper">
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.notificacoes.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.notificacoes.descricao')}</p>
-                </div>
-              </div>
-
-              <div className="cfg-toggles-lista">
-                <ToggleRow
-                  id="nf-atrasado"
-                  label={t('pedido.config.notificacoes.pedido_atrasado')}
-                  desc={t('pedido.config.notificacoes.pedido_atrasado_desc')}
-                  checked={notifConfig.pedidoAtrasado}
-                  onChange={v => setNotifConfig(prev => ({ ...prev, pedidoAtrasado: v }))}
-                />
-                <ToggleRow
-                  id="nf-novo"
-                  label={t('pedido.config.notificacoes.novo_pedido')}
-                  desc={t('pedido.config.notificacoes.novo_pedido_desc')}
-                  checked={notifConfig.novoPedido}
-                  onChange={v => setNotifConfig(prev => ({ ...prev, novoPedido: v }))}
-                />
-                <ToggleRow
-                  id="nf-transferencia"
-                  label={t('pedido.config.notificacoes.item_transferido')}
-                  desc={t('pedido.config.notificacoes.item_transferido_desc')}
-                  checked={notifConfig.itemTransferido}
-                  onChange={v => setNotifConfig(prev => ({ ...prev, itemTransferido: v }))}
-                />
-                <ToggleRow
-                  id="nf-excluido"
-                  label={t('pedido.config.notificacoes.pedido_excluido')}
-                  desc={t('pedido.config.notificacoes.pedido_excluido_desc')}
-                  checked={notifConfig.pedidoExcluido}
-                  onChange={v => setNotifConfig(prev => ({ ...prev, pedidoExcluido: v }))}
-                />
-                <ToggleRow
-                  id="nf-importacao"
-                  label={t('pedido.config.notificacoes.importacao_concluida')}
-                  desc={t('pedido.config.notificacoes.importacao_concluida_desc')}
-                  checked={notifConfig.importacaoConcluida}
-                  onChange={v => setNotifConfig(prev => ({ ...prev, importacaoConcluida: v }))}
-                />
-              </div>
-            </section>
-          </div>
-        )}
-
-        {/* ════════════════════════ EXPORTAÇÃO ════════════════════════ */}
-        {categoria === 'exportacao' && (
-          <div className="cfg-cards-wrapper">
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.exportacao.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.exportacao.descricao')}</p>
-                </div>
-              </div>
-
-              <div className="cfg-campo-grupo">
-                <p className="cfg-campo-grupo__label">{t('pedido.config.exportacao.formato_padrao')}</p>
-                <div className="cfg-periodo-pills">
-                  {(['csv', 'xlsx', 'pdf'] as const).map(fmt => (
-                    <button
-                      key={fmt}
-                      type="button"
-                      className={`cfg-periodo-pill${exportConfig.formatoPadrao === fmt ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => atualizarExportConfig(prev => ({ ...prev, formatoPadrao: fmt }))}
-                    >
-                      {fmt.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="cfg-toggles-lista">
-                <ToggleRow
-                  id="exp-colunas-usuario"
-                  label={t('pedido.config.exportacao.incluir_colunas')}
-                  desc={t('pedido.config.exportacao.incluir_colunas_desc')}
-                  checked={exportConfig.incluirColunasUsuario}
-                  onChange={v => atualizarExportConfig(prev => ({ ...prev, incluirColunasUsuario: v }))}
-                />
-                <ToggleRow
-                  id="exp-itens"
-                  label={t('pedido.config.exportacao.incluir_itens')}
-                  desc={t('pedido.config.exportacao.incluir_itens_desc')}
-                  checked={exportConfig.incluirItens}
-                  onChange={v => atualizarExportConfig(prev => ({ ...prev, incluirItens: v }))}
-                />
-                <ToggleRow
-                  id="exp-apenas-sel"
-                  label={t('pedido.config.exportacao.apenas_selecionados')}
-                  desc={t('pedido.config.exportacao.apenas_selecionados_desc')}
-                  checked={exportConfig.apenasSelection}
-                  onChange={v => atualizarExportConfig(prev => ({ ...prev, apenasSelection: v }))}
-                />
-                <ToggleRow
-                  id="exp-cabecalho"
-                  label={t('pedido.config.exportacao.incluir_cabecalho')}
-                  desc={t('pedido.config.exportacao.incluir_cabecalho_desc')}
-                  checked={exportConfig.incluirCabecalho}
-                  onChange={v => atualizarExportConfig(prev => ({ ...prev, incluirCabecalho: v }))}
-                />
-              </div>
-
-              <div className="cfg-campo-grupo" style={{ marginTop: '1.25rem' }}>
-                <p className="cfg-campo-grupo__label">{t('pedido.config.exportacao.separador_csv')}</p>
-                <div className="cfg-periodo-pills">
-                  {(['virgula', 'ponto-virgula', 'tab'] as const).map(sep => (
-                    <button
-                      key={sep}
-                      type="button"
-                      className={`cfg-periodo-pill${exportConfig.separadorCsv === sep ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => atualizarExportConfig(prev => ({ ...prev, separadorCsv: sep }))}
-                    >
-                      {t(`pedido.config.exportacao.sep_${sep.replace('-', '_')}`)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </section>
-          </div>
-        )}
-
         {/* ════════════════════════ NUMERAÇÃO ════════════════════════ */}
         {categoria === 'numeracao' && (
           <div className="cfg-cards-wrapper">
@@ -3704,411 +3150,6 @@ export default function Configuracoes() {
           </div>
         )}
 
-        {/* ════════════════════════ REGRAS ════════════════════════ */}
-        {categoria === 'regras' && (
-          <div className="cfg-cards-wrapper">
-
-            {/* Duplicar */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.duplicar.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.regras.duplicar.desc')}</p>
-                </div>
-              </div>
-              <div className="cfg-toggles-lista">
-                <ToggleRow
-                  id="dup-datas"
-                  label={t('pedido.config.regras.duplicar.copiar_datas')}
-                  checked={regrasConfig.duplicar.copiarDatas}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, copiarDatas: v } }))}
-                />
-                <ToggleRow
-                  id="dup-numero"
-                  label={t('pedido.config.regras.duplicar.numeracao_auto')}
-                  checked={regrasConfig.duplicar.numeracaoAutomatica}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, numeracaoAutomatica: v } }))}
-                />
-                <ToggleRow
-                  id="dup-itens"
-                  label={t('pedido.config.regras.duplicar.duplicar_itens')}
-                  desc={t('pedido.config.regras.duplicar.duplicar_itens_desc')}
-                  checked={regrasConfig.duplicar.duplicarItens}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, duplicarItens: v } }))}
-                />
-              </div>
-              <div className="cfg-campo-grupo" style={{ marginTop: '1rem' }}>
-                <p className="cfg-campo-grupo__label">{t('pedido.config.regras.duplicar.status_inicial_label')}</p>
-                <div className="cfg-periodo-pills">
-                  {([
-                    { id: 'rascunho',     labelKey: 'pedido.config.regras.duplicar.status_rascunho'     },
-                    { id: 'aberto',       labelKey: 'pedido.config.regras.duplicar.status_aberto'       },
-                    { id: 'em_andamento', labelKey: 'pedido.config.regras.duplicar.status_em_andamento' },
-                  ] as const).map(s => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className={`cfg-periodo-pill${regrasConfig.duplicar.statusInicial === s.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, statusInicial: s.id } }))}
-                    >
-                      {t(s.labelKey)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* Duplicar item */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.duplicar_item.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.regras.duplicar_item.desc')}</p>
-                </div>
-              </div>
-              <div className="cfg-toggles-lista">
-                <ToggleRow
-                  id="dup-item-numero"
-                  label={t('pedido.config.regras.duplicar_item.numeracao_auto')}
-                  checked={regrasConfig.duplicarItem.numeracaoAutomatica}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicarItem: { ...prev.duplicarItem, numeracaoAutomatica: v } }))}
-                />
-                <ToggleRow
-                  id="dup-item-datas"
-                  label={t('pedido.config.regras.duplicar_item.copiar_datas')}
-                  checked={regrasConfig.duplicarItem.copiarDatas}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicarItem: { ...prev.duplicarItem, copiarDatas: v } }))}
-                />
-                <ToggleRow
-                  id="dup-item-dados"
-                  label={t('pedido.config.regras.duplicar_item.copiar_dados')}
-                  desc={t('pedido.config.regras.duplicar_item.copiar_dados_desc')}
-                  checked={regrasConfig.duplicarItem.copiarDados}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicarItem: { ...prev.duplicarItem, copiarDados: v } }))}
-                />
-              </div>
-            </section>
-
-            {/* Excluir */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.excluir.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.regras.excluir.desc')}</p>
-                </div>
-              </div>
-              <div className="cfg-campo-grupo">
-                <p className="cfg-campo-grupo__label">{t('pedido.config.regras.excluir.status_permitidos_label')}</p>
-                <div className="cfg-check-lista">
-                  {statusList.map(s => (
-                    <label key={s.id} className="cfg-check-item">
-                      <input
-                        type="checkbox"
-                        className="cfg-check-item__input"
-                        checked={regrasConfig.excluir.statusBloqueados.includes(s.nome)}
-                        onChange={() => toggleStatusBloqueadoExcluir(s.nome)}
-                      />
-                      <span className="cfg-check-item__label">{s.rotulo}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="cfg-toggles-lista">
-                <ToggleRow
-                  id="exc-sem-itens"
-                  label={t('pedido.config.regras.excluir.sem_itens')}
-                  desc={t('pedido.config.regras.excluir.sem_itens_desc')}
-                  checked={regrasConfig.excluir.semItensPermitido}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, excluir: { ...prev.excluir, semItensPermitido: v } }))}
-                />
-                <ToggleRow
-                  id="exc-preview"
-                  label={t('pedido.config.regras.excluir.confirmar_preview')}
-                  checked={regrasConfig.excluir.confirmarComPreview}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, excluir: { ...prev.excluir, confirmarComPreview: v } }))}
-                />
-              </div>
-            </section>
-
-            {/* Transferir */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.transferir.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.regras.transferir.desc')}</p>
-                </div>
-              </div>
-              <div className="cfg-toggles-lista">
-                <ToggleRow
-                  id="tra-encerrar"
-                  label={t('pedido.config.regras.transferir.encerrar_origem')}
-                  checked={regrasConfig.transferir.encerrarOrigemZero}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, encerrarOrigemZero: v } }))}
-                />
-                <ToggleRow
-                  id="tra-excluir-item"
-                  label={t('pedido.config.regras.transferir.excluir_item_origem')}
-                  checked={regrasConfig.transferir.excluirItemOrigemZero}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, excluirItemOrigemZero: v } }))}
-                />
-                <ToggleRow
-                  id="tra-excluir-pedido"
-                  label={t('pedido.config.regras.transferir.excluir_pedido_origem')}
-                  checked={regrasConfig.transferir.excluirPedidoOrigemZero}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, excluirPedidoOrigemZero: v } }))}
-                />
-                <ToggleRow
-                  id="tra-bloquear-acima-inicial"
-                  label={t('pedido.config.regras.transferir.bloquear_acima_inicial')}
-                  desc={t('pedido.config.regras.transferir.bloquear_acima_inicial_desc')}
-                  checked={regrasConfig.transferir.bloquearTransferenciaAcimaInicial}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, bloquearTransferenciaAcimaInicial: v } }))}
-                />
-              </div>
-            </section>
-
-            {/* Consolidar */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.consolidar.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.regras.consolidar.desc')}</p>
-                </div>
-              </div>
-              <div className="cfg-toggles-lista">
-                <ToggleRow
-                  id="con-avisos"
-                  label={t('pedido.config.regras.consolidar.avisos_divergentes')}
-                  checked={regrasConfig.consolidar.avisosDivergentes}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, avisosDivergentes: v } }))}
-                />
-                <ToggleRow
-                  id="con-fundir"
-                  label={t('pedido.config.regras.consolidar.fundir_part_number')}
-                  desc={t('pedido.config.regras.consolidar.fundir_part_number_desc')}
-                  checked={regrasConfig.consolidar.fundirPartNumber}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, fundirPartNumber: v } }))}
-                />
-                <ToggleRow
-                  id="con-usuario"
-                  label={t('pedido.config.regras.consolidar.usuario_escolhe')}
-                  desc={t('pedido.config.regras.consolidar.usuario_escolhe_desc')}
-                  checked={regrasConfig.consolidar.usuarioEscolheDivergentes}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, usuarioEscolheDivergentes: v } }))}
-                />
-              </div>
-              <div className="cfg-campo-grupo" style={{ marginTop: '1rem' }}>
-                <p className="cfg-campo-grupo__label">{t('pedido.config.regras.consolidar.numero_resultante_label')}</p>
-                <div className="cfg-periodo-pills">
-                  {([
-                    { id: 'mais_antigo',  labelKey: 'pedido.config.regras.consolidar.num_mais_antigo'  },
-                    { id: 'automatico',   labelKey: 'pedido.config.regras.consolidar.num_automatico'   },
-                    { id: 'mais_recente', labelKey: 'pedido.config.regras.consolidar.num_mais_recente' },
-                  ] as const).map(op => (
-                    <button
-                      key={op.id}
-                      type="button"
-                      className={`cfg-periodo-pill${regrasConfig.consolidar.numeroPedidoResultante === op.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, numeroPedidoResultante: op.id } }))}
-                    >
-                      {t(op.labelKey)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* ── Alertas ── */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.alertas.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.regras.alertas.desc')}</p>
-                </div>
-              </div>
-              <div className="cfg-toggles-lista">
-                <ToggleRow
-                  id="alerta-numero-duplicado"
-                  label={t('pedido.config.regras.alertas.numero_duplicado')}
-                  desc={t('pedido.config.regras.alertas.numero_duplicado_desc')}
-                  checked={regrasConfig.alertas.numeroDuplicado}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, numeroDuplicado: v } }))}
-                />
-                <ToggleRow
-                  id="alerta-valor-total-divergente"
-                  label={t('pedido.config.regras.alertas.valor_total_divergente')}
-                  desc={t('pedido.config.regras.alertas.valor_total_divergente_desc')}
-                  checked={regrasConfig.alertas.valorTotalDivergente}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, valorTotalDivergente: v } }))}
-                />
-                <ToggleRow
-                  id="alerta-quantidade-total-divergente"
-                  label={t('pedido.config.regras.alertas.qtd_total_divergente')}
-                  desc={t('pedido.config.regras.alertas.qtd_total_divergente_desc')}
-                  checked={regrasConfig.alertas.quantidadeTotalDivergente}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, quantidadeTotalDivergente: v } }))}
-                />
-                <ToggleRow
-                  id="alerta-quantidade-pronta-divergente"
-                  label={t('pedido.config.regras.alertas.qtd_pronta_divergente')}
-                  desc={t('pedido.config.regras.alertas.qtd_pronta_divergente_desc')}
-                  checked={regrasConfig.alertas.quantidadeProntaDivergente}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, quantidadeProntaDivergente: v } }))}
-                />
-                <ToggleRow
-                  id="alerta-peso-liquido-divergente"
-                  label={t('pedido.config.regras.alertas.peso_liq_divergente')}
-                  desc={t('pedido.config.regras.alertas.peso_liq_divergente_desc')}
-                  checked={regrasConfig.alertas.pesoLiquidoDivergente}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, pesoLiquidoDivergente: v } }))}
-                />
-                <ToggleRow
-                  id="alerta-peso-bruto-divergente"
-                  label={t('pedido.config.regras.alertas.peso_bruto_divergente')}
-                  desc={t('pedido.config.regras.alertas.peso_bruto_divergente_desc')}
-                  checked={regrasConfig.alertas.pesoBrutoDivergente}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, pesoBrutoDivergente: v } }))}
-                />
-                <ToggleRow
-                  id="alerta-cubagem-divergente"
-                  label={t('pedido.config.regras.alertas.cubagem_divergente')}
-                  desc={t('pedido.config.regras.alertas.cubagem_divergente_desc')}
-                  checked={regrasConfig.alertas.cubagemDivergente}
-                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, cubagemDivergente: v } }))}
-                />
-              </div>
-            </section>
-
-            {/* Botão salvar regras */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.5rem' }}>
-              <button
-                type="button"
-                className="cfg-btn-primario"
-                disabled={!regrasAlterados}
-                onClick={salvarRegras}
-              >
-                <FloppyDisk size={14} weight="bold" />
-                {regrasAlterados ? t('pedido.config.regras.btn_salvar_alteracoes') : t('pedido.config.regras.btn_salvo')}
-              </button>
-            </div>
-
-          </div>
-        )}
-
-        {/* ════════════════════════ CATEGORIAS ANEXOS ════════════════════════ */}
-        {categoria === 'categorias-anexos' && (
-          <div className="cfg-cards-wrapper">
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.categ_anexos.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.categ_anexos.desc')}</p>
-                </div>
-                {!categCriando && (
-                  <button
-                    type="button"
-                    className="cfg-add-row-btn"
-                    onClick={() => setCategCriando(true)}
-                  >
-                    <Plus size={13} weight="bold" />
-                    {t('pedido.config.categ_anexos.nova_categoria')}
-                  </button>
-                )}
-              </div>
-
-              {/* Formulário de nova categoria */}
-              {categCriando && (
-                <div className="cfg-tpl-form cfg-tpl-form--inline">
-                  <input
-                    type="text"
-                    className="cfg-input cfg-input--grow"
-                    placeholder={t('pedido.config.categ_anexos.placeholder_nome')}
-                    value={categNovaNome}
-                    onChange={e => setCategNovaNome(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') adicionarCateg() }}
-                    autoFocus
-                  />
-                  <button type="button" className="cfg-btn-primario" onClick={adicionarCateg}>
-                    <FloppyDisk size={14} weight="bold" />
-                    {t('pedido.config.categ_anexos.salvar')}
-                  </button>
-                  <button type="button" className="cfg-btn-secundario" onClick={() => { setCategCriando(false); setCategNovaNome('') }}>
-                    {t('pedido.config.categ_anexos.cancelar')}
-                  </button>
-                </div>
-              )}
-
-              {categAnexos.length === 0 ? (
-                <p className="cfg-empty">{t('pedido.config.categ_anexos.empty')}</p>
-              ) : (
-                <div className="cfg-lista-simples">
-                  {categAnexos.map(cat => (
-                    <div key={cat.id} className="cfg-lista-simples__row">
-                      <div className="cfg-lista-simples__info">
-                        {categEditandoId === cat.id ? (
-                          <input
-                            type="text"
-                            className="cfg-input cfg-input--inline"
-                            value={categNomeEdit}
-                            onChange={e => setCategNomeEdit(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') salvarEdicaoCateg() }}
-                            autoFocus
-                          />
-                        ) : (
-                          <span className="cfg-lista-simples__nome">{cat.nome}</span>
-                        )}
-                        {cat.sistema && (
-                          <span className="cfg-badge-sistema">{t('pedido.config.categ_anexos.badge_sistema')}</span>
-                        )}
-                      </div>
-                      <div className="cfg-lista-simples__acoes">
-                        {categEditandoId === cat.id ? (
-                          <>
-                            <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={salvarEdicaoCateg}>
-                              <FloppyDisk size={13} weight="bold" />
-                            </button>
-                            <button type="button" className="cfg-btn-secundario cfg-btn-secundario--xs" onClick={() => { setCategEditandoId(null); setCategNomeEdit('') }}>
-                              <X size={13} weight="bold" />
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            {!cat.sistema && (
-                              <TooltipGlobal descricao={t('pedido.config.categ_anexos.tooltip_renomear')}>
-                                <button
-                                  type="button"
-                                  className="cfg-eye-btn"
-                                  onClick={() => iniciarEdicaoCateg(cat)}
-                                  aria-label={t('pedido.config.categ_anexos.aria_renomear')}
-                                >
-                                  <PencilSimple size={14} weight="bold" />
-                                </button>
-                              </TooltipGlobal>
-                            )}
-                            {!cat.sistema && (
-                              <TooltipGlobal descricao={t('pedido.config.categ_anexos.tooltip_excluir')}>
-                                <button
-                                  type="button"
-                                  className="cfg-remove-btn"
-                                  onClick={() => excluirCateg(cat.id)}
-                                  aria-label={t('pedido.config.categ_anexos.aria_excluir')}
-                                >
-                                  <Trash size={14} weight="bold" />
-                                </button>
-                              </TooltipGlobal>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          </div>
-        )}
-
-        {/* ════════════════════════ COLUNAS ════════════════════════ */}
         {COLUNAS_FILHOS.includes(categoria) && (
           <div className="cfg-cards-wrapper">
 
@@ -4817,245 +3858,6 @@ export default function Configuracoes() {
                 </div>
               </div>
             </section>}
-          </div>
-        )}
-
-        {categoria === 'taxa-cambio' && (
-          <div className="cfg-cards-wrapper">
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.taxa_cambio.titulo')}</h2>
-                  <p className="cfg-secao__desc">{t('pedido.config.taxa_cambio.desc')}</p>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  {ultimaSyncTaxa && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', color: 'var(--ws-muted)' }}>
-                      <Clock size={13} /> {ultimaSyncTaxa}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    className="cfg-add-row-btn"
-                    onClick={sincronizarTaxas}
-                    disabled={sincronizandoTaxa}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-                  >
-                    <ArrowsClockwise size={13} weight={sincronizandoTaxa ? 'regular' : 'duotone'} />
-                    {sincronizandoTaxa ? t('pedido.config.taxa_cambio.sincronizando') : t('pedido.config.taxa_cambio.sincronizar')}
-                  </button>
-                </div>
-              </div>
-
-              {/* Banner informativo — 4 boletins diários */}
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: '0.6rem',
-                background: 'var(--ws-surface-2, rgba(255,255,255,0.04))',
-                border: '1px solid var(--ws-border, rgba(255,255,255,0.08))',
-                borderRadius: '6px', padding: '0.55rem 0.8rem', marginBottom: '0.75rem',
-                fontSize: '0.78rem', color: 'var(--ws-muted)',
-              }}>
-                <Clock size={13} weight="duotone" style={{ flexShrink: 0, color: 'var(--ws-accent)' }} />
-                <span>
-                  {t('pedido.config.taxa_cambio.banner_auto')}&nbsp;
-                  {([
-                    'pedido.config.taxa_cambio.boletim_1',
-                    'pedido.config.taxa_cambio.boletim_2',
-                    'pedido.config.taxa_cambio.boletim_3',
-                    'pedido.config.taxa_cambio.boletim_fechamento',
-                  ] as const).map((key, i) => {
-                    const cor = ['#60a5fa', '#a78bfa', '#34d399', '#fbbf24'][i]
-                    return (
-                      <span key={key} style={{ marginRight: '1.4rem', marginLeft: i === 0 ? '0.5rem' : 0, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                        <span style={{ display: 'inline-block', width: '7px', height: '7px', borderRadius: '50%', background: cor, flexShrink: 0 }} />
-                        {t(key)}
-                      </span>
-                    )
-                  })}
-                </span>
-              </div>
-
-              {erroSyncTaxa && (
-                <p style={{ color: 'var(--color-danger, #f87171)', fontSize: '0.82rem', margin: '0.5rem 0' }}>{erroSyncTaxa}</p>
-              )}
-
-              {/* Tabela cotações de hoje — todos os boletins */}
-              {carregandoTaxa ? (
-                <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
-                  <GravityLoader texto={t('pedido.config.taxa_cambio.carregando')} tamanho="sm" />
-                </div>
-              ) : taxasHoje.length === 0 ? (
-                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{t('pedido.config.taxa_cambio.empty_cotacao')}</p>
-              ) : (() => {
-                const TAXA_COLS = '15px 4.5rem 10rem 9.5rem 8.5rem 8.5rem 8rem 6rem'
-                return (
-                  <div style={{ display: 'grid', gridTemplateColumns: TAXA_COLS, alignItems: 'center', rowGap: '2px', columnGap: '0' }}>
-                    {/* Header — célula vazia para a coluna do ícone */}
-                    <span />
-                    {([
-                      'pedido.config.taxa_cambio.col_moeda',
-                      'pedido.config.taxa_cambio.col_nome',
-                      'pedido.config.taxa_cambio.col_boletim',
-                      'pedido.config.taxa_cambio.col_compra',
-                      'pedido.config.taxa_cambio.col_venda',
-                      'pedido.config.taxa_cambio.col_data',
-                      'pedido.config.taxa_cambio.col_hora',
-                    ] as const).map(k => (
-                      <span key={k} style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)', padding: '0.35rem 0.5rem', textAlign: 'center' }}>{t(k)}</span>
-                    ))}
-                    {/* Rows */}
-                    {taxasHoje.map(taxa => (
-                      <React.Fragment key={taxa.id}>
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem 0' }}>
-                          <CurrencyCircleDollar size={15} weight="duotone" style={{ color: 'var(--ws-accent)' }} />
-                        </span>
-                        <span style={{ fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{taxa.moeda}</span>
-                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}>{MOEDAS_INFO[taxa.moeda] ?? taxa.moeda}</span>
-                        <span style={{ padding: '0.5rem', textAlign: 'center' }}>
-                          <span style={{
-                            display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '0.73rem', fontWeight: 600,
-                            background: (BOLETIM_COR[taxa.boletim] ?? '#94a3b8') + '22',
-                            color: BOLETIM_COR[taxa.boletim] ?? '#94a3b8',
-                            border: `1px solid ${(BOLETIM_COR[taxa.boletim] ?? '#94a3b8')}44`,
-                          }}>{taxa.boletim}</span>
-                        </span>
-                        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(taxa.compra)}</span>
-                        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(taxa.venda)}</span>
-                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}>{fmtData(taxa.data_cotacao)}</span>
-                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', fontVariantNumeric: 'tabular-nums', textAlign: 'center' }}>{taxa.hora_cotacao ?? '—'}</span>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                )
-              })()}
-            </section>
-
-            {/* Histórico */}
-            <section className="cfg-secao" style={{ marginTop: '1.5rem' }}>
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.taxa_cambio.historico_titulo')}</h2>
-                </div>
-                <div style={{ display: 'flex', gap: '0.4rem' }}>
-                  {(['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD'] as const).map(m => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setMoedaHistoricoTaxa(m)}
-                      className={moedaHistoricoTaxa === m ? 'cfg-add-row-btn' : 'cfg-remove-btn'}
-                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.78rem', minWidth: 'auto' }}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {historicoTaxas.length === 0 ? (
-                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{t('pedido.config.taxa_cambio.empty_historico', { moeda: moedaHistoricoTaxa })}</p>
-              ) : (() => {
-                const HIST_COLS = '8rem 9.5rem 8.5rem 8.5rem 6rem'
-                return (
-                  <div style={{ display: 'grid', gridTemplateColumns: HIST_COLS, alignItems: 'center', rowGap: '2px', columnGap: '0' }}>
-                    {([
-                      'pedido.config.taxa_cambio.hist_col_data',
-                      'pedido.config.taxa_cambio.hist_col_boletim',
-                      'pedido.config.taxa_cambio.hist_col_compra',
-                      'pedido.config.taxa_cambio.hist_col_venda',
-                      'pedido.config.taxa_cambio.hist_col_hora',
-                    ] as const).map(k => (
-                      <span key={k} style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)', padding: '0.35rem 0.5rem', textAlign: 'center' }}>{t(k)}</span>
-                    ))}
-                    {historicoTaxas.map(h => (
-                      <React.Fragment key={h.id}>
-                        <span style={{ fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtData(h.data_cotacao)}</span>
-                        <span style={{ padding: '0.5rem', textAlign: 'center' }}>
-                          <span style={{
-                            display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '0.73rem', fontWeight: 600,
-                            background: (BOLETIM_COR[h.boletim] ?? '#94a3b8') + '22',
-                            color: BOLETIM_COR[h.boletim] ?? '#94a3b8',
-                            border: `1px solid ${(BOLETIM_COR[h.boletim] ?? '#94a3b8')}44`,
-                          }}>{h.boletim}</span>
-                        </span>
-                        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(h.compra)}</span>
-                        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(h.venda)}</span>
-                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', fontVariantNumeric: 'tabular-nums', textAlign: 'center' }}>{h.hora_cotacao ?? '—'}</span>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                )
-              })()}
-            </section>
-          </div>
-        )}
-
-        {/* ════════════════════════ SNAPSHOT CADASTROS ════════════════════════ */}
-        {categoria === 'snapshot-cadastros' && (
-          <div className="cfg-cards-wrapper">
-
-            {/* ── Snapshot — Política de Atualização ─────────────────────── */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">{t('pedido.config.snapshot.titulo')}</h2>
-                  <p className="cfg-secao__desc">
-                    {t('pedido.config.snapshot.desc')}
-                    <code> pedido_snapshot_atualizacao</code>.
-                  </p>
-                </div>
-              </div>
-
-              <ConfiguracaoSecaoGlobal label={t('pedido.config.snapshot.label_papeis')} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}>
-                {([
-                  ['atualiza_importador',  t('pedido.config.snapshot.papel_importador')],
-                  ['atualiza_exportador',  t('pedido.config.snapshot.papel_exportador')],
-                  ['atualiza_fabricante',  t('pedido.config.snapshot.papel_fabricante')],
-                  ['atualiza_agente',      t('pedido.config.snapshot.papel_agente')],
-                  ['atualiza_despachante', t('pedido.config.snapshot.papel_despachante')],
-                  ['atualiza_armador',     t('pedido.config.snapshot.papel_armador')],
-                  ['atualiza_ope',         t('pedido.config.snapshot.papel_ope')],
-                ] as Array<[keyof SnapshotAtualizacaoPolicy, string]>).map(([chave, label]) => (
-                  <label key={chave} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={snapPolicy[chave]}
-                      onChange={() => toggleSnapPolicy(chave)}
-                    />
-                    <span>{label}</span>
-                  </label>
-                ))}
-              </div>
-
-              <ConfiguracaoSecaoGlobal label={t('pedido.config.snapshot.label_gatilhos')} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}>
-                {([
-                  ['gatilho_emissao',     t('pedido.config.snapshot.gatilho_emissao')],
-                  ['gatilho_embarque',    t('pedido.config.snapshot.gatilho_embarque')],
-                  ['gatilho_desembaraco', t('pedido.config.snapshot.gatilho_desembaraco')],
-                ] as Array<[keyof SnapshotAtualizacaoPolicy, string]>).map(([chave, label]) => (
-                  <label key={chave} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={snapPolicy[chave]}
-                      onChange={() => toggleSnapPolicy(chave)}
-                    />
-                    <span>{label}</span>
-                  </label>
-                ))}
-              </div>
-
-              <div className="cfg-secao__footer" style={{ marginTop: '1rem' }}>
-                <BotaoCancelar onClick={cancelarSnapPolicy} dirty={snapPolicyAlterada} />
-                <BotaoSalvar
-                  onClick={salvarSnapPolicy}
-                  dirty={snapPolicyAlterada}
-                  carregando={snapPolicySalvando}
-                />
-              </div>
-            </section>
-
-            <PedidoSnapshotCadastros />
           </div>
         )}
 

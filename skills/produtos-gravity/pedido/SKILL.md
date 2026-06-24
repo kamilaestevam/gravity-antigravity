@@ -433,7 +433,6 @@ const persistir    = passoInserir.mudou || passoMover.mudou
 | `pedido.smart_import.*` / `pedido.smart_preview.*` | SmartImport/* |
 | `pedido.anexos.*` / `pedido.cel_anexos.*` | AnexosPainel + CelulaAnexosColuna |
 | `pedido.drawer.*` / `pedido.formulario.*` | DrawerPedido + PedidoFormulario |
-| `pedido.snapshot_cadastros.*` | configuracoes/PedidoSnapshotCadastros |
 | `pedido.massa_campos.*` | rótulos de campo da edição em massa |
 
 ### Proteção contra regressão

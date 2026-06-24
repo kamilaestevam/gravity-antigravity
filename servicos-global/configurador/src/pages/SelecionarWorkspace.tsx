@@ -186,6 +186,18 @@ const GABI_INSIGHTS_POR_PAGINA = 3
  */
 const HUB_GABI_LAYOUT_EXPERIMENTO: 0 | 1 | 2 | 3 | 4 = 1
 
+/**
+ * Painel GABI + KPI no HUB — oculto até insights/agente cross-produto estarem prontos.
+ * JSX, fetch /api/v1/hub/insights e estilos preservados; reativar quando validado.
+ */
+const EXIBIR_PAINEL_GABI_HUB = false
+
+/**
+ * Botão «Onde estou» (LocalizadorGlobal) no header do HUB — oculto até o mapa 3D
+ * do ecossistema estar pronto para produção. Componente e props preservados no JSX.
+ */
+const EXIBIR_LOCALIZADOR_HEADER_HUB = false
+
 function classePainelGabiLayout(): string {
   return HUB_GABI_LAYOUT_EXPERIMENTO === 0
     ? ''
@@ -1120,6 +1132,7 @@ export function SelecionarWorkspace() {
 
   /* ── GABI: busca insights cross-produto do backend (hub/insights) ── */
   React.useEffect(() => {
+    if (!EXIBIR_PAINEL_GABI_HUB) return
     if (!roleReady || !idOrganizacao) return
 
     const seq = ++gabiFetchSeq.current
@@ -1230,24 +1243,26 @@ export function SelecionarWorkspace() {
               <Info size={16} weight={tooltipsDisabled ? 'regular' : 'fill'} />
             </button>
 
-            <LocalizadorGlobal
-              workspaceName={companyName}
-              iconOnly
-              currentProductId="hub"
-              currentProductLabel="Hub"
-              currentProductColor="#818cf8"
-              currentPageLabel="Hub"
-              history={locHistory}
-              nodes={hubEcosystemNodes}
-              onNavigate={(node) => {
-                if (node.type === 'hub')               navigate('/hub?select=1')
-                else if (node.type === 'core')         navigate('/hub?select=1')
-                else if (node.type === 'hub-store')    navigate('/store')
-                else if (node.type === 'configurador') navigate('/configurador')
-                else if (node.type === 'admin')        navigate('/admin/visao-geral')
-                else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
-              }}
-            />
+            {EXIBIR_LOCALIZADOR_HEADER_HUB && (
+              <LocalizadorGlobal
+                workspaceName={companyName}
+                iconOnly
+                currentProductId="hub"
+                currentProductLabel="Hub"
+                currentProductColor="#818cf8"
+                currentPageLabel="Hub"
+                history={locHistory}
+                nodes={hubEcosystemNodes}
+                onNavigate={(node) => {
+                  if (node.type === 'hub')               navigate('/hub?select=1')
+                  else if (node.type === 'core')         navigate('/hub?select=1')
+                  else if (node.type === 'hub-store')    navigate('/store')
+                  else if (node.type === 'configurador') navigate('/configurador')
+                  else if (node.type === 'admin')        navigate('/admin/visao-geral')
+                  else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
+                }}
+              />
+            )}
 
             <SeletorIdiomaGlobal iconOnly />
 
@@ -1363,11 +1378,13 @@ export function SelecionarWorkspace() {
                     <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
                     <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_7_pendentes', '7 pendentes')}</span>
                   </div>
-                  <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">91%</div>
-                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_gabi_curto', 'Assertividade Gabi IA')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">{t('hub.kpi_delta_ativo', 'ativo')}</span>
-                  </div>
+                  {EXIBIR_PAINEL_GABI_HUB && (
+                    <div className="sw-hub-kpi">
+                      <div className="sw-hub-kpi-val">91%</div>
+                      <div className="sw-hub-kpi-lbl">{t('hub.kpi_gabi_curto', 'Assertividade Gabi IA')}</div>
+                      <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">{t('hub.kpi_delta_ativo', 'ativo')}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="sw-hub-proc-list">
                   {processosOperacaoHub.map((proc) => (
@@ -1390,9 +1407,9 @@ export function SelecionarWorkspace() {
               </section>
 
               <div
-                className="sw-hub-row-gabi sw-a1"
-                onMouseEnter={() => setGabiPaused(true)}
-                onMouseLeave={() => setGabiPaused(false)}
+                className={`sw-hub-row-gabi sw-a1${EXIBIR_PAINEL_GABI_HUB ? '' : ' sw-hub-row-gabi--apenas-store'}`}
+                onMouseEnter={EXIBIR_PAINEL_GABI_HUB ? () => setGabiPaused(true) : undefined}
+                onMouseLeave={EXIBIR_PAINEL_GABI_HUB ? () => setGabiPaused(false) : undefined}
               >
                 <section
                   className="sw-hub-panel sw-hub-panel--store"
@@ -1420,6 +1437,7 @@ export function SelecionarWorkspace() {
                   </button>
                 </section>
 
+                {EXIBIR_PAINEL_GABI_HUB && (
                 <section
                   className={`sw-hub-panel sw-hub-panel--gabi${classePainelGabiLayout()}`}
                   aria-label={t('sw.gabi_label')}
@@ -1536,6 +1554,7 @@ export function SelecionarWorkspace() {
                     </div>
                   </div>
                 </section>
+                )}
               </div>
             </div>
           )}

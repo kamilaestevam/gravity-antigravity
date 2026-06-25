@@ -34,6 +34,7 @@ export const PRODUTOS_TESTE_FAVORITO = [
   'configurador',
   'pedido',
   'bid-frete',
+  'smart-read',
   'bid-cambio',
   'lpco',
   'nf-importacao',

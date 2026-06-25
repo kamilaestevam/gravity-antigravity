@@ -27,7 +27,8 @@ documentos-tecnicos/testes/
     ├── 04-fluxo-criacao-tela-nova.md              ← Ordem obrigatória pra tela nova
     ├── 05-revisao-humana.md                       ← Quando humano valida vs IA aplica
     ├── 06-custo-e-circuit-breakers.md             ← Limites de token, retry, fallback
-    └── 07-organizacao-plano-resultado-por-escopo.md ← plano-teste/ + resultado-teste/ por feature
+    ├── 07-organizacao-plano-resultado-por-escopo.md ← plano-teste/ + resultado-teste/ por feature
+    └── 08-regras-prints-em-tela.md                  ← -selecao/-resultado + verde/vermelho no Admin
 ```
 
 ---
@@ -42,6 +43,7 @@ documentos-tecnicos/testes/
 | Cobertura RBAC (workspaces + permissões granulares) | [MATRIZ-COBERTURA-RBAC.md](../../testes/testes-unitarios/configurador/permissoes/rbac-workspaces-cobertura/MATRIZ-COBERTURA-RBAC.md) · pacote `TST-*-CONFIG-RBAC-WORKSPACES-000141`–`000145` (TASK-000305) |
 | Criar um teste novo | [regras/01-convencao-ids.md](regras/01-convencao-ids.md) + [regras/02-cobertura-obrigatoria.md](regras/02-cobertura-obrigatoria.md) |
 | Onde guardar plano e prints | [regras/07-organizacao-plano-resultado-por-escopo.md](regras/07-organizacao-plano-resultado-por-escopo.md) |
+| Pares `-selecao`/`-resultado` e cor dos prints | [regras/08-regras-prints-em-tela.md](regras/08-regras-prints-em-tela.md) |
 | Adicionar uma tela nova | [regras/04-fluxo-criacao-tela-nova.md](regras/04-fluxo-criacao-tela-nova.md) |
 | Entender por que a IA sugeriu X | [tecnico/03-integracao-gemini.md](tecnico/03-integracao-gemini.md) |
 | Configurar o cron diário | [tecnico/04-cron-externo.md](tecnico/04-cron-externo.md) |

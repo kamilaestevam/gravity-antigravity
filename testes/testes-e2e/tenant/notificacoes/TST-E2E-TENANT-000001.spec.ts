@@ -170,7 +170,7 @@ test.describe('TST-E2E-TENANT-000001 — Modal de Notificações: Mensageria Int
       await expect(page.getByTestId('input-email-externo')).not.toBeVisible()
     })
 
-    test('F2-04: preencher email externo + mensagem e salvar → composer fecha, nota na lista', async ({ page }) => {
+    test('F2-04: preencher email externo + mensagem e enviar → composer fecha, registro na lista', async ({ page }) => {
       // Nota: sem destinatário interno → canal email usa input-email-externo.
       // Validação de integração HTTP (via_email no body) é coberta pela suíte funcional vitest.
       await page.goto(TARGET_URL)
@@ -185,8 +185,8 @@ test.describe('TST-E2E-TENANT-000001 — Modal de Notificações: Mensageria Int
       await expect(page.getByTestId('input-email-externo')).toBeVisible()
       await page.getByTestId('input-email-externo').fill('e2e-staging@gravity-test.internal')
 
-      // Salva nota com canal email (botão diz "Salvar" sem destinatário interno)
-      await page.getByTestId('btn-enviar').click()
+      // Enviar e-mail (botão dedicado no final do composer)
+      await page.getByTestId('btn-enviar-email').click()
 
       // Composer fecha e nota aparece na lista
       await expect(page.getByTestId('composer-mensagem')).not.toBeVisible()

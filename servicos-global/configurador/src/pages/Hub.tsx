@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { z } from 'zod'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { useTranslation } from 'react-i18next'
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
@@ -6,7 +7,6 @@ import { useNavigate } from 'react-router-dom'
 import {
   Gear,
   Sparkle,
-  Bell,
   ChartBar,
   Rocket,
   CheckCircle,
@@ -45,6 +45,7 @@ import {
   type EcosystemNode,
 } from '@nucleo/localizador-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
+import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
 
 // Tipo dos produtos vem do api-client (Zod-validado, contrato bilateral REGRA 09)
 
@@ -137,6 +138,22 @@ const getMockProcesses = (t: (key: string, fallback?: string) => string): Proces
     ],
   },
 ]
+
+const hubOperacoesResumoSchema = z.object({
+  processos_em_andamento: z.number(),
+  aguardando_acao: z.number(),
+  notas_fiscais_pendentes: z.number(),
+  processos_hoje: z.number(),
+  processos: z.array(z.object({
+    id: z.string(),
+    id_processo: z.string(),
+    nome: z.string(),
+    detalhe: z.string(),
+    badge: z.string(),
+    badge_variant: z.enum(['embarque', 'desembaraco']),
+  })),
+  fontes_disponiveis: z.array(z.string()),
+})
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function getGreeting(name: string, t: (key: string) => string): string {
@@ -239,16 +256,69 @@ export function Hub() {
   const activeCount = cardsCore.length
   const grupoCards = useMemo(() => agruparCardsProdutosCore(cardsCore), [cardsCore])
   const duasZonasProdutos = temDuasZonasProdutosCore(grupoCards)
-  const mockProcessos = useMemo(() => getMockProcesses(t), [t])
+
+  const [hubOperacoes, setHubOperacoes] = useState<z.infer<typeof hubOperacoesResumoSchema>>({
+    processos_em_andamento: 0,
+    aguardando_acao: 0,
+    notas_fiscais_pendentes: 0,
+    processos_hoje: 0,
+    processos: [],
+    fontes_disponiveis: [],
+  })
+
+  useEffect(() => {
+    if (!tipoUsuarioPronto) return
+    let cancelled = false
+
+    async function carregarOperacoes() {
+      try {
+        const token = await getToken()
+        if (!token || cancelled) return
+        const res = await fetch('/api/v1/hub/operacoes', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!res.ok || cancelled) return
+        const raw: unknown = await res.json()
+        const parsed = z.object({ operacoes: hubOperacoesResumoSchema }).safeParse(raw)
+        if (parsed.success && !cancelled) setHubOperacoes(parsed.data.operacoes)
+      } catch {
+        // mantém zeros — resiliente
+      }
+    }
+
+    carregarOperacoes()
+    return () => { cancelled = true }
+  }, [tipoUsuarioPronto, getToken])
+
+  const processosCore = useMemo<ProcessoCoreResumo[]>(
+    () =>
+      hubOperacoes.processos.map((proc) => ({
+        id: proc.id_processo,
+        num: proc.detalhe.split(' · ')[0] ?? proc.detalhe,
+        name: proc.nome,
+        sub: proc.detalhe,
+        badge: proc.badge,
+        badgeCls: proc.badge_variant === 'desembaraco'
+          ? 'hb-proc-badge--desembaraco'
+          : 'hb-proc-badge--em-andamento',
+        etapas: [],
+        plugins: [],
+      })),
+    [hubOperacoes.processos],
+  )
 
   const textoHeroProcessos = t(
     'hub.hero_processos',
     '{{ativos}} processos em andamento · {{pendentes}} aguardando ação · {{plugins}} produtos no workspace',
-    { ativos: 7, pendentes: 3, plugins: activeCount },
+    {
+      ativos: hubOperacoes.processos_em_andamento,
+      pendentes: hubOperacoes.aguardando_acao,
+      plugins: activeCount,
+    },
   )
 
   const abrirProcesso = (idProcesso: string) => {
-    const qs = new URLSearchParams({ id: idProcesso, idOrganizacao: 'org_mock' })
+    const qs = new URLSearchParams({ id: idProcesso })
     navigate(`/processo/detalhe/workflow?${qs.toString()}`)
   }
 
@@ -304,10 +374,9 @@ export function Hub() {
             <MagnifyingGlass weight="bold" size={16} />
           </button>
 
-          <button className="hb-topbar-btn hb-topbar-btn--notif" type="button" title={t('shell.menu.notificacoes')}>
-            <Bell weight="duotone" size={16} />
-            <div className="hb-notif-dot" />
-          </button>
+          <div className="hb-notif-wrap">
+            <Notificacoes />
+          </div>
 
           {/* Tooltip toggle */}
           <button
@@ -451,7 +520,7 @@ export function Hub() {
         {/* Dossiês — protagonista do Core (infra, não produto) */}
         <div className="hb-d3">
           <ListaProcessosCore
-            processos={mockProcessos}
+            processos={processosCore}
             onAbrirProcesso={abrirProcesso}
             onNovoProcesso={() => abrirProcesso('p1')}
             t={t}

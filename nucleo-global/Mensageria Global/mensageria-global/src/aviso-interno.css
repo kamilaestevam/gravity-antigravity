@@ -18,6 +18,8 @@
   box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
   font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
   color: var(--aig-text);
+  max-height: min(680px, calc(100dvh - 72px));
+  overflow: hidden;
 }
 
 /* ── CABEÇALHO / HEADER ── */
@@ -313,6 +315,27 @@
   cursor: not-allowed;
 }
 
+/* ── Corpo rolável (lista + composer) ── */
+.aig-dropdown-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.aig-dropdown-body .aig-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.aig-dropdown-body .aig-composer {
+  flex-shrink: 0;
+}
+
 /* ── LISTA DE ITENS ── */
 .aig-list {
   max-height: 420px;
@@ -324,6 +347,10 @@
 .aig-list::-webkit-scrollbar { width: 4px; }
 .aig-list::-webkit-scrollbar-track { background: transparent; }
 .aig-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+.aig-dropdown-body::-webkit-scrollbar { width: 4px; }
+.aig-dropdown-body::-webkit-scrollbar-track { background: transparent; }
+.aig-dropdown-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
 
 .aig-list-item {
   display: flex;
@@ -1000,6 +1027,65 @@
 .aig-extra-field-row input::placeholder {
   color: var(--aig-muted, #94a3b8);
   font-size: 0.625rem;
+}
+
+.aig-composer-actions__hint {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--aig-muted, #94a3b8);
+}
+
+.aig-extra-fields--email {
+  margin-top: 0.35rem;
+}
+
+.aig-email-para-hint {
+  margin: 0;
+  font-size: 0.625rem;
+  line-height: 1.45;
+  color: var(--aig-muted, #94a3b8);
+}
+
+.aig-btn-enviar-email {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: #ecfdf5;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.aig-btn-enviar-email:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.aig-btn-enviar-email:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.aig-composer-erro {
+  margin: 0.35rem 0 0;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
 }
 
 /* ── Popover do chip de link ─────────────────────────────────────────────── */

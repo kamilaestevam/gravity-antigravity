@@ -44,7 +44,7 @@ import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes } from '@nucleo/localizador-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
-import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
+import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { mapRole } from '../types/niveis-acesso'
 import { podeMutarConfigurador } from '../routing/route-policy'
@@ -191,6 +191,12 @@ const HUB_GABI_LAYOUT_EXPERIMENTO: 0 | 1 | 2 | 3 | 4 = 1
  * JSX, fetch /api/v1/hub/insights e estilos preservados; reativar quando validado.
  */
 const EXIBIR_PAINEL_GABI_HUB = false
+
+/**
+ * Botão «Onde estou» (LocalizadorGlobal) no header do HUB — oculto até o mapa 3D
+ * do ecossistema estar pronto para produção. Componente e props preservados no JSX.
+ */
+const EXIBIR_LOCALIZADOR_HEADER_HUB = false
 
 function classePainelGabiLayout(): string {
   return HUB_GABI_LAYOUT_EXPERIMENTO === 0
@@ -341,7 +347,6 @@ function formatHubDate(locale: string): string {
 
 interface HubProcessoOperacaoResumo {
   id: string
-  /** ID mock do processo (p1, p2…) — rota canônica /acesso-processos/:id/workflow */
   id_processo: string
   nome: string
   detalhe: string
@@ -349,27 +354,31 @@ interface HubProcessoOperacaoResumo {
   badgeVariant: 'embarque' | 'desembaraco'
 }
 
-function getHubProcessosOperacaoMock(
-  t: (key: string, fallback?: string) => string,
-): HubProcessoOperacaoResumo[] {
-  return [
-    {
-      id: 'hub-op-1',
-      id_processo: 'p1',
-      nome: 'Acme Importações · Shanghai Electronics',
-      detalhe: 'IMP-2026/0150 · US$ 108.050 · Marítima',
-      badge: t('hub.mock_badge_embarque', 'Embarque').toUpperCase(),
-      badgeVariant: 'embarque',
-    },
-    {
-      id: 'hub-op-2',
-      id_processo: 'p2',
-      nome: 'Acme Importações · Korea Tech Ltd.',
-      detalhe: 'IMP-2026/0149 · US$ 54.200 · Aérea',
-      badge: t('hub.mock_badge_desembaraco', 'Desembaraço').toUpperCase(),
-      badgeVariant: 'desembaraco',
-    },
-  ]
+const hubOperacoesResumoSchema = z.object({
+  processos_em_andamento: z.number(),
+  aguardando_acao: z.number(),
+  notas_fiscais_pendentes: z.number(),
+  processos_hoje: z.number(),
+  processos: z.array(z.object({
+    id: z.string(),
+    id_processo: z.string(),
+    nome: z.string(),
+    detalhe: z.string(),
+    badge: z.string(),
+    badge_variant: z.enum(['embarque', 'desembaraco']),
+  })),
+  fontes_disponiveis: z.array(z.string()),
+})
+
+type HubOperacoesResumo = z.infer<typeof hubOperacoesResumoSchema>
+
+const HUB_OPERACOES_VAZIO: HubOperacoesResumo = {
+  processos_em_andamento: 0,
+  aguardando_acao: 0,
+  notas_fiscais_pendentes: 0,
+  processos_hoje: 0,
+  processos: [],
+  fontes_disponiveis: [],
 }
 
 function LegendaEscopoWorkspacesHub({ nomes }: { nomes: readonly string[] }) {
@@ -445,16 +454,10 @@ export function SelecionarWorkspace() {
   const [gabiPaused, setGabiPaused] = useState(false)
   const [gabiIndice, setGabiIndice] = useState(0)
 
-  /* ── Mensageria (sino) — paridade sw-topbar ── */
-  const [avisos, setAvisos] = useState<AvisoInterno[]>([])
-  const handleMarcarLido = useCallback(
-    (id: string) => setAvisos(prev => prev.map(a => (a.id === id ? { ...a, lido: true } : a))),
-    [],
-  )
-  const handleMarcarTodosLidos = useCallback(
-    () => setAvisos(prev => prev.map(a => ({ ...a, lido: true }))),
-    [],
-  )
+  /* ── Operações Hub (KPIs reais) ── */
+  const [hubOperacoes, setHubOperacoes] = useState<HubOperacoesResumo>(HUB_OPERACOES_VAZIO)
+  const [hubOperacoesCarregando, setHubOperacoesCarregando] = useState(true)
+  const hubOperacoesFetchSeq = useRef(0)
 
   const selectedWs = workspaces.find(w => w.id === selectedId)
 
@@ -522,10 +525,27 @@ export function SelecionarWorkspace() {
     const detalhe = t(
       'hub.hero_processos',
       '{{ativos}} processos em andamento · {{pendentes}} aguardando ação · {{plugins}} produtos no workspace',
-      { ativos: 7, pendentes: 3, plugins: contratadosAtivos.length },
+      {
+        ativos: hubOperacoes.processos_em_andamento,
+        pendentes: hubOperacoes.aguardando_acao,
+        plugins: contratadosAtivos.length,
+      },
     )
     return `${nomeWs} · ${detalhe}`
-  }, [selectedWs, contratadosAtivos.length, t])
+  }, [selectedWs, contratadosAtivos.length, hubOperacoes.aguardando_acao, hubOperacoes.processos_em_andamento, t])
+
+  const processosOperacaoHub = useMemo<HubProcessoOperacaoResumo[]>(
+    () =>
+      hubOperacoes.processos.map((proc) => ({
+        id: proc.id,
+        id_processo: proc.id_processo,
+        nome: proc.nome,
+        detalhe: proc.detalhe,
+        badge: proc.badge,
+        badgeVariant: proc.badge_variant,
+      })),
+    [hubOperacoes.processos],
+  )
 
   const gabiTotalPaginas = Math.max(1, Math.ceil(gabiInsights.length / GABI_INSIGHTS_POR_PAGINA))
 
@@ -534,22 +554,17 @@ export function SelecionarWorkspace() {
     [gabiIndice, gabiInsights],
   )
 
-  const processosOperacaoHub = useMemo(
-    () =>
-      getHubProcessosOperacaoMock((key, fallback) =>
-        typeof fallback === 'string' ? t(key, fallback) : t(key),
-      ),
-    [t],
-  )
-
   const abrirListaProcessosHub = useCallback(() => {
     navigate('/acesso-processos/lista')
   }, [navigate])
 
   const abrirProcessoHub = useCallback((idProcesso: string) => {
-    const qs = new URLSearchParams({ id: idProcesso, idOrganizacao: 'org_mock' })
+    const qs = new URLSearchParams({
+      id: idProcesso,
+      idOrganizacao: idOrganizacao ?? '',
+    })
     navigate(`/processo/detalhe/workflow?${qs.toString()}`)
-  }, [navigate])
+  }, [navigate, idOrganizacao])
 
   const abrirProdutoContratadoHub = useCallback((slug: string, rota?: string) => {
     const rotaDestino = rota ?? PRODUCT_ROUTE_MAP[slug]?.rota ?? `/produto/${slug}`
@@ -1003,18 +1018,6 @@ export function SelecionarWorkspace() {
     signOut(() => navigate('/'))
   }, [signOut, navigate])
 
-  const handleCriarAviso = useCallback((texto: string) => {
-    const novo: AvisoInterno = {
-      id: `aviso-${Date.now()}`,
-      conteudo: texto,
-      autor: { nome: userName },
-      dataHora: new Date().toLocaleString(i18n.language),
-      lido: false,
-      tipo: 'aviso',
-    }
-    setAvisos(prev => [novo, ...prev])
-  }, [userName, i18n.language])
-
   const handleCriarWorkspace = useCallback(() => {
     navigate('/configurador/workspaces')
   }, [navigate])
@@ -1202,6 +1205,46 @@ export function SelecionarWorkspace() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roleReady, idOrganizacao, chavesProdutosContratados])
 
+  useEffect(() => {
+    if (!roleReady || !idOrganizacao) return
+
+    const seq = ++hubOperacoesFetchSeq.current
+
+    async function carregarOperacoesHub() {
+      try {
+        const token = await getToken()
+        if (!token || hubOperacoesFetchSeq.current !== seq) return
+
+        const res = await fetch('/api/v1/hub/operacoes', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!res.ok || hubOperacoesFetchSeq.current !== seq) return
+
+        const raw: unknown = await res.json()
+        const parsed = z.object({ operacoes: hubOperacoesResumoSchema }).safeParse(raw)
+        if (!parsed.success || hubOperacoesFetchSeq.current !== seq) return
+
+        setHubOperacoes(parsed.data.operacoes)
+      } catch {
+        if (hubOperacoesFetchSeq.current === seq) {
+          setHubOperacoes(HUB_OPERACOES_VAZIO)
+        }
+      } finally {
+        if (hubOperacoesFetchSeq.current === seq) {
+          setHubOperacoesCarregando(false)
+        }
+      }
+    }
+
+    setHubOperacoesCarregando(true)
+    carregarOperacoesHub()
+
+    return () => {
+      hubOperacoesFetchSeq.current += 1
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roleReady, idOrganizacao, chavesProdutosContratados])
+
   /* ══════════════════════════════════
      RENDER
   ══════════════════════════════════ */
@@ -1218,12 +1261,7 @@ export function SelecionarWorkspace() {
             <CampoLocalizarExpandidoGlobal onBuscarNavigate={buscarNoHub} />
 
             <div className="sw-notif-wrap">
-              <AvisoInternoGlobal
-                avisos={avisos}
-                onMarcarLido={handleMarcarLido}
-                onMarcarTodosLidos={handleMarcarTodosLidos}
-                onCriarAviso={handleCriarAviso}
-              />
+              <Notificacoes />
             </div>
 
             <button
@@ -1237,6 +1275,7 @@ export function SelecionarWorkspace() {
               <Info size={16} weight={tooltipsDisabled ? 'regular' : 'fill'} />
             </button>
 
+            {EXIBIR_LOCALIZADOR_HEADER_HUB && (
             <LocalizadorGlobal
               workspaceName={companyName}
               iconOnly
@@ -1255,6 +1294,7 @@ export function SelecionarWorkspace() {
                 else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
               }}
             />
+            )}
 
             <SeletorIdiomaGlobal iconOnly />
 
@@ -1356,19 +1396,31 @@ export function SelecionarWorkspace() {
                 </div>
                 <div className="sw-hub-kpi-row">
                   <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">7</div>
+                    <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.processos_em_andamento}</div>
                     <div className="sw-hub-kpi-lbl">{t('hub.kpi_processos', 'Processos em andamento')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">▲ {t('hub.kpi_delta_1_hoje', '1 hoje')}</span>
+                    {hubOperacoes.processos_hoje > 0 && (
+                      <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">
+                        ▲ {t('hub.kpi_delta_1_hoje', '{{count}} hoje', { count: hubOperacoes.processos_hoje })}
+                      </span>
+                    )}
                   </div>
                   <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">3</div>
+                    <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.aguardando_acao}</div>
                     <div className="sw-hub-kpi-lbl">{t('hub.kpi_aguardando_acao', 'Aguardando ação')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_3_pendentes', '3 pendentes')}</span>
+                    {hubOperacoes.aguardando_acao > 0 && (
+                      <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
+                        ⚠ {t('hub.kpi_delta_3_pendentes', '{{count}} pendentes', { count: hubOperacoes.aguardando_acao })}
+                      </span>
+                    )}
                   </div>
                   <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">12</div>
+                    <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.notas_fiscais_pendentes}</div>
                     <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
-                    <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">⚠ {t('hub.kpi_delta_7_pendentes', '7 pendentes')}</span>
+                    {hubOperacoes.notas_fiscais_pendentes > 0 && (
+                      <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
+                        ⚠ {t('hub.kpi_delta_7_pendentes', '{{count}} pendentes', { count: hubOperacoes.notas_fiscais_pendentes })}
+                      </span>
+                    )}
                   </div>
                   {EXIBIR_PAINEL_GABI_HUB && (
                     <div className="sw-hub-kpi">
@@ -1379,7 +1431,12 @@ export function SelecionarWorkspace() {
                   )}
                 </div>
                 <div className="sw-hub-proc-list">
-                  {processosOperacaoHub.map((proc) => (
+                  {hubOperacoesCarregando ? (
+                    <p className="sw-hub-proc-empty">{t('hub.operacoes_carregando', 'Carregando operações…')}</p>
+                  ) : processosOperacaoHub.length === 0 ? (
+                    <p className="sw-hub-proc-empty">{t('hub.operacoes_vazio', 'Nenhum processo em andamento no momento.')}</p>
+                  ) : (
+                  processosOperacaoHub.map((proc) => (
                     <button
                       key={proc.id}
                       type="button"
@@ -1394,7 +1451,8 @@ export function SelecionarWorkspace() {
                         {proc.badge}
                       </span>
                     </button>
-                  ))}
+                  ))
+                  )}
                 </div>
               </section>
 

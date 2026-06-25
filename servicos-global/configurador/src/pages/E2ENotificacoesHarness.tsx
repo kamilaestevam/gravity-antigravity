@@ -13,7 +13,7 @@ import React, { useState, useCallback, useEffect } from 'react'
 import {
   AvisoInternoGlobal,
   type AvisoInterno,
-  type Canal,
+  type OpcoesEnvioMensagem,
 } from '@nucleo/mensageria-global'
 
 const MOCK_AVISOS: AvisoInterno[] = [
@@ -88,7 +88,7 @@ export function E2ENotificacoesHarness() {
   }, [])
 
   const handleEnviarPara = useCallback(
-    async (_destinatarios: string[], mensagem: string, _link?: string, _canais?: Canal[]) => {
+    async (_destinatarios: string[], mensagem: string, _opcoes?: OpcoesEnvioMensagem) => {
       const novo: AvisoInterno = {
         id: `e2e-env-${Date.now()}`,
         conteudo: mensagem,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao, type Canal, type CanaisDisponiveis } from '@nucleo/mensageria-global'
+import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao, type Canal, type CanaisDisponiveis, type OpcoesEnvioMensagem } from '@nucleo/mensageria-global'
 import { useShellStore, buildEntityLink } from '@gravity/shell'
 
 export interface NotificationItem {
@@ -209,28 +209,44 @@ export function Notificacoes() {
   // Callback do painel "Enviar Para" — cria notificações para os destinatários
   // usando a rota autenticada POST /enviar (browser-facing, JWT).
   const handleEnviarPara = useCallback(
-    async (destinatarios: string[], mensagem: string, link?: string, canais?: Canal[]) => {
-      const viaEmail = canais?.includes('email') ?? false
+    async (destinatarios: string[], mensagem: string, opcoes?: OpcoesEnvioMensagem) => {
+      const viaEmail = opcoes?.canais?.includes('email') ?? false
 
       try {
-        // Resolve nomes e e-mails dos destinatários
         const recipientNames = destinatarios
           .map((uid) => usuariosTenant.find((u) => u.id === uid)?.nome)
           .filter(Boolean) as string[]
 
-        const recipientEmails = destinatarios
+        const recipientEmailsFromUsers = destinatarios
           .map((uid) => usuariosTenant.find((u) => u.id === uid)?.email)
-          .filter(Boolean) as string[]
+          .filter((e): e is string => Boolean(e))
+
+        const emailsExternos = (opcoes?.emails_externos ?? []).filter(Boolean)
+        const recipientEmails = [...new Set([...recipientEmailsFromUsers, ...emailsExternos])]
+
+        const userIds =
+          destinatarios.length > 0
+            ? destinatarios
+            : viaEmail && recipientEmails.length > 0 && currentUserId
+              ? [currentUserId]
+              : []
+
+        if (userIds.length === 0) {
+          throw new Error('Selecione ao menos um destinatário ou informe um e-mail válido.')
+        }
 
         const res = await authedFetch(`${BASE_URL}/enviar`, {
           method: 'POST',
           body: JSON.stringify({
-            user_ids: destinatarios,
+            user_ids: userIds,
             message: mensagem,
             sender_name: currentUserName || undefined,
             recipient_names: recipientNames,
             via_email: viaEmail && recipientEmails.length > 0,
             recipient_emails: viaEmail ? recipientEmails : undefined,
+            email_subject: opcoes?.email_assunto,
+            target_entity: opcoes?.link ? 'ROTA' : undefined,
+            target_id: opcoes?.link,
           }),
         })
         if (!res.ok) {
@@ -238,15 +254,13 @@ export function Notificacoes() {
           throw new Error(body?.error?.message ?? `HTTP ${res.status}`)
         }
 
-        // Envio é assíncrono — o email é despachado em background pelo worker
         addNotification({
           type: 'success',
           message: viaEmail && recipientEmails.length > 0
-            ? 'Mensagem enviada. E-mail sendo despachado em background.'
+            ? 'E-mail enfileirado para envio.'
             : 'Mensagem enviada.',
         })
 
-        // Recarrega para mostrar o registro "enviado" no histórico
         await syncState()
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Falha ao enviar notificação'
@@ -254,9 +268,10 @@ export function Notificacoes() {
           ? 'Selecione ao menos um destinatário diferente de você.'
           : msg
         addNotification({ type: 'error', message: friendly })
+        throw new Error(friendly)
       }
     },
-    [currentUserName, usuariosTenant, syncState, addNotification]
+    [currentUserName, currentUserId, usuariosTenant, syncState, addNotification]
   )
 
   // IDs vindos do shell store começam com "aviso-" (gerados por generateAvisoId()).
@@ -343,7 +358,10 @@ export function Notificacoes() {
       ? (n.type === 'compartilhamento' ? 'aviso' : n.type)
       : 'sistema') as AvisoInterno['tipo'],
     href: n.target_entity && n.target_id
-      ? buildEntityLink(n.target_entity, n.target_id)
+      ? buildEntityLink(
+          n.target_entity === 'link' ? 'ROTA' : n.target_entity,
+          n.target_id,
+        )
       : undefined,
   }))
 

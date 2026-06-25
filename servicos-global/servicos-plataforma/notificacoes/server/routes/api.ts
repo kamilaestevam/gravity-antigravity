@@ -317,6 +317,7 @@ const sendBodySchema = z.object({
   target_id: z.string().max(200).optional(),
   via_email: z.boolean().optional(),
   recipient_emails: z.array(z.string().email()).max(20).optional(),
+  email_subject: z.string().min(1).max(200).optional(),
 })
 
 apiRoutes.post('/enviar', async (req, res, next) => {
@@ -381,11 +382,17 @@ apiRoutes.post('/enviar', async (req, res, next) => {
           senderName: senderLabel,
           recipientEmails: body.recipient_emails,
           message: body.message,
+          emailSubject: body.email_subject,
           targetEntity: body.target_entity,
           targetId: body.target_id,
         })
       } catch (queueErr) {
         console.error('[NOTIFICACOES] Falha ao enfileirar job de email:', queueErr)
+        return next(new AppError(
+          'Não foi possível enfileirar o e-mail. Verifique se o worker de notificações está ativo.',
+          503,
+          'EMAIL_QUEUE_UNAVAILABLE',
+        ))
       }
     }
 

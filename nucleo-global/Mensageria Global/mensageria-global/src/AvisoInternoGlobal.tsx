@@ -37,6 +37,13 @@ export interface UsuarioMencao {
 
 export type Canal = 'interno' | 'email' | 'whatsapp';
 
+export interface OpcoesEnvioMensagem {
+  link?: string;
+  canais?: Canal[];
+  email_assunto?: string;
+  emails_externos?: string[];
+}
+
 export interface CanaisDisponiveis {
   email: boolean;
   whatsapp: boolean;
@@ -50,7 +57,7 @@ export interface AvisoInternoGlobalProps {
   onMarcarTodosLidos?: () => void;
   onCriarAviso?: (texto: string) => void;
   onNavegarHref?: (href: string) => void;
-  onEnviarPara?: (destinatarios: string[], mensagem: string, link?: string, canais?: Canal[]) => void;
+  onEnviarPara?: (destinatarios: string[], mensagem: string, opcoes?: OpcoesEnvioMensagem) => void | Promise<void>;
   usuariosTenant?: UsuarioMencao[];
   linkAtual?: string;
   linkAtualLabel?: string;
@@ -80,6 +87,8 @@ export function AvisoInternoGlobal({
 }: AvisoInternoGlobalProps) {
   const CHAR_LIMIT = 500;
 
+  const emailValido = (valor: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor.trim());
+
   const derivarLinkLabel = (url: string): string => {
     const parts = url.split('/').filter(Boolean)
     if (parts.length === 0) return 'Link'
@@ -96,6 +105,8 @@ export function AvisoInternoGlobal({
   const [filtroVisao, setFiltroVisao] = useState<'todas' | 'recebidas' | 'enviadas'>('todas');
   const [isOpen, setIsOpen] = useState(false);
   const [composerAberto, setComposerAberto] = useState(false);
+  const [composerErro, setComposerErro] = useState<string | null>(null);
+  const [enviandoMensagem, setEnviandoMensagem] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pickerContainerRef = useRef<HTMLDivElement>(null);
@@ -204,15 +215,8 @@ export function AvisoInternoGlobal({
     );
   };
 
-  // ─── Enviar ───────────────────────────────────────────────────────────────
-  const handleComposerSend = () => {
-    if (!composerText.trim()) return;
-    const link = linksAtivos.length > 0 ? linksAtivos[0] : undefined;
-    if (destinatarios.length > 0 && onEnviarPara) {
-      onEnviarPara(destinatarios, composerText.trim(), link, Array.from(canaisSelecionados));
-    } else if (onCriarAviso) {
-      onCriarAviso(composerText.trim());
-    }
+  // ─── Enviar / Salvar ───────────────────────────────────────────────────────
+  const resetComposer = useCallback(() => {
     setComposerText('');
     setPickerOpen(false);
     setPickerBusca('');
@@ -224,8 +228,91 @@ export function AvisoInternoGlobal({
     setLinksAtivos(linkAtual ? [linkAtual] : []);
     setLinkInputAberto(false);
     setLinkInputValue('');
+    setComposerErro(null);
+    setEnviandoMensagem(false);
     setComposerAberto(false);
+  }, [linkAtual]);
+
+  const montarOpcoesEnvio = useCallback((): OpcoesEnvioMensagem => {
+    const link = linksAtivos.length > 0 ? linksAtivos[0] : undefined;
+    const emailsExternos = emailDestinatarioExterno.trim() && emailValido(emailDestinatarioExterno)
+      ? [emailDestinatarioExterno.trim()]
+      : undefined;
+    return {
+      link,
+      canais: Array.from(canaisSelecionados),
+      email_assunto: emailAssunto.trim() || undefined,
+      emails_externos: emailsExternos,
+    };
+  }, [canaisSelecionados, emailAssunto, emailDestinatarioExterno, linksAtivos]);
+
+  const podeEnviarEmail = useMemo(() => {
+    if (!composerText.trim() || !canaisSelecionados.has('email')) return false;
+    const emailsUsuarios = destinatarios
+      .map((uid) => usuariosTenant.find((u) => u.id === uid)?.email)
+      .filter((e): e is string => Boolean(e));
+    const emailExternoOk = emailDestinatarioExterno.trim() && emailValido(emailDestinatarioExterno);
+    return emailsUsuarios.length > 0 || Boolean(emailExternoOk);
+  }, [canaisSelecionados, composerText, destinatarios, emailDestinatarioExterno, usuariosTenant]);
+
+  const handleSalvarNota = () => {
+    if (!composerText.trim() || !onCriarAviso) return;
+    onCriarAviso(composerText.trim());
+    resetComposer();
   };
+
+  const handleEnviarInterno = async () => {
+    if (!composerText.trim() || destinatarios.length === 0) return;
+    if (!onEnviarPara) {
+      setComposerErro('Envio indisponível nesta tela.');
+      return;
+    }
+    setComposerErro(null);
+    setEnviandoMensagem(true);
+    try {
+      await onEnviarPara(destinatarios, composerText.trim(), montarOpcoesEnvio());
+      resetComposer();
+    } catch (err) {
+      setComposerErro(err instanceof Error ? err.message : 'Falha ao enviar mensagem.');
+    } finally {
+      setEnviandoMensagem(false);
+    }
+  };
+
+  const handleEnviarEmail = async () => {
+    if (!podeEnviarEmail) return;
+    if (!onEnviarPara) {
+      setComposerErro('Envio de e-mail indisponível nesta tela.');
+      return;
+    }
+    setComposerErro(null);
+    setEnviandoMensagem(true);
+    try {
+      await onEnviarPara(destinatarios, composerText.trim(), {
+        ...montarOpcoesEnvio(),
+        canais: [...new Set<Canal>([...canaisSelecionados, 'email'])],
+      });
+      resetComposer();
+    } catch (err) {
+      setComposerErro(err instanceof Error ? err.message : 'Falha ao enviar e-mail.');
+    } finally {
+      setEnviandoMensagem(false);
+    }
+  };
+
+  const handleComposerAtalho = () => {
+    if (canaisSelecionados.has('email') && podeEnviarEmail) {
+      handleEnviarEmail();
+      return;
+    }
+    if (destinatarios.length > 0 && onEnviarPara) {
+      handleEnviarInterno();
+      return;
+    }
+    handleSalvarNota();
+  };
+
+  const modoEmailAtivo = canaisSelecionados.has('email');
 
   useEffect(() => {
     if (isOpen && linkAtual) setLinksAtivos([linkAtual]);
@@ -335,7 +422,7 @@ export function AvisoInternoGlobal({
         <div
           data-testid="modal-notificacoes"
           style={{ position: 'absolute', right: 0, top: '44px', zIndex: 1000 }}
-          className={`aig-dropdown ${className}`}
+          className={`aig-dropdown ${composerAberto ? 'aig-dropdown--composer-open' : ''} ${className}`}
           role="dialog"
           aria-label="Quadro de notificações"
         >
@@ -511,6 +598,7 @@ export function AvisoInternoGlobal({
             </div>
           </div>
 
+          <div className="aig-dropdown-body">
           {/* ── LISTA ── */}
           <div data-testid="lista-notificacoes" className="aig-list">
             {carregando ? (
@@ -594,7 +682,7 @@ export function AvisoInternoGlobal({
                     handleMentionKeyDown(e);
                     if (mentionQuery === null && e.key === 'Enter' && e.ctrlKey) {
                       e.preventDefault();
-                      handleComposerSend();
+                      handleComposerAtalho();
                     }
                   }}
                   rows={4}
@@ -773,8 +861,11 @@ export function AvisoInternoGlobal({
                 )}
               </div>
 
-              {/* Barra de ações: Canais · Enviar */}
+              {/* Barra de canais + ação interna (oculta quando modo e-mail) */}
               <div className="aig-composer-actions">
+                <span className="aig-composer-actions__hint">
+                  {modoEmailAtivo ? 'Canal e-mail' : 'Canal interno'}
+                </span>
                 <div style={{ flex: 1 }} />
                 {canaisDisponiveis.email && (
                   <button
@@ -803,28 +894,36 @@ export function AvisoInternoGlobal({
                     WhatsApp
                   </button>
                 )}
-                <button
-                  data-testid="btn-enviar"
-                  type="button"
-                  className="aig-btn-primary"
-                  onClick={handleComposerSend}
-                  disabled={!composerText.trim()}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.35rem 0.625rem', flexShrink: 0 }}
-                  title="Ctrl+Enter"
-                >
-                  <PaperPlaneTilt size={12} weight="bold" />
-                  {hasDestinatarios ? (destinatarios.length > 1 ? `Enviar (${destinatarios.length})` : 'Enviar') : 'Salvar'}
-                </button>
+                {!modoEmailAtivo && (
+                  <button
+                    data-testid="btn-enviar"
+                    type="button"
+                    className="aig-btn-primary"
+                    onClick={hasDestinatarios ? handleEnviarInterno : handleSalvarNota}
+                    disabled={!composerText.trim()}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.35rem 0.625rem', flexShrink: 0 }}
+                    title="Ctrl+Enter"
+                  >
+                    <PaperPlaneTilt size={12} weight="bold" />
+                    {hasDestinatarios ? (destinatarios.length > 1 ? `Enviar (${destinatarios.length})` : 'Enviar') : 'Salvar nota'}
+                  </button>
+                )}
               </div>
 
               {/* Campos extras — E-mail */}
-              {canaisSelecionados.has('email') && (
-                <div className="aig-extra-fields">
+              {modoEmailAtivo && (
+                <div className="aig-extra-fields aig-extra-fields--email">
                   <div className="aig-extra-field-row">
                     <label>Assunto</label>
-                    <input type="text" value={emailAssunto} onChange={e => setEmailAssunto(e.target.value)} placeholder="Assunto do e-mail..." />
+                    <input
+                      data-testid="input-email-assunto"
+                      type="text"
+                      value={emailAssunto}
+                      onChange={e => setEmailAssunto(e.target.value)}
+                      placeholder={composerText.trim() ? composerText.trim().slice(0, 80) : 'Assunto do e-mail...'}
+                    />
                   </div>
-                  {destinatarios.length === 0 && (
+                  {destinatarios.length === 0 ? (
                     <div className="aig-extra-field-row">
                       <label>Destinatário</label>
                       <input
@@ -833,6 +932,32 @@ export function AvisoInternoGlobal({
                         value={emailDestinatarioExterno}
                         onChange={e => setEmailDestinatarioExterno(e.target.value)}
                         placeholder="destinatario@exemplo.com"
+                        required
+                      />
+                    </div>
+                  ) : (
+                    <p className="aig-email-para-hint">
+                      E-mail será enviado para os contatos selecionados em <strong>Para</strong>
+                      {destinatarios
+                        .map((uid) => usuariosTenant.find((u) => u.id === uid)?.email)
+                        .filter(Boolean)
+                        .length > 0
+                        ? `: ${destinatarios
+                          .map((uid) => usuariosTenant.find((u) => u.id === uid)?.email)
+                          .filter(Boolean)
+                          .join(', ')}`
+                        : ' (cadastre e-mail no perfil do usuário).'}
+                    </p>
+                  )}
+                  {destinatarios.length > 0 && (
+                    <div className="aig-extra-field-row">
+                      <label>Cópia</label>
+                      <input
+                        data-testid="input-email-externo"
+                        type="email"
+                        value={emailDestinatarioExterno}
+                        onChange={e => setEmailDestinatarioExterno(e.target.value)}
+                        placeholder="e-mail adicional (opcional)"
                       />
                     </div>
                   )}
@@ -840,6 +965,19 @@ export function AvisoInternoGlobal({
                     <Warning size={10} weight="fill" style={{ flexShrink: 0 }} />
                     <span>O e-mail será processado pelo Resend para entrega (LGPD, Art. 7, IX).</span>
                   </div>
+                  {composerErro && (
+                    <p className="aig-composer-erro" role="alert">{composerErro}</p>
+                  )}
+                  <button
+                    data-testid="btn-enviar-email"
+                    type="button"
+                    className="aig-btn-enviar-email"
+                    onClick={() => { void handleEnviarEmail(); }}
+                    disabled={!podeEnviarEmail || enviandoMensagem}
+                  >
+                    <EnvelopeSimple size={14} weight="fill" />
+                    {enviandoMensagem ? 'Enviando…' : 'Enviar e-mail'}
+                  </button>
                 </div>
               )}
 
@@ -859,6 +997,8 @@ export function AvisoInternoGlobal({
 
             </div>
           )}
+
+          </div>
 
         </div>
       )}

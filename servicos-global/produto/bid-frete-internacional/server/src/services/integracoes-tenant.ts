@@ -104,26 +104,53 @@ export const atividadesIntegration = {
 
 // ─── NOTIFICAÇÕES (Sininho) ─────────────────────────────────────────────────────
 
+type TipoNotificacaoInterna =
+  | 'aviso'
+  | 'mencao'
+  | 'sistema'
+  | 'tarefa'
+  | 'compartilhamento'
+
+function mapearTipoNotificacao(tipo: string): TipoNotificacaoInterna {
+  if (tipo === 'mencao' || tipo === 'aviso' || tipo === 'sistema' || tipo === 'tarefa' || tipo === 'compartilhamento') {
+    return tipo
+  }
+  if (tipo.startsWith('BID_')) return 'tarefa'
+  return 'sistema'
+}
+
 export const notificacoesIntegration = {
   /**
-   * Envia notificação para o sininho do usuário
-   * O serviço de notificações usa pg-boss como fila, então criamos via POST
+   * Envia notificação in-app via rota S2S interna (pg-boss + persistência).
    */
   async enviar(tenantId: string, data: {
     id_usuario: string
     tipo: string
     titulo: string
     mensagem: string
-    link?: string
     id_produto_gravity?: string
+    target_entity?: string
+    target_id?: string
   }) {
+    if (!INTERNAL_KEY) {
+      console.warn('[BidFrete→Notificações] CHAVE_INTERNA_SERVICO ausente — notificação não enviada')
+      return
+    }
     try {
-      await axios.post(`${NOTIFICACOES_URL}/api/v1/notificacoes`, {
-        ...data,
-        id_produto_gravity: data.id_produto_gravity ?? 'bid-frete-internacional',
-        read: false,
+      await axios.post(`${NOTIFICACOES_URL}/api/v1/internal/notificacoes`, {
+        tenant_id: tenantId,
+        user_ids: [data.id_usuario],
+        type: mapearTipoNotificacao(data.tipo),
+        title: data.titulo,
+        message: data.mensagem,
+        product_id: data.id_produto_gravity ?? 'bid-frete-internacional',
+        target_entity: data.target_entity,
+        target_id: data.target_id,
       }, {
-        headers: s2sHeaders(tenantId, data.id_usuario),
+        headers: {
+          'x-internal-key': INTERNAL_KEY,
+          'Content-Type': 'application/json',
+        },
         timeout: 10000,
       })
     } catch (err: unknown) {
@@ -138,17 +165,36 @@ export const notificacoesIntegration = {
       tipo: 'BID_RESPOSTA',
       titulo: `Nova resposta de ${data.fornecedor_nome}`,
       mensagem: `O fornecedor ${data.fornecedor_nome} respondeu a cotação ${data.cotacao_numero}.`,
-      link: `/bid-frete/cotacoes/${data.id_cotacao_bid_frete_internacional}/comparativo`,
+      target_entity: 'cotacao_bid_frete_internacional',
+      target_id: data.id_cotacao_bid_frete_internacional,
     })
   },
 
-  /** Cotação aprovada — notificar fornecedor vencedor */
-  async cotacaoAprovada(tenantId: string, userId: string, data: { cotacao_numero: string; fornecedor_nome: string }) {
+  /** Cotação aguardando aprovação do cliente */
+  async aguardandoAprovacao(tenantId: string, userId: string, data: {
+    cotacao_numero: string
+    total_respostas: number
+    id_cotacao_bid_frete_internacional: string
+  }) {
+    await this.enviar(tenantId, {
+      id_usuario: userId,
+      tipo: 'BID_APROVACAO',
+      titulo: `Aprovar cotação ${data.cotacao_numero}`,
+      mensagem: `${data.total_respostas} fornecedor(es) responderam. Acesse o comparativo para aprovar ou reprovar.`,
+      target_entity: 'cotacao_bid_frete_internacional',
+      target_id: data.id_cotacao_bid_frete_internacional,
+    })
+  },
+
+  /** Cotação aprovada — notificar responsável */
+  async cotacaoAprovada(tenantId: string, userId: string, data: { cotacao_numero: string; fornecedor_nome: string; id_cotacao_bid_frete_internacional?: string }) {
     await this.enviar(tenantId, {
       id_usuario: userId,
       tipo: 'BID_APROVADA',
       titulo: `Cotação ${data.cotacao_numero} aprovada`,
       mensagem: `Fornecedor vencedor: ${data.fornecedor_nome}.`,
+      target_entity: data.id_cotacao_bid_frete_internacional ? 'cotacao_bid_frete_internacional' : undefined,
+      target_id: data.id_cotacao_bid_frete_internacional,
     })
   },
 
@@ -158,8 +204,9 @@ export const notificacoesIntegration = {
       id_usuario: userId,
       tipo: 'BID_EXPIRADA',
       titulo: `Cotação ${data.cotacao_numero} expirou`,
-      mensagem: `O prazo de resposta da cotação expirou sem aprovação.`,
-      link: `/bid-frete/cotacoes/${data.id_cotacao_bid_frete_internacional}`,
+      mensagem: 'O prazo de resposta da cotação expirou sem aprovação.',
+      target_entity: 'cotacao_bid_frete_internacional',
+      target_id: data.id_cotacao_bid_frete_internacional,
     })
   },
 }

@@ -342,7 +342,7 @@ export function ModalNovaLeituraSmartRead({
       return
     }
 
-    if (idLeitura && passoSalvoRef.current >= 2 && todosArquivosAnaliseCompleta(proximos)) {
+    if (idLeitura && passoSalvoRef.current >= 2 && proximos.length > 0) {
       const leituraBase = consolidarLeituraDeArquivosLocais(proximos)
       if (leituraBase) {
         const nomeEfetivo = nomeLeitura.trim() || nomeLeitura

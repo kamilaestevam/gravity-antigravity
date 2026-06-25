@@ -122,6 +122,18 @@ O legado costuma devolver nomes genéricos (`Leitura 01`). O nome escolhido no w
 
 **Removido (legado dati):** rótulos «Starter» e contador «Documentos X/100» no topo da sidebar — planos comerciais não existem mais no Gravity.
 
+### Exclusão de arquivo no passo 1 (TASK-000334 / PR #445)
+
+| Regra | Implementação |
+|-------|----------------|
+| Gatilho | Ícone lixeira na sidebar `painel-lateral-arquivos-nova-leitura-smart-read.tsx` |
+| Confirmação | `ModalConfirmarExcluirGlobal` (`@nucleo/modal-confirmar-excluir-global`) — `z-index: 10100` para ficar acima do wizard (`ModalPassoPassoGlobal`, `9999`) |
+| Escopo da remoção | **Somente estado local** — revoga blob (`URL.revokeObjectURL`), remove item de `arquivos`, atualiza progresso se já havia `PATCH` (passo ≥ 2) |
+| Último arquivo | `limparEstadoLeituraSmartRead(id_leitura)` — apaga progresso/localStorage da sessão |
+| Legado DATI | **Não** chama `DELETE /leituras/:id` — rota permanece `501` (§2); PDF no DATI não é excluído; ao retomar via legado o arquivo pode reaparecer até existir exclusão no BFF |
+
+Handlers: `solicitarRemoverArquivo` → `confirmarRemoverArquivo` em `modal-nova-leitura-smart-read.tsx`.
+
 ---
 
 ## 4. Quando o progresso grava
@@ -133,6 +145,7 @@ O legado costuma devolver nomes genéricos (`Leitura 01`). O nome escolhido no w
 | Continuar / Voltar passo | Sim — atualiza `passo_atual` (alvo §14: espelhar `status_fluxo` no progresso) |
 | Concluir passo 4 | Sim — sessão no progresso (alvo §14: `fluxo_finalizado: true` → `FINALIZADO` no progresso e snapshot) |
 | Renomear (qualquer passo) | Sim no estado local; `PATCH` imediato se passo ≥ 2 e análise concluída |
+| Excluir arquivo (passo 1) | Sim — `PATCH` se `passoSalvoRef ≥ 2` e ainda há arquivos; `limparEstado` se lista ficar vazia (ver §3) |
 | Fechar modal | Sim + **recarrega lista** (`onFechar` → `onRecarregar`) |
 
 **Primário:** `PATCH` → tabela `progresso_leitura_smart_read` (Railway, `SMART_READ_DATABASE_URL`).  

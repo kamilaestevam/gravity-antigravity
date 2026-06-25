@@ -14,10 +14,49 @@ describe('Smart Read — extrair seções conferência', () => {
       observations: '',
     })
 
-    const exportador = secoes.find((s) => s.titulo === 'Exporter')
+    const exportador = secoes.find((s) => s.titulo === 'Exportador')
     expect(exportador?.campos).toHaveLength(2)
     expect(exportador?.campos.find((c) => c.chave === 'exporter.name')?.rotulo).toBe('Nome do exportador')
     expect(exportador?.campos.filter((c) => c.preenchido)).toHaveLength(2)
+  })
+
+  it('agrupa BL com seções PT paridade DATI', () => {
+    const secoes = extrairSecoesConferenciaLeitura({
+      document: {
+        documentType: 'BILL OF LADING',
+        documentDate: '2024-10-24',
+        shippedOnBoardDate: '2024-10-24',
+        documentNumber: 'GWW-375555',
+        billOfLadingNumber: 'GWW-375555',
+        masterBillOfLadingNumber: '',
+        bookingReference: 'GWW-375555',
+      },
+      containerNumbers: 'HLBU2358024',
+      lcl_cargo: '',
+      observations: 'S/S BOOKING NO. 67643677',
+      carrier: { name: 'LANDSTAR GLOBAL LOGISTICS' },
+      exporter: { name: 'Exporter SA', country: 'US' },
+      importer: { name: 'Importador BR', city: 'São Paulo' },
+      notify_party: { name: 'Notify Co' },
+      shipment: { port_of_origin: 'Shanghai', port_of_destination: 'Santos' },
+      goods: { total_packages: 10, shipment_gross_weight: 1000 },
+      payment: { terms: 'PREPAID' },
+    })
+
+    expect(secoes.map((s) => s.titulo)).toEqual([
+      'Dados gerais',
+      'Nome do transportador',
+      'Exportador',
+      'Importador',
+      'Notify',
+      'Origem e destino',
+      'Mercadoria',
+      'Frete',
+    ])
+    const dadosGerais = secoes.find((s) => s.titulo === 'Dados gerais')
+    expect(dadosGerais?.campos.find((c) => c.chave === 'document.documentType')?.rotulo).toBe('Tipo de documento')
+    expect(dadosGerais?.campos.find((c) => c.chave === 'containerNumbers')?.rotulo).toBe('Números dos Containers')
+    expect(secoes.find((s) => s.titulo === 'Nome do transportador')?.campos[0]?.rotulo).toBe('Nome do transportador')
   })
 
   it('mapeia campos top-level invoice', () => {
@@ -26,6 +65,9 @@ describe('Smart Read — extrair seções conferência', () => {
       observations: 'Texto livre',
       isSigned: false,
     })
+
+    const dadosGerais = secoes.find((s) => s.titulo === 'Dados gerais')
+    expect(dadosGerais).toBeDefined()
 
     const obs = secoes.flatMap((s) => s.campos).find((c) => c.chave === 'observations')
     expect(obs?.rotulo).toBe('Observações')

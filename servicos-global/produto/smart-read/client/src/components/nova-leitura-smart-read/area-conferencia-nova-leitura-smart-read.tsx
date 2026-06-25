@@ -87,7 +87,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
         </>
       )}
 
-      {aba === 'qa' && <ConferenciaQaNovaLeituraSmartRead />}
+      {aba === 'qa' && <ConferenciaQaNovaLeituraSmartRead arquivos={arquivosCompletos} />}
     </div>
   )
 }

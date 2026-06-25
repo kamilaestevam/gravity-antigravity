@@ -1,0 +1,67 @@
+{
+  "referencia": "TASK-000346",
+  "ordinal": 70,
+  "id_transcript": null,
+  "titulo_canonico": "SMTRD-NOVA-LEITURA-BUG-SAVING-NAO-CALCULA-PRODUCAO",
+  "titulo_exibicao": "TASK-000346 | [Smart Read] Nova Leitura | BUG — Saving passo 2 não calcula em produção",
+  "status": "RES",
+  "status_descricao": "Resolvida e arquivada — task encerrada; nome da conversa recebe prefixo RES * {horas}h",
+  "area": "SMTRD",
+  "area_descricao": "Smart Read — produto de leitura de documentos em servicos-global/produto/smart-read",
+  "subarea": "NOVA-LEITURA",
+  "subarea_descricao": "Wizard Nova Leitura — passo 2 Análise do arquivo (métricas saving)",
+  "visualizacao": null,
+  "visualizacao_descricao": "Não aplicável — wizard passo 2, não é LISTA/KANBAN/DASHBOARD/INSIGHTS",
+  "tipo_entrega": "BUG",
+  "tipo_entrega_descricao": "Correção de comportamento — saving exibe traço em produção apesar da análise completa",
+  "resumo": "SAVING-NAO-CALCULA-PRODUCAO",
+  "resumo_descricao": "Recursos reduzidos e acumulado SAVING mostram — no passo 2 em produção",
+  "resumo_detalhado": "Diagnosticado bug em calcularSavingNovaLeituraSmartRead (resultado_extracao lido no ArquivoLocal errado). Corrigido wiring via listarDocumentosExtracaoArquivosLocaisNovaLeitura; acumulado soma leitura atual ao histórico. PR #483 mergeada e deploy ACTIVE em usegravity.com.br.",
+  "data_criacao": "2026-06-25T20:10:00.000Z",
+  "data_encerramento": "2026-06-26T00:18:00.000Z",
+  "duracao_horas": 1.25,
+  "tempo_bruto_horas": 4.13,
+  "tempo_agente_horas": 1.0,
+  "tempo_dono_horas": 0.25,
+  "tempo_liquido_horas": 1.25,
+  "tokens_estimados_entrada": 55000,
+  "tokens_estimados_saida": 45000,
+  "tokens_estimados_total": 100000,
+  "mensagens_usuario": 5,
+  "mensagens_agente": 8,
+  "fases_concluidas": ["DIAGNOSTICO", "IMPLEMENTACAO", "TESTE_LOCAL", "PR", "DEPLOY"],
+  "checklist_encerramento": {
+    "teste_local": { "valor": "sim", "descricao": "Testes locais executados (unitário, funcional, em tela)" },
+    "code_review": { "valor": "nao", "descricao": "Code review executado (/code-review)" },
+    "doc_skill": { "valor": "nao", "descricao": "Documentos técnicos e/ou skills atualizados (/docs-skills)" },
+    "qa": { "valor": "nao", "descricao": "QA pós-entrega executado (/qa)" },
+    "pr": { "valor": "sim", "descricao": "Pull request aberto ou merge solicitado" },
+    "deploy": { "valor": "sim", "descricao": "Deploy ou migration executado (/deploy)" },
+    "teste_producao": { "valor": "nao", "descricao": "Validado em produção ou staging real" }
+  },
+  "checklist_alertas": [
+    {
+      "item": "code_review",
+      "mensagem": "Code review não executado — invocar /code-review antes de considerar task fechada."
+    },
+    {
+      "item": "doc_skill",
+      "mensagem": "Documentos técnicos e/ou skills não atualizados — invocar /docs-skills se necessário."
+    },
+    {
+      "item": "qa",
+      "mensagem": "QA não executado — invocar /qa antes de considerar task fechada."
+    },
+    {
+      "item": "teste_producao",
+      "mensagem": "Deploy concluído (PR #483) mas saving no passo 2 não revalidado manualmente em produção pós-fix."
+    }
+  ],
+  "entregas": [
+    "servicos-global/produto/smart-read/client/src/shared/calcular-saving-nova-leitura-smart-read.ts",
+    "servicos-global/produto/smart-read/client/src/shared/tipo-arquivo-nova-leitura-smart-read.ts",
+    "servicos-global/produto/smart-read/client/src/components/nova-leitura-smart-read/dashboard-analise-nova-leitura-smart-read.tsx",
+    "https://github.com/dmmltda/gravity-antigravity/pull/483"
+  ],
+  "notas": "PR #483 mergeada; Railway deployment successful em usegravity.com.br (~8 min antes do encerramento)."
+}

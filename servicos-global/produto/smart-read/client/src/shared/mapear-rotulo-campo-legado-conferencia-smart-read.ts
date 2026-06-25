@@ -1,71 +1,51 @@
 /**
- * De-para caminho legado → label tela (PT) + seção (EN, paridade UI dati).
+ * De-para caminho legado → label tela (PT) + seção (PT, paridade UI DATI).
  */
 
 const REGRAS_SECAO: Array<{ match: RegExp; secao: string }> = [
-  // AWB (paridade dati)
+  // AWB (paridade DATI)
   { match: /^awbInfo\.flight\b/i, secao: 'Voo' },
   { match: /^awbInfo\b/i, secao: 'Informações AWB' },
   { match: /^handlingInformation$/i, secao: 'Informações AWB' },
   { match: /^cargoAgent\b/i, secao: 'Agente de carga' },
   { match: /^route\b/i, secao: 'Rota' },
   { match: /^declaredValues\b/i, secao: 'Valores declarados' },
-  { match: /^charges\b/i, secao: 'Custos' },
   { match: /^shipmentDetails\b/i, secao: 'Embarque' },
-  // Comuns
-  { match: /^document\b/i, secao: 'Document' },
-  { match: /^isSigned$|^observations$/i, secao: 'Document' },
-  { match: /^carrier\b/i, secao: 'Carrier' },
-  { match: /^exporter\b|^shipper\b/i, secao: 'Exporter' },
-  { match: /^importer\b|^consignee\b/i, secao: 'Importer' },
-  { match: /^notify_party\b/i, secao: 'Notify Party' },
-  { match: /^shipment\b/i, secao: 'Shipment' },
-  { match: /^goods\b/i, secao: 'Goods' },
-  { match: /^containers\b|^containerNumbers\b/i, secao: 'Containers' },
-  { match: /^lcl_cargo\b/i, secao: 'LCL Cargo' },
-  { match: /^packageSummary\b/i, secao: 'Package Summary' },
-  { match: /^payment\b/i, secao: 'Payment' },
-  { match: /^bankingDetails\b/i, secao: 'Banking' },
-  { match: /^currency\b/i, secao: 'Currency' },
-  { match: /^totals\b/i, secao: 'Totals' },
-  { match: /^items\b|^items_quantity$/i, secao: 'Items' },
-  { match: /^additionalFields\b/i, secao: 'Additional Fields' },
-  { match: /^issuer\b/i, secao: 'Issuer' },
+  { match: /^charges\b/i, secao: 'Custos' },
+  // BL / marítimo — paridade UI DATI (ordem de match importa)
+  { match: /^payment\b|^currency\b|^bankingDetails\b|shipment\.costs\b/i, secao: 'Frete' },
+  { match: /^shipment\b|^routing\b/i, secao: 'Origem e destino' },
+  { match: /^goods\b|^items\b|^packageSummary\b|^totals\b/i, secao: 'Mercadoria' },
+  { match: /^notify_party\b/i, secao: 'Notify' },
+  { match: /^exporter\b|^shipper\b/i, secao: 'Exportador' },
+  { match: /^importer\b|^consignee\b/i, secao: 'Importador' },
+  { match: /^carrier\b|^transportadora\b/i, secao: 'Nome do transportador' },
+  {
+    match: /^document\b|^isSigned$|^observations$|^containerNumbers$|^lcl_cargo$|^items_quantity$|^containers\b/i,
+    secao: 'Dados gerais',
+  },
+  { match: /^additionalFields\b/i, secao: 'Dados gerais' },
+  { match: /^issuer\b|^nf\b/i, secao: 'Dados gerais' },
   { match: /^flight\b/i, secao: 'Voo' },
-  { match: /^routing\b/i, secao: 'Rota' },
-  { match: /^nf\b/i, secao: 'Invoice NF' },
-  { match: /^transportadora\b/i, secao: 'Carrier' },
 ]
 
-/** Ordem das seções na conferência (paridade legado dati). */
+/** Ordem das seções na conferência (paridade UI DATI). */
 export const ORDEM_SECOES_CONFERENCIA_SMART_READ = [
-  'Document',
+  'Dados gerais',
+  'Nome do transportador',
+  'Exportador',
+  'Importador',
+  'Notify',
+  'Origem e destino',
+  'Mercadoria',
+  'Frete',
   'Informações AWB',
   'Voo',
-  'Carrier',
-  'Exporter',
-  'Importer',
-  'Notify Party',
-  'Origem e destino',
   'Agente de carga',
   'Rota',
-  'Shipment',
   'Embarque',
-  'Goods',
-  'Containers',
-  'LCL Cargo',
-  'Package Summary',
-  'Items',
   'Valores declarados',
   'Custos',
-  'Payment',
-  'Currency',
-  'Banking',
-  'Totals',
-  'Additional Fields',
-  'Issuer',
-  'Invoice NF',
-  'Dados gerais',
 ] as const
 
 const REGRAS_CAMPO: Array<{ match: RegExp; label: string }> = [
@@ -100,16 +80,17 @@ const REGRAS_CAMPO: Array<{ match: RegExp; label: string }> = [
   { match: /charges\..*\.currencyConversionRates$/, label: 'Taxa de conversão' },
   { match: /document\.documentNumber$|^document\.number$/, label: 'Número do documento' },
   { match: /document\.billOfLadingNumber$/, label: 'Número do BL' },
-  { match: /document\.masterBillOfLadingNumber$/, label: 'Número do BL master' },
-  { match: /document\.bookingReference$/, label: 'Referência booking' },
-  { match: /document\.documentType$|^document\.type$/, label: 'Tipo do documento' },
+  { match: /document\.masterBillOfLadingNumber$/, label: 'Número do Master BL' },
+  { match: /document\.bookingReference$/, label: 'Referência de Booking' },
+  { match: /document\.documentType$|^document\.type$/, label: 'Tipo de documento' },
   { match: /document\.documentDate$|^document\.date$/, label: 'Data do documento' },
-  { match: /document\.shippedOnBoardDate$/, label: 'Data shipped on board' },
+  { match: /document\.shippedOnBoardDate$/, label: 'Data de Embarque' },
   { match: /document\.incoterm$/, label: 'Incoterm' },
   { match: /document\.incotermLocation$/, label: 'Local incoterm' },
   { match: /^items_quantity$/, label: 'Quantidade de itens' },
   { match: /^observations$/, label: 'Observações' },
   { match: /^isSigned$/, label: 'Documento assinado' },
+  { match: /^lcl_cargo$/, label: 'Carga LCL' },
   { match: /\.name$/, label: 'Nome' },
   { match: /\.address$/, label: 'Endereço' },
   { match: /\.country$/, label: 'País' },
@@ -122,18 +103,22 @@ const REGRAS_CAMPO: Array<{ match: RegExp; label: string }> = [
   { match: /\.email$/, label: 'E-mail' },
   { match: /shipment\.vessel_name$|shipment\.vesselName$/, label: 'Nome do navio' },
   { match: /shipment\.voyage_number$/, label: 'Número da viagem' },
-  { match: /shipment\.port_of_origin$/, label: 'Porto origem' },
-  { match: /shipment\.port_of_destination$/, label: 'Porto destino' },
+  { match: /shipment\.port_of_origin$|shipment\.ports\.origin$|shipment\.ports\.loading$/, label: 'Porto origem' },
+  { match: /shipment\.port_of_destination$|shipment\.ports\.destination$|shipment\.ports\.discharge$/, label: 'Porto destino' },
+  { match: /shipment\.place_of_origin$/, label: 'Local origem' },
+  { match: /shipment\.place_of_destination$/, label: 'Local destino' },
   { match: /goods\.ncm_code$|\.ncm$/, label: 'NCM' },
   { match: /goods\.shipment_gross_weight$/, label: 'Peso bruto total' },
   { match: /goods\.shipment_net_weight$/, label: 'Peso líquido total' },
   { match: /goods\.total_packages$/, label: 'Total de volumes' },
-  { match: /containerNumbers$/, label: 'Números de container' },
+  { match: /containerNumbers$/, label: 'Números dos Containers' },
   { match: /container_number$/, label: 'Número do container' },
   { match: /container_seal$/, label: 'Lacre' },
   { match: /container_type$/, label: 'Tipo do container' },
   { match: /payment\.terms$/, label: 'Condição de pagamento' },
   { match: /currency\.type$/, label: 'Moeda' },
+  { match: /shipment\.costs\.freight$/, label: 'Frete' },
+  { match: /shipment\.costs\.insurance$/, label: 'Seguro' },
 ]
 
 export type RotuloCampoLegadoConferencia = {
@@ -142,7 +127,7 @@ export type RotuloCampoLegadoConferencia = {
 }
 
 const ROTULOS_POR_SECAO: Record<string, Record<string, string>> = {
-  Exporter: {
+  Exportador: {
     Nome: 'Nome do exportador',
     Endereço: 'Endereço do exportador',
     País: 'País do exportador',
@@ -153,7 +138,7 @@ const ROTULOS_POR_SECAO: Record<string, Record<string, string>> = {
     Telefone: 'Telefone',
     'E-mail': 'E-mail',
   },
-  Importer: {
+  Importador: {
     Nome: 'Nome do importador',
     Endereço: 'Endereço do importador',
     País: 'País do importador',
@@ -165,15 +150,15 @@ const ROTULOS_POR_SECAO: Record<string, Record<string, string>> = {
     Telefone: 'Telefone',
     'E-mail': 'E-mail',
   },
-  'Notify Party': {
+  Notify: {
     Nome: 'Nome do notify party',
     Endereço: 'Endereço do notify party',
     País: 'País do notify party',
     Cidade: 'Cidade do notify party',
     CNPJ: 'CNPJ',
   },
-  Carrier: {
-    Nome: 'Nome da transportadora',
+  'Nome do transportador': {
+    Nome: 'Nome do transportador',
   },
 }
 

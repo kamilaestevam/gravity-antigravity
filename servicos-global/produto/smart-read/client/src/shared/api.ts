@@ -29,6 +29,11 @@ import {
   type AnaliseRiscosLeituraRequest,
   type AnaliseRiscosLeituraResponse,
 } from '../../../shared/analise-riscos-leitura-smart-read'
+import {
+  QaLeituraResponseSchema,
+  type QaLeituraRequest,
+  type QaLeituraResponse,
+} from '../../../shared/qa-leitura-smart-read'
 import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
 
 export type { ListaPainel }
@@ -103,7 +108,7 @@ async function requisitar<T>(schema: z.ZodType<T>, endpoint: string, init?: Requ
   return schema.parse(await resposta.json())
 }
 
-export type { AnaliseRiscosLeituraRequest, AnaliseRiscosLeituraResponse }
+export type { AnaliseRiscosLeituraRequest, AnaliseRiscosLeituraResponse, QaLeituraRequest, QaLeituraResponse }
 
 export const smartReadApi = {
   listarTransacoes(params: {
@@ -145,6 +150,14 @@ export const smartReadApi = {
     payload: AnaliseRiscosLeituraRequest,
   ): Promise<AnaliseRiscosLeituraResponse> {
     return requisitar(AnaliseRiscosLeituraResponseSchema, '/api/v1/smart-read/leituras/analise-riscos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  },
+
+  perguntarQaLeitura(payload: QaLeituraRequest): Promise<QaLeituraResponse> {
+    return requisitar(QaLeituraResponseSchema, '/api/v1/smart-read/leituras/qa', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 335,
+  "proximo_numero": 338,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1049,6 +1049,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000334.json"
+    },
+    {
+      "referencia": "TASK-000337",
+      "ordinal": 60,
+      "titulo_canonico": "OUTROS-SMART-READ-MEL-PARIDADE-BOTOES-ENVIAR-CANCELAR-SIDEBAR",
+      "titulo_exibicao": "TASK-000337 | [Smart Read] Nova Leitura | MEL — Paridade botões Enviar/Cancelar com Voltar/Continuar na sidebar",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "PARIDADE-BOTOES-ENVIAR-CANCELAR-SIDEBAR",
+      "data_criacao": "2026-06-25T23:45:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000337.json"
     }
   ]
 }

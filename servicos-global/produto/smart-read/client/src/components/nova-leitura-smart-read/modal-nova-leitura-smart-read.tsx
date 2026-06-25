@@ -42,6 +42,11 @@ import {
   persistirProgressoLeituraSmartRead,
 } from '../../shared/persistencia-leitura-smart-read'
 
+import {
+  definirValorPorCaminho,
+  montarChaveCampoEditadoLeitura,
+} from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
+
 import { PainelLateralArquivosNovaLeituraSmartRead } from './painel-lateral-arquivos-nova-leitura-smart-read'
 
 import { AreaAnexarNovaLeituraSmartRead } from './area-anexar-nova-leitura-smart-read'
@@ -101,25 +106,6 @@ function gerarNomeLeitura(): string {
 
   return `Leitura ${sequencia}`
 
-}
-
-
-
-/** Grava valor em dados[caminho] (ex.: "exporter.name"). Caminhos com array ([]) não são persistidos. */
-function definirValorPorCaminho(raiz: Record<string, unknown>, caminho: string, valor: string): boolean {
-  if (caminho.includes('[')) return false
-  const partes = caminho.split('.')
-  let alvo: Record<string, unknown> = raiz
-  for (let i = 0; i < partes.length - 1; i++) {
-    const parte = partes[i]
-    const atual = alvo[parte]
-    if (typeof atual !== 'object' || atual === null || Array.isArray(atual)) {
-      alvo[parte] = {}
-    }
-    alvo = alvo[parte] as Record<string, unknown>
-  }
-  alvo[partes[partes.length - 1]] = valor
-  return true
 }
 
 
@@ -437,7 +423,7 @@ export function ModalNovaLeituraSmartRead({
       )
       setCamposEditados((prev) => {
         const next = new Set(prev)
-        next.add(`${selecao.idArquivoLocal}:${selecao.indiceDocumento}:${chave}`)
+        next.add(montarChaveCampoEditadoLeitura(selecao.idArquivoLocal, selecao.indiceDocumento, chave))
         return next
       })
     },

@@ -38,7 +38,7 @@ Se a mensagem contém **`/novo-agente`**, o agente **NÃO PODE** — nesta mesma
 
 | Parte | Obrigatório | Exemplos |
 |:---|:---:|:---|
-| `AREA` | Sim | `BIDFRT`, `PEDIDO`, `CONFIG`, `CORE`, … |
+| `AREA` | Sim | `BIDFRT`, `SMTRD`, `PEDIDO`, `CONFIG`, `CORE`, … |
 | `SUBAREA` | Não | `COTACOES`, `ADMIN-TESTES` |
 | `VIS` | Não | `LISTA`, `KANBAN`, `DASHBOARD`, `INSIGHTS` |
 | `TIPO_ENTREGA` | Sim | `BUG`, `MEL`, `NOV`, `REF`, `AUD`, `CFG`, `DUV` |
@@ -99,7 +99,9 @@ Legado `documentos-tecnicos/processos/convencao-titulos-agente.md` — **não us
 
 ### AREA
 
-`LOGIN` · `ONBOARDING` · `ADMIN` · `CONFIG` · `PEDIDO` · `BIDFRT` · `BIDCAM` · `PROCSO` · `FINCOM` · `OUTROS`
+`LOGIN` · `ONBOARDING` · `ADMIN` · `CONFIG` · `PEDIDO` · `BIDFRT` · `BIDCAM` · `PROCSO` · `FINCOM` · `SMTRD` · `OUTROS`
+
+`SMTRD` = Smart Read (`servicos-global/produto/smart-read/`) — usar **área** `SMTRD` em vez de `OUTROS` + subárea `SMART-READ`.
 
 ### VIS (opcional)
 

@@ -209,7 +209,7 @@ Cada sigla tem um campo `*_descricao` logo abaixo explicando o valor.
 | Campo | Valores | O que é |
 |:---|:---|:---|
 | `status` | `ABR`, `RES`, `SUS`, `CAN` | Aberta, resolvida/arquivada, suspensa, cancelada |
-| `area` | `LOGIN`, `CONFIG`, `PEDIDO`, `BIDFRT`, `BIDCAM`, `CORE`, … | Produto ou módulo principal |
+| `area` | `LOGIN`, `CONFIG`, `PEDIDO`, `BIDFRT`, `BIDCAM`, `SMTRD`, `CORE`, … | Produto ou módulo principal |
 | `subarea` | ex.: `TESTES`, ou `null` | Sub-módulo (`admin/testes`) |
 | `visualizacao` | `LISTA`, `KANBAN`, `DASHBOARD`, `INSIGHTS`, ou `null` | Tipo de tela |
 | `tipo_entrega` | `BUG`, `MEL`, `NOV`, `DOC`, `CFG`, `AUD`, `DUV` | Natureza do trabalho |

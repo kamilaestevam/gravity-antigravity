@@ -7,7 +7,7 @@ import type { TFunction } from 'i18next'
 import React, { Fragment, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { resolverRotaProdutoGravity } from '@gravity/shell'
-import { CheckCircle, Handshake, Lock, Package } from '@phosphor-icons/react'
+import { CheckCircle, Lock, Package } from '@phosphor-icons/react'
 import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
 import {
   PRODUCT_META,
@@ -54,6 +54,16 @@ function pathPecaPuzzle(isFirst: boolean, isLast: boolean): string {
 const FILL_PECA_HUB_INTERNO = 'var(--hub-puzzle-fill-interno, rgba(16, 24, 40, 0.96))'
 const FILL_PECA_HUB_DISPONIVEL = 'var(--hub-puzzle-fill-disponivel, rgba(12, 18, 32, 0.94))'
 const TAMANHO_ICONE_PECA_HUB = 22
+
+function ConectorHubPuzzle({ visivel }: { visivel: boolean }) {
+  if (!visivel) return null
+  return (
+    <div className="gs-hub-conector" aria-hidden="true">
+      <span className="gs-hub-conector__linha" />
+      <span className="gs-hub-conector__no" />
+    </div>
+  )
+}
 
 function coresSvgPecaHub(
   status: ReturnType<typeof statusProdutoGravityStore>,
@@ -270,12 +280,19 @@ export function PuzzleStackProdutosGravity({
 
         if (item.tipo === 'extra') {
           const pecaExtra = item.pecaExtra
-          const corFornecedor = '#f59e0b'
+          const slugVisual = pecaExtra.slugVisual
+          const metaVisual = PRODUCT_META[slugVisual]
+          const corBidFrete = metaVisual?.iconColor ?? '#60a5fa'
+          const nomeExibicaoBidFrete = nomeExibicaoPecaPuzzleHub(
+            slugVisual,
+            pecaExtra.nome,
+            t as (key: string, defaultValue?: string) => string,
+          )
           const { fill, stroke, strokeWidth } = escalaHub
-            ? { fill: FILL_PECA_HUB_INTERNO, stroke: corFornecedor, strokeWidth: 1.75 }
+            ? coresSvgPecaHub('owned', corBidFrete)
             : {
-                fill: 'rgba(245,158,11,0.18)',
-                stroke: corFornecedor,
+                fill: metaVisual?.iconBg ?? 'rgba(96,165,250,0.18)',
+                stroke: corBidFrete,
                 strokeWidth: 1.5,
               }
           const tituloPeca = `${t('sw.acessar', 'Acessar')} — ${pecaExtra.nome}`
@@ -284,7 +301,11 @@ export function PuzzleStackProdutosGravity({
             <Fragment key={pecaExtra.key}>
               <div
                 className={`gs-piece gs-piece--on gs-piece--fornecedor${classeBlankPeca(isFirst)}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
-              style={escalaHub ? ({ '--piece-color': corFornecedor } as React.CSSProperties) : ({ zIndex: totalPecasVisiveis - pieceIdx + 1, '--piece-color': corFornecedor } as React.CSSProperties)}
+              style={
+                escalaHub
+                  ? ({ '--piece-color': corBidFrete } as React.CSSProperties)
+                  : ({ zIndex: totalPecasVisiveis - pieceIdx + 1, '--piece-color': corBidFrete } as React.CSSProperties)
+              }
               role="button"
               tabIndex={0}
               title={tituloPeca}
@@ -297,21 +318,29 @@ export function PuzzleStackProdutosGravity({
                 }
               }}
             >
+              {escalaHub && (
+                <span className="gs-piece__tag-fornecedor">
+                  {t('hub.role_fornecedor', 'Fornecedor')}
+                </span>
+              )}
               <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg" aria-hidden="true">
                 <path d={path} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin="round" />
               </svg>
               <div className={classeCorpoPecaPuzzle(isFirst)}>
                 <div className="gs-piece__stack">
-                  <div className="gs-piece__icon gs-piece__icon--fornecedor">
-                    <Handshake weight="duotone" size={TAMANHO_ICONE_PECA_HUB} color={corFornecedor} />
+                  <div className="gs-piece__icon">
+                    {escalaHub
+                      ? iconePecaPuzzleHub(slugVisual)
+                      : (metaVisual?.icon ?? <Package weight="duotone" size={20} color={corBidFrete} />)}
                   </div>
-                  <span className="gs-piece__name">{pecaExtra.nomeExibicao}</span>
+                  <span className="gs-piece__name">{nomeExibicaoBidFrete}</span>
                 </div>
                 <span className="gs-piece__check">
-                  <CheckCircle weight="fill" size={11} color={corFornecedor} />
+                  <CheckCircle weight="fill" size={11} color="#10b981" />
                 </span>
               </div>
             </div>
+              <ConectorHubPuzzle visivel={escalaHub && !isLast} />
             </Fragment>
           )
         }
@@ -394,6 +423,7 @@ export function PuzzleStackProdutosGravity({
               )}
             </div>
           </div>
+          <ConectorHubPuzzle visivel={escalaHub && !isLast} />
           </Fragment>
         )
       })}

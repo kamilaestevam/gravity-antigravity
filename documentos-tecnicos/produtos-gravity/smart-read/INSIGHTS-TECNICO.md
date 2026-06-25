@@ -128,7 +128,7 @@ Subtítulo da UI deixa explícito: acerto = inalterado; erro = editado; emissor 
 
 | KPI | Valor no card | Detalhe (tooltip / painel Economia) |
 |-----|---------------|-------------------------------------|
-| **Saving Digitação** | Minutos economizados | Tempo manual − tempo real de extração IA; link **Base de cálculo →** |
+| **Saving Digitação** | Minutos economizados | Soma da base manual fixa por documento − tempo de leitura (cronômetro); link **Base de cálculo →** |
 | **Saving em Erros** | **Quantidade de campos errados** (`camposErrados`) | Minutos e custo no tooltip/subtítulo — não no número principal do card |
 
 Link **Base de cálculo →** abre modal (`ModalOverlay`) com metodologia completa. Tooltip do card usa `CardBasicoGlobal` com `pointer-events: auto` e ponte de hover (`nucleo-global/Layout/card-global`) para permitir clicar no link sem o tooltip sumir.
@@ -139,11 +139,11 @@ Link **Base de cálculo →** abre modal (`ModalOverlay`) com metodologia comple
 
 Estimativas usam SSOT em `shared/dados-base-produto-tempo-smart-read.ts` (reexport client: `client/src/pages/insights-smart-read/dados-base-produto-tempo-smart-read.ts`) e funções em `shared/metricas-transacao-leitura-smart-read.ts`:
 
-- **Saving digitação:** `tempo_digitação_manual_minutos − tempo_real_extração_ia_minutos` por documento (`tempo_extracao_ia_ms` da leitura/arquivo legado; fallback `tempo_digitação_smart_read_minutos` da base só se ausente)
+- **Saving digitação:** `soma(tempo_digitação_manual_minutos por documento) − tempo de leitura em minutos`. Tempo de leitura = cronômetro do processo (`tempo_processo_total_ms`, `created_at`→`completed_at`); fallback `tempo_extracao_ia_ms` quando o cronômetro não existir. **Não** usar `tempo_digitação_smart_read_minutos` da base como substituto do tempo medido.
 - **Saving erros:** `campos_errados × (tempo_correcao_erro_manual − tempo_correcao_erro_smart_read por campo)`
 - **Custo evitado:** `minutos_economizados ÷ 60 × R$ 115/h` (`custo_hora_operador_brl` R$ 85 + `markup_venda` 1,35)
 
-Funções SSOT: `resolverSavingTransacaoLeituraSmartRead`, `calcularSavingDocumentoSmartRead`, `agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead`, `calcularMediasTabelaBaseCalculoSmartRead`.
+Funções SSOT: `calcularSavingDigitaçãoTransacaoLeituraSmartRead`, `calcularRecursosReduzidosPorTempoLeituraSmartRead`, `resolverSavingTransacaoLeituraSmartRead`, `resolverSavingDetalhadoTransacaoLeituraSmartRead`, `agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead`, `calcularMediasTabelaBaseCalculoSmartRead`. Wizard passo 2: `client/src/shared/calcular-saving-nova-leitura-smart-read.ts`.
 
 Erros de saving dependem exclusivamente da contagem de campos editados (§2).
 

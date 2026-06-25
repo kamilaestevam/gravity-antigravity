@@ -122,11 +122,22 @@ O legado costuma devolver nomes genéricos (`Leitura 01`). O nome escolhido no w
 
 **Removido (legado dati):** rótulos «Starter» e contador «Documentos X/100» no topo da sidebar — planos comerciais não existem mais no Gravity.
 
+### Card de arquivo na sidebar — passo 1 (TASK-000336)
+
+Cada item em «Arquivos enviados» usa `card-arquivo-nova-leitura-smart-read.tsx` (renderizado por `painel-lateral-arquivos-nova-leitura-smart-read.tsx`). Layout do cabeçalho: **ícone PDF → nome (ellipsis) → ações alinhadas à direita** (`modal-nova-leitura-smart-read.css`, classes `sr-wizard-card-cabecalho` / `sr-wizard-card-acoes`).
+
+| Botão | Passo | Função | Implementação |
+|-------|-------|--------|----------------|
+| **Visualizar** (Eye) | 1–4 | Abre o PDF original em nova aba (`window.open`, `noopener`) a partir do blob URL do arquivo local | `onVisualizarArquivo` → `visualizarArquivo` em `modal-nova-leitura-smart-read.tsx` |
+| **Lixeira** (Trash) | **1 apenas** | Solicita exclusão do arquivo da sessão (estado local) | `onRemover` no card → fluxo abaixo (TASK-000334) |
+
+No passo 1, **expandir documentos identificados** (CaretDown/Up) não aparece — só a partir do passo 2, quando há documentos extraídos. Botões de ação usam reset visual (`background: transparent`, `appearance: none`) para evitar artefato de quadrado branco no tema escuro.
+
 ### Exclusão de arquivo no passo 1 (TASK-000334 / PR #445)
 
 | Regra | Implementação |
 |-------|----------------|
-| Gatilho | Ícone lixeira na sidebar `painel-lateral-arquivos-nova-leitura-smart-read.tsx` |
+| Gatilho | Ícone lixeira no card (`card-arquivo-nova-leitura-smart-read.tsx`) — ver §3 «Card de arquivo na sidebar — passo 1» |
 | Confirmação | `ModalConfirmarExcluirGlobal` (`@nucleo/modal-confirmar-excluir-global`) — `z-index: 10100` para ficar acima do wizard (`ModalPassoPassoGlobal`, `9999`) |
 | Escopo da remoção | **Somente estado local** — revoga blob (`URL.revokeObjectURL`), remove item de `arquivos`, atualiza progresso se já havia `PATCH` (passo ≥ 2) |
 | Último arquivo | `limparEstadoLeituraSmartRead(id_leitura)` — apaga progresso/localStorage da sessão |

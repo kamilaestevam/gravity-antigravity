@@ -282,16 +282,6 @@
 
 
 
-.sr-wizard-btn-enviar {
-
-  width: 100%;
-
-  justify-content: center;
-
-}
-
-
-
 .sr-wizard-lateral-botoes-duplos {
 
   display: grid;
@@ -348,6 +338,8 @@
 
   align-items: center;
 
+  min-width: 0;
+
 }
 
 
@@ -394,6 +386,8 @@
 
   flex-shrink: 0;
 
+  margin-left: auto;
+
 }
 
 
@@ -406,6 +400,32 @@
 
   gap: 0.125rem;
 
+  padding: 0.25rem;
+
+  border: none;
+
+  background: transparent;
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+
+  border-radius: 4px;
+
+  appearance: none;
+
+  -webkit-appearance: none;
+
+}
+
+
+
+.sr-wizard-card-btn-visualizar:hover {
+
+  color: var(--ws-accent);
+
+  background: rgba(129, 140, 248, 0.12);
+
 }
 
 
@@ -415,6 +435,8 @@
   display: inline-flex;
 
   align-items: center;
+
+  justify-content: center;
 
   gap: 0.25rem;
 
@@ -430,6 +452,10 @@
 
   border-radius: 4px;
 
+  appearance: none;
+
+  -webkit-appearance: none;
+
 }
 
 
@@ -439,6 +465,14 @@
   color: var(--ws-accent);
 
   background: rgba(129, 140, 248, 0.12);
+
+}
+
+
+
+.sr-wizard-card-btn-remover {
+
+  color: #f87171;
 
 }
 
@@ -632,29 +666,26 @@
 
 
 .sr-wizard-principal--anexar {
-
   display: flex;
-
+  flex-direction: column;
   align-items: stretch;
-
-  padding: 1rem 1.25rem;
-
+  align-self: stretch;
+  min-height: 0;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
 }
 
-
-
 .sr-wizard-dropzone {
-
   flex: 1;
-
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   border: 2px dashed rgba(59, 130, 246, 0.45);
-
-  border-radius: 0.75rem;
-
+  border-radius: 0.625rem;
   cursor: pointer;
-
   transition: border-color 0.2s, background 0.2s;
-
 }
 
 
@@ -1035,6 +1066,68 @@
 }
 
 
+
+/* Layout orbital do passo Análise — dashboard-analise-nova-leitura-smart-read.tsx */
+.sr-wizard-analise-centro {
+  position: relative;
+  flex: 1;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+}
+
+.sr-wizard-analise-centro .sr-wizard-cerebro-wrap {
+  width: 200px;
+  height: 200px;
+  justify-self: center;
+  align-self: center;
+}
+
+.sr-wizard-analise-etapa {
+  position: absolute;
+  width: min(220px, 38%);
+}
+
+.sr-wizard-analise-etapa--esq {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sr-wizard-analise-etapa--dir {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sr-wizard-analise-etapa--baixo {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sr-wizard-etapa-analise-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  margin-bottom: 0.375rem;
+}
+
+.sr-wizard-etapa-status {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.sr-wizard-etapa-status--completo {
+  color: #22c55e;
+}
+
+.sr-wizard-etapa-status--andamento {
+  color: #60a5fa;
+}
 
 .sr-wizard-analise-painel {
   flex: 1;
@@ -1900,6 +1993,19 @@
 
     grid-template-columns: 1fr;
 
+  }
+
+  .sr-wizard-analise-centro {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: auto;
+  }
+
+  .sr-wizard-analise-etapa {
+    position: static;
+    transform: none;
+    width: 100%;
   }
 
   .sr-wizard-analise-painel {
@@ -3444,7 +3550,6 @@
     radial-gradient(600px 320px at 50% 35%, rgba(129, 140, 248, 0.06), transparent 70%),
     var(--bg-base, #0f172a);
 }
-
 .sr-wizard-principal--anexar .sr-wizard-dropzone--ativa,
 .sr-wizard-principal--anexar .sr-wizard-dropzone:hover {
   border-color: var(--ws-accent, #818cf8);

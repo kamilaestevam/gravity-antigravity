@@ -19,6 +19,7 @@ type Props = {
   onVisualizarArquivo: (id: string) => void
   onVisualizarDocumento: (idArquivo: string, indice: number) => void
   onEnviar?: () => void
+  onCancelar?: () => void
   onVoltar?: () => void
   onContinuar?: () => void
 }
@@ -35,6 +36,7 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
   onVisualizarArquivo,
   onVisualizarDocumento,
   onEnviar,
+  onCancelar,
   onVoltar,
   onContinuar,
 }: Props) {
@@ -66,7 +68,13 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
 
       <div className="sr-wizard-lateral-rodape">
         {passo === 1 && onEnviar && (
-          <div className="sr-wizard-btn-enviar">
+          <div className="sr-wizard-lateral-botoes-duplos">
+            {onCancelar && (
+              <BotaoGlobal variante="secundario" tamanho="padrao" onClick={onCancelar}>
+                Cancelar
+              </BotaoGlobal>
+            )}
+
             <BotaoGlobal
               variante="primario"
               tamanho="padrao"

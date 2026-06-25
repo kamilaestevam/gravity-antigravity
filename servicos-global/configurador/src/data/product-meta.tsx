@@ -25,6 +25,7 @@ import {
   resolverSlugProdutoGravity,
 
 } from '@nucleo/logo-produtos'
+import { STACK_ORDER_PRODUTOS_GRAVITY } from '../../shared/stack-order-produtos-gravity.js'
 import { slugCatalogoParaPuzzle } from './status-produto-store'
 
 
@@ -417,32 +418,6 @@ export const RELACAO_ENTRE_PRODUTOS_GRAVITY: Record<string, string[]> = {
 
 
 
-export const STACK_ORDER = [
-
-  'pedido',
-
-  'smart-read',
-
-  'simula-custo',
-
-  'bid-frete',
-
-  'bid-cambio',
-
-  'smart-data',
-
-  'smart-transito',
-
-  'duimp',
-
-  'lpco',
-
-  'nf-importacao',
-
-  'financeiro-comex',
-
-  'catalogo-produto',
-
-] as const
+export const STACK_ORDER = STACK_ORDER_PRODUTOS_GRAVITY
 
 

@@ -303,7 +303,9 @@ Faixa superior de `/hub` (`SelecionarWorkspace`) alinhada à Gravity Store.
 | Peças SVG | `src/components/puzzle-stack-produtos-gravity.tsx` (`escala="hub"`, `embutidoParidadeStore`) |
 | Carrossel | `store-puzzle-carousel.tsx` (reuso Store) |
 
-**UX:** faixa produtos em **largura total**; painel Workspaces removido da linha superior. Ícones SSOT `@nucleo/logo-produtos` a 22px; interior neutro + contorno na cor do produto; centralização no quadrado 120×90px; **4px** entre subtítulo e puzzle; contador do meter com tipografia do subtítulo; peça **BID Fornecedor** (`pecasExtras`, `slugVisual: 'bid-frete'`) imediatamente após Bid Frete Internacional quando `visao_fornecedor:cotar`.
+**UX:** faixa produtos em **largura total**; painel Workspaces removido da linha superior. Ícones SSOT `@nucleo/logo-produtos` a 20px no círculo; logos Bid Frete/Bid Câmbio/Smart Read com `variant: 'card'`; interior neutro + contorno na cor do produto; cards **112×100px**; centralização no quadrado 120×90px; **4px** entre subtítulo e puzzle; contador do meter com tipografia do subtítulo; peça **BID Fornecedor** (`pecasExtras`, `slugVisual: 'bid-frete'`) imediatamente após Bid Frete Internacional quando `visao_fornecedor:cotar`.
+
+**Ordem puzzle:** `shared/stack-order-produtos-gravity.ts` — única SSOT para Hub, Store e API vitrine (`ordenarSlugsPuzzleStore`).
 
 Doc: [`GRAVITY-STORE.md`](../../../documentos-tecnicos/produtos-gravity/configurador/GRAVITY-STORE.md) § Reuso no HUB · [`FLUXO-POS-LOGIN.md`](../../../documentos-tecnicos/produtos-gravity/configurador/FLUXO-POS-LOGIN.md) § Layout do HUB.
 
@@ -319,8 +321,9 @@ Catálogo autenticado para exploração e contratação de produtos Gravity adic
 | Página | `src/pages/Store.tsx` + `hub-store.css` |
 | Catálogo API | `GET /api/v1/produtos-gravity` → `listarPublico()` (Admin `ProdutoGravity`) |
 | Status exibição | `src/data/status-produto-store.ts` |
-| Puzzle | Só `contratado` + `disponivel`; `em_breve` só nas faixas de carrossel |
-| Puzzle no HUB | Mesmo `StorePuzzleCarousel` + `puzzle-stack-produtos-gravity` — ver § HUB puzzle (PR #404) |
+| Puzzle | `PuzzleStackProdutosGravity` (`escala="store"`) — paridade visual Hub; só `contratado` + `disponivel`; `em_breve` só nas faixas |
+| Ordem puzzle | `shared/stack-order-produtos-gravity.ts` |
+| Puzzle no HUB | Mesmo componente + `StorePuzzleCarousel` — ver § HUB puzzle (PR #404) |
 | UI | Toolbar Todos/Ativo/Assinar/Em breve + 4 faixas carrossel; cards `gs-card--store` |
 | Assinaturas | `Assinaturas.tsx` reutiliza mesma pele de card |
 | Contratação | `podeComprarNoStore()` — MASTER, SUPER_ADMIN, ADMIN |

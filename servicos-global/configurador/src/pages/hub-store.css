@@ -1561,6 +1561,30 @@ body.light-theme .gs-puzzle-carousel__btn {
   display: flex;
 }
 
+/* Puzzle refinado (paridade HUB) — anula hover/encaixe SVG legado */
+.gs-puzzle-gravity-refinado .gs-piece--has-blank {
+  margin-left: 0;
+}
+
+.gs-puzzle-gravity-refinado .gs-piece.gs-piece--hub-visual,
+.gs-puzzle-gravity-refinado .gs-piece.gs-piece--hub-visual:hover {
+  transform: none !important;
+  filter: none;
+  opacity: 1;
+}
+
+.gs-puzzle-gravity-refinado .gs-piece--disponivel,
+.gs-puzzle-gravity-refinado .gs-piece--contratado,
+.gs-puzzle-gravity-refinado .gs-piece--em-breve {
+  filter: none;
+  opacity: 1;
+}
+
+.gs-puzzle-gravity-refinado .gs-puzzle-carousel__track {
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
 /* Responsivo */
 @media (max-width: 640px) {
   .gs-stack__head { flex-direction: column; }

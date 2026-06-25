@@ -28,3 +28,19 @@ export function ordenarSlugsPuzzleStore(catalogo: readonly CatalogoProdutoStore[
 
   return ordenados
 }
+
+/** Catálogo da Store/HUB na mesma ordem do puzzle (STACK_ORDER + extras ao final). */
+export function ordenarCatalogoPorStackOrder<T extends CatalogoProdutoStore>(
+  catalogo: readonly T[],
+): T[] {
+  const slugOrder = ordenarSlugsPuzzleStore(catalogo)
+  const rank = new Map(slugOrder.map((slug, index) => [slug, index]))
+  return [...catalogo].sort((a, b) => {
+    const pa = slugCatalogoParaPuzzle(a.slug)
+    const pb = slugCatalogoParaPuzzle(b.slug)
+    const ia = rank.get(pa) ?? rank.get(a.slug) ?? Number.MAX_SAFE_INTEGER
+    const ib = rank.get(pb) ?? rank.get(b.slug) ?? Number.MAX_SAFE_INTEGER
+    if (ia !== ib) return ia - ib
+    return a.slug.localeCompare(b.slug, 'pt-BR')
+  })
+}

@@ -77,8 +77,8 @@ Mapeamento em `slugPuzzleParaCatalogo` / `slugCatalogoParaPuzzle` (`status-produ
 ├─────────────────────────────────────────────────────────┤
 │ Cards de estatística (publicados / contratados / …)     │
 ├─────────────────────────────────────────────────────────┤
-│ PUZZLE — só contratados + disponíveis (sem Em breve)    │
-│   StorePuzzleRow + StorePuzzleCarousel                  │
+│ PUZZLE — paridade Hub (cards refinados)                 │
+│   PuzzleStackProdutosGravity + StorePuzzleCarousel      │
 ├─────────────────────────────────────────────────────────┤
 │ Toolbar segmentada: Todos | Ativo | Assinar | Em breve  │
 │   (scroll suave → seção; IntersectionObserver sync)     │
@@ -93,11 +93,13 @@ Mapeamento em `slugPuzzleParaCatalogo` / `slugCatalogoParaPuzzle` (`status-produ
 
 | Arquivo | Papel |
 |---------|-------|
-| `store-puzzle-row.tsx` | Peças do puzzle (ícone, cor, status) |
+| `puzzle-stack-produtos-gravity.tsx` | Peças do puzzle Hub + Store (`escala="hub"` \| `"store"`) |
 | `store-puzzle-carousel.tsx` | Carrossel horizontal reutilizável (setas quando overflow) |
 | `store-cards-rows.tsx` | Quatro faixas + filtro por linha (`LINHAS_STORE`) |
 | `store-product-card.tsx` | Card `gs-card--store` (altura fixa ~204px, tags no rodapé) |
-| `store-puzzle-order.ts` | Ordem do puzzle: `STACK_ORDER` + produtos novos do catálogo |
+| `store-puzzle-order.ts` | `ordenarSlugsPuzzleStore`, `ordenarCatalogoPorStackOrder` |
+| `shared/stack-order-produtos-gravity.ts` | **SSOT** ordem canônica do puzzle (cliente + API vitrine) |
+| `store-puzzle-row.tsx` | Legado SVG — não usar em `/store` (paridade via `PuzzleStackProdutosGravity`) |
 
 ### Toolbar e faixas
 
@@ -116,7 +118,9 @@ Cada faixa tem `id="store-linha-{key}"` para scroll e observação de visibilida
 
 - Inclui apenas produtos com status `contratado` ou `disponivel`.
 - Produtos `em_breve` aparecem **somente** na faixa de carrossel correspondente.
-- Ordem: `ordenarSlugsPuzzleStore()` — `STACK_ORDER` primeiro, depois itens do catálogo ainda não listados.
+- Ordem: `ordenarSlugsPuzzleStore()` — `STACK_ORDER_PRODUTOS_GRAVITY` (`shared/`) reexportado em `product-meta.tsx`; catálogo API usa o mesmo array em `catalogo-vitrine-produto-gravity.ts`.
+- Store: `PuzzleStackProdutosGravity` com `escala="store"`, classe `gs-puzzle-gravity-refinado` + `hub-unificado.css` (cards 112×100px, rótulo 11px).
+- Ícones Bid Frete, Bid Câmbio e Smart Read: logos SVG com `variant: 'card'` no puzzle.
 
 ### Cards (`gs-card--store`)
 
@@ -201,7 +205,7 @@ Estes metadados **não** vêm do Prisma/Admin hoje:
 | Ícones e cores por produto | `product-meta.tsx` + `visual-produto-gravity` |
 | Categorias de filtro (`frete`, `cambio`, …) | `product-meta.tsx` → `categoryFilter` |
 | Tags de recurso (`tagKeys`) | `product-meta.tsx` |
-| Ordem base do puzzle | `STACK_ORDER` em `product-meta.tsx` |
+| Ordem base do puzzle | `shared/stack-order-produtos-gravity.ts` → `STACK_ORDER` em `product-meta.tsx` |
 | Relações "combina com" | `RELACAO_ENTRE_PRODUTOS_GRAVITY` (legado; UI removida) |
 
 Evolução futura: campos no Admin `ProdutoGravity` — alteração de schema somente via Coordenador.
@@ -259,6 +263,7 @@ Escopo **STORE** — pasta `testes/**/gravity-store/` (registry `TST-*-STORE-*`)
 |--------------|--------|
 | #404 (2026-06-23) | HUB `/hub`: puzzle **Seus Produtos Gravity** com paridade Store (`StorePuzzleCarousel`, escala 1.0, ícones 22px, contorno colorido) — ver § Reuso no HUB |
 | pós-#404 (2026-06-23) | Refinos HUB: espaço subtítulo→puzzle **4px**, contador alinhado ao subtítulo, **BID Fornecedor** ancorado após Bid Frete, centralização no quadrado 120px |
+| TASK-000332 (fix pós-#442) | Store puzzle = `PuzzleStackProdutosGravity`; ordem SSOT `shared/stack-order-produtos-gravity.ts`; logos Smart Read/Bid Câmbio; cards 112×100 |
 
 ---
 

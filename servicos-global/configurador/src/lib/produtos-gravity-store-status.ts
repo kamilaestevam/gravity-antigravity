@@ -1,9 +1,10 @@
 /**
  * Regras de status de produto Gravity — SSOT com Admin (catálogo) + assinaturas (contratados).
- * Ordem do puzzle: ordem do array `catalog` vindo da API (`listarCatalogoVitrineProdutoGravity`).
+ * Ordem do puzzle: STACK_ORDER em `data/product-meta.ts` (paridade Store + Hub).
  */
 
 import type { TFunction } from 'i18next'
+import { ordenarSlugsPuzzleStore } from '../data/store-puzzle-order'
 
 export type StatusProdutoGravityStore = 'owned' | 'available' | 'soon'
 
@@ -72,17 +73,18 @@ export function statusProdutoGravityStore(
 }
 
 /**
- * Slugs do puzzle na ordem do catálogo (SSOT API / Admin).
+ * Slugs do puzzle na ordem fixa STACK_ORDER (SSOT Store + Hub).
  * Um slug canônico por peça (ex.: bid-frete-internacional → bid-frete).
  */
 export function slugsPuzzleStackProdutosGravity<T extends { slug: string; status: string }>(
   catalogo: T[],
 ): string[] {
   const filtrado = filtrarCatalogoProdutosGravityStore(catalogo)
+  const ordenados = ordenarSlugsPuzzleStore(filtrado)
   const vistos = new Set<string>()
   const slugs: string[] = []
-  for (const p of filtrado) {
-    const canon = slugCanonicoProdutoGravity(p.slug)
+  for (const slug of ordenados) {
+    const canon = slugCanonicoProdutoGravity(slug)
     if (vistos.has(canon)) continue
     vistos.add(canon)
     slugs.push(canon)

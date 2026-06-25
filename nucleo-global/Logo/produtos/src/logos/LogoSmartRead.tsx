@@ -8,7 +8,7 @@ interface LogoProps {
   variant?: 'default' | 'card'
 }
 
-export function LogoBidCambio({
+export function LogoSmartRead({
   size = 24,
   color = 'currentColor',
   className,
@@ -27,51 +27,54 @@ export function LogoBidCambio({
       aria-hidden="true"
       shapeRendering="geometricPrecision"
     >
-      <circle
-        cx={12}
-        cy={12}
-        r={6.5}
+      <rect
+        x={4}
+        y={4}
+        width={10}
+        height={13}
+        rx={1.75}
         fill="currentColor"
-        opacity={card ? 0.3 : 0.12}
+        opacity={card ? 0.32 : 0.12}
         stroke="currentColor"
         strokeWidth={card ? 1.75 : 1.5}
+      />
+      <line
+        x1={6.5}
+        y1={8}
+        x2={11.5}
+        y2={8}
+        stroke="currentColor"
+        strokeWidth={card ? 1.5 : 1.25}
+        strokeLinecap="round"
+        opacity={card ? 1 : 0.5}
+      />
+      <line
+        x1={6.5}
+        y1={11}
+        x2={10}
+        y2={11}
+        stroke="currentColor"
+        strokeWidth={card ? 1.5 : 1.25}
+        strokeLinecap="round"
+        opacity={card ? 0.85 : 0.35}
       />
       <circle
-        cx={12}
-        cy={12}
-        r={3.5}
+        cx={16}
+        cy={16}
+        r={card ? 3.75 : 4}
         fill="currentColor"
-        opacity={card ? 0.55 : 0.25}
-      />
-      <path
-        d="M6.5 8C8 5.5 10.5 4 13.5 4.5"
+        opacity={card ? 0.22 : 0.1}
         stroke="currentColor"
-        strokeWidth={card ? 2 : 1.75}
-        strokeLinecap="round"
-        fill="none"
+        strokeWidth={card ? 2 : 1.5}
       />
-      <path
-        d="M13.5 4.5L15.5 3L15 5.5"
+      <line
+        x1={18.75}
+        y1={18.75}
+        x2={21.25}
+        y2={21.25}
         stroke="currentColor"
-        strokeWidth={card ? 1.75 : 1.5}
+        strokeWidth={card ? 2.25 : 1.75}
         strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M17.5 16C16 18.5 13.5 20 10.5 19.5"
-        stroke="currentColor"
-        strokeWidth={card ? 2 : 1.75}
-        strokeLinecap="round"
-        fill="none"
-        opacity={card ? 0.9 : 0.5}
-      />
-      <path
-        d="M10.5 19.5L8.5 21L9 18.5"
-        stroke="currentColor"
-        strokeWidth={card ? 1.75 : 1.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity={card ? 0.9 : 0.5}
       />
     </svg>
   )

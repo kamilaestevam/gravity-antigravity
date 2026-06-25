@@ -4,12 +4,13 @@ import { mensagemDeExcecao } from '../../shared/extrair-mensagem-erro-api'
 import type { Leitura } from '../../shared/schemas'
 import { useTransacoesLeituraSmartRead } from '../../shared/use-transacoes-leitura-smart-read'
 
-export function useDadosInsightsLeituraSmartRead() {
-  const lista = useTransacoesLeituraSmartRead()
+export function useDadosInsightsLeituraSmartRead(habilitado = true) {
+  const lista = useTransacoesLeituraSmartRead('envios', habilitado)
   const [leiturasDetalhe, setLeiturasDetalhe] = useState<Leitura[]>([])
   const [carregandoDetalhe, setCarregandoDetalhe] = useState(false)
 
   const carregarDetalhes = useCallback(async () => {
+    if (!habilitado) return
     const ids = lista.transacoes
       .filter((t) => t.status_leitura === 'COMPLETED' || t.status_leitura === 'PROCESSING')
       .map((t) => t.id_leitura)
@@ -42,12 +43,12 @@ export function useDadosInsightsLeituraSmartRead() {
     } finally {
       setCarregandoDetalhe(false)
     }
-  }, [lista.transacoes])
+  }, [lista.transacoes, habilitado])
 
   useEffect(() => {
-    if (lista.carregando) return
+    if (!habilitado || lista.carregando) return
     void carregarDetalhes()
-  }, [carregarDetalhes, lista.carregando])
+  }, [carregarDetalhes, lista.carregando, habilitado])
 
   return {
     ...lista,

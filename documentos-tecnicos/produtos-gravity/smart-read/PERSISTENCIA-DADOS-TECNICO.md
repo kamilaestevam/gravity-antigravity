@@ -47,6 +47,7 @@ flowchart LR
 | `processingResult` / `finalProcessingResult` (JSON bruto) | **Legado DATI** | Legado após IA + conferência no legado | BFF normaliza → `LeituraSchema` |
 | Nome comercial escolhido no wizard | **Gravity** (`progresso_leitura_smart_read`) | `PATCH /progresso` | Lista (prioridade sobre nome genérico do legado) |
 | Passo 2–4 + sessão da conferência | **Gravity** (`progresso_leitura_smart_read`) | `PATCH /progresso` | Retomar wizard (`GET /progresso`) |
+| **Status de fluxo** (wizard) | **Gravity** (`status_fluxo_*` em progresso + snapshot) | *Pendente* — `PATCH /progresso` + snapshot (§14.3) | Colunas existem; pill **Status** na Lista ainda usa `status_leitura` legado |
 | **Snapshot** da leitura (extração + métricas) | **Gravity** (`snapshot_leitura_smart_read`) | BFF ao concluir/conferir | Lista, Insights, `GET /leituras/:id` |
 | Painéis/colunas/filtros da lista | **Gravity** (`lista_painel_usuario_global`) | API `/lista/paineis` | Lista |
 
@@ -59,14 +60,14 @@ flowchart LR
 Snapshot **não** é print de tela nem cópia do PDF. É um **registro imutável lógico** (re-snapshot na conferência **atualiza** a mesma linha) com:
 
 1. **`dados_extracao_snapshot_leitura_smart_read` (JSONB)** — payload validado pelo contrato bilateral `LeituraSchema` (arquivos + `resultado_extracao` já normalizado pelo BFF, incluindo `dados_original` quando o legado enviou).
-2. **Colunas denormalizadas** — totais de campos, acertos/erros, `media_acertos`, datas, status, origem — para Lista e Insights consultarem sem reparsear o JSON nem chamar o legado de novo.
+2. **Colunas denormalizadas** — totais de campos, acertos/erros, `media_acertos`, datas, `status_leitura` (IA legado), **`status_fluxo_snapshot_leitura_smart_read`**, **`passo_atual_snapshot_leitura_smart_read`** (migration `20260625120000`; backfill — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §14.1), origem — para Lista e Insights consultarem sem reparsear o JSON nem chamar o legado de novo.
 
 | Atributo | Valor |
 |----------|-------|
 | Model Prisma | `SnapshotLeituraSmartRead` |
 | Tabela PG | `snapshot_leitura_smart_read` |
 | Fragment | `prisma/fragment.prisma` |
-| Migration | `20260623180000_create_snapshot_leitura_smart_read` |
+| Migration | `20260623180000_create_snapshot_leitura_smart_read` (+ `20260625120000_add_status_fluxo_leitura_smart_read` — colunas de fluxo) |
 | Unique | `(id_organizacao, id_leitura_legado_snapshot_leitura_smart_read)` |
 | Referência legado | `id_leitura_legado_snapshot_leitura_smart_read` = `_id` da leitura no DATI |
 
@@ -150,6 +151,7 @@ Dev sem legado: `SMART_READ_MOCK_LEGADO=1` simula extração no BFF — snapshot
 - Backfill em massa de leituras antigas do legado → snapshot Gravity.
 - Lista/Insights ler **somente** snapshots (legado só como motor de OCR).
 - Colunas de saving/tempo na tabela snapshot (hoje calculadas em `shared/metricas-transacao-leitura-smart-read.ts` na leitura da linha).
+- **Wiring status de fluxo** — BFF + Lista com `status_fluxo_leitura` (fundação já no Postgres; checklist em [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §14.3).
 
 ---
 
@@ -162,6 +164,7 @@ Dev sem legado: `SMART_READ_MOCK_LEGADO=1` simula extração no BFF — snapshot
 | `testes/testes-unitarios/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | SSOT de `TransacaoLeitura` para testes Insights (path completo + fallback) |
 | `testes/testes-unitarios/smart-read/calcular-metricas-insights-leitura.test.ts` | Métricas completas + fallback por transação |
 | `testes/testes-unitarios/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
+| `testes/testes-unitarios/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` (SSOT `shared/status-fluxo-leitura-smart-read.ts`) |
 
 ---
 

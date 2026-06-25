@@ -20,7 +20,10 @@ export function filtrarTransacoesPorSegmento(
   return transacoes
 }
 
-export function useTransacoesLeituraSmartRead(segmento: SegmentoListaLeitura = 'envios') {
+export function useTransacoesLeituraSmartRead(
+  segmento: SegmentoListaLeitura = 'envios',
+  habilitado = true,
+) {
   const [transacoes, setTransacoes] = useState<TransacaoLeitura[]>([])
   const [total, setTotal] = useState(0)
   const [pagina, setPagina] = useState(1)
@@ -37,6 +40,7 @@ export function useTransacoesLeituraSmartRead(segmento: SegmentoListaLeitura = '
   }, [segmento])
 
   const carregar = useCallback(async () => {
+    if (!habilitado) return
     setCarregando(true)
     setErro(null)
 
@@ -58,18 +62,22 @@ export function useTransacoesLeituraSmartRead(segmento: SegmentoListaLeitura = '
         segmento === 'envios' ? (metrica?.valor ?? lista.paginacao.total) : lista.paginacao.total,
       )
     } catch (exc) {
-      setErro(mensagemDeExcecao(exc))
+      setErro(mensagemDeExcecao(exc, 'Falha ao carregar leituras'))
       setTransacoes([])
       setTotal(0)
       setMetricaLeituras(null)
     } finally {
       setCarregando(false)
     }
-  }, [pagina, termoAplicado, origemLeitura, segmento])
+  }, [pagina, termoAplicado, origemLeitura, segmento, habilitado])
 
   useEffect(() => {
+    if (!habilitado) {
+      setCarregando(false)
+      return
+    }
     void carregar()
-  }, [carregar])
+  }, [carregar, habilitado])
 
   function aplicarBusca(termo: string) {
     setPagina(1)

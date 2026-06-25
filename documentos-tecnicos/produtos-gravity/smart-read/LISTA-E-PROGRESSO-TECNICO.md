@@ -300,7 +300,7 @@ Faixa acima das abas «Visão geral» / «Transações API». Componente: `clien
 |------:|------|-----------------|-----------------|
 | 1 | Leituras realizadas | Contagem total | `GET /leituras/metricas/readings` ou `paginacao.total` |
 | 2 | Performance de acertos | Média % | `resolverMediaAcertosTransacaoLeituraSmartRead` — `media_acertos` ou `campos_corretos ÷ campos_extraídos` |
-| 3 | Recursos reduzidos | Tempo economizado | `resolverSavingTransacaoLeituraSmartRead` com `tempo_extracao_ia_ms` real quando disponível |
+| 3 | Recursos reduzidos | Tempo economizado | `resolverSavingTransacaoLeituraSmartRead` — base manual por documento menos tempo de leitura (`tempo_processo_total_ms` ou fallback `tempo_extracao_ia_ms`) |
 
 **Recursos reduzidos** reutiliza o SSOT `shared/metricas-transacao-leitura-smart-read.ts`. `saving_total_minutos === 0` com documentos concluídos é tratado como ausente (reestima). `ProvedorMetodologiaSavingInsightsSmartRead` recebe `transacoes={transacoesFiltradas}` para o modal «Base de cálculo».
 

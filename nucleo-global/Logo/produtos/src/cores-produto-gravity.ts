@@ -16,7 +16,6 @@ export function resolverSlugProdutoGravity(slug: string): string {
 
 /** Produtos com cor oficial na Store mas sem entrada em PRODUTO_META (logos) */
 const CORES_PRODUTO_EXTRAS: Record<string, string> = {
-  'smart-read': '#a78bfa',
   'smart-data': '#38bdf8',
   'smart-transito': '#4ade80',
   'duimp': '#e879f9',

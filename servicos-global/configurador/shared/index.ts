@@ -4,6 +4,10 @@
 // Apenas funções/tipos puros — sem deps de Node, sem deps de React, sem Prisma.
 // Padrão alinhado com `servicos-global/cadastros/shared/`.
 
+export {
+  STACK_ORDER_PRODUTOS_GRAVITY,
+  type SlugStackProdutoGravity,
+} from './stack-order-produtos-gravity.js'
 export { temBypassPermissao, type TipoUsuarioBypass } from './permissao-bypass.js'
 export {
   tipoFornecedorOrganizacaoEnum,

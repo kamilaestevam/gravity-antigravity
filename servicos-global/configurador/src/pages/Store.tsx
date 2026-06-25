@@ -17,13 +17,21 @@ import {
   storeCatalogoRespostaApiSchema,
 } from '../schemas/store-catalogo-api'
 import {
-  classeSegmentoPuzzleStore,
   contarStatusCatalogoStore,
   resolverStatusProdutoStore,
   type StatusExibicaoProdutoStore,
 } from '../data/status-produto-store'
-import { ordenarSlugsPuzzleStore } from '../data/store-puzzle-order'
-import { StorePuzzleRow } from '../components/store-puzzle-row'
+import {
+  BarrasMeterPuzzleStackProdutos,
+  PuzzleStackProdutosGravity,
+  pecasPuzzleStackProdutosGravity,
+} from '../components/puzzle-stack-produtos-gravity'
+import { ordenarCatalogoPorStackOrder } from '../data/store-puzzle-order'
+import {
+  contarOwnedNoStack,
+  type AssinaturaProdutoGravityMin,
+  type CatalogoProdutoGravityMin,
+} from '../lib/produtos-gravity-store-status'
 import { StorePuzzleCarousel } from '../components/store-puzzle-carousel'
 import {
   StoreCardsRows,
@@ -31,6 +39,7 @@ import {
   type StoreLinhaKey,
 } from '../components/store-cards-rows'
 import './hub-store.css'
+import './hub-unificado.css'
 import './hub.css'
 import '../pages/configurador/workspace.css'
 import './selecionar-workspace.css'
@@ -117,7 +126,7 @@ export function Store() {
         const raw = await catRes.json()
         const parsed = storeCatalogoRespostaApiSchema.parse(raw)
         const publicados = filtrarProdutosPublicadosStore(parsed.products)
-        setCatalog(publicados as CatalogProduct[])
+        setCatalog(ordenarCatalogoPorStackOrder(publicados) as CatalogProduct[])
         if (publicados.length === 0) {
           console.warn('[Store] catálogo vazio após filtro ATIVO/EM_BREVE', raw)
         }
@@ -216,27 +225,27 @@ export function Store() {
   const statusProduto = (slug: string): StatusExibicaoProdutoStore =>
     resolverStatusProdutoStore(slug, catalog, subscribed)
 
-  const puzzleSlugsOrdenados = useMemo(
-    () => ordenarSlugsPuzzleStore(catalog),
+  const catalogoPuzzle: CatalogoProdutoGravityMin[] = useMemo(
+    () => catalog.map(p => ({ slug: p.slug, name: p.name, status: p.status })),
     [catalog],
   )
 
-  const puzzleLinhaAtivos = useMemo(
-    () =>
-      puzzleSlugsOrdenados.filter((slug) => {
-        const s = resolverStatusProdutoStore(slug, catalog, subscribed)
-        return s === 'contratado' || s === 'disponivel'
-      }),
-    [puzzleSlugsOrdenados, catalog, subscribed],
+  const assinaturasPuzzle: AssinaturaProdutoGravityMin[] = useMemo(
+    () => Array.from(subscribed.values()),
+    [subscribed],
+  )
+
+  const pecasPuzzle = useMemo(
+    () => pecasPuzzleStackProdutosGravity(catalogoPuzzle, assinaturasPuzzle),
+    [catalogoPuzzle, assinaturasPuzzle],
   )
 
   const contratadosNoPuzzle = useMemo(
-    () =>
-      puzzleLinhaAtivos.filter(
-        (slug) => resolverStatusProdutoStore(slug, catalog, subscribed) === 'contratado',
-      ).length,
-    [puzzleLinhaAtivos, catalog, subscribed],
+    () => contarOwnedNoStack(catalogoPuzzle, assinaturasPuzzle),
+    [catalogoPuzzle, assinaturasPuzzle],
   )
+
+  const totalPuzzle = pecasPuzzle.length
 
   const contagemStore = useMemo(
     () => contarStatusCatalogoStore(catalog, subscribed),
@@ -449,43 +458,39 @@ export function Store() {
               </div>
 
               {/* ── MONTE O SEU GRAVITY — Puzzle Stack ───────────────────── */}
-              <div className="gs-stack">
+              <div className="gs-stack gs-stack--puzzle gs-stack--hub-paridade-store gs-puzzle-gravity-refinado">
                   <div className="gs-stack__head">
                     <div>
                       <h2 className="gs-stack__title">{t('store.stack_titulo')}</h2>
                       <p className="gs-stack__sub">{t('store.stack_sub')}</p>
                     </div>
                     <div className="gs-stack__meter">
-                      <div className="gs-stack__meter-bar">
-                        {puzzleLinhaAtivos.map((slug) => (
-                          <div
-                            key={slug}
-                            className={`gs-stack__seg${classeSegmentoPuzzleStore(statusProduto(slug))}`}
-                          />
-                        ))}
-                      </div>
-                      <span className="gs-stack__meter-label">
-                        {contratadosNoPuzzle === 0
-                          ? t('store.stack_nenhum')
-                          : contratadosNoPuzzle === puzzleLinhaAtivos.length
-                            ? t('store.stack_completo')
-                            : t('store.stack_parcial', {
-                                n: contratadosNoPuzzle,
-                                total: puzzleLinhaAtivos.length,
-                              })}
-                      </span>
+                      <BarrasMeterPuzzleStackProdutos pecas={pecasPuzzle}>
+                        <span className="gs-stack__meter-label">
+                          {contratadosNoPuzzle === 0
+                            ? t('store.stack_nenhum')
+                            : contratadosNoPuzzle === totalPuzzle
+                              ? t('store.stack_completo')
+                              : t('store.stack_parcial', {
+                                  n: contratadosNoPuzzle,
+                                  total: totalPuzzle,
+                                })}
+                        </span>
+                      </BarrasMeterPuzzleStackProdutos>
                     </div>
                   </div>
 
                   <div className="gs-stack__lanes">
-                    {puzzleLinhaAtivos.length > 0 && (
+                    {totalPuzzle > 0 && (
                       <StorePuzzleCarousel className="gs-puzzle-carousel--ativos">
-                        <StorePuzzleRow
-                          embutido
-                          slugs={puzzleLinhaAtivos}
-                          catalog={catalog}
-                          statusDe={statusProduto}
-                          variante="ativos"
+                        <PuzzleStackProdutosGravity
+                          embutidoParidadeStore
+                          ocultarMeterNoStack
+                          catalogo={catalogoPuzzle}
+                          assinaturas={assinaturasPuzzle}
+                          t={t}
+                          escala="store"
+                          className="gs-stack--hub-contratados"
                         />
                       </StorePuzzleCarousel>
                     )}

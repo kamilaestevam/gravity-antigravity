@@ -122,7 +122,7 @@ body.light-theme .sw-content.sw-content--hub-unificado {
   max-height: none;
   overflow: visible;
   min-width: 0;
-  padding: 1rem 1.1rem 8px;
+  padding: 1rem 1.1rem 20px;
   border-radius: 14px;
   background: var(--hub-fundo-painel, var(--hub-ops-kpi-bg));
   border: 1px solid var(--hub-borda-painel, rgba(148, 163, 184, 0.08));
@@ -690,7 +690,8 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 }
 
 /* Puzzle stack (Store) no painel de produtos contratados do HUB */
-.sw-hub-panel--produtos {
+.sw-hub-panel--produtos,
+.gs-puzzle-gravity-refinado {
   container-type: inline-size;
   container-name: hub-produtos;
   --hub-puzzle-fill-interno: rgba(16, 24, 40, 0.96);
@@ -698,8 +699,8 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   --gs-piece-scale: 1;
   /* Tokens visuais — layout atual + cores mock (fundo escuro, borda neutra suave) */
   --hub-fundo-peca: #1a2234;
-  --hub-peca-tamanho: 96px;
-  --hub-peca-largura: 108px;
+  --hub-peca-tamanho: 100px;
+  --hub-peca-largura: 112px;
   --hub-conector-largura: 22px;
   --hub-conector-no-tamanho: 10px;
   --hub-borda-peca: rgba(126, 144, 176, 0.35);
@@ -707,33 +708,33 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   --hub-conector-linha: rgba(126, 144, 176, 0.45);
   --hub-conector-no-borda: rgba(126, 144, 176, 0.55);
   --hub-conector-no-fundo: #232d42;
-  --hub-rotulo-peca: #a8b4c8;
+  --hub-rotulo-peca: #e8ecf2;
   --hub-rotulo-bloqueado: #96a3b8;
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-paridade-store {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store {
   background: transparent;
   border: none;
   padding: 0;
   margin: 0;
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__head {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__head {
   margin-bottom: 4px;
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__sub {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__sub {
   color: var(--hub-cor-painel);
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__head-actions {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__head-actions {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__meter-label {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__meter-label {
   font-size: 0.8125rem;
   font-weight: 400;
   color: var(--hub-cor-painel);
@@ -741,13 +742,13 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   letter-spacing: normal;
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__lanes {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__lanes {
   padding: 0;
   border-radius: 12px;
   background: transparent;
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-contratados {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-contratados {
   display: block;
   background: transparent;
   border: none;
@@ -755,7 +756,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   margin: 0;
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-contratados .gs-stack__pieces {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-contratados .gs-stack__pieces {
   display: flex;
   align-items: center;
   min-width: min-content;
@@ -764,22 +765,22 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 }
 
 /* Conector entre cards — nó na borda direita + linha até o próximo card (mock) */
-.sw-hub-panel--produtos .gs-stack__pieces--hub-conectado {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack__pieces--hub-conectado {
   gap: 0;
 }
 
-.sw-hub-panel--produtos .gs-stack__pieces--hub-conectado .tg-trigger {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack__pieces--hub-conectado .tg-trigger {
   display: inline-flex;
   flex-shrink: 0;
   cursor: inherit;
 }
 
-.sw-hub-panel--produtos .gs-stack__pieces--hub-conectado .tg-trigger::after {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack__pieces--hub-conectado .tg-trigger::after {
   display: none;
   content: none;
 }
 
-.sw-hub-panel--produtos .gs-hub-conector {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-hub-conector {
   position: relative;
   flex: 0 0 var(--hub-conector-largura);
   width: var(--hub-conector-largura);
@@ -789,7 +790,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   pointer-events: none;
 }
 
-.sw-hub-panel--produtos .gs-hub-conector__linha {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-hub-conector__linha {
   position: absolute;
   left: 0;
   right: 0;
@@ -799,7 +800,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   background: var(--hub-conector-linha);
 }
 
-.sw-hub-panel--produtos .gs-hub-conector__no {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-hub-conector__no {
   position: absolute;
   left: 0;
   top: 50%;
@@ -813,27 +814,27 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   z-index: 1;
 }
 
-.sw-hub-panel--produtos .gs-puzzle-carousel__track {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-puzzle-carousel__track {
   overflow-x: visible;
   overflow-y: visible;
 }
 
 /* Cards quadrados: sem overlap do puzzle SVG da Store */
-.sw-hub-panel--produtos .gs-stack--hub-contratados .gs-piece--has-blank {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-contratados .gs-piece--has-blank {
   margin-left: 0;
 }
 
-.sw-hub-panel--produtos .gs-piece {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece {
   cursor: pointer;
   filter: none;
 }
 
-.sw-hub-panel--produtos .gs-stack--hub-contratados .gs-piece--soon {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-contratados .gs-piece--soon {
   cursor: default;
 }
 
 /* ── HUB: cards quadrados com conector nó + linha (mock) ─────────────────── */
-.sw-hub-panel--produtos .gs-piece--hub-visual {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual {
   width: var(--hub-peca-largura);
   height: var(--hub-peca-tamanho);
   border-radius: 10px;
@@ -848,37 +849,37 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   box-sizing: border-box;
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__svg {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__svg {
   display: none;
 }
 
 /* Borda neutra nos contratados — cor do produto só no anel do ícone */
-.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--on {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual.gs-piece--on {
   border-color: var(--hub-borda-peca);
   box-shadow: none;
 }
 
 /* BID Fornecedor: paridade visual com Bid Frete + tag de papel */
-.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--fornecedor {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual.gs-piece--fornecedor {
   border: 1px solid var(--hub-borda-peca);
   box-shadow: none;
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--on:hover,
-.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--fornecedor:hover {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual.gs-piece--on:hover,
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual.gs-piece--fornecedor:hover {
   transform: none !important;
   border-color: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 45%, var(--hub-borda-peca));
 }
 
 /* Não contratado: fundo escuro + contorno tracejado neutro (NF Import) */
-.sw-hub-panel--produtos .gs-piece--nao-contratado-hub {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--nao-contratado-hub {
   background: var(--hub-fundo-peca-bloqueada);
   border: 1px dashed rgba(126, 144, 176, 0.38);
   cursor: default;
   box-shadow: none;
 }
 
-.sw-hub-panel--produtos .gs-piece--nao-contratado-hub:hover {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--nao-contratado-hub:hover {
   transform: none !important;
   border-color: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 38%, rgba(126, 144, 176, 0.38));
   box-shadow:
@@ -886,12 +887,12 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
     0 8px 22px rgba(0, 0, 0, 0.2);
 }
 
-.sw-hub-panel--produtos .gs-piece--nao-contratado-hub:hover .gs-piece__icon {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--nao-contratado-hub:hover .gs-piece__icon {
   transform: translateX(-50%);
   box-shadow: none;
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__body {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__body {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -901,11 +902,11 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   box-sizing: border-box;
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__body--indent {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__body--indent {
   padding-left: 0 !important;
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__stack {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__stack {
   position: absolute;
   inset: 0;
   display: flex;
@@ -919,7 +920,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 }
 
 /* Anel colorido + glow leve no ícone (+4px só no círculo/ícone — nome independente) */
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__icon {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__icon {
   position: absolute;
   top: 18px;
   left: 50%;
@@ -940,7 +941,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   transition: box-shadow 0.16s ease;
 }
 
-.sw-hub-panel--produtos .gs-piece--nao-contratado-hub .gs-piece__icon {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--nao-contratado-hub .gs-piece__icon {
   top: 18px;
   border: 1.5px dashed rgba(126, 144, 176, 0.4);
   background: var(--hub-fundo-peca-bloqueada);
@@ -949,7 +950,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   opacity: 0.7;
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__icon svg {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__icon svg {
   width: 20px !important;
   height: 20px !important;
   max-width: 20px;
@@ -958,7 +959,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 }
 
 /* Tag FORNECEDOR — topo do card (paridade ws-profile-badge--fornecedor) */
-.sw-hub-panel--produtos .gs-piece__tag-fornecedor {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece__tag-fornecedor {
   position: absolute;
   top: 0;
   left: 50%;
@@ -979,11 +980,12 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   pointer-events: none;
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__name {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__name {
   font-family: var(--font, 'Plus Jakarta Sans', system-ui, sans-serif);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
   text-align: center;
   width: 100%;
   margin: 0;
@@ -994,19 +996,19 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   transform: translateY(-4px);
 }
 
-.sw-hub-panel--produtos .gs-piece--nao-contratado-hub .gs-piece__name {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--nao-contratado-hub .gs-piece__name {
   color: var(--hub-rotulo-bloqueado);
-  font-weight: 600;
+  font-weight: 400;
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--on:hover .gs-piece__icon,
-.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--fornecedor:hover .gs-piece__icon {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual.gs-piece--on:hover .gs-piece__icon,
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual.gs-piece--fornecedor:hover .gs-piece__icon {
   transform: translateX(-50%);
   box-shadow: 0 0 14px color-mix(in srgb, var(--piece-color, var(--sw-accent)) 36%, transparent);
 }
 
 /* Ponto verde = módulo ativo */
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__check {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__check {
   position: absolute;
   top: 9px;
   right: 9px;
@@ -1017,19 +1019,19 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   box-shadow: 0 0 6px rgba(34, 197, 94, 0.65);
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__check svg {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__check svg {
   display: none;
 }
 
-.sw-hub-panel--produtos .gs-piece--compravel-hub {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--compravel-hub {
   cursor: pointer;
 }
 
-.sw-hub-panel--produtos .gs-piece--nao-contratado-hub.gs-piece--compravel-hub {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--nao-contratado-hub.gs-piece--compravel-hub {
   cursor: pointer;
 }
 
-.sw-hub-panel--produtos .gs-piece__cesta-store {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece__cesta-store {
   position: absolute;
   top: 7px;
   right: 7px;
@@ -1051,14 +1053,14 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   pointer-events: none;
 }
 
-.sw-hub-panel--produtos .gs-piece--nao-contratado-hub:hover .gs-piece__cesta-store {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--nao-contratado-hub:hover .gs-piece__cesta-store {
   color: var(--piece-color, var(--sw-accent));
   background: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 16%, transparent);
   border-color: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 42%, transparent);
   box-shadow: 0 0 14px color-mix(in srgb, var(--piece-color, var(--sw-accent)) 32%, transparent);
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__lock {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual .gs-piece__lock {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -1069,7 +1071,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 }
 
 /* Segmentos do meter não contratados — tom #7E90B0 */
-.sw-hub-panel--produtos .gs-stack__meter-bar .gs-stack__seg:not(.gs-stack__seg--on) {
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack__meter-bar .gs-stack__seg:not(.gs-stack__seg--on) {
   background: color-mix(in srgb, var(--hub-cor-painel) 48%, transparent);
   box-shadow: none;
 }

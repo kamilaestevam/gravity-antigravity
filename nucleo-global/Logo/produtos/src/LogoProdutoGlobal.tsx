@@ -13,6 +13,7 @@ import { LogoLpco }           from './logos/LogoLpco'
 import { LogoNfImportacao }   from './logos/LogoNfImportacao'
 import { LogoProcesso }       from './logos/LogoProcesso'
 import { LogoFinanceiroComex } from './logos/LogoFinanceiroComex'
+import { LogoSmartRead }      from './logos/LogoSmartRead'
 import { LogoGravity }        from './logos/LogoGravity'
 import { LogoAdmin }          from './logos/LogoAdmin'
 import { LogoConfigurador }   from './logos/LogoConfigurador'
@@ -66,6 +67,11 @@ export const PRODUTO_META: Record<string, ProdutoMeta> = {
     icon:     <LogoProcesso size={16} />,
     color:    '#facc15',
     sublabel: 'processos · consolidado',
+  },
+  'smart-read': {
+    icon:     <LogoSmartRead size={16} />,
+    color:    '#a78bfa',
+    sublabel: 'OCR · leitura documental',
   },
   'financeiro-comex': {
     icon:     <LogoFinanceiroComex size={16} />,

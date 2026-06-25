@@ -4,6 +4,7 @@
  */
 
 import { prisma } from '../lib/prisma.js'
+import { STACK_ORDER_PRODUTOS_GRAVITY } from '../../shared/stack-order-produtos-gravity.js'
 
 /** DTO compacto — mesmo contrato em /hub/init, /hub/catalogo e GET /produtos-gravity. */
 export interface CatalogoVitrineProdutoGravityDto {
@@ -17,22 +18,16 @@ export interface CatalogoVitrineProdutoGravityDto {
 const STATUS_VITRINE = ['ATIVO', 'EM_BREVE'] as const
 
 /**
- * Ordem do puzzle stack (slugs canônicos).
- * Produtos ATIVO/EM_BREVE no Admin que não estão aqui aparecem ao final (por nome).
- * Substituir por `ordem_exibicao_produto_gravity` quando existir no schema (Coordenador).
+ * Ordem do puzzle stack — SSOT `shared/stack-order-produtos-gravity.ts`.
  */
-export const ORDEM_STACK_SLUGS_CANONICOS: readonly string[] = [
-  'pedido',
-  'smart-read',
-  'simula-custo',
-  'bid-frete',
-  'bid-cambio',
-  'smart-transito',
-]
+export const ORDEM_STACK_SLUGS_CANONICOS: readonly string[] = STACK_ORDER_PRODUTOS_GRAVITY
 
 export function slugCanonicoProdutoGravityServidor(slug: string): string {
   if (slug === 'bid-frete-internacional') return 'bid-frete'
   if (slug === 'nf-import') return 'nf-importacao'
+  if (slug === 'smart-trnsito') return 'smart-transito'
+  if (slug === 'catlogo-de-produtos') return 'catalogo-produto'
+  if (slug === 'smart-read-') return 'smart-read'
   return slug
 }
 

@@ -1,9 +1,21 @@
-import * as PgBossModule from 'pg-boss'
-const PgBoss = (PgBossModule as unknown as { default: typeof PgBossModule.default }).default ?? PgBossModule
+import { PgBoss } from 'pg-boss'
 
-let boss: PgBoss
+let boss: PgBoss | undefined
+let usingSharedBoss = false
 
-export async function initPgBoss(databaseUrl: string) {
+const SEND_NOTIFICATION_QUEUE = 'send-notification'
+
+/** Reusa a instância pg-boss do historico-global no cfg-back / org (uma instância por processo). */
+export function setSharedBoss(shared: PgBoss): void {
+  if (boss && !usingSharedBoss) {
+    console.warn('[notificacoes] pg-boss próprio já inicializado; ignorando setSharedBoss')
+    return
+  }
+  boss = shared
+  usingSharedBoss = true
+}
+
+export async function initPgBoss(databaseUrl: string): Promise<PgBoss> {
   if (boss) return boss
 
   if (!databaseUrl) {
@@ -11,25 +23,21 @@ export async function initPgBoss(databaseUrl: string) {
   }
 
   boss = new PgBoss(databaseUrl)
-
-  boss.on('error', (error) => console.error('pg-boss error:', error))
-
+  boss.on('error', (error) => console.error('[notificacoes:pg-boss]', error))
   await boss.start()
 
-  // pg-boss v12 exige criação explícita da fila antes de registrar workers
-  await boss.createQueue('send-notification', {
-    retryLimit: 5,
-    retryDelay: 60,
-    retryBackoff: true,
-    expireInHours: 24,
-  })
+  await ensureSendNotificationQueue()
 
-  console.log('pg-boss started successfully in Notificações service')
-
+  console.log('[notificacoes] pg-boss iniciado (instância própria)')
   return boss
 }
 
-export function getBoss() {
-  if (!boss) throw new Error('pg-boss not initialized. Call initPgBoss first.')
+export async function ensureSendNotificationQueue(): Promise<void> {
+  const b = getBoss()
+  await b.createQueue(SEND_NOTIFICATION_QUEUE).catch(() => { /* já existe */ })
+}
+
+export function getBoss(): PgBoss {
+  if (!boss) throw new Error('pg-boss not initialized. Call initPgBoss or setSharedBoss first.')
   return boss
 }

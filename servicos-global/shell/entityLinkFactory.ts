@@ -12,6 +12,10 @@ const ENTITY_ROUTES: Record<string, (id: string) => string> = {
   PROCESSO:     (id) => `/processo/${id}`,
   FINANCEIRO:   (id) => `/configurador/financeiro/${id}`,
   NF_IMPORTACAO:(id) => `/nf-importacao/${id}`,
+  COTACAO_BID_FRETE_INTERNACIONAL: (id) => `/bid-frete/cotacoes/${id}`,
+  COTACAO_BID_CAMBIO: (id) => `/bid-cambio/cotacoes/${id}`,
+  /** Rota interna do app (ex: /hub) — id é o path completo */
+  ROTA: (id) => (id.startsWith('/') ? id : `/${id}`),
 }
 
 export function buildEntityLink(entity: string, id: string): string {

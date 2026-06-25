@@ -259,6 +259,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit]
       expect(url).toContain('/api/v1/envios-email')
       expect((options.headers as Record<string, string>)['x-internal-key']).toBe('test-internal-key')
+      expect((options.headers as Record<string, string>)['x-chave-interna-servico']).toBe('test-internal-key')
       expect((options.headers as Record<string, string>)['x-id-organizacao']).toBe(TENANT_ID)
     })
 

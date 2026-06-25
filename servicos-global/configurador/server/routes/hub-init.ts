@@ -13,6 +13,7 @@ import {
   normalizarChavesProdutosAtivosHub,
   normalizeHubRole,
 } from '../services/hub-insights-service.js'
+import { generateHubOperacoes } from '../services/hub-operacoes-service.js'
 import { listarSlugsProdutosAcessiveis } from '../services/produtos-acessiveis-service.js'
 import { listarCatalogoVitrineProdutoGravity } from '../services/catalogo-vitrine-produto-gravity.js'
 
@@ -160,6 +161,51 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
  * Ranqueia por role-weights. Cache in-memory por tenant+user (TTL 5min).
  * Resiliente: se nenhum produto responde, retorna fallback estático.
  */
+/**
+ * GET /api/v1/hub/operacoes
+ * KPIs operacionais reais + lista recente de processos (cross-produto).
+ */
+hubRouter.get('/operacoes', requireAuth, async (req, res, next) => {
+  try {
+    const id_organizacao = req.auth.id_organizacao
+    const id_usuario = req.auth.id_usuario
+
+    const [configs, slugsAcessiveis] = await Promise.all([
+      prisma.produtoGravityConfiguracao.findMany({
+        where: { id_organizacao_configuracao_produto_gravity: id_organizacao },
+        select: {
+          chave_produto_configuracao_produto_gravity: true,
+          ativo_configuracao_produto_gravity: true,
+        },
+      }),
+      listarSlugsProdutosAcessiveis(id_organizacao, id_usuario).catch(() => new Set<string>()),
+    ])
+
+    const activeProductKeys = normalizarChavesProdutosAtivosHub(
+      new Set(
+        configs
+          .filter(
+            c =>
+              c.ativo_configuracao_produto_gravity &&
+              slugsAcessiveis.has(c.chave_produto_configuracao_produto_gravity),
+          )
+          .map(c => c.chave_produto_configuracao_produto_gravity),
+      ),
+    )
+
+    const operacoes = await generateHubOperacoes(
+      id_organizacao,
+      id_usuario,
+      req.auth.tipo_usuario,
+      activeProductKeys,
+    )
+
+    res.json({ operacoes })
+  } catch (err) {
+    next(err)
+  }
+})
+
 hubRouter.get('/insights', requireAuth, async (req, res) => {
   try {
     const id_organizacao = req.auth.id_organizacao

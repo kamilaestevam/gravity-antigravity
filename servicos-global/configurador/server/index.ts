@@ -1012,6 +1012,9 @@ if (process.env.NODE_ENV !== 'test') {
         await startPartitionWorker()
         await startGabiQuotaResetWorker()
 
+        const { initNotificacoes } = await import('../../servicos-plataforma/notificacoes/server/init.js')
+        await initNotificacoes()
+
         // Taxas de moeda — sync automático 4x/dia (10h / 11h / 12h / 13h BRT)
         const { startTaxasMoedaSyncWorker } = await import('./queue/taxasMoedaSyncWorker.js')
         startTaxasMoedaSyncWorker()

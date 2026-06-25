@@ -255,6 +255,11 @@ async function posRespostaFornecedorSincronizarCotacao(
       numero_cotacao_bid_frete_internacional: cotacao.numero_cotacao_bid_frete_internacional,
       total_respostas: totalRespondidos,
     })
+    notificacoesIntegration.aguardandoAprovacao(opcoes.tenantId, cotacao.id_usuario, {
+      cotacao_numero: cotacao.numero_cotacao_bid_frete_internacional,
+      total_respostas: totalRespondidos,
+      id_cotacao_bid_frete_internacional: cotacao.id_cotacao_bid_frete_internacional,
+    })
   }
 
   if (opcoes.tenantId) {

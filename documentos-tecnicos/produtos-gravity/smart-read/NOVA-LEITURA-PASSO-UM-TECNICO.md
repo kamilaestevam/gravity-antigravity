@@ -2,7 +2,7 @@
 
 > **Escopo deste documento:** somente **Passo 1** do wizard.  
 > **Branch de referência UX:** `tela_smart_read_tela_1` (stepper dentro do retângulo indigo).  
-> **Wizard completo (4 passos):** `ModalNovaLeituraSmartRead` — passos 2–4 ver doc futuro.
+> **Wizard completo (4 passos):** `ModalNovaLeituraSmartRead` — passo 2: [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md); passos 3–4 doc futuro.
 
 ---
 
@@ -97,7 +97,7 @@ Ambiente: `http://localhost:8000/smart-read/insights` (ou Lista) + sidecar `8033
 | **10** | Cancelar | Fecha modal; retorna à tela anterior | `10-cancelar-fecha-modal.png` |
 | **11** | Avançar para próximo passo | **Enviar** (com arquivo) → passo 2 «Análise do arquivo» | `11-enviar-vai-passo2.png` |
 
-**Fora de escopo deste doc:** validar passo 2+ (análise IA, conferência, resultado).
+**Fora de escopo deste doc:** validar passo 2+ — ver [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) (passo 2) e docs futuros (passos 3–4).
 
 ---
 

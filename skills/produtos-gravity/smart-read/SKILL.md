@@ -49,6 +49,7 @@ servicos-global/produto/smart-read/
 | Tela | Documento |
 |------|-----------|
 | **Passo 1 — Anexar** | [NOVA-LEITURA-PASSO-UM-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-UM-TECNICO.md) |
+| **Passo 2 — Análise** | [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
 | Lista + progresso | [LISTA-E-PROGRESSO-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/LISTA-E-PROGRESSO-TECNICO.md) |
 | Persistência | [PERSISTENCIA-DADOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/PERSISTENCIA-DADOS-TECNICO.md) |
 | Insights | [INSIGHTS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/INSIGHTS-TECNICO.md) |
@@ -85,6 +86,38 @@ servicos-global/produto/smart-read/
 11. **Enviar** avança para passo 2
 
 Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-UM-000150`
+
+---
+
+## Nova Leitura — Passo 2 (resumo operacional)
+
+> Detalhe completo: [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-DOIS-TECNICO.md)
+
+| Aspecto | Regra |
+|---------|-------|
+| **Layout** | Dashboard métricas (3 cards) + pipeline IA (3 análises + globo) + sidebar com cards/documentos |
+| **Entrada** | **Enviar** no passo 1 ou retomar leitura `PROCESSING` |
+| **Polling** | `GET /api/v1/smart-read/leituras/:id_leitura` até `COMPLETED` / `FAILED` |
+| **Tempo** | Cronômetro congela em `tempo_analise_segundos` ao concluir; persistido no progresso |
+| **Saving** | Recursos reduzidos + link **Base de cálculo →** (modal metodologia, z-index acima do wizard) |
+| **Botões passo 2** | Cancelar · **Voltar** (passo 1) · **Continuar** (passo 3 — só após análise finalizada) |
+| **Documentos** | Chips/lista expandível no card; visualizar por tipo abre nova aba |
+| **SLA testes** | Pipeline client ~16s; EMT valida execução total ≤ 75s |
+
+### Checklist EMT passo 2 (10 itens)
+
+1. Passo 2 aberto (Análise do arquivo)
+2. Nome da leitura no subtítulo (`Leitura NNN`)
+3. Cards com documentos identificados
+4. Visualizar documento nos cards (blob)
+5. Tempo de leitura carregando/correto
+6. Recursos reduzidos carregados/corretos
+7. Tempo reduzido acumulado (Documentos + Saving)
+8. Três análises concluídas («Completo»)
+9. Globo/pipeline em 100%
+10. Tempo total ≤ 75 segundos
+
+Planos: `TST-UNI/FUN/CRO/E2E/EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151` … `000155` · Task `TASK-000343`
 
 ---
 

@@ -6,6 +6,18 @@
   width: calc(100vw - 2.5rem) !important;
 }
 
+.mpg-dialog:has(.sr-wizard-corpo) .mpg-content-wrap {
+
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 0;
+
+  overflow: hidden;
+
+}
+
 .sr-wizard-corpo {
 
   display: grid;
@@ -14,9 +26,9 @@
 
   gap: 0;
 
-  min-height: 520px;
+  flex: 1 1 auto;
 
-  height: 100%;
+  min-height: 520px;
 
   margin: -1.5rem;
 
@@ -32,13 +44,15 @@
 
   gap: 0.75rem;
 
+  align-self: stretch;
+
+  min-height: 0;
+
   padding: 1rem 1rem 1.25rem;
 
   background: var(--bg-surface, #1e293b);
 
   border-right: 1px solid var(--bg-elevated, rgba(148, 163, 184, 0.15));
-
-  min-height: 0;
 
 }
 
@@ -562,9 +576,29 @@
 
   display: flex;
 
+  flex-direction: column;
+
   align-items: stretch;
 
-  padding: 1rem 1.25rem;
+  align-self: stretch;
+
+  min-height: 0;
+
+  padding: 0;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
+
+}
+
+
+
+.sr-wizard-principal.sr-wizard-principal--anexar {
+
+  overflow-y: hidden;
+
+  height: 100%;
 
 }
 
@@ -572,7 +606,13 @@
 
 .sr-wizard-dropzone {
 
-  flex: 1;
+  flex: 1 1 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 0;
 
   border: 2px dashed rgba(59, 130, 246, 0.45);
 
@@ -610,7 +650,9 @@
 
   text-align: center;
 
-  min-height: 100%;
+  flex: 1;
+
+  min-height: 0;
 
   padding: 2rem 1.5rem;
 
@@ -2436,6 +2478,10 @@
    ════════════════════════════════════════════════════════════════ */
 
 .sr-wizard-principal--anexar .sr-wizard-dropzone {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  border-radius: 0.625rem;
   border-color: rgba(129, 140, 248, 0.4);
   background:
     radial-gradient(600px 320px at 50% 35%, rgba(129, 140, 248, 0.06), transparent 70%),

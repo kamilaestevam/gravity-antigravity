@@ -76,12 +76,12 @@ export function CardArquivoNovaLeituraSmartRead({
           <div className="sr-wizard-card-acoes">
             <button
               type="button"
-              className="sr-wizard-card-btn-visualizar"
+              className="sr-wizard-card-btn-icone"
               title="Visualizar documento original"
               aria-label={`Visualizar original ${item.arquivo.name}`}
               onClick={onVisualizarArquivo}
             >
-              <Eye size={16} weight="duotone" />
+              <Eye size={16} />
               {temDocumentosIdentificados && (
                 <span className="sr-wizard-card-contagem" aria-label={`${quantidadeDocumentos} documento(s) identificado(s)`}>
                   {quantidadeDocumentos}

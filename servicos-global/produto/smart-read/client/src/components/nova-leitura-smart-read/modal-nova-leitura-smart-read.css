@@ -282,16 +282,6 @@
 
 
 
-.sr-wizard-btn-enviar {
-
-  width: 100%;
-
-  justify-content: center;
-
-}
-
-
-
 .sr-wizard-lateral-botoes-duplos {
 
   display: grid;
@@ -304,7 +294,9 @@
 
 
 
-.sr-wizard-lateral-botoes-duplos button {
+.sr-wizard-lateral-botoes-duplos .gb-btn {
+
+  width: 100%;
 
   justify-content: center;
 

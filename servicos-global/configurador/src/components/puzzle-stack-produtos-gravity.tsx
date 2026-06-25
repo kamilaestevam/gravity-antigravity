@@ -4,12 +4,18 @@
  */
 
 import type { TFunction } from 'i18next'
-import React, { useMemo } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { resolverRotaProdutoGravity } from '@gravity/shell'
-import { CheckCircle, Handshake, Package } from '@phosphor-icons/react'
+import { CheckCircle, Package, ShoppingCart } from '@phosphor-icons/react'
 import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
-import { PRODUCT_META, nomeExibicaoProdutoGravity } from '../data/product-meta'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import {
+  PRODUCT_META,
+  descricaoExibicaoProdutoGravity,
+  nomeExibicaoPecaPuzzleHub,
+  nomeExibicaoProdutoGravity,
+} from '../data/product-meta'
 import {
   mapaAssinaturaAtivaPorSlug,
   mapaCatalogoPorSlugCanonico,
@@ -17,8 +23,9 @@ import {
   slugCanonicoProdutoGravity,
   slugsPuzzleStackProdutosGravity,
   statusProdutoGravityStore,
-  type CatalogoProdutoGravityMin,
   type AssinaturaProdutoGravityMin,
+  type CatalogoProdutoGravityMin,
+  type StatusProdutoGravityStore,
 } from '../lib/produtos-gravity-store-status'
 
 const ROTAS_PRODUTO: Record<string, string> = {
@@ -50,6 +57,72 @@ function pathPecaPuzzle(isFirst: boolean, isLast: boolean): string {
 const FILL_PECA_HUB_INTERNO = 'var(--hub-puzzle-fill-interno, rgba(16, 24, 40, 0.96))'
 const FILL_PECA_HUB_DISPONIVEL = 'var(--hub-puzzle-fill-disponivel, rgba(12, 18, 32, 0.94))'
 const TAMANHO_ICONE_PECA_HUB = 22
+
+const CHAVE_DESCRICAO_VISUAL_HUB: Record<string, string> = {
+  'simula-custo': 'hub.produto_visual_simula_custo',
+  'nf-importacao': 'hub.produto_visual_nf_importacao',
+  'nf-import': 'hub.produto_visual_nf_importacao',
+  processo: 'hub.produto_visual_processo',
+  'bid-frete': 'hub.produto_visual_bid_frete',
+  'bid-frete-internacional': 'hub.produto_visual_bid_frete',
+  'bid-cambio': 'hub.produto_visual_bid_cambio',
+  pedido: 'hub.produto_visual_pedido',
+  'smart-read': 'hub.produto_visual_smart_read',
+  lpco: 'hub.produto_visual_lpco',
+}
+
+type TradutorPeca = (key: string, defaultValue?: string) => string
+
+function textoTooltipPecaHub(texto: string): string {
+  return texto.replace(/\.+\s*$/, '').trimEnd()
+}
+
+function tooltipPecaPuzzleHub(
+  slug: string,
+  nomeExibicao: string,
+  status: StatusProdutoGravityStore,
+  t: TradutorPeca,
+): { titulo: string; descricao: string } {
+  const chaveCanon = slugCanonicoProdutoGravity(slug)
+  const chaveI18n = CHAVE_DESCRICAO_VISUAL_HUB[chaveCanon] ?? CHAVE_DESCRICAO_VISUAL_HUB[slug]
+  const descricaoBase = textoTooltipPecaHub(
+    chaveI18n
+      ? t(chaveI18n)
+      : descricaoExibicaoProdutoGravity(slug, null, t),
+  )
+
+  if (status === 'soon') {
+    return {
+      titulo: nomeExibicao,
+      descricao: `${descricaoBase} · ${t('store.status_em_breve', 'Em breve')}`,
+    }
+  }
+
+  return { titulo: nomeExibicao, descricao: descricaoBase }
+}
+
+function envolverTooltipPecaHub(
+  escalaHub: boolean,
+  tooltip: { titulo: string; descricao: string },
+  peca: React.ReactElement,
+): React.ReactElement {
+  if (!escalaHub) return peca
+  return (
+    <TooltipGlobal titulo={tooltip.titulo} descricao={tooltip.descricao}>
+      {peca}
+    </TooltipGlobal>
+  )
+}
+
+function ConectorHubPuzzle({ visivel }: { visivel: boolean }) {
+  if (!visivel) return null
+  return (
+    <div className="gs-hub-conector" aria-hidden="true">
+      <span className="gs-hub-conector__linha" />
+      <span className="gs-hub-conector__no" />
+    </div>
+  )
+}
 
 function coresSvgPecaHub(
   status: ReturnType<typeof statusProdutoGravityStore>,
@@ -254,36 +327,58 @@ export function PuzzleStackProdutosGravity({
   if (totalPecasVisiveis === 0) return null
 
   const escalaClass = escalaHub ? ' gs-stack--escala-hub' : ''
+  const classeBlankPeca = (isFirst: boolean) =>
+    !escalaHub && !isFirst ? ' gs-piece--has-blank' : ''
 
   const conteudoPecas = (
-    <div className="gs-stack__pieces">
+    <div className={`gs-stack__pieces${escalaHub ? ' gs-stack__pieces--hub-conectado' : ''}`}>
       {pecasOrdenadas.map((item, pieceIdx) => {
         const isFirst = pieceIdx === 0
         const isLast = pieceIdx === totalPecasVisiveis - 1
-        const zIdx = totalPecasVisiveis - pieceIdx + 1
         const path = pathPecaPuzzle(isFirst, isLast)
 
         if (item.tipo === 'extra') {
           const pecaExtra = item.pecaExtra
-          const corFornecedor = '#f59e0b'
+          const slugVisual = pecaExtra.slugVisual
+          const metaVisual = PRODUCT_META[slugVisual]
+          const corBidFrete = metaVisual?.iconColor ?? '#60a5fa'
+          const nomeExibicaoBidFrete = nomeExibicaoPecaPuzzleHub(
+            slugVisual,
+            pecaExtra.nome,
+            t as (key: string, defaultValue?: string) => string,
+          )
           const { fill, stroke, strokeWidth } = escalaHub
-            ? { fill: FILL_PECA_HUB_INTERNO, stroke: corFornecedor, strokeWidth: 1.75 }
+            ? coresSvgPecaHub('owned', corBidFrete)
             : {
-                fill: 'rgba(245,158,11,0.18)',
-                stroke: corFornecedor,
+                fill: metaVisual?.iconBg ?? 'rgba(96,165,250,0.18)',
+                stroke: corBidFrete,
                 strokeWidth: 1.5,
               }
           const tituloPeca = `${t('sw.acessar', 'Acessar')} — ${pecaExtra.nome}`
+          const tooltipFornecedor = {
+            titulo: nomeExibicaoBidFrete,
+            descricao: textoTooltipPecaHub(t('hub.produto_visual_bid_frete')),
+          }
+          const ariaPecaFornecedor = escalaHub
+            ? `${tooltipFornecedor.titulo}. ${tooltipFornecedor.descricao}`
+            : tituloPeca
 
           return (
-            <div
-              key={pecaExtra.key}
-              className={`gs-piece gs-piece--on gs-piece--fornecedor${isFirst ? '' : ' gs-piece--has-blank'}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
-              style={{ zIndex: zIdx, '--piece-color': corFornecedor } as React.CSSProperties}
+            <Fragment key={pecaExtra.key}>
+              {envolverTooltipPecaHub(
+                escalaHub,
+                tooltipFornecedor,
+                <div
+                className={`gs-piece gs-piece--on gs-piece--fornecedor${classeBlankPeca(isFirst)}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
+              style={
+                escalaHub
+                  ? ({ '--piece-color': corBidFrete } as React.CSSProperties)
+                  : ({ zIndex: totalPecasVisiveis - pieceIdx + 1, '--piece-color': corBidFrete } as React.CSSProperties)
+              }
               role="button"
               tabIndex={0}
-              title={tituloPeca}
-              aria-label={tituloPeca}
+              title={escalaHub ? undefined : tituloPeca}
+              aria-label={ariaPecaFornecedor}
               onClick={() => abrirPecaExtra(pecaExtra)}
               onKeyDown={e => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -292,21 +387,31 @@ export function PuzzleStackProdutosGravity({
                 }
               }}
             >
+              {escalaHub && (
+                <span className="gs-piece__tag-fornecedor">
+                  {t('hub.role_fornecedor', 'Fornecedor')}
+                </span>
+              )}
               <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg" aria-hidden="true">
                 <path d={path} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin="round" />
               </svg>
               <div className={classeCorpoPecaPuzzle(isFirst)}>
                 <div className="gs-piece__stack">
-                  <div className="gs-piece__icon gs-piece__icon--fornecedor">
-                    <Handshake weight="duotone" size={TAMANHO_ICONE_PECA_HUB} color={corFornecedor} />
+                  <div className="gs-piece__icon">
+                    {escalaHub
+                      ? iconePecaPuzzleHub(slugVisual)
+                      : (metaVisual?.icon ?? <Package weight="duotone" size={20} color={corBidFrete} />)}
                   </div>
-                  <span className="gs-piece__name">{pecaExtra.nomeExibicao}</span>
+                  <span className="gs-piece__name">{nomeExibicaoBidFrete}</span>
                 </div>
                 <span className="gs-piece__check">
-                  <CheckCircle weight="fill" size={11} color={corFornecedor} />
+                  <CheckCircle weight="fill" size={11} color="#10b981" />
                 </span>
               </div>
-            </div>
+            </div>,
+              )}
+              <ConectorHubPuzzle visivel={escalaHub && !isLast} />
+            </Fragment>
           )
         }
 
@@ -316,6 +421,7 @@ export function PuzzleStackProdutosGravity({
         const isSoon = peca.status === 'soon'
         const corProduto = meta?.iconColor ?? '#818cf8'
         const isHubNaoContratado = escalaHub && !isOwned
+        const isHubCompravel = isHubNaoContratado && !isSoon
 
         const { fill, stroke, strokeWidth } = escalaHub
           ? coresSvgPecaHub(peca.status, corProduto)
@@ -327,25 +433,45 @@ export function PuzzleStackProdutosGravity({
               strokeWidth: 1.5,
             }
 
-        const nomeExibicao = nomeExibicaoProdutoGravity(
-          peca.slug,
-          peca.nome,
-          t as (key: string, defaultValue?: string) => string,
-        )
+        const nomeExibicao = escalaHub
+          ? nomeExibicaoPecaPuzzleHub(
+              peca.slug,
+              peca.nome,
+              t as (key: string, defaultValue?: string) => string,
+            )
+          : nomeExibicaoProdutoGravity(
+              peca.slug,
+              peca.nome,
+              t as (key: string, defaultValue?: string) => string,
+            )
         const tituloPeca = isOwned
           ? `${t('sw.acessar', 'Acessar')} — ${nomeExibicao}`
           : isSoon
             ? `${nomeExibicao} — ${t('store.em_breve', 'Em breve')}`
             : `${t('sw.assinar_na_store', 'Assinar na Store')} — ${nomeExibicao}`
 
+        const tradutor = t as TradutorPeca
+        const tooltipPeca = tooltipPecaPuzzleHub(peca.slug, nomeExibicao, peca.status, tradutor)
+        const ariaPeca = escalaHub
+          ? `${tooltipPeca.titulo}. ${tooltipPeca.descricao}`
+          : tituloPeca
+
         return (
-          <div
-            key={peca.slug}
-            className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isHubNaoContratado ? ' gs-piece--nao-contratado-hub' : ''}${isFirst ? '' : ' gs-piece--has-blank'}${isSoon ? ' gs-piece--soon' : ''}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
-            style={{ zIndex: zIdx, '--piece-color': corProduto } as React.CSSProperties}
+          <Fragment key={peca.slug}>
+            {envolverTooltipPecaHub(
+              escalaHub,
+              tooltipPeca,
+              <div
+              className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isHubNaoContratado ? ' gs-piece--nao-contratado-hub' : ''}${isHubCompravel ? ' gs-piece--compravel-hub' : ''}${classeBlankPeca(isFirst)}${isSoon ? ' gs-piece--soon' : ''}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
+            style={
+              escalaHub
+                ? ({ '--piece-color': corProduto } as React.CSSProperties)
+                : ({ zIndex: totalPecasVisiveis - pieceIdx + 1, '--piece-color': corProduto } as React.CSSProperties)
+            }
             role="button"
             tabIndex={isSoon ? -1 : 0}
-            title={tituloPeca}
+            title={escalaHub ? undefined : tituloPeca}
+            aria-label={ariaPeca}
             onClick={() => abrirPeca(peca.slug, isOwned, isSoon)}
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -371,8 +497,16 @@ export function PuzzleStackProdutosGravity({
                   <CheckCircle weight="fill" size={11} color="#10b981" />
                 </span>
               )}
+              {isHubNaoContratado && (
+                <span className="gs-piece__cesta-store" aria-hidden="true">
+                  <ShoppingCart weight="duotone" size={12} />
+                </span>
+              )}
             </div>
-          </div>
+          </div>,
+            )}
+          <ConectorHubPuzzle visivel={escalaHub && !isLast} />
+          </Fragment>
         )
       })}
     </div>

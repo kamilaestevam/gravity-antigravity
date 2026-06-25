@@ -8,14 +8,19 @@
  * Ativo: Opção B — cards elevados (--sw-surface), itens internos (--sw-surface-3).
  */
 .sw-content.sw-content--hub-unificado {
+  --hub-cor-painel: #7E90B0;
+  /* Cinza elevado (--sw-surface-3) com leve viés azul */
+  --hub-fundo-painel: color-mix(in srgb, var(--sw-surface-3, #182030) 82%, #1a2234 18%);
+  --hub-fundo-painel-produtos: var(--hub-fundo-painel);
+  --hub-borda-painel: rgba(126, 144, 176, 0.09);
   --hub-proto-surface: var(--sw-surface);
   --hub-proto-surface-2: var(--sw-surface-3);
   --hub-proto-border: var(--sw-border-mid);
   --hub-proto-muted: #94a3b8;
   --hub-proto-text: #f1f5f9;
   --hub-proto-accent: #6366f1;
-  --hub-ops-kpi-bg: var(--sw-surface-3);
-  --hub-ops-proc-bg: var(--sw-surface-3);
+  --hub-ops-kpi-bg: var(--hub-fundo-painel);
+  --hub-ops-proc-bg: var(--hub-fundo-painel);
   --hub-ops-orange: #f59e0b;
   --hub-ops-orange-soft: rgba(245, 158, 11, 0.14);
   --hub-ops-green: #10b981;
@@ -26,6 +31,11 @@
   /* padding / max-width — ver shell layout SSOT em hub-store.css */
   /* fundo da página: herda --sw-bg do .sw-shell.sw-hub-root (hub-store.css) */
   color: var(--sw-text-1, var(--hub-proto-text));
+}
+
+body.light-theme .sw-content.sw-content--hub-unificado {
+  --hub-fundo-painel: color-mix(in srgb, var(--sw-surface-3, #f1f5f9) 82%, #e0e7ff 18%);
+  --hub-borda-painel: rgba(148, 163, 184, 0.12);
 }
 
 /* ── Hero ── */
@@ -104,7 +114,7 @@
   align-items: stretch;
 }
 
-.sw-hub-row-top > .sw-hub-panel--produtos {
+.sw-content.sw-content--hub-unificado .sw-hub-row-top > .sw-hub-panel--produtos {
   display: block;
   box-sizing: border-box;
   min-height: 0;
@@ -112,9 +122,11 @@
   max-height: none;
   overflow: visible;
   min-width: 0;
-  padding: 0;
-  background: transparent;
-  border: none;
+  padding: 1rem 1.1rem 8px;
+  border-radius: 14px;
+  background: var(--hub-fundo-painel, var(--hub-ops-kpi-bg));
+  border: 1px solid var(--hub-borda-painel, rgba(148, 163, 184, 0.08));
+  box-shadow: none;
 }
 
 .sw-hub-panel--produtos > :last-child {
@@ -684,6 +696,19 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   --hub-puzzle-fill-interno: rgba(16, 24, 40, 0.96);
   --hub-puzzle-fill-disponivel: rgba(12, 18, 32, 0.94);
   --gs-piece-scale: 1;
+  /* Tokens visuais — layout atual + cores mock (fundo escuro, borda neutra suave) */
+  --hub-fundo-peca: #1a2234;
+  --hub-peca-tamanho: 96px;
+  --hub-peca-largura: 108px;
+  --hub-conector-largura: 22px;
+  --hub-conector-no-tamanho: 10px;
+  --hub-borda-peca: rgba(126, 144, 176, 0.35);
+  --hub-fundo-peca-bloqueada: #151c2b;
+  --hub-conector-linha: rgba(126, 144, 176, 0.45);
+  --hub-conector-no-borda: rgba(126, 144, 176, 0.55);
+  --hub-conector-no-fundo: #232d42;
+  --hub-rotulo-peca: #a8b4c8;
+  --hub-rotulo-bloqueado: #96a3b8;
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store {
@@ -697,6 +722,10 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   margin-bottom: 4px;
 }
 
+.sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__sub {
+  color: var(--hub-cor-painel);
+}
+
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__head-actions {
   display: flex;
   flex-direction: column;
@@ -707,13 +736,15 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__meter-label {
   font-size: 0.8125rem;
   font-weight: 400;
-  color: var(--sw-text-2);
+  color: var(--hub-cor-painel);
   text-transform: none;
   letter-spacing: normal;
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-paridade-store .gs-stack__lanes {
   padding: 0;
+  border-radius: 12px;
+  background: transparent;
 }
 
 .sw-hub-panel--produtos .gs-stack--hub-contratados {
@@ -727,13 +758,69 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 .sw-hub-panel--produtos .gs-stack--hub-contratados .gs-stack__pieces {
   display: flex;
   align-items: center;
-  gap: 0;
   min-width: min-content;
   position: relative;
+  padding: 6px 2px 8px;
 }
 
+/* Conector entre cards — nó na borda direita + linha até o próximo card (mock) */
+.sw-hub-panel--produtos .gs-stack__pieces--hub-conectado {
+  gap: 0;
+}
+
+.sw-hub-panel--produtos .gs-stack__pieces--hub-conectado .tg-trigger {
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: inherit;
+}
+
+.sw-hub-panel--produtos .gs-stack__pieces--hub-conectado .tg-trigger::after {
+  display: none;
+  content: none;
+}
+
+.sw-hub-panel--produtos .gs-hub-conector {
+  position: relative;
+  flex: 0 0 var(--hub-conector-largura);
+  width: var(--hub-conector-largura);
+  height: var(--hub-peca-tamanho);
+  align-self: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.sw-hub-panel--produtos .gs-hub-conector__linha {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1.5px;
+  transform: translateY(-50%);
+  background: var(--hub-conector-linha);
+}
+
+.sw-hub-panel--produtos .gs-hub-conector__no {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: var(--hub-conector-no-tamanho);
+  height: var(--hub-conector-no-tamanho);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--hub-conector-no-fundo);
+  border: 1.5px solid var(--hub-conector-no-borda);
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.sw-hub-panel--produtos .gs-puzzle-carousel__track {
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+/* Cards quadrados: sem overlap do puzzle SVG da Store */
 .sw-hub-panel--produtos .gs-stack--hub-contratados .gs-piece--has-blank {
-  margin-left: -18px;
+  margin-left: 0;
 }
 
 .sw-hub-panel--produtos .gs-piece {
@@ -741,21 +828,74 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   filter: none;
 }
 
-.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__svg {
-  filter: none;
-}
-
 .sw-hub-panel--produtos .gs-stack--hub-contratados .gs-piece--soon {
   cursor: default;
 }
 
-/* Conteúdo centralizado só no quadrado 120×90 (ignora aba direita de 18px no SVG) */
+/* ── HUB: cards quadrados com conector nó + linha (mock) ─────────────────── */
+.sw-hub-panel--produtos .gs-piece--hub-visual {
+  width: var(--hub-peca-largura);
+  height: var(--hub-peca-tamanho);
+  border-radius: 10px;
+  background: var(--hub-fundo-peca);
+  border: 1px solid var(--hub-borda-peca);
+  position: relative;
+  flex-shrink: 0;
+  z-index: 1;
+  transform: none !important;
+  transform-origin: center center;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  box-sizing: border-box;
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__svg {
+  display: none;
+}
+
+/* Borda neutra nos contratados — cor do produto só no anel do ícone */
+.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--on {
+  border-color: var(--hub-borda-peca);
+  box-shadow: none;
+}
+
+/* BID Fornecedor: paridade visual com Bid Frete + tag de papel */
+.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--fornecedor {
+  border: 1px solid var(--hub-borda-peca);
+  box-shadow: none;
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--on:hover,
+.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--fornecedor:hover {
+  transform: none !important;
+  border-color: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 45%, var(--hub-borda-peca));
+}
+
+/* Não contratado: fundo escuro + contorno tracejado neutro (NF Import) */
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub {
+  background: var(--hub-fundo-peca-bloqueada);
+  border: 1px dashed rgba(126, 144, 176, 0.38);
+  cursor: default;
+  box-shadow: none;
+}
+
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub:hover {
+  transform: none !important;
+  border-color: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 38%, rgba(126, 144, 176, 0.38));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--piece-color, var(--sw-accent)) 14%, transparent),
+    0 8px 22px rgba(0, 0, 0, 0.2);
+}
+
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub:hover .gs-piece__icon {
+  transform: translateX(-50%);
+  box-shadow: none;
+}
+
 .sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__body {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 120px;
-  height: 90px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   padding: 0 !important;
   display: block;
   box-sizing: border-box;
@@ -767,52 +907,171 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 
 .sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__stack {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  width: 92px;
-  transform: translate(-50%, -50%);
+  justify-content: flex-end;
+  padding: 0 4px 8px;
+  width: 100%;
+  transform: none;
   pointer-events: none;
 }
 
-.sw-hub-panel--produtos .gs-piece__icon {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
+/* Anel colorido + glow leve no ícone (+4px só no círculo/ícone — nome independente) */
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__icon {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--piece-color, var(--sw-accent));
+  background: var(--hub-fundo-peca);
   flex-shrink: 0;
   pointer-events: none;
+  transform: translateX(-50%);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--piece-color, var(--sw-accent)) 28%, transparent);
+  transition: box-shadow 0.16s ease;
 }
 
-.sw-hub-panel--produtos .gs-piece__icon svg {
-  width: 22px !important;
-  height: 22px !important;
-  max-width: 22px;
-  max-height: 22px;
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub .gs-piece__icon {
+  top: 18px;
+  border: 1.5px dashed rgba(126, 144, 176, 0.4);
+  background: var(--hub-fundo-peca-bloqueada);
+  box-shadow: none;
+  filter: grayscale(0.75);
+  opacity: 0.7;
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  max-width: 20px;
+  max-height: 20px;
   display: block;
 }
 
-.sw-hub-panel--produtos .gs-piece__name {
-  font-size: 0.6875rem;
+/* Tag FORNECEDOR — topo do card (paridade ws-profile-badge--fornecedor) */
+.sw-hub-panel--produtos .gs-piece__tag-fornecedor {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 3;
+  transform: translate(calc(-50% + 24px), -50%);
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.08);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__name {
+  font-family: var(--font, 'Plus Jakarta Sans', system-ui, sans-serif);
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
   text-align: center;
   width: 100%;
-  max-width: 92px;
   margin: 0;
+  color: var(--hub-rotulo-peca);
+  white-space: normal;
+  overflow: visible;
+  pointer-events: none;
+  transform: translateY(-6px);
+}
+
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub .gs-piece__name {
+  color: var(--hub-rotulo-bloqueado);
+  font-weight: 600;
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--on:hover .gs-piece__icon,
+.sw-hub-panel--produtos .gs-piece--hub-visual.gs-piece--fornecedor:hover .gs-piece__icon {
+  transform: translateX(-50%);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--piece-color, var(--sw-accent)) 36%, transparent);
+}
+
+/* Ponto verde = módulo ativo */
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__check {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.65);
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__check svg {
+  display: none;
+}
+
+.sw-hub-panel--produtos .gs-piece--compravel-hub {
+  cursor: pointer;
+}
+
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub.gs-piece--compravel-hub {
+  cursor: pointer;
+}
+
+.sw-hub-panel--produtos .gs-piece__cesta-store {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  color: rgba(203, 213, 225, 0.5);
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  transition:
+    color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
 
-.sw-hub-panel--produtos .gs-piece:hover .gs-piece__icon {
-  transform: none;
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub:hover .gs-piece__cesta-store {
+  color: var(--piece-color, var(--sw-accent));
+  background: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 16%, transparent);
+  border-color: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 42%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--piece-color, var(--sw-accent)) 32%, transparent);
+}
+
+.sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__lock {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  display: flex;
+  color: rgba(203, 213, 225, 0.88);
+  opacity: 0.92;
+}
+
+/* Segmentos do meter não contratados — tom #7E90B0 */
+.sw-hub-panel--produtos .gs-stack__meter-bar .gs-stack__seg:not(.gs-stack__seg--on) {
+  background: color-mix(in srgb, var(--hub-cor-painel) 48%, transparent);
+  box-shadow: none;
 }
 
 .sw-hub-prod-vazio {
@@ -1088,8 +1347,8 @@ body.light-theme .sw-hub-panel--store {
 
 /* ── Operações / KPIs (cores protótipo hub-unificado-preview) ── */
 .sw-content.sw-content--hub-unificado .sw-hub-row-ops {
-  background: var(--hub-proto-surface);
-  border: 1px solid var(--hub-proto-border);
+  background: var(--hub-fundo-painel, var(--hub-ops-kpi-bg));
+  border: 1px solid var(--hub-borda-painel, rgba(148, 163, 184, 0.08));
   border-radius: 14px;
   padding: 1.1rem;
   margin-bottom: 1rem;

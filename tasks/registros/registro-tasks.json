@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 331,
+  "proximo_numero": 333,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -981,6 +981,40 @@
       "tempo_liquido_horas": 1.25,
       "tokens_estimados_total": 90000,
       "arquivo_ficha": "registros/TASK-000330.json"
+    },
+    {
+      "referencia": "TASK-000331",
+      "ordinal": 56,
+      "titulo_canonico": "OUTROS-SMART-READ-MEL-REFINAR-LAYOUT-PASSOS-LEITURA",
+      "titulo_exibicao": "TASK-000331 | [Smart Read] | MEL — Refinar layout dos passos da leitura (1–4)",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "REFINAR-LAYOUT-PASSOS-LEITURA",
+      "data_criacao": "2026-06-24T20:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000331.json"
+    },
+    {
+      "referencia": "TASK-000332",
+      "ordinal": 57,
+      "titulo_canonico": "CONFIG-HUB-DUV-LOCALIZAR-PUZZLE-PRODUTOS-GRAVITY",
+      "titulo_exibicao": "TASK-000332 | [Configurador] Hub | DUV — Localizar puzzle Seus Produtos Gravity (Pedido → NF Import)",
+      "status": "ABR",
+      "area": "CONFIG",
+      "subarea": "HUB",
+      "visualizacao": null,
+      "tipo_entrega": "DUV",
+      "resumo": "LOCALIZAR-PUZZLE-PRODUTOS-GRAVITY",
+      "data_criacao": "2026-06-24T23:45:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000332.json"
     }
   ]
 }

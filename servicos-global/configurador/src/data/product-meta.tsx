@@ -366,6 +366,23 @@ export function nomeExibicaoProdutoGravity(
 }
 
 /**
+ * Rótulo curto nas peças do puzzle no HUB — prioriza nameKey i18n (Bid Frete Int., NF Import…)
+ * em vez do nome longo do catálogo Admin, para caber no card quadrado.
+ */
+export function nomeExibicaoPecaPuzzleHub(
+  slug: string,
+  nomeCatalogo: string,
+  t: (key: string, defaultValue?: string) => string,
+): string {
+  const chave = slugCatalogoParaPuzzle(slug === 'bid-frete-internacional' ? 'bid-frete' : slug)
+  const meta = metaProdutoStore(chave) ?? metaProdutoStore(slug)
+  if (meta?.nameKey) return t(meta.nameKey)
+  const doAdmin = nomeCatalogo?.trim()
+  if (doAdmin) return doAdmin
+  return nomeCatalogo
+}
+
+/**
  * Descrição exibida — SSOT é descricao_produto_gravity do Admin; descKey só como fallback.
  */
 export function descricaoExibicaoProdutoGravity(

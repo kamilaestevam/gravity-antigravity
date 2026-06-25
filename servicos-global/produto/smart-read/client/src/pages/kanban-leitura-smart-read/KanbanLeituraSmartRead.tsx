@@ -3,6 +3,7 @@
  */
 
 import { useMemo } from 'react'
+import { useSmartReadVisualizacao } from '../../components/smart-read-visualizacao-context'
 import { ROTULO_STATUS_LEITURA } from '../../shared/formatacao-leitura-smart-read'
 import { useTransacoesLeituraSmartRead } from '../../shared/use-transacoes-leitura-smart-read'
 import type { StatusLeitura, TransacaoLeitura } from '../../shared/schemas'
@@ -24,7 +25,8 @@ function agruparPorStatus(transacoes: TransacaoLeitura[]): Record<StatusLeitura,
 }
 
 export default function KanbanLeituraSmartRead() {
-  const { transacoes, carregando, erro } = useTransacoesLeituraSmartRead()
+  const { painelAtivo } = useSmartReadVisualizacao()
+  const { transacoes, carregando, erro } = useTransacoesLeituraSmartRead('envios', painelAtivo('kanban'))
   const grupos = useMemo(() => agruparPorStatus(transacoes), [transacoes])
 
   if (carregando && transacoes.length === 0) {

@@ -174,6 +174,15 @@ Teste: `http://localhost:8000/smart-read/lista` (Configurador) + sidecar `8033`.
 
 **Não usar:** `VITE_SMART_READ_MOCK_DADOS`, `SMART_READ_MOCK_LEGADO=1` (exceto dev sem legado).
 
+### Rate limit do BFF (porta 8033)
+
+| Ambiente | Comportamento |
+|----------|----------------|
+| **Produção / staging** (`NODE_ENV=production`, padrão Railway) | `express-rate-limit`: **100 req/min** por `x-id-organizacao` em `/api/*` |
+| **Local** (`NODE_ENV` ≠ `production`) | Rate limit **desligado** (`skip` em `server/src/index.ts`) — evita 429 ao alternar abas com HMR |
+
+Resposta 429: `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas requisicoes' } }` — exibida na faixa vermelha da Lista (`sr-erro`).
+
 ---
 
 ## 7. Limitações conhecidas
@@ -202,10 +211,15 @@ A área da tabela **preenche o viewport** abaixo dos cards e abas de segmento (p
 
 | Camada | Arquivo / classe |
 |--------|------------------|
-| Painel keep-alive | `SmartReadVisualizacaoTabs.css` → `.smart-read-view-panel--ativo` + filho `.sr-pagina--lista` com `flex: 1` |
+| Orquestração keep-alive | `SmartReadMultiView.tsx` — monta abas já visitadas (`visitados`) |
+| Fetch só na aba ativa | `useTransacoesLeituraSmartRead(segmento, habilitado)` — `habilitado` = `painelAtivo('lista' \| 'insights' \| 'kanban')` |
+| Insights (lista + detalhe) | `useDadosInsightsLeituraSmartRead(habilitado)` — `GET /leituras/:id` só com aba Insights ativa |
+| Painel keep-alive (CSS) | `SmartReadVisualizacaoTabs.css` → `.smart-read-view-panel--ativo` + filho `.sr-pagina--lista` com `flex: 1` |
 | Página lista | `ListaLeituraSmartRead.tsx` → `.sr-pagina--lista` |
 | Wrapper tabela | `.sr-tabela-wrapper` (`flex: 1; min-height: 0`) |
 | GTV | `.gtv-container` + `.gtv-tabela-scroll` (`flex: 1 1 0`) |
+
+> **Regra:** aba montada mas oculta **não** dispara `GET /leituras` nem métricas — evita 429 em dev quando Insights e Lista coexistem no keep-alive (PR #449 + follow-up Kanban).
 
 **Referência visual:** mesma altura total que Pedido (`/pedido/pedidos/lista`) — tabela + toolbar + rodapé dentro do bloco, scroll interno nas linhas.
 

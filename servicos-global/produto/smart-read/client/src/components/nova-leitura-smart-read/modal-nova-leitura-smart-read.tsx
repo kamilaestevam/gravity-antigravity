@@ -296,11 +296,59 @@ export function ModalNovaLeituraSmartRead({
 
 
 
-  const removerArquivo = useCallback((id: string) => {
+  const solicitarRemoverArquivo = useCallback((id: string) => {
 
-    setArquivos((prev) => prev.filter((item) => item.id_arquivo_local !== id))
+    const item = arquivos.find((arquivo) => arquivo.id_arquivo_local === id) ?? null
 
-  }, [])
+    if (item) setArquivoExclusaoPendente(item)
+
+  }, [arquivos])
+
+
+
+  const confirmarRemoverArquivo = useCallback(async () => {
+
+    if (!arquivoExclusaoPendente) return
+
+    const pendente = arquivoExclusaoPendente
+    const id = pendente.id_arquivo_local
+
+    const urlBlob = urlsBlob.current.get(id)
+    if (urlBlob) {
+      URL.revokeObjectURL(urlBlob)
+      urlsBlob.current.delete(id)
+    }
+
+    let proximos: ArquivoLocalNovaLeitura[] = []
+    setArquivos((prev) => {
+      proximos = prev.filter((item) => item.id_arquivo_local !== id)
+      return proximos
+    })
+
+    const idLeitura =
+      idLeituraExistente ??
+      pendente.id_leitura ??
+      proximos.find((a) => a.id_leitura)?.id_leitura ??
+      null
+
+    if (idLeitura && proximos.length === 0) {
+      limparEstadoLeituraSmartRead(idLeitura)
+      return
+    }
+
+    if (idLeitura && passoSalvoRef.current >= 2 && todosArquivosAnaliseCompleta(proximos)) {
+      const leituraBase = consolidarLeituraDeArquivosLocais(proximos)
+      if (leituraBase) {
+        const nomeEfetivo = nomeLeitura.trim() || nomeLeitura
+        await persistirProgressoLeituraSmartRead(idLeitura, {
+          passo: passoSalvoRef.current,
+          nome: nomeEfetivo,
+          leitura: { ...leituraBase, nome_leitura: nomeEfetivo },
+        })
+      }
+    }
+
+  }, [arquivoExclusaoPendente, idLeituraExistente, nomeLeitura])
 
 
 
@@ -636,7 +684,7 @@ export function ModalNovaLeituraSmartRead({
             }
           }}
 
-          onRemoverArquivo={removerArquivo}
+          onRemoverArquivo={solicitarRemoverArquivo}
 
           onAlternarExpandido={alternarExpandido}
 
@@ -693,6 +741,15 @@ export function ModalNovaLeituraSmartRead({
         indiceDocumento={conferenciaSelecao?.indiceDocumento ?? 0}
         onFechar={() => setCompararAberto(false)}
         onEditarCampoDocumentoAtual={editarCampoDocumentoAtual}
+      />
+
+      <ModalConfirmarExcluirGlobal
+        aberto={arquivoExclusaoPendente !== null}
+        titulo="Excluir arquivo?"
+        descricao="O arquivo será removido desta leitura."
+        nomeItem={arquivoExclusaoPendente?.arquivo.name}
+        aoConfirmar={confirmarRemoverArquivo}
+        aoCancelar={() => setArquivoExclusaoPendente(null)}
       />
 
     </ModalPassoPassoGlobal>

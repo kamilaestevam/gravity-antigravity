@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 333,
+  "proximo_numero": 335,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1015,6 +1015,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000332.json"
+    },
+    {
+      "referencia": "TASK-000334",
+      "ordinal": 59,
+      "titulo_canonico": "OUTROS-SMART-READ-BUG-EXCLUIR-ARQUIVO-NAO-FUNCIONA",
+      "titulo_exibicao": "TASK-000334 | [Smart Read] Nova Leitura | BUG — Excluir arquivo no painel lateral não remove o item",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "EXCLUIR-ARQUIVO-NAO-FUNCIONA",
+      "data_criacao": "2026-06-25T18:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000334.json"
     }
   ]
 }

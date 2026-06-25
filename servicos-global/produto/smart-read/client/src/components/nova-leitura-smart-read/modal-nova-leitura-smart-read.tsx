@@ -626,7 +626,7 @@ export function ModalNovaLeituraSmartRead({
 
       icone={<FileMagnifyingGlass size={20} weight="duotone" />}
 
-      subtitulo={nomeLeitura}
+      subtituloNode={<span className="sr-wizard-modal-subtitulo-leitura">{nomeLeitura}</span>}
 
       aberto={aberto}
 
@@ -645,6 +645,12 @@ export function ModalNovaLeituraSmartRead({
       altura="min(920px, calc(100vh - 2rem))"
 
       ocultarFooter
+
+      classNameDialog="sr-wizard-mpg-dialog"
+
+      classNameCabecalho="sr-wizard-cabecalho"
+
+      classNameStepperEnvoltorio="sr-wizard-stepper-painel-wrap"
 
       navegacaoDireta={passo > 1 && analiseCompleta}
 

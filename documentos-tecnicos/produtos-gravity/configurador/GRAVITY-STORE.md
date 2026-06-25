@@ -169,6 +169,7 @@ A faixa **Seus Produtos Gravity** do HUB unificado (`SelecionarWorkspace`) reuti
 | Interior da peça | Preenchimento neutro (`--hub-puzzle-fill-interno` / `--hub-puzzle-fill-disponivel`); cor do produto só no **contorno** (`stroke`) quando `owned` |
 | Ícones | `iconeOficialProdutoGravity` via `@nucleo/logo-produtos` — **22px** fixos (`.gs-piece__icon svg`) |
 | Centralização óptica | `.gs-piece__body` ancorado no quadrado **120×90px** (não no SVG 138px com aba); `.gs-piece__stack` centralizado nessa área |
+| Rótulo da peça (nome) | `transform: translateY(-4px)` em `.gs-piece--hub-visual .gs-piece__name` — ajuste óptico 2px abaixo do baseline anterior (`-6px`; PR #446) |
 | Espaço subtítulo → puzzle | **4px** — `.gs-stack--hub-paridade-store .gs-stack__head { margin-bottom: 4px }` |
 | Contador do meter | Mesma tipografia do subtítulo (`.gs-stack__sub`): `0.8125rem`, peso normal, `--sw-text-2`, sem `text-transform: uppercase` |
 | Peça BID Fornecedor | Extra HUB (`pecasExtras`) inserida **logo após** `bid-frete` via `slugVisual` + `ordenarPecasPuzzleComExtrasHub`; factory `buildPecaHubBidFreteFornecedor` (`verificar-cotar-bid-frete-internacional.ts`); exibida só com permissão `visao_fornecedor:cotar` |
@@ -259,6 +260,7 @@ Escopo **STORE** — pasta `testes/**/gravity-store/` (registry `TST-*-STORE-*`)
 |--------------|--------|
 | #404 (2026-06-23) | HUB `/hub`: puzzle **Seus Produtos Gravity** com paridade Store (`StorePuzzleCarousel`, escala 1.0, ícones 22px, contorno colorido) — ver § Reuso no HUB |
 | pós-#404 (2026-06-23) | Refinos HUB: espaço subtítulo→puzzle **4px**, contador alinhado ao subtítulo, **BID Fornecedor** ancorado após Bid Frete, centralização no quadrado 120px |
+| #446 (2026-06-25) | HUB: rótulo do puzzle **2px para baixo** — `.gs-piece__name` com `translateY(-4px)` (antes `-6px`) |
 
 ---
 

@@ -797,8 +797,32 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
   padding: 0;
   min-width: 0;
+  overflow: hidden;
+}
+
+.sr-wizard-analise-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1rem;
+  align-items: stretch;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.sr-wizard-analise-layout > .sr-wizard-metricas {
+  flex-shrink: 0;
+}
+
+.sr-wizard-analise-layout > .sr-wizard-analise-painel {
+  flex: 1;
+  min-height: 0;
 }
 
 .sr-wizard-analise-alerta-erro {
@@ -822,7 +846,7 @@
 
   display: grid;
 
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 1rem;
 
@@ -1047,15 +1071,15 @@
 
 
 .sr-wizard-analise-painel {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  min-height: 260px;
+  flex: 1;
+  min-height: 0;
   min-width: 0;
   width: 100%;
-  padding: 1.125rem 1.25rem 1.25rem;
-  border-radius: 0.75rem;
+  padding: 1.25rem 1.125rem;
+  border-radius: 0.625rem;
   background: var(--sr-wizard-superficie-fundo);
   border: 1px solid var(--sr-wizard-superficie-borda);
   overflow: hidden;
@@ -1157,27 +1181,39 @@
 }
 
 .sr-wizard-analise-corpo {
-  flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
-  gap: 0;
-  align-items: stretch;
-  min-height: 16rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
   min-width: 0;
   width: 100%;
-  transform: translateY(-24px);
 }
 
 .sr-wizard-analise-lista {
+  grid-column: 1;
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
-  min-width: 0;
   width: 100%;
-  max-width: none;
-  padding-right: 1.25rem;
+  min-width: 0;
+  height: 100%;
   align-self: stretch;
   justify-content: center;
+}
+
+.sr-wizard-analise-lista .sr-wizard-etapa-pipeline {
+  grid-template-columns: auto minmax(5rem, 6.5rem) minmax(3rem, 1fr) auto auto;
+  gap: 0.375rem 0.625rem;
+  padding: 0.875rem 1rem;
+  min-height: 3rem;
+}
+
+.sr-wizard-analise-lista .sr-wizard-etapa-pill {
+  min-width: 5rem;
+  padding-inline: 0.5rem;
+  font-size: 0.625rem;
 }
 
 .sr-wizard-modal-subtitulo-leitura {
@@ -1187,14 +1223,15 @@
 
 .sr-wizard-cerebro-wrap {
   position: relative;
+  grid-column: 2;
   justify-self: center;
   align-self: center;
-  width: min(100%, 22rem);
-  height: min(100%, 22rem);
+  width: min(100%, 20rem);
+  height: min(100%, 20rem);
+  max-height: 100%;
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  flex-shrink: 0;
   padding: 0.25rem;
 }
 
@@ -1913,32 +1950,43 @@
   }
 
   .sr-wizard-analise-painel {
+    flex: none;
     min-height: auto;
     padding: 1rem;
   }
 
+  .sr-wizard-analise-layout {
+    flex: none;
+  }
+
   .sr-wizard-analise-corpo {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 1.25rem;
   }
 
   .sr-wizard-analise-lista {
-    padding-right: 0;
+    width: 100%;
+  }
+
+  .sr-wizard-analise-lista .sr-wizard-etapa-pipeline {
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
   }
 
   .sr-wizard-analise-cerebro-col,
   .sr-wizard-cerebro-wrap {
     width: 100%;
     min-height: auto;
-    padding: 0.75rem 0 0;
+    padding: 0;
     border-left: none;
-    border-top: 1px solid rgba(148, 163, 184, 0.14);
+    border-top: none;
   }
 
   .sr-wizard-cerebro-wrap {
     width: min(100%, 16rem);
     height: min(100%, 16rem);
-    justify-self: center;
+    align-self: center;
   }
 
   .sr-wizard-etapa-pipeline {

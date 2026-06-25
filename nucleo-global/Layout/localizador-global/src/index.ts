@@ -1,3 +1,4 @@
+export { EXIBIR_LOCALIZADOR_GLOBAL } from './exibir-localizador-global'
 export { LocalizadorGlobal } from './LocalizadorGlobal'
 export { useLocalizadorHistory } from './useLocalizadorHistory'
 export {

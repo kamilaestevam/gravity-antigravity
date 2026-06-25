@@ -20,7 +20,7 @@ Na rota `/hub`, `<SelecionarWorkspace />` é o **HUB unificado** (produtos contr
 
 > **GABI no Hub (jun/2026):** painel de insights e widget flutuante estão **ocultos** no código (`EXIBIR_PAINEL_GABI_HUB` / `EXIBIR_WIDGET_GABI_GLOBAL` = `false`) até entrega futura do agente. Não documentar como disponível para o usuário.
 >
-> **Localizador no header do Hub (jun/2026):** botão «Onde estou» (`LocalizadorGlobal`) **oculto** (`EXIBIR_LOCALIZADOR_HEADER_HUB` = `false`) até o mapa do ecossistema estar pronto. Código preservado em `SelecionarWorkspace.tsx`.
+> **Localizador «Onde estou» (jun/2026):** botão `LocalizadorGlobal` **oculto em todas as telas** (`EXIBIR_LOCALIZADOR_GLOBAL` = `false` em `@nucleo/localizador-global`) até o mapa do ecossistema estar pronto. Código e props preservados nos consumidores.
 
 ### Layout do HUB (PR #404)
 
@@ -125,7 +125,7 @@ Sem o parâmetro, qualquer botão "Voltar ao Hub" entraria em loop para usuário
 |---|---|
 | Botão "Voltar ao Hub" no header | `navigate('/hub?select=1')` ou `window.location.href = '/hub?select=1'` |
 | Item de menu na sidebar de produto | `to: '/hub?select=1'` |
-| Click no nó "hub" do `<LocalizadorGlobal>` | `navigate('/hub?select=1')` *(Localizador oculto no header do `/hub` até `EXIBIR_LOCALIZADOR_HEADER_HUB` — ver nota acima)* |
+| Click no nó "hub" do `<LocalizadorGlobal>` | `navigate('/hub?select=1')` *(Localizador oculto globalmente até `EXIBIR_LOCALIZADOR_GLOBAL` — ver nota acima)* |
 
 **Exceção:** `App.tsx > RootRedirect` (rota `/`) usa o porteiro → `/hub` **sem** `?select=1` quando o usuário já tem org — quem digita `/` espera "home". O skip é desejado neste caso.
 

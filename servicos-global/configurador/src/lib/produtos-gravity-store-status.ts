@@ -21,6 +21,15 @@ export interface AssinaturaProdutoGravityMin {
 
 const STATUS_CATALOGO_VISIVEL = new Set(['ATIVO', 'Ativo', 'EM_BREVE'])
 
+/** Puzzle Hub/Store: somente produtos ATIVO (contratado ou disponível para compra). */
+const STATUS_PUZZLE_CATALOGO = new Set(['ATIVO', 'Ativo'])
+
+export function filtrarCatalogoPuzzleProdutosGravity<T extends { status: string }>(
+  catalogo: T[],
+): T[] {
+  return catalogo.filter(p => STATUS_PUZZLE_CATALOGO.has(p.status))
+}
+
 export function slugCanonicoProdutoGravity(slug: string): string {
   if (slug === 'bid-frete-internacional') return 'bid-frete'
   if (slug === 'nf-import') return 'nf-importacao'
@@ -79,7 +88,7 @@ export function statusProdutoGravityStore(
 export function slugsPuzzleStackProdutosGravity<T extends { slug: string; status: string }>(
   catalogo: T[],
 ): string[] {
-  const filtrado = filtrarCatalogoProdutosGravityStore(catalogo)
+  const filtrado = filtrarCatalogoPuzzleProdutosGravity(catalogo)
   const ordenados = ordenarSlugsPuzzleStore(filtrado)
   const vistos = new Set<string>()
   const slugs: string[] = []

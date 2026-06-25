@@ -217,14 +217,16 @@ export function pecasPuzzleStackProdutosGravity(
   const catalogoPorSlug = mapaCatalogoPorSlugCanonico(catalogo)
   const assinaturaAtiva = mapaAssinaturaAtivaPorSlug(assinaturas)
   const slugsStack = slugsPuzzleStackProdutosGravity(catalogo)
-  return slugsStack.map(slug => {
-    const cat = catalogo.find(p => slugCanonicoProdutoGravity(p.slug) === slug)
-    return {
-      slug,
-      nome: cat?.name ?? slug,
-      status: statusProdutoGravityStore(slug, catalogoPorSlug, assinaturaAtiva),
-    }
-  })
+  return slugsStack
+    .map(slug => {
+      const cat = catalogo.find(p => slugCanonicoProdutoGravity(p.slug) === slug)
+      return {
+        slug,
+        nome: cat?.name ?? slug,
+        status: statusProdutoGravityStore(slug, catalogoPorSlug, assinaturaAtiva),
+      }
+    })
+    .filter(peca => peca.status === 'owned' || peca.status === 'available')
 }
 
 export interface BarrasMeterPuzzleStackProdutosProps {

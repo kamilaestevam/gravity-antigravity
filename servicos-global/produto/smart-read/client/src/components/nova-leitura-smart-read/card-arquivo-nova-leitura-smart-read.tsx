@@ -69,48 +69,50 @@ export function CardArquivoNovaLeituraSmartRead({
         <span className="sr-wizard-card-icone">
           <FilePdf size={18} weight="duotone" />
         </span>
-        <span className="sr-wizard-card-nome" title={item.arquivo.name}>
-          {item.arquivo.name}
-        </span>
-        <div className="sr-wizard-card-acoes">
-          <button
-            type="button"
-            className="sr-wizard-card-btn-visualizar"
-            title="Visualizar documento original"
-            aria-label={`Visualizar original ${item.arquivo.name}`}
-            onClick={onVisualizarArquivo}
-          >
-            <Eye size={16} weight="duotone" />
-            {temDocumentosIdentificados && (
-              <span className="sr-wizard-card-contagem" aria-label={`${quantidadeDocumentos} documento(s) identificado(s)`}>
-                {quantidadeDocumentos}
-              </span>
+        <div className="sr-wizard-card-info">
+          <span className="sr-wizard-card-nome" title={item.arquivo.name}>
+            {item.arquivo.name}
+          </span>
+          <div className="sr-wizard-card-acoes">
+            <button
+              type="button"
+              className="sr-wizard-card-btn-visualizar"
+              title="Visualizar documento original"
+              aria-label={`Visualizar original ${item.arquivo.name}`}
+              onClick={onVisualizarArquivo}
+            >
+              <Eye size={16} weight="duotone" />
+              {temDocumentosIdentificados && (
+                <span className="sr-wizard-card-contagem" aria-label={`${quantidadeDocumentos} documento(s) identificado(s)`}>
+                  {quantidadeDocumentos}
+                </span>
+              )}
+            </button>
+
+            {podeExpandir && (
+              <button
+                type="button"
+                className="sr-wizard-card-btn-icone"
+                title={item.expandido ? 'Recolher documentos identificados' : 'Expandir documentos identificados'}
+                aria-expanded={item.expandido}
+                onClick={onAlternarExpandido}
+              >
+                {item.expandido ? <CaretUp size={16} /> : <CaretDown size={16} />}
+              </button>
             )}
-          </button>
 
-          {podeExpandir && (
-            <button
-              type="button"
-              className="sr-wizard-card-btn-icone"
-              title={item.expandido ? 'Recolher documentos identificados' : 'Expandir documentos identificados'}
-              aria-expanded={item.expandido}
-              onClick={onAlternarExpandido}
-            >
-              {item.expandido ? <CaretUp size={16} /> : <CaretDown size={16} />}
-            </button>
-          )}
-
-          {passo === 1 && onRemover && (
-            <button
-              type="button"
-              className="sr-wizard-card-btn-icone sr-wizard-card-btn-remover"
-              title="Remover arquivo"
-              aria-label={`Remover ${item.arquivo.name}`}
-              onClick={onRemover}
-            >
-              <Trash size={16} />
-            </button>
-          )}
+            {passo === 1 && onRemover && (
+              <button
+                type="button"
+                className="sr-wizard-card-btn-icone sr-wizard-card-btn-remover"
+                title="Remover arquivo"
+                aria-label={`Remover ${item.arquivo.name}`}
+                onClick={onRemover}
+              >
+                <Trash size={16} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

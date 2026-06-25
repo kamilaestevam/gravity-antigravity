@@ -991,7 +991,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   white-space: normal;
   overflow: visible;
   pointer-events: none;
-  transform: translateY(-6px);
+  transform: translateY(-4px);
 }
 
 .sw-hub-panel--produtos .gs-piece--nao-contratado-hub .gs-piece__name {

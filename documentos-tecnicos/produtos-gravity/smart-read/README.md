@@ -120,4 +120,5 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | **TASK-000334** / PR #445 | Wizard passo 1: exclusùo de arquivo com confirmaùùo (modal acima do wizard), persistùncia local/progresso; `DELETE` legado ainda `501` ù ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) ù3 |
 | **Status de fluxo** (2026-06) | **Fundaùùo:** migration `20260625120000`, colunas `status_fluxo_*`, SSOT `shared/status-fluxo-leitura-smart-read.ts`, pill isolada + testes; **pendente:** wiring BFF/Lista (ù14.3) ù ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) ù14 |
 | **TASK-000343** | Passo 2: suite testes 000151ù000155, `tempo_analise_segundos`, Base de cùlculo no wizard ù [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
+| Erros passo 2 (2026-06) | Sidebar motivo amigavel + nao sera cobrado; mapeamento legado Excel/XML ù [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) ù7 |
 | Refatoraùùo Insights | Fonte ùnica acerto/erro por ediùùo do usuùrio; emissor responsùvel por tipo de documento; `dados_original` no contrato bilateral |

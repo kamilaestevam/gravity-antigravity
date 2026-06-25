@@ -14,6 +14,8 @@
 | Dashboard passo 2 | `client/src/components/nova-leitura-smart-read/dashboard-analise-nova-leitura-smart-read.tsx` |
 | Sidebar + botões | `client/src/components/nova-leitura-smart-read/painel-lateral-arquivos-nova-leitura-smart-read.tsx` |
 | Card de arquivo (documentos identificados) | `client/src/components/nova-leitura-smart-read/card-arquivo-nova-leitura-smart-read.tsx` |
+| Erros amigáveis por arquivo | `client/src/shared/formatar-erro-arquivo-leitura-smart-read.ts` |
+| Cliente HTTP legado (mensagem bruta) | `server/src/lib/cliente-legado-smart-read.ts` |
 | Tempo congelado / fallback extração | `client/src/shared/resolver-tempo-analise-nova-leitura-smart-read.ts` |
 | Agregação «Base de cálculo» | `client/src/shared/montar-entrada-agregacao-nova-leitura-smart-read.ts` |
 | Saving passo 2 | `client/src/shared/calcular-saving-nova-leitura-smart-read.ts` |
@@ -62,8 +64,9 @@ Corpo (grid lateral + principal):
 | Globo | Anel SVG proporcional à média das três barras; 100% quando todas as etapas completas |
 | SLA UX | Progresso client-side completa em ~16s; testes EMT validam execução total ≤ **75s** |
 | Voltar | Retorna ao passo 1 (arquivos preservados) |
-| Continuar | Avança para passo 3 «Conferência» quando análise finalizada |
+| Continuar | Avança para passo 3 «Conferência» quando análise finalizada (exige ao menos **um** arquivo `completo`) |
 | Cancelar | Fecha modal; persiste progresso incl. `tempo_analise_segundos` quando aplicável |
+| Erro parcial | Polling pode concluir com mix de arquivos `completo` + `erro`; usuário segue para Conferência só com os que analisaram |
 
 Persistência: ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) e [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §3 (`PATCH /progresso`).
 
@@ -127,3 +130,58 @@ npx playwright test testes/testes-e2e/produto-gravity/smart-read/nova-leitura/pa
 # EMT
 npx tsx testes/testes-em-tela/produto-gravity/smart-read/nova-leitura/passo-dois/plano-de-teste/run-TST-EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000155.ts
 ```
+
+---
+
+## 7. Erros de análise por arquivo (UX + legado)
+
+Quando o **Smart Read legado** (DATI/microservices) falha ao processar um anexo, o BFF grava a mensagem técnica em `mensagem_erro` (`ArquivoLocalNovaLeitura` / transação). A UI **nunca** exibe esse dump na sidebar — traduz via `interpretarErroArquivoLeituraSmartRead`.
+
+### 7.1 O que o usuário vê
+
+| Zona | Conteúdo |
+|------|----------|
+| **Card sidebar** (`.sr-wizard-card--erro`) | Status **«Análise não concluída»** + bloco `.sr-wizard-card-erro-detalhe` |
+| **Motivo** (`.sr-wizard-card-erro-motivo`) | Texto legível em português (causa provável + orientação) |
+| **Cobrança** (`.sr-wizard-card-erro-cobranca`) | **«Este arquivo não será cobrado.»** (verde) — regra de produto: falha de análise não gera cobrança daquele anexo |
+| **Alerta passo 2** (`.sr-wizard-analise-alerta-erro`) | «Um ou mais arquivos não puderam ser analisados. Veja o motivo na sidebar — arquivos com erro não serão cobrados.» |
+
+Constantes SSOT: `TITULO_ERRO_ARQUIVO_LEITURA_SMART_READ`, `AVISO_SEM_COBRANCA_ERRO_ARQUIVO_LEITURA_SMART_READ`.
+
+Testes UNI: `testes/testes-unitarios/produto-gravity/smart-read/formatar-erro-arquivo-leitura-smart-read.test.ts`.
+
+### 7.2 Origem da mensagem técnica
+
+1. Upload → BFF → legado (`cliente-legado-smart-read.ts`).
+2. Falha HTTP → string do tipo `Smart Read legado respondeu {status}: {corpo}` (até 300 chars).
+3. Modal wizard seta `status_arquivo_local: 'erro'` e `mensagem_erro` no card.
+
+### 7.3 Mapeamento legado → motivo amigável
+
+| Padrão na `mensagem_erro` (case-insensitive) | Motivo exibido ao usuário |
+|---------------------------------------------|---------------------------|
+| `soffice binary` / `could not find soffice` | Excel (.xlsx) não convertido — enviar PDF ou JPG/PNG |
+| `central directory` / `is this a zip` | `.xls` (Excel antigo) não suportado na conversão — salvar como .xlsx ou PDF |
+| `convert excel to pdf` | Planilha não convertida — tentar PDF, CSV ou imagem |
+| `403 forbidden` / `respondeu 403` | XML bloqueado no legado — tentar PDF, imagem ou planilha |
+| `tempo limite` / `timeout` | Análise excedeu tempo — reenviar |
+| `sem vínculo` / `ORGANIZACAO_SEM_VINCULO` | Organização sem vínculo Smart Read — suporte |
+| `legado indisponível` / `SMART_READ_LEGADO_*` | Serviço indisponível — tentar depois |
+| `respondeu 422` / `unprocessable` | Formato/conteúdo não processado — verificar arquivo |
+| `respondeu 5` / `service unavailable` | Instabilidade do serviço |
+| *(default)* | Falha inesperada — verificar integridade e formato |
+
+### 7.4 Formatos aceitos no passo 1 vs falhas observadas em produção
+
+O passo 1 aceita `.pdf`, `.jpg`, `.jpeg`, `.png`, `.xml`, `.csv`, `.xls`, `.xlsx` ([NOVA-LEITURA-PASSO-UM-TECNICO.md](./NOVA-LEITURA-PASSO-UM-TECNICO.md) §4). Nem todo formato aceito no upload conclui análise no legado:
+
+| Formato | Upload (passo 1) | Análise legado (passo 2) — observado |
+|---------|-------------------|--------------------------------------|
+| CSV, JPG, JPEG, PNG | OK | OK (classifica documento, ex.: INVOICE) |
+| XLSX | OK | Falha se **LibreOffice (`soffice`)** ausente no servidor legado (422) |
+| XLS | OK | Falha frequente: legado trata como ZIP/xlsx (422 «central directory») |
+| XML | OK | Falha **403 Forbidden** no legado (ambiente produção, jun/2026) |
+
+**Infra pendente (legado, fora do BFF Gravity):** instalar/configurar `soffice` para Excel; liberar rota XML; tratar `.xls` distinto de `.xlsx`.
+
+Fixtures multi-formato para teste manual: script `scripts/gerar-invoice-teste-smart-read.py` → `~/Downloads/smart-read-invoice-teste/`.

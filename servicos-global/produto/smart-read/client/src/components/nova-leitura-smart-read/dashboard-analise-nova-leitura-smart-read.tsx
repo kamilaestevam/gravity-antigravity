@@ -177,7 +177,8 @@ export function DashboardAnaliseNovaLeituraSmartRead({
     <div className="sr-wizard-principal sr-wizard-principal--analise">
       {processamentoComErro && (
         <div className="sr-wizard-analise-alerta-erro" role="alert">
-          A análise não pôde ser concluída. Verifique os arquivos na sidebar e tente novamente.
+          Um ou mais arquivos não puderam ser analisados. Veja o motivo na sidebar — arquivos com erro não
+          serão cobrados.
         </div>
       )}
 

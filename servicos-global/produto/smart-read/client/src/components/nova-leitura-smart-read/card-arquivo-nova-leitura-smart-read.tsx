@@ -18,7 +18,7 @@ import {
   contarDocumentosArquivoLocal,
   extrairDocumentosArquivoLocal,
 } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
-import { formatarErroArquivoLeituraSmartRead } from '../../shared/formatar-erro-arquivo-leitura-smart-read'
+import { interpretarErroArquivoLeituraSmartRead } from '../../shared/formatar-erro-arquivo-leitura-smart-read'
 
 type Props = {
   item: ArquivoLocalNovaLeitura
@@ -40,7 +40,7 @@ function rotuloStatus(item: ArquivoLocalNovaLeitura, passo: number): string {
     case 'completo':
       return 'Análise completa'
     case 'erro':
-      return formatarErroArquivoLeituraSmartRead(item.mensagem_erro)
+      return interpretarErroArquivoLeituraSmartRead(item.mensagem_erro).titulo
     default:
       return ''
   }
@@ -62,9 +62,12 @@ export function CardArquivoNovaLeituraSmartRead({
     item.status_arquivo_local === 'enviando' || item.status_arquivo_local === 'analisando'
   const completo = item.status_arquivo_local === 'completo'
   const erro = item.status_arquivo_local === 'erro'
+  const erroInterpretado = erro ? interpretarErroArquivoLeituraSmartRead(item.mensagem_erro) : null
 
   return (
-    <article className={`sr-wizard-card${item.expandido ? ' sr-wizard-card--expandido' : ''}`}>
+    <article
+      className={`sr-wizard-card${item.expandido ? ' sr-wizard-card--expandido' : ''}${erro ? ' sr-wizard-card--erro' : ''}`}
+    >
       <div className="sr-wizard-card-cabecalho">
         <span className="sr-wizard-card-icone">
           <FilePdf size={18} weight="duotone" />
@@ -116,12 +119,19 @@ export function CardArquivoNovaLeituraSmartRead({
         </div>
       </div>
 
-      <div className="sr-wizard-card-status">
+      <div className={`sr-wizard-card-status${erro ? ' sr-wizard-card-status--erro' : ''}`}>
         {emProcessamento && <CircleNotch size={14} className="sr-wizard-card-spin" />}
         {completo && <CheckCircle size={14} weight="fill" className="sr-wizard-card-ok" />}
         {erro && <XCircle size={14} weight="fill" className="sr-wizard-card-erro-icone" />}
         <span>{rotuloStatus(item, passo)}</span>
       </div>
+
+      {erroInterpretado && (
+        <div className="sr-wizard-card-erro-detalhe" role="alert" aria-live="polite">
+          <p className="sr-wizard-card-erro-motivo">{erroInterpretado.motivo}</p>
+          <p className="sr-wizard-card-erro-cobranca">{erroInterpretado.aviso_sem_cobranca}</p>
+        </div>
+      )}
 
       {temDocumentosIdentificados && !item.expandido && (
         <div className="sr-wizard-card-chips" aria-label="Documentos identificados">

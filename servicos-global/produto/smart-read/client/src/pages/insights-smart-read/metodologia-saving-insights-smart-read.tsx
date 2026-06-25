@@ -21,9 +21,12 @@ import {
   resolverParametrosTempoDocumentoSmartRead,
 } from './dados-base-produto-tempo-smart-read'
 import { formatarMoedaInsightsSmartRead } from './calcular-metricas-insights-leitura-smart-read'
+import '../../shared/smart-read-leituras.css'
+import './insights-smart-read.css'
 
 type MetodologiaSavingContexto = {
   abrir: () => void
+  recarregar?: () => void
 }
 
 const MetodologiaSavingContext = createContext<MetodologiaSavingContexto | null>(null)
@@ -264,16 +267,22 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
 export function ProvedorMetodologiaSavingInsightsSmartRead({
   children,
   transacoes = [],
+  aoAbrir,
 }: {
   children: ReactNode
   transacoes?: EntradaAgregacaoTempoExtracaoIaSmartRead[]
+  /** Recarga de amostra antes de exibir o modal (ex.: histórico do workspace). */
+  aoAbrir?: () => void
 }) {
   const [aberto, setAberto] = useState(false)
-  const abrir = useCallback(() => setAberto(true), [])
+  const abrir = useCallback(() => {
+    aoAbrir?.()
+    setAberto(true)
+  }, [aoAbrir])
   const fechar = useCallback(() => setAberto(false), [])
 
   return (
-    <MetodologiaSavingContext.Provider value={{ abrir }}>
+    <MetodologiaSavingContext.Provider value={{ abrir, recarregar: aoAbrir }}>
       {children}
       <ModalOverlay
         aberto={aberto}

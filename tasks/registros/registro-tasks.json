@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 343,
+  "proximo_numero": 345,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1151,6 +1151,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000342.json"
+    },
+    {
+      "referencia": "TASK-000344",
+      "ordinal": 67,
+      "titulo_canonico": "SMTRD-BASE-CALCULO-MEL-ATUALIZAR-MEDIA-SR-MEDIDO",
+      "titulo_exibicao": "TASK-000344 | [Smart Read] Base de cálculo | MEL — Atualização contínua da média SR medido (s)",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "BASE-CALCULO",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "ATUALIZAR-MEDIA-SR-MEDIDO",
+      "data_criacao": "2026-06-25T19:36:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000344.json"
     }
   ]
 }

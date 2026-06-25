@@ -7,6 +7,7 @@ import { useSmartReadVisualizacao } from '../../components/smart-read-visualizac
 import { ListaLeituraCardsSmartRead } from '../../components/lista-leitura-cards-smart-read'
 import { TabelaTransacoesLeituraSmartRead } from '../../components/tabela-transacoes-leitura-smart-read'
 import { ProvedorMetodologiaSavingInsightsSmartRead } from '../insights-smart-read/metodologia-saving-insights-smart-read'
+import { useSavingAcumuladoWorkspaceSmartRead } from '../../shared/use-saving-acumulado-workspace-smart-read'
 import {
   filtrarTransacoesPorSegmento,
   useTransacoesLeituraSmartRead,
@@ -23,14 +24,24 @@ export default function ListaLeituraSmartRead() {
   const { painelAtivo } = useSmartReadVisualizacao()
   const [segmento, setSegmento] = useState<SegmentoListaLeitura>('envios')
   const dados = useTransacoesLeituraSmartRead(segmento, painelAtivo('lista'))
+  const savingHistorico = useSavingAcumuladoWorkspaceSmartRead(painelAtivo('lista'))
 
   const transacoesFiltradas = useMemo(
     () => filtrarTransacoesPorSegmento(dados.transacoes, segmento),
     [dados.transacoes, segmento],
   )
 
+  const transacoesBaseCalculo = useMemo(
+    () =>
+      savingHistorico.transacoes.length > 0 ? savingHistorico.transacoes : transacoesFiltradas,
+    [savingHistorico.transacoes, transacoesFiltradas],
+  )
+
   return (
-    <ProvedorMetodologiaSavingInsightsSmartRead transacoes={transacoesFiltradas}>
+    <ProvedorMetodologiaSavingInsightsSmartRead
+      transacoes={transacoesBaseCalculo}
+      aoAbrir={() => void savingHistorico.recarregar()}
+    >
     <div className="sr-pagina sr-pagina--lista">
       <ListaLeituraCardsSmartRead
         transacoes={transacoesFiltradas}

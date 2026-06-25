@@ -73,7 +73,7 @@ Mapeamento em `slugPuzzleParaCatalogo` / `slugCatalogoParaPuzzle` (`status-produ
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ Topbar (Logo, busca, notificações, idioma, usuário — Localizador oculto no Hub) │
+│ Topbar (Logo, busca, notificações, idioma, usuário — Localizador oculto globalmente) │
 ├─────────────────────────────────────────────────────────┤
 │ Cards de estatística (publicados / contratados / …)     │
 ├─────────────────────────────────────────────────────────┤

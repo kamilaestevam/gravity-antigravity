@@ -192,12 +192,6 @@ const HUB_GABI_LAYOUT_EXPERIMENTO: 0 | 1 | 2 | 3 | 4 = 1
  */
 const EXIBIR_PAINEL_GABI_HUB = false
 
-/**
- * Botão «Onde estou» (LocalizadorGlobal) no header do HUB — oculto até o mapa 3D
- * do ecossistema estar pronto para produção. Componente e props preservados no JSX.
- */
-const EXIBIR_LOCALIZADOR_HEADER_HUB = false
-
 function classePainelGabiLayout(): string {
   return HUB_GABI_LAYOUT_EXPERIMENTO === 0
     ? ''
@@ -1243,26 +1237,24 @@ export function SelecionarWorkspace() {
               <Info size={16} weight={tooltipsDisabled ? 'regular' : 'fill'} />
             </button>
 
-            {EXIBIR_LOCALIZADOR_HEADER_HUB && (
-              <LocalizadorGlobal
-                workspaceName={companyName}
-                iconOnly
-                currentProductId="hub"
-                currentProductLabel="Hub"
-                currentProductColor="#818cf8"
-                currentPageLabel="Hub"
-                history={locHistory}
-                nodes={hubEcosystemNodes}
-                onNavigate={(node) => {
-                  if (node.type === 'hub')               navigate('/hub?select=1')
-                  else if (node.type === 'core')         navigate('/hub?select=1')
-                  else if (node.type === 'hub-store')    navigate('/store')
-                  else if (node.type === 'configurador') navigate('/configurador')
-                  else if (node.type === 'admin')        navigate('/admin/visao-geral')
-                  else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
-                }}
-              />
-            )}
+            <LocalizadorGlobal
+              workspaceName={companyName}
+              iconOnly
+              currentProductId="hub"
+              currentProductLabel="Hub"
+              currentProductColor="#818cf8"
+              currentPageLabel="Hub"
+              history={locHistory}
+              nodes={hubEcosystemNodes}
+              onNavigate={(node) => {
+                if (node.type === 'hub')               navigate('/hub?select=1')
+                else if (node.type === 'core')         navigate('/hub?select=1')
+                else if (node.type === 'hub-store')    navigate('/store')
+                else if (node.type === 'configurador') navigate('/configurador')
+                else if (node.type === 'admin')        navigate('/admin/visao-geral')
+                else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
+              }}
+            />
 
             <SeletorIdiomaGlobal iconOnly />
 

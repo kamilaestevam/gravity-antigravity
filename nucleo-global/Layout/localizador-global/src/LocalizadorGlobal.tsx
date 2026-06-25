@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './localizador-global.css'
+import { EXIBIR_LOCALIZADOR_GLOBAL } from './exibir-localizador-global'
 import type { EcosystemNode, LocalizadorEntry, LocalizadorGlobalProps } from './types'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -202,7 +203,7 @@ function Connection3D({ from, to, color, dashed = false, intensity = 0.4, animat
 
 // ── Componente principal ─────────────────────────────────────────────────────
 
-export function LocalizadorGlobal({
+function LocalizadorGlobalInner({
   workspaceName,
   iconOnly = false,
   currentProductId,
@@ -674,4 +675,9 @@ export function LocalizadorGlobal({
       )}
     </div>
   )
+}
+
+export function LocalizadorGlobal(props: LocalizadorGlobalProps) {
+  if (!EXIBIR_LOCALIZADOR_GLOBAL) return null
+  return <LocalizadorGlobalInner {...props} />
 }

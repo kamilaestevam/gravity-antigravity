@@ -3,6 +3,7 @@
  */
 
 import { useMemo, useState } from 'react'
+import { useSmartReadVisualizacao } from '../../components/smart-read-visualizacao-context'
 import { ListaLeituraCardsSmartRead } from '../../components/lista-leitura-cards-smart-read'
 import { TabelaTransacoesLeituraSmartRead } from '../../components/tabela-transacoes-leitura-smart-read'
 import { ProvedorMetodologiaSavingInsightsSmartRead } from '../insights-smart-read/metodologia-saving-insights-smart-read'
@@ -19,8 +20,9 @@ const SEGMENTOS: { id: SegmentoListaLeitura; rotulo: string }[] = [
 ]
 
 export default function ListaLeituraSmartRead() {
+  const { painelAtivo } = useSmartReadVisualizacao()
   const [segmento, setSegmento] = useState<SegmentoListaLeitura>('envios')
-  const dados = useTransacoesLeituraSmartRead(segmento)
+  const dados = useTransacoesLeituraSmartRead(segmento, painelAtivo('lista'))
 
   const transacoesFiltradas = useMemo(
     () => filtrarTransacoesPorSegmento(dados.transacoes, segmento),

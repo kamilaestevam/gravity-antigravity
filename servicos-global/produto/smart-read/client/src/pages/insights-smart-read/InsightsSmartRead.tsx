@@ -5,6 +5,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { BotaoNovoListaSmartRead } from '../../components/botao-novo-lista-smart-read'
 import { useSincronizarAcoesToolbarVisualizacao } from '../../components/acoes-toolbar-visualizacao-smart-read'
+import { useSmartReadVisualizacao } from '../../components/smart-read-visualizacao-context'
 import { ModalNovaLeituraSmartRead } from '../../components/nova-leitura-smart-read/modal-nova-leitura-smart-read'
 import {
   KpiGridInsightsLeituraSmartRead,
@@ -43,8 +44,9 @@ function ModalNovaLeituraInsights({
 }
 
 export default function InsightsSmartRead() {
+  const { painelAtivo } = useSmartReadVisualizacao()
   const { leiturasDetalhe, transacoes, carregando, erro, recarregarTudo } =
-    useDadosInsightsLeituraSmartRead()
+    useDadosInsightsLeituraSmartRead(painelAtivo('insights'))
 
   const [modalNovaLeituraAberto, setModalNovaLeituraAberto] = useState(false)
   const [arquivosNovaLeitura, setArquivosNovaLeitura] = useState<File[]>([])

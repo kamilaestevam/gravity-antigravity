@@ -12,7 +12,7 @@
 |-----------|----------|
 | [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) | **Onde vive cada dado:** banco DATI = leituras reais (PDF, OCR, extração); Postgres Gravity = snapshot, progresso, painéis |
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor responsável, contrato BFF, rankings |
-| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista por workspace, layout/paginação/painéis, BFF leituras, progresso por usuário, nome do wizard, **KPI cards §13** |
+| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista por workspace, layout/paginação/painéis, BFF leituras, progresso por usuário, nome do wizard, **KPI cards §13**, **status de fluxo §14** (fundação + wiring pendente) |
 
 ---
 
@@ -111,4 +111,5 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | **TASK-000317** / PR #409 | Lista: colunas de **métricas da leitura** (documentos, campos, saving, tempos) — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §12 |
 | **TASK-000321** | Lista: ordem dos KPI cards (Performance de acertos = 2º) + card **Recursos reduzidos** agregando saving das leituras visíveis — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §13 |
 | **TASK-000324** | Lista: faixa **Painéis** roxa no chrome da tabela (criar/trocar/renomear/reordenar/excluir) + segmento «Visão geral» / «Transações API» na faixa unificada — paridade Pedido/BID Frete — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §11 |
+| **Status de fluxo** (2026-06) | **Fundação:** migration `20260625120000`, colunas `status_fluxo_*`, SSOT `shared/status-fluxo-leitura-smart-read.ts`, pill isolada + testes; **pendente:** wiring BFF/Lista (§14.3) — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §14 |
 | Refatoração Insights | Fonte única acerto/erro por edição do usuário; emissor responsável por tipo de documento; `dados_original` no contrato bilateral |

@@ -151,7 +151,7 @@ DATABASE_URL=<url> node scripts/sob-demanda/aplicar-migration-cadastros-incoterm
 | Arquivo | Cobertura |
 |---|---|
 | `cadastros/__tests__/functional/incoterms.test.ts` | CRUD + filtro modal + validação enum |
-| `testes/testes-unitarios/pedido/validar-incoterm.test.ts` | 10 testes — validação cruzada Pedido/Item |
+| `testes/testes-unitarios/produto-gravity/pedido/validar-incoterm.test.ts` | 10 testes — validação cruzada Pedido/Item |
 
 ---
 

@@ -197,6 +197,6 @@ Migration `20260529140000_add_bid_frete_internacional_entity`:
 - `prisma/fragment.prisma` — models `BidFreteInternacional`, FKs
 - `server/src/lib/snapshot-proposta-bid-frete.ts`
 - `server/src/services/motor-bid-frete-internacional.ts`
-- `testes/testes-unitarios/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts`
-- `testes/testes-funcionais/bid-frete-internacional/lista/duplicacoes-exclusoes-routes.test.ts`
-- `testes/testes-unitarios/bid-frete-internacional/lista/exclusao-regra-bloqueio-bid-frete-internacional.test.ts`
+- `testes/testes-unitarios/produto-gravity/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts`
+- `testes/testes-funcionais/produto-gravity/bid-frete-internacional/lista/duplicacoes-exclusoes-routes.test.ts`
+- `testes/testes-unitarios/produto-gravity/bid-frete-internacional/lista/exclusao-regra-bloqueio-bid-frete-internacional.test.ts`

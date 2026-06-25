@@ -76,30 +76,30 @@ function candidatosPlano(entry) {
 
   // Mapeamentos conhecidos (legado)
   const MAP = {
-    'TST-UNI-PEDIDO-000001': 'testes-unitarios/pedido/dashboard/plano-teste/TST-UNI-PEDIDO-000001.md',
-    'TST-E2E-PEDIDO-000002': 'testes-e2e/pedido/dashboard/plano-teste/TST-E2E-PEDIDO-000002.md',
+    'TST-UNI-PEDIDO-000001': 'testes-unitarios/produto-gravity/pedido/dashboard/plano-teste/TST-UNI-PEDIDO-000001.md',
+    'TST-E2E-PEDIDO-000002': 'testes-e2e/produto-gravity/pedido/dashboard/plano-teste/TST-E2E-PEDIDO-000002.md',
     'TST-UNI-TENANT-000003': 'testes-unitarios/historico/plano-teste/TST-UNI-TENANT-000003.md',
     'TST-UNI-TENANT-000004': 'testes-unitarios/historico/plano-teste/TST-UNI-TENANT-000004.md',
     'TST-UNI-ADMIN-000021': 'testes-unitarios/admin/visao-geral/plano-teste/TST-UNI-ADMIN-000021.md',
     'TST-FUN-ADMIN-000020': 'testes-funcionais/admin/visao-geral/plano-teste/TST-FUN-ADMIN-000020.md',
     'TST-CRO-ADMIN-000022': 'testes-cross-organizacao/admin/visao-geral/plano-teste/TST-CRO-ADMIN-000022.md',
-    'TST-UNI-PEDIDO-000029': 'testes-unitarios/pedido/lista/editar-salvar/plano-teste/editar-salvar-unitario.md',
-    'TST-FUN-PEDIDO-000030': 'testes-funcionais/pedido/Lista/editar-salvar/plano-de-teste/editar-salvar-funcional.md',
-    'TST-E2E-PEDIDO-000031': 'testes-e2e/pedido/Lista/editar-salvar/plano-teste/editar-salvar-e2e.md',
-    'TST-UNI-PEDIDO-000032': 'testes-unitarios/pedido/lista/consolidar/consolidar-unitario.md',
-    'TST-FUN-PEDIDO-000033': 'testes-funcionais/pedido/Lista/consolidar/consolidar-funcional.md',
-    'TST-E2E-PEDIDO-000034': 'testes-e2e/pedido/Lista/consolidar/consolidar-e2e.md',
-    'TST-UNI-PEDIDO-000035': 'testes-unitarios/pedido/lista/transferir/transferir-unitario.md',
-    'TST-FUN-PEDIDO-000036': 'testes-funcionais/pedido/Lista/transferir/transferir-funcional.md',
-    'TST-E2E-PEDIDO-000037': 'testes-e2e/pedido/Lista/transferir/transferir-e2e.md',
+    'TST-UNI-PEDIDO-000029': 'testes-unitarios/produto-gravity/pedido/lista/editar-salvar/plano-teste/editar-salvar-unitario.md',
+    'TST-FUN-PEDIDO-000030': 'testes-funcionais/produto-gravity/pedido/Lista/editar-salvar/plano-de-teste/editar-salvar-funcional.md',
+    'TST-E2E-PEDIDO-000031': 'testes-e2e/produto-gravity/pedido/Lista/editar-salvar/plano-teste/editar-salvar-e2e.md',
+    'TST-UNI-PEDIDO-000032': 'testes-unitarios/produto-gravity/pedido/lista/consolidar/consolidar-unitario.md',
+    'TST-FUN-PEDIDO-000033': 'testes-funcionais/produto-gravity/pedido/Lista/consolidar/consolidar-funcional.md',
+    'TST-E2E-PEDIDO-000034': 'testes-e2e/produto-gravity/pedido/Lista/consolidar/consolidar-e2e.md',
+    'TST-UNI-PEDIDO-000035': 'testes-unitarios/produto-gravity/pedido/lista/transferir/transferir-unitario.md',
+    'TST-FUN-PEDIDO-000036': 'testes-funcionais/produto-gravity/pedido/Lista/transferir/transferir-funcional.md',
+    'TST-E2E-PEDIDO-000037': 'testes-e2e/produto-gravity/pedido/Lista/transferir/transferir-e2e.md',
     'TST-UNI-LOGIN-000038': 'testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md',
     'TST-FUN-LOGIN-000039': 'testes-unitarios/login/plano-teste/PLANO-LOGIN-PORTEIRO-SSOT.md',
-    'TST-E2E-PEDIDO-000044': 'testes-e2e/pedido/configuracao/status/status-e2e.md',
-    'TST-UNI-PEDIDO-000042': 'testes-unitarios/pedido/configuracoes/status/status-unitario.md',
-    'TST-FUN-PEDIDO-000043': 'testes-funcionais/pedido/configuracoes/status/status-funcional.md',
-    'TST-UNI-PEDIDO-000061': 'testes-unitarios/pedido/painel-lista/painel-lista-unitario.md',
-    'TST-FUN-PEDIDO-000062': 'testes-funcionais/pedido/painel-lista/painel-lista-funcional.md',
-    'TST-E2E-PEDIDO-000063': 'testes-e2e/pedido/painel-lista/painel-lista-e2e.md',
+    'TST-E2E-PEDIDO-000044': 'testes-e2e/produto-gravity/pedido/configuracao/status/status-e2e.md',
+    'TST-UNI-PEDIDO-000042': 'testes-unitarios/produto-gravity/pedido/configuracoes/status/status-unitario.md',
+    'TST-FUN-PEDIDO-000043': 'testes-funcionais/produto-gravity/pedido/configuracoes/status/status-funcional.md',
+    'TST-UNI-PEDIDO-000061': 'testes-unitarios/produto-gravity/pedido/painel-lista/painel-lista-unitario.md',
+    'TST-FUN-PEDIDO-000062': 'testes-funcionais/produto-gravity/pedido/painel-lista/painel-lista-funcional.md',
+    'TST-E2E-PEDIDO-000063': 'testes-e2e/produto-gravity/pedido/painel-lista/painel-lista-e2e.md',
     'TST-UNI-STORE-000064': 'testes-unitarios/gravity-store/plano-teste/TST-UNI-STORE-000064.md',
     'TST-UNI-STORE-000065': 'testes-unitarios/gravity-store/plano-teste/TST-UNI-STORE-000065.md',
     'TST-UNI-STORE-000066': 'testes-unitarios/gravity-store/plano-teste/TST-UNI-STORE-000066.md',
@@ -115,9 +115,9 @@ function candidatosPlano(entry) {
     'TST-CRO-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-000080':
       'testes-cross-organizacao/menu-botoes/seletor-produtos-gravity/plano-de-teste/seletor-produtos-gravity-cross.md',
     'TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045':
-      'testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md',
+      'testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md',
     'TST-EMT-EDICAO-EM-MASSA-PEDIDO-LISTA-000081':
-      'testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/plano-teste-em-tela.md',
+      'testes-em-tela/produto-gravity/pedido/lista/edicao-em-massa/plano-de-teste/plano-teste-em-tela.md',
     'TST-EMT-STORE-CATALOGO-VALIDACAO-000072': 'testes-em-tela/gravity-store/PLANO-EM-TELA.md',
   }
   if (MAP[entry.id]) push(join(TESTES, MAP[entry.id]))
@@ -226,7 +226,7 @@ const emtExcluir = registry.planos.find(
 if (emtExcluir) {
   emtExcluir.id = 'TST-EMT-EXCLUIR-COLUNA-MANUAL-CONFIGURACOES-LISTA-PEDIDO-000106'
   emtExcluir.planoFile =
-    'testes-em-tela/pedido/configuracoes/colunas/personalizadas/plano-de-teste/plano-teste-em-tela.md'
+    'testes-em-tela/produto-gravity/pedido/configuracoes/colunas/personalizadas/plano-de-teste/plano-teste-em-tela.md'
 }
 
 // STORE entries sem planoFile
@@ -245,8 +245,8 @@ const BID_NOVOS = [
     escopo: 'BIDFRT',
     sublocal: 'lista',
     modulo: 'motivoBloqueioExclusaoCotacao',
-    specFile: 'testes-unitarios/bid-frete-internacional/lista/exclusao-regra-bloqueio-bid-frete-internacional.test.ts',
-    planoFile: 'testes-unitarios/bid-frete-internacional/lista/plano-teste/TST-UNI-BIDFRT-000101.md',
+    specFile: 'testes-unitarios/produto-gravity/bid-frete-internacional/lista/exclusao-regra-bloqueio-bid-frete-internacional.test.ts',
+    planoFile: 'testes-unitarios/produto-gravity/bid-frete-internacional/lista/plano-teste/TST-UNI-BIDFRT-000101.md',
     componenteFile:
       'servicos-global/produto/bid-frete-internacional/server/src/routes/exclusoes-bid-frete-internacional.ts',
   },
@@ -256,8 +256,8 @@ const BID_NOVOS = [
     escopo: 'BIDFRT',
     sublocal: 'lista',
     modulo: 'duplicacoes e exclusoes em lote (rotas)',
-    specFile: 'testes-funcionais/bid-frete-internacional/lista/duplicacoes-exclusoes-routes.test.ts',
-    planoFile: 'testes-funcionais/bid-frete-internacional/lista/plano-teste/TST-FUN-BIDFRT-000102.md',
+    specFile: 'testes-funcionais/produto-gravity/bid-frete-internacional/lista/duplicacoes-exclusoes-routes.test.ts',
+    planoFile: 'testes-funcionais/produto-gravity/bid-frete-internacional/lista/plano-teste/TST-FUN-BIDFRT-000102.md',
     componenteFile:
       'servicos-global/produto/bid-frete-internacional/server/src/routes/exclusoes-bid-frete-internacional.ts',
   },
@@ -267,8 +267,8 @@ const BID_NOVOS = [
     escopo: 'BIDFRT',
     sublocal: 'lista',
     modulo: 'modal excluir lista com preview',
-    specFile: 'testes-e2e/bid-frete-internacional/lista/TST-E2E-BIDFRT-000103.spec.ts',
-    planoFile: 'testes-e2e/bid-frete-internacional/lista/plano-teste/TST-E2E-BIDFRT-000103.md',
+    specFile: 'testes-e2e/produto-gravity/bid-frete-internacional/lista/TST-E2E-BIDFRT-000103.spec.ts',
+    planoFile: 'testes-e2e/produto-gravity/bid-frete-internacional/lista/plano-teste/TST-E2E-BIDFRT-000103.md',
     componenteFile:
       'servicos-global/produto/bid-frete-internacional/client/src/pages/modal-excluir-lista-bid-frete-internacional.tsx',
   },
@@ -278,8 +278,8 @@ const BID_NOVOS = [
     escopo: 'BIDFRT',
     sublocal: 'lista',
     modulo: 'isolamento exclusao cross-org',
-    specFile: 'testes-cross-organizacao/bid-frete-internacional/lista/TST-CRO-BIDFRT-000104.test.ts',
-    planoFile: 'testes-cross-organizacao/bid-frete-internacional/lista/plano-teste/TST-CRO-BIDFRT-000104.md',
+    specFile: 'testes-cross-organizacao/produto-gravity/bid-frete-internacional/lista/TST-CRO-BIDFRT-000104.test.ts',
+    planoFile: 'testes-cross-organizacao/produto-gravity/bid-frete-internacional/lista/plano-teste/TST-CRO-BIDFRT-000104.md',
     componenteFile:
       'servicos-global/produto/bid-frete-internacional/server/src/routes/exclusoes-bid-frete-internacional.ts',
   },

@@ -164,8 +164,8 @@ export const pedidoTransferirApi = {
 ```
 
 > **Regressão corrigida (2026-05-26):** preview/confirmar/historico/reverter passaram a usar `pid()`.
-> Testes: `testes-unitarios/pedido/lista/transferir/pid-url-encoding.test.ts` e
-> `testes-funcionais/pedido/Lista/transferir/url-pid-encoding.test.ts`.
+> Testes: `testes-unitarios/produto-gravity/pedido/lista/transferir/pid-url-encoding.test.ts` e
+> `testes-funcionais/produto-gravity/pedido/Lista/transferir/url-pid-encoding.test.ts`.
 
 ---
 

@@ -10,7 +10,7 @@ import {
 } from '../../../servicos-global/configurador/server/lib/emt-artifacts.js'
 import type { TestLogEntry } from '../../../servicos-global/configurador/server/utils/playwright-parser.js'
 
-const EMT_PASTA_FIXTURE = 'testes/testes-em-tela/pedido/lista/editar-salvar/resultado-teste/1780968164786'
+const EMT_PASTA_FIXTURE = 'testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/resultado-teste/1780968164786'
 
 describe('emt-artifacts persistência', () => {
   let tmpArtifacts: string

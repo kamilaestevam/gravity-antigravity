@@ -87,7 +87,7 @@ export default defineConfig({
     // ───── Produtos ──────────────────────────────────────────────────────────
     {
       name:    'pedido',
-      testDir: './testes/testes-e2e/pedido',
+      testDir: './testes/testes-e2e/produto-gravity/pedido',
       use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:8000' },
     },
     {

@@ -44,7 +44,7 @@ produto/pedido/
     └── services/
         └── geminiFormulaAdvisor.ts    ← Integração Gemini 2.5 Flash (feature-flagged)
 
-testes/testes-unitarios/pedido/
+testes/testes-unitarios/produto-gravity/pedido/
 ├── gabiSemantica.test.ts              ← 34 testes unitários (parser + 4 regras semânticas)
 └── vitest.config.ts                   ← inclui gabiSemantica.test.ts + cobertura
 ```
@@ -227,7 +227,7 @@ if (msg.includes('Token inesperado após fim da fórmula:')) {
 ## Testes Unitários
 
 ```
-testes/testes-unitarios/pedido/gabiSemantica.test.ts
+testes/testes-unitarios/produto-gravity/pedido/gabiSemantica.test.ts
 ```
 
 34 testes cobrindo:
@@ -245,7 +245,7 @@ testes/testes-unitarios/pedido/gabiSemantica.test.ts
 Executar:
 ```bash
 cd gravity-antigravity
-npx vitest run --config testes/testes-unitarios/pedido/vitest.config.ts
+npx vitest run --config testes/testes-unitarios/produto-gravity/pedido/vitest.config.ts
 ```
 
 ---

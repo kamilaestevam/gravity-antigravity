@@ -72,7 +72,7 @@ CI bloqueia merge abaixo do limite. Ver `padroes-vitest-playwright` para configu
 > **Scaffolds cross-tenant disponíveis (auditoria 2026-05-18):**
 > 64 `it.todo()` prontos para implementação em 3 serviços:
 > - `testes/testes-cross-organizacao/gabi/gabi.cross-tenant.test.ts` (19 testes)
-> - `testes/testes-cross-organizacao/pedido/pedido.cross-tenant.test.ts` (24 testes)
+> - `testes/testes-cross-organizacao/produto-gravity/pedido/pedido.cross-tenant.test.ts` (24 testes)
 > - `testes/testes-cross-organizacao/email/email.cross-tenant.test.ts` (21 testes)
 >
 > Cobrem 5 vetores: leitura cross-tenant, modificação, criação com tenant forçado, bypass de auth, pool leak.
@@ -157,7 +157,7 @@ testes/
 ```
 
 **Exemplo EMT (Pedido › Lista › Editar-salvar):**
-`testes/testes-em-tela/pedido/lista/editar-salvar/plano-teste/` + `.../resultado-teste/`
+`testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-teste/` + `.../resultado-teste/`
 
 **Regras:**
 - O caminho do spec espelha o caminho do código de produção

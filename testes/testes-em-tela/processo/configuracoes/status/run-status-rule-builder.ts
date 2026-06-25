@@ -4,7 +4,7 @@
  * 5 testes com variacoes documentados em status-e2e.md (categorias STATUS-E01..E18).
  *
  * STATUS: aguardando setup de sessao Clerk (segue padrao de
- * testes/testes-em-tela/pedido/run-import-limite-linhas.ts).
+ * testes/testes-em-tela/produto-gravity/pedido/run-import-limite-linhas.ts).
  *
  * Quando o ambiente de auth Clerk estiver configurado:
  *   npx tsx testes/testes-em-tela/processo/configuracoes/status/run-status-rule-builder.ts

@@ -126,9 +126,9 @@ produto/pedido/
             └── migration.sql
 
 testes/
-├── testes-e2e/pedido/
+├── testes-e2e/produto-gravity/pedido/
 │   └── gabi-insights.spec.ts             ← 4 testes E2E Playwright @critico
-└── testes-em-tela/pedido/
+└── testes-em-tela/produto-gravity/pedido/
     └── 2026-04-09-gabi-insights/         ← 7 prints headless capturados
 
 produto/pedido/server/src/services/
@@ -674,7 +674,7 @@ npx vitest run src/services/gabiInsightsService.test.ts \
 
 ```bash
 # Requer: backend rodando na porta 8026, frontend na porta 5179
-npx playwright test testes/testes-e2e/pedido/gabi-insights.spec.ts --project=pedido --reporter=list
+npx playwright test testes/testes-e2e/produto-gravity/pedido/gabi-insights.spec.ts --project=pedido --reporter=list
 ```
 
 ### O que os Testes Cobrem

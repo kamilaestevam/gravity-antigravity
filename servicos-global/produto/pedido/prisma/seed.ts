@@ -33,7 +33,7 @@
  * servicos-global/tenant/processos-core/src/services/saldoEngine.ts
  *
  * NUNCA mude essa fórmula sem alinhar com saldoEngine + PedidoSaldoFormulaConfig.
- * Se mudar, atualize também: testes/testes-unitarios/pedido/seed.test.ts
+ * Se mudar, atualize também: testes/testes-unitarios/produto-gravity/pedido/seed.test.ts
  */
 
 import { PrismaClient } from '@prisma/client'

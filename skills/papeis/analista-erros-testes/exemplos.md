@@ -113,7 +113,7 @@
   "erroResumo": "Importação de planilha não concluiu em 60s — pode ser performance, fila travada, ou timeout insuficiente",
   "motivo": "O teste sobe um xlsx de 500 linhas e espera o toast 'Importação concluída' em até 60s. Excedeu. Sem o código do componente e sem os logs do servidor não consigo distinguir entre 3 causas possíveis: (a) processamento real ficou mais lento por mudança no parser, (b) job na fila travou e nunca finalizou, (c) a mensagem de sucesso mudou de texto e o teste não acha. Cada causa exige fix diferente.",
   "sugestaoCorrecao": "Para diagnosticar: (1) rodar localmente com --headed e ver onde trava; (2) checar logs do worker de importação durante a janela do teste; (3) verificar se o texto 'Importação concluída' ainda existe no componente (pode ter mudado para 'Importação finalizada' ou similar). Me envie o código do ImportacaoPlanilha.tsx + logs do servidor que reanaliso.",
-  "arquivo": "testes/testes-e2e/pedido/importacao/TST-E2E-PEDIDO-000023.spec.ts",
+  "arquivo": "testes/testes-e2e/produto-gravity/pedido/importacao/TST-E2E-PEDIDO-000023.spec.ts",
   "codigoDiff": null,
   "categoria": "NAO_CLASSIFICAVEL",
   "confianca": "baixa",

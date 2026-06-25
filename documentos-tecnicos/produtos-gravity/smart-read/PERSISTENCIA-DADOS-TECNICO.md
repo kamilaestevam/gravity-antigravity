@@ -159,12 +159,12 @@ Dev sem legado: `SMART_READ_MOCK_LEGADO=1` simula extração no BFF — snapshot
 
 | Arquivo | Cobertura |
 |---------|-----------|
-| `testes/testes-unitarios/smart-read/snapshot-leitura-smart-read.test.ts` | Elegibilidade, parse JSON snapshot, `obterLeituraDoProgresso` (exige `id_usuario`) |
-| `testes/testes-unitarios/smart-read/progresso-leitura-smart-read.test.ts` | Sessão do wizard |
-| `testes/testes-unitarios/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | SSOT de `TransacaoLeitura` para testes Insights (path completo + fallback) |
-| `testes/testes-unitarios/smart-read/calcular-metricas-insights-leitura.test.ts` | Métricas completas + fallback por transação |
-| `testes/testes-unitarios/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
-| `testes/testes-unitarios/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` (SSOT `shared/status-fluxo-leitura-smart-read.ts`) |
+| `testes/testes-unitarios/produto-gravity/smart-read/snapshot-leitura-smart-read.test.ts` | Elegibilidade, parse JSON snapshot, `obterLeituraDoProgresso` (exige `id_usuario`) |
+| `testes/testes-unitarios/produto-gravity/smart-read/progresso-leitura-smart-read.test.ts` | Sessão do wizard |
+| `testes/testes-unitarios/produto-gravity/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | SSOT de `TransacaoLeitura` para testes Insights (path completo + fallback) |
+| `testes/testes-unitarios/produto-gravity/smart-read/calcular-metricas-insights-leitura.test.ts` | Métricas completas + fallback por transação |
+| `testes/testes-unitarios/produto-gravity/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
+| `testes/testes-unitarios/produto-gravity/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` (SSOT `shared/status-fluxo-leitura-smart-read.ts`) |
 
 ---
 

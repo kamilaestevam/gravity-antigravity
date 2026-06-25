@@ -141,7 +141,7 @@ Nenhuma onda pode iniciar sem que estas tarefas estejam concluídas.
 |----|--------|-------------|-------------|
 | 3-01 | Substituir uso local de `GabiFormulaCard` em `Configuracoes.tsx` pelo pacote `@nucleo/gabi-formula-global` | Frontend (Pedido) | Onda 2 completa |
 | 3-02 | Substituir `useGabiFormula` inline por `useGabiFormula` do pacote, injetando `analisarSemanticaFormula` (gabiSemantica.ts local) | Frontend (Pedido) | 3-01 |
-| 3-03 | Atualizar mock `@nucleo/gabi-formula-global` em `testes/testes-unitarios/pedido/__mocks__/nucleo.tsx` | QA | 3-02 |
+| 3-03 | Atualizar mock `@nucleo/gabi-formula-global` em `testes/testes-unitarios/produto-gravity/pedido/__mocks__/nucleo.tsx` | QA | 3-02 |
 | 3-04 | Rodar suite completa de testes do Pedido — zero regressão | QA | 3-03 |
 | 3-05 | Review de código pelo Líder Técnico — checklist de Code Review | Líder Técnico | 3-04 |
 
@@ -238,6 +238,6 @@ P-01 ──► 2-03 ◄── 2-02 ◄── 2-01
 - `gabiSemantica.ts` — permanece em cada produto com seus próprios metadados de domínio
 - `geminiFormulaAdvisor.ts` — permanece em cada produto com prompt customizado
 - Endpoint `/gabi-analise` — permanece em cada produto
-- Testes unitários de `gabiSemantica.test.ts` — permanecem em `testes/testes-unitarios/pedido/`
+- Testes unitários de `gabiSemantica.test.ts` — permanecem em `testes/testes-unitarios/produto-gravity/pedido/`
 - Nenhuma alteração em banco de dados
 - Nenhuma migration necessária

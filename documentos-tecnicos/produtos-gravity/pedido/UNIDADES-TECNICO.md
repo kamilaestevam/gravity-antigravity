@@ -152,8 +152,8 @@ Sem FK para `cadastros.unidade` — produtos não fazem FK física pra Cadastros
 
 | Arquivo | Cobertura |
 |---|---|
-| `testes/testes-unitarios/pedido/use-unidades-pedido.test.ts` | 7 testes — filtro por categoria + formato `SIGLA — Nome` |
-| `testes/testes-unitarios/pedido/validar-unidades-item.test.ts` | 18 testes — validação cruzada (categoria certa/errada, sigla inexistente, ctx correlation_id, no-op, etc.) |
+| `testes/testes-unitarios/produto-gravity/pedido/use-unidades-pedido.test.ts` | 7 testes — filtro por categoria + formato `SIGLA — Nome` |
+| `testes/testes-unitarios/produto-gravity/pedido/validar-unidades-item.test.ts` | 18 testes — validação cruzada (categoria certa/errada, sigla inexistente, ctx correlation_id, no-op, etc.) |
 
 ---
 

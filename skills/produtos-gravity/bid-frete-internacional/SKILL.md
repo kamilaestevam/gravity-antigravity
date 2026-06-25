@@ -85,7 +85,7 @@ Query avulsas: `GET /cotacoes?apenas_avulsas=true` (sem `id_bid`).
 - **Expandir todos:** só BIDs — ver `lista-bid-frete-internacional.tsx`.
 - **Filtro aba/busca:** `filtrarBidsParaLista` + `enriquecerBidsComCotacoesDoPlano` + `montarLinhasPaiListaComFallback` — doc em [ENTIDADE-BID-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/bid-frete-internacional/ENTIDADE-BID-TECNICO.md) §5.
 - **Núcleo:** preferir props existentes; extensões opt-in documentadas em `tipos.ts` (`labelFilho`, `totalRodapePai`). Regra absoluta → [agent-policy](../../governanca/lei/agent-policy/SKILL.md) § componentes compartilhados.
-- **Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts` (13 casos).
+- **Testes UNI:** `testes/testes-unitarios/produto-gravity/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts` (13 casos).
 
 ### Rodapé e paginação (paridade Pedido — 2026-06)
 
@@ -116,7 +116,7 @@ O botão **Novo** da Lista abre "Buscar Frete" como submenu com 2 opções:
 | **Cotação Avulsa** | rota `/bid-frete/cotacoes/nova` (wizard `modal-nova-cotacao-bid-frete-internacional.tsx`) |
 | **BID** | `ModalNovoBidFreteInternacional` (`pages/modal-novo-bid-frete-internacional.tsx`) — referência interna opcional + vínculo **opcional** de avulsas existentes → `POST /bids-frete-internacional` → CTA "Criar cotação para o BID" |
 
-O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-internacional-utils.ts`): a cotação criada já nasce vinculada (`id_bid_bid_frete_internacional` no `POST /cotacoes`) e a tela de sucesso oferece "Adicionar outra cotação ao BID" (reset do wizard preservando o query param). API client: `criarBidFreteInternacional` em `shared/api.ts`. Testes: `testes/testes-unitarios/bid-frete-internacional/novo-bid-frete-internacional-utils.test.ts`.
+O wizard de nova cotação aceita `?id_bid=<id>` (helper `shared/novo-bid-frete-internacional-utils.ts`): a cotação criada já nasce vinculada (`id_bid_bid_frete_internacional` no `POST /cotacoes`) e a tela de sucesso oferece "Adicionar outra cotação ao BID" (reset do wizard preservando o query param). API client: `criarBidFreteInternacional` em `shared/api.ts`. Testes: `testes/testes-unitarios/produto-gravity/bid-frete-internacional/novo-bid-frete-internacional-utils.test.ts`.
 
 - Doc: `documentos-tecnicos/produtos-gravity/bid-frete-internacional/ESCOPO-MULTI-WORKSPACE-TECNICO.md`
 
@@ -166,7 +166,7 @@ Modelo: `servicos-global/produto/pedido/client/src/pages/PedidosDashboard.tsx`.
 
 **Persistência:** Zustand + painéis (`DashboardPainelUsuarioGlobal`, API `paineisDashboardApi`).
 
-**Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/dashboard/dashboard-widget-visibilidade.test.ts`, `dashboard/gabi-insights-bid-frete.test.ts`
+**Testes UNI:** `testes/testes-unitarios/produto-gravity/bid-frete-internacional/dashboard/dashboard-widget-visibilidade.test.ts`, `dashboard/gabi-insights-bid-frete.test.ts`
 
 #### GABI Fase 1 (carrossel `GABI_INSIGHTS`)
 
@@ -361,13 +361,13 @@ Doc: [seletor-universal-visualizacoes.md](../../../documentos-tecnicos/arquitetu
 
 ## Testes
 
-- Unitários: `testes/testes-unitarios/bid-frete-internacional/` (60+ specs)
+- Unitários: `testes/testes-unitarios/produto-gravity/bid-frete-internacional/` (60+ specs)
 - Dashboard ordem/visibilidade: `dashboard/dashboard-widget-visibilidade.test.ts`
 - Dashboard GABI Fase 1: `dashboard/gabi-insights-bid-frete.test.ts`
 - Insights: `insights/agregar-insights-graficos.test.ts`, `insights/montar-insights-detalhe.test.ts`, `insights/taxas-cambio-insights.test.ts`, `insights/insights-status-funil.test.ts`, `insights/divergencia-cadastros-mapa.test.ts`, `insights/formatar-terminal-mapa.test.ts`, `insights/filtrar-mapa-insights.test.ts`
 - Cockpit faixa aprovação: `aviso-graficos-insights-cotacao.test.ts`
 - Proposta tabela + BRL estimado: `conversao-estimada-brl-proposta.test.ts`, `visao-fornecedor/taxas-linha-proposta-bid-frete-internacional.test.ts`
-- Funcionais: `testes/testes-funcionais/bid-frete-internacional/`
+- Funcionais: `testes/testes-funcionais/produto-gravity/bid-frete-internacional/`
 - Hierarquia lista: `lista/lista-hierarquia-bid.test.ts`
 - Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
 - Filtros de coluna: `lista/filtros-coluna-lista-bid-frete-internacional.test.ts`

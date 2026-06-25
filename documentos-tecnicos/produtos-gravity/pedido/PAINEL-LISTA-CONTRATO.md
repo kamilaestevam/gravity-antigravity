@@ -118,7 +118,7 @@ Helper puro: `servicos-global/produto/pedido/shared/persistenciaListaPainel.ts` 
 
 **BID Frete:** mesma semântica em `useListaPainelBidFrete`; helper espelhado em `bid-frete-internacional/shared/persistenciaListaPainel.ts` (sem import cross-produto).
 
-**Teste funcional:** `testes/testes-funcionais/pedido/painel-lista/persistencia-lista-painel.test.ts` — PUT `config_json` → GET confirma `colunas_visiveis` e `ordenacao`.
+**Teste funcional:** `testes/testes-funcionais/produto-gravity/pedido/painel-lista/persistencia-lista-painel.test.ts` — PUT `config_json` → GET confirma `colunas_visiveis` e `ordenacao`.
 
 ### 5.2 Rótulo e renomear painel (TASK-000288)
 
@@ -131,7 +131,7 @@ O painel bootstrap grava `nome_lista_painel_usuario_global: 'Principal'` no banc
 | Salvar rename | `deveSalvarRenomearPainelLista` ignora vazio ou nome inalterado; PUT usa resposta da API para atualizar estado |
 | Componentes | `PedidosListaPainelBar`, `BidFreteListaPainelBar` |
 
-**Teste UNI:** `testes/testes-unitarios/pedido/rotulo-painel-lista.test.ts`
+**Teste UNI:** `testes/testes-unitarios/produto-gravity/pedido/rotulo-painel-lista.test.ts`
 
 ---
 

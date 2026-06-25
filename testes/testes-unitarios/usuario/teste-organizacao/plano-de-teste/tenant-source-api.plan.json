@@ -13,7 +13,7 @@
   "coberturaMinima": 70,
   "exportacoes": ["request", "getApiContext", "setApiContext", "injectTenantGetter"],
   "contexto": "Fase 1 (commit 502e73df3) — localStorage gravity:idOrganizacao defasado contaminava x-id-organizacao. Substitui o legado quebrado api-context.test.ts (FONTE PRIMARIA).",
-  "substitui": ["testes/testes-unitarios/pedido/api-context.test.ts"],
+  "substitui": ["testes/testes-unitarios/produto-gravity/pedido/api-context.test.ts"],
   "categorias": [
     { "nome": "happy",       "min": 2, "total": 2 },
     { "nome": "contrato",    "min": 1, "total": 1 },

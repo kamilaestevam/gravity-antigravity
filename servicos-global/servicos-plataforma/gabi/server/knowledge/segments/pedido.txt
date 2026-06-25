@@ -3600,7 +3600,7 @@ DATABASE_URL=<url> node scripts/sob-demanda/aplicar-migration-cadastros-incoterm
 | Arquivo | Cobertura |
 |---|---|
 | `cadastros/__tests__/functional/incoterms.test.ts` | CRUD + filtro modal + validação enum |
-| `testes/testes-unitarios/pedido/validar-incoterm.test.ts` | 10 testes — validação cruzada Pedido/Item |
+| `testes/testes-unitarios/produto-gravity/pedido/validar-incoterm.test.ts` | 10 testes — validação cruzada Pedido/Item |
 
 ---
 
@@ -3629,7 +3629,7 @@ DATABASE_URL=<url> node scripts/sob-demanda/aplicar-migration-cadastros-incoterm
 
 **Doc técnico:** [`LISTA-EDITAR-SALVAR-TECNICO.md`](./LISTA-EDITAR-SALVAR-TECNICO.md)  
 **Replicação genérica (checkbox):** [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md)  
-**Testes EMT:** `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`
+**Testes EMT:** `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`
 
 ---
 
@@ -3886,7 +3886,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | **REF-07** | **Alerta âmbar** na coluna do pedido quando valor do pedido ≠ valor de algum item — tooltip *Referências divergentes entre itens*. |
 | **REF-08** | Campos **não** estão em `COLUNAS_SEM_REPLICACAO` — replicação opcional via checkbox. |
 
-**EMT:** passos 13–16 (Importador) e 17–20 (Exportador) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 13–16 (Importador) e 17–20 (Exportador) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -3905,7 +3905,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | **INC-07** | **Alerta âmbar** na coluna do pedido — tooltip *Incoterms divergentes entre itens*. |
 | **INC-08** | Sem diferença entre Importação e Exportação. |
 
-**EMT:** passos 21–24 em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 21–24 em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -3985,7 +3985,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `PILLS_PEDIDO_VALOR_TOTAL` / `PILLS_ITEM_VALOR_TOTAL` · `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` · `enriquecerColunaBloqueadaInlinePedido` em `buildTooltipRegraLista.tsx`.
 
-**EMT:** passos 72–81 (ordem exata regras 01–08) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 72–81 (ordem exata regras 01–08) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -4048,7 +4048,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `pai_unidade_comercializada` · `PILLS_PEDIDO_UNIDADE` / `PILLS_ITEM_UNIDADE` · `tipo: 'unidade'` + `apenasUnidade: true` em `ColunasPai.tsx`.
 
-**EMT:** passos 72–82 (ordem regras 01–08 do dono) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 72–82 (ordem regras 01–08 do dono) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -4077,7 +4077,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `PILLS_PEDIDO_QTD_TRANSFERIDA` / `PILLS_ITEM_QTD_TRANSFERIDA` em `pillsTooltipColunaLista.ts` · `tipo: 'qtd_transferida'` em `ColunasPai.tsx`.
 
-**EMT:** passos 83–134 (ETAPAs 23–26) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+**EMT:** passos 83–134 (ETAPAs 23–26) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
 
 ---
 
@@ -4132,7 +4132,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `dinamico_qtd_cancelada` · `PILLS_PEDIDO_QTD_CANCELADA` / item `somente_leitura` + `so_operacao` · aviso em `buildTooltipRegraLista.tsx` (`quantidade_cancelada_edicao_via_transferir`).
 
-**EMT:** passos 169–206 (ETAPAs 34–38) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+**EMT:** passos 169–206 (ETAPAs 34–38) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
 
 ---
 
@@ -4581,7 +4581,7 @@ const replicar = campo === 'id_workspace' || campo === 'tipo_operacao'
 
 ### Testes
 
-- EMT: `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/` (passos 06–12).
+- EMT: `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/` (passos 06–12).
 - Funcional: `F-PROP-09`, `F-EMT-TOP-*` em `editar-salvar-funcional.md`.
 
 ---
@@ -4771,8 +4771,8 @@ Colunas **não editáveis inline** — interação só pelo ícone (`CelulaAnexo
 
 ### Testes
 
-- Unitário: `testes/testes-unitarios/pedido/pills-tooltip-coluna-lista.test.ts` (matriz + ordem canônica)
-- Unitário: `testes/testes-unitarios/pedido/tooltip-titulo-celula-lista.test.ts` (`isLinhaItemLista`, títulos piloto)
+- Unitário: `testes/testes-unitarios/produto-gravity/pedido/pills-tooltip-coluna-lista.test.ts` (matriz + ordem canônica)
+- Unitário: `testes/testes-unitarios/produto-gravity/pedido/tooltip-titulo-celula-lista.test.ts` (`isLinhaItemLista`, títulos piloto)
 - Unitário: `testes/testes-unitarios/nucleo/tooltip-celula-resolver.test.ts` (SSOT núcleo: nível + título alinhados)
 
 ### Status da migração
@@ -4826,7 +4826,7 @@ Rota: `PUT /api/v1/pedidos/:id/itens/:itemId` (Zod `.strict()` — campo fora do
 
 ### Testes
 
-- Unitário: `testes/testes-unitarios/pedido/valor-total-cambio-item-lista.test.ts` (`valorTotalCambioItemParaLista`).
+- Unitário: `testes/testes-unitarios/produto-gravity/pedido/valor-total-cambio-item-lista.test.ts` (`valorTotalCambioItemParaLista`).
 - EMT: pendente (sem ETAPA no plano lista-editar-salvar).
 
 ---
@@ -6001,7 +6001,7 @@ Inclui `console.log` diagnóstico (request + response).
 
 ## 5. Testes
 
-`testes/testes-unitarios/pedido/replicar-pai-em-itens.test.ts` — **26 testes**:
+`testes/testes-unitarios/produto-gravity/pedido/replicar-pai-em-itens.test.ts` — **26 testes**:
 
 - `obterCampoItemPropagado`: 9 casos (DDD ok, pedido-only null, agregados null, ID null, inexistente null)
 - `isPropagavel`: 6 casos (DDD aceito, legado aceito, pedido-only rejeitado, agregados rejeitados, IDs rejeitados, vazio rejeitado)
@@ -7417,8 +7417,8 @@ export const pedidoTransferirApi = {
 ```
 
 > **Regressão corrigida (2026-05-26):** preview/confirmar/historico/reverter passaram a usar `pid()`.
-> Testes: `testes-unitarios/pedido/lista/transferir/pid-url-encoding.test.ts` e
-> `testes-funcionais/pedido/Lista/transferir/url-pid-encoding.test.ts`.
+> Testes: `testes-unitarios/produto-gravity/pedido/lista/transferir/pid-url-encoding.test.ts` e
+> `testes-funcionais/produto-gravity/pedido/Lista/transferir/url-pid-encoding.test.ts`.
 
 ---
 
@@ -7835,8 +7835,8 @@ Sem FK para `cadastros.unidade` — produtos não fazem FK física pra Cadastros
 
 | Arquivo | Cobertura |
 |---|---|
-| `testes/testes-unitarios/pedido/use-unidades-pedido.test.ts` | 7 testes — filtro por categoria + formato `SIGLA — Nome` |
-| `testes/testes-unitarios/pedido/validar-unidades-item.test.ts` | 18 testes — validação cruzada (categoria certa/errada, sigla inexistente, ctx correlation_id, no-op, etc.) |
+| `testes/testes-unitarios/produto-gravity/pedido/use-unidades-pedido.test.ts` | 7 testes — filtro por categoria + formato `SIGLA — Nome` |
+| `testes/testes-unitarios/produto-gravity/pedido/validar-unidades-item.test.ts` | 18 testes — validação cruzada (categoria certa/errada, sigla inexistente, ctx correlation_id, no-op, etc.) |
 
 ---
 
@@ -7897,7 +7897,7 @@ Campos principais em `data`: `total`, `kpis`, `aprovacao`, `mensal`, `modal`, `f
 
 Testes:
 
-- Unitário: `testes/testes-unitarios/pedido/visao-geral-resumo-aggregate.test.ts`
+- Unitário: `testes/testes-unitarios/produto-gravity/pedido/visao-geral-resumo-aggregate.test.ts`
 - Funcional MBOTO: `TST-FUN-MBOTO-000051`
 - k6 (opcional): `testes/_scripts/k6/seletor-universal-visoes.js` (threshold API 200 ms p95)
 

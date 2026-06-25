@@ -1103,7 +1103,7 @@ O client `@tenant/cadastros` expõe `fornecedores` e `empresas` separados — **
 | `testes/testes-unitarios/cadastros/empresa-org-resolver.test.ts` | Cascata resolver |
 | `testes/testes-funcionais/cadastros/da-organizacao.test.ts` | Rotas + contrato |
 | `testes/testes-unitarios/cadastros/cadastros-client-sdk.test.ts` | SDK fornecedorSchema |
-| `testes/testes-unitarios/pedido/lista/novo-pedido/cadastros-fornecedor-contrato.test.ts` | processos-core client |
+| `testes/testes-unitarios/produto-gravity/pedido/lista/novo-pedido/cadastros-fornecedor-contrato.test.ts` | processos-core client |
 
 --- documentos-tecnicos/produtos-gravity/cadastros/TIPO-DE-OPERACAO.md ---
 # Tipo de Operação — Documentação Técnica Completa

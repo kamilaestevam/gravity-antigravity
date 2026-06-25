@@ -197,9 +197,9 @@ Resposta 429: `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas requisic
 
 | Arquivo | Cobertura |
 |---------|-----------|
-| `testes/testes-unitarios/smart-read/progresso-leitura-smart-read.test.ts` | Schema sessão progresso |
-| `testes/testes-unitarios/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` |
-| `testes/testes-unitarios/smart-read/fixtures/leituras-fixture-insights-smart-read.ts` | Fixture Insights (não runtime) |
+| `testes/testes-unitarios/produto-gravity/smart-read/progresso-leitura-smart-read.test.ts` | Schema sessão progresso |
+| `testes/testes-unitarios/produto-gravity/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` |
+| `testes/testes-unitarios/produto-gravity/smart-read/fixtures/leituras-fixture-insights-smart-read.ts` | Fixture Insights (não runtime) |
 
 Pacote `/testes-criar` completo (FUN PATCH→GET nome, E2E link→retomar) — pendente no fechamento TASK-000308.
 
@@ -293,9 +293,9 @@ Handlers `handleCriarPainelLista` / `handleTrocarPainelLista` em `tabela-transac
 
 | Arquivo | Cobertura |
 |---------|-----------|
-| `testes/testes-unitarios/smart-read/extrair-valores-colunas-documento.test.ts` | Extração de valores para colunas dinâmicas |
-| `testes/testes-unitarios/smart-read/agregar-caminhos-campos-dados.test.ts` | Agregação de caminhos no BFF |
-| `testes/testes-unitarios/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | SSOT transações Insights (fallback degradado) |
+| `testes/testes-unitarios/produto-gravity/smart-read/extrair-valores-colunas-documento.test.ts` | Extração de valores para colunas dinâmicas |
+| `testes/testes-unitarios/produto-gravity/smart-read/agregar-caminhos-campos-dados.test.ts` | Agregação de caminhos no BFF |
+| `testes/testes-unitarios/produto-gravity/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | SSOT transações Insights (fallback degradado) |
 
 ---
 
@@ -378,7 +378,7 @@ Migration: `20260625120000_add_status_fluxo_leitura_smart_read` (aplicada em Rai
 | Contrato Zod + derivação | `shared/status-fluxo-leitura-smart-read.ts` (`derivarStatusFluxoLeitura`, `statusFluxoPorPassoEPersistencia`, `ROTULO_STATUS_FLUXO_LEITURA`) |
 | Colunas Prisma | `prisma/fragment.prisma` |
 | Pill (componente isolado, **não ligado** à lista) | `client/src/components/pill-status-fluxo-leitura-smart-read.tsx` |
-| Testes unitários | `testes/testes-unitarios/smart-read/status-fluxo-leitura.test.ts` |
+| Testes unitários | `testes/testes-unitarios/produto-gravity/smart-read/status-fluxo-leitura.test.ts` |
 
 ### 14.3 Wiring pendente (próxima entrega)
 

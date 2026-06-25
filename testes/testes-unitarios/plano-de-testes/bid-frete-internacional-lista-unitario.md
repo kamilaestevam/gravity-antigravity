@@ -1,7 +1,7 @@
 # Plano de Testes Unitários — BID Frete Internacional / Lista
 
 **Escopo:** `BIDFRT` — colunas da lista, hierarquia BID, KPIs, cards, exportação  
-**Status:** implementado (specs em `testes/testes-unitarios/bid-frete-internacional/lista/`)  
+**Status:** implementado (specs em `testes/testes-unitarios/produto-gravity/bid-frete-internacional/lista/`)  
 **Data:** 26/05/2026
 
 ---
@@ -57,5 +57,5 @@
 ## Execução
 
 ```bash
-npx vitest run --config testes/testes-unitarios/bid-frete-internacional/vitest.config.ts
+npx vitest run --config testes/testes-unitarios/produto-gravity/bid-frete-internacional/vitest.config.ts
 ```

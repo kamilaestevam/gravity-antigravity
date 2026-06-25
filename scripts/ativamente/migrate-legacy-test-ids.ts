@@ -75,24 +75,24 @@ const RENAMES: Array<{ from: string; to: string }> = [
     to: 'testes/testes-cross-organizacao/admin/visao-geral/plano-teste/TST-CRO-ADMIN-000001.json',
   },
   {
-    from: 'testes/testes-e2e/pedido/Lista/duplicar/TST-E2E-PEDIDO-DUPLICAR-001.spec.ts',
-    to: 'testes/testes-e2e/pedido/Lista/duplicar/TST-E2E-PEDIDO-000003.spec.ts',
+    from: 'testes/testes-e2e/produto-gravity/pedido/Lista/duplicar/TST-E2E-PEDIDO-DUPLICAR-001.spec.ts',
+    to: 'testes/testes-e2e/produto-gravity/pedido/Lista/duplicar/TST-E2E-PEDIDO-000003.spec.ts',
   },
   {
-    from: 'testes/testes-e2e/pedido/Lista/consolidar/TST-E2E-PEDIDO-CONSOLIDAR-001.spec.ts',
-    to: 'testes/testes-e2e/pedido/Lista/consolidar/TST-E2E-PEDIDO-000005.spec.ts',
+    from: 'testes/testes-e2e/produto-gravity/pedido/Lista/consolidar/TST-E2E-PEDIDO-CONSOLIDAR-001.spec.ts',
+    to: 'testes/testes-e2e/produto-gravity/pedido/Lista/consolidar/TST-E2E-PEDIDO-000005.spec.ts',
   },
   {
-    from: 'testes/testes-e2e/pedido/Lista/transferir/TST-E2E-PEDIDO-TRANSFERIR-001.spec.ts',
-    to: 'testes/testes-e2e/pedido/Lista/transferir/TST-E2E-PEDIDO-000006.spec.ts',
+    from: 'testes/testes-e2e/produto-gravity/pedido/Lista/transferir/TST-E2E-PEDIDO-TRANSFERIR-001.spec.ts',
+    to: 'testes/testes-e2e/produto-gravity/pedido/Lista/transferir/TST-E2E-PEDIDO-000006.spec.ts',
   },
   {
-    from: 'testes/testes-e2e/pedido/Lista/editar-salvar/plano-teste/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts',
-    to: 'testes/testes-e2e/pedido/Lista/editar-salvar/plano-teste/TST-E2E-PEDIDO-000004.spec.ts',
+    from: 'testes/testes-e2e/produto-gravity/pedido/Lista/editar-salvar/plano-teste/TST-E2E-PEDIDO-EDITAR-SALVAR-001.spec.ts',
+    to: 'testes/testes-e2e/produto-gravity/pedido/Lista/editar-salvar/plano-teste/TST-E2E-PEDIDO-000004.spec.ts',
   },
   {
-    from: 'testes/testes-e2e/pedido/configuracao/status/TST-E2E-PEDIDO-CONFIG-STATUS-001.spec.ts',
-    to: 'testes/testes-e2e/pedido/configuracao/status/TST-E2E-PEDIDO-000007.spec.ts',
+    from: 'testes/testes-e2e/produto-gravity/pedido/configuracao/status/TST-E2E-PEDIDO-CONFIG-STATUS-001.spec.ts',
+    to: 'testes/testes-e2e/produto-gravity/pedido/configuracao/status/TST-E2E-PEDIDO-000007.spec.ts',
   },
 ]
 

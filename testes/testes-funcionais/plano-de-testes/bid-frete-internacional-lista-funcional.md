@@ -1,7 +1,7 @@
 # Plano de Testes Funcionais — BID Frete Internacional / Lista
 
 **Escopo:** `BIDFRT` — rotas de cotações consumidas pela lista  
-**Status:** implementado (specs em `testes/testes-funcionais/bid-frete-internacional/lista/`)  
+**Status:** implementado (specs em `testes/testes-funcionais/produto-gravity/bid-frete-internacional/lista/`)  
 **Data:** 26/05/2026
 
 ---
@@ -29,5 +29,5 @@
 ## Execução
 
 ```bash
-npx vitest run --config testes/testes-funcionais/bid-frete-internacional/vitest.config.ts testes/testes-funcionais/bid-frete-internacional/lista
+npx vitest run --config testes/testes-funcionais/produto-gravity/bid-frete-internacional/vitest.config.ts testes/testes-funcionais/produto-gravity/bid-frete-internacional/lista
 ```

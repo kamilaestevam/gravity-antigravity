@@ -1,7 +1,7 @@
 # Plano de Testes Funcionais — BID Frete Internacional / Visão Fornecedor
 
 **Escopo:** rotas autenticadas `visao-fornecedor-bid-frete-internacional`  
-**Status:** implementado (specs em `testes/testes-funcionais/bid-frete-internacional/visao-fornecedor/`)  
+**Status:** implementado (specs em `testes/testes-funcionais/produto-gravity/bid-frete-internacional/visao-fornecedor/`)  
 **Data:** 26/05/2026
 
 ---
@@ -33,5 +33,5 @@
 ## Execução
 
 ```bash
-npx vitest run --config testes/testes-funcionais/bid-frete-internacional/vitest.config.ts testes/testes-funcionais/bid-frete-internacional/visao-fornecedor
+npx vitest run --config testes/testes-funcionais/produto-gravity/bid-frete-internacional/vitest.config.ts testes/testes-funcionais/produto-gravity/bid-frete-internacional/visao-fornecedor
 ```

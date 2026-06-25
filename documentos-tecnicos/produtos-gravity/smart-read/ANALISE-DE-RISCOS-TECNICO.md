@@ -3,7 +3,7 @@
 > **Status:** V1 em produção (determinístico) · V2/V3 em desenho (LLM + fundamentação normativa)  
 > **Código V1:** `client/src/shared/analisar-riscos-aduaneiros-leitura-smart-read.ts`  
 > **UI:** `client/src/components/nova-leitura-smart-read/conferencia-riscos-aduaneiros-nova-leitura-smart-read.tsx`  
-> **Testes:** `testes/testes-unitarios/smart-read/analisar-riscos-aduaneiros-leitura.test.ts`
+> **Testes:** `testes/testes-unitarios/produto-gravity/smart-read/analisar-riscos-aduaneiros-leitura.test.ts`
 
 ---
 

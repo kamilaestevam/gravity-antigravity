@@ -1,26 +1,35 @@
 import { describe, expect, it } from 'vitest'
 import {
-  calcularSavingDocumentoSmartRead,
-  resolverSavingTransacaoLeituraSmartRead,
+  calcularSavingDigitaçãoTransacaoLeituraSmartRead,
+  calcularSavingErrosDocumentoSmartRead,
+  resolverSavingDetalhadoTransacaoLeituraSmartRead,
 } from '../../../servicos-global/produto/smart-read/shared/metricas-transacao-leitura-smart-read.ts'
 
-describe('saving com tempo real de IA', () => {
-  it('BL: manual 12,10 min menos 45s de IA gera saving positivo', () => {
-    const saving = calcularSavingDocumentoSmartRead('bl', 0, 45 / 60)
-    expect(saving.digitação).toBeCloseTo(12.1 - 0.75, 2)
+describe('saving — base manual − tempo de leitura', () => {
+  it('BL: base 12,10 min menos 9 s de leitura', () => {
+    const saving = calcularSavingDigitaçãoTransacaoLeituraSmartRead(
+      [{ tipo_documento: 'Bill of Lading' }],
+      9,
+    )
+    expect(saving).toBeCloseTo(12.1 - 9 / 60, 5)
   })
 
-  it('resolverSaving usa tempo_extracao_ia_ms agregado da leitura', () => {
-    const resultado = resolverSavingTransacaoLeituraSmartRead({
-      saving_total_minutos: 0,
-      saving_total_brl: 0,
+  it('resolverSavingDetalhado usa tempo_processo_total_ms da transação', () => {
+    const resultado = resolverSavingDetalhadoTransacaoLeituraSmartRead({
       total_documentos: 1,
       total_campos_errados: 0,
       tipos_documento: 'Bill of Lading',
-      tempo_extracao_ia_ms: 90_000,
+      tempo_extracao_ia_ms: null,
+      tempo_processo_total_ms: 9_000,
     })
 
-    expect(resultado?.saving_total_minutos).toBeCloseTo(12.1 - 1.5, 2)
+    expect(resultado?.digitação).toBeCloseTo(12.1 - 9 / 60, 5)
+    expect(resultado?.erros).toBe(0)
     expect(resultado?.saving_total_brl).toBeGreaterThan(0)
+  })
+
+  it('saving em erros usa base de correção por campo', () => {
+    const erros = calcularSavingErrosDocumentoSmartRead('bl', 2)
+    expect(erros).toBeCloseTo(2 * (2.8 - 0.75), 5)
   })
 })

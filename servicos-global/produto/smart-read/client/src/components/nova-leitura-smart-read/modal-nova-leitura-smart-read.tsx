@@ -707,6 +707,7 @@ export function ModalNovaLeituraSmartRead({
         {passo === 2 && (
 
           <DashboardAnaliseNovaLeituraSmartRead
+            arquivos={arquivos}
             analiseCompleta={analiseCompleta}
             processamentoComErro={processamentoComErro}
             inicioAnalise={inicioAnalise}

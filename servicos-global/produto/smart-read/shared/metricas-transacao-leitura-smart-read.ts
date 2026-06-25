@@ -219,27 +219,92 @@ export function agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead(
   }
 }
 
-/** Saving de digitação + erros por documento (tempo SR medido ou fallback da base). */
+/** Tempo de leitura (s) — cronômetro do processo; fallback para extração IA quando ausente. */
+export function resolverTempoLeituraSegundosSmartRead(
+  tempoProcessoTotalMs: number | null | undefined,
+  tempoExtracaoIaMs: number | null | undefined,
+): number | null {
+  if (tempoProcessoTotalMs != null && tempoProcessoTotalMs > 0) {
+    return Math.round(tempoProcessoTotalMs / 1000)
+  }
+  if (tempoExtracaoIaMs != null && tempoExtracaoIaMs > 0) {
+    return Math.round(tempoExtracaoIaMs / 1000)
+  }
+  return null
+}
+
+export function somarBaseManualDocumentosSmartRead(
+  documentos: Array<{ tipo_documento: string | null | undefined }>,
+): number {
+  let baseManualMinutos = 0
+  for (const documento of documentos) {
+    const tipo = normalizarTipoDocumentoBaseSmartRead(documento.tipo_documento)
+    baseManualMinutos += resolverParametrosTempoDocumentoSmartRead(tipo).tempo_digitação_manual_minutos
+  }
+  return baseManualMinutos
+}
+
+/** Saving de erros por documento (correção manual − Smart Read por campo). */
+export function calcularSavingErrosDocumentoSmartRead(
+  tipo: TipoDocumentoBaseSmartRead,
+  camposErrados: number,
+): number {
+  const params = resolverParametrosTempoDocumentoSmartRead(tipo)
+  return Math.max(
+    0,
+    camposErrados *
+      (params.tempo_correcao_erro_manual_minutos_por_campo -
+        params.tempo_correcao_erro_smart_read_minutos_por_campo),
+  )
+}
+
+/** Saving digitação = soma da base manual − tempo de leitura medido (cronômetro). */
+export function calcularSavingDigitaçãoTransacaoLeituraSmartRead(
+  documentos: Array<{ tipo_documento: string | null | undefined }>,
+  tempoLeituraSegundos: number | null | undefined,
+): number {
+  if (documentos.length <= 0 || tempoLeituraSegundos == null) return 0
+  const baseManualMinutos = somarBaseManualDocumentosSmartRead(documentos)
+  return Math.max(0, baseManualMinutos - Math.max(0, tempoLeituraSegundos) / 60)
+}
+
+/** Saving de digitação + erros por documento (legado — digitação sempre 0; use funções de transação). */
 export function calcularSavingDocumentoSmartRead(
   tipo: TipoDocumentoBaseSmartRead,
   camposErrados: number,
-  tempoSmartReadMinutos: number | null = null,
 ): { digitação: number; erros: number } {
-  const params = resolverParametrosTempoDocumentoSmartRead(tipo)
-  const tempoSr =
-    tempoSmartReadMinutos != null && Number.isFinite(tempoSmartReadMinutos) && tempoSmartReadMinutos >= 0
-      ? tempoSmartReadMinutos
-      : params.tempo_digitação_smart_read_minutos
-  const savingDigitação = params.tempo_digitação_manual_minutos - tempoSr
-  const savingErros =
-    camposErrados *
-    (params.tempo_correcao_erro_manual_minutos_por_campo -
-      params.tempo_correcao_erro_smart_read_minutos_por_campo)
+  return {
+    digitação: 0,
+    erros: calcularSavingErrosDocumentoSmartRead(tipo, camposErrados),
+  }
+}
+
+/** Recursos reduzidos = soma da base manual por documento − tempo de leitura medido (cronômetro). */
+export function calcularRecursosReduzidosPorTempoLeituraSmartRead(
+  documentos: Array<{ tipo_documento: string | null | undefined }>,
+  tempoLeituraSegundos: number,
+): Pick<MetricasTransacaoLeituraSmartRead, 'saving_total_minutos' | 'saving_total_brl'> | null {
+  if (documentos.length <= 0) return null
+
+  const savingDigitaçãoMinutos = calcularSavingDigitaçãoTransacaoLeituraSmartRead(
+    documentos,
+    tempoLeituraSegundos,
+  )
+  const custoHora =
+    PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
+    PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
 
   return {
-    digitação: Math.max(0, savingDigitação),
-    erros: Math.max(0, savingErros),
+    saving_total_minutos: savingDigitaçãoMinutos,
+    saving_total_brl: (savingDigitaçãoMinutos / 60) * custoHora,
   }
+}
+
+export type SavingDetalhadoTransacaoLeituraSmartRead = {
+  digitação: number
+  erros: number
+  saving_total_minutos: number
+  saving_total_brl: number
 }
 
 /** Estimativa de saving quando só há totais agregados (snapshot denormalizado / lista legado). */
@@ -247,21 +312,63 @@ export function estimarSavingAgregadoLeituraSmartRead(
   totalDocumentos: number,
   camposErrados: number,
   tipo: TipoDocumentoBaseSmartRead = 'outros',
-  tempoSmartReadMinutosPorDocumento: number | null = null,
+  tempoLeituraSegundos: number | null = null,
 ): Pick<MetricasTransacaoLeituraSmartRead, 'saving_total_minutos' | 'saving_total_brl'> {
   if (totalDocumentos <= 0) {
     return { saving_total_minutos: 0, saving_total_brl: 0 }
   }
-  const saving = calcularSavingDocumentoSmartRead(
-    tipo,
-    camposErrados,
-    tempoSmartReadMinutosPorDocumento,
-  )
-  const savingTotalMinutos = saving.digitação * totalDocumentos + saving.erros
+
+  const params = resolverParametrosTempoDocumentoSmartRead(tipo)
+  const baseManualMinutos = params.tempo_digitação_manual_minutos * totalDocumentos
+  const savingDigitação =
+    tempoLeituraSegundos != null
+      ? Math.max(0, baseManualMinutos - Math.max(0, tempoLeituraSegundos) / 60)
+      : 0
+  const savingErros = calcularSavingErrosDocumentoSmartRead(tipo, camposErrados)
+  const savingTotalMinutos = savingDigitação + savingErros
   const custoHora =
     PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
     PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
   return {
+    saving_total_minutos: savingTotalMinutos,
+    saving_total_brl: (savingTotalMinutos / 60) * custoHora,
+  }
+}
+
+export function resolverSavingDetalhadoTransacaoLeituraSmartRead(
+  transacao: Pick<
+    MetricasTransacaoLeituraSmartRead,
+    | 'total_documentos'
+    | 'total_campos_errados'
+    | 'tipos_documento'
+    | 'tempo_extracao_ia_ms'
+    | 'tempo_processo_total_ms'
+  >,
+): SavingDetalhadoTransacaoLeituraSmartRead | null {
+  if (transacao.total_documentos <= 0) return null
+
+  const tempoLeituraSegundos = resolverTempoLeituraSegundosSmartRead(
+    transacao.tempo_processo_total_ms,
+    transacao.tempo_extracao_ia_ms,
+  )
+  const tipo = inferirTipoDocumentoSavingLista(transacao.tipos_documento)
+  const params = resolverParametrosTempoDocumentoSmartRead(tipo)
+  const baseManualMinutos = params.tempo_digitação_manual_minutos * transacao.total_documentos
+  const digitação =
+    tempoLeituraSegundos != null
+      ? Math.max(0, baseManualMinutos - Math.max(0, tempoLeituraSegundos) / 60)
+      : 0
+  const erros = calcularSavingErrosDocumentoSmartRead(tipo, transacao.total_campos_errados)
+  const savingTotalMinutos = digitação + erros
+  const custoHora =
+    PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
+    PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
+
+  if (savingTotalMinutos <= 0) return null
+
+  return {
+    digitação,
+    erros,
     saving_total_minutos: savingTotalMinutos,
     saving_total_brl: (savingTotalMinutos / 60) * custoHora,
   }
@@ -274,7 +381,7 @@ function inferirTipoDocumentoSavingLista(
   return normalizarTipoDocumentoBaseSmartRead(rotulo)
 }
 
-/** Saving efetivo da transação: valor persistido ou estimativa agregada (lista / snapshot). */
+/** Saving efetivo da transação — sempre recalculado pela regra SSOT (base manual − tempo de leitura). */
 export function resolverSavingTransacaoLeituraSmartRead(
   transacao: Pick<
     MetricasTransacaoLeituraSmartRead,
@@ -284,35 +391,15 @@ export function resolverSavingTransacaoLeituraSmartRead(
     | 'total_campos_errados'
     | 'tipos_documento'
     | 'tempo_extracao_ia_ms'
+    | 'tempo_processo_total_ms'
   >,
 ): Pick<MetricasTransacaoLeituraSmartRead, 'saving_total_minutos' | 'saving_total_brl'> | null {
-  if (transacao.saving_total_minutos != null && transacao.saving_total_minutos > 0) {
-    return {
-      saving_total_minutos: transacao.saving_total_minutos,
-      saving_total_brl: transacao.saving_total_brl ?? 0,
-    }
+  const saving = resolverSavingDetalhadoTransacaoLeituraSmartRead(transacao)
+  if (!saving) return null
+  return {
+    saving_total_minutos: saving.saving_total_minutos,
+    saving_total_brl: saving.saving_total_brl,
   }
-
-  if (transacao.total_documentos <= 0) {
-    return null
-  }
-
-  const tempoSrPorDocumento = resolverTempoSmartReadMinutosPorDocumento(
-    transacao.tempo_extracao_ia_ms,
-    transacao.total_documentos,
-  )
-  const saving = estimarSavingAgregadoLeituraSmartRead(
-    transacao.total_documentos,
-    transacao.total_campos_errados,
-    inferirTipoDocumentoSavingLista(transacao.tipos_documento),
-    tempoSrPorDocumento,
-  )
-
-  if (saving.saving_total_minutos <= 0) {
-    return null
-  }
-
-  return saving
 }
 
 function textoCampo(valor: unknown): string | null {
@@ -437,6 +524,7 @@ export function calcularMetricasTransacaoLeituraSmartRead(
 
   const tiposVistos = new Map<TipoDocumentoBaseSmartRead, number>()
   const numerosVistos: string[] = []
+  const documentosEntrada: Array<{ tipo_documento: string | null; campos_errados: number }> = []
 
   for (const arquivo of leitura.arquivos) {
     const documentosNoArquivo = arquivo.resultado_extracao?.length ?? 0
@@ -450,27 +538,21 @@ export function calcularMetricasTransacaoLeituraSmartRead(
       totalCampos += contagem.total
       camposCorretos += contagem.corretos
       camposErrados += contagem.errados
+      documentosEntrada.push({
+        tipo_documento: item.tipo_documento,
+        campos_errados: contagem.errados,
+      })
 
       const tempoDocMs =
         extrairTempoExtracaoIaMsDeDados(dados) ??
         (tempoArquivoMs != null && documentosNoArquivo > 0
           ? Math.round(tempoArquivoMs / documentosNoArquivo)
           : null)
-      const tempoDocMinutos = tempoDocMs != null ? tempoDocMs / 60000 : null
 
-      const saving = calcularSavingDocumentoSmartRead(
-        tipoNormalizado,
-        contagem.errados,
-        tempoDocMinutos,
-      )
-      savingDigitaçãoMinutos += saving.digitação
-      savingErrosMinutos += saving.erros
+      savingErrosMinutos += calcularSavingErrosDocumentoSmartRead(tipoNormalizado, contagem.errados)
 
       if (tempoDocMs != null) {
         tempoExtracaoIaMs += tempoDocMs
-      } else {
-        const params = resolverParametrosTempoDocumentoSmartRead(tipoNormalizado)
-        tempoExtracaoIaMs += Math.round(params.tempo_digitação_smart_read_minutos * 60 * 1000)
       }
 
       tiposVistos.set(tipoNormalizado, (tiposVistos.get(tipoNormalizado) ?? 0) + 1)
@@ -486,6 +568,16 @@ export function calcularMetricasTransacaoLeituraSmartRead(
       tempo_processo_total_ms: resolverTempoProcessoTotalMs(contexto),
     }
   }
+
+  const tempoProcessoTotalMs = resolverTempoProcessoTotalMs(contexto)
+  const tempoLeituraSegundos = resolverTempoLeituraSegundosSmartRead(
+    tempoProcessoTotalMs,
+    tempoExtracaoIaMs > 0 ? tempoExtracaoIaMs : null,
+  )
+  savingDigitaçãoMinutos = calcularSavingDigitaçãoTransacaoLeituraSmartRead(
+    documentosEntrada,
+    tempoLeituraSegundos,
+  )
 
   const tiposDocumento = [...tiposVistos.entries()]
     .sort((a, b) => b[1] - a[1])
@@ -504,8 +596,8 @@ export function calcularMetricasTransacaoLeituraSmartRead(
     total_campos_errados: camposErrados,
     tipos_documento: tiposDocumento || null,
     numeros_documento: numerosVistos.length > 0 ? numerosVistos.join(' · ') : null,
-    tempo_extracao_ia_ms: tempoExtracaoIaMs,
-    tempo_processo_total_ms: resolverTempoProcessoTotalMs(contexto),
+    tempo_extracao_ia_ms: tempoExtracaoIaMs > 0 ? tempoExtracaoIaMs : null,
+    tempo_processo_total_ms: tempoProcessoTotalMs,
     saving_total_minutos: savingTotalMinutos,
     saving_total_brl: (savingTotalMinutos / 60) * custoHora,
   }

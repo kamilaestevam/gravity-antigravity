@@ -1,5 +1,10 @@
 import type { Leitura, TransacaoLeitura } from '../../shared/schemas'
-import { calcularSavingDocumentoSmartRead } from '../../../../shared/metricas-transacao-leitura-smart-read'
+import {
+  calcularSavingDigitaçãoTransacaoLeituraSmartRead,
+  calcularSavingErrosDocumentoSmartRead,
+  resolverSavingDetalhadoTransacaoLeituraSmartRead,
+  resolverTempoLeituraSegundosSmartRead,
+} from '../../../../shared/metricas-transacao-leitura-smart-read'
 import {
   PARAMETROS_FINANCEIROS_SMART_READ,
   resolverParametrosTempoDocumentoSmartRead,
@@ -169,15 +174,48 @@ export function resolverRankingsParticipanteInsights(
   return RANKINGS_PARTICIPANTE_VAZIO[tipo]
 }
 
-function calcularSavingDocumento(doc: DocumentoInsightsSmartRead): {
-  digitação: number
-  erros: number
-} {
-  return calcularSavingDocumentoSmartRead(
-    doc.tipo_normalizado,
-    doc.campos_errados,
-    doc.tempo_extracao_ia_minutos,
-  )
+function mapTempoLeituraSegundosPorId(transacoes: TransacaoLeitura[]): Map<string, number | null> {
+  const mapa = new Map<string, number | null>()
+  for (const transacao of transacoes) {
+    mapa.set(
+      transacao.id_leitura,
+      resolverTempoLeituraSegundosSmartRead(
+        transacao.tempo_processo_total_ms,
+        transacao.tempo_extracao_ia_ms,
+      ),
+    )
+  }
+  return mapa
+}
+
+function calcularSavingInsightsDeDocumentos(
+  documentos: DocumentoInsightsSmartRead[],
+  tempoPorLeitura: Map<string, number | null>,
+): { digitação: number; erros: number } {
+  let savingDigitaçãoMinutos = 0
+  let savingErrosMinutos = 0
+  const porLeitura = new Map<string, DocumentoInsightsSmartRead[]>()
+
+  for (const documento of documentos) {
+    const lista = porLeitura.get(documento.id_leitura) ?? []
+    lista.push(documento)
+    porLeitura.set(documento.id_leitura, lista)
+  }
+
+  for (const [idLeitura, docs] of porLeitura) {
+    savingDigitaçãoMinutos += calcularSavingDigitaçãoTransacaoLeituraSmartRead(
+      docs,
+      tempoPorLeitura.get(idLeitura) ?? null,
+    )
+    for (const doc of docs) {
+      savingErrosMinutos += calcularSavingErrosDocumentoSmartRead(
+        doc.tipo_normalizado,
+        doc.campos_errados,
+      )
+    }
+  }
+
+  return { digitação: savingDigitaçãoMinutos, erros: savingErrosMinutos }
 }
 
 function resumoBlAwb(documentos: DocumentoInsightsSmartRead[], tipo: 'bl' | 'awb') {
@@ -278,8 +316,17 @@ function calcularMetricasInsightsDeTransacoes(
       ? camposCorretos / (camposCorretos + camposErrados)
       : null
 
-  const savingDigitaçãoMinutos = elegiveis.reduce((acc, t) => acc + (t.saving_total_minutos ?? 0), 0)
-  const savingDigitaçãoCustoBrl = elegiveis.reduce((acc, t) => acc + (t.saving_total_brl ?? 0), 0)
+  const savingDigitaçãoMinutos = elegiveis.reduce((acc, transacao) => {
+    const saving = resolverSavingDetalhadoTransacaoLeituraSmartRead(transacao)
+    return acc + (saving?.digitação ?? 0)
+  }, 0)
+  const savingErrosMinutos = elegiveis.reduce((acc, transacao) => {
+    const saving = resolverSavingDetalhadoTransacaoLeituraSmartRead(transacao)
+    return acc + (saving?.erros ?? 0)
+  }, 0)
+  const custoHora =
+    PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
+    PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
 
   return {
     ...METRICAS_INSIGHTS_VAZIAS,
@@ -289,7 +336,9 @@ function calcularMetricasInsightsDeTransacoes(
     camposErrados,
     taxaAcertoCampos,
     savingDigitaçãoMinutos,
-    savingDigitaçãoCustoBrl,
+    savingDigitaçãoCustoBrl: (savingDigitaçãoMinutos / 60) * custoHora,
+    savingErrosMinutos,
+    savingErrosCustoBrl: (savingErrosMinutos / 60) * custoHora,
     porTipoDocumento: porTipoDocumentoDeTransacoes(elegiveis),
     amostraLeituras: transacoes.length,
   }
@@ -312,13 +361,10 @@ export function calcularMetricasInsightsLeituraSmartRead(
       ? camposCorretos / (camposCorretos + camposErrados)
       : null
 
-  let savingDigitaçãoMinutos = 0
-  let savingErrosMinutos = 0
-  for (const doc of documentos) {
-    const saving = calcularSavingDocumento(doc)
-    savingDigitaçãoMinutos += saving.digitação
-    savingErrosMinutos += saving.erros
-  }
+  const tempoPorLeitura = mapTempoLeituraSegundosPorId(transacoes)
+  const saving = calcularSavingInsightsDeDocumentos(documentos, tempoPorLeitura)
+  const savingDigitaçãoMinutos = saving.digitação
+  const savingErrosMinutos = saving.erros
 
   const custoHora =
     PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *

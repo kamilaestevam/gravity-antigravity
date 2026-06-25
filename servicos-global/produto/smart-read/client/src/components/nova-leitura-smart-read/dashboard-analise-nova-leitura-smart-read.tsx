@@ -10,9 +10,19 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Brain, Clock, Timer } from '@phosphor-icons/react'
 
+import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
+
+import { calcularSavingNovaLeituraSmartRead } from '../../shared/calcular-saving-nova-leitura-smart-read'
+
+import {
+  formatarSavingHorasLeitura,
+  formatarSavingValorLeitura,
+} from '../../shared/formatacao-leitura-smart-read'
+
 
 
 type Props = {
+  arquivos: ArquivoLocalNovaLeitura[]
   analiseCompleta: boolean
   processamentoComErro: boolean
   inicioAnalise: number | null
@@ -130,6 +140,7 @@ function calcularProgressoEtapas(
 
 
 export function DashboardAnaliseNovaLeituraSmartRead({
+  arquivos,
   analiseCompleta,
   processamentoComErro,
   inicioAnalise,
@@ -159,7 +170,12 @@ export function DashboardAnaliseNovaLeituraSmartRead({
 
 
 
-  const horasEconomizadas = Math.max(1, Math.round(elapsedSegundos / 14) || 1)
+  const saving = useMemo(() => {
+    if (!analiseCompleta || processamentoComErro) return { minutos: null, brl: null }
+    return calcularSavingNovaLeituraSmartRead(arquivos, {
+      tempoLeituraSegundos: elapsedSegundos,
+    })
+  }, [analiseCompleta, processamentoComErro, arquivos, elapsedSegundos])
 
 
 
@@ -180,7 +196,7 @@ export function DashboardAnaliseNovaLeituraSmartRead({
 
             <Clock size={18} weight="duotone" />
 
-            <span>Tempo estimado</span>
+            <span>Tempo de leitura</span>
 
           </header>
 
@@ -202,11 +218,9 @@ export function DashboardAnaliseNovaLeituraSmartRead({
 
           <div className="sr-wizard-recursos">
 
-            <strong>{horasEconomizadas} Horas</strong>
+            <strong>{formatarSavingHorasLeitura(saving.minutos)}</strong>
 
-            <span className="sr-wizard-recursos-valor">BLR 362.777,20</span>
-
-            <span className="sr-wizard-recursos-badge">+12%</span>
+            <span className="sr-wizard-recursos-valor">{formatarSavingValorLeitura(saving.brl)}</span>
 
           </div>
 

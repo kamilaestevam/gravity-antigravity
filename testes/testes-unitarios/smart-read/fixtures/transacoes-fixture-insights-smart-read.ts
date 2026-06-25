@@ -39,6 +39,7 @@ export const TRANSACOES_FIXTURE_INSIGHTS: TransacaoLeitura[] = [
       'INTERFACE',
     ),
     ...metricasTransacaoLeituraVazias(),
+    tempo_processo_total_ms: 90_000,
   },
   {
     ...baseTransacao(
@@ -49,6 +50,7 @@ export const TRANSACOES_FIXTURE_INSIGHTS: TransacaoLeitura[] = [
     ),
     total_arquivos: 1,
     ...metricasTransacaoLeituraVazias(),
+    tempo_processo_total_ms: 60_000,
   },
 ]
 
@@ -67,6 +69,7 @@ export const TRANSACOES_FIXTURE_INSIGHTS_COM_METRICAS: TransacaoLeitura[] = [
     total_campos_corretos: 72,
     total_campos_errados: 16,
     tipos_documento: 'Bill of Lading · Invoice · Packing List',
+    tempo_processo_total_ms: 120_000,
     saving_total_minutos: 32,
     saving_total_brl: 96,
   },
@@ -84,7 +87,6 @@ export const TRANSACOES_FIXTURE_INSIGHTS_COM_METRICAS: TransacaoLeitura[] = [
     total_campos_corretos: 20,
     total_campos_errados: 4,
     tipos_documento: 'Invoice',
-    saving_total_minutos: 8,
-    saving_total_brl: 24,
+    tempo_processo_total_ms: 60_000,
   },
 ]

@@ -120,7 +120,7 @@ body.light-theme .sw-content.sw-content--hub-unificado {
   min-height: 0;
   height: auto;
   max-height: none;
-  overflow: visible;
+  overflow: hidden;
   min-width: 0;
   padding: 1rem 1.1rem 20px;
   border-radius: 14px;
@@ -746,6 +746,8 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   padding: 0;
   border-radius: 12px;
   background: transparent;
+  overflow: hidden;
+  min-width: 0;
 }
 
 :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-contratados {
@@ -814,9 +816,10 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   z-index: 1;
 }
 
+/* Carrossel: scroll interno — não vazar peças para fora do painel */
 :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-puzzle-carousel__track {
-  overflow-x: visible;
-  overflow-y: visible;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 /* Cards quadrados: sem overlap do puzzle SVG da Store */

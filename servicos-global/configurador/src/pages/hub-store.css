@@ -1581,8 +1581,8 @@ body.light-theme .gs-puzzle-carousel__btn {
 }
 
 .gs-puzzle-gravity-refinado .gs-puzzle-carousel__track {
-  overflow-x: visible;
-  overflow-y: visible;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 /* Responsivo */

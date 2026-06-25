@@ -693,6 +693,8 @@ export function ModalNovaLeituraSmartRead({
 
           onEnviar={() => void enviarArquivos()}
 
+          onCancelar={() => void handleFechar()}
+
           onVoltar={passo > 1 ? handleVoltarPasso : undefined}
 
           onContinuar={passo >= 2 ? handleContinuarPasso : undefined}

@@ -129,7 +129,7 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
           <li>
             <span className="sr-insights-metodologia-saving__formula-nome">Saving digitação</span>
             <span className="sr-insights-metodologia-saving__formula-expr">
-              tempo manual − tempo real de extração IA (por documento; fallback da tabela se ausente)
+              soma do tempo manual fixo por documento − tempo de leitura medido (cronômetro do processo)
             </span>
           </li>
           <li>

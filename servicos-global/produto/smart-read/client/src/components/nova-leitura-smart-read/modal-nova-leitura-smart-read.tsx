@@ -10,9 +10,10 @@
 
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { FileMagnifyingGlass, Sparkle } from '@phosphor-icons/react'
+import { Sparkle } from '@phosphor-icons/react'
 
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 
@@ -72,6 +73,10 @@ const INTERVALO_POLLING_MS = 2000
 const LIMITE_POLLING_MS = 5 * 60 * 1000
 
 
+
+const ICONE_MARCA_CABECALHO_SMART_READ = iconeOficialProdutoGravity('smart-read', 22, {
+  variant: 'card',
+})
 
 const PASSOS: PassoConfig[] = [
 
@@ -656,11 +661,15 @@ export function ModalNovaLeituraSmartRead({
     <>
     <ModalPassoPassoGlobal
 
-      titulo="Nova Leitura"
+      titulo="Smart Read"
 
-      icone={<FileMagnifyingGlass size={20} weight="duotone" />}
+      tituloNode={<span className="sr-wizard-cabecalho-marca-texto">Smart Read</span>}
 
-      subtituloNode={<span className="sr-wizard-modal-subtitulo-leitura">{nomeLeitura}</span>}
+      icone={ICONE_MARCA_CABECALHO_SMART_READ}
+
+      subtituloNode={
+        <span className="sr-wizard-modal-subtitulo-leitura">{nomeLeitura}</span>
+      }
 
       aberto={aberto}
 

@@ -18,6 +18,15 @@ import {
   formatarSavingHorasLeitura,
   formatarSavingValorLeitura,
 } from '../../shared/formatacao-leitura-smart-read'
+import {
+  mesclarTransacoesAgregacaoBaseCalculoSmartRead,
+  montarEntradaAgregacaoNovaLeituraEmAndamentoSmartRead,
+} from '../../shared/montar-entrada-agregacao-nova-leitura-smart-read'
+import { useSavingAcumuladoWorkspaceSmartRead } from '../../shared/use-saving-acumulado-workspace-smart-read'
+import {
+  LinkMetodologiaSavingInsightsSmartRead,
+  ProvedorMetodologiaSavingInsightsSmartRead,
+} from '../../pages/insights-smart-read/metodologia-saving-insights-smart-read'
 
 
 
@@ -147,6 +156,9 @@ export function DashboardAnaliseNovaLeituraSmartRead({
 }: Props) {
 
   const [agora, setAgora] = useState(Date.now())
+  const savingAcumulado = useSavingAcumuladoWorkspaceSmartRead(true, {
+    gatilhoRecarga: analiseCompleta,
+  })
 
 
 
@@ -177,10 +189,26 @@ export function DashboardAnaliseNovaLeituraSmartRead({
     })
   }, [analiseCompleta, processamentoComErro, arquivos, elapsedSegundos])
 
-
+  const idLeituraAtual = arquivos.find((item) => item.id_leitura)?.id_leitura ?? null
+  const entradaLeituraAtual = useMemo(
+    () => montarEntradaAgregacaoNovaLeituraEmAndamentoSmartRead(arquivos),
+    [arquivos],
+  )
+  const transacoesBaseCalculo = useMemo(
+    () =>
+      mesclarTransacoesAgregacaoBaseCalculoSmartRead(
+        savingAcumulado.transacoes,
+        entradaLeituraAtual,
+        idLeituraAtual,
+      ),
+    [savingAcumulado.transacoes, entradaLeituraAtual, idLeituraAtual],
+  )
 
   return (
-
+    <ProvedorMetodologiaSavingInsightsSmartRead
+      transacoes={transacoesBaseCalculo}
+      aoAbrir={() => void savingAcumulado.recarregar()}
+    >
     <div className="sr-wizard-principal sr-wizard-principal--analise">
       {processamentoComErro && (
         <div className="sr-wizard-analise-alerta-erro" role="alert">
@@ -223,6 +251,10 @@ export function DashboardAnaliseNovaLeituraSmartRead({
             <span className="sr-wizard-recursos-valor">{formatarSavingValorLeitura(saving.brl)}</span>
 
           </div>
+
+          <p className="sr-wizard-metrica-link-metodologia">
+            <LinkMetodologiaSavingInsightsSmartRead>Base de cálculo →</LinkMetodologiaSavingInsightsSmartRead>
+          </p>
 
         </article>
 
@@ -303,12 +335,10 @@ export function DashboardAnaliseNovaLeituraSmartRead({
       </div>
 
     </div>
-
+    </ProvedorMetodologiaSavingInsightsSmartRead>
   )
 
 }
-
-
 
 function EtapaBarra({ etapa }: { etapa: EtapaAnalise }) {
 

@@ -176,12 +176,12 @@ Componente: `metodologia-saving-insights-smart-read.tsx`. `ProvedorMetodologiaSa
 
 | Arquivo | Cobertura |
 |---------|-----------|
-| `testes/testes-unitarios/smart-read/comparar-campos-edicao-leitura.test.ts` | Comparação original × final |
-| `testes/testes-unitarios/smart-read/responsavel-acerto-documento-insights.test.ts` | Regra emissor por tipo |
-| `testes/testes-unitarios/smart-read/calcular-metricas-insights-leitura.test.ts` | Pipeline métricas + fallback por `TransacaoLeitura` |
-| `testes/testes-unitarios/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
-| `testes/testes-unitarios/smart-read/fixtures/leituras-fixture-insights-smart-read.ts` | Leituras detalhadas (modo completo) |
-| `testes/testes-unitarios/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | **SSOT** de transações — mesmos ids/datas nos dois specs acima |
+| `testes/testes-unitarios/produto-gravity/smart-read/comparar-campos-edicao-leitura.test.ts` | Comparação original × final |
+| `testes/testes-unitarios/produto-gravity/smart-read/responsavel-acerto-documento-insights.test.ts` | Regra emissor por tipo |
+| `testes/testes-unitarios/produto-gravity/smart-read/calcular-metricas-insights-leitura.test.ts` | Pipeline métricas + fallback por `TransacaoLeitura` |
+| `testes/testes-unitarios/produto-gravity/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
+| `testes/testes-unitarios/produto-gravity/smart-read/fixtures/leituras-fixture-insights-smart-read.ts` | Leituras detalhadas (modo completo) |
+| `testes/testes-unitarios/produto-gravity/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | **SSOT** de transações — mesmos ids/datas nos dois specs acima |
 
 ---
 

@@ -450,11 +450,11 @@ Pacote **5 tipos** (Local `http://localhost:8000`, API pedido `:8030`) — regis
 
 | Tipo | ID | Pasta |
 |------|-----|-------|
-| UNI | `TST-UNI-EDICAO-EM-MASSA-LISTA-PEDIDO-000108` | `testes/testes-unitarios/pedido/lista/edicao-em-massa/plano-de-teste/` |
-| FUN | `TST-FUN-EDICAO-EM-MASSA-LISTA-PEDIDO-000109` | `testes/testes-funcionais/pedido/Lista/edicao-em-massa/plano-de-teste/` |
-| E2E | `TST-E2E-EDICAO-EM-MASSA-LISTA-PEDIDO-000110` | `testes/testes-e2e/pedido/Lista/edicao-em-massa/plano-de-teste/` |
-| CRO | `TST-CRO-EDICAO-EM-MASSA-LISTA-PEDIDO-000111` | `testes/testes-cross-organizacao/pedido/lista/edicao-em-massa/plano-de-teste/` |
-| EMT | `TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112` | `testes/testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/` |
+| UNI | `TST-UNI-EDICAO-EM-MASSA-LISTA-PEDIDO-000108` | `testes/testes-unitarios/produto-gravity/pedido/lista/edicao-em-massa/plano-de-teste/` |
+| FUN | `TST-FUN-EDICAO-EM-MASSA-LISTA-PEDIDO-000109` | `testes/testes-funcionais/produto-gravity/pedido/Lista/edicao-em-massa/plano-de-teste/` |
+| E2E | `TST-E2E-EDICAO-EM-MASSA-LISTA-PEDIDO-000110` | `testes/testes-e2e/produto-gravity/pedido/Lista/edicao-em-massa/plano-de-teste/` |
+| CRO | `TST-CRO-EDICAO-EM-MASSA-LISTA-PEDIDO-000111` | `testes/testes-cross-organizacao/produto-gravity/pedido/lista/edicao-em-massa/plano-de-teste/` |
+| EMT | `TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112` | `testes/testes-em-tela/produto-gravity/pedido/lista/edicao-em-massa/plano-de-teste/` |
 
 **Runner pacote local:** `run-pacote-edicao-em-massa-local.ts` (ordem UNI→FUN→CRO→E2E→EMT).
 

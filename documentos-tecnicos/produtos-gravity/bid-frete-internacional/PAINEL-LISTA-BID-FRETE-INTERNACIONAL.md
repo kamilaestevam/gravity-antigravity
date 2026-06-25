@@ -77,7 +77,7 @@ Todas as colunas visíveis na grid exibem ícone ▾ no header (`FiltroPopoverCo
 
 **Colunas manuais:** `mapColunaUsuarioBidFreteParaGTColuna` com `filtravel: true` explícito; valores em `_colunas_usuario[col.id]` via `bid-frete:config:valores-colunas-usuario` (localStorage WIP até API Pedido).
 
-**Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
+**Testes UNI:** `testes/testes-unitarios/produto-gravity/bid-frete-internacional/lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
 
 ---
 
@@ -126,4 +126,4 @@ Na carga (`carregar`), cotações são enriquecidas com `enriquecerCotacoesComCo
 
 **Filtro:** `cotacaoPassaFiltrosColuna` resolve valor via `findDisplay` / mapa `colunasPersonalizadasPorChave` (chave → `col.id`).
 
-**Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/lista/filtros-coluna-lista-bid-frete-internacional.test.ts`
+**Testes UNI:** `testes/testes-unitarios/produto-gravity/bid-frete-internacional/lista/filtros-coluna-lista-bid-frete-internacional.test.ts`

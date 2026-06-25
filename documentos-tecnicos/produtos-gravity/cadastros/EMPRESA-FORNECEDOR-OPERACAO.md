@@ -136,4 +136,4 @@ Migration `20260615220000_add_fornecedor_contato` cria **`fornecedor_contato`** 
 | `testes/testes-unitarios/cadastros/empresa-org-resolver.test.ts` | Cascata resolver |
 | `testes/testes-funcionais/cadastros/da-organizacao.test.ts` | Rotas + contrato |
 | `testes/testes-unitarios/cadastros/cadastros-client-sdk.test.ts` | SDK fornecedorSchema |
-| `testes/testes-unitarios/pedido/lista/novo-pedido/cadastros-fornecedor-contrato.test.ts` | processos-core client |
+| `testes/testes-unitarios/produto-gravity/pedido/lista/novo-pedido/cadastros-fornecedor-contrato.test.ts` | processos-core client |

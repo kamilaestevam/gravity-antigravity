@@ -90,8 +90,8 @@ Regras:
 | Escopo | Plano |
 |--------|-------|
 | Admin favoritos (5 tipos) | `testes/testes-unitarios/admin/testes/aba-plano-de-teste/plano-de-teste/preferencia-teste-usuario-admin-unitario.md` (+ FUN/E2E/CRO paralelos) |
-| EMT completo | `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` |
-| UNI legado grande | `testes/testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-unitario.md` (parser legado; migrar quando tocar) |
+| EMT completo | `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` |
+| UNI legado grande | `testes/testes-unitarios/produto-gravity/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-unitario.md` (parser legado; migrar quando tocar) |
 
 ---
 

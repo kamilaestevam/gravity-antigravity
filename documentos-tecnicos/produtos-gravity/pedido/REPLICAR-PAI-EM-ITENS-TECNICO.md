@@ -149,7 +149,7 @@ Inclui `console.log` diagnóstico (request + response).
 
 ## 5. Testes
 
-`testes/testes-unitarios/pedido/replicar-pai-em-itens.test.ts` — **26 testes**:
+`testes/testes-unitarios/produto-gravity/pedido/replicar-pai-em-itens.test.ts` — **26 testes**:
 
 - `obterCampoItemPropagado`: 9 casos (DDD ok, pedido-only null, agregados null, ID null, inexistente null)
 - `isPropagavel`: 6 casos (DDD aceito, legado aceito, pedido-only rejeitado, agregados rejeitados, IDs rejeitados, vazio rejeitado)

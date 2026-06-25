@@ -64,7 +64,7 @@ Enriquecimento na resposta JSON; **não** enviar no `PATCH` (lista em `CAMPOS_CO
 | GET enriquecido | `server/src/routes/cotacoes.ts` |
 | POST aprovar | `server/src/routes/comparativo.ts` |
 | Map client | `mapCotacaoFromServer` em `client/src/shared/api.ts` |
-| Teste UNI aviso | `testes/testes-unitarios/bid-frete-internacional/aviso-graficos-insights-cotacao.test.ts` |
+| Teste UNI aviso | `testes/testes-unitarios/produto-gravity/bid-frete-internacional/aviso-graficos-insights-cotacao.test.ts` |
 
 ---
 

@@ -36,7 +36,7 @@ testes/<tipo>/<produto>/<area>/<feature>/
 **ID:** `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045` (`TST` + `EMT` + local `PEDIDO` + área `LISTA` + resumo `EDITAR-SALVAR` + `001`)
 
 ```
-testes/testes-em-tela/pedido/lista/editar-salvar/
+testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/
 ├── plano-de-teste/
 │   ├── plano-teste-em-tela.md
 │   └── run-lista-editar-salvar.ts
@@ -51,7 +51,7 @@ testes/testes-em-tela/pedido/lista/editar-salvar/
 ## Exemplo — Pedido › Configurações › Status (EMT)
 
 ```
-testes/testes-em-tela/pedido/configuracoes/status/
+testes/testes-em-tela/produto-gravity/pedido/configuracoes/status/
 ├── plano-teste/
 │   ├── plano-teste-em-tela.md
 │   └── run-lista-editar-salvar.ts

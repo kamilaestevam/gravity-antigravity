@@ -5,7 +5,7 @@ import { extrairCasosDoPlano } from '../../../servicos-global/configurador/serve
 
 const PLANO_LISTA = resolve(
   process.cwd(),
-  'testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md',
+  'testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md',
 )
 
 describe('extrairCasosDoPlano', () => {

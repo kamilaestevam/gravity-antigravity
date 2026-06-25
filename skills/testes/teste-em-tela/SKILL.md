@@ -50,9 +50,9 @@ testes/testes-em-tela/
 
 | Feature | Plano | Resultados |
 |---------|-------|------------|
-| Pedido › Lista › Editar-salvar | `testes-em-tela/pedido/lista/editar-salvar/plano-teste/` | `.../resultado-teste/<runId>/` |
-| Pedido › Lista › Edição em massa | `testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/` (`TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112`) | `.../resultado-teste/<runId>/` |
-| Pedido › Config › Status | `testes-em-tela/pedido/configuracoes/status/plano-teste/` | `.../resultado-teste/<runId>/` |
+| Pedido › Lista › Editar-salvar | `testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-teste/` | `.../resultado-teste/<runId>/` |
+| Pedido › Lista › Edição em massa | `testes-em-tela/produto-gravity/pedido/lista/edicao-em-massa/plano-de-teste/` (`TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112`) | `.../resultado-teste/<runId>/` |
+| Pedido › Config › Status | `testes-em-tela/produto-gravity/pedido/configuracoes/status/plano-teste/` | `.../resultado-teste/<runId>/` |
 
 ### `runId`
 

@@ -141,7 +141,7 @@ Ler **com Read** e apresentar checklist ✅/❌:
 - Documentos em `documentos-tecnicos/produtos-gravity/<produto>/` **que citem a feature**
 
 ### Referência canônica EMT (se feature tem UI)
-- `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` — **modelo de ETAPAs, prints e persistência**
+- `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` — **modelo de ETAPAs, prints e persistência**
 
 **Qualquer ❌ → CHECKPOINT VERMELHO → ler e reapresentar.**
 
@@ -283,7 +283,7 @@ Se existiam testes legados do **mesmo escopo**: deletar **após** aprovação ET
 
 Plano `plano-teste-em-tela.md` **nunca** pode ser esqueleto vazio. Deve conter **todas** as seções abaixo e **renderizar o modal Admin** (`ModalDetalhePlanoTeste.tsx`) com ETAPAs colapsáveis, link **Expandir todas** e contagem correta.
 
-> **Parser do modal:** `servicos-global/configurador/server/lib/extrair-casos-plano.ts` lê `### ETAPA …`, passos numerados ou tabela `| Passo | Ação | APROVADO quando |`, e `## Prints planejados`. **Modelo ouro:** `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+> **Parser do modal:** `servicos-global/configurador/server/lib/extrair-casos-plano.ts` lê `### ETAPA …`, passos numerados ou tabela `| Passo | Ação | APROVADO quando |`, e `## Prints planejados`. **Modelo ouro:** `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ### 1. Cabeçalho
 ```markdown
@@ -371,7 +371,7 @@ Listar **todos** os PNG **antes** de executar — o modal Admin exibe esta seç�
 - `99-erro.png` **somente** no `catch`
 - Gravar `RESULTADO.txt` com checklist ✓/✗ e veredicto **Aprovado/Reprovado** por passo
 
-**Modelo de código:** `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts`
+**Modelo de código:** `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts`
 
 ### 8. Checklist EMT antes de entregar (QA)
 
@@ -446,6 +446,6 @@ Apresentar:
 | Pipeline | `skills/testes/multi-agente-plano-teste/SKILL.md` |
 | EMT | `skills/testes/teste-em-tela/SKILL.md` |
 | Modal «Detalhe do plano» | `documentos-tecnicos/testes/tecnico/06-frontend-admin-testes.md` |
-| Exemplo ouro EMT | `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/` |
-| Exemplo 5 tipos (duplicar) | `testes/testes-unitarios/pedido/lista/duplicar/plano-de-teste/` + paralelos FUN/E2E/CRO/EMT |
+| Exemplo ouro EMT | `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/` |
+| Exemplo 5 tipos (duplicar) | `testes/testes-unitarios/produto-gravity/pedido/lista/duplicar/plano-de-teste/` + paralelos FUN/E2E/CRO/EMT |
 | Validar IDs | `npm run validate:test-ids` |

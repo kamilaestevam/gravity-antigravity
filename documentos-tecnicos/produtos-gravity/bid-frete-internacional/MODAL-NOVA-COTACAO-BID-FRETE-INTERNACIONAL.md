@@ -182,7 +182,7 @@ Implementação: `server/src/routes/cotacoes.ts` + `motor-bid-frete-internaciona
 
 **Motor:** `motor-bid-frete-internacional.ts` envia **1 e-mail por endereço** resolvido quando canal `EMAIL` está marcado; resultado agregado em `formatar-resultado-disparo-bid-frete-internacional`.
 
-**Testes UNI:** `testes/testes-unitarios/bid-frete-internacional/resolver-contatos-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
+**Testes UNI:** `testes/testes-unitarios/produto-gravity/bid-frete-internacional/resolver-contatos-disparo-bid-frete-internacional.test.ts`, `formatar-resultado-disparo-bid-frete-internacional.test.ts`
 
 **Cadastros / Configurador:** contrato `email_fornecedor` + `contatos_fornecedor[]` — ver [EMPRESA-FORNECEDOR-OPERACAO.md](../cadastros/EMPRESA-FORNECEDOR-OPERACAO.md) § Contatos do fornecedor.
 

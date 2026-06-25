@@ -437,7 +437,7 @@ const persistir    = passoInserir.mudou || passoMover.mudou
 
 ### Proteção contra regressão
 
-Teste unitário `testes/testes-unitarios/pedido/i18n-paridade.test.ts` cobre:
+Teste unitário `testes/testes-unitarios/produto-gravity/pedido/i18n-paridade.test.ts` cobre:
 - Toda key `t('pedido.*')` no client/src tem entry em `pt.json`
 - Paridade pt → en e pt → es (sem keys faltantes)
 - Sem valores vazios em `pedido.*`

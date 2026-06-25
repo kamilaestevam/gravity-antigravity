@@ -60,7 +60,7 @@ const replicar = campo === 'id_workspace' || campo === 'tipo_operacao'
 
 ### Testes
 
-- EMT: `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/` (passos 06–12).
+- EMT: `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/` (passos 06–12).
 - Funcional: `F-PROP-09`, `F-EMT-TOP-*` em `editar-salvar-funcional.md`.
 
 ---
@@ -250,8 +250,8 @@ Colunas **não editáveis inline** — interação só pelo ícone (`CelulaAnexo
 
 ### Testes
 
-- Unitário: `testes/testes-unitarios/pedido/pills-tooltip-coluna-lista.test.ts` (matriz + ordem canônica)
-- Unitário: `testes/testes-unitarios/pedido/tooltip-titulo-celula-lista.test.ts` (`isLinhaItemLista`, títulos piloto)
+- Unitário: `testes/testes-unitarios/produto-gravity/pedido/pills-tooltip-coluna-lista.test.ts` (matriz + ordem canônica)
+- Unitário: `testes/testes-unitarios/produto-gravity/pedido/tooltip-titulo-celula-lista.test.ts` (`isLinhaItemLista`, títulos piloto)
 - Unitário: `testes/testes-unitarios/nucleo/tooltip-celula-resolver.test.ts` (SSOT núcleo: nível + título alinhados)
 
 ### Status da migração
@@ -305,7 +305,7 @@ Rota: `PUT /api/v1/pedidos/:id/itens/:itemId` (Zod `.strict()` — campo fora do
 
 ### Testes
 
-- Unitário: `testes/testes-unitarios/pedido/valor-total-cambio-item-lista.test.ts` (`valorTotalCambioItemParaLista`).
+- Unitário: `testes/testes-unitarios/produto-gravity/pedido/valor-total-cambio-item-lista.test.ts` (`valorTotalCambioItemParaLista`).
 - EMT: pendente (sem ETAPA no plano lista-editar-salvar).
 
 ---

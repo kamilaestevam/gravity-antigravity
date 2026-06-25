@@ -129,9 +129,9 @@ app.use('/api/v1/bid-frete-internacional', exclusoesBidFreteInternacionalRouter)
 
 | Tipo | Arquivo |
 |------|---------|
-| Funcional (13) | `testes/testes-funcionais/bid-frete-internacional/lista/duplicacoes-exclusoes-routes.test.ts` |
-| Unitário (6) | `testes/testes-unitarios/bid-frete-internacional/lista/exclusao-regra-bloqueio-bid-frete-internacional.test.ts` |
-| Unitário (13) | `testes/testes-unitarios/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts` — enrich, filtro aba, fallback, `isLinhaBidGrupo` |
+| Funcional (13) | `testes/testes-funcionais/produto-gravity/bid-frete-internacional/lista/duplicacoes-exclusoes-routes.test.ts` |
+| Unitário (6) | `testes/testes-unitarios/produto-gravity/bid-frete-internacional/lista/exclusao-regra-bloqueio-bid-frete-internacional.test.ts` |
+| Unitário (13) | `testes/testes-unitarios/produto-gravity/bid-frete-internacional/lista/lista-hierarquia-bid.test.ts` — enrich, filtro aba, fallback, `isLinhaBidGrupo` |
 
 > Plano completo da tela (UNI/FUN/E2E/EMT) será fechado quando a lista estiver finalizada — estes testes cobrem apenas duplicação/exclusão em lote.
 

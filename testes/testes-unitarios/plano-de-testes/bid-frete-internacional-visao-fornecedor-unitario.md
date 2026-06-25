@@ -1,7 +1,7 @@
 # Plano de Testes Unitários — BID Frete Internacional / Visão Fornecedor
 
 **Escopo:** `BIDFRT-VF` — schemas Zod, mappers, link disparo e-mail  
-**Status:** implementado (specs em `testes/testes-unitarios/bid-frete-internacional/visao-fornecedor/`)  
+**Status:** implementado (specs em `testes/testes-unitarios/produto-gravity/bid-frete-internacional/visao-fornecedor/`)  
 **Data:** 26/05/2026
 
 ---
@@ -36,5 +36,5 @@
 ## Execução
 
 ```bash
-npx vitest run --config testes/testes-unitarios/bid-frete-internacional/vitest.config.ts testes/testes-unitarios/bid-frete-internacional/visao-fornecedor
+npx vitest run --config testes/testes-unitarios/produto-gravity/bid-frete-internacional/vitest.config.ts testes/testes-unitarios/produto-gravity/bid-frete-internacional/visao-fornecedor
 ```

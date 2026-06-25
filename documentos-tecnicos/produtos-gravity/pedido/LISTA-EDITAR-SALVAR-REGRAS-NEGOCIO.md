@@ -8,7 +8,7 @@
 
 **Doc técnico:** [`LISTA-EDITAR-SALVAR-TECNICO.md`](./LISTA-EDITAR-SALVAR-TECNICO.md)  
 **Replicação genérica (checkbox):** [`REPLICAR-PAI-EM-ITENS-TECNICO.md`](./REPLICAR-PAI-EM-ITENS-TECNICO.md)  
-**Testes EMT:** `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`
+**Testes EMT:** `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`
 
 ---
 
@@ -265,7 +265,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | **REF-07** | **Alerta âmbar** na coluna do pedido quando valor do pedido ≠ valor de algum item — tooltip *Referências divergentes entre itens*. |
 | **REF-08** | Campos **não** estão em `COLUNAS_SEM_REPLICACAO` — replicação opcional via checkbox. |
 
-**EMT:** passos 13–16 (Importador) e 17–20 (Exportador) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 13–16 (Importador) e 17–20 (Exportador) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -284,7 +284,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 | **INC-07** | **Alerta âmbar** na coluna do pedido — tooltip *Incoterms divergentes entre itens*. |
 | **INC-08** | Sem diferença entre Importação e Exportação. |
 
-**EMT:** passos 21–24 em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 21–24 em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -364,7 +364,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `PILLS_PEDIDO_VALOR_TOTAL` / `PILLS_ITEM_VALOR_TOTAL` · `CHAVES_COLUNA_INLINE_BLOQUEADA_PEDIDO` · `enriquecerColunaBloqueadaInlinePedido` em `buildTooltipRegraLista.tsx`.
 
-**EMT:** passos 72–81 (ordem exata regras 01–08) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 72–81 (ordem exata regras 01–08) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -427,7 +427,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `pai_unidade_comercializada` · `PILLS_PEDIDO_UNIDADE` / `PILLS_ITEM_UNIDADE` · `tipo: 'unidade'` + `apenasUnidade: true` em `ColunasPai.tsx`.
 
-**EMT:** passos 72–82 (ordem regras 01–08 do dono) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
+**EMT:** passos 72–82 (ordem regras 01–08 do dono) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md`.
 
 ---
 
@@ -456,7 +456,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `PILLS_PEDIDO_QTD_TRANSFERIDA` / `PILLS_ITEM_QTD_TRANSFERIDA` em `pillsTooltipColunaLista.ts` · `tipo: 'qtd_transferida'` em `ColunasPai.tsx`.
 
-**EMT:** passos 83–134 (ETAPAs 23–26) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+**EMT:** passos 83–134 (ETAPAs 23–26) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
 
 ---
 
@@ -511,7 +511,7 @@ O exportador exibido depende do **tipo de operação** do pedido.
 
 **Código:** `dinamico_qtd_cancelada` · `PILLS_PEDIDO_QTD_CANCELADA` / item `somente_leitura` + `so_operacao` · aviso em `buildTooltipRegraLista.tsx` (`quantidade_cancelada_edicao_via_transferir`).
 
-**EMT:** passos 169–206 (ETAPAs 34–38) em `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
+**EMT:** passos 169–206 (ETAPAs 34–38) em `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` · plano `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`.
 
 ---
 

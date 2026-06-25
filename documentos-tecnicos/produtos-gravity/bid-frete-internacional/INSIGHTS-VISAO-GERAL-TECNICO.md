@@ -139,7 +139,7 @@ Componente: `client/src/shared/componentes/visao-geral-mapa-bid-frete.tsx` · es
 
 **SSOT de cor do produto:** `nucleo-global/Logo/produtos/src/cores-produto-gravity.ts` → `corOficialProdutoGravity`. O sidebar define `--mlg-accent` inline em `MenuLateralGlobal` (`moduleColor={meta.color}`); o mapa replica no shell porque o botão fica na área de conteúdo, fora de `.mlg-sidebar`.
 
-**Testes de mapa (filtros):** `testes/testes-unitarios/bid-frete-internacional/insights/filtrar-mapa-insights.test.ts`.
+**Testes de mapa (filtros):** `testes/testes-unitarios/produto-gravity/bid-frete-internacional/insights/filtrar-mapa-insights.test.ts`.
 
 **Task:** TASK-000318 — alinhar cor do toggle e tooltip ao padrão do menu principal.
 

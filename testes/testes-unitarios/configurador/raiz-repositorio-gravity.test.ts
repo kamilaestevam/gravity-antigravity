@@ -25,7 +25,7 @@ describe('raiz-repositorio-gravity', () => {
   })
 
   it('resolverArquivoPlanoTeste encontra planoFile do registry', () => {
-    const path = resolverArquivoPlanoTeste('testes/testes-unitarios/pedido/pedido-divergencias-referencia.test.ts')
+    const path = resolverArquivoPlanoTeste('testes/testes-unitarios/produto-gravity/pedido/pedido-divergencias-referencia.test.ts')
     expect(path).not.toBeNull()
     expect(existsSync(path!)).toBe(true)
   })
@@ -40,7 +40,7 @@ describe('raiz-repositorio-gravity', () => {
   })
 
   it('resolverArquivoEmTestes — aceita legado com prefixo testes/', () => {
-    const rel = 'testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts'
+    const rel = 'testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/run-lista-editar-salvar.ts'
     expect(resolverArquivoEmTestes(rel)).not.toBeNull()
     expect(relPathArquivoTesteNoMonorepo(rel)).toBe(rel)
   })

@@ -50,6 +50,7 @@ servicos-global/produto/smart-read/
 |------|-----------|
 | **Passo 1 — Anexar** | [NOVA-LEITURA-PASSO-UM-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-UM-TECNICO.md) |
 | **Passo 2 — Análise** | [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
+| **Passo 3 — Conferência** | [NOVA-LEITURA-PASSO-TRES-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-TRES-TECNICO.md) |
 | Lista + progresso | [LISTA-E-PROGRESSO-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/LISTA-E-PROGRESSO-TECNICO.md) |
 | Persistência | [PERSISTENCIA-DADOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/PERSISTENCIA-DADOS-TECNICO.md) |
 | Insights | [INSIGHTS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/INSIGHTS-TECNICO.md) |
@@ -118,6 +119,19 @@ Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-UM-000150`
 10. Tempo total ≤ 75 segundos
 
 Planos: `TST-UNI/FUN/CRO/E2E/EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151` … `000155` · Task `TASK-000343`
+
+---
+
+## Nova Leitura — Passo 3 (resumo operacional)
+
+> Detalhe completo: [NOVA-LEITURA-PASSO-TRES-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-TRES-TECNICO.md)
+
+| Aspecto | Regra |
+|---------|-------|
+| **Layout** | Grid `dt-*` (paridade Dados do Processo) + legenda filtros + seções colapsáveis |
+| **Campo data** | Exibição **DD/MM/AAAA**; edição = input fino + ícone; calendário via **portal** (`CampoCalendarioGlobal` `modoUnico`); persistência **ISO `yyyy-mm-dd`** |
+| **SSOT data** | `data-campo-conferencia-leitura-smart-read.ts` + `campo-linha-conferencia-nova-leitura-smart-read.tsx` |
+| **Cores barra** | [padrao-dt-row-status-campos.md](../../../documentos-tecnicos/ux/design-system/padrao-dt-row-status-campos.md) |
 
 ---
 

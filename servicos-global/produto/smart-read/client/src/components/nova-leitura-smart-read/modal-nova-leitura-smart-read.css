@@ -2433,6 +2433,45 @@
   vertical-align: middle;
 }
 
+.sr-conf-campo-data-edit {
+  position: relative;
+  width: 100%;
+}
+
+.sr-conf-campo-data-edit input {
+  padding-right: 2.25rem;
+}
+
+.sr-conf-campo-data-calendario-btn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.sr-conf-campo-data-calendario-btn:hover,
+.sr-conf-campo-data-calendario-btn[aria-expanded='true'] {
+  color: #a78bfa;
+}
+
+.sr-conf-campo-data-calendario-painel-portal .ws-calendario-panel {
+  position: static;
+  min-width: auto;
+  width: 100%;
+}
+
 .sr-cmp-overlay {
   position: fixed;
   inset: 0;
@@ -3582,6 +3621,81 @@
   background: var(--ws-accent, #818cf8);
   color: #fff;
   cursor: pointer;
+}
+
+.sr-conf-qa-form button:disabled,
+.sr-conf-qa-chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sr-conf-qa-historico {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: auto;
+}
+
+.sr-conf-qa-item {
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.sr-conf-qa-item--usuario {
+  align-self: flex-end;
+  max-width: 85%;
+  background: rgba(129, 140, 248, 0.12);
+  border-color: rgba(129, 140, 248, 0.25);
+}
+
+.sr-conf-qa-item--assistente,
+.sr-conf-qa-item--carregando {
+  align-self: flex-start;
+  max-width: 92%;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.sr-conf-qa-pergunta {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sr-conf-qa-resposta {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-secondary, var(--text-muted));
+  white-space: pre-wrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sr-conf-qa-item--usuario .sr-conf-qa-pergunta {
+  font-weight: 500;
+}
+
+.sr-conf-qa-aviso {
+  margin: 0.375rem 0 0;
+  font-size: 0.6875rem;
+  color: #fcd34d;
+}
+
+.sr-conf-qa-spinner {
+  animation: sr-conf-qa-girar 0.8s linear infinite;
+}
+
+@keyframes sr-conf-qa-girar {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════

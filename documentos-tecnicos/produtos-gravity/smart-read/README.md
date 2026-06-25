@@ -16,6 +16,7 @@
 | [ANALISE-DE-RISCOS-TECNICO.md](./ANALISE-DE-RISCOS-TECNICO.md) | **Aba Anùlise de Riscos:** V1 determinùstico, piloto LLM (V2), fundamentaùùo NCM/lei/RAG (V3) |
 | [NOVA-LEITURA-PASSO-UM-TECNICO.md](./NOVA-LEITURA-PASSO-UM-TECNICO.md) | **Passo 1 ù Anexar:** layout container stepper, upload, sidebar, checklist EMT 11 itens |
 | [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) | **Passo 2 ù Anùlise:** dashboard mùtricas, pipeline IA, globo, polling, checklist EMT 10 itens, suite 000151ù000155 |
+| [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) | **Passo 3 ù Conferùncia:** grid dt-*, **campo data** (DD/MM/AAAA + calendùrio portal + ISO), cores barra lateral |
 | [Barra de status dos campos (`.dt-row-status`)](../../ux/design-system/padrao-dt-row-status-campos.md) | **Regra oficial:** cinza vazio, verde preenchido, roxo ùAlteradoù na conferùncia (Smart Read); Processo sem estado roxo |
 
 ---

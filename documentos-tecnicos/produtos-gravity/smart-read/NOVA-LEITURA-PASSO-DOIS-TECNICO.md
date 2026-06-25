@@ -2,7 +2,7 @@
 
 > **Escopo deste documento:** somente **Passo 2** do wizard.  
 > **Branch de referência UX:** `tela_smart_read_tela_2` (dashboard métricas + pipeline IA + globo).  
-> **Passo anterior:** [NOVA-LEITURA-PASSO-UM-TECNICO.md](./NOVA-LEITURA-PASSO-UM-TECNICO.md) · **Passos 3–4:** doc futuro.
+> **Passo anterior:** [NOVA-LEITURA-PASSO-UM-TECNICO.md](./NOVA-LEITURA-PASSO-UM-TECNICO.md) · **Passo seguinte:** [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) · **Passo 4:** doc futuro.
 
 ---
 

@@ -1017,6 +1017,23 @@
       "arquivo_ficha": "registros/TASK-000332.json"
     },
     {
+      "referencia": "TASK-000333",
+      "ordinal": 58,
+      "titulo_canonico": "OUTROS-SMART-READ-MEL-ALINHAR-UPLOAD-PAINEL-LATERAL-PASSO-1",
+      "titulo_exibicao": "TASK-000333 | [Smart Read] Nova Leitura | MEL — Alinhar área pontilhada com painel lateral no passo 1",
+      "status": "ABR",
+      "area": "OUTROS",
+      "subarea": "SMART-READ",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "ALINHAR-UPLOAD-PAINEL-LATERAL-PASSO-1",
+      "data_criacao": "2026-06-25T12:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000333.json"
+    },
+    {
       "referencia": "TASK-000334",
       "ordinal": 59,
       "titulo_canonico": "OUTROS-SMART-READ-BUG-EXCLUIR-ARQUIVO-NAO-FUNCIONA",

@@ -37,6 +37,7 @@ import {
   normalizarLeitura,
 } from '../schemas/leitura-smart-read.js'
 import { progressoLeituraSmartReadRouter } from './progresso-leitura-smart-read.js'
+import { analiseRiscosLeituraSmartReadRouter } from './analise-riscos-leitura-smart-read.js'
 
 const router = Router()
 
@@ -172,6 +173,8 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
     next(err)
   }
 })
+
+router.use('/analise-riscos', analiseRiscosLeituraSmartReadRouter)
 
 router.use('/:id_leitura/progresso', progressoLeituraSmartReadRouter)
 

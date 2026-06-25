@@ -24,6 +24,11 @@ import {
   type Leitura,
   type ListarTransacoesResposta,
 } from './schemas'
+import {
+  AnaliseRiscosLeituraResponseSchema,
+  type AnaliseRiscosLeituraRequest,
+  type AnaliseRiscosLeituraResponse,
+} from '../../../shared/analise-riscos-leitura-smart-read'
 import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
 
 export type { ListaPainel }
@@ -98,6 +103,8 @@ async function requisitar<T>(schema: z.ZodType<T>, endpoint: string, init?: Requ
   return schema.parse(await resposta.json())
 }
 
+export type { AnaliseRiscosLeituraRequest, AnaliseRiscosLeituraResponse }
+
 export const smartReadApi = {
   listarTransacoes(params: {
     pagina: number
@@ -132,6 +139,16 @@ export const smartReadApi = {
 
   obterLeitura(idLeitura: string): Promise<Leitura> {
     return requisitar(LeituraSchema, `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}`)
+  },
+
+  analisarRiscosLeitura(
+    payload: AnaliseRiscosLeituraRequest,
+  ): Promise<AnaliseRiscosLeituraResponse> {
+    return requisitar(AnaliseRiscosLeituraResponseSchema, '/api/v1/smart-read/leituras/analise-riscos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
   },
 
   async obterProgressoLeitura(idLeitura: string): Promise<EstadoProgressoLeitura | null> {

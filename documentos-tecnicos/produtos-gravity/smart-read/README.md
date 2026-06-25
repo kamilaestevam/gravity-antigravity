@@ -13,6 +13,8 @@
 | [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) | **Onde vive cada dado:** banco DATI = leituras reais (PDF, OCR, extraÃ§Ã£o); Postgres Gravity = snapshot, progresso, painÃ©is |
 | [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor responsÃ¡vel, contrato BFF, rankings |
 | [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista por workspace, layout/paginaÃ§Ã£o/painÃ©is, BFF leituras, progresso por usuÃ¡rio, nome do wizard, **KPI cards Â§13**, **status de fluxo Â§14** (fundaÃ§Ã£o + wiring pendente) |
+| [ANALISE-DE-RISCOS-TECNICO.md](./ANALISE-DE-RISCOS-TECNICO.md) | **Aba Análise de Riscos:** V1 determinístico, piloto LLM (V2), fundamentação NCM/lei/RAG (V3) |
+| [Barra de status dos campos (`.dt-row-status`)](../../ux/design-system/padrao-dt-row-status-campos.md) | **Regra oficial:** cinza vazio, verde preenchido, roxo «Alterado» na conferência (Smart Read); Processo sem estado roxo |
 
 ---
 

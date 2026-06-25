@@ -61,27 +61,39 @@ Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-us
 
 ### `TransacaoLeitura` (linha da lista)
 
+**Hoje (runtime):** a coluna Status usa `status_leitura` legado (`PillStatusLeitura` em `colunas-lista-leitura-smart-read.tsx`).
+
+**Alvo (§14):** expor `status_fluxo_leitura` + `passo_atual_leitura` no BFF e trocar a pill para `PillStatusFluxoLeitura`.
+
 ```typescript
 {
   id_leitura: string
-  nome_leitura: string | null   // SSOT: sessao.nome do progresso quando via Postgres
-  status_leitura: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+  nome_leitura: string | null
+  status_leitura: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'  // legado IA — interno/polling
+  // — alvo wiring §14 (ainda não no schema Zod bilateral):
+  // status_fluxo_leitura: StatusFluxoLeitura
+  // passo_atual_leitura: number | null
   total_arquivos: number
   media_acertos: number | null
   data_envio: string | null
   origem_leitura: 'API' | 'INTERFACE'
   nome_arquivo: string | null
   mensagem_erro: string | null
+  // + métricas (MetricasTransacaoLeituraSchema)
 }
 ```
+
+**SSOT status de fluxo (contrato):** `shared/status-fluxo-leitura-smart-read.ts` — valores `UPPER_SNAKE`; rótulos PT-BR em `ROTULO_STATUS_FLUXO_LEITURA` (reexport previsto em `formatacao-leitura-smart-read.ts`).
 
 ### `EstadoProgressoLeitura` (PATCH/GET progresso)
 
 ```typescript
 {
   passo: 2 | 3 | 4
-  nome: string                    // nome editado no wizard (AAA, BBB, …)
-  leitura: Leitura                // deve incluir nome_leitura = nome ao salvar
+  nome: string
+  leitura: Leitura
+  // — alvo §14 (ainda não no schema bilateral):
+  // fluxo_finalizado?: boolean   // true ao concluir passo 4 → FINALIZADO
 }
 ```
 
@@ -116,9 +128,10 @@ O legado costuma devolver nomes genéricos (`Leitura 01`). O nome escolhido no w
 
 | Evento | Persiste? |
 |--------|-----------|
-| Upload (passo 1) | Não |
-| Análise concluída (passo 2) | Sim — `PATCH` automático |
-| Continuar / Voltar passo | Sim |
+| Upload (passo 1) | Vínculo workspace em `progresso_leitura_smart_read` (hoje sem `status_fluxo`; alvo §14: stub `IA_ANALISANDO`, passo 2) |
+| Análise concluída (passo 2) | Sim — `PATCH` automático (alvo §14: derivar `status_fluxo_progresso_leitura_smart_read`) |
+| Continuar / Voltar passo | Sim — atualiza `passo_atual` (alvo §14: espelhar `status_fluxo` no progresso) |
+| Concluir passo 4 | Sim — sessão no progresso (alvo §14: `fluxo_finalizado: true` → `FINALIZADO` no progresso e snapshot) |
 | Renomear (qualquer passo) | Sim no estado local; `PATCH` imediato se passo ≥ 2 e análise concluída |
 | Fechar modal | Sim + **recarrega lista** (`onFechar` → `onRecarregar`) |
 
@@ -163,6 +176,7 @@ Teste: `http://localhost:8000/smart-read/lista` (Configurador) + sidecar `8033`.
 | Arquivo | Cobertura |
 |---------|-----------|
 | `testes/testes-unitarios/smart-read/progresso-leitura-smart-read.test.ts` | Schema sessão progresso |
+| `testes/testes-unitarios/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` |
 | `testes/testes-unitarios/smart-read/fixtures/leituras-fixture-insights-smart-read.ts` | Fixture Insights (não runtime) |
 
 Pacote `/testes-criar` completo (FUN PATCH→GET nome, E2E link→retomar) — pendente no fechamento TASK-000308.
@@ -291,3 +305,67 @@ Faixa acima das abas «Visão geral» / «Transações API». Componente: `clien
 **Recursos reduzidos** reutiliza o SSOT `shared/metricas-transacao-leitura-smart-read.ts`. `saving_total_minutos === 0` com documentos concluídos é tratado como ausente (reestima). `ProvedorMetodologiaSavingInsightsSmartRead` recebe `transacoes={transacoesFiltradas}` para o modal «Base de cálculo».
 
 > **Não usar** placeholder «Em breve» neste card — se nenhuma leitura visível tiver totais para estimar saving, exibir `—` via `formatarSavingHorasLeitura` / `formatarSavingValorLeitura`.
+
+---
+
+## 14. Status de fluxo do wizard (coluna Status da Lista)
+
+**Estado da entrega (2026-06):** fundação persistida + contrato SSOT + testes unitários de derivação. A **Lista ainda exibe** `status_leitura` legado (`PillStatusLeitura`); o wiring BFF/client para `status_fluxo_leitura` está **pendente** (checklist §14.4).
+
+**Objetivo:** a coluna **Status** passa a exibir o **fluxo do usuário** (`status_fluxo_leitura`), mantendo `status_leitura` só para polling/IA/backend.
+
+| Status UI (pill) | Código persistido | Nº passo | Legado `status_leitura` típico |
+|------------------|-------------------|:--------:|--------------------------------|
+| Pronto para análise | `PRONTO_PARA_ANALISE` | 1 | `PENDING` / stub |
+| IA analisando | `IA_ANALISANDO` | 2 | `PROCESSING` |
+| Conferência (usuário) | `CONFERENCIA_PELO_USUARIO` | 3 | `COMPLETED` |
+| Validado (usuário) | `DADOS_VALIDADOS_PELO_USUARIO` | 4 | `COMPLETED` |
+| Finalizado | `FINALIZADO` | — | `COMPLETED` |
+| Falhou | `FALHOU` | 2* | `FAILED` |
+
+\* Falhou costuma ocorrer no passo 2.
+
+### 14.1 Persistência (Postgres Gravity) — **entregue**
+
+| Tabela | Coluna | Papel |
+|--------|--------|--------|
+| `progresso_leitura_smart_read` | `status_fluxo_progresso_leitura_smart_read` | Fonte de verdade durante o wizard |
+| `progresso_leitura_smart_read` | `passo_atual_progresso_leitura_smart_read` | Passo 1–4 (já existia) |
+| `snapshot_leitura_smart_read` | `status_fluxo_snapshot_leitura_smart_read` | Espelho para Lista/Insights (congelamento) |
+| `snapshot_leitura_smart_read` | `passo_atual_snapshot_leitura_smart_read` | Passo no momento do snapshot |
+| `snapshot_leitura_smart_read` | `status_leitura_snapshot_leitura_smart_read` | **Inalterado** — só status IA legado |
+
+Migration: `20260625120000_add_status_fluxo_leitura_smart_read` (aplicada em Railway `gravity-smart-read-producao`).
+
+**Backfill na migration:**
+
+| Tabela | Regra |
+|--------|--------|
+| `progresso_leitura_smart_read` | Por `passo_atual`: ≥4 → `DADOS_VALIDADOS_PELO_USUARIO`; 3 → `CONFERENCIA_PELO_USUARIO`; 2 → `IA_ANALISANDO`; senão `PRONTO_PARA_ANALISE` |
+| `snapshot_leitura_smart_read` | `FAILED` → `FALHOU` + passo 2; `COMPLETED` → `FINALIZADO` + passo 4; demais → `IA_ANALISANDO` + passo 2 |
+
+### 14.2 Artefatos entregues nesta task
+
+| Artefato | Caminho |
+|----------|---------|
+| Contrato Zod + derivação | `shared/status-fluxo-leitura-smart-read.ts` (`derivarStatusFluxoLeitura`, `statusFluxoPorPassoEPersistencia`, `ROTULO_STATUS_FLUXO_LEITURA`) |
+| Colunas Prisma | `prisma/fragment.prisma` |
+| Pill (componente isolado, **não ligado** à lista) | `client/src/components/pill-status-fluxo-leitura-smart-read.tsx` |
+| Testes unitários | `testes/testes-unitarios/smart-read/status-fluxo-leitura.test.ts` |
+
+### 14.3 Wiring pendente (próxima entrega)
+
+| Camada | Arquivo | O que falta |
+|--------|---------|-------------|
+| BFF schemas | `server/src/schemas/leitura-smart-read.ts`, `progresso-leitura-smart-read.ts` | Campos `status_fluxo_leitura`, `passo_atual_leitura`, `fluxo_finalizado` |
+| BFF rotas/libs | `progresso-leitura-smart-read.ts`, `snapshot-leitura-smart-read.ts`, `registrar-vinculo-leitura-usuario-smart-read.ts`, `normalizar-transacao-leitura-smart-read.ts`, `montar-lista-transacoes-leitura-smart-read.ts` | Gravar/ler colunas `status_fluxo_*`; expor na lista |
+| Client schemas | `client/src/shared/schemas.ts` | Bilateral com BFF |
+| Lista UI | `colunas-lista-leitura-smart-read.tsx`, `filtrar-transacoes-lista-smart-read.ts`, `smart-read-leituras.css`, `formatacao-leitura-smart-read.ts` | Trocar pill; filtros por rótulo de fluxo; classes `.sr-pill-fluxo-*` |
+| Wizard | `modal-nova-leitura-smart-read.tsx` | Enviar `fluxo_finalizado: true` ao concluir passo 4 |
+| Cards KPI | `lista-leitura-cards-smart-read.tsx` | *(opcional)* contagem «concluídas» por `FINALIZADO` em vez de `COMPLETED` |
+
+### 14.4 Fora do escopo desta entrega (continuam em `status_leitura`)
+
+- **Insights** — filtros e KPIs (`use-dados-insights-leitura-smart-read.ts`, `calcular-metricas-insights-leitura-smart-read.ts`).
+- **Kanban** — colunas por `status_leitura` (`KanbanLeituraSmartRead.tsx`; aba oculta no seletor).
+- **Polling do wizard** — `modal-nova-leitura-smart-read.tsx` ainda decide passo inicial pelo legado.

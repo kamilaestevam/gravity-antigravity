@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FileMagnifyingGlass } from '@phosphor-icons/react'
 
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 
@@ -37,6 +38,7 @@ import {
 
 import {
   carregarProgressoLeituraSmartRead,
+  limparEstadoLeituraSmartRead,
   persistirProgressoLeituraSmartRead,
 } from '../../shared/persistencia-leitura-smart-read'
 
@@ -153,6 +155,8 @@ export function ModalNovaLeituraSmartRead({
   const [camposEditados, setCamposEditados] = useState<Set<string>>(() => new Set())
 
   const [tempoTotalMs, setTempoTotalMs] = useState(0)
+  const [arquivoExclusaoPendente, setArquivoExclusaoPendente] =
+    useState<ArquivoLocalNovaLeitura | null>(null)
 
   const ativo = useRef(true)
   const urlsBlob = useRef<Map<string, string>>(new Map())
@@ -196,6 +200,7 @@ export function ModalNovaLeituraSmartRead({
       setCompararAberto(false)
       setCamposEditados(new Set())
       setTempoTotalMs(0)
+      setArquivoExclusaoPendente(null)
       inicioSessaoRef.current = Date.now()
       if (idLeituraExistente) {
         setArquivos([])
@@ -333,6 +338,7 @@ export function ModalNovaLeituraSmartRead({
 
     if (idLeitura && proximos.length === 0) {
       limparEstadoLeituraSmartRead(idLeitura)
+      setArquivoExclusaoPendente(null)
       return
     }
 
@@ -348,6 +354,7 @@ export function ModalNovaLeituraSmartRead({
       }
     }
 
+    setArquivoExclusaoPendente(null)
   }, [arquivoExclusaoPendente, idLeituraExistente, nomeLeitura])
 
 

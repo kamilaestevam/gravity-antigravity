@@ -1136,8 +1136,25 @@
       "arquivo_ficha": "registros/TASK-000341.json"
     },
     {
-      "referencia": "TASK-000344",
+      "referencia": "TASK-000342",
       "ordinal": 66,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-MEL-COR-AZUL-PADRAO-TEMPO-LEITURA",
+      "titulo_exibicao": "TASK-000342 | [Smart Read] Nova Leitura | MEL — Cor azul padrão no card Tempo de leitura (passo 2)",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "COR-AZUL-PADRAO-TEMPO-LEITURA",
+      "data_criacao": "2026-06-25T21:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000342.json"
+    },
+    {
+      "referencia": "TASK-000344",
+      "ordinal": 67,
       "titulo_canonico": "SMTRD-BASE-CALCULO-MEL-ATUALIZAR-MEDIA-SR-MEDIDO",
       "titulo_exibicao": "TASK-000344 | [Smart Read] Base de cálculo | MEL — Atualização contínua da média SR medido (s)",
       "status": "ABR",

@@ -15,6 +15,8 @@ do zero ao fluxo finalizado, com print de cada estado significativo.
 
 > **Regra absoluta (2026-06-06):** Ver `documentos-tecnicos/testes/regras/07-organizacao-plano-resultado-por-escopo.md` — cada feature tem `plano-teste/` e `resultado-teste/<runId>/`. **Proibido** pasta datada compartilhada na raiz do escopo.
 
+> **Prints — par antes/depois + cor no Admin (2026-06-25):** Ver **`documentos-tecnicos/testes/regras/08-regras-prints-em-tela.md`** — `-selecao.png` (como está) + `-resultado.png` (como ficou); log `📸` + `✓`/`✗` para borda verde/vermelha no Log de Testes.
+
 > **ID EMT (2026-06-06):** `TST-EMT-{LOCAL}-{AREA}-{RESUMO}-{NNNNNN}` — sufixo **global único** (6 dígitos). Ex.: `TST-EMT-PEDIDO-LISTA-EDITAR-SALVAR-000045`. Variante feature-first: `TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112`. Ver `documentos-tecnicos/testes/regras/01-convencao-ids.md`.
 
 ---
@@ -50,9 +52,9 @@ testes/testes-em-tela/
 
 | Feature | Plano | Resultados |
 |---------|-------|------------|
-| Pedido › Lista › Editar-salvar | `testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-teste/` | `.../resultado-teste/<runId>/` |
-| Pedido › Lista › Edição em massa | `testes-em-tela/produto-gravity/pedido/lista/edicao-em-massa/plano-de-teste/` (`TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112`) | `.../resultado-teste/<runId>/` |
-| Pedido › Config › Status | `testes-em-tela/produto-gravity/pedido/configuracoes/status/plano-teste/` | `.../resultado-teste/<runId>/` |
+| Pedido › Lista › Editar-salvar | `testes-em-tela/pedido/lista/editar-salvar/plano-teste/` | `.../resultado-teste/<runId>/` |
+| Pedido › Lista › Edição em massa | `testes-em-tela/pedido/lista/edicao-em-massa/plano-de-teste/` (`TST-EMT-EDICAO-EM-MASSA-LISTA-PEDIDO-000112`) | `.../resultado-teste/<runId>/` |
+| Pedido › Config › Status | `testes-em-tela/pedido/configuracoes/status/plano-teste/` | `.../resultado-teste/<runId>/` |
 
 ### `runId`
 
@@ -61,13 +63,19 @@ testes/testes-em-tela/
 
 ### Convenção de nome do print
 
+> **SSOT completo:** `documentos-tecnicos/testes/regras/08-regras-prints-em-tela.md`
+
+**Padrão obrigatório** para ações que alteram a UI:
+
 ```
-NN-descricao-do-estado.png
+{NN}-{slug}-selecao.png    ← como está (antes de confirmar)
+{NN}-{slug}-resultado.png  ← como ficou (após efeito visível)
 ```
 
-- `NN` começa em `01` e incrementa sequencialmente
-- Descrição em kebab-case
-- `99-erro.png` **somente** no `catch` de falha — nunca aparece em run APROVADO
+- `NN` = ordem no roteiro; `slug` = kebab-case
+- Plano EMT: seção **`## Prints planejados`** (tabela `# | Arquivo | Estado capturado`)
+- Após cada par/grupo: linha `✓ ETAPA …` ou `✗ …` no log → Admin pinta print **verde** / **vermelho** (`LogTestes.tsx`)
+- `99-erro.png` **somente** no `catch` — sempre vermelho; nunca em run APROVADO
 
 ---
 
@@ -91,7 +99,16 @@ const OUT = resolverPastaResultadoEmt(__dirRoot, process.env.EMT_RUN_ID)
 async function screenshot(page: Page, nome: string) {
   const path = `${OUT}/${nome}`
   await page.screenshot({ path, fullPage: false })
+  console.log(`📸 ${nome}`)
 }
+```
+
+Após cada par `-selecao`/`-resultado` (ou grupo de uma ETAPA):
+
+```typescript
+console.log('✓ ETAPA 3 — Anexar arquivos')
+// ou, em falha:
+console.log('✗ ETAPA 3 — card amostra.pdf ausente')
 ```
 
 ### ETAPA 2 — O que Sempre Fotografar
@@ -124,6 +141,7 @@ Gravar `RESULTADO.txt` em `resultado-teste/<runId>/` com checklist ✓/✗ e `Re
 |:------|:--------|
 | `antigravity-testes` | Coordenação dos tipos; § ONDE colocar |
 | `documentos-tecnicos/testes/regras/07-*` | SSOT da estrutura plano/resultado |
+| `documentos-tecnicos/testes/regras/08-*` | SSOT `-selecao`/`-resultado` + cor verde/vermelha no Admin |
 | `antigravity-qa` | QA pode solicitar teste em tela |
 
 ---

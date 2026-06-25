@@ -90,8 +90,8 @@ Regras:
 | Escopo | Plano |
 |--------|-------|
 | Admin favoritos (5 tipos) | `testes/testes-unitarios/admin/testes/aba-plano-de-teste/plano-de-teste/preferencia-teste-usuario-admin-unitario.md` (+ FUN/E2E/CRO paralelos) |
-| EMT completo | `testes/testes-em-tela/produto-gravity/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` |
-| UNI legado grande | `testes/testes-unitarios/produto-gravity/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-unitario.md` (parser legado; migrar quando tocar) |
+| EMT completo | `testes/testes-em-tela/pedido/lista/editar-salvar/plano-de-teste/plano-teste-em-tela.md` |
+| UNI legado grande | `testes/testes-unitarios/pedido/lista/duplicar/plano-de-teste/TST-UNI-DUPLICAR-LISTA-PEDIDO-000026-unitario.md` (parser legado; migrar quando tocar) |
 
 ---
 
@@ -130,6 +130,22 @@ Resposta (campos usados pelo modal):
 - [ ] Contagem de casos no `.md` coerente com `casosTotal` no registry
 - [ ] `planoFile` e `specFile` existem no disco **antes** do registry
 - [ ] Abrir modal no Admin local: Objetivo + N items + Script (não «0 items»)
+- [ ] EMT: `## Prints planejados` + pares `-selecao`/`-resultado` — [regras/08-regras-prints-em-tela.md](../regras/08-regras-prints-em-tela.md)
+
+---
+
+## EMT — Prints no Log de Testes (verde / vermelho)
+
+Após execução EMT, a expansão da linha no **LogTestes** exibe thumbnails dos PNG de `resultado-teste/<runId>/`.
+
+| Cor da borda | Significado | Origem |
+|--------------|-------------|--------|
+| **Verde** (`#10b981`) | Print aprovado | Linha `✓` no log **depois** do(s) `📸` correspondente(s) |
+| **Vermelho** (`#ef4444`) | Print reprovado | Linha `✗` no log, ou arquivo `99-erro*.png` |
+| Cinza | Neutro | Print sem `✓`/`✗` associado ainda |
+
+Implementação: `mapearResultadoPrintsEmt` + `estiloBordaPrintEmt` em `LogTestes.tsx`.  
+Regra de log do runner: [regras/08-regras-prints-em-tela.md](../regras/08-regras-prints-em-tela.md).
 
 ---
 

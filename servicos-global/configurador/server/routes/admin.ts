@@ -2681,7 +2681,7 @@ const planoResumoTesteFavoritoSchema = z.object({
 
 const CriarTesteFavoritoUsuarioSchema = z.object({
   produto_teste_favorito_usuario: z.enum([
-    'admin', 'configurador', 'pedido', 'bid-frete', 'bid-cambio', 'lpco', 'nf-importacao', 'simula-custo',
+    'admin', 'configurador', 'pedido', 'bid-frete', 'smart-read', 'bid-cambio', 'lpco', 'nf-importacao', 'simula-custo',
   ]),
   ambiente_teste_favorito_usuario: z.enum(['Local', 'Staging', 'Producao']),
   tipos_teste_favorito_usuario: z.array(z.enum(['UNI', 'FUN', 'E2E', 'CRO', 'EMT'])).min(1),

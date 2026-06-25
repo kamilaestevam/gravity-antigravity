@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Preserva preview da branch anterior em :8001+ quando :8000 estava ativo
+if [ "$3" = "1" ]; then
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ativamente/agente-dev-preview.ps1 hook-checkout -RefAnterior "$1" -RefNovo "$2" -FlagCheckout "$3" 2>/dev/null || true
+fi

@@ -1,0 +1,7 @@
+{
+  "porta_hub_base": 8000,
+  "porta_hub_max": 8019,
+  "portas_reservadas": [8005, 8009],
+  "nota": "20 slots hub (:8000–:8019); :8005 API Config, :8009 GABI — não usar para preview",
+  "sessoes": []
+}

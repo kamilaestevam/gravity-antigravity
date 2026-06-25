@@ -10,6 +10,15 @@ import {
   formatarSavingHorasLeitura,
   formatarSavingValorLeitura,
 } from '../../shared/formatacao-leitura-smart-read'
+import {
+  mesclarTransacoesAgregacaoBaseCalculoSmartRead,
+  montarEntradaAgregacaoNovaLeituraEmAndamentoSmartRead,
+} from '../../shared/montar-entrada-agregacao-nova-leitura-smart-read'
+import { useSavingAcumuladoWorkspaceSmartRead } from '../../shared/use-saving-acumulado-workspace-smart-read'
+import {
+  LinkMetodologiaSavingInsightsSmartRead,
+  ProvedorMetodologiaSavingInsightsSmartRead,
+} from '../../pages/insights-smart-read/metodologia-saving-insights-smart-read'
 
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
@@ -86,6 +95,9 @@ export function DashboardAnaliseNovaLeituraSmartRead({
   inicioAnalise,
 }: Props) {
   const [agora, setAgora] = useState(Date.now())
+  const savingAcumulado = useSavingAcumuladoWorkspaceSmartRead(true, {
+    gatilhoRecarga: analiseCompleta,
+  })
 
   useEffect(() => {
     if (analiseCompleta || processamentoComErro || !inicioAnalise) return
@@ -110,67 +122,90 @@ export function DashboardAnaliseNovaLeituraSmartRead({
     })
   }, [analiseCompleta, processamentoComErro, arquivos, elapsedSegundos])
 
+  const idLeituraAtual = arquivos.find((item) => item.id_leitura)?.id_leitura ?? null
+  const entradaLeituraAtual = useMemo(
+    () => montarEntradaAgregacaoNovaLeituraEmAndamentoSmartRead(arquivos),
+    [arquivos],
+  )
+  const transacoesBaseCalculo = useMemo(
+    () =>
+      mesclarTransacoesAgregacaoBaseCalculoSmartRead(
+        savingAcumulado.transacoes,
+        entradaLeituraAtual,
+        idLeituraAtual,
+      ),
+    [savingAcumulado.transacoes, entradaLeituraAtual, idLeituraAtual],
+  )
+
   return (
-    <div className="sr-wizard-principal sr-wizard-principal--analise">
-      {processamentoComErro && (
-        <div className="sr-wizard-analise-alerta-erro" role="alert">
-          A análise não pôde ser concluída. Verifique os arquivos na sidebar e tente novamente.
-        </div>
-      )}
+    <ProvedorMetodologiaSavingInsightsSmartRead
+      transacoes={transacoesBaseCalculo}
+      aoAbrir={() => void savingAcumulado.recarregar()}
+    >
+      <div className="sr-wizard-principal sr-wizard-principal--analise">
+        {processamentoComErro && (
+          <div className="sr-wizard-analise-alerta-erro" role="alert">
+            A análise não pôde ser concluída. Verifique os arquivos na sidebar e tente novamente.
+          </div>
+        )}
 
-      <div className="sr-wizard-analise-layout">
-        <div className="sr-wizard-metricas">
-          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
-            <header>
-              <Clock size={18} weight="duotone" />
-              <span>Tempo de leitura</span>
-            </header>
-            <div className="sr-wizard-timer">{formatarTempo(elapsedSegundos)}</div>
-            <small>HH : MM : SS</small>
-          </article>
+        <div className="sr-wizard-analise-layout">
+          <div className="sr-wizard-metricas">
+            <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
+              <header>
+                <Clock size={18} weight="duotone" />
+                <span>Tempo de leitura</span>
+              </header>
+              <div className="sr-wizard-timer">{formatarTempo(elapsedSegundos)}</div>
+              <small>HH : MM : SS</small>
+            </article>
 
-          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
-            <header>
-              <Timer size={18} weight="duotone" />
-              <span>Recursos reduzidos com a leitura</span>
-            </header>
-            <div className="sr-wizard-recursos">
-              <strong>{formatarSavingHorasLeitura(saving.minutos)}</strong>
-              <span className="sr-wizard-recursos-valor">{formatarSavingValorLeitura(saving.brl)}</span>
-            </div>
-          </article>
-        </div>
+            <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
+              <header>
+                <Timer size={18} weight="duotone" />
+                <span>Recursos reduzidos com a leitura</span>
+              </header>
+              <div className="sr-wizard-recursos">
+                <strong>{formatarSavingHorasLeitura(saving.minutos)}</strong>
+                <span className="sr-wizard-recursos-valor">{formatarSavingValorLeitura(saving.brl)}</span>
+              </div>
+              <p className="sr-wizard-metrica-link-metodologia">
+                <LinkMetodologiaSavingInsightsSmartRead>Base de cálculo →</LinkMetodologiaSavingInsightsSmartRead>
+              </p>
+            </article>
+          </div>
 
-        <section className="sr-wizard-analise-painel" aria-label="Progresso das análises">
-          <div className="sr-wizard-analise-corpo">
-            <div className="sr-wizard-analise-lista">
-              {etapas.map((etapa) => (
-                <EtapaPipeline key={etapa.id} etapa={etapa} />
-              ))}
-            </div>
+          <section className="sr-wizard-analise-painel" aria-label="Progresso das análises">
+            <div className="sr-wizard-analise-corpo">
+              <div className="sr-wizard-analise-lista">
+                {etapas.map((etapa) => (
+                  <EtapaPipeline key={etapa.id} etapa={etapa} />
+                ))}
+              </div>
 
-            <div className="sr-wizard-cerebro-wrap">
-              <svg className="sr-wizard-cerebro-anel" viewBox="0 0 200 200" aria-hidden>
-                <circle cx="100" cy="100" r="88" className="sr-wizard-cerebro-anel-trilha" />
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="88"
-                  className="sr-wizard-cerebro-anel-progresso"
-                  style={{
-                    strokeDasharray: `${2 * Math.PI * 88}`,
-                    strokeDashoffset: `${2 * Math.PI * 88 * (1 - progressoGeral / 100)}`,
-                  }}
-                />
-              </svg>
-              <div className="sr-wizard-cerebro-icone">
-                <Brain size={72} weight="duotone" />
+              <div className="sr-wizard-cerebro-wrap">
+                <svg className="sr-wizard-cerebro-anel" viewBox="0 0 200 200" aria-hidden>
+                  <circle cx="100" cy="100" r="88" className="sr-wizard-cerebro-anel-trilha" />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="88"
+                    className="sr-wizard-cerebro-anel-progresso"
+                    style={{
+                      strokeDasharray: `${2 * Math.PI * 88}`,
+                      strokeDashoffset: `${2 * Math.PI * 88 * (1 - progressoGeral / 100)}`,
+                    }}
+                  />
+                </svg>
+                <div className="sr-wizard-cerebro-icone">
+                  <Brain size={72} weight="duotone" />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
-    </div>
+    </ProvedorMetodologiaSavingInsightsSmartRead>
   )
 }
 

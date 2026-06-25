@@ -65,6 +65,10 @@ export interface ModalPassoPassoProps {
   navegacaoDireta?: boolean
   /** Callback quando usuario clica em um passo concluido (navegacao direta) */
   onIrParaPasso?: (passoId: number) => void
+  /** Classes opcionais para customizacao visual (ex: Smart Read wizard) */
+  classNameDialog?: string
+  classNameCabecalho?: string
+  classNameStepperEnvoltorio?: string
   children: React.ReactNode
 }
 
@@ -137,6 +141,9 @@ export function ModalPassoPassoGlobal({
   textoCarregando,
   navegacaoDireta = true,
   onIrParaPasso,
+  classNameDialog,
+  classNameCabecalho,
+  classNameStepperEnvoltorio,
   children,
 }: ModalPassoPassoProps) {
   const dialogRef = useFocusTrap(aberto)
@@ -376,7 +383,7 @@ export function ModalPassoPassoGlobal({
       >
         <div
           ref={dialogRef}
-          className="mpg-dialog"
+          className={['mpg-dialog', classNameDialog].filter(Boolean).join(' ')}
           style={{ ...s.dialog, maxWidth: largura, ...(altura ? { height: altura } : {}) }}
           role="dialog"
           aria-modal="true"
@@ -393,7 +400,7 @@ export function ModalPassoPassoGlobal({
           )}
 
           {/* Header */}
-          <div style={s.header}>
+          <div className={classNameCabecalho ?? undefined} style={s.header}>
             <div style={s.headerTexto}>
               <div style={s.headerTituloRow}>
                 {icone && <span style={s.headerIcone}>{icone}</span>}
@@ -414,7 +421,16 @@ export function ModalPassoPassoGlobal({
           </div>
 
           {/* Stepper */}
-          {!ocultarStepper && <div style={s.stepperWrap}>
+          {!ocultarStepper && (
+          <div
+            className={classNameStepperEnvoltorio ?? undefined}
+            style={{
+              ...s.stepperWrap,
+              ...(classNameStepperEnvoltorio
+                ? { background: 'transparent', borderBottom: 'none' }
+                : {}),
+            }}
+          >
             <div style={s.stepper} role="list" aria-label="Passos">
               {passos.map((passo, idx) => {
                 const status = stepStatus(passo)
@@ -485,7 +501,8 @@ export function ModalPassoPassoGlobal({
                 )
               })}
             </div>
-          </div>}
+          </div>
+          )}
 
           {/* Conteudo — com transicao animada */}
           <div

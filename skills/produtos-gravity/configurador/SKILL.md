@@ -311,6 +311,14 @@ Doc: [`GRAVITY-STORE.md`](../../../documentos-tecnicos/produtos-gravity/configur
 
 ---
 
+## HUB — Notificações e e-mail (PR #447)
+
+Sininho: `import { Notificacoes } from '@gravity/shell'` — **não** deep-import em `notificacoes/src`. Contratos Zod: `notificacoes/src/notificacoes-api.schema.ts`. Mocks dev só com `VITE_NOTIFICACOES_MOCKS=true`.
+
+Doc: [`HUB-NOTIFICACOES-EMAIL.md`](../../../documentos-tecnicos/produtos-gravity/configurador/HUB-NOTIFICACOES-EMAIL.md)
+
+---
+
 ## Gravity Store — `/store` (PR #187)
 
 Catálogo autenticado para exploração e contratação de produtos Gravity adicionais.

@@ -44,7 +44,7 @@ import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes } from '@nucleo/localizador-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
-import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
+import { Notificacoes } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { mapRole } from '../types/niveis-acesso'
 import { podeMutarConfigurador } from '../routing/route-policy'

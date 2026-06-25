@@ -9,7 +9,7 @@ import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type Eco
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync, useOrganizacaoOverride, type OrganizacaoShell } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
 import { ModalTrocarOrganizacao } from '../../components/modal-trocar-organizacao'
-import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
+import { Notificacoes } from '@gravity/shell'
 import {
   Crown,
   Buildings,

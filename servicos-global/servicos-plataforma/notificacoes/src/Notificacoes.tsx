@@ -1,26 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao, type Canal, type CanaisDisponiveis, type OpcoesEnvioMensagem } from '@nucleo/mensageria-global'
-import { useShellStore, buildEntityLink } from '@gravity/shell'
+import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao, type CanaisDisponiveis, type OpcoesEnvioMensagem } from '@nucleo/mensageria-global'
+import { useShellStore } from '../../../shell/store'
+import { buildEntityLink } from '../../../shell/entityLinkFactory'
+import type { NotificationItem } from './notificacoes-api.schema'
+import {
+  notificacoesListResponseSchema,
+  notificacaoCreateResponseSchema,
+  notificacoesConfigResponseSchema,
+  usuariosListResponseSchema,
+} from './notificacoes-api.schema'
 
-export interface NotificationItem {
-  id: string
-  type: string
-  title?: string
-  message: string
-  read: boolean
-  target_entity?: string
-  target_id?: string
-  delivery_status?: string
-  created_at: string
-}
-
-interface NotificationApiResponse {
-  status: 'success' | 'error'
-  data?: NotificationItem[]
-  unread_count?: number
-  message?: string
-}
+export type { NotificationItem } from './notificacoes-api.schema'
 
 /**
  * Obtém o JWT do Clerk via window global. Mesma estratégia usada pelo
@@ -53,8 +44,8 @@ async function authedFetch(input: string, init: RequestInit = {}): Promise<Respo
 
 const BASE_URL = '/api/v1/notificacoes'
 
-// ─── Mocks de desenvolvimento — visíveis apenas quando DEV=true ──────────────
-const DEV_MOCKS: AvisoInterno[] = import.meta.env.DEV ? [
+// ─── Mocks de desenvolvimento — só com VITE_NOTIFICACOES_MOCKS=true ─────────
+const DEV_MOCKS: AvisoInterno[] = import.meta.env.VITE_NOTIFICACOES_MOCKS === 'true' ? [
   {
     id: 'mock-1',
     conteudo: 'Pedido #PED-2024-089 está com prazo vencido há 3 dias. Verificar junto ao cliente antes do fechamento do mês.',
@@ -144,11 +135,9 @@ export function Notificacoes() {
       if (!res.ok) {
         throw new Error(`Falha ao carregar notificações (HTTP ${res.status})`)
       }
-      const data = (await res.json()) as NotificationApiResponse
-      if (data.status !== 'success') {
-        throw new Error(data.message ?? 'Resposta inválida do servidor')
-      }
-      setNotifications(data.data ?? [])
+      const raw = await res.json()
+      const data = notificacoesListResponseSchema.parse(raw)
+      setNotifications(data.data)
       setErro(null)
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Erro desconhecido')
@@ -172,9 +161,7 @@ export function Notificacoes() {
       try {
         const res = await authedFetch('/api/v1/usuarios')
         if (!res.ok) return
-        const payload = await res.json() as {
-          users?: Array<{ id: string; name: string; email?: string }>
-        }
+        const payload = usuariosListResponseSchema.parse(await res.json())
         if (cancelled || !payload.users) return
         setUsuariosTenant(
           payload.users.map((u) => ({ id: u.id, nome: u.name, email: u.email }))
@@ -194,8 +181,8 @@ export function Notificacoes() {
       try {
         const res = await authedFetch(`${BASE_URL}/configuracao`)
         if (!res.ok || cancelled) return
-        const payload = await res.json() as { status: string; data?: { email_enabled: boolean; whatsapp_enabled: boolean } }
-        if (payload.status === 'success' && payload.data && !cancelled) {
+        const payload = notificacoesConfigResponseSchema.parse(await res.json())
+        if (!cancelled) {
           setCanaisDisponiveis({ email: payload.data.email_enabled, whatsapp: payload.data.whatsapp_enabled })
         }
       } catch {
@@ -327,11 +314,7 @@ export function Notificacoes() {
         body: JSON.stringify({ type: 'aviso', title: 'Você', message: texto }),
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const payload = (await res.json()) as { status: string; data?: NotificationItem }
-      if (payload.status !== 'success' || !payload.data) {
-        throw new Error('Resposta inválida do servidor')
-      }
-      // Substitui o id temporário pelo real
+      const payload = notificacaoCreateResponseSchema.parse(await res.json())
       const realData = payload.data
       setNotifications((prev) =>
         prev.map((n) => (n.id === tempId ? { ...realData, read: false } : n))

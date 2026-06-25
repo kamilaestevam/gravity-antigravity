@@ -8,11 +8,12 @@
 
 
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-
-import { FileMagnifyingGlass } from '@phosphor-icons/react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { FileMagnifyingGlass, Sparkle } from '@phosphor-icons/react'
 
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
@@ -59,7 +60,10 @@ import { ModalCompararArquivoConferenciaSmartRead } from './modal-comparar-arqui
 
 import { AreaResultadoNovaLeituraSmartRead } from './area-resultado-nova-leitura-smart-read'
 
+import '../../../../../../configurador/src/pages/configurador/gabi.css'
 import './modal-nova-leitura-smart-read.css'
+
+const GabiChat = lazy(() => import('@plataforma/gabi/src/Gabi'))
 
 
 
@@ -143,6 +147,7 @@ export function ModalNovaLeituraSmartRead({
   const [tempoTotalMs, setTempoTotalMs] = useState(0)
   const [arquivoExclusaoPendente, setArquivoExclusaoPendente] =
     useState<ArquivoLocalNovaLeitura | null>(null)
+  const [gabiAberta, setGabiAberta] = useState(false)
 
   const ativo = useRef(true)
   const urlsBlob = useRef<Map<string, string>>(new Map())
@@ -187,6 +192,7 @@ export function ModalNovaLeituraSmartRead({
       setCamposEditados(new Set())
       setTempoTotalMs(0)
       setArquivoExclusaoPendente(null)
+      setGabiAberta(false)
       inicioSessaoRef.current = Date.now()
       if (idLeituraExistente) {
         setArquivos([])
@@ -618,8 +624,36 @@ export function ModalNovaLeituraSmartRead({
 
 
 
+  const gabiFlutuante =
+    aberto && typeof document !== 'undefined'
+      ? createPortal(
+          <>
+            {gabiAberta ? (
+              <div className="ws-gabi-panel sr-wizard-gabi-camada">
+                <Suspense fallback={null}>
+                  <GabiChat onClose={() => setGabiAberta(false)} />
+                </Suspense>
+              </div>
+            ) : (
+              <TooltipGlobal descricao="Falar com a Gabi IA">
+                <button
+                  type="button"
+                  className="ws-gabi-trigger sr-wizard-gabi-camada"
+                  aria-label="Falar com a Gabi IA"
+                  onClick={() => setGabiAberta(true)}
+                >
+                  <Sparkle weight="fill" size={28} />
+                </button>
+              </TooltipGlobal>
+            )}
+          </>,
+          document.body,
+        )
+      : null
+
   return (
 
+    <>
     <ModalPassoPassoGlobal
 
       titulo="Nova Leitura"
@@ -755,6 +789,8 @@ export function ModalNovaLeituraSmartRead({
       />
 
     </ModalPassoPassoGlobal>
+    {gabiFlutuante}
+    </>
 
   )
 

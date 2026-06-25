@@ -1,5 +1,10 @@
 /* modal-nova-leitura-smart-read.css — wizard Nova Leitura (4 passos) */
 
+/* GABI acima do overlay do ModalPassoPassoGlobal (z-index 9999) */
+.sr-wizard-gabi-camada {
+  z-index: 10001 !important;
+}
+
 /* Largura quase total — escopo exclusivo: wizard Nova Leitura */
 .mpg-dialog.sr-wizard-mpg-dialog,
 .mpg-dialog:has(.sr-wizard-corpo) {

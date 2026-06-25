@@ -3,7 +3,11 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { createNucleoAliases, createServiceAliases } from '../../../../nucleo-global/vite-aliases'
+import {
+  createNucleoAliases,
+  createServiceAliases,
+  createTenantAliases,
+} from '../../../../nucleo-global/vite-aliases'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const monorepoRoot = path.resolve(__dirname, '../../../..')
@@ -17,6 +21,7 @@ export default defineConfig({
     alias: {
       ...createNucleoAliases(monorepoRoot),
       ...createServiceAliases(monorepoRoot),
+      ...createTenantAliases(monorepoRoot, ['gabi']),
     },
   },
 

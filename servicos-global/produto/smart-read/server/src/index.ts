@@ -75,6 +75,7 @@ app.get('/health', (_req: Request, res: Response) => {
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 100,
+  skip: () => process.env.NODE_ENV !== 'production',
   keyGenerator: (req) =>
     (req.headers['x-id-organizacao'] as string) || (req.ip ? ipKeyGenerator(req.ip) : 'unknown'),
   message: { error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas requisicoes' } },

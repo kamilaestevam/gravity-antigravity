@@ -6,6 +6,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   ArrowLeft,
   ArrowsLeftRight,
@@ -35,6 +36,7 @@ import {
   compararDocumentosConferencia,
   type StatusCampoComparacao,
 } from '../../shared/comparar-documentos-conferencia-smart-read'
+import { resolverIconeCampoConferenciaSmartRead } from '../../shared/resolver-icone-campo-conferencia-smart-read'
 import '../../../../../processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 
 type FiltroComparacao = 'todos' | 'igual' | 'divergente' | 'so' | 'vazio'
@@ -80,6 +82,139 @@ function IconeStatus({ status }: { status: StatusCampoComparacao }) {
   if (status === 'divergente') return <WarningCircle size={15} weight="fill" className="sr-cmp-ico sr-cmp-ico--div" />
   if (status === 'vazio') return <Circle size={15} weight="bold" className="sr-cmp-ico sr-cmp-ico--vazio" />
   return <MinusCircle size={15} weight="fill" className="sr-cmp-ico sr-cmp-ico--so" />
+}
+
+type ComparacaoResumo = {
+  total: number
+  iguais: number
+  divergentes: number
+  somente_a: number
+  somente_b: number
+  vazios: number
+}
+
+function InfograficoComparacao({
+  comparacao,
+  filtro,
+  onFiltro,
+}: {
+  comparacao: ComparacaoResumo
+  filtro: FiltroComparacao
+  onFiltro: (filtro: FiltroComparacao) => void
+}) {
+  const pctIguais =
+    comparacao.total > 0 ? Math.round((comparacao.iguais / comparacao.total) * 100) : 0
+  const somenteUm = comparacao.somente_a + comparacao.somente_b
+
+  return (
+    <div className="sr-cmp-infografico" aria-label="Resumo da comparação">
+      <div className="sr-cmp-infografico-topo">
+        <strong>Resumo da comparação</strong>
+        <span className="sr-cmp-infografico-pct">{pctIguais}% iguais</span>
+      </div>
+      <div className="sr-cmp-infografico-linha">
+        <div className="sr-cmp-infografico-barra" aria-hidden>
+          <div
+            className="sr-cmp-infografico-barra-fill"
+            style={{ width: `${pctIguais}%` }}
+          />
+        </div>
+        <span className="sr-cmp-infografico-total">{comparacao.total} campos</span>
+      </div>
+      <div className="sr-cmp-infografico-metricas" role="tablist" aria-label="Filtrar campos por status">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={filtro === 'todos'}
+          className={`sr-cmp-infografico-metrica sr-cmp-infografico-metrica--todos${filtro === 'todos' ? ' sr-cmp-infografico-metrica--ativo' : ''}`}
+          onClick={() => onFiltro('todos')}
+        >
+          <span className="sr-cmp-infografico-metrica-valor">{comparacao.total}</span>
+          <span className="sr-cmp-infografico-metrica-rotulo">
+            <ArrowsLeftRight size={12} weight="bold" />
+            Todos
+          </span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={filtro === 'igual'}
+          className={`sr-cmp-infografico-metrica sr-cmp-infografico-metrica--igual${filtro === 'igual' ? ' sr-cmp-infografico-metrica--ativo' : ''}`}
+          onClick={() => onFiltro('igual')}
+        >
+          <span className="sr-cmp-infografico-metrica-valor">{comparacao.iguais}</span>
+          <span className="sr-cmp-infografico-metrica-rotulo">
+            <CheckCircle size={12} weight="fill" />
+            Iguais
+          </span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={filtro === 'divergente'}
+          className={`sr-cmp-infografico-metrica sr-cmp-infografico-metrica--divergente${filtro === 'divergente' ? ' sr-cmp-infografico-metrica--ativo' : ''}`}
+          onClick={() => onFiltro('divergente')}
+        >
+          <span className="sr-cmp-infografico-metrica-valor">{comparacao.divergentes}</span>
+          <span className="sr-cmp-infografico-metrica-rotulo">
+            <WarningCircle size={12} weight="fill" />
+            Divergentes
+          </span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={filtro === 'so'}
+          className={`sr-cmp-infografico-metrica sr-cmp-infografico-metrica--so${filtro === 'so' ? ' sr-cmp-infografico-metrica--ativo' : ''}`}
+          onClick={() => onFiltro('so')}
+        >
+          <span className="sr-cmp-infografico-metrica-valor">{somenteUm}</span>
+          <span className="sr-cmp-infografico-metrica-rotulo">
+            <MinusCircle size={12} weight="fill" />
+            Só em um
+          </span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={filtro === 'vazio'}
+          className={`sr-cmp-infografico-metrica sr-cmp-infografico-metrica--vazio${filtro === 'vazio' ? ' sr-cmp-infografico-metrica--ativo' : ''}`}
+          onClick={() => onFiltro('vazio')}
+        >
+          <span className="sr-cmp-infografico-metrica-valor">{comparacao.vazios}</span>
+          <span className="sr-cmp-infografico-metrica-rotulo">
+            <Circle size={12} weight="bold" />
+            Vazios
+          </span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function CabecalhoColunaDocumento({
+  papel,
+  badge,
+  nomeArquivo,
+  tipoDocumento,
+  variante,
+}: {
+  papel: string
+  badge: 'A' | 'B'
+  nomeArquivo: string
+  tipoDocumento: string | null
+  variante: 'a' | 'b'
+}) {
+  return (
+    <div className={`sr-cmp-doc-cabecalho sr-cmp-doc-cabecalho--${variante}`}>
+      <span className={`sr-cmp-col-badge sr-cmp-col-badge--${variante}`}>{badge}</span>
+      <div className="sr-cmp-doc-cabecalho-texto">
+        <span className="sr-cmp-doc-cabecalho-papel">{papel}</span>
+        <strong title={nomeArquivo}>{nomeArquivo}</strong>
+        {tipoDocumento ? <em>{tipoDocumento}</em> : null}
+      </div>
+    </div>
+  )
 }
 
 export function ModalCompararArquivoConferenciaSmartRead({
@@ -182,6 +317,15 @@ export function ModalCompararArquivoConferenciaSmartRead({
     }
   }, [comparacaoBase, edicoes])
 
+  useEffect(() => {
+    if (!aberto) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onFechar()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [aberto, onFechar])
+
   const processarArquivoB = useCallback(async (file: File) => {
     setArquivoB(file)
     setLeituraB(null)
@@ -244,64 +388,38 @@ export function ModalCompararArquivoConferenciaSmartRead({
 
   if (!aberto || !arquivo) return null
 
-  const tituloA = `${arquivo.arquivo.name}${tipoA ? ` | ${tipoA}` : ''}`
-  const tituloB = arquivoB ? `${arquivoB.name}${tipoB ? ` | ${tipoB}` : ''}` : null
+  const nomeArquivoA = arquivo.arquivo.name
+  const nomeArquivoB = arquivoB?.name ?? null
 
-  return (
-    <div className="sr-cmp-overlay" role="dialog" aria-modal="true" aria-label="Comparar arquivos">
-      <div className="sr-cmp-painel">
+  const conteudo = (
+    <div
+      className="sr-cmp-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Comparar arquivos"
+      onClick={onFechar}
+    >
+      <div className="sr-cmp-painel" onClick={(e) => e.stopPropagation()}>
         <header className="sr-cmp-cabecalho">
           <div className="sr-cmp-cabecalho-titulo">
-            <ArrowsLeftRight size={18} weight="duotone" />
+            <ArrowsLeftRight size={20} weight="duotone" className="sr-cmp-cabecalho-icone" />
             <div>
               <strong>Comparar arquivos</strong>
-              <p>Compare campos equivalentes entre dois documentos. Edite o documento atual para corrigir a leitura.</p>
+              <p>Compare campos equivalentes entre a leitura atual e um segundo documento.</p>
             </div>
           </div>
-          <button type="button" onClick={onFechar} aria-label="Fechar">
+          <button type="button" className="sr-cmp-cabecalho-fechar" onClick={onFechar} aria-label="Fechar">
             <X size={18} weight="bold" />
           </button>
         </header>
 
         {fase === 'pronto' && comparacao ? (
           <div className="sr-cmp-resultado">
-            <div className="sr-cmp-resumo">
-              <div className="sr-cmp-resumo-docs">
-                <span className="sr-cmp-doc-tag sr-cmp-doc-tag--a">{tituloA}</span>
-                <ArrowsLeftRight size={16} weight="bold" />
-                <span className="sr-cmp-doc-tag sr-cmp-doc-tag--b">{tituloB}</span>
-              </div>
-              <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={reiniciar}>
-                Trocar arquivo
-              </BotaoGlobal>
-            </div>
-
-            <div className="sr-cmp-filtros" role="tablist" aria-label="Filtrar campos por status">
-              {(
-                [
-                  ['todos', `Todos ${comparacao.total}`, null],
-                  ['igual', `${comparacao.iguais} iguais`, 'ok'],
-                  ['divergente', `${comparacao.divergentes} divergentes`, 'div'],
-                  ['so', `${comparacao.somente_a + comparacao.somente_b} só em um`, 'so'],
-                  ['vazio', `${comparacao.vazios} vazios`, 'vazio'],
-                ] as const
-              ).map(([id, rotulo, cor]) => (
-                <button
-                  key={id}
-                  type="button"
-                  role="tab"
-                  aria-selected={filtro === id}
-                  className={`sr-cmp-stat${cor ? ` sr-cmp-stat--${cor}` : ''}${filtro === id ? ' sr-cmp-stat--ativo' : ''}`}
-                  onClick={() => setFiltro(id)}
-                >
-                  {cor === 'ok' && <CheckCircle size={13} weight="fill" />}
-                  {cor === 'div' && <WarningCircle size={13} weight="fill" />}
-                  {cor === 'so' && <MinusCircle size={13} weight="fill" />}
-                  {cor === 'vazio' && <Circle size={13} weight="bold" />}
-                  {rotulo}
-                </button>
-              ))}
-            </div>
+            <InfograficoComparacao
+              comparacao={comparacao}
+              filtro={filtro}
+              onFiltro={setFiltro}
+            />
 
             {filtro !== 'todos' && (
               <div className="sr-cmp-filtro-ativo">
@@ -313,6 +431,23 @@ export function ModalCompararArquivoConferenciaSmartRead({
             )}
 
             <div className="sr-cmp-tabela">
+              <div className="sr-cmp-colunas-cabecalho">
+                <CabecalhoColunaDocumento
+                  papel="Leitura atual"
+                  badge="A"
+                  nomeArquivo={nomeArquivoA}
+                  tipoDocumento={tipoA}
+                  variante="a"
+                />
+                <CabecalhoColunaDocumento
+                  papel="Arquivo comparado"
+                  badge="B"
+                  nomeArquivo={nomeArquivoB ?? '—'}
+                  tipoDocumento={tipoB}
+                  variante="b"
+                />
+              </div>
+
               {comparacao.secoes
                 .map((secao) => ({
                   ...secao,
@@ -342,11 +477,15 @@ export function ModalCompararArquivoConferenciaSmartRead({
                             <div className="sr-cmp-card-body">
                               <div className="sr-cmp-card-head" title={ROTULO_STATUS[linha.status]}>
                                 <IconeStatus status={linha.status} />
+                                <span className="dt-row-icon">{resolverIconeCampoConferenciaSmartRead(linha.chave)}</span>
                                 <span className="sr-cmp-card-label">{linha.rotulo}</span>
                               </div>
                               <div className="sr-cmp-card-valores">
-                                <div className="sr-cmp-card-col">
-                                  <span className="sr-cmp-card-mini">Documento atual</span>
+                                <div className="sr-cmp-card-col sr-cmp-card-col--a">
+                                  <span className="sr-cmp-card-mini sr-cmp-card-mini--a">
+                                    <span className="sr-cmp-col-badge sr-cmp-col-badge--a">A</span>
+                                    Leitura atual
+                                  </span>
                                   {editando === linha.chave ? (
                                     <div className="dt-row-edit">
                                       <input
@@ -376,13 +515,14 @@ export function ModalCompararArquivoConferenciaSmartRead({
                                   )}
                                 </div>
                                 <div className="sr-cmp-card-col sr-cmp-card-col--b">
-                                  <span className="sr-cmp-card-mini">
-                                    Documento comparado
+                                  <span className="sr-cmp-card-mini sr-cmp-card-mini--b">
+                                    <span className="sr-cmp-col-badge sr-cmp-col-badge--b">B</span>
+                                    Arquivo comparado
                                     {podeCopiar && (
                                       <button
                                         type="button"
                                         className="sr-cmp-copiar"
-                                        title="Copiar este valor para o documento atual"
+                                        title="Copiar este valor para a leitura atual"
                                         onClick={() => confirmarEdicao(linha.chave, linha.valor_b ?? '')}
                                       >
                                         <ArrowLeft size={12} weight="bold" />
@@ -404,8 +544,14 @@ export function ModalCompararArquivoConferenciaSmartRead({
           </div>
         ) : (
           <div className="sr-cmp-corpo">
-            <div className="sr-cmp-lado">
-              <div className="sr-cmp-lado-titulo">{tituloA}</div>
+            <div className="sr-cmp-lado sr-cmp-lado--atual">
+              <CabecalhoColunaDocumento
+                papel="Leitura atual"
+                badge="A"
+                nomeArquivo={nomeArquivoA}
+                tipoDocumento={tipoA}
+                variante="a"
+              />
               <div className="sr-cmp-lado-campos">
                 <ConferenciaCamposNovaLeituraSmartRead
                   arquivo={arquivo}
@@ -415,8 +561,18 @@ export function ModalCompararArquivoConferenciaSmartRead({
               </div>
             </div>
 
-            <div className="sr-cmp-lado sr-cmp-lado--envio">
-              <div className="sr-cmp-lado-titulo">Selecione o arquivo para comparação</div>
+            <div className="sr-cmp-lado sr-cmp-lado--comparado">
+              <CabecalhoColunaDocumento
+                papel="Arquivo comparado"
+                badge="B"
+                nomeArquivo={
+                  fase === 'processando' && nomeArquivoB
+                    ? nomeArquivoB
+                    : 'Envie o PDF para comparar'
+                }
+                tipoDocumento={fase === 'pronto' ? tipoB : null}
+                variante="b"
+              />
 
               {fase === 'processando' ? (
                 <div className="sr-cmp-status">
@@ -430,7 +586,7 @@ export function ModalCompararArquivoConferenciaSmartRead({
                     </div>
                   </div>
                   <strong>Carregando arquivo…</strong>
-                  <p>Aguarde enquanto analisamos a cópia de {arquivoB?.name}.</p>
+                  <p>Aguarde enquanto analisamos {nomeArquivoB ?? 'o arquivo enviado'}.</p>
                 </div>
               ) : fase === 'erro' ? (
                 <div className="sr-cmp-status sr-cmp-status--erro">
@@ -472,7 +628,20 @@ export function ModalCompararArquivoConferenciaSmartRead({
             </div>
           </div>
         )}
+
+        <footer className="sr-cmp-rodape">
+          <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={onFechar}>
+            Fechar
+          </BotaoGlobal>
+          {fase === 'pronto' ? (
+            <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={reiniciar}>
+              Trocar arquivo
+            </BotaoGlobal>
+          ) : null}
+        </footer>
       </div>
     </div>
   )
+
+  return createPortal(conteudo, document.body)
 }

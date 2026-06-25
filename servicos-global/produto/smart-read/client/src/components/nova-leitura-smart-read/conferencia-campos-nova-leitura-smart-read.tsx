@@ -2,7 +2,7 @@
  * ConferenciaCamposNovaLeituraSmartRead — layout padrão Processo / Dados do Processo (dt-*)
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Anchor,
   Buildings,
@@ -12,6 +12,8 @@ import {
   FileText,
   MagnifyingGlass,
   Package,
+  PencilSimple,
+  ShieldCheck,
   Truck,
   User,
   Users,
@@ -25,21 +27,33 @@ import {
   extrairSecoesConferenciaLeitura,
   type SecaoConferenciaLeitura,
 } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
+import { isCampoEditadoLeitura } from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
+import { CampoLinhaConferenciaNovaLeituraSmartRead } from './campo-linha-conferencia-nova-leitura-smart-read'
+import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import '../../../../../processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 
-type FiltroConferencia = 'todos' | 'preenchidos' | 'vazios'
+type FiltroConferencia = 'todos' | 'preenchidos' | 'vazios' | 'alterados'
+
+const ROTULO_FILTRO_CONFERENCIA: Record<FiltroConferencia, string> = {
+  todos: 'Verificados',
+  preenchidos: 'Preenchidos',
+  vazios: 'Vazios',
+  alterados: 'Preenchidos alterados',
+}
 
 type Props = {
   arquivo: ArquivoLocalNovaLeitura
   indiceDocumento: number
   onCompararArquivo?: () => void
   ocultarComparar?: boolean
+  camposEditados?: ReadonlySet<string>
+  onEditarCampo?: (chave: string, valor: string) => void
 }
 
 function iconeSecao(titulo: string) {
   const t = titulo.toLowerCase()
   if (t.includes('document')) return <FileText weight="duotone" size={18} />
-  if (t.includes('carrier')) return <Truck weight="duotone" size={18} />
+  if (t.includes('transportador') || t.includes('transportadora') || t.includes('carrier')) return <Truck weight="duotone" size={18} />
   if (t.includes('exporter')) return <Buildings weight="duotone" size={18} />
   if (t.includes('importer')) return <User weight="duotone" size={18} />
   if (t.includes('notify')) return <Users weight="duotone" size={18} />
@@ -47,11 +61,17 @@ function iconeSecao(titulo: string) {
   return <Package weight="duotone" size={18} />
 }
 
-function filtrarCamposSecao(secao: SecaoConferenciaLeitura, filtro: FiltroConferencia, busca: string) {
+function filtrarCamposSecao(
+  secao: SecaoConferenciaLeitura,
+  filtro: FiltroConferencia,
+  busca: string,
+  ehAlterado: (chave: string) => boolean,
+) {
   const buscaNorm = busca.trim().toLowerCase()
   return secao.campos.filter((campo) => {
     if (filtro === 'preenchidos' && !campo.preenchido) return false
     if (filtro === 'vazios' && campo.preenchido) return false
+    if (filtro === 'alterados' && (!campo.preenchido || !ehAlterado(campo.chave))) return false
     if (!buscaNorm) return true
     return (
       campo.rotulo.toLowerCase().includes(buscaNorm) ||
@@ -65,9 +85,12 @@ export function ConferenciaCamposNovaLeituraSmartRead({
   indiceDocumento,
   onCompararArquivo,
   ocultarComparar = false,
+  camposEditados = new Set(),
+  onEditarCampo,
 }: Props) {
   const [filtro, setFiltro] = useState<FiltroConferencia>('todos')
   const [busca, setBusca] = useState('')
+  const [progressoColapsado, setProgressoColapsado] = useState(false)
   const [secoesColapsadas, setSecoesColapsadas] = useState<Set<string>>(() => new Set())
 
   const documentos = extrairDocumentosArquivoLocal(arquivo)
@@ -80,29 +103,81 @@ export function ConferenciaCamposNovaLeituraSmartRead({
     () => extrairSecoesConferenciaLeitura(extracao?.dados ?? {}),
     [extracao?.dados],
   )
-  const stats = useMemo(() => calcularEstatisticasConferencia(secoes), [secoes])
+  const stats = useMemo(
+    () =>
+      calcularEstatisticasConferencia(secoes, {
+        idArquivoLocal: arquivo.id_arquivo_local,
+        indiceDocumento,
+        camposEditados,
+      }),
+    [secoes, arquivo.id_arquivo_local, indiceDocumento, camposEditados],
+  )
+
+  const ehAlterado = useCallback(
+    (chave: string) =>
+      isCampoEditadoLeitura(camposEditados, arquivo.id_arquivo_local, indiceDocumento, chave),
+    [camposEditados, arquivo.id_arquivo_local, indiceDocumento],
+  )
+
+  const idSecaoAssinado = useMemo(() => {
+    const secaoComAssinado = secoes.find((s) => s.campos.some((c) => c.chave === 'isSigned'))
+    return secaoComAssinado?.id ?? secoes[0]?.id ?? null
+  }, [secoes])
 
   useEffect(() => {
     setSecoesColapsadas(new Set(secoes.map((s) => s.id)))
-  }, [extracao?.dados, indiceDocumento])
+    setFiltro('todos')
+    setBusca('')
+  }, [arquivo.id_arquivo_local, indiceDocumento])
+
+  useEffect(() => {
+    if (filtro === 'todos' && !busca.trim()) return
+    const idsExpandidos = secoes
+      .filter((secao) => {
+        const campos = filtrarCamposSecao(secao, filtro, busca, ehAlterado).filter(
+          (c) => c.chave !== 'isSigned',
+        )
+        const incluiAssinado =
+          secao.id === idSecaoAssinado &&
+          filtrarCamposSecao(secao, filtro, busca, ehAlterado).some((c) => c.chave === 'isSigned')
+        return campos.length > 0 || incluiAssinado
+      })
+      .map((s) => s.id)
+
+    setSecoesColapsadas((prev) => {
+      const next = new Set(prev)
+      for (const id of idsExpandidos) next.delete(id)
+      return next
+    })
+  }, [filtro, busca, secoes, ehAlterado, idSecaoAssinado])
 
   const campoAssinado = useMemo(
-    () =>
-      secoes
-        .flatMap((s) => s.campos)
-        .find((c) => c.chave === 'isSigned'),
+    () => secoes.flatMap((s) => s.campos).find((c) => c.chave === 'isSigned'),
     [secoes],
   )
+
+  const assinadoVisivel = useMemo(() => {
+    if (!campoAssinado) return false
+    const filtrados = filtrarCamposSecao(
+      { id: '', titulo: '', campos: [campoAssinado] },
+      filtro,
+      busca,
+      ehAlterado,
+    )
+    return filtrados.length > 0
+  }, [campoAssinado, filtro, busca, ehAlterado])
 
   const secoesVisiveis = useMemo(
     () =>
       secoes
         .map((secao) => ({
           ...secao,
-          campos: filtrarCamposSecao(secao, filtro, busca).filter((c) => c.chave !== 'isSigned'),
+          campos: filtrarCamposSecao(secao, filtro, busca, ehAlterado).filter(
+            (c) => c.chave !== 'isSigned',
+          ),
         }))
         .filter((secao) => secao.campos.length > 0),
-    [secoes, filtro, busca],
+    [secoes, filtro, busca, ehAlterado],
   )
 
   function toggleSecao(id: string) {
@@ -112,6 +187,17 @@ export function ConferenciaCamposNovaLeituraSmartRead({
       else next.add(id)
       return next
     })
+  }
+
+  const todasColapsadas =
+    secoesVisiveis.length > 0 && secoesVisiveis.every((secao) => secoesColapsadas.has(secao.id))
+
+  function toggleTodasSecoes() {
+    if (todasColapsadas) {
+      setSecoesColapsadas(new Set())
+      return
+    }
+    setSecoesColapsadas(new Set(secoesVisiveis.map((secao) => secao.id)))
   }
 
   const tituloContexto = `${arquivo.arquivo.name}${documentoAtual ? ` | ${documentoAtual.tipo_documento}` : ''}`
@@ -127,88 +213,182 @@ export function ConferenciaCamposNovaLeituraSmartRead({
         )}
       </div>
 
-      <div className="sr-conf-legenda" aria-label="Legenda de status dos campos">
-        <span>
-          <CheckCircle size={14} weight="fill" className="sr-conf-legenda-ok" /> Todos os campos preenchidos
-        </span>
-        <span>
-          <Circle size={14} weight="fill" className="sr-conf-legenda-info" /> Conflitos (não impeditivo)
-        </span>
-        <span>
-          <Circle size={14} weight="fill" className="sr-conf-legenda-vazio" /> Campos não preenchidos
-        </span>
-      </div>
-
-      <div className="sr-conf-progresso-bloco">
-        <div className="sr-conf-progresso-topo">
-          <strong>Progresso da Conferência</strong>
-          <span>
-            {stats.preenchidos} preenchidos · {stats.vazios} vazios
-          </span>
-        </div>
-        <div className="sr-conf-progresso-linha">
-          <div className="sr-conf-progresso-barra" aria-hidden>
-            <div className="sr-conf-progresso-barra-fill" style={{ width: `${stats.percentual}%` }} />
-          </div>
-          <span className="sr-conf-progresso-pct">{stats.percentual}%</span>
-        </div>
-        <div className="sr-conf-filtros" role="tablist" aria-label="Filtrar campos">
-          {(
-            [
-              ['todos', 'Todos', stats.total],
-              ['preenchidos', 'Preenchidos', stats.preenchidos],
-              ['vazios', 'Vazios', stats.vazios],
-            ] as const
-          ).map(([id, rotulo, qtd]) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={filtro === id}
-              className={`sr-conf-filtro${filtro === id ? ' sr-conf-filtro--ativo' : ''}`}
-              onClick={() => setFiltro(id)}
-            >
-              {rotulo} {qtd}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {campoAssinado && (
-        <div
-          className={`sr-conf-assinado${campoAssinado.valor === 'Sim' ? ' sr-conf-assinado--ok' : ''}`}
+      <section
+        className={`sr-conf-progresso-bloco${progressoColapsado ? ' sr-conf-progresso-bloco--colapsado' : ''}`}
+      >
+        <button
+          type="button"
+          className="sr-conf-progresso-header"
+          onClick={() => setProgressoColapsado((prev) => !prev)}
+          aria-expanded={!progressoColapsado}
+          aria-controls="sr-conf-progresso-corpo"
         >
-          <CheckCircle size={16} weight="fill" />
-          <span>Documento {campoAssinado.valor === 'Sim' ? 'Assinado' : 'Não Assinado'}</span>
-        </div>
-      )}
-
-      <main className="dt-main">
-        <div className="dt-main-toolbar">
-          <div className="dt-header-busca">
-            <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
-            <input
-              type="search"
-              className="dt-toc-busca-input"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              placeholder="Localizar campos"
-              aria-label="Localizar campos"
+          <div className="sr-conf-progresso-header-esq">
+            <CaretDown
+              weight="bold"
+              size={14}
+              className={`dt-caret${progressoColapsado ? ' dt-caret--colapsado' : ''}`}
             />
-            {busca && (
+            <strong className="sr-conf-progresso-titulo">Progresso da Conferência</strong>
+          </div>
+          <div
+            className="sr-conf-progresso-busca"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <div className="dt-header-busca">
+              <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
+              <input
+                type="search"
+                className="dt-toc-busca-input"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Localizar campos"
+                aria-label="Localizar campos"
+              />
+              {busca && (
+                <button
+                  type="button"
+                  className="dt-toc-busca-limpar"
+                  onClick={() => setBusca('')}
+                  aria-label="Limpar busca"
+                >
+                  <X size={12} weight="bold" />
+                </button>
+              )}
+            </div>
+          </div>
+        </button>
+
+        {!progressoColapsado && (
+          <div id="sr-conf-progresso-corpo" className="sr-conf-progresso-corpo">
+            <div className="sr-conf-progresso-linha">
+              <div
+                className="sr-conf-progresso-barra"
+                role="progressbar"
+                aria-valuenow={stats.percentual}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${stats.percentual}% dos campos preenchidos`}
+              >
+                <div
+                  className="sr-conf-progresso-barra-fill"
+                  style={{ width: `${stats.percentual}%` }}
+                />
+              </div>
+              <span className="sr-conf-progresso-pct">{stats.percentual}%</span>
+            </div>
+
+            <div className="sr-conf-progresso-metricas" aria-label="Resumo da conferência">
               <button
                 type="button"
-                className="dt-toc-busca-limpar"
-                onClick={() => setBusca('')}
-                aria-label="Limpar busca"
+                className={`sr-conf-progresso-metrica sr-conf-progresso-metrica--todos${filtro === 'todos' ? ' sr-conf-progresso-metrica--ativo' : ''}`}
+                aria-pressed={filtro === 'todos'}
+                onClick={() => setFiltro('todos')}
               >
-                <X size={12} weight="bold" />
+                <span className="sr-conf-progresso-metrica-valor">{stats.total}</span>
+                <span className="sr-conf-progresso-metrica-rotulo">
+                  <ShieldCheck size={12} weight="fill" aria-hidden />
+                  Verificados
+                </span>
+              </button>
+              <button
+                type="button"
+                className={`sr-conf-progresso-metrica sr-conf-progresso-metrica--preenchido${filtro === 'preenchidos' ? ' sr-conf-progresso-metrica--ativo' : ''}`}
+                aria-pressed={filtro === 'preenchidos'}
+                onClick={() => setFiltro('preenchidos')}
+              >
+                <span className="sr-conf-progresso-metrica-valor">{stats.preenchidos}</span>
+                <span className="sr-conf-progresso-metrica-rotulo">
+                  <CheckCircle size={12} weight="fill" aria-hidden />
+                  Preenchidos
+                </span>
+              </button>
+              <button
+                type="button"
+                className={`sr-conf-progresso-metrica sr-conf-progresso-metrica--vazio${filtro === 'vazios' ? ' sr-conf-progresso-metrica--ativo' : ''}`}
+                aria-pressed={filtro === 'vazios'}
+                onClick={() => setFiltro('vazios')}
+              >
+                <span className="sr-conf-progresso-metrica-valor">{stats.vazios}</span>
+                <span className="sr-conf-progresso-metrica-rotulo">
+                  <Circle size={12} weight="fill" aria-hidden />
+                  {ROTULO_FILTRO_CONFERENCIA.vazios}
+                </span>
+              </button>
+              <button
+                type="button"
+                className={`sr-conf-progresso-metrica sr-conf-progresso-metrica--alterado${filtro === 'alterados' ? ' sr-conf-progresso-metrica--ativo' : ''}`}
+                aria-pressed={filtro === 'alterados'}
+                onClick={() => setFiltro('alterados')}
+              >
+                <span className="sr-conf-progresso-metrica-valor">{stats.preenchidosAlterados}</span>
+                <span className="sr-conf-progresso-metrica-rotulo">
+                  <PencilSimple size={12} weight="fill" aria-hidden />
+                  Preenchidos alterados
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <main className="dt-main">
+        {(filtro !== 'todos' || busca.trim() || secoesVisiveis.length > 0 || assinadoVisivel) && (
+          <div className="dt-main-toolbar sr-conf-secoes-toolbar">
+            {(filtro !== 'todos' || busca.trim()) && (
+              <div className="dt-chips sr-conf-chips">
+                {filtro !== 'todos' && (
+                  <span className="fc-chip" role="status" aria-live="polite">
+                    <span className="fc-chip-label">Conferência:</span>
+                    <span className="fc-chip-valor">{ROTULO_FILTRO_CONFERENCIA[filtro]}</span>
+                    <button
+                      type="button"
+                      className="fc-chip-remove"
+                      onClick={() => setFiltro('todos')}
+                      title="Remover filtro"
+                      aria-label={`Remover filtro ${ROTULO_FILTRO_CONFERENCIA[filtro]}`}
+                    >
+                      <X size={10} weight="bold" />
+                    </button>
+                  </span>
+                )}
+                {busca.trim() && (
+                  <span className="fc-chip" role="status" aria-live="polite">
+                    <span className="fc-chip-label">Busca:</span>
+                    <span className="fc-chip-valor">{busca.trim()}</span>
+                    <button
+                      type="button"
+                      className="fc-chip-remove"
+                      onClick={() => setBusca('')}
+                      title="Remover busca"
+                      aria-label="Remover busca"
+                    >
+                      <X size={10} weight="bold" />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
+            {(secoesVisiveis.length > 0 || assinadoVisivel) && (
+              <button
+                type="button"
+                className="dt-main-toolbar-btn dt-main-toolbar-btn--right"
+                onClick={toggleTodasSecoes}
+                title={todasColapsadas ? 'Expandir todas as seções' : 'Recolher todas as seções'}
+              >
+                <CaretDown
+                  weight="bold"
+                  size={12}
+                  className={`dt-caret${todasColapsadas ? ' dt-caret--colapsado' : ''}`}
+                />
+                {todasColapsadas ? 'Expandir todas' : 'Recolher todas'}
               </button>
             )}
           </div>
-        </div>
+        )}
 
-        {secoesVisiveis.length === 0 ? (
+        {secoesVisiveis.length === 0 && !assinadoVisivel ? (
           <p className="sr-conf-vazio">Nenhum campo encontrado para este documento.</p>
         ) : (
           secoesVisiveis.map((secao) => {
@@ -259,23 +439,25 @@ export function ConferenciaCamposNovaLeituraSmartRead({
 
                 {!colapsada && (
                   <div id={`${secao.id}-grid`} className="dt-grid">
+                    {secao.id === idSecaoAssinado && assinadoVisivel && campoAssinado && (
+                      <CampoLinhaConferenciaNovaLeituraSmartRead
+                        chave="isSigned"
+                        rotulo={campoAssinado.rotulo}
+                        valor={campoAssinado.valor}
+                        alterado={ehAlterado('isSigned')}
+                        tipo="booleano"
+                        aoSalvar={(novo) => onEditarCampo?.('isSigned', novo)}
+                      />
+                    )}
                     {secao.campos.map((campo) => (
-                      <div
+                      <CampoLinhaConferenciaNovaLeituraSmartRead
                         key={campo.chave}
-                        className={`dt-row dt-row--${campo.preenchido ? 'preenchido' : 'vazio-opc'}`}
-                      >
-                        <div className="dt-row-status" aria-hidden="true" />
-                        <div className="dt-row-head">
-                          <span className="dt-row-label">{campo.rotulo}</span>
-                        </div>
-                        <div className="dt-row-value">
-                          {campo.valor ? (
-                            <span className="dt-row-text">{campo.valor}</span>
-                          ) : (
-                            <span className="dt-row-empty">—</span>
-                          )}
-                        </div>
-                      </div>
+                        chave={campo.chave}
+                        rotulo={campo.rotulo}
+                        valor={campo.valor}
+                        alterado={ehAlterado(campo.chave)}
+                        aoSalvar={(novo) => onEditarCampo?.(campo.chave, novo)}
+                      />
                     ))}
                   </div>
                 )}

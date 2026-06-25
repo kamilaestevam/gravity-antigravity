@@ -2,10 +2,7 @@
  * Saving do wizard Nova Leitura — base manual (SSOT) − tempo de leitura (cronômetro).
  */
 import { calcularRecursosReduzidosPorTempoLeituraSmartRead } from '../../../shared/metricas-transacao-leitura-smart-read'
-import {
-  consolidarLeituraDeArquivosLocais,
-  type ArquivoLocalNovaLeitura,
-} from './tipo-arquivo-nova-leitura-smart-read'
+import type { ArquivoLocalNovaLeitura } from './tipo-arquivo-nova-leitura-smart-read'
 
 export type SavingNovaLeituraSmartRead = {
   minutos: number | null
@@ -20,9 +17,6 @@ export function calcularSavingNovaLeituraSmartRead(
     fimMs?: number | null
   },
 ): SavingNovaLeituraSmartRead {
-  const leitura = consolidarLeituraDeArquivosLocais(itens)
-  if (!leitura) return { minutos: null, brl: null }
-
   const documentos = itens.flatMap((arquivo) => arquivo.resultado_extracao ?? [])
   if (documentos.length <= 0) return { minutos: null, brl: null }
 

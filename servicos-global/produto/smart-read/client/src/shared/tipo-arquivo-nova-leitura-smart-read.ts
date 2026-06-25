@@ -122,6 +122,16 @@ export function extrairDocumentosArquivoLocal(item: ArquivoLocalNovaLeitura): Do
   }))
 }
 
+/** Documentos extraídos de todos os arquivos locais (para métricas saving no passo 2). */
+export function listarDocumentosExtracaoArquivosLocaisNovaLeitura(
+  itens: ArquivoLocalNovaLeitura[],
+): Array<{ tipo_documento: string | null; dados: Record<string, unknown> }> {
+  return itens.flatMap((item) => {
+    const arquivoApi = resolverArquivoApiLeitura(item)
+    return arquivoApi?.resultado_extracao ?? []
+  })
+}
+
 export function contarDocumentosArquivoLocal(item: ArquivoLocalNovaLeitura): number {
   return extrairDocumentosArquivoLocal(item).length
 }

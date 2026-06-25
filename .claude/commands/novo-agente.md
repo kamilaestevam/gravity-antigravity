@@ -18,7 +18,9 @@ Se a mensagem contém **`/novo-agente`**, o agente **NÃO PODE** — nesta mesma
 ❌ Responder o pedido técnico do dono (bug, feature, análise)  
 ❌ Ler skills de produto (pedido, bid-frete, UX…)  
 
-✅ **Só** pode: ler `tasks/registros/registro-tasks.json`, `tasks/README.md`, perguntar classificação, gravar ficha, entregar veredito e **comunicar** `titulo_exibicao` (ver LIMITAÇÃO — agente não renomeia no sidebar).
+✅ **Só** pode: ler `tasks/registros/registro-tasks.json`, `tasks/README.md`, perguntar classificação, gravar ficha, ler **branch atual** (`git branch --show-current` — só leitura), entregar veredito e **comunicar** `titulo_exibicao` (ver LIMITAÇÃO — agente não renomeia no sidebar).
+
+❌ **`/novo-agente` NÃO cria nem troca branch** — `git checkout`, `git switch`, `git checkout -b`, `git worktree` são **proibidos** neste comando e no veredito.
 
 **Se o dono colocou `/novo-agente` + pedido técnico na mesma mensagem:**
 
@@ -77,6 +79,22 @@ Legado `documentos-tecnicos/processos/convencao-titulos-agente.md` — **não us
 
 ---
 
+## Git e preview — uma pasta, uma branch, um `:8000`
+
+| Regra | Detalhe |
+|:---|:---|
+| **Uma pasta** | Todos os agentes compartilham `gravity-antigravity` |
+| **Uma branch ativa** | O que o `:8000` mostra é **só** a branch **já checkoutada** no disco |
+| **Sem branch nova no `/novo-agente`** | Registrar task ≠ criar branch; **nunca** `git checkout -b` neste fluxo |
+| **Branch até o PR** | A branch da task em curso fica até merge; **não trocar** sem ordem do dono |
+| **Agente novo** | Só grava ficha — **não** abre branch Y; continua na branch que já estava (X ou outra) |
+| **Trocar branch** | **Só** se o dono pedir explicitamente (ex.: «crie branch `pr/TASK-000336-…`») — **depois** do «continuar» |
+| **Preview** | `http://localhost:8000` — não existe porta automática por task |
+
+**Por quê a tela «muda do nada»:** um agente fez `git checkout` na pasta compartilhada e o `:8000` passou a servir outra branch. **Prevenção:** proibir checkout automático; avisar branch atual no veredito.
+
+---
+
 ## Tabelas fechadas (classificação)
 
 ### AREA
@@ -129,6 +147,22 @@ Montar também `resumo_detalhado` (parágrafo do pedido/escopo — o que será f
 2. Atualizar `registro-tasks.json` (`entradas[]`, incrementar `proximo_numero`)
 3. **Não** recalcular `registro-totais.json` na abertura (só no `/encerrar-agente`)
 
+### ETAPA 3.5 — Preview hub (alerta `:8000` / porta seguinte)
+
+Após gravar a ficha, executar:
+
+```powershell
+npm run agente:preview -- status
+```
+
+Incluir no veredito bloco **Alerta preview** (branch atual, `:8000` ativo sim/não, URLs `:8000`–`:8019` em uso; `:8005` API Config e `:8009` GABI reservadas). Se `ALERTA_PREVIEW=1` no stdout, repetir `ALERTA_MSG` **em destaque**.
+
+**Automático (git hook):** `post-checkout` — se `:8000` estava ativo e a branch mudou, preserva a branch **anterior** em `:8001` (ou próxima livre) e emite alerta sonoro + `ALERTA_MSG`.
+
+**Manual:** `npm run agente:preview -- alocar` — próxima porta livre (`8001`, `8002`…).
+
+**Proibido** trocar branch sem o dono saber onde testar — após `git checkout` o agente **deve** informar `:8000` vs `:8001` no chat.
+
 ### ETAPA 4 — Veredito de abertura (OBRIGATÓRIO — formato fixo, completo)
 
 **Única saída** antes de trabalhar. **Proibido** resumir só em `Classificação: ADMIN-…` — entregar **todos** os campos abaixo (espelham a ficha gravada).
@@ -154,7 +188,23 @@ Montar também `resumo_detalhado` (parágrafo do pedido/escopo — o que será f
 
 {resumo_detalhado — parágrafo completo do que será feito, copiado da ficha}
 
-**Copiar como nome da conversa:** TASK-000266 | [Admin] Taxas Moeda | NOV — Agendamento cotação atual e futura
+### Ambiente (somente leitura — não alterar branch)
+
+| Campo | Valor |
+|:---|:---|
+| **Branch atual** | `{git branch --show-current}` |
+| **Hub principal** | http://127.0.0.1:8000 |
+| **Nome completo (copiar)** | `TASK-000266 | [Admin] Taxas Moeda | NOV — Agendamento cotação atual e futura` |
+
+### Alerta preview (ETAPA 3.5)
+
+| Campo | Valor |
+|:---|:---|
+| **:8000 ativo** | sim / não |
+| **Outros previews** | `:8001` → `pr/TASK-000336` (se houver) |
+| **Alerta** | — ou mensagem `ALERTA_MSG` |
+
+**Aviso:** este agente **não** criará branch nova. Se a branch mudar com `:8000` no ar, o hook abre **`:8001`** com a branch anterior.
 
 Diga **continuar** para eu executar seu pedido.
 ```
@@ -170,6 +220,12 @@ Diga **continuar** para eu executar seu pedido.
 
 Aí sim: ler skills, código, executar o pedido técnico.
 
+**Git (obrigatório):**
+
+- Confirmar branch atual antes de editar; **proibido** `git checkout` / `git switch` / `git checkout -b` / `git worktree` **salvo** ordem explícita do dono na conversa.
+- **Após** qualquer `git checkout`: informar no chat URLs de preview (`:8000`, `:8001`…) — hook `post-checkout` pode ter aberto porta seguinte.
+- Branch da task em andamento permanece até PR/merge — agente paralelo **não** abre branch própria.
+
 ---
 
 ## Proibido
@@ -184,3 +240,5 @@ Aí sim: ler skills, código, executar o pedido técnico.
 - Listar formatos alternativos (AGT, IMP, citação, markdown)
 - Consultar `convencao-titulos-agente.md` ou `registro-agentes.json` (legado)
 - `titulo_exibicao` sem prefixo `TASK-{NNNNNN}`
+- `git checkout`, `git switch`, `git checkout -b` ou `git worktree` sem ordem explícita do dono
+- Criar branch no `/novo-agente` ou «porque é task nova»

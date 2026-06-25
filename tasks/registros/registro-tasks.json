@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 338,
+  "proximo_numero": 340,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1066,6 +1066,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000337.json"
+    },
+    {
+      "referencia": "TASK-000339",
+      "ordinal": 63,
+      "titulo_canonico": "CFG-NOV-COMANDO-PR-ESCOPO-CONVERSA-PREVIEW-HUB-20-PORTAS",
+      "titulo_exibicao": "TASK-000339 | [DevOps] Fluxo agente | NOV — Comando /pr + preview hub 20 portas",
+      "status": "ABR",
+      "area": "CFG",
+      "subarea": null,
+      "visualizacao": null,
+      "tipo_entrega": "NOV",
+      "resumo": "COMANDO-PR-ESCOPO-CONVERSA-PREVIEW-HUB-20-PORTAS",
+      "data_criacao": "2026-06-25T12:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000339.json"
     }
   ]
 }

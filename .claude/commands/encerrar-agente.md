@@ -42,7 +42,7 @@ Preencher **`checklist_encerramento`** — cada item: `"sim"` | `"nao"` | `"nao_
 | `code_review` | Code review feito | `/code-review` |
 | `doc_skill` | Docs técnicos e/ou skills atualizados | `/docs-skills` |
 | `qa` | QA pós-entrega executado | `/qa` |
-| `pr` | Pull request aberto ou merge solicitado | `gh pr create` |
+| `pr` | Pull request aberto ou merge solicitado | `/pr` (escopo desta conversa) ou `gh pr create` |
 | `deploy` | Deploy / migration executado | `/deploy` |
 | `teste_producao` | Validado em produção ou staging real | smoke pós-deploy |
 

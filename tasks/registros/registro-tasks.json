@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 333,
+  "proximo_numero": 335,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {

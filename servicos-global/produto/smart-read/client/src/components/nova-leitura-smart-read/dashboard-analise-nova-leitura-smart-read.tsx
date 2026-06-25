@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Brain, ChartLineUp, Clock, FileText, Timer } from '@phosphor-icons/react'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
+import { calcularSavingAgregadoTransacoesSmartRead } from '../../shared/calcular-saving-agregado-transacoes-smart-read'
 import { calcularSavingNovaLeituraSmartRead } from '../../shared/calcular-saving-nova-leitura-smart-read'
 import {
   formatarSavingHorasLeitura,
@@ -127,14 +128,33 @@ export function DashboardAnaliseNovaLeituraSmartRead({
     })
   }, [processamentoComErro, arquivos, elapsedSegundos])
 
-  const savingAcumuladoExibicao = savingAcumulado.carregando
-    ? { minutos: null as number | null, totalDocumentos: 0 }
-    : { minutos: savingAcumulado.minutos, totalDocumentos: savingAcumulado.totalDocumentos }
+  const idLeituraAtual = arquivos.find((item) => item.id_leitura)?.id_leitura ?? null
+
+  const savingAcumuladoExibicao = useMemo(() => {
+    if (savingAcumulado.carregando) {
+      return { minutos: null as number | null, totalDocumentos: 0 }
+    }
+
+    const transacoesHistorico = idLeituraAtual
+      ? savingAcumulado.transacoes.filter((item) => item.id_leitura !== idLeituraAtual)
+      : savingAcumulado.transacoes
+    const agregadoHistorico = calcularSavingAgregadoTransacoesSmartRead(transacoesHistorico)
+    const minutosTotais = (agregadoHistorico.minutos ?? 0) + (saving.minutos ?? 0)
+
+    return {
+      minutos: minutosTotais > 0 ? minutosTotais : null,
+      totalDocumentos: savingAcumulado.totalDocumentos,
+    }
+  }, [
+    savingAcumulado.carregando,
+    savingAcumulado.transacoes,
+    savingAcumulado.totalDocumentos,
+    idLeituraAtual,
+    saving.minutos,
+  ])
 
   const barraAcumuladoPct =
     !savingAcumulado.carregando && savingAcumuladoExibicao.totalDocumentos > 0 ? 100 : 0
-
-  const idLeituraAtual = arquivos.find((item) => item.id_leitura)?.id_leitura ?? null
   const entradaLeituraAtual = useMemo(
     () => montarEntradaAgregacaoNovaLeituraEmAndamentoSmartRead(arquivos),
     [arquivos],

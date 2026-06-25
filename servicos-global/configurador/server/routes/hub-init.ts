@@ -13,7 +13,7 @@ import {
   normalizarChavesProdutosAtivosHub,
   normalizeHubRole,
 } from '../services/hub-insights-service.js'
-import { generateHubOperacoes } from '../services/hub-operacoes-service.js'
+import { generateHubOperacoes, hubOperacoesResumoSchema } from '../services/hub-operacoes-service.js'
 import { listarSlugsProdutosAcessiveis } from '../services/produtos-acessiveis-service.js'
 import { listarCatalogoVitrineProdutoGravity } from '../services/catalogo-vitrine-produto-gravity.js'
 
@@ -193,11 +193,13 @@ hubRouter.get('/operacoes', requireAuth, async (req, res, next) => {
       ),
     )
 
-    const operacoes = await generateHubOperacoes(
-      id_organizacao,
-      id_usuario,
-      req.auth.tipo_usuario,
-      activeProductKeys,
+    const operacoes = hubOperacoesResumoSchema.parse(
+      await generateHubOperacoes(
+        id_organizacao,
+        id_usuario,
+        req.auth.tipo_usuario,
+        activeProductKeys,
+      ),
     )
 
     res.json({ operacoes })

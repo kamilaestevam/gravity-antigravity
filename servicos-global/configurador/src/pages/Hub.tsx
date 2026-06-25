@@ -45,7 +45,7 @@ import {
   type EcosystemNode,
 } from '@nucleo/localizador-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
-import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
+import { Notificacoes } from '@gravity/shell'
 
 // Tipo dos produtos vem do api-client (Zod-validado, contrato bilateral REGRA 09)
 

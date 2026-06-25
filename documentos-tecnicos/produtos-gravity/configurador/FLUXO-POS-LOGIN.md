@@ -28,12 +28,14 @@ Na rota `/hub`, `<SelecionarWorkspace />` é o **HUB unificado** (produtos contr
 |-------|----------|
 | Hero | Saudação, resumo operacional, status |
 | **Seus Produtos Gravity** | Largura total — puzzle com paridade visual da Gravity Store (`GradeProdutosContratadosHub` + `StorePuzzleCarousel`) |
-| Operações em andamento | KPIs + atalho processos |
+| Operações em andamento | KPIs reais via `GET /api/v1/hub/operacoes` — ver [HUB-NOTIFICACOES-EMAIL.md](./HUB-NOTIFICACOES-EMAIL.md) |
 | Inferior | Gravity Store (painel GABI oculto — ver nota acima) |
 
 A faixa superior **não** exibe mais o painel **Workspaces** lado a lado com produtos (grid 2 colunas removido). Puzzle, meter e atalho **Gravity Store** ficam no cabeçalho único da seção de produtos.
 
 Detalhe visual e componentes: [GRAVITY-STORE.md](./GRAVITY-STORE.md) § Reuso no HUB.
+
+**Notificações e e-mail (PR #447):** sininho via `@gravity/shell` → `Notificacoes` — [HUB-NOTIFICACOES-EMAIL.md](./HUB-NOTIFICACOES-EMAIL.md).
 
 ---
 

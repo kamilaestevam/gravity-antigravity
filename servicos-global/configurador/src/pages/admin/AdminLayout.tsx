@@ -14,7 +14,7 @@ import { HubBotao } from '../../components/HubBotao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildAdminProductNodes, type AdminProductItem } from '../../utils/ecosystem-nodes'
-import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
+import { Notificacoes } from '@gravity/shell'
 import { setAuthTokenProvider } from '../../services/api-client'
 import {
   Buildings,

@@ -1,4 +1,5 @@
 import { getBoss } from './pg-boss'
+import { escapeHtml } from '../lib/escape-html.js'
 
 const EMAIL_SERVICE_URL =
   process.env.EMAIL_SERVICE_URL?.trim()
@@ -26,14 +27,17 @@ export interface EmailJobPayload {
 export async function dispatchEmail(payload: EmailJobPayload): Promise<void> {
   const { tenantId, userId, senderName, recipientEmails, message, emailSubject } = payload
 
+  const senderSafe = escapeHtml(senderName)
+  const messageSafe = escapeHtml(message).replace(/\n/g, '<br/>')
+
   const html = `
 <div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#0f172a;color:#f1f5f9;border-radius:8px">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
     <span style="font-size:13px;font-weight:700;color:#818cf8;letter-spacing:.05em;text-transform:uppercase">Nova mensagem via Gravity</span>
   </div>
   <div style="background:#1e293b;border-left:3px solid #818cf8;padding:16px;border-radius:4px">
-    <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">De: ${senderName}</p>
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#f1f5f9">${message.replace(/\n/g, '<br/>')}</p>
+    <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">De: ${senderSafe}</p>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#f1f5f9">${messageSafe}</p>
   </div>
   <hr style="border:none;border-top:1px solid #334155;margin:20px 0"/>
   <p style="font-size:11px;color:#475569;margin:0">Enviado pela plataforma Gravity · responda diretamente neste e-mail</p>

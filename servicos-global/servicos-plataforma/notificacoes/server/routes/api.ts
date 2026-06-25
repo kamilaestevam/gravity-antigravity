@@ -333,6 +333,32 @@ apiRoutes.post('/enviar', async (req, res, next) => {
     }
 
     const senderLabel = body.sender_name ?? 'Usuário'
+    const willSendEmail = Boolean(
+      body.via_email && body.recipient_emails && body.recipient_emails.length > 0,
+    )
+
+    if (willSendEmail) {
+      try {
+        const boss = getBoss()
+        await boss.send('send-notification', {
+          tenantId: tenant_id,
+          userId: user_id,
+          senderName: senderLabel,
+          recipientEmails: body.recipient_emails!,
+          message: body.message,
+          emailSubject: body.email_subject,
+          targetEntity: body.target_entity,
+          targetId: body.target_id,
+        })
+      } catch (queueErr) {
+        console.error('[NOTIFICACOES] Falha ao enfileirar job de email:', queueErr)
+        return next(new AppError(
+          'Não foi possível enfileirar o e-mail. Verifique se o worker de notificações está ativo.',
+          503,
+          'EMAIL_QUEUE_UNAVAILABLE',
+        ))
+      }
+    }
 
     let created = { count: 0 }
     if (targets.length > 0) {
@@ -364,36 +390,13 @@ apiRoutes.post('/enviar', async (req, res, next) => {
         mensagem_notificacoes_titulo_corpo:       body.message,
         entidade_alvo_notificacoes_titulo_corpo:  body.target_entity ?? null,
         id_alvo_notificacoes_titulo_corpo:        body.target_id ?? null,
-        status_entrega_notificacoes_titulo_corpo: 'sent',
+        status_entrega_notificacoes_titulo_corpo: willSendEmail ? 'pending' : 'sent',
         lida_notificacoes_titulo_corpo:           true,
       },
     })
 
     for (const uid of targets) {
       emitToUser(uid, 'new_notification', { type: 'compartilhamento' })
-    }
-
-    if (body.via_email && body.recipient_emails && body.recipient_emails.length > 0) {
-      try {
-        const boss = getBoss()
-        await boss.send('send-notification', {
-          tenantId: tenant_id,
-          userId: user_id,
-          senderName: senderLabel,
-          recipientEmails: body.recipient_emails,
-          message: body.message,
-          emailSubject: body.email_subject,
-          targetEntity: body.target_entity,
-          targetId: body.target_id,
-        })
-      } catch (queueErr) {
-        console.error('[NOTIFICACOES] Falha ao enfileirar job de email:', queueErr)
-        return next(new AppError(
-          'Não foi possível enfileirar o e-mail. Verifique se o worker de notificações está ativo.',
-          503,
-          'EMAIL_QUEUE_UNAVAILABLE',
-        ))
-      }
     }
 
     res.status(201).json({

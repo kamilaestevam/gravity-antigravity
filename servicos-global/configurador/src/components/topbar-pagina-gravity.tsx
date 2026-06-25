@@ -19,7 +19,7 @@ import {
   type LocalizadorEntry,
 } from '@nucleo/localizador-global'
 import { useShellStore } from '@gravity/shell'
-import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
+import { Notificacoes } from '@gravity/shell'
 import './topbar-pagina-gravity.css'
 import '../pages/hub.css'
 

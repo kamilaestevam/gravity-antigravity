@@ -60,3 +60,7 @@ export type {
   OrganizacaoShell,
   OrganizacaoOverride,
 } from './store'
+
+// Sininho de notificações (SSOT — não importar notificacoes/src direto nas páginas)
+export { Notificacoes } from './NotificacoesSininho'
+export type { NotificationItem } from './NotificacoesSininho'

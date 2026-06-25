@@ -9,14 +9,18 @@
  */
 .sw-content.sw-content--hub-unificado {
   --hub-cor-painel: #7E90B0;
+  /* Cinza elevado (--sw-surface-3) com leve viés azul */
+  --hub-fundo-painel: color-mix(in srgb, var(--sw-surface-3, #182030) 82%, #1a2234 18%);
+  --hub-fundo-painel-produtos: var(--hub-fundo-painel);
+  --hub-borda-painel: rgba(126, 144, 176, 0.09);
   --hub-proto-surface: var(--sw-surface);
   --hub-proto-surface-2: var(--sw-surface-3);
   --hub-proto-border: var(--sw-border-mid);
   --hub-proto-muted: #94a3b8;
   --hub-proto-text: #f1f5f9;
   --hub-proto-accent: #6366f1;
-  --hub-ops-kpi-bg: var(--sw-surface-3);
-  --hub-ops-proc-bg: var(--sw-surface-3);
+  --hub-ops-kpi-bg: var(--hub-fundo-painel);
+  --hub-ops-proc-bg: var(--hub-fundo-painel);
   --hub-ops-orange: #f59e0b;
   --hub-ops-orange-soft: rgba(245, 158, 11, 0.14);
   --hub-ops-green: #10b981;
@@ -27,6 +31,11 @@
   /* padding / max-width — ver shell layout SSOT em hub-store.css */
   /* fundo da página: herda --sw-bg do .sw-shell.sw-hub-root (hub-store.css) */
   color: var(--sw-text-1, var(--hub-proto-text));
+}
+
+body.light-theme .sw-content.sw-content--hub-unificado {
+  --hub-fundo-painel: color-mix(in srgb, var(--sw-surface-3, #f1f5f9) 82%, #e0e7ff 18%);
+  --hub-borda-painel: rgba(148, 163, 184, 0.12);
 }
 
 /* ── Hero ── */
@@ -113,11 +122,10 @@
   max-height: none;
   overflow: visible;
   min-width: 0;
-  padding: 1rem 1.1rem;
+  padding: 1rem 1.1rem 8px;
   border-radius: 14px;
-  /* Card Seus Produtos — fundo = página; só contorno #7E90B0 */
-  background: transparent;
-  border: 1px solid var(--hub-cor-painel, #7E90B0);
+  background: var(--hub-fundo-painel, var(--hub-ops-kpi-bg));
+  border: 1px solid var(--hub-borda-painel, rgba(148, 163, 184, 0.08));
   box-shadow: none;
 }
 
@@ -760,6 +768,17 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   gap: 0;
 }
 
+.sw-hub-panel--produtos .gs-stack__pieces--hub-conectado .tg-trigger {
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: inherit;
+}
+
+.sw-hub-panel--produtos .gs-stack__pieces--hub-conectado .tg-trigger::after {
+  display: none;
+  content: none;
+}
+
 .sw-hub-panel--produtos .gs-hub-conector {
   position: relative;
   flex: 0 0 var(--hub-conector-largura);
@@ -861,7 +880,15 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 
 .sw-hub-panel--produtos .gs-piece--nao-contratado-hub:hover {
   transform: none !important;
-  border-color: rgba(126, 144, 176, 0.48);
+  border-color: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 38%, rgba(126, 144, 176, 0.38));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--piece-color, var(--sw-accent)) 14%, transparent),
+    0 8px 22px rgba(0, 0, 0, 0.2);
+}
+
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub:hover .gs-piece__icon {
+  transform: translateX(-50%);
+  box-shadow: none;
 }
 
 .sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__body {
@@ -992,6 +1019,43 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 
 .sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__check svg {
   display: none;
+}
+
+.sw-hub-panel--produtos .gs-piece--compravel-hub {
+  cursor: pointer;
+}
+
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub.gs-piece--compravel-hub {
+  cursor: pointer;
+}
+
+.sw-hub-panel--produtos .gs-piece__cesta-store {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  color: rgba(203, 213, 225, 0.5);
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  transition:
+    color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.sw-hub-panel--produtos .gs-piece--nao-contratado-hub:hover .gs-piece__cesta-store {
+  color: var(--piece-color, var(--sw-accent));
+  background: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 16%, transparent);
+  border-color: color-mix(in srgb, var(--piece-color, var(--sw-accent)) 42%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--piece-color, var(--sw-accent)) 32%, transparent);
 }
 
 .sw-hub-panel--produtos .gs-piece--hub-visual .gs-piece__lock {
@@ -1283,8 +1347,8 @@ body.light-theme .sw-hub-panel--store {
 
 /* ── Operações / KPIs (cores protótipo hub-unificado-preview) ── */
 .sw-content.sw-content--hub-unificado .sw-hub-row-ops {
-  background: var(--hub-proto-surface);
-  border: 1px solid var(--hub-proto-border);
+  background: var(--hub-fundo-painel, var(--hub-ops-kpi-bg));
+  border: 1px solid var(--hub-borda-painel, rgba(148, 163, 184, 0.08));
   border-radius: 14px;
   padding: 1.1rem;
   margin-bottom: 1rem;

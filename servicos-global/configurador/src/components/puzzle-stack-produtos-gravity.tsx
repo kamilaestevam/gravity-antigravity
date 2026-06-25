@@ -7,10 +7,12 @@ import type { TFunction } from 'i18next'
 import React, { Fragment, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { resolverRotaProdutoGravity } from '@gravity/shell'
-import { CheckCircle, Lock, Package } from '@phosphor-icons/react'
+import { CheckCircle, Package, ShoppingCart } from '@phosphor-icons/react'
 import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   PRODUCT_META,
+  descricaoExibicaoProdutoGravity,
   nomeExibicaoPecaPuzzleHub,
   nomeExibicaoProdutoGravity,
 } from '../data/product-meta'
@@ -21,8 +23,9 @@ import {
   slugCanonicoProdutoGravity,
   slugsPuzzleStackProdutosGravity,
   statusProdutoGravityStore,
-  type CatalogoProdutoGravityMin,
   type AssinaturaProdutoGravityMin,
+  type CatalogoProdutoGravityMin,
+  type StatusProdutoGravityStore,
 } from '../lib/produtos-gravity-store-status'
 
 const ROTAS_PRODUTO: Record<string, string> = {
@@ -54,6 +57,62 @@ function pathPecaPuzzle(isFirst: boolean, isLast: boolean): string {
 const FILL_PECA_HUB_INTERNO = 'var(--hub-puzzle-fill-interno, rgba(16, 24, 40, 0.96))'
 const FILL_PECA_HUB_DISPONIVEL = 'var(--hub-puzzle-fill-disponivel, rgba(12, 18, 32, 0.94))'
 const TAMANHO_ICONE_PECA_HUB = 22
+
+const CHAVE_DESCRICAO_VISUAL_HUB: Record<string, string> = {
+  'simula-custo': 'hub.produto_visual_simula_custo',
+  'nf-importacao': 'hub.produto_visual_nf_importacao',
+  'nf-import': 'hub.produto_visual_nf_importacao',
+  processo: 'hub.produto_visual_processo',
+  'bid-frete': 'hub.produto_visual_bid_frete',
+  'bid-frete-internacional': 'hub.produto_visual_bid_frete',
+  'bid-cambio': 'hub.produto_visual_bid_cambio',
+  pedido: 'hub.produto_visual_pedido',
+  'smart-read': 'hub.produto_visual_smart_read',
+  lpco: 'hub.produto_visual_lpco',
+}
+
+type TradutorPeca = (key: string, defaultValue?: string) => string
+
+function textoTooltipPecaHub(texto: string): string {
+  return texto.replace(/\.+\s*$/, '').trimEnd()
+}
+
+function tooltipPecaPuzzleHub(
+  slug: string,
+  nomeExibicao: string,
+  status: StatusProdutoGravityStore,
+  t: TradutorPeca,
+): { titulo: string; descricao: string } {
+  const chaveCanon = slugCanonicoProdutoGravity(slug)
+  const chaveI18n = CHAVE_DESCRICAO_VISUAL_HUB[chaveCanon] ?? CHAVE_DESCRICAO_VISUAL_HUB[slug]
+  const descricaoBase = textoTooltipPecaHub(
+    chaveI18n
+      ? t(chaveI18n)
+      : descricaoExibicaoProdutoGravity(slug, null, t),
+  )
+
+  if (status === 'soon') {
+    return {
+      titulo: nomeExibicao,
+      descricao: `${descricaoBase} · ${t('store.status_em_breve', 'Em breve')}`,
+    }
+  }
+
+  return { titulo: nomeExibicao, descricao: descricaoBase }
+}
+
+function envolverTooltipPecaHub(
+  escalaHub: boolean,
+  tooltip: { titulo: string; descricao: string },
+  peca: React.ReactElement,
+): React.ReactElement {
+  if (!escalaHub) return peca
+  return (
+    <TooltipGlobal titulo={tooltip.titulo} descricao={tooltip.descricao}>
+      {peca}
+    </TooltipGlobal>
+  )
+}
 
 function ConectorHubPuzzle({ visivel }: { visivel: boolean }) {
   if (!visivel) return null
@@ -296,10 +355,20 @@ export function PuzzleStackProdutosGravity({
                 strokeWidth: 1.5,
               }
           const tituloPeca = `${t('sw.acessar', 'Acessar')} — ${pecaExtra.nome}`
+          const tooltipFornecedor = {
+            titulo: nomeExibicaoBidFrete,
+            descricao: textoTooltipPecaHub(t('hub.produto_visual_bid_frete')),
+          }
+          const ariaPecaFornecedor = escalaHub
+            ? `${tooltipFornecedor.titulo}. ${tooltipFornecedor.descricao}`
+            : tituloPeca
 
           return (
             <Fragment key={pecaExtra.key}>
-              <div
+              {envolverTooltipPecaHub(
+                escalaHub,
+                tooltipFornecedor,
+                <div
                 className={`gs-piece gs-piece--on gs-piece--fornecedor${classeBlankPeca(isFirst)}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
               style={
                 escalaHub
@@ -308,8 +377,8 @@ export function PuzzleStackProdutosGravity({
               }
               role="button"
               tabIndex={0}
-              title={tituloPeca}
-              aria-label={tituloPeca}
+              title={escalaHub ? undefined : tituloPeca}
+              aria-label={ariaPecaFornecedor}
               onClick={() => abrirPecaExtra(pecaExtra)}
               onKeyDown={e => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -339,7 +408,8 @@ export function PuzzleStackProdutosGravity({
                   <CheckCircle weight="fill" size={11} color="#10b981" />
                 </span>
               </div>
-            </div>
+            </div>,
+              )}
               <ConectorHubPuzzle visivel={escalaHub && !isLast} />
             </Fragment>
           )
@@ -351,6 +421,7 @@ export function PuzzleStackProdutosGravity({
         const isSoon = peca.status === 'soon'
         const corProduto = meta?.iconColor ?? '#818cf8'
         const isHubNaoContratado = escalaHub && !isOwned
+        const isHubCompravel = isHubNaoContratado && !isSoon
 
         const { fill, stroke, strokeWidth } = escalaHub
           ? coresSvgPecaHub(peca.status, corProduto)
@@ -379,10 +450,19 @@ export function PuzzleStackProdutosGravity({
             ? `${nomeExibicao} — ${t('store.em_breve', 'Em breve')}`
             : `${t('sw.assinar_na_store', 'Assinar na Store')} — ${nomeExibicao}`
 
+        const tradutor = t as TradutorPeca
+        const tooltipPeca = tooltipPecaPuzzleHub(peca.slug, nomeExibicao, peca.status, tradutor)
+        const ariaPeca = escalaHub
+          ? `${tooltipPeca.titulo}. ${tooltipPeca.descricao}`
+          : tituloPeca
+
         return (
           <Fragment key={peca.slug}>
-            <div
-              className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isHubNaoContratado ? ' gs-piece--nao-contratado-hub' : ''}${classeBlankPeca(isFirst)}${isSoon ? ' gs-piece--soon' : ''}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
+            {envolverTooltipPecaHub(
+              escalaHub,
+              tooltipPeca,
+              <div
+              className={`gs-piece${isOwned ? ' gs-piece--on' : ''}${isHubNaoContratado ? ' gs-piece--nao-contratado-hub' : ''}${isHubCompravel ? ' gs-piece--compravel-hub' : ''}${classeBlankPeca(isFirst)}${isSoon ? ' gs-piece--soon' : ''}${escalaHub ? ' gs-piece--hub-visual' : ''}`}
             style={
               escalaHub
                 ? ({ '--piece-color': corProduto } as React.CSSProperties)
@@ -390,7 +470,8 @@ export function PuzzleStackProdutosGravity({
             }
             role="button"
             tabIndex={isSoon ? -1 : 0}
-            title={tituloPeca}
+            title={escalaHub ? undefined : tituloPeca}
+            aria-label={ariaPeca}
             onClick={() => abrirPeca(peca.slug, isOwned, isSoon)}
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -417,12 +498,13 @@ export function PuzzleStackProdutosGravity({
                 </span>
               )}
               {isHubNaoContratado && (
-                <span className="gs-piece__lock" aria-hidden="true">
-                  <Lock weight="regular" size={12} />
+                <span className="gs-piece__cesta-store" aria-hidden="true">
+                  <ShoppingCart weight="duotone" size={12} />
                 </span>
               )}
             </div>
-          </div>
+          </div>,
+            )}
           <ConectorHubPuzzle visivel={escalaHub && !isLast} />
           </Fragment>
         )

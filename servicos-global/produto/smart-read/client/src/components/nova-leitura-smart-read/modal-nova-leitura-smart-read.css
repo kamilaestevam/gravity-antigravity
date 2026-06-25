@@ -5,6 +5,11 @@
   z-index: 10001 !important;
 }
 
+/* Base de cálculo (ModalOverlay) acima do wizard mpg (z-index 9999) */
+.mg-overlay:has(.sr-insights-metodologia-saving--modal) {
+  z-index: 10050;
+}
+
 /* Largura quase total — escopo exclusivo: wizard Nova Leitura */
 .mpg-dialog.sr-wizard-mpg-dialog,
 .mpg-dialog:has(.sr-wizard-corpo) {
@@ -854,6 +859,30 @@
 
 .sr-wizard-metrica-card--acumulados header {
   margin-bottom: 0.5rem;
+}
+
+.sr-wizard-metrica-link-metodologia {
+  margin: 0.375rem 0 0;
+}
+
+.sr-wizard-metrica-link-metodologia .sr-insights-link-metodologia {
+  display: inline;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  color: #34d399;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sr-wizard-metrica-link-metodologia .sr-insights-link-metodologia:hover {
+  text-decoration: underline;
+  color: #6ee7b7;
 }
 
 .sr-wizard-acumulados-infografico {

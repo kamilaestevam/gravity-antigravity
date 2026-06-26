@@ -30,6 +30,27 @@ function ehSlugLegadoSmartRead(slug: string): boolean {
   return (SLUGS_LEGADO as readonly string[]).includes(slug)
 }
 
+async function liberarSlugCanonicoDeArquivados() {
+  const arquivados = await prisma.produtoGravity.findMany({
+    where: {
+      slug_produto_gravity: SLUG_CANONICO,
+      data_remocao_produto_gravity: { not: null },
+    },
+    select: { id_produto_gravity: true, slug_produto_gravity: true },
+  })
+
+  for (const p of arquivados) {
+    const slugLiberado = `${SLUG_CANONICO}__arquivado__${p.id_produto_gravity.slice(-8)}`
+    await prisma.produtoGravity.update({
+      where: { id_produto_gravity: p.id_produto_gravity },
+      data: { slug_produto_gravity: slugLiberado },
+    })
+    console.log(`  [catalogo] slug liberado: ${p.slug_produto_gravity} → ${slugLiberado}`)
+  }
+
+  return arquivados.length
+}
+
 async function renomearLegadoSmartRead() {
   const candidatos = await prisma.produtoGravity.findMany({
     where: {
@@ -234,6 +255,11 @@ async function main() {
     console.log('\n[rebrand] Duplicatas detectadas — use --arquivar-duplicatas ou o slug smart-read- não poderá ser renomeado.')
     process.exitCode = 1
     return
+  }
+
+  const liberados = await liberarSlugCanonicoDeArquivados()
+  if (liberados > 0) {
+    console.log(`[rebrand] ${liberados} slug(s) smart-read liberado(s) de registro(s) já arquivado(s).`)
   }
 
   await renomearLegadoSmartRead()

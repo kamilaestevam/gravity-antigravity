@@ -56,7 +56,7 @@ const PRODUTOS = [
   { valor: 'configurador',  rotulo: 'Configurador' },
   { valor: 'pedido',        rotulo: 'Pedido' },
   { valor: 'bid-frete',     rotulo: 'BID Frete Internacional' },
-  { valor: 'smart-read',    rotulo: 'Smart Read' },
+  { valor: 'smart-read',    rotulo: 'Smart Docs' },
   { valor: 'bid-cambio',    rotulo: 'Bid Câmbio' },
   { valor: 'lpco',          rotulo: 'LPCO' },
   { valor: 'nf-importacao', rotulo: 'NF Importação' },

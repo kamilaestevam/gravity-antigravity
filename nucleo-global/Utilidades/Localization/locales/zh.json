@@ -269,7 +269,7 @@
     "tag_aduaneiro": "海关",
     "tag_drawback": "Drawback",
     "tag_regime_especial": "特殊制度",
-    "smart_read_nome": "Smart Read",
+    "smart_read_nome": "Smart Docs",
     "smart_read_desc": "使用AI从文档和图像中智能提取数据。自动处理发票和海关文件。",
     "nf_pro_nome": "NF Import Pro",
     "nf_pro_desc": "NF Import的高级版本，支持特殊制度、Drawback以及与SISCOMEX海关系统集成。",

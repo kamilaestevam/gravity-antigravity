@@ -95,7 +95,7 @@ export default function ModalImportarLancamentos({ processoId, onClose, onImport
                 className={`fincom-canal-tab ${canal === c ? 'fincom-canal-tab--active' : ''}`}
                 onClick={() => { setCanal(c); setPreview([]); setErro('') }}
               >
-                {c === 'xml' ? 'XML (DUIMP)' : c === 'portal_unico' ? 'Portal Unico' : c === 'smart_read' ? 'Smart Read' : 'Planilha'}
+                {c === 'xml' ? 'XML (DUIMP)' : c === 'portal_unico' ? 'Portal Unico' : c === 'smart_read' ? 'Smart Docs' : 'Planilha'}
               </button>
             ))}
           </div>
@@ -128,7 +128,7 @@ export default function ModalImportarLancamentos({ processoId, onClose, onImport
           {(canal === 'smart_read' || canal === 'planilha') && (
             <p className="fincom-info">
               {canal === 'smart_read'
-                ? 'Smart Read: envia PDF ou imagem de fatura para OCR. Disponivel em breve.'
+                ? 'Smart Docs: envia PDF ou imagem de fatura para OCR. Disponivel em breve.'
                 : 'Planilha: baixe o template, preencha e envie. Disponivel em breve.'}
             </p>
           )}

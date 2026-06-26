@@ -1,7 +1,7 @@
 /**
  * Ícones oficiais dos produtos Gravity — SSOT alinhado ao Hub (/core, Produtos do workspace).
  *
- * Regra: logos SVG em PRODUTO_META (Bid Frete, Bid Câmbio, Smart Read, Financeiro COMEX);
+ * Regra: logos SVG em PRODUTO_META (Bid Frete, Bid Câmbio, Smart Docs, Financeiro COMEX);
  * Cores: corOficialProdutoGravity / corOficialProdutoDim — nunca duplicar hex em telas.
  */
 import React from 'react'
@@ -19,7 +19,7 @@ import {
 import { LogoBidCambio } from './logos/LogoBidCambio'
 import { LogoBidFrete } from './logos/LogoBidFrete'
 import { LogoFinanceiroComex } from './logos/LogoFinanceiroComex'
-import { LogoSmartRead } from './logos/LogoSmartRead'
+import { LogoSmartDocs } from './logos/LogoSmartDocs'
 import { corOficialProdutoGravity, resolverSlugProdutoGravity } from './cores-produto-gravity'
 
 export type IconeProdutoGravityOptions = {
@@ -98,7 +98,7 @@ export function iconeOficialProdutoGravity(
   }
 
   if (key === 'smart-read') {
-    return <LogoSmartRead size={size} color={color} variant={variant} />
+    return <LogoSmartDocs size={size} color={color} variant={variant} />
   }
 
   const Phosphor = ICONE_HUB_PHOSPHOR[key] ?? ICONE_STORE_PHOSPHOR[key]

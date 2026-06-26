@@ -585,7 +585,7 @@ const _proxySmartRead = (req: express.Request, res: express.Response) => {
     })
     if (!res.headersSent) {
       res.status(502).json({
-        error: 'Smart Read service unavailable',
+        error: 'Smart Docs service unavailable',
         sidecar: _sidecarStatus['smart-read'],
       })
     }

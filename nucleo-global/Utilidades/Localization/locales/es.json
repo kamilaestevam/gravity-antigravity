@@ -1333,7 +1333,7 @@
       "importacao_desc": "Excel, CSV o XML",
       "api": "API",
       "api_desc": "Integración vía Cockpit o ERP",
-      "smart_read": "Smart Read",
+      "smart_read": "Smart Docs",
       "smart_read_desc": "IA extrae datos del documento",
       "manual": "Manual",
       "manual_desc": "Completar formulario"
@@ -2782,7 +2782,7 @@
       "api_desc": "Integrar vía API REST usando Cockpit",
       "api_desc_pedido": "Cockpit o integración ERP",
       "api_desc_item": "Cockpit o integración ERP",
-      "smart_read": "Smart Read",
+      "smart_read": "Smart Docs",
       "smart_read_desc": "Lectura inteligente de documentos con IA",
       "smart_read_desc_pedido": "IA extrae datos del documento",
       "smart_read_desc_item": "IA extrae artículos del documento",
@@ -7266,7 +7266,7 @@
     "tag_aduaneiro": "Aduanas",
     "tag_drawback": "Drawback",
     "tag_regime_especial": "Régimen especial",
-    "prod_smart_read_nome": "Smart Read",
+    "prod_smart_read_nome": "Smart Docs",
     "smart_read_desc": "Extracción inteligente de datos de documentos e imágenes usando IA. Procesa facturas, invoices y documentos aduaneros automáticamente.",
     "nf_pro_nome": "NF Import Pro",
     "nf_pro_desc": "Versión avanzada de NF Import con soporte para regímenes especiales, drawback e integración con sistemas aduaneros SISCOMEX.",
@@ -7309,7 +7309,7 @@
     "btn_inscrever": "Inscribirse"
   },
   "smart_read": {
-    "titulo": "Smart Read",
+    "titulo": "Smart Docs",
     "subtitulo": "Lectura inteligente de documentos de importación y exportación",
     "upload": {
       "titulo": "Enviar documento",
@@ -7391,7 +7391,7 @@
       "planilha_desc": "Importar desde hoja de cálculo Excel/CSV",
       "pedido": "Pedido",
       "pedido_desc": "Autocompletar desde el Pedido",
-      "smart_read": "Smart Read",
+      "smart_read": "Smart Docs",
       "smart_read_desc": "Carga de documento — OCR + IA extrae datos",
       "duplicar": "Duplicar",
       "duplicar_desc": "Copiar LPCO existente como modelo",
@@ -7513,7 +7513,7 @@
       "manual_desc": "Rellenar todos los campos manualmente",
       "xml": "XML",
       "xml_desc": "Importar XML de la factura electrónica",
-      "pdf": "PDF (Smart Read)",
+      "pdf": "PDF (Smart Docs)",
       "pdf_desc": "Extraer datos automáticamente de un PDF",
       "portal": "Portal Único",
       "portal_desc": "Importar datos directamente del Portal Único Siscomex",

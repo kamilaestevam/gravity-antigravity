@@ -4,6 +4,7 @@
 
 import { Trash } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { NOME_PRODUTO_EXIBICAO } from '../shared/marca-smart-docs'
 
 type Props = {
   aberto: boolean
@@ -40,7 +41,7 @@ export function ModalExcluirLeiturasSmartRead({
           {rotulo}
         </h3>
         <p className="sr-modal-descricao">
-          Esta ação remove a leitura e os documentos processados no Smart Read legado. Não pode ser desfeita.
+          Esta ação remove a leitura e os documentos processados no {NOME_PRODUTO_EXIBICAO}. Não pode ser desfeita.
         </p>
         <div className="sr-modal-acoes">
           <BotaoGlobal variante="secundario" tamanho="pequeno" onClick={onCancelar} disabled={excluindo}>

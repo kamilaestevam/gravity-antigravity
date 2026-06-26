@@ -66,9 +66,9 @@ const PRODUTOS_RESTAURAR: Prisma.ProdutoGravityUncheckedCreateInput[] = [
     modulo_backend_produto_gravity: 'orkestra',
   },
   {
-    nome_produto_gravity: 'Smart Read',
+    nome_produto_gravity: 'Smart Docs',
     slug_produto_gravity: 'smart-read',
-    descricao_produto_gravity: 'Leitura inteligente de documentos COMEX',
+    descricao_produto_gravity: 'Inteligência documental para COMEX — extração, conferência, riscos e Q&A com IA',
     status_produto_gravity: 'EM_BREVE',
     tipo_cobranca_produto_gravity: 'POR_DOCUMENTO',
     preco_unitario_produto_gravity: 1.99,

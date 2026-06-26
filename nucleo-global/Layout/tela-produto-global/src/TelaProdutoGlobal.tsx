@@ -65,6 +65,8 @@ export interface TelaProdutoGlobalProps {
   onNavigateSettings?: () => void
   /** Classe extra no container raiz (ex: `layout--override-ativo` admin) */
   layoutClassName?: string
+  /** Substitui o ícone de getProdutoMeta(productId) na sidebar e no topo */
+  productIconOverride?: React.ReactElement
   children:    React.ReactNode
 }
 
@@ -101,11 +103,13 @@ function TelaProdutoLayout({
   headerActions,
   onNavigateSettings,
   layoutClassName,
+  productIconOverride,
   children,
 }: TelaProdutoGlobalProps) {
   const meta        = getProdutoMeta(productId)
-  const sidebarIcon = cloneElement(meta.icon, { size: 26 })
-  const topoIcon    = cloneElement(meta.icon, { size: 18, weight: 'duotone' })
+  const iconeBase   = productIconOverride ?? meta.icon
+  const sidebarIcon = cloneElement(iconeBase, { size: 26 })
+  const topoIcon    = cloneElement(iconeBase, { size: 18, weight: 'duotone' })
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const tituloOverride = useTituloPaginaTopoOverride()
 

@@ -274,7 +274,7 @@ export default function LpcoLista() {
       render: (val: string) => {
         const short: Record<string, string> = {
           MANUAL: 'Manual', PLANILHA: 'Planilha', PEDIDO: 'Pedido',
-          SMART_READ: 'Smart', DUPLICAR: 'Duplicar', API: 'API',
+          SMART_READ: 'Smart Docs', DUPLICAR: 'Duplicar', API: 'API',
         }
         return short[val] ?? val
       },

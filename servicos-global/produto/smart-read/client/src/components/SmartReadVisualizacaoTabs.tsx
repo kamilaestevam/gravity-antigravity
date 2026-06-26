@@ -6,6 +6,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { ChartPieSlice, ListBullets } from '@phosphor-icons/react'
 import { rotaSmartRead, type SmartReadVisualizacaoId } from '../shared/rotas-smart-read'
+import { NOME_PRODUTO_EXIBICAO } from '../shared/marca-smart-docs'
 import { testidTabSeletorSmartRead } from './smart-read-visualizacao-context'
 import './SmartReadVisualizacaoTabs.css'
 
@@ -16,7 +17,7 @@ const TABS: { id: SmartReadVisualizacaoId; label: string; icone: React.ReactNode
 
 export function SmartReadVisualizacaoTabs() {
   return (
-    <nav className="srt-tabs" aria-label="Modo de visualização do Smart Read">
+    <nav className="srt-tabs" aria-label={`Modo de visualização do ${NOME_PRODUTO_EXIBICAO}`}>
       {TABS.map((tab) => (
         <NavLink
           key={tab.id}

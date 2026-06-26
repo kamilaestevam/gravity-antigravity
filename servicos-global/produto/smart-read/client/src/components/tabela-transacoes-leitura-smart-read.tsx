@@ -48,6 +48,7 @@ import {
   type EstadoListaParaPainel,
 } from '../shared/use-lista-painel-smart-read'
 import type { SegmentoListaLeitura } from '../shared/use-transacoes-leitura-smart-read'
+import { NOME_PRODUTO_EXIBICAO } from '../shared/marca-smart-docs'
 import '../shared/smart-read-lista-layout.css'
 
 const ITENS_POR_PAGINA = 50
@@ -283,7 +284,7 @@ export function TabelaTransacoesLeituraSmartRead({
       dados: transacoesFiltradas,
       formatValorExport: formatarValorExportColunaLeituraSmartRead,
       nomeArquivo: 'smart-read-leituras',
-      titulo: `Lista ${tituloPainel} — Smart Read`,
+      titulo: `Lista ${tituloPainel} — ${NOME_PRODUTO_EXIBICAO}`,
     }),
     [colunas, preferencias, transacoesFiltradas, tituloPainel],
   )
@@ -361,7 +362,7 @@ export function TabelaTransacoesLeituraSmartRead({
               ? `Excluir · ${leiturasSelecionadas.length} leitura(s)`
               : 'Excluir'
           }
-          descricao="Remove as leituras selecionadas do Smart Read"
+          descricao={`Remove as leituras selecionadas do ${NOME_PRODUTO_EXIBICAO}`}
         >
           <BotaoGlobal
             variante="perigo"
@@ -454,7 +455,7 @@ export function TabelaTransacoesLeituraSmartRead({
         colunasPadrao={[...COLUNAS_PADRAO_VISIVEIS_LISTA_LEITURA_SMART_READ]}
         placeholderBusca="Localizar…"
         distribuirLarguraColunas
-        ariaLabel={`Lista de ${tituloPainel} Smart Read`}
+        ariaLabel={`Lista de ${tituloPainel} ${NOME_PRODUTO_EXIBICAO}`}
         emptyTitle={
           tituloPainel === 'Transações API' ? 'Nenhuma transação API encontrada' : 'Nenhum envio encontrado'
         }

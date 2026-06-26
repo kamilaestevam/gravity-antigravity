@@ -44,7 +44,7 @@ export async function resolverVinculoSmartReadLegado(id_organizacao: string): Pr
     select: { id_produto_gravity: true, status_produto_gravity: true },
   })
   if (!produto) {
-    throw new AppError('Produto Smart Read não encontrado no catálogo Gravity', 500, 'CONFIG_ERROR')
+    throw new AppError('Produto Smart Docs não encontrado no catálogo Gravity', 500, 'CONFIG_ERROR')
   }
 
   const assinatura = await prisma.produtoGravityAssinatura.findUnique({
@@ -63,7 +63,7 @@ export async function resolverVinculoSmartReadLegado(id_organizacao: string): Pr
 
   if (!assinaturaAtiva) {
     throw new AppError(
-      `Organização ${id_organizacao} não possui assinatura ativa do Smart Read`,
+      `Organização ${id_organizacao} não possui assinatura ativa do Smart Docs`,
       422,
       'PRODUTO_NAO_CONTRATADO',
     )
@@ -89,7 +89,7 @@ export async function resolverVinculoSmartReadLegado(id_organizacao: string): Pr
   }
 
   throw new AppError(
-    `Organização ${id_organizacao} sem vínculo com o Smart Read legado (defina SMART_READ_ID_COMPANY_LEGADO_PADRAO ou id_company_smart_read_legado na configuração)`,
+    `Organização ${id_organizacao} sem vínculo com o Smart Docs legado (defina SMART_READ_ID_COMPANY_LEGADO_PADRAO ou id_company_smart_read_legado na configuração)`,
     422,
     'ORGANIZACAO_SEM_VINCULO',
   )

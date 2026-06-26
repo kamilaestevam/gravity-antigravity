@@ -269,7 +269,7 @@
     "tag_aduaneiro": "جمارك",
     "tag_drawback": "Drawback",
     "tag_regime_especial": "نظام خاص",
-    "smart_read_nome": "Smart Read",
+    "smart_read_nome": "Smart Docs",
     "smart_read_desc": "استخراج ذكي للبيانات من المستندات والصور باستخدام الذكاء الاصطناعي. يعالج الفواتير والمستندات الجمركية تلقائياً.",
     "nf_pro_nome": "NF Import Pro",
     "nf_pro_desc": "إصدار متقدم من NF Import مع دعم للأنظمة الخاصة وDrawback والتكامل مع نظام SISCOMEX الجمركي.",

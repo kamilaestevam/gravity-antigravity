@@ -9,7 +9,7 @@ const CATALOGO_MISTO = [
   { slug: 'pedido', name: 'Pedido', status: 'ATIVO' },
   { slug: 'bid-frete-internacional', name: 'Bid Frete', status: 'ATIVO' },
   { slug: 'bid-cambio', name: 'Bid Câmbio', status: 'ATIVO' },
-  { slug: 'smart-read', name: 'Smart Read', status: 'ATIVO' },
+  { slug: 'smart-read', name: 'Smart Docs', status: 'ATIVO' },
   { slug: 'duimp', name: 'DUIMP', status: 'EM_BREVE' },
   { slug: 'nf-importacao', name: 'NF Import', status: 'EM_BREVE' },
   { slug: 'lpco', name: 'LPCO', status: 'EM_BREVE' },

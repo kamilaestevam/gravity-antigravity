@@ -13,6 +13,7 @@ import {
   agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead,
   type EntradaAgregacaoTempoExtracaoIaSmartRead,
 } from '../../../../shared/metricas-transacao-leitura-smart-read'
+import { NOME_PRODUTO_EXIBICAO } from '../../shared/marca-smart-docs'
 import {
   LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ,
   OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ,
@@ -98,7 +99,7 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
     <div className="sr-insights-metodologia-saving sr-insights-metodologia-saving--modal">
       <p className="sr-insights-metodologia-saving__lead">
         Comparamos o tempo estimado de digitação e correção <strong>manual</strong> com o fluxo{' '}
-        <strong>Smart Read</strong> por tipo de documento. Os campos editados na conferência entram
+        <strong>{NOME_PRODUTO_EXIBICAO}</strong> por tipo de documento. Os campos editados na conferência entram
         no saving de erros (mesma regra de acerto/erro dos rankings).
       </p>
 
@@ -118,7 +119,7 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
             exterior com ~2 anos de experiência.
           </p>
           <p className="sr-insights-metodologia-saving__destaque-fecho">
-            O tempo <strong>Smart Read</strong> é o tempo de extração automática mais a conferência
+            O tempo <strong>{NOME_PRODUTO_EXIBICAO}</strong> é o tempo de extração automática mais a conferência
             humana dos campos.
           </p>
         </div>
@@ -144,7 +145,7 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
           <li>
             <span className="sr-insights-metodologia-saving__formula-nome">Tempo saving erros</span>
             <span className="sr-insights-metodologia-saving__formula-expr">
-              campos editados × (correção manual − correção Smart Read por campo)
+              campos editados × (correção manual − correção {NOME_PRODUTO_EXIBICAO} por campo)
             </span>
           </li>
           <li>
@@ -187,7 +188,7 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
                 <th scope="col">
                   <span className="sr-insights-metodologia-saving__th-stack">
                     Correção/campo
-                    <span className="sr-insights-metodologia-saving__th-stack-sub">Smart Read</span>
+                    <span className="sr-insights-metodologia-saving__th-stack-sub">{NOME_PRODUTO_EXIBICAO}</span>
                   </span>
                 </th>
               </tr>
@@ -288,7 +289,7 @@ export function ProvedorMetodologiaSavingInsightsSmartRead({
         aberto={aberto}
         aoFechar={fechar}
         titulo="Base de cálculo"
-        subtitulo="Economia estimada — manual vs Smart Read"
+        subtitulo={`Economia estimada — manual vs ${NOME_PRODUTO_EXIBICAO}`}
         tamanho="xl"
         larguraMaxima="min(72rem, calc(100vw - 2rem))"
         botoes={[{ rotulo: 'Fechar', variante: 'secondary', ao_clicar: fechar }]}

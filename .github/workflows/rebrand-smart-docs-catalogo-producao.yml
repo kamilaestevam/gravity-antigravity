@@ -1,0 +1,50 @@
+name: Rebrand Smart Docs — Catálogo Produção
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Aplicar alterações (--apply)'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+      arquivar_duplicatas:
+        description: 'Arquivar duplicatas de catálogo'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  rebrand-catalogo-producao:
+    name: rebrand smart-read → Smart Docs (switchback)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm install
+
+      - name: prisma generate (Configurador)
+        run: npx prisma generate --schema=configurador/prisma/schema.prisma
+        env:
+          CONFIGURADOR_DATABASE_URL: postgresql://localhost:5432/configurador_ci
+
+      - name: Dry-run ou apply rebrand catálogo
+        run: |
+          ARGS=""
+          if [ "${{ inputs.apply }}" = "true" ]; then ARGS="$ARGS --apply"; fi
+          if [ "${{ inputs.arquivar_duplicatas }}" = "true" ]; then ARGS="$ARGS --arquivar-duplicatas"; fi
+          npx tsx servicos-global/configurador/server/scripts/rebrand-smart-read-smart-docs-catalogo.ts $ARGS
+        env:
+          DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+          CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}

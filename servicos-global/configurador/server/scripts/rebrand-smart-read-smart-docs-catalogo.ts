@@ -82,7 +82,7 @@ async function renomearLegadoSmartRead() {
       modulo_backend_produto_gravity?: string
     } = {}
 
-    if (p.nome_produto_gravity !== NOME_NOVO) {
+    if (p.nome_produto_gravity.trim() !== NOME_NOVO) {
       data.nome_produto_gravity = NOME_NOVO
     }
     if (descricaoLegada(p.descricao_produto_gravity) && p.descricao_produto_gravity !== DESCRICAO_NOVA) {
@@ -213,13 +213,13 @@ async function main() {
   const total = await prisma.produtoGravity.count({ where: { data_remocao_produto_gravity: null } })
   console.log(`[rebrand] Catálogo ativo: ${total} produto(s)`)
 
-  await renomearLegadoSmartRead()
   const duplicatas = await listarDuplicatasSmartDocs()
 
   if (!apply) {
+    await renomearLegadoSmartRead()
     console.log('\n[rebrand] Dry-run. Use --apply para gravar.')
     if (duplicatas.length > 0) {
-      console.log('[rebrand] Com duplicatas, use também --arquivar-duplicatas no --apply.')
+      console.log('[rebrand] No --apply: duplicatas serão arquivadas ANTES do rename do slug smart-read-.')
     }
     return
   }
@@ -228,8 +228,12 @@ async function main() {
     const n = await arquivarDuplicatas(duplicatas)
     console.log(`\n[rebrand] ${n} duplicata(s) arquivada(s).`)
   } else if (duplicatas.length > 0) {
-    console.log('\n[rebrand] Duplicatas detectadas — rode com --arquivar-duplicatas para cancelar assinaturas e arquivar.')
+    console.log('\n[rebrand] Duplicatas detectadas — use --arquivar-duplicatas ou o slug smart-read- não poderá ser renomeado.')
+    process.exitCode = 1
+    return
   }
+
+  await renomearLegadoSmartRead()
 }
 
 main()

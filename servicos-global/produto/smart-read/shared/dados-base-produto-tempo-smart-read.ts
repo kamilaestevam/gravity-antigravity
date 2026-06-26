@@ -38,6 +38,9 @@ export const PARAMETROS_FINANCEIROS_SMART_READ: ParametrosFinanceirosSmartRead =
  */
 export const ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ = 3
 
+/** Piso de exibição quando o arredondamento ainda não atinge 1 erro inteiro. */
+export const ERROS_EVITADOS_MINIMO_EXIBICAO_ESTUDO_SMART_READ = 0.001
+
 export type ContagemAcertoErroEstudoSmartRead = {
   total: number
   corretos: number
@@ -60,7 +63,11 @@ export function resolverContagemAcertoErroEstudoSmartRead(
   if (totalCamposExtraidos <= 0) {
     return { total: 0, corretos: 0, errados: 0, taxa_acerto: null }
   }
-  const errados = estimarCamposErradosEvitadosSmartRead(totalCamposExtraidos)
+  const erradosArredondados = estimarCamposErradosEvitadosSmartRead(totalCamposExtraidos)
+  const errados =
+    erradosArredondados === 0
+      ? ERROS_EVITADOS_MINIMO_EXIBICAO_ESTUDO_SMART_READ
+      : erradosArredondados
   const corretos = Math.max(0, totalCamposExtraidos - errados)
   return {
     total: totalCamposExtraidos,
@@ -68,6 +75,18 @@ export function resolverContagemAcertoErroEstudoSmartRead(
     errados,
     taxa_acerto: corretos / totalCamposExtraidos,
   }
+}
+
+/** Formata erros evitados do estudo (inteiro ≥1 ou mínimo 0,001). */
+export function formatarErrosEvitadosEstudoSmartRead(errados: number): string {
+  if (errados <= 0) return '0'
+  if (errados < 1) {
+    return errados.toLocaleString('pt-BR', {
+      minimumFractionDigits: 3,
+      maximumFractionDigits: 3,
+    })
+  }
+  return String(Math.round(errados))
 }
 
 /** Ordem e rótulos da tabela «Base de cálculo» (estudo DOCS BASE PRODUTO). */

@@ -637,13 +637,15 @@ export function ModalNovaLeituraSmartRead({
   }, [aplicarBlobPreview, chavePreviewRemoto, idLeituraExistente, previewArquivo, previewArquivoItem, validarBlobLocal])
 
   const tratarErroRenderPreview = useCallback(async () => {
+    if (!previewArquivoItem || !previewArquivo) return
+    const nomeArquivo = previewArquivo.nomeArquivo
+    if (nomeArquivo.toLowerCase().endsWith('.pdf')) return
+
     if (previewRetryRenderRef.current) {
-      setPreviewErro(mensagemConteudoArquivoInvalido(previewArquivo?.nomeArquivo ?? 'documento'))
+      setPreviewErro(mensagemConteudoArquivoInvalido(nomeArquivo))
       return
     }
     previewRetryRenderRef.current = true
-    if (!previewArquivoItem || !previewArquivo) return
-    const nomeArquivo = previewArquivo.nomeArquivo
 
     if (arquivoLocalTemBlobVisualizavel(previewArquivoItem.arquivo)) {
       const idLocal = previewArquivoItem.id_arquivo_local

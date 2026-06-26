@@ -9,14 +9,18 @@ import { z } from 'zod'
 export const StatusLeituraEnum = z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'])
 export type StatusLeitura = z.infer<typeof StatusLeituraEnum>
 
+export const ItemResultadoExtracaoLeituraSchema = z.object({
+  tipo_documento: z.string().nullable(),
+  dados: z.record(z.string(), z.unknown()),
+  dados_original: z.record(z.string(), z.unknown()).optional(),
+})
+
 export const ArquivoLeituraSchema = z.object({
   id_arquivo: z.string(),
   nome_arquivo: z.string().nullable(),
   status_arquivo: StatusLeituraEnum,
   tempo_extracao_ia_ms: z.number().int().min(0).nullable().optional(),
-  resultado_extracao: z
-    .array(z.object({ tipo_documento: z.string().nullable(), dados: z.record(z.string(), z.unknown()) }))
-    .nullable(),
+  resultado_extracao: z.array(ItemResultadoExtracaoLeituraSchema).nullable(),
 })
 export type ArquivoLeitura = z.infer<typeof ArquivoLeituraSchema>
 

@@ -14,6 +14,7 @@ import {
   resolverMediaAcertosTransacaoLeituraSmartRead,
   resolverSavingTransacaoLeituraSmartRead,
 } from '../../../shared/metricas-transacao-leitura-smart-read'
+import { resolverContagemAcertoErroEstudoSmartRead } from '../../../shared/dados-base-produto-tempo-smart-read'
 import type { TransacaoLeitura } from '../shared/schemas'
 import {
   usePreferenciasCardsSmartRead,
@@ -47,7 +48,9 @@ function calcularSavingAgregado(transacoes: TransacaoLeitura[]): {
   let leiturasComSaving = 0
 
   for (const transacao of transacoes) {
-    camposErrados += transacao.total_campos_errados
+    camposErrados += resolverContagemAcertoErroEstudoSmartRead(
+      transacao.total_campos_extraidos,
+    ).errados
     const saving = resolverSavingTransacaoLeituraSmartRead(transacao)
     if (!saving || saving.saving_total_minutos <= 0) continue
     minutos += saving.saving_total_minutos
@@ -120,7 +123,7 @@ function renderCard(
               <strong>{formatarSavingValorLeitura(saving.brl)}</strong>
             </p>
             <p className="cg-tooltip__row">
-              <span>Campos editados na conferência</span>
+              <span>Erros evitados (estudo)</span>
               <strong>{saving.camposErrados}</strong>
             </p>
             <p className="cg-tooltip__row">

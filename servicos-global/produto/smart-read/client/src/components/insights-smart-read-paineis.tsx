@@ -74,8 +74,6 @@ function CabecalhoPainelInsightsSmartRead({ icone, titulo, complemento }: Cabeca
 
 export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props) {
   const placeholder = carregando ? '…' : '—'
-  const savingTotalMin = metricas.savingDigitaçãoMinutos + metricas.savingErrosMinutos
-  const savingTotalBrl = metricas.savingDigitaçãoCustoBrl + metricas.savingErrosCustoBrl
 
   return (
     <>
@@ -157,23 +155,12 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         tooltip={
           <>
             <p className="cg-tooltip__row">
-              <span>Campos editados na conferência</span>
+              <span>Erros evitados (estudo)</span>
               <strong>{metricas.camposErrados}</strong>
             </p>
             <p className="cg-tooltip__row">
               <span>Tempo economizado</span>
               <strong>{formatarMinutosInsightsSmartRead(metricas.savingErrosMinutos)}</strong>
-            </p>
-            <p className="cg-tooltip__row">
-              <span>Custo evitado (est.)</span>
-              <strong>{formatarMoedaInsightsSmartRead(metricas.savingErrosCustoBrl)}</strong>
-            </p>
-            <p className="cg-tooltip__row">
-              <span>Total saving</span>
-              <strong>
-                {formatarMinutosInsightsSmartRead(savingTotalMin)} ·{' '}
-                {formatarMoedaInsightsSmartRead(savingTotalBrl)}
-              </strong>
             </p>
             <p className="cg-tooltip__row cg-tooltip__row--link-only">
               <LinkMetodologiaSavingInsightsSmartRead>Base de cálculo →</LinkMetodologiaSavingInsightsSmartRead>

@@ -62,3 +62,20 @@ Ver SSOT completo: [padrao-dt-row-status-campos.md](../../ux/design-system/padra
 ## 5. Legenda do topo (filtros)
 
 Contadores clicáveis: **Verificados** (azul, total) · **Preenchidos** (verde) · **Vazios** (amarelo) · **Preenchidos alterados** (roxo). Filtram o grid; não alteram a cor individual do card vazio (cinza).
+
+---
+
+## 6. Contador discreto de tokens IA (sidebar)
+
+> **Task:** TASK-000357 · Persistência: [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) §3.1
+
+| Aspecto | Regra |
+|---------|-------|
+| **Onde** | Rodapé da sidebar (`painel-lateral-arquivos-nova-leitura-smart-read.tsx`), acima de Voltar/Continuar |
+| **Quando** | Visível a partir do **passo 2** (`exibirContadorTokens={passo >= 2}`) |
+| **Componente** | `contador-tokens-discreto-nova-leitura-smart-read.tsx` |
+| **Hook** | `use-contador-tokens-leitura-smart-read.ts` → `GET /leituras/tokens/:id_leitura` |
+| **Exibição** | Sempre mostra o total (inclui `0 tokens IA`); formatação `formatarTokensDiscretoLeituraSmartRead` |
+| **Atualização** | Após QA ou Análise de Riscos via `onTokensAtualizados` / `uso_llm_leitura` na resposta; senão recarrega do GET |
+
+**Fonte dos números:** `usageMetadata` do Gemini (`promptTokenCount`, `candidatesTokenCount`) — não inclui extração DATI do passo 2. Abas que disparam LLM: **Análise de Riscos** e **Consultor Inteligente** (Rafa); **Conferência de Campos** sozinha mantém 0 até outra aba rodar.

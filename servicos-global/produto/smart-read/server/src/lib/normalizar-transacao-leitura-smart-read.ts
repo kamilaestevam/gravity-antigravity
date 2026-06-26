@@ -6,9 +6,9 @@ import { z } from 'zod'
 import {
   calcularMetricasTransacaoLeituraSmartRead,
   metricasTransacaoLeituraVazias,
-  resolverMediaAcertosTransacaoLeituraSmartRead,
   resolverSavingTransacaoLeituraSmartRead,
 } from '../../../shared/metricas-transacao-leitura-smart-read.js'
+import { resolverContagemAcertoErroEstudoSmartRead } from '../../../shared/dados-base-produto-tempo-smart-read.js'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import {
   LeituraSchema,
@@ -61,9 +61,12 @@ export function mesclarOrigemLeituraTransacao(
 }
 
 export function complementarMetricasTransacaoLista(transacao: TransacaoLeitura): TransacaoLeitura {
+  const contagem = resolverContagemAcertoErroEstudoSmartRead(transacao.total_campos_extraidos)
   let resultado: TransacaoLeitura = {
     ...transacao,
-    media_acertos: resolverMediaAcertosTransacaoLeituraSmartRead(transacao),
+    total_campos_corretos: contagem.corretos,
+    total_campos_errados: contagem.errados,
+    media_acertos: contagem.taxa_acerto,
   }
 
   const saving = resolverSavingTransacaoLeituraSmartRead(resultado)
@@ -86,8 +89,6 @@ export function mesclarTransacaoNaLista(
     ...novo,
     total_documentos: Math.max(anterior.total_documentos, novo.total_documentos),
     total_campos_extraidos: Math.max(anterior.total_campos_extraidos, novo.total_campos_extraidos),
-    total_campos_corretos: Math.max(anterior.total_campos_corretos, novo.total_campos_corretos),
-    total_campos_errados: Math.max(anterior.total_campos_errados, novo.total_campos_errados),
     tipos_documento: novo.tipos_documento ?? anterior.tipos_documento,
     numeros_documento: novo.numeros_documento ?? anterior.numeros_documento,
     tempo_extracao_ia_ms: novo.tempo_extracao_ia_ms ?? anterior.tempo_extracao_ia_ms,

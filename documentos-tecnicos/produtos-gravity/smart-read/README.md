@@ -123,3 +123,4 @@ Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1
 | **TASK-000343** | Passo 2: suite testes 000151�000155, `tempo_analise_segundos`, Base de c�lculo no wizard � [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
 | Erros passo 2 (2026-06) | Sidebar motivo amigavel + nao sera cobrado; mapeamento legado Excel/XML � [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) �7 |
 | Refatora��o Insights | Fonte �nica acerto/erro por edi��o do usu�rio; emissor respons�vel por tipo de documento; `dados_original` no contrato bilateral |
+| **TASK-000357** | Contador discreto tokens Gemini (sidebar passo 2+), tabela `log_uso_llm_leitura_smart_read`, rotas `GET /leituras/tokens/*` - ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) secao 3.1 e [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) secao 6 |

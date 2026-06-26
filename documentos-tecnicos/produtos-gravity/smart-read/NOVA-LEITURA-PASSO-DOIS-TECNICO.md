@@ -24,6 +24,10 @@
 | Modal metodologia saving | `client/src/pages/insights-smart-read/metodologia-saving-insights-smart-read.tsx` |
 | BFF polling | `server/src/routes/leituras-smart-read.ts` (`GET /:id_leitura`) |
 | Campo `tempo_analise_segundos` | `server/src/schemas/progresso-leitura-smart-read.ts` |
+| Contador «Uso de IA» (sidebar) | `client/src/components/nova-leitura-smart-read/contador-tokens-discreto-nova-leitura-smart-read.tsx` |
+| Hook contador (observador passivo) | `client/src/shared/use-contador-tokens-leitura-smart-read.ts` |
+| Análise de riscos pós-OCR | `client/src/shared/disparar-analise-riscos-background-smart-read.ts` |
+| Animação tokens em tempo real | `client/src/shared/use-valor-tokens-animado-smart-read.ts` |
 
 **Entrada no passo 2:** botão **Enviar** do passo 1 dispara upload + polling; modal avança para «Análise do arquivo». Retomar leitura `PROCESSING` abre direto no passo 2.
 

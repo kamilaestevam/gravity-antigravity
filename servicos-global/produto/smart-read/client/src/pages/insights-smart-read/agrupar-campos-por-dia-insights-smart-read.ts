@@ -3,6 +3,7 @@
  */
 
 import type { TransacaoLeitura } from '../../shared/schemas'
+import { resolverContagemAcertoErroEstudoSmartRead } from './dados-base-produto-tempo-smart-read'
 import type { DocumentoInsightsSmartRead } from './extrair-dados-documento-leitura-smart-read'
 
 export type PresetDiasCamposPorDiaInsights = 7 | 30 | 60 | 90
@@ -192,12 +193,13 @@ function somarPontoDeTransacao(
   acumulado: PontoCamposPorDiaInsights,
   transacao: TransacaoLeitura,
 ): PontoCamposPorDiaInsights {
-  const comErroLeitura = transacao.total_campos_errados > 0
+  const contagem = resolverContagemAcertoErroEstudoSmartRead(transacao.total_campos_extraidos)
+  const comErroLeitura = contagem.errados > 0
   return {
     ...acumulado,
     total_campos: acumulado.total_campos + transacao.total_campos_extraidos,
-    campos_corretos: acumulado.campos_corretos + transacao.total_campos_corretos,
-    campos_errados: acumulado.campos_errados + transacao.total_campos_errados,
+    campos_corretos: acumulado.campos_corretos + contagem.corretos,
+    campos_errados: acumulado.campos_errados + contagem.errados,
     documentos: acumulado.documentos + transacao.total_documentos,
     documentos_sem_erro:
       acumulado.documentos_sem_erro + (comErroLeitura ? 0 : transacao.total_documentos),

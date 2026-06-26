@@ -1,13 +1,13 @@
-# Persistência de dados — Smart Read (arquitetura híbrida)
+﻿# Persistência de dados — Smart Docs (arquitetura híbrida)
 
-> **SSOT desta doc:** onde vive cada dado do Smart Read no Gravity vs no legado DATI.  
+> **SSOT desta doc:** onde vive cada dado do Smart Docs no Gravity vs no legado DATI.  
 > **Código:** `servicos-global/produto/smart-read/` · BFF porta **8033** · Postgres Gravity **Railway** (`gravity-smart-read-*`)
 
 ---
 
 ## 1. Resumo em uma frase
 
-O **banco de verdade das leituras** — PDFs, fila de processamento, status (`PROCESSING` / `COMPLETED`), `processingResult` / `finalProcessingResult` e todo o histórico operacional — **fica no legado DATI Smart Read** (microserviço `import-control-center` / `external-readings`, tipicamente Mongo + storage do DATI). O **Postgres Gravity** (`SMART_READ_DATABASE_URL`, Railway `gravity-smart-read`) **não é** esse banco: é um **espelho operacional** da UI Gravity — snapshots congelados, progresso do wizard e preferências de lista — para Lista e Insights responderem rápido sem ir ao DATI a cada clique. **Se o DATI apagar uma leitura, o Gravity não recupera o PDF nem a extração bruta**; só o que foi copiado para `snapshot_leitura_smart_read` ou `progresso_leitura_smart_read` permanece no Railway.
+O **banco de verdade das leituras** — PDFs, fila de processamento, status (`PROCESSING` / `COMPLETED`), `processingResult` / `finalProcessingResult` e todo o histórico operacional — **fica no legado DATI Smart Docs** (microserviço `import-control-center` / `external-readings`, tipicamente Mongo + storage do DATI). O **Postgres Gravity** (`SMART_READ_DATABASE_URL`, Railway `gravity-smart-read`) **não é** esse banco: é um **espelho operacional** da UI Gravity — snapshots congelados, progresso do wizard e preferências de lista — para Lista e Insights responderem rápido sem ir ao DATI a cada clique. **Se o DATI apagar uma leitura, o Gravity não recupera o PDF nem a extração bruta**; só o que foi copiado para `snapshot_leitura_smart_read` ou `progresso_leitura_smart_read` permanece no Railway.
 
 ---
 
@@ -26,7 +26,7 @@ flowchart LR
     Painel[lista_painel_usuario_global]
   end
 
-  subgraph dati [Legado DATI Smart Read]
+  subgraph dati [Legado DATI Smart Docs]
     LegadoDB[(Mongo / storage legado)]
     LegadoAPI[external-readings API]
   end

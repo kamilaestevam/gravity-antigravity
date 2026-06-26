@@ -1,4 +1,4 @@
-# Lista e progresso do wizard — Smart Read
+﻿# Lista e progresso do wizard — Smart Docs
 
 > **Telas:** `ListaLeituraSmartRead`, wizard `ModalNovaLeituraSmartRead`  
 > **BFF:** `servicos-global/produto/smart-read/server/` (porta **8033**)

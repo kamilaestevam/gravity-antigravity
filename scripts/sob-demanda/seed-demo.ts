@@ -43,7 +43,7 @@ async function main() {
     })
     const data = await res.json()
     if (data.seeded) {
-      console.log(`✓ ${data.count} produtos criados: SimulaCusto, Smart Read, BID Frete Internacional`)
+      console.log(`✓ ${data.count} produtos criados: SimulaCusto, Smart Docs, BID Frete Internacional`)
     } else {
       console.log(`⚠ Produtos já existem (${data.count} no catálogo)`)
     }

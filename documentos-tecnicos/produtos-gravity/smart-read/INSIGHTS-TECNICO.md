@@ -1,4 +1,4 @@
-# Insights — Smart Read
+﻿# Insights — Smart Docs
 
 > **Tela:** `client/src/pages/insights-smart-read/InsightsSmartRead.tsx`  
 > **Escopo desta doc:** aba Insights apenas — **não** altera Lista (`ListaLeituraSmartRead`).

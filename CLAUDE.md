@@ -390,7 +390,7 @@ const meResponseSchema = z.object({
 | Marketplace | `skills/produtos-gravity/marketplace/SKILL.md` | Landing pública, pricing, onboarding (sem auth, sem backend) |
 | Pedido | `skills/produtos-gravity/pedido/SKILL.md` | Lista, edição em massa (cascade Pedido→Item), consolidação, transferência. Convenção `@@unique` e anti-padrões |
 | Processo | `skills/produtos-gravity/processo/SKILL.md` | Workflow, DadosTecnicos, Pedidos, Containers, Taxas e novas telas. **Define o PADRÃO UX OFICIAL** (TOC sticky, cards de campo, edit-in-place, SelectGlobal, paleta indigo/roxo) — ver `documentos-tecnicos/produtos-gravity/processo/PADRAO-UX-TELAS.md` |
-| Smart Read | `skills/produtos-gravity/smart-read/SKILL.md` | Wizard Nova Leitura (passo 1: anexar), Lista, Insights, BFF legado DATI + Postgres. Doc passo 1: `documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-UM-TECNICO.md` |
+| Smart Docs | `skills/produtos-gravity/smart-read/SKILL.md` | Wizard Nova Leitura (passo 1: anexar), Lista, Insights, BFF legado DATI + Postgres. Slug `smart-read`. Doc passo 1: `documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-UM-TECNICO.md` |
 | Simulador COMEX | `skills/produtos-gravity/simulador-comex/SKILL.md` | **BLOQUEADO — não iniciar sem regras de negócio** |
 
 > Futuros: `bid-frete/`, etc. seguem o mesmo padrão (vertical em `produtos-gravity/`, **sem** regras absolutas embutidas — referenciar SSOT).

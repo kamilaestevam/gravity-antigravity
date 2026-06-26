@@ -1,4 +1,4 @@
-# Nova Leitura — Passo 03 (Conferência) — Smart Read
+﻿# Nova Leitura — Passo 03 (Conferência) — Smart Docs
 
 > **Escopo deste documento:** somente **Passo 3** do wizard — grid de campos extraídos (paridade layout `dt-*` do Processo).  
 > **Passo anterior:** [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) · **Passo 4:** doc futuro.
@@ -51,11 +51,11 @@ Campos cuja chave termina em `Date` (ex.: `document.documentDate`, `document.shi
 
 Ver SSOT completo: [padrao-dt-row-status-campos.md](../../ux/design-system/padrao-dt-row-status-campos.md).
 
-| Estado | Cor barra | Smart Read vs Processo |
+| Estado | Cor barra | Smart Docs vs Processo |
 |--------|-----------|-------------------------|
 | Preenchido | Verde `#34d399` | Igual |
 | Vazio | Cinza `vazio-opc` no card; amarelo só na legenda «Vazios» | Processo distingue obrigatório (amarelo) vs opcional (cinza) |
-| Alterado | Roxo `#a78bfa` + badge | Só Smart Read |
+| Alterado | Roxo `#a78bfa` + badge | Só Smart Docs |
 
 ---
 

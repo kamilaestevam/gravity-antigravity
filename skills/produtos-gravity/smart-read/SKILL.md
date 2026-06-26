@@ -1,13 +1,13 @@
 ---
 name: antigravity-smart-read
-description: "Smart Read (SMTRD) — wizard Nova Leitura, Lista, Insights, BFF legado DATI + Postgres Gravity."
+description: "Smart Docs (SMTRD) — wizard Nova Leitura, Lista, Insights, BFF legado DATI + Postgres Gravity. Slug técnico: smart-read."
 ---
 
-# Gravity — Smart Read (SMTRD)
+# Gravity — Smart Docs (SMTRD)
 
-## O que é o Smart Read
+## O que é o Smart Docs
 
-Produto de extração inteligente de documentos de comércio exterior (invoices, BL, NF-e, planilhas).
+Produto de inteligência documental para comércio exterior (invoices, BL, NF-e, planilhas).
 O usuário envia arquivos no wizard **Nova Leitura**, a IA extrai campos estruturados e o resultado
 alimenta Lista, Insights e conferência.
 

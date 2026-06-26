@@ -112,7 +112,7 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "blob:", "https://*.clerk.com", "https://img.clerk.com"],
       connectSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://*.clerk.com", "https://challenges.cloudflare.com", "https://servicodados.ibge.gov.br", "ws://localhost:*"],
-      frameSrc: ["'self'", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://accounts.usegravity.com.br", "https://challenges.cloudflare.com"],
+      frameSrc: ["'self'", "blob:", "https://*.clerk.accounts.dev", "https://clerk.usegravity.com.br", "https://accounts.usegravity.com.br", "https://challenges.cloudflare.com"],
       workerSrc: ["'self'", "blob:"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],

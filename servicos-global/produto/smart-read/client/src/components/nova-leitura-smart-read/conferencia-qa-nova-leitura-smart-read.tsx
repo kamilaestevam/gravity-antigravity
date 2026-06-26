@@ -24,7 +24,7 @@ import { montarDocumentosAnaliseRiscoDeArquivosLocais } from '../../shared/anali
 import { CorpoRespostaMarkdownConsultorSmartRead } from '../../shared/corpo-resposta-markdown-consultor-smart-read'
 import { NOME_PRODUTO_EXIBICAO } from '../../shared/marca-smart-docs'
 import type { MensagemHistoricoQaLeitura } from '../../../../shared/qa-leitura-smart-read'
-import type { ResumoUsoLlmLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
+import type { ResumoUsoLlmLeituraSmartRead, UsoLlmChamadaLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
 
 type SugestaoQa = {
   id: string
@@ -54,7 +54,12 @@ type TurnoQaUi = {
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
   idLeituraLegado?: string | null
-  onTokensAtualizados?: (resumo: ResumoUsoLlmLeituraSmartRead | null | undefined) => void
+  onTokensAtualizados?: (
+    resumo: ResumoUsoLlmLeituraSmartRead | null | undefined,
+    chamada?: UsoLlmChamadaLeituraSmartRead | null,
+  ) => void
+  onIaInicio?: () => void
+  onIaFim?: () => void
 }
 
 function montarHistoricoApi(turnos: TurnoQaUi[]): MensagemHistoricoQaLeitura[] {
@@ -71,6 +76,8 @@ export function ConferenciaQaNovaLeituraSmartRead({
   arquivos,
   idLeituraLegado = null,
   onTokensAtualizados,
+  onIaInicio,
+  onIaFim,
 }: Props) {
   const [pergunta, setPergunta] = useState('')
   const [turnos, setTurnos] = useState<TurnoQaUi[]>([])
@@ -94,6 +101,7 @@ export function ConferenciaQaNovaLeituraSmartRead({
 
     const idTurno = `turno-${Date.now()}`
     setEnviando(true)
+    onIaInicio?.()
     setTurnos((prev) => [...prev, { id: idTurno, pergunta: limpo, status: 'carregando' }])
     setPergunta('')
 
@@ -106,7 +114,7 @@ export function ConferenciaQaNovaLeituraSmartRead({
         historico: historicoAnterior,
         id_leitura_legado: idLeituraLegado ?? undefined,
       })
-      onTokensAtualizados?.(resultado.uso_llm_leitura)
+      onTokensAtualizados?.(resultado.uso_llm_leitura, resultado.uso_llm_chamada)
       setTurnos((prev) =>
         prev.map((turno) =>
           turno.id === idTurno
@@ -134,6 +142,7 @@ export function ConferenciaQaNovaLeituraSmartRead({
       )
     } finally {
       setEnviando(false)
+      onIaFim?.()
     }
   }
 

@@ -205,6 +205,13 @@ export const smartReadApi = {
     )
   },
 
+  obterResumoTokensOrganizacaoMes(): Promise<ResumoUsoLlmLeituraSmartRead> {
+    return requisitar(
+      ResumoUsoLlmLeituraSmartReadSchema,
+      '/api/v1/smart-read/leituras/tokens/resumo?escopo=organizacao_mes',
+    )
+  },
+
   async obterProgressoLeitura(idLeitura: string): Promise<EstadoProgressoLeitura | null> {
     const resposta = await fetch(
       `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/progresso`,

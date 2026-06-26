@@ -44,6 +44,33 @@ export function somarUsoLlmChamadasLeituraSmartRead(
   }
 }
 
+/**
+ * Atualiza contador após chamada LLM — usa resumo persistido quando disponível;
+ * senão acumula `chamada` (ex.: banco indisponível ou log ainda não gravado).
+ */
+export function atualizarResumoTokensAposChamadaLlm(
+  anterior: ResumoUsoLlmLeituraSmartRead,
+  resumoLeitura: ResumoUsoLlmLeituraSmartRead | null | undefined,
+  chamada: UsoLlmChamadaLeituraSmartRead | null | undefined,
+): ResumoUsoLlmLeituraSmartRead {
+  if (resumoLeitura && resumoLeitura.tokens_total >= anterior.tokens_total && resumoLeitura.tokens_total > 0) {
+    return resumoLeitura
+  }
+
+  if (!chamada || chamada.tokens_total <= 0) {
+    return resumoLeitura ?? anterior
+  }
+
+  const base = resumoLeitura && resumoLeitura.tokens_total > anterior.tokens_total ? resumoLeitura : anterior
+  return ResumoUsoLlmLeituraSmartReadSchema.parse({
+    tokens_entrada: base.tokens_entrada + chamada.tokens_entrada,
+    tokens_saida: base.tokens_saida + chamada.tokens_saida,
+    tokens_total: base.tokens_total + chamada.tokens_total,
+    total_chamadas: base.total_chamadas + 1,
+    custo_usd: base.custo_usd,
+  })
+}
+
 /** Preços USD por 1M tokens (Gemini flash — alinhado à GABI) */
 const PRECOS_GEMINI_USD_POR_MILHAO: Record<string, { entrada: number; saida: number }> = {
   'gemini-2.5-flash': { entrada: 0.15, saida: 0.6 },

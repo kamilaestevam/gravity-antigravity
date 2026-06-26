@@ -10,7 +10,7 @@ import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova
 import { ConferenciaQaNovaLeituraSmartRead } from './conferencia-qa-nova-leitura-smart-read'
 import { ConferenciaRiscosAduaneirosNovaLeituraSmartRead } from './conferencia-riscos-aduaneiros-nova-leitura-smart-read'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
-import type { ResumoUsoLlmLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
+import type { ResumoUsoLlmLeituraSmartRead, UsoLlmChamadaLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
 
 export type SelecaoDocumentoConferencia = {
   idArquivoLocal: string
@@ -36,7 +36,12 @@ type Props = {
   onCompararArquivo?: () => void
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
   idLeituraLegado?: string | null
-  onTokensAtualizados?: (resumo: ResumoUsoLlmLeituraSmartRead | null | undefined) => void
+  onTokensAtualizados?: (
+    resumo: ResumoUsoLlmLeituraSmartRead | null | undefined,
+    chamada?: UsoLlmChamadaLeituraSmartRead | null,
+  ) => void
+  onIaInicio?: () => void
+  onIaFim?: () => void
 }
 
 export function AreaConferenciaNovaLeituraSmartRead({
@@ -47,6 +52,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
   onVerEvidencia,
   idLeituraLegado = null,
   onTokensAtualizados,
+  onIaInicio,
+  onIaFim,
 }: Props) {
   const [aba, setAba] = useState<AbaConferencia>('campos')
 
@@ -116,16 +123,22 @@ export function AreaConferenciaNovaLeituraSmartRead({
           arquivos={arquivosCompletos}
           idLeituraLegado={idLeituraLegado}
           onTokensAtualizados={onTokensAtualizados}
+          onIaInicio={onIaInicio}
+          onIaFim={onIaFim}
         />
       )}
 
-      {aba === 'riscos' && (
-        <ConferenciaRiscosAduaneirosNovaLeituraSmartRead
-          arquivos={arquivosCompletos}
-          onVerEvidencia={onVerEvidencia}
-          idLeituraLegado={idLeituraLegado}
-          onTokensAtualizados={onTokensAtualizados}
-        />
+      {arquivosCompletos.length > 0 && (
+        <div className="sr-conf-tab-panel" hidden={aba !== 'riscos'}>
+          <ConferenciaRiscosAduaneirosNovaLeituraSmartRead
+            arquivos={arquivosCompletos}
+            onVerEvidencia={onVerEvidencia}
+            idLeituraLegado={idLeituraLegado}
+            onTokensAtualizados={onTokensAtualizados}
+            onIaInicio={onIaInicio}
+            onIaFim={onIaFim}
+          />
+        </div>
       )}
     </div>
   )

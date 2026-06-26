@@ -2,7 +2,7 @@
  * DashboardAnaliseNovaLeituraSmartRead — passo 2: métricas + gráfico de IAs
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Brain, ChartLineUp, Clock, FileText, Timer } from '@phosphor-icons/react'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { calcularSavingAgregadoTransacoesSmartRead } from '../../shared/calcular-saving-agregado-transacoes-smart-read'
@@ -97,25 +97,50 @@ export function DashboardAnaliseNovaLeituraSmartRead({
   tempoAnaliseSegundos,
 }: Props) {
   const [agora, setAgora] = useState(Date.now())
-  const savingAcumulado = useSavingAcumuladoWorkspaceSmartRead(true, {
-    gatilhoRecarga: analiseCompleta,
+  const progressoMaximoRef = useRef<[number, number, number]>([0, 0, 0])
+  const savingAcumulado = useSavingAcumuladoWorkspaceSmartRead(analiseCompleta, {
+    intervaloRecargaMs: 0,
   })
 
   useEffect(() => {
-    if (analiseCompleta || processamentoComErro || !inicioAnalise || tempoAnaliseSegundos != null) return
+    progressoMaximoRef.current = [0, 0, 0]
+  }, [inicioAnalise])
+
+  useEffect(() => {
+    if (processamentoComErro || !inicioAnalise || tempoAnaliseSegundos != null) return
     const id = window.setInterval(() => setAgora(Date.now()), 1000)
     return () => window.clearInterval(id)
-  }, [analiseCompleta, processamentoComErro, inicioAnalise, tempoAnaliseSegundos])
+  }, [processamentoComErro, inicioAnalise, tempoAnaliseSegundos])
 
   const elapsedSegundos = useMemo(() => {
     if (tempoAnaliseSegundos != null) return tempoAnaliseSegundos
     if (inicioAnalise) return Math.floor((agora - inicioAnalise) / 1000)
     return 0
   }, [agora, inicioAnalise, tempoAnaliseSegundos])
-  const etapas = useMemo(
-    () => calcularProgressoEtapas(elapsedSegundos, analiseCompleta, processamentoComErro),
-    [elapsedSegundos, analiseCompleta, processamentoComErro],
-  )
+  const etapas = useMemo(() => {
+    const brutas = calcularProgressoEtapas(elapsedSegundos, analiseCompleta, processamentoComErro)
+    if (analiseCompleta || processamentoComErro) {
+      return brutas
+    }
+
+    const [max1, max2, max3] = progressoMaximoRef.current
+    const maximos = [max1, max2, max3]
+    const mescladas = brutas.map((etapa, indice) => {
+      const progresso = Math.max(maximos[indice] ?? 0, etapa.progresso)
+      return {
+        ...etapa,
+        progresso,
+        status:
+          progresso >= 100 ? ('completo' as const) : progresso > 0 ? ('andamento' as const) : ('pendente' as const),
+      }
+    })
+    progressoMaximoRef.current = [
+      mescladas[0]?.progresso ?? 0,
+      mescladas[1]?.progresso ?? 0,
+      mescladas[2]?.progresso ?? 0,
+    ]
+    return mescladas
+  }, [elapsedSegundos, analiseCompleta, processamentoComErro])
 
   const progressoGeral = Math.round(
     etapas.reduce((acc, etapa) => acc + etapa.progresso, 0) / etapas.length,

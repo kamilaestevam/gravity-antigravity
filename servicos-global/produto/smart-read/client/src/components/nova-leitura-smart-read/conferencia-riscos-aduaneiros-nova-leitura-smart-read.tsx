@@ -24,6 +24,10 @@ import {
   aplicarCorrecaoSugeridaPadraoRisco,
   montarDocumentosAnaliseRiscoDeArquivosLocais,
 } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
+import {
+  obterCacheAnaliseRiscosSessaoSmartRead,
+  salvarCacheAnaliseRiscosSessaoSmartRead,
+} from '../../shared/cache-analise-riscos-sessao-smart-read'
 import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../../shared/analise-riscos-leitura-smart-read'
 import type { RegraAuditoriaV1 } from '../../../../shared/analise-riscos-leitura-smart-read'
 import { montarResumoGeralChecklistInvoices } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
@@ -44,13 +48,18 @@ import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-ev
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import '../../../../../processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 
-import type { ResumoUsoLlmLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
+import type { ResumoUsoLlmLeituraSmartRead, UsoLlmChamadaLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
 
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
   idLeituraLegado?: string | null
-  onTokensAtualizados?: (resumo: ResumoUsoLlmLeituraSmartRead | null | undefined) => void
+  onTokensAtualizados?: (
+    resumo: ResumoUsoLlmLeituraSmartRead | null | undefined,
+    chamada?: UsoLlmChamadaLeituraSmartRead | null,
+  ) => void
+  onIaInicio?: () => void
+  onIaFim?: () => void
 }
 
 type FiltroRisco = 'todos' | SeveridadeRiscoAduaneiro
@@ -302,6 +311,8 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   onVerEvidencia,
   idLeituraLegado = null,
   onTokensAtualizados,
+  onIaInicio,
+  onIaFim,
 }: Props) {
   const requisicaoSeq = useRef(0)
   const [resumo, setResumo] = useState({
@@ -335,8 +346,9 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   )
 
   const chaveAnalise = useMemo(
-    () => documentos.map((d) => `${d.nome_arquivo}:${d.indice}:${d.tipo_documento}`).join('|'),
-    [documentos],
+    () =>
+      `${idLeituraLegado ?? ''}|${documentos.map((d) => `${d.nome_arquivo}:${d.indice}:${d.tipo_documento}`).join('|')}`,
+    [documentos, idLeituraLegado],
   )
 
   const auditoriaV1Local = useMemo(
@@ -484,11 +496,24 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   useEffect(() => {
     if (documentos.length === 0) return
 
+    const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnalise)
+    if (emCache) {
+      setResumo(emCache.resumo)
+      setRegrasContexto(emCache.contexto_v1.regras)
+      setLlmHabilitado(emCache.llm_ativo)
+      setAviso(emCache.aviso ?? null)
+      setPipelineConcluido(true)
+      setCarregando(false)
+      onTokensAtualizados?.(emCache.uso_llm_leitura, emCache.uso_llm_chamada)
+      return
+    }
+
     const seq = ++requisicaoSeq.current
     setCarregando(true)
     setErro(null)
     setAviso(null)
     setPipelineConcluido(false)
+    onIaInicio?.()
 
     smartReadApi
       .analisarRiscosLeitura({
@@ -498,12 +523,13 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
       })
       .then((resposta) => {
         if (requisicaoSeq.current !== seq) return
+        salvarCacheAnaliseRiscosSessaoSmartRead(chaveAnalise, resposta)
         setResumo(resposta.resumo)
         setRegrasContexto(resposta.contexto_v1.regras)
         setLlmHabilitado(resposta.llm_ativo)
         setAviso(resposta.aviso ?? null)
         setPipelineConcluido(true)
-        onTokensAtualizados?.(resposta.uso_llm_leitura)
+        onTokensAtualizados?.(resposta.uso_llm_leitura, resposta.uso_llm_chamada)
       })
       .catch((ex: unknown) => {
         if (requisicaoSeq.current !== seq) return
@@ -511,9 +537,12 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         setPipelineConcluido(!!auditoriaV1Local)
       })
       .finally(() => {
-        if (requisicaoSeq.current === seq) setCarregando(false)
+        if (requisicaoSeq.current === seq) {
+          setCarregando(false)
+          onIaFim?.()
+        }
       })
-  }, [chaveAnalise, documentos, idLeituraLegado, onTokensAtualizados, auditoriaV1Local])
+  }, [chaveAnalise, documentos, idLeituraLegado, onTokensAtualizados, onIaInicio, onIaFim, auditoriaV1Local])
 
   function scrollParaRisco(riscoId: string) {
     const el = document.getElementById(`sr-risco-${riscoId}`)

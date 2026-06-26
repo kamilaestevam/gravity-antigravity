@@ -22,6 +22,7 @@ import { requireInternalKey } from './middleware/require-internal-key.js'
 import { leiturasSmartReadRouter } from './routes/leituras-smart-read.js'
 import { listaPaineisSmartReadRouter } from './routes/lista-paineis-smart-read.js'
 import { isolamentoOrganizacaoSmartReadMiddleware } from './middleware/isolamento-organizacao-smart-read.js'
+import { createProductAuditPlugin } from '../../../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 8033
@@ -84,6 +85,19 @@ app.use('/api/', apiLimiter)
 
 app.use('/api/', requireInternalKey)
 app.use('/api/', isolamentoOrganizacaoSmartReadMiddleware)
+
+app.use(
+  createProductAuditPlugin({
+    product_id: 'smart-read',
+    module: 'smart-read',
+    getActorFromReq: (req) => {
+      const tenant_id = req.headers['x-id-organizacao'] as string | undefined
+      const actor_id = req.headers['x-id-usuario'] as string | undefined
+      if (!tenant_id || !actor_id) return null
+      return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+    },
+  }),
+)
 
 app.use('/api/v1/smart-read/leituras', leiturasSmartReadRouter)
 app.use('/api/v1/smart-read/lista/paineis', listaPaineisSmartReadRouter)

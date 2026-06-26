@@ -38,10 +38,9 @@ import type {
 } from '../pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read'
 import {
   formatarMinutosInsightsSmartRead,
-  formatarMoedaInsightsSmartRead,
   resolverRankingsParticipanteInsights,
 } from '../pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read'
-import { formatarErrosEvitadosEstudoSmartRead } from '../../../../shared/dados-base-produto-tempo-smart-read'
+import { formatarErrosEvitadosEstudoSmartRead } from '../../../shared/dados-base-produto-tempo-smart-read'
 import {
   LinkMetodologiaSavingInsightsSmartRead,
 } from '../pages/insights-smart-read/metodologia-saving-insights-smart-read'
@@ -137,10 +136,6 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
             <p className="cg-tooltip__row">
               <span>Tempo economizado</span>
               <strong>{formatarMinutosInsightsSmartRead(metricas.savingDigitaçãoMinutos)}</strong>
-            </p>
-            <p className="cg-tooltip__row">
-              <span>Custo evitado (est.)</span>
-              <strong>{formatarMoedaInsightsSmartRead(metricas.savingDigitaçãoCustoBrl)}</strong>
             </p>
             <p className="cg-tooltip__row cg-tooltip__row--link-only">
               <LinkMetodologiaSavingInsightsSmartRead>Base de cálculo →</LinkMetodologiaSavingInsightsSmartRead>

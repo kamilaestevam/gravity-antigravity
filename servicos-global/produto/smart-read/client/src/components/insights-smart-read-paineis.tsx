@@ -40,7 +40,7 @@ import {
   formatarMinutosInsightsSmartRead,
   resolverRankingsParticipanteInsights,
 } from '../pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read'
-import { formatarErrosEvitadosEstudoSmartRead } from '../../../../shared/dados-base-produto-tempo-smart-read'
+import { formatarErrosEvitadosEstudoSmartRead } from '../../../shared/dados-base-produto-tempo-smart-read'
 import {
   LinkMetodologiaSavingInsightsSmartRead,
 } from '../pages/insights-smart-read/metodologia-saving-insights-smart-read'

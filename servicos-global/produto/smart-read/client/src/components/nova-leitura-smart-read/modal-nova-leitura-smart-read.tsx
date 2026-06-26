@@ -33,6 +33,7 @@ import {
   passoInicialLeituraSmartRead,
 
   todosArquivosAnaliseCompleta,
+  algumArquivoEmAnalise,
   todosArquivosProcessamentoFinalizado,
 
   type ArquivoLocalNovaLeitura,
@@ -73,6 +74,11 @@ import {
 
 import { PainelLateralArquivosNovaLeituraSmartRead } from './painel-lateral-arquivos-nova-leitura-smart-read'
 import { useContadorTokensLeituraSmartRead } from '../../shared/use-contador-tokens-leitura-smart-read'
+import { limparCacheAnaliseRiscosSessaoSmartRead } from '../../shared/cache-analise-riscos-sessao-smart-read'
+import {
+  dispararAnaliseRiscosBackgroundSmartRead,
+  limparRequisicoesAnaliseRiscosEmVooSmartRead,
+} from '../../shared/disparar-analise-riscos-background-smart-read'
 
 import { AreaAnexarNovaLeituraSmartRead } from './area-anexar-nova-leitura-smart-read'
 
@@ -164,15 +170,39 @@ export function ModalNovaLeituraSmartRead({
 
   const [arquivos, setArquivos] = useState<ArquivoLocalNovaLeitura[]>([])
 
+  const [chaveSessaoTokens, setChaveSessaoTokens] = useState<string | null>(null)
+
   const idLeituraAtual = useMemo(
     () => idLeituraExistente ?? arquivos.find((a) => a.id_leitura)?.id_leitura ?? null,
     [arquivos, idLeituraExistente],
   )
-  const contadorTokens = useContadorTokensLeituraSmartRead(idLeituraAtual)
+
+  const analiseCompleta = useMemo(() => todosArquivosAnaliseCompleta(arquivos), [arquivos])
+  const processamentoFinalizado = useMemo(
+    () => todosArquivosProcessamentoFinalizado(arquivos),
+    [arquivos],
+  )
+  const processamentoComErro =
+    processamentoFinalizado && !arquivos.some((item) => item.status_arquivo_local === 'completo')
+
+  const contadorTokens = useContadorTokensLeituraSmartRead(idLeituraAtual, passo >= 2, {
+    chaveSessao: chaveSessaoTokens,
+    redeLiberada: analiseCompleta,
+  })
+
+  const contadorIaRef = useRef(contadorTokens)
+  contadorIaRef.current = contadorTokens
+  const riscosIniciadosRef = useRef<Set<string>>(new Set())
 
   const [enviando, setEnviando] = useState(false)
 
+  const extracaoEmAndamento = useMemo(
+    () => passo >= 2 && !analiseCompleta && (enviando || algumArquivoEmAnalise(arquivos)),
+    [passo, analiseCompleta, enviando, arquivos],
+  )
+
   const [inicioAnalise, setInicioAnalise] = useState<number | null>(null)
+  const [tempoAnaliseSegundos, setTempoAnaliseSegundos] = useState<number | null>(null)
 
   const [conferenciaSelecao, setConferenciaSelecao] = useState<SelecaoDocumentoConferencia | null>(null)
 
@@ -268,7 +298,9 @@ export function ModalNovaLeituraSmartRead({
       setTempoTotalMs(0)
       setArquivoExclusaoPendente(null)
       setGabiAberta(false)
+      setTempoAnaliseSegundos(null)
       inicioSessaoRef.current = Date.now()
+      setChaveSessaoTokens(String(inicioSessaoRef.current))
       if (idLeituraExistente) {
         setArquivos([])
         void hidratarLeituraExistente(idLeituraExistente)
@@ -278,6 +310,10 @@ export function ModalNovaLeituraSmartRead({
         setArquivos(arquivosIniciais.map((arquivo) => criarArquivoLocalNovaLeitura(arquivo)))
       }
     }
+    if (!aberto) {
+      setChaveSessaoTokens(null)
+      riscosIniciadosRef.current.clear()
+    }
     abertoAnteriorRef.current = aberto
   }, [aberto, arquivosIniciais, idLeituraExistente, hidratarLeituraExistente])
 
@@ -286,6 +322,43 @@ export function ModalNovaLeituraSmartRead({
       setTempoTotalMs((atual) => (atual === 0 ? Date.now() - inicioSessaoRef.current : atual))
     }
   }, [passo])
+
+  useEffect(() => {
+    if (!inicioAnalise) return
+    if (!analiseCompleta && !processamentoComErro) return
+    setTempoAnaliseSegundos((atual) =>
+      atual ?? Math.max(0, Math.floor((Date.now() - inicioAnalise) / 1000)),
+    )
+  }, [analiseCompleta, processamentoComErro, inicioAnalise])
+
+  /**
+   * IA/tokens só DEPOIS do OCR (analiseCompleta).
+   * Fora do loop de poll — não compete com obterLeitura durante a leitura.
+   */
+  useEffect(() => {
+    if (!analiseCompleta || passo < 2) return
+    const id = idLeituraAtual
+    if (!id || riscosIniciadosRef.current.has(id)) return
+    const completos = arquivos.filter(
+      (item) => item.status_arquivo_local === 'completo' && item.leitura,
+    )
+    if (completos.length === 0) return
+    riscosIniciadosRef.current.add(id)
+
+    const timer = window.setTimeout(() => {
+      dispararAnaliseRiscosBackgroundSmartRead({
+        arquivos: completos,
+        idLeituraLegado: id,
+        onInicio: () => contadorIaRef.current.marcarIaAtiva(),
+        onTokensAtualizados: (resumo, chamada) =>
+          contadorIaRef.current.aplicarAtualizacaoTokens(resumo, chamada),
+        onConcluido: () => contadorIaRef.current.marcarIaInativa(),
+        onErro: () => contadorIaRef.current.marcarIaInativa(),
+      })
+    }, 800)
+
+    return () => window.clearTimeout(timer)
+  }, [analiseCompleta, passo, idLeituraAtual, arquivos])
 
 
 
@@ -306,14 +379,6 @@ export function ModalNovaLeituraSmartRead({
   }, [])
 
 
-
-  const analiseCompleta = useMemo(() => todosArquivosAnaliseCompleta(arquivos), [arquivos])
-  const processamentoFinalizado = useMemo(
-    () => todosArquivosProcessamentoFinalizado(arquivos),
-    [arquivos],
-  )
-  const processamentoComErro =
-    processamentoFinalizado && !arquivos.some((item) => item.status_arquivo_local === 'completo')
 
   const salvarProgressoAtual = useCallback(
     async (passoAlvo: number = passo, nomeOverride?: string): Promise<boolean> => {
@@ -818,7 +883,12 @@ export function ModalNovaLeituraSmartRead({
           const arquivoApi =
             leitura.arquivos.find((a) => a.id_arquivo === item.id_arquivo) ?? leitura.arquivos[0]
           const extracao = arquivoApi?.resultado_extracao?.[selecao.indiceDocumento]
-          if (extracao?.dados) definirValorPorCaminho(extracao.dados, chave, valor)
+          if (extracao?.dados) {
+            if (!extracao.dados_original) {
+              extracao.dados_original = structuredClone(extracao.dados)
+            }
+            definirValorPorCaminho(extracao.dados, chave, valor)
+          }
           return { ...item, leitura }
         }),
       )
@@ -838,18 +908,18 @@ export function ModalNovaLeituraSmartRead({
     async (idArquivoLocal: string, idLeitura: string, arquivoOriginal: File) => {
 
       const inicio = Date.now()
+      const blobPersistidoRef = { atual: false }
 
       const persistirArquivoOriginal = (idArquivo: string | null | undefined) => {
-        if (!arquivoOriginal.size) return
+        if (!arquivoOriginal.size || !idArquivo || blobPersistidoRef.atual) return
+        blobPersistidoRef.atual = true
         registrarArquivoSessaoLeituraSmartRead(idLeitura, arquivoOriginal, idArquivo)
-        if (idArquivo) {
-          void salvarBlobArquivoLeituraSmartRead(
-            idLeitura,
-            idArquivo,
-            arquivoOriginal,
-            arquivoOriginal.name,
-          )
-        }
+        void salvarBlobArquivoLeituraSmartRead(
+          idLeitura,
+          idArquivo,
+          arquivoOriginal,
+          arquivoOriginal.name,
+        )
       }
 
       while (ativo.current) {
@@ -869,40 +939,34 @@ export function ModalNovaLeituraSmartRead({
           atualizarArquivo(idArquivoLocal, {
             status_arquivo_local: 'completo',
             leitura,
+            id_arquivo: arquivoApi?.id_arquivo ?? null,
             expandido: true,
           })
           return
         }
 
         if (leitura.status_leitura === 'FAILED') {
+          contadorIaRef.current.marcarIaInativa()
 
           atualizarArquivo(idArquivoLocal, {
-
             status_arquivo_local: 'erro',
-
             leitura,
-
             mensagem_erro: 'Falha no processamento',
-
           })
 
           return
-
         }
 
-
-
         atualizarArquivo(idArquivoLocal, {
-
           status_arquivo_local: 'analisando',
-
           leitura,
-
         })
 
 
 
         if (Date.now() - inicio > LIMITE_POLLING_MS) {
+
+          contadorIaRef.current.marcarIaInativa()
 
           atualizarArquivo(idArquivoLocal, {
 
@@ -935,6 +999,7 @@ export function ModalNovaLeituraSmartRead({
     setEnviando(true)
 
     setInicioAnalise(Date.now())
+    setTempoAnaliseSegundos(null)
 
     setPasso(2)
 
@@ -998,6 +1063,8 @@ export function ModalNovaLeituraSmartRead({
     } catch (erro) {
       if (import.meta.env.DEV) console.error('[smart-read][persist] fechar falhou', erro)
     }
+    limparCacheAnaliseRiscosSessaoSmartRead()
+    limparRequisicoesAnaliseRiscosEmVooSmartRead()
     onFechar()
   }
 
@@ -1160,8 +1227,10 @@ export function ModalNovaLeituraSmartRead({
 
           onContinuar={passo >= 2 ? handleContinuarPasso : undefined}
 
-          tokensTotal={contadorTokens.tokensTotal}
-          tokensCarregando={contadorTokens.carregando}
+          tokensSessao={contadorTokens.tokensTotalSessao}
+          tokensMesOrganizacao={contadorTokens.tokensTotalMesOrganizacao}
+          iaAtiva={contadorTokens.iaAtiva}
+          extracaoEmAndamento={extracaoEmAndamento}
           exibirContadorTokens={passo >= 2}
 
         />
@@ -1177,6 +1246,7 @@ export function ModalNovaLeituraSmartRead({
             analiseCompleta={analiseCompleta}
             processamentoComErro={processamentoComErro}
             inicioAnalise={inicioAnalise}
+            tempoAnaliseSegundos={tempoAnaliseSegundos}
           />
 
         )}
@@ -1189,7 +1259,9 @@ export function ModalNovaLeituraSmartRead({
             onCompararArquivo={() => setCompararAberto(true)}
             onVerEvidencia={visualizarEvidenciaRisco}
             idLeituraLegado={idLeituraAtual}
-            onTokensAtualizados={contadorTokens.aplicarResumoLeitura}
+            onTokensAtualizados={contadorTokens.aplicarAtualizacaoTokens}
+            onIaInicio={() => contadorTokens.marcarIaAtiva()}
+            onIaFim={() => contadorTokens.marcarIaInativa()}
           />
         )}
 

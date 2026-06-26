@@ -14,8 +14,10 @@ type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
   enviando: boolean
   podeContinuar: boolean
-  tokensTotal?: number
-  tokensCarregando?: boolean
+  tokensSessao?: number
+  tokensMesOrganizacao?: number
+  iaAtiva?: boolean
+  extracaoEmAndamento?: boolean
   exibirContadorTokens?: boolean
   onConfirmarNome: (nome: string) => void | Promise<void>
   onRemoverArquivo?: (id: string) => void
@@ -43,8 +45,10 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
   onCancelar,
   onVoltar,
   onContinuar,
-  tokensTotal = 0,
-  tokensCarregando = false,
+  tokensSessao = 0,
+  tokensMesOrganizacao = 0,
+  iaAtiva = false,
+  extracaoEmAndamento = false,
   exibirContadorTokens = false,
 }: Props) {
   return (
@@ -76,8 +80,10 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
       <div className="sr-wizard-lateral-rodape">
         {exibirContadorTokens && (
           <ContadorTokensDiscretoNovaLeituraSmartRead
-            tokensTotal={tokensTotal}
-            carregando={tokensCarregando}
+            tokensSessao={tokensSessao}
+            tokensMesOrganizacao={tokensMesOrganizacao}
+            iaAtiva={iaAtiva}
+            extracaoEmAndamento={extracaoEmAndamento}
           />
         )}
         {passo === 1 && onEnviar && onCancelar && (

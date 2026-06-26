@@ -43,17 +43,38 @@ function exigirPrisma(req: RequisicaoComPrismaSmartRead) {
   return req.prisma
 }
 
-async function exigirLeituraNoWorkspace(
+async function exigirLeituraAcessivelParaTokensSmartRead(
   req: RequisicaoComPrismaSmartRead,
   idLeitura: string,
 ): Promise<void> {
   const idOrganizacao = organizacaoDaRequisicao(req)
+  const idUsuario = idUsuarioDaRequisicao(req)
   const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
   const prisma = exigirPrisma(req)
+
   const vinculada = await leituraVinculadaAoWorkspaceSmartRead(prisma, idLeitura, idWorkspace)
-  if (!vinculada) {
-    throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
-  }
+  if (vinculada) return
+
+  const progressoUsuario = await prisma.progressoLeituraSmartRead.findFirst({
+    where: {
+      id_organizacao: idOrganizacao,
+      id_usuario: idUsuario,
+      id_leitura_legado_progresso_leitura_smart_read: idLeitura,
+    },
+    select: { id_progresso_leitura_smart_read: true },
+  })
+  if (progressoUsuario) return
+
+  const temLogNaOrganizacao = await prisma.logUsoLlmLeituraSmartRead.findFirst({
+    where: {
+      id_organizacao: idOrganizacao,
+      id_leitura_legado_log_uso_llm_leitura_smart_read: idLeitura,
+    },
+    select: { id_log_uso_llm_leitura_smart_read: true },
+  })
+  if (temLogNaOrganizacao) return
+
+  throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
 }
 
 tokensUsoLlmLeituraSmartReadRouter.get(
@@ -75,7 +96,7 @@ tokensUsoLlmLeituraSmartReadRouter.get(
         if (!id_leitura) {
           throw new AppError('id_leitura obrigatorio para escopo leitura', 400, 'VALIDACAO')
         }
-        await exigirLeituraNoWorkspace(req, id_leitura)
+        await exigirLeituraAcessivelParaTokensSmartRead(req, id_leitura)
         resumo = await consultarResumoTokensLeituraSmartRead(prisma, id_leitura)
       } else if (escopo === 'organizacao_mes') {
         resumo = await consultarResumoTokensOrganizacaoMesSmartRead(prisma)
@@ -102,7 +123,7 @@ tokensUsoLlmLeituraSmartReadRouter.get(
       idUsuarioDaRequisicao(req)
       const prisma = exigirPrisma(req)
       const { id_leitura } = z.object({ id_leitura: z.string().min(8) }).parse(req.params)
-      await exigirLeituraNoWorkspace(req, id_leitura)
+      await exigirLeituraAcessivelParaTokensSmartRead(req, id_leitura)
       const resumo = await consultarResumoTokensLeituraSmartRead(prisma, id_leitura)
       res.json(ResumoUsoLlmLeituraSmartReadSchema.parse(resumo))
     } catch (erro) {

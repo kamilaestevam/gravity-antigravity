@@ -120,7 +120,7 @@ body.light-theme .sw-content.sw-content--hub-unificado {
   min-height: 0;
   height: auto;
   max-height: none;
-  overflow: hidden;
+  overflow: visible;
   min-width: 0;
   padding: 1rem 1.1rem 20px;
   border-radius: 14px;
@@ -336,22 +336,34 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   height: 100%;
 }
 
-.sw-hub-row-gabi .sw-hub-panel--store .sw-hub-store-btn {
+/* Paridade visual — mesmo fundo de Produtos e Operações em andamento */
+.sw-content.sw-content--hub-unificado .sw-hub-row-gabi > .sw-hub-panel--store,
+.sw-content.sw-content--hub-unificado .sw-hub-row-gabi > .sw-hub-panel--gabi {
+  background: var(--hub-fundo-painel, var(--hub-ops-kpi-bg));
+  border-color: var(--hub-borda-painel, rgba(148, 163, 184, 0.08));
+  box-shadow: none;
+}
+
+.sw-hub-row-gabi .sw-hub-panel--store .sw-hub-store-foot {
   margin-top: auto;
+  padding-top: 0.35rem;
+  flex-shrink: 0;
 }
 
 .sw-hub-row-gabi .sw-hub-panel--store .sw-hub-panel-label {
   margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--sw-text-1);
 }
 
 .sw-hub-row-gabi .sw-hub-panel--store .sw-hub-store-desc {
-  font-size: 0.72rem;
   margin: 0 0 0.5rem;
-}
-
-.sw-hub-row-gabi .sw-hub-panel--store .sw-hub-store-btn {
-  font-size: 0.72rem;
-  padding: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--hub-cor-painel);
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Painel GABI oculto (EXIBIR_PAINEL_GABI_HUB = false) — só Gravity Store na faixa */
@@ -469,11 +481,11 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.58rem;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #67e8f9;
+  color: #818cf8;
   margin-top: 8px;
   margin-bottom: 0.3rem;
   flex-shrink: 0;
@@ -484,7 +496,7 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
 }
 
 .sw-hub-gabi-insight-text {
-  margin: 0;
+  margin: 24px 0 0;
   color: var(--sw-text-2);
   font-size: 0.78rem;
   line-height: 1.4;
@@ -555,6 +567,7 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   align-items: center;
   gap: 3px;
   font-family: var(--font, inherit);
+  transform: translateY(-12px);
 }
 
 .sw-hub-gabi-insight-link:hover {
@@ -630,7 +643,7 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
 }
 
 .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--descoberta .sw-hub-gabi-insight-tag {
-  color: #67e8f9;
+  color: #818cf8;
 }
 
 .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-card--operacao {
@@ -685,8 +698,10 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   flex-shrink: 0;
 }
 
-.sw-hub-gabi-head .sw-hub-panel-label {
+.sw-content.sw-content--hub-unificado .sw-hub-gabi-head .sw-hub-panel-label {
   margin-bottom: 0;
+  font-size: 12px;
+  color: var(--sw-text-1);
 }
 
 /* Puzzle stack (Store) no painel de produtos contratados do HUB */
@@ -742,11 +757,12 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   letter-spacing: normal;
 }
 
-:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__lanes {
+.sw-content.sw-content--hub-unificado :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__lanes {
   padding: 0;
   border-radius: 12px;
   background: transparent;
-  overflow: hidden;
+  /* Scroll só no track do carrossel — overflow aqui gerava barra cinza visível */
+  overflow: visible;
   min-width: 0;
 }
 
@@ -763,7 +779,9 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   align-items: center;
   min-width: min-content;
   position: relative;
-  padding: 6px 2px 8px;
+  /* Respiro no topo — tag FORNECEDOR em top: -4px */
+  padding: 10px 2px 8px;
+  align-items: flex-start;
 }
 
 /* Conector entre cards — nó na borda direita + linha até o próximo card (mock) */
@@ -816,10 +834,16 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   z-index: 1;
 }
 
-/* Carrossel: scroll interno — não vazar peças para fora do painel */
-:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-puzzle-carousel__track {
+/* Carrossel HUB — tag FORNECEDOR ultrapassa o topo da peça; hub-store.css força overflow-y:hidden depois */
+.sw-content.sw-content--hub-unificado :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-puzzle-carousel {
+  overflow: visible;
+}
+
+.sw-content.sw-content--hub-unificado :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-puzzle-carousel__track {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
+  padding-top: 6px;
+  margin-top: -2px;
 }
 
 /* Cards quadrados: sem overlap do puzzle SVG da Store */
@@ -866,6 +890,13 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual.gs-piece--fornecedor {
   border: 1px solid var(--hub-borda-peca);
   box-shadow: none;
+  overflow: visible;
+  /* Acima do conector (z-index: 2) para a tag não ficar atrás */
+  z-index: 5;
+}
+
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual.gs-piece--fornecedor .gs-piece__body {
+  z-index: 1;
 }
 
 :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece--hub-visual.gs-piece--on:hover,
@@ -964,12 +995,12 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 /* Tag FORNECEDOR — topo do card (paridade ws-profile-badge--fornecedor) */
 :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-piece__tag-fornecedor {
   position: absolute;
-  top: 0;
+  top: -4px;
   left: 50%;
-  z-index: 3;
-  transform: translate(calc(-50% + 24px), -50%);
+  z-index: 10;
+  transform: translateX(calc(-50% + 24px));
   display: inline-block;
-  padding: 1px 6px;
+  padding: 2px 6px;
   border-radius: 4px;
   font-size: 8px;
   font-weight: 700;
@@ -977,8 +1008,10 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.3);
-  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  /* Fundo opaco — cobre a borda do card que cruza o badge */
+  background: var(--hub-fundo-peca, #1a2234);
+  box-shadow: 0 0 0 1px var(--hub-fundo-peca, #1a2234);
   white-space: nowrap;
   pointer-events: none;
 }
@@ -1135,7 +1168,8 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 
 /* Paridade: Gravity Store = Ver todos os processos */
 .sw-content.sw-content--hub-unificado .sw-hub-ops-head > .sw-hub-link-pill,
-.sw-content.sw-content--hub-unificado .sw-hub-prod-head-right > .sw-hub-link-pill {
+.sw-content.sw-content--hub-unificado .sw-hub-prod-head-right > .sw-hub-link-pill,
+.sw-content.sw-content--hub-unificado .sw-hub-store-foot > .sw-hub-link-pill {
   font-size: 0.72rem;
   line-height: 1;
   padding: 0.28rem 0.65rem;
@@ -1214,19 +1248,20 @@ body.light-theme .sw-hub-link-pill:hover {
   white-space: nowrap;
 }
 
-/* Store */
+/* Store — fundo alinhado ao painel Produtos/Operações (sem gradiente roxo) */
 .sw-hub-panel--store {
-  background: linear-gradient(160deg, #1e1b4b 0%, var(--sw-surface) 60%);
-  border-color: rgba(139, 92, 246, 0.25);
+  border-color: var(--hub-borda-painel, rgba(148, 163, 184, 0.08));
 }
 
-body.light-theme .sw-hub-panel--store {
-  background: linear-gradient(160deg, #ede9fe 0%, var(--sw-surface) 60%);
+body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-row-gabi > .sw-hub-panel--store,
+body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-row-gabi > .sw-hub-panel--gabi {
+  background: var(--hub-fundo-painel, var(--hub-ops-kpi-bg));
+  border-color: var(--hub-borda-painel, rgba(148, 163, 184, 0.08));
 }
 
 .sw-hub-store-desc {
-  font-size: 0.78rem;
-  color: var(--sw-text-2);
+  font-size: 0.8125rem;
+  color: var(--hub-cor-painel);
   line-height: 1.45;
   margin: 0 0 0.5rem;
 }
@@ -1328,29 +1363,7 @@ body.light-theme .sw-hub-panel--store {
   }
 }
 
-.sw-hub-store-btn {
-  width: 100%;
-  padding: 0.6rem;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #7c3aed, #6366f1);
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.78rem;
-  cursor: pointer;
-  margin-top: 0;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-}
-
-.sw-hub-store-btn:hover {
-  filter: brightness(1.06);
-}
-
-/* ── Operações / KPIs (cores protótipo hub-unificado-preview) ── */
+/* Legado — substituído por sw-hub-link-pill no painel Store do HUB */
 .sw-content.sw-content--hub-unificado .sw-hub-row-ops {
   background: var(--hub-fundo-painel, var(--hub-ops-kpi-bg));
   border: 1px solid var(--hub-borda-painel, rgba(148, 163, 184, 0.08));
@@ -1372,50 +1385,89 @@ body.light-theme .sw-hub-panel--store {
 .sw-content.sw-content--hub-unificado .sw-hub-ops-head .sw-hub-panel-label {
   margin: 0;
   line-height: 1;
-  color: var(--hub-proto-muted);
+  font-size: 12px;
+  color: var(--sw-text-1);
 }
 
 .sw-hub-kpi-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.65rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
   margin-bottom: 0.85rem;
 }
 
 @media (max-width: 900px) {
   .sw-hub-kpi-row {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sw-hub-kpi-row > .tg-trigger:nth-child(3) {
+    grid-column: 1 / -1;
   }
 }
 
+/* TooltipGlobal (.tg-trigger) é inline-flex — estica para preencher a coluna do grid */
+.sw-hub-kpi-row > .tg-trigger {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.sw-hub-kpi-row > .tg-trigger .sw-hub-kpi {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .sw-hub-kpi {
-  background: var(--hub-ops-kpi-bg);
+  background: color-mix(in srgb, var(--hub-fundo-painel) 55%, var(--sw-surface-3, #182030) 45%);
   border-radius: 12px;
-  padding: 0.8rem 0.85rem;
-  border: 1px solid rgba(148, 163, 184, 0.08);
+  padding: 1rem 1.15rem 1.05rem;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  min-height: 6.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: default;
+}
+
+.sw-hub-kpi-row > * {
+  min-width: 0;
+}
+
+.sw-hub-kpi-row > *:hover .sw-hub-kpi,
+.sw-hub-kpi-row > .tg-trigger:hover .sw-hub-kpi {
+  border-color: rgba(129, 140, 248, 0.35);
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.08);
 }
 
 .sw-hub-kpi-val {
-  font-size: 1.4rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1.1;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .sw-hub-kpi-lbl {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--hub-proto-muted);
-  margin-top: 0.2rem;
+  margin-top: 0.35rem;
   line-height: 1.35;
+  max-width: 14rem;
 }
 
 .sw-hub-kpi-tag {
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  margin-top: 0.4rem;
-  display: inline-block;
-  padding: 0.12rem 0.42rem;
-  border-radius: 4px;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 0.22rem 0.5rem;
+  border-radius: 6px;
 }
 
 .sw-hub-kpi-tag--up {
@@ -1509,8 +1561,10 @@ body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-proc {
 }
 
 .sw-hub-proc-empty {
-  font-size: 0.78rem;
-  color: var(--hub-proto-muted);
+  font-size: 0.8125rem;
+  color: var(--hub-cor-painel);
+  line-height: 1.45;
   padding: 0.75rem 0;
+  margin: 0;
 }
 

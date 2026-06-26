@@ -1,4 +1,4 @@
-{
+﻿{
   "comum": {
     "salvar": "Salvar",
     "cancelar": "Cancelar",
@@ -235,6 +235,8 @@
     "role_master": "Master",
     "role_standard": "Standard",
     "role_fornecedor": "Fornecedor",
+    "kpi_delta_hoje": "{{count}} hoje",
+    "kpi_delta_pendentes": "{{count}} pendentes",
     "kpi_delta_1_hoje": "1 hoje",
     "kpi_delta_2_hoje": "2 hoje",
     "kpi_delta_7_pendentes": "7 pendentes",
@@ -9382,7 +9384,7 @@
     "produtos_contratados_desc": "Acesso direto aos módulos que você já contratou",
     "ws_pref_intro": "Preferência de filiais por produto — o que você define aqui é o que cada módulo usa ao abrir",
     "gravity_store": "Gravity Store",
-    "store_desc": "Vitrine do ecossistema — descubra e contrate novos módulos para o workspace.",
+    "store_desc": "Vitrine do ecossistema — novos módulos para o workspace.",
     "sem_produtos_contratados": "Nenhum módulo ativo no catálogo.",
     "ir_store_ativar": "Ativar na Gravity Store",
     "visitar_store": "Visitar Gravity Store",

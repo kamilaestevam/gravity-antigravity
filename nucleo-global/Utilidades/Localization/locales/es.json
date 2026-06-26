@@ -1,4 +1,4 @@
-{
+﻿{
   "BIDFRETE.NOVA_COTACAO.TIPO_OPERACAO_COTACAO_BID_FRETE_INTERNACIONAL": "Tipo de Operación",
   "BIDFRETE.NOVA_COTACAO.MODALIDADE_COTACAO_BID_FRETE_INTERNACIONAL": "Modalidad",
   "bidfrete.nova_cotacao.tipo_operacao_cotacao_bid_frete_internacional": "Tipo de Operación",
@@ -6964,7 +6964,7 @@
     "produtos_contratados_desc": "Acceda directo a los módulos que ya contrató",
     "ws_pref_intro": "Preferencia de filiales por producto — lo que define aquí es lo que cada módulo usa al abrir",
     "gravity_store": "Gravity Store",
-    "store_desc": "Vitrina del ecosistema — descubra y contrate nuevos módulos para el workspace.",
+    "store_desc": "Vitrina del ecosistema — nuevos módulos para el workspace.",
     "sem_produtos_contratados": "Ningún módulo activo en el catálogo.",
     "ir_store_ativar": "Activar en Gravity Store",
     "visitar_store": "Visitar Gravity Store",

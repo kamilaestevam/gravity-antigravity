@@ -190,7 +190,7 @@ const HUB_GABI_LAYOUT_EXPERIMENTO: 0 | 1 | 2 | 3 | 4 = 1
  * Painel GABI + KPI no HUB — oculto até insights/agente cross-produto estarem prontos.
  * JSX, fetch /api/v1/hub/insights e estilos preservados; reativar quando validado.
  */
-const EXIBIR_PAINEL_GABI_HUB = false
+const EXIBIR_PAINEL_GABI_HUB = true
 
 /**
  * Botão «Onde estou» (LocalizadorGlobal) no header do HUB — oculto até o mapa 3D
@@ -273,7 +273,7 @@ const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
   'bid-frete': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
   'bid-frete-internacional': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
   'bid-cambio': { nome: 'BID Câmbio', rota: '/bid-cambio' },
-  'smart-read': { nome: 'Smart Read', rota: resolverRotaProdutoGravity('smart-read') },
+  'smart-read': { nome: 'Smart Docs', rota: resolverRotaProdutoGravity('smart-read') },
   'processo': { nome: 'Processo', rota: '/processo' },
 }
 
@@ -1395,40 +1395,48 @@ export function SelecionarWorkspace() {
                   </button>
                 </div>
                 <div className="sw-hub-kpi-row">
-                  <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.processos_em_andamento}</div>
-                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_processos', 'Processos em andamento')}</div>
-                    {hubOperacoes.processos_hoje > 0 && (
-                      <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">
-                        ▲ {t('hub.kpi_delta_1_hoje', '{{count}} hoje', { count: hubOperacoes.processos_hoje })}
-                      </span>
-                    )}
-                  </div>
-                  <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.aguardando_acao}</div>
-                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_aguardando_acao', 'Aguardando ação')}</div>
-                    {hubOperacoes.aguardando_acao > 0 && (
-                      <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
-                        ⚠ {t('hub.kpi_delta_3_pendentes', '{{count}} pendentes', { count: hubOperacoes.aguardando_acao })}
-                      </span>
-                    )}
-                  </div>
-                  <div className="sw-hub-kpi">
-                    <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.notas_fiscais_pendentes}</div>
-                    <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
-                    {hubOperacoes.notas_fiscais_pendentes > 0 && (
-                      <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
-                        ⚠ {t('hub.kpi_delta_7_pendentes', '{{count}} pendentes', { count: hubOperacoes.notas_fiscais_pendentes })}
-                      </span>
-                    )}
-                  </div>
-                  {EXIBIR_PAINEL_GABI_HUB && (
+                  <TooltipGlobal
+                    titulo={t('hub.kpi_tooltip_processos_titulo', 'Processos em andamento')}
+                    descricao={t('hub.kpi_tooltip_processos', 'Dossiês COMEX abertos no módulo Processo do workspace')}
+                  >
                     <div className="sw-hub-kpi">
-                      <div className="sw-hub-kpi-val">91%</div>
-                      <div className="sw-hub-kpi-lbl">{t('hub.kpi_gabi_curto', 'Assertividade Gabi IA')}</div>
-                      <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">{t('hub.kpi_delta_ativo', 'ativo')}</span>
+                      <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.processos_em_andamento}</div>
+                      <div className="sw-hub-kpi-lbl">{t('hub.kpi_processos', 'Processos em andamento')}</div>
+                      {hubOperacoes.processos_hoje > 0 && (
+                        <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">
+                          ▲ {t('hub.kpi_delta_hoje', '{{count}} hoje', { count: hubOperacoes.processos_hoje })}
+                        </span>
+                      )}
                     </div>
-                  )}
+                  </TooltipGlobal>
+                  <TooltipGlobal
+                    titulo={t('hub.kpi_tooltip_aguardando_acao_titulo', 'Aguardando ação')}
+                    descricao={t('hub.kpi_tooltip_aguardando_acao', 'Pendências da sua equipe nos produtos ativos do workspace')}
+                  >
+                    <div className="sw-hub-kpi">
+                      <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.aguardando_acao}</div>
+                      <div className="sw-hub-kpi-lbl">{t('hub.kpi_aguardando_acao', 'Aguardando ação')}</div>
+                      {hubOperacoes.aguardando_acao > 0 && (
+                        <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
+                          ⚠ {t('hub.kpi_delta_pendentes', '{{count}} pendentes', { count: hubOperacoes.aguardando_acao })}
+                        </span>
+                      )}
+                    </div>
+                  </TooltipGlobal>
+                  <TooltipGlobal
+                    titulo={t('hub.kpi_tooltip_notas_fiscais_titulo', 'NFs de importação')}
+                    descricao={t('hub.kpi_tooltip_notas_fiscais', 'Notas fiscais de importação ainda não concluídas')}
+                  >
+                    <div className="sw-hub-kpi">
+                      <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.notas_fiscais_pendentes}</div>
+                      <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
+                      {hubOperacoes.notas_fiscais_pendentes > 0 && (
+                        <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
+                          ⚠ {t('hub.kpi_delta_pendentes', '{{count}} pendentes', { count: hubOperacoes.notas_fiscais_pendentes })}
+                        </span>
+                      )}
+                    </div>
+                  </TooltipGlobal>
                 </div>
                 <div className="sw-hub-proc-list">
                   {hubOperacoesCarregando ? (
@@ -1477,14 +1485,17 @@ export function SelecionarWorkspace() {
                     }))}
                     onAbrirStore={() => navigate('/store')}
                   />
-                  <button
-                    type="button"
-                    className="sw-hub-store-btn"
-                    onClick={() => navigate('/store')}
-                  >
-                    {t('sw.visitar_store', 'Visitar Gravity Store')}
-                    <ArrowRight size={12} weight="bold" />
-                  </button>
+                  <div className="sw-hub-store-foot">
+                    <button
+                      type="button"
+                      className="sw-hub-link-pill"
+                      onClick={() => navigate('/store')}
+                    >
+                      <ShoppingBagOpen size={13} weight="duotone" aria-hidden />
+                      {t('sw.ver_catalogo', 'Gravity Store')}
+                      <ArrowRight size={12} weight="bold" className="sw-hub-link-pill__arrow" aria-hidden />
+                    </button>
+                  </div>
                 </section>
 
                 {EXIBIR_PAINEL_GABI_HUB && (

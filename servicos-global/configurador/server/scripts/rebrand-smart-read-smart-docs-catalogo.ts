@@ -14,7 +14,7 @@ const DESCRICAO_NOVA =
   'Inteligência documental para COMEX — extração, conferência, riscos e Q&A com IA'
 
 const apply = process.argv.includes('--apply')
-const arquivarDuplicatas = process.argv.includes('--arquivar-duplicatas')
+const aplicarArquivarDuplicatas = process.argv.includes('--arquivar-duplicatas')
 
 function descricaoLegada(descricao: string): boolean {
   return (
@@ -177,7 +177,7 @@ async function main() {
     return
   }
 
-  if (duplicatas.length > 0 && arquivarDuplicatas) {
+  if (duplicatas.length > 0 && aplicarArquivarDuplicatas) {
     const n = await arquivarDuplicatas(duplicatas)
     console.log(`\n[rebrand] ${n} duplicata(s) arquivada(s).`)
   } else if (duplicatas.length > 0) {

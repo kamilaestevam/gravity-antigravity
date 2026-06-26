@@ -43,14 +43,17 @@ function calcularSavingAgregado(transacoes: TransacaoLeitura[]): {
   minutos: number | null
   brl: number | null
   camposErrados: number
+  totalCampos: number
   leiturasComSaving: number
 } {
   let minutos = 0
   let brl = 0
   let camposErrados = 0
+  let totalCampos = 0
   let leiturasComSaving = 0
 
   for (const transacao of transacoes) {
+    totalCampos += transacao.total_campos_extraidos
     camposErrados += resolverContagemAcertoErroEstudoSmartRead(
       transacao.total_campos_extraidos,
     ).errados
@@ -65,6 +68,7 @@ function calcularSavingAgregado(transacoes: TransacaoLeitura[]): {
     minutos: leiturasComSaving > 0 ? minutos : null,
     brl: leiturasComSaving > 0 ? brl : null,
     camposErrados,
+    totalCampos,
     leiturasComSaving,
   }
 }
@@ -127,7 +131,7 @@ function renderCard(
             </p>
             <p className="cg-tooltip__row">
               <span>Erros evitados (estudo)</span>
-              <strong>{formatarErrosEvitadosEstudoSmartRead(saving.camposErrados)}</strong>
+              <strong>{formatarErrosEvitadosEstudoSmartRead(saving.camposErrados, saving.totalCampos)}</strong>
             </p>
             <p className="cg-tooltip__row">
               <span>Leituras com saving</span>

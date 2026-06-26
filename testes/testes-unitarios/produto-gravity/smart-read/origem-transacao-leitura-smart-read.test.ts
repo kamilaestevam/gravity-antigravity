@@ -85,7 +85,8 @@ describe('mesclarTransacaoNaLista', () => {
 
     const mesclada = mesclarTransacaoNaLista(legado, snapshot)
 
-    expect(mesclada.media_acertos).toBeCloseTo(0.88)
+    expect(mesclada.media_acertos).toBe(1)
+    expect(mesclada.total_campos_errados).toBe(0)
     expect(mesclada.saving_total_minutos).toBeGreaterThan(0)
     expect(mesclada.saving_total_brl).toBeGreaterThan(0)
   })

@@ -116,7 +116,7 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
             </p>
             <p className="cg-tooltip__row">
               <span>Errados</span>
-              <strong>{formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados)}</strong>
+              <strong>{formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados, metricas.totalCampos)}</strong>
             </p>
             <p className="cg-tooltip__row">
               <span>Taxa de acerto</span>
@@ -147,12 +147,12 @@ export function KpiGridInsightsLeituraSmartRead({ metricas, carregando }: Props)
         className="sr-insights-grid__kpi"
         titulo="SAVING EM ERROS"
         icone={<TrendUp weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
-        valor={carregando ? placeholder : formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados)}
+        valor={carregando ? placeholder : formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados, metricas.totalCampos)}
         tooltip={
           <>
             <p className="cg-tooltip__row">
               <span>Erros evitados (estudo)</span>
-              <strong>{formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados)}</strong>
+              <strong>{formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados, metricas.totalCampos)}</strong>
             </p>
             <p className="cg-tooltip__row">
               <span>Tempo economizado</span>
@@ -246,7 +246,7 @@ export function PainelCamposAcertosInsightsSmartRead({
         <div className="sr-insights-campos-box sr-insights-campos-box--erro">
           <p className="sr-insights-campos-box__rotulo">Errados</p>
           <p className="sr-insights-campos-box__valor" style={{ color: '#f87171' }}>
-            {formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados)}
+            {formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados, metricas.totalCampos)}
           </p>
         </div>
       </div>
@@ -470,7 +470,7 @@ export function PainelSavingDetalheInsightsSmartRead({
             Correção de erros
           </p>
           <p className="sr-insights-campos-box__valor" style={{ color: '#a78bfa', fontSize: '1.25rem' }}>
-            {formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados)}{' '}
+            {formatarErrosEvitadosEstudoSmartRead(metricas.camposErrados, metricas.totalCampos)}{' '}
             <span className="sr-insights-campos-box__unidade">campos</span>
           </p>
           <p className="sr-insights-campos-box__detalhe">

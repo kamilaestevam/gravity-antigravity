@@ -4,6 +4,7 @@
 
 import {
   executarAuditoriaV1AnaliseRiscosLeitura,
+  aplicarCorrecaoSugeridaPadraoRisco,
   type ResumoRiscosAduaneirosLeitura,
   type RiscoAduaneiroLeitura,
   type SeveridadeRiscoAduaneiro,
@@ -23,7 +24,7 @@ export type {
   EvidenciaRiscoAduaneiroLeitura,
 }
 
-export { validarCnpjBrasil }
+export { validarCnpjBrasil, aplicarCorrecaoSugeridaPadraoRisco }
 
 export function montarDocumentosAnaliseRiscoDeArquivosLocais(
   arquivos: ArquivoLocalNovaLeitura[],

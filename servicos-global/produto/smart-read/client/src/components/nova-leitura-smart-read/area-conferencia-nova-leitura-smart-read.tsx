@@ -6,19 +6,22 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova-leitura-smart-read'
 import { ConferenciaQaNovaLeituraSmartRead } from './conferencia-qa-nova-leitura-smart-read'
+import { ConferenciaRiscosAduaneirosNovaLeituraSmartRead } from './conferencia-riscos-aduaneiros-nova-leitura-smart-read'
+import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 
 export type SelecaoDocumentoConferencia = {
   idArquivoLocal: string
   indiceDocumento: number
 }
 
-type AbaConferencia = 'campos' | 'qa'
+type AbaConferencia = 'campos' | 'qa' | 'riscos'
 
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
   selecao: SelecaoDocumentoConferencia | null
   onSelecionarDocumento: (selecao: SelecaoDocumentoConferencia) => void
   onCompararArquivo?: () => void
+  onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
 }
 
 export function AreaConferenciaNovaLeituraSmartRead({
@@ -26,6 +29,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
   selecao,
   onSelecionarDocumento,
   onCompararArquivo,
+  onVerEvidencia,
 }: Props) {
   const [aba, setAba] = useState<AbaConferencia>('campos')
 
@@ -69,7 +73,16 @@ export function AreaConferenciaNovaLeituraSmartRead({
           className={`sr-conf-tab${aba === 'qa' ? ' sr-conf-tab--ativo' : ''}`}
           onClick={() => setAba('qa')}
         >
-          Q&amp;A sobre Leitura
+          Consultor Inteligente
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={aba === 'riscos'}
+          className={`sr-conf-tab${aba === 'riscos' ? ' sr-conf-tab--ativo' : ''}`}
+          onClick={() => setAba('riscos')}
+        >
+          Análise de Riscos
         </button>
       </div>
 
@@ -88,6 +101,13 @@ export function AreaConferenciaNovaLeituraSmartRead({
       )}
 
       {aba === 'qa' && <ConferenciaQaNovaLeituraSmartRead arquivos={arquivosCompletos} />}
+
+      {aba === 'riscos' && (
+        <ConferenciaRiscosAduaneirosNovaLeituraSmartRead
+          arquivos={arquivosCompletos}
+          onVerEvidencia={onVerEvidencia}
+        />
+      )}
     </div>
   )
 }

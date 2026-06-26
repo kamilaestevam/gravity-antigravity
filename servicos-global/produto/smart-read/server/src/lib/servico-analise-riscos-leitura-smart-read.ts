@@ -17,8 +17,13 @@ import {
   SYSTEM_PROMPT_ANALISE_RISCOS_LEITURA,
   montarPromptUsuarioAnaliseRiscosLeitura,
 } from './prompt-analise-riscos-leitura-smart-read.js'
+import {
+  buscarChunksRagNormativoAnaliseRiscos,
+  precisaRagNormativoAnaliseRiscos,
+} from './rag-normativo-analise-riscos-smart-read.js'
 
 const GEMINI_MODEL = 'gemini-2.5-flash'
+const GEMINI_TIMEOUT_MS = 45_000
 
 const LlmRiscosEnvelopeSchema = z.object({
   riscos: z.array(RiscoAduaneiroLeituraSchema),
@@ -104,6 +109,7 @@ async function chamarLlmAnaliseRiscos(
           responseMimeType: 'application/json',
         },
       }),
+      signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
     },
   )
 
@@ -153,11 +159,17 @@ export async function executarAnaliseRiscosLeituraSmartRead(
 
   if (llmAtivo) {
     try {
+      const riscosBase = [...v1Resumo.riscos, ...riscosV3Tributos]
+      const chunksRag = precisaRagNormativoAnaliseRiscos(riscosBase, contexto)
+        ? buscarChunksRagNormativoAnaliseRiscos(riscosBase, contexto)
+        : undefined
+
       const prompt = montarPromptUsuarioAnaliseRiscosLeitura({
         documentos: entrada.documentos,
         contextoV1: contexto,
-        riscosV1Titulos: [...v1Resumo.riscos, ...riscosV3Tributos].map((r) => r.titulo),
+        riscosV1Titulos: riscosBase.map((r) => r.titulo),
         pergunta: entrada.pergunta,
+        chunksRag,
       })
       riscosLlm = await chamarLlmAnaliseRiscos(prompt)
     } catch (erro) {

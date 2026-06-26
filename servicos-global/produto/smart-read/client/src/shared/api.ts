@@ -35,6 +35,11 @@ import {
   type QaLeituraResponse,
 } from '../../../shared/qa-leitura-smart-read'
 import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
+import {
+  conteudoArquivoLeituraEhVisualizavel,
+  mensagemConteudoArquivoInvalido,
+  resolverMimePorNomeArquivo,
+} from '../../../shared/validar-conteudo-arquivo-leitura-smart-read'
 
 export type { ListaPainel }
 
@@ -146,6 +151,30 @@ export const smartReadApi = {
     return requisitar(LeituraSchema, `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}`)
   },
 
+  async obterArquivoLeitura(idLeitura: string, idArquivo: string, nomeArquivo?: string): Promise<Blob> {
+    const resposta = await fetch(
+      `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/arquivos/${encodeURIComponent(idArquivo)}`,
+      {
+        headers: cabecalhosBase(),
+        signal: AbortSignal.timeout(45_000),
+      },
+    )
+    if (!resposta.ok) {
+      throw new Error(await lerErro(resposta))
+    }
+    const bruto = await resposta.blob()
+    const bytes = new Uint8Array(await bruto.arrayBuffer())
+    const nome = nomeArquivo ?? 'documento'
+    if (!conteudoArquivoLeituraEhVisualizavel(bytes, nome)) {
+      throw new Error(mensagemConteudoArquivoInvalido(nome))
+    }
+    const mime =
+      bruto.type && bruto.type !== 'application/octet-stream'
+        ? bruto.type
+        : resolverMimePorNomeArquivo(nome)
+    return new Blob([bytes], { type: mime })
+  },
+
   analisarRiscosLeitura(
     payload: AnaliseRiscosLeituraRequest,
   ): Promise<AnaliseRiscosLeituraResponse> {
@@ -153,6 +182,7 @@ export const smartReadApi = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(60_000),
     })
   },
 

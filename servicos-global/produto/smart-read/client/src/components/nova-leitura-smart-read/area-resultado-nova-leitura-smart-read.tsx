@@ -1,7 +1,6 @@
 /**
  * AreaResultadoNovaLeituraSmartRead — passo 4: métricas + download multi-formato.
- * Cards: performance de acertos (validados/alterados), saving e tempo total bruto.
- * Downloads: por arquivo, selecionados ou todos, em JSON/Excel/PDF/CSV/TXT/XML.
+ * Layout alinhado ao passo 2 (métricas + painel com superfície).
  */
 
 import { useMemo, useState } from 'react'
@@ -25,6 +24,11 @@ import {
   calcularEstatisticasConferencia,
   extrairSecoesConferenciaLeitura,
 } from '../../shared/extrair-secoes-conferencia-leitura-smart-read'
+import { calcularSavingNovaLeituraSmartRead } from '../../shared/calcular-saving-nova-leitura-smart-read'
+import {
+  formatarSavingHorasLeitura,
+  formatarSavingValorLeitura,
+} from '../../shared/formatacao-leitura-smart-read'
 import {
   FORMATOS_DOWNLOAD_LEITURA,
   TODOS_FORMATOS_DOWNLOAD,
@@ -72,8 +76,10 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
     const pctAlterados = preenchidos ? Math.round((alterados / preenchidos) * 100) : 0
     const pctValidados = preenchidos ? 100 - pctAlterados : 0
     const segundos = Math.floor(tempoTotalMs / 1000)
-    const horasSaving = Math.max(1, Math.round(segundos / 14) || 1)
-    return { total, preenchidos, documentos, pctAlterados, pctValidados, segundos, horasSaving }
+    const saving = calcularSavingNovaLeituraSmartRead(arquivosCompletos, {
+      tempoLeituraSegundos: segundos,
+    })
+    return { total, preenchidos, documentos, pctAlterados, pctValidados, segundos, saving }
   }, [arquivosCompletos, camposEditados, tempoTotalMs])
 
   function alternarSelecao(id: string) {
@@ -150,110 +156,125 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
 
   return (
     <div className="sr-wizard-principal sr-wizard-principal--resultado">
-      <header className="sr-wizard-resultado-cabecalho">
-        <FileText size={28} weight="duotone" />
-        <div>
-          <h2>Resultado das leituras</h2>
-          <p>Baixe suas leituras no formato desejado.</p>
-        </div>
-      </header>
-
-      <div className="sr-res-metricas">
-        <article className="sr-res-card">
-          <header>
-            <CheckCircle size={16} weight="duotone" />
-            <span>Performance de acertos</span>
-          </header>
-          <div className="sr-res-perf">
-            <div className="sr-res-perf-linha sr-res-perf-linha--ok">
-              <strong>{metricas.pctValidados}%</strong>
-              <span>Dados validados</span>
-              <TrendUp size={14} weight="bold" />
-            </div>
-            <div className="sr-res-perf-linha sr-res-perf-linha--alt">
-              <strong>{metricas.pctAlterados}%</strong>
-              <span>Dados alterados</span>
-              <TrendDown size={14} weight="bold" />
-            </div>
-          </div>
-        </article>
-
-        <article className="sr-res-card">
-          <header>
-            <Timer size={16} weight="duotone" />
-            <span>Recursos reduzidos com a leitura</span>
-          </header>
-          <div className="sr-res-saving">
-            <strong>{metricas.horasSaving} Horas</strong>
-            <span className="sr-res-saving-valor">BLR 362.777,20</span>
-            <span className="sr-res-saving-badge">+12%</span>
-          </div>
-        </article>
-
-        <article className="sr-res-card">
-          <header>
-            <Clock size={16} weight="duotone" />
-            <span>Tempo total da leitura</span>
-          </header>
-          <div className="sr-res-timer">{formatarTempo(metricas.segundos)}</div>
-          <small>
-            HH : MM : SS · {metricas.documentos} documento(s) · {metricas.preenchidos}/{metricas.total} campos
-          </small>
-        </article>
-      </div>
-
-      <div className="sr-res-lista">
-        {arquivosCompletos.map((item) => {
-          const documentos = extrairDocumentosArquivoLocal(item)
-          const selecionado = selecionados.has(item.id_arquivo_local)
-          return (
-            <article
-              key={item.id_arquivo_local}
-              className={`sr-res-item${selecionado ? ' sr-res-item--sel' : ''}`}
-            >
-              <label className="sr-res-item-check">
-                <input
-                  type="checkbox"
-                  checked={selecionado}
-                  onChange={() => alternarSelecao(item.id_arquivo_local)}
-                />
-                <span className="sr-res-item-nome">
-                  <FileText size={16} weight="duotone" />
-                  {item.arquivo.name}
-                </span>
-              </label>
-              <div className="sr-res-item-docs">
-                {documentos.map((doc) => (
-                  <span key={doc.id_documento} className="sr-res-doc-chip">
-                    {doc.tipo_documento}
-                  </span>
-                ))}
+      <div className="sr-wizard-resultado-layout">
+        <div className="sr-wizard-metricas">
+          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
+            <header>
+              <CheckCircle size={18} weight="duotone" />
+              <span>Performance de acertos</span>
+            </header>
+            <div className="sr-wizard-metrica-valores">
+              <div className="sr-res-perf">
+                <div className="sr-res-perf-linha sr-res-perf-linha--ok">
+                  <strong>{metricas.pctValidados}%</strong>
+                  <span>Dados validados</span>
+                  <TrendUp size={14} weight="bold" />
+                </div>
+                <div className="sr-res-perf-linha sr-res-perf-linha--alt">
+                  <strong>{metricas.pctAlterados}%</strong>
+                  <span>Dados alterados</span>
+                  <TrendDown size={14} weight="bold" />
+                </div>
               </div>
-              {renderMenu(`file:${item.id_arquivo_local}`, [item])}
-            </article>
-          )
-        })}
+            </div>
+          </article>
 
-        {arquivosCompletos.length === 0 && (
-          <p className="sr-conf-vazio">Nenhuma leitura concluída para baixar.</p>
-        )}
-      </div>
+          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
+            <header>
+              <Timer size={18} weight="duotone" />
+              <span>Recursos reduzidos com a leitura</span>
+            </header>
+            <div className="sr-wizard-metrica-valores">
+              <div className="sr-wizard-recursos">
+                <strong>{formatarSavingHorasLeitura(metricas.saving.minutos)}</strong>
+              </div>
+              {metricas.saving.brl != null && (
+                <span className="sr-res-saving-valor">{formatarSavingValorLeitura(metricas.saving.brl)}</span>
+              )}
+              <small>Base manual do documento − tempo de leitura</small>
+            </div>
+          </article>
 
-      {arquivosCompletos.length > 0 && (
-        <div className="sr-res-barra">
-          <label className="sr-res-todos">
-            <input type="checkbox" checked={todosMarcados} onChange={alternarTodos} />
-            Selecionar todos
-          </label>
-          <div className="sr-res-barra-acoes">
-            <span className="sr-res-barra-info">
-              {selecionados.size > 0 ? `${selecionados.size} selecionado(s)` : 'Nenhum selecionado'}
-            </span>
-            {renderMenu('selecionados', arquivosSelecionados, 'Baixar selecionados', 'secundario')}
-            {renderMenu('todos', arquivosCompletos, 'Baixar todos')}
-          </div>
+          <article className="sr-wizard-metrica-card sr-wizard-metrica-card--superficie">
+            <header>
+              <Clock size={18} weight="duotone" />
+              <span>Tempo total da leitura</span>
+            </header>
+            <div className="sr-wizard-metrica-valores">
+              <div className="sr-wizard-timer">{formatarTempo(metricas.segundos)}</div>
+              <small>
+                HH : MM : SS · {metricas.documentos} documento(s) · {metricas.preenchidos}/{metricas.total}{' '}
+                campos
+              </small>
+            </div>
+          </article>
         </div>
-      )}
+
+        <section className="sr-wizard-resultado-painel" aria-label="Downloads das leituras">
+          <header className="sr-wizard-resultado-cabecalho">
+            <FileText size={22} weight="duotone" />
+            <div>
+              <h2>Resultado das leituras</h2>
+              <p>Baixe suas leituras no formato desejado.</p>
+            </div>
+          </header>
+
+          <div className="sr-res-lista-corpo">
+            <div className="sr-res-lista">
+              {arquivosCompletos.map((item) => {
+                const documentos = extrairDocumentosArquivoLocal(item)
+                const selecionado = selecionados.has(item.id_arquivo_local)
+                return (
+                  <article
+                    key={item.id_arquivo_local}
+                    className={`sr-res-item${selecionado ? ' sr-res-item--sel' : ''}`}
+                  >
+                    <label className="sr-res-item-check">
+                      <input
+                        type="checkbox"
+                        checked={selecionado}
+                        onChange={() => alternarSelecao(item.id_arquivo_local)}
+                      />
+                      <span className="sr-res-item-nome">
+                        <FileText size={16} weight="duotone" />
+                        {item.arquivo.name}
+                      </span>
+                    </label>
+                    <div className="sr-res-item-docs">
+                      {documentos.map((doc) => (
+                        <span key={doc.id_documento} className="sr-res-doc-chip">
+                          {doc.tipo_documento}
+                        </span>
+                      ))}
+                    </div>
+                    {renderMenu(`file:${item.id_arquivo_local}`, [item])}
+                  </article>
+                )
+              })}
+
+              {arquivosCompletos.length === 0 && (
+                <p className="sr-conf-vazio">Nenhuma leitura concluída para baixar.</p>
+              )}
+            </div>
+
+            {arquivosCompletos.length > 0 && (
+              <div className="sr-res-barra">
+                <label className="sr-res-todos">
+                  <input type="checkbox" checked={todosMarcados} onChange={alternarTodos} />
+                  Selecionar todos
+                </label>
+                <div className="sr-res-barra-acoes">
+                  <span className="sr-res-barra-info">
+                    {selecionados.size > 0 ? `${selecionados.size} selecionado(s)` : 'Nenhum selecionado'}
+                  </span>
+                  {renderMenu('selecionados', arquivosSelecionados, 'Baixar selecionados', 'secundario')}
+                  {renderMenu('todos', arquivosCompletos, 'Baixar todos')}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

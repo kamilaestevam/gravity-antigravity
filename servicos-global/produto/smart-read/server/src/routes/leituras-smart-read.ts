@@ -12,6 +12,7 @@ import { AppError } from '../lib/app-error.js'
 import {
   criarLeituraLegado,
   enviarArquivoLegado,
+  obterArquivoLegado,
   obterLeituraLegado,
   resolverCompanyLegado,
 } from '../lib/cliente-legado-smart-read.js'
@@ -48,6 +49,11 @@ const upload = multer({
 })
 
 const IdLeituraSchema = z.object({ id_leitura: z.string().min(8) })
+
+const IdArquivoLeituraSchema = z.object({
+  id_leitura: z.string().min(8),
+  id_arquivo: z.string().min(1),
+})
 
 const ListarLeiturasQuerySchema = z.object({
   pagina: z.coerce.number().int().min(1).default(1),
@@ -179,6 +185,42 @@ router.use('/analise-riscos', analiseRiscosLeituraSmartReadRouter)
 router.use('/qa', qaLeituraSmartReadRouter)
 
 router.use('/:id_leitura/progresso', progressoLeituraSmartReadRouter)
+
+router.get(
+  '/:id_leitura/arquivos/:id_arquivo',
+  async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
+    try {
+      const idOrganizacao = organizacaoDaRequisicao(req)
+      idUsuarioDaRequisicao(req)
+      const { id_leitura, id_arquivo } = IdArquivoLeituraSchema.parse(req.params)
+      const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
+
+      if (req.prisma) {
+        const doSnapshot = await obterLeituraDoSnapshot(req.prisma, id_leitura, idWorkspace)
+        if (!doSnapshot) {
+          const vinculada = await leituraVinculadaAoWorkspaceSmartRead(req.prisma, id_leitura, idWorkspace)
+          if (!vinculada) {
+            throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
+          }
+        }
+      }
+
+      const companyId = await resolverCompanyLegado(idOrganizacao)
+      const arquivo = await obterArquivoLegado(companyId, id_leitura, id_arquivo)
+
+      res.setHeader('Content-Type', arquivo.contentType)
+      if (arquivo.nomeArquivo) {
+        res.setHeader(
+          'Content-Disposition',
+          `inline; filename="${encodeURIComponent(arquivo.nomeArquivo)}"`,
+        )
+      }
+      res.send(arquivo.buffer)
+    } catch (err) {
+      next(err)
+    }
+  },
+)
 
 router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Response, next: NextFunction) => {
   try {

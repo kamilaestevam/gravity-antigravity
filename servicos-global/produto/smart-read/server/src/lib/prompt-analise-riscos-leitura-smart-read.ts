@@ -13,13 +13,15 @@ REGRAS ABSOLUTAS:
 3. Foque em: completude comercial, coerencia logistica, semantica de itens, risco documental, conformidade aduaneira com base em "tributos_ncm" e "normas_injetadas".
 4. Cards normativos (categoria "normativo") EXIGEM citacoes_normativas com referencia rastreavel (NCM oficial, portal_unico, kb_gravity).
 5. Responda APENAS JSON valido no schema solicitado — array "riscos" em portugues brasileiro.
-6. Nao e parecer juridico — use linguagem de alerta operacional para conferencia.`
+6. Nao e parecer juridico — use linguagem de alerta operacional para conferencia.
+7. Todo risco DEVE incluir "correcao_sugerida": acao concreta e curta (1-3 frases) que o conferente pode executar na aba Conferencia de Campos ou no processo.`
 
 export function montarPromptUsuarioAnaliseRiscosLeitura(params: {
   documentos: DocumentoAnaliseRisco[]
   contextoV1: ContextoAuditoriaV1Leitura
   riscosV1Titulos: string[]
   pergunta?: string
+  chunksRag?: string[]
 }): string {
   const normasInjetadas = [
     'Incoterms 2020: EXW — comprador assume frete/seguro do local do vendedor; FOB — vendedor entrega no porto origem; CIF — vendedor paga frete e seguro ate porto destino.',
@@ -41,6 +43,7 @@ ${JSON.stringify(
     tributos_ncm: params.contextoV1.tributos_ncm,
     riscos_v1_ja_detectados: params.riscosV1Titulos,
     normas_injetadas: normasInjetadas,
+    chunks_rag_normativo: params.chunksRag?.length ? params.chunksRag : undefined,
   },
   null,
   2,
@@ -49,6 +52,6 @@ ${JSON.stringify(
 DOCUMENTOS (resultado_extracao.dados):
 ${JSON.stringify(params.documentos, null, 2)}
 
-Retorne JSON: { "riscos": [ { "severidade": "critico|atencao|informativo", "categoria": "ncm|cnpj|incoterm|documental|cruzado|matematico|comercial|normativo", "titulo": "...", "motivo": "...", "analise": "...", "evidencias": [{"documento":"...","campo":"...","valor":"..."}], "citacoes_normativas": [{"tipo":"ncm_oficial|kb_gravity|portal_unico|instrucao_normativa","referencia":"...","trecho":"..."}] } ] }
+Retorne JSON: { "riscos": [ { "severidade": "critico|atencao|informativo", "categoria": "ncm|cnpj|incoterm|documental|cruzado|matematico|comercial|normativo", "titulo": "...", "motivo": "...", "analise": "...", "correcao_sugerida": "acao concreta para o conferente", "evidencias": [{"documento":"...","campo":"...","valor":"..."}], "citacoes_normativas": [{"tipo":"ncm_oficial|kb_gravity|portal_unico|instrucao_normativa","referencia":"...","trecho":"..."}] } ] }
 ${blocoPergunta}`
 }

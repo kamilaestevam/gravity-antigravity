@@ -1,4 +1,4 @@
-# Nova Leitura — Passo 01 (Anexar arquivo) — Smart Read
+﻿# Nova Leitura — Passo 01 (Anexar arquivo) — Smart Docs
 
 > **Escopo deste documento:** somente **Passo 1** do wizard.  
 > **Branch de referência UX:** `tela_smart_read_tela_1` (stepper dentro do retângulo indigo).  

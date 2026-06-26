@@ -270,7 +270,7 @@
     "tag_drawback": "Drawback",
     "tag_regime_especial": "特殊制度",
     "smart_read_nome": "Smart Docs",
-    "smart_read_desc": "使用AI从文档和图像中智能提取数据。自动处理发票和海关文件。",
+    "smart_read_desc": "COMEX 文档智能 — AI 提取、审核及海关单据处理。",
     "nf_pro_nome": "NF Import Pro",
     "nf_pro_desc": "NF Import的高级版本，支持特殊制度、Drawback以及与SISCOMEX海关系统集成。",
     "prod_bid_frete_desc": "与多家供应商实时进行智能国际货运报价和竞标。",
@@ -279,7 +279,7 @@
     "prod_lpco_desc": "与SISCOMEX集成的许可证、许可、证书及其他（LPCO）管理，支持自动余额追踪。",
     "prod_pedido_desc": "完整的采购订单管理，包含审批流程、追踪和ERP系统集成。",
     "prod_simula_custo_desc": "详细的进口成本模拟，按NCM代码自动计算税务并进行场景对比分析。",
-    "prod_smart_read_desc": "使用AI从文档和图像中智能提取数据，自动处理发票和海关文件。"
+    "prod_smart_read_desc": "COMEX 文档智能 — AI 提取、审核及海关单据处理。"
   },
   "admin": {
     "history": {

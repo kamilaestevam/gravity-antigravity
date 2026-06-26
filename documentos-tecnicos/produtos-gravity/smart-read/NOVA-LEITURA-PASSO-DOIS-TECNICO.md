@@ -1,4 +1,4 @@
-# Nova Leitura — Passo 02 (Análise do arquivo) — Smart Read
+﻿# Nova Leitura — Passo 02 (Análise do arquivo) — Smart Docs
 
 > **Escopo deste documento:** somente **Passo 2** do wizard.  
 > **Branch de referência UX:** `tela_smart_read_tela_2` (dashboard métricas + pipeline IA + globo).  
@@ -87,7 +87,7 @@ Mocks E2E/EMT/FUN simulam `GET` com `resultado_extracao` (Bill of Lading + Comme
 ## 5. Análises obrigatórias — teste em tela (Passo 02)
 
 Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000155`  
-Ambiente: `http://localhost:8000/smart_read/insights` + sidecar Smart Read `8033`.
+Ambiente: `http://localhost:8000/smart_read/insights` + sidecar Smart Docs `8033`.
 
 | # | Análise | Critério de aceite | Print sugerido |
 |---|---------|-------------------|----------------|
@@ -135,7 +135,7 @@ npx tsx testes/testes-em-tela/produto-gravity/smart-read/nova-leitura/passo-dois
 
 ## 7. Erros de análise por arquivo (UX + legado)
 
-Quando o **Smart Read legado** (DATI/microservices) falha ao processar um anexo, o BFF grava a mensagem técnica em `mensagem_erro` (`ArquivoLocalNovaLeitura` / transação). A UI **nunca** exibe esse dump na sidebar — traduz via `interpretarErroArquivoLeituraSmartRead`.
+Quando o **Smart Docs legado** (DATI/microservices) falha ao processar um anexo, o BFF grava a mensagem técnica em `mensagem_erro` (`ArquivoLocalNovaLeitura` / transação). A UI **nunca** exibe esse dump na sidebar — traduz via `interpretarErroArquivoLeituraSmartRead`.
 
 ### 7.1 O que o usuário vê
 
@@ -153,7 +153,7 @@ Testes UNI: `testes/testes-unitarios/produto-gravity/smart-read/formatar-erro-ar
 ### 7.2 Origem da mensagem técnica
 
 1. Upload → BFF → legado (`cliente-legado-smart-read.ts`).
-2. Falha HTTP → string do tipo `Smart Read legado respondeu {status}: {corpo}` (até 300 chars).
+2. Falha HTTP → string do tipo `Smart Docs legado respondeu {status}: {corpo}` (até 300 chars).
 3. Modal wizard seta `status_arquivo_local: 'erro'` e `mensagem_erro` no card.
 
 ### 7.3 Mapeamento legado → motivo amigável
@@ -165,7 +165,7 @@ Testes UNI: `testes/testes-unitarios/produto-gravity/smart-read/formatar-erro-ar
 | `convert excel to pdf` | Planilha não convertida — tentar PDF, CSV ou imagem |
 | `403 forbidden` / `respondeu 403` | XML bloqueado no legado — tentar PDF, imagem ou planilha |
 | `tempo limite` / `timeout` | Análise excedeu tempo — reenviar |
-| `sem vínculo` / `ORGANIZACAO_SEM_VINCULO` | Organização sem vínculo Smart Read — suporte |
+| `sem vínculo` / `ORGANIZACAO_SEM_VINCULO` | Organização sem vínculo Smart Docs — suporte |
 | `legado indisponível` / `SMART_READ_LEGADO_*` | Serviço indisponível — tentar depois |
 | `respondeu 422` / `unprocessable` | Formato/conteúdo não processado — verificar arquivo |
 | `respondeu 5` / `service unavailable` | Instabilidade do serviço |

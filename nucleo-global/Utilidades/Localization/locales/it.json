@@ -270,7 +270,7 @@
     "tag_drawback": "Drawback",
     "tag_regime_especial": "Regime speciale",
     "smart_read_nome": "Smart Docs",
-    "smart_read_desc": "Estrazione intelligente di dati da documenti e immagini usando l'IA. Elabora fatture e documenti doganali automaticamente.",
+    "smart_read_desc": "Intelligenza documentale COMEX — estrazione, revisione e IA su fatture e documenti doganali.",
     "nf_pro_nome": "NF Import Pro",
     "nf_pro_desc": "Versione avanzata di NF Import con supporto per regimi speciali, drawback e integrazione con il sistema doganale SISCOMEX.",
     "prod_bid_frete_desc": "Quotazione e gara intelligente per spedizioni internazionali con più fornitori in tempo reale.",
@@ -279,7 +279,7 @@
     "prod_lpco_desc": "Gestione di Licenze, Permessi, Certificati e Altri (LPCO) integrata con SISCOMEX e tracciamento automatico del saldo.",
     "prod_pedido_desc": "Gestione completa degli ordini di acquisto con flusso di approvazione, tracciamento e integrazione ERP.",
     "prod_simula_custo_desc": "Simulazione dettagliata dei costi di importazione con calcolo automatico delle imposte per NCM e confronto scenari.",
-    "prod_smart_read_desc": "Estrazione intelligente di dati da documenti e immagini tramite IA. Elabora fatture e documenti doganali automaticamente."
+    "prod_smart_read_desc": "Intelligenza documentale COMEX — estrazione, revisione e IA su fatture e documenti doganali."
   },
   "admin": {
     "history": {

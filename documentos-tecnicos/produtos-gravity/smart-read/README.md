@@ -1,4 +1,4 @@
-# Smart Read � Documenta��o T�cnica
+﻿# Smart Docs � Documenta��o T�cnica
 
 > **Produto:** `smart-read`  
 > **C�digo:** `servicos-global/produto/smart-read/`  
@@ -17,13 +17,13 @@
 | [NOVA-LEITURA-PASSO-UM-TECNICO.md](./NOVA-LEITURA-PASSO-UM-TECNICO.md) | **Passo 1 � Anexar:** layout container stepper, upload, sidebar, checklist EMT 11 itens |
 | [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) | **Passo 2 � An�lise:** dashboard m�tricas, pipeline IA, globo, polling, checklist EMT 10 itens, suite 000151�000155 |
 | [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) | **Passo 3 � Confer�ncia:** grid dt-*, **campo data** (DD/MM/AAAA + calend�rio portal + ISO), cores barra lateral |
-| [Barra de status dos campos (`.dt-row-status`)](../../ux/design-system/padrao-dt-row-status-campos.md) | **Regra oficial:** cinza vazio, verde preenchido, roxo �Alterado� na confer�ncia (Smart Read); Processo sem estado roxo |
+| [Barra de status dos campos (`.dt-row-status`)](../../ux/design-system/padrao-dt-row-status-campos.md) | **Regra oficial:** cinza vazio, verde preenchido, roxo �Alterado� na confer�ncia (Smart Docs); Processo sem estado roxo |
 
 ---
 
 ## Pain�is da lista (padr�o Pedido/BID)
 
-O Smart Read replica o **mesmo model e contrato** de `ListaPainelUsuarioGlobal` (`lista_painel_usuario_global` no banco `gravity-smart-read`), com `id_produto_gravity = 'smart-read'`. SSOT do contrato transversal: [PAINEL-LISTA-CONTRATO.md](../pedido/PAINEL-LISTA-CONTRATO.md).
+O Smart Docs replica o **mesmo model e contrato** de `ListaPainelUsuarioGlobal` (`lista_painel_usuario_global` no banco `gravity-smart-read`), com `id_produto_gravity = 'smart-read'`. SSOT do contrato transversal: [PAINEL-LISTA-CONTRATO.md](../pedido/PAINEL-LISTA-CONTRATO.md).
 
 | Camada | Caminho |
 |--------|---------|
@@ -62,7 +62,7 @@ Seletor em `client/src/components/SmartReadVisualizacaoTabs.tsx`.
 
 ## Rotas de entrada (configurador)
 
-O Smart Read roda **embutido** no configurador (`/smart-read/*`). Rotas internas do produto (`lista`, `insights`, �) s�o **relativas** no `App.tsx` do Smart Read � mesmo padr�o do BID Frete.
+O Smart Docs roda **embutido** no configurador (`/smart-read/*`). Rotas internas do produto (`lista`, `insights`, �) s�o **relativas** no `App.tsx` do Smart Docs � mesmo padr�o do BID Frete.
 
 | URL de entrada | Destino can�nico | Onde |
 |----------------|------------------|------|
@@ -85,7 +85,7 @@ Configurado em `client/src/shared/config.ts` (`PRODUCT_CONFIG.navigation`) e map
 | Grupo / item | Rota | Observa��o |
 |--------------|------|------------|
 | Meu Espa�o ? Minhas Atividades / Email / WhatsApp | `/hub` | Desabilitados (badge "Em Breve") |
-| Smart Read (divisor) ? Lista | `/smart-read/lista` | Acesso direto � lista (toggle Insights\|Lista no topo) |
+| Smart Docs (divisor) ? Lista | `/smart-read/lista` | Acesso direto � lista (toggle Insights\|Lista no topo) |
 | Hist�rico | `/workspace/historico-organizacao?id_produto_historico_log=smart-read` | Link externo (tela centralizada do Configurador) |
 | Configura��es | `/smart-read/configuracoes` | Ver abaixo |
 
@@ -95,7 +95,7 @@ Configurado em `client/src/shared/config.ts` (`PRODUCT_CONFIG.navigation`) e map
 
 Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1 com a Configura��es do Pedido (abas de visualiza��o no topo + sidebar de categorias; s� a categoria ativa � renderizada). Categorias: **Card**, **Vis�o Geral**, **Tabelas**, **Colunas Personalizadas** (criar/renomear/ocultar/excluir + reordenar por drag).
 
-> **Estado � local (`useState`)** � o Smart Read ainda n�o tem backend de prefer�ncias. Sem bot�o "Salvar" e sem mock de persist�ncia (Mandamentos 05/08). As prefer�ncias n�o sobrevivem ao refresh at� existir endpoint/persist�ncia.
+> **Estado � local (`useState`)** � o Smart Docs ainda n�o tem backend de prefer�ncias. Sem bot�o "Salvar" e sem mock de persist�ncia (Mandamentos 05/08). As prefer�ncias n�o sobrevivem ao refresh at� existir endpoint/persist�ncia.
 
 ---
 

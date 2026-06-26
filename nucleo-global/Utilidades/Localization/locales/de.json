@@ -270,7 +270,7 @@
     "tag_drawback": "Drawback",
     "tag_regime_especial": "Sonderregime",
     "smart_read_nome": "Smart Docs",
-    "smart_read_desc": "Intelligente Datenextraktion aus Dokumenten und Bildern mit KI. Verarbeitet Rechnungen und Zolldokumente automatisch.",
+    "smart_read_desc": "COMEX-Dokumentenintelligenz — KI-Extraktion, Prüfung und Zolldokumente.",
     "nf_pro_nome": "NF Import Pro",
     "nf_pro_desc": "Erweiterte Version von NF Import mit Unterstützung für Sonderregime, Drawback und SISCOMEX-Integration.",
     "prod_bid_frete_desc": "Intelligente internationale Frachtpreisanfragen und Ausschreibungen mit mehreren Lieferanten in Echtzeit.",
@@ -279,7 +279,7 @@
     "prod_lpco_desc": "Verwaltung von Lizenzen, Genehmigungen, Zertifikaten und Sonstigem (LPCO) integriert mit SISCOMEX und automatischer Saldoverfolgung.",
     "prod_pedido_desc": "Vollständige Bestellverwaltung mit Genehmigungsworkflow, Nachverfolgung und ERP-Systemintegration.",
     "prod_simula_custo_desc": "Detaillierte Importkostensimulation mit automatischer Steuerberechnung nach NCM-Code und Szenariovergleich.",
-    "prod_smart_read_desc": "Intelligente Datenextraktion aus Dokumenten und Bildern mit KI. Verarbeitet Rechnungen und Zolldokumente automatisch."
+    "prod_smart_read_desc": "COMEX-Dokumentenintelligenz — KI-Extraktion, Prüfung und Zolldokumente.",
   },
   "admin": {
     "history": {

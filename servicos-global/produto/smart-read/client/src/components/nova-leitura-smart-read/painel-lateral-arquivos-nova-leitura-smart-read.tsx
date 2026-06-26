@@ -6,6 +6,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardArquivoNovaLeituraSmartRead } from './card-arquivo-nova-leitura-smart-read'
 import { EdicaoNomeLeituraNovaLeituraSmartRead } from './edicao-nome-leitura-nova-leitura-smart-read'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
+import { ContadorTokensDiscretoNovaLeituraSmartRead } from './contador-tokens-discreto-nova-leitura-smart-read'
 
 type Props = {
   passo: number
@@ -13,6 +14,9 @@ type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
   enviando: boolean
   podeContinuar: boolean
+  tokensTotal?: number
+  tokensCarregando?: boolean
+  exibirContadorTokens?: boolean
   onConfirmarNome: (nome: string) => void | Promise<void>
   onRemoverArquivo?: (id: string) => void
   onAlternarExpandido: (id: string) => void
@@ -39,6 +43,9 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
   onCancelar,
   onVoltar,
   onContinuar,
+  tokensTotal = 0,
+  tokensCarregando = false,
+  exibirContadorTokens = false,
 }: Props) {
   return (
     <aside className="sr-wizard-lateral">
@@ -67,6 +74,12 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
       </div>
 
       <div className="sr-wizard-lateral-rodape">
+        {exibirContadorTokens && (
+          <ContadorTokensDiscretoNovaLeituraSmartRead
+            tokensTotal={tokensTotal}
+            carregando={tokensCarregando}
+          />
+        )}
         {passo === 1 && onEnviar && onCancelar && (
           <div className="sr-wizard-lateral-botoes-duplos">
             <BotaoGlobal variante="secundario" tamanho="padrao" disabled={enviando} onClick={onCancelar}>

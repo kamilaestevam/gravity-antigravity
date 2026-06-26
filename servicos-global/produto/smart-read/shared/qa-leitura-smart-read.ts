@@ -4,6 +4,10 @@
 
 import { z } from 'zod'
 import { DocumentoAnaliseRiscoSchema } from './analise-riscos-leitura-smart-read'
+import {
+  ResumoUsoLlmLeituraSmartReadSchema,
+  UsoLlmChamadaLeituraSmartReadSchema,
+} from './uso-llm-leitura-smart-read'
 
 export const MensagemHistoricoQaLeituraSchema = z.object({
   papel: z.enum(['usuario', 'assistente']),
@@ -14,12 +18,15 @@ export const QaLeituraRequestSchema = z.object({
   documentos: z.array(DocumentoAnaliseRiscoSchema).min(1),
   pergunta: z.string().trim().min(1),
   historico: z.array(MensagemHistoricoQaLeituraSchema).max(20).optional().default([]),
+  id_leitura_legado: z.string().min(8).optional(),
 })
 
 export const QaLeituraResponseSchema = z.object({
   resposta: z.string().min(1),
   llm_ativo: z.boolean(),
   aviso: z.string().nullable().optional(),
+  uso_llm_chamada: UsoLlmChamadaLeituraSmartReadSchema.nullable().optional(),
+  uso_llm_leitura: ResumoUsoLlmLeituraSmartReadSchema.nullable().optional(),
 })
 
 export type MensagemHistoricoQaLeitura = z.infer<typeof MensagemHistoricoQaLeituraSchema>

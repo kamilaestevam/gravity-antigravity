@@ -65,6 +65,10 @@ export function withIsolamentoOrganizacaoSmartRead(prisma: PrismaClient, idOrgan
           args.where = { ...args.where, id_organizacao: idOrganizacao }
           return query(args)
         },
+        async aggregate({ args, query }: QueryCtx) {
+          args.where = { ...args.where, id_organizacao: idOrganizacao }
+          return query(args)
+        },
       },
     },
   }) as unknown as PrismaClient

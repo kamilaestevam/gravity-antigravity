@@ -34,6 +34,10 @@ import {
   type QaLeituraRequest,
   type QaLeituraResponse,
 } from '../../../shared/qa-leitura-smart-read'
+import {
+  ResumoUsoLlmLeituraSmartReadSchema,
+  type ResumoUsoLlmLeituraSmartRead,
+} from '../../../shared/uso-llm-leitura-smart-read'
 import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
 import {
   conteudoArquivoLeituraEhVisualizavel,
@@ -192,6 +196,13 @@ export const smartReadApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })
+  },
+
+  obterResumoTokensLeitura(idLeitura: string): Promise<ResumoUsoLlmLeituraSmartRead> {
+    return requisitar(
+      ResumoUsoLlmLeituraSmartReadSchema,
+      `/api/v1/smart-read/leituras/tokens/${encodeURIComponent(idLeitura)}`,
+    )
   },
 
   async obterProgressoLeitura(idLeitura: string): Promise<EstadoProgressoLeitura | null> {

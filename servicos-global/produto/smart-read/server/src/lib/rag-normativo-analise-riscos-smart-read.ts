@@ -53,11 +53,19 @@ export function precisaRagNormativoAnaliseRiscos(
   riscos: RiscoAduaneiroLeitura[],
   contexto: ContextoAuditoriaV1Leitura,
 ): boolean {
+  const classificacao = riscos.some(
+    (r) =>
+      r.categoria === 'ncm' ||
+      r.categoria === 'normativo' ||
+      r.titulo.toLowerCase().includes('classificação') ||
+      r.titulo.toLowerCase().includes('ncm') ||
+      r.titulo.toLowerCase().includes('hs'),
+  )
   const criticoNormativo = riscos.some(
     (r) =>
       r.severidade === 'critico' && (r.categoria === 'normativo' || r.categoria === 'ncm'),
   )
-  return criticoNormativo || contexto.ncms_encontrados.length > 0
+  return classificacao || criticoNormativo || contexto.ncms_encontrados.length > 0
 }
 
 export function buscarChunksRagNormativoAnaliseRiscos(
@@ -82,6 +90,7 @@ export function buscarChunksRagNormativoAnaliseRiscos(
     palavras.push('NCM', ncm)
   }
   if (temIncoterm) palavras.push('Incoterm', 'FOB', 'CIF', 'valor aduaneiro')
+  palavras.push('NCM', 'classificação fiscal', 'RGI', 'Tabela TI', 'HS Code')
   if (riscos.some((r) => r.titulo.toLowerCase().includes('siscomex'))) {
     palavras.push('Siscomex', 'classificação fiscal')
   }

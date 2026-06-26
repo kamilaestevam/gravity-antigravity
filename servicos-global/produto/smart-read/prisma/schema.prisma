@@ -115,3 +115,28 @@ model SnapshotLeituraSmartRead {
   @@map("snapshot_leitura_smart_read")
 }
 
+/// Log de cada chamada LLM (Gemini) no Smart Read — tokens reais via usageMetadata.
+/// Uma linha por chamada (classificação fiscal, analista invoice, consultor Rafa).
+model LogUsoLlmLeituraSmartRead {
+  id_log_uso_llm_leitura_smart_read                         String   @id @default(cuid())
+  id_organizacao                                             String
+  id_produto_gravity                                         String   @default("smart-read")
+  id_usuario                                                 String
+  id_workspace                                               String?
+  id_leitura_legado_log_uso_llm_leitura_smart_read           String?
+  acao_log_uso_llm_leitura_smart_read                        String
+  modelo_log_uso_llm_leitura_smart_read                      String
+  tokens_entrada_log_uso_llm_leitura_smart_read              Int      @default(0)
+  tokens_saida_log_uso_llm_leitura_smart_read                Int      @default(0)
+  tokens_total_log_uso_llm_leitura_smart_read                Int      @default(0)
+  custo_usd_log_uso_llm_leitura_smart_read                   Float    @default(0)
+  data_criacao_log_uso_llm_leitura_smart_read                DateTime @default(now())
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_leitura_legado_log_uso_llm_leitura_smart_read])
+  @@index([id_organizacao, id_usuario, data_criacao_log_uso_llm_leitura_smart_read])
+  @@map("log_uso_llm_leitura_smart_read")
+}
+

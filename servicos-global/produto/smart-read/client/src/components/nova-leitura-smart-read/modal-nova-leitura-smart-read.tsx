@@ -13,7 +13,7 @@ import { createPortal } from 'react-dom'
 import { Sparkle } from '@phosphor-icons/react'
 
 import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
-import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
+import { NOME_PRODUTO_EXIBICAO, iconeMarcaSmartDocs } from '../../shared/marca-smart-docs'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 
@@ -72,6 +72,7 @@ import {
 } from '../../shared/definir-valor-por-caminho-dados-leitura-smart-read'
 
 import { PainelLateralArquivosNovaLeituraSmartRead } from './painel-lateral-arquivos-nova-leitura-smart-read'
+import { useContadorTokensLeituraSmartRead } from '../../shared/use-contador-tokens-leitura-smart-read'
 
 import { AreaAnexarNovaLeituraSmartRead } from './area-anexar-nova-leitura-smart-read'
 
@@ -100,9 +101,7 @@ const LIMITE_POLLING_MS = 5 * 60 * 1000
 
 
 
-const ICONE_MARCA_CABECALHO_SMART_READ = iconeOficialProdutoGravity('smart-read', 22, {
-  variant: 'card',
-})
+const ICONE_MARCA_CABECALHO = iconeMarcaSmartDocs(22)
 
 const PASSOS: PassoConfig[] = [
 
@@ -164,6 +163,12 @@ export function ModalNovaLeituraSmartRead({
   const [nomeLeitura, setNomeLeitura] = useState(gerarNomeLeitura)
 
   const [arquivos, setArquivos] = useState<ArquivoLocalNovaLeitura[]>([])
+
+  const idLeituraAtual = useMemo(
+    () => idLeituraExistente ?? arquivos.find((a) => a.id_leitura)?.id_leitura ?? null,
+    [arquivos, idLeituraExistente],
+  )
+  const contadorTokens = useContadorTokensLeituraSmartRead(idLeituraAtual)
 
   const [enviando, setEnviando] = useState(false)
 
@@ -1074,11 +1079,11 @@ export function ModalNovaLeituraSmartRead({
     <>
     <ModalPassoPassoGlobal
 
-      titulo="Smart Read"
+      titulo={NOME_PRODUTO_EXIBICAO}
 
-      tituloNode={<span className="sr-wizard-cabecalho-marca-texto">Smart Read</span>}
+      tituloNode={<span className="sr-wizard-cabecalho-marca-texto">{NOME_PRODUTO_EXIBICAO}</span>}
 
-      icone={ICONE_MARCA_CABECALHO_SMART_READ}
+      icone={ICONE_MARCA_CABECALHO}
 
       subtituloNode={
         <span className="sr-wizard-modal-subtitulo-leitura">{nomeLeitura}</span>
@@ -1155,6 +1160,10 @@ export function ModalNovaLeituraSmartRead({
 
           onContinuar={passo >= 2 ? handleContinuarPasso : undefined}
 
+          tokensTotal={contadorTokens.tokensTotal}
+          tokensCarregando={contadorTokens.carregando}
+          exibirContadorTokens={passo >= 2}
+
         />
 
 
@@ -1179,6 +1188,8 @@ export function ModalNovaLeituraSmartRead({
             onSelecionarDocumento={setConferenciaSelecao}
             onCompararArquivo={() => setCompararAberto(true)}
             onVerEvidencia={visualizarEvidenciaRisco}
+            idLeituraLegado={idLeituraAtual}
+            onTokensAtualizados={contadorTokens.aplicarResumoLeitura}
           />
         )}
 

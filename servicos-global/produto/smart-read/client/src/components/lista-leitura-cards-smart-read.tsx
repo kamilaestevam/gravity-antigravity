@@ -14,7 +14,10 @@ import {
   resolverMediaAcertosTransacaoLeituraSmartRead,
   resolverSavingTransacaoLeituraSmartRead,
 } from '../../../shared/metricas-transacao-leitura-smart-read'
-import { resolverContagemAcertoErroEstudoSmartRead } from '../../../shared/dados-base-produto-tempo-smart-read'
+import {
+  formatarErrosEvitadosEstudoSmartRead,
+  resolverContagemAcertoErroEstudoSmartRead,
+} from '../../../shared/dados-base-produto-tempo-smart-read'
 import type { TransacaoLeitura } from '../shared/schemas'
 import {
   usePreferenciasCardsSmartRead,
@@ -124,7 +127,7 @@ function renderCard(
             </p>
             <p className="cg-tooltip__row">
               <span>Erros evitados (estudo)</span>
-              <strong>{saving.camposErrados}</strong>
+              <strong>{formatarErrosEvitadosEstudoSmartRead(saving.camposErrados)}</strong>
             </p>
             <p className="cg-tooltip__row">
               <span>Leituras com saving</span>

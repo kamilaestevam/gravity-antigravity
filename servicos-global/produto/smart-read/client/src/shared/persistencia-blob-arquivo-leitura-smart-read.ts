@@ -103,3 +103,32 @@ export async function removerBlobArquivoLeituraSmartRead(
     /* cache opcional */
   }
 }
+
+export function mensagemPreviewArquivoIndisponivel(nomeArquivo: string): string {
+  return `O arquivo ${nomeArquivo} não está disponível neste navegador. Anexe-o novamente no passo 1 ou use os dados extraídos na conferência.`
+}
+
+export async function resolverArquivoOriginalLeituraSmartRead(
+  idLeitura: string,
+  idArquivo: string | null | undefined,
+  nomeArquivo: string,
+  arquivoSessao?: File | null,
+): Promise<File | null> {
+  if (arquivoSessao?.size) return arquivoSessao
+
+  if (idArquivo) {
+    const blob = await carregarBlobArquivoLeituraSmartRead(idLeitura, idArquivo)
+    if (blob?.size) {
+      const bytes = new Uint8Array(await blob.arrayBuffer())
+      if (conteudoArquivoLeituraEhVisualizavel(bytes, nomeArquivo)) {
+        const mime =
+          blob.type && blob.type !== 'application/octet-stream'
+            ? blob.type
+            : resolverMimePorNomeArquivo(nomeArquivo)
+        return new File([bytes], nomeArquivo, { type: mime })
+      }
+    }
+  }
+
+  return null
+}

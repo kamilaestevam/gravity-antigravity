@@ -63,5 +63,5 @@ export function conteudoArquivoLeituraEhVisualizavel(
 }
 
 export function mensagemConteudoArquivoInvalido(nomeArquivo: string): string {
-  return `Não foi possível abrir ${nomeArquivo}. Se você retomou da Lista, o arquivo original só fica disponível neste navegador quando foi enviado aqui antes. Caso contrário, o storage DATI precisa liberar o download para a chave Gravity.`
+  return `Não foi possível exibir ${nomeArquivo}. Tente abrir em nova aba ou reanexar o arquivo.`
 }

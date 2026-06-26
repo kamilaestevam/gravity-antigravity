@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 355,
+  "proximo_numero": 357,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1355,6 +1355,40 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000354.json"
+    },
+    {
+      "referencia": "TASK-000355",
+      "ordinal": 79,
+      "titulo_canonico": "SMTRD-LISTA-BUG-HTTP-500-E-EMPTY-STATE-SEM-LINK",
+      "titulo_exibicao": "TASK-000355 | [Smart Read] Lista | BUG — HTTP 500 ao carregar/salvar e remover link Enviar primeira leitura",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": null,
+      "visualizacao": "LISTA",
+      "tipo_entrega": "BUG",
+      "resumo": "HTTP-500-E-EMPTY-STATE-SEM-LINK",
+      "data_criacao": "2026-06-26T19:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000355.json"
+    },
+    {
+      "referencia": "TASK-000356",
+      "ordinal": 80,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-MEL-DESTAQUE-ABAS-CONFERENCIA-INICIANTE",
+      "titulo_exibicao": "TASK-000356 | [Smart Read] Nova Leitura | MEL — Destaque nas 3 abas do passo Conferência",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "DESTAQUE-ABAS-CONFERENCIA-INICIANTE",
+      "data_criacao": "2026-06-26T20:30:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000356.json"
     }
   ]
 }

@@ -2,7 +2,9 @@
  * AreaConferenciaNovaLeituraSmartRead — passo 3 (abas + conferência padrão Dados do Processo)
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ComponentType } from 'react'
+import { ClipboardText, ShieldWarning, Sparkle } from '@phosphor-icons/react'
+import type { IconProps } from '@phosphor-icons/react'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova-leitura-smart-read'
 import { ConferenciaQaNovaLeituraSmartRead } from './conferencia-qa-nova-leitura-smart-read'
@@ -15,6 +17,16 @@ export type SelecaoDocumentoConferencia = {
 }
 
 type AbaConferencia = 'campos' | 'qa' | 'riscos'
+
+const ABAS_CONFERENCIA: {
+  id: AbaConferencia
+  rotulo: string
+  Icone: ComponentType<IconProps>
+}[] = [
+  { id: 'campos', rotulo: 'Conferência de Campos', Icone: ClipboardText },
+  { id: 'qa', rotulo: 'Consultor Inteligente', Icone: Sparkle },
+  { id: 'riscos', rotulo: 'Análise de Riscos', Icone: ShieldWarning },
+]
 
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
@@ -57,33 +69,27 @@ export function AreaConferenciaNovaLeituraSmartRead({
   return (
     <div className="sr-wizard-principal sr-wizard-principal--conferencia">
       <div className="sr-conf-tabs" role="tablist" aria-label="Conferência da leitura">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={aba === 'campos'}
-          className={`sr-conf-tab${aba === 'campos' ? ' sr-conf-tab--ativo' : ''}`}
-          onClick={() => setAba('campos')}
-        >
-          Conferência de Campos
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={aba === 'qa'}
-          className={`sr-conf-tab${aba === 'qa' ? ' sr-conf-tab--ativo' : ''}`}
-          onClick={() => setAba('qa')}
-        >
-          Consultor Inteligente
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={aba === 'riscos'}
-          className={`sr-conf-tab${aba === 'riscos' ? ' sr-conf-tab--ativo' : ''}`}
-          onClick={() => setAba('riscos')}
-        >
-          Análise de Riscos
-        </button>
+        {ABAS_CONFERENCIA.map(({ id, rotulo, Icone }) => {
+          const ativo = aba === id
+          return (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={ativo}
+              className={`sr-conf-tab${ativo ? ' sr-conf-tab--ativo' : ''}`}
+              onClick={() => setAba(id)}
+            >
+              <Icone
+                className="sr-conf-tab-icone"
+                size={16}
+                weight="regular"
+                aria-hidden
+              />
+              <span className="sr-conf-tab-rotulo">{rotulo}</span>
+            </button>
+          )
+        })}
       </div>
 
       {aba === 'campos' && (

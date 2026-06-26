@@ -463,14 +463,7 @@ export function TabelaTransacoesLeituraSmartRead({
             ? 'Nenhuma leitura corresponde à busca ou aos filtros.'
             : tituloPainel === 'Transações API'
               ? 'Envios feitos via API Cockpit aparecem aqui quando o legado marca source como API.'
-              : 'Envie a primeira leitura para começar.'
-        }
-        emptyAction={
-          !termoBusca.trim() && Object.keys(filtrosAtivosLista).length === 0 && tituloPainel !== 'Transações API' ? (
-            <button type="button" className="sr-link-acao" onClick={() => abrirNovaLeitura()}>
-              Enviar primeira leitura
-            </button>
-          ) : undefined
+              : undefined
         }
         classNameLinhaFilho={() => 'sr-linha-documento'}
       />

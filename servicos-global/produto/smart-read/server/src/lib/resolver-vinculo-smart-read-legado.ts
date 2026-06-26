@@ -5,6 +5,7 @@
 
 import { z } from 'zod'
 import { AppError } from './app-error.js'
+import { deveUsarMockLegadoSmartRead } from './cliente-legado-smart-read.js'
 import { extrairMensagemErroRespostaConfigurador } from './extrair-mensagem-erro-resposta.js'
 
 const VinculoLegadoRespostaSchema = z.object({
@@ -29,6 +30,14 @@ function overrideLocalDePara(idOrganizacao: string): string | null {
 }
 
 export async function resolverCompanyLegado(idOrganizacao: string): Promise<string> {
+  if (deveUsarMockLegadoSmartRead()) {
+    return (
+      overrideLocalDePara(idOrganizacao) ??
+      companyLegadoPadraoAmbiente() ??
+      'dev-mock-company'
+    )
+  }
+
   const override = overrideLocalDePara(idOrganizacao)
   if (override) return override
 

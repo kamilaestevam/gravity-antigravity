@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CircleNotch, Eye, WarningCircle, X } from '@phosphor-icons/react'
+import { CircleNotch, Eye, ArrowSquareOut, WarningCircle, X } from '@phosphor-icons/react'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 
 type ModoPreview = 'pdf' | 'imagem' | 'indisponivel'
@@ -58,6 +58,11 @@ export function ModalVisualizarArquivoNovaLeituraSmartRead({
   const modo = resolverModoPreview(nomeArquivo)
   const podeRenderizar = url && modo !== 'indisponivel'
 
+  const abrirNovaAba = () => {
+    if (!url) return
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
   const conteudo = (
     <div
       className="sr-prev-overlay"
@@ -72,9 +77,22 @@ export function ModalVisualizarArquivoNovaLeituraSmartRead({
             <Eye size={20} weight="duotone" className="sr-prev-cabecalho-icone" />
             <strong title={nomeArquivo}>{nomeArquivo}</strong>
           </div>
-          <button type="button" className="sr-prev-cabecalho-fechar" onClick={onFechar} aria-label="Fechar">
-            <X size={18} weight="bold" />
-          </button>
+          <div className="sr-prev-cabecalho-acoes">
+            {url && (
+              <button
+                type="button"
+                className="sr-prev-cabecalho-abrir"
+                onClick={abrirNovaAba}
+                aria-label="Abrir em nova aba"
+                title="Abrir em nova aba"
+              >
+                <ArrowSquareOut size={18} weight="bold" />
+              </button>
+            )}
+            <button type="button" className="sr-prev-cabecalho-fechar" onClick={onFechar} aria-label="Fechar">
+              <X size={18} weight="bold" />
+            </button>
+          </div>
         </header>
 
         {evidenciaRisco && (

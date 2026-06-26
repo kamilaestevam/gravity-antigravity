@@ -129,12 +129,14 @@ function LinhaRisco({
   onVerEvidencia,
   selecionado,
   onToggleSelecao,
+  numero,
 }: {
   risco: RiscoAduaneiroLeitura
   arquivos: ArquivoLocalNovaLeitura[]
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
   selecionado: boolean
   onToggleSelecao: (id: string) => void
+  numero: number
 }) {
   const risco = aplicarCorrecaoSugeridaPadraoRisco(riscoBruto)
   const contextoEvidencia = {
@@ -153,6 +155,9 @@ function LinhaRisco({
       className={`sr-conf-risco-linha sr-conf-risco-linha--${risco.severidade}${selecionado ? ' sr-conf-risco-linha--selecionado' : ''}`}
     >
       <div className="sr-conf-risco-linha-topo">
+        <span className="sr-conf-risco-numero" aria-label={`Risco ${numero}`}>
+          {String(numero).padStart(2, '0')}
+        </span>
         <label className="sr-conf-risco-selecao">
           <input
             type="checkbox"
@@ -179,20 +184,22 @@ function LinhaRisco({
       </div>
 
       <div className="sr-conf-risco-linha-corpo">
-        <div className="sr-conf-risco-bloco">
-          <span className="sr-conf-risco-bloco-rotulo">O que é o risco</span>
-          <p>{risco.motivo}</p>
-        </div>
-        <div className="sr-conf-risco-bloco">
-          <span className="sr-conf-risco-bloco-rotulo">Motivo</span>
-          <p>{risco.analise}</p>
-        </div>
-        {onde && (
+        <div className="sr-conf-risco-detalhe">
           <div className="sr-conf-risco-bloco">
-            <span className="sr-conf-risco-bloco-rotulo">Onde</span>
-            <p className="sr-conf-risco-onde">{onde}</p>
+            <h4 className="sr-conf-risco-bloco-titulo">O que é o risco</h4>
+            <p>{risco.motivo}</p>
           </div>
-        )}
+          <div className="sr-conf-risco-bloco">
+            <h4 className="sr-conf-risco-bloco-titulo">Motivo</h4>
+            <p>{risco.analise}</p>
+          </div>
+          {onde && (
+            <div className="sr-conf-risco-bloco">
+              <h4 className="sr-conf-risco-bloco-titulo">Onde</h4>
+              <p className="sr-conf-risco-onde">{onde}</p>
+            </div>
+          )}
+        </div>
 
         {risco.citacoes_normativas && risco.citacoes_normativas.length > 0 && (
           <div className="sr-conf-risco-evidencias sr-conf-risco-evidencias--compacto">
@@ -209,8 +216,8 @@ function LinhaRisco({
         )}
 
         {risco.evidencias.length > 0 && (
-          <div className="sr-conf-risco-bloco">
-            <span className="sr-conf-risco-bloco-rotulo">Evidências</span>
+          <div className="sr-conf-risco-bloco sr-conf-risco-bloco--evidencias">
+            <h4 className="sr-conf-risco-bloco-titulo">Evidências</h4>
             <div className="sr-conf-risco-evidencias-lista">
               {risco.evidencias.map((ev, idx) => (
                 <EvidenciaVisualRiscoNovaLeituraSmartRead
@@ -325,6 +332,12 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
       return next
     })
   }
+
+  const numeracaoRiscos = useMemo(() => {
+    const mapa = new Map<string, number>()
+    riscosFiltrados.forEach((risco, indice) => mapa.set(risco.id, indice + 1))
+    return mapa
+  }, [riscosFiltrados])
 
   const secoesCategoria = useMemo(() => {
     const mapa = new Map<CategoriaRiscoAduaneiro, RiscoAduaneiroLeitura[]>()
@@ -668,6 +681,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                     </span>
                   </div>
                 </button>
+                {!colapsada && (
                 <div id={`${secao.id}-lista`} className="sr-conf-riscos-lista sr-conf-riscos-lista--secao">
                   {secao.riscos.map((risco) => (
                     <LinhaRisco
@@ -677,9 +691,11 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                       onVerEvidencia={onVerEvidencia}
                       selecionado={riscosSelecionados.has(risco.id)}
                       onToggleSelecao={toggleSelecaoRisco}
+                      numero={numeracaoRiscos.get(risco.id) ?? 0}
                     />
                   ))}
                 </div>
+                )}
               </section>
             )
           })

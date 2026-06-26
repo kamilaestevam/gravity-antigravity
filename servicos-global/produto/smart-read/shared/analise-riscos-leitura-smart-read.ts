@@ -1,8 +1,19 @@
-/**
+﻿/**
  * analise-riscos-leitura-smart-read.ts — SSOT V1 determinístico + contratos API (V2/V3).
  */
 
 import { z } from 'zod'
+import type { MotorValidacaoInvoice, SecaoMatrizInvoice, StatusMatrizInvoice } from './matriz-validacao-invoice-smart-read.js'
+import {
+  ehRiscoClassificacaoFiscal,
+  formatarAnaliseDivergenciaLinha,
+  formatarAnaliseDivergenciaSoma,
+  textoExtracaoEhPlaceholder,
+} from './texto-analise-riscos-leitura-smart-read.js'
+import {
+  ResumoUsoLlmLeituraSmartReadSchema,
+  UsoLlmChamadaLeituraSmartReadSchema,
+} from './uso-llm-leitura-smart-read.js'
 
 export type SeveridadeRiscoAduaneiro = 'critico' | 'atencao' | 'informativo'
 
@@ -39,6 +50,27 @@ export type RiscoAduaneiroLeitura = {
   evidencias: EvidenciaRiscoAduaneiroLeitura[]
   citacoes_normativas?: CitacaoNormativaRisco[]
   origem?: 'v1' | 'llm'
+  /** Matriz consolidada de invoice — seção 1–8 */
+  secao_matriz?: SecaoMatrizInvoice
+  id_regra_matriz?: string
+  motor_validacao?: MotorValidacaoInvoice
+  status_matriz?: StatusMatrizInvoice
+}
+
+export type DadosOficiaisCnpjLeitura = {
+  cnpj: string
+  razao_social: string | null
+  nome_fantasia: string | null
+  situacao_cadastral: string | null
+  ativo: boolean
+  logradouro: string | null
+  numero: string | null
+  complemento: string | null
+  bairro: string | null
+  municipio: string | null
+  uf: string | null
+  cep: string | null
+  fonte: string | null
 }
 
 export type ResumoRiscosAduaneirosLeitura = {
@@ -70,6 +102,7 @@ export type ContextoAuditoriaV1Leitura = {
   regras: RegraAuditoriaV1[]
   ncms_encontrados: string[]
   tributos_ncm: TributosNcmLeitura[]
+  cnpj_oficial?: DadosOficiaisCnpjLeitura | null
 }
 
 export const DocumentoAnaliseRiscoSchema = z.object({
@@ -83,6 +116,7 @@ export const AnaliseRiscosLeituraRequestSchema = z.object({
   documentos: z.array(DocumentoAnaliseRiscoSchema).min(1),
   pergunta: z.string().trim().min(1).optional(),
   incluir_llm: z.boolean().optional().default(true),
+  id_leitura_legado: z.string().min(8).optional(),
 })
 
 export const CitacaoNormativaRiscoSchema = z.object({
@@ -108,6 +142,21 @@ export const RiscoAduaneiroLeituraSchema = z.object({
   ),
   citacoes_normativas: z.array(CitacaoNormativaRiscoSchema).optional(),
   origem: z.enum(['v1', 'llm']).optional(),
+  secao_matriz: z
+    .enum([
+      'identificacao',
+      'cadastral',
+      'logistica',
+      'itens_fiscais',
+      'financeiro',
+      'bancario',
+      'pesos_embalagens',
+      'legitimidade',
+    ])
+    .optional(),
+  id_regra_matriz: z.string().optional(),
+  motor_validacao: z.enum(['codigo', 'api', 'llm', 'rag']).optional(),
+  status_matriz: z.enum(['verde', 'amarelo', 'vermelho']).optional(),
 })
 
 export const AnaliseRiscosLeituraResponseSchema = z.object({
@@ -139,9 +188,29 @@ export const AnaliseRiscosLeituraResponseSchema = z.object({
         cofins: z.number().nullable(),
       }),
     ),
+    cnpj_oficial: z
+      .object({
+        cnpj: z.string(),
+        razao_social: z.string().nullable(),
+        nome_fantasia: z.string().nullable(),
+        situacao_cadastral: z.string().nullable(),
+        ativo: z.boolean(),
+        logradouro: z.string().nullable(),
+        numero: z.string().nullable(),
+        complemento: z.string().nullable(),
+        bairro: z.string().nullable(),
+        municipio: z.string().nullable(),
+        uf: z.string().nullable(),
+        cep: z.string().nullable(),
+        fonte: z.string().nullable(),
+      })
+      .nullable()
+      .optional(),
   }),
   llm_ativo: z.boolean(),
   aviso: z.string().nullable().optional(),
+  uso_llm_chamada: UsoLlmChamadaLeituraSmartReadSchema.nullable().optional(),
+  uso_llm_leitura: ResumoUsoLlmLeituraSmartReadSchema.nullable().optional(),
 })
 
 export type DocumentoAnaliseRisco = z.infer<typeof DocumentoAnaliseRiscoSchema>
@@ -290,6 +359,51 @@ type ItemComercialLinha = {
   qty: number | null
   precoUnit: number | null
   totalLinha: number | null
+  ncm: string | null
+  hsCode: string | null
+  descricao: string | null
+}
+
+export type SituacaoCodigoFiscal = 'ausente' | 'parcial' | 'completo' | 'formato_invalido'
+
+export type ItemClassificacaoFiscalLeitura = {
+  documento: string
+  indice: number
+  descricao: string | null
+  ncm_lido: string | null
+  hs_lido: string | null
+  situacao_ncm: SituacaoCodigoFiscal
+  situacao_hs: SituacaoCodigoFiscal
+}
+
+export function classificarSituacaoCodigoFiscal(valor: string | null | undefined): SituacaoCodigoFiscal {
+  if (!valor?.trim() || textoExtracaoEhPlaceholder(valor)) return 'ausente'
+  const digitos = valor.replace(/\D/g, '')
+  if (digitos.length === 8 && digitos !== '00000000') return 'completo'
+  if (digitos.length > 0 && digitos.length < 8) return 'parcial'
+  return 'formato_invalido'
+}
+
+function extrairDescricaoItem(row: Record<string, unknown>): string | null {
+  const desc = row.descriptions as Record<string, unknown> | undefined
+  const candidatos = [
+    valorTextoComparacaoCampo(desc?.portuguese),
+    valorTextoComparacaoCampo(desc?.english),
+    valorTextoComparacaoCampo(desc?.descPt),
+    valorTextoComparacaoCampo(desc?.descEn),
+    valorTextoComparacaoCampo(row.description),
+    valorTextoComparacaoCampo(row.itemDescription),
+    valorTextoComparacaoCampo(row.productDescription),
+  ].filter((v): v is string => Boolean(v) && !textoExtracaoEhPlaceholder(v))
+  return candidatos[0] ?? null
+}
+
+function extrairCodigoItem(row: Record<string, unknown>, chaves: string[]): string | null {
+  for (const chave of chaves) {
+    const texto = valorTextoComparacaoCampo(row[chave])
+    if (texto && !textoExtracaoEhPlaceholder(texto)) return texto
+  }
+  return null
 }
 
 function extrairItensComerciais(dados: Record<string, unknown>): ItemComercialLinha[] {
@@ -310,7 +424,190 @@ function extrairItensComerciais(dados: Record<string, unknown>): ItemComercialLi
         row.itemTotalPriceWithCurrency ?? row.totalPrice ?? row.total ?? row.itemTotalPrice,
       ),
     )
-    return { indice, qty, precoUnit, totalLinha }
+    const ncm = extrairCodigoItem(row, ['ncm', 'NCM', 'codigo_ncm'])
+    const hsCode = extrairCodigoItem(row, ['hsCode', 'hs_code', 'HSCode', 'hs'])
+    const descricao = extrairDescricaoItem(row)
+    return { indice, qty, precoUnit, totalLinha, ncm, hsCode, descricao }
+  })
+}
+
+export function montarItensParaClassificacaoFiscal(
+  documentos: DocumentoAnaliseRisco[],
+): ItemClassificacaoFiscalLeitura[] {
+  const saida: ItemClassificacaoFiscalLeitura[] = []
+  for (const doc of documentos) {
+    if (!doc.tipo_documento.toUpperCase().includes('INVOICE')) continue
+    const rotulo = rotuloDocumento(doc.nome_arquivo, doc.tipo_documento, doc.indice)
+    for (const item of extrairItensComerciais(doc.dados)) {
+      saida.push({
+        documento: rotulo,
+        indice: item.indice,
+        descricao: item.descricao,
+        ncm_lido: item.ncm,
+        hs_lido: item.hsCode,
+        situacao_ncm: classificarSituacaoCodigoFiscal(item.ncm),
+        situacao_hs: classificarSituacaoCodigoFiscal(item.hsCode),
+      })
+    }
+  }
+  return saida
+}
+
+function extrairMoedaDocumento(mapa: Map<string, unknown>): string | null {
+  return valorCampo(mapa, ['currency.type', 'currency', 'document.currency', 'values.currency'])
+}
+
+function montarOQueRiscoClassificacaoFiscal(params: {
+  indice: number
+  tipo: 'ncm' | 'hs'
+  situacao: SituacaoCodigoFiscal
+  codigoLido: string | null
+  descricao: string | null
+}): string {
+  const linha = params.indice + 1
+  const rotuloTipo = params.tipo === 'ncm' ? 'NCM' : 'HS Code'
+  const descSuffix = params.descricao ? ` para «${params.descricao.slice(0, 120)}»` : ''
+
+  if (params.situacao === 'ausente') {
+    return `Linha ${linha}: ${rotuloTipo} não informado no documento${descSuffix}.`
+  }
+  if (params.situacao === 'parcial') {
+    const digitos = params.codigoLido?.replace(/\D/g, '') ?? ''
+    return `Linha ${linha}: ${rotuloTipo} incompleto — consta «${params.codigoLido}» (${digitos.length} dígitos, esperados 8)${descSuffix}.`
+  }
+  if (params.situacao === 'formato_invalido') {
+    return `Linha ${linha}: valor em ${rotuloTipo} («${params.codigoLido}») não é código fiscal válido de 8 dígitos${descSuffix}.`
+  }
+  return `Linha ${linha}: conferir ${rotuloTipo} informado${descSuffix}.`
+}
+
+function montarAnaliseTecnicaClassificacaoFiscal(params: {
+  tipo: 'ncm' | 'hs'
+  situacao: SituacaoCodigoFiscal
+  codigoLido: string | null
+  descricao: string | null
+}): string {
+  const rotuloTipo = params.tipo === 'ncm' ? 'NCM' : 'HS Code'
+  const desc = params.descricao?.slice(0, 200) ?? 'descrição técnica não legível na extração'
+
+  if (params.situacao === 'ausente') {
+    return params.tipo === 'ncm'
+      ? `A mercadoria «${desc}» não possui NCM de 8 dígitos na extração. Sem código na Tabela TI NCM (Mercosul), a DUIMP não pode ser registrada com classificação fiscal definida para este item.`
+      : `A mercadoria «${desc}» não possui HS Code correlato na extração. O código harmonizado complementa a classificação internacional da mercadoria.`
+  }
+  if (params.situacao === 'parcial') {
+    return `O ${rotuloTipo} parcial «${params.codigoLido}» não permite validação no Siscomex nem confirmação de capítulo/posição para «${desc}». A classificação fiscal brasileira exige os 8 dígitos completos do NCM.`
+  }
+  if (params.situacao === 'formato_invalido') {
+    return `O valor «${params.codigoLido}» não corresponde a um ${rotuloTipo} válido — pode ser rótulo de coluna capturado pelo OCR em vez do código fiscal da mercadoria «${desc}».`
+  }
+  return `Conferir aderência do ${rotuloTipo} informado à descrição técnica «${desc}».`
+}
+
+export type SugestaoClassificacaoFiscalLeitura = {
+  documento: string
+  indice: number
+  tipo: 'ncm' | 'hs'
+  situacao: SituacaoCodigoFiscal
+  codigoLido: string | null
+  codigoSugerido: string
+  motivoTecnico: string
+  descricao: string | null
+  descricaoNcmOficial?: string | null
+}
+
+function tituloClassificacaoFiscal(tipo: 'ncm' | 'hs', situacao: SituacaoCodigoFiscal): string {
+  const rotuloTipo = tipo === 'ncm' ? 'NCM' : 'HS Code'
+  const tituloPorSituacao: Record<SituacaoCodigoFiscal, string> = {
+    ausente: `${rotuloTipo} ausente — classificação fiscal a definir`,
+    parcial: `${rotuloTipo} parcial — classificação fiscal a confirmar`,
+    formato_invalido: `${rotuloTipo} com formato inválido — classificação a revisar`,
+    completo: `${rotuloTipo} — conferir aderência à descrição`,
+  }
+  return tituloPorSituacao[situacao]
+}
+
+export function montarRiscoDeClassificacaoFiscalSugerida(
+  sug: SugestaoClassificacaoFiscalLeitura,
+): RiscoAduaneiroLeitura {
+  const rotuloTipo = sug.tipo === 'ncm' ? 'NCM' : 'HS Code'
+  const campo = sug.tipo === 'ncm' ? `items[${sug.indice}].ncm` : `items[${sug.indice}].hsCode`
+  const de = sug.codigoLido?.trim() || 'ausente'
+  const para = sug.codigoSugerido.replace(/\D/g, '').length >= 6
+    ? sug.codigoSugerido.replace(/\D/g, '')
+    : sug.codigoSugerido.trim()
+  const descCurta = sug.descricao?.slice(0, 120) ?? 'item sem descrição legível'
+
+  const motivo =
+    sug.situacao === 'ausente'
+      ? `Linha ${sug.indice + 1}: ${rotuloTipo} não informado — sugestão ${para} (de ${de} → ${para}) para «${descCurta}».`
+      : `Linha ${sug.indice + 1}: ${rotuloTipo} «${de}» — sugestão ${para} (de ${de} → ${para}) para «${descCurta}».`
+
+  let analise = sug.motivoTecnico.trim()
+  if (sug.descricaoNcmOficial?.trim()) {
+    analise += ` Descrição oficial na Tabela TI NCM (Siscomex): «${sug.descricaoNcmOficial.trim()}».`
+  }
+
+  const correcaoBase = `Corrija ${campo} de ${de} para ${para} porque ${sug.motivoTecnico.trim()}`
+
+  return {
+    id: `risco-llm-class-${sug.tipo}-${sug.indice}`,
+    origem: 'llm',
+    severidade: sug.situacao === 'ausente' ? 'critico' : 'atencao',
+    categoria: 'ncm',
+    titulo: tituloClassificacaoFiscal(sug.tipo, sug.situacao),
+    motivo,
+    analise,
+    correcao_sugerida: correcaoBase,
+    evidencias: [
+      {
+        documento: sug.documento,
+        campo,
+        valor: sug.codigoLido ?? sug.descricao ?? undefined,
+      },
+    ],
+    citacoes_normativas: sug.descricaoNcmOficial?.trim()
+      ? [
+          {
+            tipo: 'ncm_oficial' as const,
+            referencia: `NCM ${para}`,
+            trecho: sug.descricaoNcmOficial.trim(),
+          },
+        ]
+      : undefined,
+  }
+}
+
+function criarRiscoClassificacaoPendente(params: {
+  documento: string
+  indice: number
+  tipo: 'ncm' | 'hs'
+  situacao: SituacaoCodigoFiscal
+  codigoLido: string | null
+  descricao: string | null
+}): RiscoAduaneiroLeitura {
+  const rotuloTipo = params.tipo === 'ncm' ? 'NCM' : 'HS Code'
+  const campo = params.tipo === 'ncm' ? `items[${params.indice}].ncm` : `items[${params.indice}].hsCode`
+  const tituloPorSituacao: Record<SituacaoCodigoFiscal, string> = {
+    ausente: `${rotuloTipo} ausente — classificação fiscal a definir`,
+    parcial: `${rotuloTipo} parcial — classificação fiscal a confirmar`,
+    formato_invalido: `${rotuloTipo} com formato inválido — classificação a revisar`,
+    completo: `${rotuloTipo} — conferir aderência à descrição`,
+  }
+
+  return criarRisco({
+    severidade: params.situacao === 'ausente' ? 'critico' : 'atencao',
+    categoria: 'ncm',
+    titulo: tituloPorSituacao[params.situacao],
+    motivo: montarOQueRiscoClassificacaoFiscal(params),
+    analise: montarAnaliseTecnicaClassificacaoFiscal(params),
+    evidencias: [
+      {
+        documento: params.documento,
+        campo,
+        valor: params.codigoLido ?? params.descricao ?? undefined,
+      },
+    ],
   })
 }
 
@@ -344,13 +641,25 @@ const CORRECAO_POR_TITULO: Record<string, string> = {
   'CNPJ com formato inválido':
     'Revise o dígito a dígito na Conferência de Campos ou no PDF original — erro de OCR é comum em CNPJ.',
   'NCM não identificado':
-    'Preencha items[].ncm (8 dígitos) em cada linha da invoice na Conferência de Campos ou reenvie documento com NCM visível.',
+    'Corrija para o NCM de 8 dígitos sugerido pela análise com base na descrição do item na Conferência de Campos. Sugestão — responsabilidade de classificação é do usuário.',
   'NCM com formato suspeito':
-    'Corrija o NCM para exatamente 8 dígitos numéricos na Conferência de Campos; confira zeros à esquerda.',
+    'Corrija para o NCM de 8 dígitos indicado na sugestão técnica, conferindo zeros à esquerda e aderência à descrição do item.',
+  'NCM parcial — classificação fiscal a confirmar':
+    'Complete o NCM para 8 dígitos conforme a sugestão técnica na correção sugerida deste card.',
+  'NCM ausente — classificação fiscal a definir':
+    'Informe o NCM de 8 dígitos indicado na correção sugerida deste card.',
+  'HS Code ausente — classificação fiscal a definir':
+    'Informe o HS Code correlato indicado na correção sugerida deste card.',
+  'HS Code parcial — classificação fiscal a confirmar':
+    'Complete o HS Code conforme a sugestão técnica na correção sugerida deste card.',
+  'NCM com formato inválido — classificação a revisar':
+    'Corrija o NCM conforme o de/para indicado na correção sugerida deste card.',
+  'HS Code com formato inválido — classificação a revisar':
+    'Corrija o HS Code conforme o de/para indicado na correção sugerida deste card.',
   'Divergência no total da linha':
-    'Ajuste quantidade, preço unitário ou total da linha na Conferência de Campos para que qty × preço = total.',
+    'Ajuste itemQuantity, itemUnitPriceWithCurrency ou itemTotalPriceWithCurrency para que qty × preço unitário = total da linha.',
   'Soma das linhas diverge do total do documento':
-    'Alinhe values.totalDocumentValue com a soma das linhas ou inclua despesas adicionais documentadas na invoice.',
+    'Alinhe values.totalDocumentValue com a soma das linhas ou documente despesas adicionais na invoice.',
   'Incoterm divergente entre documentos':
     'Unifique o Incoterm em todos os documentos da leitura — use o valor do contrato comercial como referência.',
   'Possível divergência de NCM entre Invoice e Packing List':
@@ -370,6 +679,10 @@ const CORRECAO_POR_CATEGORIA: Partial<Record<CategoriaRiscoAduaneiro, string>> =
 
 export function aplicarCorrecaoSugeridaPadraoRisco(risco: RiscoAduaneiroLeitura): RiscoAduaneiroLeitura {
   if (risco.correcao_sugerida?.trim()) return risco
+
+  if (ehRiscoClassificacaoFiscal(risco.titulo, risco.categoria) && risco.origem === 'v1') {
+    return risco
+  }
 
   const porTitulo = CORRECAO_POR_TITULO[risco.titulo]
   if (porTitulo) return { ...risco, correcao_sugerida: porTitulo }
@@ -396,300 +709,59 @@ export function aplicarCorrecaoSugeridaPadraoRisco(risco: RiscoAduaneiroLeitura)
   return risco
 }
 
-export function executarAuditoriaV1AnaliseRiscosLeitura(
-  documentosEntrada: DocumentoAnaliseRisco[],
-): { resumo: ResumoRiscosAduaneirosLeitura; contexto: ContextoAuditoriaV1Leitura } {
-  contadorRisco = 0
-  const riscos: RiscoAduaneiroLeitura[] = []
-  const regras: RegraAuditoriaV1[] = []
-  const documentos = coletarDocumentosEntrada(documentosEntrada)
-  const ncmsGlobal = new Set<string>()
-
-  for (const doc of documentos) {
-    for (const ncm of extrairNcmsDados(doc.dados)) {
-      const norm = normalizarNcm(ncm)
-      if (norm) ncmsGlobal.add(norm)
-    }
-
-    const incoterm = valorCampo(doc.mapa, ['document.incoterm', 'incoterm'])
-    const incotermOk = !!incoterm
-    if (tiposIncluem(doc.tipo_documento, ['INVOICE', 'PACKING_LIST'])) {
-      regras.push({
-        id: `A1-incoterm-${doc.rotulo}`,
-        passou: incotermOk,
-        detalhe: incotermOk ? `Incoterm: ${incoterm}` : 'Incoterm ausente',
-      })
-      if (!incotermOk) {
-        riscos.push(
-          criarRisco({
-            severidade: 'critico',
-            categoria: 'incoterm',
-            titulo: 'Incoterm ausente',
-            motivo: 'Documento comercial sem Incoterm dificulta a classificação fiscal da operação.',
-            analise:
-              'Invoice e Packing List costumam exigir Incoterm para amarrar responsabilidades, frete e seguro na importação.',
-            evidencias: [{ documento: doc.rotulo, campo: 'document.incoterm' }],
-          }),
-        )
-      }
-    }
-
-    const cnpj =
-      valorCampo(doc.mapa, ['importer.cnpj', 'importer.taxId']) ??
-      valorCampo(doc.mapa, ['exporter.taxId', 'exporter.cnpj'])
-    const exigeCnpj = tiposIncluem(doc.tipo_documento, ['INVOICE', 'BL', 'AWB', 'PACKING_LIST'])
-    const cnpjPresente = !!cnpj
-    if (exigeCnpj) {
-      regras.push({
-        id: `A2-cnpj-presente-${doc.rotulo}`,
-        passou: cnpjPresente,
-        detalhe: cnpjPresente ? `Tax ID: ${cnpj}` : 'CNPJ/Tax ID ausente',
-      })
-    }
-    if (exigeCnpj && !cnpj) {
-      riscos.push(
-        criarRisco({
-          severidade: 'critico',
-          categoria: 'cnpj',
-          titulo: 'CNPJ / Tax ID ausente',
-          motivo: 'Participante da operação sem identificação fiscal legível no documento.',
-          analise:
-            'Importador ou exportador sem CNPJ/Tax ID impede validação cadastral e pode gerar retenção na conferência aduaneira.',
-          evidencias: [{ documento: doc.rotulo, campo: 'importer.cnpj' }],
-        }),
-      )
-    } else if (cnpj && /^\d/.test(cnpj.replace(/\s/g, ''))) {
-      const cnpjValido = validarCnpjBrasil(cnpj)
-      regras.push({
-        id: `A2-cnpj-digitos-${doc.rotulo}`,
-        passou: cnpjValido,
-        detalhe: cnpjValido ? 'CNPJ com dígitos válidos' : 'CNPJ com dígitos inválidos',
-      })
-      if (!cnpjValido) {
-        riscos.push(
-          criarRisco({
-            severidade: 'atencao',
-            categoria: 'cnpj',
-            titulo: 'CNPJ com formato inválido',
-            motivo: 'O número informado não passa na validação de dígitos verificadores.',
-            analise: 'Revise se houve erro de OCR ou digitação no CNPJ do participante.',
-            evidencias: [{ documento: doc.rotulo, campo: 'importer.cnpj', valor: cnpj }],
-          }),
-        )
-      }
-    }
-
-    const ncms = extrairNcmsDados(doc.dados)
-    const exigeNcm = tiposIncluem(doc.tipo_documento, ['INVOICE', 'PACKING_LIST', 'BL'])
-    if (exigeNcm) {
-      regras.push({
-        id: `A4-ncm-presente-${doc.rotulo}`,
-        passou: ncms.length > 0,
-        detalhe: ncms.length > 0 ? `NCMs: ${ncms.join(', ')}` : 'Nenhum NCM encontrado',
-      })
-    }
-    if (exigeNcm && ncms.length === 0) {
-      riscos.push(
-        criarRisco({
-          severidade: 'critico',
-          categoria: 'ncm',
-          titulo: 'NCM não identificado',
-          motivo: 'Nenhum código NCM/HS foi encontrado nos itens ou mercadorias.',
-          analise:
-            'Sem NCM a operação fica exposta a divergência na classificação fiscal e exigência de retificação.',
-          evidencias: [{ documento: doc.rotulo, campo: 'items[].ncm' }],
-        }),
-      )
-    }
-
-    for (const ncm of ncms) {
-      const formatoOk = ncmFormatoValido(ncm)
-      regras.push({
-        id: `A5-ncm-formato-${doc.rotulo}-${ncm}`,
-        passou: formatoOk,
-        detalhe: formatoOk ? `NCM ${ncm} com 8 dígitos` : `NCM ${ncm} fora do padrão`,
-      })
-      if (!formatoOk) {
-        riscos.push(
-          criarRisco({
-            severidade: 'atencao',
-            categoria: 'ncm',
-            titulo: 'NCM com formato suspeito',
-            motivo: `O código "${ncm}" não está no padrão de 8 dígitos.`,
-            analise: 'Confirme se o NCM foi lido corretamente ou se há zeros/casas decimais a mais.',
-            evidencias: [{ documento: doc.rotulo, campo: 'ncm', valor: ncm }],
-          }),
-        )
-      }
-    }
-
-    if (tiposIncluem(doc.tipo_documento, ['INVOICE'])) {
-      const itens = extrairItensComerciais(doc.dados)
-      let somaLinhas = 0
-      let linhasComTotal = 0
-      for (const item of itens) {
-        if (item.qty !== null && item.precoUnit !== null && item.totalLinha !== null) {
-          const esperado = item.qty * item.precoUnit
-          const linhaOk = valoresProximos(esperado, item.totalLinha, Math.max(0.1, esperado * 0.01))
-          regras.push({
-            id: `C1-linha-${doc.rotulo}-${item.indice}`,
-            passou: linhaOk,
-            detalhe: linhaOk
-              ? `Linha ${item.indice + 1}: ${item.qty} × ${item.precoUnit} = ${item.totalLinha}`
-              : `Linha ${item.indice + 1}: esperado ${esperado}, lido ${item.totalLinha}`,
-          })
-          if (!linhaOk) {
-            riscos.push(
-              criarRisco({
-                severidade: 'atencao',
-                categoria: 'matematico',
-                titulo: 'Divergência no total da linha',
-                motivo: `Qty × preço unitário não confere com o total da linha ${item.indice + 1}.`,
-                analise: 'Revise quantidade, preço unitário e total — pode ser erro de OCR ou arredondamento comercial.',
-                evidencias: [
-                  {
-                    documento: doc.rotulo,
-                    campo: `items[${item.indice}]`,
-                    valor: `${item.qty} × ${item.precoUnit} ≠ ${item.totalLinha}`,
-                  },
-                ],
-              }),
-            )
-          }
-        }
-        if (item.totalLinha !== null) {
-          somaLinhas += item.totalLinha
-          linhasComTotal += 1
-        }
-      }
-
-      const totalDoc = parseNumeroComercial(
-        valorCampo(doc.mapa, ['values.totalDocumentValue', 'totalDocumentValue', 'totalValue']),
-      )
-      if (totalDoc !== null && linhasComTotal > 0) {
-        const somaOk = valoresProximos(somaLinhas, totalDoc, Math.max(0.1, totalDoc * 0.01))
-        regras.push({
-          id: `C2-soma-${doc.rotulo}`,
-          passou: somaOk,
-          detalhe: somaOk
-            ? `Soma linhas ${somaLinhas} = total ${totalDoc}`
-            : `Soma linhas ${somaLinhas} ≠ total documento ${totalDoc}`,
-        })
-        if (!somaOk) {
-          riscos.push(
-            criarRisco({
-              severidade: 'atencao',
-              categoria: 'matematico',
-              titulo: 'Soma das linhas diverge do total do documento',
-              motivo: 'A soma dos totais de linha não confere com o valor total da invoice.',
-              analise: 'Verifique descontos, outras despesas ou erro de extração nos totais.',
-              evidencias: [
-                {
-                  documento: doc.rotulo,
-                  campo: 'values.totalDocumentValue',
-                  valor: `Σ linhas ${somaLinhas} vs total ${totalDoc}`,
-                },
-              ],
-            }),
-          )
-        }
-      }
-    }
-  }
-
-  const incoterms = documentos
-    .map((doc) => ({
-      rotulo: doc.rotulo,
-      valor: valorCampo(doc.mapa, ['document.incoterm', 'incoterm']),
-    }))
-    .filter((item): item is { rotulo: string; valor: string } => !!item.valor)
-
-  const incotermsUnicos = new Set(incoterms.map((i) => i.valor.trim().toUpperCase()))
-  const incotermCruzadoOk = incotermsUnicos.size <= 1
-  regras.push({
-    id: 'I1-incoterm-cruzado',
-    passou: incotermCruzadoOk,
-    detalhe: incotermCruzadoOk
-      ? 'Incoterms consistentes entre documentos'
-      : `Incoterms distintos: ${[...incotermsUnicos].join(', ')}`,
-  })
-  if (!incotermCruzadoOk) {
-    riscos.push(
-      criarRisco({
-        severidade: 'atencao',
-        categoria: 'cruzado',
-        titulo: 'Incoterm divergente entre documentos',
-        motivo: 'Mais de um Incoterm foi lido na mesma leitura.',
-        analise:
-          'Divergência de Incoterm entre Invoice, PL ou outros docs pode indicar inconsistência comercial ou erro de extração.',
-        evidencias: incoterms.map((i) => ({ documento: i.rotulo, campo: 'document.incoterm', valor: i.valor })),
-      }),
-    )
-  }
-
-  const ncmsPorDoc = documentos.map((doc) => ({
-    rotulo: doc.rotulo,
-    tipo: doc.tipo_documento,
-    ncms: [...new Set(extrairNcmsDados(doc.dados).map(normalizarNcm))].filter(Boolean),
-  }))
-
-  const invoice = ncmsPorDoc.find((d) => d.tipo.includes('INVOICE'))
-  const packing = ncmsPorDoc.find((d) => d.tipo.includes('PACKING'))
-  let ncmCruzadoOk = true
-  if (invoice && packing && invoice.ncms.length > 0 && packing.ncms.length > 0) {
-    const setInvoice = new Set(invoice.ncms)
-    const setPacking = new Set(packing.ncms)
-    const faltandoPl = [...setInvoice].filter((ncm) => !setPacking.has(ncm))
-    const extrasPl = [...setPacking].filter((ncm) => !setInvoice.has(ncm))
-    ncmCruzadoOk = faltandoPl.length === 0 && extrasPl.length === 0
-    regras.push({
-      id: 'I2-ncm-cruzado',
-      passou: ncmCruzadoOk,
-      detalhe: ncmCruzadoOk
-        ? 'NCMs Invoice = PL'
-        : `Invoice [${invoice.ncms.join(', ')}] vs PL [${packing.ncms.join(', ')}]`,
-    })
-    if (!ncmCruzadoOk) {
-      riscos.push(
-        criarRisco({
-          severidade: 'critico',
-          categoria: 'ncm',
-          titulo: 'Possível divergência de NCM entre Invoice e Packing List',
-          motivo: 'Os conjuntos de NCM lidos nos dois documentos não coincidem.',
-          analise:
-            'NCM diferente entre documentos comerciais da mesma operação é um dos principais gatilhos de exigência aduaneira.',
-          evidencias: [
-            { documento: invoice.rotulo, campo: 'items[].ncm', valor: invoice.ncms.join(', ') },
-            { documento: packing.rotulo, campo: 'items[].ncm', valor: packing.ncms.join(', ') },
-          ],
-        }),
-      )
-    }
-  }
-
-  return {
-    resumo: montarResumo(riscos),
-    contexto: {
-      regras,
-      ncms_encontrados: [...ncmsGlobal],
-      tributos_ncm: [],
-    },
-  }
-}
+export {
+  executarPasso1ValidacaoCodigoInvoice,
+  executarAuditoriaV1AnaliseRiscosLeitura,
+} from './passo-1-validacao-codigo-invoice-smart-read.js'
 
 export function mesclarRiscosAnaliseLeitura(
   v1: RiscoAduaneiroLeitura[],
   extras: RiscoAduaneiroLeitura[],
 ): ResumoRiscosAduaneirosLeitura {
-  const vistos = new Set(v1.map((r) => `${r.titulo.toLowerCase()}|${r.evidencias[0]?.campo ?? ''}`))
   const mesclados = [...v1]
+  const indicePorCampo = new Map<string, number>()
+  mesclados.forEach((r, i) => {
+    const campo = r.evidencias[0]?.campo
+    if (campo) indicePorCampo.set(chaveEvidenciaRisco(r), i)
+  })
+
+  const vistosTituloCampo = new Set(
+    mesclados.map((r) => `${r.titulo.toLowerCase()}|${r.evidencias[0]?.campo ?? ''}`),
+  )
+
   let seq = mesclados.length
   for (const risco of extras) {
-    const chave = `${risco.titulo.toLowerCase()}|${risco.evidencias[0]?.campo ?? ''}`
-    if (vistos.has(chave)) continue
-    vistos.add(chave)
+    const chaveCampo = chaveEvidenciaRisco(risco)
+    const campo = risco.evidencias[0]?.campo ?? ''
+    const idxExistente = indicePorCampo.get(chaveCampo)
+    const ehClassificacao =
+      ehRiscoClassificacaoFiscal(risco.titulo, risco.categoria) ||
+      campo.includes('.ncm') ||
+      campo.includes('.hsCode')
+
+    if (idxExistente !== undefined && ehClassificacao) {
+      const anterior = mesclados[idxExistente]
+      mesclados[idxExistente] = {
+        ...risco,
+        id: anterior.id,
+        origem: risco.origem ?? 'llm',
+      }
+      vistosTituloCampo.delete(`${anterior.titulo.toLowerCase()}|${campo}`)
+      vistosTituloCampo.add(`${risco.titulo.toLowerCase()}|${campo}`)
+      continue
+    }
+
+    const chaveTitulo = `${risco.titulo.toLowerCase()}|${campo}`
+    if (vistosTituloCampo.has(chaveTitulo)) continue
+    vistosTituloCampo.add(chaveTitulo)
     seq += 1
     mesclados.push({ ...risco, id: risco.id || `risco-llm-${seq}`, origem: risco.origem ?? 'llm' })
+    if (campo) indicePorCampo.set(chaveCampo, mesclados.length - 1)
   }
   return montarResumo(mesclados)
+}
+
+function chaveEvidenciaRisco(risco: RiscoAduaneiroLeitura): string {
+  const ev = risco.evidencias[0]
+  return `${ev?.documento ?? ''}|${ev?.campo ?? ''}`.toLowerCase()
 }

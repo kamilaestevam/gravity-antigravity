@@ -221,7 +221,7 @@ router.post('/:id_nf/despesas/smart-read', async (req: Request, res: Response, n
     // Placeholder: Smart Read sera implementado com integracao OCR+AI
     // Por enquanto retorna aceite do upload para processamento assincrono
     res.status(202).json({
-      message: 'Documento recebido para processamento Smart Read',
+      message: 'Documento recebido para processamento Smart Docs',
       nf_importacao_id: req.params.id_nf,
       storage_key: body.storage_key,
       nome_arquivo: body.nome_arquivo,

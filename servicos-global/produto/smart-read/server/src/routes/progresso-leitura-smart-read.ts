@@ -21,7 +21,7 @@ const IdLeituraParamSchema = z.object({ id_leitura: z.string().min(8) })
 function exigirPrisma(req: RequisicaoComPrismaSmartRead) {
   if (!req.prisma) {
     throw new AppError(
-      'Banco Smart Read indisponivel — configure SMART_READ_DATABASE_URL',
+      'Banco Smart Docs indisponivel — configure SMART_READ_DATABASE_URL',
       503,
       'DATABASE_UNAVAILABLE',
     )

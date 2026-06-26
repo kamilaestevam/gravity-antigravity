@@ -401,7 +401,7 @@ export default function App() {
         <Route path="/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><GuardaRotaPedido /></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/smart-read" element={<Navigate to={ROTA_ENTRADA_SMART_READ} replace />} />
         <Route path="/smart-read-" element={<Navigate to={ROTA_ENTRADA_SMART_READ} replace />} />
-        <Route path="/smart-read/*" element={<ProtectedRoute><ProductErrorBoundary name="Smart Read"><React.Suspense fallback={<ProductLoading />}><SmartReadApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/smart-read/*" element={<ProtectedRoute><ProductErrorBoundary name="Smart Docs"><React.Suspense fallback={<ProductLoading />}><SmartReadApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
 
         {/* Redirects legacy (90 dias após merge — Pendência #5) */}
         <Route path="/produto/simula-custo/*" element={<NavigateComPrefixo de="/produto/simula-custo" para="/simula-custo" />} />

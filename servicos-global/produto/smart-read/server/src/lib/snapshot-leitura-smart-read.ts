@@ -4,6 +4,7 @@
 import type { Prisma } from '../generated/client/index.js'
 import type { PrismaClient } from '../generated/client/index.js'
 import { calcularMetricasTransacaoLeituraSmartRead } from '../../../shared/metricas-transacao-leitura-smart-read.js'
+import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import {
   LeituraSchema,
   TransacaoLeituraSchema,
@@ -38,7 +39,14 @@ type RegistroSnapshot = {
 
 export function leituraDeRegistroSnapshot(registro: RegistroSnapshot): Leitura | null {
   const parseado = LeituraSchema.safeParse(registro.dados_extracao_snapshot_leitura_smart_read)
-  return parseado.success ? parseado.data : null
+  if (!parseado.success) return null
+  return {
+    ...parseado.data,
+    arquivos: parseado.data.arquivos.map((arquivo) => ({
+      ...arquivo,
+      nome_arquivo: corrigirEncodingNomeArquivoSmartRead(arquivo.nome_arquivo),
+    })),
+  }
 }
 
 export function transacaoDeRegistroSnapshot(

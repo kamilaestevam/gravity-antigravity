@@ -10,6 +10,7 @@ import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova
 import { ConferenciaQaNovaLeituraSmartRead } from './conferencia-qa-nova-leitura-smart-read'
 import { ConferenciaRiscosAduaneirosNovaLeituraSmartRead } from './conferencia-riscos-aduaneiros-nova-leitura-smart-read'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
+import type { ResumoUsoLlmLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
 
 export type SelecaoDocumentoConferencia = {
   idArquivoLocal: string
@@ -34,6 +35,8 @@ type Props = {
   onSelecionarDocumento: (selecao: SelecaoDocumentoConferencia) => void
   onCompararArquivo?: () => void
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
+  idLeituraLegado?: string | null
+  onTokensAtualizados?: (resumo: ResumoUsoLlmLeituraSmartRead | null | undefined) => void
 }
 
 export function AreaConferenciaNovaLeituraSmartRead({
@@ -42,6 +45,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
   onSelecionarDocumento,
   onCompararArquivo,
   onVerEvidencia,
+  idLeituraLegado = null,
+  onTokensAtualizados,
 }: Props) {
   const [aba, setAba] = useState<AbaConferencia>('campos')
 
@@ -106,12 +111,20 @@ export function AreaConferenciaNovaLeituraSmartRead({
         </>
       )}
 
-      {aba === 'qa' && <ConferenciaQaNovaLeituraSmartRead arquivos={arquivosCompletos} />}
+      {aba === 'qa' && (
+        <ConferenciaQaNovaLeituraSmartRead
+          arquivos={arquivosCompletos}
+          idLeituraLegado={idLeituraLegado}
+          onTokensAtualizados={onTokensAtualizados}
+        />
+      )}
 
       {aba === 'riscos' && (
         <ConferenciaRiscosAduaneirosNovaLeituraSmartRead
           arquivos={arquivosCompletos}
           onVerEvidencia={onVerEvidencia}
+          idLeituraLegado={idLeituraLegado}
+          onTokensAtualizados={onTokensAtualizados}
         />
       )}
     </div>

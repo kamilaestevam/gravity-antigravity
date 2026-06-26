@@ -2887,7 +2887,7 @@ O sistema resolve:
 
 ### O que NAO esta no MVP
 
-- Smart Read (leitura inteligente de documentos) — Fase 2 (produto Gravity ja existente, integracao futura)
+- Smart Docs (leitura inteligente de documentos) — Fase 2 (produto Gravity ja existente, integracao futura)
 - Dashboard analitico de pedidos — Fase 2
 - Alertas automaticos de saldo baixo — Fase 2
 - Workflow de aprovacao de pedidos — Fase 3
@@ -4870,7 +4870,7 @@ Rota: `PUT /api/v1/pedidos/:id/itens/:itemId` (Zod `.strict()` — campo fora do
 | **A. Manual** | Drawer lateral — criar e editar pelo mesmo painel | Substituir NovoPedido.tsx |
 | **B. Importar** | Smart import com IA, memória e validação linha a linha | Redesenhar ImportarArquivo.tsx |
 | **C. API Cockpit** | Via integração usando API Cockpit | Futuro |
-| **D. Smart Read** | Produto existente que lê documentos de pedido | Futuro |
+| **D. Smart Docs** | Produto existente que lê documentos de pedido | Futuro |
 
 ---
 

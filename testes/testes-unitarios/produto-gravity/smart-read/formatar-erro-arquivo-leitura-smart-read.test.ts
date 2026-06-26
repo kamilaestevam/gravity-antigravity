@@ -8,7 +8,7 @@ import {
 describe('Smart Read — interpretar erro arquivo Nova Leitura', () => {
   it('mapeia soffice ausente para mensagem amigável e aviso de não cobrança', () => {
     const erro = interpretarErroArquivoLeituraSmartRead(
-      'Smart Read legado respondeu 422: {"message":"Error to convert Excel to PDF: Error: Could not find soffice binary"}',
+      'Smart Docs legado respondeu 422: {"message":"Error to convert Excel to PDF: Error: Could not find soffice binary"}',
     )
     expect(erro.titulo).toBe(TITULO_ERRO_ARQUIVO_LEITURA_SMART_READ)
     expect(erro.motivo).toContain('Excel')
@@ -18,14 +18,14 @@ describe('Smart Read — interpretar erro arquivo Nova Leitura', () => {
 
   it('mapeia xls inválido como zip', () => {
     const erro = interpretarErroArquivoLeituraSmartRead(
-      "Smart Read legado respondeu 422: Can't find end of central directory : is this a zip file",
+      "Smart Docs legado respondeu 422: Can't find end of central directory : is this a zip file",
     )
     expect(erro.motivo).toContain('.xls')
   })
 
   it('mapeia 403 xml', () => {
     const erro = interpretarErroArquivoLeituraSmartRead(
-      'Smart Read legado respondeu 403: <html><title>403 Forbidden</title></html>',
+      'Smart Docs legado respondeu 403: <html><title>403 Forbidden</title></html>',
     )
     expect(erro.motivo).toContain('XML')
   })

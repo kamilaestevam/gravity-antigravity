@@ -1,5 +1,5 @@
 /**
- * cliente-legado-smart-read.ts — Cliente HTTP do Smart Read legado (dati/microservices)
+ * cliente-legado-smart-read.ts — Cliente HTTP do Smart Docs legado (dati/microservices)
  * Fala com o ExternalApiReadingsController via flag x-gravity-api-key + x-company-id.
  * O vínculo id_organizacao → company id legado é resolvido via Configurador (S2S).
  */
@@ -18,10 +18,15 @@ import {
   LeituraLegadoSchema,
   type LeituraLegado,
 } from '../schemas/leitura-smart-read.js'
+import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import {
   conteudoArquivoLeituraEhVisualizavel,
   resolverMimePorNomeArquivo,
 } from '../../../shared/validar-conteudo-arquivo-leitura-smart-read.js'
+
+function nomeArquivoLegadoCorrigido(nome: string | null | undefined): string | null {
+  return corrigirEncodingNomeArquivoSmartRead(nome)
+}
 
 let avisoMockLegadoEmitido = false
 
@@ -53,7 +58,7 @@ function configuracaoLegado(): { urlBase: string; chaveGravity: string } {
   const chaveGravity = process.env.SMART_READ_LEGADO_CHAVE_GRAVITY
   if (!urlBase || !chaveGravity) {
     throw new AppError(
-      'Integracao Smart Read nao configurada (SMART_READ_LEGADO_URL / SMART_READ_LEGADO_CHAVE_GRAVITY)',
+      'Integracao Smart Docs nao configurada (SMART_READ_LEGADO_URL / SMART_READ_LEGADO_CHAVE_GRAVITY)',
       500,
       'CONFIG_ERROR',
     )
@@ -104,7 +109,7 @@ async function chamarLegado(caminho: string, init: RequestInit, timeoutMs = TIME
     })
   } catch (erro) {
     throw new AppError(
-      `Smart Read legado inacessivel: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
+      `Smart Docs legado inacessivel: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
       502,
       'LEGADO_INDISPONIVEL',
     )
@@ -112,7 +117,7 @@ async function chamarLegado(caminho: string, init: RequestInit, timeoutMs = TIME
   if (!resposta.ok) {
     const corpo = await resposta.text().catch(() => '')
     throw new AppError(
-      `Smart Read legado respondeu ${resposta.status}: ${corpo.slice(0, 300)}`,
+      `Smart Docs legado respondeu ${resposta.status}: ${corpo.slice(0, 300)}`,
       resposta.status === 401 || resposta.status === 403 ? 502 : resposta.status,
       'LEGADO_ERRO',
     )
@@ -188,7 +193,7 @@ async function chamarLegadoBinario(
     })
   } catch (erro) {
     throw new AppError(
-      `Smart Read legado inacessivel: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
+      `Smart Docs legado inacessivel: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
       502,
       'LEGADO_INDISPONIVEL',
     )
@@ -196,7 +201,7 @@ async function chamarLegadoBinario(
   if (!resposta.ok) {
     const corpo = await resposta.text().catch(() => '')
     throw new AppError(
-      `Smart Read legado respondeu ${resposta.status}: ${corpo.slice(0, 300)}`,
+      `Smart Docs legado respondeu ${resposta.status}: ${corpo.slice(0, 300)}`,
       resposta.status === 404 ? 404 : resposta.status === 401 || resposta.status === 403 ? 502 : resposta.status,
       'LEGADO_ARQUIVO_ERRO',
     )
@@ -313,7 +318,7 @@ async function baixarArquivoPorMetadadosLegado(
   meta: MetadadosArquivoLegadoJson,
   nomeFallback: string | null,
 ): Promise<{ buffer: Buffer; contentType: string; nomeArquivo: string | null }> {
-  const nomeArquivo = meta.filename ?? nomeFallback
+  const nomeArquivo = nomeArquivoLegadoCorrigido(meta.filename ?? nomeFallback)
   const urlExterna = extrairUrlMetadadosArquivo(meta)
   if (urlExterna) {
     const remoto = await baixarUrlArquivoLegado(urlExterna)
@@ -343,7 +348,7 @@ export async function obterArquivoLegado(
 
   const leitura = await obterLeituraLegado(companyId, idLeitura)
   const metaLista = leitura.files?.find((item) => item.fileReferenceId === idArquivo)
-  const nomeArquivo = metaLista?.filename ?? null
+  const nomeArquivo = nomeArquivoLegadoCorrigido(metaLista?.filename ?? null)
   const urlLista = metaLista ? extrairUrlMetadadosArquivo(metaLista) : null
   if (urlLista) {
     const remoto = await baixarUrlArquivoLegado(urlLista)

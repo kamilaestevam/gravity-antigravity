@@ -11,6 +11,7 @@ import {
   TOOLTIP_LIMITE_TAMANHO_ARQUIVO_LEITURA_SMART_READ,
 } from '../../shared/entrada-arquivo-leitura-smart-read'
 import { FormatosAceitosAnexarNovaLeituraSmartRead } from './formatos-aceitos-anexar-nova-leitura-smart-read'
+import { NOME_PRODUTO_EXIBICAO } from '../../shared/marca-smart-docs'
 
 type Props = {
   onArquivosAdicionados: (arquivos: File[]) => void
@@ -56,7 +57,7 @@ export function AreaAnexarNovaLeituraSmartRead({ onArquivosAdicionados }: Props)
                   className="sr-wizard-dropzone-titulo-icone"
                   aria-hidden
                 />
-                <h2>Bem-vindo ao Smart Read</h2>
+                <h2>Bem-vindo ao {NOME_PRODUTO_EXIBICAO}</h2>
               </div>
               <p className="sr-wizard-dropzone-subtitulo">
                 Envie o documento que deseja extrair as informações.

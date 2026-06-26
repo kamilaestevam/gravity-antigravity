@@ -60,7 +60,7 @@ export const CANAL_ENTRADA_LABELS: Record<CanalEntrada, string> = {
   MANUAL: 'Digitacao Manual',
   PLANILHA: 'Planilha Excel/CSV',
   PEDIDO: 'A partir do Pedido',
-  SMART_READ: 'Smart Read (OCR+IA)',
+  SMART_READ: 'Smart Docs (OCR+IA)',
   DUPLICAR: 'Duplicado de existente',
   API: 'Integracao via API',
 }

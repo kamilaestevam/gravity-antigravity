@@ -29,7 +29,11 @@ export function interpretarErroArquivoLeituraSmartRead(
 
   const texto = mensagem.trim().toLowerCase()
 
-  if (texto.includes('sem vínculo com o smart read legado') || texto.includes('organizacao_sem_vinculo')) {
+  if (
+    texto.includes('sem vínculo com o smart docs legado') ||
+    texto.includes('sem vínculo com o smart read legado') ||
+    texto.includes('organizacao_sem_vinculo')
+  ) {
     return {
       ...base,
       motivo:

@@ -35,3 +35,6 @@ export { LogoLpco }           from './logos/LogoLpco'
 export { LogoNfImportacao }   from './logos/LogoNfImportacao'
 export { LogoProcesso }       from './logos/LogoProcesso'
 export { LogoFinanceiroComex } from './logos/LogoFinanceiroComex'
+export { LogoSmartDocs }      from './logos/LogoSmartDocs'
+/** @deprecated alias — use LogoSmartDocs */
+export { LogoSmartRead }      from './logos/LogoSmartRead'

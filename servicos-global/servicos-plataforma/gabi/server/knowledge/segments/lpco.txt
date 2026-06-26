@@ -96,7 +96,7 @@ produto/lpco/
 │       │   ├── lpcoCancelamentoJob.ts        # Cron: cancelamento 90 dias
 │       │   ├── lpcoAlertaService.ts          # Alertas de prazo
 │       │   ├── lpcoImportService.ts          # Import de planilha (Excel/CSV)
-│       │   └── lpcoSmartReadService.ts       # Orquestrador Smart Read → rascunho
+│       │   └── lpcoSmartReadService.ts       # Orquestrador Smart Docs → rascunho
 │       ├── connectors/
 │       │   ├── portalUnicoAdapter.ts         # Adapter: registro, consulta, exigencia
 │       │   ├── portalUnicoAuth.ts            # Strategy: certificado digital vs token OAuth2
@@ -459,7 +459,7 @@ model LpcoHistorico {
 | GET | `/api/v1/lpcos/import/template` | Download template Excel | S2S + tenant | — |
 | GET | `/api/v1/lpcos/import/:jobId/status` | Status do import em andamento | S2S + tenant | — |
 
-### Smart Read
+### Smart Docs
 
 | Metodo | Endpoint | Descricao | Auth | Body |
 |--------|----------|-----------|------|------|
@@ -522,7 +522,7 @@ model LpcoHistorico {
 | Configurador | Check-access, permissoes | JWT + REST API |
 | API Cockpit | Tokens, docs, playground, webhooks para integracao ERP | Ja existe |
 | Conector ERP | OData/SAP/REST para import de dados | Ja existe |
-| Smart Read | OCR + IA para extracao de dados de documentos | Ja existe — reutilizar |
+| Smart Docs | OCR + IA para extracao de dados de documentos | Ja existe — reutilizar |
 
 ### Componentes do nucleo-global que Vamos Reutilizar
 
@@ -546,7 +546,7 @@ model LpcoHistorico {
 | lpcoCancelamentoJob | Backend cron | P | Cancelamento automatico 90 dias |
 | lpcoAlertaService | Backend service | P | Alertas de prazo |
 | lpcoImportService | Backend service | M | Parser de Excel/CSV → validacao → criacao em lote |
-| lpcoSmartReadService | Backend service | M | Orquestrador: upload → Smart Read → rascunho |
+| lpcoSmartReadService | Backend service | M | Orquestrador: upload → Smart Docs → rascunho |
 | portalUnicoAdapter | Backend connector | G | Adapter bidirecional com API do Portal Unico |
 | portalUnicoAuth | Backend connector | G | Strategy: certificado digital + token OAuth2 + AES-256 |
 | simuladorTAConnector | Backend connector | M | Consulta tratamento administrativo via API |
@@ -759,13 +759,13 @@ class PortalUnicoAdapter {
 | Manual | Step 0 → Step 1 (dados gerais) → Step 2 (itens) → Step 3 (revisao) → Registrar |
 | Planilha | Step 0 → Upload → Mapeamento colunas → Preview → Confirmar → Cria N rascunhos |
 | Pedido | Step 0 → Selecionar Pedido → Auto-preenche → Step 1 (completa orgao) → Step 2 (completa atributos) → Step 3 → Registrar |
-| Smart Read | Step 0 → Upload docs → OCR+IA → Preview extracao (amarelo) → Confirma campos → Step 1 → Step 2 → Step 3 → Registrar |
+| Smart Docs | Step 0 → Upload docs → OCR+IA → Preview extracao (amarelo) → Confirma campos → Step 1 → Step 2 → Step 3 → Registrar |
 | Duplicar | Step 0 → Selecionar LPCO → Copia → Step 1 (ajusta) → Step 2 (ajusta) → Step 3 → Registrar |
 | API | POST /api/v1/lpcos com canal_entrada="API" → validacao Zod → cria rascunho ou registra direto |
 
 ### Auto-Preenchimento — Mapa de Campos
 
-| Campo LPCO | Manual | Planilha | Pedido | Smart Read | API |
+| Campo LPCO | Manual | Planilha | Pedido | Smart Docs | API |
 |-----------|--------|----------|--------|-----------|-----|
 | tipo_operacao | Digita | Coluna | Auto (Pedido) | Inferido | Enviado |
 | orgao_anuente | Digita | Coluna | Digita | Inferido (NCM) | Enviado |
@@ -800,7 +800,7 @@ class PortalUnicoAdapter {
 - [ ] JWT do Portal Unico cacheado em memoria APENAS — nunca no banco
 - [ ] OAuth client_secret criptografado com AES-256-GCM
 - [ ] Alerta 30 dias antes do vencimento do certificado
-- [ ] Smart Read: campos extraidos requerem confirmacao humana
+- [ ] Smart Docs: campos extraidos requerem confirmacao humana
 
 --- documentos-tecnicos/produtos-gravity/lpco/BACKLOG.md ---
 # Backlog Priorizado — LPCO MVP
@@ -829,7 +829,7 @@ class PortalUnicoAdapter {
 | 3 | Preencher itens NCM | Como analista, quero adicionar itens com NCM, quantidades e atributos do orgao para completar o LPCO | 88 | G | CA-006 a CA-012 | #2 | 🔲 |
 | 4 | Validar e registrar LPCO | Como analista, quero validar e registrar o LPCO para envia-lo ao orgao anuente | 87 | M | CA-013 a CA-018 | #3 | 🔲 |
 | 5 | Criar LPCO a partir do Pedido | Como analista, quero criar LPCO a partir de um Pedido existente para nao redigitar 70% dos dados | 85 | M | CA-063 a CA-066 | #2 | 🔲 |
-| 6 | Smart Read (OCR+IA) | Como analista, quero fazer upload de fatura/laudo e ter os dados extraidos automaticamente para economizar tempo | 84 | G | CA-067 a CA-072 | #2 | 🔲 |
+| 6 | Smart Docs (OCR+IA) | Como analista, quero fazer upload de fatura/laudo e ter os dados extraidos automaticamente para economizar tempo | 84 | G | CA-067 a CA-072 | #2 | 🔲 |
 | 7 | Acompanhar status | Como analista, quero ver o status atualizado de cada LPCO para saber o que precisa de atencao | 83 | M | CA-019 a CA-022 | #4 | 🔲 |
 | 8 | Responder exigencias | Como analista, quero responder exigencias do orgao anuente para evitar cancelamento | 82 | M | CA-023 a CA-026 | #7 | 🔲 |
 | 9 | Cancelamento automatico 90 dias | Como sistema, quero cancelar LPCOs com exigencia pendente por >90 dias para espelhar regra do Portal Unico | 80 | M | CA-042 a CA-044 | #8 | 🔲 |
@@ -861,7 +861,7 @@ class PortalUnicoAdapter {
 ### T-02/T-03/T-04: Wizard de Criacao
 - Story #2, #3, #4
 
-### T-05/T-06: Import Planilha / Smart Read
+### T-05/T-06: Import Planilha / Smart Docs
 - Story #6, #19
 
 ### T-07 a T-12: Detalhe do LPCO (abas)
@@ -1158,12 +1158,12 @@ Entao exibe mensagem "Pedido sem itens. Adicione itens manualmente no Step 2."
 
 ---
 
-## Story #6 — Smart Read (OCR+IA)
+## Story #6 — Smart Docs (OCR+IA)
 
 ### CA-067: Upload de documento
 
 ```gherkin
-Dado que o usuario selecionou canal "Smart Read" no Step 0
+Dado que o usuario selecionou canal "Smart Docs" no Step 0
 Quando faz upload de uma fatura comercial (PDF)
 Entao o sistema exibe indicador de processamento
   E apos processamento, mostra os campos extraidos
@@ -1172,7 +1172,7 @@ Entao o sistema exibe indicador de processamento
 ### CA-068: Preview de extracao
 
 ```gherkin
-Dado que o Smart Read processou o documento
+Dado que o Smart Docs processou o documento
 Quando o resultado e exibido
 Entao campos extraidos com alta confianca (>80%) aparecem em verde
   E campos extraidos com baixa confianca (<80%) aparecem em amarelo
@@ -1183,7 +1183,7 @@ Entao campos extraidos com alta confianca (>80%) aparecem em verde
 ### CA-069: Confirmacao campo a campo
 
 ```gherkin
-Dado que o usuario esta na tela de preview do Smart Read
+Dado que o usuario esta na tela de preview do Smart Docs
 Quando clica em "Confirmar" em um campo extraido
 Entao o campo e aceito e fica verde
 Quando clica em "Editar" em um campo extraido
@@ -1544,8 +1544,8 @@ Entao o sistema retorna HTTP 404 (nao 403)
 LPCO e o produto de **gestao de licencas, permissoes, certificados e outros documentos** exigidos pelos 16 orgaos anuentes do governo brasileiro para operacoes de comercio exterior. E o componente de **compliance regulatorio** do ecosistema Gravity.
 
 O sistema resolve:
-- **5 canais de entrada** — "entre como quiser": manual, planilha, Pedido, Smart Read (OCR+IA), API (ERP)
-- **Smart Read** — upload de fatura/packing/laudo → IA extrai 90% dos campos → revisao → registra
+- **5 canais de entrada** — "entre como quiser": manual, planilha, Pedido, Smart Docs (OCR+IA), API (ERP)
+- **Smart Docs** — upload de fatura/packing/laudo → IA extrai 90% dos campos → revisao → registra
 - **Integracao Portal Unico** — certificado digital + token OAuth2 (novo!) → registra, consulta, responde via API
 - **Acompanhamento centralizado** de dezenas de LPCOs simultaneos com sync automatico
 - **Alertas inteligentes** para exigencias pendentes e vigencias expirando
@@ -1575,10 +1575,10 @@ O sistema resolve:
 
 | Area | Funcionalidades |
 |------|----------------|
-| **5 Canais de Entrada** | Manual, Planilha (Excel/CSV), A partir do Pedido (~70% auto), Smart Read (OCR+IA), Duplicar existente + API Cockpit |
+| **5 Canais de Entrada** | Manual, Planilha (Excel/CSV), A partir do Pedido (~70% auto), Smart Docs (OCR+IA), Duplicar existente + API Cockpit |
 | Lista de LPCOs | Grid com filtros por status, orgao, tipo, operacao, canal de entrada |
 | Criacao (wizard 4 steps) | Step 0 (canal) → Dados gerais → Itens NCM (atributos dinamicos) → Revisao + registro |
-| Smart Read | Upload fatura/packing/laudo → OCR+IA → preview (amarelo) → confirma → rascunho |
+| Smart Docs | Upload fatura/packing/laudo → OCR+IA → preview (amarelo) → confirma → rascunho |
 | Integracao Portal Unico | Registrar, consultar, responder exigencia, anexar — via API |
 | Autenticacao dupla | Certificado digital (.pfx/AES-256) + Token OAuth2 (gov.br/Serpro) |
 | 15 Webhooks | Recebe eventos do Portal Unico → sync automatico de status |
@@ -1613,7 +1613,7 @@ O sistema resolve:
 
 5. **3 modos de operacao** — O Gravity funciona em 3 modos: (a) Integrado com certificado digital — full access via API; (b) Integrado com token OAuth2 — consultas + escrita se o scope permitir; (c) Manual — usuario registra por fora e atualiza no Gravity. O modo e determinado automaticamente pela credencial configurada.
 
-6. **5 canais de entrada** — O usuario escolhe como criar o LPCO: digitar manual, importar planilha, a partir de Pedido (auto-preenche ~70%), Smart Read (OCR+IA de fatura/laudo), ou via API (ERP). Canal e registrado em `Lpco.canal_entrada` para metricas.
+6. **5 canais de entrada** — O usuario escolhe como criar o LPCO: digitar manual, importar planilha, a partir de Pedido (auto-preenche ~70%), Smart Docs (OCR+IA de fatura/laudo), ou via API (ERP). Canal e registrado em `Lpco.canal_entrada` para metricas.
 
 7. **Certificado digital = ativo sensivel** — Armazenado com AES-256-GCM (mesmo padrao do Conector ERP). Senha NUNCA em plain text. JWT cacheado em memoria, nunca no banco. Alerta 30 dias antes do vencimento.
 
@@ -1664,7 +1664,7 @@ O sistema resolve:
 | T-03 | Novo — Itens NCM | `/lpco/novo/itens` | G |
 | T-04 | Novo — Revisao | `/lpco/novo/revisao` | M |
 | T-05 | Import Planilha | `/lpco/novo/planilha` | M |
-| T-06 | Smart Read | `/lpco/novo/smart-read` | M |
+| T-06 | Smart Docs | `/lpco/novo/smart-read` | M |
 | T-07 | Detalhe (container) | `/lpco/:id` | P |
 | T-08 | Aba Formulario | `/lpco/:id/formulario` | M |
 | T-09 | Aba Documentos | `/lpco/:id/documentos` | M |
@@ -1731,7 +1731,7 @@ Lista LPCOs → + Novo LPCO → Step 0: "Como voce quer criar?"
 | Auth Gravity | Clerk (JWT) + x-internal-key (S2S) |
 | Auth Portal Unico | Certificado digital (mTLS) + Token OAuth2 — strategy pattern |
 | Criptografia | AES-256-GCM (certificados, senhas, OAuth secrets) |
-| OCR+IA | Smart Read (ja existente no Gravity) |
+| OCR+IA | Smart Docs (ja existente no Gravity) |
 | Storage | S3/R2 (documentos + certificados criptografados) |
 
 ### Modelos Prisma
@@ -1749,7 +1749,7 @@ Todos com `tenant_id` + `company_id` + 3 indices obrigatorios.
 | `lpcoCancelamentoJob` | Cron diario: cancela LPCOs >90 dias em exigencia |
 | `lpcoAlertaService` | Gera alertas em 60, 80, 90 dias + cert expirando |
 | `lpcoImportService` | Parser de Excel/CSV → validacao → criacao em lote |
-| `lpcoSmartReadService` | Orquestrador: upload → Smart Read → rascunho |
+| `lpcoSmartReadService` | Orquestrador: upload → Smart Docs → rascunho |
 | `portalUnicoAdapter` | Adapter bidirecional com API do Portal Unico |
 | `portalUnicoAuth` | Strategy: certificado digital vs token OAuth2 |
 | `simuladorTAConnector` | Consulta tratamento administrativo via API |
@@ -1761,7 +1761,7 @@ Todos com `tenant_id` + `company_id` + 3 indices obrigatorios.
 | Portal Unico Siscomex | LPCO ↔ Portal | API bidirecional + 15 webhooks |
 | Processo | LPCO → Processo | Vinculo (LpcoVinculo.processo_id) |
 | Pedido | LPCO ← Pedido | Auto-preenchimento (canal "Pedido") |
-| Smart Read | LPCO ← Smart Read | OCR+IA de documentos |
+| Smart Docs | LPCO ← Smart Docs | OCR+IA de documentos |
 | API Cockpit | LPCO ← ERP/COMEX | Tokens + docs + playground |
 | Configurador | LPCO ← Config | Check-access, permissoes |
 | Notificacoes | LPCO → Notif | Alertas de prazo |
@@ -1770,7 +1770,7 @@ Todos com `tenant_id` + `company_id` + 3 indices obrigatorios.
 
 ### O que reutilizar (ja existe)
 
-- **8 servicos:** Notificacoes, Email, Historico, Dashboard, Configurador, API Cockpit, Conector ERP, Smart Read
+- **8 servicos:** Notificacoes, Email, Historico, Dashboard, Configurador, API Cockpit, Conector ERP, Smart Docs
 - **8 componentes nucleo-global:** TabelaGlobal, CaixaSelectGlobal, InputTexto, ModalGlobal, BadgeStatus, BotaoGlobal, Loading, TabsGlobal
 
 ### O que criar do zero
@@ -1844,7 +1844,7 @@ Entao apenas LPCOs que atendem AMBOS filtros sao exibidos
 
 | KPI | Meta | Instrumentacao |
 |-----|------|---------------|
-| Tempo de preparacao | < 3 min (Smart Read), < 5 min (Pedido), < 15 min (manual) | created_at → data_registro |
+| Tempo de preparacao | < 3 min (Smart Docs), < 5 min (Pedido), < 15 min (manual) | created_at → data_registro |
 | Cancelamentos por esquecimento | 0% | LpcoHistorico: cancelamento_automatico |
 | Tempo de resposta a exigencia | < 48h | data_exigencia → data_resposta |
 | LPCOs/analista/mes | +50% | Count por user_id |
@@ -1932,7 +1932,7 @@ Entao apenas LPCOs que atendem AMBOS filtros sao exibidos
 
 | KPI | Meta | Como Medir |
 |-----|------|-----------|
-| Adocao de Smart Read | >30% dos LPCOs criados | `COUNT(canal_entrada=SMART_READ) / COUNT(total)` |
+| Adocao de Smart Docs | >30% dos LPCOs criados | `COUNT(canal_entrada=SMART_READ) / COUNT(total)` |
 | Adocao de canal Pedido | >25% | `COUNT(canal_entrada=PEDIDO) / COUNT(total)` |
 | Integracao Portal Unico ativa | >50% dos tenants | `COUNT(DISTINCT tenant com SiscomexCredencial) / COUNT(DISTINCT tenant)` |
 | Tempo medio de deferimento por orgao | Benchmark interno | `data_registro → data_deferimento GROUP BY orgao_anuente` |
@@ -2019,9 +2019,9 @@ Entao apenas LPCOs que atendem AMBOS filtros sao exibidos
 
 **Problema:** Importadores e exportadores gastam horas preenchendo formularios no Portal Unico Siscomex, perdendo LPCOs por cancelamento automatico (90 dias sem resposta), sem visibilidade centralizada do status de dezenas de documentos simultaneos, e sem rastreabilidade para auditoria.
 
-**Solucao:** Plataforma de gestao e integracao com o Portal Unico que oferece 5 canais de entrada de dados ("entre como quiser"), integracao bidirecional via API (certificado digital + token OAuth2), alertas inteligentes e vinculacao ao ecosistema Gravity (Pedido, Processo, SimulaCusto). Smart Read (OCR+IA) e integracao ERP via API Cockpit ja estao prontos no Gravity.
+**Solucao:** Plataforma de gestao e integracao com o Portal Unico que oferece 5 canais de entrada de dados ("entre como quiser"), integracao bidirecional via API (certificado digital + token OAuth2), alertas inteligentes e vinculacao ao ecosistema Gravity (Pedido, Processo, SimulaCusto). Smart Docs (OCR+IA) e integracao ERP via API Cockpit ja estao prontos no Gravity.
 
-**Metrica de sucesso:** Reducao de 90% no tempo de preparacao de LPCOs (de 30-60 min para 3 min com Smart Read) e zero cancelamentos automaticos por esquecimento.
+**Metrica de sucesso:** Reducao de 90% no tempo de preparacao de LPCOs (de 30-60 min para 3 min com Smart Docs) e zero cancelamentos automaticos por esquecimento.
 
 ---
 
@@ -2053,8 +2053,8 @@ Entao apenas LPCOs que atendem AMBOS filtros sao exibidos
 ### Oportunidade
 
 Nenhum sistema de mercado oferece gestao completa de LPCOs com:
-1. **5 canais de entrada** — digite, importe planilha, use o Pedido, Smart Read (OCR+IA), ou integre via API
-2. **Smart Read** — upload de fatura/packing list/laudo → IA extrai 90% dos campos
+1. **5 canais de entrada** — digite, importe planilha, use o Pedido, Smart Docs (OCR+IA), ou integre via API
+2. **Smart Docs** — upload de fatura/packing list/laudo → IA extrai 90% dos campos
 3. **Integracao Portal Unico** — certificado digital + token OAuth2 (novo!) via strategy pattern
 4. **Alertas inteligentes** (prazo de exigencia, vigencia expirando)
 5. **Controle de saldo** de LPCO Flex com vinculacao a processos
@@ -2175,7 +2175,7 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 | RF-015 | Alertas de prazo (exigencia pendente, vigencia expirando) | Should-have | M | CA-057 a CA-060 |
 | RF-016 | Duplicar LPCO existente (modelo como base) | Should-have | P | CA-061 a CA-062 |
 | RF-017 | Criar LPCO a partir de Pedido (auto-preenchimento ~70%) | Must-have | M | CA-063 a CA-066 |
-| RF-018 | Criar LPCO via Smart Read (OCR+IA de fatura/packing/laudo) | Must-have | G | CA-067 a CA-072 |
+| RF-018 | Criar LPCO via Smart Docs (OCR+IA de fatura/packing/laudo) | Must-have | G | CA-067 a CA-072 |
 | RF-019 | Importar LPCOs via planilha (Excel/CSV) em lote | Must-have | M | CA-073 a CA-076 |
 | RF-020 | API Cockpit — ERP/sistema COMEX cria LPCOs via API | Must-have | M | CA-077 a CA-080 |
 | RF-021 | Integracao bidirecional com API Portal Unico (registrar, consultar, responder) | Must-have | GG | CA-081 a CA-088 |
@@ -2230,12 +2230,12 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 3. Step 0 — "Como voce quer criar?"
    a) Digitar manual → Step 1
    b) A partir de Pedido → Seleciona Pedido → auto-preenche → Step 1
-   c) Smart Read → Upload fatura/packing/laudo → OCR+IA → preview → Step 1
+   c) Smart Docs → Upload fatura/packing/laudo → OCR+IA → preview → Step 1
    d) Planilha → Upload Excel/CSV → mapeamento → preview → cria N rascunhos
    e) Duplicar existente → Seleciona LPCO → copia → Step 1
 4. Step 1: Dados gerais (orgao, modelo, pais, fundamento legal)
    - Se veio do Pedido: ~70% ja preenchido
-   - Se veio do Smart Read: campos extraidos em amarelo para confirmacao
+   - Se veio do Smart Docs: campos extraidos em amarelo para confirmacao
 5. Step 2: Itens NCM (quantidades, valores, atributos dinamicos do orgao)
 6. Step 3: Revisao final + validacao Zod
 7. Registrar:
@@ -2292,7 +2292,7 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 | T-03 | Novo LPCO — Itens | `/lpco/novo/itens` | Step 2: NCMs, quantidades, valores, atributos |
 | T-04 | Novo LPCO — Revisao | `/lpco/novo/revisao` | Step 3: revisao final + validacao + registrar |
 | T-05 | Import Planilha | `/lpco/novo/planilha` | Upload → mapeamento colunas → preview → confirmar |
-| T-06 | Smart Read | `/lpco/novo/smart-read` | Upload docs → preview extracao (amarelo) → confirmar |
+| T-06 | Smart Docs | `/lpco/novo/smart-read` | Upload docs → preview extracao (amarelo) → confirmar |
 | T-07 | Detalhe do LPCO | `/lpco/:id` | Visao completa com abas |
 | T-08 | Aba Formulario | `/lpco/:id/formulario` | Dados preenchidos (readonly se registrado) |
 | T-09 | Aba Documentos | `/lpco/:id/documentos` | Upload e lista de documentos |
@@ -2312,7 +2312,7 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 | Processo | Vinculo bidirecional | produto/processo | LPCO vinculada a DUIMP/DU-E |
 | Pedido | Auto-preenchimento | produto/pedido | Canal "Pedido" → preenche ~70% dos campos |
 | SimulaCusto | Consulta | produto/simula-custo | Verificar se NCM exige LPCO |
-| Smart Read | OCR+IA | servico existente | Extracao de dados de faturas/packing/laudos |
+| Smart Docs | OCR+IA | servico existente | Extracao de dados de faturas/packing/laudos |
 | API Cockpit | Tokens + docs | servicos-global | ERP/SAP/sistema COMEX envia dados via API |
 | Conector ERP | OData/REST | servicos-global | Import de dados do sistema do cliente |
 | Catalogo de Produtos | Dependencia | servicos-global | NCMs + atributos do produto |
@@ -2327,7 +2327,7 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 
 | KPI | Meta | Como Medir |
 |-----|------|-----------|
-| Tempo medio de preparacao de LPCO | < 3 min com Smart Read, < 5 min com Pedido, < 15 min manual (vs 30-60 min Portal Unico) | Timestamp criacao → registro |
+| Tempo medio de preparacao de LPCO | < 3 min com Smart Docs, < 5 min com Pedido, < 15 min manual (vs 30-60 min Portal Unico) | Timestamp criacao → registro |
 | Taxa de cancelamento por inatividade | 0% (vs ~15% mercado) | LPCOs canceladas automaticamente / total |
 | Tempo medio de resposta a exigencia | < 48h (vs dias/semanas) | Timestamp exigencia → resposta |
 | LPCOs gerenciados por analista/mes | +50% vs baseline | Count por user_id/mes |
@@ -2364,12 +2364,12 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 
 | # | Decisao | Data | Contexto | Alternativa Descartada |
 |---|---------|------|----------|----------------------|
-| D-001 | MVP COM integracao Portal Unico + 5 canais de entrada | 30/03/2026 | Smart Read e API Cockpit ja prontos; adapter pattern mitiga instabilidade da API | Esperar para Fase 2 (perdia diferencial competitivo) |
+| D-001 | MVP COM integracao Portal Unico + 5 canais de entrada | 30/03/2026 | Smart Docs e API Cockpit ja prontos; adapter pattern mitiga instabilidade da API | Esperar para Fase 2 (perdia diferencial competitivo) |
 | D-002 | Formularios dinamicos via JSON schema | 30/03/2026 | Atributos mudam por comunicado Siscomex | Formularios hardcoded por orgao (nao escalavel) |
 | D-003 | LPCO como produto separado (nao modulo do Processo) | 30/03/2026 | Complexidade propria; ciclo de vida independente | Modulo dentro de Processo (acoplamento excessivo) |
 | D-004 | Suporte imp + exp na mesma tabela com discriminador | 30/03/2026 | Consistencia com Pedido; evita duplicacao de codigo | Tabelas separadas (mais complexo) |
 | D-005 | Top 5 orgaos no MVP, demais progressivamente | 30/03/2026 | 16 orgaos de uma vez e inviavel; 80/20 | Todos os 16 orgaos no MVP (scope creep) |
-| D-006 | Smart Read no MVP (nao Fase 3) | 30/03/2026 | Smart Read ja funciona no Gravity; e o diferencial #1 de UX | Deixar para depois (perdia vantagem competitiva) |
+| D-006 | Smart Docs no MVP (nao Fase 3) | 30/03/2026 | Smart Docs ja funciona no Gravity; e o diferencial #1 de UX | Deixar para depois (perdia vantagem competitiva) |
 | D-007 | Certificado digital + token OAuth2 (strategy pattern) | 30/03/2026 | Portal Unico lancou token recentemente; certificado continua sendo o padrao | Apenas certificado (excluia empresas sem certificado) |
 | D-008 | 3 modos de operacao (integrado cert / integrado token / manual) | 30/03/2026 | Garante que o produto funciona para qualquer empresa, com ou sem credenciais | Exigir credencial (excluia quem nao tem) |
 | D-009 | Credenciais com AES-256-GCM (mesmo padrao API Cockpit) | 30/03/2026 | Certificado digital e ativo sensivel; padrao ja existe no Conector ERP | Inventar nova criptografia (desnecessario) |
@@ -2435,7 +2435,7 @@ O produto LPCO, conforme especificado no PRD v1.0 e na Arquitetura Tecnica, esta
 | 1 | `PenLine` | Digitar manual | Preencha todos os campos |
 | 2 | `FileSpreadsheet` | Planilha Excel/CSV | Importe em lote |
 | 3 | `Package` | A partir do Pedido | Auto-preenche ~70% |
-| 4 | `ScanLine` | Smart Read | OCR+IA extrai dos documentos |
+| 4 | `ScanLine` | Smart Docs | OCR+IA extrai dos documentos |
 | 5 | `Copy` | Duplicar existente | Copie de um LPCO anterior |
 
 ### Estados
@@ -2504,7 +2504,7 @@ O produto LPCO, conforme especificado no PRD v1.0 e na Arquitetura Tecnica, esta
 ### Comportamento
 - Ao selecionar orgao, modelos sao filtrados dinamicamente
 - Se veio do Pedido: campos pre-preenchidos com borda azul "auto-preenchido"
-- Se veio do Smart Read: campos extraidos com borda amarela "extraido por IA — confirme"
+- Se veio do Smart Docs: campos extraidos com borda amarela "extraido por IA — confirme"
 
 ---
 

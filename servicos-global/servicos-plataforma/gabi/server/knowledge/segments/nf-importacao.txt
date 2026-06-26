@@ -444,7 +444,7 @@ produto/nf-importacao/
 │       ├── routes/
 │       │   ├── nfImportacao.ts               # CRUD de NFs
 │       │   ├── nfImportacaoItem.ts           # CRUD de itens
-│       │   ├── nfImportacaoDespesa.ts        # CRUD de despesas + Smart Read
+│       │   ├── nfImportacaoDespesa.ts        # CRUD de despesas + Smart Docs
 │       │   ├── nfImportacaoRateio.ts         # Preview + aplicar rateio
 │       │   ├── nfImportacaoExportar.ts       # Gerar arquivo
 │       │   ├── nfImportacaoHistorico.ts      # Timeline (read-only)
@@ -461,8 +461,8 @@ produto/nf-importacao/
 │       │   ├── rateioEngine.ts               # Motor de rateio (9 metodos)
 │       │   ├── exportEngine.ts               # Motor de exportacao multi-formato
 │       │   ├── duimpXmlParser.ts             # Parser de XML da DUIMP
-│       │   ├── despesaSmartReadService.ts    # Smart Read de recibos
-│       │   ├── duimpSmartReadService.ts      # Smart Read de PDF da DUIMP
+│       │   ├── despesaSmartReadService.ts    # Smart Docs de recibos
+│       │   ├── duimpSmartReadService.ts      # Smart Docs de PDF da DUIMP
 │       │   ├── favoritoFiscalService.ts      # Aplicar favoritos automaticamente
 │       │   └── nfImportacaoImportService.ts  # Import de planilha (Excel/CSV)
 │       ├── connectors/
@@ -735,9 +735,9 @@ model NfImportacaoDocumento {
   storage_key           String                            // Chave no storage (S3/R2)
   descricao             String?
 
-  // Smart Read
+  // Smart Docs
   smart_read_processado Boolean   @default(false)
-  smart_read_resultado  Json?                             // Dados extraidos pelo Smart Read
+  smart_read_resultado  Json?                             // Dados extraidos pelo Smart Docs
 
   created_by            String
   created_at            DateTime  @default(now())
@@ -1137,7 +1137,7 @@ if (!nf) throw new AppError('NF nao encontrada', 404)
 | Calculo de rateio | In-memory (dados ja carregados) | < 500ms |
 | Busca de favorito fiscal | `[tenant_id, company_id, ncm]` | < 50ms |
 | Exportacao | In-memory (NF completa carregada) | < 3s |
-| Smart Read | Async (servico externo) | < 30s |
+| Smart Docs | Async (servico externo) | < 30s |
 
 ### Otimizacao do Rateio
 
@@ -1194,18 +1194,18 @@ if (!nf) throw new AppError('NF nao encontrada', 404)
 - [ ] Codificacao ISO-8859-1 funciona (acentos)
 - [ ] Preview identico ao arquivo final
 
-### Smart Read
+### Smart Docs
 - [ ] DUIMP PDF → extrai itens, NCMs, valores
 - [ ] Recibo de despesa → extrai tipo, valor, CNPJ
 - [ ] Demonstrativo de despesas → extrai multiplas linhas
 - [ ] Preview com campos amarelos para confirmacao
-- [ ] Fallback se Smart Read falhar (digitacao manual)
+- [ ] Fallback se Smart Docs falhar (digitacao manual)
 
 ### Performance
 - [ ] Lista < 200ms (1000 NFs)
 - [ ] Rateio 100×20 < 500ms
 - [ ] Exportacao 200 itens < 3s
-- [ ] Smart Read < 30s
+- [ ] Smart Docs < 30s
 
 ### Acessibilidade
 - [ ] Tab order no wizard de 6 steps
@@ -1232,9 +1232,9 @@ if (!nf) throw new AppError('NF nao encontrada', 404)
 NF Importacao e o produto de **composicao inteligente de Notas Fiscais de Entrada** derivadas de importacoes. Recebe dados da DUIMP, permite configurar despesas e regras de rateio flexiveis, e gera o DRAFT da NF no formato exato que o importador precisa.
 
 O sistema resolve:
-- **6 canais de entrada** — XML, PDF (Smart Read), Portal Unico, ERP, Processo Gravity, manual
+- **6 canais de entrada** — XML, PDF (Smart Docs), Portal Unico, ERP, Processo Gravity, manual
 - **Catalogo de despesas flexivel** — cada empresa nomeia suas 100+ despesas como quiser
-- **Templates de despesas** — base fixa que auto-popula a cada NF (ou Smart Read de recibos)
+- **Templates de despesas** — base fixa que auto-popula a cada NF (ou Smart Docs de recibos)
 - **Motor de rateio multi-metodo** — 9 metodos combinaveis por despesa com preview em tempo real
 - **Composicao fiscal** — CFOP + CSTs com favoritos por NCM + empresa
 - **Construtor de layout** — usuario monta o formato de saida exato para seu ERP (TXT, XML, JSON, Excel, PDF)
@@ -1259,15 +1259,15 @@ O sistema resolve:
 
 - DUIMP consolidada como unica declaracao — volume crescente de NFs de entrada
 - Dor validada: despachantes gastam 2-4 horas por NF montando rateio em planilha
-- Gravity ja tem Processo (DUIMP) e Smart Read — integracao natural
+- Gravity ja tem Processo (DUIMP) e Smart Docs — integracao natural
 - Nenhum concorrente oferece rateio flexivel + multi-formato + construtor de layout
 
 ### O que esta no MVP
 
 | Area | Funcionalidades |
 |------|----------------|
-| **6 Canais de Entrada** | XML, PDF (Smart Read), Portal Unico, ERP/API, Processo, Manual |
-| **Despesas** | Catalogo livre, template auto-popula, Smart Read de recibos, import planilha |
+| **6 Canais de Entrada** | XML, PDF (Smart Docs), Portal Unico, ERP/API, Processo, Manual |
+| **Despesas** | Catalogo livre, template auto-popula, Smart Docs de recibos, import planilha |
 | **Rateio** | 9 metodos (peso, CIF, FOB, qtd, II, igualitario, manual, customizado), preview tempo real |
 | **Fiscal** | CFOP + 4 CSTs por item, favoritos por NCM, beneficios fiscais como override |
 | **Exportacao** | XML, TXT, Excel, JSON, PDF + construtor de layout + pre-sets SAP/TOTVS |
@@ -1298,7 +1298,7 @@ O sistema resolve:
 
 5. **Formatos de saida sao infinitos** — Cada ERP aceita layout diferente. SAP tem IDOC, TOTVS tem Protheus e Datasul, cada um com posicoes de campo fixas diferentes. O construtor de layout e ESSENCIAL — nao e um "nice to have".
 
-6. **Smart Read serve para 2 coisas** — (a) ler PDF da DUIMP para extrair itens e valores; (b) ler recibos/demonstrativos de despesas para extrair tipo + valor. Sao 2 contextos de uso do mesmo servico.
+6. **Smart Docs serve para 2 coisas** — (a) ler PDF da DUIMP para extrair itens e valores; (b) ler recibos/demonstrativos de despesas para extrair tipo + valor. Sao 2 contextos de uso do mesmo servico.
 
 7. **Template de despesas economiza 80% do tempo** — Despachantes com 100 NFs/mes usam as mesmas 15-20 despesas em toda NF. O template auto-popula e o usuario so ajusta valores. Sem template, o produto perde valor.
 
@@ -1355,7 +1355,7 @@ T-00 (Origem) → T-02 (DUIMP) → T-03 (Despesas) → T-04 (Rateio) → T-05 (F
 
 6 cards com icones Lucide:
 - `FileCode` Upload XML
-- `ScanText` Upload PDF (Smart Read)
+- `ScanText` Upload PDF (Smart Docs)
 - `Globe` Portal Unico
 - `Link` Processo Gravity
 - `Server` ERP / API
@@ -1475,7 +1475,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 | POST | `/api/v1/nf-importacao/:id/despesas` | Adiciona despesa (do catalogo ou ad-hoc) |
 | PUT | `/api/v1/nf-importacao/:id/despesas/:despesaId` | Atualiza despesa (valor, metodo de rateio) |
 | DELETE | `/api/v1/nf-importacao/:id/despesas/:despesaId` | Remove despesa |
-| POST | `/api/v1/nf-importacao/:id/despesas/smart-read` | Upload recibo → Smart Read → extrai despesas |
+| POST | `/api/v1/nf-importacao/:id/despesas/smart-read` | Upload recibo → Smart Docs → extrai despesas |
 | POST | `/api/v1/nf-importacao/:id/despesas/importar-planilha` | Upload Excel/CSV de despesas |
 | POST | `/api/v1/nf-importacao/:id/despesas/aplicar-template` | Aplica template de despesas da empresa |
 
@@ -1523,7 +1523,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 
 | Servico | O que reusar | Esforco |
 |---------|-------------|---------|
-| Smart Read | OCR+IA para PDF da DUIMP + recibos de despesas | Zero (chamar API existente) |
+| Smart Docs | OCR+IA para PDF da DUIMP + recibos de despesas | Zero (chamar API existente) |
 | API Cockpit | Tokens `gv_live_sk_` + documentacao automatica | Zero |
 | Conector ERP | Integracao SAP/TOTVS para importar dados | Zero |
 | Historico | Append-only audit trail | Zero |
@@ -1541,7 +1541,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 | ModalGlobal | Confirmacao de rateio, exclusao |
 | BadgeStatus | Status da NF na lista |
 | BotaoGlobal | Todas as acoes |
-| Loading | Calculo de rateio, Smart Read |
+| Loading | Calculo de rateio, Smart Docs |
 
 ### O que precisa ser criado do ZERO
 
@@ -1550,7 +1550,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 | `rateioEngine` | GG | Motor de calculo com 9 metodos, arredondamento, validacao |
 | `exportEngine` | GG | Gerador de arquivos multi-formato com layout customizado |
 | `duimpXmlParser` | G | Parser de XML da DUIMP (formato Siscomex) |
-| `despesaSmartReadOrchestrator` | G | Orquestra Smart Read para recibos de despesas |
+| `despesaSmartReadOrchestrator` | G | Orquestra Smart Docs para recibos de despesas |
 | `layoutBuilder` (frontend) | GG | Construtor visual de layout de saida (drag-and-drop) |
 | `rateioPreview` (frontend) | G | Tabela matricial Item × Despesa com calculo em tempo real |
 
@@ -1586,7 +1586,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 - [ ] Lista de NFs < 200ms (1000 registros)
 - [ ] Rateio 100 itens × 20 despesas < 500ms
 - [ ] Exportacao 200 itens < 3s
-- [ ] Smart Read resposta < 30s
+- [ ] Smart Docs resposta < 30s
 
 ### Acessibilidade
 - [ ] Tab order logico no wizard de 6 steps
@@ -1623,7 +1623,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 
 O **NF Importação** é o módulo do Gravity responsável pela composição e exportação de Notas Fiscais de Importação. Ele permite que operadores de comércio exterior:
 
-1. **Importem** dados de NFs de diferentes fontes (XML DUIMP, Portal Único, OCR/Smart Read, integração com Processo Gravity, ou entrada manual)
+1. **Importem** dados de NFs de diferentes fontes (XML DUIMP, Portal Único, OCR/Smart Docs, integração com Processo Gravity, ou entrada manual)
 2. **Componham** as despesas aduaneiras e logísticas de cada NF
 3. **Rateiem** essas despesas entre os itens da NF de forma proporcional e auditável
 4. **Classifiquem** fiscalmente cada item (NCM, CFOP, CSTs, alíquotas)
@@ -1721,25 +1721,25 @@ O método de rateio (base de cálculo) é escolhido por despesa:
 |-------|-------|-----------|
 | **XML (DUIMP)** | Ícone de arquivo XML | Upload de arquivo XML da DUIMP — sistema extrai dados automaticamente |
 | **Portal Único** | Ícone de portal | Consulta automática no Portal Único do Governo via DI/DUIMP número |
-| **Smart Read (OCR)** | Ícone de câmera/scan | Upload de PDF/imagem — IA extrai dados via OCR |
+| **Smart Docs (OCR)** | Ícone de câmera/scan | Upload de PDF/imagem — IA extrai dados via OCR |
 | **Planilha** | Ícone de planilha | Upload de planilha Excel/CSV com dados da NF |
 | **Processo Gravity** | Ícone de processo | Importa dados de um Processo já cadastrado no Gravity |
 | **Manual** | Ícone de lápis | Entrada manual de todos os campos |
 
 **Após selecionar o canal**:
-- XML, Smart Read, Planilha: Abre input de upload de arquivo
+- XML, Smart Docs, Planilha: Abre input de upload de arquivo
 - Portal Único: Abre campo para digitar número da DI ou DUIMP
 - Processo Gravity: Abre seletor de processo
 - Manual: Vai direto para o Step 2 com formulário vazio
 
 **Validações**:
 - XML: Aceita apenas `.xml`, máx 10MB
-- Smart Read: Aceita PDF, JPG, PNG, máx 10MB
+- Smart Docs: Aceita PDF, JPG, PNG, máx 10MB
 - Planilha: Aceita `.xlsx`, `.csv`, máx 5MB
 - Portal Único: DI ou DUIMP número obrigatório
 
 **Avisos**:
-- Smart Read: "Processamento pode levar alguns segundos"
+- Smart Docs: "Processamento pode levar alguns segundos"
 - Portal Único: "Dados sujeitos à disponibilidade do sistema do governo"
 
 ---
@@ -1826,7 +1826,7 @@ O método de rateio (base de cálculo) é escolhido por despesa:
 - Valor total
 - Moeda
 - Método de rateio escolhido
-- Origem (manual, template, smart read)
+- Origem (manual, template, Smart Docs)
 - Botões: Editar | Excluir
 
 **Botão `+ Adicionar Despesa`**: Abre formulário inline ou modal com campos:
@@ -1849,7 +1849,7 @@ O método de rateio (base de cálculo) é escolhido por despesa:
 
 **Botão `Aplicar Template`**: Abre modal com lista de templates disponíveis. Ao selecionar, cria automaticamente as despesas do template para a NF.
 
-**Botão `Smart Read`**: Abre upload de PDF/imagem de comprovante (NF do fornecedor, recibo). IA extrai despesas automaticamente.
+**Botão `Smart Docs`**: Abre upload de PDF/imagem de comprovante (NF do fornecedor, recibo). IA extrai despesas automaticamente.
 
 **Avisos**:
 - "Ao adicionar a primeira despesa, a NF avança para 'Em Composição'"
@@ -2023,7 +2023,7 @@ Descrição do Benefício
 - Colunas: Nome, Valor Total, Moeda, Valor BRL, Método de Rateio, Origem, Status do Rateio
 - Botão `+ Adicionar Despesa` (somente em rascunho/em composição)
 - Botão `Aplicar Template`
-- Botão `Smart Read`
+- Botão `Smart Docs`
 - Clicar em despesa: abre formulário de edição
 - Badge "Rateado" / "Pendente" em cada despesa
 
@@ -2320,7 +2320,7 @@ Descrição do Benefício
 |----------|-----------------|
 | Rateio com fallback | "Método [X] resultou em divisor zero. Usando Igualitário como fallback" |
 | Diferença de centavos | "Diferença de R$ 0,01 absorvida pelo último item (arredondamento)" |
-| Smart Read aguardando | "Processamento iniciado. O resultado aparecerá em alguns instantes" |
+| Smart Docs aguardando | "Processamento iniciado. O resultado aparecerá em alguns instantes" |
 | Portal Único indisponível | "Não foi possível conectar ao Portal Único. Tente novamente" |
 | NF duplicada | "NF duplicada com sucesso. Editando nova NF como rascunho" |
 | Export em NF já exportada | "Esta NF já foi exportada. Gerando novo arquivo" |
@@ -2413,7 +2413,7 @@ Descrição do Benefício
 ### Com Notificações (Tenant Service)
 - NF pronta: notifica o responsável
 - Exportação gerada: notifica o operador
-- Erro de processamento Smart Read: notifica o usuário
+- Erro de processamento Smart Docs: notifica o usuário
 
 ---
 
@@ -2444,7 +2444,7 @@ Descrição do Benefício
 - NF não é criada
 - Usuário pode tentar corrigir o XML ou usar entrada manual
 
-### CB-006: Smart Read com baixa confiança
+### CB-006: Smart Docs com baixa confiança
 - OCR retorna confiança < 80%
 - Dados são preenchidos mas marcados como "verificar"
 - Campos com baixa confiança ficam com borda laranja
@@ -2500,7 +2500,7 @@ Descrição do Benefício
 | **ICMS** | Imposto Estadual |
 | **Ex-TIPI** | Exceção tarifária na Tabela de Incidência do IPI |
 | **AFRMM** | Adicional ao Frete para Renovação da Marinha Mercante |
-| **Smart Read** | Recurso de leitura inteligente via OCR + IA para extrair dados de documentos |
+| **Smart Docs** | Recurso de leitura inteligente via OCR + IA para extrair dados de documentos |
 | **Portal Único** | Sistema do governo federal para declarações de importação/exportação |
 | **Incoterm** | International Commercial Terms — termos padrão de comércio internacional (FOB, CIF, EXW, etc.) |
 | **Catálogo** | Tabela de despesas pré-configuradas reutilizáveis |
@@ -2861,7 +2861,7 @@ B2B Stack lista preco base como R$ 0,00, o que provavelmente refere-se ao Flex (
 | **API publica REST** | :red_circle: Ausente | :green_circle: API Cockpit planejado | **Gravity** |
 | **Multi-tenant** | :red_circle: Nao (SaaS unico) | :green_circle: Isolamento zero-trust | **Gravity** |
 | **Integracao ERP (SAP, TOTVS)** | :red_circle: Ausente | :green_circle: Conector ERP planejado | **Gravity** |
-| **Smart Read (OCR + IA)** | :red_circle: Ausente | :green_circle: Ja funcional no Gravity | **Gravity** |
+| **Smart Docs (OCR + IA)** | :red_circle: Ausente | :green_circle: Ja funcional no Gravity | **Gravity** |
 | **Gestao de Processos COMEX** | :yellow_circle: Basica (Xpert) | :green_circle: Modulo Processo completo | **Gravity** |
 | **Exportacao (DU-E)** | :yellow_circle: Mencionado, nao detalhado | :green_circle: Modulo Processo suporta | **Gravity** |
 | **Pay-per-use** | :green_circle: Flex | :red_circle: Nao planejado | Maino |
@@ -2885,7 +2885,7 @@ B2B Stack lista preco base como R$ 0,00, o que provavelmente refere-se ao Flex (
 
 1. **LPCO completo:** Maino NAO tem gestao de LPCO. O Gravity tera modulo completo com 16 orgaos anuentes, controle de saldo Flex, exigencias, vinculacao a DUIMP/DU-E. Este e o **maior gap competitivo.** :orange_circle:
 2. **API publica (API Cockpit):** A Maino nao tem API. O Gravity permitira integracoes bidirecionais com ERPs, automacao via tokens. :orange_circle:
-3. **Smart Read (OCR + IA):** Upload de fatura/packing list com extracao automatica por IA. Maino nao tem. :green_circle:
+3. **Smart Docs (OCR + IA):** Upload de fatura/packing list com extracao automatica por IA. Maino nao tem. :green_circle:
 4. **Multi-tenant com isolamento zero-trust:** Arquitetura moderna vs SaaS monolitico. :orange_circle:
 5. **Integracao ERP nativa:** Conector ERP para SAP/TOTVS/Oracle — a Maino nao conecta. :orange_circle:
 6. **Rateio avancado:** Mais metodos (quantidade, custom) alem de peso/valor. :orange_circle:
@@ -2915,7 +2915,7 @@ O Gravity **NAO deve competir com a Maino como ERP**. A Maino e forte como ERP p
 
 1. **Priorizar LPCO:** E o maior gap do mercado. Maino nao tem, e nenhum concorrente tem modulo LPCO integrado com NF-e de importacao. Lancar primeiro cria moat defensavel. :orange_circle:
 
-2. **NF-e deve ser tao boa quanto Maino (ou melhor):** O benchmark e "2 minutos" — o Gravity precisa igualar ou superar. Adicionar Smart Read como diferencial exclusivo. :orange_circle:
+2. **NF-e deve ser tao boa quanto Maino (ou melhor):** O benchmark e "2 minutos" — o Gravity precisa igualar ou superar. Adicionar Smart Docs como diferencial exclusivo. :orange_circle:
 
 3. **API Cockpit como diferencial hard:** A ausencia de API na Maino e uma dor real para empresas que usam SAP/TOTVS. O Gravity pode capturar mid-market e enterprise com integracoes. :orange_circle:
 
@@ -3445,7 +3445,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 | Exportacao TOTVS | PLANEJADO | NAO | SIM | NATIVO | VIA INTEGRACAO | NAO | NAO |
 | Exportacao Excel/CSV | PLANEJADO | PROVAVEL | SIM | SIM | SIM | PROVAVEL | NAO |
 | Exportacao TXT posicao fixa | PLANEJADO | NAO | NAO | NAO | NAO | NAO | NAO |
-| Smart Read (IA recibos) | PLANEJADO | NAO | NAO | NAO | SIM (auditoria) | NAO | NAO |
+| Smart Docs (IA recibos) | PLANEJADO | NAO | NAO | NAO | SIM (auditoria) | NAO | NAO |
 | Catalogo despesas livre | PLANEJADO | NAO CONFIRMADO | NAO CONFIRMADO | FIXO | NAO CONFIRMADO | NAO CONFIRMADO | NAO |
 | Template de despesas | PLANEJADO | NAO | NAO | NAO | NAO | NAO | NAO |
 | Favoritos fiscais (NCM) | PLANEJADO | NAO | NAO CONFIRMADO | NAO | NAO | NAO | NAO |
@@ -3464,7 +3464,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 | Layout de exportacao customizavel pelo usuario | Ninguem | Todos | **ALTA — diferencial exclusivo** |
 | Exportacao TXT posicao fixa para ERPs legados | Ninguem em SaaS | Todos | **ALTA — nicho nao atendido** |
 | NF Entrada via DUIMP nativa (sem XML) | Maino, Narwal | ComexNFe, muitos legados | **ALTA — janela temporal** |
-| Smart Read de recibos com IA | Narwal (parcial) | Maioria | **MEDIA — diferencial tech** |
+| Smart Docs de recibos com IA | Narwal (parcial) | Maioria | **MEDIA — diferencial tech** |
 | Template de despesas por empresa | Ninguem | Todos | **MEDIA — produtividade** |
 | Favoritos fiscais (CFOP+CSTs por NCM) | Ninguem | Todos | **MEDIA — produtividade** |
 | Dark mode / UX moderna | Ninguem no COMEX | Todos | **MEDIA — diferencial UX** |
@@ -3505,8 +3505,8 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
   - 9 milhoes de empresas no Brasil ja usam IA sistematicamente (AWS, 2025) [ALTA]
   - Narwal ja usa IA para catalogo NCM e auditoria de despesas [MEDIA]
   - Tendencia 2026: "IA elimina digitacao manual no comex" (CNDL/VarejoSA) [ALTA]
-- **Impacto no Gravity:** Feature "Smart Read" de recibos/PDFs alinha perfeitamente com esta tendencia
-- **Recomendacao:** Implementar Smart Read como diferencial de Fase 1. Expandir para leitura de DUIMP/BL em Fase 2.
+- **Impacto no Gravity:** Feature "Smart Docs" de recibos/PDFs alinha perfeitamente com esta tendencia
+- **Recomendacao:** Implementar Smart Docs como diferencial de Fase 1. Expandir para leitura de DUIMP/BL em Fase 2.
 
 **Fontes:**
 - https://cndl.org.br/varejosa/tendencia-2026-ia-elimina-digitacao-manual-e-redefine-a-eficiencia-no-comex/
@@ -3619,7 +3619,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 | Narwal adiciona rateio avancado | Media | Alto | Lancar rapido, construir base antes |
 | Maino expande motor de rateio | Media | Medio | Diferenciar com layout customizavel |
 | TOTVS lanca modulo standalone | Baixa | Alto | Foco em UX e preco inacessivel TOTVS |
-| Novo entrante com IA-first | Media | Medio | Implementar Smart Read cedo |
+| Novo entrante com IA-first | Media | Medio | Implementar Smart Docs cedo |
 | Mudanca regulatoria inesperada | Media | Alto | Arquitetura fiscal modular |
 
 ### Acoes Imediatas
@@ -3689,7 +3689,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 - **Sem solucao completa:** nenhum dos 10 concorrentes analisados oferece rateio com 9 metodos + layout customizavel + DUIMP native acessivel
 
 **Solucao:** Motor de emissao de NF-e de importacao que:
-1. **Puxa dados da DUIMP** via Portal Unico (certificado/token) ou Smart Read de PDF
+1. **Puxa dados da DUIMP** via Portal Unico (certificado/token) ou Smart Docs de PDF
 2. **Rateia despesas operacionais** com 9 metodos combinaveis por despesa, preview em tempo real
 3. **Emite NF-e na SEFAZ** com transmissao direta (certificado digital ja existente no Gravity)
 4. **Exporta para qualquer ERP** via layout customizavel (TXT, XML, JSON, Excel, PDF)
@@ -3761,7 +3761,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 3. TXT posicao fixa para ERPs legados (em SaaS)
 4. Template de despesas por empresa
 5. Favoritos fiscais (CFOP + CSTs por NCM)
-6. Smart Read de recibos de despesas para entrada de dados
+6. Smart Docs de recibos de despesas para entrada de dados
 
 ### Oportunidade
 
@@ -3879,7 +3879,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | ID | Requisito | Prioridade | Complexidade |
 |----|-----------|-----------|-------------|
 | RF-001 | Importar dados da DUIMP via Portal Unico (certificado digital ou token) | Must-have | GG |
-| RF-002 | Importar dados da DUIMP via upload de PDF + Smart Read (OCR+IA) | Must-have | G |
+| RF-002 | Importar dados da DUIMP via upload de PDF + Smart Docs (OCR+IA) | Must-have | G |
 | RF-003 | Vincular NF a Processo existente no Gravity (auto-preenche dados da DUIMP) | Must-have | M |
 | RF-004 | Digitar dados manualmente (formulario completo) | Must-have | M |
 | RF-005 | Importar dados via ERP (Conector ERP / API Cockpit) | Must-have | M |
@@ -3891,7 +3891,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | RF-010 | Catalogo de despesas por empresa (nome LIVRE, metodo padrao, conta contabil) | Must-have | M |
 | RF-011 | Template de despesas fixas por empresa (auto-popula a cada NF) | Must-have | M |
 | RF-012 | Adicionar despesas ad-hoc por NF (alem do template) | Must-have | P |
-| RF-013 | Smart Read de recibos/demonstrativos — upload PDF → IA extrai tipo + valor | Must-have | G |
+| RF-013 | Smart Docs de recibos/demonstrativos — upload PDF → IA extrai tipo + valor | Must-have | G |
 | RF-014 | Importar despesas de planilha (Excel/CSV) | Should-have | M |
 | RF-015 | Vincular documento comprobatorio a cada despesa | Should-have | P |
 
@@ -4012,7 +4012,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 2. Clica em "+ Nova NF"
 3. Step 0 — "De onde vem a DUIMP?"
    a) Portal Unico → autentica → seleciona DUIMP → puxa dados → Step 1
-   b) Upload PDF → Smart Read (OCR+IA) → preview amarelo → confirma → Step 1
+   b) Upload PDF → Smart Docs (OCR+IA) → preview amarelo → confirma → Step 1
    c) Processo Gravity → seleciona Processo → auto-preenche → Step 1
    d) ERP/API → dados ja vem via integracao → Step 1
    e) Manual → formulario em branco → Step 1
@@ -4022,7 +4022,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
    - Taxa de cambio (PTAX ou configuravel)
 5. Step 2: Despesas operacionais
    - Template auto-popula despesas fixas (se configurado)
-   - Smart Read de recibos → IA extrai tipo + valor
+   - Smart Docs de recibos → IA extrai tipo + valor
    - Adicionar despesas ad-hoc
    - Para cada despesa: valor total + metodo de rateio
 6. Step 3: Rateio (preview em tempo real)
@@ -4046,10 +4046,10 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 9. NF emitida — historico registrado, status "autorizada"
 ```
 
-### Fluxo — Smart Read de Despesas
+### Fluxo — Smart Docs de Despesas
 
 ```
-1. Step 2, usuario clica "Importar via Smart Read"
+1. Step 2, usuario clica "Importar via Smart Docs"
 2. Upload de recibos/demonstrativos (PDF ou imagem)
 3. OCR+IA extrai: tipo de despesa, valor, CNPJ prestador, data
 4. IA tenta mapear para catalogo da empresa (ex: "THC" → "Capatazia")
@@ -4089,7 +4089,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | T-00 | Origem da DUIMP | `/nf-importacao/nova` | Step 0: 5 cards (Portal Unico, PDF, Processo, ERP, Manual) |
 | T-01 | Lista de NFs | `/nf-importacao` | Grid com filtros, status SEFAZ |
 | T-02 | Dados da DUIMP | `/nf-importacao/nova/duimp` | Step 1: itens, valores, cambio |
-| T-03 | Despesas | `/nf-importacao/nova/despesas` | Step 2: template + Smart Read + manual |
+| T-03 | Despesas | `/nf-importacao/nova/despesas` | Step 2: template + Smart Docs + manual |
 | T-04 | Rateio | `/nf-importacao/nova/rateio` | Step 3: tabela matricial com preview |
 | T-05 | Fiscal | `/nf-importacao/nova/fiscal` | Step 4: CFOP, CSTs, ICMS, totais |
 | T-06 | Revisao + Emissao | `/nf-importacao/nova/emissao` | Step 5: preview + emitir SEFAZ |
@@ -4122,7 +4122,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | **SEFAZ** | Webservice bidirecional | Emissao, cancelamento, CC-e, contingencia |
 | **Portal Unico Siscomex** | API (certificado/token) | Puxa dados da DUIMP |
 | **Processo Gravity** | Vinculo interno | DUIMP do Processo → auto-preenche |
-| **Smart Read** | OCR+IA existente | PDF DUIMP + recibos de despesas |
+| **Smart Docs** | OCR+IA existente | PDF DUIMP + recibos de despesas |
 | **API Cockpit** | Tokens `gv_live_sk_` | ERP cria NFs via API |
 | **Conector ERP** | OData/REST existente | Importa dados do ERP |
 | **Certificado digital** | Infra existente | AES-256-GCM, mesmo padrao LPCO |
@@ -4153,7 +4153,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | Taxa de rejeicao SEFAZ | < 5% | NFs rejeitadas / total emitidas |
 | Taxa de erro de rateio | 0% | NFs complementares / total |
 | Adocao de templates | > 70% dos tenants com template | Count |
-| NFs via Smart Read | > 30% | Count por canal |
+| NFs via Smart Docs | > 30% | Count por canal |
 | NPS | > 40 | Pesquisa trimestral |
 | Churn mensal | < 3% | Padrao SaaS B2B |
 
@@ -4177,7 +4177,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | Variedade de layouts ERP | Alta | Alto | Construtor generico + pre-sets SAP/TOTVS |
 | ICMS por dentro com beneficios fiscais | Media | Alto | Favoritos fiscais — usuario decide e salva. SME valida regras |
 | Reforma tributaria (IBS/CBS substituindo ICMS/PIS/COFINS) | Media | Alto | Arquitetura fiscal modular, aliquotas nao hardcoded |
-| Smart Read baixa precisao em recibos | Media | Medio | Preview obrigatorio, feedback loop |
+| Smart Docs baixa precisao em recibos | Media | Medio | Preview obrigatorio, feedback loop |
 | Concorrente adiciona rateio avancado | Media | Alto | Lancar rapido, construir base |
 
 ---
@@ -4193,7 +4193,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | Rateio independente por despesa | Metodo unico por NF | Confirmado pelo dono: despesas diferentes, rateios diferentes |
 | Construtor de layout generico | Apenas pre-sets | Cada ERP tem layout proprio |
 | Brasil inteiro (SEFAZ nacional) | Apenas Sul/Sudeste MVP | SEFAZ e protocolo nacional. Diferenca e aliquota ICMS — resolvida por favoritos |
-| Smart Read para recibos | Apenas digitacao | Despachantes recebem dezenas de PDFs — Smart Read reduz 80% |
+| Smart Docs para recibos | Apenas digitacao | Despachantes recebem dezenas de PDFs — Smart Docs reduz 80% |
 | Taxa de cambio como campo | Sem rastreabilidade | Essencial para auditoria de conversao BRL/USD |
 
 --- documentos-tecnicos/produtos-gravity/nf-importacao/TECNICO-VISAO-CONSOLIDADA.md ---
@@ -4205,7 +4205,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 
 ## 1. Visão Geral do Produto
 
-**NF Importação** é um módulo de gestão de Notas Fiscais de Importação dentro do ecossistema Gravity. Gerencia o ciclo completo de uma NF fiscal de importação: da entrada do dado (XML, Smart Read, Portal Único, Manual, ERP) à composição de despesas e rateios, até a exportação para ERPs (TOTVS Protheus, SAP, SENIOR, CSV, XML, JSON, Custom).
+**NF Importação** é um módulo de gestão de Notas Fiscais de Importação dentro do ecossistema Gravity. Gerencia o ciclo completo de uma NF fiscal de importação: da entrada do dado (XML, Smart Docs, Portal Único, Manual, ERP) à composição de despesas e rateios, até a exportação para ERPs (TOTVS Protheus, SAP, SENIOR, CSV, XML, JSON, Custom).
 
 ### Stack Técnica
 
@@ -4435,7 +4435,7 @@ direcao: asc | desc
 | POST | `/:id/despesas` | Adiciona despesa |
 | PUT | `/:id/despesas/:despesaId` | Atualiza despesa (partial) |
 | DELETE | `/:id/despesas/:despesaId` | Remove despesa (cascade rateios) |
-| POST | `/:id/despesas/smart-read` | Smart Read via OCR (async, 202) |
+| POST | `/:id/despesas/smart-read` | Smart Docs via OCR (async, 202) |
 | POST | `/:id/despesas/aplicar-template` | Aplica template de despesas |
 
 #### POST — Body
@@ -5044,7 +5044,7 @@ calcularRateio(metodo, valorTotal, itens, valoresManual?)
   tamanho_bytes: number
   storage_key: string          // Chave no armazenamento externo
 
-  // Smart Read
+  // Smart Docs
   smart_read_processado?: boolean
   smart_read_resultado?: JSON  // Resultado OCR/AI
 
@@ -5412,7 +5412,7 @@ O error handler global retorna sempre:
 As seguintes funcionalidades existem como stub no backend mas ainda precisam de implementação completa:
 
 1. **Parser XML** (`nfImportar.ts`) — leitura completa de XML DUIMP/DI
-2. **Smart Read OCR** — processamento assíncrono com IA/OCR
+2. **Smart Docs OCR** — processamento assíncrono com IA/OCR
 3. **Integração Portal Único** — chamadas à API Siscomex
 4. **Formatadores de Exportação** — TOTVS Protheus, SAP, SENIOR
 5. **Páginas do cliente** — todas as páginas são UI stub, precisam de formulários

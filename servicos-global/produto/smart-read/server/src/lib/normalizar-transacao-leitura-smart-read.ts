@@ -9,6 +9,7 @@ import {
   resolverMediaAcertosTransacaoLeituraSmartRead,
   resolverSavingTransacaoLeituraSmartRead,
 } from '../../../shared/metricas-transacao-leitura-smart-read.js'
+import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import {
   LeituraSchema,
   OrigemLeituraEnum,
@@ -193,7 +194,10 @@ export function normalizarTransacaoDeItemListaLegado(item: ItemListaLeituraLegad
     media_acertos: mediaNormalizada,
     data_envio: item.createdAt ?? null,
     origem_leitura: mapearOrigemLeitura(item.source ?? item.origin),
-    nome_arquivo: item.files?.[0]?.filename ?? leitura.arquivos[0]?.nome_arquivo ?? null,
+    nome_arquivo:
+      corrigirEncodingNomeArquivoSmartRead(item.files?.[0]?.filename) ??
+      leitura.arquivos[0]?.nome_arquivo ??
+      null,
     mensagem_erro: item.errorMessage ?? null,
   }
 

@@ -1,26 +1,46 @@
 ﻿/**
- * servico-analise-riscos-leitura-smart-read.ts — orquestra V1 + Cadastros + LLM (V2a/V3a)
+ * servico-analise-riscos-leitura-smart-read.ts — Pipeline Matriz Invoice: P1 Código → P2 API CNPJ → P3 LLM
  */
 
 import { z } from 'zod'
 import {
   AnaliseRiscosLeituraResponseSchema,
   RiscoAduaneiroLeituraSchema,
-  executarAuditoriaV1AnaliseRiscosLeitura,
+  executarPasso1ValidacaoCodigoInvoice,
   mesclarRiscosAnaliseLeitura,
+  montarItensParaClassificacaoFiscal,
   type AnaliseRiscosLeituraRequest,
   type AnaliseRiscosLeituraResponse,
   type RiscoAduaneiroLeitura,
 } from '../../../shared/analise-riscos-leitura-smart-read.js'
-import { buscarTributosNcmsLeituraSmartRead } from './cliente-cadastros-smart-read.js'
 import {
-  SYSTEM_PROMPT_ANALISE_RISCOS_LEITURA,
-  montarPromptUsuarioAnaliseRiscosLeitura,
-} from './prompt-analise-riscos-leitura-smart-read.js'
+  anexarDisclaimerClassificacao,
+  DISCLAIMER_CLASSIFICACAO_FISCAL,
+  ehRiscoClassificacaoFiscal,
+  textoContemDisclaimerClassificacao,
+  textoPareceInstrucaoParaIa,
+} from '../../../shared/texto-analise-riscos-leitura-smart-read.js'
+import { buscarTributosNcmsLeituraSmartRead } from './cliente-cadastros-smart-read.js'
+import { executarPasso2ApiCnpjInvoice } from './passo-2-api-cnpj-invoice-smart-read.js'
+import {
+  SYSTEM_PROMPT_ANALISTA_INVOICE,
+  montarPromptAnalistaInvoice,
+} from './prompt-analista-invoice-smart-read.js'
 import {
   buscarChunksRagNormativoAnaliseRiscos,
   precisaRagNormativoAnaliseRiscos,
 } from './rag-normativo-analise-riscos-smart-read.js'
+import { executarClassificacaoFiscalLlmLeituraSmartRead } from './servico-classificacao-fiscal-leitura-smart-read.js'
+import { gerarConteudoGeminiSmartRead } from './gemini-gerar-conteudo-smart-read.js'
+import {
+  consultarResumoTokensLeituraSmartRead,
+  registrarUsoLlmLeituraSmartRead,
+  type ContextoRegistroUsoLlmLeituraSmartRead,
+} from './servico-uso-llm-leitura-smart-read.js'
+import {
+  somarUsoLlmChamadasLeituraSmartRead,
+  type UsoLlmChamadaLeituraSmartRead,
+} from '../../../shared/uso-llm-leitura-smart-read.js'
 
 const GEMINI_MODEL = 'gemini-2.5-flash'
 const GEMINI_TIMEOUT_MS = 45_000
@@ -87,106 +107,173 @@ function riscosNormativosDeTributos(
   return saida
 }
 
-async function chamarLlmAnaliseRiscos(
+async function chamarLlmAnalistaInvoice(
   promptUsuario: string,
-): Promise<RiscoAduaneiroLeitura[]> {
+  contextoRegistro: ContextoRegistroUsoLlmLeituraSmartRead,
+): Promise<{ riscos: RiscoAduaneiroLeitura[]; uso_llm: UsoLlmChamadaLeituraSmartRead | null }> {
   const apiKey = process.env.GEMINI_API_KEY?.trim()
-  if (!apiKey) return []
+  if (!apiKey) return { riscos: [], uso_llm: null }
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT_ANALISE_RISCOS_LEITURA }] },
-        contents: [{ parts: [{ text: promptUsuario }] }],
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: 'application/json',
-        },
-      }),
-      signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
+  const llm = await gerarConteudoGeminiSmartRead({
+    modelo: GEMINI_MODEL,
+    systemInstruction: SYSTEM_PROMPT_ANALISTA_INVOICE,
+    promptUsuario,
+    generationConfig: {
+      temperature: 0.15,
+      responseMimeType: 'application/json',
     },
-  )
+    timeoutMs: GEMINI_TIMEOUT_MS,
+  })
 
-  if (!response.ok) {
-    const detalhe = await response.text()
-    throw new Error(`Gemini HTTP ${response.status}: ${detalhe.slice(0, 200)}`)
-  }
+  await registrarUsoLlmLeituraSmartRead({
+    ...contextoRegistro,
+    acao: 'analise_riscos',
+    modelo: llm.modelo,
+    uso: llm.uso,
+    custo_usd: llm.custo_usd,
+  })
 
-  const payload = (await response.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
-  }
-  const texto = payload.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+  const texto = llm.texto
   const raw = extrairJsonDaRespostaGemini(texto) as { riscos?: unknown }
   const envelope = LlmRiscosEnvelopeSchema.safeParse(
     Array.isArray(raw) ? { riscos: raw } : raw,
   )
   if (!envelope.success) {
     console.warn('[smart-read][analise-riscos] LLM schema invalido', envelope.error.flatten())
-    return []
+    return { riscos: [], uso_llm: llm.uso }
   }
-  return envelope.data.riscos.map((r, i) => ({
+  const riscos = envelope.data.riscos.map((r, i) => normalizarRiscoClassificacaoFiscal({
     ...r,
     id: r.id ?? `risco-llm-${i + 1}`,
     origem: 'llm' as const,
     evidencias: r.evidencias ?? [],
   }))
+  return { riscos, uso_llm: llm.uso }
+}
+
+function limparCampoAnaliseClassificacao(texto: string | undefined): string | undefined {
+  if (!texto?.trim()) return undefined
+  if (textoPareceInstrucaoParaIa(texto)) return undefined
+  let limpo = texto.trim()
+  if (textoContemDisclaimerClassificacao(limpo)) {
+    limpo = limpo.replace(DISCLAIMER_CLASSIFICACAO_FISCAL, '').trim()
+  }
+  return limpo || undefined
+}
+
+function normalizarRiscoClassificacaoFiscal(risco: RiscoAduaneiroLeitura): RiscoAduaneiroLeitura {
+  if (!ehRiscoClassificacaoFiscal(risco.titulo, risco.categoria)) return risco
+
+  const analiseLimpa = limparCampoAnaliseClassificacao(risco.analise)
+  const motivoLimpo = textoPareceInstrucaoParaIa(risco.motivo) ? undefined : risco.motivo?.trim()
+  let correcao = risco.correcao_sugerida?.trim()
+  if (correcao && textoContemDisclaimerClassificacao(correcao)) {
+    correcao = correcao.replace(DISCLAIMER_CLASSIFICACAO_FISCAL, '').trim()
+  }
+  if (correcao && textoPareceInstrucaoParaIa(correcao)) {
+    correcao = undefined
+  }
+
+  return {
+    ...risco,
+    motivo: motivoLimpo ?? risco.motivo,
+    analise: analiseLimpa,
+    correcao_sugerida: correcao ? anexarDisclaimerClassificacao(correcao) : undefined,
+  }
 }
 
 export async function executarAnaliseRiscosLeituraSmartRead(
   entrada: AnaliseRiscosLeituraRequest,
   idOrganizacao: string,
+  contextoRegistro: ContextoRegistroUsoLlmLeituraSmartRead,
 ): Promise<AnaliseRiscosLeituraResponse> {
-  const { resumo: v1Resumo, contexto } = executarAuditoriaV1AnaliseRiscosLeitura(entrada.documentos)
+  // Passo 1 — motor Código (aritmética, formatos, ISO, CNPJ módulo 11)
+  const { resumo: p1Resumo, contexto } = executarPasso1ValidacaoCodigoInvoice(entrada.documentos)
+
+  // Passo 2 — API CNPJ Receita Federal
+  const passo2 = await executarPasso2ApiCnpjInvoice(entrada.documentos)
+  contexto.cnpj_oficial = passo2.cnpj_oficial
 
   const tributos = await buscarTributosNcmsLeituraSmartRead(contexto.ncms_encontrados, idOrganizacao)
   contexto.tributos_ncm = tributos
 
   const riscosV3Tributos = riscosNormativosDeTributos(tributos)
+  const errosAritmeticos = p1Resumo.riscos
+    .filter((r) => r.categoria === 'matematico' || r.id_regra_matriz?.startsWith('S5'))
+    .map((r) => `${r.titulo}: ${r.analise}`)
 
   let aviso: string | null = null
   let riscosLlm: RiscoAduaneiroLeitura[] = []
+  let riscosClassificacao: RiscoAduaneiroLeitura[] = []
   const llmAtivo = entrada.incluir_llm !== false && !!process.env.GEMINI_API_KEY?.trim()
 
   if (entrada.incluir_llm !== false && !process.env.GEMINI_API_KEY?.trim()) {
-    aviso = 'GEMINI_API_KEY ausente — apenas auditoria V1 e validação NCM foram executadas.'
+    aviso =
+      'GEMINI_API_KEY ausente — Passo 3 (Analista IA) indisponível. Configure a chave e reinicie o BFF.'
   }
 
+  const idLeitura = entrada.id_leitura_legado ?? contextoRegistro.id_leitura_legado
+  const registroComLeitura: ContextoRegistroUsoLlmLeituraSmartRead = {
+    ...contextoRegistro,
+    id_leitura_legado: idLeitura,
+  }
+  const chamadasUso: UsoLlmChamadaLeituraSmartRead[] = []
+
   if (llmAtivo) {
+    const itensClassificacao = montarItensParaClassificacaoFiscal(entrada.documentos)
     try {
-      const riscosBase = [...v1Resumo.riscos, ...riscosV3Tributos]
+      const classificacao = await executarClassificacaoFiscalLlmLeituraSmartRead(
+        itensClassificacao,
+        idOrganizacao,
+        registroComLeitura,
+      )
+      riscosClassificacao = classificacao.riscos
+      if (classificacao.uso_llm) chamadasUso.push(classificacao.uso_llm)
+    } catch (erro) {
+      aviso = `Classificação fiscal indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
+      console.error('[smart-read][classificacao-fiscal]', aviso)
+    }
+
+    try {
+      const riscosBase = [...p1Resumo.riscos, ...passo2.riscos, ...riscosV3Tributos, ...riscosClassificacao]
       const chunksRag = precisaRagNormativoAnaliseRiscos(riscosBase, contexto)
         ? buscarChunksRagNormativoAnaliseRiscos(riscosBase, contexto)
         : undefined
 
-      const prompt = montarPromptUsuarioAnaliseRiscosLeitura({
+      const prompt = montarPromptAnalistaInvoice({
         documentos: entrada.documentos,
-        contextoV1: contexto,
-        riscosV1Titulos: riscosBase.map((r) => r.titulo),
-        pergunta: entrada.pergunta,
+        contexto,
+        errosAritmeticos,
         chunksRag,
       })
-      riscosLlm = await chamarLlmAnaliseRiscos(prompt)
+      const analista = await chamarLlmAnalistaInvoice(prompt, registroComLeitura)
+      riscosLlm = analista.riscos
+      if (analista.uso_llm) chamadasUso.push(analista.uso_llm)
     } catch (erro) {
-      aviso = `LLM indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
+      if (!aviso) {
+        aviso = `Passo 3 (Analista IA) indisponível: ${erro instanceof Error ? erro.message : 'erro desconhecido'}`
+      }
       console.error('[smart-read][analise-riscos]', aviso)
     }
   }
 
   const mesclado = mesclarRiscosAnaliseLeitura(
-    [...v1Resumo.riscos, ...riscosV3Tributos],
-    riscosLlm,
+    [...p1Resumo.riscos, ...passo2.riscos, ...riscosV3Tributos],
+    [...riscosClassificacao, ...riscosLlm],
   )
+
+  const uso_llm_chamada =
+    chamadasUso.length > 0 ? somarUsoLlmChamadasLeituraSmartRead(chamadasUso) : null
+  const uso_llm_leitura = idLeitura
+    ? await consultarResumoTokensLeituraSmartRead(contextoRegistro.prisma, idLeitura)
+    : null
 
   return AnaliseRiscosLeituraResponseSchema.parse({
     resumo: mesclado,
     contexto_v1: contexto,
-    llm_ativo: llmAtivo && riscosLlm.length >= 0,
+    llm_ativo: llmAtivo,
     aviso,
+    uso_llm_chamada,
+    uso_llm_leitura,
   })
 }

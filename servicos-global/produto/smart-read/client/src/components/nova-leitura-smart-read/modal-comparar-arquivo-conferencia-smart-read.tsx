@@ -14,6 +14,7 @@ import {
   CheckCircle,
   Circle,
   CloudArrowUp,
+  Info,
   MinusCircle,
   PencilSimple,
   WarningCircle,
@@ -615,7 +616,13 @@ export function ModalCompararArquivoConferenciaSmartRead({
                   <CloudArrowUp size={36} weight="duotone" />
                   <strong>Envie o arquivo para comparação</strong>
                   <span>Clique ou arraste um PDF. Apenas um documento por arquivo.</span>
-                  <em>*Novos arquivos enviados são contabilizados como uma nova leitura.</em>
+                  <div className="sr-cmp-dropzone-aviso" role="note">
+                    <Info size={18} weight="duotone" aria-hidden />
+                    <p>
+                      Ao enviar um arquivo para comparação, será cobrado o valor de uma nova leitura de acordo com o
+                      seu plano.
+                    </p>
+                  </div>
                   <input
                     ref={inputRef}
                     type="file"

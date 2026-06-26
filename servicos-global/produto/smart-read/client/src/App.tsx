@@ -15,6 +15,7 @@ import {
   Envelope, WhatsappLogo, ClockCounterClockwise, ListBullets,
 } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
+import { LogoSmartDocs, NOME_PRODUTO_EXIBICAO } from './shared/marca-smart-docs'
 import { setApiContext } from './shared/api'
 import { rotaSmartRead } from './shared/rotas-smart-read'
 import { SmartReadVisualizacaoLayout } from './components/SmartReadVisualizacaoLayout'
@@ -26,7 +27,8 @@ const ConfiguracoesSmartRead = lazy(() => import('./pages/configuracoes-smart-re
 const smartReadVisualizacoesElement = <SmartReadMultiView />
 
 const PRODUCT_ID = 'smart-read'
-const PRODUCT_NAME = 'Smart Read'
+const PRODUCT_NAME = NOME_PRODUTO_EXIBICAO
+const PRODUCT_ICON_OVERRIDE = <LogoSmartDocs />
 const PRODUCT_COLOR = PRODUCT_CONFIG.color
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -62,7 +64,7 @@ const NAV_ITEMS: NavItem[] = PRODUCT_CONFIG.navigation.map(mapNavItem)
 const ECOSYSTEM_NODES: EcosystemNode[] = [
   { id: 'hub',          label: 'Hub',          sublabel: 'workspaces',            color: '#818cf8',     type: 'hub',          status: 'accessible' },
   { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing',        color: '#f472b6',     type: 'configurador', status: 'accessible' },
-  { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: 'leitura de documentos', color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
+  { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: 'documentos COMEX', color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
 ]
 
 const ROTULO_PAGINA: Record<string, string> = {
@@ -92,7 +94,7 @@ const ROUTE_HEADERS: Record<string, { icone: React.ReactNode; subtitulo: string 
   },
   configuracoes: {
     icone: <GearSix weight="duotone" size={22} />,
-    subtitulo: 'Preferências e ajustes do Smart Read',
+    subtitulo: `Preferências e ajustes do ${NOME_PRODUTO_EXIBICAO}`,
   },
 }
 
@@ -180,6 +182,7 @@ export default function App() {
     <TelaProdutoComOrganizacaoOverride
       productId={PRODUCT_ID}
       productName={PRODUCT_NAME}
+      productIconOverride={PRODUCT_ICON_OVERRIDE}
       tenantName={nomeWorkspaceAtivo}
       tenantPlan={currentUser.nomeOrganizacao ?? ''}
       navItems={NAV_ITEMS}

@@ -6,6 +6,7 @@ import {
   aplicarCorrecaoSugeridaPadraoRisco,
   type RiscoAduaneiroLeitura,
 } from '../../../shared/analise-riscos-leitura-smart-read'
+import { NOME_PRODUTO_EXIBICAO } from './marca-smart-docs'
 
 export type IdiomaEmailFornecedorRisco = 'pt' | 'en' | 'es'
 
@@ -197,8 +198,8 @@ export function montarMensagemNotificacaoRiscosSmartRead(riscos: RiscoAduaneiroL
   const linhas = riscos.map((risco) => {
     const r = aplicarCorrecaoSugeridaPadraoRisco(risco)
     const evidencia = r.evidencias[0]
-    const onde = evidencia ? [evidencia.documento, evidencia.campo].filter(Boolean).join(' · ') : 'Smart Read'
+    const onde = evidencia ? [evidencia.documento, evidencia.campo].filter(Boolean).join(' · ') : NOME_PRODUTO_EXIBICAO
     return [`[${r.severidade}] ${r.titulo}`, onde, r.correcao_sugerida ?? r.analise].join(' — ')
   })
-  return [`[Smart Read] ${riscos.length} risco(s) na conferência`, ...linhas].join('\n')
+  return [`[${NOME_PRODUTO_EXIBICAO}] ${riscos.length} risco(s) na conferência`, ...linhas].join('\n')
 }

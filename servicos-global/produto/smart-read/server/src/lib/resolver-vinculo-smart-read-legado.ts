@@ -48,7 +48,7 @@ export async function resolverCompanyLegado(idOrganizacao: string): Promise<stri
   if (!baseUrl || !chaveInterna) {
     if (padraoLocal) return padraoLocal
     throw new AppError(
-      'CONFIGURATOR_URL ou CHAVE_INTERNA_SERVICO ausente — impossível resolver vínculo Smart Read',
+      'CONFIGURATOR_URL ou CHAVE_INTERNA_SERVICO ausente — impossível resolver vínculo Smart Docs',
       500,
       'CONFIG_ERROR',
     )
@@ -64,7 +64,7 @@ export async function resolverCompanyLegado(idOrganizacao: string): Promise<stri
   } catch (erro) {
     if (padraoLocal) return padraoLocal
     throw new AppError(
-      `Configurador inacessível ao resolver vínculo Smart Read: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
+      `Configurador inacessível ao resolver vínculo Smart Docs: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
       503,
       'CONFIGURADOR_INDISPONIVEL',
     )
@@ -75,7 +75,7 @@ export async function resolverCompanyLegado(idOrganizacao: string): Promise<stri
       return padraoLocal
     }
 
-    const fallback = `Configurador respondeu ${resposta.status} ao resolver vínculo Smart Read`
+    const fallback = `Configurador respondeu ${resposta.status} ao resolver vínculo Smart Docs`
     let mensagem = fallback
     try {
       const corpo: unknown = await resposta.json()

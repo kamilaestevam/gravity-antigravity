@@ -615,9 +615,9 @@ const seedProducts: Prisma.ProdutoGravityUncheckedCreateInput[] = [
     publico_alvo_produto_gravity: 'Importadores, despachantes aduaneiros e contadores',
   },
   {
-    nome_produto_gravity: 'Smart Read',
+    nome_produto_gravity: 'Smart Docs',
     slug_produto_gravity: 'smart-read',
-    descricao_produto_gravity: 'Leitura inteligente de documentos de importação e exportação com extração automática de dados via IA',
+    descricao_produto_gravity: 'Inteligência documental para COMEX — extração, conferência, riscos e Q&A com IA',
     status_produto_gravity: 'ATIVO',
     tipo_cobranca_produto_gravity: 'POR_DOCUMENTO',
     possui_setup_produto_gravity: false,

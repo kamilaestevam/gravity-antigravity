@@ -3,6 +3,7 @@
  */
 
 import type { Leitura, StatusLeitura } from './schemas'
+import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read'
 
 export type StatusArquivoLocalNovaLeitura =
   | 'anexado'
@@ -70,7 +71,10 @@ function statusArquivoLocalDeStatusLeitura(status: StatusLeitura): StatusArquivo
 export function criarArquivosLocaisDeLeitura(leitura: Leitura): ArquivoLocalNovaLeitura[] {
   return leitura.arquivos.map((arquivo) => ({
     id_arquivo_local: crypto.randomUUID(),
-    arquivo: new File([], arquivo.nome_arquivo ?? 'documento'),
+    arquivo: new File(
+      [],
+      corrigirEncodingNomeArquivoSmartRead(arquivo.nome_arquivo) ?? arquivo.nome_arquivo ?? 'documento',
+    ),
     status_arquivo_local: statusArquivoLocalDeStatusLeitura(arquivo.status_arquivo),
     id_leitura: leitura.id_leitura,
     id_arquivo: arquivo.id_arquivo,

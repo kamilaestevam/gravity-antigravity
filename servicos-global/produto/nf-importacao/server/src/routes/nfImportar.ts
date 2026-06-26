@@ -206,15 +206,15 @@ router.post('/importar/smart-read', async (req: Request, res: Response, next: Ne
     // Placeholder: cria NF vazia + registra job de processamento assincrono
 
     const nf = await criarNfFromImport(prisma, tenantId, userId, body.company_id, 'SMART_READ', {
-      observacoes: `Smart Read: ${body.nome_arquivo} (processando...)`,
+      observacoes: `Smart Docs: ${body.nome_arquivo} (processando...)`,
     })
 
     res.status(202).json({
-      message: 'Documento recebido para processamento Smart Read',
+      message: 'Documento recebido para processamento Smart Docs',
       nf_importacao: nf,
       storage_key: body.storage_key,
       status_processamento: 'em_fila',
-      warnings: ['Smart Read em modo placeholder — dados serao extraidos assincronamente'],
+      warnings: ['Smart Docs em modo placeholder — dados serao extraidos assincronamente'],
     })
   } catch (err) { next(err) }
 })

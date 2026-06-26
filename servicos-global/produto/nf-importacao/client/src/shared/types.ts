@@ -72,7 +72,7 @@ export type NfImportacaoTipoCanalEntrada = (typeof NfImportacaoTipoCanalEntrada)
 export const CANAL_LABELS: Record<NfImportacaoTipoCanalEntrada, string> = {
   [NfImportacaoTipoCanalEntrada.MANUAL]: 'Manual',
   [NfImportacaoTipoCanalEntrada.XML]: 'XML',
-  [NfImportacaoTipoCanalEntrada.SMART_READ]: 'Smart Read',
+  [NfImportacaoTipoCanalEntrada.SMART_READ]: 'Smart Docs',
   [NfImportacaoTipoCanalEntrada.PORTAL_UNICO]: 'Portal Único',
   [NfImportacaoTipoCanalEntrada.ERP]: 'ERP',
   [NfImportacaoTipoCanalEntrada.PROCESSO]: 'Processo',
@@ -90,7 +90,7 @@ export type NfImportacaoOrigemDespesa = (typeof NfImportacaoOrigemDespesa)[keyof
 export const ORIGEM_LABELS: Record<NfImportacaoOrigemDespesa, string> = {
   [NfImportacaoOrigemDespesa.MANUAL]: 'Manual',
   [NfImportacaoOrigemDespesa.TEMPLATE]: 'Template',
-  [NfImportacaoOrigemDespesa.SMART_READ]: 'Smart Read',
+  [NfImportacaoOrigemDespesa.SMART_READ]: 'Smart Docs',
   [NfImportacaoOrigemDespesa.PLANILHA]: 'Planilha',
 }
 

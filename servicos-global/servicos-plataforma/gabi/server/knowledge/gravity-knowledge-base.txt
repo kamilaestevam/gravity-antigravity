@@ -11211,7 +11211,7 @@ model FinanceiroHistorico {
 | DELETE | `/api/v1/financeiro/:processoId/lancamentos/:id` | Excluir lançamento | S2S + tenant |
 | POST | `/api/v1/financeiro/:processoId/importar/xml` | Importar impostos via XML DUIMP | S2S + tenant |
 | POST | `/api/v1/financeiro/:processoId/importar/portal-unico` | Importar via Portal Único | S2S + tenant |
-| POST | `/api/v1/financeiro/:processoId/importar/smart-read` | Importar via Smart Read | S2S + tenant |
+| POST | `/api/v1/financeiro/:processoId/importar/smart-read` | Importar via Smart Docs | S2S + tenant |
 | POST | `/api/v1/financeiro/:processoId/importar/planilha` | Importar via Excel | S2S + tenant |
 
 ### Numerário
@@ -11280,7 +11280,7 @@ Usuário → Client (React, porta 5184)
 |:---|:---|:---|
 | `rateioAlgorithms.ts` | NF Importação | Import direto via S2S ou lib compartilhada |
 | `portalUnicoConnector.ts` | NF Importação | Reuso do mesmo conector DUIMP |
-| Smart Read service | NF Importação | Mesma API de OCR |
+| Smart Docs service | NF Importação | Mesma API de OCR |
 | `tenantIsolationMiddleware` | Gravity infra | Copy padrão |
 | `requireInternalKey` | Gravity infra | Copy padrão |
 | Serviços tenant | Gravity infra | Email, Histórico, Notificações via S2S |
@@ -11315,7 +11315,7 @@ Usuário → Client (React, porta 5184)
 | Modal Novo Lançamento | M | P | M | Formulário + validação Zod |
 | Importar via XML DUIMP | P | G | G | Parser XML SISCOMEX |
 | Importar via Portal Único | P | M | M | Reuso da integração NF Importação |
-| Importar via Smart Read | P | M | M | Reuso do serviço |
+| Importar via Smart Docs | P | M | M | Reuso do serviço |
 | Importar via Planilha Excel | P | M | M | Parser de template |
 | Numerário — Lista | P | P | P | Simples |
 | Numerário — Modal + upload PDF | M | P | M | Upload + preview |
@@ -11370,7 +11370,7 @@ Usuário → Client (React, porta 5184)
 
 ### O que é o Financeiro Comex?
 
-Módulo de gestão financeira de processos de importação e exportação. É vinculado a um **processo** (um por processo) e consolida todos os custos: impostos federais (importados do Portal Único/XML), taxas operacionais (lançadas manualmente ou via Smart Read/email) e numerário (adiantamentos ao despachante).
+Módulo de gestão financeira de processos de importação e exportação. É vinculado a um **processo** (um por processo) e consolida todos os custos: impostos federais (importados do Portal Único/XML), taxas operacionais (lançadas manualmente ou via Smart Docs/email) e numerário (adiantamentos ao despachante).
 
 ### Regras de negócio críticas (top 5)
 
@@ -11511,7 +11511,7 @@ Exibido abaixo do campo Taxa como "= R$ X.XXX,XX"
 
 1. **XML (DUIMP)** — Upload de arquivo .xml; preview dos impostos encontrados → confirmar
 2. **Portal Único** — Campo para número da DUIMP → busca → preview → confirmar
-3. **Smart Read** — Upload de PDF/imagem de fatura → OCR → preview campos → ajustar → confirmar
+3. **Smart Docs** — Upload de PDF/imagem de fatura → OCR → preview campos → ajustar → confirmar
 4. **Planilha** — Download de template + upload preenchido → preview → confirmar
 
 **Preview (comum a todos):**
@@ -11776,7 +11776,7 @@ Então a lista carrega em menos de 200ms
 | 9 | Importar via Portal Único (RF-006) | Alto | M | #5 |
 | 10 | Criar/listar Numerário (RF-020 a RF-024) | Alto | M | #2 |
 | 11 | Gerar planilha de Rateio (RF-030 a RF-033) | Alto | G | #5 |
-| 12 | Importar via Smart Read (RF-007) | Médio | G | #5 |
+| 12 | Importar via Smart Docs (RF-007) | Médio | G | #5 |
 | 13 | Importar via Planilha (RF-008) | Médio | M | #5 |
 | 14 | Histórico de alterações (RF-012) | Alto | P | #5 |
 | 15 | Filtros e exportação Excel (RF-013, RF-014) | Médio | P | #6 |
@@ -12022,7 +12022,7 @@ O catálogo de categorias, tipos de documento e tipos de fornecedor foram extra�
 
 ## 1. Resumo Executivo
 
-O **Financeiro Comex** é o módulo de gestão e automação de custos de processos de importação e exportação. Ele consolida todos os lançamentos financeiros de um processo (impostos federais, taxas operacionais, câmbio), oferece múltiplas formas de entrada (manual, planilha, XML, Smart Read, Portal Único, email) e produz como saída a planilha de rateio por produto e o espelho de custos para a NF de entrada.
+O **Financeiro Comex** é o módulo de gestão e automação de custos de processos de importação e exportação. Ele consolida todos os lançamentos financeiros de um processo (impostos federais, taxas operacionais, câmbio), oferece múltiplas formas de entrada (manual, planilha, XML, Smart Docs, Portal Único, email) e produz como saída a planilha de rateio por produto e o espelho de custos para a NF de entrada.
 
 O produto pode ser adquirido de forma isolada ou em conjunto com os demais produtos do ecossistema Gravity (Processo, NF Importação, LPCO, Numerário Comex). Sua métrica principal de sucesso é a **redução do tempo de fechamento financeiro de um processo de importação de X horas para Y minutos**.
 
@@ -12043,7 +12043,7 @@ O produto pode ser adquirido de forma isolada ou em conjunto com os demais produ
 |:---|:---|
 | Multi-moeda nativo com taxa por lançamento | Maioria converte tudo para BRL imediatamente |
 | Import direto do Portal Único (DUIMP) | Maioria exige digitação manual dos impostos |
-| Smart Read de NFs de fornecedores | Inexistente em produtos especializados de comex |
+| Smart Docs de NFs de fornecedores | Inexistente em produtos especializados de comex |
 | Rateio por 9 métodos + exportação Excel | Rateio fixo por valor CIF apenas |
 | Integrado com NF Importação (espelho) | Sistemas separados sem integração |
 
@@ -12088,7 +12088,7 @@ Praticamente toda empresa com ERP (SAP, TOTVS, Senior) já tem um módulo financ
 ### RN-001: Dois Grupos de Custos (Importação)
 
 **Grupo 1 — Impostos Federais (DUIMP)**
-Impostos calculados e registrados na DUIMP/DI. Podem ser importados via XML, TXT, Smart Read ou Portal Único.
+Impostos calculados e registrados na DUIMP/DI. Podem ser importados via XML, TXT, Smart Docs ou Portal Único.
 
 | Tributo | Base Legal | Incidência | Armadilha |
 |:---|:---|:---|:---|
@@ -12224,7 +12224,7 @@ Saldo positivo = empresa tem crédito (raro, indica numerário excedente).
 | RF-004 | Excluir lançamento | Must-have | P |
 | RF-005 | Importar impostos via XML da DUIMP (Grupo 1) | Must-have | G |
 | RF-006 | Importar impostos via Portal Único (DUIMP number) — reuso da integração NF Importação | Must-have | M |
-| RF-007 | Importar custos via Smart Read (OCR de fatura de fornecedor) | Should-have | G |
+| RF-007 | Importar custos via Smart Docs (OCR de fatura de fornecedor) | Should-have | G |
 | RF-008 | Importar custos via planilha Excel (upload de template pré-definido) | Should-have | M |
 | RF-009 | Catálogo de categorias de despesa (customizável por tenant) | Must-have | M |
 | RF-010 | Catálogo de condições de pagamento (customizável por tenant) | Must-have | P |
@@ -12360,7 +12360,7 @@ Financeiro (produto)
   ├── Tela 1: Movimentação (lista principal)
   │     ├── Modal 1A: Novo Lançamento
   │     ├── Modal 1B: Editar Lançamento
-  │     ├── Modal 1C: Importar (sub-opções: XML, Portal Único, Smart Read, Planilha)
+  │     ├── Modal 1C: Importar (sub-opções: XML, Portal Único, Smart Docs, Planilha)
   │     └── Modal 1D: Histórico de Alterações
   ├── Tela 2: Numerário
   │     ├── Modal 2A: Inserir Numerário (Complementar)
@@ -12382,7 +12382,7 @@ Financeiro (produto)
 | **NF Importação** | S2S | Fornece lista de custos marcados como "Despesa NF" para o espelho |
 | **Portal Único** | Reuso | Reusa a integração já implementada no NF Importação (portalUnico) |
 | **Rateio Engine** | Reuso direto | Reusa exatamente o `rateioAlgorithms.ts` do NF Importação |
-| **Smart Read** | Reuso | Reusa o serviço de Smart Read para OCR de faturas |
+| **Smart Docs** | Reuso | Reusa o serviço de Smart Docs para OCR de faturas |
 | **Email** | Tenant service | Recebe faturas de fornecedores por email (Fase 2) |
 | **Notificações** | Tenant service | Alerta de vencimentos (Fase 2) |
 | **Histórico** | Tenant service | Audit trail imutável de cada lançamento |
@@ -12531,7 +12531,7 @@ produto/lpco/
 │       │   ├── lpcoCancelamentoJob.ts        # Cron: cancelamento 90 dias
 │       │   ├── lpcoAlertaService.ts          # Alertas de prazo
 │       │   ├── lpcoImportService.ts          # Import de planilha (Excel/CSV)
-│       │   └── lpcoSmartReadService.ts       # Orquestrador Smart Read → rascunho
+│       │   └── lpcoSmartReadService.ts       # Orquestrador Smart Docs → rascunho
 │       ├── connectors/
 │       │   ├── portalUnicoAdapter.ts         # Adapter: registro, consulta, exigencia
 │       │   ├── portalUnicoAuth.ts            # Strategy: certificado digital vs token OAuth2
@@ -12894,7 +12894,7 @@ model LpcoHistorico {
 | GET | `/api/v1/lpcos/import/template` | Download template Excel | S2S + tenant | — |
 | GET | `/api/v1/lpcos/import/:jobId/status` | Status do import em andamento | S2S + tenant | — |
 
-### Smart Read
+### Smart Docs
 
 | Metodo | Endpoint | Descricao | Auth | Body |
 |--------|----------|-----------|------|------|
@@ -12957,7 +12957,7 @@ model LpcoHistorico {
 | Configurador | Check-access, permissoes | JWT + REST API |
 | API Cockpit | Tokens, docs, playground, webhooks para integracao ERP | Ja existe |
 | Conector ERP | OData/SAP/REST para import de dados | Ja existe |
-| Smart Read | OCR + IA para extracao de dados de documentos | Ja existe — reutilizar |
+| Smart Docs | OCR + IA para extracao de dados de documentos | Ja existe — reutilizar |
 
 ### Componentes do nucleo-global que Vamos Reutilizar
 
@@ -12981,7 +12981,7 @@ model LpcoHistorico {
 | lpcoCancelamentoJob | Backend cron | P | Cancelamento automatico 90 dias |
 | lpcoAlertaService | Backend service | P | Alertas de prazo |
 | lpcoImportService | Backend service | M | Parser de Excel/CSV → validacao → criacao em lote |
-| lpcoSmartReadService | Backend service | M | Orquestrador: upload → Smart Read → rascunho |
+| lpcoSmartReadService | Backend service | M | Orquestrador: upload → Smart Docs → rascunho |
 | portalUnicoAdapter | Backend connector | G | Adapter bidirecional com API do Portal Unico |
 | portalUnicoAuth | Backend connector | G | Strategy: certificado digital + token OAuth2 + AES-256 |
 | simuladorTAConnector | Backend connector | M | Consulta tratamento administrativo via API |
@@ -13194,13 +13194,13 @@ class PortalUnicoAdapter {
 | Manual | Step 0 → Step 1 (dados gerais) → Step 2 (itens) → Step 3 (revisao) → Registrar |
 | Planilha | Step 0 → Upload → Mapeamento colunas → Preview → Confirmar → Cria N rascunhos |
 | Pedido | Step 0 → Selecionar Pedido → Auto-preenche → Step 1 (completa orgao) → Step 2 (completa atributos) → Step 3 → Registrar |
-| Smart Read | Step 0 → Upload docs → OCR+IA → Preview extracao (amarelo) → Confirma campos → Step 1 → Step 2 → Step 3 → Registrar |
+| Smart Docs | Step 0 → Upload docs → OCR+IA → Preview extracao (amarelo) → Confirma campos → Step 1 → Step 2 → Step 3 → Registrar |
 | Duplicar | Step 0 → Selecionar LPCO → Copia → Step 1 (ajusta) → Step 2 (ajusta) → Step 3 → Registrar |
 | API | POST /api/v1/lpcos com canal_entrada="API" → validacao Zod → cria rascunho ou registra direto |
 
 ### Auto-Preenchimento — Mapa de Campos
 
-| Campo LPCO | Manual | Planilha | Pedido | Smart Read | API |
+| Campo LPCO | Manual | Planilha | Pedido | Smart Docs | API |
 |-----------|--------|----------|--------|-----------|-----|
 | tipo_operacao | Digita | Coluna | Auto (Pedido) | Inferido | Enviado |
 | orgao_anuente | Digita | Coluna | Digita | Inferido (NCM) | Enviado |
@@ -13235,7 +13235,7 @@ class PortalUnicoAdapter {
 - [ ] JWT do Portal Unico cacheado em memoria APENAS — nunca no banco
 - [ ] OAuth client_secret criptografado com AES-256-GCM
 - [ ] Alerta 30 dias antes do vencimento do certificado
-- [ ] Smart Read: campos extraidos requerem confirmacao humana
+- [ ] Smart Docs: campos extraidos requerem confirmacao humana
 
 --- documentos-tecnicos/produtos-gravity/lpco/BACKLOG.md ---
 # Backlog Priorizado — LPCO MVP
@@ -13264,7 +13264,7 @@ class PortalUnicoAdapter {
 | 3 | Preencher itens NCM | Como analista, quero adicionar itens com NCM, quantidades e atributos do orgao para completar o LPCO | 88 | G | CA-006 a CA-012 | #2 | 🔲 |
 | 4 | Validar e registrar LPCO | Como analista, quero validar e registrar o LPCO para envia-lo ao orgao anuente | 87 | M | CA-013 a CA-018 | #3 | 🔲 |
 | 5 | Criar LPCO a partir do Pedido | Como analista, quero criar LPCO a partir de um Pedido existente para nao redigitar 70% dos dados | 85 | M | CA-063 a CA-066 | #2 | 🔲 |
-| 6 | Smart Read (OCR+IA) | Como analista, quero fazer upload de fatura/laudo e ter os dados extraidos automaticamente para economizar tempo | 84 | G | CA-067 a CA-072 | #2 | 🔲 |
+| 6 | Smart Docs (OCR+IA) | Como analista, quero fazer upload de fatura/laudo e ter os dados extraidos automaticamente para economizar tempo | 84 | G | CA-067 a CA-072 | #2 | 🔲 |
 | 7 | Acompanhar status | Como analista, quero ver o status atualizado de cada LPCO para saber o que precisa de atencao | 83 | M | CA-019 a CA-022 | #4 | 🔲 |
 | 8 | Responder exigencias | Como analista, quero responder exigencias do orgao anuente para evitar cancelamento | 82 | M | CA-023 a CA-026 | #7 | 🔲 |
 | 9 | Cancelamento automatico 90 dias | Como sistema, quero cancelar LPCOs com exigencia pendente por >90 dias para espelhar regra do Portal Unico | 80 | M | CA-042 a CA-044 | #8 | 🔲 |
@@ -13296,7 +13296,7 @@ class PortalUnicoAdapter {
 ### T-02/T-03/T-04: Wizard de Criacao
 - Story #2, #3, #4
 
-### T-05/T-06: Import Planilha / Smart Read
+### T-05/T-06: Import Planilha / Smart Docs
 - Story #6, #19
 
 ### T-07 a T-12: Detalhe do LPCO (abas)
@@ -13593,12 +13593,12 @@ Entao exibe mensagem "Pedido sem itens. Adicione itens manualmente no Step 2."
 
 ---
 
-## Story #6 — Smart Read (OCR+IA)
+## Story #6 — Smart Docs (OCR+IA)
 
 ### CA-067: Upload de documento
 
 ```gherkin
-Dado que o usuario selecionou canal "Smart Read" no Step 0
+Dado que o usuario selecionou canal "Smart Docs" no Step 0
 Quando faz upload de uma fatura comercial (PDF)
 Entao o sistema exibe indicador de processamento
   E apos processamento, mostra os campos extraidos
@@ -13607,7 +13607,7 @@ Entao o sistema exibe indicador de processamento
 ### CA-068: Preview de extracao
 
 ```gherkin
-Dado que o Smart Read processou o documento
+Dado que o Smart Docs processou o documento
 Quando o resultado e exibido
 Entao campos extraidos com alta confianca (>80%) aparecem em verde
   E campos extraidos com baixa confianca (<80%) aparecem em amarelo
@@ -13618,7 +13618,7 @@ Entao campos extraidos com alta confianca (>80%) aparecem em verde
 ### CA-069: Confirmacao campo a campo
 
 ```gherkin
-Dado que o usuario esta na tela de preview do Smart Read
+Dado que o usuario esta na tela de preview do Smart Docs
 Quando clica em "Confirmar" em um campo extraido
 Entao o campo e aceito e fica verde
 Quando clica em "Editar" em um campo extraido
@@ -13979,8 +13979,8 @@ Entao o sistema retorna HTTP 404 (nao 403)
 LPCO e o produto de **gestao de licencas, permissoes, certificados e outros documentos** exigidos pelos 16 orgaos anuentes do governo brasileiro para operacoes de comercio exterior. E o componente de **compliance regulatorio** do ecosistema Gravity.
 
 O sistema resolve:
-- **5 canais de entrada** — "entre como quiser": manual, planilha, Pedido, Smart Read (OCR+IA), API (ERP)
-- **Smart Read** — upload de fatura/packing/laudo → IA extrai 90% dos campos → revisao → registra
+- **5 canais de entrada** — "entre como quiser": manual, planilha, Pedido, Smart Docs (OCR+IA), API (ERP)
+- **Smart Docs** — upload de fatura/packing/laudo → IA extrai 90% dos campos → revisao → registra
 - **Integracao Portal Unico** — certificado digital + token OAuth2 (novo!) → registra, consulta, responde via API
 - **Acompanhamento centralizado** de dezenas de LPCOs simultaneos com sync automatico
 - **Alertas inteligentes** para exigencias pendentes e vigencias expirando
@@ -14010,10 +14010,10 @@ O sistema resolve:
 
 | Area | Funcionalidades |
 |------|----------------|
-| **5 Canais de Entrada** | Manual, Planilha (Excel/CSV), A partir do Pedido (~70% auto), Smart Read (OCR+IA), Duplicar existente + API Cockpit |
+| **5 Canais de Entrada** | Manual, Planilha (Excel/CSV), A partir do Pedido (~70% auto), Smart Docs (OCR+IA), Duplicar existente + API Cockpit |
 | Lista de LPCOs | Grid com filtros por status, orgao, tipo, operacao, canal de entrada |
 | Criacao (wizard 4 steps) | Step 0 (canal) → Dados gerais → Itens NCM (atributos dinamicos) → Revisao + registro |
-| Smart Read | Upload fatura/packing/laudo → OCR+IA → preview (amarelo) → confirma → rascunho |
+| Smart Docs | Upload fatura/packing/laudo → OCR+IA → preview (amarelo) → confirma → rascunho |
 | Integracao Portal Unico | Registrar, consultar, responder exigencia, anexar — via API |
 | Autenticacao dupla | Certificado digital (.pfx/AES-256) + Token OAuth2 (gov.br/Serpro) |
 | 15 Webhooks | Recebe eventos do Portal Unico → sync automatico de status |
@@ -14048,7 +14048,7 @@ O sistema resolve:
 
 5. **3 modos de operacao** — O Gravity funciona em 3 modos: (a) Integrado com certificado digital — full access via API; (b) Integrado com token OAuth2 — consultas + escrita se o scope permitir; (c) Manual — usuario registra por fora e atualiza no Gravity. O modo e determinado automaticamente pela credencial configurada.
 
-6. **5 canais de entrada** — O usuario escolhe como criar o LPCO: digitar manual, importar planilha, a partir de Pedido (auto-preenche ~70%), Smart Read (OCR+IA de fatura/laudo), ou via API (ERP). Canal e registrado em `Lpco.canal_entrada` para metricas.
+6. **5 canais de entrada** — O usuario escolhe como criar o LPCO: digitar manual, importar planilha, a partir de Pedido (auto-preenche ~70%), Smart Docs (OCR+IA de fatura/laudo), ou via API (ERP). Canal e registrado em `Lpco.canal_entrada` para metricas.
 
 7. **Certificado digital = ativo sensivel** — Armazenado com AES-256-GCM (mesmo padrao do Conector ERP). Senha NUNCA em plain text. JWT cacheado em memoria, nunca no banco. Alerta 30 dias antes do vencimento.
 
@@ -14099,7 +14099,7 @@ O sistema resolve:
 | T-03 | Novo — Itens NCM | `/lpco/novo/itens` | G |
 | T-04 | Novo — Revisao | `/lpco/novo/revisao` | M |
 | T-05 | Import Planilha | `/lpco/novo/planilha` | M |
-| T-06 | Smart Read | `/lpco/novo/smart-read` | M |
+| T-06 | Smart Docs | `/lpco/novo/smart-read` | M |
 | T-07 | Detalhe (container) | `/lpco/:id` | P |
 | T-08 | Aba Formulario | `/lpco/:id/formulario` | M |
 | T-09 | Aba Documentos | `/lpco/:id/documentos` | M |
@@ -14166,7 +14166,7 @@ Lista LPCOs → + Novo LPCO → Step 0: "Como voce quer criar?"
 | Auth Gravity | Clerk (JWT) + x-internal-key (S2S) |
 | Auth Portal Unico | Certificado digital (mTLS) + Token OAuth2 — strategy pattern |
 | Criptografia | AES-256-GCM (certificados, senhas, OAuth secrets) |
-| OCR+IA | Smart Read (ja existente no Gravity) |
+| OCR+IA | Smart Docs (ja existente no Gravity) |
 | Storage | S3/R2 (documentos + certificados criptografados) |
 
 ### Modelos Prisma
@@ -14184,7 +14184,7 @@ Todos com `tenant_id` + `company_id` + 3 indices obrigatorios.
 | `lpcoCancelamentoJob` | Cron diario: cancela LPCOs >90 dias em exigencia |
 | `lpcoAlertaService` | Gera alertas em 60, 80, 90 dias + cert expirando |
 | `lpcoImportService` | Parser de Excel/CSV → validacao → criacao em lote |
-| `lpcoSmartReadService` | Orquestrador: upload → Smart Read → rascunho |
+| `lpcoSmartReadService` | Orquestrador: upload → Smart Docs → rascunho |
 | `portalUnicoAdapter` | Adapter bidirecional com API do Portal Unico |
 | `portalUnicoAuth` | Strategy: certificado digital vs token OAuth2 |
 | `simuladorTAConnector` | Consulta tratamento administrativo via API |
@@ -14196,7 +14196,7 @@ Todos com `tenant_id` + `company_id` + 3 indices obrigatorios.
 | Portal Unico Siscomex | LPCO ↔ Portal | API bidirecional + 15 webhooks |
 | Processo | LPCO → Processo | Vinculo (LpcoVinculo.processo_id) |
 | Pedido | LPCO ← Pedido | Auto-preenchimento (canal "Pedido") |
-| Smart Read | LPCO ← Smart Read | OCR+IA de documentos |
+| Smart Docs | LPCO ← Smart Docs | OCR+IA de documentos |
 | API Cockpit | LPCO ← ERP/COMEX | Tokens + docs + playground |
 | Configurador | LPCO ← Config | Check-access, permissoes |
 | Notificacoes | LPCO → Notif | Alertas de prazo |
@@ -14205,7 +14205,7 @@ Todos com `tenant_id` + `company_id` + 3 indices obrigatorios.
 
 ### O que reutilizar (ja existe)
 
-- **8 servicos:** Notificacoes, Email, Historico, Dashboard, Configurador, API Cockpit, Conector ERP, Smart Read
+- **8 servicos:** Notificacoes, Email, Historico, Dashboard, Configurador, API Cockpit, Conector ERP, Smart Docs
 - **8 componentes nucleo-global:** TabelaGlobal, CaixaSelectGlobal, InputTexto, ModalGlobal, BadgeStatus, BotaoGlobal, Loading, TabsGlobal
 
 ### O que criar do zero
@@ -14279,7 +14279,7 @@ Entao apenas LPCOs que atendem AMBOS filtros sao exibidos
 
 | KPI | Meta | Instrumentacao |
 |-----|------|---------------|
-| Tempo de preparacao | < 3 min (Smart Read), < 5 min (Pedido), < 15 min (manual) | created_at → data_registro |
+| Tempo de preparacao | < 3 min (Smart Docs), < 5 min (Pedido), < 15 min (manual) | created_at → data_registro |
 | Cancelamentos por esquecimento | 0% | LpcoHistorico: cancelamento_automatico |
 | Tempo de resposta a exigencia | < 48h | data_exigencia → data_resposta |
 | LPCOs/analista/mes | +50% | Count por user_id |
@@ -14367,7 +14367,7 @@ Entao apenas LPCOs que atendem AMBOS filtros sao exibidos
 
 | KPI | Meta | Como Medir |
 |-----|------|-----------|
-| Adocao de Smart Read | >30% dos LPCOs criados | `COUNT(canal_entrada=SMART_READ) / COUNT(total)` |
+| Adocao de Smart Docs | >30% dos LPCOs criados | `COUNT(canal_entrada=SMART_READ) / COUNT(total)` |
 | Adocao de canal Pedido | >25% | `COUNT(canal_entrada=PEDIDO) / COUNT(total)` |
 | Integracao Portal Unico ativa | >50% dos tenants | `COUNT(DISTINCT tenant com SiscomexCredencial) / COUNT(DISTINCT tenant)` |
 | Tempo medio de deferimento por orgao | Benchmark interno | `data_registro → data_deferimento GROUP BY orgao_anuente` |
@@ -14454,9 +14454,9 @@ Entao apenas LPCOs que atendem AMBOS filtros sao exibidos
 
 **Problema:** Importadores e exportadores gastam horas preenchendo formularios no Portal Unico Siscomex, perdendo LPCOs por cancelamento automatico (90 dias sem resposta), sem visibilidade centralizada do status de dezenas de documentos simultaneos, e sem rastreabilidade para auditoria.
 
-**Solucao:** Plataforma de gestao e integracao com o Portal Unico que oferece 5 canais de entrada de dados ("entre como quiser"), integracao bidirecional via API (certificado digital + token OAuth2), alertas inteligentes e vinculacao ao ecosistema Gravity (Pedido, Processo, SimulaCusto). Smart Read (OCR+IA) e integracao ERP via API Cockpit ja estao prontos no Gravity.
+**Solucao:** Plataforma de gestao e integracao com o Portal Unico que oferece 5 canais de entrada de dados ("entre como quiser"), integracao bidirecional via API (certificado digital + token OAuth2), alertas inteligentes e vinculacao ao ecosistema Gravity (Pedido, Processo, SimulaCusto). Smart Docs (OCR+IA) e integracao ERP via API Cockpit ja estao prontos no Gravity.
 
-**Metrica de sucesso:** Reducao de 90% no tempo de preparacao de LPCOs (de 30-60 min para 3 min com Smart Read) e zero cancelamentos automaticos por esquecimento.
+**Metrica de sucesso:** Reducao de 90% no tempo de preparacao de LPCOs (de 30-60 min para 3 min com Smart Docs) e zero cancelamentos automaticos por esquecimento.
 
 ---
 
@@ -14488,8 +14488,8 @@ Entao apenas LPCOs que atendem AMBOS filtros sao exibidos
 ### Oportunidade
 
 Nenhum sistema de mercado oferece gestao completa de LPCOs com:
-1. **5 canais de entrada** — digite, importe planilha, use o Pedido, Smart Read (OCR+IA), ou integre via API
-2. **Smart Read** — upload de fatura/packing list/laudo → IA extrai 90% dos campos
+1. **5 canais de entrada** — digite, importe planilha, use o Pedido, Smart Docs (OCR+IA), ou integre via API
+2. **Smart Docs** — upload de fatura/packing list/laudo → IA extrai 90% dos campos
 3. **Integracao Portal Unico** — certificado digital + token OAuth2 (novo!) via strategy pattern
 4. **Alertas inteligentes** (prazo de exigencia, vigencia expirando)
 5. **Controle de saldo** de LPCO Flex com vinculacao a processos
@@ -14610,7 +14610,7 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 | RF-015 | Alertas de prazo (exigencia pendente, vigencia expirando) | Should-have | M | CA-057 a CA-060 |
 | RF-016 | Duplicar LPCO existente (modelo como base) | Should-have | P | CA-061 a CA-062 |
 | RF-017 | Criar LPCO a partir de Pedido (auto-preenchimento ~70%) | Must-have | M | CA-063 a CA-066 |
-| RF-018 | Criar LPCO via Smart Read (OCR+IA de fatura/packing/laudo) | Must-have | G | CA-067 a CA-072 |
+| RF-018 | Criar LPCO via Smart Docs (OCR+IA de fatura/packing/laudo) | Must-have | G | CA-067 a CA-072 |
 | RF-019 | Importar LPCOs via planilha (Excel/CSV) em lote | Must-have | M | CA-073 a CA-076 |
 | RF-020 | API Cockpit — ERP/sistema COMEX cria LPCOs via API | Must-have | M | CA-077 a CA-080 |
 | RF-021 | Integracao bidirecional com API Portal Unico (registrar, consultar, responder) | Must-have | GG | CA-081 a CA-088 |
@@ -14665,12 +14665,12 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 3. Step 0 — "Como voce quer criar?"
    a) Digitar manual → Step 1
    b) A partir de Pedido → Seleciona Pedido → auto-preenche → Step 1
-   c) Smart Read → Upload fatura/packing/laudo → OCR+IA → preview → Step 1
+   c) Smart Docs → Upload fatura/packing/laudo → OCR+IA → preview → Step 1
    d) Planilha → Upload Excel/CSV → mapeamento → preview → cria N rascunhos
    e) Duplicar existente → Seleciona LPCO → copia → Step 1
 4. Step 1: Dados gerais (orgao, modelo, pais, fundamento legal)
    - Se veio do Pedido: ~70% ja preenchido
-   - Se veio do Smart Read: campos extraidos em amarelo para confirmacao
+   - Se veio do Smart Docs: campos extraidos em amarelo para confirmacao
 5. Step 2: Itens NCM (quantidades, valores, atributos dinamicos do orgao)
 6. Step 3: Revisao final + validacao Zod
 7. Registrar:
@@ -14727,7 +14727,7 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 | T-03 | Novo LPCO — Itens | `/lpco/novo/itens` | Step 2: NCMs, quantidades, valores, atributos |
 | T-04 | Novo LPCO — Revisao | `/lpco/novo/revisao` | Step 3: revisao final + validacao + registrar |
 | T-05 | Import Planilha | `/lpco/novo/planilha` | Upload → mapeamento colunas → preview → confirmar |
-| T-06 | Smart Read | `/lpco/novo/smart-read` | Upload docs → preview extracao (amarelo) → confirmar |
+| T-06 | Smart Docs | `/lpco/novo/smart-read` | Upload docs → preview extracao (amarelo) → confirmar |
 | T-07 | Detalhe do LPCO | `/lpco/:id` | Visao completa com abas |
 | T-08 | Aba Formulario | `/lpco/:id/formulario` | Dados preenchidos (readonly se registrado) |
 | T-09 | Aba Documentos | `/lpco/:id/documentos` | Upload e lista de documentos |
@@ -14747,7 +14747,7 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 | Processo | Vinculo bidirecional | produto/processo | LPCO vinculada a DUIMP/DU-E |
 | Pedido | Auto-preenchimento | produto/pedido | Canal "Pedido" → preenche ~70% dos campos |
 | SimulaCusto | Consulta | produto/simula-custo | Verificar se NCM exige LPCO |
-| Smart Read | OCR+IA | servico existente | Extracao de dados de faturas/packing/laudos |
+| Smart Docs | OCR+IA | servico existente | Extracao de dados de faturas/packing/laudos |
 | API Cockpit | Tokens + docs | servicos-global | ERP/SAP/sistema COMEX envia dados via API |
 | Conector ERP | OData/REST | servicos-global | Import de dados do sistema do cliente |
 | Catalogo de Produtos | Dependencia | servicos-global | NCMs + atributos do produto |
@@ -14762,7 +14762,7 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 
 | KPI | Meta | Como Medir |
 |-----|------|-----------|
-| Tempo medio de preparacao de LPCO | < 3 min com Smart Read, < 5 min com Pedido, < 15 min manual (vs 30-60 min Portal Unico) | Timestamp criacao → registro |
+| Tempo medio de preparacao de LPCO | < 3 min com Smart Docs, < 5 min com Pedido, < 15 min manual (vs 30-60 min Portal Unico) | Timestamp criacao → registro |
 | Taxa de cancelamento por inatividade | 0% (vs ~15% mercado) | LPCOs canceladas automaticamente / total |
 | Tempo medio de resposta a exigencia | < 48h (vs dias/semanas) | Timestamp exigencia → resposta |
 | LPCOs gerenciados por analista/mes | +50% vs baseline | Count por user_id/mes |
@@ -14799,12 +14799,12 @@ Nenhum sistema de mercado oferece gestao completa de LPCOs com:
 
 | # | Decisao | Data | Contexto | Alternativa Descartada |
 |---|---------|------|----------|----------------------|
-| D-001 | MVP COM integracao Portal Unico + 5 canais de entrada | 30/03/2026 | Smart Read e API Cockpit ja prontos; adapter pattern mitiga instabilidade da API | Esperar para Fase 2 (perdia diferencial competitivo) |
+| D-001 | MVP COM integracao Portal Unico + 5 canais de entrada | 30/03/2026 | Smart Docs e API Cockpit ja prontos; adapter pattern mitiga instabilidade da API | Esperar para Fase 2 (perdia diferencial competitivo) |
 | D-002 | Formularios dinamicos via JSON schema | 30/03/2026 | Atributos mudam por comunicado Siscomex | Formularios hardcoded por orgao (nao escalavel) |
 | D-003 | LPCO como produto separado (nao modulo do Processo) | 30/03/2026 | Complexidade propria; ciclo de vida independente | Modulo dentro de Processo (acoplamento excessivo) |
 | D-004 | Suporte imp + exp na mesma tabela com discriminador | 30/03/2026 | Consistencia com Pedido; evita duplicacao de codigo | Tabelas separadas (mais complexo) |
 | D-005 | Top 5 orgaos no MVP, demais progressivamente | 30/03/2026 | 16 orgaos de uma vez e inviavel; 80/20 | Todos os 16 orgaos no MVP (scope creep) |
-| D-006 | Smart Read no MVP (nao Fase 3) | 30/03/2026 | Smart Read ja funciona no Gravity; e o diferencial #1 de UX | Deixar para depois (perdia vantagem competitiva) |
+| D-006 | Smart Docs no MVP (nao Fase 3) | 30/03/2026 | Smart Docs ja funciona no Gravity; e o diferencial #1 de UX | Deixar para depois (perdia vantagem competitiva) |
 | D-007 | Certificado digital + token OAuth2 (strategy pattern) | 30/03/2026 | Portal Unico lancou token recentemente; certificado continua sendo o padrao | Apenas certificado (excluia empresas sem certificado) |
 | D-008 | 3 modos de operacao (integrado cert / integrado token / manual) | 30/03/2026 | Garante que o produto funciona para qualquer empresa, com ou sem credenciais | Exigir credencial (excluia quem nao tem) |
 | D-009 | Credenciais com AES-256-GCM (mesmo padrao API Cockpit) | 30/03/2026 | Certificado digital e ativo sensivel; padrao ja existe no Conector ERP | Inventar nova criptografia (desnecessario) |
@@ -14870,7 +14870,7 @@ O produto LPCO, conforme especificado no PRD v1.0 e na Arquitetura Tecnica, esta
 | 1 | `PenLine` | Digitar manual | Preencha todos os campos |
 | 2 | `FileSpreadsheet` | Planilha Excel/CSV | Importe em lote |
 | 3 | `Package` | A partir do Pedido | Auto-preenche ~70% |
-| 4 | `ScanLine` | Smart Read | OCR+IA extrai dos documentos |
+| 4 | `ScanLine` | Smart Docs | OCR+IA extrai dos documentos |
 | 5 | `Copy` | Duplicar existente | Copie de um LPCO anterior |
 
 ### Estados
@@ -14939,7 +14939,7 @@ O produto LPCO, conforme especificado no PRD v1.0 e na Arquitetura Tecnica, esta
 ### Comportamento
 - Ao selecionar orgao, modelos sao filtrados dinamicamente
 - Se veio do Pedido: campos pre-preenchidos com borda azul "auto-preenchido"
-- Se veio do Smart Read: campos extraidos com borda amarela "extraido por IA — confirme"
+- Se veio do Smart Docs: campos extraidos com borda amarela "extraido por IA — confirme"
 
 ---
 
@@ -15508,7 +15508,7 @@ produto/nf-importacao/
 │       ├── routes/
 │       │   ├── nfImportacao.ts               # CRUD de NFs
 │       │   ├── nfImportacaoItem.ts           # CRUD de itens
-│       │   ├── nfImportacaoDespesa.ts        # CRUD de despesas + Smart Read
+│       │   ├── nfImportacaoDespesa.ts        # CRUD de despesas + Smart Docs
 │       │   ├── nfImportacaoRateio.ts         # Preview + aplicar rateio
 │       │   ├── nfImportacaoExportar.ts       # Gerar arquivo
 │       │   ├── nfImportacaoHistorico.ts      # Timeline (read-only)
@@ -15525,8 +15525,8 @@ produto/nf-importacao/
 │       │   ├── rateioEngine.ts               # Motor de rateio (9 metodos)
 │       │   ├── exportEngine.ts               # Motor de exportacao multi-formato
 │       │   ├── duimpXmlParser.ts             # Parser de XML da DUIMP
-│       │   ├── despesaSmartReadService.ts    # Smart Read de recibos
-│       │   ├── duimpSmartReadService.ts      # Smart Read de PDF da DUIMP
+│       │   ├── despesaSmartReadService.ts    # Smart Docs de recibos
+│       │   ├── duimpSmartReadService.ts      # Smart Docs de PDF da DUIMP
 │       │   ├── favoritoFiscalService.ts      # Aplicar favoritos automaticamente
 │       │   └── nfImportacaoImportService.ts  # Import de planilha (Excel/CSV)
 │       ├── connectors/
@@ -15799,9 +15799,9 @@ model NfImportacaoDocumento {
   storage_key           String                            // Chave no storage (S3/R2)
   descricao             String?
 
-  // Smart Read
+  // Smart Docs
   smart_read_processado Boolean   @default(false)
-  smart_read_resultado  Json?                             // Dados extraidos pelo Smart Read
+  smart_read_resultado  Json?                             // Dados extraidos pelo Smart Docs
 
   created_by            String
   created_at            DateTime  @default(now())
@@ -16201,7 +16201,7 @@ if (!nf) throw new AppError('NF nao encontrada', 404)
 | Calculo de rateio | In-memory (dados ja carregados) | < 500ms |
 | Busca de favorito fiscal | `[tenant_id, company_id, ncm]` | < 50ms |
 | Exportacao | In-memory (NF completa carregada) | < 3s |
-| Smart Read | Async (servico externo) | < 30s |
+| Smart Docs | Async (servico externo) | < 30s |
 
 ### Otimizacao do Rateio
 
@@ -16258,18 +16258,18 @@ if (!nf) throw new AppError('NF nao encontrada', 404)
 - [ ] Codificacao ISO-8859-1 funciona (acentos)
 - [ ] Preview identico ao arquivo final
 
-### Smart Read
+### Smart Docs
 - [ ] DUIMP PDF → extrai itens, NCMs, valores
 - [ ] Recibo de despesa → extrai tipo, valor, CNPJ
 - [ ] Demonstrativo de despesas → extrai multiplas linhas
 - [ ] Preview com campos amarelos para confirmacao
-- [ ] Fallback se Smart Read falhar (digitacao manual)
+- [ ] Fallback se Smart Docs falhar (digitacao manual)
 
 ### Performance
 - [ ] Lista < 200ms (1000 NFs)
 - [ ] Rateio 100×20 < 500ms
 - [ ] Exportacao 200 itens < 3s
-- [ ] Smart Read < 30s
+- [ ] Smart Docs < 30s
 
 ### Acessibilidade
 - [ ] Tab order no wizard de 6 steps
@@ -16296,9 +16296,9 @@ if (!nf) throw new AppError('NF nao encontrada', 404)
 NF Importacao e o produto de **composicao inteligente de Notas Fiscais de Entrada** derivadas de importacoes. Recebe dados da DUIMP, permite configurar despesas e regras de rateio flexiveis, e gera o DRAFT da NF no formato exato que o importador precisa.
 
 O sistema resolve:
-- **6 canais de entrada** — XML, PDF (Smart Read), Portal Unico, ERP, Processo Gravity, manual
+- **6 canais de entrada** — XML, PDF (Smart Docs), Portal Unico, ERP, Processo Gravity, manual
 - **Catalogo de despesas flexivel** — cada empresa nomeia suas 100+ despesas como quiser
-- **Templates de despesas** — base fixa que auto-popula a cada NF (ou Smart Read de recibos)
+- **Templates de despesas** — base fixa que auto-popula a cada NF (ou Smart Docs de recibos)
 - **Motor de rateio multi-metodo** — 9 metodos combinaveis por despesa com preview em tempo real
 - **Composicao fiscal** — CFOP + CSTs com favoritos por NCM + empresa
 - **Construtor de layout** — usuario monta o formato de saida exato para seu ERP (TXT, XML, JSON, Excel, PDF)
@@ -16323,15 +16323,15 @@ O sistema resolve:
 
 - DUIMP consolidada como unica declaracao — volume crescente de NFs de entrada
 - Dor validada: despachantes gastam 2-4 horas por NF montando rateio em planilha
-- Gravity ja tem Processo (DUIMP) e Smart Read — integracao natural
+- Gravity ja tem Processo (DUIMP) e Smart Docs — integracao natural
 - Nenhum concorrente oferece rateio flexivel + multi-formato + construtor de layout
 
 ### O que esta no MVP
 
 | Area | Funcionalidades |
 |------|----------------|
-| **6 Canais de Entrada** | XML, PDF (Smart Read), Portal Unico, ERP/API, Processo, Manual |
-| **Despesas** | Catalogo livre, template auto-popula, Smart Read de recibos, import planilha |
+| **6 Canais de Entrada** | XML, PDF (Smart Docs), Portal Unico, ERP/API, Processo, Manual |
+| **Despesas** | Catalogo livre, template auto-popula, Smart Docs de recibos, import planilha |
 | **Rateio** | 9 metodos (peso, CIF, FOB, qtd, II, igualitario, manual, customizado), preview tempo real |
 | **Fiscal** | CFOP + 4 CSTs por item, favoritos por NCM, beneficios fiscais como override |
 | **Exportacao** | XML, TXT, Excel, JSON, PDF + construtor de layout + pre-sets SAP/TOTVS |
@@ -16362,7 +16362,7 @@ O sistema resolve:
 
 5. **Formatos de saida sao infinitos** — Cada ERP aceita layout diferente. SAP tem IDOC, TOTVS tem Protheus e Datasul, cada um com posicoes de campo fixas diferentes. O construtor de layout e ESSENCIAL — nao e um "nice to have".
 
-6. **Smart Read serve para 2 coisas** — (a) ler PDF da DUIMP para extrair itens e valores; (b) ler recibos/demonstrativos de despesas para extrair tipo + valor. Sao 2 contextos de uso do mesmo servico.
+6. **Smart Docs serve para 2 coisas** — (a) ler PDF da DUIMP para extrair itens e valores; (b) ler recibos/demonstrativos de despesas para extrair tipo + valor. Sao 2 contextos de uso do mesmo servico.
 
 7. **Template de despesas economiza 80% do tempo** — Despachantes com 100 NFs/mes usam as mesmas 15-20 despesas em toda NF. O template auto-popula e o usuario so ajusta valores. Sem template, o produto perde valor.
 
@@ -16419,7 +16419,7 @@ T-00 (Origem) → T-02 (DUIMP) → T-03 (Despesas) → T-04 (Rateio) → T-05 (F
 
 6 cards com icones Lucide:
 - `FileCode` Upload XML
-- `ScanText` Upload PDF (Smart Read)
+- `ScanText` Upload PDF (Smart Docs)
 - `Globe` Portal Unico
 - `Link` Processo Gravity
 - `Server` ERP / API
@@ -16539,7 +16539,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 | POST | `/api/v1/nf-importacao/:id/despesas` | Adiciona despesa (do catalogo ou ad-hoc) |
 | PUT | `/api/v1/nf-importacao/:id/despesas/:despesaId` | Atualiza despesa (valor, metodo de rateio) |
 | DELETE | `/api/v1/nf-importacao/:id/despesas/:despesaId` | Remove despesa |
-| POST | `/api/v1/nf-importacao/:id/despesas/smart-read` | Upload recibo → Smart Read → extrai despesas |
+| POST | `/api/v1/nf-importacao/:id/despesas/smart-read` | Upload recibo → Smart Docs → extrai despesas |
 | POST | `/api/v1/nf-importacao/:id/despesas/importar-planilha` | Upload Excel/CSV de despesas |
 | POST | `/api/v1/nf-importacao/:id/despesas/aplicar-template` | Aplica template de despesas da empresa |
 
@@ -16587,7 +16587,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 
 | Servico | O que reusar | Esforco |
 |---------|-------------|---------|
-| Smart Read | OCR+IA para PDF da DUIMP + recibos de despesas | Zero (chamar API existente) |
+| Smart Docs | OCR+IA para PDF da DUIMP + recibos de despesas | Zero (chamar API existente) |
 | API Cockpit | Tokens `gv_live_sk_` + documentacao automatica | Zero |
 | Conector ERP | Integracao SAP/TOTVS para importar dados | Zero |
 | Historico | Append-only audit trail | Zero |
@@ -16605,7 +16605,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 | ModalGlobal | Confirmacao de rateio, exclusao |
 | BadgeStatus | Status da NF na lista |
 | BotaoGlobal | Todas as acoes |
-| Loading | Calculo de rateio, Smart Read |
+| Loading | Calculo de rateio, Smart Docs |
 
 ### O que precisa ser criado do ZERO
 
@@ -16614,7 +16614,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 | `rateioEngine` | GG | Motor de calculo com 9 metodos, arredondamento, validacao |
 | `exportEngine` | GG | Gerador de arquivos multi-formato com layout customizado |
 | `duimpXmlParser` | G | Parser de XML da DUIMP (formato Siscomex) |
-| `despesaSmartReadOrchestrator` | G | Orquestra Smart Read para recibos de despesas |
+| `despesaSmartReadOrchestrator` | G | Orquestra Smart Docs para recibos de despesas |
 | `layoutBuilder` (frontend) | GG | Construtor visual de layout de saida (drag-and-drop) |
 | `rateioPreview` (frontend) | G | Tabela matricial Item × Despesa com calculo em tempo real |
 
@@ -16650,7 +16650,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 - [ ] Lista de NFs < 200ms (1000 registros)
 - [ ] Rateio 100 itens × 20 despesas < 500ms
 - [ ] Exportacao 200 itens < 3s
-- [ ] Smart Read resposta < 30s
+- [ ] Smart Docs resposta < 30s
 
 ### Acessibilidade
 - [ ] Tab order logico no wizard de 6 steps
@@ -16687,7 +16687,7 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 
 O **NF Importação** é o módulo do Gravity responsável pela composição e exportação de Notas Fiscais de Importação. Ele permite que operadores de comércio exterior:
 
-1. **Importem** dados de NFs de diferentes fontes (XML DUIMP, Portal Único, OCR/Smart Read, integração com Processo Gravity, ou entrada manual)
+1. **Importem** dados de NFs de diferentes fontes (XML DUIMP, Portal Único, OCR/Smart Docs, integração com Processo Gravity, ou entrada manual)
 2. **Componham** as despesas aduaneiras e logísticas de cada NF
 3. **Rateiem** essas despesas entre os itens da NF de forma proporcional e auditável
 4. **Classifiquem** fiscalmente cada item (NCM, CFOP, CSTs, alíquotas)
@@ -16785,25 +16785,25 @@ O método de rateio (base de cálculo) é escolhido por despesa:
 |-------|-------|-----------|
 | **XML (DUIMP)** | Ícone de arquivo XML | Upload de arquivo XML da DUIMP — sistema extrai dados automaticamente |
 | **Portal Único** | Ícone de portal | Consulta automática no Portal Único do Governo via DI/DUIMP número |
-| **Smart Read (OCR)** | Ícone de câmera/scan | Upload de PDF/imagem — IA extrai dados via OCR |
+| **Smart Docs (OCR)** | Ícone de câmera/scan | Upload de PDF/imagem — IA extrai dados via OCR |
 | **Planilha** | Ícone de planilha | Upload de planilha Excel/CSV com dados da NF |
 | **Processo Gravity** | Ícone de processo | Importa dados de um Processo já cadastrado no Gravity |
 | **Manual** | Ícone de lápis | Entrada manual de todos os campos |
 
 **Após selecionar o canal**:
-- XML, Smart Read, Planilha: Abre input de upload de arquivo
+- XML, Smart Docs, Planilha: Abre input de upload de arquivo
 - Portal Único: Abre campo para digitar número da DI ou DUIMP
 - Processo Gravity: Abre seletor de processo
 - Manual: Vai direto para o Step 2 com formulário vazio
 
 **Validações**:
 - XML: Aceita apenas `.xml`, máx 10MB
-- Smart Read: Aceita PDF, JPG, PNG, máx 10MB
+- Smart Docs: Aceita PDF, JPG, PNG, máx 10MB
 - Planilha: Aceita `.xlsx`, `.csv`, máx 5MB
 - Portal Único: DI ou DUIMP número obrigatório
 
 **Avisos**:
-- Smart Read: "Processamento pode levar alguns segundos"
+- Smart Docs: "Processamento pode levar alguns segundos"
 - Portal Único: "Dados sujeitos à disponibilidade do sistema do governo"
 
 ---
@@ -16890,7 +16890,7 @@ O método de rateio (base de cálculo) é escolhido por despesa:
 - Valor total
 - Moeda
 - Método de rateio escolhido
-- Origem (manual, template, smart read)
+- Origem (manual, template, Smart Docs)
 - Botões: Editar | Excluir
 
 **Botão `+ Adicionar Despesa`**: Abre formulário inline ou modal com campos:
@@ -16913,7 +16913,7 @@ O método de rateio (base de cálculo) é escolhido por despesa:
 
 **Botão `Aplicar Template`**: Abre modal com lista de templates disponíveis. Ao selecionar, cria automaticamente as despesas do template para a NF.
 
-**Botão `Smart Read`**: Abre upload de PDF/imagem de comprovante (NF do fornecedor, recibo). IA extrai despesas automaticamente.
+**Botão `Smart Docs`**: Abre upload de PDF/imagem de comprovante (NF do fornecedor, recibo). IA extrai despesas automaticamente.
 
 **Avisos**:
 - "Ao adicionar a primeira despesa, a NF avança para 'Em Composição'"
@@ -17087,7 +17087,7 @@ Descrição do Benefício
 - Colunas: Nome, Valor Total, Moeda, Valor BRL, Método de Rateio, Origem, Status do Rateio
 - Botão `+ Adicionar Despesa` (somente em rascunho/em composição)
 - Botão `Aplicar Template`
-- Botão `Smart Read`
+- Botão `Smart Docs`
 - Clicar em despesa: abre formulário de edição
 - Badge "Rateado" / "Pendente" em cada despesa
 
@@ -17384,7 +17384,7 @@ Descrição do Benefício
 |----------|-----------------|
 | Rateio com fallback | "Método [X] resultou em divisor zero. Usando Igualitário como fallback" |
 | Diferença de centavos | "Diferença de R$ 0,01 absorvida pelo último item (arredondamento)" |
-| Smart Read aguardando | "Processamento iniciado. O resultado aparecerá em alguns instantes" |
+| Smart Docs aguardando | "Processamento iniciado. O resultado aparecerá em alguns instantes" |
 | Portal Único indisponível | "Não foi possível conectar ao Portal Único. Tente novamente" |
 | NF duplicada | "NF duplicada com sucesso. Editando nova NF como rascunho" |
 | Export em NF já exportada | "Esta NF já foi exportada. Gerando novo arquivo" |
@@ -17477,7 +17477,7 @@ Descrição do Benefício
 ### Com Notificações (Tenant Service)
 - NF pronta: notifica o responsável
 - Exportação gerada: notifica o operador
-- Erro de processamento Smart Read: notifica o usuário
+- Erro de processamento Smart Docs: notifica o usuário
 
 ---
 
@@ -17508,7 +17508,7 @@ Descrição do Benefício
 - NF não é criada
 - Usuário pode tentar corrigir o XML ou usar entrada manual
 
-### CB-006: Smart Read com baixa confiança
+### CB-006: Smart Docs com baixa confiança
 - OCR retorna confiança < 80%
 - Dados são preenchidos mas marcados como "verificar"
 - Campos com baixa confiança ficam com borda laranja
@@ -17564,7 +17564,7 @@ Descrição do Benefício
 | **ICMS** | Imposto Estadual |
 | **Ex-TIPI** | Exceção tarifária na Tabela de Incidência do IPI |
 | **AFRMM** | Adicional ao Frete para Renovação da Marinha Mercante |
-| **Smart Read** | Recurso de leitura inteligente via OCR + IA para extrair dados de documentos |
+| **Smart Docs** | Recurso de leitura inteligente via OCR + IA para extrair dados de documentos |
 | **Portal Único** | Sistema do governo federal para declarações de importação/exportação |
 | **Incoterm** | International Commercial Terms — termos padrão de comércio internacional (FOB, CIF, EXW, etc.) |
 | **Catálogo** | Tabela de despesas pré-configuradas reutilizáveis |
@@ -17925,7 +17925,7 @@ B2B Stack lista preco base como R$ 0,00, o que provavelmente refere-se ao Flex (
 | **API publica REST** | :red_circle: Ausente | :green_circle: API Cockpit planejado | **Gravity** |
 | **Multi-tenant** | :red_circle: Nao (SaaS unico) | :green_circle: Isolamento zero-trust | **Gravity** |
 | **Integracao ERP (SAP, TOTVS)** | :red_circle: Ausente | :green_circle: Conector ERP planejado | **Gravity** |
-| **Smart Read (OCR + IA)** | :red_circle: Ausente | :green_circle: Ja funcional no Gravity | **Gravity** |
+| **Smart Docs (OCR + IA)** | :red_circle: Ausente | :green_circle: Ja funcional no Gravity | **Gravity** |
 | **Gestao de Processos COMEX** | :yellow_circle: Basica (Xpert) | :green_circle: Modulo Processo completo | **Gravity** |
 | **Exportacao (DU-E)** | :yellow_circle: Mencionado, nao detalhado | :green_circle: Modulo Processo suporta | **Gravity** |
 | **Pay-per-use** | :green_circle: Flex | :red_circle: Nao planejado | Maino |
@@ -17949,7 +17949,7 @@ B2B Stack lista preco base como R$ 0,00, o que provavelmente refere-se ao Flex (
 
 1. **LPCO completo:** Maino NAO tem gestao de LPCO. O Gravity tera modulo completo com 16 orgaos anuentes, controle de saldo Flex, exigencias, vinculacao a DUIMP/DU-E. Este e o **maior gap competitivo.** :orange_circle:
 2. **API publica (API Cockpit):** A Maino nao tem API. O Gravity permitira integracoes bidirecionais com ERPs, automacao via tokens. :orange_circle:
-3. **Smart Read (OCR + IA):** Upload de fatura/packing list com extracao automatica por IA. Maino nao tem. :green_circle:
+3. **Smart Docs (OCR + IA):** Upload de fatura/packing list com extracao automatica por IA. Maino nao tem. :green_circle:
 4. **Multi-tenant com isolamento zero-trust:** Arquitetura moderna vs SaaS monolitico. :orange_circle:
 5. **Integracao ERP nativa:** Conector ERP para SAP/TOTVS/Oracle — a Maino nao conecta. :orange_circle:
 6. **Rateio avancado:** Mais metodos (quantidade, custom) alem de peso/valor. :orange_circle:
@@ -17979,7 +17979,7 @@ O Gravity **NAO deve competir com a Maino como ERP**. A Maino e forte como ERP p
 
 1. **Priorizar LPCO:** E o maior gap do mercado. Maino nao tem, e nenhum concorrente tem modulo LPCO integrado com NF-e de importacao. Lancar primeiro cria moat defensavel. :orange_circle:
 
-2. **NF-e deve ser tao boa quanto Maino (ou melhor):** O benchmark e "2 minutos" — o Gravity precisa igualar ou superar. Adicionar Smart Read como diferencial exclusivo. :orange_circle:
+2. **NF-e deve ser tao boa quanto Maino (ou melhor):** O benchmark e "2 minutos" — o Gravity precisa igualar ou superar. Adicionar Smart Docs como diferencial exclusivo. :orange_circle:
 
 3. **API Cockpit como diferencial hard:** A ausencia de API na Maino e uma dor real para empresas que usam SAP/TOTVS. O Gravity pode capturar mid-market e enterprise com integracoes. :orange_circle:
 
@@ -18509,7 +18509,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 | Exportacao TOTVS | PLANEJADO | NAO | SIM | NATIVO | VIA INTEGRACAO | NAO | NAO |
 | Exportacao Excel/CSV | PLANEJADO | PROVAVEL | SIM | SIM | SIM | PROVAVEL | NAO |
 | Exportacao TXT posicao fixa | PLANEJADO | NAO | NAO | NAO | NAO | NAO | NAO |
-| Smart Read (IA recibos) | PLANEJADO | NAO | NAO | NAO | SIM (auditoria) | NAO | NAO |
+| Smart Docs (IA recibos) | PLANEJADO | NAO | NAO | NAO | SIM (auditoria) | NAO | NAO |
 | Catalogo despesas livre | PLANEJADO | NAO CONFIRMADO | NAO CONFIRMADO | FIXO | NAO CONFIRMADO | NAO CONFIRMADO | NAO |
 | Template de despesas | PLANEJADO | NAO | NAO | NAO | NAO | NAO | NAO |
 | Favoritos fiscais (NCM) | PLANEJADO | NAO | NAO CONFIRMADO | NAO | NAO | NAO | NAO |
@@ -18528,7 +18528,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 | Layout de exportacao customizavel pelo usuario | Ninguem | Todos | **ALTA — diferencial exclusivo** |
 | Exportacao TXT posicao fixa para ERPs legados | Ninguem em SaaS | Todos | **ALTA — nicho nao atendido** |
 | NF Entrada via DUIMP nativa (sem XML) | Maino, Narwal | ComexNFe, muitos legados | **ALTA — janela temporal** |
-| Smart Read de recibos com IA | Narwal (parcial) | Maioria | **MEDIA — diferencial tech** |
+| Smart Docs de recibos com IA | Narwal (parcial) | Maioria | **MEDIA — diferencial tech** |
 | Template de despesas por empresa | Ninguem | Todos | **MEDIA — produtividade** |
 | Favoritos fiscais (CFOP+CSTs por NCM) | Ninguem | Todos | **MEDIA — produtividade** |
 | Dark mode / UX moderna | Ninguem no COMEX | Todos | **MEDIA — diferencial UX** |
@@ -18569,8 +18569,8 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
   - 9 milhoes de empresas no Brasil ja usam IA sistematicamente (AWS, 2025) [ALTA]
   - Narwal ja usa IA para catalogo NCM e auditoria de despesas [MEDIA]
   - Tendencia 2026: "IA elimina digitacao manual no comex" (CNDL/VarejoSA) [ALTA]
-- **Impacto no Gravity:** Feature "Smart Read" de recibos/PDFs alinha perfeitamente com esta tendencia
-- **Recomendacao:** Implementar Smart Read como diferencial de Fase 1. Expandir para leitura de DUIMP/BL em Fase 2.
+- **Impacto no Gravity:** Feature "Smart Docs" de recibos/PDFs alinha perfeitamente com esta tendencia
+- **Recomendacao:** Implementar Smart Docs como diferencial de Fase 1. Expandir para leitura de DUIMP/BL em Fase 2.
 
 **Fontes:**
 - https://cndl.org.br/varejosa/tendencia-2026-ia-elimina-digitacao-manual-e-redefine-a-eficiencia-no-comex/
@@ -18683,7 +18683,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 | Narwal adiciona rateio avancado | Media | Alto | Lancar rapido, construir base antes |
 | Maino expande motor de rateio | Media | Medio | Diferenciar com layout customizavel |
 | TOTVS lanca modulo standalone | Baixa | Alto | Foco em UX e preco inacessivel TOTVS |
-| Novo entrante com IA-first | Media | Medio | Implementar Smart Read cedo |
+| Novo entrante com IA-first | Media | Medio | Implementar Smart Docs cedo |
 | Mudanca regulatoria inesperada | Media | Alto | Arquitetura fiscal modular |
 
 ### Acoes Imediatas
@@ -18753,7 +18753,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 - **Sem solucao completa:** nenhum dos 10 concorrentes analisados oferece rateio com 9 metodos + layout customizavel + DUIMP native acessivel
 
 **Solucao:** Motor de emissao de NF-e de importacao que:
-1. **Puxa dados da DUIMP** via Portal Unico (certificado/token) ou Smart Read de PDF
+1. **Puxa dados da DUIMP** via Portal Unico (certificado/token) ou Smart Docs de PDF
 2. **Rateia despesas operacionais** com 9 metodos combinaveis por despesa, preview em tempo real
 3. **Emite NF-e na SEFAZ** com transmissao direta (certificado digital ja existente no Gravity)
 4. **Exporta para qualquer ERP** via layout customizavel (TXT, XML, JSON, Excel, PDF)
@@ -18825,7 +18825,7 @@ O mercado brasileiro de software COMEX esta em transformacao acelerada impulsion
 3. TXT posicao fixa para ERPs legados (em SaaS)
 4. Template de despesas por empresa
 5. Favoritos fiscais (CFOP + CSTs por NCM)
-6. Smart Read de recibos de despesas para entrada de dados
+6. Smart Docs de recibos de despesas para entrada de dados
 
 ### Oportunidade
 
@@ -18943,7 +18943,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | ID | Requisito | Prioridade | Complexidade |
 |----|-----------|-----------|-------------|
 | RF-001 | Importar dados da DUIMP via Portal Unico (certificado digital ou token) | Must-have | GG |
-| RF-002 | Importar dados da DUIMP via upload de PDF + Smart Read (OCR+IA) | Must-have | G |
+| RF-002 | Importar dados da DUIMP via upload de PDF + Smart Docs (OCR+IA) | Must-have | G |
 | RF-003 | Vincular NF a Processo existente no Gravity (auto-preenche dados da DUIMP) | Must-have | M |
 | RF-004 | Digitar dados manualmente (formulario completo) | Must-have | M |
 | RF-005 | Importar dados via ERP (Conector ERP / API Cockpit) | Must-have | M |
@@ -18955,7 +18955,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | RF-010 | Catalogo de despesas por empresa (nome LIVRE, metodo padrao, conta contabil) | Must-have | M |
 | RF-011 | Template de despesas fixas por empresa (auto-popula a cada NF) | Must-have | M |
 | RF-012 | Adicionar despesas ad-hoc por NF (alem do template) | Must-have | P |
-| RF-013 | Smart Read de recibos/demonstrativos — upload PDF → IA extrai tipo + valor | Must-have | G |
+| RF-013 | Smart Docs de recibos/demonstrativos — upload PDF → IA extrai tipo + valor | Must-have | G |
 | RF-014 | Importar despesas de planilha (Excel/CSV) | Should-have | M |
 | RF-015 | Vincular documento comprobatorio a cada despesa | Should-have | P |
 
@@ -19076,7 +19076,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 2. Clica em "+ Nova NF"
 3. Step 0 — "De onde vem a DUIMP?"
    a) Portal Unico → autentica → seleciona DUIMP → puxa dados → Step 1
-   b) Upload PDF → Smart Read (OCR+IA) → preview amarelo → confirma → Step 1
+   b) Upload PDF → Smart Docs (OCR+IA) → preview amarelo → confirma → Step 1
    c) Processo Gravity → seleciona Processo → auto-preenche → Step 1
    d) ERP/API → dados ja vem via integracao → Step 1
    e) Manual → formulario em branco → Step 1
@@ -19086,7 +19086,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
    - Taxa de cambio (PTAX ou configuravel)
 5. Step 2: Despesas operacionais
    - Template auto-popula despesas fixas (se configurado)
-   - Smart Read de recibos → IA extrai tipo + valor
+   - Smart Docs de recibos → IA extrai tipo + valor
    - Adicionar despesas ad-hoc
    - Para cada despesa: valor total + metodo de rateio
 6. Step 3: Rateio (preview em tempo real)
@@ -19110,10 +19110,10 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 9. NF emitida — historico registrado, status "autorizada"
 ```
 
-### Fluxo — Smart Read de Despesas
+### Fluxo — Smart Docs de Despesas
 
 ```
-1. Step 2, usuario clica "Importar via Smart Read"
+1. Step 2, usuario clica "Importar via Smart Docs"
 2. Upload de recibos/demonstrativos (PDF ou imagem)
 3. OCR+IA extrai: tipo de despesa, valor, CNPJ prestador, data
 4. IA tenta mapear para catalogo da empresa (ex: "THC" → "Capatazia")
@@ -19153,7 +19153,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | T-00 | Origem da DUIMP | `/nf-importacao/nova` | Step 0: 5 cards (Portal Unico, PDF, Processo, ERP, Manual) |
 | T-01 | Lista de NFs | `/nf-importacao` | Grid com filtros, status SEFAZ |
 | T-02 | Dados da DUIMP | `/nf-importacao/nova/duimp` | Step 1: itens, valores, cambio |
-| T-03 | Despesas | `/nf-importacao/nova/despesas` | Step 2: template + Smart Read + manual |
+| T-03 | Despesas | `/nf-importacao/nova/despesas` | Step 2: template + Smart Docs + manual |
 | T-04 | Rateio | `/nf-importacao/nova/rateio` | Step 3: tabela matricial com preview |
 | T-05 | Fiscal | `/nf-importacao/nova/fiscal` | Step 4: CFOP, CSTs, ICMS, totais |
 | T-06 | Revisao + Emissao | `/nf-importacao/nova/emissao` | Step 5: preview + emitir SEFAZ |
@@ -19186,7 +19186,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | **SEFAZ** | Webservice bidirecional | Emissao, cancelamento, CC-e, contingencia |
 | **Portal Unico Siscomex** | API (certificado/token) | Puxa dados da DUIMP |
 | **Processo Gravity** | Vinculo interno | DUIMP do Processo → auto-preenche |
-| **Smart Read** | OCR+IA existente | PDF DUIMP + recibos de despesas |
+| **Smart Docs** | OCR+IA existente | PDF DUIMP + recibos de despesas |
 | **API Cockpit** | Tokens `gv_live_sk_` | ERP cria NFs via API |
 | **Conector ERP** | OData/REST existente | Importa dados do ERP |
 | **Certificado digital** | Infra existente | AES-256-GCM, mesmo padrao LPCO |
@@ -19217,7 +19217,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | Taxa de rejeicao SEFAZ | < 5% | NFs rejeitadas / total emitidas |
 | Taxa de erro de rateio | 0% | NFs complementares / total |
 | Adocao de templates | > 70% dos tenants com template | Count |
-| NFs via Smart Read | > 30% | Count por canal |
+| NFs via Smart Docs | > 30% | Count por canal |
 | NPS | > 40 | Pesquisa trimestral |
 | Churn mensal | < 3% | Padrao SaaS B2B |
 
@@ -19241,7 +19241,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | Variedade de layouts ERP | Alta | Alto | Construtor generico + pre-sets SAP/TOTVS |
 | ICMS por dentro com beneficios fiscais | Media | Alto | Favoritos fiscais — usuario decide e salva. SME valida regras |
 | Reforma tributaria (IBS/CBS substituindo ICMS/PIS/COFINS) | Media | Alto | Arquitetura fiscal modular, aliquotas nao hardcoded |
-| Smart Read baixa precisao em recibos | Media | Medio | Preview obrigatorio, feedback loop |
+| Smart Docs baixa precisao em recibos | Media | Medio | Preview obrigatorio, feedback loop |
 | Concorrente adiciona rateio avancado | Media | Alto | Lancar rapido, construir base |
 
 ---
@@ -19257,7 +19257,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 | Rateio independente por despesa | Metodo unico por NF | Confirmado pelo dono: despesas diferentes, rateios diferentes |
 | Construtor de layout generico | Apenas pre-sets | Cada ERP tem layout proprio |
 | Brasil inteiro (SEFAZ nacional) | Apenas Sul/Sudeste MVP | SEFAZ e protocolo nacional. Diferenca e aliquota ICMS — resolvida por favoritos |
-| Smart Read para recibos | Apenas digitacao | Despachantes recebem dezenas de PDFs — Smart Read reduz 80% |
+| Smart Docs para recibos | Apenas digitacao | Despachantes recebem dezenas de PDFs — Smart Docs reduz 80% |
 | Taxa de cambio como campo | Sem rastreabilidade | Essencial para auditoria de conversao BRL/USD |
 
 --- documentos-tecnicos/produtos-gravity/nf-importacao/TECNICO-VISAO-CONSOLIDADA.md ---
@@ -19269,7 +19269,7 @@ NAO competir como: ERP completo (TOTVS, Maino), suite COMEX (Narwal, Conexos), a
 
 ## 1. Visão Geral do Produto
 
-**NF Importação** é um módulo de gestão de Notas Fiscais de Importação dentro do ecossistema Gravity. Gerencia o ciclo completo de uma NF fiscal de importação: da entrada do dado (XML, Smart Read, Portal Único, Manual, ERP) à composição de despesas e rateios, até a exportação para ERPs (TOTVS Protheus, SAP, SENIOR, CSV, XML, JSON, Custom).
+**NF Importação** é um módulo de gestão de Notas Fiscais de Importação dentro do ecossistema Gravity. Gerencia o ciclo completo de uma NF fiscal de importação: da entrada do dado (XML, Smart Docs, Portal Único, Manual, ERP) à composição de despesas e rateios, até a exportação para ERPs (TOTVS Protheus, SAP, SENIOR, CSV, XML, JSON, Custom).
 
 ### Stack Técnica
 
@@ -19499,7 +19499,7 @@ direcao: asc | desc
 | POST | `/:id/despesas` | Adiciona despesa |
 | PUT | `/:id/despesas/:despesaId` | Atualiza despesa (partial) |
 | DELETE | `/:id/despesas/:despesaId` | Remove despesa (cascade rateios) |
-| POST | `/:id/despesas/smart-read` | Smart Read via OCR (async, 202) |
+| POST | `/:id/despesas/smart-read` | Smart Docs via OCR (async, 202) |
 | POST | `/:id/despesas/aplicar-template` | Aplica template de despesas |
 
 #### POST — Body
@@ -20108,7 +20108,7 @@ calcularRateio(metodo, valorTotal, itens, valoresManual?)
   tamanho_bytes: number
   storage_key: string          // Chave no armazenamento externo
 
-  // Smart Read
+  // Smart Docs
   smart_read_processado?: boolean
   smart_read_resultado?: JSON  // Resultado OCR/AI
 
@@ -20476,7 +20476,7 @@ O error handler global retorna sempre:
 As seguintes funcionalidades existem como stub no backend mas ainda precisam de implementação completa:
 
 1. **Parser XML** (`nfImportar.ts`) — leitura completa de XML DUIMP/DI
-2. **Smart Read OCR** — processamento assíncrono com IA/OCR
+2. **Smart Docs OCR** — processamento assíncrono com IA/OCR
 3. **Integração Portal Único** — chamadas à API Siscomex
 4. **Formatadores de Exportação** — TOTVS Protheus, SAP, SENIOR
 5. **Páginas do cliente** — todas as páginas são UI stub, precisam de formulários
@@ -23416,7 +23416,7 @@ O sistema resolve:
 
 ### O que NAO esta no MVP
 
-- Smart Read (leitura inteligente de documentos) — Fase 2 (produto Gravity ja existente, integracao futura)
+- Smart Docs (leitura inteligente de documentos) — Fase 2 (produto Gravity ja existente, integracao futura)
 - Dashboard analitico de pedidos — Fase 2
 - Alertas automaticos de saldo baixo — Fase 2
 - Workflow de aprovacao de pedidos — Fase 3
@@ -25399,7 +25399,7 @@ Rota: `PUT /api/v1/pedidos/:id/itens/:itemId` (Zod `.strict()` — campo fora do
 | **A. Manual** | Drawer lateral — criar e editar pelo mesmo painel | Substituir NovoPedido.tsx |
 | **B. Importar** | Smart import com IA, memória e validação linha a linha | Redesenhar ImportarArquivo.tsx |
 | **C. API Cockpit** | Via integração usando API Cockpit | Futuro |
-| **D. Smart Read** | Produto existente que lê documentos de pedido | Futuro |
+| **D. Smart Docs** | Produto existente que lê documentos de pedido | Futuro |
 
 ---
 

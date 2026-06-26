@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   CaretDown,
+  ArrowsOut,
   CircleNotch,
   FileText,
   Info,
@@ -20,24 +21,36 @@ import {
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { smartReadApi } from '../../shared/api'
 import {
-  analisarRiscosAduaneirosLeitura,
   aplicarCorrecaoSugeridaPadraoRisco,
   montarDocumentosAnaliseRiscoDeArquivosLocais,
 } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
+import { executarAuditoriaV1AnaliseRiscosLeitura } from '../../../../shared/analise-riscos-leitura-smart-read'
+import type { RegraAuditoriaV1 } from '../../../../shared/analise-riscos-leitura-smart-read'
+import { montarResumoGeralChecklistInvoices } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
+import { ModalChecklistConferenciaNovaLeituraSmartRead } from './modal-checklist-conferencia-nova-leitura-smart-read'
 import type {
   CategoriaRiscoAduaneiro,
   RiscoAduaneiroLeitura,
   SeveridadeRiscoAduaneiro,
 } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
+import type { SecaoMatrizInvoice } from '../../../../shared/matriz-validacao-invoice-smart-read'
+import {
+  ROTULO_SECAO_MATRIZ_INVOICE,
+} from '../../../../shared/matriz-validacao-invoice-smart-read'
+import { ehRiscoClassificacaoFiscal } from '../../../../shared/texto-analise-riscos-leitura-smart-read'
 import { EvidenciaVisualRiscoNovaLeituraSmartRead } from './evidencia-visual-risco-nova-leitura-smart-read'
 import { AcoesCorrecaoRiscoNovaLeituraSmartRead } from './acoes-correcao-risco-nova-leitura-smart-read'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 import '../../../../../../../nucleo-global/Tabelas/tabela-virtual-global/src/FiltrosColuna/FiltrosColuna.css'
 import '../../../../../processo/client/src/pages/dados-tecnicos/DadosTecnicos.css'
 
+import type { ResumoUsoLlmLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
+
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
+  idLeituraLegado?: string | null
+  onTokensAtualizados?: (resumo: ResumoUsoLlmLeituraSmartRead | null | undefined) => void
 }
 
 type FiltroRisco = 'todos' | SeveridadeRiscoAduaneiro
@@ -80,6 +93,20 @@ function rotuloSeveridade(severidade: SeveridadeRiscoAduaneiro): string {
     default:
       return 'Informativo'
   }
+}
+
+function rotuloStatusMatriz(status: RiscoAduaneiroLeitura['status_matriz']): string | null {
+  if (status === 'vermelho') return 'Vermelho'
+  if (status === 'amarelo') return 'Amarelo'
+  if (status === 'verde') return 'Verde'
+  return null
+}
+
+function classeStatusMatriz(status: RiscoAduaneiroLeitura['status_matriz']): string {
+  if (status === 'vermelho') return 'sr-conf-risco-badge--critico'
+  if (status === 'amarelo') return 'sr-conf-risco-badge--atencao'
+  if (status === 'verde') return 'sr-conf-risco-badge--informativo'
+  return ''
 }
 
 function rotuloOrigem(origem: RiscoAduaneiroLeitura['origem']): string {
@@ -130,6 +157,7 @@ function LinhaRisco({
   selecionado,
   onToggleSelecao,
   numero,
+  aguardandoClassificacao = false,
 }: {
   risco: RiscoAduaneiroLeitura
   arquivos: ArquivoLocalNovaLeitura[]
@@ -137,6 +165,7 @@ function LinhaRisco({
   selecionado: boolean
   onToggleSelecao: (id: string) => void
   numero: number
+  aguardandoClassificacao?: boolean
 }) {
   const risco = aplicarCorrecaoSugeridaPadraoRisco(riscoBruto)
   const contextoEvidencia = {
@@ -152,6 +181,7 @@ function LinhaRisco({
 
   return (
     <article
+      id={`sr-risco-${risco.id}`}
       className={`sr-conf-risco-linha sr-conf-risco-linha--${risco.severidade}${selecionado ? ' sr-conf-risco-linha--selecionado' : ''}`}
     >
       <div className="sr-conf-risco-linha-topo">
@@ -173,6 +203,16 @@ function LinhaRisco({
         <span className={`sr-conf-risco-badge sr-conf-risco-badge--${risco.severidade}`}>
           {rotuloSeveridade(risco.severidade)}
         </span>
+        {risco.status_matriz && (
+          <span className={`sr-conf-risco-badge ${classeStatusMatriz(risco.status_matriz)}`}>
+            {rotuloStatusMatriz(risco.status_matriz)}
+          </span>
+        )}
+        {risco.id_regra_matriz && (
+          <span className="sr-conf-risco-origem sr-conf-risco-origem--v1" title="Regra da matriz">
+            {risco.id_regra_matriz}
+          </span>
+        )}
         <span className={`sr-conf-risco-origem sr-conf-risco-origem--${risco.origem ?? 'v1'}`}>
           {risco.origem === 'llm' ? (
             <Sparkle size={10} weight="fill" aria-hidden />
@@ -232,11 +272,25 @@ function LinhaRisco({
           </div>
         )}
 
-        {risco.correcao_sugerida && (
+        {risco.correcao_sugerida ? (
           <aside className="sr-conf-risco-correcao sr-conf-risco-correcao--abaixo" aria-label="Correção sugerida">
             <span className="sr-conf-risco-correcao-rotulo">Correção sugerida</span>
             <p>{risco.correcao_sugerida}</p>
           </aside>
+        ) : (
+          aguardandoClassificacao &&
+          ehRiscoClassificacaoFiscal(risco.titulo, risco.categoria) && (
+            <aside
+              className="sr-conf-risco-correcao sr-conf-risco-correcao--abaixo sr-conf-risco-correcao--pendente"
+              aria-label="Classificação fiscal em análise"
+            >
+              <span className="sr-conf-risco-correcao-rotulo">Classificação fiscal</span>
+              <p>
+                <CircleNotch size={14} className="sr-wizard-analise-arquivo-spin" aria-hidden />{' '}
+                IA analisando descrição do item para sugerir NCM/HS (de → para)…
+              </p>
+            </aside>
+          )
         )}
       </div>
     </article>
@@ -246,6 +300,8 @@ function LinhaRisco({
 export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   arquivos,
   onVerEvidencia,
+  idLeituraLegado = null,
+  onTokensAtualizados,
 }: Props) {
   const requisicaoSeq = useRef(0)
   const [resumo, setResumo] = useState({
@@ -263,6 +319,10 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const [painelColapsado, setPainelColapsado] = useState(false)
   const [categoriasColapsadas, setCategoriasColapsadas] = useState<Set<string>>(() => new Set())
   const [riscosSelecionados, setRiscosSelecionados] = useState<Set<string>>(() => new Set())
+  const [regrasContexto, setRegrasContexto] = useState<RegraAuditoriaV1[]>([])
+  const [pipelineConcluido, setPipelineConcluido] = useState(false)
+  const [llmHabilitado, setLlmHabilitado] = useState(false)
+  const [modalChecklistAberto, setModalChecklistAberto] = useState(false)
 
   const arquivosAnalisaveis = useMemo(
     () => arquivos.filter((a) => a.status_arquivo_local === 'completo'),
@@ -279,10 +339,42 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     [documentos],
   )
 
-  const resumoV1 = useMemo(
-    () => (documentos.length === 0 ? null : analisarRiscosAduaneirosLeitura(arquivosAnalisaveis)),
-    [arquivosAnalisaveis, documentos.length, chaveAnalise],
+  const auditoriaV1Local = useMemo(
+    () =>
+      documentos.length === 0
+        ? null
+        : executarAuditoriaV1AnaliseRiscosLeitura(documentos),
+    [documentos, chaveAnalise],
   )
+
+  const parametrosChecklist = useMemo(
+    () => ({
+      regras: regrasContexto,
+      riscos: resumo.riscos,
+      pipelineConcluido,
+      llmHabilitado,
+      carregando,
+    }),
+    [regrasContexto, resumo.riscos, pipelineConcluido, llmHabilitado, carregando],
+  )
+
+  const resumoGeralChecklist = useMemo(
+    () =>
+      documentos.length === 0
+        ? null
+        : montarResumoGeralChecklistInvoices({ ...parametrosChecklist, documentos }),
+    [parametrosChecklist, documentos],
+  )
+
+  const contagemChecklist = resumoGeralChecklist?.contagem_global ?? {
+    verde: 0,
+    amarelo: 0,
+    vermelho: 0,
+    pendente: 0,
+    total: 0,
+  }
+
+  const percentualChecklistVerde = resumoGeralChecklist?.percentual_global ?? 0
 
   const percentualConformidade = useMemo(() => {
     if (resumo.total === 0) return 100
@@ -340,6 +432,26 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   }, [riscosFiltrados])
 
   const secoesCategoria = useMemo(() => {
+    const usaMatriz = riscosFiltrados.some((r) => r.secao_matriz)
+    if (usaMatriz) {
+      const mapa = new Map<SecaoMatrizInvoice, RiscoAduaneiroLeitura[]>()
+      for (const risco of riscosFiltrados) {
+        const chave = risco.secao_matriz ?? ('itens_fiscais' as SecaoMatrizInvoice)
+        const lista = mapa.get(chave) ?? []
+        lista.push(risco)
+        mapa.set(chave, lista)
+      }
+      return [...mapa.entries()]
+        .map(([secao, riscos]) => ({
+          id: `sr-risco-secao-${secao}`,
+          categoria: secao as unknown as CategoriaRiscoAduaneiro,
+          titulo: ROTULO_SECAO_MATRIZ_INVOICE[secao],
+          riscos,
+          criticos: riscos.filter((r) => r.severidade === 'critico').length,
+        }))
+        .sort((a, b) => b.criticos - a.criticos || a.titulo.localeCompare(b.titulo, 'pt-BR'))
+    }
+
     const mapa = new Map<CategoriaRiscoAduaneiro, RiscoAduaneiroLeitura[]>()
     for (const risco of riscosFiltrados) {
       const lista = mapa.get(risco.categoria) ?? []
@@ -361,8 +473,13 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     secoesCategoria.length > 0 && secoesCategoria.every((s) => categoriasColapsadas.has(s.id))
 
   useEffect(() => {
-    if (resumoV1) setResumo(resumoV1)
-  }, [resumoV1])
+    if (auditoriaV1Local) {
+      setResumo(auditoriaV1Local.resumo)
+      setRegrasContexto(auditoriaV1Local.contexto.regras)
+      setPipelineConcluido(false)
+      setLlmHabilitado(false)
+    }
+  }, [auditoriaV1Local])
 
   useEffect(() => {
     if (documentos.length === 0) return
@@ -371,22 +488,42 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     setCarregando(true)
     setErro(null)
     setAviso(null)
+    setPipelineConcluido(false)
 
     smartReadApi
-      .analisarRiscosLeitura({ documentos, incluir_llm: true })
+      .analisarRiscosLeitura({
+        documentos,
+        incluir_llm: true,
+        id_leitura_legado: idLeituraLegado ?? undefined,
+      })
       .then((resposta) => {
         if (requisicaoSeq.current !== seq) return
         setResumo(resposta.resumo)
+        setRegrasContexto(resposta.contexto_v1.regras)
+        setLlmHabilitado(resposta.llm_ativo)
         setAviso(resposta.aviso ?? null)
+        setPipelineConcluido(true)
+        onTokensAtualizados?.(resposta.uso_llm_leitura)
       })
       .catch((ex: unknown) => {
         if (requisicaoSeq.current !== seq) return
         setErro(ex instanceof Error ? ex.message : 'Falha na análise de riscos')
+        setPipelineConcluido(!!auditoriaV1Local)
       })
       .finally(() => {
         if (requisicaoSeq.current === seq) setCarregando(false)
       })
-  }, [chaveAnalise, documentos])
+  }, [chaveAnalise, documentos, idLeituraLegado, onTokensAtualizados, auditoriaV1Local])
+
+  function scrollParaRisco(riscoId: string) {
+    const el = document.getElementById(`sr-risco-${riscoId}`)
+    el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }
+
+  function verRiscoDoChecklist(riscoId: string) {
+    setModalChecklistAberto(false)
+    window.requestAnimationFrame(() => scrollParaRisco(riscoId))
+  }
 
   function toggleCategoria(id: string) {
     setCategoriasColapsadas((prev) => {
@@ -557,6 +694,49 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         )}
       </section>
 
+      <section className="sr-conf-checklist-bloco" aria-label="Checklist de conferência da matriz invoice">
+        <button
+          type="button"
+          className="sr-conf-checklist-header sr-conf-checklist-header--expandir"
+          onClick={() => setModalChecklistAberto(true)}
+          aria-haspopup="dialog"
+        >
+          <div className="sr-conf-checklist-header-esq">
+            <ArrowsOut weight="bold" size={16} className="sr-conf-checklist-expandir-icone" aria-hidden />
+            <div className="sr-conf-checklist-titulo-grupo">
+              <strong className="sr-conf-checklist-titulo">Checklist de Conferência</strong>
+              <span className="sr-conf-checklist-subtitulo">
+                {resumoGeralChecklist?.total_invoices ?? 0} invoice(s) · {contagemChecklist.total}{' '}
+                avaliações — clique para expandir
+              </span>
+            </div>
+            <span className="sr-conf-checklist-pct">{percentualChecklistVerde}% conforme</span>
+          </div>
+          <div className="sr-conf-checklist-resumo" aria-label="Resumo do checklist">
+            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--verde">
+              {contagemChecklist.verde} CONFORME
+            </span>
+            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--amarelo">
+              {contagemChecklist.amarelo} ATENÇÃO
+            </span>
+            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--vermelho">
+              {contagemChecklist.vermelho} FALHA
+            </span>
+            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--pendente">
+              {contagemChecklist.pendente} PENDENTE
+            </span>
+          </div>
+        </button>
+      </section>
+
+      <ModalChecklistConferenciaNovaLeituraSmartRead
+        aberto={modalChecklistAberto}
+        onFechar={() => setModalChecklistAberto(false)}
+        documentos={documentos}
+        parametrosChecklist={parametrosChecklist}
+        onVerRisco={verRiscoDoChecklist}
+      />
+
       <p className="sr-conf-riscos-disclaimer">
         Auditoria V1 + IA comercial + validação NCM Siscomex. Apoio à conferência — não substitui despacho aduaneiro.
       </p>
@@ -692,6 +872,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                       selecionado={riscosSelecionados.has(risco.id)}
                       onToggleSelecao={toggleSelecaoRisco}
                       numero={numeracaoRiscos.get(risco.id) ?? 0}
+                      aguardandoClassificacao={carregando}
                     />
                   ))}
                 </div>

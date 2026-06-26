@@ -6,6 +6,8 @@
  * (kebab-case para o registry, PascalCase no React).
  */
 
+import { NOME_PRODUTO_EXIBICAO } from './marca-smart-docs'
+
 export interface NavigationItem {
   id:            string
   label:         string
@@ -24,7 +26,7 @@ export interface NavigationItem {
 export const PRODUCT_CONFIG = {
   id: 'smart-read',
   productId: 'smart-read',
-  name: 'Smart Read',
+  name: NOME_PRODUTO_EXIBICAO,
   port: 8033,
   color: '#a78bfa',
 
@@ -42,8 +44,8 @@ export const PRODUCT_CONFIG = {
       ],
     },
 
-    // ── Smart Read ──────────────────────────────────────────────────────────
-    { id: 'section-smart-read',  label: 'Smart Read', sectionDivider: true },
+    // ── Smart Docs (marca em tela) ───────────────────────────────────────────
+    { id: 'section-smart-read',  label: NOME_PRODUTO_EXIBICAO, sectionDivider: true },
 
     // Lista/Insights: toggle no topo da tela (SmartReadVisualizacaoTabs) — não item do menu lateral.
 

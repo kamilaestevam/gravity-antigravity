@@ -132,5 +132,35 @@ describe('Smart Read — analisar riscos aduaneiros', () => {
     ])
 
     expect(resumo.riscos.some((r) => r.titulo === 'Divergência no total da linha')).toBe(true)
+    const linha = resumo.riscos.find((r) => r.titulo === 'Divergência no total da linha')
+    expect(linha?.analise).toContain('na linha 1')
+    expect(linha?.analise).toContain('itemQuantity')
+    expect(linha?.analise).toContain('itemUnitPriceWithCurrency')
+    expect(linha?.analise).toContain('divergência')
+  })
+
+  it('classificacao fiscal V1 nao usa instrucao meta para IA', () => {
+    const resumo = analisarRiscosAduaneirosLeitura([
+      arquivoCompletoMock(
+        'invoice.pdf',
+        {
+          document: { incoterm: 'FOB' },
+          importer: { cnpj: '11.444.777/0001-61' },
+          items: [
+            {
+              descriptions: { portuguese: 'Diodo semicondutor SOT-23' },
+              ncm: 'ncm',
+            },
+          ],
+        },
+        'INVOICE',
+      ),
+    ])
+
+    const ncm = resumo.riscos.find((r) => r.titulo.includes('NCM ausente'))
+    expect(ncm).toBeDefined()
+    expect(ncm?.motivo).toContain('Diodo semicondutor')
+    expect(ncm?.analise).not.toContain('A IA deve')
+    expect(ncm?.correcao_sugerida).toBeUndefined()
   })
 })

@@ -228,7 +228,7 @@ function getScreenContext(path: string): ScreenContext {
 
 const MOCK_RESPONSES: Record<string, string> = {
   'O que e a Gravity Store?':
-    'A **Gravity Store** e onde voce encontra todos os modulos da plataforma. Funciona como uma loja de aplicativos para comercio exterior.\n\nCada modulo resolve um problema especifico:\n\n* **SimulaCusto** — Calculo de custos de importacao\n* **Smart Read** — Leitura inteligente de documentos\n* **BID Frete Internacional** — Cotacao de frete internacional\n* **BID Cambio** — Comparacao de taxas cambiais\n\nVoce ativa so o que precisa e pode expandir a qualquer momento. Todos incluem **14 dias gratis**!',
+    'A **Gravity Store** e onde voce encontra todos os modulos da plataforma. Funciona como uma loja de aplicativos para comercio exterior.\n\nCada modulo resolve um problema especifico:\n\n* **SimulaCusto** — Calculo de custos de importacao\n* **Smart Docs** — Inteligência documental COMEX (extração, conferência, riscos)\n* **BID Frete Internacional** — Cotacao de frete internacional\n* **BID Cambio** — Comparacao de taxas cambiais\n\nVoce ativa so o que precisa e pode expandir a qualquer momento. Todos incluem **14 dias gratis**!',
   'Qual o proximo passo?':
     'Agora que voce esta criando sua empresa, o proximo passo e simples:\n\n* **1.** Digite o nome da empresa e clique em **Ir para Gravity Store**\n* **2.** Na Store, explore os modulos disponiveis\n* **3.** Ative os que fazem sentido para sua operacao — com **14 dias gratis**\n* **4.** Pronto! Voce ja pode comecar a usar a plataforma\n\nSe precisar de ajuda para escolher os modulos, estarei aqui na Store tambem!',
   'Como funciona o trial?':

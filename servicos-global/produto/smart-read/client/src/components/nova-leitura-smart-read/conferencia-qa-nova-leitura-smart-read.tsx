@@ -22,7 +22,9 @@ import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-lei
 import { smartReadApi } from '../../shared/api'
 import { montarDocumentosAnaliseRiscoDeArquivosLocais } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
 import { CorpoRespostaMarkdownConsultorSmartRead } from '../../shared/corpo-resposta-markdown-consultor-smart-read'
+import { NOME_PRODUTO_EXIBICAO } from '../../shared/marca-smart-docs'
 import type { MensagemHistoricoQaLeitura } from '../../../../shared/qa-leitura-smart-read'
+import type { ResumoUsoLlmLeituraSmartRead } from '../../../../shared/uso-llm-leitura-smart-read'
 
 type SugestaoQa = {
   id: string
@@ -51,6 +53,8 @@ type TurnoQaUi = {
 
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
+  idLeituraLegado?: string | null
+  onTokensAtualizados?: (resumo: ResumoUsoLlmLeituraSmartRead | null | undefined) => void
 }
 
 function montarHistoricoApi(turnos: TurnoQaUi[]): MensagemHistoricoQaLeitura[] {
@@ -63,7 +67,11 @@ function montarHistoricoApi(turnos: TurnoQaUi[]): MensagemHistoricoQaLeitura[] {
   return saida
 }
 
-export function ConferenciaQaNovaLeituraSmartRead({ arquivos }: Props) {
+export function ConferenciaQaNovaLeituraSmartRead({
+  arquivos,
+  idLeituraLegado = null,
+  onTokensAtualizados,
+}: Props) {
   const [pergunta, setPergunta] = useState('')
   const [turnos, setTurnos] = useState<TurnoQaUi[]>([])
   const [enviando, setEnviando] = useState(false)
@@ -96,7 +104,9 @@ export function ConferenciaQaNovaLeituraSmartRead({ arquivos }: Props) {
         documentos,
         pergunta: limpo,
         historico: historicoAnterior,
+        id_leitura_legado: idLeituraLegado ?? undefined,
       })
+      onTokensAtualizados?.(resultado.uso_llm_leitura)
       setTurnos((prev) =>
         prev.map((turno) =>
           turno.id === idTurno
@@ -189,7 +199,7 @@ export function ConferenciaQaNovaLeituraSmartRead({ arquivos }: Props) {
                     </span>
                     <div className="sr-conf-qa-card-titulos">
                       <h3>Rafa</h3>
-                      <span className="sr-conf-qa-card-subtitulo">Consultor Smart Read</span>
+                      <span className="sr-conf-qa-card-subtitulo">Consultor {NOME_PRODUTO_EXIBICAO}</span>
                     </div>
                   </header>
                   {turno.status === 'carregando' ? (

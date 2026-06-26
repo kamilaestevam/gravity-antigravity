@@ -412,7 +412,7 @@ model FinanceiroHistorico {
 | DELETE | `/api/v1/financeiro/:processoId/lancamentos/:id` | Excluir lançamento | S2S + tenant |
 | POST | `/api/v1/financeiro/:processoId/importar/xml` | Importar impostos via XML DUIMP | S2S + tenant |
 | POST | `/api/v1/financeiro/:processoId/importar/portal-unico` | Importar via Portal Único | S2S + tenant |
-| POST | `/api/v1/financeiro/:processoId/importar/smart-read` | Importar via Smart Read | S2S + tenant |
+| POST | `/api/v1/financeiro/:processoId/importar/smart-read` | Importar via Smart Docs | S2S + tenant |
 | POST | `/api/v1/financeiro/:processoId/importar/planilha` | Importar via Excel | S2S + tenant |
 
 ### Numerário
@@ -481,7 +481,7 @@ Usuário → Client (React, porta 5184)
 |:---|:---|:---|
 | `rateioAlgorithms.ts` | NF Importação | Import direto via S2S ou lib compartilhada |
 | `portalUnicoConnector.ts` | NF Importação | Reuso do mesmo conector DUIMP |
-| Smart Read service | NF Importação | Mesma API de OCR |
+| Smart Docs service | NF Importação | Mesma API de OCR |
 | `tenantIsolationMiddleware` | Gravity infra | Copy padrão |
 | `requireInternalKey` | Gravity infra | Copy padrão |
 | Serviços tenant | Gravity infra | Email, Histórico, Notificações via S2S |
@@ -516,7 +516,7 @@ Usuário → Client (React, porta 5184)
 | Modal Novo Lançamento | M | P | M | Formulário + validação Zod |
 | Importar via XML DUIMP | P | G | G | Parser XML SISCOMEX |
 | Importar via Portal Único | P | M | M | Reuso da integração NF Importação |
-| Importar via Smart Read | P | M | M | Reuso do serviço |
+| Importar via Smart Docs | P | M | M | Reuso do serviço |
 | Importar via Planilha Excel | P | M | M | Parser de template |
 | Numerário — Lista | P | P | P | Simples |
 | Numerário — Modal + upload PDF | M | P | M | Upload + preview |
@@ -571,7 +571,7 @@ Usuário → Client (React, porta 5184)
 
 ### O que é o Financeiro Comex?
 
-Módulo de gestão financeira de processos de importação e exportação. É vinculado a um **processo** (um por processo) e consolida todos os custos: impostos federais (importados do Portal Único/XML), taxas operacionais (lançadas manualmente ou via Smart Read/email) e numerário (adiantamentos ao despachante).
+Módulo de gestão financeira de processos de importação e exportação. É vinculado a um **processo** (um por processo) e consolida todos os custos: impostos federais (importados do Portal Único/XML), taxas operacionais (lançadas manualmente ou via Smart Docs/email) e numerário (adiantamentos ao despachante).
 
 ### Regras de negócio críticas (top 5)
 
@@ -712,7 +712,7 @@ Exibido abaixo do campo Taxa como "= R$ X.XXX,XX"
 
 1. **XML (DUIMP)** — Upload de arquivo .xml; preview dos impostos encontrados → confirmar
 2. **Portal Único** — Campo para número da DUIMP → busca → preview → confirmar
-3. **Smart Read** — Upload de PDF/imagem de fatura → OCR → preview campos → ajustar → confirmar
+3. **Smart Docs** — Upload de PDF/imagem de fatura → OCR → preview campos → ajustar → confirmar
 4. **Planilha** — Download de template + upload preenchido → preview → confirmar
 
 **Preview (comum a todos):**
@@ -977,7 +977,7 @@ Então a lista carrega em menos de 200ms
 | 9 | Importar via Portal Único (RF-006) | Alto | M | #5 |
 | 10 | Criar/listar Numerário (RF-020 a RF-024) | Alto | M | #2 |
 | 11 | Gerar planilha de Rateio (RF-030 a RF-033) | Alto | G | #5 |
-| 12 | Importar via Smart Read (RF-007) | Médio | G | #5 |
+| 12 | Importar via Smart Docs (RF-007) | Médio | G | #5 |
 | 13 | Importar via Planilha (RF-008) | Médio | M | #5 |
 | 14 | Histórico de alterações (RF-012) | Alto | P | #5 |
 | 15 | Filtros e exportação Excel (RF-013, RF-014) | Médio | P | #6 |
@@ -1223,7 +1223,7 @@ O catálogo de categorias, tipos de documento e tipos de fornecedor foram extra�
 
 ## 1. Resumo Executivo
 
-O **Financeiro Comex** é o módulo de gestão e automação de custos de processos de importação e exportação. Ele consolida todos os lançamentos financeiros de um processo (impostos federais, taxas operacionais, câmbio), oferece múltiplas formas de entrada (manual, planilha, XML, Smart Read, Portal Único, email) e produz como saída a planilha de rateio por produto e o espelho de custos para a NF de entrada.
+O **Financeiro Comex** é o módulo de gestão e automação de custos de processos de importação e exportação. Ele consolida todos os lançamentos financeiros de um processo (impostos federais, taxas operacionais, câmbio), oferece múltiplas formas de entrada (manual, planilha, XML, Smart Docs, Portal Único, email) e produz como saída a planilha de rateio por produto e o espelho de custos para a NF de entrada.
 
 O produto pode ser adquirido de forma isolada ou em conjunto com os demais produtos do ecossistema Gravity (Processo, NF Importação, LPCO, Numerário Comex). Sua métrica principal de sucesso é a **redução do tempo de fechamento financeiro de um processo de importação de X horas para Y minutos**.
 
@@ -1244,7 +1244,7 @@ O produto pode ser adquirido de forma isolada ou em conjunto com os demais produ
 |:---|:---|
 | Multi-moeda nativo com taxa por lançamento | Maioria converte tudo para BRL imediatamente |
 | Import direto do Portal Único (DUIMP) | Maioria exige digitação manual dos impostos |
-| Smart Read de NFs de fornecedores | Inexistente em produtos especializados de comex |
+| Smart Docs de NFs de fornecedores | Inexistente em produtos especializados de comex |
 | Rateio por 9 métodos + exportação Excel | Rateio fixo por valor CIF apenas |
 | Integrado com NF Importação (espelho) | Sistemas separados sem integração |
 
@@ -1289,7 +1289,7 @@ Praticamente toda empresa com ERP (SAP, TOTVS, Senior) já tem um módulo financ
 ### RN-001: Dois Grupos de Custos (Importação)
 
 **Grupo 1 — Impostos Federais (DUIMP)**
-Impostos calculados e registrados na DUIMP/DI. Podem ser importados via XML, TXT, Smart Read ou Portal Único.
+Impostos calculados e registrados na DUIMP/DI. Podem ser importados via XML, TXT, Smart Docs ou Portal Único.
 
 | Tributo | Base Legal | Incidência | Armadilha |
 |:---|:---|:---|:---|
@@ -1425,7 +1425,7 @@ Saldo positivo = empresa tem crédito (raro, indica numerário excedente).
 | RF-004 | Excluir lançamento | Must-have | P |
 | RF-005 | Importar impostos via XML da DUIMP (Grupo 1) | Must-have | G |
 | RF-006 | Importar impostos via Portal Único (DUIMP number) — reuso da integração NF Importação | Must-have | M |
-| RF-007 | Importar custos via Smart Read (OCR de fatura de fornecedor) | Should-have | G |
+| RF-007 | Importar custos via Smart Docs (OCR de fatura de fornecedor) | Should-have | G |
 | RF-008 | Importar custos via planilha Excel (upload de template pré-definido) | Should-have | M |
 | RF-009 | Catálogo de categorias de despesa (customizável por tenant) | Must-have | M |
 | RF-010 | Catálogo de condições de pagamento (customizável por tenant) | Must-have | P |
@@ -1561,7 +1561,7 @@ Financeiro (produto)
   ├── Tela 1: Movimentação (lista principal)
   │     ├── Modal 1A: Novo Lançamento
   │     ├── Modal 1B: Editar Lançamento
-  │     ├── Modal 1C: Importar (sub-opções: XML, Portal Único, Smart Read, Planilha)
+  │     ├── Modal 1C: Importar (sub-opções: XML, Portal Único, Smart Docs, Planilha)
   │     └── Modal 1D: Histórico de Alterações
   ├── Tela 2: Numerário
   │     ├── Modal 2A: Inserir Numerário (Complementar)
@@ -1583,7 +1583,7 @@ Financeiro (produto)
 | **NF Importação** | S2S | Fornece lista de custos marcados como "Despesa NF" para o espelho |
 | **Portal Único** | Reuso | Reusa a integração já implementada no NF Importação (portalUnico) |
 | **Rateio Engine** | Reuso direto | Reusa exatamente o `rateioAlgorithms.ts` do NF Importação |
-| **Smart Read** | Reuso | Reusa o serviço de Smart Read para OCR de faturas |
+| **Smart Docs** | Reuso | Reusa o serviço de Smart Docs para OCR de faturas |
 | **Email** | Tenant service | Recebe faturas de fornecedores por email (Fase 2) |
 | **Notificações** | Tenant service | Alerta de vencimentos (Fase 2) |
 | **Histórico** | Tenant service | Audit trail imutável de cada lançamento |

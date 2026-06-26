@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 364,
+  "proximo_numero": 366,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1440,6 +1440,23 @@
       "tempo_liquido_horas": 2.5,
       "tokens_estimados_total": 155000,
       "arquivo_ficha": "registros/TASK-000363.json"
+    },
+    {
+      "referencia": "TASK-000365",
+      "ordinal": 89,
+      "titulo_canonico": "SMTRD-INSIGHTS-MEL-REMOVER-CUSTO-EVITADO-TOOLTIP-SAVING",
+      "titulo_exibicao": "TASK-000365 | [Smart Read] Insights | MEL — Remover custo evitado do tooltip Saving Digitação",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": null,
+      "visualizacao": "INSIGHTS",
+      "tipo_entrega": "MEL",
+      "resumo": "REMOVER-CUSTO-EVITADO-TOOLTIP-SAVING",
+      "data_criacao": "2026-06-26T22:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000365.json"
     }
   ]
 }

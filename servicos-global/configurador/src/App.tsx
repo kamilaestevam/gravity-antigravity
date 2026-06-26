@@ -296,7 +296,7 @@ function ServerHealthMonitor() {
  * Widget flutuante Gabi (ícone estrela) — desligado até o agente estar pronto para produção.
  * Código preservado em GabiOnboardingWidget.tsx; reativar quando a entrega for validada.
  */
-const EXIBIR_WIDGET_GABI_GLOBAL = false
+const EXIBIR_WIDGET_GABI_GLOBAL = true
 
 /** Gabi IA global — aparece em todas as telas autenticadas (lazy-loaded) */
 function GabiGlobal() {

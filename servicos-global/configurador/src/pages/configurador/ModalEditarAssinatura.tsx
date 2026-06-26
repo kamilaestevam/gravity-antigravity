@@ -41,6 +41,7 @@ import {
   produtoGravityCompletoResponseSchema,
   type ProdutoGravityCompleto,
 } from '../../schemas/produto-gravity-completo'
+import { slugCanonicoProdutoGravity } from '../../lib/produtos-gravity-store-status'
 
 interface Workspace {
   id_workspace:   string
@@ -162,8 +163,14 @@ export function ModalEditarAssinatura({
       setErroProduto(null)
       try {
         const headers = await getAuthHeaders()
-        const slug = assinatura!.produto.slug_produto_gravity
-        const res = await fetch(`/api/v1/produtos-gravity/${encodeURIComponent(slug)}`, { headers })
+        const slug = slugCanonicoProdutoGravity(assinatura!.produto.slug_produto_gravity)
+        const params = new URLSearchParams({
+          id_produto_gravity: assinatura!.produto.id_produto_gravity,
+        })
+        const res = await fetch(
+          `/api/v1/produtos-gravity/${encodeURIComponent(slug)}?${params}`,
+          { headers },
+        )
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const raw = await res.json()
         const parsed = produtoGravityCompletoResponseSchema.safeParse(raw)

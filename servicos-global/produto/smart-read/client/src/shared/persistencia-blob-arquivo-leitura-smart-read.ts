@@ -108,6 +108,27 @@ export function mensagemPreviewArquivoIndisponivel(nomeArquivo: string): string 
   return `O arquivo ${nomeArquivo} não está disponível neste navegador. Anexe-o novamente no passo 1 ou use os dados extraídos na conferência.`
 }
 
+export function mensagemErroPreviewArquivoRemoto(excecao: unknown, nomeArquivo: string): string {
+  const bruto =
+    excecao instanceof Error ? excecao.message.toLowerCase() : String(excecao ?? '').toLowerCase()
+  if (
+    bruto.includes('legado_s3') ||
+    bruto.includes('storage dati') ||
+    bruto.includes('nao autorizado') ||
+    bruto.includes('401') ||
+    bruto.includes('403')
+  ) {
+    return mensagemPreviewArquivoIndisponivel(nomeArquivo)
+  }
+  if (bruto.includes('404') || bruto.includes('nao encontrad')) {
+    return `O arquivo ${nomeArquivo} não foi encontrado no servidor.`
+  }
+  if (bruto.includes('timeout') || bruto.includes('network') || bruto.includes('failed to fetch')) {
+    return 'Não foi possível baixar o documento agora. Verifique a conexão e tente novamente.'
+  }
+  return mensagemPreviewArquivoIndisponivel(nomeArquivo)
+}
+
 export async function resolverArquivoOriginalLeituraSmartRead(
   idLeitura: string,
   idArquivo: string | null | undefined,

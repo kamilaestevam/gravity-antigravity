@@ -48,6 +48,7 @@ import {
 import {
   carregarBlobArquivoLeituraSmartRead,
   mensagemPreviewArquivoIndisponivel,
+  mensagemErroPreviewArquivoRemoto,
   removerBlobArquivoLeituraSmartRead,
   resolverArquivoOriginalLeituraSmartRead,
   salvarBlobArquivoLeituraSmartRead,
@@ -588,6 +589,16 @@ export function ModalNovaLeituraSmartRead({
           blob = resolvido
         }
 
+        if (!blob || blob.size === 0) {
+          try {
+            blob = await smartReadApi.obterArquivoLeitura(idLeitura, idArquivo, nomeArquivo)
+          } catch (excecao) {
+            if (gen !== previewLoadGenRef.current) return
+            setPreviewErro(mensagemErroPreviewArquivoRemoto(excecao, nomeArquivo))
+            return
+          }
+        }
+
         if (gen !== previewLoadGenRef.current) return
 
         if (!blob || blob.size === 0) {
@@ -693,6 +704,25 @@ export function ModalNovaLeituraSmartRead({
         ),
       )
       await aplicarBlobPreview(resolvido, previewLoadGenRef.current, nomeArquivo)
+      setPreviewCarregando(false)
+      return
+    }
+
+    try {
+      const remoto = await smartReadApi.obterArquivoLeitura(idLeituraRetry, idArquivo, nomeArquivo)
+      setArquivos((prev) =>
+        prev.map((item) =>
+          item.id_arquivo_local === previewArquivoItem.id_arquivo_local
+            ? { ...item, arquivo: new File([remoto], nomeArquivo, { type: remoto.type }) }
+            : item,
+        ),
+      )
+      void salvarBlobArquivoLeituraSmartRead(idLeituraRetry, idArquivo, remoto, nomeArquivo)
+      await aplicarBlobPreview(remoto, previewLoadGenRef.current, nomeArquivo)
+      setPreviewCarregando(false)
+      return
+    } catch (excecao) {
+      setPreviewErro(mensagemErroPreviewArquivoRemoto(excecao, nomeArquivo))
       setPreviewCarregando(false)
       return
     }

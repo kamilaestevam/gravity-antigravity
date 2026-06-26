@@ -2,7 +2,7 @@
  * ModalVisualizarArquivoNovaLeituraSmartRead — preview in-app do arquivo original (PDF/imagem).
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CircleNotch, Eye, ArrowSquareOut, WarningCircle, X } from '@phosphor-icons/react'
 import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
@@ -38,10 +38,13 @@ export function ModalVisualizarArquivoNovaLeituraSmartRead({
   onFechar,
 }: Props) {
   const [renderImagemFalhou, setRenderImagemFalhou] = useState(false)
+  const [renderPdfFalhou, setRenderPdfFalhou] = useState(false)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
     if (!aberto) return
     setRenderImagemFalhou(false)
+    setRenderPdfFalhou(false)
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onFechar()
     }
@@ -51,7 +54,27 @@ export function ModalVisualizarArquivoNovaLeituraSmartRead({
 
   useEffect(() => {
     setRenderImagemFalhou(false)
+    setRenderPdfFalhou(false)
   }, [url])
+
+  useEffect(() => {
+    if (!aberto || !url || resolverModoPreview(nomeArquivo) !== 'pdf' || carregando || erro) return
+    const timer = window.setTimeout(() => {
+      const iframe = iframeRef.current
+      if (!iframe) return
+      try {
+        const doc = iframe.contentDocument
+        if (doc && doc.body?.childElementCount === 0) {
+          setRenderPdfFalhou(true)
+          onErroRender?.()
+        }
+      } catch {
+        /* cross-origin ou CSP — tenta nova aba como fallback */
+        setRenderPdfFalhou(true)
+      }
+    }, 1_500)
+    return () => window.clearTimeout(timer)
+  }, [aberto, url, nomeArquivo, carregando, erro, onErroRender])
 
   if (!aberto) return null
 
@@ -136,11 +159,21 @@ export function ModalVisualizarArquivoNovaLeituraSmartRead({
               <CircleNotch size={28} className="sr-wizard-card-spin" aria-hidden />
               <strong>Validando documento…</strong>
             </div>
+          ) : renderPdfFalhou && !carregando ? (
+            <div className="sr-prev-vazio">
+              <strong>Não foi possível exibir o PDF aqui</strong>
+              <p>Use o botão ao lado para abrir em nova aba.</p>
+              <button type="button" className="sr-prev-download" onClick={abrirNovaAba}>
+                Abrir em nova aba
+              </button>
+            </div>
           ) : podeRenderizar && modo === 'pdf' ? (
             <iframe
+              ref={iframeRef}
               src={url}
               className="sr-prev-iframe"
               title={`Visualizar ${nomeArquivo}`}
+              onLoad={() => setRenderPdfFalhou(false)}
             />
           ) : podeRenderizar && modo === 'imagem' ? (
             <img

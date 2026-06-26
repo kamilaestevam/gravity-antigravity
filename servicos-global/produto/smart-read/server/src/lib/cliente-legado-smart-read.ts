@@ -9,6 +9,7 @@ import {
   criarLeituraMockLegado,
   enviarArquivoMockLegado,
   listarLeiturasMockLegado,
+  obterArquivoMockLegado,
   obterLeituraMockLegado,
 } from './mock-legado-smart-read.js'
 import {
@@ -17,6 +18,10 @@ import {
   LeituraLegadoSchema,
   type LeituraLegado,
 } from '../schemas/leitura-smart-read.js'
+import {
+  conteudoArquivoLeituraEhVisualizavel,
+  resolverMimePorNomeArquivo,
+} from '../../../shared/validar-conteudo-arquivo-leitura-smart-read.js'
 
 let avisoMockLegadoEmitido = false
 
@@ -67,6 +72,28 @@ function cabecalhosBase(companyId: string): Record<string, string> {
   }
 }
 
+function cabecalhosBinarioLegado(companyId: string): Record<string, string> {
+  const { chaveGravity } = configuracaoLegado()
+  return {
+    accept: 'application/octet-stream,*/*',
+    'x-gravity-api-key': chaveGravity,
+    'x-company-id': companyId,
+  }
+}
+
+type MetadadosArquivoLegadoJson = {
+  filename?: string
+  mimeType?: string
+  s3Key?: string
+  url?: string
+  downloadUrl?: string
+  fileUrl?: string
+}
+
+function extrairUrlMetadadosArquivo(meta: MetadadosArquivoLegadoJson): string | null {
+  return meta.downloadUrl ?? meta.url ?? meta.fileUrl ?? null
+}
+
 async function chamarLegado(caminho: string, init: RequestInit, timeoutMs = TIMEOUT_MS): Promise<unknown> {
   const { urlBase } = configuracaoLegado()
   let resposta: globalThis.Response
@@ -112,7 +139,11 @@ export async function enviarArquivoLegado(
 ): Promise<string | null> {
   if (deveUsarMockLegadoSmartRead()) {
     registrarUsoMockLegado()
-    return enviarArquivoMockLegado(idLeitura, { nome: arquivo.nome, mimeType: arquivo.mimeType })
+    return enviarArquivoMockLegado(idLeitura, {
+      nome: arquivo.nome,
+      mimeType: arquivo.mimeType,
+      buffer: arquivo.buffer,
+    })
   }
   const formulario = new FormData()
   formulario.append(
@@ -141,6 +172,230 @@ export async function obterLeituraLegado(companyId: string, idLeitura: string): 
     headers: cabecalhosBase(companyId),
   })
   return LeituraLegadoSchema.parse(corpo)
+}
+
+async function chamarLegadoBinario(
+  caminho: string,
+  init: RequestInit,
+  timeoutMs = TIMEOUT_MS,
+): Promise<{ buffer: Buffer; contentType: string | null }> {
+  const { urlBase } = configuracaoLegado()
+  let resposta: globalThis.Response
+  try {
+    resposta = await fetch(`${urlBase}${BASE_PATH}${caminho}`, {
+      ...init,
+      signal: AbortSignal.timeout(timeoutMs),
+    })
+  } catch (erro) {
+    throw new AppError(
+      `Smart Read legado inacessivel: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
+      502,
+      'LEGADO_INDISPONIVEL',
+    )
+  }
+  if (!resposta.ok) {
+    const corpo = await resposta.text().catch(() => '')
+    throw new AppError(
+      `Smart Read legado respondeu ${resposta.status}: ${corpo.slice(0, 300)}`,
+      resposta.status === 404 ? 404 : resposta.status === 401 || resposta.status === 403 ? 502 : resposta.status,
+      'LEGADO_ARQUIVO_ERRO',
+    )
+  }
+  const buffer = Buffer.from(await resposta.arrayBuffer())
+  return { buffer, contentType: resposta.headers.get('content-type') }
+}
+
+async function baixarArquivoS3Legado(
+  companyId: string,
+  s3Key: string,
+): Promise<{ buffer: Buffer; contentType: string | null }> {
+  const { urlBase, chaveGravity } = configuracaoLegado()
+  const chaveS3 = process.env.SMART_READ_LEGADO_CHAVE_S3?.trim() || chaveGravity
+  let resposta: globalThis.Response
+  try {
+    resposta = await fetch(`${urlBase}/import-control-center/files/download`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/octet-stream,*/*',
+        'Content-Type': 'application/json',
+        'x-gravity-api-key': chaveS3,
+        'x-company-id': companyId,
+        'x-smart-read-project-id': 'gravity',
+      },
+      body: JSON.stringify({ s3Key }),
+      signal: AbortSignal.timeout(20_000),
+    })
+  } catch (erro) {
+    throw new AppError(
+      `Download S3 legado inacessivel: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
+      502,
+      'LEGADO_S3_INDISPONIVEL',
+    )
+  }
+  if (!resposta.ok) {
+    const corpo = await resposta.text().catch(() => '')
+    const codigo =
+      resposta.status === 401 || resposta.status === 403 ? 'LEGADO_S3_NAO_AUTORIZADO' : 'LEGADO_S3_ERRO'
+    throw new AppError(
+      resposta.status === 401 || resposta.status === 403
+        ? 'Download do arquivo no storage DATI nao autorizado para a chave Gravity atual'
+        : `Download S3 legado respondeu ${resposta.status}: ${corpo.slice(0, 200)}`,
+      resposta.status === 404 ? 404 : 502,
+      codigo,
+    )
+  }
+  const buffer = Buffer.from(await resposta.arrayBuffer())
+  return { buffer, contentType: resposta.headers.get('content-type') }
+}
+
+async function baixarUrlArquivoLegado(url: string): Promise<{ buffer: Buffer; contentType: string | null }> {
+  let resposta: globalThis.Response
+  try {
+    resposta = await fetch(url, { signal: AbortSignal.timeout(20_000) })
+  } catch (erro) {
+    throw new AppError(
+      `URL do arquivo legado inacessivel: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
+      502,
+      'LEGADO_URL_INDISPONIVEL',
+    )
+  }
+  if (!resposta.ok) {
+    throw new AppError(`URL do arquivo legado respondeu ${resposta.status}`, resposta.status, 'LEGADO_URL_ERRO')
+  }
+  const buffer = Buffer.from(await resposta.arrayBuffer())
+  return { buffer, contentType: resposta.headers.get('content-type') }
+}
+
+function tentarExtrairBufferDeJsonLegado(buffer: Buffer): Buffer | null {
+  if (buffer.length === 0 || (buffer[0] !== 0x7b && buffer[0] !== 0x5b)) return null
+  try {
+    const json = JSON.parse(buffer.toString('utf8')) as Record<string, unknown>
+    const base64 =
+      (typeof json.base64 === 'string' && json.base64) ||
+      (typeof json.data === 'string' && json.data) ||
+      (typeof json.content === 'string' && json.content) ||
+      null
+    if (base64) return Buffer.from(base64, 'base64')
+    const url =
+      (typeof json.url === 'string' && json.url) ||
+      (typeof json.downloadUrl === 'string' && json.downloadUrl) ||
+      (typeof json.fileUrl === 'string' && json.fileUrl) ||
+      null
+    if (url) return null
+  } catch {
+    return null
+  }
+  return null
+}
+
+function normalizarBufferArquivoLegado(
+  buffer: Buffer,
+  contentType: string | null,
+  nomeArquivo: string | null,
+): { buffer: Buffer; contentType: string } {
+  const jsonBuffer = tentarExtrairBufferDeJsonLegado(buffer)
+  const efetivo = jsonBuffer ?? buffer
+  const nome = nomeArquivo ?? 'documento'
+  if (!conteudoArquivoLeituraEhVisualizavel(efetivo, nome)) {
+    const amostra = efetivo.subarray(0, 80).toString('utf8').replace(/\s+/g, ' ').trim()
+    throw new AppError(
+      `Conteudo retornado pelo legado nao e um arquivo visualizavel (${nome})${amostra ? `: ${amostra}` : ''}`,
+      502,
+      'LEGADO_ARQUIVO_INVALIDO',
+    )
+  }
+  const mime = contentType?.split(';')[0]?.trim() || resolverMimePorNomeArquivo(nome)
+  return { buffer: efetivo, contentType: mime }
+}
+
+async function baixarArquivoPorMetadadosLegado(
+  companyId: string,
+  meta: MetadadosArquivoLegadoJson,
+  nomeFallback: string | null,
+): Promise<{ buffer: Buffer; contentType: string; nomeArquivo: string | null }> {
+  const nomeArquivo = meta.filename ?? nomeFallback
+  const urlExterna = extrairUrlMetadadosArquivo(meta)
+  if (urlExterna) {
+    const remoto = await baixarUrlArquivoLegado(urlExterna)
+    const normalizado = normalizarBufferArquivoLegado(remoto.buffer, remoto.contentType, nomeArquivo)
+    return { ...normalizado, nomeArquivo }
+  }
+  if (meta.s3Key) {
+    const remoto = await baixarArquivoS3Legado(companyId, meta.s3Key)
+    const mime = meta.mimeType ?? remoto.contentType
+    const normalizado = normalizarBufferArquivoLegado(remoto.buffer, mime, nomeArquivo)
+    return { ...normalizado, nomeArquivo }
+  }
+  throw new AppError('Metadados do arquivo legado nao incluem URL nem s3Key', 502, 'LEGADO_ARQUIVO_SEM_FONTE')
+}
+
+export async function obterArquivoLegado(
+  companyId: string,
+  idLeitura: string,
+  idArquivo: string,
+): Promise<{ buffer: Buffer; contentType: string; nomeArquivo: string | null }> {
+  if (deveUsarMockLegadoSmartRead()) {
+    registrarUsoMockLegado()
+    const mock = obterArquivoMockLegado(idLeitura, idArquivo)
+    const normalizado = normalizarBufferArquivoLegado(mock.buffer, mock.contentType, mock.nomeArquivo)
+    return { ...normalizado, nomeArquivo: mock.nomeArquivo }
+  }
+
+  const leitura = await obterLeituraLegado(companyId, idLeitura)
+  const metaLista = leitura.files?.find((item) => item.fileReferenceId === idArquivo)
+  const nomeArquivo = metaLista?.filename ?? null
+  const urlLista = metaLista ? extrairUrlMetadadosArquivo(metaLista) : null
+  if (urlLista) {
+    const remoto = await baixarUrlArquivoLegado(urlLista)
+    const normalizado = normalizarBufferArquivoLegado(remoto.buffer, remoto.contentType, nomeArquivo)
+    return { ...normalizado, nomeArquivo }
+  }
+
+  try {
+    const detalhe = (await chamarLegado(`/${idLeitura}/files/${idArquivo}`, {
+      method: 'GET',
+      headers: cabecalhosBase(companyId),
+    })) as MetadadosArquivoLegadoJson
+    return baixarArquivoPorMetadadosLegado(companyId, detalhe, nomeArquivo)
+  } catch (erro) {
+    if (!(erro instanceof AppError) || erro.statusCode !== 404) {
+      throw erro
+    }
+  }
+
+  const caminhos = [`/${idLeitura}/files/${idArquivo}/content`, `/files/${idArquivo}`]
+  let ultimoErro: AppError | null = null
+  for (const caminho of caminhos) {
+    try {
+      const { buffer, contentType } = await chamarLegadoBinario(
+        caminho,
+        {
+          method: 'GET',
+          headers: cabecalhosBinarioLegado(companyId),
+        },
+        20_000,
+      )
+      const jsonBuffer = tentarExtrairBufferDeJsonLegado(buffer)
+      if (!jsonBuffer && buffer[0] === 0x7b) {
+        try {
+          const json = JSON.parse(buffer.toString('utf8')) as MetadadosArquivoLegadoJson
+          return baixarArquivoPorMetadadosLegado(companyId, json, nomeArquivo)
+        } catch (erroMetadados) {
+          if (erroMetadados instanceof AppError) throw erroMetadados
+        }
+      }
+      const normalizado = normalizarBufferArquivoLegado(buffer, contentType, nomeArquivo)
+      return { ...normalizado, nomeArquivo }
+    } catch (erro) {
+      if (erro instanceof AppError && erro.statusCode === 404) {
+        ultimoErro = erro
+        continue
+      }
+      throw erro
+    }
+  }
+
+  throw ultimoErro ?? new AppError('Arquivo nao encontrado no legado', 404, 'LEGADO_ARQUIVO_NAO_ENCONTRADO')
 }
 
 export async function listarLeiturasLegado(

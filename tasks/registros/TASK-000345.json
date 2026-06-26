@@ -1,0 +1,66 @@
+{
+  "referencia": "TASK-000345",
+  "ordinal": 69,
+  "id_transcript": "504beb65-e4b9-4c77-89e5-954862c8ec58",
+  "titulo_canonico": "SMTRD-NOVA-LEITURA-NOV-TESTES-PASSO-UM-ADMIN-PRINTS-EMT",
+  "titulo_exibicao": "TASK-000345 | [Smart Read] Nova Leitura | NOV — Suite testes passo 1 (000146–000150), Admin SMTRD e regras prints EMT",
+  "status": "RES",
+  "status_descricao": "Resolvida e arquivada — task encerrada; nome da conversa recebe prefixo RES * {horas}h",
+  "area": "SMTRD",
+  "area_descricao": "Smart Read — produto de leitura de documentos em servicos-global/produto/smart-read",
+  "subarea": "NOVA-LEITURA",
+  "subarea_descricao": "Modal Nova Leitura — passo 1 (Anexar arquivo); suite de testes e wiring Admin",
+  "visualizacao": null,
+  "visualizacao_descricao": "Não aplicável — wizard Nova Leitura passo 1 e Admin testes-gerais",
+  "tipo_entrega": "NOV",
+  "tipo_entrega_descricao": "Nova entrega — planos e artefatos de teste (UNI/FUN/CRO/E2E/EMT), registry SMTRD, wiring Admin e SSOT prints EMT",
+  "resumo": "TESTES-PASSO-UM-ADMIN-PRINTS-EMT",
+  "resumo_descricao": "Suite completa passo 1 (000146–000150), Smart Read no Rodar Testes e documentação de prints EMT",
+  "resumo_detalhado": "Entregue suite Nova Leitura Passo 01 (TST-*-SMTRD-000146–000150) com fixtures, registry SMTRD, wiring Admin (ModalTestesExecutar, favoritos, enum admin.ts), SSOT 08-regras-prints-em-tela.md, skill teste-em-tela e plano EMT 000150 com pares -selecao/-resultado. PR #477 focada (sem passo 2) mergeada; validado Admin produção 5/5 planos; orientado redeploy master para passo 2 (#479/#480).",
+  "data_criacao": "2026-06-25T12:00:00.000Z",
+  "data_encerramento": "2026-06-25T23:15:00.000Z",
+  "duracao_horas": 4.5,
+  "tempo_bruto_horas": 11.25,
+  "tempo_agente_horas": 3.5,
+  "tempo_dono_horas": 1.0,
+  "tempo_liquido_horas": 4.5,
+  "tokens_estimados_entrada": 95000,
+  "tokens_estimados_saida": 85000,
+  "tokens_estimados_total": 180000,
+  "mensagens_usuario": 12,
+  "mensagens_agente": 35,
+  "fases_concluidas": ["IMPLEMENTACAO", "TESTE_LOCAL", "DOC_SKILL", "PR", "DEPLOY", "TESTE_PRODUCAO"],
+  "checklist_encerramento": {
+    "teste_local": { "valor": "sim", "descricao": "Testes locais executados (unitário, funcional, em tela)" },
+    "code_review": { "valor": "nao", "descricao": "Code review executado (/code-review)" },
+    "doc_skill": { "valor": "sim", "descricao": "Documentos técnicos e/ou skills atualizados (/docs-skills)" },
+    "qa": { "valor": "nao", "descricao": "QA pós-entrega executado (/qa)" },
+    "pr": { "valor": "sim", "descricao": "Pull request aberto ou merge solicitado" },
+    "deploy": { "valor": "sim", "descricao": "Deploy ou migration executado (/deploy)" },
+    "teste_producao": { "valor": "sim", "descricao": "Validado em produção ou staging real" }
+  },
+  "checklist_alertas": [
+    {
+      "item": "code_review",
+      "mensagem": "Code review não executado — invocar /code-review antes de considerar task fechada."
+    },
+    {
+      "item": "qa",
+      "mensagem": "QA não executado — invocar /qa antes de considerar task fechada."
+    }
+  ],
+  "entregas": [
+    "testes/test-plans-registry.json",
+    "testes/testes-unitarios/produto-gravity/smart-read/nova-leitura/passo-um/",
+    "testes/testes-funcionais/produto-gravity/smart-read/nova-leitura/passo-um/",
+    "testes/testes-cross-organizacao/produto-gravity/smart-read/nova-leitura/passo-um/",
+    "testes/testes-e2e/produto-gravity/smart-read/nova-leitura/passo-um/",
+    "testes/testes-em-tela/produto-gravity/smart-read/nova-leitura/passo-um/",
+    "servicos-global/configurador/src/pages/admin/ModalTestesExecutar.tsx",
+    "testes/infra/admin/testes-favoritos-admin.ts",
+    "documentos-tecnicos/testes/regras/08-regras-prints-em-tela.md",
+    "skills/testes/teste-em-tela/SKILL.md",
+    "https://github.com/dmmltda/gravity-antigravity/pull/477"
+  ],
+  "notas": "PR #475 (branch tela_smart_read_tela_2) substituída por #477 escopada; passo 2 entregue em PRs separadas #479/#480."
+}

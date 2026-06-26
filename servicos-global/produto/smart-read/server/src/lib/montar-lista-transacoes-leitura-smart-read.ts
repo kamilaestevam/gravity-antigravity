@@ -61,11 +61,20 @@ async function aplicarMetricasDaPagina(
   const precisam = paginado.filter(transacaoPrecisaEnriquecerMetricas)
   if (precisam.length === 0 || !prisma || !idWorkspace) return paginado
 
-  const snapshotPorId = await carregarSnapshotsPorIds(
-    prisma,
-    precisam.map((item) => item.id_leitura),
-    idWorkspace,
-  )
+  let snapshotPorId: Map<string, TransacaoLeitura>
+  try {
+    snapshotPorId = await carregarSnapshotsPorIds(
+      prisma,
+      precisam.map((item) => item.id_leitura),
+      idWorkspace,
+    )
+  } catch (erro) {
+    console.warn(
+      '[smart-read][lista] snapshot batch indisponivel — metricas sem enriquecimento',
+      erro instanceof Error ? erro.message : erro,
+    )
+    return paginado
+  }
   if (snapshotPorId.size === 0) return paginado
 
   return paginado.map((transacao) => {
@@ -106,18 +115,26 @@ async function listarViaSnapshotGravity(
 ): Promise<TransacaoLeitura[]> {
   if (!prisma || !idWorkspace) return []
 
-  const registros = await prisma.snapshotLeituraSmartRead.findMany({
-    where: clausulaWorkspaceLeituraSmartRead(idWorkspace),
-    orderBy: { data_envio_snapshot_leitura_smart_read: 'desc' },
-    take: 200,
-  })
+  try {
+    const registros = await prisma.snapshotLeituraSmartRead.findMany({
+      where: clausulaWorkspaceLeituraSmartRead(idWorkspace),
+      orderBy: { data_envio_snapshot_leitura_smart_read: 'desc' },
+      take: 200,
+    })
 
-  const transacoes: TransacaoLeitura[] = []
-  for (const registro of registros) {
-    const transacao = transacaoDeRegistroSnapshot(registro)
-    if (transacao) transacoes.push(transacao)
+    const transacoes: TransacaoLeitura[] = []
+    for (const registro of registros) {
+      const transacao = transacaoDeRegistroSnapshot(registro)
+      if (transacao) transacoes.push(transacao)
+    }
+    return transacoes
+  } catch (erro) {
+    console.warn(
+      '[smart-read][lista] snapshot indisponivel — lista segue sem Gravity DB',
+      erro instanceof Error ? erro.message : erro,
+    )
+    return []
   }
-  return transacoes
 }
 
 async function listarViaProgressoGravity(
@@ -126,27 +143,35 @@ async function listarViaProgressoGravity(
 ): Promise<TransacaoLeitura[]> {
   if (!prisma || !idWorkspace) return []
 
-  const registros = await prisma.progressoLeituraSmartRead.findMany({
-    where: clausulaWorkspaceLeituraSmartRead(idWorkspace),
-    orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
-    take: 200,
-  })
+  try {
+    const registros = await prisma.progressoLeituraSmartRead.findMany({
+      where: clausulaWorkspaceLeituraSmartRead(idWorkspace),
+      orderBy: { data_atualizacao_progresso_leitura_smart_read: 'desc' },
+      take: 200,
+    })
 
-  const transacoes: TransacaoLeitura[] = []
-  for (const registro of registros) {
-    const sessao = extrairDadosSessaoProgressoLeitura(registro.dados_sessao_progresso_leitura_smart_read)
-    if (sessao?.leitura) {
-      transacoes.push(
-        normalizarTransacaoDeLeitura(
-          { ...sessao.leitura, nome_leitura: sessao.nome || sessao.leitura.nome_leitura },
-          {
-            data_envio: registro.data_criacao_progresso_leitura_smart_read.toISOString(),
-          },
-        ),
-      )
+    const transacoes: TransacaoLeitura[] = []
+    for (const registro of registros) {
+      const sessao = extrairDadosSessaoProgressoLeitura(registro.dados_sessao_progresso_leitura_smart_read)
+      if (sessao?.leitura) {
+        transacoes.push(
+          normalizarTransacaoDeLeitura(
+            { ...sessao.leitura, nome_leitura: sessao.nome || sessao.leitura.nome_leitura },
+            {
+              data_envio: registro.data_criacao_progresso_leitura_smart_read.toISOString(),
+            },
+          ),
+        )
+      }
     }
+    return transacoes
+  } catch (erro) {
+    console.warn(
+      '[smart-read][lista] progresso indisponivel — lista segue sem Gravity DB',
+      erro instanceof Error ? erro.message : erro,
+    )
+    return []
   }
-  return transacoes
 }
 
 export async function montarListaTransacoesLeituraSmartRead(

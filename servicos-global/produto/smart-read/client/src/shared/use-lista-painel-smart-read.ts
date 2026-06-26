@@ -157,14 +157,20 @@ export function useListaPainelSmartRead() {
     void carregarPaineis()
   }, [podeCarregar, carregarPaineis])
 
-  const executarPersistencia = useCallback(async (id: string, estado: EstadoListaParaPainel) => {
+  const executarPersistencia = useCallback(async (
+    id: string,
+    estado: EstadoListaParaPainel,
+    opcoes?: PersistirPainelOpcoes,
+  ) => {
     const configJson = JSON.stringify(estadoParaConfig(estado))
     try {
       await paineisListaSmartReadApi.atualizar(id, { config_json: configJson })
       setPaineis((prev) => prev.map((p) => (p.id === id ? { ...p, config_json: configJson } : p)))
     } catch (err) {
       console.warn('[useListaPainelSmartRead] falha ao persistir painel', id, err)
-      addNotification({ type: 'error', message: mensagemErroPersistirPainel(err) })
+      if (opcoes?.acaoUsuario) {
+        addNotification({ type: 'error', message: mensagemErroPersistirPainel(err) })
+      }
     }
   }, [addNotification])
 
@@ -249,7 +255,7 @@ export function useListaPainelSmartRead() {
     }
 
     if (opcoes?.imediato) {
-      void executarPersistencia(id, estado)
+      void executarPersistencia(id, estado, opcoes)
       return
     }
 

@@ -7,6 +7,7 @@
  * x-id-usuario (S2S), nunca do body.
  */
 import { Router, Response, NextFunction } from 'express'
+import { Prisma } from '../generated/client/index.js'
 import { z } from 'zod'
 import { AppError } from '../lib/app-error.js'
 import type { RequisicaoComPrismaSmartRead } from '../middleware/isolamento-organizacao-smart-read.js'
@@ -103,6 +104,19 @@ function mapPatch(patch: {
   return data
 }
 
+function normalizarErroPrismaPainel(err: unknown): AppError | null {
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err.code === 'P2021' || err.code === 'P1014') {
+      return new AppError(
+        'Tabela de painéis da lista não existe — rode a migration Smart Read (lista_painel_usuario_global)',
+        503,
+        'DATABASE_SCHEMA_DRIFT',
+      )
+    }
+  }
+  return null
+}
+
 function validarPermutacaoReordenacao(idsRecebidos: string[], idsExistentes: string[]): void {
   if (idsRecebidos.length !== idsExistentes.length) {
     throw new AppError(
@@ -148,7 +162,8 @@ router.get('/', async (req: RequisicaoComPrismaSmartRead, res: Response, next: N
 
     res.json({ data: paineis.map(mapPainel) })
   } catch (err) {
-    next(err)
+    const prismaErr = normalizarErroPrismaPainel(err)
+    next(prismaErr ?? err)
   }
 })
 
@@ -245,7 +260,8 @@ router.put('/:id_lista_painel_usuario_global', async (req: RequisicaoComPrismaSm
     })) as PainelDB
     res.json({ data: mapPainel(atualizado) })
   } catch (err) {
-    next(err)
+    const prismaErr = normalizarErroPrismaPainel(err)
+    next(prismaErr ?? err)
   }
 })
 

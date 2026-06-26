@@ -30,6 +30,11 @@ export type ArquivoLocalNovaLeitura = {
 
 export const LIMITE_DOCUMENTOS_NOVA_LEITURA = 100
 
+/** Blob local ainda disponível (upload na sessão atual). Leituras retomadas usam File vazio. */
+export function arquivoLocalTemBlobVisualizavel(arquivo: File): boolean {
+  return arquivo.size > 0
+}
+
 export function criarArquivoLocalNovaLeitura(arquivo: File): ArquivoLocalNovaLeitura {
   return {
     id_arquivo_local: crypto.randomUUID(),

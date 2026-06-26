@@ -2,17 +2,22 @@
  * ConferenciaCamposNovaLeituraSmartRead — layout padrão Processo / Dados do Processo (dt-*)
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
+  Airplane,
   Anchor,
   Buildings,
   CaretDown,
   CheckCircle,
   Circle,
+  CurrencyDollar,
   FileText,
+  GlobeHemisphereWest,
   MagnifyingGlass,
+  MapTrifold,
   Package,
   PencilSimple,
+  Receipt,
   ShieldCheck,
   Truck,
   User,
@@ -50,14 +55,47 @@ type Props = {
   onEditarCampo?: (chave: string, valor: string) => void
 }
 
+const ICONE_SECAO_CONFERENCIA: Record<string, ReactNode> = {
+  'Dados gerais': <FileText weight="duotone" size={18} />,
+  'Nome do transportador': <Truck weight="duotone" size={18} />,
+  Exportador: <Buildings weight="duotone" size={18} />,
+  Importador: <User weight="duotone" size={18} />,
+  Notify: <Users weight="duotone" size={18} />,
+  'Origem e destino': <GlobeHemisphereWest weight="duotone" size={18} />,
+  Mercadoria: <Package weight="duotone" size={18} />,
+  Frete: <Truck weight="duotone" size={18} />,
+  'Informações AWB': <Airplane weight="duotone" size={18} />,
+  Voo: <Airplane weight="duotone" size={18} />,
+  'Agente de carga': <Users weight="duotone" size={18} />,
+  Rota: <MapTrifold weight="duotone" size={18} />,
+  Embarque: <Anchor weight="duotone" size={18} />,
+  'Valores declarados': <CurrencyDollar weight="duotone" size={18} />,
+  Custos: <Receipt weight="duotone" size={18} />,
+}
+
 function iconeSecao(titulo: string) {
+  const iconeExato = ICONE_SECAO_CONFERENCIA[titulo]
+  if (iconeExato) return iconeExato
+
   const t = titulo.toLowerCase()
-  if (t.includes('document')) return <FileText weight="duotone" size={18} />
-  if (t.includes('transportador') || t.includes('transportadora') || t.includes('carrier')) return <Truck weight="duotone" size={18} />
-  if (t.includes('exporter')) return <Buildings weight="duotone" size={18} />
-  if (t.includes('importer')) return <User weight="duotone" size={18} />
+  if (t.includes('document') || t.includes('dados gerais')) return <FileText weight="duotone" size={18} />
+  if (t.includes('transportador') || t.includes('transportadora') || t.includes('carrier') || t.includes('frete')) {
+    return <Truck weight="duotone" size={18} />
+  }
+  if (t.includes('exportador') || t.includes('exporter') || t.includes('shipper')) {
+    return <Buildings weight="duotone" size={18} />
+  }
+  if (t.includes('importador') || t.includes('importer') || t.includes('consignee')) {
+    return <User weight="duotone" size={18} />
+  }
   if (t.includes('notify')) return <Users weight="duotone" size={18} />
-  if (t.includes('shipment') || t.includes('container')) return <Anchor weight="duotone" size={18} />
+  if (t.includes('origem') || t.includes('destino') || t.includes('routing') || t.includes('shipment')) {
+    return <GlobeHemisphereWest weight="duotone" size={18} />
+  }
+  if (t.includes('mercadoria') || t.includes('goods') || t.includes('items')) {
+    return <Package weight="duotone" size={18} />
+  }
+  if (t.includes('container') || t.includes('embarque')) return <Anchor weight="duotone" size={18} />
   return <Package weight="duotone" size={18} />
 }
 

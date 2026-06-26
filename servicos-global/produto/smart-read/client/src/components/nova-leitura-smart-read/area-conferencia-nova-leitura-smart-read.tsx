@@ -2,23 +2,38 @@
  * AreaConferenciaNovaLeituraSmartRead — passo 3 (abas + conferência padrão Dados do Processo)
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ComponentType } from 'react'
+import { ClipboardText, ShieldWarning, Sparkle } from '@phosphor-icons/react'
+import type { IconProps } from '@phosphor-icons/react'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova-leitura-smart-read'
 import { ConferenciaQaNovaLeituraSmartRead } from './conferencia-qa-nova-leitura-smart-read'
+import { ConferenciaRiscosAduaneirosNovaLeituraSmartRead } from './conferencia-riscos-aduaneiros-nova-leitura-smart-read'
+import type { ContextoEvidenciaRiscoNovaLeitura } from '../../shared/contexto-evidencia-risco-nova-leitura-smart-read'
 
 export type SelecaoDocumentoConferencia = {
   idArquivoLocal: string
   indiceDocumento: number
 }
 
-type AbaConferencia = 'campos' | 'qa'
+type AbaConferencia = 'campos' | 'qa' | 'riscos'
+
+const ABAS_CONFERENCIA: {
+  id: AbaConferencia
+  rotulo: string
+  Icone: ComponentType<IconProps>
+}[] = [
+  { id: 'campos', rotulo: 'Conferência de Campos', Icone: ClipboardText },
+  { id: 'qa', rotulo: 'Consultor Inteligente', Icone: Sparkle },
+  { id: 'riscos', rotulo: 'Análise de Riscos', Icone: ShieldWarning },
+]
 
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
   selecao: SelecaoDocumentoConferencia | null
   onSelecionarDocumento: (selecao: SelecaoDocumentoConferencia) => void
   onCompararArquivo?: () => void
+  onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
 }
 
 export function AreaConferenciaNovaLeituraSmartRead({
@@ -26,6 +41,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
   selecao,
   onSelecionarDocumento,
   onCompararArquivo,
+  onVerEvidencia,
 }: Props) {
   const [aba, setAba] = useState<AbaConferencia>('campos')
 
@@ -53,24 +69,27 @@ export function AreaConferenciaNovaLeituraSmartRead({
   return (
     <div className="sr-wizard-principal sr-wizard-principal--conferencia">
       <div className="sr-conf-tabs" role="tablist" aria-label="Conferência da leitura">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={aba === 'campos'}
-          className={`sr-conf-tab${aba === 'campos' ? ' sr-conf-tab--ativo' : ''}`}
-          onClick={() => setAba('campos')}
-        >
-          Conferência de Campos
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={aba === 'qa'}
-          className={`sr-conf-tab${aba === 'qa' ? ' sr-conf-tab--ativo' : ''}`}
-          onClick={() => setAba('qa')}
-        >
-          Q&amp;A sobre Leitura
-        </button>
+        {ABAS_CONFERENCIA.map(({ id, rotulo, Icone }) => {
+          const ativo = aba === id
+          return (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={ativo}
+              className={`sr-conf-tab${ativo ? ' sr-conf-tab--ativo' : ''}`}
+              onClick={() => setAba(id)}
+            >
+              <Icone
+                className="sr-conf-tab-icone"
+                size={16}
+                weight="regular"
+                aria-hidden
+              />
+              <span className="sr-conf-tab-rotulo">{rotulo}</span>
+            </button>
+          )
+        })}
       </div>
 
       {aba === 'campos' && (
@@ -87,7 +106,14 @@ export function AreaConferenciaNovaLeituraSmartRead({
         </>
       )}
 
-      {aba === 'qa' && <ConferenciaQaNovaLeituraSmartRead />}
+      {aba === 'qa' && <ConferenciaQaNovaLeituraSmartRead arquivos={arquivosCompletos} />}
+
+      {aba === 'riscos' && (
+        <ConferenciaRiscosAduaneirosNovaLeituraSmartRead
+          arquivos={arquivosCompletos}
+          onVerEvidencia={onVerEvidencia}
+        />
+      )}
     </div>
   )
 }

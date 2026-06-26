@@ -35,6 +35,7 @@ export type RiscoAduaneiroLeitura = {
   titulo: string
   motivo: string
   analise: string
+  correcao_sugerida?: string
   evidencias: EvidenciaRiscoAduaneiroLeitura[]
   citacoes_normativas?: CitacaoNormativaRisco[]
   origem?: 'v1' | 'llm'
@@ -97,6 +98,7 @@ export const RiscoAduaneiroLeituraSchema = z.object({
   titulo: z.string().min(1),
   motivo: z.string().min(1),
   analise: z.string().min(1),
+  correcao_sugerida: z.string().min(1).optional(),
   evidencias: z.array(
     z.object({
       documento: z.string(),
@@ -324,13 +326,74 @@ function criarRisco(parcial: Omit<RiscoAduaneiroLeitura, 'id'>): RiscoAduaneiroL
 }
 
 function montarResumo(riscos: RiscoAduaneiroLeitura[]): ResumoRiscosAduaneirosLeitura {
+  const enriquecidos = riscos.map(aplicarCorrecaoSugeridaPadraoRisco)
   return {
-    riscos,
-    total: riscos.length,
-    criticos: riscos.filter((r) => r.severidade === 'critico').length,
-    atencao: riscos.filter((r) => r.severidade === 'atencao').length,
-    informativos: riscos.filter((r) => r.severidade === 'informativo').length,
+    riscos: enriquecidos,
+    total: enriquecidos.length,
+    criticos: enriquecidos.filter((r) => r.severidade === 'critico').length,
+    atencao: enriquecidos.filter((r) => r.severidade === 'atencao').length,
+    informativos: enriquecidos.filter((r) => r.severidade === 'informativo').length,
   }
+}
+
+const CORRECAO_POR_TITULO: Record<string, string> = {
+  'Incoterm ausente':
+    'Na aba Conferência de Campos, preencha document.incoterm com o Incoterm acordado (ex.: FOB, CIF, EXW) conforme o contrato comercial.',
+  'CNPJ / Tax ID ausente':
+    'Complete importer.cnpj ou exporter.taxId na Conferência de Campos com o CNPJ/Tax ID legível do participante da operação.',
+  'CNPJ com formato inválido':
+    'Revise o dígito a dígito na Conferência de Campos ou no PDF original — erro de OCR é comum em CNPJ.',
+  'NCM não identificado':
+    'Preencha items[].ncm (8 dígitos) em cada linha da invoice na Conferência de Campos ou reenvie documento com NCM visível.',
+  'NCM com formato suspeito':
+    'Corrija o NCM para exatamente 8 dígitos numéricos na Conferência de Campos; confira zeros à esquerda.',
+  'Divergência no total da linha':
+    'Ajuste quantidade, preço unitário ou total da linha na Conferência de Campos para que qty × preço = total.',
+  'Soma das linhas diverge do total do documento':
+    'Alinhe values.totalDocumentValue com a soma das linhas ou inclua despesas adicionais documentadas na invoice.',
+  'Incoterm divergente entre documentos':
+    'Unifique o Incoterm em todos os documentos da leitura — use o valor do contrato comercial como referência.',
+  'Possível divergência de NCM entre Invoice e Packing List':
+    'Garanta que cada NCM da invoice apareça na packing list com a mesma classificação fiscal.',
+}
+
+const CORRECAO_POR_CATEGORIA: Partial<Record<CategoriaRiscoAduaneiro, string>> = {
+  incoterm: 'Revise e alinhe o Incoterm nos documentos comerciais antes do despacho.',
+  cnpj: 'Valide CNPJ/Tax ID do importador e exportador no cadastro e na Conferência de Campos.',
+  ncm: 'Confirme NCM de 8 dígitos no Siscomex e na descrição dos itens.',
+  normativo: 'Consulte a tabela NCM oficial e documentação complementar exigida para o código informado.',
+  documental: 'Complete os campos obrigatórios do documento na Conferência de Campos.',
+  cruzado: 'Alinhe os valores entre os documentos da mesma leitura antes de prosseguir.',
+  matematico: 'Recalcule totais e confira arredondamentos comerciais na invoice.',
+  comercial: 'Revise cláusulas comerciais e consistência entre exportador, importador e valores.',
+}
+
+export function aplicarCorrecaoSugeridaPadraoRisco(risco: RiscoAduaneiroLeitura): RiscoAduaneiroLeitura {
+  if (risco.correcao_sugerida?.trim()) return risco
+
+  const porTitulo = CORRECAO_POR_TITULO[risco.titulo]
+  if (porTitulo) return { ...risco, correcao_sugerida: porTitulo }
+
+  if (risco.titulo.includes('inválido ou inativo no Siscomex')) {
+    const ncm = risco.evidencias[0]?.valor ?? 'informado'
+    return {
+      ...risco,
+      correcao_sugerida: `Substitua o NCM ${ncm} por código ativo na Tabela TI/Siscomex ou corrija digitação na Conferência de Campos.`,
+    }
+  }
+
+  if (risco.titulo.includes('com II elevado')) {
+    return {
+      ...risco,
+      correcao_sugerida:
+        'Confirme a classificação fiscal com despachante e simule landed cost considerando II elevado antes de fechar a operação.',
+    }
+  }
+
+  const porCategoria = CORRECAO_POR_CATEGORIA[risco.categoria]
+  if (porCategoria) return { ...risco, correcao_sugerida: porCategoria }
+
+  return risco
 }
 
 export function executarAuditoriaV1AnaliseRiscosLeitura(

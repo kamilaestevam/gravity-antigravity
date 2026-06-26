@@ -1,76 +1,223 @@
 /**
- * ConferenciaQaNovaLeituraSmartRead — aba Q&A sobre Leitura (paridade UI legado)
+ * ConferenciaQaNovaLeituraSmartRead — aba Consultor Inteligente (Rafa)
  */
 
-import { useState } from 'react'
-import { PaperPlaneTilt, Robot } from '@phosphor-icons/react'
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
+import {
+  BuildingOffice,
+  CalendarBlank,
+  CircleNotch,
+  ClipboardText,
+  CurrencyDollar,
+  Factory,
+  GitDiff,
+  PaperPlaneTilt,
+  Scales,
+  Sparkle,
+  User,
+  WarningCircle,
+} from '@phosphor-icons/react'
+import type { IconProps } from '@phosphor-icons/react'
+import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
+import { smartReadApi } from '../../shared/api'
+import { montarDocumentosAnaliseRiscoDeArquivosLocais } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
+import { CorpoRespostaMarkdownConsultorSmartRead } from '../../shared/corpo-resposta-markdown-consultor-smart-read'
+import type { MensagemHistoricoQaLeitura } from '../../../../shared/qa-leitura-smart-read'
 
-const SUGESTOES = [
-  'Relatório comparativo dos documentos',
-  'Resumo dos dados do exportador',
-  'Informações faltando nos documentos',
-  'Dados do Importador/consignatário',
-  'Campos em conflito entre documentos',
-  'Valores totais de cada documento',
-  'Comparar datas entre documentos',
-  'Resumo geral da operação',
+type SugestaoQa = {
+  id: string
+  texto: string
+  Icone: ComponentType<IconProps>
+}
+
+const SUGESTOES: SugestaoQa[] = [
+  { id: 'comparativo', texto: 'Relatório comparativo dos documentos', Icone: Scales },
+  { id: 'exportador', texto: 'Resumo dos dados do exportador', Icone: Factory },
+  { id: 'faltando', texto: 'Informações faltando nos documentos', Icone: WarningCircle },
+  { id: 'importador', texto: 'Dados do Importador/consignatário', Icone: BuildingOffice },
+  { id: 'conflito', texto: 'Campos em conflito entre documentos', Icone: GitDiff },
+  { id: 'valores', texto: 'Valores totais de cada documento', Icone: CurrencyDollar },
+  { id: 'datas', texto: 'Comparar datas entre documentos', Icone: CalendarBlank },
+  { id: 'resumo', texto: 'Resumo geral da operação', Icone: ClipboardText },
 ]
 
-export function ConferenciaQaNovaLeituraSmartRead() {
-  const [pergunta, setPergunta] = useState('')
-  const [historico, setHistorico] = useState<{ pergunta: string; resposta: string }[]>([])
+type TurnoQaUi = {
+  id: string
+  pergunta: string
+  status: 'carregando' | 'ok' | 'erro'
+  resposta?: string
+  aviso?: string | null
+}
 
-  function enviarPergunta(texto: string) {
+type Props = {
+  arquivos: ArquivoLocalNovaLeitura[]
+}
+
+function montarHistoricoApi(turnos: TurnoQaUi[]): MensagemHistoricoQaLeitura[] {
+  const saida: MensagemHistoricoQaLeitura[] = []
+  for (const turno of turnos) {
+    if (turno.status !== 'ok' || !turno.resposta) continue
+    saida.push({ papel: 'usuario', conteudo: turno.pergunta })
+    saida.push({ papel: 'assistente', conteudo: turno.resposta })
+  }
+  return saida
+}
+
+export function ConferenciaQaNovaLeituraSmartRead({ arquivos }: Props) {
+  const [pergunta, setPergunta] = useState('')
+  const [turnos, setTurnos] = useState<TurnoQaUi[]>([])
+  const [enviando, setEnviando] = useState(false)
+  const fimThreadRef = useRef<HTMLDivElement>(null)
+
+  const documentos = useMemo(
+    () => montarDocumentosAnaliseRiscoDeArquivosLocais(arquivos),
+    [arquivos],
+  )
+
+  const semDocumentos = documentos.length === 0
+
+  useEffect(() => {
+    fimThreadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [turnos])
+
+  async function enviarPergunta(texto: string) {
     const limpo = texto.trim()
-    if (!limpo) return
-    setHistorico((prev) => [
-      ...prev,
-      {
-        pergunta: limpo,
-        resposta: 'Em breve: respostas da Rafa com base nos documentos desta leitura.',
-      },
-    ])
+    if (!limpo || enviando || semDocumentos) return
+
+    const idTurno = `turno-${Date.now()}`
+    setEnviando(true)
+    setTurnos((prev) => [...prev, { id: idTurno, pergunta: limpo, status: 'carregando' }])
     setPergunta('')
+
+    const historicoAnterior = montarHistoricoApi(turnos)
+
+    try {
+      const resultado = await smartReadApi.perguntarQaLeitura({
+        documentos,
+        pergunta: limpo,
+        historico: historicoAnterior,
+      })
+      setTurnos((prev) =>
+        prev.map((turno) =>
+          turno.id === idTurno
+            ? {
+                ...turno,
+                status: 'ok',
+                resposta: resultado.resposta,
+                aviso: resultado.aviso,
+              }
+            : turno,
+        ),
+      )
+    } catch (erro) {
+      const mensagem = erro instanceof Error ? erro.message : 'Erro ao consultar a Rafa'
+      setTurnos((prev) =>
+        prev.map((turno) =>
+          turno.id === idTurno
+            ? {
+                ...turno,
+                status: 'erro',
+                resposta: `Não foi possível obter resposta: ${mensagem}`,
+              }
+            : turno,
+        ),
+      )
+    } finally {
+      setEnviando(false)
+    }
   }
 
   return (
     <div className="sr-conf-qa">
-      <p className="sr-conf-qa-subtitulo">Sugestões de perguntas</p>
-      <div className="sr-conf-qa-sugestoes">
-        {SUGESTOES.map((sugestao) => (
-          <button
-            key={sugestao}
-            type="button"
-            className="sr-conf-qa-chip"
-            onClick={() => enviarPergunta(sugestao)}
-          >
-            {sugestao}
-          </button>
-        ))}
-      </div>
-
-      {historico.length === 0 ? (
-        <div className="sr-conf-qa-vazio">
-          <Robot size={48} weight="duotone" />
-          <strong>Faça uma pergunta sobre os documentos da leitura</strong>
-          <span>Clique em uma sugestão acima ou digite sua própria pergunta</span>
-        </div>
-      ) : (
-        <ul className="sr-conf-qa-historico">
-          {historico.map((item, indice) => (
-            <li key={`${item.pergunta}-${indice}`}>
-              <p className="sr-conf-qa-pergunta">{item.pergunta}</p>
-              <p className="sr-conf-qa-resposta">{item.resposta}</p>
-            </li>
-          ))}
-        </ul>
+      {semDocumentos && (
+        <p className="sr-conf-vazio" role="status">
+          Aguardando análise dos arquivos para habilitar perguntas.
+        </p>
       )}
 
+      <section className="sr-conf-qa-bloco" aria-labelledby="sr-conf-qa-sugestoes-titulo">
+        <header className="sr-conf-qa-bloco-header" id="sr-conf-qa-sugestoes-titulo">
+          <Sparkle size={16} weight="fill" aria-hidden />
+          <span>Sugestões de perguntas</span>
+        </header>
+        <div className="sr-conf-qa-sugestoes">
+          {SUGESTOES.map(({ id, texto, Icone }) => (
+            <button
+              key={id}
+              type="button"
+              className="sr-conf-qa-chip"
+              disabled={semDocumentos || enviando}
+              onClick={() => void enviarPergunta(texto)}
+            >
+              <span className="sr-conf-qa-chip-icone" aria-hidden>
+                <Icone size={15} weight="duotone" />
+              </span>
+              <span className="sr-conf-qa-chip-texto">{texto}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <div className="sr-conf-qa-thread" aria-live="polite">
+        {turnos.length === 0 ? (
+          <div className="sr-conf-qa-vazio">
+            <div className="sr-conf-qa-vazio-icone" aria-hidden>
+              <Sparkle size={28} weight="fill" />
+            </div>
+            <strong>Consultor inteligente sobre os documentos</strong>
+            <span>Clique em uma sugestão ou digite sua pergunta abaixo.</span>
+            <p className="sr-conf-qa-disclaimer">
+              Apoio à conferência — não substitui parecer jurídico nem despacho aduaneiro.
+            </p>
+          </div>
+        ) : (
+          <ul className="sr-conf-qa-turnos">
+            {turnos.map((turno) => (
+              <li key={turno.id} className="sr-conf-qa-turno">
+                <div className="sr-conf-qa-turno-pergunta">
+                  <User size={14} weight="fill" aria-hidden />
+                  <span>{turno.pergunta}</span>
+                </div>
+                <article
+                  className={`sr-conf-qa-card${
+                    turno.status === 'erro' ? ' sr-conf-qa-card--erro' : ''
+                  }`}
+                >
+                  <header className="sr-conf-qa-card-header">
+                    <span className="sr-conf-qa-card-avatar" aria-hidden>
+                      <Sparkle size={14} weight="fill" />
+                    </span>
+                    <div className="sr-conf-qa-card-titulos">
+                      <h3>Rafa</h3>
+                      <span className="sr-conf-qa-card-subtitulo">Consultor Smart Read</span>
+                    </div>
+                  </header>
+                  {turno.status === 'carregando' ? (
+                    <p className="sr-conf-qa-card-corpo sr-conf-qa-card-corpo--carregando">
+                      <CircleNotch size={16} className="sr-conf-qa-spinner" aria-hidden />
+                      Analisando os documentos da leitura…
+                    </p>
+                  ) : (
+                    <>
+                      <div className="sr-conf-qa-card-corpo">
+                        <CorpoRespostaMarkdownConsultorSmartRead texto={turno.resposta ?? ''} />
+                      </div>
+                      {turno.aviso && <p className="sr-conf-qa-aviso">{turno.aviso}</p>}
+                    </>
+                  )}
+                </article>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div ref={fimThreadRef} />
+      </div>
+
       <form
-        className="sr-conf-qa-form"
+        className="sr-conf-qa-composer"
         onSubmit={(e) => {
           e.preventDefault()
-          enviarPergunta(pergunta)
+          void enviarPergunta(pergunta)
         }}
       >
         <input
@@ -79,9 +226,19 @@ export function ConferenciaQaNovaLeituraSmartRead() {
           onChange={(e) => setPergunta(e.target.value)}
           placeholder="Pergunte a Rafa sobre seus documentos…"
           aria-label="Pergunta sobre a leitura"
+          disabled={semDocumentos || enviando}
         />
-        <button type="submit" aria-label="Enviar pergunta" disabled={!pergunta.trim()}>
-          <PaperPlaneTilt size={18} weight="fill" />
+        <button
+          type="submit"
+          className="sr-conf-qa-composer-enviar"
+          aria-label="Enviar pergunta"
+          disabled={!pergunta.trim() || semDocumentos || enviando}
+        >
+          {enviando ? (
+            <CircleNotch size={18} className="sr-conf-qa-spinner" aria-hidden />
+          ) : (
+            <PaperPlaneTilt size={18} weight="fill" />
+          )}
         </button>
       </form>
     </div>

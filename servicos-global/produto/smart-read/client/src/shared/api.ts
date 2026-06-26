@@ -29,7 +29,17 @@ import {
   type AnaliseRiscosLeituraRequest,
   type AnaliseRiscosLeituraResponse,
 } from '../../../shared/analise-riscos-leitura-smart-read'
+import {
+  QaLeituraResponseSchema,
+  type QaLeituraRequest,
+  type QaLeituraResponse,
+} from '../../../shared/qa-leitura-smart-read'
 import { extrairMensagemErroCorpo } from './extrair-mensagem-erro-api'
+import {
+  conteudoArquivoLeituraEhVisualizavel,
+  mensagemConteudoArquivoInvalido,
+  resolverMimePorNomeArquivo,
+} from '../../../shared/validar-conteudo-arquivo-leitura-smart-read'
 
 export type { ListaPainel }
 
@@ -103,7 +113,7 @@ async function requisitar<T>(schema: z.ZodType<T>, endpoint: string, init?: Requ
   return schema.parse(await resposta.json())
 }
 
-export type { AnaliseRiscosLeituraRequest, AnaliseRiscosLeituraResponse }
+export type { AnaliseRiscosLeituraRequest, AnaliseRiscosLeituraResponse, QaLeituraRequest, QaLeituraResponse }
 
 export const smartReadApi = {
   listarTransacoes(params: {
@@ -141,10 +151,43 @@ export const smartReadApi = {
     return requisitar(LeituraSchema, `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}`)
   },
 
+  async obterArquivoLeitura(idLeitura: string, idArquivo: string, nomeArquivo?: string): Promise<Blob> {
+    const resposta = await fetch(
+      `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/arquivos/${encodeURIComponent(idArquivo)}`,
+      {
+        headers: cabecalhosBase(),
+        signal: AbortSignal.timeout(45_000),
+      },
+    )
+    if (!resposta.ok) {
+      throw new Error(await lerErro(resposta))
+    }
+    const bruto = await resposta.blob()
+    const bytes = new Uint8Array(await bruto.arrayBuffer())
+    const nome = nomeArquivo ?? 'documento'
+    if (!conteudoArquivoLeituraEhVisualizavel(bytes, nome)) {
+      throw new Error(mensagemConteudoArquivoInvalido(nome))
+    }
+    const mime =
+      bruto.type && bruto.type !== 'application/octet-stream'
+        ? bruto.type
+        : resolverMimePorNomeArquivo(nome)
+    return new Blob([bytes], { type: mime })
+  },
+
   analisarRiscosLeitura(
     payload: AnaliseRiscosLeituraRequest,
   ): Promise<AnaliseRiscosLeituraResponse> {
     return requisitar(AnaliseRiscosLeituraResponseSchema, '/api/v1/smart-read/leituras/analise-riscos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(60_000),
+    })
+  },
+
+  perguntarQaLeitura(payload: QaLeituraRequest): Promise<QaLeituraResponse> {
+    return requisitar(QaLeituraResponseSchema, '/api/v1/smart-read/leituras/qa', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

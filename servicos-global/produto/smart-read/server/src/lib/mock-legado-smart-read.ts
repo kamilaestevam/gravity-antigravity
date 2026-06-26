@@ -13,6 +13,7 @@ type ArquivoMock = {
   filename: string
   mimeType: string
   enviadoEm: number
+  buffer: Buffer
 }
 
 type LeituraMock = {
@@ -91,7 +92,7 @@ export function criarLeituraMockLegado(): string {
 
 export function enviarArquivoMockLegado(
   idLeitura: string,
-  arquivo: { nome: string; mimeType: string },
+  arquivo: { nome: string; mimeType: string; buffer: Buffer },
 ): string {
   const registro = leituras.get(idLeitura)
   if (!registro) {
@@ -103,9 +104,29 @@ export function enviarArquivoMockLegado(
     filename: arquivo.nome,
     mimeType: arquivo.mimeType,
     enviadoEm: Date.now(),
+    buffer: arquivo.buffer,
   })
   registro.totalFiles = registro.arquivos.length
   return fileReferenceId
+}
+
+export function obterArquivoMockLegado(
+  idLeitura: string,
+  idArquivo: string,
+): { buffer: Buffer; contentType: string; nomeArquivo: string } {
+  const registro = leituras.get(idLeitura)
+  if (!registro) {
+    throw new Error(`Leitura mock ${idLeitura} não encontrada`)
+  }
+  const arquivo = registro.arquivos.find((item) => item.fileReferenceId === idArquivo)
+  if (!arquivo) {
+    throw new Error(`Arquivo mock ${idArquivo} não encontrado`)
+  }
+  return {
+    buffer: arquivo.buffer,
+    contentType: arquivo.mimeType || 'application/octet-stream',
+    nomeArquivo: arquivo.filename,
+  }
 }
 
 export function obterLeituraMockLegado(idLeitura: string): LeituraLegado {

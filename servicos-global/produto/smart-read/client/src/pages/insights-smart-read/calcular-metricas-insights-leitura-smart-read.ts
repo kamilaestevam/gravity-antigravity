@@ -10,6 +10,7 @@ import {
 import {
   PARAMETROS_FINANCEIROS_SMART_READ,
   resolverContagemAcertoErroEstudoSmartRead,
+  resolverErrosEvitadosExibicaoEstudoSmartRead,
   resolverParametrosTempoDocumentoSmartRead,
   type TipoDocumentoBaseSmartRead,
 } from './dados-base-produto-tempo-smart-read'
@@ -397,7 +398,7 @@ function calcularMetricasInsightsDeTransacoes(
   }, 0)
   const savingErrosMinutos = calcularSavingErrosDocumentoSmartRead(
     porTipoDocumentoDeTransacoes(elegiveis)[0]?.tipo ?? 'outros',
-    camposErrados,
+    resolverErrosEvitadosExibicaoEstudoSmartRead(totalCampos),
   )
   const custoHora =
     PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
@@ -444,7 +445,10 @@ export function calcularMetricasInsightsLeituraSmartRead(
   }
   const tipoDominante =
     [...porTipoMapa.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'outros'
-  const savingErrosMinutos = calcularSavingErrosDocumentoSmartRead(tipoDominante, camposErrados)
+  const savingErrosMinutos = calcularSavingErrosDocumentoSmartRead(
+    tipoDominante,
+    resolverErrosEvitadosExibicaoEstudoSmartRead(totalCampos),
+  )
 
   const custoHora =
     PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *

@@ -5,6 +5,7 @@ import {
   estimarCamposErradosEvitadosSmartRead,
   formatarErrosEvitadosEstudoSmartRead,
   resolverContagemAcertoErroEstudoSmartRead,
+  resolverErrosEvitadosExibicaoEstudoSmartRead,
 } from '../../../../servicos-global/produto/smart-read/shared/dados-base-produto-tempo-smart-read.ts'
 
 describe('Smart Read — taxa de erro do estudo (SSOT)', () => {
@@ -26,7 +27,10 @@ describe('Smart Read — taxa de erro do estudo (SSOT)', () => {
   it('exibe mínimo 0,001 enquanto arredondamento não atinge 1 erro', () => {
     const contagem = resolverContagemAcertoErroEstudoSmartRead(1_453)
     expect(estimarCamposErradosEvitadosSmartRead(1_453)).toBe(0)
-    expect(contagem.errados).toBe(ERROS_EVITADOS_MINIMO_EXIBICAO_ESTUDO_SMART_READ)
-    expect(formatarErrosEvitadosEstudoSmartRead(contagem.errados)).toBe('0,001')
+    expect(contagem.errados).toBe(0)
+    expect(resolverErrosEvitadosExibicaoEstudoSmartRead(1_453)).toBe(
+      ERROS_EVITADOS_MINIMO_EXIBICAO_ESTUDO_SMART_READ,
+    )
+    expect(formatarErrosEvitadosEstudoSmartRead(contagem.errados, 1_453)).toBe('0,001')
   })
 })

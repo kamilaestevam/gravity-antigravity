@@ -50,43 +50,59 @@ export type ContagemAcertoErroEstudoSmartRead = {
 
 /** Erros evitados (estimativa do estudo) a partir do volume de campos extraídos. */
 export function estimarCamposErradosEvitadosSmartRead(totalCamposExtraidos: number): number {
-  if (totalCamposExtraidos <= 0) return 0
+  const total = Number(totalCamposExtraidos)
+  if (!Number.isFinite(total) || total <= 0) return 0
   return Math.round(
-    (totalCamposExtraidos * ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ) / 10_000,
+    (total * ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ) / 10_000,
   )
+}
+
+/** Piso visual e de saving agregado quando ainda não há 1 erro inteiro na amostra. */
+export function resolverErrosEvitadosExibicaoEstudoSmartRead(totalCamposExtraidos: number): number {
+  const errados = estimarCamposErradosEvitadosSmartRead(totalCamposExtraidos)
+  if (errados > 0) return errados
+  const total = Number(totalCamposExtraidos)
+  if (Number.isFinite(total) && total > 0) return ERROS_EVITADOS_MINIMO_EXIBICAO_ESTUDO_SMART_READ
+  return 0
 }
 
 /** SSOT de acerto/erro para métricas e savings em todo o Smart Docs. */
 export function resolverContagemAcertoErroEstudoSmartRead(
   totalCamposExtraidos: number,
 ): ContagemAcertoErroEstudoSmartRead {
-  if (totalCamposExtraidos <= 0) {
+  const total = Number(totalCamposExtraidos)
+  if (!Number.isFinite(total) || total <= 0) {
     return { total: 0, corretos: 0, errados: 0, taxa_acerto: null }
   }
-  const erradosArredondados = estimarCamposErradosEvitadosSmartRead(totalCamposExtraidos)
-  const errados =
-    erradosArredondados === 0
-      ? ERROS_EVITADOS_MINIMO_EXIBICAO_ESTUDO_SMART_READ
-      : erradosArredondados
-  const corretos = Math.max(0, totalCamposExtraidos - errados)
+  const errados = estimarCamposErradosEvitadosSmartRead(total)
+  const corretos = Math.max(0, total - errados)
   return {
-    total: totalCamposExtraidos,
+    total,
     corretos,
     errados,
-    taxa_acerto: corretos / totalCamposExtraidos,
+    taxa_acerto: corretos / total,
   }
 }
 
 /** Formata erros evitados do estudo (inteiro ≥1 ou mínimo 0,001). */
-export function formatarErrosEvitadosEstudoSmartRead(errados: number): string {
-  if (errados <= 0) return '0'
-  if (errados < 1) {
-    return errados.toLocaleString('pt-BR', {
+export function formatarErrosEvitadosEstudoSmartRead(
+  errados: number,
+  totalCamposExtraidos?: number,
+): string {
+  const exibicao =
+    errados > 0
+      ? errados
+      : totalCamposExtraidos != null
+        ? resolverErrosEvitadosExibicaoEstudoSmartRead(totalCamposExtraidos)
+        : 0
+  if (exibicao <= 0) return '0'
+  if (exibicao < 1) {
+    return exibicao.toLocaleString('pt-BR', {
       minimumFractionDigits: 3,
       maximumFractionDigits: 3,
     })
   }
-  return String(Math.round(errados))
+  return String(Math.round(exibicao))
 }
 
 /** Ordem e rótulos da tabela «Base de cálculo» (estudo DOCS BASE PRODUTO). */

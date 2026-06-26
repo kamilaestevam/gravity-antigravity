@@ -372,7 +372,7 @@ export function resolverSavingDetalhadoTransacaoLeituraSmartRead(
       ? Math.max(0, baseManualMinutos - Math.max(0, tempoLeituraSegundos) / 60)
       : 0
   const camposErrados = resolverContagemAcertoErroEstudoSmartRead(
-    transacao.total_campos_extraidos,
+    transacao.total_campos_extraidos ?? 0,
   ).errados
   const erros = calcularSavingErrosDocumentoSmartRead(tipo, camposErrados)
   const savingTotalMinutos = digitação + erros

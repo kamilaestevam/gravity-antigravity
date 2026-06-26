@@ -196,6 +196,8 @@ export function ModalNovaLeituraSmartRead({
   const urlPreviewRemotaRef = useRef<string | null>(null)
   const previewLoadGenRef = useRef(0)
   const previewRetryRenderRef = useRef(false)
+  const previewFetchChaveResolvidaRef = useRef<string | null>(null)
+  const previewFetchChaveEmCursoRef = useRef<string | null>(null)
   const abertoAnteriorRef = useRef(false)
   const passoSalvoRef = useRef(0)
   const inicioSessaoRef = useRef<number>(Date.now())
@@ -476,6 +478,8 @@ export function ModalNovaLeituraSmartRead({
     setPreviewEvidencia(evidencia ?? null)
     previewLoadGenRef.current += 1
     previewRetryRenderRef.current = false
+    previewFetchChaveResolvidaRef.current = null
+    previewFetchChaveEmCursoRef.current = null
     const temBlobLocal = arquivoLocalTemBlobVisualizavel(item.arquivo)
     setPreviewCarregando(!temBlobLocal)
     setPreviewArquivo({ idArquivoLocal: id, nomeArquivo: item.arquivo.name })
@@ -530,6 +534,7 @@ export function ModalNovaLeituraSmartRead({
     if (gen !== previewLoadGenRef.current) return false
     const validado = await validarBlobLocal(blob, nomeArquivo)
     if (!validado) {
+      if (urlPreviewRemotaRef.current) return false
       setPreviewErro(mensagemConteudoArquivoInvalido(nomeArquivo))
       return false
     }
@@ -546,19 +551,54 @@ export function ModalNovaLeituraSmartRead({
     ? `${previewArquivoItem.id_leitura ?? ''}:${previewArquivoItem.id_arquivo ?? ''}:${previewArquivo?.idArquivoLocal ?? ''}`
     : null
 
-  useEffect(() => {
-    if (!previewArquivo || !previewArquivoItem || !chavePreviewRemoto) return
+  /** Campos estáveis — atualizações de `leitura` (polling passo 2/3) não devem re-disparar fetch do preview. */
+  const contextoFetchPreview = useMemo(() => {
+    if (!previewArquivo || !previewArquivoItem || !chavePreviewRemoto) return null
+    return {
+      chave: chavePreviewRemoto,
+      idArquivoLocal: previewArquivoItem.id_arquivo_local,
+      idLeitura:
+        previewArquivoItem.id_leitura ??
+        idLeituraExistente ??
+        previewArquivoItem.leitura?.id_leitura ??
+        null,
+      idArquivo: previewArquivoItem.id_arquivo,
+      nomeArquivo: previewArquivo.nomeArquivo ?? previewArquivoItem.arquivo.name,
+      tamanhoBlobLocal: previewArquivoItem.arquivo.size,
+    }
+  }, [
+    chavePreviewRemoto,
+    idLeituraExistente,
+    previewArquivo?.idArquivoLocal,
+    previewArquivo?.nomeArquivo,
+    previewArquivoItem?.id_arquivo_local,
+    previewArquivoItem?.id_leitura,
+    previewArquivoItem?.id_arquivo,
+    previewArquivoItem?.arquivo.size,
+  ])
 
-    if (arquivoLocalTemBlobVisualizavel(previewArquivoItem.arquivo)) {
+  useEffect(() => {
+    if (!contextoFetchPreview) return
+
+    const { chave, idArquivoLocal, idLeitura, idArquivo, nomeArquivo, tamanhoBlobLocal } =
+      contextoFetchPreview
+
+    if (tamanhoBlobLocal > 0) {
       setPreviewCarregando(false)
       setPreviewErro(null)
+      previewFetchChaveResolvidaRef.current = chave
       return
     }
 
-    const idLeitura =
-      previewArquivoItem.id_leitura ?? idLeituraExistente ?? previewArquivoItem.leitura?.id_leitura ?? null
-    const idArquivo = previewArquivoItem.id_arquivo
-    const nomeArquivo = previewArquivo?.nomeArquivo ?? previewArquivoItem.arquivo.name
+    if (previewFetchChaveResolvidaRef.current === chave) {
+      setPreviewCarregando(false)
+      return
+    }
+
+    if (previewFetchChaveEmCursoRef.current === chave) {
+      return
+    }
+
     if (!idLeitura || !idArquivo) {
       setPreviewCarregando(false)
       setPreviewErro(mensagemPreviewArquivoIndisponivel(nomeArquivo))
@@ -566,27 +606,22 @@ export function ModalNovaLeituraSmartRead({
     }
 
     const gen = ++previewLoadGenRef.current
+    previewFetchChaveEmCursoRef.current = chave
     setPreviewCarregando(true)
     setPreviewErro(null)
 
     ;(async () => {
       try {
-        const idLeitura =
-          previewArquivoItem.id_leitura ?? idLeituraExistente ?? previewArquivoItem.leitura?.id_leitura ?? null
-        const daSessao =
-          idLeitura != null
-            ? obterArquivoSessaoLeituraSmartRead(idLeitura, idArquivo, nomeArquivo)
-            : null
+        const daSessao = obterArquivoSessaoLeituraSmartRead(idLeitura, idArquivo, nomeArquivo)
         let blob: Blob | null = daSessao
 
-        if (!blob?.size && idLeitura) {
-          const resolvido = await resolverArquivoOriginalLeituraSmartRead(
+        if (!blob?.size) {
+          blob = await resolverArquivoOriginalLeituraSmartRead(
             idLeitura,
             idArquivo,
             nomeArquivo,
             daSessao,
           )
-          blob = resolvido
         }
 
         if (!blob || blob.size === 0) {
@@ -594,6 +629,7 @@ export function ModalNovaLeituraSmartRead({
             blob = await smartReadApi.obterArquivoLeitura(idLeitura, idArquivo, nomeArquivo)
           } catch (excecao) {
             if (gen !== previewLoadGenRef.current) return
+            if (urlPreviewRemotaRef.current && previewFetchChaveResolvidaRef.current === chave) return
             setPreviewErro(mensagemErroPreviewArquivoRemoto(excecao, nomeArquivo))
             return
           }
@@ -602,20 +638,21 @@ export function ModalNovaLeituraSmartRead({
         if (gen !== previewLoadGenRef.current) return
 
         if (!blob || blob.size === 0) {
+          if (urlPreviewRemotaRef.current && previewFetchChaveResolvidaRef.current === chave) return
           setPreviewErro(mensagemPreviewArquivoIndisponivel(nomeArquivo))
           return
         }
 
-        if (idLeitura) {
-          registrarArquivoSessaoLeituraSmartRead(idLeitura, blob instanceof File ? blob : new File([blob], nomeArquivo), idArquivo)
-          if (idArquivo) {
-            void salvarBlobArquivoLeituraSmartRead(idLeitura, idArquivo, blob, nomeArquivo)
-          }
-        }
+        registrarArquivoSessaoLeituraSmartRead(
+          idLeitura,
+          blob instanceof File ? blob : new File([blob], nomeArquivo),
+          idArquivo,
+        )
+        void salvarBlobArquivoLeituraSmartRead(idLeitura, idArquivo, blob, nomeArquivo)
 
         setArquivos((prev) =>
           prev.map((item) =>
-            item.id_arquivo_local === previewArquivoItem.id_arquivo_local
+            item.id_arquivo_local === idArquivoLocal
               ? {
                   ...item,
                   arquivo: blob instanceof File ? blob : new File([blob], nomeArquivo, { type: blob.type }),
@@ -624,17 +661,24 @@ export function ModalNovaLeituraSmartRead({
           ),
         )
 
-        await aplicarBlobPreview(blob, gen, nomeArquivo)
+        const aplicado = await aplicarBlobPreview(blob, gen, nomeArquivo)
+        if (aplicado) {
+          previewFetchChaveResolvidaRef.current = chave
+        }
       } catch {
         if (gen !== previewLoadGenRef.current) return
+        if (urlPreviewRemotaRef.current && previewFetchChaveResolvidaRef.current === chave) return
         setPreviewErro(mensagemPreviewArquivoIndisponivel(nomeArquivo))
       } finally {
+        if (previewFetchChaveEmCursoRef.current === chave) {
+          previewFetchChaveEmCursoRef.current = null
+        }
         if (gen === previewLoadGenRef.current) {
           setPreviewCarregando(false)
         }
       }
     })()
-  }, [aplicarBlobPreview, chavePreviewRemoto, idLeituraExistente, previewArquivo, previewArquivoItem, validarBlobLocal])
+  }, [aplicarBlobPreview, contextoFetchPreview])
 
   const tratarErroRenderPreview = useCallback(async () => {
     if (!previewArquivoItem || !previewArquivo) return
@@ -747,6 +791,8 @@ export function ModalNovaLeituraSmartRead({
       URL.revokeObjectURL(urlPreviewRemotaRef.current)
       urlPreviewRemotaRef.current = null
     }
+    previewFetchChaveResolvidaRef.current = null
+    previewFetchChaveEmCursoRef.current = null
     setPreviewUrlRemota(null)
     setPreviewCarregando(false)
     setPreviewErro(null)

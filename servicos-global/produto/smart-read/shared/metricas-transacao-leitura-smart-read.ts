@@ -4,6 +4,7 @@
 import {
   PARAMETROS_FINANCEIROS_SMART_READ,
   normalizarTipoDocumentoBaseSmartRead,
+  resolverContagemAcertoErroEstudoSmartRead,
   resolverParametrosTempoDocumentoSmartRead,
   type TipoDocumentoBaseSmartRead,
 } from './dados-base-produto-tempo-smart-read.js'
@@ -15,6 +16,7 @@ export type LeituraMetricasEntrada = {
     resultado_extracao: Array<{
       tipo_documento: string | null
       dados: Record<string, unknown>
+      dados_original?: Record<string, unknown>
     }> | null
   }>
 }
@@ -56,19 +58,6 @@ const ROTULO_TIPO: Record<TipoDocumentoBaseSmartRead, string> = {
   outros: 'Outros',
 }
 
-function normalizarAccuracy(valor: unknown): number | null {
-  if (typeof valor !== 'number' || !Number.isFinite(valor)) return null
-  return valor <= 1 ? valor : valor / 100
-}
-
-function extrairAccuracy(dados: Record<string, unknown>): number | null {
-  for (const chave of ['accuracy', 'averageAccuracy', 'score', 'confidence']) {
-    const normalizado = normalizarAccuracy(dados[chave])
-    if (normalizado != null) return normalizado
-  }
-  return null
-}
-
 function contarCamposDados(dados: Record<string, unknown>, profundidade = 0): number {
   if (profundidade > 4) return 0
   let total = 0
@@ -85,21 +74,18 @@ function contarCamposDados(dados: Record<string, unknown>, profundidade = 0): nu
 }
 
 function resolverContagemCampos(
-  dados: Record<string, unknown> | undefined,
+  item: { dados: Record<string, unknown> },
   tipo: TipoDocumentoBaseSmartRead,
 ): { total: number; corretos: number; errados: number } {
   const base = resolverParametrosTempoDocumentoSmartRead(tipo)
-  const contadosExtracao = dados ? contarCamposDados(dados) : 0
+  const contadosExtracao = contarCamposDados(item.dados)
   const total = Math.max(contadosExtracao, base.campos_medio)
-  const accuracy = dados ? extrairAccuracy(dados) : null
-
-  if (accuracy == null) {
-    return { total, corretos: total, errados: 0 }
+  const contagem = resolverContagemAcertoErroEstudoSmartRead(total)
+  return {
+    total: contagem.total,
+    corretos: contagem.corretos,
+    errados: contagem.errados,
   }
-
-  const corretos = Math.round(total * accuracy)
-  const errados = Math.max(0, total - corretos)
-  return { total, corretos, errados }
 }
 
 export function resolverMediaAcertosTransacaoLeituraSmartRead(
@@ -233,6 +219,33 @@ export function resolverTempoLeituraSegundosSmartRead(
   return null
 }
 
+/**
+ * Tempo estimado (s) pela tabela DOCS BASE PRODUTO — apenas quando não há cronômetro nem IA medida.
+ * Não substitui tempo medido quando este existir (ver resolverTempoLeituraSegundosComFallbackSmartRead).
+ */
+export function estimarTempoLeituraSegundosDocumentosSmartRead(
+  documentos: Array<{ tipo_documento: string | null | undefined }>,
+): number | null {
+  if (documentos.length <= 0) return null
+  let minutos = 0
+  for (const documento of documentos) {
+    const tipo = normalizarTipoDocumentoBaseSmartRead(documento.tipo_documento)
+    minutos += resolverParametrosTempoDocumentoSmartRead(tipo).tempo_digitação_smart_read_minutos
+  }
+  return minutos > 0 ? Math.round(minutos * 60) : null
+}
+
+/** Medido (cronômetro/IA) com fallback estimado por tipo quando o legado não persiste tempo. */
+export function resolverTempoLeituraSegundosComFallbackSmartRead(
+  documentos: Array<{ tipo_documento: string | null | undefined }>,
+  tempoProcessoTotalMs: number | null | undefined,
+  tempoExtracaoIaMs: number | null | undefined,
+): number | null {
+  const medido = resolverTempoLeituraSegundosSmartRead(tempoProcessoTotalMs, tempoExtracaoIaMs)
+  if (medido != null && medido > 0) return medido
+  return estimarTempoLeituraSegundosDocumentosSmartRead(documentos)
+}
+
 export function somarBaseManualDocumentosSmartRead(
   documentos: Array<{ tipo_documento: string | null | undefined }>,
 ): number {
@@ -339,7 +352,7 @@ export function resolverSavingDetalhadoTransacaoLeituraSmartRead(
   transacao: Pick<
     MetricasTransacaoLeituraSmartRead,
     | 'total_documentos'
-    | 'total_campos_errados'
+    | 'total_campos_extraidos'
     | 'tipos_documento'
     | 'tempo_extracao_ia_ms'
     | 'tempo_processo_total_ms'
@@ -358,7 +371,10 @@ export function resolverSavingDetalhadoTransacaoLeituraSmartRead(
     tempoLeituraSegundos != null
       ? Math.max(0, baseManualMinutos - Math.max(0, tempoLeituraSegundos) / 60)
       : 0
-  const erros = calcularSavingErrosDocumentoSmartRead(tipo, transacao.total_campos_errados)
+  const camposErrados = resolverContagemAcertoErroEstudoSmartRead(
+    transacao.total_campos_extraidos,
+  ).errados
+  const erros = calcularSavingErrosDocumentoSmartRead(tipo, camposErrados)
   const savingTotalMinutos = digitação + erros
   const custoHora =
     PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
@@ -388,7 +404,7 @@ export function resolverSavingTransacaoLeituraSmartRead(
     | 'saving_total_minutos'
     | 'saving_total_brl'
     | 'total_documentos'
-    | 'total_campos_errados'
+    | 'total_campos_extraidos'
     | 'tipos_documento'
     | 'tempo_extracao_ia_ms'
     | 'tempo_processo_total_ms'
@@ -534,7 +550,7 @@ export function calcularMetricasTransacaoLeituraSmartRead(
       documentos += 1
       const tipoNormalizado = normalizarTipoDocumentoBaseSmartRead(item.tipo_documento)
       const dados = item.dados ?? {}
-      const contagem = resolverContagemCampos(dados, tipoNormalizado)
+      const contagem = resolverContagemCampos(item, tipoNormalizado)
       totalCampos += contagem.total
       camposCorretos += contagem.corretos
       camposErrados += contagem.errados

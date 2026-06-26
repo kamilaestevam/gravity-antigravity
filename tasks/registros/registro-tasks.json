@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 357,
+  "proximo_numero": 364,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1389,6 +1389,57 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000356.json"
+    },
+    {
+      "referencia": "TASK-000360",
+      "ordinal": 84,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-BUG-ENCODING-NOME-ARQUIVO-MOJIBAKE",
+      "titulo_exibicao": "TASK-000360 | [Smart Read] Nova Leitura | BUG — Nomes de arquivo com acentos exibidos corrompidos (mojibake)",
+      "status": "RES",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "ENCODING-NOME-ARQUIVO-MOJIBAKE",
+      "data_criacao": "2026-06-27T03:30:00.000Z",
+      "data_encerramento": "2026-06-27T23:20:00.000Z",
+      "tempo_liquido_horas": 1.75,
+      "tokens_estimados_total": 95000,
+      "arquivo_ficha": "registros/TASK-000360.json"
+    },
+    {
+      "referencia": "TASK-000361",
+      "ordinal": 85,
+      "titulo_canonico": "PEDIDO-LISTA-BUG-I18N-MODAL-CONSOLIDAR-CHAVES-CRUAS",
+      "titulo_exibicao": "TASK-000361 | [Pedido] Lista | BUG — Modal consolidar exibe chaves i18n em vez de textos",
+      "status": "RES",
+      "area": "PEDIDO",
+      "subarea": null,
+      "visualizacao": "LISTA",
+      "tipo_entrega": "BUG",
+      "resumo": "I18N-MODAL-CONSOLIDAR-CHAVES-CRUAS",
+      "data_criacao": "2026-06-26T19:00:00.000Z",
+      "data_encerramento": "2026-06-26T20:57:26.000Z",
+      "tempo_liquido_horas": 0.95,
+      "tokens_estimados_total": 85000,
+      "arquivo_ficha": "registros/TASK-000361.json"
+    },
+    {
+      "referencia": "TASK-000363",
+      "ordinal": 87,
+      "titulo_canonico": "CFG-HUB-MEL-REFINAR-GABI-KPIS-TIPOGRAFIA",
+      "titulo_exibicao": "TASK-000363 | [Configurador] Hub | MEL — Refinar GABI, KPIs Operações e tipografia",
+      "status": "RES",
+      "area": "CFG",
+      "subarea": "HUB",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "REFINAR-GABI-KPIS-TIPOGRAFIA",
+      "data_criacao": "2026-06-26T15:00:00.000Z",
+      "data_encerramento": "2026-06-27T22:30:00.000Z",
+      "tempo_liquido_horas": 2.5,
+      "tokens_estimados_total": 155000,
+      "arquivo_ficha": "registros/TASK-000363.json"
     }
   ]
 }

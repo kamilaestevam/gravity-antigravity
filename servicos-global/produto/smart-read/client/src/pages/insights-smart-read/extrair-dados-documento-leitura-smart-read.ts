@@ -10,6 +10,7 @@ import {
 } from './mapear-participante-insights-smart-read'
 import {
   normalizarTipoDocumentoBaseSmartRead,
+  resolverContagemAcertoErroEstudoSmartRead,
   resolverParametrosTempoDocumentoSmartRead,
   type TipoDocumentoBaseSmartRead,
 } from './dados-base-produto-tempo-smart-read'
@@ -58,17 +59,20 @@ export type DocumentoInsightsSmartRead = {
   tempo_extracao_ia_minutos: number | null
 }
 
-function normalizarAccuracy(valor: unknown): number | null {
-  if (typeof valor !== 'number' || !Number.isFinite(valor)) return null
-  return valor <= 1 ? valor : valor / 100
-}
-
-function extrairAccuracy(dados: Record<string, unknown>): number | null {
-  for (const chave of ['accuracy', 'averageAccuracy', 'score', 'confidence']) {
-    const normalizado = normalizarAccuracy(dados[chave])
-    if (normalizado != null) return normalizado
+function resolverContagemCampos(
+  item: { dados: Record<string, unknown> },
+  tipo: TipoDocumentoBaseSmartRead,
+): { total: number; corretos: number; errados: number; accuracy: number | null } {
+  const base = resolverParametrosTempoDocumentoSmartRead(tipo)
+  const contadosExtracao = contarCamposDados(item.dados)
+  const total = Math.max(contadosExtracao, base.campos_medio)
+  const contagem = resolverContagemAcertoErroEstudoSmartRead(total)
+  return {
+    total: contagem.total,
+    corretos: contagem.corretos,
+    errados: contagem.errados,
+    accuracy: contagem.taxa_acerto,
   }
-  return null
 }
 
 function extrairTextoEntidade(dados: Record<string, unknown>, chaves: string[]): string | null {
@@ -98,28 +102,6 @@ function contarCamposDados(dados: Record<string, unknown>, profundidade = 0): nu
   return total
 }
 
-function resolverContagemCampos(
-  dados: Record<string, unknown> | undefined,
-  tipo: TipoDocumentoBaseSmartRead,
-): { total: number; corretos: number; errados: number; accuracy: number | null } {
-  const base = resolverParametrosTempoDocumentoSmartRead(tipo)
-  const contadosExtracao = dados ? contarCamposDados(dados) : 0
-  // Acerto do documento aplica-se ao volume médio de campos do tipo (DOCS BASE PRODUTO),
-  // não só metadados pontuais (exportador/importador) presentes na extração parcial.
-  const total = Math.max(contadosExtracao, base.campos_medio)
-  const accuracy = dados ? extrairAccuracy(dados) : null
-
-  // Sem accuracy não há evidência de erro de extração. Pela regra de negócio
-  // (campo não editado = acerto), os campos contam como corretos.
-  if (accuracy == null) {
-    return { total, corretos: total, errados: 0, accuracy: null }
-  }
-
-  const corretos = Math.round(total * accuracy)
-  const errados = Math.max(0, total - corretos)
-  return { total, corretos, errados, accuracy }
-}
-
 export function extrairDocumentosInsightsLeituraSmartRead(
   leitura: Leitura,
 ): DocumentoInsightsSmartRead[] {
@@ -132,7 +114,7 @@ export function extrairDocumentosInsightsLeituraSmartRead(
         const tipoRotulo = item.tipo_documento?.trim() || arquivo.nome_arquivo || 'Documento'
         const tipoNormalizado = normalizarTipoDocumentoBaseSmartRead(tipoRotulo)
         const dados = item.dados ?? {}
-        const contagem = resolverContagemCampos(dados, tipoNormalizado)
+        const contagem = resolverContagemCampos(item, tipoNormalizado)
         const participantes = extrairParticipantesDeDadosLeitura(dados)
         const responsavel = resolverResponsavelAcertoDocumentoInsights(tipoNormalizado, participantes)
         const tempoDocMs =

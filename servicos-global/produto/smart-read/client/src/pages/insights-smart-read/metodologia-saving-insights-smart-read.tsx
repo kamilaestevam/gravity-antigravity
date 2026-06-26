@@ -7,7 +7,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from 'react'
-import { BookOpenText, Calculator, ClockCounterClockwise, Info, Table } from '@phosphor-icons/react'
+import { BookOpenText, Calculator, ChartPie, ClockCounterClockwise, Info, Table } from '@phosphor-icons/react'
 import { ModalOverlay } from '@nucleo/modal-global'
 import {
   agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead,
@@ -15,6 +15,7 @@ import {
 } from '../../../../shared/metricas-transacao-leitura-smart-read'
 import { NOME_PRODUTO_EXIBICAO } from '../../shared/marca-smart-docs'
 import {
+  ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ,
   LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ,
   OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ,
   PARAMETROS_FINANCEIROS_SMART_READ,
@@ -99,8 +100,11 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
     <div className="sr-insights-metodologia-saving sr-insights-metodologia-saving--modal">
       <p className="sr-insights-metodologia-saving__lead">
         Comparamos o tempo estimado de digitação e correção <strong>manual</strong> com o fluxo{' '}
-        <strong>{NOME_PRODUTO_EXIBICAO}</strong> por tipo de documento. Os campos editados na conferência entram
-        no saving de erros (mesma regra de acerto/erro dos rankings).
+        <strong>{NOME_PRODUTO_EXIBICAO}</strong> por tipo de documento. A contagem de{' '}
+        <strong>erros evitados</strong> e a divisão corretos × errados em todo o produto seguem
+        exclusivamente a taxa do estudo DOCS BASE PRODUTO (
+        {ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ.toLocaleString('pt-BR')} erros a cada
+        10.000 campos extraídos).
       </p>
 
       <SecaoMetodologiaSaving
@@ -139,23 +143,59 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
           <li>
             <span className="sr-insights-metodologia-saving__formula-nome">Saving em erros (KPI)</span>
             <span className="sr-insights-metodologia-saving__formula-expr">
-              quantidade de campos editados na conferência
+              round(campos extraídos × {ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ} ÷ 10.000)
+              — erros evitados (estudo DOCS BASE PRODUTO)
+            </span>
+          </li>
+          <li>
+            <span className="sr-insights-metodologia-saving__formula-nome">% erro (gráfico corretos × errados)</span>
+            <span className="sr-insights-metodologia-saving__formula-expr">
+              erros evitados ÷ campos extraídos × 100 (ex.: 3 ÷ 10.000 ≈ 0,03%)
+            </span>
+          </li>
+          <li>
+            <span className="sr-insights-metodologia-saving__formula-nome">Campos corretos × errados</span>
+            <span className="sr-insights-metodologia-saving__formula-expr">
+              errados = saving em erros (KPI); corretos = campos extraídos − errados
             </span>
           </li>
           <li>
             <span className="sr-insights-metodologia-saving__formula-nome">Tempo saving erros</span>
             <span className="sr-insights-metodologia-saving__formula-expr">
-              campos editados × (correção manual − correção {NOME_PRODUTO_EXIBICAO} por campo)
+              erros evitados × (correção manual − correção {NOME_PRODUTO_EXIBICAO} por campo)
             </span>
           </li>
           <li>
-            <span className="sr-insights-metodologia-saving__formula-nome">Custo evitado</span>
+            <span className="sr-insights-metodologia-saving__formula-nome">Custo evitado (digitação ou erros)</span>
             <span className="sr-insights-metodologia-saving__formula-expr">
-              minutos economizados ÷ 60 × {custoHoraRotulo}/h (operador {custoOperadorRotulo}/h +
-              markup comercial {PARAMETROS_FINANCEIROS_SMART_READ.markup_venda})
+              minutos economizados do respectivo saving ÷ 60 × {custoHoraRotulo}/h (operador{' '}
+              {custoOperadorRotulo}/h + markup comercial{' '}
+              {PARAMETROS_FINANCEIROS_SMART_READ.markup_venda})
             </span>
           </li>
         </ul>
+      </SecaoMetodologiaSaving>
+
+      <SecaoMetodologiaSaving
+        icone={<ChartPie weight="duotone" size={18} />}
+        titulo="Taxa de erros evitados (métrica única)"
+      >
+        <div className="sr-insights-metodologia-saving__destaque">
+          <p>
+            No estudo comparativo de digitação manual, a taxa média de erro humano equivale a{' '}
+            <strong>
+              {ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ.toLocaleString('pt-BR')} erros a
+              cada 10.000 campos
+            </strong>{' '}
+            digitados. Essa taxa é a <strong>única fonte</strong> para o KPI{' '}
+            <em>Saving em Erros</em>, o gráfico corretos × errados e o tempo/custo de correção
+            evitada — independentemente do tipo de documento.
+          </p>
+          <p className="sr-insights-metodologia-saving__destaque-fecho">
+            Exemplo: 10.000 campos extraídos → {ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ}{' '}
+            erros evitados; 3.437 campos → 1 erro evitado (arredondamento).
+          </p>
+        </div>
       </SecaoMetodologiaSaving>
 
       <SecaoMetodologiaSaving
@@ -229,14 +269,14 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
           </table>
         </div>
         <p className="sr-insights-metodologia-saving__tabela-nota">
-          Tempos de digitação manual calculados na tabela geral do estudo (seção 19 do estudo de BL),
-          com base nos documentos médios descritos abaixo. A coluna <strong>SR medido (s)</strong>{' '}
-          usa a média do tempo real de extração IA das leituras visíveis (
+          Tempos de <strong>digitação manual</strong> vêm do estudo comparativo (documentos médios
+          abaixo). A coluna <strong>SR medido (s)</strong> usa a média do tempo real de extração IA
+          das leituras visíveis (
           {temposSmartReadMedidos.documentos_amostra > 0
             ? `${Math.round(temposSmartReadMedidos.documentos_amostra)} documento(s) na amostra`
             : 'sem amostra nesta tela — exibe «—»'}
-          ). A linha <strong>Média</strong> na digitação manual e correções é aritmética dos tipos;
-          na coluna SR, média ponderada da amostra.
+          ). As colunas <strong>correção/campo</strong> convertem a quantidade de erros evitados (taxa
+          acima) em minutos economizados, por tipo de documento.
         </p>
       </SecaoMetodologiaSaving>
 
@@ -256,9 +296,9 @@ export function ConteudoMetodologiaSavingInsightsSmartRead({
       <footer className="sr-insights-metodologia-saving__rodape">
         <BookOpenText weight="duotone" size={16} className="sr-insights-metodologia-saving__rodape-icone" />
         <p>
-          <strong>Fonte:</strong> DOCS BASE PRODUTO — estudos comparativos de tempo de digitação (BL,
-          Packing List, Pedido/Proforma/Invoice) embutidos no produto. Valores poderão ser editáveis
-          no Configurador quando a tabela oficial for publicada.
+          <strong>Fonte:</strong> DOCS BASE PRODUTO — estudos comparativos de tempo de digitação e
+          taxa de erro manual ({ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ}/10.000 campos).
+          Valores poderão ser editáveis no Configurador quando a tabela oficial for publicada.
         </p>
       </footer>
     </div>

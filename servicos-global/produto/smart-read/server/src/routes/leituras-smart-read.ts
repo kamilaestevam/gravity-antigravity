@@ -28,6 +28,10 @@ import {
   obterLeituraDoSnapshot,
   persistirSnapshotLeituraSmartRead,
 } from '../lib/snapshot-leitura-smart-read.js'
+import {
+  leituraTemConferenciaGravity,
+  mesclarLeituraComConferenciaGravity,
+} from '../lib/mesclar-leitura-conferencia-gravity-smart-read.js'
 import type { RequisicaoComPrismaSmartRead } from '../middleware/isolamento-organizacao-smart-read.js'
 import {
   CriarLeituraRespostaSchema,
@@ -234,12 +238,6 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
     const idWorkspace = resolverIdWorkspaceLeituraSmartRead(req, idOrganizacao)
 
     if (req.prisma) {
-      const doSnapshot = await obterLeituraDoSnapshot(req.prisma, id_leitura, idWorkspace)
-      if (doSnapshot) {
-        res.json(LeituraSchema.parse(doSnapshot))
-        return
-      }
-
       const vinculada = await leituraVinculadaAoWorkspaceSmartRead(req.prisma, id_leitura, idWorkspace)
       if (!vinculada) {
         throw new AppError('Leitura nao encontrada neste workspace', 404, 'LEITURA_NAO_ENCONTRADA')
@@ -247,29 +245,53 @@ router.get('/:id_leitura', async (req: RequisicaoComPrismaSmartRead, res: Respon
     }
 
     const companyId = await resolverCompanyLegado(idOrganizacao)
-    const leituraLegado = await obterLeituraLegado(companyId, id_leitura)
-    const leitura = normalizarLeitura(leituraLegado)
+    try {
+      const leituraLegado = await obterLeituraLegado(companyId, id_leitura)
+      let leitura = normalizarLeitura(leituraLegado)
+      let doSnapshot: Awaited<ReturnType<typeof obterLeituraDoSnapshot>> = null
 
-    if (req.prisma && idUsuario && req.idOrganizacao) {
-      void persistirSnapshotLeituraSmartRead({
-        prisma: req.prisma,
-        idOrganizacao: req.idOrganizacao,
-        idUsuario,
-        idWorkspace,
-        leitura,
-        motivo: 'extracao_concluida',
-        extras: {
-          data_envio: leituraLegado.createdAt ?? null,
-          created_at: leituraLegado.createdAt ?? null,
-          completed_at: leituraLegado.completedAt ?? null,
-          origem_leitura: mapearOrigemLeitura(leituraLegado.source ?? leituraLegado.origin),
-        },
-      }).catch((erro) => {
-        console.warn('[smart-read][snapshot] falha ao persistir no GET leitura', erro)
-      })
+      if (req.prisma) {
+        doSnapshot = await obterLeituraDoSnapshot(req.prisma, id_leitura, idWorkspace)
+        if (doSnapshot) {
+          leitura = mesclarLeituraComConferenciaGravity(leitura, doSnapshot)
+        }
+      }
+
+      if (req.prisma && idUsuario && req.idOrganizacao) {
+        const preservarConferencia = doSnapshot != null && leituraTemConferenciaGravity(doSnapshot)
+
+        if (!preservarConferencia) {
+          void persistirSnapshotLeituraSmartRead({
+            prisma: req.prisma,
+            idOrganizacao: req.idOrganizacao,
+            idUsuario,
+            idWorkspace,
+            leitura,
+            motivo: 'extracao_concluida',
+            extras: {
+              data_envio: leituraLegado.createdAt ?? null,
+              created_at: leituraLegado.createdAt ?? null,
+              completed_at: leituraLegado.completedAt ?? null,
+              origem_leitura: mapearOrigemLeitura(leituraLegado.source ?? leituraLegado.origin),
+            },
+          }).catch((erro) => {
+            console.warn('[smart-read][snapshot] falha ao persistir no GET leitura', erro)
+          })
+        }
+      }
+
+      res.json(LeituraSchema.parse(leitura))
+      return
+    } catch (erroLegado) {
+      if (req.prisma) {
+        const doSnapshot = await obterLeituraDoSnapshot(req.prisma, id_leitura, idWorkspace)
+        if (doSnapshot) {
+          res.json(LeituraSchema.parse(doSnapshot))
+          return
+        }
+      }
+      throw erroLegado
     }
-
-    res.json(LeituraSchema.parse(leitura))
   } catch (err) {
     const idUsuarioCatch = idUsuarioOpcional(req)
     const idOrganizacaoCatch = req.headers['x-id-organizacao']

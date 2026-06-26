@@ -4,8 +4,8 @@
   "id_transcript": null,
   "titulo_canonico": "PEDIDO-LISTA-BUG-I18N-MODAL-CONSOLIDAR-CHAVES-CRUAS",
   "titulo_exibicao": "TASK-000361 | [Pedido] Lista | BUG — Modal consolidar exibe chaves i18n em vez de textos",
-  "status": "ABR",
-  "status_descricao": "Aberta — aguardando implementação ou encerramento",
+  "status": "RES",
+  "status_descricao": "Resolvida e arquivada — task encerrada; nome da conversa recebe prefixo RES * {horas}h",
   "area": "PEDIDO",
   "area_descricao": "Produto Pedido — lista, edição e operações em massa em servicos-global/produto/pedido",
   "subarea": null,
@@ -17,29 +17,61 @@
   "resumo": "I18N-MODAL-CONSOLIDAR-CHAVES-CRUAS",
   "resumo_descricao": "Chaves i18n cruas no modal Consolidar Pedidos (passos, filtros, botões)",
   "resumo_detalhado": "Corrigir exibição de chaves i18n cruas (ex.: pedido.modal_cons.subtitulo, passo_comparar, proximo) no modal Consolidar Pedidos. O componente ModalPedidosConsolidar.tsx foi evoluído para fluxo em 3 passos com ~90 chaves t(), mas pedido.modal_cons em pt.json/en.json/es.json mantém apenas ~28 entradas. Completar traduções nos três locales para paridade com o componente.",
-  "data_criacao": "2026-06-27T12:00:00.000Z",
-  "data_encerramento": null,
-  "duracao_horas": null,
-  "tempo_bruto_horas": null,
-  "tempo_agente_horas": null,
-  "tempo_dono_horas": null,
-  "tempo_liquido_horas": null,
-  "tokens_estimados_entrada": null,
-  "tokens_estimados_saida": null,
-  "tokens_estimados_total": null,
-  "mensagens_usuario": null,
-  "mensagens_agente": null,
-  "fases_concluidas": [],
+  "data_criacao": "2026-06-26T19:00:00.000Z",
+  "data_encerramento": "2026-06-26T20:57:26.000Z",
+  "duracao_horas": 0.95,
+  "tempo_bruto_horas": 1.96,
+  "tempo_agente_horas": 0.85,
+  "tempo_dono_horas": 0.1,
+  "tempo_liquido_horas": 0.95,
+  "tokens_estimados_entrada": 48000,
+  "tokens_estimados_saida": 37000,
+  "tokens_estimados_total": 85000,
+  "mensagens_usuario": 5,
+  "mensagens_agente": 6,
+  "fases_concluidas": ["DIAGNOSTICO", "IMPLEMENTACAO", "COMMIT", "PR"],
   "checklist_encerramento": {
     "teste_local": { "valor": "nao", "descricao": "Testes locais executados (unitário, funcional, em tela)" },
     "code_review": { "valor": "nao", "descricao": "Code review executado (/code-review)" },
     "doc_skill": { "valor": "nao", "descricao": "Documentos técnicos e/ou skills atualizados (/docs-skills)" },
     "qa": { "valor": "nao", "descricao": "QA pós-entrega executado (/qa)" },
-    "pr": { "valor": "nao", "descricao": "Pull request aberto ou merge solicitado" },
+    "pr": { "valor": "sim", "descricao": "Pull request aberto ou merge solicitado" },
     "deploy": { "valor": "nao", "descricao": "Deploy ou migration executado (/deploy)" },
     "teste_producao": { "valor": "nao", "descricao": "Validado em produção ou staging real" }
   },
-  "checklist_alertas": [],
+  "checklist_alertas": [
+    {
+      "item": "teste_local",
+      "mensagem": "Testes locais não executados — validar modal Consolidar Pedidos em tela após reload."
+    },
+    {
+      "item": "code_review",
+      "mensagem": "Code review não executado — invocar /code-review antes de considerar task fechada."
+    },
+    {
+      "item": "doc_skill",
+      "mensagem": "Documentos técnicos e/ou skills não atualizados — invocar /docs-skills se necessário."
+    },
+    {
+      "item": "qa",
+      "mensagem": "QA não executado — invocar /qa antes de considerar task fechada."
+    },
+    {
+      "item": "deploy",
+      "mensagem": "Deploy não executado nesta task — código no master via PR #488; validar se produção recebeu o merge."
+    },
+    {
+      "item": "teste_producao",
+      "mensagem": "Não validado em produção/staging — usuário reportou dúvida se deploy ocorreu."
+    }
+  ],
+  "entregas": [
+    "nucleo-global/Utilidades/Localization/locales/pt.json",
+    "nucleo-global/Utilidades/Localization/locales/en.json",
+    "nucleo-global/Utilidades/Localization/locales/es.json",
+    "https://github.com/dmmltda/gravity-antigravity/commit/efc0a8a0e",
+    "https://github.com/dmmltda/gravity-antigravity/pull/488"
+  ],
   "branch": "fix/smart-read-preview-race-condition",
-  "notas": null
+  "notas": "Commit efc0a8a0e mergeado no master via PR #488 (bundle Smart Read); sem PR dedicado Pedido."
 }

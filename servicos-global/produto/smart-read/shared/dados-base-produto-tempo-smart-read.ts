@@ -32,6 +32,44 @@ export const PARAMETROS_FINANCEIROS_SMART_READ: ParametrosFinanceirosSmartRead =
   markup_venda: 1.35,
 }
 
+/**
+ * Estudo DOCS BASE PRODUTO — taxa média de erro na digitação manual.
+ * Equivale a ~3 erros evitados a cada 10.000 campos extraídos (0,03%).
+ */
+export const ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ = 3
+
+export type ContagemAcertoErroEstudoSmartRead = {
+  total: number
+  corretos: number
+  errados: number
+  taxa_acerto: number | null
+}
+
+/** Erros evitados (estimativa do estudo) a partir do volume de campos extraídos. */
+export function estimarCamposErradosEvitadosSmartRead(totalCamposExtraidos: number): number {
+  if (totalCamposExtraidos <= 0) return 0
+  return Math.round(
+    (totalCamposExtraidos * ERROS_EVITADOS_POR_10_000_CAMPOS_ESTUDO_SMART_READ) / 10_000,
+  )
+}
+
+/** SSOT de acerto/erro para métricas e savings em todo o Smart Docs. */
+export function resolverContagemAcertoErroEstudoSmartRead(
+  totalCamposExtraidos: number,
+): ContagemAcertoErroEstudoSmartRead {
+  if (totalCamposExtraidos <= 0) {
+    return { total: 0, corretos: 0, errados: 0, taxa_acerto: null }
+  }
+  const errados = estimarCamposErradosEvitadosSmartRead(totalCamposExtraidos)
+  const corretos = Math.max(0, totalCamposExtraidos - errados)
+  return {
+    total: totalCamposExtraidos,
+    corretos,
+    errados,
+    taxa_acerto: corretos / totalCamposExtraidos,
+  }
+}
+
 /** Ordem e rótulos da tabela «Base de cálculo» (estudo DOCS BASE PRODUTO). */
 export const LINHAS_TABELA_EXIBICAO_BASE_CALCULO_SMART_READ: {
   rotulo_exibicao: string

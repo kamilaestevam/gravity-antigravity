@@ -1,12 +1,15 @@
 import type { Leitura, TransacaoLeitura } from '../../shared/schemas'
 import {
+  calcularMetricasTransacaoLeituraSmartRead,
   calcularSavingDigitaçãoTransacaoLeituraSmartRead,
   calcularSavingErrosDocumentoSmartRead,
+  estimarTempoLeituraSegundosDocumentosSmartRead,
   resolverSavingDetalhadoTransacaoLeituraSmartRead,
-  resolverTempoLeituraSegundosSmartRead,
+  resolverTempoLeituraSegundosComFallbackSmartRead,
 } from '../../../../shared/metricas-transacao-leitura-smart-read'
 import {
   PARAMETROS_FINANCEIROS_SMART_READ,
+  resolverContagemAcertoErroEstudoSmartRead,
   resolverParametrosTempoDocumentoSmartRead,
   type TipoDocumentoBaseSmartRead,
 } from './dados-base-produto-tempo-smart-read'
@@ -174,18 +177,84 @@ export function resolverRankingsParticipanteInsights(
   return RANKINGS_PARTICIPANTE_VAZIO[tipo]
 }
 
-function mapTempoLeituraSegundosPorId(transacoes: TransacaoLeitura[]): Map<string, number | null> {
+function listarDocumentosEstimadosTransacao(
+  transacao: Pick<TransacaoLeitura, 'total_documentos' | 'tipos_documento'>,
+): Array<{ tipo_documento: string | null }> {
+  if (transacao.total_documentos <= 0) return []
+  const partes = (transacao.tipos_documento ?? '')
+    .split('·')
+    .map((parte) => parte.trim())
+    .filter(Boolean)
+  return Array.from({ length: transacao.total_documentos }, (_, indice) => ({
+    tipo_documento: partes.length > 0 ? partes[indice % partes.length] : null,
+  }))
+}
+
+function listarDocumentosMetricasLeitura(
+  leitura: Leitura,
+): Array<{ tipo_documento: string | null }> {
+  const documentos: Array<{ tipo_documento: string | null }> = []
+  for (const arquivo of leitura.arquivos) {
+    for (const item of arquivo.resultado_extracao ?? []) {
+      documentos.push({ tipo_documento: item.tipo_documento })
+    }
+  }
+  return documentos
+}
+
+function mapTempoLeituraSegundosPorId(
+  transacoes: TransacaoLeitura[],
+  leituras: Leitura[],
+): Map<string, number | null> {
   const mapa = new Map<string, number | null>()
   for (const transacao of transacoes) {
     mapa.set(
       transacao.id_leitura,
-      resolverTempoLeituraSegundosSmartRead(
+      resolverTempoLeituraSegundosComFallbackSmartRead(
+        listarDocumentosEstimadosTransacao(transacao),
         transacao.tempo_processo_total_ms,
         transacao.tempo_extracao_ia_ms,
       ),
     )
   }
+  for (const leitura of leituras) {
+    const tempoAtual = mapa.get(leitura.id_leitura)
+    if (typeof tempoAtual === 'number' && tempoAtual > 0) continue
+
+    const documentos = listarDocumentosMetricasLeitura(leitura)
+    const metricas = calcularMetricasTransacaoLeituraSmartRead(leitura, {
+      created_at: null,
+      completed_at: null,
+    })
+    const tempo = resolverTempoLeituraSegundosComFallbackSmartRead(
+      documentos,
+      metricas.tempo_processo_total_ms,
+      metricas.tempo_extracao_ia_ms,
+    )
+    if (tempo != null) {
+      mapa.set(leitura.id_leitura, tempo)
+    }
+  }
   return mapa
+}
+
+function resolverTempoLeituraSegundosInsights(
+  idLeitura: string,
+  documentos: DocumentoInsightsSmartRead[],
+  tempoPorLeitura: Map<string, number | null>,
+): number | null {
+  const tempoMapa = tempoPorLeitura.get(idLeitura)
+  if (typeof tempoMapa === 'number' && tempoMapa > 0) return tempoMapa
+
+  const somaMsDocumentos = documentos.reduce((acc, documento) => {
+    if (documento.tempo_extracao_ia_minutos == null) return acc
+    return acc + Math.round(documento.tempo_extracao_ia_minutos * 60000)
+  }, 0)
+  if (somaMsDocumentos > 0) return Math.round(somaMsDocumentos / 1000)
+
+  return estimarTempoLeituraSegundosDocumentosSmartRead(
+    documentos.map((documento) => ({ tipo_documento: documento.tipo_rotulo })),
+  )
 }
 
 function calcularSavingInsightsDeDocumentos(
@@ -204,8 +273,8 @@ function calcularSavingInsightsDeDocumentos(
 
   for (const [idLeitura, docs] of porLeitura) {
     savingDigitaçãoMinutos += calcularSavingDigitaçãoTransacaoLeituraSmartRead(
-      docs,
-      tempoPorLeitura.get(idLeitura) ?? null,
+      docs.map((documento) => ({ tipo_documento: documento.tipo_rotulo })),
+      resolverTempoLeituraSegundosInsights(idLeitura, docs, tempoPorLeitura),
     )
     for (const doc of docs) {
       savingErrosMinutos += calcularSavingErrosDocumentoSmartRead(
@@ -309,21 +378,27 @@ function calcularMetricasInsightsDeTransacoes(
 
   const totalDocumentos = elegiveis.reduce((acc, t) => acc + t.total_documentos, 0)
   const totalCampos = elegiveis.reduce((acc, t) => acc + t.total_campos_extraidos, 0)
-  const camposCorretos = elegiveis.reduce((acc, t) => acc + t.total_campos_corretos, 0)
-  const camposErrados = elegiveis.reduce((acc, t) => acc + t.total_campos_errados, 0)
-  const taxaAcertoCampos =
-    camposCorretos + camposErrados > 0
-      ? camposCorretos / (camposCorretos + camposErrados)
-      : null
+  const contagemEstudo = resolverContagemAcertoErroEstudoSmartRead(totalCampos)
+  const camposCorretos = contagemEstudo.corretos
+  const camposErrados = contagemEstudo.errados
+  const taxaAcertoCampos = contagemEstudo.taxa_acerto
 
   const savingDigitaçãoMinutos = elegiveis.reduce((acc, transacao) => {
     const saving = resolverSavingDetalhadoTransacaoLeituraSmartRead(transacao)
-    return acc + (saving?.digitação ?? 0)
+    if (saving && saving.digitação > 0) return acc + saving.digitação
+
+    const documentos = listarDocumentosEstimadosTransacao(transacao)
+    const tempo = resolverTempoLeituraSegundosComFallbackSmartRead(
+      documentos,
+      transacao.tempo_processo_total_ms,
+      transacao.tempo_extracao_ia_ms,
+    )
+    return acc + calcularSavingDigitaçãoTransacaoLeituraSmartRead(documentos, tempo)
   }, 0)
-  const savingErrosMinutos = elegiveis.reduce((acc, transacao) => {
-    const saving = resolverSavingDetalhadoTransacaoLeituraSmartRead(transacao)
-    return acc + (saving?.erros ?? 0)
-  }, 0)
+  const savingErrosMinutos = calcularSavingErrosDocumentoSmartRead(
+    porTipoDocumentoDeTransacoes(elegiveis)[0]?.tipo ?? 'outros',
+    camposErrados,
+  )
   const custoHora =
     PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
     PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
@@ -354,26 +429,26 @@ export function calcularMetricasInsightsLeituraSmartRead(
   }
 
   const totalCampos = documentos.reduce((acc, d) => acc + d.total_campos, 0)
-  const camposCorretos = documentos.reduce((acc, d) => acc + d.campos_corretos, 0)
-  const camposErrados = documentos.reduce((acc, d) => acc + d.campos_errados, 0)
-  const taxaAcertoCampos =
-    camposCorretos + camposErrados > 0
-      ? camposCorretos / (camposCorretos + camposErrados)
-      : null
+  const contagemEstudo = resolverContagemAcertoErroEstudoSmartRead(totalCampos)
+  const camposCorretos = contagemEstudo.corretos
+  const camposErrados = contagemEstudo.errados
+  const taxaAcertoCampos = contagemEstudo.taxa_acerto
 
-  const tempoPorLeitura = mapTempoLeituraSegundosPorId(transacoes)
+  const tempoPorLeitura = mapTempoLeituraSegundosPorId(transacoes, leituras)
   const saving = calcularSavingInsightsDeDocumentos(documentos, tempoPorLeitura)
   const savingDigitaçãoMinutos = saving.digitação
-  const savingErrosMinutos = saving.erros
-
-  const custoHora =
-    PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
-    PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
 
   const porTipoMapa = new Map<TipoDocumentoBaseSmartRead, number>()
   for (const doc of documentos) {
     porTipoMapa.set(doc.tipo_normalizado, (porTipoMapa.get(doc.tipo_normalizado) ?? 0) + 1)
   }
+  const tipoDominante =
+    [...porTipoMapa.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'outros'
+  const savingErrosMinutos = calcularSavingErrosDocumentoSmartRead(tipoDominante, camposErrados)
+
+  const custoHora =
+    PARAMETROS_FINANCEIROS_SMART_READ.custo_hora_operador_brl *
+    PARAMETROS_FINANCEIROS_SMART_READ.markup_venda
 
   const porTipoDocumento = [...porTipoMapa.entries()]
     .map(([tipo, quantidade]) => ({

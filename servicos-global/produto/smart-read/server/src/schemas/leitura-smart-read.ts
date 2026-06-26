@@ -54,14 +54,18 @@ export const EnviarArquivoLegadoRespostaSchema = z.object({
   fileReferenceId: z.string().optional(),
 })
 
+export const ItemResultadoExtracaoLeituraSchema = z.object({
+  tipo_documento: z.string().nullable(),
+  dados: z.record(z.string(), z.unknown()),
+  dados_original: z.record(z.string(), z.unknown()).optional(),
+})
+
 export const ArquivoLeituraSchema = z.object({
   id_arquivo: z.string(),
   nome_arquivo: z.string().nullable(),
   status_arquivo: StatusLeituraEnum,
   tempo_extracao_ia_ms: z.number().int().min(0).nullable().optional(),
-  resultado_extracao: z
-    .array(z.object({ tipo_documento: z.string().nullable(), dados: z.record(z.string(), z.unknown()) }))
-    .nullable(),
+  resultado_extracao: z.array(ItemResultadoExtracaoLeituraSchema).nullable(),
 })
 
 export const LeituraSchema = z.object({
@@ -152,6 +156,79 @@ function resolverTempoExtracaoArquivoLegadoMs(arquivo: {
   return null
 }
 
+type ResultadoExtracaoLegado = {
+  id?: string | number
+  fileType?: string
+  data?: Record<string, unknown>
+}
+
+function idResultadoExtracaoLegado(item: ResultadoExtracaoLegado): string | null {
+  if (item.id == null) return null
+  return String(item.id)
+}
+
+function resolverItemOriginalPareado(
+  originais: ResultadoExtracaoLegado[],
+  itemFinal: ResultadoExtracaoLegado,
+  indice: number,
+): ResultadoExtracaoLegado | undefined {
+  if (indice < originais.length && originais[indice]) {
+    return originais[indice]
+  }
+
+  const idFinal = idResultadoExtracaoLegado(itemFinal)
+  if (idFinal) {
+    const porId = originais.find((item) => idResultadoExtracaoLegado(item) === idFinal)
+    if (porId) return porId
+  }
+
+  const tipoFinal = itemFinal.fileType?.trim()
+  if (tipoFinal) {
+    const porTipo = originais.find((item) => item.fileType?.trim() === tipoFinal)
+    if (porTipo) return porTipo
+  }
+
+  return undefined
+}
+
+function dadosDistintos(
+  esquerda: Record<string, unknown>,
+  direita: Record<string, unknown>,
+): boolean {
+  return JSON.stringify(esquerda) !== JSON.stringify(direita)
+}
+
+export function parearResultadoExtracaoLegado(arquivo: {
+  processingResult?: ResultadoExtracaoLegado[]
+  finalProcessingResult?: ResultadoExtracaoLegado[] | null
+}): z.infer<typeof ItemResultadoExtracaoLeituraSchema>[] | null {
+  const finais = arquivo.finalProcessingResult ?? arquivo.processingResult
+  if (!finais || finais.length === 0) return null
+
+  const originais = arquivo.processingResult ?? []
+  const houveConferencia =
+    arquivo.finalProcessingResult != null && arquivo.processingResult != null
+
+  return finais.map((itemFinal, indice) => {
+    const dados = itemFinal.data ?? {}
+    const itemOriginal = houveConferencia
+      ? resolverItemOriginalPareado(originais, itemFinal, indice)
+      : undefined
+    const dadosOriginal = itemOriginal?.data
+
+    const base = {
+      tipo_documento: itemFinal.fileType ?? itemOriginal?.fileType ?? null,
+      dados,
+    }
+
+    if (dadosOriginal && dadosDistintos(dadosOriginal, dados)) {
+      return { ...base, dados_original: dadosOriginal }
+    }
+
+    return base
+  })
+}
+
 export function normalizarLeitura(legado: LeituraLegado): Leitura {
   const arquivos = legado.files ?? []
   const statusArquivos = arquivos.map((arquivo) => mapearStatus(arquivo.processingStatus))
@@ -171,20 +248,12 @@ export function normalizarLeitura(legado: LeituraLegado): Leitura {
     status_leitura: statusLeitura,
     total_arquivos: legado.totalFiles ?? 0,
     arquivos_processados: legado.processedFiles ?? 0,
-    arquivos: arquivos.map((arquivo) => {
-      const resultado = arquivo.finalProcessingResult ?? arquivo.processingResult
-      return {
-        id_arquivo: arquivo.fileReferenceId,
-        nome_arquivo: corrigirEncodingNomeArquivoSmartRead(arquivo.filename ?? null),
-        status_arquivo: mapearStatus(arquivo.processingStatus),
-        tempo_extracao_ia_ms: resolverTempoExtracaoArquivoLegadoMs(arquivo),
-        resultado_extracao: resultado
-          ? resultado.map((item) => ({
-              tipo_documento: item.fileType ?? null,
-              dados: item.data ?? {},
-            }))
-          : null,
-      }
-    }),
+    arquivos: arquivos.map((arquivo) => ({
+      id_arquivo: arquivo.fileReferenceId,
+      nome_arquivo: corrigirEncodingNomeArquivoSmartRead(arquivo.filename ?? null),
+      status_arquivo: mapearStatus(arquivo.processingStatus),
+      tempo_extracao_ia_ms: resolverTempoExtracaoArquivoLegadoMs(arquivo),
+      resultado_extracao: parearResultadoExtracaoLegado(arquivo),
+    })),
   }
 }

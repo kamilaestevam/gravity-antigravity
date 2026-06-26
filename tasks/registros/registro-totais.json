@@ -1,69 +1,137 @@
 {
+
   "versao": 2,
-  "data_atualizacao": "2026-06-26T00:18:00.000Z",
+
+  "data_atualizacao": "2026-06-26T20:57:26.000Z",
+
   "nota": "Recalcular sempre em /novo-agente, /encerrar-agente ou edição de TASK-*.json.",
+
   "total_tasks": {
-    "fichas_registradas": 73,
-    "fichas_resolvidas": 29,
+
+    "fichas_registradas": 76,
+
+    "fichas_resolvidas": 32,
+
     "fichas_abertas": 44,
+
     "sessoes_cursor_legado_sem_ficha": 225,
+
     "sessoes_cursor_total": 263,
-    "proximo_numero": 349
+
+    "proximo_numero": 364
+
   },
+
   "total_periodo": {
+
     "data_inicio": "2026-04-24T18:58:26.000Z",
-    "data_fim": "2026-06-26T00:18:00.000Z",
-    "dias_corridos": 63,
+
+    "data_fim": "2026-06-27T23:20:00.000Z",
+
+    "dias_corridos": 64,
+
     "descricao": "Da TASK-000001 (mais antiga fichada) até último encerramento"
+
   },
+
   "total_tokens": {
-    "entrada": 1924420,
-    "saida": 1358022,
-    "total": 3282442
+
+    "entrada": 2146220,
+
+    "saida": 1470022,
+
+    "total": 3617442
+
   },
+
   "total_horas": {
-    "liquido": 71.66,
-    "bruto": 286.13,
-    "agente": 57.94,
-    "dono": 13.72,
-    "duracao": 71.21
+
+    "liquido": 76.86,
+
+    "bruto": 315.92,
+
+    "agente": 62.29,
+
+    "dono": 14.57,
+
+    "duracao": 76.41
+
   },
+
   "estatisticas_checklist": {
+
     "teste_local": {
-      "sim": 15,
-      "nao": 12,
+
+      "sim": 17,
+
+      "nao": 13,
+
       "nao_aplicavel": 5
+
     },
+
     "code_review": {
+
       "sim": 7,
-      "nao": 21,
+
+      "nao": 24,
+
       "nao_aplicavel": 5
+
     },
+
     "doc_skill": {
+
       "sim": 11,
-      "nao": 16,
+
+      "nao": 19,
+
       "nao_aplicavel": 6
+
     },
+
     "qa": {
+
       "sim": 2,
-      "nao": 27,
+
+      "nao": 30,
+
       "nao_aplicavel": 4
+
     },
+
     "pr": {
-      "sim": 24,
-      "nao": 5,
+
+      "sim": 26,
+
+      "nao": 6,
+
       "nao_aplicavel": 4
+
     },
+
     "deploy": {
-      "sim": 22,
-      "nao": 5,
+
+      "sim": 23,
+
+      "nao": 7,
+
       "nao_aplicavel": 4
+
     },
+
     "teste_producao": {
+
       "sim": 11,
-      "nao": 17,
+
+      "nao": 20,
+
       "nao_aplicavel": 4
+
     }
+
   },
-  "total_alertas_registrados": 77
+
+  "total_alertas_registrados": 93
+
 }

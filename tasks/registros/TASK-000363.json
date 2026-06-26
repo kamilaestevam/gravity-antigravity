@@ -1,0 +1,70 @@
+{
+  "referencia": "TASK-000363",
+  "ordinal": 87,
+  "id_transcript": "c001e004-c6b4-474c-8df0-16b878e7905e",
+  "titulo_canonico": "CFG-HUB-MEL-REFINAR-GABI-KPIS-TIPOGRAFIA",
+  "titulo_exibicao": "TASK-000363 | [Configurador] Hub | MEL — Refinar GABI, KPIs Operações e tipografia",
+  "status": "RES",
+  "status_descricao": "Resolvida e arquivada — task encerrada; nome da conversa recebe prefixo RES * {horas}h",
+  "area": "CFG",
+  "area_descricao": "Configurador — auth, billing, permissões, Hub unificado e Gravity Store",
+  "subarea": "HUB",
+  "subarea_descricao": "Hub unificado (/hub) — painéis Operações, Store, GABI Insights e produtos contratados",
+  "visualizacao": null,
+  "visualizacao_descricao": "Não aplicável — dashboard Hub, não é LISTA/KANBAN/DASHBOARD/INSIGHTS de produto vertical",
+  "tipo_entrega": "MEL",
+  "tipo_entrega_descricao": "Melhoria de UX e restauração de refinamentos revertidos acidentalmente",
+  "resumo": "REFINAR-GABI-KPIS-TIPOGRAFIA",
+  "resumo_descricao": "Restaurar painel GABI, KPIs dinâmicos, tipografia e layout do Hub",
+  "resumo_detalhado": "Sessão focada no Hub (/hub): reativar GABI AI · Insights e widget global; unificar fundos Store/GABI/Operações; KPIs com TooltipGlobal e contadores dinâmicos; pill Gravity Store; badge FORNECEDOR no puzzle; remover barra cinza do carrossel; tipografia títulos 12px (Operações, Store, GABI), subtítulos paridade gs-stack__sub, tags insights indigo #818cf8; ajustes texto/link dos cards GABI. Revertido por outro agente — restaurado via commit c24519dec, PR #490 mergeada e deploy ACTIVE.",
+  "data_criacao": "2026-06-26T15:00:00.000Z",
+  "data_encerramento": "2026-06-27T22:30:00.000Z",
+  "duracao_horas": 2.5,
+  "tempo_bruto_horas": 8.0,
+  "tempo_agente_horas": 2.0,
+  "tempo_dono_horas": 0.5,
+  "tempo_liquido_horas": 2.5,
+  "tokens_estimados_entrada": 120000,
+  "tokens_estimados_saida": 35000,
+  "tokens_estimados_total": 155000,
+  "mensagens_usuario": 18,
+  "mensagens_agente": 22,
+  "fases_concluidas": ["DIAGNOSTICO", "IMPLEMENTACAO", "TESTE_LOCAL", "PR", "DEPLOY"],
+  "checklist_encerramento": {
+    "teste_local": { "valor": "sim", "descricao": "Testes locais rodados (unitário, funcional, em tela)" },
+    "code_review": { "valor": "nao", "descricao": "Code review feito" },
+    "doc_skill": { "valor": "nao", "descricao": "Docs técnicos e/ou skills atualizados" },
+    "qa": { "valor": "nao", "descricao": "QA pós-entrega executado" },
+    "pr": { "valor": "sim", "descricao": "Pull request aberto ou merge solicitado" },
+    "deploy": { "valor": "sim", "descricao": "Deploy / migration executado" },
+    "teste_producao": { "valor": "nao", "descricao": "Validado em produção ou staging real" }
+  },
+  "checklist_alertas": [
+    {
+      "item": "code_review",
+      "mensagem": "Code review não executado — invocar /code-review antes de considerar task fechada."
+    },
+    {
+      "item": "doc_skill",
+      "mensagem": "Documentos técnicos e/ou skills não atualizados — invocar /docs-skills se necessário."
+    },
+    {
+      "item": "qa",
+      "mensagem": "QA não executado — invocar /qa antes de considerar task fechada."
+    },
+    {
+      "item": "teste_producao",
+      "mensagem": "Deploy concluído (PR #490) mas Hub não revalidado manualmente em produção pós-merge."
+    }
+  ],
+  "entregas": [
+    "servicos-global/configurador/src/pages/hub-unificado.css",
+    "servicos-global/configurador/src/pages/SelecionarWorkspace.tsx",
+    "servicos-global/configurador/src/App.tsx",
+    "nucleo-global/Utilidades/Localization/locales/pt.json",
+    "nucleo-global/Utilidades/Localization/locales/en.json",
+    "nucleo-global/Utilidades/Localization/locales/es.json",
+    "https://github.com/dmmltda/gravity-antigravity/pull/490"
+  ],
+  "notas": "PR #490 mergeada; Railway deployment successful. Outro agente havia revertido EXIBIR_PAINEL_GABI_HUB=false e estilos legados."
+}

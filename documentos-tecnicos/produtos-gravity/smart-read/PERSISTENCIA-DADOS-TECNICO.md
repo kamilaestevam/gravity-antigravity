@@ -50,6 +50,7 @@ flowchart LR
 | **Status de fluxo** (wizard) | **Gravity** (`status_fluxo_*` em progresso + snapshot) | *Pendente* — `PATCH /progresso` + snapshot (§14.3) | Colunas existem; pill **Status** na Lista ainda usa `status_leitura` legado |
 | **Snapshot** da leitura (extração + métricas) | **Gravity** (`snapshot_leitura_smart_read`) | BFF ao concluir/conferir | Lista, Insights, `GET /leituras/:id` |
 | Painéis/colunas/filtros da lista | **Gravity** (`lista_painel_usuario_global`) | API `/lista/paineis` | Lista |
+| **Tokens LLM Gemini** (auditoria por chamada) | **Gravity** (`log_uso_llm_leitura_smart_read`) | BFF após QA, classificação fiscal e análise de riscos (`registrarUsoLlmLeituraSmartRead`) | Contador sidebar + `GET /leituras/tokens/*` |
 
 **Não confundir:** `SMART_READ_DATABASE_URL` (Railway Postgres Gravity) **≠** banco do DATI. São instâncias separadas, em servidores diferentes. O vínculo org Gravity → company legado é resolvido via Configurador (`resolverCompanyLegado`). O Gravity **nunca** grava PDF nem substitui o motor OCR do DATI — apenas **lê** o legado via REST e **copia** JSON normalizado para o snapshot quando elegível.
 
@@ -81,6 +82,34 @@ Snapshot **não** é print de tela nem cópia do PDF. É um **registro imutável
 | `conferencia_usuario` | Usuário salvou passo/conferência — `PATCH /progresso` |
 
 Implementação BFF: `server/src/lib/snapshot-leitura-smart-read.ts`.
+
+---
+
+## 3.1 Auditoria de tokens LLM (`log_uso_llm_leitura_smart_read`)
+
+> **Task:** TASK-000357 · Migration `20260626220000_create_log_uso_llm_leitura_smart_read` · Deploy DB: `scripts/ativamente/migrate-smart-read-railway.ps1`
+
+| Atributo | Valor |
+|----------|-------|
+| Banco | Postgres Railway `gravity-smart-read-*` (`SMART_READ_DATABASE_URL`) |
+| Model Prisma | `LogUsoLlmLeituraSmartRead` |
+| Tabela | `log_uso_llm_leitura_smart_read` |
+| SSOT contrato | `shared/uso-llm-leitura-smart-read.ts` |
+| Wrapper Gemini | `server/src/lib/gemini-gerar-conteudo-smart-read.ts` (`usageMetadata` real) |
+| Serviço | `server/src/lib/servico-uso-llm-leitura-smart-read.ts` |
+
+**Colunas:** `id_log_uso_llm_leitura_smart_read` (PK), `id_organizacao`, `id_produto_gravity` (default `smart-read`), `id_usuario`, `id_workspace` (nullable), `id_leitura_legado_log_uso_llm_leitura_smart_read` (nullable), `acao_log_uso_llm_leitura_smart_read` (`classificacao_fiscal` \| `analise_riscos` \| `qa_consultor`), `modelo_log_uso_llm_leitura_smart_read`, `tokens_entrada_*`, `tokens_saida_*`, `tokens_total_*`, `custo_usd_*` (estimado pela tabela de preço do modelo), `data_criacao_*`.
+
+**O que conta hoje:** tokens reais retornados pelo Gemini nas abas **Consultor Rafa** (QA), **Análise de Riscos** e classificação fiscal LLM. **Fora do escopo:** extração DATI dos passos 1–2 (legado OCR).
+
+**API:**
+
+| Rota | Função |
+|------|--------|
+| `GET /api/v1/smart-read/leituras/tokens/:id_leitura` | Resumo agregado da leitura (workspace + vínculo) |
+| `GET /api/v1/smart-read/leituras/tokens/resumo?escopo=usuario_mes\|organizacao_mes` | Agregado mensal por usuário ou organização |
+
+Respostas validadas por `ResumoUsoLlmLeituraSmartReadSchema`. Rotas em `server/src/routes/tokens-uso-llm-leitura-smart-read.ts`.
 
 ---
 
@@ -165,6 +194,7 @@ Dev sem legado: `SMART_READ_MOCK_LEGADO=1` simula extração no BFF — snapshot
 | `testes/testes-unitarios/produto-gravity/smart-read/calcular-metricas-insights-leitura.test.ts` | Métricas completas + fallback por transação |
 | `testes/testes-unitarios/produto-gravity/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
 | `testes/testes-unitarios/produto-gravity/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` (SSOT `shared/status-fluxo-leitura-smart-read.ts`) |
+| `testes/testes-unitarios/produto-gravity/smart-read/uso-llm-leitura-smart-read.test.ts` | Soma, formatação discreta e custo USD estimado |
 
 ---
 

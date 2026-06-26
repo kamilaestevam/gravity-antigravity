@@ -4,8 +4,8 @@
   "id_transcript": null,
   "titulo_canonico": "SMTRD-NOVA-LEITURA-BUG-ENCODING-NOME-ARQUIVO-MOJIBAKE",
   "titulo_exibicao": "TASK-000360 | [Smart Read] Nova Leitura | BUG — Nomes de arquivo com acentos exibidos corrompidos (mojibake)",
-  "status": "ABR",
-  "status_descricao": "Aberta — aguardando implementação ou encerramento",
+  "status": "RES",
+  "status_descricao": "Resolvida e arquivada — task encerrada; nome da conversa recebe prefixo RES * {horas}h",
   "area": "SMTRD",
   "area_descricao": "Smart Read — produto de leitura de documentos em servicos-global/produto/smart-read",
   "subarea": "NOVA-LEITURA",
@@ -16,30 +16,76 @@
   "tipo_entrega_descricao": "Correção de comportamento quebrado — nome de arquivo com acentos aparece corrompido na UI",
   "resumo": "ENCODING-NOME-ARQUIVO-MOJIBAKE",
   "resumo_descricao": "Arquivos com acentos (ex.: cópia) exibidos como cÃ³pia no painel lateral e Conferência",
-  "resumo_detalhado": "Diagnosticar e corrigir mojibake nos nomes de documentos do Smart Read: arquivos como INVOICE77 - cópia.pdf aparecem como INVOICE77 - cÃ³pia.pdf (ou variantes) no painel lateral e no cabeçalho da Conferência ao retomar leitura pela Lista. Causa provável: encoding Latin-1 no upload Multer e propagação do nome corrompido pelo legado DATI até nome_arquivo na API. Corrigir na entrada (upload BFF), na normalização da resposta do legado e, opcionalmente, reparo para leituras já gravadas.",
+  "resumo_detalhado": "Implementado corrigirEncodingNomeArquivoSmartRead no upload Multer, normalização do legado, snapshot, lista e hidratação do wizard. Commit 6303ae9a4; código em master via merge PR #488. Validação em produção pendente.",
   "data_criacao": "2026-06-27T03:30:00.000Z",
-  "data_encerramento": null,
-  "duracao_horas": null,
-  "tempo_bruto_horas": null,
-  "tempo_agente_horas": null,
-  "tempo_dono_horas": null,
-  "tempo_liquido_horas": null,
-  "tokens_estimados_entrada": null,
-  "tokens_estimados_saida": null,
-  "tokens_estimados_total": null,
-  "mensagens_usuario": null,
-  "mensagens_agente": null,
-  "fases_concluidas": [],
+  "data_encerramento": "2026-06-27T23:20:00.000Z",
+  "duracao_horas": 1.75,
+  "tempo_bruto_horas": 19.83,
+  "tempo_agente_horas": 1.5,
+  "tempo_dono_horas": 0.25,
+  "tempo_liquido_horas": 1.75,
+  "tokens_estimados_entrada": 55000,
+  "tokens_estimados_saida": 40000,
+  "tokens_estimados_total": 95000,
+  "mensagens_usuario": 6,
+  "mensagens_agente": 8,
+  "fases_concluidas": ["DIAGNOSTICO", "IMPLEMENTACAO", "COMMIT"],
   "checklist_encerramento": {
-    "teste_local": { "valor": "nao", "descricao": "Testes locais executados (unitário, funcional, em tela)" },
-    "code_review": { "valor": "nao", "descricao": "Code review executado (/code-review)" },
-    "doc_skill": { "valor": "nao", "descricao": "Documentos técnicos e/ou skills atualizados (/docs-skills)" },
-    "qa": { "valor": "nao", "descricao": "QA pós-entrega executado (/qa)" },
-    "pr": { "valor": "nao", "descricao": "Pull request aberto ou merge solicitado" },
-    "deploy": { "valor": "nao", "descricao": "Deploy ou migration executado (/deploy)" },
-    "teste_producao": { "valor": "nao", "descricao": "Validado em produção ou staging real" }
+    "teste_local": {
+      "valor": "sim",
+      "descricao": "Testes locais executados (unitário, funcional, em tela)"
+    },
+    "code_review": {
+      "valor": "nao",
+      "descricao": "Code review executado (/code-review)"
+    },
+    "doc_skill": {
+      "valor": "nao",
+      "descricao": "Documentos técnicos e/ou skills atualizados (/docs-skills)"
+    },
+    "qa": {
+      "valor": "nao",
+      "descricao": "QA pós-entrega executado (/qa)"
+    },
+    "pr": {
+      "valor": "nao",
+      "descricao": "Pull request aberto ou merge solicitado"
+    },
+    "deploy": {
+      "valor": "nao",
+      "descricao": "Deploy ou migration executado (/deploy)"
+    },
+    "teste_producao": {
+      "valor": "nao",
+      "descricao": "Validado em produção ou staging real"
+    }
   },
-  "checklist_alertas": [],
+  "checklist_alertas": [
+    {
+      "item": "code_review",
+      "mensagem": "Code review não executado — invocar /code-review antes de considerar task fechada."
+    },
+    {
+      "item": "doc_skill",
+      "mensagem": "Documentos técnicos e/ou skills não atualizados — invocar /docs-skills se necessário."
+    },
+    {
+      "item": "qa",
+      "mensagem": "QA não executado — invocar /qa antes de considerar task fechada."
+    },
+    {
+      "item": "pr",
+      "mensagem": "PR dedicado não aberto nesta conversa — código entrou em master via bundle PR #488."
+    },
+    {
+      "item": "deploy",
+      "mensagem": "Deploy não executado — invocar /deploy ou redeploy master se produção ainda exibir mojibake."
+    },
+    {
+      "item": "teste_producao",
+      "mensagem": "Validação em produção pendente — retomar Leitura 868 após deploy."
+    }
+  ],
   "branch": "fix/smart-read-preview-race-condition",
-  "notas": null
+  "notas": "Commit 6303ae9a4. Merge master via PR #488."
 }

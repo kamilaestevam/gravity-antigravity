@@ -51,7 +51,7 @@ interface PainelDB {
 function exigirPrisma(req: RequisicaoComPrismaSmartRead) {
   if (!req.prisma) {
     throw new AppError(
-      'Banco Smart Read indisponivel — configure SMART_READ_DATABASE_URL',
+      'Banco Smart Docs indisponivel — configure SMART_READ_DATABASE_URL',
       503,
       'DATABASE_UNAVAILABLE',
     )
@@ -108,7 +108,7 @@ function normalizarErroPrismaPainel(err: unknown): AppError | null {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === 'P2021' || err.code === 'P1014') {
       return new AppError(
-        'Tabela de painéis da lista não existe — rode a migration Smart Read (lista_painel_usuario_global)',
+        'Tabela de painéis da lista não existe — rode a migration Smart Docs (lista_painel_usuario_global)',
         503,
         'DATABASE_SCHEMA_DRIFT',
       )

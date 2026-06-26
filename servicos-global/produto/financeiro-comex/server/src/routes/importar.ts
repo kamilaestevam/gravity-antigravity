@@ -123,7 +123,7 @@ router.post('/:processoId/importar/smart-read', async (req: Request, res: Respon
     res.json({
       data: [],
       preview: true,
-      message: 'Smart Read: envie o arquivo via multipart/form-data com campo "arquivo"',
+      message: 'Smart Docs: envie o arquivo via multipart/form-data com campo "arquivo"',
     })
   } catch (err) { next(err) }
 })

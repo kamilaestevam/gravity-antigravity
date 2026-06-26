@@ -38,7 +38,7 @@ function idUsuarioDaRequisicao(req: Request): string {
 
 function exigirPrisma(req: RequisicaoComPrismaSmartRead) {
   if (!req.prisma) {
-    throw new AppError('Banco Smart Read indisponivel', 503, 'BANCO_INDISPONIVEL')
+    throw new AppError('Banco Smart Docs indisponivel', 503, 'BANCO_INDISPONIVEL')
   }
   return req.prisma
 }

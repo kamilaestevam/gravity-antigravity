@@ -28,7 +28,7 @@ function getInternalServiceKey(): string {
   if (process.env.NODE_ENV !== 'production') {
     return process.env.VITE_CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
   }
-  throw new Error('CHAVE_INTERNA_SERVICO ausente — Smart Read não pode chamar Cadastros')
+  throw new Error('CHAVE_INTERNA_SERVICO ausente — Smart Docs não pode chamar Cadastros')
 }
 
 export async function validarNcmCadastrosSmartRead(

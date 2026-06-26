@@ -7,13 +7,13 @@ describe('Smart Read — extração de mensagem de erro API', () => {
     const corpo = {
       error: {
         code: 'ORGANIZACAO_SEM_VINCULO',
-        message: 'Organização sem vínculo com o Smart Read legado',
+        message: 'Organização sem vínculo com o Smart Docs legado',
         correlationId: 'abc',
       },
     }
-    expect(extrairMensagemErroCorpo(corpo)).toBe('Organização sem vínculo com o Smart Read legado')
+    expect(extrairMensagemErroCorpo(corpo)).toBe('Organização sem vínculo com o Smart Docs legado')
     expect(extrairMensagemErroRespostaConfigurador(corpo, 'fallback')).toBe(
-      'Organização sem vínculo com o Smart Read legado',
+      'Organização sem vínculo com o Smart Docs legado',
     )
   })
 
@@ -30,8 +30,8 @@ describe('Smart Read — extração de mensagem de erro API', () => {
   })
 
   it('aceita error string (proxy legado)', () => {
-    expect(extrairMensagemErroCorpo({ error: 'Smart Read service unavailable' })).toBe(
-      'Smart Read service unavailable',
+    expect(extrairMensagemErroCorpo({ error: 'Smart Docs service unavailable' })).toBe(
+      'Smart Docs service unavailable',
     )
   })
 })

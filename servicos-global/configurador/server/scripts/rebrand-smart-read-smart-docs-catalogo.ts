@@ -196,7 +196,10 @@ async function arquivarDuplicatas(
 
     await prisma.produtoGravity.update({
       where: { id_produto_gravity: p.id_produto_gravity },
-      data: { data_remocao_produto_gravity: new Date() },
+      data: {
+        data_remocao_produto_gravity: new Date(),
+        slug_produto_gravity: `${p.slug_produto_gravity}__arquivado__${p.id_produto_gravity.slice(-8)}`,
+      },
     })
     console.log(`  [catalogo] arquivado ${p.slug_produto_gravity}`)
     arquivados++

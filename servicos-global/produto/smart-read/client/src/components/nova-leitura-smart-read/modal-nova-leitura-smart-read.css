@@ -2815,11 +2815,38 @@
   color: var(--text-muted);
 }
 
-.sr-cmp-dropzone em {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
-  font-style: normal;
-  opacity: 0.8;
+.sr-cmp-dropzone .sr-cmp-dropzone-aviso {
+  margin-top: 0.75rem;
+  width: 100%;
+  max-width: none;
+  align-self: stretch;
+  pointer-events: none;
+}
+
+.sr-cmp-dropzone-aviso {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  text-align: left;
+  background: rgba(251, 191, 36, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.32);
+}
+
+.sr-cmp-dropzone-aviso svg {
+  color: rgba(253, 224, 71, 0.92);
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+}
+
+.sr-cmp-dropzone-aviso p {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: rgba(226, 232, 240, 0.95);
 }
 
 .sr-cmp-status {

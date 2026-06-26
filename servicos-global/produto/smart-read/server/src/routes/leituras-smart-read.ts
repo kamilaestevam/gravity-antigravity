@@ -37,6 +37,7 @@ import {
   OrigemLeituraEnum,
   normalizarLeitura,
 } from '../schemas/leitura-smart-read.js'
+import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import { progressoLeituraSmartReadRouter } from './progresso-leitura-smart-read.js'
 import { analiseRiscosLeituraSmartReadRouter } from './analise-riscos-leitura-smart-read.js'
 import { qaLeituraSmartReadRouter } from './qa-leitura-smart-read.js'
@@ -154,9 +155,10 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
 
     const companyId = await resolverCompanyLegado(idOrganizacao)
     const idLeitura = await criarLeituraLegado(companyId)
+    const nomeArquivo = corrigirEncodingNomeArquivoSmartRead(req.file.originalname) ?? req.file.originalname
     const idArquivo = await enviarArquivoLegado(companyId, idLeitura, {
       buffer: req.file.buffer,
-      nome: req.file.originalname,
+      nome: nomeArquivo,
       mimeType: req.file.mimetype,
     })
 

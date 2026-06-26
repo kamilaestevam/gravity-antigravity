@@ -5,6 +5,7 @@
  */
 
 import { z } from 'zod'
+import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 
 export const StatusLeituraEnum = z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'])
 export type StatusLeitura = z.infer<typeof StatusLeituraEnum>
@@ -174,7 +175,7 @@ export function normalizarLeitura(legado: LeituraLegado): Leitura {
       const resultado = arquivo.finalProcessingResult ?? arquivo.processingResult
       return {
         id_arquivo: arquivo.fileReferenceId,
-        nome_arquivo: arquivo.filename ?? null,
+        nome_arquivo: corrigirEncodingNomeArquivoSmartRead(arquivo.filename ?? null),
         status_arquivo: mapearStatus(arquivo.processingStatus),
         tempo_extracao_ia_ms: resolverTempoExtracaoArquivoLegadoMs(arquivo),
         resultado_extracao: resultado

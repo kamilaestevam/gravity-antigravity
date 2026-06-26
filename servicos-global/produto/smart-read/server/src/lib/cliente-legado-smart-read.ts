@@ -18,10 +18,15 @@ import {
   LeituraLegadoSchema,
   type LeituraLegado,
 } from '../schemas/leitura-smart-read.js'
+import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
 import {
   conteudoArquivoLeituraEhVisualizavel,
   resolverMimePorNomeArquivo,
 } from '../../../shared/validar-conteudo-arquivo-leitura-smart-read.js'
+
+function nomeArquivoLegadoCorrigido(nome: string | null | undefined): string | null {
+  return corrigirEncodingNomeArquivoSmartRead(nome)
+}
 
 let avisoMockLegadoEmitido = false
 
@@ -313,7 +318,7 @@ async function baixarArquivoPorMetadadosLegado(
   meta: MetadadosArquivoLegadoJson,
   nomeFallback: string | null,
 ): Promise<{ buffer: Buffer; contentType: string; nomeArquivo: string | null }> {
-  const nomeArquivo = meta.filename ?? nomeFallback
+  const nomeArquivo = nomeArquivoLegadoCorrigido(meta.filename ?? nomeFallback)
   const urlExterna = extrairUrlMetadadosArquivo(meta)
   if (urlExterna) {
     const remoto = await baixarUrlArquivoLegado(urlExterna)
@@ -343,7 +348,7 @@ export async function obterArquivoLegado(
 
   const leitura = await obterLeituraLegado(companyId, idLeitura)
   const metaLista = leitura.files?.find((item) => item.fileReferenceId === idArquivo)
-  const nomeArquivo = metaLista?.filename ?? null
+  const nomeArquivo = nomeArquivoLegadoCorrigido(metaLista?.filename ?? null)
   const urlLista = metaLista ? extrairUrlMetadadosArquivo(metaLista) : null
   if (urlLista) {
     const remoto = await baixarUrlArquivoLegado(urlLista)

@@ -45,8 +45,8 @@ describe('getProdutoMeta', () => {
   })
 
   describe('PRODUTO_META completude', () => {
-    it('registry contém exatamente 11 entradas', () => {
-      expect(Object.keys(PRODUTO_META)).toHaveLength(11)
+    it('registry contém exatamente 12 entradas', () => {
+      expect(Object.keys(PRODUTO_META)).toHaveLength(12)
     })
 
     it('todas as entradas têm icon, color e sublabel', () => {

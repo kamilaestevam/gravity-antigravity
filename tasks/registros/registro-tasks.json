@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 370,
+  "proximo_numero": 371,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1525,6 +1525,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000369.json"
+    },
+    {
+      "referencia": "TASK-000370",
+      "ordinal": 94,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-BUG-SHIELD-CHECK-NAO-DEFINIDO-VOLTA-PASSO-3",
+      "titulo_exibicao": "TASK-000370 | [Smart Read] Nova Leitura | BUG — ShieldCheck is not defined ao voltar do passo 4 para o 3",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "SHIELD-CHECK-NAO-DEFINIDO-VOLTA-PASSO-3",
+      "data_criacao": "2026-06-28T00:45:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000370.json"
     }
   ]
 }

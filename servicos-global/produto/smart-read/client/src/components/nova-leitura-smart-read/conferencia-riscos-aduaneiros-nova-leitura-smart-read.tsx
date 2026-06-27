@@ -10,6 +10,7 @@ import {
   Info,
   MagnifyingGlass,
   Scales,
+  ShieldCheck,
   ShieldWarning,
   Sparkle,
   Warning,

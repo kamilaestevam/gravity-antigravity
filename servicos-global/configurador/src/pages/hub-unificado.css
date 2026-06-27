@@ -344,12 +344,6 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   box-shadow: none;
 }
 
-.sw-hub-row-gabi .sw-hub-panel--store .sw-hub-store-foot {
-  margin-top: auto;
-  padding-top: 0.35rem;
-  flex-shrink: 0;
-}
-
 .sw-hub-row-gabi .sw-hub-panel--store .sw-hub-panel-label {
   margin-bottom: 6px;
   font-size: 12px;
@@ -753,6 +747,10 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
+}
+
+:is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__meter-bar {
+  transform: translateX(-12px);
 }
 
 :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__meter-label {
@@ -1174,8 +1172,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 
 /* Paridade: Gravity Store = Ver todos os processos */
 .sw-content.sw-content--hub-unificado .sw-hub-ops-head > .sw-hub-link-pill,
-.sw-content.sw-content--hub-unificado .sw-hub-prod-head-right > .sw-hub-link-pill,
-.sw-content.sw-content--hub-unificado .sw-hub-store-foot > .sw-hub-link-pill {
+.sw-content.sw-content--hub-unificado .sw-hub-prod-head-right > .sw-hub-link-pill {
   font-size: 0.72rem;
   line-height: 1;
   padding: 0.28rem 0.65rem;

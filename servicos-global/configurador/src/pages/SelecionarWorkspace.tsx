@@ -36,6 +36,7 @@ import {
   Fire,
   Info,
   CalendarBlank,
+  GraduationCap,
 } from '@phosphor-icons/react'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -1260,6 +1261,16 @@ export function SelecionarWorkspace() {
           <div className="sw-t-right">
             <CampoLocalizarExpandidoGlobal onBuscarNavigate={buscarNoHub} />
 
+            <button
+              className="sw-t-icon"
+              type="button"
+              title="Gravity University"
+              aria-label="Gravity University"
+              onClick={() => navigate('/university-gravity')}
+            >
+              <GraduationCap size={16} weight="duotone" />
+            </button>
+
             <div className="sw-notif-wrap">
               <Notificacoes />
             </div>
@@ -1485,17 +1496,6 @@ export function SelecionarWorkspace() {
                     }))}
                     onAbrirStore={() => navigate('/store')}
                   />
-                  <div className="sw-hub-store-foot">
-                    <button
-                      type="button"
-                      className="sw-hub-link-pill"
-                      onClick={() => navigate('/store')}
-                    >
-                      <ShoppingBagOpen size={13} weight="duotone" aria-hidden />
-                      {t('sw.ver_catalogo', 'Gravity Store')}
-                      <ArrowRight size={12} weight="bold" className="sw-hub-link-pill__arrow" aria-hidden />
-                    </button>
-                  </div>
                 </section>
 
                 {EXIBIR_PAINEL_GABI_HUB && (

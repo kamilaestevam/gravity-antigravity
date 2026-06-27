@@ -8,7 +8,8 @@
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { GearSix, Info, MagnifyingGlass } from '@phosphor-icons/react'
+import { useNavigate } from 'react-router-dom'
+import { GearSix, Info, MagnifyingGlass, GraduationCap } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
@@ -77,6 +78,7 @@ export function TopbarPaginaGravity({
   usuario,
 }: TopbarPaginaGravityProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { toggleTooltips, tooltipsDisabled, currentTheme, toggleTheme } = useShellStore()
   const isLight = currentTheme === 'light'
 
@@ -121,6 +123,16 @@ export function TopbarPaginaGravity({
               <MagnifyingGlass weight="bold" size={16} />
             </button>
           ) : null}
+
+          <button
+            className="hb-topbar-btn"
+            type="button"
+            title="Gravity University"
+            aria-label="Gravity University"
+            onClick={() => navigate('/university-gravity')}
+          >
+            <GraduationCap weight="duotone" size={16} />
+          </button>
 
           <Notificacoes />
 

@@ -2381,6 +2381,14 @@
   white-space: nowrap;
 }
 
+.sr-conf-tab-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .sr-conf-campos {
   flex: 1;
   min-height: 0;

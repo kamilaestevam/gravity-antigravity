@@ -2,7 +2,19 @@
   "university": {
     "modulo_nome": "Gravity University",
     "nav": { "academy": "Onboarding", "minha_jornada": "Mi Recorrido", "docs": "Manuales y Videos", "builders": "Builders" },
-    "badge": { "em_breve": "Próximamente" },
+    "badge": { "em_breve": "Próximamente", "restrito": "Restringido" },
+    "produto": {
+      "login": "Login",
+      "admin": "Admin",
+      "configurador": "Configurador",
+      "hub": "HUB",
+      "store": "Gravity Store",
+      "pedido": "Pedido",
+      "smart_read": "Smart Read",
+      "bid_frete": "BID Flete Internacional",
+      "bid_cambio": "BID Cambio",
+      "processo": "Processo"
+    },
     "banner": {
       "em_construcao": "En construcción",
       "descricao": "El hub único de aprendizaje de la plataforma — onboarding por producto, recorrido gamificado y certificado, con GABI como fuente de conocimiento y tutora."

@@ -12,7 +12,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
-import { Books, FileText, PuzzlePiece, Path, Sparkle, GraduationCap, Info } from '@phosphor-icons/react'
+import {
+  Books, FileText, PuzzlePiece, Path, Sparkle, GraduationCap, Info,
+  SignIn, ShieldStar, Gear, SquaresFour, ShoppingBag, Package,
+  MagnifyingGlass, AirplaneTilt, ArrowsLeftRight, GitBranch, CheckCircle,
+} from '@phosphor-icons/react'
 import { useShellStore, Notificacoes, ToastContainer, useMeSync, type OrganizacaoShell } from '@gravity/shell'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
@@ -27,23 +31,42 @@ import './configurador/workspace.css'
 
 const UNI_COR = '#818cf8'
 
-// Dados de exemplo — virão do banco (catálogo de trilhas), agrupados por relevância.
-// Integração via API saiu daqui: trilhas de integração vivem em Builders.
+// Trilhas WIP — virão do catálogo via API.
+const TRILHAS_POR_PRODUTO: Record<string, { tag: string; emoji: string; nome: string; modulos: number; duracao: string; prog: number }[]> = {
+  login:         [{ tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos — Login', modulos: 2, duracao: '30m', prog: 100 }],
+  admin:         [{ tag: '#f43f5e', emoji: '🛡️', nome: 'Painel Administrativo', modulos: 3, duracao: '1h', prog: 0 }],
+  configurador:  [{ tag: '#60a5fa', emoji: '🧭', nome: 'Conhecendo o Gravity', modulos: 3, duracao: '1h', prog: 100 }],
+  hub:           [{ tag: '#a78bfa', emoji: '🏠', nome: 'Hub e Navegação', modulos: 2, duracao: '30m', prog: 0 }],
+  store:         [{ tag: '#10b981', emoji: '🛒', nome: 'Gravity Store', modulos: 2, duracao: '45m', prog: 0 }],
+  pedido:        [{ tag: '#f59e0b', emoji: '📦', nome: 'Onboarding Pedido', modulos: 5, duracao: '2h', prog: 62 }],
+  'smart-read':  [{ tag: '#c084fc', emoji: '📄', nome: 'Onboarding Smart Docs', modulos: 4, duracao: '1h30', prog: 0 }],
+  'bid-frete':   [{ tag: '#60a5fa', emoji: '✈️', nome: 'BID Frete Internacional', modulos: 4, duracao: '1h30', prog: 0 }],
+  'bid-cambio':  [{ tag: '#facc15', emoji: '💱', nome: 'BID Câmbio', modulos: 3, duracao: '1h', prog: 0 }],
+  processo:      [{ tag: '#facc15', emoji: '🔀', nome: 'Onboarding Processo', modulos: 6, duracao: '2h30', prog: 0 }],
+}
+
+// Visão geral agrupada (quando nenhum produto está selecionado)
 const GRUPOS_TRILHAS = [
-  { tituloKey: 'university.grupo.comece_aqui', trilhas: [
-    { tag: '#60a5fa', emoji: '🧭', nome: 'Conhecendo o Gravity', modulos: 3, duracao: '1h', prog: 100 },
-  ] },
-  { tituloKey: 'university.grupo.seus_produtos', trilhas: [
-    { tag: '#f59e0b', emoji: '📦', nome: 'Onboarding Pedido', modulos: 5, duracao: '2h', prog: 62 },
-    { tag: '#facc15', emoji: '🔀', nome: 'Onboarding Processo', modulos: 6, duracao: '2h30', prog: 0 },
-    { tag: '#c084fc', emoji: '📄', nome: 'Onboarding Smart Docs', modulos: 4, duracao: '1h30', prog: 0 },
-  ] },
-  { tituloKey: 'university.grupo.explorar', trilhas: [
-    { tag: '#f43f5e', emoji: '📋', nome: 'LPCO', modulos: 3, duracao: '1h', prog: 0 },
-    { tag: '#60a5fa', emoji: '✈️', nome: 'Bid-Frete', modulos: 4, duracao: '1h30', prog: 0 },
-    { tag: '#f472b6', emoji: '💸', nome: 'Financeiro COMEX', modulos: 5, duracao: '2h', prog: 0 },
-  ] },
+  { tituloKey: 'university.grupo.comece_aqui', trilhas: [TRILHAS_POR_PRODUTO.login[0], TRILHAS_POR_PRODUTO.configurador[0]] },
+  { tituloKey: 'university.grupo.seus_produtos', trilhas: [TRILHAS_POR_PRODUTO.pedido[0], TRILHAS_POR_PRODUTO.processo[0], TRILHAS_POR_PRODUTO['smart-read'][0]] },
+  { tituloKey: 'university.grupo.explorar', trilhas: [TRILHAS_POR_PRODUTO['bid-frete'][0], TRILHAS_POR_PRODUTO['bid-cambio'][0], TRILHAS_POR_PRODUTO.store[0]] },
 ]
+
+// Mapa de ícones por produto (sem JSX — instanciados no navItems)
+const ICON_MAP = {
+  login:        SignIn,
+  admin:        ShieldStar,
+  configurador: Gear,
+  hub:          SquaresFour,
+  store:        ShoppingBag,
+  pedido:       Package,
+  'smart-read': MagnifyingGlass,
+  'bid-frete':  AirplaneTilt,
+  'bid-cambio': ArrowsLeftRight,
+  processo:     GitBranch,
+} as const
+
+type ProdutoSlug = keyof typeof ICON_MAP
 
 export function UniversityGravity() {
   const { t } = useTranslation()
@@ -66,6 +89,13 @@ export function UniversityGravity() {
     : pathname.includes('/builders') ? 'builders'
     : pathname.includes('/minha-jornada') ? 'jornada'
     : 'academy'
+
+  // Produto selecionado no submenu (ex: /university-gravity/academy/pedido → 'pedido')
+  const produtoSlug = (secao === 'academy'
+    ? (pathname.split('/academy/')[1] ?? '').split('/')[0] || null
+    : null) as ProdutoSlug | null
+
+  const trilhasAtivas = produtoSlug ? (TRILHAS_POR_PRODUTO[produtoSlug] ?? []) : null
 
   const nomeOrganizacao = currentUser?.nomeOrganizacao ?? 'Organização'
   const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
@@ -124,14 +154,41 @@ export function UniversityGravity() {
     document.body.classList.toggle('tooltips-disabled', tooltipsDisabled)
   }, [tooltipsDisabled])
 
+  // Helpers de ícone com indicador de conclusão
+  const produtoIcon = (slug: ProdutoSlug, size = 16) => {
+    const IconComp = ICON_MAP[slug]
+    const prog = (TRILHAS_POR_PRODUTO[slug]?.[0]?.prog ?? 0)
+    return prog >= 100
+      ? <CheckCircle weight="fill" size={size} style={{ color: '#34d399' }} />
+      : <IconComp weight="duotone" size={size} />
+  }
+
   const navItems = [
-    { to: '/university-gravity/academy', label: t('university.nav.academy'), icon: <Books weight="duotone" size={18} /> },
-    { to: '/university-gravity/docs', label: t('university.nav.docs'), icon: <FileText weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
-    { to: '/university-gravity/builders', label: t('university.nav.builders'), icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
+    {
+      to: '/university-gravity/academy',
+      label: t('university.nav.academy'),
+      icon: <Books weight="duotone" size={18} />,
+      children: [
+        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIcon('login') },
+        { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIcon('admin'), badge: t('university.badge.restrito'), badgeVariant: 'muted' as const },
+        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIcon('configurador') },
+        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIcon('hub') },
+        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIcon('store') },
+        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIcon('pedido') },
+        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIcon('smart-read') },
+        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIcon('bid-frete') },
+        { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIcon('bid-cambio') },
+        { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIcon('processo') },
+      ],
+    },
+    { to: '/university-gravity/docs',          label: t('university.nav.docs'),          icon: <FileText weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
+    { to: '/university-gravity/builders',      label: t('university.nav.builders'),      icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
     { to: '/university-gravity/minha-jornada', label: t('university.nav.minha_jornada'), icon: <Path weight="duotone" size={18} /> },
   ]
 
-  const tituloSecao = secao === 'jornada' ? t('university.nav.minha_jornada')
+  const tituloSecao = produtoSlug
+    ? t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)
+    : secao === 'jornada' ? t('university.nav.minha_jornada')
     : secao === 'docs' ? t('university.nav.docs')
     : secao === 'builders' ? t('university.nav.builders')
     : t('university.nav.academy')
@@ -157,7 +214,7 @@ export function UniversityGravity() {
           <CampoLocalizarExpandidoGlobal
             onBuscarNavigate={(term) => {
               const alvo = navItems.find(i => i.label.toLowerCase().includes(term.toLowerCase()))
-              if (alvo) navigate(alvo.to)
+              if (alvo) navigate(alvo.to ?? '/university-gravity/academy')
             }}
           />
 
@@ -255,7 +312,43 @@ export function UniversityGravity() {
             </div>
           </div>
 
-          {secao === 'academy' && (
+          {/* ── Onboarding: produto específico ── */}
+          {secao === 'academy' && trilhasAtivas && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+                {trilhasAtivas.map(tr => (
+                  <div key={tr.nome} style={{
+                    background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)',
+                    borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', gap: 11,
+                  }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, display: 'grid', placeItems: 'center', background: `${tr.tag}22`, fontSize: 20 }}>
+                      {tr.emoji}
+                    </div>
+                    <div style={{ fontSize: '1rem', fontWeight: 700 }}>{tr.nome}</div>
+                    <div style={{ fontSize: '.78rem', color: 'var(--ws-muted,#94a3b8)' }}>
+                      {t('university.trilha.modulos', { count: tr.modulos })} · {tr.duracao}
+                    </div>
+                    {tr.prog > 0 && tr.prog < 100 && (
+                      <div style={{ height: 7, borderRadius: 9, background: '#0e1626', overflow: 'hidden' }}>
+                        <span style={{ display: 'block', height: '100%', width: `${tr.prog}%`, background: 'linear-gradient(90deg,#818cf8,#a78bfa)' }} />
+                      </div>
+                    )}
+                    <button style={{
+                      border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.82rem', padding: '8px 14px',
+                      borderRadius: 9999,
+                      background: tr.prog >= 100 ? 'rgba(52,211,153,.15)' : UNI_COR,
+                      color: tr.prog >= 100 ? '#34d399' : '#0b1220',
+                    }}>
+                      {tr.prog >= 100 ? t('university.acao.concluida') : tr.prog > 0 ? t('university.acao.continuar') : t('university.acao.iniciar_jornada')}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Onboarding: visão geral agrupada ── */}
+          {secao === 'academy' && !trilhasAtivas && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
               {GRUPOS_TRILHAS.map(grupo => (
                 <div key={grupo.tituloKey}>
@@ -285,7 +378,9 @@ export function UniversityGravity() {
                           borderRadius: 9999,
                           background: tr.prog >= 100 ? 'rgba(52,211,153,.15)' : UNI_COR,
                           color: tr.prog >= 100 ? '#34d399' : '#0b1220',
-                        }}>{tr.prog >= 100 ? t('university.acao.concluida') : tr.prog > 0 ? t('university.acao.continuar') : t('university.acao.iniciar_jornada')}</button>
+                        }}>
+                          {tr.prog >= 100 ? t('university.acao.concluida') : tr.prog > 0 ? t('university.acao.continuar') : t('university.acao.iniciar_jornada')}
+                        </button>
                       </div>
                     ))}
                   </div>

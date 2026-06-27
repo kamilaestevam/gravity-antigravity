@@ -81,17 +81,6 @@ const ROTULO_CATEGORIA: Record<CategoriaRiscoAduaneiro, string> = {
   normativo: 'Normativo / Siscomex',
 }
 
-function iconeSeveridade(severidade: SeveridadeRiscoAduaneiro) {
-  switch (severidade) {
-    case 'critico':
-      return <WarningCircle weight="fill" size={18} />
-    case 'atencao':
-      return <Warning weight="fill" size={18} />
-    default:
-      return <Info weight="fill" size={18} />
-  }
-}
-
 function rotuloSeveridade(severidade: SeveridadeRiscoAduaneiro): string {
   switch (severidade) {
     case 'critico':
@@ -175,6 +164,7 @@ function LinhaRisco({
   numero: number
   aguardandoClassificacao?: boolean
 }) {
+  const [expandido, setExpandido] = useState(riscoBruto.severidade === 'critico')
   const risco = aplicarCorrecaoSugeridaPadraoRisco(riscoBruto)
   const contextoEvidencia = {
     tituloRisco: risco.titulo,
@@ -182,21 +172,21 @@ function LinhaRisco({
     analise: risco.analise,
     correcao: risco.correcao_sugerida,
   }
-  const onde =
-    risco.evidencias[0] != null
-      ? [risco.evidencias[0].documento, risco.evidencias[0].campo].filter(Boolean).join(' · ')
-      : null
 
   return (
     <article
       id={`sr-risco-${risco.id}`}
-      className={`sr-conf-risco-linha sr-conf-risco-linha--${risco.severidade}${selecionado ? ' sr-conf-risco-linha--selecionado' : ''}`}
+      className={`sr-conf-risco-linha sr-conf-risco-linha--${risco.severidade}${selecionado ? ' sr-conf-risco-linha--selecionado' : ''}${expandido ? '' : ' sr-conf-risco-linha--colapsada'}`}
     >
       <div className="sr-conf-risco-linha-topo">
         <span className="sr-conf-risco-numero" aria-label={`Risco ${numero}`}>
           {String(numero).padStart(2, '0')}
         </span>
-        <label className="sr-conf-risco-selecao">
+        <label
+          className="sr-conf-risco-selecao"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
           <input
             type="checkbox"
             checked={selecionado}
@@ -204,69 +194,79 @@ function LinhaRisco({
             aria-label={`Selecionar risco: ${risco.titulo}`}
           />
         </label>
-        <span className="sr-conf-risco-severidade-icone" aria-hidden>
-          {iconeSeveridade(risco.severidade)}
-        </span>
-        <h3 className="sr-conf-risco-linha-titulo">{risco.titulo}</h3>
-        <span className={`sr-conf-risco-badge sr-conf-risco-badge--${risco.severidade}`}>
-          {rotuloSeveridade(risco.severidade)}
-        </span>
-        {risco.status_matriz && (
-          <span className={`sr-conf-risco-badge ${classeStatusMatriz(risco.status_matriz)}`}>
-            {rotuloStatusMatriz(risco.status_matriz)}
+        <button
+          type="button"
+          className="sr-conf-risco-linha-toggle"
+          onClick={() => setExpandido((prev) => !prev)}
+          aria-expanded={expandido}
+          aria-controls={`sr-risco-corpo-${risco.id}`}
+        >
+          <h3 className="sr-conf-risco-linha-titulo">{risco.titulo}</h3>
+          <span className="sr-conf-risco-linha-meta">
+            <span className={`sr-conf-risco-badge sr-conf-risco-badge--${risco.severidade}`}>
+              {rotuloSeveridade(risco.severidade)}
+            </span>
+            {risco.status_matriz && (
+              <span className={`sr-conf-risco-badge ${classeStatusMatriz(risco.status_matriz)}`}>
+                {rotuloStatusMatriz(risco.status_matriz)}
+              </span>
+            )}
+            {risco.id_regra_matriz && (
+              <span className="sr-conf-risco-origem sr-conf-risco-origem--v1" title="Regra da matriz">
+                {risco.id_regra_matriz}
+              </span>
+            )}
+            <span className={`sr-conf-risco-origem sr-conf-risco-origem--${risco.origem ?? 'v1'}`}>
+              {risco.origem === 'llm' ? (
+                <Sparkle size={10} weight="fill" aria-hidden />
+              ) : (
+                <ShieldCheck size={10} weight="fill" aria-hidden />
+              )}
+              {rotuloOrigem(risco.origem)}
+            </span>
           </span>
-        )}
-        {risco.id_regra_matriz && (
-          <span className="sr-conf-risco-origem sr-conf-risco-origem--v1" title="Regra da matriz">
-            {risco.id_regra_matriz}
-          </span>
-        )}
-        <span className={`sr-conf-risco-origem sr-conf-risco-origem--${risco.origem ?? 'v1'}`}>
-          {risco.origem === 'llm' ? (
-            <Sparkle size={10} weight="fill" aria-hidden />
-          ) : (
-            <ShieldCheck size={10} weight="fill" aria-hidden />
-          )}
-          {rotuloOrigem(risco.origem)}
-        </span>
+          <CaretDown
+            weight="bold"
+            size={14}
+            className={`sr-conf-risco-linha-caret dt-caret${expandido ? '' : ' dt-caret--colapsado'}`}
+            aria-hidden
+          />
+        </button>
       </div>
 
-      <div className="sr-conf-risco-linha-corpo">
-        <div className="sr-conf-risco-detalhe">
-          <div className="sr-conf-risco-bloco">
-            <h4 className="sr-conf-risco-bloco-titulo">O que é o risco</h4>
-            <p>{risco.motivo}</p>
+      {!expandido && <p className="sr-conf-risco-linha-resumo">{risco.motivo}</p>}
+
+      {expandido && (
+        <div id={`sr-risco-corpo-${risco.id}`} className="sr-conf-risco-linha-corpo">
+          <div className="sr-conf-risco-detalhe sr-conf-risco-detalhe--compacto">
+            <div className="sr-conf-risco-campos-grid">
+              <div className="sr-conf-risco-campo">
+                <span className="sr-conf-risco-campo-rotulo">Risco</span>
+                <p>{risco.motivo}</p>
+              </div>
+              <div className="sr-conf-risco-campo">
+                <span className="sr-conf-risco-campo-rotulo">Análise</span>
+                <p>{risco.analise}</p>
+              </div>
+            </div>
           </div>
-          <div className="sr-conf-risco-bloco">
-            <h4 className="sr-conf-risco-bloco-titulo">Motivo</h4>
-            <p>{risco.analise}</p>
-          </div>
-          {onde && (
-            <div className="sr-conf-risco-bloco">
-              <h4 className="sr-conf-risco-bloco-titulo">Onde</h4>
-              <p className="sr-conf-risco-onde">{onde}</p>
+
+          {risco.citacoes_normativas && risco.citacoes_normativas.length > 0 && (
+            <div className="sr-conf-risco-evidencias sr-conf-risco-evidencias--compacto">
+              <strong>Referências normativas</strong>
+              <ul>
+                {risco.citacoes_normativas.map((cit, idx) => (
+                  <li key={`${risco.id}-cit-${idx}`}>
+                    <span className="sr-conf-risco-ev-campo">{cit.referencia}</span>
+                    {cit.trecho && <span className="sr-conf-risco-ev-valor">{cit.trecho}</span>}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
-        </div>
 
-        {risco.citacoes_normativas && risco.citacoes_normativas.length > 0 && (
-          <div className="sr-conf-risco-evidencias sr-conf-risco-evidencias--compacto">
-            <strong>Referências normativas</strong>
-            <ul>
-              {risco.citacoes_normativas.map((cit, idx) => (
-                <li key={`${risco.id}-cit-${idx}`}>
-                  <span className="sr-conf-risco-ev-campo">{cit.referencia}</span>
-                  {cit.trecho && <span className="sr-conf-risco-ev-valor">{cit.trecho}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {risco.evidencias.length > 0 && (
-          <div className="sr-conf-risco-bloco sr-conf-risco-bloco--evidencias">
-            <h4 className="sr-conf-risco-bloco-titulo">Evidências</h4>
-            <div className="sr-conf-risco-evidencias-lista">
+          {risco.evidencias.length > 0 && (
+            <div className="sr-conf-risco-evidencias-lista sr-conf-risco-evidencias-lista--compacta">
               {risco.evidencias.map((ev, idx) => (
                 <EvidenciaVisualRiscoNovaLeituraSmartRead
                   key={`${risco.id}-ev-${idx}`}
@@ -274,33 +274,37 @@ function LinhaRisco({
                   arquivos={arquivos}
                   contextoRisco={contextoEvidencia}
                   onVerEvidencia={onVerEvidencia}
+                  compacto
                 />
               ))}
             </div>
-          </div>
-        )}
+          )}
 
-        {risco.correcao_sugerida ? (
-          <aside className="sr-conf-risco-correcao sr-conf-risco-correcao--abaixo" aria-label="Correção sugerida">
-            <span className="sr-conf-risco-correcao-rotulo">Correção sugerida</span>
-            <p>{risco.correcao_sugerida}</p>
-          </aside>
-        ) : (
-          aguardandoClassificacao &&
-          ehRiscoClassificacaoFiscal(risco.titulo, risco.categoria) && (
+          {risco.correcao_sugerida ? (
             <aside
-              className="sr-conf-risco-correcao sr-conf-risco-correcao--abaixo sr-conf-risco-correcao--pendente"
-              aria-label="Classificação fiscal em análise"
+              className="sr-conf-risco-correcao sr-conf-risco-correcao--abaixo sr-conf-risco-correcao--compacto"
+              aria-label="Correção sugerida"
             >
-              <span className="sr-conf-risco-correcao-rotulo">Classificação fiscal</span>
-              <p>
-                <CircleNotch size={14} className="sr-wizard-analise-arquivo-spin" aria-hidden />{' '}
-                IA analisando descrição do item para sugerir NCM/HS (de → para)…
-              </p>
+              <span className="sr-conf-risco-correcao-rotulo">Correção sugerida</span>
+              <p>{risco.correcao_sugerida}</p>
             </aside>
-          )
-        )}
-      </div>
+          ) : (
+            aguardandoClassificacao &&
+            ehRiscoClassificacaoFiscal(risco.titulo, risco.categoria) && (
+              <aside
+                className="sr-conf-risco-correcao sr-conf-risco-correcao--abaixo sr-conf-risco-correcao--compacto sr-conf-risco-correcao--pendente"
+                aria-label="Classificação fiscal em análise"
+              >
+                <span className="sr-conf-risco-correcao-rotulo">Classificação fiscal</span>
+                <p>
+                  <CircleNotch size={14} className="sr-wizard-analise-arquivo-spin" aria-hidden />{' '}
+                  IA analisando descrição do item para sugerir NCM/HS…
+                </p>
+              </aside>
+            )
+          )}
+        </div>
+      )}
     </article>
   )
 }

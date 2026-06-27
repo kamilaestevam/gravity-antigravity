@@ -27,15 +27,23 @@ import './configurador/workspace.css'
 
 const UNI_COR = '#818cf8'
 
-// Dados de exemplo — virão do banco (catálogo de trilhas). Nomes próprios/demo.
-const TRILHAS_DEMO = [
-  { tag: '#f59e0b', icon: <Package />, nome: 'Onboarding Pedido', modulos: 5, duracao: '2h', prog: 62 },
-  { tag: '#facc15', icon: <FlowArrow />, nome: 'Onboarding Processo', modulos: 6, duracao: '2h30', prog: 0 },
-  { tag: '#a78bfa', icon: <PuzzlePiece weight="fill" />, nome: 'Integração via API', modulos: 4, duracao: '1h30', prog: 0 },
+// Dados de exemplo — virão do banco (catálogo de trilhas), agrupados por relevância.
+// Integração via API saiu daqui: trilhas de integração vivem em Builders.
+const GRUPOS_TRILHAS = [
+  { tituloKey: 'university.grupo.comece_aqui', trilhas: [
+    { tag: '#60a5fa', emoji: '🧭', nome: 'Conhecendo o Gravity', modulos: 3, duracao: '1h', prog: 100 },
+  ] },
+  { tituloKey: 'university.grupo.seus_produtos', trilhas: [
+    { tag: '#f59e0b', emoji: '📦', nome: 'Onboarding Pedido', modulos: 5, duracao: '2h', prog: 62 },
+    { tag: '#facc15', emoji: '🔀', nome: 'Onboarding Processo', modulos: 6, duracao: '2h30', prog: 0 },
+    { tag: '#c084fc', emoji: '📄', nome: 'Onboarding Smart Docs', modulos: 4, duracao: '1h30', prog: 0 },
+  ] },
+  { tituloKey: 'university.grupo.explorar', trilhas: [
+    { tag: '#f43f5e', emoji: '📋', nome: 'LPCO', modulos: 3, duracao: '1h', prog: 0 },
+    { tag: '#60a5fa', emoji: '✈️', nome: 'Bid-Frete', modulos: 4, duracao: '1h30', prog: 0 },
+    { tag: '#f472b6', emoji: '💸', nome: 'Financeiro COMEX', modulos: 5, duracao: '2h', prog: 0 },
+  ] },
 ]
-
-function Package() { return <span style={{ fontSize: 20 }}>📦</span> }
-function FlowArrow() { return <span style={{ fontSize: 20 }}>🔀</span> }
 
 export function UniversityGravity() {
   const { t } = useTranslation()
@@ -248,28 +256,39 @@ export function UniversityGravity() {
           </div>
 
           {secao === 'academy' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
-              {TRILHAS_DEMO.map(tr => (
-                <div key={tr.nome} style={{
-                  background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)',
-                  borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', gap: 11,
-                }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, display: 'grid', placeItems: 'center', background: `${tr.tag}22`, color: tr.tag }}>
-                    {tr.icon}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+              {GRUPOS_TRILHAS.map(grupo => (
+                <div key={grupo.tituloKey}>
+                  <h2 style={{ fontSize: '.74rem', fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--ws-muted,#94a3b8)', marginBottom: 12 }}>
+                    {t(grupo.tituloKey)}
+                  </h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+                    {grupo.trilhas.map(tr => (
+                      <div key={tr.nome} style={{
+                        background: 'var(--bg-base,#1e293b)', border: '1px solid rgba(148,163,184,.12)',
+                        borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', gap: 11,
+                      }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 10, display: 'grid', placeItems: 'center', background: `${tr.tag}22`, fontSize: 20 }}>
+                          {tr.emoji}
+                        </div>
+                        <div style={{ fontSize: '1rem', fontWeight: 700 }}>{tr.nome}</div>
+                        <div style={{ fontSize: '.78rem', color: 'var(--ws-muted,#94a3b8)' }}>
+                          {t('university.trilha.modulos', { count: tr.modulos })} · {tr.duracao}
+                        </div>
+                        {tr.prog > 0 && tr.prog < 100 && (
+                          <div style={{ height: 7, borderRadius: 9, background: '#0e1626', overflow: 'hidden' }}>
+                            <span style={{ display: 'block', height: '100%', width: `${tr.prog}%`, background: 'linear-gradient(90deg,#818cf8,#a78bfa)' }} />
+                          </div>
+                        )}
+                        <button style={{
+                          border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.82rem', padding: '8px 14px',
+                          borderRadius: 9999,
+                          background: tr.prog >= 100 ? 'rgba(52,211,153,.15)' : UNI_COR,
+                          color: tr.prog >= 100 ? '#34d399' : '#0b1220',
+                        }}>{tr.prog >= 100 ? t('university.acao.concluida') : tr.prog > 0 ? t('university.acao.continuar') : t('university.acao.iniciar_jornada')}</button>
+                      </div>
+                    ))}
                   </div>
-                  <div style={{ fontSize: '1rem', fontWeight: 700 }}>{tr.nome}</div>
-                  <div style={{ fontSize: '.78rem', color: 'var(--ws-muted,#94a3b8)' }}>
-                    {t('university.trilha.modulos', { count: tr.modulos })} · {tr.duracao}
-                  </div>
-                  {tr.prog > 0 && (
-                    <div style={{ height: 7, borderRadius: 9, background: '#0e1626', overflow: 'hidden' }}>
-                      <span style={{ display: 'block', height: '100%', width: `${tr.prog}%`, background: 'linear-gradient(90deg,#818cf8,#a78bfa)' }} />
-                    </div>
-                  )}
-                  <button style={{
-                    border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.82rem', padding: '8px 14px',
-                    borderRadius: 9999, background: UNI_COR, color: '#0b1220',
-                  }}>{tr.prog > 0 ? t('university.acao.continuar') : t('university.acao.iniciar_jornada')}</button>
                 </div>
               ))}
             </div>

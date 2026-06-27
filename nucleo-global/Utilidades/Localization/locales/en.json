@@ -7,7 +7,8 @@
       "em_construcao": "Under construction",
       "descricao": "The platform's single learning hub — per-product onboarding, gamified journey and certificate, with GABI as the knowledge source and tutor."
     },
-    "acao": { "continuar": "Continue", "iniciar_jornada": "Start journey" },
+    "acao": { "continuar": "Continue", "iniciar_jornada": "Start journey", "concluida": "Completed" },
+    "grupo": { "comece_aqui": "Start here", "seus_produtos": "Your products", "explorar": "Explore more" },
     "trilha": { "modulos_one": "{{count}} module", "modulos_other": "{{count}} modules" },
     "dica": {
       "titulo": "Tips and Explanations",

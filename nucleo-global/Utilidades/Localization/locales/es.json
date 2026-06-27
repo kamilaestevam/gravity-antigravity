@@ -1,7 +1,7 @@
 ﻿{
   "university": {
     "modulo_nome": "Gravity University",
-    "nav": { "academy": "Academia", "minha_jornada": "Mi Recorrido", "docs": "Docs", "builders": "Builders" },
+    "nav": { "academy": "Onboarding", "minha_jornada": "Mi Recorrido", "docs": "Manuales y Videos", "builders": "Builders" },
     "badge": { "em_breve": "Próximamente" },
     "banner": {
       "em_construcao": "En construcción",
@@ -17,7 +17,7 @@
     "busca": { "organizacao": "Buscar organización…" },
     "jornada": { "pontos": "Puntos", "concluidas": "Completadas", "em_andamento": "En curso", "certificados": "Certificados" },
     "vazio": { "em_breve": "{{secao}} — próximamente" },
-    "docs": { "descricao": "Manuales y videos navegables (base de conocimiento de GABI)." },
+    "docs": { "descricao": "Manuales y videos de toda la plataforma — base de conocimiento de GABI." },
     "builders": { "descricao": "Direccionamiento para integradores y desarrolladores (API Cockpit)." }
   },
   "BIDFRETE.NOVA_COTACAO.TIPO_OPERACAO_COTACAO_BID_FRETE_INTERNACIONAL": "Tipo de Operación",

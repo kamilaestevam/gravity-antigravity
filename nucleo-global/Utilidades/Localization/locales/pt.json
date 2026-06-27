@@ -1,7 +1,7 @@
 ﻿{
   "university": {
     "modulo_nome": "Gravity University",
-    "nav": { "academy": "Academy", "minha_jornada": "Minha Jornada", "docs": "Docs", "builders": "Builders" },
+    "nav": { "academy": "Onboarding", "minha_jornada": "Minha Jornada", "docs": "Manuais e Vídeos", "builders": "Builders" },
     "badge": { "em_breve": "Em Breve" },
     "banner": {
       "em_construcao": "Em construção",
@@ -17,7 +17,7 @@
     "busca": { "organizacao": "Buscar organização…" },
     "jornada": { "pontos": "Pontos", "concluidas": "Concluídas", "em_andamento": "Em andamento", "certificados": "Certificados" },
     "vazio": { "em_breve": "{{secao}} — em breve" },
-    "docs": { "descricao": "Manuais e vídeos navegáveis (base de conhecimento da GABI)." },
+    "docs": { "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI." },
     "builders": { "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)." }
   },
   "comum": {

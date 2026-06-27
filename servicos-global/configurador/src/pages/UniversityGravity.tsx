@@ -118,9 +118,9 @@ export function UniversityGravity() {
 
   const navItems = [
     { to: '/university-gravity/academy', label: t('university.nav.academy'), icon: <Books weight="duotone" size={18} /> },
-    { to: '/university-gravity/minha-jornada', label: t('university.nav.minha_jornada'), icon: <Path weight="duotone" size={18} /> },
     { to: '/university-gravity/docs', label: t('university.nav.docs'), icon: <FileText weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
     { to: '/university-gravity/builders', label: t('university.nav.builders'), icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
+    { to: '/university-gravity/minha-jornada', label: t('university.nav.minha_jornada'), icon: <Path weight="duotone" size={18} /> },
   ]
 
   const tituloSecao = secao === 'jornada' ? t('university.nav.minha_jornada')

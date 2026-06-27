@@ -567,7 +567,7 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   align-items: center;
   gap: 3px;
   font-family: var(--font, inherit);
-  transform: translateY(-12px);
+  transform: translateY(-8px);
 }
 
 .sw-hub-gabi-insight-link:hover {

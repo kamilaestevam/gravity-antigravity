@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const MODULO =
-  '../../../servicos-global/produto/bid-frete-internacional/client/src/shared/urls-deep-link-configurador'
+  '../../../../servicos-global/produto/bid-frete-internacional/client/src/shared/urls-deep-link-configurador'
 
 const FORNECEDORES_SHELL = 'http://localhost:3000/bid-frete/fornecedores'
 const FORNECEDORES_STANDALONE = 'http://localhost:5181/bid-frete/fornecedores'

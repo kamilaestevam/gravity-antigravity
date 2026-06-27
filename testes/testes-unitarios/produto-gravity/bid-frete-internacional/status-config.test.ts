@@ -2,7 +2,7 @@
 import { describe, it, expect, vi } from 'vitest'
 
 const SEED_MODULE =
-  '../../../servicos-global/produto/bid-frete-internacional/server/src/services/seedStatusPadrao.js'
+  '../../../../servicos-global/produto/bid-frete-internacional/server/src/services/seedStatusPadrao.js'
 
 describe('seedStatusPadrao — Seed de status canônicos (BID Frete Internacional)', () => {
   it('deve criar 9 status canônicos via $transaction', async () => {

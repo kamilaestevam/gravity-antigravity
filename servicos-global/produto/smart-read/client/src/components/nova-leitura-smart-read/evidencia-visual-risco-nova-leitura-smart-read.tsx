@@ -15,6 +15,7 @@ type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
   contextoRisco: Omit<ContextoEvidenciaRiscoNovaLeitura, 'idArquivoLocal' | 'documento' | 'campo' | 'valorAtual'>
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
+  compacto?: boolean
 }
 
 export function resolverArquivoLocalDaEvidenciaRisco(
@@ -40,6 +41,7 @@ export function EvidenciaVisualRiscoNovaLeituraSmartRead({
   arquivos,
   contextoRisco,
   onVerEvidencia,
+  compacto = false,
 }: Props) {
   const arquivoLocal = useMemo(
     () => resolverArquivoLocalDaEvidenciaRisco(evidencia, arquivos),
@@ -63,6 +65,39 @@ export function EvidenciaVisualRiscoNovaLeituraSmartRead({
   }, [arquivoLocal])
 
   const podeAbrir = arquivoLocal && onVerEvidencia
+
+  if (compacto) {
+    return (
+      <div className="sr-conf-risco-evidencia-visual sr-conf-risco-evidencia-visual--compacto">
+        <FilePdf size={18} weight="duotone" className="sr-conf-risco-evidencia-icone" aria-hidden />
+        <div className="sr-conf-risco-evidencia-meta">
+          <span className="sr-conf-risco-evidencia-doc">{evidencia.documento}</span>
+          {evidencia.campo && <span className="sr-conf-risco-ev-campo">{evidencia.campo}</span>}
+          {evidencia.valor && <span className="sr-conf-risco-ev-valor">{evidencia.valor}</span>}
+        </div>
+        {podeAbrir && (
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            type="button"
+            className="sr-conf-risco-evidencia-btn"
+            onClick={() =>
+              onVerEvidencia?.({
+                idArquivoLocal: arquivoLocal.id_arquivo_local,
+                documento: evidencia.documento,
+                campo: evidencia.campo,
+                valorAtual: evidencia.valor,
+                ...contextoRisco,
+              })
+            }
+          >
+            <Eye size={14} weight="bold" aria-hidden />
+            Ver
+          </BotaoGlobal>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="sr-conf-risco-evidencia-visual">

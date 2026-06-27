@@ -1,7 +1,7 @@
 /**
  * PlayerAula — Reader de aula da Gravity University.
  * Layout: painel esquerdo (navegador de fases) + área principal (blocos de conteúdo).
- * Design: área de conteúdo com fundo claro (feel de documento/artigo).
+ * Área de conteúdo com fundo claro (feel de documento/artigo).
  */
 
 import { useNavigate } from 'react-router-dom'
@@ -25,37 +25,38 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
     case 'heading': {
       const nivel = (bloco.dados.nivel as number) ?? 1
       const Tag = (`h${nivel}`) as keyof JSX.IntrinsicElements
+      const base: React.CSSProperties = { fontFamily: 'inherit', color: CONTENT_TEXT }
       const styles: Record<number, React.CSSProperties> = {
-        1: { fontSize: '1.6rem', fontWeight: 800, color: CONTENT_TEXT, lineHeight: 1.2, margin: '2rem 0 0.5rem', paddingBottom: '0.5rem', borderBottom: `3px solid ${ACCENT}` },
-        2: { fontSize: '1.15rem', fontWeight: 700, color: CONTENT_TEXT, margin: '1.75rem 0 0.4rem' },
-        3: { fontSize: '1rem', fontWeight: 700, color: ACCENT, margin: '1.5rem 0 0.3rem' },
+        1: { ...base, fontSize: '1.65rem', fontWeight: 800, lineHeight: 1.2, margin: '2rem 0 0.6rem', paddingBottom: '0.6rem', borderBottom: `3px solid ${ACCENT}` },
+        2: { ...base, fontSize: '1.2rem',  fontWeight: 700, margin: '1.75rem 0 0.4rem' },
+        3: { ...base, fontSize: '1rem',    fontWeight: 700, color: ACCENT, margin: '1.5rem 0 0.3rem' },
       }
       return <Tag style={styles[nivel] ?? styles[1]}>{String(bloco.dados.text)}</Tag>
     }
 
     case 'texto':
       return (
-        <p style={{ fontSize: '.95rem', lineHeight: 1.75, color: CONTENT_TEXT, margin: '0.75rem 0' }}>
+        <p style={{ fontSize: '.96rem', lineHeight: 1.8, color: CONTENT_TEXT, margin: '0.8rem 0', fontFamily: 'inherit' }}>
           {String(bloco.dados.text)}
         </p>
       )
 
     case 'imagem':
       return (
-        <figure style={{ margin: '1.5rem 0' }}>
+        <figure style={{ margin: '1.75rem 0' }}>
           <div style={{
-            width: '100%', aspectRatio: '16/7', borderRadius: 10,
+            width: '100%', aspectRatio: '16/7', borderRadius: 12,
             background: 'linear-gradient(135deg,#e2e8f0,#cbd5e1)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             border: '1px solid #e2e8f0',
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#94a3b8' }}>
-              <ImageIcon size={40} weight="duotone" />
-              <span style={{ fontSize: '.8rem', fontWeight: 600 }}>{String(bloco.dados.alt)}</span>
+              <ImageIcon size={44} weight="duotone" />
+              <span style={{ fontSize: '.82rem', fontWeight: 600 }}>{String(bloco.dados.alt)}</span>
             </div>
           </div>
           {bloco.dados.caption && (
-            <figcaption style={{ textAlign: 'center', fontSize: '.78rem', color: CONTENT_MUTED, marginTop: 8, fontStyle: 'italic' }}>
+            <figcaption style={{ textAlign: 'center', fontSize: '.78rem', color: CONTENT_MUTED, marginTop: 10, fontStyle: 'italic' }}>
               {String(bloco.dados.caption)}
             </figcaption>
           )}
@@ -64,26 +65,25 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
 
     case 'video':
       return (
-        <div style={{ margin: '1.5rem 0' }}>
+        <div style={{ margin: '1.75rem 0' }}>
           <div style={{
-            width: '100%', aspectRatio: '16/9', borderRadius: 10,
+            width: '100%', aspectRatio: '16/9', borderRadius: 12,
             background: 'linear-gradient(135deg,#1e1b4b,#312e81)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             gap: 12, cursor: 'pointer', border: '1px solid rgba(99,102,241,.3)',
           }}>
             <div style={{
-              width: 56, height: 56, borderRadius: '50%',
+              width: 64, height: 64, borderRadius: '50%',
               background: 'rgba(129,140,248,.2)', border: '2px solid rgba(129,140,248,.5)',
               display: 'grid', placeItems: 'center',
             }}>
-              <Play weight="fill" size={22} style={{ color: UNI_COR, marginLeft: 3 }} />
+              <Play weight="fill" size={26} style={{ color: UNI_COR, marginLeft: 4 }} />
             </div>
-            <div style={{ color: '#c7d2fe', fontWeight: 600, fontSize: '.9rem' }}>
+            <div style={{ color: '#c7d2fe', fontWeight: 600, fontSize: '.92rem' }}>
               {String(bloco.dados.titulo)}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#818cf8', fontSize: '.75rem' }}>
-              <Clock size={13} />
-              {String(bloco.dados.duracao)}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#818cf8', fontSize: '.78rem' }}>
+              <Clock size={13} /> {String(bloco.dados.duracao)}
             </div>
           </div>
         </div>
@@ -91,41 +91,43 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
 
     case 'citacao':
       return (
-        <blockquote style={{
-          margin: '1.75rem 0',
-          padding: '1.25rem 1.5rem',
+        <div style={{
+          margin: '1.75rem 0', padding: '1.5rem 1.75rem',
           borderLeft: `4px solid ${ACCENT}`,
-          background: `${ACCENT}08`,
-          borderRadius: '0 10px 10px 0',
+          background: 'rgba(109,40,217,0.05)',
+          borderRadius: '0 12px 12px 0',
         }}>
-          <Quotes weight="fill" size={28} style={{ color: ACCENT, opacity: .5, display: 'block', marginBottom: 8 }} />
-          <p style={{ fontSize: '1.05rem', fontWeight: 700, fontStyle: 'italic', color: CONTENT_TEXT, margin: 0, lineHeight: 1.5 }}>
-            {String(bloco.dados.texto)}
+          <Quotes weight="fill" size={32} style={{ color: ACCENT, opacity: .4, display: 'block', marginBottom: 10 }} />
+          <p style={{
+            fontSize: '1.08rem', fontWeight: 700, fontStyle: 'italic',
+            color: CONTENT_TEXT, margin: '0 0 10px 0', lineHeight: 1.6,
+          }}>
+            {String(bloco.dados.texto ?? '')}
           </p>
           {bloco.dados.autor && (
-            <footer style={{ marginTop: 10, fontSize: '.78rem', color: CONTENT_MUTED, fontWeight: 600 }}>
+            <span style={{ fontSize: '.8rem', color: CONTENT_MUTED, fontWeight: 600 }}>
               — {String(bloco.dados.autor)}
-            </footer>
+            </span>
           )}
-        </blockquote>
+        </div>
       )
 
     case 'destaque':
       return (
         <div style={{
-          margin: '1.5rem 0', padding: '1rem 1.25rem',
-          background: `${ACCENT}0a`, border: `1px solid ${ACCENT}30`,
-          borderRadius: 10, display: 'flex', gap: 12,
+          margin: '1.5rem 0', padding: '1.1rem 1.4rem',
+          background: 'rgba(109,40,217,0.06)', border: `1px solid rgba(109,40,217,0.2)`,
+          borderRadius: 12, display: 'flex', gap: 14,
         }}>
           <Lightbulb weight="fill" size={20} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} />
           <div>
             {bloco.dados.titulo && (
-              <div style={{ fontWeight: 700, color: ACCENT, fontSize: '.82rem', marginBottom: 4 }}>
+              <div style={{ fontWeight: 700, color: ACCENT, fontSize: '.82rem', marginBottom: 5 }}>
                 {String(bloco.dados.titulo)}
               </div>
             )}
-            <p style={{ fontSize: '.9rem', lineHeight: 1.6, color: CONTENT_TEXT, margin: 0 }}>
-              {String(bloco.dados.text)}
+            <p style={{ fontSize: '.92rem', lineHeight: 1.65, color: CONTENT_TEXT, margin: 0 }}>
+              {String(bloco.dados.text ?? '')}
             </p>
           </div>
         </div>
@@ -153,18 +155,20 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
 
   const idxAtual = todasAulas.findIndex(a => a.slug === faseSlug)
   const anterior = idxAtual > 0 ? todasAulas[idxAtual - 1] : null
-  const proxima = idxAtual < todasAulas.length - 1 ? todasAulas[idxAtual + 1] : null
+  const proxima  = idxAtual < todasAulas.length - 1 ? todasAulas[idxAtual + 1] : null
   const jaConcluida = concluidas.has(faseSlug)
 
   const navParaFase = (slug: string) => navigate(`/university-gravity/academy/${produtoSlug}/${slug}`)
 
   return (
-    <div style={{ display: 'flex', gap: 0, height: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
 
       {/* ── Painel esquerdo: navegador de fases ── */}
       <nav style={{
-        width: 220, flexShrink: 0, borderRight: '1px solid rgba(148,163,184,.1)',
+        width: 220, flexShrink: 0,
+        borderRight: '1px solid rgba(148,163,184,.12)',
         overflowY: 'auto', padding: '1rem 0',
+        background: 'var(--bg-base,#1e293b)',
       }}>
         <button
           onClick={() => navigate(`/university-gravity/academy/${produtoSlug}`)}
@@ -172,7 +176,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
             display: 'flex', alignItems: 'center', gap: 6,
             background: 'none', border: 'none', cursor: 'pointer',
             color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', fontWeight: 600,
-            padding: '0 16px', marginBottom: 12,
+            padding: '0 16px', marginBottom: 14,
           }}
         >
           <ArrowLeft size={14} />
@@ -211,7 +215,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                 }
                 <span style={{ flex: 1, lineHeight: 1.3 }}>{a.titulo}</span>
                 <span style={{ fontSize: '.68rem', color: 'var(--ws-muted,#94a3b8)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Clock size={10} />{a.duracao}
+                  <Clock size={10} /> {a.duracao}
                 </span>
               </button>
             )
@@ -219,25 +223,32 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
         </div>
       </nav>
 
-      {/* ── Área de conteúdo ── */}
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      {/* ── Área de conteúdo — fundo claro (feel de documento) ── */}
+      <div style={{
+        flex: 1, overflowY: 'auto',
+        background: CONTENT_BG,
+        display: 'flex', flexDirection: 'column',
+      }}>
+        {/* Scroll interno com largura controlada e centralizada */}
         <div style={{
-          maxWidth: 760, margin: '0 auto', width: '100%',
-          padding: '1.5rem 2rem 2rem',
-          background: CONTENT_BG,
-          minHeight: '100%',
+          width: '100%',
+          maxWidth: 980,
+          margin: '0 auto',
+          padding: '2rem 3.5rem 4rem',
           boxSizing: 'border-box',
+          flex: 1,
         }}>
+
           {/* Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '.75rem', color: CONTENT_MUTED, marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '.75rem', color: CONTENT_MUTED, marginBottom: '2rem' }}>
             <span style={{ cursor: 'pointer', color: ACCENT, fontWeight: 600 }} onClick={() => navigate('/university-gravity/academy')}>
-              Onboarding
+              {t('university.nav.academy')}
             </span>
-            <span>/</span>
+            <span style={{ color: '#cbd5e1' }}>/</span>
             <span style={{ cursor: 'pointer', color: ACCENT, fontWeight: 600 }} onClick={() => navigate(`/university-gravity/academy/${produtoSlug}`)}>
               {t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)}
             </span>
-            <span>/</span>
+            <span style={{ color: '#cbd5e1' }}>/</span>
             <span style={{ color: CONTENT_MUTED }}>{aula.titulo}</span>
           </div>
 
@@ -251,23 +262,23 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
           {/* ── Navegação de rodapé ── */}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            marginTop: '2.5rem', paddingTop: '1.5rem',
-            borderTop: '1px solid #e2e8f0',
+            marginTop: '3rem', paddingTop: '1.75rem',
+            borderTop: '1px solid #e2e8f0', gap: 12,
           }}>
             {/* Anterior */}
             <button
               onClick={() => anterior && navParaFase(anterior.slug)}
               disabled={!anterior}
               style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                background: 'none', border: '1px solid #e2e8f0', borderRadius: 9999,
-                padding: '9px 16px', cursor: anterior ? 'pointer' : 'not-allowed',
-                opacity: anterior ? 1 : .35,
-                fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
+                display: 'flex', alignItems: 'center', gap: 8, minWidth: 140,
+                background: '#fff', border: '1px solid #e2e8f0', borderRadius: 9999,
+                padding: '10px 18px', cursor: anterior ? 'pointer' : 'not-allowed',
+                opacity: anterior ? 1 : .3, fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
+                boxShadow: '0 1px 3px rgba(0,0,0,.06)',
               }}
             >
               <ArrowLeft size={15} />
-              {anterior ? anterior.titulo : t('university.aula.inicio')}
+              <span style={{ flex: 1, textAlign: 'left' }}>{anterior ? anterior.titulo : t('university.aula.inicio')}</span>
             </button>
 
             {/* Marcar concluída */}
@@ -275,13 +286,14 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               onClick={() => { onMarcarConcluida(faseSlug); if (proxima) navParaFase(proxima.slug) }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                border: 'none', borderRadius: 9999, padding: '10px 22px',
-                cursor: 'pointer', fontWeight: 700, fontSize: '.86rem',
-                background: jaConcluida ? 'rgba(52,211,153,.15)' : ACCENT,
+                border: 'none', borderRadius: 9999, padding: '11px 28px',
+                cursor: 'pointer', fontWeight: 700, fontSize: '.88rem',
+                background: jaConcluida ? 'rgba(52,211,153,.18)' : ACCENT,
                 color: jaConcluida ? '#059669' : '#fff',
+                boxShadow: jaConcluida ? 'none' : '0 2px 8px rgba(109,40,217,.35)',
               }}
             >
-              <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={16} />
+              <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={17} />
               {jaConcluida ? t('university.acao.concluida') : t('university.aula.marcar_concluida')}
             </button>
 
@@ -290,14 +302,15 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               onClick={() => proxima && navParaFase(proxima.slug)}
               disabled={!proxima}
               style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                background: 'none', border: '1px solid #e2e8f0', borderRadius: 9999,
-                padding: '9px 16px', cursor: proxima ? 'pointer' : 'not-allowed',
-                opacity: proxima ? 1 : .35,
-                fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
+                display: 'flex', alignItems: 'center', gap: 8, minWidth: 140,
+                background: '#fff', border: '1px solid #e2e8f0', borderRadius: 9999,
+                padding: '10px 18px', cursor: proxima ? 'pointer' : 'not-allowed',
+                opacity: proxima ? 1 : .3, fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
+                boxShadow: '0 1px 3px rgba(0,0,0,.06)',
+                justifyContent: 'flex-end',
               }}
             >
-              {proxima ? proxima.titulo : t('university.aula.fim')}
+              <span style={{ flex: 1, textAlign: 'right' }}>{proxima ? proxima.titulo : t('university.aula.fim')}</span>
               <ArrowRight size={15} />
             </button>
           </div>

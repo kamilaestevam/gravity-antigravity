@@ -750,7 +750,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
 }
 
 :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__meter-bar {
-  transform: translateX(-12px);
+  transform: translate(-20px, 4px);
 }
 
 :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__meter-label {
@@ -759,6 +759,7 @@ body.light-theme .sw-hub-panel--gabi.sw-hub-gabi-layout--4 .sw-hub-gabi-insight-
   color: var(--hub-cor-painel);
   text-transform: none;
   letter-spacing: normal;
+  transform: translate(-9px, 4px);
 }
 
 .sw-content.sw-content--hub-unificado :is(.sw-hub-panel--produtos, .gs-puzzle-gravity-refinado) .gs-stack--hub-paridade-store .gs-stack__lanes {

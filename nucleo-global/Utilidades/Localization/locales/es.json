@@ -1,4 +1,25 @@
 ﻿{
+  "university": {
+    "modulo_nome": "Gravity University",
+    "nav": { "academy": "Academia", "minha_jornada": "Mi Recorrido", "docs": "Docs", "builders": "Builders" },
+    "badge": { "em_breve": "Próximamente" },
+    "banner": {
+      "em_construcao": "En construcción",
+      "descricao": "El hub único de aprendizaje de la plataforma — onboarding por producto, recorrido gamificado y certificado, con GABI como fuente de conocimiento y tutora."
+    },
+    "acao": { "continuar": "Continuar", "iniciar_jornada": "Iniciar recorrido" },
+    "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos" },
+    "dica": {
+      "titulo": "Consejos y Explicaciones",
+      "habilitadas": "Habilitadas — los consejos aparecen al pasar el cursor",
+      "desabilitadas": "Deshabilitadas — no se muestra ningún consejo"
+    },
+    "busca": { "organizacao": "Buscar organización…" },
+    "jornada": { "pontos": "Puntos", "concluidas": "Completadas", "em_andamento": "En curso", "certificados": "Certificados" },
+    "vazio": { "em_breve": "{{secao}} — próximamente" },
+    "docs": { "descricao": "Manuales y videos navegables (base de conocimiento de GABI)." },
+    "builders": { "descricao": "Direccionamiento para integradores y desarrolladores (API Cockpit)." }
+  },
   "BIDFRETE.NOVA_COTACAO.TIPO_OPERACAO_COTACAO_BID_FRETE_INTERNACIONAL": "Tipo de Operación",
   "BIDFRETE.NOVA_COTACAO.MODALIDADE_COTACAO_BID_FRETE_INTERNACIONAL": "Modalidad",
   "bidfrete.nova_cotacao.tipo_operacao_cotacao_bid_frete_internacional": "Tipo de Operación",

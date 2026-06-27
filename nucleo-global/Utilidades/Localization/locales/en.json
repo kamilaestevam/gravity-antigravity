@@ -1,4 +1,25 @@
 ﻿{
+  "university": {
+    "modulo_nome": "Gravity University",
+    "nav": { "academy": "Academy", "minha_jornada": "My Journey", "docs": "Docs", "builders": "Builders" },
+    "badge": { "em_breve": "Coming Soon" },
+    "banner": {
+      "em_construcao": "Under construction",
+      "descricao": "The platform's single learning hub — per-product onboarding, gamified journey and certificate, with GABI as the knowledge source and tutor."
+    },
+    "acao": { "continuar": "Continue", "iniciar_jornada": "Start journey" },
+    "trilha": { "modulos_one": "{{count}} module", "modulos_other": "{{count}} modules" },
+    "dica": {
+      "titulo": "Tips and Explanations",
+      "habilitadas": "Enabled — tips appear on hover",
+      "desabilitadas": "Disabled — no tips are shown"
+    },
+    "busca": { "organizacao": "Search organization…" },
+    "jornada": { "pontos": "Points", "concluidas": "Completed", "em_andamento": "In progress", "certificados": "Certificates" },
+    "vazio": { "em_breve": "{{secao}} — coming soon" },
+    "docs": { "descricao": "Browsable manuals and videos (GABI's knowledge base)." },
+    "builders": { "descricao": "Pointers for integrators and developers (API Cockpit)." }
+  },
   "BIDFRETE": {
     "NOVA_COTACAO": {
       "TIPO_OPERACAO_COTACAO_BID_FRETE_INTERNACIONAL": "Operation Type",

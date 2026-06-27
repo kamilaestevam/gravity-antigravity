@@ -20,6 +20,7 @@
       "descricao": "Hub único de aprendizado da plataforma — onboarding por produto, jornada gamificada e certificado, com a GABI como fonte de conhecimento e tutora."
     },
     "acao": { "continuar": "Continuar", "iniciar_jornada": "Iniciar jornada", "concluida": "Concluída" },
+    "aula": { "voltar": "Voltar", "marcar_concluida": "Marcar como concluída", "inicio": "Início", "fim": "Fim do módulo" },
     "grupo": { "comece_aqui": "Comece por aqui", "seus_produtos": "Seus produtos", "explorar": "Explorar outros" },
     "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos", "total": "Total:" },
     "progresso": { "produtos_contratados": "Progresso nos produtos contratados", "concluidos": "concluídos" },

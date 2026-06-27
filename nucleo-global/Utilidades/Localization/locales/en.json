@@ -20,6 +20,7 @@
       "descricao": "The platform's single learning hub — per-product onboarding, gamified journey and certificate, with GABI as the knowledge source and tutor."
     },
     "acao": { "continuar": "Continue", "iniciar_jornada": "Start journey", "concluida": "Completed" },
+    "aula": { "voltar": "Back", "marcar_concluida": "Mark as complete", "inicio": "Start", "fim": "End of module" },
     "grupo": { "comece_aqui": "Start here", "seus_produtos": "Your products", "explorar": "Explore more" },
     "trilha": { "modulos_one": "{{count}} module", "modulos_other": "{{count}} modules", "total": "Total:" },
     "progresso": { "produtos_contratados": "Progress on contracted products", "concluidos": "completed" },

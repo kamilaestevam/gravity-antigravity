@@ -8,7 +8,7 @@
  * documentos-tecnicos/produtos-gravity/university-gravity/ (PRD + MODELO-DADOS + SPECS).
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
@@ -28,6 +28,8 @@ import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
 import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
+import { PlayerAula } from './university/PlayerAula'
+import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
 import './configurador/workspace.css'
 
 const UNI_COR = '#818cf8'
@@ -199,11 +201,27 @@ export function UniversityGravity() {
     : pathname.includes('/minha-jornada') ? 'jornada'
     : 'academy'
 
-  const produtoSlug = (secao === 'academy'
-    ? (pathname.split('/academy/')[1] ?? '').split('/')[0] || null
-    : null) as ProdutoSlug | null
+  const partes = pathname.replace('/university-gravity/academy', '').split('/').filter(Boolean)
+  const produtoSlug = (partes[0] ?? null) as ProdutoSlug | null
+  const faseSlug = partes[1] ?? null
 
-  const trilhasAtivas: Trilha[] | null = produtoSlug ? (TRILHAS_POR_PRODUTO[produtoSlug] ?? null) : null
+  const trilhasAtivas: Trilha[] | null = (produtoSlug && !faseSlug)
+    ? (TRILHAS_POR_PRODUTO[produtoSlug] ?? null)
+    : null
+
+  // Controle local de aulas concluídas (WIP — virá do banco via API)
+  const [aulasConcluidas, setAulasConcluidas] = useState<Set<string>>(() => {
+    const salvo = sessionStorage.getItem('university_concluidas')
+    return salvo ? new Set(JSON.parse(salvo)) : new Set(['o-que-e-o-gravity', 'criando-sua-conta', 'configurando-seu-perfil'])
+  })
+  const marcarConcluida = useCallback((slug: string) => {
+    setAulasConcluidas(prev => {
+      const novo = new Set(prev)
+      novo.add(slug)
+      sessionStorage.setItem('university_concluidas', JSON.stringify([...novo]))
+      return novo
+    })
+  }, [])
 
   // Progresso geral nos produtos contratados
   const progressoContratados = PRODUTOS_CONTRATADOS.map(slug => ({
@@ -392,6 +410,31 @@ export function UniversityGravity() {
           />
         </div>
 
+        {/* ══ Player de aula (rota /academy/{produto}/{fase}) ══ */}
+        {secao === 'academy' && faseSlug && produtoSlug && (() => {
+          const aula = getAulaDemo(produtoSlug, faseSlug)
+          const todasAulas = getAulasDemo(produtoSlug)
+          if (!aula) return (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ws-muted,#94a3b8)' }}>
+              Aula não encontrada.
+            </div>
+          )
+          return (
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+              <PlayerAula
+                produtoSlug={produtoSlug}
+                faseSlug={faseSlug}
+                aula={aula}
+                todasAulas={todasAulas}
+                concluidas={aulasConcluidas}
+                onMarcarConcluida={marcarConcluida}
+              />
+            </div>
+          )
+        })()}
+
+        {/* ══ Resto das views (overview, jornada, docs, builders) ══ */}
+        {!(secao === 'academy' && faseSlug) && (
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem 3rem' }}>
 
           {/* ── Cabeçalho ── */}
@@ -635,6 +678,7 @@ export function UniversityGravity() {
           )}
 
         </div>
+        )}
       </div>
 
       <ToastContainer />

@@ -5,7 +5,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   CaretDown,
-  ArrowsOut,
   CircleNotch,
   FileText,
   Info,
@@ -327,7 +326,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const [aviso, setAviso] = useState<string | null>(null)
   const [filtro, setFiltro] = useState<FiltroRisco>('todos')
   const [busca, setBusca] = useState('')
-  const [painelColapsado, setPainelColapsado] = useState(false)
   const [categoriasColapsadas, setCategoriasColapsadas] = useState<Set<string>>(() => new Set())
   const [riscosSelecionados, setRiscosSelecionados] = useState<Set<string>>(() => new Set())
   const [regrasContexto, setRegrasContexto] = useState<RegraAuditoriaV1[]>([])
@@ -392,13 +390,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     if (resumo.total === 0) return 100
     return Math.round(((resumo.total - resumo.criticos) / resumo.total) * 100)
   }, [resumo.total, resumo.criticos])
-
-  const corBarraConformidade =
-    percentualConformidade >= 80
-      ? 'linear-gradient(90deg, #34d399, #6ee7b7)'
-      : percentualConformidade >= 50
-        ? 'linear-gradient(90deg, #818cf8, #a78bfa)'
-        : 'linear-gradient(90deg, #f87171, #fb923c)'
 
   const riscosFiltrados = useMemo(
     () => filtrarRiscos(resumo.riscos, filtro, busca),
@@ -484,6 +475,32 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   const todasColapsadas =
     secoesCategoria.length > 0 && secoesCategoria.every((s) => categoriasColapsadas.has(s.id))
 
+  const chaveSecoesCategoria = useMemo(
+    () => secoesCategoria.map((secao) => secao.id).join('|'),
+    [secoesCategoria],
+  )
+
+  const legendaSegmentosRisco =
+    resumo.total === 0
+      ? null
+      : [
+          resumo.criticos > 0 ? `${resumo.criticos} crítico${resumo.criticos === 1 ? '' : 's'}` : null,
+          resumo.atencao > 0 ? `${resumo.atencao} atenção` : null,
+          resumo.informativos > 0
+            ? `${resumo.informativos} informativo${resumo.informativos === 1 ? '' : 's'}`
+            : null,
+        ]
+          .filter((parte): parte is string => parte !== null)
+          .join(' · ')
+
+  useEffect(() => {
+    if (secoesCategoria.length === 0) {
+      setCategoriasColapsadas(new Set())
+      return
+    }
+    setCategoriasColapsadas(new Set(secoesCategoria.slice(1).map((secao) => secao.id)))
+  }, [chaveSecoesCategoria, secoesCategoria])
+
   useEffect(() => {
     if (auditoriaV1Local) {
       setResumo(auditoriaV1Local.resumo)
@@ -556,9 +573,30 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
 
   function toggleCategoria(id: string) {
     setCategoriasColapsadas((prev) => {
+      if (prev.has(id)) {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      }
+      const next = new Set(secoesCategoria.map((secao) => secao.id))
+      next.delete(id)
+      return next
+    })
+  }
+
+  function secaoTodosSelecionados(riscos: RiscoAduaneiroLeitura[]) {
+    return riscos.length > 0 && riscos.every((risco) => riscosSelecionados.has(risco.id))
+  }
+
+  function toggleSelecionarSecao(riscos: RiscoAduaneiroLeitura[]) {
+    const todos = secaoTodosSelecionados(riscos)
+    setRiscosSelecionados((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
+      if (todos) {
+        for (const risco of riscos) next.delete(risco.id)
+      } else {
+        for (const risco of riscos) next.add(risco.id)
+      }
       return next
     })
   }
@@ -600,76 +638,51 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         </p>
       )}
 
-      <section
-        className={`sr-conf-progresso-bloco${painelColapsado ? ' sr-conf-progresso-bloco--colapsado' : ''}`}
-      >
-        <button
-          type="button"
-          className="sr-conf-progresso-header"
-          onClick={() => setPainelColapsado((prev) => !prev)}
-          aria-expanded={!painelColapsado}
-          aria-controls="sr-conf-riscos-painel-corpo"
-        >
-          <div className="sr-conf-progresso-header-esq">
-            <CaretDown
-              weight="bold"
-              size={14}
-              className={`dt-caret${painelColapsado ? ' dt-caret--colapsado' : ''}`}
-            />
-            <strong className="sr-conf-progresso-titulo">Painel da Análise</strong>
-          </div>
-          <div
-            className="sr-conf-progresso-busca"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
-          >
-            <div className="dt-header-busca">
-              <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
-              <input
-                type="search"
-                className="dt-toc-busca-input"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                placeholder="Localizar riscos"
-                aria-label="Localizar riscos"
-              />
-              {busca && (
-                <button
-                  type="button"
-                  className="dt-toc-busca-limpar"
-                  onClick={() => setBusca('')}
-                  aria-label="Limpar busca"
-                >
-                  <X size={12} weight="bold" />
-                </button>
-              )}
+      <section className="sr-conf-riscos-cabecalho" aria-label="Resumo da análise de riscos">
+        <div className="sr-conf-riscos-cabecalho-principal">
+          <div className="sr-conf-riscos-cabecalho-resumo">
+            <div className="sr-conf-riscos-cabecalho-titulo-linha">
+              <strong className="sr-conf-riscos-cabecalho-titulo">Análise de riscos</strong>
+              <span className="sr-conf-riscos-cabecalho-subtitulo">
+                {percentualConformidade}% sem críticos abertos
+              </span>
             </div>
-          </div>
-        </button>
 
-        {!painelColapsado && (
-          <div id="sr-conf-riscos-painel-corpo" className="sr-conf-progresso-corpo">
-            <div className="sr-conf-progresso-linha">
-              <div
-                className="sr-conf-progresso-barra"
-                role="progressbar"
-                aria-valuenow={percentualConformidade}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`${percentualConformidade}% sem riscos críticos`}
-              >
+            {resumo.total > 0 && (
+              <>
                 <div
-                  className="sr-conf-progresso-barra-fill"
-                  style={{
-                    width: `${percentualConformidade}%`,
-                    background: corBarraConformidade,
-                  }}
-                />
-              </div>
-              <span className="sr-conf-progresso-pct">{percentualConformidade}%</span>
-            </div>
+                  className="sr-conf-riscos-seg-bar"
+                  role="img"
+                  aria-label={`Distribuição: ${legendaSegmentosRisco ?? ''}`}
+                >
+                  {resumo.criticos > 0 && (
+                    <span
+                      className="sr-conf-riscos-seg-bar__critico"
+                      style={{ width: `${(resumo.criticos / resumo.total) * 100}%` }}
+                    />
+                  )}
+                  {resumo.atencao > 0 && (
+                    <span
+                      className="sr-conf-riscos-seg-bar__atencao"
+                      style={{ width: `${(resumo.atencao / resumo.total) * 100}%` }}
+                    />
+                  )}
+                  {resumo.informativos > 0 && (
+                    <span
+                      className="sr-conf-riscos-seg-bar__informativo"
+                      style={{ width: `${(resumo.informativos / resumo.total) * 100}%` }}
+                    />
+                  )}
+                </div>
+                {legendaSegmentosRisco && (
+                  <p className="sr-conf-riscos-seg-legenda">
+                    {resumo.total} {resumo.total === 1 ? 'risco' : 'riscos'} · {legendaSegmentosRisco}
+                  </p>
+                )}
+              </>
+            )}
 
-            <div className="sr-conf-progresso-metricas" aria-label="Resumo de riscos">
+            <div className="sr-conf-progresso-metricas sr-conf-progresso-metricas--compacto" aria-label="Filtrar riscos">
               <button
                 type="button"
                 className={`sr-conf-progresso-metrica sr-conf-progresso-metrica--todos${filtro === 'todos' ? ' sr-conf-progresso-metrica--ativo' : ''}`}
@@ -679,7 +692,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                 <span className="sr-conf-progresso-metrica-valor">{resumo.total}</span>
                 <span className="sr-conf-progresso-metrica-rotulo">
                   <ShieldCheck size={12} weight="fill" aria-hidden />
-                  Total
+                  Todos
                 </span>
               </button>
               <button
@@ -720,42 +733,63 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
               </button>
             </div>
           </div>
-        )}
-      </section>
 
-      <section className="sr-conf-checklist-bloco" aria-label="Checklist de conferência da matriz invoice">
-        <button
-          type="button"
-          className="sr-conf-checklist-header sr-conf-checklist-header--expandir"
-          onClick={() => setModalChecklistAberto(true)}
-          aria-haspopup="dialog"
-        >
-          <div className="sr-conf-checklist-header-esq">
-            <ArrowsOut weight="bold" size={16} className="sr-conf-checklist-expandir-icone" aria-hidden />
-            <div className="sr-conf-checklist-titulo-grupo">
-              <strong className="sr-conf-checklist-titulo">Checklist de Conferência</strong>
-              <span className="sr-conf-checklist-subtitulo">
-                {resumoGeralChecklist?.total_invoices ?? 0} invoice(s) · {contagemChecklist.total}{' '}
-                avaliações — clique para expandir
-              </span>
+          <div className="sr-conf-progresso-busca">
+            <div className="dt-header-busca">
+              <MagnifyingGlass weight="duotone" size={14} className="dt-toc-busca-icon" />
+              <input
+                type="search"
+                className="dt-toc-busca-input"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Localizar riscos"
+                aria-label="Localizar riscos"
+              />
+              {busca && (
+                <button
+                  type="button"
+                  className="dt-toc-busca-limpar"
+                  onClick={() => setBusca('')}
+                  aria-label="Limpar busca"
+                >
+                  <X size={12} weight="bold" />
+                </button>
+              )}
             </div>
-            <span className="sr-conf-checklist-pct">{percentualChecklistVerde}% conforme</span>
           </div>
-          <div className="sr-conf-checklist-resumo" aria-label="Resumo do checklist">
-            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--verde">
-              {contagemChecklist.verde} CONFORME
-            </span>
-            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--amarelo">
-              {contagemChecklist.amarelo} ATENÇÃO
-            </span>
-            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--vermelho">
-              {contagemChecklist.vermelho} FALHA
-            </span>
-            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--pendente">
-              {contagemChecklist.pendente} PENDENTE
-            </span>
-          </div>
-        </button>
+        </div>
+
+        <div className="sr-conf-riscos-cabecalho-rodape">
+          <button
+            type="button"
+            className="sr-conf-riscos-checklist-link"
+            onClick={() => setModalChecklistAberto(true)}
+            aria-haspopup="dialog"
+          >
+            Checklist matriz · {percentualChecklistVerde}% conforme
+          </button>
+          <span className="sr-conf-riscos-checklist-resumo-compacto">
+            {contagemChecklist.verde} ok · {contagemChecklist.amarelo} atenção ·{' '}
+            {contagemChecklist.vermelho} falha · {contagemChecklist.pendente} pendente
+          </span>
+          {riscosFiltrados.length > 0 && (
+            <label className="sr-conf-riscos-selecionar-compacto">
+              <input
+                type="checkbox"
+                checked={todosFiltradosSelecionados}
+                onChange={toggleSelecionarTodosFiltrados}
+                aria-label="Selecionar todos os riscos visíveis"
+              />
+              <span>Selecionar ({riscosFiltrados.length})</span>
+            </label>
+          )}
+          {riscosSelecionadosLista.length > 0 && (
+            <AcoesCorrecaoRiscoNovaLeituraSmartRead riscos={riscosSelecionadosLista} />
+          )}
+          <span className="sr-conf-riscos-disclaimer-compacto">
+            V1 + IA + NCM — apoio à conferência
+          </span>
+        </div>
       </section>
 
       <ModalChecklistConferenciaNovaLeituraSmartRead
@@ -765,27 +799,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         parametrosChecklist={parametrosChecklist}
         onVerRisco={verRiscoDoChecklist}
       />
-
-      <p className="sr-conf-riscos-disclaimer">
-        Auditoria V1 + IA comercial + validação NCM Siscomex. Apoio à conferência — não substitui despacho aduaneiro.
-      </p>
-
-      {riscosFiltrados.length > 0 && (
-        <section className="sr-conf-risco-lote" aria-label="Seleção para e-mail ao fornecedor">
-          <label className="sr-conf-risco-lote-selecionar">
-            <input
-              type="checkbox"
-              checked={todosFiltradosSelecionados}
-              onChange={toggleSelecionarTodosFiltrados}
-              aria-label="Selecionar todos os riscos visíveis"
-            />
-            <span>Selecionar tudo ({riscosFiltrados.length})</span>
-          </label>
-          {riscosSelecionadosLista.length > 0 && (
-            <AcoesCorrecaoRiscoNovaLeituraSmartRead riscos={riscosSelecionadosLista} />
-          )}
-        </section>
-      )}
 
       <main className="dt-main sr-conf-riscos-main">
         {(filtro !== 'todos' || busca.trim() || secoesCategoria.length > 0) && (
@@ -849,9 +862,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         ) : (
           secoesCategoria.map((secao) => {
             const colapsada = categoriasColapsadas.has(secao.id)
-            const pctCriticos = secao.riscos.length
-              ? Math.round((secao.criticos / secao.riscos.length) * 100)
-              : 0
 
             return (
               <section
@@ -876,15 +886,19 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                     <h2>{secao.titulo}</h2>
                   </div>
                   <div className="dt-secao-completude">
-                    <div className="dt-secao-progress">
-                      <div
-                        className="dt-secao-progress-fill"
-                        style={{
-                          width: `${100 - pctCriticos}%`,
-                          background: secao.criticos === 0 ? '#34d399' : '#f87171',
-                        }}
+                    <label
+                      className="sr-conf-riscos-secao-selecionar"
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={secaoTodosSelecionados(secao.riscos)}
+                        onChange={() => toggleSelecionarSecao(secao.riscos)}
+                        aria-label={`Selecionar riscos de ${secao.titulo}`}
                       />
-                    </div>
+                      <span>Selecionar</span>
+                    </label>
                     <span className="dt-secao-pill">
                       {secao.riscos.length} {secao.riscos.length === 1 ? 'risco' : 'riscos'}
                     </span>

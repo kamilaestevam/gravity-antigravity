@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 371,
+  "proximo_numero": 373,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1559,6 +1559,40 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000370.json"
+    },
+    {
+      "referencia": "TASK-000371",
+      "ordinal": 95,
+      "titulo_canonico": "CONFIG-DASHBOARD-MEL-PRIORIZAR-ALERTAS-CENTRALIZAR-METRICAS-BADGE",
+      "titulo_exibicao": "TASK-000371 | [Hub] Dashboard | MEL — Priorizar alertas e refinar cards de métricas",
+      "status": "ABR",
+      "area": "CONFIG",
+      "subarea": null,
+      "visualizacao": "DASHBOARD",
+      "tipo_entrega": "MEL",
+      "resumo": "PRIORIZAR-ALERTAS-CENTRALIZAR-METRICAS-BADGE",
+      "data_criacao": "2026-06-27T17:30:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000371.json"
+    },
+    {
+      "referencia": "TASK-000372",
+      "ordinal": 96,
+      "titulo_canonico": "CONFIG-HUB-MEL-NAVEGACAO-CARROSSEL-GRAVITY-STORE",
+      "titulo_exibicao": "TASK-000372 | [Hub] Gravity Store | MEL — Navegação do carrossel (setas e dots como GABI)",
+      "status": "ABR",
+      "area": "CONFIG",
+      "subarea": "HUB",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "NAVEGACAO-CARROSSEL-GRAVITY-STORE",
+      "data_criacao": "2026-06-27T20:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000372.json"
     }
   ]
 }

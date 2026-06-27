@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Lightning, Package } from '@phosphor-icons/react'
+import { CaretLeft, CaretRight, Lightning, Package } from '@phosphor-icons/react'
 import { PRODUCT_META, nomeExibicaoProdutoGravity } from '../data/product-meta'
 import {
   filtrarCatalogoProdutosGravityStore,
@@ -11,6 +11,9 @@ import {
   type AssinaturaProdutoGravityMin,
   type CatalogoProdutoGravityMin,
 } from '../lib/produtos-gravity-store-status'
+
+/** Intervalo padrão do carrossel da vitrine Gravity Store no HUB (ms). */
+const INTERVALO_ROTACAO_VITRINE_STORE_HUB_MS = 3500
 
 interface CardVitrineStoreHubProps {
   catalogo: CatalogoProdutoGravityMin[]
@@ -69,11 +72,19 @@ export function CardVitrineStoreHub({
     if (pausado || itensVitrine.length <= 1) return
     const timer = setInterval(() => {
       setIndice(prev => (prev + 1) % itensVitrine.length)
-    }, 5000)
+    }, INTERVALO_ROTACAO_VITRINE_STORE_HUB_MS)
     return () => clearInterval(timer)
   }, [pausado, itensVitrine.length])
 
   if (itensVitrine.length === 0) return null
+
+  const temCarrossel = itensVitrine.length > 1
+  const irParaAnterior = () => {
+    setIndice(prev => (prev - 1 + itensVitrine.length) % itensVitrine.length)
+  }
+  const irParaProximo = () => {
+    setIndice(prev => (prev + 1) % itensVitrine.length)
+  }
 
   const produtoAtual = itensVitrine[indice] ?? itensVitrine[0]
   const meta = metaProdutoHub(produtoAtual.slug)
@@ -84,16 +95,34 @@ export function CardVitrineStoreHub({
   ) === 'soon'
 
   return (
-    <div
-      className="sw-hub-store-vitrine"
-      onMouseEnter={() => setPausado(true)}
-      onMouseLeave={() => setPausado(false)}
-    >
+    <div className="sw-hub-store-vitrine">
+      {temCarrossel && (
+        <div className="sw-hub-store-vitrine-nav">
+          <button
+            type="button"
+            className="sw-gabi-nav-btn"
+            onClick={irParaAnterior}
+            aria-label={t('sw.store_vitrine_anterior', 'Produto anterior na vitrine')}
+          >
+            <CaretLeft size={12} weight="bold" />
+          </button>
+          <button
+            type="button"
+            className="sw-gabi-nav-btn"
+            onClick={irParaProximo}
+            aria-label={t('sw.store_vitrine_proximo', 'Próximo produto na vitrine')}
+          >
+            <CaretRight size={12} weight="bold" />
+          </button>
+        </div>
+      )}
       <button
         type="button"
         key={produtoAtual.slug}
         className={`gs-card sw-hub-store-vitrine-card hs-fade-up${emBreve ? ' gs-card--soon' : ' gs-card--available'}`}
         onClick={onAbrirStore}
+        onMouseEnter={() => setPausado(true)}
+        onMouseLeave={() => setPausado(false)}
         aria-label={nomeExibicaoProdutoGravity(produtoAtual.slug, produtoAtual.name, t)}
       >
         <div className="gs-card__top">
@@ -141,15 +170,16 @@ export function CardVitrineStoreHub({
         </div>
       </button>
 
-      {itensVitrine.length > 1 && (
-        <div className="sw-hub-store-vitrine-dots" role="tablist" aria-label={t('sw.gravity_store', 'Gravity Store')}>
+      {temCarrossel && (
+        <div className="sw-hub-gabi-dots" role="tablist" aria-label={t('sw.gravity_store', 'Gravity Store')}>
           {itensVitrine.map((produto, idx) => (
             <button
               key={produto.slug}
               type="button"
               role="tab"
               aria-selected={idx === indice}
-              className={`sw-hub-store-vitrine-dot${idx === indice ? ' sw-hub-store-vitrine-dot--active' : ''}`}
+              aria-label={nomeExibicaoProdutoGravity(produto.slug, produto.name, t)}
+              className={`sw-hub-gabi-dot${idx === indice ? ' sw-hub-gabi-dot--active' : ''}`}
               onClick={() => setIndice(idx)}
             />
           ))}

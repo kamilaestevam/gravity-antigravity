@@ -6,6 +6,7 @@ import {
   comporCarrosselInsightsHub,
   intercalarInsightsHubOperacionaisDicas,
   normalizarChavesProdutosAtivosHub,
+  ordenarInsightsOperacionaisHub,
   type HubInsight,
 } from '../../../servicos-global/configurador/server/services/hub-insights-service.js'
 
@@ -86,5 +87,19 @@ describe('hub-insights-service', () => {
     expect(qtdOperacionais).toBeGreaterThanOrEqual(8)
     expect(qtdPlataforma).toBeLessThanOrEqual(2)
     expect(qtdOperacionais / carrossel.length).toBeGreaterThanOrEqual(0.8)
+  })
+
+  it('prioriza alertas warn antes de mensagens sem pendência', () => {
+    const alerta = insightOperacional('frete_respostas_pendentes', 85)
+    const neutro: HubInsight = {
+      id: 'pedidos_sem_pendencia',
+      variante: 'default',
+      tag: 'Operação · Pedido',
+      texto: 'Nenhuma pendência crítica em Pedido no período analisado.',
+      score: 40,
+      produto: 'Pedido',
+    }
+    const ordenados = ordenarInsightsOperacionaisHub([neutro, alerta])
+    expect(ordenados[0]?.id).toBe('frete_respostas_pendentes')
   })
 })

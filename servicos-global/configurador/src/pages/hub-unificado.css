@@ -1279,6 +1279,27 @@ body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-row-gabi > .sw-hu
   margin: 0.25rem 0 0.35rem;
 }
 
+.sw-hub-store-vitrine-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  margin-bottom: 0.25rem;
+}
+
+.sw-hub-panel--store .sw-gabi-nav-btn {
+  color: var(--sw-text-2);
+}
+
+.sw-hub-panel--store .sw-gabi-nav-btn:hover:not(:disabled) {
+  color: var(--sw-text-1);
+}
+
+.sw-hub-panel--store .sw-hub-gabi-dots {
+  margin-top: auto;
+  padding-top: 0.35rem;
+}
+
 .sw-hub-store-vitrine-card {
   flex: 1;
   width: 100%;
@@ -1330,30 +1351,6 @@ body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-row-gabi > .sw-hu
 .sw-hub-panel--store .sw-hub-store-vitrine-card .gs-tag {
   font-size: 0.58rem;
   padding: 0.15rem 0.4rem;
-}
-
-.sw-hub-store-vitrine-dots {
-  display: flex;
-  gap: 0.35rem;
-  justify-content: center;
-  margin-top: 0.45rem;
-  flex-shrink: 0;
-}
-
-.sw-hub-store-vitrine-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  border: none;
-  padding: 0;
-  background: var(--sw-text-2);
-  opacity: 0.35;
-  cursor: pointer;
-}
-
-.sw-hub-store-vitrine-dot--active {
-  opacity: 1;
-  background: #a78bfa;
 }
 
 @keyframes sw-hub-store-vitrine-in {
@@ -1453,6 +1450,7 @@ body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-row-gabi > .sw-hu
   color: #ffffff;
   line-height: 1;
   letter-spacing: -0.02em;
+  margin-top: 4px;
 }
 
 .sw-hub-kpi-lbl {
@@ -1482,6 +1480,17 @@ body.light-theme .sw-content.sw-content--hub-unificado .sw-hub-row-gabi > .sw-hu
 .sw-hub-kpi-tag--warn {
   background: var(--hub-ops-orange-soft);
   color: var(--hub-ops-orange);
+}
+
+.sw-hub-kpi-aviso {
+  font-size: 0.62rem;
+  line-height: 1.35;
+  color: var(--hub-proto-muted);
+  margin: 0;
+  margin-top: auto;
+  padding-top: 0.65rem;
+  max-width: 14rem;
+  opacity: 0.92;
 }
 
 /* ── Lista de processos (mockup) ── */

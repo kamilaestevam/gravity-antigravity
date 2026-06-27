@@ -21,7 +21,8 @@
     },
     "acao": { "continuar": "Continue", "iniciar_jornada": "Start journey", "concluida": "Completed" },
     "grupo": { "comece_aqui": "Start here", "seus_produtos": "Your products", "explorar": "Explore more" },
-    "trilha": { "modulos_one": "{{count}} module", "modulos_other": "{{count}} modules" },
+    "trilha": { "modulos_one": "{{count}} module", "modulos_other": "{{count}} modules", "total": "Total:" },
+    "progresso": { "produtos_contratados": "Progress on contracted products", "concluidos": "completed" },
     "dica": {
       "titulo": "Tips and Explanations",
       "habilitadas": "Enabled — tips appear on hover",

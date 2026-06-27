@@ -21,7 +21,8 @@
     },
     "acao": { "continuar": "Continuar", "iniciar_jornada": "Iniciar jornada", "concluida": "Concluída" },
     "grupo": { "comece_aqui": "Comece por aqui", "seus_produtos": "Seus produtos", "explorar": "Explorar outros" },
-    "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos" },
+    "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos", "total": "Total:" },
+    "progresso": { "produtos_contratados": "Progresso nos produtos contratados", "concluidos": "concluídos" },
     "dica": {
       "titulo": "Dicas e Explicações",
       "habilitadas": "Habilitadas — dicas aparecem ao passar o mouse",

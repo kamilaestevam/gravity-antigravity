@@ -21,7 +21,8 @@
     },
     "acao": { "continuar": "Continuar", "iniciar_jornada": "Iniciar recorrido", "concluida": "Completada" },
     "grupo": { "comece_aqui": "Empieza aquí", "seus_produtos": "Tus productos", "explorar": "Explorar más" },
-    "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos" },
+    "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos", "total": "Total:" },
+    "progresso": { "produtos_contratados": "Progreso en productos contratados", "concluidos": "completados" },
     "dica": {
       "titulo": "Consejos y Explicaciones",
       "habilitadas": "Habilitadas — los consejos aparecen al pasar el cursor",

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Read — Mock Análise de Riscos (layout)</title>
+  <style>
+    :root {
+      --bg: #141414;
+      --elevated: #181818;
+      --stroke: #e4e4e41f;
+      --text: #e4e4e4eb;
+      --muted: #e4e4e48d;
+      --accent: #9386f2;
+      --green: #3fa266;
+      --yellow: #f1b467;
+      --red: #f87171;
+      --blue: #7bafe9;
+      --font: system-ui, -apple-system, Segoe UI, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .page { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 1.35rem; margin: 0 0 6px; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
+    .toolbar span { color: var(--muted); font-size: 0.85rem; }
+    button.mode {
+      background: transparent;
+      border: 1px solid var(--stroke);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    button.mode.active { background: var(--accent); border-color: var(--accent); color: #191c22; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .panel-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .frame { padding: 12px; border-radius: 12px; background: var(--elevated); border: 1px solid var(--stroke); }
+    .frame.proposta { border-color: var(--accent); }
+    .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .tab { font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--stroke); color: var(--muted); }
+    .tab.on { background: #2a2540; border-color: var(--accent); color: var(--text); }
+    .card { border: 1px solid var(--stroke); border-radius: 10px; padding: 12px; margin-bottom: 10px; background: #1a1a1a; }
+    .card-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; font-size: 0.85rem; margin-bottom: 10px; }
+    .metrics { display: flex; gap: 6px; flex-wrap: wrap; }
+    .metric { flex: 1; min-width: 64px; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid var(--stroke); }
+    .metric.on { border-color: var(--accent); }
+    .metric b { display: block; font-size: 1.1rem; }
+    .metric small { color: var(--muted); font-size: 0.7rem; }
+    .bar { height: 6px; background: #2a2a2a; border-radius: 3px; overflow: hidden; margin: 8px 0; }
+    .bar > i { display: block; height: 100%; background: var(--yellow); width: 67%; }
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill { font-size: 0.7rem; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--stroke); color: var(--muted); }
+    .pill.on { background: #333; color: var(--text); }
+    .check-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin: 10px 0; color: var(--muted); }
+    .risk { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--stroke); border-radius: 8px; margin-top: 8px; font-size: 0.85rem; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .risk main { flex: 1; min-width: 0; }
+    .risk small { color: var(--muted); display: block; }
+    .risk .acts { display: flex; gap: 6px; }
+    .risk .acts button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.8rem; }
+    .unified { padding: 12px 14px; border: 1px solid var(--stroke); border-radius: 10px; background: var(--elevated); margin-bottom: 10px; }
+    .seg-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; margin: 6px 0 10px; max-width: 360px; }
+    .seg-bar i { flex: 1; }
+    .seg-bar .c { background: var(--red); }
+    .seg-bar .a { background: var(--yellow); }
+    .seg-bar .i { background: var(--blue); }
+    .checklink { background: none; border: none; color: var(--text); cursor: pointer; font-size: 0.85rem; text-decoration: underline; padding: 0; }
+    .drawer { margin-top: 10px; padding: 10px; border: 1px dashed var(--stroke); border-radius: 8px; font-size: 0.8rem; color: var(--muted); }
+    .section-h { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--text); width: 100%; text-align: left; }
+    .section-h .count { margin-left: auto; font-size: 0.7rem; font-weight: normal; color: var(--muted); border: 1px solid var(--stroke); padding: 2px 8px; border-radius: 999px; }
+    .legend { margin-top: 24px; border: 1px solid var(--stroke); border-radius: 10px; padding: 16px; }
+    .legend h2 { font-size: 0.95rem; margin: 0 0 12px; }
+    .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 700px) { .legend-grid { grid-template-columns: 1fr; } }
+    .legend p { margin: 0; font-size: 0.85rem; color: var(--muted); }
+    .legend b { display: block; color: var(--text); margin-bottom: 4px; font-size: 0.85rem; }
+    .hidden { display: none !important; }
+    input[type="search"] {
+      width: 100%; max-width: 160px; padding: 6px 10px; border-radius: 6px;
+      border: 1px solid var(--stroke); background: #111; color: var(--text); font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>Smart Read — Conferência · Análise de Riscos</h1>
+    <p class="sub">Mock isolado · dados da Leitura 998 · não altera o produto</p>
+
+    <div class="toolbar">
+      <span>Visualizar:</span>
+      <button type="button" class="mode" data-mode="atual">Atual (poluído)</button>
+      <button type="button" class="mode active" data-mode="proposta">Proposta</button>
+      <button type="button" class="mode" data-mode="lado">Lado a lado</button>
+    </div>
+
+    <div id="view-atual" class="hidden">
+      <div class="panel-label">Atual</div>
+      <div class="frame" id="atual-inner"></div>
+    </div>
+
+    <div id="view-proposta" class="hidden">
+      <div class="panel-label">Proposta</div>
+      <div class="frame proposta" id="proposta-inner"></div>
+    </div>
+
+    <div id="view-lado" class="grid">
+      <div>
+        <div class="panel-label">Atual</div>
+        <div class="frame" id="atual-lado"></div>
+      </div>
+      <div>
+        <div class="panel-label">Proposta</div>
+        <div class="frame proposta" id="proposta-lado"></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <h2>O que muda na proposta</h2>
+      <div class="legend-grid">
+        <div><b>Remove ruído</b><p>Um bloco de cabeçalho substitui Painel + checklist + linha solta de seleção.</p></div>
+        <div><b>Checklist sob demanda</b><p>Resumo em uma linha; detalhe só no modal ao clicar.</p></div>
+        <div><b>Seleção no grupo</b><p>Checkbox no header da seção ativa, não como bloco isolado.</p></div>
+        <div><b>Seções mais leves</b><p>Título curto, sem barra duplicada; uma seção aberta por padrão.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function tabsHtml() {
+      return `<div class="tabs">
+        <span class="tab">Conferência de Campos</span>
+        <span class="tab">Consultor Inteligente</span>
+        <span class="tab on">Análise de Riscos</span>
+      </div>`;
+    }
+
+    function risksHtml(withCheckbox) {
+      const items = [
+        { t: 'NCM ausente', d: 'Linha 1 — invoice INVOICE77', c: 'var(--red)' },
+        { t: 'Descrição genérica', d: 'Linha 3 — revisar classificação fiscal', c: 'var(--yellow)' },
+      ];
+      return items.map((r) => `
+        <div class="risk">
+          ${withCheckbox ? '<input type="checkbox" />' : ''}
+          <span class="dot" style="background:${r.c}"></span>
+          <main><strong>${r.t}</strong><small>${r.d}</small></main>
+          <div class="acts"><button type="button">Editar</button><button type="button">Ignorar</button></div>
+        </div>`).join('');
+    }
+
+    function layoutAtual() {
+      return `${tabsHtml()}
+        <div class="card">
+          <div class="card-h">
+            <span>Painel da Análise</span>
+            <input type="search" placeholder="Localizar riscos" />
+          </div>
+          <div class="bar"><i></i></div>
+          <div class="metrics">
+            <div class="metric on"><b>3</b><small>Total</small></div>
+            <div class="metric"><b>1</b><small>Críticos</small></div>
+            <div class="metric"><b>1</b><small>Atenção</small></div>
+            <div class="metric"><b>1</b><small>Informativos</small></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h">
+            <span>CHECKLIST DE CONFERÊNCIA<br><small style="font-weight:normal;color:var(--muted)">1 invoice · 34 avaliações</small></span>
+            <span style="color:var(--green)">15% conforme</span>
+          </div>
+          <div class="pills">
+            <span class="pill">8 CONFORME</span><span class="pill">1 ATENÇÃO</span>
+            <span class="pill">1 FALHA</span><span class="pill">24 PENDENTE</span>
+          </div>
+        </div>
+        <p style="font-size:0.75rem;color:var(--muted)">Auditoria V1 + IA comercial + validação NCM Siscomex.</p>
+        <div class="check-row"><input type="checkbox" /> Selecionar tudo (3)</div>
+        <div class="card">
+          <div class="card-h"><span>4 — Itens de linha e inteligência fiscal</span><span class="pill">2 riscos</span></div>
+          ${risksHtml(false)}
+        </div>`;
+    }
+
+    function layoutProposta() {
+      return `${tabsHtml()}
+        <div class="unified" data-checklist-wrap>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start">
+            <div style="flex:1;min-width:200px">
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+                <strong style="font-size:0.9rem">Análise de riscos</strong>
+                <span style="font-size:0.75rem;color:var(--muted)">67% sem críticos abertos</span>
+              </div>
+              <div class="seg-bar"><i class="c"></i><i class="a"></i><i class="i"></i></div>
+              <div style="font-size:0.7rem;color:var(--muted);margin-bottom:8px">3 riscos · 1 crítico · 1 atenção · 1 info</div>
+              <div class="pills">
+                <span class="pill on">Todos (3)</span><span class="pill">Críticos (1)</span>
+                <span class="pill">Atenção (1)</span><span class="pill">Info (1)</span>
+              </div>
+            </div>
+            <input type="search" placeholder="Localizar riscos" />
+          </div>
+          <hr style="border:none;border-top:1px solid var(--stroke);margin:10px 0" />
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:0.8rem">
+            <button type="button" class="checklink" data-toggle-checklist>Checklist matriz · 15% conforme</button>
+            <span style="color:var(--muted)">8 ok · 1 atenção · 1 falha · 24 pendente</span>
+            <span style="margin-left:auto;color:var(--muted)">V1 + IA + NCM</span>
+          </div>
+          <div class="drawer hidden" data-checklist-drawer>Modal / drawer do checklist — fora do fluxo principal.</div>
+        </div>
+        <button type="button" class="section-h" aria-expanded="true">
+          <span>▾</span> Itens de linha e inteligência fiscal
+          <span style="display:flex;align-items:center;gap:8px;margin-left:auto">
+            <span class="check-row" style="margin:0;font-size:0.75rem"><input type="checkbox" /> Selecionar</span>
+            <span class="count">2 riscos</span>
+          </span>
+        </button>
+        ${risksHtml(true)}
+        <button type="button" class="section-h" style="opacity:0.6;margin-top:12px">
+          <span>▸</span> Dados do exportador e importador
+          <span class="count">1 risco</span>
+        </button>`;
+    }
+
+    function mountProposta(root) {
+      root.innerHTML = layoutProposta();
+      const btn = root.querySelector('[data-toggle-checklist]');
+      const drawer = root.querySelector('[data-checklist-drawer]');
+      if (btn && drawer) {
+        btn.addEventListener('click', () => drawer.classList.toggle('hidden'));
+      }
+    }
+
+    function mountAtual(root) {
+      root.innerHTML = layoutAtual();
+    }
+
+    mountAtual(document.getElementById('atual-inner'));
+    mountProposta(document.getElementById('proposta-inner'));
+    mountAtual(document.getElementById('atual-lado'));
+    mountProposta(document.getElementById('proposta-lado'));
+
+    const views = {
+      atual: ['view-atual'],
+      proposta: ['view-proposta'],
+      lado: ['view-lado'],
+    };
+
+    function setMode(mode) {
+      document.querySelectorAll('.mode').forEach((b) => b.classList.toggle('active', b.dataset.mode === mode));
+      Object.values(views).flat().forEach((id) => document.getElementById(id).classList.add('hidden'));
+      views[mode].forEach((id) => document.getElementById(id).classList.remove('hidden'));
+    }
+
+    document.querySelectorAll('.mode').forEach((b) => {
+      b.addEventListener('click', () => setMode(b.dataset.mode));
+    });
+
+    setMode('lado');
+  </script>
+</body>
+</html>

@@ -1496,6 +1496,17 @@ export function SelecionarWorkspace() {
                     }))}
                     onAbrirStore={() => navigate('/store')}
                   />
+                  <div className="sw-hub-store-foot">
+                    <button
+                      type="button"
+                      className="sw-hub-link-pill"
+                      onClick={() => navigate('/store')}
+                    >
+                      <ShoppingBagOpen size={13} weight="duotone" aria-hidden />
+                      {t('sw.ver_catalogo', 'Gravity Store')}
+                      <ArrowRight size={12} weight="bold" className="sw-hub-link-pill__arrow" aria-hidden />
+                    </button>
+                  </div>
                 </section>
 
                 {EXIBIR_PAINEL_GABI_HUB && (

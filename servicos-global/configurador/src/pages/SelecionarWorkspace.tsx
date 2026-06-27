@@ -36,6 +36,7 @@ import {
   Fire,
   Info,
   CalendarBlank,
+  GraduationCap,
 } from '@phosphor-icons/react'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -1259,6 +1260,16 @@ export function SelecionarWorkspace() {
           </div>
           <div className="sw-t-right">
             <CampoLocalizarExpandidoGlobal onBuscarNavigate={buscarNoHub} />
+
+            <button
+              className="sw-t-icon"
+              type="button"
+              title="Gravity University"
+              aria-label="Gravity University"
+              onClick={() => navigate('/university-gravity')}
+            >
+              <GraduationCap size={16} weight="duotone" />
+            </button>
 
             <div className="sw-notif-wrap">
               <Notificacoes />

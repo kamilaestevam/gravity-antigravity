@@ -36,6 +36,7 @@ const UNI_COR = '#818cf8'
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 interface Fase {
+  slug: string
   nome: string
   duracao: string
   concluida: boolean
@@ -55,9 +56,9 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   login: [{
     tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos — Login', modulos: 3, duracao: '30m', prog: 100,
     fases: [
-      { nome: 'O que é o Gravity', duracao: '10m', concluida: true },
-      { nome: 'Criando sua conta', duracao: '10m', concluida: true },
-      { nome: 'Configurando seu perfil', duracao: '10m', concluida: true },
+      { slug: 'o-que-e-o-gravity',       nome: 'O que é o Gravity',     duracao: '10m', concluida: true },
+      { slug: 'criando-sua-conta',        nome: 'Criando sua conta',     duracao: '10m', concluida: true },
+      { slug: 'configurando-seu-perfil',  nome: 'Configurando seu perfil', duracao: '10m', concluida: true },
     ],
   }],
   admin: [{
@@ -555,10 +556,15 @@ export function UniversityGravity() {
                       {/* ── BARRA 1 — fases individuais ── */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                         {tr.fases.map((fase, idx) => (
-                          <div key={fase.nome} style={{
-                            display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
-                            borderTop: idx > 0 ? '1px solid rgba(148,163,184,.07)' : 'none',
-                          }}>
+                          <div
+                            key={fase.nome}
+                            onClick={() => navigate(`/university-gravity/academy/${produtoSlug}/${fase.slug}`)}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
+                              borderTop: idx > 0 ? '1px solid rgba(148,163,184,.07)' : 'none',
+                              cursor: 'pointer',
+                            }}
+                          >
                             {/* Indicador */}
                             <div style={{
                               width: 24, height: 24, borderRadius: '50%', flexShrink: 0,

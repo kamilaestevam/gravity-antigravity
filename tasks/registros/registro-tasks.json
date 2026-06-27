@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 366,
+  "proximo_numero": 368,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1457,6 +1457,40 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000365.json"
+    },
+    {
+      "referencia": "TASK-000366",
+      "ordinal": 90,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-MEL-PARIDADE-UI-ANALISE-RISCOS-PRODUCAO",
+      "titulo_exibicao": "TASK-000366 | [Smart Read] Nova Leitura | MEL — Paridade aba Análise de Riscos com produção",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "PARIDADE-UI-ANALISE-RISCOS-PRODUCAO",
+      "data_criacao": "2026-06-27T16:10:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000366.json"
+    },
+    {
+      "referencia": "TASK-000367",
+      "ordinal": 91,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-BUG-ANALISE-RISCOS-EM-CONFERENCIA-CAMPOS",
+      "titulo_exibicao": "TASK-000367 | [Smart Read] Nova Leitura | BUG — Análise de riscos aparece na aba Conferência de Campos",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "ANALISE-RISCOS-EM-CONFERENCIA-CAMPOS",
+      "data_criacao": "2026-06-27T23:55:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000367.json"
     }
   ]
 }

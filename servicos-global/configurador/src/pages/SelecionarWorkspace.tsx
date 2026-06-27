@@ -270,10 +270,12 @@ function ShortcutIcon({ icon, color }: { icon: string; color: string }) {
 
 /* ── Mapa de slug → rota e nome amigável ── */
 const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
+  'pedido': { nome: 'Pedido', rota: '/pedido' },
   'simula-custo': { nome: 'SimulaCusto', rota: '/simula-custo' },
   'bid-frete': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
   'bid-frete-internacional': { nome: 'BID Frete Internacional', rota: '/bid-frete' },
   'bid-cambio': { nome: 'BID Câmbio', rota: '/bid-cambio' },
+  'lpco': { nome: 'LPCO', rota: '/lpco' },
   'smart-read': { nome: 'Smart Docs', rota: resolverRotaProdutoGravity('smart-read') },
   'processo': { nome: 'Processo', rota: '/processo' },
 }
@@ -368,10 +370,120 @@ const hubOperacoesResumoSchema = z.object({
     badge: z.string(),
     badge_variant: z.enum(['embarque', 'desembaraco']),
   })),
-  fontes_disponiveis: z.array(z.string()),
+  produtos_contratados: z.array(z.string()).default([]),
+  fontes_respondidas: z.array(z.string()).default([]),
+  fontes_disponiveis: z.array(z.string()).default([]),
+  pendencias_por_produto: z.array(z.object({
+    produto: z.string(),
+    quantidade: z.number(),
+  })).default([]),
 })
 
 type HubOperacoesResumo = z.infer<typeof hubOperacoesResumoSchema>
+
+const FONTES_KPI_AGUARDANDO = ['pedido', 'bid-frete', 'bid-cambio', 'simula-custo', 'lpco'] as const
+const FONTES_KPI_NF = ['nf-importacao', 'nf-import'] as const
+
+type HubKpiCardId = 'processos' | 'notas'
+
+type HubKpiItem =
+  | { tipo: 'processos' }
+  | { tipo: 'pendencia'; produto: string }
+  | { tipo: 'notas' }
+
+function montarItensKpiHub(chavesContratadas: Set<string>): HubKpiItem[] {
+  const itens: HubKpiItem[] = []
+  if (chavesContratadas.has('processo')) itens.push({ tipo: 'processos' })
+  for (const produto of FONTES_KPI_AGUARDANDO) {
+    if (chavesContratadas.has(produto)) itens.push({ tipo: 'pendencia', produto })
+  }
+  if (FONTES_KPI_NF.some((f) => chavesContratadas.has(f))) itens.push({ tipo: 'notas' })
+  return itens
+}
+
+function quantidadePendenciaProdutoHub(operacoes: HubOperacoesResumo, produto: string): number {
+  return operacoes.pendencias_por_produto.find((p) => p.produto === produto)?.quantidade ?? 0
+}
+
+function exibirAvisoPendenciaProdutoHub(
+  produto: string,
+  operacoes: HubOperacoesResumo,
+  carregando: boolean,
+): boolean {
+  if (carregando) return false
+  if (quantidadePendenciaProdutoHub(operacoes, produto) > 0) return false
+  if (!operacoes.produtos_contratados.includes(produto)) return true
+  return !operacoes.fontes_respondidas.includes(produto)
+}
+
+function exibirSemPendenciaProdutoHub(
+  produto: string,
+  operacoes: HubOperacoesResumo,
+  carregando: boolean,
+): boolean {
+  const valor = quantidadePendenciaProdutoHub(operacoes, produto)
+  if (carregando || valor > 0) return false
+  return !exibirAvisoPendenciaProdutoHub(produto, operacoes, carregando)
+}
+
+function textoSemPendenciaKpi(
+  cardId: HubKpiCardId,
+  t: (key: string, fallback: string) => string,
+): string {
+  if (cardId === 'processos') {
+    return t('hub.kpi_sem_processos', 'Nenhum processo em andamento no momento.')
+  }
+  return t('hub.kpi_sem_pendencia', 'Nenhuma pendência no momento.')
+}
+
+function exibirAvisoAtualizacaoKpi(
+  cardId: HubKpiCardId,
+  operacoes: HubOperacoesResumo,
+  carregando: boolean,
+): boolean {
+  if (carregando) return false
+
+  if (cardId === 'processos') {
+    if (operacoes.processos_em_andamento > 0) return false
+    if (!operacoes.produtos_contratados.includes('processo')) return true
+    return !operacoes.fontes_respondidas.includes('processo')
+  }
+
+  if (operacoes.notas_fiscais_pendentes > 0) return false
+  const nfContratado = FONTES_KPI_NF.some((f) => operacoes.produtos_contratados.includes(f))
+  if (!nfContratado) return true
+  return !operacoes.fontes_respondidas.includes('nf-importacao')
+}
+
+function exibirSemPendenciaKpi(
+  cardId: HubKpiCardId,
+  operacoes: HubOperacoesResumo,
+  carregando: boolean,
+  valor: number,
+): boolean {
+  if (carregando || valor > 0) return false
+  return !exibirAvisoAtualizacaoKpi(cardId, operacoes, carregando)
+}
+
+function normalizarChavesContratadasHub(keys: Iterable<string>): Set<string> {
+  const out = new Set<string>()
+  for (const key of keys) {
+    out.add(key)
+    if (key === 'bid-frete-internacional') out.add('bid-frete')
+    if (key === 'nf-import') out.add('nf-importacao')
+  }
+  return out
+}
+
+/** Card KPI só para módulos contratados (NF/Processo não aparecem à toa). */
+function rotuloProdutoPendenciaHub(
+  produto: string,
+  t: (key: string, fallback?: string) => string,
+): string {
+  const chave = PRODUCT_NAME_KEYS[produto]
+  if (chave) return t(chave)
+  return PRODUCT_ROUTE_MAP[produto]?.nome ?? produto
+}
 
 const HUB_OPERACOES_VAZIO: HubOperacoesResumo = {
   processos_em_andamento: 0,
@@ -379,7 +491,10 @@ const HUB_OPERACOES_VAZIO: HubOperacoesResumo = {
   notas_fiscais_pendentes: 0,
   processos_hoje: 0,
   processos: [],
+  produtos_contratados: [],
+  fontes_respondidas: [],
   fontes_disponiveis: [],
+  pendencias_por_produto: [],
 }
 
 function LegendaEscopoWorkspacesHub({ nomes }: { nomes: readonly string[] }) {
@@ -495,6 +610,16 @@ export function SelecionarWorkspace() {
   const contratadosAtivos = useMemo(
     () => produtosContratados.filter(p => p.is_active),
     [produtosContratados],
+  )
+
+  const chavesContratadasHub = useMemo(
+    () => normalizarChavesContratadasHub(contratadosAtivos.map((p) => p.product_key)),
+    [contratadosAtivos],
+  )
+
+  const itensKpiHub = useMemo(
+    () => montarItensKpiHub(chavesContratadasHub),
+    [chavesContratadasHub],
   )
 
   const bidFreteContratadoAtivo = useMemo(
@@ -1390,10 +1515,10 @@ export function SelecionarWorkspace() {
                 </section>
               </div>
 
-              <section className="sw-hub-row-ops sw-a1" aria-label={t('hub.operacoes_andamento', 'Operações em andamento')}>
+              <section className="sw-hub-row-ops sw-a1" aria-label={t('hub.secao_aguardando_acao', 'Aguardando ação')}>
                 <div className="sw-hub-ops-head">
                   <div className="sw-hub-panel-label">
-                    {t('hub.operacoes_andamento', 'Operações em andamento')}
+                    {t('hub.secao_aguardando_acao', 'Aguardando ação')}
                   </div>
                   <button
                     type="button"
@@ -1406,72 +1531,120 @@ export function SelecionarWorkspace() {
                   </button>
                 </div>
                 <div className="sw-hub-kpi-row">
-                  <TooltipGlobal
-                    titulo={t('hub.kpi_tooltip_processos_titulo', 'Processos em andamento')}
-                    descricao={t('hub.kpi_tooltip_processos', 'Dossiês COMEX abertos no módulo Processo do workspace')}
-                  >
-                    <div className="sw-hub-kpi">
-                      <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.processos_em_andamento}</div>
-                      <div className="sw-hub-kpi-lbl">{t('hub.kpi_processos', 'Processos em andamento')}</div>
-                      {hubOperacoes.processos_hoje > 0 && (
-                        <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">
-                          ▲ {t('hub.kpi_delta_hoje', '{{count}} hoje', { count: hubOperacoes.processos_hoje })}
-                        </span>
-                      )}
-                    </div>
-                  </TooltipGlobal>
-                  <TooltipGlobal
-                    titulo={t('hub.kpi_tooltip_aguardando_acao_titulo', 'Aguardando ação')}
-                    descricao={t('hub.kpi_tooltip_aguardando_acao', 'Pendências da sua equipe nos produtos ativos do workspace')}
-                  >
-                    <div className="sw-hub-kpi">
-                      <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.aguardando_acao}</div>
-                      <div className="sw-hub-kpi-lbl">{t('hub.kpi_aguardando_acao', 'Aguardando ação')}</div>
-                      {hubOperacoes.aguardando_acao > 0 && (
-                        <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
-                          ⚠ {t('hub.kpi_delta_pendentes', '{{count}} pendentes', { count: hubOperacoes.aguardando_acao })}
-                        </span>
-                      )}
-                    </div>
-                  </TooltipGlobal>
-                  <TooltipGlobal
-                    titulo={t('hub.kpi_tooltip_notas_fiscais_titulo', 'NFs de importação')}
-                    descricao={t('hub.kpi_tooltip_notas_fiscais', 'Notas fiscais de importação ainda não concluídas')}
-                  >
-                    <div className="sw-hub-kpi">
-                      <div className="sw-hub-kpi-val">{hubOperacoesCarregando ? '—' : hubOperacoes.notas_fiscais_pendentes}</div>
-                      <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
-                      {hubOperacoes.notas_fiscais_pendentes > 0 && (
-                        <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
-                          ⚠ {t('hub.kpi_delta_pendentes', '{{count}} pendentes', { count: hubOperacoes.notas_fiscais_pendentes })}
-                        </span>
-                      )}
-                    </div>
-                  </TooltipGlobal>
-                </div>
-                <div className="sw-hub-proc-list">
-                  {hubOperacoesCarregando ? (
-                    <p className="sw-hub-proc-empty">{t('hub.operacoes_carregando', 'Carregando operações…')}</p>
-                  ) : processosOperacaoHub.length === 0 ? (
-                    <p className="sw-hub-proc-empty">{t('hub.operacoes_vazio', 'Nenhum processo em andamento no momento.')}</p>
-                  ) : (
-                  processosOperacaoHub.map((proc) => (
-                    <button
-                      key={proc.id}
-                      type="button"
-                      className="sw-hub-proc"
-                      onClick={() => abrirProcessoHub(proc.id_processo)}
-                    >
-                      <div>
-                        <div className="sw-hub-proc-name">{proc.nome}</div>
-                        <div className="sw-hub-proc-sub">{proc.detalhe}</div>
-                      </div>
-                      <span className={`sw-hub-proc-badge sw-hub-proc-badge--${proc.badgeVariant}`}>
-                        {proc.badge}
-                      </span>
-                    </button>
-                  ))
-                  )}
+                  {itensKpiHub.map((item) => {
+                    const textoAvisoKpi = t(
+                      'hub.kpi_aviso_aguardando_dados',
+                      'Assim que tiver dados na plataforma o card será atualizado.',
+                    )
+
+                    if (item.tipo === 'processos') {
+                      const avisoKpi = exibirAvisoAtualizacaoKpi('processos', hubOperacoes, hubOperacoesCarregando)
+                      const semPendenciaKpi = exibirSemPendenciaKpi(
+                        'processos',
+                        hubOperacoes,
+                        hubOperacoesCarregando,
+                        hubOperacoes.processos_em_andamento,
+                      )
+                      const textoSemPendencia = textoSemPendenciaKpi('processos', t)
+
+                      return (
+                        <TooltipGlobal
+                          key="processos"
+                          titulo={t('hub.kpi_tooltip_processos_titulo', 'Processos em andamento')}
+                          descricao={t('hub.kpi_tooltip_processos', 'Dossiês COMEX abertos no módulo Processo do workspace')}
+                        >
+                          <div className="sw-hub-kpi">
+                            <div className="sw-hub-kpi-val">
+                              {hubOperacoesCarregando || avisoKpi ? '—' : hubOperacoes.processos_em_andamento}
+                            </div>
+                            <div className="sw-hub-kpi-lbl">{t('hub.kpi_processos', 'Processos em andamento')}</div>
+                            {hubOperacoes.processos_hoje > 0 && (
+                              <span className="sw-hub-kpi-tag sw-hub-kpi-tag--up">
+                                ▲ {t('hub.kpi_delta_hoje', '{{count}} hoje', { count: hubOperacoes.processos_hoje })}
+                              </span>
+                            )}
+                            {avisoKpi && <p className="sw-hub-kpi-aviso">{textoAvisoKpi}</p>}
+                            {semPendenciaKpi && (
+                              <p className="sw-hub-kpi-foot sw-hub-kpi-foot--ok">{textoSemPendencia}</p>
+                            )}
+                          </div>
+                        </TooltipGlobal>
+                      )
+                    }
+
+                    if (item.tipo === 'pendencia') {
+                      const valorKpi = quantidadePendenciaProdutoHub(hubOperacoes, item.produto)
+                      const avisoKpi = exibirAvisoPendenciaProdutoHub(item.produto, hubOperacoes, hubOperacoesCarregando)
+                      const semPendenciaKpi = exibirSemPendenciaProdutoHub(
+                        item.produto,
+                        hubOperacoes,
+                        hubOperacoesCarregando,
+                      )
+                      const rotulo = rotuloProdutoPendenciaHub(item.produto, t)
+                      const textoSemPendencia = t('hub.kpi_sem_pendencia', 'Nenhuma pendência no momento.')
+
+                      return (
+                        <TooltipGlobal
+                          key={`pendencia-${item.produto}`}
+                          titulo={rotulo}
+                          descricao={t('hub.kpi_tooltip_aguardando_acao', 'Pendências da sua equipe nos produtos ativos do workspace')}
+                        >
+                          <button
+                            type="button"
+                            className="sw-hub-kpi sw-hub-kpi--clicavel"
+                            onClick={() => abrirProdutoContratadoHub(item.produto)}
+                          >
+                            <div className="sw-hub-kpi-val">
+                              {hubOperacoesCarregando || avisoKpi ? '—' : valorKpi}
+                            </div>
+                            <div className="sw-hub-kpi-lbl">{rotulo}</div>
+                            {valorKpi > 0 && (
+                              <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
+                                ⚠ {t('hub.kpi_delta_pendentes', '{{count}} pendentes', { count: valorKpi })}
+                              </span>
+                            )}
+                            {avisoKpi && <p className="sw-hub-kpi-aviso">{textoAvisoKpi}</p>}
+                            {semPendenciaKpi && (
+                              <p className="sw-hub-kpi-foot sw-hub-kpi-foot--ok">{textoSemPendencia}</p>
+                            )}
+                          </button>
+                        </TooltipGlobal>
+                      )
+                    }
+
+                    const avisoKpi = exibirAvisoAtualizacaoKpi('notas', hubOperacoes, hubOperacoesCarregando)
+                    const semPendenciaKpi = exibirSemPendenciaKpi(
+                      'notas',
+                      hubOperacoes,
+                      hubOperacoesCarregando,
+                      hubOperacoes.notas_fiscais_pendentes,
+                    )
+                    const textoSemPendencia = textoSemPendenciaKpi('notas', t)
+
+                    return (
+                      <TooltipGlobal
+                        key="notas"
+                        titulo={t('hub.kpi_tooltip_notas_fiscais_titulo', 'NFs de importação')}
+                        descricao={t('hub.kpi_tooltip_notas_fiscais', 'Notas fiscais de importação ainda não concluídas')}
+                      >
+                        <div className="sw-hub-kpi">
+                          <div className="sw-hub-kpi-val">
+                            {hubOperacoesCarregando || avisoKpi ? '—' : hubOperacoes.notas_fiscais_pendentes}
+                          </div>
+                          <div className="sw-hub-kpi-lbl">{t('hub.kpi_notas', 'NFs de importação')}</div>
+                          {hubOperacoes.notas_fiscais_pendentes > 0 && (
+                            <span className="sw-hub-kpi-tag sw-hub-kpi-tag--warn">
+                              ⚠ {t('hub.kpi_delta_pendentes', '{{count}} pendentes', { count: hubOperacoes.notas_fiscais_pendentes })}
+                            </span>
+                          )}
+                          {avisoKpi && <p className="sw-hub-kpi-aviso">{textoAvisoKpi}</p>}
+                          {semPendenciaKpi && (
+                            <p className="sw-hub-kpi-foot sw-hub-kpi-foot--ok">{textoSemPendencia}</p>
+                          )}
+                        </div>
+                      </TooltipGlobal>
+                    )
+                  })}
                 </div>
               </section>
 

@@ -92,7 +92,7 @@ export function EvidenciaVisualRiscoNovaLeituraSmartRead({
             }
           >
             <Eye size={14} weight="bold" aria-hidden />
-            Ver
+            Ver no documento
           </BotaoGlobal>
         )}
       </div>

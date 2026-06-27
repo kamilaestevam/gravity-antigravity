@@ -7177,7 +7177,8 @@
     "kpi_notas": "Facturas de importación",
     "kpi_gabi": "Asertividad de Gabi IA",
     "kpi_gabi_curto": "Asertividad Gabi IA",
-    "operacoes_andamento": "Operaciones en curso",
+    "operacoes_andamento": "En espera de acción",
+    "secao_aguardando_acao": "En espera de acción",
     "ver_todos_processos": "Ver todos los procesos",
     "seus_produtos": "Tus productos",
     "atividade_recente": "Actividad reciente",
@@ -7222,7 +7223,14 @@
     "mock_ontem_1410": "ayer, 14:10",
     "mock_badge_embarque": "Embarque",
     "mock_badge_desembaraco": "Despacho",
-    "mock_badge_entregue": "Entregado ✓"
+    "mock_badge_entregue": "Entregado ✓",
+    "kpi_sem_pendencia": "Ninguna pendencia en este momento.",
+    "kpi_sem_processos": "Ningún proceso en curso en este momento.",
+    "kpi_aviso_aguardando_dados": "El card se actualizará cuando haya datos en la plataforma.",
+    "operacoes_carregando": "Cargando operaciones…",
+    "operacoes_vazio": "Ningún proceso en curso en este momento.",
+    "pendencias_secao_vazio": "Ninguna pendencia en los productos activos del workspace.",
+    "pendencias_produto_sub": "Ítems en espera de acción en el módulo"
   },
   "store": {
     "voltar_hub": "Volver al Hub",

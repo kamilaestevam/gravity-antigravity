@@ -152,7 +152,13 @@ const hubOperacoesResumoSchema = z.object({
     badge: z.string(),
     badge_variant: z.enum(['embarque', 'desembaraco']),
   })),
-  fontes_disponiveis: z.array(z.string()),
+  produtos_contratados: z.array(z.string()).default([]),
+  fontes_respondidas: z.array(z.string()).default([]),
+  fontes_disponiveis: z.array(z.string()).default([]),
+  pendencias_por_produto: z.array(z.object({
+    produto: z.string(),
+    quantidade: z.number(),
+  })).default([]),
 })
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -264,6 +270,9 @@ export function Hub() {
     processos_hoje: 0,
     processos: [],
     fontes_disponiveis: [],
+    produtos_contratados: [],
+    fontes_respondidas: [],
+    pendencias_por_produto: [],
   })
 
   useEffect(() => {

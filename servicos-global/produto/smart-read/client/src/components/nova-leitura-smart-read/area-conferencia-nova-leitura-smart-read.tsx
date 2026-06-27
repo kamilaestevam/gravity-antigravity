@@ -56,6 +56,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
   onIaFim,
 }: Props) {
   const [aba, setAba] = useState<AbaConferencia>('campos')
+  const [campoFocoConferencia, setCampoFocoConferencia] = useState<string | null>(null)
 
   const arquivosCompletos = arquivos.filter(
     (item) => item.status_arquivo_local === 'completo' && item.leitura,
@@ -113,6 +114,8 @@ export function AreaConferenciaNovaLeituraSmartRead({
               arquivo={arquivoAtual}
               indiceDocumento={indiceDocumento}
               onCompararArquivo={onCompararArquivo}
+              campoFoco={campoFocoConferencia}
+              onCampoFocoConsumido={() => setCampoFocoConferencia(null)}
             />
           ) : null}
         </>
@@ -133,6 +136,10 @@ export function AreaConferenciaNovaLeituraSmartRead({
           <ConferenciaRiscosAduaneirosNovaLeituraSmartRead
             arquivos={arquivosCompletos}
             onVerEvidencia={onVerEvidencia}
+            onIrConferenciaCampos={(campo) => {
+              setAba('campos')
+              setCampoFocoConferencia(campo)
+            }}
             idLeituraLegado={idLeituraLegado}
             onTokensAtualizados={onTokensAtualizados}
             onIaInicio={onIaInicio}

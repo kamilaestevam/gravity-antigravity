@@ -10,13 +10,13 @@ import {
   Info,
   MagnifyingGlass,
   Scales,
-  ShieldCheck,
   ShieldWarning,
   Sparkle,
   Warning,
   WarningCircle,
   X,
 } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { smartReadApi } from '../../shared/api'
 import {
@@ -93,25 +93,6 @@ function rotuloSeveridade(severidade: SeveridadeRiscoAduaneiro): string {
   }
 }
 
-function rotuloStatusMatriz(status: RiscoAduaneiroLeitura['status_matriz']): string | null {
-  if (status === 'vermelho') return 'Vermelho'
-  if (status === 'amarelo') return 'Amarelo'
-  if (status === 'verde') return 'Verde'
-  return null
-}
-
-function classeStatusMatriz(status: RiscoAduaneiroLeitura['status_matriz']): string {
-  if (status === 'vermelho') return 'sr-conf-risco-badge--critico'
-  if (status === 'amarelo') return 'sr-conf-risco-badge--atencao'
-  if (status === 'verde') return 'sr-conf-risco-badge--informativo'
-  return ''
-}
-
-function rotuloOrigem(origem: RiscoAduaneiroLeitura['origem']): string {
-  if (origem === 'llm') return 'IA'
-  return 'Regras'
-}
-
 function iconeCategoria(categoria: CategoriaRiscoAduaneiro) {
   switch (categoria) {
     case 'normativo':
@@ -152,6 +133,7 @@ function LinhaRisco({
   risco: riscoBruto,
   arquivos,
   onVerEvidencia,
+  onIrConferenciaCampos,
   selecionado,
   onToggleSelecao,
   numero,
@@ -160,6 +142,7 @@ function LinhaRisco({
   risco: RiscoAduaneiroLeitura
   arquivos: ArquivoLocalNovaLeitura[]
   onVerEvidencia?: (ctx: ContextoEvidenciaRiscoNovaLeitura) => void
+  onIrConferenciaCampos?: (campo: string | null) => void
   selecionado: boolean
   onToggleSelecao: (id: string) => void
   numero: number
@@ -167,6 +150,7 @@ function LinhaRisco({
 }) {
   const [expandido, setExpandido] = useState(riscoBruto.severidade === 'critico')
   const risco = aplicarCorrecaoSugeridaPadraoRisco(riscoBruto)
+  const campoConferencia = risco.evidencias.find((ev) => ev.campo)?.campo ?? null
   const contextoEvidencia = {
     tituloRisco: risco.titulo,
     motivo: risco.motivo,
@@ -207,24 +191,16 @@ function LinhaRisco({
             <span className={`sr-conf-risco-badge sr-conf-risco-badge--${risco.severidade}`}>
               {rotuloSeveridade(risco.severidade)}
             </span>
-            {risco.status_matriz && (
-              <span className={`sr-conf-risco-badge ${classeStatusMatriz(risco.status_matriz)}`}>
-                {rotuloStatusMatriz(risco.status_matriz)}
-              </span>
-            )}
             {risco.id_regra_matriz && (
-              <span className="sr-conf-risco-origem sr-conf-risco-origem--v1" title="Regra da matriz">
+              <span className="sr-conf-risco-codigo-regra" title="Regra da matriz">
                 {risco.id_regra_matriz}
               </span>
             )}
-            <span className={`sr-conf-risco-origem sr-conf-risco-origem--${risco.origem ?? 'v1'}`}>
-              {risco.origem === 'llm' ? (
+            {risco.origem === 'llm' && (
+              <span className="sr-conf-risco-origem sr-conf-risco-origem--llm" title="Enriquecido por IA">
                 <Sparkle size={10} weight="fill" aria-hidden />
-              ) : (
-                <ShieldCheck size={10} weight="fill" aria-hidden />
-              )}
-              {rotuloOrigem(risco.origem)}
-            </span>
+              </span>
+            )}
           </span>
           <CaretDown
             weight="bold"
@@ -240,7 +216,7 @@ function LinhaRisco({
       {expandido && (
         <div id={`sr-risco-corpo-${risco.id}`} className="sr-conf-risco-linha-corpo">
           <div className="sr-conf-risco-detalhe sr-conf-risco-detalhe--compacto">
-            <div className="sr-conf-risco-campos-grid">
+            <div className="sr-conf-risco-campos-grid sr-conf-risco-campos-grid--vertical">
               <div className="sr-conf-risco-campo">
                 <span className="sr-conf-risco-campo-rotulo">Risco</span>
                 <p>{risco.motivo}</p>
@@ -283,11 +259,23 @@ function LinhaRisco({
 
           {risco.correcao_sugerida ? (
             <aside
-              className="sr-conf-risco-correcao sr-conf-risco-correcao--abaixo sr-conf-risco-correcao--compacto"
+              className="sr-conf-risco-correcao sr-conf-risco-correcao--abaixo sr-conf-risco-correcao--compacto sr-conf-risco-correcao--acionavel"
               aria-label="Correção sugerida"
             >
-              <span className="sr-conf-risco-correcao-rotulo">Correção sugerida</span>
+              <span className="sr-conf-risco-correcao-rotulo">Correção</span>
               <p>{risco.correcao_sugerida}</p>
+              {onIrConferenciaCampos && (
+                <div className="sr-conf-risco-correcao-acoes">
+                  <BotaoGlobal
+                    variante="primario"
+                    tamanho="pequeno"
+                    type="button"
+                    onClick={() => onIrConferenciaCampos(campoConferencia)}
+                  >
+                    Ir para Conferência de Campos
+                  </BotaoGlobal>
+                </div>
+              )}
             </aside>
           ) : (
             aguardandoClassificacao &&
@@ -310,14 +298,19 @@ function LinhaRisco({
   )
 }
 
+type PropsComNavegacao = Props & {
+  onIrConferenciaCampos?: (campo: string | null) => void
+}
+
 export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
   arquivos,
   onVerEvidencia,
+  onIrConferenciaCampos,
   idLeituraLegado = null,
   onTokensAtualizados,
   onIaInicio,
   onIaFim,
-}: Props) {
+}: PropsComNavegacao) {
   const requisicaoSeq = useRef(0)
   const [resumo, setResumo] = useState({
     riscos: [] as RiscoAduaneiroLeitura[],
@@ -918,6 +911,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
                       risco={risco}
                       arquivos={arquivos}
                       onVerEvidencia={onVerEvidencia}
+                      onIrConferenciaCampos={onIrConferenciaCampos}
                       selecionado={riscosSelecionados.has(risco.id)}
                       onToggleSelecao={toggleSelecaoRisco}
                       numero={numeracaoRiscos.get(risco.id) ?? 0}

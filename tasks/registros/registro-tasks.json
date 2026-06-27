@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 368,
+  "proximo_numero": 370,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1491,6 +1491,40 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000367.json"
+    },
+    {
+      "referencia": "TASK-000368",
+      "ordinal": 92,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-DUV-PARIDADE-DOWNLOAD-DOCUMENTOS-VS-DATI",
+      "titulo_exibicao": "TASK-000368 | [Smart Read] Nova Leitura | DUV — Download do último passo idêntico ao legado DATI (formato, campos, pastas)",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA",
+      "visualizacao": null,
+      "tipo_entrega": "DUV",
+      "resumo": "PARIDADE-DOWNLOAD-DOCUMENTOS-VS-DATI",
+      "data_criacao": "2026-06-27T20:30:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000368.json"
+    },
+    {
+      "referencia": "TASK-000369",
+      "ordinal": 93,
+      "titulo_canonico": "SMTRD-NOVA-LEITURA-BUG-DROPDOWN-BAIXAR-OCULTO-PASSO-4",
+      "titulo_exibicao": "TASK-000369 | [Smart Read] Nova Leitura | BUG — Dropdown Baixar oculto no passo Resultado",
+      "status": "ABR",
+      "area": "SMTRD",
+      "subarea": "NOVA-LEITURA",
+      "visualizacao": null,
+      "tipo_entrega": "BUG",
+      "resumo": "DROPDOWN-BAIXAR-OCULTO-PASSO-4",
+      "data_criacao": "2026-06-28T00:10:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000369.json"
     }
   ]
 }

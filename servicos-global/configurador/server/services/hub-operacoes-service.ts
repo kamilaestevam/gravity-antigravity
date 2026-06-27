@@ -21,12 +21,20 @@ export const hubOperacaoProcessoSchema = z.object({
   badge_variant: z.enum(['embarque', 'desembaraco']),
 })
 
+export const hubPendenciaProdutoSchema = z.object({
+  produto: z.string(),
+  quantidade: z.number().int().nonnegative(),
+})
+
 export const hubOperacoesResumoSchema = z.object({
   processos_em_andamento: z.number().int().nonnegative(),
   aguardando_acao: z.number().int().nonnegative(),
   notas_fiscais_pendentes: z.number().int().nonnegative(),
   processos_hoje: z.number().int().nonnegative(),
   processos: z.array(hubOperacaoProcessoSchema),
+  pendencias_por_produto: z.array(hubPendenciaProdutoSchema),
+  produtos_contratados: z.array(z.string()),
+  fontes_respondidas: z.array(z.string()),
   fontes_disponiveis: z.array(z.string()),
 })
 
@@ -230,7 +238,16 @@ export async function generateHubOperacoes(
   }
 
   const chaves = normalizarChavesProdutosAtivosHub(activeProductKeys)
+  const produtos_contratados = Array.from(chaves)
   const fontes: string[] = []
+  const fontes_respondidas: string[] = []
+
+  const pedidoAtivo = chaves.has('pedido')
+  const freteAtivo = chaves.has('bid-frete')
+  const cambioAtivo = chaves.has('bid-cambio')
+  const simulaAtivo = chaves.has('simula-custo')
+  const lpcoAtivo = chaves.has('lpco')
+  const nfAtivo = chaves.has('nf-importacao')
 
   const [
     processosResult,
@@ -242,12 +259,12 @@ export async function generateHubOperacoes(
     nfPend,
   ] = await Promise.allSettled([
     buscarProcessosHub(ctx),
-    contarPendenciasPedido(ctx, chaves.has('pedido')),
-    contarPendenciasBidFrete(ctx, chaves.has('bid-frete') || chaves.has('bid-frete-internacional')),
-    contarPendenciasBidCambio(ctx, chaves.has('bid-cambio')),
-    contarPendenciasSimulaCusto(ctx, chaves.has('simula-custo')),
-    contarPendenciasLpco(ctx, chaves.has('lpco')),
-    contarNotasFiscaisPendentes(ctx, chaves.has('nf-importacao') || chaves.has('nf-import')),
+    contarPendenciasPedido(ctx, pedidoAtivo),
+    contarPendenciasBidFrete(ctx, freteAtivo),
+    contarPendenciasBidCambio(ctx, cambioAtivo),
+    contarPendenciasSimulaCusto(ctx, simulaAtivo),
+    contarPendenciasLpco(ctx, lpcoAtivo),
+    contarNotasFiscaisPendentes(ctx, nfAtivo),
   ])
 
   let processos_em_andamento = 0
@@ -258,27 +275,34 @@ export async function generateHubOperacoes(
     processos_em_andamento = processosResult.value.total
     processos_hoje = processosResult.value.hoje
     processos = processosResult.value.itens
-    fontes.push('processo')
+    fontes_respondidas.push('processo')
+    if (processos_em_andamento > 0) fontes.push('processo')
   }
 
   const partesPendencia = [
-    { nome: 'pedido', result: pedidoPend },
-    { nome: 'bid-frete', result: fretePend },
-    { nome: 'bid-cambio', result: cambioPend },
-    { nome: 'simula-custo', result: simulaPend },
-    { nome: 'lpco', result: lpcoPend },
+    { nome: 'pedido', ativo: pedidoAtivo, result: pedidoPend },
+    { nome: 'bid-frete', ativo: freteAtivo, result: fretePend },
+    { nome: 'bid-cambio', ativo: cambioAtivo, result: cambioPend },
+    { nome: 'simula-custo', ativo: simulaAtivo, result: simulaPend },
+    { nome: 'lpco', ativo: lpcoAtivo, result: lpcoPend },
   ]
 
   let aguardando_acao = 0
+  const pendencias_por_produto: HubOperacoesResumo['pendencias_por_produto'] = []
   for (const parte of partesPendencia) {
-    if (parte.result.status === 'fulfilled' && parte.result.value > 0) {
+    if (!parte.ativo) continue
+    if (parte.result.status !== 'fulfilled') continue
+    fontes_respondidas.push(parte.nome)
+    if (parte.result.value > 0) {
       aguardando_acao += parte.result.value
       fontes.push(parte.nome)
+      pendencias_por_produto.push({ produto: parte.nome, quantidade: parte.result.value })
     }
   }
 
   let notas_fiscais_pendentes = 0
-  if (nfPend.status === 'fulfilled') {
+  if (nfAtivo && nfPend.status === 'fulfilled') {
+    fontes_respondidas.push('nf-importacao')
     notas_fiscais_pendentes = nfPend.value
     if (notas_fiscais_pendentes > 0) fontes.push('nf-importacao')
   }
@@ -289,6 +313,9 @@ export async function generateHubOperacoes(
     notas_fiscais_pendentes,
     processos_hoje,
     processos,
+    pendencias_por_produto,
+    produtos_contratados,
+    fontes_respondidas,
     fontes_disponiveis: fontes,
   })
 }

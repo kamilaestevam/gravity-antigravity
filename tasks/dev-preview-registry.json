@@ -1,7 +1,19 @@
-{
-  "porta_hub_base": 8000,
-  "porta_hub_max": 8019,
-  "portas_reservadas": [8005, 8009],
-  "nota": "20 slots hub (:8000–:8019); :8005 API Config, :8009 GABI — não usar para preview",
-  "sessoes": []
+﻿{
+    "porta_hub_base":  8000,
+    "porta_hub_max":  8019,
+    "portas_reservadas":  [
+                              8005,
+                              8009
+                          ],
+    "nota":  "20 slots hub (:8000–:8019); :8005 API Config, :8009 GABI — não usar para preview",
+    "sessoes":  [
+                    {
+                        "porta":  8000,
+                        "branch":  "ajustes-gerais-smart-read",
+                        "task":  "TASK-000367",
+                        "worktree_path":  "C:\\Users\\danie\\gravity-antigravity",
+                        "url":  "http://127.0.0.1:8000/",
+                        "data_registro":  "2026-06-27T10:59:40.6845642Z"
+                    }
+                ]
 }

@@ -27,6 +27,11 @@ export const hubOperacoesResumoSchema = z.object({
   notas_fiscais_pendentes: z.number().int().nonnegative(),
   processos_hoje: z.number().int().nonnegative(),
   processos: z.array(hubOperacaoProcessoSchema),
+  /** Produtos contratados, ativos e acessíveis ao usuário no workspace */
+  produtos_contratados: z.array(z.string()),
+  /** Serviços que responderam à consulta (mesmo com contagem zero) */
+  fontes_respondidas: z.array(z.string()),
+  /** Produtos que já retornaram pendência/métrica > 0 — prioridade na leitura do hub */
   fontes_disponiveis: z.array(z.string()),
 })
 
@@ -230,7 +235,9 @@ export async function generateHubOperacoes(
   }
 
   const chaves = normalizarChavesProdutosAtivosHub(activeProductKeys)
-  const fontes: string[] = []
+  const produtos_contratados = [...chaves].sort()
+  const fontes_respondidas: string[] = []
+  const fontes_com_dados: string[] = []
 
   const [
     processosResult,
@@ -258,29 +265,40 @@ export async function generateHubOperacoes(
     processos_em_andamento = processosResult.value.total
     processos_hoje = processosResult.value.hoje
     processos = processosResult.value.itens
-    fontes.push('processo')
+    fontes_respondidas.push('processo')
+    if (processos_em_andamento > 0 || processos_hoje > 0) {
+      fontes_com_dados.push('processo')
+    }
   }
 
   const partesPendencia = [
-    { nome: 'pedido', result: pedidoPend },
-    { nome: 'bid-frete', result: fretePend },
-    { nome: 'bid-cambio', result: cambioPend },
-    { nome: 'simula-custo', result: simulaPend },
-    { nome: 'lpco', result: lpcoPend },
+    { nome: 'pedido', contratado: chaves.has('pedido'), result: pedidoPend },
+    { nome: 'bid-frete', contratado: chaves.has('bid-frete') || chaves.has('bid-frete-internacional'), result: fretePend },
+    { nome: 'bid-cambio', contratado: chaves.has('bid-cambio'), result: cambioPend },
+    { nome: 'simula-custo', contratado: chaves.has('simula-custo'), result: simulaPend },
+    { nome: 'lpco', contratado: chaves.has('lpco'), result: lpcoPend },
   ]
 
   let aguardando_acao = 0
   for (const parte of partesPendencia) {
-    if (parte.result.status === 'fulfilled' && parte.result.value > 0) {
-      aguardando_acao += parte.result.value
-      fontes.push(parte.nome)
+    if (!parte.contratado) continue
+    if (parte.result.status === 'fulfilled') {
+      fontes_respondidas.push(parte.nome)
+      if (parte.result.value > 0) {
+        aguardando_acao += parte.result.value
+        fontes_com_dados.push(parte.nome)
+      }
     }
   }
 
   let notas_fiscais_pendentes = 0
-  if (nfPend.status === 'fulfilled') {
+  const nfContratado = chaves.has('nf-importacao') || chaves.has('nf-import')
+  if (nfContratado && nfPend.status === 'fulfilled') {
     notas_fiscais_pendentes = nfPend.value
-    if (notas_fiscais_pendentes > 0) fontes.push('nf-importacao')
+    fontes_respondidas.push('nf-importacao')
+    if (notas_fiscais_pendentes > 0) {
+      fontes_com_dados.push('nf-importacao')
+    }
   }
 
   return hubOperacoesResumoSchema.parse({
@@ -289,6 +307,8 @@ export async function generateHubOperacoes(
     notas_fiscais_pendentes,
     processos_hoje,
     processos,
-    fontes_disponiveis: fontes,
+    produtos_contratados,
+    fontes_respondidas,
+    fontes_disponiveis: fontes_com_dados,
   })
 }

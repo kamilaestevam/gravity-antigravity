@@ -514,6 +514,7 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   padding-top: 0;
   flex-shrink: 0;
   width: 100%;
+  overflow: visible;
 }
 
 .sw-hub-gabi-insight-stat-slot {
@@ -521,7 +522,9 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   align-items: center;
   min-height: 28px;
   max-height: 28px;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
+  z-index: 2;
 }
 
 .sw-hub-gabi-insight-link-slot {
@@ -541,7 +544,10 @@ body.light-theme .sw-hub-panel--ws .sw-ws-card--hub.selected {
   border: 1px solid rgba(99, 102, 241, 0.16);
   border-radius: 7px;
   padding: 0.35rem 0.6rem;
-  margin-top: -12px;
+  margin-top: -4px;
+  transform: translateY(-8px);
+  position: relative;
+  z-index: 2;
 }
 
 .sw-hub-gabi-insight-stat-label {

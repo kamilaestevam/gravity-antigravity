@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   analisarRiscosAduaneirosLeitura,
+  montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado,
   validarCnpjBrasil,
 } from '../../../../servicos-global/produto/smart-read/client/src/shared/analisar-riscos-aduaneiros-leitura-smart-read.ts'
 import type { ArquivoLocalNovaLeitura } from '../../../../servicos-global/produto/smart-read/client/src/shared/tipo-arquivo-nova-leitura-smart-read.ts'
@@ -162,5 +163,44 @@ describe('Smart Read — analisar riscos aduaneiros', () => {
     expect(ncm?.motivo).toContain('Diodo semicondutor')
     expect(ncm?.analise).not.toContain('A IA deve')
     expect(ncm?.correcao_sugerida).toBeUndefined()
+  })
+
+  it('monta documento único por seleção na conferência (multi-doc no mesmo PDF)', () => {
+    const idArquivo = 'api-multi.pdf'
+    const item: ArquivoLocalNovaLeitura = {
+      id_arquivo_local: 'local-multi',
+      id_arquivo: idArquivo,
+      arquivo: new File([''], 'INVOICE77.pdf', { type: 'application/pdf' }),
+      status_arquivo_local: 'completo',
+      id_leitura: 'leitura-1',
+      mensagem_erro: null,
+      expandido: true,
+      leitura: {
+        id_leitura: 'leitura-1',
+        nome_leitura: 'Teste',
+        status_leitura: 'COMPLETED',
+        total_arquivos: 1,
+        arquivos_processados: 1,
+        arquivos: [
+          {
+            id_arquivo: idArquivo,
+            nome_arquivo: 'INVOICE77.pdf',
+            status_arquivo: 'COMPLETED',
+            resultado_extracao: [
+              { tipo_documento: 'PACKING_LIST', dados: { items: [{ ncm: '11111111' }] } },
+              { tipo_documento: 'INVOICE', dados: { items: [{ ncm: '22222222' }] } },
+            ],
+          },
+        ],
+      },
+    }
+
+    const packing = montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado(item, 0)
+    const invoice = montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado(item, 1)
+
+    expect(packing).toHaveLength(1)
+    expect(packing[0]?.tipo_documento).toBe('PACKING_LIST')
+    expect(invoice).toHaveLength(1)
+    expect(invoice[0]?.tipo_documento).toBe('INVOICE')
   })
 })

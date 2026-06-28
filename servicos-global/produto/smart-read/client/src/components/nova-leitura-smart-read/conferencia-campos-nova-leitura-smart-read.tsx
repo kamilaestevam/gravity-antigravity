@@ -53,6 +53,8 @@ type Props = {
   ocultarComparar?: boolean
   camposEditados?: ReadonlySet<string>
   onEditarCampo?: (chave: string, valor: string) => void
+  campoFoco?: string | null
+  onCampoFocoConsumido?: () => void
 }
 
 const ICONE_SECAO_CONFERENCIA: Record<string, ReactNode> = {
@@ -125,11 +127,14 @@ export function ConferenciaCamposNovaLeituraSmartRead({
   ocultarComparar = false,
   camposEditados = new Set(),
   onEditarCampo,
+  campoFoco = null,
+  onCampoFocoConsumido,
 }: Props) {
   const [filtro, setFiltro] = useState<FiltroConferencia>('todos')
   const [busca, setBusca] = useState('')
   const [progressoColapsado, setProgressoColapsado] = useState(false)
   const [secoesColapsadas, setSecoesColapsadas] = useState<Set<string>>(() => new Set())
+  const [campoDestacado, setCampoDestacado] = useState<string | null>(null)
 
   const documentos = extrairDocumentosArquivoLocal(arquivo)
   const documentoAtual = documentos[indiceDocumento]
@@ -167,6 +172,36 @@ export function ConferenciaCamposNovaLeituraSmartRead({
     setFiltro('todos')
     setBusca('')
   }, [arquivo.id_arquivo_local, indiceDocumento])
+
+  useEffect(() => {
+    if (!campoFoco?.trim()) return
+    const chave = campoFoco.trim()
+    const secaoAlvo = secoes.find((secao) => secao.campos.some((c) => c.chave === chave))
+    if (!secaoAlvo) {
+      onCampoFocoConsumido?.()
+      return
+    }
+    setSecoesColapsadas((prev) => {
+      const next = new Set(prev)
+      next.delete(secaoAlvo.id)
+      return next
+    })
+    setFiltro('todos')
+    setBusca('')
+    setCampoDestacado(chave)
+    const timerScroll = window.setTimeout(() => {
+      document.getElementById(`sr-campo-conferencia-${chave}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+      onCampoFocoConsumido?.()
+    }, 120)
+    const timerDestaque = window.setTimeout(() => setCampoDestacado(null), 2400)
+    return () => {
+      window.clearTimeout(timerScroll)
+      window.clearTimeout(timerDestaque)
+    }
+  }, [campoFoco, secoes, onCampoFocoConsumido])
 
   useEffect(() => {
     if (filtro === 'todos' && !busca.trim()) return
@@ -494,6 +529,7 @@ export function ConferenciaCamposNovaLeituraSmartRead({
                         rotulo={campo.rotulo}
                         valor={campo.valor}
                         alterado={ehAlterado(campo.chave)}
+                        destacado={campoDestacado === campo.chave}
                         aoSalvar={(novo) => onEditarCampo?.(campo.chave, novo)}
                       />
                     ))}

@@ -26,6 +26,18 @@ export type RegraMatrizInvoice = {
   descricao: string
 }
 
+/** Ordem canônica das seções na UI (matriz 1→8). */
+export const ORDEM_SECOES_MATRIZ_INVOICE: readonly SecaoMatrizInvoice[] = [
+  'identificacao',
+  'cadastral',
+  'logistica',
+  'itens_fiscais',
+  'financeiro',
+  'bancario',
+  'pesos_embalagens',
+  'legitimidade',
+] as const
+
 export const ROTULO_SECAO_MATRIZ_INVOICE: Record<SecaoMatrizInvoice, string> = {
   identificacao: '1 — Identificação e rastreabilidade',
   cadastral: '2 — Qualificação das partes (RFB)',

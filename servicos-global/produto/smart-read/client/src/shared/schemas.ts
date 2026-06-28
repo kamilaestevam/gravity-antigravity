@@ -91,3 +91,25 @@ export const MetricaLeituraRespostaSchema = z.object({
   valor: z.number(),
 })
 export type MetricaLeituraResposta = z.infer<typeof MetricaLeituraRespostaSchema>
+
+export const StatusTarefaExportacaoLeituraEnum = z.enum([
+  'pending',
+  'processing',
+  'completed',
+  'failed',
+])
+export type StatusTarefaExportacaoLeitura = z.infer<typeof StatusTarefaExportacaoLeituraEnum>
+
+export const CriarExportacaoLeituraRespostaSchema = z.object({
+  id_tarefa: z.string().min(1),
+  status_tarefa: StatusTarefaExportacaoLeituraEnum,
+})
+export type CriarExportacaoLeituraResposta = z.infer<typeof CriarExportacaoLeituraRespostaSchema>
+
+export const StatusExportacaoLeituraRespostaSchema = z.object({
+  id_tarefa: z.string().min(1),
+  status_tarefa: StatusTarefaExportacaoLeituraEnum,
+  pronto: z.boolean(),
+  mensagem_erro: z.string().nullable(),
+})
+export type StatusExportacaoLeituraResposta = z.infer<typeof StatusExportacaoLeituraRespostaSchema>

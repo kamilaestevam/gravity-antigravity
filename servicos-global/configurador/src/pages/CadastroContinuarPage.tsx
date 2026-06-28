@@ -23,7 +23,7 @@ import {
 } from '../auth/clerk-sessao-convite'
 import { useTranslation } from 'react-i18next'
 import {
-  Atom, CursorClick, Coins, ShieldCheck,
+  Atom, CursorClick, Plugs, Buildings,
   User as UserIcon, EnvelopeSimple, Lock, Eye, EyeSlash,
   CheckCircle, WarningCircle, CircleNotch, GoogleLogo,
 } from '@phosphor-icons/react'
@@ -779,9 +779,9 @@ export function CadastroContinuarPage() {
           <div className="auth-features">
             {[
               { icon: <Atom size={20} weight="duotone" className="auth-feature-icon" />,         title: t('auth.ecossistema_titulo'),       desc: t('auth.ecossistema_desc') },
+              { icon: <Plugs size={20} weight="duotone" className="auth-feature-icon" />,        title: t('auth.gestao_custos_titulo'),     desc: t('auth.gestao_custos_desc') },
               { icon: <CursorClick size={20} weight="duotone" className="auth-feature-icon" />, title: t('auth.zero_digitacao_titulo'),    desc: t('auth.zero_digitacao_desc') },
-              { icon: <Coins size={20} weight="duotone" className="auth-feature-icon" />,        title: t('auth.gestao_custos_titulo'),     desc: t('auth.gestao_custos_desc') },
-              { icon: <ShieldCheck size={20} weight="duotone" className="auth-feature-icon" />,  title: t('auth.padrao_enterprise_titulo'), desc: t('auth.padrao_enterprise_desc') },
+              { icon: <Buildings size={20} weight="duotone" className="auth-feature-icon" />,  title: t('auth.padrao_enterprise_titulo'), desc: t('auth.padrao_enterprise_desc') },
             ].map((f, i) => (
               <div key={f.title} className="auth-feature" style={{ '--i': i } as React.CSSProperties}>
                 <div className="auth-feature-icon-wrapper">{f.icon}</div>

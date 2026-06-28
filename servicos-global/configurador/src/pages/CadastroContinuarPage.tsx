@@ -729,7 +729,7 @@ export function CadastroContinuarPage() {
   // do Clerk (status=sign_up).
   if (isLoaded && !isInvitation && !isOAuthMissing && status !== 'sign_up') {
     return (
-      <div className="auth-root">
+      <div className="auth-root auth-root--cadastro">
         <div className="auth-brand">
           <div className="auth-brand-grid" />
           <div className="auth-brand-content">
@@ -755,7 +755,7 @@ export function CadastroContinuarPage() {
   }
 
   return (
-    <div className="auth-root">
+    <div className="auth-root auth-root--cadastro">
 
       {/* ── Painel esquerdo — Branding ── */}
       <div className="auth-brand">

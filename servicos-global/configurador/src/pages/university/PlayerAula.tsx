@@ -4,6 +4,7 @@
  * Área de conteúdo com fundo claro (feel de documento/artigo).
  */
 
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -17,6 +18,80 @@ const CONTENT_BG = '#1e293b'
 const CONTENT_TEXT = '#f1f5f9'
 const CONTENT_MUTED = '#94a3b8'
 const ACCENT = '#a78bfa'
+
+// ── Sub-componentes com fallback para mídia ────────────────────────────────
+
+function BlocoImagem({ bloco }: { bloco: BlocoConteudo }) {
+  const [falhou, setFalhou] = useState(false)
+  const temSrc = !!bloco.dados.src && !falhou
+  return (
+    <figure style={{ margin: '1.75rem 0' }}>
+      {temSrc ? (
+        <img
+          src={String(bloco.dados.src)}
+          alt={String(bloco.dados.alt ?? '')}
+          onError={() => setFalhou(true)}
+          style={{ width: '100%', borderRadius: 12, display: 'block', border: '1px solid rgba(148,163,184,.1)' }}
+        />
+      ) : (
+        <div style={{
+          width: '100%', aspectRatio: '16/7', borderRadius: 12,
+          background: 'rgba(148,163,184,.08)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          border: '1px solid rgba(148,163,184,.12)',
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#94a3b8' }}>
+            <ImageIcon size={44} weight="duotone" />
+            <span style={{ fontSize: '.82rem', fontWeight: 600 }}>{String(bloco.dados.alt ?? '')}</span>
+          </div>
+        </div>
+      )}
+      {bloco.dados.caption && (
+        <figcaption style={{ textAlign: 'center', fontSize: '.78rem', color: CONTENT_MUTED, marginTop: 10, fontStyle: 'italic' }}>
+          {String(bloco.dados.caption)}
+        </figcaption>
+      )}
+    </figure>
+  )
+}
+
+function BlocoVideo({ bloco }: { bloco: BlocoConteudo }) {
+  const [falhou, setFalhou] = useState(false)
+  const temSrc = !!bloco.dados.src && !falhou
+  return (
+    <div style={{ margin: '1.75rem 0' }}>
+      {temSrc ? (
+        <video
+          src={String(bloco.dados.src)}
+          controls
+          onError={() => setFalhou(true)}
+          style={{ width: '100%', borderRadius: 12, display: 'block', background: '#0f172a' }}
+        />
+      ) : (
+        <div style={{
+          width: '100%', aspectRatio: '16/9', borderRadius: 12,
+          background: 'linear-gradient(135deg,#1e1b4b,#312e81)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: 12, border: '1px solid rgba(99,102,241,.3)',
+        }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%',
+            background: 'rgba(129,140,248,.2)', border: '2px solid rgba(129,140,248,.5)',
+            display: 'grid', placeItems: 'center',
+          }}>
+            <Play weight="fill" size={26} style={{ color: UNI_COR, marginLeft: 4 }} />
+          </div>
+          <div style={{ color: '#c7d2fe', fontWeight: 600, fontSize: '.92rem' }}>
+            {String(bloco.dados.titulo ?? '')}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#818cf8', fontSize: '.78rem' }}>
+            <Clock size={13} /> {String(bloco.dados.duracao ?? '')}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ── Renderizador de bloco ──────────────────────────────────────────────────
 
@@ -42,52 +117,10 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
       )
 
     case 'imagem':
-      return (
-        <figure style={{ margin: '1.75rem 0' }}>
-          <div style={{
-            width: '100%', aspectRatio: '16/7', borderRadius: 12,
-            background: 'rgba(148,163,184,.08)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '1px solid rgba(148,163,184,.12)',
-          }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#94a3b8' }}>
-              <ImageIcon size={44} weight="duotone" />
-              <span style={{ fontSize: '.82rem', fontWeight: 600 }}>{String(bloco.dados.alt)}</span>
-            </div>
-          </div>
-          {bloco.dados.caption && (
-            <figcaption style={{ textAlign: 'center', fontSize: '.78rem', color: CONTENT_MUTED, marginTop: 10, fontStyle: 'italic' }}>
-              {String(bloco.dados.caption)}
-            </figcaption>
-          )}
-        </figure>
-      )
+      return <BlocoImagem bloco={bloco} />
 
     case 'video':
-      return (
-        <div style={{ margin: '1.75rem 0' }}>
-          <div style={{
-            width: '100%', aspectRatio: '16/9', borderRadius: 12,
-            background: 'linear-gradient(135deg,#1e1b4b,#312e81)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            gap: 12, cursor: 'pointer', border: '1px solid rgba(99,102,241,.3)',
-          }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: '50%',
-              background: 'rgba(129,140,248,.2)', border: '2px solid rgba(129,140,248,.5)',
-              display: 'grid', placeItems: 'center',
-            }}>
-              <Play weight="fill" size={26} style={{ color: UNI_COR, marginLeft: 4 }} />
-            </div>
-            <div style={{ color: '#c7d2fe', fontWeight: 600, fontSize: '.92rem' }}>
-              {String(bloco.dados.titulo)}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#818cf8', fontSize: '.78rem' }}>
-              <Clock size={13} /> {String(bloco.dados.duracao)}
-            </div>
-          </div>
-        </div>
-      )
+      return <BlocoVideo bloco={bloco} />
 
     case 'citacao':
       return (

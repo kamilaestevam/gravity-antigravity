@@ -29,9 +29,21 @@
   overflow: hidden;
 }
 
-/* Painel do formulário — scroll interno (justify-content:center do LoginGlobal cortava o botão) */
-.auth-root .login-global-panel {
-  flex: 1 1 auto;
+/* Right Panel — login/recuperar: centralizado (layout original) */
+.auth-root > div:last-child {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  backdrop-filter: blur(2px);
+  padding: 3rem 0;
+  box-sizing: border-box;
+  align-self: stretch;
+}
+
+/* Cadastro — scroll no painel quando checklist de senha expande */
+.auth-root--cadastro > .login-global-panel {
   min-height: 0;
   min-width: 0;
   overflow-x: hidden;
@@ -39,7 +51,6 @@
   justify-content: flex-start;
   align-items: center;
   padding: 2rem 4rem 3rem;
-  box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -232,15 +243,6 @@
   opacity: 0.5;
 }
 
-/* Right Panel fix - legacy selector (login-global-panel recebe regras acima) */
-.auth-root > div:last-child {
-  z-index: 2;
-  backdrop-filter: blur(2px);
-  padding: 3rem 0;
-  box-sizing: border-box;
-  align-self: stretch;
-}
-
 /* Responsivo */
 @media (max-width: 1100px) {
   .auth-headline { font-size: 2.75rem; }
@@ -258,7 +260,7 @@
     overflow-y: auto;
   }
 
-  .auth-root .login-global-panel {
+  .auth-root--cadastro > .login-global-panel {
     width: 100%;
     flex: none;
     overflow-y: visible;

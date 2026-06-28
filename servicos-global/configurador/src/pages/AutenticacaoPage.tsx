@@ -4,7 +4,7 @@ import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { Atom, CursorClick, Coins, ShieldCheck } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useLoginAutomaticoPosConvite } from '../auth/use-login-automatico-pos-convite'
 import { navegarDestinoPosAutenticacao } from '../routing/navegar-destino-pos-autenticacao.js'
 import './auth.css'
@@ -13,6 +13,8 @@ export function AutenticacaoPage() {
   const { t } = useTranslation()
   const { getToken, userId } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const authCadastro = location.pathname.startsWith('/cadastro')
   const loginAutomaticoConvite = useLoginAutomaticoPosConvite()
 
   if (loginAutomaticoConvite) {
@@ -25,7 +27,7 @@ export function AutenticacaoPage() {
   }
 
   return (
-    <div className="auth-root">
+    <div className={authCadastro ? 'auth-root auth-root--cadastro' : 'auth-root'}>
 
       {/* ── Left Panel — Branding ── */}
       <div className="auth-brand">

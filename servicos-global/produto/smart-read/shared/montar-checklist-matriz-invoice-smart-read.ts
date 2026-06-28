@@ -156,6 +156,9 @@ export type ResumoGeralChecklistInvoices = {
   por_secao: ResumoSecaoChecklistGeral[]
 }
 
+/** Valor sentinela do SelectGlobal na visão geral — agrega todas as invoices. */
+export const VALOR_TODAS_INVOICES_CHECKLIST = '__todas__' as const
+
 export function rotuloDocumentoChecklistInvoice(
   nomeArquivo: string,
   tipoDocumento: string,

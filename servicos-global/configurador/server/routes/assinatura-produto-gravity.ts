@@ -33,6 +33,7 @@ import {
   configuracaoInicialSmartReadLegado,
   SLUG_PRODUTO_SMART_READ,
 } from '../lib/resolver-vinculo-smart-read-legado.js'
+import { slugCatalogoExibicaoAssinaturaSmartDocs } from '../lib/resolver-produto-smart-docs-catalogo.js'
 
 export const assinaturaProdutoGravityRouter = Router()
 
@@ -114,7 +115,10 @@ assinaturaProdutoGravityRouter.get('/', requireAuth, async (req, res, next) => {
         data_criacao_assinatura_produto_gravity: a.data_criacao_assinatura_produto_gravity,
         produto: {
           id_produto_gravity: a.produto.id_produto_gravity,
-          slug_produto_gravity: a.produto.slug_produto_gravity,
+          slug_produto_gravity: slugCatalogoExibicaoAssinaturaSmartDocs(
+            a.produto.slug_produto_gravity,
+            a.produto.nome_produto_gravity,
+          ),
           nome_produto_gravity: a.produto.nome_produto_gravity,
           descricao_produto_gravity: a.produto.descricao_produto_gravity,
           tipo_cobranca_produto_gravity: a.produto.tipo_cobranca_produto_gravity,

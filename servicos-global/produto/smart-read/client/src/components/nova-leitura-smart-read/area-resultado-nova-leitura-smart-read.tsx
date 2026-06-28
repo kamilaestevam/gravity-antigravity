@@ -1,15 +1,15 @@
 /**
- * AreaResultadoNovaLeituraSmartRead — passo 4: métricas + download multi-formato.
- * Layout alinhado ao passo 2 (métricas + painel com superfície).
+ * AreaResultadoNovaLeituraSmartRead — passo 4: métricas + download via legado DATI.
+ * Pacote ZIP gerado pelo motor DATI (download-tasks), não no browser.
  */
 
 import { useMemo, useState } from 'react'
 import {
-  CaretDown,
   CheckCircle,
   Clock,
   DownloadSimple,
   FileText,
+  Spinner,
   Timer,
   TrendDown,
   TrendUp,
@@ -29,12 +29,7 @@ import {
   formatarSavingHorasLeitura,
   formatarSavingValorLeitura,
 } from '../../shared/formatacao-leitura-smart-read'
-import {
-  FORMATOS_DOWNLOAD_LEITURA,
-  TODOS_FORMATOS_DOWNLOAD,
-  baixarLeituras,
-  type FormatoDownloadLeitura,
-} from '../../shared/gerar-downloads-leitura-smart-read'
+import { executarDownloadExportacaoLeituraSmartRead } from '../../shared/executar-download-exportacao-leitura-smart-read'
 
 type Props = {
   arquivos: ArquivoLocalNovaLeitura[]
@@ -49,6 +44,14 @@ function formatarTempo(totalSegundos: number): string {
   return [horas, minutos, segundos].map((n) => String(n).padStart(2, '0')).join(' : ')
 }
 
+function sanitizarNomeArquivo(nome: string): string {
+  return nome.replace(/[\\/:*?"<>|]+/g, '-').trim() || 'leitura'
+}
+
+function resolverIdLeitura(arquivos: ArquivoLocalNovaLeitura[]): string | null {
+  return arquivos.find((item) => item.leitura?.id_leitura)?.leitura?.id_leitura ?? null
+}
+
 export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, tempoTotalMs }: Props) {
   const arquivosCompletos = useMemo(
     () => arquivos.filter((item) => item.status_arquivo_local === 'completo' && item.leitura),
@@ -56,7 +59,10 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
   )
 
   const [selecionados, setSelecionados] = useState<Set<string>>(() => new Set())
-  const [menuAberto, setMenuAberto] = useState<string | null>(null)
+  const [baixando, setBaixando] = useState(false)
+  const [erroDownload, setErroDownload] = useState<string | null>(null)
+
+  const idLeitura = useMemo(() => resolverIdLeitura(arquivosCompletos), [arquivosCompletos])
 
   const metricas = useMemo(() => {
     let total = 0
@@ -99,58 +105,47 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
     )
   }
 
-  function baixar(alvo: ArquivoLocalNovaLeitura[], formatos: FormatoDownloadLeitura[]) {
-    baixarLeituras(alvo, formatos)
-    setMenuAberto(null)
+  async function baixarPacoteDati(alvo: ArquivoLocalNovaLeitura[], nomeZip?: string) {
+    if (!idLeitura) {
+      setErroDownload('Leitura sem identificador legado para exportar')
+      return
+    }
+    setErroDownload(null)
+    setBaixando(true)
+    try {
+      await executarDownloadExportacaoLeituraSmartRead({
+        idLeitura,
+        arquivos: alvo,
+        nomeArquivoZip: nomeZip,
+      })
+    } catch (erro) {
+      const mensagem = erro instanceof Error ? erro.message : 'Falha ao baixar pacote DATI'
+      setErroDownload(mensagem)
+    } finally {
+      setBaixando(false)
+    }
   }
 
   const arquivosSelecionados = arquivosCompletos.filter((a) => selecionados.has(a.id_arquivo_local))
   const todosMarcados =
     arquivosCompletos.length > 0 && selecionados.size === arquivosCompletos.length
 
-  function renderMenu(
-    id: string,
+  function renderBotaoDownload(
     alvo: ArquivoLocalNovaLeitura[],
-    rotulo = 'Download',
+    rotulo: string,
     variante: 'primario' | 'secundario' = 'primario',
+    nomeZip?: string,
   ) {
     return (
-      <div className="sr-res-menu-wrap">
-        <BotaoGlobal
-          variante={variante}
-          tamanho="pequeno"
-          icone={<DownloadSimple size={14} />}
-          onClick={() => setMenuAberto((m) => (m === id ? null : id))}
-          disabled={alvo.length === 0}
-        >
-          {rotulo}
-          <CaretDown size={12} weight="bold" />
-        </BotaoGlobal>
-        {menuAberto === id && alvo.length > 0 && (
-          <div className="sr-res-menu" role="menu">
-            {FORMATOS_DOWNLOAD_LEITURA.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                role="menuitem"
-                className="sr-res-menu-item"
-                onClick={() => baixar(alvo, [f.id])}
-              >
-                {f.rotulo}
-              </button>
-            ))}
-            <div className="sr-res-menu-sep" />
-            <button
-              type="button"
-              role="menuitem"
-              className="sr-res-menu-item sr-res-menu-item--destaque"
-              onClick={() => baixar(alvo, TODOS_FORMATOS_DOWNLOAD)}
-            >
-              Pacote (ZIP) — todos os formatos
-            </button>
-          </div>
-        )}
-      </div>
+      <BotaoGlobal
+        variante={variante}
+        tamanho="pequeno"
+        icone={baixando ? <Spinner size={14} className="sr-res-spinner" /> : <DownloadSimple size={14} />}
+        onClick={() => void baixarPacoteDati(alvo, nomeZip)}
+        disabled={alvo.length === 0 || baixando}
+      >
+        {rotulo}
+      </BotaoGlobal>
     )
   }
 
@@ -215,9 +210,18 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
             <FileText size={22} weight="duotone" />
             <div>
               <h2>Resultado das leituras</h2>
-              <p>Baixe suas leituras no formato desejado.</p>
+              <p>
+                Baixe o pacote ZIP gerado pelo legado DATI (mesmo formato usado pelos clientes no Smart Docs
+                original).
+              </p>
             </div>
           </header>
+
+          {erroDownload && (
+            <p className="sr-res-erro" role="alert">
+              {erroDownload}
+            </p>
+          )}
 
           <div className="sr-res-lista-corpo">
             <div className="sr-res-lista">
@@ -247,7 +251,12 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
                         </span>
                       ))}
                     </div>
-                    {renderMenu(`file:${item.id_arquivo_local}`, [item])}
+                    {renderBotaoDownload(
+                      [item],
+                      'Baixar pacote DATI',
+                      'primario',
+                      `${sanitizarNomeArquivo(item.arquivo.name)}-dati.zip`,
+                    )}
                   </article>
                 )
               })}
@@ -267,8 +276,8 @@ export function AreaResultadoNovaLeituraSmartRead({ arquivos, camposEditados, te
                   <span className="sr-res-barra-info">
                     {selecionados.size > 0 ? `${selecionados.size} selecionado(s)` : 'Nenhum selecionado'}
                   </span>
-                  {renderMenu('selecionados', arquivosSelecionados, 'Baixar selecionados', 'secundario')}
-                  {renderMenu('todos', arquivosCompletos, 'Baixar todos')}
+                  {renderBotaoDownload(arquivosSelecionados, 'Baixar selecionados', 'secundario')}
+                  {renderBotaoDownload(arquivosCompletos, 'Baixar todos')}
                 </div>
               </div>
             )}

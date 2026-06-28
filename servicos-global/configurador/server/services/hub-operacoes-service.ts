@@ -21,20 +21,17 @@ export const hubOperacaoProcessoSchema = z.object({
   badge_variant: z.enum(['embarque', 'desembaraco']),
 })
 
-export const hubPendenciaProdutoSchema = z.object({
-  produto: z.string(),
-  quantidade: z.number().int().nonnegative(),
-})
-
 export const hubOperacoesResumoSchema = z.object({
   processos_em_andamento: z.number().int().nonnegative(),
   aguardando_acao: z.number().int().nonnegative(),
   notas_fiscais_pendentes: z.number().int().nonnegative(),
   processos_hoje: z.number().int().nonnegative(),
   processos: z.array(hubOperacaoProcessoSchema),
-  pendencias_por_produto: z.array(hubPendenciaProdutoSchema),
+  /** Produtos contratados, ativos e acessíveis ao usuário no workspace */
   produtos_contratados: z.array(z.string()),
+  /** Serviços que responderam à consulta (mesmo com contagem zero) */
   fontes_respondidas: z.array(z.string()),
+  /** Produtos que já retornaram pendência/métrica > 0 — prioridade na leitura do hub */
   fontes_disponiveis: z.array(z.string()),
 })
 
@@ -238,16 +235,9 @@ export async function generateHubOperacoes(
   }
 
   const chaves = normalizarChavesProdutosAtivosHub(activeProductKeys)
-  const produtos_contratados = Array.from(chaves)
-  const fontes: string[] = []
+  const produtos_contratados = [...chaves].sort()
   const fontes_respondidas: string[] = []
-
-  const pedidoAtivo = chaves.has('pedido')
-  const freteAtivo = chaves.has('bid-frete')
-  const cambioAtivo = chaves.has('bid-cambio')
-  const simulaAtivo = chaves.has('simula-custo')
-  const lpcoAtivo = chaves.has('lpco')
-  const nfAtivo = chaves.has('nf-importacao')
+  const fontes_com_dados: string[] = []
 
   const [
     processosResult,
@@ -259,12 +249,12 @@ export async function generateHubOperacoes(
     nfPend,
   ] = await Promise.allSettled([
     buscarProcessosHub(ctx),
-    contarPendenciasPedido(ctx, pedidoAtivo),
-    contarPendenciasBidFrete(ctx, freteAtivo),
-    contarPendenciasBidCambio(ctx, cambioAtivo),
-    contarPendenciasSimulaCusto(ctx, simulaAtivo),
-    contarPendenciasLpco(ctx, lpcoAtivo),
-    contarNotasFiscaisPendentes(ctx, nfAtivo),
+    contarPendenciasPedido(ctx, chaves.has('pedido')),
+    contarPendenciasBidFrete(ctx, chaves.has('bid-frete') || chaves.has('bid-frete-internacional')),
+    contarPendenciasBidCambio(ctx, chaves.has('bid-cambio')),
+    contarPendenciasSimulaCusto(ctx, chaves.has('simula-custo')),
+    contarPendenciasLpco(ctx, chaves.has('lpco')),
+    contarNotasFiscaisPendentes(ctx, chaves.has('nf-importacao') || chaves.has('nf-import')),
   ])
 
   let processos_em_andamento = 0
@@ -276,35 +266,39 @@ export async function generateHubOperacoes(
     processos_hoje = processosResult.value.hoje
     processos = processosResult.value.itens
     fontes_respondidas.push('processo')
-    if (processos_em_andamento > 0) fontes.push('processo')
+    if (processos_em_andamento > 0 || processos_hoje > 0) {
+      fontes_com_dados.push('processo')
+    }
   }
 
   const partesPendencia = [
-    { nome: 'pedido', ativo: pedidoAtivo, result: pedidoPend },
-    { nome: 'bid-frete', ativo: freteAtivo, result: fretePend },
-    { nome: 'bid-cambio', ativo: cambioAtivo, result: cambioPend },
-    { nome: 'simula-custo', ativo: simulaAtivo, result: simulaPend },
-    { nome: 'lpco', ativo: lpcoAtivo, result: lpcoPend },
+    { nome: 'pedido', contratado: chaves.has('pedido'), result: pedidoPend },
+    { nome: 'bid-frete', contratado: chaves.has('bid-frete') || chaves.has('bid-frete-internacional'), result: fretePend },
+    { nome: 'bid-cambio', contratado: chaves.has('bid-cambio'), result: cambioPend },
+    { nome: 'simula-custo', contratado: chaves.has('simula-custo'), result: simulaPend },
+    { nome: 'lpco', contratado: chaves.has('lpco'), result: lpcoPend },
   ]
 
   let aguardando_acao = 0
-  const pendencias_por_produto: HubOperacoesResumo['pendencias_por_produto'] = []
   for (const parte of partesPendencia) {
-    if (!parte.ativo) continue
-    if (parte.result.status !== 'fulfilled') continue
-    fontes_respondidas.push(parte.nome)
-    if (parte.result.value > 0) {
-      aguardando_acao += parte.result.value
-      fontes.push(parte.nome)
-      pendencias_por_produto.push({ produto: parte.nome, quantidade: parte.result.value })
+    if (!parte.contratado) continue
+    if (parte.result.status === 'fulfilled') {
+      fontes_respondidas.push(parte.nome)
+      if (parte.result.value > 0) {
+        aguardando_acao += parte.result.value
+        fontes_com_dados.push(parte.nome)
+      }
     }
   }
 
   let notas_fiscais_pendentes = 0
-  if (nfAtivo && nfPend.status === 'fulfilled') {
-    fontes_respondidas.push('nf-importacao')
+  const nfContratado = chaves.has('nf-importacao') || chaves.has('nf-import')
+  if (nfContratado && nfPend.status === 'fulfilled') {
     notas_fiscais_pendentes = nfPend.value
-    if (notas_fiscais_pendentes > 0) fontes.push('nf-importacao')
+    fontes_respondidas.push('nf-importacao')
+    if (notas_fiscais_pendentes > 0) {
+      fontes_com_dados.push('nf-importacao')
+    }
   }
 
   return hubOperacoesResumoSchema.parse({
@@ -313,9 +307,8 @@ export async function generateHubOperacoes(
     notas_fiscais_pendentes,
     processos_hoje,
     processos,
-    pendencias_por_produto,
     produtos_contratados,
     fontes_respondidas,
-    fontes_disponiveis: fontes,
+    fontes_disponiveis: fontes_com_dados,
   })
 }

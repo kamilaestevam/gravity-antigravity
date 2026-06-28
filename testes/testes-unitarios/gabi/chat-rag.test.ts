@@ -85,6 +85,20 @@ describe('buildSystemPrompt', () => {
 
     expect(prompt).toContain('Pagina atual: desconhecida')
   })
+
+  it('impoe Smart Docs e proibe Smart Read na nomenclatura de exibicao', () => {
+    const prompt = buildSystemPrompt({
+      userName: 'User',
+      userRole: 'user',
+      tenantName: 'Org',
+      activeServices: [],
+      currentPage: '/smart-read/lista',
+    })
+
+    expect(prompt).toContain('Smart Docs')
+    expect(prompt).toContain('NUNCA diga "Smart Read"')
+    expect(prompt).toContain('[Smart Docs](/smart-read/lista)')
+  })
 })
 
 describe('selectKnowledge', () => {

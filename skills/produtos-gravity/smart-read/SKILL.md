@@ -18,6 +18,8 @@ alimenta Lista, Insights e conferência.
 - Wizard 4 passos via `ModalPassoPassoGlobal`
 - `id_produto_gravity`: `smart-read`
 
+> **Rebrand (exibição):** nome oficial na plataforma é **Smart Docs**. Nunca use "Smart Read" em texto ao usuário; slug `smart-read` e rota `/smart-read` são apenas técnicos.
+
 ---
 
 ## Localização na arquitetura

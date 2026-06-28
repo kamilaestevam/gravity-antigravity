@@ -46,6 +46,7 @@ import { progressoLeituraSmartReadRouter } from './progresso-leitura-smart-read.
 import { analiseRiscosLeituraSmartReadRouter } from './analise-riscos-leitura-smart-read.js'
 import { qaLeituraSmartReadRouter } from './qa-leitura-smart-read.js'
 import { tokensUsoLlmLeituraSmartReadRouter } from './tokens-uso-llm-leitura-smart-read.js'
+import { exportacoesLeituraSmartReadRouter } from './exportacoes-leitura-smart-read.js'
 
 const router = Router()
 
@@ -191,6 +192,7 @@ router.post('/', upload.single('arquivo'), async (req: RequisicaoComPrismaSmartR
 router.use('/analise-riscos', analiseRiscosLeituraSmartReadRouter)
 router.use('/qa', qaLeituraSmartReadRouter)
 router.use('/tokens', tokensUsoLlmLeituraSmartReadRouter)
+router.use(exportacoesLeituraSmartReadRouter)
 
 router.use('/:id_leitura/progresso', progressoLeituraSmartReadRouter)
 

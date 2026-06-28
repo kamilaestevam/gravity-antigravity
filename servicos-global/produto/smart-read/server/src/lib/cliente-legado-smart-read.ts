@@ -7,10 +7,13 @@
 import { AppError } from './app-error.js'
 import {
   criarLeituraMockLegado,
+  criarTarefaDownloadMockLegado,
   enviarArquivoMockLegado,
   listarLeiturasMockLegado,
   obterArquivoMockLegado,
   obterLeituraMockLegado,
+  obterTarefaDownloadMockLegado,
+  obterZipTarefaDownloadMockLegado,
 } from './mock-legado-smart-read.js'
 import {
   CriarLeituraLegadoRespostaSchema,
@@ -19,6 +22,13 @@ import {
   type LeituraLegado,
 } from '../schemas/leitura-smart-read.js'
 import { corrigirEncodingNomeArquivoSmartRead } from '../../../shared/corrigir-encoding-nome-arquivo-smart-read.js'
+import {
+  AtualizarResultadoArquivoLegadoCorpoSchema,
+  StatusTarefaDownloadLegadoSchema,
+  TarefaLegadoPresenterSchema,
+  type ItemFinalResultLegadoSchema,
+} from '../schemas/exportacao-leitura-smart-read.js'
+import type { z } from 'zod'
 import {
   conteudoArquivoLeituraEhVisualizavel,
   resolverMimePorNomeArquivo,
@@ -74,6 +84,14 @@ function cabecalhosBase(companyId: string): Record<string, string> {
     accept: 'application/json',
     'x-gravity-api-key': chaveGravity,
     'x-company-id': companyId,
+  }
+}
+
+/** Export DATI (PATCH result, download-tasks) — mesmo gateway que upload/listagem. */
+function cabecalhosExportacaoLegadoGravity(companyId: string): Record<string, string> {
+  return {
+    ...cabecalhosBase(companyId),
+    'x-smart-read-project-id': 'gravity',
   }
 }
 
@@ -253,10 +271,29 @@ async function baixarArquivoS3Legado(
   return { buffer, contentType: resposta.headers.get('content-type') }
 }
 
-async function baixarUrlArquivoLegado(url: string): Promise<{ buffer: Buffer; contentType: string | null }> {
+function resolverUrlAbsolutaLegado(url: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  const { urlBase } = configuracaoLegado()
+  return `${urlBase}${url.startsWith('/') ? url : `/${url}`}`
+}
+
+function urlPertenceAoHostLegado(url: string): boolean {
+  const absoluta = resolverUrlAbsolutaLegado(url)
+  const { urlBase } = configuracaoLegado()
+  return absoluta.startsWith(urlBase)
+}
+
+async function baixarUrlArquivoLegado(
+  url: string,
+  headers?: Record<string, string>,
+): Promise<{ buffer: Buffer; contentType: string | null }> {
+  const urlAbsoluta = resolverUrlAbsolutaLegado(url)
   let resposta: globalThis.Response
   try {
-    resposta = await fetch(url, { signal: AbortSignal.timeout(20_000) })
+    resposta = await fetch(urlAbsoluta, {
+      headers,
+      signal: AbortSignal.timeout(60_000),
+    })
   } catch (erro) {
     throw new AppError(
       `URL do arquivo legado inacessivel: ${erro instanceof Error ? erro.message : 'erro de rede'}`,
@@ -265,7 +302,13 @@ async function baixarUrlArquivoLegado(url: string): Promise<{ buffer: Buffer; co
     )
   }
   if (!resposta.ok) {
-    throw new AppError(`URL do arquivo legado respondeu ${resposta.status}`, resposta.status, 'LEGADO_URL_ERRO')
+    const corpo = await resposta.text().catch(() => '')
+    const detalhe = corpo ? `: ${corpo.slice(0, 300)}` : ''
+    throw new AppError(
+      `URL do arquivo legado respondeu ${resposta.status}${detalhe}`,
+      resposta.status,
+      'LEGADO_URL_ERRO',
+    )
   }
   const buffer = Buffer.from(await resposta.arrayBuffer())
   return { buffer, contentType: resposta.headers.get('content-type') }
@@ -424,4 +467,92 @@ export async function listarLeiturasLegado(
       'x-smart-read-project-id': 'gravity',
     },
   })
+}
+
+type ItemFinalResultLegado = z.infer<typeof ItemFinalResultLegadoSchema>
+
+export async function atualizarResultadoArquivoLegado(
+  companyId: string,
+  idLeitura: string,
+  fileRefId: string,
+  finalResult: ItemFinalResultLegado[],
+): Promise<void> {
+  if (deveUsarMockLegadoSmartRead()) {
+    registrarUsoMockLegado()
+    return
+  }
+  const corpo = AtualizarResultadoArquivoLegadoCorpoSchema.parse({ finalResult })
+  await chamarLegado(`/${idLeitura}/files/${fileRefId}/result`, {
+    method: 'PATCH',
+    headers: {
+      ...cabecalhosExportacaoLegadoGravity(companyId),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(corpo),
+  })
+}
+
+export async function criarTarefaDownloadLeituraLegado(
+  companyId: string,
+  idLeitura: string,
+  fileReferenceIds: string[],
+): Promise<{ id_tarefa: string; status: string }> {
+  if (deveUsarMockLegadoSmartRead()) {
+    registrarUsoMockLegado()
+    return criarTarefaDownloadMockLegado(idLeitura, fileReferenceIds)
+  }
+  const corpo = await chamarLegado(`/${idLeitura}/download-tasks`, {
+    method: 'POST',
+    headers: {
+      ...cabecalhosExportacaoLegadoGravity(companyId),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ fileReferenceIds }),
+  })
+  const tarefa = TarefaLegadoPresenterSchema.parse(corpo)
+  return { id_tarefa: tarefa.id, status: tarefa.status }
+}
+
+export async function obterStatusTarefaDownloadLegado(
+  companyId: string,
+  taskId: string,
+): Promise<z.infer<typeof StatusTarefaDownloadLegadoSchema>> {
+  if (deveUsarMockLegadoSmartRead()) {
+    registrarUsoMockLegado()
+    return obterTarefaDownloadMockLegado(taskId)
+  }
+  const corpo = await chamarLegado(`/download-tasks/${taskId}`, {
+    method: 'GET',
+    headers: cabecalhosExportacaoLegadoGravity(companyId),
+  })
+  return StatusTarefaDownloadLegadoSchema.parse(corpo)
+}
+
+export async function baixarArquivoTarefaExportacaoLegado(
+  companyId: string,
+  taskId: string,
+): Promise<{ buffer: Buffer; contentType: string; nomeArquivo: string }> {
+  if (deveUsarMockLegadoSmartRead()) {
+    registrarUsoMockLegado()
+    const zip = obterZipTarefaDownloadMockLegado(taskId)
+    return { buffer: zip, contentType: 'application/zip', nomeArquivo: `leitura-mock-${taskId}.zip` }
+  }
+  const status = await obterStatusTarefaDownloadLegado(companyId, taskId)
+  if (status.status !== 'completed' || !status.downloadUrl) {
+    throw new AppError(
+      status.message ?? 'Exportacao ainda nao concluida no legado',
+      409,
+      'EXPORTACAO_NAO_PRONTA',
+    )
+  }
+  const headersDownload = urlPertenceAoHostLegado(status.downloadUrl)
+    ? cabecalhosExportacaoLegadoGravity(companyId)
+    : undefined
+  const remoto = await baixarUrlArquivoLegado(status.downloadUrl, headersDownload)
+  const nomeArquivo = `leitura-export-${taskId}.zip`
+  return {
+    buffer: remoto.buffer,
+    contentType: remoto.contentType?.split(';')[0]?.trim() || 'application/zip',
+    nomeArquivo,
+  }
 }

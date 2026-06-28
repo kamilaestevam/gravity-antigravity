@@ -5,6 +5,7 @@
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardArquivoNovaLeituraSmartRead } from './card-arquivo-nova-leitura-smart-read'
 import { EdicaoNomeLeituraNovaLeituraSmartRead } from './edicao-nome-leitura-nova-leitura-smart-read'
+import type { SelecaoDocumentoConferencia } from './area-conferencia-nova-leitura-smart-read'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { ContadorTokensDiscretoNovaLeituraSmartRead } from './contador-tokens-discreto-nova-leitura-smart-read'
 
@@ -24,6 +25,8 @@ type Props = {
   onAlternarExpandido: (id: string) => void
   onVisualizarArquivo: (id: string) => void
   onVisualizarDocumento: (idArquivo: string, indice: number) => void
+  selecaoConferencia?: SelecaoDocumentoConferencia | null
+  onSelecionarDocumentoConferencia?: (idArquivo: string, indice: number) => void
   onEnviar?: () => void
   onCancelar?: () => void
   onVoltar?: () => void
@@ -41,6 +44,8 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
   onAlternarExpandido,
   onVisualizarArquivo,
   onVisualizarDocumento,
+  selecaoConferencia = null,
+  onSelecionarDocumentoConferencia,
   onEnviar,
   onCancelar,
   onVoltar,
@@ -69,10 +74,21 @@ export function PainelLateralArquivosNovaLeituraSmartRead({
             key={item.id_arquivo_local}
             item={item}
             passo={passo}
+            selecaoConferencia={
+              passo === 3 &&
+              selecaoConferencia?.idArquivoLocal === item.id_arquivo_local
+                ? selecaoConferencia.indiceDocumento
+                : null
+            }
             onRemover={passo === 1 && onRemoverArquivo ? () => onRemoverArquivo(item.id_arquivo_local) : undefined}
             onAlternarExpandido={() => onAlternarExpandido(item.id_arquivo_local)}
             onVisualizarArquivo={() => onVisualizarArquivo(item.id_arquivo_local)}
             onVisualizarDocumento={(indice) => onVisualizarDocumento(item.id_arquivo_local, indice)}
+            onSelecionarDocumentoConferencia={
+              passo === 3 && onSelecionarDocumentoConferencia
+                ? (indice) => onSelecionarDocumentoConferencia(item.id_arquivo_local, indice)
+                : undefined
+            }
           />
         ))}
       </div>

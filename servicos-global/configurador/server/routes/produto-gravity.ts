@@ -11,7 +11,10 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { AppError } from '../lib/appError.js'
 import { produtoGravityCatalogoServico } from '../services/produto-gravity-catalogo-service.js'
 import { slugCanonicoProdutoGravityServidor } from '../services/catalogo-vitrine-produto-gravity.js'
-import { SLUG_PRODUTO_SMART_READ } from '../lib/resolver-vinculo-smart-read-legado.js'
+import {
+  buscarProdutoSmartDocsAtivoNoCatalogo,
+  ehReferenciaProdutoSmartDocsNoCatalogo,
+} from '../lib/resolver-produto-smart-docs-catalogo.js'
 
 const idProdutoGravityQuerySchema = z.object({
   id_produto_gravity: z.string().min(1).optional(),
@@ -99,17 +102,23 @@ productsRouter.get('/:slug', requireAuth, async (req, res, next) => {
       })
       if (produtoGravityAtivo(porId)) {
         produto = porId
+      } else if (
+        porId &&
+        ehReferenciaProdutoSmartDocsNoCatalogo(porId.slug_produto_gravity)
+      ) {
+        produto = await buscarProdutoSmartDocsAtivoNoCatalogo(
+          includeProdutoCompleto(id_organizacao),
+        )
       }
     }
 
-    if (!produtoGravityAtivo(produto) && slugNormalizado === SLUG_PRODUTO_SMART_READ) {
-      produto = await prisma.produtoGravity.findFirst({
-        where: {
-          slug_produto_gravity: SLUG_PRODUTO_SMART_READ,
-          data_remocao_produto_gravity: null,
-        },
-        include: includeProdutoCompleto(id_organizacao),
-      })
+    if (
+      !produtoGravityAtivo(produto) &&
+      ehReferenciaProdutoSmartDocsNoCatalogo(slug)
+    ) {
+      produto = await buscarProdutoSmartDocsAtivoNoCatalogo(
+        includeProdutoCompleto(id_organizacao),
+      )
     }
 
     if (!produtoGravityAtivo(produto)) {

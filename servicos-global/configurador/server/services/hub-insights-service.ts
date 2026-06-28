@@ -868,13 +868,29 @@ export function intercalarInsightsHubOperacionaisDicas(
   return result
 }
 
+/** Premissa 04: alertas e pendências antes de mensagens neutras no carrossel GABI. */
+function prioridadeInsightOperacionalHub(insight: HubInsight): number {
+  if (insight.variante === 'warn') return 0
+  if (insight.id.includes('sem_pendencia')) return 2
+  return 1
+}
+
+export function ordenarInsightsOperacionaisHub(insights: HubInsight[]): HubInsight[] {
+  return [...insights].sort((a, b) => {
+    const pa = prioridadeInsightOperacionalHub(a)
+    const pb = prioridadeInsightOperacionalHub(b)
+    if (pa !== pb) return pa - pb
+    return b.score - a.score
+  })
+}
+
 export function comporCarrosselInsightsHub(
   operacionaisBrutos: HubInsight[],
   chavesProdutos: Set<string>,
   opts: { algumProdutoRespondeu: boolean },
 ): HubInsight[] {
   const operacionais = deduplicarInsightsPorId(
-    [...operacionaisBrutos].sort((a, b) => b.score - a.score),
+    ordenarInsightsOperacionaisHub(operacionaisBrutos),
   )
 
   if (operacionais.length === 0 && opts.algumProdutoRespondeu) {

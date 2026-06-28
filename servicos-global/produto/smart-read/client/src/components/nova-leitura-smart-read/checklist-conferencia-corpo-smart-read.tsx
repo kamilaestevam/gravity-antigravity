@@ -6,11 +6,13 @@ import { CaretDown } from '@phosphor-icons/react'
 import type { SecaoMatrizInvoice } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import { ROTULO_SECAO_MATRIZ_INVOICE } from '../../../../shared/matriz-validacao-invoice-smart-read'
 import {
+  contarChecklistPorStatus,
   vereditoSecaoChecklist,
   type ItemChecklistMatrizInvoice,
   type RotuloStatusChecklistInvoice,
   type StatusChecklistMatrizInvoice,
 } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
+import { BarraStatusChecklistSmartRead } from './barra-status-checklist-smart-read'
 
 export type SecaoChecklistConferenciaSmartRead = {
   secao: SecaoMatrizInvoice
@@ -106,6 +108,36 @@ export function ChecklistConferenciaCorpoSmartRead({
         const colapsada = !todasSecoesAbertas && (secoesColapsadas?.has(secaoId) ?? false)
         const veredito = vereditoSecaoChecklist(itens)
         const falhas = itens.filter((i) => i.status === 'vermelho' || i.status === 'amarelo').length
+        const contagemSecao = contarChecklistPorStatus(itens)
+
+        const cabecalhoConteudo = (
+          <>
+            {!todasSecoesAbertas && (
+              <CaretDown
+                weight="bold"
+                size={12}
+                className={`dt-caret${colapsada ? ' dt-caret--colapsado' : ''}`}
+              />
+            )}
+            <span className="sr-conf-checklist-secao-titulo">
+              {ROTULO_SECAO_MATRIZ_INVOICE[secao]}
+            </span>
+            <BarraStatusChecklistSmartRead
+              verde={contagemSecao.verde}
+              amarelo={contagemSecao.amarelo}
+              vermelho={contagemSecao.vermelho}
+              pendente={contagemSecao.pendente}
+              total={contagemSecao.total}
+              classe="sr-conf-checklist-secao-barra"
+            />
+            <span className={`sr-conf-chk-veredito-secao ${classeVereditoSecao(veredito)}`}>
+              {veredito}
+            </span>
+            {falhas > 0 && (
+              <span className="sr-conf-checklist-secao-falhas">{falhas} item(ns)</span>
+            )}
+          </>
+        )
 
         return (
           <section
@@ -113,39 +145,18 @@ export function ChecklistConferenciaCorpoSmartRead({
             className={`sr-conf-checklist-secao${colapsada ? ' sr-conf-checklist-secao--colapsada' : ''}`}
           >
             {todasSecoesAbertas ? (
-              <div className="sr-conf-checklist-secao-header sr-conf-checklist-secao-header--fixo">
-                <span className="sr-conf-checklist-secao-titulo">
-                  {ROTULO_SECAO_MATRIZ_INVOICE[secao]}
-                </span>
-                <span className={`sr-conf-chk-veredito-secao ${classeVereditoSecao(veredito)}`}>
-                  {veredito}
-                </span>
-                {falhas > 0 && (
-                  <span className="sr-conf-checklist-secao-falhas">{falhas} item(ns)</span>
-                )}
+              <div className="sr-conf-checklist-secao-header sr-conf-checklist-secao-header--fixo sr-conf-checklist-secao-header--com-barra">
+                {cabecalhoConteudo}
               </div>
             ) : (
               <button
                 type="button"
-                className="sr-conf-checklist-secao-header"
+                className="sr-conf-checklist-secao-header sr-conf-checklist-secao-header--com-barra"
                 onClick={() => onToggleSecao?.(secaoId)}
                 aria-expanded={!colapsada}
                 aria-controls={`${secaoId}-tabela`}
               >
-                <CaretDown
-                  weight="bold"
-                  size={12}
-                  className={`dt-caret${colapsada ? ' dt-caret--colapsado' : ''}`}
-                />
-                <span className="sr-conf-checklist-secao-titulo">
-                  {ROTULO_SECAO_MATRIZ_INVOICE[secao]}
-                </span>
-                <span className={`sr-conf-chk-veredito-secao ${classeVereditoSecao(veredito)}`}>
-                  {veredito}
-                </span>
-                {falhas > 0 && (
-                  <span className="sr-conf-checklist-secao-falhas">{falhas} item(ns)</span>
-                )}
+                {cabecalhoConteudo}
               </button>
             )}
 

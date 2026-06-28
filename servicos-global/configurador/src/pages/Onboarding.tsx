@@ -20,6 +20,20 @@ function mascararCNPJ(valor: string): string {
   return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`
 }
 
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+/** Clerk pode devolver e-mail em firstName — nunca exibir @ na saudação do /trial. */
+function resolverNomeUsuarioTrial(firstName: string | null | undefined, fullName: string | null | undefined): string {
+  const primeiro = (firstName ?? '').trim()
+  if (primeiro && !REGEX_EMAIL.test(primeiro)) return primeiro
+  const nomeCompleto = (fullName ?? '').trim()
+  if (nomeCompleto && !REGEX_EMAIL.test(nomeCompleto)) {
+    const [primeiroNome] = nomeCompleto.split(/\s+/)
+    if (primeiroNome) return primeiroNome
+  }
+  return 'Usuario'
+}
+
 function validarCNPJ(cnpj: string): boolean {
   const numeros = cnpj.replace(/\D/g, '')
   if (numeros.length !== 14) return false
@@ -77,6 +91,8 @@ export function Onboarding() {
   const erroCnpjInline = cnpjTouched && cnpj.length > 0 && !cnpjValido
     ? 'CNPJ inválido. Verifique os dígitos.'
     : ''
+  const nomeUsuarioTrial = resolverNomeUsuarioTrial(user?.firstName, user?.fullName)
+
   if (!isLoaded || verificandoOrg) return <div style={{ color: 'white', padding: 40, textAlign: 'center' }}>{t('comum.carregando')}</div>
 
   if (!isSignedIn || !user) {
@@ -244,22 +260,25 @@ export function Onboarding() {
           <StepSquare ativo={passo === 2} concluido={false} />
         </div>
 
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem', minWidth: 0, paddingInline: '2.25rem' }}>
           <h1 style={{
             fontSize: '1.5rem', fontWeight: 700,
             color: '#f1f5f9', marginBottom: '0.75rem', letterSpacing: '-0.02em',
+            overflowWrap: 'anywhere',
+            wordBreak: 'break-word',
+            maxWidth: '100%',
           }}>
             {passo === 1
-              ? <>Bem-vindo a bordo, {user.firstName}! 🚀</>
+              ? <>Bem-vindo a bordo, {nomeUsuarioTrial}! 🚀</>
               : <>Confirme o CNPJ da empresa</>}
           </h1>
           <p style={{
             fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6,
-            margin: '0 auto',
+            margin: '0 auto', overflowWrap: 'anywhere', wordBreak: 'break-word', maxWidth: '100%',
           }}>
             {passo === 1
               ? 'Digite o nome da empresa que esta contratando a plataforma'
-              : <>Informe o CNPJ de <strong style={{ color: '#f1f5f9' }}>{companyName}</strong></>}
+              : <>Informe o CNPJ de <strong style={{ color: '#f1f5f9', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{companyName}</strong></>}
           </p>
         </div>
 
@@ -369,28 +388,6 @@ export function Onboarding() {
             </BotaoGlobal>
           )}
         </form>
-
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginTop: '1.5rem',
-        }}>
-          <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.375rem',
-              padding: '0.375rem 0.875rem',
-              borderRadius: 'var(--radius-pill)',
-              background: 'rgba(99,102,241,0.08)',
-              border: '1px solid rgba(99,102,241,0.15)',
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              color: '#818cf8',
-              letterSpacing: '0.01em',
-            }}>
-            ✦ 14 dias gratis para explorar — sem compromisso
-          </span>
-        </div>
 
       </div>
 

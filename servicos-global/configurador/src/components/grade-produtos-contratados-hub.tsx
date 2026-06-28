@@ -4,7 +4,7 @@
 
 import type { TFunction } from 'i18next'
 import React, { useMemo } from 'react'
-import { ArrowRight, Package, ShoppingBagOpen } from '@phosphor-icons/react'
+import { ArrowRight, Package, RocketLaunch, ShoppingBagOpen } from '@phosphor-icons/react'
 import { StorePuzzleCarousel } from './store-puzzle-carousel'
 import {
   BarrasMeterPuzzleStackProdutos,
@@ -81,6 +81,7 @@ export function GradeProdutosContratadosHub({
   const temExtras = pecasExtras.length > 0
   const ownedNoStack = pecas.filter(p => p.status === 'owned').length
   const totalStack = pecas.length
+  const semProdutosContratados = ownedNoStack === 0
 
   if (!temStack && !temExtras) {
     return (
@@ -98,26 +99,78 @@ export function GradeProdutosContratadosHub({
 
   return (
     <div className="gs-stack gs-stack--puzzle gs-stack--hub-paridade-store">
+      {semProdutosContratados && onIrStore && (
+        <div
+          className="sw-hub-onboarding-store"
+          role="region"
+          aria-label={t('sw.hub_primeiro_modulo_titulo', 'Ative seu primeiro módulo')}
+        >
+          <span className="sw-hub-onboarding-store__icon" aria-hidden>
+            <RocketLaunch size={22} weight="duotone" />
+          </span>
+          <div className="sw-hub-onboarding-store__copy">
+            <p className="sw-hub-onboarding-store__kicker">
+              {t('sw.hub_primeiro_modulo_kicker', 'Primeiro passo')}
+            </p>
+            <h3 className="sw-hub-onboarding-store__title">
+              {t('sw.hub_primeiro_modulo_titulo', 'Ative seu primeiro módulo')}
+            </h3>
+            <p className="sw-hub-onboarding-store__desc">
+              {t(
+                'sw.hub_primeiro_modulo_desc',
+                'Escolha na Gravity Store os produtos para sua operação de comércio exterior. Você também pode clicar em um módulo abaixo para ir direto à vitrine.',
+              )}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="sw-hub-cta-primario sw-hub-onboarding-store__cta"
+            onClick={onIrStore}
+          >
+            <ShoppingBagOpen size={16} weight="duotone" aria-hidden />
+            {t('sw.hub_ir_gravity_store', 'Ir para Gravity Store')}
+            <ArrowRight size={14} weight="bold" aria-hidden />
+          </button>
+        </div>
+      )}
+
       <div className="gs-stack__head">
         <div>
           <h2 className="gs-stack__title">
             {t('sw.produtos_contratados', 'Seus Produtos Gravity')}
           </h2>
-          <p className="gs-stack__sub">{t('sw.produtos_contratados_desc')}</p>
+          <p className="gs-stack__sub">
+            {semProdutosContratados
+              ? t(
+                  'sw.hub_primeiro_modulo_subtitulo_secao',
+                  'Prévia dos módulos — ative na Gravity Store para começar',
+                )
+              : t('sw.produtos_contratados_desc')}
+          </p>
         </div>
         <div className="gs-stack__head-actions">
           {onIrStore && (
-            <button type="button" className="sw-hub-link-pill" onClick={onIrStore}>
+            <button
+              type="button"
+              className={
+                semProdutosContratados
+                  ? 'sw-hub-cta-primario sw-hub-cta-primario--compact'
+                  : 'sw-hub-link-pill'
+              }
+              onClick={onIrStore}
+            >
               <ShoppingBagOpen size={13} weight="duotone" aria-hidden />
               {t('sw.ver_catalogo', 'Gravity Store')}
               <ArrowRight size={12} weight="bold" className="sw-hub-link-pill__arrow" aria-hidden />
             </button>
           )}
-          <BarrasMeterPuzzleStackProdutos pecas={pecas}>
-            <span className="gs-stack__meter-label">
-              {rotuloMeterStackProdutos(ownedNoStack, totalStack, t)}
-            </span>
-          </BarrasMeterPuzzleStackProdutos>
+          {!semProdutosContratados && (
+            <BarrasMeterPuzzleStackProdutos pecas={pecas}>
+              <span className="gs-stack__meter-label">
+                {rotuloMeterStackProdutos(ownedNoStack, totalStack, t)}
+              </span>
+            </BarrasMeterPuzzleStackProdutos>
+          )}
         </div>
       </div>
 

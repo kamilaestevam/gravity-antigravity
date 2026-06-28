@@ -13,10 +13,10 @@ import {
 import type { AulaDemo, BlocoConteudo } from './conteudo-demo'
 
 const UNI_COR = '#818cf8'
-const CONTENT_BG = '#f8fafc'
-const CONTENT_TEXT = '#0f172a'
-const CONTENT_MUTED = '#64748b'
-const ACCENT = '#6d28d9'
+const CONTENT_BG = '#1e293b'
+const CONTENT_TEXT = '#f1f5f9'
+const CONTENT_MUTED = '#94a3b8'
+const ACCENT = '#a78bfa'
 
 // ── Renderizador de bloco ──────────────────────────────────────────────────
 
@@ -46,9 +46,9 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         <figure style={{ margin: '1.75rem 0' }}>
           <div style={{
             width: '100%', aspectRatio: '16/7', borderRadius: 12,
-            background: 'linear-gradient(135deg,#e2e8f0,#cbd5e1)',
+            background: 'rgba(148,163,184,.08)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '1px solid #e2e8f0',
+            border: '1px solid rgba(148,163,184,.12)',
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#94a3b8' }}>
               <ImageIcon size={44} weight="duotone" />
@@ -94,7 +94,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
         <div style={{
           margin: '1.75rem 0', padding: '1.5rem 1.75rem',
           borderLeft: `4px solid ${ACCENT}`,
-          background: 'rgba(109,40,217,0.05)',
+          background: 'rgba(167,139,250,0.07)',
           borderRadius: '0 12px 12px 0',
         }}>
           <Quotes weight="fill" size={32} style={{ color: ACCENT, opacity: .4, display: 'block', marginBottom: 10 }} />
@@ -116,7 +116,7 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
       return (
         <div style={{
           margin: '1.5rem 0', padding: '1.1rem 1.4rem',
-          background: 'rgba(109,40,217,0.06)', border: `1px solid rgba(109,40,217,0.2)`,
+          background: 'rgba(167,139,250,0.08)', border: `1px solid rgba(167,139,250,0.2)`,
           borderRadius: 12, display: 'flex', gap: 14,
         }}>
           <Lightbulb weight="fill" size={20} style={{ color: ACCENT, flexShrink: 0, marginTop: 2 }} />
@@ -263,7 +263,7 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             marginTop: '3rem', paddingTop: '1.75rem',
-            borderTop: '1px solid #e2e8f0', gap: 12,
+            borderTop: '1px solid rgba(148,163,184,.12)', gap: 12,
           }}>
             {/* Anterior */}
             <button
@@ -271,10 +271,10 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               disabled={!anterior}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8, minWidth: 140,
-                background: '#fff', border: '1px solid #e2e8f0', borderRadius: 9999,
+                background: 'rgba(148,163,184,.08)', border: '1px solid rgba(148,163,184,.15)', borderRadius: 9999,
                 padding: '10px 18px', cursor: anterior ? 'pointer' : 'not-allowed',
                 opacity: anterior ? 1 : .3, fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
-                boxShadow: '0 1px 3px rgba(0,0,0,.06)',
+                boxShadow: 'none',
               }}
             >
               <ArrowLeft size={15} />
@@ -288,9 +288,9 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
                 display: 'flex', alignItems: 'center', gap: 8,
                 border: 'none', borderRadius: 9999, padding: '11px 28px',
                 cursor: 'pointer', fontWeight: 700, fontSize: '.88rem',
-                background: jaConcluida ? 'rgba(52,211,153,.18)' : ACCENT,
+                background: jaConcluida ? 'rgba(52,211,153,.15)' : UNI_COR,
                 color: jaConcluida ? '#059669' : '#fff',
-                boxShadow: jaConcluida ? 'none' : '0 2px 8px rgba(109,40,217,.35)',
+                boxShadow: jaConcluida ? 'none' : '0 2px 12px rgba(167,139,250,.3)',
               }}
             >
               <CheckCircle weight={jaConcluida ? 'fill' : 'regular'} size={17} />
@@ -303,10 +303,10 @@ export function PlayerAula({ produtoSlug, faseSlug, aula, todasAulas, concluidas
               disabled={!proxima}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8, minWidth: 140,
-                background: '#fff', border: '1px solid #e2e8f0', borderRadius: 9999,
+                background: 'rgba(148,163,184,.08)', border: '1px solid rgba(148,163,184,.15)', borderRadius: 9999,
                 padding: '10px 18px', cursor: proxima ? 'pointer' : 'not-allowed',
                 opacity: proxima ? 1 : .3, fontSize: '.82rem', fontWeight: 600, color: CONTENT_TEXT,
-                boxShadow: '0 1px 3px rgba(0,0,0,.06)',
+                boxShadow: 'none',
                 justifyContent: 'flex-end',
               }}
             >

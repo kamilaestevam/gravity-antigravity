@@ -1,0 +1,1661 @@
+=== Smart Docs (leitura documental COMEX) ===
+
+--- skills/produtos-gravity/smart-read/SKILL.md ---
+# Gravity — Smart Docs (SMTRD)
+
+## O que é o Smart Docs
+
+Produto de inteligência documental para comércio exterior (invoices, BL, NF-e, planilhas).
+O usuário envia arquivos no wizard **Nova Leitura**, a IA extrai campos estruturados e o resultado
+alimenta Lista, Insights e conferência.
+
+**Características-chave:**
+
+- Multi-tenant por `id_organizacao` (Mand. 04)
+- BFF Gravity (`8033`) + legado DATI (leituras reais) + Postgres Gravity (snapshot, progresso, painéis)
+- Wizard 4 passos via `ModalPassoPassoGlobal`
+- `id_produto_gravity`: `smart-read`
+
+> **Rebrand (exibição):** nome oficial na plataforma é **Smart Docs**. Nunca use "Smart Read" em texto ao usuário; slug `smart-read` e rota `/smart-read` são apenas técnicos.
+
+---
+
+## Localização na arquitetura
+
+```text
+servicos-global/produto/smart-read/
+├── client/src/
+│   ├── components/
+│   │   ├── nova-leitura-smart-read/     ← wizard Nova Leitura (4 passos)
+│   │   ├── SmartReadListaPainelBar.tsx
+│   │   └── SmartReadVisualizacaoTabs.tsx
+│   ├── pages/
+│   │   ├── insights-smart-read/
+│   │   ├── lista-leitura-smart-read/
+│   │   └── configuracoes-smart-read/
+│   └── shared/
+│       ├── entrada-arquivo-leitura-smart-read.ts   ← extensões accept (passo 1)
+│       ├── api.ts
+│       └── schemas.ts
+└── server/src/
+    ├── routes/leituras-smart-read.ts
+    └── routes/progresso-leitura-smart-read.ts
+```
+
+---
+
+## Docs técnicos (SSOT)
+
+| Tela | Documento |
+|------|-----------|
+| **Passo 1 — Anexar** | [NOVA-LEITURA-PASSO-UM-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-UM-TECNICO.md) |
+| **Passo 2 — Análise** | [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
+| **Passo 3 — Conferência** | [NOVA-LEITURA-PASSO-TRES-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-TRES-TECNICO.md) |
+| Lista + progresso | [LISTA-E-PROGRESSO-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/LISTA-E-PROGRESSO-TECNICO.md) |
+| Persistência | [PERSISTENCIA-DADOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/PERSISTENCIA-DADOS-TECNICO.md) |
+| Insights | [INSIGHTS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/INSIGHTS-TECNICO.md) |
+| Análise de riscos | [ANALISE-DE-RISCOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/ANALISE-DE-RISCOS-TECNICO.md) |
+| Tokens LLM (auditoria) | [PERSISTENCIA-DADOS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/PERSISTENCIA-DADOS-TECNICO.md) §3.1 |
+| Índice geral | [README.md](../../../documentos-tecnicos/produtos-gravity/smart-read/README.md) |
+
+---
+
+## Nova Leitura — Passo 1 (resumo operacional)
+
+> Detalhe completo: [NOVA-LEITURA-PASSO-UM-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-UM-TECNICO.md)
+
+| Aspecto | Regra |
+|---------|-------|
+| **Layout** | Stepper no container indigo (`.sr-wizard-stepper-painel-wrap`); corpo = dropzone + sidebar |
+| **Formatos** | 8 extensões em `entrada-arquivo-leitura-smart-read.ts` |
+| **Fixtures** | `testes/testes-unitarios/produto-gravity/smart-read/nova-leitura/passo-um/fixtures/amostras/` |
+| **Botões passo 1** | Cancelar (fecha modal) · **Enviar** (avança para passo 2 — não confundir com «Continuar») |
+| **Excluir** | `ModalConfirmarExcluirGlobal` — z-index acima do wizard |
+| **Visualizar** | Blob URL em nova aba (`window.open`) |
+
+### Checklist EMT passo 1 (11 itens)
+
+1. Abertura da tela (Insights/Lista + botão Novo)
+2. Modal passo 1 — stepper no container
+3. Anexar arquivos (clique ou drag)
+4. Todos os 8 tipos de arquivo aceitos (fixtures §4 do doc)
+5. Card aparece na sidebar após anexar
+6. Card exibe nome do arquivo
+7. Ícone visualizar clicável
+8. Visualizar abre arquivo em nova aba
+9. Excluir com modal padrão Gravity e remoção efetiva
+10. Cancelar fecha modal
+11. **Enviar** avança para passo 2
+
+Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-UM-000150`
+
+---
+
+## Nova Leitura — Passo 2 (resumo operacional)
+
+> Detalhe completo: [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-DOIS-TECNICO.md)
+
+| Aspecto | Regra |
+|---------|-------|
+| **Layout** | Dashboard métricas (3 cards) + pipeline IA (3 análises + globo) + sidebar com cards/documentos |
+| **Entrada** | **Enviar** no passo 1 ou retomar leitura `PROCESSING` |
+| **Polling** | `GET /api/v1/smart-read/leituras/:id_leitura` até `COMPLETED` / `FAILED` |
+| **Tempo** | Cronômetro congela em `tempo_analise_segundos` ao concluir; persistido no progresso |
+| **Saving** | Recursos reduzidos + link **Base de cálculo →** (modal metodologia, z-index acima do wizard) |
+| **Botões passo 2** | Cancelar · **Voltar** (passo 1) · **Continuar** (passo 3 — só após análise finalizada) |
+| **Documentos** | Chips/lista expandível no card; visualizar por tipo abre nova aba |
+| **SLA testes** | Pipeline client ~16s; EMT valida execução total ≤ 75s |
+
+### Checklist EMT passo 2 (10 itens)
+
+1. Passo 2 aberto (Análise do arquivo)
+2. Nome da leitura no subtítulo (`Leitura NNN`)
+3. Cards com documentos identificados
+4. Visualizar documento nos cards (blob)
+5. Tempo de leitura carregando/correto
+6. Recursos reduzidos carregados/corretos
+7. Tempo reduzido acumulado (Documentos + Saving)
+8. Três análises concluídas («Completo»)
+9. Globo/pipeline em 100%
+10. Tempo total ≤ 75 segundos
+
+Planos: `TST-UNI/FUN/CRO/E2E/EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151` … `000155` · Task `TASK-000343`
+
+---
+
+## Nova Leitura — Passo 3 (resumo operacional)
+
+> Detalhe completo: [NOVA-LEITURA-PASSO-TRES-TECNICO.md](../../../documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-TRES-TECNICO.md)
+
+| Aspecto | Regra |
+|---------|-------|
+| **Layout** | Grid `dt-*` (paridade Dados do Processo) + legenda filtros + seções colapsáveis |
+| **Campo data** | Exibição **DD/MM/AAAA**; edição = input fino + ícone; calendário via **portal** (`CampoCalendarioGlobal` `modoUnico`); persistência **ISO `yyyy-mm-dd`** |
+| **SSOT data** | `data-campo-conferencia-leitura-smart-read.ts` + `campo-linha-conferencia-nova-leitura-smart-read.tsx` |
+| **Cores barra** | [padrao-dt-row-status-campos.md](../../../documentos-tecnicos/ux/design-system/padrao-dt-row-status-campos.md) |
+| **Tokens IA (sidebar)** | Discreto no rodapé lateral a partir do passo 2; `usageMetadata` Gemini real (QA, riscos, classificação fiscal); DATI passo 1–2 fora; migration `20260626220000` |
+
+---
+
+## Visualizações
+
+| Aba | Rota | Default |
+|-----|------|---------|
+| Insights | `/smart-read/insights` | **Sim** |
+| Lista | `/smart-read/lista` | Não |
+| Dashboard / Kanban | rotas existem | Ocultos do seletor (TASK-000306) |
+
+Entrada canônica: `/smart-read` → `/smart-read/insights` (`ROTA_ENTRADA_SMART_READ`).
+
+---
+
+## Regras absolutas (referências SSOT)
+
+> ⚠️ **Esta skill NÃO redefine regras absolutas. Apenas referencia.**
+
+| Regra | Onde mora |
+|-------|-----------|
+| Schema intocável (`fragment.prisma`) | [Mand. 02](../../governanca/lei/9-mandamentos/SKILL.md) |
+| Nomenclatura DDD | [ddd-nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md) |
+| Isolamento de organização | [isolamento-organizacao](../../governanca/lei/isolamento-organizacao/SKILL.md) |
+| Zod = contrato bilateral | [Mand. 06 + 09](../../governanca/lei/9-mandamentos/SKILL.md) |
+| Sem mock preguiçoso / fallback silencioso | [Mand. 05 + 08](../../governanca/lei/9-mandamentos/SKILL.md) |
+
+--- documentos-tecnicos/produtos-gravity/smart-read/ANALISE-DE-RISCOS-TECNICO.md ---
+# Smart Docs — Matriz Consolidada de Análise de Fatura Comercial
+
+> **Status:** Pipeline 4 passos em produção  
+> **SSOT matriz:** `shared/matriz-validacao-invoice-smart-read.ts`  
+> **Passo 1 (Código):** `shared/passo-1-validacao-codigo-invoice-smart-read.ts`  
+> **Passo 2 (API CNPJ):** `server/src/lib/passo-2-api-cnpj-invoice-smart-read.ts`  
+> **Passo 3 (LLM Analista):** `server/src/lib/prompt-analista-invoice-smart-read.ts`  
+> **Passo 4 (UI):** `client/.../conferencia-riscos-aduaneiros-nova-leitura-smart-read.tsx`
+
+---
+
+## 1. Pipeline de processamento
+
+```
+[OCR / Extração bruta]
+        │
+        ▼
+[Passo 1 — Validação de Código (Backend)]
+  • Aritmética: linha, subtotal, fechamento financeiro
+  • CNPJ módulo 11, NCM estrutural, ISO 4217, SWIFT/IBAN
+  • Peso bruto ≥ líquido, cruzamentos Invoice × PL
+        │
+        ▼
+[Passo 2 — API Cadastro CNPJ]
+  • Consulta situação cadastral RFB (BrasilAPI / bureau configurável)
+  • JSON oficial anexado ao contexto para o Passo 3
+        │
+        ▼
+[Passo 3 — Analista IA (LLM)]
+  • Fuzzy match razão social e endereço (invoice vs RFB)
+  • Pré-classificação NCM/HS, descrição comercial, MAPA madeira
+  • Exportador, fabricante, notify party, termos de pagamento
+  • NÃO recalcula matemática do Passo 1
+        │
+        ▼
+[Passo 4 — Consolidação na UI]
+  • Alertas por seção da matriz (1–8)
+  • Status: Verde / Amarelo / Vermelho (`status_matriz`)
+```
+
+---
+
+## 2. Matriz — 8 seções
+
+| Seção | Escopo | Motor principal |
+|-------|--------|-----------------|
+| 1 — Identificação | Número, data, PO/Proforma, paginação | Código + LLM |
+| 2 — Cadastral (RFB) | CNPJ, status API, fuzzy nome/endereço, exportador, fabricante | Código + API + LLM |
+| 3 — Logística | Incoterm, coerência geográfica, rotas, regimes especiais | Código + LLM + RAG |
+| 4 — Itens fiscais | Part number, descrição, NCM, unidades | Código + LLM |
+| 5 — Financeiro | ISO 4217, unicidade cambial, linha, subtotal, fechamento | Código |
+| 6 — Bancário | Beneficiário, SWIFT/IBAN, prazos de pagamento | Código + LLM |
+| 7 — Pesos/embalagens | Gross ≥ Net, volumes, MAPA/NIMF 15 | Código + LLM |
+| 8 — Legitimidade | Assinatura / carimbo | LLM |
+
+Lista completa de regras (`S1-01` … `S8-01`): ver `MATRIZ_VALIDACAO_INVOICE` no SSOT.
+
+---
+
+## 3. Campos do card de alerta
+
+| Campo | Uso na UI |
+|-------|-----------|
+| `motivo` | **O que é o risco** — factual |
+| `analise` | **Motivo** — justificativa técnica (nunca meta-instrução à IA) |
+| `correcao_sugerida` | Ação de/para + disclaimer fiscal quando classificação |
+| `secao_matriz` | Agrupamento na UI (seções 1–8) |
+| `id_regra_matriz` | Ex.: `S2-03`, `S5-03` |
+| `motor_validacao` | `codigo` · `api` · `llm` · `rag` |
+| `status_matriz` | `verde` · `amarelo` · `vermelho` |
+
+---
+
+## 4. Passo 3 — Diretriz do prompt (Analista)
+
+O LLM recebe: JSON da invoice + JSON CNPJ oficial + erros aritméticos do Passo 1 (verdade absoluta) + itens para classificação + tributos NCM.
+
+**Restrições:**
+- Fuzzy match: ignorar abreviações (`Ltda`/`Limitada`); alerta crítico se bairro, cidade, matriz/filial divergirem.
+- Classificação: validar aderência NCM × descrição; sugerir de/para com 8 dígitos.
+- Não inventar lei/IN/RFB — `citacoes_normativas` só com fonte em Siscomex ou RAG.
+- Disclaimer fiscal **apenas** em `correcao_sugerida`.
+
+---
+
+## 5. Variáveis de ambiente
+
+| Variável | Uso |
+|----------|-----|
+| `GEMINI_API_KEY` | Passo 3 — Analista IA + classificação fiscal dedicada |
+| `CNPJ_CONSULTA_BASE_URL` | Passo 2 — default `https://brasilapi.com.br/api` |
+| `CADASTROS_SERVICE_URL` | Validação NCM Siscomex |
+
+---
+
+## 6. Testes
+
+- `testes/.../analisar-riscos-aduaneiros-leitura.test.ts` — Passo 1 via adapter cliente
+- `testes/.../montar-checklist-matriz-invoice.test.ts` — checklist sem falso verde
+- `testes/.../texto-analise-riscos-leitura-smart-read.test.ts` — formatadores matemáticos
+
+**Roadmap ondas (nota 10):** `ANALISTA-COMEX-ROADMAP-ONDAS.md`
+
+**Reiniciar BFF `:8033` após alterações em `server/`.**
+
+--- documentos-tecnicos/produtos-gravity/smart-read/ANALISTA-COMEX-ROADMAP-ONDAS.md ---
+# Analista de Documento COMEX — Roadmap para nota 10 (invoice)
+
+> **Task:** TASK-000380  
+> **SSOT matriz:** `shared/matriz-validacao-invoice-smart-read.ts`  
+> **Pipeline:** `ANALISE-DE-RISCOS-TECNICO.md`  
+> **Status:** Ondas 1–5 implementadas no BFF (`servico-analise-riscos-leitura-smart-read.ts`)
+
+## Meta
+
+Elevar o analista de invoice de ~3,1/10 para **9+ operacional** (10 aspiracional em classificação fiscal interpretativa). Cada onda fecha lacunas mensuráveis nas 10 camadas.
+
+| Onda | Camadas | Meta nota | Status |
+|:---:|:---|:---:|:---|
+| **1** | 01, 03, 08 (parcial) | ~5 | ✅ Entregue |
+| **2** | 04, 10 | ~6 | ✅ Passo 4 + Cadastros complemento NCM |
+| **3** | 05, 06 | ~7 | ✅ Passo 3 BACEN + CambioSiscomex |
+| **4** | 02, 07 | ~8 | ✅ Passo 0 confidence + RAG mtime |
+| **5** | 09 | ~9 | ✅ Passo 5 histórico PN + PO |
+
+## Pipeline atual (ordem de execução)
+
+1. **P0** — `passo-0-confidence-extracao-invoice-smart-read.ts` (confidence OCR)
+2. **P1** — código + catálogo Incoterm/moeda Cadastros
+3. **P2** — CNPJ RFB + regra S2-02
+4. **P3** — `passo-3-bacen-invoice-smart-read.ts` (beneficiário, prazo, modalidade)
+5. **P4** — `passo-4-anuentes-invoice-smart-read.ts` (anuente LPCO + NESH via Cadastros)
+6. **P5** — `passo-5-contexto-importador-invoice-smart-read.ts` (snapshot part number + PO)
+7. **LLM** — classificação fiscal + analista matriz (conformidades explícitas)
+
+## Onda 1 — Fundação honesta ✅
+
+- Checklist: regras LLM/API/código **sem avaliação explícita → PENDENTE**.
+- LLM retorna `conformidades[]` com `id_regra_matriz`.
+- Passo 1: `S1-04`, `S5-02`, `S5-06`, `S7-02`.
+- Catálogo Cadastros Incoterm/moeda com fallback local.
+
+## Onda 2 — Cadastros como SSOT ✅
+
+- Tabelas `ncm_anuente_sync`, `nesh_nota_sync` + job complementar.
+- Rotas `GET /ncm/complemento/anuentes/:codigo` e `/nesh/:codigo`.
+- Cliente `cliente-ncm-complementar-cadastros-smart-read.ts`.
+
+## Onda 3 — Portal Único e BACEN ✅
+
+- `cliente-cambio-cadastros-smart-read.ts` → `CambioSiscomex` modalidade pagamento.
+- Regras estáticas prazo CMN + beneficiário ≠ exportador.
+
+## Onda 4 — Extração e normas ✅
+
+- Confidence por documento/campo antes das regras.
+- RAG: cache invalidado por `mtime` do segmento.
+
+## Onda 5 — Memória do importador ✅
+
+- `historico-part-number-leitura-smart-read.ts` agrega snapshots do workspace.
+- Alerta divergência PN×NCM e PO ausente.
+
+## Pendências aspiracionais (pós-onda 5)
+
+- Golden set invoices + regression CI dedicado.
+- API operacional LPCO/DUIMP por operação (não bulk).
+- PTAX diário no motor cambial.
+- Catálogo produtos DUIMP tenant (S2-06).
+
+## Governança transversal
+
+- Versão por regra: `S#-##@vN` no código e logs.
+- Métricas falso+/falso− por regra no admin (futuro).
+- Reiniciar BFF `:8033` após mudanças em `server/`.
+
+--- documentos-tecnicos/produtos-gravity/smart-read/INSIGHTS-TECNICO.md ---
+# Insights — Smart Docs
+
+> **Tela:** `client/src/pages/insights-smart-read/InsightsSmartRead.tsx`  
+> **Escopo desta doc:** aba Insights apenas — **não** altera Lista (`ListaLeituraSmartRead`).
+
+---
+
+## 1. Fonte de dados (lista + detalhe)
+
+Insights **não** tem API própria. O hook `use-dados-insights-leitura-smart-read.ts` consome:
+
+1. `GET /api/v1/smart-read/leituras` (lista por **workspace** — merge legado + progresso + snapshot no BFF)
+2. `GET /api/v1/smart-read/leituras/:id` em **paralelo** (`Promise.allSettled`) para cada leitura `COMPLETED` ou `PROCESSING`
+
+**Onde está o banco real:** PDFs, fila OCR e JSON bruto (`processingResult` / `finalProcessingResult`) **permanecem no legado DATI** — não no Railway Gravity. O Postgres Gravity só guarda **cópia** (`snapshot_leitura_smart_read`) e sessão do wizard (`progresso_leitura_smart_read`). Ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md).
+
+### Cadeia do detalhe (BFF)
+
+`GET /leituras/:id`: **snapshot (workspace)** → **legado** (se vinculada ao workspace) → **progresso** (`catch`, `id_usuario` + workspace).
+
+### Modo completo vs degradado (client)
+
+| Modo | Condição | O que preenche |
+|------|----------|----------------|
+| **Completo** | `leiturasDetalhe` com `resultado_extracao` | KPIs, donut, tipos, evolução, rankings, BL/AWB — regra §2 |
+| **Degradado** | Lista com métricas mas detalhe vazio/falhou | KPIs, tipos (aprox. por `tipos_documento`), evolução — via `TransacaoLeitura`; rankings e BL/AWB vazios |
+
+Implementação degradado: `calcularMetricasInsightsDeTransacoes` e `montarSerieCamposPorDiaInsights` (branch sem documentos) em `calcular-metricas-insights-leitura-smart-read.ts` e `agrupar-campos-por-dia-insights-smart-read.ts`. Falhas de `obterLeitura` logam IDs em `console.warn`.
+
+---
+
+## 2. Fonte única de acerto e erro
+
+| Conceito | Definição |
+|----------|-----------|
+| **Acerto** | Campo extraído pela IA **não editado** pelo usuário na conferência |
+| **Erro** | Campo **editado** pelo usuário (valor final ≠ valor original) |
+
+**Proibido** usar `accuracy`, `score`, `campos_medio` do catálogo ou estimativas para contagem de erros.
+
+### Implementação
+
+| Camada | Arquivo |
+|--------|---------|
+| Comparação campo a campo | `client/src/shared/comparar-campos-edicao-leitura-smart-read.ts` |
+| Agregação por documento | `client/src/pages/insights-smart-read/extrair-dados-documento-leitura-smart-read.ts` |
+| Métricas e savings | `client/src/pages/insights-smart-read/calcular-metricas-insights-leitura-smart-read.ts` |
+
+Campos achatados por caminho (`exportador`, `agente_carga.nome`, etc.). Metadados (`accuracy`, `score`, `confidence`, `origem`) são ignorados.
+
+---
+
+## 3. Contrato BFF — `dados_original`
+
+O legado expõe dois snapshots por item de extração **somente quando houve edição na conferência** (`finalProcessingResult` distinto de `processingResult`):
+
+| Legado | BFF normalizado |
+|--------|-----------------|
+| `processingResult[].data` | `resultado_extracao[].dados_original` *(omitido se sem edição)* |
+| `finalProcessingResult[].data` (ou `processingResult` se ausente) | `resultado_extracao[].dados` |
+
+Sem `dados_original` no payload → todos os campos contam como **acerto** (usuário ainda não editou). Ver §2.
+
+**Arquivos (contrato bilateral — REGRA 07/09):**
+
+- `server/src/schemas/leitura-smart-read.ts` — `normalizarLeitura()`, `parearResultadoOriginal()`
+- `client/src/shared/schemas.ts` — `ItemResultadoExtracaoLeituraSchema`
+
+```typescript
+// Item de resultado_extracao
+{
+  tipo_documento: string | null
+  dados: Record<string, unknown>           // pós-conferência
+  dados_original?: Record<string, unknown> // extração IA (opcional no schema; obrigatório quando legado envia processingResult)
+}
+```
+
+Pareamento original ↔ final: por índice, depois por `id`, depois por `fileType`.
+
+---
+
+## 4. Emissor responsável pelo acerto (rankings)
+
+O ranking **não** atribui acerto/erro a todo participante encontrado no JSON. O **emissor do documento** é o responsável:
+
+| Tipo de documento (normalizado) | Emissor responsável |
+|---------------------------------|---------------------|
+| `invoice`, `packing_list`, `proforma`, `pedido` | **Exportador** |
+| `bl`, `awb` | **Agente de carga** |
+| `financeiro` (boleto, fechamento, duplicata, etc.) | **Despachante** → agente → transportadora → armazém *(primeiro nome encontrado nesta ordem)* |
+
+**Importador** é extraído para conferência, mas **não** entra nos rankings de emissor.
+
+Exemplos:
+
+- BL com `shipper: Asia Shipping` e `agente_carga.nome: Maersk` → ranking de **agente de carga** (Maersk), não exportador.
+- Invoice com exportador e importador → ranking de **exportador** apenas.
+
+### Implementação
+
+| Arquivo | Função |
+|---------|--------|
+| `mapear-participante-insights-smart-read.ts` | `resolverResponsavelAcertoDocumentoInsights()`, `resolverTiposResponsaveisDocumentoInsights()` |
+| `extrair-dados-documento-leitura-smart-read.ts` | Campo `responsavel_acerto: { tipo, nome } \| null` em cada documento |
+| `calcular-metricas-insights-leitura-smart-read.ts` | Rankings filtram por `doc.responsavel_acerto.tipo` |
+
+Normalização de tipo financeiro: `dados-base-produto-tempo-smart-read.ts` → `normalizarTipoDocumentoBaseSmartRead()` reconhece `boleto`, `fechamento`, `duplicata`, etc. como `financeiro`.
+
+---
+
+## 5. UI — painéis Insights
+
+| Componente | Arquivo |
+|------------|---------|
+| KPIs, donut, tipos, **campos por dia**, rankings | `client/src/components/insights-smart-read-paineis.tsx` |
+| Gráfico barras empilhadas (dia a dia) | `client/src/components/grafico-campos-por-dia-insights-smart-read.tsx` |
+| Seletor 7/30/60/90 + calendário | `client/src/components/seletor-periodo-campos-dia-insights-smart-read.tsx` |
+| Agregação diária | `agrupar-campos-por-dia-insights-smart-read.ts` — padrão **7 dias**, presets 7/30/60/90 ou intervalo customizado |
+| **Modal Base de cálculo** + link nos KPIs de saving | `metodologia-saving-insights-smart-read.tsx` (`ProvedorMetodologiaSavingInsightsSmartRead`) |
+| Layout / CSS (padrão BID Frete `bfd-dashboard`) | `client/src/pages/insights-smart-read/insights-smart-read.css` |
+| Hook de dados | `client/src/pages/insights-smart-read/use-dados-insights-leitura-smart-read.ts` |
+
+Rankings: abas por tipo de emissor (`PARTICIPANTES_RANKING_INSIGHTS_SMART_READ` — 5 tipos, sem importador). Top 5 acertos e top 5 erros por aba.
+
+Subtítulo da UI deixa explícito: acerto = inalterado; erro = editado; emissor conforme tipo de documento.
+
+### KPIs de saving — exibição vs detalhe
+
+| KPI | Valor no card | Detalhe (tooltip / painel Economia) |
+|-----|---------------|-------------------------------------|
+| **Saving Digitação** | Minutos economizados | Soma da base manual fixa por documento − tempo de leitura (cronômetro); link **Base de cálculo →** |
+| **Saving em Erros** | **Quantidade de campos errados** (`camposErrados`) | Minutos e custo no tooltip/subtítulo — não no número principal do card |
+
+Link **Base de cálculo →** abre modal (`ModalOverlay`) com metodologia completa. Tooltip do card usa `CardBasicoGlobal` com `pointer-events: auto` e ponte de hover (`nucleo-global/Layout/card-global`) para permitir clicar no link sem o tooltip sumir.
+
+---
+
+## 6. Savings (tempo / custo)
+
+Estimativas usam SSOT em `shared/dados-base-produto-tempo-smart-read.ts` (reexport client: `client/src/pages/insights-smart-read/dados-base-produto-tempo-smart-read.ts`) e funções em `shared/metricas-transacao-leitura-smart-read.ts`:
+
+- **Saving digitação:** `soma(tempo_digitação_manual_minutos por documento) − tempo de leitura em minutos`. Tempo de leitura = cronômetro do processo (`tempo_processo_total_ms`, `created_at`→`completed_at`); fallback `tempo_extracao_ia_ms` quando o cronômetro não existir. **Não** usar `tempo_digitação_smart_read_minutos` da base como substituto do tempo medido.
+- **Saving erros:** `campos_errados × (tempo_correcao_erro_manual − tempo_correcao_erro_smart_read por campo)`
+- **Custo evitado:** `minutos_economizados ÷ 60 × R$ 115/h` (`custo_hora_operador_brl` R$ 85 + `markup_venda` 1,35)
+
+Funções SSOT: `calcularSavingDigitaçãoTransacaoLeituraSmartRead`, `calcularRecursosReduzidosPorTempoLeituraSmartRead`, `resolverSavingTransacaoLeituraSmartRead`, `resolverSavingDetalhadoTransacaoLeituraSmartRead`, `agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead`, `calcularMediasTabelaBaseCalculoSmartRead`. Wizard passo 2: `client/src/shared/calcular-saving-nova-leitura-smart-read.ts`.
+
+Erros de saving dependem exclusivamente da contagem de campos editados (§2).
+
+### Modal «Base de cálculo»
+
+Componente: `metodologia-saving-insights-smart-read.tsx`. `ProvedorMetodologiaSavingInsightsSmartRead` recebe `transacoes` (leituras visíveis). Seções:
+
+1. Como chegamos nos tempos manuais (estudo DOCS BASE PRODUTO)
+2. Fórmulas (digitação com tempo real IA, erros, custo)
+3. Tabela **Tempos por tipo de documento** — coluna **SR medido (s)** via `agregarTempoExtracaoIaMedioPorTipoLeituraSmartRead`; linha **Média**
+4. **Observações — documento médio do estudo** — `OBSERVACOES_DOCUMENTO_MEDIO_ESTUDO_SMART_READ`
+
+| Tipo (exibição) | Digitação manual (estudo) | Parâmetro interno |
+|-----------------|---------------------------|-------------------|
+| Pedido | 16,10 min | `pedido` |
+| Proforma | 16,10 min | `proforma` |
+| Invoice | 16,10 min | `invoice` |
+| Packing List | 19,054 min | `packing_list` |
+| BL | 12,10 min | `bl` |
+| AWB | 9,02 min | `awb` |
+| Documentos Financeiros | 20,00 min | `outros` |
+
+**Documento médio (observações):** Invoice/Proforma/Pedido = 20 itens; Packing List = 10 linhas; Documentos Financeiros = 10 linhas; BL/AWB = cabeçalho (peso = contêineres, sem contagem de itens).
+
+> Valores editáveis no Configurador quando a tabela oficial for publicada. Até lá, alterar `BASE_TEMPO_DOCUMENTO_SMART_READ` no shared (lista + insights + BFF leem o mesmo arquivo).
+
+---
+
+## 7. Testes unitários
+
+| Arquivo | Cobertura |
+|---------|-----------|
+| `testes/testes-unitarios/produto-gravity/smart-read/comparar-campos-edicao-leitura.test.ts` | Comparação original × final |
+| `testes/testes-unitarios/produto-gravity/smart-read/responsavel-acerto-documento-insights.test.ts` | Regra emissor por tipo |
+| `testes/testes-unitarios/produto-gravity/smart-read/calcular-metricas-insights-leitura.test.ts` | Pipeline métricas + fallback por `TransacaoLeitura` |
+| `testes/testes-unitarios/produto-gravity/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
+| `testes/testes-unitarios/produto-gravity/smart-read/fixtures/leituras-fixture-insights-smart-read.ts` | Leituras detalhadas (modo completo) |
+| `testes/testes-unitarios/produto-gravity/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | **SSOT** de transações — mesmos ids/datas nos dois specs acima |
+
+---
+
+## 8. Fora de escopo (Lista)
+
+Não alterar nesta vertical Insights:
+
+- `ListaLeituraSmartRead`, colunas, cards, modal nova leitura
+- `media_acertos` na lista (campo legado da transação — Insights não usa para erro)
+
+--- documentos-tecnicos/produtos-gravity/smart-read/LISTA-E-PROGRESSO-TECNICO.md ---
+# Lista e progresso do wizard — Smart Docs
+
+> **Telas:** `ListaLeituraSmartRead`, wizard `ModalNovaLeituraSmartRead`  
+> **BFF:** `servicos-global/produto/smart-read/server/` (porta **8033**)
+
+---
+
+## 1. Lista real (sem mock no client)
+
+A lista **não** usa mais `dados-mock-lista-smart-read.ts` nem `VITE_SMART_READ_MOCK_DADOS`. Toda linha vem do BFF:
+
+| Camada | Arquivo |
+|--------|---------|
+| Hook | `client/src/shared/use-transacoes-leitura-smart-read.ts` |
+| HTTP | `client/src/shared/api.ts` → `listarTransacoes`, `obterMetricaLeitura` |
+| Montagem | `server/src/lib/montar-lista-transacoes-leitura-smart-read.ts` |
+
+### Fontes da lista (merge)
+
+> **Arquitetura completa (legado DATI vs Gravity):** [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md).
+
+1. **Primária (catálogo de ids):** legado dati `GET /import-control-center/external-readings/list` — leituras reais no **banco DATI**, não no Railway Gravity.
+2. **Complemento:** Postgres `progresso_leitura_smart_read` — wizard em andamento / nome customizado (**escopo `id_workspace` da filial ativa**).
+3. **Snapshot (prevalece na linha):** Postgres `snapshot_leitura_smart_read` — cópia congelada da extração normalizada + métricas para Lista/Insights (**mesmo escopo de workspace**).
+
+O BFF intersecta ids do legado com ids vinculados ao **workspace ativo** (progresso ou snapshot). Se o legado retorna erro **e** não há progresso nem snapshot no workspace → lista vazia (`200`, `transacoes: []`). Não há fallback mock.
+
+### Escopo workspace vs progresso por usuário (paridade Pedido / BID)
+
+| Recurso | Escopo | Header / resolvedor |
+|---------|--------|---------------------|
+| **Lista** + métrica `readings` | **Workspace** — time da filial vê as mesmas leituras | `x-id-workspace`; fallback `x-id-organizacao` (`resolverIdWorkspaceLeituraSmartRead`) |
+| **Wizard** `GET`/`PATCH` `/progresso` | **Usuário** — retomar sessão individual | `x-id-usuario` (+ `id_workspace` gravado no registro) |
+| **POST** nova leitura | Grava vínculo com `id_workspace` resolvido (mesmo da lista) | `registrar-vinculo-leitura-usuario-smart-read.ts` |
+| **GET** `/leituras/:id` | Só legado se leitura vinculada ao workspace; senão `404` | `leituraVinculadaAoWorkspaceSmartRead` |
+
+Registros legados com `id_workspace` null continuam visíveis (`OR id_workspace IS NULL`) até backfill; novos POSTs sempre gravam workspace resolvido.
+
+Helper: `server/src/lib/escopo-workspace-leitura-smart-read.ts`.
+
+---
+
+## 2. Contrato BFF — rotas de leitura
+
+Headers obrigatórios (proxy Configurador / shell): `x-id-organizacao`, `x-id-usuario`. Workspace: `x-id-workspace` (shell: `gravity_company_id`); se ausente, o BFF usa `x-id-organizacao` como workspace ativo (mesmo padrão Pedido).
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/api/v1/smart-read/leituras` | Lista paginada por **workspace** (`pagina`, `limite`, `termo_busca`) |
+| `GET` | `/api/v1/smart-read/leituras/metricas/readings` | Contagem para card «Leituras realizadas» (workspace) |
+| `POST` | `/api/v1/smart-read/leituras` | Cria leitura no legado + upload + vínculo workspace → `202` |
+| `GET` | `/api/v1/smart-read/leituras/:id_leitura` | Status/resultado — **snapshot (workspace)** → **legado** (se vinculada) → **progresso** (`catch`, `id_usuario` + workspace); grava snapshot após legado se elegível |
+| `GET` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Progresso do wizard por **usuário** (`404` se ausente) |
+| `PATCH` | `/api/v1/smart-read/leituras/:id_leitura/progresso` | Salva passo 2–4 + sessão (usuário); inclui `tempo_analise_segundos` congelado ao fim da análise — ver [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
+| `DELETE` | `/api/v1/smart-read/leituras/:id_leitura` | `501` — legado sem exclusão |
+
+**Schemas Zod (bilateral — REGRA 07/09):**
+
+- Server: `server/src/schemas/leitura-smart-read.ts`, `server/src/schemas/progresso-leitura-smart-read.ts`
+- Client: `client/src/shared/schemas.ts`
+
+### `TransacaoLeitura` (linha da lista)
+
+**Hoje (runtime):** a coluna Status usa `status_leitura` legado (`PillStatusLeitura` em `colunas-lista-leitura-smart-read.tsx`).
+
+**Alvo (§14):** expor `status_fluxo_leitura` + `passo_atual_leitura` no BFF e trocar a pill para `PillStatusFluxoLeitura`.
+
+```typescript
+{
+  id_leitura: string
+  nome_leitura: string | null
+  status_leitura: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'  // legado IA — interno/polling
+  // — alvo wiring §14 (ainda não no schema Zod bilateral):
+  // status_fluxo_leitura: StatusFluxoLeitura
+  // passo_atual_leitura: number | null
+  total_arquivos: number
+  media_acertos: number | null
+  data_envio: string | null
+  origem_leitura: 'API' | 'INTERFACE'
+  nome_arquivo: string | null
+  mensagem_erro: string | null
+  // + métricas (MetricasTransacaoLeituraSchema)
+}
+```
+
+**SSOT status de fluxo (contrato):** `shared/status-fluxo-leitura-smart-read.ts` — valores `UPPER_SNAKE`; rótulos PT-BR em `ROTULO_STATUS_FLUXO_LEITURA` (reexport previsto em `formatacao-leitura-smart-read.ts`).
+
+### `EstadoProgressoLeitura` (PATCH/GET progresso)
+
+```typescript
+{
+  passo: 2 | 3 | 4
+  nome: string
+  leitura: Leitura
+  // — alvo §14 (ainda não no schema bilateral):
+  // fluxo_finalizado?: boolean   // true ao concluir passo 4 → FINALIZADO
+}
+```
+
+---
+
+## 3. Nome da leitura (SSOT)
+
+| Campo | Origem |
+|-------|--------|
+| `nome` (sessão) | Input do usuário no wizard — **prioridade na lista e ao retomar** |
+| `leitura.nome_leitura` | Legado dati (`name`) ou espelho gravado no PATCH |
+| Lista via progresso | `montar-lista` usa `sessao.nome \|\| sessao.leitura.nome_leitura` |
+| Retomar wizard | `salvo.nome` antes de `leitura.nome_leitura` |
+
+O legado costuma devolver nomes genéricos (`Leitura 01`). O nome escolhido no wizard **não** propaga ao legado — persiste só no Gravity.
+
+### Edição do nome no wizard (UX)
+
+| Regra | Implementação |
+|-------|----------------|
+| Padrão Gravity | `EdicaoTextoPopoverGlobal` (`@nucleo/tabela-virtual-global`) — **não** usar `window.prompt` |
+| Componente | `client/src/components/nova-leitura-smart-read/edicao-nome-leitura-nova-leitura-smart-read.tsx` |
+| Sidebar | `painel-lateral-arquivos-nova-leitura-smart-read.tsx` |
+| Disponibilidade | Editável em **qualquer passo** (1–4) |
+| Persistência | Passo ≥ 2 com análise concluída → `PATCH` imediato via `onConfirmarNome` no modal |
+
+**Removido (legado dati):** rótulos «Starter» e contador «Documentos X/100» no topo da sidebar — planos comerciais não existem mais no Gravity.
+
+### Exclusão de arquivo no passo 1 (TASK-000334 / PR #445)
+
+| Regra | Implementação |
+|-------|----------------|
+| Gatilho | Ícone lixeira na sidebar `painel-lateral-arquivos-nova-leitura-smart-read.tsx` |
+| Confirmação | `ModalConfirmarExcluirGlobal` (`@nucleo/modal-confirmar-excluir-global`) — `z-index: 10100` para ficar acima do wizard (`ModalPassoPassoGlobal`, `9999`) |
+| Escopo da remoção | **Somente estado local** — revoga blob (`URL.revokeObjectURL`), remove item de `arquivos`, atualiza progresso se já havia `PATCH` (passo ≥ 2) |
+| Último arquivo | `limparEstadoLeituraSmartRead(id_leitura)` — apaga progresso/localStorage da sessão |
+| Legado DATI | **Não** chama `DELETE /leituras/:id` — rota permanece `501` (§2); PDF no DATI não é excluído; ao retomar via legado o arquivo pode reaparecer até existir exclusão no BFF |
+
+Handlers: `solicitarRemoverArquivo` → `confirmarRemoverArquivo` em `modal-nova-leitura-smart-read.tsx`.
+
+---
+
+## 4. Quando o progresso grava
+
+| Evento | Persiste? |
+|--------|-----------|
+| Upload (passo 1) | Vínculo workspace em `progresso_leitura_smart_read` (hoje sem `status_fluxo`; alvo §14: stub `IA_ANALISANDO`, passo 2) |
+| Análise concluída (passo 2) | Sim — `PATCH` automático (alvo §14: derivar `status_fluxo_progresso_leitura_smart_read`) |
+| Continuar / Voltar passo | Sim — atualiza `passo_atual` (alvo §14: espelhar `status_fluxo` no progresso) |
+| Concluir passo 4 | Sim — sessão no progresso (alvo §14: `fluxo_finalizado: true` → `FINALIZADO` no progresso e snapshot) |
+| Renomear (qualquer passo) | Sim no estado local; `PATCH` imediato se passo ≥ 2 e análise concluída |
+| Excluir arquivo (passo 1) | Sim — `PATCH` se `passoSalvoRef ≥ 2` e ainda há arquivos; `limparEstado` se lista ficar vazia (ver §3) |
+| Fechar modal | Sim + **recarrega lista** (`onFechar` → `onRecarregar`) |
+
+**Primário:** `PATCH` → tabela `progresso_leitura_smart_read` (Railway, `SMART_READ_DATABASE_URL`).  
+**Fallback:** `localStorage` chave `smart-read:leitura:{id}` se API indisponível.
+
+Arquivos: `client/src/shared/persistencia-leitura-smart-read.ts`, `server/src/routes/progresso-leitura-smart-read.ts`.
+
+---
+
+## 5. Link «Nome da leitura» → retomar wizard (TASK-000308)
+
+Coluna `nome_leitura` em `colunas-lista-leitura-smart-read.tsx` abre `ModalNovaLeituraSmartRead` com `idLeituraExistente`. O modal hidrata passo + nome via `GET /progresso` (ou legado + progresso).
+
+---
+
+## 6. Ambiente local
+
+| Variável (`.env.local` raiz) | Uso |
+|------------------------------|-----|
+| `SMART_READ_DATABASE_URL` | Postgres **Gravity** (snapshot + progresso + painéis — **não** é o banco DATI) |
+| `SMART_READ_LEGADO_URL` | API dati QA |
+| `SMART_READ_LEGADO_CHAVE_GRAVITY` | Auth legado |
+| `SMART_READ_ID_COMPANY_LEGADO_PADRAO` | Company id padrão |
+
+Teste: `http://localhost:8000/smart-read/lista` (Configurador) + sidecar `8033`.
+
+**Não usar:** `VITE_SMART_READ_MOCK_DADOS`, `SMART_READ_MOCK_LEGADO=1` (exceto dev sem legado).
+
+### Rate limit do BFF (porta 8033)
+
+| Ambiente | Comportamento |
+|----------|----------------|
+| **Produção / staging** (`NODE_ENV=production`, padrão Railway) | `express-rate-limit`: **100 req/min** por `x-id-organizacao` em `/api/*` |
+| **Local** (`NODE_ENV` ≠ `production`) | Rate limit **desligado** (`skip` em `server/src/index.ts`) — evita 429 ao alternar abas com HMR |
+
+Resposta 429: `{ error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas requisicoes' } }` — exibida na faixa vermelha da Lista (`sr-erro`).
+
+---
+
+## 7. Limitações conhecidas
+
+- Legado `GET /list` em QA pode retornar `500` — lista depende do complemento Postgres.
+- `DELETE` leitura não implementado no legado.
+- `data_envio` na lista via progresso usa `data_criacao` do registro (não `data_atualizacao`).
+
+---
+
+## 8. Testes
+
+| Arquivo | Cobertura |
+|---------|-----------|
+| `testes/testes-unitarios/smart-read/progresso-leitura-smart-read.test.ts` | Schema sessão progresso |
+| `testes/testes-unitarios/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` |
+| `testes/testes-unitarios/smart-read/fixtures/leituras-fixture-insights-smart-read.ts` | Fixture Insights (não runtime) |
+
+Pacote `/testes-criar` completo (FUN PATCH→GET nome, E2E link→retomar) — pendente no fechamento TASK-000308.
+
+---
+
+## 9. Layout da lista (paridade Pedido — TASK-000311 / PR #394)
+
+A área da tabela **preenche o viewport** abaixo dos cards e abas de segmento (padrão `.lp-page` do Pedido, não altura fixa em px).
+
+| Camada | Arquivo / classe |
+|--------|------------------|
+| Orquestração keep-alive | `SmartReadMultiView.tsx` — monta abas já visitadas (`visitados`) |
+| Fetch só na aba ativa | `useTransacoesLeituraSmartRead(segmento, habilitado)` — `habilitado` = `painelAtivo('lista' \| 'insights' \| 'kanban')` |
+| Insights (lista + detalhe) | `useDadosInsightsLeituraSmartRead(habilitado)` — `GET /leituras/:id` só com aba Insights ativa |
+| Painel keep-alive (CSS) | `SmartReadVisualizacaoTabs.css` → `.smart-read-view-panel--ativo` + filho `.sr-pagina--lista` com `flex: 1` |
+| Página lista | `ListaLeituraSmartRead.tsx` → `.sr-pagina--lista` |
+| Wrapper tabela | `.sr-tabela-wrapper` (`flex: 1; min-height: 0`) |
+| GTV | `.gtv-container` + `.gtv-tabela-scroll` (`flex: 1 1 0`) |
+
+> **Regra:** aba montada mas oculta **não** dispara `GET /leituras` nem métricas — evita 429 em dev quando Insights e Lista coexistem no keep-alive (PR #449 + follow-up Kanban).
+
+**Referência visual:** mesma altura total que Pedido (`/pedido/pedidos/lista`) — tabela + toolbar + rodapé dentro do bloco, scroll interno nas linhas.
+
+---
+
+## 10. Contagem e paginação (rodapé GTV)
+
+Componente: `TabelaVirtualGlobal` em `tabela-transacoes-leitura-smart-read.tsx`.
+
+| Prop | Valor |
+|------|-------|
+| `labelPai` | `['leitura', 'leituras']` |
+| `labelFilho` | `['arquivo', 'arquivos']` |
+| `totalFilhos` | Soma de `total_arquivos` das leituras visíveis (página ou filtradas) |
+| `totalItens` | Total do BFF (`paginacao.total`) ou contagem pós-filtro client-side |
+| `itensPorPagina` | `50` |
+| `paginaAtual` / `onMudarPagina` | Server-side via `useTransacoesLeituraSmartRead` |
+
+Rodapé exibido mesmo com uma página quando `labelPai` + `totalFilhos` estão definidos (ex.: `6 leituras · 6 arquivos · página 1 de 1`). Controles `« ‹ 1 2 3 › »` aparecem quando `totalPaginas > 1`.
+
+---
+
+## 11. Painéis da lista + colunas/filtros/export (PR #394)
+
+### Painéis salvos (Postgres)
+
+Mesmo padrão de [PAINEL-LISTA-CONTRATO.md](../pedido/PAINEL-LISTA-CONTRATO.md): uma linha por aba em `lista_painel_usuario_global`, `config_json` v1 com colunas, filtros, ordenação, busca e `cards_topo`.
+
+| Método | Rota |
+|--------|------|
+| `GET` | `/api/v1/smart-read/lista/paineis` — bootstrap «Principal» se vazio |
+| `POST` | `/api/v1/smart-read/lista/paineis` |
+| `PUT` | `/api/v1/smart-read/lista/paineis/:id` |
+| `PUT` | `/api/v1/smart-read/lista/paineis/reordenar` |
+| `DELETE` | `/api/v1/smart-read/lista/paineis/:id` |
+
+| Camada | Arquivo |
+|--------|---------|
+| Rotas | `server/src/routes/lista-paineis-smart-read.ts` |
+| Hook | `client/src/shared/use-lista-painel-smart-read.ts` |
+| UI faixa painéis | `client/src/components/SmartReadListaPainelBar.tsx` |
+| Layout faixa | `client/src/shared/smart-read-lista-layout.css` |
+| Rótulos painel | `client/src/shared/rotulo-painel-lista-smart-read.ts` |
+| Persistência debounce | `shared/persistenciaListaPainel.ts` (`podePersistirPainelLista`) |
+| Config Zod | `shared/listaPainelConfigSchema.ts` |
+
+### UI da faixa (TASK-000324)
+
+**Painéis** no chrome da tabela (paridade `PedidosDashboardFaixaPaineis` / `BidFreteDashboardFaixaPaineis` — só `__paineis`, sem `__status`). **Segmento** fora da lista, como no master.
+
+| Elemento | Arquivo / classe |
+|----------|------------------|
+| Barra roxa de painéis | `SmartReadListaPainelBar` — drag, renomear, excluir, criar via `+` |
+| Faixa painéis (só PAINEIS) | `lp-faixa-navegacao` + `lp-faixa-navegacao__paineis` em `tabela-transacoes-leitura-smart-read.tsx` |
+| Segmento envios/API | Abas «Visão geral» / «Transações API» em `sr-toolbar-lista--segmentos` em `ListaLeituraSmartRead.tsx` (acima do wrapper da tabela) |
+| Wrapper página | `.sr-tabela-wrapper--faixa-unificada` em `ListaLeituraSmartRead.tsx` |
+
+Handlers `handleCriarPainelLista` / `handleTrocarPainelLista` em `tabela-transacoes-leitura-smart-read.tsx` delegam a `useListaPainelSmartRead.criarPainel` / `trocarPainel` (salva config do painel anterior ao trocar). `aba_status_ativa` no `config_json` guarda o segmento (`envios` \| `transacoes-api`).
+
+### Colunas, filtros e exportação
+
+| Recurso | Arquivo principal |
+|---------|-------------------|
+| Catálogo de colunas (documento extraído) | `shared/catalogo-colunas-documento-smart-read.ts` |
+| Colunas GTV | `shared/colunas-lista-leitura-smart-read.tsx` |
+| Filtros por coluna | `shared/filtrar-transacoes-lista-smart-read.ts` + `FiltroPopoverColuna` |
+| Exportação | `shared/acoes-exportacao-lista-smart-read.tsx` |
+| Preferências → painel | `onSalvarPreferencias` → `useListaPainelSmartRead.persistirPainelAtual` |
+
+### Testes adicionais (PR #394)
+
+| Arquivo | Cobertura |
+|---------|-----------|
+| `testes/testes-unitarios/smart-read/extrair-valores-colunas-documento.test.ts` | Extração de valores para colunas dinâmicas |
+| `testes/testes-unitarios/smart-read/agregar-caminhos-campos-dados.test.ts` | Agregação de caminhos no BFF |
+| `testes/testes-unitarios/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | SSOT transações Insights (fallback degradado) |
+
+---
+
+## 12. Colunas de métricas da leitura (TASK-000317 / PR #409)
+
+Colunas agregadas **por leitura** (não são campos extraídos de um documento específico). Visíveis por padrão em `COLUNAS_PADRAO_LEITURA_SMART_READ` (`colunas-lista-leitura-smart-read.tsx`).
+
+| Coluna | Campo `TransacaoLeitura` | Origem |
+|--------|--------------------------|--------|
+| Documentos | `total_documentos` | BFF / snapshot |
+| Campos extraídos | `total_campos` | BFF / snapshot |
+| Campos corretos | `campos_corretos` | BFF / snapshot |
+| Campos errados | `campos_errados` | BFF / snapshot |
+| Média de acertos | `media_acertos` | BFF / snapshot |
+| Tempo extração (IA) | `tempo_extracao_ia_segundos` | Legado / snapshot |
+| Tempo processo total | `tempo_processo_total_segundos` | Legado / snapshot |
+| Saving (horas) | `saving_total_minutos` | `metricas-transacao-leitura-smart-read.ts` (SSOT tempos §INSIGHTS) |
+| Saving (valor) | `saving_total_brl` | Idem + `PARAMETROS_FINANCEIROS_SMART_READ` |
+
+Métricas de saving na lista usam o mesmo SSOT de tempos que Insights (`shared/dados-base-produto-tempo-smart-read.ts`). Ordem padrão da lista: expandir tudo + cursor somente leitura (PR #409).
+
+---
+
+## 13. KPI cards no topo da lista (TASK-000321)
+
+Faixa acima das abas «Visão geral» / «Transações API». Componente: `client/src/components/lista-leitura-cards-smart-read.tsx`. Catálogo e ordem: `client/src/shared/use-preferencias-cards-smart-read.ts` (preferências em `localStorage` chave `smart-read:config:cards-v1`; ordem sempre segue o catálogo ao carregar).
+
+| Ordem | Card | Valor principal | Fonte dos dados |
+|------:|------|-----------------|-----------------|
+| 1 | Leituras realizadas | Contagem total | `GET /leituras/metricas/readings` ou `paginacao.total` |
+| 2 | Performance de acertos | Média % | `resolverMediaAcertosTransacaoLeituraSmartRead` — `media_acertos` ou `campos_corretos ÷ campos_extraídos` |
+| 3 | Recursos reduzidos | Tempo economizado | `resolverSavingTransacaoLeituraSmartRead` — base manual por documento menos tempo de leitura (`tempo_processo_total_ms` ou fallback `tempo_extracao_ia_ms`) |
+
+**Recursos reduzidos** reutiliza o SSOT `shared/metricas-transacao-leitura-smart-read.ts`. `saving_total_minutos === 0` com documentos concluídos é tratado como ausente (reestima). `ProvedorMetodologiaSavingInsightsSmartRead` recebe `transacoes={transacoesFiltradas}` para o modal «Base de cálculo».
+
+> **Não usar** placeholder «Em breve» neste card — se nenhuma leitura visível tiver totais para estimar saving, exibir `—` via `formatarSavingHorasLeitura` / `formatarSavingValorLeitura`.
+
+---
+
+## 14. Status de fluxo do wizard (coluna Status da Lista)
+
+**Estado da entrega (2026-06):** fundação persistida + contrato SSOT + testes unitários de derivação. A **Lista ainda exibe** `status_leitura` legado (`PillStatusLeitura`); o wiring BFF/client para `status_fluxo_leitura` está **pendente** (checklist §14.4).
+
+**Objetivo:** a coluna **Status** passa a exibir o **fluxo do usuário** (`status_fluxo_leitura`), mantendo `status_leitura` só para polling/IA/backend.
+
+| Status UI (pill) | Código persistido | Nº passo | Legado `status_leitura` típico |
+|------------------|-------------------|:--------:|--------------------------------|
+| Pronto para análise | `PRONTO_PARA_ANALISE` | 1 | `PENDING` / stub |
+| IA analisando | `IA_ANALISANDO` | 2 | `PROCESSING` |
+| Conferência (usuário) | `CONFERENCIA_PELO_USUARIO` | 3 | `COMPLETED` |
+| Validado (usuário) | `DADOS_VALIDADOS_PELO_USUARIO` | 4 | `COMPLETED` |
+| Finalizado | `FINALIZADO` | — | `COMPLETED` |
+| Falhou | `FALHOU` | 2* | `FAILED` |
+
+\* Falhou costuma ocorrer no passo 2.
+
+### 14.1 Persistência (Postgres Gravity) — **entregue**
+
+| Tabela | Coluna | Papel |
+|--------|--------|--------|
+| `progresso_leitura_smart_read` | `status_fluxo_progresso_leitura_smart_read` | Fonte de verdade durante o wizard |
+| `progresso_leitura_smart_read` | `passo_atual_progresso_leitura_smart_read` | Passo 1–4 (já existia) |
+| `snapshot_leitura_smart_read` | `status_fluxo_snapshot_leitura_smart_read` | Espelho para Lista/Insights (congelamento) |
+| `snapshot_leitura_smart_read` | `passo_atual_snapshot_leitura_smart_read` | Passo no momento do snapshot |
+| `snapshot_leitura_smart_read` | `status_leitura_snapshot_leitura_smart_read` | **Inalterado** — só status IA legado |
+
+Migration: `20260625120000_add_status_fluxo_leitura_smart_read` (aplicada em Railway `gravity-smart-read-producao`).
+
+**Backfill na migration:**
+
+| Tabela | Regra |
+|--------|--------|
+| `progresso_leitura_smart_read` | Por `passo_atual`: ≥4 → `DADOS_VALIDADOS_PELO_USUARIO`; 3 → `CONFERENCIA_PELO_USUARIO`; 2 → `IA_ANALISANDO`; senão `PRONTO_PARA_ANALISE` |
+| `snapshot_leitura_smart_read` | `FAILED` → `FALHOU` + passo 2; `COMPLETED` → `FINALIZADO` + passo 4; demais → `IA_ANALISANDO` + passo 2 |
+
+### 14.2 Artefatos entregues nesta task
+
+| Artefato | Caminho |
+|----------|---------|
+| Contrato Zod + derivação | `shared/status-fluxo-leitura-smart-read.ts` (`derivarStatusFluxoLeitura`, `statusFluxoPorPassoEPersistencia`, `ROTULO_STATUS_FLUXO_LEITURA`) |
+| Colunas Prisma | `prisma/fragment.prisma` |
+| Pill (componente isolado, **não ligado** à lista) | `client/src/components/pill-status-fluxo-leitura-smart-read.tsx` |
+| Testes unitários | `testes/testes-unitarios/smart-read/status-fluxo-leitura.test.ts` |
+
+### 14.3 Wiring pendente (próxima entrega)
+
+| Camada | Arquivo | O que falta |
+|--------|---------|-------------|
+| BFF schemas | `server/src/schemas/leitura-smart-read.ts`, `progresso-leitura-smart-read.ts` | Campos `status_fluxo_leitura`, `passo_atual_leitura`, `fluxo_finalizado` |
+| BFF rotas/libs | `progresso-leitura-smart-read.ts`, `snapshot-leitura-smart-read.ts`, `registrar-vinculo-leitura-usuario-smart-read.ts`, `normalizar-transacao-leitura-smart-read.ts`, `montar-lista-transacoes-leitura-smart-read.ts` | Gravar/ler colunas `status_fluxo_*`; expor na lista |
+| Client schemas | `client/src/shared/schemas.ts` | Bilateral com BFF |
+| Lista UI | `colunas-lista-leitura-smart-read.tsx`, `filtrar-transacoes-lista-smart-read.ts`, `smart-read-leituras.css`, `formatacao-leitura-smart-read.ts` | Trocar pill; filtros por rótulo de fluxo; classes `.sr-pill-fluxo-*` |
+| Wizard | `modal-nova-leitura-smart-read.tsx` | Enviar `fluxo_finalizado: true` ao concluir passo 4 |
+| Cards KPI | `lista-leitura-cards-smart-read.tsx` | *(opcional)* contagem «concluídas» por `FINALIZADO` em vez de `COMPLETED` |
+
+### 14.4 Fora do escopo desta entrega (continuam em `status_leitura`)
+
+- **Insights** — filtros e KPIs (`use-dados-insights-leitura-smart-read.ts`, `calcular-metricas-insights-leitura-smart-read.ts`).
+- **Kanban** — colunas por `status_leitura` (`KanbanLeituraSmartRead.tsx`; aba oculta no seletor).
+- **Polling do wizard** — `modal-nova-leitura-smart-read.tsx` ainda decide passo inicial pelo legado.
+
+--- documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-DOIS-TECNICO.md ---
+# Nova Leitura — Passo 02 (Análise do arquivo) — Smart Docs
+
+> **Escopo deste documento:** somente **Passo 2** do wizard.  
+> **Branch de referência UX:** `tela_smart_read_tela_2` (dashboard métricas + pipeline IA + globo).  
+> **Passo anterior:** [NOVA-LEITURA-PASSO-UM-TECNICO.md](./NOVA-LEITURA-PASSO-UM-TECNICO.md) · **Passo seguinte:** [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) · **Passo 4:** doc futuro.
+
+---
+
+## 1. SSOT de código
+
+| Artefato | Caminho |
+|----------|---------|
+| Modal wizard | `client/src/components/nova-leitura-smart-read/modal-nova-leitura-smart-read.tsx` |
+| Dashboard passo 2 | `client/src/components/nova-leitura-smart-read/dashboard-analise-nova-leitura-smart-read.tsx` |
+| Sidebar + botões | `client/src/components/nova-leitura-smart-read/painel-lateral-arquivos-nova-leitura-smart-read.tsx` |
+| Card de arquivo (documentos identificados) | `client/src/components/nova-leitura-smart-read/card-arquivo-nova-leitura-smart-read.tsx` |
+| Erros amigáveis por arquivo | `client/src/shared/formatar-erro-arquivo-leitura-smart-read.ts` |
+| Cliente HTTP legado (mensagem bruta) | `server/src/lib/cliente-legado-smart-read.ts` |
+| Tempo congelado / fallback extração | `client/src/shared/resolver-tempo-analise-nova-leitura-smart-read.ts` |
+| Agregação «Base de cálculo» | `client/src/shared/montar-entrada-agregacao-nova-leitura-smart-read.ts` |
+| Saving passo 2 | `client/src/shared/calcular-saving-nova-leitura-smart-read.ts` |
+| Persistência progresso | `client/src/shared/persistencia-leitura-smart-read.ts` |
+| Estilos | `client/src/components/nova-leitura-smart-read/modal-nova-leitura-smart-read.css` |
+| Modal metodologia saving | `client/src/pages/insights-smart-read/metodologia-saving-insights-smart-read.tsx` |
+| BFF polling | `server/src/routes/leituras-smart-read.ts` (`GET /:id_leitura`) |
+| Campo `tempo_analise_segundos` | `server/src/schemas/progresso-leitura-smart-read.ts` |
+| Contador «Uso de IA» (sidebar) | `client/src/components/nova-leitura-smart-read/contador-tokens-discreto-nova-leitura-smart-read.tsx` |
+| Hook contador (observador passivo) | `client/src/shared/use-contador-tokens-leitura-smart-read.ts` |
+| Análise de riscos pós-OCR | `client/src/shared/disparar-analise-riscos-background-smart-read.ts` |
+| Animação tokens em tempo real | `client/src/shared/use-valor-tokens-animado-smart-read.ts` |
+
+**Entrada no passo 2:** botão **Enviar** do passo 1 dispara upload + polling; modal avança para «Análise do arquivo». Retomar leitura `PROCESSING` abre direto no passo 2.
+
+---
+
+## 2. Layout — Passo 02 (referência visual)
+
+Modal **2xl**, quase largura total. Topo:
+
+1. Cabeçalho «Nova Leitura» + **nome da leitura** (`.sr-wizard-modal-subtitulo-leitura`, padrão `Leitura NNN`).
+2. Stepper no container indigo — passo **2 ativo**; passos 1 concluído, 3–4 inativos.
+
+Corpo (grid lateral + principal):
+
+| Zona | Conteúdo |
+|------|----------|
+| **Principal** | Três cards métricos (Tempo de leitura · Recursos reduzidos · Tempo reduzido acumulado) + painel pipeline (3 análises + globo/cérebro com anel de progresso) |
+| **Sidebar** | Nome editável · cards por arquivo · status «Analisando…» / «Análise completa» · chips ou lista expandida de documentos · rodapé **Cancelar** + **Voltar** + **Continuar** |
+
+> **Nomenclatura botão avançar (passo 2):** rótulo **Continuar** (não «Enviar»). **Continuar** só habilita quando `processamentoFinalizado` (polling concluiu ou erro tratado).
+
+---
+
+## 3. Regras funcionais — Passo 2
+
+| Regra | Comportamento |
+|-------|----------------|
+| Abertura | Após **Enviar** (passo 1) ou retomar leitura `PROCESSING` / `PENDING` |
+| Nome da leitura | Subtítulo do modal; editável na sidebar; persistido em `progresso_leitura_smart_read` |
+| Polling | `GET /api/v1/smart-read/leituras/:id_leitura` a cada 2s até `COMPLETED` ou `FAILED` (limite 5 min) |
+| Cards sidebar | Exibem `resultado_extracao` quando disponível; chips de `tipo_documento` recolhidos ou lista expandida |
+| Visualizar original | Ícone olho no card → blob URL (mesmo passo 1) |
+| Visualizar documento | Expandir card → ícone olho por tipo → blob/preview do documento identificado |
+| Tempo de leitura | Cronômetro `HH : MM : SS`; congela em `tempo_analise_segundos` ao concluir análise |
+| Recursos reduzidos | `calcularSavingNovaLeituraSmartRead` — base manual − tempo de leitura; link **Base de cálculo →** abre modal metodologia (z-index acima do wizard) |
+| Tempo reduzido acumulado | Infográfico workspace (`useSavingAcumuladoWorkspaceSmartRead`); recarrega ao abrir metodologia |
+| Pipeline IA | Três etapas simuladas no client: Primeira (~6s), Segunda (~12s), Terceira (~16s) até API marcar completo |
+| Globo | Anel SVG proporcional à média das três barras; 100% quando todas as etapas completas |
+| SLA UX | Progresso client-side completa em ~16s; testes EMT validam execução total ≤ **75s** |
+| Voltar | Retorna ao passo 1 (arquivos preservados) |
+| Continuar | Avança para passo 3 «Conferência» quando análise finalizada (exige ao menos **um** arquivo `completo`) |
+| Cancelar | Fecha modal; persiste progresso incl. `tempo_analise_segundos` quando aplicável |
+| Erro parcial | Polling pode concluir com mix de arquivos `completo` + `erro`; usuário segue para Conferência só com os que analisaram |
+
+Persistência: ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) e [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §3 (`PATCH /progresso`).
+
+---
+
+## 4. Fixtures de teste
+
+| Uso | Caminho |
+|-----|---------|
+| Upload E2E/EMT | `testes/testes-unitarios/produto-gravity/smart-read/nova-leitura/passo-um/fixtures/amostras/amostra.pdf` |
+| Objetos passo 2 (UNI) | `testes/testes-unitarios/produto-gravity/smart-read/nova-leitura/passo-dois/fixtures/arquivos-passo-dois-fixture.ts` |
+| Nome fixture UNI | `NOME_LEITURA_FIXTURE_PASSO_DOIS = 'Leitura 742'` |
+
+Mocks E2E/EMT/FUN simulam `GET` com `resultado_extracao` (Bill of Lading + Commercial Invoice) e `status_leitura: COMPLETED`.
+
+---
+
+## 5. Análises obrigatórias — teste em tela (Passo 02)
+
+Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000155`  
+Ambiente: `http://localhost:8000/smart_read/insights` + sidecar Smart Docs `8033`.
+
+| # | Análise | Critério de aceite | Print sugerido |
+|---|---------|-------------------|----------------|
+| **01** | Passo 2 aberto | Stepper «Análise do arquivo» ativo após Enviar | `01-passo2-selecao.png` / `01-passo2-resultado.png` |
+| **02** | Nome da leitura | Subtítulo `Leitura NNN` visível e coerente | `02-nome-selecao.png` / `02-nome-resultado.png` |
+| **03** | Cards com documentos | Chips/lista com tipos identificados (ex.: BL, Invoice) | `03-cards-selecao.png` / `03-cards-resultado.png` |
+| **04** | Visualizar documentos | Expandir + olho abre nova aba `blob:` | `04-visualizar-selecao.png` / `04-visualizar-resultado.png` |
+| **05** | Tempo de leitura | Card com timer `HH : MM : SS` incrementando | `05-timer-selecao.png` / `05-timer-resultado.png` |
+| **06** | Recursos reduzidos | Card com valor numérico + link Base de cálculo | `06-recursos-selecao.png` / `06-recursos-resultado.png` |
+| **07** | Tempo acumulado | Infográfico Documentos + Saving do workspace | `07-acumulado-selecao.png` / `07-acumulado-resultado.png` |
+| **08** | Três análises | Primeira, Segunda e Terceira com pill «Completo» | `08-analises-selecao.png` / `08-analises-resultado.png` |
+| **09** | Globo 100% | Três barras em 100%; anel do cérebro fechado | `09-globo-selecao.png` / `09-globo-resultado.png` |
+| **10** | SLA 75 segundos | Fluxo completo do passo 2 em ≤ 75s | `10-sla-selecao.png` / `10-sla-resultado.png` |
+
+**Fora de escopo deste doc:** conferência campo a campo (passo 3) e resultado final (passo 4).
+
+---
+
+## 6. Testes automatizados (referência cruzada)
+
+Pastas espelhadas em `testes/testes-{unitarios|funcionais|e2e|cross-organizacao|em-tela}/produto-gravity/smart-read/nova-leitura/passo-dois/`.
+
+| Tipo | ID | Escopo passo 2 |
+|------|-----|----------------|
+| UNI | TST-UNI-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151 | dashboard, cards, saving, pipeline, SLA |
+| FUN | TST-FUN-SMTRD-NOVA-LEITURA-PASSO-DOIS-000152 | `GET /leituras/:id` polling PROCESSING→COMPLETED |
+| CRO | TST-CRO-SMTRD-NOVA-LEITURA-PASSO-DOIS-000153 | isolamento workspace no polling |
+| E2E | TST-E2E-SMTRD-NOVA-LEITURA-PASSO-DOIS-000154 | Playwright fluxo UI passo 2 |
+| EMT | TST-EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000155 | checklist §5 (20 prints) |
+
+Registry: `testes/test-plans-registry.json` · Task: `TASK-000343`.
+
+```bash
+# UNI
+npx vitest run --config vitest.config.ci.ts testes/testes-unitarios/produto-gravity/smart-read/nova-leitura/passo-dois/plano-de-teste/TST-UNI-SMTRD-NOVA-LEITURA-PASSO-DOIS-000151.test.tsx
+
+# E2E
+npx playwright test testes/testes-e2e/produto-gravity/smart-read/nova-leitura/passo-dois/TST-E2E-SMTRD-NOVA-LEITURA-PASSO-DOIS-000154.spec.ts
+
+# EMT
+npx tsx testes/testes-em-tela/produto-gravity/smart-read/nova-leitura/passo-dois/plano-de-teste/run-TST-EMT-SMTRD-NOVA-LEITURA-PASSO-DOIS-000155.ts
+```
+
+---
+
+## 7. Erros de análise por arquivo (UX + legado)
+
+Quando o **Smart Docs legado** (DATI/microservices) falha ao processar um anexo, o BFF grava a mensagem técnica em `mensagem_erro` (`ArquivoLocalNovaLeitura` / transação). A UI **nunca** exibe esse dump na sidebar — traduz via `interpretarErroArquivoLeituraSmartRead`.
+
+### 7.1 O que o usuário vê
+
+| Zona | Conteúdo |
+|------|----------|
+| **Card sidebar** (`.sr-wizard-card--erro`) | Status **«Análise não concluída»** + bloco `.sr-wizard-card-erro-detalhe` |
+| **Motivo** (`.sr-wizard-card-erro-motivo`) | Texto legível em português (causa provável + orientação) |
+| **Cobrança** (`.sr-wizard-card-erro-cobranca`) | **«Este arquivo não será cobrado.»** (verde) — regra de produto: falha de análise não gera cobrança daquele anexo |
+| **Alerta passo 2** (`.sr-wizard-analise-alerta-erro`) | «Um ou mais arquivos não puderam ser analisados. Veja o motivo na sidebar — arquivos com erro não serão cobrados.» |
+
+Constantes SSOT: `TITULO_ERRO_ARQUIVO_LEITURA_SMART_READ`, `AVISO_SEM_COBRANCA_ERRO_ARQUIVO_LEITURA_SMART_READ`.
+
+Testes UNI: `testes/testes-unitarios/produto-gravity/smart-read/formatar-erro-arquivo-leitura-smart-read.test.ts`.
+
+### 7.2 Origem da mensagem técnica
+
+1. Upload → BFF → legado (`cliente-legado-smart-read.ts`).
+2. Falha HTTP → string do tipo `Smart Docs legado respondeu {status}: {corpo}` (até 300 chars).
+3. Modal wizard seta `status_arquivo_local: 'erro'` e `mensagem_erro` no card.
+
+### 7.3 Mapeamento legado → motivo amigável
+
+| Padrão na `mensagem_erro` (case-insensitive) | Motivo exibido ao usuário |
+|---------------------------------------------|---------------------------|
+| `soffice binary` / `could not find soffice` | Excel (.xlsx) não convertido — enviar PDF ou JPG/PNG |
+| `central directory` / `is this a zip` | `.xls` (Excel antigo) não suportado na conversão — salvar como .xlsx ou PDF |
+| `convert excel to pdf` | Planilha não convertida — tentar PDF, CSV ou imagem |
+| `403 forbidden` / `respondeu 403` | XML bloqueado no legado — tentar PDF, imagem ou planilha |
+| `tempo limite` / `timeout` | Análise excedeu tempo — reenviar |
+| `sem vínculo` / `ORGANIZACAO_SEM_VINCULO` | Organização sem vínculo Smart Docs — suporte |
+| `legado indisponível` / `SMART_READ_LEGADO_*` | Serviço indisponível — tentar depois |
+| `respondeu 422` / `unprocessable` | Formato/conteúdo não processado — verificar arquivo |
+| `respondeu 5` / `service unavailable` | Instabilidade do serviço |
+| *(default)* | Falha inesperada — verificar integridade e formato |
+
+### 7.4 Formatos aceitos no passo 1 vs falhas observadas em produção
+
+O passo 1 aceita `.pdf`, `.jpg`, `.jpeg`, `.png`, `.xml`, `.csv`, `.xls`, `.xlsx` ([NOVA-LEITURA-PASSO-UM-TECNICO.md](./NOVA-LEITURA-PASSO-UM-TECNICO.md) §4). Nem todo formato aceito no upload conclui análise no legado:
+
+| Formato | Upload (passo 1) | Análise legado (passo 2) — observado |
+|---------|-------------------|--------------------------------------|
+| CSV, JPG, JPEG, PNG | OK | OK (classifica documento, ex.: INVOICE) |
+| XLSX | OK | Falha se **LibreOffice (`soffice`)** ausente no servidor legado (422) |
+| XLS | OK | Falha frequente: legado trata como ZIP/xlsx (422 «central directory») |
+| XML | OK | Falha **403 Forbidden** no legado (ambiente produção, jun/2026) |
+
+**Infra pendente (legado, fora do BFF Gravity):** instalar/configurar `soffice` para Excel; liberar rota XML; tratar `.xls` distinto de `.xlsx`.
+
+Fixtures multi-formato para teste manual: script `scripts/gerar-invoice-teste-smart-read.py` → `~/Downloads/smart-read-invoice-teste/`.
+
+--- documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-TRES-TECNICO.md ---
+# Nova Leitura — Passo 03 (Conferência) — Smart Docs
+
+> **Escopo deste documento:** somente **Passo 3** do wizard — grid de campos extraídos (paridade layout `dt-*` do Processo).  
+> **Passo anterior:** [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) · **Passo 4:** doc futuro.
+
+---
+
+## 1. SSOT de código
+
+| Artefato | Caminho |
+|----------|---------|
+| Modal wizard | `client/src/components/nova-leitura-smart-read/modal-nova-leitura-smart-read.tsx` |
+| Área conferência | `client/src/components/nova-leitura-smart-read/area-conferencia-nova-leitura-smart-read.tsx` |
+| Grid de campos | `client/src/components/nova-leitura-smart-read/conferencia-campos-nova-leitura-smart-read.tsx` |
+| Linha editável | `client/src/components/nova-leitura-smart-read/campo-linha-conferencia-nova-leitura-smart-read.tsx` |
+| **Helpers campo data** | `client/src/shared/data-campo-conferencia-leitura-smart-read.ts` |
+| Seções / labels legado | `client/src/shared/extrair-secoes-conferencia-leitura-smart-read.ts`, `mapear-rotulo-campo-legado-conferencia-smart-read.ts` |
+| Estilos | `client/src/components/nova-leitura-smart-read/modal-nova-leitura-smart-read.css` |
+| Cores barra lateral | [padrao-dt-row-status-campos.md](../../ux/design-system/padrao-dt-row-status-campos.md) |
+
+---
+
+## 2. Campo **data** — padrão oficial Gravity (obrigatório)
+
+Campos cuja chave termina em `Date` (ex.: `document.documentDate`, `document.shippedOnBoardDate`) **não** usam input texto cru nem `CampoCalendarioGlobal` como trigger permanente no card.
+
+| Modo | Comportamento |
+|------|----------------|
+| **Leitura** | Mesmo layout dos demais campos (`dt-row-value`): valor em **DD/MM/AAAA** via `formatarDataConferenciaSmartRead` |
+| **Edição** | Input fino igual ao texto (`dt-row-edit input`, borda indigo) + máscara `DD/MM/AAAA` + ícone calendário à direita |
+| **Calendário** | Clique no ícone abre `CampoCalendarioGlobal` (`modoUnico`, `semTrigger`) em **portal** (`document.body`, `z-index: 10001`) — paridade TabelaVirtualGlobal / Pedido; **nunca** inline dentro do `.dt-row` (evita corte por `overflow: hidden`) |
+| **Persistência** | Valor canônico **`yyyy-mm-dd`** em `resultado_extracao` / `dados` (via `dateToIsoConferenciaSmartRead`) |
+| **Parse entrada** | ISO, `dd/mm/aaaa`, `dd.mm.aaaa` normalizados por `normalizarValorDataConferenciaParaIso` — parse local (`new Date(y, m-1, d)`) para evitar off-by-one de fuso |
+
+**Proibido:** exibir `2026-06-25` cru na UI; substituir o input padrão pelo componente completo do calendário no fluxo de edição; renderizar painel do calendário dentro do card sem portal.
+
+**Testes UNI:** `testes/testes-unitarios/produto-gravity/smart-read/data-campo-conferencia-leitura-smart-read.test.ts`
+
+---
+
+## 3. Outros tipos de campo na conferência
+
+| Tipo | Detecção | Edição |
+|------|----------|--------|
+| Texto | default | `input` texto em `dt-row-edit` |
+| Booleano | prop `tipo="booleano"` ou chave `isSigned` | `SelectGlobal` Sim/Não → exibição «Assinado» / «Não assinado» |
+
+---
+
+## 4. Cores da barra lateral (resumo)
+
+Ver SSOT completo: [padrao-dt-row-status-campos.md](../../ux/design-system/padrao-dt-row-status-campos.md).
+
+| Estado | Cor barra | Smart Docs vs Processo |
+|--------|-----------|-------------------------|
+| Preenchido | Verde `#34d399` | Igual |
+| Vazio | Cinza `vazio-opc` no card; amarelo só na legenda «Vazios» | Processo distingue obrigatório (amarelo) vs opcional (cinza) |
+| Alterado | Roxo `#a78bfa` + badge | Só Smart Docs |
+
+---
+
+## 5. Legenda do topo (filtros)
+
+Contadores clicáveis: **Verificados** (azul, total) · **Preenchidos** (verde) · **Vazios** (amarelo) · **Preenchidos alterados** (roxo). Filtram o grid; não alteram a cor individual do card vazio (cinza).
+
+---
+
+## 6. Contador discreto de tokens IA (sidebar)
+
+> **Task:** TASK-000357 · Persistência: [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) §3.1
+
+| Aspecto | Regra |
+|---------|-------|
+| **Onde** | Rodapé da sidebar (`painel-lateral-arquivos-nova-leitura-smart-read.tsx`), acima de Voltar/Continuar |
+| **Quando** | Visível a partir do **passo 2** (`exibirContadorTokens={passo >= 2}`) |
+| **Componente** | `contador-tokens-discreto-nova-leitura-smart-read.tsx` |
+| **Hook** | `use-contador-tokens-leitura-smart-read.ts` → `GET /leituras/tokens/:id_leitura` |
+| **Exibição** | Sempre mostra o total (inclui `0 tokens IA`); formatação `formatarTokensDiscretoLeituraSmartRead` |
+| **Atualização** | Após QA ou Análise de Riscos via `onTokensAtualizados` / `uso_llm_leitura` na resposta; senão recarrega do GET |
+
+**Fonte dos números:** `usageMetadata` do Gemini (`promptTokenCount`, `candidatesTokenCount`) — não inclui extração DATI do passo 2. Abas que disparam LLM: **Análise de Riscos** e **Consultor Inteligente** (Rafa); **Conferência de Campos** sozinha mantém 0 até outra aba rodar.
+
+--- documentos-tecnicos/produtos-gravity/smart-read/NOVA-LEITURA-PASSO-UM-TECNICO.md ---
+# Nova Leitura — Passo 01 (Anexar arquivo) — Smart Docs
+
+> **Escopo deste documento:** somente **Passo 1** do wizard.  
+> **Branch de referência UX:** `tela_smart_read_tela_1` (stepper dentro do retângulo indigo).  
+> **Wizard completo (4 passos):** `ModalNovaLeituraSmartRead` — passo 2: [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md); passos 3–4 doc futuro.
+
+---
+
+## 1. SSOT de código
+
+| Artefato | Caminho |
+|----------|---------|
+| Modal wizard | `client/src/components/nova-leitura-smart-read/modal-nova-leitura-smart-read.tsx` |
+| Área upload (passo 1) | `client/src/components/nova-leitura-smart-read/area-anexar-nova-leitura-smart-read.tsx` |
+| Formatos aceitos | `client/src/components/nova-leitura-smart-read/formatos-aceitos-anexar-nova-leitura-smart-read.tsx` |
+| Sidebar + botões | `client/src/components/nova-leitura-smart-read/painel-lateral-arquivos-nova-leitura-smart-read.tsx` |
+| Card de arquivo | `client/src/components/nova-leitura-smart-read/card-arquivo-nova-leitura-smart-read.tsx` |
+| Extensões / accept / limite | `client/src/shared/entrada-arquivo-leitura-smart-read.ts` |
+| Estilos (container stepper) | `client/src/components/nova-leitura-smart-read/modal-nova-leitura-smart-read.css` (`.sr-wizard-stepper-painel-wrap`) |
+| Shell stepper | `@nucleo/modal-passo-passo-global` |
+
+**Entrada na UI:** botão **Novo** (`BotaoNovoListaSmartRead`) em Insights ou Lista → abre modal no passo 1.
+
+---
+
+## 2. Layout — Passo 01 (referência visual)
+
+Modal **2xl**, quase largura total. Topo:
+
+1. Cabeçalho «Nova Leitura» + nome da leitura (indigo).
+2. **Stepper dentro de retângulo/container** indigo (`.sr-wizard-stepper-painel-wrap`) — passo **1 ativo**, 2–4 inativos; **sem navegação direta** no passo 1.
+
+Corpo (grid lateral + principal):
+
+| Zona | Conteúdo |
+|------|----------|
+| **Principal** | Dropzone: boas-vindas, «Clique ou arraste», formatos aceitos (ícones + tooltips), limite 50 MB, aviso multi-documento |
+| **Sidebar** | Nome editável · «Arquivos enviados» + badge · lista de cards · rodapé **Cancelar** + **Enviar** |
+
+> **Nomenclatura botão avançar (passo 1):** o rótulo é **Enviar**, não «Continuar». «Continuar» aparece a partir do passo 2. Ambos avançam o fluxo; no passo 1 só **Enviar** está visível.
+
+---
+
+## 3. Regras funcionais — Passo 1
+
+| Regra | Comportamento |
+|-------|----------------|
+| Anexar | Clique, drag-and-drop ou `input[type=file]` múltiplo |
+| Formatos | `.pdf`, `.jpg`, `.jpeg`, `.png`, `.xml`, `.csv`, `.xls`, `.xlsx` — SSOT `EXTENSOES_ARQUIVO_LEITURA_SMART_READ` |
+| Limite | 50 MB por arquivo |
+| Após anexar | Card na sidebar, status «Arquivo enviado» |
+| Nome no card | `item.arquivo.name` (nome original do arquivo) |
+| Visualizar | Ícone olho → `window.open(blob URL)` em nova aba |
+| Excluir | Ícone lixeira → `ModalConfirmarExcluirGlobal` (padrão Gravity) → remove card e revoga blob |
+| Cancelar | Fecha modal (`handleFechar`); persiste progresso se aplicável |
+| Enviar | Habilitado só com ≥1 arquivo; dispara `POST` legado + **vai para passo 2** |
+
+Exclusão no legado DATI: **não** chama `DELETE` (rota `501`) — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §3.
+
+---
+
+## 4. Fixtures de teste (um arquivo por extensão)
+
+SSOT: `testes/testes-unitarios/produto-gravity/smart-read/nova-leitura/passo-um/fixtures/amostras/`
+
+| Extensão | Arquivo fixture |
+|----------|-----------------|
+| pdf | `amostra.pdf` |
+| jpg | `amostra.jpg` |
+| jpeg | `amostra.jpeg` |
+| png | `amostra.png` |
+| xml | `amostra.xml` |
+| csv | `amostra.csv` |
+| xls | `amostra.xls` |
+| xlsx | `amostra.xlsx` |
+
+Gerador: `fixtures/gerar-fixtures-passo-um.mjs`. **Obrigatório** manter paridade com as 8 extensões do SSOT.
+
+---
+
+## 5. Análises obrigatórias — teste em tela (Passo 01)
+
+Plano EMT: `TST-EMT-SMTRD-NOVA-LEITURA-PASSO-UM-000150`  
+Ambiente: `http://localhost:8000/smart-read/insights` (ou Lista) + sidecar `8033`.
+
+| # | Análise | Critério de aceite | Print sugerido |
+|---|---------|-------------------|----------------|
+| **01** | Abertura da tela | Insights/Lista carrega; botão Novo visível | `01-tela-insights-ou-lista.png` |
+| **02** | Abertura dos passos — passo 1 | Modal abre; stepper no container indigo; passo «Anexar arquivo» ativo; layout lateral + dropzone | `02-modal-passo1-stepper-container.png` |
+| **03** | Anexar arquivos | Upload por clique ou drag adiciona item | `03-anexar-arquivo-sucesso.png` |
+| **04** | Todos os tipos aceitos | Cada extensão da §4 anexa sem erro de formato | `04-{ext}-aceito.png` (8 prints) |
+| **05** | Abertura do card | Após anexar, card aparece na sidebar | `05-card-aparece-sidebar.png` |
+| **06** | Nome no card | Card exibe nome idêntico ao arquivo | `06-card-nome-arquivo.png` |
+| **07** | Abrir visualizar | Ícone olho clicável; sem erro na UI | `07-visualizar-clicado.png` |
+| **08** | Visualizar abre arquivo | Nova aba/janela com preview ou download do blob | `08-arquivo-aberto-nova-aba.png` |
+| **09** | Excluir com aviso | Modal padrão Gravity; confirmar remove card | `09-excluir-modal-e-remocao.png` |
+| **10** | Cancelar | Fecha modal; retorna à tela anterior | `10-cancelar-fecha-modal.png` |
+| **11** | Avançar para próximo passo | **Enviar** (com arquivo) → passo 2 «Análise do arquivo» | `11-enviar-vai-passo2.png` |
+
+**Fora de escopo deste doc:** validar passo 2+ — ver [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) (passo 2) e docs futuros (passos 3–4).
+
+---
+
+## 6. Testes automatizados (referência cruzada)
+
+| Tipo | ID | Escopo passo 1 |
+|------|-----|----------------|
+| UNI | TST-UNI-SMTRD-NOVA-LEITURA-PASSO-UM-000146 | accept, card, formatos |
+| FUN | TST-FUN-SMTRD-NOVA-LEITURA-PASSO-UM-000147 | fluxo anexar/remover |
+| CRO | TST-CRO-SMTRD-NOVA-LEITURA-PASSO-UM-000148 | isolamento org |
+| E2E | TST-E2E-SMTRD-NOVA-LEITURA-PASSO-UM-000149 | Playwright fluxo completo passo 1 |
+| EMT | TST-EMT-SMTRD-NOVA-LEITURA-PASSO-UM-000150 | checklist §5 (prints) |
+
+--- documentos-tecnicos/produtos-gravity/smart-read/PERSISTENCIA-DADOS-TECNICO.md ---
+# Persistência de dados — Smart Docs (arquitetura híbrida)
+
+> **SSOT desta doc:** onde vive cada dado do Smart Docs no Gravity vs no legado DATI.  
+> **Código:** `servicos-global/produto/smart-read/` · BFF porta **8033** · Postgres Gravity **Railway** (`gravity-smart-read-*`)
+
+---
+
+## 1. Resumo em uma frase
+
+O **banco de verdade das leituras** — PDFs, fila de processamento, status (`PROCESSING` / `COMPLETED`), `processingResult` / `finalProcessingResult` e todo o histórico operacional — **fica no legado DATI Smart Docs** (microserviço `import-control-center` / `external-readings`, tipicamente Mongo + storage do DATI). O **Postgres Gravity** (`SMART_READ_DATABASE_URL`, Railway `gravity-smart-read`) **não é** esse banco: é um **espelho operacional** da UI Gravity — snapshots congelados, progresso do wizard e preferências de lista — para Lista e Insights responderem rápido sem ir ao DATI a cada clique. **Se o DATI apagar uma leitura, o Gravity não recupera o PDF nem a extração bruta**; só o que foi copiado para `snapshot_leitura_smart_read` ou `progresso_leitura_smart_read` permanece no Railway.
+
+---
+
+## 2. Dois backends, duas responsabilidades
+
+```mermaid
+flowchart LR
+  subgraph gravity_ui [Gravity — client + BFF 8033]
+    Lista[Lista / Insights]
+    Wizard[Nova Leitura wizard]
+  end
+
+  subgraph gravity_db [Postgres Railway gravity-smart-read]
+    Snap[snapshot_leitura_smart_read]
+    Prog[progresso_leitura_smart_read]
+    Painel[lista_painel_usuario_global]
+  end
+
+  subgraph dati [Legado DATI Smart Docs]
+    LegadoDB[(Mongo / storage legado)]
+    LegadoAPI[external-readings API]
+  end
+
+  Lista --> BFF
+  Wizard --> BFF
+  BFF -->|upload, polling, list| LegadoAPI
+  LegadoAPI --> LegadoDB
+  BFF -->|snapshot, progresso, painéis| gravity_db
+  Snap -.->|cópia JSON normalizado| Lista
+  Snap -.->|cópia JSON normalizado| Insights
+```
+
+| O quê | Onde fica | Quem escreve | Quem lê (Gravity) |
+|-------|-----------|--------------|-------------------|
+| Arquivo PDF / binário | **Legado DATI** | Upload via BFF → legado | Legado (Gravity não armazena PDF) |
+| Fila e status de processamento (`PROCESSING`, `COMPLETED`, …) | **Legado DATI** | Motor OCR/extração do legado | BFF `GET /leituras/:id` (polling) |
+| `processingResult` / `finalProcessingResult` (JSON bruto) | **Legado DATI** | Legado após IA + conferência no legado | BFF normaliza → `LeituraSchema` |
+| Nome comercial escolhido no wizard | **Gravity** (`progresso_leitura_smart_read`) | `PATCH /progresso` | Lista (prioridade sobre nome genérico do legado) |
+| Passo 2–4 + sessão da conferência | **Gravity** (`progresso_leitura_smart_read`) | `PATCH /progresso` | Retomar wizard (`GET /progresso`) |
+| **Status de fluxo** (wizard) | **Gravity** (`status_fluxo_*` em progresso + snapshot) | *Pendente* — `PATCH /progresso` + snapshot (§14.3) | Colunas existem; pill **Status** na Lista ainda usa `status_leitura` legado |
+| **Snapshot** da leitura (extração + métricas) | **Gravity** (`snapshot_leitura_smart_read`) | BFF ao concluir/conferir | Lista, Insights, `GET /leituras/:id` |
+| Painéis/colunas/filtros da lista | **Gravity** (`lista_painel_usuario_global`) | API `/lista/paineis` | Lista |
+| **Tokens LLM Gemini** (auditoria por chamada) | **Gravity** (`log_uso_llm_leitura_smart_read`) | BFF após QA, classificação fiscal e análise de riscos (`registrarUsoLlmLeituraSmartRead`) | Contador sidebar + `GET /leituras/tokens/*` |
+
+**Não confundir:** `SMART_READ_DATABASE_URL` (Railway Postgres Gravity) **≠** banco do DATI. São instâncias separadas, em servidores diferentes. O vínculo org Gravity → company legado é resolvido via Configurador (`resolverCompanyLegado`). O Gravity **nunca** grava PDF nem substitui o motor OCR do DATI — apenas **lê** o legado via REST e **copia** JSON normalizado para o snapshot quando elegível.
+
+---
+
+## 3. O que é o snapshot (`snapshot_leitura_smart_read`)
+
+Snapshot **não** é print de tela nem cópia do PDF. É um **registro imutável lógico** (re-snapshot na conferência **atualiza** a mesma linha) com:
+
+1. **`dados_extracao_snapshot_leitura_smart_read` (JSONB)** — payload validado pelo contrato bilateral `LeituraSchema` (arquivos + `resultado_extracao` já normalizado pelo BFF, incluindo `dados_original` quando o legado enviou).
+2. **Colunas denormalizadas** — totais de campos, acertos/erros, `media_acertos`, datas, `status_leitura` (IA legado), **`status_fluxo_snapshot_leitura_smart_read`**, **`passo_atual_snapshot_leitura_smart_read`** (migration `20260625120000`; backfill — ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §14.1), origem — para Lista e Insights consultarem sem reparsear o JSON nem chamar o legado de novo.
+
+| Atributo | Valor |
+|----------|-------|
+| Model Prisma | `SnapshotLeituraSmartRead` |
+| Tabela PG | `snapshot_leitura_smart_read` |
+| Fragment | `prisma/fragment.prisma` |
+| Migration | `20260623180000_create_snapshot_leitura_smart_read` (+ `20260625120000_add_status_fluxo_leitura_smart_read` — colunas de fluxo) |
+| Unique | `(id_organizacao, id_leitura_legado_snapshot_leitura_smart_read)` |
+| Referência legado | `id_leitura_legado_snapshot_leitura_smart_read` = `_id` da leitura no DATI |
+
+**Versão do contrato:** `versao_contrato_snapshot_leitura_smart_read` (inteiro; hoje `1`).
+
+**Motivo do congelamento (`motivo_congelamento_snapshot_leitura_smart_read`):**
+
+| Valor | Quando |
+|-------|--------|
+| `extracao_concluida` | Leitura `COMPLETED`/`FAILED` com extração — após `GET /leituras/:id` ou enriquecimento da lista |
+| `conferencia_usuario` | Usuário salvou passo/conferência — `PATCH /progresso` |
+
+Implementação BFF: `server/src/lib/snapshot-leitura-smart-read.ts`.
+
+---
+
+## 3.1 Auditoria de tokens LLM (`log_uso_llm_leitura_smart_read`)
+
+> **Task:** TASK-000357 · Migration `20260626220000_create_log_uso_llm_leitura_smart_read` · Deploy DB: `scripts/ativamente/migrate-smart-read-railway.ps1`
+
+| Atributo | Valor |
+|----------|-------|
+| Banco | Postgres Railway `gravity-smart-read-*` (`SMART_READ_DATABASE_URL`) |
+| Model Prisma | `LogUsoLlmLeituraSmartRead` |
+| Tabela | `log_uso_llm_leitura_smart_read` |
+| SSOT contrato | `shared/uso-llm-leitura-smart-read.ts` |
+| Wrapper Gemini | `server/src/lib/gemini-gerar-conteudo-smart-read.ts` (`usageMetadata` real) |
+| Serviço | `server/src/lib/servico-uso-llm-leitura-smart-read.ts` |
+
+**Colunas:** `id_log_uso_llm_leitura_smart_read` (PK), `id_organizacao`, `id_produto_gravity` (default `smart-read`), `id_usuario`, `id_workspace` (nullable), `id_leitura_legado_log_uso_llm_leitura_smart_read` (nullable), `acao_log_uso_llm_leitura_smart_read` (`classificacao_fiscal` \| `analise_riscos` \| `qa_consultor`), `modelo_log_uso_llm_leitura_smart_read`, `tokens_entrada_*`, `tokens_saida_*`, `tokens_total_*`, `custo_usd_*` (estimado pela tabela de preço do modelo), `data_criacao_*`.
+
+**O que conta hoje:** tokens reais retornados pelo Gemini nas abas **Consultor Rafa** (QA), **Análise de Riscos** e classificação fiscal LLM. **Fora do escopo:** extração DATI dos passos 1–2 (legado OCR).
+
+**API:**
+
+| Rota | Função |
+|------|--------|
+| `GET /api/v1/smart-read/leituras/tokens/:id_leitura` | Resumo agregado da leitura (workspace + vínculo) |
+| `GET /api/v1/smart-read/leituras/tokens/resumo?escopo=usuario_mes\|organizacao_mes` | Agregado mensal por usuário ou organização |
+
+Respostas validadas por `ResumoUsoLlmLeituraSmartReadSchema`. Rotas em `server/src/routes/tokens-uso-llm-leitura-smart-read.ts`.
+
+---
+
+## 4. Fluxo operacional (o que o desenvolvedor precisa saber)
+
+### 4.1 Nova leitura (upload)
+
+1. Client → `POST /api/v1/smart-read/leituras` (multipart).
+2. BFF → **cria leitura no legado** + envia arquivo + **vínculo workspace** (`registrar-vinculo-leitura-usuario-smart-read.ts`, `id_workspace` = `resolverIdWorkspaceLeituraSmartRead`).
+3. Resposta `202` com `id_leitura` legado. **Nenhuma linha em `snapshot_leitura_smart_read` ainda.**
+
+### 4.2 Wizard e conferência
+
+1. Client faz polling `GET /leituras/:id` → BFF resolve na ordem abaixo (§4.6).
+2. Ao avançar passos, `PATCH /progresso` grava em **`progresso_leitura_smart_read`** (scoped por `id_usuario`).
+3. No mesmo `PATCH`, se a leitura tem dados de extração, BFF **upsert snapshot** (`motivo: conferencia_usuario`).
+
+### 4.3 Lista
+
+1. `GET /leituras` monta merge por **workspace ativo** (`x-id-workspace`, fallback `x-id-organizacao`): intersecta legado com ids de **progresso** + **snapshots** da filial (`escopo-workspace-leitura-smart-read.ts`).
+2. Se o mesmo `id_leitura` existe no snapshot, a linha do snapshot **prevalece** (métricas já calculadas).
+3. Linhas `COMPLETED` sem métricas ainda são enriquecidas via batch snapshot; legado item-a-item só fora da lista paginada.
+
+### 4.4 Insights
+
+1. Hook `use-dados-insights-leitura-smart-read.ts` consome a **mesma lista** (`GET /leituras`) e, em paralelo (`Promise.allSettled`), `GET /leituras/:id` por transação `COMPLETED`/`PROCESSING`.
+2. `GET /leituras/:id` segue a cadeia do §4.6 — após snapshot existir, Insights lê do **Postgres Gravity** sem chamar o DATI.
+3. **Modo degradado (client):** se nenhum detalhe vier (legado indisponível e sem snapshot), KPIs e gráfico de evolução usam métricas já presentes na linha da lista (`TransacaoLeitura`: `total_campos_*`, `saving_total_*`, `data_envio`). Rankings por participante e BL/AWB **exigem** `leiturasDetalhe` com `resultado_extracao` — ficam vazios nesse modo.
+4. Métricas de acerto/erro na UI Insights continuam pela regra de **campo editado** (ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) §2), não por `accuracy` do legado.
+
+### 4.5 O legado continua obrigatório para
+
+- Upload de arquivo
+- Processamento assíncrono (IA)
+- Primeira leitura de uma leitura nova (até o snapshot existir)
+- Company id / vínculo organização (Configurador + `SMART_READ_LEGADO_*`)
+
+### 4.6 Cadeia `GET /leituras/:id` (BFF)
+
+Ordem **fixa** em `server/src/routes/leituras-smart-read.ts`:
+
+| Passo | Fonte | Quando retorna |
+|-------|--------|----------------|
+| 0 | **Vínculo workspace** | Antes do legado: `404` se leitura não está em progresso/snapshot do workspace ativo |
+| 1 | `snapshot_leitura_smart_read` | Linha no Postgres Gravity (filtro workspace + legado `id_workspace` null) |
+| 2 | **Legado DATI** (`obterLeituraLegado`) | Snapshot ausente e leitura vinculada — **SSOT da extração**; ao sucesso, BFF grava snapshot |
+| 3 | `progresso_leitura_smart_read` | **Somente no `catch`** após falha do legado — sessão do **mesmo** `id_usuario` e `id_workspace` |
+
+**Importante:** progresso **não** substitui legado no fluxo feliz — evita devolver sessão parcial do wizard quando o DATI já tem a leitura `COMPLETED`. Implementação: `obterLeituraDoProgresso` em `server/src/lib/snapshot-leitura-smart-read.ts`.
+
+---
+
+## 5. Variáveis de ambiente
+
+| Variável | Sistema | Função |
+|----------|---------|--------|
+| `SMART_READ_DATABASE_URL` | **Gravity Railway** | Postgres: snapshot, progresso, painéis |
+| `SMART_READ_LEGADO_URL` | **DATI** | Base da API `external-readings` |
+| `SMART_READ_LEGADO_CHAVE_GRAVITY` | **DATI** | Header `x-gravity-api-key` |
+| `SMART_READ_ID_COMPANY_LEGADO_PADRAO` / de-para org | **DATI** | `x-company-id` no legado |
+
+Dev sem legado: `SMART_READ_MOCK_LEGADO=1` simula extração no BFF — snapshots **ainda** gravam no Gravity se `SMART_READ_DATABASE_URL` estiver configurado.
+
+---
+
+## 6. Roadmap (não implementado)
+
+- Backfill em massa de leituras antigas do legado → snapshot Gravity.
+- Lista/Insights ler **somente** snapshots (legado só como motor de OCR).
+- Colunas de saving/tempo na tabela snapshot (hoje calculadas em `shared/metricas-transacao-leitura-smart-read.ts` na leitura da linha).
+- **Wiring status de fluxo** — BFF + Lista com `status_fluxo_leitura` (fundação já no Postgres; checklist em [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) §14.3).
+
+---
+
+## 7. Testes
+
+| Arquivo | Cobertura |
+|---------|-----------|
+| `testes/testes-unitarios/produto-gravity/smart-read/snapshot-leitura-smart-read.test.ts` | Elegibilidade, parse JSON snapshot, `obterLeituraDoProgresso` (exige `id_usuario`) |
+| `testes/testes-unitarios/produto-gravity/smart-read/progresso-leitura-smart-read.test.ts` | Sessão do wizard |
+| `testes/testes-unitarios/produto-gravity/smart-read/fixtures/transacoes-fixture-insights-smart-read.ts` | SSOT de `TransacaoLeitura` para testes Insights (path completo + fallback) |
+| `testes/testes-unitarios/produto-gravity/smart-read/calcular-metricas-insights-leitura.test.ts` | Métricas completas + fallback por transação |
+| `testes/testes-unitarios/produto-gravity/smart-read/agrupar-campos-por-dia-insights.test.ts` | Série temporal + fallback por transação |
+| `testes/testes-unitarios/produto-gravity/smart-read/status-fluxo-leitura.test.ts` | Derivação `status_fluxo_leitura` (SSOT `shared/status-fluxo-leitura-smart-read.ts`) |
+| `testes/testes-unitarios/produto-gravity/smart-read/uso-llm-leitura-smart-read.test.ts` | Soma, formatação discreta e custo USD estimado |
+
+---
+
+## 8. Documentos relacionados
+
+| Doc | Conteúdo |
+|-----|----------|
+| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Rotas BFF, progresso, nome do wizard, painéis |
+| [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Regras de acerto/erro, rankings, savings |
+| [README.md](./README.md) | Índice do produto |
+
+--- documentos-tecnicos/produtos-gravity/smart-read/README.md ---
+# Smart Docs � Documenta��o T�cnica
+
+> **Produto:** `smart-read`  
+> **C�digo:** `servicos-global/produto/smart-read/`  
+> **Skill operacional:** [`skills/produtos-gravity/smart-read/SKILL.md`](../../../skills/produtos-gravity/smart-read/SKILL.md)
+
+---
+
+## �ndice
+
+| Documento | Conte�do |
+|-----------|----------|
+| [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) | **Onde vive cada dado:** banco DATI = leituras reais (PDF, OCR, extra��o); Postgres Gravity = snapshot, progresso, pain�is |
+| [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) | Dashboard Insights: acerto/erro, emissor respons�vel, contrato BFF, rankings |
+| [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) | Lista por workspace, layout/pagina��o/pain�is, BFF leituras, progresso por usu�rio, nome do wizard, **KPI cards �13**, **status de fluxo �14** (funda��o + wiring pendente) |
+| [ANALISE-DE-RISCOS-TECNICO.md](./ANALISE-DE-RISCOS-TECNICO.md) | **Aba An�lise de Riscos:** V1 determin�stico, piloto LLM (V2), fundamenta��o NCM/lei/RAG (V3) |
+| [NOVA-LEITURA-PASSO-UM-TECNICO.md](./NOVA-LEITURA-PASSO-UM-TECNICO.md) | **Passo 1 � Anexar:** layout container stepper, upload, sidebar, checklist EMT 11 itens |
+| [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) | **Passo 2 � An�lise:** dashboard m�tricas, pipeline IA, globo, polling, checklist EMT 10 itens, suite 000151�000155 |
+| [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) | **Passo 3 � Confer�ncia:** grid dt-*, **campo data** (DD/MM/AAAA + calend�rio portal + ISO), cores barra lateral |
+| [Barra de status dos campos (`.dt-row-status`)](../../ux/design-system/padrao-dt-row-status-campos.md) | **Regra oficial:** cinza vazio, verde preenchido, roxo �Alterado� na confer�ncia (Smart Docs); Processo sem estado roxo |
+
+---
+
+## Pain�is da lista (padr�o Pedido/BID)
+
+O Smart Docs replica o **mesmo model e contrato** de `ListaPainelUsuarioGlobal` (`lista_painel_usuario_global` no banco `gravity-smart-read`), com `id_produto_gravity = 'smart-read'`. SSOT do contrato transversal: [PAINEL-LISTA-CONTRATO.md](../pedido/PAINEL-LISTA-CONTRATO.md).
+
+| Camada | Caminho |
+|--------|---------|
+| Model | `prisma/fragment.prisma` ? `ListaPainelUsuarioGlobal` |
+| API | `GET\|POST\|PUT\|DELETE /api/v1/smart-read/lista/paineis` |
+| Zod | `shared/listaPainelConfigSchema.ts`, `shared/listaPainelApiSchema.ts` |
+| Hook | `client/src/shared/use-lista-painel-smart-read.ts` |
+| UI faixa | `client/src/components/SmartReadListaPainelBar.tsx` + `client/src/shared/smart-read-lista-layout.css` |
+
+---
+
+## Identidade do produto
+
+| Atributo | Valor |
+|----------|-------|
+| `id_produto_gravity` | `smart-read` |
+| Client | `servicos-global/produto/smart-read/client/` |
+| Server (BFF) | `servicos-global/produto/smart-read/server/` |
+
+---
+
+## Visualiza��es (abas)
+
+Seletor em `client/src/components/SmartReadVisualizacaoTabs.tsx`.
+
+| Aba | Rota | Estado | Vis�vel |
+|-----|------|--------|---------|
+| Insights | `/smart-read/insights` | Implementado (cockpit operacional, **default**) | **Sim** |
+| Lista | `/smart-read/lista` | Implementado | **Sim** |
+| Dashboard | `/smart-read/dashboard` | Placeholder ("em breve") | **Oculto** |
+| Kanban | `/smart-read/kanban` | Implementado | **Oculto** |
+
+> **Dashboard e Kanban est�o ocultos do seletor** (TASK-000306). As rotas continuam existindo; apenas os bot�es das abas foram removidos do array `TABS`. Para reexibir, basta voltar as entradas `dashboard` e `kanban` (e seus �cones `ChartBar` / `Kanban`).
+
+---
+
+## Rotas de entrada (configurador)
+
+O Smart Docs roda **embutido** no configurador (`/smart-read/*`). Rotas internas do produto (`lista`, `insights`, �) s�o **relativas** no `App.tsx` do Smart Docs � mesmo padr�o do BID Frete.
+
+| URL de entrada | Destino can�nico | Onde |
+|----------------|------------------|------|
+| `/smart-read` | `/smart-read/insights` | `configurador/src/App.tsx` + server 301 |
+| `/smart-read-` | `/smart-read/insights` | typo/bookmark legado (h�fen solto no final) |
+| `/produto/smart-read` | `/smart-read/insights` | `configurador/src/App.tsx` + server 301 |
+| `/produto/smart-read-` | `/smart-read/insights` | idem typo com prefixo legado |
+| `/produto/smart-read/*` | `/smart-read/*` | `NavigateComPrefixo` (legado 90 dias) |
+
+**SSOT da entrada:** `ROTA_ENTRADA_SMART_READ` em `servicos-global/shell/utils/resolver-rota-produto.ts` (exportada via `@gravity/shell`). Hub, Core e puzzle consomem `resolverRotaProdutoGravity('smart-read')`.
+
+**N�o fazer:** rotas absolutas `/smart-read/lista` dentro do `Routes` do produto embutido � quebra match local e deixa a tela em branco.
+
+---
+
+## Menu lateral (padr�o do sistema)
+
+Configurado em `client/src/shared/config.ts` (`PRODUCT_CONFIG.navigation`) e mapeado para `MenuLateralGlobal` em `client/src/App.tsx`. Segue o padr�o dos demais produtos (Pedido/BID):
+
+| Grupo / item | Rota | Observa��o |
+|--------------|------|------------|
+| Meu Espa�o ? Minhas Atividades / Email / WhatsApp | `/hub` | Desabilitados (badge "Em Breve") |
+| Smart Docs (divisor) ? Lista | `/smart-read/lista` | Acesso direto � lista (toggle Insights\|Lista no topo) |
+| Hist�rico | `/workspace/historico-organizacao?id_produto_historico_log=smart-read` | Link externo (tela centralizada do Configurador) |
+| Configura��es | `/smart-read/configuracoes` | Ver abaixo |
+
+---
+
+## Configura��es (`/smart-read/configuracoes`)
+
+Tela em `client/src/pages/configuracoes-smart-read/`, com paridade de layout 1:1 com a Configura��es do Pedido (abas de visualiza��o no topo + sidebar de categorias; s� a categoria ativa � renderizada). Categorias: **Card**, **Vis�o Geral**, **Tabelas**, **Colunas Personalizadas** (criar/renomear/ocultar/excluir + reordenar por drag).
+
+> **Estado � local (`useState`)** � o Smart Docs ainda n�o tem backend de prefer�ncias. Sem bot�o "Salvar" e sem mock de persist�ncia (Mandamentos 05/08). As prefer�ncias n�o sobrevivem ao refresh at� existir endpoint/persist�ncia.
+
+---
+
+## Entregas recentes (2026-06)
+
+| Task / entrega | Escopo |
+|----------------|--------|
+| **PR #394** (merge 2026-06-22) | Lista com paridade Pedido/BID: altura flex at� o rodap�, contagem/pagina��o no GTV, colunas/filtros/exporta��o, pain�is persistidos em Postgres � ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) �9�11 |
+| TASK-000311 | Layout lista (viewport flex) + rodap� `N leituras � M arquivos � p�gina X de Y` |
+| TASK-000310 | Colunas din�micas, filtros por coluna, seletor/arrastar colunas, exporta��o multi-formato |
+| Hotfix rotas (2026-06) | Entrada `/smart-read` e `/produto/smart-read` ? `/smart-read/insights`; rotas internas relativas no produto embutido |
+| TASK-000308 | Lista real (BFF + progresso Postgres), link nome?retomar wizard, nome customizado (sessao.nome), recarregar lista ao fechar modal � ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) |
+| TASK-000307 | Menu lateral no padr�o do sistema + tela de Configura��es (estado local; PR #388) |
+| TASK-000306 | Ocultar abas Dashboard e Kanban do seletor (mantidas s� Insights e Lista) |
+| TASK-000318 | Snapshot de leitura no Postgres Gravity (`snapshot_leitura_smart_read`) � ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) |
+| TASK-000303 | Dashboard Insights (KPIs, savings, rankings) � ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) |
+| **PR #409** (merge 2026-06-23) | Insights: modal **Base de c�lculo** (tempos do estudo + observa��es documento m�dio), KPI Saving em Erros = contagem de campos, fallback degradado, cadeia GET snapshot?legado?progresso � ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) �5�6 e [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) �4.6 |
+| **TASK-000317** / PR #409 | Lista: colunas de **m�tricas da leitura** (documentos, campos, saving, tempos) � ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) �12 |
+| **TASK-000321** | Lista: ordem dos KPI cards (Performance de acertos = 2�) + card **Recursos reduzidos** agregando saving das leituras vis�veis � ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) �13 |
+| **PR #448** (merge 2026-06-24) | Saving SSOT unificado (TASK-334): recursos reduzidos = soma base manual ? cron�metro; wizard passo 2, insights e lista alinhados � ver [INSIGHTS-TECNICO.md](./INSIGHTS-TECNICO.md) �6 |
+| **TASK-000324** | Lista: faixa **Pain�is** roxa no chrome da tabela (criar/trocar/renomear/reordenar/excluir) + segmento �Vis�o geral� / �Transa��es API� na faixa unificada � paridade Pedido/BID Frete � ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) �11 |
+| **PR #449** (merge 2026-06-25) | Docs status fluxo (�14), fix crash wizard, fetch s� aba ativa, rate limit off em dev � ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) �6 e �9 |
+| **TASK-000334** / PR #445 | Wizard passo 1: exclus�o de arquivo com confirma��o (modal acima do wizard), persist�ncia local/progresso; `DELETE` legado ainda `501` � ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) �3 |
+| **Status de fluxo** (2026-06) | **Funda��o:** migration `20260625120000`, colunas `status_fluxo_*`, SSOT `shared/status-fluxo-leitura-smart-read.ts`, pill isolada + testes; **pendente:** wiring BFF/Lista (�14.3) � ver [LISTA-E-PROGRESSO-TECNICO.md](./LISTA-E-PROGRESSO-TECNICO.md) �14 |
+| **TASK-000343** | Passo 2: suite testes 000151�000155, `tempo_analise_segundos`, Base de c�lculo no wizard � [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) |
+| Erros passo 2 (2026-06) | Sidebar motivo amigavel + nao sera cobrado; mapeamento legado Excel/XML � [NOVA-LEITURA-PASSO-DOIS-TECNICO.md](./NOVA-LEITURA-PASSO-DOIS-TECNICO.md) �7 |
+| Refatora��o Insights | Fonte �nica acerto/erro por edi��o do usu�rio; emissor respons�vel por tipo de documento; `dados_original` no contrato bilateral |
+| **TASK-000357** | Contador discreto tokens Gemini (sidebar passo 2+), tabela `log_uso_llm_leitura_smart_read`, rotas `GET /leituras/tokens/*` - ver [PERSISTENCIA-DADOS-TECNICO.md](./PERSISTENCIA-DADOS-TECNICO.md) secao 3.1 e [NOVA-LEITURA-PASSO-TRES-TECNICO.md](./NOVA-LEITURA-PASSO-TRES-TECNICO.md) secao 6 |

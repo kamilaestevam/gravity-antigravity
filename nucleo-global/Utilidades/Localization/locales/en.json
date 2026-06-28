@@ -1,4 +1,40 @@
 ﻿{
+  "university": {
+    "modulo_nome": "Gravity University",
+    "nav": { "academy": "Onboarding", "minha_jornada": "My Journey", "docs": "Manuals and Videos", "builders": "Builders" },
+    "badge": { "em_breve": "Coming Soon", "restrito": "Restricted" },
+    "produto": {
+      "login": "Login",
+      "admin": "Admin",
+      "configurador": "Configurador",
+      "hub": "HUB",
+      "store": "Gravity Store",
+      "pedido": "Pedido",
+      "smart_read": "Smart Read",
+      "bid_frete": "BID International Freight",
+      "bid_cambio": "BID Exchange",
+      "processo": "Processo"
+    },
+    "banner": {
+      "em_construcao": "Under construction",
+      "descricao": "The platform's single learning hub — per-product onboarding, gamified journey and certificate, with GABI as the knowledge source and tutor."
+    },
+    "acao": { "continuar": "Continue", "iniciar_jornada": "Start journey", "concluida": "Completed" },
+    "aula": { "voltar": "Back", "marcar_concluida": "Mark as complete", "inicio": "Start", "fim": "End of module" },
+    "grupo": { "comece_aqui": "Start here", "seus_produtos": "Your products", "explorar": "Explore more" },
+    "trilha": { "modulos_one": "{{count}} module", "modulos_other": "{{count}} modules", "total": "Total:" },
+    "progresso": { "produtos_contratados": "Progress on contracted products", "concluidos": "completed" },
+    "dica": {
+      "titulo": "Tips and Explanations",
+      "habilitadas": "Enabled — tips appear on hover",
+      "desabilitadas": "Disabled — no tips are shown"
+    },
+    "busca": { "organizacao": "Search organization…" },
+    "jornada": { "pontos": "Points", "concluidas": "Completed", "em_andamento": "In progress", "certificados": "Certificates" },
+    "vazio": { "em_breve": "{{secao}} — coming soon" },
+    "docs": { "descricao": "Manuals and videos for the whole platform — GABI's knowledge base." },
+    "builders": { "descricao": "Pointers for integrators and developers (API Cockpit)." }
+  },
   "BIDFRETE": {
     "NOVA_COTACAO": {
       "TIPO_OPERACAO_COTACAO_BID_FRETE_INTERNACIONAL": "Operation Type",
@@ -1509,7 +1545,8 @@
     "kpi_notas": "Import Invoices",
     "kpi_gabi": "Gabi AI Accuracy",
     "kpi_gabi_curto": "Gabi AI Accuracy",
-    "operacoes_andamento": "Operations in progress",
+    "operacoes_andamento": "Awaiting action",
+    "secao_aguardando_acao": "Awaiting action",
     "ver_todos_processos": "View all processes",
     "seus_produtos": "Your products",
     "atividade_recente": "Recent activity",
@@ -1565,7 +1602,14 @@
     "mock_ontem_1410": "yesterday, 14:10",
     "mock_badge_embarque": "Shipment",
     "mock_badge_desembaraco": "Clearance",
-    "mock_badge_entregue": "Delivered ✓"
+    "mock_badge_entregue": "Delivered ✓",
+    "kpi_sem_pendencia": "No pending items at the moment.",
+    "kpi_sem_processos": "No ongoing processes at the moment.",
+    "kpi_aviso_aguardando_dados": "This card will update once platform data is available.",
+    "operacoes_carregando": "Loading operations…",
+    "operacoes_vazio": "No ongoing processes at the moment.",
+    "pendencias_secao_vazio": "No pending items in active workspace products.",
+    "pendencias_produto_sub": "Items awaiting action in this module"
   },
   "modal": {
     "fechar": "Close modal",

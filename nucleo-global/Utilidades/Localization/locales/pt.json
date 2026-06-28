@@ -1,4 +1,40 @@
 ﻿{
+  "university": {
+    "modulo_nome": "Gravity University",
+    "nav": { "academy": "Onboarding", "minha_jornada": "Minha Jornada", "docs": "Manuais e Vídeos", "builders": "Builders" },
+    "badge": { "em_breve": "Em Breve", "restrito": "Restrito" },
+    "produto": {
+      "login": "Login",
+      "admin": "Admin",
+      "configurador": "Configurador",
+      "hub": "HUB",
+      "store": "Gravity Store",
+      "pedido": "Pedido",
+      "smart_read": "Smart Read",
+      "bid_frete": "BID Frete Internacional",
+      "bid_cambio": "BID Câmbio",
+      "processo": "Processo"
+    },
+    "banner": {
+      "em_construcao": "Em construção",
+      "descricao": "Hub único de aprendizado da plataforma — onboarding por produto, jornada gamificada e certificado, com a GABI como fonte de conhecimento e tutora."
+    },
+    "acao": { "continuar": "Continuar", "iniciar_jornada": "Iniciar jornada", "concluida": "Concluída" },
+    "aula": { "voltar": "Voltar", "marcar_concluida": "Marcar como concluída", "inicio": "Início", "fim": "Fim do módulo" },
+    "grupo": { "comece_aqui": "Comece por aqui", "seus_produtos": "Seus produtos", "explorar": "Explorar outros" },
+    "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos", "total": "Total:" },
+    "progresso": { "produtos_contratados": "Progresso nos produtos contratados", "concluidos": "concluídos" },
+    "dica": {
+      "titulo": "Dicas e Explicações",
+      "habilitadas": "Habilitadas — dicas aparecem ao passar o mouse",
+      "desabilitadas": "Desabilitadas — nenhuma dica é exibida"
+    },
+    "busca": { "organizacao": "Buscar organização…" },
+    "jornada": { "pontos": "Pontos", "concluidas": "Concluídas", "em_andamento": "Em andamento", "certificados": "Certificados" },
+    "vazio": { "em_breve": "{{secao}} — em breve" },
+    "docs": { "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI." },
+    "builders": { "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)." }
+  },
   "comum": {
     "salvar": "Salvar",
     "cancelar": "Cancelar",
@@ -201,7 +237,8 @@
     "kpi_notas": "NFs de importação",
     "kpi_gabi": "Assertividade da Gabi IA",
     "kpi_gabi_curto": "Assertividade Gabi IA",
-    "operacoes_andamento": "Operações em andamento",
+    "operacoes_andamento": "Aguardando ação",
+    "secao_aguardando_acao": "Aguardando ação",
     "ver_todos_processos": "Ver todos os processos",
     "seus_produtos": "Seus produtos",
     "atividade_recente": "Atividade recente",
@@ -257,7 +294,14 @@
     "mock_ontem_1410": "ontem, 14:10",
     "mock_badge_embarque": "Embarque",
     "mock_badge_desembaraco": "Desembaraço",
-    "mock_badge_entregue": "Entregue ✓"
+    "mock_badge_entregue": "Entregue ✓",
+    "kpi_sem_pendencia": "Nenhuma pendência no momento.",
+    "kpi_sem_processos": "Nenhum processo em andamento no momento.",
+    "kpi_aviso_aguardando_dados": "Assim que tiver dados na plataforma o card será atualizado.",
+    "operacoes_carregando": "Carregando operações…",
+    "operacoes_vazio": "Nenhum processo em andamento no momento.",
+    "pendencias_secao_vazio": "Nenhuma pendência nos produtos ativos do workspace.",
+    "pendencias_produto_sub": "Itens aguardando ação no módulo"
   },
   "modal": {
     "fechar": "Fechar modal",

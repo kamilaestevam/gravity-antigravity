@@ -1,4 +1,40 @@
 ﻿{
+  "university": {
+    "modulo_nome": "Gravity University",
+    "nav": { "academy": "Onboarding", "minha_jornada": "Mi Recorrido", "docs": "Manuales y Videos", "builders": "Builders" },
+    "badge": { "em_breve": "Próximamente", "restrito": "Restringido" },
+    "produto": {
+      "login": "Login",
+      "admin": "Admin",
+      "configurador": "Configurador",
+      "hub": "HUB",
+      "store": "Gravity Store",
+      "pedido": "Pedido",
+      "smart_read": "Smart Read",
+      "bid_frete": "BID Flete Internacional",
+      "bid_cambio": "BID Cambio",
+      "processo": "Processo"
+    },
+    "banner": {
+      "em_construcao": "En construcción",
+      "descricao": "El hub único de aprendizaje de la plataforma — onboarding por producto, recorrido gamificado y certificado, con GABI como fuente de conocimiento y tutora."
+    },
+    "acao": { "continuar": "Continuar", "iniciar_jornada": "Iniciar recorrido", "concluida": "Completada" },
+    "aula": { "voltar": "Volver", "marcar_concluida": "Marcar como completada", "inicio": "Inicio", "fim": "Fin del módulo" },
+    "grupo": { "comece_aqui": "Empieza aquí", "seus_produtos": "Tus productos", "explorar": "Explorar más" },
+    "trilha": { "modulos_one": "{{count}} módulo", "modulos_other": "{{count}} módulos", "total": "Total:" },
+    "progresso": { "produtos_contratados": "Progreso en productos contratados", "concluidos": "completados" },
+    "dica": {
+      "titulo": "Consejos y Explicaciones",
+      "habilitadas": "Habilitadas — los consejos aparecen al pasar el cursor",
+      "desabilitadas": "Deshabilitadas — no se muestra ningún consejo"
+    },
+    "busca": { "organizacao": "Buscar organización…" },
+    "jornada": { "pontos": "Puntos", "concluidas": "Completadas", "em_andamento": "En curso", "certificados": "Certificados" },
+    "vazio": { "em_breve": "{{secao}} — próximamente" },
+    "docs": { "descricao": "Manuales y videos de toda la plataforma — base de conocimiento de GABI." },
+    "builders": { "descricao": "Direccionamiento para integradores y desarrolladores (API Cockpit)." }
+  },
   "BIDFRETE.NOVA_COTACAO.TIPO_OPERACAO_COTACAO_BID_FRETE_INTERNACIONAL": "Tipo de Operación",
   "BIDFRETE.NOVA_COTACAO.MODALIDADE_COTACAO_BID_FRETE_INTERNACIONAL": "Modalidad",
   "bidfrete.nova_cotacao.tipo_operacao_cotacao_bid_frete_internacional": "Tipo de Operación",
@@ -7141,7 +7177,8 @@
     "kpi_notas": "Facturas de importación",
     "kpi_gabi": "Asertividad de Gabi IA",
     "kpi_gabi_curto": "Asertividad Gabi IA",
-    "operacoes_andamento": "Operaciones en curso",
+    "operacoes_andamento": "En espera de acción",
+    "secao_aguardando_acao": "En espera de acción",
     "ver_todos_processos": "Ver todos los procesos",
     "seus_produtos": "Tus productos",
     "atividade_recente": "Actividad reciente",
@@ -7186,7 +7223,14 @@
     "mock_ontem_1410": "ayer, 14:10",
     "mock_badge_embarque": "Embarque",
     "mock_badge_desembaraco": "Despacho",
-    "mock_badge_entregue": "Entregado ✓"
+    "mock_badge_entregue": "Entregado ✓",
+    "kpi_sem_pendencia": "Ninguna pendencia en este momento.",
+    "kpi_sem_processos": "Ningún proceso en curso en este momento.",
+    "kpi_aviso_aguardando_dados": "El card se actualizará cuando haya datos en la plataforma.",
+    "operacoes_carregando": "Cargando operaciones…",
+    "operacoes_vazio": "Ningún proceso en curso en este momento.",
+    "pendencias_secao_vazio": "Ninguna pendencia en los productos activos del workspace.",
+    "pendencias_produto_sub": "Ítems en espera de acción en el módulo"
   },
   "store": {
     "voltar_hub": "Volver al Hub",

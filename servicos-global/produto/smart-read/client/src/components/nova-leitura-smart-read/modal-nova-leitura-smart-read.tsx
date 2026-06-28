@@ -205,6 +205,7 @@ export function ModalNovaLeituraSmartRead({
   const [tempoAnaliseSegundos, setTempoAnaliseSegundos] = useState<number | null>(null)
 
   const [conferenciaSelecao, setConferenciaSelecao] = useState<SelecaoDocumentoConferencia | null>(null)
+  const [passoConferenciaMontado, setPassoConferenciaMontado] = useState(false)
 
   const [compararAberto, setCompararAberto] = useState(false)
 
@@ -289,6 +290,7 @@ export function ModalNovaLeituraSmartRead({
       setEnviando(false)
       setInicioAnalise(null)
       setConferenciaSelecao(null)
+      setPassoConferenciaMontado(false)
       setCompararAberto(false)
       setPreviewArquivo(null)
       setPreviewUrlRemota(null)
@@ -316,6 +318,10 @@ export function ModalNovaLeituraSmartRead({
     }
     abertoAnteriorRef.current = aberto
   }, [aberto, arquivosIniciais, idLeituraExistente, hidratarLeituraExistente])
+
+  useEffect(() => {
+    if (passo >= 3) setPassoConferenciaMontado(true)
+  }, [passo])
 
   useEffect(() => {
     if (passo === 4) {
@@ -576,6 +582,10 @@ export function ModalNovaLeituraSmartRead({
     visualizarArquivo(id)
 
   }, [visualizarArquivo, passo])
+
+  const selecionarDocumentoConferencia = useCallback((id: string, indice: number) => {
+    setConferenciaSelecao({ idArquivoLocal: id, indiceDocumento: indice })
+  }, [])
 
   const previewArquivoItem = useMemo(
     () =>
@@ -1219,6 +1229,12 @@ export function ModalNovaLeituraSmartRead({
 
           onVisualizarDocumento={visualizarDocumento}
 
+          selecaoConferencia={passo === 3 ? conferenciaSelecao : null}
+
+          onSelecionarDocumentoConferencia={
+            passo === 3 ? selecionarDocumentoConferencia : undefined
+          }
+
           onEnviar={() => void enviarArquivos()}
 
           onCancelar={() => void handleFechar()}
@@ -1251,18 +1267,20 @@ export function ModalNovaLeituraSmartRead({
 
         )}
 
-        {passo === 3 && (
-          <AreaConferenciaNovaLeituraSmartRead
-            arquivos={arquivos}
-            selecao={conferenciaSelecao}
-            onSelecionarDocumento={setConferenciaSelecao}
-            onCompararArquivo={() => setCompararAberto(true)}
-            onVerEvidencia={visualizarEvidenciaRisco}
-            idLeituraLegado={idLeituraAtual}
-            onTokensAtualizados={contadorTokens.aplicarAtualizacaoTokens}
-            onIaInicio={() => contadorTokens.marcarIaAtiva()}
-            onIaFim={() => contadorTokens.marcarIaInativa()}
-          />
+        {passoConferenciaMontado && (
+          <div className="sr-wizard-passo-painel" hidden={passo !== 3}>
+            <AreaConferenciaNovaLeituraSmartRead
+              arquivos={arquivos}
+              selecao={conferenciaSelecao}
+              onSelecionarDocumento={setConferenciaSelecao}
+              onCompararArquivo={() => setCompararAberto(true)}
+              onVerEvidencia={visualizarEvidenciaRisco}
+              idLeituraLegado={idLeituraAtual}
+              onTokensAtualizados={contadorTokens.aplicarAtualizacaoTokens}
+              onIaInicio={() => contadorTokens.marcarIaAtiva()}
+              onIaFim={() => contadorTokens.marcarIaInativa()}
+            />
+          </div>
         )}
 
         {passo === 4 && (

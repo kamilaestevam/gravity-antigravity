@@ -19,10 +19,14 @@ import {
   LeituraSchema,
   ListarTransacoesRespostaSchema,
   MetricaLeituraRespostaSchema,
+  CriarExportacaoLeituraRespostaSchema,
+  StatusExportacaoLeituraRespostaSchema,
+  type CriarExportacaoLeituraResposta,
   type CriarLeituraResposta,
   type EstadoProgressoLeitura,
   type Leitura,
   type ListarTransacoesResposta,
+  type StatusExportacaoLeituraResposta,
 } from './schemas'
 import {
   AnaliseRiscosLeituraResponseSchema,
@@ -244,6 +248,47 @@ export const smartReadApi = {
     if (!resposta.ok) {
       throw new Error(await lerErro(resposta))
     }
+  },
+
+  criarExportacaoLeitura(
+    idLeitura: string,
+    ids_arquivo: string[],
+  ): Promise<CriarExportacaoLeituraResposta> {
+    return requisitar(
+      CriarExportacaoLeituraRespostaSchema,
+      `/api/v1/smart-read/leituras/${encodeURIComponent(idLeitura)}/exportacoes`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids_arquivo }),
+      },
+    )
+  },
+
+  obterStatusExportacaoLeitura(idTarefa: string): Promise<StatusExportacaoLeituraResposta> {
+    return requisitar(
+      StatusExportacaoLeituraRespostaSchema,
+      `/api/v1/smart-read/leituras/exportacoes/tarefas/${encodeURIComponent(idTarefa)}`,
+    )
+  },
+
+  async baixarArquivoExportacaoLeitura(idTarefa: string, nomeArquivo?: string): Promise<void> {
+    const resposta = await fetch(
+      `/api/v1/smart-read/leituras/exportacoes/tarefas/${encodeURIComponent(idTarefa)}/arquivo`,
+      { headers: cabecalhosBase(), signal: AbortSignal.timeout(120_000) },
+    )
+    if (!resposta.ok) {
+      throw new Error(await lerErro(resposta))
+    }
+    const blob = await resposta.blob()
+    const url = URL.createObjectURL(blob)
+    const ancora = document.createElement('a')
+    ancora.href = url
+    ancora.download = nomeArquivo ?? `smart-read-export-${idTarefa}.zip`
+    document.body.appendChild(ancora)
+    ancora.click()
+    ancora.remove()
+    URL.revokeObjectURL(url)
   },
 }
 

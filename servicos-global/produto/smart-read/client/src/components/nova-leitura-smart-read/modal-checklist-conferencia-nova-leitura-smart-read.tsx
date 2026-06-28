@@ -1,25 +1,22 @@
 /**
- * modal-checklist-conferencia-nova-leitura-smart-read.tsx — checklist: visão geral + por invoice
+ * modal-checklist-conferencia-nova-leitura-smart-read.tsx — checklist em modal (visão geral unificada)
  */
 
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ClipboardText, X } from '@phosphor-icons/react'
-import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { DocumentoAnaliseRisco } from '../../../../shared/analise-riscos-leitura-smart-read'
 import {
   agruparChecklistPorSecao,
   listarInvoicesChecklist,
   montarChecklistMatrizInvoice,
   montarResumoGeralChecklistInvoices,
+  VALOR_TODAS_INVOICES_CHECKLIST,
   type ParametrosChecklistMatrizInvoice,
 } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
-import {
-  ChecklistConferenciaCorpoSmartRead,
-} from './checklist-conferencia-corpo-smart-read'
+import { ChecklistConferenciaCorpoSmartRead } from './checklist-conferencia-corpo-smart-read'
 import { InfograficoChecklistGeralSmartRead } from './infografico-checklist-geral-smart-read'
-
-type AbaChecklistModal = 'geral' | 'invoice'
+import { ResumoContagemChecklistSmartRead } from './resumo-contagem-checklist-smart-read'
 
 type Props = {
   aberto: boolean
@@ -36,8 +33,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   parametrosChecklist,
   onVerRisco,
 }: Props) {
-  const [aba, setAba] = useState<AbaChecklistModal>('geral')
-  const [rotuloInvoiceSelecionada, setRotuloInvoiceSelecionada] = useState<string | null>(null)
+  const [filtroVisaoGeral, setFiltroVisaoGeral] = useState<string>(VALOR_TODAS_INVOICES_CHECKLIST)
 
   const invoices = useMemo(() => listarInvoicesChecklist(documentos), [documentos])
 
@@ -50,15 +46,16 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     [parametrosChecklist, documentos],
   )
 
-  const rotuloAtivo = rotuloInvoiceSelecionada ?? invoices[0]?.rotulo ?? null
+  const mostrarDetalheInvoice = filtroVisaoGeral !== VALOR_TODAS_INVOICES_CHECKLIST
+  const rotuloChecklistAtivo = mostrarDetalheInvoice ? filtroVisaoGeral : null
 
   const checklistInvoice = useMemo(() => {
-    if (!rotuloAtivo) return []
+    if (!rotuloChecklistAtivo) return []
     return montarChecklistMatrizInvoice({
       ...parametrosChecklist,
-      rotulo_documento: rotuloAtivo,
+      rotulo_documento: rotuloChecklistAtivo,
     })
-  }, [parametrosChecklist, rotuloAtivo])
+  }, [parametrosChecklist, rotuloChecklistAtivo])
 
   const secoesInvoice = useMemo(
     () => agruparChecklistPorSecao(checklistInvoice),
@@ -76,10 +73,22 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     [invoices],
   )
 
+  const opcoesSelecaoGeral = useMemo(
+    () => [{ valor: VALOR_TODAS_INVOICES_CHECKLIST, rotulo: 'Todas' }, ...opcoesInvoice],
+    [opcoesInvoice],
+  )
+
+  const contagemDetalheInvoice = useMemo(() => {
+    if (!rotuloChecklistAtivo) return resumoGeral.contagem_global
+    return (
+      resumoGeral.por_invoice.find((inv) => inv.rotulo === rotuloChecklistAtivo)?.contagem ??
+      resumoGeral.contagem_global
+    )
+  }, [resumoGeral, rotuloChecklistAtivo])
+
   useEffect(() => {
     if (!aberto) return
-    setAba('geral')
-    setRotuloInvoiceSelecionada(invoices[0]?.rotulo ?? null)
+    setFiltroVisaoGeral(VALOR_TODAS_INVOICES_CHECKLIST)
   }, [aberto, invoices])
 
   useEffect(() => {
@@ -96,9 +105,12 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     }
   }, [aberto, onFechar])
 
-  function irParaInvoice(rotulo: string) {
-    setRotuloInvoiceSelecionada(rotulo)
-    setAba('invoice')
+  function selecionarInvoiceNaVisaoGeral(rotulo: string) {
+    setFiltroVisaoGeral(rotulo)
+  }
+
+  function aoMudarFiltroVisaoGeral(valor: string | null) {
+    setFiltroVisaoGeral(valor ?? VALOR_TODAS_INVOICES_CHECKLIST)
   }
 
   if (!aberto) return null
@@ -150,62 +162,39 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
           </button>
         </header>
 
-        <div className="sr-chk-modal-abas" role="tablist" aria-label="Modo do checklist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={aba === 'geral'}
-            className={`sr-chk-modal-aba${aba === 'geral' ? ' sr-chk-modal-aba--ativa' : ''}`}
-            onClick={() => setAba('geral')}
-          >
-            Visão geral
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={aba === 'invoice'}
-            className={`sr-chk-modal-aba${aba === 'invoice' ? ' sr-chk-modal-aba--ativa' : ''}`}
-            onClick={() => setAba('invoice')}
-          >
-            Por invoice
-          </button>
-        </div>
-
         <div className="sr-chk-modal-corpo">
-          {aba === 'geral' ? (
+          {invoices.length === 0 ? (
+            <p className="sr-conf-vazio">Nenhuma invoice INVOICE encontrada nesta leitura.</p>
+          ) : (
             <InfograficoChecklistGeralSmartRead
               resumo={resumoGeral}
-              onSelecionarInvoice={irParaInvoice}
-            />
-          ) : (
-            <div className="sr-chk-modal-invoice-detalhe">
-              <div className="sr-chk-modal-invoice-select">
-                <label className="sr-chk-modal-invoice-select-rotulo" htmlFor="sr-chk-select-invoice">
-                  Invoice
-                </label>
-                <SelectGlobal
-                  id="sr-chk-select-invoice"
-                  opcoes={opcoesInvoice}
-                  valor={rotuloAtivo}
-                  aoMudarValor={(v) => setRotuloInvoiceSelecionada(v == null ? null : String(v))}
-                  buscavel
-                  placeholder="Selecione a invoice…"
-                  posicao="baixo"
-                />
-              </div>
-
-              {rotuloAtivo ? (
-                <ChecklistConferenciaCorpoSmartRead
-                  secoes={secoesInvoice}
-                  todasSecoesAbertas
-                  onVerRisco={onVerRisco}
-                  idPrefixo="sr-chk-modal-inv"
-                  classeCorpo="sr-chk-modal-checklist-corpo"
-                />
-              ) : (
-                <p className="sr-conf-vazio">Nenhuma invoice INVOICE encontrada nesta leitura.</p>
-              )}
-            </div>
+              onSelecionarInvoice={selecionarInvoiceNaVisaoGeral}
+              selecaoInvoice={{
+                id: 'sr-chk-select-invoice',
+                opcoes: opcoesSelecaoGeral,
+                valor: filtroVisaoGeral,
+                aoMudarValor: aoMudarFiltroVisaoGeral,
+              }}
+            >
+              {mostrarDetalheInvoice && rotuloChecklistAtivo ? (
+                <>
+                  <ChecklistConferenciaCorpoSmartRead
+                    secoes={secoesInvoice}
+                    todasSecoesAbertas
+                    onVerRisco={onVerRisco}
+                    idPrefixo="sr-chk-modal-geral-inv"
+                    classeCorpo="sr-chk-modal-checklist-corpo"
+                  />
+                  <ResumoContagemChecklistSmartRead
+                    verde={contagemDetalheInvoice.verde}
+                    amarelo={contagemDetalheInvoice.amarelo}
+                    vermelho={contagemDetalheInvoice.vermelho}
+                    pendente={contagemDetalheInvoice.pendente}
+                    classe="sr-conf-checklist-resumo--rodape"
+                  />
+                </>
+              ) : null}
+            </InfograficoChecklistGeralSmartRead>
           )}
         </div>
       </div>

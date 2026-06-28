@@ -153,3 +153,98 @@ export function listarLeiturasMockLegado(params: {
   const fatia = filtrados.slice(inicio, inicio + params.limite)
   return { items: fatia, total: filtrados.length }
 }
+
+type TarefaDownloadMock = {
+  idLeitura: string
+  fileReferenceIds: string[]
+  criadoEm: number
+}
+
+const tarefasDownload = new Map<string, TarefaDownloadMock>()
+
+function gerarZipMinimoMock(nomeInterno: string, conteudo: string): Buffer {
+  const enc = new TextEncoder()
+  const nomeBytes = enc.encode(nomeInterno)
+  const dados = enc.encode(conteudo)
+  const lh = Buffer.alloc(30)
+  lh.writeUInt32LE(0x04034b50, 0)
+  lh.writeUInt16LE(20, 4)
+  lh.writeUInt16LE(0, 6)
+  lh.writeUInt16LE(0, 8)
+  lh.writeUInt16LE(0, 10)
+  lh.writeUInt16LE(0, 12)
+  lh.writeUInt32LE(0, 14)
+  lh.writeUInt32LE(dados.length, 18)
+  lh.writeUInt32LE(dados.length, 22)
+  lh.writeUInt16LE(nomeBytes.length, 26)
+  lh.writeUInt16LE(0, 28)
+  const eocd = Buffer.alloc(22)
+  eocd.writeUInt32LE(0x06054b50, 0)
+  eocd.writeUInt16LE(0, 4)
+  eocd.writeUInt16LE(0, 6)
+  eocd.writeUInt16LE(1, 8)
+  eocd.writeUInt16LE(1, 10)
+  eocd.writeUInt32LE(46 + nomeBytes.length + dados.length, 12)
+  eocd.writeUInt32LE(30 + nomeBytes.length + dados.length, 16)
+  eocd.writeUInt16LE(0, 20)
+  const central = Buffer.alloc(46)
+  central.writeUInt32LE(0x02014b50, 0)
+  central.writeUInt16LE(20, 4)
+  central.writeUInt16LE(20, 6)
+  central.writeUInt16LE(0, 8)
+  central.writeUInt16LE(0, 10)
+  central.writeUInt16LE(0, 12)
+  central.writeUInt32LE(0, 16)
+  central.writeUInt32LE(dados.length, 20)
+  central.writeUInt32LE(dados.length, 24)
+  central.writeUInt16LE(nomeBytes.length, 28)
+  central.writeUInt32LE(0, 38)
+  central.writeUInt32LE(0, 42)
+  return Buffer.concat([lh, Buffer.from(nomeBytes), dados, central, Buffer.from(nomeBytes), eocd])
+}
+
+const DELAY_EXPORT_MS = 1500
+
+export function criarTarefaDownloadMockLegado(
+  idLeitura: string,
+  fileReferenceIds: string[],
+): { id_tarefa: string; status: string } {
+  const id_tarefa = `mock-dl-${randomUUID()}`
+  tarefasDownload.set(id_tarefa, {
+    idLeitura,
+    fileReferenceIds,
+    criadoEm: Date.now(),
+  })
+  return { id_tarefa, status: 'CREATED' }
+}
+
+export function obterTarefaDownloadMockLegado(taskId: string): {
+  taskId: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+  downloadUrl?: string
+  message?: string
+} {
+  const tarefa = tarefasDownload.get(taskId)
+  if (!tarefa) {
+    throw new Error(`Tarefa download mock ${taskId} nao encontrada`)
+  }
+  const pronto = Date.now() - tarefa.criadoEm >= DELAY_EXPORT_MS
+  return {
+    taskId,
+    status: pronto ? 'completed' : 'processing',
+    downloadUrl: pronto ? `mock://export/${taskId}` : undefined,
+  }
+}
+
+export function obterZipTarefaDownloadMockLegado(taskId: string): Buffer {
+  const tarefa = tarefasDownload.get(taskId)
+  if (!tarefa) {
+    throw new Error(`Tarefa download mock ${taskId} nao encontrada`)
+  }
+  const linhas = [
+    'Gravity Smart Read — export mock (dev)',
+    `leitura=${tarefa.idLeitura}`,
+    `arquivos=${tarefa.fileReferenceIds.join(',')}`,
+  ]
+  return gerarZipMinimoMock('export-mock.txt', linhas.join('\n'))
+}

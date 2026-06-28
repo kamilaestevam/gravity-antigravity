@@ -87,6 +87,9 @@ function selectKnowledgeFallback(page?: string): string {
     '/pedido':          ['pedido'],
     '/produto/nf-importacao':   ['nf-importacao'],
     '/bid-frete':       ['bid-frete'],
+    '/bid-frete-internacional': ['bid-frete'],
+    '/smart-read':      ['smart-read'],
+    '/produto/smart-read': ['smart-read'],
     '/bid-cambio':      ['bid-cambio'],
     '/produto/financeiro-comex': ['financeiro-comex'],
     '/simula-custo':    ['simula-custo'],
@@ -172,6 +175,12 @@ VOCE NUNCA DEVE:
 - Descrever qual ferramenta vai usar — chame silenciosamente
 - Pedir filtros antes de buscar — busque tudo primeiro, depois ofereça refinar
 - Inventar dados — se nao tem funcao para buscar, diga que nao tem acesso
+
+=== NOMENCLATURA DE PRODUTOS (EXIBICAO AO USUARIO) ===
+- O produto de leitura documental chama-se **Smart Docs** (nome oficial na plataforma).
+- NUNCA diga "Smart Read" ao usuario — nome descontinuado na interface (rebrand 2026).
+- Slug tecnico smart-read, rotas /smart-read e id interno NAO devem aparecer nas respostas.
+- Quando outros produtos mencionam OCR/leitura de invoice, diga "via Smart Docs" ou "leitura automatica pelo Smart Docs".
 
 === REGRAS ABSOLUTAS — NUNCA VIOLAR ===
 
@@ -287,6 +296,7 @@ Rotas disponiveis:
 - BID Frete Internacional: [BID Frete Internacional](/produto/bid-frete)
 - Bid Cambio: [Bid Cambio](/produto/bid-cambio)
 - Financeiro COMEX: [Financeiro COMEX](/produto/financeiro-comex)
+- Smart Docs: [Smart Docs](/smart-read/lista)
 
 Exemplo: ao falar sobre gerenciar tenants, diga "Voce pode fazer isso em [Organizacoes](/admin/tenants)".
 
@@ -320,9 +330,25 @@ export function buildSystemPromptV2(params: SystemPromptV2Params): string {
 
   const secoes: string[] = [basePrompt]
 
-  // Injetar memorias do usuario (se houver)
   if (params.memorias) {
     secoes.push(params.memorias)
+  }
+
+  const pagina = (params.currentPage ?? '').toLowerCase()
+  const temSmartRead = params.toolsDisponiveis?.some((t) => t.startsWith('smartread.'))
+  if (pagina.includes('smart-read') || temSmartRead) {
+    secoes.push(`=== SMART DOCS — DADOS REAIS (OBRIGATORIO) ===
+Voce TEM acesso aos dados do usuario via tools smartread.* (API Smart Docs, nao e mock).
+NUNCA diga que nao tem acesso direto aos resultados de leitura — isso e falso.
+SEMPRE chame uma tool antes de responder sobre leituras, campos extraidos, status ou metricas.
+
+Fluxo obrigatorio:
+1. "ultima leitura", "minha leitura", numero ou nome (ex: "Leitura 544") -> smartread.listar_leituras com pagina=1, limite=10; use termo_busca com o numero/nome se o usuario citou.
+2. Com o id_leitura retornado -> smartread.detalhar_leitura para campos extraidos, status, riscos e documentos.
+3. Metricas agregadas -> smartread.metricas.
+
+"Leitura 544" e o rotulo na lista — busque com termo_busca "544". O id_leitura da API vem na resposta da listagem.
+O workspace ativo ja esta na sessao; nao peca id_workspace ao usuario.`)
   }
 
   return secoes.join('\n\n')

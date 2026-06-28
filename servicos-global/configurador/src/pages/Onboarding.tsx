@@ -244,10 +244,13 @@ export function Onboarding() {
           <StepSquare ativo={passo === 2} concluido={false} />
         </div>
 
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem', minWidth: 0, paddingInline: '2.25rem' }}>
           <h1 style={{
             fontSize: '1.5rem', fontWeight: 700,
             color: '#f1f5f9', marginBottom: '0.75rem', letterSpacing: '-0.02em',
+            overflowWrap: 'anywhere',
+            wordBreak: 'break-word',
+            maxWidth: '100%',
           }}>
             {passo === 1
               ? <>Bem-vindo a bordo, {user.firstName}! 🚀</>
@@ -255,11 +258,11 @@ export function Onboarding() {
           </h1>
           <p style={{
             fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6,
-            margin: '0 auto',
+            margin: '0 auto', overflowWrap: 'anywhere', wordBreak: 'break-word', maxWidth: '100%',
           }}>
             {passo === 1
               ? 'Digite o nome da empresa que esta contratando a plataforma'
-              : <>Informe o CNPJ de <strong style={{ color: '#f1f5f9' }}>{companyName}</strong></>}
+              : <>Informe o CNPJ de <strong style={{ color: '#f1f5f9', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{companyName}</strong></>}
           </p>
         </div>
 

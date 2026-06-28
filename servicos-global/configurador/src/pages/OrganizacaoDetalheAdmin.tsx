@@ -154,7 +154,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
     return {
       label:     `Painel de Auditoria — ${organizacao.nome_organizacao}`,
       icone:     <ShieldCheck weight="duotone" size={22} color="#34d399" />,
-      subtitulo: `Visão forense completa da organização ${organizacao.subdominio_organizacao}.usegravity.com.br • ID: ${organizacao.id_organizacao}`,
+      subtitulo: `Visão forense completa da organização ${organizacao.nome_organizacao} • ID: ${organizacao.id_organizacao}`,
     }
   }, [organizacao]))
 
@@ -279,10 +279,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
         </div>
       )
     },
-    {
-      key: 'subdominio_workspace', label: t('admin.organizacao_detalhe.workspaces.subdominio'), tipo: 'texto',
-      render: (v) => <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>{v as string}.usegravity.com.br</code>
-    },
+    // SUSPENSO 2026-06-29 (Daniel): coluna subdomínio workspace oculta
     {
       key: 'status_workspace', label: t('admin.organizacao_detalhe.workspaces.status'), tipo: 'texto',
       render: (v) => <StatusBadgeGlobal valor={rotuloWorkspace(v as string)} />
@@ -339,7 +336,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
               <>
                 <p className="cg-tooltip__title">Dados da Organização</p>
                 <div className="cg-tooltip__row"><span>ID</span> <strong>{organizacao.id_organizacao}</strong></div>
-                <div className="cg-tooltip__row"><span>Slug</span> <strong>{organizacao.subdominio_organizacao}</strong></div>
+                <div className="cg-tooltip__row"><span>URL</span> <strong>usegravity.com.br</strong></div>
                 <div className="cg-tooltip__row"><span>Criado em</span> <strong>{new Date(organizacao.data_criacao_organizacao).toLocaleDateString('pt-BR')}</strong></div>
               </>
             }

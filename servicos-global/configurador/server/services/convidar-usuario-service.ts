@@ -123,15 +123,13 @@ export async function convidarUsuarioService(
     select: {
       status_organizacao: true,
       hospeda_colaboradores_gravity: true,
-      subdominio_organizacao: true,
     },
   })
   if (!orgAlvo || orgAlvo.status_organizacao !== 'ATIVO') {
     throw new AppError('Organização não encontrada ou inativa', 404, 'ORG_NOT_FOUND')
   }
 
-  const orgGravityCanonica =
-    orgAlvo.hospeda_colaboradores_gravity || orgAlvo.subdominio_organizacao === 'gravity'
+  const orgGravityCanonica = orgAlvo.hospeda_colaboradores_gravity
 
   // ─── 2. Regra Gravity-interna — checada na ORG ALVO ─────────────────────
   // SUPER_ADMIN/ADMIN só podem ser criados em organizações que hospedam

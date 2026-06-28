@@ -138,7 +138,7 @@ export function WorkspaceLayout() {
     ? organizacoes.map((org: OrganizacaoShell) => ({
         id: org.id_organizacao,
         name: org.nome_organizacao,
-        plan: org.subdominio_organizacao,
+        plan: 'usegravity.com.br',
       }))
     : []
 

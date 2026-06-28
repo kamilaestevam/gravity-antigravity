@@ -24,7 +24,6 @@ import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
 
 export interface DadosEditarOrg {
   nome: string
-  subdominio: string
   cnpj: string
   estado: string
   cidade: string
@@ -100,10 +99,6 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
   const [segmento, setSegmento] = useState('')
   const [tipoEmpresa, setTipoEmpresa] = useState('')
 
-  // Subdomínio é gerado pelo sistema na criação e é IMUTÁVEL na edição
-  // (URLs já em uso por usuários, integrações e webhooks dependem dele).
-  const subdominio = organizacao?.subdominio_organizacao ?? ''
-
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(estado)
 
   // Preenche dados quando a modal abre.
@@ -137,7 +132,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
 
   function handleSalvar() {
     if (!podesSalvar) return
-    aoSalvar({ nome, subdominio, cnpj, estado, cidade, segmento, tipo_empresa: tipoEmpresa })
+    aoSalvar({ nome, cnpj, estado, cidade, segmento, tipo_empresa: tipoEmpresa })
     aoFechar()
   }
 
@@ -284,31 +279,9 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
               </CampoGeralGlobal>
             </div>
 
-            <div>
-              <CampoGeralGlobal
-                label={t('admin.testes-gerais.org.campo_subdominio')}
-                tooltipTitulo="Subdomínio gerado pelo sistema"
-                tooltipDescricao="Subdomínio é gerado pela plataforma na criação e não pode ser alterado depois — URLs já em uso por usuários, integrações e webhooks dependem dele."
-              >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0 0.875rem',
-                  background: 'var(--ws-surface)',
-                  border: '1px solid var(--ws-accent-border)',
-                  borderRadius: '8px',
-                  height: '40px',
-                  fontSize: '0.8125rem',
-                  fontFamily: 'monospace',
-                  opacity: 0.85,
-                }}>
-                  <Globe size={16} style={{ marginRight: '0.5rem', color: 'var(--ws-muted)' }} />
-                  <strong style={{ color: 'var(--ws-accent)' }}>
-                    {subdominio}<span style={{ color: 'var(--ws-muted)', fontWeight: 400 }}>.usegravity.com.br</span>
-                  </strong>
-                </div>
-              </CampoGeralGlobal>
-            </div>
+            {/* SUSPENSO 2026-06-29 (Daniel): subdomínio/URL não exibido — portal multi-URL suspenso.
+            <div> ... CampoGeralGlobal subdomínio ... </div>
+            */}
           </div>
         </div>
 

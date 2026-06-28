@@ -184,7 +184,6 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
         orgEditando.id_organizacao,
         {
           nome_organizacao:       dados.nome,
-          subdominio_organizacao: dados.subdominio,
           cnpj_organizacao:       dados.cnpj,
           estado_organizacao:     dados.estado,
           cidade_organizacao:     dados.cidade,
@@ -300,24 +299,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
         </span>
       )
     },
-    {
-      key: 'subdominio_organizacao', label: 'Subdomínio', tipo: 'texto',
-      tooltipTitulo: 'Roteamento DNS (Subdomain CNAME)',
-      tooltipDescricao: 'Alias em uso pelo API Gateway para roteamento da organização.',
-      render: (_v, item) => (
-        <a
-          href={`${SHELL_URL}/configurador/${item.subdominio_organizacao}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
-          onClick={ev => ev.stopPropagation()}
-          onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.color = '#818cf8'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-          onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.color = 'var(--ws-text)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
-        >
-          {item.subdominio_organizacao}.usegravity.com.br
-        </a>
-      )
-    },
+    // SUSPENSO 2026-06-29 (Daniel): coluna Subdomínio oculta — portal multi-URL suspenso; slug permanece só no banco.
     {
       key: 'status_organizacao', label: 'Status', tipo: 'texto',
       tooltipTitulo: 'Status da Organização',
@@ -384,22 +366,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
         </div>
       )
     },
-    {
-      key: 'subdominio_workspace', label: 'Subdomínio', tipo: 'texto',
-      render: (_v, item) => (
-        <a
-          href={item.subdominio_workspace ? `${SHELL_URL}/configurador/${item.subdominio_workspace}` : '#'}
-          target={item.subdominio_workspace ? '_blank' : undefined}
-          rel="noopener noreferrer"
-          style={{ color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
-          onClick={ev => ev.stopPropagation()}
-          onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.color = '#818cf8'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-          onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.color = 'var(--ws-text)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
-        >
-          {item.subdominio_workspace}.usegravity.com.br
-        </a>
-      )
-    },
+    // SUSPENSO 2026-06-29 (Daniel): coluna Subdomínio workspace oculta — ver comentário acima.
     {
       key: 'status_workspace', label: 'Status', tipo: 'texto',
       render: (v) => <StatusBadgeGlobal valor={rotuloWorkspace(v as string)} />

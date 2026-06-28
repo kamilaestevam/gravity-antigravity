@@ -92,7 +92,7 @@ export function SeletorOrganizacaoAdmin({ valor, aoMudar, rotuloVazio }: Props) 
           </option>
           {organizacoes.map((org) => (
             <option key={org.id_organizacao} value={org.id_organizacao}>
-              {org.nome_organizacao} ({org.subdominio_organizacao})
+              {org.nome_organizacao}
             </option>
           ))}
         </select>

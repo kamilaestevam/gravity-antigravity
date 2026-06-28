@@ -187,10 +187,9 @@ export function VisaoGeralAdmin() {
             <TooltipGlobal titulo={t('admin.visao-geral.badge_nivel_super')} descricao={t('admin.visao-geral.badge_nivel_super_desc')}>
               <span className="em-identity__badge" style={{ cursor: 'help', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>{t('admin.visao-geral.badge_hq_owner')}</span>
             </TooltipGlobal>
-            <h2 className="em-identity__nome">{dados.nome}</h2>
-            <p className="em-identity__sub">
-              {dados.subdominio}.usegravity.com.br
-            </p>
+            <h2 className="em-identity__nome" data-testid="identidade-nome-organizacao">{dados.nome}</h2>
+            {/* SUSPENSO 2026-06-29 (Daniel): URL única — slug interno não exibido */}
+            <p className="em-identity__sub" data-testid="identidade-subdominio">usegravity.com.br</p>
             {/* Decisão dono 2026-06-12: card HQ mostra só o ID Empresa — o ID da
                 organização já aparece em Admin > Organizações e na tela Organização. */}
             {idOrganizacao && (suidEmpresa ? (
@@ -326,7 +325,7 @@ export function VisaoGeralAdmin() {
                 <div className="em-plan-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}><Package weight="duotone" size={22} /></div>
                 <div>
                   <p className="em-plan-label">{t('admin.visao-geral.instancia_atual')}</p>
-                  <p className="em-plan-name">{dados.subdominio}</p>
+                  <p className="em-plan-name" data-testid="infra-plano-nome">{dados.nome || '—'}</p>
                 </div>
               </div>
             </TooltipGlobal>
@@ -335,21 +334,21 @@ export function VisaoGeralAdmin() {
             <div className="em-plan-meta-item">
               <TooltipGlobal descricao={t('admin.visao-geral.infra_url_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
-                  <Globe size={14} weight="duotone" /> <span>{dados.subdominio}.usegravity.com.br</span>
+                  <Globe size={14} weight="duotone" /> <span data-testid="infra-subdominio">usegravity.com.br</span>
                 </span>
               </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
               <TooltipGlobal descricao={t('admin.visao-geral.infra_data_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
-                  <CalendarBlank size={14} weight="duotone" /> <span>{t('admin.visao-geral.operando_desde')} {dados.criadaEm}</span>
+                  <CalendarBlank size={14} weight="duotone" /> <span data-testid="infra-data-criacao">{t('admin.visao-geral.operando_desde')} {dados.criadaEm}</span>
                 </span>
               </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
               <TooltipGlobal descricao={t('admin.visao-geral.infra_regiao_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
-                  <MapPin size={14} weight="duotone" /> <span>{dados.cidade}, {dados.estado}</span>
+                  <MapPin size={14} weight="duotone" /> <span data-testid="infra-localizacao">{dados.cidade}, {dados.estado}</span>
                 </span>
               </TooltipGlobal>
             </div>

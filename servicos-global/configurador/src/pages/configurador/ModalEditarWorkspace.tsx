@@ -74,11 +74,6 @@ function formatarCNPJ(v: string) {
 function AbaInformacoes({
   workspace,
   nome_workspace,
-  subdominio_workspace,
-  subdominioCarregando,
-  subdominioAjustado,
-  subdominioSolicitado,
-  subdominioErro,
   onNome,
   onCampoExtra,
   cidades,
@@ -87,11 +82,6 @@ function AbaInformacoes({
 }: {
   workspace: Partial<Workspace>
   nome_workspace: string
-  subdominio_workspace: string
-  subdominioCarregando: boolean
-  subdominioAjustado: boolean
-  subdominioSolicitado: string
-  subdominioErro: string | null
   onNome: (v: string) => void
   onCampoExtra: (key: keyof Workspace, v: string) => void
   cidades: SelectOpcao[]
@@ -247,65 +237,7 @@ function AbaInformacoes({
           </div>
 
           <div style={{ gridColumn: '1 / -1' }}>
-            <CampoGeralGlobal
-              label={t('workspace.workspaces.campo_subdominio')}
-              tooltipTitulo="Subdomínio gerado pelo sistema"
-              tooltipDescricao="A plataforma gera automaticamente um subdomínio único a partir do nome do workspace. Você não precisa escolher — se já existir, o sistema adiciona um sufixo numérico (-2, -3...)."
-            >
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '0 0.875rem',
-                background: 'var(--ws-surface)',
-                border: '1px solid var(--ws-accent-border)',
-                borderRadius: '8px',
-                height: '40px',
-                color: 'var(--ws-text)',
-                fontSize: '0.8125rem',
-                fontFamily: 'monospace',
-              }}>
-                <Globe size={16} style={{ marginRight: '0.5rem', color: 'var(--ws-muted)' }} />
-                {subdominioCarregando ? (
-                  <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic' }}>gerando…</span>
-                ) : subdominio_workspace ? (
-                  <strong style={{ color: 'var(--ws-accent)' }}>
-                    {subdominio_workspace}<span style={{ color: 'var(--ws-muted)', fontWeight: 400 }}>.usegravity.com.br</span>
-                  </strong>
-                ) : (
-                  <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic' }}>
-                    {ehNovo ? 'Digite o nome para gerar o subdomínio' : '—'}
-                  </span>
-                )}
-              </div>
-
-              {subdominioErro && (
-                <p style={{
-                  fontSize: '0.75rem',
-                  color: '#f87171',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  margin: '0.375rem 0 0',
-                }}>
-                  <Warning size={12} weight="bold" />
-                  {subdominioErro}
-                </p>
-              )}
-
-              {ehNovo && subdominioAjustado && !subdominioErro && subdominio_workspace && (
-                <p style={{
-                  fontSize: '0.75rem',
-                  color: '#fbbf24',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  margin: '0.375rem 0 0',
-                }}>
-                  <Warning size={12} weight="bold" />
-                  Subdomínio <code>{subdominioSolicitado}</code> já estava em uso. Ajustamos para <code>{subdominio_workspace}</code>.
-                </p>
-              )}
-            </CampoGeralGlobal>
+            {/* SUSPENSO 2026-06-29 (Daniel): preview subdomínio workspace — slug interno gerado no backend */}
           </div>
         </div>
       </div>
@@ -346,7 +278,6 @@ export function ModalEditarWorkspace({
   // Em CRIAÇÃO: pede ao backend o subdomínio que seria atribuído baseado no nome.
   // Em EDIÇÃO: usa o subdomínio existente do workspace (read-only, sem regerar).
   const sug = useSugerirSubdominio(nome, { enabled: ehNovo })
-  const subExibido = ehNovo ? sug.sugestao : (workspace?.subdominio_workspace || '')
 
   // Preenche os campos ao abrir
   useEffect(() => {
@@ -408,13 +339,8 @@ export function ModalEditarWorkspace({
       conteudo: (
         <BannerRequisitosContexto requisitos={requisitos}>
           <AbaInformacoes
-            workspace={{ ...extraData, id_workspace: workspace?.id_workspace, nome_workspace: nome, subdominio_workspace: subExibido }}
+            workspace={{ ...extraData, id_workspace: workspace?.id_workspace, nome_workspace: nome }}
             nome_workspace={nome}
-            subdominio_workspace={subExibido}
-            subdominioCarregando={ehNovo && sug.carregando}
-            subdominioAjustado={ehNovo && sug.ajustado}
-            subdominioSolicitado={ehNovo ? sug.solicitado : ''}
-            subdominioErro={ehNovo ? sug.erro : null}
             onNome={(v) => setNome(v)}
             onCampoExtra={(k, v) => setExtraData(p => ({ ...p, [k]: v }))}
             cidades={cidades}
@@ -427,7 +353,7 @@ export function ModalEditarWorkspace({
         </BannerRequisitosContexto>
       )
     }
-  ], [extraData, workspace?.id_workspace, nome, subExibido, sug.carregando, sug.ajustado, sug.solicitado, sug.erro, cidades, carregandoCidades, ehNovo, requisitos, focoInicial])
+  ], [extraData, workspace?.id_workspace, nome, cidades, carregandoCidades, ehNovo, requisitos, focoInicial])
 
   // ── Badge pulsante: retorno ao produto de origem (deep-link) ──────────────
   const botaoRetorno = urlRetorno ? (

@@ -77,7 +77,6 @@ export interface OrganizacaoOverride {
 export interface OrganizacaoShell {
   id_organizacao: string
   nome_organizacao: string
-  subdominio_organizacao: string
   status_organizacao: string
 }
 

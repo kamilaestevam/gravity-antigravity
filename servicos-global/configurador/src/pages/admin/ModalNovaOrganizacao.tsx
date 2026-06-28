@@ -9,15 +9,22 @@ import {
   type RequisitoSalvar,
 } from '@nucleo/banner-requisitos-global'
 import { useCidadesIBGE } from '../../hooks/use-cidades-ibge'
-import { useSugerirSubdominio } from '../../hooks/use-sugerir-subdominio'
 import {
   Buildings,
   IdentificationCard,
   MapPin,
-  Globe,
   Archive,
-  Warning
 } from '@phosphor-icons/react'
+
+/** Slug interno (banco) — portal multi-URL suspenso; backend continua gerando unicidade. */
+function slugifyNomeOrganizacao(v: string): string {
+  return v
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
 
 export interface DadosNovaOrg {
   nome: string
@@ -89,25 +96,19 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
 
   const { cidades, carregando: carregandoCidades } = useCidadesIBGE(estado)
 
-  // Sistema gera o subdomínio (cross-tabela único, auto-suffix). Usuário não escolhe.
-  const sug = useSugerirSubdominio(nome)
-  const subdominioSugerido = sug.sugestao
-
-  // Simple dirty tracking
-  const dirty = !!(nome || cnpj || estado || cidade || segmento || tipoEmpresa)
-
   const requisitos: RequisitoSalvar[] = [
-    { chave: 'nome',       ok: !!nome.trim(),         mensagem: 'Nome da organização' },
-    { chave: 'subdominio', ok: !!subdominioSugerido && !sug.carregando, mensagem: sug.carregando ? 'Aguardando sugestão de subdomínio…' : 'Subdomínio gerado pelo sistema' },
-    { chave: 'sugErro',    ok: !sug.erro,             mensagem: sug.erro ?? 'Subdomínio válido' },
+    { chave: 'nome', ok: !!nome.trim(), mensagem: 'Nome da organização' },
   ]
   const podesSalvar = requisitos.every(r => r.ok)
 
+  const dirty = !!(nome || cnpj || estado || cidade || segmento || tipoEmpresa)
+
   function handleSalvar() {
     if (!podesSalvar) return
+    const slugInterno = slugifyNomeOrganizacao(nome)
     aoSalvar({
       nome,
-      subdominio: subdominioSugerido,
+      subdominio: slugInterno,
       cnpj,
       estado,
       cidade,
@@ -175,46 +176,9 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
             </CampoGeralGlobal>
           </div>
 
-          <CampoGeralGlobal
-            label={t('admin.testes-gerais.org.campo_subdominio_dns')}
-            tooltipTitulo="Subdomínio gerado pelo sistema"
-            tooltipDescricao="A plataforma gera automaticamente um subdomínio único a partir do nome da organização. Se já existir, o sistema adiciona um sufixo numérico (-2, -3...)."
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0 0.875rem',
-              background: 'var(--ws-surface)',
-              border: '1px solid var(--ws-accent-border)',
-              borderRadius: '8px',
-              height: '40px',
-              fontSize: '0.8125rem',
-              fontFamily: 'monospace',
-            }}>
-              <Globe size={16} style={{ marginRight: '0.5rem', color: 'var(--ws-muted)' }} />
-              {sug.carregando ? (
-                <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic' }}>gerando…</span>
-              ) : subdominioSugerido ? (
-                <strong style={{ color: 'var(--ws-accent)' }}>
-                  {subdominioSugerido}<span style={{ color: 'var(--ws-muted)', fontWeight: 400 }}>.usegravity.com.br</span>
-                </strong>
-              ) : (
-                <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic' }}>Digite o nome da organização para gerar o subdomínio</span>
-              )}
-            </div>
-            {sug.erro && (
-              <p style={{ fontSize: '0.75rem', color: '#f87171', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.375rem' }}>
-                <Warning size={12} weight="bold" />
-                {sug.erro}
-              </p>
-            )}
-            {sug.ajustado && !sug.erro && subdominioSugerido && (
-              <p style={{ fontSize: '0.75rem', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.375rem' }}>
-                <Warning size={12} weight="bold" />
-                Subdomínio <code>{sug.solicitado}</code> já estava em uso. Ajustamos para <code>{subdominioSugerido}</code>.
-              </p>
-            )}
-          </CampoGeralGlobal>
+          {/* SUSPENSO 2026-06-29 (Daniel): preview de subdomínio/URL — portal multi-URL suspenso.
+          <CampoGeralGlobal label={...} ... />
+          */}
 
           <BannerRequisitosGlobal />
         </div>
@@ -282,7 +246,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
         </div>
       )
     },
-  ], [nome, subdominioSugerido, sug.carregando, sug.ajustado, sug.solicitado, sug.erro, cnpj, estado, cidade, segmento, tipoEmpresa, cidades, carregandoCidades])
+  ], [nome, cnpj, estado, cidade, segmento, tipoEmpresa, cidades, carregandoCidades, t, requisitos])
 
   return (
     <ModalFormularioAbasGlobal

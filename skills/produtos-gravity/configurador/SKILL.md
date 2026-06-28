@@ -225,7 +225,11 @@ model UsuarioWorkspace {
 
 ## Política de Subdomínio (decisão 2026-05-03 — ADR 0002)
 
-**Domínio público:** `usegravity.com.br`. Cada Organização e cada Workspace tem seu próprio subdomínio canônico (`<sub>.usegravity.com.br`) usado em e-mails, integrações, webhooks.
+> **⚠️ SUSPENSO (portal multi-URL) — 2026-06-29:** slug `subdominio_organizacao` / `subdominio_workspace` continua **obrigatório no banco** (`proximoSubdominioDisponivel`), mas **não** é exibido na UI nem exposto em `GET /api/v1/me`. Acesso do usuário: **somente** `https://usegravity.com.br/{área}`. Ver ADR 0002.
+
+**Domínio público de acesso:** `usegravity.com.br` (URL única). Slug interno por org/workspace permanece para unicidade e uso futuro (integrações), **não** para login/hub no browser.
+
+**Deploy (prestador/fornecedor):** antes de remover fallback legado, validar em prod `ID_ORGANIZACAO_GRAVITY` **ou** org `ATIVA` com `hospeda_colaboradores_gravity=true` — senão `resolverIdOrganizacaoGravity()` retorna `503 ORG_GRAVITY_AUSENTE`.
 
 **Regras absolutas:**
 

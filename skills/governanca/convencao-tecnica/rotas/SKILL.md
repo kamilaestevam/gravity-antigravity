@@ -13,6 +13,8 @@ description: "Use esta skill ao criar, renomear ou refatorar QUALQUER rota do fr
 
 ## A regra única
 
+> **⚠️ SUSPENSO (2026-06-29):** portal por subdomínio (`empresa.usegravity.com.br`) — acesso **só** via `usegravity.com.br/{área}`. Slug `subdominio_*` é interno ao banco, não rota de SPA.
+
 ```
 www.usegravity.com.br/{área}                ← raiz da área
 www.usegravity.com.br/{área}/{sub-rota}     ← tela dentro da área

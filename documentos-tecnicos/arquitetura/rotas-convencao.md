@@ -1,5 +1,7 @@
 # Convenção de Rotas — SSOT (Single Source of Truth)
 
+> **⚠️ SUSPENSO (portal multi-URL) — 2026-06-29:** acesso do usuário **somente** em `https://usegravity.com.br/{área}`. Subdomínio por org é slug interno (banco), não rota SPA.
+
 > **Tema:** Padrão único de URL para todas as áreas e produtos do monolito-sidecar
 > **Versão:** 1.0
 > **Data:** 2026-05-23

@@ -37,13 +37,11 @@ describe('meOrganizacoesResponseSchema', () => {
       {
         id_organizacao: 'org_001',
         nome_organizacao: 'Gravity Interno',
-        subdominio_organizacao: 'gravity-interno',
         status_organizacao: 'ATIVO',
       },
       {
         id_organizacao: 'org_002',
         nome_organizacao: 'Cliente ABC',
-        subdominio_organizacao: 'cliente-abc',
         status_organizacao: 'ATIVO',
       },
     ],
@@ -63,7 +61,6 @@ describe('meOrganizacoesResponseSchema', () => {
     const payload = {
       organizacoes: [{
         nome_organizacao: 'Sem ID',
-        subdominio_organizacao: 'sem-id',
         status_organizacao: 'ATIVO',
       }],
     }
@@ -75,7 +72,6 @@ describe('meOrganizacoesResponseSchema', () => {
     const payload = {
       organizacoes: [{
         id_organizacao: 'org_001',
-        subdominio_organizacao: 'sem-nome',
         status_organizacao: 'ATIVO',
       }],
     }

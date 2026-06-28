@@ -20,6 +20,20 @@ function mascararCNPJ(valor: string): string {
   return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`
 }
 
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+/** Clerk pode devolver e-mail em firstName — nunca exibir @ na saudação do /trial. */
+function resolverNomeUsuarioTrial(firstName: string | null | undefined, fullName: string | null | undefined): string {
+  const primeiro = (firstName ?? '').trim()
+  if (primeiro && !REGEX_EMAIL.test(primeiro)) return primeiro
+  const nomeCompleto = (fullName ?? '').trim()
+  if (nomeCompleto && !REGEX_EMAIL.test(nomeCompleto)) {
+    const [primeiroNome] = nomeCompleto.split(/\s+/)
+    if (primeiroNome) return primeiroNome
+  }
+  return 'Usuario'
+}
+
 function validarCNPJ(cnpj: string): boolean {
   const numeros = cnpj.replace(/\D/g, '')
   if (numeros.length !== 14) return false
@@ -77,6 +91,8 @@ export function Onboarding() {
   const erroCnpjInline = cnpjTouched && cnpj.length > 0 && !cnpjValido
     ? 'CNPJ inválido. Verifique os dígitos.'
     : ''
+  const nomeUsuarioTrial = resolverNomeUsuarioTrial(user?.firstName, user?.fullName)
+
   if (!isLoaded || verificandoOrg) return <div style={{ color: 'white', padding: 40, textAlign: 'center' }}>{t('comum.carregando')}</div>
 
   if (!isSignedIn || !user) {
@@ -253,7 +269,7 @@ export function Onboarding() {
             maxWidth: '100%',
           }}>
             {passo === 1
-              ? <>Bem-vindo a bordo, {user.firstName}! 🚀</>
+              ? <>Bem-vindo a bordo, {nomeUsuarioTrial}! 🚀</>
               : <>Confirme o CNPJ da empresa</>}
           </h1>
           <p style={{

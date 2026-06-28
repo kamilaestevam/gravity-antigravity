@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState, type ComponentType } from 'react'
 import { ClipboardText, ShieldWarning, Sparkle } from '@phosphor-icons/react'
 import type { IconProps } from '@phosphor-icons/react'
 import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
+import { extrairDocumentosArquivoLocal } from '../../shared/tipo-arquivo-nova-leitura-smart-read'
 import { ConferenciaCamposNovaLeituraSmartRead } from './conferencia-campos-nova-leitura-smart-read'
 import { ConferenciaQaNovaLeituraSmartRead } from './conferencia-qa-nova-leitura-smart-read'
 import { ConferenciaRiscosAduaneirosNovaLeituraSmartRead } from './conferencia-riscos-aduaneiros-nova-leitura-smart-read'
@@ -56,6 +57,7 @@ export function AreaConferenciaNovaLeituraSmartRead({
   onIaFim,
 }: Props) {
   const [aba, setAba] = useState<AbaConferencia>('campos')
+  const [campoFocoConferencia, setCampoFocoConferencia] = useState<string | null>(null)
 
   const arquivosCompletos = arquivos.filter(
     (item) => item.status_arquivo_local === 'completo' && item.leitura,
@@ -69,6 +71,13 @@ export function AreaConferenciaNovaLeituraSmartRead({
   )
 
   const indiceDocumento = selecao?.indiceDocumento ?? 0
+
+  const tituloContextoDocumento = useMemo(() => {
+    if (!arquivoAtual) return ''
+    const documentos = extrairDocumentosArquivoLocal(arquivoAtual)
+    const documentoAtual = documentos[indiceDocumento]
+    return `${arquivoAtual.arquivo.name}${documentoAtual ? ` | ${documentoAtual.tipo_documento}` : ''}`
+  }, [arquivoAtual, indiceDocumento])
 
   useEffect(() => {
     if (arquivosCompletos.length === 0) return
@@ -113,26 +122,39 @@ export function AreaConferenciaNovaLeituraSmartRead({
               arquivo={arquivoAtual}
               indiceDocumento={indiceDocumento}
               onCompararArquivo={onCompararArquivo}
+              campoFoco={campoFocoConferencia}
+              onCampoFocoConsumido={() => setCampoFocoConferencia(null)}
             />
           ) : null}
         </>
       )}
 
-      {aba === 'qa' && (
-        <ConferenciaQaNovaLeituraSmartRead
-          arquivos={arquivosCompletos}
-          idLeituraLegado={idLeituraLegado}
-          onTokensAtualizados={onTokensAtualizados}
-          onIaInicio={onIaInicio}
-          onIaFim={onIaFim}
-        />
+      {arquivosCompletos.length > 0 && (
+        <div className="sr-conf-tab-panel" hidden={aba !== 'qa'}>
+          <ConferenciaQaNovaLeituraSmartRead
+            arquivoConferencia={arquivoAtual ?? null}
+            indiceDocumentoConferencia={indiceDocumento}
+            tituloContextoDocumento={tituloContextoDocumento}
+            idLeituraLegado={idLeituraLegado}
+            onTokensAtualizados={onTokensAtualizados}
+            onIaInicio={onIaInicio}
+            onIaFim={onIaFim}
+          />
+        </div>
       )}
 
       {arquivosCompletos.length > 0 && (
         <div className="sr-conf-tab-panel" hidden={aba !== 'riscos'}>
           <ConferenciaRiscosAduaneirosNovaLeituraSmartRead
             arquivos={arquivosCompletos}
+            arquivoConferencia={arquivoAtual ?? null}
+            indiceDocumentoConferencia={indiceDocumento}
+            tituloContextoDocumento={tituloContextoDocumento}
             onVerEvidencia={onVerEvidencia}
+            onIrConferenciaCampos={(campo) => {
+              setAba('campos')
+              setCampoFocoConferencia(campo)
+            }}
             idLeituraLegado={idLeituraLegado}
             onTokensAtualizados={onTokensAtualizados}
             onIaInicio={onIaInicio}

@@ -24,6 +24,7 @@ type Props = {
   rotulo: string
   valor: string | null
   alterado?: boolean
+  destacado?: boolean
   tipo?: TipoCampoConferencia
   aoSalvar: (novo: string) => void
 }
@@ -49,6 +50,7 @@ export function CampoLinhaConferenciaNovaLeituraSmartRead({
   rotulo,
   valor,
   alterado = false,
+  destacado = false,
   tipo: tipoProp,
   aoSalvar,
 }: Props) {
@@ -240,7 +242,10 @@ export function CampoLinhaConferenciaNovaLeituraSmartRead({
       : null
 
   return (
-    <div className={`dt-row dt-row--${status}${alterado ? ' sr-conf-campo-alterado' : ''}`}>
+    <div
+      id={`sr-campo-conferencia-${chave}`}
+      className={`dt-row dt-row--${status}${alterado ? ' sr-conf-campo-alterado' : ''}${destacado ? ' sr-conf-campo-destacado' : ''}`}
+    >
       <div className="dt-row-status" aria-hidden="true" />
       <div className="dt-row-head">
         <span className="dt-row-icon">{icone}</span>

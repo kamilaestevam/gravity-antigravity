@@ -23,10 +23,12 @@ import { interpretarErroArquivoLeituraSmartRead } from '../../shared/formatar-er
 type Props = {
   item: ArquivoLocalNovaLeitura
   passo: number
+  selecaoConferencia?: number | null
   onRemover?: () => void
   onAlternarExpandido: () => void
   onVisualizarArquivo: () => void
   onVisualizarDocumento: (indice: number) => void
+  onSelecionarDocumentoConferencia?: (indice: number) => void
 }
 
 function rotuloStatus(item: ArquivoLocalNovaLeitura, passo: number): string {
@@ -49,10 +51,12 @@ function rotuloStatus(item: ArquivoLocalNovaLeitura, passo: number): string {
 export function CardArquivoNovaLeituraSmartRead({
   item,
   passo,
+  selecaoConferencia = null,
   onRemover,
   onAlternarExpandido,
   onVisualizarArquivo,
   onVisualizarDocumento,
+  onSelecionarDocumentoConferencia,
 }: Props) {
   const documentos = extrairDocumentosArquivoLocal(item)
   const quantidadeDocumentos = contarDocumentosArquivoLocal(item)
@@ -145,23 +149,41 @@ export function CardArquivoNovaLeituraSmartRead({
 
       {item.expandido && temDocumentosIdentificados && (
         <ul className="sr-wizard-card-documentos">
-          {documentos.map((doc) => (
-            <li key={doc.id_documento}>
-              <span className="sr-wizard-card-doc-rotulo">
-                <FileText size={14} weight="duotone" />
-                {doc.tipo_documento}
-              </span>
-              <button
-                type="button"
-                className="sr-wizard-card-btn-icone"
-                title={`Visualizar ${doc.tipo_documento}`}
-                aria-label={`Visualizar ${doc.tipo_documento}`}
-                onClick={() => onVisualizarDocumento(doc.indice)}
+          {documentos.map((doc) => {
+            const ativoConferencia =
+              passo === 3 && selecaoConferencia !== null && selecaoConferencia === doc.indice
+            return (
+              <li
+                key={doc.id_documento}
+                className={ativoConferencia ? 'sr-wizard-card-documentos-item--ativo' : undefined}
               >
-                <Eye size={14} />
-              </button>
-            </li>
-          ))}
+                <button
+                  type="button"
+                  className="sr-wizard-card-doc-selecao"
+                  title={`Conferir ${doc.tipo_documento}`}
+                  aria-label={`Conferir ${doc.tipo_documento}`}
+                  aria-current={ativoConferencia ? 'true' : undefined}
+                  onClick={() => {
+                    onSelecionarDocumentoConferencia?.(doc.indice)
+                  }}
+                >
+                  <span className="sr-wizard-card-doc-rotulo">
+                    <FileText size={14} weight="duotone" />
+                    {doc.tipo_documento}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="sr-wizard-card-btn-icone"
+                  title={`Visualizar ${doc.tipo_documento}`}
+                  aria-label={`Visualizar ${doc.tipo_documento}`}
+                  onClick={() => onVisualizarDocumento(doc.indice)}
+                >
+                  <Eye size={14} />
+                </button>
+              </li>
+            )
+          })}
         </ul>
       )}
     </article>

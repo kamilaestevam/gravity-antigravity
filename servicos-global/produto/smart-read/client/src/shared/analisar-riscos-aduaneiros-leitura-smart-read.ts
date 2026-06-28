@@ -47,6 +47,27 @@ export function montarDocumentosAnaliseRiscoDeArquivosLocais(
   return saida
 }
 
+/** Um subdocumento da sidebar (passo Conferência) — escopo das abas QA e Riscos. */
+export function montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado(
+  arquivo: ArquivoLocalNovaLeitura,
+  indiceDocumento: number,
+): DocumentoAnaliseRisco[] {
+  if (arquivo.status_arquivo_local !== 'completo') return []
+  const documentos = extrairDocumentosArquivoLocal(arquivo)
+  const doc = documentos[indiceDocumento]
+  if (!doc) return []
+  const dados = extrairDadosArquivoLocal(arquivo, indiceDocumento)
+  if (!dados) return []
+  return [
+    {
+      nome_arquivo: arquivo.arquivo.name,
+      tipo_documento: doc.tipo_documento,
+      indice: doc.indice,
+      dados,
+    },
+  ]
+}
+
 export function analisarRiscosAduaneirosLeitura(
   arquivos: ArquivoLocalNovaLeitura[],
 ): ResumoRiscosAduaneirosLeitura {

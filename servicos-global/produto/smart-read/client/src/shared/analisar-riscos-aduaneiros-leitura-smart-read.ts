@@ -31,41 +31,37 @@ export function montarDocumentosAnaliseRiscoDeArquivosLocais(
 ): DocumentoAnaliseRisco[] {
   const saida: DocumentoAnaliseRisco[] = []
   for (const arquivo of arquivos) {
-    if (arquivo.status_arquivo_local !== 'completo') continue
-    const documentos = extrairDocumentosArquivoLocal(arquivo)
-    for (const doc of documentos) {
-      const dados = extrairDadosArquivoLocal(arquivo, doc.indice)
-      if (!dados) continue
-      saida.push({
-        nome_arquivo: arquivo.arquivo.name,
-        tipo_documento: doc.tipo_documento,
-        indice: doc.indice,
-        dados,
-      })
-    }
+    saida.push(...montarDocumentosAnaliseRiscoDeArquivoLocal(arquivo))
   }
   return saida
 }
 
-/** Um subdocumento da sidebar (passo Conferência) — escopo das abas QA e Riscos. */
-export function montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado(
+/** Todos os subdocumentos extraídos do arquivo (PDF, imagem, etc.). */
+export function montarDocumentosAnaliseRiscoDeArquivoLocal(
   arquivo: ArquivoLocalNovaLeitura,
-  indiceDocumento: number,
 ): DocumentoAnaliseRisco[] {
   if (arquivo.status_arquivo_local !== 'completo') return []
   const documentos = extrairDocumentosArquivoLocal(arquivo)
-  const doc = documentos[indiceDocumento]
-  if (!doc) return []
-  const dados = extrairDadosArquivoLocal(arquivo, indiceDocumento)
-  if (!dados) return []
-  return [
-    {
+  const saida: DocumentoAnaliseRisco[] = []
+  for (const doc of documentos) {
+    const dados = extrairDadosArquivoLocal(arquivo, doc.indice)
+    if (!dados) continue
+    saida.push({
       nome_arquivo: arquivo.arquivo.name,
       tipo_documento: doc.tipo_documento,
       indice: doc.indice,
       dados,
-    },
-  ]
+    })
+  }
+  return saida
+}
+
+/** @deprecated Use montarDocumentosAnaliseRiscoDeArquivoLocal — motor precisa de todos os subdocs. */
+export function montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado(
+  arquivo: ArquivoLocalNovaLeitura,
+  _indiceDocumento = 0,
+): DocumentoAnaliseRisco[] {
+  return montarDocumentosAnaliseRiscoDeArquivoLocal(arquivo)
 }
 
 export function analisarRiscosAduaneirosLeitura(

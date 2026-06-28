@@ -53,6 +53,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     if (!rotuloChecklistAtivo) return []
     return montarChecklistMatrizInvoice({
       ...parametrosChecklist,
+      documentos,
       rotulo_documento: rotuloChecklistAtivo,
     })
   }, [parametrosChecklist, rotuloChecklistAtivo])

@@ -193,6 +193,7 @@ export async function executarAnaliseRiscosLeituraSmartRead(
   // Passo 2 — API CNPJ Receita Federal
   const passo2 = await executarPasso2ApiCnpjInvoice(entrada.documentos)
   contexto.cnpj_oficial = passo2.cnpj_oficial
+  contexto.regras = [...contexto.regras, ...passo2.regras]
 
   const tributos = await buscarTributosNcmsLeituraSmartRead(contexto.ncms_encontrados, idOrganizacao)
   contexto.tributos_ncm = tributos

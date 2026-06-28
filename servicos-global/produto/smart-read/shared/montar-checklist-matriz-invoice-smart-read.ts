@@ -14,7 +14,10 @@ import type {
   RiscoAduaneiroLeitura,
 } from './analise-riscos-leitura-smart-read.js'
 import { achatarCamposDadosLeitura, valorTextoComparacaoCampo } from './analise-riscos-leitura-smart-read.js'
-import type { SecaoMatrizInvoice } from './matriz-validacao-invoice-smart-read.js'
+import {
+  extrairDetalheDadosRegraMatrizInvoice,
+  regraMatrizTemDadoExtraido,
+} from './extrair-detalhe-dados-regra-matriz-invoice-smart-read.js'
 
 export type StatusChecklistMatrizInvoice = StatusMatrizInvoice | 'pendente'
 
@@ -117,7 +120,7 @@ export type ParametrosChecklistMatrizInvoice = {
   pipelineConcluido: boolean
   llmHabilitado: boolean
   carregando: boolean
-  /** Quando informado, checklist de uma invoice (sem merge de várias). */
+  documentos?: DocumentoAnaliseRisco[]
   rotulo_documento?: string | null
 }
 
@@ -223,10 +226,22 @@ export function vereditoDeContagemChecklist(
 export function montarChecklistMatrizInvoice(
   params: ParametrosChecklistMatrizInvoice,
 ): ItemChecklistMatrizInvoice[] {
-  const { regras, riscos, pipelineConcluido, llmHabilitado, carregando, rotulo_documento } =
-    params
+  const {
+    regras,
+    riscos,
+    pipelineConcluido,
+    llmHabilitado,
+    carregando,
+    rotulo_documento,
+    documentos,
+  } = params
 
   return MATRIZ_VALIDACAO_INVOICE.map((regraMatriz) => {
+    const detalheExtraido =
+      documentos && documentos.length > 0
+        ? extrairDetalheDadosRegraMatrizInvoice(regraMatriz.id, documentos, rotulo_documento)
+        : null
+
     const risco = riscoDaMatrizDocumento(riscos, regraMatriz.id, rotulo_documento)
     if (risco) {
       const status = risco.status_matriz ?? severidadeParaStatus(risco.severidade)
@@ -249,15 +264,18 @@ export function montarChecklistMatrizInvoice(
 
     const motorPrecisaIa = regraMatriz.motor === 'llm' || regraMatriz.motor === 'rag'
     if (motorPrecisaIa) {
+      const temDado =
+        documentos != null &&
+        documentos.length > 0 &&
+        regraMatrizTemDadoExtraido(regraMatriz.id, documentos, rotulo_documento)
+      const resultadoLido = detalheExtraido ?? '—'
       if (carregando || !pipelineConcluido) {
         return montarItemChecklist(
           regraMatriz,
           'pendente',
-          carregando
-            ? 'Aguardando Passo 3 (Analista IA)…'
-            : 'Aguardando pipeline completo…',
+          carregando ? 'Aguardando Passo 3 (Analista IA)…' : 'Aguardando pipeline completo…',
           null,
-          'Aguardando IA',
+          temDado ? resultadoLido : 'Aguardando IA',
         )
       }
       if (!llmHabilitado) {
@@ -266,15 +284,15 @@ export function montarChecklistMatrizInvoice(
           'pendente',
           'Requer Analista IA (GEMINI_API_KEY)',
           null,
-          'IA indisponível',
+          temDado ? resultadoLido : 'IA indisponível',
         )
       }
       return montarItemChecklist(
         regraMatriz,
-        'verde',
-        'Sem divergência identificada pela IA',
+        'pendente',
+        'IA concluída sem risco mapeado',
         null,
-        'Conforme critério',
+        temDado ? resultadoLido : 'Aguardando análise IA',
       )
     }
 
@@ -285,22 +303,32 @@ export function montarChecklistMatrizInvoice(
           'pendente',
           'Aguardando Passo 2 (consulta CNPJ)…',
           null,
-          'Aguardando API',
+          detalheExtraido ?? 'Aguardando API',
         )
       }
       return montarItemChecklist(
         regraMatriz,
-        'verde',
-        'Consulta API sem divergência',
+        'pendente',
+        'API sem regra registrada',
         null,
-        'Conforme critério',
+        detalheExtraido ?? '—',
+      )
+    }
+
+    if (detalheExtraido) {
+      return montarItemChecklist(
+        regraMatriz,
+        'pendente',
+        'Dado extraído — aguardando validação do motor',
+        null,
+        detalheExtraido,
       )
     }
 
     return montarItemChecklist(
       regraMatriz,
-      pipelineConcluido ? 'verde' : 'pendente',
-      pipelineConcluido ? 'Conforme' : 'Aguardando Passo 1 (código)…',
+      'pendente',
+      'Aguardando Passo 1 (código)…',
       null,
     )
   })

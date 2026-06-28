@@ -10,6 +10,10 @@ export type TipoBloco =
   | 'video'
   | 'citacao'
   | 'destaque'
+  | 'definicao'
+  | 'dois_colunas'
+  | 'timeline'
+  | 'destaque_escuro'
 
 export interface BlocoConteudo {
   tipo: TipoBloco
@@ -36,31 +40,70 @@ const AULAS_LOGIN: AulaDemo[] = [
       {
         tipo: 'imagem',
         dados: {
-          alt: 'Plataforma Gravity — visão geral',
-          caption: 'A plataforma unificada de gestão de COMEX',
+          src: 'assets/screenshots/login/o-que-e-o-gravity/hub-visao-geral.png', // PLAYWRIGHT_PENDENTE
+          alt: 'Visão geral da plataforma Gravity — Hub principal',
+          caption: 'A plataforma unificada de gestão de comércio exterior',
+          largura: 'full',
         },
       },
       {
         tipo: 'texto',
         dados: {
-          text: 'O Gravity é uma plataforma SaaS desenvolvida para modernizar e centralizar a gestão de comércio exterior. Ele reúne em um único ambiente todas as operações que antes estavam distribuídas em planilhas, e-mails e sistemas desconectados — desde o acompanhamento de pedidos até a emissão de documentos fiscais.',
+          text: 'O Gravity é uma plataforma SaaS que centraliza toda a operação de comércio exterior em um único ambiente. Processos que antes dependiam de planilhas fragmentadas, e-mails dispersos e sistemas desconectados — pedidos, despachos aduaneiros, cotações de frete, câmbio e documentos fiscais — passam a operar de forma integrada, com rastreabilidade completa do início ao fim da operação.',
+        },
+      },
+      {
+        tipo: 'definicao',
+        dados: {
+          termo: 'COMEX',
+          definicao: 'Comércio Exterior — conjunto de operações de importação e exportação reguladas pela Receita Federal, SISCOMEX e órgãos anuentes. Envolve documentação, logística, câmbio, tributos e compliance.',
+        },
+      },
+      {
+        tipo: 'heading',
+        dados: { text: 'O problema que o Gravity resolve', nivel: 2 },
+      },
+      {
+        tipo: 'dois_colunas',
+        dados: {
+          texto: 'Antes do Gravity, uma operação de importação típica exigia coordenar dezenas de e-mails entre importador, despachante e agente de carga, com informações espalhadas em arquivos Excel e PDFs sem versionamento. Qualquer atraso ou erro era identificado tarde demais, gerando multas e retrabalho. O Gravity reúne todos esses atores na mesma tela, com status em tempo real.',
+          imagem_src: 'assets/screenshots/login/o-que-e-o-gravity/hub-workspaces-destaque.png', // PLAYWRIGHT_PENDENTE
+          imagem_alt: 'HUB do Gravity com workspaces e produtos visíveis',
+          imagem_lado: 'direita',
         },
       },
       {
         tipo: 'destaque',
         dados: {
-          titulo: 'Por que o Gravity existe?',
-          text: 'O COMEX brasileiro envolve dezenas de etapas, órgãos e documentos. O Gravity nasceu para dar visibilidade total ao processo, reduzir retrabalho e conectar todas as partes envolvidas em uma operação de importação ou exportação.',
+          titulo: 'Abordagem modular',
+          text: 'O Gravity é contratado por módulo. A sua empresa pode começar apenas com Pedido e adicionar Processo, Smart Read ou BID Frete conforme a operação crescer. Cada módulo já nasce integrado aos demais.',
+          icone: 'info',
         },
       },
       {
         tipo: 'heading',
-        dados: { text: 'Os pilares da plataforma', nivel: 2 },
+        dados: { text: 'Os produtos da plataforma', nivel: 2 },
       },
       {
-        tipo: 'texto',
+        tipo: 'timeline',
         dados: {
-          text: 'O Gravity é organizado em produtos independentes que se complementam: Pedido (gestão da demanda), Processo (fluxo operacional), Smart Read (leitura inteligente de documentos), BID Frete (cotação de fretes internacionais) e BID Câmbio (simulação de câmbio). Cada produto pode ser contratado separadamente.',
+          titulo: 'O ecossistema Gravity',
+          itens: JSON.stringify([
+            { label: 'Pedido', descricao: 'Centraliza a demanda de compra com rastreamento de status e edição em massa' },
+            { label: 'Processo', descricao: 'Acompanha o fluxo operacional completo, do embarque ao desembaraço' },
+            { label: 'Smart Read', descricao: 'Extrai e valida dados de documentos fiscais e aduaneiros automaticamente' },
+            { label: 'BID Frete', descricao: 'Cotação e comparação de fretes internacionais em tempo real' },
+            { label: 'BID Câmbio', descricao: 'Simulação de câmbio e acompanhamento de fechamento' },
+          ]),
+        },
+      },
+      {
+        tipo: 'destaque_escuro',
+        dados: {
+          titulo: 'Caso de uso: trading de eletrônicos',
+          texto: 'Uma trading importadora de componentes eletrônicos da Ásia operava com 12 planilhas simultâneas para acompanhar 80 processos mensais. Após implementar o Gravity (Pedido + Processo + Smart Read), o tempo médio de conferência documental caiu de 3 horas para 25 minutos por processo. A visibilidade em tempo real eliminou 90% das ligações internas de status.',
+          imagem_src: 'assets/screenshots/login/o-que-e-o-gravity/processo-lista-com-dados.png', // PLAYWRIGHT_PENDENTE
+          imagem_alt: 'Lista de processos com status em tempo real',
         },
       },
       {
@@ -73,7 +116,7 @@ const AULAS_LOGIN: AulaDemo[] = [
       {
         tipo: 'texto',
         dados: {
-          text: 'Ao longo deste onboarding você vai aprender como navegar pela plataforma, configurar seu workspace, convidar sua equipe e começar a operar com o produto que a sua empresa contratou. Vamos começar!',
+          text: 'O Gravity é o ambiente onde todos os envolvidos em uma operação de COMEX — importador, despachante, agente de carga, financeiro — acessam a mesma informação, no mesmo momento. A próxima aula mostra como criar sua conta e dar os primeiros passos na plataforma.',
         },
       },
     ],

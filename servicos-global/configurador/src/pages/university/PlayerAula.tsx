@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, ArrowRight, CheckCircle, Clock, Play,
-  Quotes, Lightbulb, Image as ImageIcon,
+  Quotes, Lightbulb, Image as ImageIcon, BookOpen,
 } from '@phosphor-icons/react'
 import type { AulaDemo, BlocoConteudo } from './conteudo-demo'
 
@@ -129,6 +129,124 @@ function BlocoRenderer({ bloco }: { bloco: BlocoConteudo }) {
             <p style={{ fontSize: '.92rem', lineHeight: 1.65, color: CONTENT_TEXT, margin: 0 }}>
               {String(bloco.dados.text ?? '')}
             </p>
+          </div>
+        </div>
+      )
+
+    case 'definicao':
+      return (
+        <div style={{
+          margin: '1.5rem 0', padding: '1.1rem 1.4rem',
+          background: 'rgba(99,102,241,.08)', border: '1px solid rgba(99,102,241,.2)',
+          borderRadius: 12, display: 'flex', gap: 14, alignItems: 'flex-start',
+        }}>
+          <BookOpen weight="duotone" size={20} style={{ color: UNI_COR, flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <div style={{ fontWeight: 700, color: UNI_COR, fontSize: '.82rem', marginBottom: 4 }}>
+              {String(bloco.dados.termo)}
+            </div>
+            <p style={{ fontSize: '.92rem', lineHeight: 1.65, color: CONTENT_TEXT, margin: 0 }}>
+              {String(bloco.dados.definicao)}
+            </p>
+          </div>
+        </div>
+      )
+
+    case 'dois_colunas': {
+      const lado = String(bloco.dados.imagem_lado ?? 'direita')
+      const imgEl = (
+        <div style={{
+          flex: '0 0 45%', borderRadius: 10, overflow: 'hidden',
+          background: 'rgba(148,163,184,.08)', border: '1px solid rgba(148,163,184,.12)',
+          aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: CONTENT_MUTED }}>
+            <ImageIcon size={32} weight="duotone" />
+            <span style={{ fontSize: '.75rem', fontWeight: 600, textAlign: 'center', padding: '0 8px' }}>
+              {String(bloco.dados.imagem_alt ?? '')}
+            </span>
+          </div>
+        </div>
+      )
+      const txtEl = (
+        <p style={{ flex: 1, fontSize: '.95rem', lineHeight: 1.8, color: CONTENT_TEXT, margin: 0, alignSelf: 'center' }}>
+          {String(bloco.dados.texto ?? '')}
+        </p>
+      )
+      return (
+        <div style={{ display: 'flex', gap: '2rem', margin: '1.75rem 0', alignItems: 'center' }}>
+          {lado === 'esquerda' ? <>{imgEl}{txtEl}</> : <>{txtEl}{imgEl}</>}
+        </div>
+      )
+    }
+
+    case 'timeline': {
+      type TimelineItem = { label: string; descricao: string }
+      const itens = JSON.parse(String(bloco.dados.itens ?? '[]')) as TimelineItem[]
+      return (
+        <div style={{ margin: '1.75rem 0' }}>
+          {bloco.dados.titulo && (
+            <div style={{ fontWeight: 700, color: CONTENT_TEXT, fontSize: '1rem', marginBottom: '1.25rem' }}>
+              {String(bloco.dados.titulo)}
+            </div>
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {itens.map((item, idx) => (
+              <div key={idx} style={{ display: 'flex', gap: 16 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: '50%',
+                    background: `${UNI_COR}20`, border: `2px solid ${UNI_COR}`,
+                    display: 'grid', placeItems: 'center',
+                    fontWeight: 800, fontSize: '.75rem', color: UNI_COR, flexShrink: 0,
+                  }}>
+                    {idx + 1}
+                  </div>
+                  {idx < itens.length - 1 && (
+                    <div style={{ width: 2, flex: 1, minHeight: 24, background: `${UNI_COR}30`, margin: '4px 0' }} />
+                  )}
+                </div>
+                <div style={{ paddingBottom: idx < itens.length - 1 ? 20 : 0, paddingTop: 5 }}>
+                  <div style={{ fontWeight: 700, color: CONTENT_TEXT, fontSize: '.9rem', marginBottom: 3 }}>
+                    {item.label}
+                  </div>
+                  <p style={{ fontSize: '.85rem', color: CONTENT_MUTED, margin: 0, lineHeight: 1.6 }}>
+                    {item.descricao}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    case 'destaque_escuro':
+      return (
+        <div style={{
+          margin: '1.75rem 0', borderRadius: 14,
+          background: '#0f172a', border: '1px solid rgba(148,163,184,.1)',
+          overflow: 'hidden', display: 'flex',
+        }}>
+          <div style={{ flex: 1, padding: '1.75rem 2rem' }}>
+            <div style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '1rem', marginBottom: 12 }}>
+              {String(bloco.dados.titulo ?? '')}
+            </div>
+            <p style={{ fontSize: '.92rem', lineHeight: 1.75, color: '#94a3b8', margin: 0 }}>
+              {String(bloco.dados.texto ?? '')}
+            </p>
+          </div>
+          <div style={{
+            flex: '0 0 38%', background: 'rgba(148,163,184,.04)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderLeft: '1px solid rgba(148,163,184,.08)', minHeight: 160,
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#475569' }}>
+              <ImageIcon size={30} weight="duotone" />
+              <span style={{ fontSize: '.72rem', textAlign: 'center', padding: '0 12px' }}>
+                {String(bloco.dados.imagem_alt ?? '')}
+              </span>
+            </div>
           </div>
         </div>
       )

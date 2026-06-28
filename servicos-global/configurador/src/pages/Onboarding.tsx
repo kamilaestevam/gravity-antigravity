@@ -370,28 +370,6 @@ export function Onboarding() {
           )}
         </form>
 
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginTop: '1.5rem',
-        }}>
-          <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.375rem',
-              padding: '0.375rem 0.875rem',
-              borderRadius: 'var(--radius-pill)',
-              background: 'rgba(99,102,241,0.08)',
-              border: '1px solid rgba(99,102,241,0.15)',
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              color: '#818cf8',
-              letterSpacing: '0.01em',
-            }}>
-            ✦ 14 dias gratis para explorar — sem compromisso
-          </span>
-        </div>
-
       </div>
 
       {/* GABI AI — card de boas-vindas (canto superior direito) */}

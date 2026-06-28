@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 385,
+  "proximo_numero": 386,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1729,6 +1729,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000384.json"
+    },
+    {
+      "referencia": "TASK-000385",
+      "ordinal": 109,
+      "titulo_canonico": "CONFIG-HUB-DASHBOARD-MEL-EMPTY-STATE-CTA-GRAVITY-STORE",
+      "titulo_exibicao": "TASK-000385 | [Hub] Dashboard | MEL — CTA claro para Gravity Store em conta nova sem produtos",
+      "status": "ABR",
+      "area": "CONFIG",
+      "subarea": "HUB",
+      "visualizacao": "DASHBOARD",
+      "tipo_entrega": "MEL",
+      "resumo": "EMPTY-STATE-CTA-GRAVITY-STORE",
+      "data_criacao": "2026-06-28T23:59:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000385.json"
     }
   ]
 }

@@ -17,14 +17,30 @@
 .auth-root {
   box-sizing: border-box;
   height: 100vh;
+  height: 100dvh;
   max-height: 100vh;
+  max-height: 100dvh;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   font-family: 'Plus Jakarta Sans', sans-serif;
   background: var(--bg-dark);
   color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* Painel do formulário — scroll interno (justify-content:center do LoginGlobal cortava o botão) */
+.auth-root .login-global-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2rem 4rem 3rem;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ---- Left Panel — Branding ---- */
@@ -216,17 +232,10 @@
   opacity: 0.5;
 }
 
-/* Right Panel fix - Make LoginGlobal look better here */
+/* Right Panel fix - legacy selector (login-global-panel recebe regras acima) */
 .auth-root > div:last-child {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 2;
   backdrop-filter: blur(2px);
-  padding: 3rem 0;
-  box-sizing: border-box;
-  align-self: stretch;
 }
 
 /* Responsivo */
@@ -238,10 +247,19 @@
 @media (max-width: 900px) {
   .auth-root {
     flex-direction: column;
-    height: 100vh;
-    max-height: 100vh;
+    height: auto;
+    max-height: none;
+    min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
+  }
+
+  .auth-root .login-global-panel {
+    width: 100%;
+    flex: none;
+    overflow-y: visible;
+    padding: 2rem 1.5rem 3rem;
   }
 
   .auth-brand {

@@ -384,13 +384,27 @@ export function classificarSituacaoCodigoFiscal(valor: string | null | undefined
   return 'formato_invalido'
 }
 
-function extrairDescricaoItem(row: Record<string, unknown>): string | null {
-  const desc = row.descriptions as Record<string, unknown> | undefined
+/** SSOT — descrição comercial de uma linha de item (invoice / packing). */
+export function extrairDescricaoItemLinha(row: Record<string, unknown>): string | null {
+  const descBruto = row.descriptions
+  const descObj =
+    descBruto !== null && typeof descBruto === 'object' && !Array.isArray(descBruto)
+      ? (descBruto as Record<string, unknown>)
+      : undefined
+  const descString = typeof descBruto === 'string' ? descBruto : null
+
   const candidatos = [
-    valorTextoComparacaoCampo(desc?.portuguese),
-    valorTextoComparacaoCampo(desc?.english),
-    valorTextoComparacaoCampo(desc?.descPt),
-    valorTextoComparacaoCampo(desc?.descEn),
+    valorTextoComparacaoCampo(descString),
+    valorTextoComparacaoCampo(descObj?.portuguese),
+    valorTextoComparacaoCampo(descObj?.english),
+    valorTextoComparacaoCampo(descObj?.descPt),
+    valorTextoComparacaoCampo(descObj?.descEn),
+    valorTextoComparacaoCampo(row.english),
+    valorTextoComparacaoCampo(row.English),
+    valorTextoComparacaoCampo(row.descEn),
+    valorTextoComparacaoCampo(row.descPt),
+    valorTextoComparacaoCampo(row.descricao),
+    valorTextoComparacaoCampo(row.descricaoComercial),
     valorTextoComparacaoCampo(row.description),
     valorTextoComparacaoCampo(row.itemDescription),
     valorTextoComparacaoCampo(row.productDescription),
@@ -426,7 +440,7 @@ function extrairItensComerciais(dados: Record<string, unknown>): ItemComercialLi
     )
     const ncm = extrairCodigoItem(row, ['ncm', 'NCM', 'codigo_ncm'])
     const hsCode = extrairCodigoItem(row, ['hsCode', 'hs_code', 'HSCode', 'hs'])
-    const descricao = extrairDescricaoItem(row)
+    const descricao = extrairDescricaoItemLinha(row)
     return { indice, qty, precoUnit, totalLinha, ncm, hsCode, descricao }
   })
 }
@@ -481,7 +495,7 @@ function montarOQueRiscoClassificacaoFiscal(params: {
   return `Linha ${linha}: conferir ${rotuloTipo} informado${descSuffix}.`
 }
 
-function montarAnaliseTecnicaClassificacaoFiscal(params: {
+export function montarAnaliseTecnicaClassificacaoFiscal(params: {
   tipo: 'ncm' | 'hs'
   situacao: SituacaoCodigoFiscal
   codigoLido: string | null

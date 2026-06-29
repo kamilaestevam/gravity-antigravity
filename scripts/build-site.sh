@@ -104,6 +104,13 @@ else
   echo "[build-site] ORGANIZACAO_DATABASE_URL ausente — skip servicos-plataforma migrations"
 fi
 
+if [ -n "${ORGANIZACAO_DATABASE_URL:-}" ]; then
+  echo "[build-site] Reparando drift historico_log / notificacoes..."
+  ORGANIZACAO_DATABASE_URL="$ORGANIZACAO_DATABASE_URL" \
+    npx tsx scripts/ativamente/aplicar-ddl-plataforma-public-organizacao.ts || \
+    echo "[build-site] AVISO: DDL plataforma public falhou — ver logs"
+fi
+
 # 2c. Pedido's schema outputs to pedido/node_modules/.prisma/client/ but
 #     @prisma/client at root does require('.prisma/client') from root.
 #     Other services use custom output="../generated" so root is free.

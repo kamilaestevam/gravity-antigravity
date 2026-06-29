@@ -100,6 +100,38 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(s403?.rotulo_status).toBe('N/A')
   })
 
+  it('S4-02 e S4-03 usam descrição em inglês na linha para classificação', () => {
+    const doc = {
+      nome_arquivo: 'INVOICE77.pdf',
+      tipo_documento: 'INVOICE',
+      indice: 0,
+      dados: {
+        items: [
+          {
+            partNumber: '1080936',
+            english: 'PCI FN OSP 1L PORTEIRO IPR1010MI 4610135/5',
+            itemQuantity: '10000',
+          },
+        ],
+      },
+    }
+    const itens = montarChecklistMatrizInvoice({
+      documentos: [doc],
+      regras: [],
+      riscos: [],
+      pipelineConcluido: true,
+      llmHabilitado: true,
+      carregando: false,
+      rotulo_documento: 'INVOICE77.pdf · INVOICE',
+    })
+    const s402 = itens.find((i) => i.regra.id === 'S4-02')
+    const s403 = itens.find((i) => i.regra.id === 'S4-03')
+    expect(s402?.status).toBe('conforme')
+    expect(s402?.resultado).toContain('PCI FN OSP')
+    expect(s403?.status).toBe('conforme')
+    expect(s403?.resultado).toContain('PCI FN OSP')
+  })
+
   it('regra de código com detalhe N/A não infla veredito como pendente', () => {
     const itens = montarChecklistMatrizInvoice({
       regras: [{ id: 'S1-04-INV', passou: true, detalhe: 'N/A — paginação ausente no documento' }],

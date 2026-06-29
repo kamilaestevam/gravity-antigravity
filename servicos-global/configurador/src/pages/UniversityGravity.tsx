@@ -33,6 +33,8 @@ import { PlayerAula } from './university/PlayerAula'
 import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
 import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './university/manual-configurador-conteudo'
 import { DocConfiguradorManual, iconeConfiguradorManual } from './university/manual-configurador-ui'
+import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
+import { DocHubManual } from './university/manual-hub-ui'
 import './configurador/workspace.css'
 
 const UNI_COR = '#818cf8'
@@ -1393,6 +1395,7 @@ export function UniversityGravity() {
 
   const manualDocPublicado = secao === 'docs' && (
     docsProdutoSlug === 'login' ||
+    docsProdutoSlug === 'hub' ||
     (docsProdutoSlug === 'configurador' && docsConfiguradorPagina !== null)
   )
 
@@ -1684,6 +1687,8 @@ export function UniversityGravity() {
             }}>
               {secao === 'docs' && docsProdutoSlug === 'login'
                 ? <SignIn weight="duotone" size={22} />
+                : secao === 'docs' && docsProdutoSlug === 'hub'
+                  ? <SquaresFour weight="duotone" size={22} />
                 : secao === 'docs' && docsConfiguradorPagina
                   ? iconeConfiguradorManual(docsConfiguradorPagina, 22)
                   : <GraduationCap weight="duotone" size={22} />}
@@ -1692,6 +1697,9 @@ export function UniversityGravity() {
               <h1 style={UNI_ESTILO_PAGE_TITLE}>{tituloSecao}</h1>
               {secao === 'docs' && docsProdutoSlug === 'login' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_LOGIN_SUBTITULO}</span>
+              )}
+              {secao === 'docs' && docsProdutoSlug === 'hub' && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_HUB_SUBTITULO}</span>
               )}
               {secao === 'docs' && configuradorManualItem && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{configuradorManualItem.subtitulo}</span>
@@ -1939,11 +1947,15 @@ export function UniversityGravity() {
             <DocLoginManual />
           )}
 
+          {secao === 'docs' && docsProdutoSlug === 'hub' && (
+            <DocHubManual />
+          )}
+
           {secao === 'docs' && docsConfiguradorPagina && (
             <DocConfiguradorManual paginaSlug={docsConfiguradorPagina} />
           )}
 
-          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'configurador' && (
+          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'configurador' && (
             <div style={{
               textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
               border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,

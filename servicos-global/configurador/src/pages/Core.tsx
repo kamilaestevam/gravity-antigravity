@@ -52,6 +52,7 @@ import {
 } from '../shared/entrada-produtos-core'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync, useOrganizacaoOverride } from '@gravity/shell'
 import { limparCacheTipoUsuario, useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { useGabiRequestHeaders } from '../hooks/use-gabi-request-headers'
 import { ModalTrocarOrganizacao } from '../components/modal-trocar-organizacao'
 import './configurador/workspace.css'
 import './configurador/gabi.css'
@@ -121,6 +122,7 @@ export function Core() {
 
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
+  const gabiHeaders = useGabiRequestHeaders()
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
 
   const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
@@ -381,10 +383,10 @@ export function Core() {
       </div>
 
       {/* ── Gabi IA ── */}
-      {isGabiOpen && (
+      {isGabiOpen && gabiHeaders && (
         <div className="ws-gabi-panel">
           <React.Suspense fallback={null}>
-            <GabiChat onClose={() => setIsGabiOpen(false)} />
+            <GabiChat onClose={() => setIsGabiOpen(false)} headers={gabiHeaders} />
           </React.Suspense>
         </div>
       )}

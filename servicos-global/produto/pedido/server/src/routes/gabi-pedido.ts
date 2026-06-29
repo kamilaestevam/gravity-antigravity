@@ -7,10 +7,8 @@ import { z } from 'zod'
 
 export const gabiProxyRouter = Router()
 
-// Default alinhado com contracts.json — Gabi vive no super-server da plataforma (porta 3001).
-// Porta 8015 (default antigo) nao esta mais alocada e causava ECONNREFUSED -> 500 nas
-// rotas /api/v1/pedidos/gabi/* quando GABI_SERVICE_URL nao era definido no .env.
-const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://localhost:3001'
+// Sidecar no Configurador (Railway/prod e dev monolito). PM2: GABI_SERVICE_URL=http://localhost:3001
+const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
 
 const FieldHelpBodySchema = z.object({
   campo: z.object({

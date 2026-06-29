@@ -8,6 +8,7 @@ import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync, useOrganizacaoOverride, type OrganizacaoShell } from '@gravity/shell'
 import { useCarregarTipoUsuario } from '../../hooks/use-carregar-tipo-usuario'
+import { useGabiRequestHeaders } from '../../hooks/use-gabi-request-headers'
 import { ModalTrocarOrganizacao } from '../../components/modal-trocar-organizacao'
 import { Notificacoes } from '@gravity/shell'
 import {
@@ -75,6 +76,7 @@ export function WorkspaceLayout() {
   useUserPreferences({ id_usuario: currentUser.id || user?.id, id_organizacao: currentUser.idOrganizacao })
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
+  const gabiHeaders = useGabiRequestHeaders()
 
   const nomeOrganizacao = currentUser?.nomeOrganizacao ?? 'Organização'
   const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
@@ -317,9 +319,9 @@ export function WorkspaceLayout() {
       />
 
       {/* ── Gabi IA Floating Panel ── */}
-      {isGabiOpen && (
+      {isGabiOpen && gabiHeaders && (
         <div className="ws-gabi-panel">
-          <GabiChat onClose={() => setIsGabiOpen(false)} />
+          <GabiChat onClose={() => setIsGabiOpen(false)} headers={gabiHeaders} />
         </div>
       )}
       

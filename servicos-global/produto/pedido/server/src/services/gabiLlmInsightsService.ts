@@ -72,8 +72,8 @@ Responda APENAS com o texto do insight, sem formatação, aspas ou explicações
 
 // ── Chamada ao serviço Gabi ───────────────────────────────────────────────────
 
-// Default alinhado com contracts.json — Gabi vive no super-server da plataforma (porta 3001).
-const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://localhost:3001'
+// Sidecar no Configurador (Railway/prod). PM2 super-servidor: GABI_SERVICE_URL=http://localhost:3001
+const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
 const GABI_TIMEOUT_MS  = 3_000  // 3s — não bloqueia o usuário além disso
 
 async function callGabi(

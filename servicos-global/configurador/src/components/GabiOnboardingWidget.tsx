@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { useGabiRequestHeaders } from '../hooks/use-gabi-request-headers'
 import {
   Sparkle,
   X,
@@ -444,7 +444,7 @@ const STORAGE_CONVERSA_GABI = 'gravity_gabi_conversa_id'
 
 export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidgetProps) {
   const { t } = useTranslation()
-  const { tipoUsuario, idUsuarioPrisma, idOrganizacao } = useCarregarTipoUsuario()
+  const gabiHeaders = useGabiRequestHeaders()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [inputVal, setInputVal] = useState('')
@@ -669,6 +669,10 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
   const handleSend = async (text?: string) => {
     const msg = text || inputVal.trim()
     if (!msg) return
+    if (!gabiHeaders) {
+      console.warn('[GabiOnboardingWidget] headers GABI indisponíveis (auth/me)')
+      return
+    }
 
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: msg }
     setMessages(prev => [...prev, userMsg])
@@ -685,9 +689,7 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(idOrganizacao ? { 'x-id-organizacao': idOrganizacao } : {}),
-          ...(idUsuarioPrisma ? { 'x-id-usuario': idUsuarioPrisma } : {}),
-          ...(tipoUsuario ? { 'x-tipo-usuario': tipoUsuario } : {}),
+          ...gabiHeaders,
         },
         body: JSON.stringify({ conversationId, message: msg, page: pathname }),
       })
@@ -708,9 +710,13 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
     } catch (err) {
       const motivo = err instanceof Error ? err.message : 'erro de rede'
       console.warn('[GabiOnboardingWidget] falha no chat:', motivo)
-      fullText =
-        MOCK_RESPONSES[msg] ||
-        `Nao consegui falar com a Gabi (${motivo}). Confirme: Configurador em http://localhost:8000, servico plataforma na porta 3001 (npm run dev em servicos-plataforma).`
+      if (import.meta.env.PROD) {
+        fullText = `Não consegui falar com a Gabi (${motivo}). Tente novamente em instantes.`
+      } else {
+        fullText =
+          MOCK_RESPONSES[msg] ||
+          `Nao consegui falar com a Gabi (${motivo}). Confirme: Configurador em http://localhost:8000, sidecar GABI na porta 8009 ou super-servidor na 3001.`
+      }
     }
 
     // Phase 2: Thinking done — start typewriter

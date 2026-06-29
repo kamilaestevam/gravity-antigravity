@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 385,
+  "proximo_numero": 391,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1729,6 +1729,74 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000384.json"
+    },
+    {
+      "referencia": "TASK-000385",
+      "ordinal": 109,
+      "titulo_canonico": "CONFIG-HUB-DASHBOARD-MEL-EMPTY-STATE-CTA-GRAVITY-STORE",
+      "titulo_exibicao": "TASK-000385 | [Hub] Dashboard | MEL — CTA claro para Gravity Store em conta nova sem produtos",
+      "status": "RES",
+      "area": "CONFIG",
+      "subarea": "HUB",
+      "visualizacao": "DASHBOARD",
+      "tipo_entrega": "MEL",
+      "resumo": "EMPTY-STATE-CTA-GRAVITY-STORE",
+      "data_criacao": "2026-06-28T22:45:00.000Z",
+      "data_encerramento": "2026-06-28T23:50:25.982Z",
+      "tempo_liquido_horas": 1.75,
+      "tokens_estimados_total": 120000,
+      "arquivo_ficha": "registros/TASK-000385.json"
+    },
+    {
+      "referencia": "TASK-000386",
+      "ordinal": 109,
+      "titulo_canonico": "LOGIN-MEL-COPY-HERO-BULLETS-MODULAR-CONEXAO-IA",
+      "titulo_exibicao": "TASK-000386 | [Login] Hero | MEL — Reescrever bullets (modular, conexão, IA)",
+      "status": "RES",
+      "area": "LOGIN",
+      "subarea": null,
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "COPY-HERO-BULLETS-MODULAR-CONEXAO-IA",
+      "data_criacao": "2026-06-29T00:15:00.000Z",
+      "data_encerramento": "2026-06-29T23:42:00.000Z",
+      "tempo_liquido_horas": 1.25,
+      "tokens_estimados_total": 70000,
+      "arquivo_ficha": "registros/TASK-000386.json"
+    },
+    {
+      "referencia": "TASK-000389",
+      "ordinal": 113,
+      "titulo_canonico": "CONFIG-MEL-SUSPENDER-PORTAL-MULTI-URL-SUBDOMINIO",
+      "titulo_exibicao": "TASK-000389 | [Configurador] | MEL — Suspender portal multi-URL e alinhar contrato /me",
+      "status": "RES",
+      "area": "CONFIG",
+      "subarea": null,
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "SUSPENDER-PORTAL-MULTI-URL-SUBDOMINIO",
+      "data_criacao": "2026-06-28T18:00:00.000Z",
+      "data_encerramento": "2026-06-28T23:43:46.058Z",
+      "tempo_liquido_horas": 4.25,
+      "tokens_estimados_total": 280000,
+      "arquivo_ficha": "registros/TASK-000389.json"
+    },
+    {
+      "referencia": "TASK-000390",
+      "ordinal": 114,
+      "titulo_canonico": "CONFIG-GABI-NOV-ONDA-0-PROXY-HEADERS-503",
+      "titulo_exibicao": "TASK-000390 | [GABI] | NOV — Onda 0 proxy /api/v1/gabi + headers + 503",
+      "status": "ABR",
+      "area": "CONFIG",
+      "subarea": "GABI",
+      "visualizacao": null,
+      "tipo_entrega": "NOV",
+      "resumo": "ONDA-0-PROXY-HEADERS-503",
+      "data_criacao": "2026-06-29T12:00:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000390.json"
     }
   ]
 }

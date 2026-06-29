@@ -72,6 +72,7 @@ import { historicoOrganizacaoRouter } from './routes/historico-organizacao.js'
 import { apiObservability } from '../../servicos-plataforma/middleware/apiObservability.js'
 import { createProductAuditPlugin } from '../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
 import { prisma } from './lib/prisma.js'
+import { proxyGabi } from './proxy/proxy-gabi.js'
 
 export const app = express()
 const PORT = Number(process.env.PORT ?? 8005)
@@ -597,6 +598,16 @@ const _proxySmartRead = (req: express.Request, res: express.Response) => {
   }
 }
 app.use('/api/v1/smart-read', _proxySmartRead)
+
+// ─── Proxy reverso: GABI sidecar (porta 8009) ───────────────────────────────
+// Browser chama /api/v1/gabi no mesmo host do Configurador; Express injeta chave
+// interna + identidade do JWT. Ver docs/GABI-AMBIENTE.md e PLANO-PLENITUDE-GABI-v2.
+app.use('/api/v1/gabi/admin', requireAuth, requireGravityAdmin, (req, res) => {
+  proxyGabi(req, res, { apenasChaveInterna: true })
+})
+app.use('/api/v1/gabi', requireAuth, (req, res) => {
+  proxyGabi(req, res)
+})
 
 // ─── Servir frontend Vite em produção ────────────────────────────────────────
 const clientDistDir = resolve(__dir, '../dist')

@@ -860,13 +860,13 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
     produto: 'bid-frete',
     classe: 'READ',
     metodo: 'GET',
-    endpoint: '/api/v1/bid-frete-internacional/dashboard/kpis',
-    descricao: 'KPIs agregados de cotacoes de frete internacional',
+    endpoint: '/api/v1/bid-frete-internacional/dashboard/resumo-gabi',
+    descricao: 'Resumo leve de cotacoes de frete internacional (total e funil por status)',
     schema_params: bidFreteKpisParams,
     gemini_declaration: {
       name: 'bid_frete.kpis',
       description:
-        'Retorna KPIs das cotacoes de frete internacional (BID Frete): total em andamento, aprovadas, funil por status, distribuicao por modal, savings. Use quando o usuario perguntar "quantas cotacoes de frete", "cotacoes de frete", "meus BIDs", metricas de frete internacional.',
+        'Retorna total de cotacoes de frete internacional (BID Frete) e contagem por status. Use quando o usuario perguntar "quantas cotacoes de frete", "cotacoes de frete", "meus BIDs", metricas de frete internacional.',
       parameters: {
         type: 'OBJECT',
         properties: {

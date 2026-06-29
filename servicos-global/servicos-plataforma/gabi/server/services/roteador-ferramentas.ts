@@ -157,6 +157,17 @@ async function chamarServico(
     if (msg.includes('abort')) {
       return { sucesso: false, status: 504, erro: `Timeout ao chamar ${tool.produto}${path}` }
     }
+    if (
+      tool.produto === 'bid-frete' &&
+      (msg.includes('ECONNREFUSED') || msg.includes('fetch failed'))
+    ) {
+      return {
+        sucesso: false,
+        status: 503,
+        erro:
+          'Sidecar BID Frete (:8023) indisponível — verifique BID_FRETE_INTERNATIONAL_DATABASE_URL e logs [configurador] Sidecar BID',
+      }
+    }
     return { sucesso: false, status: 502, erro: msg }
   }
 }

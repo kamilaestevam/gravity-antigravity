@@ -734,6 +734,25 @@ if (process.env.NODE_ENV !== 'test') {
   }
 
   if (!devPm2) {
+  const { aguardarSidecarEmbutido } = await import('./lib/verificar-health-sidecar.js')
+
+  async function aplicarMigrationsBidFreteDev(): Promise<void> {
+    if (process.env.NODE_ENV === 'production' || process.env.BID_SKIP_MIGRATIONS === '1') return
+    try {
+      const { execSync } = await import('node:child_process')
+      const repoRoot = resolve(__dir, '../../..')
+      console.log('[configurador] Dev — aplicando migrations BID Frete Internacional...')
+      execSync('npx tsx scripts/ativamente/aplicar-migrations-bid-frete-internacional.ts', {
+        cwd: repoRoot,
+        stdio: 'inherit',
+        env: process.env,
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn('[configurador] Migrations BID dev falharam — sidecar sobe mesmo assim:', msg)
+    }
+  }
+
   // Migrations plataforma (api-cockpit, gabi) — redundante com start-site.sh; garante tabelas antes dos sidecars
   async function aplicarMigrationsPlataformaBoot(): Promise<void> {
     const orgUrl = process.env.ORGANIZACAO_DATABASE_URL
@@ -953,6 +972,47 @@ if (process.env.NODE_ENV !== 'test') {
     console.error('[configurador] Falha ao iniciar sidecar Smart Read:', msg)
   }
 
+  // Sidecar 6: BID Frete Internacional (porta 8023) — antes do GABI (tools bid_frete.*)
+  if (process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL) {
+    await aplicarMigrationsBidFreteDev()
+
+    const plataformaBase = process.env.SERVIDOR_PLATAFORMA_URL ?? 'http://127.0.0.1:3001'
+    process.env.PORT = '8023'
+    process.env.DATABASE_URL = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL
+    process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
+    process.env.CADASTROS_SERVICE_URL = 'http://127.0.0.1:8031'
+    process.env.ATIVIDADES_SERVICE_URL = process.env.ATIVIDADES_SERVICE_URL ?? plataformaBase
+    process.env.NOTIFICACOES_SERVICE_URL = process.env.NOTIFICACOES_SERVICE_URL ?? plataformaBase
+    process.env.HISTORICO_SERVICE_URL = process.env.HISTORICO_SERVICE_URL ?? plataformaBase
+    process.env.GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
+    process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
+      ? `https://${process.env.CANONICAL_DOMAIN}`
+      : 'https://usegravity.com.br'
+    process.env.BID_FRETE_SIDECAR = '1'
+
+    const _origExitBid = process.exit
+    process.exit = ((code?: number) => {
+      throw new Error(`[sidecar-guard] process.exit(${code}) bloqueado em modo sidecar BID Frete`)
+    }) as typeof process.exit
+    try {
+      const modBid = await import('../../produto/bid-frete-internacional/server/src/index.js') as {
+        sidecarListenReady?: Promise<void>
+      }
+      await aguardarSidecarEmbutido(8023, modBid.sidecarListenReady)
+      _sidecarStatus['bid-frete'] = { ok: true }
+      console.log('[configurador] Sidecar BID Frete Internacional iniciado na porta 8023')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['bid-frete'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar BID Frete Internacional:', msg)
+    } finally {
+      process.exit = _origExitBid
+    }
+  } else {
+    _sidecarStatus['bid-frete'] = { ok: false, error: 'BID_FRETE_INTERNATIONAL_DATABASE_URL ausente' }
+    console.warn('[configurador] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — sidecar BID Frete Internacional desativado')
+  }
+
   // Sidecar 7: GABI AI (porta 8009) — Monitor LLM admin e uso cross-org
   const orgUrlGabi =
     process.env.ORGANIZACAO_DATABASE_URL ??
@@ -988,79 +1048,14 @@ if (process.env.NODE_ENV !== 'test') {
   // Sidecars embutidos — sempre loopback; ignora URLs externas legadas no Railway
   process.env.API_COCKPIT_SERVICE_URL = 'http://127.0.0.1:8016'
   process.env.GABI_SERVICE_URL = 'http://127.0.0.1:8009'
+  process.env.BID_FRETE_INTERNATIONAL_SERVICE_URL = 'http://127.0.0.1:8023'
+  process.env.PEDIDO_SERVICE_URL = 'http://127.0.0.1:8030'
+  process.env.CONFIGURADOR_SERVICE_URL = configuradorLoopbackUrl
   } // fim !devPm2 — sidecars embutidos
-
-  async function aplicarMigrationsBidFreteDev(): Promise<void> {
-    if (process.env.NODE_ENV === 'production' || process.env.BID_SKIP_MIGRATIONS === '1') return
-    try {
-      const { execSync } = await import('node:child_process')
-      const repoRoot = resolve(__dir, '../../..')
-      console.log('[configurador] Dev — aplicando migrations BID Frete Internacional...')
-      execSync('npx tsx scripts/ativamente/aplicar-migrations-bid-frete-internacional.ts', {
-        cwd: repoRoot,
-        stdio: 'inherit',
-        env: process.env,
-      })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      console.warn('[configurador] Migrations BID dev falharam — sidecar sobe mesmo assim:', msg)
-    }
-  }
-
-  async function iniciarSidecarBidFreteInternacional() {
-    if (!process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL) {
-      _sidecarStatus['bid-frete'] = { ok: false, error: 'BID_FRETE_INTERNATIONAL_DATABASE_URL ausente' }
-      console.warn('[configurador] BID_FRETE_INTERNATIONAL_DATABASE_URL ausente — sidecar BID Frete Internacional desativado')
-      return
-    }
-
-    await aplicarMigrationsBidFreteDev()
-
-    const plataformaBase = process.env.SERVIDOR_PLATAFORMA_URL ?? 'http://127.0.0.1:3001'
-    process.env.PORT = '8023'
-    process.env.DATABASE_URL = process.env.BID_FRETE_INTERNATIONAL_DATABASE_URL
-    process.env.CONFIGURATOR_URL = configuradorLoopbackUrl
-    process.env.CADASTROS_SERVICE_URL = 'http://127.0.0.1:8031'
-    process.env.ATIVIDADES_SERVICE_URL = process.env.ATIVIDADES_SERVICE_URL ?? plataformaBase
-    process.env.NOTIFICACOES_SERVICE_URL = process.env.NOTIFICACOES_SERVICE_URL ?? plataformaBase
-    process.env.HISTORICO_SERVICE_URL = process.env.HISTORICO_SERVICE_URL ?? plataformaBase
-    process.env.GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
-    process.env.CLIENT_URL = process.env.CANONICAL_DOMAIN
-      ? `https://${process.env.CANONICAL_DOMAIN}`
-      : 'https://usegravity.com.br'
-    process.env.BID_FRETE_SIDECAR = '1'
-
-    const _origExitBid = process.exit
-    process.exit = ((code?: number) => {
-      throw new Error(`[sidecar-guard] process.exit(${code}) bloqueado em modo sidecar BID Frete`)
-    }) as typeof process.exit
-    try {
-      await import('../../produto/bid-frete-internacional/server/src/index.js')
-      _sidecarStatus['bid-frete'] = { ok: true }
-      console.log('[configurador] Sidecar BID Frete Internacional iniciado na porta 8023')
-    } catch (err) {
-      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
-      _sidecarStatus['bid-frete'] = { ok: false, error: msg }
-      console.error('[configurador] Falha ao iniciar sidecar BID Frete Internacional:', msg)
-    } finally {
-      process.exit = _origExitBid
-      if (portaOriginal !== undefined) process.env.PORT = portaOriginal
-      process.env.DATABASE_URL =
-        process.env.CONFIGURADOR_DATABASE_URL ?? dbOriginal ?? process.env.DATABASE_URL
-    }
-  }
 
   const server = app.listen(listenPort, async () => {
     console.log(`[configurador] Servidor rodando na porta ${listenPort}`)
     process.env.CONFIGURADOR_BASE_URL = configuradorLoopbackUrl
-
-    if (!devPm2) {
-      void iniciarSidecarBidFreteInternacional().catch((err: unknown) => {
-        const msg = err instanceof Error ? err.stack ?? err.message : String(err)
-        _sidecarStatus['bid-frete'] = { ok: false, error: msg }
-        console.error('[configurador] Sidecar BID (background) erro não tratado:', msg)
-      })
-    }
 
     // Garantir produtos canônicos no catálogo (cria/atualiza nomes — nunca apaga cadastros do Admin)
     try {

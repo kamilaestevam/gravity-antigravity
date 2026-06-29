@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGabiRequestHeaders } from '../hooks/use-gabi-request-headers'
+import { gabiAgenteChatWidgetResponseSchema } from '../shared/contratos-gabi'
 import {
   Sparkle,
   X,
@@ -698,7 +699,12 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
         const detalhe = await res.text().catch(() => '')
         throw new Error(`API ${res.status}${detalhe ? `: ${detalhe.slice(0, 200)}` : ''}`)
       }
-      const data = await res.json()
+      const raw: unknown = await res.json()
+      const parsed = gabiAgenteChatWidgetResponseSchema.safeParse(raw)
+      if (!parsed.success) {
+        throw new Error(`Contrato GABI inválido: ${parsed.error.issues[0]?.message ?? 'parse'}`)
+      }
+      const data = parsed.data
       if (data.conversationId) {
         setConversationId(data.conversationId)
         sessionStorage.setItem(STORAGE_CONVERSA_GABI, data.conversationId)

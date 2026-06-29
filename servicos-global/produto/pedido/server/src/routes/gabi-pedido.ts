@@ -35,15 +35,16 @@ gabiProxyRouter.post('/api/v1/pedidos/gabi/ajuda-campo', async (req: Request, re
     const tenantId = (req as any).tenantId as string
     const userId   = (req as any).userId as string ?? 'anonymous'
 
+    const chave = process.env.CHAVE_INTERNA_SERVICO ?? ''
     const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/ajuda-campo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
-        'x-id-organizacao':    tenantId,
-        'x-id-usuario':      userId,
-        'x-id-produto':   'pedido',
-        'x-gabi-quota':   process.env.GABI_QUOTA_PEDIDO ?? '50000',
+        'x-chave-interna-servico': chave,
+        'x-id-organizacao': tenantId,
+        'x-id-usuario': userId,
+        'x-id-produto': 'pedido',
+        'x-gabi-quota': process.env.GABI_QUOTA_PEDIDO ?? '50000',
       },
       body: JSON.stringify(parsed.data),
       signal: AbortSignal.timeout(15_000),
@@ -69,11 +70,11 @@ gabiProxyRouter.get('/api/v1/pedidos/gabi/quota', async (req: Request, res: Resp
 
     const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/quota`, {
       headers: {
-        'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
-        'x-id-organizacao':    tenantId,
-        'x-id-usuario':      'system',
-        'x-id-produto':   'pedido',
-        'x-gabi-quota':   process.env.GABI_QUOTA_PEDIDO ?? '50000',
+        'x-chave-interna-servico': process.env.CHAVE_INTERNA_SERVICO ?? '',
+        'x-id-organizacao': tenantId,
+        'x-id-usuario': 'system',
+        'x-id-produto': 'pedido',
+        'x-gabi-quota': process.env.GABI_QUOTA_PEDIDO ?? '50000',
       },
       signal: AbortSignal.timeout(5_000),
     })

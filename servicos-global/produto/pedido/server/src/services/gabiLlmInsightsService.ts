@@ -18,6 +18,7 @@
  */
 
 import type { GabiInsight, KpiSnapshot, UserRole } from './gabiInsightsService.js'
+import { gabiChatS2sResponseSchema } from '../contracts/gabi-responses.js'
 
 // ── Cache in-memory ───────────────────────────────────────────────────────────
 
@@ -81,31 +82,58 @@ async function callGabi(
   tenantId: string,
   userId: string,
 ): Promise<string | null> {
+  const chave = process.env.CHAVE_INTERNA_SERVICO
+  if (!chave) {
+    console.warn('[gabiLlmInsights] CHAVE_INTERNA_SERVICO ausente — skip Fase 3 LLM', { tenantId, userId })
+    return null
+  }
+
   try {
     const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/chats`, {
       method: 'POST',
       headers: {
-        'Content-Type':   'application/json',
-        'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
-        'x-id-organizacao':    tenantId,
-        'x-id-usuario':      userId,
-        'x-id-produto':   'pedido',
-        'x-gabi-quota':   process.env.GABI_QUOTA_PEDIDO ?? '50000',
+        'Content-Type': 'application/json',
+        'x-chave-interna-servico': chave,
+        'x-id-organizacao': tenantId,
+        'x-id-usuario': userId,
+        'x-id-produto': 'pedido',
+        'x-gabi-quota': process.env.GABI_QUOTA_PEDIDO ?? '50000',
       },
       body: JSON.stringify({
-        mensagem: prompt,
-        historico: [],
-        modo: 'analista',
+        conversationId: 'new',
+        message: prompt,
       }),
       signal: AbortSignal.timeout(GABI_TIMEOUT_MS),
     })
 
-    if (!response.ok) return null
+    if (!response.ok) {
+      console.warn('[gabiLlmInsights] GABI HTTP erro', {
+        tenantId,
+        userId,
+        status: response.status,
+      })
+      return null
+    }
 
-    const data = await response.json() as { resposta?: string; texto?: string }
-    return data.resposta ?? data.texto ?? null
-  } catch {
-    return null  // Timeout, offline, ou erro — fallback silencioso
+    const raw: unknown = await response.json()
+    const parsed = gabiChatS2sResponseSchema.safeParse(raw)
+    if (!parsed.success) {
+      console.warn('[gabiLlmInsights] contrato Zod inválido na resposta GABI', {
+        tenantId,
+        userId,
+        issues: parsed.error.issues,
+      })
+      return null
+    }
+
+    return parsed.data.response
+  } catch (err) {
+    console.warn('[gabiLlmInsights] falha S2S GABI', {
+      tenantId,
+      userId,
+      erro: err instanceof Error ? err.message : String(err),
+    })
+    return null
   }
 }
 

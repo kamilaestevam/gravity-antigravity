@@ -20,6 +20,10 @@ const TIMEOUT_MS = 10_000
 
 const SERVICE_URLS: Record<string, string> = {
   pedido: process.env.PEDIDO_SERVICE_URL ?? 'http://127.0.0.1:8030',
+  'bid-frete':
+    process.env.BID_FRETE_INTERNATIONAL_SERVICE_URL ??
+    process.env.BID_FRETE_SERVICE_URL ??
+    'http://127.0.0.1:8023',
   configurador: process.env.CONFIGURADOR_SERVICE_URL ?? 'http://127.0.0.1:8005',
   admin: process.env.CONFIGURADOR_SERVICE_URL ?? 'http://127.0.0.1:8005',
   hub: process.env.CONFIGURADOR_SERVICE_URL ?? 'http://127.0.0.1:8005',

@@ -49,6 +49,13 @@ describe('catalogo-ferramentas', () => {
       expect(tools.every((t) => t.produto === 'configurador')).toBe(true)
     })
 
+    it('retorna tools do produto bid-frete', () => {
+      const tools = listarToolsPorProduto('bid-frete')
+      expect(tools.length).toBeGreaterThanOrEqual(3)
+      expect(tools.some((t) => t.id === 'bid_frete.kpis')).toBe(true)
+      expect(tools.every((t) => t.produto === 'bid-frete')).toBe(true)
+    })
+
     it('retorna array vazio para produto inexistente', () => {
       const tools = listarToolsPorProduto('inexistente')
       expect(tools).toHaveLength(0)
@@ -149,7 +156,7 @@ describe('catalogo-ferramentas', () => {
     it('todo id segue padrao produto.acao', () => {
       const tools = listarToolsPorClasse('READ')
       for (const t of tools) {
-        expect(t.id).toMatch(/^[a-z]+\.[a-z_]+$/)
+        expect(t.id).toMatch(/^[a-z_]+\.[a-z_]+$/)
       }
     })
 

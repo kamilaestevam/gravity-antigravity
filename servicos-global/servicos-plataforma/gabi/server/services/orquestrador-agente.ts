@@ -136,6 +136,7 @@ export interface ContextoAgente extends ContextoExecucao {
 
 const PRIORIDADE_PREFIXO: string[] = [
   'pedido.',     // core product
+  'bid_frete.',  // cotacoes de frete internacional
   'config.',     // configuracao essencial
   'core.',       // dashboard/processos
   'admin.',      // admin (se SUPER_ADMIN)

@@ -180,6 +180,8 @@ QUANDO o usuario perguntar sobre SEUS DADOS (pedidos, configuracoes, KPIs, usuar
 Exemplos obrigatorios:
 - "liste meus pedidos" → chame pedido_listar
 - "quantos pedidos eu tenho?" → chame pedido_kpis
+- "quantas cotacoes de frete?" / "e cotacoes de frete?" → chame bid_frete_kpis
+- "liste minhas cotacoes de frete" → chame bid_frete_listar_cotacoes
 - "detalhes do pedido X" → chame pedido_detalhar com o id
 - "meus usuarios" → chame configurador_listar_usuarios
 - "como estao meus pedidos esse mes?" → chame pedido_tendencia
@@ -369,6 +371,21 @@ Fluxo obrigatorio:
 
 "Leitura 544" e o rotulo na lista — busque com termo_busca "544". O id_leitura da API vem na resposta da listagem.
 O workspace ativo ja esta na sessao; nao peca id_workspace ao usuario.`)
+  }
+
+  const temBidFrete = params.toolsDisponiveis?.some((t) => t.startsWith('bid_frete.'))
+  if (temBidFrete) {
+    secoes.push(`=== BID FRETE INTERNACIONAL — DADOS REAIS (OBRIGATORIO) ===
+Voce TEM acesso aos dados do usuario via tools bid_frete.* (API BID Frete Internacional).
+NUNCA diga que nao tem acesso direto as cotacoes de frete — isso e falso.
+SEMPRE chame uma tool antes de responder sobre cotacoes, BIDs ou metricas de frete.
+
+Fluxo obrigatorio:
+1. "quantas cotacoes", "cotacoes de frete", KPIs, funil -> bid_frete.kpis
+2. "liste cotacoes", "cotacoes abertas/aprovadas" -> bid_frete.listar_cotacoes (filtro status opcional)
+3. Detalhe de cotacao especifica -> bid_frete.detalhar_cotacao com id retornado na listagem
+
+Link UI: [BID Frete Internacional](/produto/bid-frete)`)
   }
 
   return secoes.join('\n\n')

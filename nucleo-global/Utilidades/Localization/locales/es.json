@@ -7072,6 +7072,11 @@
     "notificacoes": "Notificaciones",
     "produtos_contratados": "Sus Productos Gravity",
     "produtos_contratados_desc": "Acceda directo a los módulos que ya contrató",
+    "hub_primeiro_modulo_kicker": "Primer paso",
+    "hub_primeiro_modulo_titulo": "Active su primer módulo",
+    "hub_primeiro_modulo_desc": "Elija en Gravity Store los productos para su operación de comercio exterior. También puede hacer clic en un módulo abajo para ir directo a la vitrina.",
+    "hub_primeiro_modulo_subtitulo_secao": "Vista previa de módulos — active en Gravity Store para comenzar",
+    "hub_ir_gravity_store": "Ir a Gravity Store",
     "ws_pref_intro": "Preferencia de filiales por producto — lo que define aquí es lo que cada módulo usa al abrir",
     "gravity_store": "Gravity Store",
     "store_desc": "Vitrina del ecosistema — nuevos módulos para el workspace.",
@@ -7810,16 +7815,16 @@
   },
   "auth": {
     "headline": "El marketplace del",
-    "headline_destaque": "comercio exterior.",
-    "subheadline": "Módulos para cada etapa de tu operación — conectados entre sí e impulsados por IA.",
-    "ecossistema_titulo": "Modular por diseño",
-    "ecossistema_desc": "Se integra con ERPs, sistemas de comercio exterior y fuentes de datos del gobierno.",
-    "zero_digitacao_titulo": "IA que trabaja por ti",
-    "zero_digitacao_desc": "Gabi lee documentos, completa campos y señala errores — antes de que te cuesten dinero.",
-    "gestao_custos_titulo": "Visibilidad total de costos",
-    "gestao_custos_desc": "Cada peso rastreado por operación, módulo y equipo. Decisiones con datos, no con intuición.",
-    "padrao_enterprise_titulo": "Aislamiento enterprise",
-    "padrao_enterprise_desc": "Una base de datos exclusiva para tu empresa. Sin compartir, sin excepciones."
+    "headline_destaque": "comercio exterior",
+    "subheadline": "Módulos conectados en cada etapa de la operación, con IA",
+    "ecossistema_titulo": "Contrata solo lo que necesitas",
+    "ecossistema_desc": "Un módulo, dos o todo el ecosistema — tú eliges el ritmo y expandes cuando la operación lo pida",
+    "zero_digitacao_titulo": "IA en cada etapa",
+    "zero_digitacao_desc": "Gabi lee documentos, cruza reglas y señala riesgos antes de que se conviertan en costo o demora aduanera",
+    "gestao_custos_titulo": "Productos que se conectan",
+    "gestao_custos_desc": "Pedido, Proceso, Smart Docs y más comparten los mismos datos — sin hojas de cálculo ni volver a tipear",
+    "padrao_enterprise_titulo": "Preparado para multiempresas",
+    "padrao_enterprise_desc": "Una cuenta, varias empresas y filiales — cada workspace con datos separados y cambio rápido entre operaciones"
   },
   "cadastro": {
     "continuar": {

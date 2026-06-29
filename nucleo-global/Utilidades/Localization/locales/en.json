@@ -8998,16 +8998,16 @@
   },
   "auth": {
     "headline": "The marketplace for",
-    "headline_destaque": "foreign trade.",
-    "subheadline": "Modules for every stage of your operation — connected to each other and powered by AI.",
-    "ecossistema_titulo": "Modular by design",
-    "ecossistema_desc": "Integrates with ERPs, foreign trade systems and government data sources.",
-    "zero_digitacao_titulo": "AI that works for you",
-    "zero_digitacao_desc": "Gabi reads documents, fills in fields and flags errors — before they cost you money.",
-    "gestao_custos_titulo": "Full cost visibility",
-    "gestao_custos_desc": "Every dollar tracked by operation, module and team. Decisions based on data, not gut feeling.",
-    "padrao_enterprise_titulo": "Enterprise isolation",
-    "padrao_enterprise_desc": "A dedicated database for your company. No sharing, no exceptions."
+    "headline_destaque": "foreign trade",
+    "subheadline": "Modules connected at every stage of your operation, with AI",
+    "ecossistema_titulo": "Buy only what you need",
+    "ecossistema_desc": "One module, two, or the full suite — you choose the pace and expand when your operation is ready",
+    "zero_digitacao_titulo": "AI at every stage",
+    "zero_digitacao_desc": "Gabi reads documents, cross-checks rules and flags risks before they become cost or customs delays",
+    "gestao_custos_titulo": "Products that connect",
+    "gestao_custos_desc": "Order, Process, Smart Docs and more share the same data — no spreadsheets, no retyping",
+    "padrao_enterprise_titulo": "Built for multiple companies",
+    "padrao_enterprise_desc": "One account, many companies and branches — each workspace keeps data separate with fast switching between operations"
   },
   "cadastro": {
     "continuar": {
@@ -9050,6 +9050,11 @@
     "notificacoes": "Notifications",
     "produtos_contratados": "Your Gravity Products",
     "produtos_contratados_desc": "Open the modules you already subscribed to directly from here",
+    "hub_primeiro_modulo_kicker": "First step",
+    "hub_primeiro_modulo_titulo": "Activate your first module",
+    "hub_primeiro_modulo_desc": "Choose your products in Gravity Store for your foreign trade operation. You can also click a module below to go straight to the catalog.",
+    "hub_primeiro_modulo_subtitulo_secao": "Module preview — activate in Gravity Store to get started",
+    "hub_ir_gravity_store": "Go to Gravity Store",
     "ws_pref_intro": "Branch preference per product — what you set here is what each module uses when opening",
     "gravity_store": "Gravity Store",
     "store_desc": "Ecosystem showcase — new modules for your workspace.",

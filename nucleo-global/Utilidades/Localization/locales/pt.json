@@ -9448,16 +9448,16 @@
   },
   "auth": {
     "headline": "O marketplace do",
-    "headline_destaque": "comércio exterior.",
-    "subheadline": "Módulos para cada etapa da sua operação — conectados entre si e alimentados por IA.",
-    "ecossistema_titulo": "Modular por design",
-    "ecossistema_desc": "Integra com ERPs, sistemas de comércio exterior e fontes de dados do governo.",
-    "zero_digitacao_titulo": "IA que trabalha por você",
-    "zero_digitacao_desc": "A Gabi lê documentos, preenche campos e sinaliza erros — antes que eles custem dinheiro.",
-    "gestao_custos_titulo": "Visibilidade total de custos",
-    "gestao_custos_desc": "Cada real rastreado por operação, módulo e equipe. Decisão com número, não com feeling.",
-    "padrao_enterprise_titulo": "Isolamento enterprise",
-    "padrao_enterprise_desc": "Um banco de dados exclusivo para a sua empresa. Sem compartilhamento, sem exceções."
+    "headline_destaque": "comércio exterior",
+    "subheadline": "Módulos conectados em cada etapa da operação, com IA",
+    "ecossistema_titulo": "Contrate só o que precisa",
+    "ecossistema_desc": "Um módulo, dois ou todos — você escolhe o ritmo e expande quando a operação pedir",
+    "zero_digitacao_titulo": "IA em cada etapa",
+    "zero_digitacao_desc": "A Gabi lê documentos, cruza regras e sinaliza riscos antes que virem custo ou atraso",
+    "gestao_custos_titulo": "Produtos que se conectam",
+    "gestao_custos_desc": "Pedido, Processo, Smart Docs e mais compartilham os mesmos dados — sem exportar planilha nem redigitar",
+    "padrao_enterprise_titulo": "Preparado para multi-empresas",
+    "padrao_enterprise_desc": "Uma conta, várias empresas e filiais — cada workspace com dados separados e troca rápida entre operações"
   },
   "cadastro": {
     "continuar": {
@@ -9500,6 +9500,11 @@
     "notificacoes": "Notificações",
     "produtos_contratados": "Seus Produtos Gravity",
     "produtos_contratados_desc": "Acesso direto aos módulos que você já contratou",
+    "hub_primeiro_modulo_kicker": "Primeiro passo",
+    "hub_primeiro_modulo_titulo": "Ative seu primeiro módulo",
+    "hub_primeiro_modulo_desc": "Escolha na Gravity Store os produtos para sua operação de comércio exterior. Você também pode clicar em um módulo abaixo para ir direto à vitrine.",
+    "hub_primeiro_modulo_subtitulo_secao": "Prévia dos módulos — ative na Gravity Store para começar",
+    "hub_ir_gravity_store": "Ir para Gravity Store",
     "ws_pref_intro": "Preferência de filiais por produto — o que você define aqui é o que cada módulo usa ao abrir",
     "gravity_store": "Gravity Store",
     "store_desc": "Vitrine do ecossistema Gravity",

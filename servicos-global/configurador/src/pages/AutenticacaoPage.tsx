@@ -1,7 +1,7 @@
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LoginGlobal } from '@nucleo/login-global'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
-import { Atom, CursorClick, Coins, ShieldCheck } from '@phosphor-icons/react'
+import { Atom, CursorClick, Plugs, Buildings } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -60,17 +60,17 @@ export function AutenticacaoPage() {
                 desc: t('auth.ecossistema_desc')
               },
               {
+                icon: <Plugs size={20} weight="duotone" className="auth-feature-icon" />,
+                title: t('auth.gestao_custos_titulo'),
+                desc: t('auth.gestao_custos_desc')
+              },
+              {
                 icon: <CursorClick size={20} weight="duotone" className="auth-feature-icon" />,
                 title: t('auth.zero_digitacao_titulo'),
                 desc: t('auth.zero_digitacao_desc')
               },
               {
-                icon: <Coins size={20} weight="duotone" className="auth-feature-icon" />,
-                title: t('auth.gestao_custos_titulo'),
-                desc: t('auth.gestao_custos_desc')
-              },
-              {
-                icon: <ShieldCheck size={20} weight="duotone" className="auth-feature-icon" />,
+                icon: <Buildings size={20} weight="duotone" className="auth-feature-icon" />,
                 title: t('auth.padrao_enterprise_titulo'),
                 desc: t('auth.padrao_enterprise_desc')
               },

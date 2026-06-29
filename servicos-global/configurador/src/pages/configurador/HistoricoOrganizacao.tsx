@@ -166,7 +166,7 @@ export function HistoricoOrganizacao() {
   const limit = 25
 
   const [searchParams] = useSearchParams()
-  const idProdutoHistoricoLog = searchParams.get('id_produto_historico_log') ?? 'configurador'
+  const idProdutoHistoricoLog = searchParams.get('id_produto_historico_log') ?? undefined
 
   const [erroApi, setErroApi] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(true)
@@ -179,8 +179,10 @@ export function HistoricoOrganizacao() {
       const params = new URLSearchParams({
         page: String(pageNum),
         limit: String(limit),
-        id_produto_historico_log: idProdutoHistoricoLog,
       })
+      if (idProdutoHistoricoLog) {
+        params.set('id_produto_historico_log', idProdutoHistoricoLog)
+      }
 
       const res = await fetch(`/api/v1/historico-organizacao?${params.toString()}`, {
         headers: {

@@ -51,7 +51,9 @@ export const apiCockpitAdminRouter = Router()
  * Em producao, err.message e mascarada para evitar vazar URLs internas,
  * timeouts ou stack traces. Em dev, o err.message real e mantido.
  */
-function maskError(err: unknown): string {
+function maskError(err: unknown, rota: string): string {
+  const detalhe = err instanceof Error ? err.message : String(err)
+  console.error(`[api-cockpit proxy] ${rota}: ${detalhe}`)
   if (isDev() && err instanceof Error) return err.message
   return 'Serviço de observabilidade temporariamente indisponível'
 }
@@ -107,7 +109,7 @@ apiCockpitRouter.get('/saude-servicos', async (_req, res) => {
     const data = await proxyToCockpit('/servicos')
     res.json(data)
   } catch (err) {
-    res.json({ servicos: [], error: maskError(err) })
+    res.json({ servicos: [], error: maskError(err, 'GET /saude-servicos') })
   }
 })
 
@@ -128,7 +130,7 @@ apiCockpitRouter.get('/log-requisicao-api', async (req, res) => {
     })
     res.json(data)
   } catch (err) {
-    res.json({ ...LOGS_FALLBACK, error: maskError(err) })
+    res.json({ ...LOGS_FALLBACK, error: maskError(err, 'GET /log-requisicao-api') })
   }
 })
 
@@ -144,7 +146,8 @@ apiCockpitRouter.get('/log-requisicao-api/estatisticas', async (req, res) => {
     if (typeof req.query.dias  === 'string') params.dias  = req.query.dias
     const data = await proxyToCockpit('/estatisticas-log-requisicao-api', params)
     res.json(data)
-  } catch {
+} catch (err) {
+    maskError(err, 'GET /log-requisicao-api/estatisticas')
     res.json(STATS_FALLBACK)
   }
 })
@@ -190,7 +193,7 @@ apiCockpitRouter.get('/api-tokens', async (req, res) => {
     if (!response.ok) throw new Error(`api-tokens listar ${response.status}`)
     res.json(await response.json())
   } catch (err) {
-    res.json({ tokens: [], error: maskError(err) })
+    res.json({ tokens: [], error: maskError(err, 'GET /api-tokens') })
   }
 })
 
@@ -209,7 +212,7 @@ apiCockpitRouter.post('/api-tokens', requireConfiguradorMutation, async (req, re
     const { status, data } = await proxyToTokens('POST', '/', body)
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'POST /api-tokens') })
   }
 })
 
@@ -227,7 +230,7 @@ apiCockpitRouter.delete('/api-tokens/:id_api_token', requireConfiguradorMutation
     if (status === 204) return res.status(204).send()
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'DELETE /api-tokens/:id_api_token') })
   }
 })
 
@@ -266,7 +269,7 @@ apiCockpitRouter.get('/webhooks', async (req, res) => {
     const { status, data } = await proxyToWebhooks('GET', '/', undefined, { id_organizacao: idOrganizacao })
     res.status(status).json(data)
   } catch (err) {
-    res.json({ webhooks: [], error: maskError(err) })
+    res.json({ webhooks: [], error: maskError(err, 'GET /webhooks') })
   }
 })
 
@@ -279,7 +282,7 @@ apiCockpitRouter.post('/webhooks', requireConfiguradorMutation, async (req, res)
     const { status, data } = await proxyToWebhooks('POST', '/', body)
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'POST /webhooks') })
   }
 })
 
@@ -295,7 +298,7 @@ apiCockpitRouter.put('/webhooks/:id_webhook_configuracao', requireConfiguradorMu
     )
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'PUT /webhooks/:id_webhook_configuracao') })
   }
 })
 
@@ -311,7 +314,7 @@ apiCockpitRouter.delete('/webhooks/:id_webhook_configuracao', requireConfigurado
     if (status === 204) return res.status(204).send()
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'DELETE /webhooks/:id_webhook_configuracao') })
   }
 })
 
@@ -326,7 +329,7 @@ apiCockpitRouter.post('/webhooks/:id_webhook_configuracao/disparar-evento-teste'
     )
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'POST /webhooks/:id_webhook_configuracao/disparar-evento-teste') })
   }
 })
 
@@ -342,7 +345,7 @@ apiCockpitRouter.get('/webhooks/:id_webhook_configuracao/historico', async (req,
     )
     res.status(status).json(data)
   } catch (err) {
-    res.json({ historico: [], error: maskError(err) })
+    res.json({ historico: [], error: maskError(err, 'GET /webhooks/:id_webhook_configuracao/historico') })
   }
 })
 
@@ -375,7 +378,7 @@ apiCockpitAdminRouter.get('/saude-servicos', async (_req, res) => {
     const data = await proxyToCockpit('/servicos')
     res.json(data)
   } catch (err) {
-    res.json({ servicos: [], error: maskError(err) })
+    res.json({ servicos: [], error: maskError(err, 'GET /admin/saude-servicos') })
   }
 })
 
@@ -391,7 +394,7 @@ apiCockpitAdminRouter.get('/log-requisicao-api', async (req, res) => {
     })
     res.json(data)
   } catch (err) {
-    res.json({ ...LOGS_FALLBACK, error: maskError(err) })
+    res.json({ ...LOGS_FALLBACK, error: maskError(err, 'GET /admin/log-requisicao-api') })
   }
 })
 
@@ -402,7 +405,8 @@ apiCockpitAdminRouter.get('/log-requisicao-api/estatisticas', async (req, res) =
     if (typeof req.query.dias  === 'string') params.dias  = req.query.dias
     const data = await proxyToCockpit('/estatisticas-log-requisicao-api', Object.keys(params).length ? params : undefined)
     res.json(data)
-  } catch {
+} catch (err) {
+    maskError(err, 'GET /admin/log-requisicao-api/estatisticas')
     res.json(STATS_FALLBACK)
   }
 })
@@ -431,7 +435,7 @@ apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
     if (!response.ok) throw new Error(`api-tokens admin listar ${response.status}`)
     res.json(await response.json())
   } catch (err) {
-    res.json({ tokens: [], error: maskError(err) })
+    res.json({ tokens: [], error: maskError(err, 'GET /admin/api-tokens') })
   }
 })
 
@@ -451,7 +455,7 @@ apiCockpitAdminRouter.post('/api-tokens', async (req, res) => {
     const { status, data } = await proxyToTokens('POST', '/', body)
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'POST /admin/api-tokens') })
   }
 })
 
@@ -470,7 +474,7 @@ apiCockpitAdminRouter.delete('/api-tokens/:id_api_token', async (req, res) => {
     if (status === 204) return res.status(204).send()
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'DELETE /admin/api-tokens/:id_api_token') })
   }
 })
 
@@ -493,7 +497,7 @@ apiCockpitAdminRouter.get('/webhooks', async (req, res) => {
     }
     res.status(status).json(data)
   } catch (err) {
-    res.json({ webhooks: [], error: maskError(err) })
+    res.json({ webhooks: [], error: maskError(err, 'GET /admin/webhooks') })
   }
 })
 
@@ -509,7 +513,7 @@ apiCockpitAdminRouter.post('/webhooks', async (req, res) => {
     const { status, data } = await proxyToWebhooks('POST', '/', body)
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'POST /admin/webhooks') })
   }
 })
 
@@ -528,7 +532,7 @@ apiCockpitAdminRouter.put('/webhooks/:id_webhook_configuracao', async (req, res)
     )
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'PUT /admin/webhooks/:id_webhook_configuracao') })
   }
 })
 
@@ -547,7 +551,7 @@ apiCockpitAdminRouter.delete('/webhooks/:id_webhook_configuracao', async (req, r
     if (status === 204) return res.status(204).send()
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'DELETE /admin/webhooks/:id_webhook_configuracao') })
   }
 })
 
@@ -564,7 +568,7 @@ apiCockpitAdminRouter.post('/webhooks/:id_webhook_configuracao/disparar-evento-t
     )
     res.status(status).json(data)
   } catch (err) {
-    res.status(500).json({ error: maskError(err) })
+    res.status(500).json({ error: maskError(err, 'POST /admin/webhooks/:id_webhook_configuracao/disparar-evento-teste') })
   }
 })
 
@@ -580,7 +584,7 @@ apiCockpitAdminRouter.get('/webhooks/:id_webhook_configuracao/historico', async 
     )
     res.status(status).json(data)
   } catch (err) {
-    res.json({ historico: [], error: maskError(err) })
+    res.json({ historico: [], error: maskError(err, 'GET /admin/webhooks/:id_webhook_configuracao/historico') })
   }
 })
 
@@ -636,7 +640,7 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
       total_cost_usd: 0,
       by_model: {},
       by_day: {},
-      error: maskError(err),
+      error: maskError(err, 'GET /admin/uso-gabi'),
     })
   }
 })
@@ -664,7 +668,7 @@ apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
     const data = await response.json()
     res.json(data)
   } catch (err) {
-    res.json({ history: {}, error: maskError(err) })
+    res.json({ history: {}, error: maskError(err, 'GET /admin/uso-gabi/historico') })
   }
 })
 
@@ -744,7 +748,7 @@ apiCockpitAdminRouter.get('/llm-limites', async (req, res) => {
 
     res.json({ limites_globais: globais, limites_org: org })
   } catch (err) {
-    res.status(502).json({ limites_globais: [], limites_org: [], error: maskError(err) })
+    res.status(502).json({ limites_globais: [], limites_org: [], error: maskError(err, 'GET /admin/llm-limites') })
   }
 })
 
@@ -769,7 +773,7 @@ apiCockpitAdminRouter.post('/llm-limites', async (req, res) => {
     }
     res.status(resposta.status).json(resposta.body)
   } catch (err) {
-    res.status(502).json({ error: maskError(err) })
+    res.status(502).json({ error: maskError(err, 'POST /admin/llm-limites') })
   }
 })
 
@@ -795,7 +799,7 @@ apiCockpitAdminRouter.put('/llm-limites/:id', async (req, res) => {
     }
     res.status(resposta.status).json(resposta.body)
   } catch (err) {
-    res.status(502).json({ error: maskError(err) })
+    res.status(502).json({ error: maskError(err, 'PUT /admin/llm-limites/:id') })
   }
 })
 
@@ -822,6 +826,6 @@ apiCockpitAdminRouter.delete('/llm-limites/:id', async (req, res) => {
     if (resposta.status === 204) return res.status(204).end()
     res.status(resposta.status).json(resposta.body)
   } catch (err) {
-    res.status(502).json({ error: maskError(err) })
+    res.status(502).json({ error: maskError(err, 'DELETE /admin/llm-limites/:id') })
   }
 })

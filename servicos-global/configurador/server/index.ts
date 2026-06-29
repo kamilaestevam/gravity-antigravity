@@ -877,32 +877,44 @@ if (process.env.NODE_ENV !== 'test') {
   }
 
   // Sidecar 4: API Cockpit (porta 8016)
-  // Health checks, tokens, webhooks, logs de requisição, monitoramento.
-  // Persiste em ORGANIZACAO_DATABASE_URL (fragment api-cockpit no schema plataforma).
-  process.env.PORT = '8016'
-  if (process.env.ORGANIZACAO_DATABASE_URL) {
-    process.env.DATABASE_URL = process.env.ORGANIZACAO_DATABASE_URL
-  } else {
-    process.env.DATABASE_URL = dbOriginal
-    console.warn('[configurador] ORGANIZACAO_DATABASE_URL ausente — sidecar API Cockpit usará CONFIGURADOR DATABASE (tabelas api-cockpit podem faltar)')
-  }
-  process.env.API_COCKPIT_SIDECAR = '1'
-  try {
-    await import('../../servicos-plataforma/api-cockpit/server/src/index.js')
-    _sidecarStatus['api-cockpit'] = { ok: true }
-    console.log('[configurador] Sidecar API Cockpit iniciado na porta 8016')
-  } catch (err) {
-    const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+  const emProducao =
+    process.env.NODE_ENV === 'production' || Boolean(process.env.RAILWAY_ENVIRONMENT)
+  const { coletarErrosPreflightApiCockpit, aguardarSidecarEmbutido } = await import(
+    './lib/verificar-health-sidecar.js'
+  )
+  const errosPreflightApiCockpit = coletarErrosPreflightApiCockpit(emProducao)
+
+  if (errosPreflightApiCockpit.length > 0) {
+    const msg = errosPreflightApiCockpit.join('; ')
+    console.error('[configurador] API Cockpit preflight falhou:', msg)
     _sidecarStatus['api-cockpit'] = { ok: false, error: msg }
-    console.error('[configurador] Falha ao iniciar sidecar API Cockpit:', msg)
+  } else {
+    process.env.PORT = '8016'
+    process.env.DATABASE_URL =
+      process.env.ORGANIZACAO_DATABASE_URL?.trim() || dbOriginal
+    process.env.API_COCKPIT_SIDECAR = '1'
+    try {
+      const mod = await import(
+        '../../servicos-plataforma/api-cockpit/server/src/index.js'
+      ) as { sidecarListenReady?: Promise<void> }
+      await aguardarSidecarEmbutido(8016, mod.sidecarListenReady)
+      _sidecarStatus['api-cockpit'] = { ok: true }
+      console.log('[configurador] Sidecar API Cockpit iniciado na porta 8016')
+    } catch (err) {
+      const msg = err instanceof Error ? err.stack ?? err.message : String(err)
+      _sidecarStatus['api-cockpit'] = { ok: false, error: msg }
+      console.error('[configurador] Falha ao iniciar sidecar API Cockpit:', msg)
+    }
   }
 
   // Sidecar 5: Taxas Moeda / PTAX BCB (porta 8032)
-  // Fonte primária S2S consumida pelo sync PTAX (manual + cron).
   process.env.PORT = '8032'
   process.env.TAXAS_MOEDA_SIDECAR = '1'
   try {
-    await import('../../servicos-plataforma/taxas-moeda/server/src/index.js')
+    const modTaxas = await import(
+      '../../servicos-plataforma/taxas-moeda/server/src/index.js'
+    ) as { sidecarListenReady?: Promise<void> }
+    await aguardarSidecarEmbutido(8032, modTaxas.sidecarListenReady)
     _sidecarStatus['taxas-moeda'] = { ok: true }
     console.log('[configurador] Sidecar Taxas Moeda (PTAX BCB) iniciado na porta 8032')
   } catch (err) {
@@ -953,7 +965,10 @@ if (process.env.NODE_ENV !== 'test') {
     process.env.CONFIGURADOR_URL = configuradorLoopbackUrl
     process.env.GABI_SIDECAR = '1'
     try {
-      await import('../../servicos-plataforma/gabi/server/index.js')
+      const modGabi = await import('../../servicos-plataforma/gabi/server/index.js') as {
+        sidecarListenReady?: Promise<void>
+      }
+      await aguardarSidecarEmbutido(8009, modGabi.sidecarListenReady)
       _sidecarStatus['gabi'] = { ok: true }
       console.log('[configurador] Sidecar GABI iniciado na porta 8009')
     } catch (err) {

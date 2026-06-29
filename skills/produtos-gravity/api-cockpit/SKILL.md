@@ -105,6 +105,21 @@ No Configurador, a organização vê todas as APIs de todos os produtos em uma �
 | NF Importação | api.gravity.com.br/nf-import | 🟢 Online |
 | BID Frete Internacional | api.gravity.com.br/bid-frete | 🟢 Online |
 
+### Boot do sidecar embutido (TASK-000395)
+
+O BFF do Configurador faz proxy para `http://127.0.0.1:8016`. Falha no sidecar → banner «Serviço de observabilidade temporariamente indisponível» na aba Tokens.
+
+**Doc operacional:** `documentos-tecnicos/produtos-gravity/configurador/API-COCKPIT-SIDECAR-BOOT.md`
+
+| Etapa | Onde |
+|:---|:---|
+| Preflight env (`ORGANIZACAO_DATABASE_URL`, `CHAVE_INTERNA_SERVICO`) | `configurador/server/lib/verificar-health-sidecar.ts` |
+| `sidecarListenReady` no `listen()` | `servicos-plataforma/middleware/sidecar-listen-ready.ts` |
+| Health após listen (`clearTimeout` no race) | `aguardarSidecarEmbutido` |
+| Logs proxy BFF | `maskError(err, rota)` em `configurador/server/routes/api-cockpit.ts` |
+
+**Produção:** preflight bloqueia sidecar sem env crítica. **Dev:** `CHAVE_INTERNA_SERVICO` ausente só gera warn.
+
 ---
 
 ## Parte 3 — Conector ERP/SAP (Serviço Reutilizável)
@@ -251,4 +266,5 @@ POST   /api/v1/api-cockpit/erp/query            ← executar query OData/SQL
 
 ## Histórico
 
+- **2026-06-29 (TASK-000395)** — Boot confiável do sidecar `:8016`, preflight dev/prod, `sidecarListenReady` compartilhado (gabi `:8009`, taxas-moeda `:8032`), logs `[api-cockpit proxy]` no BFF. Ver `API-COCKPIT-SIDECAR-BOOT.md`.
 - **2026-05-04** — Refatoração DDD final aplicada: 5 models criados no banco (`api_token`, `webhook_configuracao`, `webhook_log`, `log_consumo`, `api_integracao_erp`), backend e telas migrados para nomenclatura canônica. Antes do commit `8f0e041d`, o `fragment.prisma` era órfão (nunca composto, nunca migrado, backend rodava in-memory).

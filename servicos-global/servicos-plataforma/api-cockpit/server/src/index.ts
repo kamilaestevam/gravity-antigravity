@@ -36,6 +36,10 @@ import { proxyProdutosRouter } from './routes/proxy-produtos'
 import { requireInternalKey } from './middleware/requireInternalKey'
 import { rateLimitPresets } from '../../../middleware/rateLimiter'
 import { iniciarWorkerRetencao, pararWorkerRetencao } from './workers/retencao-log-requisicao-api'
+import {
+  criarSidecarListenReady,
+  registrarErroListenSidecar,
+} from '../../../middleware/sidecar-listen-ready.js'
 
 const app = express()
 const prisma = new PrismaClient()
@@ -77,22 +81,15 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 
 const PORT = 8016
 
+const listenHandles = criarSidecarListenReady(API_COCKPIT_SIDECAR, PORT, 'api-cockpit')
+export const sidecarListenReady = listenHandles.sidecarListenReady
+
 const server = app.listen(PORT, () => {
   console.log(`[api-cockpit] Servidor rodando na porta ${PORT}`)
   iniciarWorkerRetencao()
+  listenHandles.aoSubirListen()
 })
-server.on('error', (err: NodeJS.ErrnoException) => {
-  if (err.code === 'EADDRINUSE') {
-    if (API_COCKPIT_SIDECAR) {
-      // Como sidecar, porta em uso é não-fatal — o Configurador continua
-      console.warn(`[api-cockpit] Porta ${PORT} já em uso — ignorando quando sidecar (não-fatal)`)
-      return
-    }
-    console.error(`[api-cockpit] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
-    process.exit(1)
-  }
-  throw err
-})
+registrarErroListenSidecar(server, listenHandles, API_COCKPIT_SIDECAR, PORT, 'api-cockpit')
 
 // Graceful shutdown — Railway envia SIGTERM em deploy/restart.
 // Sem isso, setTimeout do worker pode disparar com prisma desconectado.

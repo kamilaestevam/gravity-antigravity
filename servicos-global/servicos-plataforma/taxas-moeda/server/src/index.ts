@@ -35,6 +35,10 @@ import helmet from 'helmet'
 import cors from 'cors'
 import { timingSafeEqual as cryptoTimingSafeEqual } from 'node:crypto'
 import { taxasMoedaRouter } from './routes/taxas-moeda.js'
+import {
+  criarSidecarListenReady,
+  registrarErroListenSidecar,
+} from '../../../../middleware/sidecar-listen-ready.js'
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 8032)
@@ -122,19 +126,13 @@ app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res
 })
 
 // ── Start ────────────────────────────────────────────────────────────────────
+const listenHandles = criarSidecarListenReady(TAXAS_MOEDA_SIDECAR, PORT, 'CotacoesBCB')
+export const sidecarListenReady = listenHandles.sidecarListenReady
+
 const server = app.listen(PORT, () => {
   console.log(`[CotacoesBCB] Servidor rodando na porta ${PORT}`)
   console.log(`[CotacoesBCB] Health: http://localhost:${PORT}/health`)
   console.log(`[CotacoesBCB] S2S endpoint: http://localhost:${PORT}/api/v1/internal/cotacoes-bcb`)
+  listenHandles.aoSubirListen()
 })
-server.on('error', (err: NodeJS.ErrnoException) => {
-  if (err.code === 'EADDRINUSE') {
-    if (TAXAS_MOEDA_SIDECAR) {
-      console.warn(`[CotacoesBCB] Porta ${PORT} já em uso — ignorando quando sidecar (não-fatal)`)
-      return
-    }
-    console.error(`[CotacoesBCB] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
-    process.exit(1)
-  }
-  throw err
-})
+registrarErroListenSidecar(server, listenHandles, TAXAS_MOEDA_SIDECAR, PORT, 'CotacoesBCB')

@@ -30,6 +30,12 @@ import { agenteRouter } from './routes/agente.js'
 import { diagnosticoRouter } from './routes/diagnostico.js'
 import { memoriaRouter } from './routes/memoria.js'
 import { adminRouter } from './routes/admin.js'
+import {
+  criarSidecarListenReady,
+  registrarErroListenSidecar,
+} from '../../middleware/sidecar-listen-ready.js'
+
+const GABI_SIDECAR = process.env.GABI_SIDECAR === '1'
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 8009)
@@ -70,9 +76,13 @@ app.use(errorHandler)
 // ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
-app.listen(PORT, () => {
+const listenHandles = criarSidecarListenReady(GABI_SIDECAR, PORT, 'GABI_SERVICE')
+export const sidecarListenReady = listenHandles.sidecarListenReady
+
+const server = app.listen(PORT, () => {
   console.log(`[GABI_SERVICE] ✅ Rodando na porta ${PORT}`)
   console.log(`[GABI_SERVICE]    Health: http://localhost:${PORT}/health`)
+  listenHandles.aoSubirListen()
 
   // F2-G: worker horario que avalia limites monetarios e dispara avisos por e-mail
   void import('./queue/limite-worker.js').then(({ iniciarLimiteWorker }) => {
@@ -113,5 +123,6 @@ app.listen(PORT, () => {
     console.warn('[GABI_SERVICE] falha iniciando cron memorias', (err as Error).message)
   })
 })
+registrarErroListenSidecar(server, listenHandles, GABI_SIDECAR, PORT, 'GABI_SERVICE')
 
 export default app

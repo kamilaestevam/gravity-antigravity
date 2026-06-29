@@ -2,8 +2,7 @@
 
 import type { PrismaClient } from '../../../generated/index.js'
 import prisma from './prisma.js'
-import { AppError } from './errors.js'
-import { garantirDdlGabiNoSchema } from './garantir-ddl-gabi.js'
+import { garantirDdlGabiNoSchema, invalidarCacheDdlGabiSchema } from './garantir-ddl-gabi.js'
 import { resolverNomeSchemaOrganizacao } from './nome-schema-organizacao.js'
 import { relancarErroPrismaGabi } from './erro-prisma-gabi.js'
 import { Prisma } from '../../../generated/index.js'
@@ -43,21 +42,13 @@ export async function withSchemaOrganizacao<T>(
   fn: (db: PrismaOrganizacao) => Promise<T>,
   timeoutMs = 15_000,
 ): Promise<T> {
+  await garantirDdlGabiNoSchema(idOrganizacao)
   try {
     return await executarComSearchPath(idOrganizacao, fn, timeoutMs)
   } catch (err) {
     if (isErroTabelaGabiAusente(err)) {
-      try {
-        await garantirDdlGabiNoSchema(idOrganizacao)
-      } catch (ddlErr) {
-        console.error('[GABI/DDL] Falha ao garantir tabelas:', ddlErr)
-        if (ddlErr instanceof AppError) throw ddlErr
-        throw new AppError(
-          'Banco GABI desatualizado (DDL falhou). Aguarde migrations ou contate suporte.',
-          503,
-          'GABI_DB_UNAVAILABLE',
-        )
-      }
+      invalidarCacheDdlGabiSchema(resolverNomeSchemaOrganizacao(idOrganizacao))
+      await garantirDdlGabiNoSchema(idOrganizacao)
       try {
         return await executarComSearchPath(idOrganizacao, fn, timeoutMs)
       } catch (retryErr) {

@@ -36,9 +36,9 @@ Tabelas `gabi_conversa` ausentes no schema `tenant_<org>` (migrate deploy só gr
 
 **Causa comum (drift):** `migrate-all-tenants` gravou a migration em `_prisma_migrations` do tenant, mas o SQL antigo via `to_regclass('gabi_conversa')` via tabela em `public` e **não criou** no `tenant_*`.
 
-**Hotfix runtime (#531+):** DDL mínimo schema-qualificado (`tenant_xxx.gabi_conversa`) + verificação Prisma após DDL; `ORGANIZACAO_DATABASE_URL` espelhada em `DATABASE_URL` no boot do sidecar.
+**Hotfix runtime (#531+):** DDL mínimo schema-qualificado + persistência via `"tenant_xxx"."gabi_conversa"` (Prisma ORM `create` ignora `search_path` em PgBouncer/Railway).
 
-1. Logs: `[GABI/DDL] drift reparado` ou `DDL mínimo qualificado` ou `Prisma não acessa gabi_conversa`
+1. Logs: `[GABI/DDL] Tabelas garantidas` ou erro com nome da tabela em `tabela ausente: …`
 2. Manual: `ORGANIZACAO_DATABASE_URL=... CONFIGURADOR_DATABASE_URL=... npx tsx scripts/ativamente/aplicar-migration-gabi-organizacao.ts`
 3. Sidecar reaplica DDL na 1ª mensagem (`[GABI/DDL] Tabelas garantidas`).
 

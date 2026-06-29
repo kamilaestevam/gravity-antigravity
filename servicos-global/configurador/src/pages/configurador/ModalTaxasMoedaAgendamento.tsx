@@ -9,6 +9,7 @@ import {
   type TaxaMoedaAgendamentoConfigApi,
   type TipoAgendamentoTaxaMoedaApi,
 } from '../../services/api-client'
+import { isGravityApiError } from '../../utils/gravity-api-error'
 import {
   taxaMoedaAgendamentoResponseSchema,
   PTAX_HORARIOS_BRT_UI,
@@ -27,6 +28,12 @@ interface DadosAgendamento {
   frequencia: 'Manual' | 'Diario' | 'Semanal'
   hora: string
   minuto: string
+}
+
+function mensagemErroAgendamento(err: unknown): string {
+  if (isGravityApiError(err)) return err.message
+  if (err instanceof Error && err.message) return err.message
+  return 'Falha ao carregar agendamento'
 }
 
 function fmtDataHora(iso: string | null): string {
@@ -70,7 +77,10 @@ export function ModalTaxasMoedaAgendamento({
         })
         setIsDirty(false)
       })
-      .catch(() => addNotification({ type: 'error', message: 'Falha ao carregar agendamento' }))
+      .catch((err: unknown) => addNotification({
+        type: 'error',
+        message: mensagemErroAgendamento(err),
+      }))
       .finally(() => setCarregando(false))
   }, [aberto, tipo, addNotification])
 

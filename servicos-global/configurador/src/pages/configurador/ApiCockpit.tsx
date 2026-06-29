@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams, Navigate } from 'react-router-dom'
 import { z } from 'zod'
@@ -22,6 +22,7 @@ const servicoPlataformaSchema = z.object({
   latencia_ms_servico_plataforma:       z.number(),
   versao_servico_plataforma:            z.string(),
   data_ultimo_check_servico_plataforma: z.string(),
+  endpoint_publico_servico_plataforma:  z.string().nullable(),
   // Transicao 2026-05-06: backend pode servir 'NUCLEO' legacy ate restart
   tipo_servico_plataforma:              z.enum(['PLATAFORMA', 'NUCLEO', 'PRODUTO_GRAVITY', 'CONECTOR']),
 })
@@ -57,22 +58,29 @@ const ROTULO_TIPO_SERVICO: Record<TipoServicoPlataforma, string> = {
 // Ordem padrao dos 15 servicos prioritarios (espelha ApiCockpitAdmin).
 // Servicos nao listados caem no final preservando a ordem natural.
 const ORDEM_PADRAO_SERVICOS: string[] = [
-  'configurador-organizacoes',
-  'configurador-me',
-  'configurador-usuarios',
-  'simula-custo',
+  'configurador',
   'cadastros',
-  'bid-frete',
-  'bid-cambio',
   'pedido',
-  'lpco',
-  'financeiro-comex',
-  'nf-importacao',
-  'taxas-cambio',
+  'processo',
+  'bid-frete',
+  'smart-read',
+  'gabi',
+  'taxas-moeda',
   'api-cockpit',
-  'historico',
-  'relatorios',
 ]
+
+const POLLING_INTERVAL_MS = 30_000
+
+function formatarRelativo(iso: string): string {
+  const t = new Date(iso).getTime()
+  if (Number.isNaN(t)) return iso
+  const segundos = Math.max(0, Math.floor((Date.now() - t) / 1000))
+  if (segundos < 60) return `há ${segundos}s`
+  const minutos = Math.floor(segundos / 60)
+  if (minutos < 60) return `há ${minutos}min`
+  const horas = Math.floor(minutos / 60)
+  return `há ${horas}h`
+}
 
 export function ApiCockpit() {
   const { t } = useTranslation()
@@ -81,36 +89,46 @@ export function ApiCockpit() {
   const [serieDiaria, setSerieDiaria] = useState<SerieDiariaPonto[] | undefined>(undefined)
   const redirecionarParaConsumo = searchParams.get('aba') === 'logs'
 
+  const carregarServicos = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const [svcRes, serieRes] = await Promise.all([
+        requisicaoAutenticada('/api/v1/api-cockpit/saude-servicos', { signal }),
+        requisicaoAutenticada('/api/v1/api-cockpit/log-requisicao-api/estatisticas?serie=diaria&dias=30', { signal }),
+      ])
+      if (svcRes.ok) {
+        const svcRaw = await svcRes.json()
+        const svcData = servicosResponseSchema.safeParse(svcRaw)
+        if (svcData.success) {
+          setServicos(svcData.data.servicos)
+        } else {
+          console.warn('[ApiCockpit] /saude-servicos payload invalido', svcData.error)
+        }
+      }
+      if (serieRes.ok) {
+        const serieRaw = await serieRes.json()
+        const parsed = estatisticasSerieSchema.safeParse(serieRaw)
+        if (parsed.success && parsed.data.serie_diaria_log_requisicao_api) {
+          setSerieDiaria(parsed.data.serie_diaria_log_requisicao_api)
+        }
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return
+      console.warn('[ApiCockpit] falha ao carregar cockpit', err)
+    }
+  }, [])
+
   useEffect(() => {
     if (redirecionarParaConsumo) return
-    const carregarCockpit = async () => {
-      try {
-        const [svcRes, serieRes] = await Promise.all([
-          requisicaoAutenticada('/api/v1/api-cockpit/saude-servicos'),
-          requisicaoAutenticada('/api/v1/api-cockpit/log-requisicao-api/estatisticas?serie=diaria&dias=30'),
-        ])
-        if (svcRes.ok) {
-          const svcRaw = await svcRes.json()
-          const svcData = servicosResponseSchema.safeParse(svcRaw)
-          if (svcData.success) {
-            setServicos(svcData.data.servicos)
-          } else {
-            console.warn('[ApiCockpit] /saude-servicos payload invalido', svcData.error)
-          }
-        }
-        if (serieRes.ok) {
-          const serieRaw = await serieRes.json()
-          const parsed = estatisticasSerieSchema.safeParse(serieRaw)
-          if (parsed.success && parsed.data.serie_diaria_log_requisicao_api) {
-            setSerieDiaria(parsed.data.serie_diaria_log_requisicao_api)
-          }
-        }
-      } catch (err) {
-        console.warn('[ApiCockpit] falha ao carregar cockpit', err)
-      }
+    const ctrl = new AbortController()
+    void carregarServicos(ctrl.signal)
+    const interval = setInterval(() => {
+      void carregarServicos()
+    }, POLLING_INTERVAL_MS)
+    return () => {
+      ctrl.abort()
+      clearInterval(interval)
     }
-    carregarCockpit()
-  }, [redirecionarParaConsumo])
+  }, [redirecionarParaConsumo, carregarServicos])
 
   const servicosOrdenados = useMemo(() => {
     const total = ORDEM_PADRAO_SERVICOS.length
@@ -157,6 +175,22 @@ export function ApiCockpit() {
       ),
     },
     {
+      key: 'endpoint_publico_servico_plataforma',
+      label: 'Endpoint produção',
+      tipo: 'texto',
+      tooltipTitulo: 'Endpoint produção',
+      tooltipDescricao: 'URL pública do serviço em usegravity.com.br; sidecars internos não expõem rota browser',
+      render: (_val, row) => {
+        const url = row.endpoint_publico_servico_plataforma
+        if (!url) return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>Sidecar interno</span>
+        return (
+          <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ws-accent, #818cf8)', fontSize: '0.8125rem' }}>
+            {url}
+          </a>
+        )
+      },
+    },
+    {
       key: 'latencia_ms_servico_plataforma',
       label: t('admin.cockpit.tabela.latencia'),
       tipo: 'texto',
@@ -177,6 +211,7 @@ export function ApiCockpit() {
       tipo: 'texto',
       tooltipTitulo: 'Último Check',
       tooltipDescricao: 'Data e hora da última verificação de disponibilidade',
+      render: (val) => formatarRelativo(String(val)),
     },
   ]
 

@@ -24,11 +24,13 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
 import { requireInternalKey } from '../middleware/requireInternalKey'
 import { PrismaClient } from '../../../../generated/index.js'
+import {
+  descobrirServicosInventario,
+  dominioCanonico,
+  ehAmbienteProducao,
+} from '../lib/inventario-servicos-runtime.js'
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -107,48 +109,7 @@ interface ServicoPlataforma {
   versao_servico_plataforma: string
   data_ultimo_check_servico_plataforma: string
   tipo_servico_plataforma: TipoServicoPlataforma
-}
-
-// ─── Descoberta dinamica de servicos via contracts.json ────────────────
-
-interface ContractsJson {
-  products: string[]
-  services: Record<string, { baseUrl?: string; pathPrefix?: string }>
-}
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const CONTRACTS_PATH = resolve(__dirname, '../../../../../contracts.json')
-
-let contractsCache: ContractsJson | null = null
-function carregarContracts(): ContractsJson {
-  if (contractsCache) return contractsCache
-  const raw = readFileSync(CONTRACTS_PATH, 'utf-8')
-  contractsCache = JSON.parse(raw) as ContractsJson
-  return contractsCache
-}
-
-function tipoDoServico(nome: string, products: string[]): TipoServicoPlataforma {
-  if (products.includes(nome)) return 'PRODUTO_GRAVITY'
-  if (nome.startsWith('conector-')) return 'CONECTOR'
-  return 'PLATAFORMA'
-}
-
-interface ServicoDescoberto {
-  nome_servico_plataforma: string
-  base_url_servico_plataforma: string
-  tipo_servico_plataforma: TipoServicoPlataforma
-}
-
-function descobrirServicos(): ServicoDescoberto[] {
-  const contracts = carregarContracts()
-  return Object.entries(contracts.services)
-    .filter(([nome]) => !nome.startsWith('_'))
-    .filter(([, cfg]) => typeof cfg.baseUrl === 'string')
-    .map(([nome, cfg]) => ({
-      nome_servico_plataforma:     nome,
-      base_url_servico_plataforma: cfg.baseUrl as string,
-      tipo_servico_plataforma:     tipoDoServico(nome, contracts.products),
-    }))
+  endpoint_publico_servico_plataforma: string | null
 }
 
 // ─── Schemas Zod (Mandamento 06 — toda rota com Zod) ─────────────────────
@@ -213,9 +174,9 @@ interface HealthCheckResult {
 
 router.get('/servicos', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const servicosDescobertos = descobrirServicos()
+    const servicosDescobertos = descobrirServicosInventario()
 
-    const baseUrlsUnicas = [...new Set(servicosDescobertos.map((s) => s.base_url_servico_plataforma))]
+    const baseUrlsUnicas = [...new Set(servicosDescobertos.map((s) => s.base_url_health_servico_plataforma))]
     const healthPorBaseUrl = new Map<string, HealthCheckResult>()
 
     await Promise.allSettled(baseUrlsUnicas.map(async (baseUrl) => {
@@ -226,11 +187,15 @@ router.get('/servicos', async (_req: Request, res: Response, next: NextFunction)
         const resp = await fetch(`${baseUrl}/health`, { signal: controller.signal })
         clearTimeout(timeout)
         const latencia = Date.now() - inicio
-        const data = await resp.json().catch(() => ({}))
+        const data = await resp.json().catch(() => ({})) as { version?: string; service?: string }
+        const versao =
+          data.version ??
+          (typeof data.service === 'string' ? data.service : undefined) ??
+          (resp.ok ? '1.0.0' : '-')
         healthPorBaseUrl.set(baseUrl, {
           ok:       resp.ok,
           latencia,
-          versao:   (data as { version?: string }).version || '1.0.0',
+          versao,
         })
       } catch {
         healthPorBaseUrl.set(baseUrl, {
@@ -243,7 +208,7 @@ router.get('/servicos', async (_req: Request, res: Response, next: NextFunction)
 
     const agora = new Date().toISOString()
     const servicos: ServicoPlataforma[] = servicosDescobertos.map((svc) => {
-      const health = healthPorBaseUrl.get(svc.base_url_servico_plataforma) ?? {
+      const health = healthPorBaseUrl.get(svc.base_url_health_servico_plataforma) ?? {
         ok: false, latencia: 0, versao: '-',
       }
       const status: StatusServicoPlataforma = health.ok
@@ -256,13 +221,21 @@ router.get('/servicos', async (_req: Request, res: Response, next: NextFunction)
         versao_servico_plataforma:            health.versao,
         data_ultimo_check_servico_plataforma: agora,
         tipo_servico_plataforma:              svc.tipo_servico_plataforma,
+        endpoint_publico_servico_plataforma:  svc.endpoint_publico_servico_plataforma,
       }
     })
 
     const ordem: Record<StatusServicoPlataforma, number> = { ONLINE: 0, DEGRADADO: 1, OFFLINE: 2 }
     servicos.sort((a, b) => ordem[a.status_servico_plataforma] - ordem[b.status_servico_plataforma])
 
-    res.json({ servicos })
+    res.json({
+      servicos,
+      meta_inventario_servicos: {
+        ambiente_producao: ehAmbienteProducao(),
+        dominio_canonico:  dominioCanonico(),
+        modo:              'sidecar-runtime',
+      },
+    })
   } catch (err) {
     next(err)
   }

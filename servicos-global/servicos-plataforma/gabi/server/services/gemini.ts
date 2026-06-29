@@ -3,6 +3,7 @@
 import { GoogleGenerativeAI, type CachedContent, type Tool, type FunctionResponsePart } from '@google/generative-ai'
 import { GoogleAICacheManager } from '@google/generative-ai/server'
 import { AppError } from '../lib/errors.js'
+import { normalizarHistoricoGemini } from '../lib/historico-gemini.js'
 import { execTool, type ToolContext, type ActionRecord } from './execTool.js'
 import { GABI_TOOLS } from './tools.js'
 import type { UsageMetadataWithCache } from '../lib/gemini-types.js'
@@ -119,12 +120,7 @@ export async function generateWithTools(
       const model = await getOrCreateCachedModel(modelName, systemPrompt)
 
       const chat = model.startChat({
-        history: history
-          .filter(h => h.role !== 'system')
-          .map(h => ({
-            role: h.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: h.content }],
-          })),
+        history: normalizarHistoricoGemini(history),
       })
 
       let totalInputTok  = 0
@@ -215,12 +211,7 @@ export async function generateContentWithFallback(prompt: string, history: Array
     try {
       const model = getGenAI().getGenerativeModel({ model: modelName })
       const chat = model.startChat({
-        history: history
-          .filter(h => h.role !== 'system')
-          .map(h => ({
-            role: h.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: h.content }],
-          })),
+        history: normalizarHistoricoGemini(history),
       })
 
       const result = await chat.sendMessage(prompt)

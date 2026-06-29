@@ -165,7 +165,7 @@ describe('Smart Read — analisar riscos aduaneiros', () => {
     expect(ncm?.correcao_sugerida).toBeUndefined()
   })
 
-  it('monta documento único por seleção na conferência (multi-doc no mesmo PDF)', () => {
+  it('montaDocumentosAnaliseRiscoDeArquivoLocalSelecionado retorna todos os subdocs (índice ignorado)', () => {
     const idArquivo = 'api-multi.pdf'
     const item: ArquivoLocalNovaLeitura = {
       id_arquivo_local: 'local-multi',
@@ -198,9 +198,12 @@ describe('Smart Read — analisar riscos aduaneiros', () => {
     const packing = montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado(item, 0)
     const invoice = montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado(item, 1)
 
-    expect(packing).toHaveLength(1)
+    // Função deprecada — delega para montarDocumentosAnaliseRiscoDeArquivoLocal (todos os subdocs)
+    expect(packing).toHaveLength(2)
     expect(packing[0]?.tipo_documento).toBe('PACKING_LIST')
-    expect(invoice).toHaveLength(1)
-    expect(invoice[0]?.tipo_documento).toBe('INVOICE')
+    expect(packing[1]?.tipo_documento).toBe('INVOICE')
+    expect(invoice).toHaveLength(2)
+    expect(invoice[0]?.tipo_documento).toBe('PACKING_LIST')
+    expect(invoice[1]?.tipo_documento).toBe('INVOICE')
   })
 })

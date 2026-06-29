@@ -11,7 +11,7 @@ export type ClasseRisco = 'READ' | 'WRITE_SAFE' | 'WRITE_DESTRUTIVA' | 'WRITE_FI
 
 export interface ToolDefinition {
   id: string
-  produto: 'pedido' | 'configurador' | 'admin' | 'hub' | 'store' | 'gabi'
+  produto: 'pedido' | 'configurador' | 'admin' | 'hub' | 'store' | 'gabi' | 'bid-frete'
   classe: ClasseRisco
   metodo: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
   endpoint: string
@@ -76,6 +76,26 @@ const pedidoInsightsParams = z.object({
   from: z.string().optional(),
   to: z.string().optional(),
   role: z.string().optional(),
+})
+
+// ── BID FRETE INTERNACIONAL — READ tools ─────────────────────────────────────
+
+const bidFreteKpisParams = z.object({
+  data_inicio: z.string().optional(),
+  data_fim: z.string().optional(),
+})
+
+const bidFreteListarCotacoesParams = z.object({
+  status: z.string().optional(),
+  modal_cotacao_bid_frete_internacional: z.enum(['MARITIMO', 'AEREO', 'RODOVIARIO']).optional(),
+  tipo_operacao_cotacao_bid_frete_internacional: z.enum(['IMPORTACAO', 'EXPORTACAO']).optional(),
+  limit: limitSchema,
+  page: z.coerce.number().int().min(1).optional().default(1),
+  apenas_avulsas: z.coerce.boolean().optional(),
+})
+
+const bidFreteDetalharCotacaoParams = z.object({
+  id: idSchema,
 })
 
 const pedidoInicializacaoParams = z.object({
@@ -827,6 +847,90 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
           status_novo: { type: 'STRING' },
         },
         required: ['ids', 'status_novo'],
+      },
+    },
+  },
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // BID FRETE INTERNACIONAL — READ
+  // ════════════════════════════════════════════════════════════════════════════
+
+  {
+    id: 'bid_frete.kpis',
+    produto: 'bid-frete',
+    classe: 'READ',
+    metodo: 'GET',
+    endpoint: '/api/v1/bid-frete-internacional/dashboard/kpis',
+    descricao: 'KPIs agregados de cotacoes de frete internacional',
+    schema_params: bidFreteKpisParams,
+    gemini_declaration: {
+      name: 'bid_frete.kpis',
+      description:
+        'Retorna KPIs das cotacoes de frete internacional (BID Frete): total em andamento, aprovadas, funil por status, distribuicao por modal, savings. Use quando o usuario perguntar "quantas cotacoes de frete", "cotacoes de frete", "meus BIDs", metricas de frete internacional.',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          data_inicio: { type: 'STRING', description: 'Filtro data inicio ISO (YYYY-MM-DD), opcional' },
+          data_fim: { type: 'STRING', description: 'Filtro data fim ISO (YYYY-MM-DD), opcional' },
+        },
+      },
+    },
+  },
+  {
+    id: 'bid_frete.listar_cotacoes',
+    produto: 'bid-frete',
+    classe: 'READ',
+    metodo: 'GET',
+    endpoint: '/api/v1/bid-frete-internacional/cotacoes',
+    descricao: 'Lista cotacoes de frete internacional com filtros',
+    schema_params: bidFreteListarCotacoesParams,
+    gemini_declaration: {
+      name: 'bid_frete.listar_cotacoes',
+      description:
+        'Lista cotacoes de frete internacional do usuario com filtros opcionais. Use para "liste minhas cotacoes", "cotacoes abertas", "cotacoes maritimas", detalhes de lista.',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          status: {
+            type: 'STRING',
+            description:
+              'Status: RASCUNHO|ENVIADA_FORNECEDORES|EM_COTACAO|AGUARDANDO_APROVACAO|APROVADA|REPROVADA|CANCELADA|FALTA_INFORMACAO|EXPIRADA',
+          },
+          modal_cotacao_bid_frete_internacional: {
+            type: 'STRING',
+            enum: ['MARITIMO', 'AEREO', 'RODOVIARIO'],
+            description: 'Modal de transporte',
+          },
+          tipo_operacao_cotacao_bid_frete_internacional: {
+            type: 'STRING',
+            enum: ['IMPORTACAO', 'EXPORTACAO'],
+            description: 'Tipo de operacao',
+          },
+          limit: { type: 'NUMBER', description: 'Maximo de resultados (padrao 20, max 100)' },
+          page: { type: 'NUMBER', description: 'Pagina (padrao 1)' },
+          apenas_avulsas: { type: 'BOOLEAN', description: 'true = so cotacoes avulsas (sem BID pai)' },
+        },
+      },
+    },
+  },
+  {
+    id: 'bid_frete.detalhar_cotacao',
+    produto: 'bid-frete',
+    classe: 'READ',
+    metodo: 'GET',
+    endpoint: '/api/v1/bid-frete-internacional/cotacoes/:id',
+    descricao: 'Detalhe completo de uma cotacao de frete',
+    schema_params: bidFreteDetalharCotacaoParams,
+    gemini_declaration: {
+      name: 'bid_frete.detalhar_cotacao',
+      description:
+        'Busca detalhes de uma cotacao de frete: rota, status, propostas recebidas, fornecedores, valores. Requer id da cotacao (id_cotacao_bid_frete_internacional).',
+      parameters: {
+        type: 'OBJECT',
+        properties: {
+          id: { type: 'STRING', description: 'ID da cotacao (obrigatorio)' },
+        },
+        required: ['id'],
       },
     },
   },

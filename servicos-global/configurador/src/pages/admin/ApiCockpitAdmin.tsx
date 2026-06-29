@@ -22,6 +22,7 @@ const servicoPlataformaSchema = z.object({
   latencia_ms_servico_plataforma:       z.number(),
   versao_servico_plataforma:            z.string(),
   data_ultimo_check_servico_plataforma: z.string(),
+  endpoint_publico_servico_plataforma:  z.string().nullable(),
   // Transicao 2026-05-06: backend pode estar servindo 'NUCLEO' (legacy) ate restart.
   // Aceita ambos enquanto a renomeacao se propaga; ROTULO mapeia NUCLEO -> 'Plataforma'.
   tipo_servico_plataforma:              z.enum(['PLATAFORMA', 'NUCLEO', 'PRODUTO_GRAVITY', 'CONECTOR']),
@@ -72,21 +73,15 @@ const POLLING_INTERVAL_MS = 30_000
 // Serviços listados aqui aparecem primeiro, na sequência definida.
 // Demais serviços ficam ao final na ordem retornada pelo backend.
 const ORDEM_PADRAO_SERVICOS: string[] = [
-  'configurador-organizacoes',
-  'configurador-me',
-  'configurador-usuarios',
-  'simula-custo',
+  'configurador',
   'cadastros',
-  'bid-frete',
-  'bid-cambio',
   'pedido',
-  'lpco',
-  'financeiro-comex',
-  'nf-importacao',
-  'taxas-cambio',
+  'processo',
+  'bid-frete',
+  'smart-read',
+  'gabi',
+  'taxas-moeda',
   'api-cockpit',
-  'historico',
-  'relatorios',
 ]
 
 export function ApiCockpitAdmin() {
@@ -196,6 +191,22 @@ export function ApiCockpitAdmin() {
         )
       },
       tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o serviço está operando normalmente',
+    },
+    {
+      key: 'endpoint_publico_servico_plataforma',
+      label: 'Endpoint produção',
+      tipo: 'texto',
+      tooltipTitulo: 'Endpoint produção',
+      tooltipDescricao: 'URL pública em usegravity.com.br; sidecars S2S não têm rota browser',
+      render: (_val, row) => {
+        const url = row.endpoint_publico_servico_plataforma
+        if (!url) return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>Sidecar interno</span>
+        return (
+          <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ws-accent, #818cf8)', fontSize: '0.8125rem' }}>
+            {url}
+          </a>
+        )
+      },
     },
     {
       key: 'latencia_ms_servico_plataforma',

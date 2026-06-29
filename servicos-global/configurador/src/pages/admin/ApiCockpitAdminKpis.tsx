@@ -29,6 +29,7 @@ const servicoPlataformaSchema = z.object({
   latencia_ms_servico_plataforma:       z.number(),
   versao_servico_plataforma:            z.string(),
   data_ultimo_check_servico_plataforma: z.string(),
+  endpoint_publico_servico_plataforma:  z.string().nullable().optional(),
   // Transicao 2026-05-06: backend pode servir 'NUCLEO' legacy ate restart
   tipo_servico_plataforma:              z.enum(['PLATAFORMA', 'NUCLEO', 'PRODUTO_GRAVITY', 'CONECTOR']),
 })

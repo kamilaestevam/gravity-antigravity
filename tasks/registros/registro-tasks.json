@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 391,
+  "proximo_numero": 393,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1797,6 +1797,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000390.json"
+    },
+    {
+      "referencia": "TASK-000392",
+      "ordinal": 116,
+      "titulo_canonico": "CFG-UNIVERSITY-GRAVITY-MEL-ICONE-UNIVERSITY-FIXO-HEADER-GLOBAL",
+      "titulo_exibicao": "TASK-000392 | [University] Shell | MEL — Ícone University fixo no header global (todas as telas)",
+      "status": "ABR",
+      "area": "CFG",
+      "subarea": "UNIVERSITY-GRAVITY",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "ICONE-UNIVERSITY-FIXO-HEADER-GLOBAL",
+      "data_criacao": "2026-06-28T23:59:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000392.json"
     }
   ]
 }

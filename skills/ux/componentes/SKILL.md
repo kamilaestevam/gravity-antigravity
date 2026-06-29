@@ -36,6 +36,7 @@ Antes de criar qualquer componente novo, consultar este catálogo. Se a necessid
 | Chamada HTTP para API | `apiClient` de **api-global** |
 | Formatar CPF, CNPJ, moeda, data | **utilitarios-global** |
 | Botão de retorno ao Hub no header de qualquer layout | **HubButton** (ver seção abaixo) |
+| Atalho Gravity University no header global (capelo) | **MenuTopoGlobal** / layouts `ws-global-actions` / `Header` shell (ver seção abaixo) |
 | Layout, sidebar, navegação entre módulos | **Shell** |
 | Notificações toast (sucesso, erro, aviso) | **Shell** — `addNotification` |
 | Comunicação entre módulos sem acoplamento | **Shell** — event bus |
@@ -494,6 +495,38 @@ import { HubButton } from '../../components/HubButton'
 **Por que:** o ícone `ArrowLeft` causou regressões repetidas (confusão visual entre "voltar" e "ir ao Hub"). O `HubButton` é a única fonte de verdade — qualquer mudança de ícone deve ser feita apenas neste arquivo.
 
 **Para o `shell/Header.tsx`** (pacote separado, não pode importar `HubButton`): usar `<Graph size={16} weight="bold" />` diretamente.
+
+---
+
+## Atalho Gravity University — ícone no header global
+
+**SSOT:** `MenuTopoGlobal` (`nucleo-global/Layout/menu-topo-global`) para produtos via `TelaProdutoGlobal`; `servicos-global/shell/Header.tsx` para serviços tenant; blocos `ws-global-actions` no Configurador (Core, Workspace, Admin, University) e `TopbarPaginaGravity` / Hub quando aplicável.
+
+**Quando usar:** o atalho **sempre** visível em telas autenticadas — não implementar só no Hub.
+
+```typescript
+// Padrão (produto — já embutido no MenuTopoGlobal)
+// Navegação: window.location.href = '/university-gravity'
+
+// Configurador (ws-global-actions / TopbarPaginaGravity)
+<button
+  className="ws-global-btn"
+  type="button"
+  title={t('university.modulo_nome', 'Gravity University')}
+  aria-label={t('university.modulo_nome', 'Gravity University')}
+  onClick={() => navigate('/university-gravity')}
+>
+  <GraduationCap size={20} weight="duotone" />
+</button>
+```
+
+### Regra — ordem no header
+
+Ordem canônica à direita: **busca → University (`GraduationCap`) → notificações → dicas → localizador → idioma → usuário** (Hub/Config podem ter atalhos extras antes ou depois, mas University fica logo após busca).
+
+### Regra — ícone University
+
+> **Sempre `GraduationCap` com `weight="duotone"`** e label i18n `university.modulo_nome`. Não usar outro ícone para o mesmo atalho.
 
 ---
 

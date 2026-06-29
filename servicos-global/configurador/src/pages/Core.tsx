@@ -31,6 +31,7 @@ import {
   MagnifyingGlass,
   Info,
   Handshake,
+  GraduationCap,
 } from '@phosphor-icons/react'
 import { ehSlugProdutoBidFrete } from '../../shared/index.js'
 import { iconeOficialProdutoGravity } from '@nucleo/logo-produtos'
@@ -311,6 +312,16 @@ export function Core() {
               if (target?.to) navigate(target.to)
             }}
           />
+
+          <button
+            className="ws-global-btn"
+            type="button"
+            title={t('university.modulo_nome', 'Gravity University')}
+            aria-label={t('university.modulo_nome', 'Gravity University')}
+            onClick={() => navigate('/university-gravity')}
+          >
+            <GraduationCap size={20} weight="duotone" />
+          </button>
 
           <TooltipGlobal titulo={t('shell.label_habilitar_dicas')} descricao={tooltipsDisabled ? t('shell.habilitar_dicas') : t('shell.desabilitar_dicas')}>
             <button

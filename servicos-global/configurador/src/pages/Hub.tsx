@@ -13,6 +13,8 @@ import {
   WarningCircle,
   Info,
   CalendarBlank,
+  GraduationCap,
+  MagnifyingGlass,
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import './hub.css'
@@ -376,6 +378,16 @@ export function Hub() {
 
           <button className="hb-topbar-btn" type="button" title={t('comum.buscar')}>
             <MagnifyingGlass weight="bold" size={16} />
+          </button>
+
+          <button
+            className="hb-topbar-btn"
+            type="button"
+            title={t('university.modulo_nome', 'Gravity University')}
+            aria-label={t('university.modulo_nome', 'Gravity University')}
+            onClick={() => navigate('/university-gravity')}
+          >
+            <GraduationCap size={16} weight="duotone" />
           </button>
 
           <div className="hb-notif-wrap">

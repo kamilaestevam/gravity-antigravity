@@ -26,6 +26,11 @@
 
 - **Tier de cor:** serviço de **plataforma** → acento **Gravity Indigo** `#818cf8` (`--ws-accent`) + roxo `#a78bfa` para hovers/accents, igual ao padrão Processo. (Se o dono quiser cor própria de produto depois, vem de `getProdutoMeta` — mas como serviço de plataforma, indigo é o correto.)
 - **Ícone da marca:** `GraduationCap` (Phosphor) — usado no CabecalhoGlobal da Home e como símbolo da University no Shell.
+- **Atalho global no header (SSOT):** em **todas** as telas autenticadas, o ícone `GraduationCap` aparece na barra superior **após busca e antes de notificações/dicas**, com `aria-label`/`title` = `university.modulo_nome` e navegação para `/university-gravity`. Implementação central:
+  - Produtos: `MenuTopoGlobal` (`@nucleo/menu-topo-global`)
+  - Serviços tenant: `servicos-global/shell/Header.tsx`
+  - Configurador / Admin / Core / University: bloco `ws-global-actions` (e `TopbarPaginaGravity` / Hub `SelecionarWorkspace` onde já existia)
+  - **Proibido** duplicar só em uma tela — novos layouts devem reutilizar um dos pontos acima.
 - **GABI presente em toda tela** (D-002): painel/atalho de dúvida +, nas telas de jornada, mensagens proativas.
 
 ---

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MagnifyingGlass, Info, X, Gear, CaretLeft } from '@phosphor-icons/react'
+import { MagnifyingGlass, Info, X, Gear, CaretLeft, GraduationCap } from '@phosphor-icons/react'
 import { LogoHub } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { UsuarioGlobal, type UsuarioGlobalProps } from '@nucleo/usuario-global'
@@ -214,6 +214,18 @@ export function MenuTopoGlobal({
             </button>
           </TooltipGlobal>
         )}
+
+        {/* Gravity University */}
+        <TooltipGlobal descricao={t('university.modulo_nome', 'Gravity University')}>
+          <button
+            className="mtg-icon-btn"
+            type="button"
+            aria-label={t('university.modulo_nome', 'Gravity University')}
+            onClick={() => { window.location.href = '/university-gravity' }}
+          >
+            <GraduationCap size={17} weight="duotone" />
+          </button>
+        </TooltipGlobal>
 
         {/* Toggle de dicas */}
         <TooltipGlobal descricao={tooltipsDisabled ? t('shell.habilitar_dicas', 'Habilitar dicas') : t('shell.desabilitar_dicas', 'Desabilitar dicas')}>

@@ -10,13 +10,13 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import {
   Books, FileText, PuzzlePiece, Path, Sparkle, GraduationCap, Info,
   SignIn, ShieldStar, Gear, SquaresFour, ShoppingBag, Package,
   MagnifyingGlass, AirplaneTilt, ArrowsLeftRight, GitBranch, CheckCircle,
-  Clock, CheckFat, WarningCircle,
+  Clock, CheckFat, WarningCircle, Eye, EyeSlash, Envelope, Lock, ArrowsOut,
 } from '@phosphor-icons/react'
 import { useShellStore, Notificacoes, ToastContainer, useMeSync, type OrganizacaoShell } from '@gravity/shell'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -172,9 +172,12 @@ interface DocPassoVisual {
   num: number
   titulo: string
   paragrafos: string[]
-  imagem: string
+  imagem?: string
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+  callouts?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }[]
   painelRequisitosCadastro?: boolean
+  galeriaTelas?: { legenda: string; imagem: string }[]
+  linkCapitulo?: { texto: string; href: string }
 }
 
 interface DocSecao {
@@ -205,7 +208,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
     lista: [
       '– Botão "Continuar com Google": acesso rápido sem precisar digitar e-mail e senha',
       '– Campo E-mail: informe o e-mail com o qual você se cadastrou',
-      '– Campo Senha: sua senha da plataforma — clique no ícone de olho para revelar',
+      '– Campo Senha: sua senha da plataforma — clique no ícone de olho {{icone:olho}} para revelar',
       '– Botão "Entrar": inicia a validação e te leva para o hub ou onboarding',
       '– Link "Esqueceu a senha?": recuperação por e-mail em dois passos',
       '– Link "Registre-se": cria uma nova conta na plataforma',
@@ -259,23 +262,23 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
       },
       {
         num: 5,
-        titulo: 'Digitar o código',
-        imagem: '/university/screenshots/login-fluxo1-passo-05-codigo-vazio.png',
-        paragrafos: [
-          'Preencha os seis campos numéricos — o foco avança automaticamente. Você também pode colar o código completo de uma vez.',
-        ],
-      },
-      {
-        num: 6,
         titulo: 'Receber o código',
         imagem: '/university/screenshots/login-fluxo1-passo-04-verificacao-email.png',
         paragrafos: [
-          'Abra o e-mail da Gravity e copie o código de 6 dígitos. Volte à tela de verificação, confirme o endereço exibido e informe o código recebido.',
+          'Abra o e-mail da Gravity e copie o código de 6 dígitos. Confira se o endereço exibido na tela de verificação corresponde ao e-mail que você cadastrou.',
         ],
         callout: {
           tipo: 'dica',
           texto: 'Não chegou? Confira spam/lixo eletrônico, aba Promoções, filtros do antivírus ou bloqueio do remetente notifications@usegravity.com.br — e se o e-mail foi digitado corretamente. Só então use "Reenviar código" na tela de verificação.',
         },
+      },
+      {
+        num: 6,
+        titulo: 'Digitar o código',
+        imagem: '/university/screenshots/login-fluxo1-passo-05-codigo-vazio.png',
+        paragrafos: [
+          'Na tela de verificação, preencha os seis campos numéricos — o foco avança automaticamente. Você também pode colar o código completo de uma vez.',
+        ],
       },
       {
         num: 7,
@@ -284,29 +287,60 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         paragrafos: [
           'Clique em "Verificar". Com o código correto, sua sessão é ativada e você é direcionado ao onboarding (/trial) para configurar a organização.',
         ],
+        callouts: [
+          {
+            tipo: 'aviso',
+            texto: 'Se aparecer um aviso vermelho abaixo do código (ex.: "Incorrect code"), o dígito informado provavelmente está errado ou expirou. Confira o e-mail; se o código estiver certo e o erro continuar, clique em "Reenviar código" e repita o processo.',
+          },
+          {
+            tipo: 'dica',
+            texto: 'Se o código expirar, use "Reenviar código" na tela de verificação — um novo código é enviado ao mesmo e-mail.',
+          },
+        ],
+      },
+      {
+        num: 8,
+        titulo: 'Onboarding e destino no Hub',
+        paragrafos: [
+          'Pronto, você já está no Gravity. Em um minuto, digite o nome da empresa que está contratando, o CNPJ, e já está na tela {{link:/university-gravity/docs/hub|HUB}}.',
+        ],
+        galeriaTelas: [
+          { legenda: '1 · Nome da organização', imagem: '/university/screenshots/onboarding-nome-preenchido.png' },
+          { legenda: '2 · CNPJ da empresa', imagem: '/university/screenshots/onboarding-cnpj-preenchido.png' },
+          { legenda: '3 · Hub — destino final', imagem: '/university/screenshots/onboarding-hub-sem-produto.png' },
+        ],
       },
     ],
-    callout: { tipo: 'dica', texto: 'Se o código expirar, use "Reenviar código" na tela de verificação — um novo código é enviado ao mesmo e-mail.' },
   },
   {
     num: 3,
     titulo: 'Fluxo 2 — entrar com e-mail e senha',
     paragrafos: [
-      'Se você já tem conta, use a rota /login: informe o e-mail cadastrado, digite a senha e clique em "Entrar". O sistema valida com o Clerk e, se tudo estiver correto, ativa sua sessão e te leva ao Hub ou ao onboarding.',
-      'Contas com verificação em duas etapas (2FA) pedem um código adicional por e-mail ou autenticador — o mesmo padrão visual de seis dígitos do cadastro.',
+      'Para quem já tem conta: acesse https://usegravity.com.br/login e siga os passos abaixo. Após entrar, você vai ao Hub ou ao onboarding; contas com 2FA pedem um código extra antes de concluir.',
     ],
     passosVisuais: [
       {
         num: 1,
         titulo: 'Informar e-mail e senha',
-        imagem: '/university/screenshots/login-tela-completa.png',
+        imagem: '/university/screenshots/login-fluxo2-passo-01-tela-completa.png',
         paragrafos: [
-          'Na tela "Acessar a plataforma", preencha o e-mail com o qual você se cadastrou e a senha. Use o ícone de olho para conferir o que digitou antes de enviar.',
+          'Abra https://usegravity.com.br/login no navegador.',
+          'Na tela "Acessar a plataforma", preencha o campo E-mail com o endereço cadastrado na Gravity e o campo Senha logo abaixo. O ícone de olho {{icone:olho}} à direita da senha revela ou oculta o que você digitou antes de enviar.',
         ],
-        callout: {
-          tipo: 'dica',
-          texto: 'Ainda não tem conta? Clique em "Registre-se" no rodapé. Esqueceu a senha? Use o link "Esqueceu a senha?" — fluxo descrito na seção 4 deste manual.',
-        },
+        callouts: [
+          {
+            tipo: 'dica',
+            texto: 'Prefere não digitar senha? Use "Continuar com Google" no topo do painel.',
+          },
+          {
+            tipo: 'dica',
+            texto: 'Ainda não tem conta? Clique em "Registre-se" no rodapé do formulário.',
+          },
+          {
+            tipo: 'dica',
+            texto: 'Esqueceu a senha? Use o link "Esqueceu a senha?" abaixo do botão Entrar — o fluxo completo está na seção 4 deste manual.',
+          },
+        ],
       },
       {
         num: 2,
@@ -335,15 +369,11 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
       },
       {
         num: 4,
-        titulo: 'Acesso liberado',
-        imagem: '/university/screenshots/login-tela-completa.png',
+        titulo: 'Próxima tela: o Hub',
+        imagem: '/university/screenshots/hub-inicial-sem-produto-contratado.png',
         paragrafos: [
-          'Com credenciais válidas (e 2FA concluído, se aplicável), você entra na plataforma: usuário com organização vai ao Hub (/hub); conta nova ou sem organização segue para o onboarding (/trial).',
+          'Pronto, você já está no Gravity. Com login concluído e organização ativa, a próxima tela é o {{link:/university-gravity/docs/hub|HUB}} — daqui você escolhe produtos e workspaces.',
         ],
-        callout: {
-          tipo: 'exemplo',
-          texto: 'Super Admins e usuários Master nunca ficam presos em "Nenhum workspace" — o porteiro reconhece acesso global mesmo sem vínculo físico na filial.',
-        },
       },
     ],
   },
@@ -472,31 +502,223 @@ const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; 
   seguranca:{ bg: 'rgba(239,68,68,.07)',   borda: 'rgba(239,68,68,.3)',   label: '🔒 Segurança', cor: '#f87171' },
 }
 
-/** Manual descritivo — corpo mais claro que ws-muted; secundário para legendas dos cards */
+/** Manual descritivo — tokens SSOT: ONBOARDING-DOCUMENTO.md §9 */
+const MANUAL_TITULO_COR = 'var(--ws-text,#f1f5f9)'
+const MANUAL_CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
+
 const MANUAL_TIPO = {
-  corpo: 'var(--ws-text,#e8edf4)',
+  titulo: MANUAL_TITULO_COR,
+  corpo: MANUAL_CORPO_70,
   secundario: 'var(--ws-muted,#c8d1dc)',
   meta: 'var(--ws-muted,#94a3b8)',
 } as const
 
-function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
+const MANUAL_ESTILO_PASSO_ROTULO: React.CSSProperties = {
+  fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: '#818cf8',
+  textTransform: 'uppercase', margin: '0 0 8px',
+}
+
+const MANUAL_ESTILO_PASSO_TITULO: React.CSSProperties = {
+  fontWeight: 700, fontSize: '.92rem', color: MANUAL_TITULO_COR, margin: '0 0 10px',
+}
+
+const MANUAL_ESTILO_CORPO: React.CSSProperties = {
+  fontSize: '.9rem', color: MANUAL_CORPO_70, lineHeight: 1.8,
+}
+
+const MANUAL_ESTILO_CALLOUT_CORPO: React.CSSProperties = {
+  fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65,
+}
+
+/** Ícones inline — token `{{icone:slug}}` + escrita descritiva no mesmo parágrafo */
+const MANUAL_ICONES: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
+  olho: Eye,
+  'olho-riscado': EyeSlash,
+  envelope: Envelope,
+  cadeado: Lock,
+}
+
+const MANUAL_LINK_STYLE: React.CSSProperties = {
+  color: '#818cf8',
+  textDecoration: 'underline',
+  textUnderlineOffset: 2,
+}
+
+const MANUAL_ICONE_INLINE_STYLE: React.CSSProperties = {
+  display: 'inline-flex',
+  verticalAlign: 'text-bottom',
+  margin: '0 3px',
+  color: MANUAL_TIPO.secundario,
+}
+
+function ManualTextoRich({ texto }: { texto: string }) {
+  const linhas = texto.split('\n')
   return (
-    <figure style={{
-      margin: 0, borderRadius: 14, overflow: 'hidden',
-      border: '1px solid rgba(148,163,184,.15)', boxShadow: '0 8px 32px rgba(0,0,0,.28)',
-      background: 'rgba(8,12,24,.55)',
-    }}>
-      <img
-        src={src}
-        alt={alt}
-        style={{ width: '100%', display: 'block', verticalAlign: 'top', objectFit: 'contain' }}
-        onError={(e) => {
-          const el = e.currentTarget.parentElement!
-          el.style.maxHeight = 'unset'
-          el.innerHTML = `<div style="padding:48px;text-align:center;color:#475569;font-size:.8rem;background:rgba(148,163,184,.04)">📸 Salve o screenshot em<br/><code style="color:#818cf8;font-size:.75rem">${src}</code></div>`
+    <>
+      {linhas.map((linha, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <br />}
+          <ManualTextoRichLinha texto={linha} />
+        </React.Fragment>
+      ))}
+    </>
+  )
+}
+
+function ManualTextoRichLinha({ texto }: { texto: string }) {
+  const partes: React.ReactNode[] = []
+  const re = /(https:\/\/[^\s]+|\{\{link:([^|]+)\|([^}]+)\}\}|\{\{icone:([a-z0-9-]+)\}\})/g
+  let ultimo = 0
+  let match: RegExpExecArray | null
+  while ((match = re.exec(texto)) !== null) {
+    if (match.index > ultimo) partes.push(texto.slice(ultimo, match.index))
+    if (match[1].startsWith('https://')) {
+      partes.push(
+        <a key={match.index} href={match[1]} target="_blank" rel="noreferrer" style={MANUAL_LINK_STYLE}>
+          {match[1]}
+        </a>,
+      )
+    } else if (match[2] !== undefined) {
+      partes.push(
+        <Link key={match.index} to={match[2]} style={MANUAL_LINK_STYLE}>
+          {match[3]}
+        </Link>,
+      )
+    } else {
+      const Icon = MANUAL_ICONES[match[4]]
+      partes.push(
+        Icon ? (
+          <span key={match.index} style={MANUAL_ICONE_INLINE_STYLE} aria-hidden>
+            <Icon size={16} />
+          </span>
+        ) : (
+          match[0]
+        ),
+      )
+    }
+    ultimo = re.lastIndex
+  }
+  if (ultimo < texto.length) partes.push(texto.slice(ultimo))
+  return <>{partes}</>
+}
+
+function ManualParagrafo({
+  texto,
+  marginBottom,
+}: {
+  texto: string
+  marginBottom?: number | string
+}) {
+  return (
+    <p style={{ ...MANUAL_ESTILO_CORPO, margin: marginBottom === 0 ? 0 : `0 0 ${marginBottom ?? 10}px` }}>
+      <ManualTextoRich texto={texto} />
+    </p>
+  )
+}
+
+function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
+  const [telaCheia, setTelaCheia] = useState(false)
+
+  useEffect(() => {
+    if (!telaCheia) return
+    const onTecla = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setTelaCheia(false)
+    }
+    document.addEventListener('keydown', onTecla)
+    const overflowAnterior = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onTecla)
+      document.body.style.overflow = overflowAnterior
+    }
+  }, [telaCheia])
+
+  const abrir = () => setTelaCheia(true)
+  const fechar = () => setTelaCheia(false)
+
+  return (
+    <>
+      <figure
+        role="button"
+        tabIndex={0}
+        aria-label={`${alt} — abrir em tela cheia`}
+        onClick={abrir}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            abrir()
+          }
         }}
-      />
-    </figure>
+        style={{
+          margin: 0, borderRadius: 14, overflow: 'hidden', cursor: 'zoom-in',
+          border: '1px solid rgba(148,163,184,.15)', boxShadow: '0 8px 32px rgba(0,0,0,.28)',
+          background: 'rgba(8,12,24,.55)', position: 'relative',
+        }}
+      >
+        <img
+          src={src}
+          alt={alt}
+          style={{ width: '100%', display: 'block', verticalAlign: 'top', objectFit: 'contain' }}
+          onError={(e) => {
+            const el = e.currentTarget.parentElement!
+            el.style.maxHeight = 'unset'
+            el.style.cursor = 'default'
+            el.removeAttribute('role')
+            el.innerHTML = `<div style="padding:48px;text-align:center;color:#475569;font-size:.8rem;background:rgba(148,163,184,.04)">📸 Salve o screenshot em<br/><code style="color:#818cf8;font-size:.75rem">${src}</code></div>`
+          }}
+        />
+        <span style={{
+          position: 'absolute', top: 10, right: 10,
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          padding: '6px 11px', borderRadius: 9,
+          background: 'rgba(99,102,241,.88)', border: '1px solid rgba(165,180,252,.45)',
+          color: '#f8fafc', fontSize: '.65rem', fontWeight: 700, letterSpacing: '.03em',
+          backdropFilter: 'blur(8px)', boxShadow: '0 4px 14px rgba(0,0,0,.28)',
+          pointerEvents: 'none',
+        }}>
+          <ArrowsOut size={15} weight="duotone" aria-hidden />
+          Ampliar
+        </span>
+      </figure>
+
+      {telaCheia && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={alt}
+          onClick={fechar}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 10000,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '24px', background: 'rgba(2,6,23,.92)', backdropFilter: 'blur(4px)',
+          }}
+        >
+          <button
+            type="button"
+            onClick={fechar}
+            aria-label="Fechar visualização em tela cheia"
+            style={{
+              position: 'absolute', top: 16, right: 16,
+              background: 'rgba(148,163,184,.12)', border: '1px solid rgba(148,163,184,.25)',
+              color: '#f1f5f9', borderRadius: 8, padding: '8px 14px',
+              fontSize: '.78rem', fontWeight: 600, cursor: 'pointer',
+            }}
+          >
+            Fechar ✕
+          </button>
+          <img
+            src={src}
+            alt={alt}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: 'min(96vw, 1920px)', maxHeight: '92vh',
+              width: 'auto', height: 'auto', objectFit: 'contain',
+              borderRadius: 10, boxShadow: '0 24px 80px rgba(0,0,0,.55)',
+            }}
+          />
+        </div>
+      )}
+    </>
   )
 }
 
@@ -571,7 +793,7 @@ function ManualPainelRequisitosCadastro() {
                   }}>
                     <WarningCircle size={11} weight="fill" />
                   </span>
-                  <span style={{ fontSize: '.78rem', color: MANUAL_TIPO.corpo, lineHeight: 1.45 }}>{item}</span>
+                  <span style={{ fontSize: '.78rem', color: MANUAL_CORPO_70, lineHeight: 1.45 }}>{item}</span>
                 </li>
               ))}
             </ul>
@@ -594,45 +816,95 @@ function ManualPainelRequisitosCadastro() {
   )
 }
 
-function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
+function ManualCalloutBloco({ callout, marginTop = 12 }: {
+  callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+  marginTop?: number
+}) {
+  const c = CALLOUT_STYLE[callout.tipo]
   return (
     <div style={{
+      background: c.bg, border: `1px solid ${c.borda}`, borderRadius: 8,
+      padding: '12px 16px', marginTop,
+    }}>
+      <p style={{
+        fontSize: '.7rem', fontWeight: 700, color: c.cor, marginBottom: 5,
+        letterSpacing: '.06em', textTransform: 'uppercase',
+      }}>{c.label}</p>
+      <p style={MANUAL_ESTILO_CALLOUT_CORPO}><ManualTextoRich texto={callout.texto} /></p>
+    </div>
+  )
+}
+
+function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
+  const blocoBase: React.CSSProperties = {
+    paddingTop: passo.num === 1 ? 8 : 22,
+    borderTop: passo.num === 1 ? undefined : '1px solid rgba(148,163,184,.1)',
+    marginTop: passo.num === 1 ? 18 : 0,
+  }
+
+  const colunaTexto = (
+    <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)' }}>
+      <p style={MANUAL_ESTILO_PASSO_ROTULO}>
+        Passo {String(passo.num).padStart(2, '0')}
+      </p>
+      <p style={MANUAL_ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+      {passo.paragrafos.map((p, i) => (
+        <ManualParagrafo
+          key={i}
+          texto={p}
+          marginBottom={
+            i === passo.paragrafos.length - 1 && !passo.painelRequisitosCadastro ? 0 : 10
+          }
+        />
+      ))}
+      {passo.linkCapitulo && (
+        <p style={{ marginTop: 12, marginBottom: 0 }}>
+          <Link to={passo.linkCapitulo.href} style={MANUAL_LINK_STYLE}>
+            {passo.linkCapitulo.texto}
+          </Link>
+        </p>
+      )}
+      {passo.painelRequisitosCadastro && <ManualPainelRequisitosCadastro />}
+      {(passo.callouts ?? (passo.callout ? [passo.callout] : [])).map((callout, i) => (
+        <ManualCalloutBloco key={i} callout={callout} marginTop={i === 0 ? 12 : 8} />
+      ))}
+    </div>
+  )
+
+  if (passo.galeriaTelas?.length) {
+    return (
+      <div style={blocoBase}>
+        {colunaTexto}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+          gap: 14,
+          marginTop: 20,
+        }}>
+          {passo.galeriaTelas.map((tela) => (
+            <div key={tela.legenda}>
+              <p style={{
+                fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+                marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
+              }}>{tela.legenda}</p>
+              <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{
+      ...blocoBase,
       display: 'grid',
       gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
       gap: 28,
       alignItems: 'start',
-      paddingTop: passo.num === 1 ? 8 : 22,
-      borderTop: passo.num === 1 ? undefined : '1px solid rgba(148,163,184,.1)',
-      marginTop: passo.num === 1 ? 18 : 0,
     }}>
-      <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)' }}>
-        <p style={{
-          fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', color: '#818cf8',
-          textTransform: 'uppercase', margin: '0 0 8px',
-        }}>
-          Passo {String(passo.num).padStart(2, '0')}
-        </p>
-        <p style={{ fontWeight: 700, fontSize: '.92rem', color: 'var(--ws-text,#f1f5f9)', margin: '0 0 10px' }}>
-          {passo.titulo}
-        </p>
-        {passo.paragrafos.map((p, i) => (
-          <p key={i} style={{
-            fontSize: '.9rem', color: MANUAL_TIPO.corpo, lineHeight: 1.8,
-            margin: i === passo.paragrafos.length - 1 && !passo.painelRequisitosCadastro ? 0 : '0 0 10px',
-          }}>{p}</p>
-        ))}
-        {passo.painelRequisitosCadastro && <ManualPainelRequisitosCadastro />}
-        {passo.callout && (() => {
-          const c = CALLOUT_STYLE[passo.callout.tipo]
-          return (
-            <div style={{ background: c.bg, border: `1px solid ${c.borda}`, borderRadius: 8, padding: '12px 16px', marginTop: 12 }}>
-              <p style={{ fontSize: '.7rem', fontWeight: 700, color: c.cor, marginBottom: 5, letterSpacing: '.06em', textTransform: 'uppercase' }}>{c.label}</p>
-              <p style={{ fontSize: '.82rem', color: MANUAL_TIPO.corpo, lineHeight: 1.65 }}>{passo.callout.texto}</p>
-            </div>
-          )
-        })()}
-      </div>
-      <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
+      {colunaTexto}
+      {passo.imagem && <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />}
     </div>
   )
 }
@@ -658,9 +930,8 @@ function DocLoginManual() {
       <h1 style={{ fontSize: '1.65rem', fontWeight: 800, margin: '0 0 10px', lineHeight: 1.2 }}>
         Tela de Login — Gravity Platform
       </h1>
-      <p style={{ fontSize: '.9rem', color: MANUAL_TIPO.corpo, marginBottom: 22, lineHeight: 1.7, maxWidth: 620 }}>
-        Documentação técnica completa da experiência de autenticação: layout, fluxos de acesso,
-        cadastro, recuperação de senha, convites e roteamento pós-autenticação.
+      <p style={{ ...MANUAL_ESTILO_CORPO, marginBottom: 22, maxWidth: 720 }}>
+        <ManualTextoRich texto="Guia da tela de login: acesso, cadastro, recuperação de senha, convites e destino após autenticação." />
       </p>
 
       {/* Metadados */}
@@ -669,8 +940,20 @@ function DocLoginManual() {
         color: 'var(--ws-muted,#94a3b8)', paddingBottom: 22,
         borderBottom: '1px solid rgba(148,163,184,.12)', marginBottom: 28,
       }}>
-        {[['Versão','1.0'],['Data','junho 2026'],['Produto','Configurador'],['Rota base','/login'],['Componente','AutenticacaoPage']].map(([k,v]) => (
-          <span key={k}><strong style={{ color: 'var(--ws-text,#e2e8f0)', marginRight: 4 }}>{k}</strong>{v}</span>
+        {([
+          ['Versão', '1.0'],
+          ['Data', 'junho 2026'],
+          ['Produto', 'Configurador'],
+          ['URL de acesso', 'https://usegravity.com.br/login'],
+          ['Rota base', '/login'],
+          ['Componente', 'AutenticacaoPage'],
+        ] as const).map(([k, v]) => (
+          <span key={k}>
+            <strong style={{ color: 'var(--ws-text,#e2e8f0)', marginRight: 4 }}>{k}</strong>
+            {k === 'URL de acesso' ? (
+              <a href={v} target="_blank" rel="noreferrer" style={MANUAL_LINK_STYLE}>{v}</a>
+            ) : v}
+          </span>
         ))}
       </div>
 
@@ -734,11 +1017,11 @@ function DocLoginManual() {
                         borderLeft: '3px solid rgba(99,102,241,.45)',
                       }}>
                         {s.paragrafos.map((p, i) => (
-                          <p key={i} style={{
-                            fontSize: '.9rem', color: MANUAL_TIPO.corpo,
-                            lineHeight: 1.8,
-                            margin: i === s.paragrafos.length - 1 ? 0 : '0 0 12px',
-                          }}>{p}</p>
+                          <ManualParagrafo
+                            key={i}
+                            texto={p}
+                            marginBottom={i === s.paragrafos.length - 1 ? 0 : 12}
+                          />
                         ))}
                       </div>
                       <ManualFiguraScreenshot src={s.imagem} alt={s.titulo} />
@@ -746,10 +1029,11 @@ function DocLoginManual() {
                   ) : s.passosVisuais ? (
                     <>
                       {s.paragrafos.map((p, i) => (
-                        <p key={i} style={{
-                          fontSize: '.9rem', color: MANUAL_TIPO.corpo, lineHeight: 1.8,
-                          margin: i === s.paragrafos.length - 1 ? '0 0 4px' : '0 0 12px',
-                        }}>{p}</p>
+                        <ManualParagrafo
+                          key={i}
+                          texto={p}
+                          marginBottom={i === s.paragrafos.length - 1 ? 4 : 12}
+                        />
                       ))}
                       {s.passosVisuais.map(passo => (
                         <ManualBlocoPassoVisual key={passo.num} passo={passo} />
@@ -758,7 +1042,7 @@ function DocLoginManual() {
                   ) : (
                     <>
                       {s.paragrafos.map((p, i) => (
-                        <p key={i} style={{ fontSize: '.875rem', color: MANUAL_TIPO.corpo, lineHeight: 1.75, marginBottom: 14 }}>{p}</p>
+                        <ManualParagrafo key={i} texto={p} marginBottom={14} />
                       ))}
 
                       {s.imagem && (
@@ -799,12 +1083,12 @@ function DocLoginManual() {
                             <div style={{ minWidth: 0 }}>
                               <p style={{
                                 fontWeight: 600, fontSize: s.listaEmLinha ? '.75rem' : '.82rem',
-                                color: MANUAL_TIPO.corpo, marginBottom: desc ? 3 : 0, lineHeight: 1.35,
-                              }}>{label.trim()}</p>
+                                color: MANUAL_TITULO_COR, marginBottom: desc ? 3 : 0, lineHeight: 1.35,
+                              }}><ManualTextoRich texto={label.trim()} /></p>
                               {desc && <p style={{
                                 fontSize: s.listaEmLinha ? '.68rem' : '.78rem',
-                                color: MANUAL_TIPO.secundario, lineHeight: 1.45,
-                              }}>{desc}</p>}
+                                color: MANUAL_CORPO_70, lineHeight: 1.45,
+                              }}><ManualTextoRich texto={desc} /></p>}
                             </div>
                           </div>
                         )
@@ -820,7 +1104,9 @@ function DocLoginManual() {
                           <p style={{ fontSize: '.65rem', fontWeight: 700, letterSpacing: '.1em', color: '#818cf8', textTransform: 'uppercase', marginBottom: 6 }}>{card.label}</p>
                           <p style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 10, color: 'var(--ws-text,#f1f5f9)' }}>{card.titulo}</p>
                           {card.itens.map((it, j) => (
-                            <p key={j} style={{ fontSize: '.8rem', color: MANUAL_TIPO.secundario, marginBottom: 4, lineHeight: 1.5 }}>{it}</p>
+                            <p key={j} style={{ fontSize: '.8rem', color: MANUAL_CORPO_70, marginBottom: 4, lineHeight: 1.5 }}>
+                              <ManualTextoRich texto={it} />
+                            </p>
                           ))}
                         </div>
                       ))}
@@ -840,7 +1126,9 @@ function DocLoginManual() {
                           }}>{t.passo}</div>
                           <div style={{ paddingTop: 6 }}>
                             <p style={{ fontWeight: 600, fontSize: '.875rem', color: 'var(--ws-text,#f1f5f9)', marginBottom: 3 }}>{t.titulo}</p>
-                            <p style={{ fontSize: '.8rem', color: MANUAL_TIPO.secundario, lineHeight: 1.55 }}>{t.desc}</p>
+                            <p style={{ fontSize: '.8rem', color: MANUAL_CORPO_70, lineHeight: 1.55 }}>
+                              <ManualTextoRich texto={t.desc} />
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -854,7 +1142,7 @@ function DocLoginManual() {
                     return (
                       <div style={{ background: c.bg, border: `1px solid ${c.borda}`, borderRadius: 8, padding: '12px 16px', marginTop: 14 }}>
                         <p style={{ fontSize: '.7rem', fontWeight: 700, color: c.cor, marginBottom: 5, letterSpacing: '.06em', textTransform: 'uppercase' }}>{c.label}</p>
-                        <p style={{ fontSize: '.82rem', color: MANUAL_TIPO.corpo, lineHeight: 1.65 }}>{s.callout.texto}</p>
+                        <p style={MANUAL_ESTILO_CALLOUT_CORPO}><ManualTextoRich texto={s.callout.texto} /></p>
                       </div>
                     )
                   })()}
@@ -1035,10 +1323,13 @@ export function UniversityGravity() {
     { to: '/university-gravity/minha-jornada', label: t('university.nav.minha_jornada'), icon: <Path weight="duotone" size={18} /> },
   ]
 
-  const tituloSecao = produtoSlug
+  const tituloSecao = secao === 'docs'
+    ? (docsProdutoSlug
+      ? t(`university.produto.${docsProdutoSlug.replaceAll('-', '_')}`)
+      : t('university.nav.docs'))
+    : produtoSlug
     ? t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)
     : secao === 'jornada' ? t('university.nav.minha_jornada')
-    : secao === 'docs' ? t('university.nav.docs')
     : secao === 'builders' ? t('university.nav.builders')
     : t('university.nav.academy')
 
@@ -1160,14 +1451,17 @@ export function UniversityGravity() {
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem 3rem' }}>
 
           {/* ── Cabeçalho ── */}
+          {!(secao === 'docs' && docsProdutoSlug === 'login') && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
             <GraduationCap weight="duotone" size={24} color={UNI_COR} />
             <h1 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-.02em', color: 'var(--ws-text,#f1f5f9)' }}>
               {tituloSecao}
             </h1>
           </div>
+          )}
 
-          {/* ── Banner ── */}
+          {/* ── Banner (oculto em manuais publicados) ── */}
+          {!(secao === 'docs' && docsProdutoSlug === 'login') && (
           <div style={{
             display: 'flex', gap: 12, alignItems: 'flex-start',
             background: 'linear-gradient(135deg, rgba(167,139,250,.12), rgba(129,140,248,.05))',
@@ -1185,6 +1479,7 @@ export function UniversityGravity() {
               </p>
             </div>
           </div>
+          )}
 
           {/* ══ BARRA 3 — Progresso nos produtos contratados (sempre visível no academy) ══ */}
           {secao === 'academy' && (

@@ -375,3 +375,62 @@ Os seguintes tipos estão especificados aqui mas ainda precisam ser adicionados 
 | `video` | ✅ Implementado | — |
 | `citacao` | ✅ Implementado | — |
 | `destaque` | ✅ Implementado | — |
+
+---
+
+## 9. Manual descritivo de tela (`DocLoginManual`)
+
+Além das aulas em blocos (`PlayerAula`), o Configurador expõe manuais descritivos embutidos em `UniversityGravity.tsx` (ex.: Login em `/university-gravity/docs/login`). Este formato tem regras próprias de tipografia, ícones inline e URLs.
+
+### 9.1 Tipografia e cor
+
+| Elemento | Tamanho | Cor | Observação |
+|----------|---------|-----|------------|
+| Rótulo **PASSO NN** | `12px` | `#818cf8` (índigo) | `text-transform: uppercase`, `letter-spacing: .08em` |
+| Título do passo | `0.92rem` (~15px) | `var(--ws-text, #f1f5f9)` 100% | Peso 700 |
+| **Corpo** (parágrafos, callouts, legendas, timeline) | `0.9rem` (~14px) | `color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)` | Constante `MANUAL_CORPO_70` no código |
+| Títulos de seção / cards | conforme layout | 100% `--ws-text` | Não recebem opacidade 70% |
+| Metadados (versão, data, rota) | `.78rem` | `--ws-muted` | Não é corpo narrativo |
+
+**Regra:** todo texto explicativo do manual usa `ManualParagrafo` / `ManualTextoRich` com `MANUAL_CORPO_70`. Títulos e rótulos permanecem em 100%.
+
+### 9.2 URLs e links
+
+- URLs públicas sempre completas: `https://usegravity.com.br/login` (nunca só `/login` no corpo narrativo).
+- O renderizador `ManualTextoRich` detecta `https://…` e gera `<a target="_blank">` com sublinhado índigo.
+- Metadado **URL de acesso** no cabeçalho do manual deve espelhar a URL canônica de produção.
+
+### 9.3 Ícones inline (Phosphor)
+
+No texto fonte (`DOC_LOGIN_SECOES`), referenciar ícones com token **e** escrita descritiva no mesmo parágrafo:
+
+```
+O ícone de olho {{icone:olho}} à direita da senha revela ou oculta o que você digitou.
+```
+
+| Slug | Ícone Phosphor |
+|------|----------------|
+| `olho` | `Eye` |
+| `olho-riscado` | `EyeSlash` |
+| `envelope` | `Envelope` |
+| `cadeado` | `Lock` |
+
+❌ Só o token sem texto (“clique em {{icone:olho}}”)  
+✅ Token + descrição (“ícone de olho {{icone:olho}}”)
+
+### 9.4 Passos visuais (`passosVisuais`)
+
+- Layout: grid texto (36%) + screenshot (64%), borda esquerda índigo.
+- Um passo = rótulo + título + `paragrafos[]` + screenshot opcional + `callout` opcional.
+- Screenshots em `public/university/screenshots/` com nomenclatura `{produto}-fluxo{n}-passo-{nn}-{descricao}.png`.
+- Intro da seção (antes dos passos): parágrafo único resumido; detalhe fica nos passos.
+
+### 9.5 Constantes no código (SSOT)
+
+Em `UniversityGravity.tsx`, reutilizar:
+
+- `MANUAL_TITULO_COR` — títulos 100%
+- `MANUAL_CORPO_70` — corpo com 70% de opacidade sobre `--ws-text`
+- `MANUAL_ESTILO_PASSO_ROTULO`, `MANUAL_ESTILO_PASSO_TITULO`, `MANUAL_ESTILO_CORPO`, `MANUAL_ESTILO_CALLOUT_CORPO`
+- `ManualTextoRich` — parse de URLs e `{{icone:slug}}`
+- `ManualParagrafo` — parágrafo padrão do corpo

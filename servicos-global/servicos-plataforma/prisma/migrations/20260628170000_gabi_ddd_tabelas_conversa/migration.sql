@@ -1,15 +1,17 @@
 -- GABI DDD — alinha tabelas legadas (GabiConversation / conversa_completa_gabi)
 -- com os nomes canônicos usados pelo Prisma (gabi_conversa, gabi_mensagem, gabi_log_uso).
 -- Idempotente: seguro em public e em cada schema tenant_* via migrate-all-tenants.
+-- IMPORTANTE: to_regclass usa current_schema() para não confundir tabelas em public
+-- com o schema tenant_* (search_path inclui public).
 
 -- ---------------------------------------------------------------------------
 -- gabi_conversa
 -- ---------------------------------------------------------------------------
 DO $$
 BEGIN
-  IF to_regclass('gabi_conversa') IS NOT NULL THEN
+  IF to_regclass(format('%I.gabi_conversa', current_schema())) IS NOT NULL THEN
     NULL;
-  ELSIF to_regclass('conversa_completa_gabi') IS NOT NULL THEN
+  ELSIF to_regclass(format('%I.conversa_completa_gabi', current_schema())) IS NOT NULL THEN
     ALTER TABLE "conversa_completa_gabi" RENAME TO "gabi_conversa";
     ALTER TABLE "gabi_conversa" RENAME COLUMN "id" TO "id_gabi_conversa";
     ALTER TABLE "gabi_conversa" RENAME COLUMN "tenant_id" TO "id_organizacao_gabi_conversa";
@@ -18,7 +20,7 @@ BEGIN
     ALTER TABLE "gabi_conversa" RENAME COLUMN "title" TO "titulo_gabi_conversa";
     ALTER TABLE "gabi_conversa" RENAME COLUMN "created_at" TO "data_criacao_gabi_conversa";
     ALTER TABLE "gabi_conversa" RENAME COLUMN "updated_at" TO "data_atualizacao_gabi_conversa";
-  ELSIF to_regclass('"GabiConversation"') IS NOT NULL THEN
+  ELSIF to_regclass(format('%I.%I', current_schema(), 'GabiConversation')) IS NOT NULL THEN
     ALTER TABLE "GabiConversation" RENAME TO "gabi_conversa";
     ALTER TABLE "gabi_conversa" RENAME COLUMN "id" TO "id_gabi_conversa";
     ALTER TABLE "gabi_conversa" RENAME COLUMN "tenant_id" TO "id_organizacao_gabi_conversa";
@@ -53,9 +55,9 @@ CREATE INDEX IF NOT EXISTS "gco_org_usr_idx"
 -- ---------------------------------------------------------------------------
 DO $$
 BEGIN
-  IF to_regclass('gabi_mensagem') IS NOT NULL THEN
+  IF to_regclass(format('%I.gabi_mensagem', current_schema())) IS NOT NULL THEN
     NULL;
-  ELSIF to_regclass('mensagem_individual_gabiai') IS NOT NULL THEN
+  ELSIF to_regclass(format('%I.mensagem_individual_gabiai', current_schema())) IS NOT NULL THEN
     ALTER TABLE "mensagem_individual_gabiai" RENAME TO "gabi_mensagem";
     ALTER TABLE "gabi_mensagem" RENAME COLUMN "id" TO "id_gabi_mensagem";
     ALTER TABLE "gabi_mensagem" RENAME COLUMN "tenant_id" TO "id_organizacao_gabi_mensagem";
@@ -67,7 +69,7 @@ BEGIN
     ALTER TABLE "gabi_mensagem" RENAME COLUMN "attachments" TO "anexos_gabi_mensagem";
     ALTER TABLE "gabi_mensagem" RENAME COLUMN "created_at" TO "data_criacao_gabi_mensagem";
     ALTER TABLE "gabi_mensagem" RENAME COLUMN "updated_at" TO "data_atualizacao_gabi_mensagem";
-  ELSIF to_regclass('"GabiMessage"') IS NOT NULL THEN
+  ELSIF to_regclass(format('%I.%I', current_schema(), 'GabiMessage')) IS NOT NULL THEN
     ALTER TABLE "GabiMessage" RENAME TO "gabi_mensagem";
     ALTER TABLE "gabi_mensagem" RENAME COLUMN "id" TO "id_gabi_mensagem";
     ALTER TABLE "gabi_mensagem" RENAME COLUMN "tenant_id" TO "id_organizacao_gabi_mensagem";
@@ -99,7 +101,11 @@ END $$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'gabi_mensagem_id_conversa_gabi_mensagem_fkey'
+    SELECT 1
+    FROM pg_constraint c
+    JOIN pg_namespace n ON n.oid = c.connamespace
+    WHERE c.conname = 'gabi_mensagem_id_conversa_gabi_mensagem_fkey'
+      AND n.nspname = current_schema()
   ) THEN
     ALTER TABLE "gabi_mensagem"
       ADD CONSTRAINT "gabi_mensagem_id_conversa_gabi_mensagem_fkey"
@@ -123,9 +129,9 @@ CREATE INDEX IF NOT EXISTS "gme_cnv_idx"
 -- ---------------------------------------------------------------------------
 DO $$
 BEGIN
-  IF to_regclass('gabi_log_uso') IS NOT NULL THEN
+  IF to_regclass(format('%I.gabi_log_uso', current_schema())) IS NOT NULL THEN
     NULL;
-  ELSIF to_regclass('gabiai_log_uso') IS NOT NULL THEN
+  ELSIF to_regclass(format('%I.gabiai_log_uso', current_schema())) IS NOT NULL THEN
     ALTER TABLE "gabiai_log_uso" RENAME TO "gabi_log_uso";
     ALTER TABLE "gabi_log_uso" RENAME COLUMN "id" TO "id_gabi_log_uso";
     ALTER TABLE "gabi_log_uso" RENAME COLUMN "tenant_id" TO "id_organizacao_gabi_log_uso";
@@ -140,7 +146,7 @@ BEGIN
     ALTER TABLE "gabi_log_uso" RENAME COLUMN "tokens_output" TO "tokens_output_gabi_log_uso";
     ALTER TABLE "gabi_log_uso" RENAME COLUMN "cost_usd" TO "custo_usd_gabi_log_uso";
     ALTER TABLE "gabi_log_uso" RENAME COLUMN "created_at" TO "data_criacao_gabi_log_uso";
-  ELSIF to_regclass('"GabiUsageLog"') IS NOT NULL THEN
+  ELSIF to_regclass(format('%I.%I', current_schema(), 'GabiUsageLog')) IS NOT NULL THEN
     ALTER TABLE "GabiUsageLog" RENAME TO "gabi_log_uso";
     ALTER TABLE "gabi_log_uso" RENAME COLUMN "id" TO "id_gabi_log_uso";
     ALTER TABLE "gabi_log_uso" RENAME COLUMN "tenant_id" TO "id_organizacao_gabi_log_uso";

@@ -19,7 +19,7 @@ import {
   regraMatrizTemDadoExtraido,
 } from './extrair-detalhe-dados-regra-matriz-invoice-smart-read.js'
 
-export type StatusChecklistMatrizInvoice = StatusMatrizInvoice | 'pendente'
+export type StatusChecklistMatrizInvoice = StatusMatrizInvoice | 'pendente' | 'na'
 
 /** Rótulo padronizado estilo checklist de aviação (CONFORME / ATENÇÃO / FALHA / PENDENTE). */
 export type RotuloStatusChecklistInvoice = 'CONFORME' | 'ATENÇÃO' | 'FALHA' | 'PENDENTE' | 'N/A'
@@ -43,6 +43,7 @@ export const ROTULO_STATUS_CHECKLIST_INVOICE: Record<
   amarelo: 'ATENÇÃO',
   vermelho: 'FALHA',
   pendente: 'PENDENTE',
+  na: 'N/A',
 }
 
 function rotuloStatusDeStatus(status: StatusChecklistMatrizInvoice): RotuloStatusChecklistInvoice {
@@ -62,6 +63,7 @@ export function normalizarResultadoChecklist(
 ): string {
   if (!detalhe) {
     if (status === 'pendente') return '—'
+    if (status === 'na') return 'Não aplicável'
     if (status === 'verde') return 'Conforme critério'
     return '—'
   }
@@ -89,6 +91,22 @@ function resultadoDeRisco(risco: RiscoAduaneiroLeitura): string {
   const ev = risco.evidencias.find((e) => e.valor?.trim())
   if (ev?.valor) return truncarTexto(ev.valor)
   return truncarTexto(risco.motivo, 100)
+}
+
+function detalheIndicaNa(detalhe: string | null): boolean {
+  return !!detalhe && /^N\/A\s*—/i.test(detalhe.trim())
+}
+
+function detalheEhPlaceholderSemDado(detalhe: string | null): boolean {
+  if (!detalhe) return true
+  return /não extraíd|não identificad|sem linhas|ausente no documento/i.test(detalhe)
+}
+
+function statusDeRegrasMotor(regrasMotor: RegraAuditoriaV1[]): StatusChecklistMatrizInvoice {
+  const detalhe = regrasMotor.map((r) => r.detalhe).join(' · ')
+  if (detalheIndicaNa(detalhe)) return 'na'
+  if (!regrasMotor.every((r) => r.passou)) return 'vermelho'
+  return 'verde'
 }
 
 function montarItemChecklist(
@@ -146,6 +164,7 @@ export type ResumoSecaoChecklistGeral = {
   amarelo: number
   vermelho: number
   pendente: number
+  na: number
   total: number
   veredito: RotuloStatusChecklistInvoice
 }
@@ -256,9 +275,8 @@ export function montarChecklistMatrizInvoice(
 
     const regrasMotor = filtrarRegrasMatrizDocumento(regras, regraMatriz.id, rotulo_documento)
     if (regrasMotor.length > 0) {
-      const todasPassam = regrasMotor.every((r) => r.passou)
+      const status = statusDeRegrasMotor(regrasMotor)
       const detalhe = regrasMotor.map((r) => r.detalhe).join(' · ')
-      const status: StatusChecklistMatrizInvoice = todasPassam ? 'verde' : 'vermelho'
       return montarItemChecklist(regraMatriz, status, detalhe, null)
     }
 
@@ -269,6 +287,17 @@ export function montarChecklistMatrizInvoice(
         documentos.length > 0 &&
         regraMatrizTemDadoExtraido(regraMatriz.id, documentos, rotulo_documento)
       const resultadoLido = detalheExtraido ?? '—'
+
+      if (!temDado && pipelineConcluido) {
+        return montarItemChecklist(
+          regraMatriz,
+          'na',
+          'N/A — sem dado na extração para esta regra',
+          null,
+          'Não aplicável',
+        )
+      }
+
       if (carregando || !pipelineConcluido) {
         return montarItemChecklist(
           regraMatriz,
@@ -281,18 +310,18 @@ export function montarChecklistMatrizInvoice(
       if (!llmHabilitado) {
         return montarItemChecklist(
           regraMatriz,
-          'pendente',
-          'Requer Analista IA (GEMINI_API_KEY)',
+          temDado ? 'pendente' : 'na',
+          temDado ? 'Requer Analista IA (GEMINI_API_KEY)' : 'N/A — IA indisponível e sem dado',
           null,
-          temDado ? resultadoLido : 'IA indisponível',
+          temDado ? resultadoLido : 'Não aplicável',
         )
       }
       return montarItemChecklist(
         regraMatriz,
-        'pendente',
-        'IA concluída sem risco mapeado',
+        'na',
+        'Revisão manual — IA sem apontamento nesta regra',
         null,
-        temDado ? resultadoLido : 'Aguardando análise IA',
+        temDado ? resultadoLido : 'Sem dado extraído',
       )
     }
 
@@ -306,20 +335,31 @@ export function montarChecklistMatrizInvoice(
           detalheExtraido ?? 'Aguardando API',
         )
       }
+      if (!detalheExtraido || detalheEhPlaceholderSemDado(detalheExtraido)) {
+        return montarItemChecklist(
+          regraMatriz,
+          'na',
+          'N/A — sem dado para consulta API',
+          null,
+          'Não aplicável',
+        )
+      }
       return montarItemChecklist(
         regraMatriz,
         'pendente',
         'API sem regra registrada',
         null,
-        detalheExtraido ?? '—',
+        detalheExtraido,
       )
     }
 
-    if (detalheExtraido) {
+    if (detalheExtraido && !detalheEhPlaceholderSemDado(detalheExtraido)) {
       return montarItemChecklist(
         regraMatriz,
         'pendente',
-        'Dado extraído — aguardando validação do motor',
+        pipelineConcluido
+          ? 'Dado extraído — aguardando validação do motor'
+          : 'Aguardando Passo 1 (código)…',
         null,
         detalheExtraido,
       )
@@ -327,9 +367,10 @@ export function montarChecklistMatrizInvoice(
 
     return montarItemChecklist(
       regraMatriz,
-      'pendente',
-      'Aguardando Passo 1 (código)…',
+      pipelineConcluido ? 'na' : 'pendente',
+      pipelineConcluido ? 'N/A — sem dado na extração' : 'Aguardando Passo 1 (código)…',
       null,
+      pipelineConcluido ? 'Não aplicável' : '—',
     )
   })
 }
@@ -364,6 +405,7 @@ export function contarChecklistPorStatus(itens: ItemChecklistMatrizInvoice[]) {
     amarelo: itens.filter((i) => i.status === 'amarelo').length,
     vermelho: itens.filter((i) => i.status === 'vermelho').length,
     pendente: itens.filter((i) => i.status === 'pendente').length,
+    na: itens.filter((i) => i.status === 'na').length,
     total: itens.length,
   }
 }
@@ -388,7 +430,9 @@ export function montarResumoGeralChecklistInvoices(
     const itens = montarChecklistMatrizInvoice({ ...params, rotulo_documento: inv.rotulo })
     const contagem = contarChecklistPorStatus(itens)
     const percentual_conforme =
-      contagem.total === 0 ? 0 : Math.round((contagem.verde / contagem.total) * 100)
+      contagem.total === 0
+        ? 0
+        : Math.round(((contagem.verde + contagem.na) / contagem.total) * 100)
     return {
       ...inv,
       contagem,
@@ -403,15 +447,16 @@ export function montarResumoGeralChecklistInvoices(
       amarelo: acc.amarelo + inv.contagem.amarelo,
       vermelho: acc.vermelho + inv.contagem.vermelho,
       pendente: acc.pendente + inv.contagem.pendente,
+      na: acc.na + inv.contagem.na,
       total: acc.total + inv.contagem.total,
     }),
-    { verde: 0, amarelo: 0, vermelho: 0, pendente: 0, total: 0 },
+    { verde: 0, amarelo: 0, vermelho: 0, pendente: 0, na: 0, total: 0 },
   )
 
   const percentual_global =
     contagem_global.total === 0
       ? 0
-      : Math.round((contagem_global.verde / contagem_global.total) * 100)
+      : Math.round(((contagem_global.verde + contagem_global.na) / contagem_global.total) * 100)
 
   const ordemSecao: SecaoMatrizInvoice[] = [
     'identificacao',
@@ -429,24 +474,27 @@ export function montarResumoGeralChecklistInvoices(
     let amarelo = 0
     let vermelho = 0
     let pendente = 0
+    let na = 0
     for (const inv of invoices) {
       const itens = montarChecklistMatrizInvoice({ ...params, rotulo_documento: inv.rotulo })
       for (const item of itens.filter((i) => i.regra.secao === secao)) {
         if (item.status === 'verde') verde += 1
         else if (item.status === 'amarelo') amarelo += 1
         else if (item.status === 'vermelho') vermelho += 1
+        else if (item.status === 'na') na += 1
         else pendente += 1
       }
     }
-    const total = verde + amarelo + vermelho + pendente
+    const total = verde + amarelo + vermelho + pendente + na
     return {
       secao,
       verde,
       amarelo,
       vermelho,
       pendente,
+      na,
       total,
-      veredito: vereditoDeContagemChecklist({ verde, amarelo, vermelho, pendente, total }),
+      veredito: vereditoDeContagemChecklist({ verde, amarelo, vermelho, pendente, na, total }),
     }
   })
 

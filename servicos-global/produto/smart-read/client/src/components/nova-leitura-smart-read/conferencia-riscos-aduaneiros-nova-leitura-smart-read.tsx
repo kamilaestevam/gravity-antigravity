@@ -267,6 +267,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     amarelo: 0,
     vermelho: 0,
     pendente: 0,
+    na: 0,
     total: 0,
   }
 
@@ -552,6 +553,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
         onFechar={() => setModalChecklistAberto(false)}
         documentos={documentos}
         parametrosChecklist={parametrosChecklist}
+        chaveMarcacaoChecklist={chaveAnalise}
         onVerRisco={verRiscoDoChecklist}
       />
 

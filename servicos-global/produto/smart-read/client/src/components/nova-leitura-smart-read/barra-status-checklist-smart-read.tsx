@@ -1,5 +1,5 @@
 /**
- * BarraStatusChecklistSmartRead — barra segmentada verde/amarelo/vermelho/pendente
+ * BarraStatusChecklistSmartRead — barra segmentada verde/amarelo/vermelho/pendente/na
  */
 
 type Props = {
@@ -7,6 +7,7 @@ type Props = {
   amarelo: number
   vermelho: number
   pendente: number
+  na?: number
   total: number
   classe?: string
 }
@@ -16,6 +17,7 @@ export function BarraStatusChecklistSmartRead({
   amarelo,
   vermelho,
   pendente,
+  na = 0,
   total,
   classe = '',
 }: Props) {
@@ -37,6 +39,7 @@ export function BarraStatusChecklistSmartRead({
       aria-hidden
     >
       {verde > 0 && <span className="sr-chk-info-barra--verde" style={{ width: pct(verde) }} />}
+      {na > 0 && <span className="sr-chk-info-barra--na" style={{ width: pct(na) }} />}
       {amarelo > 0 && <span className="sr-chk-info-barra--amarelo" style={{ width: pct(amarelo) }} />}
       {vermelho > 0 && <span className="sr-chk-info-barra--vermelho" style={{ width: pct(vermelho) }} />}
       {pendente > 0 && <span className="sr-chk-info-barra--pendente" style={{ width: pct(pendente) }} />}

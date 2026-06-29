@@ -5,7 +5,8 @@ import { createHash, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Client } from 'pg'
+import type { Client } from 'pg'
+import { Client as PgClient } from 'pg'
 import { AppError } from './errors.js'
 
 export const MIGRATION_GABI_DDD = '20260628170000_gabi_ddd_tabelas_conversa'
@@ -52,13 +53,25 @@ function carregarSqlMigrationGabi(): { sql: string; checksum: string } {
   )
 }
 
+/** Verifica se gabi_conversa existe no schema tenant (não em public). */
+export async function gabiConversaExisteNoSchema(
+  client: Client,
+  schemaName: string,
+): Promise<boolean> {
+  const { rows } = await client.query<{ exists: boolean }>(
+    `SELECT to_regclass(format('%I.%I', $1::text, 'gabi_conversa')) IS NOT NULL AS exists`,
+    [schemaName],
+  )
+  return rows[0]?.exists ?? false
+}
+
 async function aplicarMigrationNoSchema(
   client: Client,
   schemaName: string,
   migrationName: string,
   sql: string,
   checksum: string,
-): Promise<'ok' | 'skip'> {
+): Promise<'ok' | 'skip' | 'repair'> {
   await client.query('BEGIN')
   try {
     await client.query(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`)
@@ -70,19 +83,33 @@ async function aplicarMigrationNoSchema(
        WHERE migration_name = $1 AND finished_at IS NOT NULL AND rolled_back_at IS NULL`,
       [migrationName],
     )
-    if (applied.length > 0) {
+
+    const tabelaOk = await gabiConversaExisteNoSchema(client, schemaName)
+
+    if (applied.length > 0 && tabelaOk) {
       await client.query('ROLLBACK')
       return 'skip'
     }
 
+    const drift = applied.length > 0 && !tabelaOk
+    if (drift) {
+      console.warn(
+        `[GABI/DDL] Drift em ${schemaName}: migration registrada sem gabi_conversa — reaplicando DDL`,
+      )
+    }
+
     await client.query(sql)
-    await client.query(
-      `INSERT INTO "_prisma_migrations" (id, checksum, finished_at, migration_name, applied_steps_count)
-       VALUES ($1, $2, NOW(), $3, 1)`,
-      [randomUUID(), checksum, migrationName],
-    )
+
+    if (!drift) {
+      await client.query(
+        `INSERT INTO "_prisma_migrations" (id, checksum, finished_at, migration_name, applied_steps_count)
+         VALUES ($1, $2, NOW(), $3, 1)`,
+        [randomUUID(), checksum, migrationName],
+      )
+    }
+
     await client.query('COMMIT')
-    return 'ok'
+    return drift ? 'repair' : 'ok'
   } catch (err) {
     await client.query('ROLLBACK')
     const msg = err instanceof Error ? err.message : String(err)
@@ -94,13 +121,13 @@ async function aplicarMigrationNoSchema(
   }
 }
 
-/** Aplica migration GABI no schema indicado (idempotente via _prisma_migrations). */
+/** Aplica migration GABI no schema indicado (idempotente + repara drift public/tenant). */
 export async function aplicarDdlGabiNoSchemaNome(
   organizacaoUrl: string,
   schemaName: string,
-): Promise<'ok' | 'skip'> {
+): Promise<'ok' | 'skip' | 'repair'> {
   const { sql, checksum } = carregarSqlMigrationGabi()
-  const client = new Client({ connectionString: organizacaoUrl })
+  const client = new PgClient({ connectionString: organizacaoUrl })
   await client.connect()
   try {
     return await aplicarMigrationNoSchema(

@@ -272,6 +272,20 @@ export function executarPasso1ValidacaoCodigoInvoice(
       )
     }
 
+    // S1-04 Paginação (opcional — sem dado no PDF → N/A)
+    const pageCount = valorCampo(doc.mapa, [
+      'document.pageCount',
+      'document.totalPages',
+      'pagination.total',
+    ])
+    regras.push({
+      id: `S1-04-${doc.rotulo}`,
+      passou: true,
+      detalhe: pageCount
+        ? `Páginas: ${pageCount}`
+        : 'N/A — paginação ausente no documento',
+    })
+
     // S2-01 CNPJ módulo 11
     const cnpj =
       valorCampo(doc.mapa, ['importer.cnpj', 'importer.taxId', 'buyer.cnpj']) ??

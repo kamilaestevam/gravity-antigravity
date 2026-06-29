@@ -8,6 +8,8 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { ResumoGeralChecklistInvoices } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import { BarraStatusChecklistSmartRead } from './barra-status-checklist-smart-read'
 import { ResumoContagemChecklistSmartRead } from './resumo-contagem-checklist-smart-read'
+import { GraficoConferenciaCheckedSmartRead } from './grafico-conferencia-checked-smart-read'
+import type { ResumoConferenciaManualChecklist } from '../../shared/checklist-marcacao-usuario-smart-read'
 
 type OpcaoInvoiceChecklist = {
   valor: string
@@ -23,6 +25,7 @@ type Props = {
     valor: string | null
     aoMudarValor: (valor: string | null) => void
   }
+  conferenciaManual?: ResumoConferenciaManualChecklist | null
   children?: ReactNode
 }
 
@@ -43,6 +46,7 @@ export function InfograficoChecklistGeralSmartRead({
   resumo,
   onSelecionarInvoice,
   selecaoInvoice,
+  conferenciaManual,
   children,
 }: Props) {
   const { contagem_global, por_invoice, por_secao, total_invoices } = resumo
@@ -91,11 +95,19 @@ export function InfograficoChecklistGeralSmartRead({
                       amarelo={inv.contagem.amarelo}
                       vermelho={inv.contagem.vermelho}
                       pendente={inv.contagem.pendente}
+                      na={inv.contagem.na}
                       total={inv.contagem.total}
                     />
                   </button>
                 ))}
               </div>
+
+              {conferenciaManual && conferenciaManual.total > 0 ? (
+                <GraficoConferenciaCheckedSmartRead
+                  resumo={conferenciaManual}
+                  classe="sr-chk-info-grafico-conferido"
+                />
+              ) : null}
 
               {selecaoInvoice ? (
                 <div className="sr-chk-info-invoice-select-centro">
@@ -121,6 +133,7 @@ export function InfograficoChecklistGeralSmartRead({
                   amarelo={contagem_global.amarelo}
                   vermelho={contagem_global.vermelho}
                   pendente={contagem_global.pendente}
+                  na={contagem_global.na}
                   classe="sr-conf-checklist-resumo--lateral"
                 />
               </div>
@@ -152,6 +165,7 @@ export function InfograficoChecklistGeralSmartRead({
                       amarelo={sec.amarelo}
                       vermelho={sec.vermelho}
                       pendente={sec.pendente}
+                      na={sec.na}
                       total={sec.total}
                     />
                   </li>

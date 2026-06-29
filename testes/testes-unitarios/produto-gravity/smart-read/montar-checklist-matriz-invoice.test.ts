@@ -87,7 +87,7 @@ describe('montarChecklistMatrizInvoice', () => {
     expect(s404?.risco_id).toBe('r1')
   })
 
-  it('mantém regras LLM pendentes sem GEMINI', () => {
+  it('regras LLM sem dado extraído ficam N/A após pipeline', () => {
     const itens = montarChecklistMatrizInvoice({
       regras: [],
       riscos: [],
@@ -96,8 +96,23 @@ describe('montarChecklistMatrizInvoice', () => {
       carregando: false,
     })
     const s403 = itens.find((i) => i.regra.id === 'S4-03')
-    expect(s403?.status).toBe('pendente')
-    expect(s403?.detalhe).toContain('GEMINI')
+    expect(s403?.status).toBe('na')
+    expect(s403?.rotulo_status).toBe('N/A')
+  })
+
+  it('regra de código com detalhe N/A não infla veredito como pendente', () => {
+    const itens = montarChecklistMatrizInvoice({
+      regras: [{ id: 'S1-04-INV', passou: true, detalhe: 'N/A — paginação ausente no documento' }],
+      riscos: [],
+      pipelineConcluido: true,
+      llmHabilitado: false,
+      carregando: false,
+    })
+    const s104 = itens.find((i) => i.regra.id === 'S1-04')
+    expect(s104?.status).toBe('na')
+    expect(vereditoSecaoChecklist(itens.filter((i) => i.regra.secao === 'identificacao'))).toBe(
+      'CONFORME',
+    )
   })
 
   it('filtra checklist por invoice sem merge de resultados', () => {

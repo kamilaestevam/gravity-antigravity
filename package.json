@@ -63,6 +63,7 @@
     "db:migrate:deploy": "npx tsx scripts/ativamente/compose-cadastros-schema.ts && npx prisma migrate deploy --schema=servicos-global/cadastros/prisma/schema.prisma && npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",
     "db:seed:staging": "npx ts-node scripts/ativamente/seed-staging.ts",
     "db:apply-rls": "railway run psql $ORGANIZACAO_DATABASE_URL -f scripts/ativamente/apply-rls.sql",
+    "db:taxa-moeda-agendamento:producao": "npx tsx scripts/ativamente/aplicar-taxa-moeda-sync-agendamento-producao.ts",
     "translate": "npx tsx scripts/ativamente/translate.ts",
     "translate:check": "npx tsx scripts/ativamente/translate.ts --dry-run",
     "test": "vitest run --config testes/testes-unitarios/i18n/vitest.config.ts",

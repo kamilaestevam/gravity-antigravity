@@ -28,18 +28,14 @@ jobs:
           DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
           CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
 
-      - name: Verificar tabela taxa_moeda_sync_agendamento
-        run: |
-          npx tsx -e "
-          import pg from 'pg';
-          const c = new pg.Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
-          await c.connect();
-          const t = await c.query(\"SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename='taxa_moeda_sync_agendamento'\");
-          const rows = await c.query('SELECT id_taxa_moeda_sync_agendamento FROM taxa_moeda_sync_agendamento ORDER BY 1');
-          console.log('tabela:', t.rows[0]?.tablename ?? 'AUSENTE');
-          console.log('registros:', rows.rows.map(r => r.id_taxa_moeda_sync_agendamento).join(', ') || '(vazio)');
-          if (!t.rows.length) process.exit(1);
-          await c.end();
-          "
+      - name: Garantir tabela taxa_moeda_sync_agendamento (SQL idempotente)
+        run: npx tsx scripts/ativamente/aplicar-taxa-moeda-sync-agendamento-producao.ts
         env:
           DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+          CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+
+      - name: Verificar tabela taxa_moeda_sync_agendamento
+        run: npx tsx scripts/ativamente/verificar-taxa-moeda-sync-agendamento.ts
+        env:
+          DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
+          CONFIGURADOR_DATABASE_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}

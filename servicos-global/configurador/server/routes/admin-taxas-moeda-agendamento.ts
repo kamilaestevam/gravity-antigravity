@@ -36,12 +36,29 @@ function parseTipo(req: Request): TipoAgendamentoTaxaMoeda {
   return parsed.data.tipo
 }
 
+function isPrismaTabelaAgendamentoAusente(err: unknown): boolean {
+  return (
+    err != null &&
+    typeof err === 'object' &&
+    'code' in err &&
+    (err as { code: string }).code === 'P2021'
+  )
+}
+
 adminTaxasMoedaAgendamentoRouter.get('/:tipo', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tipo = parseTipo(req)
     const config = await lerAgendamentoTaxaMoeda(tipo)
     res.json(montarRespostaAgendamento(tipo, config))
   } catch (err) {
+    if (isPrismaTabelaAgendamentoAusente(err)) {
+      next(new AppError(
+        'Tabela taxa_moeda_sync_agendamento ausente no banco — rode migrate Configurador ou SQL manual de produção',
+        503,
+        'SCHEMA_NOT_READY',
+      ))
+      return
+    }
     next(err)
   }
 })
@@ -79,6 +96,14 @@ adminTaxasMoedaAgendamentoRouter.put('/:tipo', async (req: Request, res: Respons
 
     res.json(resposta)
   } catch (err) {
+    if (isPrismaTabelaAgendamentoAusente(err)) {
+      next(new AppError(
+        'Tabela taxa_moeda_sync_agendamento ausente no banco — rode migrate Configurador ou SQL manual de produção',
+        503,
+        'SCHEMA_NOT_READY',
+      ))
+      return
+    }
     next(err)
   }
 })

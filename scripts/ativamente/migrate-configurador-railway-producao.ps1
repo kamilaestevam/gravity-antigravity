@@ -35,4 +35,9 @@ Write-Host "Executando prisma migrate deploy..." -ForegroundColor Cyan
 npm run prisma:migrate:deploy
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+Write-Host "Garantindo tabela taxa_moeda_sync_agendamento (SQL idempotente)..." -ForegroundColor Cyan
+Set-Location $root
+npx tsx scripts/ativamente/aplicar-taxa-moeda-sync-agendamento-producao.ts
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
 Write-Host "OK — migration Configurador producao. Confira taxa_moeda_sync_agendamento no Railway Data." -ForegroundColor Green

@@ -13,6 +13,8 @@ import {
   type StatusChecklistMatrizInvoice,
 } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import { BarraStatusChecklistSmartRead } from './barra-status-checklist-smart-read'
+import { ClassificacaoProdutoChecklistSmartRead } from './classificacao-produto-checklist-smart-read'
+import type { LinhaClassificacaoProdutoChecklist } from '../../../../shared/montar-classificacao-produto-checklist-smart-read'
 import {
   chaveItemChecklistUsuario,
 } from '../../shared/checklist-marcacao-usuario-smart-read'
@@ -118,6 +120,7 @@ type Props = {
   alternarMarcado?: (chave: string) => void
   idPrefixo?: string
   classeCorpo?: string
+  classificacaoProduto?: LinhaClassificacaoProdutoChecklist[]
 }
 
 export function ChecklistConferenciaCorpoSmartRead({
@@ -131,6 +134,7 @@ export function ChecklistConferenciaCorpoSmartRead({
   alternarMarcado,
   idPrefixo = 'sr-checklist',
   classeCorpo = 'sr-conf-checklist-corpo',
+  classificacaoProduto,
 }: Props) {
   return (
     <div className={classeCorpo}>
@@ -227,6 +231,12 @@ export function ChecklistConferenciaCorpoSmartRead({
                     ))}
                   </tbody>
                 </table>
+                {secao === 'itens_fiscais' && classificacaoProduto && classificacaoProduto.length > 0 ? (
+                  <ClassificacaoProdutoChecklistSmartRead
+                    linhas={classificacaoProduto}
+                    onVerRisco={onVerRisco}
+                  />
+                ) : null}
               </div>
             )}
           </section>

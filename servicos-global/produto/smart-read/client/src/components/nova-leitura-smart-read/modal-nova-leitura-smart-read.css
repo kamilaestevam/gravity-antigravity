@@ -3282,6 +3282,150 @@
   background: rgba(52, 211, 153, 0.04);
 }
 
+.sr-conf-classificacao-produto {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem;
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  border-radius: 0.625rem;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.sr-conf-classificacao-produto-titulo {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #c4b5fd;
+}
+
+.sr-conf-classificacao-produto-subtitulo {
+  margin: 0 0 0.625rem;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.sr-conf-classificacao-produto-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sr-conf-classificacao-produto-card {
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.sr-conf-classificacao-produto-card-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sr-conf-classificacao-produto-linha {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sr-conf-classificacao-produto-campos {
+  margin: 0;
+  display: grid;
+  gap: 0.375rem;
+}
+
+.sr-conf-classificacao-produto-campo {
+  margin: 0;
+}
+
+.sr-conf-classificacao-produto-campo dt {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.125rem;
+}
+
+.sr-conf-classificacao-produto-campo dd {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+}
+
+.sr-conf-classificacao-produto-campo--destaque dd strong {
+  color: #34d399;
+  font-weight: 800;
+}
+
+.sr-conf-classificacao-produto-ncm-oficial {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.sr-conf-classificacao-produto-campo--analise dd {
+  color: #cbd5e1;
+}
+
+.sr-conf-classificacao-produto-disclaimer {
+  margin: 0.625rem 0 0;
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.sr-conf-classificacao-produto-ncm-par {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .sr-conf-classificacao-produto-ncm-par {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sr-conf-classificacao-ncm-codigo {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.sr-conf-classificacao-ncm-ausente {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.sr-conf-classificacao-ncm-comp {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.sr-conf-classificacao-ncm-comp--bate {
+  color: #34d399;
+}
+
+.sr-conf-classificacao-ncm-comp--diverge {
+  color: #fbbf24;
+}
+
+.sr-conf-classificacao-ncm-comp--sem-declarado {
+  color: #94a3b8;
+}
+
+.sr-conf-classificacao-ncm-comp--aguardando {
+  color: #64748b;
+}
+
 .sr-conf-chk-status--na {
   color: #a8b4c4;
   border-color: rgba(168, 180, 196, 0.35);

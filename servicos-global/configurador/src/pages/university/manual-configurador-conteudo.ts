@@ -190,6 +190,56 @@ const WORKSPACES_TOOLTIPS_KPI: DocTooltipKpi[] = [
   },
 ]
 
+const TAXAS_MOEDA_TOOLTIPS_KPI: DocTooltipKpi[] = [
+  {
+    card: 'USD / BRL',
+    tituloTooltip: 'DÓLAR AMERICANO · COTAÇÃO ATUAL',
+    descricao: 'Última PTAX armazenada para o dólar americano.',
+    detalhes: [
+      'Compra e Venda — taxas do boletim BCB/PTAX',
+      'Data e hora — referência do boletim sincronizado',
+      'Fonte — BCB/PTAX',
+    ],
+  },
+  {
+    card: 'EUR / BRL',
+    tituloTooltip: 'EURO · COTAÇÃO ATUAL',
+    descricao: 'Última PTAX armazenada para o euro.',
+    detalhes: [
+      'Compra e Venda — taxas do boletim BCB/PTAX',
+      'Data e hora — referência do boletim sincronizado',
+      'Fonte — BCB/PTAX',
+    ],
+  },
+  {
+    card: 'Moedas ativas',
+    tituloTooltip: 'SITUAÇÃO POR MOEDA',
+    descricao: 'Quantas das sete moedas suportadas já possuem cotação armazenada.',
+    detalhes: [
+      'USD, EUR, GBP, CHF, CNY, JPY, CAD — lista completa no tooltip',
+      'Sem dado — moeda ainda não sincronizada nesta organização',
+      'Total ativas — contagem usada no valor do card',
+    ],
+  },
+]
+
+const TAXAS_MOEDA_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
+  'USD / BRL': '/university/screenshots/configurador-taxas-moeda-cards-tooltip-1.png',
+  'EUR / BRL': '/university/screenshots/configurador-taxas-moeda-cards-tooltip-2.png',
+  'Moedas ativas': '/university/screenshots/configurador-taxas-moeda-cards-tooltip-3.png',
+}
+
+function criarPassosTooltipKpiTaxasMoeda(): PassoSemNumero[] {
+  return TAXAS_MOEDA_TOOLTIPS_KPI.map((tooltip) => ({
+    titulo: `Tooltip — ${tooltip.card}`,
+    imagem: TAXAS_MOEDA_TOOLTIP_KPI_IMAGENS[tooltip.card],
+    paragrafos: [
+      `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
+    ],
+    tooltipsKpi: [tooltip],
+  }))
+}
+
 /** Passos padrão de acesso: opcional Hub → menu do usuário → Configurador → área no menu lateral. */
 function passosComAcessoPadrao(
   areaMenu: string,
@@ -758,15 +808,168 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     num: 9,
     titulo: 'Taxas e moeda',
     paragrafos: [
-      'Taxas e moeda permite configurar câmbio operacional e moedas usadas nos produtos da organização.',
+      'Taxas e moeda concentra o câmbio operacional da organização em duas abas: **Cotação Atual** (PTAX do Banco Central) e **Cotação Futura** (projeções do BACEN Focus).',
+      'Os produtos Gravity consomem essas taxas para conversões, simulações e documentos fiscais. A sincronização PTAX roda automaticamente **4 vezes por dia** em dias úteis (10h03 / 11h03 / 12h03 / 13h03 BRT); o Focus é atualizado **semanalmente** (terça 22h BRT).',
+      'Somente usuários **Master** acessam esta área. Use **Sincronizar PTAX** ou **Sincronizar Focus** para forçar atualização fora do cron, e **Agendamento** para ligar ou desligar a sincronização automática por aba.',
     ],
     fluxos: [
       {
         titulo: 'Fluxo 1 — acessar Taxas e moeda',
+        tituloSumario: 'Acessar Taxas e moeda',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Taxas e moeda.'],
-        passosVisuais: passosComAcessoPadrao('Taxas e moeda', []),
+        passosVisuais: passosComAcessoPadrao(
+          'Taxas e moeda',
+          [
+            {
+              titulo: 'Tela principal — Cotação Atual',
+              imagem: '/university/screenshots/configurador-taxas-moeda-tela-principal.png',
+              paragrafos: [
+                'A aba Cotação Atual abre por padrão. No topo, três cards resumem USD, EUR e quantas moedas já possuem PTAX armazenada.',
+                'A tabela lista as sete moedas suportadas (USD, EUR, GBP, CHF, CNY, JPY, CAD) com compra, venda, data, hora, fonte e data de armazenamento. Use Buscar para filtrar; Exportar gera planilha da listagem.',
+              ],
+            },
+            ...criarPassosTooltipKpiTaxasMoeda(),
+          ],
+          '/university/screenshots/configurador-taxas-moeda-acesso-seta.png',
+          true,
+          [
+            'No menu lateral do Configurador, clique em Taxas e moeda — como indicado pela seta na imagem. A tela abre na aba Cotação Atual.',
+            'Alterne para Cotação Futura quando precisar consultar projeções do BACEN Focus. Nos passos seguintes, a tabela principal e cada tooltip dos cards são explicados separadamente.',
+          ],
+        ),
       },
-      fluxoEmBreve('Fluxo 2 — configurar taxas', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
+      {
+        titulo: 'Fluxo 2 — sincronizar PTAX',
+        tituloSumario: 'Sincronizar PTAX',
+        paragrafos: [
+          'Dispare manualmente a busca dos boletins PTAX no BCB. Útil fora dos horários do cron automático ou para recuperar moeda que falhou na última rodada.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Iniciar sincronização',
+            imagem: '/university/screenshots/configurador-taxas-moeda-sincronizar-seta.png',
+            paragrafos: [
+              'Na aba Cotação Atual, clique em **Sincronizar PTAX** — como indicado pela seta na imagem. O botão fica ao lado de Agendamento, no canto superior direito.',
+            ],
+            callout: {
+              tipo: 'dica',
+              texto: 'O cron da Gravity já sincroniza PTAX 4× por dia em dias úteis. O botão manual não substitui o agendamento — apenas força uma rodada imediata.',
+            },
+          },
+          {
+            titulo: 'Sincronização em andamento',
+            imagem: '/university/screenshots/configurador-taxas-moeda-sincronizando.png',
+            paragrafos: [
+              'Enquanto o serviço consulta o BCB, o botão exibe **Sincronizando…** com ícone girando. Aguarde a conclusão — não feche a aba.',
+            ],
+          },
+          {
+            titulo: 'Sincronização concluída',
+            imagem: '/university/screenshots/configurador-taxas-moeda-sincronizado.png',
+            paragrafos: [
+              'Ao terminar, um toast confirma quantas moedas foram atualizadas e o horário da última sincronização aparece ao lado do relógio. Os cards e a tabela refletem os novos valores de compra e venda.',
+            ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'Se nenhuma moeda for atualizada, verifique se o sidecar taxas-moeda está online ou tente novamente em horário de publicação do BCB (dias úteis, após 10h BRT).',
+            },
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 3 — agendamento automático',
+        tituloSumario: 'Agendamento automático',
+        paragrafos: [
+          'Configure se a sincronização automática fica ativa para a aba em que você está — PTAX na Cotação Atual, Focus na Cotação Futura.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Abrir o modal de agendamento',
+            imagem: '/university/screenshots/configurador-taxas-moeda-agendamento-seta.png',
+            paragrafos: [
+              'Clique no botão **Agendamento** — como indicado pela seta. A pill **Ativo** (verde) ou **Inativo** (cinza) indica o estado atual da aba aberta.',
+            ],
+          },
+          {
+            titulo: 'Modal — configuração (aba Geral)',
+            imagem: '/university/screenshots/configurador-taxas-moeda-agendamento-modal-1.png',
+            paragrafos: [
+              'Em **Agendamento automático**, escolha Ativado ou Desativado. Para PTAX, a frequência padrão é **Diário (4 boletins PTAX)** com horários fixos do BCB.',
+              'Para Focus, use frequência **Semanal** — o cron padrão da Gravity é terça-feira às 22h BRT.',
+            ],
+          },
+          {
+            titulo: 'Modal — horários e alertas',
+            imagem: '/university/screenshots/configurador-taxas-moeda-agendamento-modal-2.png',
+            paragrafos: [
+              'Na aba Horários, confira os slots PTAX (10h03 / 11h03 / 12h03 / 13h03) ou o horário semanal do Focus. A aba Alertas permite cadastrar e-mails para notificação de falha.',
+              'Clique em **Salvar** para gravar. O badge do botão Agendamento na tela principal muda para Ativo quando a configuração está ligada.',
+            ],
+            callout: {
+              tipo: 'dica',
+              texto: 'PTAX e Focus têm agendamentos independentes — configure cada um na aba correspondente antes de abrir o modal.',
+            },
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 4 — cotação futura (BACEN Focus)',
+        tituloSumario: 'Cotação Futura',
+        paragrafos: [
+          'A segunda aba exibe projeções de mercado do BACEN Focus para USD/BRL — **não são cotações negociadas**. Use para planejamento; o erro de previsão cresce com o horizonte.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Abrir a aba Cotação Futura',
+            imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura.png',
+            paragrafos: [
+              'Clique na aba **Cotação Futura** — como indicado na imagem. Os cards do topo mudam para USD próximo mês, USD horizonte e Publicação Focus.',
+              'A tabela lista até quatro meses de projeção por padrão, com moeda, mês previsto, valor mediano, data de publicação e fonte BACEN/Focus.',
+            ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'Projeções do Focus são indicativas. Não use como taxa de fechamento de contrato ou documento fiscal — para isso, utilize a PTAX da aba Cotação Atual.',
+            },
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 5 — sincronizar Focus',
+        tituloSumario: 'Sincronizar Focus',
+        paragrafos: [
+          'Busque manualmente a última rodada de expectativas de mercado publicada pelo BACEN. O cron semanal já faz isso automaticamente quando o agendamento está ativo.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Iniciar sincronização Focus',
+            imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizar-seta.png',
+            paragrafos: [
+              'Com a aba Cotação Futura ativa, clique em **Sincronizar Focus** — como indicado pela seta na imagem.',
+            ],
+          },
+          {
+            titulo: 'Sincronização em andamento',
+            imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizando.png',
+            paragrafos: [
+              'O botão exibe **Sincronizando…** enquanto o serviço consulta o BACEN Focus. A operação atualiza apenas a série USD/BRL.',
+            ],
+          },
+          {
+            titulo: 'Resultado — visão geral',
+            imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizar-modal-1.png',
+            paragrafos: [
+              'Após a conclusão, os cards e a tabela exibem mediana, mês previsto e data de publicação da rodada importada.',
+            ],
+          },
+          {
+            titulo: 'Resultado — detalhe das projeções',
+            imagem: '/university/screenshots/configurador-taxas-moeda-cotacao-futura-sincronizar-modal-2.png',
+            paragrafos: [
+              'Confira linha a linha os meses carregados e o valor mediano de cada projeção. Um toast confirma quantos meses foram gravados para USD.',
+            ],
+          },
+        ]),
+      },
     ],
   },
   {

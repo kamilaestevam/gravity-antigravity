@@ -2,7 +2,7 @@
 // Memoria persistente da GABI por usuario — preferencias, contexto, onboarding.
 // Model: GabiMemoriaUsuario (fragment.prisma)
 
-import prisma from '../lib/prisma.js'
+import { withSchemaOrganizacao } from '../lib/with-schema-organizacao.js'
 
 // ── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -27,7 +27,6 @@ interface ContextoMemoria {
 const MAX_MEMORIAS_CARREGADAS = 50
 const MIN_CONFIANCA = 0.3
 const MAX_VALOR_LENGTH = 500
-const DECAIMENTO_POR_MES = 0.1
 
 // ── Carregar memorias do usuario ────────────────────────────────────────────
 
@@ -47,11 +46,13 @@ export async function carregarMemorias(
     where.tipo_gabi_memoria_usuario = tipo
   }
 
-  const registros = await prisma.gabiMemoriaUsuario.findMany({
-    where,
-    orderBy: { data_ultimo_uso_gabi_memoria_usuario: 'desc' },
-    take: limit,
-  })
+  const registros = await withSchemaOrganizacao(ctx.id_organizacao, (db) =>
+    db.gabiMemoriaUsuario.findMany({
+      where,
+      orderBy: { data_ultimo_uso_gabi_memoria_usuario: 'desc' },
+      take: limit,
+    }),
+  )
 
   return registros.map((r) => ({
     tipo: r.tipo_gabi_memoria_usuario as TipoMemoria,
@@ -74,32 +75,34 @@ export async function salvarMemoria(
 ): Promise<void> {
   const valorTruncado = valor.slice(0, MAX_VALOR_LENGTH)
 
-  await prisma.gabiMemoriaUsuario.upsert({
-    where: {
-      gmu_unq_org_usr_tipo_chave: {
+  await withSchemaOrganizacao(ctx.id_organizacao, (db) =>
+    db.gabiMemoriaUsuario.upsert({
+      where: {
+        gmu_unq_org_usr_tipo_chave: {
+          id_organizacao_gabi_memoria_usuario: ctx.id_organizacao,
+          id_usuario_gabi_memoria_usuario: ctx.id_usuario,
+          tipo_gabi_memoria_usuario: tipo,
+          chave_gabi_memoria_usuario: chave,
+        },
+      },
+      create: {
         id_organizacao_gabi_memoria_usuario: ctx.id_organizacao,
         id_usuario_gabi_memoria_usuario: ctx.id_usuario,
         tipo_gabi_memoria_usuario: tipo,
         chave_gabi_memoria_usuario: chave,
+        valor_gabi_memoria_usuario: valorTruncado,
+        origem_gabi_memoria_usuario: origem,
+        confianca_gabi_memoria_usuario: origem === 'explicito' ? 1.0 : 0.8,
       },
-    },
-    create: {
-      id_organizacao_gabi_memoria_usuario: ctx.id_organizacao,
-      id_usuario_gabi_memoria_usuario: ctx.id_usuario,
-      tipo_gabi_memoria_usuario: tipo,
-      chave_gabi_memoria_usuario: chave,
-      valor_gabi_memoria_usuario: valorTruncado,
-      origem_gabi_memoria_usuario: origem,
-      confianca_gabi_memoria_usuario: origem === 'explicito' ? 1.0 : 0.8,
-    },
-    update: {
-      valor_gabi_memoria_usuario: valorTruncado,
-      origem_gabi_memoria_usuario: origem,
-      confianca_gabi_memoria_usuario: origem === 'explicito' ? 1.0 : 0.8,
-      data_ultimo_uso_gabi_memoria_usuario: new Date(),
-      ativo_gabi_memoria_usuario: true,
-    },
-  })
+      update: {
+        valor_gabi_memoria_usuario: valorTruncado,
+        origem_gabi_memoria_usuario: origem,
+        confianca_gabi_memoria_usuario: origem === 'explicito' ? 1.0 : 0.8,
+        data_ultimo_uso_gabi_memoria_usuario: new Date(),
+        ativo_gabi_memoria_usuario: true,
+      },
+    }),
+  )
 }
 
 // ── Registrar uso de memoria (atualiza data_ultimo_uso) ─────────────────────
@@ -110,19 +113,21 @@ export async function registrarUsoMemoria(
   chave: string,
 ): Promise<void> {
   try {
-    await prisma.gabiMemoriaUsuario.update({
-      where: {
-        gmu_unq_org_usr_tipo_chave: {
-          id_organizacao_gabi_memoria_usuario: ctx.id_organizacao,
-          id_usuario_gabi_memoria_usuario: ctx.id_usuario,
-          tipo_gabi_memoria_usuario: tipo,
-          chave_gabi_memoria_usuario: chave,
+    await withSchemaOrganizacao(ctx.id_organizacao, (db) =>
+      db.gabiMemoriaUsuario.update({
+        where: {
+          gmu_unq_org_usr_tipo_chave: {
+            id_organizacao_gabi_memoria_usuario: ctx.id_organizacao,
+            id_usuario_gabi_memoria_usuario: ctx.id_usuario,
+            tipo_gabi_memoria_usuario: tipo,
+            chave_gabi_memoria_usuario: chave,
+          },
         },
-      },
-      data: {
-        data_ultimo_uso_gabi_memoria_usuario: new Date(),
-      },
-    })
+        data: {
+          data_ultimo_uso_gabi_memoria_usuario: new Date(),
+        },
+      }),
+    )
   } catch {
     // Memoria nao encontrada — ignorar silenciosamente
   }
@@ -136,17 +141,19 @@ export async function desativarMemoria(
   chave: string,
 ): Promise<void> {
   try {
-    await prisma.gabiMemoriaUsuario.update({
-      where: {
-        gmu_unq_org_usr_tipo_chave: {
-          id_organizacao_gabi_memoria_usuario: ctx.id_organizacao,
-          id_usuario_gabi_memoria_usuario: ctx.id_usuario,
-          tipo_gabi_memoria_usuario: tipo,
-          chave_gabi_memoria_usuario: chave,
+    await withSchemaOrganizacao(ctx.id_organizacao, (db) =>
+      db.gabiMemoriaUsuario.update({
+        where: {
+          gmu_unq_org_usr_tipo_chave: {
+            id_organizacao_gabi_memoria_usuario: ctx.id_organizacao,
+            id_usuario_gabi_memoria_usuario: ctx.id_usuario,
+            tipo_gabi_memoria_usuario: tipo,
+            chave_gabi_memoria_usuario: chave,
+          },
         },
-      },
-      data: { ativo_gabi_memoria_usuario: false },
-    })
+        data: { ativo_gabi_memoria_usuario: false },
+      }),
+    )
   } catch {
     // Memoria nao encontrada — ignorar
   }
@@ -178,44 +185,8 @@ export function formatarMemoriasParaPrompt(memorias: MemoriaUsuario[]): string {
   return partes.join('\n')
 }
 
-// ── Cron: decaimento de memorias inativas ───────────────────────────────────
-
+// Cron cross-org — fora do escopo do hotfix; requer iterar schemas via worker.
 export async function aplicarDecaimentoMemorias(): Promise<{ desativadas: number; reduzidas: number }> {
-  const limiteInatividade = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
-
-  // Reduzir confianca de memorias inferidas nao usadas ha 90+ dias
-  const aReduzir = await prisma.gabiMemoriaUsuario.findMany({
-    where: {
-      ativo_gabi_memoria_usuario: true,
-      origem_gabi_memoria_usuario: 'inferido',
-      data_ultimo_uso_gabi_memoria_usuario: { lt: limiteInatividade },
-      confianca_gabi_memoria_usuario: { gt: 0.1 },
-    },
-  })
-
-  let reduzidas = 0
-  let desativadas = 0
-
-  for (const m of aReduzir) {
-    const novaConfianca = Math.max(0, m.confianca_gabi_memoria_usuario - DECAIMENTO_POR_MES)
-
-    if (novaConfianca < 0.1) {
-      await prisma.gabiMemoriaUsuario.update({
-        where: { id_gabi_memoria_usuario: m.id_gabi_memoria_usuario },
-        data: {
-          confianca_gabi_memoria_usuario: novaConfianca,
-          ativo_gabi_memoria_usuario: false,
-        },
-      })
-      desativadas++
-    } else {
-      await prisma.gabiMemoriaUsuario.update({
-        where: { id_gabi_memoria_usuario: m.id_gabi_memoria_usuario },
-        data: { confianca_gabi_memoria_usuario: novaConfianca },
-      })
-      reduzidas++
-    }
-  }
-
-  return { desativadas, reduzidas }
+  console.warn('[GABI/memoria] aplicarDecaimentoMemorias: nao implementado em schema-per-org')
+  return { desativadas: 0, reduzidas: 0 }
 }

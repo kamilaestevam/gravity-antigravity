@@ -48,7 +48,7 @@ chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
     }
 
     const history = conversationId !== 'new'
-      ? await getConversationContext(conversationId)
+      ? await getConversationContext(tenantId, conversationId)
       : []
 
     const { knowledge, ragMeta } = await selectKnowledge(message, page)
@@ -208,7 +208,7 @@ chatRouter.get('/api/v1/gabi/chats/stream', async (req, res) => {
 
   try {
     const history = conversationId !== 'new'
-      ? await getConversationContext(conversationId)
+      ? await getConversationContext(tenantId, conversationId)
       : []
 
     const { knowledge: streamKnowledge, ragMeta: streamRagMeta } = await selectKnowledge(message, page)

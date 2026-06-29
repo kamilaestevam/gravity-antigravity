@@ -94,6 +94,17 @@ if [ -n "${ORGANIZACAO_DATABASE_URL:-}" ]; then
     echo "[start-site] ERRO: migrations servicos-plataforma falharam — servidor sobe mesmo assim (ver logs acima)."
     echo "[start-site] Admin API Cockpit (tokens/webhooks/consumo) pode retornar 500 até migrate deploy passar."
   fi
+  if [ -n "${CONFIGURADOR_DATABASE_URL:-}" ]; then
+    echo "[start-site] Aplicando migrations tenant_* (gabi, atividades, ...)..."
+    if DATABASE_URL="$ORGANIZACAO_DATABASE_URL" CONFIGURADOR_DATABASE_URL="$CONFIGURADOR_DATABASE_URL" \
+      npx tsx scripts/ativamente/migrate-all-tenants.ts --product=tenant; then
+      echo "[start-site] Migrations tenant_* (servicos-plataforma) concluídas."
+    else
+      echo "[start-site] ERRO: migrate-all-tenants (tenant) falhou — GABI pode retornar 503 até schemas atualizados."
+    fi
+  else
+    echo "[start-site] AVISO: CONFIGURADOR_DATABASE_URL ausente — migrate-all-tenants (tenant) ignorado; GABI pode falhar."
+  fi
 else
   echo "[start-site] AVISO: ORGANIZACAO_DATABASE_URL ausente — migrations servicos-plataforma ignoradas."
   echo "[start-site] Sidecars api-cockpit/GABI e Admin API Cockpit ficarão degradados até configurar a variável."

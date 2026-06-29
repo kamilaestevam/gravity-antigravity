@@ -744,6 +744,25 @@ if (process.env.NODE_ENV !== 'test') {
         },
       )
       console.log('[configurador] Migrations servicos-plataforma OK')
+      const cfgUrl = process.env.CONFIGURADOR_DATABASE_URL ?? process.env.DATABASE_URL
+      if (cfgUrl) {
+        console.log('[configurador] Aplicando migrations tenant_* (servicos-plataforma)...')
+        execSync(
+          'npx tsx scripts/ativamente/migrate-all-tenants.ts --product=tenant',
+          {
+            cwd: repoRoot,
+            stdio: 'inherit',
+            env: {
+              ...process.env,
+              DATABASE_URL: orgUrl,
+              CONFIGURADOR_DATABASE_URL: cfgUrl,
+            },
+          },
+        )
+        console.log('[configurador] Migrations tenant_* (servicos-plataforma) OK')
+      } else {
+        console.error('[configurador] CONFIGURADOR_DATABASE_URL ausente — migrate-all-tenants tenant ignorado')
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('[configurador] ERRO migrations servicos-plataforma no boot:', msg)

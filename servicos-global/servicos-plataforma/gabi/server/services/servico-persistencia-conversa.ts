@@ -1,7 +1,8 @@
 // Persistencia de conversas GABI (Prisma tenant) — usado por agente V2 e /chats legado
 
-import prisma from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
+import { relancarErroPrismaGabi } from '../lib/erro-prisma-gabi.js'
+import { withSchemaOrganizacao, type PrismaOrganizacao } from '../lib/with-schema-organizacao.js'
 
 export interface MetadadosMensagemAssistente {
   modelo?: string
@@ -25,17 +26,15 @@ export interface PersistirTurnoConversaParams {
   metadados_assistente?: MetadadosMensagemAssistente
 }
 
-/**
- * Garante id de conversa valido. Se `conversationId === 'new'`, cria registro no banco.
- */
-export async function garantirIdConversaGabi(
+async function garantirIdConversaNoSchema(
+  db: PrismaOrganizacao,
   conversationId: string,
   id_organizacao: string,
   id_usuario: string,
   titulo?: string,
 ): Promise<string> {
   if (conversationId !== 'new') {
-    const existe = await prisma.gabiConversaCompleta.findFirst({
+    const existe = await db.gabiConversaCompleta.findFirst({
       where: {
         id_gabi_conversa: conversationId,
         id_organizacao_gabi_conversa: id_organizacao,
@@ -49,7 +48,7 @@ export async function garantirIdConversaGabi(
     return conversationId
   }
 
-  const criada = await prisma.gabiConversaCompleta.create({
+  const criada = await db.gabiConversaCompleta.create({
     data: {
       id_organizacao_gabi_conversa: id_organizacao,
       id_usuario_gabi_conversa: id_usuario,
@@ -59,52 +58,77 @@ export async function garantirIdConversaGabi(
   return criada.id_gabi_conversa
 }
 
+/**
+ * Garante id de conversa valido. Se `conversationId === 'new'`, cria registro no banco.
+ */
+export async function garantirIdConversaGabi(
+  conversationId: string,
+  id_organizacao: string,
+  id_usuario: string,
+  titulo?: string,
+): Promise<string> {
+  try {
+    return await withSchemaOrganizacao(id_organizacao, (db) =>
+      garantirIdConversaNoSchema(db, conversationId, id_organizacao, id_usuario, titulo),
+    )
+  } catch (err) {
+    relancarErroPrismaGabi(err)
+  }
+}
+
 /** Grava par user/assistant e atualiza timestamp da conversa. Retorna o id efetivo. */
 export async function persistirTurnoConversa(
   params: PersistirTurnoConversaParams,
 ): Promise<string> {
-  const id_conversa = await garantirIdConversaGabi(
-    params.conversationId,
-    params.id_organizacao,
-    params.id_usuario,
-    params.mensagem_usuario,
-  )
+  try {
+    return await withSchemaOrganizacao(params.id_organizacao, async (db) => {
+      const id_conversa = await garantirIdConversaNoSchema(
+        db,
+        params.conversationId,
+        params.id_organizacao,
+        params.id_usuario,
+        params.mensagem_usuario,
+      )
 
-  await prisma.gabiConversaCompleta.update({
-    where: { id_gabi_conversa: id_conversa },
-    data: {
-      data_atualizacao_gabi_conversa: new Date(),
-      ...(params.id_produto !== undefined
-        ? { id_produto_gabi_conversa: params.id_produto }
-        : {}),
-    },
-  })
+      await db.gabiConversaCompleta.update({
+        where: { id_gabi_conversa: id_conversa },
+        data: {
+          data_atualizacao_gabi_conversa: new Date(),
+          ...(params.id_produto !== undefined
+            ? { id_produto_gabi_conversa: params.id_produto }
+            : {}),
+        },
+      })
 
-  await prisma.gabiMensagemIndividual.createMany({
-    data: [
-      {
-        id_organizacao_gabi_mensagem: params.id_organizacao,
-        id_usuario_gabi_mensagem: params.id_usuario,
-        id_conversa_gabi_mensagem: id_conversa,
-        papel_gabi_mensagem: 'user',
-        conteudo_gabi_mensagem: params.mensagem_usuario,
-        id_produto_gabi_mensagem: params.id_produto ?? null,
-      },
-      {
-        id_organizacao_gabi_mensagem: params.id_organizacao,
-        id_usuario_gabi_mensagem: params.id_usuario,
-        id_conversa_gabi_mensagem: id_conversa,
-        papel_gabi_mensagem: 'assistant',
-        conteudo_gabi_mensagem: params.resposta_assistente,
-        id_produto_gabi_mensagem: params.id_produto ?? null,
-        anexos_gabi_mensagem: params.metadados_assistente
-          ? JSON.stringify(params.metadados_assistente)
-          : null,
-      },
-    ],
-  })
+      await db.gabiMensagemIndividual.createMany({
+        data: [
+          {
+            id_organizacao_gabi_mensagem: params.id_organizacao,
+            id_usuario_gabi_mensagem: params.id_usuario,
+            id_conversa_gabi_mensagem: id_conversa,
+            papel_gabi_mensagem: 'user',
+            conteudo_gabi_mensagem: params.mensagem_usuario,
+            id_produto_gabi_mensagem: params.id_produto ?? null,
+          },
+          {
+            id_organizacao_gabi_mensagem: params.id_organizacao,
+            id_usuario_gabi_mensagem: params.id_usuario,
+            id_conversa_gabi_mensagem: id_conversa,
+            papel_gabi_mensagem: 'assistant',
+            conteudo_gabi_mensagem: params.resposta_assistente,
+            id_produto_gabi_mensagem: params.id_produto ?? null,
+            anexos_gabi_mensagem: params.metadados_assistente
+              ? JSON.stringify(params.metadados_assistente)
+              : null,
+          },
+        ],
+      })
 
-  return id_conversa
+      return id_conversa
+    })
+  } catch (err) {
+    relancarErroPrismaGabi(err)
+  }
 }
 
 /** Fire-and-forget com log em falha (compativel com rotas legadas). */

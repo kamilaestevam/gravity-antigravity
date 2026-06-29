@@ -1075,7 +1075,7 @@ function DocLoginManual() {
       {/* Metadados */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
         gap: 10,
         paddingBottom: 22,
         borderBottom: '1px solid rgba(148,163,184,.12)',
@@ -1089,6 +1089,8 @@ function DocLoginManual() {
               border: '1px solid rgba(148,163,184,.12)',
               borderRadius: 10,
               padding: '10px 14px',
+              minWidth: 0,
+              ...(meta.href ? { gridColumn: 'span 2' } : {}),
             }}
           >
             <p style={{
@@ -1097,9 +1099,12 @@ function DocLoginManual() {
             }}>
               {meta.rotulo}
             </p>
-            <p style={{ fontSize: '.82rem', color: 'var(--ws-text,#e2e8f0)', margin: 0, lineHeight: 1.4 }}>
+            <p style={{
+              fontSize: '.82rem', color: 'var(--ws-text,#e2e8f0)', margin: 0, lineHeight: 1.4,
+              overflowWrap: 'anywhere', wordBreak: 'break-word',
+            }}>
               {meta.href ? (
-                <a href={meta.valor} target="_blank" rel="noreferrer" style={MANUAL_LINK_STYLE}>{meta.valor}</a>
+                <a href={meta.valor} target="_blank" rel="noreferrer" style={{ ...MANUAL_LINK_STYLE, overflowWrap: 'anywhere' }}>{meta.valor}</a>
               ) : meta.valor}
             </p>
           </div>

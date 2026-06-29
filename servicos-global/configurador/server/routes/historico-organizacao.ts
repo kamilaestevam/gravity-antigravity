@@ -67,32 +67,26 @@ historicoOrganizacaoRouter.get(
       }
 
       const { page, limit, cursor, search, from_date, to_date, id_produto_historico_log } = parsed.data
+      const idProdutoEfetivo = id_produto_historico_log ?? 'configurador'
 
       // ── Gating Cadeia 2 — `<slug>:historico:ver` ──────────────────────────
       // SUPER_ADMIN / ADMIN / MASTER tem bypass (Mandamento 04). PADRAO/FORNECEDOR
-      // precisa de pelo menos UMA permissao `<slug>:historico:ver` em qualquer
-      // workspace da organizacao. Sem permissao, 403 ruidoso (Mandamento 08).
+      // precisa de permissao `configurador:historico:ver` (default na tela do
+      // Configurador) ou `<slug>:historico:ver` quando filtro por produto na URL.
       if (!req.auth?.tipo_usuario || !req.auth?.id_usuario || !req.auth?.id_organizacao) {
         return next(new AppError('Autenticacao necessaria', 401, 'UNAUTHORIZED'))
       }
       if (!temBypassPermissao(req.auth)) {
-        if (!id_produto_historico_log) {
-          return next(new AppError(
-            'STANDARD/FORNECEDOR deve filtrar Historico por produto (id_produto_historico_log obrigatorio)',
-            400,
-            'PRODUTO_REQUIRED',
-          ))
-        }
         const permitido = await servicoPermissaoUsuario.verificarPermissaoEmAlgumWorkspace({
           id_organizacao: req.auth.id_organizacao,
           id_usuario:     req.auth.id_usuario,
-          slug_produto:   id_produto_historico_log,
+          slug_produto:   idProdutoEfetivo,
           secao:          'historico',
           acao:           'ver',
         })
         if (!permitido) {
           return next(new AppError(
-            `Permissao negada: ${id_produto_historico_log}:historico:ver`,
+            `Permissao negada: ${idProdutoEfetivo}:historico:ver`,
             403,
             'FORBIDDEN_PERMISSION',
           ))
@@ -105,14 +99,16 @@ historicoOrganizacaoRouter.get(
       if (search) params.set('search', search)
       if (from_date) params.set('startDate', from_date)
       if (to_date) params.set('endDate', to_date)
-      if (id_produto_historico_log) params.set('id_produto_historico_log', id_produto_historico_log)
+      params.set('id_produto_historico_log', idProdutoEfetivo)
 
       const authorization = req.headers.authorization
       if (!authorization) {
         return next(new AppError('Authorization ausente', 401, 'UNAUTHORIZED'))
       }
 
-      const internalBaseUrl = `http://localhost:${process.env.PORT ?? 8005}`
+      const internalBaseUrl =
+        process.env.CONFIGURADOR_BASE_URL ??
+        `http://localhost:${process.env.PORT ?? 8005}`
       const fetchUrl = `${internalBaseUrl}/api/v1/historico-global/logs?${params.toString()}`
 
       const response = await fetch(fetchUrl, {

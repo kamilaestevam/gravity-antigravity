@@ -156,6 +156,8 @@ organizacoesRouter.patch('/me', requireAuth, requireConfiguradorMutation, async 
       tipo_ator_historico_log: 'USUARIO',
       id_ator_historico_log: req.auth.id_usuario,
       nome_ator_historico_log: req.auth.nome_usuario,
+      id_usuario: req.auth.id_usuario,
+      id_produto_historico_log: 'configurador',
       modulo_historico_log: 'configuracao',
       tipo_recurso_historico_log: 'Organizacao',
       id_recurso_historico_log: req.auth.id_organizacao,

@@ -140,12 +140,24 @@ app.get('/health', async (_req, res) => {
     dbStatus = 'error'
   }
 
-  const httpStatus = dbStatus === 'ok' ? 200 : 503
+  let auditWorker: 'ok' | 'degraded' | 'down' = 'down'
+  if (process.env.ORGANIZACAO_DATABASE_URL) {
+    try {
+      const { isPgBossInitialized } = await import('../../servicos-plataforma/historico-global/server/queue/pg-boss.js')
+      auditWorker = isPgBossInitialized() ? 'ok' : 'degraded'
+    } catch {
+      auditWorker = 'degraded'
+    }
+  }
+
+  const degraded = dbStatus !== 'ok' || auditWorker === 'degraded'
+  const httpStatus = degraded ? 503 : 200
   res.status(httpStatus).json({
-    status: dbStatus === 'ok' ? 'ok' : 'degraded',
+    status: degraded ? 'degraded' : 'ok',
     service: 'configurador',
     port: PORT,
     db: dbStatus,
+    audit_worker: auditWorker,
     timestamp: new Date().toISOString(),
   })
 })
@@ -224,6 +236,9 @@ app.use('/api/v1/internal/smart-read', smartReadVinculoInternalRouter)
 // sempre que SUPER_ADMIN/ADMIN ativa o header `x-organizacao-override`.
 import { adminOrganizacaoOverrideAuditRouter } from './routes/admin-organizacao-override-audit.js'
 app.use('/api/v1/internal/admin', adminOrganizacaoOverrideAuditRouter)
+
+import { historicoInternalIngestRouter } from './routes/historico-internal-ingest.js'
+app.use('/api/v1/internal/historico', historicoInternalIngestRouter)
 
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 

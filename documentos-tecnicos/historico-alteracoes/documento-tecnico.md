@@ -1,12 +1,13 @@
 # Histórico de Alterações — Documento Técnico
 
-> **Versão:** 1.1 — Onda 2  
+> **Versão:** 1.2 — Onda A (ingestão S2S + persistAuditEvent)  
 > **Serviço:** `historico-global`  
 > **Porta:** 8005 (montado no processo do Configurador)  
 > **Mounts:**
 >  - `/api/v1/admin/historico-global` — superfície completa (ingestão, export, alert-rules, LGPD). Exige `requireAuth + requireGravityAdmin`. **`GET /logs` é interceptado pelo proxy `historicoGlobalAdminRouter`** (`configurador/server/routes/historico-global-admin.ts`), que enriquece cada item com `email_ator_historico_log` via lookup batch em `prisma.usuario` (banco Configurador, separado do banco do `historico_log`). Demais rotas (`/logs/:id`, `/logs/export`, `/alerts`, `/alert-rules`, `/lgpd`) caem direto no `historicoRouter` do upstream pelo segundo mount.
 >  - `/api/v1/historico-global` — sub-router somente leitura (`historicoReadOnlyRouter`: `GET /logs`, `GET /logs/:id`). Exige `requireAuth` apenas. Auto-escopo por `id_organizacao` via `visibilityFilter` no controller; Mandamento 04 honrado para `SUPER_ADMIN`/`ADMIN`.
->  - `/api/v1/historico-organizacao` — proxy fino para a página workspace, aplica ACL Prisma → contrato FE. Também enriquece com `email_ator_historico_log`.
+>  - `/api/v1/historico-organizacao` — proxy fino para a página workspace, aplica ACL Prisma → contrato FE. Também enriquece com `email_ator_historico_log`. Default `id_produto_historico_log=configurador` na tela do Configurador.
+>  - `/api/v1/internal/historico/logs` — ingestão S2S (`requireInternalKey` + `IngestHistorySchema` → `AuditService.log`). Usada por `persistAuditEvent` quando o processo não tem `ORGANIZACAO_DATABASE_URL` local.
 > **Banco:** tenant-db (PostgreSQL via Prisma)  
 > **Fila:** pg-boss (PostgreSQL-backed job queue)
 
@@ -613,32 +614,39 @@ export async function auditedJob(
 
 ## 13. audit-client — Uso em Produtos
 
-Para produtos que não têm acesso direto ao AuditService (isolamento), existe o `audit-client`:
+Para produtos que não têm acesso direto ao AuditService (isolamento), existe o `audit-client`, que delega a `persistAuditEvent`:
 
 ```ts
-// servicos-global/tenant/historico-global/src/audit-client.ts
-
-import { auditLog } from '../historico-global/src/audit-client'
+import { auditLog } from '@gravity/historico/audit-client'
 
 // Fire-and-forget — nunca lança, nunca bloqueia
 auditLog({
-  tenant_id: req.auth.tenantId,
-  actor_type: 'USER',
-  actor_id: req.auth.userId,
-  actor_name: req.auth.userName,
-  module: 'cotacao',
-  resource_type: 'Cotação',
-  resource_id: cotacaoId,
-  action: 'APPROVE',
-  action_detail: `Cotação #${cotacaoId} aprovada`,
-  before: cotacaoAntes,
-  after: cotacaoDepois,
+  id_organizacao: req.auth.id_organizacao,
+  tipo_ator_historico_log: 'USUARIO',
+  id_ator_historico_log: req.auth.id_usuario,
+  nome_ator_historico_log: req.auth.nome_usuario,
+  id_produto_historico_log: 'pedido',
+  modulo_historico_log: 'pedido',
+  tipo_recurso_historico_log: 'Pedido',
+  id_recurso_historico_log: pedidoId,
+  acao_historico_log: 'CRIAR',
+  detalhe_acao_historico_log: `Criou pedido #${pedidoId}`,
 })
 ```
 
+### Caminho de gravação (`persistAuditEvent`)
+
+| Cenário | Caminho |
+|---------|---------|
+| Processo com `ORGANIZACAO_DATABASE_URL` (Configurador, sidecars com banco tenant) | `AuditService.log` → pg-boss → worker |
+| Processo sem banco local (produto isolado) | `POST /api/v1/internal/historico/logs` no Configurador (`x-chave-interna-servico` + `x-id-organizacao`) |
+
 **Variáveis de ambiente:**  
-- `HISTORICO_URL` ou `CONFIGURADOR_URL` — URL do servidor (default: `http://localhost:8005`)
-- `CHAVE_INTERNA_SERVICO` — chave de autenticação inter-serviço
+- `HISTORICO_URL`, `CONFIGURADOR_BASE_URL` ou `CONFIGURADOR_URL` — base URL para fallback HTTP (default: `http://localhost:8005`)
+- `CHAVE_INTERNA_SERVICO` — chave S2S (`x-chave-interna-servico`)
+- `ORGANIZACAO_DATABASE_URL` — quando presente, gravação direta na fila local (sem HTTP)
+
+**Health do Configurador:** `GET /health` expõe `audit_worker: ok | degraded | down` (pg-boss inicializado). Retorna `503` se `db` ou `audit_worker` degradados.
 
 ---
 
@@ -652,7 +660,8 @@ auditLog({
 | `WHATSAPP_SERVICE_URL` | Não | URL do serviço de WhatsApp para notificações |
 | `NOTIFICACOES_SERVICE_URL` | Não | URL do serviço de notificações in-app |
 | `CONFIGURADOR_URL` | Não | Para securityAuditLogger postar no painel de segurança |
-| `HISTORICO_URL` | Não | Para audit-client (default = CONFIGURADOR_URL) |
+| `CONFIGURADOR_BASE_URL` | Não | Proxy interno `historico-organizacao` → `historico-global` (default: `http://localhost:8005`) |
+| `HISTORICO_URL` | Não | Base URL do `persistAuditEvent` HTTP fallback (default = CONFIGURADOR_BASE_URL / CONFIGURADOR_URL) |
 | `ADMIN_URL` | Não | Para links no email de alerta |
 
 ---
@@ -689,7 +698,7 @@ Funcionalidades:
 
 Funcionalidades:
 - Visão filtrada pela visibilidade do `tipo_usuario` (`montarFiltroVisibilidadeHistoricoLog`)
-- Aceita query param `?id_produto_historico_log=<slug>` — pre-aplicado pelo hyperlink de cada produto
+- Aceita query param `?id_produto_historico_log=<slug>` — pre-aplicado pelo hyperlink de cada produto; na rota do Configurador o default é `configurador`
 - Sem gestão de alertas (responsabilidade do admin)
 - Endpoint: `/api/v1/historico-organizacao` (proxy fino + gating Cadeia 2)
 - Gating: STANDARD/FORNECEDOR sem `<slug>:historico:ver` → 403 FORBIDDEN_PERMISSION

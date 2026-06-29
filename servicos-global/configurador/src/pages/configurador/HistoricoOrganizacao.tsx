@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { formatarDataHistorico, rotuloAcao } from '../../utils/historico-helpers'
+import { extractApiError, extractCatchError } from '../../utils/extract-api-error'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
@@ -189,8 +190,11 @@ export function HistoricoOrganizacao() {
       })
 
       if (!res.ok) {
-        const body = await res.json().catch(() => null) as { message?: string; error?: string } | null
-        setErroApi(body?.message ?? body?.error ?? `Erro ao carregar histórico (${res.status})`)
+        const mensagem = await extractApiError(
+          res,
+          `Erro ao carregar histórico (${res.status})`,
+        )
+        setErroApi(mensagem)
         setLogs([])
         setTotal(0)
         setHasMore(false)
@@ -210,7 +214,7 @@ export function HistoricoOrganizacao() {
       setTotal(parsed.data.total)
       setHasMore(parsed.data.hasMore)
     } catch (err) {
-      setErroApi(err instanceof Error ? err.message : 'Falha de rede ao carregar histórico')
+      setErroApi(extractCatchError(err, 'Falha de rede ao carregar histórico'))
       setLogs([])
       setTotal(0)
       setHasMore(false)

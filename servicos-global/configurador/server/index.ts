@@ -151,7 +151,7 @@ app.get('/health', async (_req, res) => {
   }
 
   const degraded = dbStatus !== 'ok' || auditWorker === 'degraded'
-  const httpStatus = degraded ? 503 : 200
+  const httpStatus = dbStatus !== 'ok' ? 503 : 200
   res.status(httpStatus).json({
     status: degraded ? 'degraded' : 'ok',
     service: 'configurador',

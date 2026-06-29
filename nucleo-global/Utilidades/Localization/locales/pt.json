@@ -2,7 +2,7 @@
   "university": {
     "modulo_nome": "Gravity University",
     "nav": { "academy": "Onboarding", "minha_jornada": "Minha Jornada", "docs": "Manuais e Vídeos", "builders": "Builders" },
-    "badge": { "em_breve": "Em Breve", "restrito": "Restrito" },
+    "badge": { "em_breve": "Em Breve", "restrito": "Restrito", "nova_empresa": "Nova empresa", "convidar_usuario": "Convidar usuário" },
     "produto": {
       "login": "Login",
       "admin": "Admin",

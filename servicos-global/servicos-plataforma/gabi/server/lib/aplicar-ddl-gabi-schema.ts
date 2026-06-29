@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url'
 import type { Client } from 'pg'
 import { Client as PgClient } from 'pg'
 import { AppError } from './errors.js'
+import { aplicarDdlGabiMinimoQualificado } from './gabi-ddl-minimo-qualificado.js'
+import { resolverUrlOrganizacaoGabi } from './resolver-url-organizacao-gabi.js'
 
 export const MIGRATION_GABI_DDD = '20260628170000_gabi_ddd_tabelas_conversa'
 
@@ -33,6 +35,9 @@ function carregarSqlMigrationGabi(): { sql: string; checksum: string } {
     resolve(
       process.cwd(),
       `servicos-global/servicos-plataforma/prisma/migrations/${MIGRATION_GABI_DDD}/migration.sql`,
+    ),
+    resolve(
+      `/app/servicos-global/servicos-plataforma/prisma/migrations/${MIGRATION_GABI_DDD}/migration.sql`,
     ),
   ]
 
@@ -99,6 +104,7 @@ async function aplicarMigrationNoSchema(
     }
 
     await client.query(sql)
+    await aplicarDdlGabiMinimoQualificado(client, schemaName)
 
     if (!drift) {
       await client.query(
@@ -123,11 +129,19 @@ async function aplicarMigrationNoSchema(
 
 /** Aplica migration GABI no schema indicado (idempotente + repara drift public/tenant). */
 export async function aplicarDdlGabiNoSchemaNome(
-  organizacaoUrl: string,
+  organizacaoUrl: string | undefined,
   schemaName: string,
 ): Promise<'ok' | 'skip' | 'repair'> {
+  const url = organizacaoUrl ?? resolverUrlOrganizacaoGabi()
+  if (!url) {
+    throw new AppError(
+      'URL do banco organização ausente (ORGANIZACAO_DATABASE_URL / DATABASE_URL)',
+      503,
+      'GABI_DB_UNAVAILABLE',
+    )
+  }
   const { sql, checksum } = carregarSqlMigrationGabi()
-  const client = new PgClient({ connectionString: organizacaoUrl })
+  const client = new PgClient({ connectionString: url })
   await client.connect()
   try {
     return await aplicarMigrationNoSchema(

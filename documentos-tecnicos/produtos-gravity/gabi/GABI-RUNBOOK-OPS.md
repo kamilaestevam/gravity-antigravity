@@ -34,11 +34,13 @@
 
 Tabelas `gabi_conversa` ausentes no schema `tenant_<org>` (migrate deploy só grava em `public`).
 
-**Causa comum (drift):** `migrate-all-tenants` gravou a migration em `_prisma_migrations` do tenant, mas o SQL antigo via `to_regclass('gabi_conversa')` via tabela em `public` e **não criou** no `tenant_*`. O lazy DDL via skip achava que já estava aplicado.
+**Causa comum (drift):** `migrate-all-tenants` gravou a migration em `_prisma_migrations` do tenant, mas o SQL antigo via `to_regclass('gabi_conversa')` via tabela em `public` e **não criou** no `tenant_*`.
 
-1. Logs boot: `[ddl-gabi-organizacao] … DRIFT REPARADO` ou lazy `[GABI/DDL] drift reparado`
+**Hotfix runtime (#531+):** DDL mínimo schema-qualificado (`tenant_xxx.gabi_conversa`) + verificação Prisma após DDL; `ORGANIZACAO_DATABASE_URL` espelhada em `DATABASE_URL` no boot do sidecar.
+
+1. Logs: `[GABI/DDL] drift reparado` ou `DDL mínimo qualificado` ou `Prisma não acessa gabi_conversa`
 2. Manual: `ORGANIZACAO_DATABASE_URL=... CONFIGURADOR_DATABASE_URL=... npx tsx scripts/ativamente/aplicar-migration-gabi-organizacao.ts`
-3. Sidecar reaplica DDL na 1ª mensagem se boot falhou (`[GABI/DDL] Tabelas garantidas`).
+3. Sidecar reaplica DDL na 1ª mensagem (`[GABI/DDL] Tabelas garantidas`).
 
 ### Widget Hub: “GABI indisponível”
 

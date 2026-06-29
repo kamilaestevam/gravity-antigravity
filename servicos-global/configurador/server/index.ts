@@ -927,9 +927,14 @@ if (process.env.NODE_ENV !== 'test') {
   }
 
   // Sidecar 7: GABI AI (porta 8009) — Monitor LLM admin e uso cross-org
-  if (process.env.ORGANIZACAO_DATABASE_URL) {
+  const orgUrlGabi =
+    process.env.ORGANIZACAO_DATABASE_URL ??
+    process.env.SERVICOS_PLATAFORMA_DATABASE_URL ??
+    process.env.TENANT_DATABASE_URL
+  if (orgUrlGabi) {
+    process.env.ORGANIZACAO_DATABASE_URL = orgUrlGabi
     process.env.PORT = '8009'
-    process.env.DATABASE_URL = process.env.ORGANIZACAO_DATABASE_URL
+    process.env.DATABASE_URL = orgUrlGabi
     process.env.CONFIGURADOR_URL = configuradorLoopbackUrl
     process.env.GABI_SIDECAR = '1'
     try {

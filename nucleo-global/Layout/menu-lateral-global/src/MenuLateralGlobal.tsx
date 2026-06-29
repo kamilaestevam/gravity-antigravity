@@ -108,6 +108,23 @@ function resolverRotuloTenantSidebar(tenantName: string, tenantPlan: string) {
   }
 }
 
+function navItemMatchesPath(itemTo: string | undefined, pathname: string, search: string): boolean {
+  if (!itemTo) return false
+  if (itemTo.includes('?')) {
+    const [toPath, toQuery] = itemTo.split('?')
+    if (pathname !== toPath) return false
+    const toParams = new URLSearchParams(toQuery)
+    const currentParams = new URLSearchParams(search)
+    for (const [key, val] of toParams.entries()) {
+      if (currentParams.get(key) !== val) return false
+    }
+    return true
+  }
+  if (pathname === itemTo) return true
+  if (pathname.startsWith(`${itemTo}/`)) return true
+  return false
+}
+
 export function MenuLateralGlobal({
   tenantName,
   tenantPlan,
@@ -266,7 +283,10 @@ export function MenuLateralGlobal({
     }
 
     const hasChildren = item.children && item.children.length > 0
-    const initiallyExpanded = hasChildren && item.children?.some(child => location.pathname === child.to)
+    const initiallyExpanded = hasChildren && (
+      navItemMatchesPath(item.to, location.pathname, location.search) ||
+      item.children?.some(child => navItemMatchesPath(child.to, location.pathname, location.search))
+    )
     const isExpanded = expandedItems[item.label] !== undefined ? expandedItems[item.label] : initiallyExpanded
     
     // Se for um item com submenus

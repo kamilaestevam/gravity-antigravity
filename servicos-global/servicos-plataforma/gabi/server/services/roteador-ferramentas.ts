@@ -16,16 +16,15 @@ import { AppError } from '../lib/errors.js'
 
 // ── Portas dos servicos ─────────────────────────────────────────────────────
 
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY || process.env.CHAVE_INTERNA_SERVICO || 'gravity-internal'
 const TIMEOUT_MS = 10_000
 
 const SERVICE_URLS: Record<string, string> = {
-  pedido:        process.env.PEDIDO_SERVICE_URL        || 'http://localhost:8030',
-  configurador:  process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8005',
-  admin:         process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8005',
-  hub:           process.env.CONFIGURADOR_SERVICE_URL  || 'http://localhost:8005',
-  store:         process.env.STORE_SERVICE_URL         || 'http://localhost:5181',
-  gabi:          process.env.GABI_SERVICE_URL          || 'http://localhost:8009',
+  pedido: process.env.PEDIDO_SERVICE_URL ?? 'http://127.0.0.1:8030',
+  configurador: process.env.CONFIGURADOR_SERVICE_URL ?? 'http://127.0.0.1:8005',
+  admin: process.env.CONFIGURADOR_SERVICE_URL ?? 'http://127.0.0.1:8005',
+  hub: process.env.CONFIGURADOR_SERVICE_URL ?? 'http://127.0.0.1:8005',
+  store: process.env.STORE_SERVICE_URL ?? 'http://127.0.0.1:5181',
+  gabi: process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009',
 }
 
 // ── Contexto completo para execucao ─────────────────────────────────────────
@@ -110,7 +109,7 @@ async function chamarServico(
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'x-chave-interna-servico': INTERNAL_KEY,
+    'x-chave-interna-servico': process.env.CHAVE_INTERNA_SERVICO ?? '',
     'x-id-organizacao': ctx.id_organizacao,
     'x-id-usuario': ctx.id_usuario,
     'x-tipo-usuario': ctx.tipo_usuario,

@@ -60,6 +60,20 @@ export interface KnowledgeResult {
   ragMeta: KbSearchMeta | null
 }
 
+/** Resolve KB/RAG para injetar no system prompt (chat v1 e agente v2). */
+export async function resolverKnowledgeParaPrompt(
+  query: string,
+  page?: string,
+): Promise<{ knowledgeContent: string; isRag: boolean }> {
+  try {
+    const { knowledge, ragMeta } = await selectKnowledge(query, page)
+    return { knowledgeContent: knowledge, isRag: ragMeta !== null }
+  } catch (err) {
+    console.warn('[GABI/chat] selectKnowledge falhou:', (err as Error).message)
+    return { knowledgeContent: '', isRag: false }
+  }
+}
+
 export async function selectKnowledge(query: string, page?: string): Promise<KnowledgeResult> {
   const ragOk = await verificarRagDisponivel()
 
@@ -328,7 +342,13 @@ export type SystemPromptV2Params = SystemPromptParams & {
 export function buildSystemPromptV2(params: SystemPromptV2Params): string {
   const basePrompt = buildSystemPrompt(params)
 
-  const secoes: string[] = [basePrompt]
+  const secoes: string[] = [
+    `=== NOMENCLATURA SMART DOCS (TODAS AS RESPOSTAS) ===
+O produto de leitura documental chama-se **Smart Docs** na interface Gravity.
+NUNCA diga "Smart Read" ao usuario — nome descontinuado (rebrand 2026).
+Slug smart-read e rotas /smart-read sao apenas tecnicos; nao exponha ao usuario.`,
+    basePrompt,
+  ]
 
   if (params.memorias) {
     secoes.push(params.memorias)

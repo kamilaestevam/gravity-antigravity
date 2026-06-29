@@ -929,7 +929,7 @@ Faixa superior de `/hub` (`SelecionarWorkspace`) alinhada à Gravity Store.
 | Peças SVG | `src/components/puzzle-stack-produtos-gravity.tsx` (`escala="hub"`, `embutidoParidadeStore`) |
 | Carrossel | `store-puzzle-carousel.tsx` (reuso Store) |
 
-**UX:** faixa produtos em **largura total**; painel Workspaces removido da linha superior. Ícones SSOT `@nucleo/logo-produtos` a 20px no círculo; logos Bid Frete/Bid Câmbio/Smart Read com `variant: 'card'`; interior neutro + contorno na cor do produto; cards **112×100px**; centralização no quadrado 120×90px; **4px** entre subtítulo e puzzle; contador do meter com tipografia do subtítulo; peça **BID Fornecedor** (`pecasExtras`, `slugVisual: 'bid-frete'`) imediatamente após Bid Frete Internacional quando `visao_fornecedor:cotar`.
+**UX:** faixa produtos em **largura total**; painel Workspaces removido da linha superior. Ícones SSOT `@nucleo/logo-produtos` a 20px no círculo; logos Bid Frete/Bid Câmbio/Smart Docs com `variant: 'card'`; interior neutro + contorno na cor do produto; cards **112×100px**; centralização no quadrado 120×90px; **4px** entre subtítulo e puzzle; contador do meter com tipografia do subtítulo; peça **BID Fornecedor** (`pecasExtras`, `slugVisual: 'bid-frete'`) imediatamente após Bid Frete Internacional quando `visao_fornecedor:cotar`.
 
 **Ordem puzzle:** `shared/stack-order-produtos-gravity.ts` — única SSOT para Hub, Store e API vitrine (`ordenarSlugsPuzzleStore`).
 

@@ -5,7 +5,11 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { AppError } from '../lib/errors.js'
-import { getConversationContext, buildSystemPromptV2 } from '../services/chat.js'
+import {
+  getConversationContext,
+  buildSystemPromptV2,
+  resolverKnowledgeParaPrompt,
+} from '../services/chat.js'
 import { executarAgente, confirmarAcaoPendente } from '../services/orquestrador-agente.js'
 import { carregarMemorias, formatarMemoriasParaPrompt, salvarMemoria } from '../services/servico-memoria.js'
 import { consultarErrosRecentes, diagnosticarProblema } from '../services/servico-diagnostico.js'
@@ -82,14 +86,16 @@ agenteRouter.post('/api/v1/gabi/agente/chat', async (req, res, next) => {
     const toolsPermitidas = filtrarToolsPorPermissao(tipoUsuario)
     const toolsDisponiveis = toolsPermitidas.map((t) => t.id)
 
+    const rag = await resolverKnowledgeParaPrompt(message, page)
+
     const sysPrompt = buildSystemPromptV2({
       userName: userId,
       userRole: tipoUsuario,
       tenantName: tenantId,
       activeServices: ['Gabi IA'],
       currentPage: page,
-      knowledgeContent: '',
-      isRag: false,
+      knowledgeContent: rag.knowledgeContent,
+      isRag: rag.isRag,
       tipoUsuario,
       memorias: formatarMemoriasParaPrompt(memorias),
       toolsDisponiveis,
@@ -223,14 +229,16 @@ agenteRouter.get('/api/v1/gabi/agente/chat/stream', async (req, res) => {
     const toolsPermitidas = filtrarToolsPorPermissao(tipoUsuario)
     const toolsDisponiveis = toolsPermitidas.map((t) => t.id)
 
+    const rag = await resolverKnowledgeParaPrompt(message, page)
+
     const sysPrompt = buildSystemPromptV2({
       userName: userId,
       userRole: tipoUsuario,
       tenantName: tenantId,
       activeServices: ['Gabi IA'],
       currentPage: page,
-      knowledgeContent: '',
-      isRag: false,
+      knowledgeContent: rag.knowledgeContent,
+      isRag: rag.isRag,
       tipoUsuario,
       memorias: formatarMemoriasParaPrompt(memorias),
       toolsDisponiveis,

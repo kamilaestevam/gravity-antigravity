@@ -1,4 +1,7 @@
 // server/services/execTool.ts
+// @deprecated Onda 2 — caminho legado do chat v1 (gemini.ts → execTool).
+// Novas tools e WRITE/READ devem usar catalogo-ferramentas.ts + roteador-ferramentas.ts (agente v2).
+// Remocao prevista na Onda 4 apos deprecar chat v1.
 // Executor de tools da GABI — roteamento por nome para o conector correto
 // Segue o padrão do Journey: switch por nome + contexto do usuário injetado
 

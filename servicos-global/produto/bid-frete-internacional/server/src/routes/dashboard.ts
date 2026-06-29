@@ -117,6 +117,32 @@ router.get('/insights', async (req: Request, res: Response, next: NextFunction) 
 router.get('/', handleKpis)
 router.get('/kpis', handleKpis)
 
+/** Resumo leve para GABI — groupBy por status, sem motorGanho/savings. */
+router.get('/resumo-gabi', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await assertWorkspacesAutorizadosNoRequest(req)
+    const filtroWorkspace = clausulaFiltroWorkspaceBidFrete(req)
+    const funil = await (req.prisma as any).cotacaoBidFreteInternacional.groupBy({
+      by: ['status_cotacao_bid_frete_internacional'],
+      where: { id_produto_gravity: 'bid-frete-internacional', ...filtroWorkspace },
+      _count: true,
+    })
+    const por_status = (
+      funil as Array<{ status_cotacao_bid_frete_internacional: string; _count: number | { _all?: number } }>
+    ).map((f) => ({
+      status: f.status_cotacao_bid_frete_internacional,
+      count: extrairCountGroupBy(f),
+    }))
+    const total_cotacoes = por_status.reduce((acc, s) => acc + s.count, 0)
+    const em_andamento = por_status
+      .filter((s) => (STATUS_ANDAMENTO as readonly string[]).includes(s.status))
+      .reduce((acc, s) => acc + s.count, 0)
+    res.json({ total_cotacoes, em_andamento, por_status })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // GET /calendario — Alertas do calendario
 router.get('/calendario', async (req: Request, res: Response, next: NextFunction) => {
   try {

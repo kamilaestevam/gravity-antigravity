@@ -42,12 +42,17 @@ import { startCronJobs } from './services/tarefas-agendadas.js'
 import { rateLimitPresets } from '../../../../servicos-plataforma/middleware/rateLimiter.js'
 import { apiObservability } from '../../../../servicos-plataforma/middleware/apiObservability.js'
 import { createProductAuditPlugin } from '../../../../servicos-plataforma/historico-global/src/product-audit-plugin.js'
+import {
+  criarSidecarListenReady,
+  registrarErroListenSidecar,
+} from '../../../../servicos-plataforma/middleware/sidecar-listen-ready.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const app = express()
 const PORT = process.env.PORT ?? 8023
+const BID_FRETE_SIDECAR = process.env.BID_FRETE_SIDECAR === '1'
 
 // --- 0. Security Headers ---
 app.use(helmet({
@@ -192,20 +197,18 @@ app.use((err: Error & { statusCode?: number; code?: string; meta?: unknown }, _r
 })
 
 // --- 12. Inicializacao ---
+const listenHandles = criarSidecarListenReady(BID_FRETE_SIDECAR, Number(PORT), 'BidFrete')
+export const sidecarListenReady = listenHandles.sidecarListenReady
+
 if (process.env.NODE_ENV !== 'test') {
   const bidServer = app.listen(PORT, () => {
-    console.log(`[BidFrete] Servidor rodando na porta ${PORT}${process.env.BID_FRETE_SIDECAR === '1' ? ' (sidecar)' : ''}`)
-    if (process.env.BID_FRETE_SIDECAR !== '1') {
+    console.log(`[BidFrete] Servidor rodando na porta ${PORT}${BID_FRETE_SIDECAR ? ' (sidecar)' : ''}`)
+    listenHandles.aoSubirListen()
+    if (!BID_FRETE_SIDECAR) {
       startCronJobs()
     }
   })
-  bidServer.on('error', (err: NodeJS.ErrnoException) => {
-    if (process.env.BID_FRETE_SIDECAR === '1') {
-      console.error('[BidFrete] Falha ao escutar porta em modo sidecar (não derruba Configurador):', err.message)
-      return
-    }
-    throw err
-  })
+  registrarErroListenSidecar(bidServer, listenHandles, BID_FRETE_SIDECAR, Number(PORT), 'BidFrete')
 }
 
 export { app }

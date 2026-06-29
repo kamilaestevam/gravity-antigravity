@@ -91,16 +91,15 @@ function parseArgs(): {
 // Schema name (espelha packages/tenant-resolver/src/schema-name.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const CUID_REGEX   = /^[a-z][a-z0-9]{22,24}$/
-const SCHEMA_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/
+import {
+  idOrganizacaoDeNomeSchema,
+  nomeSchemaOrganizacao,
+} from './lib/nome-schema-organizacao.js'
 
 function toSchemaName(tenantId: string): string {
-  if (!CUID_REGEX.test(tenantId)) {
-    throw new Error(`tenantId não é CUID válido: "${tenantId}"`)
-  }
-  const name = `tenant_${tenantId}`
-  if (!SCHEMA_REGEX.test(name)) {
-    throw new Error(`schemaName inválido para tenantId "${tenantId}"`)
+  const name = nomeSchemaOrganizacao(tenantId)
+  if (!name) {
+    throw new Error(`tenantId não é CUID/UUID válido: "${tenantId}"`)
   }
   return name
 }
@@ -118,8 +117,8 @@ async function descobrirTenantsDoBancoProduto(produtoUrl: string): Promise<Tenan
     `)
     return rows
       .map(({ schema_name }) => {
-        const id = schema_name.replace(/^tenant_/, '')
-        if (!CUID_REGEX.test(id)) return null
+        const id = idOrganizacaoDeNomeSchema(schema_name)
+        if (!id) return null
         return { id, name: schema_name }
       })
       .filter((t): t is Tenant => t !== null)
@@ -444,8 +443,8 @@ async function main(): Promise<void> {
   // 3. Rodar migrations em paralelo
   // Filtra IDs manuais/legados antes de processar
   const validTenants = tenants.filter(t => {
-    if (!CUID_REGEX.test(t.id)) {
-      console.warn(`  ⚠️   IGNORADO id="${t.id}" (${t.name}) — não é CUID válido (dado legado de seed)`)
+    if (!nomeSchemaOrganizacao(t.id)) {
+      console.warn(`  ⚠️   IGNORADO id="${t.id}" (${t.name}) — não é CUID/UUID válido`)
       return false
     }
     return true

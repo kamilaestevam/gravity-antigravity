@@ -105,6 +105,13 @@ if [ -n "${ORGANIZACAO_DATABASE_URL:-}" ]; then
   else
     echo "[start-site] AVISO: CONFIGURADOR_DATABASE_URL ausente — migrate-all-tenants (tenant) ignorado; GABI pode falhar."
   fi
+  echo "[start-site] Aplicando DDL GABI (gabi_conversa) em cada schema tenant_*..."
+  if ORGANIZACAO_DATABASE_URL="$ORGANIZACAO_DATABASE_URL" CONFIGURADOR_DATABASE_URL="${CONFIGURADOR_DATABASE_URL:-}" \
+    npx tsx scripts/ativamente/aplicar-migration-gabi-organizacao.ts; then
+    echo "[start-site] DDL GABI em tenant_* concluído."
+  else
+    echo "[start-site] ERRO: DDL GABI em tenant_* falhou — primeira mensagem Gabi aplica DDL lazy; ver logs."
+  fi
 else
   echo "[start-site] AVISO: ORGANIZACAO_DATABASE_URL ausente — migrations servicos-plataforma ignoradas."
   echo "[start-site] Sidecars api-cockpit/GABI e Admin API Cockpit ficarão degradados até configurar a variável."

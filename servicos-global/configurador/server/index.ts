@@ -17,16 +17,24 @@ dotenv.config({ path: resolve(__dir, '../../../.env.local') })
 // ATENÇÃO: __dir aponta para server/ — por isso '../.env' e não '.env'
 dotenv.config({ path: resolve(__dir, '../.env') })
 
-// Banco servicos-plataforma (api-cockpit, gabi, historico) — alias comum no Railway
-if (!process.env.ORGANIZACAO_DATABASE_URL) {
-  const orgDb =
-    process.env.SERVICOS_PLATAFORMA_DATABASE_URL ??
-    process.env.TENANT_DATABASE_URL ??
-    ''
-  if (orgDb) {
-    process.env.ORGANIZACAO_DATABASE_URL = orgDb
-    console.log('[configurador] ORGANIZACAO_DATABASE_URL derivada de alias de ambiente')
+// Banco servicos-plataforma (api-cockpit, gabi, historico, notificacoes) — alias Railway
+import {
+  sincronizarEnvOrganizacao,
+  urlsOrganizacaoECconfiguradorCoincidem,
+} from './lib/resolver-url-organizacao.js'
+
+const orgUrlBoot = sincronizarEnvOrganizacao(process.env.NODE_ENV !== 'production')
+if (orgUrlBoot) {
+  console.log('[configurador] ORGANIZACAO_DATABASE_URL resolvida no boot')
+  if (urlsOrganizacaoECconfiguradorCoincidem()) {
+    console.warn(
+      '[configurador] ORGANIZACAO_DATABASE_URL === banco configurador — tabelas api_token/log_requisicao_api podem faltar',
+    )
   }
+} else if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
+  console.error(
+    '[configurador] ORGANIZACAO_DATABASE_URL ausente em produção — api-cockpit, notificacoes e histórico degradados',
+  )
 }
 
 // Fail-fast: validar env vars criticas antes de qualquer import
@@ -908,8 +916,20 @@ if (process.env.NODE_ENV !== 'test') {
     console.error('[configurador] API Cockpit preflight falhou:', msg)
     _sidecarStatus['api-cockpit'] = { ok: false, error: msg }
   } else {
+    const { verificarTabelaApiTokenOrganizacao } = await import(
+      './lib/api-cockpit-leitura-local.js'
+    )
+    const tabelaOk = await verificarTabelaApiTokenOrganizacao()
+    if (!tabelaOk) {
+      const msg =
+        'Tabela api_token ausente em ORGANIZACAO_DATABASE_URL — rode migrations plataforma (api-cockpit)'
+      console.error('[configurador] API Cockpit preflight:', msg)
+      _sidecarStatus['api-cockpit'] = { ok: false, error: msg }
+    } else {
     process.env.PORT = '8016'
     process.env.DATABASE_URL =
+      process.env.ORGANIZACAO_DATABASE_URL?.trim() || dbOriginal
+    process.env.ORGANIZACAO_DATABASE_URL =
       process.env.ORGANIZACAO_DATABASE_URL?.trim() || dbOriginal
     process.env.API_COCKPIT_SIDECAR = '1'
     try {
@@ -923,6 +943,7 @@ if (process.env.NODE_ENV !== 'test') {
       const msg = err instanceof Error ? err.stack ?? err.message : String(err)
       _sidecarStatus['api-cockpit'] = { ok: false, error: msg }
       console.error('[configurador] Falha ao iniciar sidecar API Cockpit:', msg)
+    }
     }
   }
 

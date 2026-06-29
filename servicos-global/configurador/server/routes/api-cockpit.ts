@@ -27,6 +27,10 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
 import { prisma } from '../lib/prisma.js'
+import {
+  listarApiTokensOrganizacao,
+  estatisticasLogRequisicaoApiOrganizacao,
+} from '../lib/api-cockpit-leitura-local.js'
 
 function getApiCockpitUrl(): string {
   const url = process.env.API_COCKPIT_SERVICE_URL || 'http://127.0.0.1:8016'
@@ -136,17 +140,30 @@ apiCockpitRouter.get('/log-requisicao-api', async (req, res) => {
 
 apiCockpitRouter.get('/log-requisicao-api/estatisticas', async (req, res) => {
   try {
-    // Workspace: filtra por organizacao do usuario logado.
     const idOrganizacao = req.auth?.id_organizacao
     if (!idOrganizacao) {
       return res.status(401).json({ error: 'JWT sem id_organizacao' })
     }
     const params: Record<string, string> = { id_organizacao: idOrganizacao }
     if (typeof req.query.serie === 'string') params.serie = req.query.serie
-    if (typeof req.query.dias  === 'string') params.dias  = req.query.dias
-    const data = await proxyToCockpit('/estatisticas-log-requisicao-api', params)
-    res.json(data)
-} catch (err) {
+    if (typeof req.query.dias === 'string') params.dias = req.query.dias
+    try {
+      const data = await proxyToCockpit('/estatisticas-log-requisicao-api', params)
+      res.json(data)
+    } catch (proxyErr) {
+      console.warn(
+        '[api-cockpit proxy] GET /log-requisicao-api/estatisticas — fallback leitura local ORGANIZACAO:',
+        proxyErr instanceof Error ? proxyErr.message : proxyErr,
+      )
+      res.json(
+        await estatisticasLogRequisicaoApiOrganizacao({
+          id_organizacao: idOrganizacao,
+          serie: params.serie === 'diaria' ? 'diaria' : undefined,
+          dias: params.dias ? Number(params.dias) : undefined,
+        }),
+      )
+    }
+  } catch (err) {
     maskError(err, 'GET /log-requisicao-api/estatisticas')
     res.json(STATS_FALLBACK)
   }
@@ -181,17 +198,25 @@ apiCockpitRouter.get('/api-tokens', async (req, res) => {
     if (!idOrganizacao) {
       return res.status(401).json({ error: 'JWT sem id_organizacao' })
     }
-    const url = new URL(`${getApiCockpitUrl()}/api/v1/cockpit/api-tokens/`)
-    url.searchParams.set('id_organizacao', idOrganizacao)
-    const response = await fetch(url.toString(), {
-      headers: {
-        'x-chave-interna-servico': getChaveInterna(),
-        'Content-Type':   'application/json',
-      },
-      signal: AbortSignal.timeout(5_000),
-    })
-    if (!response.ok) throw new Error(`api-tokens listar ${response.status}`)
-    res.json(await response.json())
+    try {
+      const url = new URL(`${getApiCockpitUrl()}/api/v1/cockpit/api-tokens/`)
+      url.searchParams.set('id_organizacao', idOrganizacao)
+      const response = await fetch(url.toString(), {
+        headers: {
+          'x-chave-interna-servico': getChaveInterna(),
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(5_000),
+      })
+      if (!response.ok) throw new Error(`api-tokens listar ${response.status}`)
+      res.json(await response.json())
+    } catch (proxyErr) {
+      console.warn(
+        '[api-cockpit proxy] GET /api-tokens — fallback leitura local ORGANIZACAO:',
+        proxyErr instanceof Error ? proxyErr.message : proxyErr,
+      )
+      res.json(await listarApiTokensOrganizacao(idOrganizacao))
+    }
   } catch (err) {
     res.json({ tokens: [], error: maskError(err, 'GET /api-tokens') })
   }
@@ -402,10 +427,26 @@ apiCockpitAdminRouter.get('/log-requisicao-api/estatisticas', async (req, res) =
   try {
     const params: Record<string, string> = {}
     if (typeof req.query.serie === 'string') params.serie = req.query.serie
-    if (typeof req.query.dias  === 'string') params.dias  = req.query.dias
-    const data = await proxyToCockpit('/estatisticas-log-requisicao-api', Object.keys(params).length ? params : undefined)
-    res.json(data)
-} catch (err) {
+    if (typeof req.query.dias === 'string') params.dias = req.query.dias
+    try {
+      const data = await proxyToCockpit(
+        '/estatisticas-log-requisicao-api',
+        Object.keys(params).length ? params : undefined,
+      )
+      res.json(data)
+    } catch (proxyErr) {
+      console.warn(
+        '[api-cockpit proxy] GET /admin/log-requisicao-api/estatisticas — fallback leitura local:',
+        proxyErr instanceof Error ? proxyErr.message : proxyErr,
+      )
+      res.json(
+        await estatisticasLogRequisicaoApiOrganizacao({
+          serie: params.serie === 'diaria' ? 'diaria' : undefined,
+          dias: params.dias ? Number(params.dias) : undefined,
+        }),
+      )
+    }
+  } catch (err) {
     maskError(err, 'GET /admin/log-requisicao-api/estatisticas')
     res.json(STATS_FALLBACK)
   }
@@ -423,17 +464,25 @@ apiCockpitAdminRouter.get('/api-tokens', async (req, res) => {
       return res.status(400).json({ error: 'id_organizacao obrigatorio na query' })
     }
     if (!await validarOrganizacaoAlvo(idOrganizacao, res)) return
-    const url = new URL(`${getApiCockpitUrl()}/api/v1/cockpit/api-tokens/`)
-    url.searchParams.set('id_organizacao', idOrganizacao)
-    const response = await fetch(url.toString(), {
-      headers: {
-        'x-chave-interna-servico': getChaveInterna(),
-        'Content-Type':   'application/json',
-      },
-      signal: AbortSignal.timeout(5_000),
-    })
-    if (!response.ok) throw new Error(`api-tokens admin listar ${response.status}`)
-    res.json(await response.json())
+    try {
+      const url = new URL(`${getApiCockpitUrl()}/api/v1/cockpit/api-tokens/`)
+      url.searchParams.set('id_organizacao', idOrganizacao)
+      const response = await fetch(url.toString(), {
+        headers: {
+          'x-chave-interna-servico': getChaveInterna(),
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(5_000),
+      })
+      if (!response.ok) throw new Error(`api-tokens admin listar ${response.status}`)
+      res.json(await response.json())
+    } catch (proxyErr) {
+      console.warn(
+        '[api-cockpit proxy] GET /admin/api-tokens — fallback leitura local ORGANIZACAO:',
+        proxyErr instanceof Error ? proxyErr.message : proxyErr,
+      )
+      res.json(await listarApiTokensOrganizacao(idOrganizacao))
+    }
   } catch (err) {
     res.json({ tokens: [], error: maskError(err, 'GET /admin/api-tokens') })
   }

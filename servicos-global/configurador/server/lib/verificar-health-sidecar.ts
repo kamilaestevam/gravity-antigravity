@@ -1,6 +1,7 @@
 /**
  * Health-check e boot de sidecars embutidos (loopback).
  */
+import { sincronizarEnvOrganizacao } from './resolver-url-organizacao.js'
 
 export async function verificarHealthSidecarLoopback(
   porta: number,
@@ -54,6 +55,7 @@ export async function aguardarSidecarEmbutido(
  */
 export function coletarErrosPreflightApiCockpit(emProducao: boolean): string[] {
   const erros: string[] = []
+  sincronizarEnvOrganizacao(!emProducao)
   if (!process.env.ORGANIZACAO_DATABASE_URL?.trim()) {
     if (emProducao) {
       erros.push(

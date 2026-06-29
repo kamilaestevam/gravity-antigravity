@@ -22,7 +22,19 @@ import { gerarApiToken, hashToken, obterPrefixoApiToken } from '../crypto'
 import { requireInternalKey } from '../middleware/requireInternalKey'
 
 export const tokensRouter = Router()
-const prisma = new PrismaClient()
+
+let _prisma: PrismaClient | undefined
+
+function prismaTokens(): PrismaClient {
+  if (!_prisma) {
+    const url = process.env.ORGANIZACAO_DATABASE_URL?.trim() ?? process.env.DATABASE_URL?.trim()
+    if (!url) {
+      throw new Error('ORGANIZACAO_DATABASE_URL ausente — sidecar api-cockpit sem banco')
+    }
+    _prisma = new PrismaClient({ datasources: { db: { url } } })
+  }
+  return _prisma
+}
 
 // Todas as rotas exigem x-internal-key (chamada feita pelo Configurador)
 tokensRouter.use(requireInternalKey)
@@ -83,7 +95,7 @@ tokensRouter.get('/', async (req: Request, res: Response, next: NextFunction) =>
       return res.status(400).json({ erro: 'Query invalida', issues: parsed.error.issues })
     }
 
-    const tokens = await prisma.apiToken.findMany({
+    const tokens = await prismaTokens().apiToken.findMany({
       where: {
         id_organizacao:     parsed.data.id_organizacao,
         revogado_api_token: false,
@@ -128,7 +140,7 @@ tokensRouter.post('/', async (req: Request, res: Response, next: NextFunction) =
       parsed.data.data_expiracao_api_token,
     )
 
-    const criado = await prisma.apiToken.create({
+    const criado = await prismaTokens().apiToken.create({
       data: {
         id_organizacao:                      parsed.data.id_organizacao,
         id_produto_gravity:                  parsed.data.id_produto_gravity || null,
@@ -177,7 +189,7 @@ tokensRouter.delete('/:id_api_token', async (req: Request, res: Response, next: 
       return res.status(400).json({ erro: 'Body invalido', issues: body.error.issues })
     }
 
-    const token = await prisma.apiToken.findFirst({
+    const token = await prismaTokens().apiToken.findFirst({
       where: {
         id_api_token:   params.data.id_api_token,
         id_organizacao: body.data.id_organizacao,
@@ -188,7 +200,7 @@ tokensRouter.delete('/:id_api_token', async (req: Request, res: Response, next: 
       return res.status(404).json({ erro: 'Token nao encontrado' })
     }
 
-    await prisma.apiToken.update({
+    await prismaTokens().apiToken.update({
       where: { id_api_token: params.data.id_api_token },
       data: {
         revogado_api_token:       true,
@@ -222,7 +234,7 @@ tokensRouter.get('/validate', async (req: Request, res: Response, next: NextFunc
 
     const hash = hashToken(tokenValor)
 
-    const token = await prisma.apiToken.findFirst({
+    const token = await prismaTokens().apiToken.findFirst({
       where: { hash_api_token: hash },
       select: {
         id_api_token:            true,

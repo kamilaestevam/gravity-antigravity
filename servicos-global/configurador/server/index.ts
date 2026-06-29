@@ -763,6 +763,17 @@ if (process.env.NODE_ENV !== 'test') {
       } else {
         console.error('[configurador] CONFIGURADOR_DATABASE_URL ausente — migrate-all-tenants tenant ignorado')
       }
+      console.log('[configurador] Aplicando DDL GABI em tenant_*...')
+      execSync('npx tsx scripts/ativamente/aplicar-migration-gabi-organizacao.ts', {
+        cwd: repoRoot,
+        stdio: 'inherit',
+        env: {
+          ...process.env,
+          ORGANIZACAO_DATABASE_URL: orgUrl,
+          CONFIGURADOR_DATABASE_URL: cfgUrl ?? process.env.DATABASE_URL ?? '',
+        },
+      })
+      console.log('[configurador] DDL GABI tenant_* OK')
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error('[configurador] ERRO migrations servicos-plataforma no boot:', msg)

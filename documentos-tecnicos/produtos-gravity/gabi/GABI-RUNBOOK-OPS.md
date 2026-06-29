@@ -30,6 +30,14 @@
 
 ## Sintomas e ações
 
+### Widget Hub: 503 `GABI_DB_UNAVAILABLE`
+
+Tabelas `gabi_conversa` ausentes no schema `tenant_<org>` (migrate deploy só grava em `public`).
+
+1. Logs boot: `[start-site] DDL GABI em tenant_* concluído` ou `[ddl-gabi-organizacao]`
+2. Manual: `ORGANIZACAO_DATABASE_URL=... CONFIGURADOR_DATABASE_URL=... npx tsx scripts/ativamente/aplicar-migration-gabi-organizacao.ts`
+3. Sidecar aplica DDL lazy na 1ª mensagem (`[GABI/DDL] Tabelas garantidas`) se o boot falhou.
+
 ### Widget Hub: “GABI indisponível”
 
 1. `curl -s http://127.0.0.1:8009/health` (no container Railway)

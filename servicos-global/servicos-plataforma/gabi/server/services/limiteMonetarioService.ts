@@ -53,7 +53,7 @@ export interface ResultadoAvaliacaoLimite {
 // Constantes / utilidades
 // ---------------------------------------------------------------------------
 
-const SCHEMA_NAME_REGEX = /^tenant_[a-z][a-z0-9]{22,24}$/
+import { resolverNomeSchemaOrganizacao } from '../lib/nome-schema-organizacao.js'
 
 const TTL_GLOBAL_SEC    = 300
 const TTL_ORG_SEC       = 60
@@ -135,10 +135,7 @@ interface LimiteOrgLido {
  *  SAFETY: schemaName validated by SCHEMA_NAME_REGEX; all data via positional params.
  *  OWASP A01: whitelist validada — schema name via regex, dados via params posicionais */
 async function lerLimitesDaOrg(idOrganizacao: string, modelo: string): Promise<LimiteOrgLido[]> {
-  const schemaName = `tenant_${idOrganizacao}`
-  if (!SCHEMA_NAME_REGEX.test(schemaName)) {
-    throw new Error(`[limiteMonetarioService] Schema name invalido: ${schemaName}`)
-  }
+  const schemaName = resolverNomeSchemaOrganizacao(idOrganizacao)
 
   return prisma.$transaction(async (tx) => {
     await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
@@ -167,10 +164,7 @@ async function lerLimitesDaOrg(idOrganizacao: string, modelo: string): Promise<L
  *  SAFETY: schemaName validated by SCHEMA_NAME_REGEX; date range via positional params.
  *  OWASP A01: whitelist validada — schema name via regex, dados via params posicionais */
 async function lerGastoMtdDaOrg(idOrganizacao: string): Promise<number> {
-  const schemaName = `tenant_${idOrganizacao}`
-  if (!SCHEMA_NAME_REGEX.test(schemaName)) {
-    throw new Error(`[limiteMonetarioService] Schema name invalido: ${schemaName}`)
-  }
+  const schemaName = resolverNomeSchemaOrganizacao(idOrganizacao)
 
   const startDate = inicioDoMes()
   const endDate   = inicioDoProximoMes()

@@ -17,6 +17,7 @@ import {
   SignIn, ShieldStar, Gear, SquaresFour, ShoppingBag, Package,
   MagnifyingGlass, AirplaneTilt, ArrowsLeftRight, GitBranch, CheckCircle,
   Clock, CheckFat, WarningCircle, Eye, EyeSlash, Envelope, Lock, ArrowsOut,
+  CaretDown,
 } from '@phosphor-icons/react'
 import { useShellStore, Notificacoes, ToastContainer, useMeSync, type OrganizacaoShell } from '@gravity/shell'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -193,6 +194,18 @@ interface DocSecao {
   timeline?: { passo: number; titulo: string; desc: string }[]
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
 }
+
+const DOC_LOGIN_SUBTITULO =
+  'Guia da tela de login: acesso, cadastro, recuperação de senha, convites e destino após autenticação.'
+
+const DOC_LOGIN_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
+  { rotulo: 'Versão', valor: '1.0' },
+  { rotulo: 'Atualizado em', valor: 'junho 2026' },
+  { rotulo: 'Produto', valor: 'Configurador' },
+  { rotulo: 'URL de acesso', valor: 'https://usegravity.com.br/login', href: true },
+  { rotulo: 'Rota base', valor: '/login' },
+  { rotulo: 'Componente', valor: 'AutenticacaoPage' },
+]
 
 const DOC_LOGIN_SECOES: DocSecao[] = [
   {
@@ -457,96 +470,141 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
   },
   {
     num: 5,
-    titulo: 'Convite de outro usuário',
+    titulo: 'Fluxo 4 — convite de outro usuário',
     paragrafos: [
-      'Quando um administrador convida um usuário via painel do Configurador, o Clerk gera um ticket único. O convidado recebe um e-mail com link para /cadastro/continuar?__clerk_ticket=<ticket>. Essa rota é protegida pelo guard ConviteContinuarRoute: se o usuário já estiver logado com outra conta, o sistema faz signOut() automaticamente antes de processar o convite.',
-      'O componente CadastroContinuarPage usa signUp.create({ strategy: "ticket", ticket }) para pré-popular nome e e-mail do convite. O usuário preenche apenas nome, sobrenome e senha. Após verificação OTP e setActive(), o porteiro direciona para /trial (nova conta vinculada) ou /hub (conta já existente no Prisma).',
+      'Apenas usuários Master podem convidar outras pessoas para a organização — como Master, Standard ou Fornecedor. O convite é feito pelo Configurador; o convidado recebe um e-mail com link para completar o cadastro e entrar na organização.',
     ],
-    timeline: [
-      { passo: 1, titulo: 'Admin envia convite', desc: 'Clerk gera ticket único; e-mail enviado para o convidado com link /cadastro/continuar?__clerk_ticket=<ticket>' },
-      { passo: 2, titulo: 'Convidado clica no link', desc: 'ConviteContinuarRoute verifica: se logado → signOut() automático; se sem conta → processa ticket' },
-      { passo: 3, titulo: 'processarTicketConvite()', desc: 'signUp.create({ strategy: "ticket", ticket }) — pré-popula e-mail e nome do convite' },
-      { passo: 4, titulo: 'Usuário preenche dados restantes', desc: 'Apenas nome, sobrenome e senha (e-mail já vem preenchido e bloqueado para edição)' },
-      { passo: 5, titulo: 'Verificação OTP de e-mail', desc: 'Mesmo fluxo do cadastro normal — 6 dígitos, foco automático, paste' },
-      { passo: 6, titulo: 'Sessão ativada → porteiro decide', desc: 'setActive() → /api/v1/me → destino: /trial (nova conta) ou /hub (conta já no Prisma)' },
+    passosVisuais: [
+      {
+        num: 1,
+        titulo: 'Abrir o Configurador',
+        imagem: '/university/screenshots/login-convite-passo-01-acesso-atalho.png',
+        paragrafos: [
+          'No menu superior, clique no ícone do usuário e escolha Configurador. Você também pode acessar pelo atalho na barra lateral.',
+        ],
+      },
+      {
+        num: 2,
+        titulo: 'Acessar Usuários',
+        imagem: '/university/screenshots/login-convite-passo-02-lista-usuarios.png',
+        paragrafos: [
+          'No menu lateral do Configurador, abra Usuários para ver a lista de pessoas da organização.',
+        ],
+      },
+      {
+        num: 3,
+        titulo: 'Iniciar o convite',
+        imagem: '/university/screenshots/login-convite-passo-03-botao-convidar.png',
+        paragrafos: [
+          'Na lista de usuários da organização, clique em "Convidar usuário". O modal de convite abre no centro da tela.',
+        ],
+      },
+      {
+        num: 4,
+        titulo: 'Dados básicos',
+        imagem: '/university/screenshots/login-convite-passo-04-formulario-vazio.png',
+        paragrafos: [
+          'Informe o e-mail do convidado e escolha o tipo de usuário (Master, Standard ou Fornecedor).',
+        ],
+      },
+      {
+        num: 5,
+        titulo: 'Tipo de usuário',
+        imagem: '/university/screenshots/login-convite-passo-05-nome-email-tipo.png',
+        paragrafos: [
+          'Master tem acesso total na organização. Standard e Fornecedor dependem das permissões e workspaces que você marcar nos próximos passos.',
+        ],
+        callout: {
+          tipo: 'dica',
+          texto: 'O e-mail do convite é o login do convidado. Confira se não há erro de digitação antes de enviar.',
+        },
+      },
+      {
+        num: 6,
+        titulo: 'Permissões',
+        imagem: '/university/screenshots/login-convite-passo-06-permissoes.png',
+        paragrafos: [
+          'Marque as {{link:/university-gravity/docs/configurador|permissões}} que o convidado terá em cada área do Configurador. Só libere o que essa pessoa realmente precisa usar.',
+        ],
+      },
+      {
+        num: 7,
+        titulo: 'Workspaces',
+        imagem: '/university/screenshots/login-convite-passo-07-workspaces.png',
+        paragrafos: [
+          'Selecione os workspaces aos quais o convidado terá acesso. Pode ser filial, outra empresa do grupo ou cliente de despachante e agente. Master já acessa todos automaticamente.',
+        ],
+      },
+      {
+        num: 8,
+        titulo: 'Status na lista',
+        imagem: '/university/screenshots/login-convite-passo-08-lista-status.png',
+        paragrafos: [
+          'Depois de enviar o convite, o convidado aparece na lista com badge Convidado (amarelo) até concluir o cadastro pelo e-mail.',
+          'Quando o fluxo termina, o badge muda para Ativo (verde) e a pessoa já pode entrar na plataforma.',
+        ],
+        callout: {
+          tipo: 'dica',
+          texto: 'Cada link de convite é de uso único. Se expirar ou for perdido, cancele ou reenvie o convite pela mesma lista de usuários.',
+        },
+      },
+      {
+        num: 9,
+        titulo: 'O que o convidado faz',
+        imagem: '/university/screenshots/login-fluxo1-passo-02-formulario-vazio.png',
+        paragrafos: [
+          'O convidado abre o e-mail e clica no link. Nome e e-mail já vêm preenchidos; ele define a senha, aceita os termos e verifica o código de 6 dígitos (mesmo fluxo da seção 02, Fluxo 1).',
+          'Com o cadastro concluído, passa a acessar o Gravity com base nas permissões e workspaces marcados, entrando pelo {{link:/university-gravity/docs/hub|HUB}}.',
+        ],
+        callout: {
+          tipo: 'aviso',
+          texto: 'Se o convidado já estiver logado com outra conta no navegador, o sistema encerra essa sessão antes de processar o convite. Isso evita vincular o ticket à conta errada.',
+        },
+      },
     ],
-    callout: { tipo: 'aviso', texto: 'O ticket de convite é de uso único. Se o usuário recarregar a página durante o fluxo, o hook useLoginAutomaticoPosConvite() detecta credenciais salvas em sessionStorage e faz login automático — até 6 tentativas — para retomar o onboarding sem perda de contexto.' },
   },
   {
     num: 6,
-    titulo: 'Pós-autenticação — porteiro e destino final',
+    titulo: 'Entrar com Google',
     paragrafos: [
-      'Após qualquer autenticação bem-sucedida (login, cadastro, convite ou OAuth), o sistema chama navegarDestinoPosAutenticacao(), que faz fetch em /api/v1/me com o token Bearer do Clerk. A resposta determina o destino: se a organização for null ou a resposta for 401/404, o usuário é enviado para /trial (onboarding). Se a organização existir, vai para /hub.',
-      'O /hub (SelecionarWorkspace) avalia 4 condições para skip automático para /core: o parâmetro ?select=1 não estar presente, o workspace preferido estar definido, o usuário ter workspaces ativos, e o tipo_usuario não ser FORNECEDOR. Se todas forem verdadeiras, a navegação para /core acontece sem intervenção do usuário.',
+      'Além de e-mail e senha, você pode usar o botão "Continuar com Google" na tela de login ou de cadastro.',
     ],
-    cardsBilaterais: {
-      esquerdo: {
-        label: 'NOVO USUÁRIO',
-        titulo: '→ /trial (Onboarding)',
-        itens: ['– porteiro: organizacao === null', '– porteiro: status 401 (não no Prisma)', '– Cria organização e workspace', '– Após concluir → /hub'],
+    passosVisuais: [
+      {
+        num: 1,
+        titulo: 'O que é',
+        imagem: '/university/screenshots/login-fluxo2-passo-01-tela-completa.png',
+        paragrafos: [
+          '"Continuar com Google" é um atalho de login: você autoriza o Google a confirmar sua identidade para o Gravity. O e-mail da conta Google passa a ser o seu login na plataforma.',
+          'O botão fica no topo do painel direito, antes dos campos de e-mail e senha.',
+        ],
       },
-      direito: {
-        label: 'USUÁRIO EXISTENTE',
-        titulo: '→ /hub (ou /core direto)',
-        itens: ['– porteiro: organizacao ≠ null', '– Avalia 4 condições de skip', '– workspace preferido → /core direto', '– Sem preferência → seleciona workspace'],
+      {
+        num: 2,
+        titulo: 'Como funciona',
+        paragrafos: [
+          'Ao clicar, o navegador abre a tela do Google para você escolher a conta e autorizar o acesso.',
+          'Depois da autorização, o Google devolve você ao Gravity em uma página intermediária de retorno. Em condições normais, isso leva poucos segundos e você segue para o Hub (se já tem organização) ou para o onboarding (conta nova).',
+        ],
       },
-    },
-    callout: { tipo: 'exemplo', texto: 'Usuário SUPER_ADMIN ou ADMIN nunca fica preso no limbo mesmo sem vinculação em UsuarioWorkspace — o porteiro /api/v1/me retorna acesso global a todos os workspaces da organização diretamente via query no banco (Mandamento 04 — LIMBO).' },
-  },
-  {
-    num: 7,
-    titulo: 'Autenticação via Google (OAuth)',
-    paragrafos: [
-      'O botão "Continuar com Google" está disponível tanto no login quanto no cadastro. Ao clicar, chama authenticateWithRedirect() com strategy "oauth_google" e redirectUrl apontando para o callback customizado da respectiva rota. O Clerk gerencia o redirect para o Google, a validação do token e o retorno ao sistema.',
-      'O callback SsoCallbackPage usa o componente AuthenticateWithRedirectCallback do Clerk com três URLs configuradas: continueSignUpUrl (/cadastro/continuar) para quando campos obrigatórios faltarem, signInFallbackRedirectUrl (/hub) para usuário existente, e signUpFallbackRedirectUrl (/trial) para conta nova.',
-    ],
-    cardsBilaterais: {
-      esquerdo: {
-        label: 'LOGIN COM GOOGLE — /login',
-        titulo: 'signIn.authenticateWithRedirect()',
-        itens: ['– strategy: oauth_google', '– redirectUrl: /login/sso-callback', '– redirectUrlComplete: /hub', '– Spinner durante redirect', '– Sem etapa de OTP'],
+      {
+        num: 3,
+        titulo: 'Se der problema na tela de retorno',
+        imagem: '/university/screenshots/login-google-problema-sso-callback.png',
+        paragrafos: [
+          'Às vezes, após autorizar no Google, o navegador para em uma tela escura na URL usegravity.com.br/login/sso-callback e não avança para o Hub. Isso já aconteceu com usuários reais.',
+        ],
+        callouts: [
+          {
+            tipo: 'exemplo',
+            texto: 'Exemplo real: alguém tentou entrar pelo Hub com conta Google e perguntou "não posso entrar com uma Google account?". Ao autorizar, a tela ficou escura em /login/sso-callback sem redirecionar.',
+          },
+          {
+            tipo: 'aviso',
+            texto: 'O que fazer: feche a aba travada e abra https://usegravity.com.br/login em aba anônima. Confira se o e-mail Google corresponde ao convite ou cadastro. Se persistir, use login com e-mail e senha ou avise o suporte informando o e-mail usado.',
+          },
+        ],
       },
-      direito: {
-        label: 'CADASTRO COM GOOGLE — /cadastro',
-        titulo: 'signUp.authenticateWithRedirect()',
-        itens: ['– strategy: oauth_google', '– redirectUrl: /cadastro/sso-callback', '– redirectUrlComplete: /trial', '– Campos faltando → /cadastro/continuar', '– Sem etapa de OTP'],
-      },
-    },
-  },
-  {
-    num: 8,
-    titulo: 'Estados de erro e comportamentos de sistema',
-    paragrafos: [
-      'Os erros são exibidos em banner no topo do formulário, nunca inline nos campos. Cada código de erro do Clerk é mapeado para uma mensagem amigável em português. O sistema respeita o Mandamento 08 (sem fallback silencioso): se o tipo_usuario não for encontrado, o erro é registrado via console.warn com contexto completo.',
-      'Erros de sessão gravada indevidamente (ex: porteiro retorna erro de autorização) são armazenados em sessionStorage.gravity_login_error e exibidos como banner de aviso na próxima vez que AutenticacaoPage carregar, para informar o usuário do motivo do logout forçado.',
-    ],
-    lista: [
-      '– form_password_incorrect: "Senha incorreta. Verifique e tente novamente."',
-      '– form_identifier_not_found: "Conta não encontrada com esse e-mail."',
-      '– too_many_requests: "Muitas tentativas. Aguarde alguns minutos."',
-      '– network_error: "Falha de conexão. Verifique sua internet."',
-      '– gravity_login_error (sessionStorage): banner âmbar com motivo do logout forçado',
-      '– CAPTCHA exigido: erro registrado em console.error — formulário customizado não suporta',
-      '– Ticket inválido/revogado: mensagem específica com orientação para solicitar novo convite',
-    ],
-  },
-  {
-    num: 9,
-    titulo: 'Paleta, tipografia e referência técnica',
-    paragrafos: [
-      'O tema padrão é escuro. O Configurador suporta alternância para light-theme via classe CSS no document.body. Todos os tokens de cor usam variáveis CSS para garantir consistência entre temas.',
-    ],
-    lista: [
-      '– Primário (indigo): #6366f1 — botões, links, badge, foco de campo',
-      '– Fundo: #0b0f1a — background da tela completa',
-      '– Card formulário: #1a1f2e com backdrop-filter: blur(20px)',
-      '– Texto principal: #f1f5f9',
-      '– Texto muted: #94a3b8 — labels, placeholders, hints',
-      '– Erro: #fca5a5 (texto) / rgba(239,68,68,.1) (fundo do banner)',
-      '– Sucesso: #4ade80 — ícone de e-mail verificado, senha forte',
-      '– Tipografia: Plus Jakarta Sans (Google Fonts) — pesos 400, 500, 600, 700',
-      '– Botões: border-radius 9999px (pílula) — padrão universal do Gravity',
-      '– Rotas: /login/* → AutenticacaoPage · /cadastro/continuar → CadastroContinuarPage · /login/sso-callback → SsoCallbackPage · /recuperar-senha/redefinir → RecuperarSenhaRedefinirPage',
     ],
   },
 ]
@@ -581,6 +639,33 @@ const MANUAL_ESTILO_PASSO_TITULO: React.CSSProperties = {
 
 const MANUAL_ESTILO_CORPO: React.CSSProperties = {
   fontSize: '.9rem', color: MANUAL_CORPO_70, lineHeight: 1.8,
+}
+
+const UNI_ESTILO_PAGE_HEADER: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18,
+}
+
+const UNI_ESTILO_PAGE_ICON: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+}
+
+const UNI_ESTILO_PAGE_TITLES: React.CSSProperties = {
+  display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0,
+}
+
+const UNI_ESTILO_PAGE_TITLE: React.CSSProperties = {
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
+  fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.015em', lineHeight: 1.1,
+  color: 'var(--ws-text,#f1f5f9)', margin: 0,
+}
+
+const UNI_ESTILO_PAGE_SUBTITULO: React.CSSProperties = {
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
+  fontSize: '0.8rem', color: 'var(--ws-muted,#94a3b8)', lineHeight: 1.5, margin: 0,
+}
+
+const MANUAL_ESTILO_SECAO_NUMERO: React.CSSProperties = {
+  color: '#818cf8', fontSize: '.85rem', fontWeight: 700, flexShrink: 0, minWidth: 28,
 }
 
 const MANUAL_ESTILO_CALLOUT_CORPO: React.CSSProperties = {
@@ -967,8 +1052,11 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
 }
 
 function DocLoginManual() {
+  const todosNums = DOC_LOGIN_SECOES.map(s => s.num)
   const [abertos, setAbertos] = useState<number[]>([1])
+  const todosAbertos = todosNums.every(n => abertos.includes(n))
   const toggle = (n: number) => setAbertos(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n])
+  const toggleTodos = () => setAbertos(todosAbertos ? [] : [...todosNums])
   const scrollTo = (n: number) => {
     if (!abertos.includes(n)) setAbertos(prev => [...prev, n])
     setTimeout(() => document.getElementById(`doc-sec-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
@@ -984,47 +1072,52 @@ function DocLoginManual() {
         textTransform: 'uppercase',
       }}>Manual Descritivo de Tela</span>
 
-      <h1 style={{ fontSize: '1.65rem', fontWeight: 800, margin: '0 0 10px', lineHeight: 1.2 }}>
-        Tela de Login — Gravity Platform
-      </h1>
-      <p style={{ ...MANUAL_ESTILO_CORPO, marginBottom: 22, maxWidth: 720 }}>
-        <ManualTextoRich texto="Guia da tela de login: acesso, cadastro, recuperação de senha, convites e destino após autenticação." />
-      </p>
-
       {/* Metadados */}
       <div style={{
-        display: 'flex', gap: 32, flexWrap: 'wrap', fontSize: '.78rem',
-        color: 'var(--ws-muted,#94a3b8)', paddingBottom: 22,
-        borderBottom: '1px solid rgba(148,163,184,.12)', marginBottom: 28,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+        gap: 10,
+        paddingBottom: 22,
+        borderBottom: '1px solid rgba(148,163,184,.12)',
+        marginBottom: 28,
       }}>
-        {([
-          ['Versão', '1.0'],
-          ['Data', 'junho 2026'],
-          ['Produto', 'Configurador'],
-          ['URL de acesso', 'https://usegravity.com.br/login'],
-          ['Rota base', '/login'],
-          ['Componente', 'AutenticacaoPage'],
-        ] as const).map(([k, v]) => (
-          <span key={k}>
-            <strong style={{ color: 'var(--ws-text,#e2e8f0)', marginRight: 4 }}>{k}</strong>
-            {k === 'URL de acesso' ? (
-              <a href={v} target="_blank" rel="noreferrer" style={MANUAL_LINK_STYLE}>{v}</a>
-            ) : v}
-          </span>
+        {DOC_LOGIN_METADADOS.map(meta => (
+          <div
+            key={meta.rotulo}
+            style={{
+              background: 'rgba(148,163,184,.05)',
+              border: '1px solid rgba(148,163,184,.12)',
+              borderRadius: 10,
+              padding: '10px 14px',
+            }}
+          >
+            <p style={{
+              fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em',
+              textTransform: 'uppercase', color: 'var(--ws-muted,#64748b)', margin: '0 0 4px',
+            }}>
+              {meta.rotulo}
+            </p>
+            <p style={{ fontSize: '.82rem', color: 'var(--ws-text,#e2e8f0)', margin: 0, lineHeight: 1.4 }}>
+              {meta.href ? (
+                <a href={meta.valor} target="_blank" rel="noreferrer" style={MANUAL_LINK_STYLE}>{meta.valor}</a>
+              ) : meta.valor}
+            </p>
+          </div>
         ))}
       </div>
 
       {/* Sumário */}
       <div style={{
         background: 'rgba(148,163,184,.05)', border: '1px solid rgba(148,163,184,.12)',
-        borderRadius: 14, padding: '20px 26px', marginBottom: 32,
+        borderRadius: 14, padding: '20px 26px', marginBottom: 16,
       }}>
         <p style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.12em', color: 'var(--ws-muted,#64748b)', textTransform: 'uppercase', marginBottom: 14 }}>
           Sumário
         </p>
-        <ol style={{ margin: 0, paddingLeft: 20, columns: 2, gap: 24, fontSize: '.85rem' }}>
+        <ol style={{ margin: 0, padding: 0, listStyle: 'none', columns: 2, gap: 24, fontSize: '.85rem' }}>
           {DOC_LOGIN_SECOES.map(s => (
-            <li key={s.num} style={{ marginBottom: 7 }}>
+            <li key={s.num} style={{ marginBottom: 7, display: 'flex', alignItems: 'baseline', gap: 12 }}>
+              <span style={{ ...MANUAL_ESTILO_SECAO_NUMERO, minWidth: 22 }}>{s.num}.</span>
               <button onClick={() => scrollTo(s.num)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#818cf8', padding: 0, textAlign: 'left', lineHeight: 1.4 }}>
                 {s.titulo}
@@ -1032,6 +1125,30 @@ function DocLoginManual() {
             </li>
           ))}
         </ol>
+      </div>
+
+      {/* Expandir / recolher todas */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+        <button
+          type="button"
+          onClick={toggleTodos}
+          title={todosAbertos ? 'Recolher todas as seções' : 'Expandir todas as seções'}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--ws-muted,#94a3b8)', fontSize: '.78rem', fontWeight: 600, padding: '4px 2px',
+          }}
+        >
+          <CaretDown
+            weight="bold"
+            size={12}
+            style={{
+              transform: todosAbertos ? 'rotate(180deg)' : 'none',
+              transition: 'transform .2s',
+            }}
+          />
+          {todosAbertos ? 'Recolher todas' : 'Expandir todas'}
+        </button>
       </div>
 
       {/* Seções */}
@@ -1045,16 +1162,17 @@ function DocLoginManual() {
             }}>
               {/* Header da seção */}
               <button onClick={() => toggle(s.num)} style={{
-                width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                width: '100%', display: 'flex', alignItems: 'center', gap: 16,
                 background: aberto ? 'rgba(99,102,241,.07)' : 'rgba(148,163,184,.03)',
                 border: 'none', cursor: 'pointer', padding: '16px 22px',
                 color: 'var(--ws-text,#f1f5f9)', textAlign: 'left', transition: 'background .15s',
               }}>
-                <span style={{ fontWeight: 700, fontSize: '1rem' }}>
-                  <span style={{ color: '#818cf8', marginRight: 10, fontSize: '.85rem' }}>{String(s.num).padStart(2,'0')}</span>
-                  {s.titulo}
-                </span>
-                <span style={{ color: '#818cf8', transform: aberto ? 'rotate(180deg)' : 'none', transition: 'transform .25s', fontSize: '.9rem' }}>▾</span>
+                <span style={MANUAL_ESTILO_SECAO_NUMERO}>{String(s.num).padStart(2, '0')}</span>
+                <span style={{ fontWeight: 700, fontSize: '1rem', flex: 1, minWidth: 0 }}>{s.titulo}</span>
+                <span style={{
+                  color: '#818cf8', flexShrink: 0,
+                  transform: aberto ? 'rotate(180deg)' : 'none', transition: 'transform .25s', fontSize: '.9rem',
+                }}>▾</span>
               </button>
 
               {/* Corpo da seção */}
@@ -1517,15 +1635,23 @@ export function UniversityGravity() {
         {!(secao === 'academy' && faseSlug) && (
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem 3rem' }}>
 
-          {/* ── Cabeçalho ── */}
-          {!(secao === 'docs' && docsProdutoSlug === 'login') && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-            <GraduationCap weight="duotone" size={24} color={UNI_COR} />
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-.02em', color: 'var(--ws-text,#f1f5f9)' }}>
-              {tituloSecao}
-            </h1>
+          {/* ── Cabeçalho (padrão MenuTopoGlobal — Insights) ── */}
+          <div style={UNI_ESTILO_PAGE_HEADER}>
+            <span style={{
+              ...UNI_ESTILO_PAGE_ICON,
+              color: secao === 'docs' && docsProdutoSlug === 'login' ? '#60a5fa' : UNI_COR,
+            }}>
+              {secao === 'docs' && docsProdutoSlug === 'login'
+                ? <SignIn weight="duotone" size={22} />
+                : <GraduationCap weight="duotone" size={22} />}
+            </span>
+            <div style={UNI_ESTILO_PAGE_TITLES}>
+              <h1 style={UNI_ESTILO_PAGE_TITLE}>{tituloSecao}</h1>
+              {secao === 'docs' && docsProdutoSlug === 'login' && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_LOGIN_SUBTITULO}</span>
+              )}
+            </div>
           </div>
-          )}
 
           {/* ── Banner (oculto em manuais publicados) ── */}
           {!(secao === 'docs' && docsProdutoSlug === 'login') && (

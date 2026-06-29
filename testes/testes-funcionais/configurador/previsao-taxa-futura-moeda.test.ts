@@ -75,8 +75,12 @@ vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js'
   requireAuth: mockRequireAuth,
 }))
 
-vi.mock('../../../servicos-global/configurador/server/middleware/requireConfiguradorAccess.js', () => ({
-  requireConfiguradorMutation: mockRequireMutation,
+vi.mock('../../../servicos-global/configurador/server/middleware/requireGravityAdmin.js', () => ({
+  requireGravityAdmin: mockRequireMutation,
+}))
+
+vi.mock('../../../servicos-global/configurador/server/lib/taxas-moeda-agendamento-store.js', () => ({
+  registrarExecucaoAgendamentoTaxaMoeda: vi.fn().mockResolvedValue(undefined),
 }))
 
 const { mockAxiosGet } = vi.hoisted(() => ({ mockAxiosGet: vi.fn() }))
@@ -358,7 +362,7 @@ describe('POST /api/v1/previsoes-taxa-futura-moeda/sync', () => {
     expect(mockRequireAuth).toHaveBeenCalled()
   })
 
-  it('chama requireConfiguradorMutation em sequencia (admin permission)', async () => {
+  it('chama requireGravityAdmin em sequencia (painel admin Gravity)', async () => {
     mockAxiosGet.mockResolvedValueOnce({ data: { value: [] } })
     await request(app).post('/api/v1/previsoes-taxa-futura-moeda/sync')
     expect(mockRequireMutation).toHaveBeenCalled()

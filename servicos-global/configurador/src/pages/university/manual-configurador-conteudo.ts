@@ -40,7 +40,7 @@ export interface DocPassoVisual {
   galeriaTelas?: { legenda: string; imagem: string }[]
   linkCapitulo?: { texto: string; href: string }
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
-  figurasAposParagrafo?: { indice: number; imagem: string; legenda?: string }[]
+  figurasAposParagrafo?: DocFiguraAposParagrafo[]
   /** Duas telas lado a lado na coluna direita (comparativo sem × com). */
   galeriaComparacao?: { legenda: string; imagem: string }[]
   /** Screenshot em largura total abaixo do texto (em vez de coluna lateral). */
@@ -51,6 +51,14 @@ export interface DocPassoVisual {
     imagem: string
     legenda?: string
   }
+}
+
+export interface DocFiguraAposParagrafo {
+  indice: number
+  imagem: string
+  legenda?: string
+  /** Recortes estreitos (menu lateral etc.) — evita esticar na coluna de texto. */
+  larguraMaxima?: number
 }
 
 export interface DocOrigemDados {
@@ -65,11 +73,13 @@ export interface DocOrigemDados {
 
 export interface DocFluxo {
   titulo: string
-  /** Rótulo curto no sumário (ex.: "Criar workspace"). Se omitido, usa `titulo`. */
+  /** Rótulo curto no sumário (ex.: «Criar workspace»). Frase: só a primeira palavra e nomes próprios em maiúscula — ver ONBOARDING-DOCUMENTO.md §9.6. Se omitido, usa `titulo`. */
   tituloSumario?: string
   paragrafos?: string[]
   mostrarInfograficoPermissoesUsuario?: boolean
   mostrarInfograficoPapeisFornecedor?: boolean
+  /** Manual Navegação §03 — mapa Hub/Store × produto × Configurador. */
+  mostrarInfograficoMenuLateral?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
   /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
@@ -78,7 +88,7 @@ export interface DocFluxo {
   /** Exibe o callout do fluxo depois dos passos visuais (ex.: Dica abaixo de screenshot). */
   calloutAposPassos?: boolean
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
-  figurasAposParagrafo?: { indice: number; imagem: string; legenda?: string }[]
+  figurasAposParagrafo?: DocFiguraAposParagrafo[]
   passosVisuais: DocPassoVisual[]
 }
 
@@ -99,7 +109,7 @@ export interface DocSecao {
   mostrarInfograficoHubTelas?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
   /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
-  figurasAposParagrafo?: { indice: number; imagem: string; legenda?: string }[]
+  figurasAposParagrafo?: DocFiguraAposParagrafo[]
 }
 
 const DOCS_BASE = '/university-gravity/docs/configurador'
@@ -110,7 +120,7 @@ export const CONFIGURADOR_MANUAL_ITENS: ConfiguradorManualItem[] = [
     label: 'Visão geral',
     secaoNum: 1,
     rotaApp: '/configurador',
-    subtitulo: 'Mapa das áreas de gestão da conta Gravity',
+    subtitulo: 'Configurador principal da plataforma',
   },
   {
     pathSeg: 'organizacao',
@@ -182,6 +192,7 @@ const SLUGS_VALIDOS = new Set<string>(CONFIGURADOR_MANUAL_ITENS.map(i => i.pathS
 const SCREENSHOT_ABRIR_CONFIGURADOR = '/university/screenshots/login-convite-passo-01-acesso-atalho.png'
 /** Única tela em que o botão Ampliar fica abaixo da imagem (evita sobrepor o FAB do Hub). */
 export const SCREENSHOT_HUB_ACESSO_CONFIGURADOR = '/university/screenshots/configurador-hub-acesso-configurador.png'
+const SCREENSHOT_CONFIGURADOR_MENU_LATERAL = '/university/screenshots/configurador-tela-menu-lateral.png'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -478,10 +489,10 @@ function passosComAcessoPadrao(
   const passoHub: DocPassoVisual[] = comPassoHub
     ? [{
         num: 1,
-        titulo: 'No Hub: Menu do usuário',
+        titulo: 'Em qualquer tela da plataforma: Menu do usuário',
         imagem: SCREENSHOT_HUB_ACESSO_CONFIGURADOR,
         paragrafos: [
-          'De qualquer lugar da plataforma: Hub ou produto Gravity: Clique no ícone do usuário no canto superior direito, como indicado pela seta na imagem.',
+          'Em qualquer tela da plataforma, clique no **ícone do usuário** no canto superior direito, como indicado pela seta na imagem.',
         ],
       }]
     : []
@@ -553,19 +564,16 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     layoutTextoImagemLateral: true,
     imagem: '/university/screenshots/configurador-hub-acesso-configurador.png',
     paragrafos: [
-      'O Configurador é o painel de gestão da sua conta Gravity. A partir dele você administra a organização (empresa contratante), os workspaces (filiais ou clientes), usuários, assinaturas de produtos e integrações.',
-      'Use o menu abaixo para ir direto ao capítulo de cada área. Cada página deste manual descreve uma tela do Configurador com passos visuais e screenshots.',
+      'O **Configurador** é o painel de gestão da sua conta **Gravity**. A partir dele você administra a **organização** (empresa contratante), os **workspaces** (filiais ou clientes), **usuários**, **assinaturas** de produtos e **integrações**.',
+      'No **Configurador**, o **menu lateral** à esquerda concentra **Organização**, **Workspaces**, **Usuários**, **Assinaturas** e as demais áreas de gestão da conta (exemplo abaixo).',
     ],
-    lista: [
-      `{{link:${DOCS_BASE}/organizacao|Organização}}: Dados da empresa contratante, nasce no signup e onboarding`,
-      `{{link:${DOCS_BASE}/workspaces|Workspaces}}: Matriz, filiais ou clientes do despachante`,
-      `{{link:${DOCS_BASE}/usuarios|Usuários}}: Convites, patentes e permissões`,
-      `{{link:${DOCS_BASE}/fornecedores|Fornecedores}}: Terceiros COMEX, exportador na importação, importador na exportação, agente, despachante`,
-      `{{link:${DOCS_BASE}/assinaturas|Assinaturas}}: Produtos e planos contratados`,
-      `{{link:${DOCS_BASE}/financeiro|Financeiro}}: Faturas e pagamentos`,
-      `{{link:${DOCS_BASE}/api-cockpit|API Cockpit}}: Tokens, webhooks e ERP`,
-      `{{link:${DOCS_BASE}/taxas-moeda|Taxas e moeda}}: Câmbio operacional`,
-      `{{link:${DOCS_BASE}/historico|Histórico}}: Auditoria da organização`,
+    figurasAposParagrafo: [
+      {
+        indice: 1,
+        imagem: SCREENSHOT_CONFIGURADOR_MENU_LATERAL,
+        legenda: 'Menu lateral do Configurador',
+        larguraMaxima: 220,
+      },
     ],
   },
   {
@@ -575,25 +583,24 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     imagem: '/university/screenshots/configurador-organizacao-tela.png',
     mostrarInfograficoOrganizacao: true,
     paragrafos: [
-      'A Organização é a empresa que contrata o Gravity: O tenant principal da conta.',
-      'No infográfico abaixo, veja de onde ela nasce. Os dados cadastrais que aparecem em Configurador → Organização vêm desse fluxo: Depois do onboarding, você só revisa e mantém a identidade legal da conta.',
+      'A **Organização** é a empresa que contrata o **Gravity**.',
     ],
     origemDados: {
       paragrafos: [
-        'As telas abaixo são o passo Onboarding do fluxo acima: É aqui que nome e CNPJ são informados pela primeira vez e viram a organização na plataforma.',
+        'As telas abaixo são os passos do **onboarding** do fluxo acima: É aqui que **nome** e **CNPJ** são informados pela primeira vez e viram a **organização** na plataforma.',
       ],
       etapas: [
         {
           legenda: '1 · Nome da empresa',
           paragrafos: [
-            'No primeiro acesso após criar a conta, o wizard pede o nome da empresa contratante. Esse nome vira o rótulo inicial da organização.',
+            'No primeiro acesso após criar a conta, o wizard pede o nome da empresa contratante. Esse nome vira o **nome da Organização**.',
           ],
           imagem: '/university/screenshots/onboarding-nome-preenchido.png',
         },
         {
           legenda: '2 · CNPJ',
           paragrafos: [
-            'Na etapa seguinte, informe o CNPJ. Com nome e CNPJ validados, a organização é criada e você segue para o {{link:/university-gravity/docs/hub|Hub}}.',
+            'Na etapa seguinte, informe o **CNPJ da Organização**. Com nome e CNPJ validados, a **organização** é criada e você segue para o {{link:/university-gravity/docs/hub|Hub}}.',
           ],
           imagem: '/university/screenshots/onboarding-cnpj-preenchido.png',
         },
@@ -601,7 +608,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar Organização',
+        titulo: 'Fluxo 1: Acessar organização',
         paragrafos: [
           'Siga os passos abaixo para abrir o Configurador e revisar os dados cadastrais da organização.',
         ],
@@ -626,7 +633,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     mostrarInfograficoOrganizacaoWorkspaces: true,
     paragrafos: [
       '**Workspaces** são as unidades operacionais da organização: Filial do importador/exportador, empresa do grupo ou cliente atendido por um despachante.',
-      'No Configurador → Workspaces você cria, edita, ativa ou suspende ambientes. Usuários Standard e Fornecedor só enxergam os workspaces aos quais foram vinculados.',
+      'No **Configurador → Workspaces** você cria, edita, ativa ou suspende ambientes. Usuários **Standard** e **Fornecedor** só enxergam os workspaces aos quais foram vinculados.',
     ],
     lista: [
       '**Criar**: Cadastrar nova filial ou cliente com nome e subdomínio',
@@ -639,7 +646,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar Workspaces',
+        titulo: 'Fluxo 1: Acessar workspaces',
         paragrafos: [
           'Siga os passos abaixo para abrir o Configurador e chegar à tela de Workspaces.',
         ],
@@ -788,7 +795,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     mostrarInfograficoTiposUsuario: true,
     paragrafos: [
       '**Usuários** concentra convites, patentes e permissões: Quem acessa a organização, quais produtos cada pessoa opera e em quais workspaces.',
-      'Master convida e gerencia todos os cadastros. Standard e Fornecedor seguem as permissões e workspaces definidos pelo administrador.',
+      '**Master** convida e gerencia todos os cadastros. **Standard** e **Fornecedor** seguem as permissões e workspaces definidos pelo administrador.',
     ],
     lista: [
       '**Master**: Acesso total à organização e ao Configurador',
@@ -801,8 +808,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar Usuários',
-        tituloSumario: 'Acessar Usuários',
+        titulo: 'Fluxo 1: Acessar usuários',
+        tituloSumario: 'Acessar usuários',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Usuários.'],
         passosVisuais: passosComAcessoPadrao(
           'Usuários',
@@ -861,7 +868,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       },
       {
         titulo: 'Fluxo 3: Permissões do usuário',
-        tituloSumario: 'Permissões Usuários',
+        tituloSumario: 'Permissões do usuário',
         mostrarInfograficoPermissoesUsuario: true,
         paragrafos: [
           'As permissões granulares valem somente para Standard e Fornecedor: O Master define o que cada um pode ver e editar em cada produto.',
@@ -908,7 +915,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       },
       {
         titulo: 'Fluxo 4: Workspaces do usuário',
-        tituloSumario: 'Workspaces do Usuário',
+        tituloSumario: 'Workspaces do usuário',
         paragrafos: [
           'Vincule Standard e Fornecedor aos workspaces em que poderão operar. Master acessa todos automaticamente, sem marcação individual.',
           'Somente os workspaces selecionados ficam disponíveis para o usuário: No Hub, no seletor de unidade e nos Produtos Gravity. Unidades desmarcadas permanecem fora do alcance dele.',
@@ -949,7 +956,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       },
       {
         titulo: 'Fluxo 5: Desativar e ativar usuário',
-        tituloSumario: 'Desativar e Ativar Usuário',
+        tituloSumario: 'Desativar e ativar usuário',
         paragrafos: [
           'Suspenda quem não deve mais entrar na plataforma, reative quando necessário ou gerencie convites ainda pendentes.',
           'Usuários não podem ser excluídos: O Master precisa preservar o histórico de tudo o que cada pessoa fez enquanto estava ativa. O cadastro permanece gravado; o controle de acesso é feito por desativação, não por exclusão.',
@@ -1005,7 +1012,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     ],
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar Fornecedores',
+        titulo: 'Fluxo 1: Acessar fornecedores',
         paragrafos: [
           'Siga os passos abaixo para abrir o Configurador e chegar à tela de Fornecedores.',
         ],
@@ -1274,8 +1281,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar Assinaturas',
-        tituloSumario: 'Acessar Assinaturas',
+        titulo: 'Fluxo 1: Acessar assinaturas',
+        tituloSumario: 'Acessar assinaturas',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Assinaturas.'],
         passosVisuais: passosComAcessoPadrao(
           'Assinaturas',
@@ -1375,7 +1382,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       },
       {
         titulo: 'Fluxo 3: Workspaces do produto',
-        tituloSumario: 'Workspaces do Produto',
+        tituloSumario: 'Workspaces do produto',
         paragrafos: [
           'Cada assinatura pode estar ativa em um ou mais workspaces. Expanda a linha na tabela para ver e alterar em quais unidades o produto está habilitado.',
           'Marque ou desmarque workspaces, use Habilitar/Bloquear em lote e clique em Salvar alterações: As mudanças valem na próxima sessão dos usuários daquela unidade.',
@@ -1423,7 +1430,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       },
       {
         titulo: 'Fluxo 4: Suspender e reativar',
-        tituloSumario: 'Suspender e Reativar',
+        tituloSumario: 'Suspender e reativar',
         paragrafos: [
           'Suspenda temporariamente o acesso ao produto sem cancelar a assinatura. A operação é reversível pelo mesmo ícone de pausa/play: O bloqueio é imediato, mas o plano continua contratado até você cancelar de fato.',
           '**Não confunda com cancelar.** A cobrança da Gravity **não é pró rata**: Se o usuário cancelar a assinatura, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: Contratação em 05/02 com vigência até 05/03: Cancelamento solicitado em 20/02 só passa a valer em 05/03.',
@@ -1484,8 +1491,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar Financeiro',
-        tituloSumario: 'Acessar Financeiro',
+        titulo: 'Fluxo 1: Acessar financeiro',
+        tituloSumario: 'Acessar financeiro',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Financeiro.'],
         passosVisuais: passosComAcessoPadrao(
           'Financeiro',
@@ -1502,7 +1509,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       },
       {
         titulo: 'Fluxo 2: Histórico de faturas',
-        tituloSumario: 'Histórico de Faturas',
+        tituloSumario: 'Histórico de faturas',
         paragrafos: [
           'Consulte faturas emitidas, acompanhe vencimentos e baixe boleto ou NF-e quando disponíveis. Passe o mouse sobre o valor para ver a composição sem expandir a linha.',
         ],
@@ -1554,7 +1561,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       },
       {
         titulo: 'Fluxo 3: Produtos e valores',
-        tituloSumario: 'Produtos & Valores',
+        tituloSumario: 'Produtos e valores',
         paragrafos: [
           'A segunda aba exibe o catálogo de produtos Gravity com tipo de cobrança, franquia inclusa, limites de usuários, help desk e eventuais negociações especiais da organização.',
         ],
@@ -1732,7 +1739,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       },
       {
         titulo: 'Fluxo 4: Cotação futura (BACEN Focus)',
-        tituloSumario: 'Cotação Futura',
+        tituloSumario: 'Cotação futura',
         paragrafos: [
           'A segunda aba exibe projeções de mercado do BACEN Focus para USD/BRL: **não são cotações negociadas**. Use para planejamento; o erro de previsão cresce com o horizonte.',
         ],
@@ -1807,7 +1814,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     },
     fluxos: [
       {
-        titulo: 'Fluxo 1: Acessar Histórico',
+        titulo: 'Fluxo 1: Acessar histórico',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Histórico.'],
         passosVisuais: passosComAcessoPadrao('Histórico', []),
       },

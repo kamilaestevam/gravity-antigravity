@@ -17,7 +17,7 @@ import {
   SignIn, ShieldStar, Gear, SquaresFour, ShoppingBag, Package,
   MagnifyingGlass, AirplaneTilt, ArrowsLeftRight, GitBranch, CheckCircle,
   Clock, CheckFat, WarningCircle, Eye, EyeSlash, Envelope, Lock, ArrowsOut,
-  Compass,
+  Compass, CaretDown,
 } from '@phosphor-icons/react'
 import { useShellStore, Notificacoes, ToastContainer, useMeSync, type OrganizacaoShell } from '@gravity/shell'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -35,8 +35,9 @@ import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './uni
 import { DocConfiguradorManual, iconeConfiguradorManual } from './university/manual-configurador-ui'
 import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
 import { DOC_NAVEGACAO_SUBTITULO } from './university/manual-navegacao-conteudo'
+import { DocNavegacaoManual } from './university/manual-navegacao-ui'
 import { DocHubManual } from './university/manual-hub-ui'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, manualMargemParagrafo } from './university/manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_ESPACO_ENTRE_PASSOS_PX, manualMargemParagrafo } from './university/manual-tipografia'
 import './configurador/workspace.css'
 
 const UNI_COR = '#818cf8'
@@ -186,6 +187,8 @@ interface DocPassoVisual {
   painelRequisitosCadastro?: boolean
   galeriaTelas?: { legenda: string; imagem: string }[]
   linkCapitulo?: { texto: string; href: string }
+  /** Screenshot em largura total abaixo do texto (evita buraco lateral quando há vários callouts). */
+  imagemAbaixoTexto?: boolean
 }
 
 interface DocSecao {
@@ -221,8 +224,8 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
     layoutTextoImagemLateral: true,
     listaEmLinha: true,
     paragrafos: [
-      'Esta é a primeira tela que você vê ao acessar a plataforma Gravity. No lado esquerdo, a identidade da plataforma: Logo e proposta de valor.',
-      'No lado direito, o formulário de acesso. Você pode entrar com sua conta Google clicando em "Continuar com Google", ou digitar diretamente seu e-mail e senha. Ao clicar em "Entrar", o sistema valida suas credenciais e te direciona automaticamente para o lugar certo.',
+      'Esta é a primeira tela que você vê ao acessar a plataforma **Gravity**. No lado esquerdo, a identidade da plataforma: Logo e proposta de valor.',
+      'No lado direito, o **formulário de acesso**. Você pode entrar com sua conta **Google** clicando em "Continuar com Google", ou digitar diretamente seu **e-mail** e **senha**. Ao clicar em "Entrar", o sistema valida suas credenciais e te direciona automaticamente para o lugar certo.',
     ],
     lista: [
       'Botão "Continuar com Google": Acesso rápido sem precisar digitar e-mail e senha',
@@ -368,17 +371,23 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         paragrafos: [
           'Com os dois campos preenchidos, clique em "Entrar". Enquanto valida, o botão exibe carregamento. Se e-mail ou senha estiverem incorretos, um banner vermelho no topo do formulário explica o problema: Sem liberar o acesso.',
         ],
-        callout: {
-          tipo: 'aviso',
-          texto: 'Após muitas tentativas erradas, o Clerk pode exigir CAPTCHA ou bloquear temporariamente o acesso. Aguarde alguns minutos antes de tentar de novo.',
-        },
+        callouts: [
+          {
+            tipo: 'aviso',
+            texto: 'Após muitas tentativas erradas, o Clerk pode exigir CAPTCHA ou bloquear temporariamente o acesso. Aguarde alguns minutos antes de tentar de novo.',
+          },
+          {
+            tipo: 'seguranca',
+            texto: 'O login da Gravity é processado pelo Clerk, plataforma especializada em autenticação (certificação SOC 2). Sua senha nunca fica em texto puro: o Clerk aplica hash bcrypt e verifica se ela já apareceu em vazamentos conhecidos (Have I Been Pwned). A conexão é feita por HTTPS e a sessão usa tokens de curta duração com renovação automática. O Clerk confirma quem você é; permissões e dados da sua organização ficam nos sistemas da Gravity.',
+          },
+        ],
       },
       {
         num: 3,
         titulo: 'Verificação em duas etapas (opcional)',
         imagem: '/university/screenshots/login-fluxo1-passo-05-codigo-vazio.png',
         paragrafos: [
-          'Este passo não é obrigatório: Só aparece se a sua conta ou organização tiver 2FA ativo. Sem 2FA, após a senha correta você segue direto para o Hub.',
+          'Este passo não é obrigatório: Só aparece se a sua conta ou organização tiver 2FA (autenticação em duas etapas) ativo. Sem 2FA, após a senha correta você segue direto para o Hub.',
           'Quando o 2FA está ligado, a tela pede um código de seis dígitos (e-mail ou autenticador). Preencha os campos ou cole o código inteiro para concluir a sessão.',
         ],
         callout: {
@@ -478,7 +487,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
     num: 5,
     titulo: 'Fluxo 4: Convite de outro usuário',
     paragrafos: [
-      'Apenas usuários Master podem convidar outras pessoas para a organização: Como Master, Standard ou Fornecedor. O convite é feito pelo Configurador; o convidado recebe um e-mail com link para completar o cadastro e entrar na organização.',
+      'Apenas usuários **Master** podem convidar outras pessoas para a organização: Como **Master**, **Standard** ou **Fornecedor**. O convite é feito pelo **Configurador**; o convidado recebe um e-mail com link para completar o cadastro e entrar na organização.',
     ],
     passosVisuais: [
       {
@@ -486,7 +495,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Abrir o Configurador',
         imagem: '/university/screenshots/login-convite-passo-01-acesso-atalho.png',
         paragrafos: [
-          'No menu superior, clique no ícone do usuário e escolha Configurador. Você também pode acessar pelo atalho na barra lateral.',
+          'No menu superior, clique no ícone do usuário e escolha **Configurador**. Você também pode acessar pelo atalho na barra lateral.',
         ],
       },
       {
@@ -494,7 +503,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Acessar Usuários',
         imagem: '/university/screenshots/login-convite-passo-02-lista-usuarios.png',
         paragrafos: [
-          'No menu lateral do Configurador, abra Usuários para ver a lista de pessoas da organização.',
+          'No menu lateral do **Configurador**, abra **Usuários** para ver a lista de pessoas da organização.',
         ],
       },
       {
@@ -510,7 +519,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Dados básicos',
         imagem: '/university/screenshots/login-convite-passo-04-formulario-vazio.png',
         paragrafos: [
-          'Informe o e-mail do convidado e escolha o tipo de usuário (Master, Standard ou Fornecedor).',
+          'Informe o e-mail do convidado e escolha o tipo de usuário (**Master**, **Standard** ou **Fornecedor**).',
         ],
       },
       {
@@ -518,7 +527,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Tipo de usuário',
         imagem: '/university/screenshots/login-convite-passo-05-nome-email-tipo.png',
         paragrafos: [
-          'Master tem acesso total na organização. Standard e Fornecedor dependem das permissões e workspaces que você marcar nos próximos passos.',
+          '**Master** tem acesso total na organização. **Standard** e **Fornecedor** dependem das permissões e workspaces que você marcar nos próximos passos.',
         ],
         callout: {
           tipo: 'dica',
@@ -530,7 +539,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Permissões',
         imagem: '/university/screenshots/login-convite-passo-06-permissoes.png',
         paragrafos: [
-          'Marque as {{link:/university-gravity/docs/configurador/usuarios|permissões}} que o convidado terá em cada área do Configurador. Só libere o que essa pessoa realmente precisa usar.',
+          'Marque as {{link:/university-gravity/docs/configurador/usuarios|permissões}} que o convidado terá em cada área do **Configurador**. Só libere o que essa pessoa realmente precisa usar.',
         ],
       },
       {
@@ -538,7 +547,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Workspaces',
         imagem: '/university/screenshots/login-convite-passo-07-workspaces.png',
         paragrafos: [
-          'Selecione os workspaces aos quais o convidado terá acesso. Pode ser filial, outra empresa do grupo ou cliente de despachante e agente. Master já acessa todos automaticamente.',
+          'Selecione os **workspaces** aos quais o convidado terá acesso. Pode ser filial, outra empresa do grupo ou cliente de despachante e agente. **Master** já acessa todos automaticamente.',
         ],
       },
       {
@@ -644,7 +653,8 @@ const MANUAL_ESTILO_PASSO_TITULO: React.CSSProperties = {
 }
 
 const MANUAL_ESTILO_CORPO: React.CSSProperties = {
-  fontSize: '.9rem', color: MANUAL_CORPO_70, lineHeight: 1.8, textAlign: MANUAL_ALINHAMENTO_CORPO,
+  ...MANUAL_CORPO_TIPOGRAFIA,
+  color: MANUAL_CORPO_70,
 }
 
 const UNI_ESTILO_PAGE_HEADER: React.CSSProperties = {
@@ -675,7 +685,8 @@ const MANUAL_ESTILO_SECAO_NUMERO: React.CSSProperties = {
 }
 
 const MANUAL_ESTILO_CALLOUT_CORPO: React.CSSProperties = {
-  fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65, textAlign: MANUAL_ALINHAMENTO_CORPO,
+  fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65,
+  textAlign: MANUAL_ALINHAMENTO_CORPO, textJustify: 'inter-word',
 }
 
 /** Ícones inline: token `{{icone:slug}}` + escrita descritiva no mesmo parágrafo */
@@ -1009,8 +1020,15 @@ function ManualCalloutBloco({ callout, marginTop = 12 }: {
 }
 
 function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
+  const calloutLista = passo.callouts ?? (passo.callout ? [passo.callout] : [])
+  const empilharImagem =
+    passo.imagemAbaixoTexto ??
+    (Boolean(passo.imagem) &&
+      calloutLista.length >= 2 &&
+      calloutLista.every((c) => c.tipo === 'dica'))
+
   const blocoBase: React.CSSProperties = {
-    paddingTop: passo.num === 1 ? 8 : 22,
+    paddingTop: passo.num === 1 ? 8 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
     borderTop: passo.num === 1 ? undefined : '1px solid rgba(148,163,184,.1)',
     marginTop: passo.num === 1 ? 18 : 0,
   }
@@ -1040,8 +1058,12 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
         </p>
       )}
       {passo.painelRequisitosCadastro && <ManualPainelRequisitosCadastro />}
-      {(passo.callouts ?? (passo.callout ? [passo.callout] : [])).map((callout, i) => (
-        <ManualCalloutBloco key={i} callout={callout} marginTop={i === 0 ? 12 : 8} />
+      {calloutLista.map((callout, i) => (
+        <ManualCalloutBloco
+          key={i}
+          callout={callout}
+          marginTop={i === 0 ? MANUAL_ESPACO_PARAGRAFO_PX : 8}
+        />
       ))}
     </div>
   )
@@ -1065,6 +1087,17 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
               <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
             </div>
           ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (empilharImagem && passo.imagem) {
+    return (
+      <div style={blocoBase}>
+        {colunaTexto}
+        <div style={{ marginTop: MANUAL_ESPACO_PARAGRAFO_PX }}>
+          <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
         </div>
       </div>
     )
@@ -1424,6 +1457,7 @@ export function UniversityGravity() {
 
   const manualDocPublicado = secao === 'docs' && (
     docsProdutoSlug === 'login' ||
+    docsProdutoSlug === 'navegacao' ||
     docsProdutoSlug === 'hub' ||
     (docsProdutoSlug === 'configurador' && docsConfiguradorPagina !== null)
   )
@@ -1988,14 +2022,7 @@ export function UniversityGravity() {
           )}
 
           {secao === 'docs' && docsProdutoSlug === 'navegacao' && (
-            <div style={{
-              textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
-              border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,
-            }}>
-              <div style={{ fontSize: 48, opacity: .2 }}>🧭</div>
-              <p style={{ marginTop: 10, fontWeight: 600 }}>Manual em construção</p>
-              <p style={{ fontSize: '.82rem', marginTop: 4 }}>Menu superior, menu lateral da plataforma e navegação da Gravity University.</p>
-            </div>
+            <DocNavegacaoManual />
           )}
 
           {secao === 'docs' && docsProdutoSlug === 'login' && (

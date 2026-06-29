@@ -485,3 +485,19 @@ Em `UniversityGravity.tsx` e `manual-configurador-ui.tsx`, reutilizar:
 - `MANUAL_ESTILO_PASSO_ROTULO`, `MANUAL_ESTILO_PASSO_TITULO`, `MANUAL_ESTILO_CORPO`, `MANUAL_ESTILO_CALLOUT_CORPO`
 - `ManualTextoRich` — parse de URLs e `{{icone:slug}}`
 - `ManualParagrafo` — parágrafo padrão do corpo (default `12px` entre parágrafos — ver `manual-tipografia.ts`)
+
+#### 9.6 Sumário — capitalização dos itens
+
+O bloco **Sumário** lista `secao.titulo` (item 1) e `fluxo.tituloSumario ?? fluxo.titulo` (itens 2+). Referência: manual **Login** (`DOC_LOGIN_SECOES` em `UniversityGravity.tsx`).
+
+| Regra | Exemplo correto | Evitar |
+|-------|-----------------|--------|
+| **Frase** — só a primeira palavra em maiúscula, exceto nomes próprios | `A tela de acesso` | `A Tela De Acesso` |
+| Após **dois pontos**, primeira palavra em maiúscula | `Fluxo 1: Criar sua conta` | `Fluxo 1: criar sua conta` |
+| **Nomes próprios** mantêm maiúscula: produtos Gravity, marcas, siglas | `Entrar com Google`, `Acesso à Gravity Store`, `Gabi Insights` | `Entrar com google` |
+| Substantivos comuns em **minúscula** no meio da frase | `Seus produtos Gravity`, `Acessar usuários`, `Histórico de faturas` | `Seus Produtos Gravity`, `Acessar Usuários` |
+| Item 1 com rótulo + descrição | `Hub: tela principal da plataforma` | `Hub: Tela Principal Da Plataforma` |
+
+**Obrigatório:** `titulo` da seção colapsável e `tituloSumario` do fluxo devem seguir o **mesmo** padrão do sumário (o usuário clica no sumário e vê o mesmo texto no cabeçalho da seção).
+
+**SSOT no código:** `montarItensSumario()` em `manual-configurador-ui.tsx`; conteúdo em `DOC_*_SECOES` / `manual-*-conteudo.ts`.

@@ -30,7 +30,7 @@ export const DOC_HUB_METADADOS: { rotulo: string; valor: string; href?: boolean 
 
 export const DOC_HUB_SECAO: DocSecao = {
   num: 1,
-  titulo: 'Hub: Tela principal da plataforma',
+  titulo: 'Hub: tela principal da plataforma',
   layoutTextoImagemLateral: true,
   imagem: SCREENSHOT_HUB_INTRO_COM_SETA,
   paragrafos: [
@@ -52,8 +52,8 @@ export const DOC_HUB_SECAO: DocSecao = {
   mostrarInfograficoHubTelas: true,
   fluxos: [
     {
-      titulo: 'Seus Produtos Gravity',
-      tituloSumario: 'Seus Produtos Gravity',
+      titulo: 'Seus produtos Gravity',
+      tituloSumario: 'Seus produtos Gravity',
       modoCenarios: true,
       paragrafos: [
         'Aqui no **Hub** são exibidos **todos os produtos Gravity** na plataforma, **comprados e não comprados** pela organização.',

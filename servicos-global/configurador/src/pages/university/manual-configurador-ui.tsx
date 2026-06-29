@@ -21,8 +21,9 @@ import {
   SCREENSHOT_HUB_ACESSO_CONFIGURADOR,
   secaoConfiguradorPorSlug,
 } from './manual-configurador-conteudo'
-import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, manualMargemParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, MANUAL_CORPO_TIPOGRAFIA, MANUAL_GRID_TEXTO_IMAGEM, manualMargemParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
 import { ManualInfograficoHubTelas } from './manual-hub-infografico'
+import { ManualInfograficoMenuLateral } from './manual-navegacao-infografico'
 
 const MANUAL_TITULO_COR = 'var(--ws-text,#f1f5f9)'
 const MANUAL_CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
@@ -44,7 +45,8 @@ const MANUAL_ESTILO_PASSO_TITULO: React.CSSProperties = {
 }
 
 const MANUAL_ESTILO_CORPO: React.CSSProperties = {
-  fontSize: '.9rem', color: MANUAL_CORPO_70, lineHeight: 1.8, textAlign: MANUAL_ALINHAMENTO_CORPO,
+  ...MANUAL_CORPO_TIPOGRAFIA,
+  color: MANUAL_CORPO_70,
 }
 
 const MANUAL_LINK_STYLE: React.CSSProperties = {
@@ -68,7 +70,8 @@ const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; 
 }
 
 const MANUAL_ESTILO_CALLOUT_CORPO: React.CSSProperties = {
-  fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65, textAlign: MANUAL_ALINHAMENTO_CORPO,
+  fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65,
+  textAlign: MANUAL_ALINHAMENTO_CORPO, textJustify: 'inter-word',
 }
 
 function ManualTextoRich({ texto }: { texto: string }) {
@@ -159,9 +162,18 @@ const ESTILO_BOTAO_AMPLIAR: React.CSSProperties = {
   cursor: 'pointer',
 }
 
-function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
+function ManualFiguraScreenshot({
+  src,
+  alt,
+  larguraMaxima,
+}: {
+  src: string
+  alt: string
+  larguraMaxima?: number
+}) {
   const [telaCheia, setTelaCheia] = useState(false)
   const ampliarAbaixo = src === SCREENSHOT_HUB_ACESSO_CONFIGURADOR
+  const compacta = larguraMaxima != null
 
   useEffect(() => {
     if (!telaCheia) return
@@ -181,7 +193,13 @@ function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
 
   return (
     <>
-      <div style={ampliarAbaixo ? { display: 'flex', flexDirection: 'column', alignItems: 'flex-end' } : undefined}>
+      <div style={
+        ampliarAbaixo
+          ? { display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }
+          : compacta
+            ? { maxWidth: larguraMaxima, width: '100%' }
+            : undefined
+      }>
         <figure
           role="button"
           tabIndex={0}
@@ -197,7 +215,8 @@ function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
             margin: 0, borderRadius: 14, overflow: 'hidden', cursor: 'zoom-in',
             border: '1px solid rgba(148,163,184,.15)', boxShadow: '0 8px 32px rgba(0,0,0,.28)',
             background: 'rgba(8,12,24,.55)', position: 'relative',
-            width: ampliarAbaixo ? '100%' : undefined,
+            width: ampliarAbaixo || compacta ? '100%' : undefined,
+            maxWidth: larguraMaxima,
           }}
         >
           <img
@@ -417,7 +436,7 @@ function ManualBlocoPassoVisual({
     }
 
   const blocoTexto = (
-    <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)' }}>
+    <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)', width: '100%', minWidth: 0 }}>
       {!semRotuloPasso && (
         <p style={MANUAL_ESTILO_PASSO_ROTULO}>
           Passo {String(passo.num).padStart(2, '0')}
@@ -437,6 +456,7 @@ function ManualBlocoPassoVisual({
               <ManualFiguraScreenshot
                 src={fig.imagem}
                 alt={fig.legenda ?? passo.titulo}
+                larguraMaxima={fig.larguraMaxima}
               />
             </div>
           ))}
@@ -613,7 +633,7 @@ function ManualBlocoPassoVisual({
     <div style={{
       ...blocoBase,
       display: 'grid',
-      gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
+      gridTemplateColumns: MANUAL_GRID_TEXTO_IMAGEM,
       gap: 28,
       alignItems: 'start',
     }}>
@@ -656,6 +676,7 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
               <ManualFiguraScreenshot
                 src={fig.imagem}
                 alt={fig.legenda ?? fluxo.titulo}
+                larguraMaxima={fig.larguraMaxima}
               />
             </div>
           ))}
@@ -672,6 +693,11 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
       {fluxo.mostrarInfograficoPapeisFornecedor && (
         <div style={{ marginTop: 8, marginBottom: 20 }}>
           <ManualInfograficoPapeisFornecedor />
+        </div>
+      )}
+      {fluxo.mostrarInfograficoMenuLateral && (
+        <div style={{ marginTop: 8, marginBottom: 20 }}>
+          <ManualInfograficoMenuLateral />
         </div>
       )}
       {fluxo.modoCenarios && fluxo.cenariosLadoALado && fluxo.passosVisuais.length > 0 ? (
@@ -730,13 +756,18 @@ function ManualBlocoOrigemDados({ origem }: { origem: DocOrigemDados }) {
         <ManualParagrafo
           key={i}
           texto={p}
-          marginBottom={manualMargemParagrafo(i, origem.paragrafos.length)}
+          marginBottom={
+            i === origem.paragrafos.length - 1 && origem.etapas.length > 0
+              ? 20
+              : manualMargemParagrafo(i, origem.paragrafos.length)
+          }
         />
       ))}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
         gap: 20,
+        marginTop: origem.paragrafos.length === 0 ? 0 : undefined,
       }}>
         {origem.etapas.map((etapa) => (
           <div key={etapa.legenda}>
@@ -770,12 +801,12 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
       {secao.layoutTextoImagemLateral && secao.imagem ? (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
+          gridTemplateColumns: MANUAL_GRID_TEXTO_IMAGEM,
           gap: 28,
           alignItems: 'start',
           marginBottom: secao.lista ? 28 : 0,
         }}>
-          <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)' }}>
+          <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)', width: '100%', minWidth: 0 }}>
             {secao.paragrafos.map((p, i) => (
               <div key={i}>
                 <ManualParagrafo
@@ -787,6 +818,7 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                     <ManualFiguraScreenshot
                       src={fig.imagem}
                       alt={fig.legenda ?? secao.titulo}
+                      larguraMaxima={fig.larguraMaxima}
                     />
                   </div>
                 ))}
@@ -814,6 +846,7 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                   <ManualFiguraScreenshot
                     src={fig.imagem}
                     alt={fig.legenda ?? secao.titulo}
+                    larguraMaxima={fig.larguraMaxima}
                   />
                 </div>
               ))}
@@ -894,6 +927,8 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
                   {desc && <p style={{
                     fontSize: '.78rem',
                     color: MANUAL_CORPO_70, lineHeight: 1.45,
+                    textAlign: MANUAL_ALINHAMENTO_CORPO,
+                    textJustify: 'inter-word',
                   }}><ManualTextoRich texto={desc} /></p>}
                 </div>
               </div>

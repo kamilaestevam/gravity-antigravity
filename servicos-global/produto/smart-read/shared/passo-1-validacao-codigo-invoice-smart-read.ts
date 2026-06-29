@@ -19,6 +19,7 @@ import type {
 import {
   achatarCamposDadosLeitura,
   classificarSituacaoCodigoFiscal,
+  extrairDescricaoItemLinha,
   extrairNcmsDados,
   validarCnpjBrasil,
   valorTextoComparacaoCampo,
@@ -134,7 +135,6 @@ function extrairItens(dados: Record<string, unknown>) {
   if (!Array.isArray(rows)) return []
   return rows.map((row, indice) => {
     const r = row as Record<string, unknown>
-    const desc = r.descriptions as Record<string, unknown> | undefined
     return {
       indice,
       partNumber: valorTextoComparacaoCampo(r.partNumber ?? r.sku ?? r.itemCode ?? r.productCode),
@@ -147,10 +147,7 @@ function extrairItens(dados: Record<string, unknown>) {
       ),
       unidade: valorTextoComparacaoCampo(r.unit ?? r.uom ?? r.unitOfMeasure),
       ncm: valorTextoComparacaoCampo(r.ncm ?? r.NCM),
-      descricao:
-        [desc?.portuguese, desc?.english, desc?.descPt, r.description]
-          .map((v) => valorTextoComparacaoCampo(v))
-          .find((v) => v && !textoExtracaoEhPlaceholder(v)) ?? null,
+      descricao: extrairDescricaoItemLinha(r),
     }
   })
 }

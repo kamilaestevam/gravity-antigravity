@@ -18,6 +18,7 @@ import {
   extrairDetalheDadosRegraMatrizInvoice,
   regraMatrizTemDadoExtraido,
 } from './extrair-detalhe-dados-regra-matriz-invoice-smart-read.js'
+import { regraMatrizTemDescricaoParaClassificacao } from './montar-classificacao-produto-checklist-smart-read.js'
 
 export type StatusChecklistMatrizInvoice = StatusMatrizInvoice | 'pendente' | 'na'
 
@@ -282,10 +283,13 @@ export function montarChecklistMatrizInvoice(
 
     const motorPrecisaIa = regraMatriz.motor === 'llm' || regraMatriz.motor === 'rag'
     if (motorPrecisaIa) {
-      const temDado =
-        documentos != null &&
-        documentos.length > 0 &&
-        regraMatrizTemDadoExtraido(regraMatriz.id, documentos, rotulo_documento)
+      const regraUsaDescricaoItem =
+        regraMatriz.id === 'S4-02' || regraMatriz.id === 'S4-03'
+      const temDado = regraUsaDescricaoItem
+        ? regraMatrizTemDescricaoParaClassificacao(documentos ?? [], rotulo_documento)
+        : documentos != null &&
+          documentos.length > 0 &&
+          regraMatrizTemDadoExtraido(regraMatriz.id, documentos, rotulo_documento)
       const resultadoLido = detalheExtraido ?? '—'
 
       if (!temDado && pipelineConcluido) {
@@ -318,8 +322,10 @@ export function montarChecklistMatrizInvoice(
       }
       return montarItemChecklist(
         regraMatriz,
-        'na',
-        'Revisão manual — IA sem apontamento nesta regra',
+        regraUsaDescricaoItem && temDado ? 'conforme' : 'na',
+        regraUsaDescricaoItem && temDado
+          ? 'IA conferiu sem apontamento nesta regra'
+          : 'Revisão manual — IA sem apontamento nesta regra',
         null,
         temDado ? resultadoLido : 'Sem dado extraído',
       )

@@ -6,12 +6,10 @@
 import type { DocumentoAnaliseRisco } from './analise-riscos-leitura-smart-read.js'
 import {
   achatarCamposDadosLeitura,
+  montarItensParaClassificacaoFiscal,
   valorTextoComparacaoCampo,
 } from './analise-riscos-leitura-smart-read.js'
-
-function rotuloDocumento(nomeArquivo: string, tipoDocumento: string, indice: number): string {
-  return `${nomeArquivo} · ${tipoDocumento.trim() || `Documento ${indice + 1}`}`
-}
+import { rotuloDocumentoChecklistInvoice } from './montar-checklist-matriz-invoice-smart-read.js'
 
 function valorCampo(mapa: Map<string, unknown>, caminhos: string[]): string | null {
   for (const caminho of caminhos) {
@@ -35,12 +33,13 @@ function valorCampo(mapa: Map<string, unknown>, caminhos: string[]): string | nu
 
 function documentosEscopo(
   documentos: DocumentoAnaliseRisco[],
-  rotuloFiltro?: string | null,
+  rotuloDocumento?: string | null,
 ): DocumentoAnaliseRisco[] {
   const invoices = documentos.filter((d) => d.tipo_documento.toUpperCase().includes('INVOICE'))
-  if (!rotuloFiltro) return invoices
+  if (!rotuloDocumento) return invoices
   return invoices.filter(
-    (d) => rotuloDocumento(d.nome_arquivo, d.tipo_documento, d.indice) === rotuloFiltro,
+    (d) =>
+      rotuloDocumentoChecklistInvoice(d.nome_arquivo, d.tipo_documento, d.indice) === rotuloDocumento,
   )
 }
 
@@ -63,15 +62,15 @@ function extrairItensResumo(dados: Record<string, unknown>) {
 export function extrairDetalheDadosRegraMatrizInvoice(
   idRegra: string,
   documentos: DocumentoAnaliseRisco[],
-  rotuloFiltro?: string | null,
+  rotuloDocumento?: string | null,
 ): string | null {
-  const docs = documentosEscopo(documentos, rotuloFiltro)
+  const docs = documentosEscopo(documentos, rotuloDocumento)
   if (docs.length === 0) return null
 
   const partes: string[] = []
   for (const doc of docs) {
     const mapa = achatarCamposDadosLeitura(doc.dados)
-    const rotulo = rotuloDocumento(doc.nome_arquivo, doc.tipo_documento, doc.indice)
+    const rotulo = rotuloDocumentoChecklistInvoice(doc.nome_arquivo, doc.tipo_documento, doc.indice)
 
     switch (idRegra) {
       case 'S1-01':
@@ -171,11 +170,27 @@ export function extrairDetalheDadosRegraMatrizInvoice(
         break
       }
       case 'S4-02': {
-        const itens = extrairItensResumo(doc.dados)
-        partes.push(itens.length === 0 ? 'sem linhas' : `${itens.length} descrição(ões) de item`)
+        const descricoes = montarItensParaClassificacaoFiscal([doc])
+          .map((i) => i.descricao?.trim())
+          .filter((d): d is string => Boolean(d))
+        partes.push(
+          descricoes.length === 0
+            ? 'descrição não extraída'
+            : descricoes.map((d) => d.slice(0, 80)).join('; '),
+        )
         break
       }
-      case 'S4-03':
+      case 'S4-03': {
+        const itensDesc = montarItensParaClassificacaoFiscal([doc]).filter((i) => i.descricao?.trim())
+        partes.push(
+          itensDesc.length === 0
+            ? 'descrição não extraída'
+            : itensDesc
+                .map((i) => `L${i.indice + 1}: ${i.descricao!.trim().slice(0, 60)}`)
+                .join('; '),
+        )
+        break
+      }
       case 'S4-04': {
         const itens = extrairItensResumo(doc.dados)
         const ncms = itens.map((i) => i.ncm).filter(Boolean)
@@ -281,9 +296,9 @@ export function extrairDetalheDadosRegraMatrizInvoice(
 export function regraMatrizTemDadoExtraido(
   idRegra: string,
   documentos: DocumentoAnaliseRisco[],
-  rotuloFiltro?: string | null,
+  rotuloDocumento?: string | null,
 ): boolean {
-  const detalhe = extrairDetalheDadosRegraMatrizInvoice(idRegra, documentos, rotuloFiltro)
+  const detalhe = extrairDetalheDadosRegraMatrizInvoice(idRegra, documentos, rotuloDocumento)
   if (!detalhe) return false
   return !/não extraíd|não identificad|sem linhas|ausente/i.test(detalhe)
 }

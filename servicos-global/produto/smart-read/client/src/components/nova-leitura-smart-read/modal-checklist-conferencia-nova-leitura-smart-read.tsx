@@ -15,6 +15,7 @@ import {
   type ParametrosChecklistMatrizInvoice,
 } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import { ChecklistConferenciaCorpoSmartRead } from './checklist-conferencia-corpo-smart-read'
+import { montarClassificacaoProdutoChecklist } from '../../../../shared/montar-classificacao-produto-checklist-smart-read'
 import { InfograficoChecklistGeralSmartRead } from './infografico-checklist-geral-smart-read'
 import { ResumoContagemChecklistSmartRead } from './resumo-contagem-checklist-smart-read'
 import {
@@ -103,6 +104,17 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     )
     return contarConferenciaManualChecklist(marcados, chaves)
   }, [checklistInvoice, rotuloChecklistAtivo, marcados])
+
+  const classificacaoProduto = useMemo(() => {
+    if (!rotuloChecklistAtivo) return []
+    return montarClassificacaoProdutoChecklist({
+      documentos,
+      riscos: parametrosChecklist.riscos,
+      rotulo_documento: rotuloChecklistAtivo,
+      pipelineConcluido: parametrosChecklist.pipelineConcluido,
+      carregando: parametrosChecklist.carregando,
+    })
+  }, [documentos, parametrosChecklist, rotuloChecklistAtivo])
 
   useEffect(() => {
     if (aberto && !abertoAnteriorRef.current) {
@@ -201,6 +213,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
                     alternarMarcado={alternarMarcado}
                     idPrefixo="sr-chk-modal-geral-inv"
                     classeCorpo="sr-chk-modal-checklist-corpo"
+                    classificacaoProduto={classificacaoProduto}
                   />
                   <ResumoContagemChecklistSmartRead
                     verde={contagemDetalheInvoice.verde}

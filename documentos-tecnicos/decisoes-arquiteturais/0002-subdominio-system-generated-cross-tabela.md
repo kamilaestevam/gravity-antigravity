@@ -1,6 +1,8 @@
 # ADR 0002 — Subdomínio gerado pelo sistema, único cross-tabela
 
-> **Status:** Aceita · **Data:** 2026-05-03 · **Autor:** Daniel (dono) com aval do Coordenador e Líder Técnico
+> **⚠️ SUSPENSO (portal multi-URL) — 2026-06-29, decisão Daniel:** o slug `subdominio_*` **permanece no banco** (geração + unicidade cross-tabela ativas), mas **não** é URL pública nem roteamento de acesso. Usuários entram só em `https://usegravity.com.br`. UI de preview/colunas Admin ocultas. Reativar portal por host exige nova ADR + onda DNS/tenant-resolver.
+
+> **Status:** Aceita (slug interno) · **Portal por subdomínio:** Suspenso · **Data:** 2026-05-03 · **Autor:** Daniel (dono) com aval do Coordenador e Líder Técnico
 > **Escopo afetado:** `servicos-global/configurador/server/services/organizacaoService.ts`, `server/routes/me.ts`, `server/routes/admin.ts`, `src/services/apiClient.ts`, `src/hooks/useSugerirSubdominio.ts`, modais de criação/edição de Organização e Workspace.
 
 ---

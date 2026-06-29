@@ -18,12 +18,15 @@ import { useLocation } from 'react-router-dom'
 import { pedidoEventoApi, type EventoComportamentoTipo, type EventoComportamentoPayload } from '../shared/api'
 
 async function sendEvent(event: EventoComportamentoTipo, payload: EventoComportamentoPayload): Promise<void> {
-  // Fire-and-forget com fallback silencioso (Mand. 08 — comportamento intencional aqui:
-  // analytics nao deve degradar UX). request() central ja anexa Bearer JWT + headers de tenant.
   try {
     await pedidoEventoApi.registrar(event, payload)
-  } catch {
-    // Silencioso
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[useTrackBehavior] falha ao enviar evento', {
+        event,
+        erro: err instanceof Error ? err.message : String(err),
+      })
+    }
   }
 }
 

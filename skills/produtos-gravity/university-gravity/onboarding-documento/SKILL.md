@@ -164,6 +164,22 @@ Após "aprovado" ou equivalente do usuário:
 ## Referências
 
 - **Padrão editorial completo**: `documentos-tecnicos/produtos-gravity/university-gravity/ONBOARDING-DOCUMENTO.md`
+- **Manual descritivo de tela (Login e futuros)**: ONBOARDING-DOCUMENTO.md **§9** — tipografia, `MANUAL_CORPO_70`, `ManualTextoRich`, ícones `{{icone:slug}}`, URLs completas
 - **Renderizador de blocos**: `servicos-global/configurador/src/pages/university/PlayerAula.tsx`
+- **Manual descritivo (código)**: `servicos-global/configurador/src/pages/UniversityGravity.tsx` — `DOC_LOGIN_SECOES`, `ManualBlocoPassoVisual`, `ManualTextoRich`
 - **Dados de demo**: `servicos-global/configurador/src/pages/university/conteudo-demo.ts`
 - **Mapa de produtos × fases**: seção 7 do ONBOARDING-DOCUMENTO.md
+
+---
+
+## Manual descritivo de tela (regras para agentes)
+
+Quando editar ou criar conteúdo em `DOC_LOGIN_SECOES` (ou futuros `DOC_*_SECOES`):
+
+1. **Ler ONBOARDING-DOCUMENTO.md §9** antes de escrever parágrafos ou passos visuais.
+2. **Corpo:** `0.9rem` + `MANUAL_CORPO_70` (70% de `--ws-text`). Não usar `MANUAL_TIPO.corpo` legado em texto novo.
+3. **Passos:** rótulo `PASSO NN` em `12px` `#818cf8`; título do passo em `0.92rem` 100%; parágrafos via `ManualParagrafo`.
+4. **URLs:** sempre `https://usegravity.com.br/...` no texto; login canônico = `https://usegravity.com.br/login`.
+5. **Ícones:** token `{{icone:slug}}` **com** escrita descritiva no mesmo parágrafo (ex.: “ícone de olho {{icone:olho}}”).
+6. **Screenshots:** salvar em `public/university/screenshots/` e referenciar caminho absoluto `/university/screenshots/...`.
+7. **Intro de fluxo:** um parágrafo resumido na seção; detalhes nos `passosVisuais`.

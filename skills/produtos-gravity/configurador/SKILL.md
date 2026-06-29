@@ -162,6 +162,8 @@ if (!productPermissions || productPermissions.length === 0) {
 
 **Proxy** (`server/index.ts`): `/api/v1/empresas` e `/api/v1/fornecedores` são rotas **separadas** (sem rewrite). Chave S2S injetada server-side no proxy.
 
+**GABI (TASK-000390):** Browser usa `/api/v1/gabi/*` no Configurador — prod: `server/proxy/proxy-gabi.ts` → sidecar `:8009`; dev Vite proxy com headers fake. SSOT: [GABI-AMBIENTE.md](../../../servicos-global/configurador/docs/GABI-AMBIENTE.md) · [PLANO-PLENITUDE-GABI-v2.md](../../../documentos-tecnicos/produtos-gravity/gabi/PLANO-PLENITUDE-GABI-v2.md). Widget onboarding: `POST /api/v1/gabi/agente/chat` (sem mock em prod).
+
 **Saga onboarding** (`organizacao-service.createOrganizacao`): Cadastros primeiro → SUID em `suid_empresa_organizacao` → compensação `compensarEmpresa` se transação local falhar.
 
 ---
@@ -225,7 +227,11 @@ model UsuarioWorkspace {
 
 ## Política de Subdomínio (decisão 2026-05-03 — ADR 0002)
 
-**Domínio público:** `usegravity.com.br`. Cada Organização e cada Workspace tem seu próprio subdomínio canônico (`<sub>.usegravity.com.br`) usado em e-mails, integrações, webhooks.
+> **⚠️ SUSPENSO (portal multi-URL) — 2026-06-29:** slug `subdominio_organizacao` / `subdominio_workspace` continua **obrigatório no banco** (`proximoSubdominioDisponivel`), mas **não** é exibido na UI nem exposto em `GET /api/v1/me`. Acesso do usuário: **somente** `https://usegravity.com.br/{área}`. Ver ADR 0002.
+
+**Domínio público de acesso:** `usegravity.com.br` (URL única). Slug interno por org/workspace permanece para unicidade e uso futuro (integrações), **não** para login/hub no browser.
+
+**Deploy (prestador/fornecedor):** antes de remover fallback legado, validar em prod `ID_ORGANIZACAO_GRAVITY` **ou** org `ATIVA` com `hospeda_colaboradores_gravity=true` — senão `resolverIdOrganizacaoGravity()` retorna `503 ORG_GRAVITY_AUSENTE`.
 
 **Regras absolutas:**
 

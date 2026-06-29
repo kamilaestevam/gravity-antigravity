@@ -5,16 +5,16 @@
 /// <reference types="vitest/globals" />
 
 // ─── Mocks hoistados ─────────────────────────────────────────────────────────
-const { mockFindUnique, mockWsFindFirst, mockMemberFindFirst } = vi.hoisted(() => ({
+const { mockFindUnique, mockWsFindMany, mockMemberFindFirst } = vi.hoisted(() => ({
   mockFindUnique:      vi.fn(),
-  mockWsFindFirst:     vi.fn(),
+  mockWsFindMany:      vi.fn(),
   mockMemberFindFirst: vi.fn(),
 }))
 
 vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   prisma: {
     usuario:          { findUnique: mockFindUnique, update: vi.fn() },
-    workspace:        { findFirst: mockWsFindFirst },
+    workspace:        { findMany: mockWsFindMany, findFirst: vi.fn() },
     usuarioWorkspace: { findFirst: mockMemberFindFirst },
   },
 }))
@@ -26,9 +26,18 @@ vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js'
     _res: Record<string, unknown>,
     next: () => void,
   ) => {
-    req['auth'] = { userId: 'usr_test_01', tenantId: 'ten_test_01', role: 'MASTER' }
+    req['auth'] = { id_usuario: 'usr_test_01', id_organizacao: 'ten_test_01', tipo_usuario: 'MASTER' }
     next()
   },
+}))
+
+vi.mock('../../../servicos-global/servicos-plataforma/historico-global/server/services/audit.service.js', () => ({
+  AuditService: { log: vi.fn().mockResolvedValue(undefined) },
+}))
+
+vi.mock('@nucleo/montar-detalhe-acao-historico-log', () => ({
+  compararEstadosHistoricoLog: vi.fn(),
+  montarDetalheAcaoHistoricoLog: vi.fn().mockReturnValue(''),
 }))
 
 import express, { type Request, type Response, type NextFunction } from 'express'
@@ -50,36 +59,47 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 
 // ─── Fixture ─────────────────────────────────────────────────────────────────
 const USUARIO_MOCK = {
-  id:                   'usr_test_01',
-  name:                 'Maria Teste',
-  email:                'maria@teste.com.br',
-  role:                 'MASTER',
-  tenant_id:            'ten_test_01',
-  preferred_company_id: null,
+  id_usuario: 'usr_test_01',
+  nome_usuario: 'Maria Teste',
+  email_usuario: 'maria@teste.com.br',
+  tipo_usuario: 'MASTER' as const,
+  id_organizacao: 'ten_test_01',
+  id_workspace_preferido_usuario: null,
+  acesso_workspaces_futuros: false,
   tenant: {
-    id:     'ten_test_01',
-    name:   'Empresa Teste Ltda',
-    slug:   'empresa-teste',
-    status: 'ACTIVE',
+    id_organizacao: 'ten_test_01',
+    nome_organizacao: 'Empresa Teste Ltda',
+    status_organizacao: 'ATIVO',
+    hospeda_colaboradores_gravity: false,
   },
   memberships: [
     {
-      role: 'MASTER',
+      tipo_usuario_workspace: 'MASTER' as const,
       company: {
-        id:     'ws_001',
-        name:   'Workspace Alpha',
-        status: 'ACTIVE',
-        company_products: [{ product_key: 'pedido' }],
+        id_workspace: 'ws_001',
+        nome_workspace: 'Workspace Alpha',
+        status_workspace: 'ATIVO',
+        company_products: [{ id_produto_gravity: 'pedido' }],
       },
     },
   ],
 }
+
+const WORKSPACES_ORG_MOCK = [
+  {
+    id_workspace: 'ws_001',
+    nome_workspace: 'Workspace Alpha',
+    status_workspace: 'ATIVO',
+    company_products: [{ id_produto_gravity: 'pedido' }],
+  },
+]
 
 // ─── Testes ───────────────────────────────────────────────────────────────────
 describe('GET /api/v1/me — Contrato DDD', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockFindUnique.mockResolvedValue(USUARIO_MOCK)
+    mockWsFindMany.mockResolvedValue(WORKSPACES_ORG_MOCK)
   })
 
   it('retorna 200 com payload que passa no meResponseSchema', async () => {
@@ -109,10 +129,10 @@ describe('GET /api/v1/me — Contrato DDD', () => {
     expect(usuario.nome_usuario).toBe('Maria Teste')
     expect(usuario.email_usuario).toBe('maria@teste.com.br')
     expect(usuario.tipo_usuario).toBe('MASTER')
-    expect(usuario.id_organizacao_usuario).toBe('ten_test_01')
+    expect(usuario.id_organizacao).toBe('ten_test_01')
 
     expect(organizacao?.nome_organizacao).toBe('Empresa Teste Ltda')
-    expect(organizacao?.subdominio_organizacao).toBe('empresa-teste')
+    expect(organizacao?.subdominio_organizacao).toBeUndefined()
 
     expect(workspaces).toHaveLength(1)
     expect(workspaces[0].nome_workspace).toBe('Workspace Alpha')
@@ -138,6 +158,7 @@ describe('GET /api/v1/me — Contrato DDD', () => {
 
   it('organizacao é null e schema aceita quando tenant não está vinculado', async () => {
     mockFindUnique.mockResolvedValue({ ...USUARIO_MOCK, tenant: null })
+    mockWsFindMany.mockResolvedValue([])
 
     const res = await request(app).get('/api/v1/me')
 
@@ -150,6 +171,7 @@ describe('GET /api/v1/me — Contrato DDD', () => {
 
   it('workspaces é array vazio quando usuário não tem memberships ativas', async () => {
     mockFindUnique.mockResolvedValue({ ...USUARIO_MOCK, memberships: [] })
+    mockWsFindMany.mockResolvedValue([])
 
     const res = await request(app).get('/api/v1/me')
 

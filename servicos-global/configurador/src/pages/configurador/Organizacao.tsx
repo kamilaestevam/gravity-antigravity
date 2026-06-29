@@ -134,9 +134,8 @@ export function Organizacao() {
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
 
   const OPCOES_WORKSPACES: SelectOpcao[] = workspaces.map(w => ({
-    valor:     w.id_workspace,
-    rotulo:    w.nome_workspace,
-    descricao: w.subdominio_workspace ? `${w.subdominio_workspace}.usegravity.com.br` : '',
+    valor:  w.id_workspace,
+    rotulo: w.nome_workspace,
   }))
 
   // Dados editáveis diretamente — sem modo "editando"
@@ -344,9 +343,8 @@ export function Organizacao() {
               <span className="em-identity__badge">{t('workspace.organizacao.badge_organizacao')}</span>
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome_organizacao || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
-            <p className="em-identity__sub">
-              {dados.subdominio_organizacao}.usegravity.com.br
-            </p>
+            {/* SUSPENSO 2026-06-29 (Daniel): URL única usegravity.com.br — slug interno não exibido */}
+            <p className="em-identity__sub">usegravity.com.br</p>
             {idOrganizacao && (
               <TooltipGlobal titulo={t('workspace.organizacao.id_tooltip_titulo')} descricao={t('workspace.organizacao.id_tooltip_desc')}>
                 <p
@@ -508,7 +506,7 @@ export function Organizacao() {
         itemAtivo={workspacePreferido ? {
           icone: <CheckCircle weight="fill" size={16} color="#34d399" />,
           texto: <>Acessando como&nbsp;<strong>{workspacePreferido.nome_workspace}</strong></>,
-          subtexto: workspacePreferido.subdominio_workspace ? `(${workspacePreferido.subdominio_workspace}.usegravity.com.br)` : ''
+          subtexto: ''
         } : null}
         className="ws-fade-up ws-fade-up-d3"
       />

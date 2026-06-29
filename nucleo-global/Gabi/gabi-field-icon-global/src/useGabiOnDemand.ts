@@ -1,5 +1,24 @@
 import { useState, useCallback, useRef } from 'react'
+import { z } from 'zod'
 import type { UseGabiOnDemandResult } from './tipos'
+
+const gabiFieldHelpResponseSchema = z.object({
+  titulo: z.string().optional(),
+  texto: z.string(),
+  exemplo: z.string().optional(),
+  quota: z
+    .object({
+      tokens_usados: z.number().optional(),
+    })
+    .optional(),
+})
+
+function formatarRespostaFieldHelp(data: z.infer<typeof gabiFieldHelpResponseSchema>): string {
+  const partes = [data.titulo, data.texto, data.exemplo].filter(
+    (p): p is string => typeof p === 'string' && p.length > 0,
+  )
+  return partes.join('\n\n')
+}
 
 export function useGabiOnDemand(
   campo:         string,
@@ -40,9 +59,15 @@ export function useGabiOnDemand(
         throw new Error(data?.error?.message ?? 'Erro ao consultar GABI')
       }
 
-      const data = await res.json()
-      setResposta(data.resposta ?? '')
-      if (data.tokens_total && onTokensUsados) onTokensUsados(data.tokens_total)
+      const raw: unknown = await res.json()
+      const parsed = gabiFieldHelpResponseSchema.safeParse(raw)
+      if (!parsed.success) {
+        throw new Error('Resposta GABI inválida (contrato ajuda-campo)')
+      }
+      setResposta(formatarRespostaFieldHelp(parsed.data))
+      if (parsed.data.quota?.tokens_usados != null && onTokensUsados) {
+        onTokensUsados(parsed.data.quota.tokens_usados)
+      }
     } catch (e: unknown) {
       if (e instanceof Error && e.name === 'AbortError') return
       setErro(e instanceof Error ? e.message : 'Erro desconhecido')

@@ -5,8 +5,12 @@
 import { AppError } from '../lib/errors.js'
 import { buscarTool } from './catalogo-ferramentas.js'
 
-const CONFIGURADOR_URL = process.env.CONFIGURADOR_URL ?? process.env.CONFIGURADOR_SERVICE_URL ?? 'http://localhost:8005'
-const CHAVE_INTERNA_SERVICO = process.env.CHAVE_INTERNA_SERVICO ?? ''
+const CONFIGURADOR_URL =
+  process.env.CONFIGURADOR_URL ?? process.env.CONFIGURADOR_SERVICE_URL ?? 'http://127.0.0.1:8005'
+
+function getChaveInternaServico(): string {
+  return process.env.CHAVE_INTERNA_SERVICO ?? ''
+}
 
 export type PermissionChecker = (userId: string, action: string, resource: string, tenantId: string) => Promise<boolean>
 
@@ -52,10 +56,9 @@ export async function verificarPermissaoS2S(
     return { permitido: true }
   }
 
-  // Se nao temos chave S2S, fallback permissivo (usuario autenticado = ok)
-  if (!CHAVE_INTERNA_SERVICO) {
-    console.warn('[GABI/Permissoes] CHAVE_INTERNA_SERVICO ausente — fallback permissivo')
-    return { permitido: true }
+  if (!getChaveInternaServico()) {
+    console.error('[GABI/Permissoes] CHAVE_INTERNA_SERVICO ausente — WRITE bloqueado')
+    return { permitido: false, motivo: 'Configuracao S2S incompleta (CHAVE_INTERNA_SERVICO)' }
   }
 
   const [secao, acao] = tool_id.split('.')
@@ -65,7 +68,7 @@ export async function verificarPermissaoS2S(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-chave-interna-servico': CHAVE_INTERNA_SERVICO,
+        'x-chave-interna-servico': getChaveInternaServico(),
       },
       body: JSON.stringify({
         id_organizacao,
@@ -78,8 +81,8 @@ export async function verificarPermissaoS2S(
     })
 
     if (!response.ok) {
-      console.warn(`[GABI/Permissoes] S2S falhou: HTTP ${response.status} — fallback permissivo`)
-      return { permitido: true }
+      console.error(`[GABI/Permissoes] S2S falhou: HTTP ${response.status}`)
+      return { permitido: false, motivo: `Verificacao S2S indisponivel (HTTP ${response.status})` }
     }
 
     const data = (await response.json()) as VerificacaoPermissaoResponse
@@ -89,8 +92,8 @@ export async function verificarPermissaoS2S(
 
     return data
   } catch (err) {
-    console.warn('[GABI/Permissoes] Erro na verificacao S2S — fallback permissivo:', err)
-    return { permitido: true }
+    console.error('[GABI/Permissoes] Erro na verificacao S2S:', err)
+    return { permitido: false, motivo: 'Verificacao S2S indisponivel' }
   }
 }
 

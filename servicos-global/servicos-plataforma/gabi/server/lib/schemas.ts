@@ -63,7 +63,9 @@ export const gabiConfirmacaoPendenteSchema = z.object({
 export type GabiConfirmacaoPendente = z.infer<typeof gabiConfirmacaoPendenteSchema>
 
 export const gabiAgenteChatResponseSchema = z.object({
+  conversationId: z.string().optional(),
   response: z.string(),
+  suggestions: z.array(z.string()).optional(),
   modelo: z.string(),
   tokens: z.object({
     input: z.number(),

@@ -15,7 +15,7 @@ import type { ArquivoLocalNovaLeitura } from '../../shared/tipo-arquivo-nova-lei
 import { smartReadApi } from '../../shared/api'
 import {
   aplicarCorrecaoSugeridaPadraoRisco,
-  montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado,
+  montarDocumentosAnaliseRiscoDeArquivoLocal,
   montarDocumentosAnaliseRiscoDeArquivosLocais,
 } from '../../shared/analisar-riscos-aduaneiros-leitura-smart-read'
 import {
@@ -202,13 +202,10 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
 
   const documentos = useMemo(() => {
     if (arquivoConferencia) {
-      return montarDocumentosAnaliseRiscoDeArquivoLocalSelecionado(
-        arquivoConferencia,
-        indiceDocumentoConferencia,
-      )
+      return montarDocumentosAnaliseRiscoDeArquivoLocal(arquivoConferencia)
     }
     return montarDocumentosAnaliseRiscoDeArquivosLocais(arquivosAnalisaveis)
-  }, [arquivoConferencia, indiceDocumentoConferencia, arquivosAnalisaveis])
+  }, [arquivoConferencia, arquivosAnalisaveis])
 
   const chaveDocumento = `${arquivoConferencia?.id_arquivo_local ?? ''}:${indiceDocumentoConferencia}`
 
@@ -232,15 +229,29 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
     [documentos, chaveAnalise],
   )
 
+  const regrasEfetivas = useMemo(() => {
+    const passo1 = auditoriaV1Local?.contexto.regras ?? []
+    if (regrasContexto.length === 0) return passo1
+    const porId = new Map(passo1.map((r) => [r.id, r]))
+    for (const r of regrasContexto) porId.set(r.id, r)
+    return [...porId.values()]
+  }, [auditoriaV1Local, regrasContexto])
+
+  const riscosEfetivos = useMemo(() => {
+    if (resumo.total > 0) return resumo.riscos
+    return auditoriaV1Local?.resumo.riscos ?? []
+  }, [resumo, auditoriaV1Local])
+
   const parametrosChecklist = useMemo(
     () => ({
-      regras: regrasContexto,
-      riscos: resumo.riscos,
+      regras: regrasEfetivas,
+      riscos: riscosEfetivos,
       pipelineConcluido,
       llmHabilitado,
       carregando,
+      documentos,
     }),
-    [regrasContexto, resumo.riscos, pipelineConcluido, llmHabilitado, carregando],
+    [regrasEfetivas, riscosEfetivos, pipelineConcluido, llmHabilitado, carregando, documentos],
   )
 
   const resumoGeralChecklist = useMemo(
@@ -323,15 +334,6 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
           .join(' · ')
 
   useEffect(() => {
-    if (auditoriaV1Local) {
-      setResumo(auditoriaV1Local.resumo)
-      setRegrasContexto(auditoriaV1Local.contexto.regras)
-      setPipelineConcluido(false)
-      setLlmHabilitado(false)
-    }
-  }, [auditoriaV1Local])
-
-  useEffect(() => {
     if (documentos.length === 0) return
 
     const emCache = obterCacheAnaliseRiscosSessaoSmartRead(chaveAnalise)
@@ -380,7 +382,7 @@ export function ConferenciaRiscosAduaneirosNovaLeituraSmartRead({
           onIaFim?.()
         }
       })
-  }, [chaveAnalise, documentos, idLeituraLegado, onTokensAtualizados, onIaInicio, onIaFim, auditoriaV1Local])
+  }, [chaveAnalise, documentos, idLeituraLegado, onTokensAtualizados, onIaInicio, onIaFim])
 
   function toggleExpandirRisco(risco: RiscoAduaneiroLeitura) {
     setRiscoExpandidoId((prev) => (prev === risco.id ? null : risco.id))

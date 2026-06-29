@@ -142,8 +142,16 @@ validarClientePrismaPedido(_prismaPedido)
 // ── 3. Healthcheck (sem auth) — inclui ping ao banco para o script servidores ─
 app.get('/health', async (_req: Request, res: Response) => {
   let db: 'ok' | 'down' = 'ok'
+  let gabiBehaviorEvents: 'ok' | 'missing' = 'missing'
   try {
     await _prismaPedido.$queryRaw`SELECT 1`
+    const rows = await _prismaPedido.$queryRaw<Array<{ exists: boolean }>>`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'user_behavior_events'
+      ) AS exists
+    `
+    gabiBehaviorEvents = rows[0]?.exists ? 'ok' : 'missing'
   } catch {
     db = 'down'
   }
@@ -153,6 +161,7 @@ app.get('/health', async (_req: Request, res: Response) => {
     service: 'pedido',
     port: PORT,
     db,
+    gabi_behavior_events: gabiBehaviorEvents,
     ts: new Date().toISOString(),
   })
 })

@@ -487,7 +487,7 @@ Se qualquer um dos seguintes ocorrer, o insight original é retornado sem modifi
 
 ## 8. Modelo de Dados (Prisma)
 
-**Fragment:** `produto/pedido/server/prisma/fragment.prisma`
+**Fragment:** `servicos-global/produto/pedido/prisma/fragment.prisma`
 
 ```prisma
 model UserBehaviorEvent {
@@ -531,7 +531,11 @@ npx prisma migrate deploy
 npx prisma db push --accept-data-loss
 ```
 
-Migration file: `migrations/20260409120000_add_user_behavior_events/migration.sql`
+Migration file: `servicos-global/produto/pedido/prisma/migrations/20260628130000_add_user_behavior_events/migration.sql`
+
+**Health pós-deploy (Onda 3):** `GET /health` do servidor Pedido expõe `gabi_behavior_events: ok | missing`.
+
+**Observabilidade Fase 3 (Onda 3):** logs `[gabiLlmInsights] Fase 3 fallback` com `motivo` (`chave_ausente`, `http_erro`, `zod`, `timeout`, `quota`, `rede`) e `tenantId`.
 
 ---
 

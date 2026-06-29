@@ -5,6 +5,7 @@
 import type {
   DadosOficiaisCnpjLeitura,
   DocumentoAnaliseRisco,
+  RegraAuditoriaV1,
   RiscoAduaneiroLeitura,
 } from '../../../shared/analise-riscos-leitura-smart-read.js'
 import {
@@ -14,6 +15,10 @@ import {
 } from '../../../shared/analise-riscos-leitura-smart-read.js'
 import { severidadeParaStatusMatriz } from '../../../shared/matriz-validacao-invoice-smart-read.js'
 import { consultarCnpjReceitaSmartRead } from './cliente-consulta-cnpj-smart-read.js'
+
+function rotuloDocumento(nomeArquivo: string, tipo: string, indice: number): string {
+  return `${nomeArquivo} · ${tipo.trim() || `Documento ${indice + 1}`}`
+}
 
 function extrairCnpjImportador(dados: Record<string, unknown>): string | null {
   const mapa = achatarCamposDadosLeitura(dados)
@@ -31,22 +36,73 @@ function extrairCnpjImportador(dados: Record<string, unknown>): string | null {
   return null
 }
 
+function montarCnpjPorArquivo(documentos: DocumentoAnaliseRisco[]): Map<string, string> {
+  const mapa = new Map<string, string>()
+  for (const doc of documentos) {
+    const cnpj = extrairCnpjImportador(doc.dados)
+    if (cnpj && validarCnpjBrasil(cnpj) && !mapa.has(doc.nome_arquivo)) {
+      mapa.set(doc.nome_arquivo, cnpj)
+    }
+  }
+  return mapa
+}
+
 export async function executarPasso2ApiCnpjInvoice(
   documentos: DocumentoAnaliseRisco[],
-): Promise<{ cnpj_oficial: DadosOficiaisCnpjLeitura | null; riscos: RiscoAduaneiroLeitura[] }> {
+): Promise<{
+  cnpj_oficial: DadosOficiaisCnpjLeitura | null
+  riscos: RiscoAduaneiroLeitura[]
+  regras: RegraAuditoriaV1[]
+}> {
   const riscos: RiscoAduaneiroLeitura[] = []
+  const regras: RegraAuditoriaV1[] = []
   let cnpjOficial: DadosOficiaisCnpjLeitura | null = null
+  const cnpjPorArquivo = montarCnpjPorArquivo(documentos)
 
   for (const doc of documentos) {
     if (!doc.tipo_documento.toUpperCase().includes('INVOICE')) continue
-    const cnpj = extrairCnpjImportador(doc.dados)
-    if (!cnpj || !validarCnpjBrasil(cnpj)) continue
+
+    const rotulo = rotuloDocumento(doc.nome_arquivo, doc.tipo_documento, doc.indice)
+    const cnpj =
+      extrairCnpjImportador(doc.dados) ?? cnpjPorArquivo.get(doc.nome_arquivo) ?? null
+
+    if (!cnpj) {
+      regras.push({
+        id: `S2-02-${rotulo}`,
+        passou: false,
+        detalhe: 'CNPJ não extraído',
+      })
+      continue
+    }
+
+    if (!validarCnpjBrasil(cnpj)) {
+      regras.push({
+        id: `S2-02-${rotulo}`,
+        passou: false,
+        detalhe: `CNPJ inválido: ${cnpj}`,
+      })
+      continue
+    }
 
     const oficial = await consultarCnpjReceitaSmartRead(cnpj)
-    if (!oficial) continue
-    cnpjOficial = oficial
+    if (!oficial) {
+      regras.push({
+        id: `S2-02-${rotulo}`,
+        passou: false,
+        detalhe: `Consulta RFB indisponível — ${cnpj}`,
+      })
+      continue
+    }
 
-    const rotulo = `${doc.nome_arquivo} · ${doc.tipo_documento}`
+    cnpjOficial = oficial
+    regras.push({
+      id: `S2-02-${rotulo}`,
+      passou: oficial.ativo,
+      detalhe: oficial.ativo
+        ? `ATIVA — ${oficial.razao_social ?? oficial.cnpj}`
+        : `${oficial.situacao_cadastral ?? 'INATIVA'} — ${oficial.cnpj}`,
+    })
+
     if (!oficial.ativo) {
       riscos.push({
         id: `risco-p2-cnpj-inativo`,
@@ -64,8 +120,7 @@ export async function executarPasso2ApiCnpjInvoice(
         status_matriz: severidadeParaStatusMatriz('critico'),
       })
     }
-    break
   }
 
-  return { cnpj_oficial: cnpjOficial, riscos }
+  return { cnpj_oficial: cnpjOficial, riscos, regras }
 }

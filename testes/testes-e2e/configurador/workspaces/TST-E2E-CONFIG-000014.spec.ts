@@ -35,8 +35,8 @@ test.describe('TST-E2E-CONFIG-000014 — Workspaces', () => {
     // verificacao pura
   })
 
-  test('8. Verificar subdominio como link clicavel', async ({ page }) => {
-    // verificacao pura
+  test('8. Subdomínio não exibido na lista (portal suspenso)', async ({ page }) => {
+    // verificacao pura — slug interno não é URL pública
   })
 
   test('9. Verificar grafico pizza de distribuicao', async ({ page }) => {
@@ -114,8 +114,8 @@ test.describe('TST-E2E-CONFIG-000014 — Workspaces', () => {
     await page.getByTestId('input-nome-ws').fill('Workspace Editado')
   })
 
-  test('27. Editar subdominio', async ({ page }) => {
-    await page.getByTestId('input-subdominio-ws').fill('editado')
+  test('27. Editar nome do workspace', async ({ page }) => {
+    await page.getByTestId('input-nome-ws').fill('Workspace Editado E2E')
   })
 
   test('28. Salvar edicao de workspace', async ({ page }) => {
@@ -156,8 +156,8 @@ test.describe('TST-E2E-CONFIG-000014 — Workspaces', () => {
     await page.getByTestId('input-nome-ws').fill('Novo Workspace Teste')
   })
 
-  test('37. Preencher subdominio do novo workspace', async ({ page }) => {
-    await page.getByTestId('input-subdominio-ws').fill('novo-teste')
+  test('37. Aguardar sugestão automática de subdomínio (sistema gera)', async ({ page }) => {
+    // Campo de subdomínio oculto — backend atribui via proximoSubdominioDisponivel
   })
 
   test('38. Criar workspace', async ({ page }) => {
@@ -211,16 +211,16 @@ test.describe('TST-E2E-CONFIG-000014 — Workspaces', () => {
     await page.getByTestId('input-nome-ws').fill('')
   })
 
-  test('50. Subdominio vazio rejeitado', async ({ page }) => {
-    await page.getByTestId('input-subdominio-ws').fill('')
+  test('50. Subdomínio gerado pelo sistema (sem input na UI)', async ({ page }) => {
+    // verificacao pura — portal suspenso
   })
 
   test('51. Subdominio duplicado rejeitado', async ({ page }) => {
     // verificacao pura
   })
 
-  test('52. Subdominio com caracteres invalidos', async ({ page }) => {
-    await page.getByTestId('input-subdominio-ws').fill('tem espaço!')
+  test('52. Subdomínio inválido (validação backend)', async ({ page }) => {
+    // verificacao pura — UI não expõe campo
   })
 
   test('53. CNPJ invalido rejeitado', async ({ page }) => {
@@ -263,7 +263,7 @@ test.describe('TST-E2E-CONFIG-000014 — Workspaces', () => {
     // verificacao pura
   })
 
-  test('63. Erro 409 subdominio em uso', async ({ page }) => {
+  test('63. Erro 409 subdominio em uso (backend)', async ({ page }) => {
     // verificacao pura
   })
 
@@ -299,7 +299,7 @@ test.describe('TST-E2E-CONFIG-000014 — Workspaces', () => {
     await page.getByTestId('input-busca-ws').fill('Importador')
   })
 
-  test('72. Buscar por subdominio', async ({ page }) => {
+  test('72. Buscar por nome do workspace (subdomínio não exposto)', async ({ page }) => {
     await page.getByTestId('input-busca-ws').fill('importador')
   })
 

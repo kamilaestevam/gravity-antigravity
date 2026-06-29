@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useCarregarTipoUsuario } from '../hooks/use-carregar-tipo-usuario'
+import { useGabiRequestHeaders } from '../hooks/use-gabi-request-headers'
+import { gabiAgenteChatWidgetResponseSchema } from '../shared/contratos-gabi'
 import {
   Sparkle,
   X,
@@ -248,6 +249,12 @@ const MOCK_RESPONSES: Record<string, string> = {
 const DEFAULT_RESPONSE =
   'Entendi! Ainda estou aprendendo sobre esse assunto, mas posso te ajudar com duvidas sobre a plataforma, produtos disponiveis e como comecar.\n\nTente perguntar sobre um dos nossos modulos!'
 
+/** Fallback local apenas em dev — proibido em prod (Onda 4). */
+function respostaMockDev(msg: string): string | null {
+  if (import.meta.env.PROD) return null
+  return MOCK_RESPONSES[msg] ?? null
+}
+
 // Sugestoes contextuais baseadas na pergunta anterior
 const FOLLOW_UP_SUGGESTIONS: Record<string, string[]> = {
   'O que e a Gravity Store?': [
@@ -444,7 +451,7 @@ const STORAGE_CONVERSA_GABI = 'gravity_gabi_conversa_id'
 
 export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidgetProps) {
   const { t } = useTranslation()
-  const { tipoUsuario, idUsuarioPrisma, idOrganizacao } = useCarregarTipoUsuario()
+  const gabiHeaders = useGabiRequestHeaders()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [inputVal, setInputVal] = useState('')
@@ -476,42 +483,7 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
   const screen = getScreenContext(pathname)
   const welcomeMsg = `Oi! Sou a **Gabi**, sua assistente de IA na Gravity.\n\n${screen.welcome}`
   const quickActions = screen.actions
-
-  // Listen for external gabi:open events (e.g. from insight cards)
-  useEffect(() => {
-    function handleGabiOpen(e: Event) {
-      const detail = (e as CustomEvent<{ message?: string }>).detail
-      setOpen(true)
-      setPulse(false)
-      if (detail?.message) {
-        // Simulate user clicking a quick action
-        const fakeUserMsg: Message = {
-          id: `u-${Date.now()}`,
-          role: 'user',
-          content: detail.message,
-        }
-        setMessages(prev => [...prev, fakeUserMsg])
-        setIsTyping(true)
-        const response = MOCK_RESPONSES[detail.message] || DEFAULT_RESPONSE
-        const suggestions = FOLLOW_UP_SUGGESTIONS[detail.message]
-        setTimeout(() => {
-          setMessages(prev => [
-            ...prev,
-            {
-              id: `a-${Date.now()}`,
-              role: 'assistant',
-              content: response,
-              suggestions,
-              streaming: true,
-            },
-          ])
-          setIsTyping(false)
-        }, 600)
-      }
-    }
-    window.addEventListener('gabi:open', handleGabiOpen)
-    return () => window.removeEventListener('gabi:open', handleGabiOpen)
-  }, [])
+  const handleSendRef = useRef<(text?: string) => Promise<void>>(async () => {})
 
   const chatBodyRef = useRef<HTMLDivElement>(null)
   const shouldAutoScroll = useRef(true)
@@ -666,9 +638,13 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
     tick()
   }, [])
 
-  const handleSend = async (text?: string) => {
+  const handleSend = useCallback(async (text?: string) => {
     const msg = text || inputVal.trim()
     if (!msg) return
+    if (!gabiHeaders) {
+      console.warn('[GabiOnboardingWidget] headers GABI indisponíveis (auth/me)')
+      return
+    }
 
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: msg }
     setMessages(prev => [...prev, userMsg])
@@ -685,18 +661,25 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(idOrganizacao ? { 'x-id-organizacao': idOrganizacao } : {}),
-          ...(idUsuarioPrisma ? { 'x-id-usuario': idUsuarioPrisma } : {}),
-          ...(tipoUsuario ? { 'x-tipo-usuario': tipoUsuario } : {}),
+          ...gabiHeaders,
         },
         body: JSON.stringify({ conversationId, message: msg, page: pathname }),
       })
 
       if (!res.ok) {
         const detalhe = await res.text().catch(() => '')
-        throw new Error(`API ${res.status}${detalhe ? `: ${detalhe.slice(0, 200)}` : ''}`)
+        const code503 =
+          res.status === 503 && detalhe.includes('GABI_UNAVAILABLE')
+            ? 'GABI indisponível'
+            : null
+        throw new Error(code503 ?? `API ${res.status}${detalhe ? `: ${detalhe.slice(0, 200)}` : ''}`)
       }
-      const data = await res.json()
+      const raw: unknown = await res.json()
+      const parsed = gabiAgenteChatWidgetResponseSchema.safeParse(raw)
+      if (!parsed.success) {
+        throw new Error(`Contrato GABI inválido: ${parsed.error.issues[0]?.message ?? 'parse'}`)
+      }
+      const data = parsed.data
       if (data.conversationId) {
         setConversationId(data.conversationId)
         sessionStorage.setItem(STORAGE_CONVERSA_GABI, data.conversationId)
@@ -708,9 +691,16 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
     } catch (err) {
       const motivo = err instanceof Error ? err.message : 'erro de rede'
       console.warn('[GabiOnboardingWidget] falha no chat:', motivo)
-      fullText =
-        MOCK_RESPONSES[msg] ||
-        `Nao consegui falar com a Gabi (${motivo}). Confirme: Configurador em http://localhost:8000, servico plataforma na porta 3001 (npm run dev em servicos-plataforma).`
+      if (import.meta.env.PROD) {
+        fullText =
+          motivo === 'GABI indisponível'
+            ? 'A Gabi está temporariamente indisponível. Tente novamente em instantes.'
+            : `Não consegui falar com a Gabi (${motivo}). Tente novamente em instantes.`
+      } else {
+        fullText =
+          respostaMockDev(msg) ??
+          `Nao consegui falar com a Gabi (${motivo}). Confirme: Configurador em http://localhost:8000, sidecar GABI na porta 8009 ou super-servidor na 3001.`
+      }
     }
 
     // Phase 2: Thinking done — start typewriter
@@ -720,7 +710,24 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
       { id: assistantId, role: 'assistant', content: '', streaming: true },
     ])
     streamText(fullText, assistantId, suggestions)
-  }
+  }, [conversationId, gabiHeaders, inputVal, pathname, streamText])
+
+  useEffect(() => {
+    handleSendRef.current = handleSend
+  }, [handleSend])
+
+  useEffect(() => {
+    function handleGabiOpen(e: Event) {
+      const detail = (e as CustomEvent<{ message?: string }>).detail
+      setOpen(true)
+      setPulse(false)
+      if (detail?.message) {
+        void handleSendRef.current(detail.message)
+      }
+    }
+    window.addEventListener('gabi:open', handleGabiOpen)
+    return () => window.removeEventListener('gabi:open', handleGabiOpen)
+  }, [])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {

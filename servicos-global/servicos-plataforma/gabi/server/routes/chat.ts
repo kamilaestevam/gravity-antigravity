@@ -1,4 +1,6 @@
 // server/routes/chat.ts
+// @deprecated Onda 4 — chat v1 legado (gemini + execTool). Caminho principal: agente.ts (v2).
+// Mantido para S2S Pedido insights Fase 3 e integrações legadas até remoção planejada.
 import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
@@ -18,7 +20,7 @@ const chatSchema = z.object({
   page: z.string().max(255).optional(),
 })
 
-// Requisicao sincrona (usada pelo widget)
+// Requisicao sincrona — @deprecated v1; preferir POST /api/v1/gabi/agente/chat
 chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
   try {
     const { conversationId, message: rawMessage, page } = chatSchema.parse(req.body)

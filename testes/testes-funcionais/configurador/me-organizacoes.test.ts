@@ -71,9 +71,9 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 const ORGS_MOCK = [
-  { id_organizacao: 'org_001', nome_organizacao: 'Gravity Interno', subdominio_organizacao: 'gravity-interno', status_organizacao: 'ATIVO' },
-  { id_organizacao: 'org_002', nome_organizacao: 'Cliente ABC',     subdominio_organizacao: 'cliente-abc',     status_organizacao: 'ATIVO' },
-  { id_organizacao: 'org_003', nome_organizacao: 'Demo Corp',       subdominio_organizacao: 'demo-corp',       status_organizacao: 'INATIVO' },
+  { id_organizacao: 'org_001', nome_organizacao: 'Gravity Interno', status_organizacao: 'ATIVO' },
+  { id_organizacao: 'org_002', nome_organizacao: 'Cliente ABC',     status_organizacao: 'ATIVO' },
+  { id_organizacao: 'org_003', nome_organizacao: 'Demo Corp',       status_organizacao: 'INATIVO' },
 ]
 
 const AUTH_SUPER_ADMIN = {

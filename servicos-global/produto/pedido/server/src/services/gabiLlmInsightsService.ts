@@ -18,6 +18,7 @@
  */
 
 import type { GabiInsight, KpiSnapshot, UserRole } from './gabiInsightsService.js'
+import { gabiChatS2sResponseSchema } from '../contracts/gabi-responses.js'
 
 // ── Cache in-memory ───────────────────────────────────────────────────────────
 
@@ -72,40 +73,74 @@ Responda APENAS com o texto do insight, sem formatação, aspas ou explicações
 
 // ── Chamada ao serviço Gabi ───────────────────────────────────────────────────
 
-// Default alinhado com contracts.json — Gabi vive no super-server da plataforma (porta 3001).
-const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://localhost:3001'
+// Sidecar no Configurador (Railway/prod). PM2 super-servidor: GABI_SERVICE_URL=http://localhost:3001
+const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
 const GABI_TIMEOUT_MS  = 3_000  // 3s — não bloqueia o usuário além disso
+
+type LlmFalhaMotivo = 'chave_ausente' | 'http_erro' | 'zod' | 'timeout' | 'quota' | 'rede'
+
+function logFase3Fallback(
+  motivo: LlmFalhaMotivo,
+  ctx: { tenantId: string; userId: string; status?: number; insightId?: string; detalhe?: string },
+): void {
+  console.warn('[gabiLlmInsights] Fase 3 fallback', { motivo, ...ctx })
+}
 
 async function callGabi(
   prompt: string,
   tenantId: string,
   userId: string,
+  insightId: string,
 ): Promise<string | null> {
+  const chave = process.env.CHAVE_INTERNA_SERVICO
+  if (!chave) {
+    logFase3Fallback('chave_ausente', { tenantId, userId, insightId })
+    return null
+  }
+
   try {
     const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/chats`, {
       method: 'POST',
       headers: {
-        'Content-Type':   'application/json',
-        'x-internal-key': process.env.CHAVE_INTERNA_SERVICO ?? '',
-        'x-id-organizacao':    tenantId,
-        'x-id-usuario':      userId,
-        'x-id-produto':   'pedido',
-        'x-gabi-quota':   process.env.GABI_QUOTA_PEDIDO ?? '50000',
+        'Content-Type': 'application/json',
+        'x-chave-interna-servico': chave,
+        'x-id-organizacao': tenantId,
+        'x-id-usuario': userId,
+        'x-id-produto': 'pedido',
+        'x-gabi-quota': process.env.GABI_QUOTA_PEDIDO ?? '50000',
       },
       body: JSON.stringify({
-        mensagem: prompt,
-        historico: [],
-        modo: 'analista',
+        conversationId: 'new',
+        message: prompt,
       }),
       signal: AbortSignal.timeout(GABI_TIMEOUT_MS),
     })
 
-    if (!response.ok) return null
+    if (!response.ok) {
+      const motivo: LlmFalhaMotivo = response.status === 429 ? 'quota' : 'http_erro'
+      logFase3Fallback(motivo, { tenantId, userId, insightId, status: response.status })
+      return null
+    }
 
-    const data = await response.json() as { resposta?: string; texto?: string }
-    return data.resposta ?? data.texto ?? null
-  } catch {
-    return null  // Timeout, offline, ou erro — fallback silencioso
+    const raw: unknown = await response.json()
+    const parsed = gabiChatS2sResponseSchema.safeParse(raw)
+    if (!parsed.success) {
+      logFase3Fallback('zod', {
+        tenantId,
+        userId,
+        insightId,
+        detalhe: parsed.error.issues.map((i) => i.message).join('; ').slice(0, 200),
+      })
+      return null
+    }
+
+    return parsed.data.response
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    const motivo: LlmFalhaMotivo =
+      err instanceof Error && err.name === 'TimeoutError' ? 'timeout' : 'rede'
+    logFase3Fallback(motivo, { tenantId, userId, insightId, detalhe: msg.slice(0, 160) })
+    return null
   }
 }
 
@@ -141,7 +176,7 @@ export async function enhanceWithLlm(
 
       // Chama Gabi com timeout + fallback
       const prompt = buildPrompt(insight, kpis, role)
-      const llmTexto = await callGabi(prompt, tenantId, userId)
+      const llmTexto = await callGabi(prompt, tenantId, userId, insight.id)
 
       if (llmTexto) {
         setCached(key, llmTexto)

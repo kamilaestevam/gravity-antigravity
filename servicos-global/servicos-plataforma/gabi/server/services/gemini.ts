@@ -1,4 +1,5 @@
 // server/services/gemini.ts
+// @deprecated Onda 2 — usado apenas pelo chat v1 (/api/v1/gabi/chats). Agente v2 usa orquestrador-agente.ts.
 import { GoogleGenerativeAI, type CachedContent, type Tool, type FunctionResponsePart } from '@google/generative-ai'
 import { GoogleAICacheManager } from '@google/generative-ai/server'
 import { AppError } from '../lib/errors.js'

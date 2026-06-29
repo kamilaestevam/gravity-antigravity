@@ -96,10 +96,65 @@ describe('permission', () => {
       ).rejects.toThrow('Permissao insuficiente')
     })
 
-    it('permite hierarquia suficiente sem S2S', async () => {
+    it('permite hierarquia suficiente com S2S ok', async () => {
+      const chaveAnterior = process.env.CHAVE_INTERNA_SERVICO
+      process.env.CHAVE_INTERNA_SERVICO = 'test-key-s2s'
+
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ permitido: true }),
+        }),
+      )
+
       await expect(
         verificarPermissaoCompleta('org-1', 'usr-1', 'PADRAO', 'pedido.criar'),
       ).resolves.toBeUndefined()
+
+      if (chaveAnterior === undefined) {
+        delete process.env.CHAVE_INTERNA_SERVICO
+      } else {
+        process.env.CHAVE_INTERNA_SERVICO = chaveAnterior
+      }
+      vi.unstubAllGlobals()
+    })
+
+    it('bloqueia WRITE quando CHAVE_INTERNA_SERVICO ausente', async () => {
+      const chaveAnterior = process.env.CHAVE_INTERNA_SERVICO
+      delete process.env.CHAVE_INTERNA_SERVICO
+
+      await expect(
+        verificarPermissaoCompleta('org-1', 'usr-1', 'PADRAO', 'pedido.criar'),
+      ).rejects.toThrow('Configuracao S2S incompleta')
+
+      if (chaveAnterior !== undefined) {
+        process.env.CHAVE_INTERNA_SERVICO = chaveAnterior
+      }
+    })
+
+    it('bloqueia WRITE quando S2S retorna HTTP erro', async () => {
+      const chaveAnterior = process.env.CHAVE_INTERNA_SERVICO
+      process.env.CHAVE_INTERNA_SERVICO = 'test-key-s2s'
+
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: false,
+          status: 503,
+        }),
+      )
+
+      await expect(
+        verificarPermissaoCompleta('org-1', 'usr-1', 'PADRAO', 'pedido.criar'),
+      ).rejects.toThrow('Verificacao S2S indisponivel')
+
+      if (chaveAnterior === undefined) {
+        delete process.env.CHAVE_INTERNA_SERVICO
+      } else {
+        process.env.CHAVE_INTERNA_SERVICO = chaveAnterior
+      }
+      vi.unstubAllGlobals()
     })
   })
 })

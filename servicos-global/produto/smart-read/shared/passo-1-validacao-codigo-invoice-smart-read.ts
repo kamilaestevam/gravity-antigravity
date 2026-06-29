@@ -175,6 +175,15 @@ export function executarPasso1ValidacaoCodigoInvoice(
   const ncmsGlobal = new Set<string>()
   const invoices = coletarInvoices(documentosEntrada)
 
+  const cnpjPorArquivo = new Map<string, string>()
+  for (const doc of documentosEntrada) {
+    const mapaArquivo = achatarCamposDadosLeitura(doc.dados)
+    const cnpjArquivo = valorCampo(mapaArquivo, ['importer.cnpj', 'importer.taxId', 'buyer.cnpj'])
+    if (cnpjArquivo && validarCnpjBrasil(cnpjArquivo) && !cnpjPorArquivo.has(doc.nome_arquivo)) {
+      cnpjPorArquivo.set(doc.nome_arquivo, cnpjArquivo)
+    }
+  }
+
   for (const doc of invoices) {
     for (const ncm of extrairNcmsDados(doc.dados)) {
       const norm = ncm.replace(/\D/g, '').slice(0, 8)
@@ -264,7 +273,16 @@ export function executarPasso1ValidacaoCodigoInvoice(
     }
 
     // S2-01 CNPJ módulo 11
-    const cnpj = valorCampo(doc.mapa, ['importer.cnpj', 'importer.taxId', 'buyer.cnpj'])
+    const cnpj =
+      valorCampo(doc.mapa, ['importer.cnpj', 'importer.taxId', 'buyer.cnpj']) ??
+      cnpjPorArquivo.get(doc.nome_arquivo) ??
+      null
+    const cnpjValido = !!cnpj && validarCnpjBrasil(cnpj)
+    regras.push({
+      id: `S2-01-${doc.rotulo}`,
+      passou: cnpjValido,
+      detalhe: cnpj ?? 'ausente',
+    })
     if (!cnpj) {
       riscos.push(
         criarRiscoCodigo({

@@ -45,7 +45,6 @@ export const meOrganizacoesResponseSchema = z.object({
   organizacoes: z.array(z.object({
     id_organizacao:         z.string(),
     nome_organizacao:       z.string(),
-    subdominio_organizacao: z.string(),
     status_organizacao:     z.string(),
   })),
 })
@@ -70,7 +69,6 @@ export const meResponseSchema = z.object({
   organizacao: z.object({
     id_organizacao:                z.string(),
     nome_organizacao:              z.string(),
-    subdominio_organizacao:        z.string(),
     status_organizacao:            z.string(),
     /** Flag de organização que hospeda colaboradores da Gravity (decisão dono
      * 2026-05-11). True = a org tem equipe Gravity dentro, false = cliente.
@@ -113,7 +111,6 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           select: {
             id_organizacao: true,
             nome_organizacao: true,
-            subdominio_organizacao: true,
             status_organizacao: true,
             hospeda_colaboradores_gravity: true,
           },
@@ -213,7 +210,6 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         ? {
             id_organizacao: usuario.tenant.id_organizacao,
             nome_organizacao: usuario.tenant.nome_organizacao,
-            subdominio_organizacao: usuario.tenant.subdominio_organizacao,
             status_organizacao: usuario.tenant.status_organizacao,
             hospeda_colaboradores_gravity: usuario.tenant.hospeda_colaboradores_gravity,
           }
@@ -244,7 +240,6 @@ meRouter.get('/organizacoes', async (req: Request, res: Response, next: NextFunc
       select: {
         id_organizacao: true,
         nome_organizacao: true,
-        subdominio_organizacao: true,
         status_organizacao: true,
       },
       orderBy: { nome_organizacao: 'asc' },
@@ -531,12 +526,8 @@ const AtualizarWorkspaceSchema = z.object({
 
 /**
  * GET /api/v1/me/sugestoes-subdominio?base=<slug>
- * Preview do subdomínio que o sistema atribuiria, dado um nome/base.
- * Usado pelo modal de criação para mostrar ao usuário, em tempo real, o
- * subdomínio final antes do `Criar` (o sistema gera, usuário não escolhe).
- *
- * Política de unicidade: cross-tabela (organizacao + workspace).
- * Auto-suffix: -2, -3, ... até disponível.
+ * SUSPENSO 2026-06-29 (Daniel): UI não consome mais — rota mantida para compat/tests.
+ * Backend continua gerando slug via proximoSubdominioDisponivel no create.
  */
 meRouter.get('/sugestoes-subdominio', async (req, res, next) => {
   try {

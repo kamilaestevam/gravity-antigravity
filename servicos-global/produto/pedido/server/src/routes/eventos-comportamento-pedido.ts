@@ -30,7 +30,17 @@ behaviorTrackingRouter.post(
 
       // Fire-and-forget — não aguarda o resultado para não impactar latência
       void withOrganizacao(req, async (db) => {
-        await trackBehaviorEvent(db, tenantId, userId, parsed.data)
+        try {
+          await trackBehaviorEvent(db, tenantId, userId, parsed.data)
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err)
+          console.warn('[BehaviorTracking] falha na rota eventos-comportamento', {
+            tenantId,
+            userId,
+            event: parsed.data.event,
+            erro: msg.slice(0, 160),
+          })
+        }
       })
 
       res.status(204).end()

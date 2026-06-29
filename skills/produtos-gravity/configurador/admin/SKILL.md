@@ -14,6 +14,8 @@ Interface exclusiva da equipe Gravity para gerenciar a plataforma como um todo. 
 > ⚠️ **REGRA ABSOLUTA:** Ver [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md) — Regra 01: verificação SEMPRE via `/api/v1/me` (Prisma), nunca via `publicMetadata` do Clerk.
 - **Princípio:** visibilidade total de todas as organizações, produtos, usuários, consumo, deploys e saúde da plataforma em um único lugar
 
+> **⚠️ SUSPENSO (2026-06-29):** colunas/campos de **Subdomínio** ocultos no Admin — URL única `usegravity.com.br`. Slug permanece no banco; ver ADR 0002.
+
 ---
 
 ## Posição na Arquitetura

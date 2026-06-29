@@ -132,8 +132,13 @@ export async function trackBehaviorEvent(
       },
     })
   } catch (err) {
-    // Falha silenciosa — não bloqueia a experiência do usuário
-    console.warn('[BehaviorTracking] Erro ao registrar evento (não crítico):', err)
+    const msg = err instanceof Error ? err.message : String(err)
+    console.warn('[BehaviorTracking] Erro ao registrar evento', {
+      tenantId,
+      userId,
+      event: input.event,
+      erro: msg.slice(0, 200),
+    })
   }
 }
 
@@ -185,8 +190,16 @@ export async function getUserBehaviorScores(
     }
 
     return scores
-  } catch {
-    // Tabela pode não existir ainda (migração pendente) — retorna vazio
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    const tabelaAusente =
+      /user_behavior_events|does not exist|relation.*does not exist/i.test(msg)
+    console.warn('[BehaviorTracking] getUserBehaviorScores indisponivel', {
+      tenantId,
+      userId,
+      motivo: tabelaAusente ? 'tabela_ausente' : 'erro_db',
+      erro: msg.slice(0, 160),
+    })
     return {}
   }
 }

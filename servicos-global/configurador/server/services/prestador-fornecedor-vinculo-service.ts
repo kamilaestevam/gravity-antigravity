@@ -42,7 +42,9 @@ const log = logger.child({ module: 'prestador-fornecedor-vinculo' })
 
 let cacheIdOrganizacaoGravity: string | null = null
 
-/** Resolve org Gravity (hospeda_colaboradores_gravity) — cache em memória por processo. */
+/** Resolve org Gravity (hospeda_colaboradores_gravity) — cache em memória por processo.
+ *  Deploy: exige `ID_ORGANIZACAO_GRAVITY` em prod OU org ATIVA com `hospeda_colaboradores_gravity=true`
+ *  — sem fallback silencioso (503 ORG_GRAVITY_AUSENTE se ausente). */
 export async function resolverIdOrganizacaoGravity(): Promise<string> {
   const fromEnv = process.env.ID_ORGANIZACAO_GRAVITY?.trim()
   if (fromEnv) return fromEnv
@@ -58,23 +60,8 @@ export async function resolverIdOrganizacaoGravity(): Promise<string> {
     return org.id_organizacao
   }
 
-  // Fallback canônico: subdomínio gravity (Gravity - Interno) — prod sem flag marcada
-  const orgSubdominio = await prisma.organizacao.findFirst({
-    where: { subdominio_organizacao: 'gravity', status_organizacao: 'ATIVO' },
-    orderBy: { data_criacao_organizacao: 'asc' },
-    select: { id_organizacao: true, nome_organizacao: true },
-  })
-  if (orgSubdominio) {
-    log.warn(
-      { id_organizacao: orgSubdominio.id_organizacao, nome: orgSubdominio.nome_organizacao },
-      'ORG_GRAVITY: fallback subdominio_organizacao=gravity — marque hospeda_colaboradores_gravity ou defina ID_ORGANIZACAO_GRAVITY',
-    )
-    cacheIdOrganizacaoGravity = orgSubdominio.id_organizacao
-    return orgSubdominio.id_organizacao
-  }
-
   throw new AppError(
-    'Organização Gravity não configurada (hospeda_colaboradores_gravity)',
+    'Organização Gravity não configurada (hospeda_colaboradores_gravity ou ID_ORGANIZACAO_GRAVITY)',
     503,
     'ORG_GRAVITY_AUSENTE',
   )

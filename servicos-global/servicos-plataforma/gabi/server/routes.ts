@@ -5,7 +5,7 @@
  * Rotas internas (caminhos absolutos, sem prefixo):
  *   GET/POST /api/v1/gabi/conversas
  *   GET/POST /api/v1/gabi/mensagens
- *   POST     /api/v1/gabi/chats
+ *   POST     /api/v1/gabi/chats              (@deprecated v1 — usar /agente/chat)
  *   POST     /api/v1/gabi/acoes/executar
  *   GET      /api/v1/gabi/uso
  *   POST     /api/v1/gabi/ajuda-campo

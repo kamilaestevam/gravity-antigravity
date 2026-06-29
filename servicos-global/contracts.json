@@ -131,16 +131,27 @@
       "baseUrl": "http://localhost:8005",
       "pathPrefix": "/api/v1/me",
       "middleware": ["rateLimitPresets.api (via /api/v1)", "requireAuth"],
-      "note": "Rotas do usuário autenticado (self). Inclui endpoints de gestão de workspaces da organização — relocados de /api/v1/organizacoes/me/workspaces em 2026-05-03 — pois pertencem semanticamente ao 'self do usuário autenticado'. Política de subdomínio (decisão 2026-05-03): SISTEMA gera, usuário não escolhe; unicidade GLOBAL cross-tabela (organizacao + workspace); auto-suffix `-2`, `-3`, ... até disponível; teto 100. Schemas Zod: CriarWorkspaceSchema, AtualizarWorkspaceSchema (PT-BR puro).",
+      "note": "Rotas do usuário autenticado (self). Inclui endpoints de gestão de workspaces da organização — relocados de /api/v1/organizacoes/me/workspaces em 2026-05-03. **Portal multi-URL SUSPENSO (2026-06-29):** `subdominio_*` permanece no banco (geração ativa), mas **não** é exposto em `GET /` nem `GET /organizacoes` — acesso do usuário somente `https://usegravity.com.br`. Ver ADR 0002.",
       "endpoints": {
-        "GET /":                                        "Contexto completo do usuário: { usuario, organizacao, workspaces, produtos }. Substitui Clerk publicMetadata como fonte da verdade de autorização (Mand. 01).",
+        "GET /":                                        "Contexto completo do usuário: { usuario, organizacao, workspaces }. `organizacao` **sem** `subdominio_organizacao` (portal suspenso). Substitui Clerk publicMetadata como fonte da verdade de autorização (Mand. 01).",
+        "GET /organizacoes":                            "Lista organizações disponíveis para SUPER_ADMIN/ADMIN trocar contexto. Resposta: { organizacoes: [{ id_organizacao, nome_organizacao, status_organizacao }] } — **sem** `subdominio_organizacao`.",
         "GET /preferencias":                            "Retorna { preferredCompanyId } do usuário (campo Prisma `id_workspace_preferido_usuario`).",
         "PUT /preferencias":                            "Atualiza workspace preferido (skip pós-login).",
-        "GET /sugestoes-subdominio?base=<slug>":        "Preview ao vivo do subdomínio que o sistema atribuiria, dada uma base. Usado pelos modais de criação para mostrar `<sub>.usegravity.com.br` em tempo real conforme o usuário digita o nome. Política: cross-tabela (organizacao + workspace), auto-suffix. Resposta: { subdominio_solicitado, subdominio_sugerido, subdominio_ajustado }.",
+        "GET /sugestoes-subdominio?base=<slug>":        "SUSPENSO na UI (2026-06-29) — rota mantida para compat/tests. Backend continua gerando slug via `proximoSubdominioDisponivel` no create. Resposta: { subdominio_solicitado, subdominio_sugerido, subdominio_ajustado }.",
         "GET /workspaces":                              "Lista workspaces da organização autenticada. Resposta: { workspaces: WorkspaceItem[] }. Cada item inclui `quantidade_usuarios_workspace` e `_count: { vinculos_workspace }`.",
-        "POST /workspaces":                             "Cria workspace na organização autenticada. Body Zod: { nome_workspace, subdominio_workspace?, cnpj_workspace? }. **Subdomínio**: sistema gera; campo `subdominio_workspace` no body é base/hint (frontend envia o valor visto no preview); backend re-resolve via política central. Resposta: { workspace, subdominio_solicitado, subdominio_ajustado }.",
+        "POST /workspaces":                             "Cria workspace na organização autenticada. Body Zod: { nome_workspace, subdominio_workspace?, cnpj_workspace? }. **Subdomínio**: sistema gera silenciosamente (hint opcional no body); backend re-resolve via política central. Resposta: { workspace, subdominio_solicitado, subdominio_ajustado }.",
         "PATCH /workspaces/:id_workspace":              "Atualiza workspace. Body Zod: { nome_workspace?, subdominio_workspace?, cnpj_workspace?, status_workspace? }. Subdomínio é IMUTÁVEL após criação na prática (frontend não envia em edição). Resposta: { workspace }.",
         "DELETE /workspaces/:id_workspace":             "Remove workspace da organização autenticada. Resposta: 204."
+      }
+    },
+    "configurador-gabi-internal": {
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/v1/internal/gabi",
+      "middleware": ["requireInternalKey"],
+      "internal": true,
+      "note": "Rotas S2S read-only para GABI (x-chave-interna-servico + x-id-organizacao + x-id-usuario). **Exceção portal suspenso:** `GET /me` ainda inclui `subdominio_organizacao` em `organizacao` — consumo interno S2S/IA, não exposto ao browser. Rotas públicas `GET /api/v1/me` não incluem o campo.",
+      "endpoints": {
+        "GET /me": "Espelho S2S de GET /api/v1/me — inclui `subdominio_organizacao` em organizacao (uso interno GABI)."
       }
     },
     "configurador-usuarios": {

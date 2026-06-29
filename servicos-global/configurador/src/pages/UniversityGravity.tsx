@@ -356,11 +356,11 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
       },
       {
         num: 3,
-        titulo: 'Verificação em duas etapas (se ativa)',
+        titulo: 'Verificação em duas etapas (opcional)',
         imagem: '/university/screenshots/login-fluxo1-passo-05-codigo-vazio.png',
         paragrafos: [
-          'Se a sua conta tiver 2FA, após a senha correta a tela pede um código de seis dígitos — enviado ao e-mail ou gerado no autenticador, conforme a configuração da organização.',
-          'Preencha os seis campos (ou cole o código inteiro). Só então a sessão é concluída.',
+          'Este passo não é obrigatório — só aparece se a sua conta ou organização tiver 2FA ativo. Sem 2FA, após a senha correta você segue direto para o Hub.',
+          'Quando o 2FA está ligado, a tela pede um código de seis dígitos (e-mail ou autenticador). Preencha os campos ou cole o código inteiro para concluir a sessão.',
         ],
         callout: {
           tipo: 'dica',
@@ -381,22 +381,79 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
     num: 4,
     titulo: 'Fluxo 3 — recuperar senha',
     paragrafos: [
-      'A recuperação de senha é dividida em duas páginas separadas. A primeira (/recuperar-senha) solicita o e-mail registrado e chama signIn.create({ strategy: "reset_password_email_code", identifier: email }). Exibe um estado de sucesso com instruções para verificar a caixa de entrada.',
-      'A segunda página (/recuperar-senha/redefinir?email=) recebe o e-mail via query string e apresenta três campos: código de 6 dígitos, nova senha e confirmação. O indicador de força de senha é o mesmo do cadastro. Ao submeter, signIn.attemptFirstFactor() valida o código e atualiza a senha. Em caso de sucesso, setActive() ativa a sessão e o porteiro direciona para /hub (usuário existente).',
+      'Esqueceu a senha? Em poucos passos você solicita um código por e-mail e define uma nova senha — sem precisar falar com o suporte.',
     ],
-    cardsBilaterais: {
-      esquerdo: {
-        label: 'PÁGINA 1 — /recuperar-senha',
-        titulo: 'Solicitar redefinição',
-        itens: ['– Campo de e-mail', '– Botão "Enviar código"', '– Estado de sucesso com ícone ✓', '– Link para voltar ao login', '– strategy: reset_password_email_code'],
+    passosVisuais: [
+      {
+        num: 1,
+        titulo: 'Abrir a recuperação',
+        imagem: '/university/screenshots/login-esqueci-senha-passo-01-seta-link.png',
+        paragrafos: [
+          'Na tela de login, clique em "Esqueceu a senha?" abaixo do botão Entrar. Você é levado para a página de recuperação.',
+        ],
       },
-      direito: {
-        label: 'PÁGINA 2 — /recuperar-senha/redefinir',
-        titulo: 'Redefinir senha',
-        itens: ['– 6 inputs numéricos (código do e-mail)', '– Campo nova senha (com força visual)', '– Campo confirmação de senha', '– Botão "Redefinir senha"', '– Após sucesso → setActive() → /hub'],
+      {
+        num: 2,
+        titulo: 'Informar o e-mail',
+        imagem: '/university/screenshots/login-esqueci-senha-passo-02-preencher-email.png',
+        paragrafos: [
+          'Digite o e-mail com o qual você se cadastrou na Gravity e clique em "Enviar código". O sistema envia um código de 6 dígitos para essa caixa de entrada.',
+        ],
       },
-    },
-    callout: { tipo: 'aviso', texto: 'O link "Tenho o código" na página 1 redireciona para /recuperar-senha/redefinir?email=<email_codificado>. Se o usuário acessar a página 2 diretamente sem o parâmetro ?email=, o campo de e-mail fica vazio e o submit falha com erro de validação.' },
+      {
+        num: 3,
+        titulo: 'Confirmação de envio',
+        imagem: '/university/screenshots/login-esqueci-senha-passo-03-confirmacao-envio.png',
+        paragrafos: [
+          'A tela confirma que o e-mail foi disparado. Abra a caixa de entrada do endereço informado e procure a mensagem da Gravity.',
+        ],
+      },
+      {
+        num: 4,
+        titulo: 'Receber o código',
+        imagem: '/university/screenshots/login-esqueci-senha-passo-04-email-codigo.png',
+        paragrafos: [
+          'No e-mail da Gravity, copie o código de 6 dígitos. Confira se o destinatário é o mesmo e-mail que você digitou na etapa anterior.',
+        ],
+        callout: {
+          tipo: 'dica',
+          texto: 'Não chegou? Confira spam, Promoções, filtros do antivírus ou bloqueio de notifications@usegravity.com.br — e se o e-mail foi digitado corretamente.',
+        },
+      },
+      {
+        num: 5,
+        titulo: 'Ir para a redefinição',
+        imagem: '/university/screenshots/login-esqueci-senha-passo-05-tenho-codigo.png',
+        paragrafos: [
+          'De volta à tela de recuperação, clique em "Tenho o código" para abrir o formulário de redefinição com o e-mail já preenchido.',
+        ],
+        callout: {
+          tipo: 'dica',
+          texto: 'Se você fechou a aba, acesse https://usegravity.com.br/recuperar-senha/redefinir com o mesmo e-mail — ou volte ao passo 2 e solicite um novo código.',
+        },
+      },
+      {
+        num: 6,
+        titulo: 'Informar o código',
+        imagem: '/university/screenshots/login-esqueci-senha-passo-06-validar-codigo.png',
+        paragrafos: [
+          'Na tela "Redefinir senha", preencha os seis campos do código recebido por e-mail. Você também pode colar o código completo de uma vez.',
+        ],
+        callout: {
+          tipo: 'aviso',
+          texto: 'Se aparecer um aviso vermelho (ex.: código incorreto ou expirado), confira o e-mail e solicite "Reenviar código" antes de tentar de novo.',
+        },
+      },
+      {
+        num: 7,
+        titulo: 'Definir a nova senha',
+        imagem: '/university/screenshots/login-esqueci-senha-passo-07-trocar-senha.png',
+        paragrafos: [
+          'Informe a nova senha e a confirmação. A barra abaixo do campo mostra a força — as mesmas regras do cadastro se aplicam.',
+          'Clique em "Redefinir senha". Com sucesso, sua sessão é ativada e você vai para o {{link:/university-gravity/docs/hub|HUB}}.',
+        ],
+      },
+    ],
   },
   {
     num: 5,

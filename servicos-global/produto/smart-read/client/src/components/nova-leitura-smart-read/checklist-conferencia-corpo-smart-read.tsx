@@ -13,6 +13,9 @@ import {
   type StatusChecklistMatrizInvoice,
 } from '../../../../shared/montar-checklist-matriz-invoice-smart-read'
 import { BarraStatusChecklistSmartRead } from './barra-status-checklist-smart-read'
+import {
+  chaveItemChecklistUsuario,
+} from '../../shared/checklist-marcacao-usuario-smart-read'
 
 export type SecaoChecklistConferenciaSmartRead = {
   secao: SecaoMatrizInvoice
@@ -40,6 +43,8 @@ function classeVereditoSecao(veredito: RotuloStatusChecklistInvoice): string {
       return 'sr-conf-chk-veredito--vermelho'
     case 'PENDENTE':
       return 'sr-conf-chk-veredito--pendente'
+    case 'N/A':
+      return 'sr-conf-chk-veredito--na'
     default:
       return 'sr-conf-chk-veredito--pendente'
   }
@@ -47,13 +52,33 @@ function classeVereditoSecao(veredito: RotuloStatusChecklistInvoice): string {
 
 function LinhaChecklistAviacao({
   item,
+  rotuloInvoice,
   onVerRisco,
+  estaMarcado,
+  alternarMarcado,
 }: {
   item: ItemChecklistMatrizInvoice
+  rotuloInvoice?: string | null
   onVerRisco?: (riscoId: string) => void
+  estaMarcado?: (chave: string) => boolean
+  alternarMarcado?: (chave: string) => void
 }) {
+  const chaveMarcacao = chaveItemChecklistUsuario(item.regra.id, rotuloInvoice)
+  const marcado = estaMarcado?.(chaveMarcacao) ?? false
+
   return (
-    <tr className={`sr-conf-chk-linha sr-conf-chk-linha--${item.status}`}>
+    <tr
+      className={`sr-conf-chk-linha sr-conf-chk-linha--${item.status}${marcado ? ' sr-conf-chk-linha--marcada' : ''}`}
+    >
+      <td className="sr-conf-chk-col-check">
+        <input
+          type="checkbox"
+          className="sr-conf-chk-checkbox"
+          checked={marcado}
+          onChange={() => alternarMarcado?.(chaveMarcacao)}
+          aria-label={`Conferido: ${item.regra.id} ${item.regra.item}`}
+        />
+      </td>
       <td className="sr-conf-chk-col-regra">
         <span className="sr-conf-chk-regra-id">{item.regra.id}</span>
       </td>
@@ -88,6 +113,9 @@ type Props = {
   secoesColapsadas?: Set<string>
   onToggleSecao?: (secaoId: string) => void
   onVerRisco?: (riscoId: string) => void
+  rotuloInvoice?: string | null
+  estaMarcado?: (chave: string) => boolean
+  alternarMarcado?: (chave: string) => void
   idPrefixo?: string
   classeCorpo?: string
 }
@@ -98,6 +126,9 @@ export function ChecklistConferenciaCorpoSmartRead({
   secoesColapsadas,
   onToggleSecao,
   onVerRisco,
+  rotuloInvoice,
+  estaMarcado,
+  alternarMarcado,
   idPrefixo = 'sr-checklist',
   classeCorpo = 'sr-conf-checklist-corpo',
 }: Props) {
@@ -127,6 +158,7 @@ export function ChecklistConferenciaCorpoSmartRead({
               amarelo={contagemSecao.amarelo}
               vermelho={contagemSecao.vermelho}
               pendente={contagemSecao.pendente}
+              na={contagemSecao.na}
               total={contagemSecao.total}
               classe="sr-conf-checklist-secao-barra"
             />
@@ -165,6 +197,9 @@ export function ChecklistConferenciaCorpoSmartRead({
                 <table id={`${secaoId}-tabela`} className="sr-conf-chk-tabela">
                   <thead>
                     <tr>
+                      <th scope="col" className="sr-conf-chk-col-check">
+                        <span className="sr-conf-chk-th-check">✓</span>
+                      </th>
                       <th scope="col" className="sr-conf-chk-col-regra">
                         Regra
                       </th>
@@ -184,7 +219,10 @@ export function ChecklistConferenciaCorpoSmartRead({
                       <LinhaChecklistAviacao
                         key={item.regra.id}
                         item={item}
+                        rotuloInvoice={rotuloInvoice}
                         onVerRisco={onVerRisco}
+                        estaMarcado={estaMarcado}
+                        alternarMarcado={alternarMarcado}
                       />
                     ))}
                   </tbody>

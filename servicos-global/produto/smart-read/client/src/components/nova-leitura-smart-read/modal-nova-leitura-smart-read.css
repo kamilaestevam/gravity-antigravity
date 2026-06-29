@@ -3259,6 +3259,50 @@
   background: rgba(148, 163, 184, 0.1);
 }
 
+.sr-conf-chk-col-check {
+  width: 2rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.sr-conf-chk-th-check {
+  font-size: 0.625rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.sr-conf-chk-checkbox {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  accent-color: #34d399;
+  cursor: pointer;
+}
+
+.sr-conf-chk-linha--marcada {
+  background: rgba(52, 211, 153, 0.04);
+}
+
+.sr-conf-chk-status--na {
+  color: #a8b4c4;
+  border-color: rgba(168, 180, 196, 0.35);
+  background: rgba(168, 180, 196, 0.08);
+}
+
+.sr-conf-chk-veredito--na {
+  color: #a8b4c4;
+}
+
+.sr-conf-checklist-contagem--na {
+  color: #a8b4c4;
+  border-color: rgba(168, 180, 196, 0.35);
+  background: rgba(168, 180, 196, 0.08);
+}
+
+.sr-chk-info-barra--na {
+  background: #94a3b8;
+  opacity: 0.55;
+}
+
 .sr-conf-chk-ver-risco {
   display: block;
   margin-top: 0.25rem;
@@ -3476,9 +3520,86 @@
 
 .sr-chk-info-topo-dir {
   display: grid;
-  grid-template-columns: auto minmax(12rem, 1fr);
+  grid-template-columns: auto auto minmax(12rem, 1fr);
   align-items: start;
   gap: 0.75rem 1rem;
+}
+
+.sr-chk-info-grafico-conferido {
+  align-self: start;
+  justify-self: center;
+}
+
+.sr-chk-grafico-conferido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 7.5rem;
+  padding: 0.375rem 0.5rem;
+}
+
+.sr-chk-grafico-conferido-anel {
+  position: relative;
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.sr-chk-grafico-conferido-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.sr-chk-grafico-conferido-trilho {
+  stroke: rgba(148, 163, 184, 0.2);
+}
+
+.sr-chk-grafico-conferido-progresso {
+  stroke: #34d399;
+  transition: stroke-dashoffset 0.25s ease;
+}
+
+.sr-chk-grafico-conferido-centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.sr-chk-grafico-conferido-pct {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #34d399;
+  line-height: 1;
+}
+
+.sr-chk-grafico-conferido-legenda {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  text-align: center;
+}
+
+.sr-chk-grafico-conferido-titulo {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sr-chk-grafico-conferido-contagem {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.sr-chk-grafico-conferido-contagem strong {
+  color: #e2e8f0;
+  font-weight: 800;
 }
 
 .sr-chk-info-invoice-select-centro {

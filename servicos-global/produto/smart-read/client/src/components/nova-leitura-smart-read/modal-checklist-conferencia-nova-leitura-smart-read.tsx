@@ -2,7 +2,7 @@
  * modal-checklist-conferencia-nova-leitura-smart-read.tsx — checklist em modal (visão geral unificada)
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ClipboardText, X } from '@phosphor-icons/react'
 import type { DocumentoAnaliseRisco } from '../../../../shared/analise-riscos-leitura-smart-read'
@@ -17,12 +17,18 @@ import {
 import { ChecklistConferenciaCorpoSmartRead } from './checklist-conferencia-corpo-smart-read'
 import { InfograficoChecklistGeralSmartRead } from './infografico-checklist-geral-smart-read'
 import { ResumoContagemChecklistSmartRead } from './resumo-contagem-checklist-smart-read'
+import {
+  chaveItemChecklistUsuario,
+  contarConferenciaManualChecklist,
+  usarChecklistMarcacaoUsuario,
+} from '../../shared/checklist-marcacao-usuario-smart-read'
 
 type Props = {
   aberto: boolean
   onFechar: () => void
   documentos: DocumentoAnaliseRisco[]
   parametrosChecklist: Omit<ParametrosChecklistMatrizInvoice, 'rotulo_documento'>
+  chaveMarcacaoChecklist: string
   onVerRisco?: (riscoId: string) => void
 }
 
@@ -31,9 +37,12 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
   onFechar,
   documentos,
   parametrosChecklist,
+  chaveMarcacaoChecklist,
   onVerRisco,
 }: Props) {
   const [filtroVisaoGeral, setFiltroVisaoGeral] = useState<string>(VALOR_TODAS_INVOICES_CHECKLIST)
+  const abertoAnteriorRef = useRef(false)
+  const { estaMarcado, alternarMarcado, marcados } = usarChecklistMarcacaoUsuario(chaveMarcacaoChecklist)
 
   const invoices = useMemo(() => listarInvoicesChecklist(documentos), [documentos])
 
@@ -87,10 +96,20 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
     )
   }, [resumoGeral, rotuloChecklistAtivo])
 
+  const conferenciaManual = useMemo(() => {
+    if (!rotuloChecklistAtivo || checklistInvoice.length === 0) return null
+    const chaves = checklistInvoice.map((item) =>
+      chaveItemChecklistUsuario(item.regra.id, rotuloChecklistAtivo),
+    )
+    return contarConferenciaManualChecklist(marcados, chaves)
+  }, [checklistInvoice, rotuloChecklistAtivo, marcados])
+
   useEffect(() => {
-    if (!aberto) return
-    setFiltroVisaoGeral(VALOR_TODAS_INVOICES_CHECKLIST)
-  }, [aberto, invoices])
+    if (aberto && !abertoAnteriorRef.current) {
+      setFiltroVisaoGeral(VALOR_TODAS_INVOICES_CHECKLIST)
+    }
+    abertoAnteriorRef.current = aberto
+  }, [aberto])
 
   useEffect(() => {
     if (!aberto) return
@@ -139,20 +158,13 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
               </p>
             </div>
           </div>
-          <div className="sr-conf-checklist-resumo" aria-label="Resumo do checklist">
-            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--verde">
-              {contagem.verde} CONFORME
-            </span>
-            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--amarelo">
-              {contagem.amarelo} ATENÇÃO
-            </span>
-            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--vermelho">
-              {contagem.vermelho} FALHA
-            </span>
-            <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--pendente">
-              {contagem.pendente} PENDENTE
-            </span>
-          </div>
+          <ResumoContagemChecklistSmartRead
+            verde={contagem.verde}
+            amarelo={contagem.amarelo}
+            vermelho={contagem.vermelho}
+            pendente={contagem.pendente}
+            na={contagem.na}
+          />
           <button
             type="button"
             className="sr-chk-modal-fechar"
@@ -170,6 +182,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
             <InfograficoChecklistGeralSmartRead
               resumo={resumoGeral}
               onSelecionarInvoice={selecionarInvoiceNaVisaoGeral}
+              conferenciaManual={conferenciaManual}
               selecaoInvoice={{
                 id: 'sr-chk-select-invoice',
                 opcoes: opcoesSelecaoGeral,
@@ -183,6 +196,9 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
                     secoes={secoesInvoice}
                     todasSecoesAbertas
                     onVerRisco={onVerRisco}
+                    rotuloInvoice={rotuloChecklistAtivo}
+                    estaMarcado={estaMarcado}
+                    alternarMarcado={alternarMarcado}
                     idPrefixo="sr-chk-modal-geral-inv"
                     classeCorpo="sr-chk-modal-checklist-corpo"
                   />
@@ -191,6 +207,7 @@ export function ModalChecklistConferenciaNovaLeituraSmartRead({
                     amarelo={contagemDetalheInvoice.amarelo}
                     vermelho={contagemDetalheInvoice.vermelho}
                     pendente={contagemDetalheInvoice.pendente}
+                    na={contagemDetalheInvoice.na}
                     classe="sr-conf-checklist-resumo--rodape"
                   />
                 </>

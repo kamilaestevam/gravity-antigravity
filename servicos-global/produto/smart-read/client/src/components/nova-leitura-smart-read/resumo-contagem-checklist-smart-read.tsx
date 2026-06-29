@@ -1,5 +1,5 @@
 /**
- * ResumoContagemChecklistSmartRead — badges CONFORME / ATENÇÃO / FALHA / PENDENTE
+ * ResumoContagemChecklistSmartRead — badges CONFORME / ATENÇÃO / FALHA / PENDENTE / N/A
  */
 
 type Props = {
@@ -7,6 +7,7 @@ type Props = {
   amarelo: number
   vermelho: number
   pendente: number
+  na?: number
   classe?: string
 }
 
@@ -15,6 +16,7 @@ export function ResumoContagemChecklistSmartRead({
   amarelo,
   vermelho,
   pendente,
+  na = 0,
   classe = '',
 }: Props) {
   return (
@@ -34,6 +36,11 @@ export function ResumoContagemChecklistSmartRead({
       <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--pendente">
         {pendente} PENDENTE
       </span>
+      {na > 0 && (
+        <span className="sr-conf-checklist-contagem sr-conf-checklist-contagem--na">
+          {na} N/A
+        </span>
+      )}
     </div>
   )
 }

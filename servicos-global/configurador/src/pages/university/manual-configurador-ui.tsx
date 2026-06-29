@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom'
 import {
   Gear, Crown, Buildings, Users, Handshake, CreditCard, Receipt, Pulse,
   CurrencyCircleDollar, ClockCounterClockwise, ArrowsOut, CaretDown,
-  UserPlus, IdentificationCard, ArrowRight,
+  UserPlus, IdentificationCard, ArrowRight, ShieldCheck, User, Key, Check,
+  Package, Truck, ArrowDown, ArrowUp, EnvelopeSimple, Desktop,
+  Eye, PencilSimple, List, SquaresFour, ChartBar,
+  ShieldStar, UserGear, Boat, Airplane, TruckTrailer, Warehouse, Bank, Factory,
   type Icon,
 } from '@phosphor-icons/react'
 import {
@@ -266,11 +269,12 @@ function ManualCalloutBloco({ callout, marginTop = 12 }: {
 }
 
 function ManualTooltipsKpi({ tooltips }: { tooltips: DocTooltipKpi[] }) {
+  const umaColuna = tooltips.length === 1
   return (
     <div style={{
       marginTop: 16,
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      gridTemplateColumns: umaColuna ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
       gap: 10,
     }}>
       {tooltips.map((tooltip) => (
@@ -423,6 +427,16 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
           marginBottom={i === (fluxo.paragrafos?.length ?? 0) - 1 ? 4 : 12}
         />
       ))}
+      {fluxo.mostrarInfograficoPermissoesUsuario && (
+        <div style={{ marginTop: 8, marginBottom: 20 }}>
+          <ManualInfograficoPermissoesUsuario />
+        </div>
+      )}
+      {fluxo.mostrarInfograficoPapeisFornecedor && (
+        <div style={{ marginTop: 8, marginBottom: 20 }}>
+          <ManualInfograficoPapeisFornecedor />
+        </div>
+      )}
       {fluxo.passosVisuais.map(passo => (
         <ManualBlocoPassoVisual key={passo.num} passo={passo} />
       ))}
@@ -502,6 +516,8 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
           </div>
           <ManualFiguraScreenshot src={secao.imagem} alt={secao.titulo} />
         </div>
+      ) : secao.mostrarInfograficoTiposUsuario ? (
+        <ManualIntroUsuarios />
       ) : (
         <>
           {secao.paragrafos.map((p, i) => (
@@ -534,6 +550,19 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
         <div style={{ marginTop: 24, marginBottom: 8 }}>
           <ManualInfograficoOrganizacaoWorkspaces />
           <ManualTabelaComparativaOrganizacaoWorkspace />
+        </div>
+      )}
+
+      {secao.mostrarInfograficoTiposUsuario && (
+        <div style={{ marginTop: 24, marginBottom: 8 }}>
+          <ManualInfograficoTiposUsuario />
+          <ManualTabelaComparativaTiposUsuario />
+        </div>
+      )}
+
+      {secao.mostrarInfograficoFornecedoresComex && (
+        <div style={{ marginTop: 24, marginBottom: 8 }}>
+          <ManualInfograficoFornecedoresComex />
         </div>
       )}
 
@@ -871,6 +900,1039 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#94a3b8' }}>
           <Buildings size={13} weight="duotone" /> Workspace = unidade operacional dentro da org
         </span>
+      </div>
+    </div>
+  )
+}
+
+function ManualInfograficoFornecedoresComex() {
+  const INFO_FORN: React.CSSProperties = {
+    ...INFO_WS,
+    padding: '12px 14px',
+    fontSize: '.78rem',
+    lineHeight: 1.45,
+    textAlign: 'center' as const,
+  }
+
+  return (
+    <div style={{
+      background: 'rgba(148,163,184,.04)',
+      border: '1px solid rgba(148,163,184,.14)',
+      borderRadius: 16,
+      padding: '22px 24px 26px',
+    }}>
+      <p style={{
+        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+        color: MANUAL_TIPO.meta, margin: '0 0 18px',
+      }}>
+        Papéis COMEX do fornecedor — relação com a sua operação
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+        {/* Importação */}
+        <div style={{
+          background: 'rgba(96,165,250,.06)',
+          border: '1px solid rgba(96,165,250,.22)',
+          borderRadius: 14,
+          padding: '18px 16px 20px',
+        }}>
+          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#60a5fa', margin: '0 0 14px', letterSpacing: '.04em' }}>
+            Sua operação: Importação
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            <div style={{ ...INFO_ORG, width: '100%', background: 'rgba(96,165,250,.1)', borderColor: 'rgba(96,165,250,.3)', color: '#bfdbfe' }}>
+              <Buildings size={16} weight="duotone" style={{ marginBottom: 4, color: '#93c5fd' }} />
+              <div>Seu workspace</div>
+              <div style={{ fontSize: '.68rem', fontWeight: 500, opacity: .85, marginTop: 2 }}>Quem importa a mercadoria</div>
+            </div>
+            <ArrowDown size={18} weight="bold" color="#64748b" />
+            <div style={{ ...INFO_FORN, width: '100%', borderColor: 'rgba(52,211,153,.35)', background: 'rgba(52,211,153,.08)', color: '#a7f3d0' }}>
+              <Truck size={14} weight="duotone" style={{ marginBottom: 4, color: '#34d399' }} />
+              <strong>Fornecedor · Exportador</strong>
+              <div style={{ fontSize: '.68rem', marginTop: 4, opacity: .9 }}>Vendedor no exterior — exporta para você</div>
+            </div>
+            <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.55, textAlign: 'center' }}>
+              <strong style={{ color: '#34d399' }}>Exportador na importação</strong> — cadastre o fabricante ou trading company que vende a mercadoria que sua empresa está importando.
+            </p>
+          </div>
+        </div>
+
+        {/* Exportação */}
+        <div style={{
+          background: 'rgba(52,211,153,.06)',
+          border: '1px solid rgba(52,211,153,.2)',
+          borderRadius: 14,
+          padding: '18px 16px 20px',
+        }}>
+          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#34d399', margin: '0 0 14px', letterSpacing: '.04em' }}>
+            Sua operação: Exportação
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            <div style={{ ...INFO_ORG, width: '100%', background: 'rgba(52,211,153,.12)', borderColor: 'rgba(52,211,153,.35)', color: '#a7f3d0' }}>
+              <Buildings size={16} weight="duotone" style={{ marginBottom: 4, color: '#6ee7b7' }} />
+              <div>Seu workspace</div>
+              <div style={{ fontSize: '.68rem', fontWeight: 500, opacity: .85, marginTop: 2 }}>Quem exporta a mercadoria</div>
+            </div>
+            <ArrowUp size={18} weight="bold" color="#64748b" />
+            <div style={{ ...INFO_FORN, width: '100%', borderColor: 'rgba(96,165,250,.35)', background: 'rgba(96,165,250,.08)', color: '#bfdbfe' }}>
+              <Package size={14} weight="duotone" style={{ marginBottom: 4, color: '#60a5fa' }} />
+              <strong>Fornecedor · Importador</strong>
+              <div style={{ fontSize: '.68rem', marginTop: 4, opacity: .9 }}>Comprador no exterior — importa de você</div>
+            </div>
+            <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.55, textAlign: 'center' }}>
+              <strong style={{ color: '#60a5fa' }}>Importador na exportação</strong> — cadastre o cliente estrangeiro que compra a mercadoria que sua empresa exporta. Ele atua como importador na operação.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div style={{
+        marginTop: 16,
+        padding: '14px 16px',
+        background: 'rgba(251,191,36,.05)',
+        border: '1px solid rgba(251,191,36,.18)',
+        borderRadius: 12,
+      }}>
+        <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: 0, lineHeight: 1.6 }}>
+          <strong style={{ color: '#fbbf24' }}>Fornecedor ≠ Workspace.</strong> Workspace é a sua unidade operacional (filial ou cliente do despachante). Fornecedor é um terceiro cadastrado no Configurador — aparece em pedidos, processos, cotações de frete e demais fluxos COMEX. Além de Importador e Exportador, você pode marcar Agente, Despachante, Armador e outros papéis no mesmo cadastro.
+        </p>
+      </div>
+
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '8px 14px', marginTop: 14, paddingTop: 12,
+        borderTop: '1px dashed rgba(148,163,184,.15)',
+      }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#34d399' }}>
+          <Truck size={13} weight="duotone" /> Exportador = vende na sua importação
+        </span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#60a5fa' }}>
+          <Package size={13} weight="duotone" /> Importador = compra na sua exportação
+        </span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#94a3b8' }}>
+          <Handshake size={13} weight="duotone" /> Terceiro cadastrado em Fornecedores
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function ManualIntroUsuarios() {
+  const [hoverMaster, setHoverMaster] = useState(false)
+  const [hoverRestrito, setHoverRestrito] = useState(false)
+
+  const cardBase: React.CSSProperties = {
+    borderRadius: 14,
+    padding: '18px 20px',
+    transition: 'transform .22s ease, box-shadow .22s ease, border-color .22s ease',
+  }
+
+  const itemLista: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 8,
+    fontSize: '.78rem',
+    color: MANUAL_CORPO_70,
+    lineHeight: 1.5,
+    margin: 0,
+  }
+
+  return (
+    <div style={{ marginBottom: 4 }}>
+      <p style={{ ...MANUAL_ESTILO_CORPO, margin: '0 0 18px', maxWidth: 640 }}>
+        Em Configurador → Usuários você convida pessoas e define a patente de cada uma.
+        No Gravity existem três tipos de usuário com acessos e permissões diferentes: Master, Standard e Fornecedor.
+        Veja o resumo:
+      </p>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+        gap: 14,
+        marginBottom: 6,
+      }}>
+        <div
+          onMouseEnter={() => setHoverMaster(true)}
+          onMouseLeave={() => setHoverMaster(false)}
+          style={{
+            ...cardBase,
+            background: 'linear-gradient(145deg, rgba(251,191,36,.12) 0%, rgba(251,191,36,.04) 100%)',
+            border: `1px solid ${hoverMaster ? 'rgba(251,191,36,.55)' : 'rgba(251,191,36,.28)'}`,
+            boxShadow: hoverMaster ? '0 12px 32px rgba(251,191,36,.12)' : '0 4px 16px rgba(0,0,0,.12)',
+            transform: hoverMaster ? 'translateY(-2px)' : 'none',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <span style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: 'rgba(251,191,36,.18)', border: '1px solid rgba(251,191,36,.35)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Crown size={20} weight="duotone" color="#fbbf24" />
+            </span>
+            <div>
+              <p style={{ margin: 0, fontWeight: 800, fontSize: '.92rem', color: '#fde68a' }}>Master</p>
+              <p style={{ margin: '2px 0 0', fontSize: '.68rem', color: MANUAL_CORPO_70 }}>Administrador da Empresa e todos os Workspaces</p>
+            </div>
+          </div>
+          <p style={{ ...itemLista, marginBottom: 8 }}>
+            <Check size={14} weight="bold" color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
+            Acesso total — organização, workspaces e Produtos Gravity
+          </p>
+          <p style={itemLista}>
+            <Check size={14} weight="bold" color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
+            Sem marcação de workspace ou permissão granular
+          </p>
+        </div>
+
+        <div
+          onMouseEnter={() => setHoverRestrito(true)}
+          onMouseLeave={() => setHoverRestrito(false)}
+          style={{
+            ...cardBase,
+            background: 'linear-gradient(145deg, rgba(99,102,241,.1) 0%, rgba(52,211,153,.05) 100%)',
+            border: `1px solid ${hoverRestrito ? 'rgba(129,140,248,.45)' : 'rgba(99,102,241,.22)'}`,
+            boxShadow: hoverRestrito ? '0 12px 32px rgba(99,102,241,.14)' : '0 4px 16px rgba(0,0,0,.12)',
+            transform: hoverRestrito ? 'translateY(-2px)' : 'none',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <span style={{ display: 'flex', gap: 4 }}>
+              <span style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: 'rgba(99,102,241,.15)', border: '1px solid rgba(129,140,248,.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <User size={16} weight="duotone" color="#818cf8" />
+              </span>
+              <span style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: 'rgba(52,211,153,.12)', border: '1px solid rgba(52,211,153,.28)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Handshake size={16} weight="duotone" color="#34d399" />
+              </span>
+            </span>
+            <div>
+              <p style={{ margin: 0, fontWeight: 800, fontSize: '.92rem', color: '#e2e8f0' }}>Standard e Fornecedor</p>
+              <p style={{ margin: '2px 0 0', fontSize: '.68rem', color: MANUAL_CORPO_70 }}>Acesso definido pelo Master</p>
+            </div>
+          </div>
+          <p style={{ ...itemLista, marginBottom: 6 }}>
+            <span style={{
+              flexShrink: 0, width: 18, height: 18, borderRadius: 999,
+              background: 'rgba(99,102,241,.2)', color: '#a5b4fc',
+              fontSize: '.62rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>1</span>
+            <span><strong style={{ color: '#c7d2fe' }}>Workspaces</strong> — quais unidades pode entrar (sim ou não por filial/cliente)</span>
+          </p>
+          <p style={itemLista}>
+            <span style={{
+              flexShrink: 0, width: 18, height: 18, borderRadius: 999,
+              background: 'rgba(52,211,153,.18)', color: '#6ee7b7',
+              fontSize: '.62rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>2</span>
+            <span><strong style={{ color: '#a7f3d0' }}>Permissões</strong> — dentro de cada produto, o que pode Ver e Editar</span>
+          </p>
+        </div>
+      </div>
+
+      <p style={{
+        fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '14px 0 0', lineHeight: 1.55,
+        padding: '10px 14px', borderRadius: 10,
+        background: 'rgba(148,163,184,.05)', border: '1px dashed rgba(148,163,184,.18)',
+      }}>
+        Sem workspace marcado, a pessoa não opera naquela unidade — mesmo com permissão de produto.
+        Nos fluxos abaixo: convidar, permissões, workspaces e ativar/desativar.
+      </p>
+    </div>
+  )
+}
+
+interface ManualCamadaPasso {
+  id: number
+  icone: Icon
+  cor: string
+  corBorda: string
+  corFundo: string
+  titulo: string
+  descricao: string
+  badge?: string
+}
+
+function ManualCamadaAcessoFluxo() {
+  const [ativo, setAtivo] = useState<number | null>(null)
+
+  const passos: ManualCamadaPasso[] = [
+    {
+      id: 0,
+      icone: User,
+      cor: '#94a3b8',
+      corBorda: 'rgba(148,163,184,.28)',
+      corFundo: 'rgba(148,163,184,.08)',
+      titulo: 'Standard ou Fornecedor',
+      descricao: 'Convidado pelo Master na organização',
+    },
+    {
+      id: 1,
+      icone: Buildings,
+      cor: '#818cf8',
+      corBorda: 'rgba(99,102,241,.35)',
+      corFundo: 'rgba(99,102,241,.1)',
+      titulo: '1ª camada · Workspaces',
+      descricao: 'Quais unidades pode acessar — uma, várias ou nenhuma até o Master marcar',
+      badge: '1',
+    },
+    {
+      id: 2,
+      icone: Key,
+      cor: '#34d399',
+      corBorda: 'rgba(52,211,153,.32)',
+      corFundo: 'rgba(52,211,153,.08)',
+      titulo: '2ª camada · Permissões',
+      descricao: 'Dentro de cada produto: Ver e Editar (Dashboard, Lista, Kanban…)',
+      badge: '2',
+    },
+    {
+      id: 3,
+      icone: Pulse,
+      cor: '#818cf8',
+      corBorda: 'rgba(129,140,248,.28)',
+      corFundo: 'rgba(129,140,248,.08)',
+      titulo: 'Produtos Gravity',
+      descricao: 'Só opera nos workspaces e telas liberados nas duas camadas',
+    },
+  ]
+
+  return (
+    <div style={{
+      marginBottom: 22,
+      padding: '18px 20px 20px',
+      background: 'linear-gradient(135deg, rgba(99,102,241,.08) 0%, rgba(8,12,24,.35) 50%, rgba(52,211,153,.06) 100%)',
+      border: '1px solid rgba(99,102,241,.2)',
+      borderRadius: 14,
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(99,102,241,.08), transparent 70%)',
+      }} />
+      <p style={{
+        position: 'relative',
+        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+        color: '#a5b4fc', margin: '0 0 16px',
+      }}>
+        Fluxo de acesso — Standard e Fornecedor
+      </p>
+      <div style={{
+        position: 'relative',
+        display: 'flex', alignItems: 'stretch', gap: 6, flexWrap: 'wrap', justifyContent: 'center',
+      }}>
+        {passos.map((passo, i) => {
+          const Icone = passo.icone
+          const destacado = ativo === passo.id
+          const vizinho = ativo !== null && (ativo === passo.id - 1 || ativo === passo.id + 1)
+          return (
+            <React.Fragment key={passo.id}>
+              <div
+                role="group"
+                tabIndex={0}
+                onMouseEnter={() => setAtivo(passo.id)}
+                onMouseLeave={() => setAtivo(null)}
+                onFocus={() => setAtivo(passo.id)}
+                onBlur={() => setAtivo(null)}
+                style={{
+                  position: 'relative',
+                  flex: '1 1 130px',
+                  minWidth: 120,
+                  maxWidth: 200,
+                  padding: '14px 12px',
+                  borderRadius: 12,
+                  textAlign: 'center',
+                  fontSize: '.72rem',
+                  lineHeight: 1.45,
+                  cursor: 'default',
+                  outline: 'none',
+                  background: passo.corFundo,
+                  border: `1px solid ${destacado ? passo.cor : passo.corBorda}`,
+                  boxShadow: destacado ? `0 8px 24px ${passo.corFundo}, 0 0 0 1px ${passo.corBorda}` : 'none',
+                  transform: destacado ? 'translateY(-3px) scale(1.02)' : 'none',
+                  transition: 'transform .2s ease, box-shadow .2s ease, border-color .2s ease',
+                }}
+              >
+                {passo.badge && (
+                  <span style={{
+                    position: 'absolute',
+                    top: -10,
+                    right: 10,
+                    width: 20, height: 20, borderRadius: 999,
+                    background: passo.cor, color: '#0f172a',
+                    fontSize: '.62rem', fontWeight: 800,
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,.25)',
+                  }}>{passo.badge}</span>
+                )}
+                <Icone size={20} weight="duotone" style={{ marginBottom: 8, color: passo.cor }} />
+                <div style={{ fontWeight: 700, marginBottom: 5, color: '#e2e8f0', fontSize: '.74rem' }}>{passo.titulo}</div>
+                <div style={{ fontSize: '.66rem', color: MANUAL_CORPO_70 }}>{passo.descricao}</div>
+              </div>
+              {i < passos.length - 1 && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', color: destacado || vizinho ? passo.cor : '#475569',
+                  flexShrink: 0, padding: '0 2px',
+                  transition: 'color .2s ease, transform .2s ease',
+                  transform: destacado ? 'translateX(2px)' : 'none',
+                }}>
+                  <ArrowRight size={16} weight="bold" />
+                </div>
+              )}
+            </React.Fragment>
+          )
+        })}
+      </div>
+      <div style={{
+        position: 'relative',
+        marginTop: 16,
+        padding: '10px 14px',
+        borderRadius: 10,
+        background: 'rgba(251,191,36,.08)',
+        border: '1px solid rgba(251,191,36,.22)',
+        display: 'flex', alignItems: 'center', gap: 10,
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+      }}>
+        <Crown size={16} weight="duotone" color="#fbbf24" />
+        <span style={{ fontSize: '.74rem', color: MANUAL_CORPO_70, lineHeight: 1.5, textAlign: 'center' }}>
+          <strong style={{ color: '#fde68a' }}>Master</strong> ignora este fluxo — acesso irrestrito em toda a organização
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function ManualInfograficoPermissoesUsuario() {
+  const cardBase: React.CSSProperties = {
+    borderRadius: 12,
+    padding: '14px 16px',
+    background: 'rgba(8,12,24,.28)',
+    border: '1px solid rgba(148,163,184,.14)',
+  }
+
+  const telasPadrao: { icone: Icon; rotulo: string }[] = [
+    { icone: ChartBar, rotulo: 'Dashboard' },
+    { icone: List, rotulo: 'Lista' },
+    { icone: SquaresFour, rotulo: 'Kanban' },
+    { icone: ChartBar, rotulo: 'Relatórios' },
+    { icone: ClockCounterClockwise, rotulo: 'Histórico' },
+    { icone: Gear, rotulo: 'Configuração' },
+  ]
+
+  return (
+    <div style={{
+      background: 'rgba(99,102,241,.04)',
+      border: '1px solid rgba(99,102,241,.18)',
+      borderRadius: 16,
+      padding: '20px 22px 22px',
+    }}>
+      <p style={{
+        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+        color: MANUAL_TIPO.meta, margin: '0 0 16px',
+      }}>
+        Como funcionam as permissões granulares
+      </p>
+
+      <p style={{ ...MANUAL_ESTILO_CORPO, margin: '0 0 16px', fontSize: '.82rem' }}>
+        Cada Produto Gravity contratado pela organização aparece como um bloco na aba Permissões.
+        Por linha, você define se o usuário só consulta ou também altera dados naquela visualização.
+      </p>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: 12,
+        marginBottom: 18,
+      }}>
+        <div style={{
+          ...cardBase,
+          background: 'linear-gradient(145deg, rgba(99,102,241,.1) 0%, rgba(99,102,241,.03) 100%)',
+          borderColor: 'rgba(129,140,248,.28)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <span style={{
+              width: 34, height: 34, borderRadius: 10,
+              background: 'rgba(99,102,241,.15)', border: '1px solid rgba(129,140,248,.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Eye size={18} weight="duotone" color="#818cf8" />
+            </span>
+            <p style={{ margin: 0, fontWeight: 800, fontSize: '.88rem', color: '#c7d2fe' }}>Ver</p>
+          </div>
+          <p style={{ margin: 0, fontSize: '.76rem', color: MANUAL_CORPO_70, lineHeight: 1.55 }}>
+            O usuário acessa a tela e consulta informações, sem alterar registros.
+            Use quando a pessoa só precisa acompanhar ou extrair dados.
+          </p>
+        </div>
+
+        <div style={{
+          ...cardBase,
+          background: 'linear-gradient(145deg, rgba(52,211,153,.08) 0%, rgba(52,211,153,.02) 100%)',
+          borderColor: 'rgba(52,211,153,.25)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <span style={{
+              width: 34, height: 34, borderRadius: 10,
+              background: 'rgba(52,211,153,.12)', border: '1px solid rgba(52,211,153,.28)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <PencilSimple size={18} weight="duotone" color="#34d399" />
+            </span>
+            <p style={{ margin: 0, fontWeight: 800, fontSize: '.88rem', color: '#a7f3d0' }}>Editar</p>
+          </div>
+          <p style={{ margin: 0, fontSize: '.76rem', color: MANUAL_CORPO_70, lineHeight: 1.55 }}>
+            Inclui tudo de Ver e permite criar, alterar ou excluir naquela visualização.
+            Marque só onde a operação exige mudança de dados.
+          </p>
+        </div>
+      </div>
+
+      <div style={{
+        ...cardBase,
+        marginBottom: 14,
+        background: 'rgba(148,163,184,.04)',
+      }}>
+        <p style={{
+          margin: '0 0 12px', fontSize: '.72rem', fontWeight: 800, letterSpacing: '.05em',
+          textTransform: 'uppercase', color: '#94a3b8',
+        }}>
+          Visualizações padrão por produto
+        </p>
+        <p style={{ margin: '0 0 14px', fontSize: '.76rem', color: MANUAL_CORPO_70, lineHeight: 1.55 }}>
+          Cada produto segue o mesmo padrão de telas. Na grade, localize o produto (ex.: Pedido, Smart Docs)
+          e marque Ver ou Editar na linha correspondente — basta selecionar o local indicado.
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {telasPadrao.map(({ icone: Icone, rotulo }) => (
+            <span key={rotulo} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '6px 12px', borderRadius: 999,
+              background: 'rgba(99,102,241,.08)', border: '1px solid rgba(129,140,248,.22)',
+              fontSize: '.72rem', fontWeight: 600, color: '#c7d2fe',
+            }}>
+              <Icone size={14} weight="duotone" color="#818cf8" />
+              {rotulo}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div style={{
+        ...cardBase,
+        background: 'linear-gradient(145deg, rgba(129,140,248,.1) 0%, rgba(52,211,153,.05) 100%)',
+        borderColor: 'rgba(129,140,248,.3)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          <span style={{
+            width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+            background: 'rgba(129,140,248,.15)', border: '1px solid rgba(129,140,248,.35)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Truck size={20} weight="duotone" color="#818cf8" />
+          </span>
+          <div>
+            <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '.84rem', color: '#e2e8f0' }}>
+              Permissão especial — Pode cotar frete internacional
+            </p>
+            <p style={{ margin: 0, fontSize: '.76rem', color: MANUAL_CORPO_70, lineHeight: 1.55 }}>
+              Para habilitar fornecedores como agentes de carga, marque esta opção no produto
+              BID Frete Internacional. Libera a visão de parceiro: responder cotações, enviar propostas
+              e acessar o painel BID Frete Internacional - Fornecedor. Vale para usuários tipo Fornecedor
+              com empresa vinculada (ex.: Agente de carga).
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ManualBlocoFornecedorInteracao() {
+  const itemBase: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 12,
+    padding: '14px 16px',
+    borderRadius: 12,
+    background: 'rgba(8,12,24,.25)',
+    border: '1px solid rgba(148,163,184,.12)',
+  }
+
+  return (
+    <div style={{
+      marginTop: 18,
+      padding: '16px 18px 18px',
+      borderRadius: 14,
+      background: 'linear-gradient(145deg, rgba(52,211,153,.08) 0%, rgba(52,211,153,.02) 100%)',
+      border: '1px solid rgba(52,211,153,.22)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <Handshake size={18} weight="duotone" color="#34d399" />
+        <p style={{
+          margin: 0, fontSize: '.72rem', fontWeight: 800, letterSpacing: '.06em',
+          textTransform: 'uppercase', color: '#6ee7b7',
+        }}>
+          Fornecedor — como interage com a organização
+        </p>
+      </div>
+      <p style={{ fontSize: '.78rem', color: MANUAL_CORPO_70, margin: '0 0 14px', lineHeight: 1.55 }}>
+        O parceiro pode operar com a organização de duas formas. O Master escolhe qual modelo usar;
+        <strong style={{ color: '#a7f3d0' }}> o acesso à plataforma não é obrigatório</strong>.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
+        <div style={itemBase}>
+          <span style={{
+            width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+            background: 'rgba(99,102,241,.12)', border: '1px solid rgba(129,140,248,.28)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Desktop size={18} weight="duotone" color="#818cf8" />
+          </span>
+          <div>
+            <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '.8rem', color: '#e2e8f0' }}>
+              Com usuário na plataforma
+            </p>
+            <p style={{ margin: 0, fontSize: '.74rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
+              O Master convida um usuário tipo Fornecedor. A pessoa acessa as telas liberadas
+              (workspaces e permissões granulares).
+            </p>
+          </div>
+        </div>
+        <div style={itemBase}>
+          <span style={{
+            width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+            background: 'rgba(52,211,153,.1)', border: '1px solid rgba(52,211,153,.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <EnvelopeSimple size={18} weight="duotone" color="#34d399" />
+          </span>
+          <div>
+            <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '.8rem', color: '#e2e8f0' }}>
+              Só por e-mail, sem acesso
+            </p>
+            <p style={{ margin: 0, fontSize: '.74rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
+              Se o Master preferir, não há convite nem login. As interações ocorrem por respostas
+              de e-mail, fora do Gravity.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const PAPEL_FORNECEDOR_INFO: {
+  label: string
+  descricao: string
+  cor: string
+  icone: React.ReactNode
+}[] = [
+  { label: 'Fabricante', descricao: 'Quem produz a mercadoria negociada na operação.', cor: '#fbbf24', icone: <Factory weight="duotone" size={16} /> },
+  { label: 'Agente de Carga', descricao: 'Logística internacional — contrata frete, consolida cargas e coordena o embarque.', cor: '#c084fc', icone: <UserGear weight="duotone" size={16} /> },
+  { label: 'Despachante Aduaneiro', descricao: 'Representante legal da empresa perante a Receita — desembaraço e compliance aduaneiro.', cor: '#f472b6', icone: <ShieldStar weight="duotone" size={16} /> },
+  { label: 'Armador', descricao: 'Companhia marítima que opera o navio e o espaço no porão/contêiner.', cor: '#22d3ee', icone: <Boat weight="duotone" size={16} /> },
+  { label: 'Cia Aérea', descricao: 'Transporte aéreo de carga — AWB e embarques urgentes.', cor: '#818cf8', icone: <Airplane weight="duotone" size={16} /> },
+  { label: 'Transportadora Rodoviária', descricao: 'Coleta e entrega no trecho nacional ou internacional por rodovia.', cor: '#a3e635', icone: <TruckTrailer weight="duotone" size={16} /> },
+  { label: 'Armazém Alfandegado', descricao: 'Recinto alfandegado — mercadoria sob controle aduaneiro antes do desembaraço.', cor: '#fb923c', icone: <Warehouse weight="duotone" size={16} /> },
+  { label: 'Armazém Nacional', descricao: 'Armazenagem geral fora de regime alfandegado.', cor: '#fdba74', icone: <Warehouse weight="duotone" size={16} /> },
+  { label: 'Banco', descricao: 'Instituição financeira em operações de comércio exterior.', cor: '#10b981', icone: <Bank weight="duotone" size={16} /> },
+  { label: 'Seguradora / Corretora', descricao: 'Seguro de carga internacional ou corretagem de câmbio.', cor: '#06b6d4', icone: <ShieldCheck weight="duotone" size={16} /> },
+]
+
+function ManualInfograficoPapeisFornecedor() {
+  return (
+    <div style={{
+      background: 'rgba(148,163,184,.04)',
+      border: '1px solid rgba(148,163,184,.14)',
+      borderRadius: 16,
+      padding: '22px 24px 26px',
+    }}>
+      <p style={{
+        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+        color: MANUAL_TIPO.meta, margin: '0 0 6px',
+      }}>
+        Outros papéis COMEX — o que é cada um
+      </p>
+      <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: '0 0 16px', lineHeight: 1.55 }}>
+        Marque na aba Papéis COMEX todos os papéis que o terceiro exerce. A plataforma usa esses flags para filtrar dropdowns, convites e cotações.
+      </p>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+        gap: 10,
+      }}>
+        {PAPEL_FORNECEDOR_INFO.map((papel) => (
+          <div
+            key={papel.label}
+            style={{
+              background: `${papel.cor}0d`,
+              border: `1px solid ${papel.cor}33`,
+              borderRadius: 10,
+              padding: '12px 14px',
+            }}
+          >
+            <p style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              fontSize: '.72rem', fontWeight: 700, color: papel.cor, margin: '0 0 6px',
+            }}>
+              {papel.icone}
+              {papel.label}
+            </p>
+            <p style={{ fontSize: '.7rem', color: MANUAL_CORPO_70, margin: 0, lineHeight: 1.45 }}>
+              {papel.descricao}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div style={{
+        marginTop: 16,
+        padding: '14px 16px',
+        background: 'rgba(99,102,241,.06)',
+        border: '1px solid rgba(99,102,241,.2)',
+        borderRadius: 12,
+      }}>
+        <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: '0 0 10px', lineHeight: 1.6 }}>
+          <strong style={{ color: '#a5b4fc' }}>Uma empresa, vários papéis.</strong> O mesmo CNPJ ou TIN pode ser Despachante e Agente de Carga — marque os dois no mesmo cadastro. Os chips na listagem mostram a combinação (ex.: Despachante + Agente).
+        </p>
+        <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: 0, lineHeight: 1.6 }}>
+          <strong style={{ color: '#a5b4fc' }}>Por que cadastrar bem?</strong> Contato correto para comunicações e convites · seleção em cotações de frete e câmbio · vínculo de usuários tipo Fornecedor · registros consistentes em Pedido, Processo e documentos legais.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function ManualInfograficoTiposUsuario() {
+  const tipos = [
+    {
+      icone: Crown,
+      cor: '#fbbf24',
+      titulo: 'Master',
+      subtitulo: 'Administrador da Empresa e todos os Workspaces',
+      pilulas: ['Acesso total — sem camadas', 'Convida e edita usuários', 'Todos os workspaces e Produtos Gravity'],
+    },
+    {
+      icone: User,
+      cor: '#818cf8',
+      titulo: 'Standard',
+      subtitulo: 'Colaborador interno da Organização',
+      pilulas: ['1º Workspaces habilitados', '2º Permissões granulares', 'Só opera onde o Master liberar'],
+    },
+    {
+      icone: Handshake,
+      cor: '#34d399',
+      titulo: 'Fornecedor',
+      subtitulo: 'Parceiro externo',
+      pilulas: ['1º Workspaces habilitados', '2º Permissões sempre granulares', 'Plataforma opcional — ou só e-mail'],
+    },
+  ] as const
+
+  return (
+    <div style={{
+      background: 'rgba(148,163,184,.04)',
+      border: '1px solid rgba(148,163,184,.14)',
+      borderRadius: 16,
+      padding: '22px 24px 26px',
+    }}>
+      <ManualCamadaAcessoFluxo />
+
+      <p style={{
+        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+        color: MANUAL_TIPO.meta, margin: '0 0 18px',
+      }}>
+        Tipos de usuário na organização
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+        <div style={{
+          background: 'rgba(251,191,36,.05)',
+          border: '1px solid rgba(251,191,36,.18)',
+          borderRadius: 14,
+          padding: '18px 16px 20px',
+        }}>
+          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#fbbf24', margin: '0 0 14px', letterSpacing: '.04em' }}>
+            Quem gerencia a conta
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              ...INFO_ORG,
+              width: '100%',
+              background: 'rgba(251,191,36,.1)',
+              borderColor: 'rgba(251,191,36,.3)',
+              color: '#fde68a',
+            }}>
+              <Crown size={18} weight="duotone" style={{ marginBottom: 4, color: '#fbbf24' }} />
+              <div>Master</div>
+              <div style={{ fontSize: '.68rem', fontWeight: 500, opacity: .85, marginTop: 2 }}>
+                Primeiro usuário da organização — sempre Master
+              </div>
+            </div>
+            <div style={{ color: '#64748b', fontSize: '.75rem' }}>↓ convida e define acesso</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, width: '100%' }}>
+              <div style={INFO_WS}>
+                <User size={14} weight="duotone" style={{ marginBottom: 4, color: '#818cf8' }} />
+                Standard<br />Equipe interna
+              </div>
+              <div style={INFO_WS}>
+                <Handshake size={14} weight="duotone" style={{ marginBottom: 4, color: '#34d399' }} />
+                Fornecedor<br />Parceiro externo
+              </div>
+            </div>
+            <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.5, textAlign: 'center' }}>
+              Só o Master convida pessoas e altera patentes, permissões e workspaces de outros usuários.
+            </p>
+          </div>
+        </div>
+
+        <div style={{
+          background: 'rgba(99,102,241,.06)',
+          border: '1px solid rgba(99,102,241,.2)',
+          borderRadius: 14,
+          padding: '18px 16px 20px',
+        }}>
+          <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#818cf8', margin: '0 0 14px', letterSpacing: '.04em' }}>
+            O que muda entre os tipos
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {tipos.map(({ icone: Icone, cor, titulo, subtitulo, pilulas }) => (
+              <div
+                key={titulo}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = `${cor}55`
+                  e.currentTarget.style.transform = 'translateX(4px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(148,163,184,.12)'
+                  e.currentTarget.style.transform = 'none'
+                }}
+                style={{
+                  background: 'rgba(8,12,24,.2)',
+                  border: '1px solid rgba(148,163,184,.12)',
+                  borderRadius: 10,
+                  padding: '12px 14px',
+                  transition: 'transform .18s ease, border-color .18s ease',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <Icone size={16} weight="duotone" style={{ color: cor, flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '.82rem', color: '#e2e8f0' }}>{titulo}</div>
+                    <div style={{ fontSize: '.68rem', color: MANUAL_CORPO_70 }}>{subtitulo}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {pilulas.map((texto) => (
+                    <span key={texto} style={{
+                      ...INFO_PILULA,
+                      fontSize: '.66rem',
+                      padding: '4px 8px',
+                    }}>
+                      {texto}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '12px 0 0', lineHeight: 1.5 }}>
+            Standard e Fornecedor enxergam somente a si mesmos na lista de Usuários. O Master vê toda a organização.
+          </p>
+        </div>
+      </div>
+
+      <ManualBlocoFornecedorInteracao />
+
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '8px 14px', marginTop: 16, paddingTop: 12,
+        borderTop: '1px dashed rgba(148,163,184,.15)',
+      }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#818cf8' }}>
+          <Buildings size={13} weight="duotone" /> 1ª camada — workspaces habilitados
+        </span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#34d399' }}>
+          <Key size={13} weight="duotone" /> 2ª camada — permissões granulares
+        </span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#fbbf24' }}>
+          <Crown size={13} weight="duotone" /> Master = sem camadas, acesso total
+        </span>
+      </div>
+    </div>
+  )
+}
+
+const COMPARATIVO_TIPOS_USUARIO: {
+  criterio: string
+  master: string
+  standard: string
+  fornecedor: string
+}[] = [
+  {
+    criterio: 'Camadas de acesso',
+    master: 'Nenhuma — acesso direto a tudo',
+    standard: '1º workspaces habilitados · 2º permissões granulares por produto',
+    fornecedor: '1º workspaces habilitados · 2º permissões granulares (obrigatórias)',
+  },
+  {
+    criterio: 'O que é',
+    master: 'Administrador da Empresa e todos os Workspaces',
+    standard: 'Colaborador interno da empresa que contratou Gravity (Organização)',
+    fornecedor: 'Usuário de empresa parceira (frete, câmbio, despacho etc.)',
+  },
+  {
+    criterio: 'Escopo',
+    master: 'Toda a organização e todos os workspaces',
+    standard: 'Apenas o que o Master liberar',
+    fornecedor: 'Apenas recursos explicitamente liberados',
+  },
+  {
+    criterio: 'Workspaces',
+    master: 'Acesso automático a todos — sem vínculo manual',
+    standard: 'Somente unidades marcadas — sem marcação, não entra no workspace',
+    fornecedor: 'Somente unidades marcadas + empresa fornecedora vinculada',
+  },
+  {
+    criterio: 'Permissões granulares',
+    master: 'Não se aplica — bypass total',
+    standard: 'Ver e Editar por produto (Dashboard, Lista, Kanban…) — definidas pelo Master',
+    fornecedor: 'Obrigatórias — sempre Ver/Editar explícito por produto',
+  },
+  {
+    criterio: 'Configurador',
+    master: 'Acesso total às áreas da organização',
+    standard: 'Somente áreas com permissão marcada',
+    fornecedor: 'Somente áreas com permissão marcada',
+  },
+  {
+    criterio: 'Produtos Gravity',
+    master: 'Todos os produtos contratados pela organização',
+    standard: 'Conforme permissões granulares por produto',
+    fornecedor: 'Conforme permissões granulares — sempre obrigatórias',
+  },
+  {
+    criterio: 'Convida usuários',
+    master: 'Sim — Master, Standard e Fornecedor',
+    standard: 'Não',
+    fornecedor: 'Não',
+  },
+  {
+    criterio: 'Lista de Usuários',
+    master: 'Vê todos os usuários da organização',
+    standard: 'Vê somente a si',
+    fornecedor: 'Vê somente a si',
+  },
+  {
+    criterio: 'Acesso à plataforma',
+    master: '—',
+    standard: 'Sempre — opera nas telas liberadas pelo Master',
+    fornecedor: 'Opcional — usuário nas telas ou só interação por e-mail, sem login',
+  },
+  {
+    criterio: 'Quem atribui',
+    master: 'Sistema — primeiro usuário da conta',
+    standard: 'Master da organização',
+    fornecedor: 'Master da organização',
+  },
+]
+
+function ManualTabelaComparativaTiposUsuario() {
+  const thBase: React.CSSProperties = {
+    padding: '12px 14px',
+    textAlign: 'left',
+    fontSize: '.66rem',
+    fontWeight: 700,
+    letterSpacing: '.06em',
+    textTransform: 'uppercase',
+    borderBottom: '1px solid rgba(148,163,184,.15)',
+  }
+
+  const tdBase: React.CSSProperties = {
+    padding: '12px 14px',
+    fontSize: '.76rem',
+    lineHeight: 1.5,
+    verticalAlign: 'top',
+    borderBottom: '1px solid rgba(148,163,184,.08)',
+  }
+
+  return (
+    <div style={{
+      marginTop: 20,
+      borderRadius: 14,
+      border: '1px solid rgba(148,163,184,.14)',
+      background: 'linear-gradient(145deg, rgba(251,191,36,.06) 0%, rgba(99,102,241,.05) 45%, rgba(52,211,153,.04) 100%)',
+      boxShadow: '0 8px 32px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.04)',
+      overflow: 'hidden',
+    }}>
+      <p style={{
+        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
+        color: MANUAL_TIPO.meta, margin: 0, padding: '16px 18px 14px',
+        borderBottom: '1px solid rgba(148,163,184,.1)',
+      }}>
+        Comparativo — Master × Standard × Fornecedor
+      </p>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', minWidth: 680, borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ ...thBase, color: '#94a3b8', width: '18%' }}>Critério</th>
+              <th style={{
+                ...thBase,
+                color: '#fde68a',
+                background: 'rgba(251,191,36,.08)',
+                width: '27%',
+              }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Crown size={14} weight="duotone" />
+                  Master
+                </span>
+              </th>
+              <th style={{
+                ...thBase,
+                color: '#a5b4fc',
+                background: 'rgba(99,102,241,.08)',
+                width: '27%',
+              }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <User size={14} weight="duotone" />
+                  Standard
+                </span>
+              </th>
+              <th style={{
+                ...thBase,
+                color: '#6ee7b7',
+                background: 'rgba(52,211,153,.06)',
+                width: '28%',
+              }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Handshake size={14} weight="duotone" />
+                  Fornecedor
+                </span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {COMPARATIVO_TIPOS_USUARIO.map((linha, i) => (
+              <tr
+                key={linha.criterio}
+                style={{ background: i % 2 === 0 ? 'rgba(8,12,24,.15)' : 'transparent' }}
+              >
+                <td style={{ ...tdBase, fontWeight: 600, color: '#94a3b8' }}>{linha.criterio}</td>
+                <td style={{ ...tdBase, color: '#e2e8f0', background: 'rgba(251,191,36,.04)' }}>{linha.master}</td>
+                <td style={{ ...tdBase, color: '#e2e8f0', background: 'rgba(99,102,241,.04)' }}>{linha.standard}</td>
+                <td style={{ ...tdBase, color: '#e2e8f0', background: 'rgba(52,211,153,.03)' }}>{linha.fornecedor}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   )

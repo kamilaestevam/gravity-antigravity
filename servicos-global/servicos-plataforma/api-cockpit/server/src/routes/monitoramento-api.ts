@@ -33,7 +33,19 @@ import {
 } from '../lib/inventario-servicos-runtime.js'
 
 const router = Router()
-const prisma = new PrismaClient()
+
+let _prisma: PrismaClient | undefined
+
+function prismaMonitoramento(): PrismaClient {
+  if (!_prisma) {
+    const url = process.env.ORGANIZACAO_DATABASE_URL?.trim() ?? process.env.DATABASE_URL?.trim()
+    if (!url) {
+      throw new Error('ORGANIZACAO_DATABASE_URL ausente — sidecar api-cockpit sem banco')
+    }
+    _prisma = new PrismaClient({ datasources: { db: { url } } })
+  }
+  return _prisma
+}
 
 // ─── Buffer de ingest (flush 100 entries OU 5s) ─────────────────────────
 //
@@ -65,7 +77,7 @@ async function flushIngestBuffer(): Promise<void> {
   // Drena o buffer atomicamente (splice retorna o que tinha + zera o array)
   const batch = ingestBuffer.splice(0, ingestBuffer.length)
   try {
-    await prisma.logRequisicaoApi.createMany({
+    await prismaMonitoramento().logRequisicaoApi.createMany({
       data: batch.map((e) => ({
         id_organizacao:                          e.id_organizacao,
         id_produto_gravity:                      e.id_produto_gravity,
@@ -259,8 +271,8 @@ router.get('/logs', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const [total, rows] = await Promise.all([
-      prisma.logRequisicaoApi.count({ where }),
-      prisma.logRequisicaoApi.findMany({
+      prismaMonitoramento().logRequisicaoApi.count({ where }),
+      prismaMonitoramento().logRequisicaoApi.findMany({
         where,
         orderBy: { data_criacao_log_requisicao_api: 'desc' },
         skip:    (filtros.pagina - 1) * filtros.limite,
@@ -357,7 +369,7 @@ router.get('/estatisticas-log-requisicao-api', async (req: Request, res: Respons
     }
     if (filtroIdOrganizacao) where.id_organizacao = filtroIdOrganizacao
 
-    const rows = await prisma.logRequisicaoApi.findMany({
+    const rows = await prismaMonitoramento().logRequisicaoApi.findMany({
       where,
       select: {
         id_produto_gravity:                      true,

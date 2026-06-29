@@ -9,6 +9,7 @@ describe('verificar-health-sidecar / sidecar boot', () => {
   afterEach(() => {
     vi.restoreAllMocks()
     delete process.env.ORGANIZACAO_DATABASE_URL
+    delete process.env.SERVICOS_PLATAFORMA_DATABASE_URL
     delete process.env.CHAVE_INTERNA_SERVICO
   })
 
@@ -27,11 +28,21 @@ describe('verificar-health-sidecar / sidecar boot', () => {
   it('preflight produção exige ORGANIZACAO_DATABASE_URL e CHAVE', () => {
     const erros = coletarErrosPreflightApiCockpit(true)
     expect(erros).toHaveLength(2)
+    expect(erros[0]).toContain('ORGANIZACAO_DATABASE_URL')
   })
 
   it('preflight dev não bloqueia por CHAVE ausente', () => {
     process.env.ORGANIZACAO_DATABASE_URL = 'postgres://x'
     const erros = coletarErrosPreflightApiCockpit(false)
     expect(erros).toHaveLength(0)
+  })
+
+  it('preflight sincroniza ORGANIZACAO a partir de SERVICOS_PLATAFORMA_DATABASE_URL', () => {
+    delete process.env.ORGANIZACAO_DATABASE_URL
+    process.env.SERVICOS_PLATAFORMA_DATABASE_URL = 'postgres://plataforma'
+    process.env.CHAVE_INTERNA_SERVICO = 'chave-teste'
+    const erros = coletarErrosPreflightApiCockpit(true)
+    expect(erros).toHaveLength(0)
+    expect(process.env.ORGANIZACAO_DATABASE_URL).toBe('postgres://plataforma')
   })
 })

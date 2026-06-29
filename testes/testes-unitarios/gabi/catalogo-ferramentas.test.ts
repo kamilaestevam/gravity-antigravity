@@ -7,6 +7,7 @@ import {
   isWriteTool,
   gerarGeminiDeclarations,
   filtrarToolsPorPermissao,
+  geminiNameToToolId,
 } from '../../../servicos-global/servicos-plataforma/gabi/server/services/catalogo-ferramentas.js'
 
 describe('catalogo-ferramentas', () => {
@@ -139,6 +140,18 @@ describe('catalogo-ferramentas', () => {
     it('filtra subset quando toolIds fornecido', () => {
       const tools = filtrarToolsPorPermissao('PADRAO', ['pedido.listar', 'pedido.criar'])
       expect(tools.length).toBeLessThanOrEqual(2)
+    })
+  })
+
+  describe('geminiNameToToolId', () => {
+    it('reverte nome Gemini com underscore no produto (bid_frete)', () => {
+      expect(geminiNameToToolId('bid_frete_kpis')).toBe('bid_frete.kpis')
+      expect(geminiNameToToolId('bid_frete_listar_cotacoes')).toBe('bid_frete.listar_cotacoes')
+    })
+
+    it('reverte nome Gemini de produto simples (pedido)', () => {
+      expect(geminiNameToToolId('pedido_kpis')).toBe('pedido.kpis')
+      expect(geminiNameToToolId('pedido_listar')).toBe('pedido.listar')
     })
   })
 

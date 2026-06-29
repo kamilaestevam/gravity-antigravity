@@ -1578,7 +1578,11 @@ export const CATALOGO_FERRAMENTAS: ToolDefinition[] = [
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const _toolMap = new Map<string, ToolDefinition>()
-for (const t of CATALOGO_FERRAMENTAS) _toolMap.set(t.id, t)
+const _geminiNameToToolId = new Map<string, string>()
+for (const t of CATALOGO_FERRAMENTAS) {
+  _toolMap.set(t.id, t)
+  _geminiNameToToolId.set(t.gemini_declaration.name.replace(/\./g, '_'), t.id)
+}
 
 export function buscarTool(toolId: string): ToolDefinition | undefined {
   return _toolMap.get(toolId)
@@ -1610,7 +1614,7 @@ export function gerarGeminiDeclarations(toolIds?: string[]): object[] {
 }
 
 export function geminiNameToToolId(geminiName: string): string {
-  return geminiName.replace(/_/, '.')
+  return _geminiNameToToolId.get(geminiName) ?? geminiName
 }
 
 export function filtrarToolsPorPermissao(

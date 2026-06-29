@@ -108,16 +108,33 @@ export async function inserirMensagensGabi(
        data_criacao_gabi_mensagem,
        data_atualizacao_gabi_mensagem
      ) VALUES
-       ($1, $2, $3, $4, 'user', $5, $6, NOW(), NOW()),
-       ($7, $2, $3, $4, 'assistant', $8, $6, NOW(), NOW())`,
+       ($1, $2, $3, $4, 'user', $5, $6, clock_timestamp(), clock_timestamp())`,
     idUser,
     params.id_organizacao,
     params.id_usuario,
     params.id_conversa,
     params.mensagem_usuario,
     params.id_produto ?? null,
+  )
+  await tx.$executeRawUnsafe(
+    `INSERT INTO "${schemaName}"."gabi_mensagem" (
+       id_gabi_mensagem,
+       id_organizacao_gabi_mensagem,
+       id_usuario_gabi_mensagem,
+       id_conversa_gabi_mensagem,
+       papel_gabi_mensagem,
+       conteudo_gabi_mensagem,
+       id_produto_gabi_mensagem,
+       data_criacao_gabi_mensagem,
+       data_atualizacao_gabi_mensagem
+     ) VALUES
+       ($1, $2, $3, $4, 'assistant', $5, $6, clock_timestamp(), clock_timestamp())`,
     idAssistant,
+    params.id_organizacao,
+    params.id_usuario,
+    params.id_conversa,
     params.resposta_assistente,
+    params.id_produto ?? null,
   )
   if (params.metadados_assistente_json) {
     await tx.$executeRawUnsafe(
@@ -138,10 +155,18 @@ export async function listarMensagensConversaGabi(
 ): Promise<{ messages: MensagemGabiLinha[]; totalCount: number }> {
   const messages = await tx.$queryRawUnsafe<MensagemGabiLinha[]>(
     `SELECT papel_gabi_mensagem, conteudo_gabi_mensagem
-     FROM "${schemaName}"."gabi_mensagem"
-     WHERE id_conversa_gabi_mensagem = $1
-     ORDER BY data_criacao_gabi_mensagem DESC
-     LIMIT $2`,
+     FROM (
+       SELECT papel_gabi_mensagem, conteudo_gabi_mensagem, data_criacao_gabi_mensagem, id_gabi_mensagem
+       FROM "${schemaName}"."gabi_mensagem"
+       WHERE id_conversa_gabi_mensagem = $1
+       ORDER BY data_criacao_gabi_mensagem DESC,
+                CASE papel_gabi_mensagem WHEN 'assistant' THEN 0 WHEN 'user' THEN 1 ELSE 2 END DESC,
+                id_gabi_mensagem DESC
+       LIMIT $2
+     ) recentes
+     ORDER BY data_criacao_gabi_mensagem ASC,
+              CASE papel_gabi_mensagem WHEN 'user' THEN 0 WHEN 'assistant' THEN 1 ELSE 2 END ASC,
+              id_gabi_mensagem ASC`,
     id_conversa,
     limit,
   )

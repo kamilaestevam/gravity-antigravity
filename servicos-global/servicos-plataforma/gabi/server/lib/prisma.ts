@@ -3,6 +3,9 @@
 // Usa o client gerado a partir do schema composto pelo Coordenador.
 
 import { PrismaClient } from '../../../generated/index.js'
+import { sincronizarEnvOrganizacaoGabi } from './resolver-url-organizacao-gabi.js'
+
+sincronizarEnvOrganizacaoGabi()
 
 const globalForPrisma = globalThis as unknown as { gabiPrisma: PrismaClient }
 

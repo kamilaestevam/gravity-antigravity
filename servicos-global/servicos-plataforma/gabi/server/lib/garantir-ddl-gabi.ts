@@ -1,35 +1,28 @@
 // DDL idempotente da migration GABI no schema tenant_* (fallback se boot não rodou migrate-all-tenants).
 
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import prisma from './prisma.js'
+import { AppError } from './errors.js'
+import { aplicarDdlGabiNoSchemaNome } from './aplicar-ddl-gabi-schema.js'
 import { resolverNomeSchemaOrganizacao } from './nome-schema-organizacao.js'
 
-const MIGRATION_GABI_DDD = '20260628170000_gabi_ddd_tabelas_conversa'
 const schemasComDdlAplicado = new Set<string>()
-
-function carregarSqlMigrationGabi(): string {
-  const base = dirname(fileURLToPath(import.meta.url))
-  const sqlPath = resolve(
-    base,
-    `../../../prisma/migrations/${MIGRATION_GABI_DDD}/migration.sql`,
-  )
-  return readFileSync(sqlPath, 'utf-8')
-}
 
 /** Aplica migration GABI no schema da org (no máximo 1× por processo/schema). */
 export async function garantirDdlGabiNoSchema(idOrganizacao: string): Promise<void> {
   const schemaName = resolverNomeSchemaOrganizacao(idOrganizacao)
   if (schemasComDdlAplicado.has(schemaName)) return
 
-  const sql = carregarSqlMigrationGabi()
-  await prisma.$transaction(async (tx) => {
-    await tx.$executeRawUnsafe(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`)
-    await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
-    await tx.$executeRawUnsafe(sql)
-  })
+  const url = process.env.ORGANIZACAO_DATABASE_URL
+  if (!url) {
+    throw new AppError(
+      'ORGANIZACAO_DATABASE_URL ausente — DDL GABI indisponível',
+      503,
+      'GABI_DB_UNAVAILABLE',
+    )
+  }
 
+  const result = await aplicarDdlGabiNoSchemaNome(url, schemaName)
   schemasComDdlAplicado.add(schemaName)
-  console.log(`[GABI/DDL] Tabelas garantidas no schema ${schemaName}`)
+  console.log(
+    `[GABI/DDL] Tabelas garantidas no schema ${schemaName} (${result === 'skip' ? 'já existiam' : 'aplicadas'})`,
+  )
 }

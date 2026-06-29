@@ -2,6 +2,7 @@
 
 import type { PrismaClient } from '../../../generated/index.js'
 import prisma from './prisma.js'
+import { AppError } from './errors.js'
 import { garantirDdlGabiNoSchema } from './garantir-ddl-gabi.js'
 import { resolverNomeSchemaOrganizacao } from './nome-schema-organizacao.js'
 import { relancarErroPrismaGabi } from './erro-prisma-gabi.js'
@@ -46,7 +47,17 @@ export async function withSchemaOrganizacao<T>(
     return await executarComSearchPath(idOrganizacao, fn, timeoutMs)
   } catch (err) {
     if (isErroTabelaGabiAusente(err)) {
-      await garantirDdlGabiNoSchema(idOrganizacao)
+      try {
+        await garantirDdlGabiNoSchema(idOrganizacao)
+      } catch (ddlErr) {
+        console.error('[GABI/DDL] Falha ao garantir tabelas:', ddlErr)
+        if (ddlErr instanceof AppError) throw ddlErr
+        throw new AppError(
+          'Banco GABI desatualizado (DDL falhou). Aguarde migrations ou contate suporte.',
+          503,
+          'GABI_DB_UNAVAILABLE',
+        )
+      }
       try {
         return await executarComSearchPath(idOrganizacao, fn, timeoutMs)
       } catch (retryErr) {

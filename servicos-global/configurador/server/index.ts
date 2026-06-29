@@ -734,7 +734,9 @@ if (process.env.NODE_ENV !== 'test') {
   }
 
   if (!devPm2) {
-  const { aguardarSidecarEmbutido } = await import('./lib/verificar-health-sidecar.js')
+  const { aguardarSidecarEmbutido, coletarErrosPreflightApiCockpit } = await import(
+    './lib/verificar-health-sidecar.js'
+  )
 
   async function aplicarMigrationsBidFreteDev(): Promise<void> {
     if (process.env.NODE_ENV === 'production' || process.env.BID_SKIP_MIGRATIONS === '1') return
@@ -898,9 +900,6 @@ if (process.env.NODE_ENV !== 'test') {
   // Sidecar 4: API Cockpit (porta 8016)
   const emProducao =
     process.env.NODE_ENV === 'production' || Boolean(process.env.RAILWAY_ENVIRONMENT)
-  const { coletarErrosPreflightApiCockpit, aguardarSidecarEmbutido } = await import(
-    './lib/verificar-health-sidecar.js'
-  )
   const errosPreflightApiCockpit = coletarErrosPreflightApiCockpit(emProducao)
 
   if (errosPreflightApiCockpit.length > 0) {

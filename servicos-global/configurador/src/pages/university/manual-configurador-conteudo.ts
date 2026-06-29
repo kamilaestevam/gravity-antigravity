@@ -45,6 +45,12 @@ export interface DocPassoVisual {
   galeriaComparacao?: { legenda: string; imagem: string }[]
   /** Screenshot em largura total abaixo do texto (em vez de coluna lateral). */
   imagemAbaixoTexto?: boolean
+  /** Dica compacta à esquerda e screenshot à direita (rodapé do bloco). */
+  dicaAoLadoImagem?: {
+    callout: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+    imagem: string
+    legenda?: string
+  }
 }
 
 export interface DocOrigemDados {
@@ -66,7 +72,13 @@ export interface DocFluxo {
   mostrarInfograficoPapeisFornecedor?: boolean
   /** Cenários da mesma tela — oculta «Passo NN» em todos os blocos visuais do fluxo. */
   modoCenarios?: boolean
+  /** Com `modoCenarios`, empilha os blocos em duas colunas 50% (comparativo sem × com). */
+  cenariosLadoALado?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
+  /** Exibe o callout do fluxo depois dos passos visuais (ex.: Dica abaixo de screenshot). */
+  calloutAposPassos?: boolean
+  /** Figura logo após o parágrafo de índice `indice` (0 = primeiro). */
+  figurasAposParagrafo?: { indice: number; imagem: string; legenda?: string }[]
   passosVisuais: DocPassoVisual[]
 }
 

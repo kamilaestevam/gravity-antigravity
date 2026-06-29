@@ -401,16 +401,20 @@ function figurasAposParagrafoPasso(
 function ManualBlocoPassoVisual({
   passo,
   ocultarRotuloPasso = false,
+  emGradeCenarios = false,
 }: {
   passo: DocPassoVisual
   ocultarRotuloPasso?: boolean
+  emGradeCenarios?: boolean
 }) {
   const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso
-  const blocoBase: React.CSSProperties = {
-    paddingTop: passo.num === 1 ? 8 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
-    borderTop: passo.num === 1 ? undefined : '1px solid rgba(148,163,184,.1)',
-    marginTop: passo.num === 1 ? 18 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
-  }
+  const blocoBase: React.CSSProperties = emGradeCenarios
+    ? { paddingTop: 0, marginTop: 18 }
+    : {
+      paddingTop: passo.num === 1 ? 8 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
+      borderTop: passo.num === 1 ? undefined : '1px solid rgba(148,163,184,.1)',
+      marginTop: passo.num === 1 ? 18 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
+    }
 
   const blocoTexto = (
     <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)' }}>
@@ -448,11 +452,30 @@ function ManualBlocoPassoVisual({
       {passo.tooltipsKpi && passo.tooltipsKpi.length > 0 && (
         <ManualTooltipsKpi tooltips={passo.tooltipsKpi} />
       )}
-      {(passo.callouts ?? (passo.callout ? [passo.callout] : [])).map((callout, i) => (
+      {(passo.dicaAoLadoImagem
+        ? (passo.callouts ?? [])
+        : (passo.callouts ?? (passo.callout ? [passo.callout] : []))
+      ).map((callout, i) => (
         <ManualCalloutBloco key={i} callout={callout} marginTop={i === 0 ? 12 : 8} />
       ))}
     </div>
   )
+
+  const rodapeDicaImagem = passo.dicaAoLadoImagem ? (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'minmax(200px, 34%) minmax(0, 1fr)',
+      gap: 20,
+      marginTop: 20,
+      alignItems: 'start',
+    }}>
+      <ManualCalloutBloco callout={passo.dicaAoLadoImagem.callout} marginTop={0} />
+      <ManualFiguraScreenshot
+        src={passo.dicaAoLadoImagem.imagem}
+        alt={passo.dicaAoLadoImagem.legenda ?? 'Menu do usuário'}
+      />
+    </div>
+  ) : null
 
   const gradeColunas = passo.colunasTabela && passo.colunasTabela.length > 0
     ? <ManualColunasTabela colunas={passo.colunasTabela} />
@@ -581,6 +604,7 @@ function ManualBlocoPassoVisual({
       <div style={blocoBase}>
         {blocoTexto}
         {gradeColunas}
+        {rodapeDicaImagem}
       </div>
     )
   }
@@ -611,17 +635,33 @@ function montarItensSumario(secao: DocSecao): { num: number; titulo: string }[] 
   return itens
 }
 
+function figurasAposParagrafoFluxo(
+  fluxo: DocFluxo,
+  indice: number,
+): { imagem: string; legenda?: string }[] {
+  return (fluxo.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
+}
+
 function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
   return (
     <>
       {fluxo.paragrafos?.map((p, i) => (
-        <ManualParagrafo
-          key={i}
-          texto={p}
-          marginBottom={manualMargemParagrafo(i, fluxo.paragrafos?.length ?? 0)}
-        />
+        <div key={i}>
+          <ManualParagrafo
+            texto={p}
+            marginBottom={manualMargemParagrafo(i, fluxo.paragrafos?.length ?? 0)}
+          />
+          {figurasAposParagrafoFluxo(fluxo, i).map((fig) => (
+            <div key={fig.imagem} style={{ margin: '12px 0 20px' }}>
+              <ManualFiguraScreenshot
+                src={fig.imagem}
+                alt={fig.legenda ?? fluxo.titulo}
+              />
+            </div>
+          ))}
+        </div>
       ))}
-      {fluxo.callout && (
+      {fluxo.callout && !fluxo.calloutAposPassos && (
         <ManualCalloutBloco callout={fluxo.callout} marginTop={12} />
       )}
       {fluxo.mostrarInfograficoPermissoesUsuario && (
@@ -634,13 +674,35 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
           <ManualInfograficoPapeisFornecedor />
         </div>
       )}
-      {fluxo.passosVisuais.map(passo => (
-        <ManualBlocoPassoVisual
-          key={passo.num}
-          passo={passo}
-          ocultarRotuloPasso={fluxo.modoCenarios}
-        />
-      ))}
+      {fluxo.modoCenarios && fluxo.cenariosLadoALado && fluxo.passosVisuais.length > 0 ? (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: 24,
+          alignItems: 'start',
+          marginTop: 18,
+        }}>
+          {fluxo.passosVisuais.map(passo => (
+            <ManualBlocoPassoVisual
+              key={passo.num}
+              passo={passo}
+              ocultarRotuloPasso
+              emGradeCenarios
+            />
+          ))}
+        </div>
+      ) : (
+        fluxo.passosVisuais.map(passo => (
+          <ManualBlocoPassoVisual
+            key={passo.num}
+            passo={passo}
+            ocultarRotuloPasso={fluxo.modoCenarios}
+          />
+        ))
+      )}
+      {fluxo.callout && fluxo.calloutAposPassos && (
+        <ManualCalloutBloco callout={fluxo.callout} marginTop={12} />
+      )}
     </>
   )
 }

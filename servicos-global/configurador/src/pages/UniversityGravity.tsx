@@ -17,7 +17,7 @@ import {
   SignIn, ShieldStar, Gear, SquaresFour, ShoppingBag, Package,
   MagnifyingGlass, AirplaneTilt, ArrowsLeftRight, GitBranch, CheckCircle,
   Clock, CheckFat, WarningCircle, Eye, EyeSlash, Envelope, Lock, ArrowsOut,
-  CaretDown,
+  Compass,
 } from '@phosphor-icons/react'
 import { useShellStore, Notificacoes, ToastContainer, useMeSync, type OrganizacaoShell } from '@gravity/shell'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -34,6 +34,7 @@ import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
 import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './university/manual-configurador-conteudo'
 import { DocConfiguradorManual, iconeConfiguradorManual } from './university/manual-configurador-ui'
 import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
+import { DOC_NAVEGACAO_SUBTITULO } from './university/manual-navegacao-conteudo'
 import { DocHubManual } from './university/manual-hub-ui'
 import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, manualMargemParagrafo } from './university/manual-tipografia'
 import './configurador/workspace.css'
@@ -160,6 +161,7 @@ const GRUPOS_TRILHAS = [
 
 const ICON_MAP = {
   login:        SignIn,
+  navegacao:    Compass,
   admin:        ShieldStar,
   configurador: Gear,
   hub:          SquaresFour,
@@ -1540,6 +1542,7 @@ export function UniversityGravity() {
       icon: <FileText weight="duotone" size={18} />,
       children: [
         { to: '/university-gravity/docs/login',        label: t('university.produto.login'),        icon: produtoIconManual('login') },
+        { to: '/university-gravity/docs/navegacao',    label: t('university.produto.navegacao'),    icon: produtoIconManual('navegacao') },
         { to: '/university-gravity/docs/admin',        label: t('university.produto.admin'),        icon: produtoIconManual('admin'), badge: t('university.badge.restrito'), badgeVariant: 'muted' as const },
         {
           to: '/university-gravity/docs/configurador',
@@ -1575,6 +1578,8 @@ export function UniversityGravity() {
   const tituloSecao = secao === 'docs'
     ? (configuradorManualItem
       ? configuradorManualItem.label
+      : docsProdutoSlug === 'navegacao'
+        ? t('university.manual.titulo_navegacao')
       : docsProdutoSlug
         ? t('university.manual.titulo_produto', {
           produto: t(`university.produto.${docsProdutoSlug.replaceAll('-', '_')}`),
@@ -1721,6 +1726,8 @@ export function UniversityGravity() {
             }}>
               {secao === 'docs' && docsProdutoSlug === 'login'
                 ? <SignIn weight="duotone" size={22} />
+                : secao === 'docs' && docsProdutoSlug === 'navegacao'
+                  ? <Compass weight="duotone" size={22} />
                 : secao === 'docs' && docsProdutoSlug === 'hub'
                   ? <SquaresFour weight="duotone" size={22} />
                 : secao === 'docs' && docsConfiguradorPagina
@@ -1731,6 +1738,9 @@ export function UniversityGravity() {
               <h1 style={UNI_ESTILO_PAGE_TITLE}>{tituloSecao}</h1>
               {secao === 'docs' && docsProdutoSlug === 'login' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_LOGIN_SUBTITULO}</span>
+              )}
+              {secao === 'docs' && docsProdutoSlug === 'navegacao' && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_NAVEGACAO_SUBTITULO}</span>
               )}
               {secao === 'docs' && docsProdutoSlug === 'hub' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_HUB_SUBTITULO}</span>
@@ -1977,6 +1987,17 @@ export function UniversityGravity() {
             </div>
           )}
 
+          {secao === 'docs' && docsProdutoSlug === 'navegacao' && (
+            <div style={{
+              textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
+              border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,
+            }}>
+              <div style={{ fontSize: 48, opacity: .2 }}>🧭</div>
+              <p style={{ marginTop: 10, fontWeight: 600 }}>Manual em construção</p>
+              <p style={{ fontSize: '.82rem', marginTop: 4 }}>Menu superior, menu lateral da plataforma e navegação da Gravity University.</p>
+            </div>
+          )}
+
           {secao === 'docs' && docsProdutoSlug === 'login' && (
             <DocLoginManual />
           )}
@@ -1989,7 +2010,7 @@ export function UniversityGravity() {
             <DocConfiguradorManual paginaSlug={docsConfiguradorPagina} />
           )}
 
-          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'configurador' && (
+          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'navegacao' && docsProdutoSlug !== 'hub' && docsProdutoSlug !== 'configurador' && (
             <div style={{
               textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
               border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,

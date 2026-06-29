@@ -5,9 +5,10 @@
     "badge": { "em_breve": "Coming Soon", "restrito": "Restricted", "nova_empresa": "New company", "convidar_usuario": "Invite user" },
     "produto": {
       "login": "Login",
+      "navegacao": "Navigation",
       "admin": "Admin",
       "configurador": "Configurador",
-      "hub": "HUB",
+      "hub": "Hub",
       "store": "Gravity Store",
       "pedido": "Pedido",
       "smart_read": "Smart Docs",
@@ -16,7 +17,8 @@
       "processo": "Processo"
     },
     "manual": {
-      "titulo_produto": "{{produto}} Manual"
+      "titulo_produto": "{{produto}} Manual",
+      "titulo_navegacao": "Platform Navigation Manual"
     },
     "banner": {
       "em_construcao": "Under construction",

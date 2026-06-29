@@ -23,15 +23,15 @@ const RAMOS = [
     borda: 'rgba(52,211,153,.25)',
     fundo: 'rgba(52,211,153,.08)',
     titulo: 'Seus Produtos Gravity',
-    descricao: 'Clique na peça → abre o módulo no workspace',
+    descricao: 'Clique no ícone para abrir o produto',
   },
   {
     icone: ChartLineUp,
     cor: '#60a5fa',
     borda: 'rgba(96,165,250,.25)',
     fundo: 'rgba(96,165,250,.08)',
-    titulo: 'Operações em andamento',
-    descricao: 'Processos COMEX, pendências e NFs',
+    titulo: 'Aguardando ação',
+    descricao: 'Resumos e pendências do seu dia',
   },
   {
     icone: ShoppingBag,
@@ -39,7 +39,7 @@ const RAMOS = [
     borda: 'rgba(251,191,36,.25)',
     fundo: 'rgba(251,191,36,.08)',
     titulo: 'Gravity Store',
-    descricao: 'Contratar novos módulos',
+    descricao: 'Descubra e contrate novos produtos',
     href: '/university-gravity/docs/store',
   },
   {
@@ -47,8 +47,8 @@ const RAMOS = [
     cor: '#c084fc',
     borda: 'rgba(192,132,252,.25)',
     fundo: 'rgba(192,132,252,.08)',
-    titulo: 'GABI AI',
-    descricao: 'Insights sobre a operação',
+    titulo: 'Gabi Insights',
+    descricao: 'Dicas e insights sobre a operação',
   },
 ] as const
 
@@ -83,7 +83,7 @@ export function ManualInfograficoHubTelas() {
           <SquaresFour size={18} weight="duotone" style={{ marginBottom: 4, color: '#818cf8' }} />
           <div>Hub — tela principal</div>
           <div style={{ fontSize: '.65rem', fontWeight: 500, opacity: .85, marginTop: 2 }}>
-            Gateway para produtos e Store · <code style={{ color: '#a5b4fc' }}>/hub</code>
+            Painel central: produtos, Store e Gabi Insights
           </div>
         </div>
 

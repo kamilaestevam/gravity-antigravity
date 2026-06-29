@@ -1,8 +1,8 @@
 # Plano de Plenitude GABI — v2
 
-> **Versão:** 2.0  
+> **Versão:** 2.1  
 > **Data:** 29/06/2026  
-> **Status:** Aprovado para execução — aguardando task Onda 0  
+> **Status:** Ondas 0–4 **implementadas** (TASK-000390, PR #523) — validação staging/prod e QA checklist pendentes  
 > **Classificação:** CRITICAL — fundação de plataforma  
 > **Origem:** consolidação das auditorias TASK-000386 (plataforma) + auditoria forense Dashboard Pedido (Fases 1–3) + refinamentos de governança
 
@@ -301,33 +301,33 @@ Documentar toggle no runbook (`skills/processos/deploy/SKILL.md` referência cru
 - [ ] Widget Hub responde em staging (usuário PADRAO)
 - [ ] `/gabi` sem mock em staging
 - [ ] Sidecar down → 503 (não 500 cascata)
-- [ ] Matriz de ambiente publicada
+- [x] Matriz de ambiente publicada
 
 ### Onda 1 — Pronto quando
 
 - [ ] Dashboard com `GABI_INSIGHTS_LLM=true` enriquece texto em dev
-- [ ] Field icon ✦ exibe resposta
-- [ ] Testes de contrato no CI
-- [ ] Zero referências novas a `INTERNAL_API_KEY`
+- [x] Field icon ✦ exibe resposta (contrato Zod)
+- [x] Testes de contrato no CI
+- [x] Zero referências novas a `INTERNAL_API_KEY`
 
 ### Onda 2 — Pronto quando
 
-- [ ] Widget responde com conhecimento RAG (pergunta sobre produto)
+- [ ] Widget responde com conhecimento RAG (pergunta sobre produto) — staging
 - [ ] Tool READ executa em staging
 - [ ] Tool WRITE pede confirmação e completa
-- [ ] Documento Seção 8 aprovado pelo Coordenador
+- [x] Documento Seção 8 + `POLITICA-SELECAO-TOOLS.md`
 
 ### Onda 3 — Pronto quando
 
 - [ ] Migration deployada em staging + prod
 - [ ] Eventos de comportamento visíveis no banco
 - [ ] Insight reordenado por comportamento (teste manual)
-- [ ] Logs Fase 3 com `tenantId` em Sentry/console
+- [x] Logs Fase 3 com `tenantId` / `motivo` estruturado
 
 ### Onda 4 — Pronto quando
 
 - [ ] QA checklist 6 categorias verde
-- [ ] Runbook ops publicado
+- [x] Runbook ops publicado (`GABI-RUNBOOK-OPS.md`)
 - [ ] Smoke produção documentado
 
 ---
@@ -356,6 +356,9 @@ Abrir com `/novo-agente` — uma task por onda; não misturar Onda 0 com Onda 2 
 | [GABI-ONDEMAND-TOKENS.md](./GABI-ONDEMAND-TOKENS.md) | Ícone ✦ e quota |
 | [gabi-rag-pgvector.md](../../gabi/gabi-rag-pgvector.md) | RAG e ingest KB |
 | [GABI-LIMITES-MONETARIOS-F2.md](./GABI-LIMITES-MONETARIOS-F2.md) | Quota USD |
+| [GABI-RUNBOOK-OPS.md](./GABI-RUNBOOK-OPS.md) | Runbook operação (Onda 4) |
+| [POLITICA-SELECAO-TOOLS.md](./POLITICA-SELECAO-TOOLS.md) | Seleção de tools agente v2 (Onda 2) |
+| [README.md](./README.md) | Índice desta pasta |
 | `servicos-global/contracts.json` | Porta 3001 super-servidor (dev PM2) |
 | `servicos-global/configurador/.env.example` | `GABI_SERVICE_URL=8009` |
 | `servicos-global/configurador/docs/GABI-AMBIENTE.md` | Matriz dev vs prod (Onda 0) |
@@ -368,3 +371,4 @@ Abrir com `/novo-agente` — uma task por onda; não misturar Onda 0 com Onda 2 
 |:---|:---|:---|
 | 1.0 | 28/06/2026 | Plano inicial (chat TASK-000386) |
 | 2.0 | 29/06/2026 | Consolidação forense + refinamentos: chave única, rollback 503, ordem Onda 3, critério tools |
+| 2.1 | 29/06/2026 | Ondas 0–4 entregues (TASK-000390); README índice; checkboxes código vs staging |

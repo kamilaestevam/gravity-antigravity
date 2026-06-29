@@ -53,6 +53,8 @@ servicos-global/produto/pedido/
 
 > **Config KPIs topo:** aba `dashboard-kpi` removida (TASK-000325). Mapeamento fixo em `useDashboardTopKpiStatus.ts` — ver doc acima.
 
+> **GABI Insights (Fases 1–3):** SSOT [GABI-INSIGHTS-PERSONALIZADOS.md](../../../documentos-tecnicos/produtos-gravity/gabi/GABI-INSIGHTS-PERSONALIZADOS.md). Fase 2: `useTrackBehavior` → `POST /api/v1/pedidos/eventos-comportamento`; migration `user_behavior_events` (`20260628130000`). Fase 3: `GABI_INSIGHTS_LLM=true` opt-in; logs com `tenantId`/`motivo`. Runbook: [GABI-RUNBOOK-OPS.md](../../../documentos-tecnicos/produtos-gravity/gabi/GABI-RUNBOOK-OPS.md).
+
 ---
 
 ## Regras Absolutas (Referências SSOT)

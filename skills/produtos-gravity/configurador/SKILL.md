@@ -162,6 +162,8 @@ if (!productPermissions || productPermissions.length === 0) {
 
 **Proxy** (`server/index.ts`): `/api/v1/empresas` e `/api/v1/fornecedores` são rotas **separadas** (sem rewrite). Chave S2S injetada server-side no proxy.
 
+**GABI (TASK-000390):** Browser usa `/api/v1/gabi/*` no Configurador — prod: `server/proxy/proxy-gabi.ts` → sidecar `:8009`; dev Vite proxy com headers fake. SSOT: [GABI-AMBIENTE.md](../../../servicos-global/configurador/docs/GABI-AMBIENTE.md) · [PLANO-PLENITUDE-GABI-v2.md](../../../documentos-tecnicos/produtos-gravity/gabi/PLANO-PLENITUDE-GABI-v2.md). Widget onboarding: `POST /api/v1/gabi/agente/chat` (sem mock em prod).
+
 **Saga onboarding** (`organizacao-service.createOrganizacao`): Cadastros primeiro → SUID em `suid_empresa_organizacao` → compensação `compensarEmpresa` se transação local falhar.
 
 ---

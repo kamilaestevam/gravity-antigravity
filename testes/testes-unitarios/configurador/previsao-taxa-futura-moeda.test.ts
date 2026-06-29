@@ -5,7 +5,7 @@
 // Cobertura: schemas Zod (request + response), MOEDAS_FOCUS_SUPORTADAS,
 // buscarFocusUSD (dedup + ordering + limit), persistirPrevisao (upsert).
 //
-// Mocks: prisma (lib/prisma.js), axios, middlewares (requireAuth + requireConfiguradorMutation).
+// Mocks: prisma (lib/prisma.js), axios, middlewares (requireAuth + requireGravityAdmin).
 // Skill: skills/testes/agente-plano-teste-unitario/SKILL.md (vi.hoisted + happy/sad/edge).
 //
 // IMPORTANTE: roda apos `npx prisma generate` (Task #2) — sem isso, o tipo
@@ -39,8 +39,8 @@ vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js'
   requireAuth: vi.fn(),
 }))
 
-vi.mock('../../../servicos-global/configurador/server/middleware/requireConfiguradorAccess.js', () => ({
-  requireConfiguradorMutation: vi.fn(),
+vi.mock('../../../servicos-global/configurador/server/middleware/requireGravityAdmin.js', () => ({
+  requireGravityAdmin: vi.fn(),
 }))
 
 const { mockAxiosGet } = vi.hoisted(() => ({ mockAxiosGet: vi.fn() }))

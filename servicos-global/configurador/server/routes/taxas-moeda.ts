@@ -20,7 +20,7 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { requireAuth } from '../middleware/requireAuth.js'
-import { requireConfiguradorMutation } from '../middleware/requireConfiguradorAccess.js'
+import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { registrarExecucaoAgendamentoTaxaMoeda } from '../lib/taxas-moeda-agendamento-store.js'
 
 export const taxasMoedaRouter = Router()
@@ -209,7 +209,7 @@ taxasMoedaRouter.get('/historico', async (req: Request, res: Response, next: Nex
 // e sobrecarregar o BCB (abuso de origem externa).
 // ---------------------------------------------------------------------------
 
-taxasMoedaRouter.post('/sync', requireAuth, requireConfiguradorMutation, async (_req: Request, res: Response, next: NextFunction) => {
+taxasMoedaRouter.post('/sync', requireAuth, requireGravityAdmin, async (_req: Request, res: Response, next: NextFunction) => {
   const resultados: Array<{ moeda: Moeda; boletim: string; status: 'ok' | 'erro'; detalhe?: string }> = []
 
   for (const moeda of MOEDAS_SUPORTADAS) {

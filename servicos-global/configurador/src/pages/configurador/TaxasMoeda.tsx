@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import {
@@ -174,6 +175,8 @@ function PillPeriodo({ children, icone }: { children: React.ReactNode; icone?: R
 type AbaTaxaMoeda = 'atual' | 'futura'
 
 export function TaxasMoeda() {
+  const { pathname } = useLocation()
+  const isPainelAdmin = pathname.startsWith('/admin/')
   const { getToken } = useAuth()
   const { addNotification } = useShellStore()
 
@@ -192,6 +195,11 @@ export function TaxasMoeda() {
   const tipoAgendamentoAtual = abaAtiva === 'atual' ? 'ptax' as const : 'focus' as const
 
   const carregarStatusAgendamentos = useCallback(async () => {
+    if (!isPainelAdmin) {
+      setAgendamentoPtaxAtivo(false)
+      setAgendamentoFocusAtivo(false)
+      return
+    }
     try {
       const [ptaxRaw, focusRaw] = await Promise.all([
         adminTaxasMoedaAgendamentoApi.obter('ptax'),
@@ -206,7 +214,7 @@ export function TaxasMoeda() {
       setAgendamentoPtaxAtivo(false)
       setAgendamentoFocusAtivo(false)
     }
-  }, [])
+  }, [isPainelAdmin])
 
   // ── Buscar cotações atuais (PTAX) ────────────────────────────────────────
 
@@ -781,7 +789,7 @@ export function TaxasMoeda() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              {ultimaSync && (
+              {isPainelAdmin && ultimaSync && (
                 <TooltipGlobal conteudo={`Última sincronização: ${ultimaSync}`}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--ws-muted)', fontSize: '0.8rem' }}>
                     <Clock size={14} />
@@ -789,6 +797,7 @@ export function TaxasMoeda() {
                   </span>
                 </TooltipGlobal>
               )}
+              {isPainelAdmin && (
               <TooltipGlobal conteudo="Configurar sincronização automática (modelo Admin › Testes)">
                 <button
                   type="button"
@@ -816,6 +825,8 @@ export function TaxasMoeda() {
                   </span>
                 </button>
               </TooltipGlobal>
+              )}
+              {isPainelAdmin && (
               <BotaoGlobal
                 variante="primario"
                 tamanho="pequeno"
@@ -832,6 +843,7 @@ export function TaxasMoeda() {
                   ? 'Sincronizando…'
                   : abaAtiva === 'atual' ? 'Sincronizar PTAX' : 'Sincronizar Focus'}
               </BotaoGlobal>
+              )}
             </div>
           </div>
         }
@@ -901,6 +913,7 @@ export function TaxasMoeda() {
         )}
       </PaginaGlobal>
 
+      {isPainelAdmin && (
       <ModalTaxasMoedaAgendamento
         aberto={modalAgendamentoAberto}
         tipo={tipoAgendamentoAtual}
@@ -913,6 +926,7 @@ export function TaxasMoeda() {
           else setAgendamentoFocusAtivo(ativo)
         }}
       />
+      )}
     </>
   )
 }

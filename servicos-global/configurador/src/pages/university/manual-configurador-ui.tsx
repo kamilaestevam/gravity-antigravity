@@ -21,6 +21,8 @@ import {
   SCREENSHOT_HUB_ACESSO_CONFIGURADOR,
   secaoConfiguradorPorSlug,
 } from './manual-configurador-conteudo'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, manualMargemParagrafo, MANUAL_ESPACO_ENTRE_PASSOS_PX } from './manual-tipografia'
+import { ManualInfograficoHubTelas } from './manual-hub-infografico'
 
 const MANUAL_TITULO_COR = 'var(--ws-text,#f1f5f9)'
 const MANUAL_CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
@@ -42,7 +44,7 @@ const MANUAL_ESTILO_PASSO_TITULO: React.CSSProperties = {
 }
 
 const MANUAL_ESTILO_CORPO: React.CSSProperties = {
-  fontSize: '.9rem', color: MANUAL_CORPO_70, lineHeight: 1.8,
+  fontSize: '.9rem', color: MANUAL_CORPO_70, lineHeight: 1.8, textAlign: MANUAL_ALINHAMENTO_CORPO,
 }
 
 const MANUAL_LINK_STYLE: React.CSSProperties = {
@@ -66,7 +68,7 @@ const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; 
 }
 
 const MANUAL_ESTILO_CALLOUT_CORPO: React.CSSProperties = {
-  fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65,
+  fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65, textAlign: MANUAL_ALINHAMENTO_CORPO,
 }
 
 function ManualTextoRich({ texto }: { texto: string }) {
@@ -83,13 +85,36 @@ function ManualTextoRich({ texto }: { texto: string }) {
   )
 }
 
+function ManualTextoRichSegmento({ texto }: { texto: string }) {
+  if (!texto.includes('**')) return texto
+  const partes: React.ReactNode[] = []
+  const re = /\*\*([^*]+)\*\*/g
+  let ultimo = 0
+  let match: RegExpExecArray | null
+  let ki = 0
+  while ((match = re.exec(texto)) !== null) {
+    if (match.index > ultimo) partes.push(texto.slice(ultimo, match.index))
+    partes.push(
+      <strong key={`b-${ki++}`} style={{ color: MANUAL_TITULO_COR, fontWeight: 700 }}>
+        {match[1]}
+      </strong>,
+    )
+    ultimo = re.lastIndex
+  }
+  if (ultimo < texto.length) partes.push(texto.slice(ultimo))
+  return <>{partes}</>
+}
+
 function ManualTextoRichLinha({ texto }: { texto: string }) {
   const partes: React.ReactNode[] = []
   const re = /(https:\/\/[^\s]+|\{\{link:([^|]+)\|([^}]+)\}\})/g
   let ultimo = 0
   let match: RegExpExecArray | null
+  let ki = 0
   while ((match = re.exec(texto)) !== null) {
-    if (match.index > ultimo) partes.push(texto.slice(ultimo, match.index))
+    if (match.index > ultimo) {
+      partes.push(<ManualTextoRichSegmento key={`t-${ki++}`} texto={texto.slice(ultimo, match.index)} />)
+    }
     if (match[1].startsWith('https://')) {
       partes.push(
         <a key={match.index} href={match[1]} target="_blank" rel="noreferrer" style={MANUAL_LINK_STYLE}>
@@ -105,7 +130,9 @@ function ManualTextoRichLinha({ texto }: { texto: string }) {
     }
     ultimo = re.lastIndex
   }
-  if (ultimo < texto.length) partes.push(texto.slice(ultimo))
+  if (ultimo < texto.length) {
+    partes.push(<ManualTextoRichSegmento key={`t-${ki++}`} texto={texto.slice(ultimo)} />)
+  }
   return <>{partes}</>
 }
 
@@ -117,7 +144,7 @@ function ManualParagrafo({
   marginBottom?: number | string
 }) {
   return (
-    <p style={{ ...MANUAL_ESTILO_CORPO, margin: marginBottom === 0 ? 0 : `0 0 ${marginBottom ?? 10}px` }}>
+    <p style={{ ...MANUAL_ESTILO_CORPO, margin: marginBottom === 0 ? 0 : `0 0 ${marginBottom ?? MANUAL_ESPACO_PARAGRAFO_PX}px` }}>
       <ManualTextoRich texto={texto} />
     </p>
   )
@@ -158,7 +185,7 @@ function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
         <figure
           role="button"
           tabIndex={0}
-          aria-label={`${alt} — abrir em tela cheia`}
+          aria-label={`${alt}: abrir em tela cheia`}
           onClick={abrirTelaCheia}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -200,7 +227,7 @@ function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
           <button
             type="button"
             onClick={abrirTelaCheia}
-            aria-label={`${alt} — ampliar`}
+            aria-label={`${alt}: ampliar`}
             style={{ ...ESTILO_BOTAO_AMPLIAR, marginTop: 10 }}
           >
             <ArrowsOut size={15} weight="duotone" aria-hidden />
@@ -364,25 +391,52 @@ function ManualTooltipsKpi({ tooltips }: { tooltips: DocTooltipKpi[] }) {
   )
 }
 
-function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
+function figurasAposParagrafoPasso(
+  passo: DocPassoVisual,
+  indice: number,
+): { imagem: string; legenda?: string }[] {
+  return (passo.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
+}
+
+function ManualBlocoPassoVisual({
+  passo,
+  ocultarRotuloPasso = false,
+}: {
+  passo: DocPassoVisual
+  ocultarRotuloPasso?: boolean
+}) {
+  const semRotuloPasso = ocultarRotuloPasso || passo.ocultarRotuloPasso
   const blocoBase: React.CSSProperties = {
-    paddingTop: passo.num === 1 ? 8 : 22,
+    paddingTop: passo.num === 1 ? 8 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
     borderTop: passo.num === 1 ? undefined : '1px solid rgba(148,163,184,.1)',
-    marginTop: passo.num === 1 ? 18 : 0,
+    marginTop: passo.num === 1 ? 18 : MANUAL_ESPACO_ENTRE_PASSOS_PX,
   }
 
   const blocoTexto = (
     <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)' }}>
-      <p style={MANUAL_ESTILO_PASSO_ROTULO}>
-        Passo {String(passo.num).padStart(2, '0')}
-      </p>
-      <p style={MANUAL_ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+      {!semRotuloPasso && (
+        <p style={MANUAL_ESTILO_PASSO_ROTULO}>
+          Passo {String(passo.num).padStart(2, '0')}
+        </p>
+      )}
+      {!passo.ocultarTituloPasso && (
+        <p style={MANUAL_ESTILO_PASSO_TITULO}>{passo.titulo}</p>
+      )}
       {passo.paragrafos.map((p, i) => (
-        <ManualParagrafo
-          key={i}
-          texto={p}
-          marginBottom={i === passo.paragrafos.length - 1 ? 0 : 10}
-        />
+        <div key={i}>
+          <ManualParagrafo
+            texto={p}
+            marginBottom={manualMargemParagrafo(i, passo.paragrafos.length)}
+          />
+          {figurasAposParagrafoPasso(passo, i).map((fig) => (
+            <div key={fig.imagem} style={{ margin: '12px 0 16px' }}>
+              <ManualFiguraScreenshot
+                src={fig.imagem}
+                alt={fig.legenda ?? passo.titulo}
+              />
+            </div>
+          ))}
+        </div>
       ))}
       {passo.linkCapitulo && (
         <p style={{ marginTop: 12, marginBottom: 0 }}>
@@ -407,9 +461,58 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
   const colunaTexto = (
     <>
       {blocoTexto}
-      {!passo.imagem && !passo.galeriaTelas?.length ? gradeColunas : null}
+      {!passo.imagem && !passo.galeriaTelas?.length && !passo.galeriaComparacao?.length
+        ? gradeColunas
+        : null}
     </>
   )
+
+  const galeriaComparacao = passo.galeriaComparacao?.length ? (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: `repeat(${Math.min(passo.galeriaComparacao.length, 2)}, minmax(0, 1fr))`,
+      gap: 14,
+      alignItems: 'start',
+    }}>
+      {passo.galeriaComparacao.map((tela) => (
+        <div key={tela.legenda}>
+          <p style={{
+            fontSize: '.72rem', fontWeight: 700, color: '#818cf8',
+            marginBottom: 8, textAlign: 'center', letterSpacing: '.04em',
+          }}>{tela.legenda}</p>
+          <ManualFiguraScreenshot src={tela.imagem} alt={tela.legenda} />
+        </div>
+      ))}
+    </div>
+  ) : null
+
+  if (passo.imagemAbaixoTexto && passo.imagem) {
+    return (
+      <div style={blocoBase}>
+        {blocoTexto}
+        <div style={{ marginTop: 20 }}>
+          <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
+        </div>
+        {gradeColunas}
+      </div>
+    )
+  }
+
+  if (galeriaComparacao) {
+    return (
+      <div style={blocoBase}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
+          gap: 28,
+          alignItems: 'start',
+        }}>
+          {colunaTexto}
+          {galeriaComparacao}
+        </div>
+      </div>
+    )
+  }
 
   if (passo.galeriaTelas?.length || (passo.colunasTabela?.length && !passo.imagem)) {
     const galeria = passo.galeriaTelas?.length ? (
@@ -473,6 +576,15 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
     )
   }
 
+  if (!passo.imagem && !passo.galeriaComparacao?.length && !passo.galeriaTelas?.length) {
+    return (
+      <div style={blocoBase}>
+        {blocoTexto}
+        {gradeColunas}
+      </div>
+    )
+  }
+
   return (
     <div style={{
       ...blocoBase,
@@ -506,9 +618,12 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
         <ManualParagrafo
           key={i}
           texto={p}
-          marginBottom={i === (fluxo.paragrafos?.length ?? 0) - 1 ? 4 : 12}
+          marginBottom={manualMargemParagrafo(i, fluxo.paragrafos?.length ?? 0)}
         />
       ))}
+      {fluxo.callout && (
+        <ManualCalloutBloco callout={fluxo.callout} marginTop={12} />
+      )}
       {fluxo.mostrarInfograficoPermissoesUsuario && (
         <div style={{ marginTop: 8, marginBottom: 20 }}>
           <ManualInfograficoPermissoesUsuario />
@@ -520,7 +635,11 @@ function ManualSecaoFluxo({ fluxo }: { fluxo: DocFluxo }) {
         </div>
       )}
       {fluxo.passosVisuais.map(passo => (
-        <ManualBlocoPassoVisual key={passo.num} passo={passo} />
+        <ManualBlocoPassoVisual
+          key={passo.num}
+          passo={passo}
+          ocultarRotuloPasso={fluxo.modoCenarios}
+        />
       ))}
     </>
   )
@@ -549,7 +668,7 @@ function ManualBlocoOrigemDados({ origem }: { origem: DocOrigemDados }) {
         <ManualParagrafo
           key={i}
           texto={p}
-          marginBottom={i === origem.paragrafos.length - 1 ? 18 : 10}
+          marginBottom={manualMargemParagrafo(i, origem.paragrafos.length)}
         />
       ))}
       <div style={{
@@ -566,7 +685,7 @@ function ManualBlocoOrigemDados({ origem }: { origem: DocOrigemDados }) {
               {etapa.legenda}
             </p>
             {etapa.paragrafos.map((p, i) => (
-              <ManualParagrafo key={i} texto={p} marginBottom={i === etapa.paragrafos.length - 1 ? 12 : 8} />
+              <ManualParagrafo key={i} texto={p} marginBottom={manualMargemParagrafo(i, etapa.paragrafos.length)} />
             ))}
             <ManualFiguraScreenshot src={etapa.imagem} alt={etapa.legenda} />
           </div>
@@ -574,6 +693,13 @@ function ManualBlocoOrigemDados({ origem }: { origem: DocOrigemDados }) {
       </div>
     </div>
   )
+}
+
+function figurasAposParagrafo(
+  secao: DocSecao,
+  indice: number,
+): { imagem: string; legenda?: string }[] {
+  return (secao.figurasAposParagrafo ?? []).filter((f) => f.indice === indice)
 }
 
 function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
@@ -589,11 +715,20 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
         }}>
           <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)' }}>
             {secao.paragrafos.map((p, i) => (
-              <ManualParagrafo
-                key={i}
-                texto={p}
-                marginBottom={i === secao.paragrafos.length - 1 ? 0 : 12}
-              />
+              <div key={i}>
+                <ManualParagrafo
+                  texto={p}
+                  marginBottom={manualMargemParagrafo(i, secao.paragrafos.length)}
+                />
+                {figurasAposParagrafo(secao, i).map((fig) => (
+                  <div key={fig.imagem} style={{ margin: '12px 0 20px' }}>
+                    <ManualFiguraScreenshot
+                      src={fig.imagem}
+                      alt={fig.legenda ?? secao.titulo}
+                    />
+                  </div>
+                ))}
+              </div>
             ))}
           </div>
           <ManualFiguraScreenshot src={secao.imagem} alt={secao.titulo} />
@@ -603,11 +738,24 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
       ) : (
         <>
           {secao.paragrafos.map((p, i) => (
-            <ManualParagrafo
-              key={i}
-              texto={p}
-              marginBottom={i === secao.paragrafos.length - 1 && !secao.fluxos?.length ? 0 : 12}
-            />
+            <div key={i}>
+              <ManualParagrafo
+                texto={p}
+                marginBottom={
+                  i === secao.paragrafos.length - 1 && !secao.fluxos?.length
+                    ? 0
+                    : manualMargemParagrafo(i, secao.paragrafos.length)
+                }
+              />
+              {figurasAposParagrafo(secao, i).map((fig) => (
+                <div key={fig.imagem} style={{ margin: '12px 0 20px' }}>
+                  <ManualFiguraScreenshot
+                    src={fig.imagem}
+                    alt={fig.legenda ?? secao.titulo}
+                  />
+                </div>
+              ))}
+            </div>
           ))}
 
           {secao.imagem && !secao.fluxos?.length && (
@@ -648,6 +796,12 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
         </div>
       )}
 
+      {secao.mostrarInfograficoHubTelas && (
+        <div style={{ marginTop: 24, marginBottom: 8 }}>
+          <ManualInfograficoHubTelas />
+        </div>
+      )}
+
       {secao.lista && (
         <div style={{
           display: 'grid',
@@ -656,7 +810,7 @@ function ManualSecaoIntro({ secao }: { secao: DocSecao }) {
           marginTop: 20,
         }}>
           {secao.lista.map((item, i) => {
-            const [label, ...rest] = item.replace(/^–\s*/, '').split(':')
+            const [label, ...rest] = item.replace(/^[-–]\s*/, '').split(':')
             const desc = rest.join(':').trim()
             return (
               <div key={i} style={{
@@ -771,7 +925,7 @@ function ManualInfograficoOrganizacaoConta() {
   ] as const
 
   const responsabilidades = [
-    { icone: IdentificationCard, texto: 'Identidade legal — CNPJ e razão social' },
+    { icone: IdentificationCard, texto: 'Identidade legal: CNPJ e razão social' },
     { icone: CreditCard, texto: 'Assinaturas e produtos contratados' },
     { icone: Receipt, texto: 'Faturamento e cobrança da conta' },
     { icone: Users, texto: 'Usuários Master e convites da organização' },
@@ -788,7 +942,7 @@ function ManualInfograficoOrganizacaoConta() {
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
         color: MANUAL_TIPO.meta, margin: '0 0 18px',
       }}>
-        Da conta à empresa — o que é a Organização
+        Da conta à empresa: o que é a Organização
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
@@ -869,7 +1023,7 @@ function ManualInfograficoOrganizacaoConta() {
           <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '12px 0 0', lineHeight: 1.5 }}>
             Filiais, clientes e operações do dia a dia ficam nos{' '}
             <Link to="/university-gravity/docs/configurador/workspaces" style={MANUAL_LINK_STYLE}>workspaces</Link>
-            {' '}— a organização é a raiz da conta, não a unidade operacional.
+            {' '},  a organização é a raiz da conta, não a unidade operacional.
           </p>
         </div>
       </div>
@@ -901,7 +1055,7 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
         color: MANUAL_TIPO.meta, margin: '0 0 18px',
       }}>
-        Organização × Workspaces — dois cenários comuns
+        Organização × Workspaces: dois cenários comuns
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
@@ -913,7 +1067,7 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
           padding: '18px 16px 20px',
         }}>
           <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#818cf8', margin: '0 0 14px', letterSpacing: '.04em' }}>
-            Cenário 1 — Importador / Exportador
+            Cenário 1: Importador / Exportador
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
             <div style={{ ...INFO_ORG, width: '100%' }}>
@@ -933,7 +1087,7 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
               </div>
             </div>
             <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.5, textAlign: 'center' }}>
-              Matriz e filiais que importam ou exportam — cada unidade opera com dados isolados.
+              Matriz e filiais que importam ou exportam: cada unidade opera com dados isolados.
             </p>
           </div>
         </div>
@@ -946,7 +1100,7 @@ export function ManualInfograficoOrganizacaoWorkspaces() {
           padding: '18px 16px 20px',
         }}>
           <p style={{ fontSize: '.72rem', fontWeight: 800, color: '#34d399', margin: '0 0 14px', letterSpacing: '.04em' }}>
-            Cenário 2 — Despachante / Agente
+            Cenário 2: Despachante / Agente
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
             <div style={{ ...INFO_ORG, width: '100%', background: 'rgba(52,211,153,.12)', borderColor: 'rgba(52,211,153,.35)', color: '#a7f3d0' }}>
@@ -1007,7 +1161,7 @@ function ManualInfograficoFornecedoresComex() {
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
         color: MANUAL_TIPO.meta, margin: '0 0 18px',
       }}>
-        Papéis COMEX do fornecedor — relação com a sua operação
+        Papéis COMEX do fornecedor: relação com a sua operação
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
@@ -1031,10 +1185,10 @@ function ManualInfograficoFornecedoresComex() {
             <div style={{ ...INFO_FORN, width: '100%', borderColor: 'rgba(52,211,153,.35)', background: 'rgba(52,211,153,.08)', color: '#a7f3d0' }}>
               <Truck size={14} weight="duotone" style={{ marginBottom: 4, color: '#34d399' }} />
               <strong>Fornecedor · Exportador</strong>
-              <div style={{ fontSize: '.68rem', marginTop: 4, opacity: .9 }}>Vendedor no exterior — exporta para você</div>
+              <div style={{ fontSize: '.68rem', marginTop: 4, opacity: .9 }}>Vendedor no exterior: exporta para você</div>
             </div>
             <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.55, textAlign: 'center' }}>
-              <strong style={{ color: '#34d399' }}>Exportador na importação</strong> — cadastre o fabricante ou trading company que vende a mercadoria que sua empresa está importando.
+              <strong style={{ color: '#34d399' }}>Exportador na importação</strong>: cadastre o fabricante ou trading company que vende a mercadoria que sua empresa está importando.
             </p>
           </div>
         </div>
@@ -1059,10 +1213,10 @@ function ManualInfograficoFornecedoresComex() {
             <div style={{ ...INFO_FORN, width: '100%', borderColor: 'rgba(96,165,250,.35)', background: 'rgba(96,165,250,.08)', color: '#bfdbfe' }}>
               <Package size={14} weight="duotone" style={{ marginBottom: 4, color: '#60a5fa' }} />
               <strong>Fornecedor · Importador</strong>
-              <div style={{ fontSize: '.68rem', marginTop: 4, opacity: .9 }}>Comprador no exterior — importa de você</div>
+              <div style={{ fontSize: '.68rem', marginTop: 4, opacity: .9 }}>Comprador no exterior: importa de você</div>
             </div>
             <p style={{ fontSize: '.72rem', color: MANUAL_CORPO_70, margin: '8px 0 0', lineHeight: 1.55, textAlign: 'center' }}>
-              <strong style={{ color: '#60a5fa' }}>Importador na exportação</strong> — cadastre o cliente estrangeiro que compra a mercadoria que sua empresa exporta. Ele atua como importador na operação.
+              <strong style={{ color: '#60a5fa' }}>Importador na exportação</strong>: cadastre o cliente estrangeiro que compra a mercadoria que sua empresa exporta. Ele atua como importador na operação.
             </p>
           </div>
         </div>
@@ -1076,7 +1230,7 @@ function ManualInfograficoFornecedoresComex() {
         borderRadius: 12,
       }}>
         <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: 0, lineHeight: 1.6 }}>
-          <strong style={{ color: '#fbbf24' }}>Fornecedor ≠ Workspace.</strong> Workspace é a sua unidade operacional (filial ou cliente do despachante). Fornecedor é um terceiro cadastrado no Configurador — aparece em pedidos, processos, cotações de frete e demais fluxos COMEX. Além de Importador e Exportador, você pode marcar Agente, Despachante, Armador e outros papéis no mesmo cadastro.
+          <strong style={{ color: '#fbbf24' }}>Fornecedor ≠ Workspace.</strong> Workspace é a sua unidade operacional (filial ou cliente do despachante). Fornecedor é um terceiro cadastrado no Configurador: aparece em pedidos, processos, cotações de frete e demais fluxos COMEX. Além de Importador e Exportador, você pode marcar Agente, Despachante, Armador e outros papéis no mesmo cadastro.
         </p>
       </div>
 
@@ -1158,7 +1312,7 @@ function ManualIntroUsuarios() {
           </div>
           <p style={{ ...itemLista, marginBottom: 8 }}>
             <Check size={14} weight="bold" color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
-            Acesso total — organização, workspaces e Produtos Gravity
+            Acesso total: organização, workspaces e Produtos Gravity
           </p>
           <p style={itemLista}>
             <Check size={14} weight="bold" color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
@@ -1205,7 +1359,7 @@ function ManualIntroUsuarios() {
               background: 'rgba(99,102,241,.2)', color: '#a5b4fc',
               fontSize: '.62rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>1</span>
-            <span><strong style={{ color: '#c7d2fe' }}>Workspaces</strong> — quais unidades pode entrar (sim ou não por filial/cliente)</span>
+            <span><strong style={{ color: '#c7d2fe' }}>Workspaces</strong>: quais unidades pode entrar (sim ou não por filial/cliente)</span>
           </p>
           <p style={itemLista}>
             <span style={{
@@ -1213,7 +1367,7 @@ function ManualIntroUsuarios() {
               background: 'rgba(52,211,153,.18)', color: '#6ee7b7',
               fontSize: '.62rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>2</span>
-            <span><strong style={{ color: '#a7f3d0' }}>Permissões</strong> — dentro de cada produto, o que pode Ver e Editar</span>
+            <span><strong style={{ color: '#a7f3d0' }}>Permissões</strong>: dentro de cada produto, o que pode Ver e Editar</span>
           </p>
         </div>
       </div>
@@ -1223,7 +1377,7 @@ function ManualIntroUsuarios() {
         padding: '10px 14px', borderRadius: 10,
         background: 'rgba(148,163,184,.05)', border: '1px dashed rgba(148,163,184,.18)',
       }}>
-        Sem workspace marcado, a pessoa não opera naquela unidade — mesmo com permissão de produto.
+        Sem workspace marcado, a pessoa não opera naquela unidade: mesmo com permissão de produto.
         Nos fluxos abaixo: convidar, permissões, workspaces e ativar/desativar.
       </p>
     </div>
@@ -1261,7 +1415,7 @@ function ManualCamadaAcessoFluxo() {
       corBorda: 'rgba(99,102,241,.35)',
       corFundo: 'rgba(99,102,241,.1)',
       titulo: '1ª camada · Workspaces',
-      descricao: 'Quais unidades pode acessar — uma, várias ou nenhuma até o Master marcar',
+      descricao: 'Quais unidades pode acessar: uma, várias ou nenhuma até o Master marcar',
       badge: '1',
     },
     {
@@ -1304,7 +1458,7 @@ function ManualCamadaAcessoFluxo() {
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
         color: '#a5b4fc', margin: '0 0 16px',
       }}>
-        Fluxo de acesso — Standard e Fornecedor
+        Fluxo de acesso: Standard e Fornecedor
       </p>
       <div style={{
         position: 'relative',
@@ -1313,7 +1467,7 @@ function ManualCamadaAcessoFluxo() {
         {passos.map((passo, i) => {
           const Icone = passo.icone
           const destacado = ativo === passo.id
-          const vizinho = ativo !== null && (ativo === passo.id - 1 || ativo === passo.id + 1)
+          const vizinho = ativo !== null && (ativo === passo.id, 1 || ativo === passo.id + 1)
           return (
             <React.Fragment key={passo.id}>
               <div
@@ -1385,7 +1539,7 @@ function ManualCamadaAcessoFluxo() {
       }}>
         <Crown size={16} weight="duotone" color="#fbbf24" />
         <span style={{ fontSize: '.74rem', color: MANUAL_CORPO_70, lineHeight: 1.5, textAlign: 'center' }}>
-          <strong style={{ color: '#fde68a' }}>Master</strong> ignora este fluxo — acesso irrestrito em toda a organização
+          <strong style={{ color: '#fde68a' }}>Master</strong> ignora este fluxo: acesso irrestrito em toda a organização
         </span>
       </div>
     </div>
@@ -1490,7 +1644,7 @@ function ManualInfograficoPermissoesUsuario() {
         </p>
         <p style={{ margin: '0 0 14px', fontSize: '.76rem', color: MANUAL_CORPO_70, lineHeight: 1.55 }}>
           Cada produto segue o mesmo padrão de telas. Na grade, localize o produto (ex.: Pedido, Smart Docs)
-          e marque Ver ou Editar na linha correspondente — basta selecionar o local indicado.
+          e marque Ver ou Editar na linha correspondente: basta selecionar o local indicado.
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {telasPadrao.map(({ icone: Icone, rotulo }) => (
@@ -1522,12 +1676,12 @@ function ManualInfograficoPermissoesUsuario() {
           </span>
           <div>
             <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '.84rem', color: '#e2e8f0' }}>
-              Permissão especial — Pode cotar frete internacional
+              Permissão especial: Pode cotar frete internacional
             </p>
             <p style={{ margin: 0, fontSize: '.76rem', color: MANUAL_CORPO_70, lineHeight: 1.55 }}>
               Para habilitar fornecedores como agentes de carga, marque esta opção no produto
               BID Frete Internacional. Libera a visão de parceiro: responder cotações, enviar propostas
-              e acessar o painel BID Frete Internacional - Fornecedor. Vale para usuários tipo Fornecedor
+              e acessar o painel BID Frete Internacional, Fornecedor. Vale para usuários tipo Fornecedor
               com empresa vinculada (ex.: Agente de carga).
             </p>
           </div>
@@ -1562,7 +1716,7 @@ function ManualBlocoFornecedorInteracao() {
           margin: 0, fontSize: '.72rem', fontWeight: 800, letterSpacing: '.06em',
           textTransform: 'uppercase', color: '#6ee7b7',
         }}>
-          Fornecedor — como interage com a organização
+          Fornecedor: como interage com a organização
         </p>
       </div>
       <p style={{ fontSize: '.78rem', color: MANUAL_CORPO_70, margin: '0 0 14px', lineHeight: 1.55 }}>
@@ -1618,12 +1772,12 @@ const PAPEL_FORNECEDOR_INFO: {
   icone: React.ReactNode
 }[] = [
   { label: 'Fabricante', descricao: 'Quem produz a mercadoria negociada na operação.', cor: '#fbbf24', icone: <Factory weight="duotone" size={16} /> },
-  { label: 'Agente de Carga', descricao: 'Logística internacional — contrata frete, consolida cargas e coordena o embarque.', cor: '#c084fc', icone: <UserGear weight="duotone" size={16} /> },
-  { label: 'Despachante Aduaneiro', descricao: 'Representante legal da empresa perante a Receita — desembaraço e compliance aduaneiro.', cor: '#f472b6', icone: <ShieldStar weight="duotone" size={16} /> },
+  { label: 'Agente de Carga', descricao: 'Logística internacional: contrata frete, consolida cargas e coordena o embarque.', cor: '#c084fc', icone: <UserGear weight="duotone" size={16} /> },
+  { label: 'Despachante Aduaneiro', descricao: 'Representante legal da empresa perante a Receita: desembaraço e compliance aduaneiro.', cor: '#f472b6', icone: <ShieldStar weight="duotone" size={16} /> },
   { label: 'Armador', descricao: 'Companhia marítima que opera o navio e o espaço no porão/contêiner.', cor: '#22d3ee', icone: <Boat weight="duotone" size={16} /> },
-  { label: 'Cia Aérea', descricao: 'Transporte aéreo de carga — AWB e embarques urgentes.', cor: '#818cf8', icone: <Airplane weight="duotone" size={16} /> },
+  { label: 'Cia Aérea', descricao: 'Transporte aéreo de carga: AWB e embarques urgentes.', cor: '#818cf8', icone: <Airplane weight="duotone" size={16} /> },
   { label: 'Transportadora Rodoviária', descricao: 'Coleta e entrega no trecho nacional ou internacional por rodovia.', cor: '#a3e635', icone: <TruckTrailer weight="duotone" size={16} /> },
-  { label: 'Armazém Alfandegado', descricao: 'Recinto alfandegado — mercadoria sob controle aduaneiro antes do desembaraço.', cor: '#fb923c', icone: <Warehouse weight="duotone" size={16} /> },
+  { label: 'Armazém Alfandegado', descricao: 'Recinto alfandegado: mercadoria sob controle aduaneiro antes do desembaraço.', cor: '#fb923c', icone: <Warehouse weight="duotone" size={16} /> },
   { label: 'Armazém Nacional', descricao: 'Armazenagem geral fora de regime alfandegado.', cor: '#fdba74', icone: <Warehouse weight="duotone" size={16} /> },
   { label: 'Banco', descricao: 'Instituição financeira em operações de comércio exterior.', cor: '#10b981', icone: <Bank weight="duotone" size={16} /> },
   { label: 'Seguradora / Corretora', descricao: 'Seguro de carga internacional ou corretagem de câmbio.', cor: '#06b6d4', icone: <ShieldCheck weight="duotone" size={16} /> },
@@ -1641,7 +1795,7 @@ function ManualInfograficoPapeisFornecedor() {
         fontSize: '.68rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase',
         color: MANUAL_TIPO.meta, margin: '0 0 6px',
       }}>
-        Outros papéis COMEX — o que é cada um
+        Outros papéis COMEX: o que é cada um
       </p>
       <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: '0 0 16px', lineHeight: 1.55 }}>
         Marque na aba Papéis COMEX todos os papéis que o terceiro exerce. A plataforma usa esses flags para filtrar dropdowns, convites e cotações.
@@ -1684,7 +1838,7 @@ function ManualInfograficoPapeisFornecedor() {
         borderRadius: 12,
       }}>
         <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: '0 0 10px', lineHeight: 1.6 }}>
-          <strong style={{ color: '#a5b4fc' }}>Uma empresa, vários papéis.</strong> O mesmo CNPJ ou TIN pode ser Despachante e Agente de Carga — marque os dois no mesmo cadastro. Os chips na listagem mostram a combinação (ex.: Despachante + Agente).
+          <strong style={{ color: '#a5b4fc' }}>Uma empresa, vários papéis.</strong> O mesmo CNPJ ou TIN pode ser Despachante e Agente de Carga: marque os dois no mesmo cadastro. Os chips na listagem mostram a combinação (ex.: Despachante + Agente).
         </p>
         <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: 0, lineHeight: 1.6 }}>
           <strong style={{ color: '#a5b4fc' }}>Por que cadastrar bem?</strong> Contato correto para comunicações e convites · seleção em cotações de frete e câmbio · vínculo de usuários tipo Fornecedor · registros consistentes em Pedido, Processo e documentos legais.
@@ -1701,7 +1855,7 @@ function ManualInfograficoTiposUsuario() {
       cor: '#fbbf24',
       titulo: 'Master',
       subtitulo: 'Administrador da Empresa e todos os Workspaces',
-      pilulas: ['Acesso total — sem camadas', 'Convida e edita usuários', 'Todos os workspaces e Produtos Gravity'],
+      pilulas: ['Acesso total: sem camadas', 'Convida e edita usuários', 'Todos os workspaces e Produtos Gravity'],
     },
     {
       icone: User,
@@ -1715,7 +1869,7 @@ function ManualInfograficoTiposUsuario() {
       cor: '#34d399',
       titulo: 'Fornecedor',
       subtitulo: 'Parceiro externo',
-      pilulas: ['1º Workspaces habilitados', '2º Permissões sempre granulares', 'Plataforma opcional — ou só e-mail'],
+      pilulas: ['1º Workspaces habilitados', '2º Permissões sempre granulares', 'Plataforma opcional: ou só e-mail'],
     },
   ] as const
 
@@ -1756,7 +1910,7 @@ function ManualInfograficoTiposUsuario() {
               <Crown size={18} weight="duotone" style={{ marginBottom: 4, color: '#fbbf24' }} />
               <div>Master</div>
               <div style={{ fontSize: '.68rem', fontWeight: 500, opacity: .85, marginTop: 2 }}>
-                Primeiro usuário da organização — sempre Master
+                Primeiro usuário da organização: sempre Master
               </div>
             </div>
             <div style={{ color: '#64748b', fontSize: '.75rem' }}>↓ convida e define acesso</div>
@@ -1839,10 +1993,10 @@ function ManualInfograficoTiposUsuario() {
         borderTop: '1px dashed rgba(148,163,184,.15)',
       }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#818cf8' }}>
-          <Buildings size={13} weight="duotone" /> 1ª camada — workspaces habilitados
+          <Buildings size={13} weight="duotone" /> 1ª camada: workspaces habilitados
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#34d399' }}>
-          <Key size={13} weight="duotone" /> 2ª camada — permissões granulares
+          <Key size={13} weight="duotone" /> 2ª camada: permissões granulares
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#fbbf24' }}>
           <Crown size={13} weight="duotone" /> Master = sem camadas, acesso total
@@ -1860,7 +2014,7 @@ const COMPARATIVO_TIPOS_USUARIO: {
 }[] = [
   {
     criterio: 'Camadas de acesso',
-    master: 'Nenhuma — acesso direto a tudo',
+    master: 'Nenhuma: acesso direto a tudo',
     standard: '1º workspaces habilitados · 2º permissões granulares por produto',
     fornecedor: '1º workspaces habilitados · 2º permissões granulares (obrigatórias)',
   },
@@ -1878,15 +2032,15 @@ const COMPARATIVO_TIPOS_USUARIO: {
   },
   {
     criterio: 'Workspaces',
-    master: 'Acesso automático a todos — sem vínculo manual',
-    standard: 'Somente unidades marcadas — sem marcação, não entra no workspace',
+    master: 'Acesso automático a todos: sem vínculo manual',
+    standard: 'Somente unidades marcadas: sem marcação, não entra no workspace',
     fornecedor: 'Somente unidades marcadas + empresa fornecedora vinculada',
   },
   {
     criterio: 'Permissões granulares',
-    master: 'Não se aplica — bypass total',
-    standard: 'Ver e Editar por produto (Dashboard, Lista, Kanban…) — definidas pelo Master',
-    fornecedor: 'Obrigatórias — sempre Ver/Editar explícito por produto',
+    master: 'Não se aplica: bypass total',
+    standard: 'Ver e Editar por produto (Dashboard, Lista, Kanban…): definidas pelo Master',
+    fornecedor: 'Obrigatórias: sempre Ver/Editar explícito por produto',
   },
   {
     criterio: 'Configurador',
@@ -1898,11 +2052,11 @@ const COMPARATIVO_TIPOS_USUARIO: {
     criterio: 'Produtos Gravity',
     master: 'Todos os produtos contratados pela organização',
     standard: 'Conforme permissões granulares por produto',
-    fornecedor: 'Conforme permissões granulares — sempre obrigatórias',
+    fornecedor: 'Conforme permissões granulares: sempre obrigatórias',
   },
   {
     criterio: 'Convida usuários',
-    master: 'Sim — Master, Standard e Fornecedor',
+    master: 'Sim: Master, Standard e Fornecedor',
     standard: 'Não',
     fornecedor: 'Não',
   },
@@ -1914,13 +2068,13 @@ const COMPARATIVO_TIPOS_USUARIO: {
   },
   {
     criterio: 'Acesso à plataforma',
-    master: '—',
-    standard: 'Sempre — opera nas telas liberadas pelo Master',
-    fornecedor: 'Opcional — usuário nas telas ou só interação por e-mail, sem login',
+    master: ', ',
+    standard: 'Sempre: opera nas telas liberadas pelo Master',
+    fornecedor: 'Opcional: usuário nas telas ou só interação por e-mail, sem login',
   },
   {
     criterio: 'Quem atribui',
-    master: 'Sistema — primeiro usuário da conta',
+    master: 'Sistema: primeiro usuário da conta',
     standard: 'Master da organização',
     fornecedor: 'Master da organização',
   },
@@ -1959,7 +2113,7 @@ function ManualTabelaComparativaTiposUsuario() {
         color: MANUAL_TIPO.meta, margin: 0, padding: '16px 18px 14px',
         borderBottom: '1px solid rgba(148,163,184,.1)',
       }}>
-        Comparativo — Master × Standard × Fornecedor
+        Comparativo: Master × Standard × Fornecedor
       </p>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', minWidth: 680, borderCollapse: 'collapse' }}>
@@ -2024,7 +2178,7 @@ const COMPARATIVO_ORG_WS: { criterio: string; organizacao: string; workspace: st
   {
     criterio: 'O que é',
     organizacao: 'Empresa que contrata o Gravity (tenant da conta)',
-    workspace: 'Unidade operacional — pode ser importador, exportador, filial ou cliente',
+    workspace: 'Unidade operacional: pode ser importador, exportador, filial ou cliente',
   },
   {
     criterio: 'Quantidade',
@@ -2043,13 +2197,13 @@ const COMPARATIVO_ORG_WS: { criterio: string; organizacao: string; workspace: st
   },
   {
     criterio: 'Registros operacionais',
-    organizacao: 'Não concentra operações — apenas gestão da conta (contrato, usuários, assinaturas)',
+    organizacao: 'Não concentra operações: apenas gestão da conta (contrato, usuários, assinaturas)',
     workspace: 'DUIMP, Pedidos, Cotações de frete, Câmbio e demais registros ficam sempre no workspace',
   },
   {
     criterio: 'Faturamento',
     organizacao: 'Assinaturas, planos e cobrança da conta',
-    workspace: 'Não fatura — consome produtos da organização',
+    workspace: 'Não fatura: consome produtos da organização',
   },
   {
     criterio: 'Quem acessa',
@@ -2096,7 +2250,7 @@ function ManualTabelaComparativaOrganizacaoWorkspace() {
         color: MANUAL_TIPO.meta, margin: 0, padding: '16px 18px 14px',
         borderBottom: '1px solid rgba(148,163,184,.1)',
       }}>
-        Comparativo — Organização × Workspace
+        Comparativo: Organização × Workspace
       </p>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', minWidth: 520, borderCollapse: 'collapse' }}>

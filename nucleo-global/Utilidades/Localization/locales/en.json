@@ -15,6 +15,9 @@
       "bid_cambio": "BID Exchange",
       "processo": "Processo"
     },
+    "manual": {
+      "titulo_produto": "{{produto}} Manual"
+    },
     "banner": {
       "em_construcao": "Under construction",
       "descricao": "The platform's single learning hub — per-product onboarding, gamified journey and certificate, with GABI as the knowledge source and tutor."

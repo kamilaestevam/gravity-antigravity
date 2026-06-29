@@ -388,11 +388,54 @@ Além das aulas em blocos (`PlayerAula`), o Configurador expõe manuais descriti
 |----------|---------|-----|------------|
 | Rótulo **PASSO NN** | `12px` | `#818cf8` (índigo) | `text-transform: uppercase`, `letter-spacing: .08em` |
 | Título do passo | `0.92rem` (~15px) | `var(--ws-text, #f1f5f9)` 100% | Peso 700 |
-| **Corpo** (parágrafos, callouts, legendas, timeline) | `0.9rem` (~14px) | `color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)` | Constante `MANUAL_CORPO_70` no código |
+| **Corpo** (parágrafos, callouts, legendas, timeline) | `0.9rem` (~14px) | `color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)` | `text-align: justify` · `MANUAL_CORPO_70` |
 | Títulos de seção / cards | conforme layout | 100% `--ws-text` | Não recebem opacidade 70% |
 | Metadados (versão, data, rota) | `.78rem` | `--ws-muted` | Não é corpo narrativo |
 
-**Regra:** todo texto explicativo do manual usa `ManualParagrafo` / `ManualTextoRich` com `MANUAL_CORPO_70`. Títulos e rótulos permanecem em 100%.
+**Regra:** todo texto explicativo do manual usa `ManualParagrafo` / `ManualTextoRich` com `MANUAL_CORPO_70` e **`text-align: justify`**. Títulos e rótulos permanecem alinhados à esquerda (100% de opacidade).
+
+#### 9.1.1 Ritmo vertical — espaço entre parágrafos
+
+| Token | Valor | Uso |
+|-------|-------|-----|
+| `MANUAL_ESPACO_PARAGRAFO_PX` | **12px** | `margin-bottom` entre parágrafos consecutivos no mesmo bloco |
+| Último parágrafo do bloco | **0px** | Sem margem inferior; o bloco seguinte (callout, infográfico, fluxo, screenshot) define o respiro via `margin-top` próprio |
+
+**Por quê 12px:** com corpo em `0.9rem` e `line-height: 1.8`, 12px ≈ **0,75 linha** — separa ideias sem “buraco” grande (evitar 16–24px ad hoc por tela).
+
+**Regras obrigatórias:**
+
+- Todo parágrafo narrativo passa por `ManualParagrafo` (Login, Hub, Configurador).
+- Entre parágrafos do **mesmo** bloco (`paragrafos[]` de seção, fluxo ou passo): usar `manualMargemParagrafo(indice, total)` — **nunca** valores soltos (`10`, `14`, `18`…).
+- **Último** parágrafo do bloco: margem **0** (exceção documentada: seção sem fluxos abaixo pode manter 0 no último parágrafo da intro).
+- Espaço **antes** de callout / mapa mental / lista / passo visual: vem do componente destino (`margin-top: 12–24px`), não de margem extra no último `<p>`.
+
+**SSOT no código:** `servicos-global/configurador/src/pages/university/manual-tipografia.ts`
+
+```ts
+export const MANUAL_ESPACO_PARAGRAFO_PX = 12
+
+export function manualMargemParagrafo(indice: number, total: number): number {
+  return indice < total - 1 ? MANUAL_ESPACO_PARAGRAFO_PX : 0
+}
+```
+
+❌ `marginBottom={14}` ou `i === arr.length, 1` (vírgula — bug conhecido)  
+✅ `marginBottom={manualMargemParagrafo(i, arr.length)}`
+
+#### 9.1.2 Alinhamento do corpo — justificado
+
+| Token | Valor | Onde aplica |
+|-------|-------|-------------|
+| `MANUAL_ALINHAMENTO_CORPO` | **`justify`** | Parágrafos (`ManualParagrafo`), callouts (`MANUAL_ESTILO_CALLOUT_CORPO`), intro lateral texto+screenshot |
+
+**Regras:**
+
+- Todo bloco narrativo do manual descritivo usa **justificado** — Login, Hub, Configurador, passos visuais, intros de fluxo.
+- **Exceções** (permanecem à esquerda ou centralizados): rótulo `PASSO NN`, título do passo, títulos de seção, metadados, legendas de infográfico, pills do mapa mental, labels de cards KPI.
+- Implementação: `textAlign: MANUAL_ALINHAMENTO_CORPO` em `MANUAL_ESTILO_CORPO` — **não** repetir `textAlign` por tela ou flag por seção.
+
+**SSOT no código:** `manual-tipografia.ts` → `MANUAL_ALINHAMENTO_CORPO`
 
 ### 9.2 URLs e links
 
@@ -427,10 +470,18 @@ O ícone de olho {{icone:olho}} à direita da senha revela ou oculta o que você
 
 ### 9.5 Constantes no código (SSOT)
 
-Em `UniversityGravity.tsx`, reutilizar:
+**Tipografia e ritmo vertical**
+
+| Arquivo | Constantes / helpers |
+|---------|----------------------|
+| `manual-tipografia.ts` | `MANUAL_ESPACO_PARAGRAFO_PX`, `manualMargemParagrafo()`, `MANUAL_ALINHAMENTO_CORPO` — §9.1.1 e §9.1.2 |
+| `manual-configurador-ui.tsx` | `MANUAL_TITULO_COR`, `MANUAL_CORPO_70`, estilos de passo/callout, `ManualParagrafo`, `ManualTextoRich` |
+| `UniversityGravity.tsx` | Mesmo padrão para manual Login (`DOC_LOGIN_SECOES`) |
+
+Em `UniversityGravity.tsx` e `manual-configurador-ui.tsx`, reutilizar:
 
 - `MANUAL_TITULO_COR` — títulos 100%
 - `MANUAL_CORPO_70` — corpo com 70% de opacidade sobre `--ws-text`
 - `MANUAL_ESTILO_PASSO_ROTULO`, `MANUAL_ESTILO_PASSO_TITULO`, `MANUAL_ESTILO_CORPO`, `MANUAL_ESTILO_CALLOUT_CORPO`
 - `ManualTextoRich` — parse de URLs e `{{icone:slug}}`
-- `ManualParagrafo` — parágrafo padrão do corpo
+- `ManualParagrafo` — parágrafo padrão do corpo (default `12px` entre parágrafos — ver `manual-tipografia.ts`)

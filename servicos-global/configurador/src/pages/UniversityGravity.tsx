@@ -1,5 +1,5 @@
 /**
- * UniversityGravity — layout da Gravity University (serviço de plataforma).
+ * UniversityGravity: layout da Gravity University (serviço de plataforma).
  *
  * ⚠️ PROTÓTIPO / WIP. Mesmo layout do Configurador: MenuLateralGlobal (sidebar)
  * com título "Gravity University" + opções e dropdown de organizações, e as
@@ -35,6 +35,7 @@ import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './uni
 import { DocConfiguradorManual, iconeConfiguradorManual } from './university/manual-configurador-ui'
 import { DOC_HUB_SUBTITULO } from './university/manual-hub-conteudo'
 import { DocHubManual } from './university/manual-hub-ui'
+import { MANUAL_ESPACO_PARAGRAFO_PX, MANUAL_ALINHAMENTO_CORPO, manualMargemParagrafo } from './university/manual-tipografia'
 import './configurador/workspace.css'
 
 const UNI_COR = '#818cf8'
@@ -56,10 +57,10 @@ interface Trilha {
   fases: Fase[]
 }
 
-// ── Catálogo WIP — virá do banco via API ───────────────────────────────────
+// ── Catálogo WIP: virá do banco via API ───────────────────────────────────
 const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   login: [{
-    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos — Login', modulos: 3, duracao: '30m', prog: 100,
+    tag: '#60a5fa', emoji: '🔑', nome: 'Primeiros Passos: Login', modulos: 3, duracao: '30m', prog: 100,
     fases: [
       { slug: 'o-que-e-o-gravity',       nome: 'O que é o Gravity',     duracao: '10m', concluida: true },
       { slug: 'criando-sua-conta',        nome: 'Criando sua conta',     duracao: '10m', concluida: true },
@@ -145,7 +146,7 @@ const TRILHAS_POR_PRODUTO: Record<string, Trilha[]> = {
   }],
 }
 
-// Produtos que esta organização contratou (WIP — virá do backend)
+// Produtos que esta organização contratou (WIP: virá do backend)
 const PRODUTOS_CONTRATADOS: (keyof typeof TRILHAS_POR_PRODUTO)[] = [
   'login', 'configurador', 'pedido', 'processo', 'smart-read',
 ]
@@ -172,7 +173,7 @@ const ICON_MAP = {
 
 type ProdutoSlug = keyof typeof ICON_MAP
 
-// ── Manual de Login — dados enterprise ────────────────────────────────────
+// ── Manual de Login: dados enterprise ────────────────────────────────────
 interface DocPassoVisual {
   num: number
   titulo: string
@@ -200,7 +201,7 @@ interface DocSecao {
 }
 
 const DOC_LOGIN_SUBTITULO =
-  'Guia da tela de login: acesso, cadastro, recuperação de senha, convites e destino após autenticação.'
+  'Login, cadastro, recuperação de senha e convites'
 
 const DOC_LOGIN_METADADOS: { rotulo: string; valor: string; href?: boolean }[] = [
   { rotulo: 'Versão', valor: '1.0' },
@@ -208,7 +209,6 @@ const DOC_LOGIN_METADADOS: { rotulo: string; valor: string; href?: boolean }[] =
   { rotulo: 'Produto', valor: 'Configurador' },
   { rotulo: 'URL de acesso', valor: 'https://usegravity.com.br/login', href: true },
   { rotulo: 'Rota base', valor: '/login' },
-  { rotulo: 'Componente', valor: 'AutenticacaoPage' },
 ]
 
 const DOC_LOGIN_SECOES: DocSecao[] = [
@@ -219,23 +219,23 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
     layoutTextoImagemLateral: true,
     listaEmLinha: true,
     paragrafos: [
-      'Esta é a primeira tela que você vê ao acessar a plataforma Gravity. No lado esquerdo, a identidade da plataforma: logo e proposta de valor.',
+      'Esta é a primeira tela que você vê ao acessar a plataforma Gravity. No lado esquerdo, a identidade da plataforma: Logo e proposta de valor.',
       'No lado direito, o formulário de acesso. Você pode entrar com sua conta Google clicando em "Continuar com Google", ou digitar diretamente seu e-mail e senha. Ao clicar em "Entrar", o sistema valida suas credenciais e te direciona automaticamente para o lugar certo.',
     ],
     lista: [
-      '– Botão "Continuar com Google": acesso rápido sem precisar digitar e-mail e senha',
-      '– Campo E-mail: informe o e-mail com o qual você se cadastrou',
-      '– Campo Senha: sua senha da plataforma — clique no ícone de olho {{icone:olho}} para revelar',
-      '– Botão "Entrar": inicia a validação e te leva para o hub ou onboarding',
-      '– Link "Esqueceu a senha?": recuperação por e-mail em dois passos',
-      '– Link "Registre-se": cria uma nova conta na plataforma',
+      'Botão "Continuar com Google": Acesso rápido sem precisar digitar e-mail e senha',
+      'Campo E-mail: Informe o e-mail com o qual você se cadastrou',
+      'Campo Senha: Sua senha da plataforma, clique no ícone de olho {{icone:olho}} para revelar',
+      'Botão "Entrar": Inicia a validação e te leva para o hub ou onboarding',
+      'Link "Esqueceu a senha?": Recuperação por e-mail em dois passos',
+      'Link "Registre-se": Cria uma nova conta na plataforma',
     ],
   },
   {
     num: 2,
-    titulo: 'Fluxo 1 — criar sua conta',
+    titulo: 'Fluxo 1: Criar sua conta',
     paragrafos: [
-      'Se você ainda não tem conta na Gravity, o cadastro leva poucos minutos em duas etapas: dados pessoais e confirmação por e-mail.',
+      'Se você ainda não tem conta na Gravity, o cadastro leva poucos minutos em duas etapas: Dados pessoais e confirmação por e-mail.',
       'Depois de validar o código, você segue para o onboarding e cria sua organização e workspace.',
     ],
     passosVisuais: [
@@ -266,7 +266,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         painelRequisitosCadastro: true,
         paragrafos: [
           'O formulário exibe um checklist em tempo real abaixo da senha. Cada exigência obrigatória muda de vermelho (pendente) para verde (atendida) conforme você digita.',
-          'O botão "Continuar" só é habilitado quando os sete itens abaixo estiverem verdes — incluindo confirmação de senha e aceite dos Termos de Uso.',
+          'O botão "Continuar" só é habilitado quando os sete itens abaixo estiverem verdes: Incluindo confirmação de senha e aceite dos Termos de Uso.',
         ],
       },
       {
@@ -286,7 +286,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         ],
         callout: {
           tipo: 'dica',
-          texto: 'Não chegou? Confira spam/lixo eletrônico, aba Promoções, filtros do antivírus ou bloqueio do remetente notifications@usegravity.com.br — e se o e-mail foi digitado corretamente. Só então use "Reenviar código" na tela de verificação.',
+          texto: 'Não chegou? Confira spam/lixo eletrônico, aba Promoções, filtros do antivírus ou bloqueio do remetente notifications@usegravity.com.br: E se o e-mail foi digitado corretamente. Só então use "Reenviar código" na tela de verificação.',
         },
       },
       {
@@ -294,7 +294,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Digitar o código',
         imagem: '/university/screenshots/login-fluxo1-passo-05-codigo-vazio.png',
         paragrafos: [
-          'Na tela de verificação, preencha os seis campos numéricos — o foco avança automaticamente. Você também pode colar o código completo de uma vez.',
+          'Na tela de verificação, preencha os seis campos numéricos: O foco avança automaticamente. Você também pode colar o código completo de uma vez.',
         ],
       },
       {
@@ -311,7 +311,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
           },
           {
             tipo: 'dica',
-            texto: 'Se o código expirar, use "Reenviar código" na tela de verificação — um novo código é enviado ao mesmo e-mail.',
+            texto: 'Se o código expirar, use "Reenviar código" na tela de verificação: Um novo código é enviado ao mesmo e-mail.',
           },
         ],
       },
@@ -324,16 +324,16 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         galeriaTelas: [
           { legenda: '1 · Nome da organização', imagem: '/university/screenshots/onboarding-nome-preenchido.png' },
           { legenda: '2 · CNPJ da empresa', imagem: '/university/screenshots/onboarding-cnpj-preenchido.png' },
-          { legenda: '3 · Hub — destino final', imagem: '/university/screenshots/onboarding-hub-sem-produto.png' },
+          { legenda: '3 · Hub: Destino final', imagem: '/university/screenshots/onboarding-hub-sem-produto.png' },
         ],
       },
     ],
   },
   {
     num: 3,
-    titulo: 'Fluxo 2 — entrar com e-mail e senha',
+    titulo: 'Fluxo 2: Entrar com e-mail e senha',
     paragrafos: [
-      'Para quem já tem conta: acesse https://usegravity.com.br/login e siga os passos abaixo. Após entrar, você vai ao Hub ou ao onboarding; contas com 2FA pedem um código extra antes de concluir.',
+      'Para quem já tem conta: Acesse https://usegravity.com.br/login e siga os passos abaixo. Após entrar, você vai ao Hub ou ao onboarding; contas com 2FA pedem um código extra antes de concluir.',
     ],
     passosVisuais: [
       {
@@ -355,7 +355,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
           },
           {
             tipo: 'dica',
-            texto: 'Esqueceu a senha? Use o link "Esqueceu a senha?" abaixo do botão Entrar — o fluxo completo está na seção 4 deste manual.',
+            texto: 'Esqueceu a senha? Use o link "Esqueceu a senha?" abaixo do botão Entrar: O fluxo completo está na seção 4 deste manual.',
           },
         ],
       },
@@ -364,7 +364,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Clicar em Entrar',
         imagem: '/university/screenshots/login-tela-completa.png',
         paragrafos: [
-          'Com os dois campos preenchidos, clique em "Entrar". Enquanto valida, o botão exibe carregamento. Se e-mail ou senha estiverem incorretos, um banner vermelho no topo do formulário explica o problema — sem liberar o acesso.',
+          'Com os dois campos preenchidos, clique em "Entrar". Enquanto valida, o botão exibe carregamento. Se e-mail ou senha estiverem incorretos, um banner vermelho no topo do formulário explica o problema: Sem liberar o acesso.',
         ],
         callout: {
           tipo: 'aviso',
@@ -376,7 +376,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Verificação em duas etapas (opcional)',
         imagem: '/university/screenshots/login-fluxo1-passo-05-codigo-vazio.png',
         paragrafos: [
-          'Este passo não é obrigatório — só aparece se a sua conta ou organização tiver 2FA ativo. Sem 2FA, após a senha correta você segue direto para o Hub.',
+          'Este passo não é obrigatório: Só aparece se a sua conta ou organização tiver 2FA ativo. Sem 2FA, após a senha correta você segue direto para o Hub.',
           'Quando o 2FA está ligado, a tela pede um código de seis dígitos (e-mail ou autenticador). Preencha os campos ou cole o código inteiro para concluir a sessão.',
         ],
         callout: {
@@ -386,19 +386,19 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
       },
       {
         num: 4,
-        titulo: 'Próxima tela: o Hub',
+        titulo: 'Próxima tela: O Hub',
         imagem: '/university/screenshots/hub-inicial-sem-produto-contratado.png',
         paragrafos: [
-          'Pronto, você já está no Gravity. Com login concluído e organização ativa, a próxima tela é o {{link:/university-gravity/docs/hub|HUB}} — daqui você escolhe produtos e workspaces.',
+          'Pronto, você já está no Gravity. Com login concluído e organização ativa, a próxima tela é o {{link:/university-gravity/docs/hub|HUB}}: Daqui você escolhe produtos e workspaces.',
         ],
       },
     ],
   },
   {
     num: 4,
-    titulo: 'Fluxo 3 — recuperar senha',
+    titulo: 'Fluxo 3: Recuperar senha',
     paragrafos: [
-      'Esqueceu a senha? Em poucos passos você solicita um código por e-mail e define uma nova senha — sem precisar falar com o suporte.',
+      'Esqueceu a senha? Em poucos passos você solicita um código por e-mail e define uma nova senha: Sem precisar falar com o suporte.',
     ],
     passosVisuais: [
       {
@@ -434,7 +434,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         ],
         callout: {
           tipo: 'dica',
-          texto: 'Não chegou? Confira spam, Promoções, filtros do antivírus ou bloqueio de notifications@usegravity.com.br — e se o e-mail foi digitado corretamente.',
+          texto: 'Não chegou? Confira spam, Promoções, filtros do antivírus ou bloqueio de notifications@usegravity.com.br: E se o e-mail foi digitado corretamente.',
         },
       },
       {
@@ -446,7 +446,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         ],
         callout: {
           tipo: 'dica',
-          texto: 'Se você fechou a aba, acesse https://usegravity.com.br/recuperar-senha/redefinir com o mesmo e-mail — ou volte ao passo 2 e solicite um novo código.',
+          texto: 'Se você fechou a aba, acesse https://usegravity.com.br/recuperar-senha/redefinir com o mesmo e-mail: Ou volte ao passo 2 e solicite um novo código.',
         },
       },
       {
@@ -458,7 +458,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         ],
         callout: {
           tipo: 'aviso',
-          texto: 'Se aparecer um aviso vermelho (ex.: código incorreto ou expirado), confira o e-mail e solicite "Reenviar código" antes de tentar de novo.',
+          texto: 'Se aparecer um aviso vermelho (ex.: Código incorreto ou expirado), confira o e-mail e solicite "Reenviar código" antes de tentar de novo.',
         },
       },
       {
@@ -466,7 +466,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Definir a nova senha',
         imagem: '/university/screenshots/login-esqueci-senha-passo-07-trocar-senha.png',
         paragrafos: [
-          'Informe a nova senha e a confirmação. A barra abaixo do campo mostra a força — as mesmas regras do cadastro se aplicam.',
+          'Informe a nova senha e a confirmação. A barra abaixo do campo mostra a força: As mesmas regras do cadastro se aplicam.',
           'Clique em "Redefinir senha". Com sucesso, sua sessão é ativada e você vai para o {{link:/university-gravity/docs/hub|HUB}}.',
         ],
       },
@@ -474,9 +474,9 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
   },
   {
     num: 5,
-    titulo: 'Fluxo 4 — convite de outro usuário',
+    titulo: 'Fluxo 4: Convite de outro usuário',
     paragrafos: [
-      'Apenas usuários Master podem convidar outras pessoas para a organização — como Master, Standard ou Fornecedor. O convite é feito pelo Configurador; o convidado recebe um e-mail com link para completar o cadastro e entrar na organização.',
+      'Apenas usuários Master podem convidar outras pessoas para a organização: Como Master, Standard ou Fornecedor. O convite é feito pelo Configurador; o convidado recebe um e-mail com link para completar o cadastro e entrar na organização.',
     ],
     passosVisuais: [
       {
@@ -579,7 +579,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'O que é',
         imagem: '/university/screenshots/login-fluxo2-passo-01-tela-completa.png',
         paragrafos: [
-          '"Continuar com Google" é um atalho de login: você autoriza o Google a confirmar sua identidade para o Gravity. O e-mail da conta Google passa a ser o seu login na plataforma.',
+          '"Continuar com Google" é um atalho de login: Você autoriza o Google a confirmar sua identidade para o Gravity. O e-mail da conta Google passa a ser o seu login na plataforma.',
           'O botão fica no topo do painel direito, antes dos campos de e-mail e senha.',
         ],
       },
@@ -601,11 +601,11 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         callouts: [
           {
             tipo: 'exemplo',
-            texto: 'Exemplo real: alguém tentou entrar pelo Hub com conta Google e perguntou "não posso entrar com uma Google account?". Ao autorizar, a tela ficou escura em /login/sso-callback sem redirecionar.',
+            texto: 'Exemplo real: Alguém tentou entrar pelo Hub com conta Google e perguntou "não posso entrar com uma Google account?". Ao autorizar, a tela ficou escura em /login/sso-callback sem redirecionar.',
           },
           {
             tipo: 'aviso',
-            texto: 'O que fazer: feche a aba travada e abra https://usegravity.com.br/login em aba anônima. Confira se o e-mail Google corresponde ao convite ou cadastro. Se persistir, use login com e-mail e senha ou avise o suporte informando o e-mail usado.',
+            texto: 'O que fazer: Feche a aba travada e abra https://usegravity.com.br/login em aba anônima. Confira se o e-mail Google corresponde ao convite ou cadastro. Se persistir, use login com e-mail e senha ou avise o suporte informando o e-mail usado.',
           },
         ],
       },
@@ -621,7 +621,7 @@ const CALLOUT_STYLE: Record<string, { bg: string; borda: string; label: string; 
   seguranca:{ bg: 'rgba(239,68,68,.07)',   borda: 'rgba(239,68,68,.3)',   label: '🔒 Segurança', cor: '#f87171' },
 }
 
-/** Manual descritivo — tokens SSOT: ONBOARDING-DOCUMENTO.md §9 */
+/** Manual descritivo: tokens SSOT: ONBOARDING-DOCUMENTO.md §9 */
 const MANUAL_TITULO_COR = 'var(--ws-text,#f1f5f9)'
 const MANUAL_CORPO_70 = 'color-mix(in srgb, var(--ws-text, #f1f5f9) 70%, transparent)'
 
@@ -642,7 +642,7 @@ const MANUAL_ESTILO_PASSO_TITULO: React.CSSProperties = {
 }
 
 const MANUAL_ESTILO_CORPO: React.CSSProperties = {
-  fontSize: '.9rem', color: MANUAL_CORPO_70, lineHeight: 1.8,
+  fontSize: '.9rem', color: MANUAL_CORPO_70, lineHeight: 1.8, textAlign: MANUAL_ALINHAMENTO_CORPO,
 }
 
 const UNI_ESTILO_PAGE_HEADER: React.CSSProperties = {
@@ -673,10 +673,10 @@ const MANUAL_ESTILO_SECAO_NUMERO: React.CSSProperties = {
 }
 
 const MANUAL_ESTILO_CALLOUT_CORPO: React.CSSProperties = {
-  fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65,
+  fontSize: '.82rem', color: MANUAL_CORPO_70, lineHeight: 1.65, textAlign: MANUAL_ALINHAMENTO_CORPO,
 }
 
-/** Ícones inline — token `{{icone:slug}}` + escrita descritiva no mesmo parágrafo */
+/** Ícones inline: token `{{icone:slug}}` + escrita descritiva no mesmo parágrafo */
 const MANUAL_ICONES: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
   olho: Eye,
   'olho-riscado': EyeSlash,
@@ -711,13 +711,36 @@ function ManualTextoRich({ texto }: { texto: string }) {
   )
 }
 
+function ManualTextoRichSegmento({ texto }: { texto: string }) {
+  if (!texto.includes('**')) return texto
+  const partes: React.ReactNode[] = []
+  const re = /\*\*([^*]+)\*\*/g
+  let ultimo = 0
+  let match: RegExpExecArray | null
+  let ki = 0
+  while ((match = re.exec(texto)) !== null) {
+    if (match.index > ultimo) partes.push(texto.slice(ultimo, match.index))
+    partes.push(
+      <strong key={`b-${ki++}`} style={{ color: MANUAL_TIPO.titulo, fontWeight: 700 }}>
+        {match[1]}
+      </strong>,
+    )
+    ultimo = re.lastIndex
+  }
+  if (ultimo < texto.length) partes.push(texto.slice(ultimo))
+  return <>{partes}</>
+}
+
 function ManualTextoRichLinha({ texto }: { texto: string }) {
   const partes: React.ReactNode[] = []
   const re = /(https:\/\/[^\s]+|\{\{link:([^|]+)\|([^}]+)\}\}|\{\{icone:([a-z0-9-]+)\}\})/g
   let ultimo = 0
   let match: RegExpExecArray | null
+  let ki = 0
   while ((match = re.exec(texto)) !== null) {
-    if (match.index > ultimo) partes.push(texto.slice(ultimo, match.index))
+    if (match.index > ultimo) {
+      partes.push(<ManualTextoRichSegmento key={`t-${ki++}`} texto={texto.slice(ultimo, match.index)} />)
+    }
     if (match[1].startsWith('https://')) {
       partes.push(
         <a key={match.index} href={match[1]} target="_blank" rel="noreferrer" style={MANUAL_LINK_STYLE}>
@@ -744,7 +767,9 @@ function ManualTextoRichLinha({ texto }: { texto: string }) {
     }
     ultimo = re.lastIndex
   }
-  if (ultimo < texto.length) partes.push(texto.slice(ultimo))
+  if (ultimo < texto.length) {
+    partes.push(<ManualTextoRichSegmento key={`t-${ki++}`} texto={texto.slice(ultimo)} />)
+  }
   return <>{partes}</>
 }
 
@@ -756,7 +781,7 @@ function ManualParagrafo({
   marginBottom?: number | string
 }) {
   return (
-    <p style={{ ...MANUAL_ESTILO_CORPO, margin: marginBottom === 0 ? 0 : `0 0 ${marginBottom ?? 10}px` }}>
+    <p style={{ ...MANUAL_ESTILO_CORPO, margin: marginBottom === 0 ? 0 : `0 0 ${marginBottom ?? MANUAL_ESPACO_PARAGRAFO_PX}px` }}>
       <ManualTextoRich texto={texto} />
     </p>
   )
@@ -787,7 +812,7 @@ function ManualFiguraScreenshot({ src, alt }: { src: string; alt: string }) {
       <figure
         role="button"
         tabIndex={0}
-        aria-label={`${alt} — abrir em tela cheia`}
+        aria-label={`${alt}: Abrir em tela cheia`}
         onClick={abrir}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -951,10 +976,10 @@ function ManualPainelRequisitosCadastro() {
           borderTop: '1px dashed rgba(148,163,184,.15)',
         }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#4ade80' }}>
-            <CheckCircle size={13} weight="fill" /> Atendido — item verde no formulário
+            <CheckCircle size={13} weight="fill" /> Atendido: item verde no formulário
           </span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.68rem', color: '#f87171' }}>
-            <WarningCircle size={13} weight="fill" /> Pendente — item vermelho até corrigir
+            <WarningCircle size={13} weight="fill" /> Pendente: item vermelho até corrigir
           </span>
         </div>
       </div>
@@ -999,7 +1024,9 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
           key={i}
           texto={p}
           marginBottom={
-            i === passo.paragrafos.length - 1 && !passo.painelRequisitosCadastro ? 0 : 10
+            i === passo.paragrafos.length - 1 && !passo.painelRequisitosCadastro
+              ? 0
+              : manualMargemParagrafo(i, passo.paragrafos.length)
           }
         />
       ))}
@@ -1204,7 +1231,7 @@ function DocLoginManual() {
                           <ManualParagrafo
                             key={i}
                             texto={p}
-                            marginBottom={i === s.paragrafos.length - 1 ? 0 : 12}
+                            marginBottom={manualMargemParagrafo(i, s.paragrafos.length)}
                           />
                         ))}
                       </div>
@@ -1216,7 +1243,7 @@ function DocLoginManual() {
                         <ManualParagrafo
                           key={i}
                           texto={p}
-                          marginBottom={i === s.paragrafos.length - 1 ? 4 : 12}
+                          marginBottom={manualMargemParagrafo(i, s.paragrafos.length)}
                         />
                       ))}
                       {s.passosVisuais.map(passo => (
@@ -1226,7 +1253,7 @@ function DocLoginManual() {
                   ) : (
                     <>
                       {s.paragrafos.map((p, i) => (
-                        <ManualParagrafo key={i} texto={p} marginBottom={14} />
+                        <ManualParagrafo key={i} texto={p} marginBottom={manualMargemParagrafo(i, s.paragrafos.length)} />
                       ))}
 
                       {s.imagem && (
@@ -1237,7 +1264,7 @@ function DocLoginManual() {
                     </>
                   )}
 
-                  {/* Legenda — cards visuais em grid */}
+                  {/* Legenda: cards visuais em grid */}
                   {s.lista && !s.cardsBilaterais && !s.timeline && (
                     <div style={{
                       display: 'grid',
@@ -1249,7 +1276,7 @@ function DocLoginManual() {
                       overflowX: s.listaEmLinha ? 'auto' : undefined,
                     }}>
                       {s.lista.map((item, i) => {
-                        const [label, ...rest] = item.replace(/^–\s*/, '').split(':')
+                        const [label, ...rest] = item.replace(/^[-–]\s*/, '').split(':')
                         const desc = rest.join(':').trim()
                         return (
                           <div key={i} style={{
@@ -1403,7 +1430,7 @@ export function UniversityGravity() {
     ? (TRILHAS_POR_PRODUTO[produtoSlug] ?? null)
     : null
 
-  // Controle local de aulas concluídas (WIP — virá do banco via API)
+  // Controle local de aulas concluídas (WIP: virá do banco via API)
   const [aulasConcluidas, setAulasConcluidas] = useState<Set<string>>(() => {
     const salvo = sessionStorage.getItem('university_concluidas')
     return salvo ? new Set(JSON.parse(salvo)) : new Set(['o-que-e-o-gravity', 'criando-sua-conta', 'configurando-seu-perfil'])
@@ -1476,7 +1503,12 @@ export function UniversityGravity() {
   useEffect(() => { document.body.classList.toggle('light-theme', isLight) }, [isLight])
   useEffect(() => { document.body.classList.toggle('tooltips-disabled', tooltipsDisabled) }, [tooltipsDisabled])
 
-  const produtoIcon = (slug: ProdutoSlug, size = 16) => {
+  const produtoIconManual = (slug: ProdutoSlug, size = 16) => {
+    const IconComp = ICON_MAP[slug]
+    return <IconComp weight="duotone" size={size} />
+  }
+
+  const produtoIconAcademy = (slug: ProdutoSlug, size = 16) => {
     const IconComp = ICON_MAP[slug]
     const prog = TRILHAS_POR_PRODUTO[slug]?.[0]?.prog ?? 0
     return prog >= 100
@@ -1490,16 +1522,16 @@ export function UniversityGravity() {
       label: t('university.nav.academy'),
       icon: <Books weight="duotone" size={18} />,
       children: [
-        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIcon('login') },
-        { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIcon('admin'), badge: t('university.badge.restrito'), badgeVariant: 'muted' as const },
-        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIcon('configurador') },
-        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIcon('hub') },
-        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIcon('store') },
-        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIcon('pedido') },
-        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIcon('smart-read') },
-        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIcon('bid-frete') },
-        { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIcon('bid-cambio') },
-        { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIcon('processo') },
+        { to: '/university-gravity/academy/login',        label: t('university.produto.login'),        icon: produtoIconAcademy('login') },
+        { to: '/university-gravity/academy/admin',        label: t('university.produto.admin'),        icon: produtoIconAcademy('admin'), badge: t('university.badge.restrito'), badgeVariant: 'muted' as const },
+        { to: '/university-gravity/academy/configurador', label: t('university.produto.configurador'), icon: produtoIconAcademy('configurador') },
+        { to: '/university-gravity/academy/hub',          label: t('university.produto.hub'),          icon: produtoIconAcademy('hub') },
+        { to: '/university-gravity/academy/store',        label: t('university.produto.store'),        icon: produtoIconAcademy('store') },
+        { to: '/university-gravity/academy/pedido',       label: t('university.produto.pedido'),       icon: produtoIconAcademy('pedido') },
+        { to: '/university-gravity/academy/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconAcademy('smart-read') },
+        { to: '/university-gravity/academy/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconAcademy('bid-frete') },
+        { to: '/university-gravity/academy/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconAcademy('bid-cambio') },
+        { to: '/university-gravity/academy/processo',     label: t('university.produto.processo'),     icon: produtoIconAcademy('processo') },
       ],
     },
     {
@@ -1507,12 +1539,12 @@ export function UniversityGravity() {
       label: t('university.nav.docs'),
       icon: <FileText weight="duotone" size={18} />,
       children: [
-        { to: '/university-gravity/docs/login',        label: t('university.produto.login'),        icon: produtoIcon('login') },
-        { to: '/university-gravity/docs/admin',        label: t('university.produto.admin'),        icon: produtoIcon('admin'), badge: t('university.badge.restrito'), badgeVariant: 'muted' as const },
+        { to: '/university-gravity/docs/login',        label: t('university.produto.login'),        icon: produtoIconManual('login') },
+        { to: '/university-gravity/docs/admin',        label: t('university.produto.admin'),        icon: produtoIconManual('admin'), badge: t('university.badge.restrito'), badgeVariant: 'muted' as const },
         {
           to: '/university-gravity/docs/configurador',
           label: t('university.produto.configurador'),
-          icon: produtoIcon('configurador'),
+          icon: produtoIconManual('configurador'),
           children: CONFIGURADOR_MANUAL_ITENS.map(item => {
             const badgePorCapitulo: Partial<Record<typeof item.pathSeg, { badge: string; badgeVariant: 'accent' }>> = {
               workspaces: { badge: t('university.badge.nova_empresa'), badgeVariant: 'accent' },
@@ -1527,13 +1559,13 @@ export function UniversityGravity() {
             }
           }),
         },
-        { to: '/university-gravity/docs/hub',          label: t('university.produto.hub'),          icon: produtoIcon('hub') },
-        { to: '/university-gravity/docs/store',        label: t('university.produto.store'),        icon: produtoIcon('store') },
-        { to: '/university-gravity/docs/pedido',       label: t('university.produto.pedido'),       icon: produtoIcon('pedido') },
-        { to: '/university-gravity/docs/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIcon('smart-read') },
-        { to: '/university-gravity/docs/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIcon('bid-frete') },
-        { to: '/university-gravity/docs/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIcon('bid-cambio') },
-        { to: '/university-gravity/docs/processo',     label: t('university.produto.processo'),     icon: produtoIcon('processo') },
+        { to: '/university-gravity/docs/hub',          label: t('university.produto.hub'),          icon: produtoIconManual('hub') },
+        { to: '/university-gravity/docs/store',        label: t('university.produto.store'),        icon: produtoIconManual('store') },
+        { to: '/university-gravity/docs/pedido',       label: t('university.produto.pedido'),       icon: produtoIconManual('pedido') },
+        { to: '/university-gravity/docs/smart-read',   label: t('university.produto.smart_read'),   icon: produtoIconManual('smart-read') },
+        { to: '/university-gravity/docs/bid-frete',    label: t('university.produto.bid_frete'),    icon: produtoIconManual('bid-frete') },
+        { to: '/university-gravity/docs/bid-cambio',   label: t('university.produto.bid_cambio'),   icon: produtoIconManual('bid-cambio') },
+        { to: '/university-gravity/docs/processo',     label: t('university.produto.processo'),     icon: produtoIconManual('processo') },
       ],
     },
     { to: '/university-gravity/builders',      label: t('university.nav.builders'),      icon: <PuzzlePiece weight="duotone" size={18} />, badge: t('university.badge.em_breve'), badgeVariant: 'muted' as const },
@@ -1544,7 +1576,9 @@ export function UniversityGravity() {
     ? (configuradorManualItem
       ? configuradorManualItem.label
       : docsProdutoSlug
-        ? t(`university.produto.${docsProdutoSlug.replaceAll('-', '_')}`)
+        ? t('university.manual.titulo_produto', {
+          produto: t(`university.produto.${docsProdutoSlug.replaceAll('-', '_')}`),
+        })
         : t('university.nav.docs'))
     : produtoSlug
     ? t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)
@@ -1679,7 +1713,7 @@ export function UniversityGravity() {
         {!(secao === 'academy' && faseSlug) && (
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem 3rem' }}>
 
-          {/* ── Cabeçalho (padrão MenuTopoGlobal — Insights) ── */}
+          {/* ── Cabeçalho (padrão MenuTopoGlobal: Insights) ── */}
           <div style={UNI_ESTILO_PAGE_HEADER}>
             <span style={{
               ...UNI_ESTILO_PAGE_ICON,
@@ -1728,7 +1762,7 @@ export function UniversityGravity() {
           </div>
           )}
 
-          {/* ══ BARRA 3 — Progresso nos produtos contratados (sempre visível no academy) ══ */}
+          {/* ══ BARRA 3: Progresso nos produtos contratados (sempre visível no academy) ══ */}
           {secao === 'academy' && (
             <div style={{
               background: 'var(--bg-base,#1e293b)',
@@ -1808,7 +1842,7 @@ export function UniversityGravity() {
                         </div>
                       </div>
 
-                      {/* ── BARRA 2 — conclusão do módulo ── */}
+                      {/* ── BARRA 2: conclusão do módulo ── */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                         <BarraProgresso pct={pctModulo} />
                         <span style={{ fontSize: '.75rem', fontWeight: 700, color: pctModulo >= 100 ? '#34d399' : 'var(--ws-muted,#94a3b8)', whiteSpace: 'nowrap' }}>
@@ -1816,7 +1850,7 @@ export function UniversityGravity() {
                         </span>
                       </div>
 
-                      {/* ── BARRA 1 — fases individuais ── */}
+                      {/* ── BARRA 1: fases individuais ── */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                         {tr.fases.map((fase, idx) => (
                           <div

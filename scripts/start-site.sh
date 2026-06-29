@@ -94,6 +94,13 @@ if [ -n "${ORGANIZACAO_DATABASE_URL:-}" ]; then
     echo "[start-site] ERRO: migrations servicos-plataforma falharam — servidor sobe mesmo assim (ver logs acima)."
     echo "[start-site] Admin API Cockpit (tokens/webhooks/consumo) pode retornar 500 até migrate deploy passar."
   fi
+  echo "[start-site] Reparando drift historico_log / notificacoes (colunas legado → DDD)..."
+  if ORGANIZACAO_DATABASE_URL="$ORGANIZACAO_DATABASE_URL" \
+    npx tsx scripts/ativamente/aplicar-ddl-plataforma-public-organizacao.ts; then
+    echo "[start-site] DDL plataforma public OK."
+  else
+    echo "[start-site] ERRO: DDL plataforma public falhou — Histórico/Notificações podem retornar 503/500."
+  fi
   if [ -n "${CONFIGURADOR_DATABASE_URL:-}" ]; then
     echo "[start-site] Aplicando migrations tenant_* (gabi, atividades, ...)..."
     if DATABASE_URL="$ORGANIZACAO_DATABASE_URL" CONFIGURADOR_DATABASE_URL="$CONFIGURADOR_DATABASE_URL" \

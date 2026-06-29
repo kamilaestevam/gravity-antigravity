@@ -16,6 +16,7 @@ import { servicoPermissaoUsuario } from '../services/permissao-usuario-servico.j
 import { temBypassPermissao } from '../../shared/index.js'
 import {
   consultarHistoricoLog,
+  isErroPrismaSchemaOrganizacao,
   isErroTabelaHistoricoAusente,
 } from '../lib/consultar-historico-log.js'
 
@@ -138,6 +139,15 @@ historicoOrganizacaoRouter.get(
           hasMore: false,
           nextCursor: null,
         })
+      }
+
+      if (isErroPrismaSchemaOrganizacao(err)) {
+        log.error('Schema historico_log incompatível com Prisma — ver ddl-plataforma-public no boot', { err })
+        return next(new AppError(
+          'Banco de histórico desatualizado — contate suporte (schema drift)',
+          503,
+          'ORG_DB_SCHEMA_DRIFT',
+        ))
       }
 
       if (err instanceof Error && err.message.includes('ORGANIZACAO_DATABASE_URL ausente')) {

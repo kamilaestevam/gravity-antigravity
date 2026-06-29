@@ -129,14 +129,7 @@ function serializarLog(
   }
 }
 
-export function isErroTabelaHistoricoAusente(err: unknown): boolean {
-  return (
-    err != null &&
-    typeof err === 'object' &&
-    'code' in err &&
-    (err as { code: string }).code === 'P2021'
-  )
-}
+export { isErroTabelaHistoricoAusente, isErroPrismaSchemaOrganizacao } from './erros-prisma-organizacao.js'
 
 export async function consultarHistoricoLog(
   params: ConsultarHistoricoLogParams,

@@ -374,15 +374,25 @@ O workspace ativo ja esta na sessao; nao peca id_workspace ao usuario.`)
   return secoes.join('\n\n')
 }
 
-export async function getConversationContext(conversationId: string, limit = 20) {
-  const messages = await prisma.gabiMensagemIndividual.findMany({
-    where: { id_conversa_gabi_mensagem: conversationId },
-    orderBy: { data_criacao_gabi_mensagem: 'desc' },
-    take: limit,
-  })
+export async function getConversationContext(
+  id_organizacao: string,
+  conversationId: string,
+  limit = 20,
+) {
+  const { withSchemaOrganizacao } = await import('../lib/with-schema-organizacao.js')
 
-  const totalCount = await prisma.gabiMensagemIndividual.count({
-    where: { id_conversa_gabi_mensagem: conversationId },
+  const { messages, totalCount } = await withSchemaOrganizacao(id_organizacao, async (db) => {
+    const [msgs, count] = await Promise.all([
+      db.gabiMensagemIndividual.findMany({
+        where: { id_conversa_gabi_mensagem: conversationId },
+        orderBy: { data_criacao_gabi_mensagem: 'desc' },
+        take: limit,
+      }),
+      db.gabiMensagemIndividual.count({
+        where: { id_conversa_gabi_mensagem: conversationId },
+      }),
+    ])
+    return { messages: msgs, totalCount: count }
   })
 
   const context = messages.reverse().map((m) => ({

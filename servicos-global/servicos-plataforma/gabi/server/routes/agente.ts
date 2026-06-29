@@ -78,7 +78,7 @@ agenteRouter.post('/api/v1/gabi/agente/chat', async (req, res, next) => {
     )
 
     const [history, memorias, errosRecentes] = await Promise.all([
-      getConversationContext(conversationIdEfetivo).catch(() => []),
+      getConversationContext(tenantId, conversationIdEfetivo).catch(() => []),
       carregarMemorias({ id_organizacao: tenantId, id_usuario: userId }).catch(() => []),
       consultarErrosRecentes(tenantId, userId, 3, 1).catch(() => []),
     ])
@@ -222,7 +222,7 @@ agenteRouter.get('/api/v1/gabi/agente/chat/stream', async (req, res) => {
 
   try {
     const [history, memorias] = await Promise.all([
-      conversationId !== 'new' ? getConversationContext(conversationId) : Promise.resolve([]),
+      conversationId !== 'new' ? getConversationContext(tenantId, conversationId) : Promise.resolve([]),
       carregarMemorias({ id_organizacao: tenantId, id_usuario: userId }),
     ])
 

@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 394,
+  "proximo_numero": 395,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1816,21 +1816,21 @@
       "arquivo_ficha": "registros/TASK-000392.json"
     },
     {
-      "referencia": "TASK-000393",
+      "referencia": "TASK-000394",
       "ordinal": 117,
-      "titulo_canonico": "CONFIG-API-COCKPIT-DUV-SERVICOS-LOCAIS-INVENTARIO-PRODUCAO",
-      "titulo_exibicao": "TASK-000393 | [Configurador] API Cockpit | DUV — Inventário em produção lista serviços localhost",
+      "titulo_canonico": "ADMIN-TAXAS-MOEDA-BUG-FALHA-AGENDAMENTO-COTACAO-PRODUCAO",
+      "titulo_exibicao": "TASK-000394 | [Admin] Taxas Moeda | BUG — Falha ao carregar agendamento cotação em produção",
       "status": "ABR",
-      "area": "CONFIG",
-      "subarea": "API-COCKPIT",
+      "area": "ADMIN",
+      "subarea": "TAXAS-MOEDA",
       "visualizacao": null,
-      "tipo_entrega": "DUV",
-      "resumo": "SERVICOS-LOCAIS-INVENTARIO-PRODUCAO",
-      "data_criacao": "2026-06-29T14:46:00.000Z",
+      "tipo_entrega": "BUG",
+      "resumo": "FALHA-AGENDAMENTO-COTACAO-PRODUCAO",
+      "data_criacao": "2026-06-29T23:55:00.000Z",
       "data_encerramento": null,
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
-      "arquivo_ficha": "registros/TASK-000393.json"
+      "arquivo_ficha": "registros/TASK-000394.json"
     }
   ]
 }

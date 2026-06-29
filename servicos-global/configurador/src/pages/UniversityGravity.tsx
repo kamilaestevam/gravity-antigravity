@@ -31,6 +31,8 @@ import { mapRole } from '../types/niveis-acesso'
 import { HubBotao } from '../components/HubBotao'
 import { PlayerAula } from './university/PlayerAula'
 import { getAulaDemo, getAulasDemo } from './university/conteudo-demo'
+import { CONFIGURADOR_MANUAL_ITENS, resolverConfiguradorManualSlug } from './university/manual-configurador-conteudo'
+import { DocConfiguradorManual, iconeConfiguradorManual } from './university/manual-configurador-ui'
 import './configurador/workspace.css'
 
 const UNI_COR = '#818cf8'
@@ -524,7 +526,7 @@ const DOC_LOGIN_SECOES: DocSecao[] = [
         titulo: 'Permissões',
         imagem: '/university/screenshots/login-convite-passo-06-permissoes.png',
         paragrafos: [
-          'Marque as {{link:/university-gravity/docs/configurador|permissões}} que o convidado terá em cada área do Configurador. Só libere o que essa pessoa realmente precisa usar.',
+          'Marque as {{link:/university-gravity/docs/configurador/usuarios|permissões}} que o convidado terá em cada área do Configurador. Só libere o que essa pessoa realmente precisa usar.',
         ],
       },
       {
@@ -1375,9 +1377,24 @@ export function UniversityGravity() {
   const produtoSlug = (partes[0] ?? null) as ProdutoSlug | null
   const faseSlug = partes[1] ?? null
 
-  const docsProdutoSlug = secao === 'docs'
-    ? (pathname.replace('/university-gravity/docs', '').split('/').filter(Boolean)[0] ?? null) as ProdutoSlug | null
+  const docsPathPartes = secao === 'docs'
+    ? pathname.replace('/university-gravity/docs', '').split('/').filter(Boolean)
+    : []
+
+  const docsProdutoSlug = (docsPathPartes[0] ?? null) as ProdutoSlug | null
+
+  const docsConfiguradorPagina = docsProdutoSlug === 'configurador'
+    ? resolverConfiguradorManualSlug(docsPathPartes[1])
     : null
+
+  const configuradorManualItem = docsConfiguradorPagina
+    ? CONFIGURADOR_MANUAL_ITENS.find(i => i.pathSeg === docsConfiguradorPagina) ?? null
+    : null
+
+  const manualDocPublicado = secao === 'docs' && (
+    docsProdutoSlug === 'login' ||
+    (docsProdutoSlug === 'configurador' && docsConfiguradorPagina !== null)
+  )
 
   const trilhasAtivas: Trilha[] | null = (produtoSlug && !faseSlug)
     ? (TRILHAS_POR_PRODUTO[produtoSlug] ?? null)
@@ -1489,7 +1506,24 @@ export function UniversityGravity() {
       children: [
         { to: '/university-gravity/docs/login',        label: t('university.produto.login'),        icon: produtoIcon('login') },
         { to: '/university-gravity/docs/admin',        label: t('university.produto.admin'),        icon: produtoIcon('admin'), badge: t('university.badge.restrito'), badgeVariant: 'muted' as const },
-        { to: '/university-gravity/docs/configurador', label: t('university.produto.configurador'), icon: produtoIcon('configurador') },
+        {
+          to: '/university-gravity/docs/configurador',
+          label: t('university.produto.configurador'),
+          icon: produtoIcon('configurador'),
+          children: CONFIGURADOR_MANUAL_ITENS.map(item => {
+            const badgePorCapitulo: Partial<Record<typeof item.pathSeg, { badge: string; badgeVariant: 'accent' }>> = {
+              workspaces: { badge: t('university.badge.nova_empresa'), badgeVariant: 'accent' },
+              usuarios: { badge: t('university.badge.convidar_usuario'), badgeVariant: 'accent' },
+            }
+            const badge = badgePorCapitulo[item.pathSeg]
+            return {
+              to: `/university-gravity/docs/configurador/${item.pathSeg}`,
+              label: item.label,
+              icon: iconeConfiguradorManual(item.pathSeg, 16),
+              ...(badge ?? {}),
+            }
+          }),
+        },
         { to: '/university-gravity/docs/hub',          label: t('university.produto.hub'),          icon: produtoIcon('hub') },
         { to: '/university-gravity/docs/store',        label: t('university.produto.store'),        icon: produtoIcon('store') },
         { to: '/university-gravity/docs/pedido',       label: t('university.produto.pedido'),       icon: produtoIcon('pedido') },
@@ -1504,9 +1538,11 @@ export function UniversityGravity() {
   ]
 
   const tituloSecao = secao === 'docs'
-    ? (docsProdutoSlug
-      ? t(`university.produto.${docsProdutoSlug.replaceAll('-', '_')}`)
-      : t('university.nav.docs'))
+    ? (configuradorManualItem
+      ? configuradorManualItem.label
+      : docsProdutoSlug
+        ? t(`university.produto.${docsProdutoSlug.replaceAll('-', '_')}`)
+        : t('university.nav.docs'))
     : produtoSlug
     ? t(`university.produto.${produtoSlug.replaceAll('-', '_')}`)
     : secao === 'jornada' ? t('university.nav.minha_jornada')
@@ -1648,18 +1684,23 @@ export function UniversityGravity() {
             }}>
               {secao === 'docs' && docsProdutoSlug === 'login'
                 ? <SignIn weight="duotone" size={22} />
-                : <GraduationCap weight="duotone" size={22} />}
+                : secao === 'docs' && docsConfiguradorPagina
+                  ? iconeConfiguradorManual(docsConfiguradorPagina, 22)
+                  : <GraduationCap weight="duotone" size={22} />}
             </span>
             <div style={UNI_ESTILO_PAGE_TITLES}>
               <h1 style={UNI_ESTILO_PAGE_TITLE}>{tituloSecao}</h1>
               {secao === 'docs' && docsProdutoSlug === 'login' && (
                 <span style={UNI_ESTILO_PAGE_SUBTITULO}>{DOC_LOGIN_SUBTITULO}</span>
               )}
+              {secao === 'docs' && configuradorManualItem && (
+                <span style={UNI_ESTILO_PAGE_SUBTITULO}>{configuradorManualItem.subtitulo}</span>
+              )}
             </div>
           </div>
 
           {/* ── Banner (oculto em manuais publicados) ── */}
-          {!(secao === 'docs' && docsProdutoSlug === 'login') && (
+          {!manualDocPublicado && (
           <div style={{
             display: 'flex', gap: 12, alignItems: 'flex-start',
             background: 'linear-gradient(135deg, rgba(167,139,250,.12), rgba(129,140,248,.05))',
@@ -1898,7 +1939,11 @@ export function UniversityGravity() {
             <DocLoginManual />
           )}
 
-          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && (
+          {secao === 'docs' && docsConfiguradorPagina && (
+            <DocConfiguradorManual paginaSlug={docsConfiguradorPagina} />
+          )}
+
+          {secao === 'docs' && docsProdutoSlug && docsProdutoSlug !== 'login' && docsProdutoSlug !== 'configurador' && (
             <div style={{
               textAlign: 'center', padding: '60px 20px', color: 'var(--ws-muted,#94a3b8)',
               border: '1px dashed rgba(148,163,184,.2)', borderRadius: 14,

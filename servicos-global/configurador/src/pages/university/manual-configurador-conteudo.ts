@@ -52,6 +52,8 @@ export interface DocFluxo {
   /** Rótulo curto no sumário (ex.: "Criar workspace"). Se omitido, usa `titulo`. */
   tituloSumario?: string
   paragrafos?: string[]
+  mostrarInfograficoPermissoesUsuario?: boolean
+  mostrarInfograficoPapeisFornecedor?: boolean
   passosVisuais: DocPassoVisual[]
 }
 
@@ -67,6 +69,8 @@ export interface DocSecao {
   origemDados?: DocOrigemDados
   mostrarInfograficoOrganizacaoWorkspaces?: boolean
   mostrarInfograficoOrganizacao?: boolean
+  mostrarInfograficoTiposUsuario?: boolean
+  mostrarInfograficoFornecedoresComex?: boolean
   callout?: { tipo: 'aviso' | 'exemplo' | 'dica' | 'seguranca'; texto: string }
 }
 
@@ -106,7 +110,7 @@ export const CONFIGURADOR_MANUAL_ITENS: ConfiguradorManualItem[] = [
     label: 'Fornecedores',
     secaoNum: 5,
     rotaApp: '/configurador/fornecedores',
-    subtitulo: 'Cadastro e gestão de fornecedores vinculados à organização e aos workspaces.',
+    subtitulo: 'Terceiros COMEX da organização: exportador na importação, importador na exportação, agente, despachante e demais papéis.',
   },
   {
     pathSeg: 'assinaturas',
@@ -189,6 +193,198 @@ const WORKSPACES_TOOLTIPS_KPI: DocTooltipKpi[] = [
     ],
   },
 ]
+
+const USUARIOS_TOOLTIPS_KPI: DocTooltipKpi[] = [
+  {
+    card: 'Total de Usuários',
+    tituloTooltip: 'Visão geral',
+    descricao: 'Quantidade de pessoas cadastradas ou convidadas na organização.',
+    detalhes: [
+      'Total de registros — ativos, inativos e convidados pendentes',
+      'Novos hoje — usuários adicionados no dia',
+    ],
+  },
+  {
+    card: 'Acessos Concedidos',
+    tituloTooltip: 'Vínculos de acesso',
+    descricao: 'Soma de todas as ligações usuário ↔ workspace na organização.',
+    detalhes: [
+      'Total de acessos — cada workspace marcado para um usuário conta um vínculo',
+      'Master não precisa de vínculo explícito — acessa todos automaticamente',
+    ],
+  },
+  {
+    card: 'Média de Acessos Concedidos',
+    tituloTooltip: 'Distribuição média',
+    descricao: 'Média de workspaces por usuário ativo na organização.',
+    detalhes: [
+      'Média geral — ajuda a identificar contas com pouco ou muito alcance',
+    ],
+  },
+  {
+    card: 'Total Workspaces',
+    tituloTooltip: 'Densidade e distribuição',
+    descricao: 'Gráfico comparando usuários com e sem acesso a algum workspace.',
+    detalhes: [
+      'Com acesso — pelo menos um workspace habilitado (ou tipo Master)',
+      'Sem acesso — ainda sem workspace vinculado',
+      'Tooltip repete totais de usuários, workspaces e média por pessoa',
+    ],
+  },
+]
+
+/** Screenshots com tooltip aberto — Drive: 3. Usuarios/tela_configurador_usuarios_cards_tooltip_N.png */
+const USUARIOS_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
+  'Total de Usuários': '/university/screenshots/configurador-usuarios-cards-tooltip-1.png',
+  'Acessos Concedidos': '/university/screenshots/configurador-usuarios-cards-tooltip-2.png',
+  'Total Workspaces': '/university/screenshots/configurador-usuarios-cards-tooltip-3.png',
+}
+
+function criarPassosTooltipKpiUsuario(): PassoSemNumero[] {
+  return USUARIOS_TOOLTIPS_KPI.map((tooltip) => ({
+    titulo: `Tooltip — ${tooltip.card}`,
+    imagem: USUARIOS_TOOLTIP_KPI_IMAGENS[tooltip.card],
+    paragrafos: [
+      `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
+    ],
+    tooltipsKpi: [tooltip],
+  }))
+}
+
+const FORNECEDORES_TOOLTIPS_KPI: DocTooltipKpi[] = [
+  {
+    card: 'Total de fornecedores',
+    tituloTooltip: 'Visão geral',
+    descricao: 'Quantidade de terceiros cadastrados na organização.',
+    detalhes: [
+      'Ativas — disponíveis em dropdowns operacionais',
+      'Inativas — ocultas em novos pedidos e processos',
+      'Total — soma de ativas e inativas',
+    ],
+  },
+  {
+    card: 'Fornecedores ativos',
+    tituloTooltip: 'Disponibilidade',
+    descricao: 'Parceiros que podem ser selecionados nos produtos.',
+    detalhes: [
+      'Ativas — aparecem em cotações, pedidos e processos',
+      'Inativas — histórico preservado, sem uso em novas operações',
+    ],
+  },
+  {
+    card: 'Distribuição por tipo',
+    tituloTooltip: 'Papéis COMEX',
+    descricao: 'Gráfico com os papéis mais frequentes entre os cadastros.',
+    detalhes: [
+      'Exportador, Importador, Agente, Despachante etc.',
+      'Um mesmo fornecedor pode acumular vários papéis',
+    ],
+  },
+]
+
+const FORNECEDORES_GALERIA_TOOLTIPS_KPI = [
+  { legenda: '1 · Total de fornecedores', imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-1.png' },
+  { legenda: '2 · Fornecedores ativos', imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-2.png' },
+  { legenda: '3 · Distribuição por tipo', imagem: '/university/screenshots/configurador-fornecedores-cards-tooltip-3.png' },
+] as const
+
+/** Screenshots com tooltip aberto — Drive: 5. Assinaturas/tela_configurador_assinaturas_cards_tooltip_N.png */
+const ASSINATURAS_TOOLTIPS_KPI: DocTooltipKpi[] = [
+  {
+    card: 'Produtos Ativos',
+    tituloTooltip: 'STATUS DAS ASSINATURAS',
+    descricao: 'Resumo de quantos produtos Gravity estão contratados e em uso na organização.',
+    detalhes: [
+      'Ativas — produto contratado e operacional',
+      'Em Teste — período de trial manual antes do fechamento',
+      'Suspensas — acesso bloqueado temporariamente pelo administrador',
+    ],
+  },
+  {
+    card: 'Em Teste',
+    tituloTooltip: 'PERÍODO DE TESTE',
+    descricao: 'Produtos em avaliação antes da contratação definitiva.',
+    detalhes: [
+      'Em trial — status atribuído manualmente pelo Master',
+      'Não conta no card Produtos Ativos até virar Ativa',
+    ],
+  },
+  {
+    card: 'Acessos Suspensos',
+    tituloTooltip: 'ATENÇÃO',
+    descricao: 'Assinaturas com acesso bloqueado — requerem ação do administrador.',
+    detalhes: [
+      'Assinaturas suspensas — usuários perdem acesso ao produto',
+      'Reative pelo ícone de pausa/play na linha da tabela',
+    ],
+  },
+]
+
+const ASSINATURAS_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
+  'Produtos Ativos': '/university/screenshots/configurador-assinaturas-cards-tooltip-1.png',
+  'Em Teste': '/university/screenshots/configurador-assinaturas-cards-tooltip-2.png',
+  'Acessos Suspensos': '/university/screenshots/configurador-assinaturas-cards-tooltip-3.png',
+}
+
+function criarPassosTooltipKpiAssinaturas(): PassoSemNumero[] {
+  return ASSINATURAS_TOOLTIPS_KPI.map((tooltip) => ({
+    titulo: `Tooltip — ${tooltip.card}`,
+    imagem: ASSINATURAS_TOOLTIP_KPI_IMAGENS[tooltip.card],
+    paragrafos: [
+      `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
+    ],
+    tooltipsKpi: [tooltip],
+  }))
+}
+
+const FINANCEIRO_TOOLTIPS_KPI: DocTooltipKpi[] = [
+  {
+    card: 'Próximo Vencimento',
+    tituloTooltip: 'DETALHES DA FATURA',
+    descricao: 'Data e valor da fatura em aberto com vencimento mais próximo.',
+    detalhes: [
+      'Fatura Nº — identificador legível da cobrança',
+      'Valor esperado — total a pagar naquela fatura',
+      'Competência — mês/ano de referência do serviço',
+    ],
+  },
+  {
+    card: 'Valor a Pagar',
+    tituloTooltip: 'COMPOSIÇÃO DO VALOR',
+    descricao: 'Soma de todas as faturas ainda não quitadas na organização.',
+    detalhes: [
+      'Faturas pendentes — emitidas ou enviadas, aguardando pagamento',
+      'Faturas atrasadas — vencidas (status Em atraso)',
+    ],
+  },
+  {
+    card: 'Faturas em Aberto',
+    tituloTooltip: 'SITUAÇÃO GERAL',
+    descricao: 'Panorama do histórico de cobrança da conta Gravity.',
+    detalhes: [
+      'Total lançadas — todas as faturas já geradas',
+      'Faturas pagas — quitadas com sucesso',
+    ],
+  },
+]
+
+/** Screenshots com tooltip aberto — Drive: 6. Financeiro/tela_financeiro_tela_principal_tootip_N.png */
+const FINANCEIRO_TOOLTIP_KPI_IMAGENS: Partial<Record<string, string>> = {
+  'Próximo Vencimento': '/university/screenshots/configurador-financeiro-cards-tooltip-1.png',
+  'Valor a Pagar': '/university/screenshots/configurador-financeiro-cards-tooltip-2.png',
+  'Faturas em Aberto': '/university/screenshots/configurador-financeiro-cards-tooltip-3.png',
+}
+
+function criarPassosTooltipKpiFinanceiro(): PassoSemNumero[] {
+  return FINANCEIRO_TOOLTIPS_KPI.map((tooltip) => ({
+    titulo: `Tooltip — ${tooltip.card}`,
+    imagem: FINANCEIRO_TOOLTIP_KPI_IMAGENS[tooltip.card],
+    paragrafos: [
+      `Passe o mouse no ícone (i) do card ${tooltip.card}. O balão ao lado mostra o que cada linha do tooltip significa na tela real.`,
+    ],
+    tooltipsKpi: [tooltip],
+  }))
+}
 
 const TAXAS_MOEDA_TOOLTIPS_KPI: DocTooltipKpi[] = [
   {
@@ -335,7 +531,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       `– {{link:${DOCS_BASE}/organizacao|Organização}}: dados da empresa contratante — nasce no signup e onboarding`,
       `– {{link:${DOCS_BASE}/workspaces|Workspaces}}: matriz, filiais ou clientes do despachante`,
       `– {{link:${DOCS_BASE}/usuarios|Usuários}}: convites, patentes e permissões`,
-      `– {{link:${DOCS_BASE}/fornecedores|Fornecedores}}: cadastro de parceiros comerciais`,
+      `– {{link:${DOCS_BASE}/fornecedores|Fornecedores}}: terceiros COMEX — exportador na importação, importador na exportação, agente, despachante`,
       `– {{link:${DOCS_BASE}/assinaturas|Assinaturas}}: produtos e planos contratados`,
       `– {{link:${DOCS_BASE}/financeiro|Financeiro}}: faturas e pagamentos`,
       `– {{link:${DOCS_BASE}/api-cockpit|API Cockpit}}: tokens, webhooks e ERP`,
@@ -545,10 +741,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 4,
     titulo: 'Usuários',
-    paragrafos: [
-      'Em Configurador → Usuários você convida pessoas para a organização, define o tipo (Master, Standard ou Fornecedor) e controla permissões e workspaces de acesso.',
-      'Apenas usuários Master podem convidar ou editar outros usuários. Standard e Fornecedor enxergam somente a si mesmos nesta lista.',
-    ],
+    mostrarInfograficoTiposUsuario: true,
+    paragrafos: [],
     fluxos: [
       {
         titulo: 'Fluxo 1 — acessar Usuários',
@@ -556,55 +750,13 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Usuários.'],
         passosVisuais: passosComAcessoPadrao(
           'Usuários',
-          [{
-            titulo: 'Visão geral da tela',
-            imagem: '/university/screenshots/configurador-usuarios-tela.png',
-            paragrafos: [
-              'No topo, quatro cards resumem a situação dos usuários da organização. Passe o mouse no ícone (i) de cada card para abrir o tooltip — veja o que cada um significa abaixo.',
-              'A tabela lista nome, e-mail, tipo, status e workspaces habilitados. Use a busca para localizar alguém rapidamente.',
-            ],
-            tooltipsKpi: [
-              {
-                card: 'Total de Usuários',
-                tituloTooltip: 'Visão geral',
-                descricao: 'Quantidade de pessoas cadastradas ou convidadas na organização.',
-                detalhes: [
-                  'Total de registros — ativos, inativos e convidados pendentes',
-                  'Novos hoje — usuários adicionados no dia',
-                ],
-              },
-              {
-                card: 'Acessos Concedidos',
-                tituloTooltip: 'Vínculos de acesso',
-                descricao: 'Soma de todas as ligações usuário ↔ workspace na organização.',
-                detalhes: [
-                  'Total de acessos — cada workspace marcado para um usuário conta um vínculo',
-                  'Master não precisa de vínculo explícito — acessa todos automaticamente',
-                ],
-              },
-              {
-                card: 'Média de Acessos Concedidos',
-                tituloTooltip: 'Distribuição média',
-                descricao: 'Média de workspaces por usuário ativo na organização.',
-                detalhes: [
-                  'Média geral — ajuda a identificar contas com pouco ou muito alcance',
-                ],
-              },
-              {
-                card: 'Total Workspaces',
-                tituloTooltip: 'Densidade e distribuição',
-                descricao: 'Gráfico comparando usuários com e sem acesso a algum workspace.',
-                detalhes: [
-                  'Com acesso — pelo menos um workspace habilitado (ou tipo Master)',
-                  'Sem acesso — ainda sem workspace vinculado',
-                  'Tooltip repete totais de usuários, workspaces e média por pessoa',
-                ],
-              },
-            ],
-          }],
+          criarPassosTooltipKpiUsuario(),
           '/university/screenshots/configurador-usuarios-seta-menu.png',
           true,
-          ['No menu lateral do Configurador, clique em Usuários — como indicado pela seta na imagem.'],
+          [
+            'No menu lateral do Configurador, clique em Usuários — como indicado pela seta na imagem. A tela abre com a listagem e os quatro cards de resumo no topo.',
+            'A tabela lista nome, e-mail, tipo, status e workspaces habilitados. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
+          ],
           undefined,
           '/university/screenshots/configurador-usuarios-acesso-atalho.png',
         ),
@@ -654,25 +806,46 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
       {
         titulo: 'Fluxo 3 — permissões do usuário',
         tituloSumario: 'Permissões Usuários',
+        mostrarInfograficoPermissoesUsuario: true,
         paragrafos: [
-          'Defina o que cada pessoa pode fazer nas áreas do Configurador. No convite ou na edição, marque somente o necessário para o papel da pessoa.',
+          'As permissões granulares valem somente para Standard e Fornecedor — o Master define o que cada um pode ver e editar em cada produto.',
+          'Master não passa por essa grade: tem acesso total à organização, a todos os workspaces e a todas as áreas do Configurador.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Marcar permissões no convite',
             imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
             paragrafos: [
-              'No modal de convite, role até a seção de permissões — como indicado pela seta na imagem. Marque as áreas do Configurador que o convidado poderá acessar.',
+              'No modal de convite, escolha Standard ou Fornecedor e role até a seção de permissões — como indicado pela seta na imagem.',
+              'Para cada Produto Gravity contratado, marque Ver ou Editar nas linhas que a pessoa precisa usar. Se o tipo for Master, ignore esta etapa.',
             ],
+            callout: {
+              tipo: 'dica',
+              texto: 'A grade de permissões aparece para Standard e Fornecedor. Master ignora essas marcações e opera com acesso irrestrito na organização.',
+            },
           },
           {
             titulo: 'Ajustar em usuário existente',
+            imagem: '/university/screenshots/configurador-usuarios-convite-permissoes.png',
             paragrafos: [
-              'Para quem já está na organização, clique no ícone de chave na linha do usuário ou abra Editar e vá à aba Permissões. As mudanças valem na próxima sessão do convidado.',
+              'Para Standard ou Fornecedor já cadastrado, clique no ícone de chave na linha ou abra Editar → aba Permissões. A grade é a mesma do convite: produto, visualização padrão e colunas Ver / Editar.',
+              'Use Todo ou Limpar no cabeçalho de cada produto para marcar ou desmarcar todas as linhas de uma vez. As mudanças valem na próxima sessão.',
             ],
             callout: {
               tipo: 'seguranca',
-              texto: 'Só usuários Master podem alterar permissões de outras pessoas. Standard e Fornecedor não editam a lista de usuários.',
+              texto: 'Só Master pode alterar permissões de outras pessoas. Standard e Fornecedor não editam a lista de usuários nem as patentes de colegas.',
+            },
+          },
+          {
+            titulo: 'Habilitar cotação de frete internacional',
+            imagem: '/university/screenshots/configurador-usuarios-permissoes-cotar-frete.png',
+            paragrafos: [
+              'Para fornecedores que atuam como agente de carga, existe a permissão específica Pode cotar frete internacional — no bloco do produto BID Frete Internacional.',
+              'Ao marcar, o usuário Fornecedor acessa a visão de parceiro: responder cotações, enviar propostas e operar o painel BID Frete Internacional - Fornecedor.',
+            ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'O convidado precisa ser tipo Fornecedor, com empresa fornecedora vinculada (ex.: Agente de carga) em Configurador → Fornecedores, e status Ativo — não apenas Convidado.',
             },
           },
         ]),
@@ -682,14 +855,20 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Workspaces do Usuário',
         paragrafos: [
           'Vincule Standard e Fornecedor aos workspaces em que poderão operar. Master acessa todos automaticamente, sem marcação individual.',
+          'Somente os workspaces selecionados ficam disponíveis para o usuário: no Hub, no seletor de unidade e nos Produtos Gravity. Unidades desmarcadas permanecem fora do alcance dele.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Selecionar workspaces no convite',
-            imagem: '/university/screenshots/configurador-usuarios-convite-workspaces.png',
+            imagem: '/university/screenshots/configurador-usuarios-convite-workspaces-todos.png',
             paragrafos: [
               'No modal de convite, marque os workspaces habilitados para o convidado — filial, empresa do grupo ou cliente de despachante.',
+              'Apenas os itens com checkbox ativo entram no acesso. O convidado não enxerga nem opera nas demais unidades da organização.',
             ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'Sem nenhum workspace marcado, Standard e Fornecedor ficam sem unidade operacional — mesmo com permissões de produto liberadas na etapa anterior.',
+            },
           },
           {
             titulo: 'Opção todos os workspaces',
@@ -704,8 +883,10 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           },
           {
             titulo: 'Alterar vínculos depois',
+            imagem: '/university/screenshots/configurador-usuarios-editar-workspaces-vinculados.png',
             paragrafos: [
               'Em usuário já cadastrado, abra Editar e vá à aba Workspaces Vinculados para incluir ou remover unidades sem reenviar convite.',
+              'Ao desmarcar um workspace, o acesso some na próxima sessão — a pessoa deixa de ver aquela unidade no Hub e nos produtos.',
             ],
           },
         ]),
@@ -715,23 +896,30 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         tituloSumario: 'Desativar e Ativar Usuário',
         paragrafos: [
           'Suspenda quem não deve mais entrar na plataforma, reative quando necessário ou gerencie convites ainda pendentes.',
+          'Usuários não podem ser excluídos: o Master precisa preservar o histórico de tudo o que cada pessoa fez enquanto estava ativa. O cadastro permanece gravado; o controle de acesso é feito por desativação, não por exclusão.',
         ],
         passosVisuais: renumerarPassos([
           {
             titulo: 'Desativar um usuário ativo',
-            imagem: '/university/screenshots/configurador-usuarios-tela.png',
+            imagem: '/university/screenshots/configurador-usuarios-desativar-seta.png',
             paragrafos: [
-              'Na linha de um usuário com status Ativo, clique no ícone de pausa. O acesso é suspenso imediatamente — o status muda para Inativo e novos logins são bloqueados.',
+              'Na linha de um usuário com status Ativo, clique no ícone de pausa — como indicado pela seta na imagem. O acesso é suspenso imediatamente: o status muda para Inativo e novos logins são bloqueados.',
             ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'Não existe exclusão de usuário na plataforma. Se alguém não deve mais entrar, desative — assim o Master mantém auditoria e histórico das ações que essa pessoa realizou quando estava ativa.',
+            },
           },
           {
             titulo: 'Reativar um usuário inativo',
+            imagem: '/university/screenshots/configurador-usuarios-reativar-seta.png',
             paragrafos: [
-              'Na mesma linha, com status Inativo, clique no ícone de play para liberar o acesso novamente. O histórico e os vínculos anteriores são preservados.',
+              'Na mesma linha, com status Inativo, clique no ícone de play — como indicado pela seta na imagem — para liberar o acesso novamente. O histórico e os vínculos anteriores são preservados.',
             ],
           },
           {
             titulo: 'Convite pendente',
+            imagem: '/university/screenshots/configurador-usuarios-convite-pendente-lista.png',
             paragrafos: [
               'Usuários com status Convidado ainda não concluíram o cadastro. Use Reenviar Convite (ícone de seta circular) para mandar um novo e-mail ou cancele o convite se o acesso não for mais necessário.',
             ],
@@ -747,46 +935,574 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
   {
     num: 5,
     titulo: 'Fornecedores',
+    mostrarInfograficoFornecedoresComex: true,
     paragrafos: [
-      'A área Fornecedores concentra o cadastro de parceiros comerciais que participam de cotações e processos da organização.',
+      'Fornecedores são terceiros COMEX cadastrados na organização — fabricantes, compradores, vendedores, agentes de carga, despachantes e demais parceiros que participam de pedidos, processos e cotações.',
+      'O infográfico abaixo explica a diferença entre Exportador na importação e Importador na exportação: o papel descreve a função do terceiro na sua operação, não o tipo da sua empresa.',
     ],
     fluxos: [
       {
         titulo: 'Fluxo 1 — acessar Fornecedores',
-        paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Fornecedores.'],
-        passosVisuais: passosComAcessoPadrao('Fornecedores', []),
+        paragrafos: [
+          'Siga os passos abaixo para abrir o Configurador e chegar à tela de Fornecedores.',
+        ],
+        passosVisuais: passosComAcessoPadrao(
+          'Fornecedores',
+          [],
+          '/university/screenshots/configurador-fornecedores-acesso-tela.png',
+          true,
+          undefined,
+          {
+            paragrafos: [
+              'No menu lateral do Configurador, clique em Fornecedores. A tela abre com a listagem e os cards de resumo no topo.',
+              'Passe o mouse no ícone (i) de cada card para abrir o tooltip — veja abaixo o que cada indicador mostra:',
+            ],
+            tooltipsKpi: FORNECEDORES_TOOLTIPS_KPI,
+            galeriaTelas: [...FORNECEDORES_GALERIA_TOOLTIPS_KPI],
+          },
+        ),
       },
-      fluxoEmBreve('Fluxo 2 — cadastrar fornecedor', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
+      {
+        titulo: 'Fluxo 2 — criar fornecedor',
+        tituloSumario: 'Criar fornecedor',
+        paragrafos: [
+          'Todo cadastro passa pelo modal Novo Fornecedor em três abas: dados gerais, papéis COMEX e contato.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Iniciar novo cadastro',
+            imagem: '/university/screenshots/configurador-fornecedores-novo-seta.png',
+            paragrafos: [
+              'Na listagem, clique em Novo Fornecedor. O modal abre sobre a tela principal.',
+            ],
+          },
+          {
+            titulo: 'Aba 1 — Dados gerais',
+            imagem: '/university/screenshots/configurador-fornecedores-novo-modal-1.png',
+            paragrafos: [
+              'Informe razão social, país, CNPJ ou TIN e endereço. Fornecedores brasileiros usam CNPJ; estrangeiros usam TIN.',
+            ],
+          },
+          {
+            titulo: 'Aba 2 — Papéis COMEX',
+            imagem: '/university/screenshots/configurador-fornecedores-novo-modal-2.png',
+            paragrafos: [
+              'Marque um ou mais papéis que o terceiro pode desempenhar. Exportador e Importador são os mais comuns — veja os fluxos 3 e 4 para entender quando usar cada um.',
+            ],
+            callout: {
+              tipo: 'dica',
+              texto: 'Papéis definem em quais dropdowns o fornecedor aparece (Pedido, Processo, BID Frete etc.). Um agente de carga pode ter Exportador + Agente; um cliente no exterior pode ter só Importador.',
+            },
+          },
+          {
+            titulo: 'Aba 3 — Contato e salvar',
+            imagem: '/university/screenshots/configurador-fornecedores-novo-modal-3.png',
+            paragrafos: [
+              'Preencha e-mail, telefone e WhatsApp. Clique em Salvar — o fornecedor entra na listagem com status Ativa.',
+            ],
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 3 — exportador na importação',
+        tituloSumario: 'Exportador na importação',
+        paragrafos: [
+          'Quando sua empresa importa, o vendedor no exterior é cadastrado como fornecedor com papel Exportador — ele exporta a mercadoria para você.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Marcar papel Exportador',
+            imagem: '/university/screenshots/configurador-fornecedores-exportador-importacao-modal.png',
+            paragrafos: [
+              'Na aba Papéis COMEX, ative Exportador. Esse terceiro figurará como vendedor/exportador nas suas operações de importação.',
+            ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'Exportador na importação = o parceiro estrangeiro que vende para você. Não confunda com o workspace da sua empresa (que é quem importa). É um fornecedor cadastrado no Configurador.',
+            },
+          },
+          {
+            titulo: 'Preencher dados do exportador',
+            imagem: '/university/screenshots/configurador-fornecedores-exportador-importacao-passo-1.png',
+            paragrafos: [
+              'Informe razão social, país e TIN do fabricante ou trading company no exterior. Esses dados alimentam invoices, processos e DUIMP.',
+            ],
+          },
+          {
+            titulo: 'Conferir papéis e contato',
+            imagem: '/university/screenshots/configurador-fornecedores-exportador-importacao-passo-2.png',
+            paragrafos: [
+              'Revise Exportador marcado e complete o contato. Você pode combinar com Fabricante se o exportador também produz a mercadoria.',
+            ],
+          },
+          {
+            titulo: 'Exportador salvo na listagem',
+            imagem: '/university/screenshots/configurador-fornecedores-exportador-importacao-salvo.png',
+            paragrafos: [
+              'O fornecedor aparece na tabela com chip Exportador na coluna Papel COMEX. Já pode ser selecionado em pedidos e processos de importação.',
+            ],
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 4 — importador na exportação',
+        tituloSumario: 'Importador na exportação',
+        paragrafos: [
+          'Quando sua empresa exporta, o comprador no exterior é cadastrado como fornecedor com papel Importador — ele importa a mercadoria que você vende.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Marcar papel Importador',
+            paragrafos: [
+              'Na aba Papéis COMEX do modal, ative Importador. Esse terceiro figurará como cliente/comprador nas suas operações de exportação.',
+            ],
+            imagem: '/university/screenshots/configurador-fornecedores-importador-exportacao-passo-1.png',
+            callout: {
+              tipo: 'aviso',
+              texto: 'Importador na exportação = o parceiro estrangeiro que compra de você. Não é o workspace da sua empresa (que é quem exporta). É um fornecedor — como diz o subtítulo da tela: em exportação, o importador pode atuar como cliente na operação.',
+            },
+          },
+          {
+            titulo: 'Preencher dados do importador',
+            imagem: '/university/screenshots/configurador-fornecedores-importador-exportacao-passo-2.png',
+            paragrafos: [
+              'Cadastre razão social, país e documento fiscal do comprador no destino. Esses dados vinculam o cliente às suas vendas internacionais.',
+            ],
+          },
+          {
+            titulo: 'Importador salvo na listagem',
+            imagem: '/university/screenshots/configurador-fornecedores-importador-exportacao-salvo.png',
+            paragrafos: [
+              'O fornecedor aparece com chip Importador. Use-o em processos de exportação, invoices e cotações em que o comprador externo precisa estar identificado.',
+            ],
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 5 — outros tipos de fornecedor',
+        tituloSumario: 'Outros tipos de fornecedor',
+        mostrarInfograficoPapeisFornecedor: true,
+        paragrafos: [
+          'Além de Importador e Exportador, cadastre despachantes aduaneiros, agentes de carga, armadores, companhias aéreas, transportadoras, armazéns, bancos e seguradoras — cada papel define onde o terceiro aparece na plataforma.',
+          'A mesma empresa pode acumular vários papéis (ex.: Despachante + Agente de Carga). O cadastro correto alimenta comunicações, cotações de frete e câmbio, acessos de usuários tipo Fornecedor e registros em Pedido, Processo e DUIMP.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Marcar papéis logísticos',
+            imagem: '/university/screenshots/configurador-fornecedores-despachante-passo-1.png',
+            paragrafos: [
+              'Na aba Papéis COMEX, ative os papéis que o terceiro exerce. No exemplo, Despachante Aduaneiro e Agente de Carga na mesma razão social.',
+            ],
+            callout: {
+              tipo: 'dica',
+              texto: 'Não crie cadastros duplicados para a mesma empresa só porque ela atua em mais de um papel. Um único fornecedor com múltiplos chips na coluna Papel COMEX mantém contato, histórico e cotações centralizados.',
+            },
+          },
+          {
+            titulo: 'Completar dados e contato',
+            imagem: '/university/screenshots/configurador-fornecedores-despachante-passo-2.png',
+            paragrafos: [
+              'Preencha documento fiscal, endereço e canais de contato. E-mail e WhatsApp são usados em convites, notificações e comunicação operacional com parceiros.',
+            ],
+          },
+          {
+            titulo: 'Fornecedor salvo com múltiplos papéis',
+            imagem: '/university/screenshots/configurador-fornecedores-despachante-salvo.png',
+            paragrafos: [
+              'Na listagem, os chips mostram todos os papéis marcados (ex.: Despachante + Agente). O fornecedor já pode ser selecionado nos produtos que filtram por cada papel.',
+            ],
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 6 — editar fornecedor',
+        tituloSumario: 'Editar fornecedor',
+        paragrafos: [
+          'Altere dados cadastrais, papéis COMEX ou contato de um fornecedor existente.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Abrir edição',
+            imagem: '/university/screenshots/configurador-fornecedores-editar-seta.png',
+            paragrafos: [
+              'Na linha do fornecedor, clique no ícone Editar. O mesmo modal de cadastro abre em modo edição.',
+            ],
+          },
+          {
+            titulo: 'Ajustar dados gerais',
+            imagem: '/university/screenshots/configurador-fornecedores-editar-modal-1.png',
+            paragrafos: [
+              'Atualize razão social, documento fiscal ou endereço. Mudanças refletem nos produtos que consomem o Cadastros.',
+            ],
+          },
+          {
+            titulo: 'Revisar papéis COMEX',
+            imagem: '/university/screenshots/configurador-fornecedores-editar-modal-2.png',
+            paragrafos: [
+              'Adicione ou remova papéis conforme a relação comercial evolui — por exemplo, um exportador que passa a ser também fabricante.',
+            ],
+          },
+          {
+            titulo: 'Atualizar contato',
+            imagem: '/university/screenshots/configurador-fornecedores-editar-modal-contato.png',
+            paragrafos: [
+              'Revise e-mail, telefone e WhatsApp. Clique em Salvar Alterações para confirmar.',
+            ],
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 7 — ativar e desativar fornecedor',
+        tituloSumario: 'Ativar e desativar',
+        paragrafos: [
+          'Desative temporariamente um fornecedor sem apagar o cadastro. Fornecedores inativos não aparecem em novos dropdowns operacionais.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Desativar fornecedor',
+            imagem: '/university/screenshots/configurador-fornecedores-suspender-seta.png',
+            paragrafos: [
+              'Na linha do fornecedor ativo, clique no ícone de desativar — como indicado pela seta na imagem.',
+            ],
+          },
+          {
+            titulo: 'Confirmar desativação',
+            imagem: '/university/screenshots/configurador-fornecedores-suspender-confirmacao.png',
+            paragrafos: [
+              'O status muda para Inativa e uma notificação confirma. O histórico em processos antigos é preservado.',
+            ],
+          },
+          {
+            titulo: 'Reativar fornecedor',
+            imagem: '/university/screenshots/configurador-fornecedores-reativar-seta.png',
+            paragrafos: [
+              'Para voltar a usar o parceiro em novas operações, clique no ícone de reativar na linha do fornecedor inativo.',
+            ],
+          },
+          {
+            titulo: 'Confirmar reativação',
+            imagem: '/university/screenshots/configurador-fornecedores-reativado.png',
+            paragrafos: [
+              'O status volta para Ativa. O fornecedor reaparece nos seletores de Pedido, Processo e demais produtos.',
+            ],
+          },
+        ]),
+      },
     ],
   },
   {
     num: 6,
     titulo: 'Assinaturas',
     paragrafos: [
-      'Assinaturas reúne os produtos Gravity contratados pela organização, planos vigentes e opções de upgrade ou cancelamento.',
+      'Assinaturas reúne os Produtos Gravity que a organização contratou na **Gravity Store**: cobrança, valor, renovação, workspaces habilitados e status de cada plano.',
+      'Somente usuários Master gerenciam assinaturas — suspender, editar, distribuir em workspaces e cancelar. Standard e Fornecedor consultam apenas o que está liberado para eles nos produtos.',
+      'Status possíveis: **Ativa** (em uso), **Em Teste** (trial manual antes do contrato), **Suspensa** (acesso bloqueado temporariamente) e **Cancelada** (encerrada — some da listagem; o produto volta para "Disponíveis para contratar").',
     ],
     fluxos: [
       {
         titulo: 'Fluxo 1 — acessar Assinaturas',
+        tituloSumario: 'Acessar Assinaturas',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Assinaturas.'],
-        passosVisuais: passosComAcessoPadrao('Assinaturas', []),
+        passosVisuais: passosComAcessoPadrao(
+          'Assinaturas',
+          criarPassosTooltipKpiAssinaturas(),
+          '/university/screenshots/configurador-assinaturas-seta-menu.png',
+          true,
+          [
+            'No menu lateral do Configurador, clique em Assinaturas — como indicado pela seta na imagem. A tela abre com os três cards de resumo e a tabela Produtos Contratados.',
+            'Em **Produtos Contratados** aparecem somente os módulos que a organização assinou pela **Gravity Store** — contratos feitos na vitrine de produtos da plataforma.',
+            'A tabela lista produto, tipo de cobrança (SaaS, Uso ou Setup), valor, renovação, workspaces habilitados e status. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
+          ],
+          undefined,
+          '/university/screenshots/configurador-assinaturas-acesso-atalho.png',
+        ),
       },
-      fluxoEmBreve('Fluxo 2 — gerenciar assinaturas', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
+      {
+        titulo: 'Fluxo 2 — consultar assinatura',
+        tituloSumario: 'Consultar assinatura',
+        paragrafos: [
+          'O ícone de lápis abre o modal Configurar Assinatura para **consultar** o que foi contratado na Gravity Store — uma aba por tema: Dados, Setup, Valor, Usuários, Suporte, Tokens, Acordos e Workspaces.',
+          'Todas as abas são **somente leitura**, exceto Workspaces, onde você pode alterar em quais unidades o produto está habilitado (ou use o Fluxo 3 na tabela).',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Abrir detalhes da assinatura',
+            imagem: '/university/screenshots/configurador-assinaturas-editar-seta.png',
+            paragrafos: [
+              'Na linha do produto, clique no ícone de lápis (Editar assinatura). O modal Configurar Assinatura abre com uma aba por tema do contrato — todas em modo consulta, exceto Workspaces.',
+            ],
+          },
+          {
+            titulo: 'Aba Dados',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-geral.png',
+            paragrafos: [
+              'Identificação do Produto Gravity contratado: nome, descrição, status da assinatura e datas relevantes do contrato. Somente leitura.',
+            ],
+          },
+          {
+            titulo: 'Aba Setup',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-setup.png',
+            paragrafos: [
+              'Alguns produtos Gravity têm custo referente a **implantação**, **treinamento** e **configurações iniciais**. Esta aba mostra se o plano inclui setup e qual o valor previsto — sem edição nesta tela.',
+            ],
+          },
+          {
+            titulo: 'Aba Valor',
+            galeriaTelas: [
+              { legenda: '1 · Tipo de cobrança', imagem: '/university/screenshots/configurador-assinaturas-modal-valor-1.png' },
+              { legenda: '2 · Detalhamento unitário', imagem: '/university/screenshots/configurador-assinaturas-modal-valor-2.png' },
+            ],
+            paragrafos: [
+              'Descritivo do valor do Produto Gravity contratado. A cobrança pode ser **mensalidade fixa**, **por documento**, **por leitura**, **por DUIMP**, **por processo** ou outro modelo definido no catálogo.',
+              'Aqui você encontra o **detalhamento completo unitário** — faixas de volume, quantidades e preço por unidade, conforme fechado na Gravity Store.',
+            ],
+          },
+          {
+            titulo: 'Aba Usuários',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-usuarios.png',
+            paragrafos: [
+              'Indica se o produto tem **usuários ilimitados** ou **quantidade limitada** incluída no plano, e o **valor por usuário adicional** quando houver extrapolação.',
+            ],
+          },
+          {
+            titulo: 'Aba Suporte',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-suporte.png',
+            paragrafos: [
+              'Quantidade de **horas por mês** inclusas no valor para atendimento com o time Gravity, e o **valor da hora adicional** caso a organização ultrapasse o pacote contratado.',
+            ],
+          },
+          {
+            titulo: 'Aba Tokens',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-tokens.png',
+            paragrafos: [
+              'Quantidade de **tokens GABI inclusos por mês** no plano e o **valor adicional por token** quando o consumo exceder a cota contratada.',
+            ],
+          },
+          {
+            titulo: 'Aba Acordos',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-acordos-especiais.png',
+            paragrafos: [
+              '**Acordos especiais** de valores negociados para a organização — em geral por **alta quantidade** de uso ou condições comerciais diferenciadas fechadas com o time Gravity.',
+            ],
+          },
+          {
+            titulo: 'Aba Workspaces',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-workspaces.png',
+            paragrafos: [
+              'Lista os **workspaces vinculados** a esta assinatura do Produto Gravity — em quais filiais ou unidades o módulo está habilitado.',
+              'É a única aba do modal onde você pode **alterar** a distribuição (marcar ou desmarcar unidades). A mesma operação pode ser feita na tabela, no Fluxo 3.',
+            ],
+            callout: {
+              tipo: 'dica',
+              texto: 'Preço, limites, suporte, tokens e acordos não são editados aqui — vêm do contrato na Gravity Store ou do comercial. Neste modal você consulta; para workspaces na tabela, use o Fluxo 3.',
+            },
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 3 — workspaces do produto',
+        tituloSumario: 'Workspaces do Produto',
+        paragrafos: [
+          'Cada assinatura pode estar ativa em um ou mais workspaces. Expanda a linha na tabela para ver e alterar em quais unidades o produto está habilitado.',
+          'Marque ou desmarque workspaces, use Habilitar/Bloquear em lote e clique em Salvar alterações — as mudanças valem na próxima sessão dos usuários daquela unidade.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Expandir a linha do produto',
+            imagem: '/university/screenshots/configurador-assinaturas-workspaces-expandido.png',
+            paragrafos: [
+              'Clique na seta à esquerda da linha do produto para abrir a subtabela de workspaces vinculados — nome do workspace, status do produto e ações por unidade.',
+            ],
+          },
+          {
+            titulo: 'Bloquear workspace',
+            galeriaTelas: [
+              { legenda: '1 · Seta desabilitar', imagem: '/university/screenshots/configurador-assinaturas-workspaces-seta-desabilitar.png' },
+              { legenda: '2 · Workspace bloqueado', imagem: '/university/screenshots/configurador-assinaturas-workspaces-bloqueado.png' },
+            ],
+            paragrafos: [
+              'Selecione um ou mais workspaces e use Bloquear para remover o acesso ao produto naquela unidade. O status muda para bloqueado até você reabilitar.',
+            ],
+          },
+          {
+            titulo: 'Reabilitar workspace',
+            galeriaTelas: [
+              { legenda: '1 · Seta reabilitar', imagem: '/university/screenshots/configurador-assinaturas-workspaces-seta-reabilitar.png' },
+              { legenda: '2 · Workspace reabilitado', imagem: '/university/screenshots/configurador-assinaturas-workspaces-reabilitado.png' },
+            ],
+            paragrafos: [
+              'Com workspaces selecionados, clique em Habilitar para restaurar o acesso. O produto volta a aparecer no Hub e nos seletores daquela unidade.',
+            ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'Se nenhum workspace estiver habilitado, o produto não fica acessível na organização — mesmo com assinatura Ativa.',
+            },
+          },
+          {
+            titulo: 'Salvar alterações pendentes',
+            imagem: '/university/screenshots/configurador-assinaturas-workspaces-salvar-pendente.png',
+            paragrafos: [
+              'Enquanto houver mudanças em rascunho, o badge de alterações pendentes aparece. Clique em Salvar alterações para persistir — ou Descartar para voltar ao estado anterior.',
+            ],
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 4 — suspender e reativar',
+        tituloSumario: 'Suspender e Reativar',
+        paragrafos: [
+          'Suspenda temporariamente o acesso ao produto sem cancelar a assinatura. A operação é reversível pelo mesmo ícone de pausa/play — o bloqueio é imediato, mas o plano continua contratado até você cancelar de fato.',
+          '**Não confunda com cancelar.** A cobrança da Gravity **não é pró-rata**: se o usuário cancelar a assinatura, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: contratação em 05/02 com vigência até 05/03 — cancelamento solicitado em 20/02 só passa a valer em 05/03.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Suspender assinatura',
+            imagem: '/university/screenshots/configurador-assinaturas-suspender-seta.png',
+            paragrafos: [
+              'Na coluna de ações, clique no ícone de pausa (Suspender). O status muda para Suspensa e o card Acessos Suspensos é atualizado.',
+            ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'Suspender bloqueia o acesso ao produto imediatamente, mas não encerra o contrato nem interrompe a cobrança no meio do ciclo. Para encerrar de vez, use o ícone de lixeira na linha — com efeito no vencimento, sem pró-rata.',
+            },
+          },
+          {
+            titulo: 'Confirmar status suspenso',
+            imagem: '/university/screenshots/configurador-assinaturas-suspenso.png',
+            paragrafos: [
+              'A linha exibe o badge Suspensa. Usuários perdem acesso ao produto até a reativação.',
+            ],
+          },
+          {
+            titulo: 'Reativar assinatura',
+            imagem: '/university/screenshots/configurador-assinaturas-reativar-seta.png',
+            paragrafos: [
+              'Com status Suspensa, o ícone vira play (Reativar). Clique para voltar o produto ao status Ativa.',
+            ],
+          },
+          {
+            titulo: 'Confirmar reativação',
+            imagem: '/university/screenshots/configurador-assinaturas-reativado.png',
+            paragrafos: [
+              'O status volta para Ativa e o acesso é restaurado nos workspaces habilitados.',
+            ],
+          },
+        ]),
+      },
     ],
   },
   {
     num: 7,
     titulo: 'Financeiro',
     paragrafos: [
-      'O módulo Financeiro exibe faturas emitidas, status de pagamento e métodos cadastrados para cobrança da organização.',
+      'O Financeiro concentra o histórico de faturas da organização na Gravity, os documentos de cobrança (boleto e NF-e) e a tabela de Produtos × Valores do catálogo contratado.',
+      'Somente usuários Master acessam esta área no Configurador. Standard e Fornecedor não veem faturas nem preços — a cobrança é responsabilidade do administrador da conta.',
+      'Status de fatura: **Emitida** e **Enviada** (em aberto), **Paga**, **Em atraso**, **Anulada** e **Incobrável**. Os cards do topo resumem vencimento, valor pendente e quantidade em aberto.',
     ],
     fluxos: [
       {
         titulo: 'Fluxo 1 — acessar Financeiro',
+        tituloSumario: 'Acessar Financeiro',
         paragrafos: ['Siga os passos abaixo para abrir o Configurador e chegar à tela de Financeiro.'],
-        passosVisuais: passosComAcessoPadrao('Financeiro', []),
+        passosVisuais: passosComAcessoPadrao(
+          'Financeiro',
+          criarPassosTooltipKpiFinanceiro(),
+          '/university/screenshots/configurador-financeiro-seta-menu.png',
+          true,
+          [
+            'No menu lateral do Configurador, clique em Financeiro — como indicado pela seta na imagem. A tela abre com os três cards de resumo e a aba Histórico de Faturas ativa por padrão.',
+            'Use as abas Histórico de Faturas e Produtos & Valores para alternar entre cobranças e tabela de preços. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
+          ],
+          undefined,
+          '/university/screenshots/configurador-financeiro-acesso-atalho.png',
+        ),
       },
-      fluxoEmBreve('Fluxo 2 — consultar faturas', 'Screenshots e passos detalhados desta tela serão adicionados em breve.'),
+      {
+        titulo: 'Fluxo 2 — histórico de faturas',
+        tituloSumario: 'Histórico de Faturas',
+        paragrafos: [
+          'Consulte faturas emitidas, acompanhe vencimentos e baixe boleto ou NF-e quando disponíveis. Passe o mouse sobre o valor para ver a composição sem expandir a linha.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Visão geral da aba Faturas',
+            imagem: '/university/screenshots/configurador-financeiro-aba-faturas.png',
+            paragrafos: [
+              'A tabela lista número, competência, descrição, valor, vencimento e status. Use Buscar para filtrar por número ou descrição, e Exportar para planilha.',
+            ],
+          },
+          {
+            titulo: 'Expandir detalhamento da fatura',
+            imagem: '/university/screenshots/configurador-financeiro-fatura-expandir-seta.png',
+            paragrafos: [
+              'Clique na seta à esquerda da linha — como indicado na imagem — para abrir o detalhamento inline.',
+            ],
+          },
+          {
+            titulo: 'Itens da fatura expandidos',
+            imagem: '/university/screenshots/configurador-financeiro-fatura-expandida.png',
+            paragrafos: [
+              'A subtabela mostra descrição, quantidade, valor unitário e total de cada item que compõe a fatura.',
+            ],
+          },
+          {
+            titulo: 'Baixar boleto',
+            imagem: '/university/screenshots/configurador-financeiro-boleto-seta.png',
+            paragrafos: [
+              'Na coluna de ações, clique no ícone de download do boleto — como indicado pela seta. O documento abre em nova aba quando já foi anexado pela Gravity.',
+            ],
+            callout: {
+              tipo: 'dica',
+              texto: 'Se o ícone estiver desabilitado, o boleto ainda não foi disponibilizado — aguarde a emissão ou contate financeiro@gravity.com.br.',
+            },
+          },
+          {
+            titulo: 'Baixar NF-e',
+            imagem: '/university/screenshots/configurador-financeiro-nfe-seta.png',
+            paragrafos: [
+              'No mesmo menu de ações, use o segundo ícone de download para a nota fiscal eletrônica (NF-e), quando disponível.',
+            ],
+            callout: {
+              tipo: 'aviso',
+              texto: 'Segunda via — os downloads abrem o arquivo direto do provedor de cobrança configurado. Dúvidas: financeiro@gravity.com.br.',
+            },
+          },
+        ]),
+      },
+      {
+        titulo: 'Fluxo 3 — produtos e valores',
+        tituloSumario: 'Produtos & Valores',
+        paragrafos: [
+          'A segunda aba exibe o catálogo de produtos Gravity com tipo de cobrança, franquia inclusa, limites de usuários, help desk e eventuais negociações especiais da organização.',
+        ],
+        passosVisuais: renumerarPassos([
+          {
+            titulo: 'Abrir a aba Produtos & Valores',
+            imagem: '/university/screenshots/configurador-financeiro-aba-produtos.png',
+            paragrafos: [
+              'Clique na aba Produtos & Valores — como indicado pela seta na imagem. A tabela mostra preço unitário, franquia free e status de negociação especial por produto.',
+            ],
+            callout: {
+              tipo: 'dica',
+              texto: 'Quando houver acordo comercial ativo, um banner verde destaca a Negociação Especial da organização no topo da aba.',
+            },
+          },
+          {
+            titulo: 'Ver detalhes do produto',
+            imagem: '/university/screenshots/configurador-financeiro-produtos-ver-detalhes-seta.png',
+            paragrafos: [
+              'Na coluna de ações, clique no ícone de olho (Ver detalhes) — como indicado pela seta. O modal abre em modo somente leitura com as abas do catálogo Gravity.',
+            ],
+          },
+          {
+            titulo: 'Modal de detalhes (Dados Básicos)',
+            imagem: '/university/screenshots/configurador-financeiro-modal-produto-dados.png',
+            paragrafos: [
+              'Percorra Dados Básicos, Setup, Valor do Produto, Usuários, Help Desk e Negociação para entender como cada produto é cobrado. Feche com o X quando terminar — não há edição nesta tela.',
+            ],
+          },
+        ]),
+      },
     ],
   },
   {
@@ -880,7 +1596,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'Fluxo 3 — agendamento automático',
         tituloSumario: 'Agendamento automático',
         paragrafos: [
-          'Configure se a sincronização automática fica ativa para a aba em que você está — PTAX na Cotação Atual, Focus na Cotação Futura.',
+          'Configure se a sincronização automática fica ativa para a aba em que você está — PTAX na Cotação Atual, Focus na Cotação Futura. O modal segue o mesmo padrão visual do painel Admin › Testes.',
         ],
         passosVisuais: renumerarPassos([
           {

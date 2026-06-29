@@ -388,7 +388,7 @@ export async function getConversationContext(
     listarMensagensConversaGabi(db, schemaName, conversationId, limit),
   )
 
-  const context = messages.reverse().map((m) => ({
+  const context = messages.map((m) => ({
     role: m.papel_gabi_mensagem,
     content: m.conteudo_gabi_mensagem,
   }))

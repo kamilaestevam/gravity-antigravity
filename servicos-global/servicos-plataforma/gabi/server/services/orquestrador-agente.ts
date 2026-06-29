@@ -9,6 +9,7 @@ import {
 } from '@google/generative-ai'
 import { GoogleAICacheManager } from '@google/generative-ai/server'
 import { AppError } from '../lib/errors.js'
+import { normalizarHistoricoGemini } from '../lib/historico-gemini.js'
 import {
   gerarGeminiDeclarations,
   filtrarToolsPorPermissao,
@@ -199,12 +200,7 @@ export async function executarAgente(
       const model = await obterModeloComCache(modelName, systemPrompt, geminiTools as Tool[])
 
       const chat = model.startChat({
-        history: historico
-          .filter((h) => h.role !== 'system')
-          .map((h) => ({
-            role: h.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: h.content }],
-          })),
+        history: normalizarHistoricoGemini(historico),
       })
 
       let totalInputTok = 0

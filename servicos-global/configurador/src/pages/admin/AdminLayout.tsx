@@ -34,6 +34,7 @@ import {
   Database,
   CurrencyCircleDollar,
   Certificate,
+  GraduationCap,
 } from '@phosphor-icons/react'
 import '../configurador/workspace.css'
 import '../configurador/gabi.css'
@@ -185,6 +186,16 @@ export function AdminLayout() {
                 }
               }}
             />
+
+          <button
+            className="ws-global-btn"
+            type="button"
+            title={t('university.modulo_nome', 'Gravity University')}
+            aria-label={t('university.modulo_nome', 'Gravity University')}
+            onClick={() => navigate('/university-gravity')}
+          >
+            <GraduationCap size={20} weight="duotone" />
+          </button>
 
           {/* NOVO: Toggle de tooltips */}
           <TooltipGlobal

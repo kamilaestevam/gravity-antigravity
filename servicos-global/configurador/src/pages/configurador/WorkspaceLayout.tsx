@@ -35,6 +35,7 @@ import {
   Robot,
   Truck,
   Info,
+  GraduationCap,
 } from '@phosphor-icons/react'
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
@@ -231,6 +232,16 @@ export function WorkspaceLayout() {
               }
             }}
           />
+
+          <button
+            className="ws-global-btn"
+            type="button"
+            title={t('university.modulo_nome', 'Gravity University')}
+            aria-label={t('university.modulo_nome', 'Gravity University')}
+            onClick={() => navigate('/university-gravity')}
+          >
+            <GraduationCap size={20} weight="duotone" />
+          </button>
 
           {/* Theme button estava duplicado. Removido da barra, agora vive apenas no UX Dropdown */}
 

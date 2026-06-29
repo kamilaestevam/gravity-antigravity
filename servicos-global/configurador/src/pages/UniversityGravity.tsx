@@ -1415,6 +1415,16 @@ export function UniversityGravity() {
             }}
           />
 
+          <button
+            className="ws-global-btn"
+            type="button"
+            title={t('university.modulo_nome', 'Gravity University')}
+            aria-label={t('university.modulo_nome', 'Gravity University')}
+            onClick={() => navigate('/university-gravity')}
+          >
+            <GraduationCap size={20} weight="duotone" />
+          </button>
+
           <TooltipGlobal
             titulo={t('university.dica.titulo')}
             descricao={

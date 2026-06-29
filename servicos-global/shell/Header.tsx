@@ -9,6 +9,7 @@ import {
   Info,
   Graph,
   Hexagon,
+  GraduationCap,
 } from '@phosphor-icons/react'
 import { useClerk } from '@clerk/clerk-react'
 import { useShellStore } from './store'
@@ -234,6 +235,16 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
           }}
         >
           <MagnifyingGlass size={18} />
+        </button>
+
+        <button
+          className="shell-header__icon-btn"
+          aria-label={t('university.modulo_nome', 'Gravity University')}
+          title={t('university.modulo_nome', 'Gravity University')}
+          type="button"
+          onClick={() => { window.location.href = '/university-gravity' }}
+        >
+          <GraduationCap size={18} weight="duotone" />
         </button>
 
         {/* Toggle de tooltips */}

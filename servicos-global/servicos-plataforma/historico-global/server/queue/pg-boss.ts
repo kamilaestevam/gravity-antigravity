@@ -21,3 +21,7 @@ export function getBoss(): PgBoss {
   if (!boss) throw new Error('[historico] pg-boss não inicializado. Chame initPgBoss primeiro.')
   return boss
 }
+
+export function isPgBossInitialized(): boolean {
+  return Boolean(boss)
+}

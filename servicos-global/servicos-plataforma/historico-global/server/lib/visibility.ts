@@ -31,8 +31,8 @@ export interface UsuarioAutenticado {
  *
  * - SUPER_ADMIN / ADMIN  → veem tudo (sem filtro de organização)
  * - MASTER               → veem toda a organização (filtro por id_organizacao)
- * - PADRAO / FORNECEDOR  → veem apenas registros onde figuram como ator ou alvo
- *                          (filtro por id_organizacao + id_usuario)
+ * - PADRAO / FORNECEDOR  → veem registros onde figuram como ator (`id_ator_historico_log`)
+ *                          ou alvo (`id_usuario`)
  */
 export function montarFiltroVisibilidadeHistoricoLog(
   usuario: UsuarioAutenticado,
@@ -43,7 +43,13 @@ export function montarFiltroVisibilidadeHistoricoLog(
   if (usuario.tipo_usuario === 'MASTER') {
     return { id_organizacao: usuario.id_organizacao }
   }
-  return { id_organizacao: usuario.id_organizacao, id_usuario: usuario.id_usuario }
+  return {
+    id_organizacao: usuario.id_organizacao,
+    OR: [
+      { id_usuario: usuario.id_usuario },
+      { id_ator_historico_log: usuario.id_usuario },
+    ],
+  }
 }
 
 /**

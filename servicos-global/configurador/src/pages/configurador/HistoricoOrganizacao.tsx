@@ -17,6 +17,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { formatarDataHistorico, rotuloAcao } from '../../utils/historico-helpers'
 import { PaginaGlobal } from '@nucleo/pagina-global'
+import { GravityLoader } from '@nucleo/gravity-loader-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import {
   TabelaGlobal,
@@ -163,20 +164,22 @@ export function HistoricoOrganizacao() {
   const [hasMore, setHasMore] = useState(false)
   const limit = 25
 
-  // Filtro de produto vindo da URL — pre-aplicado pelo hyperlink de cada produto
-  // (ex: /workspace/historico-organizacao?id_produto_historico_log=pedido).
-  // Tambem usado no backend para resolver a permissao Cadeia 2 de PADRAO/FORNECEDOR.
   const [searchParams] = useSearchParams()
-  const idProdutoHistoricoLog = searchParams.get('id_produto_historico_log') ?? undefined
+  const idProdutoHistoricoLog = searchParams.get('id_produto_historico_log') ?? 'configurador'
+
+  const [erroApi, setErroApi] = useState<string | null>(null)
+  const [carregando, setCarregando] = useState(true)
 
   const fetchLogs = useCallback(async (pageNum: number) => {
+    setCarregando(true)
+    setErroApi(null)
     try {
       const token = await getToken()
       const params = new URLSearchParams({
         page: String(pageNum),
         limit: String(limit),
+        id_produto_historico_log: idProdutoHistoricoLog,
       })
-      if (idProdutoHistoricoLog) params.set('id_produto_historico_log', idProdutoHistoricoLog)
 
       const res = await fetch(`/api/v1/historico-organizacao?${params.toString()}`, {
         headers: {
@@ -186,21 +189,33 @@ export function HistoricoOrganizacao() {
       })
 
       if (!res.ok) {
-        console.warn('[HistoricoOrganizacao] resposta não-ok', res.status)
+        const body = await res.json().catch(() => null) as { message?: string; error?: string } | null
+        setErroApi(body?.message ?? body?.error ?? `Erro ao carregar histórico (${res.status})`)
+        setLogs([])
+        setTotal(0)
+        setHasMore(false)
         return
       }
 
       const raw = await res.json()
       const parsed = historicoResponseSchema.safeParse(raw)
       if (!parsed.success) {
-        console.warn('[HistoricoOrganizacao] payload fora do contrato', parsed.error.issues, raw)
+        setErroApi('Resposta da API fora do contrato esperado')
+        setLogs([])
+        setTotal(0)
+        setHasMore(false)
         return
       }
       setLogs(parsed.data.logs)
       setTotal(parsed.data.total)
       setHasMore(parsed.data.hasMore)
     } catch (err) {
-      console.error('[HistoricoOrganizacao] Erro ao buscar logs:', err)
+      setErroApi(err instanceof Error ? err.message : 'Falha de rede ao carregar histórico')
+      setLogs([])
+      setTotal(0)
+      setHasMore(false)
+    } finally {
+      setCarregando(false)
     }
   }, [getToken, idProdutoHistoricoLog])
 
@@ -396,6 +411,30 @@ export function HistoricoOrganizacao() {
         </>
       }
     >
+      {carregando && (
+        <div style={{ padding: '2rem 0' }}>
+          <GravityLoader texto="Carregando histórico…" tamanho="sm" />
+        </div>
+      )}
+
+      {erroApi && !carregando && (
+        <div
+          role="alert"
+          style={{
+            marginBottom: '1rem',
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            border: '1px solid rgba(248, 113, 113, 0.4)',
+            background: 'rgba(248, 113, 113, 0.08)',
+            color: 'var(--color-text-primary)',
+            fontSize: '0.875rem',
+          }}
+        >
+          <strong>Erro:</strong> {erroApi}
+        </div>
+      )}
+
+      {!carregando && !erroApi && (
       <TabelaGlobal<HistoricoLog>
         colunas={colunas}
         dados={logs}
@@ -403,9 +442,9 @@ export function HistoricoOrganizacao() {
         acoesExportacao={acoesExportacao}
         mensagemSemFiltro="Nenhum registro de histórico encontrado"
       />
+      )}
 
-      {/* Paginacao simples */}
-      {total > limit && (
+      {!carregando && !erroApi && total > limit && (
         <div style={{
           display: 'flex',
           justifyContent: 'center',

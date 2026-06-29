@@ -1144,7 +1144,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
     num: 6,
     titulo: 'Assinaturas',
     paragrafos: [
-      'Assinaturas reúne os Produtos Gravity contratados pela organização: cobrança, valor, renovação, workspaces habilitados e status de cada plano.',
+      'Assinaturas reúne os Produtos Gravity que a organização contratou na **Gravity Store**: cobrança, valor, renovação, workspaces habilitados e status de cada plano.',
       'Somente usuários Master gerenciam assinaturas — suspender, editar, distribuir em workspaces e cancelar. Standard e Fornecedor consultam apenas o que está liberado para eles nos produtos.',
       'Status possíveis: **Ativa** (em uso), **Em Teste** (trial manual antes do contrato), **Suspensa** (acesso bloqueado temporariamente) e **Cancelada** (encerrada — some da listagem; o produto volta para "Disponíveis para contratar").',
     ],
@@ -1160,6 +1160,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
           true,
           [
             'No menu lateral do Configurador, clique em Assinaturas — como indicado pela seta na imagem. A tela abre com os três cards de resumo e a tabela Produtos Contratados.',
+            'Em **Produtos Contratados** aparecem somente os módulos que a organização assinou pela **Gravity Store** — contratos feitos na vitrine de produtos da plataforma.',
             'A tabela lista produto, tipo de cobrança (SaaS, Uso ou Setup), valor, renovação, workspaces habilitados e status. Nos passos seguintes, cada tooltip dos cards é explicado separadamente.',
           ],
           undefined,
@@ -1167,54 +1168,83 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         ),
       },
       {
-        titulo: 'Fluxo 2 — editar assinatura',
-        tituloSumario: 'Editar assinatura',
+        titulo: 'Fluxo 2 — consultar assinatura',
+        tituloSumario: 'Consultar assinatura',
         paragrafos: [
-          'Abra o modal Configurar Assinatura para ajustar dados do produto, valores, usuários, suporte, tokens, acordos e distribuição em workspaces.',
+          'O ícone de lápis abre o modal Configurar Assinatura para **consultar** o que foi contratado na Gravity Store — uma aba por tema: Dados, Setup, Valor, Usuários, Suporte, Tokens, Acordos e Workspaces.',
+          'Todas as abas são **somente leitura**, exceto Workspaces, onde você pode alterar em quais unidades o produto está habilitado (ou use o Fluxo 3 na tabela).',
         ],
         passosVisuais: renumerarPassos([
           {
-            titulo: 'Abrir edição',
+            titulo: 'Abrir detalhes da assinatura',
             imagem: '/university/screenshots/configurador-assinaturas-editar-seta.png',
             paragrafos: [
-              'Na linha do produto, clique no ícone de lápis (Editar assinatura). O modal abre com as abas de configuração.',
+              'Na linha do produto, clique no ícone de lápis (Editar assinatura). O modal Configurar Assinatura abre com uma aba por tema do contrato — todas em modo consulta, exceto Workspaces.',
             ],
           },
           {
-            titulo: 'Dados e setup',
-            galeriaTelas: [
-              { legenda: '1 · Dados gerais', imagem: '/university/screenshots/configurador-assinaturas-modal-geral.png' },
-              { legenda: '2 · Setup', imagem: '/university/screenshots/configurador-assinaturas-modal-setup.png' },
-            ],
+            titulo: 'Aba Dados',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-geral.png',
             paragrafos: [
-              'Na aba Dados, revise condições contratuais do produto. Em Setup, configure parâmetros de implantação quando aplicável.',
+              'Identificação do Produto Gravity contratado: nome, descrição, status da assinatura e datas relevantes do contrato. Somente leitura.',
             ],
           },
           {
-            titulo: 'Valor e usuários',
-            galeriaTelas: [
-              { legenda: '1 · Valor (parte 1)', imagem: '/university/screenshots/configurador-assinaturas-modal-valor-1.png' },
-              { legenda: '2 · Valor (parte 2)', imagem: '/university/screenshots/configurador-assinaturas-modal-valor-2.png' },
-              { legenda: '3 · Usuários', imagem: '/university/screenshots/configurador-assinaturas-modal-usuarios.png' },
-            ],
+            titulo: 'Aba Setup',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-setup.png',
             paragrafos: [
-              'Ajuste valores de cobrança (SaaS, Uso ou Setup) e limites de usuários vinculados à assinatura.',
+              'Alguns produtos Gravity têm custo referente a **implantação**, **treinamento** e **configurações iniciais**. Esta aba mostra se o plano inclui setup e qual o valor previsto — sem edição nesta tela.',
             ],
           },
           {
-            titulo: 'Suporte, tokens e acordos',
+            titulo: 'Aba Valor',
             galeriaTelas: [
-              { legenda: '1 · Suporte', imagem: '/university/screenshots/configurador-assinaturas-modal-suporte.png' },
-              { legenda: '2 · Tokens', imagem: '/university/screenshots/configurador-assinaturas-modal-tokens.png' },
-              { legenda: '3 · Acordos especiais', imagem: '/university/screenshots/configurador-assinaturas-modal-acordos-especiais.png' },
-              { legenda: '4 · Workspaces', imagem: '/university/screenshots/configurador-assinaturas-modal-workspaces.png' },
+              { legenda: '1 · Tipo de cobrança', imagem: '/university/screenshots/configurador-assinaturas-modal-valor-1.png' },
+              { legenda: '2 · Detalhamento unitário', imagem: '/university/screenshots/configurador-assinaturas-modal-valor-2.png' },
             ],
             paragrafos: [
-              'Configure suporte, tokens de API e acordos comerciais. Na aba Workspaces do modal, habilite o produto em filiais — alternativa à expansão inline na tabela (fluxo seguinte).',
+              'Descritivo do valor do Produto Gravity contratado. A cobrança pode ser **mensalidade fixa**, **por documento**, **por leitura**, **por DUIMP**, **por processo** ou outro modelo definido no catálogo.',
+              'Aqui você encontra o **detalhamento completo unitário** — faixas de volume, quantidades e preço por unidade, conforme fechado na Gravity Store.',
+            ],
+          },
+          {
+            titulo: 'Aba Usuários',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-usuarios.png',
+            paragrafos: [
+              'Indica se o produto tem **usuários ilimitados** ou **quantidade limitada** incluída no plano, e o **valor por usuário adicional** quando houver extrapolação.',
+            ],
+          },
+          {
+            titulo: 'Aba Suporte',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-suporte.png',
+            paragrafos: [
+              'Quantidade de **horas por mês** inclusas no valor para atendimento com o time Gravity, e o **valor da hora adicional** caso a organização ultrapasse o pacote contratado.',
+            ],
+          },
+          {
+            titulo: 'Aba Tokens',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-tokens.png',
+            paragrafos: [
+              'Quantidade de **tokens GABI inclusos por mês** no plano e o **valor adicional por token** quando o consumo exceder a cota contratada.',
+            ],
+          },
+          {
+            titulo: 'Aba Acordos',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-acordos-especiais.png',
+            paragrafos: [
+              '**Acordos especiais** de valores negociados para a organização — em geral por **alta quantidade** de uso ou condições comerciais diferenciadas fechadas com o time Gravity.',
+            ],
+          },
+          {
+            titulo: 'Aba Workspaces',
+            imagem: '/university/screenshots/configurador-assinaturas-modal-workspaces.png',
+            paragrafos: [
+              'Lista os **workspaces vinculados** a esta assinatura do Produto Gravity — em quais filiais ou unidades o módulo está habilitado.',
+              'É a única aba do modal onde você pode **alterar** a distribuição (marcar ou desmarcar unidades). A mesma operação pode ser feita na tabela, no Fluxo 3.',
             ],
             callout: {
               tipo: 'dica',
-              texto: 'Salve ao concluir cada aba relevante. Distribuição em workspaces também pode ser feita direto na tabela, sem abrir o modal.',
+              texto: 'Preço, limites, suporte, tokens e acordos não são editados aqui — vêm do contrato na Gravity Store ou do comercial. Neste modal você consulta; para workspaces na tabela, use o Fluxo 3.',
             },
           },
         ]),
@@ -1271,7 +1301,8 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'Fluxo 4 — suspender e reativar',
         tituloSumario: 'Suspender e Reativar',
         paragrafos: [
-          'Suspenda temporariamente o acesso ao produto sem cancelar a assinatura. A operação é reversível pelo mesmo ícone de pausa/play.',
+          'Suspenda temporariamente o acesso ao produto sem cancelar a assinatura. A operação é reversível pelo mesmo ícone de pausa/play — o bloqueio é imediato, mas o plano continua contratado até você cancelar de fato.',
+          '**Não confunda com cancelar.** A cobrança da Gravity **não é pró-rata**: se o usuário cancelar a assinatura, a próxima fatura não é gerada e o encerramento vale no **vencimento do ciclo vigente**, não na data do clique. Exemplo: contratação em 05/02 com vigência até 05/03 — cancelamento solicitado em 20/02 só passa a valer em 05/03.',
         ],
         passosVisuais: renumerarPassos([
           {
@@ -1282,7 +1313,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
             ],
             callout: {
               tipo: 'aviso',
-              texto: 'Suspender bloqueia o acesso ao produto para todos os workspaces. Diferente de cancelar — a assinatura continua na listagem e pode ser reativada.',
+              texto: 'Suspender bloqueia o acesso ao produto imediatamente, mas não encerra o contrato nem interrompe a cobrança no meio do ciclo. Para encerrar de vez, use Cancelar (Fluxo 5) — com efeito no vencimento, sem pró-rata.',
             },
           },
           {
@@ -1312,7 +1343,7 @@ export const DOC_CONFIGURADOR_SECOES: DocSecao[] = [
         titulo: 'Fluxo 5 — cancelar assinatura',
         tituloSumario: 'Cancelar assinatura',
         paragrafos: [
-          'Encerre definitivamente a assinatura de um produto. O item some da tabela Produtos Contratados e reaparece em Produtos Disponíveis para Contratar.',
+          'Encerre definitivamente a assinatura pelo ícone de lixeira. A regra de cobrança sem pró-rata está explicada no Fluxo 4 (Suspender e Reativar).',
         ],
         passosVisuais: renumerarPassos([{
           titulo: 'Em breve',

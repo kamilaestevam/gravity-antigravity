@@ -806,6 +806,24 @@ model CardUsuarioPedido {
   @@map("card_usuario_pedido")
 }
 
+/// Eventos de comportamento do usuário — GABI Insights personalizados (Fase 2).
+/// Usa tenant_id (legado interno do Pedido) alinhado à migration user_behavior_events.
+model UserBehaviorEvent {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String
+  event      String
+  payload    Json
+  created_at DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, user_id, event])
+  @@index([tenant_id, user_id, created_at])
+  @@map("user_behavior_events")
+}
+
 // ============================================================================
 // Enums de proteção estrutural
 // ============================================================================

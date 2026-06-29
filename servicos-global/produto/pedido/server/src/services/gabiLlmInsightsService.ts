@@ -77,14 +77,24 @@ Responda APENAS com o texto do insight, sem formatação, aspas ou explicações
 const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://127.0.0.1:8009'
 const GABI_TIMEOUT_MS  = 3_000  // 3s — não bloqueia o usuário além disso
 
+type LlmFalhaMotivo = 'chave_ausente' | 'http_erro' | 'zod' | 'timeout' | 'quota' | 'rede'
+
+function logFase3Fallback(
+  motivo: LlmFalhaMotivo,
+  ctx: { tenantId: string; userId: string; status?: number; insightId?: string; detalhe?: string },
+): void {
+  console.warn('[gabiLlmInsights] Fase 3 fallback', { motivo, ...ctx })
+}
+
 async function callGabi(
   prompt: string,
   tenantId: string,
   userId: string,
+  insightId: string,
 ): Promise<string | null> {
   const chave = process.env.CHAVE_INTERNA_SERVICO
   if (!chave) {
-    console.warn('[gabiLlmInsights] CHAVE_INTERNA_SERVICO ausente — skip Fase 3 LLM', { tenantId, userId })
+    logFase3Fallback('chave_ausente', { tenantId, userId, insightId })
     return null
   }
 
@@ -107,32 +117,29 @@ async function callGabi(
     })
 
     if (!response.ok) {
-      console.warn('[gabiLlmInsights] GABI HTTP erro', {
-        tenantId,
-        userId,
-        status: response.status,
-      })
+      const motivo: LlmFalhaMotivo = response.status === 429 ? 'quota' : 'http_erro'
+      logFase3Fallback(motivo, { tenantId, userId, insightId, status: response.status })
       return null
     }
 
     const raw: unknown = await response.json()
     const parsed = gabiChatS2sResponseSchema.safeParse(raw)
     if (!parsed.success) {
-      console.warn('[gabiLlmInsights] contrato Zod inválido na resposta GABI', {
+      logFase3Fallback('zod', {
         tenantId,
         userId,
-        issues: parsed.error.issues,
+        insightId,
+        detalhe: parsed.error.issues.map((i) => i.message).join('; ').slice(0, 200),
       })
       return null
     }
 
     return parsed.data.response
   } catch (err) {
-    console.warn('[gabiLlmInsights] falha S2S GABI', {
-      tenantId,
-      userId,
-      erro: err instanceof Error ? err.message : String(err),
-    })
+    const msg = err instanceof Error ? err.message : String(err)
+    const motivo: LlmFalhaMotivo =
+      err instanceof Error && err.name === 'TimeoutError' ? 'timeout' : 'rede'
+    logFase3Fallback(motivo, { tenantId, userId, insightId, detalhe: msg.slice(0, 160) })
     return null
   }
 }
@@ -169,7 +176,7 @@ export async function enhanceWithLlm(
 
       // Chama Gabi com timeout + fallback
       const prompt = buildPrompt(insight, kpis, role)
-      const llmTexto = await callGabi(prompt, tenantId, userId)
+      const llmTexto = await callGabi(prompt, tenantId, userId, insight.id)
 
       if (llmTexto) {
         setCached(key, llmTexto)

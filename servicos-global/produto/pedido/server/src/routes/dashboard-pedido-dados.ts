@@ -206,6 +206,15 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
       behaviorScores = await getUserBehaviorScores(db, tenantId, userId)
     })
 
+    const behaviorCount = Object.keys(behaviorScores!).length
+    if (behaviorCount > 0) {
+      console.info('[DashboardData/insights] Fase 2 behaviorScores', {
+        tenantId,
+        userId,
+        behaviorCount,
+      })
+    }
+
     // ── 3. Fase 1+2: gerar insights ranqueados ─────────────────────────────────
     let insights = generateInsights(kpis, role, behaviorScores!)
 

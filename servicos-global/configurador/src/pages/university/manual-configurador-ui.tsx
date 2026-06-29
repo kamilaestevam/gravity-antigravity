@@ -12,6 +12,7 @@ import {
 import {
   type ConfiguradorManualSlug,
   type DocTooltipKpi,
+  type DocColunaTabela,
   type DocFluxo,
   type DocOrigemDados,
   type DocPassoVisual,
@@ -268,6 +269,59 @@ function ManualCalloutBloco({ callout, marginTop = 12 }: {
   )
 }
 
+function ManualColunasTabela({ colunas }: { colunas: DocColunaTabela[] }) {
+  return (
+    <div style={{
+      marginTop: 16,
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+      gap: 14,
+    }}>
+      {colunas.map((col) => (
+        <div
+          key={col.coluna}
+          style={{
+            background: 'rgba(99,102,241,.06)',
+            border: '1px solid rgba(99,102,241,.18)',
+            borderRadius: 10,
+            overflow: 'hidden',
+          }}
+        >
+          {col.imagem && (
+            <ManualFiguraScreenshot
+              src={col.imagem}
+              alt={`Coluna ${col.coluna}`}
+            />
+          )}
+          <div style={{ padding: '12px 14px' }}>
+            <p style={{
+              fontSize: '.68rem', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase',
+              color: '#818cf8', margin: '0 0 4px',
+            }}>
+              {col.coluna}
+            </p>
+            {col.tituloColuna && (
+              <p style={{ fontSize: '.72rem', fontWeight: 600, color: '#e2e8f0', margin: '0 0 6px' }}>
+                {col.tituloColuna}
+              </p>
+            )}
+            <p style={{ fontSize: '.75rem', color: MANUAL_CORPO_70, margin: col.detalhes?.length ? '0 0 8px' : 0, lineHeight: 1.45 }}>
+              {col.descricao}
+            </p>
+            {col.detalhes && col.detalhes.length > 0 && (
+              <ul style={{ margin: 0, paddingLeft: 16, fontSize: '.72rem', color: MANUAL_CORPO_70, lineHeight: 1.5 }}>
+                {col.detalhes.map((item) => (
+                  <li key={item} style={{ marginBottom: 3 }}>{item}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function ManualTooltipsKpi({ tooltips }: { tooltips: DocTooltipKpi[] }) {
   const umaColuna = tooltips.length === 1
   return (
@@ -317,7 +371,7 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
     marginTop: passo.num === 1 ? 18 : 0,
   }
 
-  const colunaTexto = (
+  const blocoTexto = (
     <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)' }}>
       <p style={MANUAL_ESTILO_PASSO_ROTULO}>
         Passo {String(passo.num).padStart(2, '0')}
@@ -346,8 +400,19 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
     </div>
   )
 
-  if (passo.galeriaTelas?.length) {
-    const galeria = (
+  const gradeColunas = passo.colunasTabela && passo.colunasTabela.length > 0
+    ? <ManualColunasTabela colunas={passo.colunasTabela} />
+    : null
+
+  const colunaTexto = (
+    <>
+      {blocoTexto}
+      {!passo.imagem && !passo.galeriaTelas?.length ? gradeColunas : null}
+    </>
+  )
+
+  if (passo.galeriaTelas?.length || (passo.colunasTabela?.length && !passo.imagem)) {
+    const galeria = passo.galeriaTelas?.length ? (
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
@@ -364,7 +429,7 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
           </div>
         ))}
       </div>
-    )
+    ) : null
 
     if (passo.imagem) {
       return (
@@ -387,6 +452,23 @@ function ManualBlocoPassoVisual({ passo }: { passo: DocPassoVisual }) {
       <div style={blocoBase}>
         {colunaTexto}
         {galeria}
+      </div>
+    )
+  }
+
+  if (gradeColunas && passo.imagem) {
+    return (
+      <div style={blocoBase}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(240px, 36%) minmax(0, 1fr)',
+          gap: 28,
+          alignItems: 'start',
+        }}>
+          {blocoTexto}
+          <ManualFiguraScreenshot src={passo.imagem} alt={passo.titulo} />
+        </div>
+        {gradeColunas}
       </div>
     )
   }
@@ -2087,10 +2169,20 @@ export function iconeConfiguradorManual(slug: ConfiguradorManualSlug, size = 16)
   return <Icon weight="duotone" size={size} />
 }
 
-export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: ConfiguradorManualSlug }) {
-  const secao = secaoConfiguradorPorSlug(paginaSlug)
-  const metadados = metadadosConfiguradorPagina(paginaSlug)
-  const itensSumario = secao ? montarItensSumario(secao) : []
+export interface DocManualMetadado {
+  rotulo: string
+  valor: string
+  href?: boolean
+}
+
+export function DocManualUmaSecao({
+  secao,
+  metadados,
+}: {
+  secao: DocSecao
+  metadados: DocManualMetadado[]
+}) {
+  const itensSumario = montarItensSumario(secao)
   const todosNums = itensSumario.map(i => i.num)
   const [abertos, setAbertos] = useState<number[]>([1])
   const todosAbertos = todosNums.length > 0 && todosNums.every(n => abertos.includes(n))
@@ -2099,14 +2191,6 @@ export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: Configurador
   const scrollTo = (n: number) => {
     if (!abertos.includes(n)) setAbertos(prev => [...prev, n])
     setTimeout(() => document.getElementById(`doc-sec-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
-  }
-
-  if (!secao) {
-    return (
-      <div style={{ color: 'var(--ws-muted,#94a3b8)', padding: '40px 0', textAlign: 'center' }}>
-        Capítulo não encontrado.
-      </div>
-    )
   }
 
   return (
@@ -2276,4 +2360,19 @@ export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: Configurador
   )
 }
 
-export type { DocSecao, DocPassoVisual, DocFluxo, DocTooltipKpi }
+export function DocConfiguradorManual({ paginaSlug }: { paginaSlug: ConfiguradorManualSlug }) {
+  const secao = secaoConfiguradorPorSlug(paginaSlug)
+  const metadados = metadadosConfiguradorPagina(paginaSlug)
+
+  if (!secao) {
+    return (
+      <div style={{ color: 'var(--ws-muted,#94a3b8)', padding: '40px 0', textAlign: 'center' }}>
+        Capítulo não encontrado.
+      </div>
+    )
+  }
+
+  return <DocManualUmaSecao secao={secao} metadados={metadados} />
+}
+
+export type { DocSecao, DocPassoVisual, DocFluxo, DocTooltipKpi, DocColunaTabela }

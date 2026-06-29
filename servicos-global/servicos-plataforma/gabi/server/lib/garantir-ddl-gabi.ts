@@ -16,12 +16,15 @@ import {
 
 const schemasComDdlAplicado = new Set<string>()
 
+export function invalidarCacheDdlGabiSchema(schemaName: string): void {
+  schemasComDdlAplicado.delete(schemaName)
+}
+
 async function verificarGabiConversaViaPrisma(idOrganizacao: string): Promise<void> {
   const schemaName = resolverNomeSchemaOrganizacao(idOrganizacao)
   await prisma.$transaction(async (tx) => {
     await tx.$executeRawUnsafe(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`)
-    await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
-    await tx.$queryRawUnsafe(`SELECT 1 FROM gabi_conversa LIMIT 1`)
+    await tx.$queryRawUnsafe(`SELECT 1 FROM "${schemaName}"."gabi_conversa" LIMIT 1`)
   })
 }
 

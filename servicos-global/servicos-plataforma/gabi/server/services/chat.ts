@@ -380,20 +380,13 @@ export async function getConversationContext(
   limit = 20,
 ) {
   const { withSchemaOrganizacao } = await import('../lib/with-schema-organizacao.js')
+  const { resolverNomeSchemaOrganizacao } = await import('../lib/nome-schema-organizacao.js')
+  const { listarMensagensConversaGabi } = await import('../lib/repositorio-conversa-gabi-sql.js')
 
-  const { messages, totalCount } = await withSchemaOrganizacao(id_organizacao, async (db) => {
-    const [msgs, count] = await Promise.all([
-      db.gabiMensagemIndividual.findMany({
-        where: { id_conversa_gabi_mensagem: conversationId },
-        orderBy: { data_criacao_gabi_mensagem: 'desc' },
-        take: limit,
-      }),
-      db.gabiMensagemIndividual.count({
-        where: { id_conversa_gabi_mensagem: conversationId },
-      }),
-    ])
-    return { messages: msgs, totalCount: count }
-  })
+  const schemaName = resolverNomeSchemaOrganizacao(id_organizacao)
+  const { messages, totalCount } = await withSchemaOrganizacao(id_organizacao, async (db) =>
+    listarMensagensConversaGabi(db, schemaName, conversationId, limit),
+  )
 
   const context = messages.reverse().map((m) => ({
     role: m.papel_gabi_mensagem,

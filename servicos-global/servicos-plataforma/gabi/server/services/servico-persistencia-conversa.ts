@@ -1,7 +1,14 @@
-// Persistencia de conversas GABI (Prisma tenant) — usado por agente V2 e /chats legado
+// Persistencia de conversas GABI — SQL schema-qualificado (tenant_*.gabi_conversa)
 
 import { AppError } from '../lib/errors.js'
 import { relancarErroPrismaGabi } from '../lib/erro-prisma-gabi.js'
+import { resolverNomeSchemaOrganizacao } from '../lib/nome-schema-organizacao.js'
+import {
+  atualizarTimestampConversaGabi,
+  conversaGabiExiste,
+  criarConversaGabi,
+  inserirMensagensGabi,
+} from '../lib/repositorio-conversa-gabi-sql.js'
 import { withSchemaOrganizacao, type PrismaOrganizacao } from '../lib/with-schema-organizacao.js'
 
 export interface MetadadosMensagemAssistente {
@@ -28,34 +35,27 @@ export interface PersistirTurnoConversaParams {
 
 async function garantirIdConversaNoSchema(
   db: PrismaOrganizacao,
+  schemaName: string,
   conversationId: string,
   id_organizacao: string,
   id_usuario: string,
   titulo?: string,
 ): Promise<string> {
   if (conversationId !== 'new') {
-    const existe = await db.gabiConversaCompleta.findFirst({
-      where: {
-        id_gabi_conversa: conversationId,
-        id_organizacao_gabi_conversa: id_organizacao,
-        id_usuario_gabi_conversa: id_usuario,
-      },
-      select: { id_gabi_conversa: true },
-    })
+    const existe = await conversaGabiExiste(
+      db,
+      schemaName,
+      conversationId,
+      id_organizacao,
+      id_usuario,
+    )
     if (!existe) {
       throw new AppError('Conversa nao encontrada', 404, 'NOT_FOUND')
     }
     return conversationId
   }
 
-  const criada = await db.gabiConversaCompleta.create({
-    data: {
-      id_organizacao_gabi_conversa: id_organizacao,
-      id_usuario_gabi_conversa: id_usuario,
-      titulo_gabi_conversa: titulo?.slice(0, 80) || 'Nova Conversa',
-    },
-  })
-  return criada.id_gabi_conversa
+  return criarConversaGabi(db, schemaName, id_organizacao, id_usuario, titulo ?? 'Nova Conversa')
 }
 
 /**
@@ -67,9 +67,10 @@ export async function garantirIdConversaGabi(
   id_usuario: string,
   titulo?: string,
 ): Promise<string> {
+  const schemaName = resolverNomeSchemaOrganizacao(id_organizacao)
   try {
     return await withSchemaOrganizacao(id_organizacao, (db) =>
-      garantirIdConversaNoSchema(db, conversationId, id_organizacao, id_usuario, titulo),
+      garantirIdConversaNoSchema(db, schemaName, conversationId, id_organizacao, id_usuario, titulo),
     )
   } catch (err) {
     relancarErroPrismaGabi(err)
@@ -80,48 +81,30 @@ export async function garantirIdConversaGabi(
 export async function persistirTurnoConversa(
   params: PersistirTurnoConversaParams,
 ): Promise<string> {
+  const schemaName = resolverNomeSchemaOrganizacao(params.id_organizacao)
   try {
     return await withSchemaOrganizacao(params.id_organizacao, async (db) => {
       const id_conversa = await garantirIdConversaNoSchema(
         db,
+        schemaName,
         params.conversationId,
         params.id_organizacao,
         params.id_usuario,
         params.mensagem_usuario,
       )
 
-      await db.gabiConversaCompleta.update({
-        where: { id_gabi_conversa: id_conversa },
-        data: {
-          data_atualizacao_gabi_conversa: new Date(),
-          ...(params.id_produto !== undefined
-            ? { id_produto_gabi_conversa: params.id_produto }
-            : {}),
-        },
-      })
+      await atualizarTimestampConversaGabi(db, schemaName, id_conversa, params.id_produto)
 
-      await db.gabiMensagemIndividual.createMany({
-        data: [
-          {
-            id_organizacao_gabi_mensagem: params.id_organizacao,
-            id_usuario_gabi_mensagem: params.id_usuario,
-            id_conversa_gabi_mensagem: id_conversa,
-            papel_gabi_mensagem: 'user',
-            conteudo_gabi_mensagem: params.mensagem_usuario,
-            id_produto_gabi_mensagem: params.id_produto ?? null,
-          },
-          {
-            id_organizacao_gabi_mensagem: params.id_organizacao,
-            id_usuario_gabi_mensagem: params.id_usuario,
-            id_conversa_gabi_mensagem: id_conversa,
-            papel_gabi_mensagem: 'assistant',
-            conteudo_gabi_mensagem: params.resposta_assistente,
-            id_produto_gabi_mensagem: params.id_produto ?? null,
-            anexos_gabi_mensagem: params.metadados_assistente
-              ? JSON.stringify(params.metadados_assistente)
-              : null,
-          },
-        ],
+      await inserirMensagensGabi(db, schemaName, {
+        id_organizacao: params.id_organizacao,
+        id_usuario: params.id_usuario,
+        id_conversa,
+        id_produto: params.id_produto,
+        mensagem_usuario: params.mensagem_usuario,
+        resposta_assistente: params.resposta_assistente,
+        metadados_assistente_json: params.metadados_assistente
+          ? JSON.stringify(params.metadados_assistente)
+          : null,
       })
 
       return id_conversa

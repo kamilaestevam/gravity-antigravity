@@ -683,7 +683,7 @@ function ManualBlocoPassoVisual({
     <div style={{ padding: '2px 0 0 18px', borderLeft: '3px solid rgba(99,102,241,.45)', width: '100%', minWidth: 0 }}>
       {!semRotuloPasso && (
         <p style={MANUAL_ESTILO_PASSO_ROTULO}>
-          Passo {String(passo.num).padStart(2, '0')}
+          {String(passo.num).padStart(2, '0')}
         </p>
       )}
       {!passo.ocultarTituloPasso && (

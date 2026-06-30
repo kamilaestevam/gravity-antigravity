@@ -1,4 +1,4 @@
-import type { DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
+import type { DocFluxo, DocPassoVisual, DocSecao } from './manual-configurador-conteudo'
 
 type PassoSemNumero = Omit<DocPassoVisual, 'num'>
 
@@ -18,6 +18,40 @@ function renumerarPassos(passos: PassoSemNumero[]): DocPassoVisual[] {
   return passos.map((passo, i) => ({ ...passo, num: i + 1 }))
 }
 
+/** SSOT: fluxo «Acesso à Gravity Store» — reutilizado no manual do Hub e da Store. */
+export const FLUXO_ACESSO_GRAVITY_STORE: DocFluxo = {
+  titulo: 'Acesso à Gravity Store',
+  tituloSumario: 'Acesso à Gravity Store',
+  paragrafos: [
+    'A Gravity Store é o catálogo de produtos Gravity. No Hub existem **três caminhos** principais até ela.',
+  ],
+  passosVisuais: renumerarPassos([
+    {
+      titulo: 'Caminhos para abrir a Store',
+      paragrafos: [
+        '1. **Botão “Ir para Gravity Store”**: aparece **apenas no primeiro acesso** ou enquanto a organização **não tiver nenhum Produto Gravity contratado**, como indicado pelo **1** na imagem.',
+        '2. **Link “Gravity Store” (2 na imagem)** no cabeçalho de **Seus Produtos Gravity**. Este atalho fica **disponível de forma permanente**.',
+        '3. **Painel Gravity Store** na faixa inferior (card em carrossel; ver seção **Vitrine Store**), **3** na imagem.',
+      ],
+      figurasAposParagrafo: [
+        {
+          indice: 2,
+          imagem: SCREENSHOT_HUB_ACESSO_STORE_123,
+          legenda: 'Caminhos 1, 2 e 3 na tela do Hub',
+        },
+      ],
+      dicaAoLadoImagem: {
+        callout: {
+          tipo: 'dica',
+          texto: 'Também é possível acessar a {{link:/university-gravity/docs/store|Gravity Store}} de **qualquer tela** da plataforma: clique no **ícone do usuário** (canto superior direito) e escolha **Ir para Gravity Store**.',
+        },
+        imagem: SCREENSHOT_HUB_MENU_USUARIO_STORE,
+        legenda: 'Menu do usuário — Ir para Gravity Store',
+      },
+    },
+  ]),
+}
+
 export const DOC_HUB_SUBTITULO =
   'Tela principal: Produtos Gravity, Store e Gabi Insights'
 
@@ -31,32 +65,53 @@ export const DOC_HUB_METADADOS: { rotulo: string; valor: string; href?: boolean 
 export const DOC_HUB_SECAO: DocSecao = {
   num: 1,
   titulo: 'Hub: tela principal da plataforma',
-  layoutTextoImagemLateral: true,
-  imagem: SCREENSHOT_HUB_INTRO_COM_SETA,
   paragrafos: [
-    'O **Hub** é a **tela principal da plataforma Gravity**, o painel central para onde você vai após o login e para onde pode voltar a qualquer momento pelo **ícone Hub** no menu superior das telas.',
-    'Por meio do Hub você **acessa qualquer produto Gravity** que a organização tenha contratado e habilitado no workspace. Pedido, Processo, Smart Docs, BID Frete, Simula Custo e demais módulos aparecem na seção **Seus Produtos Gravity**: Basta clicar no módulo para abrir o produto no workspace selecionado.',
+    'O **Hub** é a **tela principal da plataforma Gravity**, o painel central da operação — produtos contratados, Gravity Store, pendências e Gabi Insights em um só lugar.',
   ],
   figurasAposParagrafo: [
     {
       indice: 0,
-      imagem: SCREENSHOT_HUB_MENU_SUPERIOR,
-      legenda: 'Ícone Hub no menu superior',
-    },
-    {
-      indice: 1,
-      imagem: SCREENSHOT_HUB_PUZZLES,
-      legenda: 'Seção Seus Produtos Gravity',
+      imagem: SCREENSHOT_HUB_INTRO_COM_SETA,
+      legenda: 'Tela principal do Hub',
     },
   ],
   mostrarInfograficoHubTelas: true,
   fluxos: [
+    {
+      titulo: 'Acesso ao Hub',
+      tituloSumario: 'Acesso ao Hub',
+      passosVisuais: renumerarPassos([
+        {
+          titulo: 'Login na plataforma',
+          paragrafos: [
+            '**Primeira forma** de acessar o **Hub**: sempre que você **faz login** na plataforma Gravity, é **direcionado ao Hub** — a tela principal com saudação, workspace selecionado e visão geral da sua operação.',
+          ],
+          imagem: SCREENSHOT_HUB_INTRO_COM_SETA,
+        },
+        {
+          titulo: 'Atalho no menu superior',
+          paragrafos: [
+            '**Segunda forma** de acessar o **Hub**: em **qualquer tela** autenticada da plataforma — Hub, produto, Gravity Store, Configurador ou Gravity University — o **menu superior** mantém o atalho **Hub** visível. Basta clicá-lo para voltar ao painel central.',
+          ],
+          imagem: SCREENSHOT_HUB_MENU_SUPERIOR,
+          imagemAbaixoTexto: true,
+        },
+      ]),
+    },
     {
       titulo: 'Seus produtos Gravity',
       tituloSumario: 'Seus produtos Gravity',
       modoCenarios: true,
       paragrafos: [
         'Aqui no **Hub** são exibidos **todos os produtos Gravity** na plataforma, **comprados e não comprados** pela organização.',
+        'Por meio do Hub você **acessa qualquer produto Gravity** que a organização tenha contratado e habilitado no workspace. Pedido, Processo, Smart Docs, BID Frete, Simula Custo e demais módulos aparecem na seção **Seus Produtos Gravity**: Basta clicar no módulo para abrir o produto no workspace selecionado.',
+      ],
+      figurasAposParagrafo: [
+        {
+          indice: 1,
+          imagem: SCREENSHOT_HUB_PUZZLES,
+          legenda: 'Seção Seus Produtos Gravity',
+        },
       ],
       passosVisuais: renumerarPassos([
         {
@@ -81,38 +136,7 @@ export const DOC_HUB_SECAO: DocSecao = {
         },
       ]),
     },
-    {
-      titulo: 'Acesso à Gravity Store',
-      tituloSumario: 'Acesso à Gravity Store',
-      paragrafos: [
-        'A Gravity Store é o catálogo de produtos Gravity. No Hub existem **três caminhos** principais até ela.',
-      ],
-      passosVisuais: renumerarPassos([
-        {
-          titulo: 'Caminhos para abrir a Store',
-          paragrafos: [
-            '1. **Botão “Ir para Gravity Store”**: aparece **apenas no primeiro acesso** ou enquanto a organização **não tiver nenhum Produto Gravity contratado**, como indicado pelo **1** na imagem.',
-            '2. **Link “Gravity Store” (2 na imagem)** no cabeçalho de **Seus Produtos Gravity**. Este atalho fica **disponível de forma permanente**.',
-            '3. **Painel Gravity Store** na faixa inferior (card em carrossel; ver seção **Vitrine Store**), **3** na imagem.',
-          ],
-          figurasAposParagrafo: [
-            {
-              indice: 2,
-              imagem: SCREENSHOT_HUB_ACESSO_STORE_123,
-              legenda: 'Caminhos 1, 2 e 3 na tela do Hub',
-            },
-          ],
-          dicaAoLadoImagem: {
-            callout: {
-              tipo: 'dica',
-              texto: 'Também é possível acessar a {{link:/university-gravity/docs/store|Gravity Store}} de **qualquer tela** da plataforma: clique no **ícone do usuário** (canto superior direito) e escolha **Ir para Gravity Store**.',
-            },
-            imagem: SCREENSHOT_HUB_MENU_USUARIO_STORE,
-            legenda: 'Menu do usuário — Ir para Gravity Store',
-          },
-        },
-      ]),
-    },
+    FLUXO_ACESSO_GRAVITY_STORE,
     {
       titulo: 'Aguardando ação',
       tituloSumario: 'Aguardando ação',
@@ -167,28 +191,41 @@ export const DOC_HUB_SECAO: DocSecao = {
     {
       titulo: 'Gabi Insights',
       tituloSumario: 'Gabi Insights',
+      paragrafos: [
+        'O painel **Gabi Insights** (canto inferior direito do Hub) resume **alertas e dicas** dos **Produtos Gravity contratados** — o que merece atenção agora, sem abrir cada dashboard.',
+      ],
       callout: {
         tipo: 'dica',
         texto: 'Assim como **Aguardando ação**, os insights são um **resumo no Hub**. Para análise completa, abra o **dashboard do produto** indicado no card.',
       },
       calloutAposPassos: true,
-      passosVisuais: [
+      passosVisuais: renumerarPassos([
         {
-          num: 1,
-          titulo: 'Painel Gabi Insights',
-          ocultarRotuloPasso: true,
-          ocultarTituloPasso: true,
+          titulo: 'Painel no Hub',
           imagem: SCREENSHOT_HUB_GABI_DESTAQUE,
+          imagemAbaixoTexto: true,
+          paragrafos: [],
+        },
+        {
+          titulo: 'O que entra',
           paragrafos: [
-            'O painel **Gabi Insights** (faixa inferior direita do Hub) mostra **alertas e dicas** sobre a sua operação nos **Produtos Gravity contratados**, um resumo do que merece atenção agora.',
-            'A Gabi cruza indicadores de **Pedido**, **BID Frete**, **BID Câmbio**, **Simula Custo**, **LPCO**, **NF de Importação** e demais produtos **ativos na sua organização**. Só entram insights dos produtos que você pode acessar.',
-            'Cada página mostra **até três cards**. O painel **avança sozinho a cada 5 segundos**; passe o mouse para pausar. O selo **AO VIVO** (ponto verde) indica que o conteúdo está atualizado.',
-            'Use as **setas** e as **bolinhas** para mudar de página manualmente.',
-            'Em cada card você vê **de qual produto vem o insight** (ex.: «PEDIDO · Atrasos»), a **mensagem em linguagem clara**, um **número de apoio** quando fizer sentido e um **atalho** para abrir o produto e agir (ex.: «Corrigir agora»).',
-            'Cards em destaque **âmbar** sinalizam **pendências**; os demais trazem **oportunidades** ou **dicas de uso da plataforma**.',
+            'A Gabi cruza indicadores de **Pedido**, **BID Frete**, **BID Câmbio**, **Simula Custo**, **LPCO**, **NF de Importação** e demais produtos **ativos** no seu workspace.',
           ],
         },
-      ],
+        {
+          titulo: 'Como navegar',
+          paragrafos: [
+            'Até **três cards** por página. Rotação automática **a cada 5 segundos** — passe o mouse para pausar. Use **setas** e **bolinhas** para mudar de página. O selo **AO VIVO** indica conteúdo atualizado.',
+          ],
+        },
+        {
+          titulo: 'Como ler um card',
+          paragrafos: [
+            'Cada card traz o **produto de origem** (ex.: PEDIDO · Atrasos), a **mensagem** em linguagem clara, um **número de apoio** quando couber e um **atalho** para agir (ex.: Corrigir agora).',
+            'Destaque **âmbar** = **pendência**. Demais cores = oportunidade ou dica de uso da plataforma.',
+          ],
+        },
+      ]),
     },
   ],
 }

@@ -10,7 +10,7 @@
     "fichas_retroativas": 5,
     "nota": "TASK-000001 a TASK-000005 = 5 conversas mais antigas (agent-transcripts). Sessões 6–263 permanecem legado sem ficha até backfill."
   },
-  "proximo_numero": 398,
+  "proximo_numero": 399,
   "registro_totais": "registros/registro-totais.json",
   "entradas": [
     {
@@ -1865,6 +1865,23 @@
       "tempo_liquido_horas": null,
       "tokens_estimados_total": null,
       "arquivo_ficha": "registros/TASK-000397.json"
+    },
+    {
+      "referencia": "TASK-000401",
+      "ordinal": 122,
+      "titulo_canonico": "CONFIG-API-COCKPIT-MEL-MODAL-REVOGAR-TOKEN-PADRAO-SISTEMA",
+      "titulo_exibicao": "TASK-000401 | [Configurador] API Cockpit Tokens | MEL — Modal revogar token no padrão do sistema",
+      "status": "ABR",
+      "area": "CONFIG",
+      "subarea": "API-COCKPIT",
+      "visualizacao": null,
+      "tipo_entrega": "MEL",
+      "resumo": "MODAL-REVOGAR-TOKEN-PADRAO-SISTEMA",
+      "data_criacao": "2026-06-30T22:30:00.000Z",
+      "data_encerramento": null,
+      "tempo_liquido_horas": null,
+      "tokens_estimados_total": null,
+      "arquivo_ficha": "registros/TASK-000401.json"
     }
   ]
 }

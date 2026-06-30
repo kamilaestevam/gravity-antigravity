@@ -2,11 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { z } from 'zod'
 import {
   Plus, Trash, Copy, WebhooksLogo, PaperPlaneTilt, ClockCounterClockwise, Info, Pulse,
+  CheckCircle, XCircle,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { requisicaoAutenticada } from '../../services/requisicao-autenticada'
 import { extrairMensagemErroApi } from '../../utils/extrair-mensagem-erro-api'
@@ -72,6 +75,15 @@ const INPUT_STYLE: React.CSSProperties = {
   fontSize: '0.875rem',
 }
 
+const ALERTA_ERRO_STYLE: React.CSSProperties = {
+  padding: '0.75rem 1rem',
+  borderRadius: '8px',
+  background: 'rgba(248,113,113,0.1)',
+  border: '1px solid rgba(248,113,113,0.3)',
+  color: '#f87171',
+  fontSize: '0.875rem',
+}
+
 // Eventos canonicos disponiveis no Gravity (paridade com workspace)
 const EVENTOS_DISPONIVEIS = [
   'simulacao.criada',
@@ -106,6 +118,16 @@ export function ApiWebhooksAdmin() {
   const [historicoAberto, setHistoricoAberto] = useState(false)
   const [historico, setHistorico] = useState<WebhookLog[]>([])
   const [carregandoHistorico, setCarregandoHistorico] = useState(false)
+
+  // Modal — excluir
+  const [webhookExcluir, setWebhookExcluir] = useState<WebhookConfiguracao | null>(null)
+
+  // Modal — resultado do disparo de teste
+  const [resultadoTeste, setResultadoTeste] = useState<{
+    sucesso: boolean
+    codigo: number | string
+    detalhe: string | null
+  } | null>(null)
 
   const carregar = useCallback(async () => {
     if (!idOrganizacao) {
@@ -197,26 +219,22 @@ export function ApiWebhooksAdmin() {
     }
   }
 
-  const handleExcluir = async (id: string) => {
-    if (!idOrganizacao) return
-    if (!window.confirm('Excluir este webhook? As entregas pararão imediatamente.')) return
-    try {
-      const res = await requisicaoAutenticada(
-        `/api/v1/api-cockpit/admin/webhooks/${encodeURIComponent(id)}`,
-        {
-          method:  'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ id_organizacao: idOrganizacao }),
-        },
-      )
-      if (!res.ok && res.status !== 204) {
-        const raw = await res.json().catch(() => ({}))
-        throw new Error(extrairMensagemErroApi(raw, `Falha ao excluir: ${res.status}`))
-      }
-      await carregar()
-    } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Falha ao excluir webhook')
+  const handleConfirmarExclusao = async () => {
+    if (!webhookExcluir || !idOrganizacao) return
+    const res = await requisicaoAutenticada(
+      `/api/v1/api-cockpit/admin/webhooks/${encodeURIComponent(webhookExcluir.id_webhook_configuracao)}`,
+      {
+        method:  'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ id_organizacao: idOrganizacao }),
+      },
+    )
+    if (!res.ok && res.status !== 204) {
+      const raw = await res.json().catch(() => ({}))
+      throw new Error(extrairMensagemErroApi(raw, `Falha ao excluir: ${res.status}`))
     }
+    setWebhookExcluir(null)
+    await carregar()
   }
 
   const handleDispararTeste = async (id: string) => {
@@ -234,9 +252,11 @@ export function ApiWebhooksAdmin() {
       if (!res.ok) throw new Error(raw?.erro || raw?.error || `Falha ao disparar: ${res.status}`)
       const sucesso = raw?.sucesso === true
       const codigo = raw?.codigo_resposta_http_webhook_log ?? '?'
-      window.alert(sucesso
-        ? `✅ Disparo bem-sucedido (HTTP ${codigo})`
-        : `❌ Disparo falhou (HTTP ${codigo})${raw?.erro_webhook_log ? `: ${raw.erro_webhook_log}` : ''}`)
+      setResultadoTeste({
+        sucesso,
+        codigo,
+        detalhe: typeof raw?.erro_webhook_log === 'string' ? raw.erro_webhook_log : null,
+      })
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Falha ao disparar teste')
     }
@@ -304,34 +324,47 @@ export function ApiWebhooksAdmin() {
       tipo: 'texto',
       align: 'center',
       largura: '140px',
-      render: (val) => {
+      render: (val, item) => {
         const id = val as string
         return (
-          <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="pequeno"
-              onClick={() => handleDispararTeste(id)}
-              icone={<PaperPlaneTilt size={16} />}
-              aria-label="Disparar evento de teste"
-              title="Testar"
-            />
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="pequeno"
-              onClick={() => handleAbrirHistorico(id)}
-              icone={<ClockCounterClockwise size={16} />}
-              aria-label="Ver histórico"
-              title="Histórico"
-            />
-            <BotaoGlobal
-              variante="perigo"
-              tamanho="pequeno"
-              onClick={() => handleExcluir(id)}
-              icone={<Trash size={16} />}
-              aria-label="Excluir webhook"
-              title="Excluir"
-            />
+          <div
+            style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <TooltipGlobal titulo="Testar" descricao="Envia um evento de teste para validar se sua URL responde">
+              <span style={{ display: 'inline-flex' }}>
+                <BotaoGlobal
+                  variante="secundario"
+                  tamanho="pequeno"
+                  onClick={() => handleDispararTeste(id)}
+                  icone={<PaperPlaneTilt size={16} />}
+                  aria-label="Disparar evento de teste"
+                />
+              </span>
+            </TooltipGlobal>
+            <TooltipGlobal titulo="Histórico" descricao="Consulta as últimas tentativas de entrega deste webhook">
+              <span style={{ display: 'inline-flex' }}>
+                <BotaoGlobal
+                  variante="secundario"
+                  tamanho="pequeno"
+                  onClick={() => handleAbrirHistorico(id)}
+                  icone={<ClockCounterClockwise size={16} />}
+                  aria-label="Ver histórico"
+                />
+              </span>
+            </TooltipGlobal>
+            <TooltipGlobal titulo="Excluir" descricao="Remove o webhook e interrompe novos disparos">
+              <span style={{ display: 'inline-flex' }}>
+                <BotaoGlobal
+                  variante="perigo"
+                  tamanho="pequeno"
+                  onClick={() => setWebhookExcluir(item)}
+                  icone={<Trash size={16} />}
+                  aria-label="Excluir webhook"
+                />
+              </span>
+            </TooltipGlobal>
           </div>
         )
       },
@@ -614,6 +647,46 @@ export function ApiWebhooksAdmin() {
             </div>
           )}
         </div>
+      </ModalFormularioGlobal>
+
+      <ModalConfirmarExcluirGlobal
+        aberto={!!webhookExcluir}
+        titulo="Excluir webhook?"
+        descricao="As entregas para esta URL param imediatamente e nao podem ser recuperadas"
+        nomeItem={webhookExcluir?.url_webhook_configuracao}
+        aoConfirmar={handleConfirmarExclusao}
+        aoCancelar={() => setWebhookExcluir(null)}
+      />
+
+      <ModalFormularioGlobal
+        aberto={!!resultadoTeste}
+        aoFechar={() => setResultadoTeste(null)}
+        aoSalvar={() => setResultadoTeste(null)}
+        icone={
+          resultadoTeste?.sucesso
+            ? <CheckCircle size={24} weight="duotone" color="#4ade80" />
+            : <XCircle size={24} weight="duotone" color="#f87171" />
+        }
+        titulo={resultadoTeste?.sucesso ? 'Disparo bem-sucedido' : 'Disparo falhou'}
+        subtitulo={
+          resultadoTeste
+            ? `O endpoint respondeu com HTTP ${resultadoTeste.codigo}`
+            : undefined
+        }
+        tamanho="sm"
+        altura="auto"
+        dirty={false}
+        podesSalvar
+        textoSalvar="Fechar"
+        textoCancelar=""
+      >
+        {resultadoTeste && !resultadoTeste.sucesso && resultadoTeste.detalhe && (
+          <div style={{ padding: '0.5rem 1.5rem 1rem' }}>
+            <div role="alert" style={ALERTA_ERRO_STYLE}>
+              {resultadoTeste.detalhe}
+            </div>
+          </div>
+        )}
       </ModalFormularioGlobal>
     </PaginaGlobal>
   )

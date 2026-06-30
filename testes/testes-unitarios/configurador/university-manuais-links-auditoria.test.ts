@@ -9,6 +9,7 @@ import {
 } from '../../../servicos-global/configurador/src/pages/university/manual-configurador-conteudo'
 import { DOC_HUB_SECAO } from '../../../servicos-global/configurador/src/pages/university/manual-hub-conteudo'
 import { DOC_NAVEGACAO_SECAO } from '../../../servicos-global/configurador/src/pages/university/manual-navegacao-conteudo'
+import { DOC_STORE_SECAO } from '../../../servicos-global/configurador/src/pages/university/manual-store-conteudo'
 
 const RAIZ_PAGES = join(process.cwd(), 'servicos-global/configurador/src/pages')
 
@@ -93,8 +94,9 @@ describe('University — auditoria de links Manuais e Vídeos', () => {
     expect(itens[4]).toEqual({ num: 5, titulo: 'Permissões do usuário' })
   })
 
-  it('sumários de Hub e Navegação batem com a quantidade de fluxos', () => {
+  it('sumários de Hub, Store e Navegação batem com a quantidade de fluxos', () => {
     auditarSumarioSecao(DOC_HUB_SECAO, 'Hub')
+    auditarSumarioSecao(DOC_STORE_SECAO, 'Store')
     auditarSumarioSecao(DOC_NAVEGACAO_SECAO, 'Navegação')
   })
 
@@ -110,6 +112,7 @@ describe('University — auditoria de links Manuais e Vídeos', () => {
     const rotasArquivos = auditarArquivosManuaisNoDisco()
     const rotasSecoes = [
       ...extrairLinksInternosDeSecao(DOC_HUB_SECAO),
+      ...extrairLinksInternosDeSecao(DOC_STORE_SECAO),
       ...extrairLinksInternosDeSecao(DOC_NAVEGACAO_SECAO),
       ...DOC_CONFIGURADOR_SECOES.flatMap(extrairLinksInternosDeSecao),
     ]
